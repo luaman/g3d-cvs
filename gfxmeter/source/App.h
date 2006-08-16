@@ -5,6 +5,8 @@
  */
 #ifndef APP_H
 #define APP_H
+
+#define NO_SDL_MAIN
 #include "G3D/G3DAll.h"
 
 
