@@ -12,9 +12,12 @@
  @created 2002-01-01
  @edited  2006-08-14
  */
-
+#define NO_SDL_MAIN
 #include "G3D/G3D.h"
 #include "GLG3D/GLG3D.h"
+#ifdef main
+#    undef main
+#endif
 using namespace G3D;
 #include <iostream>
 
@@ -508,7 +511,7 @@ int main(int argc, char* argv[]) {
         measureNormalizationPerformance();
 
 
-        GWindowSettings settings;
+        GWindow::Settings settings;
         settings.width = 800;
         settings.height = 600;
         settings.alphaBits = 0;
