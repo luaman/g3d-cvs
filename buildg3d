@@ -41,7 +41,7 @@ def iclean(args):
      os.chdir("..")
 
 def itest(args):
-     os.chdir("test.lib")
+     os.chdir("test")
      run("../bin/icompile")
      os.chdir("..")
 
