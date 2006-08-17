@@ -21,6 +21,10 @@
 using namespace G3D;
 #include <iostream>
 
+#ifdef __APPLE__
+#include "/System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSAutoreleasePool.h"
+#endif
+
 using namespace G3D;
 
 #ifdef G3D_WIN32
@@ -466,6 +470,11 @@ void measureRDPushPopPerformance(RenderDevice* rd) {
 
 
 int main(int argc, char* argv[]) {
+#ifdef G3D_OSX
+  NSAutoreleasePool* localPool = [[NSAutoreleasePool alloc] init]; 
+
+#endif
+
     (void)argc;
     (void)argv;
 
@@ -625,6 +634,9 @@ int main(int argc, char* argv[]) {
 	    delete networkDevice;
 	}
 
+#ifdef G3D_OSX
+    [localPool release];
+#endif
     return 0;
 }
 
