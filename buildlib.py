@@ -4,7 +4,7 @@
 # @maintainer Morgan McGuire, matrix@graphics3d.com
 #
 # @created 2003-02-15
-# @edited  2005-07-17
+# @edited  2006-08-18
 #
 # This script is written in Python.  Be aware that
 # whitespaces (particularly, indentation and newlines) 
@@ -385,11 +385,19 @@ def run(program, args = [], env = {}):
     # spawn requires specification of argv[0]
     # Because the program name may contain spaces, we
     # add quotes around it.
-    args.insert(0, '"' + program + '"')
-    print string.join(args) + '\n'
+    if (os.name == 'nt'):
+        args.insert(0, '"' + program + '"')
+    else:
+        # Linux doesn't like quotes around its programs
+        args.insert(0, program)    
+        print string.join(args) + '\n'
 
     print '\n'
 
+    env['PATH'] = os.environ['PATH']
+    env = os.environ
+    #print "Run in :" + os.getcwd()
+    #print env
     if (os.name == 'nt'):
         # Windows doesn't support spawnvp
         if env != {}:
