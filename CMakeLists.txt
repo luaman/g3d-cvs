@@ -1,20 +1,26 @@
 ######################################################################
-# DIRECTORY:	G3D
-# PROGRAMMER:	Daniel Hilferty
-# CREATED:	3 August 2006
-# MODIFIED:	15 August 2006
 #
-# DESCRIPTION:
-#	Project build file.  This file specifies a minimum cmake version
+# Main CMakeLists.txt file.  This file specifies a minimum cmake version
 # due to use of advanced features and certain bugs on earlier versions.
+#
+# @maintainer Daniel Hilferty, djhilferty@sourceforge.net
+#
+# @created 2006-08-18
+# @edited  2006-08-18
+#
 ######################################################################
+
 # Minimum CMake Version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
 # Set Project Name
-PROJECT(G3D)
+PROJECT(G3D)
+######################################################################
+# CONFIGURE LIBRARIES 
+
 # Include Standard Modules to find certain libraries
 INCLUDE (FindOpenGL)
+FIND_PACKAGE(OpenGL REQUIRED)
 
 # Find SDL library for use on Unix Systems
 IF(UNIX)
@@ -24,8 +30,6 @@ IF(UNIX)
     INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
 ENDIF (UNIX)
 
-# Find OpenGL 
-FIND_PACKAGE(OpenGL REQUIRED)
 # Build jpeg, png and zlib libraries if using windows
 IF (WIN32)
     SUBDIRS (libjpeg.lib libpng.lib zlib.lib)
@@ -46,20 +50,34 @@ IF(UNIX)
 	FIND_PACKAGE(JPEG)
 ENDIF (UNIX)
 
-# Set some basic CMake variables
-SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/install)
-SET (LIBRARY_OUTPUT_PATH ${G3D_INSTALL_DIR}/lib)
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_INSTALL_DIR}/bin)
+######################################################################
+# SET VARIABLES
 
-INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include 
-                    ${G3D_SOURCE_DIR}/GLG3D.lib/include
-                    ${PNG_INCLUDE_DIR}
-			        ${LIB_INCLUDE_DIR})
+# Set some basic CMake variables
+SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/../)
+SET (LIBRARY_OUTPUT_PATH ${G3D_INSTALL_DIR}/lib)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_INSTALL_DIR}/bin/${CMAKE_BUILD_TYPE})
 
 # Specify debug postfix for all debug libraries
 # Note: The position of this specification guarantees that zlib, jpeg and png 
 # libraries will not have this postfix.
 SET(CMAKE_DEBUG_POSTFIX "-debug")
 
+######################################################################
+# INCLUDE DIRECTORIES
+
+INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include 
+                    ${G3D_SOURCE_DIR}/GLG3D.lib/include
+                    ${PNG_INCLUDE_DIR}
+			        ${LIB_INCLUDE_DIR})
+
+######################################################################
+# BUILD DIRECTORIES
+
 # Specify library subdirectory targets
-SUBDIRS(GLG3D.lib G3D.lib test gfxmeter)
+SUBDIRS(GLG3D.lib G3D.lib)
+MESSAGE ("VALUE" ${BUILD_BINARIES})
+# Determine whether to build executables
+IF (BUILD_BINARIES)
+    SUBDIRS(test gfxmeter)
+ENDIF (BUILD_BINARIES)
