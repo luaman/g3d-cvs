@@ -12,20 +12,22 @@
 # YOUR PROJECT CONFIGURATION.
 
 version = [0, 4, 6]
-from variables import *
+
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, ConfigParser
 from sets import Set
-from doticompile import *
-from mpyutils import *
-from doxygen import *
-from help import *
-from library import *
-import copyifnewer
-from copyifnewer import copyIfNewer
-from topsort import *
 from platform import machine
 from string import ljust
+
+from icevariables import *
+from icedoticompile import *
+from iceutils import *
+from icedoxygen import *
+from icehelp import *
+from icelibrary import *
+import icecopyifnewer
+from icecopyifnewer import copyIfNewer
+from icetopsort import *
 
 if int(sys.version[:string.find(sys.version, '.')]) < 2:
     print ('iCompile requires Python 2.0 or later.  You are running Python '
@@ -114,7 +116,7 @@ def listCFilesVisitor(result, dirname, files):
     removelist = [];
     for f in files:
          if (excludeFromCompilation.search(f) != None):
-            if verbose: print "  Ignoring '" + f + "'"
+            if verbosity >= VERBOSE: print "  Ignoring '" + f + "'"
             removelist.append(f)
             
          elif isCFile(f):
@@ -179,8 +181,7 @@ def listDirs(_dir = ''):
 def loadCache(filename):
     global cache
 
-    if verbose:
-        print "Loading cache from " + filename + "\n"
+    if verbosity >= TRACE: print "Loading cache from " + filename + "\n"
 
     if os.path.exists(filename):
         file = open(filename, 'r')
@@ -189,10 +190,10 @@ def loadCache(filename):
         except:
             # The cache was corrupted; ignore it
             cache = {}
-            if verbose:
+            if verbosity >= NORMAL: 
                 print "Internal iCompile cache at " + filename + " corrupted."
 
-        if verbose: print "cache = ", cache
+        if verbosity >= TRACE: print "cache = ", cache
 
 
         file.close()
@@ -217,7 +218,7 @@ def discoverPlatform():
     compiler = ''
 
     # Figure out the os
-    if (os.uname()[0] == 'posix'):
+    if (os.uname()[0] == 'Linux'):
         OS = 'linux'
     elif (os.uname()[0] == 'Darwin'):
         OS = 'osx'
@@ -259,7 +260,9 @@ def buildDocumentation():
     run("doxygen", ["Doxyfile"])
 
     if (os.path.exists(rootDir + 'doc-files')):
-        copyIfNewer(rootDir + 'doc-files', rootDir + BUILDDIR + '/doc')
+        copyIfNewer(rootDir + 'doc-files', 
+                    rootDir + BUILDDIR + '/doc', 
+                    verbosity >= VERBOSE)
 
     maybeColorPrint('Done building documentation', SECTION_COLOR)
 
@@ -272,9 +275,9 @@ def buildDataFiles():
     dst = BUILDDIR + '/' + DISTRIBDIR
     
     if os.path.exists(src):
-        maybeColorPrint('Copying data files', SECTION_COLOR)
-        copyIfNewer(src, dst)
-        maybeColorPrint('Done copying data files', SECTION_COLOR)
+        if verbosity >= NORMAL: colorPrint('Copying data files', SECTION_COLOR)
+        copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity == NORMAL)
+        if verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
 
 ##############################################################################
 #                               Build Include                                #
@@ -285,21 +288,21 @@ def buildInclude():
     dst = BUILDDIR + '/' + DISTRIBDIR + '/include'
     
     if os.path.exists(src):
-        maybeColorPrint('Copying public header files', SECTION_COLOR)
-        copyIfNewer(src, dst)
-        maybeColorPrint('Done copying public header files', SECTION_COLOR)
+        if verbosity >= NORMAL: colorPrint('Copying public header files', SECTION_COLOR)
+        copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity >= NORMAL)
+        if verbosity >= VERBOSE: colorPrint('Done copying public header files', SECTION_COLOR)
 
 ##############################################################################
 #                                 Build Clean                                #
 ##############################################################################
 
 def buildClean():
-    colorPrint('Deleting all generated files', SECTION_COLOR)
+    if verbosity >= NORMAL: colorPrint('Deleting all generated files', SECTION_COLOR)
     
-    rmdir(rootDir + BUILDDIR)
-    rmdir(rootDir + tempDir)
+    rmdir(rootDir + BUILDDIR, verbosity >= VERBOSE)
+    rmdir(rootDir + tempDir, verbosity >= VERBOSE)
 
-    colorPrint('Done deleting generated files\n', SECTION_COLOR)
+    if verbosity >= VERBOSE: colorPrint('Done deleting generated files\n', SECTION_COLOR)
 
 
 #########################################################################
@@ -318,7 +321,7 @@ def getDependencies(file, iteration = 1):
     # -MM means "don't tell me about system header files"
     raw = shell(compilerName() + ' -MM -msse2 -MG ' +
                 string.join(getCompilerOptions([]), ' ') + ' ' + file,
-                verbose)
+                verbosity >= VERBOSE)
 
     if beginswith(raw, 'In file included from'):
         # If there was an error, the output will have the form
@@ -329,7 +332,7 @@ def getDependencies(file, iteration = 1):
             print raw
             sys.exit(-1)
         
-        if verbose:
+        if verbosity >= VERBOSE:
             print ('\nThere were some errors computing dependencies.  ' +
                    'Attempting to recover.('), iteration,')'
         
@@ -345,17 +348,17 @@ def getDependencies(file, iteration = 1):
                 # x now has the filename
                 noSuchFile.append(betterbasename(x))
 
-        if verbose: print 'Files not found:', noSuchFile
+        if verbosity >= NORMAL: print 'Files not found:', noSuchFile
         
         # Look for files we know how to handle
         for f in noSuchFile:
             if f == 'wx.h':
-                if verbose: print 'wxWindows detected.'
-                defaultCompilerOptions.append(shell('wx-config --cxxflags', verbose))
-                defaultLinkerOptions.append(shell('wx-config --gl-libs --libs', verbose))
+                if verbosity >= NORMAL: print 'wxWindows detected.'
+                defaultCompilerOptions.append(shell('wx-config --cxxflags', verbosity >= VERBOSE))
+                defaultLinkerOptions.append(shell('wx-config --gl-libs --libs', verbosity >= VERBOSE))
                 
             if includeTable.has_key(f):
-                if verbose: print f,'detected.'
+                if verbosity >= NORMAL: print f,'detected.'
                 includePaths += includeTable[file]
 
         return getDependencies(file, iteration + 1)
@@ -412,7 +415,7 @@ def getDependencyInformation():
     # Find all the c files
     allCFiles = listCFiles(rootDir)
 
-    if verbose: print 'Source files found:', allCFiles
+    if verbosity >= TRACE: print 'Source files found:', allCFiles
 
     # Get their dependencies
     for cfile in allCFiles:
@@ -477,7 +480,7 @@ def getOutOfDateFiles(cfiles, dependencies, files):
         otime = getTimeStamp(ofile)
         rebuild = (otime < icompileTime)
 
-        if rebuild and verbose:
+        if rebuild and verbosity >= TRACE:
             print "iCompile is newer than " + ofile
 
         if not rebuild:
@@ -485,7 +488,7 @@ def getOutOfDateFiles(cfiles, dependencies, files):
             for d in dependencies[cfile]:
                 dtime = timeStamp[d]
                 if otime < dtime:
-                    if verbose:
+                    if verbosity >= TRACE:
                         print d + " is newer than " + ofile
                     rebuild = 1
                     break
@@ -536,15 +539,27 @@ def makeObjectFile(cfile, options):
     # Create the directory for the ofile as needed
     i = ofile.rfind("/")
     if (i >= 0):
-        mkdir(ofile[:i])
+        mkdir(ofile[:i], verbosity >= VERBOSE)
 
     args = string.split(options) + ["-o", ofile, cfile]
-    ret = run(compilerName(), args)
+
+    if verbosity == NORMAL:
+        # 'run' will not print the full command, so we just
+        # print filename to be compiled here.
+
+        if beginswith(cfile, rootDir):
+            # Don't bother printing the root directory name
+            # when it appears
+            print cfile[len(rootDir):]
+        else:
+            print cfile
+
+    ret = run(compilerName(), args, verbosity > NORMAL)
 
     if ret != 0:
         sys.exit(ret)
     else:
-        print
+        if verbosity >= VERBOSE: print
 
 #########################################################################
 
@@ -556,7 +571,6 @@ def printVariables(icompileargs, progargs, allfiles = []):
     print "projectName            = '" + projectName + "'"
     print "target                 = " + target
     print "binaryType             = " + binaryType
-    print "verbose                =", verbose
     print "binaryDir              = '" + binaryDir + "'"
     print "binaryName             = '" + binaryName + "'"
     print "objDir                 = '" + objDir + "'"
@@ -584,7 +598,7 @@ def printVariables(icompileargs, progargs, allfiles = []):
 needed by the staticLinkFiles.  Called from getLinkerOptions.
 """
 def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
-    if verbose: print '\nBegin getAdditionalDynamicLinks'
+    if verbosity >= TRACE: print '\nBegin getAdditionalDynamicLinks'
     
     # Static files may have their own dependencies.  We track these down by
     # looking at symbols defined in the library and seeing which ones map
@@ -593,7 +607,7 @@ def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
         sfile = findStaticLibrary(file)
         if os.path.exists(sfile):
             cmd = 'nm --extern-only --demangle --undefined-only ' + sfile
-            if verbose: colorPrint(cmd, COMMAND_COLOR)
+            if verbosity >= VERBOSE: colorPrint(cmd, COMMAND_COLOR)
 
             symbols = string.split(commands.getoutput(cmd))
 
@@ -606,14 +620,14 @@ def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
                     else:
                         lfile = release
              
-                    if verbose:
+                    if verbosity >= TRACE:
                         print (symbol + " in " + sfile +
                               " triggered dynamic link against " + lfile)
 
                     if not (lfile in dynamicLinkFiles):
                         dynamicLinkFiles.append(lfile)
 
-    if verbose: print 'End getAdditionalDynamicLinks\n'
+    if verbosity >= TRACE: print 'End getAdditionalDynamicLinks\n'
 
 """ Given a library name (e.g. "G3D") finds the static library file and
     returns it. """
@@ -667,7 +681,7 @@ def getLinkerOptions(allFiles):
             libs = headerToLibraryTable[header]
             libraries.update(libs)
                 
-            if verbose:
+            if verbosity >= TRACE:
                 if len(libs) > 1:
                    print '#include "' + header + '" triggered links to ' + libs
                 elif len(libs) > 0:
@@ -686,9 +700,9 @@ def getLinkerOptions(allFiles):
 
     # Topologically sort library list to satisfy linker ordering
     libList = [libname for libname in libraries]
-    if verbose: print 'Libraries before sort: ', libList
-    libList.sort(libSorter)
-    if verbose: print 'Libraries after sort: ', libList
+    if verbosity >= TRACE: print 'Libraries before sort: ', libList
+    sortLibraries(libList)
+    if verbosity >= TRACE: print 'Libraries after sort: ', libList
 
     # Separate into static libs, dynamic libs, and frameworks
     allLinks = []
@@ -732,53 +746,58 @@ def getLinkerOptions(allFiles):
     
     return (opt, allLinks)
 
-
-
 #########################################################################
 
 """ Makes a static library from a list of object files. """
 def makeStaticLibrary(ofiles):
-    print "Creating static library..."
+    if verbosity >= QUIET: colorPrint("Creating static library", SECTION_COLOR)
 
-    ret = run('ar', ['cr', binaryDir + binaryName] + ofiles)
-    print
+    ret = run('ar', ['cr', binaryDir + binaryName] + ofiles, verbosity >= VERBOSE)
+    if verbosity >= VERBOSE: print
     
     if (ret == 0):
-        ret = run('ranlib', [binaryDir + binaryName])
+        ret = run('ranlib', [binaryDir + binaryName], verbosity >= VERBOSE)
 
 
 #########################################################################
 
 """ Makes an executable from a list of object files. """
 def makeExecutable(ofiles, options):
-    filelistFileName = tempDir + 'filelist.txt'
-
-    # Write the object file list
-    f = open(filelistFileName, 'w')
-    newline = '\n'
-    f.write(string.join(ofiles, newline) + newline)
-    f.close()
 
     # Create the command line arguments for the linker.
     # Note that the object files must come first
-    options = (['-filelist', filelistFileName] + 
-            options + ['-o', binaryDir + binaryName])
+    options = []
+    
+    if (os.uname()[0] == 'Darwin'):
+        filelistFileName = tempDir + 'filelist.txt'
+
+        # Write the object file list
+        f = open(filelistFileName, 'w')
+        newline = '\n'
+        f.write(string.join(ofiles, newline) + newline)
+        f.close()
+
+        options += ['-filelist', filelistFileName]
+    else:
+        options += ofiles
+
+    options += ['-o', binaryDir + binaryName]
 
     if ('OpenGL' in options) or ('-lGL' in options):
         # Suppress the multiply defined symbols warning that 
         # comes from using OpenGL (which has both dynamic and static
         # versions of the same functions)
         options += ['-multiply_defined', 'suppress']
-               
-    if not quiet: colorPrint('Linking...', SECTION_COLOR)
+
+    if verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
     
-    ret = run(compilerName(), options)
+    ret = run(compilerName(), options, verbosity >= VERBOSE)
 
     if ret != 0:
         sys.exit(ret)
     elif (target == RELEASE):
         # Strip debug symbols
-	run('strip', [binaryDir + binaryName])
+	run('strip', [binaryDir + binaryName], verbosity >= VERBOSE)
 
 #########################################################################
 
@@ -800,18 +819,19 @@ def getLibrarySiblingDirs():
 def buildBinary():
     global usesProjectsList
 
-    maybeColorPrint('Building ' + binaryName, SECTION_COLOR)
+    if verbosity >= NORMAL: colorPrint('Building ' + binaryName, SECTION_COLOR)
 
     # Create the temp directory for object files
-    mkdir(objDir)
+    mkdir(objDir, verbosity >= VERBOSE)
 
-    if verbose: colorPrint('Computing dependencies...', SECTION_COLOR)
+    if verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
     (cfiles, dependencies, files) = getDependencyInformation()
 
     # See if any of the header files are not found; that might imply
     # sibling project is an implicit dependency.
     # Include the empty path on this list so that we'll find files
     # that are fully qualified as well as files in the current directory.
+    # This list will be extended as we go forward.
     incPaths = [''] + includePaths()
     librarySiblingDirs = getLibrarySiblingDirs()
 
@@ -827,23 +847,42 @@ def buildBinary():
             # See if it is in a sibling directory that is a library.
             i = 0
             while not found and (i < len(librarySiblingDirs)):
-                libdir = '../' + librarySiblingDirs[i]
+                dirname = librarySiblingDirs[i]
+                libdir = '../' + dirname
                 found = os.path.exists(libdir + '/include/' + header)
                 if found:
-                    if verbose: print "Found '" + header + "' in '" + libdir + "/include'."
-                    # We found the header.  Edit our "uses" directive.
-                    # TODO: make robust to fully qualified lib names
-                    if not libdir in usesProjectsList:
-                        print "Detected dependency on " + libdir + ' from #include "' + header + '".'
-                        usesProjectsList.append(libdir)
-                        incPaths.append(libdir + '/include/')
+                    if verbosity >= TRACE: 
+                        print "Found '" + header + "' in '" + libdir + "/include'."
+                    # We have identified a sibling library on which this project appears
+                    # to depend.  
+
+                    type = EXE
+                    libname = rawfilename(dirname)
+                    ext = extname(dirname).lower()
+                    if ext == 'dll' or ext == 'so':
+                        type = DLL
+                    elif ext == 'lib' or ext == 'a':
+                        type = LIB
+
+                    if (type == LIB or type == DLL):
+                        if not libraryTable.has_key(libname):
+                           defineLibrary(Library(libname, type, libname, libname + 'd',  None,  None, [betterbasename(header)], [], []))
+
+                        if not libname in usesLibrariesList:
+                            usesLibrariesList.append(libname)
+
+                        if not libdir in usesProjectsList:
+                            print "Detected dependency on " + libdir + ' from #include "' + header + '".'
+                            usesProjectsList.append(libdir)
+                            incPaths.append(libdir + '/include/')
+                            # TODO: recursive dependencies
                 i += 1
 
         if not found:
             maybeWarn("Header file not found: '" + header + "'.")
 
 
-    if verbose:
+    if verbosity >= TRACE:
         print 'Header files #included:'
         for f in files:
             print '  ' + f
@@ -862,12 +901,12 @@ def buildBinary():
 
     copt = string.join(getCompilerOptions(files, compilerWarningOptions + compilerVerboseOptions), ' ')
 
-    if verbose:
+    if verbosity >= TRACE:
         print "\nBuilding out of date files\n"    
 
     # Build all out of date files
     if (buildList != []):
-        maybeColorPrint("Compiling...", SECTION_COLOR)
+        if verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
     
     osx = (os.uname()[0] == 'Darwin')
 
@@ -885,7 +924,6 @@ def buildBinary():
     for cfile in cfiles: 
         ofiles.append(getObjectFilename(cfile))
 
-
     # Definitely need to link if no executable exists
     doLink = not os.path.exists(binaryDir + binaryName)
     if not doLink:
@@ -894,7 +932,7 @@ def buildBinary():
         exeTime = getTimeStamp(binaryDir + binaryName)
         for file in ofiles:
             if getTimeStamp(file) > exeTime:
-                if verbose:
+                if verbosity >= TRACE:
                     print ("Relinking because " + file + 
                            " is newer than " + binaryDir + binaryName)
                 doLink = True
@@ -903,7 +941,7 @@ def buildBinary():
     # Only link when necessary
     if doLink:
         if not os.path.exists(binaryDir):
-            mkdir(binaryDir)
+            mkdir(binaryDir, verbosity >= VERBOSE)
 
         if ((binaryType == EXE) or
             (binaryType == DLL)):
@@ -919,7 +957,7 @@ def buildBinary():
 
         print
 
-    maybeColorPrint('Done building ' + binaryName, SECTION_COLOR)
+    if verbosity >= VERBOSE: colorPrint('Done building ' + binaryName, SECTION_COLOR)
     
 #########################################################################
 """ Turns a string with paths separated by ; (or : on Linux) into
@@ -1171,8 +1209,6 @@ def configureGpp():
     if (binaryType == DLL):
         defaultLinkerOptions  += ['-shared']
 
-    #if verbose: compilerVerboseOptions.append('-v')
-
     compilerWarningOptions     = ['-Wall -Wformat=2']
 
 
@@ -1197,7 +1233,7 @@ def configGet(config, section, name, exp = True):
         val = val.replace('<LINKOPTIONS>',     string.join(defaultLinkerOptions, ' '))
         val = val.replace('<DYNAMICLIBS>',     string.join(defaultDynamicLibs, ';'))
         val = val.replace('<STATICLIBS>',      string.join(defaultStaticLibs, ';'))
-        val = val.replace('<EXCLUDE>',         string.join(copyifnewer._cppExcludePatterns, '|'))
+        val = val.replace('<EXCLUDE>',         string.join(icecopyifnewer._cppExcludePatterns, '|'))
 
     if exp:
         val = expandvars(val)
@@ -1210,7 +1246,7 @@ def processDotICompile():
 
     default = tempDir + 'default-.icompile'
     if not os.path.exists(default):
-        mkdir(tempDir)
+        mkdir(tempDir, verbosity >= VERBOSE)
         f = file(default, 'wt')
         f.write(defaultDotICompile)
         f.close()
@@ -1220,7 +1256,7 @@ def processDotICompile():
     HOME = os.environ['HOME']
     preferenceFile = pathConcat(HOME, '.icompile')
     if os.path.exists(preferenceFile):
-        if verbose:
+        if verbosity >= TRACE:
             print 'Processing ' + preferenceFile
         config.read(preferenceFile)
     else:
@@ -1241,7 +1277,7 @@ def processDotICompile():
         # We don't need to read this new .icompile because
         # it matches the default, which we already read.
                            
-        if not success and verbose:
+        if not success and verbosity >= TRACE:
             print ('No ' + preferenceFile +
                    ' found and cannot write to '+ HOME)
 
@@ -1255,7 +1291,7 @@ def processProjectFile(args):
 
     # Process the project file
     projectFile = 'ice.txt'
-    if verbose:
+    if verbosity >= TRACE:
         print 'Processing ' + projectFile
     config.read(projectFile)
 
@@ -1326,17 +1362,7 @@ def linkerOptions():
   args     - arguments to iCompile
   progArgs - arguments to pass on to the compiled program
 """
-def main(args, progArgs):
-    global verbose, doGDB, doRun
-
-    if verbose:
-        # Temporarily turn off verbose so that when we compute dependencies 
-        # gcc won't print all of the information
-        verbose = False
-        (cfiles, dependencies, files) = getDependencyInformation()
-        verbose = True
-        printVariables(args, progArgs, files)
-
+def main(args, progArgs, doGDB, doRun):
     if ("--clean" in args):
         buildClean()
         # Exit early, preventing the cache from being written
@@ -1379,9 +1405,20 @@ def main(args, progArgs):
 if __name__ == '__main__':
     (args, progArgs) = separateArgs(sys.argv[1:])
 
-    verbose = '--verbose' in args
-    doGDB = "--gdb" in args
-    doRun = "--run" in args
+    # Set the global variables
+    i = find(args, '--verbosity')
+    if i > -1:
+        if i < len(args) - 1:
+            try:
+                # Clamp verbosity to the legal levels
+                verbosity = max(min(string.atoi(args[i + 1]) + QUIET, TRACE), QUIET)
+            except ValueError:
+                maybeWarn('WARNING: illegal --verbosity argument: ' + args[i + 1])
+        else:
+            maybeWarn('WARNING: --verbosity used without an argument')
+
+    doGDB   = "--gdb" in args
+    doRun   = "--run" in args
 
     # Root directory
     rootDir                    = os.getcwd() + "/"
@@ -1449,9 +1486,9 @@ if __name__ == '__main__':
 
     setVariables(args)
 
-    ret = main(args, progArgs)
+    ret = main(args, progArgs, doGDB, doRun)
 
-    mkdir(tempDir)
+    mkdir(tempDir, verbosity >= VERBOSE)
     saveCache(cacheFilename)
     if (not quiet) and (configGet(config, 'GLOBAL', 'beep') == 'True'):
         beep()
