@@ -2,8 +2,8 @@
 #
 # Help Information and Printing Routines for iCompile
 
-from variables import *
-from mpyutils import *
+from icevariables import *
+from iceutils import *
 
 ##############################################################################
 #                                  Version                                   #
@@ -11,7 +11,7 @@ from mpyutils import *
 
 def printVersion():
     print "iCompile " + versionToString(version)
-    print "Copyright 2003-2005 Morgan McGuire and Rob Hunter"
+    print "Copyright 2003-2006 Morgan McGuire and Rob Hunter"
     print "All rights reserved"
     print
     print "http://ice.sf.net"
@@ -25,8 +25,8 @@ def printHelp():
     print ("""
 iCompile: the zero-configuration build system
     
-icompile  [--doc] [--opt|--debug] [--verbose] [--clean] [--version]
-          [--quiet] [--help] [--run|--gdb ...]
+icompile  [--doc] [--opt|--debug] [--clean] [--version]
+          [--infolevel n] [--help] [--run|--gdb ...]
 
 iCompile can build most C++ projects without options or manual
 configuration.  Just type 'icompile' with no arguments.
@@ -41,9 +41,19 @@ Options:
  --gdb            Run the program under gdb if compilation succeeds,
                   passing all further arguments (...) to the program.
                   You can also just run gdb yourself after using iCompile.
- --verbose        Print script variables and other output.
- --quiet or -q    Only print the output of compilation steps, not other
-                  iCompile chatter.
+
+ --verbosity n    Change the amount of information printed by icompile
+
+                  n   |   Result
+                  ----|---------------------------------------------------
+                  0   |   Quiet:  Only errors and prompts are displayed.
+                      |
+                  1   |   Normal (Default): Filenames and progress information
+                      |   are also displayed
+                  2   |   Verbose: Executed commands are also displayed
+                      |
+                  3   |   Trace: Additional debugging information is also
+                      |   displayed.
 
 Exclusive options:
  --help           Print this information.

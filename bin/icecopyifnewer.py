@@ -3,7 +3,7 @@
 #
 
 import re, string
-from mpyutils import *
+from iceutils import *
 
 _excludeDirPatterns = \
     ['^\.',\
@@ -60,7 +60,7 @@ Recursively copies all contents of source to dest
 (including source itself) that are out of date.  Does 
 not copy files matching the excludeFromCopying patterns.
 """
-def copyIfNewer(source, dest):
+def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True):
     global _copyIfNewerCopiedAnything
     _copyIfNewerCopiedAnything = False
     
@@ -75,7 +75,11 @@ def copyIfNewer(source, dest):
         return
 
     if (not os.path.isdir(source) and newer(source, dest)):
-        maybeColorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
+        if echoCommands: 
+            colorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
+        elif echoFilenames:
+            print source
+        
         shutil.copyfile(source, dest)
         _copyIfNewerCopiedAnything = YES
         
@@ -83,9 +87,10 @@ def copyIfNewer(source, dest):
 
         # Walk is a special iterator that visits all of the
         # children and executes the 2nd argument on them.  
-        os.path.walk(source, _copyIfNewerVisit, [len(source), dest])
+        os.path.walk(source, _copyIfNewerVisit, 
+                     [len(source), dest, echoCommands, echoFilenames])
 
-    if not _copyIfNewerCopiedAnything and not quiet:
+    if not _copyIfNewerCopiedAnything and echoCommands:
         print dest + ' is up to date with ' + source
     
 #########################################################################
@@ -94,7 +99,9 @@ def copyIfNewer(source, dest):
 
 args is a list of:
 [length of the source prefix in sourceDirname,
- rootDir of the destination tree]
+ rootDir of the destination tree,
+ echo commands
+ echo filenames]
 """
 def _copyIfNewerVisit(args, sourceDirname, names):
     global _copyIfNewerCopiedAnything
@@ -104,6 +111,9 @@ def _copyIfNewerVisit(args, sourceDirname, names):
     # by concatenating the root dir and source dir
     destDirname = pathConcat(args[1], sourceDirname[prefixLen:])
     dirName     = betterbasename(destDirname)
+
+    echoCommands = args[2]
+    echoFilenames = args[3]
         
     if (excludeFromCopying.search(dirName) != None):
         # Don't recurse into subdirectories of excluded directories
@@ -111,7 +121,7 @@ def _copyIfNewerVisit(args, sourceDirname, names):
         return
 
     # Create the corresponding destination dir if necessary
-    mkdir(destDirname)
+    mkdir(destDirname, echoCommands)
 
     # Iterate through the contents of this directory   
     for name in names:
@@ -123,7 +133,10 @@ def _copyIfNewerVisit(args, sourceDirname, names):
             # Copy files if newer
             dest = pathConcat(destDirname, name)
             if (newer(source, dest)):
-                maybeColorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
+                if echoCommands:
+                    colorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
+                elif echoFilenames: 
+                    print name
                 _copyIfNewerCopiedAnything = True
                 shutil.copyfile(source, dest)
 

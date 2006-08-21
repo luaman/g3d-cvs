@@ -53,7 +53,22 @@ projectName               = ''
 
 # If YES, iCompile prints diagnostic information (helpful for debugging
 # iCompile).  Set by setVariables.
-verbose                   = NO
+
+##################################################
+# Verbosity levels
+# Print only errors and prompts
+QUIET                     = 10
+
+NORMAL                    = 11
+
+# Print complete commands
+VERBOSE                   = 12
+
+# Print additional debugging information
+TRACE                     = 13
+
+verbosity                 = NORMAL
+
 
 # Should debug symbols be stripped from debug build?
 stripDebugSymbols         = NO
@@ -82,17 +97,31 @@ defaultLinkerOptions      = []
 # Set by configureCompiler
 defaultCompilerName       = ''
 
-# Supresses all non-error output. Set by setVariables.
-quiet                     = NO
-
 # e.g. linux-gcc4.0
 platform                  = ''
 
 defaultDynamicLibs = []
 defaultStaticLibs = []
 
-# Should the built executable be run under GDB?
-doGDB                     = False
 
-# Should the built executable be run
-doRun                     = False
+class State:
+    # e.g., linux-gcc4.1
+    platform                 	= None
+
+    os                          = None
+
+    # List of all library canonical names that are known to be
+    # used by this project.
+    usesLibraries               = []
+
+    # EXE, LIB, or DLL. Set by setVariables.
+    binaryType                  = None
+
+    # RELEASE or DEBUG
+    target                      = None
+
+    # Name of the project (without .lib/.dll extension)
+    projectName                 = None
+
+    # A dictionary used to store values between invocations of iCompile
+    cache                       = {}

@@ -6,7 +6,7 @@
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, ConfigParser
 
-quiet = False
+from icevariables import *
 
 ##############################################################################
 #                              Color Printing                                #
@@ -137,8 +137,7 @@ SECTION_COLOR = 'bold'
 COMMAND_COLOR = 'green'
 
 def printBar():
-    print "_______________________________________________________________________"
-    print
+    print "_______________________________________________________________________\n"
 
 def beep():
     print '\a'
@@ -192,12 +191,12 @@ getch = _Getch()
 ##############################################################################
 
 """Create a directory if it does not exist."""
-def mkdir(path):
+def mkdir(path, echo = True):
     if (path[-1] == "/"):
         path = path[:-1]
 
     if ((not os.path.exists(path)) and (path != "./")):
-        maybeColorPrint('mkdir ' + path, COMMAND_COLOR)
+        if echo: colorPrint('mkdir ' + path, COMMAND_COLOR)
         # TODO: set group and permissions from parent directory
         os.makedirs(path)
 
@@ -222,15 +221,15 @@ def shortlist(L):
 ##############################################################################
         
 """Recursively remove a directory tree if it exists."""
-def rmdir(path):
+def rmdir(path, echo = True):
     if (os.path.exists(path)):
-        maybeColorPrint('rm -rf ' + path, COMMAND_COLOR)
+        if echo: colorPrint('rm -rf ' + path, COMMAND_COLOR)
         shutil.rmtree(path, 1)
 
 """ Remove a single file, if it exists. """
-def rm(file):
+def rm(file, echo = True):
     if (os.path.exists(file)):
-        maybeColorPrint('rm ' + file, COMMAND_COLOR)
+        if echo: colorPrint('rm ' + file, COMMAND_COLOR)
         os.remove(file)
 
 ##############################################################################
@@ -284,7 +283,7 @@ strings.
 Switches the slashes from unix to dos style in program.
 Blocks until shell returns, then returns the exit code of the program.
 """
-def run(program, args = []):
+def run(program, args = [], echo = True):
     # Must have platform correct slashes
     program = toLocalPath(program)
 
@@ -294,12 +293,12 @@ def run(program, args = []):
 
     # If the program name contains spaces, we
     # add quotes around it.
-    if (" " in program) and not ('"' in program):
+    if (' ' in program) and not ('"' in program):
         program = '"' + program + '"'
 
     # spawn requires specification of argv[0]
     args = [program] + args
-    maybeColorPrint(string.join(args), COMMAND_COLOR)
+    if echo: colorPrint(string.join(args), COMMAND_COLOR)
 
     if (os.name == 'nt'):
         # Windows doesn't support spawnvp
@@ -500,17 +499,13 @@ def getVersion(filename):
     return findVersionInString(commands.getoutput(cmd))
 
 def maybeColorPrint(text, color = 'default'):
-    if not quiet:
+    if verbosity >= VERBOSE:
         colorPrint(text, color)
 
 """ Prints a line if quiet is false. """
 def maybePrintBar():
-    if not quiet:
+    if verbosity >= VERBOSE:
         printBar()
-
-def maybePrint(str):
-    if not quiet:
-        print str
 
 """ Returns a list of all directories (without '..') that are
     next to this directory.
@@ -525,3 +520,12 @@ def getSiblingDirs():
             siblings.append(node)
 
     return siblings
+
+""" Returns the index of x in list L, starting at start.  Returns -1 if not found."""
+def find(L, x, start = 0):
+    i = start
+    while i < len(L):
+        if L[i] == x:
+            return i
+        i += 1
+    return -1   

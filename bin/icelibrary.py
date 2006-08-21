@@ -2,7 +2,7 @@
 #
 # Definition of C libraries available for linking
 
-from topsort import *
+from icetopsort import *
 
 # Files can trigger additional linker options.  This is used to add
 # libraries to the link list based on what is #included.  Used by
@@ -63,6 +63,26 @@ headerToLibraryTable = {}
 # symbol name to lists of canonical names of libraries
 symbolToLibraryTable = {}
 
+def defineLibrary(lib):
+    if (libraryTable.has_key(lib.name)):
+        colorPrint("ERROR: Library '" + lib.name + "' defined twice.", WARNING_COLOR)
+        sys.exit(-1)
+
+    libraryTable[lib.name] = lib
+
+    for header in lib.headerList:
+        if headerToLibraryTable.has_key(header):
+            headerToLibraryTable[header] += [lib.name]
+        else:
+            headerToLibraryTable[header] = [lib.name]
+
+    for symbol in lib.symbolList:
+        if symbolToLibraryTable.has_key(symbol):
+           symbolToLibraryTable[symbol] += [lib.name]
+        else:
+           symbolToLibraryTable[symbol] = [lib.name]
+
+
 for lib in [
 #       Canonical name  Type       Release    Debug      F.Release   F.Debug  Header List       Symbol list                                    Depends on
 Library('SDL',         DYNAMIC,   'SDL',     'SDL',     'SDL',      'SDL',    ['SDL.h'],        ['SDL_GetMouseState'],                         ['OpenGL', 'Cocoa', 'pthread']),
@@ -80,19 +100,7 @@ Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
 Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           [])
 ]:
-    libraryTable[lib.name] = lib
-
-    for header in lib.headerList:
-        if headerToLibraryTable.has_key(header):
-            headerToLibraryTable[header] += [lib.name]
-        else:
-            headerToLibraryTable[header] = [lib.name]
-
-    for symbol in lib.symbolList:
-        if symbolToLibraryTable.has_key(symbol):
-           symbolToLibraryTable[symbol] += [lib.name]
-        else:
-           symbolToLibraryTable[symbol] = [lib.name]
+    defineLibrary(lib)
 
 
 """ Constructs a dictionary mapping a library name to its
@@ -120,10 +128,10 @@ def _makeLibOrder():
 
     return order
 
-_libOrder = _makeLibOrder()
+_libOrder = None
 
 """ Sort predicate for library dependencies. """
-def libSorter(x, y):
+def _libSorter(x, y):
     hasX = _libOrder.has_key(x)
     hasY = _libOrder.has_key(y)
 
@@ -147,3 +155,11 @@ def libSorter(x, y):
        return cmp(x, y)
 
 
+"""
+Accepts a list of library canonical names and sorts it in place.
+"""
+def sortLibraries(liblist):
+    _libOrder = _makeLibOrder()
+    liblist.sort(_libSorter)
+    _libOrder = None
+    
