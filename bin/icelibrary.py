@@ -64,6 +64,8 @@ headerToLibraryTable = {}
 symbolToLibraryTable = {}
 
 def defineLibrary(lib):
+    global libraryTable, headerToLibraryTable, symbolToLibraryTable
+
     if (libraryTable.has_key(lib.name)):
         colorPrint("ERROR: Library '" + lib.name + "' defined twice.", WARNING_COLOR)
         sys.exit(-1)
@@ -132,6 +134,8 @@ _libOrder = None
 
 """ Sort predicate for library dependencies. """
 def _libSorter(x, y):
+    global _libOrder
+
     hasX = _libOrder.has_key(x)
     hasY = _libOrder.has_key(y)
 
@@ -159,6 +163,7 @@ def _libSorter(x, y):
 Accepts a list of library canonical names and sorts it in place.
 """
 def sortLibraries(liblist):
+    global _libOrder
     _libOrder = _makeLibOrder()
     liblist.sort(_libSorter)
     _libOrder = None
