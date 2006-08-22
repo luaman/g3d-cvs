@@ -321,7 +321,7 @@ def getDependencies(file, iteration = 1):
     #
     # -MG means "don't give errors for header files that don't exist"
     # -MM means "don't tell me about system header files"
-    raw = shell(compilerName() + ' -MM -msse2 -MG ' +
+    raw = shell(compilerName() + ' -M -msse2 -MG ' +
                 string.join(getCompilerOptions([]), ' ') + ' ' + file,
                 verbosity >= VERBOSE)
 

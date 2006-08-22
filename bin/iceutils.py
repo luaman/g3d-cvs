@@ -236,7 +236,7 @@ def rm(file, echo = True):
 
 """ Runs a program and returns a string of its output. """
 def shell(cmd, printCmd = True):
-    if printCmd: maybeColorPrint(cmd, COMMAND_COLOR)
+    if printCmd: colorPrint(cmd, COMMAND_COLOR)
     return commands.getoutput(cmd)
 
 ##############################################################################

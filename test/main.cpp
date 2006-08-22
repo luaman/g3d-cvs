@@ -24,8 +24,8 @@ using namespace G3D;
 
 using namespace G3D;
 
-#ifdef G3D_WIN32
-	#include "conio.h"
+#ifdef MSC_VER
+#    include "conio.h"
 #else
 #    include <curses.h>
 #endif

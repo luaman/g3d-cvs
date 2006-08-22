@@ -95,8 +95,9 @@ Library('GLU',         DYNAMIC,   'GLU',     'GLU',      None,       None,    ['
 Library('OpenGL',      DYNAMIC,   'GL',      'GL',      'OpenGL',   'OpenGL', ['gl.h'],         ['glBegin', 'glVertex3'],                      []),
 Library('jpeg',        DYNAMIC,   'jpeg',    'jpeg',     None,       None,    ['jpeg.h'],       ['jpeg_memory_src', 'jpeg_CreateCompress'],    []),
 Library('png',         DYNAMIC,   'png',     'png',      None,       None,    ['png.h'],        ['png_create_info_struct'],                    []),
-Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  [],               ['DebugStr'],                                  []),
-Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['graphics3d.h'], [],                                            ['zlib', 'jpeg', 'png', 'Cocoa', 'pthread']),
+Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['Cocoa.h'],      ['DebugStr'],                                  []),
+Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                []),
+Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['graphics3d.h'], [],                                            ['zlib', 'jpeg', 'png', 'Cocoa', 'pthread', 'Carbon']),
 Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'SDL', 'OpenGL']),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
@@ -119,7 +120,7 @@ def _makeLibOrder():
 
     pairs = [('GLG3D', 'G3D'), ('G3D', 'Cocoa'), ('Cocoa', 'SDL'), ('SDL', 'OpenGL'), ('GLU', 'OpenGL'), 
             ('GLU', 'GLG3D'), ('G3D', 'zlib'), ('G3D', 'png'), ('G3D', 'jpeg'), ('Cocoa', 'pthread'), 
-            ('Cocoa', 'zlib'), ('OpenGL', 'png'), ('OpenGL', 'jpeg'), ('OpenGL', 'pthread')]
+            ('Cocoa', 'zlib'), ('OpenGL', 'png'), ('OpenGL', 'jpeg'), ('OpenGL', 'pthread'), ('Cocoa', 'Carbon')]
 
     E, V = pairsToVertexEdgeGraph(pairs)
     L = topSort(E, V)
