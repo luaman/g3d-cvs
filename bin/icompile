@@ -759,7 +759,7 @@ def getLinkerOptions(allFiles):
 def makeStaticLibrary(objectFiles):
     if verbosity >= QUIET: colorPrint("Creating static library", SECTION_COLOR)
 
-    ret = run('ar', ['cr', binaryDir + binaryName] + ofiles, verbosity >= VERBOSE)
+    ret = run('ar', ['cr', binaryDir + binaryName] + objectFiles, verbosity >= VERBOSE)
     if verbosity >= VERBOSE: print
     
     if (ret == 0):
