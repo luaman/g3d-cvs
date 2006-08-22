@@ -233,17 +233,13 @@ void glMultMatrix(const CoordinateFrame& cf);
 /** Platform independent version of 
     wglGetProcAddress/glXGetProcAddress/NSGLGetProcAddress */
 inline void* glGetProcAddress(const char * name){
-    // These intentionally do not use the G3D_WIN32 etc. macros;
-    // they must work during dependency checking, when platform.h may
-    // not be found.
-    #if defined(_MSC_VER) || defined(__MINGW32__)
+    #if defined(G3D_WIN32)
 	return (void *)wglGetProcAddress(name);
-    #elif defined(__linux__)
+    #elif defined(G3D_LINUX)
 	return (void *)glXGetProcAddressARB((const GLubyte*)name);
-    #elif defined(__APPLE__)
+    #elif defined(G3D_OSX)
 	return G3D::NSGLGetProcAddress((const char*)name);
     #else
-        #error Must be WIN32, Linux or OS X. 
         return NULL;
     #endif
 }

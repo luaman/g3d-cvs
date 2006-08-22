@@ -14,7 +14,7 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Log.h"
 
-#ifdef G3D_OSX
+#if defined(G3D_OSX) || defined(G3D_LINUX)
 #    include <png.h>
 #else
 #    include "../png/png.h"

@@ -220,6 +220,8 @@ def discoverPlatform():
     # Figure out the os
     if (os.uname()[0] == 'Linux'):
         OS = 'linux'
+    elif (os.uname()[0] == 'FreeBSD'):
+        OS = 'freebsd'
     elif (os.uname()[0] == 'Darwin'):
         OS = 'osx'
     else:
@@ -1329,7 +1331,7 @@ def includePaths():
     for u in usesProjectsList:
         L.append(pathConcat(u, 'build/install/include/'))
 
-    for p in ['/usr/include', '/usr/local/include']:
+    for p in ['/usr/include', '/usr/local/include', '/usr/X11R6/include']:
         if os.path.exists(p):
             L.append(p + '/')
 

@@ -685,21 +685,19 @@ HWND SDLWindow::win32HWND() const {
 #endif
 
 void SDLWindow::reallyMakeCurrent() const {
-#   ifdef _MSC_VER
+#   ifdef G3D_WIN32
         if (wglMakeCurrent(_Win32HDC, _glContext) == FALSE)	{
             debugAssertM(false, "Failed to set context");
 	}
-#   elif defined(__linux__)
+#   elif defined(G3D_LINUX)
         if (! glXMakeCurrent(_X11Display, _X11Window, _glContext)) {
             //debugAssertM(false, "Failed to set context");
             // only check OpenGL as False seems to be returned when
             // context is already current
             debugAssertGLOk();
         }
-#   elif defined(__APPLE__)
+#   elif defined(G3D_OSX)
         
-#   else
-#       error SDLWindow not implemented for this platform.
 #   endif
 }
 
