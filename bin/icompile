@@ -716,26 +716,28 @@ def getLinkerOptions(allFiles):
             if target == DEBUG:
                 if osx and lib.debugFramework != None:
                     allLinks += ['-framework',  lib.debugFramework]
-                elif lib.type != FRAMEWORK:
+                elif (lib.type != FRAMEWORK) and (lib.debugLib != None):
                     allLinks += ['-l' + lib.debugLib]
             else:
                 if osx and lib.releaseFramework != None:
                     allLinks += ['-framework',  lib.releaseFramework]
-                elif lib.type != FRAMEWORK:
+                elif (lib.type != FRAMEWORK) and (lib.releaseLib != None):
                     allLinks += ['-l' + lib.releaseLib]
-        else:
-            maybeWarn("Detected use of the '" + libname + "' library, which iCompile does not know how to use.")
 
-    suffix = ''
-    if target == DEBUG:
-        suffix = 'd'
+        elif verbosity >= NORMAL:
+            colorPrint("Detected use of the '" + libname + 
+                      "' library, which iCompile does not know how to use.", WARNING_COLOR)
 
     # Add libraries on which we explicitly depend
-    for u in usesProjectsList:
-        if u.endswith('/'):
-            u = u[:-1]
-        libname = rawfilename(u) + suffix
-        allLinks.append('-l' + libname)
+    #suffix = ''
+    #if target == DEBUG:
+    #    suffix = 'd'
+
+    #for u in usesProjectsList:
+    #    if u.endswith('/'):
+    #        u = u[:-1]
+    #    libname = rawfilename(u) + suffix
+    #    allLinks.append('-l' + libname)
 
     # TODO: Add links specified in the config file
     #extraStaticLibs = string.split(configGet(config, target, 'staticlibs'), ':')
@@ -745,13 +747,16 @@ def getLinkerOptions(allFiles):
     # so avoid explicit link
     #if ('SDL' in allLinks) and ('X11' in allLinks):
     #    allLinks.remove('X11')
+
+    if verbosity >= TRACE:
+        print 'Library link options: ', allLinks
     
-    return (opt, allLinks)
+    return opt + allLinks
 
 #########################################################################
 
-""" Makes a static library from a list of object files. """
-def makeStaticLibrary(ofiles):
+""" Makes a static library from a list of object files and libraries."""
+def makeStaticLibrary(objectFiles):
     if verbosity >= QUIET: colorPrint("Creating static library", SECTION_COLOR)
 
     ret = run('ar', ['cr', binaryDir + binaryName] + ofiles, verbosity >= VERBOSE)
@@ -763,8 +768,9 @@ def makeStaticLibrary(ofiles):
 
 #########################################################################
 
-""" Makes an executable from a list of object files. """
-def makeExecutable(ofiles, options):
+""" Makes an executable from a list of object files. 
+    """
+def makeExecutable(objectFiles, linkOptions):
 
     # Create the command line arguments for the linker.
     # Note that the object files must come first
@@ -776,16 +782,16 @@ def makeExecutable(ofiles, options):
         # Write the object file list
         f = open(filelistFileName, 'w')
         newline = '\n'
-        f.write(string.join(ofiles, newline) + newline)
+        f.write(string.join(objectFiles, newline) + newline)
         f.close()
 
         options += ['-filelist', filelistFileName]
     else:
-        options += ofiles
+        options += objectFiles
 
-    options += ['-o', binaryDir + binaryName]
+    options += linkOptions + ['-o', binaryDir + binaryName]
 
-    if ('OpenGL' in options) or ('-lGL' in options):
+    if ('OpenGL' in options) or ('GL' in options):
         # Suppress the multiply defined symbols warning that 
         # comes from using OpenGL (which has both dynamic and static
         # versions of the same functions)
@@ -819,7 +825,7 @@ def getLibrarySiblingDirs():
 
 """ Creates the object files and links them. """
 def buildBinary():
-    global usesProjectsList
+    global usesProjectsList, usesLibrariesList
 
     if verbosity >= NORMAL: colorPrint('Building ' + binaryName, SECTION_COLOR)
 
@@ -945,12 +951,12 @@ def buildBinary():
             (binaryType == DLL)):
 
             # Dynamic library or executable.
-            (lopt, libraries) = getLinkerOptions(files)
-            makeExecutable(ofiles, lopt + libraries)
+            lopt = getLinkerOptions(files)
+            makeExecutable(ofiles, lopt)
 
         else:
 
-            # Static library.  Use libtool
+            # Static library.
             makeStaticLibrary(ofiles)
 
         print
