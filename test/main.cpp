@@ -12,23 +12,18 @@
  @created 2002-01-01
  @edited  2006-08-14
  */
-#define NO_SDL_MAIN
+
 #include "G3D/G3D.h"
 #include "GLG3D/GLG3D.h"
-#ifdef main
-#    undef main
-#endif
 using namespace G3D;
 #include <iostream>
-
-#ifdef __APPLE__
-#include "/System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSAutoreleasePool.h"
-#endif
 
 using namespace G3D;
 
 #ifdef G3D_WIN32
 	#include "conio.h"
+#else
+#    include <curses.h>
 #endif
 #include <string>
 
@@ -470,11 +465,6 @@ void measureRDPushPopPerformance(RenderDevice* rd) {
 
 
 int main(int argc, char* argv[]) {
-#ifdef G3D_OSX
-  NSAutoreleasePool* localPool = [[NSAutoreleasePool alloc] init]; 
-
-#endif
-
     (void)argc;
     (void)argv;
 
@@ -496,6 +486,8 @@ int main(int argc, char* argv[]) {
 #    ifndef _DEBUG
         printf("Performance analysis:\n\n");
 
+		perfCollisionDetection();
+
         perfArray();
 
         perfTable();
@@ -514,13 +506,11 @@ int main(int argc, char* argv[]) {
 
         perfAABSPTree();
 
-		perfCollisionDetection();
-
         measureMemsetPerformance();
         measureNormalizationPerformance();
 
 
-        GWindow::Settings settings;
+		GWindow::Settings settings;
         settings.width = 800;
         settings.height = 600;
         settings.alphaBits = 0;
@@ -540,6 +530,8 @@ int main(int argc, char* argv[]) {
         }
 
         measureRDPushPopPerformance(renderDevice);
+
+		getch();
 
 #   else
 
@@ -634,9 +626,6 @@ int main(int argc, char* argv[]) {
 	    delete networkDevice;
 	}
 
-#ifdef G3D_OSX
-    [localPool release];
-#endif
     return 0;
 }
 

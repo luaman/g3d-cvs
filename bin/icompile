@@ -911,11 +911,7 @@ def buildBinary():
     osx = (os.uname()[0] == 'Darwin')
 
     for file in buildList:
-        if osx and file.endswith('.cpp'):
-            # On OS X, C++ files might also need to call Objective C++ routines
-            makeObjectFile(file, copt + ' -x objective-c++')
-        else:
-            makeObjectFile(file, copt)
+        makeObjectFile(file, copt)
         relink = 1
  
     # Generate *all* object file names (even ones that
