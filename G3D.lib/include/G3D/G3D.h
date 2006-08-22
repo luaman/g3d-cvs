@@ -106,6 +106,7 @@
     #pragma comment(lib, "user32.lib")
     #pragma comment(lib, "kernel32.lib")
     #pragma comment(lib, "version.lib")
+    #pragma comment(lib, "advapi32.lib")
     #ifdef _DEBUG
         // Don't link against G3D when building G3D itself.
         #ifndef G3D_BUILDING_LIBRARY_DLL

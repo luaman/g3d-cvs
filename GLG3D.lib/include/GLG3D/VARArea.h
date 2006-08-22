@@ -113,7 +113,7 @@ private:
     static Mode         mode;
 
     /** Updates allocation and peakAllocation based off of new allocation. */
-    inline void VARArea::updateAllocation(size_t newAllocation) {
+    inline void updateAllocation(size_t newAllocation) {
         allocated += newAllocation;
         peakAllocated = (size_t)iMax((int)peakAllocated, (int)allocated);
     }

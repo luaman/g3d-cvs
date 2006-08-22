@@ -26,7 +26,7 @@
 #endif
 
 #ifdef G3D_OSX
-#    import <AppKit/AppKit.h>
+#    include <Carbon/Carbon.h>
 #endif
 
 namespace G3D {
@@ -523,39 +523,130 @@ static int textPrompt(
 }
 
 #ifdef G3D_OSX
+
+#define CARBON_COMMANDID_START	128
+#define CARBON_BUTTON_SPACING	12
+#define CARBON_BUTTON_HEIGHT	20
+#define CARBON_BUTTON_MINWIDTH	69
+#define CARBON_WINDOW_PADDING	20
+
+typedef struct carbon_evt_data_s
+{
+	WindowRef	refWindow;
+	int			iRetVal;
+} carbon_evt_data_t;
+
+static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef event, void *userData)
+{
+	#pragma unused(handlerRef)
+	
+	HICommand commandStruct;
+	UInt32 commandID;
+	
+	GetEventParameter(event,kEventParamDirectObject,typeHICommand,NULL,sizeof(HICommand),NULL,&commandStruct);
+	
+	commandID = commandStruct.commandID;
+	
+	// The Index is the commandID - CARBON_COMMANDID_START
+	((carbon_evt_data_t*)userData)->iRetVal = commandID - CARBON_COMMANDID_START;
+	
+	// If we get here we can close the window.
+	QuitAppModalLoopForWindow(((carbon_evt_data_t*)userData)->refWindow);
+	
+	return noErr;
+}
+
 static int guiPrompt(const char*         windowTitle,
                      const char*         prompt,
                      const char**        choice,
                      int                 numChoices) 
 {
-        NSAlert* alert;
-        alert = [[NSAlert alloc] init];
-        
-        if (numChoices > 4){
-                //If the # of choices is > 4, use standard text mode for now b/c of OS X bug:
-                [alert setInformativeText: @"Prompt with more than 4 options, see the console..."];
-                [alert addButtonWithTitle:@"Ok"];
-                [alert runModal];
-                [alert release];
-                return textPrompt(windowTitle, prompt, choice, numChoices);
-        }
+	int			i				= 0;
+	int			iNumButtonRows	= 1;
+	int			iButtonWidth	= (550 - (CARBON_WINDOW_PADDING*2 + (CARBON_BUTTON_SPACING*numChoices)))/numChoices;
+	OSStatus	err				= noErr;
+	
+	carbon_evt_data_t eventData;
+	
+	eventData.iRetVal = -1;
+	
+	// Determine Number of Rows of Buttons
+	while(iButtonWidth < CARBON_BUTTON_MINWIDTH)
+	{
+		iNumButtonRows++;
+		iButtonWidth = (550 - (CARBON_WINDOW_PADDING*2 + (CARBON_BUTTON_SPACING*numChoices)))/(numChoices/iNumButtonRows);
+	}
+	
+	// Window Variables
+	Rect				rectWin = {0, 0, 200 + ((iNumButtonRows-1)*(CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)), 550};			// top, left, bottom, right
+	CFStringRef			szWindowTitle = CFStringCreateWithCString(kCFAllocatorDefault, windowTitle, kCFStringEncodingUTF8);
+	eventData.refWindow = NULL;
+	err = CreateNewWindow(kMovableAlertWindowClass,kWindowStandardHandlerAttribute|kWindowCompositingAttribute,&rectWin,&eventData.refWindow);
+	err = SetWindowTitleWithCFString(eventData.refWindow,szWindowTitle);
+	err = SetThemeWindowBackground(eventData.refWindow,kThemeBrushAlertBackgroundActive,false);
+	
+	// Event Handler Variables
+	EventTypeSpec		buttonSpec[] = {{ kEventClassControl, kEventControlHit },{kEventClassCommand, kEventCommandProcess}};
+	EventHandlerUPP		buttonHandler = NewEventHandlerUPP(DoCommandEvent);
+		
+	// Static Text Variables
+	Rect				rectStatic = {20, 20, 152, 530};
+	CFStringRef			szStaticText = CFStringCreateWithCString(kCFAllocatorDefault, prompt, kCFStringEncodingUTF8);
+	ControlRef			refStaticText = NULL;
+	err = CreateStaticTextControl(eventData.refWindow, &rectStatic, szStaticText, NULL, &refStaticText);
+	
+	// Button Variables
+	Rect				arrRectButtons[numChoices];
+	CFStringRef			arrSzButtons[numChoices];
+	ControlRef			arrRefButtons[numChoices];
+	
+	// Create the Buttons and Set up for Event Handling
+	for(i = 0; i < numChoices; i++)
+	{
+		arrRectButtons[i].top		= 160 + ((CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)*(i%iNumButtonRows));
+		arrRectButtons[i].right		= 530 - ((iButtonWidth+CARBON_BUTTON_SPACING)*(i/iNumButtonRows));
+		arrRectButtons[i].left		= arrRectButtons[i].right - iButtonWidth;
+		arrRectButtons[i].bottom	= arrRectButtons[i].top + CARBON_BUTTON_HEIGHT;
+		arrSzButtons[i] = CFStringCreateWithCString(kCFAllocatorDefault, choice[i], kCFStringEncodingUTF8);
+		err = CreatePushButtonControl(eventData.refWindow, &arrRectButtons[i], arrSzButtons[i], &arrRefButtons[i]);
+		err = SetControlCommandID(arrRefButtons[i],CARBON_COMMANDID_START+i);
+		err = InstallControlEventHandler(arrRefButtons[i], buttonHandler, GetEventTypeCount(buttonSpec), buttonSpec, &eventData, NULL);
+	}
+		
+	// Show Dialog and Run in Modal State
+	err = RepositionWindow(eventData.refWindow, NULL, kWindowCenterOnMainScreen);
+	ShowWindow(eventData.refWindow);
+	BringToFront(eventData.refWindow);
+	err = ActivateWindow(eventData.refWindow,true);
+	err = RunAppModalLoopForWindow(eventData.refWindow);
+	
+	// Dispose of Button Related Data
+	for(i = 0; i < numChoices; i++)
+	{
+		// Dispose of controls
+		DisposeControl(arrRefButtons[i]);
+		
+		// Release CFStrings
+		CFRelease(arrSzButtons[i]);
+	}
 
-        //Set Title:
-        [alert setInformativeText: [NSString stringWithUTF8String:windowTitle]];
-        
-        //Set prompt:
-        [alert setMessageText: [NSString stringWithUTF8String:prompt]];
-        
-        //Set the buttons:
-        for (int i = 0; i < numChoices; i++){
-                NSLog(@"About to add button number %d which is called %@", i, [NSString stringWithUTF8String:choice[i]]); 
-                [[alert addButtonWithTitle:[NSString stringWithUTF8String:choice[i]]] setTag: i];
-        }
-        int toReturn = [alert runModal];
-        NSLog(@"Returning : %d", toReturn);
-        [alert release];
-        return toReturn;
+	// Dispose of Other Controls
+	DisposeControl(refStaticText);
+	
+	// Dispose of Event Handlers
+	DisposeEventHandlerUPP(buttonHandler);
+	
+	// Dispose of Window
+	DisposeWindow(eventData.refWindow);
+	
+	// Release CFStrings
+	CFRelease(szWindowTitle);
+	CFRelease(szStaticText);
+		
+	// Return Selection
+	return eventData.iRetVal;
 }
+
 #endif
 
 int prompt(

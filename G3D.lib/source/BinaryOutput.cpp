@@ -283,7 +283,7 @@ void BinaryOutput::compress() {
     }
 
     // Write the data
-    if (newSize + 4 > maxBufferLen) {
+    if ((int)newSize + 4 > (int)maxBufferLen) {
         maxBufferLen = newSize + 4;
         buffer = (uint8*)System::realloc(buffer, maxBufferLen);
     }

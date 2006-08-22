@@ -2,7 +2,7 @@
   @file GImage_jpeg.cpp
   @author Morgan McGuire, morgan@graphics3d.com
   @created 2002-05-27
-  @edited  2006-08-10
+  @edited  2006-05-10
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -13,12 +13,12 @@
  Pick up libjpeg headers locally on Windows, but from the system on all other platforms.
 */
 extern "C" {
-#if defined(G3D_WIN32) || defined(G3D_OSX)
-#    include <jpeg/jconfig.h>
-#    include <jpeg/jpeglib.h>
+#ifdef G3D_WIN32
+	#include "../IJG/jconfig.h"
+	#include "../IJG/cdjpeg.h"
 #else
-#    include <jconfig.h>
-#    include <jpeglib.h>
+	#include <jconfig.h>
+	#include <jpeglib.h>
 #endif
 }
 

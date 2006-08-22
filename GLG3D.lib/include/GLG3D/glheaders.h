@@ -29,22 +29,22 @@
 #    define G3D_GL_ARB_multitexture_static
 #endif
 
-#include "GLG3D/GL/gl.h"
-#include "GLG3D/GL/glext.h"
+#include "GL/gl.h"
+#include "GL/glext.h"
 
 #ifdef G3D_WIN32
-    #include "GLG3D/GL/wglext.h"
+    #include "GL/wglext.h"
 #endif
 
 #if defined(G3D_LINUX)
     #ifdef __glxext_h_
     #error Picked up wrong version of glxext
     #endif
-	#include "GLG3D/GL/glxext.h"
-//	#include "GLG3D/GL/glx.h"
+	#include "GL/glxext.h"
+//	#include "GL/glx.h"
 #endif
 
-#include "GLG3D/GL/glext.h"
+#include "GL/glext.h"
 
 #ifdef G3D_OSX
 #    include <OpenGL/glu.h>

@@ -222,7 +222,12 @@
 #endif  // win32
 
 #ifdef __GNUC__
+
 #   define G3D_DEPRECATED __attribute__((__deprecated__))
+
+#   if defined(G3D_OSX)
+#       include <stdint.h>
+#   endif
 
 #   if defined(__i386__) && ! defined(__x86_64__)
 
@@ -234,9 +239,8 @@
 #           define __stdcall __attribute__((stdcall))
 #       endif
 
-
 //            typedef long intptr_t;
-// Works on OSX...what about Linux?
+// Works on OSX 386...what about Linux?
 #       include <stdint.h>
 
 #   elif defined(__x86_64__)

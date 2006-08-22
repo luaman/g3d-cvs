@@ -117,14 +117,112 @@ int64 fileLength(const std::string& filename) {
     return st.st_size;
 }
 
+/** Used by robustTmpfile.  Returns nonzero if fread, fwrite, and fseek all
+succeed on the file.
+  @author Morgan McGuire, morgan@graphics3d.com  */
+static int isFileGood(FILE* f) {
+
+	int x, n, result;
+
+	/* Must be a valid file handle */
+	if (f == NULL) {
+		return 0;
+	}
+
+	/* Try to write */
+	x = 1234;
+	n = fwrite(&x, sizeof(int), 1, f);
+
+	if (n != 1) {
+		return 0;
+	}
+
+	/* Seek back to the beginning */
+	result = fseek(f, 0, SEEK_SET);
+	if (result != 0) {
+		return 0;
+	}
+
+	/* Read */
+	n =	fread(&x, sizeof(int), 1, f);
+	if (n != 1) {
+		return 0;
+	}
+
+	/* Seek back to the beginning again */
+	fseek(f, 0, SEEK_SET);
+
+	return 1;
+}
 
 FILE* createTempFile() {
-    // Added to the G3D version of jpeglib
-#ifdef _MSC_VER
-    return _robustTmpfile();
-#else
-    return tmpfile();
-#endif
+    FILE* t = tmpfile();
+#	ifdef _WIN32
+		char* n = NULL;
+#	endif
+	char name[256];
+
+    if (isFileGood(t)) {
+		return t;
+	}
+
+    /* tmpfile failed; try the tmpnam routine */
+    t = fopen(tmpnam(NULL), "w+");
+    if (isFileGood(t)) {
+		return t;
+	}
+
+    #ifdef _WIN32
+		n = _tempnam("c:/tmp/", "t");
+        /* Try to create something in C:\tmp */
+        t = fopen(n, "w+");
+		if (isFileGood(t)) {
+			return t;
+		}
+
+        /* Try c:\temp */
+		n = _tempnam("c:/temp/", "t");
+        t = fopen(n, "w+");
+	    if (isFileGood(t)) {
+			return t;
+		}
+
+        /* try the current directory */
+		n = _tempnam("./", "t");
+        t = fopen(n, "w+");
+		if (isFileGood(t)) {
+			return t;
+		}
+    #endif
+
+    /* Try some hardcoded paths */
+    sprintf(name, "%s/tmp%d", "c:/tmp", rand());
+    t = fopen(name, "w+");
+    if (isFileGood(t)) {
+		return t;
+	}
+
+    sprintf(name, "%s/tmp%d", "/tmp", rand());
+    t = fopen(name, "w+");
+    if (isFileGood(t)) {
+		return t;
+	}
+
+    sprintf(name, "%s/tmp%d", "c:/temp", rand());
+    t = fopen(name, "w+");
+    if (isFileGood(t)) {
+		return t;
+	}
+
+    sprintf(name, "tmp%d", rand());
+    t = fopen(name, "w+");
+    if (isFileGood(t)) {
+		return t;
+	}
+
+    fprintf(stderr, "Unable to create a temporary file; robustTmpfile returning NULL\n");
+
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

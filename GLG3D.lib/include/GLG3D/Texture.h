@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-02-28
-  @edited  2007-07-28
+  @edited  2006-08-16
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -246,7 +246,7 @@ public:
     /**
      Creates an empty texture (useful for later reading from the screen).
      */
-    inline static TextureRef createEmpty(
+    static TextureRef createEmpty(
         const std::string&              name,
         int                             width,
         int                             height,
