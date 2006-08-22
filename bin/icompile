@@ -1337,7 +1337,7 @@ def includePaths():
     for u in usesProjectsList:
         L.append(pathConcat(u, 'build/install/include/'))
 
-    for p in ['/usr/include', '/usr/local/include', '/usr/X11R6/include']:
+    for p in ['/usr/include', '/usr/local/include', '/usr/X11R6/include', '/usr/local/include/SDL11']:
         if os.path.exists(p):
             L.append(p + '/')
 
