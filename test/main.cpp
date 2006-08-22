@@ -15,6 +15,10 @@
 
 #include "G3D/G3D.h"
 #include "GLG3D/GLG3D.h"
+#ifdef main
+#    undef main
+#endif
+
 using namespace G3D;
 #include <iostream>
 
