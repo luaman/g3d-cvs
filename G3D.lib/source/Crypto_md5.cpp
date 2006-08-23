@@ -93,7 +93,7 @@ MD5Hash Crypto::md5(const void* data, size_t n) {
   ghost@aladdin.com
 
  */
-/* $Id: Crypto_md5.cpp,v 1.4 2006/08/22 19:27:15 morgan3d Exp $ */
+/* $Id: Crypto_md5.cpp,v 1.5 2006/08/23 16:43:14 morgan3d Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 
