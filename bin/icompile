@@ -321,9 +321,13 @@ def getDependencies(file, iteration = 1):
     #
     # -MG means "don't give errors for header files that don't exist"
     # -MM means "don't tell me about system header files"
+
     raw = shell(compilerName() + ' -M -msse2 -MG ' +
                 string.join(getCompilerOptions([]), ' ') + ' ' + file,
                 verbosity >= VERBOSE)
+
+    if verbosity >= TRACE:
+        print raw
 
     if beginswith(raw, 'In file included from'):
         # If there was an error, the output will have the form
@@ -370,8 +374,11 @@ def getDependencies(file, iteration = 1):
         # Normal case, no error
         if 'implemented' in raw: print raw
         result = []
-        for eachLine in string.split(raw, ' \\\n  '):
-            result += string.split(eachLine, ' ')
+        for line in string.split(raw, ' \\\n  '):
+            if not beginswith(line, '# '):
+                # gcc 3.4.2 likes to print the name of the file first, as in
+                # """# 1 "/home/faculty/morgan/Projects/ice/tests/meta/helper.lib//""""
+                result += string.split(line, ' ')
 
         # There is always at least one file since everything depends on itself.
         
@@ -384,7 +391,7 @@ def getDependencies(file, iteration = 1):
             if '/' in f:
                 result.append(f)
             elif f.strip() == '':
-                # empty file
+                # empty filename
                 files.remove(f)
             else:
                 result.append('./' + f)
@@ -606,7 +613,7 @@ def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
     # looking at symbols defined in the library and seeing which ones map
     # to common dynamic libraries.
     for file in staticLinkFiles:
-        sfile = findStaticLibrary(file)
+        sfile = findLibrary(file, STATIC, libraryPaths())
         if os.path.exists(sfile):
             cmd = 'nm --extern-only --demangle --undefined-only ' + sfile
             if verbosity >= VERBOSE: colorPrint(cmd, COMMAND_COLOR)
@@ -631,18 +638,6 @@ def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
 
     if verbosity >= TRACE: print 'End getAdditionalDynamicLinks\n'
 
-""" Given a library name (e.g. "G3D") finds the static library file and
-    returns it. """
-def findStaticLibrary(_lfile):
-    lfile = 'lib' + _lfile + '.a'
-
-    # Find the library and link against it
-    for path in libraryPaths():
-        if os.path.exists(pathConcat(path, lfile)):
-            return path + lfile
-
-    # Not found!
-    return lfile
 
 """ Add the dependencies from the libraries list (recursively)
     libraries must be a set of canonical library names
@@ -669,6 +664,7 @@ def getLinkerOptions(allFiles):
 
     opt = linkerOptions()
     opt += [('-L' + path) for path in libraryPaths()]
+
 
     # Set of canonically named libraries to link against
     libraries        = Set()
@@ -717,12 +713,12 @@ def getLinkerOptions(allFiles):
                 if osx and lib.debugFramework != None:
                     allLinks += ['-framework',  lib.debugFramework]
                 elif (lib.type != FRAMEWORK) and (lib.debugLib != None):
-                    allLinks += ['-l' + lib.debugLib]
+                    allLinks += ['-l' + rawLibraryFilename(findLibrary(lib.debugLib, lib.type, libraryPaths()))]
             else:
                 if osx and lib.releaseFramework != None:
                     allLinks += ['-framework',  lib.releaseFramework]
                 elif (lib.type != FRAMEWORK) and (lib.releaseLib != None):
-                    allLinks += ['-l' + lib.releaseLib]
+                    allLinks += ['-l' + rawLibraryFilename(findLibrary(lib.releaseLib, lib.type, libraryPaths()))]
 
         elif verbosity >= NORMAL:
             colorPrint("Detected use of the '" + libname + 
@@ -798,7 +794,7 @@ def makeExecutable(objectFiles, linkOptions):
         options += ['-multiply_defined', 'suppress']
 
     if verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
-    
+
     ret = run(compilerName(), options, verbosity >= VERBOSE)
 
     if ret != 0:
@@ -1347,6 +1343,10 @@ def includePaths():
 def libraryPaths():
     L = makePathList(configGet(config, 'GLOBAL', 'library'))
 
+    for p in ['/usr/lib', '/usr/local/lib', '/usr/X11R6/lib']:
+        if os.path.exists(p):
+            L.append(p + '/')
+
     # Add any explicit iCompile libraries
     for u in usesProjectsList:
         L.append(pathConcat(u, '/build/install/' + platform + '-lib/'))
@@ -1360,7 +1360,11 @@ def configCompilerOptions():
     return string.split(configGet(config, target, 'compileoptions'), ' ')
 
 def linkerOptions():
-    return string.split(configGet(config, target, 'linkoptions'), ' ')
+    options = string.split(configGet(config, target, 'linkoptions'), ' ')
+    for option in options:
+        if option.strip() == '':
+            options.remove(option)
+    return options
     
 
 #########################################################################
@@ -1398,7 +1402,7 @@ def main(args, progArgs, doGDB, doRun):
     if doRun:
         return runCompiledProgram(progArgs)
 
-    if not (doGDB or doRun) and not quiet:
+    if not (doGDB or doRun) and (verbosity >= NORMAL):
         if (binaryType == EXE):
             print '\nExecutable written to ' + binaryDir + binaryName
         else:
@@ -1411,6 +1415,9 @@ def main(args, progArgs, doGDB, doRun):
 # Entry point
 
 if __name__ == '__main__':
+
+    # Process global arguments and then invoke the actual build process
+
     (args, progArgs) = separateArgs(sys.argv[1:])
 
     # Set the global variables
@@ -1498,7 +1505,7 @@ if __name__ == '__main__':
 
     mkdir(tempDir, verbosity >= VERBOSE)
     saveCache(cacheFilename)
-    if (not quiet) and (configGet(config, 'GLOBAL', 'beep') == 'True'):
+    if (verbosity >= NORMAL) and (configGet(config, 'GLOBAL', 'beep') == 'True'):
         beep()
 
     sys.exit(ret)

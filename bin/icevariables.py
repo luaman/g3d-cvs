@@ -17,9 +17,8 @@ NO                        = False
 BUILDDIR                  = 'build'
 DISTRIBDIR                = 'install'
 
-
 # Temp directory where scratch and .o files are stored, relative to rootDir
-tempDir                   = '.icompile-temp/'
+tempDir                   = '.ice-tmp/'
 
 ##############################################################################
 #                                  Globals                                   #
@@ -108,6 +107,7 @@ class State:
     # e.g., linux-gcc4.1
     platform                 	= None
 
+    # e.g., OS X, FreeBSD, Linux
     os                          = None
 
     # List of all library canonical names that are known to be
@@ -125,3 +125,12 @@ class State:
 
     # A dictionary used to store values between invocations of iCompile
     cache                       = {}
+
+    tempDir                     = '.ice-tmp/'
+
+    # Location to which all build files are written
+    buildDir                    = 'build/'
+     
+    # Location to which generated binaries are written
+    binaryDir                   = None
+

@@ -427,23 +427,31 @@ def betterbasename(filename):
 """ Returns the part of a full filename after the path and before the last ext"""
 def rawfilename(filename):
     f = betterbasename(filename)
-    period = string.find(f, '.')
+    period = string.rfind(f, '.')
 
     if period > 0:
         return f[0:period]
     else:
         return f
-    
+
 
 """ Returns the extensions from a full filename."""
 def extname(filename):
     f = betterbasename(filename)
-    period = string.find(filename, '.')
+    period = string.rfind(filename, '.')
 
     if period > 0:
         return f[(period + 1):]
     else:
         return ''
+
+""" Given a library filename, returns the name that should be passed to a linker, 
+    e.g., /usr/lib/libfoo-1.1.so -> foo-1.1"""
+def rawLibraryFilename(filename):
+    n = rawfilename(filename)
+    if beginswith(n, 'lib'):
+        n = n[3:]
+    return n
 
 """
  Concatenates a file or path onto a path with a '/' if the first

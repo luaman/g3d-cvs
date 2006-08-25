@@ -3,6 +3,9 @@
 # Definition of C libraries available for linking
 
 from icetopsort import *
+from iceutils import *
+from icevariables import *
+import os, glob
 
 # Files can trigger additional linker options.  This is used to add
 # libraries to the link list based on what is #included.  Used by
@@ -98,7 +101,7 @@ Library('png',         DYNAMIC,   'png',     'png',      None,       None,    ['
 Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['Cocoa.h'],      ['DebugStr'],                                  []),
 Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                []),
 Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['graphics3d.h'], [],                                            ['zlib', 'jpeg', 'png', 'Cocoa', 'pthread', 'Carbon']),
-Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'SDL', 'OpenGL']),
+Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'SDL', 'OpenGL', 'GLU']),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
 Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           [])
@@ -169,3 +172,51 @@ def sortLibraries(liblist):
     liblist.sort(_libSorter)
     _libOrder = None
     
+
+""" Given a library name (e.g. "G3D") finds the library file and
+    returns it. 
+
+    type must be STATIC or DYNAMIC
+"""
+def findLibrary(_lfile, type, libraryPaths):
+    ext = '.a'
+    if type == DYNAMIC:
+        ext = '.so'
+     
+    lfile = 'lib' + _lfile + ext
+
+    # Find the library and link against it
+    for path in libraryPaths:
+        if os.path.exists(pathConcat(path, lfile)):
+            return path + lfile
+
+    # We couldn't find the library.  Try looking for the library
+    # with a version number appended.
+    wildlfile = 'lib' + _lfile + '-*' + ext
+    bestVersion = 0
+    bestFile = None
+    for path in libraryPaths:
+        files = glob.glob(pathConcat(path, wildlfile))
+
+        # Choose the latest version from those found
+        for file in files:
+
+            # Parse the version from the filename
+            i = file.rfind('-', 0, -2)
+            if i >= 0:
+	        version = file[(i+1):-3]
+
+                try:
+                    version = float(version)
+                    if (version > bestVersion):
+                        bestVersion = version
+                        bestFile = file
+                except ValueError:
+                    version = -1
+
+   
+    if bestFile != None:
+        return bestFile
+
+    # Still not found; return the generic name
+    return lfile
