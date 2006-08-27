@@ -99,6 +99,14 @@ def ilib(args):
          # Build jpeg
          runicompile('jpeg.lib')
 
+     if (os.uname()[0] == 'WinNT'):
+         # Build zlib
+         runicompile('zlib.lib')
+
+     if (os.uname()[0] == 'WinNT'):
+         # Build png
+         runicompile('png.lib')
+
 def iclean(args):
      os.chdir("G3D.lib")
      run("../bin/icompile", ['--clean'])
@@ -109,9 +117,13 @@ def iclean(args):
      os.chdir('../jpeg.lib')
      run("../bin/icompile", ['--clean'])
 
+     os.chdir('../png.lib')
+     run("../bin/icompile", ['--clean'])
+
      os.chdir("../test.lib")
      run("../bin/icompile", ['--clean'])
      os.chdir("..")
+
 
 def itest(args):
      os.chdir("test")
