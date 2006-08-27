@@ -85,21 +85,28 @@ def cfastlib(args):
 ##################################################################################
 #  iCompile targets
 
-def ilib(args):
-     os.chdir("G3D.lib")
-     run("../bin/icompile")
-     run("../bin/icompile", ['-O'])
-
-     os.chdir("../GLG3D.lib")
+def runicompile(dir):
+     os.chdir(dir)
      run("../bin/icompile")
      run("../bin/icompile", ['-O'])
      os.chdir("..")
+
+def ilib(args):
+     runicompile('G3D.lib')
+     runicompile('GLG3D.lib')
+
+     if (os.uname()[0] == 'Darwin') or (os.uname()[0] == 'WinNT'):
+         # Build jpeg
+         runicompile('jpeg.lib')
 
 def iclean(args):
      os.chdir("G3D.lib")
      run("../bin/icompile", ['--clean'])
 
      os.chdir("../GLG3D.lib")
+     run("../bin/icompile", ['--clean'])
+
+     os.chdir('../jpeg.lib')
      run("../bin/icompile", ['--clean'])
 
      os.chdir("../test.lib")
@@ -110,7 +117,6 @@ def itest(args):
      os.chdir("test")
      run("../bin/icompile")
      os.chdir("..")
-
 
 ##################################################################################
 #  General
