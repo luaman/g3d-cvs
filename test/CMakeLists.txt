@@ -15,7 +15,7 @@ ADD_EXECUTABLE(test ${source_list})
 
 IF (UNIX)
     # Specify dependencies
-    TARGET_LINK_LIBRARIES(test G3D GLG3D ${OPENGL_LIBRARY} ${SDL_LIBRARY})
+    TARGET_LINK_LIBRARIES(test ncurses G3D GLG3D ${OPENGL_LIBRARY} ${SDL_LIBRARY})
 ELSE (UNIX)
     # Specify dependencies
     TARGET_LINK_LIBRARIES(test G3D GLG3D ${OPENGL_LIBRARY})
