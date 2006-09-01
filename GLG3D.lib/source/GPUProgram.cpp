@@ -309,8 +309,8 @@ LOADSHADER:
     // Check for load errors
     if ((glGetError() == GL_INVALID_OPERATION) && (! ignore)) {
 
-        int                  pos;
-        const unsigned char* msg;
+        int                  pos = 0;
+        const unsigned char* msg = NULL;
         getProgramError(pos, msg);
 
         deletePrograms(1, &glProgram);

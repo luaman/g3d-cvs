@@ -8,6 +8,10 @@
 
 #include "G3D/platform.h"
 
+#if defined(G3D_OSX)
+#include "GLG3D/NSAutoreleasePoolWrapper.h"
+#endif
+
 #ifndef G3D_WIN32
 
 #include "G3D/Log.h"
@@ -125,6 +129,10 @@ static bool SDL_handleErrorCheck_(
 
 
 SDLWindow::SDLWindow(const GWindow::Settings& settings) {
+
+#if defined(G3D_OSX)
+	_pool = new NSAutoreleasePoolWrapper();
+#endif
 
 	if (SDL_Init(SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO | 
                  SDL_INIT_JOYSTICK) < 0 ) {
@@ -350,6 +358,10 @@ SDLWindow::~SDLWindow() {
     joy.clear();
 
     SDL_Quit();
+
+#if defined(G3D_OSX)
+	delete _pool;
+#endif
 }
 
 
