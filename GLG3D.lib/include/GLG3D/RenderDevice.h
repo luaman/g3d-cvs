@@ -193,13 +193,6 @@ private:
         double                  brightness,
         double                  gamma);
 
-	int                         stencilBits;
-
-    /**
-     Actual number of depth bits.
-     */
-    int                         depthBits;
-
     /**
      The intensity at which lights saturate.
      */
@@ -1635,15 +1628,6 @@ public:
 	 Pixel dimensions of the OpenGL window interior
 	 */
     int height() const;
-
-	inline int getStencilBitDepth() const {
-		return stencilBits;
-	}
-
-
-	inline int getZBufferBitDepth() const {
-		return depthBits;
-	}
 
     /**
      You must also enableLighting.  Ambient light is handled separately.

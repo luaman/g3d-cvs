@@ -124,8 +124,8 @@ void perfArray() {
         printf(" Array cycles/alloc for short arrays\n\n");
         printf("                           Big class           int      outcome\n");
         bool G3Dwin = 
-            (arrayAllocBig <= vectorAllocBig * 1.1) &&
-            (arrayAllocSmall <= vectorAllocSmall * 1.1);
+            (arrayAllocBig * 1.1 <= vectorAllocBig) &&
+            (arrayAllocSmall * 1.1 <= vectorAllocSmall);
 
         printf("  G3D::Array               %9.02f     %9.02f     %s\n", 
                (double)arrayAllocBig/M, (double)arrayAllocSmall/M,
@@ -211,8 +211,8 @@ void perfArray() {
         printf(" Array cycles/resize (%d resizes)\n\n", M);
         printf("                           Big class           int     outcome\n");
         bool G3Dwin = 
-            (arrayResizeBig <= vectorResizeBig * 1.1) &&
-            (arrayResizeSmall <= vectorResizeSmall * 1.1);
+            (arrayResizeBig <= vectorResizeBig * 1.2) &&
+            (arrayResizeSmall * 1.1 <= vectorResizeSmall);
 
         printf("  G3D::Array               %9.02f     %9.02f     %s\n", 
                (double)arrayResizeBig/M, (double)arrayResizeSmall/M,

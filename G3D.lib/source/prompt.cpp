@@ -613,11 +613,18 @@ static int guiPrompt(const char*         windowTitle,
 		err = InstallControlEventHandler(arrRefButtons[i], buttonHandler, GetEventTypeCount(buttonSpec), buttonSpec, &eventData, NULL);
 	}
 		
-	// Show Dialog and Run in Modal State
+	// Show Dialog
 	err = RepositionWindow(eventData.refWindow, NULL, kWindowCenterOnMainScreen);
 	ShowWindow(eventData.refWindow);
 	BringToFront(eventData.refWindow);
 	err = ActivateWindow(eventData.refWindow,true);
+
+	// Hack to get our window/process to the front...
+	ProcessSerialNumber psn = { 0, kCurrentProcess};    
+	TransformProcessType (&psn, kProcessTransformToForegroundApplication);
+	SetFrontProcess (&psn);
+
+	// Run in Modal State
 	err = RunAppModalLoopForWindow(eventData.refWindow);
 	
 	// Dispose of Button Related Data

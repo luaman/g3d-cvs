@@ -20,6 +20,7 @@
 #if defined(G3D_OSX)
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
+class NSAutoreleasePoolWrapper;
 #else
 #undef WIN32_LEAN_AND_MEAN
 #include <SDL.h>
@@ -70,6 +71,8 @@ private:
     #elif defined(G3D_WIN32)
         HDC                     _Win32HDC;
         HWND                    _Win32HWND;
+	#elif defined(G3D_OSX)
+		NSAutoreleasePoolWrapper*	_pool;
     #endif
 
 protected:
