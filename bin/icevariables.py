@@ -17,6 +17,19 @@ NO                        = False
 BUILDDIR                  = 'build'
 DISTRIBDIR                = 'install'
 
+##################################################
+# Verbosity levels
+# Print only errors and prompts
+QUIET                     = 10
+
+NORMAL                    = 11
+
+# Print complete commands
+VERBOSE                   = 12
+
+# Print additional debugging information
+TRACE                     = 13
+
 # Temp directory where scratch and .o files are stored, relative to rootDir
 tempDir                   = '.ice-tmp/'
 
@@ -37,49 +50,7 @@ usesLibrariesList         = []
 # Location of the project root relative to CWD.  Ends in "/".  Set by setVariables.
 rootDir                   = ''
 
-# DEBUG or RELEASE
-target                    = ''
-
-# Location to which object files are written (target-specific).
-# Set by setVariables
-objDir                    = ''
-
-# EXE, LIB, or DLL. Set by setVariables.
-binaryType                = ''
-
-# Name of the project with no extension.  Set by setVariables.
-projectName               = ''
-
-# If YES, iCompile prints diagnostic information (helpful for debugging
-# iCompile).  Set by setVariables.
-
-##################################################
-# Verbosity levels
-# Print only errors and prompts
-QUIET                     = 10
-
-NORMAL                    = 11
-
-# Print complete commands
-VERBOSE                   = 12
-
-# Print additional debugging information
-TRACE                     = 13
-
 verbosity                 = NORMAL
-
-
-# Should debug symbols be stripped from debug build?
-stripDebugSymbols         = NO
-
-# A dictionary used to store values between invocations of iCompile
-cache                     = {}
-
-# Binary name.  Set by setVariables.
-binaryName                = ''
-
-# Location of the output binary relative to rootDir.  Set by setVariables.
-binaryDir                 = ''
 
 # Options for this target.  Set by configureCompiler
 defaultCompilerOptions    = []
@@ -93,21 +64,14 @@ compilerVerboseOptions    = []
 # Set by configureCompiler.
 defaultLinkerOptions      = []
 
-# Set by configureCompiler
-defaultCompilerName       = ''
-
-# e.g. linux-gcc4.0
-platform                  = ''
-
 defaultDynamicLibs = []
 defaultStaticLibs = []
-
 
 class State:
     # e.g., linux-gcc4.1
     platform                 	= None
 
-    # e.g., OS X, FreeBSD, Linux
+    # e.g., 'osx', 'freebsd', 'linux'
     os                          = None
 
     # List of all library canonical names that are known to be
@@ -134,3 +98,18 @@ class State:
     # Location to which generated binaries are written
     binaryDir                   = None
 
+    # Binary name not including directory.  Set by setVariables.
+    binaryName                  = None
+
+    # Location of the output binary relative to rootDir.  Set by setVariables.
+    binaryDir                   = None
+
+    # EXE, LIB, or DLL. Set by setVariables.
+    binaryType                  = None
+
+    # Location to which object files are written (target-specific).
+    # Set by setVariables
+    objDir                      = None
+
+
+state = State()

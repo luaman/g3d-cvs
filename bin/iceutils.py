@@ -537,3 +537,52 @@ def find(L, x, start = 0):
             return i
         i += 1
     return -1   
+
+##############################################################################
+#                              Locate Compiler                               #
+##############################################################################
+
+"""  Used by newestCompiler"""
+def _newestCompilerVisitor(best, dirname, files):
+    for file in files:
+        if ("g++" == file[:3]):
+            # Form of file is g++-VERSION or g++VERSION
+            try:
+                ff = dirname + "/" + file        
+                v = getVersion(ff)
+                
+                if v > best[1]:
+                    best[0] = ff
+                    best[1] = v
+
+            except ValueError:
+                pass
+
+_newestCompilerFilename = None
+_newestCompilerVersion = None
+ 
+"""AI for locating the users latest version of g++
+   Returns a the full path to the program, including the program name, and
+   the version as a list. """
+def newestCompiler():
+    global _newestCompilerFilename, _newestCompilerVersion
+ 
+    if _newestCompilerFilename == None:
+        # Filename has not been cached; compute it for the first time
+
+        # TODO: also test the CXX and CPP variables and see if they are newer
+        bin = commands.getoutput("which g++")
+    
+        # Turn binLoc into just the directory, not the path to the file g++
+        binLoc = bin[0:string.rfind(bin, "/")]
+    
+        # best will keep track of our current newest g++ found
+        best = [bin, getVersion(bin)]
+
+        # Search for all g++ binaries
+        os.path.walk(binLoc, _newestCompilerVisitor, best)
+
+        _newestCompilerFilename = best[0]
+        _newestCompilerVersion  = best[1]
+
+    return (_newestCompilerFilename, _newestCompilerVersion)

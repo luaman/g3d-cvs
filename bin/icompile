@@ -38,47 +38,9 @@ if int(sys.version[:string.find(sys.version, '.')]) < 2:
 # TODO: remove
 staticLinkDependencies = []
 
-##############################################################################
-#                              Locate Compiler                               #
-##############################################################################
 
-"""  Used by latestGpp"""
-def latestGppVisitor(best, dirname, files):
-    for file in files:
-        if ("g++" == file[:3]):
-            # Form of file is g++-VERSION or g++VERSION
-            try:
-                ff = dirname + "/" + file        
-                v = getVersion(ff)
-                
-                if v > best[1]:
-                    best[0] = ff
-                    best[1] = v
-
-            except ValueError:
-                pass
-
-
-"""AI for locating the users latest version of g++
-   Returns a the full path to the program, including the program name, and
-   the version as a list. """
-def latestGpp():
-    # TODO: also test the CXX and CPP variables and see if they are newer
-    
-    bin = commands.getoutput("which g++")
-    
-    # Turn binLoc into just the directory, not the path to the file g++
-    binLoc = bin[0:string.rfind(bin, "/")]
-    
-    # best will keep track of our current newest g++ found
-    best = [bin, getVersion(bin)]
-
-    # Search for all g++ binaries
-    os.path.walk(binLoc, latestGppVisitor, best)
-
-    return (best[0], best[1])
-
-    
+def isLibrary(L):
+    return L == LIB or L == DLL
 
 #########################################################################
 
@@ -187,32 +149,32 @@ def listDirs(_dir = ''):
 
 """ Loads the icompile cache that preserves values between calls """
 def loadCache(filename):
-    global cache
+    global state
 
     if verbosity >= TRACE: print "Loading cache from " + filename + "\n"
 
     if os.path.exists(filename):
         file = open(filename, 'r')
         try:
-            cache = pickle.load(file);
+            state.cache = pickle.load(file);
         except:
             # The cache was corrupted; ignore it
-            cache = {}
+            state.cache = {}
             if verbosity >= NORMAL: 
                 print "Internal iCompile cache at " + filename + " corrupted."
 
-        if verbosity >= TRACE: print "cache = ", cache
+        if verbosity >= TRACE: print "cache = ", state.cache
 
 
         file.close()
     else:
-        cache = {}
+        state.cache = {}
 
 ##############################################################################
 
 def saveCache(filename):
     file = open(filename, 'w')
-    pickle.dump(cache, file)
+    pickle.dump(state.cache, file)
     file.close()
 
 ##############################################################################
@@ -220,18 +182,18 @@ def saveCache(filename):
 ##############################################################################
 
 def discoverPlatform():
-    global platform
+    global state
 
-    OS = ''
+    state.os = ''
     compiler = ''
 
     # Figure out the os
     if (os.uname()[0] == 'Linux'):
-        OS = 'linux'
+        state.os = 'linux'
     elif (os.uname()[0] == 'FreeBSD'):
-        OS = 'freebsd'
+        state.os = 'freebsd'
     elif (os.uname()[0] == 'Darwin'):
-        OS = 'osx'
+        state.os = 'osx'
     else:
         raise 'Error', 'iCompile only supports Linux and OS X'
 
@@ -251,7 +213,7 @@ def discoverPlatform():
         v = v + 0
     compiler += string.join(map(str, v), '.')
 
-    platform = OS + '-' + machine() + '-' + compiler
+    state.platform = state.os + '-' + machine() + '-' + compiler
     
 ##############################################################################
 #                            Build Documentation                             #
@@ -459,7 +421,7 @@ def getDependencyInformation():
 def getObjectFilename(sourceFile):
     # strip the extension and replace it with .o
     i = string.rfind(sourceFile, ".")
-    return objDir + sourceFile[len(rootDir):i] + ".o"
+    return state.objDir + sourceFile[len(rootDir):i] + ".o"
 
 #########################################################################
 
@@ -582,14 +544,14 @@ def makeObjectFile(cfile, options):
 # allfiles is a list of all files on which something depends.  May be empty list.
 # 
 def printVariables(icompileargs, progargs, allfiles = []):
-    print "platform               = '" + platform + "'"
+    print "platform               = '" + state.platform + "'"
     print "rootDir                = '" + rootDir + "'"
-    print "projectName            = '" + projectName + "'"
-    print "target                 = " + target
-    print "binaryType             = " + binaryType
-    print "binaryDir              = '" + binaryDir + "'"
-    print "binaryName             = '" + binaryName + "'"
-    print "objDir                 = '" + objDir + "'"
+    print "projectName            = '" + state.projectName + "'"
+    print "target                 = " + state.target
+    print "binaryType             = " + state.binaryType
+    print "binaryDir              = '" + state.binaryDir + "'"
+    print "binaryName             = '" + state.binaryName + "'"
+    print "objDir                 = '" + state.objDir + "'"
     print "iCompile args          =", icompileargs
     print "quiet                  =", quiet
     print "--run args             =", progargs
@@ -600,7 +562,6 @@ def printVariables(icompileargs, progargs, allfiles = []):
     print "compilerWarningOptions =", compilerWarningOptions
     print "compilerVerboseOptions =", compilerVerboseOptions
     print "linkerOptions          =", linkerOptions()
-    print "defaultCompilerName    = '" + defaultCompilerName + "'"
     print "defaultCompilerOptions =", defaultCompilerOptions
     print "defaultLinkerOptions   =", defaultLinkerOptions
     print "includePaths           =", includePaths()
@@ -631,7 +592,7 @@ def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
                 if extraLink.has_key(symbol):
                     (debug, release) = extraLink[symbol]
 
-                    if target == DEBUG:
+                    if state.target == DEBUG:
                         lfile = debug
                     else:
                         lfile = release
@@ -676,8 +637,6 @@ def getLinkerOptions(allFiles):
     # Set of canonically named libraries to link against
     libraries        = Set()
 
-    osx = os.uname()[0] == 'Darwin'
-
     # Compute a list of all libraries needed from the headers
     for path in allFiles:
         header = betterbasename(path)
@@ -716,13 +675,13 @@ def getLinkerOptions(allFiles):
         if libraryTable.has_key(libname):
             lib = libraryTable[libname]
 
-            if target == DEBUG:
-                if osx and lib.debugFramework != None:
+            if state.target == DEBUG:
+                if state.os == 'osx' and lib.debugFramework != None:
                     allLinks += ['-framework',  lib.debugFramework]
                 elif (lib.type != FRAMEWORK) and (lib.debugLib != None):
                     allLinks += ['-l' + rawLibraryFilename(findLibrary(lib.debugLib, lib.type, libraryPaths()))]
             else:
-                if osx and lib.releaseFramework != None:
+                if state.os == 'osx' and lib.releaseFramework != None:
                     allLinks += ['-framework',  lib.releaseFramework]
                 elif (lib.type != FRAMEWORK) and (lib.releaseLib != None):
                     allLinks += ['-l' + rawLibraryFilename(findLibrary(lib.releaseLib, lib.type, libraryPaths()))]
@@ -733,7 +692,7 @@ def getLinkerOptions(allFiles):
 
     # Add libraries on which we explicitly depend
     #suffix = ''
-    #if target == DEBUG:
+    #if state.target == DEBUG:
     #    suffix = 'd'
 
     #for u in usesProjectsList:
@@ -743,7 +702,7 @@ def getLinkerOptions(allFiles):
     #    allLinks.append('-l' + libname)
 
     # TODO: Add links specified in the config file
-    #extraStaticLibs = string.split(configGet(config, target, 'staticlibs'), ':')
+    #extraStaticLibs = string.split(configGet(config, state.target, 'staticlibs'), ':')
     #allLinks += [('-l' + lib) for lib in extraStaticLibs]
 
     # If SDL is already on the link list then it automatically links X11
@@ -762,11 +721,11 @@ def getLinkerOptions(allFiles):
 def makeStaticLibrary(objectFiles):
     if verbosity >= QUIET: colorPrint("Creating static library", SECTION_COLOR)
 
-    ret = run('ar', ['cr', binaryDir + binaryName] + objectFiles, verbosity >= VERBOSE)
+    ret = run('ar', ['cr', state.binaryDir + state.binaryName] + objectFiles, verbosity >= VERBOSE)
     if verbosity >= VERBOSE: print
     
     if (ret == 0):
-        ret = run('ranlib', [binaryDir + binaryName], verbosity >= VERBOSE)
+        ret = run('ranlib', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
 
 
 #########################################################################
@@ -792,7 +751,7 @@ def makeExecutable(objectFiles, linkOptions):
     else:
         options += objectFiles
 
-    options += linkOptions + ['-o', binaryDir + binaryName]
+    options += linkOptions + ['-o', state.binaryDir + state.binaryName]
 
     if ('OpenGL' in options) or ('GL' in options):
         # Suppress the multiply defined symbols warning that 
@@ -806,9 +765,9 @@ def makeExecutable(objectFiles, linkOptions):
 
     if ret != 0:
         sys.exit(ret)
-    elif (target == RELEASE):
+    elif (state.target == RELEASE):
         # Strip debug symbols
-	run('strip', [binaryDir + binaryName], verbosity >= VERBOSE)
+	run('strip', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
 
 #########################################################################
 
@@ -830,10 +789,10 @@ def getLibrarySiblingDirs():
 def buildBinary():
     global usesProjectsList, usesLibrariesList
 
-    if verbosity >= NORMAL: colorPrint('Building ' + binaryName, SECTION_COLOR)
+    if verbosity >= NORMAL: colorPrint('Building ' + state.binaryName, SECTION_COLOR)
 
     # Create the temp directory for object files
-    mkdir(objDir, verbosity >= VERBOSE)
+    mkdir(state.objDir, verbosity >= VERBOSE)
 
     if verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
     (cfiles, dependencies, files) = getDependencyInformation()
@@ -875,7 +834,7 @@ def buildBinary():
                     elif ext == 'lib' or ext == 'a':
                         type = LIB
 
-                    if (type == LIB or type == DLL):
+                    if isLibrary(type):
                         if not libraryTable.has_key(libname):
                            defineLibrary(Library(libname, type, libname, libname + 'd',  None,  None, [betterbasename(header)], [], []))
 
@@ -919,8 +878,6 @@ def buildBinary():
     if (buildList != []):
         if verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
     
-    osx = (os.uname()[0] == 'Darwin')
-
     for file in buildList:
         makeObjectFile(file, copt)
         relink = 1
@@ -932,26 +889,26 @@ def buildBinary():
         ofiles.append(getObjectFilename(cfile))
 
     # Definitely need to link if no executable exists
-    doLink = not os.path.exists(binaryDir + binaryName)
+    doLink = not os.path.exists(state.binaryDir + state.binaryName)
     if not doLink:
         # See if an object file is newer than the exe
         
-        exeTime = getTimeStamp(binaryDir + binaryName)
+        exeTime = getTimeStamp(state.binaryDir + state.binaryName)
         for file in ofiles:
             if getTimeStamp(file) > exeTime:
                 if verbosity >= TRACE:
                     print ("Relinking because " + file + 
-                           " is newer than " + binaryDir + binaryName)
+                           " is newer than " + state.binaryDir + state.binaryName)
                 doLink = True
                 break
 
     # Only link when necessary
     if doLink:
-        if not os.path.exists(binaryDir):
-            mkdir(binaryDir, verbosity >= VERBOSE)
+        if not os.path.exists(state.binaryDir):
+            mkdir(state.binaryDir, verbosity >= VERBOSE)
 
-        if ((binaryType == EXE) or
-            (binaryType == DLL)):
+        if ((state.binaryType == EXE) or
+            (state.binaryType == DLL)):
 
             # Dynamic library or executable.
             lopt = getLinkerOptions(files)
@@ -964,7 +921,7 @@ def buildBinary():
 
         print
 
-    if verbosity >= VERBOSE: colorPrint('Done building ' + binaryName, SECTION_COLOR)
+    if verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
     
 #########################################################################
 """ Turns a string with paths separated by ; (or : on Linux) into
@@ -1012,8 +969,8 @@ def separateArgs(args):
 def runCompiledProgram(progArgs):
     printBar()
     curDir = os.getcwd()
-    os.chdir(binaryDir)
-    cmd = './' + binaryName + ' ' + string.join(progArgs, ' ')
+    os.chdir(state.binaryDir)
+    cmd = './' + state.binaryName + ' ' + string.join(progArgs, ' ')
     ret = os.system(cmd)
     os.chdir(curDir)
     return ret
@@ -1035,8 +992,8 @@ def gdbCompiledProgram(progArgs):
     #          -x   Run the gdb commands we wrote out to the command file
     #          -cd  Working directory
     #          -f   Print files and line numbers in Emacs-compatible format
-    cmd = ('gdb -x ../../' + commandFile + ' -cd ' + binaryDir +
-                ' -q -f ' + binaryName)
+    cmd = ('gdb -x ../../' + commandFile + ' -cd ' + state.binaryDir +
+                ' -q -f ' + state.binaryName)
     print cmd
     printBar()
     return os.system(cmd)
@@ -1128,7 +1085,7 @@ def checkForProjectFile(args):
  @param args All arguments before --run
 """
 def setVariables(args):
-    global binaryName, binaryDir, objDir
+    global state
 
     discoverPlatform()
 
@@ -1136,23 +1093,23 @@ def setVariables(args):
 
     # On unix systems we prefix library names with 'lib'
     prefix = ''
-    if unix and ((binaryType == DLL) or (binaryType == LIB)):
+    if unix and isLibrary(state.binaryType == DLL):
         prefix = 'lib'
 
     # Binary name
-    if (binaryType == EXE):
-        binaryDir  = BUILDDIR + '/' + DISTRIBDIR + '/'
-        binaryName = projectName + d
-    elif (binaryType == DLL):
-        binaryDir  = BUILDDIR + '/' + DISTRIBDIR + '/' + platform + '-lib/'
-        binaryName = prefix + projectName + d + '.so'
-    elif (binaryType == LIB):
-        binaryDir  = BUILDDIR + '/' + DISTRIBDIR + '/' + platform + '-lib/'
-        binaryName = prefix + projectName + d + '.a'
+    if (state.binaryType == EXE):
+        state.binaryDir  = BUILDDIR + '/' + DISTRIBDIR + '/'
+        state.binaryName = state.projectName + d
+    elif (state.binaryType == DLL):
+        state.binaryDir  = BUILDDIR + '/' + DISTRIBDIR + '/' + state.platform + '-lib/'
+        state.binaryName = prefix + state.projectName + d + '.so'
+    elif (state.binaryType == LIB):
+        state.binaryDir  = BUILDDIR + '/' + DISTRIBDIR + '/' + state.platform + '-lib/'
+        state.binaryName = prefix + state.projectName + d + '.a'
 
     # Make separate directories for object files based on
     # debug/release
-    objDir = tempDir + platform + '/' + target + '/'
+    state.objDir = tempDir + state.platform + '/' + state.target + '/'
 
 
 #################################################################
@@ -1165,12 +1122,11 @@ def configureCompiler():
 """ Configure g++ as our compiler of choice.
     Called from configureCompiler."""
 def configureGpp():
-    global defaultCompilerName, defaultCompilerOptions, compilerWarningOptions
+    global defaultCompilerOptions, compilerWarningOptions
     global compilerVerboseOptions, defaultLinkerOptions
 
-    (defaultCompilerName, compilerVersion) = latestGpp()
 
-    if (target == RELEASE):
+    if (state.target == RELEASE):
         defaultCompilerOptions = ['-O3',
                                   '-D_RELEASE', 
                                   '-funsafe-math-optimizations', 
@@ -1213,10 +1169,10 @@ def configureGpp():
     # inter-process communication; this should be faster.
     defaultCompilerOptions += ['-pipe']
  
-    if (binaryType == DLL):
+    if (state.binaryType == DLL):
         defaultLinkerOptions  += ['-shared']
 
-    compilerWarningOptions     = ['-Wall -Wformat=2']
+    compilerWarningOptions     = ['-Wall', '-Wformat=2']
 
 
 #################################################################
@@ -1235,7 +1191,10 @@ def configGet(config, section, name, exp = True):
 
     # Replace special values
     if '<' in val:
-        val = val.replace('<NEWESTGCC>',       defaultCompilerName)
+        if '<NEWESTGCC>' in val:
+            (gppname, ver) = newestCompiler()
+            val = val.replace('<NEWESTGCC>',   gppname)
+
         val = val.replace('<COMPILEOPTIONS>',  string.join(defaultCompilerOptions, ' '))
         val = val.replace('<LINKOPTIONS>',     string.join(defaultLinkerOptions, ' '))
         val = val.replace('<DYNAMICLIBS>',     string.join(defaultDynamicLibs, ';'))
@@ -1331,8 +1290,8 @@ def includePaths():
     L = makePathList(configGet(config, 'GLOBAL', 'include'))
 
     # Add our own include directories
-    if (binaryType == DLL) or (binaryType == LIB):
-        for p in ['include', 'include/' + projectName]:
+    if isLibrary(state.binaryType == DLL):
+        for p in ['include', 'include/' + state.projectName]:
             if os.path.exists(p):
                 L.append(p + '/')
 
@@ -1356,7 +1315,7 @@ def libraryPaths():
 
     # Add any explicit iCompile libraries
     for u in usesProjectsList:
-        L.append(pathConcat(u, '/build/install/' + platform + '-lib/'))
+        L.append(pathConcat(u, '/build/install/' + state.platform + '-lib/'))
 
     return L
 
@@ -1364,10 +1323,10 @@ def compilerName():
     return configGet(config, 'GLOBAL', 'compiler')
 
 def configCompilerOptions():
-    return string.split(configGet(config, target, 'compileoptions'), ' ')
+    return string.split(configGet(config, state.target, 'compileoptions'), ' ')
 
 def linkerOptions():
-    options = string.split(configGet(config, target, 'linkoptions'), ' ')
+    options = string.split(configGet(config, state.target, 'linkoptions'), ' ')
     for option in options:
         if option.strip() == '':
             options.remove(option)
@@ -1391,7 +1350,7 @@ def main(args, progArgs, doGDB, doRun):
         buildDocumentation()
         maybePrintBar()
 
-    if binaryType == EXE:
+    if state.binaryType == EXE:
         buildDataFiles()
         maybePrintBar()
         
@@ -1399,7 +1358,7 @@ def main(args, progArgs, doGDB, doRun):
 
     maybePrintBar()
         
-    if (binaryType == LIB) or (binaryType == DLL):
+    if isLibrary(state.binaryType):
         buildInclude()
         maybePrintBar()
     
@@ -1410,10 +1369,10 @@ def main(args, progArgs, doGDB, doRun):
         return runCompiledProgram(progArgs)
 
     if not (doGDB or doRun) and (verbosity >= NORMAL):
-        if (binaryType == EXE):
-            print '\nExecutable written to ' + binaryDir + binaryName
+        if (state.binaryType == EXE):
+            print '\nExecutable written to ' + state.binaryDir + state.binaryName
         else:
-            print '\nLibrary written to ' + binaryDir + binaryName
+            print '\nLibrary written to ' + state.binaryDir + state.binaryName
                 
     return 0
 
@@ -1446,20 +1405,20 @@ if __name__ == '__main__':
     rootDir                    = os.getcwd() + "/"
 
     # Project name
-    projectName                = string.split(rootDir, ('/'))[-2]
+    state.projectName                = string.split(rootDir, ('/'))[-2]
 
-    ext = string.lower(extname(projectName))
-    projectName = rawfilename(projectName)
+    ext = string.lower(extname(state.projectName))
+    state.projectName = rawfilename(state.projectName)
 
     # Binary type    
     if (ext == 'lib') or (ext == 'a'):
-        binaryType = LIB
+        state.binaryType = LIB
     elif (ext == 'dll') or (ext == 'so'):
-        binaryType = DLL
+        state.binaryType = DLL
     elif (ext == 'exe') or (ext == ''):
-        binaryType = EXE
+        state.binaryType = EXE
     else:
-        binaryType = EXE
+        state.binaryType = EXE
         maybeWarn("This project has unknown extension '" + ext +
                   "' and will be compiled as an executable.")
 
@@ -1470,17 +1429,17 @@ if __name__ == '__main__':
                        "the same time.", WARNING_COLOR)
             sys.exit(-1)
 
-        target                 = RELEASE
+        state.target                 = RELEASE
         d                      = ''
     else:
-        target                 = DEBUG
+        state.target                 = DEBUG
         d                      = 'd'
 
     if doGDB and doRun:
         colorPrint("Cannot specify both --gdb and --run options.", WARNING_COLOR)
         sys.exit(-1)
 
-    if (doGDB or doRun) and (binaryType != EXE):
+    if (doGDB or doRun) and (state.binaryType != EXE):
         colorPrint("Cannot specify --gdb or --run for a library.", WARNING_COLOR)
         sys.exit(-1)
 
