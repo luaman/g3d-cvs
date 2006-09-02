@@ -84,11 +84,19 @@ def latestGpp():
 
 """ Returns true if this is a cpp source filename. """
 def isCFile(file):
-    return ((file[-4:] == ".cpp") or
-            (file[-2:] == ".c") or
-            (file[-2:] == ".C") or
-            (file[-4:] == ".c++") or
-            (file[-4:] == ".cxx"))
+    ext = string.lower(extname(file))
+
+    return ((ext == 'cpp') or
+           (ext == 'c') or
+           (ext == 'c++') or
+           (ext == 'cxx') or
+           (ext == 'i') or
+           (ext == 'ii') or
+	   ((os.uname()[0] == 'Darwin') and
+            ((ext == 'mm') or
+             (ext == 'm') or
+             (ext == 'mi') or
+             (ext == 'mii'))))
 
 #########################################################################
 
@@ -321,7 +329,6 @@ def getDependencies(file, iteration = 1):
     #
     # -MG means "don't give errors for header files that don't exist"
     # -MM means "don't tell me about system header files"
-
     raw = shell(compilerName() + ' -M -msse2 -MG ' +
                 string.join(getCompilerOptions([]), ' ') + ' ' + file,
                 verbosity >= VERBOSE)
@@ -1233,7 +1240,7 @@ def configGet(config, section, name, exp = True):
         val = val.replace('<LINKOPTIONS>',     string.join(defaultLinkerOptions, ' '))
         val = val.replace('<DYNAMICLIBS>',     string.join(defaultDynamicLibs, ';'))
         val = val.replace('<STATICLIBS>',      string.join(defaultStaticLibs, ';'))
-        val = val.replace('<EXCLUDE>',         string.join(icecopyifnewer._cppExcludePatterns, '|'))
+        val = val.replace('<EXCLUDE>',         string.join(icecopyifnewer._cppExcludePatterns + ['^CMakeFiles$'], '|'))
 
     if exp:
         val = expandvars(val)
