@@ -103,9 +103,11 @@ def listCFilesVisitor(result, dirname, files):
         files.remove(f)
 
 
-"""Returns "ls -R *.cpp *.cxx *.c++ *.c" for the given directory.
-Filenames must be relative to the "rootDir" directory.  dir will be
-a subdirectory of rootDir."""
+"""Returns all files with gcc-recognized c/c++ endings for the given directory
+   and all subdirectories.
+   
+   Filenames must be relative to the "rootDir" directory.  dir will be
+   a subdirectory of rootDir."""
 def listCFiles(dir = ''):
     if (dir == ''): dir = './'
 
@@ -115,7 +117,7 @@ def listCFiles(dir = ''):
     return result
 
 
-""" Non-recursiver version of listCFiles. (not actually used) """
+""" Non-recursive version of listCFiles. (not actually used) """
 def flatListCFiles(dir = ''):
     if (dir == ''): dir = './'
 
@@ -125,23 +127,6 @@ def flatListCFiles(dir = ''):
         if isCFile(f): cfiles.append(dir + f)
 
     return cfiles
-
-
-""" List all directories in a directory """
-def listDirs(_dir = ''):
-    if (_dir == ''):
-        dir = './'
-    else:
-        dir = _dir
-
-    all = os.listdir(dir)
-    dirs = []
-    for d in all:
-        if os.path.isdir(d):
-            dirs.append(_dir + d)
-
-    return dirs
-
    
 ##############################################################################
 #                            Cache Management                                #
@@ -161,7 +146,7 @@ def loadCache(filename):
             # The cache was corrupted; ignore it
             state.cache = {}
             if verbosity >= NORMAL: 
-                print "Internal iCompile cache at " + filename + " corrupted."
+                print "Internal iCompile cache at '" + filename + "' corrupted."
 
         if verbosity >= TRACE: print "cache = ", state.cache
 
@@ -420,8 +405,8 @@ def getDependencyInformation():
 """
 def getObjectFilename(sourceFile):
     # strip the extension and replace it with .o
-    i = string.rfind(sourceFile, ".")
-    return state.objDir + sourceFile[len(rootDir):i] + ".o"
+    i = string.rfind(sourceFile, '.')
+    return state.objDir + sourceFile[len(rootDir):i] + '.o'
 
 #########################################################################
 
@@ -1290,7 +1275,7 @@ def includePaths():
     L = makePathList(configGet(config, 'GLOBAL', 'include'))
 
     # Add our own include directories
-    if isLibrary(state.binaryType == DLL):
+    if isLibrary(state.binaryType):
         for p in ['include', 'include/' + state.projectName]:
             if os.path.exists(p):
                 L.append(p + '/')

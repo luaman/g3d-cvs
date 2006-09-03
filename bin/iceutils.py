@@ -586,3 +586,21 @@ def newestCompiler():
         _newestCompilerVersion  = best[1]
 
     return (_newestCompilerFilename, _newestCompilerVersion)
+
+###################################################
+
+""" List all directories in a directory """
+def listDirs(_dir = ''):
+    if (_dir == ''):
+        dir = './'
+    else:
+        dir = _dir
+
+    all = os.listdir(dir)
+    dirs = []
+    for d in all:
+        if os.path.isdir(d):
+            dirs.append(_dir + d)
+
+    return dirs
+

@@ -85,10 +85,10 @@ def maybeWarn(warning):
     WARNING_PERIOD = 3 * DAY
     now = time.time()
 
-    if not cache.has_key('warnings'):
-        cache['warnings'] = {}
+    if not state.cache.has_key('warnings'):
+        state.cache['warnings'] = {}
 
-    allWarnings = cache['warnings']
+    allWarnings = state.cache['warnings']
 
     if (not allWarnings.has_key(warning) or
         ((allWarnings[warning] + WARNING_PERIOD) < time.time())):
