@@ -8,27 +8,36 @@ from buildlib import *
 
 # Helper function that chooses whether to build release or debug versions
 def cbuild_versions(cl_args, args):
-    if ("--release" in cl_args or "--both" in args or not ("--debug" in cl_args)):
-        args.append("-DCMAKE_BUILD_TYPE:STRING=Release")
-        cbuild(".cmake-release", args)
+    x == 0
 
-    if ("--debug" in cl_args or "--both" in args or not ("--release" in cl_args)):
-        args.append("-DCMAKE_BUILD_TYPE:STRING=Debug")
-        cbuild(".cmake-debug", args)
+    if ('--release' in cl_args or '--both' in args or not ('--debug' in cl_args)):
+        args.append('-DCMAKE_BUILD_TYPE:STRING=Release')
+        if x == 0: x = cbuild(".cmake-release", args)
+
+    if ('--debug' in cl_args or "--both" in args or not ('--release' in cl_args)):
+        args.append('-DCMAKE_BUILD_TYPE:STRING=Debug')
+        if x == 0: x = cbuild(".cmake-debug", args)
+
+    return x
 
 # Helper function for building libraries from scratch
 def cbuild(subdir, args):
-    build_dir = ""
-    build_dir = "./build/" + subdir
+    x = 0
+    build_dir = ''
+    build_dir = './build/' + subdir
     mkdir (build_dir)
     os.chdir (build_dir)
-    if (os.path.exists("../." + build_dir)):
-        print ("Changed directory to: " + os.getcwd())
-        run("cmake", args)
-        run("make", [])  
-        os.chdir("../../")
+
+    if (os.path.exists('../.' + build_dir)):
+        print ('Changed directory to: ' + os.getcwd())
+        x = run('cmake', args)
+        if x == 0: x = run('make', [])  
+        os.chdir('../../')
     else:
-        print ("Unable to change directories to:\n\t" + os.getcwd() + "/build/" + subdir)
+        print ('Unable to change directories to:\n\t' + os.getcwd() + '/build/' + subdir)
+        x = 1
+
+    return x
 
 # Helper function for building libraries from existing CMakeLists.txt
 def cfastbuild(subdir):
@@ -43,49 +52,61 @@ def cfastbuild(subdir):
         print ("Unable to change directories to:\n\t" + os.getcwd() + "/build/" + subdir)
  
 def clib(cl_args):
-     args = ["../../", "-DBUILD_BINARIES:BOOL=OFF"]
-     cbuild_versions(cl_args, args)
+    args = ['../../', '-DBUILD_BINARIES:BOOL=OFF']
+    return cbuild_versions(cl_args, args)
 
 def cclean(cl_args):
-     rmdir ("build")
+    rmdir('build')
 
 def ctest(cl_args):
-     args = ["../../", "-DBUILD_BINARIES:BOOL=ON"]
-     cbuild_versions(cl_args, args)
+    args = ['../../', '-DBUILD_BINARIES:BOOL=ON']
+    return cbuild_versions(cl_args, args)
     
 
 def cfastlib(args):
-    if ("--release" in args or "--both" in args or not ("--debug" in args)):
-        cfastbuild(".cmake-release")
+    if ('--release' in args or '--both' in args or not ('--debug' in args)):
+        cfastbuild('.cmake-release')
 
-    if ("--debug" in args or "--both" in args or not ("--release" in args)):
-        cfastbuild(".cmake-debug")
+    if ('--debug' in args or '--both' in args or not ('--release' in args)):
+        cfastbuild('.cmake-debug')
 
 
 ##################################################################################
 #  iCompile targets
 
+""" Runs iCompile in both debug and release mode (if debug succeeds) and returns
+    the error code from the last run. 
+"""
 def runicompile(dir):
      os.chdir(dir)
-     run("../bin/icompile")
-     run("../bin/icompile", ['-O'])
+     x = run("../bin/icompile")
+
+     if (x == 0): 
+         x =run("../bin/icompile", ['-O'])
+
      os.chdir("..")
 
+     return x
+
 def ilib(args):
-     runicompile('G3D.lib')
-     runicompile('GLG3D.lib')
+     x = runicompile('G3D.lib')
+
+     if (x == 0):
+         x = runicompile('GLG3D.lib')
 
      if (os.uname()[0] == 'Darwin') or (os.uname()[0] == 'WinNT'):
          # Build jpeg
-         runicompile('jpeg.lib')
+         if x == 0: x = runicompile('jpeg.lib')
 
      if (os.uname()[0] == 'WinNT'):
          # Build zlib
-         runicompile('zlib.lib')
+         if x == 0: runicompile('zlib.lib')
 
      if (os.uname()[0] == 'WinNT'):
          # Build png
-         runicompile('png.lib')
+         if x == 0: x = runicompile('png.lib')
+
+     return x
 
 def iclean(args):
      os.chdir("G3D.lib")
@@ -106,38 +127,67 @@ def iclean(args):
 
 
 def itest(args):
-     os.chdir("test")
-     run("../bin/icompile")
-     os.chdir("..")
+    os.chdir("test")
+    x = run('../bin/icompile' ['--run'])
+    if (x == 0):
+        run('../bin/icompile' ['-O', '--run'])
+    os.chdir("..")
+
+################################################################################
+
+def doc(args):
+    print 'doc target not currently implemented.'
+
+def install(args):
+    x = lib(args)
+    if x == 0: x = test(args)
+    if x == 0: x = doc(args)
+
+def lib(args):
+    return clib(args)
+
+def clean(args):
+    return cclean(args)
+
+def test(args):
+    return ctest(args)
 
 ##################################################################################
 #  General
         
 def buildHelp():
     print """
-build - Automated build system for graphics3D.
+buildg3d - Automated build system for G3D.
 
 Syntax: 
-    build target [install-dir]
+    buildg3d target [--compiler {vc6|vc7|vc8|xcode|gcc[version]}] [install-dir]
 
 TARGET         DESCRIPTION
 
 help       Display this message
+lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
+test       Build test and testd and then run both
+clean      Delete all generated files
+makefile   Generate project/makefiles appropriate to this 
+           environment, but do not run them.
+doc        Generate documentation using Doxygen
+install    Run lib, test, and doc targets
 
-Targets using CMake:
-clib       Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
-ctest      Build test and testd and then run both
-cclean     Remove all files generated by CMake/make
-fastlib    Builds link libraries without using CMake
+The return code of buildg3d is the return code of the last process it
+launched (i.e., you can expect 0 on success).
 
-Targets using iCompile:
-ilib       Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
-itest      Build test and testd and then run both
-iclean     Remove all files generated by iCompile
+Note:
+G3D is currently evaluating two build systems, CMake and iCompile.
+The lib, test, clean, and makefile targets may be run with either
+a 'c' or an 'i' prefixed (e.g., clib) to select between the build 
+systems.
 
 See cpp/readme.html for detailed build information.
 """
 
-dispatchOnTarget(
-  [clib, cclean, ctest, cfastlib,
-   ilib, iclean, itest], buildHelp)
+if __name__ == "__main__":
+    sys.exit(dispatchOnTarget(
+        [lib, clean, test,
+         clib, cclean, ctest, cfastlib,
+         ilib, iclean, itest,
+         doc, install], buildHelp))
