@@ -97,7 +97,11 @@
     //#define ZLIB_DLL
     //#pragma comment(lib, "zdll.lib")
 
-    #pragma comment(lib, "zlib.lib")
+	//#ifdef _DEBUG
+//		#pragma comment(lib, "zlib-debug.lib")
+//	#else
+//		#pragma comment(lib, "zlib.lib")
+//	#endif
 
     #pragma comment(lib, "ws2_32.lib")
     #pragma comment(lib, "winmm.lib")

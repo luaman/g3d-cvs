@@ -158,7 +158,9 @@ typedef short INT16;
 /* INT32 must hold at least signed 32-bit values. */
 
 #ifndef XMD_H			/* X11/xmd.h correctly defines INT32 */
+#if (!defined(_BASETSD_H_) && !defined(_BASETSD_H)) 
 typedef long INT32;
+#endif
 #endif
 
 /* Datatype used for image dimensions.  The JPEG standard only supports
@@ -212,6 +214,7 @@ typedef unsigned int JDIMENSION;
 #ifdef NEED_FAR_POINTERS
 #define FAR  far
 #else
+#undef FAR
 #define FAR
 #endif
 

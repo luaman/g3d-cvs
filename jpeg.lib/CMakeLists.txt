@@ -1,20 +1,18 @@
 ######################################################################
-# DIRECTORY:	g3d.lib
+# DIRECTORY:	jpeg.lib
 # PROGRAMMER:	Daniel Hilferty
 # CREATED:	3 August 2006
-# MODIFIED:	15 August 2006
+# MODIFIED:	28 August 2006
 #
 # DESCRIPTION:
-# 	Build File for G3D.  PNG and JPEG are listed as dependencies.  
+# 	Build File for jpeg.lib.  For use with Window's builds.
 ######################################################################
-# Create list of source files used in G3D -- yes, this is poor form,
+# Create list of source files used in glg3d -- yes, this is poor form,
 # but as long as you recognize the need to re-run cmake after adding
 # a file to the project, there will be no problems.
 AUX_SOURCE_DIRECTORY(source source_list)
-AUX_SOURCE_DIRECTORY(include/G3D header_list)
+AUX_SOURCE_DIRECTORY(include/jpeg header_list)
 
 # Specify code files for the library.
-ADD_LIBRARY(G3D ${source_list} ${header_list})
+ADD_LIBRARY(jpeg ${source_list} ${header_list})
 
-# Specify libraries to link
-TARGET_LINK_LIBRARIES(G3D GLG3D ${PNG_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})

@@ -15,6 +15,25 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
 # Set Project Name
 PROJECT(G3D)
+
+######################################################################
+# SET VARIABLES
+
+# Set some basic CMake variables
+IF (UNIX)
+	SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/../)
+ELSE (UNIX)
+	SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/)
+ENDIF(UNIX)
+
+SET (LIBRARY_OUTPUT_PATH ${G3D_INSTALL_DIR}/lib)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_INSTALL_DIR}/bin/${CMAKE_BUILD_TYPE})
+
+# Specify debug postfix for all debug libraries
+# Note: The position of this specification guarantees that zlib, jpeg and png 
+# libraries will not have this postfix.
+SET(CMAKE_DEBUG_POSTFIX "-debug")
+
 ######################################################################
 # CONFIGURE LIBRARIES 
 
@@ -32,36 +51,24 @@ ENDIF (UNIX)
 
 # Build jpeg, png and zlib libraries if using windows
 IF (WIN32)
-    SUBDIRS (libjpeg.lib libpng.lib zlib.lib)
-	SET (LIB_INCLUDE_DIR ${G3D_SOURCE_DIR}/libpng.lib/include/libpng
-				   ${G3D_SOURCE_DIR}/zlib.lib/include/zlib
-				   ${G3D_SOURCE_DIR}/libjpeg.lib/include/libjpeg)
-	SET (JPEG_LIBRARIES jpeg)
-	SET (PNG_LIBRARIES png zlib)
-	SET (ZLIB_LIBRARIES zlib)
+    SUBDIRS (jpeg.lib png.lib zlib.lib)
+    SET (LIB_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include/png
+                         ${G3D_SOURCE_DIR}/zlib.lib/include/zlib
+                         ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
+    SET (JPEG_LIBRARIES jpeg)
+    SET (PNG_LIBRARIES png)
+#    SET (ZLIB_LIBRARIES)
 ENDIF (WIN32)
 
 # If on a unix system, find the required libraries.  On windows systems
 # they will simply be built. Unix covers both OS X aND Linux.
 IF(UNIX)
-	INCLUDE (FindPNG)
-	INCLUDE (FindJPEG)
-	FIND_PACKAGE(PNG)
-	FIND_PACKAGE(JPEG)
+    INCLUDE (FindPNG)
+    INCLUDE (FindJPEG)
+    FIND_PACKAGE(PNG)
+    FIND_PACKAGE(JPEG)
 ENDIF (UNIX)
 
-######################################################################
-# SET VARIABLES
-
-# Set some basic CMake variables
-SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/../)
-SET (LIBRARY_OUTPUT_PATH ${G3D_INSTALL_DIR}/lib)
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_INSTALL_DIR}/bin/${CMAKE_BUILD_TYPE})
-
-# Specify debug postfix for all debug libraries
-# Note: The position of this specification guarantees that zlib, jpeg and png 
-# libraries will not have this postfix.
-SET(CMAKE_DEBUG_POSTFIX "-debug")
 
 ######################################################################
 # INCLUDE DIRECTORIES
@@ -69,7 +76,7 @@ SET(CMAKE_DEBUG_POSTFIX "-debug")
 INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include 
                     ${G3D_SOURCE_DIR}/GLG3D.lib/include
                     ${PNG_INCLUDE_DIR}
-			        ${LIB_INCLUDE_DIR})
+                    ${LIB_INCLUDE_DIR})
 
 ######################################################################
 # BUILD DIRECTORIES
