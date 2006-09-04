@@ -121,7 +121,7 @@ def iclean(args):
      os.chdir('../png.lib')
      run("../bin/icompile", ['--clean'])
 
-     os.chdir("../test.lib")
+     os.chdir("../test")
      run("../bin/icompile", ['--clean'])
      os.chdir("..")
 
