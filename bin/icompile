@@ -756,14 +756,18 @@ def makeExecutable(objectFiles, linkOptions):
 
 #########################################################################
 
-""" Returns sibling directories that are also iCompile libraries."""
-def getLibrarySiblingDirs():
+""" Returns sibling directories that are also iCompile libraries as names
+    relative to the current directory.
+    Allowed to recurse back two parent directories"""
+def getLibrarySiblingDirs(howFarBack = 1):
     libsibs = []
-    for dir in getSiblingDirs():
+    for dir in getSiblingDirs(howFarBack):
+
         # See if it contains an ice.txt and ends in a library extension
-        if (os.path.exists('../' + dir + '/ice.txt') and 
-            (dir.endswith('.lib') or dir.endswith('.a') or 
-             dir.endswith('.so') or dir.endswith('.dll'))):
+        ext = extname(dir).lower()
+        if (os.path.exists(dir + '/ice.txt') and 
+           ((ext == 'lib') or (ext == 'a') or 
+            (ext == 'so') or  (ext == 'dll'))):
             libsibs.append(dir)
 
     return libsibs
@@ -788,7 +792,7 @@ def buildBinary():
     # that are fully qualified as well as files in the current directory.
     # This list will be extended as we go forward.
     incPaths = [''] + includePaths()
-    librarySiblingDirs = getLibrarySiblingDirs()
+    librarySiblingDirs = getLibrarySiblingDirs(3)
 
     for header in files:
         found = False
@@ -803,11 +807,10 @@ def buildBinary():
             i = 0
             while not found and (i < len(librarySiblingDirs)):
                 dirname = librarySiblingDirs[i]
-                libdir = '../' + dirname
-                found = os.path.exists(libdir + '/include/' + header)
+                found = os.path.exists(dirname + '/include/' + header)
                 if found:
                     if verbosity >= TRACE: 
-                        print "Found '" + header + "' in '" + libdir + "/include'."
+                        print "Found '" + header + "' in '" + dirname + "/include'."
                     # We have identified a sibling library on which this project appears
                     # to depend.  
 
@@ -821,16 +824,17 @@ def buildBinary():
 
                     if isLibrary(type):
                         if not libraryTable.has_key(libname):
-                           defineLibrary(Library(libname, type, libname, libname + 'd',  None,  None, [betterbasename(header)], [], []))
+                           defineLibrary(Library(libname, type, libname, libname + 'd',  
+	                                         None,  None, [betterbasename(header)], [], []))
 
                         if not libname in usesLibrariesList:
                             usesLibrariesList.append(libname)
 
-                        if not libdir in usesProjectsList:
-                            print "Detected dependency on " + libdir + ' from #include "' + header + '".'
-                            usesProjectsList.append(libdir)
-                            incPaths.append(libdir + '/include/')
-                            # TODO: recursive dependencies
+                        if not dirname in usesProjectsList:
+                            print "Detected dependency on " + dirname + ' from #include "' + header + '".'
+                            usesProjectsList.append(dirname)
+                            incPaths.append(dirname + '/include/')
+                            # TODO: recursively add all dependencies that come from this new header/library
                 i += 1
 
         if not found:

@@ -437,8 +437,9 @@ def rawfilename(filename):
 
 """ Returns the extensions from a full filename."""
 def extname(filename):
+
     f = betterbasename(filename)
-    period = string.rfind(filename, '.')
+    period = string.rfind(f, '.')
 
     if period > 0:
         return f[(period + 1):]
@@ -518,14 +519,21 @@ def maybePrintBar():
 """ Returns a list of all directories (without '..') that are
     next to this directory.
 """
-def getSiblingDirs():
+def getSiblingDirs(howFarBack = 1):
     siblings = []
     me = betterbasename(os.getcwd())
 
-    for node in os.listdir('..'):
-        # See if the node is a directory (and not *this* directory!)
-        if node != me and os.path.isdir('../' + node):
-            siblings.append(node)
+    prefix = '..'
+
+    i = 0
+    while i < howFarBack:
+        for node in os.listdir(prefix):
+            fullname = prefix + '/' + node
+            # See if the node is a directory (and not *this* directory!)
+            if ((i > 0) or (node != me)) and os.path.isdir(fullname):
+                siblings.append(fullname)
+        i += 1
+        prefix += '/..'
 
     return siblings
 
