@@ -328,10 +328,11 @@ def getDependencies(file, iteration = 1):
         # Normal case, no error
         if 'implemented' in raw: print raw
         result = []
-        for line in string.split(raw, ' \\\n  '):
+        raw = raw.replace('\\', ' ')
+        for line in raw.splitlines():
+            # gcc 3.4.2 likes to print the name of the file first, as in
+            # """# 1 "/home/faculty/morgan/Projects/ice/tests/meta/helper.lib//""""
             if not beginswith(line, '# '):
-                # gcc 3.4.2 likes to print the name of the file first, as in
-                # """# 1 "/home/faculty/morgan/Projects/ice/tests/meta/helper.lib//""""
                 result += string.split(line, ' ')
 
         # There is always at least one file since everything depends on itself.
@@ -342,9 +343,10 @@ def getDependencies(file, iteration = 1):
 
         # Add the './' to raw files
         for f in files:
+            f = f.strip()
             if '/' in f:
                 result.append(f)
-            elif f.strip() == '':
+            elif f == '':
                 # empty filename
                 files.remove(f)
             else:
