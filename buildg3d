@@ -8,7 +8,7 @@ from buildlib import *
 
 # Helper function that chooses whether to build release or debug versions
 def cbuild_versions(cl_args, args):
-    x == 0
+    x = 0
 
     if ('--release' in cl_args or '--both' in args or not ('--debug' in cl_args)):
         args.append('-DCMAKE_BUILD_TYPE:STRING=Release')
