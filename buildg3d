@@ -128,9 +128,9 @@ def iclean(args):
 
 def itest(args):
     os.chdir("test")
-    x = run('../bin/icompile' ['--run'])
+    x = run('../bin/icompile', ['--run'])
     if (x == 0):
-        run('../bin/icompile' ['-O', '--run'])
+        run('../bin/icompile', ['-O', '--run'])
     os.chdir("..")
 
 ################################################################################
