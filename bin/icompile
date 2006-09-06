@@ -1084,7 +1084,7 @@ def setVariables(args):
 
     # On unix systems we prefix library names with 'lib'
     prefix = ''
-    if unix and isLibrary(state.binaryType == DLL):
+    if unix and isLibrary(state.binaryType):
         prefix = 'lib'
 
     # Binary name
