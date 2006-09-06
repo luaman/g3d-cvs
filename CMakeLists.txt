@@ -6,7 +6,7 @@
 # @maintainer Daniel Hilferty, djhilferty@sourceforge.net
 #
 # @created 2006-08-18
-# @edited  2006-08-18
+# @edited  2006-09-01
 #
 ######################################################################
 
@@ -16,75 +16,83 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 # Set Project Name
 PROJECT(G3D)
 
-######################################################################
-# SET VARIABLES
-
-# Set some basic CMake variables
-IF (UNIX)
-	SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/../)
-ELSE (UNIX)
-	SET (G3D_INSTALL_DIR ${G3D_BINARY_DIR}/)
-ENDIF(UNIX)
-
-SET (LIBRARY_OUTPUT_PATH ${G3D_INSTALL_DIR}/lib)
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_INSTALL_DIR}/bin/${CMAKE_BUILD_TYPE})
-
-# Specify debug postfix for all debug libraries
-# Note: The position of this specification guarantees that zlib, jpeg and png 
-# libraries will not have this postfix.
 SET(CMAKE_DEBUG_POSTFIX "-debug")
 
+# Set library and executable output paths
+IF(CMAKE_BUILD_TYPE)
+    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
+    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin)
+ELSE(CMAKE_BUILD_TYPE)
+    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/Release/lib)
+    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/Release/bin)
+ENDIF(CMAKE_BUILD_TYPE)
+
 ######################################################################
-# CONFIGURE LIBRARIES 
+# Configure environment specific settings
+IF (UNIX)
+
+    # Build jpeg.lib for the Apple build
+    IF (OSX)
+        ADD_SUBDIRECTORY (jpeg.lib)
+        INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
+    ELSE (OSX)
+        INCLUDE (FindJPEG)
+        FIND_PACKAGE(JPEG)
+    ENDIF(OSX)
+
+    INCLUDE (FindPNG)
+    INCLUDE (FindSDL)
+    INCLUDE (FindZLIB)
+
+    FIND_PACKAGE(PNG)
+    FIND_PACKAGE(SDL REQUIRED)
+    FIND_PACKAGE(ZLIB)
+
+    # Specify SDL as an included directory
+    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+
+ELSE(UNIX)
+
+    IF (WIN32)
+
+        # Add include directories for jpeg, png and zlib libraries
+	INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/png.lib/include/png
+                            ${G3D_SOURCE_DIR}/zlib.lib/include/zlib
+                            ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
+
+        # Set the variables normally defined in FIND_PACKAGE on Unix
+        SET (JPEG_LIBRARIES jpeg)
+        SET (PNG_LIBRARIES png)
+        SET (ZLIB_LIBRARIES zlib)
+
+        # Add library subdirectories
+        ADD_SUBDIRECTORY (zlib.lib)
+        ADD_SUBDIRECTORY (png.lib)
+        ADD_SUBDIRECTORY (jpeg.lib)
+
+    ENDIF (WIN32)
+
+ENDIF(UNIX)
 
 # Include Standard Modules to find certain libraries
 INCLUDE (FindOpenGL)
 FIND_PACKAGE(OpenGL REQUIRED)
 
-# Find SDL library for use on Unix Systems
-IF(UNIX)
-    INCLUDE (FindSDL)
-    FIND_PACKAGE(SDL REQUIRED)
-    # Specify include directories
-    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-ENDIF (UNIX)
 
-# Build jpeg, png and zlib libraries if using windows
-IF (WIN32)
-    SUBDIRS (jpeg.lib png.lib zlib.lib)
-    SET (LIB_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include/png
-                         ${G3D_SOURCE_DIR}/zlib.lib/include/zlib
-                         ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
-    SET (JPEG_LIBRARIES jpeg)
-    SET (PNG_LIBRARIES png)
-#    SET (ZLIB_LIBRARIES)
-ENDIF (WIN32)
-
-# If on a unix system, find the required libraries.  On windows systems
-# they will simply be built. Unix covers both OS X aND Linux.
-IF(UNIX)
-    INCLUDE (FindPNG)
-    INCLUDE (FindJPEG)
-    FIND_PACKAGE(PNG)
-    FIND_PACKAGE(JPEG)
-ENDIF (UNIX)
-
-
-######################################################################
-# INCLUDE DIRECTORIES
-
+# Set GLG3D.lib and G3D.lib include directories
 INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include 
-                    ${G3D_SOURCE_DIR}/GLG3D.lib/include
-                    ${PNG_INCLUDE_DIR}
-                    ${LIB_INCLUDE_DIR})
+                    ${G3D_SOURCE_DIR}/GLG3D.lib/include)
+
 
 ######################################################################
 # BUILD DIRECTORIES
 
 # Specify library subdirectory targets
-SUBDIRS(GLG3D.lib G3D.lib)
-MESSAGE ("VALUE" ${BUILD_BINARIES})
+ADD_SUBDIRECTORY (GLG3D.lib)
+ADD_SUBDIRECTORY (G3D.lib)
+
 # Determine whether to build executables
 IF (BUILD_BINARIES)
-    SUBDIRS(test gfxmeter)
+    ADD_SUBDIRECTORY (test)
+    ADD_SUBDIRECTORY (gfxmeter)
 ENDIF (BUILD_BINARIES)

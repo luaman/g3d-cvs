@@ -11,7 +11,8 @@
 # but as long as you recognize the need to re-run cmake after adding
 # a file to the project, there will be no problems.
 AUX_SOURCE_DIRECTORY(source source_list)
-AUX_SOURCE_DIRECTORY(include/jpeg header_list)
+FILE(GLOB header_list include/jpeg/*.h)
+
 
 # Specify code files for the library.
 ADD_LIBRARY(jpeg ${source_list} ${header_list})
