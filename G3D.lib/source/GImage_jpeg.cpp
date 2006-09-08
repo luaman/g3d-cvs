@@ -14,8 +14,8 @@
 */
 extern "C" {
 #ifdef G3D_WIN32
-	#include <jconfig.h>
-	#include <cdjpeg.h>
+	#include "../IJG/jconfig.h"
+	#include "../IJG/cdjpeg.h"
 #else
 	#include <jconfig.h>
 	#include <jpeglib.h>

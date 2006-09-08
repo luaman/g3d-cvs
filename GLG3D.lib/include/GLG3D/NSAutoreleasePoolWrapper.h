@@ -9,6 +9,15 @@
 #ifndef NSAUTORELEASEPOOLWRAPPER_H
 #define NSAUTORELEASEPOOLWRAPPER_H
 
+class NSApplicationWrapper {
+public:
+	NSApplicationWrapper();
+	virtual ~NSApplicationWrapper();
+
+private:
+protected:
+};
+
 class NSAutoreleasePoolWrapper {
 public:
 	NSAutoreleasePoolWrapper();

@@ -7,7 +7,15 @@
 */
 
 #import <Foundation/NSAutoreleasePool.h>
+#import <AppKit/NSApplication.h>
 #import "GLG3D/NSAutoreleasePoolWrapper.h"
+
+NSApplicationWrapper::NSApplicationWrapper() {
+	[NSApplication sharedApplication];
+}
+
+NSApplicationWrapper::~NSApplicationWrapper() {
+}
 
 NSAutoreleasePoolWrapper::NSAutoreleasePoolWrapper() : _pool(0) {
 	_pool = [[NSAutoreleasePool alloc] init];

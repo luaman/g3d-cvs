@@ -757,7 +757,7 @@ void ReliableConduit::receiveHeader() {
         if (nd->debugLog) {
             nd->debugLog->printf("Call to recv failed.  ret = %d,"
                                  " sizeof(messageType) = %d\n", 
-                                 ret, sizeof(messageType));
+                                 (int)ret, (int)sizeof(messageType));
             nd->debugLog->println(socketErrorCode());
         }
         nd->closesocket(sock);
@@ -771,8 +771,8 @@ void ReliableConduit::receiveHeader() {
     if ((ret == SOCKET_ERROR) || (ret != sizeof(messageSize))) {
         if (nd->debugLog) {
             nd->debugLog->printf("Call to recv failed.  ret = %d,"
-                                 " sizeof(len) = %d\n", ret,
-                                 sizeof(messageSize));
+                                 " sizeof(len) = %d\n", (int)ret,
+                                 (int)sizeof(messageSize));
             nd->debugLog->println(socketErrorCode());
         }
         nd->closesocket(sock);

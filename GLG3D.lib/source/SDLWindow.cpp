@@ -10,6 +10,7 @@
 
 #if defined(G3D_OSX)
 #include "GLG3D/NSAutoreleasePoolWrapper.h"
+#include <dlfcn.h>
 #endif
 
 #ifndef G3D_WIN32
@@ -131,6 +132,7 @@ static bool SDL_handleErrorCheck_(
 SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 
 #if defined(G3D_OSX)
+	NSApplicationWrapper wrapper;
 	_pool = new NSAutoreleasePoolWrapper();
 #endif
 
