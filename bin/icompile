@@ -1150,7 +1150,10 @@ def configureGpp():
             if (machine() == 'i386'):
                 arch = ['-arch', 'i386', '-arch', 'ppc']
         else:
-            arch = ['-arch', machine()]
+            if (machine() == 'i386'):
+                arch = ['-arch', 'i386']
+            else:
+                arch = ['-arch', 'ppc']
 
         defaultCompilerOptions += arch
         defaultLinkerOptions   += arch 
