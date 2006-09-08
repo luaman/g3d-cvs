@@ -249,7 +249,7 @@ static std::string makeMessage(Queue<int>& q) {
 }
 
 
-static void check(Queue<int>& q) {
+static void _check(Queue<int>& q) {
     for (int i = 0; i < q.size(); ++i) {
         debugAssertM(q[i] == (i + 1),
             makeMessage(q));
@@ -281,7 +281,7 @@ void testQueue() {
         q.pushFront(3);
         q.pushFront(2);
         q.pushFront(1);
-        check(q);
+        _check(q);
     }
 
 
@@ -290,7 +290,7 @@ void testQueue() {
         q.pushBack(1);
         q.pushBack(2);
         q.pushBack(3);
-        check(q);
+        _check(q);
     }
 
     {
@@ -298,7 +298,7 @@ void testQueue() {
         q.pushFront(2);
         q.pushFront(1);
         q.pushBack(3);
-        check(q);
+        _check(q);
     }
 
 
@@ -307,7 +307,7 @@ void testQueue() {
         q.pushFront(2);
         q.pushBack(3);
         q.pushFront(1);
-        check(q);
+        _check(q);
     }
 
     {
@@ -315,7 +315,7 @@ void testQueue() {
         q.pushBack(2);
         q.pushFront(1);
         q.pushBack(3);
-        check(q);
+        _check(q);
     }
 
     {
@@ -328,7 +328,7 @@ void testQueue() {
 
         q.popFront();
         q.popBack();
-        check(q);
+        _check(q);
     }
 
     {
@@ -339,7 +339,7 @@ void testQueue() {
         q.pushBack(-1);
 
         q.popBack();
-        check(q);
+        _check(q);
     }
     {
         Queue<int> q;
@@ -349,7 +349,7 @@ void testQueue() {
         q.pushBack(3);
  
         q.popFront();
-        check(q);
+        _check(q);
     }
 
     // Sanity check queue copying.
@@ -359,10 +359,10 @@ void testQueue() {
         q.pushBack(2);
         q.pushBack(3);
  
-        check(q);
+        _check(q);
 
         Queue<int> r(q);
-        check(r);
+        _check(r);
     }
     
     printf("succeeded\n");
