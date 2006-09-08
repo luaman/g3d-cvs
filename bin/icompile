@@ -1226,10 +1226,10 @@ def processDotICompile():
                 f.write(defaultDotICompile)
                 f.close()
                 success = True
-                maybePrint('')
-                maybeColorPrint('Created a default preference file for ' +
-                                'you in ' + preferenceFile + '\n',
-                                SECTION_COLOR)
+                if verbosity >= TRACE:
+                    colorPrint('Created a default preference file for ' +
+                                    'you in ' + preferenceFile + '\n',
+                                    SECTION_COLOR)
                 
         # We don't need to read this new .icompile because
         # it matches the default, which we already read.
