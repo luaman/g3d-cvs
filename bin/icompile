@@ -745,6 +745,11 @@ def makeExecutable(objectFiles, linkOptions):
         # comes from using OpenGL (which has both dynamic and static
         # versions of the same functions)
         options += ['-multiply_defined', 'suppress']
+ 
+ 	if (os.uname()[0] == 'Darwin'):
+            # Linking OpenGL on Darwin creates problems because of the
+	    # framework.  This option appears to work around the problem.
+	    options += ['-all_load']
 
     if verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
 
