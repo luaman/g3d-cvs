@@ -47,7 +47,7 @@ void perfSystemMemcpy() {
 
     printf("         Size       ");
     for (int i = 0; i < M; ++i) {
-        printf("%6uk", size[i] / 1024);
+        printf("%6dk", (int)size[i] / 1024);
     }
     printf("\n");
 

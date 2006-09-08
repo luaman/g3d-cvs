@@ -4,12 +4,10 @@
   @author Morgan McGuire, matrix@graphics3d.com
  */
 
-#define NO_SDL_MAIN
 #include "G3D/G3DAll.h"
 #include "GLG3D/GLG3D.h"
-
-#if G3D_VER < 70000
-//#    error Requires G3D 7.00
+#ifdef main
+#    undef main
 #endif
 
 #include "Report.h"

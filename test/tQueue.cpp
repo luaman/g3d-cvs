@@ -1,9 +1,6 @@
 #include "G3D/G3DAll.h"
 #include <deque>
 
-// :dbolli:050905 18:01:10 Avoid clash with pngrio.c check()
-#define check tQueue_check
-
 class BigE {
 public:
     int x;
