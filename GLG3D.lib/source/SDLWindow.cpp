@@ -10,6 +10,7 @@
 
 #if defined(G3D_OSX)
 #include "GLG3D/NSAutoreleasePoolWrapper.h"
+#include <Carbon/Carbon.h>
 #include <dlfcn.h>
 #endif
 
@@ -133,6 +134,12 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 
 #if defined(G3D_OSX)
 	NSApplicationWrapper wrapper;
+
+	// Hack to get our window/process to the front...
+	ProcessSerialNumber psn = { 0, kCurrentProcess};    
+	TransformProcessType (&psn, kProcessTransformToForegroundApplication);
+	SetFrontProcess (&psn);
+
 	_pool = new NSAutoreleasePoolWrapper();
 #endif
 

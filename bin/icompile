@@ -506,7 +506,15 @@ def makeObjectFile(cfile, options):
     if (i >= 0):
         mkdir(ofile[:i], verbosity >= VERBOSE)
 
-    args = string.split(options) + ["-o", ofile, cfile]
+    args = string.split(options) 
+  
+    if (extname(cfile).lower() == 'c'):
+        # At least on Darwin, g++ (vs. gcc) fails to correctly
+        # identify c files with old syntax (e.g., png.c) and
+        # needs an explicit language argument.
+        args += ['-x', 'c']
+
+    args += ['-o', ofile, cfile]
 
     if verbosity == NORMAL:
         # 'run' will not print the full command, so we just
