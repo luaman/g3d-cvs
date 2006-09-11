@@ -16,6 +16,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 # Set Project Name
 PROJECT(G3D)
 
+SET(CMAKE_DEBUG_POSTFIX "d")
+
 IF(NOT PLATFORM_DIR)
     SET (PLATFORM_DIR ".")
 ENDIF(NOT PLATFORM_DIR)
@@ -50,13 +52,11 @@ IF (UNIX)
     INCLUDE (X11)
 
     FIND_PACKAGE(PNG)
-    FIND_PACKAGE(SDL REQUIRED)
     FIND_PACKAGE(ZLIB)
     FIND_PACKAGE(X11)
 
     # Specify SDL as an included directory
-    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR} 
-                        ${X11_INCLUDE_DIR}
+    INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
                         ${PNG_INCLUDE_DIR}
                         ${ZLIB_INCLUDE_DIR}
                         ${JPEG_INCLUDE_DIR})    
@@ -87,17 +87,18 @@ ENDIF(UNIX)
 # Include Standard Modules to find certain libraries
 INCLUDE (FindOpenGL)
 FIND_PACKAGE(OpenGL REQUIRED)
-
+INCLUDE (FindSDL)
+FIND_PACKAGE(SDL REQUIRED)
 
 # Set GLG3D.lib and G3D.lib include directories
 INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include 
-                    ${G3D_SOURCE_DIR}/GLG3D.lib/include)
+                    ${G3D_SOURCE_DIR}/GLG3D.lib/include
+                    ${OPENGL_INCLUDE_DIR}
+                    ${SDL_INCLUDE_DIR})
 
 
 ######################################################################
 # BUILD DIRECTORIES
-
-SET(CMAKE_DEBUG_POSTFIX "d")
 
 # Specify library subdirectory targets
 ADD_SUBDIRECTORY (GLG3D.lib)

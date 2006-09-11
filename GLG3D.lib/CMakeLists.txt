@@ -16,12 +16,6 @@ FILE(GLOB header_list include/GLG3D/*.h)
 # Specify code files for the library.
 ADD_LIBRARY(GLG3D ${source_list} ${header_list})
 
-
-IF (LINUX)
-    # Required link libraries
-    TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARIES})
-ELSE (LINUX)
-    # Required link libraries
-    TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES})
-ENDIF (LINUX)
+# Required link libraries
+TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARY})
 
