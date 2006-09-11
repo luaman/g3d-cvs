@@ -7,30 +7,37 @@ import platform
 ##################################################################################
 #  CMake targets
 
-OS_2_directory = ("Windows":"win32","Linux":"linux","OS X":"osx","FreeBSD":"freebsd")
+osTable = \
+    {'WinNT'    : 'win32',
+     'Linux'    : 'linux',
+     'Darwin'   : 'osx',
+     'FreeBSD'  : 'freebsd'}
 
-compiler = ("vc6":"Visual Studio 6","vc7":"Visual Studio 7","vc71","Visual Studio 7 .NET 2003",
-            "vc8":"Visual Studio 8 2005","makefiles":"gcc","xcode":"XCode")
+compilerTable = \
+    {'vc6'      : 'Visual Studio 6',
+     'vc7'      : 'Visual Studio 7',
+     'vc71',    : 'Visual Studio 7 .NET 2003',
+     'vc8'      : 'Visual Studio 8 2005',
+     'gcc'      : 'gcc',
+     'xcode'    : 'XCode'}
 
 def platform_directory(compiler, version):
     machine = plaform.machine()
-    if (not machine):
-        machine = "i686"
         
-    os = OS_2_directory[platform.system()]
+    os = osTable[platform.system()]
     if (not os):
-        os = "unknown"
+        os = 'unknown'
 
-    return os + "-" + machine + "-" + compiler + "-" + version
+    return os + '-' + machine + '-' + compiler + '-' + version
 
 def process_args(args):
-    if (not (args[0] = "--compiler")):
+    if args[0] != '--compiler':
         print "Usage error: " + args[0] + " invalid option."
         exit(0)
-    if (not compiler[args[1]]):
-        print "Usage error: " + args[1] + " is not a valid compiler."
-        exit(0)
-    return compiler[args[1]]
+
+    compilerName = compilerTable[args[1]]
+
+    return compilerName
 
 # Helper function that chooses whether to build release or debug versions
 def cbuild_versions(cl_args, args):
@@ -192,6 +199,9 @@ TARGET         DESCRIPTION
 
 help       Display this message
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
+           On platforms for which zlib, png, jpeg, and other 
+           libraries do not come with the operating system this
+           will also build those libraries.
 test       Build test and testd and then run both
 clean      Delete all generated files
 makefile   Generate project/makefiles appropriate to this 
@@ -199,16 +209,19 @@ makefile   Generate project/makefiles appropriate to this
 doc        Generate documentation using Doxygen
 install    Run lib, test, and doc targets
 
+Specifying the optional --compiler argument allows you to choose which
+compiler to use for building the library or project/makefiles.  The defaults
+are based on operating system: Xcode for OS X, gcc for Linux and FreeBSD,
+and VC8 for Windows. 
+
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
 
 Note:
-G3D is currently evaluating two build systems, CMake and iCompile.
-The lib, test, clean, and makefile targets may be run with either
-a 'c' or an 'i' prefixed (e.g., clib) to select between the build 
-systems.
-
-See cpp/readme.html for detailed build information.
+The G3D team is currently evaluating two build systems, CMake and
+iCompile.  The lib, test, clean, and makefile targets may be run with
+either a 'c' or an 'i' prefixed (e.g., clib) to select between the
+build systems.
 """
 
 if __name__ == "__main__":
