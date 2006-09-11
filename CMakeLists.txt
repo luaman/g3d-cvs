@@ -16,15 +16,19 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 # Set Project Name
 PROJECT(G3D)
 
-SET(CMAKE_DEBUG_POSTFIX "-debug")
+IF(NOT PLATFORM_DIR)
+    SET (PLATFORM_DIR ".")
+ENDIF(NOT PLATFORM_DIR)
+
+MESSAGE ("Platform Directory:   " ${PLATFORM_DIR})
 
 # Set library and executable output paths
 IF(CMAKE_BUILD_TYPE)
-    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
-    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin)
+    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/${CMAKE_BUILD_TYPE}/lib)
+    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/${CMAKE_BUILD_TYPE}/bin)
 ELSE(CMAKE_BUILD_TYPE)
-    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/Release/lib)
-    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/Release/bin)
+    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/Release/lib)
+    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/Release/bin)
 ENDIF(CMAKE_BUILD_TYPE)
 
 ######################################################################
@@ -34,7 +38,7 @@ IF (UNIX)
     # Build jpeg.lib for the Apple build
     IF (OSX)
         ADD_SUBDIRECTORY (jpeg.lib)
-        INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
+        SET (JPEG_INCLUDE_DIR ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
     ELSE (OSX)
         INCLUDE (FindJPEG)
         FIND_PACKAGE(JPEG)
@@ -43,13 +47,19 @@ IF (UNIX)
     INCLUDE (FindPNG)
     INCLUDE (FindSDL)
     INCLUDE (FindZLIB)
+    INCLUDE (X11)
 
     FIND_PACKAGE(PNG)
     FIND_PACKAGE(SDL REQUIRED)
     FIND_PACKAGE(ZLIB)
+    FIND_PACKAGE(X11)
 
     # Specify SDL as an included directory
-    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR} 
+                        ${X11_INCLUDE_DIR}
+                        ${PNG_INCLUDE_DIR}
+                        ${ZLIB_INCLUDE_DIR}
+                        ${JPEG_INCLUDE_DIR})    
 
 ELSE(UNIX)
 
@@ -86,6 +96,8 @@ INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include
 
 ######################################################################
 # BUILD DIRECTORIES
+
+SET(CMAKE_DEBUG_POSTFIX "d")
 
 # Specify library subdirectory targets
 ADD_SUBDIRECTORY (GLG3D.lib)
