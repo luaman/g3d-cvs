@@ -114,7 +114,7 @@
     #ifdef _DEBUG
         // Don't link against G3D when building G3D itself.
         #ifndef G3D_BUILDING_LIBRARY_DLL
-           #pragma comment(lib, "G3D-debug.lib")
+           #pragma comment(lib, "G3Dd.lib")
         #endif
     #else
         // Don't link against G3D when building G3D itself.

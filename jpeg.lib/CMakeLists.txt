@@ -15,5 +15,5 @@ FILE(GLOB header_list include/jpeg/*.h)
 
 
 # Specify code files for the library.
-ADD_LIBRARY(jpeg ${source_list} ${header_list})
+ADD_LIBRARY(JPEG ${source_list} ${header_list})
 

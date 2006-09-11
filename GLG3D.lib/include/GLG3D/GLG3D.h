@@ -22,7 +22,7 @@
 #ifdef G3D_WIN32
     #ifndef GLG3D_BUILDING_LIBRARY_DLL
         #ifdef _DEBUG
-            #pragma comment(lib, "GLG3D-debug.lib")
+            #pragma comment(lib, "GLG3Dd.lib")
         #else
             #pragma comment(lib, "GLG3D.lib")
         #endif

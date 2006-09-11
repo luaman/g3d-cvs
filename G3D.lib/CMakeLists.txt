@@ -11,10 +11,10 @@
 # but as long as you recognize the need to re-run cmake after adding
 # a file to the project, there will be no problems.
 AUX_SOURCE_DIRECTORY(source source_list)
-AUX_SOURCE_DIRECTORY(include/G3D header_list)
+FILE(GLOB header_list include/G3D/*.h)
 
 # Specify code files for the library.
 ADD_LIBRARY(G3D ${source_list} ${header_list})
 
 # Specify libraries to link
-TARGET_LINK_LIBRARIES(G3D GLG3D ${PNG_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES(G3D ${PNG_LIBRARIES} ${JPEG_LIBRARIES} ${ZLIB_LIBRARIES})

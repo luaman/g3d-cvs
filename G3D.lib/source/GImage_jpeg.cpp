@@ -13,13 +13,13 @@
  Pick up libjpeg headers locally on Windows, but from the system on all other platforms.
 */
 extern "C" {
-#ifdef G3D_WIN32
-	#include "../IJG/jconfig.h"
-	#include "../IJG/cdjpeg.h"
-#else
+//#ifdef G3D_WIN32
+//	#include "jconfig.h"
+//	#include "../IJG/cdjpeg.h"
+//#else
 	#include <jconfig.h>
 	#include <jpeglib.h>
-#endif
+//#endif
 }
 
 namespace G3D {

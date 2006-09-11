@@ -2,9 +2,35 @@
 # -*- python -*-
 
 from buildlib import *
+import platform
 
 ##################################################################################
 #  CMake targets
+
+OS_2_directory = ("Windows":"win32","Linux":"linux","OS X":"osx","FreeBSD":"freebsd")
+
+compiler = ("vc6":"Visual Studio 6","vc7":"Visual Studio 7","vc71","Visual Studio 7 .NET 2003",
+            "vc8":"Visual Studio 8 2005","makefiles":"gcc","xcode":"XCode")
+
+def platform_directory(compiler, version):
+    machine = plaform.machine()
+    if (not machine):
+        machine = "i686"
+        
+    os = OS_2_directory[platform.system()]
+    if (not os):
+        os = "unknown"
+
+    return os + "-" + machine + "-" + compiler + "-" + version
+
+def process_args(args):
+    if (not (args[0] = "--compiler")):
+        print "Usage error: " + args[0] + " invalid option."
+        exit(0)
+    if (not compiler[args[1]]):
+        print "Usage error: " + args[1] + " is not a valid compiler."
+        exit(0)
+    return compiler[args[1]]
 
 # Helper function that chooses whether to build release or debug versions
 def cbuild_versions(cl_args, args):
