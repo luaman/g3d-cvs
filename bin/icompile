@@ -1147,6 +1147,10 @@ def configureGpp():
         defaultCompilerOptions = ['-D_DEBUG', '-g']
         defaultLinkerOptions   = []
 
+    # LARGEFILE_SOURCE enables some newer interfaces for
+    # fopen that work with >2GB files
+    defaultcompilerOptions += ['-D_LARGEFILE_SOURCE=1']
+
     if (os.uname()[0] == 'Darwin'):
         universalBinary = False # TODO: Add universal binary support for libraries later
 
