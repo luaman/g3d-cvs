@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+!/usr/bin/env python
 # -*- python -*-
 #
 # See manual.html for documentation.  http://ice.sf.net
@@ -1133,7 +1133,6 @@ def configureGpp():
     if (state.target == RELEASE):
         defaultCompilerOptions = ['-O3',
                                   '-D_RELEASE', 
-                                  '-funsafe-math-optimizations', 
                                   '-fno-trapping-math',
                                   '-s']
         # Had to remove "-fno-math-errno" because g++ occasionally
