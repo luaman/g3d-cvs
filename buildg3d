@@ -122,10 +122,7 @@ def runicompile(dir):
      return x
 
 def ilib(args):
-     x = runicompile('G3D.lib')
-
-     if (x == 0):
-         x = runicompile('GLG3D.lib')
+     x = 0
 
      if (os.uname()[0] == 'Darwin') or (os.uname()[0] == 'WinNT'):
          # Build jpeg
@@ -139,7 +136,14 @@ def ilib(args):
          # Build png
          if x == 0: x = runicompile('png.lib')
 
+     if (x == 0):
+         x = runicompile('G3D.lib')
+
+     if (x == 0):
+         x = runicompile('GLG3D.lib')
+
      return x
+
 
 def iclean(args):
      os.chdir("G3D.lib")

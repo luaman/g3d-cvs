@@ -9,11 +9,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Log.h"
-#if defined(G3D_OSX) || defined(G3D_LINUX)
-#    include <png.h>
-#else
-#    include "../png/png.h"
-#endif
+#include <png.h>
 
 namespace G3D {
 

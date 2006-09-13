@@ -820,12 +820,12 @@ def buildBinary():
             # This header doesn't exist in any of the standard include locations.
             # See if it is in a sibling directory that is a library.
             i = 0
+
             while not found and (i < len(librarySiblingDirs)):
                 dirname = librarySiblingDirs[i]
                 found = os.path.exists(dirname + '/include/' + header)
                 if found:
-                    if verbosity >= TRACE: 
-                        print "Found '" + header + "' in '" + dirname + "/include'."
+                    if verbosity >= TRACE: print "Found '" + header + "' in '" + dirname + "/include'."
                     # We have identified a sibling library on which this project appears
                     # to depend.  
 
@@ -1146,9 +1146,11 @@ def configureGpp():
         defaultCompilerOptions = ['-D_DEBUG', '-g']
         defaultLinkerOptions   = []
 
-    # LARGEFILE_SOURCE enables some newer interfaces for
-    # fopen that work with >2GB files
-    defaultcompilerOptions += ['-D_LARGEFILE_SOURCE=1']
+    if state.os == 'linux':
+       # LARGEFILE_SOURCE enables some newer interfaces for
+       # fopen that work with >2GB files
+       flags = shell('getconf', ['LFS_CFLAGS'], verbosity >= VERBOSE)
+       defaultCompilerOptions += string.split(flags, ' ')
 
     if (os.uname()[0] == 'Darwin'):
         universalBinary = False # TODO: Add universal binary support for libraries later

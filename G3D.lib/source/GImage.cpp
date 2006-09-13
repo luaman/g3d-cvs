@@ -13,12 +13,8 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Log.h"
+#include <png.h>
 
-#if defined(G3D_OSX) || defined(G3D_LINUX)
-#    include <png.h>
-#else
-#    include "../png/png.h"
-#endif
 
 #include <sys/stat.h>
 #include <assert.h>
