@@ -16,7 +16,7 @@ osTable = \
 compilerTable = \
     {'vc6'      : 'Visual Studio 6',
      'vc7'      : 'Visual Studio 7',
-     'vc71',    : 'Visual Studio 7 .NET 2003',
+     'vc71'     : 'Visual Studio 7 .NET 2003',
      'vc8'      : 'Visual Studio 8 2005',
      'gcc'      : 'gcc',
      'xcode'    : 'XCode'}
