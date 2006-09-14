@@ -340,6 +340,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    App(settings).run();
+	App(settings).run();
     return 0;
 }

@@ -18,6 +18,22 @@ PROJECT(G3D)
 
 SET(CMAKE_DEBUG_POSTFIX "d")
 
+# Include Modules to find packages
+INCLUDE (FindOpenGL)
+INCLUDE (FindSDL)
+INCLUDE (FindPNG)
+INCLUDE (FindZLIB)
+INCLUDE (FindJPEG)
+INCLUDE (FindX11)
+
+# Include Standard Modules to find certain libraries
+FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(SDL REQUIRED)
+FIND_PACKAGE(PNG)
+FIND_PACKAGE(ZLIB)
+FIND_PACKAGE(JPEG)
+FIND_PACKAGE(X11)
+
 IF(NOT PLATFORM_DIR)
     SET (PLATFORM_DIR ".")
 ENDIF(NOT PLATFORM_DIR)
@@ -35,63 +51,33 @@ ENDIF(CMAKE_BUILD_TYPE)
 
 ######################################################################
 # Configure environment specific settings
-IF (UNIX)
 
-    # Build jpeg.lib for the Apple build
-    IF (OSX)
-        ADD_SUBDIRECTORY (jpeg.lib)
-        SET (JPEG_INCLUDE_DIR ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
-    ELSE (OSX)
-        INCLUDE (FindJPEG)
-        FIND_PACKAGE(JPEG)
-    ENDIF(OSX)
+IF (NOT ZLIB_FOUND)
+    SET (ZLIB_LIBRARIES zlib)
+    SET (ZLIB_INCLUDE_DIR ${G3D_SOURCE_DIR}/zlib.lib/include/zlib)
+    INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+    ADD_SUBDIRECTORY (zlib.lib)
+ENDIF (NOT ZLIB_FOUND)
 
-    INCLUDE (FindPNG)
-    INCLUDE (FindSDL)
-    INCLUDE (FindZLIB)
-    INCLUDE (X11)
+IF (NOT PNG_FOUND)
+    SET (PNG_LIBRARIES png)
+    SET (PNG_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include/png)
+    INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
+    ADD_SUBDIRECTORY (png.lib)
+ENDIF (NOT PNG_FOUND)
 
-    FIND_PACKAGE(PNG)
-    FIND_PACKAGE(ZLIB)
-    FIND_PACKAGE(X11)
+IF (NOT JPEG_FOUND)
+    SET (JPEG_LIBRARIES jpeg)
+    SET (JPEG_INCLUDE_DIR ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
+    INCLUDE_DIRECTORIES(${JPEG_INCLUDE_DIR})
+    ADD_SUBDIRECTORY (jpeg.lib)
+ENDIF (NOT JPEG_FOUND)
 
-    # Specify SDL as an included directory
-    INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
-                        ${PNG_INCLUDE_DIR}
-                        ${ZLIB_INCLUDE_DIR}
-                        ${JPEG_INCLUDE_DIR})    
-
-ELSE(UNIX)
-
-    IF (WIN32)
-
-        # Add include directories for jpeg, png and zlib libraries
-	INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/png.lib/include/png
-                            ${G3D_SOURCE_DIR}/zlib.lib/include/zlib
-                            ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
-
-        # Set the variables normally defined in FIND_PACKAGE on Unix
-        SET (JPEG_LIBRARIES jpeg)
-        SET (PNG_LIBRARIES png)
-        SET (ZLIB_LIBRARIES zlib)
-
-        # Add library subdirectories
-        ADD_SUBDIRECTORY (zlib.lib)
-        ADD_SUBDIRECTORY (png.lib)
-        ADD_SUBDIRECTORY (jpeg.lib)
-
-    ENDIF (WIN32)
-
-ENDIF(UNIX)
-
-# Include Standard Modules to find certain libraries
-INCLUDE (FindOpenGL)
-FIND_PACKAGE(OpenGL REQUIRED)
-INCLUDE (FindSDL)
-FIND_PACKAGE(SDL REQUIRED)
-
-# Set GLG3D.lib and G3D.lib include directories
-INCLUDE_DIRECTORIES(${G3D_SOURCE_DIR}/G3D.lib/include 
+INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
+                    ${PNG_INCLUDE_DIR}
+                    ${ZLIB_INCLUDE_DIR}
+                    ${JPEG_INCLUDE_DIR}
+                    ${G3D_SOURCE_DIR}/G3D.lib/include 
                     ${G3D_SOURCE_DIR}/GLG3D.lib/include
                     ${OPENGL_INCLUDE_DIR}
                     ${SDL_INCLUDE_DIR})

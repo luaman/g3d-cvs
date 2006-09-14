@@ -13,7 +13,6 @@
 AUX_SOURCE_DIRECTORY(source source_list)
 FILE(GLOB header_list include/zlib/*.h)
 
-
 # Specify code files for the library.
 ADD_LIBRARY(zlib ${source_list} ${header_list})
 
