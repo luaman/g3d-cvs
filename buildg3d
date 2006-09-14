@@ -165,9 +165,9 @@ def iclean(args):
 
 def itest(args):
     os.chdir("test")
-    x = run('../bin/icompile', ['--run'])
+    x = run('../bin/icompile', ['--noprompt', '--run'])
     if (x == 0):
-        run('../bin/icompile', ['-O', '--run'])
+        run('../bin/icompile', ['--noprompt', '-O', '--run'])
     os.chdir("..")
 
 ################################################################################
