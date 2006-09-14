@@ -110,6 +110,8 @@ class State:
     # Location to which object files are written (target-specific).
     # Set by setVariables
     objDir                      = None
-
+  
+    # If true, the user is never prompted
+    noPrompt                    = False
 
 state = State()

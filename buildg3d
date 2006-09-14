@@ -112,12 +112,12 @@ def cfastlib(args):
 """
 def runicompile(dir):
      os.chdir(dir)
-     x = run("../bin/icompile")
+     x = run('../bin/icompile', ['--noprompt'])
 
      if (x == 0): 
-         x =run("../bin/icompile", ['-O'])
+         x =run('../bin/icompile', ['-O', '--noprompt'])
 
-     os.chdir("..")
+     os.chdir('..')
 
      return x
 

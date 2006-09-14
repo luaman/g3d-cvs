@@ -26,7 +26,7 @@ def printHelp():
 iCompile: the zero-configuration build system
     
 icompile  [--doc] [--opt|--debug] [--clean] [--version]
-          [--infolevel n] [--help] [--run|--gdb ...]
+          [--infolevel n] [--help] [--noprompt] [--run|--gdb ...]
 
 iCompile can build most C++ projects without options or manual
 configuration.  Just type 'icompile' with no arguments.
@@ -54,6 +54,8 @@ Options:
                       |
                   3   |   Trace: Additional debugging information is also
                       |   displayed.
+
+ --noprompt       Run even if there is no ice.txt file
 
 Exclusive options:
  --help           Print this information.

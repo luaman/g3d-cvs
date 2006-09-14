@@ -1012,68 +1012,69 @@ def checkForProjectFile(args):
     if os.path.exists(projectFile): return
 
     # Everything below here executes only when there is no project file
+    if not state.noPrompt:
 
-    if ('--clean' in args) and not os.path.exists(BUILDDIR):
-        print
-        colorPrint('Nothing to clean (you have never run iCompile in ' +
+        if ('--clean' in args) and not os.path.exists(BUILDDIR):
+            print
+            colorPrint('Nothing to clean (you have never run iCompile in ' +
                    os.getcwd() + ')', WARNING_COLOR)
+            print
+            # Doesn't matter, there's nothing to delete anyway, so just exit
+            sys.exit(0)
+
         print
-        # Doesn't matter, there's nothing to delete anyway, so just exit
-        sys.exit(0)
+        inHomeDir = (os.path.realpath(os.getenv('HOME')) == os.getcwd())
 
-    print
-    inHomeDir = (os.path.realpath(os.getenv('HOME')) == os.getcwd())
+        if inHomeDir:
+            colorPrint(' ******************************************************',
+                       WARNING_COLOR)
+            colorPrint(' * You are about run iCompile in your home directory! *',
+                       'bold red')
+            colorPrint(' ******************************************************',
+                       WARNING_COLOR)
+        else:        
+            colorPrint('You have never run iCompile in this directory before.',
+                       WARNING_COLOR)
+        print
+        print '  Current Directory: ' + os.getcwd()
+    
+        cfiles = flatListCFiles()
+        num = len(cfiles)
+        sl = shortlist(cfiles)
+    
+        if (num > 1):
+            print '  Contains', num, 'C++ files (' + sl + ')'
+        elif (num > 0):
+            print '  Contains 1 C++ file (' + cfiles[0] + ')'
+        else:
+            print '  Contains no C++ files'    
 
-    if inHomeDir:
-        colorPrint(' ******************************************************',
-                   WARNING_COLOR)
-        colorPrint(' * You are about run iCompile in your home directory! *',
-                   'bold red')
-        colorPrint(' ******************************************************',
-                   WARNING_COLOR)
-    else:        
-        colorPrint('You have never run iCompile in this directory before.',
-                   WARNING_COLOR)
-    print
-    print '  Current Directory: ' + os.getcwd()
+        # Don't show dot-files first if we can avoid it
+        dirs = listDirs()
+        dirs.reverse()
+        num = len(dirs)
+        sl = shortlist(dirs)
     
-    cfiles = flatListCFiles()
-    num = len(cfiles)
-    sl = shortlist(cfiles)
-    
-    if (num > 1):
-        print '  Contains', num, 'C++ files (' + sl + ')'
-    elif (num > 0):
-        print '  Contains 1 C++ file (' + cfiles[0] + ')'
-    else:
-        print '  Contains no C++ files'    
+        if (num > 1):
+            print '  Contains', num, 'directories (' + sl + ')'
+        elif (num > 0):
+            print '  Contains 1 directory (' + dirs[0] + ')'
+        else:
+            print '  Contains no subdirectories'
 
-    # Don't show dot-files first if we can avoid it
-    dirs = listDirs()
-    dirs.reverse()
-    num = len(dirs)
-    sl = shortlist(dirs)
+        print
     
-    if (num > 1):
-        print '  Contains', num, 'directories (' + sl + ')'
-    elif (num > 0):
-        print '  Contains 1 directory (' + dirs[0] + ')'
-    else:
-        print '  Contains no subdirectories'
-
-    print
-    
-    dir = string.split(os.getcwd(), '/')[-1]
-    if inHomeDir:
-        prompt = ('Are you sure you want to run iCompile '+
-                  'in your home directory? (Y/N)')
-    else:
-        prompt = ("Are you sure you want to compile the '" +
-                  dir + "' project? (Y/N)")
+        dir = string.split(os.getcwd(), '/')[-1]
+        if inHomeDir:
+            prompt = ('Are you sure you want to run iCompile '+
+                      'in your home directory? (Y/N)')
+        else:
+            prompt = ("Are you sure you want to compile the '" +
+                      dir + "' project? (Y/N)")
         
-    colorPrint(prompt, 'bold')
-    if string.lower(getch()) != 'y':
-        sys.exit(0)
+        colorPrint(prompt, 'bold')
+        if string.lower(getch()) != 'y':
+            sys.exit(0)
         
     f = file(projectFile, 'wt')
     f.write(defaultProjectFileContents)
@@ -1410,8 +1411,10 @@ if __name__ == '__main__':
         else:
             maybeWarn('WARNING: --verbosity used without an argument')
 
-    doGDB   = "--gdb" in args
-    doRun   = "--run" in args
+    doGDB   = '--gdb' in args
+    doRun   = '--run' in args
+
+    state.noPrompt = '--noprompt' in args
 
     # Root directory
     rootDir                    = os.getcwd() + "/"
