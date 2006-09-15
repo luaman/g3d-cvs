@@ -2,13 +2,14 @@
 # -*- python -*-
 
 from buildlib import *
+import os
 import platform
 
 ##################################################################################
 #  CMake targets
 
 osTable = \
-    {'WinNT'    : 'win32',
+    {'Windows'  : 'win32',
      'Linux'    : 'linux',
      'Darwin'   : 'osx',
      'FreeBSD'  : 'freebsd'}
@@ -21,14 +22,15 @@ compilerTable = \
      'gcc'      : 'gcc',
      'xcode'    : 'XCode'}
 
-def platform_directory(compiler, version):
-    machine = plaform.machine()
+def platform_directory(compiler):
         
-    os = osTable[platform.system()]
-    if (not os):
-        os = 'unknown'
+    operating_system = osTable[platform.system()]
 
-    return os + '-' + machine + '-' + compiler + '-' + version
+    machine = 'i386'
+    if operating_system != 'Windows':
+        machine = platform.machine()
+
+    return operating_system + '-' + machine + '-' + compiler
 
 def process_args(args):
     if args[0] != '--compiler':
@@ -72,14 +74,14 @@ def cfastbuild(subdir):
         print ("Unable to change directories to:\n\t" + build_dir)
  
 def clib(cl_args):
-    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(cl_args)
+    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(getCompilerName(cl_args))
     args = [os.getcwd(), '-DBUILD_BINARIES:BOOL=OFF', output_dir]
 
     # Build Debug Version
-    cbuild("Debug", args + "-DCMAKE_BUILD_TYPE:STRING=Debug")
+    cbuild("Debug", args + ['-DCMAKE_BUILD_TYPE:STRING=Debug'])
     
     # Build Release Version
-    cbuild("Release", args + "-DCMAKE_BUILD_TYPE:STRING=Release")
+    cbuild("Release", args + ['-DCMAKE_BUILD_TYPE:STRING=Release'])
 
     # Copy code for includes and libraries goes here....
 
@@ -87,14 +89,14 @@ def cclean(cl_args):
     rmdir(os.getcwd() + '/build')
 
 def ctest(cl_args):
-    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(cl_args)
+    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(getCompilerName(cl_args))
     args = [os.getcwd(), '-DBUILD_BINARIES:BOOL=ON', output_dir]
 
     # Build Debug Version
-    cbuild("Debug", args + "-DCMAKE_BUILD_TYPE:STRING=Debug")
+    cbuild("Debug", args + ['-DCMAKE_BUILD_TYPE:STRING=Debug'])
     
     # Build Release Version
-    cbuild("Release", args + "-DCMAKE_BUILD_TYPE:STRING=Release")
+    cbuild("Release", args + ['-DCMAKE_BUILD_TYPE:STRING=Release'])
     
 
 def cfastlib(args):
@@ -186,6 +188,19 @@ def clean(args):
 
 def test(args):
     return ctest(args)
+
+##################################################################################
+def getCompilerName(args):
+    if '--compiler' in args:
+        for i in xrange(0, len(args)):
+            if args[i] == '--compiler':
+                return args[i + 1]
+
+    # Return the default compiler for this platform
+    if platform.system() == 'Windows':
+        return 'vc8'
+    else:
+        return 'gcc'
 
 ##################################################################################
 #  General
