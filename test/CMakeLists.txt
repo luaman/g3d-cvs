@@ -2,7 +2,7 @@
 # DIRECTORY:	test
 # PROGRAMMER:	Daniel Hilferty
 # CREATED:	3 August 2006
-# MODIFIED:	15 August 2006
+# MODIFIED:	15 September 2006
 #
 # DESCRIPTION:
 #	Builds test program
@@ -20,4 +20,6 @@ ELSE (UNIX)
     # Specify dependencies
     TARGET_LINK_LIBRARIES(test G3D GLG3D ${OPENGL_LIBRARY})
 ENDIF (UNIX)
+
+INSTALL (TARGETS test RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
 

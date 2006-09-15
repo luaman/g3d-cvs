@@ -17,3 +17,8 @@ FILE(GLOB header_list include/*.h)
 # Specify code files for the library.
 ADD_LIBRARY(jpeg ${source_list} ${header_list})
 
+
+INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/jpeg)
+INSTALL (TARGETS jpeg
+                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib
+                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib)

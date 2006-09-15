@@ -16,3 +16,8 @@ FILE(GLOB header_list include/*.h)
 # Specify code files for the library.
 ADD_LIBRARY(png ${source_list} ${header_list})
 TARGET_LINK_LIBRARIES(png ${ZLIB_LIBRARIES})
+
+INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/png)
+INSTALL (TARGETS png 
+                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib
+                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib)

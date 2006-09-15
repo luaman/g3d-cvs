@@ -41,8 +41,9 @@ ENDIF(NOT PLATFORM_DIR)
 MESSAGE ("Platform Directory:   " ${PLATFORM_DIR})
 
 # Set library and executable output paths
-SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/lib)
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/bin)
+SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/lib)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/bin)
+SET (G3D_INSTALL_DIR ${G3D_SOURCE_DIR}/build/install)
 
 ######################################################################
 # Configure environment specific settings

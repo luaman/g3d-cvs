@@ -2,7 +2,7 @@
 # DIRECTORY:	gfxmeter
 # PROGRAMMER:	Daniel Hilferty
 # CREATED:	3 August 2006
-# MODIFIED:	15 August 2006
+# MODIFIED:	15 September 2006
 #
 # DESCRIPTION:
 #	Builds gfxmeter.
@@ -21,5 +21,14 @@ ELSE (UNIX)
     TARGET_LINK_LIBRARIES(gfxmeter G3D GLG3D ${OPENGL_LIBRARY})
 ENDIF (UNIX)
 
-FILE (GLOB DATA_FILES data-files/*)
-INSTALL_FILES (${G3D_INSTALL_DIR}/debug ${DATA_FILES})
+FILE (GLOB DATA_FILES 
+           data-files/*.fnt 
+           data-files/*.ico 
+           data-files/*.ifs 
+           data-files/*.md2 
+           data-files/*.jpg 
+           data-files/*.png)
+
+# Specify installation locations
+INSTALL (FILES ${DATA_FILES} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin/data-files)
+INSTALL (TARGETS gfxmeter RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
