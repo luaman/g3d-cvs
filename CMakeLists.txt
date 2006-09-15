@@ -42,7 +42,7 @@ MESSAGE ("Platform Directory:   " ${PLATFORM_DIR})
 
 # Set library and executable output paths
 SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/lib)
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}bin)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/bin)
 
 ######################################################################
 # Configure environment specific settings
@@ -56,14 +56,14 @@ ENDIF (NOT ZLIB_FOUND)
 
 IF (NOT PNG_FOUND)
     SET (PNG_LIBRARIES png)
-    SET (PNG_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include/png)
+    SET (PNG_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include)
     INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
     ADD_SUBDIRECTORY (png.lib)
 ENDIF (NOT PNG_FOUND)
 
 IF (NOT JPEG_FOUND)
     SET (JPEG_LIBRARIES jpeg)
-    SET (JPEG_INCLUDE_DIR ${G3D_SOURCE_DIR}/jpeg.lib/include/jpeg)
+    SET (JPEG_INCLUDE_DIR ${G3D_SOURCE_DIR}/jpeg.lib/include)
     INCLUDE_DIRECTORIES(${JPEG_INCLUDE_DIR})
     ADD_SUBDIRECTORY (jpeg.lib)
 ENDIF (NOT JPEG_FOUND)
