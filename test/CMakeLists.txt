@@ -14,7 +14,7 @@ AUX_SOURCE_DIRECTORY(./ source_list)
 ADD_EXECUTABLE(test ${source_list})
 
 IF (APPLE)
-    SET (CARBON "-framework Carbon"
+    SET (CARBON "-framework Carbon")
 ENDIF(APPLE)
 
 IF (UNIX)
