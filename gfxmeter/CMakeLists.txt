@@ -13,9 +13,13 @@ AUX_SOURCE_DIRECTORY(source source_list)
 # Specify files that make up gfxmeter
 ADD_EXECUTABLE(gfxmeter ${source_list})
 
+IF (APPLE)
+    SET (CARBON "-framework Carbon"
+ENDIF(APPLE)
+
 IF (UNIX)
     # Specify dependencies
-    TARGET_LINK_LIBRARIES(gfxmeter G3D GLG3D ${OPENGL_LIBRARY} ${SDL_LIBRARY})
+    TARGET_LINK_LIBRARIES(gfxmeter G3D GLG3D ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
 ELSE (UNIX)
     # Specify dependencies
     TARGET_LINK_LIBRARIES(gfxmeter G3D GLG3D ${OPENGL_LIBRARY})
