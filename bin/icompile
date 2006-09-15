@@ -359,10 +359,20 @@ def getDependencies(file, iteration = 1):
 
 """Finds all of the C++/C files in rootDir and returns
  dependency information for them as the tuple
- [dependencies, allDependencyFiles] 
- where dependencies[f] is the list of all files on which
- f depends and allDependencyFiles is the list of all files
- on which any file depends.
+ 
+   (allCFiles, dependencies, allDependencyFiles, parents)
+
+ where: 
+ 
+ allCFiles is the list of all source files to compile,
+
+ dependencies[f] is the list of all files on which
+ f depends,
+
+ allDependencyFiles is the list of all files
+ on which *any* file depends, and
+
+ parents[f] is the list of all files that depend on f
 
  While getting dependencies, this may change the include/library
  list and restart the process if it appears that some include
@@ -373,6 +383,8 @@ def getDependencyInformation():
     # Hash table mapping C files to the list of all files
     # on which they depend.
     dependencies = {}
+
+    parents = {}
 
     # All files on which something depends
     dependencySet = Set()
@@ -385,20 +397,24 @@ def getDependencyInformation():
     # Get their dependencies
     for cfile in allCFiles:
 
-        # Get the compiler options that will be needed for them.
         # Do not use warning or verbose options for this; they
         # would corrupt the output.
         dlist = getDependencies(cfile)
 
         # Update the dependency set
-        for d in dlist: dependencySet.add(d)
+        for d in dlist: 
+            dependencySet.add(d)
+            if d in parents:
+                parents[d] += cfile
+            else:
+                parents[d] = [cfile]
  
         dependencies[cfile] = dlist
     
     # List of all files on which some other file depends
     dependencyFiles = [d for d in dependencySet]
 
-    return (allCFiles, dependencies, dependencyFiles)
+    return (allCFiles, dependencies, dependencyFiles, parents)
 
 #########################################################################
 
@@ -520,12 +536,7 @@ def makeObjectFile(cfile, options):
         # 'run' will not print the full command, so we just
         # print filename to be compiled here.
 
-        if beginswith(cfile, rootDir):
-            # Don't bother printing the root directory name
-            # when it appears
-            print cfile[len(rootDir):]
-        else:
-            print cfile
+        print shortname(cfile)
 
     ret = run(compilerName(), args, verbosity > NORMAL)
 
@@ -788,18 +799,30 @@ def getLibrarySiblingDirs(howFarBack = 1):
     return libsibs
 
 
+"""
+"""
+def shortname(cfile):
+    if beginswith(cfile, rootDir):
+        # Don't bother printing the root directory name
+        # when it appears
+        return cfile[len(rootDir):]
+    else:
+        return cfile
+
 
 """ Creates the object files and links them. """
 def buildBinary():
     global usesProjectsList, usesLibrariesList
 
-    if verbosity >= NORMAL: colorPrint('Building ' + state.binaryName, SECTION_COLOR)
+    if verbosity >= NORMAL: 
+        printBar()
+        colorPrint('Building ' + state.binaryName, SECTION_COLOR)
 
     # Create the temp directory for object files
     mkdir(state.objDir, verbosity >= VERBOSE)
 
     if verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
-    (cfiles, dependencies, files) = getDependencyInformation()
+    (cfiles, dependencies, files, parents) = getDependencyInformation()
 
     # See if any of the header files are not found; that might imply
     # sibling project is an implicit dependency.
@@ -846,7 +869,8 @@ def buildBinary():
                             usesLibrariesList.append(libname)
 
                         if not dirname in usesProjectsList:
-                            print "Detected dependency on " + dirname + ' from #include "' + header + '".'
+                            print ('Detected dependency on ' + dirname + ' from inclusion of ' + 
+                                   header + ' by'), shortname(parents[header][0])
                             usesProjectsList.append(dirname)
                             incPaths.append(dirname + '/include/')
                             # TODO: recursively add all dependencies that come from this new header/library
@@ -922,8 +946,6 @@ def buildBinary():
 
             # Static library.
             makeStaticLibrary(ofiles)
-
-        print
 
     if verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
     
