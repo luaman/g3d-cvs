@@ -39,69 +39,67 @@ def process_args(args):
 
     return compilerName
 
-# Helper function that chooses whether to build release or debug versions
-def cbuild_versions(cl_args, args):
-    x = 0
-
-    if ('--release' in cl_args or '--both' in args or not ('--debug' in cl_args)):
-        args.append('-DCMAKE_BUILD_TYPE:STRING=Release')
-        if x == 0: x = cbuild(".cmake-release", args)
-
-    if ('--debug' in cl_args or "--both" in args or not ('--release' in cl_args)):
-        args.append('-DCMAKE_BUILD_TYPE:STRING=Debug')
-        if x == 0: x = cbuild(".cmake-debug", args)
-
-    return x
-
 # Helper function for building libraries from scratch
 def cbuild(subdir, args):
     x = 0
-    build_dir = ''
-    build_dir = './build/' + subdir
+    start_dir = os.getcwd()
+    build_dir = start_dir + '/build/' + subdir
     mkdir (build_dir)
-    os.chdir (build_dir)
-
-    if (os.path.exists('../.' + build_dir)):
+    
+    if (os.path.exists(build_dir)):
+        os.chdir (build_dir)
         print ('Changed directory to: ' + os.getcwd())
         x = run('cmake', args)
         if x == 0: x = run('make', [])  
-        os.chdir('../../')
+        os.chdir(start_dir)
     else:
-        print ('Unable to change directories to:\n\t' + os.getcwd() + '/build/' + subdir)
+        print ('Unable to change directories to:\n\t' + build_dir)
         x = 1
 
     return x
 
 # Helper function for building libraries from existing CMakeLists.txt
+# This will only work on make systems -- needs to be generalized
 def cfastbuild(subdir):
-    build_dir = ""
-    build_dir = "./build/" + subdir
+    start_dir = os.getcwd()
+    build_dir = start_dir + "/build/" + subdir
     os.chdir (build_dir)
-    if (os.path.exists("../." + build_dir)):
+    if (os.path.exists(build_dir)):
         print ("Changed directory to: " + os.getcwd())
         run("make", [])
-        os.chdir("../../")
+        os.chdir(start_dir)
     else:
-        print ("Unable to change directories to:\n\t" + os.getcwd() + "/build/" + subdir)
+        print ("Unable to change directories to:\n\t" + build_dir)
  
 def clib(cl_args):
-    args = ['../../', '-DBUILD_BINARIES:BOOL=OFF']
-    return cbuild_versions(cl_args, args)
+    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(cl_args)
+    args = [os.getcwd(), '-DBUILD_BINARIES:BOOL=OFF', output_dir]
+
+    # Build Debug Version
+    cbuild("Debug", args + "-DCMAKE_BUILD_TYPE:STRING=Debug")
+    
+    # Build Release Version
+    cbuild("Release", args + "-DCMAKE_BUILD_TYPE:STRING=Release")
+
+    # Copy code for includes and libraries goes here....
 
 def cclean(cl_args):
-    rmdir('build')
+    rmdir(os.getcwd() + '/build')
 
 def ctest(cl_args):
-    args = ['../../', '-DBUILD_BINARIES:BOOL=ON']
-    return cbuild_versions(cl_args, args)
+    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(cl_args)
+    args = [os.getcwd(), '-DBUILD_BINARIES:BOOL=ON', output_dir]
+
+    # Build Debug Version
+    cbuild("Debug", args + "-DCMAKE_BUILD_TYPE:STRING=Debug")
+    
+    # Build Release Version
+    cbuild("Release", args + "-DCMAKE_BUILD_TYPE:STRING=Release")
     
 
 def cfastlib(args):
-    if ('--release' in args or '--both' in args or not ('--debug' in args)):
-        cfastbuild('.cmake-release')
-
-    if ('--debug' in args or '--both' in args or not ('--release' in args)):
-        cfastbuild('.cmake-debug')
+    cfastbuild(platform_directory(args) + "/Debug")
+    cfastbuild(platform_directory(args) + "/Release")
 
 
 ##################################################################################

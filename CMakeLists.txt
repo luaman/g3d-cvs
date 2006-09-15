@@ -41,13 +41,8 @@ ENDIF(NOT PLATFORM_DIR)
 MESSAGE ("Platform Directory:   " ${PLATFORM_DIR})
 
 # Set library and executable output paths
-IF(CMAKE_BUILD_TYPE)
-    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/${CMAKE_BUILD_TYPE}/lib)
-    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/${CMAKE_BUILD_TYPE}/bin)
-ELSE(CMAKE_BUILD_TYPE)
-    SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/Release/lib)
-    SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/Release/bin)
-ENDIF(CMAKE_BUILD_TYPE)
+SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}/lib)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/${PLATFORM_DIR}bin)
 
 ######################################################################
 # Configure environment specific settings
