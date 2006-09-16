@@ -75,6 +75,7 @@ INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
                     ${JPEG_INCLUDE_DIR}
                     ${G3D_SOURCE_DIR}/G3D.lib/include 
                     ${G3D_SOURCE_DIR}/GLG3D.lib/include
+                    ${G3D_SOURCE_DIR}/GLG3D.lib/include/GL
                     ${OPENGL_INCLUDE_DIR}
                     ${SDL_INCLUDE_DIR})
 
