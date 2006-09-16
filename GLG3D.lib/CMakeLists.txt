@@ -10,7 +10,11 @@
 # Create list of source files used in glg3d -- yes, this is poor form,
 # but as long as you recognize the need to re-run cmake after adding
 # a file to the project, there will be no problems.
-FILE(GLOB source_list source/*.cpp)
+IF (APPLE)
+    SET (MM_FILES include/GLG3D/*.mm)
+ENDIF(APPLE)
+
+FILE(GLOB source_list source/*.cpp ${MM_FILES})
 FILE(GLOB header_list include/GLG3D/*.h)
 
 # Specify code files for the library.
