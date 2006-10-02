@@ -76,7 +76,7 @@ def expandvars(str):
 
         varname = str[(i + 2):j]
 
-        if beginswith(varname, 'shell '):
+        if varname.startswith('shell '):
             # Shell command
             cmd = varname[6:]
             value = shell(cmd, verbose)

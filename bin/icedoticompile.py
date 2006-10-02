@@ -2,6 +2,11 @@
 # 
 # Manage .icompile files
 
+import ConfigParser, string, os, icecopyifnewer
+from iceutils import *
+from icedoxygen import *
+from icevariables import *
+
 ##############################################################################
 #                             Default .icompile                              #
 ##############################################################################
@@ -45,25 +50,15 @@ configHelp = """
 #                     variables are NOT expanded for this expression.
 #                     e.g. exclude: <EXCLUDE>|^win32$
 # 
-#  quiet              If True, always run in --quiet mode
+#  builddir           Build directory, relative to ice.txt
+#
+#  tempdir            Temp directory, relative to ice.txt
 #
 #  beep               If True, beep after compilation
 #
 # DEBUG and RELEASE Sections
-#  staticlibs         Semi-colon separated libraries to
-#                     link against.  iCompile will automatically
-#                     link against common libraries like
-#                     OpenGL, SDL, G3D, zlib, and jpeg as needed.  
-#                     e.g., staticlink = mylib.a; /u/uxf/lib/libpng.a
 #
-#                     You can also force linking using the '-l' linker
-#                     option, however this method is more portable.
-#
-#  dynamiclibs        Same as above but for dynamic libraries.
-#
-#  defaultcompileoptions                     
-#  compileoptions
-#  defaultlinkoptions
+#  compileoptions                     
 #  linkoptions        Options *in addition* to the ones iCompile
 #                     generates for the compiler and linker, separated
 #                     by spaces as if they were on a command line.
@@ -79,10 +74,6 @@ configHelp = """
 #                    or .icompile (Yes, you need that 's'--
 #                    it is a Python thing.)
 #   <NEWESTGCC>      The newest version of gcc on your system.
-#   <COMPILEOPTIONS> The default compiler option.s
-#   <LINKOPTIONS>    The default linker options.
-#   <DYNAMICLIBS>    Auto-detected dynamic libraries.
-#   <STATICLIBS>     Auto-detected static libraries.
 #   <EXCLUDE>        Default directories excluded from compilation.
 #
 # The special values may differ between the RELEASE and DEBUG
@@ -108,20 +99,17 @@ defaultDotICompile = """
 # This is a configuration file for iCompile (http://ice.sf.net)
 # """ + configHelp + """
 [GLOBAL]
-defaultinclude:  $(INCLUDE)
-defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib
+defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL
+defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib
 defaultcompiler: <NEWESTGCC>
 defaultexclude:  <EXCLUDE>
 beep:            True
-quiet:           False
+tempdir:         .ice-tmp
+builddir:        build
 
 [DEBUG]
-defaultcompileoptions: <COMPILEOPTIONS>
-defaultlinkoptions: <LINKOPTIONS>
 
 [RELEASE]
-defaultcompileoptions: <COMPILEOPTIONS>
-defaultlinkoptions: <LINKOPTIONS>
 
 """
 
@@ -155,28 +143,150 @@ uses:
 ################################################################
 [DEBUG]
 
-# Reserved for future use; ignored in this version of iCompile
-staticlibs: <STATICLIBS>
+compileoptions:
 
-# Reserved for future use; ignored in this version of iCompile
-dynamiclibs: <DYNAMICLIBS>
-
-compileoptions: %(defaultcompileoptions)s
-
-linkoptions: %(defaultlinkoptions)s
+linkoptions:
 
 ################################################################
 [RELEASE]
 
-# Reserved for future use; ignored in this version of iCompile
-staticlibs: <STATICLIBS>
+compileoptions:
 
-# Reserved for future use; ignored in this version of iCompile
-dynamiclibs: <DYNAMICLIBS>
-
-compileoptions: %(defaultcompileoptions)s
-
-linkoptions: %(defaultlinkoptions)s
+linkoptions:
 
 """
 
+
+
+
+#################################################################
+#                 Configuration & Project File                  #
+#################################################################
+
+""" Reads [section]name from the provided configuration, replaces
+    <> and $() values with the appropriate settings.
+
+    If exp is False $() variables are *not* expanded. """
+    
+def configGet(config, section, name, exp = True):
+    val = config.get(section, name)
+
+    # Replace special values
+    if '<' in val:
+        if '<NEWESTGCC>' in val:
+            (gppname, ver) = newestCompiler()
+            val = val.replace('<NEWESTGCC>',   gppname)
+
+        val = val.replace('<EXCLUDE>', string.join(icecopyifnewer._cppExcludePatterns + ['^CMakeFiles$'], '|'))
+
+    if exp:
+        val = expandvars(val)
+
+    return val
+
+class FakeFile:
+    _textLines = []
+    _currentLine = 0
+
+    def __init__(self, contents):
+        self._currentLine = 0
+        self._textLines = string.split(contents, '\n')
+
+    def readline(self):
+        if (self._currentLine >= len(self._textLines)):
+            # end of file
+            return ''
+        else:
+            self._currentLine += 1
+            return self._textLines[self._currentLine - 1] + '\n'
+           
+
+""" Called from processProjectFile """ 
+def _processDotICompile(config):
+
+    # Set the defaults from the default .icompile and ice.txt
+    config.readfp(FakeFile(defaultDotICompile))
+    config.readfp(FakeFile(defaultProjectFileContents))
+
+    # Process .icompile
+    HOME = os.environ['HOME']
+    preferenceFile = pathConcat(HOME, '.icompile')
+
+    if os.path.exists(preferenceFile):
+        if verbosity >= TRACE: print 'Processing ' + preferenceFile
+        config.read(preferenceFile)
+    else:
+        success = False
+
+        # Try to generate a default .icompile
+        if os.path.exists(HOME):
+            f = file(preferenceFile, 'wt')
+            if f != None:
+                f.write(defaultDotICompile)
+                f.close()
+                success = True
+                if verbosity >= TRACE:
+                    colorPrint('Created a default preference file for ' +
+                                    'you in ' + preferenceFile + '\n',
+                                    SECTION_COLOR)
+                
+        # We don't need to read this new .icompile because
+        # it matches the default, which we already read.
+                           
+        if not success and verbosity >= TRACE:
+            print ('No ' + preferenceFile + ' found and cannot write to '+ HOME)
+
+""" Process the project file and .icompile so that we can use configGet.
+    Sets a handful of variables."""
+def processProjectFile(state):
+
+    config = ConfigParser.SafeConfigParser()
+    _processDotICompile(config)
+
+    # Process the project file
+    projectFile = 'ice.txt'
+    if verbosity >= TRACE: print 'Processing ' + projectFile
+    config.read(projectFile)
+
+    # Don't expand '$' envvar in regular expressions since
+    # $ means end of pattern.
+    exclude = configGet(config, 'GLOBAL', 'exclude', False)
+    state.excludeFromCompilation = re.compile(exclude)
+ 
+    # Parses the "uses" line, if it exists
+    L = ''
+    try:
+        L = configGet(config, 'GLOBAL', 'uses')
+    except ConfigParser.NoOptionError:
+        # Old files have no 'uses' section
+        pass
+
+    for u in string.split(L, ':'):
+        if u.strip() != '':
+            if os.path.exists(pathConcat(u, 'ice.txt')):
+                # This is another iCompile project
+                state.usesProjectsList.append(u)
+            else:
+                state.usesLibrariesList.append(u)
+
+    state.buildDir = addTrailingSlash(configGet(config, 'GLOBAL', 'builddir', True))
+    
+    state.tempDir = addTrailingSlash(pathConcat(configGet(config, 'GLOBAL', 'tempdir', True), state.projectName))
+
+    state.beep = configGet(config, 'GLOBAL', 'beep')
+    state.beep = (state.beep == True) or (state.beep.lower() == 'true')
+
+    # Include Paths
+    state.addIncludePath(makePathList(configGet(config, 'GLOBAL', 'include')))
+
+    # Add our own include directories
+    if isLibrary(state.binaryType):
+        state.addIncludePath(['include', 'include/' + state.projectName])
+
+    # Library Paths
+    state.addLibraryPath(makePathList(configGet(config, 'GLOBAL', 'library')))
+
+    state.compiler = configGet(config, 'GLOBAL', 'compiler')
+
+    state.compilerOptions = string.split(configGet(config, state.target, 'compileoptions'), ' ')
+    state.linkerOptions   = string.split(configGet(config, state.target, 'linkoptions'), ' ')

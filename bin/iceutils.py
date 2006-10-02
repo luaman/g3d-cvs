@@ -397,18 +397,27 @@ def versionToString(v):
         s += str(i) + '.'
     return s[:-1]
 
-#############################################################################
-
-def beginswith(a, prefix):
-   return a[:len(prefix)] == prefix
-
+##############################################################################
 
 def removeTrailingSlash(s):
     if (s[-1] == '/'):
         s = s[:-1]
-    if (s[-1] == '\\'):
+    elif (s[-1] == '\\'):
         s = s[:-1]
     return s
+
+def addTrailingSlash(s):
+    if s.endswith('\\') or s.endswith('/'):
+        return s
+    elif s.endswith(':'):
+        # Win32 drive spec
+        return s + '\\'
+    elif s == '':
+        # Empty dir
+        return './'
+    else:
+        return s + '/'
+
 
 """
 Strips the path from the front of a filename.
@@ -450,7 +459,7 @@ def extname(filename):
     e.g., /usr/lib/libfoo-1.1.so -> foo-1.1"""
 def rawLibraryFilename(filename):
     n = rawfilename(filename)
-    if beginswith(n, 'lib'):
+    if n.startswith('lib'):
         n = n[3:]
     return n
 
@@ -488,19 +497,19 @@ def getVersion(filename):
 
     # We check only the beginning of a filename because it may have
     # a version number as part of the name.
-    if beginswith(base, 'g++'):
+    if base.startswith('g++'):
         cmd = filename + ' --version'
-    elif beginswith(base, 'python'):
-        cmd = filename + " -V"
-    elif beginswith(base, 'cl'):
+    elif base.startswith('python'):
+        cmd = filename + ' -V'
+    elif base.startswith('cl'):
         # MSVC++ compiler
         cmd = filename
-    elif beginswith(base, 'doxygen'):
-        cmd = filename + " --version"
-    elif beginswith(base, 'ar'):
-        cmd = filename + " --version"
-    elif beginswith(base, 'ld'):
-        cmd = filename + " --version"
+    elif base.startswith('doxygen'):
+        cmd = filename + ' --version'
+    elif base.startswith('ar'):
+        cmd = filename + ' --version'
+    elif base.startswith('ld'):
+        cmd = filename + ' --version'
     else:
         # Unsupported
         return [0, 0, 0]
@@ -612,3 +621,29 @@ def listDirs(_dir = ''):
 
     return dirs
 
+########################################################
+""" Turns a string with paths separated by ; (or : on Linux) into
+    a list of paths each ending in /."""
+def makePathList(paths):
+    if (os.name == 'posix'):
+        # Allow ':' as a separator between paths
+        paths = paths.replace(':', ';')
+        
+    return cleanPathList(paths.split(';'))
+
+
+""" Ensures that every string in a list ends with a trailing slash,
+    is non-empty, and appears exactly once."""
+def cleanPathList(paths):
+    out = {}
+
+    for path in paths:
+        if path == "":
+            # do nothing
+            0
+        elif path[-1] == "/":
+            out[path] = 1
+        else:
+            out[path + "/"] = 1
+
+    return out.keys()

@@ -2,6 +2,7 @@
 #
 # Help Information and Printing Routines for iCompile
 
+import icevariables
 from icevariables import *
 from iceutils import *
 
@@ -80,7 +81,8 @@ See manual.html or http://ice.sf.net for full information.
 """ If the exact warning string passed in hasn't been printed
 in the past 72 hours, it is printed and listed in the cache under
 the "warnings" key.  Otherwise it is supressed."""
-def maybeWarn(warning):
+def maybeWarn(warning, state):
+
     MINUTE = 60
     HOUR = MINUTE * 60
     DAY = HOUR * 12
@@ -100,3 +102,4 @@ def maybeWarn(warning):
         # and update the time in the cache
         allWarnings[warning] = time.time()
         colorPrint(warning, WARNING_COLOR)
+    

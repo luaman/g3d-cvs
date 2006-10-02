@@ -2,6 +2,8 @@
 #
 # Global variables for iCompile modules
 
+import os
+
 ##############################################################################
 #                                 Constants                                  #
 ##############################################################################
@@ -14,10 +16,7 @@ LIB                       = 'LIB'
 YES                       = True
 NO                        = False
 
-BUILDDIR                  = 'build'
-DISTRIBDIR                = 'install'
-
-##################################################
+#############################################################################
 # Verbosity levels
 # Print only errors and prompts
 QUIET                     = 10
@@ -30,9 +29,6 @@ VERBOSE                   = 12
 # Print additional debugging information
 TRACE                     = 13
 
-# Temp directory where scratch and .o files are stored, relative to rootDir
-tempDir                   = '.ice-tmp/'
-
 ##############################################################################
 #                                  Globals                                   #
 ##############################################################################
@@ -42,41 +38,34 @@ tempDir                   = '.ice-tmp/'
 # Directories must end in '/' and must not be '' (use './' if
 # necessary). 
 
-# List of all projects that this one depends on, determined by the
-# uses: line of 
-usesProjectsList          = []
-usesLibrariesList         = []
-
-# Location of the project root relative to CWD.  Ends in "/".  Set by setVariables.
-rootDir                   = ''
-
 verbosity                 = NORMAL
 
-# Options for this target.  Set by configureCompiler
-defaultCompilerOptions    = []
+# Adds a new path or list of paths to an existing path list
+def _pathAppend(plist, newPath):
+    if isinstance(newPath, list):
+        for p in newPath:
+            _pathAppend(plist, p)
+    else:
+        if os.path.exists(newPath):
+            plist.append(newPath)
 
-# Options regarding warnings. Set by configureCompiler
-compilerWarningOptions    = []
-
-# Options regarding verbose. Set by configureCompiler
-compilerVerboseOptions    = []
-
-# Set by configureCompiler.
-defaultLinkerOptions      = []
-
-defaultDynamicLibs = []
-defaultStaticLibs = []
-
+# Use getConfigurationState to load
+#
 class State:
     # e.g., linux-gcc4.1
     platform                 	= None
 
+    # The arguments that were supplied to iCompile preceeding --run
+    args                        = None
+
     # e.g., 'osx', 'freebsd', 'linux'
     os                          = None
 
-    # List of all library canonical names that are known to be
-    # used by this project.
-    usesLibraries               = []
+    # Temp directory where scratch and .o files are stored, relative to rootDir
+    tempDir                     = None
+
+    # Absolute location of the project root directory.  Ends in "/".
+    rootDir                     = None
 
     # EXE, LIB, or DLL. Set by setVariables.
     binaryType                  = None
@@ -90,10 +79,35 @@ class State:
     # A dictionary used to store values between invocations of iCompile
     cache                       = {}
 
-    tempDir                     = '.ice-tmp/'
+    # Filename of the compiler
+    compiler                    = None
 
-    # Location to which all build files are written
-    buildDir                    = 'build/'
+    # A list of options to be passed to the compiler.  Does not include
+    # verbose or warnings options.
+    compilerOptions             = []
+
+    # Options regarding warnings
+    compilerWarningOptions      = []
+
+    # Options regarding verbose
+    compilerVerboseOptions      = []
+
+    # A list of options to be passed to the linker.  Does not include
+    # options specified in the configuration file.
+    linkerOptions               = []
+ 
+    # List of all library canonical names that are known to be
+    # used by this project.
+    usesLibraries               = []
+
+    # List of all projects that this one depends on, determined by the
+    # uses: line of 
+    usesProjectsList            = []
+    usesLibrariesList           = []
+
+    # Location to which all build files are written relative to 
+    # rootDir
+    buildDir                    = None
      
     # Location to which generated binaries are written
     binaryDir                   = None
@@ -113,5 +127,33 @@ class State:
   
     # If true, the user is never prompted
     noPrompt                    = False
+  
+    # Compiled regular expression for files to ignore during compilation
+    excludeFromCompilation      = None
 
-state = State()
+    # All paths for #include; updated as libraries are detected
+    _includePaths               = []
+    _libraryPaths               = []
+
+    # path is either a string or a list of paths
+    # Paths are only added if they exist.
+    def addIncludePath(self, path):
+        _pathAppend(self._includePaths, path)
+
+    # Returns a list of all include paths
+    def includePaths(self):
+        return self._includePaths
+
+    def addLibraryPath(self, path):
+        _pathAppend(self._libraryPaths, path)
+
+    # Returns a list of all include paths
+    def libraryPaths(self):
+        return self._libraryPaths
+
+state = None
+
+###############################################
+
+def isLibrary(L):
+    return L == LIB or L == DLL
