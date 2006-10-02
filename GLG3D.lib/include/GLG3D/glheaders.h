@@ -37,10 +37,15 @@
 #endif
 
 #if defined(G3D_LINUX)
-    #ifdef __glxext_h_
-    #error Picked up wrong version of glxext
-    #endif
-	#include "GL/glxext.h"
+
+#   ifdef __glxext_h_
+#      error Picked up wrong version of glxext
+#   endif
+
+#   include "GL/glxext.h"
+
+extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
+
 //	#include "GL/glx.h"
 #endif
 
