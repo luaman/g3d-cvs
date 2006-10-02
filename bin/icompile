@@ -716,6 +716,7 @@ def makeExecutable(objectFiles, linkOptions):
 
     if verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
 
+    print options
     ret = run(state.compiler, options, verbosity >= VERBOSE)
 
     if ret != 0:
@@ -1107,6 +1108,9 @@ def configureGpp():
     state.compilerOptions += userCompilerOptions
     state.linkerOptions += userLinkerOptions
 
+    # Remove empty arguments (they will confuse the linker)
+    while '' in state.linkerOptions:
+        state.linkerOptions.remove('')
 
 
 #########################################################################
