@@ -44,7 +44,10 @@
 
 #   include "GL/glxext.h"
 
-extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
+#   ifdef __FreeBSD__
+//       This is defined in glxext.h, but doesn't get picked up on FreeBSD
+        extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
+#   endif
 
 //	#include "GL/glx.h"
 #endif

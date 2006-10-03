@@ -716,7 +716,6 @@ def makeExecutable(objectFiles, linkOptions):
 
     if verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
 
-    print options
     ret = run(state.compiler, options, verbosity >= VERBOSE)
 
     if ret != 0:
@@ -1068,7 +1067,7 @@ def configureGpp():
     if state.os == 'linux':
        # LARGEFILE_SOURCE enables some newer interfaces for
        # fopen that work with >2GB files
-       flags = shell('getconf', ['LFS_CFLAGS'], verbosity >= VERBOSE)
+       flags = shell('getconf LFS_CFLAGS', verbosity >= VERBOSE)
        state.compilerOptions += string.split(flags, ' ')
 
     if (os.uname()[0] == 'Darwin'):
