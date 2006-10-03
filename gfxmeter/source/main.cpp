@@ -319,7 +319,7 @@ App::~App() {
 
 
 int main(int argc, char** argv) {
-	GApp::Settings settings;
+    GApp::Settings settings;
     
     settings.useNetwork = false;
     settings.window.fsaaSamples = 4;
@@ -340,6 +340,6 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-	//App(settings).run();
+    App(settings).run();
     return 0;
 }
