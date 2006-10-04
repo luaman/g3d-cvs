@@ -234,11 +234,15 @@ void glMultMatrix(const CoordinateFrame& cf);
     wglGetProcAddress/glXGetProcAddress/NSGLGetProcAddress */
 inline void* glGetProcAddress(const char * name){
     #if defined(G3D_WIN32)
-	return (void *)wglGetProcAddress(name);
+	    return (void *)wglGetProcAddress(name);
     #elif defined(G3D_LINUX)
-	return (void *)glXGetProcAddress((const GLubyte*)name);
+        #ifdef __FreeBSD__
+            return (void *)glXGetProcAddress((const GLubyte*)name);
+        #else
+            return (void *)glXGetProcAddressARB((const GLubyte*)name);
+        #endif
     #elif defined(G3D_OSX)
-	return G3D::NSGLGetProcAddress((const char*)name);
+        return G3D::NSGLGetProcAddress((const char*)name);
     #else
         return NULL;
     #endif
