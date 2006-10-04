@@ -236,7 +236,7 @@ inline void* glGetProcAddress(const char * name){
     #if defined(G3D_WIN32)
 	return (void *)wglGetProcAddress(name);
     #elif defined(G3D_LINUX)
-	return (void *)glXGetProcAddressARB((const GLubyte*)name);
+	return (void *)glXGetProcAddress((const GLubyte*)name);
     #elif defined(G3D_OSX)
 	return G3D::NSGLGetProcAddress((const char*)name);
     #else
