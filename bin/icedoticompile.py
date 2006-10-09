@@ -290,3 +290,165 @@ def processProjectFile(state):
 
     state.compilerOptions = string.split(configGet(config, state.target, 'compileoptions'), ' ')
     state.linkerOptions   = string.split(configGet(config, state.target, 'linkoptions'), ' ')
+
+
+#########################################################################
+
+    
+# Loads configuration from the current directory, where args
+# are the arguments preceding --run that were passed to iCompile
+#
+# Returns the configuration state
+def getConfigurationState(args):
+    
+    state = State()
+
+    state.args = args
+
+    state.noPrompt = '--noprompt' in args
+
+    # Root directory
+    state.rootDir                    = os.getcwd() + "/"
+
+    # Project name
+    state.projectName                = string.split(state.rootDir, ('/'))[-2]
+
+    ext = string.lower(extname(state.projectName))
+    state.projectName = rawfilename(state.projectName)
+
+    # Binary type    
+    if (ext == 'lib') or (ext == 'a'):
+        state.binaryType = LIB
+    elif (ext == 'dll') or (ext == 'so'):
+        state.binaryType = DLL
+    elif (ext == 'exe') or (ext == ''):
+        state.binaryType = EXE
+    else:
+        state.binaryType = EXE
+        maybeWarn("This project has unknown extension '" + ext +
+                  "' and will be compiled as an executable.", state)
+
+    # Choose target
+    if ('--opt' in args) or ('-O' in args):
+        if ('--debug' in args):
+            colorPrint("Cannot specify '--debug' and '--opt' at " +
+                       "the same time.", WARNING_COLOR)
+            sys.exit(-1)
+
+        state.target          = RELEASE
+        d                     = ''
+    else:
+        state.target          = DEBUG
+        d                     = 'd'
+
+    # Find an icompile project file.  If there isn't one, give the
+    # user the opportunity to create one or abort.
+    checkForProjectFile(state, args)
+
+    # Load settings from the project file.
+    processProjectFile(state)
+
+    discoverPlatform(state)
+
+    unix = not state.os.startswith('win')
+
+    # On unix-like systems we prefix library names with 'lib'
+    prefix = ''
+    if unix and isLibrary(state.binaryType):
+        prefix = 'lib'
+
+    # Binary name
+    if (state.binaryType == EXE):
+        state.binaryDir  = state.buildDir + 'install/'
+        state.binaryName = state.projectName + d
+    elif (state.binaryType == DLL):
+        state.binaryDir  = state.buildDir + 'install/' + state.platform + '-lib/'
+        state.binaryName = prefix + state.projectName + d + '.so'
+    elif (state.binaryType == LIB):
+        state.binaryDir  = state.buildDir + 'install/' + state.platform + '-lib/'
+        state.binaryName = prefix + state.projectName + d + '.a'
+
+    # Make separate directories for object files based on
+    # debug/release
+    state.objDir = state.tempDir + state.platform + '/' + state.target + '/'
+
+    return state
+
+##################################################################################
+
+""" Checks for ice.txt and, if not found, prompts the user to create it
+    and returns if they press Y, otherwise exits."""
+def checkForProjectFile(state, args):
+    # Assume default project file
+    projectFile = 'ice.txt'
+    if os.path.exists(projectFile): return
+
+    # Everything below here executes only when there is no project file
+    if not state.noPrompt:
+
+        if ('--clean' in args) and not os.path.exists(state.buildDir):
+            print
+            colorPrint('Nothing to clean (you have never run iCompile in ' +
+                   os.getcwd() + ')', WARNING_COLOR)
+            print
+            # Doesn't matter, there's nothing to delete anyway, so just exit
+            sys.exit(0)
+
+        print
+        inHomeDir = (os.path.realpath(os.getenv('HOME')) == os.getcwd())
+
+        if inHomeDir:
+            colorPrint(' ******************************************************',
+                       WARNING_COLOR)
+            colorPrint(' * You are about run iCompile in your home directory! *',
+                       'bold red')
+            colorPrint(' ******************************************************',
+                       WARNING_COLOR)
+        else:        
+            colorPrint('You have never run iCompile in this directory before.',
+                       WARNING_COLOR)
+        print
+        print '  Current Directory: ' + os.getcwd()
+    
+        # Don't show dot-files first if we can avoid it
+        dirs = listDirs()
+        dirs.reverse()
+        num = len(dirs)
+        sl = shortlist(dirs)
+    
+        if (num > 1):
+            print '  Contains', num, 'directories (' + sl + ')'
+        elif (num > 0):
+            print '  Contains 1 directory (' + dirs[0] + ')'
+        else:
+            print '  Contains no subdirectories'
+
+        cfiles = listCFiles()
+        num = len(cfiles)
+        sl = shortlist(cfiles)
+    
+        if (num > 1):
+            print '  Subdirectories contain', num, 'C++ files (' + sl + ')'
+        elif (num > 0):
+            print '  Subdirectories contain 1 C++ file (' + cfiles[0] + ')'
+        else:
+            print '  Subdirectories contain no C++ files'    
+
+        print
+    
+        dir = string.split(os.getcwd(), '/')[-1]
+        if inHomeDir:
+            prompt = ('Are you sure you want to run iCompile '+
+                      'in your home directory? (Y/N)')
+        else:
+            prompt = ("Are you sure you want to compile the '" +
+                      dir + "' project? (Y/N)")
+        
+        colorPrint(prompt, 'bold')
+        if string.lower(getch()) != 'y':
+            sys.exit(0)
+        
+    f = file(projectFile, 'wt')
+    f.write(defaultProjectFileContents)
+    f.close()
+    

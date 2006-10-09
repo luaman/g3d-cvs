@@ -6,7 +6,20 @@
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, ConfigParser
 
-from icevariables import *
+#############################################################################
+# Verbosity levels
+# Print only errors and prompts
+QUIET                     = 10
+
+NORMAL                    = 11
+
+# Print complete commands
+VERBOSE                   = 12
+
+# Print additional debugging information
+TRACE                     = 13
+
+verbosity                 = NORMAL
 
 ##############################################################################
 #                              Color Printing                                #
@@ -647,3 +660,33 @@ def cleanPathList(paths):
             out[path + "/"] = 1
 
     return out.keys()
+
+##################################################################
+
+"""
+"""
+def shortname(prefix, cfile):
+    if cfile.startswith(prefix):
+        # Don't bother printing the root directory name
+        # when it appears
+        return cfile[len(prefix):]
+    else:
+        return cfile
+
+#########################################################################
+
+""" Returns true if this is a cpp source filename. """
+def isCFile(file):
+    ext = string.lower(extname(file))
+
+    return ((ext == 'cpp') or
+           (ext == 'c') or
+           (ext == 'c++') or
+           (ext == 'cxx') or
+           (ext == 'i') or
+           (ext == 'ii') or
+	   ((os.uname()[0] == 'Darwin') and
+            ((ext == 'mm') or
+             (ext == 'm') or
+             (ext == 'mi') or
+             (ext == 'mii'))))

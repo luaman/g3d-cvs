@@ -167,27 +167,35 @@ def itest(args):
     os.chdir("test")
     x = run('../bin/icompile', ['--noprompt', '--run'])
     if (x == 0):
-        run('../bin/icompile', ['--noprompt', '-O', '--run'])
-    os.chdir("..")
+        x = run('../bin/icompile', ['--noprompt', '-O', '--run'])
+    os.chdir('..')
+
+    if (x == 0):
+        # Make sure that the other applications can at least build
+        x = runicompile('gfxmeter')
+
+    return x
 
 ################################################################################
 
 def doc(args):
     print 'doc target not currently implemented.'
+    return 1
 
 def install(args):
     x = lib(args)
     if x == 0: x = test(args)
     if x == 0: x = doc(args)
+    return x
 
 def lib(args):
-    return clib(args)
+    return ilib(args)
 
 def clean(args):
-    return cclean(args)
+    return iclean(args)
 
 def test(args):
-    return ctest(args)
+    return itest(args)
 
 ##################################################################################
 def getCompilerName(args):

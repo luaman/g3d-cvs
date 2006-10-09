@@ -21,6 +21,7 @@ from sets import Set
 from platform import machine
 from string import ljust
 
+from icedepend import *
 from icehelp import *
 from icevariables import *
 from icedoticompile import *
@@ -36,93 +37,13 @@ if int(sys.version[:string.find(sys.version, '.')]) < 2:
            + sys.version)
     sys.exit(-10)
 
-#########################################################################
-
-""" Returns true if this is a cpp source filename. """
-def isCFile(file):
-    ext = string.lower(extname(file))
-
-    return ((ext == 'cpp') or
-           (ext == 'c') or
-           (ext == 'c++') or
-           (ext == 'cxx') or
-           (ext == 'i') or
-           (ext == 'ii') or
-	   ((os.uname()[0] == 'Darwin') and
-            ((ext == 'mm') or
-             (ext == 'm') or
-             (ext == 'mi') or
-             (ext == 'mii'))))
-
-#########################################################################
-
-"""
-A regular expression matching files that should be excluded from compilation
-"""
-excludeFromCompilation = None
-
-def listCFilesVisitor(result, dirname, files):
-    dir = dirname
-
-    # Strip any unnecessary "./"
-    if (dirname[:2] == "./"):
-        dir = dir[2:]
-
-    if ((excludeFromCompilation != None) and
-        (excludeFromCompilation.search(dir) != None)):
-        # Don't recurse into subdirectories of excluded directories
-        del files[:]
-        return
-
-    # We can't modify files while iterating through it, so
-    # we must make a list of all files that are to be removed before the
-    # next iteration of the visitor.   
-    removelist = [];
-    for f in files:
-         if ((excludeFromCompilation != None) and
-             (excludeFromCompilation.search(f) != None)):
-            if verbosity >= VERBOSE: print "  Ignoring '" + f + "'"
-            removelist.append(f)
-            
-         elif isCFile(f):
-             
-            # Ensure the path ends in a slash (when needed)
-            filename = pathConcat(dir, f)
-
-            if ((excludeFromCompilation == None) or
-                (excludeFromCompilation.search(filename) == None)):
-                result.append(filename)
-
-    # Remove any subdir in files that is itself excluded to prevent
-    # later recursion into it.
-    for f in removelist:
-        files.remove(f)
-
-
-"""Returns all files with gcc-recognized c/c++ endings for the given directory
-   and all subdirectories.
-   
-   Filenames must be relative to the "rootDir" directory.  dir will be
-   a subdirectory of rootDir.
-
-   exclude must be a regular expression for files to exclude.
-   """
-def listCFiles(dir = '', exclude = None):
-    if (dir == ''): dir = './'
-
-    excludeFromCompilation = exclude
-    result = []
-
-    os.path.walk(dir, listCFilesVisitor, result)
-    return result
    
 ##############################################################################
 #                            Cache Management                                #
 ##############################################################################
 
 """ Loads the icompile cache that preserves values between calls """
-def loadCache(filename):
-    global state
+def loadCache(state, filename):
 
     if verbosity >= TRACE: print "Loading cache from " + filename + "\n"
 
@@ -145,47 +66,11 @@ def loadCache(filename):
 
 ##############################################################################
 
-def saveCache(filename):
+def saveCache(state, filename):
     file = open(filename, 'w')
     pickle.dump(state.cache, file)
     file.close()
 
-##############################################################################
-#                            Discover Platform                               #
-##############################################################################
-
-def discoverPlatform(state):
-
-    state.os = ''
-    compiler = ''
-
-    # Figure out the os
-    if (os.uname()[0] == 'Linux'):
-        state.os = 'linux'
-    elif (os.uname()[0] == 'FreeBSD'):
-        state.os = 'freebsd'
-    elif (os.uname()[0] == 'Darwin'):
-        state.os = 'osx'
-    else:
-        raise 'Error', 'iCompile only supports Linux and OS X'
-
-    # Figure out the compiler
-    c = state.compiler
-    compiler = betterbasename(c)
-
-    if compiler.startswith('g++') or compiler.startswith('gcc'):
-        compiler = 'g++'
-
-    # Append the major and minor compiler version number to the compiler name
-    v = getVersion(c)    
-    if len(v) > 2:
-        v = v[0:2]
-    if len(v) < 2:
-        # Version number was short; add a 0 minor number
-        v = v + 0
-    compiler += string.join(map(str, v), '.')
-
-    state.platform = state.os + '-' + machine() + '-' + compiler
     
 ##############################################################################
 #                            Build Documentation                             #
@@ -214,7 +99,7 @@ def buildDocumentation():
 #                               Build Data Files                             #
 ##############################################################################
 
-def buildDataFiles():
+def buildDataFiles(state):
     src = 'data-files'
     dst = state.buildDir + 'install/'
     
@@ -227,7 +112,7 @@ def buildDataFiles():
 #                               Build Include                                #
 ##############################################################################
 """ Copies headers to the build directory. """
-def buildInclude():
+def buildInclude(state):
     src = 'include'
     dst = state.buildDir + 'install/include'
     
@@ -240,7 +125,7 @@ def buildInclude():
 #                                 Build Clean                                #
 ##############################################################################
 
-def buildClean():
+def buildClean(state):
     if verbosity >= NORMAL: colorPrint('Deleting all generated files', SECTION_COLOR)
     
     rmdir(state.rootDir + state.buildDir, verbosity >= VERBOSE)
@@ -251,250 +136,10 @@ def buildClean():
 
 #########################################################################
 
-"""Returns a list of *all* files on which this file depends (including
-   itself).  Returned filenames must either be fully qualified or
-   relative to the "rootDir" dir.
-
-   May modify the default compiler and linker options
-   """
-def getDependencies(file, iteration = 1):
-    global state
-
-    # We need to use the -msse2 flad during dependency checking because of the way
-    # xmmintrin.h is set up
-    #
-    # -MG means "don't give errors for header files that don't exist"
-    # -MM means "don't tell me about system header files"
-    raw = shell(state.compiler + ' -M -msse2 -MG ' +
-                string.join(getCompilerOptions([]), ' ') + ' ' + file,
-                verbosity >= VERBOSE)
-
-    if verbosity >= TRACE:
-        print raw
-
-    if raw.startswith('In file included from'):
-        # If there was an error, the output will have the form
-        # "In file included from _____:" and a list of files
-        
-        if iteration == 3:
-            # Give up; we can't resolve the problem
-            print raw
-            sys.exit(-1)
-        
-        if verbosity >= VERBOSE:
-            print ('\nThere were some errors computing dependencies.  ' +
-                   'Attempting to recover.('), iteration,')'
-        
-        # Generate a list of files and see if they are something we
-        # know how to fix.
-        noSuchFile = []
-        for line in string.split(raw, '\n'):
-            if line.endswith(': No such file or directory'):
-                x = line[:-len(': No such file or directory')]
-                j = x.rfind(': ')
-                if (j >= 0): x = x[(j+2):]
-
-                # x now has the filename
-                noSuchFile.append(betterbasename(x))
-
-        if verbosity >= NORMAL: print 'Files not found:', noSuchFile
-        
-        # Look for files we know how to handle
-        for f in noSuchFile:
-            if f == 'wx.h':
-                if verbosity >= NORMAL: print 'wxWindows detected.'
-                state.compilerOptions.append(shell('wx-config --cxxflags', verbosity >= VERBOSE))
-                state.linkerOptions.append(shell('wx-config --gl-libs --libs', verbosity >= VERBOSE))
-                
-        return getDependencies(file, iteration + 1)
-
-    else:
-
-        # Normal case, no error
-        if 'implemented' in raw: print raw
-        result = []
-        raw = raw.replace('\\', ' ')
-        for line in raw.splitlines():
-            # gcc 3.4.2 likes to print the name of the file first, as in
-            # """# 1 "/home/faculty/morgan/Projects/ice/tests/meta/helper.lib//""""
-            if not line.startswith('# '):
-                result += string.split(line, ' ')
-
-        # There is always at least one file since everything depends on itself.
-        
-        # The first element of result will be "file:", so strip it
-        files = result[1:]
-        result = []
-
-        # Add the './' to raw files
-        for f in files:
-            f = f.strip()
-            if '/' in f:
-                result.append(f)
-            elif f == '':
-                # empty filename
-                files.remove(f)
-            else:
-                result.append('./' + f)
-
-        return result
-
-
-#########################################################################
-
-"""Finds all of the C++/C files in rootDir and returns
- dependency information for them as the tuple
- 
-   (allCFiles, dependencies, allDependencyFiles, parents)
-
- where: 
- 
- allCFiles is the list of all source files to compile,
-
- dependencies[f] is the list of all files on which
- f depends,
-
- allDependencyFiles is the list of all files
- on which *any* file depends, and
-
- parents[f] is the list of all files that depend on f
-
- While getting dependencies, this may change the include/library
- list and restart the process if it appears that some include
- directory is missing.
-"""
-def getDependencyInformation():
-    
-    # Hash table mapping C files to the list of all files
-    # on which they depend.
-    dependencies = {}
-
-    parents = {}
-
-    # All files on which something depends
-    dependencySet = Set()
-
-    # Find all the c files
-    allCFiles = listCFiles(state.rootDir, state.excludeFromCompilation)
-
-    if verbosity >= TRACE: print 'Source files found:', allCFiles
-
-    # Get their dependencies
-    for cfile in allCFiles:
-
-        # Do not use warning or verbose options for this; they
-        # would corrupt the output.
-        dlist = getDependencies(cfile)
-
-        # Update the dependency set
-        for d in dlist: 
-            dependencySet.add(d)
-            if d in parents:
-                parents[d] += cfile
-            else:
-                parents[d] = [cfile]
- 
-        dependencies[cfile] = dlist
-    
-    # List of all files on which some other file depends
-    dependencyFiles = [d for d in dependencySet]
-
-    return (allCFiles, dependencies, dependencyFiles, parents)
-
-#########################################################################
-
-"""Given a source file (relative to rootDir) returns an object file
-  (relative to rootDir).
-"""
-def getObjectFilename(sourceFile):
-    # strip the extension and replace it with .o
-    i = string.rfind(sourceFile, '.')
-    return state.objDir + sourceFile[len(state.rootDir):i] + '.o'
-
-#########################################################################
-
-def getOutOfDateFiles(cfiles, dependencies, files):
-    # Get modification times for all of the files
-    timeStamp = {}
-    for file in files:
-        timeStamp[file] = getTimeStamp(file)
-    
-    buildList = []
-    
-    # Need to rebuild all if this script was modified more
-    # recently than a given file.
-    icompileTime = getTimeStamp(sys.argv[0])
-
-    # Rebuild all if ice.txt or .icompile was modified
-    # more recently.
-    if os.path.exists('ice.txt'):
-        iceTime = getTimeStamp('ice.txt')
-        if iceTime > icompileTime:
-            icompileTime = iceTime
-
-    HOME = os.environ['HOME']
-    preferenceFile = pathConcat(HOME, '.icompile')
-    if os.path.exists(preferenceFile):
-        configTime = getTimeStamp(preferenceFile)
-        if configTime > icompileTime:
-            icompileTime = configTime
-
-
-    # Generate a list of all files newer than their targets
-    for cfile in cfiles:
-        ofile = getObjectFilename(cfile)
-        otime = getTimeStamp(ofile)
-        rebuild = (otime < icompileTime)
-
-        if rebuild and verbosity >= TRACE:
-            print "iCompile is newer than " + ofile
-
-        if not rebuild:
-            # Check dependencies
-            for d in dependencies[cfile]:
-                dtime = timeStamp[d]
-                if otime < dtime:
-                    if verbosity >= TRACE:
-                        print d + " is newer than " + ofile
-                    rebuild = 1
-                    break
-
-        if rebuild:
-            # This file needs to be rebuilt
-            buildList.append(cfile)
-
-    return buildList
-
-#########################################################################
-
-"""allFiles is a list of all files on which something
-   depends for the project.
-
-   Returns a list of strings
-
-   extraOpts are options that are needed for compilation
-   but not dependency checking:
-     state.compilerWarningOptions + state.compilerVerboseOptions
-   """
-def getCompilerOptions(allFiles, extraOpts = []):
-    opt = state.compilerOptions + extraOpts + ['-c']
-    
-    for i in state.includePaths():
-        opt += ['-I' + i]
-
-    # See if the xmm intrinsics are being used
-    # This was disabled because -msse2 allows code generation,
-    # not just explicit use of intrinsics
-    #for f in allFiles:
-    #    if f[-11:] == 'xmmintrin.h':
-    #        opt += ['-msse2']
-    #        break
-        
-    return opt
 
 """ Compiles the source file. """
-def makeObjectFile(cfile, options):
-    ofile = getObjectFilename(cfile)
+def makeObjectFile(state, cfile, options):
+    ofile = getObjectFilename(state, cfile)
    
     # Create the directory for the ofile as needed
     i = ofile.rfind("/")
@@ -503,7 +148,7 @@ def makeObjectFile(cfile, options):
 
     args = string.split(options) 
   
-    if (extname(cfile).lower() == 'c'):
+    if extname(cfile).lower() == 'c':
         # At least on Darwin, g++ (vs. gcc) fails to correctly
         # identify c files with old syntax (e.g., png.c) and
         # needs an explicit language argument.
@@ -515,7 +160,7 @@ def makeObjectFile(cfile, options):
         # 'run' will not print the full command, so we just
         # print filename to be compiled here.
 
-        print shortname(cfile)
+        print shortname(state.rootDir, cfile)
 
     ret = run(state.compiler, args, verbosity > NORMAL)
 
@@ -525,42 +170,6 @@ def makeObjectFile(cfile, options):
         if verbosity >= VERBOSE: print
 
 #########################################################################
-
-"""Mutates dynamicLinkFiles to contain additional libraries that are probably
-needed by the staticLinkFiles.  Called from getLinkerOptions.
-"""
-def getAdditionalDynamicLinks(dynamicLinkFiles, staticLinkFiles):
-    if verbosity >= TRACE: print '\nBegin getAdditionalDynamicLinks'
-    
-    # Static files may have their own dependencies.  We track these down by
-    # looking at symbols defined in the library and seeing which ones map
-    # to common dynamic libraries.
-    for file in staticLinkFiles:
-        sfile = findLibrary(file, STATIC, state.libraryPaths())
-        if os.path.exists(sfile):
-            cmd = 'nm --extern-only --demangle --undefined-only ' + sfile
-            if verbosity >= VERBOSE: colorPrint(cmd, COMMAND_COLOR)
-
-            symbols = string.split(commands.getoutput(cmd))
-
-            for symbol in symbols:
-                if extraLink.has_key(symbol):
-                    (debug, release) = extraLink[symbol]
-
-                    if state.target == DEBUG:
-                        lfile = debug
-                    else:
-                        lfile = release
-             
-                    if verbosity >= TRACE:
-                        print (symbol + " in " + sfile +
-                              " triggered dynamic link against " + lfile)
-
-                    if not (lfile in dynamicLinkFiles):
-                        dynamicLinkFiles.append(lfile)
-
-    if verbosity >= TRACE: print 'End getAdditionalDynamicLinks\n'
-
 
 """ Add the dependencies from the libraries list (recursively)
     libraries must be a set of canonical library names
@@ -583,7 +192,7 @@ def extendLibrariesWithDependencies(libraries):
 
 """allFiles is a list of all files on which something
    depends for the project. """
-def getLinkerOptions(allFiles):
+def getLinkerOptions(state, allFiles):
     opt = state.linkerOptions
 
     opt += [('-L' + path) for path in state.libraryPaths()]
@@ -668,7 +277,7 @@ def getLinkerOptions(allFiles):
 #########################################################################
 
 """ Makes a static library from a list of object files and libraries."""
-def makeStaticLibrary(objectFiles):
+def makeStaticLibrary(state, objectFiles):
     if verbosity >= QUIET: colorPrint("\nCreating static library", SECTION_COLOR)
 
     ret = run('ar', ['cr', state.binaryDir + state.binaryName] + objectFiles, verbosity >= VERBOSE)
@@ -682,7 +291,7 @@ def makeStaticLibrary(objectFiles):
 
 """ Makes an executable from a list of object files. 
     """
-def makeExecutable(objectFiles, linkOptions):
+def makeExecutable(state, objectFiles, linkOptions):
 
     # Create the command line arguments for the linker.
     # Note that the object files must come first
@@ -725,38 +334,38 @@ def makeExecutable(objectFiles, linkOptions):
 	run('strip', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
 
 #########################################################################
-
-""" Returns sibling directories that are also iCompile libraries as names
-    relative to the current directory.
-    Allowed to recurse back two parent directories"""
-def getLibrarySiblingDirs(howFarBack = 1):
-    libsibs = []
-    for dir in getSiblingDirs(howFarBack):
-
-        # See if it contains an ice.txt and ends in a library extension
-        ext = extname(dir).lower()
-        if (os.path.exists(dir + '/ice.txt') and 
-           ((ext == 'lib') or (ext == 'a') or 
-            (ext == 'so') or  (ext == 'dll'))):
-            libsibs.append(dir)
-
-    return libsibs
-
+###################################################################################
 
 """
+Build all (out of date) projects on which the project described by state depends
+
+Called from buildBinary.
 """
-def shortname(cfile):
-    if cfile.startswith(state.rootDir):
-        # Don't bother printing the root directory name
-        # when it appears
-        return cfile[len(state.rootDir):]
+def buildDependencyProjects(state):
+
+    # Create arguments to pass to the child icompile process
+    libArgs = []
+    
+    # We don't need to pass verbosity because it is globally 
+    # specified; FYI, ['--verbosity', str(verbosity - QUIET)]
+
+    if state.target == DEBUG:
+        libArgs.append('--debug')
     else:
-        return cfile
+        libArgs.append('-O')
 
+    ret = 0
+    for lib in state.usesProjectsList:
+        ret = icompile(lib, libArgs)
+        if ret != 0:
+            break
+
+    return ret
+
+###################################################################################
 
 """ Creates the object files and links them. """
-def buildBinary():
-    global state
+def buildBinary(state):
 
     if verbosity >= NORMAL: 
         printBar()
@@ -766,74 +375,15 @@ def buildBinary():
     mkdir(state.objDir, verbosity >= VERBOSE)
 
     if verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
-    (cfiles, dependencies, files, parents) = getDependencyInformation()
+    (cfiles, dependencies, files, parents) = getDependencyInformation(state)
 
-    # See if any of the header files are not found; that might imply
-    # sibling project is an implicit dependency.
-    # Include the empty path on this list so that we'll find files
-    # that are fully qualified as well as files in the current directory.
-    # This list will be extended as we go forward.
-    incPaths = [''] + state.includePaths()
-    librarySiblingDirs = getLibrarySiblingDirs(3)
+    if verbosity >= TRACE: 
+        print '\nBefore identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
 
-    for header in files:
-        found = False
-        i = 0
-        while not found and (i < len(incPaths)):
-            found = os.path.exists(pathConcat(incPaths[i], header))
-            i += 1
+    identifySiblingLibraryDependencies(files, parents, state)
 
-        if not found:
-            # This header doesn't exist in any of the standard include locations.
-            # See if it is in a sibling directory that is a library.
-            i = 0
-
-            while not found and (i < len(librarySiblingDirs)):
-                dirname = librarySiblingDirs[i]
-                found = os.path.exists(dirname + '/include/' + header)
-                if found:
-                    if verbosity >= TRACE: print "Found '" + header + "' in '" + dirname + "/include'."
-                    # We have identified a sibling library on which this project appears
-                    # to depend.  
-
-                    type = EXE
-                    libname = rawfilename(dirname)
-                    ext = extname(dirname).lower()
-                    if ext == 'dll' or ext == 'so':
-                        type = DLL
-                    elif ext == 'lib' or ext == 'a':
-                        type = LIB
-
-                    if isLibrary(type):
-                        if not libraryTable.has_key(libname):
-                           defineLibrary(Library(libname, type, libname, libname + 'd',  
-	                                         None,  None, [betterbasename(header)], [], []))
-
-                        if not libname in state.usesLibrariesList:
-                            state.usesLibrariesList.append(libname)
-
-                        if not dirname in state.usesProjectsList:
-                            print ('Detected dependency on ' + dirname + ' from inclusion of ' + 
-                                   header + ' by'), shortname(parents[header][0])
-
-                            state.usesProjectsList.append(dirname)
-
-                            # Load the configuration state for the dependency project
-                            curDir = os.getcwd()
-                            os.chdir(dirname)
-                            other = getConfigurationState(state.args)
-                            os.chdir(curDir)
-
-                            state.addIncludePath(pathConcat(dirname, 'include'))
-                            state.addLibraryPath(pathConcat(dirname, other.binaryDir))
-                            
-                            incPaths.append(dirname + '/include/') # TODO: why maintain a separate incPath here vs. state.includePaths?
-                            # TODO: recursively add all dependencies that come from this new header/library
-                i += 1
-
-        if not found:
-            maybeWarn("Header file not found: '" + header + "'.", state)
-
+    if verbosity >= TRACE: 
+        print '\nAfter identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
 
     if verbosity >= TRACE:
         print 'Header files #included:'
@@ -842,17 +392,21 @@ def buildBinary():
         print
 
     if cfiles == []:
-        print
-        print "No C or C++ files found."
+        print '\nNo C or C++ files found.'
         sys.exit(-10)
 
-    # Build all projects on which we depend
-    #for lib in state.usesProjectsList:
-    # TODO
+    ret = 0
 
-    buildList = getOutOfDateFiles(cfiles, dependencies, files)
+    # Static libraries can have mutually recursive dependencies and don't
+    # link against their dependencies anyway.  Everything else must build
+    # its dependencies first
+    if state.binaryType != LIB:
+        ret = buildDependencyProjects(state)
 
-    copt = string.join(getCompilerOptions(files, state.compilerWarningOptions + state.compilerVerboseOptions), ' ')
+    buildList = getOutOfDateFiles(state, cfiles, dependencies, files)
+
+    copt = string.join(getCompilerOptions(state, 
+        files, state.compilerWarningOptions + state.compilerVerboseOptions), ' ')
 
     if verbosity >= TRACE:
         print "\nBuilding out of date files\n"    
@@ -862,14 +416,14 @@ def buildBinary():
         if verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
     
     for file in buildList:
-        makeObjectFile(file, copt)
+        makeObjectFile(state, file, copt)
         relink = 1
  
     # Generate *all* object file names (even ones that
     # aren't rebuilt
     ofiles = []
     for cfile in cfiles: 
-        ofiles.append(getObjectFilename(cfile))
+        ofiles.append(getObjectFilename(state, cfile))
 
     # Definitely need to link if no executable exists
     doLink = not os.path.exists(state.binaryDir + state.binaryName)
@@ -894,18 +448,16 @@ def buildBinary():
             (state.binaryType == DLL)):
 
             # Dynamic library or executable.
-            lopt = getLinkerOptions(files)
-            makeExecutable(ofiles, lopt)
+            lopt = getLinkerOptions(state, files)
+            makeExecutable(state, ofiles, lopt)
 
         else:
 
             # Static library.
-            makeStaticLibrary(ofiles)
+            makeStaticLibrary(state, ofiles)
 
     if verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
     
-#########################################################################
-
 #########################################################################
 
 """ Returns two lists; all of the arguments up to and including the first
@@ -954,96 +506,17 @@ def gdbCompiledProgram(progArgs):
     printBar()
     return os.system(cmd)
 
-##########################################################################
 
-""" Checks for ice.txt and, if not found, prompts the user to create it
-    and returns if they press Y, otherwise exits."""
-def checkForProjectFile(state, args):
-    # Assume default project file
-    projectFile = 'ice.txt'
-    if os.path.exists(projectFile): return
-
-    # Everything below here executes only when there is no project file
-    if not state.noPrompt:
-
-        if ('--clean' in args) and not os.path.exists(state.buildDir):
-            print
-            colorPrint('Nothing to clean (you have never run iCompile in ' +
-                   os.getcwd() + ')', WARNING_COLOR)
-            print
-            # Doesn't matter, there's nothing to delete anyway, so just exit
-            sys.exit(0)
-
-        print
-        inHomeDir = (os.path.realpath(os.getenv('HOME')) == os.getcwd())
-
-        if inHomeDir:
-            colorPrint(' ******************************************************',
-                       WARNING_COLOR)
-            colorPrint(' * You are about run iCompile in your home directory! *',
-                       'bold red')
-            colorPrint(' ******************************************************',
-                       WARNING_COLOR)
-        else:        
-            colorPrint('You have never run iCompile in this directory before.',
-                       WARNING_COLOR)
-        print
-        print '  Current Directory: ' + os.getcwd()
-    
-        # Don't show dot-files first if we can avoid it
-        dirs = listDirs()
-        dirs.reverse()
-        num = len(dirs)
-        sl = shortlist(dirs)
-    
-        if (num > 1):
-            print '  Contains', num, 'directories (' + sl + ')'
-        elif (num > 0):
-            print '  Contains 1 directory (' + dirs[0] + ')'
-        else:
-            print '  Contains no subdirectories'
-
-        cfiles = listCFiles()
-        num = len(cfiles)
-        sl = shortlist(cfiles)
-    
-        if (num > 1):
-            print '  Subdirectories contain', num, 'C++ files (' + sl + ')'
-        elif (num > 0):
-            print '  Subdirectories contain 1 C++ file (' + cfiles[0] + ')'
-        else:
-            print '  Subdirectories contain no C++ files'    
-
-        print
-    
-        dir = string.split(os.getcwd(), '/')[-1]
-        if inHomeDir:
-            prompt = ('Are you sure you want to run iCompile '+
-                      'in your home directory? (Y/N)')
-        else:
-            prompt = ("Are you sure you want to compile the '" +
-                      dir + "' project? (Y/N)")
-        
-        colorPrint(prompt, 'bold')
-        if string.lower(getch()) != 'y':
-            sys.exit(0)
-        
-    f = file(projectFile, 'wt')
-    f.write(defaultProjectFileContents)
-    f.close()
-    
-
-#################################################################
+####################################################################
         
 """ Choose and configure the compiler for this platform and target."""
-def configureCompiler():
-    configureGpp()
+def configureCompiler(state):
+    configureGpp(state)
 
 
 """ Configure g++ as our compiler of choice.
     Called from configureCompiler."""
-def configureGpp():
-    global state
+def configureGpp(state):
 
     userCompilerOptions = state.compilerOptions
     userLinkerOptions = state.linkerOptions
@@ -1052,9 +525,14 @@ def configureGpp():
         state.compilerOptions = ['-O3',
                                  '-D_RELEASE', 
                                  '-fno-trapping-math',
+                                 '-fno-strict-aliasing',
                                  '-s']
         # Had to remove '-fno-math-errno' because g++ occasionally
         # crashes with that option.
+
+        # -fno-strict-aliasing slows down the produced code but allows
+        # type-punned aliasing to be safe, which is what many C++ programmers
+        # need.
 
         # Removed '-fno-finite-math-only' because it is not supported
         # by g++3.2
@@ -1104,8 +582,8 @@ def configureGpp():
     state.compilerWarningOptions = ['-Wall', '-Wformat=2']
   
     # Put user options last so that they can override ours
-    state.compilerOptions += userCompilerOptions
-    state.linkerOptions += userLinkerOptions
+    if userCompilerOptions != None: state.compilerOptions += userCompilerOptions
+    if userLinkerOptions != None: state.linkerOptions += userLinkerOptions
 
     # Remove empty arguments (they will confuse the linker)
     while '' in state.linkerOptions:
@@ -1119,26 +597,26 @@ def configureGpp():
   args     - arguments to iCompile
   progArgs - arguments to pass on to the compiled program
 """
-def main(args, progArgs, doGDB, doRun):
-    if ("--clean" in args):
-        buildClean()
+def main(state, args, progArgs, doGDB, doRun):
+    if '--clean' in args:
+        buildClean(state)
         # Exit early, preventing the cache from being written
         sys.exit(0)
     
-    if ("--doc" in args):
-        buildDocumentation()
+    if '--doc' in args:
+        buildDocumentation(state)
         maybePrintBar()
 
     if state.binaryType == EXE:
-        buildDataFiles()
+        buildDataFiles(state)
         maybePrintBar()
         
-    buildBinary()
+    buildBinary(state)
 
     maybePrintBar()
         
     if isLibrary(state.binaryType):
-        buildInclude()
+        buildInclude(state)
         maybePrintBar()
     
     if doGDB:
@@ -1148,7 +626,7 @@ def main(args, progArgs, doGDB, doRun):
         return runCompiledProgram(progArgs)
 
     if not (doGDB or doRun) and (verbosity >= NORMAL):
-        if (state.binaryType == EXE):
+        if state.binaryType == EXE:
             print '\nExecutable written to ' + state.binaryDir + state.binaryName
         else:
             print '\nLibrary written to ' + state.binaryDir + state.binaryName
@@ -1158,84 +636,65 @@ def main(args, progArgs, doGDB, doRun):
 ###############################################################
 
 
-# Loads configuration from the current directory, where args
-# are the arguments preceding --run that were passed to iCompile
-#
-# Returns the configuration state
-def getConfigurationState(args):
+
+########################################################################################
+# The beep is controlled by the outermost configuration file
+doBeep = False
+
+# List of all projects for which iCompilation has begin; prevents recursive execution
+# in the event of recursive dependencies.
+alreadyiCompiled = []
+
+"""
+Runs iCompile on the specified project (which must be a directory) with the specified 
+program arguments and returns its return code.
+"""
+def icompile(projectDir, allArgs):
     
-    state = State()
+    curdir = os.getcwd()
 
-    state.args = args
+    os.chdir(projectDir)
 
-    state.noPrompt = '--noprompt' in args
+    resolvedProjectDir = os.getcwd()
 
-    # Root directory
-    state.rootDir                    = os.getcwd() + "/"
+    if resolvedProjectDir in alreadyiCompiled:
+        # We've already started compiling this project somewhere back on
+        # the thread stack; abort
+        os.chdir(curdir)
+        return 0
 
-    # Project name
-    state.projectName                = string.split(state.rootDir, ('/'))[-2]
+    alreadyiCompiled.append(resolvedProjectDir)
+    
+    (args, progArgs) = separateArgs(allArgs)
 
-    ext = string.lower(extname(state.projectName))
-    state.projectName = rawfilename(state.projectName)
+    state = getConfigurationState(args)
 
-    # Binary type    
-    if (ext == 'lib') or (ext == 'a'):
-        state.binaryType = LIB
-    elif (ext == 'dll') or (ext == 'so'):
-        state.binaryType = DLL
-    elif (ext == 'exe') or (ext == ''):
-        state.binaryType = EXE
-    else:
-        state.binaryType = EXE
-        maybeWarn("This project has unknown extension '" + ext +
-                  "' and will be compiled as an executable.", state)
+    configureCompiler(state)
 
-    # Choose target
-    if ('--opt' in args) or ('-O' in args):
-        if ('--debug' in args):
-            colorPrint("Cannot specify '--debug' and '--opt' at " +
-                       "the same time.", WARNING_COLOR)
-            sys.exit(-1)
+    doGDB   = '--gdb' in args
+    doRun   = '--run' in args
 
-        state.target          = RELEASE
-        d                     = ''
-    else:
-        state.target          = DEBUG
-        d                     = 'd'
+    if doGDB and doRun:
+        colorPrint('Cannot specify both --gdb and --run options.', WARNING_COLOR)
+        sys.exit(-1)
 
-    # Find an icompile project file.  If there isn't one, give the
-    # user the opportunity to create one or abort.
-    checkForProjectFile(state, args)
+    if (doGDB or doRun) and (state.binaryType != EXE):
+        colorPrint('Cannot specify --gdb or --run for a library.', WARNING_COLOR)
+        sys.exit(-1)
 
-    # Load settings from the project file.
-    processProjectFile(state)
+    # Load cached dependencies for this project
+    cacheFilename = state.tempDir + '.icompile-cache'
+    loadCache(state, cacheFilename)
 
-    discoverPlatform(state)
+    ret = main(state, args, progArgs, doGDB, doRun)
 
-    unix = not state.os.startswith('win')
+    mkdir(state.tempDir, verbosity >= VERBOSE)
+    saveCache(state, cacheFilename)
 
-    # On unix-like systems we prefix library names with 'lib'
-    prefix = ''
-    if unix and isLibrary(state.binaryType):
-        prefix = 'lib'
+    os.chdir(curdir)
 
-    # Binary name
-    if (state.binaryType == EXE):
-        state.binaryDir  = state.buildDir + 'install/'
-        state.binaryName = state.projectName + d
-    elif (state.binaryType == DLL):
-        state.binaryDir  = state.buildDir + 'install/' + state.platform + '-lib/'
-        state.binaryName = prefix + state.projectName + d + '.so'
-    elif (state.binaryType == LIB):
-        state.binaryDir  = state.buildDir + 'install/' + state.platform + '-lib/'
-        state.binaryName = prefix + state.projectName + d + '.a'
-
-    # Make separate directories for object files based on
-    # debug/release
-    state.objDir = state.tempDir + state.platform + '/' + state.target + '/'
-
-    return state
+    doBeep = state.beep
+    return ret
 
 
 #################################################################
@@ -1268,31 +727,9 @@ if __name__ == '__main__':
         printHelp()
         sys.exit(0)
 
-    state = getConfigurationState(args)
+    ret = icompile('.', sys.argv[1:])
 
-    doGDB   = '--gdb' in args
-    doRun   = '--run' in args
-
-    if doGDB and doRun:
-        colorPrint("Cannot specify both --gdb and --run options.", WARNING_COLOR)
-        sys.exit(-1)
-
-    if (doGDB or doRun) and (state.binaryType != EXE):
-        colorPrint("Cannot specify --gdb or --run for a library.", WARNING_COLOR)
-        sys.exit(-1)
-
-
-    # Load cached dependencies for this project
-    cacheFilename = state.tempDir + '.icompile-cache'
-    loadCache(cacheFilename)
-
-    configureCompiler()
-
-    ret = main(args, progArgs, doGDB, doRun)
-
-    mkdir(state.tempDir, verbosity >= VERBOSE)
-    saveCache(cacheFilename)
-    if (verbosity >= NORMAL) and state.beep:
+    if (verbosity >= NORMAL) and doBeep:
         beep()
 
     sys.exit(ret)
