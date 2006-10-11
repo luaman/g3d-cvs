@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)..\build\install\win-i386-vc8.0-lib"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -85,7 +85,7 @@
 			OutputDirectory="$(SolutionDir)..\build\install\win-i386-vc8.0-lib"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
