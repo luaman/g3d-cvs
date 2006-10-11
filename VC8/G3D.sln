@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "png.lib", "png.lib.vcproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "G3D.lib", "G3D.lib.vcproj", "{BD5838BA-4232-4141-A106-7EDA201ADDC5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLG3D.lib", "GLG3D.lib.vcproj", "{EAB70B08-2F00-4FE1-A444-2D3DD94BF449}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{BD5838BA-4232-4141-A106-7EDA201ADDC5}.Debug|Win32.Build.0 = Debug|Win32
 		{BD5838BA-4232-4141-A106-7EDA201ADDC5}.Release|Win32.ActiveCfg = Release|Win32
 		{BD5838BA-4232-4141-A106-7EDA201ADDC5}.Release|Win32.Build.0 = Release|Win32
+		{EAB70B08-2F00-4FE1-A444-2D3DD94BF449}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EAB70B08-2F00-4FE1-A444-2D3DD94BF449}.Debug|Win32.Build.0 = Debug|Win32
+		{EAB70B08-2F00-4FE1-A444-2D3DD94BF449}.Release|Win32.ActiveCfg = Release|Win32
+		{EAB70B08-2F00-4FE1-A444-2D3DD94BF449}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
