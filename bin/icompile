@@ -86,7 +86,7 @@ def buildDocumentation():
         createDoxyfile()
         print "Done creating 'Doxyfile'\n\n"
 
-    run("doxygen", ["Doxyfile"])
+    run("doxygen", ["Doxyfile"], verbosity >= VERBOSE)
 
     if (os.path.exists(state.rootDir + 'doc-files')):
         copyIfNewer(rootDir + 'doc-files', 
@@ -140,7 +140,7 @@ def buildClean(state):
 """ Compiles the source file. """
 def makeObjectFile(state, cfile, options):
     ofile = getObjectFilename(state, cfile)
-   
+
     # Create the directory for the ofile as needed
     i = ofile.rfind("/")
     if (i >= 0):
@@ -162,7 +162,7 @@ def makeObjectFile(state, cfile, options):
 
         print shortname(state.rootDir, cfile)
 
-    ret = run(state.compiler, args, verbosity > NORMAL)
+    ret = run(state.compiler, args, verbosity >= VERBOSE)
 
     if ret != 0:
         sys.exit(ret)
@@ -511,7 +511,62 @@ def gdbCompiledProgram(progArgs):
         
 """ Choose and configure the compiler for this platform and target."""
 def configureCompiler(state):
-    configureGpp(state)
+    base = rawfilename(state.compiler).lower()
+
+    if (base == 'cl') and (os.name == 'nt'):
+        configureVC(state)
+    else:
+        configureGpp(state)
+
+""" Configure VC8 as our compiler of choice.
+    Called from configureCompiler."""
+def configureVC(state):
+    userCompilerOptions = state.compilerOptions
+    userLinkerOptions = state.linkerOptions
+
+    if (state.target == RELEASE):
+        state.compilerOptions = \
+                ['/O2',           # Optimization
+                 '/D_RELEASE']
+
+        state.linkerOptions   = []
+    else:
+        state.compilerOptions =\
+                ['/D_DEBUG',     
+                 '/Zi']            # Debug information
+        state.linkerOptions   = []
+
+
+    state.compilerOptions += \
+            ['/GR',                # Run-time type information
+             '/EHs',               # Enable exception handling, assume that
+                                   #   extern functions do not throw.
+             '/nologo']            # Surpress banner
+
+    if (state.binaryType == DLL):
+        # Select the appropriate multithreaded vc library
+        if state.target == RELEASE:
+            state.linkerOptions  += ['/MD']
+        else:
+            state.linkerOptions  += ['/MDd']
+    else:
+        if state.target == RELEASE:
+            state.linkerOptions  += ['/MT']
+        else:
+            state.linkerOptions  += ['/MTd']
+
+
+    # 64-bit warnings and most others
+    state.compilerWarningOptions = ['/Wp64', '/W2']
+  
+    # Put user options last so that they can override ours
+    if userCompilerOptions != None: state.compilerOptions += userCompilerOptions
+    if userLinkerOptions != None: state.linkerOptions += userLinkerOptions
+
+    # Remove empty arguments (they will confuse the linker)
+    while '' in state.linkerOptions:
+        state.linkerOptions.remove('')
+    
 
 
 """ Configure g++ as our compiler of choice.
@@ -548,7 +603,7 @@ def configureGpp(state):
        flags = shell('getconf LFS_CFLAGS', verbosity >= VERBOSE)
        state.compilerOptions += string.split(flags, ' ')
 
-    if (os.uname()[0] == 'Darwin'):
+    if state.os == 'osx':
         universalBinary = False # TODO: Add universal binary support for libraries later
 
         # Not supported on OS X
@@ -602,7 +657,7 @@ def main(state, args, progArgs, doGDB, doRun):
         buildClean(state)
         # Exit early, preventing the cache from being written
         sys.exit(0)
-    
+
     if '--doc' in args:
         buildDocumentation(state)
         maybePrintBar()
@@ -610,7 +665,7 @@ def main(state, args, progArgs, doGDB, doRun):
     if state.binaryType == EXE:
         buildDataFiles(state)
         maybePrintBar()
-        
+
     buildBinary(state)
 
     maybePrintBar()
@@ -664,7 +719,7 @@ def icompile(projectDir, allArgs):
         return 0
 
     alreadyiCompiled.append(resolvedProjectDir)
-    
+
     (args, progArgs) = separateArgs(allArgs)
 
     state = getConfigurationState(args)
@@ -683,7 +738,7 @@ def icompile(projectDir, allArgs):
         sys.exit(-1)
 
     # Load cached dependencies for this project
-    cacheFilename = state.tempDir + '.icompile-cache'
+    cacheFilename = pathConcat(state.tempDir, '.icompile-cache')
     loadCache(state, cacheFilename)
 
     ret = main(state, args, progArgs, doGDB, doRun)
