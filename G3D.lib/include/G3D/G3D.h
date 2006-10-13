@@ -93,24 +93,17 @@
 #include "G3D/AnyVal.h"
 
 #ifdef G3D_WIN32
-    // These lines would link the ZLIB DLL, however we now use static linking
-    //#define ZLIB_DLL
-    //#pragma comment(lib, "zdll.lib")
-
-	//#ifdef _DEBUG
-//		#pragma comment(lib, "zlib-debug.lib")
-//	#else
-//		#pragma comment(lib, "zlib.lib")
-//	#endif
-
-    #pragma comment(lib, "ws2_32.lib")
-    #pragma comment(lib, "winmm.lib")
-    #pragma comment(lib, "imagehlp.lib")
-    #pragma comment(lib, "gdi32.lib")
-    #pragma comment(lib, "user32.lib")
-    #pragma comment(lib, "kernel32.lib")
-    #pragma comment(lib, "version.lib")
-    #pragma comment(lib, "advapi32.lib")
+	#pragma comment(lib, "zlib")
+    #pragma comment(lib, "ws2_32")
+    #pragma comment(lib, "winmm")
+    #pragma comment(lib, "imagehlp")
+    #pragma comment(lib, "gdi32")
+    #pragma comment(lib, "user32")
+    #pragma comment(lib, "kernel32")
+    #pragma comment(lib, "version")
+    #pragma comment(lib, "advapi32")
+    #pragma comment(lib, "png")
+    #pragma comment(lib, "jpeg")
 #endif
 
 #endif

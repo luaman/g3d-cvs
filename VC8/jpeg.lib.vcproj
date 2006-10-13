@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\jpeg.lib\source\jcmainct.c"
+				>
+			</File>
+			<File
 				RelativePath="..\jpeg.lib\source\jcmarker.c"
 				>
 			</File>
@@ -246,6 +250,10 @@
 			</File>
 			<File
 				RelativePath="..\jpeg.lib\source\jdinput.c"
+				>
+			</File>
+			<File
+				RelativePath="..\jpeg.lib\source\jdmainct.c"
 				>
 			</File>
 			<File
