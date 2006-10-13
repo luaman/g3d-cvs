@@ -21,8 +21,8 @@
 #include <SDL.h>
 #endif
 // Setup the "main" linkage if not using SDL_main
-#if (defined(NO_SDL_MAIN) || defined(_CONSOLE)) && defined(main)
-    #undef main
+#if (defined(G3D_WIN32) && (defined(NO_SDL_MAIN) || defined(_CONSOLE))) && defined(main)
+#   undef main
 #endif
 
 

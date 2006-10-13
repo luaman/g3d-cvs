@@ -59,7 +59,7 @@ public:
     void flatten() {
         const Model source(*this);
 
-        int N = source.cpuIndex.size();
+        int N = (int)source.cpuIndex.size();
         cpuVertex.resize(N);
         cpuTexCoord.resize(N);
         cpuColor.resize(N);
@@ -228,7 +228,7 @@ void measureVertexPerformance(
         drawElementsVBOIFPS[i] = measureDrawElementsVBOIPerformance(model);
         drawElementsVBOPeakFPS[i] = measureDrawElementsVBOPeakPerformance(model);
 
-        numTris = count * model.cpuIndex.size() / 3;
+        numTris = (int)(count * model.cpuIndex.size() / 3);
 
         if (i == 1) {
             model.flatten();
@@ -287,7 +287,7 @@ static void configureCameraAndLights() {
 
 float measureBeginEndPerformance(Model& model) {
 
-    int N = model.cpuIndex.size();
+    int N = (int)model.cpuIndex.size();
     const unsigned int*   index   = &model.cpuIndex[0];
     const float* vertex  = reinterpret_cast<const float*>(&model.cpuVertex[0]);
     const float* normal  = reinterpret_cast<const float*>(&model.cpuNormal[0]);
@@ -346,9 +346,9 @@ float measureBeginEndPerformance(Model& model) {
 float measureDrawElementsRAMPerformance(Model& model) {
 
     // Number of indices
-    const int N = model.cpuIndex.size();
+    const int N = (int)model.cpuIndex.size();
     // Number of vertices
-    const int V = model.cpuVertex.size();
+    const int V = (int)model.cpuVertex.size();
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
@@ -414,8 +414,8 @@ float measureDrawElementsVBOPerformance(Model& model) {
         return 0.0;
     }
 
-    int N = model.cpuIndex.size();
-    int V = model.cpuVertex.size();
+    int N = (int)model.cpuIndex.size();
+    int V = (int)model.cpuVertex.size();
 
     size_t vertexSize   = V * sizeof(float) * 3;
     size_t normalSize   = V * sizeof(float) * 3;
@@ -524,9 +524,9 @@ float measureDrawElementsVBO16Performance(Model& model) {
     // Load the vertex arrays
 
     // Number of indices
-    const int N = model.cpuIndex.size();
+    const int N = (int)model.cpuIndex.size();
     // Number of vertices
-    const int V = model.cpuVertex.size();
+    const int V = (int)model.cpuVertex.size();
     
     GLuint vbo, indexBuffer;
     glGenBuffersARB(1, &vbo);
@@ -633,9 +633,9 @@ float measureDrawElementsVBOIPerformance(Model& model) {
     // Load the vertex arrays
 
     // Number of indices
-    const int N = model.cpuIndex.size();
+    const int N = (int)model.cpuIndex.size();
     // Number of vertices
-    const int V = model.cpuVertex.size();
+    const int V = (int)model.cpuVertex.size();
 
     GLuint vbo, indexBuffer;
     glGenBuffersARB(1, &vbo);
@@ -765,9 +765,9 @@ float measureDrawElementsVBOPeakPerformance(Model& model) {
     // Load the vertex arrays
 
     // Number of indices
-    const int N = model.cpuIndex.size();
+    const int N = (int)model.cpuIndex.size();
     // Number of vertices
-    const int V = model.cpuVertex.size();
+    const int V = (int)model.cpuVertex.size();
 
     GLuint vbo, indexBuffer;
     glGenBuffersARB(1, &vbo);
@@ -861,7 +861,7 @@ float measureDrawArraysVBOPeakPerformance(Model& model) {
     // Load the vertex arrays
 
     // Number of vertices
-    const int V = model.cpuVertex.size();
+    const int V = (int)model.cpuVertex.size();
 
     GLuint vbo, indexBuffer;
     glGenBuffersARB(1, &vbo);
