@@ -113,14 +113,14 @@ uses:
 ################################################################
 [DEBUG]
 
-compileoptions:
+compileoptions: -w
 
 linkoptions:
 
 ################################################################
 [RELEASE]
 
-compileoptions:
+compileoptions: -w
 
 linkoptions:
 
