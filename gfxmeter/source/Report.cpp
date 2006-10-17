@@ -57,9 +57,6 @@ void Report::onSimulation(SimTime sdt, SimTime dt, SimTime idt) {
 
 
 void Report::onLogic() {    
-    int w = app->renderDevice->width();
-    int h = app->renderDevice->height();
-
     Vector2 mouse = app->userInput->mouseXY();
 
     if (app->userInput->keyPressed(SDL_LEFT_MOUSE_KEY)) {
@@ -164,9 +161,9 @@ void Report::onGraphics(RenderDevice* rd) {
 #       define LABEL(str) p.y += app->titleFont->draw2D(rd, str, p - Vector2((float)w * 0.0075f, 0), s * 2, Color3::white() * 0.4f).y
 #       define PRINT(str) p.y += app->reportFont->draw2D(rd, str, p, s, Color3::black()).y
 
-        int x0 = w * 0.015;
+        int x0 = int(w * 0.015f);
         // Cursor position
-        Vector2 p(x0, h * 0.02);
+        Vector2 p(x0, h * 0.02f);
 
         // Font size
         float s = w * 0.013;
@@ -189,7 +186,7 @@ void Report::onGraphics(RenderDevice* rd) {
             
         ///////////////////////////////////////
         // Right Panel
-        x0 = w * 0.6f;
+        x0 = int(w * 0.6f);
         // Cursor position
         p = Vector2(x0, h * 0.02f);
 
@@ -259,7 +256,7 @@ void Report::onGraphics(RenderDevice* rd) {
 
         p.y += s * 3;
 
-        x0 = w - s * 10;
+        x0 = int(w - s * 10);
         app->titleFont->draw2D(rd, "Features", p - Vector2(w * 0.0075f, 0), s * 2, Color3::white() * 0.4f);
         p.y += app->reportFont->draw2D(rd, format("f%d", app->featureRating), Vector2(x0, p.y), s*2, Color3::red() * 0.5).y;
         drawBar(rd, app->featureRating, p);
@@ -275,7 +272,7 @@ void Report::onGraphics(RenderDevice* rd) {
 			float spd = iRound(app->performanceRating * 10) / 10.0f;
 	        p.y += app->reportFont->draw2D(rd, format("%5.1f", spd), Vector2(x0 - s*2, p.y), s*2, Color3::red() * 0.5).y;
 		}
-        drawBar(rd, min(app->performanceRating, 100.0f), p);
+        drawBar(rd, (int)min(app->performanceRating, 100.0f), p);
 
         p.y += s * 4;
         app->titleFont->draw2D(rd, "Quality", p - Vector2(w * 0.0075f, 0), s * 2, Color3::white() * 0.4f);

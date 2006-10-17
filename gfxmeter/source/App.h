@@ -9,6 +9,9 @@
 #define NO_SDL_MAIN
 #include "G3D/G3DAll.h"
 
+#if (defined(main) && ! (defined(G3D_WIN32) && (! defined(NO_SDL_MAIN) && ! defined(_CONSOLE))))
+#   undef main
+#endif
 
 class App : public GApp {
 protected:

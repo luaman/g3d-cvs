@@ -6,15 +6,15 @@
 
 #include "G3D/G3DAll.h"
 #include "GLG3D/GLG3D.h"
-// Setup the "main" linkage if not using SDL_main
-#if (defined(G3D_WIN32) && (defined(NO_SDL_MAIN) || defined(_CONSOLE))) && defined(main)
-#   undef main
-#endif
 
 #include "Report.h"
 #include "App.h"
 #ifdef G3D_WIN32
 #   include <direct.h>
+#endif
+
+#if (defined(main) && ! (defined(G3D_WIN32) && (! defined(NO_SDL_MAIN) && ! defined(_CONSOLE))))
+#   undef main
 #endif
 
 //#define FAST
