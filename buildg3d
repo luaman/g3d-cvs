@@ -5,6 +5,9 @@ from buildlib import *
 import os
 import platform
 import commands
+import sys
+sys.path.append('bin')
+import ice.copyifnewer
 
 def copyIfNewer(source, dest):
     if platform.system() == 'Windows':
@@ -12,6 +15,7 @@ def copyIfNewer(source, dest):
         return os.spawnv(os.P_WAIT, 'bin/copyifnewer.exe', ['--exclusions', source, dest])
     else:
         # Use python commands
+        ice.copyifnewer.copyIfNewer(source, dest)
         return 0
 
 
