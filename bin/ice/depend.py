@@ -1,71 +1,15 @@
-from icevariables import *
-from iceutils import *
+#
+# icedepend.py
+#
+# Manages .icompile and ice.txt
+#
+
+from variables import *
+from utils import *
 from sets import Set
-from icelibrary import *
-from icedoticompile import *
-from icehelp import *
-
-#########################################################################
-
-"""
-A regular expression matching files that should be excluded from compilation
-"""
-excludeFromCompilation = None
-
-def _listCFilesVisitor(result, dirname, files):
-    dir = dirname
-
-    # Strip any unnecessary "./"
-    if (dirname[:2] == "./"):
-        dir = dir[2:]
-
-    if ((excludeFromCompilation != None) and
-        (excludeFromCompilation.search(dir) != None)):
-        # Don't recurse into subdirectories of excluded directories
-        del files[:]
-        return
-
-    # We can't modify files while iterating through it, so
-    # we must make a list of all files that are to be removed before the
-    # next iteration of the visitor.   
-    removelist = [];
-    for f in files:
-         if ((excludeFromCompilation != None) and
-             (excludeFromCompilation.search(f) != None)):
-            if verbosity >= VERBOSE: print "  Ignoring '" + f + "'"
-            removelist.append(f)
-            
-         elif isCFile(f):
-             
-            # Ensure the path ends in a slash (when needed)
-            filename = pathConcat(dir, f)
-
-            if ((excludeFromCompilation == None) or
-                (excludeFromCompilation.search(filename) == None)):
-                result.append(filename)
-
-    # Remove any subdir in 'files' that is itself excluded so as to prevent
-    # later recursion into it
-    for f in removelist:
-        files.remove(f)
-
-
-"""Returns all files with gcc-recognized c/c++ endings for the given directory
-   and all subdirectories.
-   
-   Filenames must be relative to the "rootDir" directory.  dir will be
-   a subdirectory of rootDir.
-
-   exclude must be a regular expression for files to exclude.
-   """
-def listCFiles(dir = '', exclude = None):
-    if (dir == ''): dir = './'
-
-    excludeFromCompilation = exclude
-    result = []
-
-    os.path.walk(dir, _listCFilesVisitor, result)
-    return result
+from library import *
+from doticompile import *
+from help import *
 
 ###############################################################
 
@@ -140,7 +84,7 @@ def getObjectFilename(state, sourceFile):
    May modify the default compiler and linker options
    """
 def getDependencies(state, file, iteration = 1):
-
+        
     # We need to use the -msse2 flad during dependency checking because of the way
     # xmmintrin.h is set up
     #

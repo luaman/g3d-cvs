@@ -2,9 +2,9 @@
 #
 # Help Information and Printing Routines for iCompile
 
-import icevariables
-from icevariables import *
-from iceutils import *
+
+from variables import *
+from utils import *
 
 ##############################################################################
 #                                  Version                                   #

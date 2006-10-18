@@ -2,15 +2,15 @@
 # 
 # Manage .icompile files
 
-import ConfigParser, string, os, icecopyifnewer
-from iceutils import *
-from icedoxygen import *
-from icevariables import *
+import ConfigParser, string, os, copyifnewer
+from utils import *
+from doxygen import *
+from variables import *
+
 
 ##############################################################################
 #                             Default .icompile                              #
 ##############################################################################
-
 
 configHelp = """
 # If you have special needs, you can edit per-project ice.txt
@@ -73,7 +73,7 @@ configHelp = """
 #   %(localvar)s     Value of a variable set inside ice.txt
 #                    or .icompile (Yes, you need that 's'--
 #                    it is a Python thing.)
-#   <NEWESTGCC>      The newest version of gcc on your system.
+#   <NEWESTCOMPILER> The newest version of gcc or Visual Studio on your system.
 #   <EXCLUDE>        Default directories excluded from compilation.
 #
 # The special values may differ between the RELEASE and DEBUG
@@ -101,7 +101,7 @@ defaultDotICompile = """
 [GLOBAL]
 defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL
 defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib
-defaultcompiler: <NEWESTGCC>
+defaultcompiler: <NEWESTCOMPILER>
 defaultexclude:  <EXCLUDE>
 beep:            True
 tempdir:         .ice-tmp
@@ -166,8 +166,10 @@ linkoptions:
 """ Reads [section]name from the provided configuration, replaces
     <> and $() values with the appropriate settings.
 
-    If exp is False $() variables are *not* expanded. """
-    
+    If exp is False $() variables are *not* expanded. 
+
+    If
+"""    
 def configGet(config, section, name, exp = True):
     val = config.get(section, name)
 
@@ -175,14 +177,19 @@ def configGet(config, section, name, exp = True):
     if '<' in val:
         if '<NEWESTGCC>' in val:
             (gppname, ver) = newestCompiler()
-            val = val.replace('<NEWESTGCC>',   gppname)
+            val = val.replace('<NEWESTGCC>', gppname)
 
-        val = val.replace('<EXCLUDE>', string.join(icecopyifnewer._cppExcludePatterns + ['^CMakeFiles$'], '|'))
+        if '<NEWESTCOMPILER>' in val:
+            (compname, ver) = newestCompiler()
+            val = val.replace('<NEWESTCOMPILER>', compname)
+
+        val = val.replace('<EXCLUDE>', string.join(copyifnewer._cppExcludePatterns + ['^CMakeFiles$'], '|'))
 
     if exp:
         val = expandvars(val)
 
     return val
+
 
 class FakeFile:
     _textLines = []
@@ -308,10 +315,10 @@ def getConfigurationState(args):
     state.noPrompt = '--noprompt' in args
 
     # Root directory
-    state.rootDir                    = os.getcwd() + "/"
+    state.rootDir  = os.getcwd() + "/"
 
     # Project name
-    state.projectName                = string.split(state.rootDir, ('/'))[-2]
+    state.projectName = string.split(state.rootDir, ('/'))[-2]
 
     ext = string.lower(extname(state.projectName))
     state.projectName = rawfilename(state.projectName)
@@ -340,6 +347,7 @@ def getConfigurationState(args):
     else:
         state.target          = DEBUG
         d                     = 'd'
+
 
     # Find an icompile project file.  If there isn't one, give the
     # user the opportunity to create one or abort.

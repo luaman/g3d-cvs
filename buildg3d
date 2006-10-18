@@ -4,6 +4,16 @@
 from buildlib import *
 import os
 import platform
+import commands
+
+def copyIfNewer(source, dest):
+    if platform.system() == 'Windows':
+        # Just use the binary for this
+        return os.spawnv(os.P_WAIT, 'bin/copyifnewer.exe', ['--exclusions', source, dest])
+    else:
+        # Use python commands
+        return 0
+
 
 ##################################################################################
 #  CMake targets
@@ -97,7 +107,6 @@ def ctest(cl_args):
     
     # Build Release Version
     cbuild("Release", args + ['-DCMAKE_BUILD_TYPE:STRING=Release'])
-    
 
 def cfastlib(args):
     cfastbuild(platform_directory(args) + "/Debug")
@@ -197,6 +206,12 @@ def clean(args):
 def test(args):
     return itest(args)
 
+def bin(args):
+    source = 'bin/'
+    dest = 'build/install/bin/'
+    copyIfNewer(source, dest)
+    return 0
+
 ##################################################################################
 def getCompilerName(args):
     if '--compiler' in args:
@@ -223,21 +238,23 @@ Syntax:
 TARGET         DESCRIPTION
 
 help       Display this message
+all        Run lib, test, bin, and doc targets
+install    Build all and copy to system directories.  Must be run as root on 'nix
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            On platforms for which zlib, png, jpeg, and other 
            libraries do not come with the operating system this
            will also build those libraries.
+bin        Copy the bin directory to build/install/bin
 test       Build test and testd and then run both
 clean      Delete all generated files
 makefile   Generate project/makefiles appropriate to this 
            environment, but do not run them.
 doc        Generate documentation using Doxygen
-install    Run lib, test, and doc targets
 
 Specifying the optional --compiler argument allows you to choose which
 compiler to use for building the library or project/makefiles.  The defaults
 are based on operating system: Xcode for OS X, gcc for Linux and FreeBSD,
-and VC8 for Windows. 
+and VC8 for Windows.
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
@@ -254,4 +271,4 @@ if __name__ == "__main__":
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
          ilib, iclean, itest,
-         doc, install], buildHelp))
+         doc, install, bin], buildHelp))

@@ -17,20 +17,21 @@ version = [0, 5, 0]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time
+
 from sets import Set
 from platform import machine
 from string import ljust
 
-from icedepend import *
-from icehelp import *
-from icevariables import *
-from icedoticompile import *
-from iceutils import *
-from icedoxygen import *
-from icelibrary import *
-import icecopyifnewer
-from icecopyifnewer import copyIfNewer
-from icetopsort import *
+from ice.depend import *
+from ice.help import *
+from ice.variables import *
+from ice.doticompile import *
+from ice.utils import *
+from ice.doxygen import *
+from ice.library import *
+import ice.copyifnewer
+from ice.copyifnewer import copyIfNewer
+from ice.topsort import *
 
 if int(sys.version[:string.find(sys.version, '.')]) < 2:
     print ('iCompile requires Python 2.0 or later.  You are running Python '

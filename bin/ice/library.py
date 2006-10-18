@@ -2,9 +2,9 @@
 #
 # Definition of C libraries available for linking
 
-from icetopsort import *
-from iceutils import *
-from icevariables import *
+from topsort import *
+from utils import *
+from variables import *
 import os, glob
 
 # Files can trigger additional linker options.  This is used to add

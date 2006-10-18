@@ -3,7 +3,7 @@
 #
 
 import re, string
-from iceutils import *
+from utils import *
 
 _excludeDirPatterns = \
     ['^\.',\

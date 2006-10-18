@@ -2,7 +2,7 @@
 #
 # Doxygen Management
 
-from iceutils import *
+from utils import *
 
 ##############################################################################
 #                            Doxygen Management                              #

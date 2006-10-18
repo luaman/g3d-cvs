@@ -3,7 +3,7 @@
 # Global variables for iCompile modules
 
 import os
-from iceutils import *
+from utils import *
 from platform import machine
 
 
@@ -36,6 +36,79 @@ def _pathAppend(plist, newPath):
    
     return plist
 
+
+class Compiler:
+    # Full path to compiler executable
+    filename                    = None
+
+    # Short name for the compiler, e.g., 'vc8'
+    nickname                    = None
+
+    # Strings will be elided with their arguments, lists will have
+    # their arugments appended.
+    
+    # Flag to append to compiler options to specify that a
+    # is in the C language (instead of C++)
+    cLangFlag                   = None
+
+    outputFilenameFlag          = None
+
+    useCommandFile              = None
+
+    declareMacroFlag            = None
+    
+    commandfileFlag             = None
+
+    # Warning level 2
+    warning2Flag                = None
+
+    # 64-bit compatibility warnings
+    warning64Flag               = None
+
+    debugSymbolsFlag            = None
+
+    dependencyFlag              = None
+    
+    def initGcc(self):
+        cLangFlag = ['-x', 'c']
+        outputFilenameFlag = ['-o']
+        declareMacroFlag = '-D'
+        warning2Flag = ['-W2']
+        warning64Flag = []
+        debugSymbolsFlag = ['-g']
+        
+        # We need to use the -msse2 flad during dependency checking because of the way
+        # xmmintrin.h is set up
+        #
+        # -MG means "don't give errors for header files that don't exist"
+        # -MM means "don't tell me about system header files"
+        dependencyFlag = ['-M', '-MG', '-msse2']
+        
+        useCommandFile = os.uname()[0] == 'Darwin'
+        if useCommandFile:
+            commandFileFlag = []
+
+    def initVC8():
+        cLangFlag = ['']
+        outputFilenameFlag = '/Fo'
+        commandFileFlag = '@'
+        declareMacroFlag = '/D'
+        warning2Flag = ['/W2']
+        warning64Flag = ['/Wp64']
+        exceptionFlag = ['/EHs']
+        rttiFlag = ['/GR']
+        nologoFlag = ['/nologo']
+        debugSymbolsFlag = ['/Zi']
+
+        # Outputs to stderr in the format:  Note: including file: <filename>
+        # during compilation
+
+        # Note:
+        # /E       Copies preprocessor output to standard output
+        # /P       Writes preprocessor output to a file
+        # /EP      Suppress compilation and write preprocessor output without #line directives        
+        dependencyFlag = ['/showIncludes', '/EP']
+
 # Use getConfigurationState to load
 #
 class State:
@@ -51,7 +124,7 @@ class State:
     # Temp directory where scratch and .o files are stored, relative to rootDir
     tempDir                     = None
 
-    # Absolute location of the project root directory.  Ends in "/".
+    # Absolute location of the project root directory.  Ends in '/'.
     rootDir                     = None
 
     # EXE, LIB, or DLL. Set by setVariables.
@@ -146,10 +219,11 @@ class State:
 
     def __str__(self):
         return ('State:' +
-                '\n rootDir                = ' + str(self.rootDir) +
-                '\n binaryName             = ' + str(self.binaryName) +
-                '\n usesProjectsList       = ' + str(self.usesProjectsList) + 
-                '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions))
+           '\n rootDir                = ' + str(self.rootDir) +
+           '\n binaryName             = ' + str(self.binaryName) +
+           '\n usesProjectsList       = ' + str(self.usesProjectsList) + 
+           '\n compiler               = ' + str(self.compiler) +
+           '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions))
 
 ###############################################
 
@@ -183,8 +257,6 @@ def getCompilerOptions(state, allFiles, extraOpts = []):
         
     return opt
 
-###################################################################
-
 ##############################################################################
 #                            Discover Platform                               #
 ##############################################################################
@@ -195,29 +267,18 @@ def discoverPlatform(state):
     compiler = ''
 
     # Figure out the os
-    if (os.uname()[0] == 'Linux'):
+    if (os.name == 'nt'):
+        state.os = 'win'
+    elif (os.uname()[0] == 'Linux'):
         state.os = 'linux'
     elif (os.uname()[0] == 'FreeBSD'):
         state.os = 'freebsd'
     elif (os.uname()[0] == 'Darwin'):
         state.os = 'osx'
     else:
-        raise 'Error', 'iCompile only supports Linux and OS X'
+        raise 'Error', ('iCompile only supports FreeBSD, Linux, ' + 
+          'OS X, and Windows')
+ 
+    nickname = getCompilerNickname(state.compiler)
 
-    # Figure out the compiler
-    c = state.compiler
-    compiler = betterbasename(c)
-
-    if compiler.startswith('g++') or compiler.startswith('gcc'):
-        compiler = 'g++'
-
-    # Append the major and minor compiler version number to the compiler name
-    v = getVersion(c)    
-    if len(v) > 2:
-        v = v[0:2]
-    if len(v) < 2:
-        # Version number was short; add a 0 minor number
-        v = v + 0
-    compiler += string.join(map(str, v), '.')
-
-    state.platform = state.os + '-' + machine() + '-' + compiler
+    state.platform = state.os + '-' + machine() + '-' + nickname

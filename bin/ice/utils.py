@@ -68,9 +68,10 @@ def colorPrint(text, color = 'default'):
 
     if useColor == 'Unknown':
         # Figure out if this device supports color
-        useColor = (os.environ.has_key('TERM') and
+        useColor = (os.name != 'nt' and
+                   (os.environ.has_key('TERM') and
                     ((os.environ['TERM'] == 'xterm') or 
-                     (os.environ['TERM'] == 'xterm-color')))
+                     (os.environ['TERM'] == 'xterm-color'))))
    
     if not useColor:
 
@@ -250,7 +251,17 @@ def rm(file, echo = True):
 """ Runs a program and returns a string of its output. """
 def shell(cmd, printCmd = True):
     if printCmd: colorPrint(cmd, COMMAND_COLOR)
-    return commands.getoutput(cmd)
+    
+    if os.name == 'nt':
+        # commands.getoutput is not supported on Win32, so we
+        # must simulate it
+        pipe = os.popen(cmd)
+        result = pipe.read()
+        pipe.close()
+        return result
+
+    else:
+        return commands.getoutput(cmd)
 
 ##############################################################################
         
@@ -258,21 +269,28 @@ def shell(cmd, printCmd = True):
 def _findBinary(program):     
     # Paths that may contain the program
 
-    PATH = os.getenv('PATH', '').split(';') + \
-          ['.',\
+    PATH = [''] + os.getenv('PATH', '').split(';') + \
+           ['.',\
+           'C:/Program Files/Microsoft Visual Studio 8/VC/bin',\
+           'C:/Program Files/Microsoft Visual Studio .NET 2003/Vc7/bin',\
            'C:/Program Files/Microsoft Visual Studio/Common/MSDev98/Bin',\
            'C:/python',\
            'C:/doxygen/bin',\
            'C:/Program Files/PKZIP']
 
     for path in PATH:
-        filename = path + '/' + program + '.exe'
-        if (os.path.exists(filename)):
+        filename = pathConcat(path, program)
+        if os.path.exists(filename):
             return filename
             break
 
-        filename = path + '/' + program + '.com'
-        if (os.path.exists(filename)):
+        filename = pathConcat(path, program) + '.exe'
+        if os.path.exists(filename):
+            return filename
+            break
+
+        filename = pathConcat(path, program) + '.com'
+        if os.path.exists(filename):
             return filename
             break
 
@@ -293,12 +311,12 @@ args must be a list of arguments (argv).  Spaces in arguments are *not* the same
 separate list elements; these will not be re-parsed when they become the argv 
 strings.
 
+args must be a list.
 Switches the slashes from unix to dos style in program.
 Blocks until shell returns, then returns the exit code of the program.
 """
-def run(program, args = [], echo = True):
-    # Must have platform correct slashes
-    program = toLocalPath(program)
+def run(prog, args = [], echo = True, env = {}):
+    program = toLocalPath(prog)
 
     # Windows doesn't support spawnvp, so we have to locate the binary
     if (os.name == 'nt'):
@@ -308,20 +326,25 @@ def run(program, args = [], echo = True):
     # add quotes around it.
     if (' ' in program) and not ('"' in program):
         program = '"' + program + '"'
-
+                    
     # spawn requires specification of argv[0]
-    args = [program] + args
-    if echo: colorPrint(string.join(args), COMMAND_COLOR)
+    # Because the program name may contain spaces, we
+    # add quotes around it.
+    newArgs = [program] + args
+
+    if echo: colorPrint(string.join(newArgs), COMMAND_COLOR)
 
     if (os.name == 'nt'):
         # Windows doesn't support spawnvp
-        exitcode = os.spawnv(os.P_WAIT, program, args)
+        if env != {}:
+            exitcode = os.spawnve(os.P_WAIT, program, newArgs, env)
+        else:
+            exitcode = os.spawnv(os.P_WAIT, program, newArgs)
     else:
-        exitcode = os.spawnvp(os.P_WAIT, program, args)
-
-    # Since we mutated the list, remove the element
-    # that was inserted.
-    args.pop(0)
+        if env != {}:
+            exitcode = os.spawnvpe(os.P_WAIT, program, newArgs, env)
+        else:
+            exitcode = os.spawnvp(os.P_WAIT, program, newArgs)
 
     return exitcode
 
@@ -510,7 +533,9 @@ def getVersion(filename):
 
     # We check only the beginning of a filename because it may have
     # a version number as part of the name.
-    if base.startswith('g++'):
+    if base == 'cl':
+        cmd = filename
+    elif base.startswith('g++'):
         cmd = filename + ' --version'
     elif base.startswith('python'):
         cmd = filename + ' -V'
@@ -589,35 +614,101 @@ def _newestCompilerVisitor(best, dirname, files):
                 pass
 
 _newestCompilerFilename = None
-_newestCompilerVersion = None
+_newestCompilerVersion  = None
  
 """AI for locating the users latest version of g++
-   Returns a the full path to the program, including the program name, and
-   the version as a list. """
+   Returns the full path to the program (including the program name),
+   the version as a list, and the common name (e.g., vc8) for the compiler. 
+"""
 def newestCompiler():
     global _newestCompilerFilename, _newestCompilerVersion
  
     if _newestCompilerFilename == None:
         # Filename has not been cached; compute it for the first time
 
-        # TODO: also test the CXX and CPP variables and see if they are newer
-        bin = commands.getoutput("which g++")
-    
-        # Turn binLoc into just the directory, not the path to the file g++
-        binLoc = bin[0:string.rfind(bin, "/")]
-    
-        # best will keep track of our current newest g++ found
-        best = [bin, getVersion(bin)]
+        if os.name == 'nt':
+            # Windows
+ 
+            vsDir = 'C:/Program Files/Microsoft Visual Studio 8'
+            _newestCompilerFilename = pathConcat(vsDir, 'VC/bin/cl.exe')
+              
+            if not os.path.exists(_newestCompilerFilename):
+                # TODO: look at the PATH variable
+                print 'Error: could not find Visual Studio 8 Compiler at at \'' + _newestCompilerFilename + '\''
+                sys.exit(-1)
 
-        # Search for all g++ binaries
-        os.path.walk(binLoc, _newestCompilerVisitor, best)
+            if (not os.environ.has_key('VSINSTALLDIR') or
+                (os.path.normpath(os.environ['VSINSTALLDIR']) != os.path.normpath(vsDir))):
+                print 'Error: you must run vsvars32.bat before iCompile'
+                sys.exit(-1)
 
-        _newestCompilerFilename = best[0]
-        _newestCompilerVersion  = best[1]
+            _newestCompilerVersion  = getVersion(_newestCompilerFilename)
+
+
+        else:
+            # Unix-like system, use gcc
+
+            bin = commands.getoutput('which g++')
+    
+            # Turn binLoc into just the directory, not the path to the file g++
+            binLoc = bin[0:string.rfind(bin, '/')]
+    
+            # best will keep track of our current newest g++ found
+            best = [bin, getVersion(bin)]
+
+            # Search for all g++ binaries
+            os.path.walk(binLoc, _newestCompilerVisitor, best)
+
+            _newestCompilerFilename = best[0]
+            _newestCompilerVersion  = best[1]
 
     return (_newestCompilerFilename, _newestCompilerVersion)
 
-###################################################
+#############################################################
+
+def getCompilerNickname(compilerFilename):
+    base = betterbasename(compilerFilename)
+
+    if (os.name == 'nt') and base.startswith('cl'):
+
+       # Windows Visual Studio
+       verString = shell('"' + compilerFilename.replace('/', '\\') + '"', False)
+
+       if verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
+                               'Compiler Version 14.'):
+           return 'vc8.0'
+ 
+       elif verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' + 
+                                 'Compiler Version 13.'):
+           return 'vc7.1'
+  
+       elif verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
+                                 'Compiler Version 12.'):
+ 
+           return 'vc6.0'
+
+       else:
+           # Not a recognized compiler!
+           return 'unknown'
+    else:
+
+       # Unix
+
+       v = getVersion(compilerFilename)
+       if len(v) > 2:
+           v = v[0:2]
+       if len(v) < 2:
+           # Version number was short; add a 0 minor number
+           v = v + 0
+       version = string.join(map(str, v), '.')
+
+       name = base
+       if base.startswith('g++') or base.startswith('gcc'):
+           base = 'g++'
+
+       return name + '-' + version
+         
+#############################################################
 
 """ List all directories in a directory """
 def listDirs(_dir = ''):
@@ -679,14 +770,78 @@ def shortname(prefix, cfile):
 def isCFile(file):
     ext = string.lower(extname(file))
 
+    isOSX = (os.name != 'nt') and (os.uname()[0] == 'Darwin')
+
     return ((ext == 'cpp') or
            (ext == 'c') or
            (ext == 'c++') or
            (ext == 'cxx') or
            (ext == 'i') or
            (ext == 'ii') or
-	   ((os.uname()[0] == 'Darwin') and
+	   (isOSX and
             ((ext == 'mm') or
              (ext == 'm') or
              (ext == 'mi') or
              (ext == 'mii'))))
+
+#########################################################################
+
+"""
+A regular expression matching files that should be excluded from compilation
+"""
+excludeFromCompilation = None
+
+def _listCFilesVisitor(result, dirname, files):
+    dir = dirname
+
+    # Strip any unnecessary "./"
+    if (dirname[:2] == "./"):
+        dir = dir[2:]
+
+    if ((excludeFromCompilation != None) and
+        (excludeFromCompilation.search(dir) != None)):
+        # Don't recurse into subdirectories of excluded directories
+        del files[:]
+        return
+
+    # We can't modify files while iterating through it, so
+    # we must make a list of all files that are to be removed before the
+    # next iteration of the visitor.   
+    removelist = [];
+    for f in files:
+         if ((excludeFromCompilation != None) and
+             (excludeFromCompilation.search(f) != None)):
+            if verbosity >= VERBOSE: print "  Ignoring '" + f + "'"
+            removelist.append(f)
+            
+         elif isCFile(f):
+             
+            # Ensure the path ends in a slash (when needed)
+            filename = pathConcat(dir, f)
+
+            if ((excludeFromCompilation == None) or
+                (excludeFromCompilation.search(filename) == None)):
+                result.append(filename)
+
+    # Remove any subdir in 'files' that is itself excluded so as to prevent
+    # later recursion into it
+    for f in removelist:
+        files.remove(f)
+
+
+"""Returns all files with gcc-recognized c/c++ endings for the given directory
+   and all subdirectories.
+   
+   Filenames must be relative to the "rootDir" directory.  dir will be
+   a subdirectory of rootDir.
+
+   exclude must be a regular expression for files to exclude.
+   """
+def listCFiles(dir = '', exclude = None):
+    if (dir == ''): dir = './'
+
+    excludeFromCompilation = exclude
+    result = []
+
+    os.path.walk(dir, _listCFilesVisitor, result)
+    return result
