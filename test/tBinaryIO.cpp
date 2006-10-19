@@ -21,7 +21,7 @@ void testHugeBinaryIO() {
     {
         BinaryOutput b("huge.bin", G3D_LITTLE_ENDIAN);
         for (int i = 0; i < (int)testSize / (int)stepSize; ++i) {
-            b.writeBytes(giantBuffer, stepSize);
+            b.writeBytes(giantBuffer, (int)stepSize);
         }
         b.commit();
     }
@@ -32,7 +32,7 @@ void testHugeBinaryIO() {
         BinaryInput b("huge.bin", G3D_LITTLE_ENDIAN);
 
         for (int i = 0; i < (int)testSize / (int)stepSize; ++i) {
-            b.readBytes(giantBuffer, stepSize);
+            b.readBytes(giantBuffer, (int)stepSize);
         }
     }
 

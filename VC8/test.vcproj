@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="gfxmeter"
-	ProjectGUID="{71FC77E1-4CCA-458E-8116-8AD06C2E4A94}"
-	RootNamespace="gfxmeter"
+	Name="test"
+	ProjectGUID="{D878DCAA-50BA-406F-BAF8-9C40BEBDC476}"
+	RootNamespace="test"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\gfxmeter\build\install"
+			OutputDirectory="$(SolutionDir)..\test\build\install"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="2"
@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -66,7 +66,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\install\win-i386-vc8.0-lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -96,7 +96,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\gfxmeter\build\install"
+			OutputDirectory="$(SolutionDir)..\test\build\install"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="2"
@@ -120,7 +120,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -142,7 +142,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\install\win-i386-vc8.0-lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -182,23 +182,95 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\gfxmeter\source\main.cpp"
+				RelativePath="..\test\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\measureVertexPerformance.cpp"
+				RelativePath="..\test\tAABox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\Report.cpp"
+				RelativePath="..\test\tAABSPTree.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\shaderVersions.cpp"
+				RelativePath="..\test\tArray.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\speed.cpp"
+				RelativePath="..\test\tAtomicInt32.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tBinaryIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tCollisionDetection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tGChunk.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tGThread.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tMatrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tMatrix3.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tMeshAlgAdjacency.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tMeshAlgTangentSpace.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tQuat.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tQueue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tRandom.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tReferenceCount.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tReliableConduit.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tSystemMemcpy.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tSystemMemset.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tTextInput.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tTextOutput.cpp"
 				>
 			</File>
 		</Filter>
@@ -207,14 +279,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\gfxmeter\source\App.h"
-				>
-			</File>
-			<File
-				RelativePath="..\gfxmeter\source\Report.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -21,7 +21,7 @@ void perfSystemMemcpy() {
     uint64 native[M], g3d[M];
 
     for (int m = 0; m < M; ++m) {
-        int n = size[m];
+        int n = (int)size[m];
         void* m1 = System::alignedMalloc(n, 1024*4);
         void* m2 = System::alignedMalloc(n, 1024*4);
 
