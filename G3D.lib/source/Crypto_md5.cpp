@@ -2,7 +2,7 @@
  @file Crypto_md5.cpp
 
  @author Morgan McGuire, matrix@graphics3d.com
-
+ Copyright 2006-2007, Morgan McGuire.  All rights reserved.
 
  @created 2006-03-28
  @edited  2006-04-06
@@ -93,7 +93,6 @@ MD5Hash Crypto::md5(const void* data, size_t n) {
   ghost@aladdin.com
 
  */
-/* $Id: Crypto_md5.cpp,v 1.8 2006/10/11 19:27:21 morgan3d Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 
@@ -147,13 +146,6 @@ MD5Hash Crypto::md5(const void* data, size_t n) {
 #else
 #   define BYTE_ORDER 0
 #endif
-
-//#undef BYTE_ORDER /* 1 = big-endian, -1 = little-endian, 0 = unknown */
-//#ifdef ARCH_IS_BIG_ENDIAN
-//#  define BYTE_ORDER (ARCH_IS_BIG_ENDIAN ? 1 : -1)
-//#else
-//#  define BYTE_ORDER 0
-//#endif
 
 #define T_MASK ((md5_word_t)~0)
 #define T1 /* 0xd76aa478 */ (T_MASK ^ 0x28955b87)

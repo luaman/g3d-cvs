@@ -6,7 +6,7 @@
  @created 2001-08-09
  @edited  2006-07-19
 
- Copyright 2000-2005, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
  */
 
@@ -17,9 +17,6 @@
 // Disable conditional expression is constant, which occurs incorrectly on inlined functions
 #   pragma  warning(push)
 #   pragma warning( disable : 4127 )
-
-// signed/unsigned warnings (TODO: revisit)
-//#   pragma warning (disable:4267)
 #endif
 
 #include <assert.h>
@@ -98,22 +95,22 @@ private:
     /** When operating on huge files, we cannot load the whole file into memory.
         This is the file position to which buffer[0] corresponds.
         */
-    size_t          alreadyRead;
+    int64          alreadyRead;
 
     /**
      Length of the entire file, in bytes.  
      For the length of the buffer, see bufferLength
      */
-    int             length;
+    int64           length;
 
     /** Length of the array referenced by buffer. May go past the end of the file!*/
-    int             bufferLength;
+    int64           bufferLength;
     uint8*          buffer;
 
     /**
      Next byte in file, relative to buffer.
      */
-    int             pos;
+    int64           pos;
 
     /**
      When true, the buffer is freed in the destructor.
@@ -122,14 +119,14 @@ private:
 
     /** Ensures that we are able to read at least minLength from startPosition (relative
         to start of file). */
-    void loadIntoMemory(int startPosition, int minLength = 0);
+    void loadIntoMemory(int64 startPosition, int64 minLength = 0);
 
     /** Verifies that at least this number of bytes can be read.*/
-    inline void prepareToRead(size_t bytes) {
-        debugAssertM((int)pos + (int)bytes + (int)alreadyRead <= (int)length, "Read past end of file.");
+    inline void prepareToRead(int64 nbytes) {
+        debugAssertM((int64)pos + (int64)nbytes + (int64)alreadyRead <= (int64)length, "Read past end of file.");
 
-        if ((int)pos + (int)bytes > (int)bufferLength) {
-            loadIntoMemory((int)pos + (int)alreadyRead, (int)bytes);    
+        if ((int64)pos + (int64)nbytes > (int64)bufferLength) {
+            loadIntoMemory((int64)pos + (int64)alreadyRead, (int64)nbytes);    
         }
     }
 
@@ -174,7 +171,7 @@ public:
      */
     BinaryInput(
         const uint8*        data,
-        int                 dataLen,
+        int64               dataLen,
         G3DEndian           dataEndian,
         bool                compressed = false,
         bool                copyMemory = true);
@@ -203,7 +200,7 @@ public:
      Seeks to the new position before reading (and leaves 
      that as the current position)
      */
-    inline const uint8 operator[](int n) {
+    inline const uint8 operator[](int64 n) {
         setPosition(n);
         return readUInt8();
     }
@@ -211,11 +208,11 @@ public:
     /**
      Returns the length of the file in bytes.
      */
-    inline int getLength() const {
+    inline int64 getLength() const {
         return length;
     }
 
-    inline int size() const {
+    inline int64 size() const {
         return getLength();
     }
 
@@ -223,19 +220,19 @@ public:
      Returns the current byte position in the file,
      where 0 is the beginning and getLength() - 1 is the end.
      */
-    inline int getPosition() const {
-        return (int)pos + (int)alreadyRead;
+    inline int64 getPosition() const {
+        return (int64)pos + (int64)alreadyRead;
     }
 
     /**
      Sets the position.  Cannot set past length.
      May throw a char* when seeking backwards more than 10 MB on a huge file.
      */
-    inline void setPosition(int p) {
+    inline void setPosition(int64 p) {
         debugAssertM(p <= length, "Read past end of file");
-        pos = (int)p - (int)alreadyRead;
+        pos = (int64)p - (int64)alreadyRead;
         if ((pos < 0) || (pos > bufferLength)) {
-            loadIntoMemory((int)pos + (int)alreadyRead);
+            loadIntoMemory((int64)pos + (int64)alreadyRead);
         }
     }
 
@@ -335,17 +332,14 @@ public:
         return *(float64*)&a;
     }
 
-    /**
-     Returns the data in bytes.
-     */
-    void readBytes(void* bytes, int n);
+    void readBytes(void* bytes, int64 n);
 
     /**
      Reads an n character string.  The string is not
      required to end in NULL in the file but will
      always be a proper std::string when returned.
      */
-    std::string readString(int n);
+    std::string readString(int64 n);
 
     /**
      Reads until NULL or the end of the file is encountered.
@@ -372,16 +366,16 @@ public:
     /**
      Skips ahead n bytes.
      */
-    inline void skip(int n) {
-        setPosition((int)pos + (int)alreadyRead + n);
+    inline void skip(int64 n) {
+        setPosition((int64)pos + (int64)alreadyRead + n);
     }
 
-	/**
-	 Returns true if the position is not at the end of the file
-	 */
-	inline bool hasMore() const {
-		return (int)pos + (int)alreadyRead < (int)length;
-	}
+    /**
+      Returns true if the position is not at the end of the file
+    */
+    inline bool hasMore() const {
+	return (int64)pos + (int64)alreadyRead < (int64)length;
+    }
 
     /** Prepares for bit reading via readBits.  Only readBits can be
         called between beginBits and endBits without corrupting the
@@ -395,9 +389,9 @@ public:
     void endBits();
 
 #   define DECLARE_READER(ucase, lcase)\
-    void read##ucase(lcase* out, int n);\
-    void read##ucase(std::vector<lcase>& out, int n);\
-    void read##ucase(Array<lcase>& out, int n);
+    void read##ucase(lcase* out, int64 n);\
+    void read##ucase(std::vector<lcase>& out, int64 n);\
+    void read##ucase(Array<lcase>& out, int64 n);
 
     DECLARE_READER(Bool8,   bool)
     DECLARE_READER(UInt8,   uint8)

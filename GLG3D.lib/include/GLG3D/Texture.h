@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-02-28
-  @edited  2006-08-16
+  @edited  2006-10-16
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -217,7 +217,7 @@ public:
 private:
 
     /** OpenGL texture ID */
-	GLuint                          textureID;
+    GLuint                          textureID;
 
     /** Set in the base constructor. */
     Settings                        _settings;
@@ -238,8 +238,8 @@ private:
         GLuint                      textureID,
         Dimension                   dimension,
         const class TextureFormat*  format,
-		bool						opaque,
-		const Settings&				settings);
+	bool		      	    opaque,
+	const Settings&             settings);
 
 public:
 
@@ -336,21 +336,21 @@ public:
         const TextureFormat*                desiredFormat  = TextureFormat::AUTO,
         Dimension                           dimension      = DIM_2D,
         const Settings&                     settings       = Settings::defaults(),
-		const PreProcess&                   preProcess     = PreProcess::defaults());
+        const PreProcess&                   preProcess     = PreProcess::defaults());
 
 
 	 /** Construct from a single packed 2D or 3D data set. */
-	 static TextureRef fromMemory(
+    static TextureRef fromMemory(
         const std::string&              name,
         const void*                     bytes,
         const class TextureFormat*      bytesFormat,
         int                             width,
         int                             height,
-		int								depth,
+        int				depth,
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
-		const PreProcess&               preProcess     = PreProcess::defaults());
+        const PreProcess&               preProcess     = PreProcess::defaults());
 
     static TextureRef fromGImage(
         const std::string&              name,
@@ -358,7 +358,7 @@ public:
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings	   = Settings::defaults(),
-		const PreProcess&               preProcess     = PreProcess::defaults());
+        const PreProcess&               preProcess     = PreProcess::defaults());
 
     /** Creates another texture that is the same as this one but contains only
         an alpha channel.  Alpha-only textures are useful as mattes.  
@@ -510,7 +510,7 @@ public:
         return _format;
     }
     
-    inline Dimension dimensions() const {
+    inline Dimension dimension() const {
         return _dimension;
     }
 

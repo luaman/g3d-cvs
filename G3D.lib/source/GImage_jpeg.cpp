@@ -2,14 +2,14 @@
   @file GImage_jpeg.cpp
   @author Morgan McGuire, morgan@graphics3d.com
   @created 2002-05-27
-  @edited  2006-05-10
+  @edited  2006-10-10
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
  
- /**
+/**
  Pick up libjpeg headers locally on Windows, but from the system on all other platforms.
 */
 extern "C" {

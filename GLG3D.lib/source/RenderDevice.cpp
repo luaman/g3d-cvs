@@ -328,7 +328,7 @@ bool RenderDevice::init(GWindow* window, Log* log) {
            "*********************************************************\n\n");
     }
 
-	glViewport(0, 0, width(), height());
+    glViewport(0, 0, width(), height());
 
     int depthBits, stencilBits, redBits, greenBits, blueBits, alphaBits;
     depthBits       = glGetInteger(GL_DEPTH_BITS);
@@ -610,24 +610,24 @@ void RenderDevice::push2D() {
 }
 
 void RenderDevice::push2D(const Rect2D& viewport) {
-	push2D(NULL, viewport);
+    push2D(NULL, viewport);
 }
 
 void RenderDevice::push2D(const FramebufferRef& fb) {
-	const Rect2D& viewport = fb.notNull() ? fb->rect2DBounds() : Rect2D::xywh(0, 0, _window->width(), _window->height());
-	push2D(fb, viewport);
+    const Rect2D& viewport = fb.notNull() ? fb->rect2DBounds() : Rect2D::xywh(0, 0, _window->width(), _window->height());
+    push2D(fb, viewport);
 }
 
 void RenderDevice::push2D(const FramebufferRef& fb, const Rect2D& viewport) {
     pushState();
 
-	setFramebuffer(fb);
+    setFramebuffer(fb);
     setDepthTest(DEPTH_ALWAYS_PASS);
     disableLighting();
     setCullFace(CULL_NONE);
     disableDepthWrite();
     setViewport(viewport);
-	setObjectToWorldMatrix(CoordinateFrame());
+    setObjectToWorldMatrix(CoordinateFrame());
 
     // 0.375 is a float-to-int adjustment.  See: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/opengl/apptips_7wqb.asp
     //setCameraToWorldMatrix(CoordinateFrame(Matrix3::identity(), Vector3(-0.375, -0.375, 0.0)));
@@ -747,7 +747,7 @@ RenderDevice::RenderState::TextureUnit::TextureUnit() : texture(NULL), LODBias(0
 void RenderDevice::resetState() {
     state = RenderState(width(), height());
 
-	glClearDepth(1.0);
+    glClearDepth(1.0);
 
     glEnable(GL_NORMALIZE);
 
@@ -1447,12 +1447,12 @@ void RenderDevice::enableClip2D(const Rect2D& clip) {
     minGLStateChange();
     state.clip2D = clip;
 
-	int clipX0 = iFloor(clip.x0());
-	int clipY0 = iFloor(clip.y0());
-	int clipX1 = iCeil(clip.x1());
-	int clipY1 = iCeil(clip.y1());
+    int clipX0 = iFloor(clip.x0());
+    int clipY0 = iFloor(clip.y0());
+    int clipX1 = iCeil(clip.x1());
+    int clipY1 = iCeil(clip.y1());
 
-	glScissor(clipX0, height() - clipY1, clipX1 - clipX0, clipY1 - clipY0);
+    glScissor(clipX0, height() - clipY1, clipX1 - clipX0, clipY1 - clipY0);
 
     if (! state.useClip2D) {
         glEnable(GL_SCISSOR_TEST);
@@ -2325,7 +2325,7 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
 
         float ymax = 1.0;
     
-        if (texture->dimensions() == Texture::DIM_2D_RECT) {
+        if (texture->dimension() == Texture::DIM_2D_RECT) {
             ymax = texture->texelHeight();
         }
 
@@ -2756,11 +2756,11 @@ double RenderDevice::getDepthBufferValue(
     GLfloat depth;
 
     glReadPixels(x,
-		         (height() - 1) - y,
+	         (height() - 1) - y,
                  1, 1,
                  GL_DEPTH_COMPONENT,
-		         GL_FLOAT,
-		         &depth);
+	         GL_FLOAT,
+	         &depth);
 
     return depth;
 }
@@ -2804,7 +2804,7 @@ void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha
 
     // Flip right side up
     if (getAlpha) {
-		GImage::flipRGBAVertical(dest.byte(), dest.byte(), width(), height());
+	GImage::flipRGBAVertical(dest.byte(), dest.byte(), width(), height());
     } else {
         GImage::flipRGBVertical(dest.byte(), dest.byte(), width(), height());
     }
@@ -3126,7 +3126,7 @@ void RenderDevice::configureReflectionMap(
     uint                textureUnit,
     TextureRef          reflectionTexture) {
 
-    debugAssert(reflectionTexture->dimensions() == Texture::DIM_CUBE_MAP);
+    debugAssert(reflectionTexture->dimension() == Texture::DIM_CUBE_MAP);
 
     // Texture coordinates will be generated in object space.
     // Set the texture matrix to transform them into camera space.

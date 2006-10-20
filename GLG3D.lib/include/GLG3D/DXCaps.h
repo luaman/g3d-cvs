@@ -4,9 +4,7 @@
  @created 2006-04-06
  @edited  2006-05-06
 
- @maintainer Corey Taylor
-
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
 */
 

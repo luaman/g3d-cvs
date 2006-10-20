@@ -533,7 +533,6 @@ protected:
 
     GWindow() : m_inputCaptureCount(0), m_mouseHideCount(0), m_renderDevice(NULL) {}
 
-
     /** Override this with the glMakeCurrent call appropriate for your window.*/
     virtual void reallyMakeCurrent() const {
     }    

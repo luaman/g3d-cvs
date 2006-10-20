@@ -3,14 +3,13 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2006-08-10
+  @edited  2006-10-10
 */
 
 #ifndef G3D_SDLWINDOW_H
 #define G3D_SDLWINDOW_H
 
 #include "G3D/platform.h"
-
 // No SDL on Win32
 #ifndef G3D_WIN32
 
@@ -72,8 +71,8 @@ private:
     #elif defined(G3D_WIN32)
         HDC                     _Win32HDC;
         HWND                    _Win32HWND;
-	#elif defined(G3D_OSX)
-		NSAutoreleasePoolWrapper*	_pool;
+    #elif defined(G3D_OSX)
+	NSAutoreleasePoolWrapper*	_pool;
     #endif
 
 protected:
@@ -157,5 +156,4 @@ public:
 } // namespace
 
 #endif // ifndef G3D_WIN32
-
 #endif

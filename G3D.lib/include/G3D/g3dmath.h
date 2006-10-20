@@ -30,7 +30,6 @@
 #include <limits>
 #include <stdlib.h>
 
-
 /*These defines enable functionality introduced with the 1999 ISO C
 **standard. They must be defined before the inclusion of math.h to
 **engage them. If optimisation is enabled, these functions will be 
@@ -144,22 +143,21 @@ inline const double& twoPi() {
     return p;
 }
 
-
-typedef signed char		int8;
+typedef signed char	int8;
 typedef unsigned char	uint8;
-typedef short			int16;
+typedef short		int16;
 typedef unsigned short	uint16;
-typedef int				int32;
+typedef int		int32;
 typedef unsigned int	uint32;
 
 #ifdef _MSC_EXTENSIONS
-    typedef __int64			   int64;
+    typedef __int64	       int64;
     typedef unsigned __int64   uint64;
 #elif ! defined(_MSC_VER)
     typedef int64_t  		   int64;
     typedef uint64_t           uint64;
 #else
-    typedef long long		   int64;
+    typedef long long	       int64;
     typedef unsigned long long uint64;
 #endif
 typedef unsigned int uint;

@@ -112,6 +112,9 @@ void MD2Model::load(const std::string& filename, float resize) {
     Array<Vector3> frameMax(header.numFrames);
     Array<double>  frameRad(header.numFrames);
 
+    texCoordScale.x = 1.0f / header.skinWidth;
+    texCoordScale.y = 1.0f / header.skinHeight;
+
     Vector3 min  = Vector3::inf();
     Vector3 max  = -Vector3::inf();
     double  rad  = 0;
@@ -216,9 +219,6 @@ void MD2Model::load(const std::string& filename, float resize) {
     boundingSphere = Sphere(Vector3::zero(), sqrt(rad));
 
     // Load the texture coords
-    texFrame.rotation[0][0] = 1.0 / header.skinWidth; 
-    texFrame.rotation[1][1] = 1.0 / header.skinHeight;
-
     Array<Vector2int16> fileTexCoords(header.numTexCoords);
     b.setPosition(header.offsetTexCoords);
     for (int t = 0; t < fileTexCoords.size(); ++t) {
@@ -331,11 +331,12 @@ void MD2Model::computeTexCoords(
         } else {
             bool foundMatch = false;
 
+            Vector2 v2coords(coords);
             // Walk through the clones and see if one has the same tex coords
             for (int c = 0; c < cloneList.size(); ++c) {
                 const int clone = cloneList[c];
 
-                if (_texCoordArray[clone] == coords) {
+                if (_texCoordArray[clone] == v2coords) {
                     // Found a match
                     foundMatch = true;
 
@@ -368,6 +369,11 @@ void MD2Model::computeTexCoords(
                 ++numVertices;
             }
         }
+    }
+
+    // Rescale the texture coordinates
+    for (int i = 0; i < _texCoordArray.size(); ++i) {
+        _texCoordArray[i] *= texCoordScale;
     }
 }
 

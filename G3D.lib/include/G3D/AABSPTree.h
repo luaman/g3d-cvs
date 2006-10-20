@@ -38,7 +38,6 @@ inline void getBounds(const G3D::AABox& a, G3D::AABox& out) {
     out = a;
 }
 
-
 inline void getBounds(const G3D::Sphere& s, G3D::AABox& out) {
     s.getBounds(out);
 }
@@ -53,15 +52,44 @@ inline void getBounds(const G3D::Triangle& t, G3D::AABox& out) {
     t.getBounds(out);
 }
 
+
+
+inline void getBounds(const G3D::Vector3* v, G3D::AABox& out) {
+    out = G3D::AABox(*v);
+}
+
+
+inline void getBounds(const G3D::AABox* a, G3D::AABox& out) {
+    getBounds(*a, out);
+}
+
+inline void getBounds(const G3D::Sphere* s, G3D::AABox& out) {
+    s->getBounds(out);
+}
+
+
+inline void getBounds(const G3D::Box* b, G3D::AABox& out) {
+    b->getBounds(out);
+}
+
+inline void getBounds(const G3D::Triangle* t, G3D::AABox& out) {
+    t->getBounds(out);
+}
+
+
 namespace G3D {
 
 /**
  A set that supports spatial queries using an axis-aligned
  BSP tree for speed.
 
- AABSPTree is as powerful as but more general than a Quad Tree, Oct Tree, or KD Tree,
- but less general than an unconstrained BSP tree (which is much slower
- to create).
+ AABSPTree allows you to quickly find objects in 3D that lie within
+ a box or along a ray. For large sets of objects it is much faster
+ than testing each object for a collision.
+
+ AABSPTree is as powerful as but more general than a Quad Tree, Oct
+ Tree, or KD Tree, but less general than an unconstrained BSP tree
+ (which is much slower to create).
  
  Internally, objects
  are arranged into an axis-aligned BSP-tree according to their 
@@ -70,12 +98,16 @@ namespace G3D {
 
  <B>Template Parameters</B>
  <DT>The template parameter <I>T</I> must be one for which
- the following functions are overloaded:
+ the following functions are all overloaded:
 
   <P><CODE>void ::getBounds(const T&, G3D::AABox&);</CODE>
-  <DT><CODE>bool operator==(const T&, const T&);</CODE>
+  <DT><CODE>bool ::operator==(const T&, const T&);</CODE>
   <DT><CODE>unsigned int ::hashCode(const T&);</CODE>
   <DT><CODE>T::T();</CODE> <I>(public constructor of no arguments)</I>
+
+ G3D provides these for common classes like G3D::Vector3 and G3D::Sphere.
+ If you use a custom class, or a pointer to a custom class, you will need
+ to define those functions.
 
  <B>Moving %Set Members</B>
  <DT>It is important that objects do not move without updating the
@@ -858,7 +890,6 @@ public:
 
     /**
      C++ STL style iterator variable.  See beginBoxIntersection().
-
      The iterator overloads the -> (dereference) operator, so this
      acts like a pointer to the current member.
      */
@@ -1586,9 +1617,6 @@ public:
     }
 };
 
-#define KDTreeSet AABSPTree
-
 }
 
 #endif
-

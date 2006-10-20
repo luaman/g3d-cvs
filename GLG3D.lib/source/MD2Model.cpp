@@ -54,7 +54,7 @@ const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] =
 };
 
 
-MD2ModelRef MD2Model::create(const std::string& filename, float s) {
+MD2ModelRef MD2Model::fromFile(const std::string& filename, float s) {
     MD2Model* model = new MD2Model();
     model->load(filename, s);
     return model;
@@ -127,7 +127,7 @@ void MD2Model::computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf
     }
 
 
-	debugAssert(pose.time > 0.0);
+    debugAssert(pose.time >= 0.0);
 
     // Assume time is positive
     if (pose.animation == JUMP) {
@@ -437,7 +437,7 @@ static const uint32 maxVARVerts = 1600;
 
 void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
     (void)renderDevice;
-    size_t size = maxVARVerts * (24 + sizeof(Vector3) * 2 + sizeof(Vector2int16));
+    size_t size = maxVARVerts * (24 + sizeof(Vector3) * 2 + sizeof(Vector2));
 
     for (int i = 0; i < NUM_VAR_AREAS; ++i) {
         varArea[i] = VARArea::create(size);
@@ -479,15 +479,13 @@ void MD2Model::render(RenderDevice* renderDevice, const Pose& pose) {
     renderDevice->pushState();
         renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
 
-        // Quake's triangles are backwards of OpenGL in our coordinate
-        // system, so cull front faces instead of back faces.
 
         const Array<Vector3>& vertexArray   = interpolatedFrame.vertexArray;
         const Array<Vector3>& normalArray   = interpolatedFrame.normalArray;
 
         if (useVAR) {
 
-            // Upload the arrays (System::memcpy is no faster than memcpy for VAR memory)
+            // Upload the arrays
             debugAssert(! varArea[nextVarArea].isNull());
             varArea[nextVarArea]->reset();
 
@@ -495,8 +493,6 @@ void MD2Model::render(RenderDevice* renderDevice, const Pose& pose) {
             VAR varTexCoord(_texCoordArray, varArea[nextVarArea]);
             VAR varNormal  (normalArray,   varArea[nextVarArea]);
             VAR varVertex  (vertexArray,   varArea[nextVarArea]);
-
-            renderDevice->setTextureMatrix(0, texFrame);
 
             renderDevice->beginIndexedPrimitives();
                 renderDevice->setTexCoordArray(0, varTexCoord);
@@ -510,6 +506,8 @@ void MD2Model::render(RenderDevice* renderDevice, const Pose& pose) {
         } else {
 
             // No VAR available; use the default rendering path
+            // Quake's triangles are backwards of OpenGL in our coordinate
+            // system, so cull front faces instead of back faces.
             glFrontFace(GL_CW);
 
             for (int p = 0; p < primitiveArray.size(); ++p) {
@@ -545,7 +543,7 @@ void MD2Model::debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose
     renderDevice->pushState();
         renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        renderDevice->setPolygonOffset(-.1);
+        renderDevice->setPolygonOffset(-0.1f);
         renderDevice->setColor(Color3::black());
         
         renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
@@ -565,7 +563,7 @@ size_t MD2Model::mainMemorySize() const {
     size_t frameSize   = keyFrame.size() * (sizeof(PackedGeometry)  + (sizeof(Vector3) + sizeof(uint8)) * keyFrame[0].vertexArray.size());
     size_t indexSize   = indexArray.size() * sizeof(int);
     size_t faceSize    = faceArray.size() * sizeof(MeshAlg::Face);
-    size_t texSize     = _texCoordArray.size() * sizeof(Vector2int16);
+    size_t texSize     = _texCoordArray.size() * sizeof(Vector2);
     size_t valentSize  = vertexArray.size() * sizeof(Array<MeshAlg::Vertex>);
     for (int i = 0; i < vertexArray.size(); ++i) {
         valentSize += vertexArray[i].faceIndex.size() * sizeof(int);
@@ -885,5 +883,15 @@ const Array<Vector3>& MD2Model::PosedMD2Model::objectSpaceFaceNormals(bool norma
     return faceNormals;
 }
 
+
+TextureRef MD2Model::textureFromFile(const std::string& filename) {
+    Texture::Settings settings;
+    settings.wrapMode = Texture::CLAMP;
+
+    Texture::PreProcess preprocess;
+    preprocess.brighten = 2.0f;
+
+    return Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, settings, preprocess);
+}
 
 }

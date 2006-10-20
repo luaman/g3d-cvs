@@ -18,7 +18,7 @@
 #ifdef G3D_WIN32
 
 #include <windows.h>
-#include "G3D/graphics3d.h"
+#include "G3D/G3D.h"
 #include "GLG3D/Win32Window.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/UserInput.h"

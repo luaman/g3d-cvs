@@ -132,14 +132,14 @@ public:
 
         inline Pose() : preFrameNumber(0), animation(STAND), time(0) {}
         inline Pose(Animation a, GameTime t = 0) : preFrameNumber(0), animation(a), time(t) {
-			static const GameTime t0 = 100000.0;
-			while (time > t0) {
-				// We've been handed a number too big to operate on
-				// as an int32 when we go to frame numbers, probably
-				// because the caller handed in the current System::time.
-				time -= t0;
-			}
-		}
+            static const GameTime t0 = 100000.0;
+            while (time > t0) {
+                // We've been handed a number too big to operate on
+                // as an int32 when we go to frame numbers, probably
+                // because the caller handed in the current System::time.
+                time -= t0;
+            }
+        }
         
         bool operator==(const Pose& other) const;
         bool operator!=(const Pose& other) const;
@@ -309,16 +309,14 @@ protected:
 
     Array<Primitive>            primitiveArray;
 
+    /** 1/header.skinWidth, 1/header.skinHeight, used by computeTextureCoords */
+    Vector2                     texCoordScale;
+
     /**
      Texture array that parallels vertex and normal arrays.
      Set up by computeTexCoords
      */
-    Array<Vector2int16>         _texCoordArray;
-
-    /**
-     Matrix mapping int16 texture coordinates to floats.
-     */
-    CoordinateFrame             texFrame;
+    Array<Vector2>              _texCoordArray;
 
     Sphere                      animationBoundingSphere[MAX_ANIMATIONS]; 
     Box                         animationBoundingBox[MAX_ANIMATIONS]; 
@@ -326,6 +324,10 @@ protected:
     void loadTextureFilenames(BinaryInput& b, int num, int offset);
     
     /**
+     MD2 Models are stored with separate indices into texture coordinate and 
+     vertex arrays.  This means that some vertices must be duplicated in order
+     to render with a single OpenGL-style vertex array.
+
      Creates a texCoordArray to parallel the vertex and normal arrays,
      duplicating vertices in the keyframes as needed. Called from load().
      @param inCoords Texture coords corresponding to the index array
@@ -397,7 +399,11 @@ public:
 
      @param scale Optional scale factor to apply while loading.
      */
-    static MD2ModelRef create(const std::string& filename, float scale = 1.0f);
+    static MD2ModelRef fromFile(const std::string& filename, float scale = 1.0f);
+
+    static MD2ModelRef G3D_DEPRECATED create(const std::string& filename, float scale = 1.0f) {
+        return fromFile(filename, scale);
+    }
 
     virtual ~MD2Model() {}
 
@@ -408,7 +414,7 @@ public:
         The shadow should not be textured!*/
     PosedModelRef pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat);
 
-    inline const Array<Vector2int16>& texCoordArray() const {
+    inline const Array<Vector2>& texCoordArray() const {
         return _texCoordArray;
     }
 
@@ -421,14 +427,6 @@ public:
     /** You must get the geometry for the vertex positions-- this only specifies adjacency */
     const Array<MeshAlg::Vertex>& vertices() const;
     const Array<MeshAlg::Vertex>& weldedVertices() const;
-
-    /**
-     Matrix mapping int16 texture coordinates to floats for this model.
-     Useful if you are using custom rendering code instead of pose()->render()
-     */    
-    const CoordinateFrame& textureMatrix() const {
-        return texFrame;
-    }
 
     /**
      Render the wireframe mesh.
@@ -513,6 +511,21 @@ public:
      occupied by this data structure.
      */
     virtual size_t mainMemorySize() const;
+
+    /**
+     Loads a Quake2 character texture.  Same as:
+     <pre>
+     Texture::Settings settings;
+     settings.wrapMode = Texture::CLAMP;
+
+     Texture::PreProcess preprocess;
+     preprocess.brighten = 2.0f;
+
+     Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, settings, preprocess)
+     </pre>
+     */
+    static TextureRef textureFromFile(const std::string& filename);
+
 };
 
 }

@@ -164,7 +164,6 @@ private:
 	void processKey(KeyCode code, int event);
 
 public:
-
     /**
      Turns a UserInput key code into a human readable string
      describing the key.
@@ -200,15 +199,15 @@ public:
 	 */
     void processEvent(const ::SDL_Event& event);
 
-	/**
+    /**
      Call after your GWindow event polling loop.  If you are using G3D::GApplet, this is handled for you.
-	 */
-	void endEvents();
+     */
+    void endEvents();
 
     /**
      Call before your GWindow event polling loop.If you are using G3D::GApplet, this is handled for you.
      */
-	void beginEvents();
+    void beginEvents();
 
     /**
      Sets the mouse position.  That new position will
@@ -221,22 +220,22 @@ public:
         setMouseXY(v.x, v.y);
     }
 
-	int getNumJoysticks() const;
+    int getNumJoysticks() const;
 
-	/**
-	 Returns a number between -1 and 1 indicating the horizontal
-	 input from the user.  Keyboard overrides joystick.
+    /**
+     Returns a number between -1 and 1 indicating the horizontal
+     input from the user.  Keyboard overrides joystick.
      @deprecated
-	 */
-	float G3D_DEPRECATED getX() const;
+     */
+    float G3D_DEPRECATED getX() const;
 
-	/**
-	 Returns a number between -1 and 1 indicating the vertical
-	 input from the user.  Up is positive, down is negative. 
-	 Keyboard overrides joystick.
+    /**
+     Returns a number between -1 and 1 indicating the vertical
+     input from the user.  Up is positive, down is negative. 
+     Keyboard overrides joystick.
      @deprecated
-	 */
-	float G3D_DEPRECATED getY() const;
+     */
+    float G3D_DEPRECATED getY() const;
 
     /**
      @deprecated

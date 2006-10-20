@@ -2,6 +2,7 @@
  @file BinaryOutput.cpp
  
  @author Morgan McGuire, graphics3d.com
+ Copyright 2002-2007, Morgan McGuire, All rights reserved.
  
  @created 2002-02-20
  @edited  2005-06-07
@@ -279,7 +280,7 @@ void BinaryOutput::compress() {
     }
 
     // Write the data
-    if ((int)newSize + 4 > (int)maxBufferLen) {
+    if ((int64)newSize + 4 > (int64)maxBufferLen) {
         maxBufferLen = newSize + 4;
         buffer = (uint8*)System::realloc(buffer, maxBufferLen);
     }
