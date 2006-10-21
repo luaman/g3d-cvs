@@ -161,19 +161,14 @@ def ilib(args):
 
 
 def iclean(args):
-     os.chdir("G3D.lib")
-     run("../bin/icompile", ['--clean'])
-
-     os.chdir("../GLG3D.lib")
-     run("../bin/icompile", ['--clean'])
-
-     os.chdir('../jpeg.lib')
-     run("../bin/icompile", ['--clean'])
-
-     os.chdir('../png.lib')
-     run("../bin/icompile", ['--clean'])
+     rmdir('build')
+     rmdir('temp')
 
      os.chdir("../test")
+     run("../bin/icompile", ['--clean'])
+     os.chdir("..")
+
+     os.chdir("../gfxmeter")
      run("../bin/icompile", ['--clean'])
      os.chdir("..")
 
@@ -286,4 +281,4 @@ if __name__ == "__main__":
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
          ilib, iclean, itest,
-         doc, install, bin], buildHelp))
+         doc, install, bin, all], buildHelp))

@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2002-08-07
- @edited  2006-08-14
+ @edited  2006-10-14
 
  Copyright 2001-2006, Morgan McGuire.
  All rights reserved.
@@ -64,6 +64,7 @@
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/GModule.h"
 #include "GLG3D/ThirdPersonManipulator.h"
+#include "GLG3D/ToneMap.h"
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"
