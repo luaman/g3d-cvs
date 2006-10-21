@@ -2,10 +2,7 @@
 # -*- python -*-
 
 from buildlib import *
-import os
-import platform
-import commands
-import sys
+import os, platform, commands, sys, time
 sys.path.append('bin')
 import ice.copyifnewer
 
@@ -205,7 +202,7 @@ def doc(args):
     version = 'version ' + v.major + '.' + v.minor
     if (v.beta != ''):
         version += ' beta ' + v.beta
-    version += ' ' + string.join(time.localtime()[0:2], '-')
+    version += ' ' + string.join([str(s) for s in time.localtime()[0:2]], '-')
 
     env = {'HEADER_FILE':    'doc-files/data-files/header.html',
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
