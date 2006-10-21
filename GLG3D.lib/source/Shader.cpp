@@ -219,7 +219,7 @@ void VertexAndPixelShader::GPUShader::init(
 
 		if (fromFile) {
 			if (fileExists(_name)) {
-				_code = readFileAsString(_name);
+				_code = readWholeFile(_name);
 			} else {
 				_ok = false;
 				_messages = format("Could not load shader file \"%s\".", 
@@ -404,8 +404,8 @@ VertexAndPixelShader::VertexAndPixelShader(
         computeUniformArray();
         // note that the extra uniforms are computed from the original code,
         // not from the code that has the g3d uniforms prepended.
-        addUniformsFromCode(vsFromFile ? readFileAsString(vsFilename) : vsCode);
-        addUniformsFromCode(psFromFile ? readFileAsString(psFilename) : psCode);
+        addUniformsFromCode(vsFromFile ? readWholeFile(vsFilename) : vsCode);
+        addUniformsFromCode(psFromFile ? readWholeFile(psFilename) : psCode);
 
         // Add all uniforms to the name list
         for (int i = uniformArray.size() - 1; i >= 0; --i) {
@@ -621,11 +621,11 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromFiles(
 	std::string ps;
 
 	if (vsFilename != "") {
-		vs = readFileAsString(vs);
+		vs = readWholeFile(vs);
 	}
 
 	if (psFilename != "") {
-		ps = readFileAsString(ps);
+		ps = readWholeFile(ps);
 	}
 
     return new VertexAndPixelShader(vs, vsFilename, true, ps, psFilename, true, debugErrors, u);

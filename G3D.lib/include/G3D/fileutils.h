@@ -28,7 +28,7 @@ namespace G3D {
 /** Returns all the files used by G3D and GLG3D during the current execution. */
 Array<std::string> filesUsed();
     
-std::string readFileAsString(
+std::string readWholeFile(
     const std::string&          filename);
 
 /**
@@ -36,10 +36,10 @@ std::string readFileAsString(
  as the function returns.  If false, the function returns immediately and
  writes the file in the background.
  */
-void writeStringToFile(
-    const std::string&          str,
-    const std::string&          filename,
-    bool                        flush = true);
+void writeWholeFile(
+    const std::string& filename, 
+    const std::string& str, 
+    bool    flush = true);
 
 /**
  Creates the directory (which may optionally end in a /)

@@ -276,6 +276,7 @@ private:
     /** Distance from the axis at which it is still clickable, in pixels.
         Could be a setting.*/
     float                   m_maxAxisDistance2D;
+    float                   m_maxRotationDistance2D;
 
     bool                    m_rotationEnabled;
 
@@ -320,11 +321,15 @@ public:
     /** Assumes that m_controlFrame is the current object to world matrix */
     void computeProjection(RenderDevice* rd);
 
+protected:
+    
+    ThirdPersonManipulator();
+
 public:
     // For design reference, see the 3DS Max gizmos at
     // http://www.3dmax-tutorials.com/Transform_Gizmo.html
 
-    ThirdPersonManipulator();
+    static ThirdPersonManipulatorRef create();
 
     void setRotationEnabled(bool r);
 

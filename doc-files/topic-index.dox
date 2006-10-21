@@ -326,7 +326,7 @@
         G3D::msgBox,
         G3D::parseFilename, 
         G3D::prompt, 
-        G3D::readFileAsString,
+        G3D::readWholeFile,
         G3D::System,
         G3D::Stopwatch,
         G3D::resolveFilename,
@@ -334,7 +334,7 @@
 		G3D::TextOutput,
         G3D::Token,
         G3D::TextInput::WrongTokenType,
-        G3D::writeStringToFile
+        G3D::writeWholeFile
 
     <LI><B>Network</B> &nbsp; &nbsp;
         G3D::DiscoveryAdvertisement,

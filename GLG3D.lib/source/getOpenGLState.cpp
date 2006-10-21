@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
   @cite       Created by Morgan McGuire & Seth Block
   @created 2001-08-05
-  @edited  2005-03-15
+  @edited  2006-10-15
 */
 
 #include "GLG3D/glcalls.h"
@@ -160,6 +160,10 @@ static std::string getLightingState(bool showDisabled) {
             return result;
         }
     }
+
+    result += "\n";
+
+    result += format("glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, %d);\n\n", glGetInteger(GL_LIGHT_MODEL_TWO_SIDE));
 
     for (L = 0; L < 8; L++) {
         result += format("// Light %d\n", L);

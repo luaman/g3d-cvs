@@ -79,7 +79,7 @@ std::string resolveFilename(const std::string& filename) {
 }
 
 
-std::string readFileAsString(
+std::string readWholeFile(
     const std::string& filename) {
 
     _internal::currentFilesUsed.append(filename);
@@ -226,10 +226,9 @@ FILE* createTempFile() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void writeStringToFile(
-    const std::string&          str,
+void writeWholeFile(
     const std::string&          filename,
+    const std::string&          str,
     bool                        flush) {
 
     // Make sure the directory exists.

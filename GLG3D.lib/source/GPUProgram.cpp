@@ -286,7 +286,7 @@ LOADSHADER:
     if (reloadFromFile) {
  
         if (fileExists(filename)) {
-            code = readFileAsString(filename);
+            code = readWholeFile(filename);
         } else {
             error("Critical Error", 
                 std::string("Cannot locate file \"") + filename + "\" to reload it.", true);

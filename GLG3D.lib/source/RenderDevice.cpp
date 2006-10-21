@@ -972,7 +972,7 @@ void RenderDevice::setState(
     setSpecularCoefficient(newState.specular);
     setShininess(newState.shininess);
 
-    if (state.lights.changed) {//(newState.lights != state.lights) {
+    if (state.lights.changed) {
         if (newState.lights.lighting) {
             enableLighting();
         } else {

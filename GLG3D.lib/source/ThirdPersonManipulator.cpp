@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2006-06-09
-  @edited  2006-06-09
+  @edited  2006-10-20
 */
 
 #include "GLG3D/ThirdPersonManipulator.h"
@@ -230,6 +230,10 @@ void UIGeom::render(RenderDevice* rd, float lineScale) {
 } // _internal
 
 
+ThirdPersonManipulatorRef ThirdPersonManipulator::create() {
+    return new ThirdPersonManipulator();
+}
+
 void ThirdPersonManipulator::render(RenderDevice* rd) {
     rd->pushState();
     // Highlight the appropriate axis
@@ -279,8 +283,6 @@ void ThirdPersonManipulator::render(RenderDevice* rd) {
     Draw::axes(m_controlFrame, rd, 
                color[0], color[1], color[2], m_axisScale * 0.5f);
 
-    // Can't use nice blend modes or line strip segments will fight
-    // each other in the z-buffer
     rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, 
                      RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
     rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
@@ -292,6 +294,7 @@ void ThirdPersonManipulator::render(RenderDevice* rd) {
             m_geomArray[g].render(rd);
         }
     }
+
     if (m_rotationEnabled) {
         for (int g = FIRST_ROTATION; g <= LAST_ROTATION; ++g) {
             rd->setColor(color[g]);
@@ -509,7 +512,8 @@ ThirdPersonManipulator::ThirdPersonManipulator() :
     m_dragKey(SDL_LEFT_MOUSE_KEY),
     m_doubleAxisDrag(false),
     m_overAxis(NO_AXIS),
-    m_maxAxisDistance2D(10),
+    m_maxAxisDistance2D(15),
+    m_maxRotationDistance2D(10),
     m_rotationEnabled(true),
     m_translationEnabled(true),
     m_enabled(true) {
@@ -559,7 +563,7 @@ ThirdPersonManipulator::ThirdPersonManipulator() :
 
     // Create the rotation circles
     const int ROT_SEGMENTS = 40;
-    const float ROT_RADIUS = 0.7f;
+    const float ROT_RADIUS = 0.65f;
     vertex.resize(ROT_SEGMENTS + 1);
     for (int v = 0; v <= ROT_SEGMENTS; ++v) {
         float a = twoPi() * (float)v / ROT_SEGMENTS;
@@ -698,7 +702,7 @@ void ThirdPersonManipulator::onUserInput(UserInput* ui) {
             for (int g = FIRST_ROTATION; g <= LAST_ROTATION; ++g) {
                 const _internal::UIGeom& geom = m_geomArray[g];
 
-                if (geom.contains(ui->mouseXY(), nearestDepth, m_dragTangent, m_dragW, m_maxAxisDistance2D)) {
+                if (geom.contains(ui->mouseXY(), nearestDepth, m_dragTangent, m_dragW, m_maxRotationDistance2D)) {
                     m_overAxis = g;
                 }
             }
