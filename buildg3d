@@ -17,7 +17,8 @@ class Version:
 def copyIfNewer(source, dest):
     if platform.system() == 'Windows':
         # Just use the binary for this
-        return os.spawnv(os.P_WAIT, 'bin/copyifnewer.exe', ['--exclusions', source, dest])
+        print 'copyifnewer', source, dest
+        return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', ['--exclusions', source, dest])
     else:
         # Use python commands
         ice.copyifnewer.copyIfNewer(source, dest)
@@ -208,15 +209,15 @@ def doc(args):
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
            'PROJECT_NUMBER': version}
     run(doxygen, ['Doxyfile'], env)
-    copyIfNewer('doc-files/data-files/', 'build/install/html/')
+    copyIfNewer('doc-files/data-files', 'build/install/html')
     return 1
 
 def data(args):
-    source = 'bin/'
-    dest = 'build/install/bin/'
+    source = 'bin'
+    dest = 'build/install/bin'
     copyIfNewer(source, dest)
     
-    copyIfNewer('data-files/', 'build/install/data/')
+    copyIfNewer('data-files', 'build/install/data')
     return 0
 
 def install(args):
