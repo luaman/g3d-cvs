@@ -11,6 +11,12 @@ import ice.copyifnewer
 
 doxygen = 'doxygen'
 
+class Version:
+    major = '7'
+    minor = '00'
+    beta  = '01'
+
+
 def copyIfNewer(source, dest):
     if platform.system() == 'Windows':
         # Just use the binary for this
@@ -139,15 +145,20 @@ def runicompile(dir):
 def ilib(args):
      x = 0
 
-     if (os.uname()[0] == 'Darwin') or (os.uname()[0] == 'WinNT'):
+     if os.name == 'nt':
+         # iCompile does not support VC8 yet, so explicitly run the project files
+         # using VCExpress
+         return VCExpress('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+    
+     if (os.uname()[0] == 'Darwin') or (os.name == 'nt'):
          # Build jpeg
          if x == 0: x = runicompile('jpeg.lib')
 
-     if (os.uname()[0] == 'WinNT'):
+     if (os.name == 'nt'):
          # Build zlib
          if x == 0: runicompile('zlib.lib')
 
-     if (os.uname()[0] == 'Darwin') or (os.uname()[0] == 'WinNT'):
+     if (os.name == 'nt') or (os.uname()[0] == 'Darwin'):
          # Build png
          if x == 0: x = runicompile('png.lib')
 
@@ -189,9 +200,16 @@ def itest(args):
 ################################################################################
 
 def doc(args):
+
+    v = Version()
+    version = 'version ' + v.major + '.' + v.minor
+    if (v.beta != ''):
+        version += ' beta ' + v.beta
+    version += ' ' + string.join(time.localtime()[0:2], '-')
+
     env = {'HEADER_FILE':    'doc-files/data-files/header.html',
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
-           'PROJECT_NUMBER': 'version 7.00 2006-11-02'}
+           'PROJECT_NUMBER': version}
     run(doxygen, ['Doxyfile'], env)
     copyIfNewer('doc-files/data-files/', 'build/install/html/')
     return 1
@@ -246,36 +264,49 @@ buildg3d - Automated build system for G3D.
 Syntax: 
     buildg3d target [--compiler {vc6|vc7|vc8|xcode|gcc[version]}] [install-dir]
 
-TARGET         DESCRIPTION
+TARGET     DESCRIPTION
 
 help       Display this message
+
 all        Run lib, test, bin, and doc targets
-install    Build all and copy to system directories.  Must be run as root on 'nix
+
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            On platforms for which zlib, png, jpeg, and other 
            libraries do not come with the operating system this
            will also build those libraries.
-data       Copy data-files to build/install/data and the bin directory to build/install/bin
+
+data       Copy data-files to build/install/data and the bin 
+           directory to build/install/bin
+
 test       Build test and testd and then run both
+
 clean      Delete all generated files
+
 doc        Generate documentation using Doxygen
-
-makefile   Generate project/makefiles appropriate to this 
-           environment, but do not run them. (Not supported yet)
-
-Specifying the optional --compiler argument allows you to choose which
-compiler to use for building the library or project/makefiles.  The defaults
-are based on operating system: Xcode for OS X, gcc for Linux and FreeBSD,
-and VC8 for Windows.
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
 
-Note:
+
+NOTE:
 The G3D team is currently evaluating two build systems, CMake and
 iCompile.  The lib, test, clean, and makefile targets may be run with
 either a 'c' or an 'i' prefixed (e.g., clib) to select between the
 build systems.
+
+
+NOT YET SUPPORTED:
+install    Build all and copy to system directories.  Must be run as 
+           root on Linux and FreeBSD and as an administrator on OS X
+
+makefile   Generate project/makefiles appropriate to this 
+           environment, but do not run them.
+
+compiler   Specifying the optional --compiler argument allows 
+           you to choose which compiler to use for building the 
+           library or project/makefiles.  The defaults are based on
+           operating system: Xcode/gcc for OS X, gcc for Linux and 
+           FreeBSD, and VC8 for Windows.
 """
 
 if __name__ == "__main__":
