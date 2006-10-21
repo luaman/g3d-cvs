@@ -202,10 +202,7 @@ def doc(args):
     return 1
 
 def install(args):
-    x = lib(args)
-    if x == 0: x = test(args)
-    if x == 0: x = doc(args)
-    return x
+    return all(args)
 
 def lib(args):
     return ilib(args)
@@ -221,6 +218,13 @@ def bin(args):
     dest = 'build/install/bin/'
     copyIfNewer(source, dest)
     return 0
+
+def all(args):
+    x = lib(args)
+    if x == 0: x = doc(args)
+    if x == 0: x = bin(args)
+    if x == 0: x = test(args)
+    return x
 
 ##################################################################################
 def getCompilerName(args):
@@ -257,9 +261,10 @@ lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
 bin        Copy the bin directory to build/install/bin
 test       Build test and testd and then run both
 clean      Delete all generated files
-makefile   Generate project/makefiles appropriate to this 
-           environment, but do not run them.
 doc        Generate documentation using Doxygen
+
+makefile   Generate project/makefiles appropriate to this 
+           environment, but do not run them. (Not supported yet)
 
 Specifying the optional --compiler argument allows you to choose which
 compiler to use for building the library or project/makefiles.  The defaults
