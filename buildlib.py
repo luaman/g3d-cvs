@@ -394,19 +394,19 @@ def run(program, args = [], env = {}):
 
     print '\n'
 
-    env['PATH'] = os.environ['PATH']
-    env = os.environ
-    #print "Run in :" + os.getcwd()
-    #print env
+    newEnv = {}
+    newEnv.update(os.environ)
+    newEnv.update(env)
+
     if (os.name == 'nt'):
         # Windows doesn't support spawnvp
         if env != {}:
-            exitcode = os.spawnve(os.P_WAIT, program, args, env)
+            exitcode = os.spawnve(os.P_WAIT, program, args, newEnv)
         else:
             exitcode = os.spawnv(os.P_WAIT, program, args)
     else:
         if env != {}:
-            exitcode = os.spawnvpe(os.P_WAIT, program, args, env)
+            exitcode = os.spawnvpe(os.P_WAIT, program, args, newEnv)
         else:
             exitcode = os.spawnvp(os.P_WAIT, program, args)
 

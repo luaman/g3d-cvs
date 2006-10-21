@@ -9,6 +9,8 @@ import sys
 sys.path.append('bin')
 import ice.copyifnewer
 
+doxygen = 'doxygen'
+
 def copyIfNewer(source, dest):
     if platform.system() == 'Windows':
         # Just use the binary for this
@@ -192,7 +194,11 @@ def itest(args):
 ################################################################################
 
 def doc(args):
-    print 'doc target not currently implemented.'
+    env = {'HEADER_FILE':    'doc-files/data-files/header.html',
+           'FOOTER_FILE':    'doc-files/data-files/footer.html',
+           'PROJECT_NUMBER': 'version 7.00 2006-11-02'}
+    run(doxygen, ['Doxyfile'], env)
+    copyIfNewer('doc-files/data-files/', 'build/install/html/')
     return 1
 
 def install(args):

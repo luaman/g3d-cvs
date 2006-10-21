@@ -1,0 +1,165 @@
+/** @page upgrade Upgrade Guide
+
+Notes for upgrading from G3D 6.xx to 7.xx:
+
+<hr noshade>
+<p><b>Accessors (functions with "get" in the name)</b></p>
+<p>
+All 6.xx functions with "get" in the name that accepted no arguments were renamed to just 
+the part of the name after "get".  Example: G3D::CoordinateFrame::getLookVector is now G3D::CoordinateFrame::lookVector
+You will see errors like:
+<code>error C2039: 'getLookVector' : is not a member of 'CoordinateFrame'</code>
+</p>
+
+
+<hr noshade>
+<p><b>Can't find X11/Xlib.h</b></p>
+<p>
+Delete your ~/.icompile file; the newest version of iCompile (0.5.0) is not compatible with
+the old files.
+</p>
+
+<hr noshade>
+<p><b>ALL CAPS Vector, Color, Matrix constants</b></p>
+<p>
+The all-caps constants have been renamed to lower-case static functions.
+Example: G3D::Color3::RED is now G3D::Color3::red().
+You will see errors like:
+<code>error C2039: 'WHITE' : is not a member of 'Color3'</code>
+</p>
+
+
+<hr noshade>
+<p><b>G3D::NetMessage is gone</b></p>
+<p>
+G3D::ReliableConduit::send, G3D::ReliableConduit::receive, G3D::LightweightConduit::send, and
+G3D::LightweightConduit::receive now accept any class that has <code>serialize</code> and <code>deserialize</code>
+methods.  There is no need for a NetMessage base class.  To replace this now unnecessary base class, you can add 
+the following to your program:
+<br><code>namespace G3D { class NetMessage { public: virtual ~NetMessage(); };}</code>
+</p>
+
+
+<hr noshade>
+<p><b>Network send with no arguments is gone</b></p>
+<p>
+You must now send at least a message type; you cannot send a message with no content.
+</p>
+
+
+<hr noshade>
+<p><b>GApplet methods not called/compile time errors</b></p>
+<p>
+The names of the GApplet methods changed, e.g., from "doGraphics" to "onGraphics".  The old method names have been
+configured to create compile time errors to help you catch bugs.  These will appear as:
+<br>
+<code>error C2555: 'Browse::doGraphics' : overriding virtual function differs from 'G3D::GApplet::doGraphics' only by return type or calling convention</code>
+</p>
+
+
+<hr noshade>
+<p><b>Renamings</b></p>
+<p>
+<table>
+<tr><td><B>6.xx</b></td><td><b>7.xx</b></td></tr>
+<tr><td>G3D::crc32</td><td>G3D::Crypto::crc32</td></tr>
+<tr><td>G3D::CFont</td><td>G3D::GFont</td></tr>
+<tr><td>G3D::CImage</td><td>G3D::GImage</td></tr>
+<tr><td>G3D::CImage</td><td>G3D::GImage</td></tr>
+<tr><td>G3D::System::getTick</td><td>G3D::System::time</td></tr>
+<tr><td>G3D::System::getLocalTime</td><td>G3D::System::getLocalTime</td></tr>
+<tr><td>G3D::Color3::WHITE</td><td>G3D::Color3::white</td></tr>
+<tr><td>G3D::Vector3::ZERO</td><td>G3D::Vector3::zero</td></tr>
+<tr><td>G3D::Vector3::UNIT_Y</td><td>G3D::Vector3::unitY</td></tr>
+<tr><td>G3D::random</td><td>G3D::uniformRandom()</td></tr>
+<tr><td>G3D_PI</td><td>G3D::pi()</td></tr>
+<tr><td>G3D_HALF_PI</td><td>G3D::halfPi()</td></tr>
+<tr><td>G3D_TWO_PI</td><td>G3D::twoPi()</td></tr>
+<tr><td>G3D::RenderDevice::supportsTextureFormat</td><td>GLCaps::supports</td></tr>
+<tr><td>G3D::FirstPersonManipulator::doSimulation</td><td>G3D::FirstPersonManipulator::onSimulation</td></tr>
+<tr><td>G3D::GApplet::doGraphics</td><td>G3D::GApplet::onGraphics</td></tr>
+<tr><td>G3D::GApplet::doNetwork</td><td>G3D::GApplet::onNetwork</td></tr>
+<tr><td>G3D::GApplet::doLogic</td><td>G3D::GApplet::onLogic</td></tr>
+<tr><td>G3D::GApplet::cleanup</td><td>G3D::GApplet::onCleanup</td></tr>
+<tr><td>G3D::computeNormalMap</td><td>G3D::GImage::computeNormalMap</td></tr>
+<tr><td>G3D::Box::getCorner</td><td>G3D::Box::corner</td></tr>
+<tr><td>G3D::Sky::create</td><td>G3D::Sky::fromFile</td></tr>
+<tr><td>G3D::UserInput::appHasFocus</td><td>G3D::GWindow::hasFocus</td></tr>
+<tr><td>G3D::PosedModelWrapper</td><td>contrib/PosedModelWrapper</td></tr>
+<tr><td>G3D::TextureManager</td><td>contrib/TextureManager</td></tr>
+<tr><td>G3D::GAppSettings</td><td>G3D::GApp::Settings</td></tr>
+<tr><td>G3D::Texture::Parameters</td><td>G3D::Texture::Settings</td></tr>
+<tr><td>G3D::Texture::maxAnisotropy</td><td>G3D::Texture::settings().maxAnisotropy</td></tr>
+<tr><td>G3D::Texture::getInterpolateMode</td><td>G3D::Texture::settings().interpolateMode</td></tr>
+<tr><td>G3D::Texture::getWrapMode</td><td>G3D::Texture::settings().wrapMode</td></tr>
+<tr><td>G3D::Texture::wrapMode</td><td>G3D::Texture::settings().wrapMode</td></tr>
+<tr><td>G3D::Texture::parameters</td><td>G3D::Texture::settings</td></tr>
+<tr><td>G3D::GWindowSettings</td><td>G3D::GWindow::Settings</td></tr>
+<tr><td>G3D::Texture::NO_INTERPOLATION</td><td>G3D::Texture::NEAREST_NO_MIPMAP</td></tr>
+<tr><td>G3D::MD2Model::create</td><td>G3D::MD2Model::fromFile</td></tr>
+<tr><td>G3D::MeshAlg::Edge::broken</td><td>G3D::MeshAlg::Edge::boundary</td></tr>
+
+</table>
+</p>
+
+<hr noshade>
+<p><b>GApp::debugController is now a reference</b></p>
+<p>
+This means that <code>app->debugController.setActive</code> etc. calls are now <code>app->debugController->setActive</code>.
+</p>
+
+<hr noshade>
+<p><b>c:\program files\microsoft visual studio\vc98\include\winsock2.h(99) : error C2011: 'fd_set' : 'struct' type redefinition</b></p>
+<p>
+G3D (since 6.09) uses WinSock 2.0 on Windows.  Unfortunately, this is incompatible with WinSock 1.1, which is included by windows.h.
+So you have to EITHER:
+
+<ul>
+<li> always include graphics3d.h before windows.h (note that graphics3d.h includes windows.h, so you don't need your own include
+for windows.h) OR
+<li> edit g3d/NetAddress.h <code>#define G3D_WINSOCK_MAJOR_VERSION 2 / #define G3D_WINSOCK_MINOR_VERSION 0</code> to choose version 1.1 OR
+<li> Change your Windows include to 
+  <pre>
+   #define _WINSOCKAPI_
+   #include <windows.h>
+   #undef _WINSOCKAPI_
+  </pre>
+</ul>
+
+</p>
+
+
+<hr noshade>
+<p><b>PhysicsFrame::integrate is gone</b></p>
+<p>
+These functions have been removed to avoid ambiguity.  The old implementations were:
+<pre>
+
+PhysicsFrame PhysicsFrame::integrate(
+    float                   t,
+    const PhysicsFrame&     dx) {
+
+    PhysicsFrame result;
+
+    result.translation = translation + t * dx.translation;
+    result.rotation    = rotation * dx.rotation.pow(t); 
+
+    return result;
+}
+
+
+PhysicsFrame PhysicsFrame::integrate(
+    float                   t,
+    const PhysicsFrame&     dx,
+    const PhysicsFrame&     ddx) {
+
+    PhysicsFrame result;
+    result.translation = translation + t * dx.translation + t * t * ddx.translation;
+    result.rotation    = rotation * dx.rotation.pow(t) * ddx.rotation.pow(t * t);
+
+    return result;
+}
+</pre>
+</p>
+
+*/
