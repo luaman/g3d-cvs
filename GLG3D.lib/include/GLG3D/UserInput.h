@@ -20,10 +20,11 @@
 #else
 #include <SDL.h>
 #endif
-// Setup the "main" linkage if not using SDL_main
-#if (defined(G3D_WIN32) && (defined(NO_SDL_MAIN) || defined(_CONSOLE))) && defined(main)
+
+#if (defined(main) && ! defined(G3D_WIN32))
 #   undef main
 #endif
+
 
 
 #include "GLG3D/GWindow.h"

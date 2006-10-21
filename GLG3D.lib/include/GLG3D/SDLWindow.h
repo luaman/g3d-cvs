@@ -26,9 +26,10 @@ class NSAutoreleasePoolWrapper;
 #include <SDL_syswm.h>
 #endif
 
-#if (defined(main) && ! (defined(G3D_WIN32) && (! defined(NO_SDL_MAIN) && ! defined(_CONSOLE))))
+#if (defined(main) && ! defined(G3D_WIN32))
 #   undef main
 #endif
+
 
 
 namespace G3D {

@@ -50,8 +50,9 @@ void testMatrix3() {
         Vector3 x2 = M.transpose() * v;
 
         debugAssert(x1 == x2);
-
     }
+
+    Matrix3 test = Matrix3::fromAxisAngle(Vector3(1.0f, 1.0f, 1.0f), 0.9f);
 
 
     printf("passed\n");
