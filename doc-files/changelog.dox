@@ -38,6 +38,7 @@
 	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
 	 <li> Removed static constants (use equivalent lower-case methods)
 	 <li> Removed Cylinder::getPoint1 (use point)
+	 <li> Fix: [ 1581986 ] Matrix3::fromAxisAngle now normalizes the input vector
      <li> Fix: [1490643] Linux/FreeBSD/OS X binaries are now compiled with -fno-strict-aliasing, which fixes some
           memory corruption problems that occurred with full optimizations.
 	 <li> Fix: Fixed all warnings on gcc-4.1 and VC8.

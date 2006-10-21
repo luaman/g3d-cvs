@@ -34,7 +34,12 @@ static void testEuler() {
 void testMatrix3() {
     printf("G3D::Matrix3  ");
 
-    testEuler();
+    Vector3 axis  = Vector3(1.0f, 1.0f, 1.0f);
+    float   angle = 1.0f;
+    Matrix3 test( Matrix3::fromAxisAngle(axis, angle) );
+    debugAssert(fuzzyEq(test.determinant(), 1.0f));
+
+    //testEuler();
 
     {
         Matrix3 M = Matrix3::identity();
@@ -51,9 +56,6 @@ void testMatrix3() {
 
         debugAssert(x1 == x2);
     }
-
-    Matrix3 test = Matrix3::fromAxisAngle(Vector3(1.0f, 1.0f, 1.0f), 0.9f);
-
 
     printf("passed\n");
 }

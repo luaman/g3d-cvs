@@ -1117,9 +1117,10 @@ void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
 }
 
 //----------------------------------------------------------------------------
-Matrix3 Matrix3::fromAxisAngle (const Vector3& rkAxis, float fRadians) {
-    Matrix3 m;
+Matrix3 Matrix3::fromAxisAngle (const Vector3& axis, float fRadians) {
+    Vector3 rkAxis = axis.direction();
 
+    Matrix3 m;
     float fCos = cos(fRadians);
     float fSin = sin(fRadians);
     float fOneMinusCos = 1.0 - fCos;
