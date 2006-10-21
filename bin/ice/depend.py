@@ -4,8 +4,8 @@
 # Manages .icompile and ice.txt
 #
 
-from variables import *
 from utils import *
+from variables import *
 from sets import Set
 from library import *
 from doticompile import *
@@ -82,8 +82,9 @@ def getObjectFilename(state, sourceFile):
    relative to the "rootDir" dir.
 
    May modify the default compiler and linker options
+   
    """
-def getDependencies(state, file, iteration = 1):
+def getDependencies(state, file, verbosity, iteration = 1):
         
     # We need to use the -msse2 flad during dependency checking because of the way
     # xmmintrin.h is set up
@@ -93,7 +94,7 @@ def getDependencies(state, file, iteration = 1):
     raw = shell(state.compiler + ' -M -msse2 -MG ' +
                 string.join(getCompilerOptions(state, []), ' ') + ' ' + file,
                 verbosity >= VERBOSE)
-
+    
     if verbosity >= TRACE:
         print raw
 
@@ -131,7 +132,7 @@ def getDependencies(state, file, iteration = 1):
                 state.compilerOptions.append(shell('wx-config --cxxflags', verbosity >= VERBOSE))
                 state.linkerOptions.append(shell('wx-config --gl-libs --libs', verbosity >= VERBOSE))
                 
-        return getDependencies(state, file, iteration + 1)
+        return getDependencies(state, file, verbosity,  iteration + 1)
 
     else:
 
@@ -188,8 +189,7 @@ def getDependencies(state, file, iteration = 1):
  list and restart the process if it appears that some include
  directory is missing.
 """
-def getDependencyInformation(state):
-    
+def getDependencyInformation(state, verbosity):
     # Hash table mapping C files to the list of all files
     # on which they depend.
     dependencies = {}
@@ -209,7 +209,7 @@ def getDependencyInformation(state):
 
         # Do not use warning or verbose options for this; they
         # would corrupt the output.
-        dlist = getDependencies(state, cfile)
+        dlist = getDependencies(state, cfile, verbosity)
 
         # Update the dependency set
         for d in dlist: 

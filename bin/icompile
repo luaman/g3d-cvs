@@ -22,11 +22,11 @@ from sets import Set
 from platform import machine
 from string import ljust
 
+from ice.utils import *
 from ice.depend import *
 from ice.help import *
 from ice.variables import *
 from ice.doticompile import *
-from ice.utils import *
 from ice.doxygen import *
 from ice.library import *
 import ice.copyifnewer
@@ -376,7 +376,7 @@ def buildBinary(state):
     mkdir(state.objDir, verbosity >= VERBOSE)
 
     if verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
-    (cfiles, dependencies, files, parents) = getDependencyInformation(state)
+    (cfiles, dependencies, files, parents) = getDependencyInformation(state, verbosity)
 
     if verbosity >= TRACE: 
         print '\nBefore identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
@@ -475,7 +475,7 @@ def separateArgs(args):
 #########################################################################
 """ Called from runCompile to launch the program on completion.  Returns
     the program's exit code. """
-def runCompiledProgram(progArgs):
+def runCompiledProgram(state, progArgs):
     printBar()
     curDir = os.getcwd()
     os.chdir(state.binaryDir)
@@ -489,7 +489,7 @@ def runCompiledProgram(progArgs):
 
 """ Called from runCompile to launch the program on completion.  Returns
     the program's exit code. """
-def gdbCompiledProgram(progArgs):
+def gdbCompiledProgram(state, progArgs):
     # Write out the 'run' command to a file since gdb doesn't
     # accept it on the command line.
     commandFile = state.tempDir + 'gdb-commands.txt'
@@ -676,10 +676,10 @@ def main(state, args, progArgs, doGDB, doRun):
         maybePrintBar()
     
     if doGDB:
-        return gdbCompiledProgram(progArgs)
+        return gdbCompiledProgram(state, progArgs)
 
     if doRun:
-        return runCompiledProgram(progArgs)
+        return runCompiledProgram(state, progArgs)
 
     if not (doGDB or doRun) and (verbosity >= NORMAL):
         if state.binaryType == EXE:
