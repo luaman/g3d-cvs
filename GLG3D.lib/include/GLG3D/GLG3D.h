@@ -21,13 +21,25 @@
 // Set up the linker on Windows
 #ifdef G3D_WIN32
 
-    #pragma comment(lib, "opengl32.lib")
-    #pragma comment(lib, "glu32.lib")
-
-    #pragma comment(lib, "sdl.lib")
+    #pragma comment(lib, "ole32")
+    #pragma comment(lib, "opengl32")
+    #pragma comment(lib, "glu32")
+    #pragma comment(lib, "sdl")
 
     #if !defined(NO_SDL_MAIN) && !defined(_CONSOLE)
-        #pragma comment(lib, "sdlmain.lib")
+        #pragma comment(lib, "sdlmain")
+    #endif
+
+    #ifdef _DEBUG
+        // Don't link against G3D when building G3D itself.
+        #ifndef G3D_BUILDING_LIBRARY_DLL
+           #pragma comment(lib, "GLG3Dd")
+        #endif
+    #else
+        // Don't link against G3D when building G3D itself.
+        #ifndef G3D_BUILDING_LIBRARY_DLL
+            #pragma comment(lib, "GLG3D")
+        #endif
     #endif
 #endif
 

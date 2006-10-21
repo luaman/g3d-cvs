@@ -104,6 +104,17 @@
     #pragma comment(lib, "advapi32")
     #pragma comment(lib, "png")
     #pragma comment(lib, "jpeg")
+    #ifdef _DEBUG
+        // Don't link against G3D when building G3D itself.
+        #ifndef G3D_BUILDING_LIBRARY_DLL
+           #pragma comment(lib, "G3Dd.lib")
+        #endif
+    #else
+        // Don't link against G3D when building G3D itself.
+        #ifndef G3D_BUILDING_LIBRARY_DLL
+            #pragma comment(lib, "G3D.lib")
+        #endif
+    #endif
 #endif
 
 #endif
