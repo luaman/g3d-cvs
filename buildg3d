@@ -196,6 +196,14 @@ def doc(args):
     copyIfNewer('doc-files/data-files/', 'build/install/html/')
     return 1
 
+def data(args):
+    source = 'bin/'
+    dest = 'build/install/bin/'
+    copyIfNewer(source, dest)
+    
+    copyIfNewer('data-files/', 'build/install/data/')
+    return 0
+
 def install(args):
     return all(args)
 
@@ -208,16 +216,10 @@ def clean(args):
 def test(args):
     return itest(args)
 
-def bin(args):
-    source = 'bin/'
-    dest = 'build/install/bin/'
-    copyIfNewer(source, dest)
-    return 0
-
 def all(args):
     x = lib(args)
     if x == 0: x = doc(args)
-    if x == 0: x = bin(args)
+    if x == 0: x = data(args)
     if x == 0: x = test(args)
     return x
 
@@ -253,7 +255,7 @@ lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            On platforms for which zlib, png, jpeg, and other 
            libraries do not come with the operating system this
            will also build those libraries.
-bin        Copy the bin directory to build/install/bin
+data       Copy data-files to build/install/data and the bin directory to build/install/bin
 test       Build test and testd and then run both
 clean      Delete all generated files
 doc        Generate documentation using Doxygen
@@ -281,4 +283,4 @@ if __name__ == "__main__":
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
          ilib, iclean, itest,
-         doc, install, bin, all], buildHelp))
+         doc, install, all, data], buildHelp))
