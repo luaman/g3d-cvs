@@ -55,10 +55,6 @@ inline int prompt(
 
 /**
  Displays a GUI prompt with "Ok" as the only choice.
- @deprecated 
- <B>Note:</B> SDL 1.2.6 interferes with this and causes it to return
- immediately.  If you use SDL, use SDL 1.2.5, which does not have that
- problem.
  */
 void msgBox(
     const std::string& message,
