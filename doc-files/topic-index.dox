@@ -30,6 +30,7 @@
     G3D::GApp, 
     G3D::GApplet, 
     G3D::GAppSettings,
+    G3D::GConsole,
     G3D::GModule,
     G3D::GModuleManager
     G3D::Manipulator,
