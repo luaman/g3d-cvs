@@ -12,24 +12,9 @@
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
 #include "G3D/Array.h"
-
-// For SDL_Event
-#if defined(G3D_OSX)
-#include <SDL/SDL_events.h>
-#elif defined(G3D_WIN32)
-#include <SDL_events.h>
-#else
-#include <SDL.h>
-#endif
-
-#if (defined(main) && ! defined(G3D_WIN32))
-#   undef main
-#endif
+#include "GLG3D/GEvent.h"
 
 namespace G3D {
-
-/** @deprecated To be replaced in 7.00 with a new implementation. */
-typedef SDL_Event GEvent;
 
 class Rect2D;
 

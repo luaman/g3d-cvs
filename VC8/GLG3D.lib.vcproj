@@ -357,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GEvent.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GFont.h"
 				>
 			</File>

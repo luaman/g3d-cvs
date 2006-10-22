@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-04-13
-  @edited  2005-02-24
+  @edited  2006-10-24
 */
 
 #include "GLG3D/GPUProgram.h"
@@ -15,7 +15,6 @@
 #include "G3D/platform.h"
 #include "G3D/fileutils.h"
 #include "G3D/Log.h"
-#include "G3D/g3derror.h"
 #include "GLG3D/RenderDevice.h"
 
 #if defined(_MSC_VER) && !defined(_NDEBUG)

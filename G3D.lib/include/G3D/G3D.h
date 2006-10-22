@@ -49,7 +49,6 @@
 #include "G3D/Quat.h"
 #include "G3D/stringutils.h"
 #include "G3D/prompt.h"
-#include "G3D/g3derror.h"
 #include "G3D/Table.h"
 #include "G3D/Set.h"
 #include "G3D/BinaryFormat.h"

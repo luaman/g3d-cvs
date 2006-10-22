@@ -24,11 +24,6 @@
     #pragma comment(lib, "ole32")
     #pragma comment(lib, "opengl32")
     #pragma comment(lib, "glu32")
-    #pragma comment(lib, "sdl")
-
-    #if !defined(NO_SDL_MAIN) && !defined(_CONSOLE)
-        #pragma comment(lib, "sdlmain")
-    #endif
 
     #ifdef _DEBUG
         // Don't link against G3D when building G3D itself.

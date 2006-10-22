@@ -12,6 +12,7 @@
    <P>
    Changes in 7.00:
    <ul>
+     <li> Removed SDL from Win32 build
      <li> Removed error macro
      <li> G3D::GConsole
      <li> getOpenGLState now includes GL_LIGHT_MODEL_TWO_SIDE value

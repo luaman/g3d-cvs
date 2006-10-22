@@ -406,6 +406,10 @@
 				RelativePath="..\G3D.lib\source\Vector4.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\G3D.lib\source\WinMain.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

@@ -15,17 +15,17 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2006-08-17
+  @edited  2006-10-17
  */
 
 #include "G3D/platform.h"
 #include "G3D/System.h"
 #include "G3D/debug.h"
-#include "G3D/g3derror.h"
 #include "G3D/fileutils.h"
 #include "G3D/TextOutput.h"
 #include "G3D/G3DGameUnits.h"
 #include "G3D/Crypto.h"
+#include "G3D/prompt.h"
 
 #ifdef G3D_WIN32
 

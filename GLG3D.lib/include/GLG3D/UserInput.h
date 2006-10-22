@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2002-09-28
-  @edited  2006-02-28
+  @edited  2006-10-20
  */
 
 #ifndef G3D_USERINPUT_H
@@ -14,19 +14,6 @@
 #include "G3D/Array.h"
 #include "G3D/Table.h"
 #include "G3D/Vector2.h"
-
-#if (defined(G3D_OSX))
-#include <SDL/SDL_events.h>
-#else
-#include <SDL.h>
-#endif
-
-#if (defined(main) && ! defined(G3D_WIN32))
-#   undef main
-#endif
-
-
-
 #include "GLG3D/GWindow.h"
 
 namespace G3D {
@@ -75,12 +62,7 @@ enum CustomKeyCode {
     userInput->endEvents();
    </PRE>
 
-    
-    Note that UserInput uses the SDLEvent structures (defined in SDL.h), but not
-    the SDL <B>library</B>.  This means you can write your own G3D::GWindow subclass 
-    that translates platform events into SDL_Events and not use SDL.dll at all.
-
-  See http://www.libsdl.org/cgi/docwiki.cgi/SDLKey for a list of all SDL key codes.
+  See http://www.libsdl.org/cgi/docwiki.cgi/SDLKey for a list of all key codes.
   %G3D also provides the extended values from G3D::CustomKeyCode.
 */
 class UserInput {
