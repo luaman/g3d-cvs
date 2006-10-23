@@ -17,7 +17,6 @@
 #ifndef G3D_WIN32
 
 #include "G3D/Log.h"
-#include "G3D/g3derror.h"
 #include "G3D/Rect2D.h"
 #include "GLG3D/SDLWindow.h"
 #include "GLG3D/glcalls.h"
@@ -208,16 +207,11 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
         (settings.resizable ? SDL_RESIZABLE : 0) |
         (settings.framed ? 0 : SDL_NOFRAME);
 
-	if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
+    if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
         debugAssert(false);
-        Log::common()->printf("Unable to create OpenGL screen: %s\n", 
-                              SDL_GetError());
-		error("Critical Error", 
-              format("Unable to create OpenGL screen: %s\n", 
-                     SDL_GetError()).c_str(), true);
-		SDL_Quit();
-		exit(2);
-	}
+        Log::common()->printf("Unable to create OpenGL screen: %s\n", SDL_GetError());
+        alwaysAssertM(false, "Unable to create OpenGL screen");
+    }
 
     // See what video mode we really got
     _settings = settings;
