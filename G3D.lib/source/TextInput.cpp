@@ -6,7 +6,7 @@
  @cite Based on a lexer written by Aaron Orenstein. 
  
  @created 2001-11-27
- @edited  2006-01-10
+ @edited  2006-10-24
  */
 
 #include "G3D/TextInput.h"
@@ -20,6 +20,49 @@
 #endif
 
 namespace G3D {
+
+double Token::number() const {
+    if (_type == NUMBER) {
+        std::string s = toLower(_string);
+        if (s == "-1.#ind00") {
+            return nan();
+        }
+
+        if (s == "1.#inf00") {
+            return inf();
+        }
+
+        if (s == "-1.#inf00") {
+            return -inf();
+        }
+
+        double n;
+        if ((_string.length() > 2) &&
+            (_string[0] == '0') &&
+            (_string[1] == 'x')) {
+            // Hex
+            uint32 i;
+            sscanf(_string.c_str(), "%x", &i);
+            n = i;
+        } else {
+            sscanf(_string.c_str(), "%lg", &n);
+        }
+        return n;
+    } else {
+        return 0.0;
+    }
+}
+
+
+TextInput::Settings::Settings ()
+   : cComments(true), cppComments(true), escapeSequencesInStrings(true), 
+     otherCommentCharacter('\0'), otherCommentCharacter2('\0'),
+     signedNumbers(true), singleQuotedStrings(true), sourceFileName(),
+     startingLineNumberOffset(0), msvcSpecials(true), caseSensitive(true)
+{ 
+    trueSymbols.insert("true");
+    falseSymbols.insert("false");
+}
 
 
 Token TextInput::peek() {
@@ -49,6 +92,27 @@ Token TextInput::read() {
         return t;
     } else {
         return nextToken();
+    }
+}
+
+static void toUpper(Set<std::string>& set) {
+    Array<std::string> symbols;
+    set.getMembers(symbols);
+    set.clear();
+    for (int i = 0; i < symbols.size(); ++i) {
+        set.insert(toUpper(symbols[i]));
+    }
+}
+
+void TextInput::init() {
+    currentCharOffset = 0;
+    charNumber = 1;
+    lineNumber = 1 + options.startingLineNumberOffset;
+
+    if (! options.caseSensitive) {
+        // Convert true and false symbols to all uppercase for fast comparisons
+        toUpper(options.trueSymbols);
+        toUpper(options.falseSymbols);
     }
 }
 
@@ -186,7 +250,7 @@ Token TextInput::nextToken() {
     // string to start with 'c'), eats the input character, and overwrites
     // 'c' with the peeked next input character.
 #define SETUP_SYMBOL(c)                                                         \
-    {                                                                        \
+    {                                                                           \
         t._type = Token::SYMBOL;                                                \
         t._extendedType = Token::SYMBOL_TYPE;                                   \
         t._string = c;                                                          \
@@ -400,7 +464,11 @@ numLabel:
                     // We are reading a floating point special value
                     // of the form -1.#IND00, -1.#INF00, or 1.#INF00
                     c = eatAndPeekInputChar();
-                    if (c != 'I') {
+                    char test = c;
+                    if (! options.caseSensitive) {
+                        test = toupper(c);
+                    }
+                    if (test != 'I') {
                         throw BadMSVCSpecial
                             (
                              "Incorrect floating-point special (inf or nan) "
@@ -408,7 +476,11 @@ numLabel:
                             t.line(), charNumber);
                     }
                     c = eatAndPeekInputChar();
-                    if (c != 'N') {
+                    test = c;
+                    if (! options.caseSensitive) {
+                        test = toupper(c);
+                    }
+                    if (test != 'N') {
                         throw BadMSVCSpecial
                             (
                              "Incorrect floating-point special (inf or nan) "
@@ -417,7 +489,11 @@ numLabel:
                     }
                     t._string += "#IN";
                     c = eatAndPeekInputChar();
-                    if ((c != 'F') && (c != 'D')) {
+                    test = c;
+                    if (! options.caseSensitive) {
+                        test = toupper(c);
+                    }
+                    if ((test != 'F') && (test != 'D')) {
                         throw BadMSVCSpecial
                             (
                              "Incorrect floating-point special (inf or nan) "
@@ -477,6 +553,23 @@ numLabel:
             t._string += c;
             c = eatAndPeekInputChar();
         } while (isLetter(c) || isDigit(c) || (c == '_'));
+
+        // See if this symbol is actually a boolean
+        if ((options.trueSymbols.size() > 0) || (options.falseSymbols.size() > 0)) {
+            std::string str = t._string;
+            if (options.caseSensitive) {
+                str = toUpper(str);
+            }
+            if (options.trueSymbols.contains(str)) {
+               t._type = Token::BOOLEAN;
+               t._extendedType = Token::BOOLEAN_TYPE;
+               t._bool = true;
+            } else if (options.falseSymbols.contains(str)) {
+               t._type = Token::BOOLEAN;
+               t._extendedType = Token::BOOLEAN_TYPE;
+               t._bool = false;
+            }
+        }
 
         return t;
 
@@ -589,6 +682,20 @@ void TextInput::parseQuotedString(unsigned char delimiter, Token& t) {
     }
 }
 
+bool TextInput::readBoolean() {
+    Token t(read());
+
+    if (t._type == Token::BOOLEAN) {
+        return t.boolean();
+    }
+
+    // Push initial token back, and throw an error.  We intentionally
+    // indicate that the wrong type is the type of the initial token.
+    // Logically, the number started there.
+    push(t);
+    throw WrongTokenType(options.sourceFileName, t.line(), t.character(),
+                         Token::BOOLEAN, t._type); 
+}
 
 double TextInput::readNumber() {
     Token t(read());
@@ -688,7 +795,7 @@ void TextInput::readSymbol(const std::string& symbol) {
 }
 
 
-TextInput::TextInput(const std::string& filename, const Options& opt) : options(opt) {
+TextInput::TextInput(const std::string& filename, const Settings& opt) : options(opt) {
     init();
     BinaryInput input(filename, G3D_LITTLE_ENDIAN);
     if (options.sourceFileName.empty()) {
@@ -700,7 +807,7 @@ TextInput::TextInput(const std::string& filename, const Options& opt) : options(
 }
 
 
-TextInput::TextInput(FS fs, const std::string& str, const Options& opt) : options(opt) {
+TextInput::TextInput(FS fs, const std::string& str, const Settings& opt) : options(opt) {
     (void)fs;
     init();
     if (options.sourceFileName.empty()) {

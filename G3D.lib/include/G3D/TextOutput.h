@@ -3,9 +3,9 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-06-21
-  @edited  2005-11-05
+  @edited  2006-10-24
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
  */
 
@@ -60,7 +60,7 @@ namespace G3D {
 class TextOutput {
 public:
 
-    class Options {
+    class Settings {
     public:
         /** 
           WRAP_NONE             Word wrapping is disabled
@@ -98,12 +98,20 @@ public:
             how they start out. Default: true. */
         bool                convertNewlines;
 
-        Options() :
+        /** Used by writeBoolean */
+        std::string         trueSymbol;
+
+        /** Used by writeBoolean */
+        std::string         falseSymbol;
+
+        Settings() :
             wordWrap(WRAP_WITHOUT_BREAKING),
             allowWordWrapInsideDoubleQuotes(false),
             numColumns(80),
             spacesPerIndent(4),
-            convertNewlines(true) {
+            convertNewlines(true),
+            trueSymbol("true"),
+            falseSymbol("false") {
             #ifdef G3D_WIN32
                 newlineStyle = NEWLINE_WINDOWS;
             #else
@@ -135,7 +143,7 @@ private:
 
     Array<char>             data;
 
-    Options                 option;
+    Settings                option;
 
     /** Number of indents to prepend before each line.  Always set using setIndentLevel.*/
     int                     indentLevel;
@@ -148,7 +156,7 @@ private:
     /** the newline character(s) */
     std::string             newline;
 
-    void setOptions(const Options& _opt);
+    void setOptions(const Settings& _opt);
 
     /** Converts to the desired newlines.  Called from vprintf */
     void convertNewlines(const std::string& in, std::string& out);
@@ -162,10 +170,10 @@ private:
 
 public:
 
-    explicit TextOutput(const std::string& filename, const Options& options = Options());
+    explicit TextOutput(const std::string& filename, const Settings& options = Settings());
 
     /** Constructs a text output that can later be commited to a string instead of a file.*/
-    explicit TextOutput(const Options& options = Options());
+    explicit TextOutput(const Settings& options = Settings());
 
     /** Commit to the filename specified on the constructor. 
          <B>Not</B> called from the destructor; you must call
@@ -188,6 +196,8 @@ public:
     /** Writes a quoted string. Special characters in the string (e.g., \, \t, \n) are escaped so that 
         TextInput will produce the identical string on reading.*/
     void writeString(const std::string& string);
+
+    void writeBoolean(bool b);
 
     void writeNumber(double n);
 

@@ -15,7 +15,7 @@
 
 namespace G3D {
 
-TextOutput::TextOutput(const TextOutput::Options& opt) :
+TextOutput::TextOutput(const TextOutput::Settings& opt) :
 	startingNewLine(true),
     currentColumn(0),
 	inDQuote(false),
@@ -26,7 +26,7 @@ TextOutput::TextOutput(const TextOutput::Options& opt) :
 }
 
 
-TextOutput::TextOutput(const std::string& fil, const TextOutput::Options& opt) :
+TextOutput::TextOutput(const std::string& fil, const TextOutput::Settings& opt) :
     startingNewLine(true),
     currentColumn(0),
 	inDQuote(false),
@@ -50,14 +50,14 @@ void TextOutput::setIndentLevel(int i) {
 }
 
 
-void TextOutput::setOptions(const Options& _opt) {
+void TextOutput::setOptions(const Settings& _opt) {
     option = _opt;
 
     debugAssert(option.numColumns > 1);
 
     setIndentLevel(indentLevel);
 
-    newline = (option.newlineStyle == Options::NEWLINE_WINDOWS) ? "\r\n" : "\n";
+    newline = (option.newlineStyle == Settings::NEWLINE_WINDOWS) ? "\r\n" : "\n";
 }
 
 
@@ -110,6 +110,10 @@ void TextOutput::writeString(const std::string& string) {
     this->printf("\"%s\"", escape(string).c_str());
 }
 
+
+void TextOutput::writeBoolean(bool b) {
+    this->printf("%s ", b ? option.trueSymbol.c_str() : option.falseSymbol.c_str());
+}
 
 void TextOutput::writeNumber(double n) {
     this->printf("%f ", n);
@@ -204,7 +208,7 @@ void TextOutput::wordWrapIndentAppend(const std::string& str) {
     // TODO: keep track of the last space character we saw so we don't
     // have to always search.
 
-    if ((option.wordWrap == Options::WRAP_NONE) ||
+    if ((option.wordWrap == Settings::WRAP_NONE) ||
         (currentColumn + (int)str.size() <= option.numColumns)) {
         // No word-wrapping is needed
 
@@ -272,14 +276,14 @@ void TextOutput::wordWrapIndentAppend(const std::string& str) {
             if (k == maxLookBackward) {
                 // We couldn't find a series of spaces
 
-                if (option.wordWrap == Options::WRAP_ALWAYS) {
+                if (option.wordWrap == Settings::WRAP_ALWAYS) {
                     // Strip the last character we wrote, force a newline,
                     // and replace the last character;
                     data.pop();
                     writeNewline();
                     indentAppend(str[i]);
                 } else {
-                    // Must be Options::WRAP_WITHOUT_BREAKING
+                    // Must be Settings::WRAP_WITHOUT_BREAKING
                     //
                     // Don't write the newline; we'll come back to
                     // the word wrap code after writing another character

@@ -12,6 +12,9 @@
    <P>
    Changes in 7.00:
    <ul>
+     <li> G3D::TextInput::Settings::caseSensitive
+     <li> G3D::TextInput::readBoolean, G3D::TextInput::Settings::trueSymbols, G3D::TextInput::Settings::falseSymbols, G3D::TextOutput::Settings::trueSymbol, G3D::TextOutput::Settings::falseSymbol, G3D::TextOutput::writeBoolean, G3D::Token::BOOLEAN_TYPE
+     <li> G3D::TextInput::Settings::msvcSpecials now defaults to true
      <li> Removed SDL from Win32 build
      <li> Removed error macro
      <li> G3D::GConsole

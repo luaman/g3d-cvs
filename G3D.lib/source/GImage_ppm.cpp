@@ -19,10 +19,10 @@ void GImage::encodePPMASCII(
 
     debugAssert(channels == 3);
 
-    TextOutput::Options ppmOptions;
+    TextOutput::Settings ppmOptions;
     ppmOptions.convertNewlines = false;
     ppmOptions.numColumns = 70;
-    ppmOptions.wordWrap = TextOutput::Options::WRAP_WITHOUT_BREAKING;
+    ppmOptions.wordWrap = TextOutput::Settings::WRAP_WITHOUT_BREAKING;
     TextOutput ppm(ppmOptions);
     // Always write out a full-color ppm
     ppm.printf("P3\n%d %d\n255\n", width, height);
@@ -64,7 +64,7 @@ void GImage::decodePPMASCII(
 
     const std::string inputStr = input.readString();
 
-    TextInput::Options ppmOptions;
+    TextInput::Settings ppmOptions;
     ppmOptions.cppComments = false;
     ppmOptions.otherCommentCharacter = '#';
     ppmOptions.signedNumbers = true;

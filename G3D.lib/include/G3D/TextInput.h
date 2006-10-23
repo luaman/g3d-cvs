@@ -8,9 +8,9 @@
  @cite Based on a lexer written by Aaron Orenstein. 
 
  @created 2002-11-27
- @edited  2005-09-24
+ @edited  2006-10-24
 
- Copyright 2000-2005, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
  */
 
@@ -19,6 +19,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
+#include "G3D/Set.h"
 #include <string>
 #include <queue>
 #include <ctype.h>
@@ -32,20 +33,26 @@ namespace G3D {
 class Token {
 public:
     /**
+     More detailed type information than Type.
+     */
+    enum ExtendedType {
+      DOUBLE_QUOTED_TYPE, 
+      SINGLE_QUOTED_TYPE, 
+      SYMBOL_TYPE,
+      FLOATING_POINT_TYPE, 
+      INTEGER_TYPE,
+      BOOLEAN_TYPE,
+      END_TYPE};
+
+    /**
      Strings are enclosed in quotes, symbols are not.
      */
-    enum Type {STRING, SYMBOL, NUMBER, END};
-
-	/**
-	 More detailed type information than Type.
-	 */
-	enum ExtendedType {
-		SINGLE_QUOTED_TYPE, 
-		DOUBLE_QUOTED_TYPE, 
-		SYMBOL_TYPE,
-		INTEGER_TYPE, 
-		FLOATING_POINT_TYPE, 
-		END_TYPE};
+    enum Type {
+      STRING = DOUBLE_QUOTED_TYPE, 
+      SYMBOL = SYMBOL_TYPE, 
+      NUMBER = FLOATING_POINT_TYPE, 
+      BOOLEAN = BOOLEAN_TYPE, 
+      END = END_TYPE};
 
 private:
 
@@ -56,22 +63,28 @@ private:
       parsed at runtime.*/
     std::string             _string;
 
+    bool                    _bool;
+
     int                     _line;
     int                     _character;
     Type                    _type;
-	ExtendedType            _extendedType;
+    ExtendedType            _extendedType;
 
 public:
 
     Token() : 
         _string(""), 
+        _bool(false),
         _line(0), 
         _character(0), 
         _type(END), 
         _extendedType(END_TYPE) {}
 
     Token(Type t, ExtendedType e, const std::string& s, int L, int c)
-        : _string(s), _line(L), _character(c), _type(t), _extendedType(e) {}
+        : _string(s), _bool(false), _line(L), _character(c), _type(t), _extendedType(e) {}
+
+    Token(Type t, ExtendedType e, const std::string& s, bool b, int L, int c)
+        : _string(s), _bool(b), _line(L), _character(c), _type(t), _extendedType(e) {}
 
     Type type() const {
         return _type;
@@ -81,7 +94,7 @@ public:
         return _extendedType;
     }
 
-	/**
+    /**
      The value of a single or double quote string (not including the quotes),
      the name of a symbol, or the exact textual representation of a number as
      parsed from the input. 
@@ -90,7 +103,11 @@ public:
         return _string;
     }
 
-	/**
+    const bool boolean() const {
+        return _bool;
+    }
+
+    /**
      Starting line of the input from which this token was parsed.  Starts
      at 1.
      */
@@ -98,7 +115,7 @@ public:
         return _line;
     }
 
-	/**
+    /**
      Starting character position in the input line from which this token was
      parsed.  Starts at 1.
      */
@@ -109,36 +126,7 @@ public:
     /** Return the numeric value for a number type, or zero if this is
         not a number type.
     */
-    double number() const {
-        if (_type == NUMBER) {
-            if (_string == "-1.#IND00") {
-                return nan();
-            }
-
-            if (_string == "1.#INF00") {
-                return inf();
-            }
-
-            if (_string == "-1.#INF00") {
-                return -inf();
-            }
-
-            double n;
-            if ((_string.length() > 2) &&
-                (_string[0] == '0') &&
-                (_string[1] == 'x')) {
-                // Hex
-                uint32 i;
-                sscanf(_string.c_str(), "%x", &i);
-                n = i;
-            } else {
-                sscanf(_string.c_str(), "%lg", &n);
-            }
-            return n;
-        } else {
-            return 0.0;
-        }
-    }
+    double number() const;
 };
 
 
@@ -150,11 +138,14 @@ public:
  categories of tokens, which are separated by white space, quotation
  marks, or the end of a recognized operator:
 
-  <DT><CODE>Token::SINGLE_QUOTED_TYPE</CODE> string of characters surrounded by single quotes, e.g., 'x', '\0', 'foo'.
-  <DT><CODE>Token::DOUBLE_QUOTED_TYPE</CODE> string of characters surrounded by double quotes, e.g., "x", "abc\txyz", "b o b".
-  <DT><CODE>Token::SYMBOL_TYPE</CODE> legal C++ operators, keywords, and identifiers.  e.g., >=, Foo, _X, class, {
-  <DT><CODE>Token::INTEGER_TYPE</CODE> numbers without decimal places or exponential notation. e.g., 10, 0x17F, 32, 0, -155
-  <DT><CODE>Token::FLOATING_POINT_TYPE</CODE> numbers with decimal places or exponential notation. e.g., 1e3, -1.2, .4, 0.5
+ <ul>
+  <li><CODE>Token::SINGLE_QUOTED_TYPE</CODE> string of characters surrounded by single quotes, e.g., 'x', '\0', 'foo'.
+  <li><CODE>Token::DOUBLE_QUOTED_TYPE</CODE> string of characters surrounded by double quotes, e.g., "x", "abc\txyz", "b o b".
+  <li><CODE>Token::SYMBOL_TYPE</CODE> legal C++ operators, keywords, and identifiers.  e.g., >=, Foo, _X, class, {
+  <li><CODE>Token::INTEGER_TYPE</CODE> numbers without decimal places or exponential notation. e.g., 10, 0x17F, 32, 0, -155
+  <li><CODE>Token::FLOATING_POINT_TYPE</CODE> numbers with decimal places or exponential notation. e.g., 1e3, -1.2, .4, 0.5
+  <li><CODE>Token::BOOLEAN_TYPE</CODE> special symbols like "true" and "false"; the exact details can be configured in TextInput::Settings
+ </ul>
 
  <P>The special ".." and "..." tokens are recognized in addition to normal C++ operators.
 
@@ -294,20 +285,28 @@ public:
 
           If signedNumbers is false msvcSpecials will not be parsed.
 
-          Default is false (for backwards compatibility). */
+          Default is true. */
         bool                msvcSpecials;
 
-        Settings ()
-            : cComments(true), cppComments(true), escapeSequencesInStrings(true), 
-              otherCommentCharacter('\0'), otherCommentCharacter2('\0'),
-              signedNumbers(true), singleQuotedStrings(true), sourceFileName(),
-              startingLineNumberOffset(0), msvcSpecials(false)
-        { }
+        /**
+         When parsing booleans and msvcSpecials, is case significant?
+         Default is true
+        */
+        bool                caseSensitive;
+
+        /** All symbols that will become the 'true' boolean token.  See also caseSensitive.
+            Clear this value to disable parsing of true booleans.
+
+            Default is {true}.
+         */
+        Set<std::string>    trueSymbols;
+
+        /** See trueSymbols. Default is {false}*/
+        Set<std::string>    falseSymbols;
+
+        Settings ();
     };
-
-	/** @deprecated */
-	typedef Settings Options;
-
+	
 private:
 
     std::deque<Token>       stack;
@@ -346,12 +345,8 @@ private:
     /** Configuration options.  This includes the file name that will be
         reported in tokens and exceptions.  */
     Settings                options;
-
-    void init() {
-        currentCharOffset = 0;
-        charNumber = 1;
-        lineNumber = 1 + options.startingLineNumberOffset;
-    }
+  
+    void init();
 
     /**
      Consumes the next character from the input buffer, and returns that
@@ -532,6 +527,7 @@ public:
     */
     double readNumber();
 
+    bool readBoolean();
 
     /** Reads a string token or throws WrongTokenType, and returns the token.
 

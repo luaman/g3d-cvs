@@ -310,11 +310,7 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
         break;
 
     case BOOLEAN:
-        if (*(bool*)m_value) {
-            t.printf("true");
-        } else {
-            t.printf("false");
-        }
+        t.writeBoolean(*(bool*)m_value);
         break;
 
     case STRING:
@@ -469,6 +465,11 @@ void AnyVal::deserialize(G3D::TextInput& t) {
     case Token::STRING:
         m_type = STRING;
         m_value = new std::string(t.readString());
+        break;
+
+    case Token::BOOLEAN:
+        m_type = BOOLEAN;
+        m_value = new bool(t.readBoolean());
         break;
 
     case Token::SYMBOL:
