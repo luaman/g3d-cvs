@@ -557,7 +557,7 @@ numLabel:
         // See if this symbol is actually a boolean
         if ((options.trueSymbols.size() > 0) || (options.falseSymbols.size() > 0)) {
             std::string str = t._string;
-            if (options.caseSensitive) {
+            if (! options.caseSensitive) {
                 str = toUpper(str);
             }
             if (options.trueSymbols.contains(str)) {

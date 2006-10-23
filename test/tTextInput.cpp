@@ -32,7 +32,7 @@ void testTextInput() {
         // (the test itself has to escape the backslashes, just to write them).
         // The actual expression we are parsing is:
         // "\"
-        TextInput::Options opt;
+        TextInput::Settings opt;
         Token t;
 
         opt.escapeSequencesInStrings = false;
@@ -98,7 +98,7 @@ void testTextInput() {
     }
 
     {
-        TextInput::Options options;
+        TextInput::Settings options;
         options.otherCommentCharacter = '#';
 
         TextInput ti(TextInput::FROM_STRING, "1#23\nA\\#2", options);
@@ -144,7 +144,7 @@ void testTextInput() {
 
     {
 
-    TextInput::Options opt;
+    TextInput::Settings opt;
     opt.cppComments = false;
     TextInput ti(TextInput::FROM_STRING, 
                  "if/*comment*/(x->y==-1e6){cout<<\"hello world\"}; // foo\nbar",
@@ -274,7 +274,7 @@ void testTextInput() {
 
 
     {
-        G3D::TextInput::Options ti_opts;
+        G3D::TextInput::Settings ti_opts;
         const std::string str = "'";
         ti_opts.singleQuotedStrings = false;
 
@@ -456,7 +456,7 @@ void testTextInput() {
     
     // Test filename override.
     {
-        TextInput::Options tio;
+        TextInput::Settings tio;
         tio.sourceFileName = "<stdin>";
         TextInput ti(TextInput::FROM_STRING, "foo", tio);
         Token t;
@@ -479,14 +479,14 @@ void testTextInput() {
     }
 
     {
-        TextInput::Options opt;
+        TextInput::Settings opt;
         opt.signedNumbers = false;
         TextInput t(TextInput::FROM_STRING, "-5", opt);
         alwaysAssertM(t.readNumber() == -5, "");
     }
 
     {
-        TextInput::Options opt;
+        TextInput::Settings opt;
         opt.signedNumbers = false;
         TextInput t(TextInput::FROM_STRING, "- 5", opt);
         try {
@@ -498,20 +498,20 @@ void testTextInput() {
 
     // Test Nan and inf    
     {
-        TextInput::Options opt;
+        TextInput::Settings opt;
         opt.msvcSpecials = true;
         TextInput t(TextInput::FROM_STRING, "-1.#INF00", opt);
         double n = t.readNumber();
         alwaysAssertM(n == -inf(), "");
     }
     {
-        TextInput::Options opt;
+        TextInput::Settings opt;
         opt.msvcSpecials = true;
         TextInput t(TextInput::FROM_STRING, "1.#INF00", opt);
         alwaysAssertM(t.readNumber() == inf(), "");
     }
     {
-        TextInput::Options opt;
+        TextInput::Settings opt;
         opt.msvcSpecials = true;
         TextInput t(TextInput::FROM_STRING, "-1.#IND00", opt);
         alwaysAssertM(isNaN(t.readNumber()), "");

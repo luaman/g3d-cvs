@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib ws2_32.lib winmm.lib imagehlp.lib gdi32.lib user32.lib kernel32.lib version.lib advapi32.lib g3dd.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib glg3dd.lib jpeg.lib png.lib"
+				AdditionalDependencies="ws2_32.lib winmm.lib imagehlp.lib gdi32.lib user32.lib kernel32.lib version.lib advapi32.lib"
 				OutputFile="$(OutDir)\$(ProjectName)d.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\install\win-i386-vc8.0-lib&quot;"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib ws2_32.lib winmm.lib imagehlp.lib gdi32.lib user32.lib kernel32.lib version.lib advapi32.lib g3d.lib opengl32.lib glu32.lib sdl.lib sdlmain.lib glg3d.lib jpeg.lib png.lib"
+				AdditionalDependencies="zlib.lib ws2_32.lib winmm.lib imagehlp.lib gdi32.lib user32.lib kernel32.lib version.lib advapi32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\install\win-i386-vc8.0-lib&quot;"
 				GenerateDebugInformation="true"
