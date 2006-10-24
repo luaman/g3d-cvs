@@ -173,11 +173,11 @@ def iclean(args):
      rmdir('build')
      rmdir('temp')
 
-     os.chdir("../test")
+     os.chdir("test")
      run("../bin/icompile", ['--clean'])
      os.chdir("..")
 
-     os.chdir("../gfxmeter")
+     os.chdir("gfxmeter")
      run("../bin/icompile", ['--clean'])
      os.chdir("..")
 

@@ -121,8 +121,10 @@ def _makeLibOrder():
         for child in libraryTable[parent].dependsOnList:
             pairs.append( (parent, child) )
 
+    # These control the linker order.  Put the library you want first on the left in the pair and
+    # the library you want second on the right
     pairs = [('GLG3D', 'G3D'), ('G3D', 'Cocoa'), ('Cocoa', 'SDL'), ('SDL', 'OpenGL'), ('GLU', 'OpenGL'), 
-            ('GLU', 'GLG3D'), ('G3D', 'zlib'), ('G3D', 'png'), ('G3D', 'jpeg'), ('Cocoa', 'pthread'), 
+            ('GLG3D', 'GLU'), ('G3D', 'zlib'), ('G3D', 'png'), ('G3D', 'jpeg'), ('Cocoa', 'pthread'), 
             ('Cocoa', 'zlib'), ('OpenGL', 'png'), ('OpenGL', 'jpeg'), ('OpenGL', 'pthread'), ('Cocoa', 'Carbon')]
 
     E, V = pairsToVertexEdgeGraph(pairs)
