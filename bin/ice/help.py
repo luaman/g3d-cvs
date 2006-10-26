@@ -5,6 +5,7 @@
 
 from variables import *
 from utils import *
+import copyifnewer
 
 ##############################################################################
 #                                  Version                                   #
@@ -66,12 +67,12 @@ Exclusive options:
  --version        Print the version number of iCompile.
 
 Special directory names:
- """ + BUILDDIR + """           Output directory
+ build            Output directory
  data-files       Files that will be needed at runtime
  doc-files        Files needed by your Doxygen output
 
 iCompile will not look for source files in directories matching: """ +
-           str(_excludeDirPatterns) +
+           str(copyifnewer._excludeDirPatterns) +
 """
 
 You may edit ice.txt if your project has unusual configuration needs.
