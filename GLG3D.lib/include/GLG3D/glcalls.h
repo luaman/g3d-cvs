@@ -232,22 +232,7 @@ void glMultMatrix(const CoordinateFrame& cf);
 
 /** Platform independent version of 
     wglGetProcAddress/glXGetProcAddress/NSGLGetProcAddress */
-inline void* glGetProcAddress(const char * name){
-    #if defined(G3D_WIN32)
-	    return (void *)wglGetProcAddress(name);
-    #elif defined(G3D_LINUX)
-        #ifdef __GLX_glx_h__
-            return (void *)glXGetProcAddressARB((const GLubyte*)name);
-        #else
-            return (void *)glXGetProcAddress((const GLubyte*)name);
-        #endif
-    #elif defined(G3D_OSX)
-        return G3D::NSGLGetProcAddress((const char*)name);
-    #else
-        return NULL;
-    #endif
-}
-
+void* glGetProcAddress(const char * name);
 
 /**
  Takes an object space point to screen space using the current MODELVIEW and
