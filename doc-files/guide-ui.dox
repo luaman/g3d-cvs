@@ -27,29 +27,33 @@ are 'normal' key press/release events.  The following example demonstrates the i
 of a UserInput object and a trivial instance where it is polled for inputs.
 
 <PRE>
+    // Setup
     UserInput *userInput;
+    userInput = new UserInput(thisWindow);
 
-    userInput = new UserInput (thisWindow);
 
+    // Later, inside the main loop, process all events to the
+    // UserInput class (you can also handle the raw keyboard
+    // events yourself if you prefer).
     GEvent event;
-
     userInput->beginEvents();
-    while (renderDevice->window()->pollEvent(&event)) {
+    while (window()->pollEvent(&event)) {
 
         switch (event.type) {
         case SDL_QUIT:
-            %exit(0);
+            exit(0);
             break;
         }
 
-        if (userInput->keyPressed(SDLK_PLUS)) {
-            .... do something on '+' button pressed
-        }
-
-	userInput->processEvent(event);
+    userInput->processEvent(event);
     }
     userInput->endEvents();
 
+    // After the above loop, userInput is now tracking the state
+    // of all UI devices and can be referenced as:
+    if (userInput->keyPressed(SDLK_PLUS)) {
+       .... do something on '+' button pressed
+    }
 </PRE>
 
 <P> As a default, the UIFUNCTION events UP, LEFT, DOWN and RIGHT are 
