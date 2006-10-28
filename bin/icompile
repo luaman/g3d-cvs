@@ -334,7 +334,6 @@ def makeExecutable(state, objectFiles, linkOptions):
         # Strip debug symbols
 	run('strip', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
 
-#########################################################################
 ###################################################################################
 
 """

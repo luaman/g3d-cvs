@@ -39,8 +39,8 @@ GConsole::GConsole(const GFontRef& f, const Settings& s, Callback callback, void
     m_resetHistoryIndexOnEnter(true),
     m_rect(Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf())),
     m_bufferShift(0),
-    m_cursorPos(0),
-    m_inCompletion(false) {
+    m_inCompletion(false),
+    m_cursorPos(0) {
 
     debugAssert(m_font.notNull());
 

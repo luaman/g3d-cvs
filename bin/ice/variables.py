@@ -23,7 +23,7 @@ NO                        = False
 # Adds a new path or list of paths to an existing path list
 # and then returns the mutated plist.  If plist was None
 # when the function was invoked, a new list is returned.
-def _pathAppend(plist, newPath):
+def _pathAppend(plist, newPath, checkForExist = false):
     if plist == None:
         plist = []
 
@@ -31,7 +31,7 @@ def _pathAppend(plist, newPath):
         for p in newPath:
             _pathAppend(plist, p)
     else:
-        if os.path.exists(newPath):
+        if not checkForExist or os.path.exists(newPath):
             plist.append(newPath)
    
     return plist
@@ -175,9 +175,6 @@ class State:
     # Binary name not including directory.  Set by setVariables.
     binaryName                  = None
 
-    # Location of the output binary relative to rootDir.  Set by setVariables.
-    binaryDir                   = None
-
     # EXE, LIB, or DLL. Set by setVariables.
     binaryType                  = None
 
@@ -203,15 +200,15 @@ class State:
 
     # path is either a string or a list of paths
     # Paths are only added if they exist.
-    def addIncludePath(self, path):
-        self._includePaths = _pathAppend(self._includePaths, path)
+    def addIncludePath(self, path, checkForExist = true):
+        self._includePaths = _pathAppend(self._includePaths, path, checkForExist)
 
     # Returns a list of all include paths
     def includePaths(self):
         return self._includePaths
 
-    def addLibraryPath(self, path):
-        self._libraryPaths = _pathAppend(self._libraryPaths, path)
+    def addLibraryPath(self, path, checkForExist = true):
+        self._libraryPaths = _pathAppend(self._libraryPaths, path, checkForExist)
 
     # Returns a list of all include paths
     def libraryPaths(self):
