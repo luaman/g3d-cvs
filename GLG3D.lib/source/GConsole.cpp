@@ -11,20 +11,36 @@
 
 namespace G3D {
 
+GConsole::Settings::Settings() : 
+    blinkRate(3),
+    keyRepeatRate(18),
+    lineHeight(13),
+    numVisibleLines(11),
+    maxBufferLength(2000),
+    keyRepeatDelay(0.25f),
+    commandEcho(true),
+    performFilenameCompletion(true),
+    performCommandCompletion(true),
+    maxCompletionHistorySize(3000),
+    defaultCommandColor(Color3::white()),
+    defaultPrintColor(0.8f, 1.0f, 0.8f),
+    backgroundColor(0, 0, 0, 0.3f) {
+}
+
 GConsoleRef GConsole::create(const GFontRef& f, const Settings& s, Callback callback, void* data) {
     return new GConsole(f, s, callback, data);
 }
 
 GConsole::GConsole(const GFontRef& f, const Settings& s, Callback callback, void* data) :
-    m_font(f),
     m_settings(s),
-    m_cursorPos(0),
     m_callback(callback),
     m_callbackData(data),
-    m_bufferShift(0),
+    m_font(f),
     m_resetHistoryIndexOnEnter(true),
-    m_inCompletion(false),
-    m_rect(Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf())) {
+    m_rect(Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf())),
+    m_cursorPos(0),
+    m_bufferShift(0),
+    m_inCompletion(false) {
 
     debugAssert(m_font.notNull());
 
@@ -128,7 +144,7 @@ void GConsole::paste(const string& s) {
 
     // Separate the string by newlines and paste each individually
     do {
-        int j = s.find('\n', i);
+        size_t j = s.find('\n', i);
 
         bool issue = true;
 

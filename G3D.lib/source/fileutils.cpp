@@ -156,7 +156,9 @@ static int isFileGood(FILE* f) {
 }
 
 FILE* createTempFile() {
-    FILE* t = tmpfile();
+    FILE* t = NULL;
+    t = tmpfile();
+
 #	ifdef _WIN32
 		char* n = NULL;
 #	endif

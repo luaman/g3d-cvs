@@ -104,21 +104,8 @@ public:
          */
         Array<string>       commandCompletionSeed;
 
-        Settings() : 
-            lineHeight(13),
-            numVisibleLines(11),
-            blinkRate(3),
-            keyRepeatRate(18),
-            keyRepeatDelay(0.25f),
-            commandEcho(true),
-            maxBufferLength(2000),
-            performFilenameCompletion(true),
-            performCommandCompletion(true),
-            defaultCommandColor(Color3::white()),
-            defaultPrintColor(0.8f, 1.0f, 0.8f),
-            maxCompletionHistorySize(3000),
-            backgroundColor(0, 0, 0, 0.3f) {
-        }
+        Settings();
+        
     }; // Settings
 
     typedef void(*Callback)(const string&, void*);
@@ -280,8 +267,13 @@ protected:
 
 public:
 
-    static GConsoleRef create(const GFontRef& f, const Settings& s = Settings(), Callback c = NULL, void* callbackData = NULL);
-
+    static GConsoleRef create
+    (
+     const GFontRef& f, 
+     const Settings& s = Settings(), 
+     Callback c = NULL, 
+     void* callbackData = NULL);
+    
     virtual ~GConsole();
 
     void setCallback(Callback c, void* callbackData = NULL);

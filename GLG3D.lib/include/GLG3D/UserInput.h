@@ -210,7 +210,7 @@ public:
      input from the user.  Keyboard overrides joystick.
      @deprecated
      */
-    float G3D_DEPRECATED getX() const;
+    float getX() const;
 
     /**
      Returns a number between -1 and 1 indicating the vertical
@@ -218,12 +218,12 @@ public:
      Keyboard overrides joystick.
      @deprecated
      */
-    float G3D_DEPRECATED getY() const;
+    float getY() const;
 
     /**
      @deprecated
      */
-    Vector2 G3D_DEPRECATED getXY() const;
+    Vector2 getXY() const;
 
     inline Vector2 mouseXY() const {
         return guiMouse;
