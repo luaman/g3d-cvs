@@ -23,7 +23,7 @@ NO                        = False
 # Adds a new path or list of paths to an existing path list
 # and then returns the mutated plist.  If plist was None
 # when the function was invoked, a new list is returned.
-def _pathAppend(plist, newPath, checkForExist = false):
+def _pathAppend(plist, newPath, checkForExist = False):
     if plist == None:
         plist = []
 
