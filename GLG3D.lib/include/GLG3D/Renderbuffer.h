@@ -132,7 +132,10 @@ public:
     }
 
 }; // class Renderbuffer
+
+typedef Renderbuffer RenderBuffer;
+typedef RenderbufferRef RenderBufferRef;
+
 } // G3D
 
 #endif // GLG3D_RENDERBUFFER_H 
-

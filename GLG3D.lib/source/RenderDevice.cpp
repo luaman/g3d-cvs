@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2001-07-08
- @edited  2006-01-30
+ @edited  2006-10-30
  */
 
 #include "G3D/platform.h"
@@ -610,7 +610,7 @@ void RenderDevice::push2D() {
 }
 
 void RenderDevice::push2D(const Rect2D& viewport) {
-    push2D(NULL, viewport);
+    push2D(state.framebuffer, viewport);
 }
 
 void RenderDevice::push2D(const FramebufferRef& fb) {
@@ -2166,7 +2166,7 @@ void RenderDevice::setAmbientLightColor(
             {color.r / lightSaturation,
              color.g / lightSaturation,
              color.b / lightSaturation,
-             1.0f};
+             color.a / lightSaturation};
     
         state.lights.changed = true;
         minGLStateChange();

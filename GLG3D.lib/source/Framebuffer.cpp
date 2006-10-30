@@ -25,8 +25,7 @@ Framebuffer::Framebuffer(
     framebufferID(_framebufferID),
     m_name(_name),
     m_height(0),
-    m_width(0),
-    numAttachments(0) {
+    m_width(0) {
 }
 
 
@@ -89,11 +88,9 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 			debugAssertGLOk();
         }
 
-        --numAttachments;
-
-    } else {
         // Wipe our record for that slot
         attachmentTable.remove(ap);
+
     }
 
     // If we were already bound, don't bother restoring
@@ -123,22 +120,20 @@ void Framebuffer::set(AttachmentPoint ap, const TextureRef& texture) {
     }
 
     // Check for completeness
-    if (numAttachments == 0) {
+    if (numAttachments() == 0) {
         // This is the first attachment.
         // Set texture height/width
         m_width  = texture->texelWidth();
         m_height = texture->texelHeight();
     } else {
         // Verify same dimensions
-        debugAssertM((texture->texelWidth() != width()) || 
-                      (texture->texelHeight() != height()), 
+        debugAssertM((texture->texelWidth() == width()) && 
+                     (texture->texelHeight() == height()), 
            "All attachments bound to a Framebuffer must "
                      "have identical dimensions!");
     }
     
-    if (! attachmentTable.containsKey(ap)) {
-        attachmentTable.set(ap, Attachment(texture));
-    }
+    attachmentTable.set(ap, Attachment(texture));
 
     // Bind texture to framebuffer
     glFramebufferTexture2DEXT(
@@ -180,23 +175,21 @@ void Framebuffer::set(
     }
 
     // Check for completeness
-    if (numAttachments == 0) {
+    if (numAttachments() == 0) {
         // This is the first attachment.
         // Set texture height/width
         m_width  = renderbuffer->width();
         m_height = renderbuffer->height();
     } else {
         // Verify same dimensions
-        debugAssertM((renderbuffer->width()  != width()) || 
-                     (renderbuffer->height() != height()), 
+        debugAssertM((renderbuffer->width()  == width()) && 
+                     (renderbuffer->height() == height()), 
            "All attachments bound to a Framebuffer must have identical dimensions!");
     }
     
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, ap, GL_RENDERBUFFER_EXT, renderbuffer->openGLID());
 
-    if (!attachmentTable.containsKey(ap)) {
-        attachmentTable.set(ap, Attachment(renderbuffer));
-    }
+    attachmentTable.set(ap, Attachment(renderbuffer));
 
     // If we were already bound, don't bother restoring
     if (origFB != (GLint)openGLID()) {
@@ -212,4 +205,3 @@ void Framebuffer::set(
 unsigned int hashCode(const G3D::Framebuffer::AttachmentPoint& a) {
     return (int)a;
 }
-

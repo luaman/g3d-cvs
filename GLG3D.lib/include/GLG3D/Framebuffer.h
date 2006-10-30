@@ -1,7 +1,8 @@
 /**
  @file Framebuffer.cpp
 
- @maintainer Daniel Hilferty, djhilferty@users.sourceforge.net
+ @maintainer Morgan McGuire
+ @cite Initial implementation by Daniel Hilferty, djhilferty@users.sourceforge.net
 
  Notes:
  <UL>
@@ -9,7 +10,7 @@
  </UL>
 
  @created 2006-01-07
- @edited  2006-04-07
+ @edited  2006-10-30
 */
 
 #ifndef GLG3D_FRAMEBUFFER_H
@@ -185,6 +186,7 @@ private:
     };
 
     /**
+     Current attachments.
      Slots are not specified if they correspond to NULL elements.
      */
     Table<AttachmentPoint, Attachment>  attachmentTable;
@@ -212,7 +214,9 @@ private:
      Number of currently bound attachments.  When this hits zero we can
      add attachments with new sizes.
      */
-    int                             numAttachments;
+    inline int numAttachments() const {
+        return attachmentTable.size();
+    }
 
 	/** Default Constructor. */
 	Framebuffer(const std::string& name, GLuint framebufferID);
@@ -305,12 +309,18 @@ public:
 		return Rect2D::xywh(0.0f, 0.0f, (float)m_width, (float)m_height);
 	}
 
+    inline Vector2 vector2Bounds() const {
+        return Vector2((float)m_width, (float)m_height);
+    }
+
     inline const std::string& name() const {
         return m_name;
     }
 
 }; // class Framebuffer 
 
+typedef Framebuffer FrameBuffer;
+typedef FramebufferRef FrameBufferRef;
 
 } //  G3D
 
