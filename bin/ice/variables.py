@@ -200,14 +200,14 @@ class State:
 
     # path is either a string or a list of paths
     # Paths are only added if they exist.
-    def addIncludePath(self, path, checkForExist = true):
+    def addIncludePath(self, path, checkForExist = True):
         self._includePaths = _pathAppend(self._includePaths, path, checkForExist)
 
     # Returns a list of all include paths
     def includePaths(self):
         return self._includePaths
 
-    def addLibraryPath(self, path, checkForExist = true):
+    def addLibraryPath(self, path, checkForExist = True):
         self._libraryPaths = _pathAppend(self._libraryPaths, path, checkForExist)
 
     # Returns a list of all include paths
