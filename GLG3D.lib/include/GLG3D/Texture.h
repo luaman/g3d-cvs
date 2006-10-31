@@ -346,7 +346,7 @@ public:
         const class TextureFormat*      bytesFormat,
         int                             width,
         int                             height,
-        int				depth,
+        int				                depth,
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),

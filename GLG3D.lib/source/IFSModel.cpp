@@ -6,7 +6,7 @@
   @cite Original IFS code by Nate Robbins
 
   @created 2003-11-12
-  @edited  2006-04-30
+  @edited  2006-10-30
  */ 
 
 
@@ -46,19 +46,26 @@ void IFSModel::reset() {
 }
 
 
-IFSModelRef IFSModel::create(const std::string& filename, double scale, const CoordinateFrame& cframe, const bool weld) {
-    return create(filename, Vector3(scale, scale, scale), cframe, weld);
+IFSModelRef IFSModel::create(const std::string& filename, double scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
+    return create(filename, Vector3(scale, scale, scale), cframe, weld, removeDegenerateFaces);
 }
 
 
-IFSModelRef IFSModel::create(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld) {
+IFSModelRef IFSModel::create(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
     IFSModel* ret = new IFSModel();
-    ret->load(filename, scale, cframe, weld);
+    ret->load(filename, scale, cframe, weld, removeDegenerateFaces);
     return ret;
 }
 
 
-void IFSModel::load(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld) {
+static bool close(const Vector3& v0, const Vector2& t0, const Vector3& v1, const Vector2& t1) {
+    static const float eps = 0.0000001f;
+    return ((v0 - v1).squaredLength() < eps) &&
+           ((t0 - t1).squaredLength() < eps);
+}
+
+
+void IFSModel::load(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
     reset();
 
     this->filename = filename;
@@ -69,6 +76,36 @@ void IFSModel::load(const std::string& filename, const Vector3& scale, const Coo
 
     for (int i = 0; i < geometry.vertexArray.size(); ++i) {
         geometry.vertexArray[i] = cframe.pointToWorldSpace(geometry.vertexArray[i] * scale);
+    }
+
+    if (removeDegenerateFaces) {
+        // If there are no texture coords, we always match tex coords to this.
+        Vector2 dummy(0, 0);
+
+        Array<int> old = indexArray;
+        indexArray.fastClear();
+        // First remove faces from the index array
+        for (int i = 0; i < old.size(); i += 3) {
+            int i0 = old[i];
+            int i1 = old[i + 1];
+            int i2 = old[i + 2];
+
+            const Vector3& v0 = geometry.vertexArray[i0];
+            const Vector3& v1 = geometry.vertexArray[i1];
+            const Vector3& v2 = geometry.vertexArray[i2];
+
+            const Vector2& t0 = (texArray.size() > 0) ? texArray[i0] : dummy;
+            const Vector2& t1 = (texArray.size() > 0) ? texArray[i1] : dummy;
+            const Vector2& t2 = (texArray.size() > 0) ? texArray[i2] : dummy;
+
+            if (close(v0, t0, v1, t1) ||
+                close(v0, t0, v2, t2) ||
+                close(v1, t1, v2, t2)) {
+                // This face contains a duplicate vertex; do not carry it forward
+            } else {
+                indexArray.append(i0, i1, i2);
+            }
+        }
     }
 
     MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
@@ -90,7 +127,7 @@ void IFSModel::load(const std::string& filename, const Vector3& scale, const Coo
 
 size_t IFSModel::mainMemorySize() const {
 
-    size_t frameSize   = sizeof(MeshAlg::Geometry)  + (sizeof(Vector3) + sizeof(Vector3)) * geometry.vertexArray.size();
+    size_t frameSize   = sizeof(MeshAlg::Geometry) + (sizeof(Vector3) + sizeof(Vector3)) * geometry.vertexArray.size();
 	size_t texCoordSize = sizeof(Vector2) * texArray.size();
     size_t indexSize   = indexArray.size() * sizeof(int);
     size_t faceSize    = faceArray.size() * sizeof(MeshAlg::Face);

@@ -100,7 +100,7 @@ private:
     IFSModel();
     
     /** Only called from create */
-    void load(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld);
+    void load(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces);
 
     /** Only called from create */
     void reset();
@@ -125,9 +125,10 @@ public:
                    for the model when posed; it really modifies the object
                    space geometry.
 	 @param weld   Toggles welding colocated vertices, an O(n^2) operation. Defaults to true
+     @param removeDegenerateFaces Removes any faces that contain two copies of the same vertex
      */
-    static IFSModelRef create(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=true);
-    static IFSModelRef create(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = true);
+    static IFSModelRef create(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=true, bool removeDegenerateFaces = true);
+    static IFSModelRef create(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = true,bool removeDegenerateFaces = true);
 
     /**
      If perVertexNormals is false, the model is rendered with per-face normals,
