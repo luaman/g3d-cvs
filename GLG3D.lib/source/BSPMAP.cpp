@@ -110,11 +110,11 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera) {
 	    static Array<FaceSet*> translucentFaceArray;
 
         bool first = true;
-        if(first) {
-        opaqueFaceArray.fastClear();
-        translucentFaceArray.fastClear();
+        if (first) {
+            opaqueFaceArray.fastClear();
+            translucentFaceArray.fastClear();
 
-	    getVisibleFaces(renderDevice, camera, translucentFaceArray, opaqueFaceArray);
+	        getVisibleFaces(renderDevice, camera, translucentFaceArray, opaqueFaceArray);
         }
 
 		// Opaque
@@ -334,12 +334,12 @@ void Map::renderFaces(
 
 				if (texture.isNull()) {
 					texture = defaultTexture;
-				} else {
-					glEnable(GL_TEXTURE_2D);
-					glClientActiveTextureARB(GL_TEXTURE0_ARB);
-					glBindTexture(GL_TEXTURE_2D, texture->openGLID());
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
 				}
+
+				glEnable(GL_TEXTURE_2D);
+				glClientActiveTextureARB(GL_TEXTURE0_ARB);
+				glBindTexture(GL_TEXTURE_2D, texture->openGLID());
+				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
 
 				lastTextureID = theFace->textureID;
 			}
@@ -357,10 +357,8 @@ void Map::renderFaces(
 
 				if (theFace->lightmapID >= 0) {
 					glBindTexture(GL_TEXTURE_2D, lightmaps[theFace->lightmapID]->openGLID());
-				} else {
-					if (defaultLightmap.notNull()) {
-						glBindTexture(GL_TEXTURE_2D, defaultLightmap->openGLID());
-					}
+				} else if (defaultLightmap.notNull()) {
+					glBindTexture(GL_TEXTURE_2D, defaultLightmap->openGLID());
 				}
 				lastLightmapID = theFace->lightmapID;
 			}
