@@ -262,7 +262,7 @@ void Map::getVisibleFaces(
 				// Connect the faceArray to the center of their leaf for debugging purposes.
 				if (face->getType() == FaceSet::POLYGON) {
 					DebugLine line;
-					GLBSPPolygon* polygon = dynamic_cast<GLBSPPolygon*>(face);
+					GLBSPPolygon* polygon = static_cast<GLBSPPolygon*>(face);
 
 					line.start = vertexArray[polygon->firstVertex].position;
 					line.stop  = center;
@@ -998,7 +998,7 @@ void Map::getTriangles(
 			switch (faceArray[f]->type()) {
 			case FaceSet::MESH:
 				{
-					const Mesh* mesh = dynamic_cast<const Mesh*>(faceArray[f]);
+					const Mesh* mesh = static_cast<const Mesh*>(faceArray[f]);
 					for (int t = 0; t < mesh->meshVertexesCount / 3; ++t) {
                         outLightMapIndexArray.append(mesh->lightmapID);
                         outTextureMapIndexArray.append(mesh->textureID);
@@ -1024,7 +1024,7 @@ void Map::getTriangles(
                 // Add new vertices at the end of the array
                 {
 
-					const Patch* patch = dynamic_cast<const Patch*>(faceArray[f]);
+					const Patch* patch = static_cast<const Patch*>(faceArray[f]);
 					for (int b = 0; b < patch->bezierArray.size(); ++b) {
 						const Patch::Bezier2D& bezier = patch->bezierArray[b];
 
