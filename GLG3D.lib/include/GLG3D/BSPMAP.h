@@ -591,7 +591,7 @@ public:
      @param path to the Quake 3 resource directory (i.e. the directory that contains the "maps" subdir).  End in a "/" 
      @param fileName Name of the .bsp file; include the extension
      */
-    MapRef create(const std::string& path, const std::string& fileName, float scale = 1.0f);
+    static MapRef create(const std::string& path, const std::string& fileName, float scale = 1.0f);
 
     inline void setDefaultTexture(TextureRef txt) {
         defaultTexture = txt;
