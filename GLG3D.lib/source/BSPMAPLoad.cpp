@@ -160,7 +160,7 @@ public:
     int                 vertexesCount;
     int                 firstMeshVertex;
     int                 meshVertexesCount;
-    int                 lightmapID;
+    int                  lightmapID;
     int                 lightmapCorner[2];
     int                 lightmapSize[2];
     Vector3             lightmapPosition;
@@ -170,6 +170,17 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
+
+MapRef Map::create(const std::string& path, const std::string& fileName, float scale) {
+    debugAssert(path == "" || path[path.size() - 1] == '/' || path[path.size() - 1] == '\\');
+    Map* m = new Map();
+    if (m->load(path, fileName)) {
+        return m;
+    } else {
+        delete m;
+        return NULL;
+    }
+}
 
 bool Map::load(
     const std::string&  resPath,

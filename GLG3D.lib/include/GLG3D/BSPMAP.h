@@ -401,10 +401,12 @@ public:
 };
 
 
+typedef ReferenceCountedPointer<class Map> MapRef;
+
 /**
  A BSP Map loaded from either a Quake 3 or Half-Life file.
  */
-class Map {
+class Map : public ReferenceCountedObject {
 private:
 
     enum MapFileFormat {Q3 = 0, HL, NUM_FILE_FORMATS};
@@ -569,9 +571,14 @@ private:
         const GCamera&              camera,
         const Array<FaceSet*>&      visibleFaceArray);
 
+    Map();
+
+    bool load(
+        const std::string&  resPath,
+        const std::string&  filename);
+
 public:
 
-    Map();
     
     ~Map();
     
@@ -580,11 +587,11 @@ public:
     void checkCollision(Vector3& pos, Vector3& vel, Vector3& extent);
 
     /**
-     Returns false if an error occurs while loading.
+     Returns null if an error occurs while loading.
      @param path to the Quake 3 resource directory (i.e. the directory that contains the "maps" subdir).  End in a "/" 
      @param fileName Name of the .bsp file; include the extension
      */
-    bool load(const std::string& path, const std::string& fileName);
+    MapRef create(const std::string& path, const std::string& fileName, float scale = 1.0f);
 
     inline void setDefaultTexture(TextureRef txt) {
         defaultTexture = txt;
@@ -625,6 +632,7 @@ public:
 } // _BSPMAP
 
 typedef _BSPMAP::Map BSPMap;
+typedef _BSPMAP::MapRef BSPMapRef;
 
 } // G3D
 
