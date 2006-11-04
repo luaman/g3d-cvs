@@ -36,7 +36,7 @@ namespace _BSPMAP {
  Quake uses a coordinate system that is scaled differently from ours.
  Multiplying by this constant scales down to the G3D system. 
  */
-static const double LOAD_SCALE = 0.03;
+//static const double LOAD_SCALE = 0.03;
 
 /**
  A tightly packed bool array.  Used by Map for tracking

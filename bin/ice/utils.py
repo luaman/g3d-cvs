@@ -87,7 +87,7 @@ def colorPrint(text, color = 'default'):
             # Give up
             print ('Warning: illegal icompile color specified ("' +
                    color + '")\n\n')
-            useColor = false
+            useColor = False
             print text
             return
 
@@ -108,7 +108,7 @@ def colorPrint(text, color = 'default'):
             # Background color, must start with 'on' keyword
             if (tokens[0] != 'on') or (len(tokens) < 2):
                 # Give up
-                useColor = false
+                useColor = False
                 print ('Warning: illegal icompile background color' +
                        ' specified ("' + color + '")\n\n')
                 print text
@@ -558,7 +558,7 @@ def maybeColorPrint(text, color = 'default'):
     if verbosity >= VERBOSE:
         colorPrint(text, color)
 
-""" Prints a line if quiet is false. """
+""" Prints a line if quiet is False. """
 def maybePrintBar():
     if verbosity >= VERBOSE:
         printBar()

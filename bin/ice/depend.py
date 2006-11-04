@@ -321,8 +321,8 @@ def identifySiblingLibraryDependencies(files, parents, state):
                             includepath = pathConcat(dirname, 'include')
                             libpath = pathConcat(dirname, other.binaryDir)
 
-                            state.addIncludePath(includepath, false)
-                            state.addLibraryPath(libpath, false)
+                            state.addIncludePath(includepath, False)
+                            state.addLibraryPath(libpath, False)
                             
                             # Update incPaths, which also includes the empty directory (that will
                             # not appear as a -I argument to the compiler because doing so generates an error)
