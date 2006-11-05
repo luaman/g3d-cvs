@@ -17,7 +17,7 @@ namespace G3D {
 
 namespace _BSPMAP {
 
-BitSet::BitSet(): bits(NULL), size(0) {
+BitSet::BitSet(): size(0), bits(NULL) {
 }
 
 BitSet::~BitSet() {
@@ -232,8 +232,6 @@ void Map::getVisibleFaces(
 			continue;
 		}
 
-		const Vector3& center = leaf.center;
-
 		// Draw all of the faceArray in the leaf
 		for (int f = leaf.facesCount - 1; f >= 0; --f) {
 
@@ -439,7 +437,7 @@ void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
 	Vector3 up = startPos;
 
 	// For going up stairs
-	const double STEP_SIZE = 22 * LOAD_SCALE;
+	const double STEP_SIZE = 22 * 0.03;//LOAD_SCALE;
 	up.y += STEP_SIZE;
 	Vector3 up2 = up;
 	BSPCollision collision = checkMove(up, up2, extent);
@@ -461,13 +459,8 @@ void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
 	}
 
 	up = tmp;
-	float diff;
-	float downStep =
-		(diff = normalPos.x-startPos.x)*diff +
-		(diff = normalPos.z-startPos.z)*diff;
-	float upStep =
-		(diff = up.x-startPos.x)*diff+
-		(diff = up.z-startPos.z)*diff;
+	float downStep = (normalPos.xz() - startPos.xz()).squaredLength();
+	float upStep = (up.xz() - startPos.xz()).squaredLength();
 	const float MIN_STEP_NORMAL = 0.7f;
 	
 	if ((downStep > upStep) || (collision.normal.y < MIN_STEP_NORMAL)) {
@@ -553,9 +546,9 @@ void Map::slide(Vector3& pos, Vector3& vel, Vector3& extent) {
 		}
 
 		planeArray[planesCount] = collision.normal.direction();
-		planesCount++;
+		++planesCount;
 
-		int i,j;
+		int i, j;
 		for (i = 0; i < planesCount; i++) {
 		    
 			clipVelocity(vel,planeArray[i],vel,1.01f);

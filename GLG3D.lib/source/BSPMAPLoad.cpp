@@ -14,7 +14,7 @@
 #include "G3D/Log.h"
 
 #define TESSELLATION_LEVEL 5
-
+#define LOAD_SCALE (0.03f)
 namespace G3D {
 namespace _BSPMAP {
 
@@ -604,7 +604,7 @@ void Map::loadLightMaps(
 
         // Code to brighten:
         //brighten[i] = iClamp(pow(i / 200.0, 1.4) * 700, 0, 255);
-        brighten[i] = iClamp(i * 1.5 + 25, 0, 255);
+        brighten[i] = iClamp(iRound(i * 1.5 + 25), 0, 255);
     }
 
     int lightmapsCount = lump.length / sizeof(lightmapData);
