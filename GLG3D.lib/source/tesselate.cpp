@@ -81,7 +81,7 @@ static void __stdcall _tesselateError(GLenum e) {
 }
 
 
-void tesselateComplexPolygon(Array<Vector3>& input, Array<Triangle>& output) {
+void tesselateComplexPolygon(const Array<Vector3>& input, Array<Triangle>& output) {
     // Use the GLU triangulator to do the hard work.
 
     static GLUtriangulatorObj* tobj = NULL;
@@ -116,7 +116,7 @@ void tesselateComplexPolygon(Array<Vector3>& input, Array<Triangle>& output) {
                 v[0] = input[i].x;
                 v[1] = input[i].y;
                 v[2] = input[i].z;
-                gluTessVertex(tobj, v, &(input[i]));
+                gluTessVertex(tobj, v, const_cast<Vector3*>(&(input[i])));
             }
         gluTessEndContour(tobj);
     gluTessEndPolygon(tobj);

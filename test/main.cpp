@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-01-01
- @edited  2006-08-14
+ @edited  2006-11-14
  */
 
 #include "G3D/G3D.h"

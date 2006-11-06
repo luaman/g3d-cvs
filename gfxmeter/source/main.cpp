@@ -86,7 +86,7 @@ void App::showSplashScreen() {
 }
 
 
-void App::main() {
+int App::main() {
 	setDebugMode(false);
 	debugController->setActive(false);
 
@@ -199,6 +199,7 @@ void App::main() {
     sky = NULL;//Sky::create(NULL, dataDir + "sky/");
 
     applet->run();
+    return 0;
 }
 
 

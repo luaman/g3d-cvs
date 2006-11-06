@@ -198,7 +198,27 @@ void perfBinaryIO() {
     measureSerializerPerformance();
 }
 
+
+void testBasicSerialization() {
+    Vector3 tmp(-100.0f, -10.0f, 2.0f);
+
+    {
+
+        BinaryOutput bo("outfile.bin", G3D_LITTLE_ENDIAN);
+        tmp.serialize(bo);
+        bo.commit();
+
+    }
+    {
+        BinaryInput bi("outfile.bin", G3D_LITTLE_ENDIAN);
+        Vector3 alpha;
+        alpha.deserialize(bi);
+        debugAssertM(alpha == tmp, format("%s should be %s \n", alpha.toString().c_str(), tmp.toString().c_str()));
+    }
+}
+
 void testBinaryIO() {
+    testBasicSerialization();
     testBitSerialization();
     testCompression();
 }

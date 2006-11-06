@@ -10,7 +10,7 @@
 
 class App : public GApp {
 protected:
-    void main();
+    int main();
 public:
 
     SkyRef                  sky;

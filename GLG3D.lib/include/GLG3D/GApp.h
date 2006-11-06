@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2003-11-03
- @edited  2006-08-10
+ @edited  2006-11-10
  */
 
 #ifndef G3D_GAPP_H
@@ -89,8 +89,10 @@ protected:
      Called from run.  This is invoked inside of several
      exception handlers so that any G3D uncaught exceptions
      can be logged instead of crashing the application.
+
+     The return value of main is the return value of run().
      */
-    virtual void main() = 0;
+    virtual int main() = 0;
 
     Stopwatch           m_graphicsWatch;
     Stopwatch           m_logicWatch;
@@ -250,8 +252,9 @@ public:
 
     /**
      Call this to run the app.  Subclasses should override main(), not run.
+     Returns the value returned from main.
      */
-    void run();
+    int run();
 
     /**
      Installs a module.  Actual insertion may be delayed until the next frame.

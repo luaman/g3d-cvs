@@ -207,10 +207,11 @@ GApp::~GApp() {
 }
 
 
-void GApp::run() {
+int GApp::run() {
+    int ret = 0;
     if (catchCommonExceptions) {
         try {
-            main();
+            ret = main();
         } catch (const char* e) {
             alwaysAssertM(false, e);
         } catch (const GImage::Error& e) {
@@ -227,8 +228,10 @@ void GApp::run() {
             alwaysAssertM(false, e.message);
         }
     } else {
-        main();
+        ret = main();
     }
+
+    return ret;
 }
 
 

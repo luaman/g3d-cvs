@@ -13,6 +13,14 @@ You will see errors like:
 
 
 <hr noshade>
+<p><b>GApp::main now returns int</b></p>
+<p>
+You will see errors like the following, indicating that you need to upgrade your code:
+<code>error C2555: 'App::main': overriding virtual function return type differs and is not covariant from 'G3D::GApp::main'</code>
+</p>
+
+
+<hr noshade>
 <p><b>Can't find X11/Xlib.h</b></p>
 <p>
 Delete your ~/.icompile file; the newest version of iCompile (0.5.0) is not compatible with
