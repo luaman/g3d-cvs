@@ -92,6 +92,11 @@ def maybeWarn(warning, state):
     WARNING_PERIOD = 3 * DAY
     now = time.time()
 
+    if state == None or state.cache == None:
+        # the cache has not been loaded yet
+	colorPrint(warning, WARNING_COLOR)
+        return
+
     if not state.cache.has_key('warnings'):
         state.cache['warnings'] = {}
 

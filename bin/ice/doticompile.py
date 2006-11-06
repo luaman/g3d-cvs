@@ -6,6 +6,7 @@ import ConfigParser, string, os, copyifnewer
 from utils import *
 from doxygen import *
 from variables import *
+from help import *
 
 
 ##############################################################################
@@ -170,8 +171,14 @@ linkoptions:
 
     If
 """    
-def configGet(config, section, name, exp = True):
-    val = config.get(section, name)
+def configGet(state, config, section, name, exp = True):
+    try:
+        val = config.get(section, name)
+    except ConfigParser.InterpolationMissingOptionError:
+	maybeWarn('Variable \'' + name + '\' in ' + ' the [' + section + '] section of ' + 
+                  state.rootDir + 'ice.txt may have an illegal value.  If that ice.txt ' +
+                  'file is from a previous version of iCompile you should delete it.\n', state)
+        return ''
 
     # Replace special values
     if '<' in val:
@@ -257,13 +264,13 @@ def processProjectFile(state):
 
     # Don't expand '$' envvar in regular expressions since
     # $ means end of pattern.
-    exclude = configGet(config, 'GLOBAL', 'exclude', False)
+    exclude = configGet(state, config, 'GLOBAL', 'exclude', False)
     state.excludeFromCompilation = re.compile(exclude)
  
     # Parses the "uses" line, if it exists
     L = ''
     try:
-        L = configGet(config, 'GLOBAL', 'uses')
+        L = configGet(state, config, 'GLOBAL', 'uses')
     except ConfigParser.NoOptionError:
         # Old files have no 'uses' section
         pass
@@ -276,27 +283,27 @@ def processProjectFile(state):
             else:
                 state.usesLibrariesList.append(u)
 
-    state.buildDir = addTrailingSlash(configGet(config, 'GLOBAL', 'builddir', True))
+    state.buildDir = addTrailingSlash(configGet(state, config, 'GLOBAL', 'builddir', True))
     
-    state.tempDir = addTrailingSlash(pathConcat(configGet(config, 'GLOBAL', 'tempdir', True), state.projectName))
+    state.tempDir = addTrailingSlash(pathConcat(configGet(state, config, 'GLOBAL', 'tempdir', True), state.projectName))
 
-    state.beep = configGet(config, 'GLOBAL', 'beep')
+    state.beep = configGet(state, config, 'GLOBAL', 'beep')
     state.beep = (state.beep == True) or (state.beep.lower() == 'true')
 
     # Include Paths
-    state.addIncludePath(makePathList(configGet(config, 'GLOBAL', 'include')))
+    state.addIncludePath(makePathList(configGet(state, config, 'GLOBAL', 'include')))
 
     # Add our own include directories
     if isLibrary(state.binaryType):
         state.addIncludePath(['include', 'include/' + state.projectName])
 
     # Library Paths
-    state.addLibraryPath(makePathList(configGet(config, 'GLOBAL', 'library')))
+    state.addLibraryPath(makePathList(configGet(state, config, 'GLOBAL', 'library')))
 
-    state.compiler = configGet(config, 'GLOBAL', 'compiler')
+    state.compiler = configGet(state, config, 'GLOBAL', 'compiler')
 
-    state.compilerOptions = string.split(configGet(config, state.target, 'compileoptions'), ' ')
-    state.linkerOptions   = string.split(configGet(config, state.target, 'linkoptions'), ' ')
+    state.compilerOptions = string.split(configGet(state, config, state.target, 'compileoptions'), ' ')
+    state.linkerOptions   = string.split(configGet(state, config, state.target, 'linkoptions'), ' ')
 
 
 #########################################################################
