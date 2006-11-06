@@ -21,10 +21,10 @@ public:
     GMaterial           material;
 
     void load(const std::string& filename) {
-        model = MD2Model::create(filename + ".md2");
+        model = MD2Model::fromFile(filename + ".md2");
 
-		Texture::PreProcess preProcess;
-		preProcess.brighten = 2.0;
+	Texture::PreProcess preProcess;
+	preProcess.brighten = 2.0;
         material.texture.append(Texture::fromFile(filename + ".pcx", 
             TextureFormat::AUTO, Texture::DIM_2D, Texture::Settings(), preProcess));
     }
