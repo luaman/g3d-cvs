@@ -73,7 +73,7 @@
 #include "GLG3D/ThirdPersonManipulator.h"
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/GConsole.h"
-#include "GLG3D/BSPMap.h"
+#include "GLG3D/BSPMAP.h"
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"
