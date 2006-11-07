@@ -64,7 +64,7 @@ int Crypto::numSmallPrimes() {
 }
 
 uint32 Crypto::crc32(const void* byte, size_t numBytes) {
-    return ::crc32(0L, static_cast<const Bytef *>(byte), numBytes);
+    return ::crc32(::crc32(0, Z_NULL, 0), static_cast<const Bytef *>(byte), numBytes);
 }
 
 } // G3D
