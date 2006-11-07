@@ -546,8 +546,8 @@ ReliableConduit::ReliableConduit(
         // TODO: check for failure on the select call
 
     } else if (ret != 0) {
+        sock = (SOCKET)SOCKET_ERROR;
         if (nd->debugLog) {
-            sock = (SOCKET)SOCKET_ERROR;
             nd->debugLog->println("FAIL");
             nd->debugLog->println(socketErrorCode());
         }
