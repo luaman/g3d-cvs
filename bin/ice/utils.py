@@ -19,6 +19,8 @@ VERBOSE                   = 12
 # Print additional debugging information
 TRACE                     = 13
 
+SUPERTRACE                = 14
+
 verbosity                 = NORMAL
 
 ##############################################################################

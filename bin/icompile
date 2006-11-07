@@ -204,7 +204,6 @@ def getLinkerOptions(state, allFiles):
     # Compute a list of all libraries needed from the headers
     for path in allFiles:
         header = betterbasename(path)
-    
         if headerToLibraryTable.has_key(header):
             libs = headerToLibraryTable[header]
             libraries.update(libs)
@@ -518,6 +517,7 @@ def configureCompiler(state):
     else:
         configureGpp(state)
 
+
 """ Configure VC8 as our compiler of choice.
     Called from configureCompiler."""
 def configureVC(state):
@@ -598,10 +598,10 @@ def configureGpp(state):
         state.linkerOptions   = []
 
     if state.os == 'linux':
-       # LARGEFILE_SOURCE enables some newer interfaces for
-       # fopen that work with >2GB files
-       flags = shell('getconf LFS_CFLAGS', verbosity >= VERBOSE)
-       state.compilerOptions += string.split(flags, ' ')
+        # LARGEFILE_SOURCE enables some newer interfaces for
+        # fopen that work with >2GB files
+        flags = shell('getconf LFS_CFLAGS', verbosity >= VERBOSE)
+        state.compilerOptions += string.split(flags, ' ')
 
     if state.os == 'osx':
         universalBinary = False # TODO: Add universal binary support for libraries later

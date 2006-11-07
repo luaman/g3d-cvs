@@ -11,6 +11,11 @@ from library import *
 from doticompile import *
 from help import *
 
+# If True, the project will not be rebuilt if all dependencies
+# other than iCompile are up to date.  This is handy when
+# working on iCompile and testing with large libraries.
+_IGNORE_ICOMPILE_DEPENDENCY = False
+
 ###############################################################
 
 def getOutOfDateFiles(state, cfiles, dependencies, files):
@@ -24,6 +29,10 @@ def getOutOfDateFiles(state, cfiles, dependencies, files):
     # Need to rebuild all if this script was modified more
     # recently than a given file.
     icompileTime = getTimeStamp(sys.argv[0])
+    if _IGNORE_ICOMPILE_DEPENDENCY:
+        # Set to the beginning of time, so that it looks like
+        # iCompile was never modified.
+        icompileTime = 0
 
     # Rebuild all if ice.txt or .icompile was modified
     # more recently.
@@ -85,7 +94,6 @@ def getObjectFilename(state, sourceFile):
    
    """
 def getDependencies(state, file, verbosity, iteration = 1):
-        
     # We need to use the -msse2 flad during dependency checking because of the way
     # xmmintrin.h is set up
     #
@@ -93,9 +101,9 @@ def getDependencies(state, file, verbosity, iteration = 1):
     # -MM means "don't tell me about system header files"
     raw = shell(state.compiler + ' -M -msse2 -MG ' +
                 string.join(getCompilerOptions(state, []), ' ') + ' ' + file,
-                verbosity >= VERBOSE)
+                verbosity >= SUPERTRACE)
     
-    if verbosity >= TRACE:
+    if verbosity >= SUPERTRACE:
         print raw
 
     if raw.startswith('In file included from'):
@@ -305,7 +313,7 @@ def identifySiblingLibraryDependencies(files, parents, state):
 
                         if not libname in state.usesLibrariesList:
                             state.usesLibrariesList.append(libname)
-
+                            
                         if not dirname in state.usesProjectsList:
                             print ('Detected dependency on ' + dirname + ' from inclusion of ' + 
                                    header + ' by'), shortname(state.rootDir, parents[header][0])
