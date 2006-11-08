@@ -51,6 +51,7 @@
 	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
 	 <li> Removed static constants (use equivalent lower-case methods)
 	 <li> Removed Cylinder::getPoint1 (use point)
+	 <li> Fix: BSPMAP for cards without glMultiDrawElementsEXT
 	 <li> Fix: [ 1584335 ] ReliableConduit incorrectly assumes it's ok
 	 <li> Fix: RenderDevide::push2D no longer resets the frameBuffer.
 	 <li> Fix: Framebuffer logic for counting number of attachments was broken

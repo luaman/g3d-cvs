@@ -1,10 +1,10 @@
 /**
-@file q3bsp.cpp
+@file BSPMAP.cpp
 	
 @maintainer Morgan McGuire, matrix@graphics3d.com
 
 @created 2003-05-22
-@edited  2006-10-30
+@edited  2006-11-07
 */ 
 
 #include "GLG3D/BSPMAP.h"
@@ -899,8 +899,23 @@ void Patch::Bezier2D::render() const {
 	glClientActiveTextureARB(GL_TEXTURE1_ARB);
 	glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertex[0].lightmapCoord);
 
-	glMultiDrawElementsEXT(GL_TRIANGLE_STRIP, trianglesPerRow.getCArray(),
-		GL_UNSIGNED_INT, (const void **)(rowIndexes.getCArray()), level);
+    static const bool multiDrawExtension = 
+        GLCaps::supports("GL_EXT_multi_draw_arrays") ||
+        GLCaps::supports("GL_SUN_multi_draw_arrays");
+
+    if (multiDrawExtension) {
+	    glMultiDrawElementsEXT(GL_TRIANGLE_STRIP, trianglesPerRow.getCArray(),
+		    GL_UNSIGNED_INT, (const void **)(rowIndexes.getCArray()), level);
+    } else {
+        const GLsizei* count = trianglesPerRow.getCArray();
+        const GLvoid **indices = (const void**)(rowIndexes.getCArray());
+
+        for (int i = 0; i < level; ++i) {
+            if (count[i] > 0) {        
+                glDrawElements(GL_TRIANGLE_STRIP, count[i], GL_UNSIGNED_INT, indices[i]);
+            }
+        }    
+    }
 }
 
 
