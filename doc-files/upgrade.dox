@@ -3,6 +3,14 @@
 Notes for upgrading from G3D 6.xx to 7.xx:
 
 <hr noshade>
+<p><b>WinMain</b></p>
+<p>
+Win32 programs must call the macro <b><code>G3D_START_AT_MAIN();</code></b> at top-level (e.g., right before defining your <code>main</code> function), if they do not define WinMain themselves.  G3D_START_AT_MAIN() does nothing on other programs, so it is safe to always add this to the file
+in which you defined <code>main</code>.
+</p>
+
+
+<hr noshade>
 <p><b>Accessors (functions with "get" in the name)</b></p>
 <p>
 All 6.xx functions with "get" in the name that accepted no arguments were renamed to just 

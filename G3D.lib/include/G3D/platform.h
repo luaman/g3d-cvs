@@ -219,6 +219,15 @@
 #       pragma warning (disable : 4018)
 #   endif
 
+#define G3D_START_AT_MAIN()\
+extern "C" int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw);\
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw) {\
+    return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
+}
+#else
+
+#define G3D_START_AT_MAIN
+
 #endif  // win32
 
 #ifdef __GNUC__
