@@ -95,9 +95,9 @@ public:
 	 */
     static RenderbufferRef createEmpty(
 		const std::string&			name, 
-		const class TextureFormat*  format, 
 		const int					width, 
-		const int					height);
+		const int					height,
+		const class TextureFormat*  format); 
 
 	/**
 	 Get OpenGL renderbuffer ID, useful for accessing
