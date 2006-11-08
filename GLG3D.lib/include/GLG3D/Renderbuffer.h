@@ -4,7 +4,7 @@
   @maintainer Daniel Hilferty, djhilferty@users.sourceforge.net
 
   @created 2006-01-06
-  @edited  2006-02-14
+  @edited  2006-11-14
 */
 
 #ifndef GLG3D_RENDERBUFFER_H
@@ -24,12 +24,16 @@ typedef ReferenceCountedPointer<class Renderbuffer> RenderbufferRef;
 /**
  Abstraction of the OpenGL renderbuffer object.  A Framebuffer has many
  buffers inside it; typically one for colors, one for stencil, one for depth.
- Those are Renderbuffers.
+ Those can be either Textures or Renderbuffers.
 
  A Renderbuffer object is essentially an image that cannot be used as a
- texture.  It may be rendered to, but not used for rendering.  A perfect 
- example of a pure Renderbuffer would be a Stencil buffer.  All other 
- Renderbuffers could just as easily be implemented as textures.
+ texture.  It may be rendered to, but not used for rendering. On most hardware
+ there is no advantage to using a Renderbuffer instead of a G3D::Texture, although
+ theoretically hardware could support some G3D::TextureFormat s as Renderbuffers
+ but not as Textures.  
+
+ Note that G3D allows you to spell the class name either as G3D::Renderbuffer (matching
+ OpenGL conventions) or G3D::RenderBuffer (matching G3D conventions).
 
  See G3D::Framebuffer for a detailed example.
 
