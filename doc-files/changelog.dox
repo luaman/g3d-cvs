@@ -25,6 +25,7 @@
      <li> getOpenGLState now includes GL_LIGHT_MODEL_TWO_SIDE value
      <li> Made ThirdPersonManipulator constructor protected (use ThirdPersonManipulator::create now)
      <li> G3D::ToneMap
+     <li> Changed Renderbuffer::createEmpty argument order to match Texture::createEmpty
      <li> G3D::IFSModel can now remove degenerate faces on load
      <li> G3D::MD2Model::textureFromFile
      <li> G3D::MD2Model now uses floating point texture coordinates, which makes it easier to 

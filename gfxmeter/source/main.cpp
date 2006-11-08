@@ -13,13 +13,6 @@
 #   include <direct.h>
 #endif
 
-#if (defined(main) && (! defined(G3D_WIN32) || defined(NO_SDL_MAIN) || defined(_CONSOLE)))
-#   undef main
-#endif
-
-#ifdef NO_SDL_MAIN
-#error
-#endif
 
 //#define FAST
  
@@ -329,6 +322,7 @@ int main(int argc, char** argv) {
     
     settings.useNetwork = false;
     settings.window.fsaaSamples = 4;
+    settings.window.fullScreen = true;
     settings.dataDir = "./";
     settings.window.defaultIconFilename = "g3d.ico";
 

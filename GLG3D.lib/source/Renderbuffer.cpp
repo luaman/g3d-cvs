@@ -58,9 +58,9 @@ RenderbufferRef Renderbuffer::fromGLRenderbuffer(
 
 RenderbufferRef Renderbuffer::createEmpty(
     const std::string&			_name, 
-    const G3D::TextureFormat*   _format, 
     const int					_width, 
-    const int					_height) {
+    const int					_height,
+    const G3D::TextureFormat*   _format) { 
     // New Renderbuffer ID
     GLuint _imageID;
 

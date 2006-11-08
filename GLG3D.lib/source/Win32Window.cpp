@@ -141,7 +141,10 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     int startX = 0;
     int startY = 0;
 
-    if (! s.fullScreen) {
+    // Don't make the shared window full screen
+    bool fullScreen = s.fullScreen && ! creatingShareWindow;
+
+    if (! fullScreen) {
         if (s.center) {
             
             startX = (GetSystemMetrics(SM_CXSCREEN) - total_width) / 2;
@@ -179,7 +182,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
         ShowWindow(window, SW_SHOW);
     }         
 
-    if (settings.fullScreen) {
+    if (fullScreen) {
 	    // Change the desktop resolution if we are running in fullscreen mode
         if (!ChangeResolution(settings.width, settings.height, (settings.rgbBits * 3) + settings.alphaBits, settings.refreshRate)) {
 			alwaysAssertM(false, "Failed to change resolution");
