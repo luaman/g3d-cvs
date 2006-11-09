@@ -316,23 +316,7 @@ App::~App() {
     delete applet;
 }
 
-/*G3D_START_AT_MAIN*/
-
-
-#define START_AT_MAIN()\
-extern "C" int __stdcall G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw);\
-int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw) {\
-    return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
-}
-
-START_AT_MAIN();
-
-/*
-extern "C" int __stdcall G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw);\
-int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw) {\
-    return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
-}
-*/
+G3D_START_AT_MAIN();
 
 
 int main(int argc, char** argv) {
