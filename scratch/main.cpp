@@ -128,6 +128,7 @@ void Demo::onGraphics(RenderDevice* rd) {
     toneMap->beginFrame(rd);
 
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
+    tone
     rd->setProjectionAndCameraMatrix(app->debugCamera);
 
     // Cyan background
