@@ -18,6 +18,8 @@
 
 namespace G3D {
 
+typedef ReferenceCountedPointer<class ToneMap> ToneMapRef;
+
 /** 
   Applies gamma correction and bloom. 
 
@@ -54,7 +56,7 @@ namespace G3D {
   </PRE>
 
 */
-class ToneMap {
+class ToneMap : public ReferenceCountedObject {
 private:
 
     /** PS14ATI shaders */
@@ -103,9 +105,13 @@ private:
     /** Returns the appropriate bloom map for the current draw buffer (i.e., resolves stereo issues)*/
     TextureRef getBloomMap(RenderDevice* rd) const;
 
+    ToneMap();
+
 public:
 
-    ToneMap();
+    inline static ToneMapRef create() {
+        return new ToneMap();
+    }
 
     void setEnabled(bool e);
 

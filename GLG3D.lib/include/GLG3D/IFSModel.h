@@ -127,8 +127,8 @@ public:
 	 @param weld   Toggles welding colocated vertices, an O(n^2) operation. Defaults to true
      @param removeDegenerateFaces Removes any faces that contain two copies of the same vertex
      */
-    static IFSModelRef create(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=true, bool removeDegenerateFaces = true);
-    static IFSModelRef create(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = true,bool removeDegenerateFaces = true);
+    static IFSModelRef fromFile(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=true, bool removeDegenerateFaces = true);
+    static IFSModelRef fromFile(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = true,bool removeDegenerateFaces = true);
 
     /**
      If perVertexNormals is false, the model is rendered with per-face normals,

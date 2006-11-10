@@ -46,12 +46,12 @@ void IFSModel::reset() {
 }
 
 
-IFSModelRef IFSModel::create(const std::string& filename, double scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
-    return create(filename, Vector3(scale, scale, scale), cframe, weld, removeDegenerateFaces);
+IFSModelRef IFSModel::fromFile(const std::string& filename, double scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
+    return fromFile(filename, Vector3(scale, scale, scale), cframe, weld, removeDegenerateFaces);
 }
 
 
-IFSModelRef IFSModel::create(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
+IFSModelRef IFSModel::fromFile(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
     IFSModel* ret = new IFSModel();
     ret->load(filename, scale, cframe, weld, removeDegenerateFaces);
     return ret;

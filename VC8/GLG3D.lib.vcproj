@@ -307,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\ToneMap.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\UserInput.cpp"
 				>
 			</File>
@@ -478,6 +482,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\ThirdPersonManipulator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\ToneMap.h"
 				>
 			</File>
 			<File
