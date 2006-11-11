@@ -12,8 +12,9 @@
  */
 
 #include <G3D/G3DAll.h>
+#include <GLG3D/GLG3D.h>
 
-#if G3D_VER < 70000
+#if defined(G3D_VER) && (G3D_VER < 70000)
     #error Requires G3D 7.00
 #endif
 
@@ -128,7 +129,7 @@ void Demo::onGraphics(RenderDevice* rd) {
     toneMap->beginFrame(rd);
 
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
-    tone
+
     rd->setProjectionAndCameraMatrix(app->debugCamera);
 
     // Cyan background
