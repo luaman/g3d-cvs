@@ -75,9 +75,12 @@ IV. WRITING YOUR OWN PROGRAMS
 
 1. Sample code
 
-This release does not provide sample programs.  Future releases will
-include starter code.  See upgrade.html in the documentation for help
-upgrading your previous G3D programs.
+This release provides a single sample program in "demos/empty" that
+shows what the most basic G3D program looks like.  Future releases
+will include more samples and demos.  
+
+See upgrade.html in the documentation for help upgrading your previous
+G3D programs.
 
 
 2. Windows

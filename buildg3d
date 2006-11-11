@@ -212,12 +212,14 @@ def doc(args):
     copyIfNewer('doc-files/data-files', 'build/install/html')
     return 1
 
+
 def data(args):
     source = 'bin'
     dest = 'build/install/bin'
     copyIfNewer(source, dest)
     
     copyIfNewer('data-files', 'build/install/data')
+    copyIfNewer('demos', 'build/install/demos')
     return 0
 
 def install(args):
