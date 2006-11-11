@@ -1,0 +1,116 @@
+
+G3D 7.xx Build System Instructions
+
+I.   SETUP
+II.  BUILDING G3D
+III. CONFIGURING YOUR COMPILER
+IV.  WRITING YOUR OWN PROGRAMS
+
+(Short version: just type "buildg3d all")
+
+_______________________________________________________________
+
+I. SETUP
+
+To properly run the G3D build scripts you will need the following
+software.  It is all available for free and compes pre-installed on
+most OS X, Linux, and FreeBSD systems:
+
+* Python 2.4 or later (http://www.python.org) 
+* Doxygen 1.5 or later (http://www.doxygen.org)
+* On Windows you will need Visual Studio 8.0
+(http://msdn.microsoft.com/vstudio/express/)
+* On OS X, Linux, or FreeBSD you will need gcc 3.4 or later
+
+(It is possible to build the library on Windows using only Visual
+Studio, however documentation, headers, demos, and other aspects
+of the full build will be missing.  The G3D team DOES NOT SUPPORT
+direct use of the Visual Studio project files.  We only support
+the build scripts that call them.)
+
+_______________________________________________________________
+
+II. BUILDING G3D
+
+To create a full G3D installation, at the command line execute:
+
+    buildg3d all
+
+(On Unix-like operating systems you may need to first execute
+"chmod a+x buildg3d" and run this command as "./buildg3d all",
+depending on your system configuration.)
+
+The "all" target creates a directory build/install that contains
+binaries, documentation, headers, and all other aspects of the 
+G3D build.  Simply copy that directory to the location of your
+choice to install it.  Run "buildg3d help" for more information
+about the build sytem.
+
+_______________________________________________________________
+
+III. CONFIGURING YOUR COMPILER
+
+1. Windows
+
+In Visual Studio, add the G3D include and win32-i386-vc8.0-lib
+directories to your environment for all projects using the
+Tools->Options->Visual Studio Directories menu and dialog options.
+You can also configure G3D for each project if you prefer not to use
+global settins.
+
+
+2. OS X, Linux, FreeBSD
+
+Add the G3D bin directory to your PATH environment variable by editing
+your .bashrc, .tcshrc, .cshrc, etc. file (which one you use depends on
+your configuration--ask your system administrator if you are unsure).
+
+In the same file, add the G3D include directory to your INCLUDE
+environment variable and the G3D library directory appropriate to
+your operating system to your LIBRARY environment variable.
+
+_______________________________________________________________
+
+IV. WRITING YOUR OWN PROGRAMS
+
+1. Sample code
+
+This release does not provide sample programs.  Future releases will
+include starter code.  See upgrade.html in the documentation for help
+upgrading your previous G3D programs.
+
+
+2. Windows
+
+In Visual Studio, create a new empty Win32 project.  When using VC8
+Express edition, create a "Console Program"; later in the project
+creation process you can choose whether you actually want a console or
+windowed program.
+
+After you have created your project, change the project properties to:
+
+* multi-byte character set (instead of unicode character set)
+* use exception handling and run-time type information (the default for VC8)
+* use the Multithreaded Runtime DLL library (the default for VC8)
+
+When you #include <G3D/G3D.h>, #include <G3D/GLG3D.h>, or any other G3D
+header it automatically configures your linker settings.  You do not have
+to explicitly tell Visual Studio that you are using G3D.
+
+
+3.  Linux, FreeBSD
+
+The "bin" directory of the G3D build provides you with a script
+called "icompile" that makes it easy to compile any C++ program.
+
+Just type "icompile" inside the directory containing your source
+files and it will automatically compile them and link against any
+libraries (including G3D) that are needed.
+
+
+4. OS X
+
+Follow the Linux/FreeBSD instructions.  You can use XCode with
+G3D but we do not provide instructions.
+
+

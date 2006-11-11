@@ -121,9 +121,9 @@
 #   endif
 
 // Prevent Winsock conflicts by hiding the winsock API
-#ifndef _WINSOCKAPI_
-#   define _G3D_INTERNAL_HIDE_WINSOCK_
-#   define _WINSOCKAPI_
+#   ifndef _WINSOCKAPI_
+#       define _G3D_INTERNAL_HIDE_WINSOCK_
+#       define _WINSOCKAPI_
 #   endif
 
 // Disable 'name too long for browse information' warning
@@ -191,16 +191,16 @@
 
     // Now set up external linking
 
-    #ifdef _DEBUG
-        // zlib and SDL were linked against the release MSVCRT; force
+#    ifdef _DEBUG
+        // zlib was linked against the release MSVCRT; force
         // the debug version.
-        #pragma comment(linker, "/NODEFAULTLIB:MSVCRT.LIB")
-#	endif
+#        pragma comment(linker, "/NODEFAULTLIB:MSVCRT.LIB")
+#	 endif
 
 
-#   ifndef WIN32_LEAN_AND_MEAN
+#    ifndef WIN32_LEAN_AND_MEAN
 #       define WIN32_LEAN_AND_MEAN 1
-#   endif
+#    endif
 
 
 #   define NOMINMAX 1
@@ -208,10 +208,10 @@
 #   undef WIN32_LEAN_AND_MEAN
 #   undef NOMINMAX
 
-#ifdef _G3D_INTERNAL_HIDE_WINSOCK_
-#   undef _G3D_INTERNAL_HIDE_WINSOCK_
-#   undef _WINSOCKAPI_
-#endif
+#   ifdef _G3D_INTERNAL_HIDE_WINSOCK_
+#      undef _G3D_INTERNAL_HIDE_WINSOCK_
+#      undef _WINSOCKAPI_
+#   endif
 
 
 #   if defined(_MSC_VER) && (_MSC_VER <= 1200)
@@ -219,14 +219,15 @@
 #       pragma warning (disable : 4018)
 #   endif
 
-#define G3D_START_AT_MAIN()\
+#   define G3D_START_AT_MAIN()\
 extern "C" int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw);\
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw) {\
     return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
 }
+
 #else
 
-#define G3D_START_AT_MAIN
+#   define G3D_START_AT_MAIN()
 
 #endif  // win32
 

@@ -35,7 +35,9 @@ _excludeFromCopyingPatterns =\
     '\.ilk$', \
     '\.pdb$', \
     '\.bsc$', \
+    '^\.DS_store$', \
     '\.o$', \
+    '\.pyc$', \
     '\.obj$', \
     '\.pyc$', \
     '\.plg$', \
