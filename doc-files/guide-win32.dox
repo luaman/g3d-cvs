@@ -153,7 +153,7 @@ file name) into the text box labelled <b>Name</b>.</p>
 
 <li> <p> Select the <code>main.cpp</code> file that you copied over and press <b>OK</b>.</p>
 
-<li> <p> Push <b>Shift-F5</b> to compile and run this default program.  If Visual Studio and %G3D are installed correctly, Visual Studio will automatically link your program against all libraries needed.  When run, the sample program will have the camera floating in space near a set of colored axes.  Use the mouse to rotate the camera and the W, A, S, and D letter keys to translate the camera (these are standard first-person video game controls).<p>
+<li> <p> Push <b>F5</b> to compile and run this default program.  If Visual Studio and G3D are installed correctly, Visual Studio will automatically link your program against all libraries needed.  When run, the sample program will have the camera floating in space near a set of colored axes.  Press TAB to toggle the enabled state of the camera controller.  When it the controller is enabled, use the mouse to rotate the camera and the W, A, S, and D letter keys to translate the camera (these are standard first-person video game controls).  You can quit the program by pressing ESC at any time.<p>
 
 <li> <p> Edit your <code>main.cpp</code> file.  The comments in the file show you where to add code for rendering, input processing, network, and graphics.</p>
 
