@@ -17,7 +17,6 @@
     G3D::MD2Model,
     G3D::PosedModel,
     G3D::PosedModel2D,
-    G3D::PosedModelWrapper
     G3D::Sky
     <BR>See also contrib & demo code 
     <A HREF="../contrib/ArticulatedModel">ArticulatedModel</A>, 
