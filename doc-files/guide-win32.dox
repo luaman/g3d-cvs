@@ -1,0 +1,151 @@
+/** @page guidewin32 Using G3D on Windows
+
+\htmlonly
+<TABLE BORDER=0 WIDTH=80%><TR><TD><I><FONT FACE="Arial">
+<A HREF="guidewelcome.html"><IMG SRC="backarrow.gif" BORDER=0 ALIGN=MIDDLE>
+Welcome</A></I></FONT></TD><TD ALIGN=RIGHT><FONT FACE="Arial"><I>
+<A HREF="guidetutorial.html">
+Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></TR></TABLE>
+\endhtmlonly
+
+
+The following sections give step-by-step instructions for installing the free
+version of Visual Studio, the 7.00 beta 1 version of G3D, and creating
+your first G3D program.  These assume no familiarity with Visual Studio or G3D (however, to <i>use</i> G3D, you'll need to know your way around a 3D graphics pipeline.)
+
+<p>For experienced Visual Studio users, the short version of these instructions is simple:
+
+<ol>
+<li> Unzip <a
+href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7_00-b01-win32.zip?download">g3d-7_00-b01-win32.zip</a> and configure Visual Studio's Include and Library paths.
+<li> See <code>g3d-7_00-b01\demos\empty\main.cpp</code> for a simple application framework.
+</ol>
+</p>
+
+<hr>
+<h2>Visual Studio 2005 Installation</h2>
+
+<p>
+Visual Studio 8 (officially known as Visual C++ 2005 Express Edition)
+is available as a free download from Microsoft at <a
+href="http://msdn.microsoft.com/vstudio/express/visualc/download/">http://msdn.microsoft.com/vstudio/express/visualc/download/</a>.
+When installing, be sure to follow all instructions exactly, including
+their critical "step&nbsp;4" of manually installing the Microsoft Platform
+Software Development Kit (SDK).  Note that there is also a profession
+edition of Visual Studio 2005 that can be purchased.
+</p>
+
+
+<p><b>Beta Note:</b>G3D is compatible with previous versions of Visual
+Studio, however the G3D 7.00 beta releases do not include binaries for
+previous versions.  The official 7.00 release will include Visual
+Studio 6 and Visual Studio 2003 binaries.</p>
+
+
+<hr>
+<h2>G3D Installation</h2>
+
+<ol>
+<li> <p>Download <a
+href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7_00-b01-win32.zip?download">g3d-7_00-b01-win32.zip</a>
+and unzip it into a directory like <code>c:\libraries</code>. This
+will create the directories <code>c:\libraries\g3d-7_00-b01</code>,
+<code>c:\libraries\g3d-7_00-b01\include</code>, etc.</p>
+
+<li> <p>Run Visual Studio</p>
+
+<li> <p>Click on the <b>Tools</b> menu and then select <b>Options</b>, as demonstrated in this image:
+
+<center><img
+src="vc8-tools-menu.png" border=0 align=top></center></p>
+
+<li> <p>In the tree control on the left of the <b>Options</b> dialog, expand the  <b>Projects and Solutions</b> item (refer to the Options Dialog image below).</p>
+
+<li> <p>Select <b>VC++ Directories</b> under <b>Projects and Solutions</b>.  The tab on the right will now display a list of directories for <b>Executable Files</b>.</p>
+
+<li> <p>From the drop-down list labelled <b>Show directories for</b>, which is in the upper-right of the <b>Options Dialog</b>, select <b>Include files</b>.</p>
+
+<li> <p>Double-click in the white space below the last listed directory
+in the central list box and type the full path to the G3D include
+directory, as demonstrated in the image below.  If you installed G3D to
+<code>c:\libraries</code>, this path is
+<code>c:\libraries\g3d-7_00-b01\include</code>.
+
+<center><img src="vc8-options-dialog.png" border=0 align=top></center></p>
+
+<li> 
+ <p>Change the <b>Show directories for</b> drop-down list to <b>Library files</b>.
+ </p>
+
+<p>
+<li> <p>Double-click in the white space below the last listed directory
+in the central list box and type the full path to the G3D lib
+directory.  If you installed G3D to
+<code>c:\libraries</code>, this path is
+<code>c:\libraries\g3d-7_00-b01\win32-i386-vc8.0-lib</code>.
+</p>
+
+<li><p>Push <b>Ok</b> to close the <b>Options</b> dialog.</p>
+
+<li><p>Quit Visual Studio to ensure that your changes are saved.</p>
+</ol>
+
+<p><b>Beta Note:</b> The official G3D 7.00 release will include a
+Windows installer program that performs these steps for you.
+</p>
+
+<hr>
+<h2>Creating a New Project</h2>
+
+Repeat these steps for every new project.
+
+<ol>
+<li> <p>Launch Visual Studio.</p>
+
+<li> <p>From the <b>File</b> menu, select the <b>New</b> menu.  From that menu, select <b>Project...</b>, as demonstrated in this image:
+
+<center><img src="vc8-new-project.png" border=0 align=top></center></p>
+
+<li> <p>The <b>New Project</b> dialog will appear, as shown below. Type the name of
+your project (this will be used as the directory name and the project
+file name) into the text box labelled <b>Name</b>.</p>
+
+<li> <p> Type the name of the <i>parent directory</i> of your project into the text box labelled <b>Location</b>.
+
+<center><img src="vc8-new-project-dialog.png" border=0 align=top></center></p>
+
+<li> <p> Press <b>Ok</b> to move on to the next dialog. </p>
+
+<li> <p> The <b>Win32 Application Wizard</b> dialog will appear.  Press <b>Next</b> (not Finish!)</p>
+
+<li> <p> Select the <b>Windows application</b> and <b>Empty project</b> options, as demonstrated in the image below.
+
+<center><img src="vc8-win32-application-wizard.png" border=0 align=top></center></p>
+
+<li> <p> Press <b>Finish</b>. </p>
+
+<li> <p> From the <b>Project</b> menu, select <b>Properties</b>.  This will display the <b>Property Pages</b> dialog.</p>
+
+<li> <p> In the <b>Property Pages</b> dialog, select <b>All Configurations</b> from the <b>Configuration</b> dialog (shown in the image below.)</p>
+
+<li> <p> In the tree control on the left, expand <b>Configuration Properties</b> and then select <b>General</b>.</p>
+
+<li> <p> In the table on the right, locate <b>Character Set</b>.  Change the drop-down list immediately to the right of it to <b>Use Multi-Byte Character Set</b> as demonstrated in this image:
+
+<center><img src="vc8-property-page.png" border=0 align=top></center></p>
+
+<li><p> Press <b>OK</b></p>
+
+<li> <p> Using Explorer or the command line, copy the empty G3D sample program <code>main.cpp</code> file to your project directory.  If you installed G3D to <code>c:\libraries</code>, the sample program is <code>c:\libraries\g3d-7_00-b01\demos\main.cpp</code>.<p>
+
+<li> <p> In Visual Studio, right-click on the <b>Source Files</b> folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Add</b> and then <b>Existing Item...</b> as demonstrated in this image:
+
+<center><img src="vc8-add-existing.png" border=0 align=top></center></p>
+
+<li> <p> Select the <code>main.cpp</code> file that you copied over and press <b>OK</b>.</p>
+
+<li> <p> Push <b>Shift-F5</b> to compile and run this default program.  If Visual Studio and G3D are installed correctly, Visual Studio will automatically link your program against all libraries needed.  When run, the sample program will have the camera floating in space near a set of colored axes.  Use the mouse to rotate the camera and the W, A, S, and D letter keys to translate the camera (these are standard first-person video game controls).<p>
+
+<li> <p> Edit your <code>main.cpp</code> file.  The comments in the file show you where to add code for rendering, input processing, network, and graphics.</p>
+
+</ol>
