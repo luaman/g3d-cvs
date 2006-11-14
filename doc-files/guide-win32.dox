@@ -8,24 +8,26 @@ Welcome</A></I></FONT></TD><TD ALIGN=RIGHT><FONT FACE="Arial"><I>
 Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></TR></TABLE>
 \endhtmlonly
 
-
 The following sections give step-by-step instructions for installing the free
-version of Visual Studio, the 7.00 beta 1 version of G3D, and creating
-your first G3D program.  These assume no familiarity with Visual Studio or G3D (however, to <i>use</i> G3D, you'll need to know your way around a 3D graphics pipeline.)
+version of Visual Studio, the 7.00 beta 1 version of %G3D, and creating
+your first %G3D program.  These assume no familiarity with Visual Studio or %G3D (however, to <i>use</i> %G3D, you'll need to know your way around a 3D graphics pipeline.)
 
 <p>For experienced Visual Studio users, the short version of these instructions is simple:
 
+\htmlonly
 <ol>
 <li> Unzip <a
 href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7_00-b01-win32.zip?download">g3d-7_00-b01-win32.zip</a> and configure Visual Studio's Include and Library paths.
 <li> See <code>g3d-7_00-b01\demos\empty\main.cpp</code> for a simple application framework.
 </ol>
+\endhtmlonly
 </p>
 
 <hr>
-<h2>Visual Studio 2005 Installation</h2>
+@section vs8install Visual Studio 2005 Installation
 
 <p>
+\htmlonly
 Visual Studio 8 (officially known as Visual C++ 2005 Express Edition)
 is available as a free download from Microsoft at <a
 href="http://msdn.microsoft.com/vstudio/express/visualc/download/">http://msdn.microsoft.com/vstudio/express/visualc/download/</a>.
@@ -33,24 +35,29 @@ When installing, be sure to follow all instructions exactly, including
 their critical "step&nbsp;4" of manually installing the Microsoft Platform
 Software Development Kit (SDK).  Note that there is also a profession
 edition of Visual Studio 2005 that can be purchased.
+\endhtmlonly
 </p>
 
 
-<p><b>Beta Note:</b>G3D is compatible with previous versions of Visual
-Studio, however the G3D 7.00 beta releases do not include binaries for
+<p><b>Beta Note:</b>%G3D is compatible with previous versions of Visual
+Studio, however the %G3D 7.00 beta releases do not include binaries for
 previous versions.  The official 7.00 release will include Visual
 Studio 6 and Visual Studio 2003 binaries.</p>
 
 
 <hr>
-<h2>G3D Installation</h2>
-
+@section g3dinstall %G3D Installation
+\htmlonly
 <ol>
-<li> <p>Download <a
+<li> <p>
+
+Download <a
 href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7_00-b01-win32.zip?download">g3d-7_00-b01-win32.zip</a>
 and unzip it into a directory like <code>c:\libraries</code>. This
 will create the directories <code>c:\libraries\g3d-7_00-b01</code>,
-<code>c:\libraries\g3d-7_00-b01\include</code>, etc.</p>
+<code>c:\libraries\g3d-7_00-b01\include</code>, etc.
+
+</p>
 
 <li> <p>Run Visual Studio</p>
 
@@ -66,8 +73,8 @@ src="vc8-tools-menu.png" border=0 align=top></center></p>
 <li> <p>From the drop-down list labelled <b>Show directories for</b>, which is in the upper-right of the <b>Options Dialog</b>, select <b>Include files</b>.</p>
 
 <li> <p>Double-click in the white space below the last listed directory
-in the central list box and type the full path to the G3D include
-directory, as demonstrated in the image below.  If you installed G3D to
+in the central list box and type the full path to the %G3D include
+directory, as demonstrated in the image below.  If you installed %G3D to
 <code>c:\libraries</code>, this path is
 <code>c:\libraries\g3d-7_00-b01\include</code>.
 
@@ -79,8 +86,8 @@ directory, as demonstrated in the image below.  If you installed G3D to
 
 <p>
 <li> <p>Double-click in the white space below the last listed directory
-in the central list box and type the full path to the G3D lib
-directory.  If you installed G3D to
+in the central list box and type the full path to the %G3D lib
+directory.  If you installed %G3D to
 <code>c:\libraries</code>, this path is
 <code>c:\libraries\g3d-7_00-b01\win32-i386-vc8.0-lib</code>.
 </p>
@@ -90,13 +97,15 @@ directory.  If you installed G3D to
 <li><p>Quit Visual Studio to ensure that your changes are saved.</p>
 </ol>
 
-<p><b>Beta Note:</b> The official G3D 7.00 release will include a
+<p><b>Beta Note:</b> The official %G3D 7.00 release will include a
 Windows installer program that performs these steps for you.
 </p>
 
+\endhtmlonly
 <hr>
-<h2>Creating a New Project</h2>
+@section newproject Creating a New Project
 
+\htmlonly
 Repeat these steps for every new project.
 
 <ol>
@@ -136,7 +145,7 @@ file name) into the text box labelled <b>Name</b>.</p>
 
 <li><p> Press <b>OK</b></p>
 
-<li> <p> Using Explorer or the command line, copy the empty G3D sample program <code>main.cpp</code> file to your project directory.  If you installed G3D to <code>c:\libraries</code>, the sample program is <code>c:\libraries\g3d-7_00-b01\demos\main.cpp</code>.<p>
+<li> <p> Using Explorer or the command line, copy the empty %G3D sample program <code>main.cpp</code> file to your project directory.  If you installed %G3D to <code>c:\libraries</code>, the sample program is <code>c:\libraries\g3d-7_00-b01\demos\main.cpp</code>.<p>
 
 <li> <p> In Visual Studio, right-click on the <b>Source Files</b> folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Add</b> and then <b>Existing Item...</b> as demonstrated in this image:
 
@@ -144,8 +153,10 @@ file name) into the text box labelled <b>Name</b>.</p>
 
 <li> <p> Select the <code>main.cpp</code> file that you copied over and press <b>OK</b>.</p>
 
-<li> <p> Push <b>Shift-F5</b> to compile and run this default program.  If Visual Studio and G3D are installed correctly, Visual Studio will automatically link your program against all libraries needed.  When run, the sample program will have the camera floating in space near a set of colored axes.  Use the mouse to rotate the camera and the W, A, S, and D letter keys to translate the camera (these are standard first-person video game controls).<p>
+<li> <p> Push <b>Shift-F5</b> to compile and run this default program.  If Visual Studio and %G3D are installed correctly, Visual Studio will automatically link your program against all libraries needed.  When run, the sample program will have the camera floating in space near a set of colored axes.  Use the mouse to rotate the camera and the W, A, S, and D letter keys to translate the camera (these are standard first-person video game controls).<p>
 
 <li> <p> Edit your <code>main.cpp</code> file.  The comments in the file show you where to add code for rendering, input processing, network, and graphics.</p>
 
 </ol>
+\endhtmlonly
+*/

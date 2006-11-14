@@ -11,6 +11,37 @@ License <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></
 \endhtmlonly
 
 
+@section Welcome
+
+<IMG SRC="3dengine.jpg" style="float: right;">
+%G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
+It is used in games, tech demos, research papers, military simulators, and
+university courses.  It provides a set of routines and structures so common
+that they are needed in almost every graphics program.  It makes low-level
+libraries like OpenGL and sockets easier to use without limiting functionality
+or performance.  %G3D gives you a rock-solid, highly optimized base from which
+to build your application.
+
+%G3D does not contain scene graph or GUI routines.  Because of this, you have much
+more flexibility in how you structure your programs.  The tradeoff is that
+you have to know more about 3D programming.  %G3D is intended for users who are already
+familiar with C++ and DirectX or OpenGL.  Several good GUI libraries exist and
+we recommend using one with %G3D if your project has extensive UI needs.
+
+This manual begins with a \link guidetutorial Tutorial \endlink and
+\link guideapp Application Framework \endlink that help
+programmers who know C++ but are either new to 3D or starting without
+a base of 3D code get up and running quickly.  The demos directory also contains
+a starter <A HREF="../demos/empty/main.cpp">main.cpp</A> for the
+application framework (it is how the %G3D developers usually
+start a new project in their own work).
+
+The library also provides lower-level interfaces that programmers who are
+already working with OpenGL and existing code may prefer.  See the
+Notes for Expert Users at the end of this chapter for more information.
+</div>
+
+
 @section documentation Documentation and Support
 This guide gives a brief introduction to help you decide if %G3D is right
 for your project and introduce you to the major features.
