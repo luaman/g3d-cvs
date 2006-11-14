@@ -211,7 +211,7 @@ def doc(args):
            'PROJECT_NUMBER': version}
     run(doxygen, ['Doxyfile'], env)
     copyIfNewer('doc-files/data-files', 'build/install/html')
-    return 1
+    return 0
 
 
 def data(args):
