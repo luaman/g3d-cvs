@@ -18,7 +18,8 @@ def copyIfNewer(source, dest):
     if platform.system() == 'Windows':
         # Just use the binary for this
         print 'copyifnewer', source, dest
-        return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', ['--exclusions', source, dest])
+        return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', 
+                   ['bin\\copyifnewer.exe', '--exclusions', source, dest])
     else:
         # Use python commands
         ice.copyifnewer.copyIfNewer(source, dest)
