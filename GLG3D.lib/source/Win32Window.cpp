@@ -49,6 +49,18 @@ using G3D::_internal::_DirectInput;
 
 namespace G3D {
 
+// Deals with unicode/MBCS/char issues
+static LPCTSTR toTCHAR(const std::string& str) {
+#   if defined(_MBCS) || defined(_UNICODE)
+        static const int LEN = 1024;
+        static TCHAR x[LEN];
+        swprintf(x, LEN, _T("%s"), str.c_str());
+        return const_cast<LPCTSTR>(x);
+#   else
+        return str.c_str();
+#   endif
+}
+
 static const UINT BLIT_BUFFER = 0xC001;
 
 #define WGL_SAMPLE_BUFFERS_ARB	0x2041
@@ -76,7 +88,7 @@ static void printPixelFormatDescription(int, HDC, TextOutput&);
 /** Return the G3D window class, which owns a private DC. 
     See http://www.starstonesoftware.com/OpenGL/whyyou.htm
     for a discussion of why this is necessary. */
-static const char* G3DWndClass();
+static LPCTSTR G3DWndClass();
 
 std::auto_ptr<Win32Window> Win32Window::_shareWindow(NULL);
 
@@ -159,8 +171,9 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     clientX = settings.x = startX;
     clientY = settings.y = startY;
     
-    HWND window = CreateWindow(G3DWndClass(), 
-        name.c_str(),
+    HWND window = CreateWindow(
+        G3DWndClass(), 
+        toTCHAR(name),
         style,
         startX,
         startY,
@@ -563,7 +576,7 @@ void Win32Window::getSettings(GWindow::Settings& s) const {
 void Win32Window::setCaption(const std::string& caption) {
 	if (_title != caption) {
 		_title = caption;
-		SetWindowText(window, _title.c_str());
+		SetWindowText(window, toTCHAR(_title));
 	}
 }
 
@@ -854,8 +867,8 @@ void Win32Window::initWGL() {
     window_class.hIcon         = LoadIcon(NULL, IDI_APPLICATION); 
     window_class.hCursor       = LoadCursor(NULL, IDC_ARROW);
     window_class.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    window_class.lpszMenuName  = name.c_str();
-    window_class.lpszClassName = "window"; 
+    window_class.lpszMenuName  = toTCHAR(name);
+    window_class.lpszClassName = _T("window"); 
     
     int ret = RegisterClass(&window_class);
 	alwaysAssertM(ret, "Registration Failed");
@@ -883,7 +896,7 @@ void Win32Window::initWGL() {
 		0, 0, 0															// Layer Masks Ignored
 	};
 
-    HWND hWnd = CreateWindow("window", "", 0, 0, 0, 100, 100, NULL, NULL, GetModuleHandle(NULL), NULL);
+    HWND hWnd = CreateWindow(_T("window"), _T(""), 0, 0, 0, 100, 100, NULL, NULL, GetModuleHandle(NULL), NULL);
     debugAssert(hWnd);
 
     HDC  hDC  = GetDC(hWnd);
@@ -1386,9 +1399,9 @@ static LRESULT WINAPI window_proc(
 }
 }
 
-static const char* G3DWndClass() {
+static LPCTSTR G3DWndClass() {
 
-    static char const* g3dWindowClassName = NULL;
+    static LPCTSTR g3dWindowClassName = NULL;
 
     if (g3dWindowClassName == NULL) {
         
@@ -1402,12 +1415,12 @@ static const char* G3DWndClass() {
         wndcls.hCursor = ::LoadCursor(NULL, IDC_ARROW);
         wndcls.hbrBackground = NULL;
         wndcls.lpszMenuName = NULL;
-        wndcls.lpszClassName = "G3DWindow";
+        wndcls.lpszClassName = _T("G3DWindow");
         
         if (!RegisterClass(&wndcls)) {
             Log::common()->printf("\n**** WARNING: could not create G3DWindow class ****\n");
             // error!  Return the default window class.
-            return "window";
+            return _T("window");
         }
         
         g3dWindowClassName = wndcls.lpszClassName;        

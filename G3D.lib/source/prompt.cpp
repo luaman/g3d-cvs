@@ -295,14 +295,14 @@ INT_PTR CALLBACK PromptDlgProc(HWND hDlg, UINT msg,
     case WM_INITDIALOG:
       {
         PromptParams *params = (PromptParams*)lParam;
-        ::SetWindowText(::GetDlgItem(hDlg, IDC_MESSAGE), params->message);
+        ::SetWindowTextA(::GetDlgItem(hDlg, IDC_MESSAGE), params->message);
 
         ::SetFocus(::GetDlgItem(hDlg, IDC_BUTTON0));
 
-        SetWindowText(hDlg, params->title);
+        SetWindowTextA(hDlg, params->title);
 
         HFONT hfont =
-            CreateFont(16, 0, 0, 0, FW_NORMAL,
+            CreateFontA(16, 0, 0, 0, FW_NORMAL,
                        FALSE, FALSE, FALSE, 
                        ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,
                         PROOF_QUALITY, FIXED_PITCH | FF_MODERN, "Courier New");

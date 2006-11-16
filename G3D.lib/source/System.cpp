@@ -864,7 +864,7 @@ std::string System::currentProgramFilename() {
 
     #ifdef G3D_WIN32
     {
-        GetModuleFileName(NULL, filename, sizeof(filename));
+        GetModuleFileNameA(NULL, filename, sizeof(filename));
     } 
     #else
     {

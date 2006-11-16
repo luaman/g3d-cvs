@@ -106,7 +106,7 @@ std::string GLCaps::getDriverVersion() {
         // Locate the windows\system directory
         {
             char sysDir[1024];
-            int sysSize = GetSystemDirectory(sysDir, 1024);
+            int sysSize = GetSystemDirectoryA(sysDir, 1024);
             if (sysSize == 0) {
                 return "Unknown (can't find Windows directory)";
             }
@@ -130,14 +130,14 @@ std::string GLCaps::getDriverVersion() {
         char* lpdriver = const_cast<char*>(driver.c_str());
         DWORD dummy;
 
-        int size = GetFileVersionInfoSize(lpdriver, &dummy);
+        int size = GetFileVersionInfoSizeA(lpdriver, &dummy);
         if (size == 0) {
             return "Unknown (Can't find driver)";
         }
 
         void* buffer = new uint8[size];
 
-        if (GetFileVersionInfo(lpdriver, 0, size, buffer) == 0) {
+        if (GetFileVersionInfoA(lpdriver, 0, size, buffer) == 0) {
             delete[] (uint8*)buffer;
             return "Unknown";
         }

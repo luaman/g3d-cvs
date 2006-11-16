@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)..\build\install\win-i386-vc8.0-lib"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -86,7 +86,7 @@
 			OutputDirectory="$(SolutionDir)..\build\install\win-i386-vc8.0-lib"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool

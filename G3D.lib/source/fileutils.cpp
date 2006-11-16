@@ -334,7 +334,7 @@ void copyFile(
     const std::string&          dest) {
 
     #ifdef G3D_WIN32
-        CopyFile(source.c_str(), dest.c_str(), FALSE);
+        CopyFileA(source.c_str(), dest.c_str(), FALSE);
     #else
         // TODO: don't use BinaryInput and BinaryOutput
         // Read it all in, then dump it out

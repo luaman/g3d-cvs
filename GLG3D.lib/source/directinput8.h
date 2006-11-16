@@ -16,6 +16,7 @@
 
 #include <unknwn.h>
 #include <initguid.h>
+#include <Tchar.h>
 
 
 namespace G3D {
@@ -1357,7 +1358,7 @@ public:
         _window = window;
 
         // Detect DirectInput8 only and create the joystick interfaces
-        HMODULE di8Module = ::LoadLibrary("dinput8.dll");
+        HMODULE di8Module = ::LoadLibrary(_TEXT("dinput8.dll"));
         if (di8Module == NULL) {
             return;
         }
@@ -1391,7 +1392,7 @@ public:
     }
 
     static bool libraryExists() {
-        HMODULE handle = ::LoadLibrary("dinput8.dll");
+        HMODULE handle = ::LoadLibrary(_T("dinput8.dll"));
         if (handle == NULL) {
             return false;
         } else {

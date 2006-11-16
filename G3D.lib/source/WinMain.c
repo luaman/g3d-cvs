@@ -98,7 +98,7 @@ OutOfMemory(void)
 
 /* This is where execution begins [windowed apps] */
 int WINAPI
-G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR szCmdLine, int sw)
+G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 {
     char **argv;
     int argc;

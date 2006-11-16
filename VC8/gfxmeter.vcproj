@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)..\gfxmeter\build\install"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -100,7 +100,7 @@
 			OutputDirectory="$(SolutionDir)..\gfxmeter\build\install"
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -184,23 +184,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\gfxmeter\source\main.cpp"
+				RelativePath="..\tools\gfxmeter\source\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\measureVertexPerformance.cpp"
+				RelativePath="..\tools\gfxmeter\source\measureVertexPerformance.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\Report.cpp"
+				RelativePath="..\tools\gfxmeter\source\Report.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\shaderVersions.cpp"
+				RelativePath="..\tools\gfxmeter\source\shaderVersions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\speed.cpp"
+				RelativePath="..\tools\gfxmeter\source\speed.cpp"
 				>
 			</File>
 		</Filter>
@@ -210,11 +210,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\gfxmeter\source\App.h"
+				RelativePath="..\tools\gfxmeter\source\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\gfxmeter\source\Report.h"
+				RelativePath="..\tools\gfxmeter\source\Report.h"
 				>
 			</File>
 		</Filter>

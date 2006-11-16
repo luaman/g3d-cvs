@@ -111,7 +111,7 @@ static void createErrorMessage(
         }
 
         char modulePath[MAX_PATH];
-        GetModuleFileName(NULL, modulePath, MAX_PATH);
+        GetModuleFileNameA(NULL, modulePath, MAX_PATH);
 
         const char* moduleName = strrchr(modulePath, '\\');
         outTitle = outTitle + string(" - ") + string(moduleName ? (moduleName + 1) : modulePath);

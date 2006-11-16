@@ -47,7 +47,7 @@ bool RegistryUtil::keyExists(const std::string& key) {
 
     debugAssert(key.size() > (pos + 1));
     HKEY openKey;
-    int32 result = RegOpenKeyEx(hkey, (key.c_str() + pos + 1), 0, KEY_ALL_ACCESS, &openKey);
+    int32 result = RegOpenKeyExA(hkey, (key.c_str() + pos + 1), 0, KEY_ALL_ACCESS, &openKey);
 
     if ( result == ERROR_SUCCESS ) {
         RegCloseKey(openKey);
@@ -79,11 +79,11 @@ bool RegistryUtil::readInt32(const std::string& key, int32& valueData) {
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyEx(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
             uint32 dataSize = sizeof(int32);
-            result = RegQueryValueEx(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(&valueData), reinterpret_cast<LPDWORD>(&dataSize));
+            result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(&valueData), reinterpret_cast<LPDWORD>(&dataSize));
 
             debugAssertM(result == ERROR_SUCCESS, "Could not read registry key value.");
 
@@ -115,14 +115,14 @@ bool RegistryUtil::readBytes(const std::string& key, uint8* valueData, uint32& d
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyEx(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
 
             if ( valueData == NULL ) {
-                result = RegQueryValueEx(openKey, value.c_str(), NULL, NULL, NULL, reinterpret_cast<LPDWORD>(&dataSize));
+                result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, NULL, reinterpret_cast<LPDWORD>(&dataSize));
             } else {
-                result = RegQueryValueEx(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(&valueData), reinterpret_cast<LPDWORD>(&dataSize));
+                result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(&valueData), reinterpret_cast<LPDWORD>(&dataSize));
             }
 
             debugAssertM(result == ERROR_SUCCESS, "Could not read registry key value.");
@@ -156,18 +156,18 @@ bool RegistryUtil::readString(const std::string& key, std::string& valueData) {
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyEx(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
             uint32 dataSize = 0;
 
-            result = RegQueryValueEx(openKey, value.c_str(), NULL, NULL, NULL, reinterpret_cast<LPDWORD>(&dataSize));
+            result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, NULL, reinterpret_cast<LPDWORD>(&dataSize));
 
             if ( result == ERROR_SUCCESS ) {
                 char* tmpStr = reinterpret_cast<char*>(System::malloc(dataSize));
                 System::memset(tmpStr, 0, dataSize);
 
-                result = RegQueryValueEx(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(tmpStr), reinterpret_cast<LPDWORD>(&dataSize));
+                result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(tmpStr), reinterpret_cast<LPDWORD>(&dataSize));
                 
                 if ( result == ERROR_SUCCESS ) {
                     valueData = tmpStr;
@@ -205,10 +205,10 @@ bool RegistryUtil::writeInt32(const std::string& key, int32 valueData) {
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyEx(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
-            result = RegSetValueEx(openKey, value.c_str(), NULL, REG_DWORD, reinterpret_cast<const BYTE*>(&valueData), sizeof(int32));
+            result = RegSetValueExA(openKey, value.c_str(), NULL, REG_DWORD, reinterpret_cast<const BYTE*>(&valueData), sizeof(int32));
 
             debugAssertM(result == ERROR_SUCCESS, "Could not write registry key value.");
 
@@ -242,12 +242,12 @@ bool RegistryUtil::writeBytes(const std::string& key, const uint8* valueData, ui
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyEx(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
 
             if (valueData) {
-                result = RegSetValueEx(openKey, value.c_str(), NULL, REG_BINARY, reinterpret_cast<const BYTE*>(valueData), dataSize);
+                result = RegSetValueExA(openKey, value.c_str(), NULL, REG_BINARY, reinterpret_cast<const BYTE*>(valueData), dataSize);
             }
 
             debugAssertM(result == ERROR_SUCCESS, "Could not write registry key value.");
@@ -281,10 +281,10 @@ bool RegistryUtil::writeString(const std::string& key, const std::string& valueD
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyEx(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
-            result = RegSetValueEx(openKey, value.c_str(), NULL, REG_SZ, reinterpret_cast<const BYTE*>(valueData.c_str()), (valueData.size() + 1));                
+            result = RegSetValueExA(openKey, value.c_str(), NULL, REG_SZ, reinterpret_cast<const BYTE*>(valueData.c_str()), (valueData.size() + 1));                
             debugAssertM(result == ERROR_SUCCESS, "Could not write registry key value.");
 
             RegCloseKey(openKey);

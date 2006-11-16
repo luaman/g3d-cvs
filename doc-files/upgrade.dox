@@ -120,6 +120,23 @@ configured to create compile time errors to help you catch bugs.  These will app
 </p>
 
 <hr noshade>
+<p><b>Switched from MBCS to UNICODE on Win32</b></p>
+<p>
+The default wide character set for Visual Studio 2005 is Unicode (instead of multi-byte, 
+which is what previous versions used.)
+
+The G3D source code now compiles under either character set, however the precompiled binaries
+distributed for Windows are now Unicode binaries.  This eliminates the project configuration 
+step when users are creating new projects on Windows since G3D matches the default.
+
+However, this means that pre-existing visual studio projects will likely encounter string errors at link time.  
+If they do, in the Visual Studio IDE go to Projects...Property Pages and on the Configuration Properties... General 
+tab, change Character Set to be "Use Unicode Character Set."
+</p>
+
+
+
+<hr noshade>
 <p><b>GApp::debugController is now a reference</b></p>
 <p>
 This means that <code>app->debugController.setActive</code> etc. calls are now <code>app->debugController->setActive</code>.
