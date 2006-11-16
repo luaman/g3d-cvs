@@ -54,7 +54,16 @@ static LPCTSTR toTCHAR(const std::string& str) {
 #   if defined(_MBCS) || defined(_UNICODE)
         static const int LEN = 1024;
         static TCHAR x[LEN];
-        swprintf(x, LEN, _T("%s"), str.c_str());
+    
+        MultiByteToWideChar(
+            CP_ACP, 
+            0, 
+            str.c_str(), 
+            -1, 
+            x, 
+            LEN);
+
+        //swprintf(x, LEN, _T("%s"), str.c_str());
         return const_cast<LPCTSTR>(x);
 #   else
         return str.c_str();

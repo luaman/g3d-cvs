@@ -130,7 +130,7 @@ G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
     */
 #else
     /* Grab the command line */
-    bufp = GetCommandLine();
+    bufp = GetCommandLineA();
     nLen = strlen(bufp) + 1;
     cmdline = malloc(sizeof(char) * nLen);
     if (cmdline == NULL) {
