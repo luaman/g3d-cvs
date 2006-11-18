@@ -20,7 +20,7 @@
 #    include <SDL/SDL.h>
 #    include <SDL/SDL_syswm.h>
     class NSAutoreleasePoolWrapper;
-#if defined(G3D_LINUX)
+#elif defined(G3D_LINUX)
 #    include <SDL/SDL.h>
 #    include <SDL/SDL_syswm.h>
 #elif defined(SDL_FREEBSD)
