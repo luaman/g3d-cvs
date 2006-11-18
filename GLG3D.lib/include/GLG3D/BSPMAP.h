@@ -51,9 +51,9 @@ private:
 
 public:
 
-    BitSet::BitSet();
+    BitSet();
 
-    BitSet::~BitSet();
+    ~BitSet();
 
     void resize(int count);
 
