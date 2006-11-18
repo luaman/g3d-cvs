@@ -11,11 +11,13 @@
 #include "G3D/platform.h"
 
 // For SDL_Event
-#if defined(G3D_OSX)
+#if defined(G3D_OSX) 
+#   include <SDL_events.h>
+#elif defined(G3D_LINUX)
 #   include <SDL/SDL_events.h>
 #elif defined(G3D_WIN32)
-//#   include <SDL_events.h>
-#else
+
+#elif defined(G3D_FREEBSD)
 #   include <SDL.h>
 #endif
 

@@ -17,13 +17,17 @@
 #include "GLG3D/glcalls.h"
 
 #if defined(G3D_OSX)
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
-class NSAutoreleasePoolWrapper;
-#else
-#undef WIN32_LEAN_AND_MEAN
-#include <SDL.h>
-#include <SDL_syswm.h>
+#    include <SDL/SDL.h>
+#    include <SDL/SDL_syswm.h>
+    class NSAutoreleasePoolWrapper;
+#if defined(G3D_LINUX)
+#    include <SDL/SDL.h>
+#    include <SDL/SDL_syswm.h>
+#elif defined(SDL_FREEBSD)
+#    include <SDL.h>
+#    include <SDL_syswm.h>
+#elif defined(G3D_WIN32)
+#    undef WIN32_LEAN_AND_MEAN
 #endif
 
 #if (defined(main) && ! defined(G3D_WIN32))
