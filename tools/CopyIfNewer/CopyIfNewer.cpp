@@ -8,9 +8,14 @@ bool isDirectory(const std::string& filename);
 /** Adds a slash to a directory, if not already there. */
 std::string maybeAddSlash(const std::string& in);
 int main(int argc, char** argv);
+bool excluded(bool exclusions, bool superExclusions, const std::string& filename);
 
 
-void copyIfNewer(bool exclusions, std::string sourcespec, std::string destspec) {
+void copyIfNewer(
+    bool exclusions, 
+    bool superExclusions, 
+    std::string sourcespec,
+    std::string destspec) {
 
     if (G3D::isDirectory(sourcespec)) {
         // Copy an entire directory.  Change the arguments so that
@@ -38,10 +43,10 @@ void copyIfNewer(bool exclusions, std::string sourcespec, std::string destspec) 
     createDirectory(destspec);
 
     for (int f = 0; f < fileArray.length(); ++f) {
-        if (! exclusions || (fileArray[f][0] != '~')) {
+        if (! excluded(exclusions, superExclusions, fileArray[f])) {
             std::string s = path + fileArray[f];
             std::string d = destspec + fileArray[f];
-            if (true || fileIsNewer(s, d)) {
+            if (fileIsNewer(s, d)) {
                 printf("copy %s %s\n", s.c_str(), d.c_str());
                 copyFile(s, d);
             }
@@ -51,8 +56,8 @@ void copyIfNewer(bool exclusions, std::string sourcespec, std::string destspec) 
     // Directories just get copied; we don't check their dates.
     // Recurse into the directories
     for (int d = 0; d < dirArray.length(); ++d) {
-        if (! exclusions || (dirArray[d] != "CVS")) {
-            copyIfNewer(exclusions, path + dirArray[d], destspec + dirArray[d]);
+        if (! excluded(exclusions, superExclusions, dirArray[d])) {
+            copyIfNewer(exclusions, superExclusions, path + dirArray[d], destspec + dirArray[d]);
         }
     }
 }
@@ -65,10 +70,17 @@ int main(int argc, char** argv) {
         printHelp();
         return -1;
     } else {
-        bool e = false;
+        bool exclusions = false;
+        bool superExclusions = false;
+
         std::string s, d;
         if (std::string("--exclusions") == argv[1]) {
-            e = true;
+            exclusions = true;
+            s = argv[2];
+            d = argv[3];
+        } else if (std::string("--super-exclusions") == argv[1]) {
+            exclusions = true;
+            superExclusions = true;
             s = argv[2];
             d = argv[3];
         } else {
@@ -76,7 +88,7 @@ int main(int argc, char** argv) {
             d = argv[2];
         }
 
-        copyIfNewer(e, s, d);
+        copyIfNewer(exclusions, superExclusions, s, d);
     }
     
     return 0;
@@ -88,7 +100,8 @@ void printHelp() {
     printf("SYNTAX:\n\n");
     printf(" copyifnewer [--help] [--exclusions] <source> <destdir>\n\n");
     printf("ARGUMENTS:\n\n");
-    printf("  --exclusions  If specified, exclude CVS and ~ files. \n\n");
+    printf("  --exclusions  If specified, exclude CVS, svn, and ~ files. \n\n");
+    printf("  --super-exclusions  If specified, exclude CVS, svn, ~, .ncb, .obj, .pyc, Release, Debug, build, temp files. \n\n");
     printf("  source   Filename or directory name (trailing slash not required).\n");
     printf("           May include standard Win32 wild cards in the filename.\n");
     printf("  dest     Destination directory, no wildcards allowed.\n\n");
@@ -108,4 +121,38 @@ std::string maybeAddSlash(const std::string& sourcespec) {
         }
     }
     return sourcespec;
+}
+
+bool excluded(bool exclusions, bool superExclusions, const std::string& filename) {
+    
+    if (exclusions) {
+        if (filename[filename.length() - 1] == '~') {
+            return true;
+        } else if ((filename == "CVS") || (filename == "svn") || (filename == ".cvsignore")) {
+            return true;
+        }
+    }
+
+    if (superExclusions) {
+        std::string f = toLower(filename);
+        if ((f == "release") || 
+            (f == "debug") ||
+            (f == "build") ||
+            (f == "graveyard") ||
+            (f == "temp") ||
+            endsWith(f, ".pyc") ||
+            endsWith(f, ".obj") ||
+            endsWith(f, ".sbr") ||
+            endsWith(f, ".ncb") ||
+            endsWith(f, ".opt") ||
+            endsWith(f, ".bsc") ||
+            endsWith(f, ".pch") ||
+            endsWith(f, ".ilk") ||
+            endsWith(f, ".pdb")) {
+
+            return true;
+        }
+    }
+
+    return false;
 }
