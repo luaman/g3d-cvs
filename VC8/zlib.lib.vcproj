@@ -245,11 +245,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\zlib.lib\include\zlib\zconf.h"
+				RelativePath="..\zlib.lib\include\zconf.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\include\zlib\zlib.h"
+				RelativePath="..\zlib.lib\include\zlib.h"
 				>
 			</File>
 		</Filter>
