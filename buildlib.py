@@ -233,7 +233,8 @@ def findBinary(program):
            'C:/python',\
            'C:/doxygen/bin',\
            'C:/Program Files/doxygen/bin',\
-           'C:/Program Files/PKZIP']
+           'C:/Program Files/PKZIP',\
+           'bin']
 
     for path in PATH:
         filename = path + '/' + program + '.exe'
@@ -346,7 +347,7 @@ def zip(source, zipfile):
     print 'Creating ' + zipfile
 
     if (os.name == 'nt'):
-        run('pkzip25', ['-add', '-rec', '-lev=9', '-path=relative', zipfile, source])
+        run('PKZIP25', ['-add', '-rec', '-lev=9', '-path=relative', zipfile, source])
     else:
         run('zip', [])
 

@@ -19,7 +19,7 @@ def copyIfNewer(source, dest):
         # Just use the binary for this
         print 'copyifnewer', source, dest
         return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', 
-                   ['bin\\copyifnewer.exe', '--exclusions', source, dest])
+                   ['bin\\copyifnewer.exe', '--super-exclusions', source, dest])
     else:
         # Use python commands
         ice.copyifnewer.copyIfNewer(source, dest)
@@ -171,30 +171,39 @@ def ilib(args):
 
 
 def iclean(args):
-     rmdir('build')
-     rmdir('temp')
+    if os.name == 'nt':
+       # iCompile does not support VC8 yet, so explicitly run the project files
+       return 0
 
-     os.chdir("test")
-     run("../bin/icompile", ['--clean'])
-     os.chdir("..")
+    rmdir('build')
+    rmdir('temp')
 
-     os.chdir("gfxmeter")
-     run("../bin/icompile", ['--clean'])
-     os.chdir("..")
+    os.chdir("test")
+    run("../bin/icompile", ['--clean'])
+    os.chdir("..")
+
+    os.chdir("gfxmeter")
+    run("../bin/icompile", ['--clean'])
+    os.chdir("..")
 
 
 def itest(args):
-    os.chdir("test")
-    x = run('../bin/icompile', ['--noprompt', '--run'])
-    if (x == 0):
-        x = run('../bin/icompile', ['--noprompt', '-O', '--run'])
-    os.chdir('..')
+    if os.name == 'nt':
+       # iCompile does not support VC8 yet, so explicitly run the project files
+       return 0
+    else:
 
-    if (x == 0):
-        # Make sure that the other applications can at least build
-        x = runicompile('gfxmeter')
+        os.chdir("test")
+        x = run('../bin/icompile', ['--noprompt', '--run']) 
+        if (x == 0):
+            x = run('../bin/icompile', ['--noprompt', '-O', '--run'])
+        os.chdir('..')
 
-    return x
+        if (x == 0):
+            # Make sure that the other applications can at least build
+            x = runicompile('tools/gfxmeter')
+
+        return x
 
 ################################################################################
 
@@ -218,9 +227,11 @@ def data(args):
     source = 'bin'
     dest = 'build/install/bin'
     copyIfNewer(source, dest)
+    os.remove('build/install/bin/PKZIP25.EXE')
     
     copyIfNewer('data-files', 'build/install/data')
     copyIfNewer('demos', 'build/install/demos')
+
     return 0
 
 def install(args):
@@ -241,6 +252,20 @@ def all(args):
     if x == 0: x = data(args)
     if x == 0: x = test(args)
     return x
+
+def src(args):
+    # First copy everything to the temp directory to remove
+    # CVS files
+    V = Version()
+    ver = 'g3d-' + V.major + '_' + V.minor
+    if (V.beta != ''):
+       ver += '-b' + V.beta
+    copyIfNewer('./*', 'temp/src/' + ver + '/src/')
+   
+    os.remove('temp/src/' + ver + '/src/bin/PKZIP25.EXE')
+    
+    # Now produce the zipfile
+    zip('temp/src/*', 'build/' + ver + '-src.zip')
 
 ##################################################################################
 def getCompilerName(args):
@@ -281,6 +306,8 @@ data       Copy data-files to build/install/data and the bin
 
 test       Build test and testd and then run both
 
+src        Build an src zipfile (Win32 only)
+
 clean      Delete all generated files
 
 doc        Generate documentation using Doxygen
@@ -315,4 +342,4 @@ if __name__ == "__main__":
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
          ilib, iclean, itest,
-         doc, install, all, data], buildHelp))
+         doc, install, all, src, data], buildHelp))
