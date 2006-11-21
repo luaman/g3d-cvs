@@ -340,6 +340,28 @@ def VCExpress(filename, configs):
     return 0
 
 ###############################################################################
+""" 
+ VC8 dispatcher
+"""
+
+win32RegKeyTable = \
+	{'vcexpress'	: r"HKEY_LOCAL_MACHINE\Software\Microsoft\VCExpress\8.0\Setup",
+	 'vc8' 			: r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\8.0\Setup\VS"}
+
+def VC8(filename, configs):
+     from regconfig import RegConfig
+     # find out the flavor of MSVC
+     if RegConfig(win32RegKeyTable['vc8']).has_option('Pro','ProductDir'):
+         return devenv('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+     elif RegConfig(win32RegKeyTable['vc8']).has_option('Std','ProductDir'):
+         return devenv('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+     elif RegConfig(win32RegKeyTable['vcexpress']).has_option('VS','ProductDir'):
+         return VCExpress('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+     else:
+         print "Failed to find MSVC environment. Is this a valid MSDEV shell?"
+         return -1
+
+###############################################################################
 """
  Recursively zips the source into zipfile
 """

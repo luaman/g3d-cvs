@@ -145,10 +145,8 @@ def ilib(args):
      x = 0
 
      if os.name == 'nt':
-         # iCompile does not support VC8 yet, so explicitly run the project files
-         # using VCExpress
-         return VCExpress('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
-    
+         return VC8('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib']);
+
      if (os.uname()[0] == 'Darwin') or (os.name == 'nt'):
          # Build jpeg
          if x == 0: x = runicompile('jpeg.lib')
