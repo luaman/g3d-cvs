@@ -1,6 +1,8 @@
 /**
   @page indexedbytopic APIs by Topic
 
+(See also the complete list of <a href="globals_func.html">Functions</a> and <a href="classes.html">Classes</a>.)
+
 @section app Application Framework (G3DAll.h, glg3d.lib)
 <I>High-level building blocks for creating applications.</I>
 

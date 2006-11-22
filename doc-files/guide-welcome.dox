@@ -9,7 +9,7 @@
 <font size="4" face="Arial" >
 \endhtmlonly
 <ol>
-<li><p>Getting Started
+<li><p>Installing %G3D
  <ol>
    <li> \link guidewin32 Windows \endlink
    <li> OS X 
@@ -18,11 +18,13 @@
  </ol>
 </p>
 
+<li> <p> \link guidenewuser New User Guide \endlink</p>
+
 <li> <p> \link guidecontents Full Table of Contents \endlink</p>
 
 <li> <p> \link guideintro Introduction \endlink</p>
 
-<li> <p> \link indexedbytopic Quick Reference \endlink</p>
+<li> <p> \link indexedbytopic API Index \endlink</p>
 
 <li> <p> \link license License \endlink</p>
 </ol>

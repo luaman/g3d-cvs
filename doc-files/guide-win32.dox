@@ -1,12 +1,4 @@
-/** @page guidewin32 Using G3D on Windows
-
-\htmlonly
-<TABLE BORDER=0 WIDTH=80%><TR><TD><I><FONT FACE="Arial">
-<A HREF="guidewelcome.html"><IMG SRC="backarrow.gif" BORDER=0 ALIGN=MIDDLE>
-Welcome</A></I></FONT></TD><TD ALIGN=RIGHT><FONT FACE="Arial"><I>
-<A HREF="guidetutorial.html">
-Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></TR></TABLE>
-\endhtmlonly
+/** @page guidewin32 Installing G3D on Windows
 
 The following sections give step-by-step instructions for installing the free
 version of Visual Studio, the 7.00 beta 1 version of %G3D, and creating
