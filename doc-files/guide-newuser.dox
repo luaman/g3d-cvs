@@ -5,12 +5,94 @@ information on how to install %G3D on your system and compile your own
 projects that use %G3D, see the Installing %G3D page for your
 operating system linked from the <a href="index.html">title page</a>.
 
+Different developers have different needs.  Each section of this page
+describes a major design decision that you will face when writing a
+project.  The solutions in subsections are categorized by the goals of
+your project.
+
+\htmlonly <hr noshade> \endhtmlonly
 
 @section app Application Framework
 
-- Add 3D to an existing application 
-- Start from 
-- Use %G3D as a utility library
+Every application needs a framework that manages events, provides a
+command-line or graphical user interface, and initializes key
+subsystems like OpenGL and Winsock.  Choose whether you want to:
+
+1. Start a new 3D project from scratch (using the \link g3dframework %G3D framework \endlink)
+<br>
+2. Add 3D graphics to an \link externalframe existing framework \endlink (e.g., MFC, wxWidgets, Carbon, QT, Glut) 
+<br>
+3. Use %G3D as a \link noframework utility library \endlink without any framework
+
+@subsection g3dframework Option 1: GApp Framework
+
+Small games, research projects, and homework assignments are written
+on short shedules and have limited GUI needs.  The G3D::GApp and
+G3D::GApplet classes are designed to get such projects running quickly
+and easily.
+
+G3D::GApp will create a window, initialize OpenGL, create a log file,
+and provide you with framerate and other debugging information
+on-screen.  It works exactly the same on every platform, so you can
+write once and run anywhere.  You can then subclass G3D::GApplet and
+respond to various high-level events like keypresses, rendering once
+per frame, and processing input from the network or simulation.
+
+See the \link guideapp Application Framework \endlink page for more
+information about using these classes.  See the <a
+href="../demos/empty"><code>empty</code></a> G3D project demo for a "Hello World"-style example of the %G3D application framework.
+
+
+@subsection externalframe Option 2: External Framework
+
+Operating systems provide their own windowing and event systems, such
+as X11, Win32 API, MFC, ATL, Carbon, Cocoa.  If you are adding 3D
+graphics to an existing program or are creating a program with a
+substantial non-3D user interface, then you probably want to a non-G3D
+framework for the application.  This can be either the operating
+system's windowing system or a 3rd party GUI library like wxWidgets,
+FLTK, QT, or Glut.  In such an application, the non-G3D framework
+creates the windows and G3D renders inside a client window that you
+designate.
+
+When using an external framework you must explicitly create a
+G3D::GWindow that represents the operating system window into which
+you will render.  How you do this depends on your choice of external
+framework.  For any framework on Windows, you can use the
+G3D::Win32Window subclass and initialize it from a HDC or HWND.  The
+<a href="../contrib"><code>contrib</code></a> directory contains
+G3D::GWindow subclasses for many popular windowing packages like wxWidgets.
+This code is unsupported.  If you are not on Windows and are using
+an external framework for which there is no contrib package, you must 
+subclass G3D::GWindow yourself and implement all of its pure virtual methods.
+
+Once you have a G3D::GWindow subclass object, construct a
+G3D::RenderDevice.  This is the interface to OpenGL rendering.  You
+may also wish to create a G3D::UserInput, which gives polling access to
+the keyboard, mouse, and joystick.  
+
+In your rendering callback (which is determined by the external
+application framework), place rendering calls between
+G3D::RenderDevice::beginFrame() and G3D::RenderDevice::endFrame().
+This constructs an image on the back buffer--to make it visible you
+must invoke G3D::GWindow::swapOpenGLBuffers().
+
+@subsection noframework Option 3: G3D as a Utility Library
+
+Some features in %G3D are useful to any program, regardles of whether
+it performs 3D computations or runs on a graphics processor.  These
+include the platform independent G3D::GThread and G3D::GMutex, data
+structures like G3D::Array, G3D::Set, G3D::Table, and G3D::Queue that
+are both fast and easy to use, and the G3D::System class that provides
+fast memory management, timing, and CPU information.
+
+When using %G3D as a utility library no framework is necessary. To
+support utility usage, the library is split into two pieces: %G3D.lib
+and %GLG3D.lib.  All event-handling, windowed, and OpenGl code is in
+the %GLG3D.lib portion.  This means that you can use %G3D.lib without
+linking against OpenGL or setting up an event handling routine.
+
+\htmlonly <hr noshade> \endhtmlonly
 
 
 */
