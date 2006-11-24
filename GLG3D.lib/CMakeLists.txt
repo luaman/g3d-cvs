@@ -11,7 +11,7 @@
 # but as long as you recognize the need to re-run cmake after adding
 # a file to the project, there will be no problems.
 IF (APPLE)
-    SET (MM_FILES include/GLG3D/*.mm)
+    SET (MM_FILES source/*.mm)
 ENDIF(APPLE)
 
 FILE(GLOB source_list source/*.cpp ${MM_FILES})
@@ -21,7 +21,7 @@ FILE(GLOB header_list include/GLG3D/*.h)
 ADD_LIBRARY(GLG3D ${source_list} ${header_list})
 
 # Required link libraries
-TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARY})
+TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARY} $(CARBON_FRAMEWORK))
 
 FILE (GLOB gl_header_list include/GL/*.h)
 
