@@ -78,6 +78,9 @@ INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
                     ${OPENGL_INCLUDE_DIR}
                     ${SDL_INCLUDE_DIR})
 
+IF (APPLE)
+    SET (CARBON_FRAMEWORK "-framework Carbon")
+ENDIF(APPLE)
 
 ######################################################################
 # BUILD DIRECTORIES
@@ -89,5 +92,5 @@ ADD_SUBDIRECTORY (G3D.lib)
 # Determine whether to build executables
 IF (BUILD_BINARIES)
     ADD_SUBDIRECTORY (test)
-    ADD_SUBDIRECTORY (gfxmeter)
+    ADD_SUBDIRECTORY (tools/gfxmeter)
 ENDIF (BUILD_BINARIES)
