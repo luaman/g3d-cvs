@@ -151,6 +151,11 @@ public:
 		*/
 		std::string  defaultIconFilename;
 
+        /**
+         Window title
+        */
+        std::string  caption;
+
 		Settings() :
 			width(800),
 			height(600),
@@ -171,7 +176,8 @@ public:
 			resizable(false),
 			framed(true),
 			visible(true),
-			defaultIconFilename("nodefault") {}
+			defaultIconFilename("nodefault"),
+            caption("3D") {}
 	};
 
 private:

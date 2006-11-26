@@ -423,8 +423,6 @@ bool RenderDevice::init(GWindow* window, Log* log) {
         enableAlphaWrite();
     }
 
-    setCaption("3D");
-    
     _window->m_renderDevice = this;
 
     return true;
@@ -547,11 +545,6 @@ void RenderDevice::setVideoMode() {
     resetState();
 
     if (debugLog) debugLog->printf("Done setting initial state.\n");
-}
-
-
-void RenderDevice::setCaption(const std::string& caption) {
-    _window->setCaption(caption);
 }
 
 

@@ -116,6 +116,7 @@ configured to create compile time errors to help you catch bugs.  These will app
 <tr><td>G3D::MeshAlg::Edge::broken</td><td>G3D::MeshAlg::Edge::boundary</td></tr>
 <tr><td>G3D::readFileAsString</td><td>G3D::readWholeFile</td></tr>
 <tr><td>G3D::writeStringToFile</td><td>G3D::writeWholeFile (note: argument order changed!)</td></tr>
+<tr><td>G3D::RenderDevice::setCaption</td><td>G3D::GWindow::setCaption</td></tr>
 </table>
 </p>
 

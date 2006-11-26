@@ -1573,11 +1573,6 @@ public:
     void cleanup();
 
     /**
-     Set the titlebar caption
-     */
-    void setCaption(const std::string& caption);
-
-    /**
      Takes a JPG screenshot of the front buffer and saves it to a file.
      Returns the name of the file that was written.
      Example: renderDevice->screenshot("screens/"); 

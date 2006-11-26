@@ -243,7 +243,7 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
     _version = format("%d,%0d.%0d", ver.major, ver.minor, ver.patch);
 
     SDL_EnableUNICODE(1);
-    setCaption("G3D");
+    setCaption(settings.caption);
 
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);

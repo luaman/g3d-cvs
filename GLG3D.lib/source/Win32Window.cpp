@@ -5,7 +5,7 @@
   @cite       Written by Corey Taylor & Morgan McGuire
   @cite       Special thanks to Max McGuire of Ironlore
   @created 	  2004-05-21
-  @edited  	  2006-01-15
+  @edited  	  2006-11-15
     
   Copyright 2000-2006, Morgan McGuire.
   All rights reserved.
@@ -410,6 +410,7 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
 	if (! creatingShareWindow) {
         GLCaps::init();
+        setCaption(settings.caption);
     }
 }
 
