@@ -30,11 +30,11 @@
  unsigned integers.  The first is the message type and the second
  indicates the length of the rest of the data.  The size does not
  include the size of the header itself.  The minimum message is 9
- bytes, a 4-byte types, a 4-byte header of "1" and one byte of data.
+ bytes:a 4-byte type, a 4-byte header equal to "1", and one byte of data.
 
  @maintainer Morgan McGuire, morgan@graphics3d.com
  @created 2002-11-22
- @edited  2006-02-25
+ @edited  2006-11-25
  */
 
 #ifndef G3D_NETWORKDEVICE_H

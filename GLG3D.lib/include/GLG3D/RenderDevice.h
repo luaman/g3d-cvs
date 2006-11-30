@@ -904,14 +904,6 @@ public:
     void setCullFace(CullFace f);
 
     /**
-     Number that the use must multiply all light intensities by 
-     to account for the device's brightness.
-     */
-    inline double getBrightScale() const {
-        return brightScale;
-    }
-
-    /**
      (0, 0) is the <B>upper</B>-left corner of the screen.
      */
     void setViewport(const Rect2D& v);
@@ -1422,11 +1414,6 @@ private:
     /** Only called from pushState */
     void setState(
         const RenderState&          newState);
-
-    /**
-     Amount to multiply colors by due to gamma.
-     */
-    double                          brightScale;
 
     bool                            _initialized;
     bool                            cleanedup;

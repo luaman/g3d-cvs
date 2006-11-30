@@ -304,8 +304,6 @@ Vector2 GFont::draw2D(
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1/255.0);
 
-        const float b = renderDevice->getBrightScale();
-
         if (GLCaps::supports_GL_ARB_multitexture()) {
             glActiveTextureARB(GL_TEXTURE0_ARB);
         }
@@ -342,7 +340,7 @@ Vector2 GFont::draw2D(
         glVertexPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[1]);
 
         if (border.a > 0.05f) {
-            renderDevice->setColor(Color4(border.r * b, border.g * b, border.b * b, border.a));
+            renderDevice->setColor(border);
             glMatrixMode(GL_MODELVIEW);
             float lastDx = 0, lastDy = 0;
             for (int dy = -1; dy <= 1; dy += 2) {
@@ -360,7 +358,7 @@ Vector2 GFont::draw2D(
         }
 
         // Draw foreground
-        renderDevice->setColor(Color4(color.r * b, color.g * b, color.b * b, color.a));
+        renderDevice->setColor(color);
         glDrawArrays(GL_QUADS, 0, N);
 
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -469,11 +467,7 @@ Vector2 GFont::draw3D(
                 }
             }
 
-            renderDevice->setColor(
-		        Color4(color.r * renderDevice->getBrightScale(),
-			       color.g * renderDevice->getBrightScale(), 
-			       color.b * renderDevice->getBrightScale(), 
-			       color.a));
+            renderDevice->setColor(color);
             Vector2 bounds = drawString(renderDevice, s, x, y, w, h, spacing);
 
         renderDevice->endPrimitive();

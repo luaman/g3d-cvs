@@ -193,7 +193,6 @@ G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
 	GApp::Settings settings;
-    settings.useNetwork = false;
     App(settings).run();
     return 0;
 }

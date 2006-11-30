@@ -1,4 +1,4 @@
-package com.graphics3d.G3D;
+package com.graphics3d.g3d;
 
 public interface BinaryDeserializable {
     public void deserialize(BinaryInput input);

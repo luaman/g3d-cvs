@@ -465,7 +465,7 @@ void Sky::render(
         renderDevice->setCameraToWorldMatrix(matrix);
         renderDevice->setObjectToWorldMatrix(CoordinateFrame());
 
-        renderDevice->setColor(lighting.skyAmbient * renderDevice->getBrightScale());
+        renderDevice->setColor(lighting.skyAmbient);
         renderDevice->setCullFace(RenderDevice::CULL_BACK);
         renderDevice->disableDepthWrite();
         renderDevice->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
@@ -501,9 +501,8 @@ void Sky::drawMoonAndStars(
     // Draw stars
     if (lighting.moonPosition.y > -0.3f) {
 
-        float k = (3.001 - square(lighting.skyAmbient.length()));// * renderDevice->getBrightScale();
+        float k = (3.001 - square(lighting.skyAmbient.length()));
 		float s = k;
-		k *= renderDevice->getBrightScale();
 		renderDevice->pushState();
             // Rotate stars
 			renderDevice->setObjectToWorldMatrix((lighting.physicallyCorrect ? lighting.trueStarFrame : lighting.starFrame));

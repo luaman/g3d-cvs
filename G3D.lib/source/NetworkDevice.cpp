@@ -221,51 +221,6 @@ bool NetworkDevice::init(G3D::Log* _log) {
         }
     #endif
 
-
-    if (debugLog) {debugLog->section("Testing Network");}
-
-    SOCKET sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    
-    if (debugLog) {debugLog->print("Open Socket                  ");}
-    if (sock == SOCKET_ERROR) {
-        if (debugLog) {
-            debugLog->println("FAIL");
-            debugLog->println(socketErrorCode());
-        }
-        return false;
-    }
-    if (debugLog) { debugLog->println("Ok"); }
-
-    int TR = true;
-    int ret = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, 
-                         (const char*)&TR, sizeof(TR));
-
-    if (debugLog) {debugLog->print("Enable UDP Broadcast         ");}
-    if (ret != 0) {
-        if (debugLog) {
-            debugLog->println("FAIL");
-            debugLog->println(socketErrorCode());
-        }
-        return false;
-    }
-    if (debugLog) {debugLog->println("Ok");}
-
-    if (debugLog) {debugLog->print("Testing UDP Broadcast        ");}
-    SOCKADDR_IN addr;
-    int32 x;
-    addr = NetAddress(0xFFFFFFFF, 23).addr;
-    ret = sendto(sock, (const char*)&x, sizeof(x), 0, 
-                 (struct sockaddr *) &addr, sizeof(addr));
-    if (ret == SOCKET_ERROR) {
-        if (debugLog) {
-            debugLog->println("FAIL");
-            debugLog->println(socketErrorCode());
-        }
-        return false;
-    }
-    if (debugLog) {debugLog->println("Ok");}
-
-    if (debugLog) {debugLog->section("");}
     initialized = true;
 
     return true;
@@ -307,7 +262,7 @@ NetListenerRef NetworkDevice::createListener(const uint16 port) {
 
 bool NetworkDevice::bind(SOCKET sock, const NetAddress& addr) const {
     if (debugLog) {
-        debugLog->printf("Binding socket %d on port %d  ", 
+        debugLog->printf("Binding socket %d on port %d ", 
                          sock, htons(addr.addr.sin_port));
     }
 

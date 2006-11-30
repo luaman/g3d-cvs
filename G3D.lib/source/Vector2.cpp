@@ -88,7 +88,6 @@ void Vector2::serialize(BinaryOutput& b) const {
 }
 
 
-
 void Vector2::deserialize(TextInput& t) {
     t.readSymbol("(");
     x = (float)t.readNumber();

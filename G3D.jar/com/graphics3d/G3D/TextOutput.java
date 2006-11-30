@@ -1,4 +1,4 @@
-package com.graphics3d.G3D;
+package com.graphics3d.g3d;
 
 import sun.net.dns.ResolverConfiguration;
 
@@ -42,6 +42,12 @@ public class TextOutput {
     private boolean     inDQuote = false;
     private String      filename = "";
     private int         indentLevel = 0;
+    private String      newline = "\r\n";
+
+    /** Actual number of spaces to indent, taking word-wrapping into account. */
+    private int         indentSpaces = 0;
+
+    private StringBuffer data = new StringBuffer();
 
 
     public TextOutput(Settings s) {
@@ -49,52 +55,72 @@ public class TextOutput {
     }
 
     public TextOutput() {
-        TextOutput(new Settings());
+        this(new Settings());
+    }
+
+
+    public TextOutput(File filename, Settings s) {
+        this(s);
+        this.filename = filename.toString();
+    }
+
+    public TextOutput(File filename) {
+        this(new Settings());
+        this.filename = filename.toString();
     }
 
     public TextOutput(String filename, Settings s) {
-        TextOutput(s);
+        this(s);
         this.filename = filename;
     }
 
-    void TextOutput::setIndentLevel(int i) {
+    public TextOutput(String filename) {
+        this(new Settings());
+        this.filename = filename;
+    }
+
+    static private int iClamp(int val, int lo, int hi) {
+        return Math.min(hi, Math.max(val, lo));
+    }
+
+
+    public void setIndentLevel(int i) {
         indentLevel = i;
 
         // If there were more pops than pushes, don't let that take us below 0 indent.
         // Don't ever indent more than the number of columns.
         indentSpaces =
-            iClamp(option.spacesPerIndent * indentLevel,
+            iClamp(mSettings.spacesPerIndent * indentLevel,
                    0,
-                   option.numColumns - 1);
+                   mSettings.numColumns - 1);
     }
 
 
-    void TextOutput::setOptions(const Options& _opt) {
-        option = _opt;
+    public void setSettings(Settings _opt) {
+        mSettings = _opt.clone();
 
-        debugAssert(option.numColumns > 1);
-
+        // Check wrapping of indent level
         setIndentLevel(indentLevel);
 
-        newline = (option.newlineStyle == Options::NEWLINE_WINDOWS) ? "\r\n" : "\n";
+        newline = (mSettings.newlineStyle == Settings.NEWLINE_WINDOWS) ? "\r\n" : "\n";
     }
 
 
-    void TextOutput::pushIndent() {
+    public void pushIndent() {
         setIndentLevel(indentLevel + 1);
     }
 
 
-    void TextOutput::popIndent() {
+    public void popIndent() {
         setIndentLevel(indentLevel - 1);
     }
 
+    /** Replace all non-printable characters with escape codes like \n */
+    static private String escapeString(String string) {
+        String result = "";
 
-    static std::string escape(const std::string& string) {
-        std::string result = "";
-
-        for (std::string::size_type i = 0; i < string.length(); ++i) {
-            char c = string.at(i);
+        for (int i = 0; i < string.length(); ++i) {
+            char c = string.charAt(i);
             switch (c) {
             case '\0':
                 result += "\\0";
@@ -124,138 +150,115 @@ public class TextOutput {
         return result;
     }
 
-    void TextOutput::writeString(const std::string& string) {
+    /** Escapes any non-printable characters */
+    public void writeString(String string) {
         // Convert special characters to escape sequences
-        this->printf("\"%s\"", escape(string).c_str());
+        print("\"" + escapeString(string) + "\"");
+    }
+
+    public void writeNumber(double n) {
+        print("" + n + " ");
     }
 
 
-    void TextOutput::writeNumber(double n) {
-        this->printf("%f ", n);
+    public void writeNumber(int n) {
+        print("" + n+ " ");
     }
 
-
-    void TextOutput::writeNumber(int n) {
-        this->printf("%d ", n);
-    }
-
-
-    void TextOutput::writeSymbol(const std::string& string) {
-        if (string.size() > 0) {
-            // TODO: check for legal symbols?
-            this->printf("%s ", string.c_str());
+    public void writeSymbol(String string) {
+        if (string.length() > 0) {
+            print("" +  string + " ");
         }
     }
 
-    void TextOutput::writeSymbols(
-        const std::string& a,
-        const std::string& b,
-        const std::string& c,
-        const std::string& d,
-        const std::string& e,
-        const std::string& f) {
+    public void writeSymbols(
+        String a,
+        String b) {
 
         writeSymbol(a);
         writeSymbol(b);
-        writeSymbol(c);
-        writeSymbol(d);
-        writeSymbol(e);
-        writeSymbol(f);
     }
 
 
-    void TextOutput::printf(const std::string formatString, ...) {
-        va_list argList;
-        va_start(argList, formatString);
-        this->vprintf(formatString.c_str(), argList);
-        va_end(argList);
-    }
-
-
-    void TextOutput::printf(const char* formatString, ...) {
-        va_list argList;
-        va_start(argList, formatString);
-        this->vprintf(formatString, argList);
-        va_end(argList);
-    }
-
-
-    void TextOutput::convertNewlines(const std::string& in, std::string& out) {
+    private String convertNewlines(String in) {
         // TODO: can be significantly optimized in cases where
         // single characters are copied in order by walking through
         // the array and copying substrings as needed.
 
-        if (option.convertNewlines) {
+        String out = "";
+
+        if (mSettings.convertNewlines) {
             out = "";
-            for (uint32 i = 0; i < in.size(); ++i) {
-                if (in[i] == '\n') {
+            for (int i = 0; i < in.length(); ++i) {
+                if (in.charAt(i) == '\n') {
                     // Unix newline
                     out += newline;
-                } else if ((in[i] == '\r') && (i + 1 < in.size()) && (in[i + 1] == '\n')) {
+                } else if ((in.charAt(i) == '\r') && (i + 1 < in.length()) && (in.charAt(i + 1) == '\n')) {
                     // Windows newline
                     out += newline;
                     ++i;
                 } else {
-                    out += in[i];
+                    out += in.charAt(i);
                 }
             }
         } else {
             out = in;
         }
+
+        return out;
     }
 
 
-    void TextOutput::writeNewline() {
-        for (uint32 i = 0; i < newline.size(); ++i) {
-            indentAppend(newline[i]);
-        }
+    public void writeNewline() {
+        print(newline);
     }
 
 
-    void TextOutput::writeNewlines(int numLines) {
+    public void writeNewlines(int numLines) {
         for (int i = 0; i < numLines; ++i) {
             writeNewline();
         }
     }
 
+    public void print(String str) {
+        wordWrapIndentAppend(str);
+    }
 
-    void TextOutput::wordWrapIndentAppend(const std::string& str) {
+    private void wordWrapIndentAppend(String str) {
         // TODO: keep track of the last space character we saw so we don't
         // have to always search.
 
-        if ((option.wordWrap == Options::WRAP_NONE) ||
-            (currentColumn + (int)str.size() <= option.numColumns)) {
+        if ((mSettings.wordWrap == Settings.WRAP_NONE) ||
+            (currentColumn + str.length() <= mSettings.numColumns)) {
             // No word-wrapping is needed
 
             // Add one character at a time.
             // TODO: optimize for strings without newlines to add multiple
             // characters.
-            for (uint32 i = 0; i < str.size(); ++i) {
-                indentAppend(str[i]);
+            for (int i = 0; i < str.length(); ++i) {
+                indentAppend(str.charAt(i));
             }
             return;
         }
 
         // Number of columns to wrap against
-        int cols = option.numColumns - indentSpaces;
+        int cols = mSettings.numColumns - indentSpaces;
 
         // Copy forward until we exceed the column size,
         // and then back up and try to insert newlines as needed.
-        for (uint32 i = 0; i < str.size(); ++i) {
+        for (int i = 0; i < str.length(); ++i) {
 
-            indentAppend(str[i]);
-            if ((str[i] == '\r') && (i + 1 < str.size()) && (str[i + 1] == '\n')) {
+            indentAppend(str.charAt(i));
+            if ((str.charAt(i) == '\r') && (i + 1 < str.length()) && (str.charAt(i + 1) == '\n')) {
                 // \r\n, we need to hit the \n to enter word wrapping.
                 ++i;
-                indentAppend(str[i]);
+                indentAppend(str.charAt(i));
             }
 
             if (currentColumn >= cols) {
-                debugAssertM(str[i] != '\n' && str[i] != '\r',
-                    "Should never enter word-wrapping on a newline character");
 
                 // True when we're allowed to treat a space as a space.
-                bool unquotedSpace = option.allowWordWrapInsideDoubleQuotes || ! inDQuote;
+                boolean unquotedSpace = mSettings.allowWordWrapInsideDoubleQuotes || ! inDQuote;
 
                 // Cases:
                 //
@@ -270,20 +273,20 @@ public class TextOutput {
                 //     search backwards for a space, then execute case 2.
 
                 // Index of most recent space
-                uint32 lastSpace = data.size() - 1;
+                int lastSpace = data.length() - 1;
 
                 // How far back we had to look for a space
-                uint32 k = 0;
-                uint32 maxLookBackward = currentColumn - indentSpaces;
+                int k = 0;
+                int maxLookBackward = currentColumn - indentSpaces;
 
                 // Search backwards (from current character), looking for a space.
                 while ((k < maxLookBackward) &&
                     (lastSpace > 0) &&
-                    (! ((data[lastSpace] == ' ') && unquotedSpace))) {
+                    (! ((data.charAt(lastSpace) == ' ') && unquotedSpace))) {
                     --lastSpace;
                     ++k;
 
-                    if ((data[lastSpace] == '\"') && !option.allowWordWrapInsideDoubleQuotes) {
+                    if ((data.charAt(lastSpace) == '\"') && ! mSettings.allowWordWrapInsideDoubleQuotes) {
                         unquotedSpace = ! unquotedSpace;
                     }
                 }
@@ -291,12 +294,12 @@ public class TextOutput {
                 if (k == maxLookBackward) {
                     // We couldn't find a series of spaces
 
-                    if (option.wordWrap == Options::WRAP_ALWAYS) {
+                    if (mSettings.wordWrap == Settings.WRAP_ALWAYS) {
                         // Strip the last character we wrote, force a newline,
                         // and replace the last character;
-                        data.pop();
+                        data = data.delete(data.length() - 1, data.length());
                         writeNewline();
-                        indentAppend(str[i]);
+                        indentAppend(str.charAt(i));
                     } else {
                         // Must be Options::WRAP_WITHOUT_BREAKING
                         //
@@ -310,10 +313,10 @@ public class TextOutput {
 
                     // Find the start of the spaces.  firstSpace is the index of the
                     // first non-space, looking backwards from lastSpace.
-                    uint32 firstSpace = lastSpace;
+                    int firstSpace = lastSpace;
                     while ((k < maxLookBackward) &&
                         (firstSpace > 0) &&
-                        (data[firstSpace] == ' ')) {
+                        (data.charAt(firstSpace) == ' ')) {
                         --firstSpace;
                         ++k;
                     }
@@ -322,13 +325,13 @@ public class TextOutput {
                         ++firstSpace;
                     }
 
-                    if (lastSpace == (uint32)data.size() - 1) {
+                    if (lastSpace == data.length() - 1) {
                         // Spaces continued up to the new string
-                        data.resize(firstSpace + 1);
+                        data.delete(firstSpace + 1, data.length());
                         writeNewline();
 
                         // Delete the spaces from the new string
-                        while ((i < str.size() - 1) && (str[i + 1] == ' ')) {
+                        while ((i < str.length() - 1) && (str.charAt(i + 1) == ' ')) {
                             ++i;
                         }
                     } else {
@@ -336,9 +339,9 @@ public class TextOutput {
                         // replace them with a newline.
 
                         // Copy over the characters that should be saved
-                        Array<char> temp;
-                        for (uint32 j = lastSpace + 1; j < (uint32)data.size(); ++j) {
-                            char c = data[j];
+                        StringBuffer temp = new StringBuffer();
+                        for (int j = lastSpace + 1; j < data.length(); ++j) {
+                            char c = data.charAt(j);
 
                             if (c == '\"') {
                                 // Undo changes to quoting (they will be re-done
@@ -349,12 +352,12 @@ public class TextOutput {
                         }
 
                         // Remove those characters and replace with a newline.
-                        data.resize(firstSpace + 1);
+                        data = data.delete(firstSpace + 1, data.length());
                         writeNewline();
 
                         // Write them back
-                        for (uint32 j = 0; j < (uint32)temp.size(); ++j) {
-                            indentAppend(temp[j]);
+                        for (int j = 0; j < temp.length(); ++j) {
+                            indentAppend(temp.charAt(j));
                         }
 
                         // We are now free to continue adding from the
@@ -367,17 +370,17 @@ public class TextOutput {
     }
 
 
-    void TextOutput::indentAppend(char c) {
+    public void indentAppend(char c) {
 
         if (startingNewLine) {
             for (int j = 0; j < indentSpaces; ++j) {
-                data.push(' ');
+                data.append(' ');
             }
             startingNewLine = false;
             currentColumn = indentSpaces;
         }
 
-        data.push(c);
+        data.append(c);
 
         // Don't increment the column count on return character
         // newline is taken care of below.
@@ -396,40 +399,22 @@ public class TextOutput {
     }
 
 
-    void TextOutput::vprintf(const char* formatString, va_list argPtr) {
-        std::string str = vformat(formatString, argPtr);
-
-        std::string clean;
-        convertNewlines(str, clean);
-        wordWrapIndentAppend(clean);
-    }
-
-
-    void commit() {
+    public void commit() {
         commit(true);
     }
 
-    void commit(boolean flush) {
-        Writer out =
-        FILE* f = fopen(filename.c_str(), "wb");
-
-
-        fwrite(data.getCArray(), 1, data.size(), f);
-
-
-        if (flush) {
-            fflush(f);
+    public void commit(boolean flush) {
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+            out.write(data.toString());
+            out.close();
+        } catch (IOException e) {
+            throw new IllegalStateException(e.toString());
         }
-
-        // Triggers a flush
-        out.close();
     }
 
 
-    String commitString() {
-        // Null terminate
-        data.push('\0');
-        out = data.getCArray();
-        data.pop();
+    public String commitString() {
+        return data.toString();
     }
 }

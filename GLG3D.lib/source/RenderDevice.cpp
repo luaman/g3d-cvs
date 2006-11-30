@@ -491,20 +491,6 @@ void RenderDevice::setVideoMode() {
         }
     #endif
 
-    {
-        if (debugLog) {
-            debugLog->printf("Setting brightness to %g\n", 
-                                        settings.lightSaturation);
-        }
-        // Adjust the gamma so that changing the 
-        // light intensities won't affect the actual screen
-        // brightness.  This method due to John Carmack.
-        lightSaturation = settings.lightSaturation;
-        brightScale = 1.0 / lightSaturation;
-        setGamma(lightSaturation, 1.0);
-        if (debugLog) debugLog->println("Brightness set.");
-    }
-
     // Enable proper specular lighting
     if (GLCaps::supports("GL_EXT_separate_specular_color")) {
         if (debugLog) {

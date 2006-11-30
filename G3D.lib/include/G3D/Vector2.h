@@ -6,7 +6,8 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
   
   @created 2001-06-02
-  @edited  2006-01-14
+  @edited  2006-11-30
+
   Copyright 2000-2006, Morgan McGuire.
   All rights reserved.
 */
@@ -38,17 +39,18 @@ private:
     bool operator>=(const Vector2&) const;
 
 public:
-    // coordinates
-    float x, y;
+    float x;
+    float y;
 
-    // construction
+    /** Creates the zero vector */
     Vector2();
+    Vector2(class TextInput& t);
     Vector2(class BinaryInput& b);
     Vector2(float x, float y);
     Vector2(float coordinate[2]);
     Vector2(double coordinate[2]);
-    Vector2(const Vector2& rkVector);
-    Vector2(const class Vector2int16& v); 
+    Vector2(const Vector2& other);
+    Vector2(const class Vector2int16& other); 
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
@@ -56,18 +58,19 @@ public:
     void serialize(class TextOutput& t) const;
     void deserialize(class TextInput& t);
 
-    float& operator[] (int i);
-    const float& operator[] (int i) const;
-    operator float* ();
-    operator const float* () const;
+    float& operator[](int i);
+    const float& operator[](int i) const;
+    operator float*();
+    operator const float*() const;
 
     // assignment and comparison
-    Vector2& operator= (const Vector2& rkVector);
-    bool operator== (const Vector2& rkVector) const;
-    bool operator!= (const Vector2& rkVector) const;
+    Vector2& operator=(const Vector2& other);
+    bool operator==(const Vector2& other) const;
+    bool operator!=(const Vector2& other) const;
     unsigned int hashCode() const;
     bool fuzzyEq(const Vector2& other) const;
     bool fuzzyNe(const Vector2& other) const;
+
     /** Returns true if this vector has finite length */
     bool isFinite() const;
 
@@ -78,14 +81,21 @@ public:
     bool isUnit() const;
 
     // arithmetic operations
-    Vector2 operator+ (const Vector2& rkVector) const;
-    Vector2 operator- (const Vector2& rkVector) const;
-    Vector2 operator* (float fScalar) const;
-    Vector2 operator* (const Vector2& rkVector) const;
-    Vector2 operator/ (const Vector2& rkVector) const;
-    Vector2 operator/ (float fScalar) const;
-    Vector2 operator- () const;
+    Vector2 operator+(const Vector2& v) const;
+    Vector2 operator-(const Vector2& v) const;
+    Vector2 operator*(float s) const;
 
+    /** Array (pointwise) multiplication */
+    Vector2 operator*(const Vector2& v) const;
+
+    /** Array division */
+    Vector2 operator/(const Vector2& v) const;
+    Vector2 operator/(float s) const;
+
+    /** Unary minus */
+    Vector2 operator-() const;
+
+    /** x + y */
     inline float sum() const {
         return x + y;
     }
@@ -110,16 +120,21 @@ public:
     }
 
     // arithmetic updates
-    Vector2& operator+= (const Vector2& rkVector);
-    Vector2& operator-= (const Vector2& rkVector);
-    Vector2& operator*= (float fScalar);
-    Vector2& operator/= (float fScalar);
-    Vector2& operator*= (const Vector2& rkVector);
-    Vector2& operator/= (const Vector2& rkVector);
+    Vector2& operator+=(const Vector2&);
+    Vector2& operator-=(const Vector2&);
+    Vector2& operator*=(float);
+    Vector2& operator/=(float);
+    Vector2& operator*=(const Vector2&);
+    Vector2& operator/=(const Vector2&);
 
     // vector operations
+
+    /**  */
     float length() const;
+    
+    /** Returns a unit-length vector */
     Vector2 direction() const;
+
     /**
      Potentially less accurate but faster than direction().
      Only works if System::hasSSE is true.
@@ -128,14 +143,19 @@ public:
         return direction();
     }
 
-    float squaredLength () const;
-    float dot (const Vector2& rkVector) const;
-    float unitize (float fTolerance = 1e-06);
+    float squaredLength() const;
+    float dot(const Vector2& s) const;
 
-    Vector2 min(const Vector2 &v) const;
-    Vector2 max(const Vector2 &v) const;
+    /**
+     Make this vector have unit length and return the old length.
+     If the vector length was less than tolerance, do not normalize.
+     */
+    float unitize(float fTolerance = 1e-06);
 
-    // Random unit vector
+    Vector2 min(const Vector2& v) const;
+    Vector2 max(const Vector2& v) const;
+
+    /** Uniformly distributed random vector on the unit sphere */
     static Vector2 random();
 
     // Special values.

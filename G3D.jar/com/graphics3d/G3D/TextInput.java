@@ -1,4 +1,4 @@
-package com.graphics3d.G3D;
+package com.graphics3d.g3d;
 
 import java.io.*;
 
@@ -109,9 +109,9 @@ public class TextInput {
         tokenizer.slashSlashComments(m_settings.cppComments);
         tokenizer.lowerCaseMode(false);
 
-        tokenizer.quoteChar(34);
+        tokenizer.quoteChar('\"');//ASCII 34
         if (m_settings.singleQuotedStrings) {
-            tokenizer.quoteChar(39);
+            tokenizer.quoteChar('\''); // ASCII 39
         }
 
         if (m_settings.otherCommentCharacter != 0) {
@@ -141,6 +141,14 @@ public class TextInput {
         return new TextInput(new FileReader(filename), s);
     }
 
+    public static TextInput fromFile(File file) throws FileNotFoundException {
+        return TextInput.fromFile(file.toString());
+    }
+
+    public static TextInput fromFile(File file, Settings settings) throws FileNotFoundException {
+        return TextInput.fromFile(file.toString(), settings.clone());
+    }
+
     public boolean hasMore() {
         try {
             boolean isEof = (tokenizer.nextToken() == StreamTokenizer.TT_EOF);
@@ -166,13 +174,11 @@ public class TextInput {
 
         switch (tokenizer.ttype) {
         case StreamTokenizer.TT_NUMBER:
-            extendedType = Token.INTEGER_TYPE;
-            if (tokenizer.sval.contains(".")) {
-                // TODO: handle 1e6 notation
-                extendedType = Token.FLOATING_POINT_TYPE;
-            }
 
-            return new Token(Token.NUMBER, extendedType, tokenizer.sval, L, C);
+            // Java can't distinguish int and float tokens
+            extendedType = Token.FLOATING_POINT_TYPE;
+
+            return new Token(Token.NUMBER, extendedType, "" + tokenizer.nval, L, C);
 
         case StreamTokenizer.TT_WORD:
             // TODO: handle MSVC specials
@@ -199,15 +205,20 @@ public class TextInput {
             // We don't consider EOL significant, so ignore this token
             return read();
 
-        default:
+        case '\'':
+        case '\"':
             // Quoted string
             extendedType = Token.DOUBLE_QUOTED_TYPE;
 
-            if (m_settings.singleQuotedStrings && (tokenizer.ttype == 39)) {
+            if (m_settings.singleQuotedStrings && (tokenizer.ttype == '\'')) { // ASCII 39
                extendedType = Token.SINGLE_QUOTED_TYPE;
             }
 
             return new Token(Token.STRING, extendedType, tokenizer.sval, L, C);
+
+        default:
+            // 1-character symbol
+            return new Token(Token.SYMBOL, extendedType, new Character((char)tokenizer.ttype).toString(), L, C);
         }
     }
 
@@ -232,18 +243,28 @@ public class TextInput {
     }
 
     public String readSymbol() {
-        // TODO: Throw an exception if this is not a symbol
-        return read().string();
+
+        return readSymbolToken().string();
+    }
+
+    public void readSymbols(String m, String n) {
+        readSymbol(m);
+        readSymbol(n);        
     }
 
     public Token readSymbolToken() {
-        // TODO: Throw an exception if this is not a symbol
-        return read();
+        Token tok = read();
+        if (tok.type() != Token.SYMBOL) {
+            throw new IllegalStateException("Expected a symbol.");
+        }
+        return tok;
     }
 
     public void readSymbol(String symbol) {
-        // TODO: Throw an exception if this is not a symbol
-        read();
+        String s = readSymbol();
+        if (! symbol.equals(s)) {
+            throw new IllegalStateException("Expected symbol \'" + symbol + "\', found symbol \'" + s + "\'");
+        }
     }
 
     //void readSymbols(String ...);
