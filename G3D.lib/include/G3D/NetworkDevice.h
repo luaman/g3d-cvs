@@ -511,6 +511,7 @@ public:
 
     virtual uint32 waitingMessageType();
 
+
     virtual bool messageWaiting() const;
 };
 

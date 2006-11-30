@@ -833,7 +833,10 @@ LightweightConduit::LightweightConduit(
 
     if (enableReceive) {
         debugAssert(port != 0);
-        nd->bind(sock, NetAddress(0, port));
+        if (! nd->bind(sock, NetAddress(0, port))) {
+            nd->closesocket(sock);
+            sock = (SOCKET)SOCKET_ERROR;
+        }
     }
 
     // Figuring out the MTU seems very complicated, so we just set it to 1000,
@@ -851,6 +854,7 @@ LightweightConduit::LightweightConduit(
                 nd->debugLog->println(socketErrorCode());
             }
             nd->closesocket(sock);
+            sock = 0;
             return;
         }
     }
