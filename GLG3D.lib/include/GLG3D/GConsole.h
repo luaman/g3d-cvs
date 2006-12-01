@@ -157,8 +157,10 @@ protected:
     /** Previously executed commands. */
     Array<string>       m_history;
 
+public:
     Rect2D              m_rect;
 
+protected:
     class Text {
     public:
         string          value;
