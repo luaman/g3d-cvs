@@ -274,6 +274,11 @@ float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
     }
 
     /** VC6 lacks std::min and std::max */
+    inline int64 min(int64 x, int64 y) {
+        return std::_cpp_min(x, y);
+    }
+
+    /** VC6 lacks std::min and std::max */
     inline int min(int x, int y) {
         return std::_cpp_min(x, y);
     }
@@ -285,6 +290,11 @@ float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
 
     /** VC6 lacks std::min and std::max */
     inline float max(float x, float y) {
+        return std::_cpp_max(x, y);
+    }
+
+    /** VC6 lacks std::min and std::max */
+    inline int64 max(int64 x, int64 y) {
         return std::_cpp_max(x, y);
     }
 
