@@ -24,6 +24,7 @@
      <li> G3D::TextInput::Settings::msvcSpecials now defaults to true
      <li> Made the input to G3D::tessellateComplexPolygon a constant array reference
      <li> Removed SDL from Win32 build
+     <li> Increased maximum ReliableConduit message size to 60 MB
      <li> Removed error macro
      <li> G3D::GConsole
      <li> getOpenGLState now includes GL_LIGHT_MODEL_TWO_SIDE value

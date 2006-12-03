@@ -3,7 +3,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-10-05
- @edited  2006-01-10
+ @edited  2006-11-10
  */
 
 #ifndef G3D_GAMEUNITS_H
@@ -41,5 +41,4 @@ SimTime toSeconds(int hour, int minute, AMPM ap);
 
 }
 
-using G3D::toSeconds;
 #endif
