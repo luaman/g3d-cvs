@@ -22,6 +22,12 @@
 #define isspace(a) (((CHAR)a == ' ') || ((CHAR)a == '\t'))
 #endif /* _WIN32_WCE < 300 */
 
+// Turn off the G3D for loop scoping for C++
+#ifdef for
+#  undef for
+#endif
+
+
 extern int main(int argc, const char** argv);
 
 /* Parse a command line buffer into arguments */
