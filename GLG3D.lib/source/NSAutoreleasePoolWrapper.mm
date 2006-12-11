@@ -22,9 +22,9 @@ NSAutoreleasePoolWrapper::NSAutoreleasePoolWrapper() : _pool(0) {
 }
 
 NSAutoreleasePoolWrapper::~NSAutoreleasePoolWrapper() {
-	if(_pool)
+/*	if(_pool)
 	{
 		[(NSAutoreleasePool*)_pool release];
-	}
+	}*/
 }
 
