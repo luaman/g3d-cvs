@@ -14,6 +14,97 @@
 
 namespace G3D {
 
+/** 
+  If maybeReuse matches source's format but is not the same as source, returns maybeReuse, otherwise returns a new
+  texture with the same properties as source.
+  */
+static TextureRef cloneFormat(const TextureRef& source, TextureRef& maybeReuse) {
+    if (maybeReuse.notNull() && 
+        (source != maybeReuse) &&
+        (source->format() == maybeReuse->format()) &&
+        (source->texelWidth() == maybeReuse->texelWidth()) &&
+        (source->texelHeight() == maybeReuse->texelHeight()) &&
+        (source->texelDepth() == maybeReuse->texelDepth()) &&
+        (source->dimension() == maybeReuse->dimension()) &&
+        (source->settings().equalsIgnoringMipMap(maybeReuse->settings()))) {
+        return maybeReuse;
+    } else {
+        return Texture::createEmpty("Clone of " + source->name(), 
+            source->texelWidth(),
+            source->texelHeight(),
+            source->format(),
+            source->dimension(),
+            source->settings());
+    }
+}
+
+void TextureEffects::gaussianBlur(RenderDevice* rd, const TextureRef& source, TextureRef& dest) {
+
+    if (gaussian1DShader.isNull()) {
+        gaussian1DShader = 
+            //Shader::fromFiles("", "shader.txt");
+        Shader::fromStrings("",            
+        std::string("const int kernelSize = 17;\
+         const float gaussCoef[kernelSize] = \
+            {0.013960189, 0.022308318, 0.033488752, 0.047226710, 0.062565226,\
+             0.077863682, 0.091031867, 0.099978946, 0.103152619, 0.099978946,\
+             0.091031867, 0.077863682, 0.062565226, 0.047226710, 0.033488752,\
+             0.022308318, 0.013960189};")+
+        STR(
+        uniform sampler2D source;
+
+        // vec2(dx, dy) / (source.width, source.height)
+        uniform vec2      pixelStep;
+        
+        void main() {
+        
+            vec2 pixel = gl_TexCoord[0].xy + pixelStep * (float(kernelSize - 1) * 0.5);            
+            vec4 sum = texture2D(source, pixel) * gaussCoef[0];
+
+            for (int tap = 1; tap < kernelSize; ++tap) {
+                sum += texture2D(source, pixelStep * float(tap) + pixel) * gaussCoef[tap];
+            }
+            
+            gl_FragColor = sum;
+        }));
+    }
+
+    if (frameBuffer.isNull()) {
+        frameBuffer = FrameBuffer::create("Frame Buffer");
+    }
+
+    // Don't clone source directly into dest; they are allowed to be the same!
+    temp = cloneFormat(source, temp);
+    dest = cloneFormat(temp, dest);
+    
+    // Don't create mipmaps when we write to the textures
+    temp->setAutoMipMap(false);
+    dest->setAutoMipMap(false);
+
+    frameBuffer->set(FrameBuffer::COLOR_ATTACHMENT0, temp);
+    rd->push2D(frameBuffer);
+        // Horizontal pass
+        gaussian1DShader->args.set("source", source);
+        gaussian1DShader->args.set("pixelStep", Vector2(1.0f, 0.0f) / source->vector2Bounds());
+        rd->setShader(gaussian1DShader);
+        Draw::rect2D(rd->viewport(), rd);
+
+        // Vertical pass
+        gaussian1DShader->args.set("source", temp);
+        gaussian1DShader->args.set("pixelStep", Vector2(0.0f, 1.0f) / temp->vector2Bounds());
+        frameBuffer->set(FrameBuffer::COLOR_ATTACHMENT0, dest);
+        Draw::rect2D(rd->viewport(), rd);
+        dest->invertY = false;
+    rd->pop2D();
+
+    // Reset the frame buffer
+    frameBuffer->set(FrameBuffer::COLOR_ATTACHMENT0, NULL);
+}
+
+}
+
+namespace G3D {
+
 ToneMap::Profile ToneMap::profile = ToneMap::UNINITIALIZED;
 
 ShaderRef  ToneMap::bloomShader[3];

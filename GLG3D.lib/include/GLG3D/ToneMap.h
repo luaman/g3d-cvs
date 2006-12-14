@@ -138,6 +138,29 @@ public:
 
 };
 
+/** 
+Post-processing special effects for textures implemented with GPU acceleration.
+
+<b>BETA API</b>
+*/
+class TextureEffects {
+private:
+
+    ShaderRef   gaussian1DShader;
+    TextureRef  temp;
+
+    FrameBufferRef frameBuffer;
+
+public:
+
+
+    /** Output will have the same format as the input; if it already matches size 
+        and format the existing texture will be reused, otherwise dest will be a 
+        new texture that is allocated. */
+    void gaussianBlur(RenderDevice* rd, const TextureRef& source, TextureRef& dest);
+
+};
+
 }
 
 #endif

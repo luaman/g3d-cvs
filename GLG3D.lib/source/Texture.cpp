@@ -1593,6 +1593,24 @@ uint32 Texture::Settings::hashCode() const {
         (minMipMap ^ (maxMipMap << 16));
 }
 
+bool Texture::Settings::operator==(const Settings& other) const {
+    return 
+        (interpolateMode == other.interpolateMode) &&
+        (wrapMode == other.wrapMode) &&
+        (depthReadMode == other.depthReadMode) &&
+        (maxAnisotropy == other.maxAnisotropy) &&
+        (autoMipMap == other.autoMipMap) &&
+        (maxMipMap == other.maxMipMap) &&
+        (minMipMap == other.minMipMap);
+}
+
+bool Texture::Settings::equalsIgnoringMipMap(const Settings& other) const {
+    return 
+        (interpolateMode == other.interpolateMode) &&
+        (wrapMode == other.wrapMode) &&
+        (depthReadMode == other.depthReadMode);
+}
+
 
 
 } // G3D

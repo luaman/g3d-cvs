@@ -36,6 +36,9 @@ public:
 
     ToneMapRef          toneMap;
 
+    TextureRef          screen;
+    TextureEffects      effects;
+
     Demo(App* app);
 
     virtual ~Demo() {}
@@ -85,6 +88,7 @@ void Demo::onInit()  {
 
     toneMap = ToneMap::create();
 
+    screen = Texture::createEmpty("Screen", app->renderDevice->width(), app->renderDevice->height(), TextureFormat::RGBA8, Texture::DIM_2D_NPOT, Texture::Settings::video());
     GApplet::onInit();
 }
 
@@ -126,8 +130,8 @@ void Demo::onUserInput(UserInput* ui) {
 
 void Demo::onGraphics(RenderDevice* rd) {
 
-    toneMap->beginFrame(rd);
-
+//    toneMap->beginFrame(rd);
+    
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
     rd->setProjectionAndCameraMatrix(app->debugCamera);
@@ -161,7 +165,15 @@ void Demo::onGraphics(RenderDevice* rd) {
         app->sky->renderLensFlare(rd, lighting);
     }
 
-    toneMap->endFrame(rd);
+    // Gaussian blur the screen
+    rd->push2D();
+        screen->copyFromScreen(rd->viewport());
+        effects.gaussianBlur(rd, screen, screen);
+        rd->setTexture(0, screen);
+        Draw::rect2D(rd->viewport(), rd);
+    rd->pop2D();
+
+  //  toneMap->endFrame(rd);
 }
 
 

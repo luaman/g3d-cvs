@@ -192,6 +192,10 @@ public:
         void deserialize(class TextInput& t);
         */
 
+        bool operator==(const Settings& other) const;
+
+        /** True if both Settings are identical, ignoring mipmap settings.*/
+        bool equalsIgnoringMipMap(const Settings& other) const;
         uint32 hashCode() const;
     };
 
