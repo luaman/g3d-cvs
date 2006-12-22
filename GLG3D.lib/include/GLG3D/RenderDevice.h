@@ -193,11 +193,6 @@ private:
         double                  brightness,
         double                  gamma);
 
-    /**
-     The intensity at which lights saturate.
-     */
-    double                      lightSaturation;
-
 	void setVideoMode();
 
     /**
@@ -1482,15 +1477,6 @@ public:
     bool supportsVertexBufferObject() const;
 
     /**
-     Returns a value that you should DIVIDE light intensities by
-     based on the gamma.  This is automatically handled if you
-     use setLight()
-     */
-    inline double getLightSaturation() const {
-        return lightSaturation;
-    }
-
-    /**
      Sets the framebuffer to render to.  Use NULL to set the desired rendering 
      target to the windowing system display.
 
@@ -1613,7 +1599,6 @@ public:
 
     /**
      You must also enableLighting.  Ambient light is handled separately.
-     Lighting is automatically adjusted to the lightSaturation value.
 
      Lights are specified in <B>world space</B>-- they are not affected
      by the camera or object matrix.  Unlike OpenGL, you do not need to

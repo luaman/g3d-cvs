@@ -237,9 +237,6 @@ bool RenderDevice::init(GWindow* window, Log* log) {
     beginEndFrame = 0;
     if (debugLog) {debugLog->section("Initialization");}
 
-    debugAssert((settings.lightSaturation >= 0.5) && 
-                (settings.lightSaturation <= 2.0));
-
     // Under Windows, reset the last error so that our debug box
     // gives the correct results
     #ifdef G3D_WIN32
@@ -2141,15 +2138,9 @@ void RenderDevice::setAmbientLightColor(
 
     minStateChange();
     if (color != state.lights.ambient) {
-        float c[] =
-            {color.r / lightSaturation,
-             color.g / lightSaturation,
-             color.b / lightSaturation,
-             color.a / lightSaturation};
-    
         state.lights.changed = true;
         minGLStateChange();
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, c);
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
         state.lights.ambient = color;
     }
 }
@@ -2792,7 +2783,7 @@ void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha
     glReadBuffer(GL_BACK);
 
     int i;
-    double s = getLightSaturation();
+    double s = 1.0;
 
     if (s != 1.0) {
         // Adjust the coloring for gamma correction
@@ -3004,7 +2995,7 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
             minGLStateChange();
 
             Color4 zero(0, 0, 0, 1);
-            Color4 brightness(light.color / lightSaturation, 1);
+            Color4 brightness(light.color, 1);
 
             int mm = glGetInteger(GL_MATRIX_MODE);
             glMatrixMode(GL_MODELVIEW);
