@@ -320,6 +320,9 @@ BinaryInput::BinaryInput(
 
         int64 tempLength = length;
         length = G3D::readUInt32(buffer, swapBytes);
+        
+        // The file couldn't have better than 500:1 compression
+        alwaysAssertM(length < bufferLength * 500, "Compressed file header is corrupted");
 
         uint8* tempBuffer = buffer;
         buffer = (uint8*)System::malloc(length);
