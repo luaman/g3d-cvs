@@ -323,8 +323,15 @@ bool fileExists(
 		return true;
 	}
 
+
+    // Useful for debugging
+    //char curdir[1024]; _getcwd(curdir, 1024); 
+
     struct _stat st;
-    return _stat(filename.c_str(), &st) != -1;
+    int ret = _stat(filename.c_str(), &st);
+
+    // _stat returns zero on success
+    return (ret == 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
