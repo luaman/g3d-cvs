@@ -164,7 +164,7 @@ void Demo::onGraphics(RenderDevice* rd) {
     if (app->sky.notNull()) {
         app->sky->renderLensFlare(rd, lighting);
     }
-
+/*
     // Gaussian blur the screen
     rd->push2D();
         screen->copyFromScreen(rd->viewport());
@@ -172,7 +172,7 @@ void Demo::onGraphics(RenderDevice* rd) {
         rd->setTexture(0, screen);
         Draw::rect2D(rd->viewport(), rd);
     rd->pop2D();
-
+*/
   //  toneMap->endFrame(rd);
 }
 
@@ -186,6 +186,7 @@ int App::main() {
     // Load objects here
     sky = Sky::fromFile(dataDir + "sky/");
     
+
     applet->run();
 
     return 0;
@@ -204,6 +205,7 @@ App::~App() {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
+
 	GApp::Settings settings;
     App(settings).run();
     return 0;
