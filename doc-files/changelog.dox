@@ -56,6 +56,7 @@
 	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
 	 <li> Removed static constants (use equivalent lower-case methods)
 	 <li> Removed Cylinder::getPoint1 (use point)
+	 <li> Fix: [ 1607693 ] Triangles/Second display is now correct (rates were too low in 6.10)
 	 <li> Fix: NetworkDevice now does not perform a test broadcast during initialization
 	 <li> Fix: G3D::LightweightConduit::ok is now false if any error occurs during initialization
 	 <li> Fix: BSPMAP for cards without glMultiDrawElementsEXT

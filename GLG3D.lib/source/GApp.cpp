@@ -262,11 +262,12 @@ void GApp::renderDebugInfo() {
                     pos, size, color);
                 pos.y += size * 1.5f;
                 
+                double fps = m_graphicsWatch.smoothFPS();
                 std::string s = format(
                     "% 4dfps % 4.1gM tris % 4.1gM tris/s   GL Calls: %d/%d Maj; %d/%d Min; %d push", 
-                    iRound(m_graphicsWatch.smoothFPS()),
-                    iRound(renderDevice->getTrianglesPerFrame() / 1e5) * .1f,
-                    iRound(renderDevice->getTrianglesPerFrame() / 1e5) * .1f,
+                    iRound(fps),
+                    iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
+                    iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
                     majGL, majAll, minGL, minAll, pushCalls);
                 debugFont->draw2D(renderDevice, s, pos, size, statColor);
 
