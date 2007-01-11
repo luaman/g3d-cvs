@@ -769,7 +769,7 @@ void ReliableConduit::receiveIntoBuffer() {
     int ret = 0;
     uint32 left = messageSize - receiveBufferUsedSize;
     int count = 0;
-    while ((ret != SOCKET_ERROR) && (left > 0) && (count < 10)) {
+    while ((ret != SOCKET_ERROR) && (left > 0) && (count < 100)) {
 
         ret = recv(sock, ((char*)receiveBuffer) + receiveBufferUsedSize, left, 0);
 
@@ -786,7 +786,7 @@ void ReliableConduit::receiveIntoBuffer() {
                 System::sleep(0.001);
             }
         } else {
-            // Something went wrong
+            // Something went wrong; our blocking read returned nothing.
             break;
         }
     }
