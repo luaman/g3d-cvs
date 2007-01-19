@@ -39,4 +39,9 @@ void Vector2int16::deserialize(class BinaryInput& bi) {
 }
 
 
+Vector2int16 Vector2int16::clamp(const Vector2int16& lo, const Vector2int16& hi) {
+    return Vector2int16(iClamp(x, lo.x, hi.x), iClamp(y, lo.y, hi.y));
+}
+
+
 }

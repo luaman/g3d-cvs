@@ -172,6 +172,7 @@ int iCeil(double fValue);
  Clamps the value to the range [low, hi] (inclusive)
  */
 int iClamp(int val, int low, int hi);
+int16 iClamp(int16 val, int16 low, int16 hi);
 double clamp(double val, double low, double hi);
 float clamp(float val, float low, float hi);
 
@@ -507,6 +508,19 @@ inline int iCeil (double fValue) {
 //----------------------------------------------------------------------------
 
 inline int iClamp(int val, int low, int hi) {
+    debugAssert(low <= hi);
+	if (val <= low) {
+		return low;
+	} else if (val >= hi) {
+		return hi;
+	} else {
+		return val;
+	}
+}
+
+//----------------------------------------------------------------------------
+
+inline int16 iClamp(int16 val, int16 low, int16 hi) {
     debugAssert(low <= hi);
 	if (val <= low) {
 		return low;

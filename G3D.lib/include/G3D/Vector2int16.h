@@ -53,6 +53,41 @@ public:
         return ((G3D::int16*)this)[i];
     }
 
+    inline Vector2int16 operator+(const Vector2int16& other) const {
+        return Vector2int16(x + other.x, y + other.y);
+    }
+
+    inline Vector2int16 operator-(const Vector2int16& other) const {
+        return Vector2int16(x - other.x, y - other.y);
+    }
+
+    inline Vector2int16 operator*(const Vector2int16& other) const {
+        return Vector2int16(x * other.x, y * other.y);
+    }
+
+    inline Vector2int16 operator*(const int s) const {
+        return Vector2int16(x * s, y * s);
+    }
+
+    inline Vector2int16& operator+=(const Vector2int16& other) {
+        x += other.x;
+        y += other.y;
+        return *this;
+    }
+
+    inline Vector2int16& operator-=(const Vector2int16& other) {
+        x -= other.x;
+        y -= other.y;
+        return *this;
+    }
+
+    inline Vector2int16& operator*=(const Vector2int16& other) {
+        x *= other.x;
+        y *= other.y;
+        return *this;
+    }
+
+    Vector2int16 clamp(const Vector2int16& lo, const Vector2int16& hi);
 
     inline bool operator== (const Vector2int16& rkVector) const {
         return ((int32*)this)[0] == ((int32*)&rkVector)[0];
