@@ -180,8 +180,10 @@ public:
         float               scale = 1.0f);
 
     /**
-    Provided texture coordinates are upper bounds; tex
-    coords will vary from (0,0) to those bounds.
+	Draws a rectangle using the current textures and texture coordinates that by default stretch the textures
+	to fill the rectangle.
+    Provided texture coordinates are upper bounds for each of four textures.  The actual tex
+    coords will vary from (0, 0) to those bounds.
     */
     static void rect2D(
         const class Rect2D& rect,

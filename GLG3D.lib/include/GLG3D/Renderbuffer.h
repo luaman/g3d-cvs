@@ -18,8 +18,9 @@
 
 namespace G3D {
 
+class Renderbuffer;
 
-typedef ReferenceCountedPointer<class Renderbuffer> RenderbufferRef;
+typedef ReferenceCountedPointer<Renderbuffer> RenderbufferRef;
 
 /**
  Abstraction of the OpenGL renderbuffer object.  A Framebuffer has many

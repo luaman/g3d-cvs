@@ -21,8 +21,9 @@ namespace G3D {
 class GImage;
 class Rect2D;
 class Matrix3;
+class Texture;
 
-typedef ReferenceCountedPointer<class Texture> TextureRef;
+typedef ReferenceCountedPointer<Texture> TextureRef;
 
 /**
  Abstraction of OpenGL textures.  This class can be used with raw OpenGL, 
@@ -38,12 +39,15 @@ typedef ReferenceCountedPointer<class Texture> TextureRef;
  already a power of 2.  However, DIM_2D_NPOT and DIM_CUBE_MAP_NPOT will safely fallback to
  POT requirements if the ARB_non_power_of_two extension is not supported. Develoeprs can 
  check if this will happen by calling GLCaps::supports_GL_ARB_texture_non_power_of_two().
+ Note that the texture does not have to be a rectangle; the dimensions can be different powers of two.
+ DIM_2D_RECT is provided primarily for older cards only and does not interact well with shaders.
 
  Textures are loaded so that (0, 0) is the upper-left corner of the image.
  If you set the invertY flag, RenderDevice will automatically turn them upside
  down when rendering to allow a (0, 0) <B>lower</B>-left corner.  If you
  aren't using RenderDevice, you must change the texture matrix to have
- a -1 in the Y column yourself.
+ a -1 in the Y column yourself.  If you replace the default vertex shader then
+ the texture matrix transformation will not be performed.
 
  DIM_2D_RECT requires the GL_EXT_texture_rectangle extension.
  Texture compression requires the EXT_texture_compression_s3tc extions.

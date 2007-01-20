@@ -25,7 +25,8 @@
 
 namespace G3D {
 
-typedef ReferenceCountedPointer<class Framebuffer> FramebufferRef;
+class Framebuffer;
+typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
 
 /**
  Abstraction of OpenGL's Framebuffer Object extension.  This is a fast and 
