@@ -495,8 +495,8 @@ public:
     }
 };
 
-
-typedef ReferenceCountedPointer<class Shader>  ShaderRef;
+class Shader;
+typedef ReferenceCountedPointer<Shader> ShaderRef;
 
 /**
   Abstraction of the programmable hardware pipeline.  
@@ -613,14 +613,54 @@ public:
     /** Returns true if this shader is declared to accept the specified argument. */
     bool hasArgument(const std::string& argname) const;
 
-    static ShaderRef fromFiles(
+    /** Describe the arguments to Shader::create */
+    enum ShaderType {
+        SHADER_NONE,
+        VERTEX_STRING, 
+        VERTEX_FILE,
+        GEOMETRY_STRING, 
+        GEOMETRY_FILE,
+        PIXEL_STRING, 
+        PIXEL_FILE};
+
+    /**
+     Create a new GLSL shader.  Arguments are in pairs. The first argument in each pair is an ArgumentType
+     specifying the type of shader (vertex, geometry, or pixel) and whether it comes from a string or a file.
+     The second argument in each pair is the filename or shader source itself.
+
+     Example:
+     <pre>
+     std::string vs = STR(
+         void main() {
+            gl_Position = ftransform();
+         });
+
+     ShaderRef myEffect = Shader::create(
+        Shader::VERTEX_STRING, vs, 
+        Shader::GEOMETRY_FILE, "effect.geom.glsl",
+        Shader::PIXEL_FILE, "effect.pixel.glsl");
+
+     </pre>
+     */
+    static ShaderRef create(
+        ShaderType          type0,
+        const std::string&  value0,
+
+        ShaderType          type1 = SHADER_NONE,
+        const std::string&  value1 = "",
+
+        ShaderType          type2 = SHADER_NONE,
+        const std::string&  value2 = "");
+
+        
+    inline static ShaderRef fromFiles(
         const std::string& vertexFile, 
         const std::string& pixelFile,
         UseG3DUniforms u = DEFINE_G3D_UNIFORMS) {
         return new Shader(VertexAndPixelShader::fromFiles(vertexFile, pixelFile, u, DEBUG_SHADER), u);
     }
 
-    static ShaderRef fromStrings(
+    inline static ShaderRef fromStrings(
         const std::string& vertexCode,
         const std::string& pixelCode,
         UseG3DUniforms u = DEFINE_G3D_UNIFORMS) {
@@ -628,7 +668,7 @@ public:
     }
 
     /** Names are purely for debugging purposes */
-    static ShaderRef fromStrings(
+    inline static ShaderRef fromStrings(
         const std::string& vertexName,
         const std::string& vertexCode,
         const std::string& pixelName,
