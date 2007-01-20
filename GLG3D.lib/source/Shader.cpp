@@ -15,6 +15,60 @@
 
 namespace G3D {
 
+ShaderRef Shader::create(
+    ShaderType          type0,
+    const std::string&  value0,
+
+    ShaderType          type1,
+    const std::string&  value1,
+
+    ShaderType          type2,
+    const std::string&  value2) {
+
+    // Sort out the arguments
+
+    std::string pixelShader, geometryShader, vertexShader;
+    bool pixelFromFile    = false;
+    bool geometryFromFile = false;
+    bool vertexFromFile   = false;
+
+    Array<ShaderType> type;
+    type.append(type0, type1, type2);
+
+    Array<std::string> value;
+    value.append(value0, value1, value2);
+
+    for (int i = 0; i < type.size(); ++i) {
+        switch (type[i]) {
+        case VERTEX_STRING:
+        case VERTEX_FILE:
+            vertexFromFile = (type[i] == VERTEX_FILE);
+            vertexShader = value[i];
+            break;
+
+        case GEOMETRY_STRING:
+        case GEOMETRY_FILE:
+            geometryFromFile = (type[i] == GEOMETRY_FILE);
+            geometryShader = value[i];
+            break;
+
+        case PIXEL_STRING:
+        case PIXEL_FILE:
+            pixelFromFile = (type[i] == PIXEL_FILE);
+            pixelShader = value[i];
+            break;
+
+        case SHADER_NONE:
+            ;
+        } // switch
+    } // for
+
+    // TODO
+
+    return NULL;
+}
+
+
 bool Shader::hasArgument(const std::string& argname) const {
     const Set<std::string>& uniformNames = _vertexAndPixelShader->uniformNames;
     return uniformNames.contains(argname);
