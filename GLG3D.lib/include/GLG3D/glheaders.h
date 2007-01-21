@@ -6,14 +6,17 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2002-08-07
- @edited  2005-04-10
+ @edited  2007-01-10
 
- Copyright 2002-2006, Morgan McGuire.
+ Copyright 2002-2007, Morgan McGuire.
  All rights reserved.
 */
 
 #ifndef G3D_GLHEADERS_H
 #define G3D_GLHEADERS_H
+
+// glew brings in its own GL headers
+#ifndef __glew_h__
 
 #include "G3D/platform.h"
 #if defined(G3D_WIN32) && ! defined(WIN32_LEAN_AND_MEAN)
@@ -343,4 +346,5 @@ extern PFNWGLDESTROYPBUFFEREXTPROC wglDestroyPbufferEXT;
 
 extern PFNGLDEPTHBOUNDSEXTPROC glDepthBoundsEXT;
 
+#endif // glew
 #endif
