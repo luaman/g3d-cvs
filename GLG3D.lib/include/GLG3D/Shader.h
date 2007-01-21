@@ -23,7 +23,6 @@
 namespace G3D {
 
 typedef ReferenceCountedPointer<class VertexAndPixelShader>  VertexAndPixelShaderRef;
-typedef ReferenceCountedPointer<class ObjectShader> ObjectShaderRef;
 
 #ifdef _DEBUG
     #define DEBUG_SHADER true
@@ -33,89 +32,6 @@ typedef ReferenceCountedPointer<class ObjectShader> ObjectShaderRef;
 
 /** Argument to G3D::VertexAndPixelShader and G3D::Shader create methods */
 enum UseG3DUniforms {DEFINE_G3D_UNIFORMS, DO_NOT_DEFINE_G3D_UNIFORMS};
-
-
-/**
-  @deprecated Use G3D::Shader instead, which provides a superset of functionality.
-
-  An ObjectShader is run once per primitive group.
-  A primitive group is defined by either the pair of calls 
-  RenderDevice::beginPrimitive...RenderDevice::endPrimitive
-  or the single call RenderDevice::sendIndices.
-
-  To create an ObjectShader, subclass it and 
-  override the ObjectShader::run method to set up the
-  RenderDevice state as you wish.  Commonly, the ObjectShader
-  is used to compute certain world-space constants (e.g. lighting),
-  set the VertexAndPixelShader and 
-  
-  <B>Do not</B> make a public constructor for your subclass.
-  Instead, write static "create" method that calls a private constructor
-  and then returns an ObjectShaderRef (or your own subclass).
-
-  Example:
-  <PRE>
-	typedef ReferenceCountedPointer<class BumpShader> BumpShaderRef;
-
-	class BumpShader : ObjectShader {
-	private:
-		VertexAndPixelShaderRef			vps;
-		VertexAndPixelShader::ArgList	args;
-		Vector3							lightVector;
-
-		BumpShader() {
-			vps = VertexAndPixelShader::fromFiles("bump_vertex.glsl", "bump_pixel.glsl");
-		}
-
-	public:
-
-		void setBumpMap(TextureRef b) {
-			args.set("bumpMap", b);
-		}
-
-	    void setLight(const Vector3& L) {
-			lightVector = L;
-		}
-
-		static BumpShaderRef create() {
-			return new BumpShader();
-		}
-
-	    void run(RenderDevice* rd) {
-			args.set("osLightDirection", 
-				rd->objectToWorldMatrix().vectorToObjectSpace(lightVector));
-
-			rd->setVertexAndPixelShader(vps, args);
-		}
-	};
-
-  </PRE>
- */
-class ObjectShader : public ReferenceCountedObject {
-private:
-    std::string     _messages;
-
-protected:
-
-	inline ObjectShader() {}
-
-public:
-
-    bool ok() const {
-        return true;
-    }
-
-	/**
-	 Invoked by RenderDevice immediately before a primitive group.
-	 Use this to set state on the render device.  Do not call
-	 pushState from inside this method.
-	 */
-	virtual void run(class RenderDevice* renderDevice) = 0;
-
-    const std::string& messages() const {
-        return _messages;
-    }
-};
 
 
 /**
@@ -130,7 +46,7 @@ public:
 
   Pixel and vertex shaders are loaded as text strings written in 
   <A HREF="http://developer.3dlabs.com/openGL2/specs/GLSLangSpec.Full.1.10.59.pdf">GLSL</A>, the high-level
-  OpenGL shading language.  Object shaders are written in C++ by subclassing ObjectShader.
+  OpenGL shading language.  
 
   Typically, the G3D::Shader sets up constants like the object-space position
   of the light source and the object-to-world matrix.  The vertex shader transforms
@@ -226,6 +142,7 @@ protected:
           Called from init.
          */
         void replaceG3DSize(std::string& code, std::string& uniformString);
+
 	public:
 
 		void init(
@@ -275,6 +192,7 @@ protected:
     static std::string      ignore;
 
     GPUShader				vertexShader;
+    GPUShader				geometryShader;
     GPUShader				pixelShader;
 
     GLhandleARB             _glProgramObject;
@@ -332,19 +250,21 @@ public:
         ArgumentError(const std::string& m) : message(m) {}
     };
 
-	/**
-	 To use the fixed function pipeline for part of the
-	 shader, pass an empty string.
-	 */
 	static VertexAndPixelShaderRef fromStrings(
 		const std::string& vertexShader,
 		const std::string& pixelShader,       
         UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
         bool debugErrors = DEBUG_SHADER);
 
+	/**
+	 To use the default/fixed-function pipeline for part of the
+	 shader, pass an empty string.
+	 */
 	static VertexAndPixelShaderRef fromStrings(
         const std::string& vertexShaderName,
 		const std::string& vertexShader,
+        const std::string& geometryShaderName,
+		const std::string& geometryShader,       
         const std::string& pixelShaderName,
 		const std::string& pixelShader,       
         UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
@@ -563,14 +483,14 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
 
    // Initialization
    model = IFSModel::create(app->dataDir + "ifs/teapot.ifs");
-   lambertian = Shader::fromStrings(STR(
+   lambertian = Shader::creates(Shader::VERTEX_STRING, STR(
 
      uniform vec3 k_A;
 
      void main(void) {
         gl_Position = ftransform();
         gl_FrontColor.rgb = max(dot(gl_Normal, g3d_ObjectLight0.xyz), 0.0) * gl_LightSource[0].diffuse + k_A;
-     }), "");
+     }));
 
     ...
 
@@ -586,7 +506,9 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
   arguments are used.  That could instead have been read from gl_LightModel.ambient.
   Note the use of g3d_ObjectLight0.  Had we not used that variable, Shader would
   not have computed or set it.
-  
+
+  See also: http://developer.download.nvidia.com/opengl/specs/GL_EXT_geometry_shader4.txt  
+
   <B>BETA API</B>
   This API is subject to change.
  */
@@ -674,12 +596,12 @@ public:
         const std::string& pixelName,
         const std::string& pixelCode,
         UseG3DUniforms u = DEFINE_G3D_UNIFORMS) {
-        return new Shader(VertexAndPixelShader::fromStrings(vertexName, vertexCode, pixelName, pixelCode, u, DEBUG_SHADER), u);
+        return new Shader(VertexAndPixelShader::fromStrings(vertexName, vertexCode, "", "", pixelName, pixelCode, u, DEBUG_SHADER), u);
     }
 
     /** When true, any RenderDevice state that the shader configured before a primitive it restores at
-        the end of the primitive.  When false, the shader is allowed to corrupt state.  Corruption is fast and is
-        useful
+        the end of the primitive.  When false, the shader is allowed to corrupt state.  Setting to false can
+        lead to faster operation
         when you know that the next primitive will also be rendered with a shader, since shaders tend
         to set all of the state that they need.
 
@@ -697,8 +619,10 @@ public:
     /** Returns true if this card supports vertex shaders */
     static bool supportsVertexShaders();
 
-    /** Returns true if this card supports pixel shaders.  If vertex but not pixel
-        shaders are supported you can pass an empty string as the pixel shader. */
+    /** Returns true if this card supports geometry shaders */
+    static bool supportsGeometryShaders();
+
+    /** Returns true if this card supports pixel shaders.  */
     static bool supportsPixelShaders();
 
 	/**

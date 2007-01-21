@@ -95,6 +95,13 @@ bool Shader::supportsVertexShaders() {
         GLCaps::supports_GL_ARB_vertex_shader();
 }
 
+bool Shader::supportsGeometryShaders() {
+    return
+        GLCaps::supports_GL_ARB_shader_objects() && 
+        GLCaps::supports_GL_ARB_shading_language_100() &&
+        GLCaps::supports_GL_EXT_geometry_shader4();
+}
+
 
 void Shader::beforePrimitive(class RenderDevice* renderDevice) {
     if (_preserveState) {
@@ -656,6 +663,8 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings(
 VertexAndPixelShaderRef VertexAndPixelShader::fromStrings(
     const std::string& vsName,
 	const std::string& vs,
+    const std::string& gsName,
+    const std::string& gs,
     const std::string& psName,
     const std::string& ps,
     UseG3DUniforms u,

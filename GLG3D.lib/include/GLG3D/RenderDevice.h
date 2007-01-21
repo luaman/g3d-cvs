@@ -1085,9 +1085,6 @@ public:
     void setVertexAndPixelShader(const VertexAndPixelShaderRef& s,
             const VertexAndPixelShader::ArgList& args);
 
-    /** @deprecated */
-	void setObjectShader(const ObjectShaderRef& s);
-
     /**
      A G3D::Shader abstracts the programmable graphics pipeline.
      It contains routines that execute before and after
@@ -1183,11 +1180,6 @@ public:
     void afterPrimitive();
 
 private:
-
-	/** Called immediately before a primitive group 
-        @deprecated*/
-	inline void runObjectShader();
-
 
     /**
      For performance, we don't actually unbind a texture when
@@ -1337,9 +1329,6 @@ private:
         double                      highDepthRange;
 
         VertexAndPixelShaderRef     vertexAndPixelShader;
-
-        /** @deprecated */
-		ObjectShaderRef				objectShader;
 
         ShaderRef                   shader;
 
@@ -1843,13 +1832,6 @@ inline void RenderDevice::setDepthRange(
 
         minGLStateChange();
     }
-}
-
-
-inline void RenderDevice::runObjectShader() {
-	if (! state.objectShader.isNull()) {
-		state.objectShader->run(this);
-	}
 }
 
 

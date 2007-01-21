@@ -66,6 +66,7 @@ namespace G3D {
     <LI>GL_ARB_shading_language_100
     <LI>GL_ARB_fragment_shader
     <LI>GL_ARB_vertex_shader
+    <LI>GL_EXT_geometry_shader4
     <LI>GL_EXT_framebuffer_object
 	</UL>
 
@@ -136,6 +137,7 @@ private:
     DECLARE_EXT(GL_ARB_shading_language_100);
     DECLARE_EXT(GL_ARB_fragment_shader);
     DECLARE_EXT(GL_ARB_vertex_shader);
+    DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
     
 #undef DECLARE_EXT

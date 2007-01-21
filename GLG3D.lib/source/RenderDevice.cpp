@@ -683,7 +683,6 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
     shadeMode                   = SHADE_FLAT;
 
     vertexAndPixelShader        = NULL;
-	objectShader				= NULL;
     shader                      = NULL;
     vertexProgram               = NULL;
     pixelProgram                = NULL;
@@ -1009,7 +1008,6 @@ void RenderDevice::setState(
     }
 
     setVertexAndPixelShader(newState.vertexAndPixelShader);
-	setObjectShader(newState.objectShader);
     setShader(newState.shader);
 
     if (supportsVertexProgram()) {
@@ -1783,13 +1781,6 @@ void RenderDevice::setShader(const ShaderRef& s) {
 	if (s != state.shader) {
         debugAssertM(! inShader, "Cannot set the Shader from within a Shader!");
 		state.shader = s;
-	}
-}
-
-
-void RenderDevice::setObjectShader(const ObjectShaderRef& s) {
-	if (s != state.objectShader) {
-		state.objectShader = s;
 	}
 }
 
@@ -2588,7 +2579,6 @@ void RenderDevice::beginPrimitive(Primitive p) {
     debugAssertM( currentFramebufferComplete(), "Bound Framebuffer Incomplete!");
 
     beforePrimitive();
-	runObjectShader();
     
     inPrimitive = true;
     currentPrimitiveVertexCount = 0;
@@ -3130,7 +3120,6 @@ void RenderDevice::configureReflectionMap(
 void RenderDevice::sendSequentialIndices(RenderDevice::Primitive primitive, int numVertices) {
 
     beforePrimitive();
-	runObjectShader();
 
     glDrawArrays(primitiveToGLenum(primitive), 0, numVertices);
     // Mark all active arrays as busy.
@@ -3151,7 +3140,6 @@ void RenderDevice::internalSendIndices(
     const void*             index) {
 
     beforePrimitive();
-	runObjectShader();
 
 	GLenum i;
 
