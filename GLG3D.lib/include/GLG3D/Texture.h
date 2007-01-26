@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-02-28
-  @edited  2006-10-16
+  @edited  2007-01-25
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -84,16 +84,21 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
 class Texture : public ReferenceCountedObject {
 public:
 
-    /** DIM_2D_NPOT and DIM_CUBE_MAP_NPOT attempt to use ARB_non_power_of_two texture support with POT fallback. */
-    enum Dimension       {DIM_2D = 2, DIM_2D_RECT = 4, DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7};
+    /** DIM_2D_NPOT and DIM_CUBE_MAP_NPOT attempt to use
+        ARB_non_power_of_two texture support with POT fallback. */
+    enum Dimension       {DIM_2D = 2, DIM_3D = 3, DIM_2D_RECT = 4, 
+                          DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7};
 
     /** TRANSPARENT_BORDER provides a border of Color4(0,0,0,0) and clamps to it. */
     enum WrapMode        {TILE = 1, CLAMP = 0, TRANSPARENT_BORDER = 2};
 
     /**
-     Trilinear mipmap is the best quality (and frequently fastest) mode.  The no-mipmap modes conserve memory.
-     Non-interpolating ("Nearest") modes are generally useful only when packing lookup tables into textures
-     for shaders.
+     Trilinear mipmap is the best quality (and frequently fastest)
+     mode.  The no-mipmap modes conserve memory.  Non-interpolating
+     ("Nearest") modes are generally useful only when packing lookup
+     tables into textures for shaders.
+
+     3D textures do not support mipmap interpolation modes.
      */
     enum InterpolateMode {
         TRILINEAR_MIPMAP = 3, 
@@ -332,7 +337,7 @@ public:
     uncompressed formats for
     both the bytesformat and the desiredformat.
 
-    depth must be 1 (reserved for future 3D textures).
+    3D Textures map not use mip-maps.
     */
     static TextureRef fromMemory(
         const std::string&                  name,
@@ -347,7 +352,9 @@ public:
         const PreProcess&                   preProcess     = PreProcess::defaults());
 
 
-	 /** Construct from a single packed 2D or 3D data set. */
+	 /** Construct from a single packed 2D or 3D data set.  For 3D
+         textures, the interpolation mode must be one that does not
+         use MipMaps. */
     static TextureRef fromMemory(
         const std::string&              name,
         const void*                     bytes,

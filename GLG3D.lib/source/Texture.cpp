@@ -72,7 +72,8 @@ static void createTexture(
     int             mipLevel = 0,
     bool            compressed = false,
     bool            useNPOT = false,
-    float           rescaleFactor = 1.0f);
+    float           rescaleFactor = 1.0f,
+    GLenum          dataType = GL_UNSIGNED_BYTE);
 
 
 static void createMipMapTexture(    
@@ -83,7 +84,8 @@ static void createMipMapTexture(
     int             height,
     GLenum          textureFormat,
     size_t          bytesFormatBytesPerPixel,
-    float           rescaleFactor);
+    float           rescaleFactor,
+    GLenum          dataType);
 
 
 /**
@@ -511,10 +513,24 @@ TextureRef Texture::fromMemory(
 	const PreProcess&					preProcess) {
 
     typedef Array< Array<const void*> > MipArray;
-    
+
+    // For future expansion to support float texture creation
+    GLenum dataType = GL_UNSIGNED_BYTE;
+
     // Indirection needed in case we have to reallocate our own
     // data for preprocessing.
     MipArray* bytesPtr = const_cast<MipArray*>(&_bytes);
+
+    if (dimension == DIM_3D) {
+        debugAssertM(
+                     (settings.interpolateMode == BILINEAR_NO_MIPMAP) ||
+                     (settings.interpolateMode == NEAREST_NO_MIPMAP), 
+                     "DIM_3D textures do not support mipmaps");
+        debugAssertM(_bytes.size() == 1,                      
+                     "DIM_3D textures do not support mipmaps");
+    } else {
+      debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D");
+    }
 
     if (preProcess.brighten != 1.0f) {
 
@@ -554,7 +570,6 @@ TextureRef Texture::fromMemory(
             }
         }
 	}
-
 
     debugAssert(bytesFormat);
     (void)depth;
@@ -616,12 +631,13 @@ TextureRef Texture::fromMemory(
                     createMipMapTexture(
 						target, 
 						reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]),
-                        bytesFormat->OpenGLBaseFormat,
+                        bytesFormat->OpenGLFormat,
                         mipWidth, 
 						mipHeight, 
 						desiredFormat->OpenGLFormat,
                         desiredFormat->packedBitsPerTexel / 8, 
-						preProcess.scaleFactor);
+						preProcess.scaleFactor,
+                        dataType);
 
                 } else {
 
@@ -634,12 +650,14 @@ TextureRef Texture::fromMemory(
                         bytesFormat->OpenGLFormat, 
 						mipWidth, 
 						mipHeight, 
+                        depth,
 						desiredFormat->OpenGLFormat, 
                         bytesFormat->packedBitsPerTexel / 8, 
 						mipLevel, 
 						bytesFormat->compressed, 
 						useNPOT, 
-                        preProcess.scaleFactor);
+                        preProcess.scaleFactor,
+                        dataType);
                 }
 
                 debugAssertGLOk();
@@ -1316,6 +1334,9 @@ static GLenum dimensionToTarget(Texture::Dimension d) {
     case Texture::DIM_CUBE_MAP_NPOT:
     case Texture::DIM_CUBE_MAP:
         return GL_TEXTURE_CUBE_MAP_ARB;
+        
+    case Texture::DIM_3D:
+        return GL_TEXTURE_3D;
 
     case Texture::DIM_2D_NPOT:
     case Texture::DIM_2D:
@@ -1330,7 +1351,11 @@ static GLenum dimensionToTarget(Texture::Dimension d) {
     }
 }
 
-
+/** 
+   @param bytesFormat OpenGL base format.
+   @param bytesActualFormat OpenGL true format.  For compressed data, distinguishes the format that the data has due to compression.
+ 
+    @param dataType Type of the incoming data from the CPU, e.g. GL_UNSIGNED_BYTES */
 static void createTexture(
     GLenum          target,
     const uint8*    rawBytes,
@@ -1338,12 +1363,14 @@ static void createTexture(
     GLenum          bytesActualFormat,
     int             width,
     int             height,
+    int             depth,
     GLenum          textureFormat,
     int             bytesPerPixel,
     int             mipLevel,
     bool            compressed,
     bool            useNPOT,
-    float           rescaleFactor) {
+    float           rescaleFactor,
+    GLenum          dataType) {
 
     uint8* bytes = const_cast<uint8*>(rawBytes);
 
@@ -1379,11 +1406,11 @@ static void createTexture(
                 bytesFormat,
                 oldWidth,
                 oldHeight,
-                GL_UNSIGNED_BYTE,
+                dataType,
                 rawBytes,
                 width,
                 height,
-                GL_UNSIGNED_BYTE,
+                dataType,
                 bytes);
 
         }
@@ -1410,8 +1437,17 @@ static void createTexture(
 
             // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
             // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-            glTexImage2D(target, mipLevel, textureFormat, width, height, 0, bytesFormat, GL_UNSIGNED_BYTE, bytes);
+            glTexImage2D(target, mipLevel, textureFormat, width, height, 0, bytesFormat, dataType, bytes);
         }
+        break;
+
+    case GL_TEXTURE_3D:
+        // Can't rescale, so ensure that the texture is a power of two in each dimension
+        debugAssertM(isPow2(width) && isPow2(height) && isPow2(depth),
+                     "DIM_3D textures must be a power of two size in each dimension.");
+
+        debugAssert(isValidPointer(bytes));
+        glTexImage3D(target, mipLevel, textureFormat, width, height, depth, 0, bytesFormat, dataType, bytes);
         break;
 
     default:
@@ -1433,7 +1469,8 @@ static void createMipMapTexture(
     int             height,
     GLenum          textureFormat,
     size_t          bytesFormatBytesPerPixel,
-    float           rescaleFactor) {
+    float           rescaleFactor,
+    GLenum          dataType) {
 
     switch (target) {
     case GL_TEXTURE_2D:
@@ -1461,15 +1498,15 @@ static void createMipMapTexture(
                     bytesFormat,
                     oldWidth,
                     oldHeight,
-                    GL_UNSIGNED_BYTE,
+                    dataType,
                     _bytes,
                     width,
                     height,
-                    GL_UNSIGNED_BYTE,
+                    dataType,
                     (void*)bytes);
             }
 
-            int r = gluBuild2DMipmaps(target, textureFormat, width, height, bytesFormat, GL_UNSIGNED_BYTE, bytes);
+            int r = gluBuild2DMipmaps(target, textureFormat, width, height, bytesFormat, dataType, bytes);
             debugAssertM(r == 0, (const char*)gluErrorString(r)); (void)r;
 
             if (freeBytes) {
