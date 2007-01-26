@@ -67,13 +67,15 @@ static void createTexture(
     GLenum          bytesActualFormat,
     int             width,
     int             height,
+    int             depth,
     GLenum          textureFormat,
     int             bytesPerPixel,
-    int             mipLevel = 0,
-    bool            compressed = false,
-    bool            useNPOT = false,
-    float           rescaleFactor = 1.0f,
-    GLenum          dataType = GL_UNSIGNED_BYTE);
+    int             mipLevel,
+    bool            compressed,
+    bool            useNPOT,
+    float           rescaleFactor,
+    GLenum          dataType);
+
 
 
 static void createMipMapTexture(    
@@ -1447,7 +1449,7 @@ static void createTexture(
                      "DIM_3D textures must be a power of two size in each dimension.");
 
         debugAssert(isValidPointer(bytes));
-        glTexImage3D(target, mipLevel, textureFormat, width, height, depth, 0, bytesFormat, dataType, bytes);
+        glTexImage3DEXT(target, mipLevel, textureFormat, width, height, depth, 0, bytesFormat, dataType, bytes);
         break;
 
     default:
