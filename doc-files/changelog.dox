@@ -16,6 +16,7 @@
      <li> Increased ReliableConduit read attempts before timeout from 10 to 100 
      <li> Added GLEW compatibility [nico]
      <li> Added GWindow::Settings::caption
+     <li> Added support for GL_ARB_point_sprite
      <li> Win32 programs must call the macro <b><code>G3D_START_AT_MAIN();</code></b> at top-level if they do not define WinMain themselves.
      <li> Win32 switched from MBCS to UNICODE for the binaries (G3D sources compile under either)
      <li> Changed G3D::GApp::main to return an int

@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 /*
+** Based on files that are
 ** Copyright 1998, 1999, 2000, 2001, NVIDIA Corporation.
 ** All rights Reserved.
 ** 
@@ -2532,6 +2533,12 @@ typedef void (APIENTRY * PFNGLGETVERTEXATTRIBFVARBPROC) (GLuint index, GLenum pn
 typedef void (APIENTRY * PFNGLGETVERTEXATTRIBIVARBPROC) (GLuint index, GLenum pname, GLint *params);
 typedef void (APIENTRY * PFNGLGETVERTEXATTRIBPOINTERVARBPROC) (GLuint index, GLenum pname, void **pointer);
 typedef GLboolean (APIENTRY * PFNGLISPROGRAMARBPROC) (GLuint program);
+#endif
+
+#ifndef GL_ARB_point_sprite
+#define GL_ARB_point_sprite 1
+#define GL_POINT_SPRITE_ARB                               0x8861
+#define GL_COORD_REPLACE_ARB                              0x8862
 #endif
 
 #ifndef GL_ARB_window_pos

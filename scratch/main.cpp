@@ -1,23 +1,16 @@
 /**
   @file demos/main.cpp
 
-  This is a sample main.cpp to get you started with G3D.  It is
-  designed to make writing an application easy.  Although the
-  GApp/GApplet infrastructure is helpful for most projects,
-  you are not restricted to using it-- choose the level of
-  support that is best for your project (see the G3D Map in the
-  documentation).
+  http://kryshen.pp.ru/games/bmtron.html
 
   @author Morgan McGuire, matrix@graphics3d.com
  */
 
 #include <G3D/G3DAll.h>
-#include <GLG3D/GLG3D.h>
 
-#if defined(G3D_VER) && (G3D_VER < 70000)
-    #error Requires G3D 7.00
-#endif
-
+#define SCALE  (10)
+#define WIDTH  (64)
+#define HEIGHT (64)
 
 /**
  This simple demo applet uses the debug mode as the regular
@@ -32,12 +25,27 @@ public:
 
     class App*          app;
 
-    IFSModelRef         model;
+    /** Map of the world */
+    GImage              map;
+    TextureRef          texture;
 
-    ToneMapRef          toneMap;
+    class Player {
+    public:
+        Vector2int16        position;
+        Vector2int16        velocity;
+        Color3uint8         color;
 
-    TextureRef          screen;
-    TextureEffects      effects;
+        void onSimulation(GImage& map) {
+            position += velocity;
+
+            position = position.clamp(Vector2int16(0, 0), Vector2int16(WIDTH - 1, HEIGHT - 1));
+
+            // Update the board
+            map.pixel3(position.x, position.y) = color;
+        }
+    };
+
+    Array<Player>       player;
 
     Demo(App* app);
 
@@ -65,8 +73,6 @@ class App : public GApp {
 protected:
     int main();
 public:
-    SkyRef              sky;
-
     Demo*               applet;
 
     App(const GApp::Settings& settings);
@@ -75,20 +81,25 @@ public:
 };
 
 
-Demo::Demo(App* _app) : GApplet(_app), app(_app) {
+Demo::Demo(App* _app) : GApplet(_app), app(_app), map(WIDTH, HEIGHT, 3) {
+    player.resize(2);
 
-    model = IFSModel::fromFile(app->dataDir + "ifs/teapot.ifs");
+    player[0].position.x = 0;
+    player[0].position.y = HEIGHT / 2;
+    player[0].velocity.x = 1;
+    player[0].velocity.y = 0;
+    player[0].color = Color3::blue();
+    
+    player[1].position.x = WIDTH - 1;
+    player[1].position.y = HEIGHT / 2;
+    player[1].velocity.x = -1;
+    player[1].velocity.y = 0;
+    player[1].color = Color3::yellow();
 }
 
 
 void Demo::onInit()  {
     // Called before Demo::run() beings
-    app->debugCamera.setPosition(Vector3(0, 2, 10));
-    app->debugCamera.lookAt(Vector3(0, 2, 0));
-
-    toneMap = ToneMap::create();
-
-    screen = Texture::createEmpty("Screen", app->renderDevice->width(), app->renderDevice->height(), TextureFormat::RGBA8, Texture::DIM_2D_NPOT, Texture::Settings::video());
     GApplet::onInit();
 }
 
@@ -111,6 +122,16 @@ void Demo::onNetwork() {
 void Demo::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	// Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
+    
+    static int x = 0;
+    x = (x + 1) % 4;
+    if (x != 0) {
+      return;
+    }
+
+    for (int p = 0; p < player.size(); ++p) {
+        player[p].onSimulation(map);        
+    }
 }
 
 
@@ -122,6 +143,15 @@ void Demo::onUserInput(UserInput* ui) {
     }
 
 	// Add other key handling here
+    if (ui->getX() > 0.5) {
+        player[0].velocity = Vector2int16(1, 0);
+    } else if (ui->getX() < -0.5) {
+        player[0].velocity = Vector2int16(-1, 0);
+    } else if (ui->getY() > 0.5) {
+        player[0].velocity = Vector2int16(0, -1);
+    } else if (ui->getY() < -0.5) {
+        player[0].velocity = Vector2int16(0, 1);
+    }
 	
 	//must call GApplet::onUserInput
 	GApplet::onUserInput(ui);
@@ -130,71 +160,36 @@ void Demo::onUserInput(UserInput* ui) {
 
 void Demo::onGraphics(RenderDevice* rd) {
 
-//    toneMap->beginFrame(rd);
-    
-    LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
-
-    rd->setProjectionAndCameraMatrix(app->debugCamera);
-
     // Cyan background
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
 
-    rd->clear(app->sky.isNull(), true, true);
-    if (app->sky.notNull()) {
-        app->sky->render(rd, lighting);
-    }
-
-    // Setup lighting
-    rd->enableLighting();
-		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
-		rd->setAmbientLightColor(lighting.ambient);
-
-		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-
-        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
-        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
-
-        rd->setSpecularCoefficient(1.0);
-        rd->setShininess(100);
-        rd->setColor(Color3::blue());
-        model->pose(Vector3(2.5f, 0, 0))->render(rd);
-
-    rd->disableLighting();
-
-    if (app->sky.notNull()) {
-        app->sky->renderLensFlare(rd, lighting);
-    }
-/*
-    // Gaussian blur the screen
     rd->push2D();
-        screen->copyFromScreen(rd->viewport());
-        effects.gaussianBlur(rd, screen, screen);
-        rd->setTexture(0, screen);
+
+        Texture::Settings settings;
+        settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
+        settings.wrapMode = Texture::CLAMP;
+        settings.autoMipMap = false;
+
+        texture = Texture::fromGImage("Game world", map, TextureFormat::AUTO, Texture::DIM_2D, settings);
+
+        rd->setTexture(0, texture);
         Draw::rect2D(rd->viewport(), rd);
     rd->pop2D();
-*/
-  //  toneMap->endFrame(rd);
 }
 
 
 int App::main() {
 	setDebugMode(true);
-	debugController->setActive(false);
-    debugController->setPosition(Vector3(4, 2, -2));
-    debugController->lookAt(Vector3::zero());
-
-    // Load objects here
-    sky = Sky::fromFile(dataDir + "sky/");
+	debugController->setActive(true);
     
-
     applet->run();
-
-    return 0;
+    return 1;
 }
 
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
     applet = new Demo(this);
+    applet->setDesiredFrameRate(40);
 }
 
 
@@ -205,8 +200,9 @@ App::~App() {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-
 	GApp::Settings settings;
+    settings.window.width = WIDTH * SCALE;
+    settings.window.width = HEIGHT * SCALE;
     App(settings).run();
     return 0;
 }
