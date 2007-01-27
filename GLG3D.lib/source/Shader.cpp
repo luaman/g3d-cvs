@@ -875,16 +875,13 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
             case GL_TEXTURE_2D:
             case GL_TEXTURE_CUBE_MAP_ARB:
             case GL_TEXTURE_RECTANGLE_EXT:
+            case GL_TEXTURE_3D:
                 // Textures are bound as if they were integers.  The
                 // value of the texture is the texture unit into which
                 // the texture is placed.
                 debugAssert(decl.textureUnit >= 0);
                 glUniform1iARB(location, decl.textureUnit);
                 rd->setTexture(decl.textureUnit, value.texture);
-                break;
-
-            case GL_TEXTURE_3D:
-                debugAssertM(false, "3D texture binding not implemented");
                 break;
 
             case GL_FLOAT:

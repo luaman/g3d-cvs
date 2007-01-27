@@ -37,6 +37,10 @@ void GPUProgram::ArgList::set(const std::string& var, const TextureRef& val) {
 	arg.type = SAMPLER2D;
 	break;
 
+    case Texture::DIM_3D:
+	arg.type = SAMPLER3D;
+	break;
+
     case Texture::DIM_2D_RECT:
 	arg.type = SAMPLERRECT;
 	break;

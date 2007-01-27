@@ -8,9 +8,9 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2001-05-29
-  @edited  2006-03-04
+  @edited  2007-01-30
 
-  Copyright 2001-2006, Morgan McGuire
+  Copyright 2001-2007, Morgan McGuire
 */
 
 #ifndef GLG3D_RENDERDEVICE_H
@@ -151,14 +151,15 @@ class VAR;
  */
 class RenderDevice {
 public:
-    enum Primitive {LINES = MeshAlg::LINES, 
-                    LINE_STRIP = MeshAlg::LINE_STRIP, 
-                    TRIANGLES = MeshAlg::TRIANGLES, 
-                    TRIANGLE_STRIP = MeshAlg::TRIANGLE_STRIP,
-                    TRIANGLE_FAN = MeshAlg::TRIANGLE_FAN, 
-                    QUADS = MeshAlg::QUADS, 
-                    QUAD_STRIP = MeshAlg::QUAD_STRIP, 
-                    POINTS = MeshAlg::POINTS};
+    enum Primitive {
+      LINES = MeshAlg::LINES, 
+      LINE_STRIP = MeshAlg::LINE_STRIP, 
+      TRIANGLES = MeshAlg::TRIANGLES, 
+      TRIANGLE_STRIP = MeshAlg::TRIANGLE_STRIP,
+      TRIANGLE_FAN = MeshAlg::TRIANGLE_FAN, 
+      QUADS = MeshAlg::QUADS, 
+      QUAD_STRIP = MeshAlg::QUAD_STRIP, 
+      POINTS = MeshAlg::POINTS};
    	
     /** RENDER_CURRENT = preserve whatever the render mode is currently set to.  */
     enum RenderMode {RENDER_SOLID, RENDER_WIREFRAME, RENDER_POINTS, RENDER_CURRENT};
@@ -1647,6 +1648,8 @@ public:
      The result is the 2D position to which the 3D point v corresponds.  You
      can use this to make results rendered with push2D() line up with those
      rendered with a 3D transformation.
+
+     See G3D::glToScreen
      */
     Vector4 project(const Vector4& v) const;
     Vector4 project(const Vector3& v) const;
