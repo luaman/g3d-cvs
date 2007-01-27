@@ -6,7 +6,10 @@
   @author Morgan McGuire, matrix@graphics3d.com
  */
 
-#include <G3D/G3DAll.h>
+//#include <G3D/G3DAll.h>
+#include <G3D/G3D.h>
+#include <GLG3D/GLG3D.h>
+using namespace G3D;
 
 #define SCALE  (10)
 #define WIDTH  (64)
@@ -162,7 +165,19 @@ void Demo::onGraphics(RenderDevice* rd) {
 
     // Cyan background
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
+    rd->clear();
 
+    rd->setProjectionAndCameraMatrix(app->debugCamera);
+    LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
+
+    //    Draw::axes(rd);
+    rd->enableLighting();
+		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
+		rd->setAmbientLightColor(lighting.ambient);
+
+        Draw::ray(Ray::fromOriginAndDirection(Vector3::zero(), Vector3::unitY()), rd);
+    rd->disableLighting();
+    /*
     rd->push2D();
 
         Texture::Settings settings;
@@ -175,6 +190,7 @@ void Demo::onGraphics(RenderDevice* rd) {
         rd->setTexture(0, texture);
         Draw::rect2D(rd->viewport(), rd);
     rd->pop2D();
+    */
 }
 
 

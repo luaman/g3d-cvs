@@ -131,15 +131,15 @@ inline const double& pi() {
     return p;
 }
 
-/** Returns a reference to a static double. Use instead of G3D_HALF_PI. */
+/** Returns a reference to a static double. */
 inline const double& halfPi() {
-    static const double p = 1.5707963267949;
+    static const double p = pi() / 2.0;
     return p;
 }
 
-/** Returns a reference to a static double. Use instead of G3D_TWO_PI. */
+/** Returns a reference to a static double. */
 inline const double& twoPi() {
-    static const double p = 6.283185;
+    static const double p = pi() * 2.0;;
     return p;
 }
 

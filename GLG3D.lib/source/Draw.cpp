@@ -160,7 +160,7 @@ void Draw::ray(
     // Create a coordinate frame at the tip
     Vector3 u = ray.direction.direction();
     Vector3 v;
-    if (u.x == 0) {
+    if (abs(u.x) < abs(u.y)) {
         v = Vector3::unitX();
     } else {
         v = Vector3::unitY();
@@ -175,12 +175,11 @@ void Draw::ray(
     renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
     renderDevice->setColor(color);
 
-    float r = scale * .1f;
+    float r = scale * 0.1f;
     // Arrow head.  Need this beginprimitive call to sync up G3D and OpenGL
     renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
-        renderDevice->setNormal(u);
         for (int a = 0; a < SPHERE_SECTIONS; ++a) {
-            float angle0 = a * (float)pi() / SPHERE_SECTIONS;
+            float angle0 = a * (float)twoPi() / SPHERE_SECTIONS;
             float angle1 = (a + 1) * (float)twoPi() / SPHERE_SECTIONS;
             Vector3 dir0(cos(angle0) * v + sin(angle0) * w);
             Vector3 dir1(cos(angle1) * v + sin(angle1) * w);
@@ -199,7 +198,7 @@ void Draw::ray(
     renderDevice->beforePrimitive();
     glBegin(GL_TRIANGLE_FAN);
         glNormal3fv(-u);
-        for (int a = 0; a <= SPHERE_SECTIONS; ++a) {
+        for (int a = 0; a < SPHERE_SECTIONS; ++a) {
             float angle = a * (float)twoPi() / SPHERE_SECTIONS;
             Vector3 dir = sin(angle) * v + cos(angle) * w;
             glVertex3fv(back + dir * r);
