@@ -105,6 +105,7 @@
         return (unsigned int)value;\
     }
 
+/** Use outside the namespace */
 #define G3D_DECLARE_ENUM_CLASS_HASHCODE(Classname)\
 inline unsigned int hashCode(const Classname::Value x) {\
     return (unsigned int)x;\

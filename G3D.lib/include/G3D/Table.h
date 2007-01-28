@@ -96,15 +96,6 @@ inline unsigned int hashCode(std::string& a) {
 
 namespace G3D {
 
-inline unsigned int hashCode(const std::string& a) {
-    return ::hashCode(a);
-}
-
-inline unsigned int hashCode(std::string& a) {
-    return ::hashCode(a);
-}
-
-
 /**
  An unordered data structure mapping keys to values.
 
