@@ -27,6 +27,8 @@
 <li> <p> \link indexedbytopic API Index \endlink</p>
 
 <li> <p> \link license License \endlink</p>
+
+<li> <p> <b><a href="icompile-manual.html" >iCompile Manual</a></b></p>
 </ol>
 \htmlonly
 </font>
@@ -44,7 +46,7 @@
 
 <HR>
 Manual and Library source code
-<br>Copyright 2002-2006, Morgan McGuire.
+<br>Copyright 2000-2007, Morgan McGuire.
 <br>All rights reserved.
 <br>
 <br>

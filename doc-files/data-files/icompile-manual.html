@@ -1,0 +1,441 @@
+<HEAD>
+  <TITLE>
+   iCompile
+  </TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<TABLE WIDTH=100% CELLSPACING=0>
+<TR>
+<TD VALIGN=BOTTOM><A HREF="http://ice.sf.net">http://ice.sf.net</A></TD>
+
+<TD VALIGN=TOP>
+<CENTER>
+  <B>
+    <FONT SIZE=6 COLOR="#0000FF">
+      <I>i</I>Compile Manual
+    </FONT>
+  </B>
+</CENTER>
+</TD>
+
+<TD VALIGN=BOTTOM ALIGN=RIGHT>
+<FONT SIZE=2>
+<I>Version 0.5.0
+<BR>2007-01-30
+</FONT>
+</TD>
+</TR></TABLE>
+
+<H2>Introduction</H2>
+
+<BLOCKQUOTE>
+<TABLE CELLPADDING=0>
+<TR>
+<TD>
+<FONT FACE="Arial">
+<CENTER><B>Contents</B></CENTER>
+<P>
+<OL>
+<LI><NOBR><A HREF="#installation">Installation</A></NOBR>
+<LI><NOBR><A HREF="#program">Compile a Program</A></NOBR>
+<LI><NOBR><A HREF="#library">Compile a Library</A></NOBR>
+<LI><NOBR><A HREF="#directories">Special Directories</A></NOBR>
+<LI><NOBR><A HREF="#customizing">Customizing Projects</A></NOBR>
+<LI><NOBR><A HREF="#doticompile">Customizing System</A></NOBR>
+<LI><NOBR><A HREF="#command">Command Line</A></NOBR>
+</OL>
+</FONT>
+</TD>
+<TD WIDTH=1%> </TD>
+<TD WIDTH=1 BGCOLOR=999999></TD>
+<TD WIDTH=1%> </TD>
+<TD>
+<FONT FACE="Arial">
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">
+iCompile</FONT> is a zero-configuration build system for C++ 
+projects on Linux, FreeBSD, and OS X that automates the creation of 
+executables, static and
+shared libraries, and HTML documentation for source code.
+
+<P>
+
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">
+iCompile</FONT> is <B>easy to use</B>.  Unlike a Makefile or <A
+HREF="#other">other build system</A>, it requires no per-project
+configuration.  It finds your C++ source code, computes dependencies,
+and infers the correct options for the compiler and linker.
+</FONT>
+</TD>
+</TR></TABLE>
+
+<P>
+
+<CENTER>
+<TABLE BGCOLOR=#000000 WIDTH=80% BORDER=1 CELLPADDING=3><TR><TD>
+<FONT COLOR="#FFFFFF">
+<FONT COLOR="#00FF00"># Optionally set your custom INCLUDE and LIBRARY directories</FONT>
+<CODE><BR>setenv INCLUDE ~/morgan/libraries/libfun/include
+<BR>setenv LIBRARY /u/morgan/libraries/libfun/lib
+</CODE>
+
+<P><CODE>cd homework/assign4</CODE>
+
+<P><FONT COLOR="#00FF00"># Run <FONT FACE="Times New Roman" SIZE=2>iCompile </FONT>to build (and document, and run) your program</FONT>
+<BR><CODE>icompile --doc --run</CODE>
+</FONT></TD></TR></TABLE>
+</CENTER>
+
+<FONT FACE="Arial">
+</BLOCKQUOTE>
+
+<A NAME="installation">
+<FONT FACE="Times New Roman"><H2>Installation</H2></FONT>
+
+
+<BLOCKQUOTE>
+If <FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT> is not already installed on your system, download the latest version from
+<A HREF="http://ice.sf.net">http://ice.sf.net</A> and put it in a directory 
+(like <CODE>/usr/bin</CODE>) that is in your <CODE>PATH</CODE> environment
+variable.
+<P>
+
+If you use any libraries that are <I>not</I> installed in
+<CODE>/usr/lib</CODE> and <CODE>/usr/include</CODE>, set the
+<CODE>LIBRARY</CODE> and <CODE>INCLUDE</CODE> variables as shown in
+the example at the top of this manual.  You may want to add those
+commands to your <CODE>.cshrc</CODE> file so they execute every
+time you log in.
+
+<P>
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT> is
+a Python script and requires at least <A
+HREF="http://www.python.org/2.3.2/">Python 2.0</a> to run.  You can
+check the version of your Python version using the command
+"<CODE>python -V</CODE>".  If you are running an old version of
+Python, <FONT COLOR="#000002" SIZE=4 FACE="Times New
+Roman">iCompile</FONT> will print the error "<CODE>Illegal
+syntax</CODE>" for the "<CODE>-=</CODE>" operator.
+</BLOCKQUOTE>
+</FONT>
+
+
+<A NAME="program">
+<H2>Compile a Program</H2>
+
+<FONT FACE="Arial">
+<BLOCKQUOTE>
+
+To start a new project, create an empty directory and run <FONT
+COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT> inside
+it with no arguments.  You will be prompted to confirm the creation of the default
+main.cpp and directories during
+project creation.  You can also run <FONT COLOR="#000002" SIZE=4
+FACE="Times New Roman">iCompile</FONT> on an existing project that
+previously used a different build system.  In that case, <FONT
+COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT> will
+not create any new directories or source files.
+
+
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT>
+determines how to build your project by examining the directory
+structure.  The name of the binary executable produced by the build is
+the same as the name of the project directory.  If the project
+directory name has the extension <CODE>.dll</CODE> or
+<CODE>.so</CODE>, a shared library is created instead of an
+executable.  The extensions <CODE>.lib</CODE> and <CODE>.a</CODE>
+create a static library.
+
+<P>
+
+All source files (<CODE>.cpp</CODE>, <CODE>.c</CODE>,
+<CODE>.cxx</CODE>, etc.) in the project directory and its
+subdirectories are considered part of the project and will be compiled
+during the build.  There are exceptions for temp directories and the
+like discussed later.
+
+<P>
+
+When it is first run, <FONT COLOR="#000002" SIZE=4 FACE="Times New
+Roman">iCompile</FONT> generates an <CODE>ice.txt</CODE> file telling 
+the build system that this is the root of a project and a 
+<CODE>Doxygen</CODE> file for the documentation generator.
+All other generated files are written to the <CODE>build</CODE>
+directory, which can safely be deleted at any time by hand or using
+the command <CODE>'icompile --clean'</CODE>.
+
+<P>
+
+Because the build directory could be deleted, keep any data files that
+are part of your program's installation in the special directory named
+<CODE>data-files</CODE>.  These will be copied into the distribution
+directory during the build.  A sample directory tree for an executable
+project is shown below.
+
+</BLOCKQUOTE>
+</FONT>
+<BLOCKQUOTE>
+<PRE>
+<IMG SRC="http://ice.sf.net/folder.png"> <B>hello/</B>
+|-- main.cpp              <FONT COLOR=#00AA00>CPP and H files may be at the top level</FONT>
+|                         <FONT COLOR=#00AA00>or in subdirectories.</FONT>
+|--<IMG SRC="http://ice.sf.net/folder.png"> <B>data-files/</B>         <FONT COLOR=#00AA00>Files needed at runtime (Optional)</FONT>
+<FONT COLOR=#AAAAAA>|</FONT>  `-- config.txt         <FONT COLOR=#00AA00>Copied to build/install during compilation.</FONT>
+<FONT COLOR=#AAAAAA>|
+|-- Doxyfile
+|-- ice.txt
+`--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>build/</B>
+  |--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>doc/</B>              <FONT COLOR=#00AA00>Generated documentation for programmers.</FONT>
+  |  |-- main.html
+  |  `-- index.html
+  | 
+  `--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>install/</B>          <FONT COLOR=#00AA00>Files to distribute to users.</FONT>
+     |-- config.txt
+     |-- hello.a          <FONT COLOR=#00AA00>Optimized executable.</FONT>
+     `-- hellod.a         <FONT COLOR=#00AA00>Debug executable.</FONT>
+</FONT>
+</PRE>
+<I>Gray files and directories are automatically generated.</I>
+</BLOCKQUOTE>
+
+<A NAME="library">
+<H2>Compile a Library</H2>
+<BLOCKQUOTE>
+
+<FONT FACE="Arial"> 
+A project that builds a static library is in a directory ending with
+'.lib' or '.a'.  Dynamic (shared) library projects are configured in
+exactly the same manner except the root directory name ends with
+'.dll' or '.so'.
+</FONT>
+
+<PRE>
+<IMG SRC="http://ice.sf.net/folder.png"> <B>format.lib/</B>
+|-- format.cpp              <FONT COLOR=#00AA00>CPP and H files may be at the top level</FONT>
+|-- stringhelper.h          <FONT COLOR=#00AA00>or in subdirectories.</FONT>
+|
+|--<IMG SRC="http://ice.sf.net/folder.png"> <B>include/</B>              <FONT COLOR=#00AA00>Headers to be distributed with the library (Optional).</FONT>
+<FONT COLOR=#AAAAAA>|</FONT>  `-- format.h
+<FONT COLOR=#AAAAAA>|
+|-- Doxyfile
+|-- ice.txt
+`--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>build/</B>
+   |--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>doc/</B>                <FONT COLOR=#00AA00>Documentation for library maintainers.</FONT>
+   `--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>install/</B>            <FONT COLOR=#00AA00>Distribute to library users.</FONT>
+       |--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>doc/</B>            <FONT COLOR=#00AA00>Generated documentation for library users.</FONT>
+       |  |-- format.html
+       |  `-- index.html
+       | 
+       |--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>include/</B>        <FONT COLOR=#00AA00>Headers for library users.</FONT>
+       |      `-- format.h
+       |
+       `--<IMG SRC="http://ice.sf.net/grayfolder.png"> <B>linux-g++4.0-lib/</B>
+          |-- libformat.a    <FONT COLOR=#00AA00>Optimized library.</FONT>
+          `-- libformatd.a   <FONT COLOR=#00AA00>Debug library.</FONT>
+</FONT>
+</PRE>
+<I>Gray files and directories are automatically generated.</I>
+</BLOCKQUOTE>
+
+<A NAME="directories">
+<H2>Special Directories</H2>
+<BLOCKQUOTE>
+
+<FONT FACE=ARIAL>
+
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT> is
+controlled through the following special directory names.  Using these
+is optional-- you <I>can</I> use these directory names to take
+advantages of the full feature set, but <FONT COLOR="#000002" SIZE=4
+FACE="Times New Roman">iCompile</FONT> will compile a library or
+executable in any directory structure.
+<P>
+<TABLE CELLSPACING=10>
+<TR><TD WIDTH=25%></TD><TD WIDTH=5%></TD><TD></TD></TR>
+
+<TR><TD VALIGN=TOP><CODE>data-files</CODE></TD><TD></TD>
+<TD VALIGN=TOP>Data files needed at runtime by an executable project.  Copied to <CODE>build/install</CODE> during build.</TD></TR>
+
+<TR><TD VALIGN=TOP><CODE>doc-files</CODE></TD><TD></TD>
+<TD VALIGN=TOP>Resources needed by the generated documentation; usually images and hand coded html files.  Copied to <CODE>build/doc</CODE> during build.</TD></TR>
+
+<TR><TD VALIGN=TOP><CODE>include</CODE></TD><TD></TD>
+<TD VALIGN=TOP>Header files needed by the <I>library user</I> for a library project.  Copied to <CODE>build/include</CODE> during build.  The library itself may use these files when building as <CODE>#include "include/..."</CODE>.</TD></TR>
+
+<TR><TD VALIGN=TOP><CODE><FONT COLOR=#AAAAAA>build</FONT></CODE></TD><TD></TD>
+<TD VALIGN=TOP>Contains all generated files (except <CODE>ice.txt</CODE> and <CODE>Doxyfile</CODE>).  Deleted by <CODE>'icompile --clean'</CODE>.</TD></TR>
+
+<TR><TD VALIGN=TOP><CODE><FONT COLOR=#AAAAAA>.ice-temp</FONT></CODE></TD><TD></TD>
+<TD VALIGN=TOP>Used internally by iCompile to store cached dependency information and object files.  Deleted by <CODE>'icompile --clean'</CODE>.</TD></TR>
+
+<TR><TD VALIGN=TOP><CODE>.svn, CVS, graveyard, temp, tmp, test, build, Debug, Release, old, data-files, doc-files, .icee-temp</CODE></TD><TD></TD>
+<TD VALIGN=TOP>Ignored when looking for source files during compilation.</TD></TR>
+
+
+</TABLE>
+</BLOCKQUOTE>
+
+</FONT>
+
+<A NAME="customizing">
+<H2>Customizing Projects</H2>
+<FONT FACE="Arial">
+<BLOCKQUOTE>
+
+The first time you build a project <CODE>ice.txt</CODE> is generated.
+This file tells <FONT COLOR="#000002" SIZE=4 FACE="Times New
+Roman">iCompile</FONT> where the root of your project is (which also
+allows it give you a warning if you try to build from the wrong
+directory!).  <CODE>ice.txt</CODE> also contains setting information,
+like include paths.  The default settings are fine for most projects
+and you do not need to edit this file.
+
+<P> However, you may want to set per-project paths, compiler options,
+and link libraries.  To do this, open <CODE>ice.txt</CODE> in any text
+editor.  The comments in the file explain what each of the settings is
+for and how to modify them.  If you corrupt the file you can delete
+it and <FONT COLOR="#000002" SIZE=4 FACE="Times New
+Roman">iCompile</FONT> will generate a new one for you.
+</BLOCKQUOTE>
+</FONT>
+
+<A NAME="doticompile">
+<H2>Customizing System</H2>
+<FONT FACE="Arial">
+<BLOCKQUOTE>
+
+The first time you run <FONT COLOR="#000002" SIZE=4 FACE="Times New
+Roman">iCompile</FONT>, the file <CODE>~/.icompile</CODE> is generated.
+This file specifies the default compiler, paths, and some optional 
+behavior like beeping after compilation succeeds.  The file contains
+comments explaining each option.  Settings in <CODE>~/.icompile</CODE>
+can be overridden by individual project <CODE>ice.txt</CODE> files.
+<P>
+The default files will work correctly for most projects and 
+changing <CODE>~/.icompile</CODE> and <CODE>ice.txt</CODE> is not 
+recommended.  It can be hard to debug the compiler and linker errors
+that result from an improperly configured system.
+
+</BLOCKQUOTE>
+</FONT>
+
+
+<A NAME="command">
+<FONT FACE="Times New Roman"><H2>Command Line</H2></FONT>
+<BLOCKQUOTE>
+<PRE>
+
+
+iCompile: the zero-configuration build system
+    
+icompile  [--doc] [--opt|--debug] [--clean] [--version]
+          [--verbosity n] [--help] [--noprompt] [--run|--gdb ...]
+
+iCompile can build most C++ projects without options or manual
+configuration.  Just type 'icompile' with no arguments.  Run in an
+empty directory to generate a set of starter files.
+
+Options:
+ --doc            Generate documentation before building.
+ --debug          (Default) Create a debug executable (define _DEBUG,
+                  disable optimizations).
+ --opt or -O      Generate an optimized executable.
+ --run            Run the program if compilation succeeds, passing all
+                  further arguments (...) to the program.
+ --gdb            Run the program under gdb if compilation succeeds,
+                  passing all further arguments (...) to the program.
+                  You can also just run gdb yourself after using iCompile.
+
+ --verbosity n    Change the amount of information printed by icompile
+
+                  n   |   Result
+                  ----|---------------------------------------------------
+                  0   |   Quiet:  Only errors and prompts are displayed.
+                      |
+                  1   |   Normal (Default): Filenames and progress information
+                      |   are also displayed
+                  2   |   Verbose: Executed commands are also displayed
+                      |
+                  3   |   Trace: Additional debugging information is also
+                      |   displayed.
+
+ --noprompt       Run even if there is no ice.txt file, don't prompt the
+                  user for input.  This is handy for launching iCompile from
+                  automated build shell scripts.
+
+Exclusive options:
+ --help           Print this information.
+ --clean          Delete all generated files (but not library generated files).
+ --version        Print the version number of iCompile.
+
+Special directory names:
+ build            Output directory
+ data-files       Files that will be needed at runtime
+ doc-files        Files needed by your documentation (Doxygen output)
+
+iCompile will not look for source files in directories matching:
+['^\\.', '^#', '^\\.svn$', '^CVS$', '^Debug$', '^Release$',
+'^graveyard$', '^tmp$', '^temp$', '^doc-files$', '^data-files$',
+'^\\.ice-tmp$', '^build$']
+
+You may edit ice.txt if your project has unusual configuration needs.
+See manual.html or http://ice.sf.net for full information.
+
+</PRE>
+
+</BLOCKQUOTE>
+
+<H2>A Note About Linking</H2>
+<FONT FACE="Arial">
+<BLOCKQUOTE>
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT> 
+prefers static linking because it leaves
+you with an executable that is more likely to work on a different
+computer.  The G3D library are statically linked for this reason.
+Some libraries, like SDL and OpenGL, can't be statically linked so
+they are dynamically linked.  The standard library is dynamically
+linked.  This is necessary so that other dynamically linked libraries
+will allocate memory in the same memory space.  Your program will only
+work if the user has installed these libraries and set their
+LD_LIBRARY_PATH to point to them or updated /etc/ld.so.conf.  You can
+see what dynamic libraries an executable needs with the Linux command
+"ldd".
+</BLOCKQUOTE>
+</FONT>
+
+<HR>
+<A NAME="other">
+<H2>Other Build Tools</H2>
+<BR><A HREF="">cmake</a>- Generates makefiles/Visual Studio project files using its own language
+<BR><A HREF="http://freshmeat.net/projects/makescan/">makescan</A>- Generates makefiles from sources
+<BR><A HREF="http://www.gnu.org/software/make/">gmake</A>- The GNU make utility
+<BR><A HREF="http://tinyurl.com/hmcr">nmake</A>- Microsoft's make
+<BR><A HREF="http://www.scri.fsu.edu/~dwyer/dmake.html">dmake</A>- Distributed version of make
+<BR><A HREF="http://www.dsmit.com/cons/">CONS</A>- A Perl module for helping you write your own build scripts
+<BR><A HREF="http://www.tildeslash.com/mmake/">mmake</A>- Java Makefile-maker
+<BR><A HREF="http://javamake.sourceforge.net/">jmake</A>- Java Makefile-maker
+<BR><A HREF="http://www.cskk.ezoshosting.com/cs/myke">Myke</A>- Superset of 'make'
+<BR><A HREF="http://search.cpan.org/author/NI-S/Make-1.00/pmake">pmake</A>- Make, written in Perl
+<BR><A HREF="http://ant.apache.org/">Ant</A>- A Java library for building Java projects
+<BR><A HREF="http://www.crufty.net/ftp/pub/sjg/help/bmake.html">bmake</A>- A NetBSD make that has useful defaults
+<BR><A HREF="http://www.engelschall.com/sw/smake/">smake</A>- Makefile-maker
+<BR><A HREF="http://sources.redhat.com/automake/">automake</A>- Makefile-maker
+<BR><A HREF="http://autoj.sourceforge.net/">autoj</A>-Automated build system for Java that runs on make
+<BR><A HREF="http://apollo.backplane.com/xmake/">XMAKE</A>- Make without default rules
+<BR><A HREF="http://www.cs.york.ac.uk/fp/nhc98/hmake/">hmake</A>- Make for Haskell
+<BR><A HREF="http://sourceforge.net/projects/cppbuild/">Build</A> -
+similar to 
+<FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT>
+, but written in C++ for DOS/Windows.  <FONT COLOR="#000002" SIZE=4 FACE="Times New Roman">iCompile</FONT>
+offers more features and is Linux/OS X centric.
+
+</FONT>
+<HR>
+<BR>Manual Copyright 2003-2007, Morgan McGuire
+<BR>All rights reserved.</I>
+<BR>Original iCompile concept by Morgan McGuire and Rob Hunter
+
+</BODY>
+
+
+
