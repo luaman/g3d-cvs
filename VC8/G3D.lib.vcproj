@@ -513,6 +513,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\enumclass.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\fileutils.h"
 				>
 			</File>

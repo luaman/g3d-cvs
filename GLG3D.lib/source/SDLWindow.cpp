@@ -8,6 +8,38 @@
 
 #include "G3D/platform.h"
 
+// For SDL_Event
+#if defined(G3D_OSX) 
+#   include <SDL/SDL_events.h>
+#elif defined(G3D_LINUX)
+#   include <SDL/SDL_events.h>
+#elif defined(G3D_WIN32)
+
+#elif defined(G3D_FREEBSD)
+#   include <SDL.h>
+#endif
+
+#if (defined(main) && ! defined(G3D_WIN32))
+#   undef main
+#endif
+
+#ifdef G3D_WIN32
+// For SDL_Event
+#if defined(G3D_OSX) 
+#   include <SDL/SDL_events.h>
+#elif defined(G3D_LINUX)
+#   include <SDL/SDL_events.h>
+#elif defined(G3D_WIN32)
+
+#elif defined(G3D_FREEBSD)
+#   include <SDL.h>
+#endif
+
+#if (defined(main) && ! defined(G3D_WIN32))
+#   undef main
+#endif
+
+
 #if defined(G3D_OSX)
 #include "GLG3D/NSAutoreleasePoolWrapper.h"
 #include <Carbon/Carbon.h>

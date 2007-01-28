@@ -207,7 +207,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GEvent.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GFont.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GKey.cpp"
 				>
 			</File>
 			<File
@@ -378,6 +386,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GFont.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GKey.h"
 				>
 			</File>
 			<File
