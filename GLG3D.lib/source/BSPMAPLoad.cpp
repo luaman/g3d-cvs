@@ -346,7 +346,9 @@ void Map::loadEntities(BinaryInput&	bi,const BSPLump& lump){
 			std::string	subStr = std::string(subArray[j]);
 // TODO: Clean this code up to use TextInput and not strtok, which mutates the
 // underlying data in a way that is scary.			
+#ifdef G3D_WIN32
 #pragma message(" Fix destructive useage of strtok in BSPMAPLoad.cpp ")
+#endif
 			char* pt = const_cast<char*>(strstr(subStr.c_str(), "\"classname\""));
 			if (pt){
 				const char* name = strtok(pt + 13, "\"	");
