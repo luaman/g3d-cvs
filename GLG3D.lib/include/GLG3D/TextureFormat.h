@@ -85,7 +85,9 @@ public:
         CODE_STENCIL1,
         CODE_STENCIL4,
         CODE_STENCIL8,
-        CODE_STENCIL16
+        CODE_STENCIL16,
+
+        CODE_DEPTH24_STENCIL8
         };
 
     enum ColorSpace {
@@ -272,7 +274,9 @@ public:
     static const TextureFormat* STENCIL8;
 
     static const TextureFormat* STENCIL16;
-    
+
+    static const TextureFormat* DEPTH24_STENCIL8;
+
 	/**
      NULL pointer; indicates that the texture class should choose
      either RGBA8 or RGB8 depending on the presence of an alpha channel

@@ -43,7 +43,7 @@ public:
     /**
      Constructs a zero-area AABox at v.
      */
-    inline AABox(const Vector3& v) {
+    inline explicit AABox(const Vector3& v) {
         lo = hi = v;
     }
 

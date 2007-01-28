@@ -1280,6 +1280,14 @@ typedef unsigned long GLhandleARB;  // shader object handle
 #define GL_UNSIGNED_INT_24_8_NV           0x84FA
 #endif
 
+#ifndef GL_EXT_packed_depth_stencil
+#define GL_EXT_packed_depth_stencil 1
+#define GL_DEPTH_STENCIL_EXT              0x84F9
+#define GL_UNSIGNED_INT_24_8_EXT          0x84FA
+#define GL_DEPTH24_STENCIL8_EXT           0x88F0
+#define GL_TEXTURE_STENCIL_SIZE_EXT       0x88F1
+#endif
+
 #ifndef GL_NV_pixel_data_range
 #define GL_WRITE_PIXEL_DATA_RANGE_NV      0x8878
 #define GL_READ_PIXEL_DATA_RANGE_NV       0x8879

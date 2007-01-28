@@ -38,6 +38,9 @@ typedef ReferenceCountedPointer<Renderbuffer> RenderbufferRef;
 
  See G3D::Framebuffer for a detailed example.
 
+ Not all graphics cards support all renderbuffer formats.  For example, pre-GeForce 8800 NVIDIA cards
+ require packed DEPTH24_STENCIL8 and do not allow STENCIL8 textures alone.
+
  <B>BETA API</B> -- Subject to change
 
   @cite http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt

@@ -132,9 +132,13 @@ class Framebuffer : public ReferenceCountedObject {
 public:
 
     /**
-	 Specifies the attachment to which a framebuffer-attachable-image
-	 (Renderbuffer or a Texture image) will be attached.  These mirror
+	 Specifies which channels of the framebuffer the renderbuffer or texture will 
+     define. These mirror
 	 the OpenGL definition as do their values.
+
+     A DEPTH_STENCIL format renderbuffer or texture can be attached to either the 
+     DEPTH_ATTACHMENT or the STENCIL_ATTACHMENT, or both simultaneously; Framebuffer will
+     understand the format and use the appropriate channels.
 	 */
 	enum AttachmentPoint {
 		COLOR_ATTACHMENT0  = 0x8CE0,
@@ -154,7 +158,8 @@ public:
         COLOR_ATTACHMENT14 = 0x8CEE,
         COLOR_ATTACHMENT15 = 0x8CEF,
         DEPTH_ATTACHMENT   = 0x8D00,
-		STENCIL_ATTACHMENT = 0x8D20};
+		STENCIL_ATTACHMENT = 0x8D20,
+        };
 
 private:
 

@@ -85,6 +85,8 @@ const TextureFormat* TextureFormat::STENCIL8  = new TextureFormat(1, false, GL_S
 	
 const TextureFormat* TextureFormat::STENCIL16= new TextureFormat(1, false, GL_STENCIL_INDEX16_EXT,           GL_STENCIL_INDEX_EXT,0, 0, 0, 0, 0, 0, 16, 16, 16, !OPAQUEx, INT, TextureFormat::CODE_STENCIL16, TextureFormat::COLOR_SPACE_NONE);
 
+const TextureFormat* TextureFormat::DEPTH24_STENCIL8=new TextureFormat(2, false, GL_DEPTH24_STENCIL8_EXT,    GL_DEPTH_STENCIL_EXT,0, 0, 0, 0, 0, 24, 8, 32, 32, !OPAQUEx, INT, TextureFormat::CODE_DEPTH24_STENCIL8, TextureFormat::COLOR_SPACE_NONE);
+
 const TextureFormat* TextureFormat::AUTO      = NULL;
 
 bool TextureFormat::valid = true;

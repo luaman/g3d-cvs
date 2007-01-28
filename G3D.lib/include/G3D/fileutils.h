@@ -4,9 +4,9 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @author  2002-06-06
- @edited  2006-02-04
+ @edited  2007-01-18
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
  */
 
@@ -18,6 +18,11 @@
 #include <stdio.h>
 #include "G3D/Array.h"
 #include "G3D/g3dmath.h"
+
+#ifdef G3D_WIN32
+// For chdir, mkdir, etc.
+#   include <direct.h>
+#endif
 
 namespace G3D {
 
