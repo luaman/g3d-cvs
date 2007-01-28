@@ -8,7 +8,7 @@
 #if defined(G3D_OSX) 
 #   include <SDL/SDL_events.h>
 #elif defined(G3D_FREEBSD)
-#   include <SDL_events.h>
+#   include <SDL/SDL_events.h>
 #elif defined(G3D_LINUX)
 #   include <SDL/SDL_events.h>
 #elif defined(G3D_WIN32)

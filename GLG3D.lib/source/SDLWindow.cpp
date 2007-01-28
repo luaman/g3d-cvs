@@ -16,14 +16,12 @@
 #include "GLG3D/glcalls.h"
 #include "GLG3D/GLCaps.h"
 
-// Different platforms use different subdirectories; freebsd names
-// SDL "SDL11", but in the G3D build iCompile deals with this.
 #if defined(G3D_OSX) 
 #   include <SDL/SDL.h>
 #   include <SDL/SDL_syswm.h>
 #elif defined(G3D_FREEBSD)
-#   include <SDL.h>
-#   include <SDL_syswm.h>
+#   include <SDL/SDL.h>
+#   include <SDL/SDL_syswm.h>
 #elif defined(G3D_LINUX)
 #   include <SDL/SDL.h>
 #   include <SDL/SDL_syswm.h>
