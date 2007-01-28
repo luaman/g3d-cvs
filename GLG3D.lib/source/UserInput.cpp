@@ -78,11 +78,11 @@ void UserInput::setKeyMapping(
     Table<GKey, UIFunction>* keyMapping) {
 
     for (GKey i = (GKey)(keyState.size() - 1); (int)i >= 0; i = (GKey)(i - 1)) {
-        keyState[i]    = false;
+        keyState[(int)i]    = false;
         if (keyMapping->containsKey(i)) {
-            keyFunction[i] = keyMapping->get(i);
+            keyFunction[(int)i] = keyMapping->get(i);
         } else {
-            keyFunction[i] = NONE;
+            keyFunction[(int)i] = NONE;
         }
     }
 }
@@ -226,7 +226,7 @@ void UserInput::processKey(GKey code, int event) {
 	bool state = (event == SDL_KEYDOWN);
 
     if (code < GKey(keyFunction.size())) {
-        switch (keyFunction[code]) {
+        switch (keyFunction[(int)code]) {
         case RIGHT:
             right = state;
             break;
@@ -247,7 +247,7 @@ void UserInput::processKey(GKey code, int event) {
             break;
 	    }
 
-        keyState[code] = state;
+        keyState[(int)code] = state;
 
         if (state) {
             justPressed.append(code);
@@ -289,7 +289,7 @@ bool UserInput::keyDown(GKey code) const {
     if (code > GKey::LAST) {
         return false;
     } else {
-        return keyState[code];
+        return keyState[(int)code];
     }
 }
 

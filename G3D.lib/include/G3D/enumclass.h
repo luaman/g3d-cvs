@@ -99,5 +99,16 @@
 \
     inline Classname operator- (const int x) const {\
         return Classname((int)value - x);\
+    }\
+\
+    inline uint32 hashCode() const {\
+        return (uint32)value;\
     }
+
+#define G3D_DECLARE_ENUM_CLASS_HASHCODE(Classname)\
+inline uint32 hashCode(const Classname x) {\
+    return x.hashCode();\
+}
+
+
 #endif

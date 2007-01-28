@@ -23,7 +23,7 @@
 #   define WIN32_LEAN_AND_MEAN
 #endif
 
-#ifdef G3D_LINUX
+#if defined(G3D_LINUX) ||  defined (G3D_FREEBSD)
 // On Linux, we require OpenGL 1.2.1 to be installed.  On Windows we
 // are more forgiving and link OpenGL 1.1 statically and load the 
 // extensions for multitexture dynamically.  We should be able to
@@ -39,7 +39,7 @@
     #include "GL/wglext.h"
 #endif
 
-#if defined(G3D_LINUX)
+#if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 #   ifdef __glxext_h_
 #      error Picked up wrong version of glxext
@@ -211,7 +211,7 @@ extern PFNGLTEXIMAGE3DEXTPROC glTexImage3DEXT;
 typedef BOOL (*PFNWGLENABLEGENLOCKI3D) (HDC hDCGL);
 extern PFNWGLENABLEGENLOCKI3D wglEnableGenlockI3D;
 
-#elif defined(G3D_LINUX) 
+#elif defined(G3D_LINUX) || defined(G3D_FREEBSD) 
 
 typedef Bool (*PFNGLXJOINSWAPGROUPNV) (Display*, GLXDrawable, GLuint);
 typedef Bool (*PFNGLXBINDSWAPBARRIERNV) (Display *dpy, GLuint group, GLuint barrier);

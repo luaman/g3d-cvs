@@ -22,7 +22,7 @@ namespace G3D {
  An integer that may safely be used on different threads without
  external locking.
 
- On Win32, Linux, and Mac OS X this is implemented without locks.  
+ On Win32, Linux, FreeBSD, and Mac OS X this is implemented without locks.  
 
  <B>BETA API</B>  This is unsupported and may change
  */
@@ -82,7 +82,7 @@ public:
 
             return InterlockedExchangeAdd(VCAST &_value, x);
 
-#       elif defined(G3D_LINUX)
+#       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
             int32 old;
             asm volatile ("lock; xaddl %0,%1"
@@ -109,7 +109,7 @@ public:
 #       if defined(G3D_WIN32)
             // Note: returns the newly incremented value
             InterlockedIncrement(VCAST &_value);
-#       elif defined(G3D_LINUX)
+#       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
             add(1);
 #       elif defined(G3D_OSX)
             // Note: returns the newly incremented value
@@ -122,7 +122,7 @@ public:
 #       if defined(G3D_WIN32)
             // Note: returns the newly decremented value
             return InterlockedDecrement(VCAST &_value) != 0;
-#       elif defined(G3D_LINUX)
+#       elif defined(G3D_LINUX)  || defined(G3D_FREEBSD)
             unsigned char nz;
 
             asm volatile ("lock; decl %1;\n\t"
@@ -158,7 +158,7 @@ public:
 #          else
                 return InterlockedCompareExchange(VCAST &_value, exchange, comperand);
 #          endif
-#       elif defined(G3D_LINUX)
+#       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
             int32 ret;
             asm volatile ("lock; cmpxchgl %1, %2"
                           : "=a" (ret)

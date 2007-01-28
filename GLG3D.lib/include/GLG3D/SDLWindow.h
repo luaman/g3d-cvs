@@ -1,40 +1,25 @@
 /**
-  @file SDLWindow.h
+  @file GLG3D/SDLWindow.h
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2006-10-10
+  @edited  2007-01-31
+
+  Copyright 2000-2007, Morgan McGuire
+  All rights reserved.
 */
 
 #ifndef G3D_SDLWINDOW_H
 #define G3D_SDLWINDOW_H
 
 #include "G3D/platform.h"
-// No SDL on Win32
+
 #ifndef G3D_WIN32
 
 #include "GLG3D/GWindow.h"
 #include "GLG3D/glcalls.h"
 
-#if defined(G3D_OSX)
-#    include <SDL/SDL.h>
-#    include <SDL/SDL_syswm.h>
-    class NSAutoreleasePoolWrapper;
-#elif defined(G3D_LINUX)
-#    include <SDL/SDL.h>
-#    include <SDL/SDL_syswm.h>
-#elif defined(SDL_FREEBSD)
-#    include <SDL.h>
-#    include <SDL_syswm.h>
-#elif defined(G3D_WIN32)
-#    undef WIN32_LEAN_AND_MEAN
-#endif
-
-#if (defined(main) && ! defined(G3D_WIN32))
-#   undef main
-#endif
-
-
+#include "GLG3D/G3D_SDL_event.h"
 
 namespace G3D {
 
@@ -160,5 +145,5 @@ public:
 
 } // namespace
 
-#endif // ifndef G3D_WIN32
+#endif // G3D_WIN32
 #endif
