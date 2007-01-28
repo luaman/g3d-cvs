@@ -509,7 +509,7 @@ void ThirdPersonManipulator::setEnabled(bool e) {
 ThirdPersonManipulator::ThirdPersonManipulator() : 
     m_axisScale(1), 
     m_dragging(false), 
-    m_dragKey(SDL_LEFT_MOUSE_KEY),
+    m_dragKey(GKey::LEFT_MOUSE),
     m_doubleAxisDrag(false),
     m_overAxis(NO_AXIS),
     m_maxAxisDistance2D(15),

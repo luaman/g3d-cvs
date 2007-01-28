@@ -446,36 +446,36 @@ void GConsole::completeCommand(int direction) {
 
 
 void GConsole::processRepeatKeysym() {
-    if ((m_repeatKeysym.sym != SDLK_TAB) && m_inCompletion) {
+    if ((m_repeatKeysym.sym != GKey::TAB) && m_inCompletion) {
         endCompletion();
     }
 
     switch (m_repeatKeysym.sym) {
-    case SDLK_UNKNOWN:
+    case GKey::UNKNOWN:
         // No key
         break;
 
-    case SDLK_RIGHT:
+    case GKey::RIGHT:
         if (m_cursorPos < (int)m_currentLine.size()) {
             ++m_cursorPos;
         }
         break;
 
-    case SDLK_LEFT:
+    case GKey::LEFT:
         if (m_cursorPos > 0) {
             --m_cursorPos;
         }
         break;
 
-    case SDLK_HOME:
+    case GKey::HOME:
         m_cursorPos = 0;
         break;
 
-    case SDLK_END:
+    case GKey::END:
         m_cursorPos = m_currentLine.size();
         break;
 
-    case SDLK_DELETE:
+    case GKey::DELETE:
         if (m_cursorPos < (int)m_currentLine.size()) {
             m_currentLine = 
                 m_currentLine.substr(0, m_cursorPos) + 
@@ -484,7 +484,7 @@ void GConsole::processRepeatKeysym() {
         }
         break;
 
-    case SDLK_BACKSPACE:
+    case GKey::BACKSPACE:
         if (m_cursorPos > 0) {
             m_currentLine = 
                 m_currentLine.substr(0, m_cursorPos - 1) + 
@@ -496,46 +496,46 @@ void GConsole::processRepeatKeysym() {
         }
         break;
 
-    case SDLK_UP:
+    case GKey::UP:
         if (m_historyIndex > 0) {
             historySelect(-1);
         }
         break;
 
-    case SDLK_DOWN:
+    case GKey::DOWN:
         if (m_historyIndex < m_history.size() - 1) {
             historySelect(+1);
         }
         break;
 
-    case SDLK_TAB:
+    case GKey::TAB:
         // Command completion
-        if ((m_repeatKeysym.mod & KMOD_SHIFT) != 0) {
+        if ((m_repeatKeysym.mod & GKEYMOD_SHIFT) != 0) {
             completeCommand(-1);
         } else {
             completeCommand(1);
         }
         break;
 
-    case SDLK_PAGEUP:
+    case GKey::PAGEUP:
         if (m_bufferShift < m_buffer.length() - m_settings.numVisibleLines + 1) {
             ++m_bufferShift;
         }
         break;
 
-    case SDLK_PAGEDOWN:
+    case GKey::PAGEDOWN:
         if (m_bufferShift > 0) {
             --m_bufferShift;
         }
         break;
 
-    case SDLK_RETURN:
+    case GKey::RETURN:
         issueCommand();
         break;
 
     default:
-        if ((m_repeatKeysym.sym >= SDLK_SPACE) &&
-            (m_repeatKeysym.sym <= SDLK_z)) {
+        if ((m_repeatKeysym.sym >= GKey::SPACE) &&
+            (m_repeatKeysym.sym <= 'z')) {
 
             // Insert character
             char c = m_repeatKeysym.unicode & 0xFF;
@@ -572,7 +572,7 @@ void GConsole::setRepeatKeysym(SDL_keysym key) {
 
 
 void GConsole::unsetRepeatKeysym() {
-    m_repeatKeysym.sym = SDLK_UNKNOWN;
+    m_repeatKeysym.sym = GKey::UNKNOWN;
 }
 
 
@@ -596,23 +596,23 @@ bool GConsole::onEvent(const GEvent& event) {
     switch (event.type) {
     case SDL_KEYDOWN:
         switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE:
+        case GKey::ESCAPE:
             // Close the console
             setActive(false);
             return true;
 
-        case SDLK_RIGHT:
-        case SDLK_LEFT:
-        case SDLK_DELETE:
-        case SDLK_BACKSPACE:
-        case SDLK_UP:
-        case SDLK_DOWN:
-        case SDLK_TAB:
-        case SDLK_PAGEUP:
-        case SDLK_PAGEDOWN:
-        case SDLK_RETURN:
-        case SDLK_HOME:
-        case SDLK_END:
+        case GKey::RIGHT:
+        case GKey::LEFT:
+        case GKey::DELETE:
+        case GKey::BACKSPACE:
+        case GKey::UP:
+        case GKey::DOWN:
+        case GKey::TAB:
+        case GKey::PAGEUP:
+        case GKey::PAGEDOWN:
+        case GKey::RETURN:
+        case GKey::HOME:
+        case GKey::END:
             setRepeatKeysym(event.key.keysym);
             processRepeatKeysym();
             return true;
@@ -620,18 +620,18 @@ bool GConsole::onEvent(const GEvent& event) {
 
         default:
 
-            if ((((event.key.keysym.mod & KMOD_CTRL) != 0) &&
-                 ((event.key.keysym.sym == SDLK_v) || (event.key.keysym.sym == SDLK_y))) ||
+            if ((((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
+                 ((event.key.keysym.sym == 'v') || (event.key.keysym.sym == 'y'))) ||
 
-                (((event.key.keysym.mod & KMOD_SHIFT) != 0) &&
-                (event.key.keysym.sym == SDLK_INSERT))) {
+                (((event.key.keysym.mod & GKEYMOD_SHIFT) != 0) &&
+                (event.key.keysym.sym == GKey::INSERT))) {
 
                 // Paste (not autorepeatable)
                 pasteClipboard();
                 return true;
 
-            } else if (((event.key.keysym.mod & KMOD_CTRL) != 0) &&
-                (event.key.keysym.sym == SDLK_k)) {
+            } else if (((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
+                (event.key.keysym.sym == 'k')) {
 
                 // Cut (not autorepeatable)
                 string cut = m_currentLine.substr(m_cursorPos);
@@ -641,8 +641,8 @@ bool GConsole::onEvent(const GEvent& event) {
 
                 return true;
 
-            } else if ((event.key.keysym.sym >= SDLK_SPACE) &&
-                (event.key.keysym.sym <= SDLK_z)) {
+            } else if ((event.key.keysym.sym >= GKey::SPACE) &&
+                (event.key.keysym.sym <= 'z')) {
 
                 // A normal character
                 setRepeatKeysym(event.key.keysym);
@@ -681,7 +681,7 @@ void GConsole::render(RenderDevice* rd) {
 
     RealTime now = System::time();
 
-    bool hasKeyDown = (m_repeatKeysym.sym != SDLK_UNKNOWN);
+    bool hasKeyDown = (m_repeatKeysym.sym != GKey::UNKNOWN);
 
     // If a key is being pressed, process it on a steady repeat schedule.
     if (hasKeyDown && (now > m_keyRepeatTime)) {

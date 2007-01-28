@@ -7,9 +7,9 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2002-08-07
- @edited  2006-10-30
+ @edited  2007-01-27
 
- Copyright 2001-2006, Morgan McGuire.
+ Copyright 2001-2007, Morgan McGuire.
  All rights reserved.
 */
 
@@ -74,6 +74,7 @@
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/GConsole.h"
 #include "GLG3D/BSPMAP.h"
+#include "GLG3D/GKey.h"
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"

@@ -101,7 +101,7 @@ void FirstPersonManipulator::setActive(bool a) {
 
     case MOUSE_DIRECT_RIGHT_BUTTON:
         // Only turn on when activeand the right mouse button is down
-        userInput->setPureDeltaMouse(_active && userInput->keyDown(SDL_RIGHT_MOUSE_KEY));
+        userInput->setPureDeltaMouse(_active && userInput->keyDown(GKey::RIGHT_MOUSE));
         break;
 
     case MOUSE_SCROLL_AT_EDGE:
@@ -202,7 +202,7 @@ void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
     switch (m_mouseMode) {
     case MOUSE_DIRECT_RIGHT_BUTTON:
         {
-            bool mouseDown = userInput->keyDown(SDL_RIGHT_MOUSE_KEY);
+            bool mouseDown = userInput->keyDown(GKey::RIGHT_MOUSE);
             userInput->setPureDeltaMouse(mouseDown);
             if (! mouseDown) {
                 // Skip bottom case

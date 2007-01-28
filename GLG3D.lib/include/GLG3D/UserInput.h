@@ -18,21 +18,6 @@
 
 namespace G3D {
 
-/**
- Some special key codes for use with UserInput.
- */
-// In an enum so they can be used with switch.
-enum CustomKeyCode {
-
-    // The order of the mouse buttons is intentionally chosen to match SDL's button codes
-    // and cannot be changed.
-    SDL_LEFT_MOUSE_KEY        = 324,
-    SDL_MIDDLE_MOUSE_KEY,
-    SDL_RIGHT_MOUSE_KEY,
-    SDL_MOUSE_WHEEL_UP_KEY,
-    SDL_MOUSE_WHEEL_DOWN_KEY,
-
-    SDL_CUSTOM_LAST};
 
 
 /**
@@ -45,29 +30,9 @@ enum CustomKeyCode {
  Call beginEvents() immediately before your SDL event handling routine and hand
  events to processEvent() as they become available.  Call endEvents() immediately
  after the loop.
-
- <PRE>
-    ::SDL_Event event;
-
-    userInput->beginEvents();
-    while (SDL_PollEvent(&event)) {
-        userInput->processEvent(event);
-
-        switch (event.type) {
-        case SDL_QUIT:
-            exit(0);
-            break;
-        }
-    }
-    userInput->endEvents();
-   </PRE>
-
-  See http://www.libsdl.org/cgi/docwiki.cgi/SDLKey for a list of all key codes.
-  %G3D also provides the extended values from G3D::CustomKeyCode.
 */
 class UserInput {
 public:
-    typedef uint16 KeyCode;
 
     enum UIFunction {UP, DOWN, LEFT, RIGHT, NONE};
 
@@ -86,8 +51,8 @@ private:
      */
     // Since relatively few keys are pressed every frame, keeping an array of
     // key codes pressed is much more compact than clearing a large array of bools.
-    Array<KeyCode>          justPressed;
-    Array<KeyCode>          justReleased;
+    Array<GKey>          justPressed;
+    Array<GKey>          justReleased;
 
     /**
      Function of key[x]
@@ -97,7 +62,7 @@ private:
     bool                    inEventProcessing;
 
     /** Called from the constructors */
-    void init(GWindow* window, Table<KeyCode, UIFunction>* keyMapping);
+    void init(GWindow* window, Table<GKey, UIFunction>* keyMapping);
 
     /** Called from setPureDeltaMouse */
     void grabMouse();
@@ -144,21 +109,11 @@ private:
     /**
      Expects SDL_MOUSEBUTTONDOWN, etc. to be translated into key codes.
      */
-	void processKey(KeyCode code, int event);
+	void processKey(GKey code, int event);
 
 public:
-    /**
-     Turns a UserInput key code into a human readable string
-     describing the key.
-     */
-    static std::string keyCodeToString(KeyCode i);
 
-    /**
-     Inverse of keyCodeToString
-     */
-    static KeyCode stringToKeyCode(const std::string& s);
-
-	bool                    useJoystick;
+    bool                    useJoystick;
     
 	/**
 	 */
@@ -169,7 +124,7 @@ public:
      */
     GWindow* window() const;
 
-    void setKeyMapping(Table<KeyCode, UIFunction>* keyMapping = NULL);
+    void setKeyMapping(Table<GKey, UIFunction>* keyMapping = NULL);
 
 	/**
 	 Closes the joystick if necessary.
@@ -180,7 +135,7 @@ public:
 	 Call from inside the event loop for every event inside
 	 processEvents() (done for you by App3D.processEvents())
 	 */
-    void processEvent(const ::SDL_Event& event);
+    void processEvent(const GEvent& event);
 
     /**
      Call after your GWindow event polling loop.  If you are using G3D::GApplet, this is handled for you.
@@ -231,26 +186,20 @@ public:
 
     /**
      Returns true iff the given key is currently held down.
-     The SDL key codes are used, plus
-        SDL_LEFT_MOUSE_KEY,
-        SDL_MIDDLE_MOUSE_KEY,
-        SDL_RIGHT_MOUSE_KEY,
-        SDL_MOUSE_WHEEL_UP_KEY,
-        SDL_MOUSE_WHEEL_DOWN_KEY
      */
-    bool keyDown(KeyCode code) const;
+    bool keyDown(GKey code) const;
 
     /**
      Returns true if this key went down at least once since the last call to
      poll().
      */
-    bool keyPressed(KeyCode code) const;
+    bool keyPressed(GKey code) const;
 
     /**
      Returns true if this key came up since the last call to
      poll().
      */
-    bool keyReleased(KeyCode code) const;
+    bool keyReleased(GKey code) const;
 
     /**
      True if any key has been pressed since the last call to poll().
@@ -258,8 +207,8 @@ public:
     bool anyKeyPressed() const;
 
     /** An array of all keys pressed since the last poll() call. */
-    void pressedKeys(Array<KeyCode>& code) const;
-    void releasedKeys(Array<KeyCode>& code) const;
+    void pressedKeys(Array<GKey>& code) const;
+    void releasedKeys(Array<GKey>& code) const;
 
     Vector2 mouseDXY() const;
     float mouseDX() const;

@@ -254,7 +254,7 @@ private:
 
     /** Key code that beings a drag (typically left mouse). 
         Could be a setting.*/
-    int                     m_dragKey;
+    GKey                    m_dragKey;
 
     /** Enables dragging on multiple axes simultaneously, which is
         broken in this build. */

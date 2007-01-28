@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2006-08-10
+  @edited  2007-01-30
 */
 
 #include "G3D/platform.h"

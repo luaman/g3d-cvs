@@ -559,17 +559,17 @@ void GApplet::onUserInput(UserInput* userInput) {
 
 	    case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
-            case SDLK_ESCAPE:
+            case GKey::ESCAPE:
                 if (app->debugMode() && app->debugQuitOnEscape) {
                     app->endProgram = true;
                 }
                 break;
 
-            case SDLK_TAB:
+            case GKey::TAB:
                 // Make sure it wasn't ALT-TAB that was pressed !
                 if (app->debugMode() && app->debugTabSwitchCamera && 
-                    ! (app->userInput->keyDown(SDLK_RALT) || 
-                       app->userInput->keyDown(SDLK_LALT))) {
+                    ! (app->userInput->keyDown(GKey::RALT) || 
+                       app->userInput->keyDown(GKey::LALT))) {
 
                     app->debugController->setActive(! app->debugController->active());
                 }

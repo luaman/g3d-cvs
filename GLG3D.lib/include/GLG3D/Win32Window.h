@@ -3,11 +3,11 @@
   
  A GWindow that uses the Win32 API.
 
- @maintainer Corey Taylor 
+ @maintainer Morgan McGuire
  @created 	  2004-05-21
- @edited  	  2005-09-21
+ @edited  	  2007-01-30
     
- Copyright 2000-2005, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
 */
 

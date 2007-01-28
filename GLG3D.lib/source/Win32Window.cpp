@@ -1,13 +1,13 @@
 /**
   @file Win32Window.cpp
 
-  @maintainer Corey Taylor, vejita@users.sf.net 
+  @maintainer Morgan McGuire
   @cite       Written by Corey Taylor & Morgan McGuire
   @cite       Special thanks to Max McGuire of Ironlore
   @created 	  2004-05-21
   @edited  	  2006-11-15
     
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
 */
 
@@ -79,7 +79,7 @@ static bool hasWGLMultiSampleSupport = false;
 
 static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
 
-static unsigned int _sdlKeys[SDLK_LAST];
+static unsigned int _sdlKeys[GKey::LAST];
 static bool sdlKeysInitialized = false;
 
 // Prototype static helper functions at end of file
@@ -639,32 +639,32 @@ bool Win32Window::pollEvent(GEvent& e) {
 
 
             case WM_LBUTTONDOWN:
-				mouseButton(true, SDL_LEFT_MOUSE_KEY, message.wParam, e); 
+				mouseButton(true, GKey::LEFT_MOUSE, message.wParam, e); 
                 _mouseButtons[0] = true;
 				return true;
 
             case WM_MBUTTONDOWN:
-				mouseButton(true, SDL_MIDDLE_MOUSE_KEY, message.wParam, e); 
+				mouseButton(true, GKey::MIDDLE_MOUSE, message.wParam, e); 
                 _mouseButtons[1] = true;
 				return true;
 
             case WM_RBUTTONDOWN:
-				mouseButton(true, SDL_RIGHT_MOUSE_KEY, message.wParam, e); 
+				mouseButton(true, GKey::RIGHT_MOUSE, message.wParam, e); 
                 _mouseButtons[2] = true;
 				return true;
 
             case WM_LBUTTONUP:
-				mouseButton(false, SDL_LEFT_MOUSE_KEY, message.wParam, e); 
+				mouseButton(false, GKey::LEFT_MOUSE, message.wParam, e); 
                 _mouseButtons[0] = false;
 				return true;
 
             case WM_MBUTTONUP:
-				mouseButton(false, SDL_MIDDLE_MOUSE_KEY, message.wParam, e); 
+				mouseButton(false, GKey::MIDDLE_MOUSE, message.wParam, e); 
                 _mouseButtons[1] = false;
 				return true;
 
             case WM_RBUTTONUP:
-				mouseButton(false, SDL_RIGHT_MOUSE_KEY, message.wParam, e); 
+				mouseButton(false, GKey::RIGHT_MOUSE, message.wParam, e); 
                 _mouseButtons[2] = false;
 				return true;
             } // switch
@@ -1062,23 +1062,23 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
     if ((vkCode >= 'A') && (vkCode <= 'Z')) {
 
         // Make key codes lower case canonically
-        e.key.keysym.sym = (SDLKey)(vkCode - 'A' + 'a');
+        e.key.keysym.sym = (GKey::Value)(vkCode - 'A' + 'a');
 
     } else if (vkCode == VK_SHIFT) {
 
-        e.key.keysym.sym = (SDLKey)(extended ? SDLK_RSHIFT : SDLK_LSHIFT);
+        e.key.keysym.sym = extended ? GKey::RSHIFT : GKey::LSHIFT;
 
     } else if (vkCode == VK_CONTROL) {
 
-        e.key.keysym.sym = (SDLKey)(extended ? SDLK_RCTRL : SDLK_LCTRL);
+        e.key.keysym.sym = extended ? GKey::RCTRL : GKey::LCTRL;
 
     } else if (vkCode == VK_MENU) {
 
-        e.key.keysym.sym = (SDLKey)(extended ? SDLK_RALT : SDLK_LALT);
+        e.key.keysym.sym = extended ? GKey::RALT : GKey::LALT;
 
     } else {
 
-        e.key.keysym.sym = (SDLKey)_sdlKeys[iClamp(vkCode, 0, SDLK_LAST)];
+        e.key.keysym.sym = (GKey::Value)_sdlKeys[iClamp(vkCode, 0, GKey::LAST)];
 
     }
 
@@ -1090,29 +1090,29 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 
     int mod = 0;
     if (lpKeyState[VK_LSHIFT] & 0x80) {
-        mod = mod | KMOD_LSHIFT;
+        mod = mod | GKEYMOD_LSHIFT;
     }
 
     if (lpKeyState[VK_RSHIFT] & 0x80) {
-        mod = mod | KMOD_RSHIFT;
+        mod = mod | GKEYMOD_RSHIFT;
     }
 
     if (lpKeyState[VK_LCONTROL] & 0x80) {
-        mod = mod | KMOD_LCTRL;
+        mod = mod | GKEYMOD_LCTRL;
     }
 
     if (lpKeyState[VK_RCONTROL] & 0x80) {
-        mod = mod | KMOD_RCTRL;
+        mod = mod | GKEYMOD_RCTRL;
     }
 
     if (lpKeyState[VK_LMENU] & 0x80) {
-        mod = mod | KMOD_LALT;
+        mod = mod | GKEYMOD_LALT;
     }
 
     if (lpKeyState[VK_RMENU] & 0x80) {
-        mod = mod | KMOD_RALT;
+        mod = mod | GKEYMOD_RALT;
     }
-    e.key.keysym.mod = (SDLMod)mod;
+    e.key.keysym.mod = (GKeyMod)mod;
 
     ToUnicode(vkCode, e.key.keysym.scancode, lpKeyState, (LPWSTR)&e.key.keysym.unicode, 1, 0);
 }
@@ -1133,7 +1133,7 @@ static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
 	}
 
     e.key.keysym.unicode = ' ';
-	e.key.keysym.sym = (SDLKey)keyEvent;
+    e.key.keysym.sym = (GKey::Value)keyEvent;
 
 
     e.key.keysym.scancode = 0;
@@ -1143,29 +1143,29 @@ static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
 
     int mod = 0;
     if (lpKeyState[VK_LSHIFT] & 0x80) {
-        mod = mod | KMOD_LSHIFT;
+        mod = mod | GKEYMOD_LSHIFT;
     }
 
     if (lpKeyState[VK_RSHIFT] & 0x80) {
-        mod = mod | KMOD_RSHIFT;
+        mod = mod | GKEYMOD_RSHIFT;
     }
 
     if (lpKeyState[VK_LCONTROL] & 0x80) {
-        mod = mod | KMOD_LCTRL;
+        mod = mod | GKEYMOD_LCTRL;
     }
 
     if (lpKeyState[VK_RCONTROL] & 0x80) {
-        mod = mod | KMOD_RCTRL;
+        mod = mod | GKEYMOD_RCTRL;
     }
 
     if (lpKeyState[VK_LMENU] & 0x80) {
-        mod = mod | KMOD_LALT;
+        mod = mod | GKEYMOD_LALT;
     }
 
     if (lpKeyState[VK_RMENU] & 0x80) {
-        mod = mod | KMOD_RALT;
+        mod = mod | GKEYMOD_RALT;
     }
-    e.key.keysym.mod = (SDLMod)mod;
+    e.key.keysym.mod = (GKeyMod)mod;
 }
 
 
@@ -1175,96 +1175,96 @@ static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
 static void initWin32KeyMap() {
     memset(_sdlKeys, 0, sizeof(_sdlKeys));
 
-	_sdlKeys[VK_BACK] = SDLK_BACKSPACE;
-	_sdlKeys[VK_TAB] = SDLK_TAB;
-	_sdlKeys[VK_CLEAR] = SDLK_CLEAR;
-	_sdlKeys[VK_RETURN] = SDLK_RETURN;
-	_sdlKeys[VK_PAUSE] = SDLK_PAUSE;
-	_sdlKeys[VK_ESCAPE] = SDLK_ESCAPE;
-	_sdlKeys[VK_SPACE] = SDLK_SPACE;
-	_sdlKeys[VK_APOSTROPHE] = SDLK_QUOTE;
-	_sdlKeys[VK_COMMA] = SDLK_COMMA;
-	_sdlKeys[VK_MINUS] = SDLK_MINUS;
-	_sdlKeys[VK_PERIOD] = SDLK_PERIOD;
-	_sdlKeys[VK_SLASH] = SDLK_SLASH;
-	_sdlKeys['0'] = SDLK_0;
-	_sdlKeys['1'] = SDLK_1;
-	_sdlKeys['2'] = SDLK_2;
-	_sdlKeys['3'] = SDLK_3;
-	_sdlKeys['4'] = SDLK_4;
-	_sdlKeys['5'] = SDLK_5;
-	_sdlKeys['6'] = SDLK_6;
-	_sdlKeys['7'] = SDLK_7;
-	_sdlKeys['8'] = SDLK_8;
-	_sdlKeys['9'] = SDLK_9;
-	_sdlKeys[VK_SEMICOLON] = SDLK_SEMICOLON;
-	_sdlKeys[VK_EQUALS] = SDLK_EQUALS;
-	_sdlKeys[VK_LBRACKET] = SDLK_LEFTBRACKET;
-	_sdlKeys[VK_BACKSLASH] = SDLK_BACKSLASH;
-	_sdlKeys[VK_RBRACKET] = SDLK_RIGHTBRACKET;
-	_sdlKeys[VK_GRAVE] = SDLK_BACKQUOTE;
-	_sdlKeys[VK_BACKTICK] = SDLK_BACKQUOTE;
-	_sdlKeys[VK_DELETE] = SDLK_DELETE;
+	_sdlKeys[VK_BACK] = GKey::BACKSPACE;
+	_sdlKeys[VK_TAB] = GKey::TAB;
+	_sdlKeys[VK_CLEAR] = GKey::CLEAR;
+	_sdlKeys[VK_RETURN] = GKey::RETURN;
+	_sdlKeys[VK_PAUSE] = GKey::PAUSE;
+	_sdlKeys[VK_ESCAPE] = GKey::ESCAPE;
+	_sdlKeys[VK_SPACE] = GKey::SPACE;
+	_sdlKeys[VK_APOSTROPHE] = GKey::QUOTE;
+	_sdlKeys[VK_COMMA] = GKey::COMMA;
+	_sdlKeys[VK_MINUS] = GKey::MINUS;
+	_sdlKeys[VK_PERIOD] = GKey::PERIOD;
+	_sdlKeys[VK_SLASH] = GKey::SLASH;
+	_sdlKeys['0'] = '0';
+	_sdlKeys['1'] = '1';
+	_sdlKeys['2'] = '2';
+	_sdlKeys['3'] = '3';
+	_sdlKeys['4'] = '4';
+	_sdlKeys['5'] = '5';
+	_sdlKeys['6'] = '6';
+	_sdlKeys['7'] = '7';
+	_sdlKeys['8'] = '8';
+	_sdlKeys['9'] = '9';
+	_sdlKeys[VK_SEMICOLON] = GKey::SEMICOLON;
+	_sdlKeys[VK_EQUALS] = GKey::EQUALS;
+	_sdlKeys[VK_LBRACKET] = GKey::LEFTBRACKET;
+	_sdlKeys[VK_BACKSLASH] = GKey::BACKSLASH;
+	_sdlKeys[VK_RBRACKET] = GKey::RIGHTBRACKET;
+	_sdlKeys[VK_GRAVE] = GKey::BACKQUOTE;
+	_sdlKeys[VK_BACKTICK] = GKey::BACKQUOTE;
+	_sdlKeys[VK_DELETE] = GKey::DELETE;
 
-	_sdlKeys[VK_NUMPAD0] = SDLK_KP0;
-	_sdlKeys[VK_NUMPAD1] = SDLK_KP1;
-	_sdlKeys[VK_NUMPAD2] = SDLK_KP2;
-	_sdlKeys[VK_NUMPAD3] = SDLK_KP3;
-	_sdlKeys[VK_NUMPAD4] = SDLK_KP4;
-	_sdlKeys[VK_NUMPAD5] = SDLK_KP5;
-	_sdlKeys[VK_NUMPAD6] = SDLK_KP6;
-	_sdlKeys[VK_NUMPAD7] = SDLK_KP7;
-	_sdlKeys[VK_NUMPAD8] = SDLK_KP8;
-	_sdlKeys[VK_NUMPAD9] = SDLK_KP9;
-	_sdlKeys[VK_DECIMAL] = SDLK_KP_PERIOD;
-	_sdlKeys[VK_DIVIDE] = SDLK_KP_DIVIDE;
-	_sdlKeys[VK_MULTIPLY] = SDLK_KP_MULTIPLY;
-	_sdlKeys[VK_SUBTRACT] = SDLK_KP_MINUS;
-	_sdlKeys[VK_ADD] = SDLK_KP_PLUS;
+	_sdlKeys[VK_NUMPAD0] = GKey::KP0;
+	_sdlKeys[VK_NUMPAD1] = GKey::KP1;
+	_sdlKeys[VK_NUMPAD2] = GKey::KP2;
+	_sdlKeys[VK_NUMPAD3] = GKey::KP3;
+	_sdlKeys[VK_NUMPAD4] = GKey::KP4;
+	_sdlKeys[VK_NUMPAD5] = GKey::KP5;
+	_sdlKeys[VK_NUMPAD6] = GKey::KP6;
+	_sdlKeys[VK_NUMPAD7] = GKey::KP7;
+	_sdlKeys[VK_NUMPAD8] = GKey::KP8;
+	_sdlKeys[VK_NUMPAD9] = GKey::KP9;
+	_sdlKeys[VK_DECIMAL] = GKey::KP_PERIOD;
+	_sdlKeys[VK_DIVIDE] = GKey::KP_DIVIDE;
+	_sdlKeys[VK_MULTIPLY] = GKey::KP_MULTIPLY;
+	_sdlKeys[VK_SUBTRACT] = GKey::KP_MINUS;
+	_sdlKeys[VK_ADD] = GKey::KP_PLUS;
 
-	_sdlKeys[VK_UP] = SDLK_UP;
-	_sdlKeys[VK_DOWN] = SDLK_DOWN;
-	_sdlKeys[VK_RIGHT] = SDLK_RIGHT;
-	_sdlKeys[VK_LEFT] = SDLK_LEFT;
-	_sdlKeys[VK_INSERT] = SDLK_INSERT;
-	_sdlKeys[VK_HOME] = SDLK_HOME;
-	_sdlKeys[VK_END] = SDLK_END;
-	_sdlKeys[VK_PRIOR] = SDLK_PAGEUP;
-	_sdlKeys[VK_NEXT] = SDLK_PAGEDOWN;
+	_sdlKeys[VK_UP] = GKey::UP;
+	_sdlKeys[VK_DOWN] = GKey::DOWN;
+	_sdlKeys[VK_RIGHT] = GKey::RIGHT;
+	_sdlKeys[VK_LEFT] = GKey::LEFT;
+	_sdlKeys[VK_INSERT] = GKey::INSERT;
+	_sdlKeys[VK_HOME] = GKey::HOME;
+	_sdlKeys[VK_END] = GKey::END;
+	_sdlKeys[VK_PRIOR] = GKey::PAGEUP;
+	_sdlKeys[VK_NEXT] = GKey::PAGEDOWN;
 
-	_sdlKeys[VK_F1] = SDLK_F1;
-	_sdlKeys[VK_F2] = SDLK_F2;
-	_sdlKeys[VK_F3] = SDLK_F3;
-	_sdlKeys[VK_F4] = SDLK_F4;
-	_sdlKeys[VK_F5] = SDLK_F5;
-	_sdlKeys[VK_F6] = SDLK_F6;
-	_sdlKeys[VK_F7] = SDLK_F7;
-	_sdlKeys[VK_F8] = SDLK_F8;
-	_sdlKeys[VK_F9] = SDLK_F9;
-	_sdlKeys[VK_F10] = SDLK_F10;
-	_sdlKeys[VK_F11] = SDLK_F11;
-	_sdlKeys[VK_F12] = SDLK_F12;
-	_sdlKeys[VK_F13] = SDLK_F13;
-	_sdlKeys[VK_F14] = SDLK_F14;
-	_sdlKeys[VK_F15] = SDLK_F15;
+	_sdlKeys[VK_F1] = GKey::F1;
+	_sdlKeys[VK_F2] = GKey::F2;
+	_sdlKeys[VK_F3] = GKey::F3;
+	_sdlKeys[VK_F4] = GKey::F4;
+	_sdlKeys[VK_F5] = GKey::F5;
+	_sdlKeys[VK_F6] = GKey::F6;
+	_sdlKeys[VK_F7] = GKey::F7;
+	_sdlKeys[VK_F8] = GKey::F8;
+	_sdlKeys[VK_F9] = GKey::F9;
+	_sdlKeys[VK_F10] = GKey::F10;
+	_sdlKeys[VK_F11] = GKey::F11;
+	_sdlKeys[VK_F12] = GKey::F12;
+	_sdlKeys[VK_F13] = GKey::F13;
+	_sdlKeys[VK_F14] = GKey::F14;
+	_sdlKeys[VK_F15] = GKey::F15;
 
-	_sdlKeys[VK_NUMLOCK] = SDLK_NUMLOCK;
-	_sdlKeys[VK_CAPITAL] = SDLK_CAPSLOCK;
-	_sdlKeys[VK_SCROLL] = SDLK_SCROLLOCK;
-	_sdlKeys[VK_RSHIFT] = SDLK_RSHIFT;
-	_sdlKeys[VK_LSHIFT] = SDLK_LSHIFT;
-	_sdlKeys[VK_RCONTROL] = SDLK_RCTRL;
-	_sdlKeys[VK_LCONTROL] = SDLK_LCTRL;
-	_sdlKeys[VK_RMENU] = SDLK_RALT;
-	_sdlKeys[VK_LMENU] = SDLK_LALT;
-	_sdlKeys[VK_RWIN] = SDLK_RSUPER;
-	_sdlKeys[VK_LWIN] = SDLK_LSUPER;
+	_sdlKeys[VK_NUMLOCK] = GKey::NUMLOCK;
+	_sdlKeys[VK_CAPITAL] = GKey::CAPSLOCK;
+	_sdlKeys[VK_SCROLL] = GKey::SCROLLOCK;
+	_sdlKeys[VK_RSHIFT] = GKey::RSHIFT;
+	_sdlKeys[VK_LSHIFT] = GKey::LSHIFT;
+	_sdlKeys[VK_RCONTROL] = GKey::RCTRL;
+	_sdlKeys[VK_LCONTROL] = GKey::LCTRL;
+	_sdlKeys[VK_RMENU] = GKey::RALT;
+	_sdlKeys[VK_LMENU] = GKey::LALT;
+	_sdlKeys[VK_RWIN] = GKey::RSUPER;
+	_sdlKeys[VK_LWIN] = GKey::LSUPER;
 
-	_sdlKeys[VK_HELP] = SDLK_HELP;
-	_sdlKeys[VK_PRINT] = SDLK_PRINT;
-	_sdlKeys[VK_SNAPSHOT] = SDLK_PRINT;
-	_sdlKeys[VK_CANCEL] = SDLK_BREAK;
-	_sdlKeys[VK_APPS] = SDLK_MENU;
+	_sdlKeys[VK_HELP] = GKey::HELP;
+	_sdlKeys[VK_PRINT] = GKey::PRINT;
+	_sdlKeys[VK_SNAPSHOT] = GKey::PRINT;
+	_sdlKeys[VK_CANCEL] = GKey::BREAK;
+	_sdlKeys[VK_APPS] = GKey::MENU;
 
     sdlKeysInitialized = true;
 }
