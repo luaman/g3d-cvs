@@ -10,37 +10,6 @@
 
 #ifndef G3D_WIN32
 
-// For SDL_Event
-#if defined(G3D_OSX) 
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_LINUX)
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_WIN32)
-
-#elif defined(G3D_FREEBSD)
-#   include <SDL.h>
-#endif
-
-#if (defined(main) && ! defined(G3D_WIN32))
-#   undef main
-#endif
-
-// For SDL_Event
-#if defined(G3D_OSX) 
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_LINUX)
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_WIN32)
-
-#elif defined(G3D_FREEBSD)
-#   include <SDL.h>
-#endif
-
-#if (defined(main) && ! defined(G3D_WIN32))
-#   undef main
-#endif
-
-
 #if defined(G3D_OSX)
 #include "GLG3D/NSAutoreleasePoolWrapper.h"
 #include <Carbon/Carbon.h>
@@ -52,6 +21,22 @@
 #include "GLG3D/SDLWindow.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/GLCaps.h"
+
+// Different platforms use different subdirectories; freebsd names
+// SDL "SDL11", but in the G3D build iCompile deals with this.
+#if defined(G3D_OSX) 
+#   include <SDL/SDL.h>
+#   include <SDL/SDL_syswm.h>
+#elif defined(G3D_FREEBSD)
+#   include <SDL.h>
+#   include <SDL_syswm.h>
+#elif defined(G3D_LINUX)
+#   include <SDL/SDL.h>
+#   include <SDL/SDL_syswm.h>
+#elif defined(G3D_WIN32)
+#   include <SDL.h>
+#   include <SDL_syswm.h>
+#endif
 
 #ifdef _MSC_VER
     // GetSystemMetrics parameters missing in header files
@@ -537,7 +522,7 @@ void SDLWindow::getJoystickState(
 
     debugAssert(stickNum < ((unsigned int) joy.size()));
 
-    SDL_Joystick* sdlstick = joy[stickNum];
+    ::SDL_Joystick* sdlstick = joy[stickNum];
 
     axis.resize(SDL_JoystickNumAxes(sdlstick), DONT_SHRINK_UNDERLYING_ARRAY);
 
@@ -697,7 +682,9 @@ void SDLWindow::setInputCapture(bool c) {
 
 
 bool SDLWindow::pollEvent(GEvent& e) {
-    return (SDL_PollEvent(&e) != 0);
+    // GEvent conveniently has exactly the same memory layout
+    // as SDL_Event.
+    return (SDL_PollEvent(reinterpret_cast<SDL_Event*>(&e)) != 0);
 }
 
 
@@ -706,7 +693,7 @@ bool SDLWindow::inputCapture() const {
 }
 
 
-#if defined(G3D_LINUX)
+#if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 Window SDLWindow::x11Window() const {
     return _X11Window;

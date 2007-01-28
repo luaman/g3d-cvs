@@ -264,6 +264,9 @@ std::string GKey::toString() const {
 
     case BREAK:
         return "Break";
+
+    default:
+        return format("Key 0x%x", value);
     }
 
     return "";

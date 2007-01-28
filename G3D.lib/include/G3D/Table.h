@@ -61,10 +61,10 @@ inline unsigned int hashCode(const G3D::uint64 a) {
 }
 
 inline unsigned int hashCode(const void* a) {
-	// Avoid 64-bit pointer cast problems by turning
-	// the pointer itself into an array of integers.
-	int* intPtr = (int*)(((unsigned char*)&a) + (sizeof(void*) - sizeof(int)));
-	return *intPtr;
+    // Avoid 64-bit pointer cast problems by turning
+    // the pointer itself into an array of integers.
+    int* intPtr = (int*)(((unsigned char*)&a) + (sizeof(void*) - sizeof(int)));
+    return *intPtr;
 }
 
 /**
@@ -90,7 +90,19 @@ inline unsigned int hashCode(const std::string& a) {
     return G3D::Crypto::crc32(a.c_str(), a.size());
 }
 
+inline unsigned int hashCode(std::string& a) {
+    return G3D::Crypto::crc32(a.c_str(), a.size());
+}
+
 namespace G3D {
+
+inline unsigned int hashCode(const std::string& a) {
+    return ::hashCode(a);
+}
+
+inline unsigned int hashCode(std::string& a) {
+    return ::hashCode(a);
+}
 
 
 /**

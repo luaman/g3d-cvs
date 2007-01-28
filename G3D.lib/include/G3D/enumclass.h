@@ -25,9 +25,9 @@
     explicit inline Classname(int v) : value((Value)v) {}\
 \
     /** Support cast back to the Value type, which is needed to allow implicit assignment inside unions. */\
-    inline operator Value() const {\
-        return value;\
-    }\
+    /*inline operator Value() const {
+        return value;
+	}*/\
 \
     inline operator int() const {\
         return (int)value;\
@@ -101,12 +101,16 @@
         return Classname((int)value - x);\
     }\
 \
-    inline uint32 hashCode() const {\
-        return (uint32)value;\
+    inline unsigned int hashCode() const {\
+        return (unsigned int)value;\
     }
 
 #define G3D_DECLARE_ENUM_CLASS_HASHCODE(Classname)\
-inline uint32 hashCode(const Classname x) {\
+inline unsigned int hashCode(const Classname::Value x) {\
+    return (unsigned int)x;\
+}\
+\
+inline unsigned int hashCode(const Classname x) {\
     return x.hashCode();\
 }
 
