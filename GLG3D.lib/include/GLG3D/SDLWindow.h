@@ -21,6 +21,12 @@
 
 #include "GLG3D/G3D_SDL_event.h"
 
+#if defined(G3D_OSX)
+#    include "GLG3D/NSAutoreleasePoolWrapper.h"
+#    include <Carbon/Carbon.h>
+#    include <dlfcn.h>
+#endif
+
 namespace G3D {
 
 /**
@@ -54,7 +60,8 @@ private:
     bool                        _mouseVisible;
 
     GLContext                   _glContext;
-    #if defined(G3D_LINUX)
+
+    #if defined(G3D_LINUX) || defined(G3D_FREEBSD)
         Display*                _X11Display;
         Window                  _X11Window;
         Window                  _X11WMWindow;
@@ -62,7 +69,7 @@ private:
         HDC                     _Win32HDC;
         HWND                    _Win32HWND;
     #elif defined(G3D_OSX)
-	NSAutoreleasePoolWrapper*	_pool;
+	    NSAutoreleasePoolWrapper* _pool;
     #endif
 
 protected:

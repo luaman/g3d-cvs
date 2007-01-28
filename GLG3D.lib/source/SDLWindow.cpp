@@ -10,12 +10,6 @@
 
 #ifndef G3D_WIN32
 
-#if defined(G3D_OSX)
-#include "GLG3D/NSAutoreleasePoolWrapper.h"
-#include <Carbon/Carbon.h>
-#include <dlfcn.h>
-#endif
-
 #include "G3D/Log.h"
 #include "G3D/Rect2D.h"
 #include "GLG3D/SDLWindow.h"
