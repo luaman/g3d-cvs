@@ -5,7 +5,7 @@ Notes for upgrading from G3D 6.xx to 7.xx:
 <hr noshade>
 <p><b>#include structure changes</b></p>
 <p>
-Most programs should now have <code>#include &lt;G3D/G3DAll.h&gt;</code>.  This is because the directory structure has changed for header files from 6.0.
+Most programs should now have <code>#include &lt;G3D/G3DAll.h&gt;</code>.  This is because the directory structure has changed for header files from 6.xx.
 The goal of the change was to bring G3D into line with other OS X and Linux libraries and to help with integration with 3rd party libraries like
 ODE.  This new structure should allow easier porting of applications between operating systems.
 The new directory structure for headers is:
@@ -35,6 +35,13 @@ Win32 programs must call the macro <b><code>G3D_START_AT_MAIN();</code></b> at t
 in which you defined <code>main</code>.
 </p>
 
+
+<hr noshade>
+<p><b>SDLK_ is gone</b></p>
+<p>
+G3D 7.00 replaced SDL event types with G3D event types.  The change affecting the most users is that SDLK_* is now GKey::*.
+Other changes include KMOD_* to GKEYMOD_*.
+</p>
 
 <hr noshade>
 <p><b>Accessors (functions with "get" in the name)</b></p>
@@ -143,6 +150,9 @@ configured to create compile time errors to help you catch bugs.  These will app
 <tr><td>G3D::readFileAsString</td><td>G3D::readWholeFile</td></tr>
 <tr><td>G3D::writeStringToFile</td><td>G3D::writeWholeFile (note: argument order changed!)</td></tr>
 <tr><td>G3D::RenderDevice::setCaption</td><td>G3D::GWindow::setCaption</td></tr>
+<tr><td>SDLK_*</td><td>G3D::GKey::*</td></td</tr>
+<tr><td>G3D::UserInput::keyCodeToString</td><td>G3D::GKey::toString</td></td</tr>
+<tr><td>G3D::UserInput::stringToKeyCode</td><td>G3D::GKey::fromString</td></td</tr>
 </table>
 </p>
 

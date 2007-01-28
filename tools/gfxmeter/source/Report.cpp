@@ -59,7 +59,7 @@ void Report::onSimulation(SimTime sdt, SimTime dt, SimTime idt) {
 void Report::onLogic() {    
     Vector2 mouse = app->userInput->mouseXY();
 
-    if (app->userInput->keyPressed(SDL_LEFT_MOUSE_KEY)) {
+    if (app->userInput->keyPressed(GKey::LEFT_MOUSE)) {
         if (popup == NONE) {
             if (performanceButton.contains(mouse)) {
                 popup = PERFORMANCE;
@@ -69,7 +69,7 @@ void Report::onLogic() {
         }
     }
 
-    if (app->userInput->keyPressed(SDLK_ESCAPE)) {
+    if (app->userInput->keyPressed(GKey::ESCAPE)) {
         if (popup == NONE) {
             // Even when we aren't in debug mode, quit on escape.
             endApplet = true;

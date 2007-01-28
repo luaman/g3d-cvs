@@ -1,19 +1,21 @@
 /**
-  @file demos/main.cpp
+  @file empty/main.cpp
 
-  http://kryshen.pp.ru/games/bmtron.html
+  This is a sample main.cpp to get you started with G3D.  It is
+  designed to make writing an application easy.  Although the
+  GApp/GApplet infrastructure is helpful for most projects,
+  you are not restricted to using it-- choose the level of
+  support that is best for your project.
 
-  @author Morgan McGuire, matrix@graphics3d.com
+  @author Morgan McGuire, morgan3d@users.sf.net
  */
 
-//#include <G3D/G3DAll.h>
-#include <G3D/G3D.h>
+#include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-using namespace G3D;
 
-#define SCALE  (10)
-#define WIDTH  (64)
-#define HEIGHT (64)
+#if defined(G3D_VER) && (G3D_VER < 70000)
+    #error Requires G3D 7.00
+#endif
 
 /**
  This simple demo applet uses the debug mode as the regular
@@ -27,28 +29,6 @@ public:
     // state, put it in the App.
 
     class App*          app;
-
-    /** Map of the world */
-    GImage              map;
-    TextureRef          texture;
-
-    class Player {
-    public:
-        Vector2int16        position;
-        Vector2int16        velocity;
-        Color3uint8         color;
-
-        void onSimulation(GImage& map) {
-            position += velocity;
-
-            position = position.clamp(Vector2int16(0, 0), Vector2int16(WIDTH - 1, HEIGHT - 1));
-
-            // Update the board
-            map.pixel3(position.x, position.y) = color;
-        }
-    };
-
-    Array<Player>       player;
 
     Demo(App* app);
 
@@ -76,6 +56,8 @@ class App : public GApp {
 protected:
     int main();
 public:
+    SkyRef              sky;
+
     Demo*               applet;
 
     App(const GApp::Settings& settings);
@@ -84,31 +66,22 @@ public:
 };
 
 
-Demo::Demo(App* _app) : GApplet(_app), app(_app), map(WIDTH, HEIGHT, 3) {
-    player.resize(2);
-
-    player[0].position.x = 0;
-    player[0].position.y = HEIGHT / 2;
-    player[0].velocity.x = 1;
-    player[0].velocity.y = 0;
-    player[0].color = Color3::blue();
-    
-    player[1].position.x = WIDTH - 1;
-    player[1].position.y = HEIGHT / 2;
-    player[1].velocity.x = -1;
-    player[1].velocity.y = 0;
-    player[1].color = Color3::yellow();
+Demo::Demo(App* _app) : GApplet(_app), app(_app) {
 }
 
 
 void Demo::onInit()  {
     // Called before Demo::run() beings
+    app->debugCamera.setPosition(Vector3(0, 2, 10));
+    app->debugCamera.lookAt(Vector3(0, 2, 0));
+
     GApplet::onInit();
 }
 
 
 void Demo::onCleanup() {
     // Called when Demo::run() exits
+  GApplet::onCleanup();
 }
 
 
@@ -125,36 +98,17 @@ void Demo::onNetwork() {
 void Demo::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	// Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
-    
-    static int x = 0;
-    x = (x + 1) % 4;
-    if (x != 0) {
-      return;
-    }
-
-    for (int p = 0; p < player.size(); ++p) {
-        player[p].onSimulation(map);        
-    }
 }
 
 
 void Demo::onUserInput(UserInput* ui) {
-    if (ui->keyPressed(SDLK_ESCAPE)) {
+    if (ui->keyPressed(GKey::ESCAPE)) {
         // Even when we aren't in debug mode, quit on escape.
         endApplet = true;
         app->endProgram = true;
     }
 
 	// Add other key handling here
-    if (ui->getX() > 0.5) {
-        player[0].velocity = Vector2int16(1, 0);
-    } else if (ui->getX() < -0.5) {
-        player[0].velocity = Vector2int16(-1, 0);
-    } else if (ui->getY() > 0.5) {
-        player[0].velocity = Vector2int16(0, -1);
-    } else if (ui->getY() < -0.5) {
-        player[0].velocity = Vector2int16(0, 1);
-    }
 	
 	//must call GApplet::onUserInput
 	GApplet::onUserInput(ui);
@@ -163,49 +117,53 @@ void Demo::onUserInput(UserInput* ui) {
 
 void Demo::onGraphics(RenderDevice* rd) {
 
-    // Cyan background
-    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-    rd->clear();
-
-    rd->setProjectionAndCameraMatrix(app->debugCamera);
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
-    //    Draw::axes(rd);
+    rd->setProjectionAndCameraMatrix(app->debugCamera);
+
+    // Cyan background
+    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
+
+    rd->clear(app->sky.isNull(), true, true);
+    if (app->sky.notNull()) {
+        app->sky->render(rd, lighting);
+    }
+
+    // Setup lighting
     rd->enableLighting();
 		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
 		rd->setAmbientLightColor(lighting.ambient);
 
-        Draw::ray(Ray::fromOriginAndDirection(Vector3::zero(), Vector3::unitY()), rd);
+		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
+
+        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
+        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
+
     rd->disableLighting();
-    /*
-    rd->push2D();
 
-        Texture::Settings settings;
-        settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-        settings.wrapMode = Texture::CLAMP;
-        settings.autoMipMap = false;
-
-        texture = Texture::fromGImage("Game world", map, TextureFormat::AUTO, Texture::DIM_2D, settings);
-
-        rd->setTexture(0, texture);
-        Draw::rect2D(rd->viewport(), rd);
-    rd->pop2D();
-    */
+    if (app->sky.notNull()) {
+        app->sky->renderLensFlare(rd, lighting);
+    }
 }
 
 
 int App::main() {
 	setDebugMode(true);
-	debugController->setActive(true);
+	debugController->setActive(false);
+
+    // Load objects here
+    if (fileExists(dataDir + "sky/sun.jpg")) {
+        sky = Sky::fromFile(dataDir + "sky/");
+    }
     
     applet->run();
-    return 1;
+
+    return 0;
 }
 
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
     applet = new Demo(this);
-    applet->setDesiredFrameRate(40);
 }
 
 
@@ -215,10 +173,38 @@ App::~App() {
 
 G3D_START_AT_MAIN();
 
+
+class KeyCode {
+public:
+    enum _Value {NONE, LEFT_ALT};
+private:
+    _Value value;
+public:
+
+    inline KeyCode() : value(NONE) {}
+    inline KeyCode(_Value v) : value(v) {};
+    inline KeyCode(char v) : value((_Value)v) {};
+
+    inline bool operator==(const KeyCode& k) {
+        return k.value == value;
+    }
+
+    inline bool operator!=(const KeyCode& k) {
+        return *this != k;
+    }
+};
+
+
 int main(int argc, char** argv) {
 	GApp::Settings settings;
-    settings.window.width = WIDTH * SCALE;
-    settings.window.width = HEIGHT * SCALE;
-    App(settings).run();
-    return 0;
+    settings.useNetwork = false;
+
+    KeyCode x;
+
+    x = KeyCode::LEFT_ALT;
+    if (x == ' ') {
+        x = 't';
+    }
+
+    return App(settings).run();
 }

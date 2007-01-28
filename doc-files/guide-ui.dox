@@ -51,7 +51,7 @@ of a UserInput object and a trivial instance where it is polled for inputs.
 
     // After the above loop, userInput is now tracking the state
     // of all UI devices and can be referenced as:
-    if (userInput->keyPressed(SDLK_PLUS)) {
+    if (userInput->keyPressed(GKey::PLUS)) {
        .... do something on '+' button pressed
     }
 </PRE>

@@ -282,7 +282,7 @@ public:
     std::string toString() const;
 };
 
-G3D_DECLARE_ENUM_CLASS_HASHCODE(GKey);
+//G3D_DECLARE_ENUM_CLASS_HASHCODE(GKey);
 
 } // namespace G3D
 #endif

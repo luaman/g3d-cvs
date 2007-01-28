@@ -59,7 +59,7 @@ of how to <em>not</em> use GApp.
 
   @section selection Selection
 
-     When <CODE>G3D::UserInput::keyPressed(SDLK_LEFT_MOUSE)</CODE> is true, the user
+     When <CODE>G3D::UserInput::keyPressed(GKey::LEFT_MOUSE)</CODE> is true, the user
      has clicked the mouse.  You can convert the G3d::UserInput::mouseXY position to
      a 3D G3D::Ray with G3D::GCamera::worldRay and use G3D::Ray::intersects or
      G3D::CollisionDetection methods to see if that ray hits the G3D::PosedModel::getBounds
