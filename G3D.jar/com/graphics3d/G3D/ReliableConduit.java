@@ -66,19 +66,31 @@ public class ReliableConduit {
             int sent = 0;
             int count = 0;
 
-            final int maxCount = 100;
-            while ((sent < len) && (count < maxCount)) {
-                int sentThisTime = channel.write(tmpBuffer);             
-                sent += sentThisTime;
-                if (sentThisTime == 0) {
-                    // We're not making any progress
-                    ++count;
+            try {
+                final int maxCount = 100;
+                while ((sent < len) && (count < maxCount)) {
+                    int sentThisTime = channel.write(tmpBuffer);
+                    sent += sentThisTime;
+                    if (sentThisTime == 0) {
+                        // We're not making any progress
+                        ++count;
+                        try{
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                        }
+                    } else {
+                        // If a byte ever gets through, reset our attempt counter
+                        count = 0;
+                    }
+                    //System.out.println("" + sent + "/" + len + " bytes sent.");
                 }
-                //System.out.println("" + sent + "/" + len + " bytes sent.");
-            }
 
-            if (count == maxCount) {
-                throw new IOException("Timed out while attempting to send.");
+                if (count == maxCount) {
+                    throw new IOException("Timed out while attempting to send.");
+                }
+            } catch (IOException e) {
+                channel = null;
+                throw e;
             }
         }
     }
@@ -193,7 +205,7 @@ public class ReliableConduit {
         try {
             // To use select we have to switch to non-blocking mode
             channel.configureBlocking(false);
-        
+                                      
             // Create and register with a Selector
             selector = Selector.open();
         } catch (java.nio.channels.ClosedChannelException e) {
@@ -284,7 +296,7 @@ public class ReliableConduit {
         
         // Write header
         binaryOutput.writeInt32(type);
-        binaryOutput.writeInt32(0);  // Size
+        binaryOutput.writeInt32(0);  // Reserve space for the size field (will be overwritten later)
         
         // Serialize message
         message.serialize(binaryOutput);
@@ -294,7 +306,8 @@ public class ReliableConduit {
 
         //System.out.println("Sent message size (less header) = " + size);
         byte output[] = binaryOutput.getByteArray();
-        output[4] = (byte)((size >> 24) & 0xFF); 
+        // Explicitly construct a "network long" (Big-endian) 32-bit int
+        output[4] = (byte)((size >> 24) & 0xFF);
         output[5] = (byte)((size >> 16) & 0xFF); 
         output[6] = (byte)((size >> 8) & 0xFF); 
         output[7] = (byte)(size & 0xFF);
