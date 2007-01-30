@@ -36,6 +36,12 @@ protected:
     Image3(int w, int h, WrapMode wrap);
 
     void copyGImage(const class GImage& im);
+    void copyArray(const Color1* src, int w, int h);
+    void copyArray(const Color3* src, int w, int h);
+    void copyArray(const Color4* src, int w, int h);
+    void copyArray(const Color1uint8* src, int w, int h);
+    void copyArray(const Color3uint8* src, int w, int h);
+    void copyArray(const Color4uint8* src, int w, int h);
 
 public:
 
@@ -46,6 +52,12 @@ public:
     Ref createEmpty(WrapMode wrap = WRAP_ERROR);
 
     Ref fromFile(const std::string& filename, WrapMode wrap = WRAP_ERROR, GImage::Format fmt = GImage::AUTODETECT);
+    Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
 
     Ref fromImage3uint8(const ReferenceCountedPointer<class Image3uint8>& im);
 

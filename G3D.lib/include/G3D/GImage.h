@@ -13,9 +13,9 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2002-05-27
-  @edited  2006-01-10
+  @edited  2007-01-31
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
 
  */
@@ -28,6 +28,7 @@
 #include "G3D/Array.h"
 #include "G3D/g3dmath.h"
 #include "G3D/stringutils.h"
+#include "G3D/Color1uint8.h"
 #include "G3D/Color3uint8.h"
 #include "G3D/Color4uint8.h"
 
@@ -120,18 +121,28 @@ public:
         return (Color4uint8*)_byte;
     }
 
-    /** Returns the pixel at (x, y), where (0,0) is the upper left. */
-    inline const uint8& pixel1(int x, int y) const {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return byte()[x + y * width];
+    inline const Color1uint8* pixel1() const {
+        debugAssertM(channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", channels));            
+        return (Color1uint8*)_byte;
+    }
+
+    inline Color1uint8* pixel1() {
+        debugAssertM(channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", channels));            
+        return (Color1uint8*)_byte;
     }
 
     /** Returns the pixel at (x, y), where (0,0) is the upper left. */
-    inline uint8& pixel1(int x, int y) {
+    inline const Color1uint8& pixel1(int x, int y) const {
         debugAssert(x >= 0 && x < width);
         debugAssert(y >= 0 && y < height);
-        return byte()[x + y * width];
+        return pixel1()[x + y * width];
+    }
+
+    /** Returns the pixel at (x, y), where (0,0) is the upper left. */
+    inline Color1uint8& pixel1(int x, int y) {
+        debugAssert(x >= 0 && x < width);
+        debugAssert(y >= 0 && y < height);
+        return pixel1()[x + y * width];
     }
 
     /** Returns the pixel at (x, y), where (0,0) is the upper left. */

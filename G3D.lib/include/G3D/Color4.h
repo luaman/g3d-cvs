@@ -8,9 +8,9 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2006-01-16
+ @edited  2007-01-16
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
  */
 
@@ -78,6 +78,10 @@ public:
      * Channel values.
      */
     float r, g, b, a;
+
+    inline Color3 rgb() const {
+        return Color3(r, g, b);
+    }
 
     // access vector V as V[0] = V.r, V[1] = V.g, V[2] = V.b, v[3] = V.a
     //

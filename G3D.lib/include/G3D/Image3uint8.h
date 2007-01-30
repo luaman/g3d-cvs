@@ -36,6 +36,12 @@ protected:
     Image3uint8(int w, int h, WrapMode wrap);
 
     void copyGImage(const class GImage& im);
+    void copyArray(const Color1* src, int w, int h);
+    void copyArray(const Color3* src, int w, int h);
+    void copyArray(const Color4* src, int w, int h);
+    void copyArray(const Color1uint8* src, int w, int h);
+    void copyArray(const Color3uint8* src, int w, int h);
+    void copyArray(const Color4uint8* src, int w, int h);
 
 public:
 
@@ -51,7 +57,14 @@ public:
 
     Ref fromGImage(const class GImage& im);
 
-    Ref Image3uint8::fromImage3(const ReferenceCountedPointer<class Image3>& im);
+    Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+
+    Ref fromImage3(const ReferenceCountedPointer<class Image3>& im);
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
         it is stripped. */
