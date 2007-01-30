@@ -5,7 +5,7 @@
 
  @maintainer Morgan McGuire, morgan@cs.brown.edu
  @created 2004-10-10
- @edited  2007-01-30
+ @edited  2007-01-31
  */
 #ifndef G3D_MAP2D_H
 #define G3D_MAP2D_H
@@ -15,14 +15,19 @@
 #include "G3D/Array.h"
 #include "G3D/Vector2int16.h"
 #include "G3D/ReferenceCount.h"
+#include "G3D/AtomicInt32.h"
 #include <string>
 
 namespace G3D {
     /**
+     WRAP_IGNORE silently discards attempts to write to out 
+     of bounds locations and returns an undefined value for reading
+     from out of bounds locations.
+
      WRAP_ERROR generates an error when the 
      pixel indices are out of bounds
      */
-    enum WrapMode {WRAP_CLAMP, WRAP_TILE, WRAP_ERROR};
+    enum WrapMode {WRAP_CLAMP, WRAP_TILE, WRAP_IGNORE, WRAP_ERROR};
 
 }
 
@@ -200,6 +205,10 @@ protected:
 
     WrapMode            _wrapMode;
 
+    /** 0 if no mutating method has been invoked 
+        since the last call to setChanged(); */
+    AtomicInt32         _changed;
+
     Array<Storage>      data;
 
     /** Handles the exceptional cases from get */
@@ -216,6 +225,9 @@ protected:
                 format("Index out of bounds: (%d, %d), w = %d, h = %d",
                 x, y, w, h));
 
+            // intentionally fall through
+        case WRAP_IGNORE:
+            // intentionally fall through
         default:
             {
                 static Storage temp;
@@ -306,6 +318,15 @@ public:
     }
 
 
+    /** Row-major array */
+    Array<Storage>& getArray() {
+        return data;
+    }
+
+    const Array<Storage>& getArray() const {
+        return data;
+    }
+
     /** Get the value at (x, y).
     
         Note that the type of image->get(x, y) is 
@@ -322,7 +343,6 @@ public:
             return slowGet(x, y);
         }
     }
-
 
     inline const Storage& get(int x, int y) const {
         if (((uint32)x < w) && ((uint32)y < h)) {
