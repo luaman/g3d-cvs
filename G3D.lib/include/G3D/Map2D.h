@@ -18,6 +18,16 @@
 #include <string>
 
 namespace G3D {
+    /**
+     WRAP_ERROR generates an error when the 
+     pixel indices are out of bounds
+     */
+    enum WrapMode {WRAP_CLAMP, WRAP_TILE, WRAP_ERROR};
+
+}
+
+
+namespace G3D {
 namespace _internal {
 
 template<class Storage> class _GetComputeType {
@@ -33,7 +43,7 @@ public:
 #define DECLARE_COMPUTE_TYPE(StorageType, ComputeType)            \
 namespace G3D {                                                   \
     namespace _internal {                                         \
-        template<> class _GetComputeType < class StorageType > {  \
+        template<> class _GetComputeType < StorageType > {        \
         public:                                                   \
             typedef ComputeType Type;                             \
         };                                                        \
@@ -160,7 +170,7 @@ namespace G3D {
   
   @author Morgan McGuire, morgan@cs.williams.edu
  */
-template<class Storage, class Compute=_internal::_GetComputeType<Storage>::Type> 
+template< class Storage, class Compute=_internal::_GetComputeType<Storage>::Type > 
 class Map2D : public ReferenceCountedObject {
 
 //
@@ -175,11 +185,6 @@ public:
     typedef Compute ComputeType;
     typedef Map2D<Storage, Compute> Type;
     typedef ReferenceCountedPointer<Map2D> Ref;
-
-    /**
-     WRAP_ERROR generates an out of bounds error when th
-     */
-    enum WrapMode {WRAP_CLAMP, WRAP_TILE, WRAP_ERROR};
 
 protected:
 
@@ -357,8 +362,8 @@ public:
 
       Guaranteed to match nearest(x, y) at integers. */ 
     Compute bilinear(double x, double y) const {
-        i = iFloor(x);
-        j = iFloor(y);
+        int i = iFloor(x);
+        int j = iFloor(y);
     
         double fX = x - i;
         double fY = y - j;

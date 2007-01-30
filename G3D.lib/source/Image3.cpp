@@ -14,7 +14,7 @@
 
 namespace G3D {
 
-Image3::Image3(int w, int h, WrapMode wrap) : Map2D<Color3>(w, h, wrap) {
+Image3::Image3(int w, int h, WrapMode wrap) : Map2D<Color3, Color3>(w, h, wrap) {
     setAll(ZERO);
 }
 

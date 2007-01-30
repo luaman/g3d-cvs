@@ -25,7 +25,7 @@ typedef ReferenceCountedPointer<class Image3> Image3Ref;
 
  See also G3D::Image3uint8, G3D::GImage.
  */
-class Image3 : public Map2D<Color3> {
+class Image3 : public Map2D<Color3, Color3> {
 public:
 
     typedef Image3      Type;
