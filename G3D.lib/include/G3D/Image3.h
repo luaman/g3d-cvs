@@ -46,22 +46,23 @@ protected:
 public:
 
     /** Creates an all-zero width x height image. */
-    Ref createEmpty(int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref createEmpty(int width, int height, WrapMode wrap = WRAP_ERROR);
 
     /** Creates a 0 x 0 image. */
-    Ref createEmpty(WrapMode wrap = WRAP_ERROR);
+    static Ref createEmpty(WrapMode wrap = WRAP_ERROR);
 
-    Ref fromFile(const std::string& filename, WrapMode wrap = WRAP_ERROR, GImage::Format fmt = GImage::AUTODETECT);
-    Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromFile(const std::string& filename, WrapMode wrap = WRAP_ERROR, GImage::Format fmt = GImage::AUTODETECT);
+    
+	static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
 
-    Ref fromImage3uint8(const ReferenceCountedPointer<class Image3uint8>& im);
+    static Ref fromImage3uint8(const ReferenceCountedPointer<class Image3uint8>& im);
 
-    Ref fromGImage(const class GImage& im);
+    static Ref fromGImage(const class GImage& im);
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
         it is stripped. */
