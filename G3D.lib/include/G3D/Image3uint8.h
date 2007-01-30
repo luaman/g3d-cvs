@@ -1,0 +1,66 @@
+/**
+  @file Image3uint8.h
+
+  @maintainer Morgan McGuire, matrix@graphics3d.com
+
+  @created 2007-01-31
+  @edited  2007-01-31
+*/
+
+#ifndef G3D_IMAGE3UINT8_H
+#define G3D_IMAGE3UINT8_H
+
+#include "G3D/platform.h"
+#include "G3D/Map2D.h"
+#include "G3D/Color3uint8.h"
+#include "G3D/Color3.h"
+#include "G3D/GImage.h"
+
+namespace G3D {
+
+typedef ReferenceCountedPointer<class Image3uint8> Image3uint8Ref;
+
+/**
+ Compact storage for RGB 8-bit per channel images.
+
+ See also G3D::Image3, G3D::GImage
+ */
+class Image3uint8 : public Map2D<Color3uint8> {
+public:
+
+    typedef Image3uint8      Type;
+    typedef Image3uint8Ref   Ref;
+
+protected:
+
+    Image3uint8(int w, int h, WrapMode wrap);
+
+    void copyGImage(const class GImage& im);
+
+public:
+
+    /** Creates an all-zero width x height image. */
+    Ref createEmpty(int width, int height, WrapMode wrap = WRAP_ERROR);
+
+
+    /** Creates a 0 x 0 image. */
+    Ref createEmpty(WrapMode wrap = WRAP_ERROR);
+
+
+    Ref fromFile(const std::string& filename, WrapMode wrap = WRAP_ERROR, GImage::Format fmt = GImage::AUTODETECT);
+
+    Ref fromGImage(const class GImage& im);
+
+    Ref Image3uint8::fromImage3(const ReferenceCountedPointer<class Image3>& im);
+
+    /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
+        it is stripped. */
+    void load(const std::string& filename, GImage::Format fmt = GImage::AUTODETECT);
+
+    /** Saves in any of the formats supported by G3D::GImage. */
+    void save(const std::string& filename, GImage::Format fmt = GImage::AUTODETECT);
+};
+
+} // G3D
+
+#endif

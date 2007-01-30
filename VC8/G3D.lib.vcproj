@@ -295,6 +295,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Image3.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\source\Image3uint8.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\license.cpp"
 				>
 			</File>
@@ -577,6 +585,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\Image3.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Image3uint8.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Line.h"
 				>
 			</File>
@@ -586,6 +602,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Map2D.h"
 				>
 			</File>
 			<File

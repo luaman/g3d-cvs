@@ -91,6 +91,8 @@
 #include "G3D/GThread.h"
 #include "G3D/RegistryUtil.h"
 #include "G3D/AnyVal.h"
+#include "G3D/Image3.h"
+#include "G3D/Image3uint8.h"
 
 #ifdef G3D_WIN32
 	#pragma comment(lib, "zlib")

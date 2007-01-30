@@ -1,9 +1,8 @@
 /**
-  @file Win32Window_di8.cpp
+  @file directinput8.cpp
 
-  @maintainer Corey Taylor 
   @created 	  2004-10-16
-  @edited  	  2005-02-24
+  @edited  	  2007-01-30
     
 */
 
@@ -14,6 +13,8 @@
     #error This is a Win32-only file
 #endif
 
+#include "G3D/platform.h"
+#include "G3D/g3dmath.h"
 #include <unknwn.h>
 #include <initguid.h>
 #include <Tchar.h>
@@ -1296,7 +1297,7 @@ private:
         bool                            valid;
         unsigned int                    numAxes;
         unsigned int                    numButtons;
-        Array<uint32>                   axisOffsets;
+        Array<unsigned int>             axisOffsets;
 
     } JoystickInfo;
 
@@ -1415,13 +1416,14 @@ public:
         if (_joysticks[joystick].device->GetDeviceState(sizeof(G3DJOYDATA), &data) == S_OK) {
 
             button.resize(_joysticks[joystick].numButtons, false);
-            for (uint32 b = 0; (b < _joysticks[joystick].numButtons) && (b < 32); ++b) {
+            for (unsigned int b = 0; (b < _joysticks[joystick].numButtons) && (b < 32); ++b) {
                 button[b] = (data.rgbButtons[b] & 128) ? true : false;
             }            
 
             axis.resize(_joysticks[joystick].numAxes,false);
-            for (uint32 a = 0; a < _joysticks[joystick].numAxes; ++a) {
-                axis[a] = (float)((double)(((LONG*)&data)[_joysticks[joystick].axisOffsets[a]] - 32768) / 32768.0); 
+            for (unsigned int a = 0; a < _joysticks[joystick].numAxes; ++a) {
+                int i = (unsigned int)_joysticks[joystick].axisOffsets[a];
+                axis[a] = (float)((double)(((LONG*)&data)[i] - 32768) / 32768.0); 
             }
 
             return true;
@@ -1452,7 +1454,7 @@ public:
 
     bool joystickExists(unsigned int joystick) {
         
-        if ((uint32)_joysticks.length() > joystick) {
+        if ((unsigned int)_joysticks.length() > joystick) {
             return true;
         }
         return false;
