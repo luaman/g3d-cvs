@@ -2,7 +2,7 @@
   @file GThread.h
  
   @created 2005-09-22
-  @edited  2005-10-22
+  @edited  2007-01-31
 
  */
 
@@ -10,7 +10,7 @@
 #define G3D_GTHREAD_H
 
 #include "G3D/platform.h"
-
+#include "G3D/ReferenceCount.h"
 #include <string>
 
 #ifndef G3D_WIN32
@@ -25,11 +25,18 @@ namespace _internal {
     class GThreadPrivate;
 }
         
+typedef ReferenceCountedPointer<class GThread> GThreadRef;
 
 /**
-    GThread's documentation
+ Platform independent thread implementation.  You can either subclass and 
+ override GThread::threadMain or call the create method with a method.
+
+ Beware of reference counting and threads.  If circular references exist between
+ GThread subclasses then neither class will ever be deallocated.  Also, 
+ dropping all pointers (and causing deallocation) of a GThread does NOT 
+ stop the underlying process.
 */
-class GThread {
+class GThread : public ReferenceCountedObject {
 private:
 
     _internal::GThreadPrivate*          pthread;
@@ -44,14 +51,18 @@ private:
     GThread& operator=(const GThread&);
     bool operator==(const GThread&);
 
+protected:
+
+	GThread(const std::string& name);
+
 public:
-    GThread(const std::string& name);
-    virtual ~GThread();
+
+	virtual ~GThread();
 
     /** Constructs a basic GThread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
-    static GThread* create(const std::string& name, void (*proc)());
+    static GThreadRef create(const std::string& name, void (*proc)());
 
     /** Starts the thread and executes main() */
     bool start();
@@ -69,12 +80,11 @@ public:
 
     /** 
         Waits for the thread to finish executing. 
-        
-        TODO: Does this need a timeout? */
+     */
     void waitForCompletion();
 
     /** Returns thread name */
-    const std::string& name() {
+    inline const std::string& name() {
         return _name;
     }
 

@@ -104,7 +104,7 @@ GThread::~GThread() {
     delete pthread;
 }
 
-GThread* GThread::create(const std::string& name, void (*proc)()) {
+GThreadRef GThread::create(const std::string& name, void (*proc)()) {
     return new _internal::BasicThread(name, proc);
 }
 
