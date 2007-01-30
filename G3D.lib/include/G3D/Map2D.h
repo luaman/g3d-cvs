@@ -30,7 +30,8 @@ namespace G3D {
 namespace G3D {
 namespace _internal {
 
-template<class Storage> class _GetComputeType {
+/** The default compute type for a type is the type itself. */
+template<typename Storage> class _GetComputeType {
 public:
     typedef Storage Type;
 };
@@ -170,7 +171,7 @@ namespace G3D {
   
   @author Morgan McGuire, morgan@cs.williams.edu
  */
-template< class Storage, class Compute=_internal::_GetComputeType<Storage>::Type > 
+template< typename Storage, typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type > 
 class Map2D : public ReferenceCountedObject {
 
 //
