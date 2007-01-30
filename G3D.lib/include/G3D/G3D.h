@@ -7,9 +7,9 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2001-08-25
- @edited  2006-08-12
+ @edited  2007-01-31
 
- Copyright 2001-2006, Morgan McGuire.
+ Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
 */
 
@@ -33,6 +33,7 @@
 #include "G3D/Vector2.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector4.h"
+#include "G3D/Color1.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
 #include "G3D/Matrix3.h"

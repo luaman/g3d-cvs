@@ -187,6 +187,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Color1.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\source\Color1uint8.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Color3.cpp"
 				>
 			</File>
@@ -458,6 +466,14 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\CollisionDetection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Color1.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Color1uint8.h"
 				>
 			</File>
 			<File

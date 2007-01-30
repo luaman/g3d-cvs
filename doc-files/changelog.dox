@@ -15,6 +15,8 @@
      <li> Upgraded to iCompile 0.5.0.  Requires users to delete their old ice.txt and ~/.icompile files
      <li> direct.h is now included by fileutils.h on Win32 to ensure that chdir, mkdir, etc. are available
      <li> Increased ReliableConduit read attempts before timeout from 10 to 100 
+     <li> G3D::Color1, G3D::Color1uint8
+     <li> GImage::RGBAtoRGB
      <li> Added GLEW compatibility [nico]
      <li> G3D::GKey replaces old SDL key enumeration
      <li> Added GWindow::Settings::caption

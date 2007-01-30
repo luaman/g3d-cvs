@@ -46,7 +46,7 @@ class BinaryOutput;
     #include "graphics3D.h"
 
     // Loading from disk:
-    G3D::GImage im1 = G3D::Image("test.jpg");
+    G3D::GImage im1 = G3D::GImage("test.jpg");
     
     // Loading from memory:
     G3D::GImage im2 = G3D::GImage(data, length);
@@ -291,13 +291,13 @@ public:
      taken from this GImage and the alpha from the red
      channel of the second image.
      */ 
-    GImage insertRedAsAlpha(const GImage& alpha) const;
+     GImage insertRedAsAlpha(const GImage& alpha) const;
 
     /**
      Returns a new GImage with 3 channels, removing
      the alpha channel if there is one.
      */
-    GImage stripAlpha() const;
+     GImage stripAlpha() const;
 
     /**
      Loads an image from disk (clearing the old one first).
@@ -423,6 +423,10 @@ public:
         uint8*                  out,
         int                     numPixels);
 
+    static void RGBAtoRGB(
+        const uint8*            in,
+        uint8*                  out,
+        int                     numPixels);
     /**
     Uses the red channel of the second image as an alpha channel.
     */
@@ -517,4 +521,3 @@ public:
 }
 
 #endif
-

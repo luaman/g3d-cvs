@@ -40,6 +40,21 @@ void GImage::RGBtoRGBA(
     }
 }
 
+void GImage::RGBAtoRGB(
+    const uint8*    in,
+    uint8*          out,
+    int             numPixels) {
+
+    for (int i = 0; i < numPixels; ++i) {
+        int i3 = i * 3;
+        int i4 = i3 + i;
+
+        out[i3 + 0] = in[i4 + 0]; 
+        out[i3 + 1] = in[i4 + 1]; 
+        out[i3 + 2] = in[i4 + 2]; 
+    }
+}
+
 
 void GImage::RGBtoBGRA(
     const uint8*    in,
@@ -56,6 +71,7 @@ void GImage::RGBtoBGRA(
         out[i4 + 3] = 255; 
     }
 }
+
 
 
 void GImage::RGBtoBGR(

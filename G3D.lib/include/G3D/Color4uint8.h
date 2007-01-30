@@ -87,6 +87,10 @@ public:
 
     void deserialize(class BinaryInput& bi);
 
+    inline Color3uint8 rgb() const {
+        return Color3uint8(r, g, b);
+    }
+
 }
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     __attribute((aligned(1)))

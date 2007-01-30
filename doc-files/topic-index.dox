@@ -134,6 +134,8 @@
         G3D::Box,
 		G3D::Capsule,
 		G3D::CollisionDetection,
+		G3D::Color1,
+		G3D::Color1uint8,
 		G3D::Color3,
 		G3D::Color3uint8,
         G3D::Color4,
