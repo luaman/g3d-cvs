@@ -7,6 +7,8 @@
   @edited  2007-01-31
 */
 
+#include "G3D/Image4uint8.h"
+#include "G3D/Image4.h"
 #include "G3D/Image3uint8.h"
 #include "G3D/Image3.h"
 #include "G3D/GImage.h"
