@@ -96,7 +96,7 @@ protected:
 
 
 /**
-    GMutex's documentation
+ Mutual exclusion lock used for synchronization.
 */
 class GMutex {
 private:
@@ -124,7 +124,6 @@ public:
 
 
 /**
-    GMutexLock's documentation.
     Automatically locks while in scope.
 */
 class GMutexLock {

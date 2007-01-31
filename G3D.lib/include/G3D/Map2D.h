@@ -16,6 +16,7 @@
 #include "G3D/Vector2int16.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/AtomicInt32.h"
+#include "G3D/GThread.h"
 #include <string>
 
 namespace G3D {
@@ -207,7 +208,7 @@ protected:
 
     /** 0 if no mutating method has been invoked 
         since the last call to setChanged(); */
-    AtomicInt32         _changed;
+    AtomicInt32         m_changed;
 
     Array<Storage>      data;
 
@@ -237,10 +238,6 @@ protected:
     }
 
     inline const Storage& fastGet(int x, int y) const {
-        return data[x + y * w];
-    }
-
-    inline Storage& fastGet(int x, int y) {
         return data[x + y * w];
     }
 
@@ -291,6 +288,13 @@ protected:
 
 public:
 
+    /**
+     Although Map2D is not threadsafe (except for the setChanged() method),
+     you can use this mutex to create your own threadsafe access to a Map2D.
+     Not used by the default implementation.
+    */
+    GMutex mutex;
+
     static Ref create(int w = 0, int h = 0, WrapMode wrap = WRAP_ERROR) {
         return new Map2D(w, h, wrap);
     }
@@ -298,16 +302,30 @@ public:
     /** Resizes without clearing, leaving garbage.
       */
     void resize(uint32 newW, uint32 newH) {
-        if (newW != w || newH != h) {
+        if ((newW != w) || (newH != h)) {
             w = newW;
             h = newH;
             data.resize(w * h);
+            setChanged(true);
         }
     }
 
+    /** 
+     Returns true if this map has been written to since the last call to setChanged(false).
+     This is useful if you are caching a texture map other value that must be recomputed
+     whenever this changes.
+     */
+    bool changed() {
+        return m_changed.value() != 0;
+    }
+
+    /** Set/unset the changed flag. */
+    void setChanged(bool c) {
+        m_changed = c ? 1 : 0;
+    }
 
     /** Returns a pointer to the underlying row-major data. There is no padding at the end of the row.
-        Be careful--this will be reallocated during a resize. */
+        Be careful--this will be reallocated during a resize.  You should call setChanged(true) if you mutate the array.*/
     Storage* getCArray() {
         return data.getCArray();
     }
@@ -318,10 +336,11 @@ public:
     }
 
 
-    /** Row-major array */
+    /** Row-major array.  You should call setChanged(true) if you mutate the array. */
     Array<Storage>& getArray() {
         return data;
     }
+
 
     const Array<Storage>& getArray() const {
         return data;
@@ -330,20 +349,11 @@ public:
     /** Get the value at (x, y).
     
         Note that the type of image->get(x, y) is 
-        the storage type (and can be assigned!), not the computation
+        the storage type, not the computation
         type.  If the constructor promoting Storage to Compute rescales values
         (as, for example Color3(Color3uint8&) does), this will not match the value
         returned by Map2D::nearest.
       */
-    inline Storage& get(int x, int y) {
-        if (((uint32)x < w) && ((uint32)y < h)) {
-            // In bounds, wrapping isn't an issue.
-            return data[x + y * w];
-        } else {
-            return slowGet(x, y);
-        }
-    }
-
     inline const Storage& get(int x, int y) const {
         if (((uint32)x < w) && ((uint32)y < h)) {
             return data[x + y * w];
@@ -355,9 +365,14 @@ public:
     }
 
 
-
     void set(int x, int y, const Storage& v) {
-        get(x, y) = v;
+        setChanged(true);
+        if (((uint32)x < w) && ((uint32)y < h)) {
+            // In bounds, wrapping isn't an issue.
+            data[x + y * w] = v;
+        } else {
+            slowGet(x, y) = v;
+        }
     }
 
 
@@ -365,13 +380,15 @@ public:
         for(int i = 0; i < data.size(); ++i) {
             data[i] = v;
         }
+        setChanged(true);
     }
+
 
     /** Returns the nearest neighbor.  Pixel values are considered
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
       */
     Compute nearest(double x, double y) const {
-        return Compute((*this)(iRound(x), iRound(y)));
+        return Compute(get(iRound(x), iRound(y)));
     }
 
 
