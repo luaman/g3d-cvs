@@ -415,6 +415,11 @@ public:
         uint8*                  out,
         int                     numPixels);
 
+    static void RGBtoARGB(
+        const uint8*            in,
+        uint8*                  out,
+        int                     numPixels);
+
     /** Safe for in == out */
     static void RGBtoBGR(
         const uint8*            in,
@@ -425,11 +430,6 @@ public:
     Win32 32-bit HDC format.
     */
     static void RGBtoBGRA(
-        const uint8*            in,
-        uint8*                  out,
-        int                     numPixels);
-
-    static void RGBtoARGB(
         const uint8*            in,
         uint8*                  out,
         int                     numPixels);

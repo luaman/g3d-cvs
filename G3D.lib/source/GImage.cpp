@@ -27,7 +27,7 @@ namespace G3D {
 void GImage::RGBtoRGBA(
     const uint8*    in,
     uint8*          out,
-    int                     numPixels) {
+    int             numPixels) {
 
     for (int i = 0; i < numPixels; ++i) {
         int i3 = i * 3;
@@ -39,6 +39,7 @@ void GImage::RGBtoRGBA(
         out[i4 + 3] = 255; 
     }
 }
+
 
 void GImage::RGBAtoRGB(
     const uint8*    in,

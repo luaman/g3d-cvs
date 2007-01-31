@@ -91,6 +91,7 @@ Image3uint8::Ref Image3uint8::fromArray(const class Color4* ptr, int w, int h, W
 
 void Image3uint8::load(const std::string& filename, GImage::Format fmt) {
     copyGImage(GImage(filename, fmt));
+    setChanged(true);
 }
 
 

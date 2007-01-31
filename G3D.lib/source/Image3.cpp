@@ -56,6 +56,7 @@ Image3::Ref Image3::fromFile(const std::string& filename, WrapMode wrap, GImage:
 
 void Image3::load(const std::string& filename, GImage::Format fmt) {
     copyGImage(GImage(filename, fmt));
+    setChanged(true);
 }
 
 
@@ -101,12 +102,19 @@ Image3::Ref Image3::fromArray(const class Color4* ptr, int w, int h, WrapMode wr
 }
 
 void Image3::copyGImage(const GImage& im) {
-    resize(im.width, im.height);
-    if (im.channels == 3) {
+    switch (im.channels) {
+    case 1:
+        copyArray(im.pixel1(), im.width, im.height);
+        break;
+
+    case 3:
         copyArray(im.pixel3(), im.width, im.height);
-    } else {
-        copyArray(im.pixel3(), im.width, im.height);
-    }
+        break;
+
+    case 4:
+        copyArray(im.pixel4(), im.width, im.height);
+        break;
+    } 
 }
 
 

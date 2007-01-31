@@ -17,6 +17,7 @@
 #include "G3D/ReferenceCount.h"
 #include "G3D/AtomicInt32.h"
 #include "G3D/GThread.h"
+#include "G3D/Rect2D.h"
 #include <string>
 
 namespace G3D {
@@ -213,13 +214,13 @@ protected:
     Array<Storage>      data;
 
     /** Handles the exceptional cases from get */
-    Storage& slowGet(int x, int y) {
+    const Storage& slowGet(int x, int y) {
         switch (_wrapMode) {
         case WRAP_CLAMP:
-            return get(iClamp(x, 0, w - 1), iClamp(y, 0, h - 1));
+            return fastGet(iClamp(x, 0, w - 1), iClamp(y, 0, h - 1));
 
         case WRAP_TILE:
-            return get(iWrap(x, w), iWrap(y, h));
+            return fastGet(iWrap(x, w), iWrap(y, h));
 
         case WRAP_ERROR:
             alwaysAssertM(((uint32)x < w) && ((uint32)y < h), 
@@ -279,7 +280,7 @@ protected:
         return sum;
     }
 
-    Map2D(int w, int h, WrapMode wrap) : _wrapMode(wrap) {
+    Map2D(int w, int h, WrapMode wrap) : _wrapMode(wrap), m_changed(1) {
         resize(w, h);
 
         // Ensure that the zero value is actually zero.
@@ -364,6 +365,13 @@ public:
         }
     }
 
+    inline const Storage& get(const Vector2int16& p) const {
+        return get(p.x, p.y);
+    }
+
+    inline void set(const Vector2int16& p, const Storage& v) {
+        set(p.x, p.y, v);
+    }
 
     void set(int x, int y, const Storage& v) {
         setChanged(true);
@@ -371,7 +379,7 @@ public:
             // In bounds, wrapping isn't an issue.
             data[x + y * w] = v;
         } else {
-            slowGet(x, y) = v;
+            const_cast<Storage&>(slowGet(x, y)) = v;
         }
     }
 
@@ -387,10 +395,17 @@ public:
     /** Returns the nearest neighbor.  Pixel values are considered
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
       */
-    Compute nearest(double x, double y) const {
+    inline Compute nearest(float x, float y) const {
         return Compute(get(iRound(x), iRound(y)));
     }
 
+    inline Compute nearest(const Vector2& p) const {
+        return nearest(p.x, p.y);
+    }
+
+    inline Compute bilinear(const Vector2& p) const {
+        return bilinear(p.x, p.y);
+    }
 
     /** 
       Needs to access elements from (floor(x), floor(y))
@@ -399,12 +414,12 @@ public:
       out of bounds errors).
 
       Guaranteed to match nearest(x, y) at integers. */ 
-    Compute bilinear(double x, double y) const {
+    Compute bilinear(float x, float y) const {
         int i = iFloor(x);
         int j = iFloor(y);
     
-        double fX = x - i;
-        double fY = y - j;
+        float fX = x - i;
+        float fY = y - j;
 
         // Horizontal interpolation, first row
         Compute t0(get(i, j));
@@ -421,15 +436,19 @@ public:
     }
 
 
+    inline Compute bicubic(const Vector2& p) const {
+        return bicubic(p.x, p.y);
+    }
+
     /**
      Uses Catmull-Rom splines to interpolate between grid
      values.  Guaranteed to match nearest(x, y) at integers.
      */
-    Compute bicubic(double x, double y) const {
+    Compute bicubic(float x, float y) const {
         int i = iFloor(x);
         int j = iFloor(y);
-        double fX = x - i;
-        double fY = y - j;
+        float fX = x - i;
+        float fY = y - j;
 
         // 'static' prevents constructors from being called
         // every time through this loop.
@@ -467,6 +486,10 @@ public:
         return Vector2int16(w, h);
     }
 
+    /** Rectangle from (0, 0) to (w, h) */
+    Rect2D rect2DBounds() const {
+        return Rect2D::xywh(0, 0, w, h);
+    }
 
     /** Number of bytes occupied by the image data and this structure */
     size_t sizeInMemory() const {

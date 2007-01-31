@@ -93,6 +93,8 @@
 #include "G3D/AnyVal.h"
 #include "G3D/Image3.h"
 #include "G3D/Image3uint8.h"
+#include "G3D/Image4.h"
+#include "G3D/Image4uint8.h"
 
 #ifdef G3D_WIN32
 	#pragma comment(lib, "zlib")

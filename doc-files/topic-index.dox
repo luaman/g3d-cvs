@@ -284,6 +284,8 @@
 		G3D::GImage::Error,	
 		G3D::Image3,
 		G3D::Image3uint8,
+		G3D::Image4,
+		G3D::Image4uint8,
 		G3D::Map2D,
         G3D::Quarter_R8G8B8_to_BAYER_G8B8_R8G8,
   	    G3D::RGBtoARGB,
