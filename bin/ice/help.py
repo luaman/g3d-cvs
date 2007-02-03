@@ -13,7 +13,7 @@ import copyifnewer
 
 def printVersion():
     print "iCompile " + versionToString(version)
-    print "Copyright 2003-2006 Morgan McGuire and Rob Hunter"
+    print "Copyright 2003-2007 Morgan McGuire"
     print "All rights reserved"
     print
     print "http://ice.sf.net"
@@ -31,15 +31,20 @@ icompile  [--doc] [--opt|--debug] [--clean] [--version]
           [--verbosity n] [--help] [--noprompt] [--run|--gdb ...]
 
 iCompile can build most C++ projects without options or manual
-configuration.  Just type 'icompile' with no arguments.
+configuration.  Just type 'icompile' with no arguments.  Run in an
+empty directory to generate a set of starter files.
 
 Options:
  --doc            Generate documentation before building.
+ 
  --debug          (Default) Create a debug executable (define _DEBUG,
                   disable optimizations).
+                  
  --opt or -O      Generate an optimized executable.
+ 
  --run            Run the program if compilation succeeds, passing all
                   further arguments (...) to the program.
+                  
  --gdb            Run the program under gdb if compilation succeeds,
                   passing all further arguments (...) to the program.
                   You can also just run gdb yourself after using iCompile.
@@ -57,26 +62,28 @@ Options:
                   3   |   Trace: Additional debugging information is also
                       |   displayed.
 
- --noprompt       Run even if there is no ice.txt file and don't prompt the
+ --noprompt       Run even if there is no ice.txt file, don't prompt the
                   user for input.  This is handy for launching iCompile from
                   automated build shell scripts.
 
 Exclusive options:
  --help           Print this information.
- --clean          Delete all generated files.
+ 
+ --clean          Delete all generated files (but not library generated files).
+ 
  --version        Print the version number of iCompile.
 
 Special directory names:
  build            Output directory
  data-files       Files that will be needed at runtime
- doc-files        Files needed by your Doxygen output
+ doc-files        Files needed by your documentation (Doxygen output)
 
 iCompile will not look for source files in directories matching: """ +
            str(copyifnewer._excludeDirPatterns) +
 """
 
-You may edit ice.txt if your project has unusual configuration needs.
-See manual.html or http://ice.sf.net for full information.
+You may edit ice.txt and ~/.icompile if your project has unusual configuration
+needs.  See manual.html or http://ice.sf.net for full information.
 """)
     sys.exit(0)
 
@@ -110,4 +117,3 @@ def maybeWarn(warning, state):
         # and update the time in the cache
         allWarnings[warning] = time.time()
         colorPrint(warning, WARNING_COLOR)
-    

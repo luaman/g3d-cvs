@@ -168,6 +168,9 @@ class State:
     # Location to which all build files are written relative to 
     # rootDir
     buildDir                    = None
+
+    # Location to which distribution files are written relative to rootDir
+    installDir                  = None
      
     # Location to which generated binaries are written
     binaryDir                   = None
@@ -220,7 +223,9 @@ class State:
            '\n binaryName             = ' + str(self.binaryName) +
            '\n usesProjectsList       = ' + str(self.usesProjectsList) + 
            '\n compiler               = ' + str(self.compiler) +
-           '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions))
+           '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions) +
+           '\n includePaths           = ' + str(self.includePaths()) +
+           '\n libraryPaths           = ' + str(self.libraryPaths()))
 
 ###############################################
 

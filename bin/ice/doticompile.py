@@ -192,6 +192,8 @@ def configGet(state, config, section, name, exp = True):
 
         val = val.replace('<EXCLUDE>', string.join(copyifnewer._cppExcludePatterns + ['^CMakeFiles$'], '|'))
 
+    val = os.path.expanduser(val)
+        
     if exp:
         val = expandvars(val)
 
@@ -372,15 +374,17 @@ def getConfigurationState(args):
     if unix and isLibrary(state.binaryType):
         prefix = 'lib'
 
+    state.installDir = state.buildDir + state.platform + '/'
+
     # Binary name
     if (state.binaryType == EXE):
-        state.binaryDir  = state.buildDir + 'install/'
+        state.binaryDir  = state.installDir
         state.binaryName = state.projectName + d
     elif (state.binaryType == DLL):
-        state.binaryDir  = state.buildDir + 'install/' + state.platform + '-lib/'
+        state.binaryDir  = state.installDir + 'lib/'
         state.binaryName = prefix + state.projectName + d + '.so'
     elif (state.binaryType == LIB):
-        state.binaryDir  = state.buildDir + 'install/' + state.platform + '-lib/'
+        state.binaryDir  = state.installDir + 'lib/'
         state.binaryName = prefix + state.projectName + d + '.a'
 
     # Make separate directories for object files based on
@@ -462,8 +466,60 @@ def checkForProjectFile(state, args):
         colorPrint(prompt, 'bold')
         if string.lower(getch()) != 'y':
             sys.exit(0)
-        
-    f = file(projectFile, 'wt')
-    f.write(defaultProjectFileContents)
+
+        if (num == 0):
+            prompt = ("Would you like to generate a set of starter files for the '" +
+                      dir + "' project? (Y/N)")
+            colorPrint(prompt, 'bold')
+            if string.lower(getch()) == 'y':
+                generateStarterFiles(state)
+
+    _writeFile(projectFile, defaultProjectFileContents);
+
+def _writeFile(filename, contents):
+    f = file(filename, 'wt')
+    f.write(contents)
     f.close()
+    
+
+defaultMainCppContents = """
+/** @file main.cpp
+ */
+#include <stdio.h>
+
+int main(int argc, const char** argv) {
+    printf("Hello World!\\n");
+    return 0;
+}
+"""
+
+
+""" Generates an empty project. """
+def generateStarterFiles(state):
+    mkdir('build')
+    mkdir('source')
+    mkdir('doc-files')
+
+    if not isLibrary(state.binaryType):
+        mkdir('data-files')
+        _writeFile('source/main.cpp', defaultMainCppContents)
+    else:
+        mkdir('include')
+        incDir = pathConcat('include', state.projectName)
+        mkdir(incDir)
+        _writeFile(pathConcat(incDir, state.projectName + '.h'), _headerContents(state))
+
+
+""" Generates the contents of the master header file for a library """
+def _headerContents(state):
+    guard = state.projectName.upper() + '_H'
+    return """
+/** @file """ + state.projectName + """.h
+ */
+
+#ifndef """ + guard + """
+#define """ + guard + """
+
+#endif
+"""
     

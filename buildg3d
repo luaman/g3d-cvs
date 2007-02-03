@@ -8,6 +8,8 @@ import ice.copyifnewer
 
 doxygen = 'doxygen'
 
+distribDir = None
+
 class Version:
     major = '7'
     minor = '00'
@@ -217,18 +219,18 @@ def doc(args):
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
            'PROJECT_NUMBER': version}
     run(doxygen, ['Doxyfile'], env)
-    copyIfNewer('doc-files/data-files', 'build/install/html')
+    copyIfNewer('doc-files/data-files', 'build/html')
     return 0
 
 
 def data(args):
     source = 'bin'
-    dest = 'build/install/bin'
+    dest = distribDir + 'bin'
     copyIfNewer(source, dest)
-    os.remove('build/install/bin/PKZIP25.EXE')
+    os.remove(dest + '/PKZIP25.EXE')
     
-    copyIfNewer('data-files', 'build/install/data')
-    copyIfNewer('demos', 'build/install/demos')
+    copyIfNewer('data-files', distribDir + 'data')
+    copyIfNewer('demos', distribDir + 'demos')
 
     return 0
 
@@ -266,7 +268,7 @@ def src(args):
     zip('temp/src/*', 'build/' + ver + '-src.zip')
 
 ##################################################################################
-def getCompilerName(args):
+def getCompilerName(args = []):
     if '--compiler' in args:
         for i in xrange(0, len(args)):
             if args[i] == '--compiler':
@@ -299,8 +301,8 @@ lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            libraries do not come with the operating system this
            will also build those libraries.
 
-data       Copy data-files to build/install/data and the bin 
-           directory to build/install/bin
+data       Copy data-files to build/data and the bin 
+           directory to """ + distribDir + """/bin
 
 test       Build test and testd and then run both
 
@@ -336,6 +338,8 @@ compiler   Specifying the optional --compiler argument allows
 """
 
 if __name__ == "__main__":
+    distribDir = 'build/' + platform_directory(getCompilerName())
+
     sys.exit(dispatchOnTarget(
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,

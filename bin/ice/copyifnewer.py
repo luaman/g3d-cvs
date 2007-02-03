@@ -8,6 +8,7 @@ from utils import *
 _excludeDirPatterns = \
     ['^\.',\
      '^#',\
+     '~$',\
      '^\.svn$',\
      '^CVS$', \
      '^Debug$', \
@@ -18,6 +19,7 @@ _excludeDirPatterns = \
      '^doc-files$', \
      '^data-files$', \
      '^\.icompile-temp$', \
+     '^\.ice-tmp$', \
      '^build$']
 
 """
@@ -33,6 +35,7 @@ _excludeFromCopyingPatterns =\
     ['\.ncb$', \
     '\.opt$', \
     '\.ilk$', \
+    '\.cvsignore$', \
     '\.pdb$', \
     '\.bsc$', \
     '^\.DS_store$', \

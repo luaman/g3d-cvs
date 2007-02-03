@@ -3,7 +3,7 @@
 #
 # See manual.html for documentation.  http://ice.sf.net
 #
-# Copyright 2003-2006 Morgan McGuire
+# Copyright 2003-2007 Morgan McGuire
 # All rights reserved.
 #
 # morgan@cs.williams.edu
@@ -13,7 +13,7 @@
 # DO NOT MODIFY THIS SCRIPT.  EDIT ICE.TXT AND ~/.ICOMPILE TO CUSTOMIZE
 # YOUR PROJECT CONFIGURATION.
 
-version = [0, 5, 0]
+version = [0, 5, 1]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time
@@ -102,7 +102,7 @@ def buildDocumentation():
 
 def buildDataFiles(state):
     src = 'data-files'
-    dst = state.buildDir + 'install/'
+    dst = state.installDir
     
     if os.path.exists(src):
         if verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
@@ -115,7 +115,7 @@ def buildDataFiles(state):
 """ Copies headers to the build directory. """
 def buildInclude(state):
     src = 'include'
-    dst = state.buildDir + 'install/include'
+    dst = state.installDir + 'include'
     
     if os.path.exists(src):
         if verbosity >= NORMAL: colorPrint('\nCopying public header files', SECTION_COLOR)
@@ -653,6 +653,9 @@ def configureGpp(state):
   progArgs - arguments to pass on to the compiled program
 """
 def main(state, args, progArgs, doGDB, doRun):
+    if (verbosity >= VERBOSE):
+        print state
+        
     if '--clean' in args:
         buildClean(state)
         # Exit early, preventing the cache from being written
