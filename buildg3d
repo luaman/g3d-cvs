@@ -229,8 +229,8 @@ def data(args):
     copyIfNewer(source, dest)
     os.remove(dest + '/PKZIP25.EXE')
     
-    copyIfNewer('data-files', distribDir + 'data')
-    copyIfNewer('demos', distribDir + 'demos')
+    copyIfNewer('data-files', 'build/data')
+    copyIfNewer('demos', 'build/demos')
 
     return 0
 
@@ -338,7 +338,7 @@ compiler   Specifying the optional --compiler argument allows
 """
 
 if __name__ == "__main__":
-    distribDir = 'build/' + platform_directory(getCompilerName())
+    distribDir = 'build/' + platform_directory(getCompilerName()) + '/'
 
     sys.exit(dispatchOnTarget(
         [lib, clean, test,
