@@ -307,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Image4uint8.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\license.cpp"
 				>
 			</File>
