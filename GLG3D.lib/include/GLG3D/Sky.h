@@ -174,21 +174,6 @@ public:
 
 };
 
-inline bool operator==(const SkyRef& a, const void* b) {
-    return (b == NULL) && (a == (SkyRef)NULL);
-}
-
-inline bool operator==(const void* a, const SkyRef& b) {
-    return b == a;
-}
-
-inline bool operator!=(const SkyRef& a, const void* b) {
-    return !(a == b);
-}
-
-inline bool operator!=(const void* b, const SkyRef& a) {
-    return !(a == b);
-}
 
 }
 
