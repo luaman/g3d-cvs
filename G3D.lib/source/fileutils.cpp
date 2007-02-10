@@ -173,62 +173,62 @@ FILE* createTempFile() {
 	char name[256];
 
     if (isFileGood(t)) {
-		return t;
-	}
+        return t;
+    }
 
+#   ifdef G3D_WIN32
     /* tmpfile failed; try the tmpnam routine */
     t = fopen(tmpnam(NULL), "w+");
     if (isFileGood(t)) {
-		return t;
-	}
+        return t;
+    }
 
-    #ifdef _WIN32
-		n = _tempnam("c:/tmp/", "t");
-        /* Try to create something in C:\tmp */
-        t = fopen(n, "w+");
-		if (isFileGood(t)) {
-			return t;
-		}
+    n = _tempnam("c:/tmp/", "t");
+    /* Try to create something in C:\tmp */
+    t = fopen(n, "w+");
+    if (isFileGood(t)) {
+        return t;
+    }
 
-        /* Try c:\temp */
-		n = _tempnam("c:/temp/", "t");
-        t = fopen(n, "w+");
-	    if (isFileGood(t)) {
-			return t;
-		}
+    /* Try c:\temp */
+    n = _tempnam("c:/temp/", "t");
+    t = fopen(n, "w+");
+    if (isFileGood(t)) {
+        return t;
+    }
 
-        /* try the current directory */
-		n = _tempnam("./", "t");
-        t = fopen(n, "w+");
-		if (isFileGood(t)) {
-			return t;
-		}
-    #endif
+    /* try the current directory */
+    n = _tempnam("./", "t");
+    t = fopen(n, "w+");
+    if (isFileGood(t)) {
+        return t;
+    }
+
+    sprintf(name, "%s/tmp%d", "c:/temp", rand());
+    t = fopen(name, "w+");
+    if (isFileGood(t)) {
+        return t;
+    }
 
     /* Try some hardcoded paths */
     sprintf(name, "%s/tmp%d", "c:/tmp", rand());
     t = fopen(name, "w+");
     if (isFileGood(t)) {
-		return t;
-	}
-
+        return t;
+    }
+#   else
     sprintf(name, "%s/tmp%d", "/tmp", rand());
     t = fopen(name, "w+");
     if (isFileGood(t)) {
-		return t;
-	}
-
-    sprintf(name, "%s/tmp%d", "c:/temp", rand());
-    t = fopen(name, "w+");
-    if (isFileGood(t)) {
-		return t;
-	}
+        return t;
+    }
+#endif
 
     sprintf(name, "tmp%d", rand());
     t = fopen(name, "w+");
     if (isFileGood(t)) {
-		return t;
-	}
+        return t;
+    }
 
     fprintf(stderr, "Unable to create a temporary file; robustTmpfile returning NULL\n");
 

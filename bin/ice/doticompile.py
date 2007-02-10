@@ -100,7 +100,7 @@ defaultDotICompile = """
 # This is a configuration file for iCompile (http://ice.sf.net)
 # """ + configHelp + """
 [GLOBAL]
-defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL
+defaultinclude:  $(INCLUDE);/usr/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL;/usr/X11R6/include;
 defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib
 defaultcompiler: <NEWESTCOMPILER>
 defaultexclude:  <EXCLUDE>
@@ -218,22 +218,21 @@ class FakeFile:
            
 
 """ Called from processProjectFile """ 
-def _processDotICompile(config):
+def _processDotICompile(state, config):
 
     # Set the defaults from the default .icompile and ice.txt
     config.readfp(FakeFile(defaultDotICompile))
     config.readfp(FakeFile(defaultProjectFileContents))
 
     # Process .icompile
-    HOME = os.environ['HOME']
-    preferenceFile = pathConcat(HOME, '.icompile')
-
-    if os.path.exists(preferenceFile):
-        if verbosity >= TRACE: print 'Processing ' + preferenceFile
-        config.read(preferenceFile)
+    if os.path.exists(state.preferenceFile()):
+        if verbosity >= TRACE: print 'Processing ' + state.preferenceFile()
+        config.read(state.preferenceFile())
     else:
         success = False
 
+        HOME = os.environ['HOME']
+        preferenceFile = HOME + '/.icompile'
         # Try to generate a default .icompile
         if os.path.exists(HOME):
             f = file(preferenceFile, 'wt')
@@ -257,7 +256,7 @@ def _processDotICompile(config):
 def processProjectFile(state):
 
     config = ConfigParser.SafeConfigParser()
-    _processDotICompile(config)
+    _processDotICompile(state, config)
 
     # Process the project file
     projectFile = 'ice.txt'

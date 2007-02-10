@@ -41,10 +41,8 @@ def getOutOfDateFiles(state, cfiles, dependencies, files):
         if iceTime > icompileTime:
             icompileTime = iceTime
 
-    HOME = os.environ['HOME']
-    preferenceFile = pathConcat(HOME, '.icompile')
-    if os.path.exists(preferenceFile):
-        configTime = getTimeStamp(preferenceFile)
+    if os.path.exists(state.preferenceFile()):
+        configTime = getTimeStamp(state.preferenceFile())
         if configTime > icompileTime:
             icompileTime = configTime
 

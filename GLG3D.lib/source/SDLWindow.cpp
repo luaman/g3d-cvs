@@ -216,8 +216,8 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
         (settings.framed ? 0 : SDL_NOFRAME);
 
     if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
-        debugAssert(false);
         Log::common()->printf("Unable to create OpenGL screen: %s\n", SDL_GetError());
+        debugAssert(false);
         alwaysAssertM(false, "Unable to create OpenGL screen");
     }
 

@@ -28,7 +28,8 @@ def printHelp():
 iCompile: the zero-configuration build system
     
 icompile  [--doc] [--opt|--debug] [--clean] [--version]
-          [--verbosity n] [--help] [--noprompt] [--run|--gdb ...]
+          [--config <custom .icompile>] [--verbosity n]
+          [--help] [--noprompt] [--run|--gdb ...]
 
 iCompile can build most C++ projects without options or manual
 configuration.  Just type 'icompile' with no arguments.  Run in an
@@ -44,6 +45,11 @@ Options:
  
  --run            Run the program if compilation succeeds, passing all
                   further arguments (...) to the program.
+
+ --config <file>  Use <file> instead of ~/.icompile as the user configuration
+                  file.  This allows you to build certain projects with
+                  a different compiler or include paths without changing the
+                  project ice.txt file, e.g., when installing a 3rd party library
                   
  --gdb            Run the program under gdb if compilation succeeds,
                   passing all further arguments (...) to the program.

@@ -195,7 +195,6 @@ class State:
     _includePaths               = None
     _libraryPaths               = None
 
-
     def __init__(self):
         self.usesProjectsList = []
         self.usesLibrariesList = []
@@ -217,15 +216,29 @@ class State:
     def libraryPaths(self):
         return self._libraryPaths
 
+    # Location of the user configuration (.icompile) file, including the filename
+    # Defaults to $HOME/.icompile
+    def preferenceFile(self):
+        if ('--config' in self.args):
+            for i in xrange(0, len(self.args)):
+                if self.args[i] == '--config':
+                    if i < len(self.args) - 1:
+                        return self.args[i + 1]
+        # Otherwise, fall through
+
+        HOME = os.environ['HOME']
+        return pathConcat(HOME, '.icompile')
+
     def __str__(self):
-        return ('State:' +
+        return ('State:' + 
            '\n rootDir                = ' + str(self.rootDir) +
            '\n binaryName             = ' + str(self.binaryName) +
            '\n usesProjectsList       = ' + str(self.usesProjectsList) + 
            '\n compiler               = ' + str(self.compiler) +
            '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions) +
            '\n includePaths           = ' + str(self.includePaths()) +
-           '\n libraryPaths           = ' + str(self.libraryPaths()))
+           '\n libraryPaths           = ' + str(self.libraryPaths()) +
+           '\n preferenceFile         = ' + str(self.preferenceFile()))
 
 ###############################################
 

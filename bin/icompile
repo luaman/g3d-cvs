@@ -159,7 +159,7 @@ def makeObjectFile(state, cfile, options):
 
     if verbosity == NORMAL:
         # 'run' will not print the full command, so we just
-        # print filename to be compiled here.
+        # print the filename to be compiled here.
 
         print shortname(state.rootDir, cfile)
 

@@ -36,6 +36,7 @@ _excludeFromCopyingPatterns =\
     '\.opt$', \
     '\.ilk$', \
     '\.cvsignore$', \
+    '^\.\#', \
     '\.pdb$', \
     '\.bsc$', \
     '^\.DS_store$', \
