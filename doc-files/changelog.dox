@@ -21,7 +21,8 @@
      <li> G3D::Color1, G3D::Color1uint8
      <li> G3D::Image3,	G3D::Image3uint8
 	 <li> G3D::Map2D
-     <li> GImage::RGBAtoRGB
+     <li> G3D::PointShape
+     <li> G3D::GImage::RGBAtoRGB
      <li> Added GLEW compatibility [nico]
      <li> G3D::GKey replaces old SDL key enumeration
      <li> Added GWindow::Settings::caption

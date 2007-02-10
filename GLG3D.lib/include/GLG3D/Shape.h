@@ -41,7 +41,7 @@ typedef ReferenceCountedPointer<class Shape> ShapeRef;
 class Shape : public ReferenceCountedObject {
 public:
 
-    enum Type {NONE = 0, MESH = 1, BOX, CYLINDER, SPHERE, RAY, CAPSULE, PLANE, AXES};
+    enum Type {NONE = 0, MESH = 1, BOX, CYLINDER, SPHERE, RAY, CAPSULE, PLANE, AXES, POINT};
 
     static std::string typeToString(Type t);
 
@@ -129,6 +129,18 @@ public:
         debugAssertM(false, "Not a plane");
         static Plane p;
         return p;
+    }
+
+    virtual Vector3& point() {
+        debugAssertM(false, "Not a point");
+        static Vector3 v;
+        return v;
+    }
+
+    virtual const Vector3& point() const {
+        debugAssertM(false, "Not a point");
+        static Vector3 v;
+        return v;
     }
 
     virtual const Array<int>& indexArray() const {
@@ -647,6 +659,60 @@ public:
 
     virtual Vector3 randomInteriorPoint() const {
         return Vector3::nan();
+    }
+
+};
+
+
+class PointShape : public Shape {
+
+    Vector3    geometry;
+
+public:
+
+    explicit inline PointShape(const Vector3& p) : geometry(p) {}
+
+    virtual void render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor = Color4(.5,.5,0,.5), Color4 wireColor = Color3::black());
+
+    virtual Type type() const {
+        return POINT;
+    }
+
+    virtual Vector3& point() { 
+        return geometry;
+    }
+
+    virtual const Vector3& point() const { 
+        return geometry;
+    }
+
+    virtual float area() const {
+        return 0.0f;
+    }
+
+    virtual float volume() const {
+        return 0.0f;
+    }
+
+    virtual Vector3 center() const {
+        return geometry.xyz();
+    }
+
+    virtual Sphere boundingSphere() const {
+        return Sphere(geometry, 0.0f);
+    }
+
+    virtual AABox boundingAABox() const {
+      return AABox(geometry, geometry);
+    }
+
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+        P = geometry;
+        N = Vector3::unitY();
+    }
+
+    virtual Vector3 randomInteriorPoint() const {
+        return geometry;
     }
 
 };

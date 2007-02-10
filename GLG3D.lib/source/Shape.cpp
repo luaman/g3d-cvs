@@ -15,9 +15,9 @@ namespace G3D {
 
 std::string Shape::typeToString(Type t) {
     const static std::string name[] = 
-    {"NONE", "MESH", "BOX", "CYLINDER", "SPHERE", "RAY", "CAPSULE", "PLANE", "AXES"};
+    {"NONE", "MESH", "BOX", "CYLINDER", "SPHERE", "RAY", "CAPSULE", "PLANE", "AXES", "POINT"};
 
-    if (t <= AXES) {
+    if (t <= POINT) {
         return name[t];
     } else {
         return "";
@@ -228,6 +228,10 @@ void AxesShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 s
     rd->setObjectToWorldMatrix(cframe0);
 }
 
+void PointShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
+    (void)wireColor;
+    Draw::sphere(Sphere(geometry, 0.1f), rd, solidColor, Color4::clear());
+}
 
 void PlaneShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
     CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
