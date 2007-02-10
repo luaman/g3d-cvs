@@ -157,7 +157,15 @@ static int isFileGood(FILE* f) {
 
 FILE* createTempFile() {
     FILE* t = NULL;
-    t = tmpfile();
+
+#   ifdef G3D_WIN32
+        t = tmpfile();
+#   else
+        // On Unix, tmpfile generates a warning for any code that links against it.
+        char* tempfilename = "/tmp/g3dtemp.XXXXXXXX";
+        mktemp(tempfilename);
+        t = fopen(tempfilename, "w");    
+#   endif
 
 #	ifdef _WIN32
 		char* n = NULL;
