@@ -68,7 +68,7 @@ USE_WINDOWS_ENCODING   = NO
 # the file and class documentation (similar to JavaDoc). 
 # Set to NO to disable this.
 
-BRIEF_MEMBER_DESC      = YES
+BRIEF_MEMBER_DESC      = NO
 
 # If the REPEAT_BRIEF tag is set to YES (the default) Doxygen will prepend 
 # the brief description of a member or function before the detailed description. 
@@ -93,7 +93,7 @@ ABBREVIATE_BRIEF       =
 # Doxygen will generate a detailed section even if there is only a brief 
 # description.
 
-ALWAYS_DETAILED_SEC    = NO
+ALWAYS_DETAILED_SEC    = YES
 
 # If the INLINE_INHERITED_MEMB tag is set to YES, doxygen will show all 
 # inherited members of a class in the documentation of that class as if those 
@@ -106,7 +106,7 @@ INLINE_INHERITED_MEMB  = YES
 # path before files name in the file list and in the header files. If set 
 # to NO the shortest path that makes the file name unique will be used.
 
-FULL_PATH_NAMES        = YES
+FULL_PATH_NAMES        = NO
 
 # If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag 
 # can be used to strip a user-defined part of the path. Stripping is 
@@ -138,7 +138,7 @@ SHORT_NAMES            = NO
 # comments will behave just like the Qt-style comments (thus requiring an 
 # explicit @brief command for a brief description.
 
-JAVADOC_AUTOBRIEF      = NO
+JAVADOC_AUTOBRIEF      = YES
 
 # The MULTILINE_CPP_IS_BRIEF tag can be set to YES to make Doxygen 
 # treat a multi-line C++ special comment block (i.e. a block of //! or /// 
@@ -170,7 +170,7 @@ SEPARATE_MEMBER_PAGES  = NO
 # The TAB_SIZE tag can be used to set the number of spaces in a tab. 
 # Doxygen uses this value to replace tabs by spaces in code fragments.
 
-TAB_SIZE               = 8
+TAB_SIZE               = 4
 
 # This tag can be used to specify a number of aliases that acts 
 # as commands in the documentation. An alias has the form "name=value". 
@@ -207,7 +207,7 @@ OPTIMIZE_OUTPUT_JAVA   = NO
 # func(std::string) {}). This also make the inheritance and collaboration 
 # diagrams that involve STL classes more complete and accurate.
 
-BUILTIN_STL_SUPPORT    = NO
+BUILTIN_STL_SUPPORT    = YES
 
 # If member grouping is used in the documentation and the DISTRIBUTE_GROUP_DOC 
 # tag is set to YES, then doxygen will reuse the documentation of the first 
@@ -331,7 +331,7 @@ SORT_MEMBER_DOCS       = YES
 # by member name. If set to NO (the default) the members will appear in 
 # declaration order.
 
-SORT_BRIEF_DOCS        = NO
+SORT_BRIEF_DOCS        = YES
 
 # If the SORT_BY_SCOPE_NAME tag is set to YES, the class list will be 
 # sorted by fully-qualified names, including namespaces. If set to 
@@ -1004,14 +1004,14 @@ PERLMOD_MAKEVAR_PREFIX =
 # evaluate all C-preprocessor directives found in the sources and include 
 # files.
 
-ENABLE_PREPROCESSING   = NO
+ENABLE_PREPROCESSING   = YES
 
 # If the MACRO_EXPANSION tag is set to YES Doxygen will expand all macro 
 # names in the source code. If set to NO (the default) only conditional 
 # compilation will be performed. Macro expansion can be done in a controlled 
 # way by setting EXPAND_ONLY_PREDEF to YES.
 
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES 
 # then the macro expansion is limited to the macros specified with the 
@@ -1048,7 +1048,12 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = _DEBUG \
                          _WIN32 \
                          _x86 \
-                         _SSE
+                         _SSE \
+                         G3D_WIN32 \
+                         G3D_LINUX \
+                         G3D_OSX \
+                         G3D_FREEBSD \
+                         _DOXYGEN_RUNNING
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

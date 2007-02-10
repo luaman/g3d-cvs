@@ -8,7 +8,7 @@
 
 #include "G3D/platform.h"
 
-#ifndef G3D_WIN32
+#if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
 
 #include "G3D/Log.h"
 #include "G3D/Rect2D.h"

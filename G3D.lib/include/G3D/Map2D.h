@@ -178,7 +178,7 @@ namespace G3D {
   
   @author Morgan McGuire, morgan@cs.williams.edu
  */
-template< typename Storage, typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type > 
+template< typename Storage, typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type >
 class Map2D : public ReferenceCountedObject {
 
 //

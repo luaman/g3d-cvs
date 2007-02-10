@@ -30,7 +30,6 @@
     G3D::FirstPersonManipulator,
     G3D::GApp, 
     G3D::GApplet, 
-    G3D::GAppSettings,
     G3D::GConsole,
     G3D::GModule,
     G3D::GModuleManager
@@ -72,14 +71,11 @@
     G3D::glDisableAllTextures,
     G3D::glToScreen,
     G3D::Milestone,
-    G3D::ObjectShader,
     G3D::PixelProgram,
     G3D::Renderbuffer,
     G3D::RenderDevice,
-    G3D::RenderDeviceSettings,
     G3D::Texture,
     G3D::TextureFormat,
-    G3D::TextureManager,
     G3D::VAR,
     G3D::VARArea, 
     G3D::VertexProgram,
@@ -218,9 +214,8 @@
 		 G3D::linearSpline,
          G3D::sign,
 		 G3D::rsq,
-		 G3D::unitRandom,
-		 G3D::random,
-         G3D::symmetricRandom,
+		 G3D::uniformRandom,
+		 G3D::gaussRandom,
          G3D::min,
 		 G3D::max,
 		 G3D::square,
@@ -243,7 +238,6 @@
         G3D::beginsWith, 
         G3D::endsWith, 
         G3D::format,
-        G3D::isSpace,
         G3D::isSlash,
         G3D::isWhiteSpace,
         G3D::isDigit,
@@ -274,10 +268,7 @@
         G3D::ReferenceCountedPointer,
         G3D::WeakReferenceCountedPointer
 
-     <LI><B>Image formats</B> &nbsp; &nbsp;
-		G3D::computeNormalMap,
-        G3D::flipRGBVertical,
-        G3D::flipRGBAVertical,
+     <LI><B>Images</B> &nbsp; &nbsp;
 		G3D::GImage,
 		G3D::GImage::Error,	
 		G3D::Image3,
@@ -287,7 +278,6 @@
 		G3D::Map2D
         <BR>
     See also contrib code
-    <A HREF="../contrib/Image">Image</A>, 
     <A HREF="../contrib/Webcam">Webcam</A>, 
 
 
@@ -305,7 +295,9 @@
 
      <LI><B>System + Files</B> &nbsp; &nbsp;
         G3D::AtomicInt32,
-        G3D::BinaryFormat, G3D::byteSize, G3D::binaryFormatOf,
+        G3D::BinaryFormat, 
+        G3D::byteSize, 
+        G3D::binaryFormatOf,
         G3D::BinaryInput, 
         G3D::BinaryOutput, 
         G3D::copyFile, 
@@ -345,7 +337,6 @@
         G3D::LightweightConduit,
         G3D::NetAddress,
         G3D::NetListener,
-        G3D::NetMessage,
         G3D::NetworkDevice, 
         G3D::ReliableConduit
 <BR>
