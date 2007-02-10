@@ -428,6 +428,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\Doxyfile"
+			>
+		</File>
+		<File
 			RelativePath="..\doc-files\error.dox"
 			>
 		</File>
