@@ -42,8 +42,6 @@ public:
 	void serialize(class BinaryOutput& b) const;
 	void deserialize(class BinaryInput& b);
 
-    virtual ~Ray() {}
-
     /**
      Creates a Ray from a origin and a (nonzero) direction.
      */
