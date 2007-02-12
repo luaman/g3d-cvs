@@ -202,9 +202,6 @@ protected:
     /** Height, in pixels. */
     uint32              h;
 
-    /** The zero value.  Set by the constructor. */
-    Compute             ZERO;
-
     WrapMode            _wrapMode;
 
     /** 0 if no mutating method has been invoked 
@@ -268,7 +265,10 @@ protected:
         S[2] = s2;
         S[3] = s2 * s;
 
-        Compute sum = ZERO;
+        Compute sum;
+        // Zero out
+        sum = sum * 0;
+
         for (int c = 0; c < 4; ++c) {
             double coeff = 0.0;
             for (int power = 0; power < 4; ++power) {
@@ -282,9 +282,6 @@ protected:
 
     Map2D(int w, int h, WrapMode wrap) : _wrapMode(wrap), m_changed(1) {
         resize(w, h);
-
-        // Ensure that the zero value is actually zero.
-        ZERO = ZERO * 0.0; 
     }
 
 public:
