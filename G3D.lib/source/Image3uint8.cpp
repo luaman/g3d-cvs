@@ -18,7 +18,7 @@
 namespace G3D {
 
 Image3uint8::Image3uint8(int w, int h, WrapMode wrap) : Map2D<Color3uint8>(w, h, wrap) {
-    setAll(ZERO);
+    setAll(Color3::black());
 }
 
 

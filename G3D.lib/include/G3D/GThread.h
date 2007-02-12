@@ -88,10 +88,12 @@ public:
         return _name;
     }
 
+    /** Overriden by the thread implementor */
+    virtual void threadMain() = 0;
+
 protected:
     friend class _internal::GThreadPrivate;
 
-    virtual void threadMain() = 0;
 };
 
 

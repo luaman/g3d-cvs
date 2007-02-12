@@ -19,7 +19,7 @@
 namespace G3D {
 
 Image4::Image4(int w, int h, WrapMode wrap) : Map2D<Color4, Color4>(w, h, wrap) {
-    setAll(ZERO);
+    setAll(Color4::zero());
 }
 
 
