@@ -366,6 +366,14 @@ public:
         return get(p.x, p.y);
     }
 
+    inline Storage& get(int x, int y) {
+        return const_cast<Storage&>(const_cast<const Type*>(this)->get(x, y));
+    }
+
+    inline Storage& get(const Vector2int16& p) {
+        return get(p.x, p.y);
+    }
+
     inline void set(const Vector2int16& p, const Storage& v) {
         set(p.x, p.y, v);
     }
