@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-06-02
-  @edited  2005-08-23
+  @edited  2007-02-23
   Copyright 2000-2006, Morgan McGuire.
   All rights reserved.
  */
@@ -38,6 +38,7 @@ namespace G3D {
 class Vector2;    
 class Vector3;
 class Vector4;
+class Vector4int8;
 
 /**
   <B>Swizzles</B>
@@ -89,6 +90,9 @@ private:
 public:
     // construction
     Vector3();
+
+    /** Divides by 127 */
+    Vector3(const Vector4int8&);
     Vector3(class BinaryInput& b);
     Vector3(float _x, float _y, float _z);
     Vector3(const class Vector2& v, float _z);

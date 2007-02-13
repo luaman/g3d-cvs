@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
   
  @created 2001-07-09
- @edited  2003-09-29
+ @edited  2007-02-29
  */
 
 #include <stdlib.h>
@@ -15,8 +15,12 @@
 #include "G3D/stringutils.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/Vector4int8.h"
 
 namespace G3D {
+
+Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f), w(v.w / 127.0f) {
+}
 
 unsigned int Vector4::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));

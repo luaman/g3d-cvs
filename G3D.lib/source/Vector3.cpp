@@ -23,11 +23,14 @@
 #include "G3D/Vector3int16.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Vector2.h"
+#include "G3D/Vector4int8.h"
  
 namespace G3D {
 
 Vector3 Vector3::dummy;
 
+
+Vector3::Vector3(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f) {}
 
 Vector3::Vector3(const class Vector2& v, float _z) : x(v.x), y(v.y), z(_z) {
 }

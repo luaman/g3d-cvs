@@ -26,6 +26,7 @@ namespace G3D {
 class Vector2;    
 class Vector3;
 class Vector4;
+class Vector4int8;
 
 /**
  Do not subclass-- this implementation makes assumptions about the
@@ -49,6 +50,9 @@ public:
     Vector4(const Vector3& rkVector, float fW);
     Vector4(const Vector2& v1, const Vector2& v2);
     Vector4(const Vector2& v1, float fz, float fw);
+
+    /** Divides by 127 when converting */
+    Vector4(const Vector4int8&);
 
     Vector4(class BinaryInput& b);
     void serialize(class BinaryOutput& b) const;
