@@ -431,6 +431,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Vector4int8.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\WinMain.c"
 				>
 			</File>
@@ -661,6 +665,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\PointAABSPTree.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\prompt.h"
 				>
 			</File>
@@ -746,6 +754,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Vector4.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Vector4int8.h"
 				>
 			</File>
 			<File

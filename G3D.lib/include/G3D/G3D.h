@@ -85,6 +85,7 @@
 #include "G3D/GCamera.h"
 #include "G3D/GLight.h"
 #include "G3D/AABSPTree.h"
+#include "G3D/PointAABSPTree.h"
 #include "G3D/TextOutput.h"
 #include "G3D/MeshBuilder.h"
 #include "G3D/Stopwatch.h"
