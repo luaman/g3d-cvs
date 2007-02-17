@@ -17,8 +17,7 @@
 // This file is ignored on other platforms
 #ifdef G3D_WIN32
 
-#include <windows.h>
-#include "G3D/G3D.h"
+#include "G3D/Log.h"
 #include "GLG3D/Win32Window.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/UserInput.h"

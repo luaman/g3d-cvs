@@ -728,7 +728,7 @@ public:
     */
     void deleteAll() {
         for (int i = 0; i < num; i++) {
-            delete(data[i]);
+            delete data[i];
         }
         resize(0);
     }
