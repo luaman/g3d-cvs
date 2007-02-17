@@ -534,11 +534,15 @@ int main(int argc, char* argv[]) {
 
         measureRDPushPopPerformance(renderDevice);
 
-	getch();
+#       ifdef G3D_WIN32
+            // Pause so that we can see the values in the debugger
+	        getch();
+#       endif
 
 #   else
 
     printf("\n\nTests:\n\n");
+    testArray();
 
     testMatrix3();
 
@@ -569,8 +573,6 @@ int main(int argc, char* argv[]) {
 	// Don't run contrib tests until the new 7.00 build system is in place
     // testMatrix();
     // testGChunk();
-
-    testArray();
 
     testMeshAlgTangentSpace();
 

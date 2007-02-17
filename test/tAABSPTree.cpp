@@ -64,7 +64,10 @@ void perfAABSPTree() {
         tree.insert(box);
     }
 
+    RealTime t0 = System::time();
     tree.balance();
+    RealTime t1 = System::time();
+    printf("AABSPTree<AABox>::balance() time for %d boxes: %gs\n\n", NUM_POINTS, t1 - t0);
 
     uint64 bspcount = 0, arraycount = 0, boxcount = 0;
 

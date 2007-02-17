@@ -75,6 +75,100 @@ static void testSort() {
 }
 
 
+void testPartition() {
+
+    // Create some array
+    Array<int> array;
+    array.append(4, -2, 7, 1);
+    array.append(7, 13, 6, 8);
+    array.append(-7, 7);
+
+    Array<int> lt, gt, eq;
+
+    // Partition
+    int part = 7;
+    array.partition(part, lt, eq, gt);
+
+    // Ensure that the partition was correct
+    for (int i = 0; i < lt.size(); ++i) {
+        debugAssert(lt[i] < part);
+    }
+    for (int i = 0; i < gt.size(); ++i) {
+        debugAssert(gt[i] > part);
+    }
+    for (int i = 0; i < eq.size(); ++i) {
+        debugAssert(eq[i] == part);
+    }
+    
+    // Ensure that we didn't gain or lose elements
+    Array<int> all;
+    all.append(lt);
+    all.append(gt);
+    all.append(eq);
+
+    array.sort();
+    all.sort();
+    debugAssert(array.size() == all.size());
+    for (int i = 0; i < array.size(); ++i) {
+        debugAssert(array[i] == all[i]);
+    }
+}
+
+
+void testMedianPartition() {
+
+    // Create an array
+    Array<int> array;
+    array.append(1, 2, 3, 4);
+    array.append(5, 6, 7);
+    array.randomize();
+
+    Array<int> lt, gt, eq;
+
+    array.medianPartition(lt, eq, gt);
+
+    debugAssert(lt.size() == 3);
+    debugAssert(eq.size() == 1);
+    debugAssert(gt.size() == 3);
+
+    debugAssert(eq.first() == 4);
+    
+    // Ensure that we didn't gain or lose elements
+    Array<int> all;
+    all.append(lt);
+    all.append(gt);
+    all.append(eq);
+
+    array.sort();
+    all.sort();
+    debugAssert(array.size() == all.size());
+    for (int i = 0; i < array.size(); ++i) {
+        debugAssert(array[i] == all[i]);
+    }
+
+    // Test an even number of elements
+    array.fastClear();
+    array.append(1, 2, 3);
+    array.append(5, 6, 7);
+    array.randomize();
+    array.medianPartition(lt, eq, gt);
+    debugAssert(eq.first() == 3);
+    debugAssert(lt.size() == 2);
+    debugAssert(gt.size() == 3);
+
+    // Test with a repeated median element
+    array.fastClear();
+    array.append(1, 2, 4);
+    array.append(4, 4, 7);
+    array.randomize();
+    array.medianPartition(lt, eq, gt);
+    debugAssert(eq.size() == 3);
+    debugAssert(eq.first() == 4);
+    debugAssert(lt.size() == 2);
+    debugAssert(gt.size() == 1);
+}
+
+
 void perfArray() {
     printf("Array Performance:\n");
 
@@ -448,6 +542,8 @@ void perfArray() {
 
 void testArray() {
     printf("G3D::Array  ");
+    testPartition();
+    testMedianPartition();
     testSort();
     printf("passed\n");
 }

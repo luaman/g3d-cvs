@@ -865,15 +865,56 @@ public:
         std::sort(data + beginIndex, data + endIndex + 1, lessThan);
     }
 
+    /**
+     The StrictWeakOrdering can be either a class that overloads the function call operator() or
+     a function pointer of the form <code>bool (__cdecl *lessThan)(const T& elem1, const T& elem2)</code>
+     */
+    template<typename StrictWeakOrdering>
+    void sortSubArray(int beginIndex, int endIndex, StrictWeakOrdering& lessThan) {
+        std::sort(data + beginIndex, data + endIndex + 1, lessThan);
+    }
+
+    /** Uses < and == to evaluate operator(); this is the default comparator for Array::partition. */
+    class DefaultComparator {
+    public:
+        inline int operator()(const T& A, const T& B) const {
+            if (A < B) {
+                return 1;
+            } else if (A == B) {
+                return 0;
+            } else {
+                return -1;
+            }
+        }
+    };
 
     /** The output arrays are resized with fastClear() so that if they are already of the same size
-        as this array no memory is allocated during partitioning. */
-    void partition(const T& partitionElement, 
-                 Array<T>& ltArray,
-                 Array<T>& eqArray,
-                 Array<T>& gtArray,
-                // TODO: predicate
-                  ) {
+        as this array no memory is allocated during partitioning. 
+        
+        @param comparator A function, or class instance with an overloaded operator() that compares
+        two elements of type <code>T</code> and returns 0 if they are equal, -1 if the second is smaller,
+        and 1 if the first is smaller (i.e., following the conventions of std::string::compare).  For example:
+
+        <pre>
+        int compare(int A, int B) {
+            if (A < B) {
+                return 1;
+            } else if (A == B) {
+                return 0;
+            } else {
+                return -1;
+            }
+        }
+        </pre>
+        */
+    template<typename Comparator>
+    void partition(
+        const T& partitionElement, 
+        Array<T>& ltArray,
+        Array<T>& eqArray,
+        Array<T>& gtArray,
+        const Comparator& comparator) const {
+
         // Make sure all arrays are independent
         debugAssert(&ltArray != this);
         debugAssert(&eqArray != this);
@@ -886,9 +927,183 @@ public:
         ltArray.fastClear();
         eqArray.fastClear();
         gtArray.fastClear();
+
+        // Form a table of buckets for lt, eq, and gt
+        Array<T>* bucket[3] = {&ltArray, &eqArray, &gtArray};
+
+        for (int i = 0; i < num; ++i) {
+            int c = comparator(partitionElement, data[i]);
+            debugAssertM(c >= -1 && c <= 1, "Comparator returned an illegal value.");
+
+            // Insert into the correct bucket, 0, 1, or 2
+            bucket[c + 1]->append(data[i]);
+        }
     }
 
-   
+    /**
+      Uses < and == on elements to perform a partition.  See partition().
+     */
+    void partition(
+        const T& partitionElement, 
+        Array<T>& ltArray,
+        Array<T>& eqArray,
+        Array<T>& gtArray) const {
+
+        partition(partitionElement, ltArray, eqArray, gtArray, Array<T>::DefaultComparator());
+    }
+
+    /** 
+     Paritions the array into those below the median, those above the median, and those elements
+     equal to the median in expected O(n) time using quickselect.  If the array has an even
+     number of different elements, the median for partition purposes is the largest value less 
+     than the median.
+
+     @param tempArray used for working scratch space
+     @param comparator see parition() for a discussion.*/
+    template<typename Comparator>
+    void medianPartition(
+        Array<T>&           ltMedian, 
+        Array<T>&           eqMedian, 
+        Array<T>&           gtMedian,
+        Array<T>&           tempArray,
+        const Comparator&   comparator) const {
+
+        ltMedian.fastClear();
+        eqMedian.fastClear();
+        gtMedian.fastClear();
+
+        // Handle trivial cases first
+        switch (size()) {
+        case 0:
+            // Array is empty; no parition is possible
+            return;
+
+        case 1:
+            // One element
+            eqMedian.append(first());
+            return;
+
+        case 2:
+            {
+                // Two element array; median is the smaller
+                int c = comparator(first(), last());
+                
+                switch (c) {
+                case -1:
+                    // first was bigger
+                    eqMedian.append(last());
+                    gtMedian.append(first());
+                    break;
+
+                case 0:
+                    // Both equal to the median
+                    eqMedian.append(first(), last());
+                    break;
+
+                case 1:
+                    // Last was bigger
+                    eqMedian.append(first());
+                    gtMedian.append(last());
+                    break;
+                }
+            }
+            return;
+        }
+
+        // All other cases use a recursive randomized median
+
+        // Number of values less than all in the current arrays        
+        int ltBoost = 0;
+
+        // Number of values greater than all in the current arrays        
+        int gtBoost = 0;
+
+        int medianIndex = middleIndex();
+        const T* xPtr = NULL;
+
+        // Maintain pointers to the arrays; we'll switch these around during sorting
+        // to avoid copies.
+        const Array<T>* source = this;
+        Array<T>* lt     = &ltMedian;
+        Array<T>* eq     = &eqMedian;
+        Array<T>* gt     = &gtMedian;
+        Array<T>* extra  = &tempArray;
+
+        while (true) {
+            // Choose a random element -- choose the middle element; this is theoretically
+            // suboptimal, but for loosly sorted array is actually the best strategy
+
+            xPtr = &(source->middle());
+            if (source->size() == 1) {
+                // Done; there's only one element left
+                break;
+            }
+            const T& x = *xPtr;
+
+            // Note: partition (fast) clears the arrays for us
+            source->partition(x, *lt, *eq, *gt, comparator);
+
+            // This comparision favors the lower side; it makes the median the smallest value
+            // less than or equal to the median.
+            if ((lt->size() + ltBoost + eq->size() >= medianIndex) &&
+                (gt->size() + gtBoost + eq->size() > medianIndex)) {
+
+                // x must be the partition median                    
+                break;
+
+            } else if (lt->size() + ltBoost < medianIndex) {
+
+                // x must be smaller than the median.  Recurse into the 'gt' array.
+                ltBoost += lt->size() + eq->size();
+
+                // The new gt array will be the old source array, unless
+                // that was the this pointer (i.e., unless we are on the 
+                // first iteration)
+                Array<T>* newGt = (source == this) ? extra : const_cast<Array<T>*>(source);
+                
+                // Now set up the gt array as the new source
+                source = gt;
+                gt = newGt;
+
+            } else {
+
+                // x must be bigger than the median.  Recurse into the 'lt' array.
+                gtBoost += gt->size() + eq->size();
+
+                // The new lt array will be the old source array, unless
+                // that was the this pointer (i.e., unless we are on the 
+                // first iteration)
+                Array<T>* newLt = (source == this) ? extra : const_cast<Array<T>*>(source);
+                
+                // Now set up the lt array as the new source
+                source = lt;
+                lt = newLt;
+            }
+        }
+
+        // Now that we know the median, make a copy of it (since we're about to destroy the array that it
+        // points into).
+        T median = *xPtr;
+        xPtr = NULL;
+
+        // Partition the original array (note that this fast clears for us)
+        partition(median, ltMedian, eqMedian, gtMedian, comparator);
+    }
+
+    /**
+      Computes a median partition using the default comparator and a dynamically allocated temporary 
+      working array.  If the median is not in the array, it is chosen to be the largest value smaller
+      than the true median.
+     */
+    void medianPartition(
+        Array<T>&           ltMedian, 
+        Array<T>&           eqMedian, 
+        Array<T>&           gtMedian) const {
+
+        Array<T> temp;
+        medianPartition(ltMedian, eqMedian, gtMedian, temp, DefaultComparator());
+    }
+
 
     /** Redistributes the elements so that the new order is statistically independent
         of the original order. O(n) time.*/
@@ -903,6 +1118,7 @@ public:
             data[x] = temp;
         }
     }
+
 
 };
 
