@@ -318,6 +318,11 @@ public:
       resize(n, true);
    }
 
+   /** Resizes without shrinking the underlying array */
+   void fastResize(int n) {
+      resize(n, false);
+   }
+
 
    /**
     Inserts at the specified index and shifts all other elements up by one.
@@ -332,7 +337,9 @@ public:
        data[n] = value;
    }
 
-
+    /** @param shrinkIfNecessary if false, memory will never be
+      reallocated when the array shrinks.  This makes resizing much
+      faster but can waste memory. */
    void resize(int n, bool shrinkIfNecessary) {
       int oldNum = num;
       num = n;
@@ -585,16 +592,17 @@ public:
    }
 
    /**
-    Removes the last element and returns it.
+    Removes the last element and returns it.  By default, shrinks the underlying array.
     */
-   inline T pop(bool shrinkUnderlyingArrayIfNecessary = false) {
+   inline T pop(bool shrinkUnderlyingArrayIfNecessary = true) {
        debugAssert(num > 0);
        T temp = data[num - 1];
        resize(num - 1, shrinkUnderlyingArrayIfNecessary);
        return temp;
    }
 
-   /** Pops the last element and discards it.  Faster than pop.*/
+   /** Pops the last element and discards it without returning anything.  Faster than pop.
+      By default, does not shrink the underlying array.*/
    inline void popDiscard(bool shrinkUnderlyingArrayIfNecessary = false) {
        debugAssert(num > 0);
        resize(num - 1, shrinkUnderlyingArrayIfNecessary);
@@ -603,9 +611,7 @@ public:
 
    /**
     "The member function swaps the controlled sequences between *this and str."
-
-    This is slower than the optimal std implementation; please post on the G3D user's forum
-    if you need a fast version.
+    Note that this is slower than the optimal std implementation.
 
     For compatibility with std::vector.
     */
@@ -620,14 +626,14 @@ public:
     Performs bounds checks in debug mode
     */
    inline T& operator[](int n) {
-      debugAssert((n >= 0) && (n < num));
-	  debugAssert(data!=NULL);
-      return data[n];
+        debugAssert((n >= 0) && (n < num));
+	    debugAssert(data!=NULL);
+        return data[n];
    }
 
    inline T& operator[](unsigned int n) {
-      debugAssert(((int)n < num));
-      return data[n];
+        debugAssert(((int)n < num));
+        return data[n];
    }
 
    /**
@@ -667,13 +673,56 @@ public:
         return data[num - 1];
     }
 
+    /** Returns element lastIndex() */
     inline T& last() {
         debugAssert(num > 0);
         debugAssert(data!=NULL);
         return data[num - 1];
     }
 
-   /**
+    /** Returns <i>size() - 1</i> */
+    inline int lastIndex() const {
+        debugAssertM(num > 0, "Array is empty");
+        return num - 1;
+    }
+
+    inline int firstIndex() const {
+        debugAssertM(num > 0, "Array is empty");
+        return 0;
+    }
+
+    /** Returns element firstIndex(), performing a check in debug mode to ensure that there is at least one */
+    inline T& first() {
+        debugAssertM(num > 0, "Array is empty");
+        return data[0];
+    }
+
+    inline const T& first() const {
+        debugAssertM(num > 0, "Array is empty");
+        return data[0];
+    }
+
+    /** Returns iFloor(size() / 2), throws an assertion in debug mode if the array is empty */
+    inline int middleIndex() const {
+        debugAssertM(num > 0, "Array is empty");
+        return num >> 1;
+    }
+
+    /** Returns element middleIndex() */
+    inline const T& middle() const {
+        debugAssertM(num > 0, "Array is empty");
+        return data[num >> 1];   
+    }
+
+    /** Returns element middleIndex() */
+    inline T& middle() {
+        debugAssertM(num > 0, "Array is empty");
+        return data[num >> 1];   
+    }
+
+    
+
+    /**
     Calls delete on all objects[0...size-1]
     and sets the size to zero.
     */
@@ -793,7 +842,7 @@ public:
         }
      </code>
      */
-    void sort(int direction=SORT_INCREASING) {
+    void sort(int direction = SORT_INCREASING) {
         if (direction == SORT_INCREASING) {
             std::sort(data, data + num);
         } else {
@@ -804,7 +853,7 @@ public:
     /**
      Sorts elements beginIndex through and including endIndex.
      */
-    void sortSubArray(int beginIndex, int endIndex, int direction=SORT_INCREASING) {
+    void sortSubArray(int beginIndex, int endIndex, int direction = SORT_INCREASING) {
         if (direction == SORT_INCREASING) {
             std::sort(data + beginIndex, data + endIndex + 1);
         } else {
@@ -815,6 +864,31 @@ public:
     void sortSubArray(int beginIndex, int endIndex, bool (__cdecl *lessThan)(const T& elem1, const T& elem2)) {
         std::sort(data + beginIndex, data + endIndex + 1, lessThan);
     }
+
+
+    /** The output arrays are resized with fastClear() so that if they are already of the same size
+        as this array no memory is allocated during partitioning. */
+    void partition(const T& partitionElement, 
+                 Array<T>& ltArray,
+                 Array<T>& eqArray,
+                 Array<T>& gtArray,
+                // TODO: predicate
+                  ) {
+        // Make sure all arrays are independent
+        debugAssert(&ltArray != this);
+        debugAssert(&eqArray != this);
+        debugAssert(&gtArray != this);
+        debugAssert(&ltArray != &eqArray);
+        debugAssert(&ltArray != &gtArray);
+        debugAssert(&eqArray != &gtArray);
+
+        // Clear the arrays
+        ltArray.fastClear();
+        eqArray.fastClear();
+        gtArray.fastClear();
+    }
+
+   
 
     /** Redistributes the elements so that the new order is statistically independent
         of the original order. O(n) time.*/
