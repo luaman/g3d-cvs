@@ -667,9 +667,9 @@ public:
      Throws out all elements of the set.
      */
     void clear() {
+        typedef typename Table<_internal::Indirector<Handle>, Node*>::Iterator It;
+  
         // Delete all handles stored in the member table
-        typedef MemberTable::Iterator It;
-        
         It cur = memberTable.begin();
         It end = memberTable.end();
         while (cur != end) {
@@ -677,7 +677,6 @@ public:
             cur->key.handle = NULL;
             ++cur;
         }
-
         memberTable.clear();
 
         // Delete the tree structure itself
@@ -870,7 +869,8 @@ public:
         Array<Handle*> temp;
         // Make a new root.  Work with a copy of the value array because 
         // makeNode clears the source array as it progresses
-        root = makeNode(Array<Handle*>(oldRoot->valueArray), valuesPerNode, numMeanSplits, temp);
+        Array<Handle*> copy(oldRoot->valueArray);
+        root = makeNode(copy, valuesPerNode, numMeanSplits, temp);
 
         // Throw away the old root node
         delete oldRoot;

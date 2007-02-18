@@ -145,7 +145,7 @@ protected:
         Vector3 hi = lo;
 
         for (int p = beginIndex; p <= endIndex; ++p) {
-            const Vector3& pt = point[i].position();
+            const Vector3& pt = point[p].position();
             lo = lo.min(pt);
             hi = hi.max(pt);
         }
