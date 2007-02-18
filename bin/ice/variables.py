@@ -219,11 +219,18 @@ class State:
     # Location of the user configuration (.icompile) file, including the filename
     # Defaults to $HOME/.icompile
     def preferenceFile(self):
+    
         if ('--config' in self.args):
-            for i in xrange(1, len(self.args)):
+            for i in xrange(0, len(self.args) - 1):
                 if (self.args[i] == '--config'):
                     if i < len(self.args) - 1:
-                        return self.args[i + 1]
+                        pref = self.args[i + 1]
+                        if not os.path.exists(pref):
+                            colorPrint("ERROR: Config file '" + pref + "' does not exist.", ERROR_COLOR)
+                            sys.exit(-200)
+                        else:
+                            return pref
+                        
         # Otherwise, fall through
 
         HOME = os.environ['HOME']
