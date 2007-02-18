@@ -4,9 +4,9 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2004-01-11
-  @edited  2005-02-24
+  @edited  2007-02-16
 
-  Copyright 2000-2005, Morgan McGuire.
+  Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
   
   */
@@ -75,7 +75,43 @@ inline void getBounds(const G3D::Box* b, G3D::AABox& out) {
 inline void getBounds(const G3D::Triangle* t, G3D::AABox& out) {
     t->getBounds(out);
 }
+namespace G3D {
+    namespace _internal {
 
+    /**
+     Wraps a pointer value so that it can be treated as the instance itself;
+     convenient for inserting pointers into a Table but using the 
+     object equality instead of pointer equality.
+    */
+    template<class Type>
+    class Indirector {
+    public:
+        Type*         handle;
+
+        inline Indirector(Type* h) : handle(h) {}
+
+        inline Indirector() : handle(NULL) {}
+
+        /** Returns true iff the values referenced by the handles are equivalent. */
+        inline bool operator==(const Indirector& m) {
+            return *handle == *(m.handle);
+        }
+
+        inline bool operator==(const Type& m) {
+            return *handle == m;
+        }
+
+        inline uint32 hashCode() const {
+            return handle->hashCode();
+        }
+    };
+    }
+}
+
+template<class Handle>
+inline unsigned int hashCode(const G3D::_internal::Indirector<Handle>& m) {
+    return m.hashCode();
+}
 
 namespace G3D {
 
@@ -138,13 +174,16 @@ namespace G3D {
 
 */
 template<class T> class AABSPTree {
-private:
+protected:
 
-    /** Wrapper for a value that includes a cache of its bounds. */
+    /** Wrapper for a value that includes a cache of its bounds. 
+        Except for the test value used in a set-query operation, there
+        is only ever one instance of the handle associated with any 
+        value and the memberTable and Nodes maintain pointers to that
+        heap-allocated value.
+     */
     class Handle {
     public:
-        T                   value;
-
         /** The bounds of each object are constrained to AABox::maxFinite */
         AABox               bounds;
 
@@ -154,6 +193,8 @@ private:
             a floating point roundoff issue, where B<A and A<B both are true).*/
         Vector3             center;
 
+        T                   value;
+
         Handle() {}
 
         inline Handle(const T& v) : value(v) {
@@ -161,11 +202,19 @@ private:
             bounds = bounds.intersect(AABox::maxFinite());
             center = bounds.center();
         }
+
+        inline bool operator==(const Handle& other) const {
+            return value.operator==(other.value);
+        }
+
+        inline uint32 hashCode() const {
+            return value.hashCode();
+        }
     };
 
     /** Returns the bounds of the sub array. Used by makeNode. */
     static AABox computeBounds(
-        const Array<Handle>&  point, 
+        const Array<Handle*>& point, 
         int                   beginIndex,
         int                   endIndex) {
     
@@ -173,8 +222,8 @@ private:
         Vector3 hi = -lo;
 
         for (int p = beginIndex; p <= endIndex; ++p) {
-            lo = lo.min(point[p].bounds.low());
-            hi = hi.max(point[p].bounds.high());
+            lo = lo.min(point[p]->bounds.low());
+            hi = hi.max(point[p]->bounds.high());
         }
 
         return AABox(lo, hi);
@@ -194,8 +243,8 @@ private:
 
         CenterLT(Vector3::Axis a) : sortAxis(a) {}
 
-        inline bool operator()(const Handle& a, const Handle& b) const {
-            return a.center[sortAxis] < b.center[sortAxis];
+        inline bool operator()(const Handle* a, const Handle* b) const {
+            return a->center[sortAxis] < b->center[sortAxis];
         }
     };
 
@@ -229,9 +278,9 @@ private:
 		    }
 	    }
 
-	    inline bool operator()(const Handle&a, const Handle& b) const {
-		    const AABox& A = a.bounds;
-		    const AABox& B = b.bounds;
+	    inline bool operator()(const Handle* a, const Handle* b) const {
+		    const AABox& A = a->bounds;
+		    const AABox& B = b->bounds;
 
 		    return location(A) < location(B);
 	    }
@@ -260,10 +309,23 @@ private:
         */
         Node*               child[2];
 
-        /** Array of values at this node (i.e. values
+        /** Array of values at this node (i.e., values
             straddling the split plane + all values if
-            this is a leaf node). */
-        Array<Handle>       valueArray;
+            this is a leaf node). 
+
+            This is an array of pointers because that minimizes
+            data movement during tree building, which accounts 
+            for about 25% of the cost of tree building.
+          */
+        Array<Handle*>      valueArray;
+
+        /** For each object in the value array, a copy of its bounds. 
+            Packing these into an array at the node level
+            instead putting them in the valueArray improves
+            cache coherence, which is about a 3x performance
+            increase when performing intersection computations.
+          */
+        Array<AABox>        boundsArray;
 
         /** Creates node with NULL children */
         Node() {
@@ -278,7 +340,7 @@ private:
         /**
          Doesn't clone children.
          */
-        Node(const Node& other) : valueArray(other.valueArray) {
+        Node(const Node& other) : valueArray(other.valueArray), boundsArray(other.boundsArray) {
             splitAxis       = other.splitAxis;
             splitLocation   = other.splitLocation;
             splitBounds     = other.splitBounds;            
@@ -289,7 +351,7 @@ private:
 
         /** Copies the specified subarray of pt into point, NULLs the children.
             Assumes a second pass will set splitBounds. */
-        Node(const Array<Handle>& pt, int beginIndex, int endIndex) {
+        Node(const Array<Handle*>& pt, int beginIndex, int endIndex) {
             splitAxis     = Vector3::X_AXIS;
             splitLocation = 0;
             for (int i = 0; i < 2; ++i) {
@@ -299,11 +361,12 @@ private:
             int n = endIndex - beginIndex + 1;
 
             valueArray.resize(n);
+            boundsArray.resize(n);
             for (int i = n - 1; i >= 0; --i) {
                 valueArray[i] = pt[i + beginIndex];
+                boundsArray[i] = valueArray[i]->bounds;
             }
         }
-
 
         /** Deletes the children (but not the values) */
         ~Node() {
@@ -311,7 +374,6 @@ private:
                 delete child[i];
             }
         }
-
 
         /** Returns true if this node is a leaf (no children) */
         inline bool isLeaf() const {
@@ -323,7 +385,7 @@ private:
          Recursively appends all handles and children's handles
          to the array.
          */
-        void getHandles(Array<Handle>& handleArray) const {
+        void getHandles(Array<Handle*>& handleArray) const {
             handleArray.append(valueArray);
             for (int i = 0; i < 2; ++i) {
                 if (child[i] != NULL) {
@@ -341,7 +403,8 @@ private:
             debugAssert(hi == splitBounds.high());
 
 		    for (int i = 0; i < valueArray.length(); ++i) {
-			    const AABox& b = valueArray[i].bounds;
+			    const AABox& b = valueArray[i]->bounds;
+                debugAssert(b == boundsArray[i]);
 
 			    for(int axis = 0; axis < 3; ++axis) {
 				    debugAssert(b.low()[axis] <= b.high()[axis]);
@@ -432,17 +495,23 @@ private:
             If useSphere is true, members that pass the box test
             face a second test against the sphere. */
         void getIntersectingMembers(
-            const AABox&        box, 
+            const AABox&        box,
             const Sphere&       sphere,
             Array<T>&           members,
             bool                useSphere) const {
 
             // Test all values at this node
-            for (int v = 0; v < valueArray.size(); ++v) {
-                const AABox& bounds = valueArray[v].bounds;
+            for (int v = 0; v < boundsArray.size(); ++v) {
+                /*
+                const AABox& bounds = valueArray[v]->bounds;
                 if (bounds.intersects(box) &&
                     (! useSphere || bounds.intersects(sphere))) {
-                    members.append(valueArray[v].value);
+                    members.append(valueArray[v]->value);
+                }*/
+                const AABox& bounds = boundsArray[v];
+                if (bounds.intersects(box) &&
+                    (! useSphere || bounds.intersects(sphere))) {
+                    members.append(valueArray[v]->value);
                 }
             }
 
@@ -481,9 +550,12 @@ private:
 
      Call assignSplitBounds() on the root node after making a tree.
      */
-    Node* makeNode(Array<Handle>& point, int beginIndex, 
-                   int endIndex, int valuesPerNode, 
-                   int numMeanSplits)  {
+    Node* makeNode(
+        Array<Handle*>& point, 
+        int beginIndex, 
+        int endIndex, 
+        int valuesPerNode, 
+        int numMeanSplits)  {
 
 	    Node* node = NULL;
 	    
@@ -493,7 +565,7 @@ private:
 		    
 		    // Set the pointers in the memberTable
 		    for (int i = beginIndex; i <= endIndex; ++i) {
-			    memberTable.set(point[i].value, node);
+			    memberTable.set(Member(point[i]), node);
 		    }
 		    
         } else {
@@ -528,9 +600,9 @@ private:
 		        
 		        // Choose the split location between the two middle elements
 		        const Vector3 median = 
-			        (point[midIndex].bounds.high() +
+			        (point[midIndex]->bounds.high() +
 			         point[iMin(midIndex + 1, 
-                                point.size() - 1)].bounds.low()) * 0.5;
+                                point.size() - 1)]->bounds.low()) * 0.5;
 
                 splitLocation = median[splitAxis];
             }
@@ -550,20 +622,23 @@ private:
 		    
 		    for (overlapBeginIndex = beginIndex;
 			 (overlapBeginIndex <= endIndex) &&
-				 (point[overlapBeginIndex].bounds.high()[splitAxis] <
+				 (point[overlapBeginIndex]->bounds.high()[splitAxis] <
 				  splitLocation);
-		         ++overlapBeginIndex) {}
+		         ++overlapBeginIndex) {
+            }
 		    
 		    for (overlapEndIndex = endIndex;
 		         (overlapEndIndex >= beginIndex) &&
-			         (point[overlapEndIndex].bounds.low()[splitAxis] >
+			         (point[overlapEndIndex]->bounds.low()[splitAxis] >
 				  splitLocation);
-			 --overlapEndIndex) {}
+			     --overlapEndIndex) {
+             }
 		    
 		    // put overlapping boxes in this node
 		    for (int i = overlapBeginIndex; i <= overlapEndIndex; ++i) {
 			    node->valueArray.push(point[i]);
-			    memberTable.set(point[i].value, node);
+                node->boundsArray.push(node->valueArray.last()->bounds);
+			    memberTable.set(Member(point[i]), node);
 		    }
 		    
 		    node->splitAxis     = splitAxis;
@@ -595,7 +670,7 @@ private:
 
         // Make back pointers
         for (int i = 0; i < dst->valueArray.size(); ++i) {
-            memberTable.set(dst->valueArray[i].value, dst);
+            memberTable.set(Member(dst->valueArray[i]), dst);
         }
 
         // Clone children
@@ -608,8 +683,16 @@ private:
         return dst;
     }
 
+   /**
+    Wrapper for a Handle; used to create a memberTable that acts like Table<Handle, Node*> but
+        stores only Handle* internally to avoid memory copies.
+        */
+    typedef _internal::Indirector<Handle> Member;
+
+    typedef Table<Member, Node*> MemberTable;
+
     /** Maps members to the node containing them */
-    Table<T, Node*>         memberTable;
+    MemberTable             memberTable;
 
     Node*                   root;
 
@@ -640,7 +723,20 @@ public:
      Throws out all elements of the set.
      */
     void clear() {
+        // Delete all handles stored in the member table
+        typedef MemberTable::Iterator It;
+        
+        It cur = memberTable.begin();
+        It end = memberTable.end();
+        while (cur != end) {
+            delete cur->key.handle;
+            cur->key.handle = NULL;
+            ++cur;
+        }
+
         memberTable.clear();
+
+        // Delete the tree structure itself
         delete root;
         root = NULL;
     }
@@ -660,20 +756,22 @@ public:
             return;
         }
 
-        Handle h(value);
+        Handle* h = new Handle(value);
 
         if (root == NULL) {
             // This is the first node; create a root node
             root = new Node();
         }
 
-        Node* node = root->findDeepestContainingNode(h.bounds);
+        Node* node = root->findDeepestContainingNode(h->bounds);
 
         // Insert into the node
         node->valueArray.append(h);
+        node->boundsArray.append(h->bounds);
         
         // Insert into the node table
-        memberTable.set(value, node);
+        Member m(h);
+        memberTable.set(m, node);
     }
 
     /** Inserts each elements in the array in turn.  If the tree
@@ -687,13 +785,18 @@ public:
             // as we incrementally insert.
             root = new Node();
             root->valueArray.resize(valueArray.size());
+            root->boundsArray.resize(root->valueArray.size());
             for (int i = 0; i < valueArray.size(); ++i) {
                 // Insert in opposite order so that we have the exact same
                 // data structure as if we inserted each (i.e., order is reversed
                 // from array).
-                root->valueArray[valueArray.size() - i - 1] = Handle(valueArray[i]);
-                memberTable.set(valueArray[i], root);
+                Handle* h = new Handle(valueArray[i]);
+                int j = valueArray.size() - i - 1;
+                root->valueArray[j] = h;
+                root->boundsArray[j] = h->bounds;
+                memberTable.set(Member(h), root);
             }
+
         } else {
             // Insert at appropriate tree depth.
             for (int i = 0; i < valueArray.size(); ++i) {
@@ -708,7 +811,9 @@ public:
      returns false.  O(1) time.
      */
     bool contains(const T& value) {
-        return memberTable.containsKey(value);
+        // Temporarily create a handle and member
+        Handle h(value);
+        return memberTable.containsKey(Member(&h));
     }
 
 
@@ -727,16 +832,36 @@ public:
             "Tried to remove an element from a "
             "AABSPTree that was not present");
 
-        Array<Handle>& list = memberTable[value]->valueArray;
+        // Get the list of elements at the node
+        Handle h(value);
+        Member m(&h);
+
+        Array<Handle*>& list = memberTable[m]->valueArray;
+
+        Handle* ptr = NULL;
 
         // Find the element and remove it
         for (int i = list.length() - 1; i >= 0; --i) {
-            if (list[i].value == value) {
+            if (list[i]->value == value) {
+                // This was the element.  Grab the pointer so that
+                // we can delete it below
+                ptr = list[i];
+
+                // Remove the handle from the node
                 list.fastRemove(i);
+
+                // Remove the corresponding bounds
+                memberTable[m]->boundsArray.fastRemove(i);
                 break;
             }
         }
-        memberTable.remove(value);
+
+        // Remove the member
+        memberTable.remove(m);
+
+        // Delete the handle data structure
+        delete ptr;
+        ptr = NULL;
     }
 
 
@@ -786,25 +911,37 @@ public:
             return;
         }
 
-        Array<Handle> handleArray;
-        root->getHandles(handleArray);
+        // Get all handles and delete the old tree structure
+        Node* oldRoot = root;
+        for (int c = 0; c < 2; ++c) {
+            if (root->child[c] != NULL) {
+                root->child[c]->getHandles(root->valueArray);
 
-        // Delete the old tree
-        clear();
+                // Delete the child; this will delete all structure below it
+                delete root->child[c];
+                root->child[c] = NULL;
+            }
+        }
 
-        root = makeNode(handleArray, 0, handleArray.size() - 1, 
+        // make a new root
+        root = makeNode(oldRoot->valueArray, 0, oldRoot->valueArray.size() - 1, 
             valuesPerNode, numMeanSplits);
 
+        // Throw away the old root node
+        delete oldRoot;
+        oldRoot = NULL;
+
         // Walk the tree, assigning splitBounds.  We start with unbounded
-        // space.
+        // space.  This will override the current member table.
         root->assignSplitBounds(AABox::maxFinite());
 
-        #ifdef _DEBUG
-        root->verifyNode(Vector3::minFinite(), Vector3::maxFinite());
-        #endif
+#       ifdef _DEBUG
+            // Ensure that the balanced tree is till correct
+            root->verifyNode(Vector3::minFinite(), Vector3::maxFinite());
+#       endif
     }
 
-private:
+protected:
 
     /**
      @param parentMask The mask that this node returned from culledBy.
@@ -820,7 +957,7 @@ private:
         if (parentMask == 0) {
             // None of these planes can cull anything
             for (int v = node->valueArray.size() - 1; v >= 0; --v) {
-                members.append(node->valueArray[v].value);
+                members.append(node->valueArray[v]->value);
             }
 
             // Iterate through child nodes
@@ -832,9 +969,9 @@ private:
         } else {
 
             // Test values at this node against remaining planes
-            for (int v = node->valueArray.size() - 1; v >= 0; --v) {
-                if (! node->valueArray[v].bounds.culledBy(plane, dummy, parentMask)) {
-                    members.append(node->valueArray[v].value);
+            for (int v = node->boundsArray.size() - 1; v >= 0; --v) {
+                if (! node->boundsArray[v].culledBy(plane, dummy, parentMask)) {
+                    members.append(node->valueArray[v]->value);
                 }
             }
 
@@ -1013,7 +1150,7 @@ public:
 
 				// Search for the next intersection at this node until we run out of children
 				while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
-					if (box.intersects(node->valueArray[nextValueArrayIndex].bounds)) {
+					if (box.intersects(node->boundsArray[nextValueArrayIndex])) {
 						foundIntersection = true;
 					} else {
 						++nextValueArrayIndex;
@@ -1026,34 +1163,38 @@ public:
             return *this;
         }
 
+    private:
         /**
-         Post increment (much slower than preincrement!).
+         Post increment (much slower than preincrement!).  Intentionally overloaded to preclude accidentally slow code.
          */
-        BoxIntersectionIterator operator++(int) {
+        BoxIntersectionIterator operator++(int);
+        /*{
             BoxIntersectionIterator old = *this;
             ++this;
             return old;
-        }
+        }*/
+
+    public:
 
         /** Overloaded dereference operator so the iterator can masquerade as a pointer
             to a member */
         const T& operator*() const {
             alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-            return node->valueArray[nextValueArrayIndex].value;
+            return node->valueArray[nextValueArrayIndex]->value;
         }
 
         /** Overloaded dereference operator so the iterator can masquerade as a pointer
             to a member */
         T const * operator->() const {
             alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-            return &(stack.last()->valueArray[nextValueArrayIndex].value);
+            return &(stack.last()->valueArray[nextValueArrayIndex]->value);
         }
 
         /** Overloaded cast operator so the iterator can masquerade as a pointer
             to a member */
         operator T*() const {
             alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-            return &(stack.last()->valueArray[nextValueArrayIndex].value);
+            return &(stack.last()->valueArray[nextValueArrayIndex]->value);
         }
     };
 
@@ -1372,7 +1513,7 @@ public:
                         if (
                             CollisionDetection::collisionLocationForMovingPointFixedAABox(
                                 ray.origin, ray.direction,
-                                s->node->valueArray[s->valIndex].bounds,
+                                s->node->boundsArray[s->valIndex],
                                 location)) {
                             // Optimization: store t-squared 
                             t2 = (location - ray.origin).squaredLength();
@@ -1380,7 +1521,7 @@ public:
                             t2 = inf();
                         }
 
-				        //t = ray.intersectionTime(s->node->valueArray[s->valIndex].bounds);
+				        //t = ray.intersectionTime(s->node->boundsArray[s->valIndex]);
 				        s->intersectionCache[s->valIndex] = t2;
 				        ++debugCounter;
 			        } else {
@@ -1408,21 +1549,21 @@ public:
 		to a member */
 	    const T& operator*() const {
 		    alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-		    return stack[stackIndex].node->valueArray[stack[stackIndex].valIndex].value;
+		    return stack[stackIndex].node->valueArray[stack[stackIndex].valIndex]->value;
 	    }
 	    
 	    /** Overloaded dereference operator so the iterator can masquerade as a pointer
 		to a member */
 	    T const * operator->() const {
 		    alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-		    return &(stack[stackIndex].node->valueArray[stack[stackIndex].valIndex].value);
+		    return &(stack[stackIndex].node->valueArray[stack[stackIndex].valIndex]->value);
 	    }
 	    
 	    /** Overloaded cast operator so the iterator can masquerade as a pointer
 		to a member */
 	    operator T*() const {
 		    alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-		    return &(stack[stackIndex].node->valueArray[stack[stackIndex].valIndex].value);
+		    return &(stack[stackIndex].node->valueArray[stack[stackIndex].valIndex]->value);
 	    }
 	    
     };
@@ -1529,6 +1670,7 @@ public:
 		return RayIntersectionIterator(ray, root, skipAABoxTests);
 	}
 	
+
 	RayIntersectionIterator endRayIntersection() const {
 		return RayIntersectionIterator();
 	}
@@ -1553,11 +1695,12 @@ public:
 
         // Note: this is a Table iterator, we are currently defining
         // Set iterator
-        typename Table<T, Node*>::Iterator it;
+        typename Table<Member, Node*>::Iterator it;
 
-        Iterator(const typename Table<T, Node*>::Iterator& it) : it(it) {}
+        Iterator(const typename Table<Member, Node*>::Iterator& it) : it(it) {}
 
     public:
+
         inline bool operator!=(const Iterator& other) const {
             return !(*this == other);
         }
@@ -1574,25 +1717,27 @@ public:
             return *this;
         }
 
+    private:
         /**
-         Post increment (slower than preincrement).
+         Post increment (slower than preincrement).  Intentionally unimplemented to prevent slow code.
          */
-        Iterator operator++(int) {
+        Iterator operator++(int);/* {
             Iterator old = *this;
             ++(*this);
             return old;
-        }
+        }*/
+    public:
 
         const T& operator*() const {
-            return it->key;
+            return it->key.handle->value;
         }
 
         T* operator->() const {
-            return &(it->key);
+            return &(it->key.handle->value);
         }
 
         operator T*() const {
-            return &(it->key);
+            return &(it->key.handle->value);
         }
     };
 
