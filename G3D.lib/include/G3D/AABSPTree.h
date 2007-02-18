@@ -393,8 +393,8 @@ protected:
 
 			    for(int axis = 0; axis < 3; ++axis) {
 				    debugAssert(b.low()[axis] <= b.high()[axis]);
-				    debugAssert(b.low()[axis] > lo[axis]);
-				    debugAssert(b.high()[axis] < hi[axis]);
+				    debugAssert(b.low()[axis] >= lo[axis]);
+				    debugAssert(b.high()[axis] <= hi[axis]);
 			    }
 		    }
 
@@ -1311,6 +1311,8 @@ public:
 		    stack.resize(stackLength);
             stack[stackIndex].init(root, ray, 0, G3D::inf());
 
+            // operator++ sets up the current value, so call it once
+            // at the beginning to get a valid intersection (or end)
 		    ++(*this);
 	    }
 
@@ -1451,16 +1453,17 @@ public:
                 } else {
 			        double t2;
 			        // this can be an exact equals because the two
-			        // variables are initialized to the same thing
+			        // variables are initialized to from one another
 			        if (s->startTime == s->minTime) {
                         Vector3 location;
 
-                        if (
-                            CollisionDetection::collisionLocationForMovingPointFixedAABox(
-                                ray.origin, ray.direction,
-                                s->node->boundsArray[s->valIndex],
-                                location)) {
-                            // Optimization: store t-squared 
+                        const AABox& bounds = s->node->boundsArray[s->valIndex];
+                        bool alreadyInside;
+                        bool hitBounds = CollisionDetection::collisionLocationForMovingPointFixedAABox(
+                                ray.origin, ray.direction, bounds, location, alreadyInside);
+
+                        if (hitBounds || alreadyInside) {
+                            // Optimization: store t-squared to avoid a sqrt on every comparision
                             t2 = (location - ray.origin).squaredLength();
                         } else {
                             t2 = inf();
