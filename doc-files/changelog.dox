@@ -28,6 +28,8 @@
      <li> G3D::GImage::RGBAtoRGB
      <li> Added GLEW compatibility [nico]
      <li> G3D::GKey replaces old SDL key enumeration
+     <li> Decreased memory requirements and increased balance speed of G3D::AABSPTree by adding a level of indirection
+          between tree nodes and the data stored in them.
      <li> Added GWindow::Settings::caption
      <li> <b>Win32 programs must call the macro <b><code>G3D_START_AT_MAIN();</code></b> at top-level if they do not define WinMain themselves.</b>
      <li> Win32 switched from MBCS to UNICODE for the binaries (G3D sources compile under either, but UNICODE is the VC8 default)

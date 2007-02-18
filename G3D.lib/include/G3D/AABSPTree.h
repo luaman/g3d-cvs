@@ -315,7 +315,7 @@ protected:
 
             This is an array of pointers because that minimizes
             data movement during tree building, which accounts 
-            for about 25% of the cost of tree building.
+            for about 15% of the time cost of tree building.
           */
         Array<Handle*>      valueArray;
 
@@ -393,7 +393,6 @@ protected:
                 }
             }
         }
-
 
 	    void verifyNode(const Vector3& lo, const Vector3& hi) {
             //		debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
@@ -502,12 +501,6 @@ protected:
 
             // Test all values at this node
             for (int v = 0; v < boundsArray.size(); ++v) {
-                /*
-                const AABox& bounds = valueArray[v]->bounds;
-                if (bounds.intersects(box) &&
-                    (! useSphere || bounds.intersects(sphere))) {
-                    members.append(valueArray[v]->value);
-                }*/
                 const AABox& bounds = boundsArray[v];
                 if (bounds.intersects(box) &&
                     (! useSphere || bounds.intersects(sphere))) {

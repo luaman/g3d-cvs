@@ -490,7 +490,14 @@ int main(int argc, char* argv[]) {
 #    ifndef _DEBUG
         printf("Performance analysis:\n\n");
 
-	    perfCollisionDetection();
+        perfAABSPTree();
+
+#       ifdef G3D_WIN32
+            // Pause so that we can see the values in the debugger
+	        getch();
+#       endif
+
+        perfCollisionDetection();
 
         perfArray();
 
@@ -508,7 +515,6 @@ int main(int argc, char* argv[]) {
 
         perfBinaryIO();
 
-        perfAABSPTree();
 
         measureMemsetPerformance();
         measureNormalizationPerformance();
@@ -542,6 +548,9 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testAABSPTree();
+
     testArray();
 
     testMatrix3();
@@ -554,7 +563,6 @@ int main(int argc, char* argv[]) {
 
 	testReliableConduit(networkDevice);
 
-	testAABSPTree();
 
 	testQuat();
 

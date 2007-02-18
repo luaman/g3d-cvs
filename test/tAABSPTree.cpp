@@ -1,5 +1,75 @@
 #include "G3D/G3DAll.h"
 
+/**
+ An AABSPTree that can render itself for debugging purposes.
+ */
+class VisibleBSP : public AABSPTree<Vector3> {
+protected:
+
+    VisibleBSP() {
+        int N = 200;
+        for (int i = 0; i < N; ++i) {
+            insert(Vector3(uniformRandom(0, app->renderDevice->width()), uniformRandom(0, app->renderDevice->height()), 0));
+        }
+        balance();
+    }
+
+    void drawPoint(RenderDevice* rd, const Vector2& pt, float radius, const Color3& col) {
+        Draw::rect2D(Rect2D::xywh(pt.x - radius, pt.y - radius, radius * 2, radius * 2), rd, col);
+    }
+
+    void drawNode(RenderDevice* rd, Node* node, float radius, int level) {
+        
+        Color3 color = Color3::white();
+
+        // Draw the points at this node
+        for (int i = 0; i < node->valueArray.size(); ++i) {
+            const Vector3& pt = node->valueArray[i]->value;
+            drawPoint(rd, pt.xy(), radius, Color3::cyan());
+        }
+
+        if (node->splitAxis != 2) {
+            // Draw the splitting plane
+            const AABox& bounds = node->splitBounds;
+            Vector2 v1 = bounds.low().xy();
+            Vector2 v2 = bounds.high().xy();
+
+            // Make the line go horizontal or vertical based on the split axis
+            v1[node->splitAxis] = node->splitLocation;
+            v2[node->splitAxis] = node->splitLocation;
+
+            rd->setLineWidth(radius / 2.0f);
+            rd->setColor(color);
+            rd->beginPrimitive(RenderDevice::LINES);
+                rd->sendVertex(v1);
+                rd->sendVertex(v2);
+            rd->endPrimitive();
+        }
+
+        // Shrink radius
+        float nextRad = max(0.5f, radius / 2.0f);
+
+        for (int i = 0;i < 2; ++i) {
+            if (node->child[i]) {
+                drawNode(rd, node->child[i], nextRad, level + 1);
+            }
+        }
+    }
+
+public:
+
+    /**
+     Draw a 2D projected version; ignore splitting planes in z
+     */
+    void render2D(RenderDevice* rd) {
+        rd->push2D();
+            drawNode(rd, root, 20, 0);
+        rd->pop2D();
+    }
+    
+};
+
+
 static void testSerialize() {
     AABSPTree<Vector3> tree;
     int N = 1000;
@@ -55,7 +125,7 @@ void perfAABSPTree() {
     Array<AABox>                array;
     AABSPTree<AABox>            tree;
     
-    const int NUM_POINTS = 100000;
+    const int NUM_POINTS = 1000000;
     
     for (int i = 0; i < NUM_POINTS; ++i) {
         Vector3 pt = Vector3(uniformRandom(-10, 10), uniformRandom(-10, 10), uniformRandom(-10, 10));
