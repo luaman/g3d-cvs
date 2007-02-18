@@ -6,14 +6,6 @@
 class VisibleBSP : public AABSPTree<Vector3> {
 protected:
 
-    VisibleBSP() {
-        int N = 200;
-        for (int i = 0; i < N; ++i) {
-            insert(Vector3(uniformRandom(0, app->renderDevice->width()), uniformRandom(0, app->renderDevice->height()), 0));
-        }
-        balance();
-    }
-
     void drawPoint(RenderDevice* rd, const Vector2& pt, float radius, const Color3& col) {
         Draw::rect2D(Rect2D::xywh(pt.x - radius, pt.y - radius, radius * 2, radius * 2), rd, col);
     }
@@ -57,6 +49,13 @@ protected:
     }
 
 public:
+    VisibleBSP(int w, int h) {
+        int N = 200;
+        for (int i = 0; i < N; ++i) {
+            insert(Vector3(uniformRandom(0, w), uniformRandom(0, h), 0));
+        }
+        balance();
+    }
 
     /**
      Draw a 2D projected version; ignore splitting planes in z
@@ -68,7 +67,6 @@ public:
     }
     
 };
-
 
 static void testSerialize() {
     AABSPTree<Vector3> tree;

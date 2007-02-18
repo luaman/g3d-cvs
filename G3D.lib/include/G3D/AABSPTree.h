@@ -229,68 +229,58 @@ protected:
         return AABox(lo, hi);
     }
 
-
-    /**
-     A sort predicate that returns true if the midpoint of the
-     first argument is less than the midpoint of the second
-     along the specified axis.
-
-     Used by makeNode.
-     */
-    class CenterLT {
+    /** Compares centers */
+    class CenterComparator {
     public:
-        Vector3::Axis           sortAxis;
+	    Vector3::Axis sortAxis;
 
-        CenterLT(Vector3::Axis a) : sortAxis(a) {}
+	    CenterComparator(Vector3::Axis a) : sortAxis(a) {}
 
-        inline bool operator()(const Handle* a, const Handle* b) const {
-            return a->center[sortAxis] < b->center[sortAxis];
-        }
+	    inline int operator()(Handle* A, const Handle* B) const {
+            float a = A->center[sortAxis];
+            float b = B->center[sortAxis];
+
+            if (a < b) {
+                return 1;
+            } else if (a > b) {
+                return -1;
+            } else {
+                return 0;
+            }
+	    }
     };
 
 
-    /**
-       A sort predicate based on a box's location on the specified axis. Each
-       box is given a value -1, 0, or 1 based on whether it is strictly less
-       than, overlapping, or strictly greater than the value on the specified
-       axis. This predicate compares the values for two boxes. The result is
-       that the array is separated into three contiguous (though possibly empty)
-       groups: less than, overlapping, or greater than.
-    */
-    class PivotLT {
+    /** Compares bounds to the sort location */
+    class Comparator {
     public:
 	    Vector3::Axis sortAxis;
 	    float sortLocation;
 
-	    PivotLT(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
+	    Comparator(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
 
-	    inline int location(const AABox& box) const {
-		    if(box.low()[sortAxis] < sortLocation) {
-			    if(box.high()[sortAxis] < sortLocation) {
-				    return -1;
-			    } else {
-				    return 0;
-			    }
-		    } else if(box.low()[sortAxis] > sortLocation) {
+	    inline int operator()(Handle* ignore, const Handle* handle) const {
+            const AABox& box = handle->bounds;
+            debugAssert(ignore == NULL);
+
+		    if (box.high()[sortAxis] < sortLocation) {
+                // Box is strictly below the sort location
+                return -1;
+		    } else if (box.low()[sortAxis] > sortLocation) {
+                // Box is strictly above the sort location
 			    return 1;
 		    } else {
 			    return 0;
 		    }
 	    }
-
-	    inline bool operator()(const Handle* a, const Handle* b) const {
-		    const AABox& A = a->bounds;
-		    const AABox& B = b->bounds;
-
-		    return location(A) < location(B);
-	    }
     };
 
+    // Using System::malloc with this class provided no speed improvement.
     class Node {
     public:
 
         /** Spatial bounds on all values at this node and its children, based purely on
-            the parent's splitting planes.  May be infinite */
+            the parent's splitting planes.  May be infinite. */
         AABox               splitBounds;
 
         Vector3::Axis       splitAxis;
@@ -351,19 +341,15 @@ protected:
 
         /** Copies the specified subarray of pt into point, NULLs the children.
             Assumes a second pass will set splitBounds. */
-        Node(const Array<Handle*>& pt, int beginIndex, int endIndex) {
+        Node(const Array<Handle*>& pt) : valueArray(pt) {
             splitAxis     = Vector3::X_AXIS;
             splitLocation = 0;
             for (int i = 0; i < 2; ++i) {
                 child[i] = NULL;
             }
 
-            int n = endIndex - beginIndex + 1;
-
-            valueArray.resize(n);
-            boundsArray.resize(n);
-            for (int i = n - 1; i >= 0; --i) {
-                valueArray[i] = pt[i + beginIndex];
+            boundsArray.resize(valueArray.size());
+            for (int i = 0; i < valueArray.size(); ++i) {
                 boundsArray[i] = valueArray[i]->bounds;
             }
         }
@@ -539,113 +525,78 @@ protected:
 
     /**
      Recursively subdivides the subarray.
-     Begin and end indices are inclusive.
+    
+     Clears the source array as soon as it is no longer needed.
 
      Call assignSplitBounds() on the root node after making a tree.
      */
     Node* makeNode(
-        Array<Handle*>& point, 
-        int beginIndex, 
-        int endIndex, 
+        Array<Handle*>& source, 
         int valuesPerNode, 
-        int numMeanSplits)  {
+        int numMeanSplits,
+        Array<Handle*>& temp)  {
 
 	    Node* node = NULL;
 	    
-	    if (endIndex - beginIndex + 1 <= valuesPerNode) {
+	    if (source.size() <= valuesPerNode) {
 		    // Make a new leaf node
-		    node = new Node(point, beginIndex, endIndex);
+		    node = new Node(source);
 		    
 		    // Set the pointers in the memberTable
-		    for (int i = beginIndex; i <= endIndex; ++i) {
-			    memberTable.set(Member(point[i]), node);
+		    for (int i = 0; i < source.size(); ++i) {
+			    memberTable.set(Member(source[i]), node);
 		    }
+            source.clear();
 		    
         } else {
 		    // Make a new internal node
 		    node = new Node();
 		    
-            const AABox bounds = computeBounds(point, beginIndex, endIndex);
+            const AABox bounds = computeBounds(source, 0, source.size() - 1);
 		    const Vector3 extent = bounds.high() - bounds.low();
 		    
 		    Vector3::Axis splitAxis = extent.primaryAxis();
 		    
-            double splitLocation;
+            float splitLocation;
 
+            // Arrays for holding the children
+            Array<Handle*> lt, gt;
+                
             if (numMeanSplits > 0) {
-                // Compute the mean along the axis
-
+                // Split along the mean
                 splitLocation = (bounds.high()[splitAxis] + 
                                  bounds.low()[splitAxis]) / 2.0;
+                
+                source.partition(NULL, lt, node->valueArray, gt, Comparator(splitAxis, splitLocation));
 
             } else {
 
-                // Compute the median along the axis
-		        
-		        // Sort only the subarray
-		        std::sort(
-			        point.getCArray() + beginIndex,
-			        point.getCArray() + endIndex + 1,
-			        CenterLT(splitAxis));
-		        
-                // Intentional integer divide
-		        int midIndex = (beginIndex + endIndex) / 2;
-		        
-		        // Choose the split location between the two middle elements
-		        const Vector3 median = 
-			        (point[midIndex]->bounds.high() +
-			         point[iMin(midIndex + 1, 
-                                point.size() - 1)]->bounds.low()) * 0.5;
+                source.medianPartition(lt, node->valueArray, gt, temp, CenterComparator(splitAxis));
 
-                splitLocation = median[splitAxis];
+                // Find out what we used as our median
+                splitLocation = node->valueArray[0]->center[splitAxis];
             }
-		    
 
-		    // Re-sort around the split. This will allow us to easily
-		    // test for overlap
-		    std::sort(
-			    point.getCArray() + beginIndex,
-			    point.getCArray() + endIndex + 1,
-			    PivotLT(splitAxis, splitLocation));
-
-		    // Some number of nodes may actually overlap the midddle, so
-		    // they must be found and added to *this* node, not one of
-		    // its children
-		    int overlapBeginIndex, overlapEndIndex;
+            // The source array is no longer needed
+            source.clear();
 		    
-		    for (overlapBeginIndex = beginIndex;
-			 (overlapBeginIndex <= endIndex) &&
-				 (point[overlapBeginIndex]->bounds.high()[splitAxis] <
-				  splitLocation);
-		         ++overlapBeginIndex) {
+            node->splitAxis = splitAxis;
+            node->splitLocation = splitLocation;
+
+            // Update the bounds array and member table
+            node->boundsArray.resize(node->valueArray.size());
+            for (int i = 0; i < node->valueArray.size(); ++i) {
+                Handle* v = node->valueArray[i];
+                node->boundsArray[i] = v->bounds;
+			    memberTable.set(Member(v), node);
             }
-		    
-		    for (overlapEndIndex = endIndex;
-		         (overlapEndIndex >= beginIndex) &&
-			         (point[overlapEndIndex]->bounds.low()[splitAxis] >
-				  splitLocation);
-			     --overlapEndIndex) {
-             }
-		    
-		    // put overlapping boxes in this node
-		    for (int i = overlapBeginIndex; i <= overlapEndIndex; ++i) {
-			    node->valueArray.push(point[i]);
-                node->boundsArray.push(node->valueArray.last()->bounds);
-			    memberTable.set(Member(point[i]), node);
+
+            if (lt.size() > 0) {		    
+			    node->child[0] = makeNode(lt, valuesPerNode, numMeanSplits - 1, temp);
 		    }
 		    
-		    node->splitAxis     = splitAxis;
-		    node->splitLocation = splitLocation;
-		    
-		    if (overlapBeginIndex > beginIndex) {
-			    node->child[0]      = 
-				    makeNode(point, beginIndex, overlapBeginIndex - 1, 
-                             valuesPerNode, numMeanSplits - 1);
-		    }
-		    
-		    if (overlapEndIndex < endIndex) {
-			    node->child[1]      = 
-				    makeNode(point, overlapEndIndex + 1, endIndex, valuesPerNode, numMeanSplits - 1);
+		    if (gt.size() > 0) {
+			    node->child[1] = makeNode(gt, valuesPerNode, numMeanSplits - 1, temp);
 		    }
 		    
 	    }
@@ -916,9 +867,10 @@ public:
             }
         }
 
-        // make a new root
-        root = makeNode(oldRoot->valueArray, 0, oldRoot->valueArray.size() - 1, 
-            valuesPerNode, numMeanSplits);
+        Array<Handle*> temp;
+        // Make a new root.  Work with a copy of the value array because 
+        // makeNode clears the source array as it progresses
+        root = makeNode(Array<Handle*>(oldRoot->valueArray), valuesPerNode, numMeanSplits, temp);
 
         // Throw away the old root node
         delete oldRoot;
