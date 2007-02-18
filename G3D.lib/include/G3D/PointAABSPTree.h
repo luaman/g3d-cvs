@@ -27,15 +27,6 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
 #include <algorithm>
-/*
-inline const G3D::Vector3& getPosition(const G3D::Vector3& v) {
-    return v;
-}
-
-inline const G3D::Vector3& getPosition(const G3D::Vector4& v) {
-    return *reinterpret_cast<const G3D::Vector3*>(&v);
-}
-*/
 
 inline void getPosition(const G3D::Vector3& v, G3D::Vector3& p) {
     p = v;
@@ -54,7 +45,7 @@ inline void getPosition(const G3D::Vector2& v, G3D::Vector3& p) {
 namespace G3D {
 
 /**
- A set dat a structure that supports spatial queries using an axis-aligned
+ A set data structure that supports spatial queries using an axis-aligned
  BSP tree for speed.
 
  PointAABSPTree allows you to quickly find points in 3D that lie within
@@ -115,8 +106,12 @@ namespace G3D {
 
 */
 template<class T> class PointAABSPTree {
-private:
+protected:
 
+    // Unlike the AABSPTree, the PointAABSPTree assumes that T elements are
+    // small and keeps the handle and cached position together instead of
+    // placing them in separate bounds arrays.  Also note that a copy of T
+    // is kept in the member table and that there is no indirection.
     class Handle {
     private:
         Vector3             m_position;
@@ -125,6 +120,7 @@ private:
         T                   value;
 
         Handle() {}
+        Handle(const T& v) : value(v), m_position(getPosition(v)) {}
 
         inline const Vector3& position() const {
             return m_position;
