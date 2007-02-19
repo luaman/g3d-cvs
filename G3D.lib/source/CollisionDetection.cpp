@@ -1143,6 +1143,7 @@ bool CollisionDetection::collisionLocationForMovingPointFixedAABox(
 
 	if (Inside) {
     	// Ray origin inside bounding box
+        location = origin;
 		return false;
 	}
 

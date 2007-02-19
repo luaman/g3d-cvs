@@ -57,10 +57,12 @@
      <li> Changed Renderbuffer::createEmpty argument order to match Texture::createEmpty
      <li> G3D::IFSModel can now remove degenerate faces on load
      <li> G3D::MD2Model::textureFromFile
+     <li> Replaced AABSPTree::beginRayIntersection with simpler AABSPTree::intersectRay interface.
      <li> G3D::MD2Model now uses floating point texture coordinates, which makes it easier to 
           write pixel shaders for MD2Models
      <li> G3D::GImage::computeNormalMap now accepts a scale factor indicating how steep the input bump map is
      <li> Optimized G3D::GImage::computeNormalMap to use primarily integer math
+     <li> G3D::AABox::contains(AABox)
 	 <li> Added large file (>2GB) support to BinaryInput [Peter]
      <li> Renamed graphics3d.h to G3D/G3D.h
      <li> Renamed GLG3D.h to GLG3D/GLG3D.h
@@ -80,6 +82,7 @@
 	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
 	 <li> Removed static constants (use equivalent lower-case methods)
 	 <li> Removed Cylinder::getPoint1 (use point)
+     <li> Fix: G3D::AABSPTree now correctly handles members with infinite bounds on ray intersection tests
      <li> Fix: Removed use of tmpfile on Unix 
      <li> Fix: Java ReliableConduit now properly waits if the buffer is full when sending
 	 <li> Fix: [ 1607693 ] Triangles/Second display is now correct (rates were too low in 6.10)

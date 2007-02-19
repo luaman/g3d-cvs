@@ -165,6 +165,17 @@ public:
 		int32&					cullingPlaneIndex = dummy,
 		const uint32  			testMask		  = 0xFFFFFFFF) const;
 
+    /** less than or equal to containment */
+    inline bool contains(const AABox& other) const {
+        return 
+            (other.hi.x <= hi.x) &&
+            (other.hi.y <= hi.y) &&
+            (other.hi.z <= hi.z) &&
+            (other.lo.x >= lo.x) &&
+            (other.lo.y >= lo.y) &&
+            (other.lo.z >= lo.z);
+    }
+
     inline bool contains(
         const Vector3&      point) const {
         return

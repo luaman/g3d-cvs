@@ -251,6 +251,28 @@ protected:
     };
 
 
+    /** Compares bounds for strict >, <, or overlap*/
+    class BoundsComparator {
+    public:
+	    Vector3::Axis sortAxis;
+
+	    BoundsComparator(Vector3::Axis a) : sortAxis(a) {}
+
+	    inline int operator()(Handle* A, const Handle* B) const {
+            const AABox& a = A->bounds;
+            const AABox& b = B->bounds;
+
+            if (a.high()[sortAxis] < b.low()[sortAxis]) {
+                return 1;
+            } else if (a.low()[sortAxis] > b.high()[sortAxis]) {
+                return -1;
+            } else {
+                return 0;
+            }
+	    }
+    };
+
+
     /** Compares bounds to the sort location */
     class Comparator {
     public:
@@ -514,11 +536,134 @@ protected:
             AABox childBounds[2];
             myBounds.split(splitAxis, splitLocation, childBounds[0], childBounds[1]);
 
+#           if defined(G3D_DEBUG) && 0
+                // Verify the split
+                for (int v = 0; v < boundsArray.size(); ++v) {
+                    const AABox& bounds = boundsArray[v];
+                    debugAssert(myBounds.contains(bounds));
+                }
+#           endif
+
             for (int c = 0; c < 2; ++c) {
                 if (child[c]) {
                     child[c]->assignSplitBounds(childBounds[c]);
                 }
             }
+        }
+
+        /** Returns true if the ray intersects this node */
+        bool intersects(const Ray& ray, float distance) const {
+            // See if the ray will ever hit this node or its children
+            Vector3 location;
+            bool alreadyInsideBounds = false;
+            bool rayWillHitBounds = 
+                CollisionDetection::collisionLocationForMovingPointFixedAABox(
+                    ray.origin, ray.direction, splitBounds, location, alreadyInsideBounds);
+           
+            bool canHitThisNode = (alreadyInsideBounds ||                
+                (rayWillHitBounds && ((location - ray.origin).squaredLength() < square(distance))));
+
+            return canHitThisNode;
+        }
+
+        template<typename RayCallback>
+        void intersectRay(
+            const Ray& ray, 
+            RayCallback& intersectCallback, 
+            float& distance,
+            bool intersectCallbackIsFast) const {
+            
+            if (! intersects(ray, distance)) {
+                // The ray doesn't hit this node, so it can't hit the children of the node.
+                return;
+            }
+
+            // Test for intersection against every object at this node.
+            for (int v = 0; v < valueArray.size(); ++v) {        
+                bool canHitThisObject = true;
+
+                if (! intersectCallbackIsFast) {
+                    // See if
+                    Vector3 location;
+                    const AABox& bounds = boundsArray[v];
+                    bool alreadyInsideBounds = false;
+                    bool rayWillHitBounds = 
+                        CollisionDetection::collisionLocationForMovingPointFixedAABox(
+                            ray.origin, ray.direction, bounds, location, alreadyInsideBounds);
+
+                    canHitThisObject = (alreadyInsideBounds ||                
+                        (rayWillHitBounds && ((location - ray.origin).squaredLength() < square(distance))));
+                }
+
+                if (canHitThisObject) {
+                    // It is possible that this ray hits this object.  Look for the intersection using the
+                    // callback.
+                    const T& value = valueArray[v]->value;
+                    intersectCallback(ray, value, distance);
+                }
+            }
+
+            // There are three cases to consider next:
+            // 
+            //  1. the ray can start on one side of the splitting plane and never enter the other,
+            //  2. the ray can start on one side and enter the other, and
+            //  3. the ray can travel exactly down the splitting plane
+
+            enum {NONE = -1};
+            int firstChild = NONE;
+            int secondChild = NONE;
+
+            if (ray.origin[splitAxis] < splitLocation) {
+                
+                // The ray starts on the small side
+                firstChild = 0;
+
+                if (ray.direction[splitAxis] > 0) {
+                    // The ray will eventually reach the other side
+                    secondChild = 1;
+                }
+
+            } else if (ray.origin[splitAxis] > splitLocation) {
+
+                // The ray starts on the large side
+                firstChild = 1;
+
+                if (ray.direction[splitAxis] < 0) {
+                    secondChild = 0;
+                }
+            } else {
+                // The ray starts on the splitting plane
+                if (ray.direction[splitAxis] < 0) {
+                    // ...and goes to the small side
+                    firstChild = 0;
+                } else if (ray.direction[splitAxis] > 0) {
+                    // ...and goes to the large side
+                    firstChild = 1;
+                }
+            }
+
+            // Test on the side closer to the ray origin.
+            if ((firstChild != NONE) && child[firstChild]) {
+                child[firstChild]->intersectRay(ray, intersectCallback, distance, intersectCallbackIsFast);
+            }
+
+            if (ray.direction[splitAxis] != 0) {
+                // See if there was an intersection before hitting the splitting plane.  
+                // If so, there is no need to look on the far side and recursion terminates.
+                float distanceToSplittingPlane = (splitLocation - ray.origin[splitAxis]) / ray.direction[splitAxis];
+                if (distanceToSplittingPlane < distance) {
+                    // We aren't going to hit anything else before hitting the splitting plane,
+                    // so don't bother looking on the far side of the splitting plane at the other
+                    // child.
+                    return;
+                }
+            }
+
+            // Test on the side farther from the ray origin.
+            if ((secondChild != NONE) && child[secondChild]) {
+                child[secondChild]->intersectRay(ray, intersectCallback, distance, intersectCallbackIsFast);
+            }
+
         }
     };
 
@@ -573,13 +718,54 @@ protected:
 
                 source.medianPartition(lt, node->valueArray, gt, temp, CenterComparator(splitAxis));
 
-                // Find out what we used as our median
+                // Choose the split location to be the center of whatever fell in the center
                 splitLocation = node->valueArray[0]->center[splitAxis];
+
+                // Some of the elements in the lt or gt array might really overlap the split location.
+                // Move them as needed.
+                for (int i = 0; i < lt.size(); ++i) {
+                    const AABox& bounds = lt[i]->bounds;
+                    if ((bounds.low()[splitAxis] <= splitLocation) && (bounds.high()[splitAxis] >= splitLocation)) {
+                        node->valueArray.append(lt[i]);
+                        // Remove this element and process the new one that
+                        // is swapped in in its place.
+                        lt.fastRemove(i); --i;
+                    }
+                }
+                for (int i = 0; i < gt.size(); ++i) {
+                    const AABox& bounds = gt[i]->bounds;
+                    if ((bounds.low()[splitAxis] <= splitLocation) && (bounds.high()[splitAxis] >= splitLocation)) {
+                        node->valueArray.append(gt[i]);
+                        // Remove this element and process the new one that
+                        // is swapped in in its place.
+                        gt.fastRemove(i); --i;
+                    }
+                }
             }
+
+#           if defined(G3D_DEBUG) && 0
+                // Verify that all objects ended up on the correct side of the split.
+                // (i.e., make sure that the Array partition was correct) 
+                for (int i = 0; i < lt.size(); ++i) {
+                    const AABox& bounds  = lt[i]->bounds;
+                    debugAssert(bounds.high()[splitAxis] < splitLocation);
+                }
+
+                for (int i = 0; i < gt.size(); ++i) {
+                    const AABox& bounds  = gt[i]->bounds;
+                    debugAssert(bounds.low()[splitAxis] > splitLocation);
+                }
+
+                for (int i = 0; i < node->valueArray.size(); ++i) {
+                    const AABox& bounds  = node->valueArray[i]->bounds;
+                    debugAssert(bounds.high()[splitAxis] > splitLocation);
+                    debugAssert(bounds.low()[splitAxis] < splitLocation);
+                }
+#           endif
 
             // The source array is no longer needed
             source.clear();
-		    
+
             node->splitAxis = splitAxis;
             node->splitLocation = splitLocation;
 
@@ -1169,6 +1355,71 @@ public:
 
 
     /**
+     Invoke a callback for every member along a ray until the closest intersection is found.
+
+     @param callback either a function or an instance of a class with an overloaded operator() of the form:
+             
+            <code>void callback(const Ray& ray, const T& object, float& distance)</code>.  If the ray hits the object
+            before travelling distance <code>distance</code>, updates <code>distance</code> with the new distance to
+            the intersection, otherwise leaves it unmodified.  A common example is:
+
+            <pre>
+            class Entity {
+            public:
+
+                void intersect(const Ray& ray, float& maxDist, Vector3& outLocation, Vector3& outNormal) {
+                    float d = maxDist;
+
+                    // ... search for intersection distance d
+
+                    if ((d > 0) && (d < maxDist)) {
+                        // Intersection occured
+                        maxDist = d;
+                        outLocation = ...;
+                        outNormal = ...;
+                    }
+                }
+            };
+
+            // Finds the surface normal and location of the first intersection with the scene
+            class Intersection {
+            public:
+                Entity*     closestEntity;
+                Vector3     hitLocation;
+                Vector3     hitNormal;
+
+                void operator()(const Ray& ray, const Entity* entity, float& distance) {
+                    entity->intersect(ray, distance, hitLocation, hitNormal);
+                }
+            };
+
+            AABSPTree<Entity*> scene;
+
+            Intersection intersection;
+            float distance = inf();
+            scene.intersectRay(camera.worldRay(x, y), intersection, distance);
+          </pre>
+
+
+     @param distance When the method is invoked, this is the maximum distance that the tree should search for an intersection.
+     On return, this is set to the distance to the first intersection encountered.
+
+     @param intersectCallbackIsFast  If false, each object's bounds are tested before the intersectCallback is invoked.
+      If the intersect callback runs at the same speed or faster than AABox-ray intersection, set this to true.
+     */
+    template<typename RayCallback>
+    void intersectRay(
+        const Ray& ray, 
+        RayCallback& intersectCallback, 
+        float& distance,
+        bool intersectCallbackIsFast = false) const {
+        
+        root->intersectRay(ray, intersectCallback, distance, intersectCallbackIsFast);
+
+    }
+
+
+    /**
       @param members The results are appended to this array.
      */
     void getIntersectingMembers(const Sphere& sphere, Array<T>& members) const {
@@ -1181,340 +1432,6 @@ public:
         root->getIntersectingMembers(box, sphere, members, true);
 
     }
-
-    /** See AABSPTree::beginRayIntersection */
-    class RayIntersectionIterator {
-    private:
-	    friend class AABSPTree<T>;
-
-	    /** The stack frame contains all the info needed to resume
-	        computation for the RayIntersectionIterator */
-
-	    struct StackFrame {
-		    const Node* node;
-
-		    /** the total checking bounds for this frame */
-		    float minTime;
-
-            /** minTime^2 */
-		    float minTime2;
-		    float maxTime;
-
-		    /** what we're checking right now, either from minTime to the
-			split, or from the split to maxTime (more or less...
-			there are edge cases) */
-		    float startTime;
-		    float endTime;
-
-            /** endTime^2 */
-		    float endTime2;
-		    
-		    int nextChild;
-
-		    /** current index into node's valueArray */
-		    int valIndex;
-
-
-		    /** cache intersection values when they're checked on the preSide,
-		       split so they don't need to be checked again after the split. */
-		    Array<float> intersectionCache;
-		    
-		    void init(const Node* inNode, const Ray& ray,
-                      float inMinTime, float inMaxTime) {
-			    node     = inNode;
-			    minTime  = inMinTime;
-			    maxTime  = inMaxTime;
-                minTime2 = square(minTime);
-			    valIndex = -1;
-
-			    intersectionCache.resize(node->valueArray.length());
-			    
-			    if (node->child[0] == NULL && node->child[1] == NULL) {
-				    startTime = minTime;
-				    endTime   = maxTime;
-				    endTime2  = square(maxTime);
-				    nextChild = -1;
-				    return;
-			    }
-
-			    Vector3::Axis splitAxis     = node->splitAxis;
-			    double        splitLocation = node->splitLocation;
-
-			    // this is the time along the ray until the split.
-			    // could be negative if the split is behind.
-			    double splitTime =
-				    (splitLocation - ray.origin[splitAxis]) /
-				    ray.direction[splitAxis];
-			    
-			    // If splitTime <= minTime we'll never reach the
-			    // split, so set it to inf so as not to confuse endTime.
-			    // It will be noted below that when splitTime is inf
-			    // only one of this node's children will be searched
-			    // (the pre child). Therefore it is critical that
-			    // the correct child is gone too.
-			    if (splitTime <= minTime) {
-				    splitTime = inf();
-			    }
-			    
-			    startTime = minTime;
-			    endTime   = min((double)maxTime, splitTime);
-                endTime2  = square(endTime);
-
-			    double rayLocation = ray.origin[splitAxis] +
-				    ray.direction[splitAxis] * minTime;
-
-			    if (rayLocation == splitLocation) {
-				    // We're right on the split. Look ahead.
-				    rayLocation = ray.origin[splitAxis] +
-					    ray.direction[splitAxis] * maxTime;
-			    }
-			    
-			    if (rayLocation == splitLocation) {
-				    // right on the split, looking exactly along
-				    // it, so consider no children.
-				    nextChild = -1;
-			    } else if(rayLocation <= splitLocation) {
-				    nextChild = 0;
-			    } else {
-				    nextChild = 1;
-			    }
-		    }
-	    };
-
-    public:
-	    /** A minimum bound on the distance to the intersection. */
-	    double minDistance;
-
-	    /** A maximum bound on the distance to the intersection. */
-	    double maxDistance;
-
-	    /** Counts how many bounding box intersection tests have been made so
-	        far. */
-	    int debugCounter;
-
-    private:
-	    Ray                 ray;
-	    bool                isEnd;
-
-	    Array<StackFrame>   stack;
-	    int                 stackLength;
-	    int                 stackIndex;
-	    int                 breakFrameIndex;
-        bool                skipAABoxTests;
-
-	    RayIntersectionIterator(const Ray& r, const Node* root, bool skip)
-            : minDistance(0), maxDistance(G3D::inf()), debugCounter(0),
-		    ray(r), isEnd(root == NULL),
-		    stackLength(20), stackIndex(0), breakFrameIndex(-1),
-            skipAABoxTests(skip)
-	    {
-		    stack.resize(stackLength);
-            stack[stackIndex].init(root, ray, 0, G3D::inf());
-
-            // operator++ sets up the current value, so call it once
-            // at the beginning to get a valid intersection (or end)
-		    ++(*this);
-	    }
-
-
-    public:
-	    /* public so we can have empty ones */
-	    RayIntersectionIterator() : isEnd(true) {}
-
-	    inline bool operator!=(const RayIntersectionIterator& other) const {
-		    return ! (*this == other);
-	    }
-	    
-	    /** Compares two iterators, but will only return true if both are at
-		the end. */
-	    bool operator==(const RayIntersectionIterator& other) const {
-		    if (isEnd) {
-		    	return other.isEnd;
-		    }
-		    
-		    return false;
-	    }
-
-	    /**
-	       Marks the node where the most recent intersection occurred. If
-	       the iterator exhausts this node it will stop and set itself to
-	       the end iterator.
-
-	       Use this after you find a true intersection to stop the iterator
-	       from searching more than necessary.
-           <B>Beta API-- subject to change</B>
-	    */
-	    // In theory this method could be smarter: the caller could pass in
-	    // the distance of the actual collision and the iterator would keep
-	    // itself from checking nodes or boxes beyond that distance.
-	    void markBreakNode() {
-		    breakFrameIndex = stackIndex;
-	    }
-
-	    /**
-	       Clears the break node. Can be used before or after the iterator
-	       stops from a break.
-	       <B>Beta API-- subject to change</B>
-	    */
-	    void clearBreakNode() {
-		    if (breakFrameIndex < 0) {
-			    return;
-		    }
-		    
-		    if (isEnd && stackIndex >= 0) {
-			    isEnd = false;
-		    }
-		    
-		    breakFrameIndex = -1;
-	    }
-	    
-	    
-	    RayIntersectionIterator& operator++() {
-		    alwaysAssertM(!isEnd, "Can't increment the end element of an iterator");
-
-		    StackFrame* s = &stack[stackIndex];
-		    
-		    // leave the loop if:
-		    //    end is reached (ie: stack is empty)
-		    //    found an intersection
-
-		    while (true) {
-			    ++s->valIndex;
-
-			    if (s->valIndex >= s->node->valueArray.length()) {
-				    // This node is exhausted, look at its
-				    // children.
-				    
-				    Node* child = (s->nextChild >= 0) ?
-					    s->node->child[s->nextChild] : NULL;
-				    double childStartTime = s->startTime;
-				    double childEndTime   = s->endTime;
-
-				    if (s->endTime < s->maxTime) {
-					    // we can come back to this frame,
-					    // so reset it
-					    s->valIndex  = -1;
-					    s->startTime = s->endTime;
-					    s->endTime   = s->maxTime;
-					    s->endTime2  = square(s->maxTime);
-					    s->nextChild = (s->nextChild >= 0) ?
-						    (1 - s->nextChild) : -1;
-
-					    // this could be changed somehow,
-					    // since Array already does the
-					    // power-of-two growth stuff
-					    if (stackIndex == stackLength) {
-						    stackLength *= 2;
-						    stack.resize(stackLength);
-					    }
-				    } else {
-					    // tail-recursion: we won't come
-					    // back to this frame, so we can
-					    // remove it.
-
-					    if (stackIndex == breakFrameIndex) {
-						    // This will be the case if the
-						    // break frame is set on a node, but
-						    // the node is exhausted so it won't
-						    // be put on the stack. Here we
-						    // decrement the break frame so that
-						    // the break occurs when the current
-						    // frame's parent is resumed.
-						    --breakFrameIndex;
-					    }
-
-					    --stackIndex;
-				    }
-
-				    // There could have been a resize on the array, so
-				    // do not use s (pointer into the array)!
-
-				    if (child != NULL) {
-					    ++stackIndex;
-					    stack[stackIndex].init(
-                            child, ray,
-							childStartTime, childEndTime);
-				    }
-
-				    if ((stackIndex < 0) || (stackIndex == breakFrameIndex)) {
-					    isEnd = true;
-					    break;
-				    }
-
-				    s = &stack[stackIndex];
-                    continue;
-			    }
-
-                if (skipAABoxTests) {
-                    // No AABox test-- return everything
-                    minDistance = s->startTime;
-				    maxDistance = s->endTime;
-				    break;
-                } else {
-			        double t2;
-			        // this can be an exact equals because the two
-			        // variables are initialized to from one another
-			        if (s->startTime == s->minTime) {
-                        Vector3 location;
-
-                        const AABox& bounds = s->node->boundsArray[s->valIndex];
-                        bool alreadyInside;
-                        bool hitBounds = CollisionDetection::collisionLocationForMovingPointFixedAABox(
-                                ray.origin, ray.direction, bounds, location, alreadyInside);
-
-                        if (hitBounds || alreadyInside) {
-                            // Optimization: store t-squared to avoid a sqrt on every comparision
-                            t2 = (location - ray.origin).squaredLength();
-                        } else {
-                            t2 = inf();
-                        }
-
-				        //t = ray.intersectionTime(s->node->boundsArray[s->valIndex]);
-				        s->intersectionCache[s->valIndex] = t2;
-				        ++debugCounter;
-			        } else {
-				        t2 = s->intersectionCache[s->valIndex];
-			        }
-
-			        // use minTime here because intersection may be
-			        // detected pre-split, but be valid post-split, too.
-			        if ((t2 >= s->minTime2) && (t2 < s->endTime2)) {
-                        // Gives slightly tighter bounds but runs slower:
-                        // minDistance = max(t, s->startTime);
-				        minDistance = s->startTime;
-				        maxDistance = s->endTime;
-				        break;
-			        }
-                }
-			    
-		    }
-
-		    return *this;
-	    }
-
-
-	    /** Overloaded dereference operator so the iterator can masquerade as a pointer
-		to a member */
-	    const T& operator*() const {
-		    alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-		    return stack[stackIndex].node->valueArray[stack[stackIndex].valIndex]->value;
-	    }
-	    
-	    /** Overloaded dereference operator so the iterator can masquerade as a pointer
-		to a member */
-	    T const * operator->() const {
-		    alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-		    return &(stack[stackIndex].node->valueArray[stack[stackIndex].valIndex]->value);
-	    }
-	    
-	    /** Overloaded cast operator so the iterator can masquerade as a pointer
-		to a member */
-	    operator T*() const {
-		    alwaysAssertM(! isEnd, "Can't dereference the end element of an iterator");
-		    return &(stack[stackIndex].node->valueArray[stack[stackIndex].valIndex]->value);
-	    }
-	    
-    };
 
     /**
       Stores the locations of the splitting planes (the structure but not the content)
@@ -1530,99 +1447,6 @@ public:
         clear();
         root = Node::deserializeStructure(bi);
     }
-
-    /**
-      Generates a RayIntersectionIterator that produces successive
-      elements from the set whose bounding boxes are intersected by the ray.
-      Typically used for ray tracing, hit-scan, and collision detection.
-
-      The elements are generated mostly in the order that they are hit by the
-      ray, so that iteration may end abruptly when the closest intersection to
-      the ray origin has been reached. Because the elements within a given
-      kd-tree node are unordered, iteration may need to proceed a little past
-      the first member returned in order to find the closest intersection. The
-      iterator doesn't automatically find the first intersection because it is
-      looking at bounding boxes, not the true intersections.
-
-      When the caller finds a true intersection it should call markBreakNode()
-      on the iterator. This will stop the iterator (setting it to the end
-      iterator) when the current node and relevant children are exhausted.
-      
-      Complicating the matter further, some members straddle the plane. The
-      iterator produces these members <I>twice</I>. The first time it is
-      produced the caller should only consider intersections on the near side of
-      the split plane. The second time, the caller should only consider
-      intersections on the far side. The minDistance and maxDistance fields
-      specify the range on which intersections should be considered. Be aware
-      that they may be inf or zero.
-      
-      An example of how to use the iterator follows. Almost all ray intersection
-      tests will have identical structure.
-
-     <PRE>
-
-       void findFirstIntersection(
-            const Ray&  ray,
-            Object*&    firstObject,
-            double&     firstTime) {
-
-           firstObject   = NULL;
-           firstDistance = inf();
-
-           typedef AABSPTree<Object*>::RayIntersectionIterator IT;
-           const IT end = tree.endRayIntersection();
-
-           for (IT obj = tree.beginRayIntersection(ray);
-                obj != end;
-                ++obj) {  // (preincrement is *much* faster than postincrement!) 
-
-               // Call your accurate intersection test here.  It is guaranteed
-               // that the ray hits the bounding box of obj.  (*obj) has type T,
-               // so you can call methods directly using the "->" operator.
-               double t = obj->distanceUntilIntersection(ray);
-
-               // Often methods like "distanceUntilIntersection" can be made more
-               // efficient by providing them with the time at which to start and
-               // to give up looking for an intersection; that is, 
-               // obj.minDistance and iMin(firstDistance, obj.maxDistance).
-
-               static const double epsilon = 0.00001;
-               if ((t < firstDistance) && 
-                   (t <= obj.maxDistance + epsilon) &&
-                   (t >= obj.minDistance - epsilon)) {
-
-                   // This is the new best collision time
-                   firstObject   = obj;
-                   firstDistance = t;
-
-                   // Tell the iterator that we've found at least one 
-                   // intersection.  It will finish looking at all
-                   // objects in this node and then terminate.
-		           obj.markBreakNode();
-               }
-           }
-       }
-     </PRE>
-
-
-      @param skipAABoxTests Set to true when the intersection test for a
-      member is faster than an AABox-ray intersection test.  In that case, 
-      the iterator will not use a bounding box test on values that are
-      returned.  Leave false (the default) for objects with slow intersection
-      tests.  In that case, the iterator guarantees that the ray hits the
-      bounds of any object returned.
-     
-     @cite Implementation by Pete Hopkins
-    */
-	RayIntersectionIterator beginRayIntersection(const Ray& ray, bool skipAABoxTests = false) const {
-		return RayIntersectionIterator(ray, root, skipAABoxTests);
-	}
-	
-
-	RayIntersectionIterator endRayIntersection() const {
-		return RayIntersectionIterator();
-	}
-		
 
     /**
      Returns an array of all members of the set.  See also AABSPTree::begin.

@@ -119,15 +119,11 @@ protected:
     public:
         T                   value;
 
-        Handle() {}
-        Handle(const T& v) : value(v), m_position(getPosition(v)) {}
+        inline Handle() {}
+        inline Handle(const T& v) : value(v), m_position(getPosition(v)) {}
 
         inline const Vector3& position() const {
             return m_position;
-        }
-
-        inline Handle(const T& v) : value(v) {
-            getPosition(v, m_position);
         }
     };
 

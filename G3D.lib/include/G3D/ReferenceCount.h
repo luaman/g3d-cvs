@@ -8,7 +8,7 @@
   @cite See also http://www.jelovic.com/articles/cpp_without_memory_errors_slides.htm
 
   @created 2001-10-23
-  @edited  2006-02-24
+  @edited  2007-02-24
 
 */
 
@@ -319,6 +319,9 @@ public:
         zeroPointer();
     }
   
+    inline uint32 hashCode() const {
+        return ::hashCode(m_pointer);
+    }
 
     inline const ReferenceCountedPointer<T>& operator=(const ReferenceCountedPointer<T>& p) {
         setPointer(p.m_pointer);
