@@ -29,6 +29,10 @@
 #include "G3D/CollisionDetection.h"
 #include <algorithm>
 
+// If defined, in debug mode the tree is checked for consistency
+// as a way of detecting corruption due to implementation bugs
+// #define VERIFY_TREE
+
 inline void getBounds(const G3D::Vector3& v, G3D::AABox& out) {
     out = G3D::AABox(v);
 }
@@ -292,6 +296,7 @@ protected:
                 // Box is strictly above the sort location
 			    return 1;
 		    } else {
+                // Box overlaps the sort location
 			    return 0;
 		    }
 	    }
@@ -536,7 +541,7 @@ protected:
             AABox childBounds[2];
             myBounds.split(splitAxis, splitLocation, childBounds[0], childBounds[1]);
 
-#           if defined(G3D_DEBUG) && 0
+#           if defined(G3D_DEBUG) && defined(VERIFY_TREE)
                 // Verify the split
                 for (int v = 0; v < boundsArray.size(); ++v) {
                     const AABox& bounds = boundsArray[v];
@@ -651,7 +656,7 @@ protected:
                 // See if there was an intersection before hitting the splitting plane.  
                 // If so, there is no need to look on the far side and recursion terminates.
                 float distanceToSplittingPlane = (splitLocation - ray.origin[splitAxis]) / ray.direction[splitAxis];
-                if (distanceToSplittingPlane < distance) {
+                if (distanceToSplittingPlane > distance) {
                     // We aren't going to hit anything else before hitting the splitting plane,
                     // so don't bother looking on the far side of the splitting plane at the other
                     // child.
@@ -707,14 +712,7 @@ protected:
             // Arrays for holding the children
             Array<Handle*> lt, gt;
                 
-            if (numMeanSplits > 0) {
-                // Split along the mean
-                splitLocation = (bounds.high()[splitAxis] + 
-                                 bounds.low()[splitAxis]) / 2.0;
-                
-                source.partition(NULL, lt, node->valueArray, gt, Comparator(splitAxis, splitLocation));
-
-            } else {
+            if (numMeanSplits <= 0) {
 
                 source.medianPartition(lt, node->valueArray, gt, temp, CenterComparator(splitAxis));
 
@@ -732,6 +730,7 @@ protected:
                         lt.fastRemove(i); --i;
                     }
                 }
+
                 for (int i = 0; i < gt.size(); ++i) {
                     const AABox& bounds = gt[i]->bounds;
                     if ((bounds.low()[splitAxis] <= splitLocation) && (bounds.high()[splitAxis] >= splitLocation)) {
@@ -740,10 +739,34 @@ protected:
                         // is swapped in in its place.
                         gt.fastRemove(i); --i;
                     }
+                }            
+
+                if ((node->valueArray.size() > (source.size() / 2)) &&
+                    (source.size() > 6)) {
+                    // This was a bad partition; we ended up putting the splitting plane right in the middle of most of the 
+                    // objects.  We could try to split on a different axis, or use a different partition (e.g., the extents mean, 
+                    // or geometric mean).  This implementation falls back on the extents mean, since that case is already handled 
+                    // below.
+                    numMeanSplits = 1;
                 }
             }
 
-#           if defined(G3D_DEBUG) && 0
+            // Note: numMeanSplits may have been increased by the code in the previous case above in order to
+            // force a re-partition.
+
+            if (numMeanSplits > 0) {
+                // Split along the mean
+                splitLocation = (bounds.high()[splitAxis] + 
+                                 bounds.low()[splitAxis]) / 2.0;
+                
+                source.partition(NULL, lt, node->valueArray, gt, Comparator(splitAxis, splitLocation));
+
+                // The Comparator ensures that elements are strictly on the correct side of the split
+            }
+
+
+#           if defined(G3D_DEBUG) && defined(VERIFY_TREE)
+                debugAssert(lt.size() + node->valueArray.size() + gt.size() == source.size());
                 // Verify that all objects ended up on the correct side of the split.
                 // (i.e., make sure that the Array partition was correct) 
                 for (int i = 0; i < lt.size(); ++i) {
@@ -758,8 +781,8 @@ protected:
 
                 for (int i = 0; i < node->valueArray.size(); ++i) {
                     const AABox& bounds  = node->valueArray[i]->bounds;
-                    debugAssert(bounds.high()[splitAxis] > splitLocation);
-                    debugAssert(bounds.low()[splitAxis] < splitLocation);
+                    debugAssert(bounds.high()[splitAxis] >= splitLocation);
+                    debugAssert(bounds.low()[splitAxis] <= splitLocation);
                 }
 #           endif
 
