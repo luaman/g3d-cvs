@@ -1045,7 +1045,7 @@ public:
 
             // This comparision favors the lower side; it makes the median the smallest value
             // less than or equal to the median.
-            if ((lt->size() + ltBoost + eq->size() >= medianIndex) &&
+            if ((lt->size() + ltBoost + eq->size() > medianIndex) &&
                 (gt->size() + gtBoost + eq->size() > medianIndex)) {
 
                 // x must be the partition median                    

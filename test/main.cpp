@@ -549,9 +549,9 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
-    testAABSPTree();
-
     testArray();
+
+    testAABSPTree();
 
     testMatrix3();
 

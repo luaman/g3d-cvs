@@ -156,6 +156,27 @@ void testMedianPartition() {
     debugAssert(lt.size() == 2);
     debugAssert(gt.size() == 3);
 
+    
+    // Test an odd number of elements
+    array.fastClear();
+    array.append(1, 2, 3, 4);
+    array.append(5);
+    array.randomize();
+    array.medianPartition(lt, eq, gt);
+    debugAssert(eq.first() == 3);
+    debugAssert(lt.size() == 2);
+    debugAssert(gt.size() == 2);
+    
+    // Test an even number of elements
+    array.fastClear();
+    array.append(1, 2, 3, 4);
+    array.randomize();
+    array.medianPartition(lt, eq, gt);
+    debugAssert(eq.first() == 2);
+    debugAssert(lt.size() == 1);
+    debugAssert(gt.size() == 2);
+
+
     // Test with a repeated median element
     array.fastClear();
     array.append(1, 2, 4);
