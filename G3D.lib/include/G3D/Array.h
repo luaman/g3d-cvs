@@ -1016,7 +1016,17 @@ public:
         // Number of values greater than all in the current arrays        
         int gtBoost = 0;
 
-        int halfSize = (size() + 1) / 2;
+        // For even length arrays, force the gt array to be one larger than the
+        // lt array:  
+        //  [1 2 3] size = 3, choose half = (s + 1) /2
+        //
+        int lowerHalfSize, upperHalfSize;
+        if (isEven(size())) {
+            lowerHalfSize = size() / 2;
+            upperHalfSize = lowerHalfSize + 1;
+        } else {
+            lowerHalfSize = upperHalfSize = (size() + 1) / 2;
+        }
         const T* xPtr = NULL;
 
         // Maintain pointers to the arrays; we'll switch these around during sorting
@@ -1041,13 +1051,15 @@ public:
             // Note: partition (fast) clears the arrays for us
             source->partition(x, *lt, *eq, *gt, comparator);
 
-            if ((lt->size() + ltBoost + eq->size() >= halfSize) &&
-                (gt->size() + gtBoost + eq->size() >= halfSize)) {
+            int L = lt->size() + ltBoost + eq->size();
+            int U = gt->size() + gtBoost + eq->size();
+            if ((L >= lowerHalfSize) &&
+                (U >= upperHalfSize)) {
 
                 // x must be the partition median                    
                 break;
 
-            } else if (lt->size() + ltBoost + eq->size() < halfSize) {
+            } else if (L < lowerHalfSize) {
 
                 // x must be smaller than the median.  Recurse into the 'gt' array.
                 ltBoost += lt->size() + eq->size();
