@@ -149,7 +149,6 @@ def colorPrint(text, color = 'default'):
 
 
 WARNING_COLOR = 'bold red'
-ERROR_COLOR = 'bold red'
 SECTION_COLOR = 'bold'
 COMMAND_COLOR = 'green'
 

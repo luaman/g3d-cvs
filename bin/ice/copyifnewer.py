@@ -26,7 +26,7 @@ _excludeDirPatterns = \
   Regular expression patterns (i.e., directory patterns) that are 
   excluded from the search for cpp files
 """
-_cppExcludePatterns = ['^old$'] + _excludeDirPatterns
+_cppExcludePatterns = ['^#.*#$', '~$', '^old$'] + _excludeDirPatterns
 
 """ Regular expression patterns that will be excluded from copying by 
     copyIfNewer.
@@ -36,6 +36,7 @@ _excludeFromCopyingPatterns =\
     '\.opt$', \
     '\.ilk$', \
     '\.cvsignore$', \
+    '^\.\#', \
     '\.pdb$', \
     '\.bsc$', \
     '^\.DS_store$', \

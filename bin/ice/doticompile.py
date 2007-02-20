@@ -100,7 +100,7 @@ defaultDotICompile = """
 # This is a configuration file for iCompile (http://ice.sf.net)
 # """ + configHelp + """
 [GLOBAL]
-defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL
+defaultinclude:  $(INCLUDE);/usr/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL;/usr/X11R6/include;
 defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib
 defaultcompiler: <NEWESTCOMPILER>
 defaultexclude:  <EXCLUDE>

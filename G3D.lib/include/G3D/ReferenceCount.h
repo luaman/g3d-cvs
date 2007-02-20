@@ -320,7 +320,10 @@ public:
     }
   
     inline uint32 hashCode() const {
-        return ::hashCode(m_pointer);
+        // Avoid 64-bit pointer cast problems by turning
+        // the pointer itself into an array of integers.
+        int* intPtr = (int*)(((unsigned char*)&m_pointer) + (sizeof(void*) - sizeof(int)));
+        return *intPtr;
     }
 
     inline const ReferenceCountedPointer<T>& operator=(const ReferenceCountedPointer<T>& p) {
