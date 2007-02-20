@@ -720,8 +720,6 @@ public:
         return data[num >> 1];   
     }
 
-    
-
     /**
     Calls delete on all objects[0...size-1]
     and sets the size to zero.
@@ -955,8 +953,8 @@ public:
     /** 
      Paritions the array into those below the median, those above the median, and those elements
      equal to the median in expected O(n) time using quickselect.  If the array has an even
-     number of different elements, the median for partition purposes is the largest value less 
-     than the median.
+     number of different elements, the median for partition purposes is the largest value
+     less than the median.
 
      @param tempArray used for working scratch space
      @param comparator see parition() for a discussion.*/
@@ -1018,7 +1016,7 @@ public:
         // Number of values greater than all in the current arrays        
         int gtBoost = 0;
 
-        int medianIndex = middleIndex();
+        int halfSize = (size() + 1) / 2;
         const T* xPtr = NULL;
 
         // Maintain pointers to the arrays; we'll switch these around during sorting
@@ -1043,15 +1041,13 @@ public:
             // Note: partition (fast) clears the arrays for us
             source->partition(x, *lt, *eq, *gt, comparator);
 
-            // This comparision favors the lower side; it makes the median the smallest value
-            // less than or equal to the median.
-            if ((lt->size() + ltBoost + eq->size() > medianIndex) &&
-                (gt->size() + gtBoost + eq->size() > medianIndex)) {
+            if ((lt->size() + ltBoost + eq->size() >= halfSize) &&
+                (gt->size() + gtBoost + eq->size() >= halfSize)) {
 
                 // x must be the partition median                    
                 break;
 
-            } else if (lt->size() + ltBoost < medianIndex) {
+            } else if (lt->size() + ltBoost + eq->size() < halfSize) {
 
                 // x must be smaller than the median.  Recurse into the 'gt' array.
                 ltBoost += lt->size() + eq->size();
