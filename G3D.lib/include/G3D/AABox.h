@@ -66,6 +66,19 @@ public:
         hi = high;
     }
 
+    /**
+     Grows to include the bounds of a
+     */
+    inline void merge(const AABox& a) {
+        lo = lo.min(a.lo);
+        hi = hi.max(a.hi);
+    }
+
+    inline void merge(const Vector3& a) {
+        lo = lo.min(a);
+        hi = hi.max(a);
+    }
+
 	void serialize(class BinaryOutput& b) const;
 
 	void deserialize(class BinaryInput& b);

@@ -11,8 +11,8 @@
   
   */
 
-#ifndef G3D_PointAABSPTree_H
-#define G3D_PointAABSPTree_H
+#ifndef X_PointAABSPTree_H
+#define X_PointAABSPTree_H
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -120,7 +120,14 @@ protected:
         T                   value;
 
         inline Handle() {}
-        inline Handle(const T& v) : value(v), m_position(getPosition(v)) {}
+        inline Handle(const T& v) : value(v) {
+            ::getPosition(v, m_position);
+        }
+
+        /** Used by makeNode to create fake handles for partitioning. */
+        void setPosition(const Vector3& v) {
+            m_position = v;
+        }
 
         inline const Vector3& position() const {
             return m_position;
@@ -129,46 +136,20 @@ protected:
 
     /** Returns the bounds of the sub array. Used by makeNode. */
     static AABox computeBounds(
-        const Array<Handle>&  point, 
-        int                   beginIndex,
-        int                   endIndex) {
+        const Array<Handle>&  point) {
     
         if (point.size() == 0) {
             return AABox(Vector3::inf(), Vector3::inf());
         }
 
-        Vector3 lo = point[0].position();
-        Vector3 hi = lo;
+        AABox bounds(point[0].position());
 
-        for (int p = beginIndex; p <= endIndex; ++p) {
-            const Vector3& pt = point[p].position();
-            lo = lo.min(pt);
-            hi = hi.max(pt);
+        for (int p = 0; p < point.size(); ++p) {
+            bounds.merge(point[p].position());
         }
 
-        return AABox(lo, hi);
+        return bounds;
     }
-
-
-    /**
-     A sort predicate that returns true if the 
-     first argument is less than the midpoint of the second
-     along the specified axis.
-
-     Used by makeNode.
-     */
-    class CenterLT {
-    public:
-        Vector3::Axis           sortAxis;
-
-        CenterLT(Vector3::Axis a) : sortAxis(a) {}
-
-        inline bool operator()(const Handle& a, const Handle& b) const {
-            return a.position()[sortAxis] < b.position()[sortAxis];
-        }
-    };
-
-
 
     class Node {
     public:
@@ -220,19 +201,13 @@ protected:
 
         /** Copies the specified subarray of pt into point, NULLs the children.
             Assumes a second pass will set splitBounds. */
-        Node(const Array<Handle>& pt, int beginIndex, int endIndex) {
+        Node(const Array<Handle>& pt) {
             splitAxis     = Vector3::X_AXIS;
             splitLocation = 0;
             for (int i = 0; i < 2; ++i) {
                 child[i] = NULL;
             }
-
-            int n = endIndex - beginIndex + 1;
-
-            valueArray.resize(n);
-            for (int i = n - 1; i >= 0; --i) {
-                valueArray[i] = pt[i + beginIndex];
-            }
+            valueArray = pt;
         }
 
 
@@ -272,13 +247,8 @@ protected:
             debugAssert(hi == splitBounds.high());
 
 		    for (int i = 0; i < valueArray.length(); ++i) {
-			    const AABox& b = valueArray[i].bounds;
-
-			    for(int axis = 0; axis < 3; ++axis) {
-				    debugAssert(b.low()[axis] <= b.high()[axis]);
-				    debugAssert(b.low()[axis] > lo[axis]);
-				    debugAssert(b.high()[axis] < hi[axis]);
-			    }
+			    const Vector3& b = valueArray[i].position();
+                debugAssert(splitBounds.contains(b));
 		    }
 
 		    if (child[0] || child[1]) {
@@ -336,20 +306,20 @@ protected:
         }
 
         /** Returns the deepest node that completely contains bounds. */
-        Node* findDeepestContainingNode(const AABox& bounds) {
+        Node* findDeepestContainingNode(const Vector3& point) {
 
             // See which side of the splitting plane the bounds are on
-            if (bounds.high()[splitAxis] < splitLocation) {
-                // Bounds are on the low side.  Recurse into the child
+            if (point[splitAxis] < splitLocation) {
+                // Point is on the low side.  Recurse into the child
                 // if it exists.
                 if (child[0] != NULL) {
-                    return child[0]->findDeepestContainingNode(bounds);
+                    return child[0]->findDeepestContainingNode(point);
                 }
-            } else if (bounds.low()[splitAxis] > splitLocation) {
-                // Bounds are on the high side, recurse into the child
+            } else if (point[splitAxis] > splitLocation) {
+                // Point is on the high side, recurse into the child
                 // if it exists.
                 if (child[1] != NULL) {
-                    return child[1]->findDeepestContainingNode(bounds);
+                    return child[1]->findDeepestContainingNode(point);
                 }
             }
 
@@ -358,6 +328,38 @@ protected:
             return this;
         }
 
+        /** Appends all members that intersect the box. 
+            If useSphere is true, members are tested against the sphere instead. */
+        void getIntersectingMembers(
+            const AABox&        sphereBounds,
+            const Sphere&       sphere,
+            Array<T>&           members) const {
+
+            // Test all values at this node.  Extract the
+            // underlying C array for speed
+            const int N = valueArray.size();
+            const Handle* handleArray = valueArray.getCArray();
+            
+            const float r2 = square(sphere.radius);
+
+            // Copy the sphere center so that it is on the stack near the radius
+            const Vector3 center = sphere.center; 
+            for (int v = 0; v < N; ++v) {
+                if ((center - handleArray[v].position()).squaredLength() <= r2) {
+                    members.append(handleArray[v].value);
+                }
+            }
+
+            // If the left child overlaps the box, recurse into it
+            if (child[0] && (sphereBounds.low()[splitAxis] < splitLocation)) {
+                child[0]->getIntersectingMembers(sphereBounds, sphere, members);
+            }
+
+            // If the right child overlaps the box, recurse into it
+            if (child[1] && (sphereBounds.high()[splitAxis] > splitLocation)) {
+                child[1]->getIntersectingMembers(sphereBounds, sphere, members);
+            }
+        }
 
         /** Appends all members that intersect the box. 
             If useSphere is true, members are tested against the sphere instead. */
@@ -392,6 +394,13 @@ protected:
         void assignSplitBounds(const AABox& myBounds) {
             splitBounds = myBounds;
 
+#           ifdef G3D_DEBUG
+                if (child[0] || child[1]) {
+                    debugAssert(splitBounds.high()[splitAxis] > splitLocation);
+                    debugAssert(splitBounds.low()[splitAxis] < splitLocation);
+                }
+#           endif
+
             AABox childBounds[2];
             myBounds.split(splitAxis, splitLocation, childBounds[0], childBounds[1]);
 
@@ -402,43 +411,74 @@ protected:
             }
         }
     };
+
+    class AxisComparator {
+    private:
+        Vector3::Axis sortAxis;
+
+    public:
+
+        AxisComparator(Vector3::Axis s) : sortAxis(s) {}
+
+        inline int operator()(const Handle& A, const Handle& B) const {
+            if (A.position()[sortAxis] > B.position()[sortAxis]) {
+                return -1;
+            } else if (A.position()[sortAxis] < B.position()[sortAxis]) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    };
+
     /**
      Recursively subdivides the subarray.
-     Begin and end indices are inclusive.
+
+     The source array will be cleared after it is used
 
      Call assignSplitBounds() on the root node after making a tree.
      */
-    Node* makeNode(Array<Handle>& point, int beginIndex, 
-                   int endIndex, int valuesPerNode, 
-                   int numMeanSplits)  {
+    Node* makeNode(
+        Array<Handle>& source, 
+        Array<Handle>& temp,
+        int valuesPerNode, 
+        int numMeanSplits)  {
 
 	    Node* node = NULL;
 	    
-	    if (endIndex - beginIndex + 1 <= valuesPerNode) {
+	    if (source.size() <= valuesPerNode) {
 		    // Make a new leaf node
-		    node = new Node(point, beginIndex, endIndex);
+		    node = new Node(source);
 		    
 		    // Set the pointers in the memberTable
-		    for (int i = beginIndex; i <= endIndex; ++i) {
-			    memberTable.set(point[i].value, node);
+		    for (int i = 0; i < source.size(); ++i) {
+			    memberTable.set(source[i].value, node);
 		    }
 		    
         } else {
 		    // Make a new internal node
 		    node = new Node();
 		    
-            const AABox bounds = computeBounds(point, beginIndex, endIndex);
+            const AABox bounds = computeBounds(source);
 		    const Vector3 extent = bounds.high() - bounds.low();
 		    
 		    Vector3::Axis splitAxis = extent.primaryAxis();
 		    
-            double splitLocation;
+            float splitLocation;
 
-	        // Sort only the subarray
-	        std::sort(
-		        point.getCArray() + beginIndex,
-		        point.getCArray() + endIndex + 1,
-		        CenterLT(splitAxis));
+            Array<Handle> lt, gt;
+
+            if (numMeanSplits <= 0) {
+                source.medianPartition(lt, node->valueArray, gt, temp, AxisComparator(splitAxis));
+                splitLocation = node->valueArray[0].position()[splitAxis];
+                
+                if ((node->valueArray.size() > source.size() / 2) &&
+                    (source.size() > 10)) {
+                    // Our median split put an awful lot of points on the splitting plane.  Try a mean
+                    // split instead
+                    numMeanSplits = 1;
+                }
+            }
 
             if (numMeanSplits > 0) {
                 // Compute the mean along the axis
@@ -446,41 +486,40 @@ protected:
                 splitLocation = (bounds.high()[splitAxis] + 
                                  bounds.low()[splitAxis]) / 2.0;
 
-            } else {
+                Handle splitHandle;
+                Vector3 v;
+                v[splitAxis] = splitLocation;
+                splitHandle.setPosition(v);
 
-                // Compute the median along the axis
-		        		        
-                // Intentional integer divide
-		        int midIndex = (beginIndex + endIndex) / 2;
-		        
-		        // Choose the split location between the two middle elements
-		        const Vector3 median = 
-			        (point[midIndex].position() +
-			         point[iMin(midIndex + 1, point.size() - 1)].position()) * 0.5;
-
-                splitLocation = median[splitAxis];
+                source.partition(splitHandle, lt, node->valueArray, gt, AxisComparator(splitAxis));
             }
-		    
-		    node->splitAxis     = splitAxis;
-		    node->splitLocation = splitLocation;
 
-            // Find the index separating those below and above the split.
-            // Points on the split go below
-            int splitIndex;
-            for (splitIndex = beginIndex;
-                 (splitIndex <= endIndex) &&
-                 (point[splitIndex].position()[splitAxis] <= splitLocation); 
-                 ++splitIndex) {}
-		    
-            // There must always be a left child, since the splitLocation cannot be lower than the mean or the median
-		    node->child[0]      = 
-			    makeNode(point, beginIndex, splitIndex - 1, 
-                         valuesPerNode, numMeanSplits - 1);
-		    
-		    if (splitIndex <= endIndex) {
-			    node->child[1]      = 
-				    makeNode(point, splitIndex, endIndex, valuesPerNode, numMeanSplits - 1);
-		    }
+#           if defined(G3D_DEBUG) && defined(VERIFY_TREE)
+                for (int i = 0; i < lt.size(); ++i) {
+                    const Vector3& v = lt[i].position(); 
+                    debugAssert(v[splitAxis] < splitLocation);
+                }
+                for (int i = 0; i < gt.size(); ++i) {
+                    debugAssert(gt[i].position()[splitAxis] > splitLocation);
+                }
+                for (int i = 0; i < node->valueArray.size(); ++i) {
+                    debugAssert(node->valueArray[i].position()[splitAxis] == splitLocation);
+                }
+#           endif
+
+            node->splitAxis = splitAxis;
+            node->splitLocation = splitLocation;
+
+            // Throw away the source array to save memory
+            source.fastClear();
+        
+            if (lt.size() > 0) {
+                node->child[0] = makeNode(lt, temp, valuesPerNode, numMeanSplits - 1);
+            }
+
+            if (gt.size() > 0) {
+                node->child[1] = makeNode(gt, temp, valuesPerNode, numMeanSplits - 1);
+            }
 		    
 	    }
 	    
@@ -681,7 +720,7 @@ public:
      creates a full oct-tree, which tends to optimize peak performance (some areas of the scene will terminate after few recursive splits) at the expense of
      peak performance. 
      */
-    void balance(int valuesPerNode = 20, int numMeanSplits = 3) {
+    void balance(int valuesPerNode = 40, int numMeanSplits = 3) {
         if (root == NULL) {
             // Tree is empty
             return;
@@ -693,16 +732,17 @@ public:
         // Delete the old tree
         clear();
 
-        root = makeNode(handleArray, 0, handleArray.size() - 1, 
-            valuesPerNode, numMeanSplits);
+        Array<Handle> temp;
+        root = makeNode(handleArray, temp, valuesPerNode, numMeanSplits);
+        temp.fastClear();
 
         // Walk the tree, assigning splitBounds.  We start with unbounded
         // space.
         root->assignSplitBounds(AABox::maxFinite());
 
-        #ifdef _DEBUG
-        root->verifyNode(Vector3::minFinite(), Vector3::maxFinite());
-        #endif
+#       ifdef _DEBUG
+            root->verifyNode(Vector3::minFinite(), Vector3::maxFinite());
+#       endif
     }
 
 private:
@@ -1008,7 +1048,7 @@ public:
 
         AABox box;
         sphere.getBounds(box);
-        root->getIntersectingMembers(box, sphere, members, true);
+        root->getIntersectingMembers(box, sphere, members);
 
     }
 

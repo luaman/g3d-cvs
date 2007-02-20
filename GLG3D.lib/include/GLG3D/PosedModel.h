@@ -159,6 +159,10 @@ public:
 
     virtual const Array<MeshAlg::Vertex>& weldedVertices() const = 0;
 
+    /**
+     Indices into the Geometry that create triangles.  May be welded or not, depending on 
+     the model.
+     */
     virtual const Array<int>& triangleIndices() const = 0;
 
     virtual void getObjectSpaceBoundingSphere(Sphere&) const = 0;
