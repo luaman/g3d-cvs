@@ -949,7 +949,7 @@ public:
         Array<T>& eqArray,
         Array<T>& gtArray) const {
 
-        partition(partitionElement, ltArray, eqArray, gtArray, Array<T>::DefaultComparator());
+        partition(partitionElement, ltArray, eqArray, gtArray, typename Array<T>::DefaultComparator());
     }
 
     /** 
