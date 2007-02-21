@@ -570,6 +570,7 @@ public:
         delete root;
         // Clone tree takes care of filling out the memberTable.
         root = cloneTree(src.root);
+        return *this;
     }
 
 

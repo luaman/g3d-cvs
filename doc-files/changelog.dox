@@ -17,6 +17,8 @@
      <li> Changed distribution directories to place include, lib, and bin under a directory named after the platform
           and all other files one directory up.
      <li> Made Ray non-virtual
+     <li> Optimized AABSPTree balance and queries; now about 20% faster than 6.10, but requires 30 bytes more memory per member
+     <li> G3D::Array::pop now shrinks the underlying array by default (Array::popRemove does not shrink the array and is faster)
      <li> Fast O(<i>n</i>), non-destructive G3D::Array::partition and G3D::Array::medianPartition
      <li> Increased ReliableConduit read attempts before timeout from 10 to 100 
      <li> G3D::GImage::pixel1 now returns G3D::Color1uint8*
