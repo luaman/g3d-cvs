@@ -27,6 +27,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
+#include "G3D/GCamera.h"
 #include <algorithm>
 
 // If defined, in debug mode the tree is checked for consistency

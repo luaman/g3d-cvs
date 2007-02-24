@@ -26,6 +26,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
+#include "G3D/GCamera.h"
 #include <algorithm>
 
 inline void getPosition(const G3D::Vector3& v, G3D::Vector3& p) {
@@ -121,7 +122,7 @@ protected:
 
         inline Handle() {}
         inline Handle(const T& v) : value(v) {
-            ::getPosition(v, m_position);
+            getPosition(v, m_position);
         }
 
         /** Used by makeNode to create fake handles for partitioning. */
