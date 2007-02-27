@@ -177,6 +177,9 @@ public:
     static const Color3& gray();
     static const Color3& white();
 
+    static const Color3& zero();
+    static const Color3& one();
+
 };
 
 inline G3D::Color3 operator* (float s, const G3D::Color3& c) {

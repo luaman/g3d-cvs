@@ -122,7 +122,7 @@ inline const double& nan() {
     // double is a standard type and should have quiet NaN
     static const double n = std::numeric_limits<double>::quiet_NaN();
 #endif
-	return n;
+    return n;
 }
 
 /** Returns a reference to a static double. Use instead of G3D_PI. */

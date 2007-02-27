@@ -13,7 +13,7 @@
 # DO NOT MODIFY THIS SCRIPT.  EDIT ICE.TXT AND ~/.ICOMPILE TO CUSTOMIZE
 # YOUR PROJECT CONFIGURATION.
 
-version = [0, 5, 1]
+version = [0, 5, 2]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time
@@ -105,10 +105,18 @@ def buildDataFiles(state):
     dst = state.installDir
     
     if os.path.exists(src):
-        if verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
-        copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity == NORMAL)
-        if verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
+        outOfDate = copyIfNewer(src, dst, False, False, False)
 
+        if outOfDate:
+            if verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
+            copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity == NORMAL)
+            if verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
+            maybePrintBar()
+        else:
+            if verbosity > NORMAL:
+                colorPrint('\nData files are up to date', SECTION_COLOR)
+                maybePrintBar()
+                
 ##############################################################################
 #                               Build Include                                #
 ##############################################################################
@@ -485,12 +493,20 @@ def runCompiledProgram(state, progArgs):
 
 #########################################################################
 
+def isUnixAbsolutePath(p):
+    return ((p != '') and
+            ((p[0] == '/') or (p[0] == '\\')))
+
 """ Called from runCompile to launch the program on completion.  Returns
     the program's exit code. """
 def gdbCompiledProgram(state, progArgs):
     # Write out the 'run' command to a file since gdb doesn't
-    # accept it on the command line.
-    commandFile = state.tempDir + 'gdb-commands.txt'
+    # accept it on the command line.  This has to be in an absolute
+    # path since gdb changes directory before reading it.
+    tempDir = state.tempDir
+    if not isUnixAbsolutePath(tempDir[1]):
+        tempDir = os.path.abspath(tempDir)
+    commandFile = tempDir + 'gdb-commands.txt'
     f = open(commandFile, 'w')
     f.write('run ' + string.join(progArgs, ' '))
     f.close()
@@ -667,7 +683,6 @@ def main(state, args, progArgs, doGDB, doRun):
 
     if state.binaryType == EXE:
         buildDataFiles(state)
-        maybePrintBar()
 
     buildBinary(state)
 
@@ -690,10 +705,6 @@ def main(state, args, progArgs, doGDB, doRun):
             print '\nLibrary written to ' + state.binaryDir + state.binaryName
                 
     return 0
-
-###############################################################
-
-
 
 ########################################################################################
 # The beep is controlled by the outermost configuration file

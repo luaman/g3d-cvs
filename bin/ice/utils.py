@@ -149,6 +149,7 @@ def colorPrint(text, color = 'default'):
 
 
 WARNING_COLOR = 'bold red'
+ERROR_COLOR = 'bold red'
 SECTION_COLOR = 'bold'
 COMMAND_COLOR = 'green'
 
@@ -817,13 +818,12 @@ def _listCFilesVisitor(result, dirname, files):
             removelist.append(f)
             
          elif isCFile(f):
-             
-            # Ensure the path ends in a slash (when needed)
-            filename = pathConcat(dir, f)
 
-            if ((excludeFromCompilation == None) or
-                (excludeFromCompilation.search(filename) == None)):
-                result.append(filename)
+             if ((excludeFromCompilation == None) or
+                 (excludeFromCompilation.search(f) == None)):
+                 # Ensure the path ends in a slash (when needed)
+                 filename = pathConcat(dir, f)
+                 result.append(filename)
 
     # Remove any subdir in 'files' that is itself excluded so as to prevent
     # later recursion into it
@@ -840,6 +840,7 @@ def _listCFilesVisitor(result, dirname, files):
    exclude must be a regular expression for files to exclude.
    """
 def listCFiles(dir = '', exclude = None):
+    global excludeFromCompilation
     if (dir == ''): dir = './'
 
     excludeFromCompilation = exclude

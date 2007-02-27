@@ -75,6 +75,17 @@ const Color3& Color3::black() {
     return c;
 }
 
+const Color3& Color3::zero() {
+    static Color3 c(0.0f, 0.0f, 0.0f);
+    return c;
+}
+
+
+const Color3& Color3::one() {
+    static Color3 c(1.0f, 1.0f, 1.0f);
+    return c;
+}
+
 
 const Color3& Color3::gray() {
     static Color3 c(0.7f, 0.7f, 0.7f);

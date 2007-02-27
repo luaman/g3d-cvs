@@ -22,11 +22,6 @@ _excludeDirPatterns = \
      '^\.ice-tmp$', \
      '^build$']
 
-"""
-  Regular expression patterns (i.e., directory patterns) that are 
-  excluded from the search for cpp files
-"""
-_cppExcludePatterns = ['^#.*#$', '~$', '^old$'] + _excludeDirPatterns
 
 """ Regular expression patterns that will be excluded from copying by 
     copyIfNewer.
@@ -55,6 +50,12 @@ _excludeFromCopyingPatterns =\
     '\^.cvsignore$'] + _excludeDirPatterns
 
 """
+  Regular expression patterns (i.e., directory and filename patterns) that are 
+  excluded from the search for cpp files
+"""
+_cppExcludePatterns = ['^#.*#$', '~$', '^old$'] + _excludeFromCopyingPatterns
+
+"""
 A regular expression matching files that should be excluded from copying.
 """
 excludeFromCopying  = re.compile(string.join(_excludeFromCopyingPatterns, '|'))
@@ -65,20 +66,24 @@ _copyIfNewerCopiedAnything = False
 Recursively copies all contents of source to dest 
 (including source itself) that are out of date.  Does 
 not copy files matching the excludeFromCopying patterns.
+
+Returns true if any files were copied
+
+If actuallyCopy is false, doesn't actually copy the files, but still prints.
 """
-def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True):
+def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuallyCopy = True):
     global _copyIfNewerCopiedAnything
     _copyIfNewerCopiedAnything = False
     
     if source == dest:
         # Copying in place
-        return
+        return False
 
     dest = removeTrailingSlash(dest)
 
     if (not os.path.exists(source)):
         # Source does not exist
-        return
+        return False
 
     if (not os.path.isdir(source) and newer(source, dest)):
         if echoCommands: 
@@ -86,7 +91,9 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True):
         elif echoFilenames:
             print source
         
-        shutil.copyfile(source, dest)
+        if actuallyCopy:
+            shutil.copyfile(source, dest)
+            
         _copyIfNewerCopiedAnything = YES
         
     else:
@@ -94,10 +101,12 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True):
         # Walk is a special iterator that visits all of the
         # children and executes the 2nd argument on them.  
         os.path.walk(source, _copyIfNewerVisit, 
-                     [len(source), dest, echoCommands, echoFilenames])
+                     [len(source), dest, echoCommands, echoFilenames, actuallyCopy])
 
     if not _copyIfNewerCopiedAnything and echoCommands:
         print dest + ' is up to date with ' + source
+        
+    return _copyIfNewerCopiedAnything
     
 #########################################################################
     
@@ -120,6 +129,7 @@ def _copyIfNewerVisit(args, sourceDirname, names):
 
     echoCommands = args[2]
     echoFilenames = args[3]
+    actuallyCopy = args[4]
         
     if (excludeFromCopying.search(dirName) != None):
         # Don't recurse into subdirectories of excluded directories
@@ -127,7 +137,8 @@ def _copyIfNewerVisit(args, sourceDirname, names):
         return
 
     # Create the corresponding destination dir if necessary
-    mkdir(destDirname, echoCommands)
+    if actuallyCopy:
+        mkdir(destDirname, echoCommands)
 
     # Iterate through the contents of this directory   
     for name in names:
@@ -144,5 +155,6 @@ def _copyIfNewerVisit(args, sourceDirname, names):
                 elif echoFilenames: 
                     print name
                 _copyIfNewerCopiedAnything = True
-                shutil.copyfile(source, dest)
+                if actuallyCopy:
+                    shutil.copyfile(source, dest)
 
