@@ -259,12 +259,12 @@
         STR
 
      <LI><B>Data structures</B> &nbsp; &nbsp;
-	G3D::AnyVal,
+	    G3D::AnyVal,
         G3D::AABSPTree,
-	G3D::Array,
-	G3D::Queue,
- 	G3D::Set,
-	G3D::Table,
+	    G3D::Array,
+	    G3D::Queue,
+ 	    G3D::Set,
+	    G3D::Table,
         G3D::ReferenceCountedObject,
         G3D::ReferenceCountedPointer,
         G3D::WeakReferenceCountedPointer
@@ -276,7 +276,8 @@
 		G3D::Image3uint8,
 		G3D::Image4,
 		G3D::Image4uint8,
-		G3D::Map2D
+		G3D::Map2D,
+		G3D::gaussian1D,
         <BR>
     See also contrib code
     <A HREF="../contrib/Webcam">Webcam</A>, 

@@ -88,6 +88,8 @@ void testCoordinateFrame();
 
 void testGThread();
 
+void testfilter();
+
 
 void testConvexPolygon2D() {
     printf("ConvexPolygon2D\n");
@@ -548,6 +550,8 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testfilter();
 
     testArray();
 

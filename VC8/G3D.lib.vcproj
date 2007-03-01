@@ -247,6 +247,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\filter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\format.cpp"
 				>
 			</File>
@@ -554,6 +558,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\fileutils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\filter.h"
 				>
 			</File>
 			<File

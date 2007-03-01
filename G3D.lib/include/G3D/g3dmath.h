@@ -751,6 +751,7 @@ inline bool fuzzyLe(double a, double b) {
 inline int iMod3(int x) {
     return x % 3;
 }
+
 } // namespace
 
 #ifdef _MSC_VER

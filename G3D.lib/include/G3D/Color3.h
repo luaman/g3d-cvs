@@ -136,12 +136,12 @@ public:
 
     }
 
-    inline double sum() const {
+    inline float sum() const {
         return r + g + b;
     }
 
-    inline double average() const {
-        return sum() / 3.0;
+    inline float average() const {
+        return sum() / 3.0f;
     }
 
 

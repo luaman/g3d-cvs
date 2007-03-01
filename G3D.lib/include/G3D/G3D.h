@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2001-08-25
- @edited  2007-02-31
+ @edited  2007-03-01
 
  Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
@@ -98,6 +98,7 @@
 #include "G3D/Image3uint8.h"
 #include "G3D/Image4.h"
 #include "G3D/Image4uint8.h"
+#include "G3D/filter.h"
 
 #ifdef G3D_WIN32
 	#pragma comment(lib, "zlib")
