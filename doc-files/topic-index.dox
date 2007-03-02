@@ -272,6 +272,8 @@
      <LI><B>Images</B> &nbsp; &nbsp;
 		G3D::GImage,
 		G3D::GImage::Error,	
+		G3D::Image1,
+		G3D::Image1uint8,
 		G3D::Image3,
 		G3D::Image3uint8,
 		G3D::Image4,

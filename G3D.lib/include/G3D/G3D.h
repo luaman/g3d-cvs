@@ -94,6 +94,8 @@
 #include "G3D/RegistryUtil.h"
 #include "G3D/AnyVal.h"
 #include "G3D/Map2D.h"
+#include "G3D/Image1.h"
+#include "G3D/Image1uint8.h"
 #include "G3D/Image3.h"
 #include "G3D/Image3uint8.h"
 #include "G3D/Image4.h"
