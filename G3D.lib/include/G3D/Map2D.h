@@ -18,6 +18,7 @@
 #include "G3D/AtomicInt32.h"
 #include "G3D/GThread.h"
 #include "G3D/Rect2D.h"
+
 #include <string>
 
 namespace G3D {
@@ -178,7 +179,8 @@ namespace G3D {
   
   @author Morgan McGuire, morgan@cs.williams.edu
  */
-template< typename Storage, typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type >
+template< typename Storage, 
+typename Compute = typename G3D::_internal::_GetComputeType<Storage>::Type>
 class Map2D : public ReferenceCountedObject {
 
 //
@@ -195,6 +197,8 @@ public:
     typedef ReferenceCountedPointer<Map2D> Ref;
 
 protected:
+    
+    Storage ZERO;
 
     /** Width, in pixels. */
     uint32              w;
@@ -265,9 +269,7 @@ protected:
         S[2] = s2;
         S[3] = s2 * s;
 
-        Compute sum;
-        // Zero out
-        sum = sum * 0;
+        Compute sum(ZERO);
 
         for (int c = 0; c < 4; ++c) {
             double coeff = 0.0;
@@ -280,7 +282,9 @@ protected:
         return sum;
     }
 
+
     Map2D(int w, int h, WrapMode wrap) : _wrapMode(wrap), m_changed(1) {
+        ZERO = Storage(Compute(Storage()) * 0);
         resize(w, h);
     }
 

@@ -60,6 +60,8 @@ void perfSystemMemcpy();
 void testSystemMemcpy();
 void testSystemMemset();
 
+void testMap2D();
+
 void testReferenceCount();
 
 void testRandom();
@@ -550,6 +552,7 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+    testMap2D();
 
     testfilter();
 

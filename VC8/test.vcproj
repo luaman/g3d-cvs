@@ -222,6 +222,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tMap2D.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tMatrix.cpp"
 				>
 			</File>
