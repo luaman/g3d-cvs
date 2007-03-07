@@ -26,6 +26,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
+				ExcludedFromBuild="false"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -50,7 +51,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -92,6 +93,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
+				ExcludedFromBuild="false"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
