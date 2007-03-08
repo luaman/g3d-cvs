@@ -49,19 +49,10 @@ void Cylinder::deserialize(class BinaryInput& b) {
 }
 
 
-Line Cylinder::getAxis() const {
+Line Cylinder::axis() const {
 	return Line::fromTwoPoints(p1, p2);
 }
 
-
-Vector3 Cylinder::getPoint1() const {
-	return p1;
-}
-
-
-Vector3 Cylinder::getPoint2() const {
-	return p2;
-}
 
 
 float Cylinder::radius() const {

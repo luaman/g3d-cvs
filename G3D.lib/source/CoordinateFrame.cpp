@@ -123,8 +123,8 @@ Triangle CoordinateFrame::toWorldSpace(const Triangle& t) const {
 
 Cylinder CoordinateFrame::toWorldSpace(const Cylinder& c) const {
     return Cylinder(
-        pointToWorldSpace(c.getPoint1()), 
-        pointToWorldSpace(c.getPoint2()), 
+        pointToWorldSpace(c.point(0)), 
+        pointToWorldSpace(c.point(1)), 
         c.radius());
 }
 

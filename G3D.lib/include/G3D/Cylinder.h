@@ -41,7 +41,7 @@ public:
 	void deserialize(class BinaryInput& b);
 	
 	/** The line down the center of the Cylinder */
-	Line getAxis() const;
+	Line axis() const;
 
     /** 
       A reference frame in which the center of mass is at the origin and
@@ -49,9 +49,11 @@ public:
       may freely rotate around its axis.*/
     void getReferenceFrame(class CoordinateFrame& cframe) const;
 
-	Vector3 getPoint1() const;
-
-	Vector3 getPoint2() const;
+    /** Returns point 0 or 1 */
+    inline const Vector3& point(int i) const {
+        debugAssert(i >= 0 && i <= 1);
+        return (i == 0) ? p1 : p2;
+    }
 
     /**
      Returns true if the point is inside the Cylinder or on its surface.

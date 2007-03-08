@@ -171,7 +171,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-MapRef Map::create(const std::string& path, const std::string& fileName, float scale) {
+MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale) {
     debugAssert(path == "" || path[path.size() - 1] == '/' || path[path.size() - 1] == '\\');
     Map* m = new Map();
     if (m->load(path, fileName)) {
