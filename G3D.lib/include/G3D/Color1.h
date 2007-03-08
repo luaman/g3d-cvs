@@ -34,18 +34,19 @@ private:
     bool operator>=(const Color1&) const;
 
 public:
+    float value;
+
     /**
      Does not initialize fields.
      */
-    Color1();
+    inline Color1() {}
 
     Color1(class BinaryInput& bi);
 
-    explicit Color1(float v);
+    inline explicit Color1(float v) : value(v) {
+    }
 
     Color1 (const class Color1uint8& other);
-
-    float value;
 
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);

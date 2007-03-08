@@ -364,6 +364,11 @@ public:
             // (we're returning a const reference so this is ok)
             return const_cast<Type*>(this)->slowGet(x, y);
         }
+#       ifndef G3D_WIN32
+            // gcc gives a useless warning that the above code might reach the end of the function;
+            // we use this line to supress the warning.
+            return ZERO;
+#       endif
     }
 
     inline const Storage& get(const Vector2int16& p) const {
@@ -372,6 +377,11 @@ public:
 
     inline Storage& get(int x, int y) {
         return const_cast<Storage&>(const_cast<const Type*>(this)->get(x, y));
+#       ifndef G3D_WIN32
+            // gcc gives a useless warning that the above code might reach the end of the function;
+            // we use this line to supress the warning.
+            return ZERO;
+#       endif
     }
 
     inline Storage& get(const Vector2int16& p) {

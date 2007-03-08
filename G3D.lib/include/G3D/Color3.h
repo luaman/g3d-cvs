@@ -122,6 +122,13 @@ public:
     Color3 cross (const Color3& rkVector) const;
     Color3 unitCross (const Color3& rkVector) const;
 
+    inline Color3 pow(const Color3& other) const {
+        return Color3(::pow(r, other.r), ::pow(g, other.g), ::pow(b, other.b));
+    }
+    
+    inline Color3 pow(float other) const {
+        return Color3(::pow(r, other), ::pow(g, other), ::pow(b, other));
+    }
 
     inline Color3 max(const Color3& other) const {
         return Color3(G3D::max(r, other.r), G3D::max(g, other.g), G3D::max(b, other.b));
@@ -131,7 +138,7 @@ public:
         return Color3(G3D::min(r, other.r), G3D::min(g, other.g), G3D::min(b, other.b));
     }
 
-	inline Color3 lerp(const Color3& other, float a) const {
+    inline Color3 lerp(const Color3& other, float a) const {
         return (*this) + (other - *this) * a; 
 
     }
@@ -145,19 +152,17 @@ public:
     }
 
 
-	/**
-	 *  Converts from HSV to RGB , note: toHSV(fromHSV(_hsv)) may not be _hsv, if it is at a grey point or black point.
-	 *  The components of _hsv should lie in the unit interval. 
-	 *  @cite Alvy Ray Smith SIGGRAPH 1978 "Color Gamut Transform Pairs"
-	 **/
-	static Color3 fromHSV(const Vector3& _hsv);
-	static Vector3 toHSV(const Color3& _rgb);
-
-	/** Duplicates the matlab jet colormap maps [0,1] --> (r,g,b) where blue is close to  0 and red is close to 1. */
-	static Color3 jetColorMap(const float& val);
-
-
-
+    /**
+     *  Converts from HSV to RGB , note: toHSV(fromHSV(_hsv)) may not be _hsv, if it is at a grey point or black point.
+     *  The components of _hsv should lie in the unit interval. 
+     *  @cite Alvy Ray Smith SIGGRAPH 1978 "Color Gamut Transform Pairs"
+     **/
+    static Color3 fromHSV(const Vector3& _hsv);
+    static Vector3 toHSV(const Color3& _rgb);
+    
+    /** Duplicates the matlab jet colormap maps [0,1] --> (r,g,b) where blue is close to  0 and red is close to 1. */
+    static Color3 jetColorMap(const float& val);
+    
     std::string toString() const;
 
     /** Random unit vector */

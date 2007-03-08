@@ -17,6 +17,10 @@
 #include "G3D/platform.h"
 #include "G3D/debug.h"
 #include "G3D/System.h"
+#ifdef G3D_DEBUG
+//   For formatting error messages
+#    include "G3D/format.h"
+#endif
 #include <vector>
 #include <algorithm>
 
@@ -626,13 +630,13 @@ public:
     Performs bounds checks in debug mode
     */
    inline T& operator[](int n) {
-        debugAssert((n >= 0) && (n < num));
-	    debugAssert(data!=NULL);
+        debugAssertM((n >= 0) && (n < num), format("Array index out of bounds. n = %d, size() = %d", n, num));
+        debugAssert(data!=NULL);
         return data[n];
    }
 
    inline T& operator[](unsigned int n) {
-        debugAssert(((int)n < num));
+        debugAssertM(((int)n < num), format("Array index out of bounds. n = %d, size() = %d", n, num));
         return data[n];
    }
 

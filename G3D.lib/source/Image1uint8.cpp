@@ -128,7 +128,7 @@ void Image1uint8::copyArray(const Color3* src, int w, int h) {
 
     Color1uint8* dst = getCArray();
     for (int i = 0; i < N; ++i) {
-        dst[i] = Color1uint8(src[i].average());
+        dst[i] = Color1uint8(Color1(src[i].average()));
     }
 }
 
@@ -167,7 +167,7 @@ void Image1uint8::copyArray(const Color4* src, int w, int h) {
 
     Color1uint8* dst = getCArray();
     for (int i = 0; i < N; ++i) {
-        dst[i] = Color1uint8(src[i].rgb().average());
+        dst[i] = Color1uint8(Color1(src[i].rgb().average()));
     }
 }
 
