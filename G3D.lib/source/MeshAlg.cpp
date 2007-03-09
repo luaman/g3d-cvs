@@ -101,9 +101,14 @@ void MeshAlg::computeNormals(
         Vector3 vertex[3];
         for (int j = 0; j < 3; ++j) {
             vertex[j] = vertexGeometry[face.vertexIndex[j]];
+            debugAssert(vertex[j].isFinite());
         }
 
         faceNormalArray[f] = (vertex[1] - vertex[0]).cross(vertex[2] - vertex[0]);
+#       ifdef G3D_DEBUG
+            const Vector3& N = faceNormalArray[f];
+            debugAssert(N.isFinite());
+#       endif
     }
 
     // Per-vertex normals, computed by averaging
@@ -115,11 +120,19 @@ void MeshAlg::computeNormals(
             sum += faceNormalArray[f];
         }
         vertexNormalArray[v] = sum.directionOrZero();
+#       ifdef G3D_DEBUG
+            const Vector3& N = vertexNormalArray[v];
+            debugAssert(N.isUnit() || N.isZero());
+#       endif
     }
 
 
     for (int f = 0; f < faceArray.size(); ++f) {
         faceNormalArray[f] = faceNormalArray[f].directionOrZero();
+#       ifdef G3D_DEBUG
+            const Vector3& N = faceNormalArray[f];
+            debugAssert(N.isUnit() || N.isZero());
+#       endif
     }
 
 }

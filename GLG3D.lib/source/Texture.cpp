@@ -1138,7 +1138,7 @@ TextureRef Texture::alphaOnlyVersion() const {
     int numFaces = 1;
 
 	Array< Array<const void*> > mip(1);
-	Array<const void*> bytes = mip[0];
+	Array<const void*>& bytes = mip[0];
 	bytes.resize(numFaces);
     const TextureFormat* bytesFormat = TextureFormat::A8;
 
