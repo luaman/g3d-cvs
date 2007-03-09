@@ -59,6 +59,16 @@ public:
         return Color1(value + other);
     }
 
+    Color1& operator+= (const Color1 other) {
+        value += other.value;
+        return *this;
+    }
+
+    Color1& operator-= (const Color1 other) {
+        value -= other.value;
+        return *this;
+    }
+
     Color1 operator- (const Color1& other) const {
         return Color1(value - other.value);
     }
