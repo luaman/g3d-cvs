@@ -8,6 +8,7 @@
 
   <UL>
   <LI><B>3D Models</B> &nbsp; &nbsp;
+    G3D::ArticulatedModel,
     G3D::BSPMap,
     G3D::GFont,
     G3D::GLight,
@@ -21,7 +22,6 @@
     G3D::PosedModel2D,
     G3D::Sky
     <BR>See also contrib & demo code 
-    <A HREF="../contrib/ArticulatedModel">ArticulatedModel</A>, 
     <A HREF="../contrib/IFSBuilder">IFSBuilder</A>,
     <A HREF="../contrib/ObjModel">ObjModel</A>,
     <A HREF="../demos/MD2Model_Demo">MD2Model_Demo</A>
@@ -45,6 +45,7 @@
     G3D::endMarkShadows, 
     G3D::markShadows,
     G3D::drawFeatureEdges,
+    G3D::SuperShader,
     G3D::ToneMap
     <BR>
   See also contrib & demo code

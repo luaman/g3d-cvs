@@ -157,6 +157,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\GLG3D.lib\source\ArticulatedModel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\ArticulatedModel_pose.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\BSPMAP.cpp"
 				>
 			</File>
@@ -253,6 +261,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\Load3DS.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\MD2Model.cpp"
 				>
 			</File>
@@ -301,6 +313,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\SuperShader.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\tesselate.cpp"
 				>
 			</File>
@@ -346,6 +362,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\ArticulatedModel.h"
+				>
+			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\BSPMAP.h"
 				>
@@ -484,6 +504,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Sky.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\SuperShader.h"
 				>
 			</File>
 			<File

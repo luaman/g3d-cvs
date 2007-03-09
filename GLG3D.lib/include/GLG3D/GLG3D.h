@@ -75,6 +75,8 @@
 #include "GLG3D/GConsole.h"
 #include "GLG3D/BSPMAP.h"
 #include "GLG3D/GKey.h"
+#include "GLG3D/ArticulatedModel.h"
+#include "GLG3D/SuperShader.h"
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"
