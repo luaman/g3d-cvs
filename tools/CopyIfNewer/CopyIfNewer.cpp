@@ -1,5 +1,4 @@
-#include <g3d/platform.h>
-#include <graphics3d.h>
+#include <G3D/G3D.h>
 
 using namespace G3D;
 
@@ -128,7 +127,7 @@ bool excluded(bool exclusions, bool superExclusions, const std::string& filename
     if (exclusions) {
         if (filename[filename.length() - 1] == '~') {
             return true;
-        } else if ((filename == "CVS") || (filename == "svn") || (filename == ".cvsignore")) {
+        } else if ((filename == "CVS") || (filename == "svn") || (filename == ".svn") || (filename == ".cvsignore")) {
             return true;
         }
     }
