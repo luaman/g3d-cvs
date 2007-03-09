@@ -334,10 +334,12 @@ void Map::renderFaces(
 					texture = defaultTexture;
 				}
 
-				glEnable(GL_TEXTURE_2D);
-				glClientActiveTextureARB(GL_TEXTURE0_ARB);
-				glBindTexture(GL_TEXTURE_2D, texture->openGLID());
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
+                if (texture.notNull()) {
+				    glEnable(GL_TEXTURE_2D);
+				    glClientActiveTextureARB(GL_TEXTURE0_ARB);
+				    glBindTexture(GL_TEXTURE_2D, texture->openGLID());
+				    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
+                }
 
 				lastTextureID = theFace->textureID;
 			}
