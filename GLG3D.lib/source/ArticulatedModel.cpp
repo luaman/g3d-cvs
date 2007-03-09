@@ -14,18 +14,15 @@ const ArticulatedModel::Pose ArticulatedModel::DEFAULT_POSE;
 ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
     static GraphicsProfile p = UNKNOWN;
 
-// Temporary, since shaders are slow
-//p = FIXED_FUNCTION;
-
     if (p == UNKNOWN) {
         if (GLCaps::supports_GL_ARB_shader_objects()) {
             p = PS20;
 
-            if (! fileExists("NonShadowedPass.glsl.vrt") &&
-                ! fileExists("../NonShadowedPass.glsl.vrt")) {
+            if (! fileExists("NonShadowedPass.vrt") &&
+                ! fileExists("../NonShadowedPass.vrt")) {
                 p = UNKNOWN;
                 Log::common()->printf("\n\nWARNING: ArticulatedModel could not enter PS20 mode because"
-                    "NonShadowedPass.glsl.vrt was not found.\n\n");
+                    "NonShadowedPass.vrt was not found.\n\n");
             }
         }
 

@@ -36,7 +36,7 @@ public:
     /** Uninitialized */
     Capsule();
     Capsule(class BinaryInput& b);
-	Capsule(const Vector3& _p1, const Vector3& _p2, double _r);
+	Capsule(const Vector3& _p1, const Vector3& _p2, float _r);
 	void serialize(class BinaryOutput& b) const;
 	void deserialize(class BinaryInput& b);
 	

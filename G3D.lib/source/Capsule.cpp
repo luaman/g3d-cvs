@@ -30,7 +30,7 @@ Capsule::Capsule() {
 }
 
 
-Capsule::Capsule(const Vector3& _p1, const Vector3& _p2, double _r) 
+Capsule::Capsule(const Vector3& _p1, const Vector3& _p2, float _r) 
 	: p1(_p1), p2(_p2), _radius(_r) {
 }
 

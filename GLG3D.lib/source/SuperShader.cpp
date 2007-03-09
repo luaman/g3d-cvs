@@ -45,12 +45,6 @@ void SuperShader::configureShader(
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args) {
     // Material arguments
-    // TODO: remove
-    static TextureRef defaultNormalMap;
-    // TODO: remove
-    static TextureRef _whiteMap;
-
-    static TextureRef _whiteCubeMap;
     
     if (material.diffuse.constant != Color3::black()) {
         args.set("diffuseConstant",         material.diffuse.constant);
@@ -113,11 +107,8 @@ void SuperShader::configureShader(
     // Only set the evt map if we need it
     if (! material.reflect.isBlack()) {
         args.set("environmentConstant", lighting->environmentMapColor);
-        if (lighting->environmentMap.notNull()) {
-            args.set("environmentMap",  lighting->environmentMap);
-        } else {
-            args.set("environmentMap",  _whiteCubeMap);
-        }
+        debugAssert(lighting->environmentMap.notNull());
+        args.set("environmentMap",  lighting->environmentMap);
     }
 }
 
@@ -192,8 +183,8 @@ static const std::string& loadShaderCode(const std::string& filename) {
 static ShaderRef loadShader(const std::string& baseName, const std::string& defines) {
     debugAssert(fileExists(baseName + ".glsl.vrt"));
 
-    const std::string& vertexShader = loadShaderCode(baseName + ".glsl.vrt");
-    const std::string& pixelShader  = loadShaderCode(baseName + ".glsl.frg");
+    const std::string& vertexShader = loadShaderCode(baseName + ".vrt");
+    const std::string& pixelShader  = loadShaderCode(baseName + ".pix");
 
     ShaderRef s = Shader::fromStrings(
         baseName + ".glsl.vrt", 
@@ -218,13 +209,13 @@ SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
         static const std::string shadowName    = "ShadowMappedLightPass";
         static const std::string nonShadowName = "NonShadowedPass";
 
-        if (! fileExists(path + shadowName + ".glsl.vrt")) {
-            if (fileExists("data/" + shadowName + ".glsl.vrt")) {
+        if (! fileExists(path + shadowName + ".vrt")) {
+            if (fileExists("data/" + shadowName + ".vrt")) {
                 path = "data/";
-            } else if (fileExists("../" + shadowName + ".glsl.vrt")) {
+            } else if (fileExists("../" + shadowName + ".vrt")) {
                 path = "../";
             } else {
-                debugAssertM(false, "Could not find shaders.");
+                debugAssertM(false, "Could not find the SuperShader *.pix and *.vrt files.");
             }
         }
 
@@ -303,7 +294,7 @@ SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
             defines += "#define NORMALBUMPMAP\n";
         }
 
-            // TODO... other terms
+        // TODO... other terms
 
         p.nonShadowedShader  = loadShader(path + nonShadowName, defines);
         p.shadowMappedShader = loadShader(path + shadowName,    defines);
@@ -327,49 +318,6 @@ void SuperShader::createShaders(
 
     nonShadowedShader   = p.nonShadowedShader;
     shadowMappedShader  = p.shadowMappedShader;
-
-/*
-    // TODO: remove
-    if (_whiteMap.isNull()) {
-        GImage im(4,4,3);
-        for (int y = 0; y < im.height; ++y) {
-            for (int x = 0; x < im.width; ++x) {
-                im.pixel3(x, y) = Color3(1, 1, 1);
-            }
-        }
-        _whiteMap = Texture::fromGImage("White", im, TextureFormat::RGB8);
-    }
-
-    if (_whiteCubeMap.isNull()) {
-        GImage im(4,4,3);
-        for (int y = 0; y < im.height; ++y) {
-            for (int x = 0; x < im.width; ++x) {
-                im.pixel3(x, y) = Color3(1, 1, 1);
-            }
-        }
-
-        G3D::uint8* bytes[6];
-        for (int i=0;i<6;++i) {
-            bytes[i] = im.byte();
-        }
-
-        _whiteCubeMap = Texture::fromMemory(
-            "White",
-            (const G3D::uint8**)bytes, TextureFormat::RGB8, 4, 4, 1, 
-            TextureFormat::RGB8, Texture::CLAMP, Texture::TRILINEAR_MIPMAP, Texture::DIM_CUBE_MAP);
-    }
-
-    // TODO: remove
-    if (defaultNormalMap.isNull()) {
-        GImage im(4,4,4);
-        for (int y = 0; y < im.height; ++y) {
-            for (int x = 0; x < im.width; ++x) {
-                im.pixel4(x, y) = Color4(0.5, 0.5, 1.0, 0.0);
-            }
-        }
-        defaultNormalMap = Texture::fromGImage("Normal Map", im, TextureFormat::RGBA8);
-    }
-    */
 }
 
 

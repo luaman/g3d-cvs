@@ -492,9 +492,9 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 Vector2 v; 
-                v.x = t.readNumber();
+                v.x = (float)t.readNumber();
                 t.readSymbol(",");
-                v.y = t.readNumber();
+                v.y = (float)t.readNumber();
                 t.readSymbol(")");
                 m_value = new Vector2(v);
                 m_type = VECTOR2;
@@ -503,11 +503,11 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 Vector3 v; 
-                v.x = t.readNumber();
+                v.x = (float)t.readNumber();
                 t.readSymbol(",");
-                v.y = t.readNumber();
+                v.y = (float)t.readNumber();
                 t.readSymbol(",");
-                v.z = t.readNumber();
+                v.z = (float)t.readNumber();
                 t.readSymbol(")");
                 m_value = new Vector3(v);
                 m_type = VECTOR3;
@@ -516,13 +516,13 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 Vector4 v; 
-                v.x = t.readNumber();
+                v.x = (float)t.readNumber();
                 t.readSymbol(",");
-                v.y = t.readNumber();
+                v.y = (float)t.readNumber();
                 t.readSymbol(",");
-                v.z = t.readNumber();
+                v.z = (float)t.readNumber();
                 t.readSymbol(",");
-                v.w = t.readNumber();
+                v.w = (float)t.readNumber();
                 t.readSymbol(")");
                 m_value = new Vector4(v);
                 m_type = VECTOR4;
@@ -563,13 +563,13 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 Quat q;
-                q.x = t.readNumber();
+                q.x = (float)t.readNumber();
                 t.readSymbol(",");
-                q.y = t.readNumber();
+                q.y = (float)t.readNumber();
                 t.readSymbol(",");
-                q.z = t.readNumber();
+                q.z = (float)t.readNumber();
                 t.readSymbol(",");
-                q.w = t.readNumber();
+                q.w = (float)t.readNumber();
                 t.readSymbol(")");
                 m_value = new Quat(q);
                 m_type = QUAT;
@@ -580,9 +580,9 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 CoordinateFrame m;
                 for (int r = 0; r < 3; ++r) {
                     for (int c = 0; c < 3; ++c) {
-                        m.rotation[r][c] = t.readNumber();
+                        m.rotation[r][c] = (float)t.readNumber();
                     }
-                    m.translation[r] = t.readNumber();
+                    m.translation[r] = (float)t.readNumber();
                     if (r != 2) {
                         t.readSymbol(",");
                     }
@@ -595,11 +595,11 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 Color3 c;
-                c.r = t.readNumber();
+                c.r = (float)t.readNumber();
                 t.readSymbol(",");
-                c.g = t.readNumber();
+                c.g = (float)t.readNumber();
                 t.readSymbol(",");
-                c.b = t.readNumber();
+                c.b = (float)t.readNumber();
                 t.readSymbol(")");
                 m_value = new Color3(c);
                 m_type = COLOR3;
@@ -608,13 +608,13 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 Color4 c;
-                c.r = t.readNumber();
+                c.r = (float)t.readNumber();
                 t.readSymbol(",");
-                c.g = t.readNumber();
+                c.g = (float)t.readNumber();
                 t.readSymbol(",");
-                c.b = t.readNumber();
+                c.b = (float)t.readNumber();
                 t.readSymbol(",");
-                c.a = t.readNumber();
+                c.a = (float)t.readNumber();
                 t.readSymbol(")");
                 m_value = new Color4(c);
                 m_type = COLOR4;

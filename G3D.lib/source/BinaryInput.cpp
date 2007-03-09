@@ -41,7 +41,7 @@
 namespace G3D {
 
 void BinaryInput::readBool8(std::vector<bool>& out, int64 n) {
-    out.resize(n);
+    out.resize((int)n);
     // std::vector optimizes bool in a way that prevents fast reading
     for (int64 i = 0; i < n ; ++i) {
         out[i] = readBool8();
@@ -444,42 +444,42 @@ std::string BinaryInput::readString32() {
 
 
 Vector4 BinaryInput::readVector4() {
-    double x = readFloat32();
-    double y = readFloat32();
-    double z = readFloat32();
-    double w = readFloat32();
+    float x = readFloat32();
+    float y = readFloat32();
+    float z = readFloat32();
+    float w = readFloat32();
     return Vector4(x, y, z, w);
 }
 
 
 Vector3 BinaryInput::readVector3() {
-    double x = readFloat32();
-    double y = readFloat32();
-    double z = readFloat32();
+    float x = readFloat32();
+    float y = readFloat32();
+    float z = readFloat32();
     return Vector3(x, y, z);
 }
 
 
 Vector2 BinaryInput::readVector2() {
-    double x = readFloat32();
-    double y = readFloat32();
+    float x = readFloat32();
+    float y = readFloat32();
     return Vector2(x, y);
 }
 
 
 Color4 BinaryInput::readColor4() {
-    double r = readFloat32();
-    double g = readFloat32();
-    double b = readFloat32();
-    double a = readFloat32();
+    float r = readFloat32();
+    float g = readFloat32();
+    float b = readFloat32();
+    float a = readFloat32();
     return Color4(r, g, b, a);
 }
 
 
 Color3 BinaryInput::readColor3() {
-    double r = readFloat32();
-    double g = readFloat32();
-    double b = readFloat32();
+    float r = readFloat32();
+    float g = readFloat32();
+    float b = readFloat32();
     return Color3(r, g, b);
 }
 

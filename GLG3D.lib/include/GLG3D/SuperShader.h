@@ -21,8 +21,21 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
 /**
  Do not set the shader->args on a SuperShader; they are ignored.
  Instead set the material properties and lighting environment.
+
+ To use SuperShader you will need the four files in the current directory
+ at runtime:
+ <ul>
+ <li>ShadowMappedLightPass.vrt
+ <li>ShadowMappedLightPass.pix
+ <li>NonShadowedPass.vrt
+ <li>NonShadowedPass.pix
+ </ol>
+
+ these are located in the data/SuperShader directory of the G3D distribution.
+
+ @cite McGuire, The SuperShader. Chapter 8.1, 485--498, in <i>ShaderX<sup>4</sup></i>, W. Engel ed., 2005.
  */
-// TODO: subclass _Shader
+// TODO: subclass _Shader so that we don't pick up the 'args' variable.
 class SuperShader : public Shader {
 public:
 

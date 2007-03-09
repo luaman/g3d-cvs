@@ -476,11 +476,23 @@ inline float wrap(float t, float lo, float hi) {
     float interval = hi - lo;
 
     return t - interval * iFloor((t - lo) / interval);
+}
 
+
+inline double wrap(double t, double lo, double hi) {
+    if ((t >= lo) && (t < hi)) {
+        return t;
+    }
+
+    debugAssert(hi > lo);
+
+    double interval = hi - lo;
+
+    return t - interval * iFloor((t - lo) / interval);
 }
 
 inline double wrap(double t, double hi) {
-    return wrap(t, 0, hi);
+    return wrap(t, 0.0, hi);
 }
 
 
@@ -629,6 +641,18 @@ inline double sign (double fValue) {
 	}
 
     return 0.0;
+}
+
+inline float sign (float fValue) {
+    if (fValue > 0.0f) {
+        return 1.0f;
+	}
+
+    if (fValue < 0.0f) {
+        return -1.0f;
+	}
+
+    return 0.0f;
 }
 
 
