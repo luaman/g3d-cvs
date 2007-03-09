@@ -24,7 +24,7 @@ Image3::Image3(int w, int h, WrapMode wrap) : Map2D<Color3, Color3>(w, h, wrap) 
 
 
 Image3::Ref Image3::fromImage3uint8(const ReferenceCountedPointer<Image3uint8>& im) {
-    Ref out = createEmpty(static_cast<WrapMode>(im->wrapMode()));
+    Ref out = createEmpty(im->wrapMode());
     out->resize(im->width(), im->height());
 
     int N = im->width() * im->height();
@@ -38,7 +38,7 @@ Image3::Ref Image3::fromImage3uint8(const ReferenceCountedPointer<Image3uint8>& 
 
 
 Image3::Ref Image3::createEmpty(int width, int height, WrapMode wrap) {
-    return new Type(width, height, wrap);
+    return new Image3(width, height, wrap);
 }
 
 

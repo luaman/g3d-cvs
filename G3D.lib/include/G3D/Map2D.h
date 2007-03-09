@@ -283,7 +283,7 @@ protected:
     }
 
 
-    Map2D(int w, int h, WrapMode wrap) : _wrapMode(wrap), m_changed(1) {
+    Map2D(int w, int h, WrapMode wrap) : w(0), h(0), _wrapMode(wrap), m_changed(1) {
         ZERO = Storage(Compute(Storage()) * 0);
         resize(w, h);
     }
