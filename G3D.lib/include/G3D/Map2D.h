@@ -215,8 +215,8 @@ protected:
     Array<Storage>      data;
 
     /** Handles the exceptional cases from get */
-    const Storage& slowGet(int x, int y) {
-        switch (_wrapMode) {
+    const Storage& slowGet(int x, int y, WrapMode wrap) {
+        switch (wrap) {
         case WRAP_CLAMP:
             return fastGet(iClamp(x, 0, w - 1), iClamp(y, 0, h - 1));
 
@@ -356,13 +356,13 @@ public:
         (as, for example Color3(Color3uint8&) does), this will not match the value
         returned by Map2D::nearest.
       */
-    inline const Storage& get(int x, int y) const {
+    inline const Storage& get(int x, int y, WrapMode wrap) const {
         if (((uint32)x < w) && ((uint32)y < h)) {
             return data[x + y * w];
         } else {
             // Remove the const to allow a slowGet on this object
             // (we're returning a const reference so this is ok)
-            return const_cast<Type*>(this)->slowGet(x, y);
+            return const_cast<Type*>(this)->slowGet(x, y, wrap);
         }
 #       ifndef G3D_WIN32
             // gcc gives a useless warning that the above code might reach the end of the function;
@@ -371,8 +371,25 @@ public:
 #       endif
     }
 
+    inline const Storage& get(int x, int y) const {
+        return get(x, y, _wrapMode);
+    }
+
     inline const Storage& get(const Vector2int16& p) const {
-        return get(p.x, p.y);
+        return get(p.x, p.y, _wrapMode);
+    }
+
+    inline const Storage& get(const Vector2int16& p, WrapMode wrap) const {
+        return get(p.x, p.y, wrap);
+    }
+
+    inline Storage& get(int x, int y, WrapMode wrap) {
+        return const_cast<Storage&>(const_cast<const Type*>(this)->get(x, y, wrap));
+#       ifndef G3D_WIN32
+            // gcc gives a useless warning that the above code might reach the end of the function;
+            // we use this line to supress the warning.
+            return ZERO;
+#       endif
     }
 
     inline Storage& get(int x, int y) {
@@ -392,14 +409,18 @@ public:
         set(p.x, p.y, v);
     }
 
-    void set(int x, int y, const Storage& v) {
+    void set(int x, int y, const Storage& v, WrapMode wrap) {
         setChanged(true);
         if (((uint32)x < w) && ((uint32)y < h)) {
             // In bounds, wrapping isn't an issue.
             data[x + y * w] = v;
         } else {
-            const_cast<Storage&>(slowGet(x, y)) = v;
+            const_cast<Storage&>(slowGet(x, y, wrap)) = v;
         }
+    }
+
+    void set(int x, int y, const Storage& v) {
+        set(x, y, v, _wrapMode);
     }
 
 
@@ -414,16 +435,16 @@ public:
     /** Returns the nearest neighbor.  Pixel values are considered
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
       */
+    inline Compute nearest(float x, float y, WrapMode wrap) const {
+        return Compute(get(iRound(x), iRound(y), wrap));
+    }
+
     inline Compute nearest(float x, float y) const {
-        return Compute(get(iRound(x), iRound(y)));
+        return nearest(x, y, wrapMode);
     }
 
     inline Compute nearest(const Vector2& p) const {
         return nearest(p.x, p.y);
-    }
-
-    inline Compute bilinear(const Vector2& p) const {
-        return bilinear(p.x, p.y);
     }
 
     /** 
@@ -433,7 +454,7 @@ public:
       out of bounds errors).
 
       Guaranteed to match nearest(x, y) at integers. */ 
-    Compute bilinear(float x, float y) const {
+    Compute bilinear(float x, float y, WrapMode wrap) const {
         int i = iFloor(x);
         int j = iFloor(y);
     
@@ -441,29 +462,37 @@ public:
         float fY = y - j;
 
         // Horizontal interpolation, first row
-        Compute t0(get(i, j));
-        Compute t1(get(i + 1, j));
+        Compute t0(get(i, j, wrap));
+        Compute t1(get(i + 1, j, wrap));
         Compute A = lerp(t0, t1, fX);
 
         // Horizontal interpolation, second row
-        Compute t2(get(i, j + 1));
-        Compute t3(get(i + 1, j + 1));
+        Compute t2(get(i, j + 1, wrap));
+        Compute t3(get(i + 1, j + 1, wrap));
         Compute B = lerp(t2, t3, fX);
 
         // Vertical interpolation
         return lerp(A, B, fY);
     }
 
-
-    inline Compute bicubic(const Vector2& p) const {
-        return bicubic(p.x, p.y);
+    Compute bilinear(float x, float y) const {
+        return bilinear(x, y, _wrapMode);
     }
+
+    inline Compute bilinear(const Vector2& p) const {
+        return bilinear(p.x, p.y, _wrapMode);
+    }
+
+    inline Compute bilinear(const Vector2& p, WrapMode wrap) const {
+        return bilinear(p.x, p.y, wrap);
+    }
+
 
     /**
      Uses Catmull-Rom splines to interpolate between grid
      values.  Guaranteed to match nearest(x, y) at integers.
      */
-    Compute bicubic(float x, float y) const {
+    Compute bicubic(float x, float y, WrapMode wrap) const {
         int i = iFloor(x);
         int j = iFloor(y);
         float fX = x - i;
@@ -477,7 +506,7 @@ public:
             // Horizontal interpolation
             static Compute hsample[4];
             for (int u = 0; u < 4; ++u) {
-                hsample[u] = Compute(get(i + u - 1, j + v - 1));
+                hsample[u] = Compute(get(i + u - 1, j + v - 1, wrap));
             }
     
             vsample[v] = bicubic(hsample, fX);
@@ -487,6 +516,17 @@ public:
         return bicubic(vsample, fY);
     }
 
+    Compute bicubic(float x, float y) const {
+        return bicubic(x, y, _wrapMode);
+    }
+
+    inline Compute bicubic(const Vector2& p, WrapMode wrap) const {
+        return bicubic(p.x, p.y, wrap);
+    }
+
+    inline Compute bicubic(const Vector2& p) const {
+        return bicubic(p.x, p.y, _wrapMode);
+    }
 
     /** Pixel width */
     inline uint32 width() const {
