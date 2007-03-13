@@ -348,6 +348,16 @@ public:
         return data;
     }
 
+    /** is (x, y) strictly within the image bounds, or will it trigger some kind of wrap mode */
+    inline bool inBounds(int x, int y) const {
+        return (((uint32)x < w) && ((uint32)y < h));
+    }
+
+    /** is (x, y) strictly within the image bounds, or will it trigger some kind of wrap mode */
+    inline bool inBounds(const Vector2int16& v) const {
+        return inBounds(v.x, v.y);
+    }
+
     /** Get the value at (x, y).
     
         Note that the type of image->get(x, y) is 

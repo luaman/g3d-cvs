@@ -75,6 +75,16 @@ public:
         return *this;
     }
 
+    /** Shifts both x and y */
+    inline Vector2int16 operator>>(const int s) const {
+        return Vector2int16(x >> s, y >> s);
+    }
+
+    /** Shifts both x and y */
+    inline Vector2int16 operator<<(const int s) const {
+        return Vector2int16(x << s, y << s);
+    }
+
     inline Vector2int16& operator-=(const Vector2int16& other) {
         x -= other.x;
         y -= other.y;
