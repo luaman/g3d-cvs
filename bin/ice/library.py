@@ -104,7 +104,8 @@ Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['
 Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'SDL', 'OpenGL', 'GLU']),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
-Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           [])
+Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           []),
+Library('ANN',         STATIC,    'ANN',     'ANN',      None,       None,    ['ANN.h'],        [],             [])
 ]:
     defineLibrary(lib)
 

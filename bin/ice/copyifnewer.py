@@ -53,7 +53,7 @@ _excludeFromCopyingPatterns =\
   Regular expression patterns (i.e., directory and filename patterns) that are 
   excluded from the search for cpp files
 """
-_cppExcludePatterns = ['^#.*#$', '~$', '^old$'] + _excludeFromCopyingPatterns
+_cppExcludePatterns = ['^test$', '^tests$', '^#.*#$', '~$', '^old$'] + _excludeFromCopyingPatterns
 
 """
 A regular expression matching files that should be excluded from copying.

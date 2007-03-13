@@ -691,18 +691,21 @@ def main(state, args, progArgs, doGDB, doRun):
     if isLibrary(state.binaryType):
         buildInclude(state)
         maybePrintBar()
-    
-    if doGDB:
-        return gdbCompiledProgram(state, progArgs)
 
-    if doRun:
-        return runCompiledProgram(state, progArgs)
-
-    if not (doGDB or doRun) and (verbosity >= NORMAL):
+    if (verbosity >= NORMAL):
         if state.binaryType == EXE:
             print '\nExecutable written to ' + state.binaryDir + state.binaryName
         else:
             print '\nLibrary written to ' + state.binaryDir + state.binaryName
+
+    if doGDB:
+        maybePrintBar()
+        return gdbCompiledProgram(state, progArgs)
+
+    if doRun:
+        maybePrintBar()
+        return runCompiledProgram(state, progArgs)
+
                 
     return 0
 
