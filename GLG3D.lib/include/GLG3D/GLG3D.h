@@ -77,6 +77,7 @@
 #include "GLG3D/GKey.h"
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/SuperShader.h"
+#include "GLG3D/GaussianBlur.h"
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"

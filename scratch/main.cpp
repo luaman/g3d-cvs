@@ -12,78 +12,6 @@
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-#include <conio.h>
-
-
-/**
- An AABSPTree that can render itself for debugging purposes.
- */
-class VisibleBSP : public AABSPTree<Vector3> {
-protected:
-
-    void drawPoint(RenderDevice* rd, const Vector2& pt, float radius, const Color3& col) {
-        Draw::rect2D(Rect2D::xywh(pt.x - radius, pt.y - radius, radius * 2, radius * 2), rd, col);
-    }
-
-    void drawNode(RenderDevice* rd, Node* node, float radius, int level) {
-        
-        Color3 color = Color3::white();
-
-        // Draw the points at this node
-        for (int i = 0; i < node->valueArray.size(); ++i) {
-            const Vector3& pt = node->valueArray[i]->value;
-            drawPoint(rd, pt.xy(), radius, Color3::cyan());
-        }
-
-        if (node->splitAxis != 2) {
-            // Draw the splitting plane
-            const AABox& bounds = node->splitBounds;
-            Vector2 v1 = bounds.low().xy();
-            Vector2 v2 = bounds.high().xy();
-
-            // Make the line go horizontal or vertical based on the split axis
-            v1[node->splitAxis] = node->splitLocation;
-            v2[node->splitAxis] = node->splitLocation;
-
-            rd->setLineWidth(radius / 2.0f);
-            rd->setColor(color);
-            rd->beginPrimitive(RenderDevice::LINES);
-                rd->sendVertex(v1);
-                rd->sendVertex(v2);
-            rd->endPrimitive();
-        }
-
-        // Shrink radius
-        float nextRad = max(0.5f, radius / 2.0f);
-
-        for (int i = 0;i < 2; ++i) {
-            if (node->child[i]) {
-                drawNode(rd, node->child[i], nextRad, level + 1);
-            }
-        }
-    }
-
-public:
-    VisibleBSP(int w, int h) {
-        int N = 200;
-        for (int i = 0; i < N; ++i) {
-            insert(Vector3(uniformRandom(0, w), uniformRandom(0, h), 0));
-        }
-        balance();
-    }
-
-    /**
-     Draw a 2D projected version; ignore splitting planes in z
-     */
-    void render2D(RenderDevice* rd) {
-        rd->push2D();
-            drawNode(rd, root, 20, 0);
-        rd->pop2D();
-    }
-    
-};
-
-
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
     #error Requires G3D 7.00
@@ -95,8 +23,6 @@ public:
  */
 class Demo : public GApplet {
 public:
-
-    VisibleBSP          bsp;
 
     // Add state that should be visible to this applet.
     // If you have multiple applets that need to share
@@ -140,7 +66,7 @@ public:
 };
 
 
-Demo::Demo(App* _app) : GApplet(_app), app(_app), bsp(_app->renderDevice->width(), _app->renderDevice->height()) {
+Demo::Demo(App* _app) : GApplet(_app), app(_app) {
 }
 
 
@@ -190,16 +116,62 @@ void Demo::onUserInput(UserInput* ui) {
 
 
 void Demo::onGraphics(RenderDevice* rd) {
-    rd->clear();
 
-    bsp.render2D(rd);
+    static FramebufferRef fbo = FrameBuffer::create("Fbo");
+    static TextureRef texture = Texture::createEmpty("Screen", rd->width(), rd->height(), TextureFormat::RGBA8, Texture::DIM_2D_NPOT, Texture::Settings::video());
+
+    fbo->set(FrameBuffer::COLOR_ATTACHMENT0, texture);
+    fbo->set(FrameBuffer::DEPTH_ATTACHMENT, RenderBuffer::createEmpty("Depth", rd->width(), rd->height(), TextureFormat::DEPTH32));
+
+    rd->setFramebuffer(fbo);
+
+    LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
+
+    rd->setProjectionAndCameraMatrix(app->debugCamera);
+
+    // Cyan background
+    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
+
+    rd->clear(app->sky.isNull(), true, true);
+    if (app->sky.notNull()) {
+        app->sky->render(rd, lighting);
+    }
+
+    // Setup lighting
+    rd->enableLighting();
+		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
+		rd->setAmbientLightColor(lighting.ambient);
+
+		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
+
+        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
+        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
+
+    rd->disableLighting();
+
+    if (app->sky.notNull()) {
+        app->sky->renderLensFlare(rd, lighting);
+    }
+
+    rd->setFramebuffer(NULL);
+
+    rd->push2D();
+        GaussianBlur::apply(rd, texture);
+        //rd->setTexture(0, texture);
+        //Draw::rect2D(texture->rect2DBounds(), rd);
+    rd->pop2D();
+
 }
 
 
 int App::main() {
 	setDebugMode(true);
 	debugController->setActive(false);
-    debugShowRenderingStats = false;
+
+    // Load objects here
+    if (fileExists(dataDir + "sky/sun.jpg")) {
+        sky = Sky::fromFile(dataDir + "sky/");
+    }
     
     applet->run();
 
@@ -218,83 +190,8 @@ App::~App() {
 
 G3D_START_AT_MAIN();
 
-
-
-
-
-
-void perfAABSPTree() {
-
-    Array<AABox>                array;
-    AABSPTree<AABox>            tree;
-    
-    const int NUM_POINTS = 1000000;
-    
-    for (int i = 0; i < NUM_POINTS; ++i) {
-        Vector3 pt = Vector3(uniformRandom(-10, 10), uniformRandom(-10, 10), uniformRandom(-10, 10));
-        AABox box(pt, pt + Vector3(.1f, .1f, .1f));
-        array.append(box);
-        tree.insert(box);
-    }
-
-    RealTime t0 = System::time();
-    tree.balance();
-    RealTime t1 = System::time();
-    printf("AABSPTree<AABox>::balance() time for %d boxes: %gs\n\n", NUM_POINTS, t1 - t0);
-
-    uint64 bspcount = 0, arraycount = 0, boxcount = 0;
-
-    // Run twice to get cache issues out of the way
-    for (int it = 0; it < 2; ++it) {
-        Array<Plane> plane;
-        plane.append(Plane(Vector3(-1, 0, 0), Vector3(3, 1, 1)));
-        plane.append(Plane(Vector3(1, 0, 0), Vector3(1, 1, 1)));
-        plane.append(Plane(Vector3(0, 0, -1), Vector3(1, 1, 3)));
-        plane.append(Plane(Vector3(0, 0, 1), Vector3(1, 1, 1)));
-        plane.append(Plane(Vector3(0,-1, 0), Vector3(1, 3, 1)));
-        plane.append(Plane(Vector3(0, 1, 0), Vector3(1, -3, 1)));
-
-        AABox box(Vector3(1, 1, 1), Vector3(3,3,3));
-
-        Array<AABox> point;
-
-        System::beginCycleCount(bspcount);
-        tree.getIntersectingMembers(plane, point);
-        System::endCycleCount(bspcount);
-
-        point.clear();
-
-        System::beginCycleCount(boxcount);
-        tree.getIntersectingMembers(box, point);
-        System::endCycleCount(boxcount);
-
-        point.clear();
-
-        System::beginCycleCount(arraycount);
-        for (int i = 0; i < array.size(); ++i) {
-            if (! array[i].culledBy(plane)) {
-                point.append(array[i]);
-            }
-        }
-        System::endCycleCount(arraycount);
-    }
-
-    printf("AABSPTree<AABox>::getIntersectingMembers(plane) %g Mcycles\n"
-           "AABSPTree<AABox>::getIntersectingMembers(box)   %g Mcycles\n"
-           "Culled by on Array<AABox>                       %g Mcycles\n\n", 
-           bspcount / 1e6, 
-           boxcount / 1e6,
-           arraycount / 1e6);
-}
-
 int main(int argc, char** argv) {
-    
-    perfAABSPTree();
-    getch();
-    return 0;
-    
 	GApp::Settings settings;
     settings.useNetwork = false;
-
     return App(settings).run();
 }

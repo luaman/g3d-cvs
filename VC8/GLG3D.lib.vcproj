@@ -209,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GaussianBlur.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GConsole.cpp"
 				>
 			</File>
@@ -396,6 +400,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GApp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GaussianBlur.h"
 				>
 			</File>
 			<File
