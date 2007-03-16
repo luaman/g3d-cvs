@@ -781,6 +781,10 @@ TextureRef Texture::createEmpty(
 			dimension, 
 			settings);
 
+    // The only purpose of creating an empty texture is to render to it with FBO/readback,
+    // so clearly the caller will want Y inverted.
+    t->invertY = true;
+
     debugAssertGLOk();
     return t;
 }
