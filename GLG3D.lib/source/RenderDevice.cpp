@@ -879,11 +879,13 @@ void RenderDevice::setState(
 	// Set framebuffer first, since it can affect the viewport
 	if (state.framebuffer != newState.framebuffer) {
 		setFramebuffer(newState.framebuffer);
+        debugAssertGLOk();
 
 		// Intentionally corrupt the viewport, forcing renderdevice to reset it
 		state.viewport = Rect2D::xywh(-1,-1,-1,-1);
 	}
 
+    debugAssertGLOk();
     setViewport(newState.viewport);
     debugAssertGLOk();
 
@@ -2715,12 +2717,36 @@ double RenderDevice::getDepthBufferValue(
 
     GLfloat depth;
 
+    GLenum oldRead = GL_NONE;
+    debugAssertGLOk();
+    if (state.framebuffer.notNull()) {
+        debugAssertM(state.framebuffer->has(FrameBuffer::DEPTH_ATTACHMENT),
+            "No depth attachment");
+
+        // TODO: do something better in the future!
+        return 0.0f;
+
+        // For FBO, we are required to switch from the color buffer (default for reading)
+        // to the depth buffer.
+        oldRead = glGetInteger(GL_READ_BUFFER);
+        debugAssertGLOk();
+        glReadBuffer(GL_DEPTH_ATTACHMENT_EXT);
+        debugAssertGLOk();
+    }
+
     glReadPixels(x,
 	         (height() - 1) - y,
                  1, 1,
                  GL_DEPTH_COMPONENT,
 	         GL_FLOAT,
 	         &depth);
+
+    debugAssertM(glGetError() == GL_INVALID_OPERATION, 
+        "getDepthBufferValue failed, probably because you did not allocate a depth buffer.");
+
+    if (state.framebuffer.notNull()) {
+        glReadBuffer(oldRead);
+    }
 
     return depth;
 }

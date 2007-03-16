@@ -38,13 +38,7 @@ Log::Log(const std::string& filename, int stripFromStackBottom) :
 
         // Write time is greater than 1ms.  This may be a network drive.... try another file.
         #ifdef G3D_WIN32
-            if (fileExists("c:/tmp")) {
-                logName = std::string("c:/tmp/") + logName;
-            } else if (fileExists("c:/temp")) { 
-                logName = std::string("c:/temp/") + logName;
-            } else {
-                logName = std::string("c:/") + logName;
-            }
+           logName = std::string(std::getenv("TEMP")) + logName;
         #else
             logName = std::string("/tmp/") + logName;
         #endif

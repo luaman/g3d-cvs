@@ -574,6 +574,7 @@ void Sky::renderLensFlare(
         return;
     }
 
+    debugAssertGLOk();
     renderDevice->pushState();
 
         CoordinateFrame camera = renderDevice->getCameraToWorldMatrix();
@@ -587,9 +588,11 @@ void Sky::renderLensFlare(
         renderDevice->disableDepthWrite();
         renderDevice->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
         renderDevice->resetTextureUnit(0);
+        debugAssertGLOk();
 
         // Compute the sun's position using the 3D transformation
         Vector4 pos = renderDevice->project(Vector4(sunPosition, 0));
+        debugAssertGLOk();
 
         if (sunPosition.dot(camera.lookVector()) > 0) {
 
@@ -626,6 +629,7 @@ void Sky::renderLensFlare(
                 Vector3 LcrossZ = sunPosition.cross(Vector3::unitZ()).direction();
                 Vector4 X(LcrossZ, 0);
 				Vector4 Y(sunPosition.cross(LcrossZ), 0);
+                debugAssertGLOk();
 
                 // Sun rays at dawn
                 if ((sunPosition.x > 0) && 
@@ -651,12 +655,14 @@ void Sky::renderLensFlare(
                 static const double size[]     = { .12,                   .05,                    .02,                      .02,                .02,                      .02,                    .01,                  .01,                   .01,                     .01,                        .01,                        0.05}; 
                 static const Color3 color[]    = {Color3(6, 4, 0) / 255, Color3(6, 4, 0) / 255, Color3(0, 12, 0) / 255, Color3(0, 12, 0) / 255, Color3(0, 12, 0) / 255, Color3(0, 12, 0) / 255, Color3(10, 0, 0) /255,  Color3(0, 12, 0) / 255, Color3(10,0,0) / 255, Color3::fromARGB(0x192125)/10,   Color3::fromARGB(0x1F2B1D)/10, Color3::fromARGB(0x1F2B1D)/10};
                 int numFlares     = 12;
+                debugAssertGLOk();
 
                 renderDevice->setTexture(0, disk);
                 for (int i = 0; i < numFlares; ++i) {
                     drawCelestialSphere(renderDevice, 
                          C + (C - L) * (float)position[i], X, Y, (float)size[i], 
                          Color4(color[i] * lighting.emissiveScale * flareBrightness, 1));
+
                 }
             }
         }

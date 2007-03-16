@@ -293,6 +293,9 @@ public:
 	 */
 	void set(AttachmentPoint ap, const RenderbufferRef& renderbuffer);
 
+    /** Returns true if this attachment is currently non-null.*/
+    bool has(AttachmentPoint ap) const;
+
     /**
      Gets the OpenGL ID of the framebuffer object.
      */

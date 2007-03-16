@@ -57,6 +57,10 @@ FramebufferRef Framebuffer::create(const std::string& _name) {
 }
 
 
+bool Framebuffer::has(AttachmentPoint ap) const {
+    return attachmentTable.containsKey(ap);
+}
+
 void Framebuffer::set(AttachmentPoint ap, const void* n) {
     debugAssert(n == NULL);
 

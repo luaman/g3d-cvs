@@ -45,6 +45,7 @@
     G3D::endMarkShadows, 
     G3D::markShadows,
     G3D::drawFeatureEdges,
+    G3D::GaussianBlur,
     G3D::SuperShader,
     G3D::ToneMap
     <BR>

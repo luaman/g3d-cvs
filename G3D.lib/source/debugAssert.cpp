@@ -136,12 +136,12 @@ bool _handleDebugAssert_(
 
     std::string dialogTitle = "Assertion Failure";
     std::string dialogText = "";
-
     createErrorMessage(expression, message, filename, lineNumber, dialogTitle, dialogText);
 
     #ifdef G3D_WIN32
         DWORD lastErr = GetLastError();
         postToClipboard(dialogText.c_str());
+        debugPrintf("\n%s\n", dialogText.c_str());
     #endif
 
     const int cBreak = 0;
