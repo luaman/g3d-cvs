@@ -29,11 +29,12 @@
      <li> G3D::Image3,	G3D::Image3uint8
      <li> G3D::Image4,	G3D::Image4uint8
      <li> Texture::createEmpty now intializes invertY = true, which is usually desirable for Framebuffer rendering.
-	 <li> G3D::Map2D
-	 <li> G3D::Vector4int8
+     <li> G3D::Map2D
+     <li> G3D::Vector4int8
      <li> G3D::PointShape
      <li> G3D::GImage::RGBAtoRGB
      <li> Added GLEW compatibility [nico]
+     <li> Added data-files directory to the locations searched for G3D demo data
      <li> On Win32, assertions now print ot the Output window as well as the dialog box.
      <li> On Win32, $TEMP is now used for the logfile location instead of c:\tmp
      <li> G3D::GKey replaces old SDL key enumeration
@@ -91,7 +92,8 @@
 	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
 	 <li> Removed static constants (use equivalent lower-case methods)
 	 <li> Removed Cylinder::getPoint1 (use point)
-	 <li> Fix: RenderDevice::getDepthBufferValue now works on Framebuffers.
+         <li> Fix: prompt/debugAssert now correctly responds to button presses on OS X
+	 <li> Fix: RenderDevice::getDepthBufferValue now checks for the presence of a depth buffer.
      <li> Fix: G3D::AABSPTree now correctly handles members with infinite bounds on ray intersection tests
      <li> Fix: Removed use of tmpfile on Unix 
      <li> Fix: Java ReliableConduit now properly waits if the buffer is full when sending
