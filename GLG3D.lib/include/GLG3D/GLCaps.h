@@ -78,8 +78,11 @@ namespace G3D {
   paths.
  */
 class GLCaps {
+public:
+
+    enum Vendor {ATI, NVIDIA, MESA, ARB};
+
 private:
-	enum Vendor {ATI, NVIDIA, MESA, ARB};
 
     /** True when init has been called */
     static bool         _initialized;
@@ -94,14 +97,14 @@ private:
     static int          _numTextures;
     static int          _numTextureUnits;
 
-	static Vendor computeVendor();
+    static Vendor computeVendor();
 
-	/**
-	 Returns the version string for the video driver.
-
-	 @cite Based in part on code by Ted Peck tpeck@roundwave.com http://www.codeproject.com/dll/ShowVer.asp      
-	 */
-	static std::string getDriverVersion();
+    /**
+       Returns the version string for the video driver.
+       
+       @cite Based in part on code by Ted Peck tpeck@roundwave.com http://www.codeproject.com/dll/ShowVer.asp      
+    */
+    static std::string getDriverVersion();
   
  // We're going to need exactly the same code for each of 
  // several extensions, so we abstract the boilerplate into
@@ -148,7 +151,7 @@ private:
     static bool bug_normalMapTexGen;
     static bool bug_redBlueMipmapSwap;
     static bool bug_mipmapGeneration;
-	static bool bug_slowVBO;
+    static bool bug_slowVBO;
 
     /** Tests for hasBug_glMultiTexCoord3fvARB and hasBug_glNormalMapTexGenARB */
     static void checkBug_cubeMapBugs();
@@ -184,13 +187,15 @@ public:
     /** Returns true if the given texture format is supported on this device.*/
     static bool supports(const class TextureFormat* fmt);
 
-	static const std::string& glVersion();
+    static const std::string& glVersion();
 
-	static const std::string& driverVersion();
+    static const std::string& driverVersion();
 
-	static const std::string& vendor();
+    static const std::string& vendor();
 
-	static const std::string& renderer();
+    static Vendor enumVendor();
+
+    static const std::string& renderer();
 
     /** Returns true if either GL_EXT_stencil_two_side or GL_ATI_separate_stencil is supported.
         Convenient becaused G3D::RenderDevice unifies those extensions. */

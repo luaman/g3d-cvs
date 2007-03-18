@@ -52,7 +52,6 @@ static Table<const TextureFormat*, bool>      _supportedTextureFormat;
 
 Set<std::string> GLCaps::extensionSet;
 
-
 GLCaps::Vendor GLCaps::computeVendor() {
     std::string s = vendor();
 
@@ -61,10 +60,14 @@ GLCaps::Vendor GLCaps::computeVendor() {
     } else if (s == "NVIDIA Corporation") {
         return NVIDIA;
     } else if (s == "Brian Paul") {
-		return MESA;
-	} else {
+        return MESA;
+    } else {
         return ARB;
     }
+}
+
+GLCaps::Vendor GLCaps::enumVendor() {
+    return computeVendor();
 }
 
 
@@ -86,25 +89,25 @@ struct VS_VERSIONINFO {
 #endif
 
 std::string GLCaps::getDriverVersion() {
-	if (computeVendor() == MESA) {
-		// Mesa includes the driver version in the renderer version
-		// e.g., "1.5 Mesa 6.4.2"
-
-		static std::string _glVersion = (char*)glGetString(GL_VERSION);
-		int i = _glVersion.rfind(' ');
-		if (i == (int)std::string::npos) {
-			return "Unknown (bad MESA driver string)";
-		} else {
-			return _glVersion.substr(i + 1, _glVersion.length() - i);
-		}
-	}
-
-    #ifdef G3D_WIN32
+    if (computeVendor() == MESA) {
+        // Mesa includes the driver version in the renderer version
+        // e.g., "1.5 Mesa 6.4.2"
+        
+        static std::string _glVersion = (char*)glGetString(GL_VERSION);
+        int i = _glVersion.rfind(' ');
+        if (i == (int)std::string::npos) {
+            return "Unknown (bad MESA driver string)";
+        } else {
+            return _glVersion.substr(i + 1, _glVersion.length() - i);
+        }
+    }
     
-        std::string driver;
-
+#   ifdef G3D_WIN32
+    
+    std::string driver;
+    
         // Locate the windows\system directory
-        {
+    {
             char sysDir[1024];
             int sysSize = GetSystemDirectoryA(sysDir, 1024);
             if (sysSize == 0) {

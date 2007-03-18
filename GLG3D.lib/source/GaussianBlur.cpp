@@ -9,6 +9,10 @@ namespace G3D {
 Table<int, ShaderRef> GaussianBlur::shaderCache;
 
 void GaussianBlur::apply(RenderDevice* rd, const TextureRef& source, const Vector2& direction, int N) {
+    apply(rd, source, direction, N, source->vector2Bounds());
+}
+
+void GaussianBlur::apply(RenderDevice* rd, const TextureRef& source, const Vector2& direction, int N, const Vector2& destSize) {
     debugAssert(isOdd(N));
 
     ShaderRef gaussian1DShader = getShader(17);
@@ -16,7 +20,9 @@ void GaussianBlur::apply(RenderDevice* rd, const TextureRef& source, const Vecto
     gaussian1DShader->args.set("source", source);
     gaussian1DShader->args.set("pixelStep", direction / source->vector2Bounds());
     rd->setShader(gaussian1DShader);
-    Draw::rect2D(source->rect2DBounds(), rd);
+
+    Rect2D dest = Rect2D::xywh(Vector2(0, 0), destSize);
+    Draw::rect2D(dest, rd);
 }
 
 
@@ -43,29 +49,41 @@ ShaderRef GaussianBlur::makeShader(int N) {
     float stddev = N / 2.0f;
     gaussian1D(coeff, N, stddev);
 
-    std::string gaussCoef = "{";
-    for (int i = 0; i < N; ++i) {
-        gaussCoef += format("%10.8f", coeff[i]);
-        if (i < N - 1) {
-            gaussCoef += ", ";
+    std::string coefDecl;
+
+    if (GLCaps::enumVendor() == GLCaps::ATI) {
+        // ATI doesn't yet support the new array syntax
+
+        coefDecl = format("  const int kernelSize = %d;\n  float gaussCoef[%d];\n", N, N);
+
+        for (int i = 0; i < N; ++i) {
+            coefDecl += format("gaussCoef[%d] = %10.8f;\n", i, coeff[i]);
         }
+
+    } else {
+    
+        coefDecl = format("  const int kernelSize = %d;\n  const float gaussCoef[] = float[](", N);
+        for (int i = 0; i < N; ++i) {
+            coefDecl += format("%10.8f", coeff[i]);
+            if (i < N - 1) {
+                coefDecl += ", ";
+            }
+        }
+
+        coefDecl += ");\n";
     }
 
-    gaussCoef += "};\n";
-
-    // Note: ATI drivers don't let us declare the float array as "const"
-
-    return Shader::fromStrings("",  
-        format("const int kernelSize = %d;\n"
-               "float gaussCoef[kernelSize] = %s\n", N, gaussCoef.c_str()) +
-        STR(
-            uniform sampler2D source;
-
-            // vec2(dx, dy) / (source.width, source.height)
-            uniform vec2      pixelStep;
+    std::string pixelSource =
+        "uniform sampler2D source;\n"
+        "\n"
+        "// vec2(dx, dy) / (source.width, source.height)\n"
+        "uniform vec2      pixelStep;\n"
+        "\n"
+        "void main() {\n" +
             
-            void main() {
-                
+            coefDecl + 
+            
+            STR(                
                 vec2 pixel = gl_TexCoord[0].xy;         
                 vec4 sum = texture2D(source, pixel) * gaussCoef[0];
                 
@@ -73,8 +91,10 @@ ShaderRef GaussianBlur::makeShader(int N) {
                     sum += texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel) * gaussCoef[tap];
                 }
                 
-                gl_FragColor = sum;
-            }));
+                gl_FragColor = sum;) + "}";
+    
+    //printf("%s\n", pixelSource.c_str());  fflush(stdout);
+    return Shader::fromStrings("", pixelSource);
 }
     
 }

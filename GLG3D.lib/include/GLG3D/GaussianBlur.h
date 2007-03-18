@@ -3,7 +3,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
- @created 2007-03-20
+ @created 2007-03-10
  @edited  2007-03-20
 
  Copyright 2002-2007, Morgan McGuire.
@@ -59,7 +59,9 @@ public:
 
      @param N Number of taps in the filter (filter kernel width)
      @param direction Direction of the blur.  For best results, use Vector2(1,0) and Vector(0,1).
+     @param destSize output dimensions
     */
+    static void apply(class RenderDevice* rd, const TextureRef& source, const Vector2& direction, int N, const Vector2& destSize);
     static void apply(class RenderDevice* rd, const TextureRef& source, const Vector2& direction = Vector2(1.0f, 0.0f), int N = 17);
 
 };

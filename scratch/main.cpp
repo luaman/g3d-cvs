@@ -165,8 +165,32 @@ void Demo::onGraphics(RenderDevice* rd) {
 
 
 int App::main() {
-	setDebugMode(true);
-	debugController->setActive(false);
+    /*
+    Shader::fromStrings("", 
+    STR(
+            uniform sampler2D source;\n
+\n
+            uniform vec2      pixelStep;\n
+            \n
+            void main() {\n
+                const int kernelSize = 3;\n
+                float gaussCoef[3] = float[](1.0,1.0,1.0);\n
+                \n
+                vec2 pixel = gl_TexCoord[0].xy;         \n
+                vec4 sum = texture2D(source, pixel) * gaussCoef[0];\n
+                \n
+                for (int tap = 1; tap < kernelSize; ++tap) {\n
+                    sum += texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel) * gaussCoef[tap];\n
+                }\n
+                \n
+                gl_FragColor = sum;\n
+                                       }
+    ));
+
+                        exit(0);
+    */
+    setDebugMode(true);
+    debugController->setActive(false);
 
     // Load objects here
     if (fileExists(dataDir + "sky/sun.jpg")) {
