@@ -292,18 +292,11 @@ void ToneMap::makeShadersPS14ATI() {
 void ToneMap::makeShadersPS20() {
     // Bloom filter pass 1 (horizontal).
     // Threshold and horizontal gaussian blur.
+
+    // ATI's shader implementation does not support (yet) any way of initializing
+    // array elements other than assigning each explicitly.
+
     bloomShader[0] = Shader::fromStrings("",
-        std::string(
-        /* "#version 120\n" */
-        "/* Amount to brighten the bloom*/\n\
-         const float scale = 3.0;\n\
-         const int kernelSize = 17;\n\
-         float gaussCoef[kernelSize] = float[kernelSize](\n\
-             0.013960189 * scale, 0.022308318 * scale, 0.033488752 * scale, 0.047226710 * scale,\
-             0.062565226 * scale, 0.077863682 * scale, 0.091031867 * scale, 0.099978946 * scale,\
-             0.103152619 * scale, 0.099978946 * scale, 0.091031867 * scale, 0.077863682 * scale,\
-             0.062565226 * scale, 0.047226710 * scale, 0.033488752 * scale, 0.022308318 * scale,\
-             0.013960189 * scale);\n") +
         STR(
         uniform sampler2D screenImage;
 
@@ -318,8 +311,29 @@ void ToneMap::makeShadersPS20() {
             return texture2D(screenImage, p + stride * float(tap)).rgb;
         }
         
-        void main() {
+        void main()) +  std::string("{\n"
+        "const float scale = 3.0;\n"
+        "const int kernelSize = 17;\n"
+        "float gaussCoef[kernelSize];\n"
+        "gaussCoef[0] = 0.013960189 * scale;\n"
+        "gaussCoef[1] = 0.022308318 * scale;\n"
+        "gaussCoef[2] = 0.033488752 * scale;\n"
+        "gaussCoef[3] = 0.047226710 * scale;\n"
+        "gaussCoef[4] = 0.062565226 * scale;\n"
+        "gaussCoef[5] = 0.077863682 * scale;\n" 
+        "gaussCoef[6] = 0.091031867 * scale;\n" 
+        "gaussCoef[7] = 0.099978946 * scale;\n"
+        "gaussCoef[8] = 0.103152619 * scale;\n"
+        "gaussCoef[9] = 0.099978946 * scale;\n"
+        "gaussCoef[10] = 0.091031867 * scale;\n"
+        "gaussCoef[11] = 0.077863682 * scale;\n"
+        "gaussCoef[12] = 0.062565226 * scale;\n"
+        "gaussCoef[13] = 0.047226710 * scale;\n"
+        "gaussCoef[14] = 0.033488752 * scale;\n"
+        "gaussCoef[15] = 0.022308318 * scale;\n"
+        "gaussCoef[16] = 0.013960189 * scale;\n") +
 
+        STR(
             vec2 direction = vec2(1.0, 0.0);
             vec2 pixelSize = g3d_sampler2DInvSize(screenImage);
             vec2 stride    = pixelSize * 2.0 * direction;
@@ -337,14 +351,7 @@ void ToneMap::makeShadersPS20() {
     // Bloom filter pass 2 (vertical).
     // Vertical gaussian blur and blend with the old bloom map.
     bloomShader[1] = Shader::fromStrings("", 
-        std::string(
                     /*"#version 120\n"*/
-        "const int kernelSize = 17;\
-         float gaussCoef[kernelSize] = \
-            float[kernelSize](0.013960189, 0.022308318, 0.033488752, 0.047226710, 0.062565226,\
-             0.077863682, 0.091031867, 0.099978946, 0.103152619, 0.099978946,\
-             0.091031867, 0.077863682, 0.062565226, 0.047226710, 0.033488752,\
-             0.022308318, 0.013960189);\n")+
         STR(
         uniform sampler2D bloomImage;
         uniform sampler2D oldBloom;
@@ -353,9 +360,28 @@ void ToneMap::makeShadersPS20() {
             return texture2D(bloomImage, p + stride * vec2(0.0, tap)).rgb;
         }
         
-        void main() {
-        
-            vec2 direction = vec2(0.0, 1.0);
+        void main()) + std::string("{\n"
+        "const float scale = 3.0;\n"
+        "const int kernelSize = 17;\n"
+        "float gaussCoef[kernelSize];\n"
+        "gaussCoef[0] = 0.013960189 * scale;\n"
+        "gaussCoef[1] = 0.022308318 * scale;\n"
+        "gaussCoef[2] = 0.033488752 * scale;\n"
+        "gaussCoef[3] = 0.047226710 * scale;\n"
+        "gaussCoef[4] = 0.062565226 * scale;\n"
+        "gaussCoef[5] = 0.077863682 * scale;\n" 
+        "gaussCoef[6] = 0.091031867 * scale;\n" 
+        "gaussCoef[7] = 0.099978946 * scale;\n"
+        "gaussCoef[8] = 0.103152619 * scale;\n"
+        "gaussCoef[9] = 0.099978946 * scale;\n"
+        "gaussCoef[10] = 0.091031867 * scale;\n"
+        "gaussCoef[11] = 0.077863682 * scale;\n"
+        "gaussCoef[12] = 0.062565226 * scale;\n"
+        "gaussCoef[13] = 0.047226710 * scale;\n"
+        "gaussCoef[14] = 0.033488752 * scale;\n"
+        "gaussCoef[15] = 0.022308318 * scale;\n"
+        "gaussCoef[16] = 0.013960189 * scale;\n") +
+        STR(vec2 direction = vec2(0.0, 1.0);
             vec2 pixelSize = g3d_sampler2DInvSize(bloomImage);
             vec2 stride    = 2.0 * pixelSize * direction;
             
@@ -369,13 +395,12 @@ void ToneMap::makeShadersPS20() {
             vec3 old = texture2D(oldBloom, gl_TexCoord[0].xy).rgb;
             
             gl_FragColor.rgb = (bloom + old) * 0.7;
-        }));
+            ) + std::string("}"));
 
     // Bloom pass 3:
     // Gamma correct the screen image and
     // add it to a 2D blur of the bloom image.
     bloomShader[2] = Shader::fromStrings("", 
-                                         /*std::string("#version 120\n") +*/
         STR(
         uniform sampler2D screenImage;
         uniform sampler2D bloomImage;
