@@ -2715,23 +2715,12 @@ double RenderDevice::getDepthBufferValue(
     int                     x,
     int                     y) const {
 
-    GLfloat depth;
-
-    GLenum oldRead = GL_NONE;
+    GLfloat depth = 0;
     debugAssertGLOk();
+
     if (state.framebuffer.notNull()) {
         debugAssertM(state.framebuffer->has(FrameBuffer::DEPTH_ATTACHMENT),
             "No depth attachment");
-
-        // TODO: do something better in the future!
-        return 0.0f;
-
-        // For FBO, we are required to switch from the color buffer (default for reading)
-        // to the depth buffer.
-        oldRead = glGetInteger(GL_READ_BUFFER);
-        debugAssertGLOk();
-        glReadBuffer(GL_DEPTH_ATTACHMENT_EXT);
-        debugAssertGLOk();
     }
 
     glReadPixels(x,
@@ -2741,12 +2730,8 @@ double RenderDevice::getDepthBufferValue(
 	         GL_FLOAT,
 	         &depth);
 
-    debugAssertM(glGetError() == GL_INVALID_OPERATION, 
+    debugAssertM(glGetError() != GL_INVALID_OPERATION, 
         "getDepthBufferValue failed, probably because you did not allocate a depth buffer.");
-
-    if (state.framebuffer.notNull()) {
-        glReadBuffer(oldRead);
-    }
 
     return depth;
 }
