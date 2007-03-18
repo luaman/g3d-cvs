@@ -524,134 +524,161 @@ static int textPrompt(
 
 #ifdef G3D_OSX
 
+// See http://developer.apple.com/documentation/Carbon/Reference/Carbon_Event_Manager_Ref/index.html
+
 #define CARBON_COMMANDID_START	128
 #define CARBON_BUTTON_SPACING	12
 #define CARBON_BUTTON_HEIGHT	20
 #define CARBON_BUTTON_MINWIDTH	69
 #define CARBON_WINDOW_PADDING	20
 
-typedef struct carbon_evt_data_s
-{
-	WindowRef	refWindow;
-	int			iRetVal;
-} carbon_evt_data_t;
+struct CallbackData {
+    WindowRef	refWindow;
 
-static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef event, void *userData)
-{
-	#pragma unused(handlerRef)
+    /** Index of this particular button */
+    int         myIndex;
+
+    /** Buttons store their index into here when pressed. */
+    int*        whichButton;
+};
+
+/**
+ Assumes that userData is a pointer to a carbon_evt_data_t.
+ 
+ */
+static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef event, void* userData) {
+    // See http://developer.apple.com/documentation/Carbon/Conceptual/HandlingWindowsControls/index.html
+
+    CallbackData& callbackData = *(CallbackData*)userData;
+
+#   pragma unused(handlerRef)
 	
-	HICommand commandStruct;
-	UInt32 commandID;
+    HICommand commandStruct;
+    UInt32 commandID;
+    
+    callbackData.whichButton[0] = callbackData.myIndex;
 	
-	GetEventParameter(event,kEventParamDirectObject,typeHICommand,NULL,sizeof(HICommand),NULL,&commandStruct);
+    // If we get here we can close the window
+    QuitAppModalLoopForWindow(callbackData.refWindow);
 	
-	commandID = commandStruct.commandID;
-	
-	// The Index is the commandID - CARBON_COMMANDID_START
-	((carbon_evt_data_t*)userData)->iRetVal = commandID - CARBON_COMMANDID_START;
-	
-	// If we get here we can close the window.
-	QuitAppModalLoopForWindow(((carbon_evt_data_t*)userData)->refWindow);
-	
-	return noErr;
+    // Return noErr to indicate that we handled the event
+    return noErr;
 }
 
-static int guiPrompt(const char*         windowTitle,
-                     const char*         prompt,
-                     const char**        choice,
-                     int                 numChoices) 
-{
-	int			i				= 0;
-	int			iNumButtonRows	= 1;
-	int			iButtonWidth	= (550 - (CARBON_WINDOW_PADDING*2 + (CARBON_BUTTON_SPACING*numChoices)))/numChoices;
-	OSStatus	err				= noErr;
-	
-	carbon_evt_data_t eventData;
-	
-	eventData.iRetVal = -1;
-	
-	// Determine Number of Rows of Buttons
-	while(iButtonWidth < CARBON_BUTTON_MINWIDTH)
-	{
-		iNumButtonRows++;
-		iButtonWidth = (550 - (CARBON_WINDOW_PADDING*2 + (CARBON_BUTTON_SPACING*numChoices)))/(numChoices/iNumButtonRows);
-	}
-	
-	// Window Variables
-	Rect				rectWin = {0, 0, 200 + ((iNumButtonRows-1)*(CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)), 550};			// top, left, bottom, right
-	CFStringRef			szWindowTitle = CFStringCreateWithCString(kCFAllocatorDefault, windowTitle, kCFStringEncodingUTF8);
-	eventData.refWindow = NULL;
-	err = CreateNewWindow(kMovableAlertWindowClass,kWindowStandardHandlerAttribute|kWindowCompositingAttribute,&rectWin,&eventData.refWindow);
-	err = SetWindowTitleWithCFString(eventData.refWindow,szWindowTitle);
-	err = SetThemeWindowBackground(eventData.refWindow,kThemeBrushAlertBackgroundActive,false);
-	
-	// Event Handler Variables
-	EventTypeSpec		buttonSpec[] = {{ kEventClassControl, kEventControlHit },{kEventClassCommand, kEventCommandProcess}};
-	EventHandlerUPP		buttonHandler = NewEventHandlerUPP(DoCommandEvent);
-		
-	// Static Text Variables
-	Rect				rectStatic = {20, 20, 152, 530};
-	CFStringRef			szStaticText = CFStringCreateWithCString(kCFAllocatorDefault, prompt, kCFStringEncodingUTF8);
-	ControlRef			refStaticText = NULL;
-	err = CreateStaticTextControl(eventData.refWindow, &rectStatic, szStaticText, NULL, &refStaticText);
-	
-	// Button Variables
-	Rect				arrRectButtons[numChoices];
-	CFStringRef			arrSzButtons[numChoices];
-	ControlRef			arrRefButtons[numChoices];
-	
-	// Create the Buttons and Set up for Event Handling
-	for(i = 0; i < numChoices; i++)
-	{
-		arrRectButtons[i].top		= 160 + ((CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)*(i%iNumButtonRows));
-		arrRectButtons[i].right		= 530 - ((iButtonWidth+CARBON_BUTTON_SPACING)*(i/iNumButtonRows));
-		arrRectButtons[i].left		= arrRectButtons[i].right - iButtonWidth;
-		arrRectButtons[i].bottom	= arrRectButtons[i].top + CARBON_BUTTON_HEIGHT;
-		arrSzButtons[i] = CFStringCreateWithCString(kCFAllocatorDefault, choice[i], kCFStringEncodingUTF8);
-		err = CreatePushButtonControl(eventData.refWindow, &arrRectButtons[i], arrSzButtons[i], &arrRefButtons[i]);
-		err = SetControlCommandID(arrRefButtons[i],CARBON_COMMANDID_START+i);
-		err = InstallControlEventHandler(arrRefButtons[i], buttonHandler, GetEventTypeCount(buttonSpec), buttonSpec, &eventData, NULL);
-	}
-		
-	// Show Dialog
-	err = RepositionWindow(eventData.refWindow, NULL, kWindowCenterOnMainScreen);
-	ShowWindow(eventData.refWindow);
-	BringToFront(eventData.refWindow);
-	err = ActivateWindow(eventData.refWindow,true);
+static int guiPrompt
+(const char*         windowTitle,
+ const char*         prompt,
+ const char**        choice,
+ int                 numChoices) {
 
-	// Hack to get our window/process to the front...
-	ProcessSerialNumber psn = { 0, kCurrentProcess};    
-	TransformProcessType (&psn, kProcessTransformToForegroundApplication);
-	SetFrontProcess (&psn);
+    WindowRef	 window;
 
-	// Run in Modal State
-	err = RunAppModalLoopForWindow(eventData.refWindow);
+    int          iNumButtonRows	= 0;
+    int          iButtonWidth   = -1;
+    OSStatus	 err            = noErr;
+    
+    // Determine number of rows of buttons
+    while (iButtonWidth < CARBON_BUTTON_MINWIDTH) {
+        ++iNumButtonRows;
+        iButtonWidth = 
+            (550 - (CARBON_WINDOW_PADDING*2 + 
+                    (CARBON_BUTTON_SPACING*numChoices))) / 
+            (numChoices/iNumButtonRows);
+    }
 	
-	// Dispose of Button Related Data
-	for(i = 0; i < numChoices; i++)
-	{
-		// Dispose of controls
-		DisposeControl(arrRefButtons[i]);
-		
-		// Release CFStrings
-		CFRelease(arrSzButtons[i]);
-	}
+    // Window Variables
+    Rect	rectWin = {0, 0, 200 + ((iNumButtonRows-1) * (CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)), 550};			// top, left, bottom, right
+    CFStringRef	szWindowTitle = CFStringCreateWithCString(kCFAllocatorDefault, windowTitle, kCFStringEncodingUTF8);
 
-	// Dispose of Other Controls
-	DisposeControl(refStaticText);
+    window = NULL;
+
+    err = CreateNewWindow(kMovableAlertWindowClass, kWindowStandardHandlerAttribute|kWindowCompositingAttribute, &rectWin, &window);
+    err = SetWindowTitleWithCFString(window, szWindowTitle);
+    err = SetThemeWindowBackground(window, kThemeBrushAlertBackgroundActive, false);
+    assert(err == noErr);
+    
+    // Event Handler Variables
+    EventTypeSpec	buttonSpec[] = {{ kEventClassControl, kEventControlHit }, { kEventClassCommand, kEventCommandProcess }};
+    EventHandlerUPP	buttonHandler = NewEventHandlerUPP(DoCommandEvent);
+    
+    // Static Text Variables
+    Rect		rectStatic = {20, 20, 152, 530};
+    CFStringRef		szStaticText = CFStringCreateWithCString(kCFAllocatorDefault, prompt, kCFStringEncodingUTF8);
+    ControlRef		refStaticText = NULL;
+    err = CreateStaticTextControl(window, &rectStatic, szStaticText, NULL, &refStaticText);
+    
+    // Button Variables
+    Rect		bounds[numChoices];
+    CFStringRef		caption[numChoices];
+    ControlRef		button[numChoices];
+
+    int whichButton=-1;
+    CallbackData        callbackData[numChoices];
 	
-	// Dispose of Event Handlers
-	DisposeEventHandlerUPP(buttonHandler);
-	
-	// Dispose of Window
-	DisposeWindow(eventData.refWindow);
-	
-	// Release CFStrings
-	CFRelease(szWindowTitle);
-	CFRelease(szStaticText);
-		
-	// Return Selection
-	return eventData.iRetVal;
+    // Create the Buttons and assign event handlers
+    for (int i = 0; i < numChoices; ++i) {
+        bounds[i].top	 = 160 + ((CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)*(i%iNumButtonRows));
+        bounds[i].right	 = 530 - ((iButtonWidth+CARBON_BUTTON_SPACING)*(i/iNumButtonRows));
+        bounds[i].left	 = bounds[i].right - iButtonWidth;
+        bounds[i].bottom = bounds[i].top + CARBON_BUTTON_HEIGHT;
+        
+        // Convert the button captions to Apple strings
+        caption[i] = CFStringCreateWithCString(kCFAllocatorDefault, choice[i], kCFStringEncodingUTF8);
+    
+        err = CreatePushButtonControl(window, &bounds[i], caption[i], &button[i]);
+        assert(err == noErr);
+
+        err = SetControlCommandID(button[i], CARBON_COMMANDID_START + i);
+        assert(err == noErr);
+
+        callbackData[i].refWindow   = window;
+        callbackData[i].myIndex     = i;
+        callbackData[i].whichButton = &whichButton;
+
+        err = InstallControlEventHandler(button[i], buttonHandler, 
+                                         GetEventTypeCount(buttonSpec), buttonSpec,
+                                         &callbackData[i], NULL);
+        assert(err == noErr);
+    }
+    
+    // Show Dialog
+    err = RepositionWindow(window, NULL, kWindowCenterOnMainScreen);
+    ShowWindow(window);
+    BringToFront(window);
+    err = ActivateWindow(window, true);
+    
+    // Hack to get our window/process to the front...
+    ProcessSerialNumber psn = { 0, kCurrentProcess};    
+    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
+    SetFrontProcess (&psn);
+    
+    // Run in Modal State
+    err = RunAppModalLoopForWindow(window);
+
+    // Dispose of Button Related Data
+    for (int i = 0; i < numChoices; ++i) {
+        // Dispose of controls
+        DisposeControl(button[i]);
+        
+        // Release CFStrings
+        CFRelease(caption[i]);
+    }
+    
+    // Dispose of Other Controls
+    DisposeControl(refStaticText);
+    
+    // Dispose of Event Handlers
+    DisposeEventHandlerUPP(buttonHandler);
+    
+    // Dispose of Window
+    DisposeWindow(window);
+    
+    // Release CFStrings
+    CFRelease(szWindowTitle);
+    CFRelease(szStaticText);
+    
+    // Return Selection
+    return whichButton;
 }
 
 #endif
