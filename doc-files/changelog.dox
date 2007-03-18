@@ -71,9 +71,10 @@
      <li> G3D::MD2Model now uses floating point texture coordinates, which makes it easier to 
           write pixel shaders for MD2Models
      <li> G3D::GImage::computeNormalMap now accepts a scale factor indicating how steep the input bump map is
+     <li> Added G3D::Shader support for the GLSL #version directive
      <li> Optimized G3D::GImage::computeNormalMap to use primarily integer math
      <li> G3D::AABox::contains(AABox)
-	 <li> Added large file (>2GB) support to BinaryInput [Peter]
+     <li> Added large file (>2GB) support to BinaryInput [Peter]
      <li> Renamed graphics3d.h to G3D/G3D.h
      <li> Renamed GLG3D.h to GLG3D/GLG3D.h
      <li> Renamed G3DAll.h to G3D/G3DAll.h

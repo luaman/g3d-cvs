@@ -107,17 +107,23 @@ std::string demoFindData(bool errorIfNotFound) {
         potential.append(std::string("f:/") + lpath);
         potential.append(std::string("g:/") + lpath);
         potential.append(std::string("x:/") + lpath);
-        potential.append(std::string("c:/users/morgan/data/"));
-    #else
+    #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
         potential.append(std::string("/course/cs224/") + lpath);
         potential.append(std::string("/map/gfx0/common/games/") + lpath);
+        potential.append(std::string("/usr/local/371/data/") + lpath);
+    #elif defined(G3D_OSX)
+        potential.append("/Volumes/McGuire/Projects/G3D/");
     #endif
 
     // Scan all potentials for the font directory
     for (int p = 0; p < potential.size();  ++p) {
         std::string path = potential[p];
+        // printf("Looking at: %sdata\n", path.c_str());
         if (fileExists(path + "data") && fileExists(path + "data/font")) {
             return path + "data/";
+        }
+        if (fileExists(path + "data-files") && fileExists(path + "data-files/font")) {
+            return path + "data-files/";
         }
     }
 

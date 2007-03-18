@@ -53,26 +53,28 @@ ShaderRef GaussianBlur::makeShader(int N) {
 
     gaussCoef += "};\n";
 
+    // Note: ATI drivers don't let us declare the float array as "const"
+
     return Shader::fromStrings("",  
         format("const int kernelSize = %d;\n"
-               "const float gaussCoef[kernelSize] = %s\n", N, gaussCoef.c_str()) +
-    STR(
-    uniform sampler2D source;
+               "float gaussCoef[kernelSize] = %s\n", N, gaussCoef.c_str()) +
+        STR(
+            uniform sampler2D source;
 
-    // vec2(dx, dy) / (source.width, source.height)
-    uniform vec2      pixelStep;
-    
-    void main() {
-    
-        vec2 pixel = gl_TexCoord[0].xy;         
-        vec4 sum = texture2D(source, pixel) * gaussCoef[0];
-
-        for (int tap = 1; tap < kernelSize; ++tap) {
-            sum += texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel) * gaussCoef[tap];
-        }
-        
-        gl_FragColor = sum;
-    }));
+            // vec2(dx, dy) / (source.width, source.height)
+            uniform vec2      pixelStep;
+            
+            void main() {
+                
+                vec2 pixel = gl_TexCoord[0].xy;         
+                vec4 sum = texture2D(source, pixel) * gaussCoef[0];
+                
+                for (int tap = 1; tap < kernelSize; ++tap) {
+                    sum += texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel) * gaussCoef[tap];
+                }
+                
+                gl_FragColor = sum;
+            }));
 }
-
+    
 }

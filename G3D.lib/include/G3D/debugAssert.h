@@ -112,25 +112,27 @@ namespace _internal {
 
 #ifdef G3D_DEBUG
 
-#    ifndef G3D_OSX
-        #if defined(_MSC_VER) 
-            #if (_MSC_VER >= 1300)
-                #define rawBreak()  DebugBreak();
-            #else
-                // MSVC6
-                #define rawBreak()  _asm { int 3 };
-            #endif
-        #else
-            // GCC on Windows
-            #define rawBreak() __asm__ __volatile__ ( "int $3" ); 
-        #endif
-    #else
-        #define rawBreak() DebugStr((const unsigned char*)("\nG3D: Invoking breakpoint in debugger.")); /* XCode must be set to break on Debugger()/DebugStr() */
-#    endif
+#    if defined(_MSC_VER) 
+#        if (_MSC_VER >= 1300)
+            // VC7 or VC8
+#           define rawBreak()  DebugBreak();
+#        else
+            // MSVC6
+#           define rawBreak()  _asm { int 3 };
+#        endif
+#    elif defined(__i386__)
+        // gcc on intel
+#       define rawBreak() __asm__ __volatile__ ( "int $3" ); 
+#    else
+        // some other gcc
+#      define rawBreak() abort()
+#   endif
+// old mac code:
+//#       define rawBreak() DebugStr((const unsigned char*)("\nG3D: Invoking breakpoint in debugger.")); /* XCode must be set to break on Debugger()/DebugStr() */
 
 
-    #define debugBreak() G3D::_internal::_releaseInputGrab_(); rawBreak(); G3D::_internal::_restoreInputGrab_();
-    #define debugAssert(exp) debugAssertM(exp, "Debug assertion failure")
+#    define debugBreak() G3D::_internal::_releaseInputGrab_(); rawBreak(); G3D::_internal::_restoreInputGrab_();
+#    define debugAssert(exp) debugAssertM(exp, "Debug assertion failure")
 
     #ifdef G3D_DEBUG_NOGUI
         #define __debugPromptShowDialog__ false

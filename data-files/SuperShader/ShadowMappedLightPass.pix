@@ -53,7 +53,7 @@ varying vec2        texCoord;
     /** Un-normalized (interpolated) tangent space eye vector */
     varying vec3        _tsE;
 
-	varying vec4        tan_X, tan_Y;
+    varying vec4        tan_X, tan_Y;
 #endif
 
 varying vec4        tan_Z, tan_W;
@@ -71,21 +71,21 @@ void main(void) {
         // Convert bumps to a world space distance
         float  bump   = (texture2D(normalBumpMap, texCoord).w - 0.5) * bumpMapScale;
 
-	    vec3 tsE = normalize(_tsE);
+        vec3 tsE = normalize(_tsE);
 
         // Offset the texture coord.  Note that texture coordinates are inverted (in the y direction)
 	    // from TBN space, so we must flip the y-axis.
 
         vec2 offsetTexCoord = texCoord.xy + vec2(tsE.x, -tsE.y) * bump;
 
-	    // note that the columns might be slightly not orthogonal due to interpolation
-	    mat4 tangentToWorld = mat4(tan_X, tan_Y, tan_Z, tan_W);
+	// note that the columns might be slightly not orthogonal due to interpolation
+	mat4 tangentToWorld = mat4(tan_X, tan_Y, tan_Z, tan_W);
 	    
         // Take the normal map values back to (-1, 1) range to compute a tangent space normal
         vec3 tsN = ((texture2D(normalBumpMap, offsetTexCoord).xyz - vec3(0.5, 0.5, 0.5)) * 2.0);
 
-	    // Take the normal to world space 
-	    vec3 wsN = (tangentToWorld * vec4(tsN, 0.0)).xyz * backside;
+        // Take the normal to world space 
+        vec3 wsN = (tangentToWorld * vec4(tsN, 0.0)).xyz * backside;
 
 #   else
         vec2 offsetTexCoord = texCoord;
@@ -94,10 +94,10 @@ void main(void) {
         vec3 wsN = tan_Z.xyz * backside;
 #   endif
 
-	// or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
+    // or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
 
     // Light vector      
-	vec3 wsL = normalize(lightPosition.xyz - tan_W.xyz * lightPosition.w);
+    vec3 wsL = normalize(lightPosition.xyz - tan_W.xyz * lightPosition.w);
 
 #   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
         // Eye vector
@@ -200,4 +200,3 @@ void main(void) {
 #       endif
         ;
 }
-

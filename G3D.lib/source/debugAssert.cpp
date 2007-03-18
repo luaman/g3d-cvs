@@ -144,10 +144,10 @@ bool _handleDebugAssert_(
         debugPrintf("\n%s\n", dialogText.c_str());
     #endif
 
-    const int cBreak = 0;
-    const int cIgnore = 1;
+    const int cBreak        = 0;
+    const int cIgnore       = 1;
     const int cIgnoreAlways = 2;
-    const int cAbort = 3;
+    const int cAbort        = 3;
 
     static char* choices[] = {"Debug", "Ignore", "Ignore Always", "Exit"};
 
@@ -156,10 +156,10 @@ bool _handleDebugAssert_(
 
     int result = G3D::prompt(dialogTitle.c_str(), dialogText.c_str(), (const char**)choices, 4, useGuiPrompt);
 
-    #ifdef G3D_WIN32
+#    ifdef G3D_WIN32
         // Put the incoming last error back.
         SetLastError(lastErr);
-    #endif
+#    endif
 
     switch (result) {
     // -1 shouldn't actually occur because it means 
@@ -205,6 +205,11 @@ bool _handleErrorCheck_(
 
     // Log the error
     Log::common()->print(std::string("\n**************************\n\n") + dialogTitle + "\n" + dialogText);
+    #ifdef G3D_WIN32
+        DWORD lastErr = GetLastError();
+        postToClipboard(dialogText.c_str());
+        debugPrintf("\n%s\n", dialogText.c_str());
+    #endif
 
     static char* choices[] = {"Ok"};
 
@@ -299,19 +304,19 @@ void _restoreInputGrab_() {
 }; // internal namespace
  
 void setAssertionHook(AssertionHook hook) {
-	G3D::_internal::_debugHook = hook;
+    G3D::_internal::_debugHook = hook;
 }
 
 AssertionHook assertionHook() {
-	return 	G3D::_internal::_debugHook;
+    return 	G3D::_internal::_debugHook;
 }
 
 void setFailureHook(AssertionHook hook) {
-	G3D::_internal::_failureHook = hook;
+    G3D::_internal::_failureHook = hook;
 }
 
 AssertionHook failureHook() {
-	return G3D::_internal::_failureHook;
+    return G3D::_internal::_failureHook;
 }
 
 

@@ -7,101 +7,9 @@
  @edited  2006-10-20
  */
 
-
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/Draw.h"
 #include "G3D/Rect2D.h"
-
-namespace G3D {
-
-/** 
-  If maybeReuse matches source's format but is not the same as source, returns maybeReuse, otherwise returns a new
-  texture with the same properties as source.
-  */
-static TextureRef cloneFormat(const TextureRef& source, TextureRef& maybeReuse) {
-    if (maybeReuse.notNull() && 
-        (source != maybeReuse) &&
-        (source->format() == maybeReuse->format()) &&
-        (source->texelWidth() == maybeReuse->texelWidth()) &&
-        (source->texelHeight() == maybeReuse->texelHeight()) &&
-        (source->texelDepth() == maybeReuse->texelDepth()) &&
-        (source->dimension() == maybeReuse->dimension()) &&
-        (source->settings().equalsIgnoringMipMap(maybeReuse->settings()))) {
-        return maybeReuse;
-    } else {
-        return Texture::createEmpty("Clone of " + source->name(), 
-            source->texelWidth(),
-            source->texelHeight(),
-            source->format(),
-            source->dimension(),
-            source->settings());
-    }
-}
-
-void TextureEffects::gaussianBlur(RenderDevice* rd, const TextureRef& source, TextureRef& dest) {
-
-    if (gaussian1DShader.isNull()) {
-        gaussian1DShader = 
-            //Shader::fromFiles("", "shader.txt");
-        Shader::fromStrings("",            
-        std::string("const int kernelSize = 17;\
-         const float gaussCoef[kernelSize] = \
-            {0.013960189, 0.022308318, 0.033488752, 0.047226710, 0.062565226,\
-             0.077863682, 0.091031867, 0.099978946, 0.103152619, 0.099978946,\
-             0.091031867, 0.077863682, 0.062565226, 0.047226710, 0.033488752,\
-             0.022308318, 0.013960189};")+
-        STR(
-        uniform sampler2D source;
-
-        // vec2(dx, dy) / (source.width, source.height)
-        uniform vec2      pixelStep;
-        
-        void main() {
-        
-            vec2 pixel = gl_TexCoord[0].xy + pixelStep * (float(kernelSize - 1) * 0.5);            
-            vec4 sum = texture2D(source, pixel) * gaussCoef[0];
-
-            for (int tap = 1; tap < kernelSize; ++tap) {
-                sum += texture2D(source, pixelStep * float(tap) + pixel) * gaussCoef[tap];
-            }
-            
-            gl_FragColor = sum;
-        }));
-    }
-
-    if (frameBuffer.isNull()) {
-        frameBuffer = FrameBuffer::create("Frame Buffer");
-    }
-
-    // Don't clone source directly into dest; they are allowed to be the same!
-    temp = cloneFormat(source, temp);
-    dest = cloneFormat(temp, dest);
-    
-    // Don't create mipmaps when we write to the textures
-    temp->setAutoMipMap(false);
-    dest->setAutoMipMap(false);
-
-    frameBuffer->set(FrameBuffer::COLOR_ATTACHMENT0, temp);
-    rd->push2D(frameBuffer);
-        // Horizontal pass
-        gaussian1DShader->args.set("source", source);
-        gaussian1DShader->args.set("pixelStep", Vector2(1.0f, 0.0f) / source->vector2Bounds());
-        rd->setShader(gaussian1DShader);
-        Draw::rect2D(rd->viewport(), rd);
-
-        // Vertical pass
-        gaussian1DShader->args.set("source", temp);
-        gaussian1DShader->args.set("pixelStep", Vector2(0.0f, 1.0f) / temp->vector2Bounds());
-        frameBuffer->set(FrameBuffer::COLOR_ATTACHMENT0, dest);
-        Draw::rect2D(rd->viewport(), rd);
-        dest->invertY = false;
-    rd->pop2D();
-
-    // Reset the frame buffer
-    frameBuffer->set(FrameBuffer::COLOR_ATTACHMENT0, NULL);
-}
-
-}
 
 namespace G3D {
 
@@ -327,7 +235,7 @@ void ToneMap::makeGammaCorrectionTextures() {
     }
     
     // MIP-mapping causes bad interpolation for some reason
-	RG = Texture::fromGImage("RG Gamma", data, TextureFormat::RGB8, Texture::DIM_2D, Texture::Settings::video());
+    RG = Texture::fromGImage("RG Gamma", data, TextureFormat::RGB8, Texture::DIM_2D, Texture::Settings::video());
     
     if (profile != PS20) {
         // On PS20 we can re-use the original RG texture
@@ -386,15 +294,16 @@ void ToneMap::makeShadersPS20() {
     // Threshold and horizontal gaussian blur.
     bloomShader[0] = Shader::fromStrings("",
         std::string(
-        "/* Amount to brighten the bloom*/ \
-         const float scale = 3.0;\
-         const int kernelSize = 17;\
-         const float gaussCoef[kernelSize] = {\
+        /* "#version 120\n" */
+        "/* Amount to brighten the bloom*/\n\
+         const float scale = 3.0;\n\
+         const int kernelSize = 17;\n\
+         float gaussCoef[kernelSize] = float[kernelSize](\n\
              0.013960189 * scale, 0.022308318 * scale, 0.033488752 * scale, 0.047226710 * scale,\
              0.062565226 * scale, 0.077863682 * scale, 0.091031867 * scale, 0.099978946 * scale,\
              0.103152619 * scale, 0.099978946 * scale, 0.091031867 * scale, 0.077863682 * scale,\
              0.062565226 * scale, 0.047226710 * scale, 0.033488752 * scale, 0.022308318 * scale,\
-             0.013960189 * scale};") +
+             0.013960189 * scale);\n") +
         STR(
         uniform sampler2D screenImage;
 
@@ -428,12 +337,14 @@ void ToneMap::makeShadersPS20() {
     // Bloom filter pass 2 (vertical).
     // Vertical gaussian blur and blend with the old bloom map.
     bloomShader[1] = Shader::fromStrings("", 
-        std::string("const int kernelSize = 17;\
-         const float gaussCoef[kernelSize] = \
-            {0.013960189, 0.022308318, 0.033488752, 0.047226710, 0.062565226,\
+        std::string(
+                    /*"#version 120\n"*/
+        "const int kernelSize = 17;\
+         float gaussCoef[kernelSize] = \
+            float[kernelSize](0.013960189, 0.022308318, 0.033488752, 0.047226710, 0.062565226,\
              0.077863682, 0.091031867, 0.099978946, 0.103152619, 0.099978946,\
              0.091031867, 0.077863682, 0.062565226, 0.047226710, 0.033488752,\
-             0.022308318, 0.013960189};")+
+             0.022308318, 0.013960189);\n")+
         STR(
         uniform sampler2D bloomImage;
         uniform sampler2D oldBloom;
@@ -464,6 +375,7 @@ void ToneMap::makeShadersPS20() {
     // Gamma correct the screen image and
     // add it to a 2D blur of the bloom image.
     bloomShader[2] = Shader::fromStrings("", 
+                                         /*std::string("#version 120\n") +*/
         STR(
         uniform sampler2D screenImage;
         uniform sampler2D bloomImage;

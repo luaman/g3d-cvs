@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2004-04-24
- @edited  2006-02-15
+ @edited  2007-03-16
  */
 
 #include "G3D/fileutils.h"
@@ -234,15 +234,16 @@ void VertexAndPixelShader::GPUShader::replaceG3DSize(std::string& code, std::str
 }
 
 
-void VertexAndPixelShader::GPUShader::init(
-	const std::string&	name,
-	const std::string&	code,
-	bool				_fromFile,
-	bool				debug,	
-	GLenum				glType,
-	const std::string&	type,
-    UseG3DUniforms      uniforms) {
-
+void VertexAndPixelShader::GPUShader::init
+(
+ const std::string&	name,
+ const std::string&	code,
+ bool			_fromFile,
+ bool			debug,	
+ GLenum			glType,
+ const std::string&	type,
+ UseG3DUniforms         uniforms) {
+    
     std::string uniformString = 
         STR(
         uniform mat4 g3d_WorldToObjectMatrix;
@@ -253,15 +254,15 @@ void VertexAndPixelShader::GPUShader::init(
         uniform int  g3d_NumTextures;
         uniform vec4 g3d_ObjectLight0;);
 
-	_name			= name;
-	_shaderType		= type;
-	_glShaderType	= glType;
-	_ok				= true;
-	fromFile		= _fromFile;
-	_fixedFunction	= (name == "") && (code == "");
-
-	if (! _fixedFunction) {
-
+    _name		= name;
+    _shaderType		= type;
+    _glShaderType	= glType;
+    _ok			= true;
+    fromFile		= _fromFile;
+    _fixedFunction	= (name == "") && (code == "");
+    
+    if (! _fixedFunction) {
+        
         switch (glType) {
         case GL_VERTEX_SHADER_ARB:
             if (! Shader::supportsVertexShaders()) {
@@ -278,48 +279,72 @@ void VertexAndPixelShader::GPUShader::init(
             break;
         }
 
-		if (fromFile) {
-			if (fileExists(_name)) {
-				_code = readWholeFile(_name);
-			} else {
-				_ok = false;
-				_messages = format("Could not load shader file \"%s\".", 
-					_name.c_str());
-			}
+        if (fromFile) {
+            if (fileExists(_name)) {
+                _code = readWholeFile(_name);
+            } else {
+                _ok = false;
+                _messages = format("Could not load shader file \"%s\".", 
+                                   _name.c_str());
+            }
         } else {
             _code = code;
         }
-
+        
         bool shifted = false;
+
+        // See if the program begins with a version pragma
+        std::string versionLine;
+        if (beginsWith(code, "#version ")) {
+            // Strip off the version line, including the \n
+            int pos = code.find("\n") + 1;
+            versionLine = code.substr(0, pos);
+            _code = code.substr(versionLine.length());
+        }
 
         if ((uniforms == DEFINE_G3D_UNIFORMS) && (_code.size() > 0)) {
             // Replace g3d_size and g3d_invSize with corresponding magic names
-
+            
             replaceG3DSize(_code, uniformString);
 
-	        _code		= uniformString + "\n" + _code + "\n";
-            shifted = true;
+            std::string lineDirective = "";
+            if (versionLine != "") {
+                // Fix the line numbers since we inserted code at the top
+                lineDirective = "#line 2\n";
+            } else {
+                // We only need to record that we've shifted line numbers
+                // if the version is pre-1.20, since all later version support
+                // the #line directive
+
+                shifted = true;
+            }
+
+            _code = uniformString + "\n" + lineDirective + _code + "\n";
+
         } else {
-            // Just add a newline to the end
+            // Add a newline to the end to ensure that the shader is terminated
+            // with one, which is required by GLSL.
             _code += "\n";
         }
 
-		if (_ok) {
-			compile();
-		}
+        _code = versionLine + _code;
 
-		if (debug) {
+        if (_ok) {
+            compile();
+        }
+        
+        if (debug) {
             // Check for compilation errors
             if (! ok()) {
                 if (shifted) {
                     debugPrintf("\n[Line numbers in the following shader errors are shifted by one.]\n");
                 }
                 debugPrintf("%s", messages().c_str());
-    			alwaysAssertM(ok(), messages());
+                alwaysAssertM(ok(), messages());
             }
-		}
-	}
-
+        }
+    }
+        
 }
 
 
