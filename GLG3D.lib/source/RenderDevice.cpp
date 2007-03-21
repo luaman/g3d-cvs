@@ -135,6 +135,8 @@ std::string RenderDevice::getCardDescription() const {
 
 
 RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false) {
+    emwaTriangleRate  = 0;
+    emwaTriangleCount = 0;
 
     _initialized = false;
     cleanedup = false;
