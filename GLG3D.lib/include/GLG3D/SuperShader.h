@@ -59,11 +59,13 @@ public:
 
         /** True if this material is definitely (0,0,0) everywhere */
         inline bool isBlack() const {
+            // To be black, it doesn't matter what your texture is--it will be multiplied by zero!
             return (constant.r == 0) && (constant.g == 0) && (constant.b == 0);
         }
 
         /** True if this material is definitely (1,1,1) everywhere */
         inline bool isWhite() const {
+            // To be white, you have to have no texture map and all white constants.
             return (constant.r == 1) && (constant.g == 1) && (constant.b == 1) && map.isNull();
         }
 

@@ -59,6 +59,7 @@ namespace G3D {
             }
         #else
             vfprintf(stderr, fmt, argList);
+            fflush(stderr);
         #endif
 
         va_end(argList);

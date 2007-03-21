@@ -61,8 +61,8 @@ ShaderRef GaussianBlur::makeShader(int N) {
         }
 
     } else {
-    
-        coefDecl = format("  const int kernelSize = %d;\n  const float gaussCoef[] = float[](", N);
+        // NVIDIA has their own array syntax   
+        coefDecl = format("  const int kernelSize = %d;\n  const float gaussCoef[] = {", N);
         for (int i = 0; i < N; ++i) {
             coefDecl += format("%10.8f", coeff[i]);
             if (i < N - 1) {
@@ -70,7 +70,7 @@ ShaderRef GaussianBlur::makeShader(int N) {
             }
         }
 
-        coefDecl += ");\n";
+        coefDecl += "};\n";
     }
 
     std::string pixelSource =
@@ -93,7 +93,7 @@ ShaderRef GaussianBlur::makeShader(int N) {
                 
                 gl_FragColor = sum;) + "}";
     
-    //printf("%s\n", pixelSource.c_str());  fflush(stdout);
+    //debugPrintf("%s\n", pixelSource.c_str());
     return Shader::fromStrings("", pixelSource);
 }
     

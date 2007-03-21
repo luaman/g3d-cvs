@@ -336,7 +336,8 @@ BinaryInput::BinaryInput(
         length = L;
         bufferLength = length;
 
-        debugAssert(result == Z_OK); (void)result;
+        debugAssertM(result == Z_OK, "BinaryInput/zlib detected corruption in " + filename); 
+        (void)result;
 
         System::free(tempBuffer);
     }

@@ -149,16 +149,20 @@ static void testCompression() {
     printf("BinaryInput & BinaryOutput\n");
     BinaryOutput f("out.t", G3D_LITTLE_ENDIAN);
 
-    f.writeUInt32(1234);
-    f.writeFloat64(1.234);
+    for (int i = 0; i < 100; ++i) {
+        f.writeUInt32(1234);
+        f.writeFloat64(1.234);
+    }
     f.compress();
     f.commit();
 
     BinaryInput g("out.t", G3D_LITTLE_ENDIAN, true);
-    uint32 i = g.readUInt32();
-    debugAssert(i == 1234); (void)i;
-    double j = g.readFloat64();
-    debugAssert(j == 1.234); (void)j;
+    for (int k = 0; k < 100; ++k) {
+        uint32 i = g.readUInt32();
+        debugAssert(i == 1234); (void)i;
+        double j = g.readFloat64();
+        debugAssert(j == 1.234); (void)j;
+    }
 }
 
 

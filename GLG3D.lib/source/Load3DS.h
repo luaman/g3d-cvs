@@ -321,7 +321,7 @@ public:
         const Load3DS::ChunkHeader& objectChunkHeader);
 
     /** Called from processObjectChunk */
-    void Load3DS::processTriMeshChunk(
+    void processTriMeshChunk(
         Object&                     object,
         const ChunkHeader&          objectChunkHeader);
 
