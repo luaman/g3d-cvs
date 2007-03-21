@@ -896,7 +896,7 @@ Matrix3 Load3DS::readRotTrack() {
 
 	int keys = b->readInt32();
 	debugAssertM(keys == 1, "Can only read 1 frame of animation");
-	float   angle;
+	float   angle = 0;
 	Vector3 axis;
 	for (int k = 0; k < keys; ++k) {
 		readTCB();
