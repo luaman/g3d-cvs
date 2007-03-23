@@ -17,22 +17,15 @@
     #error Requires G3D 7.00
 #endif
 
-/**
- This simple demo applet uses the debug mode as the regular
- rendering mode so you can fly around the scene.
- */
-class Demo : public GApplet {
+
+
+class App : public GApp2 {
+protected:
+    int main();
 public:
+    SkyRef              sky;
 
-    // Add state that should be visible to this applet.
-    // If you have multiple applets that need to share
-    // state, put it in the App.
-
-    class App*          app;
-
-    Demo(App* app);
-
-    virtual ~Demo() {}
+    App(const GApp2::Settings& settings);
 
     virtual void onInit();
 
@@ -48,74 +41,52 @@ public:
 
     virtual void onCleanup();
 
-};
-
-
-
-class App : public GApp {
-protected:
-    int main();
-public:
-    SkyRef              sky;
-
-    Demo*               applet;
-
-    App(const GApp::Settings& settings);
 
     ~App();
 };
 
 
-Demo::Demo(App* _app) : GApplet(_app), app(_app) {
-}
-
-
-void Demo::onInit()  {
+void App::onInit()  {
     // Called before Demo::run() beings
-    app->debugCamera.setPosition(Vector3(0, 2, 10));
-    app->debugCamera.lookAt(Vector3(0, 2, 0));
+    defaultCamera.setPosition(Vector3(0, 2, 10));
+    defaultCamera.lookAt(Vector3(0, 2, 0));
 
-    GApplet::onInit();
+    GApp2::onInit();
 }
 
 
-void Demo::onCleanup() {
+void App::onCleanup() {
     // Called when Demo::run() exits
-  GApplet::onCleanup();
+  GApp2::onCleanup();
 }
 
 
-void Demo::onLogic() {
+void App::onLogic() {
     // Add non-simulation game logic and AI code here
 }
 
 
-void Demo::onNetwork() {
+void App::onNetwork() {
 	// Poll net messages here
 }
 
 
-void Demo::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	// Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
 }
 
 
-void Demo::onUserInput(UserInput* ui) {
-    if (ui->keyPressed(GKey::ESCAPE)) {
-        // Even when we aren't in debug mode, quit on escape.
-        endApplet = true;
-        app->endProgram = true;
-    }
+void App::onUserInput(UserInput* ui) {
+	//must call GApp2::onUserInput
+	GApp2::onUserInput(ui);
 
 	// Add other key handling here
 	
-	//must call GApplet::onUserInput
-	GApplet::onUserInput(ui);
 }
 
 
-void Demo::onGraphics(RenderDevice* rd) {
+void App::onGraphics(RenderDevice* rd) {
 
     static FramebufferRef fbo = FrameBuffer::create("Fbo");
     static TextureRef texture = Texture::createEmpty("Screen", rd->width(), rd->height(), TextureFormat::RGBA8, Texture::DIM_2D_NPOT, Texture::Settings::video());
@@ -127,14 +98,14 @@ void Demo::onGraphics(RenderDevice* rd) {
 
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
-    rd->setProjectionAndCameraMatrix(app->debugCamera);
+    rd->setProjectionAndCameraMatrix(defaultCamera);
 
     // Cyan background
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
 
-    rd->clear(app->sky.isNull(), true, true);
-    if (app->sky.notNull()) {
-        app->sky->render(rd, lighting);
+    rd->clear(sky.isNull(), true, true);
+    if (sky.notNull()) {
+        sky->render(rd, lighting);
     }
 
     // Setup lighting
@@ -149,8 +120,8 @@ void Demo::onGraphics(RenderDevice* rd) {
 
     rd->disableLighting();
 
-    if (app->sky.notNull()) {
-        app->sky->renderLensFlare(rd, lighting);
+    if (sky.notNull()) {
+        sky->renderLensFlare(rd, lighting);
     }
 
     rd->setFramebuffer(NULL);
@@ -164,56 +135,22 @@ void Demo::onGraphics(RenderDevice* rd) {
 }
 
 
-int App::main() {
-    /*
-    Shader::fromStrings("",
-        "   uniform sampler2D source;\n"
-        "   uniform vec2      pixelStep;\n"
-        "   \n"
-        "    void main() {\n"
-        "       const int kernelSize = 3;\n"
-        "       float gaussCoef[3] = float[3](1.0,1.0,1.0);\n"
-        "       \n"
-        "       vec2 pixel = gl_TexCoord[0].xy;         \n"
-        "       vec4 sum = texture2D(source, pixel) * gaussCoef[0];\n"
-        "       \n"
-        "       for (int tap = 1; tap < kernelSize; ++tap) {\n"
-        "           sum += texture2D(source, pixelStep * (float(tap) - float(kernelSize - 1) * 0.5) + pixel) * gaussCoef[tap];\n"
-        "       }\n"
-        "       \n"
-        "       gl_FragColor = sum;\n"
-        "   }"
-    );
-
-                        exit(0);
-                        */
-    setDebugMode(true);
-    debugController->setActive(false);
+App::App(const GApp2::Settings& settings) : GApp2(settings) {
+    defaultController->setActive(false);
 
     // Load objects here
     if (fileExists(dataDir + "sky/sun.jpg")) {
         sky = Sky::fromFile(dataDir + "sky/");
     }
     
-    applet->run();
-
-    return 0;
-}
-
-
-App::App(const GApp::Settings& settings) : GApp(settings) {
-    applet = new Demo(this);
 }
 
 
 App::~App() {
-    delete applet;
 }
 
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-	GApp::Settings settings;
-    settings.useNetwork = false;
     return App(settings).run();
 }

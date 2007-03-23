@@ -28,8 +28,7 @@
 
   <LI><B>Application Structure</B> &nbsp; &nbsp;
     G3D::FirstPersonManipulator,
-    G3D::GApp, 
-    G3D::GApplet, 
+    G3D::GApp2
     G3D::GConsole,
     G3D::GModule,
     G3D::GModuleManager
@@ -37,8 +36,9 @@
     G3D::ThirdPersonManipulator,
     G3D::UserInput
   <BR>
-  See also demo code
-    <A HREF="../demos/main.cpp">main.cpp</A>, 
+  See also:
+    <br>G3D::GApp and G3D::GApplet for 6.xx backward compatibility,
+    <br>"Empty" <A HREF="../demos/empty/main.cpp">main.cpp</A>
 
   <LI><B>Effects</B> &nbsp; &nbsp;
     G3D::beginMarkShadows, 

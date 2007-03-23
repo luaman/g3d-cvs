@@ -52,50 +52,38 @@ public:
 
     class Settings {
     public:
-        GWindow::Settings    window;
+        GWindow::Settings       window;
 
-	/**
-	   If "<AUTO>", G3D will search for the standard
-	   data files.  It is recommended that you override this
-	   default and set dataDir to a directory relative
-	   to your executable (e.g. "./data/")
-	   so your programs can be distributed to users who
-	   do not have full the G3D data directory.
-	*/
-	std::string             dataDir;
-	
-	/**
-	   Can be relative to the G3D data directory (e.g. "font/dominant.fnt")
-	   or relative to the current directory.
-	   Default is "console-small.fnt"
-	*/
-	std::string             debugFontName;
-	
-	std::string             logFilename;
-	
-	/** 
-	    When true, GAapp ensures that g3d-license.txt exists in the current
-	    directory.  That file is written from the return value of G3D::license() */
-	bool                    writeLicenseFile;
-	
-	/** When true, the networkDevice is initialized.  Defaults to true. */
-	bool                    useNetwork;
-	
-	Settings() : dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
-	    logFilename("log.txt"), writeLicenseFile(true), useNetwork(true) {
-	}
+	    /**
+	       If "<AUTO>", G3D will search for the standard
+	       data files.  It is recommended that you override this
+	       default and set dataDir to a directory relative
+	       to your executable (e.g. "./data/")
+	       so your programs can be distributed to users who
+	       do not have full the G3D data directory.
+	    */
+	    std::string             dataDir;
+    	
+	    /**
+	       Can be relative to the G3D data directory (e.g. "font/dominant.fnt")
+	       or relative to the current directory.
+	       Default is "console-small.fnt"
+	    */
+	    std::string             debugFontName;
+    	
+	    std::string             logFilename;
+    	
+	    /** 
+	        When true, GAapp ensures that g3d-license.txt exists in the current
+	        directory.  That file is written from the return value of G3D::license() */
+	    bool                    writeLicenseFile;
+    	    	
+	    Settings() : dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
+	        logFilename("log.txt"), writeLicenseFile(true) {
+	    }
     };
 
-
 private:
-
-    bool                    _debugMode;
-
-    /**
-     Tracks whether the debug controller (activated with TAB) was
-     active when last we were in debug mode.
-     */
-    bool                    _debugControllerWasActive;
 
     /** Called from init. */
     void loadFont(const std::string& fontName);
@@ -105,14 +93,22 @@ private:
 
 protected:
 
-    Stopwatch           m_graphicsWatch;
-    Stopwatch           m_logicWatch;
-    Stopwatch           m_networkWatch;
-    Stopwatch           m_userInputWatch;
-    Stopwatch           m_simulationWatch;
-    Stopwatch           m_waitWatch;
+    Stopwatch               m_graphicsWatch;
+    Stopwatch               m_logicWatch;
+    Stopwatch               m_networkWatch;
+    Stopwatch               m_userInputWatch;
+    Stopwatch               m_simulationWatch;
+    Stopwatch               m_waitWatch;
 
-    GModuleManagerRef   m_moduleManager;
+    GModuleManagerRef       m_moduleManager;
+
+    bool                    m_endProgram;
+    int                     m_exitCode;
+
+    /**
+     Strings that have been printed with debugPrint.
+     */
+    Array<std::string>      debugText;
 
 public:
 
@@ -160,66 +156,50 @@ public:
      */
     GFontRef                debugFont;
     UserInput*              userInput;
-    bool                    endProgram;
+
+    /** Invoke to true to end the program at the end of the next event loop. */
+    virtual void exit(int code = 0);
 
     /**
-     A default camera that is driven by the debugController.
+     A default camera that is driven by the defaultController.
      */
-    GCamera		    debugCamera;
+    GCamera		            defaultCamera;
 
     /**
-     When in debugMode, this allows first person (Quake game-style) control
+     Allows first person (Quake game-style) control
      using the arrow keys or W,A,S,D and the mouse.
      */
-    FirstPersonManipulatorRef debugController;
-
-    /**
-     Strings that have been printed with debugPrint.
-     */
-    Array<std::string>      debugText;
+    FirstPersonManipulatorRef defaultController;
 
     inline GWindow* window() const {
         return _window;
     }
 
-    /** Returns the state of debugMode.
-        All debugX options are only in effect
-        when debugMode is also true.  Default is false*/
-    bool debugMode() const;
-
     /**
-      Changes the state of debugMode. 
-      You must <B>separately</B> activate the debugController 
-      if you want events to go to it (by default, the TAB key
-      activates it).
-     */
-    virtual void setDebugMode(bool b);
-
-    /**
-     When true and debugMode is true, debugPrintf prints to the screen.
+     When true, debugPrintf prints to the screen.
      (default is true)
      */
-    bool                    debugShowText;
+    bool                    showDebugText;
 
     /**
-     When true and debugMode is true, an SDL_ESCAPE keydown event
+     When true an GKey::ESCAPE keydown event
      quits the program.
      (default is true)
      */
-    bool                    debugQuitOnEscape;
+    bool                    quitOnEscape;
 
     /**
-     When true and debugMode is true, SDL_TAB keydown deactivates
+     When true GKey::TAB keydown deactivates
      the camera and restores the mouse cursor.
      (default is true)
      */
-    bool                    debugTabSwitchCamera;
+    bool                    tabSwitchCamera;
 
     /**
-     When debugMode is true and debugShowRenderingStats is true,
-     renderDebugInfo prints the frame rate and other data to the screen.
+     When true,   renderDebugInfo prints the frame rate and
+     other data to the screen.
      */
-    bool                    debugShowRenderingStats;
+    bool                    showRenderingStats;
 
     /**
      When true and the window is resizable, automatically

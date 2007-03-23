@@ -141,10 +141,13 @@ public:
     int size() const;
 
     /** Runs the event handles of each manager interlaced, as if all
-        the modules from a were in b.*/
+        the modules from a were in a.*/
     static bool onEvent(const GEvent& event, 
                         GModuleManagerRef& a, 
                         GModuleManagerRef& b);
+
+    static bool onEvent(const GEvent& event,
+                        GModuleManagerRef& a);
 
     const GModuleRef& operator[](int i) const;
 

@@ -159,15 +159,25 @@ void GModuleManager::onLogic() {
 
 #undef ITERATOR
 
+bool GModuleManager::onEvent(const GEvent& event, 
+                             GModuleManagerRef& a) {
+    static GModuleManagerRef x(NULL);
+    return onEvent(event, a, x);
+}
+
 
 bool GModuleManager::onEvent(const GEvent& event, GModuleManagerRef& a, GModuleManagerRef& b) {
     a->beginLock();
-    b->beginLock();
+    if (b.notNull()) {
+        b->beginLock();
+    }
 
     for (int p = NUM_PRIORITY - 1; p >= 0; --p) {
 
+        int numManagers = (b.isNull()) ? 1 : 2;
+
         // Process each, interlaced
-        for (int k = 0; k < 2; ++k) {
+        for (int k = 0; k < numManagers; ++k) {
             Array<GModuleRef>& array = 
                 (k == 0) ?
                     a->m_moduleArray[p] :
@@ -175,7 +185,10 @@ bool GModuleManager::onEvent(const GEvent& event, GModuleManagerRef& a, GModuleM
                 
             for (int i = array.size() - 1; i >= 0; --i) {
                 if (array[i]->onEvent(event)) {
-                    b->endLock();
+                    if (b.notNull()) {
+                        b->endLock();
+                    }
+
                     a->endLock();
                     return true;
                 }
@@ -184,7 +197,9 @@ bool GModuleManager::onEvent(const GEvent& event, GModuleManagerRef& a, GModuleM
 
     }
     
-    b->endLock();
+    if (b.notNull()) {
+        b->endLock();
+    }
     a->endLock();
 
     return false;

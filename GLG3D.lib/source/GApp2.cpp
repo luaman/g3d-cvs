@@ -42,10 +42,10 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
 
     debugLog          = NULL;
     debugFont         = NULL;
-    endProgram        = false;
-    _debugControllerWasActive = false;
+    m_endProgram      = false;
+    m_exitCode        = 0;
 
-    debugController = FirstPersonManipulator::create();
+    defaultController = FirstPersonManipulator::create();
 
     if (settings.dataDir == "<AUTO>") {
         dataDir = demoFindData(false);
@@ -75,13 +75,8 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     _window->makeCurrent();
     debugAssertGLOk();
 
-    if (settings.useNetwork) {
-        networkDevice = new NetworkDevice();
-        networkDevice->init(debugLog);
-    } else {
-        networkDevice = NULL;
-    }
-
+    networkDevice = new NetworkDevice();
+    networkDevice->init(debugLog);
 
     {
         TextOutput t;
@@ -106,7 +101,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
         debugLog->printf("%s\n", s.c_str());
     }
 
-    debugCamera  = GCamera();
+    defaultCamera  = GCamera();
 
     debugAssertGLOk();
     loadFont(settings.debugFontName);
@@ -114,23 +109,28 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
 
     userInput = new UserInput(_window);
 
-    debugController->onUserInput(userInput);
-    debugController->setMoveRate(10);
-    debugController->setPosition(Vector3(0, 0, 4));
-    debugController->lookAt(Vector3::zero());
-    debugController->setActive(true);
-    debugCamera.setPosition(debugController->position());
-    debugCamera.lookAt(Vector3::zero());
+    defaultController->onUserInput(userInput);
+    defaultController->setMoveRate(10);
+    defaultController->setPosition(Vector3(0, 0, 4));
+    defaultController->lookAt(Vector3::zero());
+    defaultController->setActive(true);
+    defaultCamera.setPosition(defaultController->position());
+    defaultCamera.lookAt(Vector3::zero());
  
     autoResize                  = true;
-    _debugMode                  = false;
-    debugShowText               = true;
-    debugQuitOnEscape           = true;
-    debugTabSwitchCamera        = true;
-    debugShowRenderingStats     = true;
+    showDebugText               = true;
+    quitOnEscape                = true;
+    tabSwitchCamera             = true;
+    showRenderingStats          = true;
     catchCommonExceptions       = true;
 
     debugAssertGLOk();
+}
+
+
+void GApp2::exit(int code) {
+    m_endProgram = true;
+    m_exitCode = code;
 }
 
 
@@ -159,23 +159,8 @@ void GApp2::loadFont(const std::string& fontName) {
 }
 
 
-bool GApp2::debugMode() const {
-    return _debugMode;
-}
-
-
-void GApp2::setDebugMode(bool b) {
-    if (! b) {
-        _debugControllerWasActive = debugMode();
-    } else {
-        debugController->setActive(_debugControllerWasActive);
-    }
-    _debugMode = b;
-}
-
-
 void GApp2::debugPrintf(const char* fmt ...) {
-    if (debugMode() && debugShowText) {
+    if (showDebugText) {
 
         va_list argList;
         va_start(argList, fmt);
@@ -218,23 +203,32 @@ int GApp2::run() {
     if (catchCommonExceptions) {
         try {
             onRun();
+            ret = m_exitCode;
         } catch (const char* e) {
             alwaysAssertM(false, e);
+            ret = -1;
         } catch (const GImage::Error& e) {
             alwaysAssertM(false, e.reason + "\n" + e.filename);
+            ret = -1;
         } catch (const std::string& s) {
             alwaysAssertM(false, s);
+            ret = -1;
         } catch (const TextInput::WrongTokenType& t) {
             alwaysAssertM(false, t.message);
+            ret = -1;
         } catch (const TextInput::WrongSymbol& t) {
             alwaysAssertM(false, t.message);
+            ret = -1;
         } catch (const VertexAndPixelShader::ArgumentError& e) {
             alwaysAssertM(false, e.message);
+            ret = -1;
         } catch (const LightweightConduit::PacketSizeException& e) {
             alwaysAssertM(false, e.message);
+            ret = -1;
         }
     } else {
         onRun();
+        ret = m_exitCode;
     }
 
     return ret;
@@ -254,7 +248,7 @@ void GApp2::onRun() {
         // Main loop
         do {
             oneFrame();   
-        } while (! endProgram);
+        } while (! m_endProgram);
 
         endRun();
     }
@@ -262,7 +256,7 @@ void GApp2::onRun() {
 
 
 void GApp2::renderDebugInfo() {
-    if (debugMode() && ! debugFont.isNull()) {
+    if (debugFont.notNull()) {
         // Capture these values before we render debug output
         int majGL  = renderDevice->debugNumMajorOpenGLStateChanges();
         int majAll = renderDevice->debugNumMajorStateChanges();
@@ -277,7 +271,7 @@ void GApp2::renderDebugInfo() {
             double x = 5;
             Vector2 pos(x, 5);
 
-            if (debugShowRenderingStats) {
+            if (showRenderingStats) {
 
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
                 Draw::fastRect2D(Rect2D::xywh(2, 2, 796, size * 5), renderDevice, Color4(0, 0, 0, 0.3f));
@@ -342,7 +336,7 @@ void GApp2::renderDebugInfo() {
 
 
 bool GApp2::onEvent(const GEvent& event) {
-    return GModuleManager::onEvent(event, m_moduleManager, m_moduleManager);
+    return GModuleManager::onEvent(event, m_moduleManager);
 }
 
 
@@ -350,7 +344,6 @@ void GApp2::getPosedModel(
     Array<PosedModelRef>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
-    m_moduleManager->getPosedModel(posedArray, posed2DArray);
     m_moduleManager->getPosedModel(posedArray, posed2DArray);
 
 }
@@ -422,8 +415,8 @@ void GApp2::oneFrame() {
     m_simulationWatch.tick();
     {
         // TODO: Replace with module manager calls
-        debugController->onSimulation(clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1));
-        debugCamera.setCoordinateFrame(debugController->frame());
+        defaultController->onSimulation(clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1));
+        defaultCamera.setCoordinateFrame(defaultController->frame());
 
         double rate = simTimeRate();    
         RealTime rdt = timeStep;
@@ -479,7 +472,7 @@ void GApp2::oneFrame() {
     }
     m_graphicsWatch.tock();
 
-    if (endProgram && window()->requiresMainLoop()) {
+    if (m_endProgram && window()->requiresMainLoop()) {
         window()->popLoopBody();
     }
 }
@@ -492,12 +485,13 @@ void GApp2::onWait(RealTime t, RealTime desiredT) {
 
 void GApp2::beginRun() {
 
-    endProgram = false;
+    m_endProgram = false;
+    m_exitCode = 0;
 
     onInit();
 
     // Move the controller to the camera's location
-    debugController->setFrame(debugCamera.getCoordinateFrame());
+    defaultController->setFrame(defaultCamera.getCoordinateFrame());
 
     now = System::time() - 0.001;
 }
@@ -512,8 +506,8 @@ void GApp2::endRun() {
     }
     Log::common()->println("");
 
-    if (window()->requiresMainLoop() && endProgram) {
-        exit(0);
+    if (window()->requiresMainLoop() && m_endProgram) {
+        exit(m_exitCode);
     }
 }
 
@@ -534,7 +528,7 @@ void GApp2::onUserInput(UserInput* userInput) {
 
         switch(event.type) {
         case SDL_QUIT:
-            endProgram = true;
+            m_endProgram = true;
             break;
 
         case SDL_VIDEORESIZE:
@@ -552,18 +546,18 @@ void GApp2::onUserInput(UserInput* userInput) {
 	    case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
             case GKey::ESCAPE:
-                if (debugMode() && debugQuitOnEscape) {
-                    endProgram = true;
+                if (quitOnEscape) {
+                    exit(0);
                 }
                 break;
 
             case GKey::TAB:
                 // Make sure it wasn't ALT-TAB that was pressed !
-                if (debugMode() && debugTabSwitchCamera && 
+                if (tabSwitchCamera && 
                     ! (userInput->keyDown(GKey::RALT) || 
                        userInput->keyDown(GKey::LALT))) {
 
-                    debugController->setActive(! debugController->active());
+                    defaultController->setActive(! defaultController->active());
                 }
                 break;
 

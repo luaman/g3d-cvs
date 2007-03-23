@@ -20,6 +20,12 @@
      <li> debugPrintf now flushes stderr on Unix systems
      <li> Added G3D::ArticulatedModel to the core (includes 3DS loading)
      <li> Added G3D::SuperShader to the core
+     <li> Merged GApp and GApplet into GApp2 to make the common case easier to implement
+     <li> Removed GApp2::debugMode options, removed "debug" prefix from most fields.
+     <li> GApp2::debugCamera -> GApp2::defaultCamera
+     <li> GApp2::debugController -> GApp2::defaultController
+     <li> Made GApp2::debugText private
+     <li> Removed GApp2::Settings::useNetwork because it was no longer needed--Win32 does not trigger firewall checks anymore
      <li> Optimized AABSPTree balance and queries; now about 20% faster than 6.10, but requires 30 bytes more memory per member
      <li> G3D::Array::pop now shrinks the underlying array by default (Array::popRemove does not shrink the array and is faster)
      <li> Fast O(<i>n</i>), non-destructive G3D::Array::partition and G3D::Array::medianPartition
