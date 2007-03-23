@@ -1,38 +1,25 @@
 /**
   @file empty/main.cpp
 
-  This is a sample main.cpp to get you started with G3D.  It is
-  designed to make writing an application easy.  Although the
-  GApp/GApplet infrastructure is helpful for most projects,
-  you are not restricted to using it-- choose the level of
-  support that is best for your project.
+  This is a sample main.cpp to get you started with G3D.  It is designed to make writing an
+  application easy.  Although the GApp2 infrastructure is helpful for most projects, you are not 
+  restricted to using it--choose the level of support that is best for your project.  You can 
+  also customize GApp2 through its members and change its behavior by overriding methods.
 
-  @author Morgan McGuire, morgan3d@users.sf.net
+  @author Morgan McGuire, morgan@cs.williams.edu
  */
-
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
-    #error Requires G3D 7.00
+#   error Requires G3D 7.00
 #endif
 
-/**
- This simple demo applet uses the debug mode as the regular
- rendering mode so you can fly around the scene.
- */
-class Demo : public GApplet {
+class App : public GApp2 {
 public:
+    SkyRef              sky;
 
-    // Add state that should be visible to this applet.
-    // If you have multiple applets that need to share
-    // state, put it in the App.
-
-    class App*          app;
-
-    Demo(App* app);
-
-    virtual ~Demo() {}
+    App(const GApp2::Settings& settings = GApp2::Settings());
 
     virtual void onInit();
 
@@ -47,86 +34,42 @@ public:
     virtual void onUserInput(UserInput* ui);
 
     virtual void onCleanup();
-
 };
 
-
-
-class App : public GApp {
-protected:
-    int main();
-public:
-    SkyRef              sky;
-
-    Demo*               applet;
-
-    App(const GApp::Settings& settings);
-
-    ~App();
-};
-
-
-Demo::Demo(App* _app) : GApplet(_app), app(_app) {
+void App::onInit()  {
+    // Called before the application loop beings
 }
 
-
-void Demo::onInit()  {
-    // Called before Demo::run() beings
-    app->debugCamera.setPosition(Vector3(0, 2, 10));
-    app->debugCamera.lookAt(Vector3(0, 2, 0));
-
-    GApplet::onInit();
+void App::onCleanup() {
+    // Called when the application loop ends
 }
 
-
-void Demo::onCleanup() {
-    // Called when Demo::run() exits
-  GApplet::onCleanup();
-}
-
-
-void Demo::onLogic() {
+void App::onLogic() {
     // Add non-simulation game logic and AI code here
 }
 
-
-void Demo::onNetwork() {
+void App::onNetwork() {
 	// Poll net messages here
 }
 
-
-void Demo::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	// Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
 }
 
-
-void Demo::onUserInput(UserInput* ui) {
-    if (ui->keyPressed(GKey::ESCAPE)) {
-        // Even when we aren't in debug mode, quit on escape.
-        endApplet = true;
-        app->endProgram = true;
-    }
-
-	// Add other key handling here
-	
-	//must call GApplet::onUserInput
-	GApplet::onUserInput(ui);
+void App::onUserInput(UserInput* ui) {
+	// Add key handling here	
 }
 
-
-void Demo::onGraphics(RenderDevice* rd) {
-
+void App::onGraphics(RenderDevice* rd) {
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
-    rd->setProjectionAndCameraMatrix(app->debugCamera);
+    rd->setProjectionAndCameraMatrix(defaultCamera);
 
-    // Cyan background
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-
-    rd->clear(app->sky.isNull(), true, true);
-    if (app->sky.notNull()) {
-        app->sky->render(rd, lighting);
+    rd->clear(sky.isNull(), true, true);
+    if (sky.notNull()) {
+        sky->render(rd, lighting);
     }
 
     // Setup lighting
@@ -135,46 +78,24 @@ void Demo::onGraphics(RenderDevice* rd) {
 		rd->setAmbientLightColor(lighting.ambient);
 
 		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
-
     rd->disableLighting();
 
-    if (app->sky.notNull()) {
-        app->sky->renderLensFlare(rd, lighting);
+    if (sky.notNull()) {
+        sky->renderLensFlare(rd, lighting);
     }
 }
 
-
-int App::main() {
-	setDebugMode(true);
-	debugController->setActive(false);
-
-    // Load objects here
+App::App(const GApp2::Settings& settings) : GApp2(settings) {
+    // Load objects here or in onInit()
     if (fileExists(dataDir + "sky/sun.jpg")) {
         sky = Sky::fromFile(dataDir + "sky/");
     }
-    
-    applet->run();
-
-    return 0;
-}
-
-
-App::App(const GApp::Settings& settings) : GApp(settings) {
-    applet = new Demo(this);
-}
-
-
-App::~App() {
-    delete applet;
 }
 
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-	GApp::Settings settings;
-    settings.useNetwork = false;
-    return App(settings).run();
+    return App().run();
 }
