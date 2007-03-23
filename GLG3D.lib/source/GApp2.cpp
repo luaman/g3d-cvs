@@ -53,7 +53,6 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
         dataDir = settings.dataDir;
     }
 
-
     if (settings.writeLicenseFile && ! fileExists("g3d-license.txt")) {
         writeLicense();
     }
@@ -123,6 +122,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     tabSwitchCamera             = true;
     showRenderingStats          = true;
     catchCommonExceptions       = true;
+    manageUserInput             = true;
 
     debugAssertGLOk();
 }
@@ -401,6 +401,9 @@ void GApp2::oneFrame() {
 
     // User input
     m_userInputWatch.tick();
+    if (manageUserInput) {
+        processGEventQueue();
+    }
     onUserInput(userInput);
     m_moduleManager->onUserInput(userInput);
     m_userInputWatch.tock();
@@ -515,7 +518,9 @@ void GApp2::endRun() {
 
 
 void GApp2::onUserInput(UserInput* userInput) {
+}
 
+void GApp2::processGEventQueue() {
     userInput->beginEvents();
 
     // Event handling
@@ -523,12 +528,13 @@ void GApp2::onUserInput(UserInput* userInput) {
     while (window()->pollEvent(event)) {
 
         if (onEvent(event)) {
+            // Event was consumed
             continue;
         }
 
         switch(event.type) {
         case SDL_QUIT:
-            m_endProgram = true;
+            exit(0);
             break;
 
         case SDL_VIDEORESIZE:
@@ -551,20 +557,20 @@ void GApp2::onUserInput(UserInput* userInput) {
                 }
                 break;
 
-            case GKey::TAB:
-                // Make sure it wasn't ALT-TAB that was pressed !
-                if (tabSwitchCamera && 
-                    ! (userInput->keyDown(GKey::RALT) || 
-                       userInput->keyDown(GKey::LALT))) {
+        case GKey::TAB:
+            // Make sure it wasn't ALT-TAB that was pressed !
+            if (tabSwitchCamera && 
+                ! (userInput->keyDown(GKey::RALT) || 
+                   userInput->keyDown(GKey::LALT))) {
 
-                    defaultController->setActive(! defaultController->active());
-                }
-                break;
+                defaultController->setActive(! defaultController->active());
+            }
+            break;
 
             // Add other key handlers here
             default:;
-            }
-            break;
+        }
+        break;
 
         // Add other event handlers here
 

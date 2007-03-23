@@ -110,6 +110,11 @@ protected:
      */
     Array<std::string>      debugText;
 
+    /**
+     Processes all pending events on the GWindow queue into the userInput.
+     */
+    virtual void processGEventQueue();
+
 public:
 
     const Stopwatch& graphicsWatch() const {
@@ -209,6 +214,14 @@ public:
      (default is true)
      */
     bool                    autoResize;
+
+    /**
+     When true, the G3D::UserInput->beginEvents/endEvents processing is handled 
+     for you by calling processGEventQueue() before G3D::GApp2::onUserInput is called.  If you turn
+     this off, you must call processGEventQueue() or provide your own event to userInput processing in onUserInput.
+     (default is true)
+     */
+    bool                    manageUserInput;
 
     /**
       When true, there is an assertion failure if an exception is 
@@ -475,15 +488,17 @@ protected:
     /**
      It is recommended to override onUserInput() instead of this method.
 
-     Override if you need to explicitly handle events in the order
-     they appear.
+     Override if you need to explicitly handle events raw in the order
+     they appear rather than once per frame by checking the current
+     system state.
      
      Note that the userInput contains a record of all
      keys pressed/held, mouse, and joystick state, so 
      you do not have to override this method to handle
      basic input events.
 
-     Return true if the event has been consumed (i.e., no-one else including GApp should process it further).
+     Return true if the event has been consumed (i.e., no-one else 
+     including GApp2 should process it further).
 
      The default implementation does nothing.
      */
@@ -491,8 +506,7 @@ protected:
 
 
     /**
-     Routine for processing user input from the previous frame.
-	 Default handles ESC.
+     Routine for processing user input from the previous frame.  Default implementation does nothing.
      */
     virtual void onUserInput(class UserInput* userInput);
 };

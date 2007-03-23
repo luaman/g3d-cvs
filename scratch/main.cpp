@@ -3,9 +3,10 @@
 
   This is a sample main.cpp to get you started with G3D.  It is
   designed to make writing an application easy.  Although the
-  GApp/GApplet infrastructure is helpful for most projects,
-  you are not restricted to using it-- choose the level of
-  support that is best for your project.
+  GApp2 infrastructure is helpful for most projects, you are not 
+  restricted to using it--choose the level of support that is best 
+  for your project.  You can also customize GApp2 through its 
+  members and change
 
   @author Morgan McGuire, morgan3d@users.sf.net
  */
@@ -25,7 +26,7 @@ protected:
 public:
     SkyRef              sky;
 
-    App(const GApp2::Settings& settings);
+    App(const GApp2::Settings& settings = GApp2::Settings());
 
     virtual void onInit();
 
@@ -41,7 +42,6 @@ public:
 
     virtual void onCleanup();
 
-
     ~App();
 };
 
@@ -50,14 +50,11 @@ void App::onInit()  {
     // Called before Demo::run() beings
     defaultCamera.setPosition(Vector3(0, 2, 10));
     defaultCamera.lookAt(Vector3(0, 2, 0));
-
-    GApp2::onInit();
 }
 
 
 void App::onCleanup() {
     // Called when Demo::run() exits
-  GApp2::onCleanup();
 }
 
 
@@ -78,10 +75,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 
 void App::onUserInput(UserInput* ui) {
-	//must call GApp2::onUserInput
-	GApp2::onUserInput(ui);
-
-	// Add other key handling here
+	// Add key handling here
 	
 }
 
@@ -137,12 +131,11 @@ void App::onGraphics(RenderDevice* rd) {
 
 App::App(const GApp2::Settings& settings) : GApp2(settings) {
     defaultController->setActive(false);
-
+    
     // Load objects here
     if (fileExists(dataDir + "sky/sun.jpg")) {
         sky = Sky::fromFile(dataDir + "sky/");
     }
-    
 }
 
 
@@ -152,5 +145,5 @@ App::~App() {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    return App(settings).run();
+    return App().run();
 }
