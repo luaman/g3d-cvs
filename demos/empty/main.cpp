@@ -80,6 +80,8 @@ void App::onGraphics(RenderDevice* rd) {
 		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
+
+        renderGModules(rd);
     rd->disableLighting();
 
     if (sky.notNull()) {
