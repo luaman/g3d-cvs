@@ -1,0 +1,586 @@
+/**
+ @file GApp2.cpp
+  
+ @maintainer Morgan McGuire, matrix@graphics3d.com
+ 
+ @created 2003-11-03
+ @edited  2006-04-22
+ */
+
+#include "G3D/platform.h"
+
+#include "GLG3D/GApp2.h"
+#include "G3D/GCamera.h"
+#include "G3D/fileutils.h"
+#include "G3D/Log.h"
+#include "G3D/NetworkDevice.h"
+#include "GLG3D/FirstPersonManipulator.h"
+#include "GLG3D/UserInput.h"
+#include "GLG3D/GWindow.h"
+#include "GLG3D/Shader.h"
+#include "GLG3D/Draw.h"
+
+namespace G3D {
+
+/** Attempt to write license file */
+static void writeLicense() {
+    FILE* f = fopen("g3d-license.txt", "wt");
+    if (f != NULL) {
+        fprintf(f, "%s", license().c_str());
+        fclose(f);
+    }
+}
+
+
+GApp2::GApp2(const Settings& settings, GWindow* window) :
+    m_moduleManager(GModuleManager::create()),
+    lastWaitTime(System::time()),
+    m_desiredFrameRate(inf()),
+    m_simTimeRate(1.0), 
+    m_realTime(0), 
+    m_simTime(0) {
+
+    debugLog          = NULL;
+    debugFont         = NULL;
+    endProgram        = false;
+    _debugControllerWasActive = false;
+
+    debugController = FirstPersonManipulator::create();
+
+    if (settings.dataDir == "<AUTO>") {
+        dataDir = demoFindData(false);
+    } else {
+        dataDir = settings.dataDir;
+    }
+
+
+    if (settings.writeLicenseFile && ! fileExists("g3d-license.txt")) {
+        writeLicense();
+    }
+
+    debugLog	 = new Log(settings.logFilename);
+    renderDevice = new RenderDevice();
+
+    if (window != NULL) {
+        _hasUserCreatedWindow = true;
+        renderDevice->init(window, debugLog);
+    } else {
+        _hasUserCreatedWindow = false;    
+        renderDevice->init(settings.window, debugLog);
+    }
+
+    debugAssertGLOk();
+
+    _window = renderDevice->window();
+    _window->makeCurrent();
+    debugAssertGLOk();
+
+    if (settings.useNetwork) {
+        networkDevice = new NetworkDevice();
+        networkDevice->init(debugLog);
+    } else {
+        networkDevice = NULL;
+    }
+
+
+    {
+        TextOutput t;
+
+        t.writeSymbols("System","{");
+        t.pushIndent();
+        t.writeNewline();
+        System::describeSystem(t);
+        if (renderDevice) {
+            renderDevice->describeSystem(t);
+        }
+
+        if (networkDevice) {
+            networkDevice->describeSystem(t);
+        }
+        t.writeNewline();
+        t.writeSymbol("}");
+        t.writeNewline();
+
+        std::string s;
+        t.commitString(s);
+        debugLog->printf("%s\n", s.c_str());
+    }
+
+    debugCamera  = GCamera();
+
+    debugAssertGLOk();
+    loadFont(settings.debugFontName);
+    debugAssertGLOk();
+
+    userInput = new UserInput(_window);
+
+    debugController->onUserInput(userInput);
+    debugController->setMoveRate(10);
+    debugController->setPosition(Vector3(0, 0, 4));
+    debugController->lookAt(Vector3::zero());
+    debugController->setActive(true);
+    debugCamera.setPosition(debugController->position());
+    debugCamera.lookAt(Vector3::zero());
+ 
+    autoResize                  = true;
+    _debugMode                  = false;
+    debugShowText               = true;
+    debugQuitOnEscape           = true;
+    debugTabSwitchCamera        = true;
+    debugShowRenderingStats     = true;
+    catchCommonExceptions       = true;
+
+    debugAssertGLOk();
+}
+
+
+void GApp2::loadFont(const std::string& fontName) {
+    std::string filename = fontName;
+    if (! fileExists(filename)) {
+
+        if (fileExists(dataDir + filename)) {
+            filename = dataDir + filename;
+        } else if (fileExists(dataDir + "font/" + filename)) {
+            filename = dataDir + "font/" + filename;
+        }
+    }
+
+    if (fileExists(filename)) {
+        debugFont = GFont::fromFile(filename);
+    } else {
+        debugLog->printf(
+            "Warning: G3D::GApp could not load font \"%s\".\n"
+            "This may be because the G3D::GApp2::Settings::dataDir was not\n"
+            "properly set in main().\n",
+            filename.c_str());
+
+        debugFont = NULL;
+    }
+}
+
+
+bool GApp2::debugMode() const {
+    return _debugMode;
+}
+
+
+void GApp2::setDebugMode(bool b) {
+    if (! b) {
+        _debugControllerWasActive = debugMode();
+    } else {
+        debugController->setActive(_debugControllerWasActive);
+    }
+    _debugMode = b;
+}
+
+
+void GApp2::debugPrintf(const char* fmt ...) {
+    if (debugMode() && debugShowText) {
+
+        va_list argList;
+        va_start(argList, fmt);
+        std::string s = G3D::vformat(fmt, argList);
+        va_end(argList);
+
+        debugText.append(s);
+    }    
+}
+
+
+GApp2::~GApp2() {
+    if (networkDevice) {
+        networkDevice->cleanup();
+        delete networkDevice;
+    }
+
+    debugFont = NULL;
+    delete userInput;
+    userInput = NULL;
+
+    renderDevice->cleanup();
+    delete renderDevice;
+    renderDevice = NULL;
+
+    if (_hasUserCreatedWindow) {
+        delete _window;
+        _window = NULL;
+    }
+
+    VARArea::cleanupAllVARAreas();
+
+    delete debugLog;
+    debugLog = NULL;
+}
+
+
+int GApp2::run() {
+    int ret = 0;
+    if (catchCommonExceptions) {
+        try {
+            onRun();
+        } catch (const char* e) {
+            alwaysAssertM(false, e);
+        } catch (const GImage::Error& e) {
+            alwaysAssertM(false, e.reason + "\n" + e.filename);
+        } catch (const std::string& s) {
+            alwaysAssertM(false, s);
+        } catch (const TextInput::WrongTokenType& t) {
+            alwaysAssertM(false, t.message);
+        } catch (const TextInput::WrongSymbol& t) {
+            alwaysAssertM(false, t.message);
+        } catch (const VertexAndPixelShader::ArgumentError& e) {
+            alwaysAssertM(false, e.message);
+        } catch (const LightweightConduit::PacketSizeException& e) {
+            alwaysAssertM(false, e.message);
+        }
+    } else {
+        onRun();
+    }
+
+    return ret;
+}
+
+
+void GApp2::onRun() {
+    if (window()->requiresMainLoop()) {
+        
+        // The window push/pop will take care of 
+        // calling beginRun/oneFrame/endRun for us.
+        window()->pushLoopBody(this);
+
+    } else {
+        beginRun();
+
+        // Main loop
+        do {
+            oneFrame();   
+        } while (! endProgram);
+
+        endRun();
+    }
+}
+
+
+void GApp2::renderDebugInfo() {
+    if (debugMode() && ! debugFont.isNull()) {
+        // Capture these values before we render debug output
+        int majGL  = renderDevice->debugNumMajorOpenGLStateChanges();
+        int majAll = renderDevice->debugNumMajorStateChanges();
+        int minGL  = renderDevice->debugNumMinorOpenGLStateChanges();
+        int minAll = renderDevice->debugNumMinorStateChanges();
+        int pushCalls = renderDevice->debugNumPushStateCalls();
+
+        renderDevice->push2D();
+            Color3 color = Color3::white();
+            double size = 10;
+
+            double x = 5;
+            Vector2 pos(x, 5);
+
+            if (debugShowRenderingStats) {
+
+                renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+                Draw::fastRect2D(Rect2D::xywh(2, 2, 796, size * 5), renderDevice, Color4(0, 0, 0, 0.3f));
+
+                Color3 statColor = Color3::yellow();
+
+                debugFont->draw2D(renderDevice, renderDevice->getCardDescription() + "   " + System::version(), 
+                    pos, size, color);
+                pos.y += size * 1.5f;
+                
+                double fps = m_graphicsWatch.smoothFPS();
+                std::string s = format(
+                    "% 4dfps % 4.1gM tris % 4.1gM tris/s   GL Calls: %d/%d Maj; %d/%d Min; %d push", 
+                    iRound(fps),
+                    iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
+                    iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
+                    majGL, majAll, minGL, minAll, pushCalls);
+                debugFont->draw2D(renderDevice, s, pos, size, statColor);
+
+                pos.x = x;
+                pos.y += size * 1.5;
+
+                {
+                float g = m_graphicsWatch.smoothElapsedTime();
+                float n = m_networkWatch.smoothElapsedTime();
+                float s = m_simulationWatch.smoothElapsedTime();
+                float L = m_logicWatch.smoothElapsedTime();
+                float u = m_userInputWatch.smoothElapsedTime();
+                float w = m_waitWatch.smoothElapsedTime();
+
+                float total = g + n + s + L + u + w;
+
+                float norm = 100.0f / total;
+
+                // Normalize the numbers
+                g *= norm;
+                n *= norm;
+                s *= norm;
+                L *= norm;
+                u *= norm;
+                w *= norm;
+
+                std::string str = 
+                    format("Time: %3.0f%% Gfx, %3.0f%% Sim, %3.0f%% Lgc, %3.0f%% Net, %3.0f%% UI, %3.0f%% wait", 
+                        g, s, L, n, u, w);
+                debugFont->draw2D(renderDevice, str, pos, size, statColor);
+                }
+
+                pos.x = x;
+                pos.y += size * 3;
+            }
+
+            for (int i = 0; i < debugText.length(); ++i) {
+                debugFont->draw2D(renderDevice, debugText[i], pos, size, color, Color3::black());
+                pos.y += size * 1.5;
+            }
+
+
+        renderDevice->pop2D();
+    }
+}
+
+
+bool GApp2::onEvent(const GEvent& event) {
+    return GModuleManager::onEvent(event, m_moduleManager, m_moduleManager);
+}
+
+
+void GApp2::getPosedModel(
+    Array<PosedModelRef>& posedArray, 
+    Array<PosedModel2DRef>& posed2DArray) {
+
+    m_moduleManager->getPosedModel(posedArray, posed2DArray);
+    m_moduleManager->getPosedModel(posedArray, posed2DArray);
+
+}
+
+
+void GApp2::onGraphics(RenderDevice* rd) {
+    Array<PosedModelRef>        posedArray;
+    Array<PosedModel2DRef>      posed2DArray;
+    Array<PosedModelRef>        opaque, transparent;
+
+    // By default, render the installed modules
+    getPosedModel(posedArray, posed2DArray);
+
+    // 3D
+    if (posedArray.size() > 0) {
+        Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+        PosedModel::sort(posedArray, lookVector, opaque, transparent);
+
+        for (int i = 0; i < opaque.size(); ++i) {
+            opaque[i]->render(renderDevice);
+        }
+
+        for (int i = 0; i < transparent.size(); ++i) {
+            transparent[i]->render(renderDevice);
+        }
+    }
+
+    // 2D
+    if (posed2DArray.size() > 0) {
+        renderDevice->push2D();
+            PosedModel2D::sort(posed2DArray);
+            for (int i = 0; i < posed2DArray.size(); ++i) {
+                posed2DArray[i]->render(renderDevice);
+            }
+        renderDevice->pop2D();
+    }
+}
+
+    
+void GApp2::addModule(const GModuleRef& module, GModuleManager::EventPriority priority) {
+    m_moduleManager->add(module, priority);
+}
+
+
+void GApp2::removeModule(const GModuleRef& module) {
+    m_moduleManager->remove(module);
+}
+
+
+
+void GApp2::oneFrame() {
+    lastTime = now;
+    now = System::time();
+    RealTime timeStep = now - lastTime;
+
+    // User input
+    m_userInputWatch.tick();
+    onUserInput(userInput);
+    m_moduleManager->onUserInput(userInput);
+    m_userInputWatch.tock();
+
+    // Network
+    m_networkWatch.tick();
+    onNetwork();
+    m_moduleManager->onNetwork();
+    m_networkWatch.tock();
+
+    // Simulation
+    m_simulationWatch.tick();
+    {
+        // TODO: Replace with module manager calls
+        debugController->onSimulation(clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1));
+        debugCamera.setCoordinateFrame(debugController->frame());
+
+        double rate = simTimeRate();    
+        RealTime rdt = timeStep;
+        SimTime  sdt = timeStep * rate;
+        SimTime  idt = desiredFrameDuration() * rate;
+
+        onSimulation(rdt, sdt, idt);
+        m_moduleManager->onSimulation(rdt, sdt, idt);
+
+        setRealTime(realTime() + rdt);
+        setSimTime(simTime() + sdt);
+        setIdealSimTime(idealSimTime() + idt);
+    }
+    m_simulationWatch.tock();
+
+    // Logic
+    m_logicWatch.tick();
+    {
+        onLogic();
+        m_moduleManager->onLogic();
+    }
+    m_logicWatch.tock();
+
+    // Wait 
+    // Note: we might end up spending all of our time inside of
+    // RenderDevice::beginFrame.  Waiting here isn't double waiting,
+    // though, because while we're sleeping the CPU the GPU is working
+    // to catch up.
+
+    m_waitWatch.tick();
+    {
+        RealTime now = System::time();
+        // Compute accumulated time
+        onWait(now - lastWaitTime, desiredFrameDuration());
+        lastWaitTime = System::time();
+    }
+    m_waitWatch.tock();
+
+    // Graphics
+    m_graphicsWatch.tick();
+    {
+        renderDevice->beginFrame();
+        {
+            renderDevice->pushState();
+            {
+                onGraphics(renderDevice);
+            }
+            renderDevice->popState();
+            renderDebugInfo();
+        }
+        renderDevice->endFrame();
+        debugText.clear();
+    }
+    m_graphicsWatch.tock();
+
+    if (endProgram && window()->requiresMainLoop()) {
+        window()->popLoopBody();
+    }
+}
+
+
+void GApp2::onWait(RealTime t, RealTime desiredT) {
+    System::sleep(max(0.0, desiredT - t));
+}
+
+
+void GApp2::beginRun() {
+
+    endProgram = false;
+
+    onInit();
+
+    // Move the controller to the camera's location
+    debugController->setFrame(debugCamera.getCoordinateFrame());
+
+    now = System::time() - 0.001;
+}
+
+
+void GApp2::endRun() {
+    onCleanup();
+
+    Log::common()->section("Files Used");
+    for (int i = 0; i < _internal::currentFilesUsed.size(); ++i) {
+        Log::common()->println(_internal::currentFilesUsed[i]);
+    }
+    Log::common()->println("");
+
+    if (window()->requiresMainLoop() && endProgram) {
+        exit(0);
+    }
+}
+
+
+
+
+void GApp2::onUserInput(UserInput* userInput) {
+
+    userInput->beginEvents();
+
+    // Event handling
+    GEvent event;
+    while (window()->pollEvent(event)) {
+
+        if (onEvent(event)) {
+            continue;
+        }
+
+        switch(event.type) {
+        case SDL_QUIT:
+            endProgram = true;
+            break;
+
+        case SDL_VIDEORESIZE:
+            if (autoResize) {
+                renderDevice->notifyResize
+                    (event.resize.w, event.resize.h);
+                Rect2D full = 
+                    Rect2D::xywh(0, 0, 
+                                 renderDevice->width(), 
+                                 renderDevice->height());
+                renderDevice->setViewport(full);
+            }
+            break;
+
+	    case SDL_KEYDOWN:
+            switch (event.key.keysym.sym) {
+            case GKey::ESCAPE:
+                if (debugMode() && debugQuitOnEscape) {
+                    endProgram = true;
+                }
+                break;
+
+            case GKey::TAB:
+                // Make sure it wasn't ALT-TAB that was pressed !
+                if (debugMode() && debugTabSwitchCamera && 
+                    ! (userInput->keyDown(GKey::RALT) || 
+                       userInput->keyDown(GKey::LALT))) {
+
+                    debugController->setActive(! debugController->active());
+                }
+                break;
+
+            // Add other key handlers here
+            default:;
+            }
+            break;
+
+        // Add other event handlers here
+
+        default:;
+        }
+
+        userInput->processEvent(event);
+    }
+
+    userInput->endEvents();
+}
+
+}

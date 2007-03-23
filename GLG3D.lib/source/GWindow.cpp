@@ -4,11 +4,12 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2004-11-16
- @edited  2006-01-16
+ @edited  2007-03-16
  */
 
 #include "GLG3D/GWindow.h"
 #include "GLG3D/GApp.h"
+#include "GLG3D/GApp2.h"
 #include "GLG3D/GLCaps.h"
 
 namespace G3D {
@@ -17,11 +18,13 @@ void GWindow::executeLoopBody() {
     if (notDone()) {
         if (loopBodyStack.last().isGApplet) {
             loopBodyStack.last().applet->oneFrame();
+        } else if (loopBodyStack.last().isGApp) {
+            loopBodyStack.last().applet->oneFrame();
         } else {                
             loopBodyStack.last().func(loopBodyStack.last().arg);
         }
     }
-}
+ }
 
 
 void GWindow::pushLoopBody(GApplet* applet) {
@@ -30,12 +33,20 @@ void GWindow::pushLoopBody(GApplet* applet) {
 }
 
 
+void GWindow::pushLoopBody(GApp2* app) {
+    loopBodyStack.push(LoopBody(app));
+    app->beginRun();
+}
+
+
 void GWindow::popLoopBody() {
     if (loopBodyStack.size() > 0) {
         if (loopBodyStack.last().isGApplet) {
             loopBodyStack.last().applet->endRun();
-            loopBodyStack.pop();
+        } else if (loopBodyStack.last().isGApp) {
+            loopBodyStack.last().app->endRun();
         }
+        loopBodyStack.pop();
     }
 }
 

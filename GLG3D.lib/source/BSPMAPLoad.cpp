@@ -14,7 +14,7 @@
 #include "G3D/Log.h"
 
 #define TESSELLATION_LEVEL 5
-#define LOAD_SCALE (0.03f)
+#define G3D_LOAD_SCALE (0.03f)
 namespace G3D {
 namespace _BSPMAP {
 
@@ -112,7 +112,7 @@ public:
 
     For type 2 faceArray (patches), vertex and n_vertexes describe a 2D rectangular 
     grid of control vertices with dimensions given by size. Within this rectangular 
-    grid, regions of 3◊3 vertices represent biquadratic Bezier patches. Adjacent 
+    grid, regions of 3Å◊3 vertices represent biquadratic Bezier patches. Adjacent 
     patches share a line of three vertices. There are a total of (size[0] - 1) / 2 
     by (size[1] - 1) / 2 patches. Patches in the grid start at (i, j) given by: 
   <P>
@@ -363,9 +363,9 @@ void Map::loadEntities(BinaryInput&	bi,const BSPLump& lump){
 				char temp[40];
 				strcpy(temp,pt);
 				Vector3	pos;
-				pos.x =	 atoi(strtok(pt	+ 10," ")) * LOAD_SCALE;
-				pos.z =	-atoi(strtok(NULL," "))	   * LOAD_SCALE;
-				pos.y =	 atoi(strtok(NULL,"\""))   * LOAD_SCALE;
+				pos.x =	 atoi(strtok(pt	+ 10," ")) * G3D_LOAD_SCALE;
+				pos.z =	-atoi(strtok(NULL," "))	   * G3D_LOAD_SCALE;
+				pos.y =	 atoi(strtok(NULL,"\""))   * G3D_LOAD_SCALE;
 				currEntity.position	= pos;
 				continue;
 			}
@@ -430,7 +430,7 @@ void Map::loadVertices(
         bi.readBytes(&vertexArray[ct], sizeof(Vertex));
 
         swizzle(vertexArray[ct].position);
-        vertexArray[ct].position *= LOAD_SCALE;
+        vertexArray[ct].position *= G3D_LOAD_SCALE;
 
         swizzle(vertexArray[ct].normal);
     }
@@ -677,14 +677,14 @@ void Map::loadHLLeaves(
         intVec[2]                   = bi.readInt32();
         Vector3 a(intVec[0], intVec[1], intVec[2]);
         swizzle(a);
-        a *= LOAD_SCALE;
+        a *= G3D_LOAD_SCALE;
 
         intVec[0]                   = bi.readInt32();
         intVec[1]                   = bi.readInt32();
         intVec[2]                   = bi.readInt32();
         Vector3 b(intVec[0], intVec[1], intVec[2]);
         swizzle(b);
-        b *= LOAD_SCALE;
+        b *= G3D_LOAD_SCALE;
 
         leafArray[ct].bounds        = AABox(a.min(b), a.max(b));
 
@@ -719,14 +719,14 @@ void Map::loadQ3Leaves(
         intVec[2]                   = bi.readInt32();
         Vector3 a(intVec[0], intVec[1], intVec[2]);
         swizzle(a);
-        a *= LOAD_SCALE;
+        a *= G3D_LOAD_SCALE;
 
         intVec[0]                   = bi.readInt32();
         intVec[1]                   = bi.readInt32();
         intVec[2]                   = bi.readInt32();
         Vector3 b(intVec[0], intVec[1], intVec[2]);
         swizzle(b);
-        b *= LOAD_SCALE;
+        b *= G3D_LOAD_SCALE;
 
         leafArray[ct].bounds        = AABox(a.min(b), a.max(b));
         leafArray[ct].center        = (a + b) / 2;
@@ -803,7 +803,7 @@ void Map::loadPlanes(
     // Swizzle the quake coordinates
     for (int p = 0; p < planeArray.size(); ++p) {
         swizzle(planeArray[p].normal);
-        planeArray[p].distance *= LOAD_SCALE;
+        planeArray[p].distance *= G3D_LOAD_SCALE;
     }
 }
 
@@ -815,8 +815,8 @@ void Map::loadStaticModel(
     bi.setPosition(lump.offset);
     bi.readBytes(&staticModel, sizeof(BSPModel));
 	
-    Vector3 a = staticModel.min * LOAD_SCALE;
-    Vector3 b = staticModel.max * LOAD_SCALE;
+    Vector3 a = staticModel.min * G3D_LOAD_SCALE;
+    Vector3 b = staticModel.max * G3D_LOAD_SCALE;
     swizzle(a);
     swizzle(b);
 
@@ -841,8 +841,8 @@ void Map::loadDynamicModels(
 
 	for(int i = 1; i < totalModels; ++i){
 		BSPModel curr;
-		Vector3 a = modelData[i].min * LOAD_SCALE;
-		Vector3 b = modelData[i].max * LOAD_SCALE;
+		Vector3 a = modelData[i].min * G3D_LOAD_SCALE;
+		Vector3 b = modelData[i].max * G3D_LOAD_SCALE;
 		swizzle(a);
 		swizzle(b);
 
