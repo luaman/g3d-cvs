@@ -112,7 +112,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     defaultController->setMoveRate(10);
     defaultController->setPosition(Vector3(0, 0, 4));
     defaultController->lookAt(Vector3::zero());
-    defaultController->setActive(true);
+    defaultController->setActive(false);
     defaultCamera.setPosition(defaultController->position());
     defaultCamera.lookAt(Vector3::zero());
  
@@ -353,6 +353,23 @@ void GApp2::onGraphics(RenderDevice* rd) {
     Array<PosedModelRef>        posedArray;
     Array<PosedModel2DRef>      posed2DArray;
     Array<PosedModelRef>        opaque, transparent;
+
+    LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
+
+    rd->setProjectionAndCameraMatrix(defaultCamera);
+    rd->clear(true, true, true);
+
+    rd->enableLighting();
+		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
+		rd->setAmbientLightColor(lighting.ambient);
+        renderGModules(rd);
+    rd->disableLighting();
+}
+
+
+void GApp2::renderGModules(RenderDevice* rd) {
+    Array<PosedModelRef> posedArray, opaque, transparent; 
+    Array<PosedModel2DRef> posed2DArray;
 
     // By default, render the installed modules
     getPosedModel(posedArray, posed2DArray);

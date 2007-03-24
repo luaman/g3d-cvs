@@ -21,8 +21,6 @@
 
 
 class App : public GApp2 {
-protected:
-    int main();
 public:
     SkyRef              sky;
 
@@ -89,7 +87,6 @@ void App::onGraphics(RenderDevice* rd) {
     fbo->set(FrameBuffer::DEPTH_ATTACHMENT, RenderBuffer::createEmpty("Depth", rd->width(), rd->height(), TextureFormat::DEPTH32));
 
     rd->setFramebuffer(fbo);
-
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
     rd->setProjectionAndCameraMatrix(defaultCamera);

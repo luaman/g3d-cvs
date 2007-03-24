@@ -394,6 +394,10 @@ protected:
         Array<PosedModelRef>& posedArray, 
         Array<PosedModel2DRef>& posed2DArray);
 
+    /**
+     Get and render the posed GModules.
+     */
+    virtual void renderGModules(RenderDevice* rd);
 
     /**
      Override this with your simulation code.
