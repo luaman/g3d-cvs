@@ -177,11 +177,11 @@ static const std::string& loadShaderCode(const std::string& filename) {
 
 /**
  Loads a shader, where <I>basename</I> contains the path and filename up to the 
- ".glsl.vrt" extensions, and <I>defines</I> is a string to prepend to the 
+ ".vrt"/".pix" extensions, and <I>defines</I> is a string to prepend to the 
  beginning of both vertex and pixel shaders.
  */
 static ShaderRef loadShader(const std::string& baseName, const std::string& defines) {
-    debugAssert(fileExists(baseName + ".glsl.vrt"));
+    debugAssert(fileExists(baseName + ".vrt"));
 
     const std::string& vertexShader = loadShaderCode(baseName + ".vrt");
     const std::string& pixelShader  = loadShaderCode(baseName + ".pix");
