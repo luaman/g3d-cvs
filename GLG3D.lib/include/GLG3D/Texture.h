@@ -273,7 +273,6 @@ public:
 
      @param name Arbitrary name for this texture to identify it
      @param textureID Set to newGLTextureID() to create an empty texture.
-     @param maxAnisotropy Values over 1.0 will give better rendering of textures on shallow angles
      */
     static TextureRef fromGLTexture(
         const std::string&              name,
@@ -286,8 +285,6 @@ public:
      Creates a texture from a single image.  The image must have a format understood
      by G3D::GImage or a DirectDraw Surface (DDS).  If dimension is DIM_CUBE_MAP, this loads the 6 files with names
      _ft, _bk, ... following the G3D::Sky documentation.
-     @param brighten A value to multiply all color channels by; useful for loading
-            dark Quake textures.
      */    
     static TextureRef fromFile(
         const std::string&              filename,

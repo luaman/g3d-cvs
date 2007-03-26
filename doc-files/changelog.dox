@@ -35,6 +35,7 @@
      <li> G3D::Image1,	G3D::Image1uint8
      <li> G3D::Image3,	G3D::Image3uint8
      <li> G3D::Image4,	G3D::Image4uint8
+     <li> BinaryInput::flipEndian32, BinaryInput::flipEndian16
      <li> Texture::createEmpty now intializes invertY = true, which is usually desirable for Framebuffer rendering.
      <li> G3D::Map2D
      <li> G3D::Vector4int8

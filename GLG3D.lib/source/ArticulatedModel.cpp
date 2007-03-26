@@ -18,8 +18,8 @@ ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
         if (GLCaps::supports_GL_ARB_shader_objects()) {
             p = PS20;
 
-            if (! fileExists("NonShadowedPass.vrt") &&
-                ! fileExists("../NonShadowedPass.vrt")) {
+            
+            if (! fileExists(SuperShader::findDataFiles() + "NonShadowedPass.vrt")) {
                 p = UNKNOWN;
                 Log::common()->printf("\n\nWARNING: ArticulatedModel could not enter PS20 mode because"
                     "NonShadowedPass.vrt was not found.\n\n");
