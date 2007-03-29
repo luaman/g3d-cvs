@@ -34,6 +34,10 @@ public:
     virtual void onUserInput(UserInput* ui);
 
     virtual void onCleanup();
+
+    virtual void onConsoleCommand(const std::string& cmd);
+
+    void printConsoleHelp();
 };
 
 void App::onInit()  {
@@ -59,6 +63,34 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onUserInput(UserInput* ui) {
 	// Add key handling here	
+}
+
+void App::onConsoleCommand(const std::string& str) {
+    // Add console processing here
+
+    TextInput t(TextInput::FROM_STRING, str);
+    if (t.hasMore() && (t.peek().type() == Token::SYMBOL)) {
+        std::string cmd = toLower(t.readSymbol());
+        if (cmd == "exit") {
+            exit(0);
+            return;
+        } else if (cmd == "help") {
+            printConsoleHelp();
+            return;
+        }
+
+        // Add commands here
+    }
+
+    console->printf("Unknown command\n");
+    printConsoleHelp();
+}
+
+void App::printConsoleHelp() {
+    console->printf("exit          - Quit the program\n");
+    console->printf("help          - Display this text\n\n");
+    console->printf("~/ESC         - Open/Close console\n");
+    console->printf("TAB           - Enable first-person camera control\n");
 }
 
 void App::onGraphics(RenderDevice* rd) {
