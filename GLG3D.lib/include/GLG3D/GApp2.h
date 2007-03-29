@@ -18,14 +18,15 @@
 #include "G3D/NetworkDevice.h"
 #include "GLG3D/GWindow.h"
 #include "GLG3D/GModule.h"
+#include "GLG3D/GConsole.h"
 
 namespace G3D {
 
 class RenderDevice;
 class UserInput;
 
+//  See @link guideapp @endlink for a discussion of GApp and GApplet. 
 /**
-  See @link guideapp @endlink for a discussion of GApp and GApplet. 
 
   For each frame, the GApp2 has several tasks that can be implemented by overriding
   base class methods.  The use of cooperative, round-robbin scheduling avoids the need
@@ -36,12 +37,17 @@ class UserInput;
    <li> doUserInput(G3D::UserInput*)
    <li> doLogic()
    <li> doNetwork()
-   <li> doSimulation(G3D::RealTime, G3D::SimTime)
+   <li> doSimulation(G3D::RealTime, G3D::SimTime, G3D::SimTime)
    <li> doWait(G3D::RealTime cumulativeTime, G3D::RealTime desiredCumulativeTime)
   </ul>
 
+  The onConsoleCommand handler allows you to add an in-game command console
+  to your program.  By default it is activated when '~' is pressed; you can also
+  set the GApp2::escapeAction to open the console on ESC.  The console is a GModule,
+  so you can completely disable it (e.g., in a release build of the program) by
+  executing <code>removeModule(console)</code>.
 
-  To invoke a GApplet and let it control the main loop, call
+  To invoke a GApp2 and let it control the main loop, call
   run().  To control the main loop explicitly, invoke beginRun on
   initialization, call oneFrame() from the main loop, and call endRun on cleanup.
  
@@ -115,6 +121,8 @@ protected:
      */
     virtual void processGEventQueue();
 
+    static void staticConsoleCallback(const std::string& command, void* me);
+
 public:
 
     const Stopwatch& graphicsWatch() const {
@@ -156,6 +164,9 @@ public:
     RenderDevice*           renderDevice;
     NetworkDevice*          networkDevice;
 
+    /** Command console. */
+    GConsoleRef             console;
+
     /**
      NULL if not loaded
      */
@@ -186,12 +197,18 @@ public:
      */
     bool                    showDebugText;
 
+    enum Action {
+        ACTION_NONE,
+        ACTION_QUIT,
+        ACTION_SHOW_CONSOLE
+    };
+
     /**
      When true an GKey::ESCAPE keydown event
      quits the program.
      (default is true)
      */
-    bool                    quitOnEscape;
+    Action                  escapeKeyAction;
 
     /**
      When true GKey::TAB keydown deactivates
@@ -513,6 +530,12 @@ protected:
      Routine for processing user input from the previous frame.  Default implementation does nothing.
      */
     virtual void onUserInput(class UserInput* userInput);
+
+    /**
+     Invoked when a user presses enter in the in-game console.  The default implementation
+     ends the program if the command is "exit".
+     */
+    virtual void onConsoleCommand(const std::string& cmd);
 };
 
 }

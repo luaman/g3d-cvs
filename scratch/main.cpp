@@ -123,6 +123,7 @@ void App::onGraphics(RenderDevice* rd) {
         //Draw::rect2D(texture->rect2DBounds(), rd);
     rd->pop2D();
 
+    renderGModules(rd);
 }
 
 

@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-11-03
- @edited  2006-04-22
+ @edited  2007-04-22
  */
 
 #include "G3D/platform.h"
@@ -118,11 +118,19 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
  
     autoResize                  = true;
     showDebugText               = true;
-    quitOnEscape                = true;
+    escapeKeyAction             = ACTION_QUIT;
     tabSwitchCamera             = true;
     showRenderingStats          = true;
     catchCommonExceptions       = true;
     manageUserInput             = true;
+
+    {
+        GConsole::Settings settings;
+        settings.backgroundColor = Color3::green() * 0.1f;
+        console = GConsole::create(debugFont, settings, staticConsoleCallback, this);
+        console->setActive(false);
+        addModule(console);
+    }
 
     debugAssertGLOk();
 }
@@ -532,6 +540,16 @@ void GApp2::endRun() {
 }
 
 
+void GApp2::staticConsoleCallback(const std::string& command, void* me) {
+    ((GApp2*)me)->onConsoleCommand(command);
+}
+
+
+void GApp2::onConsoleCommand(const std::string& cmd) {
+    if (trimWhitespace(cmd) == "exit") {
+        exit(0);
+    }
+}
 
 
 void GApp2::onUserInput(UserInput* userInput) {
@@ -567,26 +585,38 @@ void GApp2::processGEventQueue() {
             break;
 
 	    case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-            case GKey::ESCAPE:
-                if (quitOnEscape) {
-                    exit(0);
+
+            if (! console->active()) {
+                switch (event.key.keysym.sym) {
+                case GKey::ESCAPE:
+                    switch (escapeKeyAction) {
+                    case ACTION_QUIT:
+                        exit(0);
+                        break;
+                    
+                    case ACTION_SHOW_CONSOLE:
+                        console->setActive(true);
+                        break;
+
+                    case ACTION_NONE:
+                        break;
+                    }
+                    break;
+
+                case GKey::TAB:
+                    // Make sure it wasn't ALT-TAB that was pressed !
+                    if (tabSwitchCamera && 
+                        ! (userInput->keyDown(GKey::RALT) || 
+                           userInput->keyDown(GKey::LALT))) {
+
+                        defaultController->setActive(! defaultController->active());
+                    }
+                    break;
+
+                // Add other key handlers here
+                default:;
                 }
-                break;
-
-        case GKey::TAB:
-            // Make sure it wasn't ALT-TAB that was pressed !
-            if (tabSwitchCamera && 
-                ! (userInput->keyDown(GKey::RALT) || 
-                   userInput->keyDown(GKey::LALT))) {
-
-                defaultController->setActive(! defaultController->active());
             }
-            break;
-
-            // Add other key handlers here
-            default:;
-        }
         break;
 
         // Add other event handlers here
