@@ -767,7 +767,7 @@ void GImage::computeNormalMap(
         // over the whole image becomes a 45-degree angle
         
         // Account for potentially non-square aspect ratios
-        whiteHeightInPixels = max(normal.width, normal.height);
+        whiteHeightInPixels = max(bump.width, bump.height);
     }
 
     debugAssert(whiteHeightInPixels >= 0);

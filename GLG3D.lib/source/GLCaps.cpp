@@ -26,6 +26,7 @@ namespace G3D {
 bool GLCaps::_loadedExtensions = false;
 bool GLCaps::_initialized = false;
 bool GLCaps::_checkedForBugs = false;
+bool GLCaps::_hasGLMajorVersion2 = false;
 
 int GLCaps::_numTextureCoords = 0;
 int GLCaps::_numTextures = 0;
@@ -231,6 +232,10 @@ void GLCaps::loadExtensions(Log* debugLog) {
     renderer();
     glVersion();
     driverVersion();
+
+    // Initialize cached GL major version pulled from glVersion() for extensions made into 2.0 core
+    const std::string glver = glVersion();
+    _hasGLMajorVersion2 = beginsWith(glver, "2.");
 
     #define LOAD_EXTENSION(name) \
         *((void**)&name) = glGetProcAddress(#name);
@@ -439,7 +444,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // We're going to need exactly the same code for each of 
         // several extensions.
         #define DECLARE_EXT(extname) _supports_##extname = supports(#extname)
-            DECLARE_EXT(GL_ARB_texture_non_power_of_two);
+        #define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || _hasGLMajorVersion2)
+            DECLARE_EXT_GL2(GL_ARB_texture_non_power_of_two);
             DECLARE_EXT(GL_EXT_texture_rectangle);
             DECLARE_EXT(GL_ARB_vertex_program);
             DECLARE_EXT(GL_NV_vertex_program2);

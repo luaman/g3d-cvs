@@ -17,6 +17,7 @@
      <li> Changed distribution directories to place include, lib, and bin under a directory named after the platform
           and all other files one directory up.
      <li> Made Ray non-virtual
+     <li> On a GL 2.0 or greater driver, G3D::GLCaps now assumes the presence of all GL2 extensions even if they are not explicitly listed by the card [Corey Taylor]
      <li> debugPrintf now flushes stderr on Unix systems
      <li> Added G3D::ArticulatedModel to the core (includes 3DS loading)
      <li> Added G3D::SuperShader to the core

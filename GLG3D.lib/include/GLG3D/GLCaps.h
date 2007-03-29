@@ -90,6 +90,9 @@ private:
     /** True when loadExtensions has already been called */
     static bool         _loadedExtensions;
 
+    /** True if this is GL 2.0 or greater, which mandates certain extensions.*/
+    static bool         _hasGLMajorVersion2;
+
     /** True when checkAllBugs has been called. */
     static bool         _checkedForBugs;
 
