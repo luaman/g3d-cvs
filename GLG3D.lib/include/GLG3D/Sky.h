@@ -111,11 +111,11 @@ public:
       in given directory. Defaults to true.
 
      @param quality Trade image quality for texture memory: 
-       .5 -> 1/8  the texture memory of 1.0, 
-        0 -> 1/16 the texture memory of 1.0.
-        Color banding will occur at low quality settings.
+       .5 -> 1/4  the texture memory of 1.0, 
+        0 -> 1/8 the texture memory of 1.0.
+      Color banding will occur at low quality settings, but rendering performance may increase.
 
-     @param scaleDownFactor Resize the texture by 1/scaleDownFactor in each dimension.  Should be a power of two.
+     @param scaleDownFactor Resize the texture resolution by 1 / scaleDownFactor in each dimension.  Should be a power of two.
               Useful for creating a skybox that occupies less memory on low-end cards.
      */
     static SkyRef fromFile(

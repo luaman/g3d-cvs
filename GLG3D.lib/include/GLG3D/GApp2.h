@@ -19,6 +19,7 @@
 #include "GLG3D/GWindow.h"
 #include "GLG3D/GModule.h"
 #include "GLG3D/GConsole.h"
+#include "GLG3D/ToneMap.h"
 
 namespace G3D {
 
@@ -166,6 +167,9 @@ public:
 
     /** Command console. */
     GConsoleRef             console;
+
+    ToneMapRef              toneMap;
+
 
     /**
      NULL if not loaded

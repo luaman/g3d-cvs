@@ -132,6 +132,8 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
         addModule(console);
     }
 
+    toneMap = ToneMap::create();
+
     debugAssertGLOk();
 }
 

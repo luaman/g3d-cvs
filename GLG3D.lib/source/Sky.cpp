@@ -76,18 +76,12 @@ SkyRef Sky::fromFile(
         "Directory must end in a slash");
 
     const TextureFormat* format;
-    const TextureFormat* alphaFormat;
     std::string filename = _filename[0];
 
-    if (quality > .66) {
+    if (quality > .55) {
         format      = TextureFormat::RGB8;
-        alphaFormat = TextureFormat::RGBA8;
-    } else if (quality > .33) {
-        format      = TextureFormat::RGB_DXT1;
-        alphaFormat = TextureFormat::RGBA_DXT1;
     } else {
-        format      = TextureFormat::RGBA_DXT5;
-        alphaFormat = TextureFormat::RGBA_DXT5;
+        format      = TextureFormat::RGB_DXT1;
     }
 
     // Look for the filename
@@ -110,12 +104,12 @@ SkyRef Sky::fromFile(
     bool useCubeMap;
 
     if (GLCaps::supports_GL_ARB_texture_cube_map() && ! GLCaps::hasBug_normalMapTexGen()) {
-	Texture::Settings   textureSettings;
-	Texture::PreProcess texturePreProcess;
+	    Texture::Settings   textureSettings;
+	    Texture::PreProcess texturePreProcess;
 
-	textureSettings.wrapMode = Texture::CLAMP;
-	textureSettings.interpolateMode = Texture::TRILINEAR_MIPMAP;
-	texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
+	    textureSettings.wrapMode = Texture::CLAMP;
+	    textureSettings.interpolateMode = Texture::TRILINEAR_MIPMAP;
+	    texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
 
         if (_filename[1] == "") {
             // Specified one cube map
@@ -150,7 +144,7 @@ SkyRef Sky::fromFile(
         Texture::Settings   textureSettings;
         Texture::PreProcess texturePreProcess;
    
-	textureSettings.wrapMode = Texture::CLAMP;
+	    textureSettings.wrapMode = Texture::CLAMP;
         textureSettings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
         texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
 
@@ -172,7 +166,7 @@ SkyRef Sky::fromFile(
                 faceTextures[t] = Texture::fromFile(
 					_filename[t],
 					format,
-                                        Texture::DIM_2D,
+                    Texture::DIM_2D,
 					textureSettings, 
 					texturePreProcess);
             }
@@ -208,10 +202,10 @@ Sky::Sky(
         format      = TextureFormat::RGB8;
         alphaFormat = TextureFormat::RGBA8;
     } else if (quality > .33) {
-        format      = TextureFormat::RGB_DXT1;
-        alphaFormat = TextureFormat::RGBA_DXT1;
+        format      = TextureFormat::RGBA_DXT1;
+        alphaFormat = TextureFormat::RGBA_DXT5;
     } else {
-        format      = TextureFormat::RGBA_DXT5;
+        format      = TextureFormat::RGBA_DXT1;
         alphaFormat = TextureFormat::RGBA_DXT5;
     }
 

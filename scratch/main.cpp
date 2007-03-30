@@ -79,7 +79,7 @@ void App::onUserInput(UserInput* ui) {
 
 
 void App::onGraphics(RenderDevice* rd) {
-
+/*
     static FramebufferRef fbo = FrameBuffer::create("Fbo");
     static TextureRef texture = Texture::createEmpty("Screen", rd->width(), rd->height(), TextureFormat::RGBA8, Texture::DIM_2D_NPOT, Texture::Settings::video());
 
@@ -87,6 +87,7 @@ void App::onGraphics(RenderDevice* rd) {
     fbo->set(FrameBuffer::DEPTH_ATTACHMENT, RenderBuffer::createEmpty("Depth", rd->width(), rd->height(), TextureFormat::DEPTH32));
 
     rd->setFramebuffer(fbo);
+    */
     LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
@@ -114,7 +115,7 @@ void App::onGraphics(RenderDevice* rd) {
     if (sky.notNull()) {
         sky->renderLensFlare(rd, lighting);
     }
-
+/*
     rd->setFramebuffer(NULL);
 
     rd->push2D();
@@ -122,7 +123,7 @@ void App::onGraphics(RenderDevice* rd) {
         //rd->setTexture(0, texture);
         //Draw::rect2D(texture->rect2DBounds(), rd);
     rd->pop2D();
-
+*/
     renderGModules(rd);
 }
 
@@ -132,7 +133,7 @@ App::App(const GApp2::Settings& settings) : GApp2(settings) {
     
     // Load objects here
     if (fileExists(dataDir + "sky/sun.jpg")) {
-        sky = Sky::fromFile(dataDir + "sky/");
+        sky = Sky::fromFile(dataDir + "sky/", "plainsky/null_plainsky512_*.jpg", true, 0);
     }
 }
 

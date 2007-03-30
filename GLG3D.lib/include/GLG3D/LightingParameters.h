@@ -149,6 +149,10 @@ public:
         return new Lighting();
     }
 
+    inline Color3 ambientAverage() const {
+        return (ambientBottom + ambientTop) / 2.0f;
+    }
+
 };
 
 typedef ReferenceCountedPointer<Lighting> LightingRef;
