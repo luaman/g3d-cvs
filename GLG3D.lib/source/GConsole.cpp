@@ -288,8 +288,8 @@ void GConsole::generateFilenameCompletions(Array<string>& files) {
     int i = m_cursorPos - 1;
 
     while ((i > 0) && 
-            ! isWhiteSpace(m_currentLine[i]) &&
-            ! isQuote(m_currentLine[i])) {
+            ! isWhiteSpace(m_currentLine[i - 1]) &&
+            ! isQuote(m_currentLine[i - 1])) {
         --i;
     }
 
@@ -607,7 +607,6 @@ bool GConsole::onEvent(const GEvent& event) {
         case GKey::BACKSPACE:
         case GKey::UP:
         case GKey::DOWN:
-        case GKey::TAB:
         case GKey::PAGEUP:
         case GKey::PAGEDOWN:
         case GKey::RETURN:
@@ -615,6 +614,14 @@ bool GConsole::onEvent(const GEvent& event) {
         case GKey::END:
             setRepeatKeysym(event.key.keysym);
             processRepeatKeysym();
+            return true;
+            break;
+
+        case GKey::TAB:
+            setRepeatKeysym(event.key.keysym);
+            processRepeatKeysym();
+            // Tab is used for command completion and shouldn't repeat
+            unsetRepeatKeysym();
             return true;
             break;
 
@@ -679,16 +686,22 @@ void GConsole::render(RenderDevice* rd) {
    
     Rect2D rect;
 
+    static RealTime then = System::time();
     RealTime now = System::time();
 
     bool hasKeyDown = (m_repeatKeysym.sym != GKey::UNKNOWN);
 
+    // Amount of time that the last simulation step took.  
+    // This is used to limit the key repeat rate
+    // so that it is not faster than the frame rate.
+    RealTime frameTime = then - now;
+
     // If a key is being pressed, process it on a steady repeat schedule.
     if (hasKeyDown && (now > m_keyRepeatTime)) {
         processRepeatKeysym();
-        m_keyRepeatTime = now + 1.0 / m_settings.keyRepeatRate;
+        m_keyRepeatTime = max(now + frameTime * 1.1, now + 1.0 / m_settings.keyRepeatRate);
     }
-
+    then = now;
 
     // Only blink the cursor when keys are not being pressed or
     // have not recently been pressed.

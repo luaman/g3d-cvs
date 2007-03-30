@@ -26,6 +26,8 @@
      <li> GApp2::debugCamera -> GApp2::defaultCamera
      <li> GApp2::debugController -> GApp2::defaultController
      <li> Made GApp2::debugText private
+     <li> Tab (command completion) no longer auto-repeats in GConsole
+     <li> GConsole now limits the key repeat rate to the framerate
      <li> Removed GApp2::Settings::useNetwork because it was no longer needed--Win32 does not trigger firewall checks anymore
      <li> Optimized AABSPTree balance and queries; now about 20% faster than 6.10, but requires 30 bytes more memory per member
      <li> G3D::Array::pop now shrinks the underlying array by default (Array::popRemove does not shrink the array and is faster)
@@ -102,7 +104,8 @@
 	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
 	 <li> Removed static constants (use equivalent lower-case methods)
 	 <li> Removed Cylinder::getPoint1 (use point)
-         <li> Fix: prompt/debugAssert now correctly responds to button presses on OS X
+     <li> Fix: prompt/debugAssert now correctly responds to button presses on OS X
+     <li> Fix: GConsole now filename completes after the first word 
 	 <li> Fix: RenderDevice::getDepthBufferValue now checks for the presence of a depth buffer.
      <li> Fix: G3D::AABSPTree now correctly handles members with infinite bounds on ray intersection tests
      <li> Fix: Removed use of tmpfile on Unix 
