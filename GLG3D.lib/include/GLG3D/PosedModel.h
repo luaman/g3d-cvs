@@ -138,9 +138,10 @@ public:
     virtual const Array<MeshAlg::Vertex>& vertices() const = 0;
 
     /** If this model has texture coordinates, returns per-vertex texture coordinates
-        in an array indexed the same as vertices() and geometry.vertexArray. */
+        in an array indexed the same as vertices() and geometry.vertexArray, otherwise
+        returns an array of size zero.  Default implementation returns an array of size zero.
+    */
     virtual const Array<Vector2>& texCoords() const {
-        alwaysAssertM(false, "Model has no texture coordinates.");
         static Array<Vector2> t;
         return t;
     }

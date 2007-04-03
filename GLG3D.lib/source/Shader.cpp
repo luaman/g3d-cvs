@@ -123,6 +123,14 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
             args.set("g3d_CameraToWorldMatrix", c2w);
         }
 
+        if (uniformNames.contains("g3d_ObjectToWorldNormalMatrix")) {
+            args.set("g3d_ObjectToWorldNormalMatrix", o2w.rotation);
+        }
+
+        if (uniformNames.contains("g3d_WorldToObjectNormalMatrix")) {
+            args.set("g3d_WorldToObjectNormalMatrix", o2w.rotation.transpose());
+        }
+
         if (uniformNames.contains("g3d_WorldToObjectMatrix")) {
             args.set("g3d_WorldToObjectMatrix", o2w.inverse());
         }
@@ -150,6 +158,14 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
             // from camera to world to object space.
             glGetLightfv(GL_LIGHT0, GL_POSITION, cL);
             args.set("g3d_ObjectLight0", o2w.toObjectSpace(c2w.toWorldSpace(cL)));
+        }
+
+        if (uniformNames.contains("g3d_WorldLight0")) {
+            Vector4 cL;
+            // OpenGL lights are already in camera space, so take them
+            // from camera to world to object space.
+            glGetLightfv(GL_LIGHT0, GL_POSITION, cL);
+            args.set("g3d_WorldLight0", c2w.toWorldSpace(cL));
         }
 
         if (uniformNames.contains("g3d_NumTextures")) {
@@ -248,11 +264,15 @@ void VertexAndPixelShader::GPUShader::init
         STR(
         uniform mat4 g3d_WorldToObjectMatrix;
         uniform mat4 g3d_ObjectToWorldMatrix;
+        uniform mat3 g3d_WorldToObjectNormalMatrix;
+        uniform mat3 g3d_ObjectToWorldNormalMatrix;
         uniform mat4 g3d_WorldToCameraMatrix;
         uniform mat4 g3d_CameraToWorldMatrix;
         uniform int  g3d_NumLights;
         uniform int  g3d_NumTextures;
-        uniform vec4 g3d_ObjectLight0;);
+        uniform vec4 g3d_ObjectLight0;
+        uniform vec4 g3d_WorldLight0;
+        );
 
     _name		= name;
     _shaderType		= type;
@@ -754,15 +774,15 @@ GLenum VertexAndPixelShader::canonicalType(GLenum e) {
         return GL_FLOAT_VEC4_ARB;
 
     case GL_SAMPLER_2D_SHADOW_ARB:
-	case GL_SAMPLER_2D_ARB:
-		return GL_TEXTURE_2D;
-
-	case GL_SAMPLER_CUBE_ARB:
-		return GL_TEXTURE_CUBE_MAP_ARB;
- 
+    case GL_SAMPLER_2D_ARB:
+        return GL_TEXTURE_2D;
+        
+    case GL_SAMPLER_CUBE_ARB:
+        return GL_TEXTURE_CUBE_MAP_ARB;
+        
     case GL_SAMPLER_2D_RECT_SHADOW_ARB:
-	case GL_SAMPLER_2D_RECT_ARB:
-		return GL_TEXTURE_RECTANGLE_EXT;
+    case GL_SAMPLER_2D_RECT_ARB:
+        return GL_TEXTURE_RECTANGLE_EXT;
 
     default:
         // Return the input
@@ -1006,6 +1026,16 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix4& v
     arg.type = GL_FLOAT_MAT4_ARB;
     for (int r = 0; r < 4; ++r) {
         arg.vector[r] = val.getRow(r);
+    }
+
+    argTable.set(var, arg);
+}
+
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix3& val) {
+    Arg arg;
+    arg.type = GL_FLOAT_MAT3_ARB;
+    for (int r = 0; r < 3; ++r) {
+        arg.vector[r] = Vector4(val.getRow(r), 0);
     }
 
     argTable.set(var, arg);

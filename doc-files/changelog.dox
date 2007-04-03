@@ -26,6 +26,8 @@
      <li> GApp2::debugCamera -> GApp2::defaultCamera
      <li> GApp2::debugController -> GApp2::defaultController
      <li> Made GApp2::debugText private
+     <li> Added g3d_WorldLight0 to the G3D shader extensions
+     <li> Added Shader support for GL_FLOAT_MAT3_ARB uniforms
      <li> Tab (command completion) no longer auto-repeats in GConsole
      <li> GConsole now limits the key repeat rate to the framerate
      <li> Removed GApp2::Settings::useNetwork because it was no longer needed--Win32 does not trigger firewall checks anymore

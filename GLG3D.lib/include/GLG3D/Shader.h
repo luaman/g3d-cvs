@@ -95,40 +95,40 @@ public:
 
 protected:
 
-	class GPUShader {
-	protected:
-
-		/** argument for output on subclasses */
-		static std::string          ignore;
-
-		std::string                 _name;
-		std::string                 _code;
-		bool                        fromFile;
-
-		GLhandleARB                 _glShaderObject;
-
-		bool                        _ok;
-		std::string                 _messages;
-
-		/** Returns true on success.  Called from init. */
-		void compile();
-
-		/** Initialize a shader object and returns object.  
-			Called from subclass create methods. */
-		static GPUShader*           init(GPUShader* shader, bool debug);
-
-		/** Set to true when name and code both == "" */
-		bool						_fixedFunction;
-
-		GLenum						_glShaderType;
-
-		std::string					_shaderType;
-
+    class GPUShader {
+    protected:
+        
+        /** argument for output on subclasses */
+        static std::string          ignore;
+        
+        std::string                 _name;
+        std::string                 _code;
+        bool                        fromFile;
+        
+        GLhandleARB                 _glShaderObject;
+        
+        bool                        _ok;
+        std::string                 _messages;
+        
+        /** Returns true on success.  Called from init. */
+        void compile();
+        
+        /** Initialize a shader object and returns object.  
+            Called from subclass create methods. */
+        static GPUShader*           init(GPUShader* shader, bool debug);
+        
+        /** Set to true when name and code both == "" */
+        bool			_fixedFunction;
+        
+        GLenum                      _glShaderType;
+        
+        std::string                 _shaderType;
+        
         /**
-         Replaces all instances of 
+           Replaces all instances of 
            <code>"g3d_sampler2DSize(name)"</code> with 
            <code>"     (g3d_sz2D_name.xy)"</code> and
-
+           
            <code>"g3d_sampler2DInvSize(name)"</code> with
            <code>"        (g3d_sz2D_name.zw)"</code> 
            
@@ -145,15 +145,15 @@ protected:
 
 	public:
 
-		void init(
-			const std::string& name,
-			const std::string& code,
-			bool			   fromFile,
-			bool			   debug,
-			GLenum		       glType,
-			const std::string& type,
-            UseG3DUniforms     u);
-
+            void init(
+                      const std::string& name,
+                      const std::string& code,
+                      bool               fromFile,
+                      bool		 debug,
+                      GLenum		 glType,
+                      const std::string& type,
+                      UseG3DUniforms     u);
+            
 		/** Deletes the underlying glShaderObject.  Between GL's reference
 			counting and G3D's reference counting, an underlying object
 			can never be deleted while in use. */
@@ -191,9 +191,9 @@ protected:
 
     static std::string      ignore;
 
-    GPUShader				vertexShader;
-    GPUShader				geometryShader;
-    GPUShader				pixelShader;
+    GPUShader	            vertexShader;
+    GPUShader	            geometryShader;
+    GPUShader		    pixelShader;
 
     GLhandleARB             _glProgramObject;
 
@@ -230,15 +230,16 @@ protected:
     /** Returns true for types that are textures (e.g., GL_TEXTURE_2D) */
     static bool isSamplerType(GLenum e);
 
-	VertexAndPixelShader(
-		const std::string&  vsCode,
-		const std::string&  vsFilename,
-		bool                vsFromFile,
-		const std::string&  psCode,
-		const std::string&  psFilename,
-		bool                psFromFile,
-        bool                debug,
-        UseG3DUniforms      u);
+    VertexAndPixelShader
+    (
+     const std::string&  vsCode,
+     const std::string&  vsFilename,
+     bool                vsFromFile,
+     const std::string&  psCode,
+     const std::string&  psFilename,
+     bool                psFromFile,
+     bool                debug,
+     UseG3DUniforms      u);
 
 public:
 
@@ -246,30 +247,32 @@ public:
     class ArgumentError {
     public:
         std::string             message;
-
+        
         ArgumentError(const std::string& m) : message(m) {}
     };
-
-	static VertexAndPixelShaderRef fromStrings(
-		const std::string& vertexShader,
-		const std::string& pixelShader,       
-        UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
-        bool debugErrors = DEBUG_SHADER);
-
-	/**
-	 To use the default/fixed-function pipeline for part of the
-	 shader, pass an empty string.
-	 */
-	static VertexAndPixelShaderRef fromStrings(
-        const std::string& vertexShaderName,
-		const std::string& vertexShader,
-        const std::string& geometryShaderName,
-		const std::string& geometryShader,       
-        const std::string& pixelShaderName,
-		const std::string& pixelShader,       
-        UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
-        bool debugErrors = DEBUG_SHADER);
-
+    
+    static VertexAndPixelShaderRef fromStrings
+    (
+     const std::string& vertexShader,
+     const std::string& pixelShader,       
+     UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
+     bool debugErrors = DEBUG_SHADER);
+    
+    /**
+       To use the default/fixed-function pipeline for part of the
+       shader, pass an empty string.
+    */
+    static VertexAndPixelShaderRef fromStrings
+        (
+         const std::string& vertexShaderName,
+         const std::string& vertexShader,
+         const std::string& geometryShaderName,
+         const std::string& geometryShader,       
+         const std::string& pixelShaderName,
+         const std::string& pixelShader,       
+         UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
+         bool debugErrors = DEBUG_SHADER);
+    
 	/**
 	 To use the fixed function pipeline for part of the
 	 shader, pass an empty string.
@@ -304,7 +307,7 @@ public:
             /** Row-major */ 
             Vector4                    vector[4];
 
-			TextureRef				   texture;
+            TextureRef                 texture;
 
             GLenum                     type;
         };
@@ -313,9 +316,10 @@ public:
 
     public:
 
-		void set(const std::string& var, const TextureRef& val);
+        void set(const std::string& var, const TextureRef& val);
         void set(const std::string& var, const CoordinateFrame& val);
         void set(const std::string& var, const Matrix4& val);
+        void set(const std::string& var, const Matrix3& val);
         void set(const std::string& var, const Color4& val);
         void set(const std::string& var, const Color3& val);
         void set(const std::string& var, const Vector4& val);
@@ -440,22 +444,26 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
     uniform mat4 g3d_ObjectToWorldMatrix;
     uniform mat4 g3d_WorldToCameraMatrix;
     uniform mat4 g3d_CameraToWorldMatrix;
+    uniform mat3 g3d_ObjectToWorldNormalMatrix; // Upper 3x3 matrix (assumes that the transformation is RT so that the inverse transpose of the upper 3x3 is just R)
+    uniform mat3 g3d_WorldToObjectNormalMatrix; // Upper 3x3 matrix (assumes that the transformation is RT so that the inverse transpose of the upper 3x3 is just R)
     uniform int  g3d_NumLights;        // 1 + highest index of the enabled lights
     uniform int  g3d_NumTextures;      // 1 + highest index of the enabled textures
-    uniform vec4 g3d_ObjectLight0;     // g3d_WorldToObject * gl_LightState[0].position
+    uniform vec4 g3d_ObjectLight0;     // g3d_WorldToObject * g3d_CameraToWorld * gl_LightState[0].position
+    uniform vec4 g3d_WorldLight0;      // g3d_CameraToWorld * gl_LightState[0].position
 
     vec2 g3d_sampler2DSize(sampler2D t);        // Returns the x and y dimensions of t
     vec2 g3d_sampler2DInvSize(sampler2D t);     // Returns vec2(1.0, 1.0) / g3d_size(t) at no additional cost
   </PRE>
 
-  <code>g3d_sampler2DSize</code> and <code>g3d_sampler2DInvSize</code> require that there be no additional space between
-  the function name and parens and no space between the parens and sampler name.  There is no cost for
-  definining and then not using any of these; unused variables do not increase the runtime cost of the
-  shader.
+  <code>g3d_sampler2DSize</code> and <code>g3d_sampler2DInvSize</code>
+  require that there be no additional space between the function name
+  and parens and no space between the parens and sampler name.  There
+  is no cost for definining and then not using any of these; unused
+  variables do not increase the runtime cost of the shader.
 
-  If your shader begins with <CODE>#include</CODE> or <CODE>#define</CODE> the
+  If your GLSL 1.1 shader begins with <CODE>#include</CODE> or <CODE>#define</CODE> the
   line numbers will be off by one in error messages because the G3D uniforms are 
-  inserted on the first line.
+  inserted on the first line.  GLSL 1.2 shaders do not have this problem.
 
   <P>
 

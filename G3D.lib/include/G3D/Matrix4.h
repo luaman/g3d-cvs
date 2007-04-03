@@ -63,10 +63,10 @@ public:
 
     Matrix4();
 
-	/** Produces an RT transformation that nearly matches this Matrix4.
-	    Because a Matrix4 may not be precisely a rotation and translation,
-		this may introduce error. */
-	class CoordinateFrame approxCoordinateFrame() const;
+    /** Produces an RT transformation that nearly matches this Matrix4.
+        Because a Matrix4 may not be precisely a rotation and translation,
+        this may introduce error. */
+    class CoordinateFrame approxCoordinateFrame() const;
 
     // Special values.
     // Intentionally not inlined: see Matrix3::identity() for details.
