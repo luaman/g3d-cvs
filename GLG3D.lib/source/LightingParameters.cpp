@@ -7,6 +7,7 @@
  */
 
 #include "GLG3D/LightingParameters.h"
+#include "GLG3D/Sky.h"
 #include "G3D/Matrix3.h"
 #include "G3D/spline.h"
 #include "G3D/GLight.h"
@@ -39,14 +40,14 @@ static const double initialStarRot = 1;
 // Initial moon phase on Jan 1 1970 midnight
 static const double initialMoonPhase = 0.75;
 
-LightingParameters::LightingParameters() {
+SkyParameters::SkyParameters() {
 	physicallyCorrect = true;
 	setLatitude(BROWN_UNIVERSITY_LATITUDE);
 	setTime(0);
 }
 
 
-LightingParameters::LightingParameters(
+SkyParameters::SkyParameters(
     const GameTime              _time,
     bool 						_physicallyCorrect,
 	float                       _latitude) {
@@ -55,11 +56,11 @@ LightingParameters::LightingParameters(
 	setTime(_time);
 }
 
-void LightingParameters::setLatitude(float _latitude) {
+void SkyParameters::setLatitude(float _latitude) {
 	geoLatitude = _latitude;
 }
 
-void LightingParameters::setTime(const GameTime _time) {
+void SkyParameters::setTime(const GameTime _time) {
     // wrap to a 1 day interval
     double time = _time - floor(_time / DAY) * DAY;
 
@@ -170,9 +171,43 @@ void LightingParameters::setTime(const GameTime _time) {
 }
 
 
-GLight LightingParameters::directionalLight() const {
+GLight SkyParameters::directionalLight() const {
     return GLight::directional(lightDirection, lightColor);
 }
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+LightingRef Lighting::clone() const {
+    return new Lighting(*this);
+}
+
+void Lighting::reduceNonShadowedLights(int numLeft) {
+    // Find dimmest light
+    // TODO
+}
+
+void Lighting::reduceShadowedLights(int numLeft) {
+    // Find dimmest light
+    // TODO
+}
+
+LightingRef Lighting::fromSky(const SkyRef& sky, const SkyParameters& skyParameters, const Color3& groundColor) {
+    LightingRef lighting = new Lighting();
+
+    lighting->ambientTop    = skyParameters.ambient * Color3(0.9, 0.9, 1.1);
+    lighting->ambientBottom = skyParameters.ambient * groundColor;
+
+    lighting->environmentMap = sky->getEnvironmentMap();
+    lighting->environmentMapColor = skyParameters.skyAmbient;
+
+    // TODO: separate sun and moon.
+    lighting->shadowedLightArray.append(skyParameters.directionalLight());
+
+    return lighting;
+}
+
 
 }
 

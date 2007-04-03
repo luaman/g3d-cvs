@@ -153,6 +153,7 @@ configured to create compile time errors to help you catch bugs.  These will app
 <tr><td>SDLK_*</td><td>G3D::GKey::*</td></td</tr>
 <tr><td>G3D::UserInput::keyCodeToString</td><td>G3D::GKey::toString</td></td</tr>
 <tr><td>G3D::UserInput::stringToKeyCode</td><td>G3D::GKey::fromString</td></td</tr>
+<tr><td>G3D::LightingParameters</td><td>G3D::SkyParameters</td></td</tr>
 </table>
 </p>
 

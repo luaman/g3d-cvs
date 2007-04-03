@@ -79,10 +79,10 @@ private:
     void renderBox(RenderDevice* rd) const;
 
     /** Draw the sun, called by render() */
-    void drawSun(RenderDevice* rd, const class LightingParameters&);
+    void drawSun(RenderDevice* rd, const class SkyParameters&);
 
     /** Draw the night sky, called by render() */
-    void drawMoonAndStars(RenderDevice* rd, const class LightingParameters&);
+    void drawMoonAndStars(RenderDevice* rd, const class SkyParameters&);
 
     Sky(
         TextureRef                              textures[6],
@@ -150,7 +150,7 @@ public:
      */
 	void render(
         RenderDevice* renderDevice,
-        const class LightingParameters&         lighting);
+        const class SkyParameters&         lighting);
 
     /**
      Call at the very end of your rendering routine.
@@ -158,7 +158,7 @@ public:
      */
     void renderLensFlare(
         RenderDevice*                           renderDevice,
-        const class LightingParameters&         lighting);
+        const class SkyParameters&         lighting);
 
     /**
      Returns an environment cube map (or the front 2D texture if cube maps are not supported
