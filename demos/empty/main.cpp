@@ -17,6 +17,8 @@
 
 class App : public GApp2 {
 public:
+    LightingRef         lighting;
+    SkyParameters       skyParameters;
     SkyRef              sky;
 
     App(const GApp2::Settings& settings = GApp2::Settings());
@@ -42,6 +44,14 @@ public:
 
 void App::onInit()  {
     // Called before the application loop beings
+    sky = Sky::fromFile(dataDir + "sky/");
+
+    skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
+    lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
+
+    // This simple demo has no shadowing, so make all lights unshadowed
+    lighting->lightArray.append(lighting->shadowedLightArray);
+    lighting->shadowedLightArray.clear();
 }
 
 void App::onCleanup() {
@@ -94,20 +104,17 @@ void App::printConsoleHelp() {
 }
 
 void App::onGraphics(RenderDevice* rd) {
-    LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-    rd->clear(sky.isNull(), true, true);
-    if (sky.notNull()) {
-        sky->render(rd, lighting);
-    }
+    rd->clear(false, true, true);
+    sky->render(rd, skyParameters);
 
     // Setup lighting
     rd->enableLighting();
-		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
-		rd->setAmbientLightColor(lighting.ambient);
+		rd->setLight(0, lighting->lightArray[0]);
+		rd->setAmbientLightColor(lighting->ambientAverage());
 
 		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
@@ -116,16 +123,11 @@ void App::onGraphics(RenderDevice* rd) {
         renderGModules(rd);
     rd->disableLighting();
 
-    if (sky.notNull()) {
-        sky->renderLensFlare(rd, lighting);
-    }
+    sky->renderLensFlare(rd, skyParameters);
 }
 
 App::App(const GApp2::Settings& settings) : GApp2(settings) {
     // Load objects here or in onInit()
-    if (fileExists(dataDir + "sky/sun.jpg")) {
-        sky = Sky::fromFile(dataDir + "sky/");
-    }
 }
 
 G3D_START_AT_MAIN();
