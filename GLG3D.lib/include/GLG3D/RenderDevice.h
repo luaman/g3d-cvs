@@ -1300,7 +1300,7 @@ private:
 
         Buffer                      drawBuffer;
 
-		FramebufferRef				framebuffer;
+	FramebufferRef              framebuffer;
 
         DepthTest                   depthTest;
         AlphaTest                   alphaTest;
@@ -1371,7 +1371,7 @@ private:
     /** True while invoking a Shader's methods */
     bool                            inShader;
 
-	bool						    inIndexedPrimitive;
+    bool                            inIndexedPrimitive;
 
     int                             _numTextureUnits;
 

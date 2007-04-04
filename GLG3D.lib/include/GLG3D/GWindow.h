@@ -72,113 +72,122 @@ class Rect2D;
 class GWindow {
 public:
 
-	class Settings {
-	public:
+    class Settings {
+    public:
 
-		/** Width of the client area in pixels. */
-		int     width;
+        /** Width of the client area in pixels. */
+        int     width;
+      
+	int     height;
 
-		int     height;
+	/** Initial x position of the client area in screen space(can
+	    be overridden by fullScreen and center) */
+	int     x;
+	
+	/** Initial y position of the client area in screen space(can
+	    be overridden by fullScreen and center) */
+	int     y;
+	
+	/** If true, overrides the x and y settings */
+	bool    center;
 
-		/** Initial x position of the client area in screen space(can be overridden by fullScreen and center) */
-		int     x;
+	/** The number of bits in <B>each</B> color channel of the
+	    frame buffer.  5, <B>8</B>.*/
+	int     rgbBits;
 
-		/** Initial y position of the client area in screen space(can be overridden by fullScreen and center) */
-		int     y;
+	/* The number of bits in the alpha channel of the frame
+	   buffer. <B>0</B>, 1, 8 Used in Win32Window to help
+	   determine resolution color depth (Added to rgbBits). */
+	int     alphaBits;
 
-		/** If true, overrides the x and y settings */
-		bool    center;
+	/** <B>0 (autodetect the best for this card)</B>, 16,
+	    <B>24</B>, 32 */
+	int     depthBits;
 
-		/** The number of bits in <B>each</B> color channel of the frame buffer.
-		   5, <B>8</B>.*/
-		int     rgbBits;
+	/** <B>8</B> */
+	int     stencilBits;
+	
+	/** Number of samples per pixel for anti-aliasing purposes.
+	    <B>1</B> (none), 4, 8 */
+	int     fsaaSamples;
+	
+	/** Will you accept a software rendering pipeline?  Used to
+	  determine if a hardware only pixel format is
+	  required. */
+	bool    hardware;
 
-		/* The number of bits in the alpha channel of the frame buffer. <B>0</B>, 1, 8
-		 Used in Win32Window to help determine resolution color depth (Added to rgbBits). */
-		int     alphaBits;
+	/** Applications that fill the screen may also want to set
+	    framed = false. */
+	bool    fullScreen;
 
-		/** <B>0 (autodetect the best for this card)</B>, 16, <B>24</B>, 32 */
-		int     depthBits;
+	/** Should buffer flips be un-hitched from refresh rate?
+			<B>true</B>, false.  True generally gives
+			higher frame rates.*/
+	bool    asychronous;
 
-		/** <B>8</B> */
-		int     stencilBits;
+	/** Allocate a stereo display context. true, <B>false</B> */
+	bool    stereo;
+	
+	/** Specify the value at which lighting saturates before it is
+	    applied to surfaces.  1.0 is the default OpenGL value,
+	    higher numbers increase the quality of bright lighting at
+	    the expense of color depth.Default is 1.0.  Set to 2.0 to
+	    make a Color3::white() light 50% of the maximum
+	    brightness. */
+	double  lightSaturation;
 
-		/** Number of samples per pixel for anti-aliasing purposes.  <B>1</B> (none), 4, 8 */
-		int     fsaaSamples;
+	/** In cycles/sec */
+	int     refreshRate;
+	
+	/**
+	   If true, you should set up your event loop as described in the 
+	   docs for RenderDevice::resize.
+	*/
+	bool    resizable;
+	
+	/**
+	   When true, a window frame and title bar are present.
+	*/
+	bool    framed;
+	
+	/**
+	   When true, the window begins visible.  <B>true</B>, false.
+	*/
+	bool    visible;
 
-		/** Will you accept a software rendering pipeline?  Used to determine if a
-		 hardware only pixel format is required. */
-		bool    hardware;
-
-		/** Applications that fill the screen may also want to set framed = false. */
-		bool    fullScreen;
-
-		/** Should buffer flips be un-hitched from refresh rate?  <B>true</B>, false.  True
-			generally gives higher frame rates.*/
-		bool    asychronous;
-
-		/** Allocate a stereo display context. true, <B>false</B> */
-		bool    stereo;
-
-		/** Specify the value at which lighting saturates
-		 before it is applied to surfaces.  1.0 is the default OpenGL value,
-		 higher numbers increase the quality of bright lighting at the expense of
-		 color depth.Default is 1.0.  Set
-			to 2.0 to make a Color3::white() light 50% of the maximum brightness. */
-		double  lightSaturation;
-
-		/** In cycles/sec */
-		int     refreshRate;
-
-		/**
-		 If true, you should set up your event loop as described in the 
-		 docs for RenderDevice::resize.
-		 */
-		bool    resizable;
-
-		/**
-		 When true, a window frame and title bar are present.
-		 */
-		bool    framed;
-
-		/**
-		 When true, the window begins visible.  <B>true</B>, false.
-		 */
-		bool    visible;
-
-		/**
-		 Default icon that the GWindow implementation tries to set initially.
-		*/
-		std::string  defaultIconFilename;
+	/**
+	   Default icon that the GWindow implementation tries to set initially.
+	*/
+	std::string  defaultIconFilename;
 
         /**
          Window title
         */
         std::string  caption;
 
-		Settings() :
-			width(800),
-			height(600),
-			x(0),
-			y(0),
-			center(true),
-			rgbBits(8),
-			alphaBits(0),
-			depthBits(24),
-			stencilBits(8),
-			fsaaSamples(1),
-			hardware(true),
-			fullScreen(false),
-			asychronous(true),
-			stereo(false),
-			lightSaturation(1.0),
-			refreshRate(85),
-			resizable(false),
-			framed(true),
-			visible(true),
-			defaultIconFilename("nodefault"),
-            caption("3D") {}
-	};
+	Settings() :
+	  width(800),
+	  height(600),
+	  x(0),
+	  y(0),
+	  center(true),
+	  rgbBits(8),
+	  alphaBits(0),
+	  depthBits(24),
+	  stencilBits(8),
+	  fsaaSamples(1),
+	  hardware(true),
+	  fullScreen(false),
+	  asychronous(true),
+	  stereo(false),
+	  lightSaturation(1.0),
+	  refreshRate(85),
+	  resizable(false),
+	  framed(true),
+	  visible(true),
+	  defaultIconFilename("nodefault"),
+	  caption("3D") {}
+    };
 
 private:
 

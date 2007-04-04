@@ -62,6 +62,7 @@ GApp::GApp(const Settings& settings, GWindow* window) {
         _hasUserCreatedWindow = false;    
         renderDevice->init(settings.window, debugLog);
     }
+    debugLog->printf("Created window\n");
 
     debugAssertGLOk();
 

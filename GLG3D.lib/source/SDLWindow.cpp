@@ -139,8 +139,8 @@ static bool SDL_handleErrorCheck_(
 
 SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 
-#if defined(G3D_OSX)
-	NSApplicationWrapper wrapper;
+#   if defined(G3D_OSX)
+        NSApplicationWrapper wrapper;
 
 	// Hack to get our window/process to the front...
 	ProcessSerialNumber psn = { 0, kCurrentProcess};    
@@ -148,57 +148,58 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 	SetFrontProcess (&psn);
 
 	_pool = new NSAutoreleasePoolWrapper();
-#endif
+#   endif
 
-	if (SDL_Init(SDL_INIT_NOPARACHUTE | SDL_INIT_VIDEO | 
-                 SDL_INIT_JOYSTICK) < 0 ) {
+    if (SDL_Init(SDL_INIT_NOPARACHUTE | 
+		 SDL_INIT_VIDEO | 
+		 SDL_INIT_JOYSTICK) < 0 ) {
 
         fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
-		debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
-        Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
-		exit(1);
-	}
-
+	debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
+	Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
+	exit(1);
+    }
+    
     // Set default icon if available
     if (settings.defaultIconFilename != "nodefault") {
-
+      
         try {
-
-            GImage defaultIcon;
-            defaultIcon.load(settings.defaultIconFilename);
-
-            setIcon(defaultIcon);
-        } catch (const GImage::Error& e) {
-            // Throw away default icon
-            fprintf(stderr, "GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-		    debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-            Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
-        }
+	
+	    GImage defaultIcon;
+	    defaultIcon.load(settings.defaultIconFilename);
+	
+	    setIcon(defaultIcon);
+      } catch (const GImage::Error& e) {
+	  // Throw away default icon
+	  fprintf(stderr, "GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
+	  debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
+	  Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
+      }
     }
 
     if (! settings.fullScreen) {
         // This doesn't really work very well due to SDL bugs so we fix up 
         // the position after the window is created.
         if (settings.center) {
-            System::setEnv("SDL_VIDEO_CENTERED", "");
-        } else {
-            System::setEnv("SDL_VIDEO_WINDOW_POS", format("%d,%d", settings.x, settings.y));
-        }
+	    System::setEnv("SDL_VIDEO_CENTERED", "");
+	} else {
+	    System::setEnv("SDL_VIDEO_WINDOW_POS", format("%d,%d", settings.x, settings.y));
+      }
     }
 
     _mouseVisible = true;
     _inputCapture = false;
 
-	// Request various OpenGL parameters
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      settings.depthBits);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,    1);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,    settings.stencilBits);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        settings.rgbBits);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,      settings.rgbBits);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       settings.rgbBits);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      settings.alphaBits);
-	SDL_GL_SetAttribute(SDL_GL_STEREO,          settings.stereo);
-
+    // Request various OpenGL parameters
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      settings.depthBits);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,    1);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,    settings.stencilBits);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        settings.rgbBits);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,      settings.rgbBits);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       settings.rgbBits);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      settings.alphaBits);
+    SDL_GL_SetAttribute(SDL_GL_STEREO,          settings.stereo);
+    
     #if SDL_FSAA
         if (settings.fsaaSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -316,7 +317,7 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 	#endif
 
 
-	// Check for joysticks
+		 // Check for joysticks
     int j = SDL_NumJoysticks();
     if ((j < 0) || (j > 10)) {
         // If there is no joystick adapter on Win32,
@@ -324,34 +325,35 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
         j = 0;
     }
 
-	if (j > 0) {
+    if (j > 0) {
         SDL_JoystickEventState(SDL_ENABLE);
-        // Turn on the joysticks
+	// Turn on the joysticks
 
         joy.resize(j);
         for (int i = 0; i < j; ++i) {
-            joy[i] = SDL_JoystickOpen(i);
-            debugAssert(joy[i]);
+	    joy[i] = SDL_JoystickOpen(i);
+	    debugAssert(joy[i]);
         }
-	}
+    }
 
     GLCaps::init();
 
-	// Register this window as the current window
-	makeCurrent();
+    // Register this window as the current window
+    makeCurrent();
 
-#	if defined(G3D_LINUX)
-		// If G3D is using the default assertion hooks, replace them with our own that use
-		// SDL functions to release the mouse, since we've been unable to implement
-		// a non-SDL way of releasing the mouse using the X11 handle directly.
-		if (assertionHook() == _internal::_handleDebugAssert_) {
-			setFailureHook(SDL_handleDebugAssert_);
-		}
+#   if defined(G3D_LINUX)
+    // If G3D is using the default assertion hooks, replace them with
+    // our own that use SDL functions to release the mouse, since
+    // we've been unable to implement a non-SDL way of releasing the
+    // mouse using the X11 handle directly.
+    if (assertionHook() == _internal::_handleDebugAssert_) {
+        setFailureHook(SDL_handleDebugAssert_);
+    }
 
-		if (failureHook() == _internal::_handleErrorCheck_) {
-			setFailureHook(SDL_handleErrorCheck_);
-		}
-#	endif
+    if (failureHook() == _internal::_handleErrorCheck_) {
+        setFailureHook(SDL_handleErrorCheck_);
+    }
+#   endif
 }
 
 

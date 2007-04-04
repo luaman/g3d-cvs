@@ -1781,16 +1781,17 @@ GLint RenderDevice::toGLStencilOp(RenderDevice::StencilOp op) const {
 
 void RenderDevice::setShader(const ShaderRef& s) {
     majStateChange();
-
-	if (s != state.shader) {
-        debugAssertM(! inShader, "Cannot set the Shader from within a Shader!");
-		state.shader = s;
-	}
+    
+    if (s != state.shader) {
+      debugAssertM(! inShader, "Cannot set the Shader from within a Shader!");
+      state.shader = s;
+    }
 }
 
 
 void RenderDevice::forceVertexAndPixelShaderBind() {
-    // Only change the vertex shader if it does not match the one used last time.
+    // Only change the vertex shader if it does not match the one used
+    // last time.
     if (lastVertexAndPixelShader != state.vertexAndPixelShader) {
 
         majGLStateChange();
