@@ -788,6 +788,9 @@ MD2Model::PosedMD2Model::PosedMD2Model(
      material(_mat) {
 }
 
+const Array<Vector2>& MD2Model::PosedMD2Model::texCoords() const {
+    return model->_texCoordArray;
+}
 
 std::string MD2Model::PosedMD2Model::name() const {
     return model->name();

@@ -223,6 +223,7 @@ protected:
         virtual void render(RenderDevice* renderDevice) const;
         virtual int numBoundaryEdges() const; 
         virtual int numWeldedBoundaryEdges() const; 
+        virtual const Array<Vector2>& texCoords() const;
     };
 
     friend class PosedMD2Model;
