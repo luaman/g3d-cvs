@@ -520,7 +520,7 @@ void ToneMap::resizeBloomMap(int w, int h) {
 }
 
 
-LightingParameters ToneMap::prepareLightingParameters(const LightingParameters& L) const {
+SkyParameters ToneMap::prepareSkyParameters(const SkyParameters& L) const {
 
     bool on = mEnabled && (profile != NO_TONE);
 

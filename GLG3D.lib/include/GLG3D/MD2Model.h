@@ -224,6 +224,7 @@ protected:
         virtual int numBoundaryEdges() const; 
         virtual int numWeldedBoundaryEdges() const; 
         virtual const Array<Vector2>& texCoords() const;
+        virtual bool hasTexCoords() const;
     };
 
     friend class PosedMD2Model;

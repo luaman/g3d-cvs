@@ -792,6 +792,10 @@ const Array<Vector2>& MD2Model::PosedMD2Model::texCoords() const {
     return model->_texCoordArray;
 }
 
+bool MD2Model::PosedMD2Model::hasTexCoords() const {
+    return true;
+}
+
 std::string MD2Model::PosedMD2Model::name() const {
     return model->name();
 }

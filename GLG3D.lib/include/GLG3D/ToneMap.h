@@ -128,7 +128,7 @@ public:
     LightingRef prepareLighting(const LightingRef& L) const;
 
     /** Call before rendering the scene to create a tone-mapping compatible lighting environment. */
-    LightingParameters prepareLightingParameters(const LightingParameters& L) const;
+    SkyParameters prepareSkyParameters(const SkyParameters& L) const;
 
     /** Call before rendering anything (including clearing the screen. */
     void beginFrame(RenderDevice* rd);

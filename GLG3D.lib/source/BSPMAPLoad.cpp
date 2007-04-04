@@ -172,7 +172,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale) {
-    debugAssert(path == "" || path[path.size() - 1] == '/' || path[path.size() - 1] == '\\');
+    debugAssertM(path == "" || path[path.size() - 1] == '/' || path[path.size() - 1] == '\\', "Path must end in a slash");
     Map* m = new Map();
     if (m->load(path, fileName)) {
         return m;
@@ -586,6 +586,9 @@ void Map::loadTextures(
         // available.
     
         textures[ct] = loadTexture(filename);
+        if (textures[ct].notNull() && defaultTexture.isNull()) {
+            defaultTexture = textures[ct];
+        }
     }
 }
 
