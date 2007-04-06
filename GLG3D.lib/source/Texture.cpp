@@ -856,6 +856,7 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
 
     glPushAttrib(GL_TEXTURE_BIT);
     glBindTexture(target, textureID);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
     glGetTexImage(
        target,
