@@ -1,7 +1,7 @@
 /**
   @page indexedbytopic APIs by Topic
 
-(See also the complete list of <a href="globals_func.html">Functions</a> and <a href="classes.html">Classes</a>.)
+See also the complete list of <a href="globals_func.html">Functions</a> and <a href="classes.html">Classes</a>.
 
 @section app Application Framework (G3DAll.h, glg3d.lib)
 <I>High-level building blocks for creating applications.</I>
@@ -9,22 +9,18 @@
   <UL>
   <LI><B>3D Models</B> &nbsp; &nbsp;
     G3D::ArticulatedModel,
-    G3D::BSPMap (see G3D::_BSPMAP::Map),
+    %G3D::%BSPMap (currently documented as G3D::_BSPMAP::Map),
     G3D::GFont,
     G3D::GLight,
     G3D::GMaterial,
     G3D::IFSModel,
     G3D::Lighting,
-    G3D::LightingParameters,
     G3D::Shape,
     G3D::MD2Model,
     G3D::PosedModel,
     G3D::PosedModel2D,
-    G3D::Sky
-    <BR>See also contrib & demo code 
-    <A HREF="../contrib/IFSBuilder">IFSBuilder</A>,
-    <A HREF="../contrib/ObjModel">ObjModel</A>,
-    <A HREF="../demos/MD2Model_Demo">MD2Model_Demo</A>
+    G3D::Sky,
+    G3D::SkyParameters
 
   <LI><B>Application Structure</B> &nbsp; &nbsp;
     G3D::FirstPersonManipulator,
@@ -36,6 +32,7 @@
     G3D::ThirdPersonManipulator,
     G3D::UserInput
   <BR>
+   <br>
   See also:
     <br>G3D::GApp and G3D::GApplet for 6.xx backward compatibility,
     <br>"Empty" <A HREF="../demos/empty/main.cpp">main.cpp</A>
@@ -48,19 +45,8 @@
     G3D::GaussianBlur,
     G3D::SuperShader,
     G3D::ToneMap
-    <BR>
-  See also contrib & demo code
-    <A HREF="../contrib/shaders">Shaders</A>, 
-    <A HREF="../demos/GLSL_Demo">GLSL_Demo</A>, 
-    <A HREF="../demos/ASM_Shader_Demo">ASM_Shader_Demo</A> 
 
    </UL>
-
-  For GUIs see also contrib code
-    <A HREF="../contrib/wxGWindow">wxGWindow</A> (using wxWidgets),
-    <A HREF="../contrib/CurveEditor">CurveEditor</A> (GUI example from scratch)
-  <BR>For audio see also contrib code
-    <A HREF="../contrib/AudioDevice">AudioDevice</A>
 
 @section gl Hardware Rendering (G3DAll.h, glg3d.lib)
 <I>An easy-to-use wrapper for OpenGL and a platform-independent windowing system.</I>
@@ -73,16 +59,19 @@
     G3D::glDisableAllTextures,
     G3D::glToScreen,
     G3D::Milestone,
-    G3D::PixelProgram,
     G3D::Renderbuffer,
     G3D::RenderDevice,
     G3D::Texture,
     G3D::TextureFormat,
     G3D::VAR,
     G3D::VARArea, 
+    G3D::Shader
+  <br>
+  <br>Backwards compatability to 6.xx:
+    G3D::PixelProgram,
     G3D::VertexProgram,
     G3D::VertexAndPixelShader,
-    G3D::Shader
+
 
   <LI> <B>Window managment</B>&nbsp; &nbsp;
     G3D::GEvent,
@@ -90,12 +79,7 @@
     G3D::SDLWindow,
     G3D::Win32Window,
     G3D::X11Window,
-        <BR>
-    See also contrib & demo code
-    <A HREF="../contrib/GlutWindow">GlutWindow</A>, 
-    <A HREF="../contrib/wxGWindow">wxGWindow</A>,
-    <A HREF="../contrib/CoreyGWindow">QtWindow</A>
-    <A HREF="../demos/main-no-GApp.cpp">main-no-GApp.cpp</A>, 
+
 
   <LI><B>Extensions to base OpenGL</B> &nbsp; &nbsp;
     debugAssertGLOk,
@@ -283,8 +267,6 @@
 		G3D::Map2D,
 		G3D::gaussian1D,
         <BR>
-    See also contrib code
-    <A HREF="../contrib/Webcam">Webcam</A>, 
 
 
      <LI><B>Debug</B> &nbsp; &nbsp;
@@ -345,11 +327,4 @@
         G3D::NetListener,
         G3D::NetworkDevice, 
         G3D::ReliableConduit
-<BR>
-  See also contrib & demo code 
-    <A HREF="../contrib/pingtest">pingtest</A>, 
-    <A HREF="../demos/Network_Demo">Network_Demo</A>, 
-     </UL>
-
- <A HREF="map.png"><IMG SRC="map.png" WIDTH=128></A>
      */
