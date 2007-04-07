@@ -170,8 +170,8 @@ typedef struct _DDSURFACEDESC2
 {
     DWORD               dwSize;                 // size of the DDSURFACEDESC structure
     DWORD               dwFlags;                // determines what fields are valid
-    DWORD               dwHeight;               // height of surface to be created
-    DWORD               dwWidth;                // width of input surface
+    DWORD               dwHeight;               // m_height of surface to be created
+    DWORD               dwWidth;                // m_width of input surface
     union
     {
         LONG            lPitch;                 // distance to start of next line (return value only)
@@ -316,8 +316,8 @@ const uint32  DDSD_ALL                 = 0x00fff9eel;
 Texture::DDSTexture::DDSTexture(const std::string& filename) :
     bytes(NULL),
     bytesFormat(TextureFormat::AUTO),
-    width(0),
-    height(0),
+    m_width(0),
+    m_height(0),
     numMipMaps(0) {
 
     try {
@@ -401,8 +401,8 @@ Texture::DDSTexture::DDSTexture(const std::string& filename) :
             numMipMaps = 1;
         }
 
-        width = ddsSurfaceDesc.dwWidth;
-        height = ddsSurfaceDesc.dwHeight;
+        m_width = ddsSurfaceDesc.dwWidth;
+        m_height = ddsSurfaceDesc.dwHeight;
 
     } catch (const std::string& e) {
         Log::common()->printf("\n**************************\n\n"

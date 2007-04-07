@@ -65,8 +65,8 @@ static void createTexture(
     const uint8*    rawBytes,
     GLenum          bytesFormat,
     GLenum          bytesActualFormat,
-    int             width,
-    int             height,
+    int             m_width,
+    int             m_height,
     int             depth,
     GLenum          textureFormat,
     int             bytesPerPixel,
@@ -82,8 +82,8 @@ static void createMipMapTexture(
     GLenum          target,
     const uint8*    _bytes,
     int             bytesFormat,
-    int             width,
-    int             height,
+    int             m_width,
+    int             m_height,
     GLenum          textureFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
@@ -128,10 +128,10 @@ Texture::Texture(
 			readbackTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
 		}
 
-        glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_WIDTH, &width);
-        glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_HEIGHT, &height);
+        glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_WIDTH, &m_width);
+        glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_HEIGHT, &m_height);
 
-        depth = 1;
+        m_depth = 1;
         invertY = false;
         
         debugAssertGLOk();
@@ -148,8 +148,8 @@ TextureRef Texture::fromMemory(
     const std::string&              name,
     const void*                     bytes,
     const class TextureFormat*      bytesFormat,
-    int                             width,
-    int                             height,
+    int                             m_width,
+    int                             m_height,
 	int                             depth,
     const class TextureFormat*      desiredFormat,
     Dimension                       dimension,
@@ -163,8 +163,8 @@ TextureRef Texture::fromMemory(
 		name, 
 		data,
 		bytesFormat, 
-		width, 
-		height, 
+		m_width, 
+		m_height, 
 		depth, 
 		desiredFormat,
 		dimension,
@@ -506,8 +506,8 @@ TextureRef Texture::fromMemory(
     const std::string&                  name,
     const Array< Array<const void*> >&  _bytes,
     const TextureFormat*                bytesFormat,
-    int                                 width,
-    int                                 height,
+    int                                 m_width,
+    int                                 m_height,
     int                                 depth,
     const TextureFormat*                desiredFormat,
     Dimension                           dimension,
@@ -554,7 +554,7 @@ TextureRef Texture::fromMemory(
             
                 for (int f = 0; f < face.size(); ++f) {
 
-                    size_t numBytes = iCeil(width * height * depth * bytesFormat->packedBitsPerTexel / 8.0f);
+                    size_t numBytes = iCeil(m_width * m_height * depth * bytesFormat->packedBitsPerTexel / 8.0f);
 
                     // Allocate space for the converted image
                     face[f] = System::alignedMalloc(numBytes, 16);
@@ -610,8 +610,8 @@ TextureRef Texture::fromMemory(
             glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         }
 
-        int mipWidth = width;
-        int mipHeight = height;
+        int mipWidth = m_width;
+        int mipHeight = m_height;
         for (int mipLevel = 0; mipLevel < numMipMaps; ++mipLevel) {
 
             const int numFaces = (*bytesPtr)[mipLevel].length();
@@ -672,16 +672,16 @@ TextureRef Texture::fromMemory(
 
     if ((dimension != DIM_2D_RECT) &&
         ((dimension != DIM_2D_NPOT && (dimension != DIM_CUBE_MAP_NPOT)))) {
-        width  = ceilPow2(width);
-        height = ceilPow2(height);
+        m_width  = ceilPow2(m_width);
+        m_height = ceilPow2(m_height);
     }
 
     debugAssertGLOk();
     TextureRef t = fromGLTexture(name, textureID, desiredFormat, dimension, settings);
     debugAssertGLOk();
 
-    t->width = width;
-    t->height = height;
+    t->m_width = m_width;
+    t->m_height = m_height;
 
 
     if (bytesPtr != &_bytes) {
@@ -791,7 +791,7 @@ TextureRef Texture::createEmpty(
 
 
 Rect2D Texture::rect2DBounds() const {
-    return Rect2D::xywh(0, 0, (float)width, (float)height);
+    return Rect2D::xywh(0, 0, (float)m_width, (float)m_height);
 }
 
 
@@ -850,7 +850,7 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
         alwaysAssertM(false, "This texture format is not appropriate for reading to an image.");
     }
 
-    dst.resize(width, height, channels);
+    dst.resize(m_width, m_height, channels);
 
     GLenum target = dimensionToTarget(_dimension);
 
@@ -956,9 +956,9 @@ void Texture::copyFromScreen(
     _sizeOfAllTexturesInMemory -= sizeInMemory();
 
     // Set up new state
-    this->width   = (int)rect.width();
-    this->height  = (int)rect.height();
-    this->depth   = 1;
+    this->m_width   = (int)rect.width();
+    this->m_height  = (int)rect.height();
+    this->m_depth   = 1;
     debugAssert(this->_dimension == DIM_2D || this->_dimension == DIM_2D_RECT || this->_dimension == DIM_2D_NPOT);
 
     if (GLCaps::supports_GL_ARB_multitexture()) {
@@ -1010,8 +1010,8 @@ void Texture::copyFromScreen(
     glReadBuffer(getCurrentBuffer(useBackBuffer));
 
     // Set up new state
-    debugAssertM(width == rect.width(), "Cube maps require all six faces to have the same dimensions");
-    debugAssertM(height == rect.height(), "Cube maps require all six faces to have the same dimensions");
+    debugAssertM(m_width == rect.width(), "Cube maps require all six faces to have the same dimensions");
+    debugAssertM(m_height == rect.height(), "Cube maps require all six faces to have the same dimensions");
     debugAssert(this->_dimension == DIM_CUBE_MAP || this->_dimension == DIM_CUBE_MAP_NPOT);
     debugAssert(face >= 0);
     debugAssert(face < 6);
@@ -1081,13 +1081,13 @@ size_t Texture::sizeInMemory() const {
 	if (!TextureFormat::valid)
 		return 0;
 
-    int base = (width * height * depth * _format->hardwareBitsPerTexel) / 8;
+    int base = (m_width * m_height * m_depth * _format->hardwareBitsPerTexel) / 8;
 
     int total = 0;
 
     if (_settings.interpolateMode == TRILINEAR_MIPMAP) {
-        int w = width;
-        int h = height;
+        int w = m_width;
+        int h = m_height;
 
         while ((w > 2) && (h > 2)) {
             total += base;
@@ -1152,7 +1152,7 @@ TextureRef Texture::alphaOnlyVersion() const {
     for (int f = 0; f < numFaces; ++f) {
         GLenum target = dimensionToTarget(_dimension);
         glBindTexture(target, textureID);
-        bytes[f] = (const void*)System::malloc(width * height);
+        bytes[f] = (const void*)System::malloc(m_width * m_height);
         glGetTexImage(target, 0, GL_ALPHA, GL_UNSIGNED_BYTE, const_cast<void*>(bytes[f]));
     }
 
@@ -1163,8 +1163,8 @@ TextureRef Texture::alphaOnlyVersion() const {
 			_name + " Alpha", 
 			mip,
 			bytesFormat,
-            width, 
-			height, 
+            m_width, 
+			m_height, 
 			1, 
 			TextureFormat::A8,
             _dimension, 
@@ -1368,8 +1368,8 @@ static void createTexture(
     const uint8*    rawBytes,
     GLenum          bytesFormat,
     GLenum          bytesActualFormat,
-    int             width,
-    int             height,
+    int             m_width,
+    int             m_height,
     int             depth,
     GLenum          textureFormat,
     int             bytesPerPixel,
@@ -1393,19 +1393,19 @@ static void createTexture(
     case GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB:
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB:
     case GL_TEXTURE_2D:
-        if ((! isPow2(width) || ! isPow2(height)) &&
+        if ((! isPow2(m_width) || ! isPow2(m_height)) &&
             (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two())) {
             // NPOT texture with useNPOT disabled: resize to a power of two
 
             debugAssertM(! compressed,
                 "This device does not support NPOT compressed textures.");
 
-            int oldWidth = width;
-            int oldHeight = height;
-            width  = ceilPow2(static_cast<unsigned int>(width * rescaleFactor));
-            height = ceilPow2(static_cast<unsigned int>(height * rescaleFactor));
+            int oldWidth = m_width;
+            int oldHeight = m_height;
+            m_width  = ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor));
+            m_height = ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor));
 
-            bytes = new uint8[width * height * bytesPerPixel];
+            bytes = new uint8[m_width * m_height * bytesPerPixel];
             freeBytes = true;
 
             // Rescale the image to a power of 2
@@ -1415,8 +1415,8 @@ static void createTexture(
                 oldHeight,
                 dataType,
                 rawBytes,
-                width,
-                height,
+                m_width,
+                m_height,
                 dataType,
                 bytes);
 
@@ -1433,28 +1433,28 @@ static void createTexture(
             debugAssertM((target != GL_TEXTURE_RECTANGLE_EXT),
                 "Compressed textures must be DIM_2D.");
 
-            glCompressedTexImage2DARB(target, mipLevel, bytesActualFormat, width, 
-                height, 0, (bytesPerPixel * ((width + 3) / 4) * ((height + 3) / 4)), rawBytes);
+            glCompressedTexImage2DARB(target, mipLevel, bytesActualFormat, m_width, 
+                m_height, 0, (bytesPerPixel * ((m_width + 3) / 4) * ((m_height + 3) / 4)), rawBytes);
 
         } else {
 
             debugAssert(isValidPointer(bytes));
-            debugAssertM(isValidPointer(bytes + (width * height - 1) * bytesPerPixel), 
+            debugAssertM(isValidPointer(bytes + (m_width * m_height - 1) * bytesPerPixel), 
                 "Byte array in Texture creation was too small");
 
             // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
             // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-            glTexImage2D(target, mipLevel, textureFormat, width, height, 0, bytesFormat, dataType, bytes);
+            glTexImage2D(target, mipLevel, textureFormat, m_width, m_height, 0, bytesFormat, dataType, bytes);
         }
         break;
 
     case GL_TEXTURE_3D:
         // Can't rescale, so ensure that the texture is a power of two in each dimension
-        debugAssertM(isPow2(width) && isPow2(height) && isPow2(depth),
+        debugAssertM(isPow2(m_width) && isPow2(m_height) && isPow2(depth),
                      "DIM_3D textures must be a power of two size in each dimension.");
 
         debugAssert(isValidPointer(bytes));
-        glTexImage3DEXT(target, mipLevel, textureFormat, width, height, depth, 0, bytesFormat, dataType, bytes);
+        glTexImage3DEXT(target, mipLevel, textureFormat, m_width, m_height, depth, 0, bytesFormat, dataType, bytes);
         break;
 
     default:
@@ -1472,8 +1472,8 @@ static void createMipMapTexture(
     GLenum          target,
     const uint8*    _bytes,
     int             bytesFormat,
-    int             width,
-    int             height,
+    int             m_width,
+    int             m_height,
     GLenum          textureFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
@@ -1492,12 +1492,12 @@ static void createMipMapTexture(
             const uint8* bytes = _bytes;
 
             if (rescaleFactor != 1.0f) {
-                int oldWidth = width;
-                int oldHeight = height;
-                width  = ceilPow2(static_cast<unsigned int>(width * rescaleFactor));
-                height = ceilPow2(static_cast<unsigned int>(height * rescaleFactor));
+                int oldWidth = m_width;
+                int oldHeight = m_height;
+                m_width  = ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor));
+                m_height = ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor));
 
-                bytes = new uint8[width * height * bytesFormatBytesPerPixel];
+                bytes = new uint8[m_width * m_height * bytesFormatBytesPerPixel];
                 freeBytes = true;
 
                 // Rescale the image to a power of 2
@@ -1507,13 +1507,13 @@ static void createMipMapTexture(
                     oldHeight,
                     dataType,
                     _bytes,
-                    width,
-                    height,
+                    m_width,
+                    m_height,
                     dataType,
                     (void*)bytes);
             }
 
-            int r = gluBuild2DMipmaps(target, textureFormat, width, height, bytesFormat, dataType, bytes);
+            int r = gluBuild2DMipmaps(target, textureFormat, m_width, m_height, bytesFormat, dataType, bytes);
             debugAssertM(r == 0, (const char*)gluErrorString(r)); (void)r;
 
             if (freeBytes) {

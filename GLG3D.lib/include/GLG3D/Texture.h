@@ -108,16 +108,16 @@ public:
         BILINEAR_NO_MIPMAP = 2,
         NEAREST_NO_MIPMAP = 6};
 
-    /** A depth texture can automatically perform the depth comparison used for shadow mapping
+    /** A m_depth texture can automatically perform the m_depth comparison used for shadow mapping
         on a texture lookup.  The result of a texture lookup is thus the shadowed amount
         (which will be percentage closer filtered on newer hardware) and <I>not</I> the 
-        actual depth from the light's point of view.
+        actual m_depth from the light's point of view.
        
         This combines GL_TEXTURE_COMPARE_MODE_ARB and GL_TEXTURE_COMPARE_FUNC_ARB from
         http://www.nvidia.com/dev_content/nvopenglspecs/GL_ARB_shadow.txt
 
         For best results on percentage closer hardware (GeForceFX and Radeon9xxx or better), 
-        create shadow maps as depth textures with BILINEAR_NO_MIPMAP sampling.
+        create shadow maps as m_depth textures with BILINEAR_NO_MIPMAP sampling.
 
         See also G3D::RenderDevice::configureShadowMap and the Collision_Demo.
      */
@@ -157,7 +157,7 @@ public:
         /**
          Highest MIP-map level that will be used during rendering.
          The highest level that actually exists will be L =
-         log(max(width, height), 2)), although it is fine to set
+         log(max(m_width, m_height), 2)), although it is fine to set
          maxMipMap higher than this.  Must be larger than minMipMap.
          Default is 1000.
 
@@ -240,9 +240,9 @@ private:
     bool                            _opaque;
 
     const class TextureFormat*      _format;
-    int                             width;
-    int                             height;
-    int                             depth;
+    int                             m_width;
+    int                             m_height;
+    int                             m_depth;
 
     static size_t                   _sizeOfAllTexturesInMemory;
 
@@ -261,8 +261,8 @@ public:
      */
     static TextureRef createEmpty(
         const std::string&              name,
-        int                             width,
-        int                             height,
+        int                             m_width,
+        int                             m_height,
         const class TextureFormat*      desiredFormat  = TextureFormat::RGBA8,
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults());
@@ -340,9 +340,9 @@ public:
         const std::string&                  name,
         const Array< Array<const void*> >&  bytes,
         const TextureFormat*                bytesFormat,
-        int                                 width,
-        int                                 height,
-        int                                 depth,
+        int                                 m_width,
+        int                                 m_height,
+        int                                 m_depth,
         const TextureFormat*                desiredFormat  = TextureFormat::AUTO,
         Dimension                           dimension      = DIM_2D,
         const Settings&                     settings       = Settings::defaults(),
@@ -356,9 +356,9 @@ public:
         const std::string&              name,
         const void*                     bytes,
         const class TextureFormat*      bytesFormat,
-        int                             width,
-        int                             height,
-        int				                depth,
+        int                             m_width,
+        int                             m_height,
+        int				                m_depth,
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
@@ -398,11 +398,11 @@ public:
      The texture dimensions will be updated but all other properties will be preserved:
      The previous wrap mode will be preserved.
      The interpolation mode will be preserved (unless it required a mipmap,
-     in which case it will be set to BILINEAR_NO_MIPMAP).  The previous color depth
-     and alpha depth will be preserved.  Texture compression is not supported for
+     in which case it will be set to BILINEAR_NO_MIPMAP).  The previous color m_depth
+     and alpha m_depth will be preserved.  Texture compression is not supported for
      textures copied from the screen.
 
-     To copy a depth texture, first create an empty depth texture then copy into it.
+     To copy a m_depth texture, first create an empty m_depth texture then copy into it.
 
      If you invoke this method on a texture that is currently set on RenderDevice,
      the texture will immediately be updated (there is no need to rebind).
@@ -492,26 +492,44 @@ public:
         return textureID;
     }
 
+    /** @deprecated Use width() */
     inline const int texelWidth() const {
-        return width;
+        return m_width;
     }
 
+    /** @deprecated Use height() */
     inline const int texelHeight() const {
-        return height;
+        return m_height;
     }
+
+    /** Number of horizontal texels in the level 0 mipmap */
+    inline int width() const {
+        return m_width;
+    }
+
+    /** Number of horizontal texels in the level 0 mipmap */
+    inline int height() const {
+        return m_height;
+    }
+
+    inline int depth() const {
+        return m_depth;
+    }
+
 
     inline Vector2 vector2Bounds() const {
-        return Vector2((float)width, (float)height);
+        return Vector2((float)m_width, (float)m_height);
     }
 
-    /** Returns a rectangle whose width and height match the dimensions of the texture. */
+    /** Returns a rectangle whose m_width and m_height match the dimensions of the texture. */
     Rect2D rect2DBounds() const;
 
     /**
      For 3D textures.
+     @deprecated use m_depth()
      */
     inline const int texelDepth() const {
-        return depth;
+        return m_depth;
     }
 
     inline const std::string& name() const {
@@ -556,8 +574,8 @@ private:
                                     
         uint8*                      bytes;
         const TextureFormat*        bytesFormat;
-        int                         width;
-        int                         height;
+        int                         m_width;
+        int                         m_height;
         int                         numMipMaps;
         int                         numFaces;
 
@@ -568,11 +586,11 @@ private:
         ~DDSTexture();
 
         int getWidth() {
-            return width;
+            return m_width;
         }
 
         int getHeight() {
-            return height;
+            return m_height;
         }
 
         const TextureFormat* getBytesFormat() {

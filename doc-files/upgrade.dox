@@ -154,6 +154,8 @@ configured to create compile time errors to help you catch bugs.  These will app
 <tr><td>G3D::UserInput::keyCodeToString</td><td>G3D::GKey::toString</td></td</tr>
 <tr><td>G3D::UserInput::stringToKeyCode</td><td>G3D::GKey::fromString</td></td</tr>
 <tr><td>G3D::LightingParameters</td><td>G3D::SkyParameters</td></td</tr>
+<tr><td>G3D::Texture::texelWidth</td><td>G3D::Texture::width</td></td</tr>
+<tr><td>G3D::Texture::texelHeight</td><td>G3D::Texture::height</td></td</tr>
 </table>
 </p>
 
