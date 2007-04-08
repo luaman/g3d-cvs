@@ -91,6 +91,14 @@ public:
         return Color3uint8(r, g, b);
     }
 
+    bool operator==(const Color4uint8& other) const {
+        return *reinterpret_cast<const uint32*>(this) == *reinterpret_cast<const uint32*>(&other);
+    }
+
+    bool operator!=(const Color4uint8& other) const {
+        return *reinterpret_cast<const uint32*>(this) != *reinterpret_cast<const uint32*>(&other);
+    }
+
 }
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     __attribute((aligned(1)))

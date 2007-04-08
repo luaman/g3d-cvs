@@ -58,6 +58,15 @@ public:
     void serialize(class BinaryOutput& bo) const;
 
     void deserialize(class BinaryInput& bi);
+
+    inline bool operator==(const Color1uint8& other) const {
+        return value == other.value;
+    }
+
+    inline bool operator!=(const Color1uint8& other) const {
+        return value != other.value;
+    }
+
 }
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)

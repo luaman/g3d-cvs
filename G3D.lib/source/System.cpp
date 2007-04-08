@@ -91,7 +91,7 @@ std::string demoFindData(bool errorIfNotFound) {
     
     // Hard-code in likely install directories
     int ver = G3D_VER;
-    std::string lname = format("g3d-%d_%02d", ver / 10000, (ver / 100) % 100);
+    std::string lname = format("g3d-%d.%02d", ver / 10000, (ver / 100) % 100);
 
     if (G3D_VER % 10 != 0) {
         lname = lname + format("-b%02d/", ver % 100);
@@ -101,6 +101,7 @@ std::string demoFindData(bool errorIfNotFound) {
 
     std::string lpath = "libraries/" + lname;
     #ifdef G3D_WIN32
+        potential.append(format("c:/libraries/g3d-%d.%02d/", ver / 10000, (ver / 100) % 100));
         potential.append(std::string("c:/") + lpath);
         potential.append(std::string("d:/") + lpath);
         potential.append(std::string("e:/") + lpath);

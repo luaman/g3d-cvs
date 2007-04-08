@@ -86,6 +86,13 @@ public:
     operator G3D::uint8* ();
     operator const G3D::uint8* () const;
 
+    bool operator==(const Color3uint8& other) const {
+        return (other.r == r) && (other.g == g) && (other.b == b);
+    }
+
+    bool operator!=(const Color3uint8& other) const {
+        return (other.r != r) && (other.g != g) && (other.b != b);
+    }
 }
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)
