@@ -21,6 +21,7 @@
 #include "G3D/Vector4.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Color1.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
 
@@ -128,7 +129,15 @@ inline Vector4 lerp(const Vector4& v1, const Vector4& v2, float f) {
     return v1.lerp(v2, f);
 }
 
+inline Color1 lerp(const Color1& v1, const Color1& v2, float f) {
+    return v1.lerp(v2, f);
+}
+
 inline Color3 lerp(const Color3& v1, const Color3& v2, float f) {
+    return v1.lerp(v2, f);
+}
+
+inline Color4 lerp(const Color4& v1, const Color4& v2, float f) {
     return v1.lerp(v2, f);
 }
 

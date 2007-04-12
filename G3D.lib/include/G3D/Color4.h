@@ -130,6 +130,11 @@ public:
         return r + g + b + a;
     }
 
+    inline Color4 lerp(const Color4& other, float a) const {
+        return (*this) + (other - *this) * a; 
+
+    }
+
     // Special values.
     // Intentionally not inlined: see Matrix3::identity() for details.
     static const Color4& zero();
