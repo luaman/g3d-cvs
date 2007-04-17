@@ -150,12 +150,14 @@ configured to create compile time errors to help you catch bugs.  These will app
 <tr><td>G3D::readFileAsString</td><td>G3D::readWholeFile</td></tr>
 <tr><td>G3D::writeStringToFile</td><td>G3D::writeWholeFile (note: argument order changed!)</td></tr>
 <tr><td>G3D::RenderDevice::setCaption</td><td>G3D::GWindow::setCaption</td></tr>
-<tr><td>SDLK_*</td><td>G3D::GKey::*</td></td</tr>
-<tr><td>G3D::UserInput::keyCodeToString</td><td>G3D::GKey::toString</td></td</tr>
-<tr><td>G3D::UserInput::stringToKeyCode</td><td>G3D::GKey::fromString</td></td</tr>
-<tr><td>G3D::LightingParameters</td><td>G3D::SkyParameters</td></td</tr>
-<tr><td>G3D::Texture::texelWidth</td><td>G3D::Texture::width</td></td</tr>
-<tr><td>G3D::Texture::texelHeight</td><td>G3D::Texture::height</td></td</tr>
+<tr><td>SDLK_*</td><td>G3D::GKey::*</td></td></tr>
+<tr><td>G3D::UserInput::keyCodeToString</td><td>G3D::GKey::toString</td></td></tr>
+<tr><td>G3D::UserInput::stringToKeyCode</td><td>G3D::GKey::fromString</td></td></tr>
+<tr><td>G3D::LightingParameters</td><td>G3D::SkyParameters</td></td></tr>
+<tr><td>G3D::Texture::texelWidth</td><td>G3D::Texture::width</td></td></tr>
+<tr><td>G3D::Texture::texelHeight</td><td>G3D::Texture::height</td></td></tr>
+<tr><td>G3D::Texture::WrapMode</td><td>G3D::WrapMode</td></tr>
+<tr><td>G3D::Texture::TRANSPARENT_BORDER</td><td>G3D::WrapMode::ZERO</td></tr>
 </table>
 </p>
 

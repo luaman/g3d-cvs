@@ -73,18 +73,18 @@ public:
 	    LEFTBRACKET	= 91,
 	    BACKSLASH	= 92,
 	    RIGHTBRACKET= 93,
-	    CARET		= 94,
+	    CARET	= 94,
 	    UNDERSCORE	= 95,
 	    BACKQUOTE	= 96,
-        // a through z are 'a' through 'z'
+            // a through z are 'a' through 'z'
 
-	    DELETE		= 127,
+	    DELETE      = 127,
 	    /* End of ASCII mapped keysyms */
 
 	    /* International keyboard syms */
-	    WORLD_0		= 160,		/* 0xA0 */
-	    WORLD_1		= 161,
-	    WORLD_2		= 162,
+	    WORLD_0     = 160,		/* 0xA0 */
+	    WORLD_1	= 161,
+	    WORLD_2     = 162,
 	    WORLD_3		= 163,
 	    WORLD_4		= 164,
 	    WORLD_5		= 165,

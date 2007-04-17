@@ -1248,31 +1248,32 @@ static void setTexParameters(
     GLenum mode = GL_NONE;
     
     switch (settings.wrapMode) {
-    case Texture::TILE:
-      mode = GL_REPEAT;
+    case WrapMode::TILE:
+        mode = GL_REPEAT;
+        break;
+
+    case WrapMode::CLAMP:  
+        if (GLCaps::supports_GL_EXT_texture_edge_clamp()) {
+            mode = GL_CLAMP_TO_EDGE;
+        } else {
+            mode = GL_CLAMP;
+        }
       break;
 
-    case Texture::CLAMP:  
-      if (GLCaps::supports_GL_EXT_texture_edge_clamp())
-        mode = GL_CLAMP_TO_EDGE;
-      else
-        mode = GL_CLAMP;
-      break;
-
-    case Texture::TRANSPARENT_BORDER:
-      if (GLCaps::supports_GL_ARB_texture_border_clamp())
-        mode = GL_CLAMP_TO_BORDER_ARB;
-      else
-        mode = GL_CLAMP;
-      {
-        Color4 black(0,0,0,0);
-        glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, black);
-        debugAssertGLOk();
-      }
+    case WrapMode::ZERO:
+        if (GLCaps::supports_GL_ARB_texture_border_clamp()) {
+            mode = GL_CLAMP_TO_BORDER_ARB;
+        } else {
+            mode = GL_CLAMP;
+        }
+        {
+            glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, Color4::clear());
+            debugAssertGLOk();
+        }
       break;
 
     default:
-        debugAssert(false);
+        debugAssertM(Texture::supportsWrapMode(settings.wrapMode), "Unsupported wrap mode for Texture");
     }
     glTexParameteri(target, GL_TEXTURE_WRAP_S, mode);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
@@ -1612,7 +1613,7 @@ static void brightenImage(TextureFormat::Code fmt, void* _byte, int n, float bri
 
 Texture::Settings::Settings() : 
     interpolateMode(TRILINEAR_MIPMAP),
-    wrapMode(TILE),
+    wrapMode(WrapMode::TILE),
     depthReadMode(DEPTH_NORMAL),
     maxAnisotropy(2.0),
     autoMipMap(true),
@@ -1635,7 +1636,7 @@ const Texture::Settings& Texture::Settings::video() {
     if (! initialized) {
         initialized = true;
         param.interpolateMode = BILINEAR_NO_MIPMAP;
-        param.wrapMode = CLAMP;
+        param.wrapMode = WrapMode::CLAMP;
         param.depthReadMode = DEPTH_NORMAL;
         param.maxAnisotropy = 1.0;
         param.autoMipMap = false;
@@ -1653,7 +1654,7 @@ const Texture::Settings& Texture::Settings::shadow() {
     if (! initialized) {
         initialized = true;
         param.interpolateMode = BILINEAR_NO_MIPMAP;
-        param.wrapMode = CLAMP;
+        param.wrapMode = WrapMode::CLAMP;
         param.depthReadMode = DEPTH_LEQUAL;
         param.maxAnisotropy = 1.0;
         param.autoMipMap = false;

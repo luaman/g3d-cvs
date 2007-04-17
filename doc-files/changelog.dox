@@ -106,33 +106,35 @@
      <li> G3D::GFont::fromFile no longer accepts a G3D::RenderDevice and G3D::GFont::draw2D now requires a RenderDevice.
      <li> Removed an assertion in BinaryInput requiring that compressed buffers be copied on construction [Nick Bray]
      <li> Removed CoordinateFrame::zLookDirection (use -1)
-	 <li> Removed Capsule::endPoint (use point)
-	 <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
-	 <li> Removed static constants (use equivalent lower-case methods)
-	 <li> Removed Cylinder::getPoint1 (use point)
-	 <li> Fix: Added texture coordinates to posed MD2Models
+     <li> Removed Capsule::endPoint (use point)
+     <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
+     <li> Removed static constants (use equivalent lower-case methods)
+     <li> Removed Cylinder::getPoint1 (use point)
+     <li> ARB_texture_cube_map and EXT_texture_cube_map are now aliases on all cards
+     <li> EXT_texture_edge_clamp and SGIS_texture_edge_clamp are now aliases on all cards
+     <li> Fix: Added texture coordinates to posed MD2Models
      <li> Fix: prompt/debugAssert now correctly responds to button presses on OS X
      <li> Fix: GConsole now filename completes after the first word 
-	 <li> Fix: RenderDevice::getDepthBufferValue now checks for the presence of a depth buffer.
+     <li> Fix: RenderDevice::getDepthBufferValue now checks for the presence of a depth buffer.
      <li> Fix: G3D::AABSPTree now correctly handles members with infinite bounds on ray intersection tests
      <li> Fix: Removed use of tmpfile on Unix 
      <li> Fix: Java ReliableConduit now properly waits if the buffer is full when sending
-	 <li> Fix: [ 1607693 ] Triangles/Second display is now correct (rates were too low in 6.10)
-	 <li> Fix: NetworkDevice now does not perform a test broadcast during initialization
-	 <li> Fix: G3D::LightweightConduit::ok is now false if any error occurs during initialization
-	 <li> Fix: BSPMAP for cards without glMultiDrawElementsEXT
-	 <li> Fix: [ 1584335 ] ReliableConduit incorrectly assumes it's ok
-	 <li> Fix: RenderDevide::push2D no longer resets the frameBuffer.
-	 <li> Fix: Framebuffer logic for counting number of attachments was broken
-	 <li> Fix: [ 1581986 ] Matrix3::fromAxisAngle now normalizes the input vector
+     <li> Fix: [ 1607693 ] Triangles/Second display is now correct (rates were too low in 6.10)
+     <li> Fix: NetworkDevice now does not perform a test broadcast during initialization
+     <li> Fix: G3D::LightweightConduit::ok is now false if any error occurs during initialization
+     <li> Fix: BSPMAP for cards without glMultiDrawElementsEXT
+     <li> Fix: [ 1584335 ] ReliableConduit incorrectly assumes it's ok
+     <li> Fix: RenderDevide::push2D no longer resets the frameBuffer.
+     <li> Fix: Framebuffer logic for counting number of attachments was broken
+     <li> Fix: [ 1581986 ] Matrix3::fromAxisAngle now normalizes the input vector
      <li> Fix: [1490643] Linux/FreeBSD/OS X binaries are now compiled with -fno-strict-aliasing, which fixes some
           memory corruption problems that occurred with full optimizations.
-	 <li> Fix: Fixed all warnings on gcc-4.1 and VC8.
+     <li> Fix: Fixed all warnings on gcc-4.1 and VC8.
      <li> Fix: Matrix and CoordinateFrame serializers inside G3D::AnyVal dropped data
-	 <li> Fix: [ 1535759 ] valgrind finds initialization/deletion errors in TextOutput, Matrix [Chris Demetriou]
-	 <li> Fix: Patched MD2Model to automatically reduce animation times to less than 100000; large time were overflowing double->int conversion and causing animations to appear scrambled.
-	 <li> Fix: [ 1535292 ] global Table hashCode overloads broken [Chris Demetriou]
-	 <li> Fix: [ 1535736 ] Fixed System.cpp memory allocator to compile on 64-bit machines correctly [Chris Demetriou]
+     <li> Fix: [ 1535759 ] valgrind finds initialization/deletion errors in TextOutput, Matrix [Chris Demetriou]
+     <li> Fix: Patched MD2Model to automatically reduce animation times to less than 100000; large time were overflowing double->int conversion and causing animations to appear scrambled.
+     <li> Fix: [ 1535292 ] global Table hashCode overloads broken [Chris Demetriou]
+     <li> Fix: [ 1535736 ] Fixed System.cpp memory allocator to compile on 64-bit machines correctly [Chris Demetriou]
    </ul>
 
   <hr>

@@ -15,6 +15,7 @@
 #include "GLG3D/glheaders.h"
 #include "GLG3D/TextureFormat.h"
 #include "G3D/Vector2.h"
+#include "G3D/WrapMode.h"
 
 namespace G3D {
 
@@ -89,8 +90,12 @@ public:
     enum Dimension       {DIM_2D = 2, DIM_3D = 3, DIM_2D_RECT = 4, 
                           DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7};
 
-    /** TRANSPARENT_BORDER provides a border of Color4(0,0,0,0) and clamps to it. */
-    enum WrapMode        {TILE = 1, CLAMP = 0, TRANSPARENT_BORDER = 2};
+    /** 
+      Returns true if this is a legal wrap mode for a G3D::Texture.
+     */
+    static bool supportsWrapMode(WrapMode m) {
+        return (m == WrapMode::TILE) || (m == WrapMode::CLAMP) || (m == WrapMode::ZERO);
+    }
 
     /**
      Trilinear mipmap is the best quality (and frequently fastest)
@@ -208,20 +213,47 @@ public:
         uint32 hashCode() const;
     };
 
+
     class PreProcess {
     public:
 
-        /** Amount to brighten colors by (useful for Quake textures, which are dark). */
+        /** Amount to brighten colors by (e.g., useful for Quake textures, which are dark). */
         float                       brighten;
 
-        /** Amount to resize images by before loading to save memory; 
+        /** Amount to resize images by before loading onto the graphics card to save memory; 
             typically a negative power of 2 (e.g., 1.0, 0.5, 0.25). */
         float                       scaleFactor;
 
+        /** If true, treat the input as a monochrome bump map and compute a normal map from
+            it where the RGB channels are XYZ and the A channel is the input bump height.*/
+        bool                        computeNormalMap;
+
+        /** If computeNormalMap is true, then this blurs the elevation before computing normals.*/
+        bool                        normalMapLowPassBump;
+
+        /** See G3D::GImage::computeNormalMap() */
+        float                       normalMapWhiteHeightInPixels;
+
+        bool                        normalMapScaleHeightByNz;
+
         PreProcess() : brighten(1.0f), scaleFactor(1.0f) {}
 
-        static PreProcess& defaults() {
+        static const PreProcess& defaults() {
+            static const PreProcess p;
+            return p;
+        }
+
+        static const PreProcess& normalMap() {
+            static bool initialized = false;
             static PreProcess p;
+            if (! initialized) {
+                p.computeNormalMap = true;
+                p.normalMapLowPassBump = false;
+                p.normalMapScaleHeightByNz = false;
+                p.normalMapWhiteHeightInPixels = -1.0f;
+                initialized = true;
+            }
+
             return p;
         }
 

@@ -18,22 +18,9 @@
 #include "G3D/AtomicInt32.h"
 #include "G3D/GThread.h"
 #include "G3D/Rect2D.h"
+#include "G3D/WrapMode.h"
 
 #include <string>
-
-namespace G3D {
-    /**
-     WRAP_IGNORE silently discards attempts to write to out 
-     of bounds locations and returns an undefined value for reading
-     from out of bounds locations.
-
-     WRAP_ERROR generates an error when the 
-     pixel indices are out of bounds
-     */
-    enum WrapMode {WRAP_CLAMP, WRAP_TILE, WRAP_IGNORE, WRAP_ERROR};
-
-}
-
 
 namespace G3D {
 namespace _internal {
@@ -171,7 +158,7 @@ namespace G3D {
   To draw an image of dimensions w x h with nearest neighbor
   sampling, render pixels from [0, 0] to [w - 1, h - 1].
 
-  Under the WRAP_CLAMP wrap mode, the value of bilinear interpolation
+  Under the WrapMode::CLAMP wrap mode, the value of bilinear interpolation
   becomes constant outside [1, w - 2] horizontally.  Nearest neighbor
   interpolation is constant outside [0, w - 1] and bicubic outside
   [3, w - 4].  The class does not offer quadratic interpolation because
@@ -217,19 +204,22 @@ protected:
     /** Handles the exceptional cases from get */
     const Storage& slowGet(int x, int y, WrapMode wrap) {
         switch (wrap) {
-        case WRAP_CLAMP:
+        case WrapMode::CLAMP:
             return fastGet(iClamp(x, 0, w - 1), iClamp(y, 0, h - 1));
 
-        case WRAP_TILE:
+        case WrapMode::TILE:
             return fastGet(iWrap(x, w), iWrap(y, h));
 
-        case WRAP_ERROR:
+        case WrapMode::ZERO:
+            return ZERO;
+
+        case WrapMode::ERROR:
             alwaysAssertM(((uint32)x < w) && ((uint32)y < h), 
                 format("Index out of bounds: (%d, %d), w = %d, h = %d",
                 x, y, w, h));
 
             // intentionally fall through
-        case WRAP_IGNORE:
+        case WrapMode::IGNORE:
             // intentionally fall through
         default:
             {
@@ -297,7 +287,7 @@ public:
     */
     GMutex mutex;
 
-    static Ref create(int w = 0, int h = 0, WrapMode wrap = WRAP_ERROR) {
+    static Ref create(int w = 0, int h = 0, WrapMode wrap = WrapMode::ERROR) {
         return new Map2D(w, h, wrap);
     }
 

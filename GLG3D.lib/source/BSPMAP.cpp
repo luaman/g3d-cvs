@@ -39,31 +39,31 @@ void BitSet::resize(int count) {
 
 
 Map::Map(): 
-	lightVolumesCount(0),
-	lightVolumes(NULL) {
-
-	visData.clustersCount      = 0;
-	visData.bytesPerCluster    = 0;
-	visData.bitsets            = NULL;
-
-	static const uint8 half[]  = {128, 128, 128, 128}; 
-	static const uint8* arry[] = {half};
-
+    lightVolumesCount(0),
+    lightVolumes(NULL) {
+    
+    visData.clustersCount      = 0;
+    visData.bytesPerCluster    = 0;
+    visData.bitsets            = NULL;
+    
+    static const uint8 half[]  = {128, 128, 128, 128}; 
+    static const uint8* arry[] = {half};
+    
     Texture::Settings settings;
     settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-    settings.wrapMode = Texture::CLAMP;
+    settings.wrapMode = WrapMode::CLAMP;
 
-	defaultLightmap =
-		Texture::fromMemory("Default Light Map", arry, TextureFormat::RGB8, 1, 1, 1,
-		TextureFormat::RGB8, Texture::DIM_2D, settings);
+    defaultLightmap =
+        Texture::fromMemory("Default Light Map", arry, TextureFormat::RGB8, 1, 1, 1,
+                            TextureFormat::RGB8, Texture::DIM_2D, settings);
 }
 
 
 Map::~Map() {
-	delete lightVolumes;
-	delete visData.bitsets;
-
-	faceArray.deleteAll();
+    delete lightVolumes;
+    delete visData.bitsets;
+    
+    faceArray.deleteAll();
 }
 
 

@@ -78,7 +78,7 @@ SkyRef Sky::fromFile(
     const TextureFormat* format;
     std::string filename = _filename[0];
 
-    if (quality > .55) {
+    if (quality > 0.55) {
         format      = TextureFormat::RGB8;
     } else {
         format      = TextureFormat::RGB_DXT1;
@@ -103,13 +103,14 @@ SkyRef Sky::fromFile(
     TextureRef faceTextures[6];
     bool useCubeMap;
 
-    if (GLCaps::supports_GL_ARB_texture_cube_map() && ! GLCaps::hasBug_normalMapTexGen()) {
-	    Texture::Settings   textureSettings;
-	    Texture::PreProcess texturePreProcess;
-
-	    textureSettings.wrapMode = Texture::CLAMP;
-	    textureSettings.interpolateMode = Texture::TRILINEAR_MIPMAP;
-	    texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
+    // Even if there are cube map bugs, G3D knows how to work around them
+    if (GLCaps::supports_GL_ARB_texture_cube_map()) {
+        Texture::Settings   textureSettings;
+        Texture::PreProcess texturePreProcess;
+        
+        textureSettings.wrapMode = WrapMode::CLAMP;
+        textureSettings.interpolateMode = Texture::TRILINEAR_MIPMAP;
+        texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
 
         if (_filename[1] == "") {
             // Specified one cube map
@@ -144,7 +145,7 @@ SkyRef Sky::fromFile(
         Texture::Settings   textureSettings;
         Texture::PreProcess texturePreProcess;
    
-	    textureSettings.wrapMode = Texture::CLAMP;
+        textureSettings.wrapMode = WrapMode::CLAMP;
         textureSettings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
         texturePreProcess.scaleFactor = 1.0f / scaleDownFactor;
 
@@ -212,7 +213,7 @@ Sky::Sky(
     if (drawCelestialBodies) {
         Texture::Settings textureSettings;
 
-        textureSettings.wrapMode        = Texture::TRANSPARENT_BORDER;
+        textureSettings.wrapMode        = WrapMode::ZERO;
         textureSettings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
 
         moon     = Texture::fromTwoFiles(directory + "moon.jpg", directory + "moon-alpha.jpg", alphaFormat, Texture::DIM_2D, textureSettings);
@@ -310,11 +311,16 @@ static void hackProjectionMatrix(RenderDevice* renderDevice) {
 void Sky::vertex(RenderDevice* renderDevice, 
                  float x, float y, float z, float s, float t) const {
     const double w = 0;
-    const bool cube = (cubeMap.notNull());
+    const bool cube = cubeMap.notNull();
+    static bool explicitTexCoord = GLCaps::hasBug_normalMapTexGen();
 
     if (cube) {
-        // Texcoord generation will move this normal to tex coord 0
-        renderDevice->setNormal(Vector3(x,y,z));
+        if (explicitTexCoord) {
+            glTexCoord3f(x, y, z);
+        } else {
+            // Texcoord generation will move this normal to tex coord 0
+            renderDevice->setNormal(Vector3(x,y,z));
+        }
     } else {
         if (!GLCaps::supports_GL_EXT_texture_edge_clamp()) {
             // Move the edge coordinates towards the center just
@@ -345,16 +351,20 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
     if (cube) {
         renderDevice->setTexture(0, cubeMap);
 
-        // On Radeon Mobility, explicit cube map coordinates don't work right.
-        // We instead put cube map coords in the normals and use texgen to copy
-        // them over
-        glActiveTextureARB(GL_TEXTURE0_ARB + 0);
-        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
-        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
-        glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
-        glEnable(GL_TEXTURE_GEN_S);
-        glEnable(GL_TEXTURE_GEN_T);
-        glEnable(GL_TEXTURE_GEN_R);
+        if (! GLCaps::hasBug_normalMapTexGen()) {
+            // On old Radeon Mobility, explicit cube map coordinates don't work right.
+            // We instead put cube map coords in the normals and use texgen to copy
+            // them over
+            glActiveTextureARB(GL_TEXTURE0_ARB + 0);
+            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
+            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
+            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
+            glEnable(GL_TEXTURE_GEN_S);
+            glEnable(GL_TEXTURE_GEN_T);
+            glEnable(GL_TEXTURE_GEN_R);
+        } else {
+            // Hope that we're on a card where explicit texcoords work
+        }
 
         CoordinateFrame cframe = renderDevice->getCameraToWorldMatrix();
         cframe.translation = Vector3::zero();
@@ -433,7 +443,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
         vertex(renderDevice, +s, -s, +s, 1, 0);
 	renderDevice->endPrimitive();
 
-    if (cube) {
+    if (! GLCaps::hasBug_normalMapTexGen() && cube) {
         glDisable(GL_TEXTURE_GEN_S);
         glDisable(GL_TEXTURE_GEN_T);
         glDisable(GL_TEXTURE_GEN_R);

@@ -38,7 +38,7 @@ Image4::Ref Image4::fromImage4uint8(const ReferenceCountedPointer<Image4uint8>& 
 
 
 Image4::Ref Image4::createEmpty(int width, int height, WrapMode wrap) {
-    return new Type(width, height, WRAP_ERROR);
+    return new Type(width, height, WrapMode::ERROR);
 }
 
 

@@ -469,6 +469,11 @@ void GLCaps::loadExtensions(Log* debugLog) {
             DECLARE_EXT(GL_EXT_framebuffer_object);
         #undef DECLARE_EXT
 
+        // Some extensions have aliases
+         _supports_GL_EXT_texture_cube_map = _supports_GL_EXT_texture_cube_map || supports("GL_ARB_texture_cube_map");
+         _supports_GL_EXT_texture_edge_clamp = _supports_GL_EXT_texture_edge_clamp || supports("GL_SGIS_texture_edge_clamp");
+
+
         // Verify that multitexture loaded correctly
         if (supports_GL_ARB_multitexture() &&
             ((glActiveTextureARB == NULL) ||
@@ -489,15 +494,15 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // GL Version:     1.3.4204 WinXP Release
         // Driver version: 6.14.10.6430
 
-		// GL Vendor:      ATI Technologies Inc.
-		// GL Renderer:    MOBILITY RADEON 7500 DDR x86/SSE2
-		// GL Version:     1.3.3842 WinXP Release
-		// Driver version: 6.14.10.6371
+        // GL Vendor:      ATI Technologies Inc.
+        // GL Renderer:    MOBILITY RADEON 7500 DDR x86/SSE2
+        // GL Version:     1.3.3842 WinXP Release
+        // Driver version: 6.14.10.6371
 
-		if (beginsWith(renderer(), "MOBILITY RADEON") &&
-			beginsWith(driverVersion(), "6.14.10.6")) {
+        if (beginsWith(renderer(), "MOBILITY RADEON") &&
+            beginsWith(driverVersion(), "6.14.10.6")) {
             Log::common()->printf("WARNING: This ATI Radeon Mobility card has a known bug with cube maps.\n"
-                "   Put cube map texture coordinates in the normals and use ARB_NORMAL_MAP to work around.\n\n");
+                                  "   Put cube map texture coordinates in the normals and use ARB_NORMAL_MAP to work around.\n\n");
         }
     }
 
@@ -660,7 +665,8 @@ bool GLCaps::supports_two_sided_stencil() {
 
 
 void GLCaps::checkBug_cubeMapBugs() {
-    bool hasCubeMap = strstr((char*)glGetString(GL_EXTENSIONS), "GL_EXT_texture_cube_map") != NULL;
+    bool hasCubeMap = (strstr((char*)glGetString(GL_EXTENSIONS), "GL_EXT_texture_cube_map") != NULL) ||
+                      (strstr((char*)glGetString(GL_EXTENSIONS), "GL_ARB_texture_cube_map") != NULL);
 
     if (! hasCubeMap) {
         bug_glMultiTexCoord3fvARB = false;

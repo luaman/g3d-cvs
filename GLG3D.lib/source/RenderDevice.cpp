@@ -3100,6 +3100,7 @@ void RenderDevice::configureReflectionMap(
     uint                textureUnit,
     TextureRef          reflectionTexture) {
 
+    debugAssert(! GLCaps::hasBug_normalMapTexGen());
     debugAssert(reflectionTexture->dimension() == Texture::DIM_CUBE_MAP);
 
     // Texture coordinates will be generated in object space.

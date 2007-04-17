@@ -893,7 +893,7 @@ const Array<Vector3>& MD2Model::PosedMD2Model::objectSpaceFaceNormals(bool norma
 
 TextureRef MD2Model::textureFromFile(const std::string& filename) {
     Texture::Settings settings;
-    settings.wrapMode = Texture::CLAMP;
+    settings.wrapMode = WrapMode::CLAMP;
 
     Texture::PreProcess preprocess;
     preprocess.brighten = 2.0f;

@@ -46,19 +46,19 @@ protected:
 public:
 
     /** Creates an all-zero width x height image. */
-    static Ref createEmpty(int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref createEmpty(int width, int height, WrapMode wrap = WrapMode::ERROR);
 
     /** Creates a 0 x 0 image. */
-    static Ref createEmpty(WrapMode wrap = WRAP_ERROR);
+    static Ref createEmpty(WrapMode wrap = WrapMode::ERROR);
 
-    static Ref fromFile(const std::string& filename, WrapMode wrap = WRAP_ERROR, GImage::Format fmt = GImage::AUTODETECT);
+    static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR, GImage::Format fmt = GImage::AUTODETECT);
     
-	static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    static Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    static Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
-    static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WRAP_ERROR);
+    static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color3* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
 
     static Ref fromImage1uint8(const ReferenceCountedPointer<class Image1uint8>& im);
 

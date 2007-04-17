@@ -46,6 +46,7 @@
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
 #include "G3D/AABox.h"
+#include "G3D/WrapMode.h"
 #include "G3D/Cone.h"
 #include "G3D/Quat.h"
 #include "G3D/stringutils.h"

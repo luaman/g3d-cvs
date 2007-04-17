@@ -626,7 +626,7 @@ void Map::loadLightMaps(
         }
 
         Texture::Settings settings;
-        settings.wrapMode = Texture::CLAMP;
+        settings.wrapMode = WrapMode::CLAMP;
         TextureRef txt = 
             Texture::fromMemory("Light map", lightmapData, TextureFormat::RGB8, 128, 128, 1, 
             TextureFormat::RGB8, Texture::DIM_2D, settings);

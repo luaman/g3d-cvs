@@ -65,13 +65,13 @@ GFont::GFont(const std::string& filename, BinaryInput& b) {
     const uint8* ptr = ((uint8*)b.getCArray()) + b.getPosition();
 
 	Texture::Settings fontSettings;
-	fontSettings.wrapMode = Texture::CLAMP;
+	fontSettings.wrapMode = WrapMode::CLAMP;
 
     texture = 
         Texture::fromMemory(
 			filename, 
 			ptr,
-            TextureFormat::A8, 
+                        TextureFormat::A8, 
 			width, 
 			height,
 			1,

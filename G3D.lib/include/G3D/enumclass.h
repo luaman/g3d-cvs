@@ -37,8 +37,16 @@
         return value == other.value;\
     }\
 \
+    inline bool operator== (const Classname::Value other) const {\
+        return value == other;\
+    }\
+\
     inline bool operator!= (const Classname other) const {\
         return value != other.value;\
+    }\
+\
+    inline bool operator!= (const Classname::Value other) const {\
+        return value != other;\
     }\
 \
     inline bool operator< (const Classname other) const {\
