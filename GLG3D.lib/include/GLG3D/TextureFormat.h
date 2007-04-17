@@ -46,6 +46,8 @@ public:
         CODE_RGB5,
         CODE_RGB5A1,
         CODE_RGB8,
+        CODE_RGB10,
+        CODE_RGB10A2,
         CODE_RGB16,
         CODE_RGB16F,
         CODE_RGB32F,
@@ -238,6 +240,10 @@ public:
     static const TextureFormat* RGB5A1;
 
     static const TextureFormat* RGB8;
+
+    static const TextureFormat* RGB10;
+
+    static const TextureFormat* RGB10A2;
 
     static const TextureFormat* RGB16;
 

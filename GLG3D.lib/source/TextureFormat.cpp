@@ -48,6 +48,10 @@ const TextureFormat* TextureFormat::RGB5A1    = new TextureFormat(4, false, GL_R
  
 const TextureFormat* TextureFormat::RGB8      = new TextureFormat(3, false, GL_RGB8,                         GL_RGB,              0,  0,  8,  8,  8,  0,  0, 32, 24, OPAQUEx, INT, TextureFormat::CODE_RGB8, TextureFormat::COLOR_SPACE_RGB);
 
+const TextureFormat* TextureFormat::RGB10     = new TextureFormat(3, false, GL_RGB10,                        GL_RGB,              0,  0, 10, 10, 10,  0,  0, 32, 10*3, OPAQUEx, INT, TextureFormat::CODE_RGB10, TextureFormat::COLOR_SPACE_RGB);
+
+const TextureFormat* TextureFormat::RGB10A2   = new TextureFormat(4, false, GL_RGB10_A2,                     GL_RGBA,             0,  2, 10, 10, 10,  0,  0, 32, 32, OPAQUEx, INT, TextureFormat::CODE_RGB10A2, TextureFormat::COLOR_SPACE_RGB);
+
 const TextureFormat* TextureFormat::RGB16     = new TextureFormat(3, false, GL_RGB16,                        GL_RGB,              0,  0, 16, 16, 16,  0,  0, 16*3, 16*3, OPAQUEx, INT, TextureFormat::CODE_RGB16, TextureFormat::COLOR_SPACE_RGB);
 
 const TextureFormat* TextureFormat::RGB16F    = new TextureFormat(3, false, GL_RGB16F_ARB,                   GL_RGB,              0,  0, 16, 16, 16,  0,  0, 16*3, 16*3, OPAQUEx, FLOAT, TextureFormat::CODE_RGB16F, TextureFormat::COLOR_SPACE_RGB);
@@ -234,6 +238,12 @@ const TextureFormat* fromCode(TextureFormat::Code code) {
     case TextureFormat::CODE_RGB8:
         return TextureFormat::RGB8;
         break;
+    case TextureFormat::CODE_RGB10:
+        return TextureFormat::RGB10;
+        break;
+    case TextureFormat::CODE_RGB10A2:
+        return TextureFormat::RGB10A2;
+        break;
     case TextureFormat::CODE_RGB16:
         return TextureFormat::RGB16;
         break;
@@ -363,6 +373,10 @@ public:
         delete const_cast<TextureFormat*>(TextureFormat::RGB5A1);
 
         delete const_cast<TextureFormat*>(TextureFormat::RGB8);
+
+        delete const_cast<TextureFormat*>(TextureFormat::RGB10);
+
+        delete const_cast<TextureFormat*>(TextureFormat::RGB10A2);
 
         delete const_cast<TextureFormat*>(TextureFormat::RGB16);
 
