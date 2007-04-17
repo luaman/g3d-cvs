@@ -383,9 +383,33 @@ public:
     TextureRef alphaOnlyVersion() const;
 
     /**
-     Returns a new OpenGL texture ID.
+     Helper method. Returns a new OpenGL texture ID that is not yet managed by a G3D Texture.
      */
-    static unsigned int newGLTextureID();
+    static uint32 newGLTextureID();
+
+    /**
+     Helper method. Only needed when creating textures outside of G3D::Texture.
+
+     Loads an arbitrary 2D texture into memory and binds to a new texture ID.  Closely wraps glTexture2D().
+     This helper method is useful for loading unusual data types.
+
+     You must use fromGLTexture() afterwards if you want to manage the new texture with G3D::Texture.
+
+     @param internalFormat This is an OpenGL value that matches the internalFormat parameter of glTexture2D()
+     @param pixelFormat This is an OpenGL value that matches the format parameter of glTexture2D()
+     @param dataType This is an OpenGL value that matches the dataType parameter of glTexture2D()
+     @param compressedImageSize Size in bytes of compressed data.  Only needed when loading compressed format.
+     @param compressedFormat This tells newGLTexture2D to use the compressed texture loading OpenGL functions
+    */
+    static uint32 newGLTexture2D(
+        GLint                           internalFormat,
+        int32                           width,
+        int32                           height, 
+        GLenum                          pixelFormat, 
+        GLenum                          dataType, 
+        const void*                     data, 
+        uint32                          compressedImageSize = 0,
+        bool                            compressedFormat = false);
 
     /**
      Copies data from screen into an existing texture (replacing whatever was

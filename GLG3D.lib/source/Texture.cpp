@@ -893,8 +893,8 @@ Texture::~Texture() {
 }
 
 
-unsigned int Texture::newGLTextureID() {
-    unsigned int t;
+uint32 Texture::newGLTextureID() {
+    uint32 t;
 
     // Clear the OpenGL error flag
     glGetError();
@@ -906,6 +906,59 @@ unsigned int Texture::newGLTextureID() {
          "glGenTextures between glBegin and glEnd.");
 
     return t;
+}
+
+
+uint32 Texture::newGLTexture2D(
+    GLint       internalFormat,
+    int32       width,
+    int32       height,
+    GLenum      pixelFormat,
+    GLenum      dataType,
+    const void* data,
+    uint32      compressedImageSize,
+    bool        compressedFormat) {
+
+    // Create the texture
+    GLuint textureId = newGLTextureID();
+    GLenum target = GL_TEXTURE_2D;
+
+    // TODO? Will an assert on failure work fine instead in this helper?
+    //debugAssertM(GLCaps::supports(desiredFormat), "Unsupported texture format.");
+
+    glStatePush();
+    {
+	    // Set unpacking alignment
+	    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        glEnable(target);
+        glBindTexture(target, textureId);
+        debugAssertGLOk();
+        if (hasAutoMipMap()) {
+            // Enable hardware MIP-map generation.
+            // Must enable before setting the level 0 image (we'll set it again
+            // in setTexParameters, but that is intended primarily for 
+            // the case where that function is called for a pre-existing GL texture ID).
+            glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        }
+
+        debugAssertM( ( !isPow2(width) && !isPow2(height) ) || GLCaps::supports_GL_ARB_texture_non_power_of_two(), ("newGLTexture2D() does not handle resizing NPOT texture on systems that don't support it!"));
+
+        if (compressedFormat) {
+            
+            glCompressedTexImage2DARB(target, 0, internalFormat, width, 
+                height, 0, compressedImageSize, data);
+
+        } else {
+
+            glTexImage2D(target, 0, internalFormat, width, height, 0, pixelFormat, dataType, data);
+        }
+    }
+    glStatePop();
+
+    debugAssertGLOk();
+
+    return textureId;
 }
 
 

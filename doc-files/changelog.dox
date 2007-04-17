@@ -21,6 +21,7 @@
      <li> On a GL 2.0 or greater driver, G3D::GLCaps now assumes the presence of all GL2 extensions even if they are not explicitly listed by the card [Corey Taylor]
      <li> debugPrintf now flushes stderr on Unix systems
      <li> G3D::Lighting::fromSky
+     <li> G3D::Texture::newGLTexture2D [Corey Taylor]
      <li> Added G3D::ArticulatedModel to the core (includes 3DS loading)
      <li> Added G3D::SuperShader to the core
      <li> Merged GApp and GApplet into GApp2 to make the common case easier to implement
