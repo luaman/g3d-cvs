@@ -497,6 +497,16 @@ public:
         bool lowPassBump = false,
         bool scaleHeightByNz = false);
 
+    static void computeNormalMap(
+                                 int                 width,
+                                 int                 height,
+                                 int                 channels,
+                                 const uint8*        src,
+                                 GImage&             normal,
+                                 float               whiteHeightInPixels,
+                                 bool                lowPassBump,
+                                 bool                scaleHeightByNz);
+    
     /**
     Bayer demosaicing using the filter proposed in 
 

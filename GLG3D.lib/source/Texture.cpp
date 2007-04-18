@@ -150,26 +150,26 @@ TextureRef Texture::fromMemory(
     const class TextureFormat*      bytesFormat,
     int                             m_width,
     int                             m_height,
-	int                             depth,
+    int                             depth,
     const class TextureFormat*      desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
-	const PreProcess&               preprocess) {
+    const PreProcess&               preprocess) {
 
-	Array< Array<const void*> > data(1);
-	data[0].append(bytes);
+    Array< Array<const void*> > data(1);
+    data[0].append(bytes);
 
-	return fromMemory(
-		name, 
-		data,
-		bytesFormat, 
-		m_width, 
-		m_height, 
-		depth, 
-		desiredFormat,
-		dimension,
-		settings,
-		preprocess);
+    return fromMemory(
+                      name, 
+                      data,
+                      bytesFormat, 
+                      m_width, 
+                      m_height, 
+                      depth, 
+                      desiredFormat,
+                      dimension,
+                      settings,
+                      preprocess);
 }
 
 
@@ -214,9 +214,9 @@ TextureRef Texture::fromFile(
     const std::string               filename[6],
     const class TextureFormat*      desiredFormat,
     Dimension                       dimension,
-	const Settings&					settings,
-	const PreProcess&				preProcess) {
-
+    const Settings&                 settings,
+    const PreProcess&               preProcess) {
+    
     std::string realFilename[6];
 
     const TextureFormat* format = TextureFormat::RGB8;
@@ -227,7 +227,7 @@ TextureRef Texture::fromFile(
     Array< Array< const void* > > byteMipMapFaces;
 
     const int numFaces = 
-		((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) ?
+        ((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) ?
         6 : 1;
 
     // Check for DDS file and load separately.
@@ -357,8 +357,8 @@ TextureRef Texture::fromFile(
     const std::string&      filename,
     const TextureFormat*    desiredFormat,
     Dimension               dimension,
-	const Settings&			settings,
-	const PreProcess&		preProcess) {
+    const Settings&         settings,
+    const PreProcess&       preProcess) {
 
     std::string f[6];
     f[0] = filename;
@@ -511,11 +511,13 @@ TextureRef Texture::fromMemory(
     int                                 depth,
     const TextureFormat*                desiredFormat,
     Dimension                           dimension,
-	const Settings&						settings,
-	const PreProcess&					preProcess) {
+    const Settings&                     settings,
+    const PreProcess&                   preProcess) {
 
     typedef Array< Array<const void*> > MipArray;
-
+    // Used for normal map computation
+    GImage normal;
+    
     // For future expansion to support float texture creation
     GLenum dataType = GL_UNSIGNED_BYTE;
 
@@ -528,10 +530,10 @@ TextureRef Texture::fromMemory(
                      (settings.interpolateMode == BILINEAR_NO_MIPMAP) ||
                      (settings.interpolateMode == NEAREST_NO_MIPMAP), 
                      "DIM_3D textures do not support mipmaps");
-        debugAssertM(_bytes.size() == 1,                      
+        debugAssertM(_bytes.size() == 1,                    
                      "DIM_3D textures do not support mipmaps");
     } else {
-      debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D");
+        debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D");
     }
 
     if (preProcess.brighten != 1.0f) {
@@ -571,7 +573,27 @@ TextureRef Texture::fromMemory(
                 }
             }
         }
-	}
+    }
+
+    if (preProcess.computeNormalMap) {
+        debugAssertM(bytesFormat->redBits == 8 || bytesFormat->luminanceBits == 8, "To preprocess a texture with normal maps, 8-bit channels are required");
+        debugAssertM(bytesFormat->compressed == false, "Cannot compute normal maps from compressed textures");
+        debugAssertM(bytesFormat->floatingPoint == false, "Cannot compute normal maps from floating point textures");
+        debugAssertM(bytesFormat->numComponents == 1 || bytesFormat->numComponents == 3 || bytesFormat->numComponents == 4, "1, 3, or 4 channels needed to compute normal maps");
+        debugAssertM(bytesPtr->size() == 1, "Cannot specify mipmaps when computing normal maps automatically");
+
+        GImage::computeNormalMap(m_width, m_height, bytesFormat->numComponents, 
+                                 reinterpret_cast<const uint8*>((*bytesPtr)[0][0]),
+                                 normal, preProcess.normalMapWhiteHeightInPixels, 
+                                 preProcess.normalMapLowPassBump, preProcess.normalMapScaleHeightByNz);
+        
+        // Replace the previous array with the data from our normal map
+        bytesPtr = new MipArray;
+        bytesPtr->resize(1);
+        (*bytesPtr)[0].append(normal.byte());
+        
+        bytesFormat = TextureFormat::RGBA8;
+    }
 
     debugAssert(bytesFormat);
     (void)depth;
@@ -596,8 +618,8 @@ TextureRef Texture::fromMemory(
 
     glStatePush();
 
-		// Set unpacking alignment
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        // Set unpacking alignment
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         glEnable(target);
         glBindTexture(target, textureID);
@@ -628,38 +650,39 @@ TextureRef Texture::fromMemory(
 
                 if (isMipMapformat(settings.interpolateMode) && ! hasAutoMipMap() && (numMipMaps == 1)) {
 
-                    debugAssertM((bytesFormat->compressed == false), "Cannot manually generate Mip-Maps for compressed textures.");
+                    debugAssertM((bytesFormat->compressed == false), 
+                                 "Cannot manually generate Mip-Maps for compressed textures.");
 
                     createMipMapTexture(
-						target, 
-						reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]),
-                        bytesFormat->OpenGLFormat,
-                        mipWidth, 
-						mipHeight, 
-						desiredFormat->OpenGLFormat,
-                        desiredFormat->packedBitsPerTexel / 8, 
-						preProcess.scaleFactor,
-                        dataType);
-
+                                        target, 
+                                        reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]),
+                                        bytesFormat->OpenGLFormat,
+                                        mipWidth, 
+                                        mipHeight, 
+                                        desiredFormat->OpenGLFormat,
+                                        desiredFormat->packedBitsPerTexel / 8, 
+                                        preProcess.scaleFactor,
+                                        dataType);
+                    
                 } else {
 
                     const bool useNPOT = (dimension == DIM_2D_NPOT) || (dimension == DIM_CUBE_MAP_NPOT);
 
                     createTexture(
-						target, 
-						reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]), 
-						bytesFormat->OpenGLBaseFormat,
-                        bytesFormat->OpenGLFormat, 
-						mipWidth, 
-						mipHeight, 
-                        depth,
-						desiredFormat->OpenGLFormat, 
-                        bytesFormat->packedBitsPerTexel / 8, 
-						mipLevel, 
-						bytesFormat->compressed, 
-						useNPOT, 
-                        preProcess.scaleFactor,
-                        dataType);
+                                  target, 
+                                  reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]), 
+                                  bytesFormat->OpenGLBaseFormat,
+                                  bytesFormat->OpenGLFormat, 
+                                  mipWidth, 
+                                  mipHeight, 
+                                  depth,
+                                  desiredFormat->OpenGLFormat, 
+                                  bytesFormat->packedBitsPerTexel / 8, 
+                                  mipLevel, 
+                                  bytesFormat->compressed, 
+                                  useNPOT, 
+                                  preProcess.scaleFactor,
+                                  dataType);
                 }
 
                 debugAssertGLOk();
@@ -683,13 +706,18 @@ TextureRef Texture::fromMemory(
     t->m_width = m_width;
     t->m_height = m_height;
 
-
     if (bytesPtr != &_bytes) {
+
         // We must free our own data
-        for (int m = 0; m < bytesPtr->size(); ++m) {
-            Array<const void*>& face = (*bytesPtr)[m]; 
-            for (int f = 0; f < face.size(); ++f) {
-                System::alignedFree(const_cast<void*>(face[f]));
+        if (normal.width != 0) {
+            // The normal GImage is holding the data; do not free it because 
+            // the GImage destructor will do so at the end of the method.
+        } else {
+            for (int m = 0; m < bytesPtr->size(); ++m) {
+                Array<const void*>& face = (*bytesPtr)[m]; 
+                for (int f = 0; f < face.size(); ++f) {
+                    System::alignedFree(const_cast<void*>(face[f]));
+                }
             }
         }
         delete bytesPtr;

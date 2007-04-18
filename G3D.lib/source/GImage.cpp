@@ -751,12 +751,24 @@ GImage GImage::stripAlpha() const {
 
 
 int GImage::sizeInMemory() const {
-	return sizeof(GImage) + width * height * channels;
+    return sizeof(GImage) + width * height * channels;
 }
 
 
 void GImage::computeNormalMap(
     const GImage&       bump,
+    GImage&             normal,
+    float               whiteHeightInPixels,
+    bool                lowPassBump,
+    bool                scaleHeightByNz) {
+    computeNormalMap(bump.width, bump.height, bump.channels, bump.byte(), normal, whiteHeightInPixels, lowPassBump, scaleHeightByNz);
+}
+
+void GImage::computeNormalMap(
+    int                 width,
+    int                 height,
+    int                 channels,
+    const uint8*        src,
     GImage&             normal,
     float               whiteHeightInPixels,
     bool                lowPassBump,
@@ -767,18 +779,18 @@ void GImage::computeNormalMap(
         // over the whole image becomes a 45-degree angle
         
         // Account for potentially non-square aspect ratios
-        whiteHeightInPixels = max(bump.width, bump.height);
+        whiteHeightInPixels = max(width, height);
     }
 
     debugAssert(whiteHeightInPixels >= 0);
 
-    const int w = bump.width;
-    const int h = bump.height;
-    const int stride = bump.channels;
+    const int w = width;
+    const int h = height;
+    const int stride = channels;
 
     normal.resize(w, h, 4);
 
-    const uint8* const B = bump.byte();
+    const uint8* const B = src;
     Color4uint8* const N = normal.pixel4();
 
     for (int y = 0; y < h; ++y) {

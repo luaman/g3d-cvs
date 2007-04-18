@@ -217,11 +217,13 @@ public:
     class PreProcess {
     public:
 
-        /** Amount to brighten colors by (e.g., useful for Quake textures, which are dark). */
+        /** Amount to brighten colors by (e.g., useful for Quake textures, which are dark). 
+            Brightening happens first of all preprocessing.
+         */
         float                       brighten;
 
         /** Amount to resize images by before loading onto the graphics card to save memory; 
-            typically a negative power of 2 (e.g., 1.0, 0.5, 0.25). */
+            typically a negative power of 2 (e.g., 1.0, 0.5, 0.25). Scaling happens last of all preprocessing.*/
         float                       scaleFactor;
 
         /** If true, treat the input as a monochrome bump map and compute a normal map from
@@ -256,7 +258,6 @@ public:
 
             return p;
         }
-
     };
 
 private:
