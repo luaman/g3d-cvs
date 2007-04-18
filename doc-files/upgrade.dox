@@ -106,6 +106,18 @@ configured to create compile time errors to help you catch bugs.  These will app
 </p>
 
 
+
+<hr noshade>
+<p>
+<p><b>SDL event codes replaced with G3D ones</b></p>
+<p>
+For example, SDL_QUIT is now GEventType::QUIT.  This may produce errors in your code like:
+<br>
+<code>
+error C2065: 'SDL_QUIT' : undeclared identifier</code>
+</p>
+
+
 <hr noshade>
 <p><b>Renamings</b></p>
 <p>
@@ -158,6 +170,7 @@ configured to create compile time errors to help you catch bugs.  These will app
 <tr><td>G3D::Texture::texelHeight</td><td>G3D::Texture::height</td></td></tr>
 <tr><td>G3D::Texture::WrapMode</td><td>G3D::WrapMode</td></tr>
 <tr><td>G3D::Texture::TRANSPARENT_BORDER</td><td>G3D::WrapMode::ZERO</td></tr>
+<td><td>SDL_<i>eventname</i></td><td>G3D::GEventType::<i>eventname</i></td></tr>
 </table>
 </p>
 

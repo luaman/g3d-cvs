@@ -27,7 +27,7 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
  * The return value is one of the following positions:
  */
 #define SDL_HAT_CENTERED	0x00
-#define SDL_HAT_UP		0x01
+#define SDL_HAT_UP          0x01
 #define SDL_HAT_RIGHT		0x02
 #define SDL_HAT_DOWN		0x04
 #define SDL_HAT_LEFT		0x08
@@ -58,10 +58,10 @@ typedef enum {
 	GKEYMOD_RESERVED = 0x8000
 } GKeyMod;
 
-#define GKEYMOD_CTRL	(GKEYMOD_LCTRL|GKEYMOD_RCTRL)
-#define GKEYMOD_SHIFT	(GKEYMOD_LSHIFT|GKEYMOD_RSHIFT)
-#define GKEYMOD_ALT	(GKEYMOD_LALT|GKEYMOD_RALT)
-#define GKEYMOD_META	(GKEYMOD_LMETA|GKEYMOD_RMETA)
+#define GKEYMOD_CTRL	(GKEYMOD_LCTRL  | GKEYMOD_RCTRL)
+#define GKEYMOD_SHIFT	(GKEYMOD_LSHIFT | GKEYMOD_RSHIFT)
+#define GKEYMOD_ALT	    (GKEYMOD_LALT   | GKEYMOD_RALT)
+#define GKEYMOD_META	(GKEYMOD_LMETA  | GKEYMOD_RMETA)
 
 
 /* Keysym structure
@@ -100,67 +100,84 @@ public:
 
 ///////////////////////////////////////////////////////////
 
-/* Event enumerations */
-enum { SDL_NOEVENT = 0,			/* Unused (do not remove) */
-       SDL_ACTIVEEVENT,			/* Application loses/gains visibility */
-       SDL_KEYDOWN,			/* Keys pressed */
-       SDL_KEYUP,			/* Keys released */
-       SDL_MOUSEMOTION,			/* Mouse moved */
-       SDL_MOUSEBUTTONDOWN,		/* Mouse button pressed */
-       SDL_MOUSEBUTTONUP,		/* Mouse button released */
-       SDL_JOYAXISMOTION,		/* Joystick axis motion */
-       SDL_JOYBALLMOTION,		/* Joystick trackball motion */
-       SDL_JOYHATMOTION,		/* Joystick hat position change */
-       SDL_JOYBUTTONDOWN,		/* Joystick button pressed */
-       SDL_JOYBUTTONUP,			/* Joystick button released */
-       SDL_QUIT,			/* User-requested quit */
-       SDL_SYSWMEVENT,			/* System specific event */
-       SDL_EVENT_RESERVEDA,		/* Reserved for future use.. */
-       SDL_EVENT_RESERVEDB,		/* Reserved for future use.. */
-       SDL_VIDEORESIZE,			/* User resized video mode */
-       SDL_VIDEOEXPOSE,			/* Screen needs to be redrawn */
-       SDL_EVENT_RESERVED2,		/* Reserved for future use.. */
-       SDL_EVENT_RESERVED3,		/* Reserved for future use.. */
-       SDL_EVENT_RESERVED4,		/* Reserved for future use.. */
-       SDL_EVENT_RESERVED5,		/* Reserved for future use.. */
-       SDL_EVENT_RESERVED6,		/* Reserved for future use.. */
-       SDL_EVENT_RESERVED7,		/* Reserved for future use.. */
-       /* Events SDL_USEREVENT through SDL_MAXEVENTS-1 are for your use */
-       SDL_USEREVENT = 24,
+/** Event code enumerations */
+class GEventType {
+public:
+    enum Value { 
+       NOEVENT = 0,			/* Unused (do not remove) */
+       ACTIVEEVENT,			/* Application loses/gains visibility */
+       KEYDOWN,			/* Keys pressed */
+       KEYUP,			/* Keys released */
+       MOUSEMOTION,			/* Mouse moved */
+       MOUSEBUTTONDOWN,		/* Mouse button pressed */
+       MOUSEBUTTONUP,		/* Mouse button released */
+       JOYAXISMOTION,		/* Joystick axis motion */
+       JOYBALLMOTION,		/* Joystick trackball motion */
+       JOYHATMOTION,		/* Joystick hat position change */
+       JOYBUTTONDOWN,		/* Joystick button pressed */
+       JOYBUTTONUP,			/* Joystick button released */
+       QUIT,			/* User-requested quit */
+       SYSWMEVENT,			/* System specific event */
+       EVENT_RESERVEDA,		/* Reserved for future use.. */
+       EVENT_RESERVEDB,		/* Reserved for future use.. */
+       VIDEORESIZE,			/* User resized video mode */
+       VIDEOEXPOSE,			/* Screen needs to be redrawn */
+       EVENT_RESERVED2,		/* Reserved for future use.. */
+       EVENT_RESERVED3,		/* Reserved for future use.. */
+       EVENT_RESERVED4,		/* Reserved for future use.. */
+       EVENT_RESERVED5,		/* Reserved for future use.. */
+       EVENT_RESERVED6,		/* Reserved for future use.. */
+       EVENT_RESERVED7,		/* Reserved for future use.. */
+       /* Events USEREVENT through MAXEVENTS-1 are for your use */
+       USEREVENT = 24,
        /* This last event is only for bounding internal arrays
-	  It is the number of bits in the event mask datatype -- uint32
+  	     It is the number of bits in the event mask datatype -- uint32
         */
-       SDL_NUMEVENTS = 32
+       NUMEVENTS = 32
+    };
+private:
+
+    Value value;
+
+public:
+
+    G3D_DECLARE_ENUM_CLASS_METHODS(GEventType);
 };
 
+}
+
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GEventType);
+
+namespace G3D {
+
 /* Predefined event masks */
-#define SDL_EVENTMASK(X)	(1<<(X))
+#define EVENTMASK(X)	(1<<(X))
 enum {
-	SDL_ACTIVEEVENTMASK	= SDL_EVENTMASK(SDL_ACTIVEEVENT),
-	SDL_KEYDOWNMASK		= SDL_EVENTMASK(SDL_KEYDOWN),
-	SDL_KEYUPMASK		= SDL_EVENTMASK(SDL_KEYUP),
-	SDL_MOUSEMOTIONMASK	= SDL_EVENTMASK(SDL_MOUSEMOTION),
-	SDL_MOUSEBUTTONDOWNMASK	= SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN),
-	SDL_MOUSEBUTTONUPMASK	= SDL_EVENTMASK(SDL_MOUSEBUTTONUP),
-	SDL_MOUSEEVENTMASK	= SDL_EVENTMASK(SDL_MOUSEMOTION)|
-	                          SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN)|
-	                          SDL_EVENTMASK(SDL_MOUSEBUTTONUP),
-	SDL_JOYAXISMOTIONMASK	= SDL_EVENTMASK(SDL_JOYAXISMOTION),
-	SDL_JOYBALLMOTIONMASK	= SDL_EVENTMASK(SDL_JOYBALLMOTION),
-	SDL_JOYHATMOTIONMASK	= SDL_EVENTMASK(SDL_JOYHATMOTION),
-	SDL_JOYBUTTONDOWNMASK	= SDL_EVENTMASK(SDL_JOYBUTTONDOWN),
-	SDL_JOYBUTTONUPMASK	= SDL_EVENTMASK(SDL_JOYBUTTONUP),
-	SDL_JOYEVENTMASK	= SDL_EVENTMASK(SDL_JOYAXISMOTION)|
-	                          SDL_EVENTMASK(SDL_JOYBALLMOTION)|
-	                          SDL_EVENTMASK(SDL_JOYHATMOTION)|
-	                          SDL_EVENTMASK(SDL_JOYBUTTONDOWN)|
-	                          SDL_EVENTMASK(SDL_JOYBUTTONUP),
-	SDL_VIDEORESIZEMASK	= SDL_EVENTMASK(SDL_VIDEORESIZE),
-	SDL_VIDEOEXPOSEMASK	= SDL_EVENTMASK(SDL_VIDEOEXPOSE),
-	SDL_QUITMASK		= SDL_EVENTMASK(SDL_QUIT),
-	SDL_SYSWMEVENTMASK	= SDL_EVENTMASK(SDL_SYSWMEVENT)
+    SDL_ACTIVEEVENTMASK	    = EVENTMASK(GEventType::KEYDOWN),
+	SDL_KEYUPMASK		    = EVENTMASK(GEventType::KEYUP),
+	SDL_MOUSEMOTIONMASK	    = EVENTMASK(GEventType::MOUSEMOTION),
+	SDL_MOUSEBUTTONDOWNMASK	= EVENTMASK(GEventType::MOUSEBUTTONDOWN),
+	SDL_MOUSEBUTTONUPMASK	= EVENTMASK(GEventType::MOUSEBUTTONUP),
+	SDL_MOUSEEVENTMASK	    = EVENTMASK(GEventType::MOUSEMOTION)|
+	                          EVENTMASK(GEventType::MOUSEBUTTONDOWN)|
+	                          EVENTMASK(GEventType::MOUSEBUTTONUP),
+	SDL_JOYAXISMOTIONMASK	= EVENTMASK(GEventType::JOYAXISMOTION),
+	SDL_JOYBALLMOTIONMASK	= EVENTMASK(GEventType::JOYBALLMOTION),
+	SDL_JOYHATMOTIONMASK	= EVENTMASK(GEventType::JOYHATMOTION),
+	SDL_JOYBUTTONDOWNMASK	= EVENTMASK(GEventType::JOYBUTTONDOWN),
+	SDL_JOYBUTTONUPMASK	    = EVENTMASK(GEventType::JOYBUTTONUP),
+	SDL_JOYEVENTMASK	    = EVENTMASK(GEventType::JOYAXISMOTION)|
+	                          EVENTMASK(GEventType::JOYBALLMOTION)|
+	                          EVENTMASK(GEventType::JOYHATMOTION)|
+	                          EVENTMASK(GEventType::JOYBUTTONDOWN)|
+	                          EVENTMASK(GEventType::JOYBUTTONUP),
+	SDL_VIDEORESIZEMASK	    = EVENTMASK(GEventType::VIDEORESIZE),
+	SDL_VIDEOEXPOSEMASK	    = EVENTMASK(GEventType::VIDEOEXPOSE),
+	SDL_QUITMASK		    = EVENTMASK(GEventType::QUIT),
+	SDL_SYSWMEVENTMASK	    = EVENTMASK(GEventType::SYSWMEVENT)
 };
 #define SDL_ALLEVENTS		0xFFFFFFFF
+#undef EVENTMASK
 
 /* Application visibility event structure */
 typedef struct SDL_ActiveEvent {
@@ -228,7 +245,7 @@ typedef struct SDL_JoyHatEvent {
 
 /* Joystick button event structure */
 typedef struct SDL_JoyButtonEvent {
-	uint8 type;	/* SDL_JOYBUTTONDOWN or SDL_JOYBUTTONUP */
+	uint8 type;	    /* SDL_JOYBUTTONDOWN or SDL_JOYBUTTONUP */
 	uint8 which;	/* The joystick device index */
 	uint8 button;	/* The joystick button index */
 	uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
@@ -250,9 +267,9 @@ typedef struct SDL_ExposeEvent {
 } SDL_ExposeEvent;
 
 /* The "quit requested" event */
-typedef struct SDL_QuitEvent {
-	uint8 type;	/* SDL_QUIT */
-} SDL_QuitEvent;
+struct GQuitEvent {
+	uint8 type;	/* GQUIT */
+};
 
 /* A user-defined event type */
 typedef struct SDL_UserEvent {
@@ -287,7 +304,7 @@ typedef union {
 	SDL_JoyButtonEvent jbutton;
 	SDL_ResizeEvent resize;
 	SDL_ExposeEvent expose;
-	SDL_QuitEvent quit;
+	GQuitEvent quit;
 	SDL_UserEvent user;
 	SDL_SysWMEvent syswm;
 } GEvent;

@@ -579,7 +579,7 @@ void GConsole::unsetRepeatKeysym() {
 bool GConsole::onEvent(const GEvent& event) {
 
     if (! m_active) {
-        if ((event.type == SDL_KEYDOWN) &&
+        if ((event.type == GEventType::KEYDOWN) &&
             ((event.key.keysym.unicode & 0xFF) == '~')) {
 
             // '~': Open console
@@ -594,7 +594,7 @@ bool GConsole::onEvent(const GEvent& event) {
     }
 
     switch (event.type) {
-    case SDL_KEYDOWN:
+    case GEventType::KEYDOWN:
         switch (event.key.keysym.sym) {
         case GKey::ESCAPE:
             // Close the console
@@ -663,7 +663,7 @@ bool GConsole::onEvent(const GEvent& event) {
         }
         break;
 
-    case SDL_KEYUP:
+    case GEventType::KEYUP:
         if (event.key.keysym.sym == m_repeatKeysym.sym) {
             unsetRepeatKeysym();
             return true;

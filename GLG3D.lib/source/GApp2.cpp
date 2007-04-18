@@ -570,11 +570,11 @@ void GApp2::processGEventQueue() {
         }
 
         switch(event.type) {
-        case SDL_QUIT:
+        case GEventType::QUIT:
             exit(0);
             break;
 
-        case SDL_VIDEORESIZE:
+        case GEventType::VIDEORESIZE:
             if (autoResize) {
                 renderDevice->notifyResize
                     (event.resize.w, event.resize.h);
@@ -586,7 +586,7 @@ void GApp2::processGEventQueue() {
             }
             break;
 
-	    case SDL_KEYDOWN:
+	    case GEventType::KEYDOWN:
 
             if (! console->active()) {
                 switch (event.key.keysym.sym) {

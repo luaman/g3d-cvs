@@ -607,7 +607,7 @@ namespace G3D {
                 case WM_KEYDOWN:
                 case WM_SYSKEYDOWN:
 
-                    e.key.type = SDL_KEYDOWN;
+                    e.key.type = GEventType::KEYDOWN;
                     e.key.state = SDL_PRESSED;
 
                     // Fix invalid repeat key flag
@@ -628,7 +628,7 @@ namespace G3D {
 
                 case WM_KEYUP:
                 case WM_SYSKEYUP:
-                    e.key.type = SDL_KEYUP;
+                    e.key.type = GEventType::KEYUP;
                     e.key.state = SDL_RELEASED;
 
                     makeKeyEvent(message.wParam, message.lParam, e);
@@ -677,7 +677,7 @@ namespace G3D {
             // Reset so SDL_QUIT is only sent once
             _receivedCloseEvent = false;
 
-            e.type = SDL_QUIT;
+            e.type = GEventType::QUIT;
             return true;
         }
 
@@ -1123,13 +1123,13 @@ namespace G3D {
     static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
         (void)flags;
         // TODO: process flags
-	if (down) {
-            e.key.type  = SDL_KEYDOWN;
+    	if (down) {
+            e.key.type  = GEventType::KEYDOWN;
             e.key.state = SDL_PRESSED;
-	} else {
-            e.key.type  = SDL_KEYUP;
+	    } else {
+            e.key.type  = GEventType::KEYUP;
             e.key.state = SDL_RELEASED;
-	}
+	    }
 
         e.key.keysym.unicode = ' ';
         e.key.keysym.sym = (GKey::Value)keyEvent;

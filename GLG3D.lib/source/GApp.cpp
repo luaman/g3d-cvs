@@ -541,12 +541,12 @@ void GApplet::onUserInput(UserInput* userInput) {
         }
 
         switch(event.type) {
-        case SDL_QUIT:
+        case GEventType::QUIT:
 	        app->endProgram = true;
             endApplet = true;
 	        break;
 
-        case SDL_VIDEORESIZE:
+        case GEventType::VIDEORESIZE:
             if (app->autoResize) {
                 app->renderDevice->notifyResize
                     (event.resize.w, event.resize.h);
@@ -558,7 +558,7 @@ void GApplet::onUserInput(UserInput* userInput) {
             }
             break;
 
-	    case SDL_KEYDOWN:
+	    case GEventType::KEYDOWN:
             switch (event.key.keysym.sym) {
             case GKey::ESCAPE:
                 if (app->debugMode() && app->debugQuitOnEscape) {

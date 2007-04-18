@@ -70,7 +70,7 @@ private:
 
     void injectSizeEvent(int width, int height) {
         GEvent e;
-        e.type = SDL_VIDEORESIZE;
+        e.type = GEventType::VIDEORESIZE;
         e.resize.w = width;
         e.resize.h = height;
         sizeEventInjects.append(e);
