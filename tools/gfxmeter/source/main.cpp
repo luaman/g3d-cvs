@@ -50,7 +50,7 @@ void shaderVersions(
 
 void App::showSplashScreen() {
 	Texture::Settings textureSettings;
-	textureSettings.wrapMode = Texture::CLAMP;
+	textureSettings.wrapMode = WrapMode::CLAMP;
     TextureRef gfxMeterTexture = Texture::fromFile("gears.jpg", TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
 
     // Load the font
@@ -96,7 +96,7 @@ int App::main() {
 
         if (filename != "") {
 			Texture::Settings textureSettings;
-			textureSettings.wrapMode = Texture::CLAMP;
+			textureSettings.wrapMode = WrapMode::CLAMP;
             cardLogo = Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
         }
     }
@@ -112,7 +112,7 @@ int App::main() {
 
         if (filename != "") {
 			Texture::Settings textureSettings;
-			textureSettings.wrapMode = Texture::CLAMP;
+			textureSettings.wrapMode = WrapMode::CLAMP;
             chipLogo = Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
         }
 
@@ -140,7 +140,7 @@ int App::main() {
 
         if (filename != "") {
 			Texture::Settings textureSettings;
-			textureSettings.wrapMode = Texture::CLAMP;
+			textureSettings.wrapMode = WrapMode::CLAMP;
             osLogo = Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
         }
     }

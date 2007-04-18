@@ -788,6 +788,10 @@
 				RelativePath="..\G3D.lib\include\G3D\vectorMath.h"
 				>
 			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\WrapMode.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

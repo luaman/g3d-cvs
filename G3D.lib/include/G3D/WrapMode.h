@@ -16,6 +16,16 @@
 #include "G3D/platform.h"
 #include "G3D/enumclass.h"
 
+#ifdef IGNORE
+#   undef IGNORE
+#endif
+#ifdef ZERO
+#   undef ZERO
+#endif
+#ifdef ERROR
+#   undef ERROR
+#endif
+
 namespace G3D {
 
 /** 
