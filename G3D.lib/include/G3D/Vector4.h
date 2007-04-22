@@ -6,9 +6,9 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2002-07-09
-  @edited  2005-03-28
+  @edited  2007-04-28
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
  */
 
@@ -132,6 +132,8 @@ public:
     inline Vector4 operator/(const Vector4& rkVector) const {
         return Vector4(x / rkVector.x, y / rkVector.y, z / rkVector.z, w / rkVector.w);
     }
+
+    Vector4 operator*(const class Matrix4& M) const;
 
     Vector4 operator* (float fScalar) const;
     Vector4 operator/ (float fScalar) const;

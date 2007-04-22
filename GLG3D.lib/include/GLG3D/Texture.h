@@ -238,7 +238,8 @@ public:
 
         bool                        normalMapScaleHeightByNz;
 
-        PreProcess() : brighten(1.0f), scaleFactor(1.0f) {}
+        PreProcess() : brighten(1.0f), scaleFactor(1.0f), computeNormalMap(false), normalMapLowPassBump(false),
+                       normalMapWhiteHeightInPixels(-1), normalMapScaleHeightByNz(false) {}
 
         static const PreProcess& defaults() {
             static const PreProcess p;

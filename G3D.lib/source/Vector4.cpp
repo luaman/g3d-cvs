@@ -16,6 +16,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Vector4int8.h"
+#include "G3D/Matrix4.h"
 
 namespace G3D {
 
@@ -76,6 +77,18 @@ void Vector4::serialize(BinaryOutput& b) const {
 }
 
 //----------------------------------------------------------------------------
+
+Vector4 Vector4::operator*(const Matrix4& M) const {
+    Vector4 result;
+    for (int i = 0; i < 4; ++i) {
+        result[i] = 0.0f;
+        for (int j = 0; j < 4; ++j) {
+            result[i] += (*this)[j] * M[j][i];
+        }
+    }
+    return result;
+}
+
 
 Vector4 Vector4::operator/ (float fScalar) const {
     Vector4 kQuot;

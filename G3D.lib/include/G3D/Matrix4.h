@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2003-10-02
-  @edited  2006-02-05
+  @edited  2007-04-05
  */
 
 #ifndef G3D_MATRIX4_H

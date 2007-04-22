@@ -289,13 +289,12 @@ TextureRef Texture::fromFile(
 			preProcess);
     }
 
-	// Single mip-map level
-	byteMipMapFaces.resize(1);
-
-	Array<const void*>& array = byteMipMapFaces[0];
-	array.resize(numFaces);
-
-
+    // Single mip-map level
+    byteMipMapFaces.resize(1);
+    
+    Array<const void*>& array = byteMipMapFaces[0];
+    array.resize(numFaces);
+    
     // Test for both DIM_CUBE_MAP and DIM_CUBE_MAP_NPOT
     if (numFaces == 6) {
         if (filename[1] == "") {
@@ -338,16 +337,16 @@ TextureRef Texture::fromFile(
 
     TextureRef t =
         fromMemory(
-			filename[0], 
-			byteMipMapFaces, 
-			format,
-            image[0].width, 
-			image[0].height, 
-			1,
-            desiredFormat, 
-			dimension,
-			settings,
-			preProcess);
+                   filename[0], 
+                   byteMipMapFaces, 
+                   format,
+                   image[0].width, 
+                   image[0].height, 
+                   1,
+                   desiredFormat, 
+                   dimension,
+                   settings,
+                   preProcess);
 
     return t;
 }
