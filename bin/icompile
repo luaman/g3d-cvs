@@ -13,7 +13,7 @@
 # DO NOT MODIFY THIS SCRIPT.  EDIT ICE.TXT AND ~/.ICOMPILE TO CUSTOMIZE
 # YOUR PROJECT CONFIGURATION.
 
-version = [0, 5, 2]
+version = [0, 5, 3]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time
@@ -137,8 +137,8 @@ def buildInclude(state):
 def buildClean(state):
     if verbosity >= NORMAL: colorPrint('Deleting all generated files', SECTION_COLOR)
     
-    rmdir(state.rootDir + state.buildDir, verbosity >= VERBOSE)
-    rmdir(state.rootDir + state.tempDir, verbosity >= VERBOSE)
+    rmdir(state.buildDir, verbosity >= VERBOSE)
+    rmdir(state.tempDir, verbosity >= VERBOSE)
 
     if verbosity >= VERBOSE: colorPrint('Done deleting generated files\n', SECTION_COLOR)
 
@@ -167,9 +167,10 @@ def makeObjectFile(state, cfile, options):
 
     if verbosity == NORMAL:
         # 'run' will not print the full command, so we just
-        # print the filename to be compiled here.
-
+        # print the filename to be compiled here.  Flush
+        # stdout so that the names appear during compilation.
         print shortname(state.rootDir, cfile)
+        sys.stdout.flush()
 
     ret = run(state.compiler, args, verbosity >= VERBOSE)
 
@@ -515,7 +516,8 @@ def gdbCompiledProgram(state, progArgs):
     #          -x   Run the gdb commands we wrote out to the command file
     #          -cd  Working directory
     #          -f   Print files and line numbers in Emacs-compatible format
-    cmd = ('gdb -x ' + commandFile + ' -cd ' + state.binaryDir +
+    #          -silent Don't print copyright
+    cmd = ('gdb -silent -x ' + commandFile + ' -cd ' + state.binaryDir +
                 ' -q -f ' + state.binaryName)
     print cmd
     printBar()
@@ -660,7 +662,21 @@ def configureGpp(state):
     while '' in state.linkerOptions:
         state.linkerOptions.remove('')
 
+#########################################################################
 
+"""
+The format of the information printed by this must be maintained for
+machine readability.
+"""
+def printInfo(state):
+    print 'icompile info'
+    print 'format 1' # Increment this when the output format changes
+    print 'workingDir        = "' + state.binaryDir + '"'
+    print 'binaryName        = "' + state.binaryName + '"'
+    print 'binaryType        = "' + state.binaryType + '"'
+    print 'target            = "' + state.target + '"'
+    
+        
 #########################################################################
 
 """ Main program execution.
@@ -669,9 +685,13 @@ def configureGpp(state):
   progArgs - arguments to pass on to the compiled program
 """
 def main(state, args, progArgs, doGDB, doRun):
-    if (verbosity >= VERBOSE):
+    if ('--info' in args):
+        printInfo(state);
+        sys.exit(0)
+
+    if (verbosity >= TRACE):
         print state
-        
+            
     if '--clean' in args:
         buildClean(state)
         # Exit early, preventing the cache from being written
@@ -706,7 +726,6 @@ def main(state, args, progArgs, doGDB, doRun):
         maybePrintBar()
         return runCompiledProgram(state, progArgs)
 
-                
     return 0
 
 ########################################################################################

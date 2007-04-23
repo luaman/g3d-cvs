@@ -78,7 +78,8 @@ def colorPrint(text, color = 'default'):
     if not useColor:
 
         print text
-    
+        sys.stdout.flush()
+        
     else:
 
         # Parse the color
@@ -146,6 +147,7 @@ def colorPrint(text, color = 'default'):
         stop = openCol + '0' + closeCol
         start = openCol + featureString + closeCol
         print start + text + stop
+        sys.stdout.flush()
 
 
 WARNING_COLOR = 'bold red'
@@ -239,8 +241,8 @@ def shortlist(L):
         
 """Recursively remove a directory tree if it exists."""
 def rmdir(path, echo = True):
+    if echo: colorPrint('rm -rf ' + path, COMMAND_COLOR)
     if (os.path.exists(path)):
-        if echo: colorPrint('rm -rf ' + path, COMMAND_COLOR)
         shutil.rmtree(path, 1)
 
 """ Remove a single file, if it exists. """

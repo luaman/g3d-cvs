@@ -322,6 +322,22 @@ def getConfigurationState(args):
 
     state.noPrompt = '--noprompt' in args
 
+    state.template = ''
+    if ('--template' in args):
+        for i in xrange(0, len(args)):
+            if args[i] == '--template':
+                if i < len(args) - 1:
+                    state.template = args[i + 1]
+
+    if state.template != '' and not state.noPrompt:
+        colorPrint("ERROR: cannot specify --template without --noprompt", ERROR_COLOR)
+        sys.exit(-208)
+        
+    if state.template != 'hello' and state.template != 'empty' and state.template != '':
+        colorPrint("ERROR: 'hello' and 'empty' are the only legal template names (template='" +
+                   state.template + "')", ERROR_COLOR)
+        sys.exit(-209)
+
     # Root directory
     state.rootDir  = os.getcwd() + "/"
 
@@ -473,6 +489,15 @@ def checkForProjectFile(state, args):
             if string.lower(getch()) == 'y':
                 generateStarterFiles(state)
 
+    if state.noPrompt and state.template != '':
+        if (state.template == 'hello'):
+            generateStarterFiles(state)
+        elif (state.template == 'empty'):
+            # Intentionally do nothing
+            ''
+        else:
+            print 'ERROR: illegal template'
+            
     _writeFile(projectFile, defaultProjectFileContents);
 
 def _writeFile(filename, contents):

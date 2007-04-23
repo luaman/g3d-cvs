@@ -127,9 +127,6 @@ class State:
     # Absolute location of the project root directory.  Ends in '/'.
     rootDir                     = None
 
-    # EXE, LIB, or DLL. Set by setVariables.
-    binaryType                  = None
-
     # RELEASE or DEBUG
     target                      = None
 
@@ -187,6 +184,9 @@ class State:
   
     # If true, the user is never prompted
     noPrompt                    = False
+
+    # Name of the template or empty string if none was specified
+    template                    = None
   
     # Compiled regular expression for files to ignore during compilation
     excludeFromCompilation      = None

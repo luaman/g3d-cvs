@@ -29,7 +29,8 @@ iCompile: the zero-configuration build system
     
 icompile  [--doc] [--opt|--debug] [--clean] [--version]
           [--config <custom .icompile>] [--verbosity n]
-          [--help] [--noprompt] [--run|--gdb ...]
+          [--help] [--noprompt [--template <tname>]] [--info] 
+          [--run|--gdb ...]
 
 iCompile can build most C++ projects without options or manual
 configuration.  Just type 'icompile' with no arguments.  Run in an
@@ -69,8 +70,15 @@ Options:
                       |   displayed.
 
  --noprompt       Run even if there is no ice.txt file, don't prompt the
-                  user for input.  This is handy for launching iCompile from
-                  automated build shell scripts.
+                  user for input.  This is handy for launching iCompile
+                  from automated build shell scripts.  If
+                  --template <tname> is specified as well, a default
+                  set of files will be built.  The only legal templates
+                  are 'hello' and 'empty' (default).
+
+ --info           Read configuration files and command line options, but instead
+                  of building, print out information about where the generated
+                  file will go.
 
 Exclusive options:
  --help           Print this information.
