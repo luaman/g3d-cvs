@@ -75,6 +75,7 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
 
   <LI> <B>Window managment</B>&nbsp; &nbsp;
     G3D::GEvent,
+    G3D::GKey,
     G3D::GWindow,
     G3D::SDLWindow,
     G3D::Win32Window,
@@ -152,12 +153,12 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
         G3D::GameTime,
         G3D::RealTime,
         G3D::tesselateComplexPolygon,
-        G3D::toSeconds 
+        G3D::toSeconds
      
      <LI><B>Integer math</B> &nbsp; &nbsp;
         G3D::ceilPow2, 
         G3D::highestBit,
-	    G3D::iAbs,
+	    G3D::iAbs,          
 		G3D::iCeil,
 		G3D::iClamp,
 		G3D::iWrap,
@@ -266,6 +267,7 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
 		G3D::Image4uint8,
 		G3D::Map2D,
 		G3D::gaussian1D,
+                G3D::WrapMode
         <BR>
 
 
