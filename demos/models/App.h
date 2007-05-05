@@ -58,8 +58,6 @@ public:
 
     App(const GApp2::Settings& settings = GApp2::Settings());
 
-    virtual void onInit();
-
     virtual void onUserInput(UserInput* ui);
 
     virtual void onGraphics(RenderDevice* rd);

@@ -23,11 +23,9 @@ public:
 
     App(const GApp2::Settings& settings = GApp2::Settings());
 
-    virtual void onInit();
-
     virtual void onLogic();
 
-	virtual void onNetwork();
+    virtual void onNetwork();
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 
@@ -35,44 +33,26 @@ public:
 
     virtual void onUserInput(UserInput* ui);
 
-    virtual void onCleanup();
-
     virtual void onConsoleCommand(const std::string& cmd);
 
     void printConsoleHelp();
 };
-
-void App::onInit()  {
-    // Called before the application loop beings
-    sky = Sky::fromFile(dataDir + "sky/");
-
-    skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
-    lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
-
-    // This simple demo has no shadowing, so make all lights unshadowed
-    lighting->lightArray.append(lighting->shadowedLightArray);
-    lighting->shadowedLightArray.clear();
-}
-
-void App::onCleanup() {
-    // Called when the application loop ends
-}
 
 void App::onLogic() {
     // Add non-simulation game logic and AI code here
 }
 
 void App::onNetwork() {
-	// Poll net messages here
+    // Poll net messages here
 }
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-	// Add physical simulation here.  You can make your time advancement
+    // Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
 }
 
 void App::onUserInput(UserInput* ui) {
-	// Add key handling here	
+    // Add key handling here	
 }
 
 void App::onConsoleCommand(const std::string& str) {
@@ -104,30 +84,44 @@ void App::printConsoleHelp() {
 }
 
 void App::onGraphics(RenderDevice* rd) {
-
+    LightingRef   localLighting = toneMap->prepareLighting(lighting);
+    SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
+    
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(false, true, true);
-    sky->render(rd, skyParameters);
+    sky->render(rd, localSky);
 
     // Setup lighting
     rd->enableLighting();
-		rd->setLight(0, lighting->lightArray[0]);
-		rd->setAmbientLightColor(lighting->ambientAverage());
+        rd->setLight(0, localLighting->lightArray[0]);
+        rd->setAmbientLightColor(localLighting->ambientAverage());
 
-		Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
+        Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
         renderGModules(rd);
     rd->disableLighting();
 
-    sky->renderLensFlare(rd, skyParameters);
+    sky->renderLensFlare(rd, localSky);
 }
 
 App::App(const GApp2::Settings& settings) : GApp2(settings) {
-    // Load objects here or in onInit()
+    // Load objects here
+
+    // Called before the application loop beings
+    sky = Sky::fromFile(dataDir + "sky/");
+
+    skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
+    lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
+
+    // This simple demo has no shadowing, so make all lights unshadowed
+    lighting->lightArray.append(lighting->shadowedLightArray);
+    lighting->shadowedLightArray.clear();
+
+    toneMap->setEnabled(false);
 }
 
 G3D_START_AT_MAIN();

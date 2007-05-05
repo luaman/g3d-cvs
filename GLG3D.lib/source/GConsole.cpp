@@ -15,7 +15,7 @@ GConsole::Settings::Settings() :
     blinkRate(3),
     keyRepeatRate(18),
     lineHeight(13),
-    numVisibleLines(11),
+    numVisibleLines(15),
     maxBufferLength(2000),
     keyRepeatDelay(0.25f),
     commandEcho(true),
@@ -227,8 +227,8 @@ void GConsole::pasteClipboard() {
 
 
 void __cdecl GConsole::printf(const char* fmt, ...) {
-	va_list arg_list;
-	va_start(arg_list, fmt);
+    va_list arg_list;
+    va_start(arg_list, fmt);
     vprintf(fmt, arg_list);
     va_end(arg_list);
 }
@@ -724,6 +724,12 @@ void GConsole::render(RenderDevice* rd) {
         rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
         if (m_settings.backgroundColor.a > 0) {
             Draw::fastRect2D(rect, rd, m_settings.backgroundColor);
+        }
+
+        // Show PGUP/PGDN commands
+        if (m_buffer.size() >= m_settings.numVisibleLines) {
+            m_font->draw2D(rd, "pgup ^", rect.x1y0() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_TOP);
+            m_font->draw2D(rd, "pgdn v", rect.x1y1() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
         }
 
         rect = Rect2D::xyxy(rect.x0y0() + Vector2(2,1), rect.x1y1() - Vector2(2, 1));

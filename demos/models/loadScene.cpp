@@ -9,8 +9,6 @@ void App::loadScene() {
 
     double x = -5;
 
-    RealTime t0 = System::time();
-    
     if (true) {
         CoordinateFrame xform;
 

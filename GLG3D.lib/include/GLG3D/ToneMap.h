@@ -61,7 +61,7 @@ public:
 
     class Settings {
     public:
-
+        
     };
 
 private:

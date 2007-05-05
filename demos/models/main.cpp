@@ -14,10 +14,11 @@ G3D_START_AT_MAIN();
  */
 int shadowMapSize = 512;
 
-App::App(const GApp2::Settings& settings) : GApp2(settings), toneMap(ToneMap::create()), lighting(Lighting::create()) {
+App::App(const GApp2::Settings& settings) : GApp2(settings), lighting(Lighting::create()) {
+    try {
     showRenderingStats = true;
 
-	defaultController->setActive(false);
+    defaultController->setActive(false);
 
     window()->setCaption("ArticulatedModel & SuperShader Demo");
 
@@ -34,20 +35,23 @@ App::App(const GApp2::Settings& settings) : GApp2(settings), toneMap(ToneMap::cr
 			TextureFormat::depth(),
 			Texture::DIM_2D, Texture::Settings::shadow());
     }
-}
 
-
-void App::onInit()  {
-	// Called before Demo::run() beings
+    // Called before Demo::run() beings
     defaultCamera.setPosition(Vector3(0, 0, 10));
     defaultCamera.lookAt(Vector3(0, 0, 0));
 
     loadScene();
     sky = Sky::fromFile(dataDir + "sky/");
 
-	Texture::Settings settings;
-	settings.wrapMode = Texture::CLAMP;
-    logo = Texture::fromFile("G3D-logo-tiny-alpha.tga", TextureFormat::AUTO, Texture::DIM_2D, settings);
+    {
+        Texture::Settings settings;
+        settings.wrapMode = WrapMode::CLAMP;
+        logo = Texture::fromFile("G3D-logo-tiny-alpha.tga", TextureFormat::AUTO, Texture::DIM_2D, settings);
+    }
+    } catch (const std::string& s) {
+        alwaysAssertM(false, s);
+        exit(-1);
+    }
 }
 
 
@@ -89,7 +93,7 @@ void App::generateShadowMap(const GLight& light, const Array<PosedModelRef>& sha
         renderDevice->setColorClearValue(Color3::white());
         renderDevice->clear(debugShadows, true, false);
 
-        renderDevice->enableDepthWrite();
+        renderDevice->setDepthWrite(true);
         renderDevice->setViewport(rect);
 
 	    // Draw from the light's point of view
@@ -100,7 +104,7 @@ void App::generateShadowMap(const GLight& light, const Array<PosedModelRef>& sha
         lightMVP = lightProjectionMatrix * lightCFrame.inverse();
 
         if (! debugShadows) {
-            renderDevice->disableColorWrite();
+            renderDevice->setColorWrite(false);
         }
 
         // Avoid z-fighting
@@ -115,14 +119,12 @@ void App::generateShadowMap(const GLight& light, const Array<PosedModelRef>& sha
     
     debugAssert(shadowMap.notNull());
     shadowMap->copyFromScreen(rect);
-    
 }
-
 
 
 void App::onGraphics(RenderDevice* rd) {
     LightingRef        lighting      = toneMap->prepareLighting(this->lighting);
-    LightingParameters skyParameters = toneMap->prepareLightingParameters(this->skyParameters);
+    LightingParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
     if (! GLCaps::supports_GL_ARB_shadow() && (lighting->shadowedLightArray.size() > 0)) {
         // We're not going to be able to draw shadows, so move the shadowed lights into

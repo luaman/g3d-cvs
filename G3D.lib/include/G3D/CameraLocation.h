@@ -7,9 +7,11 @@
 #ifndef G3D_CAMERALOCATION_H
 #define G3D_CAMERALOCATION_H
 
-namespace G3D {
-
 #include "G3D/Spline.h"
+#include "G3D/Vector3.h"
+#include "G3D/CoordinateFrame.h"
+
+namespace G3D {
 
 /**
  Camera position expressed in Euler angles, suitable for spline creation.

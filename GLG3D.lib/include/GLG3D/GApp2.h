@@ -275,7 +275,7 @@ public:
     virtual ~GApp2();
 
     /**
-     Call this to run the app.  Subclasses should override onInit(), not run.
+     Call this to run the app.
      */
     int run();
 
@@ -491,24 +491,6 @@ protected:
      */
     virtual void onLogic() {}
 
-    /**
-     Invoked every time run is called.  Default implementation
-     resets timers and simTimeRate.
-
-     Sublcasses should invoke GApplet::init to reset the timers.
-     */
-    virtual void onInit() {
-        m_simTime     = 0;
-        m_realTime    = 0;
-        m_simTimeRate = 1.0;
-        lastWaitTime  = System::time();
-    }
-
-    /**
-     Invoked at the end of every run call.  Default implementation
-     does nothing.
-     */
-    virtual void onCleanup() {}
     
     /**
      It is recommended to override onUserInput() instead of this method.

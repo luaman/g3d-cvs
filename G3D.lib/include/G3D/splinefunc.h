@@ -4,11 +4,11 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2004-07-25
- @edited  2004-07-25
+ @edited  2007-05-05
  */
 
-#ifndef G3D_SPLINE_H
-#define G3D_SPLINE_H
+#ifndef G3D_SPLINEFUNC_H
+#define G3D_SPLINEFUNC_H
 
 namespace G3D {
 

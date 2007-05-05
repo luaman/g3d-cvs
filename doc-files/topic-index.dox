@@ -31,11 +31,11 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     G3D::Manipulator,
     G3D::ThirdPersonManipulator,
     G3D::UserInput
-  <BR>
-   <br>
+  <br>
+  <br>
   See also:
-    <br>G3D::GApp and G3D::GApplet for 6.xx backward compatibility,
     <br>"Empty" <A HREF="../demos/empty/main.cpp">main.cpp</A>
+    <br>G3D::GApp and G3D::GApplet for 6.xx backward compatibility,
 
   <LI><B>Effects</B> &nbsp; &nbsp;
     G3D::beginMarkShadows, 
@@ -115,45 +115,48 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
      <LI><B>Geometry</B> &nbsp; &nbsp;
         G3D::AABox,
         G3D::Box,
-		G3D::Capsule,
-		G3D::CollisionDetection,
-		G3D::Color1,
-		G3D::Color1uint8,
-		G3D::Color3,
-		G3D::Color3uint8,
+	G3D::Capsule,
+        G3D::CameraLocation,
+        G3D::CameraSpline,
+	G3D::CollisionDetection,
+	G3D::Color1,
+	G3D::Color1uint8,
+	G3D::Color3,
+	G3D::Color3uint8,
         G3D::Color4,
-		G3D::Color4uint8,
-		G3D::Cone,
-		G3D::ConvexPolygon,
-		G3D::ConvexPolygon2D,
-		G3D::ConvexPolyhedron,
-		G3D::CoordinateFrame,
+	G3D::Color4uint8,
+	G3D::Cone,
+	G3D::ConvexPolygon,
+	G3D::ConvexPolygon2D,
+	G3D::ConvexPolyhedron,
+	G3D::CoordinateFrame,
         G3D::Cylinder,
+        G3D::GameTime,
         G3D::GCamera,
-		G3D::PhysicsFrame,
-		G3D::Line,
-		G3D::LineSegment,
-		G3D::LineSegment2D,
-		G3D::Matrix3,
+	G3D::PhysicsFrame,
+	G3D::Line,
+	G3D::LineSegment,
+	G3D::LineSegment2D,
+	G3D::Matrix3,
         G3D::Matrix4,
         G3D::MeshAlg,
         G3D::MeshBuilder,
         G3D::Quat,
-		G3D::Plane,
-		G3D::Ray,
+	G3D::Plane,
+	G3D::Ray,
+        G3D::RealTime,
         G3D::Rect2D,
         G3D::Sphere,
-		G3D::Triangle,
-		G3D::Vector2,
-        G3D::Vector2int16,
-		G3D::Vector3,
-		G3D::Vector3int16,
-		G3D::Vector4,
-		G3D::Vector4int8,
-        G3D::GameTime,
-        G3D::RealTime,
+        G3D::Spline
+	G3D::Triangle,
         G3D::tesselateComplexPolygon,
         G3D::toSeconds
+	G3D::Vector2,
+        G3D::Vector2int16,
+	G3D::Vector3,
+	G3D::Vector3int16,
+	G3D::Vector4,
+	G3D::Vector4int8
      
      <LI><B>Integer math</B> &nbsp; &nbsp;
         G3D::ceilPow2, 
@@ -181,14 +184,14 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
 		G3D::int64
      
      <LI><B>Floating point</B> &nbsp; &nbsp;
-	     G3D::abs,
-		 G3D::aCos,
-		 G3D::aSin,
-		 G3D::aTan,
-		 G3D::aTan2,
+	 G3D::abs,
+	 G3D::aCos,
+	 G3D::aSin,
+	 G3D::aTan,
+	 G3D::aTan2,
          G3D::clamp,
          G3D::cyclicCatmullRomSpline,
-		 G3D::float32,
+	 G3D::float32,
          G3D::float64
          G3D::fuzzyEq,
          G3D::fuzzyNe,

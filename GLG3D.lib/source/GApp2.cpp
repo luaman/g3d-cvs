@@ -135,6 +135,11 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     toneMap = ToneMap::create();
 
     debugAssertGLOk();
+
+    m_simTime     = 0;
+    m_realTime    = 0;
+    m_simTimeRate = 1.0;
+    lastWaitTime  = System::time();
 }
 
 
@@ -518,7 +523,7 @@ void GApp2::beginRun() {
     m_endProgram = false;
     m_exitCode = 0;
 
-    onInit();
+    //onInit();
 
     // Move the controller to the camera's location
     defaultController->setFrame(defaultCamera.getCoordinateFrame());
@@ -528,7 +533,7 @@ void GApp2::beginRun() {
 
 
 void GApp2::endRun() {
-    onCleanup();
+    //onCleanup();
 
     Log::common()->section("Files Used");
     for (int i = 0; i < _internal::currentFilesUsed.size(); ++i) {
