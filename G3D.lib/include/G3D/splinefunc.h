@@ -28,6 +28,8 @@ namespace G3D {
     ambient = linearSpline(time, times, color, 10);
  </CODE>
 
+ See also G3D::Spline
+
   @param x         The spline is a function of x; this is the sample to choose.
   @param controlX  controlX[i], controlY[i] is a control points.  It is assumed
                    that controlX are strictly increasing.  XType must support
@@ -57,7 +59,7 @@ YType linearSpline(double x, const XType* controlX, const YType* controlY, int n
 }
 
  
-
+    /** See also G3D::Spline*/
 template<class YType> YType cyclicCatmullRomSpline(
     double       t,
     const YType* controlY,
@@ -96,6 +98,8 @@ template<class YType> YType cyclicCatmullRomSpline(
 
  The t parameter is on the range [0, controlY.size()],
  where integers correspond to control points exactly.
+
+ See also G3D::Spline
 
  @cite http://www.mvps.org/directx/articles/catmull/
 */
