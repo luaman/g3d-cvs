@@ -12,7 +12,16 @@ Application Framework <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I>
 
     G3D provides many services to help you find bugs in your own code.
 
-	Debug and release builds are different!
+    The file log.txt is automatically generated every time you run a
+G3D program.  It contains information about the machine as well as a
+log of any errors encountered during running.  If your program
+crashes, the first place to look is in the log.txt file.  It is
+located in the directory where your program ran, which is the project
+directory for Visual Studio (by default) and is the location printed
+by iCompile immediately before your program ran if you use iCompile on
+Unix-based systems.
+
+    Debug and release builds are different!
 	
     Use the debug binaries with your debug build (and build them yourself if you want to step into the G3D source code.)
     The debug version of the library is loaded with assertions to check bounds, argument validity, and trigger errors

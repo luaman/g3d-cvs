@@ -47,16 +47,23 @@ typedef ReferenceCountedPointer<class ToneMap> ToneMapRef;
   <PRE>
   void onGraphics(RenderDevice* rd) {
     LightingRef        lighting      = toneMap.prepareLighting(app->lighting);
-    LightingParameters skyParameters = toneMap.prepareLightingParameters(app->skyParameters);
+    SkyParameters      skyParameters = toneMap.prepareSkyParameters(app->skyParameters);
 
     toneMap.beginFrame(rd);
-       // rendering code ...
+        <i>rendering code ...</i>
     toneMap.endFrame(rd);
   }
   </PRE>
 
 */
 class ToneMap : public ReferenceCountedObject {
+public:
+
+    class Settings {
+    public:
+
+    };
+
 private:
 
     /** PS14ATI shaders */
@@ -77,6 +84,8 @@ private:
     TextureRef                  bloomMapIntermediate;
 
     bool                        mEnabled;
+    
+    Settings                    mSettings;
 
     /** Inverse gamma ramps. */
     // For programmable we don't use B
@@ -118,6 +127,7 @@ public:
     inline bool enabled() const {
         return mEnabled;
     }
+
 
     /** Call before rendering the scene to create a tone-mapping compatible lighting environment.
         Guaranteed to return a new lighting environment that is safe to further mutate. 

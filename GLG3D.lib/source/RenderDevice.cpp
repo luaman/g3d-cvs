@@ -290,17 +290,17 @@ bool RenderDevice::init(GWindow* window, Log* log) {
     debugAssertGLOk();
 
     if (debugLog) {
-		int t = 0;
+        int t = 0;
        
         int t0 = 0;
         if (GLCaps::supports_GL_ARB_multitexture()) {
             t = t0 = glGetInteger(GL_MAX_TEXTURE_UNITS_ARB);
         }
 
-		if (GLCaps::supports_GL_ARB_fragment_program()) {
-			t = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
-		}
-
+        if (GLCaps::supports_GL_ARB_fragment_program()) {
+            t = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
+        }
+        
         debugLog->printf("numTextureCoords                      = %d\n"
                          "numTextures                           = %d\n"
                          "numTextureUnits                       = %d\n"
@@ -308,7 +308,7 @@ bool RenderDevice::init(GWindow* window, Log* log) {
                          "glGet(GL_MAX_TEXTURE_IMAGE_UNITS_ARB) = %d\n",
                          _numTextureCoords, _numTextures, _numTextureUnits,
                          t0,
-						 t);
+                         t);
     }
 
     if (debugLog) {debugLog->println("Setting video mode");}
@@ -409,18 +409,14 @@ bool RenderDevice::init(GWindow* window, Log* log) {
              );
     }
 
-
-
-	inPrimitive        = false;
-	inIndexedPrimitive = false;
+    inPrimitive        = false;
+    inIndexedPrimitive = false;
 
     if (debugLog) debugLog->println("Done initializing RenderDevice.\n");
 
     _initialized = true;
 
-    if (alphaBits != 0) {
-        enableAlphaWrite();
-    }
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     _window->m_renderDevice = this;
 
@@ -603,7 +599,7 @@ void RenderDevice::push2D(const FramebufferRef& fb, const Rect2D& viewport) {
     setDepthTest(DEPTH_ALWAYS_PASS);
     disableLighting();
     setCullFace(CULL_NONE);
-    disableDepthWrite();
+    setDepthWrite(false);
     setViewport(viewport);
     setObjectToWorldMatrix(CoordinateFrame());
 
@@ -631,13 +627,13 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
 
     depthWrite(true),
     colorWrite(true),
-    alphaWrite(false),
+    alphaWrite(true),
 
     depthTest(DEPTH_LEQUAL),
     alphaTest(ALPHA_ALWAYS_PASS),
     alphaReference(0.0) {
 
-	framebuffer = NULL;
+    framebuffer = NULL;
 
     lights.twoSidedLighting =    false;
 
@@ -897,23 +893,9 @@ void RenderDevice::setState(
         disableClip2D();
     }
     
-    if (newState.depthWrite) {
-        enableDepthWrite();
-    } else {
-        disableDepthWrite();
-    }
-
-    if (newState.colorWrite) {
-        enableColorWrite();
-    } else {
-        disableColorWrite();
-    }
-
-    if (newState.alphaWrite) {
-        enableAlphaWrite();
-    } else {
-        disableAlphaWrite();
-    }
+    setDepthWrite(newState.depthWrite);
+    setColorWrite(newState.colorWrite);
+    setAlphaWrite(newState.alphaWrite);
     debugAssertGLOk();
 
     setDrawBuffer(newState.drawBuffer);
@@ -925,7 +907,7 @@ void RenderDevice::setState(
     if (newState.stencil != state.stencil) {
         setStencilConstant(newState.stencil.stencilReference);
 
-		debugAssertGLOk();
+        debugAssertGLOk();
         setStencilTest(newState.stencil.stencilTest);
 
         setStencilOp(
@@ -1231,12 +1213,12 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     pushState();
     if (clearColor) {
         mask |= GL_COLOR_BUFFER_BIT;
-        enableColorWrite();
+        setColorWrite(true);
     }
 
     if (clearDepth) {
         mask |= GL_DEPTH_BUFFER_BIT;
-        enableDepthWrite();
+        setDepthWrite(true);
     }
 
     int oldMask;
@@ -1452,15 +1434,15 @@ void RenderDevice::disableClip2D() {
 
 
 void RenderDevice::setProjectionAndCameraMatrix(const GCamera& camera) {
-    double pixelAspect = state.viewport.width() / state.viewport.height();
+    float pixelAspect = state.viewport.width() / state.viewport.height();
 
     // Half extents of viewport
-    double y = -camera.getNearPlaneZ() * tan(camera.getFieldOfView() / 2.0);
-    double x = y * pixelAspect;
+    float y = -camera.nearPlaneZ() * tan(camera.fieldOfView() / 2.0);
+    float x = y * pixelAspect;
 
-    double r, l, t, b, n, f;
-    n = -camera.getNearPlaneZ();
-    f = -camera.getFarPlaneZ();
+    float r, l, t, b, n, f;
+    n = -camera.nearPlaneZ();
+    f = -camera.farPlaneZ();
     r = x;
     l = -x;
     t = y;
@@ -2710,7 +2692,6 @@ void RenderDevice::setTexture(
             forceSetTextureMatrix(unit, state.textureUnit[unit].textureMatrix);
         }
     }
-
 }
 
 

@@ -17,7 +17,9 @@
      <li> direct.h is now included by fileutils.h on Win32 to ensure that chdir, mkdir, etc. are available
      <li> Changed distribution directories to place include, lib, and bin under a directory named after the platform
           and all other files one directory up.
-     <li> Made Ray non-virtual
+     <li> G3D::GCamera::unproject
+     <li> Made G3D::Ray non-virtual for efficiency
+     <li> RenderDevice::alphaWrite now defaults to true
      <li> Changed G3D install directory from g3d-7_00 to g3d-7.00
      <li> On a GL 2.0 or greater driver, G3D::GLCaps now assumes the presence of all GL2 extensions even if they are not explicitly listed by the card [Corey Taylor]
      <li> debugPrintf now flushes stderr on Unix systems

@@ -23,8 +23,8 @@ void beginMarkShadows(RenderDevice* renderDevice) {
 
     renderDevice->pushState();
         // Render only to the stencil buffer.
-        renderDevice->disableDepthWrite();
-        renderDevice->disableColorWrite();
+    renderDevice->setDepthWrite(false);
+        renderDevice->setColorWrite(false);
         renderDevice->setDepthTest(RenderDevice::DEPTH_LESS);
 
         // z-fail; decrement for front faces and increment

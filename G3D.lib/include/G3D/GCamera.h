@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-06-02
-  @edited  2006-02-11
+  @edited  2007-05-03
 */
 
 #ifndef G3D_GCAMERA_H
@@ -33,13 +33,13 @@ private:
     /**
     Vertical field of view (in radians)
     */
-    float						fieldOfView;
+    float						m_fieldOfView;
 
     /** 
      The image plane depth corresponding to a vertical field of 
      view, where the film size is 1x1.  
      */
-    float						imagePlaneDepth;
+    float						m_imagePlaneDepth;
 
     /**
      Clipping plane, *not* imaging plane.  Positive numbers.
@@ -51,7 +51,7 @@ private:
      */
     float						farPlane;
 
-    CoordinateFrame             cframe;
+    CoordinateFrame                                     cframe;
 
 public:
 
@@ -78,7 +78,7 @@ public:
         Array<Face>         faceArray;
     };
 
-	GCamera();
+    GCamera();
 
     virtual ~GCamera();
 
@@ -87,44 +87,52 @@ public:
 	void getCoordinateFrame(CoordinateFrame& c) const;
 	void setCoordinateFrame(const CoordinateFrame& c);
            
-   /**
-	 Sets the horizontal field of view, in radians.  The 
-     initial angle is toRadians(55).
+    /**
+       Sets the horizontal field of view, in radians.  The 
+       initial angle is toRadians(55).
 	 <UL>
 	  <LI> toRadians(50) - Telephoto
 	  <LI> toRadians(110) - Normal
 	  <LI> toRadians(140) - Wide angle
 	 </UL>
- 	*/
-	void setFieldOfView(float angle);
+    */
+    void setFieldOfView(float angle);
 
-	/**
-	Sets the field of view based on a desired image plane depth
-	(<I>s'</I>) and film dimensions in world space.  Depth must be positive.  Width,
-	depth, and height are measured in the same units (meters are
-	recommended).  The field of view will span the diagonal to the
-	image.<P> <I>Note</I>: to simulate a 35mm GCamera, set width =
-	0.36 mm and height = 0.24 mm.  The width and height used are
-	generally not the pixel dimensions of the image.  
-	*/
-	void setImagePlaneDepth(
-        float                                   depth,
-        const class Rect2D&                     viewport);
-
-	inline double getFieldOfView() const {
-		return fieldOfView;
-	}
+    /**
+       Sets the field of view based on a desired image plane depth
+       (<I>s'</I>) and film dimensions in world space.  Depth must be positive.  Width,
+       depth, and height are measured in the same units (meters are
+       recommended).  The field of view will span the diagonal to the
+       image.<P> <I>Note</I>: to simulate a 35mm GCamera, set width =
+       0.36 mm and height = 0.24 mm.  The width and height used are
+       generally not the pixel dimensions of the image.  
+    */
+    void setImagePlaneDepth(
+                            float                                   depth,
+                            const class Rect2D&                     viewport);
+    
+    inline float fieldOfView() const {
+        return m_fieldOfView;
+    }
 
     /**
      Projects a world space point onto a width x height screen.  The
      returned coordinate uses pixmap addressing: x = right and y =
-     down.  The resulting z value is <I>rhw</I>.
+     down.  The resulting z value is 0 at the near plane, 1 at the far plane,
+     and varies hyperbolically in between.
 
      If the point is behind the camera, Vector3::inf() is returned.
      */
-    G3D::Vector3 project(
+    Vector3 project(
         const G3D::Vector3&                     point,
         const class Rect2D&                     viewport) const;
+
+    /**
+       Gives the world-space coordinates of screen space point v, where
+       v.x is in pixels from the left, v.y is in pixels from
+       the top, and v.z is on the range 0 (near plane) to 1 (far plane).
+     */
+    Vector3 unproject(const Vector3& v, const Rect2D& viewport) const;
 
     /**
      Returns the pixel area covered by a shape of the given
@@ -150,9 +158,8 @@ public:
      of view for film of dimensions width x height.  See
      setImagePlaneDepth for a discussion of worldspace values width and height. 
     */
-    float getImagePlaneDepth(
+    float imagePlaneDepth(
         const class Rect2D&                     viewport) const;
-
 
     /**
       Returns the world space ray passing through the center of pixel
@@ -160,6 +167,8 @@ public:
       the 3D object space axes: (0,0) is the upper left corner of the screen.
       They are in viewport coordinates, not screen coordinates.
 
+      The ray origin is at the origin.  To start it at the image plane,
+      move it forward by imagePlaneDepth/ray.direction.z
 
       Integer (x, y) values correspond to
       the upper left corners of pixels.  If you want to cast rays
@@ -170,87 +179,79 @@ public:
         float                                  y,
         const class Rect2D&                     viewport) const;
 
-
     /**
       Returns a negative z-value.
      */
-    inline float getNearPlaneZ() const {
+    inline float nearPlaneZ() const {
         return -nearPlane;
     }
 
     /**
      Returns a negative z-value.
      */
-    inline float getFarPlaneZ() const {
+    inline float farPlaneZ() const {
         return -farPlane;
     }
 
-	inline void setFarPlaneZ(float z) {
-		debugAssert(z < 0);
-		farPlane = -z;
-	}
-
-	inline void setNearPlaneZ(float z) {
-		debugAssert(z < 0);
-		nearPlane = -z;
-	}
+    inline void setFarPlaneZ(float z) {
+        debugAssert(z < 0);
+        farPlane = -z;
+    }
+    
+    inline void setNearPlaneZ(float z) {
+        debugAssert(z < 0);
+        nearPlane = -z;
+    }
 
     /**
      Returns the GCamera space width of the viewport.
      */
-    float getViewportWidth(
-        const class Rect2D&                     viewport) const;
+    float viewportWidth(const class Rect2D& viewport) const;
 
     /**
      Returns the GCamera space height of the viewport.
      */
-    float getViewportHeight(       
-        const class Rect2D&                     viewport) const;
-
-    /**
-     Read back a GCamera space z-value at pixel (x, y) from the depth buffer.
-    double getZValue(
-        double			x,
-        double			y,
-        const class Rect2D&                     viewport,
-        double			polygonOffset = 0) const;
-     */
+    float viewportHeight(const class Rect2D& viewport) const;
 
     void setPosition(const Vector3& t);
 
-	/** Rotate the camera in place to look at the target.  
-	    Does not persistently look at that location when the camera moves; i.e., if you move the camera and still want it to look at the old target,
-	    you must call lookAt again after moving the camera.)*/
+    /** Rotate the camera in place to look at the target.  Does not
+        persistently look at that location when the camera moves;
+        i.e., if you move the camera and still want it to look at the
+        old target, you must call lookAt again after moving the
+        camera.)*/
     void lookAt(const Vector3& position, const Vector3& up = Vector3::unitY());
 
-   /**
-    Returns the clipping planes of the frustum, in world space.  
-    The planes have normals facing <B>into</B> the view frustum.
-
-    The plane order is guaranteed to be:
-      Near, Right, Left, Top, Bottom, [Far]
-
-    If the far plane is at infinity, the resulting array will have 
-    5 planes, otherwise there will be 6.
-
-    The viewport is used only to determine the aspect ratio of the screen; the
-    absolute dimensions and xy values don't matter.
+    /**
+       Returns the clipping planes of the frustum, in world space.  
+       The planes have normals facing <B>into</B> the view frustum.
+       
+       The plane order is guaranteed to be:
+       Near, Right, Left, Top, Bottom, [Far]
+       
+       If the far plane is at infinity, the resulting array will have 
+       5 planes, otherwise there will be 6.
+       
+       The viewport is used only to determine the aspect ratio of the screen; the
+       absolute dimensions and xy values don't matter.
     */
-   void getClipPlanes(
-       const Rect2D& viewport,
-       Array<Plane>& outClip) const;
+    void getClipPlanes
+    (
+     const Rect2D& viewport,
+     Array<Plane>& outClip) const;
 
-   /**
-    Returns the world space view frustum, which is a truncated pyramid describing
-    the volume of space seen by this camera.
+    /**
+      Returns the world space view frustum, which is a truncated pyramid describing
+      the volume of space seen by this camera.
     */
-   void getFrustum(const Rect2D& viewport, GCamera::Frustum& f) const;
+    void getFrustum(const Rect2D& viewport, GCamera::Frustum& f) const;
 
-   GCamera::Frustum frustum(const Rect2D& viewport) const;
-
+    GCamera::Frustum frustum(const Rect2D& viewport) const;
+    
     /** Read and Write camera parameters */
     void serialize(class BinaryOutput& bo) const;
-	void deserialize(class BinaryInput& bi);
+
+    void deserialize(class BinaryInput& bi);
    
 };
 

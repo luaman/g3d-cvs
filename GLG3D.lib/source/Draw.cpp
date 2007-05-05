@@ -378,7 +378,7 @@ void Draw::capsule(
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
                 numPasses = 2;
                 renderDevice->setCullFace(RenderDevice::CULL_FRONT);
-                renderDevice->disableDepthWrite();
+                renderDevice->setDepthWrite(false);
             }
 
             renderDevice->setColor(solidColor);
@@ -404,7 +404,7 @@ void Draw::capsule(
         }
 
         if (wireColor.a > 0) {
-            renderDevice->enableDepthWrite();
+            renderDevice->setDepthWrite(true);
             renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
 
             wireSphereSection(sphere1, renderDevice, wireColor, false, true);
@@ -474,7 +474,7 @@ void Draw::cylinder(
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
                 numPasses = 2;
                 renderDevice->setCullFace(RenderDevice::CULL_FRONT);
-                renderDevice->disableDepthWrite();
+                renderDevice->setDepthWrite(false);
             }
 
             renderDevice->setColor(solidColor);
@@ -522,7 +522,7 @@ void Draw::cylinder(
         }
 
         if (wireColor.a > 0) {
-            renderDevice->enableDepthWrite();
+            renderDevice->setDepthWrite(true);
             renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
 
             // Line around center
@@ -760,7 +760,7 @@ void Draw::box(
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
                 numPasses = 2;
                 renderDevice->setCullFace(RenderDevice::CULL_FRONT);
-                renderDevice->disableDepthWrite();
+                renderDevice->setDepthWrite(false);
             } else {
                 renderDevice->setCullFace(RenderDevice::CULL_BACK);
             }
@@ -785,7 +785,7 @@ void Draw::box(
         }
 
         if (wireColor.a > 0) {
-            renderDevice->enableDepthWrite();
+            renderDevice->setDepthWrite(true);
             renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
             renderDevice->setColor(wireColor);
             renderDevice->setLineWidth(2);
@@ -1008,7 +1008,7 @@ void Draw::sphere(
                 numPasses = 2;
                 renderDevice->setCullFace(RenderDevice::CULL_FRONT);
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-                renderDevice->disableDepthWrite();
+                renderDevice->setDepthWrite(false);
             } else {
                 renderDevice->setCullFace(RenderDevice::CULL_BACK);
             }

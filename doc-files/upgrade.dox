@@ -69,6 +69,9 @@ the old files.
 </p>
 
 <hr noshade>
+<p><b>G3D::GCamera::project now returns the depth buffer value and not -1/z in the z-component.</b></p>
+
+<hr noshade>
 <p><b>ALL CAPS Vector, Color, Matrix constants</b></p>
 <p>
 The all-caps constants have been renamed to lower-case static functions.

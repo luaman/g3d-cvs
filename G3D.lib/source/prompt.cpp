@@ -553,9 +553,6 @@ static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef e
 
 #   pragma unused(handlerRef)
 	
-    HICommand commandStruct;
-    UInt32 commandID;
-    
     callbackData.whichButton[0] = callbackData.myIndex;
 	
     // If we get here we can close the window

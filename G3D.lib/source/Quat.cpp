@@ -162,7 +162,7 @@ Quat Quat::slerp(
         // Change the sign and fix the dot product; we need to
         // loop the other way to get the shortest path
         quat1 = -quat1;
-        cosphi = quat0.dot(quat1);
+        cosphi = -cosphi;
     }
 
     // Using G3D::aCos will clamp the angle to 0 and pi

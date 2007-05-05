@@ -471,11 +471,10 @@ void Sky::render(
 
         renderDevice->setColor(lighting.skyAmbient);
         renderDevice->setCullFace(RenderDevice::CULL_BACK);
-        renderDevice->disableDepthWrite();
+        renderDevice->setDepthWrite(false);
         renderDevice->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
 
-
-	    // Draw the sky box
+        // Draw the sky box
         renderDevice->resetTextureUnit(0);
         debugAssertGLOk();
         renderBox(renderDevice);
@@ -589,7 +588,7 @@ void Sky::renderLensFlare(
 
         renderDevice->setColor(lighting.skyAmbient);
         renderDevice->setCullFace(RenderDevice::CULL_BACK);
-        renderDevice->disableDepthWrite();
+        renderDevice->setDepthWrite(false);
         renderDevice->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
         renderDevice->resetTextureUnit(0);
         debugAssertGLOk();

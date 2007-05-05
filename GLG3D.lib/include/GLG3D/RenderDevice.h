@@ -624,10 +624,6 @@ public:
 
     inline void setDepthRange(double low, double high);
 
-    /** @deprecated Use setColorWrite */
-    inline void enableColorWrite();
-    inline void disableColorWrite();
-
     /** Color writing is on by default.  Disabling color write allows a program to 
         render to the depth and stencil buffers without creating a visible image in the frame buffer.  
         This is useful for occlusion culling, shadow rendering, and some computational solid geometry algorithms.  
@@ -636,12 +632,6 @@ public:
 
     /** Returns true if colorWrite is enabled */
     bool colorWrite() const;
-
-    /** Defaults to true if the screen has an alpha channel, otherwise
-        defaults to false.
-        @deprecated Use setAlphaWrite */
-    inline void enableAlphaWrite();
-    inline void disableAlphaWrite();
 
     /** The frame buffer may optionally have an alpha channel for each pixel, depending on how
         the G3D::GWindow was initialized (see G3D::RenderDevice::init, and G3D::GWindow::Settings).
@@ -652,9 +642,7 @@ public:
         output, not an alpha input.  See RenderDevice::setBlendFunc for a discussion of blending.*/
     inline void setAlphaWrite(bool b);
 
-    /** @deprecated Use setDepthWrite */
-    inline void enableDepthWrite();
-    inline void disableDepthWrite();
+    /** Defaults to true */
     inline void setDepthWrite(bool b);
 
     /** Returns true if depthWrite is enabled */
@@ -1717,96 +1705,35 @@ public:
 
 
 inline void RenderDevice::setAlphaWrite(bool a) {
-    if (a) {
-        enableAlphaWrite();
-    } else {
-        disableAlphaWrite();
+    debugAssert(! inPrimitive);
+    minStateChange();
+    if (state.alphaWrite != a) {
+        minGLStateChange();
+        GLint c = state.colorWrite ? GL_TRUE : GL_FALSE;
+        glColorMask(c, c, c, GL_TRUE);
+        state.alphaWrite = a;
     }
 }
 
 
 inline void RenderDevice::setColorWrite(bool a) {
-    if (a) {
-        enableColorWrite();
-    } else {
-        disableColorWrite();
+    debugAssert(! inPrimitive);
+    minStateChange();
+    if (state.colorWrite != a) {
+        minGLStateChange();
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, state.alphaWrite ? GL_TRUE : GL_FALSE);
+        state.colorWrite = a;
     }
 }
 
 
 inline void RenderDevice::setDepthWrite(bool a) {
-    if (a) {
-        enableDepthWrite();
-    } else {
-        disableDepthWrite();
-    }
-}
-
-
-inline void RenderDevice::enableAlphaWrite() {
     debugAssert(! inPrimitive);
     minStateChange();
-    if (! state.alphaWrite) {
+    if (state.depthWrite != a) {
         minGLStateChange();
-        GLint c = state.colorWrite ? GL_TRUE : GL_FALSE;
-        glColorMask(c, c, c, GL_TRUE);
-        state.alphaWrite = true;
-    }
-}
-
-
-inline void RenderDevice::disableAlphaWrite() {
-    debugAssert(! inPrimitive);
-    minStateChange();
-    if (state.alphaWrite) {
-        minGLStateChange();
-        GLint c = state.colorWrite ? GL_TRUE : GL_FALSE;
-        glColorMask(c, c, c, GL_FALSE);
-        state.alphaWrite = false;
-    }
-}
-
-inline void RenderDevice::enableColorWrite() {
-    debugAssert(! inPrimitive);
-    minStateChange();
-    if (! state.colorWrite) {
-        minGLStateChange();
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, state.alphaWrite ? GL_TRUE : GL_FALSE);
-        state.colorWrite = true;
-    }
-}
-
-
-inline void RenderDevice::disableColorWrite() {
-    debugAssert(! inPrimitive);
-
-    minStateChange();
-    if (state.colorWrite) {
-        minGLStateChange();
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, state.alphaWrite ? GL_TRUE : GL_FALSE);
-        state.colorWrite = false;
-    }
-}
-
-
-inline void RenderDevice::enableDepthWrite() {
-    debugAssert(! inPrimitive);
-    minStateChange();
-    if (! state.depthWrite) {
-        minGLStateChange();
-        glDepthMask(GL_TRUE);
-        state.depthWrite = true;
-    }
-}
-
-
-inline void RenderDevice::disableDepthWrite() {
-    debugAssert(! inPrimitive);
-    minStateChange();
-    if (state.depthWrite) {
-        minGLStateChange();
-        glDepthMask(GL_FALSE);
-        state.depthWrite = false;
+        glDepthMask(a);
+        state.depthWrite = a;
     }
 }
 
