@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="scratch"
-	ProjectGUID="{7E3C8363-BCA0-4BBD-9830-B9095C1FA8A9}"
-	RootNamespace="scratch"
+	Name="models"
+	ProjectGUID="{EE7E98B5-C240-4475-8019-FB6FC50CEFED}"
+	RootNamespace="models"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -21,7 +21,6 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,7 +40,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\G3D.lib\include&quot;;&quot;$(ProjectDir)..\GLG3D.lib\include&quot;;&quot;$(ProjectDir)..\zlib.lib\include&quot;;&quot;$(ProjectDir)..\png.lib\include&quot;;&quot;$(ProjectDir)..\jpeg.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -49,7 +47,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -99,7 +97,7 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -118,13 +116,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\G3D.lib\include&quot;;&quot;$(ProjectDir)..\GLG3D.lib\include&quot;;&quot;$(ProjectDir)..\zlib.lib\include&quot;;&quot;$(ProjectDir)..\png.lib\include&quot;;&quot;$(ProjectDir)..\jpeg.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -139,7 +136,7 @@
 				Name="VCLinkerTool"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -179,7 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\scratch\main.cpp"
+				RelativePath="..\demos\models\loadScene.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\demos\models\main.cpp"
 				>
 			</File>
 		</Filter>
@@ -188,6 +189,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\demos\models\App.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
