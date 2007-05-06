@@ -79,15 +79,15 @@ void App::onConsoleCommand(const std::string& str) {
         // Add commands here
     }
 
-    console->printf("Unknown command\n");
+    console->printf("Unknown command\\n");
     printConsoleHelp();
 }
 
 void App::printConsoleHelp() {
-    console->printf("exit          - Quit the program\n");
-    console->printf("help          - Display this text\n\n");
-    console->printf("~/ESC         - Open/Close console\n");
-    console->printf("TAB           - Enable first-person camera control\n");
+    console->printf("exit          - Quit the program\\n");
+    console->printf("help          - Display this text\\n\\n");
+    console->printf("~/ESC         - Open/Close console\\n");
+    console->printf("TAB           - Enable first-person camera control\\n");
 }
 
 void App::onGraphics(RenderDevice* rd) {
