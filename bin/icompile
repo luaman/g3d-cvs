@@ -811,7 +811,7 @@ if __name__ == '__main__':
 
     # --help and --version are processed immediately
     if ('--version' in args):
-        printVersion()
+        printVersion(version)
         sys.exit(0)
 
     if ('--help' in args):

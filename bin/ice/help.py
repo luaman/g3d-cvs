@@ -11,7 +11,7 @@ import copyifnewer
 #                                  Version                                   #
 ##############################################################################
 
-def printVersion():
+def printVersion(version):
     print "iCompile " + versionToString(version)
     print "Copyright 2003-2007 Morgan McGuire"
     print "All rights reserved"
@@ -74,7 +74,7 @@ Options:
                   from automated build shell scripts.  If
                   --template <tname> is specified as well, a default
                   set of files will be built.  The only legal templates
-                  are 'hello' and 'empty' (default).
+                  are 'hello', 'G3D', and 'empty' (default).
 
  --info           Read configuration files and command line options, but instead
                   of building, print out information about where the generated

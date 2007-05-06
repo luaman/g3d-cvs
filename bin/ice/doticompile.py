@@ -2,7 +2,7 @@
 # 
 # Manage .icompile files
 
-import ConfigParser, string, os, copyifnewer
+import ConfigParser, string, os, copyifnewer, templateG3D, templateHello
 from utils import *
 from doxygen import *
 from variables import *
@@ -333,8 +333,8 @@ def getConfigurationState(args):
         colorPrint("ERROR: cannot specify --template without --noprompt", ERROR_COLOR)
         sys.exit(-208)
         
-    if state.template != 'hello' and state.template != 'empty' and state.template != '':
-        colorPrint("ERROR: 'hello' and 'empty' are the only legal template names (template='" +
+    if state.template != 'hello' and state.template != 'G3D' and state.template != 'empty' and state.template != '':
+        colorPrint("ERROR: 'hello', 'G3D', and 'empty' are the only legal template names (template='" +
                    state.template + "')", ERROR_COLOR)
         sys.exit(-209)
 
@@ -491,59 +491,15 @@ def checkForProjectFile(state, args):
 
     if state.noPrompt and state.template != '':
         if (state.template == 'hello'):
-            generateStarterFiles(state)
+            templateHello.generateStarterFiles(state)
+        elif (state.template == 'G3D'):
+            templateG3D.generateStarterFiles(state)
         elif (state.template == 'empty'):
             # Intentionally do nothing
             ''
         else:
             print 'ERROR: illegal template'
             
-    _writeFile(projectFile, defaultProjectFileContents);
+    writeFile(projectFile, defaultProjectFileContents);
 
-def _writeFile(filename, contents):
-    f = file(filename, 'wt')
-    f.write(contents)
-    f.close()
-    
-
-defaultMainCppContents = """
-/** @file main.cpp
- */
-#include <stdio.h>
-
-int main(int argc, const char** argv) {
-    printf("Hello World!\\n");
-    return 0;
-}
-"""
-
-
-""" Generates an empty project. """
-def generateStarterFiles(state):
-    mkdir('build')
-    mkdir('source')
-    mkdir('doc-files')
-
-    if not isLibrary(state.binaryType):
-        mkdir('data-files')
-        _writeFile('source/main.cpp', defaultMainCppContents)
-    else:
-        mkdir('include')
-        incDir = pathConcat('include', state.projectName)
-        mkdir(incDir)
-        _writeFile(pathConcat(incDir, state.projectName + '.h'), _headerContents(state))
-
-
-""" Generates the contents of the master header file for a library """
-def _headerContents(state):
-    guard = state.projectName.upper() + '_H'
-    return """
-/** @file """ + state.projectName + """.h
- */
-
-#ifndef """ + guard + """
-#define """ + guard + """
-
-#endif
-"""
     

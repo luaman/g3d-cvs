@@ -18,29 +18,33 @@ Every application needs a framework that manages events, provides a
 command-line or graphical user interface, and initializes key
 subsystems like OpenGL and Winsock.  Choose whether you want to:
 
+\htmlonly <blockquote> \endhtmlonly
 1. Start a new 3D project from scratch (using the \link g3dframework %G3D framework \endlink)
 <br>
 2. Add 3D graphics to an \link externalframe existing framework \endlink (e.g., MFC, wxWidgets, Carbon, QT, Glut) 
 <br>
 3. Use %G3D as a \link noframework utility library \endlink without any framework
+\htmlonly </blockquote>\endhtmlonly
+
+\htmlonly <hr noshade> \endhtmlonly
 
 @subsection g3dframework Option 1: GApp2 Framework
 
 Small games, research projects, and homework assignments are written
 on short shedules and have limited GUI needs.  The G3D::GApp2 class is
-designed to get such projects running quickly and easily.
+designed to get such projects running quickly and easily.  See <a href="../demos/empty/main.cpp">empty/main.cpp</a> for a sample program using it.
 
 G3D::GApp2 will create a window, initialize OpenGL, create a log file,
 and provide you with framerate and other debugging information
 on-screen.  It works exactly the same on every platform, so you can
-write once and run anywhere.  It also provides a series of event handlers
-that you can override to respond to various high-level events like keypresses, rendering once
+write once and run anywhere.  By subclassing it you can override methods to
+respond to various high-level events like keypresses, rendering once
 per frame, and processing input from the network or simulation.
 
 See the \link guideapp Application Framework \endlink page for more
-information about using these classes.  See the <a
-href="../demos/empty"><code>empty</code></a> G3D project demo for a "Hello World"-style example of the %G3D application framework.
+information about using GApp2 classes.
 
+\htmlonly <hr noshade> \endhtmlonly
 
 @subsection externalframe Option 2: External Framework
 
@@ -76,6 +80,8 @@ G3D::RenderDevice::beginFrame() and G3D::RenderDevice::endFrame().
 This constructs an image on the back buffer--to make it visible you
 must invoke G3D::GWindow::swapOpenGLBuffers().
 
+\htmlonly <hr noshade> \endhtmlonly
+
 @subsection noframework Option 3: G3D as a Utility Library
 
 Some features in %G3D are useful to any program, regardles of whether
@@ -92,6 +98,4 @@ the %GLG3D.lib portion.  This means that you can use %G3D.lib without
 linking against OpenGL or setting up an event handling routine.
 
 \htmlonly <hr noshade> \endhtmlonly
-
-
 */

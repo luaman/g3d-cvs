@@ -850,3 +850,12 @@ def listCFiles(dir = '', exclude = None):
 
     os.path.walk(dir, _listCFilesVisitor, result)
     return result
+
+####################################################################
+
+""" Writes an entire text file to disk """
+def writeFile(filename, contents):
+    f = file(filename, 'wt')
+    f.write(contents)
+    f.close()
+    
