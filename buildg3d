@@ -147,7 +147,7 @@ def ilib(args):
      x = 0
 
      if os.name == 'nt':
-         return VC8('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib']);
+         return VC8('VC8\\G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib']);
 
      if (os.uname()[0] == 'Darwin') or (os.name == 'nt'):
          # Build jpeg

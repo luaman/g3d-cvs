@@ -318,7 +318,7 @@ def VCExpress(filename, configs):
     for config in configs:
         for target in ['debug', 'release']:
             logfile = tempfile.mktemp()
-            args = [filename]
+            args = [to_local_path(filename)]
 
             args.append('/build')
             args.append(target)
@@ -409,7 +409,7 @@ def run(program, args = [], env = {}):
     # Because the program name may contain spaces, we
     # add quotes around it.
     if (os.name == 'nt'):
-        args.insert(0, '"' + program + '"')
+        args.insert(0, '"' + to_local_path(program) + '"')
     else:
         # Linux doesn't like quotes around its programs
         args.insert(0, program)    
@@ -420,6 +420,10 @@ def run(program, args = [], env = {}):
     newEnv = {}
     newEnv.update(os.environ)
     newEnv.update(env)
+
+    program = to_local_path(program)
+
+    #print os.getcwd(), program, args
 
     if (os.name == 'nt'):
         # Windows doesn't support spawnvp
