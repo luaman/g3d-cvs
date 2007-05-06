@@ -1500,12 +1500,12 @@ public:
      routine (provided for backwards compatibility).  The constructed
      window is deleted on shutdown.
      */
-    bool init(const GWindow::Settings& settings = GWindow::Settings(), class Log* log = NULL);
+    void init(const GWindow::Settings& settings = GWindow::Settings(), class Log* log = NULL);
 
     /**
      The renderDevice will <B>not</B> delete the window on cleanup.
      */
-    bool init(GWindow* window, class Log* log = NULL);
+    void init(GWindow* window, class Log* log = NULL);
 
     /** Returns true after RenderDevice::init has been called. */
     bool initialized() const;

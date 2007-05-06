@@ -202,15 +202,15 @@ bool RenderDevice::supportsOpenGLExtension(
 }
 
 
-bool RenderDevice::init(
+void RenderDevice::init(
     const GWindow::Settings&      _settings,
     Log*                        log) {
 
     deleteWindow = true;
     #ifdef G3D_WIN32
-        return init(Win32Window::create(_settings), log);
+        init(Win32Window::create(_settings), log);
     #else
-        return init(new SDLWindow(_settings), log);
+        init(new SDLWindow(_settings), log);
     #endif
 }
 
@@ -220,7 +220,7 @@ GWindow* RenderDevice::window() const {
 }
 
 
-bool RenderDevice::init(GWindow* window, Log* log) {
+void RenderDevice::init(GWindow* window, Log* log) {
     debugAssert(! initialized());
     debugAssert(window);
 
@@ -419,8 +419,6 @@ bool RenderDevice::init(GWindow* window, Log* log) {
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     _window->m_renderDevice = this;
-
-    return true;
 }
 
 

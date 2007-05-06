@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\CameraLocation.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Capsule.cpp"
 				>
 			</File>
@@ -493,6 +497,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\CameraLocation.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Capsule.h"
 				>
 			</File>
@@ -729,7 +737,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\G3D.lib\include\G3D\spline.h"
+				RelativePath="..\G3D.lib\include\G3D\Spline.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\splinefunc.h"
 				>
 			</File>
 			<File

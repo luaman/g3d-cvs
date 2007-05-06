@@ -1,5 +1,5 @@
 /*
- @file LightingParameters.cpp
+ @file SkyParameters.cpp
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-10-05
@@ -9,7 +9,7 @@
 #include "GLG3D/LightingParameters.h"
 #include "GLG3D/Sky.h"
 #include "G3D/Matrix3.h"
-#include "G3D/spline.h"
+#include "G3D/splinefunc.h"
 #include "G3D/GLight.h"
 #include <sys/timeb.h>
 #include <sys/types.h> 

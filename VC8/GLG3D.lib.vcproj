@@ -265,10 +265,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\LightingParameters.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\Load3DS.h"
 				>
 			</File>
@@ -318,6 +314,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\Sky.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\SkyParameters.cpp"
 				>
 			</File>
 			<File
@@ -471,10 +471,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\LightingParameters.h"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\MD2Model.h"
 				>
 			</File>
@@ -520,6 +516,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Sky.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\SkyParameters.h"
 				>
 			</File>
 			<File
