@@ -1,5 +1,5 @@
 /**
- @file LightingParameters.h
+ @file SkyParameters.h
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-10-05
@@ -9,8 +9,8 @@
  All rights reserved.
  */
 
-#ifndef G3D_LIGHTINGPARAMETERS_H
-#define G3D_LIGHTINGPARAMETERS_H
+#ifndef G3D_SKYPARAMETERS_H
+#define G3D_SKYPARAMETERS_H
 
 #include "G3D/platform.h"
 #include "GLG3D/Texture.h"
@@ -115,10 +115,10 @@ public:
 
 // TODO: Remove
 /** @deprecated */
-typedef SkyParameters LightingParameters;
+typedef SkyParameters SkyParameters;
 
 /** A rich environment lighting model that contains both global and local sources.
-    See also LightingParameters, a class that describes a sun and moon lighting 
+    See also SkyParameters, a class that describes a sun and moon lighting 
     model. */
 class Lighting : public ReferenceCountedObject {
 private:

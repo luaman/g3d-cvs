@@ -369,7 +369,7 @@ void GApp2::onGraphics(RenderDevice* rd) {
     Array<PosedModel2DRef>      posed2DArray;
     Array<PosedModelRef>        opaque, transparent;
 
-    LightingParameters lighting(G3D::toSeconds(11, 00, 00, AM));
+    SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->clear(true, true, true);

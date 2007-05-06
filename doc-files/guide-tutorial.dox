@@ -260,13 +260,13 @@ sky = Sky::create(_app->renderDevice, _app->dataDir + "sky/");
 Your <tt>Demo</tt>'s init method will be called for you automatically.
 Now modify <tt>Demo::doGraphics</tt>. After you have set up the camera, but before
 you draw the axes, create and initialize a local variable of type
-G3D::LightingParameters and call G3D::Sky::render with these lighting parameters
+G3D::SkyParameters and call G3D::Sky::render with these lighting parameters
 (hint: you might want to use G3D::toSeconds as well). Consult the
 documentation for the details about these functions.
 
 Enable lighting for the scene using G3D::RenderDevice::enableLighting. Use
 methods in the G3D::RenderDevice and G3D::GLight classes to set the ambient
-light color and set a directional light (use light 0); the G3D::LightingParameters
+light color and set a directional light (use light 0); the G3D::SkyParameters
 object will tell you the ambient light color, light direction, and light color. 
 Check out the G3D::GLight and G3D::RenderDevice::setLight and 
 G3D::RenderDevice::setAmbientLightColor methods.

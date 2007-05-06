@@ -37,8 +37,6 @@ private:
 
     void generateShadowMap(const GLight& light, const Array<PosedModelRef>& shadowCaster);
 
-    ToneMapRef                  toneMap;
-
     TextureRef                  shadowMap;
     Matrix4                     lightMVP;
 
@@ -46,7 +44,7 @@ private:
 
     SkyRef                      sky;
 
-    LightingParameters          skyParameters;
+    SkyParameters               skyParameters;
     LightingRef                 lighting;
 
     Array<EntityRef>            entityArray;

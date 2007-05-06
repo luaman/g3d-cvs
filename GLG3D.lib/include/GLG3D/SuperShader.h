@@ -11,7 +11,7 @@
 #define SUPERSHADER_H
 
 #include "G3D/ReferenceCount.h"
-#include "GLG3D/LightingParameters.h"
+#include "GLG3D/SkyParameters.h"
 #include "GLG3D/Shader.h"
 
 namespace G3D {
@@ -19,6 +19,9 @@ namespace G3D {
 typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
 
 /**
+ A one-size-fits-all shader that combines most common illumination effects
+ efficiently.
+
  Do not set the shader->args on a SuperShader; they are ignored.
  Instead set the material properties and lighting environment.
 
@@ -33,7 +36,7 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
 
  these are located in the data/SuperShader directory of the G3D distribution.
 
- @cite McGuire, The SuperShader. Chapter 8.1, 485--498, in <i>ShaderX<sup>4</sup></i>, W. Engel ed., 2005.
+ @cite McGuire, The %SuperShader. Chapter 8.1, 485--498, in <i>ShaderX<sup>4</sup></i>, W. Engel ed., 2005.
  */
 // TODO: subclass _Shader so that we don't pick up the 'args' variable.
 class SuperShader : public Shader {
@@ -95,7 +98,11 @@ public:
         }
     };
 
-    /** Beta API; subject to change in future releases.
+    /** Describes the properties of a material to be used with SuperShader. Each of the Component fields
+        can be set to a scalar constant, a color, a texture map, or the product of a color and a texture map.
+        Unused components are optimized away by the SuperShader.
+    
+        Beta API; subject to change in future releases.
         Illumination Equation:
 
         dst1 = underlying value in frame buffer
@@ -123,10 +130,14 @@ public:
         */
 	class Material {
 	public:
-        /** Diffuse reflection of lights */
+        friend SuperShader;
+
+        /** Diffuse reflection of lights. The alpha channel is used as a mask, e.g., to cut out the shape of
+            a leaf or a billboard, but does NOT encode transparency.  Use the transmit member to specify
+            (optionally colored) transparency.*/
         Component               diffuse;
 
-        /** Glow */
+        /** Glow without illuminating other objects. */
         Component               emit;
 
         /** Specular (glossy) reflection of lights. */
@@ -135,9 +146,10 @@ public:
         /** Sharpness of light reflections.*/
         Component               specularExponent;
 
+        /** Translucency.  Can be colored. */
         Component               transmit;
 
-        /** Perfect specular (mirror) reflection of the environment */
+        /** Perfect specular (mirror) reflection of the environment. */
         Component               reflect;
 
         /** RGB*2-1 = tangent space normal, A = tangent space bump height.
@@ -183,7 +195,7 @@ public:
 
         /** 
           If Material::changed is true, copies the diffuse texture's alpha channel to 
-          all other maps.
+          all other maps. Call before rendering with this material.
          */
         void enforceDiffuseMask();
 	};

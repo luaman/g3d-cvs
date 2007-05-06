@@ -525,7 +525,7 @@ SkyParameters ToneMap::prepareSkyParameters(const SkyParameters& L) const {
     bool on = mEnabled && (profile != NO_TONE);
 
     double lightScale = on ? 0.75 : 1.0;
-    LightingParameters params = L;
+    SkyParameters params = L;
 
     params.emissiveScale *= lightScale;
     params.skyAmbient   *= on ? 0.5 : 1.0;

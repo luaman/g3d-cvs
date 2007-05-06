@@ -10,7 +10,7 @@
 #include "G3D/fileutils.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/Sky.h"
-#include "GLG3D/LightingParameters.h"
+#include "GLG3D/SkyParameters.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/g3dmath.h"
 #include "GLG3D/TextureFormat.h"
@@ -454,8 +454,9 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
 
 
 void Sky::render(
-    RenderDevice* renderDevice,
-    const LightingParameters&           lighting) {
+    RenderDevice*                   renderDevice,
+    const SkyParameters&            lighting) {
+
     debugAssertGLOk();
     debugAssert(renderDevice != NULL);
 
@@ -492,7 +493,7 @@ void Sky::render(
 
 void Sky::drawMoonAndStars(
     RenderDevice*               renderDevice, 
-    const LightingParameters&   lighting) {
+    const SkyParameters&   lighting) {
 
     Vector3 moonPosition = lighting.physicallyCorrect ? lighting.trueMoonPosition : lighting.moonPosition;
 
@@ -538,7 +539,7 @@ void Sky::drawMoonAndStars(
 
 void Sky::drawSun(
     RenderDevice*               renderDevice, 
-    const LightingParameters&   lighting) {
+    const SkyParameters&   lighting) {
 
     Vector3 sunPosition = lighting.physicallyCorrect ? lighting.trueSunPosition : lighting.sunPosition;
 	
@@ -563,7 +564,7 @@ void Sky::drawSun(
 
 void Sky::renderLensFlare(
     RenderDevice* renderDevice, 
-    const LightingParameters&           lighting) {
+    const SkyParameters&           lighting) {
 	
     debugAssert(renderDevice != NULL);
 

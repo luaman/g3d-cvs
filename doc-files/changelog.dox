@@ -229,7 +229,7 @@
     <LI> Fix: G3D::Shape::type is now const
     <LI> Fix: 0 --> 0.0f FrameBuffer.h [Erik]
     <LI> Fix: Fixed Texture read-back dimensions for cube-map
-    <LI> Fix: Missing #include in LightingParameters.h [Erik]
+    <LI> Fix: Missing #include in SkyParameters.h [Erik]
     <LI> Fix: Quad triangle counts are now accurate (were off by factor of 4 in 6.08)
     <LI> Fix: contrib/ArticulatedModel now correctly masks all components using the diffuse alpha in fixed function mode
     <LI> Fix: G3D::CoordinateFrame::getHeading was flipped front-to-back
@@ -1036,7 +1036,7 @@
 		  must all come from the same VARArea now.
      <LI> Disabled the "conditional is constant" level 4 warning on Windows
 	      that is triggered by the for-loop scoping fix.
-     <LI> G3D::LightingParameters::directionalLight
+     <LI> G3D::SkyParameters::directionalLight
      <LI> G3D::TextureManager (Peter S. & Morgan)
      <LI> Flipped skybox X-axis to match OpenGL cube map coordinates
      <LI> Texture now uses hardware MIP-map generation
@@ -1429,7 +1429,7 @@
      <LI> Table [] operator now returns a non-const reference
      <LI> RenderDevice::getFrameRate, RenderDevice::getTriangleRate, RenderDevice::getTriangleCount
      <LI> ManualCameraController::setMoveRate, ManualCameraController::setTurnRate
-     <LI> LightingParameters default constructor
+     <LI> SkyParameters default constructor
      <LI> Vector2, Vector3, Vector4 isZero(), isUnit(), isFinite()
      <LI> Vector4::length(), Vector4::squaredLength()
      <LI> isValidPointer now returns false for 0xFEEEFEEE
@@ -1474,7 +1474,7 @@
      <LI> Sky cube data [Jauhn Dabz, jauhn@yahoo.com, http://nullpoint.fragland.net]
      <LI> G3D::UserInput
      <LI> G3D::ManualCameraController
-     <LI> G3D::LightingParameters
+     <LI> G3D::SkyParameters
      <LI> G3D::toSeconds, G3D::AMPM, G3D::GameTime, G3D::RealTime
      <LI> G3D::RenderDevice::project
      <LI> G3D::linearSpline

@@ -14,7 +14,7 @@
 #include <GLG3D/RenderDevice.h>
 #include <GLG3D/Texture.h>
 #include <GLG3D/Shader.h>
-#include <GLG3D/LightingParameters.h>
+#include <GLG3D/SkyParameters.h>
 
 namespace G3D {
 
@@ -132,7 +132,7 @@ public:
     /** Call before rendering the scene to create a tone-mapping compatible lighting environment.
         Guaranteed to return a new lighting environment that is safe to further mutate. 
     
-        If you created the lighting from LightingParameters that was itself prepared, do not call
+        If you created the lighting from SkyParameters that was itself prepared, do not call
         this method or the lights will be too dark.
     */
     LightingRef prepareLighting(const LightingRef& L) const;

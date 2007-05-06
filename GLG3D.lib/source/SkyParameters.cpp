@@ -6,7 +6,7 @@
  @edited  2006-06-28
  */
 
-#include "GLG3D/LightingParameters.h"
+#include "GLG3D/SkyParameters.h"
 #include "GLG3D/Sky.h"
 #include "G3D/Matrix3.h"
 #include "G3D/splinefunc.h"

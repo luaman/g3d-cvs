@@ -123,8 +123,8 @@ void App::generateShadowMap(const GLight& light, const Array<PosedModelRef>& sha
 
 
 void App::onGraphics(RenderDevice* rd) {
-    LightingRef        lighting      = toneMap->prepareLighting(this->lighting);
-    LightingParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
+    LightingRef        lighting = toneMap->prepareLighting(this->lighting);
+    SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
     if (! GLCaps::supports_GL_ARB_shadow() && (lighting->shadowedLightArray.size() > 0)) {
         // We're not going to be able to draw shadows, so move the shadowed lights into

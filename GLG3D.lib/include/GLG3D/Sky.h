@@ -33,7 +33,7 @@ typedef ReferenceCountedPointer<class Sky> SkyRef;
   <PRE>
     // Showing the default filename mask for clarity
     SkyRef sky = Sky::fromFile(renderDevice, "data/sky/", "plainsky/null_plainsky512_*.jpg");
-    LightingParameters lighting(toSeconds(9, 00, 00, AM));
+    SkyParameters lighting(toSeconds(9, 00, 00, AM));
 
     ...
 

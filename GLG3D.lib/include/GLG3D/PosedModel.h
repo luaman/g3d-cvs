@@ -12,7 +12,7 @@
 
 #include "G3D/Array.h"
 #include "GLG3D/Texture.h"
-#include "GLG3D/LightingParameters.h"
+#include "GLG3D/SkyParameters.h"
 #include "G3D/Color4.h"
 #include "G3D/MeshAlg.h"
 
