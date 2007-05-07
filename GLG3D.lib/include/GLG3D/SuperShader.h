@@ -259,7 +259,9 @@ private:
     ShaderRef               shadowMappedShader;
 
     // Don't call
-    SuperShader() {}
+    SuperShader() {
+        debugAssert(false);
+    }
 
 public:
 

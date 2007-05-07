@@ -350,6 +350,117 @@ IFSModel::PosedIFSModel::PosedIFSModel(
 }
 
 
+void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
+    const size_t varSize = 2 * 1024 * 1024;
+    if (IFSModel::varArea.isNull()) {
+        // Initialize VAR
+        IFSModel::varArea = VARArea::create(varSize);
+    }
+
+    if (perVertexNormals) {
+        size_t modelSize = sizeof(Vector3) * 2 * model->geometry.vertexArray.size() + 
+							  sizeof(Vector2) * model->texArray.size();
+
+        if (! IFSModel::varArea.isNull() && 
+		    (varArea->totalSize() >= modelSize)) {
+            // Can use VAR
+
+            if (varArea->freeSize() < modelSize + 128) {
+                // Not enough free space left in the common area;
+                // reset it to allocate new arrays (this might
+                // stall the pipeline).  Otherwise, just allocate
+                // on top of what was already there.
+                varArea->reset();
+
+                // Resetting invalidates the old VAR arrays.
+                // Just knock out the lastModel to prevent a match.
+
+                lastModel = NULL;
+            }
+
+            VAR vertex;
+            VAR normal;
+			VAR tex;
+
+            if (model != lastModel) {
+                // Upload new data (cache miss)
+                lastModel       = model;
+                lastVertexVAR   = VAR(model->geometry.vertexArray, IFSModel::varArea);
+                lastNormalVAR   = VAR(model->geometry.normalArray, IFSModel::varArea);
+                lastTexCoordVAR = VAR(model->texArray, IFSModel::varArea);
+            }
+
+            vertex = lastVertexVAR;
+            normal = lastNormalVAR;
+            tex    = lastTexCoordVAR;
+
+            renderDevice->beginIndexedPrimitives();
+                if (model->texArray.size() > 0) {
+                    renderDevice->setTexCoordArray(0, tex);
+                }
+                renderDevice->setNormalArray(normal);
+                renderDevice->setVertexArray(vertex);
+                renderDevice->sendIndices(RenderDevice::TRIANGLES, model->indexArray);
+            renderDevice->endIndexedPrimitives();
+
+        } else {
+            // No VAR
+            const int* indexArray = model->indexArray.getCArray();
+            const Vector3* vertexArray = model->geometry.vertexArray.getCArray();
+            const Vector3* normalArray = model->geometry.normalArray.getCArray();
+			const Vector2* texCoordArray = model->texArray.getCArray();
+            const int n = model->indexArray.size();
+
+            renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
+                if (model->texArray.size() > 0) {
+                    for (int i = 0; i < n; ++i) {
+                        const int v = indexArray[i];            
+                        renderDevice->setTexCoord(0, texCoordArray[v]);
+                        renderDevice->setNormal(normalArray[v]);
+                        renderDevice->sendVertex(vertexArray[v]);
+                    }
+                    
+                } else {
+                    for (int i = 0; i < n; ++i) {
+                        const int v = indexArray[i];            
+                        renderDevice->setNormal(normalArray[v]);
+                        renderDevice->sendVertex(vertexArray[v]);
+                    }
+                }
+            renderDevice->endPrimitive();
+        }
+
+    } else {
+
+        // Face Normals (slow)
+
+        const Vector3* vertexArray = model->geometry.vertexArray.getCArray();
+        const Vector3* faceNormalArray = model->faceNormalArray.getCArray();           
+        const MeshAlg::Face* faceArray = model->faceArray.getCArray();
+		const Vector2* texCoordArray = model->texArray.getCArray();
+        const int n = model->faceArray.size();
+
+        renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
+            if (model->texArray.size() > 0) {
+                for (int f = 0; f < n; ++f) {
+                    renderDevice->setNormal(faceNormalArray[f]);
+                    for (int j = 0; j < 3; ++j) {                    
+                        renderDevice->setTexCoord(0, texCoordArray[faceArray[f].vertexIndex[j]]);
+                        renderDevice->sendVertex(vertexArray[faceArray[f].vertexIndex[j]]);
+                    }
+                }
+            } else {
+                for (int f = 0; f < n; ++f) {
+                    renderDevice->setNormal(faceNormalArray[f]);
+                    for (int j = 0; j < 3; ++j) {                    
+                        renderDevice->sendVertex(vertexArray[faceArray[f].vertexIndex[j]]);
+                    }
+                }
+            }
+        renderDevice->endPrimitive();
+    }
+}
+
 void IFSModel::PosedIFSModel::render(RenderDevice* renderDevice) const {
 
 //    renderDevice->pushState();
@@ -358,117 +469,13 @@ void IFSModel::PosedIFSModel::render(RenderDevice* renderDevice) const {
             material.configure(renderDevice);
         }
 
-        renderDevice->setObjectToWorldMatrix(coordinateFrame());
-
-        const size_t varSize = 2 * 1024 * 1024;
-        if (IFSModel::varArea.isNull()) {
-            // Initialize VAR
-            IFSModel::varArea = VARArea::create(varSize);
-        }
-
         if (perVertexNormals) {
             renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
-            size_t modelSize = sizeof(Vector3) * 2 * model->geometry.vertexArray.size() + 
-								  sizeof(Vector2) * model->texArray.size();
-
-            if (! IFSModel::varArea.isNull() && 
-			    (varArea->totalSize() >= modelSize)) {
-                // Can use VAR
-
-                if (varArea->freeSize() < modelSize + 128) {
-                    // Not enough free space left in the common area;
-                    // reset it to allocate new arrays (this might
-                    // stall the pipeline).  Otherwise, just allocate
-                    // on top of what was already there.
-                    varArea->reset();
-
-                    // Resetting invalidates the old VAR arrays.
-                    // Just knock out the lastModel to prevent a match.
-
-                    lastModel = NULL;
-                }
-
-                VAR vertex;
-                VAR normal;
-				VAR tex;
-
-                if (model != lastModel) {
-                    // Upload new data (cache miss)
-                    lastModel       = model;
-                    lastVertexVAR   = VAR(model->geometry.vertexArray, IFSModel::varArea);
-                    lastNormalVAR   = VAR(model->geometry.normalArray, IFSModel::varArea);
-                    lastTexCoordVAR = VAR(model->texArray, IFSModel::varArea);
-                }
-
-                vertex = lastVertexVAR;
-                normal = lastNormalVAR;
-                tex    = lastTexCoordVAR;
-
-                renderDevice->beginIndexedPrimitives();
-                    if (model->texArray.size() > 0) {
-                        renderDevice->setTexCoordArray(0, tex);
-                    }
-                    renderDevice->setNormalArray(normal);
-                    renderDevice->setVertexArray(vertex);
-                    renderDevice->sendIndices(RenderDevice::TRIANGLES, model->indexArray);
-                renderDevice->endIndexedPrimitives();
-
-            } else {
-                // No VAR
-                const int* indexArray = model->indexArray.getCArray();
-                const Vector3* vertexArray = model->geometry.vertexArray.getCArray();
-                const Vector3* normalArray = model->geometry.normalArray.getCArray();
-				const Vector2* texCoordArray = model->texArray.getCArray();
-                const int n = model->indexArray.size();
-
-                renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
-                    if (model->texArray.size() > 0) {
-                        for (int i = 0; i < n; ++i) {
-                            const int v = indexArray[i];            
-                            renderDevice->setTexCoord(0, texCoordArray[v]);
-                            renderDevice->setNormal(normalArray[v]);
-                            renderDevice->sendVertex(vertexArray[v]);
-                        }
-                        
-                    } else {
-                        for (int i = 0; i < n; ++i) {
-                            const int v = indexArray[i];            
-                            renderDevice->setNormal(normalArray[v]);
-                            renderDevice->sendVertex(vertexArray[v]);
-                        }
-                    }
-                renderDevice->endPrimitive();
-            }
-
-        } else {
-
-            // Face Normals (slow)
-
-            const Vector3* vertexArray = model->geometry.vertexArray.getCArray();
-            const Vector3* faceNormalArray = model->faceNormalArray.getCArray();           
-            const MeshAlg::Face* faceArray = model->faceArray.getCArray();
-			const Vector2* texCoordArray = model->texArray.getCArray();
-            const int n = model->faceArray.size();
-
-            renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
-                if (model->texArray.size() > 0) {
-                    for (int f = 0; f < n; ++f) {
-                        renderDevice->setNormal(faceNormalArray[f]);
-                        for (int j = 0; j < 3; ++j) {                    
-                            renderDevice->setTexCoord(0, texCoordArray[faceArray[f].vertexIndex[j]]);
-                            renderDevice->sendVertex(vertexArray[faceArray[f].vertexIndex[j]]);
-                        }
-                    }
-                } else {
-                    for (int f = 0; f < n; ++f) {
-                        renderDevice->setNormal(faceNormalArray[f]);
-                        for (int j = 0; j < 3; ++j) {                    
-                            renderDevice->sendVertex(vertexArray[faceArray[f].vertexIndex[j]]);
-                        }
-                    }
-                }
-            renderDevice->endPrimitive();
         }
+
+        renderDevice->setObjectToWorldMatrix(coordinateFrame());
+    
+        sendGeometry(renderDevice);
   //  renderDevice->popState();
 }
 

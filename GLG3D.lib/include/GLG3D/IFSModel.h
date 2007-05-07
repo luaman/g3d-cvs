@@ -6,7 +6,7 @@
   @cite Original IFS code by Nate Robbins
 
   @created 2003-11-12
-  @edited  2007-02-26
+  @edited  2007-05-07
  */ 
 
 
@@ -62,6 +62,7 @@ private:
         virtual int numBoundaryEdges() const;
         virtual int numWeldedBoundaryEdges() const;
         virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const;
+        virtual void sendGeometry(RenderDevice* rd) const;
     };
 
     friend class PosedIFSModel;

@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2003-08-07
- @edited  2005-01-30
+ @edited  2007-05-08
  */
 
 #include "G3D/platform.h"
@@ -465,72 +465,10 @@ PosedModelRef MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, co
 
 void MD2Model::render(RenderDevice* renderDevice, const Pose& pose) {
 
-    bool tooBig = ((int)maxVARVerts < keyFrame[0].vertexArray.size());
-    bool useVAR = (nextVarArea != NONE_ALLOCATED) && ! tooBig;
-   
-    if (! useVAR && ! tooBig) {
-        // Try to allocate some memory
-        allocateVertexArrays(renderDevice);
-        useVAR = (nextVarArea != NONE_ALLOCATED);
-    }
-
-    getGeometry(pose, interpolatedFrame);
-
     renderDevice->pushState();
         renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
 
-
-        const Array<Vector3>& vertexArray   = interpolatedFrame.vertexArray;
-        const Array<Vector3>& normalArray   = interpolatedFrame.normalArray;
-
-        if (useVAR) {
-
-            // Upload the arrays
-            debugAssert(! varArea[nextVarArea].isNull());
-            varArea[nextVarArea]->reset();
-
-            debugAssert(! varArea[nextVarArea].isNull());
-            VAR varTexCoord(_texCoordArray, varArea[nextVarArea]);
-            VAR varNormal  (normalArray,   varArea[nextVarArea]);
-            VAR varVertex  (vertexArray,   varArea[nextVarArea]);
-
-            renderDevice->beginIndexedPrimitives();
-                renderDevice->setTexCoordArray(0, varTexCoord);
-                renderDevice->setNormalArray(varNormal);
-                renderDevice->setVertexArray(varVertex);
-                renderDevice->sendIndices(RenderDevice::TRIANGLES, indexArray);
-            renderDevice->endIndexedPrimitives();
-            
-            nextVarArea = (nextVarArea + 1) % NUM_VAR_AREAS;
-
-        } else {
-
-            // No VAR available; use the default rendering path
-            // Quake's triangles are backwards of OpenGL in our coordinate
-            // system, so cull front faces instead of back faces.
-            glFrontFace(GL_CW);
-
-            for (int p = 0; p < primitiveArray.size(); ++p) {
-    
-                const Primitive&          primitive = primitiveArray[p];
-                const int                 n         = primitive.pvertexArray.size();
-                const Primitive::PVertex* pvertex   = primitive.pvertexArray.getCArray();
-
-                renderDevice->beginPrimitive(primitive.type);
-
-                    const Vector3* normal = normalArray.getCArray();
-                    const Vector3* vertex = vertexArray.getCArray();
-
-                    for (int i = 0; i < n; ++i) {
-                        const int v = pvertex[i].index;
-                        renderDevice->setTexCoord(0, pvertex[i].texCoord);
-                        renderDevice->setNormal(normal[v]);
-                        renderDevice->sendVertex(vertex[v]);
-                    }
-                renderDevice->endPrimitive();
-            }
-            glFrontFace(GL_CCW);
-        }
+        sendGeometry(renderDevice, pose);
 
     renderDevice->popState();
     
@@ -869,6 +807,74 @@ int MD2Model::PosedMD2Model::numWeldedBoundaryEdges() const {
     return model->numWeldedBoundaryEdges;
 }
 
+void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const {
+    getGeometry(pose, interpolatedFrame);
+
+    bool tooBig = ((int)maxVARVerts < keyFrame[0].vertexArray.size());
+    bool useVAR = (nextVarArea != NONE_ALLOCATED) && ! tooBig;
+   
+    if (! useVAR && ! tooBig) {
+        // Try to allocate some memory
+        const_cast<MD2Model*>(this)->allocateVertexArrays(renderDevice);
+        useVAR = (nextVarArea != NONE_ALLOCATED);
+    }
+
+    const Array<Vector3>& vertexArray   = interpolatedFrame.vertexArray;
+    const Array<Vector3>& normalArray   = interpolatedFrame.normalArray;
+
+    if (useVAR) {
+
+        // Upload the arrays
+        debugAssert(! varArea[nextVarArea].isNull());
+        varArea[nextVarArea]->reset();
+
+        debugAssert(! varArea[nextVarArea].isNull());
+        VAR varTexCoord(_texCoordArray, varArea[nextVarArea]);
+        VAR varNormal  (normalArray,   varArea[nextVarArea]);
+        VAR varVertex  (vertexArray,   varArea[nextVarArea]);
+
+        renderDevice->beginIndexedPrimitives();
+            renderDevice->setTexCoordArray(0, varTexCoord);
+            renderDevice->setNormalArray(varNormal);
+            renderDevice->setVertexArray(varVertex);
+            renderDevice->sendIndices(RenderDevice::TRIANGLES, indexArray);
+        renderDevice->endIndexedPrimitives();
+        
+        nextVarArea = (nextVarArea + 1) % NUM_VAR_AREAS;
+
+    } else {
+
+        // No VAR available; use the default rendering path
+        // Quake's triangles are backwards of OpenGL in our coordinate
+        // system, so cull front faces instead of back faces.
+        glFrontFace(GL_CW);
+
+        for (int p = 0; p < primitiveArray.size(); ++p) {
+
+            const Primitive&          primitive = primitiveArray[p];
+            const int                 n         = primitive.pvertexArray.size();
+            const Primitive::PVertex* pvertex   = primitive.pvertexArray.getCArray();
+
+            renderDevice->beginPrimitive(primitive.type);
+
+                const Vector3* normal = normalArray.getCArray();
+                const Vector3* vertex = vertexArray.getCArray();
+
+                for (int i = 0; i < n; ++i) {
+                    const int v = pvertex[i].index;
+                    renderDevice->setTexCoord(0, pvertex[i].texCoord);
+                    renderDevice->setNormal(normal[v]);
+                    renderDevice->sendVertex(vertex[v]);
+                }
+            renderDevice->endPrimitive();
+        }
+        glFrontFace(GL_CCW);
+    }
+}
+
+void MD2Model::PosedMD2Model::sendGeometry(RenderDevice* renderDevice) const {
+    model->sendGeometry(renderDevice, pose);
+}
 
 void MD2Model::PosedMD2Model::render(RenderDevice* renderDevice) const {
     renderDevice->pushState();

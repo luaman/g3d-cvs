@@ -253,6 +253,34 @@ void PosedModel::render(RenderDevice* rd) const {
     defaultRender(rd);
 }
 
+void PosedModel::sendGeometry(RenderDevice* rd) const {
+    const MeshAlg::Geometry& geom = objectSpaceGeometry();
+
+    size_t s = sizeof(Vector3) * geom.vertexArray.size() * 2;
+
+    if (hasTexCoords()) {
+        s += sizeof(Vector2) * texCoords().size();
+    }
+
+    VARAreaRef area = VARArea::create(s);
+    VAR vertex(geom.vertexArray, area);
+    VAR normal(geom.normalArray, area);
+    VAR texCoord;
+
+    if (hasTexCoords()) {
+        texCoord = VAR(texCoords(), area);
+    }
+
+    rd->beginIndexedPrimitives();
+        rd->setVertexArray(vertex);
+        rd->setNormalArray(normal);
+        if (hasTexCoords()) {
+            rd->setTexCoordArray(0, texCoord);
+        }
+        rd->sendIndices(RenderDevice::TRIANGLES, triangleIndices());
+    rd->endIndexedPrimitives();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 static bool depthGreaterThan(const PosedModel2DRef& a, const PosedModel2DRef& b) {

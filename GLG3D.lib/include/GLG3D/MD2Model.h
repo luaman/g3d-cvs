@@ -225,6 +225,7 @@ protected:
         virtual int numWeldedBoundaryEdges() const; 
         virtual const Array<Vector2>& texCoords() const;
         virtual bool hasTexCoords() const;
+        virtual void sendGeometry(RenderDevice* rd) const;
     };
 
     friend class PosedMD2Model;
@@ -341,6 +342,8 @@ protected:
       available and the arrays are not initialized.
      */
     void allocateVertexArrays(RenderDevice* renderDevice);
+
+    void sendGeometry(RenderDevice* rd, const Pose& pose) const;
 
     /**
      Triangle list array useful for generating all of the triangles,

@@ -68,6 +68,29 @@ typedef ReferenceCountedPointer<class PosedModel> PosedModelRef;
  values like the object space face normals until they are needed.  That is,
  the first call to a method might be very expensive because it goes off
  and computes some value that will be cached for future calls.
+
+ <b>Rendering</b>
+ The easiest way to render is PosedModel::render().  More sophisticated rendering, e.g., in the presence of shadows, can be accomplished with 
+ the separate renderShadowMappedLightPass etc. routines.
+
+ PosedModel also allows you to directly extract and operate on its geometry.  This is useful for adding effects like
+ outlines in cartoon rendering, physics hit boxes, and shadow volume rendering.  You can directly render from the geometry
+ using the following rendering code (it is much faster if you can avoid re-creating the VARs and VARArea every frame!)
+ <pre>
+        VARAreaRef area = VARArea::create(sizeof(Vector3) * posed->objectSpaceGeometry().vertexArray.size() * 2 + sizeof(Vector2) * posed->texCoords().size());
+        VAR vertex(posed->objectSpaceGeometry().vertexArray, area);
+        VAR normal(posed->objectSpaceGeometry().normalArray, area);
+        VAR texCoord(posed->texCoords(), area);
+
+        rd->setObjectToWorldMatrix(posed->coordinateFrame());
+        rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
+        rd->beginIndexedPrimitives();
+            rd->setVertexArray(vertex);
+            rd->setNormalArray(normal);
+            rd->setTexCoordArray(0, texCoord);
+            rd->sendIndices(RenderDevice::TRIANGLES, posed->triangleIndices());
+        rd->endIndexedPrimitives();
+ </pre>
  */
 class PosedModel : public ReferenceCountedObject {
 protected:
@@ -248,6 +271,12 @@ public:
         const GLight& light,
         const Matrix4& lightMVP,
         const TextureRef& shadowMap) const;
+
+    /**
+      Sends all geometry including texture coordinates (uploading it first if necessary) but does not set any render device state or use 
+      any textures.
+    */
+    virtual void sendGeometry(RenderDevice* rd) const;
 
 protected:
 
