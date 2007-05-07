@@ -36,10 +36,32 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
 
  these are located in the data/SuperShader directory of the G3D distribution.
 
+ Using with a PosedModel:
+
+ <pre>
+    <i> members:</i>
+    SuperShader::Material material;
+    ShaderRef nonshadowShader;
+    ShaderRef shadowShader;
+
+    <i> in constructor:</i>
+    ... set fields of material ...
+    SuperShader::createShaders(material, nonshadowShader, shadowShader);
+
+    <i> in onGraphics:</i>
+
+    rd->pushState();
+        SuperShader::configureShader(localLighting, material, shader->args);
+        rd->setShader(shader);
+        rd->setObjectToWorldMatrix(posed->coordinateFrame());
+        rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
+        posed->sendGeometry(rd);
+    rd->popState();
+ </pre>
+
  @cite McGuire, The %SuperShader. Chapter 8.1, 485--498, in <i>ShaderX<sup>4</sup></i>, W. Engel ed., 2005.
  */
-// TODO: subclass _Shader so that we don't pick up the 'args' variable.
-class SuperShader : public Shader {
+class SuperShader {
 public:
 
     /** Material property coefficients are specified as 
@@ -246,6 +268,7 @@ private:
 
     static Cache::Pair getShader(const Material& material);
 
+#if 0
     /** Configuration for a non-programmable card.
         No reflection map, single ambient color. */
     void configureFixedFunction(RenderDevice* rd);
@@ -257,7 +280,7 @@ private:
     /** Underlying shader.  May be shared between multiple SuperShaders. */
     ShaderRef               nonShadowedShader;
     ShaderRef               shadowMappedShader;
-
+#endif
     // Don't call
     SuperShader() {
         debugAssert(false);
