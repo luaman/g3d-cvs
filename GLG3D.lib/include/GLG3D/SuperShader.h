@@ -22,9 +22,6 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
  A one-size-fits-all shader that combines most common illumination effects
  efficiently.
 
- Do not set the shader->args on a SuperShader; they are ignored.
- Instead set the material properties and lighting environment.
-
  To use SuperShader you will need the four files in the current directory
  at runtime:
  <ul>
@@ -36,7 +33,7 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
 
  these are located in the data/SuperShader directory of the G3D distribution.
 
- Using with a PosedModel:
+ Example of using with a PosedModel:
 
  <pre>
     <i> members:</i>

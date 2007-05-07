@@ -23,6 +23,7 @@ public:
 
     PosedModelRef       posed;
     SuperShader::Material material;
+    ShaderRef           shader;
 
     App(const GApp2::Settings& settings = GApp2::Settings());
 
@@ -102,10 +103,14 @@ void App::onGraphics(RenderDevice* rd) {
         rd->setAmbientLightColor(localLighting->ambientAverage());
 
         Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-        
-        rd->setObjectToWorldMatrix(posed->coordinateFrame());
-        rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
-        posed->sendGeometry(rd);
+
+        rd->pushState();
+            SuperShader::configureShader(localLighting, material, shader->args);
+            rd->setShader(shader);
+            rd->setObjectToWorldMatrix(posed->coordinateFrame());
+            rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
+            posed->sendGeometry(rd);
+        rd->popState();
 
 //        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
 //        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
@@ -134,6 +139,10 @@ App::App(const GApp2::Settings& settings) : GApp2(settings) {
     MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2");
     material.diffuse = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx");
     posed = model->pose(CoordinateFrame(), MD2Model::Pose());
+
+    ShaderRef ignore;
+
+    SuperShader::createShaders(material, shader, ignore);
 }
 
 G3D_START_AT_MAIN();
