@@ -149,7 +149,7 @@ public:
         */
 	class Material {
 	public:
-        friend SuperShader;
+        friend class SuperShader;
 
         /** Diffuse reflection of lights. The alpha channel is used as a mask, e.g., to cut out the shape of
             a leaf or a billboard, but does NOT encode transparency.  Use the transmit member to specify
