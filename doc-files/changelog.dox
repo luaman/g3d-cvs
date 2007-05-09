@@ -16,6 +16,7 @@
      <li> G3D::CameraLocation, G3D::CameraSpline
      <li> G3D::Spline
      <li> G3D::PosedModelRef::sendGeometry
+     <li> G3D::RenderDevice::pushState(FramebufferRef)
      <li> G3D::Texture::PreProcess::computeNormalMap
      <li> direct.h is now included by fileutils.h on Win32 to ensure that chdir, mkdir, etc. are available
      <li> Changed distribution directories to place include, lib, and bin under a directory named after the platform

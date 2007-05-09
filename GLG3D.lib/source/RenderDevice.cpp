@@ -1456,6 +1456,15 @@ Rect2D RenderDevice::viewport() const {
 }
 
 
+void RenderDevice::pushState(const FramebufferRef& fb) {
+    pushState();
+
+    if (fb.notNull()) {
+        setFramebuffer(fb);
+        setViewport(fb->rect2DBounds());
+    }
+}
+
 void RenderDevice::setFramebuffer(const FramebufferRef &fbo) {
     // Check for extension
     majStateChange();

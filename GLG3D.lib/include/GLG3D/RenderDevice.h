@@ -441,6 +441,9 @@ public:
      */
     void pushState();
 
+    /** Pushes the current state, then set the specified frame buffer and matches the viewport to it.*/
+    void pushState(const FramebufferRef& fb);
+
     /**
      Sets all state to a clean rendering environment.
      */
@@ -1459,7 +1462,10 @@ public:
      target to the windowing system display.
 
 	 Note that if the new framebuffer has different dimensions than the current one
-	 the projectionMatrix and viewport will likely be incorrect.
+	 the projectionMatrix and viewport will likely be incorrect. 
+
+     See RenderDevice::pushState and push2D for a way to set the frame buffer and viewport
+     simultaneously.
 
      @param fbo Framebuffer to render to.
     */
