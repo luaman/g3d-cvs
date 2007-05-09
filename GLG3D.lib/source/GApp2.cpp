@@ -458,8 +458,10 @@ void GApp2::oneFrame() {
         SimTime  sdt = timeStep * rate;
         SimTime  idt = desiredFrameDuration() * rate;
 
+        onBeforeSimulation();
         onSimulation(rdt, sdt, idt);
         m_moduleManager->onSimulation(rdt, sdt, idt);
+        onAfterSimulation();
 
         setRealTime(realTime() + rdt);
         setSimTime(simTime() + sdt);
