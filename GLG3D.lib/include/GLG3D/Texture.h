@@ -85,6 +85,9 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
 class Texture : public ReferenceCountedObject {
 public:
 
+    /** Reference counted pointer to a Texture.*/
+    typedef ReferenceCountedPointer<class Texture> Ref;
+
     /** DIM_2D_NPOT and DIM_CUBE_MAP_NPOT attempt to use
         ARB_non_power_of_two texture support with POT fallback. */
     enum Dimension       {DIM_2D = 2, DIM_3D = 3, DIM_2D_RECT = 4, 

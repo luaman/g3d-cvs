@@ -523,7 +523,7 @@ void GApp2::beginRun() {
     m_endProgram = false;
     m_exitCode = 0;
 
-    //onInit();
+    onInit();
 
     // Move the controller to the camera's location
     defaultController->setFrame(defaultCamera.getCoordinateFrame());

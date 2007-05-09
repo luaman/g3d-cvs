@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2003-11-03
- @edited  2007-03-18
+ @edited  2007-05-18
  */
 
 #ifndef G3D_GAPP2_H
@@ -416,6 +416,12 @@ protected:
         Array<PosedModel2DRef>& posed2DArray);
 
     /**
+     Load your data here.  Unlike the constructor, this catches common exceptions.
+     It is called before the first frame is processed.
+     */
+    virtual void onInit() {}
+
+    /**
      Get and render the posed GModules.
      */
     virtual void renderGModules(RenderDevice* rd);
@@ -446,6 +452,18 @@ protected:
         (void)rdt;
 		(void)sdt;
     }
+
+    /** Invoked before onSimulation is run on the installed GModules and GApp2.
+        This is not used by most programs; it is primarily a hook for those performing
+        extensive physical simulation on the GModules that need a setup and cleanup step.
+      */
+    virtual void onBeforeSimulation() {}
+
+    /**
+     Invoked after onSimulation is run on the installed GModules and GApp2.
+     Not used by most programs.
+     */
+    virtual void onAfterSimulation() {}
 
     /**
      Rendering callback.
@@ -510,7 +528,6 @@ protected:
      The default implementation does nothing.
      */
     virtual bool onEvent(const GEvent& event);
-
 
     /**
      Routine for processing user input from the previous frame.  Default implementation does nothing.
