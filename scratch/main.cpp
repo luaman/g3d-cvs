@@ -127,5 +127,6 @@ void App::onGraphics(RenderDevice* rd) {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
+    Image1uint8Ref im = Image1uint8::createEmpty(10,10);
     return App().run();
 }
