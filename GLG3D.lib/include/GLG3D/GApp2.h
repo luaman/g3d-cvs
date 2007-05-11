@@ -422,6 +422,12 @@ protected:
     virtual void onInit() {}
 
     /**
+     Unload/deallocate your data here.  Unlike the constructor, this catches common exceptions.
+     It is called after the last frame is processed.
+     */
+    virtual void onCleanup() {}
+
+    /**
      Get and render the posed GModules.
      */
     virtual void renderGModules(RenderDevice* rd);

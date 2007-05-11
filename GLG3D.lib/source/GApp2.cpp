@@ -535,13 +535,14 @@ void GApp2::beginRun() {
 
 
 void GApp2::endRun() {
-    //onCleanup();
+    onCleanup();
 
     Log::common()->section("Files Used");
     for (int i = 0; i < _internal::currentFilesUsed.size(); ++i) {
         Log::common()->println(_internal::currentFilesUsed[i]);
     }
     Log::common()->println("");
+
 
     if (window()->requiresMainLoop() && m_endProgram) {
         exit(m_exitCode);
