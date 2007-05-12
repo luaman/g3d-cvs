@@ -35,7 +35,7 @@ static void writeLicense() {
 GApp2::GApp2(const Settings& settings, GWindow* window) :
     m_moduleManager(GModuleManager::create()),
     lastWaitTime(System::time()),
-    m_desiredFrameRate(inf()),
+    m_desiredFrameRate(2000),
     m_simTimeRate(1.0), 
     m_realTime(0), 
     m_simTime(0) {
@@ -458,10 +458,10 @@ void GApp2::oneFrame() {
         SimTime  sdt = timeStep * rate;
         SimTime  idt = desiredFrameDuration() * rate;
 
-        onBeforeSimulation();
+        onBeforeSimulation(rdt, sdt, idt);
         onSimulation(rdt, sdt, idt);
         m_moduleManager->onSimulation(rdt, sdt, idt);
-        onAfterSimulation();
+        onAfterSimulation(rdt, sdt, idt);
 
         setRealTime(realTime() + rdt);
         setSimTime(simTime() + sdt);

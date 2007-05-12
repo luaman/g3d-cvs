@@ -463,13 +463,21 @@ protected:
         This is not used by most programs; it is primarily a hook for those performing
         extensive physical simulation on the GModules that need a setup and cleanup step.
       */
-    virtual void onBeforeSimulation() {}
+    virtual void onBeforeSimulation(RealTime rdt, SimTime sdt, SimTime idt) {        
+        (void)idt;
+        (void)rdt;
+		(void)sdt;
+    }
 
     /**
      Invoked after onSimulation is run on the installed GModules and GApp2.
      Not used by most programs.
      */
-    virtual void onAfterSimulation() {}
+    virtual void onAfterSimulation(RealTime rdt, SimTime sdt, SimTime idt) {        
+        (void)idt;
+        (void)rdt;
+		(void)sdt;
+    }
 
     /**
      Rendering callback.
