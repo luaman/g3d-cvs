@@ -113,6 +113,11 @@ protected:
     int                     m_exitCode;
 
     /**
+       Used to find the frame for defaultCamera.
+     */
+    Manipulator::Ref        m_cameraManipulator;
+
+    /**
      Strings that have been printed with debugPrint.
      */
     Array<std::string>      debugText;
@@ -189,8 +194,21 @@ public:
      Allows first person (Quake game-style) control
      using the arrow keys or W,A,S,D and the mouse.
      */
-    FirstPersonManipulatorRef defaultController;
+    FirstPersonManipulatorRef       defaultController;
 
+    /**
+       The manipulator that positions the defaultCamera every frame.
+       By default, this is set to the defaultController.  This may be
+       set to NULL to disable explicit camera positioning.
+     */
+    void setCameraManipulator(const Manipulator::Ref& man) {
+        m_cameraManipulator = man;
+    }
+
+    Manipulator::Ref cameraManipulator() const {
+        return m_cameraManipulator;
+    }
+    
     inline GWindow* window() const {
         return _window;
     }

@@ -10,16 +10,20 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "CameraSplineManipulator.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
 #endif
+
 
 class App : public GApp2 {
 public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
+
+    CameraSplineManipulator::Ref splineManipulator;
 
     App(const GApp2::Settings& settings = GApp2::Settings());
 
@@ -49,6 +53,9 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
+    
+    splineManipulator = CameraSplineManipulator::create(&defaultCamera);
+    addModule(splineManipulator);
 }
 
 void App::onLogic() {
@@ -65,7 +72,29 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 void App::onUserInput(UserInput* ui) {
-    // Add key handling here	
+    // Add key handling here
+    debugPrintf("Mode = %d", splineManipulator->mode());
+
+    if (ui->keyPressed(GKey::F1)) {
+        setCameraManipulator(defaultController);
+        defaultController->setActive(true);
+        splineManipulator->setMode(CameraSplineManipulator::RECORD_KEY_MODE);
+        splineManipulator->clear();
+    }
+
+    if (ui->keyPressed(GKey::F2)) {
+        defaultController->setActive(false);
+        setCameraManipulator(splineManipulator);
+        splineManipulator->setMode(CameraSplineManipulator::PLAY_MODE);
+        splineManipulator->setTime(0);
+    } 
+
+    if (ui->keyPressed(GKey::F3)) {
+        setCameraManipulator(defaultController);
+        splineManipulator->setMode(CameraSplineManipulator::INACTIVE_MODE);
+        defaultController->setActive(true);
+    } 
+    
 }
 
 void App::onConsoleCommand(const std::string& str) {

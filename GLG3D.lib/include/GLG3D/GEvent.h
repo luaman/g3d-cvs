@@ -83,16 +83,16 @@ typedef enum {
 class SDL_keysym {
 public:
     /** Hardware specific scancode */
-	uint8           scancode;			
+    uint8           scancode;			
 
     /** G3D virtual raw key code */
     GKey::Value     sym;		
 
     /** Current key modifiers */
-	GKeyMod         mod;	
+    GKeyMod         mod;	
 
     /** Translated character */
-	uint16          unicode;
+    uint16          unicode;
 };
 
 /* This is the mask which refers to all hotkey bindings */
@@ -154,54 +154,54 @@ namespace G3D {
 #define EVENTMASK(X)	(1<<(X))
 enum {
     SDL_ACTIVEEVENTMASK	    = EVENTMASK(GEventType::KEYDOWN),
-	SDL_KEYUPMASK		    = EVENTMASK(GEventType::KEYUP),
-	SDL_MOUSEMOTIONMASK	    = EVENTMASK(GEventType::MOUSEMOTION),
-	SDL_MOUSEBUTTONDOWNMASK	= EVENTMASK(GEventType::MOUSEBUTTONDOWN),
-	SDL_MOUSEBUTTONUPMASK	= EVENTMASK(GEventType::MOUSEBUTTONUP),
-	SDL_MOUSEEVENTMASK	    = EVENTMASK(GEventType::MOUSEMOTION)|
-	                          EVENTMASK(GEventType::MOUSEBUTTONDOWN)|
+    SDL_KEYUPMASK		    = EVENTMASK(GEventType::KEYUP),
+    SDL_MOUSEMOTIONMASK	    = EVENTMASK(GEventType::MOUSEMOTION),
+    SDL_MOUSEBUTTONDOWNMASK	= EVENTMASK(GEventType::MOUSEBUTTONDOWN),
+    SDL_MOUSEBUTTONUPMASK	= EVENTMASK(GEventType::MOUSEBUTTONUP),
+    SDL_MOUSEEVENTMASK	    = EVENTMASK(GEventType::MOUSEMOTION)|
+                              EVENTMASK(GEventType::MOUSEBUTTONDOWN)|
 	                          EVENTMASK(GEventType::MOUSEBUTTONUP),
-	SDL_JOYAXISMOTIONMASK	= EVENTMASK(GEventType::JOYAXISMOTION),
-	SDL_JOYBALLMOTIONMASK	= EVENTMASK(GEventType::JOYBALLMOTION),
-	SDL_JOYHATMOTIONMASK	= EVENTMASK(GEventType::JOYHATMOTION),
-	SDL_JOYBUTTONDOWNMASK	= EVENTMASK(GEventType::JOYBUTTONDOWN),
-	SDL_JOYBUTTONUPMASK	    = EVENTMASK(GEventType::JOYBUTTONUP),
-	SDL_JOYEVENTMASK	    = EVENTMASK(GEventType::JOYAXISMOTION)|
-	                          EVENTMASK(GEventType::JOYBALLMOTION)|
-	                          EVENTMASK(GEventType::JOYHATMOTION)|
+    SDL_JOYAXISMOTIONMASK	= EVENTMASK(GEventType::JOYAXISMOTION),
+    SDL_JOYBALLMOTIONMASK	= EVENTMASK(GEventType::JOYBALLMOTION),
+    SDL_JOYHATMOTIONMASK	= EVENTMASK(GEventType::JOYHATMOTION),
+    SDL_JOYBUTTONDOWNMASK	= EVENTMASK(GEventType::JOYBUTTONDOWN),
+    SDL_JOYBUTTONUPMASK	    = EVENTMASK(GEventType::JOYBUTTONUP),
+    SDL_JOYEVENTMASK	    = EVENTMASK(GEventType::JOYAXISMOTION)|
+                               EVENTMASK(GEventType::JOYBALLMOTION)|
+                                EVENTMASK(GEventType::JOYHATMOTION)|
 	                          EVENTMASK(GEventType::JOYBUTTONDOWN)|
 	                          EVENTMASK(GEventType::JOYBUTTONUP),
-	SDL_VIDEORESIZEMASK	    = EVENTMASK(GEventType::VIDEORESIZE),
-	SDL_VIDEOEXPOSEMASK	    = EVENTMASK(GEventType::VIDEOEXPOSE),
-	SDL_QUITMASK		    = EVENTMASK(GEventType::QUIT),
-	SDL_SYSWMEVENTMASK	    = EVENTMASK(GEventType::SYSWMEVENT)
+    SDL_VIDEORESIZEMASK	    = EVENTMASK(GEventType::VIDEORESIZE),
+    SDL_VIDEOEXPOSEMASK	    = EVENTMASK(GEventType::VIDEOEXPOSE),
+    SDL_QUITMASK		    = EVENTMASK(GEventType::QUIT),
+    SDL_SYSWMEVENTMASK	    = EVENTMASK(GEventType::SYSWMEVENT)
 };
 #define SDL_ALLEVENTS		0xFFFFFFFF
 #undef EVENTMASK
 
 /* Application visibility event structure */
 typedef struct SDL_ActiveEvent {
-	uint8 type;	/* SDL_ACTIVEEVENT */
-	uint8 gain;	/* Whether given states were gained or lost (1/0) */
-	uint8 state;	/* A mask of the focus states */
+    uint8 type;	/* SDL_ACTIVEEVENT */
+    uint8 gain;	/* Whether given states were gained or lost (1/0) */
+    uint8 state;	/* A mask of the focus states */
 } SDL_ActiveEvent;
 
 /* Keyboard event structure */
 typedef struct SDL_KeyboardEvent {
-	uint8 type;	/* SDL_KEYDOWN or SDL_KEYUP */
-	uint8 which;	/* The keyboard device index */
-	uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
-	SDL_keysym keysym;
+    uint8 type;	/* SDL_KEYDOWN or SDL_KEYUP */
+    uint8 which;	/* The keyboard device index */
+    uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
+    SDL_keysym keysym;
 } SDL_KeyboardEvent;
 
 /* Mouse motion event structure */
 typedef struct SDL_MouseMotionEvent {
-	uint8 type;	/* SDL_MOUSEMOTION */
-	uint8 which;	/* The mouse device index */
-	uint8 state;	/* The current button state */
-	uint16 x, y;	/* The X/Y coordinates of the mouse */
-	int16 xrel;	/* The relative motion in the X direction */
-	int16 yrel;	/* The relative motion in the Y direction */
+    uint8 type;	/* SDL_MOUSEMOTION */
+    uint8 which;	/* The mouse device index */
+    uint8 state;	/* The current button state */
+    uint16 x, y;	/* The X/Y coordinates of the mouse */
+    int16 xrel;	/* The relative motion in the X direction */
+    int16 yrel;	/* The relative motion in the Y direction */
 } SDL_MouseMotionEvent;
 
 /* Mouse button event structure */

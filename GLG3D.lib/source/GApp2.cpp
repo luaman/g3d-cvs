@@ -115,6 +115,8 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     defaultController->setActive(false);
     defaultCamera.setPosition(defaultController->position());
     defaultCamera.lookAt(Vector3::zero());
+    addModule(defaultController);
+    setCameraManipulator(defaultController);
  
     autoResize                  = true;
     showDebugText               = true;
@@ -375,8 +377,8 @@ void GApp2::onGraphics(RenderDevice* rd) {
     rd->clear(true, true, true);
 
     rd->enableLighting();
-		rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
-		rd->setAmbientLightColor(lighting.ambient);
+        rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
+        rd->setAmbientLightColor(lighting.ambient);
         renderGModules(rd);
     rd->disableLighting();
 }
@@ -425,7 +427,6 @@ void GApp2::removeModule(const GModuleRef& module) {
 }
 
 
-
 void GApp2::oneFrame() {
     lastTime = now;
     now = System::time();
@@ -449,10 +450,6 @@ void GApp2::oneFrame() {
     // Simulation
     m_simulationWatch.tick();
     {
-        // TODO: Replace with module manager calls
-        defaultController->onSimulation(clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1),clamp(timeStep, 0.0, 0.1));
-        defaultCamera.setCoordinateFrame(defaultController->frame());
-
         double rate = simTimeRate();    
         RealTime rdt = timeStep;
         SimTime  sdt = timeStep * rate;
@@ -462,6 +459,11 @@ void GApp2::oneFrame() {
         onSimulation(rdt, sdt, idt);
         m_moduleManager->onSimulation(rdt, sdt, idt);
         onAfterSimulation(rdt, sdt, idt);
+
+        //defaultCamera.setCoordinateFrame(defaultController->frame());
+        if (m_cameraManipulator.notNull()) {
+            defaultCamera.setCoordinateFrame(m_cameraManipulator->frame());
+        }
 
         setRealTime(realTime() + rdt);
         setSimTime(simTime() + sdt);
@@ -594,7 +596,7 @@ void GApp2::processGEventQueue() {
             }
             break;
 
-	    case GEventType::KEYDOWN:
+        case GEventType::KEYDOWN:
 
             if (! console->active()) {
                 switch (event.key.keysym.sym) {

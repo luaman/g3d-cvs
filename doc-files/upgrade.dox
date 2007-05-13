@@ -173,7 +173,9 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::Texture::texelHeight</td><td>G3D::Texture::height</td></td></tr>
 <tr><td>G3D::Texture::WrapMode</td><td>G3D::WrapMode</td></tr>
 <tr><td>G3D::Texture::TRANSPARENT_BORDER</td><td>G3D::WrapMode::ZERO</td></tr>
-<td><td>SDL_<i>eventname</i></td><td>G3D::GEventType::<i>eventname</i></td></tr>
+<tr><td>SDL_<i>eventname</i></td><td>G3D::GEventType::<i>eventname</i></td></tr>
+<tr><td>GApp::debugCamera</td><td>GApp2::defaultCamera</td></tr>
+<tr><td>GApp::debugController</td><td>GApp2::defaultController</td></tr>
 </table>
 </p>
 

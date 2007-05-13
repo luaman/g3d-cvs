@@ -176,6 +176,7 @@ public:
  */
 class Manipulator : public GModule {
 public:
+    typedef ReferenceCountedPointer<class Manipulator> Ref;
 
     virtual void getFrame(CoordinateFrame& c) const = 0;
 

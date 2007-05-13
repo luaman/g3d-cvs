@@ -1199,8 +1199,10 @@ void RenderDevice::popState() {
 void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     debugAssert(! inPrimitive);
 #   ifdef G3D_DEBUG
-    std::string why;
-    debugAssertM(currentFramebufferComplete(why), why);
+    {
+        std::string why;
+        debugAssertM(currentFramebufferComplete(why), why);
+    }
 #   endif
     majStateChange();
     majGLStateChange();

@@ -9,6 +9,8 @@
 */
 
 #include "G3D/CameraLocation.h"
+#include "G3D/BinaryInput.h"
+#include "G3D/BinaryOutput.h"
 
 namespace G3D {
 
@@ -72,6 +74,40 @@ void CameraLocation::unwrapYaw(CameraLocation* a, int N) {
             // between them.
             cur = prev + diff;
         }
+    }
+}
+
+
+void CameraLocation::serialize(class BinaryOutput& b) const {
+    translation.serialize(b);
+    b.writeFloat32(pitch);
+    b.writeFloat32(yaw);
+}
+
+
+void CameraLocation::deserialize(class BinaryInput& b) {
+    translation.deserialize(b);
+    pitch = b.readFloat32();
+    yaw = b.readFloat32();
+}
+
+
+void CameraSpline::serialize(class BinaryOutput& b) const {
+    b.writeBool8(cyclic);
+
+    b.writeInt32(control.size());
+    for (int i = 0; i < control.size(); ++i) {
+        control[i].serialize(b);
+    }
+}
+
+
+void CameraSpline::deserialize(class BinaryInput& b) {
+    cyclic = b.readBool8();
+
+    control.resize(b.readInt32());
+    for (int i = 0; i < control.size(); ++i) {
+        control[i].deserialize(b);
     }
 }
 

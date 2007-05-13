@@ -29,6 +29,7 @@ public:
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onGraphics(RenderDevice* rd);
     virtual void onUserInput(UserInput* ui);
+    virtual void onCleanup();
     virtual void onConsoleCommand(const std::string& cmd);
     void printConsoleHelp();
 };
@@ -49,6 +50,11 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
+}
+
+void App::onCleanup() {
+    // Called after the application loop ends.  Place a majority of cleanup code
+    // here instead of in the constructor so that exceptions can be caught
 }
 
 void App::onLogic() {

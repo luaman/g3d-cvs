@@ -54,6 +54,8 @@ public:
      */
     static void unwrapYaw(CameraLocation* a, int N);
 
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
 };
 
 /** Shortest-path linear velocity spline for camera positions.  Always keeps the camera from rolling.
@@ -64,6 +66,11 @@ protected:
     virtual void ensureShortestPath(CameraLocation* A, int N) const {
         CameraLocation::unwrapYaw(A, N);
     }
+
+public:
+    
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
 
 };
 
