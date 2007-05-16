@@ -9,7 +9,6 @@
 
   @created 2001-10-23
   @edited  2007-02-24
-
 */
 
 #ifndef G3D_RGC_H
@@ -203,7 +202,7 @@ private:
     T*           m_pointer;
 
 public:
-	typedef T element_type;
+    typedef T element_type;
 
     inline T* pointer() const {
         return m_pointer;

@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-01-01
- @edited  2006-11-14
+ @edited  2007-05-14
  */
 
 #include "G3D/G3D.h"
@@ -44,6 +44,8 @@ void perfMatrix3();
 
 void testCollisionDetection();
 void perfCollisionDetection();
+
+void testWeakCache();
 
 void testGChunk();
 
@@ -578,7 +580,9 @@ int main(int argc, char* argv[]) {
     testAtomicInt32();
 
     testGThread();
-
+    
+    testWeakCache();
+    
     testSystemMemset();
 
     testSystemMemcpy();

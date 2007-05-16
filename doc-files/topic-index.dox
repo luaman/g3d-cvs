@@ -249,15 +249,16 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
         STR
 
      <LI><B>Data structures</B> &nbsp; &nbsp;
-	    G3D::AnyVal,
+	G3D::AnyVal,
         G3D::AABSPTree,
-	    G3D::Array,
-	    G3D::Queue,
- 	    G3D::Set,
-	    G3D::Table,
+	G3D::Array,
+	G3D::Queue,
+ 	G3D::Set,
+        G3D::Table,
         G3D::ReferenceCountedObject,
         G3D::ReferenceCountedPointer,
-        G3D::WeakReferenceCountedPointer
+        G3D::WeakReferenceCountedPointer,
+        G3D::WeakCache
 
      <LI><B>Images</B> &nbsp; &nbsp;
 		G3D::GImage,

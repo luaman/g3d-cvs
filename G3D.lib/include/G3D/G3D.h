@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2001-08-25
- @edited  2007-03-01
+ @edited  2007-05-01
 
  Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
@@ -104,30 +104,31 @@
 #include "G3D/Image4.h"
 #include "G3D/Image4uint8.h"
 #include "G3D/filter.h"
+#include "G3D/WeakCache.h"
 
 #ifdef G3D_WIN32
-	#pragma comment(lib, "zlib")
-    #pragma comment(lib, "ws2_32")
-    #pragma comment(lib, "winmm")
-    #pragma comment(lib, "imagehlp")
-    #pragma comment(lib, "gdi32")
-    #pragma comment(lib, "user32")
-    #pragma comment(lib, "kernel32")
-    #pragma comment(lib, "version")
-    #pragma comment(lib, "advapi32")
-    #pragma comment(lib, "png")
-    #pragma comment(lib, "jpeg")
-    #ifdef _DEBUG
+#   pragma comment(lib, "zlib")
+#   pragma comment(lib, "ws2_32")
+#   pragma comment(lib, "winmm")
+#   pragma comment(lib, "imagehlp")
+#   pragma comment(lib, "gdi32")
+#   pragma comment(lib, "user32")
+#   pragma comment(lib, "kernel32")
+#   pragma comment(lib, "version")
+#   pragma comment(lib, "advapi32")
+#   pragma comment(lib, "png")
+#   pragma comment(lib, "jpeg")
+#   ifdef _DEBUG
         // Don't link against G3D when building G3D itself.
-        #ifndef G3D_BUILDING_LIBRARY_DLL
-           #pragma comment(lib, "G3Dd.lib")
-        #endif
-    #else
+#      ifndef G3D_BUILDING_LIBRARY_DLL
+#         pragma comment(lib, "G3Dd.lib")
+#      endif
+#   else
         // Don't link against G3D when building G3D itself.
-        #ifndef G3D_BUILDING_LIBRARY_DLL
-            #pragma comment(lib, "G3D.lib")
-        #endif
-    #endif
+#      ifndef G3D_BUILDING_LIBRARY_DLL
+#         pragma comment(lib, "G3D.lib")
+#      endif
+#   endif
 #endif
 
 #endif
