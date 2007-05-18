@@ -1,3 +1,14 @@
+/** 
+  @file WeakCache.h
+ 
+  @maintainer Morgan McGuire, graphics3d.com
+ 
+  @created 2007-05-16
+  @edited  2007-05-16
+
+  Copyright 2000-2007, Morgan McGuire.
+  All rights reserved.
+ */
 #ifndef G3D_WEAKCACHE_H
 #define G3D_WEAKCACHE_H
 

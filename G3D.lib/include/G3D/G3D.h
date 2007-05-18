@@ -105,6 +105,7 @@
 #include "G3D/Image4uint8.h"
 #include "G3D/filter.h"
 #include "G3D/WeakCache.h"
+#include "G3D/Pointer.h"
 
 #ifdef G3D_WIN32
 #   pragma comment(lib, "zlib")
