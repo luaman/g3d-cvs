@@ -106,7 +106,7 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 }
 
 
-void Framebuffer::set(AttachmentPoint ap, const TextureRef& texture) {
+void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture) {
     if (texture.isNull()) {
         // We're in the wrong overload
         set(ap, (void*)NULL);

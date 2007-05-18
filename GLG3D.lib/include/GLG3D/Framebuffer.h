@@ -54,7 +54,7 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
 
  <PRE>
     // Create Texture
-	static TextureRef tex = Texture::createEmpty(256, 256, "Rendered Texture", TextureFormat::RGB8, Texture::CLAMP, Texture::NEAREST_NO_MIPMAP, Texture::DIM_2D);
+	static Texture::Ref tex = Texture::createEmpty(256, 256, "Rendered Texture", TextureFormat::RGB8, Texture::CLAMP, Texture::NEAREST_NO_MIPMAP, Texture::DIM_2D);
 
 	// Create a framebuffer that uses this texture as the color buffer
 	static FramebufferRef fb = Framebuffer::create("Offscreen target");
@@ -169,7 +169,7 @@ private:
         Type                        type;
 
         RenderbufferRef             renderbuffer;
-        TextureRef                  texture;
+        Texture::Ref                  texture;
 
 		/** True if the texture had autoMipMap on when it was set. */
 		bool						hadAutoMipMap;
@@ -180,7 +180,7 @@ private:
             type(RENDERBUFFER), 
             renderbuffer(r) {}
 
-        Attachment(const TextureRef& r) : 
+        Attachment(const Texture::Ref& r) : 
             type(TEXTURE), 
             texture(r),
             hadAutoMipMap(r->settings().autoMipMap) {
@@ -282,7 +282,7 @@ public:
 	 @param texture		Texture to bind to the framebuffer.
 	 @param ap	Attachment point to bind texture to.
 	 */
-	void set(AttachmentPoint ap, const TextureRef& texture);
+	void set(AttachmentPoint ap, const Texture::Ref& texture);
 
 	/**
 	 Set one of the attachment points to reference a renderbuffer.

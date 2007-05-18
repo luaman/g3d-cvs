@@ -89,7 +89,7 @@ void endMarkShadows(RenderDevice* renderDevice);
  */
 void markShadows(
     RenderDevice*           renderDevice, 
-    const PosedModelRef&    model,
+    const PosedModel::Ref&    model,
     const Vector4&          light);
 
 }

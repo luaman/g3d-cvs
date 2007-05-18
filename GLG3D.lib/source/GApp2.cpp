@@ -358,7 +358,7 @@ bool GApp2::onEvent(const GEvent& event) {
 
 
 void GApp2::getPosedModel(
-    Array<PosedModelRef>& posedArray, 
+    Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
     m_moduleManager->getPosedModel(posedArray, posed2DArray);
@@ -367,9 +367,9 @@ void GApp2::getPosedModel(
 
 
 void GApp2::onGraphics(RenderDevice* rd) {
-    Array<PosedModelRef>        posedArray;
+    Array<PosedModel::Ref>        posedArray;
     Array<PosedModel2DRef>      posed2DArray;
-    Array<PosedModelRef>        opaque, transparent;
+    Array<PosedModel::Ref>        opaque, transparent;
 
     SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
@@ -385,7 +385,7 @@ void GApp2::onGraphics(RenderDevice* rd) {
 
 
 void GApp2::renderGModules(RenderDevice* rd) {
-    Array<PosedModelRef> posedArray, opaque, transparent; 
+    Array<PosedModel::Ref> posedArray, opaque, transparent; 
     Array<PosedModel2DRef> posed2DArray;
 
     // By default, render the installed modules

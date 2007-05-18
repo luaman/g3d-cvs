@@ -307,7 +307,7 @@ public:
             /** Row-major */ 
             Vector4                    vector[4];
 
-            TextureRef                 texture;
+            Texture::Ref                 texture;
 
             GLenum                     type;
         };
@@ -316,7 +316,7 @@ public:
 
     public:
 
-        void set(const std::string& var, const TextureRef& val);
+        void set(const std::string& var, const Texture::Ref& val);
         void set(const std::string& var, const CoordinateFrame& val);
         void set(const std::string& var, const Matrix4& val);
         void set(const std::string& var, const Matrix3& val);

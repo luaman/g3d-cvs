@@ -8,11 +8,11 @@ namespace G3D {
 
 Table<int, ShaderRef> GaussianBlur::shaderCache;
 
-void GaussianBlur::apply(RenderDevice* rd, const TextureRef& source, const Vector2& direction, int N) {
+void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N) {
     apply(rd, source, direction, N, source->vector2Bounds());
 }
 
-void GaussianBlur::apply(RenderDevice* rd, const TextureRef& source, const Vector2& direction, int N, const Vector2& destSize) {
+void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N, const Vector2& destSize) {
     debugAssert(isOdd(N));
 
     ShaderRef gaussian1DShader = getShader(17);

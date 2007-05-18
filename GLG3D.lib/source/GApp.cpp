@@ -346,7 +346,7 @@ bool GApplet::onEvent(const GEvent& event) {
 
 
 void GApplet::getPosedModel(
-    Array<PosedModelRef>& posedArray, 
+    Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
     m_moduleManager->getPosedModel(posedArray, posed2DArray);
@@ -356,9 +356,9 @@ void GApplet::getPosedModel(
 
 
 void GApplet::onGraphics(RenderDevice* rd) {
-    Array<PosedModelRef>        posedArray;
+    Array<PosedModel::Ref>        posedArray;
     Array<PosedModel2DRef>      posed2DArray;
-    Array<PosedModelRef>        opaque, transparent;
+    Array<PosedModel::Ref>        opaque, transparent;
 
     // By default, render the installed modules
     getPosedModel(posedArray, posed2DArray);

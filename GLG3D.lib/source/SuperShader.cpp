@@ -18,7 +18,7 @@ void SuperShader::Material::enforceDiffuseMask() {
     if (diffuse.map.notNull() && ! diffuse.map->opaque()) {
         // There is a mask.  Extract it.
 
-        TextureRef mask = diffuse.map->alphaOnlyVersion();
+        Texture::Ref mask = diffuse.map->alphaOnlyVersion();
 
         static const int numComponents = 5;
         Component* component[numComponents] = {&emit, &specular, &specularExponent, &transmit, &reflect};
@@ -116,7 +116,7 @@ void SuperShader::configureShader(
 void SuperShader::configureShadowShader(
     const GLight&                   light, 
     const Matrix4&                  lightMVP, 
-    const TextureRef&               shadowMap,
+    const Texture::Ref&               shadowMap,
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args) {
     

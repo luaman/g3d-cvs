@@ -22,7 +22,7 @@ namespace G3D {
 
 
 SkyRef Sky::fromCubeMap(
-    TextureRef                          _cubeMap,
+    Texture::Ref                          _cubeMap,
     const std::string&                  directory,
     bool                                _drawCelestialBodies,
     double                              quality) {
@@ -36,7 +36,7 @@ SkyRef Sky::fromCubeMap(
     debugAssert( _cubeMap.notNull() );
     debugAssert( _cubeMap->dimension() == Texture::DIM_CUBE_MAP );
 
-    TextureRef t[6];
+    Texture::Ref t[6];
     t[0] = _cubeMap;
     for (int i = 1; i < 6; ++i) {
         t[i] = NULL;
@@ -100,7 +100,7 @@ SkyRef Sky::fromFile(
         }
     }
 
-    TextureRef faceTextures[6];
+    Texture::Ref faceTextures[6];
     bool useCubeMap;
 
     // Even if there are cube map bugs, G3D knows how to work around them
@@ -181,7 +181,7 @@ SkyRef Sky::fromFile(
 
 
 Sky::Sky(
-    TextureRef                          textures[6],
+    Texture::Ref                          textures[6],
     const std::string&                  directory,
     bool                                useCubeMap,
     bool                                _drawCelestialBodies,

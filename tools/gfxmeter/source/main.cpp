@@ -51,7 +51,7 @@ void shaderVersions(
 void App::showSplashScreen() {
 	Texture::Settings textureSettings;
 	textureSettings.wrapMode = WrapMode::CLAMP;
-    TextureRef gfxMeterTexture = Texture::fromFile("gears.jpg", TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
+    Texture::Ref gfxMeterTexture = Texture::fromFile("gears.jpg", TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
 
     // Load the font
     if (reportFont.isNull()) {

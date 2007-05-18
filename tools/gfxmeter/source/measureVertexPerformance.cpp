@@ -27,7 +27,7 @@ int count = 5;
 class Model {
 private:
 
-    TextureRef          tex;
+    Texture::Ref          tex;
 
 public:
 
@@ -85,7 +85,7 @@ public:
         textureID = tex->openGLID();
 
         if (filename != "") {
-            PosedModelRef m = IFSModel::fromFile(filename)->pose();
+            PosedModel::Ref m = IFSModel::fromFile(filename)->pose();
             // Copy fields out into arrays
             {
                 const Array<int>& index = m->triangleIndices();

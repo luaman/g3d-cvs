@@ -25,7 +25,7 @@
 
 namespace G3D {
 
-void GPUProgram::ArgList::set(const std::string& var, const TextureRef& val) {
+void GPUProgram::ArgList::set(const std::string& var, const Texture::Ref& val) {
 
     alwaysAssertM(! argTable.containsKey(var), std::string("Cannot set variable \"") + var + "\" more than once");
 

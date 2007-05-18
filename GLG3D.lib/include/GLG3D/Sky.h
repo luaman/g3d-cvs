@@ -56,17 +56,17 @@ private:
     /**
      Only used if the render device does not support cube maps.
      */
-    TextureRef                                  texture[6];
+    Texture::Ref                                  texture[6];
 
     /**
      Used unless the render device does not support cube maps.
      */
-    TextureRef                                  cubeMap;
+    Texture::Ref                                  cubeMap;
 
-    TextureRef                                  sun;
-    TextureRef                                  moon;
-    TextureRef                                  disk;
-    TextureRef                                  sunRays;
+    Texture::Ref                                  sun;
+    Texture::Ref                                  moon;
+    Texture::Ref                                  disk;
+    Texture::Ref                                  sunRays;
 
     Array<Vector4>                              star;
     Array<float>                                starIntensity;
@@ -85,7 +85,7 @@ private:
     void drawMoonAndStars(RenderDevice* rd, const class SkyParameters&);
 
     Sky(
-        TextureRef                              textures[6],
+        Texture::Ref                              textures[6],
         const std::string&                      directory,
         bool                                    useCubeMap,
         bool                                    drawCelestialBodies,
@@ -137,7 +137,7 @@ public:
      @param _cubeMap This must be a Texture of dimension - DIM_CUBE_MAP.
      */
     static SkyRef fromCubeMap(
-        TextureRef                              _cubeMap,
+        Texture::Ref                              _cubeMap,
         const std::string&                      directory,
         bool                                    _drawCelestialBodies = true,
         double                                  quality = 1.0);
@@ -164,7 +164,7 @@ public:
      Returns an environment cube map (or the front 2D texture if cube maps are not supported
      on this machine).
      */
-    inline TextureRef getEnvironmentMap() const {
+    inline Texture::Ref getEnvironmentMap() const {
         if (cubeMap.isNull()) {
             return texture[FT];
         } else {

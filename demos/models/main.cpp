@@ -63,7 +63,7 @@ void App::onUserInput(UserInput* ui) {
 
 bool debugShadows = false;
 
-void App::generateShadowMap(const GLight& light, const Array<PosedModelRef>& shadowCaster) {
+void App::generateShadowMap(const GLight& light, const Array<PosedModel::Ref>& shadowCaster) {
     debugAssert(GLCaps::supports_GL_ARB_shadow()); 
 
     Rect2D rect = Rect2D::xywh(0, 0, shadowMapSize, shadowMapSize);
@@ -135,7 +135,7 @@ void App::onGraphics(RenderDevice* rd) {
 
     // Pose all
     Array<PosedModel2DRef> posed2D;
-    Array<PosedModelRef> posedModels, opaqueAModel, otherOpaque, transparent;
+    Array<PosedModel::Ref> posedModels, opaqueAModel, otherOpaque, transparent;
 
     for (int e = 0; e < entityArray.size(); ++e) {
         static RealTime t0 = System::time();

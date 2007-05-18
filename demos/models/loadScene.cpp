@@ -75,7 +75,7 @@ void App::loadScene() {
 
         // Override the textures in the file with more interesting ones
 
-        TextureRef diffuse = Texture::fromFile(path + "diffuse.jpg");
+        Texture::Ref diffuse = Texture::fromFile(path + "diffuse.jpg");
         {
             SuperShader::Material& material = model->partArray[0].triListArray[0].material;
             material.emit = Texture::fromFile(path + "emit.jpg");

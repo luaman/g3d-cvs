@@ -24,6 +24,9 @@ typedef ReferenceCountedPointer<class ArticulatedModel> ArticulatedModelRef;
  a PNG filename.
  */
 class ArticulatedModel : public ReferenceCountedObject {
+public:
+    typedef ReferenceCountedPointer<class ArticulatedModel> Ref;
+
 private:
 
     friend class PosedArticulatedModel;
@@ -34,26 +37,26 @@ public:
     /** Renders an array of PosedAModels in the order that they appear in the array, taking advantage of 
         the fact that all objects have the same subclass to optimize the rendering calls.*/
     static void renderNonShadowed(
-        const Array<PosedModelRef>& posedArray, 
+        const Array<PosedModel::Ref>& posedArray, 
         RenderDevice* rd, 
         const LightingRef& lighting);
 
     /** Renders an array of PosedAModels in the order that they appear in the array, taking advantage of 
         the fact that all objects have the same subclass to optimize the rendering calls.*/
     static void renderShadowMappedLightPass(
-        const Array<PosedModelRef>& posedAModelArray, 
+        const Array<PosedModel::Ref>& posedAModelArray, 
         RenderDevice* rd, 
         const GLight& light, 
         const Matrix4& lightMVP, 
-        const TextureRef& shadowMap);
+        const Texture::Ref& shadowMap);
 
     /** Removes the opaque PosedAModels from array @a all and appends them to the opaqueAmodels array (transparents
         must be rendered inline with other model types).
         This produces an array for the array versions of renderNonShadowed and renderShadowMappedLightPass. 
         */
     static void extractOpaquePosedAModels(
-        Array<PosedModelRef>& all, 
-        Array<PosedModelRef>& opaqueAmodels);
+        Array<PosedModel::Ref>& all, 
+        Array<PosedModel::Ref>& opaqueAmodels);
 
     /** Classification of a graphics card. 
         FIXED_FUNCTION  Use OpenGL fixed function lighting only.
@@ -161,7 +164,7 @@ public:
         void pose(
             ArticulatedModelRef     model,
             int                     partIndex,
-            Array<PosedModelRef>&   posedArray,
+            Array<PosedModel::Ref>&   posedArray,
             const CoordinateFrame&  parent, 
             const Pose&             posex) const;
 
@@ -223,7 +226,7 @@ public:
         providing detailed illuminaton.
     */
     void pose(
-        Array<PosedModelRef>&   posedModelArray, 
+        Array<PosedModel::Ref>&   posedModelArray, 
         const CoordinateFrame&  cframe = CoordinateFrame(),
         const Pose&             pose = DEFAULT_POSE);
 

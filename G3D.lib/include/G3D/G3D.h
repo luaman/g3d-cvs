@@ -13,7 +13,6 @@
  All rights reserved.
 */
 
-
 #ifndef G3D_GRAPHICS3D_H
 #define G3D_GRAPHICS3D_H
 
@@ -64,6 +63,7 @@
 #include "G3D/GImage.h"
 #include "G3D/CollisionDetection.h"
 #include "G3D/Log.h"
+#include "G3D/serialize.h"
 #include "G3D/TextInput.h"
 #include "G3D/NetAddress.h"
 #include "G3D/NetworkDevice.h"

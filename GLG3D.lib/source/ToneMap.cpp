@@ -17,8 +17,8 @@ ToneMap::Profile ToneMap::profile = ToneMap::UNINITIALIZED;
 
 ShaderRef  ToneMap::bloomShader[3];
 GLuint     ToneMap::gammaShaderPS14ATI;
-TextureRef ToneMap::RG;
-TextureRef ToneMap::B;
+Texture::Ref ToneMap::RG;
+Texture::Ref ToneMap::B;
 
 void ToneMap::beginFrame(RenderDevice* rd) {
     // Intentionally empty.  Future implementations might
@@ -48,7 +48,7 @@ void ToneMap::endFrame(RenderDevice* rd) {
 }
 
 
-TextureRef ToneMap::getBloomMap(RenderDevice* rd) const {
+Texture::Ref ToneMap::getBloomMap(RenderDevice* rd) const {
     if (stereo && 
         (rd->drawBuffer() == RenderDevice::BUFFER_FRONT_RIGHT) ||
         (rd->drawBuffer() == RenderDevice::BUFFER_BACK_RIGHT)) {
@@ -66,7 +66,7 @@ void ToneMap::applyPS14ATI(RenderDevice* rd) {
     // TODO: gamma correct
     // TODO: bloom
     resizeImages(rd);
-    TextureRef bloomMap = getBloomMap(rd);
+    Texture::Ref bloomMap = getBloomMap(rd);
 
     // We're going to use combiners, which G3D does not preserve
     glPushAttrib(GL_TEXTURE_BIT);
@@ -159,7 +159,7 @@ void ToneMap::applyPS20(RenderDevice* rd) {
     // TODO: obey viewport
 
     resizeImages(rd);
-    TextureRef bloomMap = getBloomMap(rd);
+    Texture::Ref bloomMap = getBloomMap(rd);
 
     rd->push2D();
         rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);    

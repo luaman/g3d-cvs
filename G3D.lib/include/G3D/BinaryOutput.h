@@ -215,8 +215,8 @@ public:
      Returns the current byte position in the file,
      where 0 is the beginning and getLength() - 1 is the end.
      */
-    inline int position() const {
-        return (int)pos + (int)alreadyWritten;
+    inline int64 position() const {
+        return (int64)pos + (int64)alreadyWritten;
     }
 
 
@@ -227,11 +227,11 @@ public:
 
      May throw a char* exception when seeking backwards on a huge file.
      */
-    inline void setPosition(int p) {
-        p = p - (int)alreadyWritten;
+    inline void setPosition(int64 p) {
+        p = p - (int64)alreadyWritten;
 
         if (p > bufferLen) {
-            setLength(p + (int)alreadyWritten);
+            setLength(p + (int64)alreadyWritten);
         }
 
         if (p < 0) {

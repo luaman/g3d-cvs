@@ -526,7 +526,7 @@ void Map::loadFaces(
  them brighter by.  Default = 1.0, normal intensity.  It is safe to call
  load multiple times-- the previously loaded model will be freed correctly.
 */
-static TextureRef loadBrightTexture(const std::string& filename, double brighten = 1.0) {
+static Texture::Ref loadBrightTexture(const std::string& filename, double brighten = 1.0) {
     //debugAssert(fileExists(filename));
     Texture::PreProcess preprocess;
     preprocess.brighten = brighten;
@@ -534,7 +534,7 @@ static TextureRef loadBrightTexture(const std::string& filename, double brighten
 }
 
 
-TextureRef Map::loadTexture(const std::string& filename) {
+Texture::Ref Map::loadTexture(const std::string& filename) {
     float brighten = 2.0;
 
     try {
@@ -627,7 +627,7 @@ void Map::loadLightMaps(
 
         Texture::Settings settings;
         settings.wrapMode = WrapMode::CLAMP;
-        TextureRef txt = 
+        Texture::Ref txt = 
             Texture::fromMemory("Light map", lightmapData, TextureFormat::RGB8, 128, 128, 1, 
             TextureFormat::RGB8, Texture::DIM_2D, settings);
 

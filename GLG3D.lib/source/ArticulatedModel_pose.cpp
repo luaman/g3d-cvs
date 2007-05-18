@@ -88,7 +88,7 @@ protected:
         RenderDevice*                   rd,
         const GLight&                   light,
         const Matrix4&                  lightMVP, 
-        const TextureRef&               shadowMap,
+        const Texture::Ref&               shadowMap,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
         const SuperShader::Material&    material) const;
@@ -97,7 +97,7 @@ protected:
         RenderDevice*                   rd,
         const GLight&                   light,
         const Matrix4&                  lightMVP, 
-        const TextureRef&               shadowMap,
+        const Texture::Ref&               shadowMap,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
         const SuperShader::Material&    material) const;
@@ -142,7 +142,7 @@ public:
     
     virtual void renderShadowedLightPass(RenderDevice* rd, const GLight& light) const;
 
-    virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const Matrix4& lightMVP, const TextureRef& shadowMap) const;
+    virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const Matrix4& lightMVP, const Texture::Ref& shadowMap) const;
 
     virtual int numBoundaryEdges() const;
 
@@ -151,7 +151,7 @@ public:
 
 
 void ArticulatedModel::renderNonShadowed(
-    const Array<PosedModelRef>& posedArray, 
+    const Array<PosedModel::Ref>& posedArray, 
     RenderDevice* rd, 
     const LightingRef& lighting) {
 
@@ -229,11 +229,11 @@ void ArticulatedModel::renderNonShadowed(
 
 
 void ArticulatedModel::renderShadowMappedLightPass(
-    const Array<PosedModelRef>&     posedArray, 
+    const Array<PosedModel::Ref>&     posedArray, 
     RenderDevice*                   rd, 
     const GLight&                   light, 
     const Matrix4&                  lightMVP, 
-    const TextureRef&               shadowMap) {
+    const Texture::Ref&               shadowMap) {
 
     rd->pushState();
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
@@ -308,8 +308,8 @@ void ArticulatedModel::renderShadowMappedLightPass(
 
 
 void ArticulatedModel::extractOpaquePosedAModels(
-    Array<PosedModelRef>&   all, 
-    Array<PosedModelRef>&   opaqueAmodels) {
+    Array<PosedModel::Ref>&   all, 
+    Array<PosedModel::Ref>&   opaqueAmodels) {
     
     for (int i = 0; i < all.size(); ++i) {
         ReferenceCountedPointer<PosedArticulatedModel> m = 
@@ -329,8 +329,8 @@ void ArticulatedModel::extractOpaquePosedAModels(
 /////////////////////////////////////////////////////////////////
 
 /** PS14 often needs a dummy texture map in order to enable a combiner */
-static TextureRef whiteMap() {
-    static TextureRef map;
+static Texture::Ref whiteMap() {
+    static Texture::Ref map;
 
     if (map.isNull()) {
         GImage im(4,4,3);
@@ -345,7 +345,7 @@ static TextureRef whiteMap() {
 }
 
 void ArticulatedModel::pose(
-    Array<PosedModelRef>&       posedArray, 
+    Array<PosedModel::Ref>&       posedArray, 
     const CoordinateFrame&      cframe, 
     const Pose&                 posex) {
 
@@ -362,7 +362,7 @@ void ArticulatedModel::pose(
 void ArticulatedModel::Part::pose(
     ArticulatedModelRef         model,
     int                         partIndex,
-    Array<PosedModelRef>&       posedArray,
+    Array<PosedModel::Ref>&       posedArray,
     const CoordinateFrame&      parent, 
     const Pose&                 posex) const {
 
@@ -823,10 +823,10 @@ void PosedArticulatedModel::renderNonShadowed(
         // This is the unoptimized, single-object version of renderShadowMappedLightPass.
         // It just calls the optimized version with a single-element array.
 
-        static Array<PosedModelRef> posedArray;
+        static Array<PosedModel::Ref> posedArray;
 
         posedArray.resize(1);
-        posedArray[0] = PosedModelRef(const_cast<PosedArticulatedModel*>(this));
+        posedArray[0] = PosedModel::Ref(const_cast<PosedArticulatedModel*>(this));
         ArticulatedModel::renderNonShadowed(posedArray, rd, lighting);
     }
 }
@@ -844,15 +844,15 @@ void PosedArticulatedModel::renderShadowMappedLightPass(
     RenderDevice*       rd, 
     const GLight&       light, 
     const Matrix4&      lightMVP, 
-    const TextureRef&   shadowMap) const {
+    const Texture::Ref&   shadowMap) const {
 
     // This is the unoptimized, single-object version of renderShadowMappedLightPass.
     // It just calls the optimized version with a single-element array.
 
-    static Array<PosedModelRef> posedArray;
+    static Array<PosedModel::Ref> posedArray;
 
     posedArray.resize(1);
-    posedArray[0] = PosedModelRef(const_cast<PosedArticulatedModel*>(this));
+    posedArray[0] = PosedModel::Ref(const_cast<PosedArticulatedModel*>(this));
     ArticulatedModel::renderShadowMappedLightPass(posedArray, rd, light, lightMVP, shadowMap);
 }
 
@@ -861,7 +861,7 @@ void PosedArticulatedModel::renderPS20ShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
     const Matrix4&      lightMVP, 
-    const TextureRef&   shadowMap,
+    const Texture::Ref&   shadowMap,
     const ArticulatedModel::Part& part,
     const ArticulatedModel::Part::TriList& triList,
     const SuperShader::Material& material) const {
@@ -876,7 +876,7 @@ void PosedArticulatedModel::renderFFShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
     const Matrix4&      lightMVP, 
-    const TextureRef&   shadowMap,
+    const Texture::Ref&   shadowMap,
     const ArticulatedModel::Part& part,
     const ArticulatedModel::Part::TriList& triList,
     const SuperShader::Material& material) const {

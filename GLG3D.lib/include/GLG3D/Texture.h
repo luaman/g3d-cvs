@@ -24,8 +24,6 @@ class Rect2D;
 class Matrix3;
 class Texture;
 
-typedef ReferenceCountedPointer<Texture> TextureRef;
-
 /**
  Abstraction of OpenGL textures.  This class can be used with raw OpenGL, 
  without RenderDevice.  G3D::Texture supports all of the image formats
@@ -59,7 +57,7 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
  follows:
 
  <PRE>
-  TextureRef texture = new Texture("logo.jpg");
+  Texture::Ref texture = new Texture("logo.jpg");
 
   ...
     
@@ -71,7 +69,7 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
  To use Texture with RenderDevice:
 
   <PRE>
-  TextureRef texture = new Texture("logo.jpg");
+  Texture::Ref texture = new Texture("logo.jpg");
   ...
   renderDevice->setTexture(0, texture);
   // (to disable: renderDevice->setTexture(0, NULL);)
@@ -296,7 +294,7 @@ public:
     /**
      Creates an empty texture (useful for later reading from the screen).
      */
-    static TextureRef createEmpty(
+    static Texture::Ref createEmpty(
         const std::string&              name,
         int                             m_width,
         int                             m_height,
@@ -311,7 +309,7 @@ public:
      @param name Arbitrary name for this texture to identify it
      @param textureID Set to newGLTextureID() to create an empty texture.
      */
-    static TextureRef fromGLTexture(
+    static Texture::Ref fromGLTexture(
         const std::string&              name,
         GLuint                          textureID,
         const class TextureFormat*      textureFormat,
@@ -323,7 +321,7 @@ public:
      by G3D::GImage or a DirectDraw Surface (DDS).  If dimension is DIM_CUBE_MAP, this loads the 6 files with names
      _ft, _bk, ... following the G3D::Sky documentation.
      */    
-    static TextureRef fromFile(
+    static Texture::Ref fromFile(
         const std::string&              filename,
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
         Dimension                       dimension      = DIM_2D,
@@ -334,7 +332,7 @@ public:
      Creates a cube map from six independently named files.  The first
      becomes the name of the texture.
      */
-    static TextureRef fromFile(
+    static Texture::Ref fromFile(
         const std::string               filename[6],
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
         Dimension                       dimension      = DIM_2D,
@@ -346,7 +344,7 @@ public:
      from the red channel of alpha filename. See G3D::RenderDevice::setBlendFunc
 	 for important information about turning on alpha blending. 
      */
-    static TextureRef fromTwoFiles(
+    static Texture::Ref fromTwoFiles(
         const std::string&              filename,
         const std::string&              alphaFilename,
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
@@ -373,7 +371,7 @@ public:
 
     3D Textures map not use mip-maps.
     */
-    static TextureRef fromMemory(
+    static Texture::Ref fromMemory(
         const std::string&                  name,
         const Array< Array<const void*> >&  bytes,
         const TextureFormat*                bytesFormat,
@@ -389,7 +387,7 @@ public:
 	 /** Construct from a single packed 2D or 3D data set.  For 3D
          textures, the interpolation mode must be one that does not
          use MipMaps. */
-    static TextureRef fromMemory(
+    static Texture::Ref fromMemory(
         const std::string&              name,
         const void*                     bytes,
         const class TextureFormat*      bytesFormat,
@@ -401,7 +399,7 @@ public:
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
 
-    static TextureRef fromGImage(
+    static Texture::Ref fromGImage(
         const std::string&              name,
         const GImage&                   image,
         const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
@@ -417,7 +415,7 @@ public:
         
         Like all texture construction methods, this is fairly
         slow and should not be called every frame during interactive rendering.*/
-    TextureRef alphaOnlyVersion() const;
+    Texture::Ref alphaOnlyVersion() const;
 
     /**
      Helper method. Returns a new OpenGL texture ID that is not yet managed by a G3D Texture.
@@ -672,8 +670,12 @@ private:
     };
 };
 
+/** For backwards compatibility to 6.xx*/
+typedef Texture::Ref TextureRef;
+
 } // namespace
 
 G3D::uint32 hashCode(const G3D::Texture::Settings& p);
+
 
 #endif

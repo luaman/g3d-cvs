@@ -72,16 +72,16 @@ private:
     /** Three pass algorithm. */
     static ShaderRef            bloomShader[3];
 
-    TextureRef                  screenImage;
+    Texture::Ref                  screenImage;
 
     bool                        stereo;
 
     /** When in stereo mode, BloomMap 0 is the left eye, bloom map 1 is the right eye. */
-    TextureRef                  stereoBloomMap[2];
+    Texture::Ref                  stereoBloomMap[2];
 
     /** Intermediate result used when computing the bloom map.  This
         is 1/4 the horizontal resolution of the screen.*/
-    TextureRef                  bloomMapIntermediate;
+    Texture::Ref                  bloomMapIntermediate;
 
     bool                        mEnabled;
     
@@ -89,7 +89,7 @@ private:
 
     /** Inverse gamma ramps. */
     // For programmable we don't use B
-    static TextureRef           RG, B;
+    static Texture::Ref           RG, B;
 
     static void makeGammaCorrectionTextures();
 
@@ -112,7 +112,7 @@ private:
     void resizeBloomMap(int w, int h);
 
     /** Returns the appropriate bloom map for the current draw buffer (i.e., resolves stereo issues)*/
-    TextureRef getBloomMap(RenderDevice* rd) const;
+    Texture::Ref getBloomMap(RenderDevice* rd) const;
 
     ToneMap();
 

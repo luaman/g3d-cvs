@@ -35,12 +35,12 @@ public:
 class App : public GApp2 {
 private:
 
-    void generateShadowMap(const GLight& light, const Array<PosedModelRef>& shadowCaster);
+    void generateShadowMap(const GLight& light, const Array<PosedModel::Ref>& shadowCaster);
 
-    TextureRef                  shadowMap;
+    Texture::Ref                  shadowMap;
     Matrix4                     lightMVP;
 
-    TextureRef                  logo;
+    Texture::Ref                  logo;
 
     SkyRef                      sky;
 
@@ -48,7 +48,7 @@ private:
     LightingRef                 lighting;
 
     Array<EntityRef>            entityArray;
-    TextureRef                  texture;
+    Texture::Ref                  texture;
 
     void loadScene();
 

@@ -19,7 +19,7 @@ G3D changes the linker settings for files, so you should generally #include <G3D
 
 <P><B><CODE>Error C2440: 'delete' : cannot convert from 'class G3D::ReferenceCountedPointer<class G3D::GFont>' to '' No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called</CODE></B>
 <P>
-You called <CODE>delete</CODE> on a reference counted class.  You do not need to delete G3D::GFontRef, G3D::TextureRef or any other Ref class; just
+You called <CODE>delete</CODE> on a reference counted class.  You do not need to delete G3D::GFontRef, G3D::Texture::Ref or any other Ref class; just
 set them to NULL when you don't need them and the underlying memory will be recovered.
 
 <P><B>../include\G3D/ReferenceCount.h(159) : error C2664: 'setPointer' : cannot convert parameter 1 from 'class G3D::Shader *' to 'class SphereMap *'
@@ -28,14 +28,14 @@ set them to NULL when you don't need them and the underlying memory will be reco
 s G3D::Shader> &)' being compiled</B><P>
 
 You tried to assign a reference counted pointer from the wrong type
-(e.g. TextureRef a = GFontRef::create().
+(e.g. Texture::Ref a = GFontRef::create().
 
 <P><B>error C2440: 'return' : cannot convert from 'class A *' to 'class B *'
 Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
 d:\games\cpp\source\include\g3d\referencecount.h(194) : see reference to function template instantiation 'class B *__cdecl G3D::ReferenceCountedPointer<class B>::safecast(class A *)' being compiled</B>
 <P>
 You tried to assign a reference counted pointer from the wrong type
-(e.g. TextureRef a = GFontRef::create().
+(e.g. Texture::Ref a = GFontRef::create().
 
 <P><B>Program "randomly" crashes AMD systems</B><P>
 See the

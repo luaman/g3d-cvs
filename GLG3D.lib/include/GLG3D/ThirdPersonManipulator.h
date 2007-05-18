@@ -235,7 +235,7 @@ private:
 
     friend class TPMPosedModel;
 
-    PosedModelRef           m_posedModel;
+    PosedModel::Ref           m_posedModel;
 
     /** The frame of the control for movement purposes.  */
     CoordinateFrame         m_offsetFrame;
@@ -353,7 +353,7 @@ public:
     virtual CoordinateFrame frame() const;
 
     virtual void getPosedModel(
-        Array<PosedModelRef>& posedArray, 
+        Array<PosedModel::Ref>& posedArray, 
         Array<PosedModel2DRef>& posed2DArray);
 
     /** Keeps the object where it in world space is and moves the control in world space.

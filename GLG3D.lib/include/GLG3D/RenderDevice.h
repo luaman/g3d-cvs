@@ -79,7 +79,7 @@ class VAR;
     RenderDevice* renderDevice = new RenderDevice();
     renderDevice->init(640, 480);
 
-    TextureRef sprite = new Texture("Grass Texture", "image.jpg");
+    Texture::Ref sprite = new Texture("Grass Texture", "image.jpg");
 
     renderDevice->beginFrame();
     renderDevice->pushState();
@@ -1043,7 +1043,7 @@ public:
      */
     void setTexture(
         uint                textureUnit,
-        TextureRef          texture);
+        Texture::Ref          texture);
 
     /** Returns the number of textures available.  May be higher
         than the number of texture units if the programmable
@@ -1195,7 +1195,7 @@ private:
             Vector4                 texCoord;
 
             /** NULL if not bound */
-            TextureRef              texture;
+            Texture::Ref              texture;
 
             float                   textureMatrix[16];
             CombineMode             combineMode;
@@ -1687,7 +1687,7 @@ public:
     void configureShadowMap(
         uint                textureUnit,
         const Matrix4&      lightMVP,
-        const TextureRef&   shadowMap);
+        const Texture::Ref&   shadowMap);
 
     /**
      Call within RenderDevice::pushState()...popState() so that you can
@@ -1701,7 +1701,7 @@ public:
 
     void configureReflectionMap(
         uint                textureUnit,
-        TextureRef          reflectionTexture);
+        Texture::Ref          reflectionTexture);
 
     #ifdef G3D_WIN32
         HDC getWindowHDC() const;

@@ -17,11 +17,11 @@ namespace G3D {
 class ModelSorter {
 public:
     double                  sortKey;
-    PosedModelRef           model;
+    PosedModel::Ref           model;
 
     ModelSorter() {}
 
-    ModelSorter(const PosedModelRef& m, const Vector3& axis) : model(m) {
+    ModelSorter(const PosedModel::Ref& m, const Vector3& axis) : model(m) {
         static Sphere s;
         m->getWorldSpaceBoundingSphere(s);
         sortKey = axis.dot(s.center);
@@ -38,10 +38,10 @@ public:
 
 
 void PosedModel::sort(
-    const Array<PosedModelRef>& inModels, 
+    const Array<PosedModel::Ref>& inModels, 
     const Vector3&              wsLook,
-    Array<PosedModelRef>&       opaque,
-    Array<PosedModelRef>&       transparent) {
+    Array<PosedModel::Ref>&       opaque,
+    Array<PosedModel::Ref>&       transparent) {
 
     Array<ModelSorter> op;
     Array<ModelSorter> tr;
@@ -71,13 +71,13 @@ void PosedModel::sort(
 
 
 void PosedModel::sort(
-    const Array<PosedModelRef>& inModels, 
+    const Array<PosedModel::Ref>& inModels, 
     const Vector3&              wsLook,
-    Array<PosedModelRef>&       opaque) { 
+    Array<PosedModel::Ref>&       opaque) { 
 
     if (&inModels == &opaque) {
         // The user is trying to sort in place.  Make a separate array for them.
-        Array<PosedModelRef> temp = inModels;
+        Array<PosedModel::Ref> temp = inModels;
         sort(temp, wsLook, opaque);
         return;
     }
@@ -220,7 +220,7 @@ void PosedModel::renderShadowMappedLightPass(
     RenderDevice* rd, 
     const GLight& light,
     const Matrix4& lightMVP,
-    const TextureRef& shadowMap) const {
+    const Texture::Ref& shadowMap) const {
 
     rd->pushState();
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);

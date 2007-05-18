@@ -39,7 +39,7 @@ public:
         cframe2.translation.y -= 1.7f;
         rd->setColor(Color3(.9f, .9f, 1));
 
-        PosedModelRef m = model->pose(cframe2, pose);
+        PosedModel::Ref m = model->pose(cframe2, pose);
 
         // Intentionally render a lot of shadows to gauge rendering performance
         for (int i = 0; i < 20; ++i) {

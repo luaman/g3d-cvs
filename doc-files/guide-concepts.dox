@@ -52,7 +52,7 @@ Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD><
   
   G3D uses reference counting to automatically manage memory for key resources, like G3D::Textures.
   These classes are allocated with static factory methods (G3D::Texture::fromFile) instead
-  of <CODE>new</CODE> and pointers are stored in Ref types (G3D::TextureRef instead of G3D::Texture*). 
+  of <CODE>new</CODE> and pointers are stored in Ref types (G3D::Texture::Ref instead of G3D::Texture*). 
   You can use the Ref type as if it were a regular pointer, sharing a single instance over 
   multiple Ref's, dynamically casting, and invoking methods with the arrow (<CODE>-\></CODE>).
 

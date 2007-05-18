@@ -729,6 +729,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\serialize.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Set.h"
 				>
 			</File>
@@ -798,6 +802,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\vectorMath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\WeakCache.h"
 				>
 			</File>
 			<File

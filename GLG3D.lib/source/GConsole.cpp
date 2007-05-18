@@ -80,7 +80,7 @@ void GConsole::setActive(bool a) {
 }
 
 
-void GConsole::getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
+void GConsole::getPosedModel(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
     if (m_active) {
         posed2DArray.append(m_posedModel2D);
     }

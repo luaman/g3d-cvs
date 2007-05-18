@@ -244,7 +244,7 @@ void Map::getVisibleFaces(
 				FaceSet* face = faceArray[faceIndex];
 
 				// Ignore untextured faces
-				TextureRef texture = textures[face->textureID];
+				Texture::Ref texture = textures[face->textureID];
 				if ((face->lightmapID < 0) && texture.isNull()) {
 					continue;
 				}
@@ -293,7 +293,7 @@ void Map::getVisibleFaces(
 			
             FaceSet* face = faceArray[currentModel.faceIndex + f];
 			
-			TextureRef texture = textures[face->textureID];
+			Texture::Ref texture = textures[face->textureID];
 			if ((face->lightmapID < 0) && texture.isNull()) {
                 // Ignore untextured faces
 				continue;
@@ -322,7 +322,7 @@ void Map::renderFaces(
 		int lastTextureID = -1;
 		int lastLightmapID = -1;
 
-		TextureRef texture;
+		Texture::Ref texture;
 		for (int i = 0; i < visibleFaceArray.size(); ++i) {
 			FaceSet* theFace = visibleFaceArray[i];
 		
@@ -977,8 +977,8 @@ void Map::getTriangles(
     Array<Vector2>&     outLightCoordArray,
     Array<int>&         outLightMapIndexArray,
     Array<int>&         outTexCoordIndexArray,
-    Array<TextureRef>&  outTextureMapArray,
-    Array<TextureRef>&  outLightMapArray) const {
+    Array<Texture::Ref>&  outTextureMapArray,
+    Array<Texture::Ref>&  outLightMapArray) const {
 
     // Copy the textures
     outLightMapArray = lightmaps;

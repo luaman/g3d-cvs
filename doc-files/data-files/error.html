@@ -13,7 +13,7 @@ linking, and debugging programs that use G3D.  Here are the common fixes.
 <P>You have probably made one of three mistakes in your program.  If you use raw pointers 
 (e.g. <CODE>Texture*, VARArea*</CODE>) to reference counted types, the reference count 
 will not know about your pointers and may garbage collect at the wrong time.  <I>Do not 
-use C pointers to Ref types</I>.  Use only TextureRef, VARAreaRef, VertexAndPixelShaderRef, etc.
+use C pointers to Ref types</I>.  Use only Texture::Ref, VARAreaRef, VertexAndPixelShaderRef, etc.
 <P>
 The second mistake is deleting a Ref type.  Never use delete with a Ref class; they automatically
 delete themselves when the last pointer is dropped.  To force the last pointer to be dropped,

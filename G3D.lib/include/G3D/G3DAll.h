@@ -22,14 +22,5 @@
 #include "GLG3D/GLG3D.h"
 
 using namespace G3D;
-// The following statements should be not be necessary. 
-// However, we experienced problems under MSVC 6.00 SP4 
-// when compiling against certain code in its own 
-// namespace-- the 'using namespace G3D' failed to bring some 
-// of the names, like Texture, into the global namespace.
-using G3D::Texture;         
-using G3D::TextureRef;
-using G3D::RenderDevice;
-using G3D::AMPM;
 
 #endif

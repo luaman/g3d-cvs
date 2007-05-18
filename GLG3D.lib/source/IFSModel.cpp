@@ -143,11 +143,11 @@ size_t IFSModel::mainMemorySize() const {
 }
 
 
-PosedModelRef IFSModel::pose(const CoordinateFrame& cframe, bool perVertexNormals) {
+PosedModel::Ref IFSModel::pose(const CoordinateFrame& cframe, bool perVertexNormals) {
     return new PosedIFSModel(this, cframe, perVertexNormals, GMaterial(), false);
 }
 
-PosedModelRef IFSModel::pose(const CoordinateFrame& cframe, const GMaterial& mat, bool perVertexNormals) {
+PosedModel::Ref IFSModel::pose(const CoordinateFrame& cframe, const GMaterial& mat, bool perVertexNormals) {
     return new PosedIFSModel(this, cframe, perVertexNormals, mat, true);
 }
 

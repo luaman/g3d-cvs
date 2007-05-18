@@ -128,7 +128,7 @@ void GModuleManager::clear() {
     endLock();
 
 void GModuleManager::getPosedModel(
-    Array<PosedModelRef>& posedArray, 
+    Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
     ITERATOR(array[i]->getPosedModel(posedArray, posed2DArray));

@@ -72,12 +72,12 @@ public:
         Color3              constant;
 
         /** Color that varies over position.  NULL means white.*/
-        TextureRef          map;
+        Texture::Ref          map;
 
         inline Component() : constant(0, 0, 0), map(NULL) {}
         inline Component(const Color3& c) : constant(c), map(NULL) {}
         inline Component(double c) : constant(c, c, c), map(NULL) {}
-        inline Component(TextureRef t) : constant(1, 1, 1), map(t) {}
+        inline Component(Texture::Ref t) : constant(1, 1, 1), map(t) {}
 
         /** True if this material is definitely (0,0,0) everywhere */
         inline bool isBlack() const {
@@ -173,7 +173,7 @@ public:
 
         /** RGB*2-1 = tangent space normal, A = tangent space bump height.
           If NULL bump mapping is disabled. */
-        TextureRef              normalBumpMap;
+        Texture::Ref              normalBumpMap;
        
         /** Multiply normal map alpha values (originally on the range 0-1)
             by this constant to obtain the real-world bump height. Should
@@ -230,7 +230,7 @@ public:
     static void configureShadowShader(
         const GLight&       light, 
         const Matrix4&      lightMVP, 
-        const TextureRef&   shadowMap,
+        const Texture::Ref&   shadowMap,
         const Material&                 material,
         VertexAndPixelShader::ArgList&  args);
 

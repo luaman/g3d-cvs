@@ -86,7 +86,7 @@ namespace G3D {
 
   G3D::GImage - Supports file formats, fast, Color3uint8 and Color4uint8 formats.  No interpolation.
 
-  G3D::TextureRef - Represents image on the graphics card (not directly readable on the CPU).  Supports 2D, 3D, and a variety of interpolation methods, loads file formats.
+  G3D::Texture::Ref - Represents image on the graphics card (not directly readable on the CPU).  Supports 2D, 3D, and a variety of interpolation methods, loads file formats.
 
   G3D::Image3 - A subclass of Map2D<Color3> that supports image loading and saving and conversion to Texture.
 

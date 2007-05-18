@@ -61,7 +61,7 @@ private:
     /** Y distance from top of the bounding box to the font baseline. */
     int baseline;
 
-    TextureRef texture;
+    Texture::Ref texture;
 
     /** Assumes you are already inside of beginPrimitive(QUADS) */
     Vector2 drawString(

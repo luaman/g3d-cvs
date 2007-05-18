@@ -15,7 +15,7 @@
      <li> Upgraded to iCompile 0.5.3.  Requires users to delete their old ice.txt and ~/.icompile files
      <li> G3D::CameraLocation, G3D::CameraSpline
      <li> G3D::Spline
-     <li> G3D::PosedModelRef::sendGeometry
+     <li> G3D::PosedModel::Ref::sendGeometry
      <li> G3D::RenderDevice::pushState(FramebufferRef)
      <li> G3D::Texture::PreProcess::computeNormalMap
      <li> direct.h is now included by fileutils.h on Win32 to ensure that chdir, mkdir, etc. are available
@@ -618,7 +618,7 @@
      <LI> G3D::IFSModel now loads IFS 1.1 [Peter]
      <LI> G3D::IFSModel now loads and saves PLY2 files (plain text IFS format) [Peter]
      <LI> Automatically switch to glCompressedTexImage2D in G3D::Texture::fromMemory [Corey]
-     <LI> Added G3D::Sky::fromCubeMap for preloaded CubeMap TextureRef's [Corey]
+     <LI> Added G3D::Sky::fromCubeMap for preloaded CubeMap Texture::Ref's [Corey]
      <LI> Added G3D::Sky::fromFile and deprecated Sky::create [Corey]
      <LI> Demo and Test projects now build with iCompile, which is included [Corey]
      <LI> Fix: TextOutput::writeString now escapes special characters
@@ -1269,7 +1269,7 @@
      <LI> Added support for TGA with alpha channel
      <LI> Re-implemented Texture to support a broader range of formats and cleaner implementation.
      <LI> Fix: Improved Texture::LUMINANCE support
-     <LI> Added == and != overloads for TextureRef so that "a != NULL" is now legal and does not require a cast to TextureRef.
+     <LI> Added == and != overloads for Texture::Ref so that "a != NULL" is now legal and does not require a cast to Texture::Ref.
      <LI> G3D::CFont is a typedef for G3D::Font to avoid name conflicts with X11 Font under Linux.  In future releases, the name Font will be deprecated.
      <LI> RenderDevice::setPointSize
 	 <LI> Added a new teapot (teapot.ifs) that is closed, with a properly fitting top.  The classic teapot is now called "utah-teapot.ifs" (Sebastian Schuberth and Simon Winkelbach)

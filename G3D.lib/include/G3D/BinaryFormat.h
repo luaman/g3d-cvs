@@ -32,7 +32,7 @@ class Color4uint8;
  Some values like float16 and int128 have no current CPU data structure that implements them but are useful
  for file formats and for GPUs.
 
- CHUNK_BINFMT data follows the GChunk protocol.
+ CHUNK_BINFMT data follows the protocol.
  */
 // Must be packed int 16 bits for the chunk reader
 // We can't name these just "INT8" etc. because some libraries #define names like that
@@ -90,7 +90,7 @@ public:
   Use this so you can make vertex arrays of your own classes and not just 
   the standard ones.
  */
-#define DECLARE_BINARYFORMATOF(CType, EnumType)            \
+#define DECLARE_BINARYFORMATOF(CType, EnumType)      \
 namespace G3D {                                      \
     namespace _internal {                            \
         template<> class _BinaryFormat<CType> {      \

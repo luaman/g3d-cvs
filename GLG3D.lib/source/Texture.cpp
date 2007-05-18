@@ -144,7 +144,7 @@ Texture::Texture(
 }
 
 
-TextureRef Texture::fromMemory(
+Texture::Ref Texture::fromMemory(
     const std::string&              name,
     const void*                     bytes,
     const class TextureFormat*      bytesFormat,
@@ -191,7 +191,7 @@ void Texture::setAutoMipMap(bool b) {
 }
 
 
-TextureRef Texture::fromGLTexture(
+Texture::Ref Texture::fromGLTexture(
     const std::string&      name,
     GLuint                  textureID,
     const TextureFormat*    textureFormat,
@@ -210,7 +210,7 @@ TextureRef Texture::fromGLTexture(
 }
 
 
-TextureRef Texture::fromFile(
+Texture::Ref Texture::fromFile(
     const std::string               filename[6],
     const class TextureFormat*      desiredFormat,
     Dimension                       dimension,
@@ -335,7 +335,7 @@ TextureRef Texture::fromFile(
         array[f] = image[f].byte();
     }
 
-    TextureRef t =
+    Texture::Ref t =
         fromMemory(
                    filename[0], 
                    byteMipMapFaces, 
@@ -352,7 +352,7 @@ TextureRef Texture::fromFile(
 }
 
 
-TextureRef Texture::fromFile(
+Texture::Ref Texture::fromFile(
     const std::string&      filename,
     const TextureFormat*    desiredFormat,
     Dimension               dimension,
@@ -371,7 +371,7 @@ TextureRef Texture::fromFile(
 }
 
 
-TextureRef Texture::fromTwoFiles(
+Texture::Ref Texture::fromTwoFiles(
     const std::string&      filename,
     const std::string&      alphaFilename,
     const TextureFormat*    desiredFormat,
@@ -407,7 +407,7 @@ TextureRef Texture::fromTwoFiles(
     
     GImage color[6];
     GImage alpha[6];
-    TextureRef t;
+    Texture::Ref t;
 
     try {
 		for (int f = 0; f < numFaces; ++f) {
@@ -501,7 +501,7 @@ static bool isMipMapformat(Texture::InterpolateMode i) {
 }
 
 
-TextureRef Texture::fromMemory(
+Texture::Ref Texture::fromMemory(
     const std::string&                  name,
     const Array< Array<const void*> >&  _bytes,
     const TextureFormat*                bytesFormat,
@@ -699,7 +699,7 @@ TextureRef Texture::fromMemory(
     }
 
     debugAssertGLOk();
-    TextureRef t = fromGLTexture(name, textureID, desiredFormat, dimension, settings);
+    Texture::Ref t = fromGLTexture(name, textureID, desiredFormat, dimension, settings);
     debugAssertGLOk();
 
     t->m_width = m_width;
@@ -727,7 +727,7 @@ TextureRef Texture::fromMemory(
 }
 
 
-TextureRef Texture::fromGImage(
+Texture::Ref Texture::fromGImage(
     const std::string&              name,
     const GImage&                   image,
     const class TextureFormat*      desiredFormat,
@@ -764,7 +764,7 @@ TextureRef Texture::fromGImage(
         desiredFormat = format;
     }
 
-    TextureRef t =
+    Texture::Ref t =
         fromMemory(
 			name, 
 			image.byte(), 
@@ -781,7 +781,7 @@ TextureRef Texture::fromGImage(
 }
 
 
-TextureRef Texture::createEmpty(
+Texture::Ref Texture::createEmpty(
     const std::string&               name,
     int                              w,
     int                              h,
@@ -796,7 +796,7 @@ TextureRef Texture::createEmpty(
     // OpenGL might refuse to negotiate formats for us.
     Array<uint8> data(w * h * desiredFormat->packedBitsPerTexel / 8);
 
-    TextureRef t = 
+    Texture::Ref t = 
 		fromMemory(
 			name, 
 			data.getCArray(), 
@@ -1208,7 +1208,7 @@ unsigned int Texture::openGLTextureTarget() const {
 }
 
 
-TextureRef Texture::alphaOnlyVersion() const {
+Texture::Ref Texture::alphaOnlyVersion() const {
     if (opaque()) {
         return NULL;
     }
@@ -1238,7 +1238,7 @@ TextureRef Texture::alphaOnlyVersion() const {
 
     glStatePop();
 
-    TextureRef ret = 
+    Texture::Ref ret = 
         fromMemory(
 			_name + " Alpha", 
 			mip,

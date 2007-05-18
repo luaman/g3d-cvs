@@ -162,7 +162,7 @@ void FirstPersonManipulator::setFrame(const CoordinateFrame& c) {
 }
 
 
-void FirstPersonManipulator::getPosedModel(Array<PosedModelRef>& p3d, Array<PosedModel2DRef>& p2d) {
+void FirstPersonManipulator::getPosedModel(Array<PosedModel::Ref>& p3d, Array<PosedModel2DRef>& p2d) {
 }
 
 

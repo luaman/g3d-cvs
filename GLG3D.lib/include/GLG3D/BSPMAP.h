@@ -447,12 +447,12 @@ private:
     // on load, deleted on destruction of the Map class.
     Array<FaceSet*>     faceArray;
 
-    Array<TextureRef>   textures;
+    Array<Texture::Ref>   textures;
     BitSet              textureIsHollow;
-    Array<TextureRef>   lightmaps;
+    Array<Texture::Ref>   lightmaps;
     BitSet              facesDrawn;
-    TextureRef          defaultTexture;
-    TextureRef          defaultLightmap;
+    Texture::Ref          defaultTexture;
+    Texture::Ref          defaultLightmap;
 
 public:
 	Array<BSPEntity>	entityArray;
@@ -463,7 +463,7 @@ private:
      filename has no extension.  JPG and TGA files are sought.
      The texture is brightened by a factor of 2.0.
      */
-    static TextureRef loadTexture(const std::string& filename);
+    static Texture::Ref loadTexture(const std::string& filename);
 
     /**
      Loads version information from the front of a file.  Called from load.
@@ -593,7 +593,7 @@ public:
      */
     static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f);
 
-    inline void setDefaultTexture(TextureRef txt) {
+    inline void setDefaultTexture(Texture::Ref txt) {
         defaultTexture = txt;
     }
 
@@ -624,8 +624,8 @@ public:
         Array<Vector2>&     outLightCoordArray,
         Array<int>&         outLightMapIndexArray,
         Array<int>&         outTexCoordIndexArray,
-        Array<TextureRef>&  outTextureMapArray,
-        Array<TextureRef>&  outLightMapArray) const;
+        Array<Texture::Ref>&  outTextureMapArray,
+        Array<Texture::Ref>&  outLightMapArray) const;
 
 };
 

@@ -453,12 +453,12 @@ void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
 }
 
 
-PosedModelRef MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose) {
+PosedModel::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose) {
     return new PosedMD2Model(this, cframe, pose, false, GMaterial());
 }
 
 
-PosedModelRef MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat) {
+PosedModel::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat) {
     return new PosedMD2Model(this, cframe, pose, true, mat);
 }
 
@@ -897,7 +897,7 @@ const Array<Vector3>& MD2Model::PosedMD2Model::objectSpaceFaceNormals(bool norma
 }
 
 
-TextureRef MD2Model::textureFromFile(const std::string& filename) {
+Texture::Ref MD2Model::textureFromFile(const std::string& filename) {
     Texture::Settings settings;
     settings.wrapMode = WrapMode::CLAMP;
 

@@ -110,7 +110,7 @@ static void vertexExtrude(
 
 void markShadows(
     RenderDevice*           renderDevice, 
-    const PosedModelRef&    model,
+    const PosedModel::Ref&    model,
     const Vector4&          light) {
 
     debugAssertM(inMarkShadows, "Must call beginMarkShadows before markShadows");

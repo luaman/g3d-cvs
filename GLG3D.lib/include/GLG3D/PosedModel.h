@@ -31,7 +31,7 @@ public:
     double                  specularCoefficient;
     double                  shininess;
     Color4                  color;
-    Array<TextureRef>       texture;
+    Array<Texture::Ref>       texture;
 
     inline GMaterial() : specularCoefficient(0.2), shininess(10), color(Color3::white()) {}
     /** Applies this material to the render device */
@@ -98,6 +98,7 @@ protected:
     PosedModel() {}
 
 public:
+    typedef ReferenceCountedPointer<class PosedModel> Ref;
 
     virtual ~PosedModel() {}
 
@@ -117,16 +118,16 @@ public:
       @param wsLookVector Sort axis; usually the -Z axis of the camera.
      */
     static void sort(
-        const Array<PosedModelRef>& inModels, 
+        const Array<PosedModel::Ref>& inModels, 
         const Vector3&              wsLookVector,
-        Array<PosedModelRef>&       opaque,
-        Array<PosedModelRef>&       transparent);
+        Array<PosedModel::Ref>&       opaque,
+        Array<PosedModel::Ref>&       transparent);
 
     /** Sorts the array in place along the look vector from front-to-back.*/
     static void sort(
-        const Array<PosedModelRef>& inModels, 
+        const Array<PosedModel::Ref>& inModels, 
         const Vector3&              wsLookVector,
-        Array<PosedModelRef>&       opaque);
+        Array<PosedModel::Ref>&       opaque);
 
     /** Object to world space coordinate frame.*/
     virtual void getCoordinateFrame(CoordinateFrame& c) const = 0;
@@ -270,7 +271,7 @@ public:
         RenderDevice* rd, 
         const GLight& light,
         const Matrix4& lightMVP,
-        const TextureRef& shadowMap) const;
+        const Texture::Ref& shadowMap) const;
 
     /**
       Sends all geometry including texture coordinates (uploading it first if necessary) but does not set any render device state or use 

@@ -142,7 +142,7 @@ public:
 
     /** Cube map or sphere map of the surrounding environment (often just the skybox, although 
          it may be rendered per-object). */
-    TextureRef          environmentMap;
+    Texture::Ref          environmentMap;
 
     /** Color to modulate environment map by */
     Color3              environmentMapColor;

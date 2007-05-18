@@ -412,12 +412,12 @@ public:
 
     virtual ~MD2Model() {}
 
-    PosedModelRef pose(const CoordinateFrame& cframe, const Pose& pose);
+    PosedModel::Ref pose(const CoordinateFrame& cframe, const Pose& pose);
 
     /** You can also pose a model without a material.  A good example of why this is useful
         is the MD2Model_Demo, in which shadows are rendered by flattening a pose of the model.
         The shadow should not be textured!*/
-    PosedModelRef pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat);
+    PosedModel::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat);
 
     inline const Array<Vector2>& texCoordArray() const {
         return _texCoordArray;
@@ -529,7 +529,7 @@ public:
      Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, settings, preprocess)
      </pre>
      */
-    static TextureRef textureFromFile(const std::string& filename);
+    static Texture::Ref textureFromFile(const std::string& filename);
 
 };
 

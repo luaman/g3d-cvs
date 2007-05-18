@@ -1006,7 +1006,7 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
 ////////////////////////////////////////////////////////////////////////
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const TextureRef& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Texture::Ref& val) {
     Arg arg;
     debugAssert(val.notNull());
     arg.type    = val->openGLTextureTarget();

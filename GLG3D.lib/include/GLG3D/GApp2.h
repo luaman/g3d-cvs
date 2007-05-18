@@ -430,7 +430,7 @@ protected:
 
     /** Default implementation poses the managed modules from the GApplet and GApp.*/
     virtual void getPosedModel(
-        Array<PosedModelRef>& posedArray, 
+        Array<PosedModel::Ref>& posedArray, 
         Array<PosedModel2DRef>& posed2DArray);
 
     /**

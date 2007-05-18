@@ -2275,7 +2275,7 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
     glMatrixMode(GL_TEXTURE);
     glLoadMatrixf(tt);
 
-    TextureRef texture = state.textureUnit[unit].texture;
+    Texture::Ref texture = state.textureUnit[unit].texture;
 
     // invert y
     if ((texture != NULL) && texture->invertY) {
@@ -2636,7 +2636,7 @@ void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVert
 
 void RenderDevice::setTexture(
     uint                unit,
-    TextureRef          texture) {
+    Texture::Ref          texture) {
 
     // NVIDIA cards have more textures than texture units.
     // "fixedFunction" textures have an associated unit 
@@ -2652,7 +2652,7 @@ void RenderDevice::setTexture(
                " on a device with %d textures.",
                unit, _numTextures));
 
-    TextureRef oldTexture = state.textureUnit[unit].texture;
+    Texture::Ref oldTexture = state.textureUnit[unit].texture;
     majStateChange();
 
     if (oldTexture == texture) {
@@ -3024,7 +3024,7 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
 void RenderDevice::configureShadowMap(
     uint                unit,
     const Matrix4&      lightMVP,
-    const TextureRef&   shadowMap) {
+    const Texture::Ref&   shadowMap) {
 
     minStateChange();
     minGLStateChange();
@@ -3088,7 +3088,7 @@ void RenderDevice::configureShadowMap(
 
 void RenderDevice::configureReflectionMap(
     uint                textureUnit,
-    TextureRef          reflectionTexture) {
+    Texture::Ref          reflectionTexture) {
 
     debugAssert(! GLCaps::hasBug_normalMapTexGen());
     debugAssert(reflectionTexture->dimension() == Texture::DIM_CUBE_MAP);

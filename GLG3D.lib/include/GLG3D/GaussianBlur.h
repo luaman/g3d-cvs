@@ -61,8 +61,8 @@ public:
      @param direction Direction of the blur.  For best results, use Vector2(1,0) and Vector(0,1).
      @param destSize output dimensions
     */
-    static void apply(class RenderDevice* rd, const TextureRef& source, const Vector2& direction, int N, const Vector2& destSize);
-    static void apply(class RenderDevice* rd, const TextureRef& source, const Vector2& direction = Vector2(1.0f, 0.0f), int N = 17);
+    static void apply(class RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N, const Vector2& destSize);
+    static void apply(class RenderDevice* rd, const Texture::Ref& source, const Vector2& direction = Vector2(1.0f, 0.0f), int N = 17);
 
 };
 

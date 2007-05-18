@@ -15,10 +15,10 @@ public:
 
     SkyRef                  sky;
 
-    TextureRef              cardLogo;
-    TextureRef              chipLogo;
+    Texture::Ref              cardLogo;
+    Texture::Ref              chipLogo;
     std::string             chipSpeed;
-    TextureRef              osLogo;
+    Texture::Ref              osLogo;
 
     GFontRef                titleFont;
     GFontRef                reportFont;

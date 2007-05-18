@@ -136,13 +136,13 @@ public:
      which are slower.  No color or texture is set when rendered (that is,
      the existing RenderDevice values are used.)
      */
-    virtual PosedModelRef pose(const CoordinateFrame& cframe = CoordinateFrame(), bool perVertexNormals = true);
+    virtual PosedModel::Ref pose(const CoordinateFrame& cframe = CoordinateFrame(), bool perVertexNormals = true);
 
     /**
      If perVertexNormals is false, the model is rendered with per-face normals,
      which are slower.
      */
-    virtual PosedModelRef pose(const CoordinateFrame& cframe, const GMaterial& material, bool perVertexNormals = true);
+    virtual PosedModel::Ref pose(const CoordinateFrame& cframe, const GMaterial& material, bool perVertexNormals = true);
 
     virtual size_t mainMemorySize() const;
 
