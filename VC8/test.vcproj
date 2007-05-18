@@ -281,6 +281,10 @@
 				RelativePath="..\test\tTextOutput.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\test\tWeakCache.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

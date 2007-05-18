@@ -701,6 +701,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\Pointer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\prompt.h"
 				>
 			</File>
