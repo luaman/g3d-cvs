@@ -215,14 +215,6 @@ private:
     void encodePPMASCII(
         BinaryOutput&       out) const;
 
-    /**
-     Decodes the buffer into this image.
-     @format Guaranteed correct format.
-     */
-    void decode(
-        BinaryInput&        input,
-        Format              format);
-
     void decodeTGA(
         BinaryInput&        input);
 
@@ -395,8 +387,16 @@ public:
         Format              format,
         BinaryOutput&       out) const;
 
-	/** Returns the size of this object in bytes */
-	int sizeInMemory() const;
+    /**
+     Decodes the buffer into this image.
+     @format Must be the correct format.
+     */
+    void decode(
+        BinaryInput&        input,
+        Format              format);
+
+    /** Returns the size of this object in bytes */
+    int sizeInMemory() const;
 
 
     /** Ok for in == out */

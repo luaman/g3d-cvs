@@ -87,13 +87,14 @@ void GImage::decodeTGA(
     // This is a simple TGA loader that can handle uncompressed
     // truecolor TGA files (TGA type 2). 
     // Verify this is a TGA file by looking for the TRUEVISION tag.
+    int pos = input.getPosition();
     input.setPosition(input.size() - 18);
     std::string tag = input.readString(16);
     if (tag != "TRUEVISION-XFILE") {
         throw Error("Not a TGA file", input.getFilename());
     }
 
-    input.reset();
+    input.setPosition(pos);
 
     int IDLength     = input.readUInt8();
     int colorMapType = input.readUInt8();
