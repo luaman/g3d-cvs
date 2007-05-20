@@ -722,23 +722,9 @@ void GConsole::render(RenderDevice* rd) {
     rd->push2D();
 
         rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+
         if (m_settings.backgroundColor.a > 0) {
             Draw::fastRect2D(rect, rd, m_settings.backgroundColor);
-        }
-
-        // Show PGUP/PGDN commands
-        if (m_buffer.size() >= m_settings.numVisibleLines) {
-            m_font->draw2D(rd, "pgup ^", rect.x1y0() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_TOP);
-            m_font->draw2D(rd, "pgdn v", rect.x1y1() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
-        }
-
-        rect = Rect2D::xyxy(rect.x0y0() + Vector2(2,1), rect.x1y1() - Vector2(2, 1));
-        // Print history
-        for (int count = 0; count < m_settings.numVisibleLines - 1; ++count) {
-            int q = m_buffer.size() - count - 1 - m_bufferShift;
-            if (q >= 0) {
-                m_font->draw2D(rd, m_buffer[q].value, rect.x0y1() - Vector2(0, m_settings.lineHeight * (count + 2)), fontSize, m_buffer[q].color);
-            }
         }
 
         if (m_bufferShift > 0) {
@@ -751,8 +737,25 @@ void GConsole::render(RenderDevice* rd) {
                 rd->sendVertex(v + Vector2(rect.width(), 0));
             rd->endPrimitive();
         }
+        
+        m_font->configureRenderDevice(rd);
+        // Show PGUP/PGDN commands
+        if (m_buffer.size() >= m_settings.numVisibleLines) {
+            m_font->send2DQuads(rd, "pgup ^", rect.x1y0() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_TOP);
 
-        m_font->draw2D(rd, m_currentLine, rect.x0y1() - Vector2(0, m_settings.lineHeight), fontSize, m_settings.defaultCommandColor);
+            m_font->send2DQuads(rd, "pgdn v", rect.x1y1() - Vector2(2, 0), fontSize * 0.75, Color4(1,1,1,0.7f), Color4::clear(), GFont::XALIGN_RIGHT, GFont::YALIGN_BOTTOM);
+        }
+
+        rect = Rect2D::xyxy(rect.x0y0() + Vector2(2,1), rect.x1y1() - Vector2(2, 1));
+        // Print history
+        for (int count = 0; count < m_settings.numVisibleLines - 1; ++count) {
+            int q = m_buffer.size() - count - 1 - m_bufferShift;
+            if (q >= 0) {
+                m_font->send2DQuads(rd, m_buffer[q].value, rect.x0y1() - Vector2(0, m_settings.lineHeight * (count + 2)), fontSize, m_buffer[q].color);
+            }
+        }
+
+        m_font->send2DQuads(rd, m_currentLine, rect.x0y1() - Vector2(0, m_settings.lineHeight), fontSize, m_settings.defaultCommandColor);
 
         // Draw cursor
         if (solidCursor) {
@@ -763,7 +766,7 @@ void GConsole::render(RenderDevice* rd) {
                 bounds = m_font->get2DStringBounds(m_currentLine.substr(0, m_cursorPos), fontSize);
             }
 
-            m_font->draw2D(rd, "_", rect.x0y1() + Vector2(bounds.x, -m_settings.lineHeight), fontSize, m_settings.defaultCommandColor);
+            m_font->send2DQuads(rd, "_", rect.x0y1() + Vector2(bounds.x, -m_settings.lineHeight), fontSize, m_settings.defaultCommandColor);
         }
 
     rd->pop2D();

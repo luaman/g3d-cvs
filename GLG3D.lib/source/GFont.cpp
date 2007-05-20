@@ -323,8 +323,6 @@ Vector2 GFont::send2DQuads(
     // so we revert to the more compiler specific alloca call. Gcc does not
     // implement array[variable] well, so we use this everywhere.
     array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
-    //Vector2* array = (Vector2*)System::malloc(numChars * 4 * 2 * sizeof(Vector2));
-    
     const Vector2 bounds = computePackedArray(s, x, y, w, h, spacing, array);
     
     int N = numChars * 4;
@@ -368,7 +366,6 @@ Vector2 GFont::send2DQuads(
 
     renderDevice->afterPrimitive();
 
-    //System::free(array);
     debugAssertGLOk();
 
     return bounds;

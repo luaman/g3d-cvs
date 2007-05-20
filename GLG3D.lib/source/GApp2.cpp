@@ -294,8 +294,9 @@ void GApp2::renderDebugInfo() {
                 Draw::fastRect2D(Rect2D::xywh(2, 2, 796, size * 5), renderDevice, Color4(0, 0, 0, 0.3f));
 
                 Color3 statColor = Color3::yellow();
+                debugFont->configureRenderDevice(renderDevice);
 
-                debugFont->draw2D(renderDevice, renderDevice->getCardDescription() + "   " + System::version(), 
+                debugFont->send2DQuads(renderDevice, renderDevice->getCardDescription() + "   " + System::version(), 
                     pos, size, color);
                 pos.y += size * 1.5f;
                 
@@ -306,7 +307,7 @@ void GApp2::renderDebugInfo() {
                     iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
                     iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
                     majGL, majAll, minGL, minAll, pushCalls);
-                debugFont->draw2D(renderDevice, s, pos, size, statColor);
+                debugFont->send2DQuads(renderDevice, s, pos, size, statColor);
 
                 pos.x = x;
                 pos.y += size * 1.5;
@@ -334,18 +335,19 @@ void GApp2::renderDebugInfo() {
                 std::string str = 
                     format("Time: %3.0f%% Gfx, %3.0f%% Sim, %3.0f%% Lgc, %3.0f%% Net, %3.0f%% UI, %3.0f%% wait", 
                         g, s, L, n, u, w);
-                debugFont->draw2D(renderDevice, str, pos, size, statColor);
+                debugFont->send2DQuads(renderDevice, str, pos, size, statColor);
                 }
 
                 pos.x = x;
                 pos.y += size * 3;
+            } else if (debugText.length() > 0) {
+                debugFont->configureRenderDevice(renderDevice);
             }
 
             for (int i = 0; i < debugText.length(); ++i) {
-                debugFont->draw2D(renderDevice, debugText[i], pos, size, color, Color3::black());
+                debugFont->send2DQuads(renderDevice, debugText[i], pos, size, color, Color3::black());
                 pos.y += size * 1.5;
             }
-
 
         renderDevice->pop2D();
     }

@@ -2315,16 +2315,16 @@ Matrix4 RenderDevice::getTextureMatrix(uint unit) {
 
 void RenderDevice::setTextureMatrix(
     uint                 unit,
-	const Matrix4&	     m) {
+    const Matrix4&	     m) {
 
-	float f[16];
-	for (int r = 0; r < 4; ++r) {
-		for (int c = 0; c < 4; ++c) {
-			f[r * 4 + c] = m[r][c];
-		}
-	}
-
-	setTextureMatrix(unit, f);
+    float f[16];
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            f[r * 4 + c] = m[r][c];
+        }
+    }
+    
+    setTextureMatrix(unit, f);
 }
 
 
