@@ -11,56 +11,11 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 #include "CameraSplineManipulator.h"
-#include "WeakCache.h"
+#include "Gui.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
 #endif
-
-
-class CacheTest : public ReferenceCountedObject {
-public:
-    static int count;
-    int x;
-    CacheTest() {
-        ++count;
-    }
-    ~CacheTest() {
-        --count;
-    }
-};
-int CacheTest::count = 0;
-typedef ReferenceCountedPointer<CacheTest> CacheTestRef;
-
-void testWeakCache() {
-    WeakCache<std::string, CacheTestRef> cache;
-
-    debugAssert(CacheTest::count == 0);
-    CacheTestRef x = new CacheTest();
-    debugAssert(CacheTest::count == 1);
-
-    cache.set("x", x);
-    debugAssert(CacheTest::count == 1);
-    CacheTestRef y = new CacheTest();
-    CacheTestRef z = new CacheTest();
-    debugAssert(CacheTest::count == 3);
-    
-    cache.set("y", y);
-    
-    debugAssert(cache["x"] == x);
-    debugAssert(cache["y"] == y);
-    debugAssert(cache["q"].isNull());
-    
-    x = NULL;
-    debugAssert(CacheTest::count == 2);
-    debugAssert(cache["x"].isNull());
-
-    cache.set("y", z);
-    y = NULL;
-    debugAssert(cache["y"] == z);
-
-    cache.remove("y");
-}
 
 class App : public GApp2 {
 public:
@@ -102,6 +57,9 @@ void App::onInit() {
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addModule(splineManipulator);
 
+    Gui::Ref gui = Gui::create(debugFont);
+    gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+    addModule(gui);
 }
 
 void App::onLogic() {
@@ -202,7 +160,5 @@ void App::onGraphics(RenderDevice* rd) {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    testWeakCache();
-    return 0;
     return App().run();
 }

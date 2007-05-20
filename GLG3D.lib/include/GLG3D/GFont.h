@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2002-11-02
- @edited  2006-02-10
+ @edited  2007-05-19
  */
 
 #ifndef G3D_GFONT_H
@@ -83,7 +83,7 @@ private:
         double              w,
         double              h,
         Spacing             spacing,
-        Vector2*            array) const;
+        Array<Vector2>&     array) const;
 
     GFont(const std::string& filename, BinaryInput& b);
 
@@ -215,6 +215,36 @@ public:
         const std::string&  s,
         double              size = 12,
         Spacing             spacing = PROPORTIONAL_SPACING) const;
+
+    /**
+       For high performance when rendering substantial amounts of text,
+       call:
+
+       <pre>
+       rd->push2D();
+          font->configureRenderDevice(rd);
+          for (...) {
+             font->send2DQuads(...);
+          }
+       rd->pop2D();
+       </pre>
+
+       This amortizes the cost of the font setup across multiple calls.
+     */
+    void configureRenderDevice(RenderDevice* rd) const;
+
+    /** For high-performance rendering of substantial amounts of text. */
+    Vector2 send2DQuads(
+        RenderDevice*       renderDevice,
+        const std::string&  s,
+        const Vector2&      pos2D,
+        double              size    = 12,
+        const Color4&       color   = Color3::black(),
+        const Color4&       outline = Color4::clear(),
+        XAlign              xalign  = XALIGN_LEFT,
+        YAlign              yalign  = YALIGN_TOP,
+        Spacing             spacing = PROPORTIONAL_SPACING) const;
+
 };
 
 }

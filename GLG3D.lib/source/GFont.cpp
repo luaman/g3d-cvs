@@ -12,6 +12,7 @@
 #include "GLG3D/TextureFormat.h"
 #include "G3D/Vector2.h"
 #include "G3D/System.h"
+#include "G3D/Array.h"
 #include "G3D/fileutils.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
@@ -164,7 +165,7 @@ Vector2 GFont::computePackedArray(
     double              w,
     double              h,
     Spacing             spacing,
-    Vector2*            array) const {
+    Array<Vector2>&     array) const {
 
     const double propW = w / charWidth;
     const int n = s.length();
@@ -235,6 +236,143 @@ Vector2 GFont::computePackedArray(
     return Vector2(x - x0, h);
 }
 
+void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
+    float m[] = 
+       {1.0f / texture->texelWidth(), 0, 0, 0,
+        0, 1.0f / texture->texelHeight(), 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1};
+
+    renderDevice->setTextureMatrix(0, m);
+    renderDevice->setTexture(0, texture);
+    
+    renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
+        
+    // This is BLEND_SRC_ALPHA because the texture has no luminance, only alpha
+    renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA,
+                               RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+
+    renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1/255.0);
+}
+
+// Used for vertex array storage
+static Array<Vector2> array;
+
+Vector2 GFont::send2DQuads(
+    RenderDevice*               renderDevice,
+    const std::string&          s,
+    const Vector2&              pos2D,
+    double                      size,
+    const Color4&               color,
+    const Color4&               border,
+    XAlign                      xalign,
+    YAlign                      yalign,
+    Spacing                     spacing) const {
+
+    float x = pos2D.x;
+    float y = pos2D.y;
+
+    float h = size * 1.5f;
+    float w = h * charWidth / charHeight;
+
+    int numChars = 0;
+    for (unsigned int i = 0; i < s.length(); ++i) {
+        // Spaces don't count as characters
+        numChars += ((s[i] % 128) != ' ') ? 1 : 0;
+    }
+
+    if (numChars == 0) {
+        return Vector2(0, h);
+    }
+
+
+    switch (xalign) {
+    case XALIGN_RIGHT:
+        x -= get2DStringBounds(s, size, spacing).x;
+        break;
+
+    case XALIGN_CENTER:
+        x -= get2DStringBounds(s, size, spacing).x / 2;
+        break;
+    
+    default:
+        break;
+    }
+
+    switch (yalign) {
+    case YALIGN_CENTER:
+        y -= h / 2.0;
+        break;
+
+    case YALIGN_BASELINE:
+        y -= baseline * h / (double)charHeight;
+        break;
+
+    case YALIGN_BOTTOM:
+        y -= h;
+        break;
+
+    default:
+        break;
+    }
+
+    // Packed vertex array; tex coord and vertex are interlaced
+    // For each character we need 4 vertices.
+    
+    // MSVC 6 cannot use static allocation with a variable size argument
+    // so we revert to the more compiler specific alloca call. Gcc does not
+    // implement array[variable] well, so we use this everywhere.
+    array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
+    //Vector2* array = (Vector2*)System::malloc(numChars * 4 * 2 * sizeof(Vector2));
+    
+    const Vector2 bounds = computePackedArray(s, x, y, w, h, spacing, array);
+    
+    int N = numChars * 4;
+    
+    renderDevice->beforePrimitive();
+    if (GLCaps::supports_GL_ARB_multitexture()) {
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+    }
+
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    
+    // 2 coordinates per element, float elements, stride (for interlacing), count, pointer
+    glTexCoordPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[0]);
+    glVertexPointer(2, GL_FLOAT, sizeof(Vector2) * 2, &array[1]);
+    
+    if (border.a > 0.05f) {
+        renderDevice->setColor(border);
+        glMatrixMode(GL_MODELVIEW);
+        float lastDx = 0, lastDy = 0;
+        for (int dy = -1; dy <= 1; dy += 2) {
+            for (int dx = -1; dx <= 1; dx += 2) {
+                if ((dx != 0) || (dy != 0)) {
+                    // Shift modelview matrix by dx, dy, but also undo the 
+                    // shift from the previous outline
+                    glTranslatef(dx - lastDx, dy - lastDy, 0);
+                    glDrawArrays(GL_QUADS, 0, N);
+                    lastDx = dx; lastDy = dy;
+                }
+            }
+        }
+        glTranslatef(-lastDx, -lastDy, 0);
+    }
+
+    // Draw foreground
+    renderDevice->setColor(color);
+    glDrawArrays(GL_QUADS, 0, N);
+    
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    renderDevice->afterPrimitive();
+
+    //System::free(array);
+    debugAssertGLOk();
+
+    return bounds;
+}
 
 Vector2 GFont::draw2D(
     RenderDevice*               renderDevice,
@@ -247,7 +385,7 @@ Vector2 GFont::draw2D(
     YAlign                      yalign,
     Spacing                     spacing) const {
 
-	debugAssert(renderDevice != NULL);
+    debugAssert(renderDevice != NULL);
 
     float x = pos2D.x;
     float y = pos2D.y;
@@ -324,7 +462,8 @@ Vector2 GFont::draw2D(
         // MSVC 6 cannot use static allocation with a variable size argument
         // so we revert to the more compiler specific alloca call. Gcc does not
         // implement array[variable] well, so we use this everywhere.
-        Vector2* array = (Vector2*)System::malloc(numChars * 4 * 2 * sizeof(Vector2));
+        //Vector2* array = (Vector2*)System::malloc(numChars * 4 * 2 * sizeof(Vector2));
+        array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
 
         const Vector2 bounds = computePackedArray(s, x, y, w, h, spacing, array);
 
@@ -367,7 +506,7 @@ Vector2 GFont::draw2D(
         renderDevice->afterPrimitive();
     renderDevice->popState();
 
-    System::free(array);
+    //System::free(array);
     debugAssertGLOk();
 
     return bounds;
