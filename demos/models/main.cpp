@@ -15,6 +15,7 @@ G3D_START_AT_MAIN();
 int shadowMapSize = 512;
 
 App::App(const GApp2::Settings& settings) : GApp2(settings), lighting(Lighting::create()) {
+
     try {
     showRenderingStats = true;
 
@@ -234,6 +235,7 @@ void App::onGraphics(RenderDevice* rd) {
     debugPrintf("TAB to control camera\n");
     debugPrintf("SPACE to toggle ToneMap\n");
     debugPrintf("ESC to quit\n");
+
 }
 
 

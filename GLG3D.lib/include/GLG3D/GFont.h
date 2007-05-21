@@ -51,8 +51,11 @@ public:
 
 private:
 
+    /** Must be a power of 2.  Number of characters in the set (typically 128 or 256)*/
+    int charsetSize;
+
     /** The actual width of the character. */ 
-    int subWidth[128];
+    Array<int> subWidth;
 
     /** The width of the box, in texels, around the character. */
     int charWidth;
@@ -152,8 +155,12 @@ public:
 
       @param infileBase The name of the raw/ini files @param outfile Defaults
 	  to infileBase + ".fnt"
+
+      @param charsetSize Must be 128 or 256; indicates whether the "extended" characters
+      should be represented in the final texture.
      */
-    static void convertRAWINItoPWF(
+    static void makeFont(
+        int charsetSize,
 		const std::string& infileBase, 
 		std::string outfile = "");
 

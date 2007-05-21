@@ -38,18 +38,25 @@ GFontRef GFont::fromMemory(const std::string& name, const uint8* bytes, const in
 } 
 
 
-GFont::GFont(const std::string& filename, BinaryInput& b) {
+GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 
     debugAssertM(GLCaps::supports(TextureFormat::A8),
         "This graphics card does not support the GL_ALPHA8 texture format used by GFont.");
     debugAssertGLOk();
 
     int ver = b.readInt32();
-    debugAssertM(ver == 1, "Can't read font files other than version 1");
+    debugAssertM(ver == 1 || ver == 2, "Can't read font files other than version 1");
     (void)ver;
 
+    if (ver == 1) {
+        charsetSize = 128;
+    } else {
+        charsetSize = b.readInt32();
+    }
+
     // Read the widths
-    for (int c = 0; c < 128; ++c) {
+    subWidth.resize(charsetSize);
+    for (int c = 0; c < charsetSize; ++c) {
         subWidth[c] = b.readUInt16();
     }
 
@@ -60,10 +67,11 @@ GFont::GFont(const std::string& filename, BinaryInput& b) {
 
     // The input may not be a power of 2
     int width  = ceilPow2(charWidth * 16);
-    int height = ceilPow2(charHeight * 8);
+    int height = ceilPow2(charHeight * (charsetSize / 16));
   
     // Create a texture
     const uint8* ptr = ((uint8*)b.getCArray()) + b.getPosition();
+    debugAssertM((b.getLength() - b.getPosition()) >= width * height, "File does not contain enough data for this size texture");
 
 	Texture::Settings fontSettings;
 	fontSettings.wrapMode = WrapMode::CLAMP;
@@ -72,7 +80,7 @@ GFont::GFont(const std::string& filename, BinaryInput& b) {
         Texture::fromMemory(
 			filename, 
 			ptr,
-                        TextureFormat::A8, 
+            TextureFormat::A8, 
 			width, 
 			height,
 			1,
@@ -111,7 +119,7 @@ Vector2 GFont::drawString(
 
     float x0 = 0;
     for (int i = 0; i < n; ++i) {
-        char c = s[i] & 127; // s[i] % 128; avoid using illegal chars
+        char c = s[i] & (charsetSize - 1); // s[i] % charsetSize; avoid using illegal chars
 
         if (c != ' ') {
             int row   = c / 16;
@@ -185,7 +193,7 @@ Vector2 GFont::computePackedArray(
 
     int count = -1;
     for (int i = 0; i < n; ++i) {
-        char c = s[i] & 127; // s[i] % 128; avoid using illegal chars
+        char c = s[i] & (charsetSize - 1); // s[i] % charsetSize; avoid using illegal chars
 
         if (c != ' ') {
             int row   = c >> 4; // fast version of c / 16
@@ -280,7 +288,7 @@ Vector2 GFont::send2DQuads(
     int numChars = 0;
     for (unsigned int i = 0; i < s.length(); ++i) {
         // Spaces don't count as characters
-        numChars += ((s[i] % 128) != ' ') ? 1 : 0;
+        numChars += ((s[i] & (charsetSize - 1)) != ' ') ? 1 : 0;
     }
 
     if (numChars == 0) {
@@ -442,7 +450,7 @@ Vector2 GFont::draw2D(
 
         int numChars = 0;
         for (unsigned int i = 0; i < s.length(); ++i) {
-            numChars += ((s[i] % 128) != ' ') ? 1 : 0;
+            numChars += ((s[i] & (charsetSize - 1)) != ' ') ? 1 : 0;
         }
         if (numChars == 0) {
             renderDevice->popState();
@@ -625,7 +633,7 @@ Vector2 GFont::get2DStringBounds(
 
     if (spacing == PROPORTIONAL_SPACING) {
         for (int i = 0; i < n; ++i) {
-            char c   = s[i] & 127;
+            char c   = s[i] & (charsetSize - 1);
             x += propW * subWidth[(int)c];
         }
     } else {
@@ -636,9 +644,10 @@ Vector2 GFont::get2DStringBounds(
 }
 
 
-void GFont::convertRAWINItoPWF(const std::string& infileBase, std::string outfile) {
+void GFont::makeFont(int charsetSize, const std::string& infileBase, std::string outfile) {
     debugAssert(fileExists(infileBase + ".raw"));
     debugAssert(fileExists(infileBase + ".ini"));
+    debugAssert(charsetSize == 128 || charsetSize == 256);
 
     if (outfile == "") {
         outfile = infileBase + ".fnt";
@@ -654,10 +663,14 @@ void GFont::convertRAWINItoPWF(const std::string& infileBase, std::string outfil
     ini.readSymbol("]");
 
     // Version
-    out.writeInt32(1);
+    out.writeInt32(2);
+
+    // Number of characters
+    out.writeInt32(charsetSize);
+
 
     // Character widths
-    for (int i = 0; i < 128; ++i) {
+    for (int i = 0; i < charsetSize; ++i) {
         int n = (int)ini.readNumber();
         (void)n;
         debugAssert(n == i);
@@ -697,17 +710,20 @@ void GFont::convertRAWINItoPWF(const std::string& infileBase, std::string outfil
 
     // The input may not be a power of 2, so size it up
     int width2  = ceilPow2(width);
-    int height2 = ceilPow2(width / 2);
+    int height = width / 2;
+    if (charsetSize == 256) {
+        height = width;
+    }
+    int height2 = ceilPow2(height);
 
-    if ((width2 == width) && (height2 == (width/2))) {
+    if ((width2 == width) && (height2 == height)) {
         // Texture
-        int num = width * (width / 2);
+        int num = width * height;
         out.writeBytes(pixel.getCArray(), num);
     } else {
         // Pad
         const uint8* ptr = pixel.getCArray();
     
-//        int num = width * (width / 2);
         for (int y = 0; y < height2; ++y) {
             // Write the row
             out.writeBytes(ptr, width);
@@ -718,7 +734,7 @@ void GFont::convertRAWINItoPWF(const std::string& infileBase, std::string outfil
         }
 
         // Write the vertical padding
-        out.skip((height2 - (width / 2)) * width2);
+        out.skip((height2 - height) * width2);
     }
  
     out.compress();
