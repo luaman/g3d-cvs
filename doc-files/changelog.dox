@@ -120,6 +120,7 @@
      <li> Removed Cylinder::getPoint1 (use point)
      <li> ARB_texture_cube_map and EXT_texture_cube_map are now aliases on all cards
      <li> EXT_texture_edge_clamp and SGIS_texture_edge_clamp are now aliases on all cards
+     <li> Fix: Fixed TGA decode to load from the middle of a binaryinput
      <li> Fix: Added texture coordinates to posed MD2Models
      <li> Fix: prompt/debugAssert now correctly responds to button presses on OS X
      <li> Fix: GConsole now filename completes after the first word 

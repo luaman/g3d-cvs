@@ -5,9 +5,9 @@
   @cite Portions written by Aaron Orenstein, a@orenstein.name
  
   @created 2001-03-11
-  @edited  2005-09-12
+  @edited  2007-05-12
 
-  Copyright 2000-2005, Morgan McGuire.
+  Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
  */
 
@@ -78,6 +78,8 @@ const int SORT_DECREASING = -1;
  safe way to access the underlying data as a flat C array --
  Array::getCArray.  Although (T*)std::vector::begin() can be used for
  this purpose, it is not guaranteed to succeed on all platforms.
+
+ To serialize an array, see G3D::serialize.
 
  Do not subclass an Array.
  */

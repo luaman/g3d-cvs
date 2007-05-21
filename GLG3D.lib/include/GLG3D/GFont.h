@@ -61,7 +61,7 @@ private:
     /** Y distance from top of the bounding box to the font baseline. */
     int baseline;
 
-    Texture::Ref texture;
+    Texture::Ref m_texture;
 
     /** Assumes you are already inside of beginPrimitive(QUADS) */
     Vector2 drawString(
@@ -87,7 +87,21 @@ private:
 
     GFont(const std::string& filename, BinaryInput& b);
 
+    float m_textureMatrix[16];
+
 public:
+    
+    /** Returns the underlying texture used by the font.  This is rarely needed by applications */
+    inline Texture::Ref texture() const {
+        return m_texture;
+    }
+
+    /** 
+        4x4 matrix transforming texel coordinates to the range [0,1]. Rarely needed by applications.
+     */
+    inline const float* textureMatrix() const {
+        return m_textureMatrix;
+    }
 
     /** The filename must be a FNT (proportional width font) file.
         <P> If a font file is not found, an assertion will fail, an

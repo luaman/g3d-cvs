@@ -68,7 +68,7 @@ GFont::GFont(const std::string& filename, BinaryInput& b) {
 	Texture::Settings fontSettings;
 	fontSettings.wrapMode = WrapMode::CLAMP;
 
-    texture = 
+    m_texture = 
         Texture::fromMemory(
 			filename, 
 			ptr,
@@ -79,6 +79,11 @@ GFont::GFont(const std::string& filename, BinaryInput& b) {
 			TextureFormat::A8, 
 			Texture::DIM_2D,
 			fontSettings);
+   
+    m_textureMatrix[0] = 1.0f / m_texture->texelWidth(); m_textureMatrix[1] = 0; m_textureMatrix[2] = 0; m_textureMatrix[3] = 0;
+    m_textureMatrix[4] = 0; m_textureMatrix[5] = 1.0f / m_texture->texelHeight(); m_textureMatrix[6] = 0; m_textureMatrix[7] = 0;    
+    m_textureMatrix[8] = 0; m_textureMatrix[9] = 0; m_textureMatrix[10] = 1; m_textureMatrix[11] = 0;
+    m_textureMatrix[12] = 0; m_textureMatrix[13] = 0; m_textureMatrix[14] = 0; m_textureMatrix[15] = 1;
 }
 
 
@@ -237,14 +242,9 @@ Vector2 GFont::computePackedArray(
 }
 
 void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
-    float m[] = 
-       {1.0f / texture->texelWidth(), 0, 0, 0,
-        0, 1.0f / texture->texelHeight(), 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1};
 
-    renderDevice->setTextureMatrix(0, m);
-    renderDevice->setTexture(0, texture);
+    renderDevice->setTextureMatrix(0, m_textureMatrix);
+    renderDevice->setTexture(0, m_texture);
     
     renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
         
@@ -254,6 +254,8 @@ void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
 
     renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1/255.0);
 }
+
+
 
 // Used for vertex array storage
 static Array<Vector2> array;
@@ -420,16 +422,10 @@ Vector2 GFont::draw2D(
         break;
     }
 
-    float m[] = 
-       {1.0f / texture->texelWidth(), 0, 0, 0,
-        0, 1.0f / texture->texelHeight(), 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1};
-
     renderDevice->pushState();
         renderDevice->disableLighting();
-        renderDevice->setTextureMatrix(0, m);
-        renderDevice->setTexture(0, texture);
+        renderDevice->setTextureMatrix(0, m_textureMatrix);
+        renderDevice->setTexture(0, m_texture);
 
         renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
 
@@ -561,8 +557,8 @@ Vector2 GFont::draw3D(
 
 
     double m[] = 
-       {1.0 / texture->texelWidth(), 0, 0, 0,
-        0, 1.0 / texture->texelHeight(), 0, 0,
+       {1.0 / m_texture->texelWidth(), 0, 0, 0,
+        0, 1.0 / m_texture->texelHeight(), 0, 0,
         0, 0, 1, 0,
         0, 0, 0, 1};
 
@@ -574,7 +570,7 @@ Vector2 GFont::draw3D(
 
         renderDevice->setCullFace(RenderDevice::CULL_NONE);
         renderDevice->setTextureMatrix(0, m);
-        renderDevice->setTexture(0, texture);
+        renderDevice->setTexture(0, m_texture);
 
         renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
         renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, 
