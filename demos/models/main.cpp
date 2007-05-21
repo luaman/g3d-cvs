@@ -20,7 +20,7 @@ App::App(const GApp2::Settings& settings) : GApp2(settings), lighting(Lighting::
 
     defaultController->setActive(false);
 
-    window()->setCaption("ArticulatedModel & SuperShader Demo");
+    window()->setCaption("G3D Model Demo");
 
     if (beginsWith(GLCaps::vendor(), "ATI")) {
         // On ATI cards, large shadow maps cause terrible performance during the
@@ -247,7 +247,8 @@ int main(int argc, char** argv) {
     settings.window.fsaaSamples = 1;
     settings.window.width = 800;
     settings.window.height = 600;
-    settings.window.fullScreen = false;
+    settings.window.fullScreen = true;
     */
+    
     return App(settings).run();
 }
