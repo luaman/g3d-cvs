@@ -106,28 +106,17 @@ public:
         return m_textureMatrix;
     }
 
-    /** The filename must be a FNT (proportional width font) file.
+    /** Load a new font from disk (fonts are be cached in memory, so repeatedly loading
+        the same font is fast as long as the first was not garbage collected).
+
+        The filename must be a G3D .fnt file.
+
         <P> If a font file is not found, an assertion will fail, an
         exception will be thrown, and texelSize() will return (0, 0).
         <P> Several fonts in this format at varying resolutions are
-        available in the data/font directory.  The large fonts require
-        500k of memory when loaded and look good when rendering
-        characters up to about 64 pixels high. The small fonts require
-        130k and look good up to about 32 pixels.
+        available in the font of the G3D data module.
 
-        See GFont::convertTGAtoPWF for creating new fonts in the FNT format:
-    
-      <P>
-       This file is compressed by BinaryOutput::compress().  The contents 
-       after decompression  have the following format (little endian): 
-          <pre>
-           int32                       Version number (must be 1)
-           128 * int16                 Character widths, in texels
-           uint16                      Baseline from top of box, in texels
-           uint16                      Texture width (texture height is always 1/2 texture width)
-           (pow(width, 2) / 2) * int8  Texture data
-          </pre>
-        The width of a character's bounding box is always width / 16.  The height is always width / 8.
+        See GFont::makeFont for creating new fonts in the FNT format.
     */
     static GFontRef fromFile(const std::string& filename);
 

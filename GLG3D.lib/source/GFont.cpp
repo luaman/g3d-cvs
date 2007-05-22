@@ -16,8 +16,12 @@
 #include "G3D/fileutils.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/WeakCache.h"
 
 namespace G3D {
+
+/** */
+static WeakCache<std::string, GFontRef> fontCache;
 
 GFontRef GFont::fromFile(const std::string& filename) {
     if (! fileExists(filename)) {
@@ -25,8 +29,14 @@ GFontRef GFont::fromFile(const std::string& filename) {
         return NULL;
     }
 
-    BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
-    return new GFont(filename, b);
+    GFontRef font = fontCache[filename];
+    if (font.isNull()) {
+        BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
+        font = new GFont(filename, b);
+        fontCache.set(filename, font);
+    }
+
+    return font;
 }
 
 

@@ -27,7 +27,8 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     G3D::GApp2
     G3D::GConsole,
     G3D::GModule,
-    G3D::GModuleManager
+    G3D::GModuleManager,
+    G3D::GuiSkin,
     G3D::Manipulator,
     G3D::ThirdPersonManipulator,
     G3D::UserInput
