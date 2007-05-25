@@ -113,13 +113,16 @@ private:
     /** Clears the delayedText array. */
     void drawDelayedText(RenderDevice* rd) const;
 
-    /** Postpones rendering the specified text until later. Switching between the GUI texture and the font texture
-        is relatively slow, so delaying text rendering until a few controls have been put down increases performance. 
+    /** Postpones rendering the specified text until later. Switching
+        between the GUI texture and the font texture is relatively
+        slow, so delaying text rendering until a few controls have
+        been put down increases performance.
 
         Note that delayed text must be drawn before the clipping region is changed or another window is rendered.
     */
-    void addDelayedText(GFontRef font, const std::string& text, const Vector2& position, float size, const Color4& color, 
-                        const Color4& outlineColor, GFont::XAlign xalign, GFont::YAlign yalign = GFont::YALIGN_CENTER) const;
+    void addDelayedText(GFontRef font, const std::string& text, const Vector2& position, float size, 
+                        const Color4& color, const Color4& outlineColor, GFont::XAlign xalign, 
+                        GFont::YAlign yalign = GFont::YALIGN_CENTER) const;
 
     enum {TEXTURE_UNIT = 0};
 
@@ -196,6 +199,11 @@ private:
            General texture coordinates for any mode of the button
          */
         StretchRectHV        base;
+
+        /**
+           Displacement from bounds center.
+         */
+        Vector2              textOffset;
 
         class Pair {
         public:

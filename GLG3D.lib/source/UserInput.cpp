@@ -97,15 +97,15 @@ void UserInput::processEvent(const GEvent& event) {
     debugAssert(inEventProcessing);
     // Translate everything into a key code then call processKey
 
-	switch(event.type) {
-	case GEventType::KEYUP:
+    switch(event.type) {
+    case GEventType::KEYUP:
         processKey(event.key.keysym.sym, GEventType::KEYUP);
-		break;
-
-	case GEventType::KEYDOWN:
-		processKey(event.key.keysym.sym, GEventType::KEYDOWN);
         break;
-
+        
+    case GEventType::KEYDOWN:
+        processKey(event.key.keysym.sym, GEventType::KEYDOWN);
+        break;
+        
     case GEventType::MOUSEBUTTONDOWN:
         processKey((GKey)(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEYDOWN);
         break;

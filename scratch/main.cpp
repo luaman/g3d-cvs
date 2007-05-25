@@ -60,6 +60,7 @@ void App::onInit() {
     GuiSkinRef skin = GuiSkin::fromFile("/Volumes/McGuire/Projects/data/gui/osx.skn");
 
     GFontRef arialFont = GFont::fromFile("/Volumes/McGuire/Projects/data/font/arial.fnt");
+    GFontRef iconFont = GFont::fromFile("/Volumes/McGuire/Projects/data/font/icon.fnt");
     skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
 
     Gui::Ref gui = Gui::create
@@ -67,9 +68,25 @@ void App::onInit() {
          Rect2D::xywh(600, 200, 150, 120),
          skin);
  
-         
-
     gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+
+    const std::string STOP = "<";
+    const std::string PLAY = "4";
+    const std::string RECORD = "=";
+
+    enum Mode {STOP_MODE, PLAY_MODE, RECORD_MODE};
+    static Mode mode = STOP_MODE;
+
+    Gui::RadioButton* b;
+    b = gui->addRadioButton(GuiText(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, Gui::RadioButton::BUTTON_STYLE);
+    Rect2D baseRect = Rect2D::xywh(b->rect().x0(), b->rect().y0(), 30, 30);
+    b->setRect(baseRect + Vector2(baseRect.width() * 0, 0));
+
+    b = gui->addRadioButton(GuiText(PLAY, iconFont, 16), PLAY_MODE, &mode, Gui::RadioButton::BUTTON_STYLE);
+    b->setRect(baseRect + Vector2(baseRect.width() * 1, 0));
+
+    b = gui->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, Gui::RadioButton::BUTTON_STYLE);
+    b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
     
     addModule(gui);
 }

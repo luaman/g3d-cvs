@@ -229,7 +229,7 @@ void GuiSkin::renderButton(RenderDevice* rd, const Rect2D& bounds, bool enabled,
     m_button.render(rd, bounds, enabled, focused, pushed);
 
     if (text.text != "") {
-        addDelayedText(text.font, text.text, bounds.center(), text.size, text.color, fontOutlineColor, GFont::XALIGN_CENTER);
+        addDelayedText(text.font, text.text, bounds.center() + m_button.textOffset, text.size, text.color, fontOutlineColor, GFont::XALIGN_CENTER);
     }
 }
 
@@ -787,6 +787,7 @@ void GuiSkin::StretchRectH::render(class RenderDevice* rd, const Rect2D& bounds,
 void GuiSkin::Button::deserialize(const std::string& name, TextInput& b) {
     b.readSymbols(name, "=", "{");
     base.deserialize("base", b);
+    textOffset = readVector2("textOffset", b);
     enabled.deserialize("enabled", b);
     disabled.deserialize("disabled", b);
     b.readSymbol("}");
