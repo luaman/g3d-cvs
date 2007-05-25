@@ -159,42 +159,42 @@ void GuiSkin::endRendering(RenderDevice* rd) {
 }
 
 
-void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const std::string& label) const {
+void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
     debugAssert(inRendering);
     control.render(rd, bounds, enabled, focused, selected);
 
-    if (label != "") {
-        addDelayedText(font, label, Vector2(control.width() + bounds.x0(), 
+    if (text.text != "") {
+        addDelayedText(text.font, text.text, Vector2(control.width() + bounds.x0(), 
                                       (bounds.y0() + bounds.y1()) / 2) + control.textOffset,
-                       fontSize, fontColor, fontOutlineColor, GFont::XALIGN_LEFT);
+                       text.size, text.color, text.outlineColor, GFont::XALIGN_LEFT);
     }
 }
 
 
-void GuiSkin::renderCheckBox(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const std::string& label) const {
-    drawCheckable(m_checkBox, rd, bounds, enabled, focused, selected, label);
+void GuiSkin::renderCheckBox(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
+    drawCheckable(m_checkBox, rd, bounds, enabled, focused, selected, text);
 }
 
 
-void GuiSkin::renderWindow(RenderDevice* rd, const Rect2D& bounds, bool focused, const std::string& label) const {
-    drawWindow(m_window, rd, bounds, focused, label);
+void GuiSkin::renderWindow(RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const {
+    drawWindow(m_window, rd, bounds, focused, text);
 }
 
 
-void GuiSkin::renderToolWindow(RenderDevice* rd, const Rect2D& bounds, bool focused, const std::string& label) const {
-    drawWindow(m_toolWindow, rd, bounds, focused, label);
+void GuiSkin::renderToolWindow(RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const {
+    drawWindow(m_toolWindow, rd, bounds, focused, text);
 }
 
 
-void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, bool focused, const std::string& label) const {
+void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const {
     // Update any pending text since the window may overlap another window
     drawDelayedText(rd);
 
     window.render(rd, bounds, focused);
     
-    if (label != "") {
-        addDelayedText(font, label, Vector2(bounds.center().x, bounds.y0() + window.clientPad.topLeft.y * 0.5), 
-                       min(fontSize, window.clientPad.topLeft.y - 2), fontColor, fontOutlineColor, GFont::XALIGN_CENTER);
+    if (text.text != "") {
+        addDelayedText(text.font, text.text, Vector2(bounds.center().x, bounds.y0() + window.clientPad.topLeft.y * 0.5), 
+                       min(text.size, window.clientPad.topLeft.y - 2), text.color, text.outlineColor, GFont::XALIGN_CENTER);
     }
 }
 
@@ -218,39 +218,39 @@ Rect2D GuiSkin::clientAreaToToolWindowBounds(const Rect2D& bounds) const {
 }
 
 
-void GuiSkin::renderRadioButton(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const std::string& label) const {
-    drawCheckable(m_radioButton, rd, bounds, enabled, focused, selected, label);
+void GuiSkin::renderRadioButton(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
+    drawCheckable(m_radioButton, rd, bounds, enabled, focused, selected, text);
 }
 
 
 void GuiSkin::renderButton(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
-                           bool pushed, const std::string& label) const {
+                           bool pushed, const GuiText& text) const {
     debugAssert(inRendering);
     m_button.render(rd, bounds, enabled, focused, pushed);
 
-    if (label != "") {
-        addDelayedText(font, label, bounds.center(), fontSize, fontColor, fontOutlineColor, GFont::XALIGN_CENTER);
+    if (text.text != "") {
+        addDelayedText(text.font, text.text, bounds.center(), text.size, text.color, fontOutlineColor, GFont::XALIGN_CENTER);
     }
 }
 
 
 void GuiSkin::renderHorizontalSlider(RenderDevice* rd, const Rect2D& bounds, float pos, bool enabled, 
-                           bool focused, const std::string& label) const {
+                           bool focused, const GuiText& text) const {
     debugAssert(inRendering);
     m_hSlider.render(rd, Rect2D::xywh(bounds.x1() - SLIDER_WIDTH, bounds.y0(), SLIDER_WIDTH, bounds.height()), 
                      pos, enabled, focused);
 
-    if (label != "") {
-        addDelayedText(font, label, Vector2(bounds.x0(), (bounds.y0() + bounds.y1()) * 0.5f), fontSize, 
-                       fontColor, fontOutlineColor, GFont::XALIGN_LEFT);
+    if (text.text != "") {
+        addDelayedText(text.font, text.text, Vector2(bounds.x0(), (bounds.y0() + bounds.y1()) * 0.5f), text.size, 
+                       text.color, text.outlineColor, GFont::XALIGN_LEFT);
     }
 }
 
 
-void GuiSkin::renderLabel(class RenderDevice* rd, const Rect2D& bounds, const std::string& label, GFont::XAlign xalign, GFont::YAlign yalign) const {
+void GuiSkin::renderLabel(class RenderDevice* rd, const Rect2D& bounds, const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign) const {
     debugAssert(inRendering);
 
-    if (label != "") {
+    if (text.text != "") {
         Vector2 pos;
 
         switch (xalign) {
@@ -277,7 +277,7 @@ void GuiSkin::renderLabel(class RenderDevice* rd, const Rect2D& bounds, const st
             pos.y = bounds.y1();
             break;
         }
-        addDelayedText(font, label, pos, fontSize, fontColor, fontOutlineColor, xalign, yalign);
+        addDelayedText(text.font, text.text, pos, text.size, text.color, text.outlineColor, xalign, yalign);
     }
 }
 
@@ -295,6 +295,7 @@ Rect2D GuiSkin::readRect2D(const std::string& name, TextInput& b) {
     return Rect2D::xywh(x, y, w, h);
 }
 
+
 Vector2 GuiSkin::readVector2(const std::string& name, TextInput& b) {
     b.readSymbols(name, "=", "(");
     float x = b.readNumber();
@@ -303,14 +304,6 @@ Vector2 GuiSkin::readVector2(const std::string& name, TextInput& b) {
     b.readSymbol(")");
 
     return Vector2(x, y);
-}
-
-
-void GuiSkin::setFont(const GFontRef& f, float size, const Color4& color, const Color4& outlineColor) {
-    font = f;
-    fontSize = size;
-    fontColor = color;
-    fontOutlineColor = outlineColor;
 }
 
 
@@ -361,14 +354,31 @@ void GuiSkin::drawDelayedText(RenderDevice* rd) const {
     const_cast<GuiSkin*>(this)->delayedTextCount = 0;
 }
 
+    
+/** Set the values to be used for default GuiText parameters. */
+void GuiSkin::setFont(const GFontRef& font, float size, const Color4& color, const Color4& outlineColor) {
+    this->font = font;
+    fontSize = size;
+    fontColor = color;
+    fontOutlineColor = outlineColor;
+}
+
+
 void GuiSkin::addDelayedText
 (
- const GFontRef& font,
+ GFontRef font,
  const std::string& label, const Vector2& position, float size, 
  const Color4& color, const Color4& outlineColor,
  GFont::XAlign xalign, GFont::YAlign yalign) const {
 
-    debugAssertM(font.notNull(), "Cannot render text until the font is set.");
+    if (font.isNull()) {
+        font = this->font;
+        debugAssertM(font.notNull(), "Must set default font first.");
+    }
+    
+    if (size < 0) {
+        size = fontSize;
+    }
 
     GuiSkin* me = const_cast<GuiSkin*>(this);
     
@@ -384,8 +394,18 @@ void GuiSkin::addDelayedText
     text.xAlign = xalign;
     text.yAlign = yalign;
     text.size = size;
-    text.color = color;
-    text.outlineColor = outlineColor;
+
+    if (color.a < 0) {
+        text.color = fontColor;
+    } else {
+        text.color = color;
+    }
+
+    if (outlineColor.a < 0) {
+        text.outlineColor = fontOutlineColor;
+    } else {
+        text.outlineColor = outlineColor;
+    }
 }
 
 
@@ -814,5 +834,41 @@ void GuiSkin::Button::render(RenderDevice* rd, const Rect2D& bounds, bool _enabl
     base.render(rd, bounds, *r);
 
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+GuiText::GuiText
+(const std::string& text, 
+ const GFontRef& font, 
+ float size, 
+ const Color4& color,
+ const Color4& outlineColor) : text(text), font(font), size(size), color(color), outlineColor(outlineColor) {
+    
+}
+
+GuiText::GuiText
+(const char* text) : text(text), font(NULL), size(-1), color(-1,-1,-1,-1), outlineColor(-1,-1,-1,-1) {
+    
+}
+
+/** Provides the value of default values; called by Gui to overwrite the illegal values.*/
+void GuiText::setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline) {
+    if (font.isNull()) {
+        font = dfont;
+    }
+
+    if (size < 0) {
+        size = dsize;
+    }
+
+    if (color.a < 0) {
+        color = dcolor;
+    }
+    
+    if (outlineColor.a < 0) {
+        outlineColor = doutline;
+    }
+}
+
 
 } // namespace G3D

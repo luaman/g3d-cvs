@@ -148,7 +148,7 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
         G3D::RealTime,
         G3D::Rect2D,
         G3D::Sphere,
-        G3D::Spline
+        G3D::Spline,
 	G3D::Triangle,
         G3D::tesselateComplexPolygon,
         G3D::toSeconds

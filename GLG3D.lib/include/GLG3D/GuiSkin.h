@@ -20,6 +20,35 @@ inline unsigned int hashCode(const G3D::GFontRef& font) {
 
 namespace G3D {
 
+/** 
+    Text label on a control. These are normally created implicitly by a cast from std::string,
+    but can be created explicitly when more information needs to be specified.
+ */
+class GuiText {
+public:
+    std::string text;
+    GFontRef    font;
+    float       size;
+    Color4      color;
+    Color4      outlineColor;
+    
+    /**
+       Negative alpha values on color and outlineColor mean "use default".  Null font and negative size mean "use default".
+       Defaults are set on the Gui.
+    */
+    GuiText(const std::string& text ="", 
+          const GFontRef& font = NULL, 
+          float size = -1, 
+          const Color4& color = Color4(-1,-1,-1,-1), 
+          const Color4& outlineColor = Color4(-1,-1,-1,-1));
+
+    GuiText(const char* text);
+    
+    /** Provides the value of default values; called by G3D::Gui to overwrite the illegal values.*/
+    void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
+};
+    
+
 typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 
 /**
@@ -58,7 +87,7 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 
 */
 class GuiSkin : public ReferenceCountedObject {
-protected:
+private:
     enum {SLIDER_WIDTH = 100};
     
     /** Used for delayed text rendering. */
@@ -89,7 +118,7 @@ protected:
 
         Note that delayed text must be drawn before the clipping region is changed or another window is rendered.
     */
-    void addDelayedText(const GFontRef& font, const std::string& label, const Vector2& position, float size, const Color4& color, 
+    void addDelayedText(GFontRef font, const std::string& text, const Vector2& position, float size, const Color4& color, 
                         const Color4& outlineColor, GFont::XAlign xalign, GFont::YAlign yalign = GFont::YALIGN_CENTER) const;
 
     enum {TEXTURE_UNIT = 0};
@@ -319,12 +348,10 @@ protected:
     /** True between beginRendering and endRendering */
     bool              inRendering;
 
+    // Defaults:
     GFontRef          font;
-
     float             fontSize;
-
     Color4            fontColor;
-
     Color4            fontOutlineColor;
 
     static StretchMode readStretchMode(TextInput& t);
@@ -332,9 +359,9 @@ protected:
     static void drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd);
     
     void drawCheckable(const Checkable& control, class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused,
-                       bool selected, const std::string& label) const;
+                       bool selected, const GuiText& text) const;
 
-    void drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, bool focused, const std::string& label) const;
+    void drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const;
 
     static Rect2D readRect2D(const std::string& name, TextInput& b);
 
@@ -362,7 +389,7 @@ public:
     */
     static GuiSkinRef fromFile(const std::string& filename);
 
-    /** Affects the subsequent rendering calls. */
+    /** Set the values to be used for default GuiText parameters. */
     void setFont(const GFontRef& font, float size, const Color4& color, const Color4& outlineColor);
 
     /** Call before all other render methods. */
@@ -373,21 +400,21 @@ public:
 
     /** Only call between beginRendering and endRendering */
     void renderCheckBox(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
-                        bool checked, const std::string& label) const;
+                        bool checked, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
-                           bool checked, const std::string& label) const;
+                           bool checked, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
     void renderButton(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
-                      bool pushed, const std::string& label) const;
+                      bool pushed, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering.
         @param bounds Corresponds to the footprint of the window; dropshadows and glows may
          still render outside this area.*/
     void renderWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 
-                      const std::string& label) const;
+                      const GuiText& text) const;
 
     Rect2D windowBoundsToClientArea(const Rect2D& bounds) const;
     Rect2D clientAreaToWindowBounds(const Rect2D& bounds) const;
@@ -396,16 +423,16 @@ public:
 
     /** Only call between beginRendering and endRendering */
     void renderToolWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 
-                          const std::string& label) const;
+                          const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering.
         Label is on the right, slider is aligned with the left edge
         @param pos 0 = left edge, 1 = right edge*/
     void renderHorizontalSlider(class RenderDevice* rd, const Rect2D& bounds, float pos, bool enabled, bool focused, 
-                                const std::string& label) const;
+                                const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderLabel(class RenderDevice* rd, const Rect2D& bounds, const std::string& label, 
+    void renderLabel(class RenderDevice* rd, const Rect2D& bounds, const GuiText& text, 
                      GFont::XAlign xalign, GFont::YAlign yalign) const;
     
     /** 
