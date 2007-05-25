@@ -3227,7 +3227,7 @@ bool RenderDevice::checkFramebuffer(std::string& whyNot) const {
     case GL_FRAMEBUFFER_COMPLETE_EXT:
         return true;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENTS_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
         whyNot = "Framebuffer Incomplete: Incomplete Attachment.";
 		break;
 

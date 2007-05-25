@@ -56,9 +56,21 @@ void App::onInit() {
     
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addModule(splineManipulator);
+    
+    GuiSkinRef skin = GuiSkin::fromFile("/Volumes/McGuire/Projects/data/gui/osx.skn");
 
-    Gui::Ref gui = Gui::create(debugFont);
+    GFontRef arialFont = GFont::fromFile("/Volumes/McGuire/Projects/data/font/arial.fnt");
+    skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
+
+    Gui::Ref gui = Gui::create
+        (GuiText("Camera Control", NULL, 9),
+         Rect2D::xywh(600, 200, 150, 120),
+         skin);
+ 
+         
+
     gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+    
     addModule(gui);
 }
 

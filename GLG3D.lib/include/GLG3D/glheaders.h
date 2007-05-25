@@ -49,6 +49,7 @@
 #endif
 
 #include "GL/glext.h"
+#include "GL/glext-compat.h"
 
 #ifdef G3D_OSX
 #    include <OpenGL/glu.h>
@@ -63,6 +64,7 @@
 // OpenGL 1.2.1 and later define these as part of the static link; don't 
 // define them.
 #ifndef G3D_GL_ARB_multitexture_static
+
 extern PFNGLMULTITEXCOORD2FARBPROC         glMultiTexCoord2fARB;
 
 extern PFNGLMULTITEXCOORD1FARBPROC         glMultiTexCoord1fARB;
@@ -202,7 +204,7 @@ extern PFNGLGETINFOLOGARBPROC glGetInfoLogARB;
 extern PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB;
 extern PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
 extern PFNGLGETACTIVEUNIFORMARBPROC glGetActiveUniformARB;
-extern PFNGLGETATTRIBLOCATIONARB glGetAttribLocationARB;
+extern PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB;
 
 extern PFNGLTEXIMAGE3DEXTPROC glTexImage3DEXT;
 
@@ -269,7 +271,7 @@ extern PFNGLXCREATECONTEXTWITHCONFIGSGIX glXCreateContextWithConfigSGIX;
 // Occlusion query
 extern PFNGLBEGINQUERYARBPROC glBeginQueryARB;
 extern PFNGLDELETEQUERIESARBPROC glDeleteQueriesARB;
-extern PFNGLENDQUERYARB glEndQueryARB;
+extern PFNGLENDQUERYARBPROC glEndQueryARB;
 extern PFNGLGENQUERIESARBPROC glGenQueriesARB;
 extern PFNGLGETQUERYIVARBPROC glGetQueryivARB;
 extern PFNGLGETQUERYOBJECTIVARBPROC glGetQueryObjectivARB;
@@ -285,7 +287,7 @@ extern PFNGLPASSTEXCOORDATIPROC         glPassTexCoordATI;
 extern PFNGLSAMPLEMAPATIPROC            glSampleMapATI;
 extern PFNGLSETFRAGMENTSHADERCONSTANTATIPROC glSetFragmentShaderConstantATI;
 extern PFNGLCOLORFRAGMENTOP1ATIPROC glColorFragmentOp1ATI;
-extern PPFNGLCOLORFRAGMENTOP2ATIPROC glColorFragmentOp2ATI;
+extern PFNGLCOLORFRAGMENTOP2ATIPROC glColorFragmentOp2ATI;
 extern PFNGLCOLORFRAGMENTOP3ATIPROC glColorFragmentOp3ATI;
 extern PFNGLALPHAFRAGMENTOP1ATIPROC glAlphaFragmentOp1ATI;
 extern PFNGLALPHAFRAGMENTOP2ATIPROC glAlphaFragmentOp2ATI;
