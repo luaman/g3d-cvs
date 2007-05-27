@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
  @created 2006-04-22
- @edited  2006-04-22
+ @edited  2007-05-22
 */
 
 #include "GLG3D/GModule.h"
@@ -19,31 +19,17 @@ GModuleManagerRef GModuleManager::create() {
 
 
 GModuleManager::GModuleManager() : 
-    m_size(0), 
-    m_locked(false), 
-    m_removeAll(false) {
+    m_locked(false) {
 }
 
 
 int GModuleManager::size() const {
-    return m_size;
+    return m_moduleArray.size();
 }
 
 
 const GModuleRef& GModuleManager::operator[](int i) const {
-    debugAssert(i >= 0 && i < m_size);
-    for (int p = NUM_PRIORITY - 1; p >= 0; --p) {
-        if (i < m_moduleArray[p].size()) {
-            return m_moduleArray[p][i];
-        } else {
-            // Look in the next array.  We are guaranteed
-            // not to underflow by the assertion above.
-            i -= m_moduleArray[p].size();
-        }
-    }
-
-    static GModuleRef tmp;
-    return tmp;
+    return m_moduleArray[i];
 }
 
 
@@ -57,60 +43,96 @@ void GModuleManager::endLock() {
     debugAssert(m_locked);
     m_locked = false;
 
-    // Process add list
-    for (int i = 0; i < m_addList.size(); ++i) {
-        add(m_addList[i].module, m_addList[i].priority);
-    }
-    m_addList.clear();
+    for (int e = 0; e < m_delayedEvent.size(); ++e) {
+        DelayedEvent& event = m_delayedEvent[e];
+        switch (event.type) {
+        case DelayedEvent::REMOVE_ALL:
+            clear();
+            break;
 
-    // Process remove list
-    for (int i = 0; i < m_removeList.size(); ++i) {
-        remove(m_removeList[i]);
-    }
-    m_removeList.clear();
+        case DelayedEvent::REMOVE:
+            remove(event.module);
+            break;
 
-    if (m_removeAll) {
-        clear();
-        m_removeAll = false;
+        case DelayedEvent::ADD:
+            add(event.module);
+            break;
+            
+        case DelayedEvent::SET_FOCUS:
+            setFocusedModule(event.module);
+            break;
+        }
     }
+
+    m_delayedEvent.fastClear();
 }
 
 
 void GModuleManager::remove(const GModuleRef& m) {
     if (m_locked) {
-        m_removeList.append(m);
+        m_delayedEvent.append(DelayedEvent(DelayedEvent::REMOVE, m));
     } else {
-        for (int p = 0; p < NUM_PRIORITY; ++p) {
-            int j = m_moduleArray[p].findIndex(m);
-            if (j != -1) {
-                m_moduleArray[p].fastRemove(j);
-                --m_size;
-                return;
-            }
+        if (m_focusedModule == m) {
+            m_focusedModule = NULL;
+        }
+        int j = m_moduleArray.findIndex(m);
+        if (j != -1) {
+            m->setManager(NULL);
+            m_moduleArray.remove(j);
+            return;
         }
         debugAssertM(false, "Removed a GModule that was not in the manager.");
     }
 }
 
 
-void GModuleManager::add(const GModuleRef& m, EventPriority p) {
-    debugAssert(p >= LOW_PRIORITY && p <= HIGH_PRIORITY);
+void GModuleManager::add(const GModuleRef& m) {
+    debugAssert(m.notNull());
     if (m_locked) {
-        m_addList.append(Add(m, p));
+        m_delayedEvent.append(DelayedEvent(DelayedEvent::ADD, m));
     } else {
-        ++m_size;
-        m_moduleArray[p].append(m);
+        if (m_focusedModule.notNull()) {
+            // Cannot replace the focused module at the top of the priority list
+            m_moduleArray[m_moduleArray.size() - 1] = m;
+            m_moduleArray.append(m_focusedModule);
+        } else {
+            m_moduleArray.append(m);
+        }
+        m->setManager(this);
+    }
+}
+
+
+GModuleRef GModuleManager::focusedModule() const {
+    return m_focusedModule;
+}
+
+
+void GModuleManager::setFocusedModule(GModuleRef m) {
+    if (m_locked) {
+        m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS, m));
+    } else {
+
+        debugAssert(m.isNull() || m_moduleArray.contains(m));
+
+        if (m.notNull()) {
+            // Move to the first event position
+            int i = m_moduleArray.findIndex(m);
+            m_moduleArray.remove(i);
+            m_moduleArray.append(m);
+        }
+
+        m_focusedModule = m;
     }
 }
 
 
 void GModuleManager::clear() {
     if (m_locked) {
-        m_removeAll = true;
+        m_delayedEvent.append(DelayedEvent(DelayedEvent::REMOVE_ALL));
     } else {
-        for (int p = 0; p < NUM_PRIORITY; ++p) {
-            m_moduleArray[p].clear();
-        }
+        m_moduleArray.clear();
+        m_focusedModule = NULL;
     }
 }
 
@@ -119,42 +141,45 @@ void GModuleManager::clear() {
 // all GModule methods concisely.
 #define ITERATOR(body)\
     beginLock();\
-    for (int p = NUM_PRIORITY - 1; p >= 0; --p) {\
-        Array<GModuleRef>& array = m_moduleArray[p];\
-        for (int i = array.size() - 1; i >= 0; --i) {\
+        for (int i = m_moduleArray.size() - 1; i >=0; --i) {\
             body;\
         }\
-    }\
     endLock();
+
 
 void GModuleManager::getPosedModel(
     Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
-    ITERATOR(array[i]->getPosedModel(posedArray, posed2DArray));
+    beginLock();
+    for (int i = 0; i < m_moduleArray.size(); ++i) {
+        m_moduleArray[i]->getPosedModel(posedArray, posed2DArray);
+    }
+    endLock();
+
 }
 
 
 void GModuleManager::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-    ITERATOR(array[i]->onSimulation(rdt, sdt, idt));
+    ITERATOR(m_moduleArray[i]->onSimulation(rdt, sdt, idt));
 }
 
 bool GModuleManager::onEvent(const GEvent& event) {
     // if the event is ever consumed, abort iteration
-    ITERATOR(if (array[i]->onEvent(event)) { endLock(); return true; });
+    ITERATOR(if (m_moduleArray[i]->onEvent(event)) { endLock(); return true; });
     return false;
 }
 
 void GModuleManager::onUserInput(UserInput* ui) {
-    ITERATOR(array[i]->onUserInput(ui));
+    ITERATOR(m_moduleArray[i]->onUserInput(ui));
 }
 
 void GModuleManager::onNetwork() {
-    ITERATOR(array[i]->onNetwork());
+    ITERATOR(m_moduleArray[i]->onNetwork());
 }
 
 void GModuleManager::onLogic() {
-    ITERATOR(array[i]->onLogic());
+    ITERATOR(m_moduleArray[i]->onLogic());
 }
 
 #undef ITERATOR
@@ -172,29 +197,25 @@ bool GModuleManager::onEvent(const GEvent& event, GModuleManagerRef& a, GModuleM
         b->beginLock();
     }
 
-    for (int p = NUM_PRIORITY - 1; p >= 0; --p) {
+    int numManagers = (b.isNull()) ? 1 : 2;
 
-        int numManagers = (b.isNull()) ? 1 : 2;
-
-        // Process each, interlaced
-        for (int k = 0; k < numManagers; ++k) {
-            Array<GModuleRef>& array = 
-                (k == 0) ?
-                    a->m_moduleArray[p] :
-                    b->m_moduleArray[p];
+    // Process each
+    for (int k = 0; k < numManagers; ++k) {
+        Array<GModuleRef>& array = 
+            (k == 0) ?
+            a->m_moduleArray :
+            b->m_moduleArray;
                 
-            for (int i = array.size() - 1; i >= 0; --i) {
-                if (array[i]->onEvent(event)) {
-                    if (b.notNull()) {
-                        b->endLock();
-                    }
-
-                    a->endLock();
-                    return true;
+        for (int i = array.size() - 1; i >= 0; --i) {
+            if (array[i]->onEvent(event)) {
+                if (b.notNull()) {
+                    b->endLock();
                 }
+                
+                a->endLock();
+                return true;
             }
         }
-
     }
     
     if (b.notNull()) {

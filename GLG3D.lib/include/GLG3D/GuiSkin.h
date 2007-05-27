@@ -400,8 +400,11 @@ public:
     /** Set the values to be used for default GuiText parameters. */
     void setFont(const GFontRef& font, float size, const Color4& color, const Color4& outlineColor);
 
-    /** Call before all other render methods. */
-    void beginRendering(class RenderDevice* rd);
+    /** Call before all other render methods. 
+        @param offset Offset all positions by this amount (convenient for rendering 
+        relative to a containing control or window.)
+     */
+    void beginRendering(class RenderDevice* rd, const Vector2& offset = Vector2::zero());
 
     /** Call after all other render methods. */
     void endRendering(class RenderDevice* rd);
@@ -424,10 +427,20 @@ public:
     void renderWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 
                       const GuiText& text) const;
 
-    Rect2D windowBoundsToClientArea(const Rect2D& bounds) const;
-    Rect2D clientAreaToWindowBounds(const Rect2D& bounds) const;
-    Rect2D toolWindowBoundsToClientArea(const Rect2D& bounds) const;
-    Rect2D clientAreaToToolWindowBounds(const Rect2D& bounds) const;
+    /** Given the bounds on a window's borders, returns the bounds of
+     the area inside the window where controls will appear.*/
+    Rect2D windowToClientBounds(const Rect2D& bounds) const;
+
+    /** Given the area that controls should appear in for a window,
+        returns the bounds that should be used to draw the window.
+        Note that the window's shadow or other effects may exceed
+        these bounds when rendering.*/
+    Rect2D clientToWindowBounds(const Rect2D& bounds) const;
+    Rect2D windowToTitleBounds(const Rect2D& bounds) const;
+
+    Rect2D toolWindowToClientBounds(const Rect2D& bounds) const;
+    Rect2D clientToToolWindowBounds(const Rect2D& bounds) const;
+    Rect2D toolWindowToTitleBounds(const Rect2D& bounds) const;
 
     /** Only call between beginRendering and endRendering */
     void renderToolWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 

@@ -567,22 +567,22 @@ public:
         return pointer != other.pointer;
     }
 
-	bool operator < (const WeakReferenceCountedPointer<T>& y) const {
+    bool operator < (const WeakReferenceCountedPointer<T>& y) const {
         return (pointer < y.pointer); 
-	}
+    }
 
-	bool operator > (const WeakReferenceCountedPointer<T>& y) const {
+    bool operator > (const WeakReferenceCountedPointer<T>& y) const {
         return (pointer > y.pointer); 
-	}
-
-	bool operator <= (const WeakReferenceCountedPointer<T>& y) const {
+    }
+    
+    bool operator <= (const WeakReferenceCountedPointer<T>& y) const {
         return (pointer <= y.pointer); 
-	}
-
-	bool operator >= (const ReferenceCountedPointer<T>& y) const {
+    }
+    
+    bool operator >= (const ReferenceCountedPointer<T>& y) const {
         return (pointer >= y.pointer); 
-	}
-
+    }
+    
 protected:
 
     /** Invoked by the destructor on ReferenceCountedPointer. */

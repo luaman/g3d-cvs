@@ -19,6 +19,7 @@
      <li> G3D::GuiSkin, G3D::GuiText
      <li> G3D::CameraLocation, G3D::CameraSpline
      <li> G3D::Spline
+     <li> Significantly changed GEvent delivery and GModule mechanisms to incorporate notions of focus--see upgrade.html
      <li> G3D::PosedModel::Ref::sendGeometry
      <li> G3D::RenderDevice::pushState(FramebufferRef)
      <li> G3D::Texture::PreProcess::computeNormalMap

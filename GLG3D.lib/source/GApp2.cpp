@@ -389,7 +389,7 @@ void GApp2::onGraphics(RenderDevice* rd) {
 void GApp2::renderGModules(RenderDevice* rd) {
     Array<PosedModel::Ref> posedArray, opaque, transparent; 
     Array<PosedModel2DRef> posed2DArray;
-
+    
     // By default, render the installed modules
     getPosedModel(posedArray, posed2DArray);
 
@@ -419,8 +419,8 @@ void GApp2::renderGModules(RenderDevice* rd) {
 }
 
     
-void GApp2::addModule(const GModuleRef& module, GModuleManager::EventPriority priority) {
-    m_moduleManager->add(module, priority);
+void GApp2::addModule(const GModuleRef& module) {
+    m_moduleManager->add(module);
 }
 
 
@@ -462,7 +462,6 @@ void GApp2::oneFrame() {
         m_moduleManager->onSimulation(rdt, sdt, idt);
         onAfterSimulation(rdt, sdt, idt);
 
-        //defaultCamera.setCoordinateFrame(defaultController->frame());
         if (m_cameraManipulator.notNull()) {
             defaultCamera.setCoordinateFrame(m_cameraManipulator->frame());
         }

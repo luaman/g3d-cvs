@@ -116,7 +116,7 @@ void GuiSkin::deserialize(const std::string& path, BinaryInput& b) {
 }
 
 
-void GuiSkin::beginRendering(RenderDevice* rd) {
+void GuiSkin::beginRendering(RenderDevice* rd, const Vector2& offset) {
     debugAssert(! inRendering);
     inRendering = true;
 
@@ -126,6 +126,8 @@ void GuiSkin::beginRendering(RenderDevice* rd) {
     rd->setCullFace(RenderDevice::CULL_NONE);
     rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0);
     rd->setColor(Color3::white());
+
+    rd->setObjectToWorldMatrix(Vector3(offset, 0));
 
     rd->setTexture(TEXTURE_UNIT, texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
@@ -199,22 +201,32 @@ void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& b
 }
 
 
-Rect2D GuiSkin::windowBoundsToClientArea(const Rect2D& bounds) const {
+Rect2D GuiSkin::windowToTitleBounds(const Rect2D& bounds) const {
+    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_window.clientPad.topLeft.y));
+}
+
+
+Rect2D GuiSkin::windowToClientBounds(const Rect2D& bounds) const {
     return Rect2D::xywh(bounds.x0y0() + m_window.clientPad.topLeft, bounds.wh() - m_window.clientPad.wh());
 }
 
 
-Rect2D GuiSkin::clientAreaToWindowBounds(const Rect2D& bounds) const {
+Rect2D GuiSkin::clientToWindowBounds(const Rect2D& bounds) const {
     return Rect2D::xywh(bounds.x0y0() - m_window.clientPad.topLeft, bounds.wh() + m_window.clientPad.wh());
 }
 
-Rect2D GuiSkin::toolWindowBoundsToClientArea(const Rect2D& bounds) const {
+Rect2D GuiSkin::toolWindowToClientBounds(const Rect2D& bounds) const {
     return Rect2D::xywh(bounds.x0y0() + m_toolWindow.clientPad.topLeft, bounds.wh() - m_toolWindow.clientPad.wh());
 }
 
 
-Rect2D GuiSkin::clientAreaToToolWindowBounds(const Rect2D& bounds) const {
+Rect2D GuiSkin::clientToToolWindowBounds(const Rect2D& bounds) const {
     return Rect2D::xywh(bounds.x0y0() - m_toolWindow.clientPad.topLeft, bounds.wh() + m_toolWindow.clientPad.wh());
+}
+
+
+Rect2D GuiSkin::toolWindowToTitleBounds(const Rect2D& bounds) const {
+    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_toolWindow.clientPad.topLeft.y));
 }
 
 

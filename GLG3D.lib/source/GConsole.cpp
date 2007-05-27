@@ -71,9 +71,13 @@ void GConsole::setActive(bool a) {
         m_active = a;
 
         if (m_active) {
-            // Conservative; this will be refined in render
+            m_manager->setFocusModule(this);
+            // Conservative; these bounds will be refined in render
             m_rect = Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf());
         } else {
+            if (m_manager->focusModule().pointer() == this) {
+                m_manager->setFocus(NULL);
+            }
             m_rect = Rect2D::xywh(0,0,0,0);
         }
     }

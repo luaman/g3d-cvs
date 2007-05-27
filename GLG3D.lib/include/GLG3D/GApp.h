@@ -262,7 +262,7 @@ public:
 
      @beta
      */
-    virtual void addModule(const GModuleRef& module, GModuleManager::EventPriority p = GModuleManager::NORMAL_PRIORITY);
+    virtual void addModule(const GModuleRef& module);
 
 
     /**
@@ -342,7 +342,7 @@ public:
 
      @beta
      */
-    virtual void addModule(const GModuleRef& module, GModuleManager::EventPriority p = GModuleManager::NORMAL_PRIORITY);
+    virtual void addModule(const GModuleRef& module);
 
 
     /**

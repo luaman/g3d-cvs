@@ -182,9 +182,9 @@ def iclean(args):
     run("../bin/icompile", ['--clean'])
     os.chdir("..")
 
-    os.chdir("gfxmeter")
-    run("../bin/icompile", ['--clean'])
-    os.chdir("..")
+    os.chdir("tools/gfxmeter")
+    run("../../bin/icompile", ['--clean'])
+    os.chdir("../..")
 
 
 def itest(args):

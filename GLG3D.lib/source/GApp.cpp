@@ -315,8 +315,8 @@ void GApp::renderDebugInfo() {
     }
 }
 
-void GApp::addModule(const GModuleRef& module, GModuleManager::EventPriority priority) {
-    m_moduleManager->add(module, priority);
+void GApp::addModule(const GModuleRef& module) {
+    m_moduleManager->add(module);
 }
 
 
@@ -388,9 +388,9 @@ void GApplet::onGraphics(RenderDevice* rd) {
     }
 }
 
-    
-void GApplet::addModule(const GModuleRef& module, GModuleManager::EventPriority priority) {
-    m_moduleManager->add(module, priority);
+
+void GApplet::addModule(const GModuleRef& module) {
+    m_moduleManager->add(module);
 }
 
 

@@ -64,11 +64,16 @@ void App::onInit() {
     skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
 
     Gui::Ref gui = Gui::create
-        (GuiText("Camera Control", NULL, 9),
+        (GuiText("Camera Spline", NULL, 9),
          Rect2D::xywh(600, 200, 150, 120),
-         skin);
+         skin,
+         Gui::TOOL_FRAME_STYLE);
+
+    gui->addLabel("Record");
  
-    gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+    //    gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+    static bool active = true;
+    gui->addCheckBox("Controller active", &active);//defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
 
     const std::string STOP = "<";
     const std::string PLAY = "4";
@@ -89,6 +94,13 @@ void App::onInit() {
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
     
     addModule(gui);
+
+    {
+        Gui::Ref gui2 = Gui::create("Second Window", Rect2D::xywh(100,100,400,200), skin);
+        static bool b = false;
+        gui2->addCheckBox("Option", &b);
+        addModule(gui2);
+    }
 }
 
 void App::onLogic() {

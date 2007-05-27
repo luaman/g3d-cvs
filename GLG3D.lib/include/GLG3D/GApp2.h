@@ -335,31 +335,12 @@ public:
 
     /**
      Installs a module.  Actual insertion may be delayed until the next frame.
-
-     Modules can be installed either on a GApp or a GApplet.  Those installed
-     on the GApp will be run by the GApplet every frame in addition to its own.
-     
-     By default events have NORMAL_PRIORITY. HIGH_PRIORITY is only intended
-     for debugging modules that need to temporarily superceed other components.
-
-     All modules within the same priority class receive events
-     with undetermined priority.  All high priority modules
-     receive events before.
-     
-     Event priority is important because a module can consume
-     events, preventing other modules from observing them.
-     For example, a debugging console might run at high priority 
-     so that it can consume arrow keys before they reach a normal priority
-     first-person controller.
-
-     @beta
      */
-    virtual void addModule(const GModuleRef& module, GModuleManager::EventPriority p = GModuleManager::NORMAL_PRIORITY);
+    virtual void addModule(const GModuleRef& module);
 
 
     /**
      The actual removal of the module may be delayed until the next frame.
-     @beta
      */
     virtual void removeModule(const GModuleRef& module);
 
