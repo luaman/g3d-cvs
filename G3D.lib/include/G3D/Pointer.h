@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, graphics3d.com
  
   @created 2007-05-16
-  @edited  2007-05-16
+  @edited  2007-05-30
 
   Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
@@ -13,6 +13,7 @@
 #define G3D_POINTER_H
 
 #include "G3D/debugAssert.h"
+#include "G3D/ReferenceCount.h"
 
 namespace G3D {
 
@@ -49,7 +50,7 @@ namespace G3D {
    p2 = p1;
    </pre>
 
-   Note: Because of the way that dereference is implemented, you cannot pass <code>*p</code> through a function
+   <i>Note:</i> Because of the way that dereference is implemented, you cannot pass <code>*p</code> through a function
    that takes varargs (...), e.g., <code>printf("%d", *p)</code> will produce a compile-time error.  Instead use
    <code>printf("%d",(bool)*p)</code> or <code>printf("%d", p.getValue())</code>.
    
@@ -121,6 +122,39 @@ private:
         }
     };
 
+
+    template<class T>
+    class RefAccessor : public Interface {
+    public:
+        typedef ValueType (T::*GetMethod)() const;
+        typedef void (T::*SetMethod)(ValueType);
+
+    private:
+
+        ReferenceCountedPointer<T>         object;
+        GetMethod   getMethod;
+        SetMethod   setMethod;
+
+    public:
+        
+        RefAccessor(const ReferenceCountedPointer<T>& object, GetMethod getMethod, SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
+            debugAssert(object != NULL);
+        }
+
+        virtual void set(ValueType v) {
+            (object->*setMethod)(v);
+        }
+
+        virtual ValueType get() const {
+            return (object->*getMethod)();
+        }
+
+        virtual Interface* clone() const {
+            return new RefAccessor(object, getMethod, setMethod);
+        }
+    };
+
+
     Interface* interface;
 
 public:
@@ -142,6 +176,11 @@ public:
     Pointer(const Pointer& p) : interface(NULL) {
         this[0] = p;
     }
+
+    template<class Class>
+    Pointer(const ReferenceCountedPointer<Class>& object,
+          bool (Class::*getMethod)() const,
+          void (Class::*setMethod)(bool)) : interface(new RefAccessor<Class>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,

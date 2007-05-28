@@ -70,13 +70,15 @@ void GConsole::setActive(bool a) {
         unsetRepeatKeysym();
         m_active = a;
 
-        if (m_active) {
-            m_manager->setFocusedModule(this);
-            // Conservative; these bounds will be refined in render
-            m_rect = Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf());
-        } else {
-            m_manager->setDefocusedModule(this);
-            m_rect = Rect2D::xywh(0,0,0,0);
+        if (m_manager != NULL) {
+            if (m_active) {
+                m_manager->setFocusedModule(this);
+                // Conservative; these bounds will be refined in render
+                m_rect = Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf());
+            } else {
+                m_manager->setDefocusedModule(this);
+                m_rect = Rect2D::xywh(0,0,0,0);
+            }
         }
     }
 }
@@ -784,6 +786,10 @@ void GConsole::onLogic() {
 
 
 void GConsole::onUserInput(UserInput* ui) {
+    if (m_active && (m_manager->focusedModule().pointer() != this)) {
+        // Something else has stolen the focus; turn off the console.
+        setActive(false);
+    }
 }
 
 

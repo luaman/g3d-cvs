@@ -99,6 +99,7 @@ void App::onInit() {
         Gui::Ref gui2 = Gui::create("Second Window", Rect2D::xywh(100,100,400,200), skin);
         static bool b = false;
         gui2->addCheckBox("Option", &b);
+        gui2->addCheckBox("Other window visible", gui.pointer(), &Gui::visible, &Gui::setVisible);
         addModule(gui2);
     }
 }

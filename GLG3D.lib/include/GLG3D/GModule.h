@@ -44,8 +44,13 @@ typedef ReferenceCountedPointer<class GModuleManager> GModuleManagerRef;
 class GModule : public ReferenceCountedObject {
 protected:
 
-    /** The manager, set by setManager() */
-    GModuleManagerRef m_manager;
+    /** The manager, set by setManager().
+        This cannot be a reference counted pointer because that would create a cycle
+        between the GModule and its manager.
+     */
+    GModuleManager* m_manager;
+
+    GModule() : m_manager(NULL) {}
 
 public:
 
@@ -64,7 +69,7 @@ public:
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) = 0;
 
     /** Called by the GModuleManager when this module is added to it.  The argument may be NULL */
-    virtual void setManager(const GModuleManagerRef& m) {
+    virtual void setManager(GModuleManager* m) {
         m_manager = m;
     }
 
