@@ -61,6 +61,10 @@ void GModuleManager::endLock() {
         case DelayedEvent::SET_FOCUS:
             setFocusedModule(event.module);
             break;
+
+        case DelayedEvent::SET_DEFOCUS:
+            setDefocusedModule(event.module);
+            break;
         }
     }
 
@@ -108,7 +112,16 @@ GModuleRef GModuleManager::focusedModule() const {
 }
 
 
-void GModuleManager::setFocusedModule(GModuleRef m) {
+void GModuleManager::setDefocusedModule(const GModuleRef& m) {
+   if (m_locked) {
+        m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_DEFOCUS, m));
+   } else if (focusedModule().pointer() == m.pointer()) {
+       setFocusedModule(NULL);
+   }    
+}
+
+
+void GModuleManager::setFocusedModule(const GModuleRef& m) {
     if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS, m));
     } else {

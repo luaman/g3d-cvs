@@ -108,7 +108,7 @@ private:
     /** Events that have been delayed by a lock */
     class DelayedEvent {
     public:
-        enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS};
+        enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_DEFOCUS};
         Type type;
         GModuleRef module;
 
@@ -145,7 +145,10 @@ public:
 
         Setting the focus automatically brings a module to the front of the event processing list.
         */
-    void setFocusedModule(GModuleRef m);
+    void setFocusedModule(const GModuleRef& m);
+
+    /** Removes focus from this module if it had focus, otherwise does nothing */
+    void setDefocusedModule(const GModuleRef& m);
 
     /** 
         If a lock is in effect, the add may be delayed until the
