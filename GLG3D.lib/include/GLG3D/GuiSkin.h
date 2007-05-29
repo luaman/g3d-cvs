@@ -327,6 +327,10 @@ private:
 
         /** Renders along the center of the vertical bounds and stretches to fill horizontally.*/
         void render(RenderDevice* rd, const Rect2D& bounds, float thumbPos, bool enabled, bool focused) const;
+
+        /** Given the bounds on the graphical part of the slider, returns the bounds on the track.*/
+        Rect2D trackBounds(const Rect2D& sliderBounds) const;
+        Rect2D thumbBounds(const Rect2D& sliderBounds, float pos) const;
     };
 
     Checkable         m_checkBox;
@@ -387,6 +391,8 @@ private:
  
     /** Call after GFont::send2DQuads */
     void endText(RenderDevice* rd) const;    
+    
+    Rect2D horizontalSliderToSliderBounds(const Rect2D& bounds) const;
 
 public:
 
@@ -437,6 +443,11 @@ public:
         these bounds when rendering.*/
     Rect2D clientToWindowBounds(const Rect2D& bounds) const;
     Rect2D windowToTitleBounds(const Rect2D& bounds) const;
+
+    /** Returns the position of the thumb button, which is needed for processing
+        UI events for the slider. */
+    Rect2D horizontalSliderToThumbBounds(const Rect2D& bounds, float pos) const;
+    Rect2D horizontalSliderToTrackBounds(const Rect2D& bounds) const;
 
     Rect2D toolWindowToClientBounds(const Rect2D& bounds) const;
     Rect2D clientToToolWindowBounds(const Rect2D& bounds) const;

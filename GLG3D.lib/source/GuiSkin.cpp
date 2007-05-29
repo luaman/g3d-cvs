@@ -188,7 +188,8 @@ void GuiSkin::renderToolWindow(RenderDevice* rd, const Rect2D& bounds, bool focu
 }
 
 
-void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const {
+void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, 
+                         bool focused, const GuiText& text) const {
     // Update any pending text since the window may overlap another window
     drawDelayedText(rd);
 
@@ -198,6 +199,22 @@ void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& b
         addDelayedText(text.font, text.text, Vector2(bounds.center().x, bounds.y0() + window.clientPad.topLeft.y * 0.5), 
                        min(text.size, window.clientPad.topLeft.y - 2), text.color, text.outlineColor, GFont::XALIGN_CENTER);
     }
+}
+
+
+Rect2D GuiSkin::horizontalSliderToSliderBounds(const Rect2D& bounds) const {
+    return Rect2D::xywh(bounds.x1() - SLIDER_WIDTH, bounds.y0(), SLIDER_WIDTH, bounds.height());
+}
+
+
+Rect2D GuiSkin::horizontalSliderToThumbBounds(const Rect2D& bounds, float pos) const {
+    return m_hSlider.thumbBounds(horizontalSliderToSliderBounds(bounds), pos);
+}
+
+
+Rect2D GuiSkin::horizontalSliderToTrackBounds(const Rect2D& bounds) const {
+    return m_hSlider.trackBounds(horizontalSliderToSliderBounds(bounds));
+
 }
 
 
@@ -249,11 +266,14 @@ void GuiSkin::renderButton(RenderDevice* rd, const Rect2D& bounds, bool enabled,
 void GuiSkin::renderHorizontalSlider(RenderDevice* rd, const Rect2D& bounds, float pos, bool enabled, 
                            bool focused, const GuiText& text) const {
     debugAssert(inRendering);
-    m_hSlider.render(rd, Rect2D::xywh(bounds.x1() - SLIDER_WIDTH, bounds.y0(), SLIDER_WIDTH, bounds.height()), 
-                     pos, enabled, focused);
+    m_hSlider.render
+        (rd, 
+         horizontalSliderToSliderBounds(bounds),
+         pos, enabled, focused);
 
     if (text.text != "") {
-        addDelayedText(text.font, text.text, Vector2(bounds.x0(), (bounds.y0() + bounds.y1()) * 0.5f), text.size, 
+        addDelayedText(text.font, text.text, 
+                       Vector2(bounds.x0(), (bounds.y0() + bounds.y1()) * 0.5f), text.size, 
                        text.color, text.outlineColor, GFont::XALIGN_LEFT);
     }
 }
@@ -526,19 +546,39 @@ void GuiSkin::HSlider::Thumb::Focus::deserialize(const std::string& name, TextIn
 }
 
 
-void GuiSkin::HSlider::render(RenderDevice* rd, const Rect2D& bounds, float thumbPos, bool _enabled, bool _focused) const {
-    Rect2D barBounds = Rect2D::xywh(bounds.x0(), bounds.center().y - bar.base.height() * 0.5, bounds.width(), bar.base.height());
+void GuiSkin::HSlider::render(RenderDevice* rd, const Rect2D& bounds, float thumbPos, 
+                              bool _enabled, bool _focused) const {
+
+    Rect2D barBounds = trackBounds(bounds);
 
     // Draw the bar:
     bar.base.render(rd, barBounds, _enabled ? bar.enabled : bar.disabled);
-    
 
     // Draw the thumb:
-    Vector2 offset = _enabled ? (_focused ? thumb.enabled.focused : thumb.enabled.defocused) : thumb.disabled;
-    Vector2 thumbCenter(barBounds.x0() + 1 + (barBounds.width() - 2) * clamp(thumbPos, 0.0f, 1.0f), barBounds.center().y);
+    Vector2 offset = _enabled ? 
+        (_focused ? thumb.enabled.focused : thumb.enabled.defocused) : 
+        thumb.disabled;
 
-    drawRect(Rect2D::xywh(thumbCenter - thumb.base.wh() * 0.5, thumb.base.wh()), thumb.base + offset, rd);
+    drawRect(thumbBounds(bounds, thumbPos),
+             thumb.base + offset, rd);
 }
+
+
+Rect2D GuiSkin::HSlider::trackBounds(const Rect2D& sliderBounds) const {
+    return
+        Rect2D::xywh(sliderBounds.x0(), sliderBounds.center().y - bar.base.height() * 0.5, 
+                 sliderBounds.width(), bar.base.height());
+}
+
+
+Rect2D GuiSkin::HSlider::thumbBounds(const Rect2D& sliderBounds, float pos) const {
+
+    Vector2 thumbCenter(sliderBounds.x0() + 1 + (sliderBounds.width() - 2) * clamp(pos, 0.0f, 1.0f), 
+                        sliderBounds.center().y);
+
+    return Rect2D::xywh(thumbCenter - thumb.base.wh() * 0.5, thumb.base.wh());
+}
+    
 
 //////////////////////////////////////////////////////////////////////////////
 
