@@ -408,7 +408,7 @@ Rect2D SDLWindow::dimensions() const {
 
 
 void SDLWindow::setDimensions(const Rect2D& dims) {
-    #ifdef G3D_WIN32
+#    ifdef G3D_WIN32
         int W = screenWidth();
         int H = screenHeight();
 
@@ -419,11 +419,11 @@ void SDLWindow::setDimensions(const Rect2D& dims) {
 
         SetWindowPos(_Win32HWND, NULL, x, y, w, h, SWP_NOZORDER);
         // Do not update settings-- wait for an event to notify us
-    #endif
+#    endif
 
-	#ifdef G3D_LINUX
-		//TODO: Linux
-	#endif 
+#    ifdef G3D_LINUX
+        //TODO: Linux
+#    endif 
 
     // TODO: OS X
 }

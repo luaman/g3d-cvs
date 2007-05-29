@@ -100,6 +100,8 @@ void App::onInit() {
         static bool b = false;
         gui2->addCheckBox("Option", &b);
         gui2->addCheckBox("Other window visible", gui.pointer(), &Gui::visible, &Gui::setVisible);
+        static float f = 0.5;
+        gui2->addSlider("Slider", &f, 0.0f, 1.0f);
         addModule(gui2);
     }
 }

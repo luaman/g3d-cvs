@@ -73,7 +73,11 @@ public:
         m_manager = m;
     }
 
-    /** Returning true consumes the event and prevents other GModules from seeing it. */
+    /** Returning true consumes the event and prevents other GModules
+        from seeing it.  Motion events (GEventType::MOUSEMOTION,
+        GEventType::JOYHATMOTION, JGEventType::OYBALLMOTION, and
+        GEventType::JOYAXISMOTION) cannot be cancelled.
+     */
     virtual bool onEvent(const GEvent& event) = 0;
 
     virtual void onUserInput(UserInput* ui) = 0;
