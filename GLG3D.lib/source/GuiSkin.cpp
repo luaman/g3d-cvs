@@ -502,7 +502,7 @@ void GuiSkin::makeSkinFromSourceFiles
     BinaryOutput b(destFile, G3D_LITTLE_ENDIAN);
     
     b.writeString32("G3D Skin File");
-    b.writeFloat32(0.1);
+    b.writeFloat32(0.1f);
     b.writeString32(coords);
     out.encode(GImage::TGA, b);
 

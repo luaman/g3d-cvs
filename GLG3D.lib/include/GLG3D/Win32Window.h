@@ -51,8 +51,8 @@ private:
     bool                 _receivedCloseEvent;
 
     /** Mouse Button State Array: false - up, true - down
-        [0] - left, [1] - middle, [2] - right */
-    bool                 _mouseButtons[3];
+        [0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
+    bool                 _mouseButtons[5];
     bool                 _keyboardButtons[0xFF];
 
     mutable _DirectInput*        _diDevices;
@@ -117,6 +117,11 @@ private:
 
     // Intentionally illegal (private)
     Win32Window& operator=(const Win32Window& other);
+
+    /** 
+    Configures a mouse up/down event
+    */
+    void mouseButton(bool down, int index, GKey keyEquivalent, DWORD lParam, DWORD wParam, GEvent& e);
 
 public:
 

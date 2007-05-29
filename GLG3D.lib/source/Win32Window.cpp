@@ -22,6 +22,8 @@ All rights reserved.
 #include "GLG3D/glcalls.h"
 #include "GLG3D/UserInput.h"
 #include "directinput8.h"
+#include <Winuser.h>
+#include <windowsx.h>
 
 #include <time.h>
 #include <sstream>
@@ -100,6 +102,16 @@ static LPCTSTR G3DWndClass();
 
 std::auto_ptr<Win32Window> Win32Window::_shareWindow(NULL);
 
+static uint8 buttonsToUint8(const bool* buttons) {
+    uint8 mouseButtons = 0;
+    // Clear mouseButtons and set each button bit.
+    mouseButtons |= (buttons[0] ? 1 : 0) << 0;
+    mouseButtons |= (buttons[1] ? 1 : 0) << 1;
+    mouseButtons |= (buttons[2] ? 1 : 0) << 2;
+    mouseButtons |= (buttons[3] ? 1 : 0) << 4;
+    mouseButtons |= (buttons[4] ? 1 : 0) << 8;
+    return mouseButtons;
+}
 
 Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     :createdWindow(true)
@@ -634,38 +646,49 @@ bool Win32Window::pollEvent(GEvent& e) {
                 makeKeyEvent(message.wParam, message.lParam, e);
                 _keyboardButtons[message.wParam] = false;
                 return true;
-                break;
 
+            case WM_MOUSEMOVE:
+                e.motion.type = GEventType::MOUSEMOTION;
+                e.motion.which = 0; // TODO: mouse index
+                e.motion.state = buttonsToUint8(_mouseButtons);
+                e.motion.x = GET_X_LPARAM(message.lParam);
+                e.motion.y = GET_Y_LPARAM(message.lParam);
+                e.motion.xrel = 0;
+                e.motion.yrel = 0;
+                return true;
 
             case WM_LBUTTONDOWN:
-                mouseButton(true, GKey::LEFT_MOUSE, message.wParam, e); 
-                _mouseButtons[0] = true;
+                mouseButton(true, 0, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
 
             case WM_MBUTTONDOWN:
-                mouseButton(true, GKey::MIDDLE_MOUSE, message.wParam, e); 
-                _mouseButtons[1] = true;
+                mouseButton(true, 1, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
 
             case WM_RBUTTONDOWN:
-                mouseButton(true, GKey::RIGHT_MOUSE, message.wParam, e); 
-                _mouseButtons[2] = true;
+                mouseButton(true, 2, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                return true;
+
+            case WM_XBUTTONDOWN:
+                mouseButton(true, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
 
             case WM_LBUTTONUP:
-                mouseButton(false, GKey::LEFT_MOUSE, message.wParam, e); 
-                _mouseButtons[0] = false;
+                mouseButton(false, 0, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
 
             case WM_MBUTTONUP:
-                mouseButton(false, GKey::MIDDLE_MOUSE, message.wParam, e); 
-                _mouseButtons[1] = false;
+                mouseButton(false, 1, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
 
             case WM_RBUTTONUP:
-                mouseButton(false, GKey::RIGHT_MOUSE, message.wParam, e); 
-                _mouseButtons[2] = false;
+                mouseButton(false, 2, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
+
+            case WM_XBUTTONUP:
+                mouseButton(false, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                return true;
+
             } // switch
         } // if
     } // while
@@ -780,18 +803,13 @@ void Win32Window::getRelativeMouseState(Vector2& p, uint8& mouseButtons) const {
     p.y = (float)y;
 }
 
-
 void Win32Window::getRelativeMouseState(int& x, int& y, uint8& mouseButtons) const {
     POINT point;
     GetCursorPos(&point);
     x = point.x - clientX;
     y = point.y - clientY;
 
-    // Clear mouseButtons and set each button bit.
-    mouseButtons ^= mouseButtons;
-    mouseButtons |= (_mouseButtons[0] ? 1 : 0) << 0;
-    mouseButtons |= (_mouseButtons[1] ? 1 : 0) << 1;
-    mouseButtons |= (_mouseButtons[2] ? 1 : 0) << 2;
+    mouseButtons = buttonsToUint8(_mouseButtons);
 }
 
 
@@ -1119,12 +1137,20 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 }
 
 
-/** 
-Configures a mouse up/down event
-*/
-static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
-    (void)flags;
-    // TODO: process flags
+void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, DWORD lParam, DWORD wParam, GEvent& e) {
+    e.type = down ? GEventType::MOUSEBUTTONDOWN : GEventType::MOUSEBUTTONUP;
+    e.button.x = GET_X_LPARAM(lParam);
+    e.button.y = GET_Y_LPARAM(lParam);
+
+    // Mouse button index
+    e.button.which = 0;
+    e.button.state = true;
+    e.button.button = index;
+
+    _mouseButtons[index] = down;
+
+    /*
+    // TODO: in the future, we will merge mouse and key events
     if (down) {
         e.key.type  = GEventType::KEYDOWN;
         e.key.state = SDL_PRESSED;
@@ -1135,7 +1161,6 @@ static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
 
     e.key.keysym.unicode = ' ';
     e.key.keysym.sym = (GKey::Value)keyEvent;
-
 
     e.key.keysym.scancode = 0;
 
@@ -1167,6 +1192,7 @@ static void mouseButton(bool down, int keyEvent, DWORD flags, GEvent& e) {
         mod = mod | GKEYMOD_RALT;
     }
     e.key.keysym.mod = (GKeyMod)mod;
+    */
 }
 
 

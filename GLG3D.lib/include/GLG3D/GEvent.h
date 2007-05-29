@@ -199,9 +199,9 @@ typedef struct SDL_MouseMotionEvent {
     uint8 type;	/* SDL_MOUSEMOTION */
     uint8 which;	/* The mouse device index */
     uint8 state;	/* The current button state */
-    uint16 x, y;	/* The X/Y coordinates of the mouse */
-    int16 xrel;	/* The relative motion in the X direction */
-    int16 yrel;	/* The relative motion in the Y direction */
+    uint16 x, y;	/* The X/Y coordinates of the mouse relative to the window. */
+    int16 xrel;	/* The relative motion in the X direction.  Not supported on all platforms. */
+    int16 yrel;	/* The relative motion in the Y direction.  Not supported on all platforms. */
 } SDL_MouseMotionEvent;
 
 /* Mouse button event structure */
@@ -211,6 +211,9 @@ typedef struct SDL_MouseButtonEvent {
 	uint8 button;	/* The mouse button index */
 	uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
 	uint16 x, y;	/* The X/Y coordinates of the mouse at press time */
+
+    // TODO: add     /** Current key modifiers */    GKeyMod         mod;	
+
 } SDL_MouseButtonEvent;
 
 /* Joystick axis motion event structure */
@@ -290,23 +293,38 @@ typedef struct SDL_SysWMEvent {
 /** 
   General low-level event structure.
   
+  Most event processing code looks like:
+
+  <pre>
+  switch (event.type) {
+  case GEventType::MOUSEBUTTONDOWN:
+     ...
+     break;
+  ...
+  }
+  </pre>
+
+  See also G3D::GModule::onEvent, G3D::GWindow::pollEvent.
+
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */
 typedef union {
-	uint8 type;
-	SDL_ActiveEvent active;
-	SDL_KeyboardEvent key;
-	SDL_MouseMotionEvent motion;
-	SDL_MouseButtonEvent button;
-	SDL_JoyAxisEvent jaxis;
-	SDL_JoyBallEvent jball;
-	SDL_JoyHatEvent jhat;
-	SDL_JoyButtonEvent jbutton;
-	SDL_ResizeEvent resize;
-	SDL_ExposeEvent expose;
-	GQuitEvent quit;
-	SDL_UserEvent user;
-	SDL_SysWMEvent syswm;
+    /** This is a GEventType, but is given uint8 type so that it does not call the constructor. */
+	uint8                   type;
+
+	SDL_ActiveEvent         active;
+	SDL_KeyboardEvent       key;
+	SDL_MouseMotionEvent    motion;
+	SDL_MouseButtonEvent    button;
+	SDL_JoyAxisEvent        jaxis;
+	SDL_JoyBallEvent        jball;
+	SDL_JoyHatEvent         jhat;
+	SDL_JoyButtonEvent      jbutton;
+	SDL_ResizeEvent         resize;
+	SDL_ExposeEvent         expose;
+	GQuitEvent              quit;
+	SDL_UserEvent           user;
+	SDL_SysWMEvent          syswm;
 } GEvent;
 
 }

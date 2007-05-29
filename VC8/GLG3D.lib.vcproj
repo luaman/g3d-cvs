@@ -257,6 +257,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GuiSkin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GWindow.cpp"
 				>
 			</File>
@@ -463,6 +467,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSkin.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GWindow.h"
 				>
 			</File>
@@ -576,6 +584,10 @@
 			>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GL\gl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glext-compat.h"
 				>
 			</File>
 			<File

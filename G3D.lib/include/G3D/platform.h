@@ -207,6 +207,9 @@
 
 
 #   define NOMINMAX 1
+#   ifndef _WIN32_WINNT
+#       define _WIN32_WINNT 0x0500
+#   endif
 #   include <windows.h>
 #   undef WIN32_LEAN_AND_MEAN
 #   undef NOMINMAX

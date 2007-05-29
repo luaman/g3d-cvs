@@ -37,10 +37,10 @@ private:
 
     void generateShadowMap(const GLight& light, const Array<PosedModel::Ref>& shadowCaster);
 
-    Texture::Ref                  shadowMap;
+    Texture::Ref                shadowMap;
     Matrix4                     lightMVP;
 
-    Texture::Ref                  logo;
+    Texture::Ref                logo;
 
     SkyRef                      sky;
 
@@ -48,7 +48,7 @@ private:
     LightingRef                 lighting;
 
     Array<EntityRef>            entityArray;
-    Texture::Ref                  texture;
+    Texture::Ref                texture;
 
     void loadScene();
 
@@ -59,7 +59,6 @@ public:
     virtual void onUserInput(UserInput* ui);
 
     virtual void onGraphics(RenderDevice* rd);
-
 };
 
 #endif

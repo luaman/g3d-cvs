@@ -19,6 +19,7 @@
      <li> G3D::GuiSkin, G3D::GuiText
      <li> G3D::CameraLocation, G3D::CameraSpline
      <li> G3D::Spline
+     <li> G3D::Win32Window now returns events for up to 5 mouse buttons
      <li> Significantly changed GEvent delivery and GModule mechanisms to incorporate notions of focus--see upgrade.html
      <li> Motion events (joystick/mouse) can no longer be cancelled by GModule::onEvent
      <li> Mouse motion events for all platforms
@@ -126,6 +127,7 @@
      <li> Removed Cylinder::getPoint1 (use point)
      <li> ARB_texture_cube_map and EXT_texture_cube_map are now aliases on all cards
      <li> EXT_texture_edge_clamp and SGIS_texture_edge_clamp are now aliases on all cards
+     <li> Fix: Win32Window now returns mousebutton and motion events according to the GEvent spec
      <li> Fix: Win32Window now operates correctly in fullscreen mode
      <li> Fix: Fixed TGA decode to load from the middle of a binaryinput
      <li> Fix: Added texture coordinates to posed MD2Models
