@@ -291,6 +291,8 @@ private:
 
 
         void deserialize(const std::string& name, TextInput& b);
+
+        /** Pass the bounds outside the border; the borderPad will automatically be added. */
         void render(RenderDevice* rd, const Rect2D& bounds, bool focused) const;
     };
 
