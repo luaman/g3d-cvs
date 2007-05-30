@@ -23,6 +23,7 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
+    Vector2 lastMouse;
     CameraSplineManipulator::Ref splineManipulator;
 
     App(const GApp2::Settings& settings = GApp2::Settings());
@@ -30,6 +31,13 @@ public:
     virtual void onInit();
     virtual void onLogic();
     virtual void onNetwork();
+    virtual bool onEvent(const GEvent& e) {
+        if (e.type == GEventType::MOUSEBUTTONDOWN) {
+            lastMouse.x = e.button.x;
+            lastMouse.y = e.button.y;
+        }
+        return GApp2::onEvent(e);
+    }
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onGraphics(RenderDevice* rd);
     virtual void onUserInput(UserInput* ui);
@@ -57,10 +65,12 @@ void App::onInit() {
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addModule(splineManipulator);
     
-    GuiSkinRef skin = GuiSkin::fromFile("/Volumes/McGuire/Projects/data/gui/osx.skn");
+    //dataDir = "/Volumes/McGuire/Projects/data/";
+    dataDir = "X:/morgan/data/";
 
-    GFontRef arialFont = GFont::fromFile("/Volumes/McGuire/Projects/data/font/arial.fnt");
-    GFontRef iconFont = GFont::fromFile("/Volumes/McGuire/Projects/data/font/icon.fnt");
+    GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
+    GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
+    GFontRef iconFont = GFont::fromFile(dataDir + "font/icon.fnt");
     skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
 
     Gui::Ref gui = Gui::create
@@ -142,7 +152,9 @@ void App::onUserInput(UserInput* ui) {
         splineManipulator->setMode(CameraSplineManipulator::INACTIVE_MODE);
         defaultController->setActive(true);
     } 
-    
+
+    debugPrintf("UI    mouseXY: (%g, %g)\n", ui->mouseXY().x, ui->mouseXY().y);    
+    debugPrintf("Event mouseXY: (%g, %g)\n", lastMouse.x, lastMouse.y);    
 }
 
 void App::onConsoleCommand(const std::string& str) {

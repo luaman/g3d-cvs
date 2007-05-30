@@ -180,8 +180,8 @@ void GModuleManager::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 bool GModuleManager::onEvent(const GEvent& event) {
     bool motionEvent = 
         (event.type == GEventType::MOUSEMOTION) ||
-        (event.type == JOYAXISMOTION) ||
-        (event.type == JOYHATMOTION);
+        (event.type == GEventType::JOYAXISMOTION) ||
+        (event.type == GEventType::JOYHATMOTION);
 
     // if the event is ever consumed, abort iteration
     ITERATOR(if (m_moduleArray[i]->onEvent(event) && ! motionEvent) { endLock(); return true; });

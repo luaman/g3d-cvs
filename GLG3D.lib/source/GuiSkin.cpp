@@ -150,6 +150,7 @@ void GuiSkin::endText(RenderDevice* rd) const {
     rd->beginPrimitive(RenderDevice::QUADS);
 }
 
+
 void GuiSkin::endRendering(RenderDevice* rd) {
     // Draw any remaining text
     drawDelayedText(rd);
@@ -559,8 +560,7 @@ void GuiSkin::HSlider::render(RenderDevice* rd, const Rect2D& bounds, float thum
         (_focused ? thumb.enabled.focused : thumb.enabled.defocused) : 
         thumb.disabled;
 
-    drawRect(thumbBounds(bounds, thumbPos),
-             thumb.base + offset, rd);
+    drawRect(thumbBounds(bounds, thumbPos), thumb.base + offset, rd);
 }
 
 
@@ -573,10 +573,12 @@ Rect2D GuiSkin::HSlider::trackBounds(const Rect2D& sliderBounds) const {
 
 Rect2D GuiSkin::HSlider::thumbBounds(const Rect2D& sliderBounds, float pos) const {
 
-    Vector2 thumbCenter(sliderBounds.x0() + 1 + (sliderBounds.width() - 2) * clamp(pos, 0.0f, 1.0f), 
+    float halfWidth = thumb.base.width() * 0.5f;
+
+    Vector2 thumbCenter(sliderBounds.x0() + halfWidth + (sliderBounds.width() - thumb.base.width()) * clamp(pos, 0.0f, 1.0f), 
                         sliderBounds.center().y);
 
-    return Rect2D::xywh(thumbCenter - thumb.base.wh() * 0.5, thumb.base.wh());
+    return Rect2D::xywh(thumbCenter - Vector2(halfWidth, thumb.base.height() * 0.5f), thumb.base.wh());
 }
     
 

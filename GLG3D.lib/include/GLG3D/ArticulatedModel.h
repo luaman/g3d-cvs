@@ -3,6 +3,7 @@
 
   TODO: hierarchy
   TODO: smoothing groups
+  TODO: Posed edges, etc.
 */
 #ifndef G3D_ARTICULATEDMODEL
 #define G3D_ARTICULATEDMODEL
