@@ -92,15 +92,15 @@ void App::onInit() {
     enum Mode {STOP_MODE, PLAY_MODE, RECORD_MODE};
     static Mode mode = STOP_MODE;
 
-    Gui::RadioButton* b;
-    b = gui->addRadioButton(GuiText(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, Gui::RadioButton::BUTTON_STYLE);
+    GuiRadioButton* b;
+    b = gui->addRadioButton(GuiText(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     Rect2D baseRect = Rect2D::xywh(b->rect().x0(), b->rect().y0(), 30, 30);
     b->setRect(baseRect + Vector2(baseRect.width() * 0, 0));
 
-    b = gui->addRadioButton(GuiText(PLAY, iconFont, 16), PLAY_MODE, &mode, Gui::RadioButton::BUTTON_STYLE);
+    b = gui->addRadioButton(GuiText(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 1, 0));
 
-    b = gui->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, Gui::RadioButton::BUTTON_STYLE);
+    b = gui->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
     
     addModule(gui);
