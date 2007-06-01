@@ -12,6 +12,7 @@
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
 #include "G3D/Array.h"
+#include "G3D/Queue.h"
 #include "GLG3D/GEvent.h"
 
 namespace G3D {
@@ -128,14 +129,6 @@ public:
 	/** Allocate a stereo display context. true, <B>false</B> */
 	bool    stereo;
 	
-	/** Specify the value at which lighting saturates before it is
-	    applied to surfaces.  1.0 is the default OpenGL value,
-	    higher numbers increase the quality of bright lighting at
-	    the expense of color depth.Default is 1.0.  Set to 2.0 to
-	    make a Color3::white() light 50% of the maximum
-	    brightness. */
-	double  lightSaturation;
-
 	/** In cycles/sec */
 	int     refreshRate;
 	
@@ -180,7 +173,6 @@ public:
 	  fullScreen(false),
 	  asychronous(true),
 	  stereo(false),
-	  lightSaturation(1.0),
 	  refreshRate(85),
 	  resizable(false),
 	  framed(true),
@@ -188,6 +180,12 @@ public:
 	  defaultIconFilename("nodefault"),
 	  caption("3D") {}
     };
+protected:
+
+    Queue<GEvent>               m_eventQueue;
+
+    /** Extract one event from the underlying operating system */
+    virtual bool pollOSEvent(GEvent& e);
 
 private:
 
@@ -229,6 +227,11 @@ protected:
     int                     m_mouseHideCount;
 
 public:
+
+    /** 
+        Inserts an event into the queue.
+     */
+    virtual void fireEvent(const GEvent& event);
 
     /** Return the <I>actual</I> properties of this window (as opposed to
         the desired settings from which it was initialized) */
@@ -293,9 +296,9 @@ public:
         (void)image;
     }
 
-	virtual void setIcon(const std::string& imageFilename) {
-		setIcon(GImage(imageFilename));
-	}
+    virtual void setIcon(const std::string& imageFilename) {
+        setIcon(GImage(imageFilename));
+    }
 
     /** Swap the OpenGL front and back buffers.  Called by RenderDevice::endFrame. */
     virtual void swapGLBuffers() = 0;
@@ -320,10 +323,7 @@ public:
         returns true and fills out the GEvent structure.  Otherwise
         returns false.  The caller is responsible for invoking GWindow::notifyResize
         with any resize events; the GWindow does not notify itself. */
-    virtual bool pollEvent(GEvent& e) {
-        (void)e;
-        return false;
-    }
+    virtual bool pollEvent(GEvent& e);
 
     /** Returns the current mouse position and the state of the mouse buttons.
         It is essential to sample both simultaneously so that the mouse has

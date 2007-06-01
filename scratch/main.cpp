@@ -33,10 +33,6 @@ public:
     virtual void onLogic();
     virtual void onNetwork();
     virtual bool onEvent(const GEvent& e) {
-        if (e.type == GEventType::MOUSEBUTTONDOWN) {
-            lastMouse.x = e.button.x;
-            lastMouse.y = e.button.y;
-        }
         return GApp2::onEvent(e);
     }
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
@@ -66,8 +62,8 @@ void App::onInit() {
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addModule(splineManipulator);
     
-    //dataDir = "/Volumes/McGuire/Projects/data/";
-    dataDir = "X:/morgan/data/";
+    dataDir = "/Volumes/McGuire/Projects/data/";
+    //dataDir = "X:/morgan/data/";
 
     GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");

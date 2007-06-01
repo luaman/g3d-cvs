@@ -605,9 +605,9 @@ void Win32Window::setCaption(const std::string& caption) {
 std::string Win32Window::caption() {
     return _title;
 }
+     
 
-
-bool Win32Window::pollEvent(GEvent& e) {
+bool Win32Window::pollOSEvent(GEvent& e) {
     MSG message;
 
     while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
@@ -619,7 +619,7 @@ bool Win32Window::pollEvent(GEvent& e) {
             case WM_KEYDOWN:
             case WM_SYSKEYDOWN:
 
-                e.key.type = GEventType::KEYDOWN;
+                e.key.type = GEventType::KEY_DOWN;
                 e.key.state = SDL_PRESSED;
 
                 // Fix invalid repeat key flag
@@ -640,7 +640,7 @@ bool Win32Window::pollEvent(GEvent& e) {
 
             case WM_KEYUP:
             case WM_SYSKEYUP:
-                e.key.type = GEventType::KEYUP;
+                e.key.type = GEventType::KEY_UP;
                 e.key.state = SDL_RELEASED;
 
                 makeKeyEvent(message.wParam, message.lParam, e);
@@ -648,7 +648,7 @@ bool Win32Window::pollEvent(GEvent& e) {
                 return true;
 
             case WM_MOUSEMOVE:
-                e.motion.type = GEventType::MOUSEMOTION;
+                e.motion.type = GEventType::MOUSE_MOTION;
                 e.motion.which = 0; // TODO: mouse index
                 e.motion.state = buttonsToUint8(_mouseButtons);
                 e.motion.x = GET_X_LPARAM(message.lParam);
@@ -1138,7 +1138,7 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 
 
 void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, DWORD lParam, DWORD wParam, GEvent& e) {
-    e.type = down ? GEventType::MOUSEBUTTONDOWN : GEventType::MOUSEBUTTONUP;
+    e.type = down ? GEventType::MOUSE_BUTTON_DOWN : GEventType::MOUSE_BUTTON_UP;
     e.button.x = GET_X_LPARAM(lParam);
     e.button.y = GET_Y_LPARAM(lParam);
 
@@ -1152,10 +1152,10 @@ void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, DWORD lP
     /*
     // TODO: in the future, we will merge mouse and key events
     if (down) {
-        e.key.type  = GEventType::KEYDOWN;
+        e.key.type  = GEventType::KEY_DOWN;
         e.key.state = SDL_PRESSED;
     } else {
-        e.key.type  = GEventType::KEYUP;
+        e.key.type  = GEventType::KEY_UP;
         e.key.state = SDL_RELEASED;
     }
 
@@ -1337,17 +1337,18 @@ static void printPixelFormatDescription(int format, HDC hdc, TextOutput& out) {
     out.printf("#%d Format Description\n", format);
     out.printf("nSize:\t\t\t\t%d\n", pixelFormat.nSize);
     out.printf("nVersion:\t\t\t%d\n", pixelFormat.nVersion);
-    std::string s = (std::string((pixelFormat.dwFlags&PFD_DRAW_TO_WINDOW) ? "PFD_DRAW_TO_WINDOW|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_DRAW_TO_BITMAP) ? "PFD_DRAW_TO_BITMAP|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_SUPPORT_GDI) ? "PFD_SUPPORT_GDI|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_SUPPORT_OPENGL) ? "PFD_SUPPORT_OPENGL|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_GENERIC_ACCELERATED) ? "PFD_GENERIC_ACCELERATED|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_GENERIC_FORMAT) ? "PFD_GENERIC_FORMAT|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_NEED_PALETTE) ? "PFD_NEED_PALETTE|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_NEED_SYSTEM_PALETTE) ? "PFD_NEED_SYSTEM_PALETTE|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_DOUBLEBUFFER) ? "PFD_DOUBLEBUFFER|" : "") + 
-        std::string((pixelFormat.dwFlags&PFD_STEREO) ? "PFD_STEREO|" : "") +
-        std::string((pixelFormat.dwFlags&PFD_SWAP_LAYER_BUFFERS) ? "PFD_SWAP_LAYER_BUFFERS" : ""));
+    std::string s =
+        (std::string((pixelFormat.dwFlags&PFD_DRAW_TO_WINDOW) ? "PFD_DRAW_TO_WINDOW|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_DRAW_TO_BITMAP) ? "PFD_DRAW_TO_BITMAP|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_SUPPORT_GDI) ? "PFD_SUPPORT_GDI|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_SUPPORT_OPENGL) ? "PFD_SUPPORT_OPENGL|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_GENERIC_ACCELERATED) ? "PFD_GENERIC_ACCELERATED|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_GENERIC_FORMAT) ? "PFD_GENERIC_FORMAT|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_NEED_PALETTE) ? "PFD_NEED_PALETTE|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_NEED_SYSTEM_PALETTE) ? "PFD_NEED_SYSTEM_PALETTE|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_DOUBLEBUFFER) ? "PFD_DOUBLEBUFFER|" : "") + 
+         std::string((pixelFormat.dwFlags&PFD_STEREO) ? "PFD_STEREO|" : "") +
+         std::string((pixelFormat.dwFlags&PFD_SWAP_LAYER_BUFFERS) ? "PFD_SWAP_LAYER_BUFFERS" : ""));
 
     out.printf("dwFlags:\t\t\t%s\n", s.c_str());
     out.printf("iPixelType:\t\t\t%d\n", pixelFormat.iPixelType);

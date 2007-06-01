@@ -98,20 +98,20 @@ void UserInput::processEvent(const GEvent& event) {
     // Translate everything into a key code then call processKey
 
     switch(event.type) {
-    case GEventType::KEYUP:
-        processKey(event.key.keysym.sym, GEventType::KEYUP);
+    case GEventType::KEY_UP:
+        processKey(event.key.keysym.sym, GEventType::KEY_UP);
         break;
         
-    case GEventType::KEYDOWN:
-        processKey(event.key.keysym.sym, GEventType::KEYDOWN);
+    case GEventType::KEY_DOWN:
+        processKey(event.key.keysym.sym, GEventType::KEY_DOWN);
         break;
         
-    case GEventType::MOUSEBUTTONDOWN:
-        processKey((GKey)(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEYDOWN);
+    case GEventType::MOUSE_BUTTON_DOWN:
+        processKey((GKey)(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEY_DOWN);
         break;
         
-    case GEventType::MOUSEBUTTONUP:
-        processKey(GKey(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEYUP);
+    case GEventType::MOUSE_BUTTON_UP:
+        processKey(GKey(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEY_UP);
         break;
     }
 }
@@ -223,7 +223,7 @@ float UserInput::getY() const {
 
 
 void UserInput::processKey(GKey code, int event) {
-	bool state = (event == GEventType::KEYDOWN);
+	bool state = (event == GEventType::KEY_DOWN);
 
     if (code < GKey(keyFunction.size())) {
         switch (keyFunction[(int)code]) {

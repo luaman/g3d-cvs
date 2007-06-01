@@ -673,10 +673,10 @@ void SDLWindow::setInputCapture(bool c) {
         }
     }
 }
+    
 
-
-bool SDLWindow::pollEvent(GEvent& e) {
-    // GEvent conveniently has exactly the same memory layout
+bool SDLWindow::pollOSEvent(GEvent& e) {
+    // Note that GEvent conveniently has exactly the same memory layout
     // as SDL_Event.
     return (SDL_PollEvent(reinterpret_cast<SDL_Event*>(&e)) != 0);
 }

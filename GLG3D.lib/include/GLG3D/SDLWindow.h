@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2007-01-31
+  @edited  2007-06-01
 
   Copyright 2000-2007, Morgan McGuire
   All rights reserved.
@@ -16,6 +16,7 @@
 
 #if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
 
+#include "G3D/Queue.h"
 #include "GLG3D/GWindow.h"
 #include "GLG3D/glcalls.h"
 
@@ -61,20 +62,24 @@ private:
 
     GLContext                   _glContext;
 
-    #if defined(G3D_LINUX) || defined(G3D_FREEBSD)
+#   if defined(G3D_LINUX) || defined(G3D_FREEBSD)
         Display*                _X11Display;
         Window                  _X11Window;
         Window                  _X11WMWindow;
-    #elif defined(G3D_WIN32)
+#   elif defined(G3D_WIN32)
         HDC                     _Win32HDC;
         HWND                    _Win32HWND;
-    #elif defined(G3D_OSX)
-	    NSAutoreleasePoolWrapper* _pool;
-    #endif
+#   elif defined(G3D_OSX)
+        NSAutoreleasePoolWrapper* _pool;
+#   endif
+
+    Queue<GEvent>               m_eventQueue;
 
 protected:
     
     virtual void reallyMakeCurrent() const;
+
+    virtual bool pollOSEvent(GEvent& e);
 
 public:
 
@@ -133,8 +138,6 @@ public:
     virtual void setInputCapture(bool c);
 
     virtual bool inputCapture() const;
-
-    virtual bool pollEvent(GEvent& e);
 
     /** Returns the underlying SDL joystick pointer */
     ::SDL_Joystick* getSDL_Joystick(unsigned int num) const;

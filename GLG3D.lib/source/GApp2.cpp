@@ -585,7 +585,7 @@ void GApp2::processGEventQueue() {
             exit(0);
             break;
 
-        case GEventType::VIDEORESIZE:
+        case GEventType::VIDEO_RESIZE:
             if (autoResize) {
                 renderDevice->notifyResize
                     (event.resize.w, event.resize.h);
@@ -597,7 +597,7 @@ void GApp2::processGEventQueue() {
             }
             break;
 
-        case GEventType::KEYDOWN:
+        case GEventType::KEY_DOWN:
 
             if (! console->active()) {
                 switch (event.key.keysym.sym) {

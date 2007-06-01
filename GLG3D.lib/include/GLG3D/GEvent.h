@@ -27,7 +27,7 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
  * The return value is one of the following positions:
  */
 #define SDL_HAT_CENTERED	0x00
-#define SDL_HAT_UP          0x01
+#define SDL_HAT_UP              0x01
 #define SDL_HAT_RIGHT		0x02
 #define SDL_HAT_DOWN		0x04
 #define SDL_HAT_LEFT		0x08
@@ -104,32 +104,36 @@ public:
 class GEventType {
 public:
     enum Value { 
-       NOEVENT = 0,		/* Unused (do not remove) */
-       ACTIVEEVENT,		/* Application loses/gains visibility */
-       KEYDOWN,			/* Keys pressed */
-       KEYUP,			/* Keys released */
-       MOUSEMOTION,		/* Mouse moved */
-       MOUSEBUTTONDOWN,		/* Mouse button pressed */
-       MOUSEBUTTONUP,		/* Mouse button released */
-       JOYAXISMOTION,		/* Joystick axis motion */
-       JOYBALLMOTION,		/* Joystick trackball motion */
-       JOYHATMOTION,		/* Joystick hat position change */
-       JOYBUTTONDOWN,		/* Joystick button pressed */
-       JOYBUTTONUP,		/* Joystick button released */
+       NONE = 0,		/* Unused (do not remove) */
+       ACTIVE,	        	/* Application loses/gains visibility */
+       KEY_DOWN,	        /* Keys pressed */
+       KEY_UP,	                /* Keys released */
+       MOUSE_MOTION,		/* Mouse moved */
+       MOUSE_BUTTON_DOWN,	/* Mouse button pressed */
+       MOUSE_BUTTON_UP,		/* Mouse button released */
+       JOY_AXIS_MOTION,		/* Joystick axis motion */
+       JOY_BALL_MOTION,		/* Joystick trackball motion */
+       JOY_HAT_MOTION,		/* Joystick hat position change */
+       JOY_BUTTON_DOWN,		/* Joystick button pressed */
+       JOY_BUTTON_UP,		/* Joystick button released */
        QUIT,			/* User-requested quit */
        SYSWMEVENT,		/* System specific event */
        EVENT_RESERVEDA,		/* Reserved for future use.. */
        EVENT_RESERVEDB,		/* Reserved for future use.. */
-       VIDEORESIZE,		/* User resized video mode */
-       VIDEOEXPOSE,		/* Screen needs to be redrawn */
+       VIDEO_RESIZE,		/* User resized video mode */
+       VIDEO_EXPOSE,		/* Screen needs to be redrawn */
        EVENT_RESERVED2,		/* Reserved for future use.. */
        EVENT_RESERVED3,		/* Reserved for future use.. */
        EVENT_RESERVED4,		/* Reserved for future use.. */
        EVENT_RESERVED5,		/* Reserved for future use.. */
        EVENT_RESERVED6,		/* Reserved for future use.. */
        EVENT_RESERVED7,		/* Reserved for future use.. */
+       GUI_DOWN,                /* GuiControl button, etc. pressed. */
+       GUI_UP,                  /* GuiControl button, etc. released. */
+       GUI_ACTION,              /* Button fire, enter pressed in a text box, slider released */
+
        /* Events USEREVENT through MAXEVENTS-1 are for your use */
-       USEREVENT = 24,
+       USEREVENT = 27,
        /* This last event is only for bounding internal arrays
   	     It is the number of bits in the event mask datatype -- uint32
         */
@@ -150,144 +154,218 @@ G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GEventType);
 
 namespace G3D {
 
-/* Predefined event masks */
-#define EVENTMASK(X)	(1<<(X))
-enum {
-    SDL_ACTIVEEVENTMASK	    = EVENTMASK(GEventType::KEYDOWN),
-    SDL_KEYUPMASK		    = EVENTMASK(GEventType::KEYUP),
-    SDL_MOUSEMOTIONMASK	    = EVENTMASK(GEventType::MOUSEMOTION),
-    SDL_MOUSEBUTTONDOWNMASK	= EVENTMASK(GEventType::MOUSEBUTTONDOWN),
-    SDL_MOUSEBUTTONUPMASK	= EVENTMASK(GEventType::MOUSEBUTTONUP),
-    SDL_MOUSEEVENTMASK	    = EVENTMASK(GEventType::MOUSEMOTION)|
-                              EVENTMASK(GEventType::MOUSEBUTTONDOWN)|
-	                          EVENTMASK(GEventType::MOUSEBUTTONUP),
-    SDL_JOYAXISMOTIONMASK	= EVENTMASK(GEventType::JOYAXISMOTION),
-    SDL_JOYBALLMOTIONMASK	= EVENTMASK(GEventType::JOYBALLMOTION),
-    SDL_JOYHATMOTIONMASK	= EVENTMASK(GEventType::JOYHATMOTION),
-    SDL_JOYBUTTONDOWNMASK	= EVENTMASK(GEventType::JOYBUTTONDOWN),
-    SDL_JOYBUTTONUPMASK	    = EVENTMASK(GEventType::JOYBUTTONUP),
-    SDL_JOYEVENTMASK	    = EVENTMASK(GEventType::JOYAXISMOTION)|
-                               EVENTMASK(GEventType::JOYBALLMOTION)|
-                                EVENTMASK(GEventType::JOYHATMOTION)|
-	                          EVENTMASK(GEventType::JOYBUTTONDOWN)|
-	                          EVENTMASK(GEventType::JOYBUTTONUP),
-    SDL_VIDEORESIZEMASK	    = EVENTMASK(GEventType::VIDEORESIZE),
-    SDL_VIDEOEXPOSEMASK	    = EVENTMASK(GEventType::VIDEOEXPOSE),
-    SDL_QUITMASK		    = EVENTMASK(GEventType::QUIT),
-    SDL_SYSWMEVENTMASK	    = EVENTMASK(GEventType::SYSWMEVENT)
+/** Application visibility event structure */
+class ActiveEvent {
+public:
+    /** GEventType::ACTIVE */
+    uint8 type;
+
+    /** Whether given states were gained or lost (1/0) */
+    uint8 gain;
+
+    /** A mask of the focus states */
+    uint8 state;
 };
-#define SDL_ALLEVENTS		0xFFFFFFFF
-#undef EVENTMASK
 
-/* Application visibility event structure */
-typedef struct SDL_ActiveEvent {
-    uint8 type;	/* SDL_ACTIVEEVENT */
-    uint8 gain;	/* Whether given states were gained or lost (1/0) */
-    uint8 state;	/* A mask of the focus states */
-} SDL_ActiveEvent;
+/** Keyboard event structure */
+class KeyboardEvent {
+public:
+    /** GEventType::KEY_DOWN or GEventType::KEY_UP */
+    uint8 type;
 
-/* Keyboard event structure */
-typedef struct SDL_KeyboardEvent {
-    uint8 type;	/* SDL_KEYDOWN or SDL_KEYUP */
-    uint8 which;	/* The keyboard device index */
-    uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
+    /** The keyboard device index */
+    uint8 which;
+
+    /** SDL_PRESSED or SDL_RELEASED */
+    uint8 state;
+
     SDL_keysym keysym;
-} SDL_KeyboardEvent;
+};
 
-/* Mouse motion event structure */
-typedef struct SDL_MouseMotionEvent {
-    uint8 type;	/* SDL_MOUSEMOTION */
-    uint8 which;	/* The mouse device index */
-    uint8 state;	/* The current button state */
-    uint16 x, y;	/* The X/Y coordinates of the mouse relative to the window. */
-    int16 xrel;	/* The relative motion in the X direction.  Not supported on all platforms. */
-    int16 yrel;	/* The relative motion in the Y direction.  Not supported on all platforms. */
-} SDL_MouseMotionEvent;
+
+/** Mouse motion event structure */
+class MouseMotionEvent {
+public:
+    /** SDL_MOUSEMOTION */
+    uint8 type;	
+
+    /** The mouse device index */
+    uint8 which;
+
+    /** The current button state */
+    uint8 state;
+
+    /** The X/Y coordinates of the mouse relative to the window. */
+    uint16 x, y;
+
+    /** The relative motion in the X direction.  Not supported on all platforms. */
+    int16 xrel;
+
+    /** The relative motion in the Y direction.  Not supported on all platforms. */
+    int16 yrel;
+};
 
 /* Mouse button event structure */
-typedef struct SDL_MouseButtonEvent {
-	uint8 type;	/* SDL_MOUSEBUTTONDOWN or SDL_MOUSEBUTTONUP */
-	uint8 which;	/* The mouse device index */
-	uint8 button;	/* The mouse button index */
-	uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
-	uint16 x, y;	/* The X/Y coordinates of the mouse at press time */
+class MouseButtonEvent {
+public:
+    /** MOUSEBUTTONDOWN or MOUSEBUTTONUP */
+    uint8 type;
 
+    /** The mouse device index */
+    uint8 which;	
+    
+    /** The mouse button index */
+    uint8 button;	
+
+    /* SDL_PRESSED or SDL_RELEASED */
+    uint8 state;
+
+    /** The X/Y coordinates of the mouse at press time */
+    uint16 x, y;
+    
     // TODO: add     /** Current key modifiers */    GKeyMod         mod;	
+};
 
-} SDL_MouseButtonEvent;
 
-/* Joystick axis motion event structure */
-typedef struct SDL_JoyAxisEvent {
-	uint8 type;	/* SDL_JOYAXISMOTION */
-	uint8 which;	/* The joystick device index */
-	uint8 axis;	/* The joystick axis index */
-	int16 value;	/* The axis value (range: -32768 to 32767) */
-} SDL_JoyAxisEvent;
+/** Joystick axis motion event structure */
+class JoyAxisEvent {
+public:
+    /* JOYAXISMOTION */
+    uint8 type;
 
-/* Joystick trackball motion event structure */
-typedef struct SDL_JoyBallEvent {
-	uint8 type;	/* SDL_JOYBALLMOTION */
-	uint8 which;	/* The joystick device index */
-	uint8 ball;	/* The joystick trackball index */
-	int16 xrel;	/* The relative motion in the X direction */
-	int16 yrel;	/* The relative motion in the Y direction */
-} SDL_JoyBallEvent;
+    /** The joystick device index */
+    uint8 which;	
 
-/* Joystick hat position change event structure */
-typedef struct SDL_JoyHatEvent {
-	uint8 type;	/* SDL_JOYHATMOTION */
-	uint8 which;	/* The joystick device index */
-	uint8 hat;	/* The joystick hat index */
-	uint8 value;	/* The hat position value:
-			    SDL_HAT_LEFTUP   SDL_HAT_UP       SDL_HAT_RIGHTUP
-			    SDL_HAT_LEFT     SDL_HAT_CENTERED SDL_HAT_RIGHT
-			    SDL_HAT_LEFTDOWN SDL_HAT_DOWN     SDL_HAT_RIGHTDOWN
-			   Note that zero means the POV is centered.
-			*/
-} SDL_JoyHatEvent;
+    /** The joystick axis index */
+    uint8 axis;
+
+    /** The axis value (range: -32768 to 32767) */
+    int16 value;
+};
+
+/** Joystick trackball motion event structure */
+class JoyBallEvent {
+public:
+    /** JOYBALLMOTION */
+    uint8 type;
+
+    /** The joystick device index */
+    uint8 which;
+
+    /** The joystick trackball index */
+    uint8 ball;
+
+    /** The relative motion in the X direction */
+    int16 xrel;
+
+    /** The relative motion in the Y direction */
+    int16 yrel;
+};
+
+
+/** Joystick hat position change event structure */
+class JoyHatEvent {
+public:
+    /* JOYHATMOTION */
+    uint8 type;
+
+    /** The joystick device index */
+    uint8 which;
+
+    /** The joystick hat index */
+    uint8 hat;
+
+    /** The hat position value:
+        SDL_HAT_LEFTUP   SDL_HAT_UP       SDL_HAT_RIGHTUP
+        SDL_HAT_LEFT     SDL_HAT_CENTERED SDL_HAT_RIGHT
+        SDL_HAT_LEFTDOWN SDL_HAT_DOWN     SDL_HAT_RIGHTDOWN
+        Note that zero means the POV is centered.
+    */
+    uint8 value;
+};
 
 /* Joystick button event structure */
-typedef struct SDL_JoyButtonEvent {
-	uint8 type;	    /* SDL_JOYBUTTONDOWN or SDL_JOYBUTTONUP */
-	uint8 which;	/* The joystick device index */
-	uint8 button;	/* The joystick button index */
-	uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
-} SDL_JoyButtonEvent;
+class JoyButtonEvent {
+public:
+    /** JOYBUTTONDOWN or JOYBUTTONUP */
+    uint8 type;
+
+    /** The joystick device index */
+    uint8 which;	
+
+    /** The joystick button index */
+    uint8 button;
+
+    /** SDL_PRESSED or SDL_RELEASED */
+    uint8 state;
+};
 
 /* The "window resized" event
    When you get this event, you are responsible for setting a new video
    mode with the new width and height.
  */
-typedef struct SDL_ResizeEvent {
-	uint8 type;	/* SDL_VIDEORESIZE */
-	int w;		/* New width */
-	int h;		/* New height */
-} SDL_ResizeEvent;
+class ResizeEvent {
+public:
+    /** SDL_VIDEORESIZE */
+    uint8 type;	
 
-/* The "screen redraw" event */
-typedef struct SDL_ExposeEvent {
-	uint8 type;	/* SDL_VIDEOEXPOSE */
-} SDL_ExposeEvent;
-
-/* The "quit requested" event */
-struct GQuitEvent {
-	uint8 type;	/* GQUIT */
+    /** New width */
+    int w;
+    
+    /** New height */
+    int h;
 };
 
-/* A user-defined event type */
-typedef struct SDL_UserEvent {
-	uint8 type;	/* SDL_USEREVENT through SDL_NUMEVENTS-1 */
-	int code;	/* User defined event code */
-	void *data1;	/* User defined data pointer */
-	void *data2;	/* User defined data pointer */
-} SDL_UserEvent;
+
+/** The "screen redraw" event */
+class ExposeEvent {
+public:
+    /** SDL_VIDEOEXPOSE */
+    uint8 type;
+};
+
+
+/** The "quit requested" event */
+class QuitEvent {
+public:
+    /** QUIT */
+    uint8 type;	
+};
+
+
+/** A user-defined event type */
+class UserEvent {
+public:
+    /** USEREVENT through NUMEVENTS-1 */
+    uint8 type;
+
+    /** User defined event code */
+    int code;	
+
+    /** User defined data pointer */
+    void *data1;
+
+    /** User defined data pointer */
+    void *data2;
+};
+
+
+/** Events triggered by the G3D Gui system (see G3D::GuiWindow for discussion) */
+class GuiEvent {
+public:
+    /** GUI_UP, GUI_DOWN, GUI_ACTION. */
+    uint8              type;
+
+    /** The control that produced the event. */
+    class GuiControl*  control;
+};
 
 /* If you want to use this event, you should include SDL_syswm.h */
 struct SDL_SysWMmsg;
 typedef struct SDL_SysWMmsg SDL_SysWMmsg;
 typedef struct SDL_SysWMEvent {
-	uint8 type;
-	SDL_SysWMmsg *msg;
+    uint8 type;
+    SDL_SysWMmsg *msg;
 } SDL_SysWMEvent;
 
 /** 
@@ -310,21 +388,22 @@ typedef struct SDL_SysWMEvent {
  */
 typedef union {
     /** This is a GEventType, but is given uint8 type so that it does not call the constructor. */
-	uint8                   type;
-
-	SDL_ActiveEvent         active;
-	SDL_KeyboardEvent       key;
-	SDL_MouseMotionEvent    motion;
-	SDL_MouseButtonEvent    button;
-	SDL_JoyAxisEvent        jaxis;
-	SDL_JoyBallEvent        jball;
-	SDL_JoyHatEvent         jhat;
-	SDL_JoyButtonEvent      jbutton;
-	SDL_ResizeEvent         resize;
-	SDL_ExposeEvent         expose;
-	GQuitEvent              quit;
-	SDL_UserEvent           user;
-	SDL_SysWMEvent          syswm;
+    uint8                   type;
+    
+    ActiveEvent             active;
+    KeyboardEvent           key;
+    MouseMotionEvent        motion;
+    MouseButtonEvent        button;
+    JoyAxisEvent            jaxis;
+    JoyBallEvent            jball;
+    JoyHatEvent             jhat;
+    JoyButtonEvent          jbutton;
+    ResizeEvent             resize;
+    ExposeEvent             expose;
+    QuitEvent               quit;
+    UserEvent               user;
+    SDL_SysWMEvent          syswm;
+    GuiEvent                gui;
 } GEvent;
 
 }

@@ -14,6 +14,33 @@
 
 namespace G3D {
 
+void GWindow::fireEvent(const GEvent& event) {
+    m_eventQueue.pushBack(event);
+}
+
+
+bool GWindow::pollOSEvent(GEvent& e) {
+    (void)e;
+    return false;
+}
+
+
+bool GWindow::pollEvent(GEvent& e) {
+    // Extract all pending events and put them on the queue.
+
+    while (pollOSEvent(e) != 0) {
+        m_eventQueue.pushBack(e);
+    }
+
+    // Return the first pending event
+    if (m_eventQueue.size() > 0) {
+        e = m_eventQueue.popFront();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void GWindow::executeLoopBody() {
     if (notDone()) {
         if (loopBodyStack.last().isGApplet) {

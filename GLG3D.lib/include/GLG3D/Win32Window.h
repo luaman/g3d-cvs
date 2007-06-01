@@ -5,7 +5,7 @@
 
  @maintainer Morgan McGuire
  @created 	  2004-05-21
- @edited  	  2007-01-30
+ @edited  	  2007-05-30
     
  Copyright 2000-2007, Morgan McGuire.
  All rights reserved.
@@ -59,13 +59,13 @@ private:
 
     G3D::Set< int >      _usedIcons;
 
-	/** Coordinates of the client area in screen coordinates */
-	int				     clientX;
-	int					 clientY;
-
-	/** Only one thread allowed for use with Win32Window::makeCurrent */
-	HANDLE				 _thread;
-
+    /** Coordinates of the client area in screen coordinates */
+    int		         clientX;
+    int			 clientY;
+    
+    /** Only one thread allowed for use with Win32Window::makeCurrent */
+    HANDLE				 _thread;
+    
     Array<GEvent>        sizeEventInjects;
 
     void injectSizeEvent(int width, int height) {
@@ -103,18 +103,18 @@ private:
         extensions can't be called until after a window has already been created. */
     static void initWGL();
     
-	/** Constructs from a new window */
-	explicit Win32Window(const GWindow::Settings& settings, bool creatingShareWindow = false);
-
-	/** Constructs from an existing window */
-	explicit Win32Window(const GWindow::Settings& settings, HWND hwnd);
-
-	/** Constructs from an existing window */
-	explicit Win32Window(const GWindow::Settings& settings, HDC hdc);
-
+    /** Constructs from a new window */
+    explicit Win32Window(const GWindow::Settings& settings, bool creatingShareWindow = false);
+    
+    /** Constructs from an existing window */
+    explicit Win32Window(const GWindow::Settings& settings, HWND hwnd);
+    
+    /** Constructs from an existing window */
+    explicit Win32Window(const GWindow::Settings& settings, HDC hdc);
+    
     HWND                 window;
-	const bool		     createdWindow;
-
+    const bool		 createdWindow;
+    
     // Intentionally illegal (private)
     Win32Window& operator=(const Win32Window& other);
 
@@ -122,6 +122,8 @@ private:
     Configures a mouse up/down event
     */
     void mouseButton(bool down, int index, GKey keyEquivalent, DWORD lParam, DWORD wParam, GEvent& e);
+
+    virtual bool pollOSEvent(GEvent& e);
 
 public:
 
@@ -154,18 +156,20 @@ public:
 	
     virtual ~Win32Window();
 	
-	void close();
+    void close();
 	
     inline HWND hwnd() const {
         return window;
     }
 
-	inline HDC hdc() const {
-		return _hDC;
-	}
+    inline HDC hdc() const {
+        return _hDC;
+    }
+    
+    void getSettings(GWindow::Settings& settings) const;
 
-	void getSettings(GWindow::Settings& settings) const;
-	
+    virtual void fireEvent(const GEvent& event);
+
     virtual int width() const;
 	
     virtual int height() const;
@@ -176,7 +180,7 @@ public:
 	
     virtual void setPosition(int x, int y) {
         setDimensions( Rect2D::xywh((float)x, (float)y, (float)settings.width, (float)settings.height) );
-	}
+    }
 	
     virtual bool hasFocus() const;
 	
@@ -186,7 +190,7 @@ public:
 	
     virtual void setGammaRamp(const Array<uint16>& gammaRamp);
     
-	virtual void setCaption(const std::string& caption);
+    virtual void setCaption(const std::string& caption);
 	
     virtual int numJoysticks() const;
 	
@@ -203,9 +207,7 @@ public:
     virtual void setRelativeMousePosition(double x, double y);
 	
     virtual void setRelativeMousePosition(const Vector2& p);
-	
-    virtual bool pollEvent(GEvent& e);
-	
+		
     virtual void getRelativeMouseState(Vector2& position, uint8& mouseButtons) const;
 	
     virtual void getRelativeMouseState(int& x, int& y, uint8& mouseButtons) const;

@@ -35,7 +35,6 @@ The new directory structure for headers is:
 
 </p>
 
-
 <hr noshade>
 <p><b>WinMain</b></p>
 <p>
@@ -184,6 +183,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>SDL_<i>eventname</i></td><td>G3D::GEventType::<i>eventname</i></td></tr>
 <tr><td>GApp::debugCamera</td><td>GApp2::defaultCamera</td></tr>
 <tr><td>GApp::debugController</td><td>GApp2::defaultController</td></tr>
+<tr><td>GWindow::pollEvent</td><td>GWindow::pollOSEvent</td></tr>
 </table>
 </p>
 

@@ -546,7 +546,7 @@ void GApplet::onUserInput(UserInput* userInput) {
             endApplet = true;
 	        break;
 
-        case GEventType::VIDEORESIZE:
+        case GEventType::VIDEO_RESIZE:
             if (app->autoResize) {
                 app->renderDevice->notifyResize
                     (event.resize.w, event.resize.h);
@@ -558,7 +558,7 @@ void GApplet::onUserInput(UserInput* userInput) {
             }
             break;
 
-	    case GEventType::KEYDOWN:
+	    case GEventType::KEY_DOWN:
             switch (event.key.keysym.sym) {
             case GKey::ESCAPE:
                 if (app->debugMode() && app->debugQuitOnEscape) {
