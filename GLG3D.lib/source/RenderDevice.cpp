@@ -3263,6 +3263,14 @@ bool RenderDevice::checkFramebuffer(std::string& whyNot) const {
 }
 
 
+Rect2D RenderDevice::clip2D() const {
+    if (state.useClip2D) {
+        return state.clip2D;
+    } else {
+        return state.viewport;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 

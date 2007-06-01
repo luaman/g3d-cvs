@@ -12,6 +12,7 @@
 #include <GLG3D/GLG3D.h>
 #include "CameraSplineManipulator.h"
 #include "Gui.h"
+#include "GuiPane.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -79,11 +80,13 @@ void App::onInit() {
          skin,
          Gui::TOOL_FRAME_STYLE);
 
-    gui->addLabel("Record");
+    GuiPane* pane = gui->pane();
+
+    pane->addLabel("Record");
  
     //    gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
     static bool active = true;
-    gui->addCheckBox("Controller active", &active);//defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+    pane->addCheckBox("Controller active", &active);//defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
 
     const std::string STOP = "<";
     const std::string PLAY = "4";
@@ -93,14 +96,14 @@ void App::onInit() {
     static Mode mode = STOP_MODE;
 
     GuiRadioButton* b;
-    b = gui->addRadioButton(GuiText(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    b = pane->addRadioButton(GuiText(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     Rect2D baseRect = Rect2D::xywh(b->rect().x0(), b->rect().y0(), 30, 30);
     b->setRect(baseRect + Vector2(baseRect.width() * 0, 0));
 
-    b = gui->addRadioButton(GuiText(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    b = pane->addRadioButton(GuiText(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 1, 0));
 
-    b = gui->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    b = pane->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
     
     addModule(gui);
@@ -108,10 +111,11 @@ void App::onInit() {
     {
         Gui::Ref gui2 = Gui::create("Second Window", Rect2D::xywh(100,100,400,200), skin);
         static bool b = false;
-        gui2->addCheckBox("Option", &b);
-        gui2->addCheckBox("Other window visible", gui.pointer(), &Gui::visible, &Gui::setVisible);
+        GuiPane* pane = gui2->pane();
+        pane->addCheckBox("Option", &b);
+        pane->addCheckBox("Other window visible", gui.pointer(), &Gui::visible, &Gui::setVisible);
         static float f = 0.5;
-        gui2->addSlider("Slider", &f, 0.0f, 1.0f);
+        pane->addSlider("Slider", &f, 0.0f, 1.0f);
         addModule(gui2);
     }
 }

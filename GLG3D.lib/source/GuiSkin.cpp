@@ -118,7 +118,9 @@ void GuiSkin::deserialize(const std::string& path, BinaryInput& b) {
 }
 
 
-void GuiSkin::beginRendering(RenderDevice* rd, const Vector2& offset) {
+void GuiSkin::beginRendering(RenderDevice* rd) {
+    this->rd = rd;
+
     debugAssert(! inRendering);
     inRendering = true;
 
@@ -129,20 +131,18 @@ void GuiSkin::beginRendering(RenderDevice* rd, const Vector2& offset) {
     rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0);
     rd->setColor(Color3::white());
 
-    rd->setObjectToWorldMatrix(Vector3(offset, 0));
-
     rd->setTexture(TEXTURE_UNIT, texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
     rd->beginPrimitive(RenderDevice::QUADS);
 }
 
 
-void GuiSkin::beginText(RenderDevice* rd) const {
+void GuiSkin::beginText() const {
     rd->endPrimitive();
 }
 
 
-void GuiSkin::endText(RenderDevice* rd) const {
+void GuiSkin::endText() const {
     glBindTexture(GL_TEXTURE_2D, texture->openGLID());
     glMatrixMode(GL_TEXTURE);
     glLoadMatrix(guiTextureMatrix);
@@ -153,19 +153,23 @@ void GuiSkin::endText(RenderDevice* rd) const {
 }
 
 
-void GuiSkin::endRendering(RenderDevice* rd) {
+void GuiSkin::endRendering() {
     // Draw any remaining text
-    drawDelayedText(rd);
+    drawDelayedText();
 
     debugAssert(inRendering);
+
+    debugAssertM( coordinateFrameStack.size() == 0, 
+        "pushClientRect without matching popClientRect");
+
     rd->endPrimitive();
     rd->pop2D();
     inRendering = false;
+    rd = NULL;
 }
 
 
-void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Rect2D& bounds,
-                            bool enabled, bool focused, bool selected, const GuiText& text) const {
+void GuiSkin::drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
     debugAssert(inRendering);
     control.render(rd, bounds, enabled, focused, selected);
 
@@ -177,35 +181,35 @@ void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Re
 }
 
 
-void GuiSkin::renderSimplePane(class RenderDevice* rd, const Rect2D& bounds) const {
+void GuiSkin::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
+    drawCheckable(m_checkBox, bounds, enabled, focused, selected, text);
+}
+
+
+void GuiSkin::renderSimplePane(const Rect2D& bounds) const {
     m_simplePane.frame.render(rd, bounds, Vector2::zero());
 }
 
 
-void GuiSkin::renderOrnatePane(class RenderDevice* rd, const Rect2D& bounds) const {
+void GuiSkin::renderOrnatePane(const Rect2D& bounds) const {
     m_ornatePane.frame.render(rd, bounds, Vector2::zero());
 }
 
 
-void GuiSkin::renderCheckBox(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
-    drawCheckable(m_checkBox, rd, bounds, enabled, focused, selected, text);
+void GuiSkin::renderWindow(const Rect2D& bounds, bool focused, const GuiText& text) const {
+    drawWindow(m_window, bounds, focused, text);
 }
 
 
-void GuiSkin::renderWindow(RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const {
-    drawWindow(m_window, rd, bounds, focused, text);
+void GuiSkin::renderToolWindow(const Rect2D& bounds, bool focused, const GuiText& text) const {
+    drawWindow(m_toolWindow, bounds, focused, text);
 }
 
 
-void GuiSkin::renderToolWindow(RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const {
-    drawWindow(m_toolWindow, rd, bounds, focused, text);
-}
-
-
-void GuiSkin::drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, 
+void GuiSkin::drawWindow(const Window& window, const Rect2D& bounds, 
                          bool focused, const GuiText& text) const {
     // Update any pending text since the window may overlap another window
-    drawDelayedText(rd);
+    drawDelayedText();
 
     window.render(rd, bounds, focused);
     
@@ -261,12 +265,12 @@ Rect2D GuiSkin::toolWindowToTitleBounds(const Rect2D& bounds) const {
 }
 
 
-void GuiSkin::renderRadioButton(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
-    drawCheckable(m_radioButton, rd, bounds, enabled, focused, selected, text);
+void GuiSkin::renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
+    drawCheckable(m_radioButton, bounds, enabled, focused, selected, text);
 }
 
 
-void GuiSkin::renderButton(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
+void GuiSkin::renderButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool pushed, const GuiText& text) const {
     debugAssert(inRendering);
     m_button.render(rd, bounds, enabled, focused, pushed);
@@ -277,7 +281,7 @@ void GuiSkin::renderButton(RenderDevice* rd, const Rect2D& bounds, bool enabled,
 }
 
 
-void GuiSkin::renderHorizontalSlider(RenderDevice* rd, const Rect2D& bounds, float pos, bool enabled, 
+void GuiSkin::renderHorizontalSlider(const Rect2D& bounds, float pos, bool enabled, 
                            bool focused, const GuiText& text) const {
     debugAssert(inRendering);
     m_hSlider.render
@@ -293,7 +297,7 @@ void GuiSkin::renderHorizontalSlider(RenderDevice* rd, const Rect2D& bounds, flo
 }
 
 
-void GuiSkin::renderLabel(class RenderDevice* rd, const Rect2D& bounds, const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign) const {
+void GuiSkin::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign) const {
     debugAssert(inRendering);
 
     if (text.text != "") {
@@ -353,7 +357,7 @@ Vector2 GuiSkin::readVector2(const std::string& name, TextInput& b) {
 }
 
 
-void GuiSkin::drawDelayedText(RenderDevice* rd) const {
+void GuiSkin::drawDelayedText() const {
     if (delayedTextCount == 0) {
         return;
     }
@@ -362,7 +366,7 @@ void GuiSkin::drawDelayedText(RenderDevice* rd) const {
     // memory allocation costs.
     bool cleanOldFonts = iRandom(0, 100) == 0;
     
-    beginText(rd);
+    beginText();
     {
         static Array<GFontRef> delayedFont;
         delayedText.getKeys(delayedFont);
@@ -394,7 +398,7 @@ void GuiSkin::drawDelayedText(RenderDevice* rd) const {
             }
         }
     }
-    endText(rd);
+    endText();
 
     // Reset the count
     const_cast<GuiSkin*>(this)->delayedTextCount = 0;
@@ -534,6 +538,29 @@ void GuiSkin::makeSkinFromSourceFiles
 
     b.compress();
     b.commit();
+}
+
+
+void GuiSkin::pushClientRect(const Rect2D& r) {
+    debugAssert(inRendering);
+
+    CoordinateFrame oldMatrix = rd->getObjectToWorldMatrix();
+    coordinateFrameStack.append(oldMatrix);
+    scissorStack.append(rd->clip2D());
+
+
+    CoordinateFrame newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
+    rd->setObjectToWorldMatrix(newMatrix);
+    rd->enableClip2D(r + newMatrix.translation.xy());
+}
+
+
+void GuiSkin::popClientRect() {
+    debugAssertM( coordinateFrameStack.size() > 0, 
+        "popClientRect without matching pushClientRect");
+
+    rd->setObjectToWorldMatrix(coordinateFrameStack.pop());
+    rd->enableClip2D(scissorStack.pop());
 }
 
 //////////////////////////////////////////////////////////////////////////////

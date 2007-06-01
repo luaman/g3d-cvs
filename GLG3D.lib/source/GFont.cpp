@@ -631,7 +631,7 @@ Vector2 GFont::get2DStringBounds(
 
     if (spacing == PROPORTIONAL_SPACING) {
         for (int i = 0; i < n; ++i) {
-            char c   = s[i] & (charsetSize - 1);
+            unsigned char c = s[i] & (charsetSize - 1);
             x += propW * subWidth[(int)c];
         }
     } else {

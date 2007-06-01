@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scratch\GuiPane.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\scratch\GuiRadioButton.cpp"
 				>
 			</File>
@@ -242,6 +246,10 @@
 			</File>
 			<File
 				RelativePath="..\scratch\GuiLabel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\scratch\GuiPane.h"
 				>
 			</File>
 			<File

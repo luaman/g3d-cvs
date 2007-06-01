@@ -725,6 +725,10 @@ public:
       is (0, 0).
       */
     void enableClip2D(const Rect2D& clip);
+
+    /** Return the current clip region, if one is enabled, or the viewport. */
+    Rect2D clip2D() const;
+
     void disableClip2D();
 
     /**
@@ -1291,7 +1295,7 @@ private:
 
         Buffer                      drawBuffer;
 
-	FramebufferRef              framebuffer;
+	    FramebufferRef              framebuffer;
 
         DepthTest                   depthTest;
         AlphaTest                   alphaTest;

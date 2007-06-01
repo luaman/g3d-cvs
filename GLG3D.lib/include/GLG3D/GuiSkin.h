@@ -83,8 +83,6 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
        skin->setFont(arialFont, 10, Color3::black(), Color4::clear());
     skin->endRendering(rd);
    </pre>
-
-
 */
 class GuiSkin : public ReferenceCountedObject {
 private:
@@ -111,7 +109,7 @@ private:
 
 
     /** Clears the delayedText array. */
-    void drawDelayedText(RenderDevice* rd) const;
+    void drawDelayedText() const;
 
     /** Postpones rendering the specified text until later. Switching
         between the GUI texture and the font texture is relatively
@@ -377,14 +375,22 @@ private:
     Color4            fontColor;
     Color4            fontOutlineColor;
 
+    RenderDevice*     rd;
+
+    /** Used by push/popClientRect */
+    Array<Rect2D>     scissorStack;
+
+    /** Used by push/popClientRect */
+    Array<CoordinateFrame> coordinateFrameStack;
+
     static StretchMode readStretchMode(TextInput& t);
 
     static void drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd);
     
-    void drawCheckable(const Checkable& control, class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused,
+    void drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused,
                        bool selected, const GuiText& text) const;
 
-    void drawWindow(const Window& window, RenderDevice* rd, const Rect2D& bounds, bool focused, const GuiText& text) const;
+    void drawWindow(const Window& window, const Rect2D& bounds, bool focused, const GuiText& text) const;
 
     static Rect2D readRect2D(const std::string& name, TextInput& b);
 
@@ -398,10 +404,10 @@ private:
     void deserialize(const std::string& path, TextInput& t);
 
     /** Call before GFont::send2DQuads */
-    void beginText(RenderDevice* rd) const;   
+    void beginText() const;   
  
     /** Call after GFont::send2DQuads */
-    void endText(RenderDevice* rd) const;    
+    void endText() const;    
     
     Rect2D horizontalSliderToSliderBounds(const Rect2D& bounds) const;
 
@@ -421,27 +427,34 @@ public:
         @param offset Offset all positions by this amount (convenient for rendering 
         relative to a containing control or window.)
      */
-    void beginRendering(class RenderDevice* rd, const Vector2& offset = Vector2::zero());
+    void beginRendering(class RenderDevice* rd);
+
+    /** 
+      Offsets all subsequent rendering by r.x0y0() and sets the clipping region to r.
+      Call only between beginRendering and endRendering.
+      */
+    void pushClientRect(const Rect2D& r);
+    void popClientRect();
 
     /** Call after all other render methods. */
-    void endRendering(class RenderDevice* rd);
+    void endRendering();
 
     /** Only call between beginRendering and endRendering */
-    void renderCheckBox(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
+    void renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
                         bool checked, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderRadioButton(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
+    void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool checked, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderButton(class RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, 
+    void renderButton(const Rect2D& bounds, bool enabled, bool focused, 
                       bool pushed, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering.
         @param bounds Corresponds to the footprint of the window; dropshadows and glows may
          still render outside this area.*/
-    void renderWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 
+    void renderWindow(const Rect2D& bounds, bool focused, 
                       const GuiText& text) const;
 
     /** Given the bounds on a window's borders, returns the bounds of
@@ -468,22 +481,22 @@ public:
     Rect2D simplePaneToClientBounds(const Rect2D& bounds) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderToolWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 
+    void renderToolWindow(const Rect2D& bounds, bool focused, 
                           const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering.
         Label is on the right, slider is aligned with the left edge
         @param pos 0 = left edge, 1 = right edge*/
-    void renderHorizontalSlider(class RenderDevice* rd, const Rect2D& bounds, float pos, bool enabled, bool focused, 
+    void renderHorizontalSlider(const Rect2D& bounds, float pos, bool enabled, bool focused, 
                                 const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderLabel(class RenderDevice* rd, const Rect2D& bounds, const GuiText& text, 
+    void renderLabel(const Rect2D& bounds, const GuiText& text, 
                      GFont::XAlign xalign, GFont::YAlign yalign) const;
 
-    void renderSimplePane(class RenderDevice* rd, const Rect2D& bounds) const;
+    void renderSimplePane(const Rect2D& bounds) const;
 
-    void renderOrnatePane(class RenderDevice* rd, const Rect2D& bounds) const;
+    void renderOrnatePane(const Rect2D& bounds) const;
     
     /** 
         Create a .skn file from source files.  Used as a preprocess

@@ -19,6 +19,7 @@
      <li> G3D::GuiSkin, G3D::GuiText
      <li> G3D::CameraLocation, G3D::CameraSpline
      <li> G3D::Spline
+     <li> G3D::RenderDevice::clip2D
      <li> G3D::Win32Window now returns events for up to 5 mouse buttons
      <li> Significantly changed GEvent delivery and GModule mechanisms to incorporate notions of focus--see upgrade.html
      <li> Motion events (joystick/mouse) can no longer be cancelled by GModule::onEvent
