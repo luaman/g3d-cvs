@@ -66,8 +66,8 @@ void App::onInit() {
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addModule(splineManipulator);
     
-    dataDir = "/Volumes/McGuire/Projects/data/";
-    //dataDir = "X:/morgan/data/";
+    //dataDir = "/Volumes/McGuire/Projects/data/";
+    dataDir = "X:/morgan/data/";
 
     GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
