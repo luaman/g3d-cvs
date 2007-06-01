@@ -23,21 +23,31 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     G3D::SkyParameters
 
   <LI><B>Application Structure</B> &nbsp; &nbsp;
-    G3D::FirstPersonManipulator,
     G3D::GApp2
-    G3D::GConsole,
     G3D::GModule,
-    G3D::GModuleManager,
-    G3D::GuiSkin,
-    G3D::Manipulator,
-    G3D::ThirdPersonManipulator,
-    G3D::UserInput
+    G3D::GModuleManager
   <br>
   <br>
   See also:
     <br>"Empty" <A HREF="../demos/empty/main.cpp">main.cpp</A>
     <br>G3D::GApp and G3D::GApplet for 6.xx backward compatibility,
 
+  <li><b>User Interface</b>&nbsp; &nbsp;
+    G3D::GConsole,
+    G3D::GuiCheckBox,
+    G3D::GuiButton,
+    G3D::GuiSkin,
+    G3D::GuiWindow,
+    G3D::GuiPane,
+    G3D::GuiSlider,
+    G3D::GuiRadioButton,
+    G3D::Manipulator,
+    G3D::FirstPersonManipulator,
+    G3D::ThirdPersonManipulator,
+    G3D::UserInput
+   <br>
+   <br>
+   
   <LI><B>Effects</B> &nbsp; &nbsp;
     G3D::beginMarkShadows, 
     G3D::endMarkShadows, 
@@ -114,35 +124,35 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
 
     <UL>
      <LI><B>Geometry</B> &nbsp; &nbsp;
-        G3D::AABox,
-        G3D::Box,
+    G3D::AABox,
+    G3D::Box,
 	G3D::Capsule,
-        G3D::CameraLocation,
-        G3D::CameraSpline,
+    G3D::CameraLocation,
+    G3D::CameraSpline,
 	G3D::CollisionDetection,
 	G3D::Color1,
 	G3D::Color1uint8,
 	G3D::Color3,
 	G3D::Color3uint8,
-        G3D::Color4,
+    G3D::Color4,
 	G3D::Color4uint8,
 	G3D::Cone,
 	G3D::ConvexPolygon,
 	G3D::ConvexPolygon2D,
 	G3D::ConvexPolyhedron,
 	G3D::CoordinateFrame,
-        G3D::Cylinder,
-        G3D::GameTime,
-        G3D::GCamera,
+    G3D::Cylinder,
+    G3D::GameTime,
+    G3D::GCamera,
 	G3D::PhysicsFrame,
 	G3D::Line,
 	G3D::LineSegment,
 	G3D::LineSegment2D,
 	G3D::Matrix3,
-        G3D::Matrix4,
-        G3D::MeshAlg,
-        G3D::MeshBuilder,
-        G3D::Quat,
+    G3D::Matrix4,
+    G3D::MeshAlg,
+    G3D::MeshBuilder,
+    G3D::Quat,
 	G3D::Plane,
 	G3D::Ray,
         G3D::RealTime,

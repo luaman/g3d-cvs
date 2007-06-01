@@ -109,23 +109,26 @@ void App::onInit() {
     addModule(gui);
 
     {
+    enum Fruit {ORANGE, BANANA, PLUM};
+    static Fruit fruit = ORANGE;
+    static float f = 0.5;
+    static bool b = false;
+
+    {
         GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin);
-        static bool b = false;
+
         GuiPane* pane = gui2->pane();
         pane->addCheckBox("Option", &b);
         pane->addCheckBox("Other window visible", gui.pointer(), &GuiWindow::visible, &GuiWindow::setVisible);
-        static float f = 0.5;
 
         GuiPane* radioPane = pane->addPane("", 100, GuiPane::ORNATE_FRAME_STYLE);
-        
-        enum Fruit {ORANGE, BANANA, PLUM};
-        static Fruit fruit = ORANGE;
         radioPane->addRadioButton("Orange", ORANGE, &fruit);
         radioPane->addRadioButton("Banana", BANANA, &fruit);
         radioPane->addRadioButton("Plum", PLUM, &fruit);
 
         pane->addSlider("Slider", &f, 0.0f, 1.0f);
         addModule(gui2);
+    }
     }
 }
 
