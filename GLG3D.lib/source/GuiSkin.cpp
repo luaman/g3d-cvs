@@ -544,14 +544,17 @@ void GuiSkin::makeSkinFromSourceFiles
 void GuiSkin::pushClientRect(const Rect2D& r) {
     debugAssert(inRendering);
 
+    drawDelayedText();
+    rd->endPrimitive();
+
     CoordinateFrame oldMatrix = rd->getObjectToWorldMatrix();
     coordinateFrameStack.append(oldMatrix);
     scissorStack.append(rd->clip2D());
 
-
     CoordinateFrame newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
     rd->setObjectToWorldMatrix(newMatrix);
-    rd->enableClip2D(r + newMatrix.translation.xy());
+    rd->enableClip2D(r + oldMatrix.translation.xy());
+    rd->beginPrimitive(RenderDevice::QUADS);
 }
 
 
@@ -559,11 +562,14 @@ void GuiSkin::popClientRect() {
     debugAssertM( coordinateFrameStack.size() > 0, 
         "popClientRect without matching pushClientRect");
 
+    drawDelayedText();
+    rd->endPrimitive();
+
     rd->setObjectToWorldMatrix(coordinateFrameStack.pop());
     rd->enableClip2D(scissorStack.pop());
+    rd->beginPrimitive(RenderDevice::QUADS);
 }
 
-//////////////////////////////////////////////////////////////////////////////
 
 void GuiSkin::Pane::deserialize(const std::string& name, TextInput& t) {
     t.readSymbols(name, "=", "{");
@@ -572,7 +578,7 @@ void GuiSkin::Pane::deserialize(const std::string& name, TextInput& t) {
     t.readSymbol("}");
 }
 
-//////////////////////////////////////////////////////////////////////////////
+
 void GuiSkin::HSlider::deserialize(const std::string& name, TextInput& t) {
     t.readSymbols(name, "=", "{");
     bar.deserialize("bar", t);

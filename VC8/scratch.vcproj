@@ -183,10 +183,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\scratch\Gui.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\scratch\GuiButton.cpp"
 				>
 			</File>
@@ -215,6 +211,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scratch\GuiWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\scratch\main.cpp"
 				>
 			</File>
@@ -226,10 +226,6 @@
 			>
 			<File
 				RelativePath="..\scratch\CameraSplineManipulator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\Gui.h"
 				>
 			</File>
 			<File
@@ -258,6 +254,10 @@
 			</File>
 			<File
 				RelativePath="..\scratch\GuiSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\scratch\GuiWindow.h"
 				>
 			</File>
 		</Filter>

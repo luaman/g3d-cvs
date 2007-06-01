@@ -11,7 +11,7 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 #include "CameraSplineManipulator.h"
-#include "Gui.h"
+#include "GuiWindow.h"
 #include "GuiPane.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
@@ -74,11 +74,11 @@ void App::onInit() {
     GFontRef iconFont = GFont::fromFile(dataDir + "font/icon.fnt");
     skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
 
-    Gui::Ref gui = Gui::create
+    GuiWindow::Ref gui = GuiWindow::create
         (GuiText("Camera Spline", NULL, 9),
          Rect2D::xywh(600, 200, 150, 120),
          skin,
-         Gui::TOOL_FRAME_STYLE);
+         GuiWindow::TOOL_FRAME_STYLE);
 
     GuiPane* pane = gui->pane();
 
@@ -109,12 +109,21 @@ void App::onInit() {
     addModule(gui);
 
     {
-        Gui::Ref gui2 = Gui::create("Second Window", Rect2D::xywh(100,100,400,200), skin);
+        GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin);
         static bool b = false;
         GuiPane* pane = gui2->pane();
         pane->addCheckBox("Option", &b);
-        pane->addCheckBox("Other window visible", gui.pointer(), &Gui::visible, &Gui::setVisible);
+        pane->addCheckBox("Other window visible", gui.pointer(), &GuiWindow::visible, &GuiWindow::setVisible);
         static float f = 0.5;
+
+        GuiPane* radioPane = pane->addPane("", 100, GuiPane::ORNATE_FRAME_STYLE);
+        
+        enum Fruit {ORANGE, BANANA, PLUM};
+        static Fruit fruit = ORANGE;
+        radioPane->addRadioButton("Orange", ORANGE, &fruit);
+        radioPane->addRadioButton("Banana", BANANA, &fruit);
+        radioPane->addRadioButton("Plum", PLUM, &fruit);
+
         pane->addSlider("Slider", &f, 0.0f, 1.0f);
         addModule(gui2);
     }
@@ -156,9 +165,6 @@ void App::onUserInput(UserInput* ui) {
         splineManipulator->setMode(CameraSplineManipulator::INACTIVE_MODE);
         defaultController->setActive(true);
     } 
-
-    debugPrintf("UI    mouseXY: (%g, %g)\n", ui->mouseXY().x, ui->mouseXY().y);    
-    debugPrintf("Event mouseXY: (%g, %g)\n", lastMouse.x, lastMouse.y);    
 }
 
 void App::onConsoleCommand(const std::string& str) {
@@ -220,5 +226,7 @@ void App::onGraphics(RenderDevice* rd) {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    return App().run();
+    GApp2::Settings s;
+    s.window.resizable = true;
+    return App(s).run();
 }
