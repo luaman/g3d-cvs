@@ -70,10 +70,10 @@ private:
     Vector2 drawString(
         class RenderDevice*     renderDevice,
         const std::string&      s,
-        double                  x,
-        double                  y,
-        double                  w,
-        double                  h,
+        float                  x,
+        float                  y,
+        float                  w,
+        float                  h,
         Spacing                 spacing) const;
 
     /** Packs vertices for rendering the string
@@ -81,10 +81,10 @@ private:
      */
     Vector2 computePackedArray(
         const std::string&  s,
-        double              x,
-        double              y,
-        double              w,
-        double              h,
+        float              x,
+        float              y,
+        float              w,
+        float              h,
         Spacing             spacing,
         Array<Vector2>&     array) const;
 
@@ -189,7 +189,7 @@ public:
         RenderDevice*       renderDevice,
         const std::string&  s,
         const Vector2&      pos2D,
-        double              size    = 12,
+        float              size    = 12,
         const Color4&       color   = Color3::black(),
         const Color4&       outline = Color4::clear(),
         XAlign              xalign  = XALIGN_LEFT,
@@ -210,7 +210,7 @@ public:
         RenderDevice*               renderDevice,
         const std::string&          s,
         const CoordinateFrame&      pos3D,
-        double              size    = .1,
+        float              size    = .1,
         const Color4&       color   = Color3::black(),
         const Color4&       outline = Color4::clear(),
         XAlign              xalign  = XALIGN_LEFT,
@@ -223,7 +223,7 @@ public:
      */
     Vector2 get2DStringBounds(
         const std::string&  s,
-        double              size = 12,
+        float              size = 12,
         Spacing             spacing = PROPORTIONAL_SPACING) const;
 
     /**
@@ -248,7 +248,7 @@ public:
         RenderDevice*       renderDevice,
         const std::string&  s,
         const Vector2&      pos2D,
-        double              size    = 12,
+        float              size    = 12,
         const Color4&       color   = Color3::black(),
         const Color4&       outline = Color4::clear(),
         XAlign              xalign  = XALIGN_LEFT,

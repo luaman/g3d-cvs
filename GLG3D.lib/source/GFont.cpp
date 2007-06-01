@@ -113,14 +113,14 @@ Vector2 GFont::texelSize() const {
 Vector2 GFont::drawString(
     RenderDevice*       renderDevice,
     const std::string&  s,
-    double              x,
-    double              y,
-    double              w,
-    double              h,
+    float               x,
+    float               y,
+    float               w,
+    float               h,
     Spacing             spacing) const {
 
     debugAssert(renderDevice != NULL);
-    const double propW = w / charWidth;
+    const float propW = w / charWidth;
     const int n = s.length();
 
     // Shrink the vertical texture coordinates by 1 texel to avoid
@@ -129,7 +129,7 @@ Vector2 GFont::drawString(
 
     float x0 = 0;
     for (int i = 0; i < n; ++i) {
-        char c = s[i] & (charsetSize - 1); // s[i] % charsetSize; avoid using illegal chars
+        unsigned char c = s[i] & (charsetSize - 1); // s[i] % charsetSize; avoid using illegal chars
 
         if (c != ' ') {
             int row   = c / 16;
@@ -143,24 +143,16 @@ Vector2 GFont::drawString(
             }
 
             float xx = x - sx;
-            //renderDevice->setTexCoord(0, Vector2(col * charWidth, row * charHeight + 1));
-            //renderDevice->sendVertex(Vector2(x - sx,     y + sy));
             glTexCoord2f(col * charWidth, row * charHeight + 1);
             glVertex2f(xx,     y + sy);
 
-            //renderDevice->setTexCoord(0, Vector2(col * charWidth, (row + 1) * charHeight - 2));
-            //renderDevice->sendVertex(Vector2(x- sx,      y + h - sy)); 
             glTexCoord2f(col * charWidth, (row + 1) * charHeight - 2);
             glVertex2f(xx,     y + h - sy); 
 
             xx += w;
-            //renderDevice->setTexCoord(0, Vector2((col + 1) * charWidth - 1, (row + 1) * charHeight - 2));
-            //renderDevice->sendVertex(Vector2(x + w - sx, y + h - sy)); 
             glTexCoord2f((col + 1) * charWidth - 1, (row + 1) * charHeight - 2);
             glVertex2f(xx, y + h - sy); 
 
-            //renderDevice->setTexCoord(0, Vector2((col + 1) * charWidth - 1, row * charHeight + 1));
-            //renderDevice->sendVertex(Vector2(x + w - sx, y + sy));            
             glTexCoord2f((col + 1) * charWidth - 1, row * charHeight + 1);
             glVertex2f(xx, y + sy);
                         
@@ -183,14 +175,14 @@ Vector2 GFont::drawString(
 
 Vector2 GFont::computePackedArray(
     const std::string&  s,
-    double              x,
-    double              y,
-    double              w,
-    double              h,
+    float              x,
+    float              y,
+    float              w,
+    float              h,
     Spacing             spacing,
     Array<Vector2>&     array) const {
 
-    const double propW = w / charWidth;
+    const float propW = w / charWidth;
     const int n = s.length();
 
     // Shrink the vertical texture coordinates by 1 texel to avoid
@@ -203,7 +195,7 @@ Vector2 GFont::computePackedArray(
 
     int count = -1;
     for (int i = 0; i < n; ++i) {
-        char c = s[i] & (charsetSize - 1); // s[i] % charsetSize; avoid using illegal chars
+        unsigned char c = s[i] & (charsetSize - 1); // s[i] % charsetSize; avoid using illegal chars
 
         if (c != ' ') {
             int row   = c >> 4; // fast version of c / 16
@@ -223,7 +215,6 @@ Vector2 GFont::computePackedArray(
             array[count].x = xx;
             array[count].y = y + sy;
 
-            
             ++count;
             array[count].x = col * charWidth;
             array[count].y = (row + 1) * charHeight - 2;
@@ -231,7 +222,6 @@ Vector2 GFont::computePackedArray(
             ++count;
             array[count].x = xx;
             array[count].y = y + h - sy;
-
 
             xx += w;
             ++count;
@@ -242,7 +232,6 @@ Vector2 GFont::computePackedArray(
             array[count].x = xx;
             array[count].y = y + h - sy;
     
-
             ++count;
             array[count].x = (col + 1) * charWidth - 1;
             array[count].y = row * charHeight + 1;
@@ -282,7 +271,7 @@ Vector2 GFont::send2DQuads(
     RenderDevice*               renderDevice,
     const std::string&          s,
     const Vector2&              pos2D,
-    double                      size,
+    float                      size,
     const Color4&               color,
     const Color4&               border,
     XAlign                      xalign,
@@ -305,7 +294,6 @@ Vector2 GFont::send2DQuads(
         return Vector2(0, h);
     }
 
-
     switch (xalign) {
     case XALIGN_RIGHT:
         x -= get2DStringBounds(s, size, spacing).x;
@@ -325,7 +313,7 @@ Vector2 GFont::send2DQuads(
         break;
 
     case YALIGN_BASELINE:
-        y -= baseline * h / (double)charHeight;
+        y -= baseline * h / (float)charHeight;
         break;
 
     case YALIGN_BOTTOM:
@@ -395,7 +383,7 @@ Vector2 GFont::draw2D(
     RenderDevice*               renderDevice,
     const std::string&          s,
     const Vector2&              pos2D,
-    double                      size,
+    float                      size,
     const Color4&               color,
     const Color4&               border,
     XAlign                      xalign,
@@ -429,7 +417,7 @@ Vector2 GFont::draw2D(
         break;
 
     case YALIGN_BASELINE:
-        y -= baseline * h / (double)charHeight;
+        y -= baseline * h / (float)charHeight;
         break;
 
     case YALIGN_BOTTOM:
@@ -528,7 +516,7 @@ Vector2 GFont::draw3D(
     RenderDevice*               renderDevice,
     const std::string&          s,
     const CoordinateFrame&      pos3D,
-    double                      size,
+    float                      size,
     const Color4&               color,
     const Color4&               border,
     XAlign                      xalign,
@@ -537,11 +525,11 @@ Vector2 GFont::draw3D(
     
 	debugAssert(renderDevice != NULL);
 
-    double x = 0;
-    double y = 0;
+    float x = 0;
+    float y = 0;
 
-    double h = size * 1.5;
-    double w = h * charWidth / charHeight;
+    float h = size * 1.5;
+    float w = h * charWidth / charHeight;
 
     switch (xalign) {
     case XALIGN_RIGHT:
@@ -562,7 +550,7 @@ Vector2 GFont::draw3D(
         break;
 
     case YALIGN_BASELINE:
-        y -= baseline * h / (double)charHeight;
+        y -= baseline * h / (float)charHeight;
         break;
 
     case YALIGN_BOTTOM:
@@ -574,7 +562,7 @@ Vector2 GFont::draw3D(
     }
 
 
-    double m[] = 
+    float m[] = 
        {1.0 / m_texture->texelWidth(), 0, 0, 0,
         0, 1.0 / m_texture->texelHeight(), 0, 0,
         0, 0, 1, 0,
@@ -603,7 +591,7 @@ Vector2 GFont::draw3D(
 	        // Make the equivalent of a 3D "1 pixel" offset (the
 	        // default 2D text size is 12-pt with a 1pix border)
 
- 	        const double borderOffset = size / 12.0;
+ 	        const float borderOffset = size / 12.0;
                 renderDevice->setColor(border);
                 for (int dy = -1; dy <= 1; dy += 2) {
                     for (int dx = -1; dx <= 1; dx += 2) {
@@ -630,16 +618,16 @@ Vector2 GFont::draw3D(
 
 Vector2 GFont::get2DStringBounds(
     const std::string&  s,
-    double              size,
+    float              size,
     Spacing             spacing) const {
 
     int n = s.length();
 
-    double h = size * 1.5;
-    double w = h * charWidth / charHeight;
-    double propW = w / charWidth;
-    double x = 0;
-    double y = h;
+    float h = size * 1.5;
+    float w = h * charWidth / charHeight;
+    float propW = w / charWidth;
+    float x = 0;
+    float y = h;
 
     if (spacing == PROPORTIONAL_SPACING) {
         for (int i = 0; i < n; ++i) {
@@ -689,7 +677,7 @@ void GFont::makeFont(int charsetSize, const std::string& infileBase, std::string
         out.writeInt16(cw);
     }
 
-    int width = (int)sqrt((double)pixel.size());
+    int width = (int)sqrt((float)pixel.size());
     
     // Autodetect baseline from capital E
     {
