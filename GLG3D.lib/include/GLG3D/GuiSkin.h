@@ -263,20 +263,21 @@ private:
         }
     };
 
+    class Pad {
+    public:
+        Vector2      topLeft;
+        Vector2      bottomRight;
+        
+        void deserialize(const std::string& name, TextInput& b);
+        
+        /** Net width and height of the padding */
+        inline Vector2 wh() const {
+            return topLeft + bottomRight;
+        }
+    };
+
     class Window {
     public:
-        class Pad {
-        public:
-            Vector2      topLeft;
-            Vector2      bottomRight;
-
-            void deserialize(const std::string& name, TextInput& b);
-
-            /** Net width and height of the padding */
-            inline Vector2 wh() const {
-                return topLeft + bottomRight;
-            }
-        };
 
         StretchRectHV    base;
 
@@ -288,7 +289,6 @@ private:
 
         Vector2          focused;
         Vector2          defocused;
-
 
         void deserialize(const std::string& name, TextInput& b);
 
@@ -335,12 +335,21 @@ private:
         Rect2D thumbBounds(const Rect2D& sliderBounds, float pos) const;
     };
 
+    class Pane {
+    public:
+        StretchRectHV    frame;
+        Pad              clientPad;
+        void deserialize(const std::string& name, TextInput& b);
+    };
+
     Checkable         m_checkBox;
     Checkable         m_radioButton;
     Button            m_button;
     Window            m_window;
     Window            m_toolWindow;
     HSlider           m_hSlider;
+    Pane              m_simplePane;
+    Pane              m_ornatePane;
 
     TextureRef        texture;
 
@@ -455,6 +464,9 @@ public:
     Rect2D clientToToolWindowBounds(const Rect2D& bounds) const;
     Rect2D toolWindowToTitleBounds(const Rect2D& bounds) const;
 
+    Rect2D ornatePaneToClientBounds(const Rect2D& bounds) const;
+    Rect2D simplePaneToClientBounds(const Rect2D& bounds) const;
+
     /** Only call between beginRendering and endRendering */
     void renderToolWindow(class RenderDevice* rd, const Rect2D& bounds, bool focused, 
                           const GuiText& text) const;
@@ -468,6 +480,10 @@ public:
     /** Only call between beginRendering and endRendering */
     void renderLabel(class RenderDevice* rd, const Rect2D& bounds, const GuiText& text, 
                      GFont::XAlign xalign, GFont::YAlign yalign) const;
+
+    void renderSimplePane(class RenderDevice* rd, const Rect2D& bounds) const;
+
+    void renderOrnatePane(class RenderDevice* rd, const Rect2D& bounds) const;
     
     /** 
         Create a .skn file from source files.  Used as a preprocess

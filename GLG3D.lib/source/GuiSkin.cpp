@@ -88,6 +88,8 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     m_window.deserialize("window", b);
     m_toolWindow.deserialize("toolWindow", b);
     m_hSlider.deserialize("horizontalSlider", b);
+    m_simplePane.deserialize("simplePane", b);
+    m_ornatePane.deserialize("ornatePane", b);
 }
 
 
@@ -162,7 +164,8 @@ void GuiSkin::endRendering(RenderDevice* rd) {
 }
 
 
-void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
+void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Rect2D& bounds,
+                            bool enabled, bool focused, bool selected, const GuiText& text) const {
     debugAssert(inRendering);
     control.render(rd, bounds, enabled, focused, selected);
 
@@ -171,6 +174,16 @@ void GuiSkin::drawCheckable(const Checkable& control, RenderDevice* rd, const Re
                                       (bounds.y0() + bounds.y1()) / 2) + control.textOffset,
                        text.size, text.color, text.outlineColor, GFont::XALIGN_LEFT);
     }
+}
+
+
+void GuiSkin::renderSimplePane(class RenderDevice* rd, const Rect2D& bounds) const {
+    m_simplePane.frame.render(rd, bounds, Vector2::zero());
+}
+
+
+void GuiSkin::renderOrnatePane(class RenderDevice* rd, const Rect2D& bounds) const {
+    m_ornatePane.frame.render(rd, bounds, Vector2::zero());
 }
 
 
@@ -463,6 +476,18 @@ GuiSkin::StretchMode GuiSkin::readStretchMode(TextInput& t) {
 }
 
 
+Rect2D GuiSkin::ornatePaneToClientBounds(const Rect2D& bounds) const {
+    return Rect2D::xywh(bounds.x0y0() + m_ornatePane.clientPad.topLeft,
+                        bounds.wh() - m_ornatePane.clientPad.wh());
+}
+
+
+Rect2D GuiSkin::simplePaneToClientBounds(const Rect2D& bounds) const {
+    return Rect2D::xywh(bounds.x0y0() + m_simplePane.clientPad.topLeft,
+                        bounds.wh() - m_simplePane.clientPad.wh());
+}
+
+
 void GuiSkin::makeSkinFromSourceFiles
 (
  const std::string& sourceDir,
@@ -513,6 +538,14 @@ void GuiSkin::makeSkinFromSourceFiles
 
 //////////////////////////////////////////////////////////////////////////////
 
+void GuiSkin::Pane::deserialize(const std::string& name, TextInput& t) {
+    t.readSymbols(name, "=", "{");
+    frame.deserialize("frame", t);
+    clientPad.deserialize("clientPad", t);
+    t.readSymbol("}");
+}
+
+//////////////////////////////////////////////////////////////////////////////
 void GuiSkin::HSlider::deserialize(const std::string& name, TextInput& t) {
     t.readSymbols(name, "=", "{");
     bar.deserialize("bar", t);
@@ -595,7 +628,7 @@ void GuiSkin::Window::deserialize(const std::string& name, TextInput& b) {
 }
 
 
-void GuiSkin::Window::Pad::deserialize(const std::string& name, TextInput& t) {
+void GuiSkin::Pad::deserialize(const std::string& name, TextInput& t) {
     t.readSymbols(name, "=", "{");
     topLeft = readVector2("topLeft", t);
     bottomRight = readVector2("bottomRight", t);
