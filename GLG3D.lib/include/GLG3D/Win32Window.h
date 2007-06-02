@@ -70,7 +70,7 @@ private:
 
     void injectSizeEvent(int width, int height) {
         GEvent e;
-        e.type = GEventType::VIDEORESIZE;
+        e.type = GEventType::VIDEO_RESIZE;
         e.resize.w = width;
         e.resize.h = height;
         sizeEventInjects.append(e);
@@ -167,8 +167,6 @@ public:
     }
     
     void getSettings(GWindow::Settings& settings) const;
-
-    virtual void fireEvent(const GEvent& event);
 
     virtual int width() const;
 	

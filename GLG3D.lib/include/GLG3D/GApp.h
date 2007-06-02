@@ -17,7 +17,7 @@
 #include "GLG3D/RenderDevice.h"
 #include "G3D/NetworkDevice.h"
 #include "GLG3D/GWindow.h"
-#include "GLG3D/GModule.h"
+#include "GLG3D/Widget.h"
 
 namespace G3D {
 

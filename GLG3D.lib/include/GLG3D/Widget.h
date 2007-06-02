@@ -1,5 +1,5 @@
 /**
- @file GModule.h
+ @file Widget.h
 
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
@@ -22,14 +22,14 @@ namespace G3D {
 class RenderDevice;
 class UserInput;
 
-typedef ReferenceCountedPointer<class GModule> GModuleRef;
-typedef ReferenceCountedPointer<class GModuleManager> GModuleManagerRef;
+typedef ReferenceCountedPointer<class Widget> GModuleRef;
+typedef ReferenceCountedPointer<class WidgetManager> GModuleManagerRef;
 
 /**
  Interface for 2D or 3D objects that experience standard
  virtual world events and are rendered.
 
- GModule is an interface for "widget"-like objects.  You could think
+ Widget is an interface for "widget"-like objects.  You could think
  of it as a bare-bones scene graph.
 
  Modules are objects like the G3D::FirstPersonController,
@@ -41,20 +41,20 @@ typedef ReferenceCountedPointer<class GModuleManager> GModuleManagerRef;
 
  @beta
  */
-class GModule : public ReferenceCountedObject {
+class Widget : public ReferenceCountedObject {
 protected:
 
     /** The manager, set by setManager().
         This cannot be a reference counted pointer because that would create a cycle
-        between the GModule and its manager.
+        between the Widget and its manager.
      */
-    GModuleManager* m_manager;
+    WidgetManager* m_manager;
 
-    GModule() : m_manager(NULL) {}
+    Widget() : m_manager(NULL) {}
 
 public:
 
-    typedef ReferenceCountedPointer<class GModule> Ref;
+    typedef ReferenceCountedPointer<class Widget> Ref;
 
     /** 
      Appends a posed model for this object to the array, if it has a
@@ -68,8 +68,8 @@ public:
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) = 0;
 
-    /** Called by the GModuleManager when this module is added to it.  The argument may be NULL */
-    virtual void setManager(GModuleManager* m) {
+    /** Called by the WidgetManager when this module is added to it.  The argument may be NULL */
+    virtual void setManager(WidgetManager* m) {
         m_manager = m;
     }
 
@@ -99,9 +99,9 @@ public:
 
  You can use GModules without this class.
  */
-class GModuleManager : public GModule {
+class WidgetManager : public Widget {
 public:
-    typedef ReferenceCountedPointer<class GModuleManager> Ref;
+    typedef ReferenceCountedPointer<class WidgetManager> Ref;
 
 private:
     
@@ -115,7 +115,7 @@ private:
 
     GModuleRef          m_focusedModule;
 
-    GModuleManager();
+    WidgetManager();
 
     /** Manager events that have been delayed by a lock.  Not related
         to GEvent in any way. */
@@ -229,7 +229,7 @@ public:
  G3D::ThirdPersonManipulator,
  G3D::FirstPersonManipulator
  */
-class Manipulator : public GModule {
+class Manipulator : public Widget {
 public:
     typedef ReferenceCountedPointer<class Manipulator> Ref;
 

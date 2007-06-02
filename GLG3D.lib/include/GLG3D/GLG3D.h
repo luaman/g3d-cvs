@@ -70,7 +70,7 @@
 #include "GLG3D/Shape.h"
 #include "GLG3D/Renderbuffer.h"
 #include "GLG3D/Framebuffer.h"
-#include "GLG3D/GModule.h"
+#include "GLG3D/Widget.h"
 #include "GLG3D/ThirdPersonManipulator.h"
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/GConsole.h"

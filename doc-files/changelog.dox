@@ -23,8 +23,8 @@
      <li> G3D::Spline
      <li> G3D::RenderDevice::clip2D
      <li> G3D::Win32Window now returns events for up to 5 mouse buttons
-     <li> Significantly changed GEvent delivery and GModule mechanisms to incorporate notions of focus--see upgrade.html
-     <li> Motion events (joystick/mouse) can no longer be cancelled by GModule::onEvent
+     <li> Significantly changed GEvent delivery and Widget mechanisms to incorporate notions of focus--see upgrade.html
+     <li> Motion events (joystick/mouse) can no longer be cancelled by Widget::onEvent
      <li> Mouse motion events for all platforms
      <li> G3D::PosedModel::Ref::sendGeometry
      <li> G3D::RenderDevice::pushState(FramebufferRef)
@@ -196,7 +196,7 @@
     <LI> G3D::Manipulator
     <LI> G3D::GApplet now runs installed G3D::GModules (except for graphics, which is left to the progrmamer)
     <LI> G3D::GApp::addModule, G3D::GApplet::addModule, G3D::GApp::removeModule, G3D::GApplet::removeModule
-    <LI> G3D::GModule, G3D::GModuleManager
+    <LI> G3D::Widget, G3D::WidgetManager
     <LI> G3D::System::getEnv()
     <LI> G3D::PosedModel2D
     <LI> G3D::DXCaps

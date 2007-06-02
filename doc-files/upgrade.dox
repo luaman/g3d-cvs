@@ -3,7 +3,7 @@
 Notes for upgrading from G3D 6.xx to 7.xx:
 
 <hr noshade>
-<p><b>New GModule/GEvent delivery</b></p>
+<p><b>New Widget/GEvent delivery</b></p>
 <p>
 The event system now maintains a ranking of all GModules.  The module at the top of the ranking may optionally have "focus", which is a useful concept for 2D
 gui elements.  Modules are rendered in the opposite of the event delivery order, so that for 2D rendering the highest priority module appears on top.
@@ -184,6 +184,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>GApp::debugCamera</td><td>GApp2::defaultCamera</td></tr>
 <tr><td>GApp::debugController</td><td>GApp2::defaultController</td></tr>
 <tr><td>GWindow::pollEvent</td><td>GWindow::pollOSEvent</td></tr>
+<tr><td>G3D::GModule</td><td>G3D::Widget</td></tr>
 </table>
 </p>
 

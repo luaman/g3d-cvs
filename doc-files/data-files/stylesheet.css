@@ -1,10 +1,11 @@
 /**
     @file	stylesheet.css
+
+    @maintainer Morgan McGuire, morgan3d@users.sf.net    
+    @author Daniel J. Hilferty, daniel@hilferty.org
     
-    @maintainer Daniel J. Hilferty, daniel@hilferty.org
-    
-    @created    23-Feb-2006
-    @edited     27-Feb-2006
+    @created    2006-02-23
+    @edited     2007-05-31
  */
 
 a.qindex {}
@@ -13,10 +14,10 @@ a.qindexRef {}
 
 a.el { 
     text-decoration: none; 
-    font-weight: bold; }
+    font-weight: normal; }
 
 a.elRef { 
-    font-weight: bold; }
+    font-weight: normal; }
 
 a.code { 
     text-decoration: none; 

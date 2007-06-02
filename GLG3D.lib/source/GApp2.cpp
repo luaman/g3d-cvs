@@ -73,7 +73,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     _window->makeCurrent();
     debugAssertGLOk();
 
-    m_moduleManager = GModuleManager::create(_window);
+    m_moduleManager = WidgetManager::create(_window);
 
     networkDevice = new NetworkDevice();
     networkDevice->init(debugLog);
@@ -581,7 +581,7 @@ void GApp2::processGEventQueue() {
             continue;
         }
 
-        if (GModuleManager::onEvent(event, m_moduleManager)) {
+        if (WidgetManager::onEvent(event, m_moduleManager)) {
             continue;
         }
 

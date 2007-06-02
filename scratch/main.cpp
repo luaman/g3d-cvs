@@ -65,8 +65,8 @@ void App::onInit() {
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addModule(splineManipulator);
     
-    dataDir = "/Volumes/McGuire/Projects/data/";
-    //dataDir = "X:/morgan/data/";
+    //dataDir = "/Volumes/McGuire/Projects/data/";
+    dataDir = "X:/morgan/data/";
 
     GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
@@ -115,7 +115,7 @@ void App::onInit() {
     static bool b = false;
 
     {
-        GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+        GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
 
         GuiPane* pane = gui2->pane();
         pane->addCheckBox("Option", &b);

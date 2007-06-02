@@ -234,23 +234,22 @@ Rect2D GuiSkin::closeButtonBounds(const Window& window, const Rect2D& bounds) co
     // Position button
     Vector2 center; 
     if (m_osxWindowButtons) {
-        center.x = bounds.x0() + window.clientPad.topLeft.x + scale * m_closeButton.base.width() / 2 + 2;
+        center.x = bounds.x0() + window.clientPad.topLeft.x * scale + scale * m_closeButton.base.width() / 2;
     } else {
-        center.x = bounds.x1() - window.clientPad.bottomRight.x - scale * m_closeButton.base.width() / 2 - 2;
+        center.x = bounds.x1() - window.clientPad.bottomRight.x * scale - scale * m_closeButton.base.width() / 2;
     }
     center.y = bounds.y0() + window.clientPad.topLeft.y / 2;
     
     // Draw button
     Vector2 wh = m_closeButton.base.wh() * scale;
-    Rect2D vertex = Rect2D::xywh(center - wh, wh);
+    Rect2D vertex = Rect2D::xywh(center - wh / 2, wh);
     
     return vertex;
 }
 
 
 void GuiSkin::drawWindow(const Window& window, const Rect2D& bounds, 
-                         bool focused, bool hasClose, bool closeIsFocused, 
-                         bool closeIsDown, 
+                         bool focused, bool hasClose, bool closeIsDown, bool closeIsFocused,                          
                          const GuiText& text) const {
     // Update any pending text since the window may overlap another window
     drawDelayedText();

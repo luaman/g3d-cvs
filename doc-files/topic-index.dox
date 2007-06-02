@@ -8,43 +8,36 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
 
   <UL>
   <LI><B>3D Models</B> &nbsp; &nbsp;
-    G3D::ArticulatedModel,
-    %G3D::%BSPMap (currently documented as G3D::_BSPMAP::Map),
-    G3D::GFont,
-    G3D::GLight,
-    G3D::GMaterial,
-    G3D::IFSModel,
-    G3D::Lighting,
-    G3D::Shape,
-    G3D::MD2Model,
-    G3D::PosedModel,
-    G3D::PosedModel2D,
-    G3D::Sky,
-    G3D::SkyParameters
-
-  <LI><B>Application Structure</B> &nbsp; &nbsp;
-    G3D::GApp2
-    G3D::GModule,
-    G3D::GModuleManager
-  <br>
-  <br>
-  See also:
-    <br>"Empty" <A HREF="../demos/empty/main.cpp">main.cpp</A>
-    <br>G3D::GApp and G3D::GApplet for 6.xx backward compatibility,
+    \link G3D::ArticulatedModel ArticulatedModel\endlink,
+    \link G3D::_BSPMAP::Map BSPMap\endlink,
+    \link G3D::GFont GFont\endlink,
+    \link G3D::GLight GLight\endlink,
+    \link G3D::GMaterial GMaterial\endlink,
+    \link G3D::IFSModel IFSModel\endlink,
+    \link G3D::Lighting Lighting\endlink,
+    \link G3D::Shape Shape\endlink,
+    \link G3D::MD2Model MD2Model\endlink,
+    \link G3D::PosedModel PosedModel\endlink,
+    \link G3D::PosedModel2D PosedModel2D\endlink,
+    \link G3D::Sky Sky\endlink,
+    \link G3D::SkyParameters SkyParameters\endlink
 
   <li><b>User Interface</b>&nbsp; &nbsp;
-    G3D::GConsole,
-    G3D::GuiCheckBox,
-    G3D::GuiButton,
-    G3D::GuiSkin,
-    G3D::GuiWindow,
-    G3D::GuiPane,
-    G3D::GuiSlider,
-    G3D::GuiRadioButton,
-    G3D::Manipulator,
-    G3D::FirstPersonManipulator,
-    G3D::ThirdPersonManipulator,
-    G3D::UserInput
+    \link G3D::GApp2 GApp2\endlink,
+    \link G3D::GConsole GConsole\endlink,
+    \link G3D::GuiCheckBox GuiCheckBox\endlink,
+    \link G3D::GuiButton GuiButton\endlink,
+    \link G3D::GuiSkin GuiSkin\endlink,
+    \link G3D::GuiWindow GuiWindow\endlink,
+    \link G3D::GuiPane GuiPane\endlink,
+    \link G3D::GuiSlider GuiSlider\endlink,
+    \link G3D::GuiRadioButton GuiRadioButton\endlink,
+    \link G3D::Manipulator Manipulator\endlink,
+    \link G3D::FirstPersonManipulator FirstPersonManipulator\endlink,
+    \link G3D::ThirdPersonManipulator ThirdPersonManipulator\endlink,
+    \link G3D::UserInput UserInput\endlink,
+    \link G3D::Widget Widget\endlink,
+    \link G3D::WidgetManager WidgetManager\endlink
    <br>
    <br>
    

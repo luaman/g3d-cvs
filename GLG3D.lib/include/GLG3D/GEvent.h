@@ -393,7 +393,7 @@ typedef struct SDL_SysWMEvent {
   }
   </pre>
 
-  See also G3D::GModule::onEvent, G3D::GWindow::pollEvent.
+  See also G3D::Widget::onEvent, G3D::GWindow::pollEvent.
 
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */

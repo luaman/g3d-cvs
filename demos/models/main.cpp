@@ -152,7 +152,7 @@ void App::onGraphics(RenderDevice* rd) {
         entityArray[e]->model->pose(posedModels, entityArray[e]->cframe, entityArray[e]->pose);
     }
 
-    // Get any GModule models
+    // Get any Widget models
     getPosedModel(posedModels, posed2D);
 
     if (GLCaps::supports_GL_ARB_shadow() && (lighting->shadowedLightArray.size() > 0)) {     

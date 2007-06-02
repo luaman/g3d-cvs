@@ -17,7 +17,7 @@
 #include "G3D/Rect2D.h"
 #include "GLG3D/GFont.h"
 #include "GLG3D/GWindow.h"
-#include "GLG3D/GModule.h"
+#include "GLG3D/Widget.h"
 
 namespace G3D {
 
@@ -53,7 +53,7 @@ typedef ReferenceCountedPointer<class GConsole> GConsoleRef;
  provide colored fonts and line wrapping.
 
  */
-class GConsole : public GModule {
+class GConsole : public Widget {
 public:
     /** To allow later change to std::wstring */
     typedef std::string string;
@@ -307,7 +307,7 @@ public:
     void render(RenderDevice* rd);
 
     ////////////////////////////////
-    // Inherited from GModule
+    // Inherited from Widget
     
     /** Pass all events to the console. It returns true if it processed (consumed) the event.*/
     virtual bool onEvent(const GEvent& event);

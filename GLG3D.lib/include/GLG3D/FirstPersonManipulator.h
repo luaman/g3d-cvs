@@ -13,7 +13,7 @@
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
 #include "G3D/CoordinateFrame.h"
-#include "GLG3D/GModule.h"
+#include "GLG3D/Widget.h"
 
 namespace G3D {
 
@@ -135,7 +135,7 @@ public:
 	virtual void getFrame(CoordinateFrame& c) const;
     virtual CoordinateFrame frame() const;
 
-    // Inherited from GModule
+    // Inherited from Widget
     virtual void getPosedModel(Array<PosedModel::Ref>& p3d, Array<PosedModel2DRef>& p2d);
     virtual void onNetwork();
     virtual void onLogic();

@@ -69,7 +69,7 @@ GApp::GApp(const Settings& settings, GWindow* window) {
     _window->makeCurrent();
     debugAssertGLOk();
 
-    m_moduleManager = GModuleManager::create(_window);
+    m_moduleManager = WidgetManager::create(_window);
 
     if (settings.useNetwork) {
         networkDevice = new NetworkDevice();
@@ -335,14 +335,14 @@ GApplet::GApplet(GApp* _app) :
     m_simTimeRate(1.0), 
     m_realTime(0), 
     m_simTime(0), 
-    m_moduleManager(GModuleManager::create(_app->window())) {
+    m_moduleManager(WidgetManager::create(_app->window())) {
     
     debugAssert(app != NULL);
 }
 
 
 bool GApplet::onEvent(const GEvent& event) {
-    return GModuleManager::onEvent(event, app->m_moduleManager, m_moduleManager);
+    return WidgetManager::onEvent(event, app->m_moduleManager, m_moduleManager);
 }
 
 

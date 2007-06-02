@@ -17,7 +17,7 @@
 #include "GLG3D/RenderDevice.h"
 #include "G3D/NetworkDevice.h"
 #include "GLG3D/GWindow.h"
-#include "GLG3D/GModule.h"
+#include "GLG3D/Widget.h"
 #include "GLG3D/GConsole.h"
 #include "GLG3D/ToneMap.h"
 
@@ -44,7 +44,7 @@ class UserInput;
 
   The onConsoleCommand handler allows you to add an in-game command console
   to your program.  By default it is activated when '~' is pressed; you can also
-  set the GApp2::escapeAction to open the console on ESC.  The console is a GModule,
+  set the GApp2::escapeAction to open the console on ESC.  The console is a Widget,
   so you can completely disable it (e.g., in a release build of the program) by
   executing <code>removeModule(console)</code>.
 
