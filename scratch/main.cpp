@@ -77,7 +77,8 @@ void App::onInit() {
         (GuiText("Camera Spline", NULL, 9),
          Rect2D::xywh(600, 200, 150, 120),
          skin,
-         GuiWindow::TOOL_FRAME_STYLE);
+         GuiWindow::TOOL_FRAME_STYLE,
+         GuiWindow::HIDE_ON_CLOSE);
 
     GuiPane* pane = gui->pane();
 
@@ -114,7 +115,7 @@ void App::onInit() {
     static bool b = false;
 
     {
-        GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin);
+        GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
         GuiPane* pane = gui2->pane();
         pane->addCheckBox("Option", &b);

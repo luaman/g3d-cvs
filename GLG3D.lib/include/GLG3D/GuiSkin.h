@@ -60,7 +60,7 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 
   <pre>
    skin->beginRendering(rd);
-       skin->renderWindow(rd, Rect2D::xywh(80, 70, 550, 250), false, "Window");
+       skin->renderWindow(rd, Rect2D::xywh(80, 70, 550, 250), false, false, false, "Window");
        skin->renderToolWindow(rd, Rect2D::xywh(500, 120, 50, 150), true, "Tools");
        skin->renderCheckBox(rd, Rect2D::xywh(100, 100, 20, 20), true, true, true, "Check box");
        skin->renderRadioButton(rd, Rect2D::xywh(100, 120, 20, 20), true, false, false, "Radio button");
@@ -274,6 +274,20 @@ private:
         }
     };
 
+    /** Window close, minimize, maximize */
+    class WindowButton {
+    public:
+        Rect2D       base;
+        
+        Vector2      focusedUp;
+        Vector2      focusedDown;
+        Vector2      defocused;
+        Vector2      windowDefocused;
+
+        void deserialize(const std::string& name, TextInput& b);
+    };
+
+
     class Window {
     public:
 
@@ -348,6 +362,10 @@ private:
     HSlider           m_hSlider;
     Pane              m_simplePane;
     Pane              m_ornatePane;
+    WindowButton      m_closeButton;
+
+    /** If true, the close button is on the left.  If false, it is on the right */
+    bool              m_osxWindowButtons;
 
     TextureRef        texture;
 
@@ -390,7 +408,7 @@ private:
     void drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused,
                        bool selected, const GuiText& text) const;
 
-    void drawWindow(const Window& window, const Rect2D& bounds, bool focused, const GuiText& text) const;
+    void drawWindow(const Window& window, const Rect2D& bounds, bool focused, bool close, bool closeDown, bool closeIsFocused, const GuiText& text) const;
 
     static Rect2D readRect2D(const std::string& name, TextInput& b);
 
@@ -410,6 +428,7 @@ private:
     void endText() const;    
     
     Rect2D horizontalSliderToSliderBounds(const Rect2D& bounds) const;
+    Rect2D closeButtonBounds(const Window& window, const Rect2D& bounds) const;
 
 public:
 
@@ -455,7 +474,13 @@ public:
         @param bounds Corresponds to the footprint of the window; dropshadows and glows may
          still render outside this area.*/
     void renderWindow(const Rect2D& bounds, bool focused, 
+                      bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
                       const GuiText& text) const;
+
+    /** Only call between beginRendering and endRendering */
+    void renderToolWindow(const Rect2D& bounds, bool focused,
+                          bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
+                          const GuiText& text) const;
 
     /** Given the bounds on a window's borders, returns the bounds of
      the area inside the window where controls will appear.*/
@@ -480,9 +505,8 @@ public:
     Rect2D ornatePaneToClientBounds(const Rect2D& bounds) const;
     Rect2D simplePaneToClientBounds(const Rect2D& bounds) const;
 
-    /** Only call between beginRendering and endRendering */
-    void renderToolWindow(const Rect2D& bounds, bool focused, 
-                          const GuiText& text) const;
+    Rect2D windowToCloseButtonBounds(const Rect2D& bounds) const;
+    Rect2D toolWindowToCloseButtonBounds(const Rect2D& bounds) const;
 
     /** Only call between beginRendering and endRendering.
         Label is on the right, slider is aligned with the left edge

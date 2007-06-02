@@ -85,6 +85,11 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     m_checkBox.deserialize("checkBox", b);
     m_radioButton.deserialize("radioButton", b);
     m_button.deserialize("button", b);
+    m_closeButton.deserialize("closeButton", b);
+
+    b.readSymbols("windowButtonStyle", "=");
+    m_osxWindowButtons = (b.readSymbol() == "osx");
+
     m_window.deserialize("window", b);
     m_toolWindow.deserialize("toolWindow", b);
     m_hSlider.deserialize("horizontalSlider", b);
@@ -196,26 +201,87 @@ void GuiSkin::renderOrnatePane(const Rect2D& bounds) const {
 }
 
 
-void GuiSkin::renderWindow(const Rect2D& bounds, bool focused, const GuiText& text) const {
-    drawWindow(m_window, bounds, focused, text);
+void GuiSkin::renderWindow(const Rect2D& bounds, bool focused, bool hasClose, bool closeIsDown, bool closeIsFocused, const GuiText& text) const {
+    drawWindow(m_window, bounds, focused, hasClose, closeIsDown, closeIsFocused, text);
 }
 
 
-void GuiSkin::renderToolWindow(const Rect2D& bounds, bool focused, const GuiText& text) const {
-    drawWindow(m_toolWindow, bounds, focused, text);
+void GuiSkin::renderToolWindow(const Rect2D& bounds, bool focused, bool hasClose, bool closeIsDown, bool closeIsFocused, const GuiText& text) const {
+    drawWindow(m_toolWindow, bounds, focused, hasClose, closeIsDown, closeIsFocused, text);
+}
+
+
+Rect2D GuiSkin::windowToCloseButtonBounds(const Rect2D& bounds) const {
+    return closeButtonBounds(m_window, bounds);
+}
+
+
+Rect2D GuiSkin::toolWindowToCloseButtonBounds(const Rect2D& bounds) const {
+    return closeButtonBounds(m_toolWindow, bounds);
+}
+
+
+Rect2D GuiSkin::closeButtonBounds(const Window& window, const Rect2D& bounds) const {
+    // If the close button is larger
+    // than the title area, draw it half size (e.g., for tool
+    // windows)
+    float titleHeight = window.clientPad.topLeft.y;
+    float scale = 1.0f;
+    if (titleHeight < m_closeButton.base.height()) {
+        scale = 0.5f;
+    }
+    
+    // Position button
+    Vector2 center; 
+    if (m_osxWindowButtons) {
+        center.x = bounds.x0() + window.clientPad.topLeft.x + scale * m_closeButton.base.width() / 2 + 2;
+    } else {
+        center.x = bounds.x1() - window.clientPad.bottomRight.x - scale * m_closeButton.base.width() / 2 - 2;
+    }
+    center.y = bounds.y0() + window.clientPad.topLeft.y / 2;
+    
+    // Draw button
+    Vector2 wh = m_closeButton.base.wh() * scale;
+    Rect2D vertex = Rect2D::xywh(center - wh, wh);
+    
+    return vertex;
 }
 
 
 void GuiSkin::drawWindow(const Window& window, const Rect2D& bounds, 
-                         bool focused, const GuiText& text) const {
+                         bool focused, bool hasClose, bool closeIsFocused, 
+                         bool closeIsDown, 
+                         const GuiText& text) const {
     // Update any pending text since the window may overlap another window
     drawDelayedText();
 
     window.render(rd, bounds, focused);
+
+    if (hasClose) {
+
+        const Rect2D& vertex = closeButtonBounds(window, bounds);
+
+        Vector2 offset;
+        if (focused) {
+            if (closeIsFocused) {
+                if (closeIsDown) {
+                    offset = m_closeButton.focusedDown;
+                } else {
+                    offset = m_closeButton.focusedUp;
+                }
+            } else {
+                offset = m_closeButton.defocused;
+            }
+        } else {
+            offset = m_closeButton.windowDefocused;
+        }
+
+        drawRect(vertex, m_closeButton.base + offset, rd);
+    }
     
     if (text.text != "") {
         addDelayedText(text.font, text.text, Vector2(bounds.center().x, bounds.y0() + window.clientPad.topLeft.y * 0.5), 
-                       min(text.size, window.clientPad.topLeft.y - 2), text.color, text.outlineColor, GFont::XALIGN_CENTER);
+                       min(text.size, window.clientPad.topLeft.y - 2), text.color, text.outlineColor, GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
     }
 }
 
@@ -647,6 +713,21 @@ Rect2D GuiSkin::HSlider::thumbBounds(const Rect2D& sliderBounds, float pos) cons
     return Rect2D::xywh(thumbCenter - Vector2(halfWidth, thumb.base.height() * 0.5f), thumb.base.wh());
 }
     
+//////////////////////////////////////////////////////////////////////////////
+
+void GuiSkin::WindowButton::deserialize(const std::string& name, TextInput& t) {
+    t.readSymbols(name, "=", "{");
+    base = readRect2D("base", t);
+    
+    t.readSymbols("focused", "=", "{");
+    focusedDown = readVector2("down", t);
+    focusedUp = readVector2("up", t);
+    t.readSymbol("}");
+
+    defocused = readVector2("defocused", t);
+    windowDefocused = readVector2("windowDefocused", t);
+    t.readSymbol("}");
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

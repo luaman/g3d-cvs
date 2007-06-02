@@ -131,9 +131,10 @@ public:
        GUI_DOWN,                /* GuiControl button, etc. pressed. */
        GUI_UP,                  /* GuiControl button, etc. released. */
        GUI_ACTION,              /* Button fire, enter pressed in a text box, slider released */
+       GUI_CLOSE,               /* GuiWindow close button pressed. */
 
        /* Events USEREVENT through MAXEVENTS-1 are for your use */
-       USEREVENT = 27,
+       USEREVENT = 28,
        /* This last event is only for bounding internal arrays
   	     It is the number of bits in the event mask datatype -- uint32
         */
@@ -360,6 +361,16 @@ public:
     class GuiControl*  control;
 };
 
+/** Triggered by pressing the close button on a G3D::GuiWindow */
+class GuiCloseEvent {
+public:
+    /** GUI_CLOSE */
+    uint8              type;
+
+    /** The GuiWindow that was closed */
+    class GuiWindow*   window;
+};
+
 /* If you want to use this event, you should include SDL_syswm.h */
 struct SDL_SysWMmsg;
 typedef struct SDL_SysWMmsg SDL_SysWMmsg;
@@ -404,6 +415,7 @@ typedef union {
     UserEvent               user;
     SDL_SysWMEvent          syswm;
     GuiEvent                gui;
+    GuiCloseEvent           guiClose;
 } GEvent;
 
 }
