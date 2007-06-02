@@ -37,7 +37,6 @@ GApp::GApp(const Settings& settings, GWindow* window) {
     debugFont         = NULL;
     endProgram        = false;
     _debugControllerWasActive = false;
-    m_moduleManager = GModuleManager::create();
 
     debugController = FirstPersonManipulator::create();
 
@@ -69,6 +68,8 @@ GApp::GApp(const Settings& settings, GWindow* window) {
     _window = renderDevice->window();
     _window->makeCurrent();
     debugAssertGLOk();
+
+    m_moduleManager = GModuleManager::create(_window);
 
     if (settings.useNetwork) {
         networkDevice = new NetworkDevice();
@@ -329,12 +330,12 @@ void GApp::removeModule(const GModuleRef& module) {
 
 GApplet::GApplet(GApp* _app) : 
     app(_app), 
-	lastWaitTime(System::time()),
+    lastWaitTime(System::time()),
     m_desiredFrameRate(inf()),
     m_simTimeRate(1.0), 
     m_realTime(0), 
-    m_simTime(0),
-    m_moduleManager(GModuleManager::create()) {
+    m_simTime(0), 
+    m_moduleManager(GModuleManager::create(_app->window())) {
     
     debugAssert(app != NULL);
 }

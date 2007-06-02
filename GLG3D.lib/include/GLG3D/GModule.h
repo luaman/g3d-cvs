@@ -73,6 +73,9 @@ public:
         m_manager = m;
     }
 
+    /** Fire an event on the containing window */
+    virtual void fireEvent(const GEvent& event);
+
     /** Returning true consumes the event and prevents other GModules
         from seeing it.  Motion events (GEventType::MOUSEMOTION,
         GEventType::JOYHATMOTION, JGEventType::OYBALLMOTION, and
@@ -114,7 +117,8 @@ private:
 
     GModuleManager();
 
-    /** Events that have been delayed by a lock */
+    /** Manager events that have been delayed by a lock.  Not related
+        to GEvent in any way. */
     class DelayedEvent {
     public:
         enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_DEFOCUS};
@@ -127,9 +131,12 @@ private:
     /** To be processed in endLock */
     Array<DelayedEvent> m_delayedEvent;
 
+    GWindow*  m_window;
+
 public:
 
-    static GModuleManagerRef create();
+    /** @param window The window that generates events for this manager.*/
+    static GModuleManagerRef create(GWindow* window);
 
     /** 
       Between beginLock and endLock, add and remove operations are
@@ -182,6 +189,9 @@ public:
 
     /** Number of installed modules */
     int size() const;
+
+    /** Queues an event on the window associated with this manager. */
+    void fireEvent(const GEvent& event);
 
     /** @deprecated
         Runs the event handles of each manager interlaced, as if all

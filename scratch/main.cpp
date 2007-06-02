@@ -33,6 +33,9 @@ public:
     virtual void onLogic();
     virtual void onNetwork();
     virtual bool onEvent(const GEvent& e) {
+        if (e.type == GEventType::GUI_ACTION) {
+            G3D::debugPrintf("Button pressed\n");
+        }
         return GApp2::onEvent(e);
     }
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
@@ -123,6 +126,8 @@ void App::onInit() {
         radioPane->addRadioButton("Plum", PLUM, &fruit);
 
         pane->addSlider("Slider", &f, 0.0f, 1.0f);
+
+        GuiButton* button = pane->addButton("Push Me");
         addModule(gui2);
     }
     }

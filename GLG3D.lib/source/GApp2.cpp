@@ -33,7 +33,6 @@ static void writeLicense() {
 
 
 GApp2::GApp2(const Settings& settings, GWindow* window) :
-    m_moduleManager(GModuleManager::create()),
     lastWaitTime(System::time()),
     m_desiredFrameRate(2000),
     m_simTimeRate(1.0), 
@@ -73,6 +72,8 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     _window = renderDevice->window();
     _window->makeCurrent();
     debugAssertGLOk();
+
+    m_moduleManager = GModuleManager::create(_window);
 
     networkDevice = new NetworkDevice();
     networkDevice->init(debugLog);
@@ -355,7 +356,7 @@ void GApp2::renderDebugInfo() {
 
 
 bool GApp2::onEvent(const GEvent& event) {
-    return GModuleManager::onEvent(event, m_moduleManager);
+    return false;
 }
 
 
@@ -577,6 +578,10 @@ void GApp2::processGEventQueue() {
 
         if (onEvent(event)) {
             // Event was consumed
+            continue;
+        }
+
+        if (GModuleManager::onEvent(event, m_moduleManager)) {
             continue;
         }
 

@@ -4,17 +4,29 @@
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
  @created 2006-04-22
- @edited  2007-05-22
+ @edited  2007-05-31
 */
 
 #include "GLG3D/GModule.h"
 #include "GLG3D/RenderDevice.h"
+#include "GLG3D/GEvent.h"
 
 namespace G3D {
 
+void GModule::fireEvent(const GEvent& event) {
+    m_manager->fireEvent(event);
+}
 
-GModuleManagerRef GModuleManager::create() {
-    return new GModuleManager();
+
+GModuleManagerRef GModuleManager::create(GWindow* window) {
+    GModuleManager* m = new GModuleManager();
+    m->m_window = window;
+    return m;
+}
+
+
+void GModuleManager::fireEvent(const GEvent& event) {
+    m_window->fireEvent(event);
 }
 
 
@@ -176,6 +188,7 @@ void GModuleManager::getPosedModel(
 void GModuleManager::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     ITERATOR(m_moduleArray[i]->onSimulation(rdt, sdt, idt));
 }
+
 
 bool GModuleManager::onEvent(const GEvent& event) {
     bool motionEvent = 
