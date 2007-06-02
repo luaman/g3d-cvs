@@ -18,7 +18,7 @@ void Widget::fireEvent(const GEvent& event) {
 }
 
 
-GModuleManagerRef WidgetManager::create(GWindow* window) {
+WidgetManager::Ref WidgetManager::create(GWindow* window) {
     WidgetManager* m = new WidgetManager();
     m->m_window = window;
     return m;
@@ -40,7 +40,7 @@ int WidgetManager::size() const {
 }
 
 
-const GModuleRef& WidgetManager::operator[](int i) const {
+const Widget::Ref& WidgetManager::operator[](int i) const {
     return m_moduleArray[i];
 }
 
@@ -84,7 +84,7 @@ void WidgetManager::endLock() {
 }
 
 
-void WidgetManager::remove(const GModuleRef& m) {
+void WidgetManager::remove(const Widget::Ref& m) {
     if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::REMOVE, m));
     } else {
@@ -102,7 +102,7 @@ void WidgetManager::remove(const GModuleRef& m) {
 }
 
 
-void WidgetManager::add(const GModuleRef& m) {
+void WidgetManager::add(const Widget::Ref& m) {
     debugAssert(m.notNull());
     if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::ADD, m));
@@ -119,12 +119,12 @@ void WidgetManager::add(const GModuleRef& m) {
 }
 
 
-GModuleRef WidgetManager::focusedModule() const {
+Widget::Ref WidgetManager::focusedModule() const {
     return m_focusedModule;
 }
 
 
-void WidgetManager::setDefocusedModule(const GModuleRef& m) {
+void WidgetManager::setDefocusedModule(const Widget::Ref& m) {
    if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_DEFOCUS, m));
    } else if (focusedModule().pointer() == m.pointer()) {
@@ -133,7 +133,7 @@ void WidgetManager::setDefocusedModule(const GModuleRef& m) {
 }
 
 
-void WidgetManager::setFocusedModule(const GModuleRef& m) {
+void WidgetManager::setFocusedModule(const Widget::Ref& m) {
     if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS, m));
     } else {
@@ -217,13 +217,13 @@ void WidgetManager::onLogic() {
 #undef ITERATOR
 
 bool WidgetManager::onEvent(const GEvent& event, 
-                             GModuleManagerRef& a) {
-    static GModuleManagerRef x(NULL);
+                             WidgetManager::Ref& a) {
+    static WidgetManager::Ref x(NULL);
     return onEvent(event, a, x);
 }
 
 
-bool WidgetManager::onEvent(const GEvent& event, GModuleManagerRef& a, GModuleManagerRef& b) {
+bool WidgetManager::onEvent(const GEvent& event, WidgetManager::Ref& a, WidgetManager::Ref& b) {
     a->beginLock();
     if (b.notNull()) {
         b->beginLock();
@@ -233,7 +233,7 @@ bool WidgetManager::onEvent(const GEvent& event, GModuleManagerRef& a, GModuleMa
 
     // Process each
     for (int k = 0; k < numManagers; ++k) {
-        Array<GModuleRef>& array = 
+        Array<Widget::Ref>& array = 
             (k == 0) ?
             a->m_moduleArray :
             b->m_moduleArray;

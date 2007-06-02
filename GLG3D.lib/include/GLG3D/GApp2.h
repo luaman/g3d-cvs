@@ -107,7 +107,7 @@ protected:
     Stopwatch               m_simulationWatch;
     Stopwatch               m_waitWatch;
 
-    GModuleManagerRef       m_moduleManager;
+    WidgetManager::Ref       m_moduleManager;
 
     bool                    m_endProgram;
     int                     m_exitCode;
@@ -336,13 +336,13 @@ public:
     /**
      Installs a module.  Actual insertion may be delayed until the next frame.
      */
-    virtual void addWidget(const GModuleRef& module);
+    virtual void addWidget(const Widget::Ref& module);
 
 
     /**
      The actual removal of the module may be delayed until the next frame.
      */
-    virtual void removeWidget(const GModuleRef& module);
+    virtual void removeWidget(const Widget::Ref& module);
 
     /** Amount of time that passes in simTime for every second of realTime.
         e.g., 1.0 == real-time, 2.0 == fast, 0.5 == slow, 0.0 = stop time.

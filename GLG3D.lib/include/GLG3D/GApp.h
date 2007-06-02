@@ -101,7 +101,7 @@ protected:
     Stopwatch           m_simulationWatch;
     Stopwatch           m_waitWatch;
 
-    GModuleManagerRef   m_moduleManager;
+    WidgetManager::Ref   m_moduleManager;
 
 public:
 
@@ -262,7 +262,7 @@ public:
 
      @beta
      */
-    virtual void addWidget(const GModuleRef& module);
+    virtual void addWidget(const Widget::Ref& module);
 
 
     /**
@@ -270,7 +270,7 @@ public:
      See GApplet::removeWidget for further discussion.
      @beta
      */
-    virtual void removeWidget(const GModuleRef& module);
+    virtual void removeWidget(const Widget::Ref& module);
 };
 
 
@@ -317,7 +317,7 @@ private:
 
 protected:
 
-    GModuleManagerRef   m_moduleManager;
+    WidgetManager::Ref   m_moduleManager;
 
 public:
 
@@ -342,14 +342,14 @@ public:
 
      @beta
      */
-    virtual void addWidget(const GModuleRef& module);
+    virtual void addWidget(const Widget::Ref& module);
 
 
     /**
      The actual removal of the module may be delayed until the next frame.
      @beta
      */
-    virtual void removeWidget(const GModuleRef& module);
+    virtual void removeWidget(const Widget::Ref& module);
 
     /** Amount of time that passes in simTime for every second of realTime.
         e.g., 1.0 == real-time, 2.0 == fast, 0.5 == slow, 0.0 = stop time.

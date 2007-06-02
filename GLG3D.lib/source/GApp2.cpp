@@ -420,12 +420,12 @@ void GApp2::renderGModules(RenderDevice* rd) {
 }
 
     
-void GApp2::addWidget(const GModuleRef& module) {
+void GApp2::addWidget(const Widget::Ref& module) {
     m_moduleManager->add(module);
 }
 
 
-void GApp2::removeWidget(const GModuleRef& module) {
+void GApp2::removeWidget(const Widget::Ref& module) {
     m_moduleManager->remove(module);
 }
 

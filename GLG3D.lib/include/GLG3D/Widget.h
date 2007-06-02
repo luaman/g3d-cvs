@@ -22,8 +22,8 @@ namespace G3D {
 class RenderDevice;
 class UserInput;
 
-typedef ReferenceCountedPointer<class Widget> GModuleRef;
-typedef ReferenceCountedPointer<class WidgetManager> GModuleManagerRef;
+typedef ReferenceCountedPointer<class Widget> WidgetRef;
+typedef ReferenceCountedPointer<class WidgetManager> WidgetManagerRef;
 
 /**
  Interface for 2D or 3D objects that experience standard
@@ -109,11 +109,11 @@ private:
         Events are delivered in decreasing index order, except
         rendering, which is processed in increasing order.
      */
-    Array<GModuleRef>   m_moduleArray;
+    Array<Widget::Ref>   m_moduleArray;
 
     bool                m_locked;
 
-    GModuleRef          m_focusedModule;
+    Widget::Ref          m_focusedModule;
 
     WidgetManager();
 
@@ -123,9 +123,9 @@ private:
     public:
         enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_DEFOCUS};
         Type type;
-        GModuleRef module;
+        Widget::Ref module;
 
-        DelayedEvent(Type type = ADD, const GModuleRef& module = NULL) : type(type), module(module) {}
+        DelayedEvent(Type type = ADD, const Widget::Ref& module = NULL) : type(type), module(module) {}
     };
     
     /** To be processed in endLock */
@@ -136,7 +136,7 @@ private:
 public:
 
     /** @param window The window that generates events for this manager.*/
-    static GModuleManagerRef create(GWindow* window);
+    static WidgetManager::Ref create(GWindow* window);
 
     /** 
       Between beginLock and endLock, add and remove operations are
@@ -150,7 +150,7 @@ public:
     /** 
         At most one module has focus at a time.  May be NULL.
      */
-    GModuleRef focusedModule() const;
+    Widget::Ref focusedModule() const;
 
     /** The module must have already been added.  This module will be moved to
         the top of the priority list (i.e., it will receive events first).
@@ -161,10 +161,10 @@ public:
 
         Setting the focus automatically brings a module to the front of the event processing list.
         */
-    void setFocusedModule(const GModuleRef& m);
+    void setFocusedModule(const Widget::Ref& m);
 
     /** Removes focus from this module if it had focus, otherwise does nothing */
-    void setDefocusedModule(const GModuleRef& m);
+    void setDefocusedModule(const Widget::Ref& m);
 
     /** 
         If a lock is in effect, the add may be delayed until the
@@ -175,12 +175,12 @@ public:
         intercept events before they can hit the regular
         infrastructure.
       */
-    void add(const GModuleRef& m);
+    void add(const Widget::Ref& m);
 
     /**
        If a lock is in effect the remove will be delayed until the unlock.
      */
-    void remove(const GModuleRef& m);
+    void remove(const Widget::Ref& m);
 
     /**
      Removes all.
@@ -197,14 +197,14 @@ public:
         Runs the event handles of each manager interlaced, as if all
         the modules from b were in a.*/
     static bool onEvent(const GEvent& event, 
-                        GModuleManagerRef& a, 
-                        GModuleManagerRef& b);
+                        WidgetManager::Ref& a, 
+                        WidgetManager::Ref& b);
 
     static bool onEvent(const GEvent& event,
-                        GModuleManagerRef& a);
+                        WidgetManager::Ref& a);
 
     /** Returns a module by index number.  The highest index is the one that receives events first.*/
-    const GModuleRef& operator[](int i) const;
+    const Widget::Ref& operator[](int i) const;
 
     /** Calls getPosedModel on all children.*/
     virtual void getPosedModel(
