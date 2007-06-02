@@ -316,12 +316,12 @@ void GApp::renderDebugInfo() {
     }
 }
 
-void GApp::addModule(const GModuleRef& module) {
+void GApp::addWidget(const GModuleRef& module) {
     m_moduleManager->add(module);
 }
 
 
-void GApp::removeModule(const GModuleRef& module) {
+void GApp::removeWidget(const GModuleRef& module) {
     m_moduleManager->remove(module);
 }
 
@@ -390,12 +390,12 @@ void GApplet::onGraphics(RenderDevice* rd) {
 }
 
 
-void GApplet::addModule(const GModuleRef& module) {
+void GApplet::addWidget(const GModuleRef& module) {
     m_moduleManager->add(module);
 }
 
 
-void GApplet::removeModule(const GModuleRef& module) {
+void GApplet::removeWidget(const GModuleRef& module) {
     m_moduleManager->remove(module);
 }
 

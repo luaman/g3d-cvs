@@ -46,7 +46,7 @@ class UserInput;
   to your program.  By default it is activated when '~' is pressed; you can also
   set the GApp2::escapeAction to open the console on ESC.  The console is a Widget,
   so you can completely disable it (e.g., in a release build of the program) by
-  executing <code>removeModule(console)</code>.
+  executing <code>removeWidget(console)</code>.
 
   To invoke a GApp2 and let it control the main loop, call
   run().  To control the main loop explicitly, invoke beginRun on
@@ -336,13 +336,13 @@ public:
     /**
      Installs a module.  Actual insertion may be delayed until the next frame.
      */
-    virtual void addModule(const GModuleRef& module);
+    virtual void addWidget(const GModuleRef& module);
 
 
     /**
      The actual removal of the module may be delayed until the next frame.
      */
-    virtual void removeModule(const GModuleRef& module);
+    virtual void removeWidget(const GModuleRef& module);
 
     /** Amount of time that passes in simTime for every second of realTime.
         e.g., 1.0 == real-time, 2.0 == fast, 0.5 == slow, 0.0 = stop time.

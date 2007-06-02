@@ -258,19 +258,19 @@ public:
 
     /**
      Installs a module.  Actual insertion may be delayed until the next frame.
-     See GApplet::addModule for further discussion.
+     See GApplet::addWidget for further discussion.
 
      @beta
      */
-    virtual void addModule(const GModuleRef& module);
+    virtual void addWidget(const GModuleRef& module);
 
 
     /**
      The actual removal of the module may be delayed until the next frame.
-     See GApplet::removeModule for further discussion.
+     See GApplet::removeWidget for further discussion.
      @beta
      */
-    virtual void removeModule(const GModuleRef& module);
+    virtual void removeWidget(const GModuleRef& module);
 };
 
 
@@ -342,14 +342,14 @@ public:
 
      @beta
      */
-    virtual void addModule(const GModuleRef& module);
+    virtual void addWidget(const GModuleRef& module);
 
 
     /**
      The actual removal of the module may be delayed until the next frame.
      @beta
      */
-    virtual void removeModule(const GModuleRef& module);
+    virtual void removeWidget(const GModuleRef& module);
 
     /** Amount of time that passes in simTime for every second of realTime.
         e.g., 1.0 == real-time, 2.0 == fast, 0.5 == slow, 0.0 = stop time.

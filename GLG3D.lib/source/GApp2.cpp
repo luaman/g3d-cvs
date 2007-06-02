@@ -116,7 +116,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     defaultController->setActive(false);
     defaultCamera.setPosition(defaultController->position());
     defaultCamera.lookAt(Vector3::zero());
-    addModule(defaultController);
+    addWidget(defaultController);
     setCameraManipulator(defaultController);
  
     autoResize                  = true;
@@ -132,7 +132,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
         settings.backgroundColor = Color3::green() * 0.1f;
         console = GConsole::create(debugFont, settings, staticConsoleCallback, this);
         console->setActive(false);
-        addModule(console);
+        addWidget(console);
     }
 
     toneMap = ToneMap::create();
@@ -420,12 +420,12 @@ void GApp2::renderGModules(RenderDevice* rd) {
 }
 
     
-void GApp2::addModule(const GModuleRef& module) {
+void GApp2::addWidget(const GModuleRef& module) {
     m_moduleManager->add(module);
 }
 
 
-void GApp2::removeModule(const GModuleRef& module) {
+void GApp2::removeWidget(const GModuleRef& module) {
     m_moduleManager->remove(module);
 }
 

@@ -47,6 +47,29 @@ public:
 
 App::App(const GApp2::Settings& settings) : GApp2(settings) {}
 
+class Person {
+private:
+    bool    myFriend;
+
+public:
+    enum Gender {MALE, FEMALE};
+
+    Gender  gender;        
+    float   height;
+    bool    likesCats;
+
+    void setIsMyFriend(bool f) {
+        myFriend = f;
+    }
+
+    bool getIsMyFriend() const {
+        return myFriend;
+    }
+    
+};
+
+Person player;
+
 void App::onInit() {
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
@@ -63,7 +86,7 @@ void App::onInit() {
     toneMap->setEnabled(false);
     
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
-    addModule(splineManipulator);
+    addWidget(splineManipulator);
     
     //dataDir = "/Volumes/McGuire/Projects/data/";
     dataDir = "X:/morgan/data/";
@@ -72,6 +95,24 @@ void App::onInit() {
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
     GFontRef iconFont = GFont::fromFile(dataDir + "font/icon.fnt");
     skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
+
+    {
+
+        GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
+        GuiWindow::Ref window = GuiWindow::create
+            ("Person", Rect2D::xywh(300, 200, 150, 200),
+             skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
+
+        GuiPane* pane = window->pane();
+        pane->addCheckBox("Likes cats", &player.likesCats);
+        pane->addCheckBox("Is my friend", &player, &Person::getIsMyFriend, &Person::setIsMyFriend);
+        pane->addRadioButton("Male", Person::MALE, &player.gender);
+        pane->addRadioButton("Female", Person::FEMALE, &player.gender);
+        player.height = 1.5;
+        pane->addSlider("Height", &player.height, 1.0f, 2.2f);
+
+        addWidget(window);
+    }
 
     GuiWindow::Ref gui = GuiWindow::create
         (GuiText("Camera Spline", NULL, 9),
@@ -106,7 +147,7 @@ void App::onInit() {
     b = pane->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
     
-    addModule(gui);
+    addWidget(gui);
 
     {
     enum Fruit {ORANGE, BANANA, PLUM};
@@ -129,7 +170,7 @@ void App::onInit() {
         pane->addSlider("Slider", &f, 0.0f, 1.0f);
 
         GuiButton* button = pane->addButton("Push Me");
-        addModule(gui2);
+        addWidget(gui2);
     }
     }
 }

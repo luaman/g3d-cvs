@@ -185,6 +185,9 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>GApp::debugController</td><td>GApp2::defaultController</td></tr>
 <tr><td>GWindow::pollEvent</td><td>GWindow::pollOSEvent</td></tr>
 <tr><td>G3D::GModule</td><td>G3D::Widget</td></tr>
+<tr><td>G3D::GModuleManager</td><td>G3D::WidgetManager</td></tr>
+<tr><td>G3D::GApp::addWidget</td><td>G3D::GApp::addWidget</td></tr>
+<tr><td>G3D::GApp::removeWidget</td><td>G3D::GApp::removeWidget</td></tr>
 </table>
 </p>
 
