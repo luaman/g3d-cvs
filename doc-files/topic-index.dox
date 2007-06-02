@@ -3,7 +3,7 @@
 
 See also the complete list of <a href="globals_func.html">Functions</a> and <a href="classes.html">Classes</a>.
 
-@section app Application Framework (G3DAll.h, glg3d.lib)
+@section app Application Framework (G3DAll.h, GLG3D.lib)
 <I>High-level building blocks for creating applications.</I>
 
   <UL>
@@ -38,21 +38,19 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     \link G3D::UserInput UserInput\endlink,
     \link G3D::Widget Widget\endlink,
     \link G3D::WidgetManager WidgetManager\endlink
-   <br>
-   <br>
    
   <LI><B>Effects</B> &nbsp; &nbsp;
-    G3D::beginMarkShadows, 
-    G3D::endMarkShadows, 
-    G3D::markShadows,
-    G3D::drawFeatureEdges,
-    G3D::GaussianBlur,
-    G3D::SuperShader,
-    G3D::ToneMap
+    \link G3D::beginMarkShadows beginMarkShadows\endlink, 
+    \link G3D::drawFeatureEdges drawFeatureEdges\endlink,
+    \link G3D::endMarkShadows endMarkShadows\endlink, 
+    \link G3D::GaussianBlur GaussianBlur\endlink,
+    \link G3D::markShadows markShadows\endlink,
+    \link G3D::SuperShader SuperShader\endlink,
+    \link G3D::ToneMap ToneMap\endlink
 
    </UL>
 
-@section gl Hardware Rendering (G3DAll.h, glg3d.lib)
+@section gl Hardware Rendering (G3DAll.h, GLG3D.lib)
 <I>An easy-to-use wrapper for OpenGL and a platform-independent windowing system.</I>
 
  <UL>
@@ -112,7 +110,7 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     G3D::GLenumToString
 </UL>
 
-@section math 3D Math and Systems (graphics3d.h, g3d.lib)
+@section math 3D Math and Systems (G3D.h, G3D.lib)
 <I>Core data structures and system functionality.</I>
 
     <UL>
