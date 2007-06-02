@@ -253,7 +253,39 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GuiButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiCheckBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiLabel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiPane.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiRadioButton.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GuiSkin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiSlider.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiWindow.cpp"
 				>
 			</File>
 			<File
@@ -463,7 +495,39 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiButton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiCheckbox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiControl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiLabel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiPane.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiRadioButton.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSkin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiWindow.h"
 				>
 			</File>
 			<File

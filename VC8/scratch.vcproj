@@ -183,38 +183,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\scratch\GuiButton.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiCheckBox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiControl.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiLabel.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiPane.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiRadioButton.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiSlider.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiWindow.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\scratch\main.cpp"
 				>
 			</File>
@@ -226,38 +194,6 @@
 			>
 			<File
 				RelativePath="..\scratch\CameraSplineManipulator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiButton.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiCheckbox.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiControl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiLabel.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiPane.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiRadioButton.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiSlider.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\GuiWindow.h"
 				>
 			</File>
 		</Filter>
