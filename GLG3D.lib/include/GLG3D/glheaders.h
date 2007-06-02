@@ -6,8 +6,9 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2002-08-07
- @edited  2007-01-10
+ @edited  2007-06-01
 
+ G3D Library
  Copyright 2002-2007, Morgan McGuire.
  All rights reserved.
 */
@@ -45,7 +46,9 @@
 #      error Picked up wrong version of glxext
 #   endif
 
+#   include "GL/glx.h"
 #   include "GL/glxext.h"
+
 #endif
 
 #include "GL/glext.h"
@@ -319,11 +322,11 @@ extern PFNGLSTENCILOPSEPARATEATIPROC glStencilOpSeparateATI;
 #if defined(G3D_OSX)
 namespace G3D
 {
-    /* The OpenGL implementation on OS X has 
-	   no built-in way of getting an extension
-	   proc addresses.  The function that does
-	   this is in the GLG3D library.  */
-	void* NSGLGetProcAddress(const char *name);
+  /* The OpenGL implementation on OS X has 
+     no built-in way of getting an extension
+     proc addresses.  The function that does
+     this is in the GLG3D library.  */
+  void* NSGLGetProcAddress(const char *name);
 }
 #endif
 

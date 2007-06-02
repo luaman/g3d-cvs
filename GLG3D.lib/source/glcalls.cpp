@@ -403,11 +403,11 @@ void* glGetProcAddress(const char * name) {
     #if defined(G3D_WIN32)
 	    return (void *)wglGetProcAddress(name);
     #elif defined(G3D_LINUX)
-        #ifndef GLX_VERSION_1_4
+	    //#ifndef GLX_VERSION_1_4
             return (void *)glXGetProcAddressARB((const GLubyte*)name);
-        #else
-            return (void *)glXGetProcAddress((const GLubyte*)name);
-        #endif
+	    //#else
+            //return (void *)glXGetProcAddress((const GLubyte*)name);
+	    //#endif
     #elif defined(G3D_OSX)
         return G3D::NSGLGetProcAddress((const char*)name);
     #else
