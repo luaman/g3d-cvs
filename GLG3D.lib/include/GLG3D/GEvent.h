@@ -319,6 +319,10 @@ public:
     int h;
 };
 
+/**
+ Triggered when one or more files are dropped onto a window.  The actual filenames dropped can be obtained by calling
+ G3D::GWindow::getDroppedFilenames
+*/
 class FileDropEvent {
 public:
     /** GEventType::FILE_DROP */
@@ -402,12 +406,12 @@ typedef struct SDL_SysWMEvent {
   }
   </pre>
 
-  See also G3D::Widget::onEvent, GApp2::onEvent, G3D::GWindow::pollEvent.
+  @sa G3D::GEventType, G3D::Widget::onEvent, GApp2::onEvent, G3D::GWindow::pollEvent.
 
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */
 typedef union {
-    /** This is a GEventType, but is given uint8 type so that it does not call the constructor. */
+    /** This is a G3D::GEventType, but is given uint8 type so that it does not call the constructor because GEvent is a union. */
     uint8                   type;
     
     ActiveEvent             active;

@@ -25,6 +25,9 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
   <li><b>User Interface</b>&nbsp; &nbsp;
     \link G3D::GApp2 GApp2\endlink,
     \link G3D::GConsole GConsole\endlink,
+    \link G3D::GEvent GEvent\endlink,
+    \link G3D::GEventType GEventType\endlink,
+    \link G3D::GKey GKey\endlink,
     \link G3D::GuiCheckBox GuiCheckBox\endlink,
     \link G3D::GuiButton GuiButton\endlink,
     \link G3D::GuiSkin GuiSkin\endlink,
@@ -32,12 +35,16 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     \link G3D::GuiPane GuiPane\endlink,
     \link G3D::GuiSlider GuiSlider\endlink,
     \link G3D::GuiRadioButton GuiRadioButton\endlink,
+    \link G3D::GWindow GWindow\endlink,
     \link G3D::Manipulator Manipulator\endlink,
     \link G3D::FirstPersonManipulator FirstPersonManipulator\endlink,
+    \link G3D::SDLWindow SDLWindow\endlink,
     \link G3D::ThirdPersonManipulator ThirdPersonManipulator\endlink,
     \link G3D::UserInput UserInput\endlink,
     \link G3D::Widget Widget\endlink,
     \link G3D::WidgetManager WidgetManager\endlink
+    \link G3D::Win32Window Win32Window\endlink,
+    \link G3D::X11Window X11Window\endlink
    
   <LI><B>Effects</B> &nbsp; &nbsp;
     \link G3D::beginMarkShadows beginMarkShadows\endlink, 
@@ -73,16 +80,6 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
     \link G3D::PixelProgram PixelProgram\endlink,
     \link G3D::VertexProgram VertexProgram\endlink,
     \link G3D::VertexAndPixelShader VertexAndPixelShader\endlink,
-
-
-  <LI> <B>Window managment</B>&nbsp; &nbsp;
-    \link G3D::GEvent GEvent\endlink,
-    \link G3D::GKey GKey\endlink,
-    \link G3D::GWindow GWindow\endlink,
-    \link G3D::SDLWindow SDLWindow\endlink,
-    \link G3D::Win32Window Win32Window\endlink,
-    \link G3D::X11Window X11Window\endlink,
-
 
   <LI><B>Extensions to base OpenGL</B> &nbsp; &nbsp;
     \link debugAssertGLOk debugAssertGLOk\endlink,
