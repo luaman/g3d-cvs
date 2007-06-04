@@ -115,14 +115,14 @@ static GEvent makeRelative(const GEvent& e, const Vector2& clientOrigin) {
 
     switch (e.type) {
     case GEventType::MOUSE_MOTION:
-        out.motion.x -= clientOrigin.x;
-        out.motion.y -= clientOrigin.y;
+        out.motion.x -= (uint16)clientOrigin.x;
+        out.motion.y -= (uint16)clientOrigin.y;
         break;
 
     case GEventType::MOUSE_BUTTON_DOWN:
     case GEventType::MOUSE_BUTTON_UP:
-        out.button.x -= clientOrigin.x;
-        out.button.y -= clientOrigin.y;        
+        out.button.x -= (uint16)clientOrigin.x;
+        out.button.y -= (uint16)clientOrigin.y;        
         break;
     }
 

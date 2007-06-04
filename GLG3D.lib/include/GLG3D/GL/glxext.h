@@ -458,6 +458,7 @@ typedef void ( * PFNGLXSELECTEVENTPROC) (Display *dpy, GLXDrawable draw, unsigne
 typedef void ( * PFNGLXGETSELECTEDEVENTPROC) (Display *dpy, GLXDrawable draw, unsigned long *event_mask);
 #endif
 
+#if 0
 #ifndef GLX_VERSION_1_4
 #define GLX_VERSION_1_4 1
 #ifdef GLX_GLXEXT_PROTOTYPES
@@ -472,6 +473,7 @@ typedef __GLXextFuncPtr ( * PFNGLXGETPROCADDRESSPROC) (const GLubyte *procName);
 extern __GLXextFuncPtr glXGetProcAddressARB (const GLubyte *);
 #endif /* GLX_GLXEXT_PROTOTYPES */
 typedef __GLXextFuncPtr ( * PFNGLXGETPROCADDRESSARBPROC) (const GLubyte *procName);
+#endif
 #endif
 
 #ifndef GLX_ARB_multisample

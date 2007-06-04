@@ -26,6 +26,8 @@
 
 namespace G3D {
 
+class GuiButton;
+
 /**
  Sub-rectangle of a window.  Created by GuiWindow::addPane().
  If a pane is invisible, everything inside of it is also invisible.
