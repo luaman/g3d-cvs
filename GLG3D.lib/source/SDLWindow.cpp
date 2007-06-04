@@ -387,6 +387,11 @@ SDLWindow::~SDLWindow() {
 }
 
 
+void SDLWindow::getDroppedFilenames(Array<std::string>& files) {
+    files.fastClear();
+}
+
+
 void SDLWindow::getSettings(GWindow::Settings& settings) const {
     settings = _settings;
 }

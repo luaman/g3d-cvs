@@ -125,6 +125,7 @@ private:
 
     virtual bool pollOSEvent(GEvent& e);
 
+    Array<std::string> m_droppedFiles;
 public:
 
     /** Different subclasses will be returned depending on
@@ -156,6 +157,8 @@ public:
 	
     virtual ~Win32Window();
 	
+    virtual void getDroppedFilenames(Array<std::string>& files);
+
     void close();
 	
     inline HWND hwnd() const {

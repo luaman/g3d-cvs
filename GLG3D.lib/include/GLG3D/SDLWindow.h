@@ -81,6 +81,8 @@ protected:
 
     virtual bool pollOSEvent(GEvent& e);
 
+    Array<std::string> m_droppedFiles;
+
 public:
 
     SDLWindow(const GWindow::Settings& settings);
@@ -126,6 +128,8 @@ public:
     virtual void setRelativeMousePosition(double x, double y);
 
     virtual void setRelativeMousePosition(const Vector2& p);
+
+    virtual void getDroppedFilenames(Array<std::string>& files);
 
     virtual void getRelativeMouseState(Vector2& p, uint8& mouseButtons) const;
     virtual void getRelativeMouseState(int& x, int& y, uint8& mouseButtons) const;

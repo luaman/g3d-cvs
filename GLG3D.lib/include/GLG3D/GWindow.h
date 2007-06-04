@@ -259,6 +259,12 @@ public:
     virtual void setDimensions(const Rect2D& dims) = 0;
 
     /**
+      Clears the @a files array and then sets it to a list of all 
+      files that were dropped in the last GEventType::FILE_DROP event.
+     */
+    virtual void getDroppedFilenames(Array<std::string>& files) = 0;
+
+    /**
      Fails silently if unable to change the position.
      Sets the window (not client) position.
      */

@@ -27,7 +27,7 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
  * The return value is one of the following positions:
  */
 #define SDL_HAT_CENTERED	0x00
-#define SDL_HAT_UP              0x01
+#define SDL_HAT_UP          0x01
 #define SDL_HAT_RIGHT		0x02
 #define SDL_HAT_DOWN		0x04
 #define SDL_HAT_LEFT		0x08
@@ -104,10 +104,10 @@ public:
 class GEventType {
 public:
     enum Value { 
-       NONE = 0,		/* Unused (do not remove) */
+       NONE = 0,	        /* Unused (do not remove) */
        ACTIVE,	        	/* Application loses/gains visibility */
        KEY_DOWN,	        /* Keys pressed */
-       KEY_UP,	                /* Keys released */
+       KEY_UP,	            /* Keys released */
        MOUSE_MOTION,		/* Mouse moved */
        MOUSE_BUTTON_DOWN,	/* Mouse button pressed */
        MOUSE_BUTTON_UP,		/* Mouse button released */
@@ -116,8 +116,8 @@ public:
        JOY_HAT_MOTION,		/* Joystick hat position change */
        JOY_BUTTON_DOWN,		/* Joystick button pressed */
        JOY_BUTTON_UP,		/* Joystick button released */
-       QUIT,			/* User-requested quit */
-       SYSWMEVENT,		/* System specific event */
+       QUIT,		        /* User-requested quit */
+       SYSWMEVENT,		    /* System specific event */
        EVENT_RESERVEDA,		/* Reserved for future use.. */
        EVENT_RESERVEDB,		/* Reserved for future use.. */
        VIDEO_RESIZE,		/* User resized video mode */
@@ -128,13 +128,15 @@ public:
        EVENT_RESERVED5,		/* Reserved for future use.. */
        EVENT_RESERVED6,		/* Reserved for future use.. */
        EVENT_RESERVED7,		/* Reserved for future use.. */
-       GUI_DOWN,                /* GuiControl button, etc. pressed. */
-       GUI_UP,                  /* GuiControl button, etc. released. */
-       GUI_ACTION,              /* Button fire, enter pressed in a text box, slider released */
-       GUI_CLOSE,               /* GuiWindow close button pressed. */
+       GUI_DOWN,            /* GuiControl button, etc. pressed. */
+       GUI_UP,              /* GuiControl button, etc. released. */
+       GUI_ACTION,          /* Button fire, enter pressed in a text box, slider released. */
+       GUI_CLOSE,           /* GuiWindow close button pressed. */
+       FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
+                               GWindow.getDroppedFilenames to receive the actual data.*/
 
        /* Events USEREVENT through MAXEVENTS-1 are for your use */
-       USEREVENT = 28,
+       USEREVENT = 29,
        /* This last event is only for bounding internal arrays
   	     It is the number of bits in the event mask datatype -- uint32
         */
@@ -317,11 +319,18 @@ public:
     int h;
 };
 
+class FileDropEvent {
+public:
+    /** GEventType::FILE_DROP */
+    uint8 type;
+    /** Mouse position of drop */
+    int   x, y;
+};
 
 /** The "screen redraw" event */
 class ExposeEvent {
 public:
-    /** SDL_VIDEOEXPOSE */
+    /** GEventType::VIDEOEXPOSE */
     uint8 type;
 };
 
@@ -329,7 +338,7 @@ public:
 /** The "quit requested" event */
 class QuitEvent {
 public:
-    /** QUIT */
+    /** GEventType::QUIT */
     uint8 type;	
 };
 
@@ -337,7 +346,7 @@ public:
 /** A user-defined event type */
 class UserEvent {
 public:
-    /** USEREVENT through NUMEVENTS-1 */
+    /** GEventType::USEREVENT through GEventType::NUMEVENTS-1 */
     uint8 type;
 
     /** User defined event code */
@@ -354,7 +363,7 @@ public:
 /** Events triggered by the G3D Gui system (see G3D::GuiWindow for discussion) */
 class GuiEvent {
 public:
-    /** GUI_UP, GUI_DOWN, GUI_ACTION. */
+    /** GEventType::GUI_UP, GEventType::GUI_DOWN, GEventType::GUI_ACTION. */
     uint8              type;
 
     /** The control that produced the event. */
@@ -393,7 +402,7 @@ typedef struct SDL_SysWMEvent {
   }
   </pre>
 
-  See also G3D::Widget::onEvent, G3D::GWindow::pollEvent.
+  See also G3D::Widget::onEvent, GApp2::onEvent, G3D::GWindow::pollEvent.
 
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */
@@ -416,6 +425,7 @@ typedef union {
     SDL_SysWMEvent          syswm;
     GuiEvent                gui;
     GuiCloseEvent           guiClose;
+    FileDropEvent           drop;
 } GEvent;
 
 }

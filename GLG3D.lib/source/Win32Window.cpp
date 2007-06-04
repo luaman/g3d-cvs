@@ -24,6 +24,7 @@ All rights reserved.
 #include "directinput8.h"
 #include <Winuser.h>
 #include <windowsx.h>
+#include <shellapi.h> // for drag and drop
 
 #include <time.h>
 #include <sstream>
@@ -203,6 +204,10 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
         NULL,
         GetModuleHandle(NULL),
         NULL);
+
+    if (! creatingShareWindow) {
+        DragAcceptFiles(window, true);
+    }
 
     alwaysAssertM(window != NULL, "");
 
@@ -689,6 +694,31 @@ bool Win32Window::pollOSEvent(GEvent& e) {
                 mouseButton(false, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
                 return true;
 
+            case WM_DROPFILES:
+                {
+                    e.drop.type = GEventType::FILE_DROP;
+                    HDROP hDrop = (HDROP) message.wParam;
+                    POINT point;
+                    DragQueryPoint(hDrop, &point);
+                    e.drop.x = point.x;
+                    e.drop.y = point.y;
+
+                    enum {NUM_FILES=0xFFFFFFFF};
+
+                    int n = DragQueryFile(hDrop, NUM_FILES,NULL, 0);
+                    m_droppedFiles.clear();
+                    for (int i = 0; i < n; ++i) {
+                        int numChars = DragQueryFile(hDrop, i, NULL, 0);
+                        char* temp = (char*)System::malloc(numChars + 2);
+                        DragQueryFileA(hDrop, i, temp, numChars + 1);
+                        std::string s = temp;
+                        m_droppedFiles.append(s);
+                        System::free(temp);
+                    }
+                    DragFinish(hDrop);
+                }
+                return true;
+
             } // switch
         } // if
     } // while
@@ -732,6 +762,14 @@ bool Win32Window::pollOSEvent(GEvent& e) {
     }
 
     return false;
+}
+
+
+void Win32Window::getDroppedFilenames(Array<std::string>& files) {
+    files.fastClear();
+    if (m_droppedFiles.size() > 0) {
+        files.append(m_droppedFiles);
+    }
 }
 
 
