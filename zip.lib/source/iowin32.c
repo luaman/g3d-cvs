@@ -1,3 +1,4 @@
+#ifdef _MSC_VER
 /* iowin32.c -- IO base function header for compress/uncompress .zip
    files using zlib + zip or unzip API
    This IO API version uses the Win32 API (for Microsoft Windows)
@@ -268,3 +269,4 @@ void fill_win32_filefunc (pzlib_filefunc_def)
     pzlib_filefunc_def->zerror_file = win32_error_file_func;
     pzlib_filefunc_def->opaque=NULL;
 }
+#endif
