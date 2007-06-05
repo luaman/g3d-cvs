@@ -470,6 +470,7 @@ void Sky::render(
         renderDevice->setCameraToWorldMatrix(matrix);
         renderDevice->setObjectToWorldMatrix(CoordinateFrame());
 
+        renderDevice->disableLighting();
         renderDevice->setColor(lighting.skyAmbient);
         renderDevice->setCullFace(RenderDevice::CULL_BACK);
         renderDevice->setDepthWrite(false);
@@ -580,6 +581,7 @@ void Sky::renderLensFlare(
 
     debugAssertGLOk();
     renderDevice->pushState();
+        renderDevice->disableLighting();
 
         CoordinateFrame camera = renderDevice->getCameraToWorldMatrix();
 	    CoordinateFrame matrix;
