@@ -202,6 +202,10 @@ local int add_data_in_datablock(ll,buf,len)
     const void* buf;
     uLong len;
 {
+    // Added to avoid a warning that free_linkedlist is never called
+    (void)free_linkedlist;
+
+
     linkedlist_datablock_internal* ldi;
     const unsigned char* from_copy;
 
