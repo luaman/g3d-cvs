@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="zlib.lib"
-	ProjectGUID="{89C4AEDA-6125-4547-80FC-7734F84B4192}"
-	RootNamespace="zliblib"
+	Name="zip.lib"
+	ProjectGUID="{CE489E4F-09B8-4493-AFA9-18EEDBABAFE6}"
+	RootNamespace="ziplib"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -21,11 +21,10 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -41,15 +40,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;;&quot;$(SolutionDir)..\$(ProjectName)\include\zip&quot;;&quot;$(SolutionDir)..\zlib.lib\include\&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="0"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -90,51 +88,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\zlib.lib\source\adler32.c"
+				RelativePath="..\zip.lib\source\crypt.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\compress.c"
+				RelativePath="..\zip.lib\source\ioapi.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\crc32.c"
+				RelativePath="..\zip.lib\source\ioapi.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\deflate.c"
+				RelativePath="..\zip.lib\source\iowin32.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\gzio.c"
+				RelativePath="..\zip.lib\source\iowin32.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\infback.c"
+				RelativePath="..\zip.lib\source\unzip.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\inffast.c"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inflate.c"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inftrees.c"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\trees.c"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\uncompr.c"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\zutil.c"
+				RelativePath="..\zip.lib\source\zip.c"
 				>
 			</File>
 		</Filter>
@@ -144,47 +122,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\zlib.lib\source\crc32.h"
+				RelativePath="..\zip.lib\include\zip\unzip.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\deflate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inffast.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inffixed.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inflate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inftrees.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\trees.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\zconf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\include\zconf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\include\zlib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\zutil.h"
+				RelativePath="..\zip.lib\include\zip\zip.h"
 				>
 			</File>
 		</Filter>
