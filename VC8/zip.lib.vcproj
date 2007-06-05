@@ -25,6 +25,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
