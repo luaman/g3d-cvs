@@ -21,8 +21,8 @@
 
 <TD VALIGN=BOTTOM ALIGN=RIGHT>
 <FONT SIZE=2>
-<I>Version 0.5.1
-<BR>2007-02-03
+<I>Version 0.5.3
+<BR>2007-06-01
 </FONT>
 </TD>
 </TR></TABLE>
@@ -323,12 +323,10 @@ that result from an improperly configured system.
 <FONT FACE="Times New Roman"><H2>Command Line</H2></FONT>
 <BLOCKQUOTE>
 <PRE>
-
-
-iCompile: the zero-configuration build system
-    
 icompile  [--doc] [--opt|--debug] [--clean] [--version]
-          [--verbosity n] [--help] [--noprompt] [--run|--gdb ...]
+          [--config <custom .icompile>] [--verbosity n]
+          [--help] [--noprompt [--template <tname>]] [--info] 
+          [--run|--gdb ...]
 
 iCompile can build most C++ projects without options or manual
 configuration.  Just type 'icompile' with no arguments.  Run in an
@@ -336,11 +334,20 @@ empty directory to generate a set of starter files.
 
 Options:
  --doc            Generate documentation before building.
+ 
  --debug          (Default) Create a debug executable (define _DEBUG,
                   disable optimizations).
+                  
  --opt or -O      Generate an optimized executable.
+ 
  --run            Run the program if compilation succeeds, passing all
                   further arguments (...) to the program.
+
+ --config <file>  Use <file> instead of ~/.icompile as the user configuration
+                  file.  This allows you to build certain projects with
+                  a different compiler or include paths without changing the
+                  project ice.txt file, e.g., when installing a 3rd party library
+                  
  --gdb            Run the program under gdb if compilation succeeds,
                   passing all further arguments (...) to the program.
                   You can also just run gdb yourself after using iCompile.
@@ -359,12 +366,21 @@ Options:
                       |   displayed.
 
  --noprompt       Run even if there is no ice.txt file, don't prompt the
-                  user for input.  This is handy for launching iCompile from
-                  automated build shell scripts.
+                  user for input.  This is handy for launching iCompile
+                  from automated build shell scripts.  If
+                  --template <tname> is specified as well, a default
+                  set of files will be built.  The only legal templates
+                  are 'hello', 'G3D', and 'empty' (default).
+
+ --info           Read configuration files and command line options, but instead
+                  of building, print out information about where the generated
+                  file will go.
 
 Exclusive options:
  --help           Print this information.
+ 
  --clean          Delete all generated files (but not library generated files).
+ 
  --version        Print the version number of iCompile.
 
 Special directory names:
@@ -372,13 +388,10 @@ Special directory names:
  data-files       Files that will be needed at runtime
  doc-files        Files needed by your documentation (Doxygen output)
 
-iCompile will not look for source files in directories matching:
-['^\\.', '^#', '^\\.svn$', '^CVS$', '^Debug$', '^Release$',
-'^graveyard$', '^tmp$', '^temp$', '^doc-files$', '^data-files$',
-'^\\.ice-tmp$', '^build$']
+iCompile will not look for source files in directories matching: ['^\\.', '^#', '~$', '^\\.svn$', '^CVS$', '^Debug$', '^Release$', '^graveyard$', '^tmp$', '^temp$', '^doc-files$', '^data-files$', '^\\.icompile-temp$', '^\\.ice-tmp$', '^build$']
 
-You may edit ice.txt if your project has unusual configuration needs.
-See manual.html or http://ice.sf.net for full information.
+You may edit ice.txt and ~/.icompile if your project has unusual configuration
+needs.  See manual.html or http://ice.sf.net for full information.
 
 </PRE>
 

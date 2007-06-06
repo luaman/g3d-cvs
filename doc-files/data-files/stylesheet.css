@@ -32,6 +32,10 @@ a:hover {
     text-decoration: none; 
     background-color: #E0E0FF; }
 
+a.anchor:hover{
+    background-color: #FFFFFF; 
+}
+
 a:visited {
     color: #2929ee; }
 

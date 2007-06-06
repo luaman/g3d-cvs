@@ -26,7 +26,7 @@ file name) into the text box labelled <b>Name</b>.</p>
 
 <li> <p> Press <b>Finish</b>. </p>
 
-<li> <p> Using Explorer or the command line, copy the empty G3D sample program <code>main.cpp</code> file to your project directory.  If you installed G3D to <code>c:\libraries</code>, the sample program is <code>c:\libraries\g3d-7.00\demos\main.cpp</code>.<p>
+<li> <p> Using Explorer or the command line, copy the empty G3D sample program <code>main.cpp</code> file to your project directory.  If you installed G3D to <code>c:\libraries</code>, the sample program is <code>c:\libraries\g3d-7.00\demos\empty\main.cpp</code>.<p>
 
 <li> <p> In Visual Studio, right-click on the <b>Source Files</b> folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Add</b> and then <b>Existing Item...</b> as demonstrated in this image:
 
