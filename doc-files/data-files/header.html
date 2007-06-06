@@ -7,39 +7,48 @@
 	<link href="stylesheet.css" rel="stylesheet" type="text/css">
 	<style type="text/css">
 		span.menu_tab a {
-			background:			#FFE183; 
+                        min-width:              72px;
+			background:		#FFE183; 
 			border-width:		1px; 
 			border-style:		solid; 
 			border-color:		#FFB143; 
-			padding:			5px;
-			margin:				0px;
-			margin-left:		2px;
-			font-size:			11px; 
-			font-weight:		bold;			
+			padding:	        5px;
+			margin:			0px;
+			margin-left:		3px;
+                        margin-top:             10px;
+                        margin-bottom:          -1px;
+			font-size:		11px; 
+			font-weight:		bold;	
 			font-family:		arial;
-			color:				#000000;
-			position:			relative;
+			color:			#704000;
+			position:		relative;
 			display:		inline;
+                        float:                  left;
+                        text-align:             center;
 		}
 
-        span.menu_tab a:link, a:visited {
-            text-decoration:    none;
-        }
-		span.menu_tab a:hover {
-			background:			#FDEFA0;
-            color:              #000000;
-            text-decoration:    none;
+                span.menu_tab a:link, a:visited {
+                        text-decoration:        none;
+                }
+
+                span.menu_tab a:hover {
+                        background:		#FDEFA0;
+                        color:                  #000000;
+                        text-decoration:        none;
 		}
+
 		.widthadjust {
-			min-width:			800px;
-			width:				80%;
-			background:			#FFFFFF; 
+			min-width:		800px;
+			width:			80%;
+			background:		#FFFFFF; 
 			padding-left:		5px;
 			padding-right:		5px;
 		}
+
 		* html .widthadjust {
-			width:				expression(document.body.clientWidth < 1000? "1000px": "auto";
+			width:			expression(document.body.clientWidth < 1000? "1000px": "auto";
 		}
+
 	</style>
 </head>
 
@@ -47,13 +56,14 @@
 <table class="widthadjust" align=center><tr><td>
 <table style="height: 44px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: #FFc161;" width=100% cellspacing=0 cellpadding=0>
 <tr cellspacing=0 cellpadding=0>
-	<td style="width: 70%;" nowrap=true>
-			<a href="index.html"><img src="G3D-small-shadow.jpg" border=0></a>
-			<span class="menu_tab"><a href="guidecontents.html">Contents</a></span>
-       		<span class="menu_tab"><a href="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</a></span>
-			<span class="menu_tab"><a href="http://g3d-cpp.cvs.sourceforge.net/g3d-cpp/G3D/">Source</a></span>
-			<span class="menu_tab"><a href="indexedbytopic.html">API Index</a></span>
-	</td>
+<td style="width: 70%;" nowrap=true valign=bottom>
+<a href="index.html"><img src="G3D-small-shadow.jpg" border=0 align=left></a>
+<span class="menu_tab"><a href="guidecontents.html">Contents</a></span>
+<span class="menu_tab"><a href="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</a></span>
+<span class="menu_tab"><a href="http://g3d-cpp.cvs.sourceforge.net/g3d-cpp/G3D/">Source</a></span>
+<span class="menu_tab"><a href="topicindex.html">Topic Index</a></span>
+<span class="menu_tab"><a href="apiindex.html">API Index</a></span>
+</td>
 </tr>
 </table>
 <br>
