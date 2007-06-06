@@ -11,7 +11,7 @@
 <ol>
 <li><p>Installing %G3D
 \htmlonly
-<table width=250><tr><td width=10%></td><td width=45%><a href="guidewin32.html">Windows</a></td><td>Linux</td></tr><tr><td></td><td>OS X</td><td>FreeBSD</td></tr></table>
+<table width=250><tr><td width=10%></td><td width=45%><a href="guidewin32.html">Windows</a></td><td><a href="guideunix.html">Linux</a></td></tr><tr><td></td><td>OS X</td><td><a href="guideunix.html">FreeBSD</a></td></tr></table>
 \endhtmlonly
 </p>
 

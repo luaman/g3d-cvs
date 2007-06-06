@@ -1,8 +1,10 @@
 /** @page guidewin32 Installing G3D on Windows
 
-The following sections give step-by-step instructions for installing the free
-version of Visual Studio, the 7.00 beta 1 version of %G3D, and creating
-your first %G3D program.  These assume no familiarity with Visual Studio or %G3D (however, to <i>use</i> %G3D, you'll need to know your way around a 3D graphics pipeline.)
+The following sections give step-by-step instructions for installing
+the free version of Visual Studio, the 7.00 beta 3 version of %G3D.
+These assume no familiarity with Visual Studio or %G3D (however, to
+<i>use</i> %G3D, you'll need to know your way around a 3D graphics
+pipeline.)
 
 <p>For experienced Visual Studio users, the short version of these instructions is simple:
 

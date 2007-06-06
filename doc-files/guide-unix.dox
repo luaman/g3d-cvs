@@ -1,0 +1,52 @@
+/** @page guideunix Installing G3D on Linux and FreeBSD
+
+The following sections give step-by-step instructions for downloading,
+building, and installing the 7.00 beta 3 version of %G3D on Linux and
+FreeBSD.  
+
+<p>For experienced administrators who plan to write their own Makefiles
+the short version of these instructions is simple:
+
+\htmlonly
+<ol>
+<li> Unzip <a
+href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-src.zip?download">g3d-7.00-b03-src.zip</a>
+<li> Type <code>buildg3d install /usr/local</code> to build the library
+<li> See <code>/usr/local/G3D-7.00/demos/empty/main.cpp</code> for a simple application framework
+</ol>
+\endhtmlonly
+</p>
+
+
+<hr>
+@section source Unzip source files
+
+\htmlonly
+<pre>
+pushd /tmp
+curl http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-src.zip?download > g3d-7.00-b03-src.zip
+unzip g3d-7.00-b03-src.zip
+pushd G3D
+chmod u+x buildg3d
+./buildg3d install /usr/local
+popd
+rm -rf G3D
+popd
+</pre>
+
+<p>
+You probably want to bookmark the local G3D documentation at
+<code>/usr/local/G3D-7.00/html/index.html</code>.  Sample projects and
+data files can be found at <code>/usr/local/G3D-7.00/data</code> and
+<code>/usr/local/G3D-7.00/demos</code>.
+</p>
+
+<p>
+If you choose to install G3D to a path that is not already in your
+INCLUDE and LIBRARY variables then you need to edit your
+<code>~/.icompile</code> file to work with G3D.  See the <b><a
+href="icompile-manual.html" >iCompile Manual</a> for details.
+</p>
+\endhtmlonly
+
+*/
