@@ -53,10 +53,6 @@
      How to use raw OpenGL commands with G3D
   </TD></TR>
 
-  <TR><TD VALIGN=TOP>\link guidenetwork Networking with %G3D\endlink</TD><TD VALIGN=TOP>
-       Using the network interfaces of G3D
-  </TD></TR>
-
   <TR><TD VALIGN=TOP>\link guidevar Vertex Arrays \endlink</TD><TD VALIGN=TOP>
    Creating, managing, and rendering from vertex arrays (video memory)
   </TD></TR>
@@ -109,14 +105,6 @@
 
 
 <TR><TD>\link deprecated Deprecated \endlink</TD><TD>APIs to be removed in 7.0</TD></TR>
-<TR><TD>\link changelog Change Log \endlink</TD><TD>Changes between G3D Releases</TD></TR>
-<TR><TD>\link faq General FAQ \endlink</TD><TD>General Frequently Asked Questions</TD></TR>
-<TR><TD>\link errorfaq Error FAQ \endlink</TD><TD>Frequently Asked Questions (Common Errors)</TD></TR>
-<TR><TD>\link contributors G3D Contributors \endlink</TD><TD>The G3D Team, past and present</TD></TR>
-<TR><TD VALIGN=TOP COLSPAN=2>Index:
-\link indexedbytopic By Topic \endlink |
-Alphabetic <A HREF="classes.html">Classes</A> and <A HREF="globals_func.html">Functions</A> |
-\link frequent Frequently Used (bookmark this!) \endlink
 </TD></TR>
 </TABLE>
 

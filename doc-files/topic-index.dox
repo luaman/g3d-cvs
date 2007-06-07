@@ -203,6 +203,8 @@ simulates photons moving around a scene).
 
 @section network Networking
 
+See also the \link guidenetwork Networking Overview\endlink.
+
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td></td></tr>

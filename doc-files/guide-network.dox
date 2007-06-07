@@ -1,15 +1,11 @@
 /** @page guidenetwork Networking with G3D
 
-  \htmlonly
-<TABLE BORDER=0 WIDTH=80%><TR><TD><I><FONT FACE="Arial">
-<A HREF="guideopengl.html"><IMG SRC="backarrow.gif" BORDER=0 ALIGN=MIDDLE>
-Using OpenGL with G3D</A></I></FONT></TD><TD ALIGN=RIGHT><FONT FACE="Arial"><I>
-<A HREF="guidevar.html">
-Vertex Arrays <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></TR></TABLE>
-\endhtmlonly
+This manual section is intended to give a brief overview of networking
+in general, and then decribe how to use the concepts within a G3D
+application, and the helper classes that are provided to the
+developer. 
 
-This manual section is intended to give a brief overview of networking in general, and then decribe how to use the concepts
-within a G3D application, and the helper classes that are provided to the developer.
+See also <a href="topicindex.html#network" >Network APIs</a>.
 
 @section concepts Concepts in Networking
 

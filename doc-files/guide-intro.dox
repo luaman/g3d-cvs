@@ -1,18 +1,6 @@
 /** 
 @page guideintro Introduction
 
-
-\htmlonly
-<TABLE BORDER=0 WIDTH=80%><TR><TD><I><FONT FACE="Arial">
-<A HREF="index.html"><IMG SRC="backarrow.gif" BORDER=0 ALIGN=MIDDLE>
-Table of Contents</A></I></FONT></TD><TD ALIGN=RIGHT><FONT FACE="Arial"><I>
-<A HREF="license.html">
-License <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></TR></TABLE>
-\endhtmlonly
-
-
-@section Welcome
-
 <IMG SRC="3dengine.jpg" style="float: right;">
 %G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
 It is used in games, tech demos, research papers, military simulators, and

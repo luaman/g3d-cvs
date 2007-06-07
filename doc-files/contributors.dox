@@ -1,43 +1,40 @@
 /**
-@page contributors Contributors
+@page contributors G3D Developer Credits
 
  <b>Team Members</b>
- <br><i>6.08 Release Team</i>
-  <br>Morgan McGuire [Brown] - Win32 Lead (Project Manager)
-  <br>Corey Taylor [EA] - Linux Lead
-  <br>Casey O'Donnell [RPI]- OS X Lead
-  <br>Tom Wardill - Doc Lead
-  <br>Daniel Hilferty [US Air Force] - Documentation
-  <br>Dan Keefe [Brown] - Developer
+ <br><i>7.00 Release Team</i>
+ <br>Morgan McGuire [Williams College] - Win32 Lead (Project Manager)
+ <br>Casey O'Donnell [RPI]- OS X Lead
+ <br>Eric Muller [Williams College] - Developer
 
   <P><i>Other Team Members</i>
-  <br>Peter Sibley [Brown] - Developer
-  <br>Ben Landon [Sensible] - Developer
-  <br>Kevin Egan [Rhythm & Hues] - Developer
-  <br>Dmitri [Brown] - Developer
-  <br>Gabe Taubman - Developer (OS X)
-  <br>Rich Deeson [Codemasters] - Documentation
+  <br>Corey Taylor [EA] - Developer
+  <br>Daniel Hilferty [US Air Force] - Documentation
+  <br>Dan Keefe [Brown University] - Developer
 
    <b>Previous Contributors and Cited Sources</b>
    <br>This library contains code and resources contributed by the
-   following people, or based open code and articles by them:
+   following people, or based open code and articles by them.  Starred (*) developers
+are previous members of the %G3D team.
 
    <p>David Baszucki
    <BR>Seth Block
    <BR>Nicholas Bray
    <BR>Nick Capens
    <BR>Erik Cassel
-   <BR>John Chisholm
+   <BR>John Chisholm*
    <BR>Jauhn Dabz
    <BR>Erik de Castro Lopo 
+   <br>Rich Deeson*
    <BR>Chris Demetriou
    <BR>L. Peter Deutsch
+   <br>Dmitri*
    <BR>Dave Eberly
-   <BR>Kevin Egan
+   <BR>Kevin Egan*
    <BR>Cass Everitt
    <BR>Andi Fein
    <BR>Jakob Fischer
-   <BR>Dan Keefe
+   <BR>Dan Keefe*
    <BR>Harishabd Khalsa
    <BR>Nicolai Haehnle
    <BR>Michael Herf
@@ -47,12 +44,12 @@
    <BR>Ed Johnson
    <BR>Benjamin Jurke
    <BR>Chris Kern
-   <BR>James O'Sullivan
+   <BR>James O'Sullivan*
    <BR>Aaron Orenstein
    <BR>Jordan Parker
    <BR>Independent JPEG Group
    <BR>Darius Jazayeri
-   <BR>Ben Landon
+   <BR>Ben Landon*
    <BR>Thomas G. Lane
    <BR>Ray Larabie
    <BR>Jukka Liimatta
@@ -68,12 +65,13 @@
    <BR>Alex Rice
    <BR>Jack Ritter
    <BR>Nate Robbins
-   <BR>Joshua Schpok
+   <BR>Joshua Schpok*
    <BR>Sebastian Schubert
    <BR>SGI
-   <BR>Ben Shine
-   <BR>Peter Sibley
-   <BR>Corey Taylor
+   <BR>Ben Shine*
+   <BR>Peter Sibley*
+    <br>Gabe Taubman*
+   <BR>Corey Taylor*
    <BR>Pierre Terdiman
    <BR>Ben Trumbore
    <BR>Matthew Welch

@@ -1,4 +1,4 @@
-/** @mainpage G3D Manual
+/** @mainpage 
 
 <div>
 
@@ -11,27 +11,38 @@
 <ol>
 <li><p>Installing %G3D
 \htmlonly
-<table width=250><tr><td width=10%></td><td width=45%><a href="guidewin32.html">Windows</a></td><td><a href="guideunix.html">Linux</a></td></tr><tr><td></td><td>OS X</td><td><a href="guideunix.html">FreeBSD</a></td></tr></table>
+<table width=250><tr><td width=10%></td><td width=45%><a class="el" href="guidewin32.html">Windows</a></td><td><a class="el" href="guideunix.html">Linux</a></td></tr><tr><td></td><td>OS X</td><td><a class="el" href="guideunix.html">FreeBSD</a></td></tr></table>
 \endhtmlonly
 </p>
 
 <li> <p> Creating a Project
 \htmlonly
-<table width=250><tr><td width=10%></td><td width=45%><a href="guidenewwin32.html">Windows</a></td><td><a href="guidenewunix.html">Linux</a></td></tr><tr><td></td><td><a href="guidenewunix.html">OS X</a></td><td><a href="guidenewunix.html">FreeBSD</a></td></tr></table>
+<table width=250><tr><td width=10%></td><td width=45%><a class="el" href="guidenewwin32.html">Windows</a></td><td><a class="el" href="guidenewunix.html">Linux</a></td></tr><tr><td></td><td><a class="el" href="guidenewunix.html">OS X</a></td><td><a class="el" href="guidenewunix.html">FreeBSD</a></td></tr></table>
 \endhtmlonly
 </p>
 
 <li> <p> \link guidenewuser New User Guide \endlink</p>
 
-<li> <p> \link guidecontents Full Table of Contents \endlink</p>
-
 <li> <p> \link guideintro Introduction \endlink</p>
 
-<li> <p> \link indexedbytopic API Index \endlink</p>
+<li> <p> <a class="el" href="icompile-manual.html" >iCompile Manual</a></p>
 
-<li> <p> \link license License \endlink</p>
+<li> <p> FAQs
+\htmlonly<table width=250>
+<tr><td width=10%></td><td><a class="el" href="faq.html">General Questions</a></td><td></td></tr>
+<tr><td width=10%></td><td><a class="el" href="errorfaq.html">Common Errors</a></td><td></td></tr>
+<tr><td width=10%></td><td><a class="el" href="upgrade.html">Upgrading from 6.xx</a></td><td></td></tr>
+</table>\endhtmlonly
 
-<li> <p> <b><a href="icompile-manual.html" >iCompile Manual</a></b></p>
+<li> <p> About %G3D
+\htmlonly<table width=250>
+<tr><td width=10%></td><td width=45%><a class="el" href="license.html">License</a></td><td></td></tr>
+<tr><td width=10%></td><td width=45%><a class="el" href="contributors.html">Credits</a></td><td></td></tr>
+<tr><td width=10%></td><td width=45%><a class="el" href="changelog.html">Change Log</a></td><td></td></tr>
+</table>\endhtmlonly
+
+
+
 </ol>
 \htmlonly
 </font>
