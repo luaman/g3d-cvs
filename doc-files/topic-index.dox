@@ -83,6 +83,12 @@ features.  Not all API entry points are shown in this index.
 
 @section shadows Shadows
 
+Shadow rendering algorithms first determine shadowed locations, and
+then paint ambient illumination everywhere, and finally add
+illumination only in non-shadowed areas.  There are two major
+algorithms for determining the shadowed locations in real-time, shadow
+volumes and shadow maps.  %G3D supports both, on programmable and fixed function hardware.
+
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::Texture::createEmpty Texture::createEmpty\endlink(...\link G3D::TextureFormat::DEPTH24 TextureFormat::DEPTH24\endlink, \link G3D::Texture::Settings::shadow Texture::Settings::shadow\endlink)</td><td>Create an empty shadow map</td></tr>
