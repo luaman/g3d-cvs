@@ -57,7 +57,7 @@ class GuiPane;
    </pre>
 
    Note that in the example, one check-box is connected to a field of "player" and another to methods to get and set
-   a value.  To process the button click, extend the GApp2 (or another GModule's) GApp2::onEvent method as follows:
+   a value.  To process the button click, extend the GApp2 (or another Widget's) GApp2::onEvent method as follows:
 
    <pre>
    bool App::onEvent(const GEvent& e) {
