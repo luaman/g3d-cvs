@@ -4,7 +4,9 @@ The following sections give step-by-step instructions for downloading,
 building, and installing the 7.00 beta 3 version of %G3D on Linux and
 FreeBSD.  
 
-<p>For experienced administrators who plan to write their own Makefiles
+<b>WARNING: THESE INSTRUCTIONS ARE NEWER THAN THE BUILD SYSTEM.  DO NOT FOLLOW THEM YET</b>
+
+For experienced administrators who plan to write their own Makefiles
 the short version of these instructions is simple:
 
 \htmlonly

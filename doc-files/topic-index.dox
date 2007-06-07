@@ -1,16 +1,106 @@
 /**
   @page topicindex Topic Index
 
+\htmlonly
 <ul>
-<li> Shadows
-<li> Debugging
-<li> 2D Graphical User Interface
-<li> Image and Video Processing
-<li> String Processing
-<li> File I/O
-<li> Ray tracing
-<li> Networking
-<li> Physical Simulation
+<li><a href="#debugging">Debugging</a>
+<li><a href="#profiling">Profiling and Optimization</a>
+<li><a href="#guix">2D Graphical User Interface</a>
+<li><a href="#scenegraph">Scene Graph</a>
+<li><a href="#shadows">Shadows</a>
+<li><a href="#image">Image and Video Processing</a>
+<li><a href="#files">File I/O</a>
+<li><a href="#raytrace">Ray Tracing</a>
+<li><a href="#network">Network</a>
+<li><a href="#physics">Physics</a>
 </ul>
+\endhtmlonly
+
+<b>Boldface</b> links designate the most common and easy-to-use
+features.  Not all API entry points are shown in this index; see the
+API index for a full listing.
+
+@section debugging Debugging
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link debugAssert <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
+<tr><td></td><td>\link G3D::GApp2::debugPrintf <b>GApp2::debugPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
+<tr><td></td><td>\link G3D::debugPrintf <b>G3D::debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
+<tr><td></td><td>\link debugAssertM debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
+<tr><td></td><td>\link alwaysAssertM alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>
+<tr><td></td><td>\link G3D::GApp2::catchCommonExceptions GApp2::catchCommonExceptions\endlink</td><td>Turn uncaught exceptions into assertion failures</td></tr>
+<tr><td></td><td>\link G3D::Log Log\endlink</td><td>Guarantees output is written to disk before Log::printf returns</td></tr>
+<tr><td></td><td>\link G3D::describeSystem describeSystem\endlink</td><td>Returns a string describing the current machine</td></tr>
+<tr><td></td><td>\link G3D::isValidHeapPointer isValidHeapPointer\endlink</td><td>Used in assertions to identify bad pointers</td></tr>
+<tr><td></td><td>\link G3D::isValidPointer isValidPointer\endlink</td><td>Used in assertions to identify bad pointers</td></tr>
+<tr><td></td><td>\link G3D::setAssertionHook setAssertionHook\endlink</td><td>Override the behavior of assertion failures</td></tr>
+<tr><td></td><td>\link G3D::setFailureHook setFailureHook\endlink</td><td>Override the behavior of alwaysAssertM failures in RELEASE builds</td></tr>
+<tr><td></td><td>\link G3D::GApp2::showDebugText GApp2::showDebugText\endlink</td><td>Enable GApp2::debugPrintf output</td></tr>
+</table>
+
+@section profiling Profiling and Optimization
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Stopwatch <b>Stopwatch</b>\endlink</td><td>Accurately measure the duration and effective framerate of routines</td></tr>
+<tr><td></td><td>\link G3D::RenderDevice::getTriangleCount RenderDevice::getTriangleCount\endlink, \link G3D::RenderDevice::getTriangleRate RenderDevice::getTriangleRate\endlink, \link G3D::RenderDevice::getTrianglesPerFrame RenderDevice::getTrianglesPerFrame\endlink</td><td>Measure the GPU vertex throughput</td></tr>
+<tr><td></td><td>\link G3D::GApp2::showRenderingStats GApp2::showRenderingStats\endlink</td><td>Display performance information on the 3D window</td></tr>
+<tr><td></td><td>\link G3D::System::mallocPerformance System::mallocPerformance\endlink, \link G3D::System::mallocStatus System::mallocStatus\endlink, \link G3D::System::resetMallocPerformanceCounters System::resetMallocPerformanceCounters\endlink</td><td>Measure heap size and detect memory leaks</td></tr>
+<tr><td></td><td>\link G3D::System::beginCycleCount System::beginCycleCount\endlink, \link G3D::System::endCycleCount System::endCycleCount\endlink</td><td>Cycle-accurate timing of very short routines </td></tr>
+</table>
+
+@section guix 2D Graphical User Interface
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::GuiWindow <b>GuiWindow</b>\endlink</td><td>Skinnable GUI (documentation contains GUI sample code)</td></tr>
+<tr><td></td><td>\link G3D::GuiPane <b>GuiPane</b>\endlink</td><td>Container and creator of other GUI controls; obtained from a GuiWindow </td></tr>
+<tr><td></td><td>\link G3D::GEvent <b>GEvent</b>\endlink, \link G3D::GEventType <b>GEventType</b>\endlink</td><td>Event class and type enum, used inside an event handler</td></tr>
+<tr><td></td><td>\link G3D::UserInput <b>UserInput</b>\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
+<tr><td></td><td>\link G3D::GApp2::onEvent <b>GApp2::onEvent</b>\endlink, \link G3D::GApp2::onUserInput<b>GApp2::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
+<tr><td></td><td>\link G3D::GFont GFont\endlink</td><td>Explicitly render text</td></tr>
+<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink</td><td>GUI controls created by GuiPanel </td></tr>
+<tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td></td></tr>
+</table>
+
+@section shadows Shadows
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Texture::createEmpty Texture::createEmpty\endlink(...\link G3D::TextureFormat::DEPTH24 TextureFormat::DEPTH24\endlink, \link G3D::Texture::Settings::shadow Texture::Settings::shadow\endlink)</td><td>Create an empty shadow map</td></tr>
+<tr><td></td><td>\link G3D::RenderDevice::configureShadowMap RenderDevice::configureShadowMap\endlink</td><td>Fixed function shadow map rendering</td></tr>
+<tr><td></td><td>\link G3D::SuperShader::configureShadowShader SuperShader::configureShadowShader\endlink</td><td>Programmable pipeline shadow map rendering</td></tr>
+<tr><td></td><td>\link G3D::PosedModel::renderShadowMappedLightPass PosedModel::renderShadowMappedLightPass\endlink</td><td>Render shadow mapped shadows on any model</td></tr>
+<tr><td></td><td>\link G3D::beginMarkShadows beginMarkShadows\endlink, \link G3D::beginMarkShadows markShadows\endlink, \link G3D::endMarkShadows endMarkShadows\endlink</td><td>Compute and render stenciled shadow volumes</td></tr>
+<tr><td></td><td>\link G3D::PosedModel::renderShadowedLightPass PosedModel::renderShadowedLightPass\endlink</td><td>Render shadow volume shadows on any model (when used with begin/endMarkShadows)</td></tr>
+</table>
+
+@section image Image and Video Processing
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Draw::rect2D <b>Draw::rect2D</b>\endlink</td><td>Stretch a Texture over a rectangle on screen</td></tr>
+<tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>GPU image representation</td></tr>
+<tr><td></td><td>\link G3D::Image3 <b>Image3</b>\endlink</td><td>RGB floating point image</td></tr>
+<tr><td></td><td>\link G3D::Image1 Image1\endlink</td><td>Monochrome floating point image</td></tr>
+<tr><td></td><td>\link G3D::Image4 Image4\endlink</td><td>RGBA floating point image</td></tr>
+<tr><td></td><td>\link G3D::Image1uint8 Image1uint8\endlink</td><td>8-bit Monochrome image</td></tr>
+<tr><td></td><td>\link G3D::Image3uint8 Image3uint8\endlink</td><td>24-bit RGB image</td></tr>
+<tr><td></td><td>\link G3D::Image4uint8 Image4uint8\endlink</td><td>32-bit RGBA image</td></tr>
+<tr><td></td><td>\link G3D::GImage GImage\endlink</td><td>Fast but harder to use mono-8, RGB-24, or RGBA-32 image</td></tr>
+<tr><td></td><td>\link G3D::Map2D Map2D\endlink</td><td>Templated image class, e.g., for creating normal maps or arbitrary grids of values</td></tr>
+<tr><td></td><td>\link G3D::WrapMode WrapMode\endlink</td><td>Specifies how out-of-bounds image locations are treated for Texture, Map2D, and Image classes</td></tr>
+<tr><td></td><td>\link G3D::gaussian1D gaussian1D\endlink</td><td>Generate 1D blur filter coefficients</td></tr>
+<tr><td></td><td>\link G3D::GaussianBlur GaussianBlur\endlink</td><td>Fast GPU 1D blur</td></tr>
+<tr><td></td><td>\link G3D::ToneMap ToneMap\endlink</td><td>Gamma correct, adaptation, and bloom for realistic lighting</td></tr>
+</table>
+
+@section strings String Processing
+
+@section files File I/O
+
+@section raytrace Ray tracing
+
+@section network Networking
+
+@section physics Physical Simulation
 
 */
