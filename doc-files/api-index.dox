@@ -1,7 +1,14 @@
 /**
-  @page apiindex API Index
+  @page apiindex All APIs by Level
 
-See also the complete list of <a href="globals_func.html">Functions</a> and <a href="classes.html">Classes</a>.
+APIs at the top of this page are the highest-level, providing the most
+functionality and requiring the most dependencies.  Each section
+builds on the next lower one, with the most basic standalone routines
+at the bottom.
+
+See also the complete list of <a
+href="globals_func.html">Functions</a> and <a
+href="classes.html">Classes</a>.
 
 @section app Application Framework (G3DAll.h, GLG3D.lib)
 <I>High-level building blocks for creating applications.</I>
@@ -306,7 +313,7 @@ See also the complete list of <a href="globals_func.html">Functions</a> and <a h
         \link G3D::filenamePath filenamePath\endlink,
         \link G3D::fileIsNewer fileIsNewer\endlink,
         \link G3D::G3DEndian G3DEndian\endlink,
-        \link G3D::GThread GThreat\endlink,
+        \link G3D::GThread GThread\endlink,
         \link G3D::getFiles getFiles\endlink, 
         \link G3D::getDirs getDirs\endlink,
         \link G3D::isDirectory isDirectory\endlink,

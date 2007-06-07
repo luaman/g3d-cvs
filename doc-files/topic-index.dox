@@ -1,24 +1,25 @@
 /**
-  @page topicindex Topic Index
+  @page topicindex Selected APIs by Task
+
+This page lists the most commonly used G3D APIs grouped into functional tasks:
 
 \htmlonly
 <ul>
 <li><a href="#debugging">Debugging</a>
 <li><a href="#profiling">Profiling and Optimization</a>
 <li><a href="#guix">2D Graphical User Interface</a>
-<li><a href="#scenegraph">Scene Graph</a>
+<li><a href="#scene">Scene Graph</a>
 <li><a href="#shadows">Shadows</a>
-<li><a href="#image">Image and Video Processing</a>
+<li><a href="#image">Images and Video</a>
+<li><a href="#strings">Strings</a>
 <li><a href="#files">File I/O</a>
-<li><a href="#raytrace">Ray Tracing</a>
+<li><a href="#raytrace">Ray Tracing and Physics</a>
 <li><a href="#network">Network</a>
-<li><a href="#physics">Physics</a>
 </ul>
 \endhtmlonly
 
 <b>Boldface</b> links designate the most common and easy-to-use
-features.  Not all API entry points are shown in this index; see the
-API index for a full listing.
+features.  Not all API entry points are shown in this index.
 
 @section debugging Debugging
 <table width=90% border=0 >
@@ -26,6 +27,7 @@ API index for a full listing.
 <tr><td></td><td>\link debugAssert <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
 <tr><td></td><td>\link G3D::GApp2::debugPrintf <b>GApp2::debugPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
 <tr><td></td><td>\link G3D::debugPrintf <b>G3D::debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
+<tr><td></td><td>\link G3D::Draw Draw\endlink</td><td>Render simple geometric primitives without loading a model</td></tr>
 <tr><td></td><td>\link debugAssertM debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
 <tr><td></td><td>\link alwaysAssertM alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>
 <tr><td></td><td>\link G3D::GApp2::catchCommonExceptions GApp2::catchCommonExceptions\endlink</td><td>Turn uncaught exceptions into assertion failures</td></tr>
@@ -59,8 +61,25 @@ API index for a full listing.
 <tr><td></td><td>\link G3D::GFont GFont\endlink</td><td>Explicitly render text</td></tr>
 <tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink</td><td>GUI controls created by GuiPanel </td></tr>
 <tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::PosedModel2D PosedModel2D\endlink</td><td>2D object scene graph, used by Widgets for rendering</td></tr>
 <tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::msgBox msgBox\endlink</td><td>Create a new OS window popup message</td></tr>
 </table>
+
+@section scene Scene Graph
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Sky <b>Sky</b>\endlink</td><td>Skybox, moon, sun, and stars</td></tr>
+<tr><td></td><td>\link G3D::IFSModel <b>IFSModel</b>\endlink</td><td>Rigid body</td></tr>
+<tr><td></td><td>\link G3D::ArticulatedModel <b>ArticulatedModel</b>\endlink</td><td>Rigid bodies connected by joints, loads 3DS and IFS models</td></tr>
+<tr><td></td><td>\link G3D::_BSPMAP::Map <b>BSPMap</b>\endlink</td><td>Quake 3 map</td></tr>
+<tr><td></td><td>\link G3D::MD2Model <b>MD2Model</b>\endlink</td><td>Quake 2 character</td></tr>
+<tr><td></td><td>\link G3D::PosedModel <b>PosedModel</b>\endlink</td><td>Static object that is prepared for rendering.  Exposes geometry and adjacency information</td></tr>
+<tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole perspective camera abstraction</td></tr>
+<tr><td></td><td>\link G3D::Shape Shape\endlink</td><td>Geometric primitives primarily used for bounding volumes and debugging</td></tr>
+</table>
+
 
 @section shadows Shadows
 
@@ -74,11 +93,12 @@ API index for a full listing.
 <tr><td></td><td>\link G3D::PosedModel::renderShadowedLightPass PosedModel::renderShadowedLightPass\endlink</td><td>Render shadow volume shadows on any model (when used with begin/endMarkShadows)</td></tr>
 </table>
 
-@section image Image and Video Processing
+@section image Images and Video
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::Draw::rect2D <b>Draw::rect2D</b>\endlink</td><td>Stretch a Texture over a rectangle on screen</td></tr>
 <tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>GPU image representation</td></tr>
+<tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>An "off-screen" rendering surface used for image processing on the GPU</td></tr>
 <tr><td></td><td>\link G3D::Image3 <b>Image3</b>\endlink</td><td>RGB floating point image</td></tr>
 <tr><td></td><td>\link G3D::Image1 Image1\endlink</td><td>Monochrome floating point image</td></tr>
 <tr><td></td><td>\link G3D::Image4 Image4\endlink</td><td>RGBA floating point image</td></tr>
@@ -95,12 +115,51 @@ API index for a full listing.
 
 @section strings String Processing
 
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::beginsWith <b>beginsWith</b>\endlink, \link G3D::endsWith <b>endsWith</b>\endlink</td><td> </td></tr>
+
+<tr><td></td><td>\link G3D::format <b>format</b>\endlink\endlink</td><td>Convert numbers to strings (a safe sprintf)</td></tr>
+
+<tr><td></td><td>\link G3D::isSlash isSlash\endlink, \link G3D::isWhiteSpace isWhiteSpace\endlink, \link G3D::isDigit isDigit\endlink, \link G3D::isNewline isNewline\endlink, \link G3D::isLetter isLetter\endlink, \link G3D::isQuote isQuote\endlink</td><td> </td></tr>
+
+<tr><td></td><td>\link G3D::stringSplit stringSplit\endlink, \link G3D::stringJoin stringJoin\endlink</td><td></td></tr>
+
+<tr><td></td><td>\link G3D::toUpper toUpper\endlink, \link G3D::toLower toLower\endlink</td><td>Change case</td></tr>
+
+<tr><td></td><td>\link G3D::trimWhitespace trimWhitespace\endlink</td><td>Remove blanks at the beginning and end of a string</td></tr>
+
+<tr><td></td><td>\link STR STR\endlink</td><td>Macro for creating large blocks of quoted text, usually used with G3D::Shader</td></tr>
+
+<tr><td></td><td>\link G3D::TextInput::TextInput TextInput\endlink(\link G3D::TextInput::FROM_STRING TextInput::FROM_STRING\endlink, ...)</td><td>Tokenizer for parsing complex strings</td></tr>
+</table>
+
 @section files File I/O
 
-@section raytrace Ray tracing
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::TextInput <b>TextInput</b>\endlink, \link G3D::TextOutput <b>TextOutput</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::getFiles getFiles\endlink, \link G3D::getDirs getDirs\endlink</td><td>Get a directory listing, including wildcards</td></tr>
+<tr><td></td><td>\link G3D::readWholeFile readWholefile\endlink, \link G3D::writeWholeFile writeWholeFile\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::Any Any\endlink</td><td>Can hold any common value and read/write tables of named values.  Very useful for making configuration files</td></tr>
+<tr><td></td><td>\link G3D::copyFile copyFile\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::createTempFile createTempFile\endlink</td><td></td></tr>
+
+<tr><td></td><td>\link G3D::filenameContainsWildcards filenameContainsWildcards\endlink,
+        \link G3D::filenameBaseExt filenameBaseExt\endlink,
+        \link G3D::filenameExt filenameExt\endlink,
+        \link G3D::filenamePath filenamePath\endlink,
+        \link G3D::parseFilename parseFilename\endlink</td><td>Filename parsing and manipulation</td></tr>
+<tr><td></td><td>
+        \link G3D::isDirectory isDirectory\endlink,
+        \link G3D::fileIsNewer fileIsNewer\endlink,
+        \link G3D::fileExists fileExists\endlink, 
+        \link G3D::fileLength fileLength\endlink</td><td>File testing and comparison</td></tr>
+</table>
+
+@section raytrace Ray Tracing and Physics
 
 @section network Networking
-
-@section physics Physical Simulation
 
 */
