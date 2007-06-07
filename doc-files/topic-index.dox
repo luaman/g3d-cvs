@@ -1,7 +1,7 @@
 /**
   @page topicindex Selected APIs by Task
 
-This page lists the most commonly used G3D APIs grouped into functional tasks:
+This page lists the most commonly used %G3D APIs grouped into functional tasks:
 
 \htmlonly
 <ul>
@@ -105,6 +105,8 @@ features.  Not all API entry points are shown in this index.
 <tr><td></td><td>\link G3D::Image1uint8 Image1uint8\endlink</td><td>8-bit Monochrome image</td></tr>
 <tr><td></td><td>\link G3D::Image3uint8 Image3uint8\endlink</td><td>24-bit RGB image</td></tr>
 <tr><td></td><td>\link G3D::Image4uint8 Image4uint8\endlink</td><td>32-bit RGBA image</td></tr>
+<tr><td></td><td>\link G3D::Color1 Color1\endlink, \link G3D::Color3 Color3\endlink, \link G3D::Color4 Color4\endlink</td><td>Floating-point monochrome, RGB, and RGBA color (no clamping)</td></tr>
+<tr><td></td><td>\link G3D::Color1uint8 Color1uint8\endlink, \link G3D::Color3uint8 Color3uint8\endlink, \link G3D::Color4uint8 Color4uint8\endlink</td><td>8-bit Monochrome, 24-bit RGB, and 32-bit RGBA color (clamped to 0-1 / 0-255)</td></tr>
 <tr><td></td><td>\link G3D::GImage GImage\endlink</td><td>Fast but harder to use mono-8, RGB-24, or RGBA-32 image</td></tr>
 <tr><td></td><td>\link G3D::Map2D Map2D\endlink</td><td>Templated image class, e.g., for creating normal maps or arbitrary grids of values</td></tr>
 <tr><td></td><td>\link G3D::WrapMode WrapMode\endlink</td><td>Specifies how out-of-bounds image locations are treated for Texture, Map2D, and Image classes</td></tr>
@@ -160,6 +162,48 @@ features.  Not all API entry points are shown in this index.
 
 @section raytrace Ray Tracing and Physics
 
+Ray tracing and physical simulation both compute intersections between
+geometric primitives.  %G3D distinguishes between "moving" collision
+detection, where two objects are moving with relative constant
+velocity; and "fixed" detection where where the relative velocity of
+the objects is zero.  The two problems are related.  A "moving point"
+is the same as a fixed ray, a "moving sphere" is a fixed capsule, and
+so on.  Thus for ray tracing one often uses "moving point" collision
+detection instead of rays (which is reasonable, since ray tracing
+simulates photons moving around a scene).
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::CollisionDetection <b>CollisionDetection</b>\endlink</td><td>Moving and fixed collisions between many kinds of primitives</td></tr>
+<tr><td></td><td>\link G3D::Ray <b>Ray</b>\endlink,
+\link G3D::Sphere <b>Sphere</b>\endlink,
+\link G3D::Plane <b>Plane</b>\endlink,
+\link G3D::Box <b>Box</b>\endlink,
+\link G3D::AABox <b>AABox</b>\endlink,
+\link G3D::Triangle <b>Triangle</b>\endlink,
+\link G3D::Plane <b>Plane</b>\endlink,
+\link G3D::Line <b>Line</b>\endlink,
+\link G3D::Cylinder <b>Cylinder</b>\endlink,
+\link G3D::Capsule <b>Capsule</b>\endlink,
+\link G3D::Shape <b>Shape</b>\endlink
+</td><td>Geometric primitives</td></tr>
+<tr><td></td><td>\link G3D::MeshAlg <b>MeshAlg</b>\endlink</td><td>Routines for operating on triangle meshes</td></tr>
+<tr><td></td><td>\link G3D::AABSPTree <b>AABSPTree</b>\endlink</td><td>Axis-aligned binary space partition tree for O(log n) collision detection</td></tr>
+<tr><td></td><td>\link G3D::PointAABSPTree <b>PointAABSPTree</b>\endlink</td><td>AABSP tree optimized for zero-extent objects.  Primarily used as a photon map</td></tr>
+<tr><td></td><td>\link G3D::GCamera <b>GCamera::worldRay</b>\endlink</td><td>Obtain the ray through a pixel</td></tr>
+<tr><td></td><td>\link G3D::Image3 <b>Image3</b>\endlink, \link G3D::Image4 <b>Image4</b>\endlink</td><td>Useful for software rendering output and texture maps</td></tr>
+<tr><td></td><td>\link G3D::Vector3::reflectionDirection <b>Vector3::reflectionDirection</b>\endlink, \link G3D::Vector3::refractionDirection <b>Vector3::refractionDirection</b>\endlink</td><td></td></tr>
+</table>
+
 @section network Networking
+
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::NetListener <b>NetListener</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::NetAddress NetAddress\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::LightweightConduit LightweightConduit\endlink</td><td></td></tr>
+</table>
 
 */
