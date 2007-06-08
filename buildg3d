@@ -14,6 +14,11 @@ class Version:
     major = '7'
     minor = '00'
     beta  = '03'
+    def string():
+        if (beta != ''):
+            return major + '.' + minor + '-b' + beta
+        else:
+            return major + '.' + minor
 
 
 def copyIfNewer(source, dest):
@@ -143,11 +148,12 @@ def runicompile(dir):
 
      return x
 
+
 def ilib(args):
      x = 0
 
      if os.name == 'nt':
-         return VC8('VC8\\G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib']);
+         return VC8('VC8\\G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'G3D.lib', 'GLG3D.lib']);
 
      if (os.uname()[0] == 'Darwin') or (os.name == 'nt'):
          # Build jpeg
@@ -172,6 +178,19 @@ def ilib(args):
 
      return x
 
+def itools(args):
+     if os.name == 'nt':
+         return VC8('VC8\\G3D.sln', ['gfxviewer.lib', 'viewer.lib']);
+
+     if (x == 0):
+        os.chdir("tools/gfxmeter")
+        run("../../bin/icompile", ['--opt'])
+        os.chdir("../..")
+
+        os.chdir("tools/viewer")
+        run("../../bin/icompile", ['--opt'])
+        os.chdir("../..")
+
 
 def iclean(args):
     if os.name == 'nt':
@@ -186,6 +205,10 @@ def iclean(args):
     os.chdir("..")
 
     os.chdir("tools/gfxmeter")
+    run("../../bin/icompile", ['--clean'])
+    os.chdir("../..")
+
+    os.chdir("tools/viewer")
     run("../../bin/icompile", ['--clean'])
     os.chdir("../..")
 
@@ -246,6 +269,9 @@ def lib(args):
 def clean(args):
     return iclean(args)
 
+def tools(args):
+    return itools(args)
+
 def test(args):
     return itest(args)
 
@@ -295,9 +321,20 @@ Syntax:
 
 TARGET     DESCRIPTION
 
-help       Display this message
+install    Build all and then copy the files to the install dir.  The
+           directory structure is operating system dependent.  On OS X,
+           FreeBSD, and Linux, the command:
 
-all        Run lib, test, bin, and doc targets
+                buildg3d install /usr/local
+           
+           puts the include files in /usr/local/include/, the binaries
+           in /usr/local/lib, tools in /usr/local/bin, and documentation 
+           and data in /usr/local/G3D-""" + Version().string() + """
+           
+
+all        Run lib, test, bin, tools, and doc targets
+
+tools      Build gfxmeter and viewer applications
 
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            On platforms for which zlib, png, jpeg, and other 
@@ -309,11 +346,14 @@ data       Copy data-files to build/data and the bin
 
 test       Build test and testd and then run both
 
-src        Build an src zipfile (Win32 only)
+src        Build a sources zipfile (Win32 only)
 
 clean      Delete all generated files
 
 doc        Generate documentation using Doxygen
+
+help       Display this message
+
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
@@ -347,4 +387,4 @@ if __name__ == "__main__":
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
          ilib, iclean, itest,
-         doc, install, all, src, data], buildHelp))
+         doc, install, all, src, data, tools], buildHelp))

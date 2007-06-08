@@ -439,8 +439,11 @@ public:
     */
     static GuiSkinRef fromFile(const std::string& filename);
 
-    /** Set the values to be used for default GuiText parameters. */
-    void setFont(const GFontRef& font, float size, const Color4& color, const Color4& outlineColor);
+    /** Set the values to be used for default GuiText parameters. Each skin specifies a font and the 
+        previous values will be used for any fields that are left unmodified from their defaults 
+        (i.e., defaults will override NULL font, negative size, negative alpha on colors)*/
+    void setFont(const GFontRef& font = NULL, float size = -1, const Color4& color = Color4(-1,-1,-1,-1), 
+        const Color4& outlineColor =  Color4(-1,-1,-1,-1));
 
     /** Call before all other render methods. 
         @param offset Offset all positions by this amount (convenient for rendering 
