@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="gfxmeter"
-	ProjectGUID="{71FC77E1-4CCA-458E-8116-8AD06C2E4A94}"
-	RootNamespace="gfxmeter"
+	Name="Viewer"
+	ProjectGUID="{F11EB24A-207D-4BBD-993F-F2757D91B2FC}"
+	RootNamespace="Viewer"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -21,7 +21,6 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -63,8 +62,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib winmm.lib imagehlp.lib gdi32.lib user32.lib kernel32.lib version.lib advapi32.lib"
-				OutputFile="$(OutDir)\$(ProjectName)d.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\install\win-i386-vc8.0-lib&quot;"
 				GenerateDebugInformation="true"
@@ -102,7 +99,7 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -122,7 +119,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
@@ -142,7 +138,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib ws2_32.lib winmm.lib imagehlp.lib gdi32.lib user32.lib kernel32.lib version.lib advapi32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\install\win-i386-vc8.0-lib&quot;"
 				GenerateDebugInformation="true"
@@ -186,23 +181,47 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\tools\gfxmeter\source\main.cpp"
+				RelativePath="..\tools\Viewer\App.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\tools\gfxmeter\source\measureVertexPerformance.cpp"
+				RelativePath="..\tools\Viewer\ArticulatedViewer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\tools\gfxmeter\source\Report.cpp"
+				RelativePath="..\tools\Viewer\BSPViewer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\tools\gfxmeter\source\shaderVersions.cpp"
+				RelativePath="..\tools\Viewer\EmptyViewer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\tools\gfxmeter\source\speed.cpp"
+				RelativePath="..\tools\Viewer\FontViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\GUIViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\IFSViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\MD2Viewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\SkyViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\TextureViewer.cpp"
 				>
 			</File>
 		</Filter>
@@ -212,11 +231,47 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\tools\gfxmeter\source\App.h"
+				RelativePath="..\tools\Viewer\App.h"
 				>
 			</File>
 			<File
-				RelativePath="..\tools\gfxmeter\source\Report.h"
+				RelativePath="..\tools\Viewer\ArticulatedViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\BSPViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\EmptyViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\FontViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\GUIViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\IFSViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\MD2Viewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\SkyViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\TextureViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\Viewer\Viewer.h"
 				>
 			</File>
 		</Filter>

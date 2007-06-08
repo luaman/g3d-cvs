@@ -322,18 +322,17 @@ int main(int argc, char** argv) {
     GApp::Settings settings;
     
     settings.useNetwork = false;
-    settings.window.fsaaSamples = 4;
+    settings.window.fsaaSamples = 1;
     settings.window.fullScreen = true;
+	settings.window.framed = false;
     settings.dataDir = "./";
     settings.window.defaultIconFilename = "g3d.ico";
 
     if (!fileExists(settings.window.defaultIconFilename)) {
         // We are probably running in the debugger and launched from the wrong directory
-#ifdef G3D_WIN32
-        _chdir("build/install");
-#else
-        chdir("build/install");
-#endif
+#		ifndef G3D_WIN32
+			chdir("build/install");
+#		endif
     }
 
     if (!fileExists(settings.window.defaultIconFilename)) {
