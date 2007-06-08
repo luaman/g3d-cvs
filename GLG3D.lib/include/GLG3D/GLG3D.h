@@ -21,21 +21,22 @@
 // Set up the linker on Windows
 #ifdef G3D_WIN32
 
-    #pragma comment(lib, "ole32")
-    #pragma comment(lib, "opengl32")
-    #pragma comment(lib, "glu32")
+#   pragma comment(lib, "ole32")
+#   pragma comment(lib, "opengl32")
+#   pragma comment(lib, "glu32")
+#   pragma comment(lib, "shell32") // for drag drop
 
-    #ifdef _DEBUG
+#   ifdef _DEBUG
         // Don't link against G3D when building G3D itself.
-        #ifndef G3D_BUILDING_LIBRARY_DLL
-           #pragma comment(lib, "GLG3Dd")
-        #endif
-    #else
+#       ifndef G3D_BUILDING_LIBRARY_DLL
+#           pragma comment(lib, "GLG3Dd")
+#       endif
+#   else
         // Don't link against G3D when building G3D itself.
-        #ifndef G3D_BUILDING_LIBRARY_DLL
-            #pragma comment(lib, "GLG3D")
-        #endif
-    #endif
+#       ifndef G3D_BUILDING_LIBRARY_DLL
+#           pragma comment(lib, "GLG3D")
+#       endif
+#   endif
 #endif
 
 #include "GLG3D/glheaders.h"
