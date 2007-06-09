@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- python -*-
+#
 
 from buildlib import *
 import os, platform, commands, sys, time
@@ -7,7 +8,8 @@ sys.path.append('bin')
 import ice.copyifnewer
 
 doxygen = 'doxygen'
-
+global config
+config = []
 distribDir = None
 
 class Version:
@@ -139,10 +141,10 @@ def cfastlib(args):
 """
 def runicompile(dir):
      os.chdir(dir)
-     x = run('../bin/icompile', ['--noprompt'])
+     x = run('../bin/icompile', config + ['--noprompt'])
 
      if (x == 0): 
-         x =run('../bin/icompile', ['-O', '--noprompt'])
+         x =run('../bin/icompile', config + ['-O', '--noprompt'])
 
      os.chdir('..')
 
@@ -184,11 +186,11 @@ def itools(args):
 
      if (x == 0):
         os.chdir("tools/gfxmeter")
-        run("../../bin/icompile", ['--opt'])
+        run("../../bin/icompile", config + ['--opt'])
         os.chdir("../..")
 
         os.chdir("tools/viewer")
-        run("../../bin/icompile", ['--opt'])
+        run("../../bin/icompile", config + ['--opt'])
         os.chdir("../..")
 
 
@@ -201,15 +203,15 @@ def iclean(args):
     rmdir('temp')
 
     os.chdir("test")
-    run("../bin/icompile", ['--clean'])
+    run("../bin/icompile", config + ['--clean'])
     os.chdir("..")
 
     os.chdir("tools/gfxmeter")
-    run("../../bin/icompile", ['--clean'])
+    run("../../bin/icompile", config + ['--clean'])
     os.chdir("../..")
 
     os.chdir("tools/viewer")
-    run("../../bin/icompile", ['--clean'])
+    run("../../bin/icompile", config + ['--clean'])
     os.chdir("../..")
 
 
@@ -220,14 +222,10 @@ def itest(args):
     else:
 
         os.chdir("test")
-        x = run('../bin/icompile', ['--noprompt', '--run']) 
+        x = run('../bin/icompile', config + ['--noprompt', '--run']) 
         if (x == 0):
-            x = run('../bin/icompile', ['--noprompt', '-O', '--run'])
+            x = run('../bin/icompile', config + ['--noprompt', '-O', '--run'])
         os.chdir('..')
-
-        if (x == 0):
-            # Make sure that the other applications can at least build
-            x = runicompile('tools/gfxmeter')
 
         return x
 
@@ -311,13 +309,19 @@ def getCompilerName(args = []):
 
 ##################################################################################
 #  General
-        
+    # [--compiler {vc6|vc7|vc8|xcode|gcc[version]}] 
 def buildHelp():
     print """
 buildg3d - Automated build system for G3D.
 
 Syntax: 
-    buildg3d target [--compiler {vc6|vc7|vc8|xcode|gcc[version]}] [install-dir]
+    buildg3d [--config config-file] target [install-dir]
+
+If the --config option is present it is passed to iCompile.  This
+allows you to build G3D with different INCLUDE, LIBRARY, and compiler
+settings than you normally use for writing programs.  See the iCompile
+manual for more information.
+Example: buildg3d --config ~/.icompile-buildg3d lib
 
 TARGET     DESCRIPTION
 
@@ -364,27 +368,27 @@ The G3D team is currently evaluating two build systems, CMake and
 iCompile.  The lib, test, clean, and makefile targets may be run with
 either a 'c' or an 'i' prefixed (e.g., clib) to select between the
 build systems.
+"""
 
-
-NOT YET SUPPORTED:
-install    Build all and copy to system directories.  Must be run as 
-           root on Linux and FreeBSD and as an administrator on OS X
-
-makefile   Generate project/makefiles appropriate to this 
-           environment, but do not run them.
-
-compiler   Specifying the optional --compiler argument allows 
+           
+"""compiler   Specifying the optional --compiler argument allows 
            you to choose which compiler to use for building the 
            library or project/makefiles.  The defaults are based on
            operating system: Xcode/gcc for OS X, gcc for Linux and 
-           FreeBSD, and VC8 for Windows.
-"""
+           FreeBSD, and VC8 for Windows."""
 
 if __name__ == "__main__":
     distribDir = 'build/' + platform_directory(getCompilerName()) + '/'
 
-    sys.exit(dispatchOnTarget(
+    argv = sys.argv
+    global config
+    if (len(argv) > 3 and argv[1] == '--config'):
+        config = ['--config', argv[2]]
+        del argv[2]
+        del argv[1]
+    print argv        
+    sys.exit(dispatchOnTarget(argv,
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
-         ilib, iclean, itest,
+         ilib, iclean, itest, itools,
          doc, install, all, src, data, tools], buildHelp))

@@ -29,16 +29,16 @@ build target by name.
 validTargets - A list of functions that are build targets.
 help         - A build target to execute if no target is specified
 """
-def dispatchOnTarget(validTargets, help):
+def dispatchOnTarget(argv, validTargets, help):
 
     # Execute the appropriate target:
-    if (len(sys.argv) == 1) or (sys.argv[1] == "help"):
+    if (len(argv) == 1) or (argv[1] == "help"):
         # No arguments; print help
         help()
         sys.exit(-1)
 
-    target = sys.argv[1]
-    targetArgs = sys.argv[2:]
+    target = argv[1]
+    targetArgs = argv[2:]
 
     found = 0
     for v in validTargets:
