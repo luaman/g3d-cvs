@@ -8,7 +8,6 @@ sys.path.append('bin')
 import ice.copyifnewer
 
 doxygen = 'doxygen'
-global config
 config = []
 distribDir = None
 
@@ -16,7 +15,7 @@ class Version:
     major = '7'
     minor = '00'
     beta  = '03'
-    def string():
+    def toString():
         if (beta != ''):
             return major + '.' + minor + '-b' + beta
         else:
@@ -333,7 +332,7 @@ install    Build all and then copy the files to the install dir.  The
            
            puts the include files in /usr/local/include/, the binaries
            in /usr/local/lib, tools in /usr/local/bin, and documentation 
-           and data in /usr/local/G3D-""" + Version().string() + """
+           and data in /usr/local/G3D-""" + Version().toString() + """
            
 
 all        Run lib, test, bin, tools, and doc targets
@@ -381,12 +380,11 @@ if __name__ == "__main__":
     distribDir = 'build/' + platform_directory(getCompilerName()) + '/'
 
     argv = sys.argv
-    global config
     if (len(argv) > 3 and argv[1] == '--config'):
         config = ['--config', argv[2]]
         del argv[2]
         del argv[1]
-    print argv        
+        
     sys.exit(dispatchOnTarget(argv,
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
