@@ -33,7 +33,8 @@ public:
     Color4      outlineColor;
     
     /**
-       Negative alpha values on color and outlineColor mean "use default".  Null font and negative size mean "use default".
+       Negative alpha values on color and outlineColor mean "use
+       default".  Null font and negative size mean "use default".
        Defaults are set on the Gui.
     */
     GuiText(const std::string& text ="", 
@@ -44,7 +45,7 @@ public:
 
     GuiText(const char* text);
     
-    /** Provides the value of default values; called by G3D::Gui to overwrite the illegal values.*/
+    /** Provides the value of default values.*/
     void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
 };
     
@@ -60,8 +61,8 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 
   <pre>
    skin->beginRendering(rd);
-       skin->renderWindow(rd, Rect2D::xywh(80, 70, 550, 250), false, false, false, "Window");
-       skin->renderToolWindow(rd, Rect2D::xywh(500, 120, 50, 150), true, "Tools");
+       skin->renderWindow(rd, Rect2D::xywh(80, 70, 550, 250), false, false, false, "Window", GuiSkin::NORMAL_WINDOW_STYLE);
+       skin->renderWindow(rd, Rect2D::xywh(500, 120, 50, 150), true, true, true, "Tools", GuiSkin::TOOL_WINDOW_STYLE);
        skin->renderCheckBox(rd, Rect2D::xywh(100, 100, 20, 20), true, true, true, "Check box");
        skin->renderRadioButton(rd, Rect2D::xywh(100, 120, 20, 20), true, false, false, "Radio button");
        skin->renderButton(rd, Rect2D::xywh(100, 160, 80, 27), true, true, true, "Button");
@@ -85,6 +86,23 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
    </pre>
 */
 class GuiSkin : public ReferenceCountedObject {
+public:
+
+    enum WindowStyle {
+        NORMAL_WINDOW_STYLE,
+        TOOL_WINDOW_STYLE,
+        DIALOG_WINDOW_STYLE,
+
+        WINDOW_STYLE_COUNT
+    };
+    
+    enum PaneStyle {
+        SIMPLE_PANE_STYLE,
+        ORNATE_PANE_STYLE,
+
+        PANE_STYLE_COUNT
+    };
+
 private:
     enum {SLIDER_WIDTH = 100};
     
@@ -227,6 +245,31 @@ private:
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
     };
 
+    class TextBox {
+    public:
+        /**
+           General texture coordinates for any mode
+         */
+        StretchRectHV        base;
+
+        Vector2              padTopLeft;
+        Vector2              padBottomRight;
+
+        class Focus {
+        public:
+            Vector2    focused;
+            Vector2    defocused;
+            void deserialize(const std::string& name, TextInput& b);
+        };
+    
+        Focus         enabled;
+        Vector2       disabled;
+
+        void deserialize(const std::string& name, TextInput& b);
+        void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused) const;
+    };
+
+
     /** Used for radio and check boxes */
     class Checkable {
     public:
@@ -290,7 +333,6 @@ private:
 
     class Window {
     public:
-
         StretchRectHV    base;
 
         /** Distance from edge to border */
@@ -357,12 +399,12 @@ private:
     Checkable         m_checkBox;
     Checkable         m_radioButton;
     Button            m_button;
-    Window            m_window;
-    Window            m_toolWindow;
+
+    Window            m_window[WINDOW_STYLE_COUNT];
     HSlider           m_hSlider;
-    Pane              m_simplePane;
-    Pane              m_ornatePane;
+    Pane              m_pane[PANE_STYLE_COUNT];
     WindowButton      m_closeButton;
+    TextBox           m_textBox;
 
     /** If true, the close button is on the left.  If false, it is on the right */
     bool              m_osxWindowButtons;
@@ -408,11 +450,15 @@ private:
     void drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused,
                        bool selected, const GuiText& text) const;
 
-    void drawWindow(const Window& window, const Rect2D& bounds, bool focused, bool close, bool closeDown, bool closeIsFocused, const GuiText& text) const;
+    void drawWindow(const Window& window, const Rect2D& bounds, bool focused, 
+                    bool close, bool closeDown, bool closeIsFocused, const GuiText& text) const;
 
     static Rect2D readRect2D(const std::string& name, TextInput& b);
 
     static Vector2 readVector2(const std::string& name, TextInput& b);
+
+    /** Only used for testing the formatting of text during skin creation */
+    GuiSkin();
 
     GuiSkin(const std::string& filename);
     
@@ -465,6 +511,15 @@ public:
     void renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
                         bool checked, const GuiText& text) const;
 
+    /** Render a single-line text box. Only call between beginRendering and endRendering.
+        Automatically shifts text so that a cursor at character index given by 
+        cursorPosition is visible on screen.
+     */
+    void renderTextBox(const Rect2D& bounds, bool enabled, bool focused, 
+                       const GuiText& text,
+                       const GuiText& cursor,
+                       int cursorPosition) const;
+
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool checked, const GuiText& text) const;
@@ -478,38 +533,26 @@ public:
          still render outside this area.*/
     void renderWindow(const Rect2D& bounds, bool focused, 
                       bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
-                      const GuiText& text) const;
-
-    /** Only call between beginRendering and endRendering */
-    void renderToolWindow(const Rect2D& bounds, bool focused,
-                          bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
-                          const GuiText& text) const;
+                      const GuiText& text, WindowStyle frameStyle) const;
 
     /** Given the bounds on a window's borders, returns the bounds of
      the area inside the window where controls will appear.*/
-    Rect2D windowToClientBounds(const Rect2D& bounds) const;
+    Rect2D windowToClientBounds(const Rect2D& bounds, WindowStyle frameStyle) const;
 
     /** Given the area that controls should appear in for a window,
         returns the bounds that should be used to draw the window.
         Note that the window's shadow or other effects may exceed
         these bounds when rendering.*/
-    Rect2D clientToWindowBounds(const Rect2D& bounds) const;
-    Rect2D windowToTitleBounds(const Rect2D& bounds) const;
+    Rect2D clientToWindowBounds(const Rect2D& bounds, WindowStyle frameStyle) const;
+    Rect2D windowToTitleBounds(const Rect2D& bounds, WindowStyle frameStyle) const;
+    Rect2D windowToCloseButtonBounds(const Rect2D& bounds, WindowStyle frameStyle) const;
 
     /** Returns the position of the thumb button, which is needed for processing
         UI events for the slider. */
     Rect2D horizontalSliderToThumbBounds(const Rect2D& bounds, float pos) const;
     Rect2D horizontalSliderToTrackBounds(const Rect2D& bounds) const;
 
-    Rect2D toolWindowToClientBounds(const Rect2D& bounds) const;
-    Rect2D clientToToolWindowBounds(const Rect2D& bounds) const;
-    Rect2D toolWindowToTitleBounds(const Rect2D& bounds) const;
-
-    Rect2D ornatePaneToClientBounds(const Rect2D& bounds) const;
-    Rect2D simplePaneToClientBounds(const Rect2D& bounds) const;
-
-    Rect2D windowToCloseButtonBounds(const Rect2D& bounds) const;
-    Rect2D toolWindowToCloseButtonBounds(const Rect2D& bounds) const;
+    Rect2D paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
 
     /** Only call between beginRendering and endRendering.
         Label is on the right, slider is aligned with the left edge
@@ -521,9 +564,7 @@ public:
     void renderLabel(const Rect2D& bounds, const GuiText& text, 
                      GFont::XAlign xalign, GFont::YAlign yalign) const;
 
-    void renderSimplePane(const Rect2D& bounds) const;
-
-    void renderOrnatePane(const Rect2D& bounds) const;
+    void renderPane(const Rect2D& bounds, PaneStyle paneStyle) const;
     
     /** 
         Create a .skn file from source files.  Used as a preprocess

@@ -8,7 +8,7 @@ GuiButton::GuiButton(GuiWindow* gui, GuiPane* parent, const GuiText& text) : Gui
 
 void GuiButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
-        skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), m_down && mouseOver(), m_text);
+        skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), m_down && mouseOver(), m_caption);
     }
 }
 

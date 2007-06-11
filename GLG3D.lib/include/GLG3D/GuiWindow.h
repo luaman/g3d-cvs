@@ -2,7 +2,7 @@
  @file GLG3D/GuiWindow.h
 
  @created 2006-05-01
- @edited  2007-06-01
+ @edited  2007-06-10
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -85,11 +85,13 @@ public:
     typedef ReferenceCountedPointer<GuiWindow> Ref;
 
     /** Controls the appearance of the window's borders and background.
-        FRAME_STYLE      - regular border and title
-        TOOL_FRAME_STYLE - small title, thin border
-        NO_FRAME_STYLE   - do not render any background at all
+        FRAME_STYLE        - regular border and title
+        TOOL_FRAME_STYLE   - small title, thin border
+        DIALOG_FRAME_STYLE - thicker border
+        NO_FRAME_STYLE     - do not render any background at all
      */
-    enum Style {FRAME_STYLE, TOOL_FRAME_STYLE, NO_FRAME_STYLE};
+    // These constants are chosen to match the GuiSkin constants
+    enum Style {FRAME_STYLE, TOOL_FRAME_STYLE, DIALOG_FRAME_STYLE, NO_FRAME_STYLE};
 
     /**
       Controls the behavior when the close button is pressed (if there

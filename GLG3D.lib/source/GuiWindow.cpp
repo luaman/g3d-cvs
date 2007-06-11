@@ -5,7 +5,8 @@
 
 namespace G3D {
 
-GuiWindow::Ref GuiWindow::create(const GuiText& label, const Rect2D& rect, const GuiSkinRef& skin, Style style, CloseAction close) {
+GuiWindow::Ref GuiWindow::create(const GuiText& label, const Rect2D& rect,
+                                 const GuiSkinRef& skin, Style style, CloseAction close) {
     return new GuiWindow(label, rect, skin, style, close);
 }
 
@@ -32,19 +33,11 @@ GuiWindow::~GuiWindow() {
 
 void GuiWindow::setRect(const Rect2D& r) {
     m_rect = r;
-
-    switch (m_style) {
-    case TOOL_FRAME_STYLE:
-        m_clientRect = skin->toolWindowToClientBounds(m_rect);
-        break;
-
-    case FRAME_STYLE:
-        m_clientRect = skin->windowToClientBounds(m_rect);
-        break;
-   
-    case NO_FRAME_STYLE:
+    
+    if (m_style == NO_FRAME_STYLE) {
         m_clientRect = m_rect;
-        break;
+    } else {
+        m_clientRect = skin->windowToClientBounds(m_rect, GuiSkin::WindowStyle(m_style));
     }
 }
 
@@ -74,21 +67,9 @@ void GuiWindow::onUserInput(UserInput* ui) {
     if (m_rect.contains(mouse)) {
         // The mouse is over this window, update the mouseOver control
         
-        if (m_closeAction != NO_CLOSE) {
-            switch (m_style) {
-            case TOOL_FRAME_STYLE:
-                m_closeButton.mouseOver = skin->toolWindowToCloseButtonBounds(m_rect).contains(mouse);
-                break;
-                
-            case FRAME_STYLE:
-                {
-                    const Rect2D& buttonBounds = skin->windowToCloseButtonBounds(m_rect);
-                    m_closeButton.mouseOver = buttonBounds.contains(mouse);
-                }
-                break;
-
-            default:;
-            }
+        if ((m_closeAction != NO_CLOSE) && (m_style != NO_FRAME_STYLE)) {
+            m_closeButton.mouseOver = 
+                skin->windowToCloseButtonBounds(m_rect, GuiSkin::WindowStyle(m_style)).contains(mouse);
         }
 
 
@@ -165,20 +146,11 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
         Rect2D titleRect;
         Rect2D closeRect;
-        switch (m_style) {
-        case TOOL_FRAME_STYLE:
-            titleRect = skin->toolWindowToTitleBounds(m_rect);
-            closeRect = skin->toolWindowToCloseButtonBounds(m_rect);
-            break;
-
-        case FRAME_STYLE:
-            titleRect = skin->windowToTitleBounds(m_rect);
-            closeRect = skin->windowToCloseButtonBounds(m_rect);
-            break;
-
-        case NO_FRAME_STYLE:
+        if (m_style ==  NO_FRAME_STYLE) {
             titleRect = Rect2D::xywh(m_rect.x0y0(), Vector2(m_rect.width(), 0));
-            break;
+        } else {
+            titleRect = skin->windowToTitleBounds(m_rect, GuiSkin::WindowStyle(m_style));
+            closeRect = skin->windowToCloseButtonBounds(m_rect, GuiSkin::WindowStyle(m_style));
         }
 
         if ((m_closeAction != NO_CLOSE) && closeRect.contains(mouse)) {
@@ -198,6 +170,11 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
             keyFocusGuiControl = NULL;
             m_rootPane->findControlUnderMouse(mouse, keyFocusGuiControl);
+        }
+
+        if (m_style != NO_FRAME_STYLE) {
+            // Consume the click, since it was somewhere on this window
+            consumed = true;
         }
     } else if (event.type == GEventType::MOUSE_BUTTON_UP) {
         if (inDrag) {
@@ -271,18 +248,11 @@ void GuiWindow::render(RenderDevice* rd) {
     {
         bool hasClose = m_closeAction != NO_CLOSE;
 
-        switch (m_style) {
-        case TOOL_FRAME_STYLE:
-            skin->renderToolWindow(m_rect, focused(), hasClose, m_closeButton.down, m_closeButton.mouseOver, m_text);
-            break;
-
-        case FRAME_STYLE:
-            skin->renderWindow(m_rect, focused(),  hasClose, m_closeButton.down, m_closeButton.mouseOver, m_text);
-            break;
-
-        case NO_FRAME_STYLE:
+        if (m_style != NO_FRAME_STYLE) {
+            skin->renderWindow(m_rect, focused(), hasClose, m_closeButton.down,
+                               m_closeButton.mouseOver, m_text, GuiSkin::WindowStyle(m_style));
+        } else {
             debugAssertM(m_closeAction == NO_CLOSE, "Windows without frames cannot have a close button.");
-            break;
         }
         
         skin->pushClientRect(m_clientRect);

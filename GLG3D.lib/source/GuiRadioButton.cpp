@@ -16,9 +16,9 @@ void GuiRadioButton::setSelected() {
 void GuiRadioButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
         if (m_style == RADIO_STYLE) {
-            skin->renderRadioButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_text);
+            skin->renderRadioButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption);
         } else {
-            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_text);
+            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption);
         }
     }
 }

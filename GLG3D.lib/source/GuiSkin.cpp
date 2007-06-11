@@ -68,9 +68,22 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     // Font
     b.readSymbols("font", "=", "{");
     b.readSymbols("face", "=");
+
+    // Try to load the font
     std::string fontFilename = b.readString();
-    if (fileExists(path + "/" + fontFilename)) {
-        font = GFont::fromFile(path + "/" + fontFilename);
+    Array<std::string> fontPaths;
+    fontPaths.append(path + "/");
+    fontPaths.append("");
+    fontPaths.append("../");
+    fontPaths.append(path + "/../font/");
+    fontPaths.append(demoFindData(false));
+
+    for (int i = 0; i < fontPaths.size(); ++i) {
+        std::string s = fontPaths[i] + fontFilename;
+        if (fileExists(s)) {
+            font = GFont::fromFile(s);
+            break;
+        }
     }
     
     b.readSymbols("size", "=");
@@ -90,11 +103,13 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     b.readSymbols("windowButtonStyle", "=");
     m_osxWindowButtons = (b.readSymbol() == "osx");
 
-    m_window.deserialize("window", b);
-    m_toolWindow.deserialize("toolWindow", b);
+    m_window[NORMAL_WINDOW_STYLE].deserialize("window", b);
+    m_window[TOOL_WINDOW_STYLE].deserialize("toolWindow", b);
+    m_window[DIALOG_WINDOW_STYLE].deserialize("dialogWindow", b);
     m_hSlider.deserialize("horizontalSlider", b);
-    m_simplePane.deserialize("simplePane", b);
-    m_ornatePane.deserialize("ornatePane", b);
+    m_pane[SIMPLE_PANE_STYLE].deserialize("simplePane", b);
+    m_pane[ORNATE_PANE_STYLE].deserialize("ornatePane", b);
+    m_textBox.deserialize("textBox", b);
 }
 
 
@@ -186,38 +201,40 @@ void GuiSkin::drawCheckable(const Checkable& control, const Rect2D& bounds, bool
 }
 
 
-void GuiSkin::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
+void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused, 
+                            const GuiText& text, const GuiText& cursor, int cursorPosition) const {
+    m_textBox.render(rd, bounds, enabled, focused);
+
+    // TODO: text
+    // Compute pixel distance from left edge to cursor position
+    // Slide backwards by maximum of (0, cursorPixels - client area width)
+    // Push clipping region
+    // Draw box text
+    // Draw cursor
+    // Pop clipping region
+}
+
+
+void GuiSkin::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, bool selected, 
+                             const GuiText& text) const {
     drawCheckable(m_checkBox, bounds, enabled, focused, selected, text);
 }
 
 
-void GuiSkin::renderSimplePane(const Rect2D& bounds) const {
-    m_simplePane.frame.render(rd, bounds, Vector2::zero());
+void GuiSkin::renderPane(const Rect2D& bounds, PaneStyle paneStyle) const {
+    m_pane[paneStyle].frame.render(rd, bounds, Vector2::zero());
 }
 
 
-void GuiSkin::renderOrnatePane(const Rect2D& bounds) const {
-    m_ornatePane.frame.render(rd, bounds, Vector2::zero());
+void GuiSkin::renderWindow(const Rect2D& bounds, bool focused, bool hasClose, 
+                           bool closeIsDown, bool closeIsFocused, const GuiText& text, 
+                           WindowStyle windowStyle) const {
+    drawWindow(m_window[windowStyle], bounds, focused, hasClose, closeIsDown, closeIsFocused, text);
 }
 
 
-void GuiSkin::renderWindow(const Rect2D& bounds, bool focused, bool hasClose, bool closeIsDown, bool closeIsFocused, const GuiText& text) const {
-    drawWindow(m_window, bounds, focused, hasClose, closeIsDown, closeIsFocused, text);
-}
-
-
-void GuiSkin::renderToolWindow(const Rect2D& bounds, bool focused, bool hasClose, bool closeIsDown, bool closeIsFocused, const GuiText& text) const {
-    drawWindow(m_toolWindow, bounds, focused, hasClose, closeIsDown, closeIsFocused, text);
-}
-
-
-Rect2D GuiSkin::windowToCloseButtonBounds(const Rect2D& bounds) const {
-    return closeButtonBounds(m_window, bounds);
-}
-
-
-Rect2D GuiSkin::toolWindowToCloseButtonBounds(const Rect2D& bounds) const {
-    return closeButtonBounds(m_toolWindow, bounds);
+Rect2D GuiSkin::windowToCloseButtonBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
+    return closeButtonBounds(m_window[windowStyle], bounds);
 }
 
 
@@ -301,32 +318,20 @@ Rect2D GuiSkin::horizontalSliderToTrackBounds(const Rect2D& bounds) const {
 }
 
 
-Rect2D GuiSkin::windowToTitleBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_window.clientPad.topLeft.y));
+Rect2D GuiSkin::windowToTitleBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
+    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_window[windowStyle].clientPad.topLeft.y));
 }
 
 
-Rect2D GuiSkin::windowToClientBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0() + m_window.clientPad.topLeft, bounds.wh() - m_window.clientPad.wh());
+Rect2D GuiSkin::windowToClientBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
+    return Rect2D::xywh(bounds.x0y0() + m_window[windowStyle].clientPad.topLeft, 
+                        bounds.wh() - m_window[windowStyle].clientPad.wh());
 }
 
 
-Rect2D GuiSkin::clientToWindowBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0() - m_window.clientPad.topLeft, bounds.wh() + m_window.clientPad.wh());
-}
-
-Rect2D GuiSkin::toolWindowToClientBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0() + m_toolWindow.clientPad.topLeft, bounds.wh() - m_toolWindow.clientPad.wh());
-}
-
-
-Rect2D GuiSkin::clientToToolWindowBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0() - m_toolWindow.clientPad.topLeft, bounds.wh() + m_toolWindow.clientPad.wh());
-}
-
-
-Rect2D GuiSkin::toolWindowToTitleBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_toolWindow.clientPad.topLeft.y));
+Rect2D GuiSkin::clientToWindowBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
+    return Rect2D::xywh(bounds.x0y0() - m_window[windowStyle].clientPad.topLeft, 
+                        bounds.wh() + m_window[windowStyle].clientPad.wh());
 }
 
 
@@ -545,17 +550,12 @@ GuiSkin::StretchMode GuiSkin::readStretchMode(TextInput& t) {
 }
 
 
-Rect2D GuiSkin::ornatePaneToClientBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0() + m_ornatePane.clientPad.topLeft,
-                        bounds.wh() - m_ornatePane.clientPad.wh());
+Rect2D GuiSkin::paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const {
+    return Rect2D::xywh(bounds.x0y0() + m_pane[paneStyle].clientPad.topLeft,
+                        bounds.wh() - m_pane[paneStyle].clientPad.wh());
 }
 
-
-Rect2D GuiSkin::simplePaneToClientBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0y0() + m_simplePane.clientPad.topLeft,
-                        bounds.wh() - m_simplePane.clientPad.wh());
-}
-
+GuiSkin::GuiSkin() {}
 
 void GuiSkin::makeSkinFromSourceFiles
 (
@@ -591,9 +591,17 @@ void GuiSkin::makeSkinFromSourceFiles
             out.pixel4(x, y) = Color4uint8(Color4(base, a));
         }
     }
-    //    out.save("/Volumes/McGuire/Projects/g3dui/matting/test.tga", GImage::TGA);
+
     std::string coords = readWholeFile(sourceDir + coordsFile);
 
+    // Test the text formatting
+    {
+        GuiSkin skin;
+        TextInput t(TextInput::FROM_STRING, coords);
+        std::string s;
+        skin.deserialize(s, t);
+    }
+    
     BinaryOutput b(destFile, G3D_LITTLE_ENDIAN);
     
     b.writeString32("G3D Skin File");
@@ -1034,6 +1042,45 @@ void GuiSkin::Button::render(RenderDevice* rd, const Rect2D& bounds, bool _enabl
 
     base.render(rd, bounds, *r);
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+void GuiSkin::TextBox::deserialize(const std::string& name, TextInput& b) {
+    b.readSymbols(name, "=", "{");
+    base.deserialize("base", b);
+    b.readSymbols("textPad", "=", "{");
+    padTopLeft = readVector2("topLeft", b);
+    padBottomRight = readVector2("bottomRight", b);
+    b.readSymbol("}");
+    enabled.deserialize("enabled", b);
+    disabled = readVector2("disabled", b);
+    b.readSymbol("}");
+}
+
+
+void GuiSkin::TextBox::Focus::deserialize(const std::string& name, TextInput& b) {
+    b.readSymbols(name, "=", "{");
+    focused = readVector2("focused", b);
+    defocused = readVector2("defocused", b);
+    b.readSymbol("}");
+}
+
+
+void GuiSkin::TextBox::render(RenderDevice* rd, const Rect2D& bounds, bool _enabled, bool focused) const {
+    const Vector2* r = NULL;
+
+    if (_enabled) {
+        if (focused) {
+            r = &enabled.focused;
+        } else {
+            r = &enabled.defocused;
+        }
+    } else {
+        r = &disabled;
+    }
+
+    base.render(rd, bounds, *r);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

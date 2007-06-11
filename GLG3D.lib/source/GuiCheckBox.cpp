@@ -11,9 +11,9 @@ GuiCheckBox::GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiText& text, b
 void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
         if (m_style == BOX_STYLE) {
-            skin->renderCheckBox(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_text);
+            skin->renderCheckBox(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption);
         } else {
-            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_text);
+            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption);
         }
     }
 }

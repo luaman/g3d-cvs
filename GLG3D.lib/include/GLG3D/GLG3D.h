@@ -90,6 +90,7 @@
 #include "GLG3D/GuiPane.h"
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
+#include "GLG3D/GuiTextBox.h"
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"

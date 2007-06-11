@@ -15,18 +15,10 @@ GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiText& text, const Rec
 void GuiPane::setRect(const Rect2D& rect) {
     m_rect = rect;
     
-    switch (m_style) {
-    case NO_FRAME_STYLE:
+    if (m_style == NO_FRAME_STYLE) {
         m_clientRect = m_rect;
-        break;
-        
-    case SIMPLE_FRAME_STYLE:
-        m_clientRect = m_gui->skin->simplePaneToClientBounds(m_rect);
-        break;
-        
-    case ORNATE_FRAME_STYLE:
-        m_clientRect = m_gui->skin->ornatePaneToClientBounds(m_rect);
-        break;
+    } else {
+        m_clientRect = m_gui->skin->paneToClientBounds(m_rect, GuiSkin::PaneStyle(m_style));
     }
 }
 
@@ -40,6 +32,17 @@ GuiPane::~GuiPane() {
 GuiCheckBox* GuiPane::addCheckBox(const GuiText& text, bool* value, GuiCheckBox::Style style) {
     GuiCheckBox* c = new GuiCheckBox(m_gui, this, text, value, style);
     c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+    nextGuiControlPos.y += c->rect().height();
+    
+    controlArray.append(c);
+
+    return c;
+}
+
+
+GuiTextBox* GuiPane::addTextBox(const GuiText& caption, std::string* value, GuiTextBox::Update update) {
+    GuiTextBox* c = new GuiTextBox(m_gui, this, caption, value, update, TEXT_CAPTION_WIDTH);
+    c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
     nextGuiControlPos.y += c->rect().height();
     
     controlArray.append(c);
@@ -115,16 +118,8 @@ void GuiPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
 
 void GuiPane::render(RenderDevice* rd, const GuiSkinRef& skin) const {
 
-    switch (m_style) {
-    case SIMPLE_FRAME_STYLE:
-        skin->renderSimplePane(m_rect);
-        break;
-    
-    case ORNATE_FRAME_STYLE:
-        skin->renderOrnatePane(m_rect);
-        break;
-
-    default:;
+    if (m_style != NO_FRAME_STYLE) {
+        skin->renderPane(m_rect, GuiSkin::PaneStyle(m_style));
     }
 
     skin->pushClientRect(m_clientRect);

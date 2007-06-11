@@ -13,7 +13,7 @@ _GuiSliderBase::_GuiSliderBase(GuiWindow* gui, GuiPane* parent, const GuiText& t
 void _GuiSliderBase::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
         if (m_horizontal) {
-            skin->renderHorizontalSlider(m_rect, floatValue(), m_enabled, focused() || mouseOver(), m_text);
+            skin->renderHorizontalSlider(m_rect, floatValue(), m_enabled, focused() || mouseOver(), m_caption);
         }
     }
 }

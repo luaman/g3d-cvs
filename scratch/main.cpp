@@ -11,8 +11,6 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 #include "CameraSplineManipulator.h"
-#include "GuiWindow.h"
-#include "GuiPane.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -57,6 +55,7 @@ public:
     Gender  gender;        
     float   height;
     bool    likesCats;
+    std::string name;
 
     void setIsMyFriend(bool f) {
         myFriend = f;
@@ -88,8 +87,8 @@ void App::onInit() {
     splineManipulator = CameraSplineManipulator::create(&defaultCamera);
     addWidget(splineManipulator);
     
-    //dataDir = "/Volumes/McGuire/Projects/data/";
-    dataDir = "X:/morgan/data/";
+    dataDir = "/Volumes/McGuire/Projects/data/";
+    //dataDir = "X:/morgan/data/";
 
     GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
@@ -100,10 +99,11 @@ void App::onInit() {
 
         GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
         GuiWindow::Ref window = GuiWindow::create
-            ("Person", Rect2D::xywh(300, 200, 150, 200),
+            ("Person", Rect2D::xywh(300, 200, 300, 200),
              skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
 
         GuiPane* pane = window->pane();
+        pane->addTextBox("Name", &player.name);
         pane->addCheckBox("Likes cats", &player.likesCats);
         pane->addCheckBox("Is my friend", &player, &Person::getIsMyFriend, &Person::setIsMyFriend);
         pane->addRadioButton("Male", Person::MALE, &player.gender);

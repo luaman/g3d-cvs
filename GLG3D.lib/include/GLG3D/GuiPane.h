@@ -2,7 +2,7 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2007-06-01
+ @edited  2007-06-11
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -23,6 +23,7 @@
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiLabel.h"
+#include "GLG3D/GuiTextBox.h"
 
 namespace G3D {
 
@@ -44,11 +45,13 @@ class GuiPane : public GuiControl {
 
 private:
     enum {CONTROL_WIDTH = 180};
+    enum {TEXT_CAPTION_WIDTH = 80};
 public:
 
     /** Controls the appearance of the pane's borders and background.
      */
-    enum Style {NO_FRAME_STYLE, SIMPLE_FRAME_STYLE, ORNATE_FRAME_STYLE};
+    // These constants must match the GuiSkin::PaneStyle constants
+    enum Style {SIMPLE_FRAME_STYLE, ORNATE_FRAME_STYLE, NO_FRAME_STYLE};
     
 protected:
 
@@ -122,6 +125,23 @@ public:
         return c;
     }
 
+    template<class T>
+    GuiTextBox* addTextBox
+    (const GuiText& caption,
+     T* object,
+     std::string (T::*get)() const,
+     void (T::*set)(std::string),
+     GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
+     ) {
+        
+        GuiTextBox* c = new GuiTextBox(m_gui, this, caption, object, get, set, update, TEXT_CAPTION_WIDTH);
+        c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+        nextGuiControlPos.y += c->rect().height();
+        controlArray.append(c);
+
+        return c;
+    }
+
     /**
        Example:
        <pre>
@@ -179,6 +199,8 @@ public:
                                 GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
     GuiButton* addButton(const GuiText& text);
+
+    GuiTextBox* addTextBox(const GuiText& caption, std::string* value, GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE);
 
     GuiLabel* addLabel(const GuiText& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, 
                     GFont::YAlign = GFont::YALIGN_CENTER);

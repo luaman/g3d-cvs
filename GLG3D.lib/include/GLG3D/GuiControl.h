@@ -36,7 +36,7 @@ protected:
 
     /** Relative to the enclosing pane's clientRect */
     Rect2D            m_rect;
-    GuiText           m_text;
+    GuiText           m_caption;
     bool              m_visible;
 
     GuiControl(GuiWindow* gui, GuiPane* parent);
@@ -51,8 +51,8 @@ public:
     void setVisible(bool b);
     bool focused() const;
     void setEnabled(bool e);
-    const GuiText& text() const;
-    void setText(const GuiText& text);
+    const GuiText& caption() const;
+    void setCaption(const GuiText& text);
     const Rect2D& rect() const;
     virtual void setRect(const Rect2D& rect);
 

@@ -59,7 +59,7 @@ features.  Not all API entry points are shown in this index.
 <tr><td></td><td>\link G3D::UserInput <b>UserInput</b>\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
 <tr><td></td><td>\link G3D::GApp2::onEvent <b>GApp2::onEvent</b>\endlink, \link G3D::GApp2::onUserInput<b>GApp2::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
 <tr><td></td><td>\link G3D::GFont GFont\endlink</td><td>Explicitly render text</td></tr>
-<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink</td><td>GUI controls created by GuiPanel </td></tr>
+<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink</td><td>GUI controls created by GuiPanel </td></tr>
 <tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
 <tr><td></td><td>\link G3D::PosedModel2D PosedModel2D\endlink</td><td>2D object scene graph, used by Widgets for rendering</td></tr>
 <tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td></td></tr>
