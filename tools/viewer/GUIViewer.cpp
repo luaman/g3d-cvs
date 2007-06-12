@@ -29,7 +29,7 @@ void GUIViewer::onInit(const std::string& filename) {
 
 	skin = GuiSkin::fromFile(filename);
 	skin->setFont(GFont::fromFile("X:/morgan/data/font/arial.fnt"), 11, Color3::black(), Color4::clear());
-	window = GuiWindow::create(GuiText("Normal"), Rect2D::xywh(50,50,200,510), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	window = GuiWindow::create(GuiText("Normal"), Rect2D::xywh(50,50,330,550), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	toolWindow = GuiWindow::create(GuiText("Tool"), Rect2D::xywh(300,100,200,440), skin, GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
 	pane = window->pane();
@@ -54,8 +54,12 @@ void GUIViewer::onInit(const std::string& filename) {
 			normalPane->addRadioButton("Selected, Enabled", 7, &radio[3], GuiRadioButton::BUTTON_STYLE);
 			normalPane->addRadioButton("Deselected, Disabled", 8, &radio[3], GuiRadioButton::BUTTON_STYLE);
 	pane->addButton("Button");
+    pane->addTextBox("TextBox", &text);
+    pane->addTextBox("TextBox (Dis)", &text)->setEnabled(false);
+
+
 	pane = toolWindow->pane();
-		ornatePane = pane->addPane(GuiText("Ornate Pane"), 170, GuiPane::ORNATE_FRAME_STYLE);
+		ornatePane = pane->addPane(GuiText("Ornate Pane"), 200, GuiPane::ORNATE_FRAME_STYLE);
 			ornatePane->addLabel(GuiText("Checkbox (Default)"));
 			checkbox[0] = true;
 			checkbox[1] = false;

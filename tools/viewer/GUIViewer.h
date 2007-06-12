@@ -32,6 +32,7 @@ private:
 	bool				checkbox[8];
 	int					radio[4];
 	float				slider[2];
+    std::string         text;
 
 public:
 	GUIViewer();
