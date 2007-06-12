@@ -13,8 +13,8 @@
 #include "G3D/g3dmath.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <zip/zip.h>
-#include <zip/unzip.h>
+#include "zip/zip.h"
+#include "zip/unzip.h"
 #include "G3D/stringutils.h"
 
 #ifdef G3D_WIN32

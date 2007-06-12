@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -110,7 +110,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"

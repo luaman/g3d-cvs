@@ -173,7 +173,8 @@ bool GuiWindow::onEvent(const GEvent &event) {
         }
 
         if (m_style != NO_FRAME_STYLE) {
-            // Consume the click, since it was somewhere on this window
+            // Consume the click, since it was somewhere on this window (it may still
+            // be used by another one of the controls on this window).
             consumed = true;
         }
     } else if (event.type == GEventType::MOUSE_BUTTON_UP) {
@@ -201,10 +202,10 @@ bool GuiWindow::onEvent(const GEvent &event) {
                 origin += p->m_clientRect.x0y0();
                 p = p->m_parent;
             }
-            consumed = consumed || keyFocusGuiControl->onEvent(makeRelative(event, origin));
+            consumed = keyFocusGuiControl->onEvent(makeRelative(event, origin)) || consumed;
 
         } else {
-            consumed = consumed || keyFocusGuiControl->onEvent(event);
+            consumed = keyFocusGuiControl->onEvent(event) || consumed;
         }
     }
 
