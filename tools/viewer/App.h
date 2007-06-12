@@ -26,6 +26,11 @@ private:
 	//ThirdPersonManipulatorRef	modelController;
 	
 public:
+	/** Used by GUIViewer */
+	Color4						colorClear;
+	TextureRef					background1;
+	TextureRef					background2;
+
 	App(const GApp2::Settings& settings = GApp2::Settings(), const std::string& file = "");
 
 	virtual void onInit();

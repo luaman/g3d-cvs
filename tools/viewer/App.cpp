@@ -42,6 +42,13 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 	
+	/** Used by GUIViewer */
+	colorClear = Color3::blue();
+	background1 = Texture::fromFile("background1.jpg", TextureFormat::AUTO,
+							Texture::DIM_2D_NPOT, Texture::Settings::video());
+	background2 = Texture::fromFile("background2.jpg", TextureFormat::AUTO,
+							Texture::DIM_2D_NPOT, Texture::Settings::video());
+
 	//modelController = ThirdPersonManipulator::create();
 
 	setViewer(filename);
@@ -77,7 +84,7 @@ void App::onGraphics(RenderDevice* rd) {
 	toneMap->setEnabled(false);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
-    rd->setColorClearValue(Color3(0.0f,0.0f, 1.0f));
+    rd->setColorClearValue(colorClear);
     rd->clear(true, true, true);
 
     int width = rd->width();

@@ -20,8 +20,14 @@ class GUIViewer : public Viewer {
 private:
 	GuiWindow::Ref		window;
 	GuiWindow::Ref		toolWindow;
+	GuiWindow::Ref		bgControl;
 	App*				parentApp;
 	bool				addToApp;
+
+	enum WindowBackground {WHITE = 1, BLUE = 2, BLACK = 3, BGIMAGE1 = 4, BGIMAGE2 = 5};
+
+	WindowBackground	windowControl;
+
 
 	/**
 	 A typical GUI has actual state that it is connected to.  We're just showing off the GUI and not

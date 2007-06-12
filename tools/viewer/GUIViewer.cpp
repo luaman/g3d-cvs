@@ -18,6 +18,9 @@ GUIViewer::GUIViewer() : addToApp(false), parentApp(NULL) {}
 GUIViewer::~GUIViewer(){
 	parentApp->removeWidget(window);
 	parentApp->removeWidget(toolWindow);
+	parentApp->removeWidget(bgControl);
+
+	parentApp->colorClear = Color3::blue();
 }
 
 
@@ -28,9 +31,10 @@ void GUIViewer::onInit(const std::string& filename) {
 	GuiPane*			normalPane;
 
 	skin = GuiSkin::fromFile(filename);
-	skin->setFont(GFont::fromFile("X:/morgan/data/font/arial.fnt"), 11, Color3::black(), Color4::clear());
+
 	window = GuiWindow::create(GuiText("Normal"), Rect2D::xywh(50,50,330,550), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	toolWindow = GuiWindow::create(GuiText("Tool"), Rect2D::xywh(300,100,200,440), skin, GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	bgControl = GuiWindow::create(GuiText("Background Control"), Rect2D::xywh(550,100,200,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
 	pane = window->pane();
 	slider[0] = 1.5f;
@@ -80,17 +84,50 @@ void GUIViewer::onInit(const std::string& filename) {
 			ornatePane->addCheckBox(GuiText("Selected, Enabled"), &checkbox[6], GuiCheckBox::BUTTON_STYLE);
 			ornatePane->addCheckBox(GuiText("Deselected, Enabled"), &checkbox[7], GuiCheckBox::BUTTON_STYLE);
 	pane->addButton("Disabled")->setEnabled(false);
-
+	pane = bgControl->pane();
+		windowControl = BLUE;
+		pane->addRadioButton(GuiText("White"), WHITE, &windowControl);
+		pane->addRadioButton(GuiText("Blue"), BLUE, &windowControl);
+		pane->addRadioButton(GuiText("Black"), BLACK, &windowControl);
+		pane->addRadioButton(GuiText("Img 1"), BGIMAGE1, &windowControl);
+		pane->addRadioButton(GuiText("Img 2"), BGIMAGE2, &windowControl);
 	addToApp = true;
 }
 
 
 void GUIViewer::onGraphics(RenderDevice* rd, App* app) {
+	switch (windowControl) {
+		case (WHITE):
+			app->colorClear = Color3::white();
+			break;
+		case (BLUE):
+			app->colorClear = Color3::blue();
+			break;
+		case (BLACK):
+			app->colorClear = Color3::black();
+			break;
+		case (BGIMAGE1):
+			rd->setTexture(0, app->background1);
+				rd->push2D();
+					Draw::rect2D(rd->viewport(), rd);
+				rd->pop2D();
+			rd->setTexture(0, NULL);
+			break;
+		case (BGIMAGE2):
+			rd->setTexture(0, app->background2);
+				rd->push2D();
+					Draw::rect2D(rd->viewport(), rd);
+				rd->pop2D();
+			rd->setTexture(0, NULL);
+			break;
+	}
+
 	// When we initialize, the App isn't available to call addWidget on, so we delay until onGraphics
 	if (addToApp) {
 		addToApp = false;
 		parentApp = app;
 		app->addWidget(window);
 		app->addWidget(toolWindow);
+		app->addWidget(bgControl);
 	}
 }
