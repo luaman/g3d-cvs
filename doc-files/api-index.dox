@@ -330,7 +330,8 @@ href="classes.html">Classes</a>.
 		\link G3D::TextOutput TextOutput\endlink,
         \link G3D::Token Token\endlink,
         \link G3D::TextInput::WrongTokenType TextInput::WrongTokenType\endlink,
-        \link G3D::writeWholeFile writeWholeFile\endlink
+        \link G3D::writeWholeFile writeWholeFile\endlink,
+        \link G3D::zipfileExists zipfileExists\endlink
 
     <LI><B>Network</B> &nbsp; &nbsp;
         \link G3D::DiscoveryAdvertisement DiscoveryAdvertisement\endlink,

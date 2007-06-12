@@ -163,6 +163,7 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
         \link G3D::isDirectory isDirectory\endlink,
         \link G3D::fileIsNewer fileIsNewer\endlink,
         \link G3D::fileExists fileExists\endlink, 
+        \link G3D::zipfileExists zipfileExists\endlink
         \link G3D::fileLength fileLength\endlink</td><td>File testing and comparison</td></tr>
 </table>
 

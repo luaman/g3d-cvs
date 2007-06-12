@@ -52,7 +52,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
         dataDir = settings.dataDir;
     }
 
-    if (settings.writeLicenseFile && ! fileExists("g3d-license.txt")) {
+    if (settings.writeLicenseFile && ! fileExists("g3d-license.txt", false)) {
         writeLicense();
     }
 

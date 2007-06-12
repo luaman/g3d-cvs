@@ -103,10 +103,30 @@ FILE* createTempFile();
 
 /**
  Returns true if the given file (or directory) exists.
- Must not end in a trailing slash.
+
+ @param filename the path to test. must not end in a trailing slash.
+ @param lookInZipfiles if the path does not exist, calls zipfileExists()
  */
 bool fileExists(
-    const std::string&          filename);
+    const std::string&          filename,
+	const bool					lookInZipfiles = true);
+
+/**
+ Returns true if the given file (or directory) exists
+ within a zipfile.  Called if fileExists initially
+ returns false and the lookInZipfiles flag has been set.
+ Must not end in a trailing slash.
+
+ @param filename the path to test
+ @param outZipfile the path to the .zip file
+ @param outInternalFile the path (within the .zip) where the desired file is located, if valid
+
+ */
+bool zipfileExists(
+	const std::string&          filename,
+	std::string&				outZipfile,
+	std::string&				outInternalFile
+	);
 
 /**
   Parses a filename into four useful pieces.

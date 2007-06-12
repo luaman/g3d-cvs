@@ -303,7 +303,7 @@ void BinaryOutput::commit(bool flush) {
     parseFilename(filename, root, pathArray, base, ext); 
 
     path = root + stringJoin(pathArray, '/');
-    if (! fileExists(path)) {
+    if (! fileExists(path, false)) {
         createDirectory(path);
     }
 

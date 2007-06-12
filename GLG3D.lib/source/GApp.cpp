@@ -47,7 +47,7 @@ GApp::GApp(const Settings& settings, GWindow* window) {
     }
 
 
-    if (settings.writeLicenseFile && ! fileExists("g3d-license.txt")) {
+    if (settings.writeLicenseFile && ! fileExists("g3d-license.txt", false)) {
         writeLicense();
     }
 

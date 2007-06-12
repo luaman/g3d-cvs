@@ -4,7 +4,7 @@
  @author Morgan McGuire, graphics3d.com
  
  @author  2002-06-06
- @edited  2006-08-06
+ @edited  2007-06-12
  */
 
 #include "G3D/platform.h"
@@ -13,6 +13,8 @@
 #include "G3D/g3dmath.h"
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <zip/zip.h>
+#include <zip/unzip.h>
 #include "G3D/stringutils.h"
 
 #ifdef G3D_WIN32
@@ -247,7 +249,7 @@ void writeWholeFile(
     parseFilename(filename, root, pathArray, base, ext); 
 
     path = root + stringJoin(pathArray, '/');
-    if (! fileExists(path)) {
+    if (! fileExists(path, false)) {
         createDirectory(path);
     }
 
@@ -290,7 +292,7 @@ void createDirectory(
     }
 
     // If it already exists, do nothing
-    if (fileExists(d.substr(0, d.size() - 1))) {
+    if (fileExists(d.substr(0, d.size() - 1)), false) {
         return;
     }
 
@@ -310,14 +312,14 @@ void createDirectory(
     // Create any intermediate that doesn't exist
     for (int i = 0; i < path.size(); ++i) {
         p += "/" + path[i];
-        if (! fileExists(p)) {
-	    // Windows only requires one argument to mkdir,
-	    // where as unix also requires the permissions.
-	    #ifndef G3D_WIN32
-	 	 mkdir(p.c_str(),0777);
- 	    #else
-                 _mkdir(p.c_str());
-	    #endif
+        if (! fileExists(p, false)) {
+			// Windows only requires one argument to mkdir,
+			// where as unix also requires the permissions.
+#			ifndef G3D_WIN32
+	 			mkdir(p.c_str(),0777);
+#			else
+				 _mkdir(p.c_str());
+#			endif
         }
     }
 }
@@ -325,7 +327,8 @@ void createDirectory(
 ///////////////////////////////////////////////////////////////////////////////
 
 bool fileExists(
-    const std::string& filename) {
+    const std::string&	filename,
+	const bool			lookInZipfiles) {
 
 	if (filename == "") {
 		return true;
@@ -339,8 +342,154 @@ bool fileExists(
     int ret = _stat(filename.c_str(), &st);
 
     // _stat returns zero on success
-    return (ret == 0);
+	bool exists = (ret == 0);
+
+	if (exists) {
+		// Exists
+		return true;
+	} else if (lookInZipfiles) {
+		// Does not exist standalone, but might exist in a zipfile
+
+		// These output arguments will be ignored
+		std::string zipDir, internalPath;
+		return zipfileExists(filename, zipDir, internalPath);
+	} else {
+		// Does not exist
+		return false;
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+/* Helper methods for zipfileExists()*/
+// Given a string (the drive) and an array (the path), computes the directory
+static void _zip_resolveDirectory(std::string& completeDir, const std::string& drive, const Array<std::string>& path, const int length){
+	completeDir = drive;
+	int tempLength;
+	// if the given length is longer than the array, we correct it
+	if(length > path.length()){
+		tempLength = path.length();
+	} else{
+		tempLength = length;
+	}
+
+	for(int t = 0; t < tempLength; ++t){
+		if(t > 0){
+			completeDir += "/";
+		}
+		completeDir += path[t];
+	}
+}
+
+
+static bool _zip_isZipfile(const std::string& filename) {
+
+	FILE* f = fopen(filename.c_str(), "r");
+	if (f == NULL) {
+		return false;
+	}
+	uint8 header[4];
+	fread(header, 4, 1, f);
+
+	const uint8 zipHeader[4] = {0x50, 0x4b, 0x03, 0x04};
+	for (int i = 0; i < 4; ++i) {
+		if (header[i] != zipHeader[i]) {
+			fclose(f);
+			return false;
+		}
+	}
+
+	fclose(f);
+	return true;
+}
+
+
+// assumes that zipDir references a .zip file
+static bool _zip_zipContains(const std::string& zipDir, const std::string& desiredFile){
+	unzFile f = unzOpen(zipDir.c_str());
+	//the last parameter, an int, determines case sensitivity:
+	//1 is sensitive, 2 is not, 0 is default
+	int test = unzLocateFile(f, desiredFile.c_str(), 2);
+	unzClose(f);
+	if(test == UNZ_END_OF_LIST_OF_FILE){
+		return false;
+	}
+	return true;
+}
+
+
+// assumes zipDir is valid
+// TODO: This might be more useful if it
+// stored the contents in an array of char *
+static void printZipContents(const std::string& zipDir){
+	unzFile f = unzOpen(zipDir.c_str());
+
+	enum {MAX_STRING_LENGTH=1024};
+	char fileName[MAX_STRING_LENGTH];
+
+	unzGetCurrentFileInfo(f, NULL, fileName, MAX_STRING_LENGTH,
+							NULL, 0, NULL, 0);
+	debugPrintf(fileName);
+	debugPrintf("\n");
+
+	while(unzGoToNextFile(f) != UNZ_END_OF_LIST_OF_FILE){
+		unzGetCurrentFileInfo(f, NULL, fileName, MAX_STRING_LENGTH,
+								NULL, 0, NULL, 0);
+
+		debugPrintf(fileName);
+		debugPrintf("\n");
+	}
+	unzClose(f);
+}
+
+
+// If no zipfile exists, outZipfile and outInternalFile are unchanged
+bool zipfileExists(const std::string& filename, std::string& outZipfile,
+				   std::string& outInternalFile){
+	if (fileExists(filename, false)) {
+		// the specified path exists, it does not need to be dealt with
+		// this step may not be necessary, depending on G3D's needs/usages
+		return false;
+	} else {
+		Array<std::string> path;
+		std::string drive, base, ext, zipfile, infile;
+		parseFilename(filename, drive, path, base, ext);
+		infile = base + "." + ext;
+		for (int t = 0; t < path.length(); ++t){
+			_zip_resolveDirectory(zipfile, drive, path,  path.length() - t);
+			if (t > 0){
+				infile = path[path.length() - t] + "/" + infile;
+			}
+
+			if (fileExists(zipfile, false)){
+				// test if it actually is a zipfile
+				// if not, return false, a bad
+				// directory structure has been given,
+				// not a .zip
+				if (_zip_isZipfile(zipfile)){
+
+					printZipContents(zipfile);
+
+					if (_zip_zipContains(zipfile, infile)){
+						outZipfile = zipfile;
+						outInternalFile = infile;
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					// the directory structure was valid but did not point to a .zip
+					return false;
+				}
+			}
+
+		}
+	}
+
+	// not a valid directory structure ever, 
+	// obviously no .zip was found within the path 
+	return false;
+}	
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -359,6 +359,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\doc-files\api-index.dox"
+			>
+		</File>
+		<File
 			RelativePath="..\doc-files\changelog.dox"
 			>
 		</File>

@@ -285,6 +285,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GuiTextBox.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GuiWindow.cpp"
 				>
 			</File>
@@ -524,6 +528,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiTextBox.h"
 				>
 			</File>
 			<File
