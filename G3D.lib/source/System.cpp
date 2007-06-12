@@ -1686,8 +1686,51 @@ void System::describeSystem(
     t.writeNewline();
 }
 
+
 int System::cpuSpeedMHz() {
     return _CPUSpeed;
+}
+
+
+void System::setClipboardText(const std::string& s) {
+#   ifdef G3D_WIN32
+        if (OpenClipboard(NULL)) {
+            HGLOBAL hMem = GlobalAlloc(GHND | GMEM_DDESHARE, s.size() + 1);
+            if (hMem) {
+                char *pMem = (char*)GlobalLock(hMem);
+                strcpy(pMem, s.c_str());
+                GlobalUnlock(hMem);
+
+                EmptyClipboard();
+                SetClipboardData(CF_TEXT, hMem);
+            }
+
+            CloseClipboard();
+            GlobalFree(hMem);
+        }
+#   endif
+}
+
+
+std::string System::getClipboardText() {
+    std::string s;
+
+#   ifdef G3D_WIN32
+        if (OpenClipboard(NULL)) {
+            HANDLE h = GetClipboardData(CF_TEXT);
+
+            if (h) {
+                char* temp = (char*)GlobalLock(h);
+                if (temp) {
+    	            s = temp;
+                }
+                temp = NULL;
+                GlobalUnlock(h);
+            }
+            CloseClipboard();
+        }
+#   endif
+    return s;
 }
 
 }  // namespace

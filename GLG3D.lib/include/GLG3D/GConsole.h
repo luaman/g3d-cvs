@@ -258,13 +258,6 @@ protected:
     /** Issues text to the buffer. */
     virtual void print(const string& s, const Color4& c);
 
-    /** On Win32, calls paste with the clipboard text contents.  Does nothing on other
-       platforms (yet) */
-    void pasteClipboard();
-
-    /** Copies the text to the clipboard on Win32. */
-    void copyClipboard(const string& s) const;
-
     GConsole(const GFontRef& f, const Settings& s, Callback c, void* callbackData);
 
 public:

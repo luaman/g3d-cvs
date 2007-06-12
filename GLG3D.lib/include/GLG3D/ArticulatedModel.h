@@ -232,8 +232,16 @@ public:
         const Pose&             pose = DEFAULT_POSE);
 
     /** 
-      Supports 3DS, IFS, PLY2 file formats.  The format of a file is detected by the extension. 
-      @param xform Transform all vertices by this scale factor on load
+      Supports 3DS, IFS, and PLY2 file formats.  The format of a file is detected by the extension. 
+
+      You can use the @a xform parameter to scale, translate, and rotate (or even invert!) the model
+      as it is loaded.  Example:
+      <pre>
+      CoordinateFrame xform(Matrix3::fromAxisAngle(axis, angle) * scale, translation);
+      model = ArticulatedModel::fromFile(filename, xform);
+      </pre>
+
+      @param xform Transform all vertices by this RST matrix during loading loading
       */
     static ArticulatedModelRef fromFile(const std::string& filename, const CoordinateFrame& xform);
 

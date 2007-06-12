@@ -8,7 +8,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2006-04-26
+  @edited  2007-06-14
  */
 
 #ifndef G3D_SYSTEM_H
@@ -279,14 +279,22 @@ public:
         Always returns 0 on linux.*/
     static int cpuSpeedMHz();
 
+
+    /** On Win32, returns the clipboard text contents.  Does nothing on other
+       platforms (yet) */
+    static std::string getClipboardText();
+
+    /** Copies the text to the clipboard on Win32. */
+    static void setClipboardText(const std::string& s);
+
 private:
     /**
 	 (CKO) Note: Not sure why these are specifically needed
 	 for OS X. I made them private though.
 	*/
 #   ifdef G3D_OSX
-		static long m_OSXCPUSpeed; //In Cycles/Second
-		static double m_secondsPerNS;
+    static long m_OSXCPUSpeed; //In Cycles/Second
+    static double m_secondsPerNS;
 #   endif
 };
 

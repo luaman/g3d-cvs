@@ -32,14 +32,17 @@ public:
     enum Update {IMMEDIATE_UPDATE, DELAYED_UPDATE};
 
 protected:
+
     /** The string that this box is associated with. */
     Pointer<std::string> m_value;
 
-    /** The value currently being set by the user. */
+    /** The value currently being set by the user. If in
+        IMMEDIATE_UPDATE mode, this is continually synchronized with
+        m_value.*/
     std::string          m_userValue;
 
     /** Character position in m_editContents of the cursor */
-    int                  m_cursorPosition;
+    int                  m_cursorPos;
 
     /** True if currently being edited, that is, if the user has
      changed the string more recently than the program has changed
@@ -48,7 +51,7 @@ protected:
 
     /** Original value before the user started editing.  This is used
         to detect changes in m_value while the user is editing. */
-    bool                 m_oldValue;
+    std::string          m_oldValue;
 
     Update               m_update;
 
@@ -56,6 +59,15 @@ protected:
     GuiText              m_cursor;
 
     float                m_captionWidth;
+
+    /** Key that is currently auto-repeating. */
+    SDL_keysym           m_repeatKeysym;
+
+    /** Time at which setRepeatKeysym was called. */
+    RealTime             m_keyDownTime;
+
+    /** Time at which the key will repeat (if down). */
+    RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
     GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiText& caption, std::string* value, Update update, float captionWidth);
@@ -76,7 +88,16 @@ protected:
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
-    
+
+    /** Called from onEvent when a key is pressed. */
+    void setRepeatKeysym(SDL_keysym key);
+
+    /** Called from onEvent when the repeat key is released. */
+    void unsetRepeatKeysym();
+
+    /** Called from render and onEvent to enact the action triggered by the repeat key. */
+    void processRepeatKeysym();
+
 public:
     
     /** Set position to the left of the text box bounds that the caption appears.*/

@@ -183,6 +183,8 @@ bool GuiWindow::onEvent(const GEvent &event) {
         }
     }
 
+    // If this window is not in focus, don't bother checking to see if
+    // its controls will receive the event.
     if (! focused()) {
         return consumed;
     }
@@ -199,7 +201,6 @@ bool GuiWindow::onEvent(const GEvent &event) {
                 origin += p->m_clientRect.x0y0();
                 p = p->m_parent;
             }
-
             consumed = consumed || keyFocusGuiControl->onEvent(makeRelative(event, origin));
 
         } else {

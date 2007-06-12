@@ -187,49 +187,6 @@ void GConsole::paste(const string& s) {
 }
 
 
-void GConsole::copyClipboard(const string& s) const {
-#   ifdef G3D_WIN32
-        if (OpenClipboard(NULL)) {
-            HGLOBAL hMem = GlobalAlloc(GHND | GMEM_DDESHARE, s.size() + 1);
-            if (hMem) {
-                char *pMem = (char*)GlobalLock(hMem);
-                strcpy(pMem, s.c_str());
-                GlobalUnlock(hMem);
-
-                EmptyClipboard();
-                SetClipboardData(CF_TEXT, hMem);
-            }
-
-            CloseClipboard();
-            GlobalFree(hMem);
-        }
-#   endif
-}
-
-
-void GConsole::pasteClipboard() {
-    string s;
-
-#   ifdef G3D_WIN32
-        if (OpenClipboard(NULL)) {
-            HANDLE h = GetClipboardData(CF_TEXT);
-
-            if (h) {
-	            char* temp = (char*)GlobalLock(h);
-                if (temp) {
-    	            s = temp;
-                }
-                temp = NULL;
-	            GlobalUnlock(h);
-            }
-            CloseClipboard();
-        }
-#   endif
-
-    paste(s);
-}
-
-
 void __cdecl GConsole::printf(const char* fmt, ...) {
     va_list arg_list;
     va_start(arg_list, fmt);
@@ -638,7 +595,7 @@ bool GConsole::onEvent(const GEvent& event) {
                 (event.key.keysym.sym == GKey::INSERT))) {
 
                 // Paste (not autorepeatable)
-                pasteClipboard();
+                paste(System::getClipboardText());
                 return true;
 
             } else if (((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
@@ -648,7 +605,7 @@ bool GConsole::onEvent(const GEvent& event) {
                 string cut = m_currentLine.substr(m_cursorPos);
                 m_currentLine = m_currentLine.substr(0, m_cursorPos);
 
-                copyClipboard(cut);
+                System::setClipboardText(cut);
 
                 return true;
 
