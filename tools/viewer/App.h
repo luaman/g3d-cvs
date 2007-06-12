@@ -18,11 +18,12 @@ class Viewer;
 
 class App : public GApp2 {
 private:
-    LightingRef         lighting;
-    SkyParameters       skyParameters;
-    SkyRef              sky;
-	Viewer*				viewer;
-	std::string         filename;
+    LightingRef					lighting;
+    SkyParameters				skyParameters;
+    SkyRef						sky;
+	Viewer*						viewer;
+	std::string					filename;
+	//ThirdPersonManipulatorRef	modelController;
 	
 public:
 	App(const GApp2::Settings& settings = GApp2::Settings(), const std::string& file = "");

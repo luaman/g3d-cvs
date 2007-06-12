@@ -42,6 +42,8 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 	
+	//modelController = ThirdPersonManipulator::create();
+
 	setViewer(filename);
 }
 
@@ -128,6 +130,7 @@ void App::setViewer(const std::string& newFilename) {
 	filename = newFilename;
 	defaultCamera.setCoordinateFrame(CoordinateFrame(Vector3(0,0,5)));
 	defaultController->setFrame(CoordinateFrame(Vector3(0,0,5)));
+	//modelController->setFrame(CoordinateFrame(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180))));
 	delete viewer;
 	viewer = NULL;
 	

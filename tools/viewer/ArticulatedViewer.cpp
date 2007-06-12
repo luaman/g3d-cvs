@@ -74,6 +74,7 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 
 void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app) {
 	
+	
 	static Array<G3D::PosedModel::Ref> arrayModel;
 	static Array<G3D::PosedModel::Ref> arrayOpaqueModels;
 	static Array<G3D::PosedModel::Ref> arrayTransModels;
