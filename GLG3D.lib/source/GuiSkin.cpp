@@ -1156,7 +1156,7 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
         t.readSymbols("font", "=", "{");
 
         do {
-            token = t.read();
+            token = t.peek();
 
             alwaysAssertM(token.type() == Token::SYMBOL, 
                 format("Unexpected token at line %d", token.line()));
@@ -1164,7 +1164,7 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
             std::string s = token.string();
 
             if (s == "face") {
-                t.readSymbol("=");
+                t.readSymbols("face", "=");
 
                 // Try to load the font
                 std::string fontFilename = t.readString();
@@ -1184,13 +1184,14 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
                 }
             } else if (s == "size") {
 
-                t.readSymbol("=");
+                t.readSymbols("size", "=");
                 size = t.readNumber();
             } else if (s == "color") {
                 color = readColor("color", t);
             } else if (s == "outlineColor") {
                 outlineColor = readColor("outlineColor", t);
             } else if (s == "}") {
+                t.readSymbol("}");
                 return;
             } else {
                 alwaysAssertM(false, format("Bad symbol: %s at line %d", s.c_str(), token.line()));
