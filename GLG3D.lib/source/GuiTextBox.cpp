@@ -1,3 +1,12 @@
+/**
+ @file GuiTextBox.cpp
+ 
+ @maintainer Morgan McGuire, morgan@graphics3d.com
+
+ @created 2007-06-02
+ @edited  2007-06-10
+ */
+#include "G3D/platform.h"
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiPane.h"
@@ -13,8 +22,10 @@ static const float               keyRepeatDelay = 0.25f;
 
 namespace G3D {
 
-GuiTextBox::GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiText& caption, std::string* value, Update update, float captionWidth) 
-    : GuiControl(gui, parent, caption), m_value(value), m_update(update), m_cursor("|"), m_captionWidth(captionWidth) {
+GuiTextBox::GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, 
+                       std::string* value, Update update, float captionWidth) 
+    : GuiControl(gui, parent, caption), m_value(value), 
+      m_update(update), m_cursor("|"), m_captionWidth(captionWidth) {
 
     unsetRepeatKeysym();
     m_keyDownTime = System::time();

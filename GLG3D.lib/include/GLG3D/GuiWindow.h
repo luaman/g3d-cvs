@@ -118,7 +118,7 @@ private:
     };
 
     /** Window label */
-    GuiText             m_text;
+    GuiCaption          m_text;
 
     /** Window border bounds. Actual rendering may be outside these bounds. */
     Rect2D              m_rect;
@@ -160,7 +160,7 @@ private:
 
     GuiPane*            m_rootPane;
 
-    GuiWindow(const GuiText& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction closeAction);
+    GuiWindow(const GuiCaption& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction closeAction);
 
     void render(RenderDevice* rd);
 
@@ -211,7 +211,7 @@ public:
         return m_rootPane;
     }
 
-    static Ref create(const GuiText& windowTitle, const Rect2D& rect, const GuiSkinRef& skin, 
+    static Ref create(const GuiCaption& windowTitle, const Rect2D& rect, const GuiSkinRef& skin, 
                       Style style = FRAME_STYLE, CloseAction = NO_CLOSE);
 
     void getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);

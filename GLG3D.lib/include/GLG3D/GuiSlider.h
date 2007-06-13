@@ -28,7 +28,7 @@ protected:
     bool              m_inDrag;
     float             m_dragStartValue;
 
-    _GuiSliderBase(GuiWindow* gui, GuiPane* parent, const GuiText& text, bool horizontal);
+    _GuiSliderBase(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, bool horizontal);
 
     /** Position from which the mouse drag started, relative to
         m_gui.m_clientRect.  When dragging the thumb, the cursor may not be
@@ -69,14 +69,14 @@ protected:
         *m_value = (Value)f * (m_maxValue - m_minValue) + m_minValue;
     }
 
-    GuiSlider(GuiWindow* gui, GuiPane* parent, const GuiText& text, Value* value, Value minValue, Value maxValue, bool horizontal) :
+    GuiSlider(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, Value* value, Value minValue, Value maxValue, bool horizontal) :
         _GuiSliderBase(gui, parent, text, horizontal), m_value(value), 
         m_minValue(minValue), m_maxValue(maxValue) {}
 
     template<class T>
     GuiSlider(GuiWindow* gui,
               GuiPane* parent,
-              const GuiText& text,
+              const GuiCaption& text,
               T* object,
               Value (T::*get)() const,
               void (T::*set)(Value),

@@ -35,6 +35,7 @@ href="classes.html">Classes</a>.
     \link G3D::GEvent GEvent\endlink,
     \link G3D::GEventType GEventType\endlink,
     \link G3D::GKey GKey\endlink,
+    \link G3D::GuiCaption GuiCaption\endlink,
     \link G3D::GuiCheckBox GuiCheckBox\endlink,
     \link G3D::GuiButton GuiButton\endlink,
     \link G3D::GuiPane GuiPane\endlink,

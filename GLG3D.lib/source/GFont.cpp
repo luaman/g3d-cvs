@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2002-11-02
- @edited  2006-02-10
+ @edited  2007-06-10
  */
 
 #include "GLG3D/GFont.h"
@@ -165,10 +165,7 @@ Vector2 GFont::drawString(
         }
     }
 
-    renderDevice->minGLStateChange(8 * n);
-    renderDevice->minGLStateChange(8 * n);
-
-    // TODO: update the RenderDevice state count
+    // TODO: update the RenderDevice vertex count
     return Vector2(x - x0, h);
 }
 
@@ -248,6 +245,7 @@ Vector2 GFont::computePackedArray(
     return Vector2(x - x0, h);
 }
 
+
 void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
 
     renderDevice->setTextureMatrix(0, m_textureMatrix);
@@ -263,7 +261,6 @@ void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
 }
 
 
-
 // Used for vertex array storage
 static Array<Vector2> array;
 
@@ -271,7 +268,7 @@ Vector2 GFont::send2DQuads(
     RenderDevice*               renderDevice,
     const std::string&          s,
     const Vector2&              pos2D,
-    float                      size,
+    float                       size,
     const Color4&               color,
     const Color4&               border,
     XAlign                      xalign,
@@ -296,11 +293,11 @@ Vector2 GFont::send2DQuads(
 
     switch (xalign) {
     case XALIGN_RIGHT:
-        x -= get2DStringBounds(s, size, spacing).x;
+        x -= bounds(s, size, spacing).x;
         break;
 
     case XALIGN_CENTER:
-        x -= get2DStringBounds(s, size, spacing).x / 2;
+        x -= bounds(s, size, spacing).x / 2;
         break;
     
     default:
@@ -383,7 +380,7 @@ Vector2 GFont::draw2D(
     RenderDevice*               renderDevice,
     const std::string&          s,
     const Vector2&              pos2D,
-    float                      size,
+    float                       size,
     const Color4&               color,
     const Color4&               border,
     XAlign                      xalign,
@@ -400,11 +397,11 @@ Vector2 GFont::draw2D(
 
     switch (xalign) {
     case XALIGN_RIGHT:
-        x -= get2DStringBounds(s, size, spacing).x;
+        x -= bounds(s, size, spacing).x;
         break;
 
     case XALIGN_CENTER:
-        x -= get2DStringBounds(s, size, spacing).x / 2;
+        x -= bounds(s, size, spacing).x / 2;
         break;
     
     default:
@@ -430,16 +427,8 @@ Vector2 GFont::draw2D(
 
     renderDevice->pushState();
         renderDevice->disableLighting();
-        renderDevice->setTextureMatrix(0, m_textureMatrix);
-        renderDevice->setTexture(0, m_texture);
 
-        renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
-
-        // This is BLEND_SRC_ALPHA because the texture has no luminance, only alpha
-        renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA,
-				   RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-
-        renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1/255.0);
+        configureRenderDevice(renderDevice);
 
         if (GLCaps::supports_GL_ARB_multitexture()) {
             glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -455,13 +444,8 @@ Vector2 GFont::draw2D(
             return Vector2(0, h);
         }
 
-        // Packed vertex array; tex coord and vertex are interlaced
+        // Packed vertex array; tex coord and vertex are interlaced.
         // For each character we need 4 vertices.
-
-        // MSVC 6 cannot use static allocation with a variable size argument
-        // so we revert to the more compiler specific alloca call. Gcc does not
-        // implement array[variable] well, so we use this everywhere.
-        //Vector2* array = (Vector2*)System::malloc(numChars * 4 * 2 * sizeof(Vector2));
         array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
 
         const Vector2 bounds = computePackedArray(s, x, y, w, h, spacing, array);
@@ -505,7 +489,6 @@ Vector2 GFont::draw2D(
         renderDevice->afterPrimitive();
     renderDevice->popState();
 
-    //System::free(array);
     debugAssertGLOk();
 
     return bounds;
@@ -523,7 +506,7 @@ Vector2 GFont::draw3D(
     YAlign                      yalign,
     Spacing                     spacing) const {
     
-	debugAssert(renderDevice != NULL);
+    debugAssert(renderDevice != NULL);
 
     float x = 0;
     float y = 0;
@@ -533,11 +516,11 @@ Vector2 GFont::draw3D(
 
     switch (xalign) {
     case XALIGN_RIGHT:
-        x -= get2DStringBounds(s, size, spacing).x;
+        x -= bounds(s, size, spacing).x;
         break;
 
     case XALIGN_CENTER:
-        x -= get2DStringBounds(s, size, spacing).x / 2;
+        x -= bounds(s, size, spacing).x / 2;
         break;
     
     default:
@@ -561,13 +544,6 @@ Vector2 GFont::draw3D(
         break;
     }
 
-
-    float m[] = 
-       {1.0 / m_texture->texelWidth(), 0, 0, 0,
-        0, 1.0 / m_texture->texelHeight(), 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1};
-
     renderDevice->pushState();
         // We need to get out of Y=up coordinates.
         CoordinateFrame flipY;
@@ -575,13 +551,7 @@ Vector2 GFont::draw3D(
         renderDevice->setObjectToWorldMatrix(pos3D * flipY);
 
         renderDevice->setCullFace(RenderDevice::CULL_NONE);
-        renderDevice->setTextureMatrix(0, m);
-        renderDevice->setTexture(0, m_texture);
-
-        renderDevice->setTextureCombineMode(0, RenderDevice::TEX_MODULATE);
-        renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, 
-				   RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-        renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.05);
+        configureRenderDevice(renderDevice);
 
         renderDevice->disableLighting();
         renderDevice->beginPrimitive(RenderDevice::QUADS);
@@ -616,9 +586,9 @@ Vector2 GFont::draw3D(
 }
 
 
-Vector2 GFont::get2DStringBounds(
+Vector2 GFont::bounds(
     const std::string&  s,
-    float              size,
+    float               size,
     Spacing             spacing) const {
 
     int n = s.length();

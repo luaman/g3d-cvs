@@ -1,10 +1,19 @@
+/**
+ @file GuiButton.cpp
+ 
+ @maintainer Morgan McGuire, morgan@graphics3d.com
+
+ @created 2007-06-02
+ @edited  2007-06-10
+ */
+#include "G3D/platform.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiPane.h"
 
 namespace G3D {
 
-GuiButton::GuiButton(GuiWindow* gui, GuiPane* parent, const GuiText& text) : GuiControl(gui, parent, text), m_down(false) {}
+GuiButton::GuiButton(GuiWindow* gui, GuiPane* parent, const GuiCaption& text) : GuiControl(gui, parent, text), m_down(false) {}
 
 void GuiButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {

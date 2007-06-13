@@ -1,9 +1,18 @@
+/**
+ @file GuiSlider.cpp
+ 
+ @maintainer Morgan McGuire, morgan@graphics3d.com
+
+ @created 2007-06-02
+ @edited  2007-06-10
+ */
+#include "G3D/platform.h"
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiWindow.h"
 
 namespace G3D {
 
-_GuiSliderBase::_GuiSliderBase(GuiWindow* gui, GuiPane* parent, const GuiText& text, bool horizontal) :
+_GuiSliderBase::_GuiSliderBase(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, bool horizontal) :
     GuiControl(gui, parent, text), 
     m_horizontal(horizontal),
     m_inDrag(false) {

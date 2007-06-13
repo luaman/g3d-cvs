@@ -1,3 +1,12 @@
+/**
+ @file GuiPane.cpp
+ 
+ @maintainer Morgan McGuire, morgan@graphics3d.com
+
+ @created 2007-06-02
+ @edited  2007-06-10
+ */
+#include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiLabel.h"
@@ -6,7 +15,7 @@
 
 namespace G3D {
 
-GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiText& text, const Rect2D& rect, Style style) 
+GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
     : GuiControl(gui, parent, text), m_style(style), nextGuiControlPos(0,0) {
     setRect(rect);
 }
@@ -29,7 +38,7 @@ GuiPane::~GuiPane() {
 }
 
 
-GuiCheckBox* GuiPane::addCheckBox(const GuiText& text, bool* value, GuiCheckBox::Style style) {
+GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style style) {
     GuiCheckBox* c = new GuiCheckBox(m_gui, this, text, value, style);
     c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
     nextGuiControlPos.y += c->rect().height();
@@ -40,7 +49,7 @@ GuiCheckBox* GuiPane::addCheckBox(const GuiText& text, bool* value, GuiCheckBox:
 }
 
 
-GuiTextBox* GuiPane::addTextBox(const GuiText& caption, std::string* value, GuiTextBox::Update update) {
+GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update) {
     GuiTextBox* c = new GuiTextBox(m_gui, this, caption, value, update, TEXT_CAPTION_WIDTH);
     c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
     nextGuiControlPos.y += c->rect().height();
@@ -51,7 +60,7 @@ GuiTextBox* GuiPane::addTextBox(const GuiText& caption, std::string* value, GuiT
 }
 
 
-GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID, void* selection, GuiRadioButton::Style style) {
+GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
     GuiRadioButton* c = new GuiRadioButton(m_gui, this, text, myID, reinterpret_cast<int*>(selection), style);
     c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
     nextGuiControlPos.y += c->rect().height();
@@ -62,7 +71,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID, void* sel
 }
 
 
-GuiButton* GuiPane::addButton(const GuiText& text) {
+GuiButton* GuiPane::addButton(const GuiCaption& text) {
     GuiButton* b = new GuiButton(m_gui, this, text);
     b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(80, 30)));
     nextGuiControlPos.y += b->rect().height();
@@ -73,7 +82,7 @@ GuiButton* GuiPane::addButton(const GuiText& text) {
 }
 
 
-GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign x, GFont::YAlign y) {
+GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) {
     GuiLabel* b = new GuiLabel(m_gui, this, text, x, y);
     b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
     nextGuiControlPos.y += b->rect().height();
@@ -84,7 +93,7 @@ GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign x, GFont::YAlign 
 }
 
 
-GuiPane* GuiPane::addPane(const GuiText& text, float h, GuiPane::Style style) {
+GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style) {
     GuiPane* p = new GuiPane(m_gui, this, text, Rect2D::xywh(nextGuiControlPos, Vector2(m_clientRect.width() - 4 - nextGuiControlPos.x * 2, h)), style);
     nextGuiControlPos.y += p->rect().height();
 

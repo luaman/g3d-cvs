@@ -1,3 +1,13 @@
+/**
+ @file GuiControl.cpp
+ 
+ @maintainer Morgan McGuire, morgan@graphics3d.com
+
+ @created 2007-06-01
+ @edited  2007-06-10
+ */
+
+#include "G3D/platform.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiWindow.h"
 
@@ -28,11 +38,11 @@ void GuiControl::setEnabled(bool e) {
     m_enabled = e;
 }
 
-const GuiText& GuiControl::caption() const {
+const GuiCaption& GuiControl::caption() const {
     return m_caption;
 }
 
-void GuiControl::setCaption(const GuiText& text) {
+void GuiControl::setCaption(const GuiCaption& text) {
     m_caption = text;
 }
 
@@ -46,6 +56,6 @@ void GuiControl::setRect(const Rect2D& rect) {
 
 GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent) : m_enabled(true), m_gui(gui), m_parent(parent), m_visible(true) {}
 
-GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent, const GuiText& caption) : m_enabled(true), m_gui(gui), m_parent(parent), m_caption(caption), m_visible(true) {}
+GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(parent), m_caption(caption), m_visible(true) {}
 
 }

@@ -1,3 +1,12 @@
+/**
+ @file GuiWindow.cpp
+ 
+ @maintainer Morgan McGuire, morgan@graphics3d.com
+
+ @created 2007-06-02
+ @edited  2007-06-10
+ */
+#include "G3D/platform.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiPane.h"
@@ -5,13 +14,13 @@
 
 namespace G3D {
 
-GuiWindow::Ref GuiWindow::create(const GuiText& label, const Rect2D& rect,
+GuiWindow::Ref GuiWindow::create(const GuiCaption& label, const Rect2D& rect,
                                  const GuiSkinRef& skin, Style style, CloseAction close) {
     return new GuiWindow(label, rect, skin, style, close);
 }
 
 
-GuiWindow::GuiWindow(const GuiText& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction close) 
+GuiWindow::GuiWindow(const GuiCaption& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), skin(skin), 
       inDrag(false),

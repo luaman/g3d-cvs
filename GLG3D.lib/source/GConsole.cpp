@@ -724,7 +724,7 @@ void GConsole::render(RenderDevice* rd) {
             // have a fixed width font.
             Vector2 bounds;
             if (m_cursorPos > 0) {
-                bounds = m_font->get2DStringBounds(m_currentLine.substr(0, m_cursorPos), fontSize);
+                bounds = m_font->bounds(m_currentLine.substr(0, m_cursorPos), fontSize);
             }
 
             m_font->send2DQuads(rd, "_", rect.x0y1() + Vector2(bounds.x, -m_settings.lineHeight), fontSize, m_settings.defaultCommandColor);

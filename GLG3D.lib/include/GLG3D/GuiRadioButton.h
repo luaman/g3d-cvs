@@ -40,12 +40,12 @@ protected:
         @param groupSelection Pointer to the current selection.  This button is selected
         when myID == *groupSelection
      */
-    GuiRadioButton(GuiWindow* gui, GuiPane* parent, const GuiText& text, int myID, int* groupSelection, Style style = RADIO_STYLE);
+    GuiRadioButton(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, int myID, int* groupSelection, Style style = RADIO_STYLE);
 
     template<class T>
     GuiRadioButton(GuiWindow* gui,
                    GuiPane* parent,
-                   const GuiText& text,
+                   const GuiCaption& text,
                    int myID,
                    T* object,
                    int (T::*get)() const,

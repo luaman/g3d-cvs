@@ -35,6 +35,9 @@ typedef ReferenceCountedPointer<class GFont> GFontRef;
  */
 class GFont : public ReferenceCountedObject {
 public:
+
+    typedef ReferenceCountedPointer<class GFont> Ref;
+
     /** Constant for draw2D.  Specifies the horizontal alignment
 	of an entire string relative to the supplied x,y position */
     enum XAlign {XALIGN_RIGHT, XALIGN_LEFT, XALIGN_CENTER};
@@ -218,12 +221,12 @@ public:
         Spacing             spacing = PROPORTIONAL_SPACING) const;
 
 		
-	/**
+    /**
      Useful for drawing centered text and boxes around text.
      */
-    Vector2 get2DStringBounds(
+    Vector2 bounds(
         const std::string&  s,
-        float              size = 12,
+        float               size = 12,
         Spacing             spacing = PROPORTIONAL_SPACING) const;
 
     /**

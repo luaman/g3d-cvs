@@ -32,7 +32,7 @@ protected:
     bool m_down;
 
     /** Called by GuiWindow */
-    GuiButton(GuiWindow* gui, GuiPane*, const GuiText& text);
+    GuiButton(GuiWindow* gui, GuiPane*, const GuiCaption& text);
 
     /** Called by GuiWindow */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;

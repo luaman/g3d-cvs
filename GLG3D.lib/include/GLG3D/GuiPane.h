@@ -70,7 +70,7 @@ protected:
 
     Rect2D              m_clientRect;
 
-    GuiPane(GuiWindow* gui, GuiPane* parent, const GuiText& text, const Rect2D& rect, Style style);
+    GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style);
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
     
@@ -96,7 +96,7 @@ public:
 
     ~GuiPane();
 
-    GuiPane* addPane(const GuiText& text, float height, GuiPane::Style style = GuiPane::NO_FRAME_STYLE);
+    GuiPane* addPane(const GuiCaption& text, float height, GuiPane::Style style = GuiPane::NO_FRAME_STYLE);
 
     /**
        <pre>
@@ -109,7 +109,7 @@ public:
     */
     template<class T>
     GuiCheckBox* addCheckBox
-    (const GuiText& text,
+    (const GuiCaption& text,
      T* object,
      bool (T::*get)() const,
      void (T::*set)(bool),
@@ -127,7 +127,7 @@ public:
 
     template<class T>
     GuiTextBox* addTextBox
-    (const GuiText& caption,
+    (const GuiCaption& caption,
      T* object,
      std::string (T::*get)() const,
      void (T::*set)(std::string),
@@ -148,11 +148,11 @@ public:
        gui->addCheckBox("Enabled", &enabled);
        </pre>
      */
-    GuiCheckBox* addCheckBox(const GuiText& text, bool* value, GuiCheckBox::Style = GuiCheckBox::BOX_STYLE);
+    GuiCheckBox* addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style = GuiCheckBox::BOX_STYLE);
 
     template<typename Value, class T>
     GuiSlider<Value>* addSlider
-    (const GuiText& text,
+    (const GuiCaption& text,
      T* object,
      Value (T::*get)() const,
      void (T::*set)(Value),
@@ -170,7 +170,7 @@ public:
     }
 
     template<typename Value>
-    GuiSlider<Value>* addSlider(const GuiText& text, Value* value, Value min, Value max, bool horizontal = true) {
+    GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, Value min, Value max, bool horizontal = true) {
         
         GuiSlider<Value>* c = new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal);
         c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(G3D::min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
@@ -195,14 +195,14 @@ public:
        </pre>
        @param selection Must be a pointer to an int or enum.  The current selection value for a group of radio buttons.
      */
-    GuiRadioButton* addRadioButton(const GuiText& text, int myID, void* selection,
+    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection,
                                 GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
-    GuiButton* addButton(const GuiText& text);
+    GuiButton* addButton(const GuiCaption& text);
 
-    GuiTextBox* addTextBox(const GuiText& caption, std::string* value, GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE);
+    GuiTextBox* addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE);
 
-    GuiLabel* addLabel(const GuiText& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, 
+    GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, 
                     GFont::YAlign = GFont::YALIGN_CENTER);
 
     /**

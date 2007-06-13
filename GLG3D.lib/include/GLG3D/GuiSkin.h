@@ -12,43 +12,9 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/GFont.h"
 #include "G3D/Table.h"
-
-inline unsigned int hashCode(const G3D::GFontRef& font) {
-    return hashCode(font.pointer());
-}
-
+#include "GLG3D/GuiCaption.h"
 
 namespace G3D {
-
-/** 
-    Text label on a control. These are normally created implicitly by a cast from std::string,
-    but can be created explicitly when more information needs to be specified.
- */
-class GuiText {
-public:
-    std::string text;
-    GFontRef    font;
-    float       size;
-    Color4      color;
-    Color4      outlineColor;
-    
-    /**
-       Negative alpha values on color and outlineColor mean "use
-       default".  Null font and negative size mean "use default".
-       Defaults are set on the Gui.
-    */
-    GuiText(const std::string& text ="", 
-          const GFontRef& font = NULL, 
-          float size = -1, 
-          const Color4& color = Color4(-1,-1,-1,-1), 
-          const Color4& outlineColor = Color4(-1,-1,-1,-1));
-
-    GuiText(const char* text);
-    
-    /** Provides the value of default values.*/
-    void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
-};
-    
 
 typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 
@@ -448,10 +414,10 @@ private:
     static void drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd);
     
     void drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused,
-                       bool selected, const GuiText& text) const;
+                       bool selected, const GuiCaption& text) const;
 
     void drawWindow(const Window& window, const Rect2D& bounds, bool focused, 
-                    bool close, bool closeDown, bool closeIsFocused, const GuiText& text) const;
+                    bool close, bool closeDown, bool closeIsFocused, const GuiCaption& text) const;
 
     static Rect2D readRect2D(const std::string& name, TextInput& b);
 
@@ -485,7 +451,7 @@ public:
     */
     static GuiSkinRef fromFile(const std::string& filename);
 
-    /** Set the values to be used for default GuiText parameters. Each skin specifies a font and the 
+    /** Set the values to be used for default GuiCaption parameters. Each skin specifies a font and the 
         previous values will be used for any fields that are left unmodified from their defaults 
         (i.e., defaults will override NULL font, negative size, negative alpha on colors)*/
     void setFont(const GFontRef& font = NULL, float size = -1, const Color4& color = Color4(-1,-1,-1,-1), 
@@ -509,31 +475,31 @@ public:
 
     /** Only call between beginRendering and endRendering */
     void renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
-                        bool checked, const GuiText& text) const;
+                        bool checked, const GuiCaption& text) const;
 
     /** Render a single-line text box. Only call between beginRendering and endRendering.
         Automatically shifts text so that a cursor at character index given by 
         cursorPosition is visible on screen.
      */
     void renderTextBox(const Rect2D& bounds, bool enabled, bool focused, 
-                       const GuiText& text,
-                       const GuiText& cursor,
+                       const GuiCaption& text,
+                       const GuiCaption& cursor,
                        int cursorPosition) const;
 
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 
-                           bool checked, const GuiText& text) const;
+                           bool checked, const GuiCaption& text) const;
 
     /** Only call between beginRendering and endRendering */
     void renderButton(const Rect2D& bounds, bool enabled, bool focused, 
-                      bool pushed, const GuiText& text) const;
+                      bool pushed, const GuiCaption& text) const;
 
     /** Only call between beginRendering and endRendering.
         @param bounds Corresponds to the footprint of the window; dropshadows and glows may
          still render outside this area.*/
     void renderWindow(const Rect2D& bounds, bool focused, 
                       bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
-                      const GuiText& text, WindowStyle frameStyle) const;
+                      const GuiCaption& text, WindowStyle frameStyle) const;
 
     /** Given the bounds on a window's borders, returns the bounds of
      the area inside the window where controls will appear.*/
@@ -558,10 +524,10 @@ public:
         Label is on the right, slider is aligned with the left edge
         @param pos 0 = left edge, 1 = right edge*/
     void renderHorizontalSlider(const Rect2D& bounds, float pos, bool enabled, bool focused, 
-                                const GuiText& text) const;
+                                const GuiCaption& text) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderLabel(const Rect2D& bounds, const GuiText& text, 
+    void renderLabel(const Rect2D& bounds, const GuiCaption& text, 
                      GFont::XAlign xalign, GFont::YAlign yalign) const;
 
     void renderPane(const Rect2D& bounds, PaneStyle paneStyle) const;

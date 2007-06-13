@@ -2,7 +2,7 @@
  @file GLG3D/GuiTextBox.h
 
  @created 2007-06-11
- @edited  2007-06-11
+ @edited  2007-06-13
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -56,7 +56,7 @@ protected:
     Update               m_update;
 
     /** String to be used as the cursor character */
-    GuiText              m_cursor;
+    GuiCaption           m_cursor;
 
     float                m_captionWidth;
 
@@ -70,13 +70,13 @@ protected:
     RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
-    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiText& caption, std::string* value, Update update, float captionWidth);
+    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, std::string* value, Update update, float captionWidth);
 
     template<class T>
     GuiTextBox(
                GuiWindow* gui, 
                GuiPane* parent,
-               const GuiText& caption,
+               const GuiCaption& caption,
                T* object,
                std::string (T::*get)() const,
                void (T::*set)(std::string),
