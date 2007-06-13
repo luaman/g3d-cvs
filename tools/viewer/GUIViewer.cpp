@@ -12,7 +12,18 @@
 #include "GUIViewer.h"
 
 
-GUIViewer::GUIViewer() : addToApp(false), parentApp(NULL) {}
+GUIViewer::GUIViewer() : addToApp(false), parentApp(NULL) {
+
+    if (fileExists("background1.jpg")) {
+	    background1 = Texture::fromFile("background1.jpg", TextureFormat::AUTO,
+							    Texture::DIM_2D_NPOT, Texture::Settings::video());
+    }
+
+    if (fileExists("background2.jpg")) {
+	    background2 = Texture::fromFile("background2.jpg", TextureFormat::AUTO,
+							    Texture::DIM_2D_NPOT, Texture::Settings::video());
+    }
+}
 
 
 GUIViewer::~GUIViewer(){
@@ -34,6 +45,8 @@ void GUIViewer::onInit(const std::string& filename) {
 	window = GuiWindow::create(GuiCaption("Normal"), Rect2D::xywh(50,50,330,550), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	toolWindow = GuiWindow::create(GuiCaption("Tool"), Rect2D::xywh(300,100,200,440), skin, GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	bgControl = GuiWindow::create(GuiCaption("Background Control"), Rect2D::xywh(550,100,200,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+
+    text = "Hello";
 
 	pane = window->pane();
 	slider[0] = 1.5f;
@@ -58,7 +71,7 @@ void GUIViewer::onInit(const std::string& filename) {
 			normalPane->addRadioButton("Deselected, Disabled", 8, &radio[3], GuiRadioButton::BUTTON_STYLE);
 	pane->addButton("Button");
     pane->addTextBox("TextBox", &text);
-    pane->addTextBox("TextBox (Dis)", &text)->setEnabled(false);
+    pane->addTextBox("Disabled", &text)->setEnabled(false);
 
 
 	pane = toolWindow->pane();
@@ -88,8 +101,8 @@ void GUIViewer::onInit(const std::string& filename) {
 		pane->addRadioButton(GuiCaption("White"), WHITE, &windowControl);
 		pane->addRadioButton(GuiCaption("Blue"), BLUE, &windowControl);
 		pane->addRadioButton(GuiCaption("Black"), BLACK, &windowControl);
-		pane->addRadioButton(GuiCaption("Img 1"), BGIMAGE1, &windowControl);
-		pane->addRadioButton(GuiCaption("Img 2"), BGIMAGE2, &windowControl);
+		pane->addRadioButton(GuiCaption("background1.jpg"), BGIMAGE1, &windowControl)->setEnabled(background1.notNull());
+		pane->addRadioButton(GuiCaption("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background1.notNull());
 	addToApp = true;
 }
 
@@ -106,14 +119,14 @@ void GUIViewer::onGraphics(RenderDevice* rd, App* app) {
 			app->colorClear = Color3::black();
 			break;
 		case (BGIMAGE1):
-			rd->setTexture(0, app->background1);
+			rd->setTexture(0, background1);
 				rd->push2D();
 					Draw::rect2D(rd->viewport(), rd);
 				rd->pop2D();
 			rd->setTexture(0, NULL);
 			break;
 		case (BGIMAGE2):
-			rd->setTexture(0, app->background2);
+			rd->setTexture(0, background2);
 				rd->push2D();
 					Draw::rect2D(rd->viewport(), rd);
 				rd->pop2D();

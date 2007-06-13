@@ -46,8 +46,7 @@ static Color4 readColor(const std::string& name, TextInput& b) {
     b.readSymbols(name, "=", "(");
     float R,G,B,A;
     R = b.readNumber();
-    b.readSymbol(",");
-    G = b.readNumber();
+    b.readSymbol(","); G = b.readNumber();
     b.readSymbol(",");
     B = b.readNumber();
     b.readSymbol(",");
@@ -196,8 +195,8 @@ void GuiSkin::drawCheckable
 
     if (text.text() != "") {
         addDelayedText(
-            text.font(control.textStyle.font), 
-            text.text(), 
+           text.font(control.textStyle.font), 
+           text.text(), 
            Vector2(control.width() + bounds.x0(), 
                   (bounds.y0() + bounds.y1()) / 2) + control.textOffset,
            text.size(control.textStyle.size), 
@@ -237,13 +236,36 @@ void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused,
         font = m_textStyle.font;
     }
 
+    Color4 color = text.color(m_textStyle.color);
+    if (color.a < 0) {
+        color = m_textStyle.color;
+    }
+
+    Color4 outlineColor = text.outlineColor(m_textStyle.outlineColor);
+    if (outlineColor.a < 0) {
+        outlineColor = m_textStyle.outlineColor;
+    }
+
+    // Area in which text appears
+    Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_textBox.padTopLeft, bounds.wh() - (m_textBox.padBottomRight + m_textBox.padTopLeft));
+
     Vector2 beforeBounds = font->bounds(beforeCursor, size);
 
-    // Slide backwards by maximum of (0, cursorPixels - client area width)
-    // Push clipping region
-    // Draw box text
-    // Draw cursor
-    // Pop clipping region
+    // Slide the text backwards so that the cursor is visible
+    float textOffset = -max(0.0f, beforeBounds.x - clientArea.width());
+
+    // Draw inside the client area
+    const_cast<GuiSkin*>(this)->pushClientRect(clientArea);
+
+        // Draw main text
+        addDelayedText(font, text.text(), Vector2(textOffset, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
+
+        // Draw cursor
+        if (focused) {
+            addDelayedText(font, cursor.text(), Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+        }
+
+    const_cast<GuiSkin*>(this)->popClientRect();
 }
 
 
@@ -673,6 +695,8 @@ void GuiSkin::makeSkinFromSourceFiles
 void GuiSkin::pushClientRect(const Rect2D& r) {
     debugAssert(inRendering);
 
+    // Must draw old text since we don't keep track of which text 
+    // goes with which client rect.
     drawDelayedText();
     rd->endPrimitive();
 

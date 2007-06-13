@@ -25,7 +25,7 @@ namespace G3D {
 GuiTextBox::GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, 
                        std::string* value, Update update, float captionWidth) 
     : GuiControl(gui, parent, caption), m_value(value), 
-      m_update(update), m_cursor("|"), m_captionWidth(captionWidth) {
+      m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0) {
 
     unsetRepeatKeysym();
     m_keyDownTime = System::time();
@@ -100,6 +100,9 @@ void GuiTextBox::unsetRepeatKeysym() {
 
 
 void GuiTextBox::processRepeatKeysym() {
+    debugAssert(m_cursorPos >= 0);
+    debugAssert(m_cursorPos < 100000);
+
     switch (m_repeatKeysym.sym) {
     case GKey::UNKNOWN:
         // No key

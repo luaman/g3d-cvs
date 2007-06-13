@@ -42,13 +42,7 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 	
-	/** Used by GUIViewer */
 	colorClear = Color3::blue();
-	background1 = Texture::fromFile("background1.jpg", TextureFormat::AUTO,
-							Texture::DIM_2D_NPOT, Texture::Settings::video());
-	background2 = Texture::fromFile("background2.jpg", TextureFormat::AUTO,
-							Texture::DIM_2D_NPOT, Texture::Settings::video());
-
 	//modelController = ThirdPersonManipulator::create();
 
 	setViewer(filename);

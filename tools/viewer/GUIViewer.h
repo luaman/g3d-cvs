@@ -24,6 +24,8 @@ private:
 	App*				parentApp;
 	bool				addToApp;
 	GuiSkinRef			skin;
+	TextureRef			background1;
+	TextureRef	        background2;
 
 	enum WindowBackground {WHITE = 1, BLUE = 2, BLACK = 3, BGIMAGE1 = 4, BGIMAGE2 = 5};
 
