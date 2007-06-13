@@ -41,9 +41,7 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
        int s = 30;
        skin->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, "7");
        skin->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, "4");
-       skin->setFont(iconFont, 18, Color3::red(), Color4::clear());
        skin->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, "=");
-       skin->setFont(iconFont, 18, Color3::black(), Color4::clear());
        skin->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, ";");
        skin->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, "<");
        skin->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, "8");
@@ -70,18 +68,35 @@ public:
     };
 
 private:
+
+    /**
+     Default style information for captions.
+     */
+    class TextStyle {
+    public:
+        GFont::Ref          font;
+        Color4              color;
+        Color4              outlineColor;
+        float               size;
+
+        /**
+         @param path Path to search for font files
+         */
+        void deserialize(const std::string& path, TextInput& t);
+    };
+
     enum {SLIDER_WIDTH = 100};
     
     /** Used for delayed text rendering. */
     class Text {
     public:
-        Vector2       position;
-        std::string   text;
-        GFont::XAlign xAlign;
-        GFont::YAlign yAlign;
-        float         size;
-        Color4        color;
-        Color4        outlineColor;
+        Vector2             position;
+        std::string         text;
+        GFont::XAlign       xAlign;
+        GFont::YAlign       yAlign;
+        float               size;
+        Color4              color;
+        Color4              outlineColor;
     };
 
     /** Delayed text, organized by the associated font.*/
@@ -187,6 +202,9 @@ private:
          */
         Vector2              textOffset;
 
+        /** Defaults */
+        TextStyle            textStyle;
+
         class Pair {
         public:
             /** TexOffset from base of this image */
@@ -207,7 +225,7 @@ private:
         Focus         enabled;
         Pair          disabled;
 
-        void deserialize(const std::string& name, TextInput& b);
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
     };
 
@@ -221,6 +239,9 @@ private:
         Vector2              padTopLeft;
         Vector2              padBottomRight;
 
+        /** Defaults */
+        TextStyle            textStyle;
+
         class Focus {
         public:
             Vector2    focused;
@@ -231,7 +252,7 @@ private:
         Focus         enabled;
         Vector2       disabled;
 
-        void deserialize(const std::string& name, TextInput& b);
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused) const;
     };
 
@@ -258,7 +279,10 @@ private:
 
         Vector2       textOffset;
 
-        void deserialize(const std::string& name, TextInput& b);
+        /** Defaults */
+        TextStyle            textStyle;
+
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool checked) const;
         
         inline float width() const {
@@ -310,7 +334,10 @@ private:
         Vector2          focused;
         Vector2          defocused;
 
-        void deserialize(const std::string& name, TextInput& b);
+        /** Defaults */
+        TextStyle            textStyle;
+
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
 
         /** Pass the bounds outside the border; the borderPad will automatically be added. */
         void render(RenderDevice* rd, const Rect2D& bounds, bool focused) const;
@@ -345,7 +372,10 @@ private:
         Bar                  bar;
         Thumb                thumb;
 
-        void deserialize(const std::string& name, TextInput& b);
+        /** Defaults */
+        TextStyle            textStyle;
+
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
 
         /** Renders along the center of the vertical bounds and stretches to fill horizontally.*/
         void render(RenderDevice* rd, const Rect2D& bounds, float thumbPos, bool enabled, bool focused) const;
@@ -357,9 +387,11 @@ private:
 
     class Pane {
     public:
+        /** Defaults */
+        TextStyle            textStyle;
         StretchRectHV    frame;
         Pad              clientPad;
-        void deserialize(const std::string& name, TextInput& b);
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
     };
 
     Checkable         m_checkBox;
@@ -374,6 +406,9 @@ private:
 
     /** If true, the close button is on the left.  If false, it is on the right */
     bool              m_osxWindowButtons;
+
+    /** Defaults */
+    TextStyle         m_textStyle;
 
     TextureRef        texture;
 
@@ -394,12 +429,6 @@ private:
 
     /** True between beginRendering and endRendering */
     bool              inRendering;
-
-    // Defaults:
-    GFontRef          font;
-    float             fontSize;
-    Color4            fontColor;
-    Color4            fontOutlineColor;
 
     RenderDevice*     rd;
 
@@ -451,11 +480,12 @@ public:
     */
     static GuiSkinRef fromFile(const std::string& filename);
 
-    /** Set the values to be used for default GuiCaption parameters. Each skin specifies a font and the 
-        previous values will be used for any fields that are left unmodified from their defaults 
-        (i.e., defaults will override NULL font, negative size, negative alpha on colors)*/
-    void setFont(const GFontRef& font = NULL, float size = -1, const Color4& color = Color4(-1,-1,-1,-1), 
-        const Color4& outlineColor =  Color4(-1,-1,-1,-1));
+    /** Set the values to be used if the font specified in the skin file cannot be found (or is unspecified).*/
+    void setFallbackFont(
+        const GFont::Ref& font, 
+        float size, 
+        const Color4& color, 
+        const Color4& outlineColor);
 
     /** Call before all other render methods. 
         @param offset Offset all positions by this amount (convenient for rendering 
