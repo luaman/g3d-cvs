@@ -10,6 +10,7 @@
 #include "G3D/TextInput.h"
 #include "G3D/fileutils.h"
 #include "G3D/Image3.h"
+#include "G3D/Log.h"
 
 namespace G3D {
 
@@ -227,8 +228,15 @@ void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused,
     // Compute pixel distance from left edge to cursor position
     std::string beforeCursor = text.text().substr(0, cursorPosition);
     float size = text.size(m_textBox.textStyle.size);
+    if (size < 0) {
+        size = m_textStyle.size;
+    }
 
     GFont::Ref font = text.font(m_textBox.textStyle.font);
+    if (font.isNull()) {
+        font = m_textStyle.font;
+    }
+
     Vector2 beforeBounds = font->bounds(beforeCursor, size);
 
     // Slide backwards by maximum of (0, cursorPixels - client area width)
@@ -909,7 +917,7 @@ void GuiSkin::StretchRectHV::render(class RenderDevice* rd, const Rect2D& bounds
                         texOffset);
 
     centerRight.render(rd, Rect2D::xywh(bounds.x1y0() + Vector2(-top.right.width(), topHeight),
-                                       Vector2(top.left.width(), centerHeight)),
+                                       Vector2(top.right.width(), centerHeight)),
                       texOffset);
 
     bottom.render(rd, Rect2D::xywh(bounds.x0y0() + Vector2(0, topHeight + centerHeight), 
@@ -1169,11 +1177,11 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
                 // Try to load the font
                 std::string fontFilename = t.readString();
                 Array<std::string> fontPaths;
-                fontPaths.append(path + "/");
+                fontPaths.append(path);
                 fontPaths.append("");
                 fontPaths.append("../");
-                fontPaths.append(path + "/../font/");
-                fontPaths.append(demoFindData(false));
+                fontPaths.append(path + "../font/");
+                fontPaths.append(demoFindData(false) + "font/");
 
                 for (int i = 0; i < fontPaths.size(); ++i) {
                     std::string s = fontPaths[i] + fontFilename;
@@ -1182,6 +1190,14 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
                         break;
                     }
                 }
+
+                if (font.isNull()) {
+                    Log::common()->printf("GuiSkin Warning: could not find font %s, looked in: \n", fontFilename.c_str());
+                    for (int i = 0; i < fontPaths.size(); ++i) {
+                        Log::common()->printf("  %s\n", fontPaths[i].c_str());
+                    }
+                }
+
             } else if (s == "size") {
 
                 t.readSymbols("size", "=");

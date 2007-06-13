@@ -25,7 +25,6 @@ GUIViewer::~GUIViewer(){
 
 
 void GUIViewer::onInit(const std::string& filename) {
-	GuiSkinRef			skin;
 	GuiPane*			pane;
 	GuiPane*			ornatePane;
 	GuiPane*			normalPane;
@@ -126,6 +125,8 @@ void GUIViewer::onGraphics(RenderDevice* rd, App* app) {
 	if (addToApp) {
 		addToApp = false;
 		parentApp = app;
+        skin->setFallbackFont(app->debugFont, 11, Color3::black(), Color4::clear());
+
 		app->addWidget(window);
 		app->addWidget(toolWindow);
 		app->addWidget(bgControl);

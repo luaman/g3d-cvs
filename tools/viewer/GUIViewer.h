@@ -23,6 +23,7 @@ private:
 	GuiWindow::Ref		bgControl;
 	App*				parentApp;
 	bool				addToApp;
+	GuiSkinRef			skin;
 
 	enum WindowBackground {WHITE = 1, BLUE = 2, BLACK = 3, BGIMAGE1 = 4, BGIMAGE2 = 5};
 
