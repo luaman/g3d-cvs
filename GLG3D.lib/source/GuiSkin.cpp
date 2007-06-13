@@ -1155,45 +1155,47 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
         // Font
         t.readSymbols("font", "=", "{");
 
-        token = t.read();
+        do {
+            token = t.read();
 
-        alwaysAssertM(token.type() == Token::SYMBOL, 
-            format("Unexpected token at line %d", token.line()));
+            alwaysAssertM(token.type() == Token::SYMBOL, 
+                format("Unexpected token at line %d", token.line()));
 
-        std::string s = token.string();
+            std::string s = token.string();
 
-        if (s == "face") {
-            t.readSymbol("=");
+            if (s == "face") {
+                t.readSymbol("=");
 
-            // Try to load the font
-            std::string fontFilename = t.readString();
-            Array<std::string> fontPaths;
-            fontPaths.append(path + "/");
-            fontPaths.append("");
-            fontPaths.append("../");
-            fontPaths.append(path + "/../font/");
-            fontPaths.append(demoFindData(false));
+                // Try to load the font
+                std::string fontFilename = t.readString();
+                Array<std::string> fontPaths;
+                fontPaths.append(path + "/");
+                fontPaths.append("");
+                fontPaths.append("../");
+                fontPaths.append(path + "/../font/");
+                fontPaths.append(demoFindData(false));
 
-            for (int i = 0; i < fontPaths.size(); ++i) {
-                std::string s = fontPaths[i] + fontFilename;
-                if (fileExists(s)) {
-                    font = GFont::fromFile(s);
-                    break;
+                for (int i = 0; i < fontPaths.size(); ++i) {
+                    std::string s = fontPaths[i] + fontFilename;
+                    if (fileExists(s)) {
+                        font = GFont::fromFile(s);
+                        break;
+                    }
                 }
-            }
-        } else if (s == "size") {
+            } else if (s == "size") {
 
-            t.readSymbol("=");
-            size = t.readNumber();
-        } else if (s == "color") {
-            color = readColor("color", t);
-        } else if (s == "outlineColor") {
-            outlineColor = readColor("outlineColor", t);
-        } else if (s == "}") {
-            return;
-        } else {
-            alwaysAssertM(false, format("Bad symbol: %s at line %d", s.c_str(), token.line()));
-        }
+                t.readSymbol("=");
+                size = t.readNumber();
+            } else if (s == "color") {
+                color = readColor("color", t);
+            } else if (s == "outlineColor") {
+                outlineColor = readColor("outlineColor", t);
+            } else if (s == "}") {
+                return;
+            } else {
+                alwaysAssertM(false, format("Bad symbol: %s at line %d", s.c_str(), token.line()));
+            }
+        } while (true);
     }
 }
 

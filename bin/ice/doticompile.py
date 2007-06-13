@@ -487,7 +487,12 @@ def checkForProjectFile(state, args):
                       dir + "' project? (Y/N)")
             colorPrint(prompt, 'bold')
             if string.lower(getch()) == 'y':
-                generateStarterFiles(state)
+                prompt = "Select a project template:\n  [H]ello World\n  [G]3D\n"
+                colorPrint(prompt, 'bold')
+                if string.lower(getch()) == 'h':
+                    templateHello.generateStarterFiles(state)
+                else:
+                    templateG3D.generateStarterFiles(state)
 
     if state.noPrompt and state.template != '':
         if (state.template == 'hello'):

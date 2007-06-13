@@ -93,7 +93,6 @@ void App::onInit() {
     GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
     GFontRef iconFont = GFont::fromFile(dataDir + "font/icon.fnt");
-    skin->setFont(arialFont, 12, Color3::black(), Color4::clear());
 
     {
 
@@ -115,7 +114,7 @@ void App::onInit() {
     }
 
     GuiWindow::Ref gui = GuiWindow::create
-        (GuiText("Camera Spline", NULL, 9),
+        (GuiCaption("Camera Spline", NULL, 9),
          Rect2D::xywh(600, 200, 150, 120),
          skin,
          GuiWindow::TOOL_FRAME_STYLE,
@@ -137,14 +136,14 @@ void App::onInit() {
     static Mode mode = STOP_MODE;
 
     GuiRadioButton* b;
-    b = pane->addRadioButton(GuiText(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    b = pane->addRadioButton(GuiCaption(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     Rect2D baseRect = Rect2D::xywh(b->rect().x0(), b->rect().y0(), 30, 30);
     b->setRect(baseRect + Vector2(baseRect.width() * 0, 0));
 
-    b = pane->addRadioButton(GuiText(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    b = pane->addRadioButton(GuiCaption(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 1, 0));
 
-    b = pane->addRadioButton(GuiText(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    b = pane->addRadioButton(GuiCaption(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
     
     addWidget(gui);
