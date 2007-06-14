@@ -39,7 +39,7 @@ class GuiPane;
    value of the control when the control is created.  An example of creating a dialog is shown below:
 
    <pre>
-        GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
+        GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn", app->debugFont);
         GuiWindow::Ref window = GuiWindow::create
             ("Person", Rect2D::xywh(300, 200, 150, 200),
              skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
@@ -117,6 +117,13 @@ private:
         virtual void render (RenderDevice *rd) const;
     };
 
+    class ControlButton { 
+    public:
+        bool           down;
+        bool           mouseOver;
+        ControlButton() : down(false), mouseOver(false) {};
+    };
+
     /** Window label */
     GuiCaption          m_text;
 
@@ -131,12 +138,6 @@ private:
 
     Style               m_style;
 
-    class ControlButton { 
-    public:
-        bool           down;
-        bool           mouseOver;
-        ControlButton() : down(false), mouseOver(false) {};
-    };
 
     CloseAction         m_closeAction;
     ControlButton       m_closeButton;
@@ -166,6 +167,11 @@ private:
 
     /** Take the specified close action */
     void close();
+
+    /**
+      Called when tab is pressed.
+     */
+    void focusOnNextControl();
 
 public:
 

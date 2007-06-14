@@ -141,11 +141,11 @@ private:
             debugAssert(object != NULL);
         }
 
-        virtual void set(ValueType v) {
+        virtual void set(const ValueType& v) {
             (object->*setMethod)(v);
         }
 
-        virtual ValueType get() const {
+        virtual const ValueType get() const {
             return (object->*getMethod)();
         }
 
@@ -191,12 +191,12 @@ public:
         delete interface;
     }
 
-    inline ValueType getValue() const {
+    inline const ValueType getValue() const {
         debugAssert(interface != NULL);
         return interface->get();
     }
 
-    inline void setValue(ValueType v) {
+    inline void setValue(const ValueType& v) {
         debugAssert(interface != NULL);
         interface->set(v);
     }
@@ -224,7 +224,7 @@ public:
         return IndirectValue(this);
     }
 
-    inline ValueType operator*() const {
+    inline const ValueType operator*() const {
         return getValue();
     }
 };
