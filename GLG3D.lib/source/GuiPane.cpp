@@ -40,7 +40,7 @@ GuiPane::~GuiPane() {
 
 GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style style) {
     GuiCheckBox* c = new GuiCheckBox(m_gui, this, text, value, style);
-    c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+    c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
     nextGuiControlPos.y += c->rect().height();
     
     controlArray.append(c);
@@ -51,7 +51,7 @@ GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckB
 
 GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update) {
     GuiTextBox* c = new GuiTextBox(m_gui, this, caption, value, update, TEXT_CAPTION_WIDTH);
-    c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+    c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT * 0.85f)));
     nextGuiControlPos.y += c->rect().height();
     
     controlArray.append(c);
@@ -62,7 +62,7 @@ GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, G
 
 GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
     GuiRadioButton* c = new GuiRadioButton(m_gui, this, text, myID, reinterpret_cast<int*>(selection), style);
-    c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+    c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
     nextGuiControlPos.y += c->rect().height();
     
     controlArray.append(c);
@@ -73,7 +73,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 
 GuiButton* GuiPane::addButton(const GuiCaption& text) {
     GuiButton* b = new GuiButton(m_gui, this, text);
-    b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(80, 30)));
+    b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(80, CONTROL_HEIGHT)));
     nextGuiControlPos.y += b->rect().height();
     
     controlArray.append(b);
@@ -84,7 +84,7 @@ GuiButton* GuiPane::addButton(const GuiCaption& text) {
 
 GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) {
     GuiLabel* b = new GuiLabel(m_gui, this, text, x, y);
-    b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+    b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
     nextGuiControlPos.y += b->rect().height();
     
     labelArray.append(b);

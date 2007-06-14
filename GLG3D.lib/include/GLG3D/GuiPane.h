@@ -44,6 +44,7 @@ class GuiPane : public GuiControl {
     friend class _GuiSliderBase;
 
 private:
+    enum {CONTROL_HEIGHT = 25};
     enum {CONTROL_WIDTH = 180};
     enum {TEXT_CAPTION_WIDTH = 80};
 public:
@@ -117,7 +118,7 @@ public:
      ) {
         
         GuiCheckBox* c = new GuiCheckBox(m_gui, this, text, object, get, set, style);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
         nextGuiControlPos.y += c->rect().height();
 
         controlArray.append(c);
@@ -135,7 +136,7 @@ public:
      ) {
         
         GuiTextBox* c = new GuiTextBox(m_gui, this, caption, object, get, set, update, TEXT_CAPTION_WIDTH);
-        c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+        c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT * 0.85f)));
         nextGuiControlPos.y += c->rect().height();
         controlArray.append(c);
 
@@ -161,7 +162,7 @@ public:
      bool horizontal = true) {
         
         GuiSlider<Value>* c = new GuiSlider<Value>(m_gui, this, text, object, get, set, min, max, horizontal);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), CONTROL_WIDTH), 30)));
+        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), CONTROL_WIDTH), CONTROL_HEIGHT)));
         nextGuiControlPos.y += c->rect().height();
 
         controlArray.append(c);
@@ -173,7 +174,7 @@ public:
     GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, Value min, Value max, bool horizontal = true) {
         
         GuiSlider<Value>* c = new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(G3D::min(m_clientRect.width(), (float)CONTROL_WIDTH), 30)));
+        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(G3D::min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
         nextGuiControlPos.y += c->rect().height();
 
         controlArray.append(c);
