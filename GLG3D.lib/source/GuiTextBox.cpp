@@ -37,7 +37,17 @@ void GuiTextBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
 
     if (m_visible) {
         if (m_editing) {
-            if (*m_value != m_oldValue) {
+            if (! focused()) {
+                // Just lost focus
+                if (m_update == DELAYED_UPDATE) {
+                    *m_value = me->m_oldValue = m_userValue;
+                    GEvent response;
+                    response.gui.type = GEventType::GUI_ACTION;
+                    response.gui.control = me;
+                    m_gui->fireEvent(response);
+                }
+                me->m_editing = false;
+            } else if (*m_value != m_oldValue) {
                 // The value has been changed by the program while we
                 // were editing; override our copy with the
                 // programmatic value.
@@ -168,8 +178,11 @@ void GuiTextBox::processRepeatKeysym() {
     }
 
     if (m_editing && (m_update == IMMEDIATE_UPDATE)) {
-        // TODO: override m_value and fire event
-        m_oldValue = m_userValue;
+        *m_value = m_oldValue = m_userValue;
+        GEvent response;
+        response.gui.type = GEventType::GUI_ACTION;
+        response.gui.control = this;
+        m_gui->fireEvent(response);
     }
 
 }
@@ -184,8 +197,10 @@ bool GuiTextBox::onEvent(const GEvent& event) {
     case GEventType::KEY_DOWN:
         switch (event.key.keysym.sym) {
         case GKey::ESCAPE:
+            // Stop editing and revert
             m_editing = false;
-            // TODO: Cancel edit, lose focus
+            
+            // TODO: lose focus
             return true;
 
         case GKey::RIGHT:
@@ -200,11 +215,19 @@ bool GuiTextBox::onEvent(const GEvent& event) {
 
         case GKey::RETURN:
         case GKey::TAB:
-            m_editing = false;
+            // Edit done
+            {
+                *m_value = m_userValue;
+                if (m_update == DELAYED_UPDATE) {
+                    GEvent response;
+                    response.gui.type = GEventType::GUI_ACTION;
+                    response.gui.control = this;
+                    m_gui->fireEvent(response);
+                }
+                m_editing = false;
+            }
 
-            // TODO: Override m_value, fire event
-
-            // TODO: change focus
+            // TODO: lose focus
             return true;
 
         default:
