@@ -23,18 +23,32 @@ static void toGLMatrix(const Matrix4& m, float f[]) {
 }
 
 
-GuiSkin::GuiSkin(const std::string& filename) : delayedTextCount(0), inRendering(false){
+GuiSkin::GuiSkin(const std::string& filename,
+        const GFont::Ref&   fallbackFont,
+        float               fallbackSize, 
+        const Color4&       fallbackColor, 
+        const Color4&       fallbackOutlineColor) : delayedTextCount(0), inRendering(false){
     BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
+    m_textStyle.font = fallbackFont;
+    m_textStyle.size = fallbackSize;
+    m_textStyle.color = fallbackColor;
+    m_textStyle.outlineColor = fallbackOutlineColor;
     deserialize(filenamePath(filename), b);
 }
 
 
-GuiSkinRef GuiSkin::fromFile(const std::string& filename) {
+GuiSkinRef GuiSkin::fromFile(
+    const std::string& filename,
+    const GFont::Ref&   fallbackFont,
+    float               fallbackSize, 
+    const Color4&       fallbackColor, 
+    const Color4&       fallbackOutlineColor) {
+
     static WeakCache<std::string, GuiSkinRef> cache;
     
     GuiSkinRef instance = cache[filename];
     if (instance.isNull()) {
-        instance = new GuiSkin(filename);
+        instance = new GuiSkin(filename, fallbackFont, fallbackSize, fallbackColor, fallbackOutlineColor);
         cache.set(filename, instance);
     }
 
@@ -64,11 +78,6 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     float version = b.readNumber();
     (void)version;
     debugAssertM(fuzzyEq(version, 0.1), format("Only version 0.1 is supported (version = %f)", version));
-
-    m_textStyle.font         = NULL;
-    m_textStyle.color        = Color3::black();
-    m_textStyle.outlineColor = Color4::clear();
-    m_textStyle.size         = 11;
 
     m_textStyle.deserialize(path, b);
     
@@ -207,19 +216,6 @@ void GuiSkin::drawCheckable
 }
 
 
-void GuiSkin::setFallbackFont(
-    const GFont::Ref& font, 
-    float size, 
-    const Color4& color, 
-    const Color4& outlineColor) {
-
-    m_textStyle.font = font;
-    m_textStyle.size = size;
-    m_textStyle.color = color;
-    m_textStyle.outlineColor = outlineColor;
-}
-
-
 void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused, 
                             const GuiCaption& text, const GuiCaption& cursor, int cursorPosition) const {
     m_textBox.render(rd, bounds, enabled, focused);
@@ -227,24 +223,9 @@ void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused,
     // Compute pixel distance from left edge to cursor position
     std::string beforeCursor = text.text().substr(0, cursorPosition);
     float size = text.size(m_textBox.textStyle.size);
-    if (size < 0) {
-        size = m_textStyle.size;
-    }
-
-    GFont::Ref font = text.font(m_textBox.textStyle.font);
-    if (font.isNull()) {
-        font = m_textStyle.font;
-    }
-
-    Color4 color = text.color(m_textStyle.color);
-    if (color.a < 0) {
-        color = m_textStyle.color;
-    }
-
-    Color4 outlineColor = text.outlineColor(m_textStyle.outlineColor);
-    if (outlineColor.a < 0) {
-        outlineColor = m_textStyle.outlineColor;
-    }
+    const GFont::Ref& font = text.font(m_textBox.textStyle.font);
+    const Color4& color = text.color(m_textStyle.color);
+    const Color4& outlineColor = text.outlineColor(m_textStyle.outlineColor);
 
     // Area in which text appears
     Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_textBox.padTopLeft, bounds.wh() - (m_textBox.padBottomRight + m_textBox.padTopLeft));
@@ -262,7 +243,10 @@ void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused,
 
         // Draw cursor
         if (focused) {
-            addDelayedText(font, cursor.text(), Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+            addDelayedText(cursor.font(m_textBox.textStyle.font), cursor.text(), 
+                Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, 
+                cursor.color(m_textBox.textStyle.color), 
+                cursor.outlineColor(m_textBox.textStyle.outlineColor), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
         }
 
     const_cast<GuiSkin*>(this)->popClientRect();

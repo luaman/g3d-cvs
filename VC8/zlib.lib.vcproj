@@ -25,7 +25,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -172,11 +172,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\source\zconf.h"
+				RelativePath="..\zlib.lib\include\zconf.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zlib.lib\include\zconf.h"
+				RelativePath="..\zlib.lib\source\zconf.h"
 				>
 			</File>
 			<File

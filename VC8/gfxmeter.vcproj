@@ -106,7 +106,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(Solutiondir)..\tools\$(InputName)\data-files $(OutDir)"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(Solutiondir)..\tools\$(InputName)\data-files $(OutDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

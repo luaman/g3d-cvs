@@ -12,7 +12,7 @@
 #include "GUIViewer.h"
 
 
-GUIViewer::GUIViewer() : addToApp(false), parentApp(NULL) {
+GUIViewer::GUIViewer(App* app) : parentApp(app) {
 
     if (fileExists("background1.jpg")) {
 	    background1 = Texture::fromFile("background1.jpg", TextureFormat::AUTO,
@@ -26,25 +26,16 @@ GUIViewer::GUIViewer() : addToApp(false), parentApp(NULL) {
 }
 
 
-GUIViewer::~GUIViewer(){
-	parentApp->removeWidget(window);
-	parentApp->removeWidget(toolWindow);
-	parentApp->removeWidget(bgControl);
-
-	parentApp->colorClear = Color3::blue();
-}
-
-
-void GUIViewer::onInit(const std::string& filename) {
+void GUIViewer::createGui(const std::string& filename) {
 	GuiPane*			pane;
 	GuiPane*			ornatePane;
 	GuiPane*			normalPane;
 
-	skin = GuiSkin::fromFile(filename);
+	skin = GuiSkin::fromFile(filename, parentApp->debugFont);
 
 	window = GuiWindow::create(GuiCaption("Normal"), Rect2D::xywh(50,50,330,550), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	toolWindow = GuiWindow::create(GuiCaption("Tool"), Rect2D::xywh(300,100,200,440), skin, GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-	bgControl = GuiWindow::create(GuiCaption("Background Control"), Rect2D::xywh(550,100,200,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	bgControl = GuiWindow::create(GuiCaption("Dialog"), Rect2D::xywh(550,100,200,240), skin, GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
     text = "Hello";
 
@@ -97,51 +88,61 @@ void GUIViewer::onInit(const std::string& filename) {
 			ornatePane->addCheckBox(GuiCaption("Deselected, Enabled"), &checkbox[7], GuiCheckBox::BUTTON_STYLE);
 	pane->addButton("Disabled")->setEnabled(false);
 	pane = bgControl->pane();
+    	pane->addLabel("Background Color");
 		windowControl = BLUE;
 		pane->addRadioButton(GuiCaption("White"), WHITE, &windowControl);
 		pane->addRadioButton(GuiCaption("Blue"), BLUE, &windowControl);
 		pane->addRadioButton(GuiCaption("Black"), BLACK, &windowControl);
 		pane->addRadioButton(GuiCaption("background1.jpg"), BGIMAGE1, &windowControl)->setEnabled(background1.notNull());
 		pane->addRadioButton(GuiCaption("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background1.notNull());
-	addToApp = true;
+
+	parentApp->addWidget(window);
+	parentApp->addWidget(toolWindow);
+	parentApp->addWidget(bgControl);
+}
+
+
+GUIViewer::~GUIViewer(){
+	parentApp->removeWidget(window);
+	parentApp->removeWidget(toolWindow);
+	parentApp->removeWidget(bgControl);
+
+	parentApp->colorClear = Color3::blue();
+}
+
+
+void GUIViewer::onInit(const std::string& filename) {
+    createGui(filename);
 }
 
 
 void GUIViewer::onGraphics(RenderDevice* rd, App* app) {
 	switch (windowControl) {
-		case (WHITE):
-			app->colorClear = Color3::white();
-			break;
-		case (BLUE):
-			app->colorClear = Color3::blue();
-			break;
-		case (BLACK):
-			app->colorClear = Color3::black();
-			break;
-		case (BGIMAGE1):
-			rd->setTexture(0, background1);
-				rd->push2D();
-					Draw::rect2D(rd->viewport(), rd);
-				rd->pop2D();
-			rd->setTexture(0, NULL);
-			break;
-		case (BGIMAGE2):
-			rd->setTexture(0, background2);
-				rd->push2D();
-					Draw::rect2D(rd->viewport(), rd);
-				rd->pop2D();
-			rd->setTexture(0, NULL);
-			break;
+	case WHITE:
+		app->colorClear = Color3::white();
+		break;
+	case BLUE:
+		app->colorClear = Color3::blue();
+		break;
+	case BLACK:
+		app->colorClear = Color3::black();
+		break;
+
+    case BGIMAGE1:
+		rd->setTexture(0, background1);
+			rd->push2D();
+				Draw::rect2D(rd->viewport(), rd);
+			rd->pop2D();
+		rd->setTexture(0, NULL);
+		break;
+
+	case BGIMAGE2:
+		rd->setTexture(0, background2);
+			rd->push2D();
+				Draw::rect2D(rd->viewport(), rd);
+			rd->pop2D();
+		rd->setTexture(0, NULL);
+		break;
 	}
 
-	// When we initialize, the App isn't available to call addWidget on, so we delay until onGraphics
-	if (addToApp) {
-		addToApp = false;
-		parentApp = app;
-        skin->setFallbackFont(app->debugFont, 11, Color3::black(), Color4::clear());
-
-		app->addWidget(window);
-		app->addWidget(toolWindow);
-		app->addWidget(bgControl);
-	}
 }

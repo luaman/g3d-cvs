@@ -17,15 +17,15 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)..\build\win-i386-vc8.0\lib"
-			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)..\build\win-i386-vc8.0\lib&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 				ExcludedFromBuild="false"
 			/>
 			<Tool
@@ -84,15 +84,15 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)..\build\win-i386-vc8.0\lib"
-			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)..\build\win-i386-vc8.0\lib&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 				ExcludedFromBuild="false"
 			/>
 			<Tool

@@ -7,7 +7,7 @@
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  @created 2007-05-31
- @edited  2007-06-08
+ @edited  2007-06-14
  */
 #ifndef GUIVIEWER_H
 #define GUIVIEWER_H
@@ -22,7 +22,6 @@ private:
 	GuiWindow::Ref		toolWindow;
 	GuiWindow::Ref		bgControl;
 	App*				parentApp;
-	bool				addToApp;
 	GuiSkinRef			skin;
 	TextureRef			background1;
 	TextureRef	        background2;
@@ -43,8 +42,10 @@ private:
 	float				slider[2];
     std::string         text;
 
+    void createGui(const std::string& filename);
+
 public:
-	GUIViewer();
+	GUIViewer(App* app);
 	~GUIViewer();
 	virtual void onInit(const std::string& filename);
     virtual void onGraphics(RenderDevice* rd, App* app);

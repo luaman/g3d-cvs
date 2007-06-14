@@ -184,7 +184,7 @@ void App::setViewer(const std::string& newFilename) {
 
 	} else if (ext == "skn") {
 
-		viewer = new GUIViewer();
+		viewer = new GUIViewer(this);
 
 	} else {
 

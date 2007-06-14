@@ -455,7 +455,11 @@ private:
     /** Only used for testing the formatting of text during skin creation */
     GuiSkin();
 
-    GuiSkin(const std::string& filename);
+    GuiSkin(const std::string& filename,
+        const GFont::Ref&   fallbackFont,
+        float               fallbackSize, 
+        const Color4&       fallbackColor, 
+        const Color4&       fallbackOutlineColor);
     
     void deserialize(const std::string& path, BinaryInput& b);
 
@@ -478,14 +482,12 @@ public:
 
      @param filename Name of the .skn file.
     */
-    static GuiSkinRef fromFile(const std::string& filename);
-
-    /** Set the values to be used if the font specified in the skin file cannot be found (or is unspecified).*/
-    void setFallbackFont(
-        const GFont::Ref& font, 
-        float size, 
-        const Color4& color, 
-        const Color4& outlineColor);
+    static GuiSkinRef fromFile(
+        const std::string&  filename, 
+        const GFont::Ref&   fallbackFont,
+        float               fallbackSize = 11, 
+        const Color4&       fallbackColor = Color3::black(), 
+        const Color4&       fallbackOutlineColor = Color4::clear());
 
     /** Call before all other render methods. 
         @param offset Offset all positions by this amount (convenient for rendering 
