@@ -25,7 +25,7 @@ namespace G3D {
 GuiTextBox::GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, 
                        std::string* value, Update update, float captionWidth) 
     : GuiControl(gui, parent, caption), m_value(value), 
-      m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0) {
+      m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0), m_editing(false) {
 
     unsetRepeatKeysym();
     m_keyDownTime = System::time();
@@ -179,7 +179,6 @@ bool GuiTextBox::onEvent(const GEvent& event) {
     if (! m_visible) {
         return false;
     }
-
 
     switch (event.type) {
     case GEventType::KEY_DOWN:

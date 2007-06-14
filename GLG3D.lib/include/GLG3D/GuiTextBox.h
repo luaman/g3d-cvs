@@ -81,7 +81,8 @@ protected:
                std::string (T::*get)() const,
                void (T::*set)(std::string),
                Update update,
-               float captionWidth) : GuiControl(gui, parent, caption), m_value(object, get, set), m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0) {}
+               float captionWidth) : GuiControl(gui, parent, caption), m_value(object, get, set), 
+               m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0), m_editing(false) {}
 
 
     /** Called by GuiPane */
