@@ -9,6 +9,7 @@
  @edited  2006-10-24
  */
 
+#include "G3D/fileutils.h"
 #include "G3D/TextInput.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/stringutils.h"
@@ -797,13 +798,14 @@ void TextInput::readSymbol(const std::string& symbol) {
 
 TextInput::TextInput(const std::string& filename, const Settings& opt) : options(opt) {
     init();
-    BinaryInput input(filename, G3D_LITTLE_ENDIAN);
+    std::string input = readWholeFile(filename);
+
     if (options.sourceFileName.empty()) {
         options.sourceFileName = filename;
     }
     int n = input.size();
     buffer.resize(n);
-    System::memcpy(buffer.getCArray(), input.getCArray(), n);
+    System::memcpy(buffer.getCArray(), input.c_str(), n);
 }
 
 
