@@ -36,6 +36,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/Array.h"
 #include "G3D/fileutils.h"
+#include "G3D/Log.h"
 #include <zlib.h>
 
 namespace G3D {
@@ -144,9 +145,7 @@ void BinaryInput::loadIntoMemory(int64 startPosition, int64 minLength) {
 
     alreadyRead = startPosition;
 
-
 	#ifdef G3D_WIN32
-		// TODO: large file support
 	    FILE* file = fopen(filename.c_str(), "rb");
 		debugAssert(file);
 		int ret = fseek(file, (off_t)alreadyRead, SEEK_SET);
@@ -221,7 +220,7 @@ BinaryInput::BinaryInput(
         length = G3D::readUInt32(data, swapBytes);
 
 		debugAssert(freeBuffer);
-        buffer = (uint8*)System::malloc(length);
+        buffer = (uint8*)System::alignedMalloc(length, 16);
 
         unsigned long L = length;
         // Decompress with zlib
@@ -231,14 +230,14 @@ BinaryInput::BinaryInput(
         debugAssert(result == Z_OK); (void)result;
 
     } else {
-	length = dataLen;
+    	length = dataLen;
         bufferLength = length;
         if (! copyMemory) {
  	    debugAssert(!freeBuffer);
             buffer = const_cast<uint8*>(data);
         } else {
 	    debugAssert(freeBuffer);
-            buffer = (uint8*)System::malloc(length);
+            buffer = (uint8*)System::alignedMalloc(length, 16);
             System::memcpy(buffer, data, dataLen);
         }
     }
@@ -266,6 +265,23 @@ BinaryInput::BinaryInput(
     
     swapBytes = needSwapBytes(fileEndian);
 
+    if (! fileExists(filename, false)) {
+        std::string zipfile;
+        std::string internalfile;
+        if (zipfileExists(filename, zipfile, internalfile)) {
+            // Load from zipfile
+            void* v;
+            size_t s;
+            zipRead(filename, v, s);
+            buffer = reinterpret_cast<uint8*>(v);
+            length = s;
+            freeBuffer = true;
+        } else {
+            Log::common()->printf("Warning: File not found: %s\n", filename.c_str());
+        }
+        return;
+    }
+
     // Figure out how big the file is and verify that it exists.
     length = fileLength(filename);
 
@@ -288,7 +304,7 @@ BinaryInput::BinaryInput(
     }
 
 	debugAssert(freeBuffer);
-    buffer = (uint8*)System::malloc(bufferLength);
+    buffer = (uint8*)System::alignedMalloc(bufferLength, 16);
     if (buffer == NULL) {
         if (compressed) {
             throw "Not enough memory to load compressed file. (1)";
@@ -298,7 +314,7 @@ BinaryInput::BinaryInput(
         // Give up if we can't allocate even 1k.
         while ((buffer == NULL) && (bufferLength > 1024)) {
             bufferLength /= 2;
-            buffer = (uint8*)System::malloc(bufferLength);
+            buffer = (uint8*)System::alignedMalloc(bufferLength, 16);
         }
     }
     debugAssert(buffer);
@@ -325,7 +341,7 @@ BinaryInput::BinaryInput(
         alwaysAssertM(length < bufferLength * 500, "Compressed file header is corrupted");
 
         uint8* tempBuffer = buffer;
-        buffer = (uint8*)System::malloc(length);
+        buffer = (uint8*)System::alignedMalloc(length, 16);
 
         debugAssert(buffer);
         debugAssert(isValidHeapPointer(tempBuffer));
@@ -339,7 +355,7 @@ BinaryInput::BinaryInput(
         debugAssertM(result == Z_OK, "BinaryInput/zlib detected corruption in " + filename); 
         (void)result;
 
-        System::free(tempBuffer);
+        System::alignedFree(tempBuffer);
     }
 }
 
@@ -356,7 +372,7 @@ void BinaryInput::readBytes(void* bytes, int64 n) {
 BinaryInput::~BinaryInput() {
 
     if (freeBuffer) {
-        System::free(buffer);
+        System::alignedFree(buffer);
     }
     buffer = NULL;
 }
@@ -388,7 +404,7 @@ std::string BinaryInput::readString(int64 n) {
     prepareToRead(n);
     debugAssertM((pos + n) <= length, "Read past end of file");
     
-    char *s = (char*)System::malloc(n + 1);
+    char *s = (char*)System::alignedMalloc(n + 1, 16);
     assert(s != NULL);
 
     memcpy(s, buffer + pos, n);
@@ -397,7 +413,7 @@ std::string BinaryInput::readString(int64 n) {
     s[n] = '\0';
 
     std::string out = s;
-    System::free(s);
+    System::alignedFree(s);
     s = NULL;
 
     pos += n;

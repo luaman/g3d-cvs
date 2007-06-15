@@ -24,6 +24,9 @@ namespace G3D {
    languages and other applications that need to connect existing APIs
    by reference.
 
+   Because the accessors require values to be passed by value (instead of by reference)
+   this is primarily useful for objects whose memory size is small.
+
    <pre>
    class Foo {
    public:
@@ -127,7 +130,7 @@ private:
     class RefAccessor : public Interface {
     public:
         typedef ValueType (T::*GetMethod)() const;
-        typedef void (T::*SetMethod)(ValueType);
+        typedef void (T::*SetMethod)(const ValueType&);
 
     private:
 
@@ -137,7 +140,11 @@ private:
 
     public:
         
-        RefAccessor(const ReferenceCountedPointer<T>& object, GetMethod getMethod, SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
+        RefAccessor(
+            const ReferenceCountedPointer<T>& object, 
+            GetMethod getMethod, 
+            SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
+
             debugAssert(object != NULL);
         }
 
@@ -145,7 +152,7 @@ private:
             (object->*setMethod)(v);
         }
 
-        virtual const ValueType get() const {
+        virtual ValueType get() const {
             return (object->*getMethod)();
         }
 

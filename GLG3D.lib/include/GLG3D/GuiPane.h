@@ -151,8 +151,8 @@ public:
      const Array<std::string>& (IndexObj::*indexGet)() const,
      void (IndexObj::*indexSet)(int),
      ListObj* listObject,
-     int (ListObj::*listGet)() const,
-     void (ListObj::*listSet)(int)     
+     const Array<std::string>& (ListObj::*listGet)() const,
+     void (ListObj::*listSet)(const Array<std::string>&)     
      ) {
         
         GuiDropDownList* c = new GuiDropDownList
