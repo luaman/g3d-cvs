@@ -168,6 +168,8 @@ bool zipfileExists(
 	std::string&				outInternalFile
 	);
 
+bool zipfileExists(const std::string& filename);
+
 /**
   Parses a filename into four useful pieces.
 

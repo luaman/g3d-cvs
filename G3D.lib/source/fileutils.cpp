@@ -81,29 +81,50 @@ std::string resolveFilename(const std::string& filename) {
     return format("%s/%s", buffer, filename.c_str());
 }
 
+bool zipfileExists(const std::string& filename) {
+	std::string	outZipfile;
+	std::string	outInternalFile;
+    return zipfileExists(filename, outZipfile, outInternalFile);
+}
 
 std::string readWholeFile(
     const std::string& filename) {
 
     _internal::currentFilesUsed.append(filename);
 
-    int64 length = fileLength(filename);
+    std::string s;
 
-    if (length == -1) {
-        return "";
+    if (fileExists(filename, false)) {
+
+        int64 length = fileLength(filename);
+
+        char* buffer = (char*)System::alignedMalloc(length + 1, 16);
+        debugAssert(buffer);
+        FILE* f = fopen(filename.c_str(), "rb");
+        debugAssert(f);
+        int ret = fread(buffer, 1, length, f);
+	    debugAssert(ret == length);(void)ret;
+        fclose(f);
+
+        buffer[length] = '\0';    
+        s = std::string(buffer);
+
+        System::alignedFree(buffer);
+
+    } else if (zipfileExists(filename)) {
+
+        void* zipBuffer;
+        size_t length;
+        zipRead(filename, zipBuffer, length);
+
+        char* buffer = (char*)System::alignedMalloc(length + 1, 16);
+        System::memcpy(buffer,zipBuffer, length + 1);
+        zipClose(zipBuffer);
+
+        buffer[length] = '\0';
+        s = std::string(buffer);
+        System::alignedFree(buffer);
     }
-
-    char* buffer = (char*)malloc(length + 1);
-    debugAssert(buffer);
-    FILE* f = fopen(filename.c_str(), "rb");
-    debugAssert(f);
-    int ret = fread(buffer, 1, length, f);
-	debugAssert(ret == length);(void)ret;
-    fclose(f);
-
-    buffer[length] = '\0';
-    std::string s = std::string(buffer);
-    free(buffer);
 
     return s;
 }
