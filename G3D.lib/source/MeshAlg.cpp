@@ -16,6 +16,7 @@
 #include "G3D/Box.h"
 #include "G3D/Sphere.h"
 #include "G3D/vectorMath.h"
+#include "G3D/AABox.h"
 
 namespace G3D {
 
@@ -453,12 +454,16 @@ void MeshAlg::computeBounds(
 
     box = Box(min, max);
 
-	const double boxRadSq = (max-min).squaredMagnitude()*0.25;
+	const double boxRadSq = (max - min).squaredMagnitude() * 0.25;
 
-	if(boxRadSq >= radSq){
-		sphere = Sphere(center, rad);
+	if (boxRadSq >= radSq){
+        if (isNaN(center.x) || ! isFinite(rad)) {
+            sphere = Sphere(Vector3::zero(), inf());
+        } else {
+    		sphere = Sphere(center, rad);
+        }
 	}else{
-		sphere = Sphere((max+min)*0.5, sqrt(boxRadSq));
+		sphere = Sphere((max + min) * 0.5, sqrt(boxRadSq));
 	}
 }
 

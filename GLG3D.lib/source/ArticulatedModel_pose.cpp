@@ -374,6 +374,9 @@ void ArticulatedModel::Part::pose(
         frame = parent * cframe;
     }
 
+    debugAssert(! isNaN(frame.translation.x));
+    debugAssert(! isNaN(frame.rotation[0][0]));
+
     if (hasGeometry()) {
 
         for (int t = 0; t < triListArray.size(); ++t) {

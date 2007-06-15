@@ -23,27 +23,27 @@ ArticulatedViewer::ArticulatedViewer() :
 
 void ArticulatedViewer::onInit(const std::string& filename) {
 
-	m_model = ArticulatedModel::fromFile( filename, 1.0 );
-	Array<G3D::PosedModel::Ref> arrayModel;
-	m_model->pose( arrayModel );
+	m_model = ArticulatedModel::fromFile(filename);
+	Array<PosedModel::Ref> arrayModel;
+	m_model->pose(arrayModel);
 
 	const Array<ArticulatedModel::Part>& partArray = m_model->partArray;
 
-	//gets the number of vertices and faces in the model, for display later
+	// Find the number of vertices and faces in the model, for display later
 	for (int y = 0; y < partArray.size(); ++y) {
 		m_numVertices += partArray[y].geometry.vertexArray.size();
 		m_numFaces += ((partArray[y].indexArray.size())/3);
 	}
- 
-	//gets the size of the bounding box of the articulated model
+
+    bool overwrite = true;
+
+	// Gind the size of the bounding box of the entire model
 	AABox bounds;
 	if (arrayModel.size() > 0) {
-		m_texturebool = arrayModel[0]->hasTexCoords();
+		m_texturebool = false;
 	
-		arrayModel[0]->worldSpaceBoundingBox().getBounds(bounds);
-
 		//checks to see if the model has texture coordinates, for display later
-		for( int x = 1; x < arrayModel.size(); ++x) {		
+		for (int x = 0; x < arrayModel.size(); ++x) {		
 			m_texturebool = arrayModel[x]->hasTexCoords() || m_texturebool;
 
 			//merges the bounding boxes of all the seperate parts into the bounding box of the entire object
@@ -52,16 +52,37 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 
 			// Some models have screwed up bounding boxes
 			if (partBounds.extent().isFinite()) {
-				partBounds.getBounds(temp);
-				bounds.merge(temp);
+                if (overwrite) {
+                    partBounds.getBounds(bounds);
+                    overwrite = false;
+                } else {
+				    partBounds.getBounds(temp);
+				    bounds.merge(temp);
+                }
 			}
 		}
 
-		// next work on bounds- scale, extent gives 3 vectors for maximum distance of object in each
+        if (overwrite) {
+            // We never found a part with a finite bounding box
+            bounds = AABox(Vector3::zero());
+        }
+
 		Vector3 extent = bounds.extent();
 		Vector3 center = bounds.center();
 
 		float scale = 2.0f / max(extent.x, max(extent.y, extent.z));
+
+        if (scale <= 0) {
+            scale = 1;
+        }
+
+        if (! isFinite(scale)) {
+            scale = 1;
+        }
+
+        if (! center.isFinite()) {
+            center = Vector3::zero();
+        }
 
 		CoordinateFrame transform;
 		transform.rotation = Matrix3::identity() * scale;

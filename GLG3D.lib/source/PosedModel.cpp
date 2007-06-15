@@ -148,7 +148,11 @@ void PosedModel::getWorldSpaceBoundingBox(Box& box) const {
     CoordinateFrame C;
     getCoordinateFrame(C);
     getObjectSpaceBoundingBox(box);
-    box = C.toWorldSpace(box);
+    if (! box.isFinite()) {
+        box = Box::inf();
+    } else {
+        box = C.toWorldSpace(box);
+    }
 }
 
 

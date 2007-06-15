@@ -93,6 +93,8 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
         // Scale and rotate the cframe positions, but do not translate them
         part.cframe.translation = xform.rotation * part.cframe.translation;
 
+        debugAssert(xform.rotation.getColumn(0).isFinite());
+
         part.name = name;
         partNameToIndex.set(part.name, p);
 
@@ -135,51 +137,54 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
                 for (int m = 0; m < object.faceMatArray.size(); ++m) {
                     const Load3DS::FaceMat& faceMat = object.faceMatArray[m];
 
-                    Part::TriList& triList = part.triListArray.next();
-            
-                    // Construct an index array for this part
-                    for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
-                        // 3*f is an index into object.indexArray
-                        int f = faceMat.faceIndexArray[i];
-                        for (int v = 0; v < 3; ++v) {
-                            triList.indexArray.append(object.indexArray[3*f + v]);
-                        }
-                    }                                
-
-                    const std::string& materialName = faceMat.materialName;
-
-                    if (load.materialNameToIndex.containsKey(materialName)) {
-                        int i = load.materialNameToIndex[materialName];
-                        const Load3DS::Material& material = load.materialArray[i];
-
-                        const Load3DS::Map& texture1 = material.texture1;
-
-                        std::string textureFile = texture1.filename;
-
-                        if (texture1.filename != "") {
-                            if (endsWith(toUpper(textureFile), "GIF")) {
-                                // Load PNG instead of GIF, since we can't load GIF
-                                textureFile = textureFile.substr(0, textureFile.length() - 3) + "png";
-                            }
-
-                            if (! fileExists(textureFile) && fileExists(path + textureFile)) {
-                                textureFile = path + textureFile;
-                            }
-
-                            if (fileExists(textureFile)) {
-                                triList.material.diffuse.map = Texture::fromFile(textureFile);
-                            } else {
-                                Log::common()->printf("Could not load texture '%s'\n", textureFile.c_str());
+                    if (faceMat.faceIndexArray.size() > 0) {
+                        Part::TriList& triList = part.triListArray.next();
+                
+                        // Construct an index array for this part
+                        for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
+                            // 3*f is an index into object.indexArray
+                            int f = faceMat.faceIndexArray[i];
+                            for (int v = 0; v < 3; ++v) {
+                                triList.indexArray.append(object.indexArray[3*f + v]);
                             }
                         }
+                        debugAssert(triList.indexArray.size() > 0);
 
-			            triList.material.diffuse.constant = material.diffuse;
-                        triList.twoSided = material.twoSided;
-                        triList.computeBounds(part);
+                        const std::string& materialName = faceMat.materialName;
 
-                    } else {
-                        Log::common()->printf("Referenced unknown material '%s'\n", materialName.c_str());
-                    }
+                        if (load.materialNameToIndex.containsKey(materialName)) {
+                            int i = load.materialNameToIndex[materialName];
+                            const Load3DS::Material& material = load.materialArray[i];
+
+                            const Load3DS::Map& texture1 = material.texture1;
+
+                            std::string textureFile = texture1.filename;
+
+                            if (texture1.filename != "") {
+                                if (endsWith(toUpper(textureFile), "GIF")) {
+                                    // Load PNG instead of GIF, since we can't load GIF
+                                    textureFile = textureFile.substr(0, textureFile.length() - 3) + "png";
+                                }
+
+                                if (! fileExists(textureFile) && fileExists(path + textureFile)) {
+                                    textureFile = path + textureFile;
+                                }
+
+                                if (fileExists(textureFile)) {
+                                    triList.material.diffuse.map = Texture::fromFile(textureFile);
+                                } else {
+                                    Log::common()->printf("Could not load texture '%s'\n", textureFile.c_str());
+                                }
+                            }
+
+			                triList.material.diffuse.constant = material.diffuse;
+                            triList.twoSided = material.twoSided;
+                            triList.computeBounds(part);
+
+                        } else {
+                            Log::common()->printf("Referenced unknown material '%s'\n", materialName.c_str());
+                        }
+                    } // if there are indices on this part
                 } // for m
             } // if has materials 
         }

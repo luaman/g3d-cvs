@@ -7,7 +7,7 @@
  
   @cite Portions based on Dave Eberly's Magic Software Library at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
   @created 2001-06-02
-  @edited  2006-01-05
+  @edited  2007-06-05
 
   Copyright 2000-2006, Morgan McGuire.
   All rights reserved.
@@ -83,6 +83,8 @@ public:
     Box(
         const Vector3&      min,
         const Vector3&      max);
+
+    static Box inf();
 
 	Box(class BinaryInput& b);
 
@@ -180,6 +182,10 @@ public:
     Vector3 randomInteriorPoint() const;
 
     void getBounds(class AABox&) const;
+
+    bool isFinite() const {
+        return G3D::isFinite(_volume);
+    }
 };
 
 }

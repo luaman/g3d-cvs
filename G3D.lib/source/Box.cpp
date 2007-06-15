@@ -89,6 +89,11 @@ void Box::init(
     const Vector3& min,
     const Vector3& max) {
 
+    debugAssert(
+        (min.x <= max.x) &&
+        (min.y <= max.y) &&
+        (min.z <= max.z));
+
     setMany(0, 1, 2, 3, z, max);
     setMany(4, 5, 6, 7, z, min);
 
@@ -104,13 +109,27 @@ void Box::init(
     _axis[1] = Vector3::unitY();
     _axis[2] = Vector3::unitZ();
 
-    _volume = _extent.x * _extent.y * _extent.z;
+    if (_extent.isFinite()) {
+        _volume = _extent.x * _extent.y * _extent.z;
+    } else {
+        _volume = G3D::inf();
+    }
+
+    debugAssert(! isNaN(_extent.x));
+
     _area = 2 * 
         (_extent.x * _extent.y +
          _extent.y * _extent.z +
          _extent.z * _extent.x);
 
     _center = (max + min) / 2;
+
+    // If the extent is infinite along an axis, make the center zero to avoid NaNs
+    for (int i = 0; i < 3; ++i) {
+        if (! G3D::isFinite(_extent[i])) {
+            _center[i] = 0.0f;
+        }
+    }
 }
 
 
@@ -352,6 +371,9 @@ Vector3 Box::randomInteriorPoint() const {
     return sum;
 }
 
+Box Box::inf() {
+    return Box(-Vector3::inf(), Vector3::inf());
+}
 
 void Box::getBounds(class AABox& aabb) const {
 
