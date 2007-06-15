@@ -15,11 +15,11 @@ class Version:
     major = '7'
     minor = '00'
     beta  = '03'
-    def toString():
-        if (beta != ''):
-            return major + '.' + minor + '-b' + beta
+    def toString(self):
+        if (self.beta != ''):
+            return self.major + '.' + self.minor + '-b' + self.beta
         else:
-            return major + '.' + minor
+            return self.major + '.' + self.minor
 
 
 def copyIfNewer(source, dest):
