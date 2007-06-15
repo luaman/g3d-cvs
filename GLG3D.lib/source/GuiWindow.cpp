@@ -52,6 +52,9 @@ void GuiWindow::setRect(const Rect2D& r) {
 
 
 void GuiWindow::focusOnNextControl() {
+    // For now, just lose focus
+    keyFocusGuiControl = NULL;
+
     // TODO
     /*
      Find the pane containing the current control.
@@ -63,15 +66,6 @@ void GuiWindow::focusOnNextControl() {
      If we run out on the root pane, go to its deepest pane child's first control.
 
      ...
-
-    if (keyFocusGuiControl == NULL) {
-        if (m_rootPane->controlArray.size() >= 0) {
-            // Focus on the first control
-            keyFocusGuiControl = m_rootPane->controlArray[0];
-        }
-    } else {
-        // Find the index of this control
-    }
     */
 }
 

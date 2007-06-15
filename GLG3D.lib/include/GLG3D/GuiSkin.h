@@ -82,10 +82,11 @@ private:
         /**
          @param path Path to search for font files
          */
-        void deserialize(const std::string& path, TextInput& t);
+        void deserialize(const std::string& path, const std::string& name, TextInput& t);
     };
 
-    enum {SLIDER_WIDTH = 100};
+    /** When a caption appears on the left of a control, inset the control by this amount */
+    static enum {LEFT_CAPTION_WIDTH = 90};
     
     /** Used for delayed text rendering. */
     class Text {
@@ -241,6 +242,9 @@ private:
 
         /** Defaults */
         TextStyle            textStyle;
+
+        /** For the user value*/
+        TextStyle            contentStyle;
 
         class Focus {
         public:
@@ -513,10 +517,14 @@ public:
         Automatically shifts text so that a cursor at character index given by 
         cursorPosition is visible on screen.
      */
-    void renderTextBox(const Rect2D& bounds, bool enabled, bool focused, 
-                       const GuiCaption& text,
-                       const GuiCaption& cursor,
-                       int cursorPosition) const;
+    void renderTextBox(
+        const Rect2D&           bounds, 
+        bool                    enabled,
+        bool                    focused, 
+        const GuiCaption&       caption,
+        const GuiCaption&       text,
+        const GuiCaption&       cursor,
+        int                     cursorPosition) const;
 
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 

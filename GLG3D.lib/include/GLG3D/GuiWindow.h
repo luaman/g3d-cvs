@@ -138,7 +138,6 @@ private:
 
     Style               m_style;
 
-
     CloseAction         m_closeAction;
     ControlButton       m_closeButton;
 

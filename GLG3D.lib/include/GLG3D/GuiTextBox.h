@@ -58,8 +58,6 @@ protected:
     /** String to be used as the cursor character */
     GuiCaption           m_cursor;
 
-    float                m_captionWidth;
-
     /** Key that is currently auto-repeating. */
     SDL_keysym           m_repeatKeysym;
 
@@ -70,7 +68,7 @@ protected:
     RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
-    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, std::string* value, Update update, float captionWidth);
+    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, std::string* value, Update update);
 
     template<class T>
     GuiTextBox(
@@ -80,9 +78,8 @@ protected:
                T* object,
                std::string (T::*get)() const,
                void (T::*set)(std::string),
-               Update update,
-               float captionWidth) : GuiControl(gui, parent, caption), m_value(object, get, set), 
-               m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0), m_editing(false) {}
+               Update update) : GuiControl(gui, parent, caption), m_value(object, get, set), 
+               m_update(update), m_cursor("|"), m_cursorPos(0), m_editing(false) {}
 
 
     /** Called by GuiPane */
@@ -101,14 +98,6 @@ protected:
 
 public:
     
-    /** Set position to the left of the text box bounds that the caption appears.*/
-    void setCaptionWidth(float w) {
-        m_captionWidth = w;
-    }
-
-    float captionWidth() const {
-        return m_captionWidth;
-    }
 };
 
 } // G3D

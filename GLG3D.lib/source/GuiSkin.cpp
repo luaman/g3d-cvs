@@ -79,7 +79,7 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     (void)version;
     debugAssertM(fuzzyEq(version, 0.1), format("Only version 0.1 is supported (version = %f)", version));
 
-    m_textStyle.deserialize(path, b);
+    m_textStyle.deserialize(path, "font", b);
     
     // Controls (all inherit the default text style and may override)
     m_checkBox.textStyle = m_textStyle;
@@ -216,16 +216,29 @@ void GuiSkin::drawCheckable
 }
 
 
-void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused, 
-                            const GuiCaption& text, const GuiCaption& cursor, int cursorPosition) const {
+void GuiSkin::renderTextBox
+    (const Rect2D&      fullBounds, 
+     bool               enabled, 
+     bool               focused, 
+     const GuiCaption&  caption,
+     const GuiCaption&  text, 
+     const GuiCaption&  cursor, 
+     int                cursorPosition) const {
+
+    const Rect2D& bounds
+        (Rect2D::xyxy(fullBounds.x0() + LEFT_CAPTION_WIDTH, 
+                      fullBounds.y0(), 
+                      fullBounds.x1(), 
+                      fullBounds.y1()));
+
     m_textBox.render(rd, bounds, enabled, focused);
 
     // Compute pixel distance from left edge to cursor position
     std::string beforeCursor = text.text().substr(0, cursorPosition);
-    float size = text.size(m_textBox.textStyle.size);
-    const GFont::Ref& font = text.font(m_textBox.textStyle.font);
-    const Color4& color = text.color(m_textStyle.color);
-    const Color4& outlineColor = text.outlineColor(m_textStyle.outlineColor);
+    float size = text.size(m_textBox.contentStyle.size);
+    const GFont::Ref& font = text.font(m_textBox.contentStyle.font);
+    const Color4& color = text.color(m_textBox.contentStyle.color);
+    const Color4& outlineColor = text.outlineColor(m_textBox.contentStyle.outlineColor);
 
     // Area in which text appears
     Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_textBox.padTopLeft, bounds.wh() - (m_textBox.padBottomRight + m_textBox.padTopLeft));
@@ -243,13 +256,24 @@ void GuiSkin::renderTextBox(const Rect2D& bounds, bool enabled, bool focused,
 
         // Draw cursor
         if (focused) {
-            addDelayedText(cursor.font(m_textBox.textStyle.font), cursor.text(), 
+            addDelayedText(cursor.font(m_textBox.contentStyle.font), cursor.text(), 
                 Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, 
-                cursor.color(m_textBox.textStyle.color), 
-                cursor.outlineColor(m_textBox.textStyle.outlineColor), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+                cursor.color(m_textBox.contentStyle.color), 
+                cursor.outlineColor(m_textBox.contentStyle.outlineColor), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
         }
 
     const_cast<GuiSkin*>(this)->popClientRect();
+
+    if (caption.text() != "") {
+        addDelayedText(
+            caption.font(m_textBox.textStyle.font),
+            caption.text(), 
+            Vector2(fullBounds.x0(), (fullBounds.y0() + fullBounds.y1()) * 0.5f), 
+            caption.size(m_textBox.textStyle.size), 
+            caption.color(m_textBox.textStyle.color), 
+            caption.outlineColor(m_textBox.textStyle.outlineColor),
+            GFont::XALIGN_LEFT);
+    }
 }
 
 
@@ -348,7 +372,7 @@ void GuiSkin::drawWindow(const Window& window, const Rect2D& bounds,
 
 
 Rect2D GuiSkin::horizontalSliderToSliderBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x1() - SLIDER_WIDTH, bounds.y0(), SLIDER_WIDTH, bounds.height());
+    return Rect2D::xywh(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.width() - LEFT_CAPTION_WIDTH, bounds.height());
 }
 
 
@@ -403,8 +427,14 @@ void GuiSkin::renderButton(const Rect2D& bounds, bool enabled, bool focused,
 }
 
 
-void GuiSkin::renderHorizontalSlider(const Rect2D& bounds, float pos, bool enabled, 
-                           bool focused, const GuiCaption& text) const {
+void GuiSkin::renderHorizontalSlider
+(
+    const Rect2D& bounds, 
+    float pos, 
+    bool enabled, 
+    bool focused, 
+    const GuiCaption& text) const {
+    
     debugAssert(inRendering);
     m_hSlider.render
         (rd, 
@@ -710,7 +740,7 @@ void GuiSkin::popClientRect() {
 
 void GuiSkin::Pane::deserialize(const std::string& name, const std::string& path, TextInput& t) {
     t.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, t);
+    textStyle.deserialize(path, "font", t);
     frame.deserialize("frame", t);
     clientPad.deserialize("clientPad", t);
     t.readSymbol("}");
@@ -719,7 +749,7 @@ void GuiSkin::Pane::deserialize(const std::string& name, const std::string& path
 
 void GuiSkin::HSlider::deserialize(const std::string& name, const std::string& path, TextInput& t) {
     t.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, t);
+    textStyle.deserialize(path, "font", t);
     bar.deserialize("bar", t);
     thumb.deserialize("thumb", t);
     t.readSymbol("}");
@@ -806,7 +836,7 @@ void GuiSkin::WindowButton::deserialize(const std::string& name, TextInput& t) {
 
 void GuiSkin::Window::deserialize(const std::string& name, const std::string& path, TextInput& b) {
     b.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, b);
+    textStyle.deserialize(path, "font", b);
     base.deserialize("base", b);
     borderPad.deserialize("borderPad", b);
     clientPad.deserialize("clientPad", b);
@@ -837,7 +867,7 @@ void GuiSkin::Window::render(RenderDevice* rd, const Rect2D& bounds, bool _focus
 
 void GuiSkin::Checkable::deserialize(const std::string& name, const std::string& path, TextInput& b) {
     b.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, b);
+    textStyle.deserialize(path, "font", b);
     enabled.deserialize("enabled", b);
     disabled.deserialize("disabled", b);
     textOffset = readVector2("textOffset", b);
@@ -1065,7 +1095,7 @@ void GuiSkin::StretchRectH::render(class RenderDevice* rd, const Rect2D& bounds,
 
 void GuiSkin::Button::deserialize(const std::string& name, const std::string& path, TextInput& b) {
     b.readSymbols(name, "=", "{");
-    textStyle.deserialize(path, b);
+    textStyle.deserialize(path, "font", b);
     base.deserialize("base", b);
     textOffset = readVector2("textOffset", b);
     enabled.deserialize("enabled", b);
@@ -1123,7 +1153,9 @@ void GuiSkin::Button::render(RenderDevice* rd, const Rect2D& bounds, bool _enabl
 void GuiSkin::TextBox::deserialize(const std::string& name, const std::string& path, TextInput& b) {
     b.readSymbols(name, "=", "{");
 
-    textStyle.deserialize(path, b);
+    textStyle.deserialize(path, "font", b);
+    contentStyle = textStyle;
+    contentStyle.deserialize(path, "font", b);
 
     base.deserialize("base", b);
     b.readSymbols("textPad", "=", "{");
@@ -1162,14 +1194,14 @@ void GuiSkin::TextBox::render(RenderDevice* rd, const Rect2D& bounds, bool _enab
 
 ///////////////////////////////////////////////////////
 
-void GuiSkin::TextStyle::deserialize(const std::string& path, TextInput& t) {
+void GuiSkin::TextStyle::deserialize(const std::string& path, const std::string& name, TextInput& t) {
 
     Token token = t.peek();
 
     if ((token.type() == Token::SYMBOL) &&
-        (token.string() == "font")) {
+        (token.string() == name)) {
         // Font
-        t.readSymbols("font", "=", "{");
+        t.readSymbols(name, "=", "{");
 
         do {
             token = t.peek();

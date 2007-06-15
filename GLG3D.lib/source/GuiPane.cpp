@@ -50,8 +50,12 @@ GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckB
 
 
 GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update) {
-    GuiTextBox* c = new GuiTextBox(m_gui, this, caption, value, update, TEXT_CAPTION_WIDTH);
-    c->setRect(Rect2D::xywh(nextGuiControlPos + Vector2(TEXT_CAPTION_WIDTH, 0), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+    GuiTextBox* c = new GuiTextBox(m_gui, this, caption, value, update);
+    c->setRect(
+        Rect2D::xywh(nextGuiControlPos, 
+                     Vector2(min(m_clientRect.width(), 
+                     (float)CONTROL_WIDTH), 
+                     CONTROL_HEIGHT)));
     nextGuiControlPos.y += c->rect().height();
     
     controlArray.append(c);

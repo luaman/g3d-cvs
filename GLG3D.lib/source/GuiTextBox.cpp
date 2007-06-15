@@ -23,9 +23,9 @@ static const float               keyRepeatDelay = 0.25f;
 namespace G3D {
 
 GuiTextBox::GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, 
-                       std::string* value, Update update, float captionWidth) 
+                       std::string* value, Update update) 
     : GuiControl(gui, parent, caption), m_value(value), 
-      m_update(update), m_cursor("|"), m_captionWidth(captionWidth), m_cursorPos(0), m_editing(false) {
+      m_update(update), m_cursor("|"), m_cursorPos(0), m_editing(false) {
 
     unsetRepeatKeysym();
     m_keyDownTime = System::time();
@@ -61,8 +61,6 @@ void GuiTextBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
             me->m_editing   = true;
         }
 
-        skin->renderLabel(Rect2D::xywh(m_rect.x0() - m_captionWidth, m_rect.y0(), m_captionWidth, m_rect.height()), m_caption, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
-
         static RealTime then = System::time();
         RealTime now = System::time();
 
@@ -89,10 +87,14 @@ void GuiTextBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         }
 
         // Note that textbox does not have a mouseover state
-        skin->renderTextBox(m_rect, m_enabled, focused(), 
-                            m_editing ? m_userValue : *m_value, 
-                            solidCursor ? m_cursor : std::string(), 
-                            m_cursorPos);
+        skin->renderTextBox
+           (m_rect, 
+            m_enabled, 
+            focused(), 
+            m_caption,
+            m_editing ? m_userValue : *m_value, 
+            solidCursor ? m_cursor : std::string(), 
+            m_cursorPos);
     }
 }
 
