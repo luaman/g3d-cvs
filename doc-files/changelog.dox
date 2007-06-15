@@ -131,6 +131,7 @@
      <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
      <li> Removed static constants (use equivalent lower-case methods)
      <li> Removed Cylinder::getPoint1 (use point)
+     <li> Fix: GL_EXT_texture_3D -> GL_EXT_texture3D
      <li> Fix: ARB_texture_cube_map and EXT_texture_cube_map are now aliases on all cards
      <li> Fix: EXT_texture_edge_clamp and SGIS_texture_edge_clamp are now aliases on all cards
      <li> Fix: G3D::Sky now turns off lighting
