@@ -186,10 +186,30 @@ void App::setViewer(const std::string& newFilename) {
 
 		viewer = new GUIViewer(this);
 
+	} else if (ext == "pk3") {
+		// Something in Quake format - figure out what we should load
+		Array <std::string> files;
+		bool set = false;
+
+		// First, try for a .bsp map
+		std::string search = filename + "/maps/*";
+		getFiles(search, files, true);
+		for (int t = 0; t < files.length(); ++t) {
+
+			if (filenameExt(files[t]) == "bsp") {
+
+				filename = files[t];
+				viewer = new BSPViewer();
+				set = true;
+			}
+		}
+		if (!set) {
+			viewer = new EmptyViewer();
+		}
 	} else {
 
 		viewer = new EmptyViewer();
-
+	
 	}
 
 	if (viewer != NULL) {

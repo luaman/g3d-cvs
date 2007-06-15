@@ -48,6 +48,13 @@
      <li> Added G3D::SuperShader to the core
      <li> Merged GApp and GApplet into GApp2 to make the common case easier to implement
      <li> Removed GApp2::debugMode options, removed "debug" prefix from most fields.
+     <li> G3D::zipfileExists for testing if a filename path contains a .zip to be opened [Eric]
+     <li> G3D::isZipfile tests the header of a file to see if it is a .zip [Eric]
+     <li> G3D::zipRead and G3D::zipClose to open and close .zip files [Eric]
+     <li> G3D::fileExists supports filename paths that contain .zip [Eric]
+     <li> G3D::fileLength supports filename paths that contain .zip [Eric]
+     <li> G3D::getFiles and G3D::getDirs support filename paths that contain .zip [Eric]
+     <li> Viewer (tool) - Allows drag and drop viewing of many supported file formats [Eric]
      <li> GApp2::debugCamera -> GApp2::defaultCamera
      <li> GApp2::debugController -> GApp2::defaultController
      <li> Made GApp2::debugText private

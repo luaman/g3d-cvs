@@ -873,30 +873,27 @@ static void determineFileOrDirList(
 	// whose contents we want to see
     std::string prefix = "";
     std::string path = filenamePath(filespec);
-    if(endsWith(path, "/")) {
+
+    if ((path.size() > 0) && isSlash(path[path.size() - 1])) {
+		// Strip the trailing slash
 	    path = path.substr(0, path.length() -1);
 	}
 
-	if(fileExists(path)) {
-		if(isZipfile(path)) {
+	if (fileExists(path, false)) {
+		if (isZipfile(path)) {
             // .zip should only work if * is specified as the Base + Ext
             // Here, we have been asked for the root's contents
-            if(path + "/" + prefix + "*" == filespec){
-			    getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
-            }
+			debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");
+		    getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
 		} else {
 			// It is a normal directory
 			getFileOrDirListNormal(filespec, files, wantFiles, includePath);
 		}
-	} else {
-		if(zipfileExists(filenamePath(filespec), path, prefix)) {
-			// .zip should only work if * is specified as the Base + Ext
-			// Here, we have been asked for the contents of a folder within the .zip
-			if(path + "/" + prefix + "*" == filespec){
-				getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
-			}
-		} 
-		// otherwise, no files to get...
+	} else if (zipfileExists(filenamePath(filespec), path, prefix)) {
+		// .zip should only work if * is specified as the Base + Ext
+		// Here, we have been asked for the contents of a folder within the .zip
+		debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");
+		getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
 	}
 }
 
