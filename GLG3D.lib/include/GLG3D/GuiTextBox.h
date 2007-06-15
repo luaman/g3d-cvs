@@ -68,19 +68,7 @@ protected:
     RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
-    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, std::string* value, Update update);
-
-    template<class T>
-    GuiTextBox(
-               GuiWindow* gui, 
-               GuiPane* parent,
-               const GuiCaption& caption,
-               T* object,
-               std::string (T::*get)() const,
-               void (T::*set)(std::string),
-               Update update) : GuiControl(gui, parent, caption), m_value(object, get, set), 
-               m_update(update), m_cursor("|"), m_cursorPos(0), m_editing(false) {}
-
+    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, Pointer<std::string>& value, Update update);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;

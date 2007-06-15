@@ -519,6 +519,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiDropDownList.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiLabel.h"
 				>
 			</File>

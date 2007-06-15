@@ -136,11 +136,31 @@ public:
      GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
      ) {
         
-        GuiTextBox* c = new GuiTextBox(m_gui, this, caption, object, get, set, update, TEXT_CAPTION_WIDTH);
+        GuiTextBox* c = new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update, TEXT_CAPTION_WIDTH);
         c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
         nextGuiControlPos.y += c->rect().height();
         controlArray.append(c);
 
+        return c;
+    }
+
+    
+    template<typename EnumOrInt, class T>
+    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID,  
+        T* object,
+        EnumOrInt (T::*get)() const,
+        void (T::*set)(EnumOrInt), 
+        GuiRadioButton::Style style) {
+        
+        GuiRadioButton* c = new GuiRadioButton(m_gui, this, text, myID, 
+            Pointer<int>(object, 
+                        reinterpret_cast<int (T::*)() const>(get), 
+                        reinterpret_cast<void (T::*)(EnumOrInt)>(set)), style);
+        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+        nextGuiControlPos.y += c->rect().height();
+        
+        controlArray.append(c);
+        
         return c;
     }
 

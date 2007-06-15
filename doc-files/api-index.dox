@@ -38,6 +38,8 @@ href="classes.html">Classes</a>.
     \link G3D::GuiCaption GuiCaption\endlink,
     \link G3D::GuiCheckBox GuiCheckBox\endlink,
     \link G3D::GuiButton GuiButton\endlink,
+    \link G3D::GuiDropDownList GuiDropDownList\endlink,
+    \link G3D::GuiLabel GuiLabel\endlink,
     \link G3D::GuiPane GuiPane\endlink,
     \link G3D::GuiRadioButton GuiRadioButton\endlink,
     \link G3D::GuiSkin GuiSkin\endlink,

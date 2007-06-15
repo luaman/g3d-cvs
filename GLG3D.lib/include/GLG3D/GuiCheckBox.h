@@ -32,16 +32,7 @@ protected:
     Pointer<bool>     m_value;
     Style             m_style;
     
-    GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, bool* value, Style style = BOX_STYLE);
-
-    template<class T>
-    GuiCheckBox(GuiWindow* gui,
-                GuiPane* parent,
-             const GuiCaption& text,
-             T* object,
-             bool (T::*get)() const,
-             void (T::*set)(bool),
-             Style style = BOX_STYLE) : GuiControl(gui, parent, text), m_value(object, get, set), m_style(style) {}
+    GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, Pointer<bool>& value, Style style = BOX_STYLE);
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
 
