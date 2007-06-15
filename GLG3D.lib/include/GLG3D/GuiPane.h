@@ -2,7 +2,7 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2007-06-11
+ @edited  2007-06-15
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -136,7 +136,58 @@ public:
      GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
      ) {
         
-        GuiTextBox* c = new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update, TEXT_CAPTION_WIDTH);
+        GuiTextBox* c = new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update);
+        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+        nextGuiControlPos.y += c->rect().height();
+        controlArray.append(c);
+
+        return c;
+    }
+
+    template<class IndexObj, class ListObj>
+    GuiTextBox* addDropDownList
+    (const GuiCaption& caption,
+     IndexObj* indexObject,
+     const Array<std::string>& (IndexObj::*indexGet)() const,
+     void (IndexObj::*indexSet)(int),
+     ListObj* listObject,
+     int (ListObj::*listGet)() const,
+     void (ListObj::*listSet)(int)     
+     ) {
+        
+        GuiDropDownList* c = new GuiDropDownList
+            (m_gui, 
+            this, 
+            caption, 
+            Pointer<int>(indexObject, indexGet, indexSet),
+            Pointer<int>(listObject, listGet, listSet));
+
+        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+        nextGuiControlPos.y += c->rect().height();
+        controlArray.append(c);
+
+        return c;
+    }
+
+    template<class IndexObj, class ListObj>
+    GuiTextBox* addDropDownList
+    (const GuiCaption& caption,
+     IndexObj* indexObject,
+     int (IndexObj::*indexGet)() const,
+     void (IndexObj::*indexSet)(int),
+
+     ListObj* listObject,
+     int (ListObj::*listGet)() const,
+     void (ListObj::*listSet)(int)     
+     ) {
+        
+        GuiDropDownList* c = new GuiDropDownList
+            (m_gui, 
+            this, 
+            caption, 
+            Pointer<int>(indexObject, indexGet, indexSet),
+            Pointer<int>(listObject, listGet, listSet));
+
         c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
         nextGuiControlPos.y += c->rect().height();
         controlArray.append(c);

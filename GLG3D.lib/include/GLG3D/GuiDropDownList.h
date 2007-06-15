@@ -13,6 +13,7 @@
 
 #include "GLG3D/GuiControl.h"
 #include "G3D/Pointer.h"
+#include "G3D/Array.h"
 
 namespace G3D {
 
@@ -28,9 +29,11 @@ class GuiDropDownList : public GuiControl {
     friend class GuiPane;
 protected:
 
+    typedef Array<std::string> StringArray;
+
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
-    Pointer< Array<std::string> >   m_listValue;
+    Pointer<StringArray>            m_listValue;
 
     /** Called by GuiPane */
     GuiDropDownList
@@ -38,7 +41,7 @@ protected:
         GuiPane*                    parent, 
         const GuiCaption&           caption, 
         Pointer<int>&               indexValue, 
-        Pointer< <Array<std::string> >& list Value);
+        Pointer<StringArray>&       listValue);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
