@@ -285,6 +285,10 @@
 				RelativePath="..\test\tWeakCache.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\test\tzip.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

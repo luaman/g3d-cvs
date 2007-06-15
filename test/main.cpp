@@ -42,6 +42,8 @@ void testMatrix();
 void testMatrix3();
 void perfMatrix3();
 
+void testZip();
+
 void testCollisionDetection();
 void perfCollisionDetection();
 
@@ -554,6 +556,9 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+	testZip();
+
     testMap2D();
 
     testfilter();

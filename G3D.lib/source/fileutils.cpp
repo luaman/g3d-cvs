@@ -13,9 +13,10 @@
 #include "G3D/g3dmath.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "zip/zip.h"
-#include "zip/unzip.h"
+#include <zip/zip.h>
+#include <zip/unzip.h>
 #include "G3D/stringutils.h"
+#include "G3D/Set.h"
 
 #ifdef G3D_WIN32
    // Needed for _getcwd
@@ -108,12 +109,59 @@ std::string readWholeFile(
 }
 
 
+void zipRead(const std::string& file,
+			 void*& data,
+			 size_t& length) {
+	std::string zip, desiredFile;
+	if(zipfileExists(file, zip, desiredFile)){
+		unzFile f = unzOpen(zip.c_str());
+		{
+			unzLocateFile(f, desiredFile.c_str(), 2);
+			unz_file_info info;
+			unzGetCurrentFileInfo(f, &info, NULL, 0, NULL, 0, NULL, 0);
+			length = info.uncompressed_size;
+			// sets machines up to use MMX, if they want
+			data = System::alignedMalloc(length, 16);
+			unzOpenCurrentFile(f);
+			{
+				int test = unzReadCurrentFile(f, data, length);
+				debugAssertM(test == length, desiredFile + " was corrupt, unzipped to an improper size.");
+			}
+			unzCloseCurrentFile(f);
+		}
+		unzClose(f);
+	} else {
+		data = NULL;
+	}
+}
+
+
+void zipClose(void* data) {
+	System::alignedFree(data);
+}
+
+
 int64 fileLength(const std::string& filename) {
     struct _stat st;
     int result = _stat(filename.c_str(), &st);
     
     if (result == -1) {
+		std::string zip, contents;
+		if(zipfileExists(filename, zip, contents)){
+			int64 requiredMem;
+
+			unzFile f = unzOpen(zip.c_str());
+			{
+				unzLocateFile(f, contents.c_str(), 2);
+				unz_file_info info;
+				unzGetCurrentFileInfo(f, &info, NULL, 0, NULL, 0, NULL, 0);
+				requiredMem = info.uncompressed_size;
+			}
+			unzClose(f);
+			return requiredMem;
+		} else {
         return -1;
+		}
     }
 
     return st.st_size;
@@ -382,28 +430,6 @@ static void _zip_resolveDirectory(std::string& completeDir, const std::string& d
 }
 
 
-static bool _zip_isZipfile(const std::string& filename) {
-
-	FILE* f = fopen(filename.c_str(), "r");
-	if (f == NULL) {
-		return false;
-	}
-	uint8 header[4];
-	fread(header, 4, 1, f);
-
-	const uint8 zipHeader[4] = {0x50, 0x4b, 0x03, 0x04};
-	for (int i = 0; i < 4; ++i) {
-		if (header[i] != zipHeader[i]) {
-			fclose(f);
-			return false;
-		}
-	}
-
-	fclose(f);
-	return true;
-}
-
-
 // assumes that zipDir references a .zip file
 static bool _zip_zipContains(const std::string& zipDir, const std::string& desiredFile){
 	unzFile f = unzOpen(zipDir.c_str());
@@ -418,31 +444,6 @@ static bool _zip_zipContains(const std::string& zipDir, const std::string& desir
 }
 
 
-// assumes zipDir is valid
-// TODO: This might be more useful if it
-// stored the contents in an array of char *
-static void printZipContents(const std::string& zipDir){
-	unzFile f = unzOpen(zipDir.c_str());
-
-	enum {MAX_STRING_LENGTH=1024};
-	char fileName[MAX_STRING_LENGTH];
-
-	unzGetCurrentFileInfo(f, NULL, fileName, MAX_STRING_LENGTH,
-							NULL, 0, NULL, 0);
-	debugPrintf(fileName);
-	debugPrintf("\n");
-
-	while(unzGoToNextFile(f) != UNZ_END_OF_LIST_OF_FILE){
-		unzGetCurrentFileInfo(f, NULL, fileName, MAX_STRING_LENGTH,
-								NULL, 0, NULL, 0);
-
-		debugPrintf(fileName);
-		debugPrintf("\n");
-	}
-	unzClose(f);
-}
-
-
 // If no zipfile exists, outZipfile and outInternalFile are unchanged
 bool zipfileExists(const std::string& filename, std::string& outZipfile,
 				   std::string& outInternalFile){
@@ -454,7 +455,9 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
 		Array<std::string> path;
 		std::string drive, base, ext, zipfile, infile;
 		parseFilename(filename, drive, path, base, ext);
-		infile = base + "." + ext;
+		if(base != "" && ext != ""){
+			infile = base + "." + ext;
+		}
 		for (int t = 0; t < path.length(); ++t){
 			_zip_resolveDirectory(zipfile, drive, path,  path.length() - t);
 			if (t > 0){
@@ -466,9 +469,7 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
 				// if not, return false, a bad
 				// directory structure has been given,
 				// not a .zip
-				if (_zip_isZipfile(zipfile)){
-
-					printZipContents(zipfile);
+				if (isZipfile(zipfile)){
 
 					if (_zip_zipContains(zipfile, infile)){
 						outZipfile = zipfile;
@@ -629,7 +630,7 @@ void parseFilename(
                         returns the files.
  @param includePath     If true, the names include paths
  */
-static void getFileOrDirList(
+static void getFileOrDirListNormal(
 	const std::string&		filespec,
 	Array<std::string>&		files,
 	bool					wantFiles,
@@ -734,13 +735,133 @@ static void getFileOrDirList(
     #endif
 }
 
+/**
+ 
+ c:/temp/foo.zip/plainsky/*
+"    path       "
+                "prefix   "
+
+ @param path   The zipfile name (no trailing slash)
+ @param prefix Directory inside the zipfile. No leading slash, must have trailing slash if non-empty.
+ @param file   Name inside the zipfile that we are testing to see if it matches prefix + "*"
+ */
+static void _zip_addEntry(const std::string& path,
+                          const std::string& prefix,
+						  const std::string& file,
+						  Set<std::string>& files,
+						  bool wantFiles,
+						  bool includePath) {
+
+    // Make certain we are within the desired parent folder (prefix)
+    if (beginsWith(file, prefix)) {
+        // validityTest was prefix/file
+
+		// Extract everything to the right of the prefix
+		std::string s = file.substr(prefix.length());
+
+		if (s == "") {
+			// This was the name of the prefix
+			return;
+		}
+
+		// See if there are any slashes
+		int slashPos = s.find('/');
+
+		bool add = false;
+
+		if (slashPos == std::string::npos) {
+			// No slashes, so s must be a file
+			add = wantFiles;
+		} else if (! wantFiles) {
+			// Not all zipfiles list directories as explicit entries.
+			// Because of this, if we're looking for directories and see
+			// any path longer than prefix, we must add the subdirectory. 
+		    // The Set will fix duplicates for us.
+			s = s.substr(0, slashPos);
+			add = true;
+		}
+
+		if (add) {
+			if (includePath) {
+				files.insert(path + "/" + prefix + s);
+			} else {
+				files.insert(s);
+			}
+		}
+
+    }
+}
+
+
+static void getFileOrDirListZip(const std::string& path,
+                                const std::string& prefix,
+							    Array<std::string>& files,
+							    bool wantFiles,
+							    bool includePath){
+	unzFile f = unzOpen(path.c_str());
+
+	enum {MAX_STRING_LENGTH=1024};
+	char filename[MAX_STRING_LENGTH];
+	Set<std::string> fileSet;
+
+	do {
+		
+		// prefix is valid, either "" or a subfolder
+		unzGetCurrentFileInfo(f, NULL, filename, MAX_STRING_LENGTH,	NULL, 0, NULL, 0);
+		_zip_addEntry(path, prefix, filename, fileSet, wantFiles, includePath);
+
+	} while (unzGoToNextFile(f) != UNZ_END_OF_LIST_OF_FILE);
+
+	unzClose(f);
+
+	fileSet.getMembers(files);
+}
+
+
+static void determineFileOrDirList(
+	const std::string&			filespec,
+	Array<std::string>&			files,
+	bool						wantFiles,
+	bool						includePath) {
+
+	// if it is a .zip, prefix will specify the folder within
+	// whose contents we want to see
+    std::string prefix = "";
+    std::string path = filenamePath(filespec);
+    if(endsWith(path, "/")) {
+	    path = path.substr(0, path.length() -1);
+	}
+
+	if(fileExists(path)) {
+		if(isZipfile(path)) {
+            // .zip should only work if * is specified as the Base + Ext
+            // Here, we have been asked for the root's contents
+            if(path + "/" + prefix + "*" == filespec){
+			    getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
+            }
+		} else {
+			// It is a normal directory
+			getFileOrDirListNormal(filespec, files, wantFiles, includePath);
+		}
+	} else {
+		if(zipfileExists(filenamePath(filespec), path, prefix)) {
+			// .zip should only work if * is specified as the Base + Ext
+			// Here, we have been asked for the contents of a folder within the .zip
+			if(path + "/" + prefix + "*" == filespec){
+				getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
+			}
+		} 
+		// otherwise, no files to get...
+	}
+}
+
 
 void getFiles(
 	const std::string&			filespec,
 	Array<std::string>&			files,
 	bool						includePath) {
 
-	getFileOrDirList(filespec, files, true, includePath);
+	determineFileOrDirList(filespec, files, true, includePath);
 }
 
 
@@ -749,7 +870,7 @@ void getDirs(
 	Array<std::string>&			files,
 	bool						includePath) {
 
-	getFileOrDirList(filespec, files, false, includePath);
+	determineFileOrDirList(filespec, files, false, includePath);
 }
 
 
@@ -806,6 +927,28 @@ std::string filenamePath(const std::string& filename) {
     } else {
         return filename.substr(0, i+1);
     }
+}
+
+
+bool isZipfile(const std::string& filename) {
+
+	FILE* f = fopen(filename.c_str(), "r");
+	if (f == NULL) {
+		return false;
+	}
+	uint8 header[4];
+	fread(header, 4, 1, f);
+	
+	const uint8 zipHeader[4] = {0x50, 0x4b, 0x03, 0x04};
+	for (int i = 0; i < 4; ++i) {
+		if (header[i] != zipHeader[i]) {
+			fclose(f);
+			return false;
+		}
+	}
+
+	fclose(f);
+	return true;
 }
 
 

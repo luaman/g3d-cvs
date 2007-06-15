@@ -36,6 +36,27 @@ Array<std::string> filesUsed();
 std::string readWholeFile(
     const std::string&          filename);
 
+
+/** Reads from a zip file and decompresses the desired contents
+	into memory.  Does not support recursive zip calls (i.e. a .zip
+	stored within another .zip)
+
+	@param file the path, of the format C:\...\something.zip\...\desiredfile.ext
+	@param data a pointer to the memory where the file will be stored
+	@param length the size of the file decompressed to memory */
+void zipRead(const std::string& file,
+			 void*& data,
+			 size_t& length);
+
+
+/** Closes the contents of a zip file that had been decompressed to
+	memory.  Must be called in tandem with zipRead() to avoid memory
+	leaks.
+
+	@param data the pointer to the decompressed file in memory */
+void zipClose(void* data);
+
+
 /**
  @param flush If true (default), the file is ready for reading as soon
  as the function returns.  If false, the function returns immediately and
@@ -65,6 +86,9 @@ std::string resolveFilename(const std::string& filename);
  relative to the current directory unless the filespec is fully qualified
  (can be done with resolveFilename).
  Wildcards can only appear to the right of the last slash in filespec.
+ Works with .zip files used as paths, if filespec is passed in the form
+ C:\...\something.zip\*  Does not work recursively with zipfiles (a
+ .zip within a .zip will not work)
  */
 void getFiles(
 	const std::string&			filespec,
@@ -77,6 +101,9 @@ void getFiles(
  relative to the current directory unless the filespec is fully qualified
  (can be done with resolveFilename).
  Does not append special directories "." or "..".
+ Works with .zip files used as paths, if filespec is passed in the form
+ C:\...\something.zip\*  Does not work recursively with zipfiles (a
+ .zip within a .zip will not work)
  */
 void getDirs(
 	const std::string&			filespec,
@@ -87,7 +114,19 @@ void getDirs(
 /** Returns true if the specified path exists and is a directory */
 bool isDirectory(const std::string& filespec);
 
-/** Returns the length of the file, -1 if it does not exist */
+
+/** Returns true if the specified filename exists and is a zipfile */
+bool isZipfile(const std::string& filename);
+
+
+/** Returns the length of the file.  If 
+	filename specifies a path that contains a zipfile, but the 
+	contents within are specified correctly, returns the 
+	uncompressed size of the requested file.  Returns -1 if
+	the file does not exist. 
+	
+	@param filename the path to test, may contain .zip
+*/
 int64 fileLength(const std::string& filename);
 
 /**
@@ -115,7 +154,8 @@ bool fileExists(
  Returns true if the given file (or directory) exists
  within a zipfile.  Called if fileExists initially
  returns false and the lookInZipfiles flag has been set.
- Must not end in a trailing slash.
+ Must not end in a trailing slash.  Does not work for recursive
+ zipfiles (.zips within another .zip)
 
  @param filename the path to test
  @param outZipfile the path to the .zip file
