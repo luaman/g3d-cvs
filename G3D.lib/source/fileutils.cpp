@@ -134,7 +134,8 @@ void zipRead(const std::string& file,
 			 void*& data,
 			 size_t& length) {
 	std::string zip, desiredFile;
-	if(zipfileExists(file, zip, desiredFile)){
+
+	if (zipfileExists(file, zip, desiredFile)) {
 		unzFile f = unzOpen(zip.c_str());
 		{
 			unzLocateFile(f, desiredFile.c_str(), 2);
@@ -469,23 +470,46 @@ static bool _zip_zipContains(const std::string& zipDir, const std::string& desir
 bool zipfileExists(const std::string& filename, std::string& outZipfile,
 				   std::string& outInternalFile){
 	if (fileExists(filename, false)) {
-		// the specified path exists, it does not need to be dealt with
-		// this step may not be necessary, depending on G3D's needs/usages
+		// Not inside a zipfile if the file itself exists
 		return false;
 	} else {
 		Array<std::string> path;
 		std::string drive, base, ext, zipfile, infile;
 		parseFilename(filename, drive, path, base, ext);
-		if(base != "" && ext != ""){
+
+		// Put the filename back together
+		if ((base != "") && (ext != "")) {
 			infile = base + "." + ext;
+		} else {
+			infile = base + ext;
 		}
+
+		// Remove "." from path
+		for (int i = 0; i < path.length(); ++i) {
+			if (path[i] == ".") {
+				path.remove(i);
+				--i;
+			}
+		}
+
+		// Remove ".." from path
+		for (int i = 1; i < path.length(); ++i) {
+			if ((path[i] == "..") && (i > 0) && (path[i - 1] != "..")) {
+				// Remove both i and i - 1
+				path.remove(i - 1, 2);
+				i -= 2;
+			}
+		}
+
+		// Walk the path backwards, accumulating pieces onto the infile until
+		// we find a zipfile that contains it
 		for (int t = 0; t < path.length(); ++t){
 			_zip_resolveDirectory(zipfile, drive, path,  path.length() - t);
-			if (t > 0){
+			if (t > 0) {
 				infile = path[path.length() - t] + "/" + infile;
 			}
 
-			if (fileExists(zipfile, false)){
+			if (fileExists(zipfile, false)) {
 				// test if it actually is a zipfile
 				// if not, return false, a bad
 				// directory structure has been given,

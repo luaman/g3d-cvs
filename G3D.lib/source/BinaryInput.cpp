@@ -274,7 +274,7 @@ BinaryInput::BinaryInput(
             size_t s;
             zipRead(filename, v, s);
             buffer = reinterpret_cast<uint8*>(v);
-            length = s;
+            bufferLength = length = s;
             freeBuffer = true;
         } else {
             Log::common()->printf("Warning: File not found: %s\n", filename.c_str());
