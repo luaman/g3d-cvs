@@ -29,19 +29,17 @@ class GuiDropDownList : public GuiControl {
     friend class GuiPane;
 protected:
 
-    typedef Array<std::string> StringArray;
-
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
-    Pointer<StringArray>            m_listValue;
+    Array<std::string>&             m_listValue;
 
     /** Called by GuiPane */
     GuiDropDownList
        (GuiWindow*                  gui, 
         GuiPane*                    parent, 
         const GuiCaption&           caption, 
-        Pointer<int>&               indexValue, 
-        Pointer<StringArray>&       listValue);
+        const Pointer<int>&         indexValue, 
+        Array<std::string>*         listValue);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;

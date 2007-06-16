@@ -1271,7 +1271,7 @@ static void setTexParameters(
 
     // Set the wrap and interpolate state
 
-    bool supports3D = GLCaps::supports_GL_EXT_texture_3D();
+    bool supports3D = GLCaps::supports_GL_EXT_texture3D();
     GLenum mode = GL_NONE;
     
     switch (settings.wrapMode) {

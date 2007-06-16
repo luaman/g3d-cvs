@@ -69,21 +69,10 @@ protected:
         *m_value = (Value)f * (m_maxValue - m_minValue) + m_minValue;
     }
 
-    GuiSlider(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, Value* value, Value minValue, Value maxValue, bool horizontal) :
+    GuiSlider(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, 
+              const Pointer<Value>& value, Value minValue, Value maxValue, bool horizontal) :
         _GuiSliderBase(gui, parent, text, horizontal), m_value(value), 
         m_minValue(minValue), m_maxValue(maxValue) {}
-
-    template<class T>
-    GuiSlider(GuiWindow* gui,
-              GuiPane* parent,
-              const GuiCaption& text,
-              T* object,
-              Value (T::*get)() const,
-              void (T::*set)(Value),
-              Value minValue,
-              Value maxValue,
-              bool horizontal) : 
-        _GuiSliderBase(gui, parent, text, horizontal), m_value(object, get, set), m_minValue(minValue), m_maxValue(maxValue) {}
 
 public:
 

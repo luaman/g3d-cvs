@@ -24,6 +24,7 @@
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiTextBox.h"
+#include "GLG3D/GuiDropDownList.h"
 
 namespace G3D {
 
@@ -85,6 +86,16 @@ protected:
 
     virtual bool onEvent(const GEvent& event) { return false; }
 
+    template<class T>
+    T* addControl(T* c) {
+        c->setRect(Rect2D::xywh(nextGuiControlPos, 
+                                Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+        nextGuiControlPos.y += c->rect().height();
+
+        controlArray.append(c);
+        return c;
+    }
+
 public:
 
     /** Client rect bounds, relative to the parent pane (or window if
@@ -117,14 +128,7 @@ public:
      void (T::*set)(bool),
      GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
      ) {
-        
-        GuiCheckBox* c = new GuiCheckBox(m_gui, this, text, object, get, set, style);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-
-        controlArray.append(c);
-
-        return c;
+        return addControl(new GuiCheckBox(m_gui, this, text, object, get, set, style));
     }
 
     template<class T>
@@ -136,63 +140,23 @@ public:
      GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
      ) {
         
-        GuiTextBox* c = new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-        controlArray.append(c);
-
-        return c;
+        return addControl(new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update));
     }
 
-    template<class IndexObj, class ListObj>
-    GuiTextBox* addDropDownList
-    (const GuiCaption& caption,
-     IndexObj* indexObject,
-     const Array<std::string>& (IndexObj::*indexGet)() const,
-     void (IndexObj::*indexSet)(int),
-     ListObj* listObject,
-     const Array<std::string>& (ListObj::*listGet)() const,
-     void (ListObj::*listSet)(const Array<std::string>&)     
-     ) {
-        
-        GuiDropDownList* c = new GuiDropDownList
-            (m_gui, 
-            this, 
-            caption, 
-            Pointer<int>(indexObject, indexGet, indexSet),
-            Pointer<int>(listObject, listGet, listSet));
-
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-        controlArray.append(c);
-
-        return c;
-    }
-
-    template<class IndexObj, class ListObj>
-    GuiTextBox* addDropDownList
+    template<class IndexObj>
+    GuiDropDownList* addDropDownList
     (const GuiCaption& caption,
      IndexObj* indexObject,
      int (IndexObj::*indexGet)() const,
      void (IndexObj::*indexSet)(int),
-
-     ListObj* listObject,
-     int (ListObj::*listGet)() const,
-     void (ListObj::*listSet)(int)     
-     ) {
+     Array<std::string>* list) {
         
-        GuiDropDownList* c = new GuiDropDownList
+        return addControl(new GuiDropDownList
             (m_gui, 
             this, 
             caption, 
             Pointer<int>(indexObject, indexGet, indexSet),
-            Pointer<int>(listObject, listGet, listSet));
-
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-        controlArray.append(c);
-
-        return c;
+             list));
     }
 
     
@@ -203,16 +167,11 @@ public:
         void (T::*set)(EnumOrInt), 
         GuiRadioButton::Style style) {
         
-        GuiRadioButton* c = new GuiRadioButton(m_gui, this, text, myID, 
-            Pointer<int>(object, 
-                        reinterpret_cast<int (T::*)() const>(get), 
-                        reinterpret_cast<void (T::*)(EnumOrInt)>(set)), style);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-        
-        controlArray.append(c);
-        
-        return c;
+        return addControl(new GuiRadioButton
+                          (m_gui, this, text, myID, 
+                           Pointer<int>(object, 
+                                        reinterpret_cast<int (T::*)() const>(get), 
+                                        reinterpret_cast<void (T::*)(EnumOrInt)>(set)), style));
     }
 
     /**
@@ -233,25 +192,14 @@ public:
      Value max,
      bool horizontal = true) {
         
-        GuiSlider<Value>* c = new GuiSlider<Value>(m_gui, this, text, object, get, set, min, max, horizontal);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-
-        controlArray.append(c);
-
-        return c;
+        return addControl(new GuiSlider<Value>(m_gui, this, text, Pointer<Value>(object, get, set), 
+                                               min, max, horizontal));
     }
 
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, Value min, Value max, bool horizontal = true) {
         
-        GuiSlider<Value>* c = new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal);
-        c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(G3D::min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
-
-        controlArray.append(c);
-
-        return c;
+        return addControl(new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal));
     }
 
     /**
@@ -266,7 +214,9 @@ public:
        gui->addRadioButton("Tue", TUE, &day);
        ...
        </pre>
-       @param selection Must be a pointer to an int or enum.  The current selection value for a group of radio buttons.
+
+       @param selection Must be a pointer to an int or enum.  The
+       current selection value for a group of radio buttons.
      */
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection,
                                 GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);

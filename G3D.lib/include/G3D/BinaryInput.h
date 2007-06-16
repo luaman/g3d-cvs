@@ -95,7 +95,7 @@ private:
     /** When operating on huge files, we cannot load the whole file into memory.
         This is the file position to which buffer[0] corresponds.
         */
-    int64          alreadyRead;
+    int64           alreadyRead;
 
     /**
      Length of the entire file, in bytes.  
@@ -140,9 +140,14 @@ public:
     /** false, constant to use with the copyMemory option */
     static const bool       NO_COPY;
 
-	/**
-	 If the file cannot be opened, a zero length buffer is presented.
-	 */
+    /**
+       If the file cannot be opened, a zero length buffer is presented.
+       Automatically opens files that are inside zipfiles.
+
+       @param compressed Set to true if and only if the file was
+       compressed using BinaryOutput's zlib compression.  This has
+       nothing to do with whether the input is in a zipfile.
+    */
     BinaryInput(
         const std::string&  filename,
         G3DEndian           fileEndian,

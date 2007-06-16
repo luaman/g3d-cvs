@@ -68,7 +68,8 @@ protected:
     RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
-    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, Pointer<std::string>& value, Update update);
+    GuiTextBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption, 
+               const Pointer<std::string>& value, Update update);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;

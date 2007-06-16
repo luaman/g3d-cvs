@@ -347,32 +347,30 @@ public:
     }
 
 
-	bool operator < (const ReferenceCountedPointer<T>& y) const {
+    bool operator < (const ReferenceCountedPointer<T>& y) const {
         return (m_pointer < y.m_pointer); 
-	}
-
-	bool operator > (const ReferenceCountedPointer<T>& y) const {
+    }
+    
+    bool operator > (const ReferenceCountedPointer<T>& y) const {
         return (m_pointer > y.m_pointer); 
-	}
-
-	bool operator <= (const ReferenceCountedPointer<T>& y) const {
+    }
+    
+    bool operator <= (const ReferenceCountedPointer<T>& y) const {
         return (m_pointer <= y.m_pointer); 
-	}
-
-	bool operator >= (const ReferenceCountedPointer<T>& y) const {
+    }
+    
+    bool operator >= (const ReferenceCountedPointer<T>& y) const {
         return (m_pointer >= y.m_pointer); 
-	}
-
+    }
+    
     inline T& operator*() const {
         debugAssert(m_pointer != NULL);
         return (*m_pointer);
     }
 
-
     inline T* operator->() const {
         return m_pointer;
     }
-
 
     inline bool isNull() const {
         return (m_pointer == NULL);

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, graphics3d.com
  
   @created 2007-05-16
-  @edited  2007-05-30
+  @edited  2007-06-16
 
   Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
@@ -94,12 +94,8 @@ private:
         }
     };
 
-    template<class T>
+    template<class T, typename GetMethod, typename SetMethod>
     class Accessor : public Interface {
-    public:
-        typedef ValueType (T::*GetMethod)() const;
-        typedef void (T::*SetMethod)(ValueType);
-
     private:
 
         T*          object;
@@ -108,7 +104,9 @@ private:
 
     public:
         
-        Accessor(T* object, GetMethod getMethod, SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
+        Accessor(T* object, 
+                 GetMethod getMethod, 
+                 SetMethod setMethod) : object(object), getMethod(getMethod), setMethod(setMethod) {
             debugAssert(object != NULL);
         }
 
@@ -126,12 +124,8 @@ private:
     };
 
 
-    template<class T>
+    template<class T, typename GetMethod, typename SetMethod>
     class RefAccessor : public Interface {
-    public:
-        typedef ValueType (T::*GetMethod)() const;
-        typedef void (T::*SetMethod)(const ValueType&);
-
     private:
 
         ReferenceCountedPointer<T>         object;
@@ -168,7 +162,7 @@ public:
 
     Pointer() : interface(NULL) {};
 
-    explicit Pointer(ValueType* v) : interface(new Memory(v)) {}
+    Pointer(ValueType* v) : interface(new Memory(v)) {}
 
     inline Pointer& operator=(const Pointer& r) {
         delete interface;
@@ -184,15 +178,53 @@ public:
         this[0] = p;
     }
 
-    template<class Class>
+    template<class Class, typename Value>
     Pointer(const ReferenceCountedPointer<Class>& object,
-          bool (Class::*getMethod)() const,
-          void (Class::*setMethod)(bool)) : interface(new RefAccessor<Class>(object, getMethod, setMethod)) {}
+            Value (Class::*getMethod)() const,
+            void (Class::*setMethod)(Value)) : 
+        interface(new RefAccessor<Class, Value (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
+
+    template<class Class, typename Value>
+    Pointer(const ReferenceCountedPointer<Class>& object,
+            const Value& (Class::*getMethod)() const,
+            void (Class::*setMethod)(Value)) : 
+        interface(new RefAccessor<Class, const Value& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
+
+    template<class Class, typename Value>
+    Pointer(const ReferenceCountedPointer<Class>& object,
+            Value (Class::*getMethod)() const,
+            void (Class::*setMethod)(const Value&)) : 
+        interface(new RefAccessor<Class, Value (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
+
+    template<class Class, typename Value>
+    Pointer(const ReferenceCountedPointer<Class>& object,
+            const Value& (Class::*getMethod)() const,
+            void (Class::*setMethod)(const Value&)) : 
+        interface(new RefAccessor<Class, const Value& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
-          bool (Class::*getMethod)() const,
-          void (Class::*setMethod)(bool)) : interface(new Accessor<Class>(object, getMethod, setMethod)) {}
+            const ValueType& (Class::*getMethod)() const,
+            void (Class::*setMethod)(const ValueType&)) : 
+        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&) >(object, getMethod, setMethod)) {}
+
+    template<class Class>
+    Pointer(Class* object,
+            ValueType (Class::*getMethod)() const,
+            void (Class::*setMethod)(const ValueType&)) : 
+        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&) >(object, getMethod, setMethod)) {}
+
+    template<class Class>
+    Pointer(Class* object,
+            const ValueType& (Class::*getMethod)() const,
+            void (Class::*setMethod)(ValueType)) : 
+        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType) >(object, getMethod, setMethod)) {}
+
+    template<class Class>
+    Pointer(Class* object,
+            ValueType (Class::*getMethod)() const,
+            void (Class::*setMethod)(ValueType)) : 
+        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType) >(object, getMethod, setMethod)) {}
 
     ~Pointer() {
         delete interface;

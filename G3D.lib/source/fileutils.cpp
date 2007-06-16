@@ -131,30 +131,32 @@ std::string readWholeFile(
 
 
 void zipRead(const std::string& file,
-			 void*& data,
-			 size_t& length) {
-	std::string zip, desiredFile;
-
-	if (zipfileExists(file, zip, desiredFile)) {
-		unzFile f = unzOpen(zip.c_str());
-		{
-			unzLocateFile(f, desiredFile.c_str(), 2);
-			unz_file_info info;
-			unzGetCurrentFileInfo(f, &info, NULL, 0, NULL, 0, NULL, 0);
-			length = info.uncompressed_size;
-			// sets machines up to use MMX, if they want
-			data = System::alignedMalloc(length, 16);
-			unzOpenCurrentFile(f);
-			{
-				int test = unzReadCurrentFile(f, data, length);
-				debugAssertM(test == length, desiredFile + " was corrupt, unzipped to an improper size.");
-			}
-			unzCloseCurrentFile(f);
-		}
-		unzClose(f);
-	} else {
-		data = NULL;
-	}
+             void*& data,
+             size_t& length) {
+    std::string zip, desiredFile;
+    
+    if (zipfileExists(file, zip, desiredFile)) {
+        unzFile f = unzOpen(zip.c_str());
+        {
+            unzLocateFile(f, desiredFile.c_str(), 2);
+            unz_file_info info;
+            unzGetCurrentFileInfo(f, &info, NULL, 0, NULL, 0, NULL, 0);
+            length = info.uncompressed_size;
+            // sets machines up to use MMX, if they want
+            data = System::alignedMalloc(length, 16);
+            unzOpenCurrentFile(f);
+            {
+                int test = unzReadCurrentFile(f, data, length);
+                debugAssertM(test == length,
+                             desiredFile + " was corrupt because it unzipped to the wrong size.");
+                (void)test;
+            }
+            unzCloseCurrentFile(f);
+        }
+        unzClose(f);
+    } else {
+        data = NULL;
+    }
 }
 
 
@@ -782,7 +784,7 @@ static void getFileOrDirListNormal(
 
 /**
  
- c:/temp/foo.zip/plainsky/*
+ c:/temp/foo.zip/plainsky\\*
 "    path       "
                 "prefix   "
 
@@ -800,66 +802,65 @@ static void _zip_addEntry(const std::string& path,
     // Make certain we are within the desired parent folder (prefix)
     if (beginsWith(file, prefix)) {
         // validityTest was prefix/file
-
-		// Extract everything to the right of the prefix
-		std::string s = file.substr(prefix.length());
-
-		if (s == "") {
-			// This was the name of the prefix
-			return;
-		}
-
-		// See if there are any slashes
-		int slashPos = s.find('/');
-
-		bool add = false;
-
-		if (slashPos == std::string::npos) {
-			// No slashes, so s must be a file
-			add = wantFiles;
-		} else if (! wantFiles) {
-			// Not all zipfiles list directories as explicit entries.
-			// Because of this, if we're looking for directories and see
-			// any path longer than prefix, we must add the subdirectory. 
-		    // The Set will fix duplicates for us.
-			s = s.substr(0, slashPos);
-			add = true;
-		}
-
-		if (add) {
-			if (includePath) {
-				files.insert(path + "/" + prefix + s);
-			} else {
-				files.insert(s);
-			}
-		}
-
+        
+        // Extract everything to the right of the prefix
+        std::string s = file.substr(prefix.length());
+        
+        if (s == "") {
+            // This was the name of the prefix
+            return;
+        }
+        
+        // See if there are any slashes
+        size_t slashPos = s.find('/');
+        
+        bool add = false;
+        
+        if (slashPos == std::string::npos) {
+            // No slashes, so s must be a file
+            add = wantFiles;
+        } else if (! wantFiles) {
+            // Not all zipfiles list directories as explicit entries.
+            // Because of this, if we're looking for directories and see
+            // any path longer than prefix, we must add the subdirectory. 
+            // The Set will fix duplicates for us.
+            s = s.substr(0, slashPos);
+            add = true;
+        }
+        
+        if (add) {
+            if (includePath) {
+                files.insert(path + "/" + prefix + s);
+            } else {
+                files.insert(s);
+            }
+        }
     }
 }
 
 
 static void getFileOrDirListZip(const std::string& path,
                                 const std::string& prefix,
-							    Array<std::string>& files,
-							    bool wantFiles,
-							    bool includePath){
-	unzFile f = unzOpen(path.c_str());
+                                Array<std::string>& files,
+                                bool wantFiles,
+                                bool includePath){
+    unzFile f = unzOpen(path.c_str());
 
-	enum {MAX_STRING_LENGTH=1024};
-	char filename[MAX_STRING_LENGTH];
-	Set<std::string> fileSet;
-
-	do {
-		
-		// prefix is valid, either "" or a subfolder
-		unzGetCurrentFileInfo(f, NULL, filename, MAX_STRING_LENGTH,	NULL, 0, NULL, 0);
-		_zip_addEntry(path, prefix, filename, fileSet, wantFiles, includePath);
-
-	} while (unzGoToNextFile(f) != UNZ_END_OF_LIST_OF_FILE);
-
-	unzClose(f);
-
-	fileSet.getMembers(files);
+    enum {MAX_STRING_LENGTH=1024};
+    char filename[MAX_STRING_LENGTH];
+    Set<std::string> fileSet;
+    
+    do {
+        
+        // prefix is valid, either "" or a subfolder
+        unzGetCurrentFileInfo(f, NULL, filename, MAX_STRING_LENGTH,	NULL, 0, NULL, 0);
+        _zip_addEntry(path, prefix, filename, fileSet, wantFiles, includePath);
+        
+    } while (unzGoToNextFile(f) != UNZ_END_OF_LIST_OF_FILE);
+    
+    unzClose(f);
+    
+    fileSet.getMembers(files);
 }
 
 
@@ -875,35 +876,35 @@ static void determineFileOrDirList(
     std::string path = filenamePath(filespec);
 
     if ((path.size() > 0) && isSlash(path[path.size() - 1])) {
-		// Strip the trailing slash
-	    path = path.substr(0, path.length() -1);
-	}
-
-	if (fileExists(path, false)) {
-		if (isZipfile(path)) {
+        // Strip the trailing slash
+        path = path.substr(0, path.length() -1);
+    }
+    
+    if (fileExists(path, false)) {
+        if (isZipfile(path)) {
             // .zip should only work if * is specified as the Base + Ext
             // Here, we have been asked for the root's contents
-			debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");
-		    getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
-		} else {
-			// It is a normal directory
-			getFileOrDirListNormal(filespec, files, wantFiles, includePath);
-		}
-	} else if (zipfileExists(filenamePath(filespec), path, prefix)) {
-		// .zip should only work if * is specified as the Base + Ext
-		// Here, we have been asked for the contents of a folder within the .zip
-		debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");
-		getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
-	}
+            debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");
+            getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
+        } else {
+            // It is a normal directory
+            getFileOrDirListNormal(filespec, files, wantFiles, includePath);
+        }
+    } else if (zipfileExists(filenamePath(filespec), path, prefix)) {
+        // .zip should only work if * is specified as the Base + Ext
+        // Here, we have been asked for the contents of a folder within the .zip
+        debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");
+        getFileOrDirListZip(path, prefix, files, wantFiles, includePath);
+    }
 }
 
 
 void getFiles(
-	const std::string&			filespec,
-	Array<std::string>&			files,
-	bool						includePath) {
-
-	determineFileOrDirList(filespec, files, true, includePath);
+              const std::string&			filespec,
+              Array<std::string>&			files,
+              bool					includePath) {
+    
+    determineFileOrDirList(filespec, files, true, includePath);
 }
 
 

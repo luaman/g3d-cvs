@@ -385,18 +385,18 @@ Vector4 glToScreen(const Vector4& v) {
 }
 
 void glDisableAllTextures() {
-  glDisable(GL_TEXTURE_2D);
-  if (GLCaps::supports_GL_EXT_texture_3D()) {
-    glDisable(GL_TEXTURE_3D);
-  }
-  if (GLCaps::supports_GL_EXT_texture_cube_map()) {
-    glDisable(GL_TEXTURE_CUBE_MAP_ARB);
-  }
-  glDisable(GL_TEXTURE_1D);
-  
-  if (GLCaps::supports_GL_EXT_texture_rectangle()) {
-      glDisable(GL_TEXTURE_RECTANGLE_ARB);
-  }
+    glDisable(GL_TEXTURE_2D);
+    if (GLCaps::supports_GL_EXT_texture3D()) {
+        glDisable(GL_TEXTURE_3D);
+    }
+    if (GLCaps::supports_GL_EXT_texture_cube_map()) {
+        glDisable(GL_TEXTURE_CUBE_MAP_ARB);
+    }
+    glDisable(GL_TEXTURE_1D);
+    
+    if (GLCaps::supports_GL_EXT_texture_rectangle()) {
+        glDisable(GL_TEXTURE_RECTANGLE_ARB);
+    }
 }
 
 extern void* glXGetProcAddress (const GLubyte *);

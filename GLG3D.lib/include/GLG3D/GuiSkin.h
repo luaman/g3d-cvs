@@ -86,7 +86,7 @@ private:
     };
 
     /** When a caption appears on the left of a control, inset the control by this amount */
-    static enum {LEFT_CAPTION_WIDTH = 90};
+    enum {LEFT_CAPTION_WIDTH = 90};
     
     /** Used for delayed text rendering. */
     class Text {

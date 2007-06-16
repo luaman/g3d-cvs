@@ -39,39 +39,19 @@ GuiPane::~GuiPane() {
 
 
 GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style style) {
-    GuiCheckBox* c = new GuiCheckBox(m_gui, this, text, Pointer<bool>(value), style);
-    c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-    nextGuiControlPos.y += c->rect().height();
-    
-    controlArray.append(c);
-
-    return c;
+    return addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(value), style));
 }
 
 
 GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update) {
-    GuiTextBox* c = new GuiTextBox(m_gui, this, caption, Pointer<std::string>(value), update);
-    c->setRect(
-        Rect2D::xywh(nextGuiControlPos, 
-                     Vector2(min(m_clientRect.width(), 
-                     (float)CONTROL_WIDTH), 
-                     CONTROL_HEIGHT)));
-    nextGuiControlPos.y += c->rect().height();
     
-    controlArray.append(c);
-
-    return c;
+    return addControl(new GuiTextBox(m_gui, this, caption, Pointer<std::string>(value), update));
 }
 
 
 GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
-    GuiRadioButton* c = new GuiRadioButton(m_gui, this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style);
-    c->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-    nextGuiControlPos.y += c->rect().height();
-    
-    controlArray.append(c);
-    
-    return c;
+
+    return addControl(new GuiRadioButton(m_gui, this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
 }
 
 

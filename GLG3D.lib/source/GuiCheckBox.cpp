@@ -4,7 +4,8 @@
 
 namespace G3D {
 
-GuiCheckBox::GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, Pointer<bool>& value, Style style) 
+GuiCheckBox::GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, 
+                         const Pointer<bool>& value, Style style) 
     : GuiControl(gui, parent, text), m_value(value), m_style(style) {}
 
 

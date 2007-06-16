@@ -195,7 +195,7 @@ void GLCaps::init() {
     DECLARE_EXT(GL_ARB_multitexture);
     DECLARE_EXT(GL_EXT_texture_edge_clamp);
     DECLARE_EXT(GL_ARB_texture_border_clamp);
-    DECLARE_EXT(GL_EXT_texture_3D);
+    DECLARE_EXT(GL_EXT_texture3D);
     DECLARE_EXT(GL_EXT_stencil_wrap);
     DECLARE_EXT(GL_EXT_stencil_two_side);
     DECLARE_EXT(GL_ATI_separate_stencil);    
@@ -438,7 +438,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // Parse the extensions into the supported set
         std::string s;
         while (extensions >> s) {
-	        extensionSet.insert(s);
+            extensionSet.insert(s);
         }
 
         // We're going to need exactly the same code for each of 
@@ -452,7 +452,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
             DECLARE_EXT(GL_ARB_vertex_buffer_object);
             DECLARE_EXT(GL_EXT_texture_edge_clamp);
             DECLARE_EXT(GL_ARB_texture_border_clamp);
-            DECLARE_EXT(GL_EXT_texture_3D);
+            DECLARE_EXT(GL_EXT_texture3D);
             DECLARE_EXT(GL_ARB_fragment_program);
             DECLARE_EXT(GL_ARB_multitexture);
             DECLARE_EXT(GL_EXT_stencil_wrap);
