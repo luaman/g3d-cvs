@@ -135,6 +135,8 @@ private:
     BinaryInput& operator=(const BinaryInput&);
     bool operator==(const BinaryInput&);
 
+    /** Buffer is compressed; replace it with a decompressed version */
+    void decompress();
 public:
 
     /** false, constant to use with the copyMemory option */

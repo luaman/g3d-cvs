@@ -136,7 +136,7 @@ void BinaryInput::loadIntoMemory(int64 startPosition, int64 minLength) {
         // This happens if there was little memory available during the initial constructor
         // read but more memory has since been freed.
         bufferLength = minLength;
-		debugAssert(freeBuffer);
+        debugAssert(freeBuffer);
         buffer = (uint8*)System::realloc(buffer, bufferLength);
         if (buffer == NULL) {
             throw "Tried to read a larger memory chunk than could fit in memory. (2)";
@@ -145,29 +145,28 @@ void BinaryInput::loadIntoMemory(int64 startPosition, int64 minLength) {
 
     alreadyRead = startPosition;
 
-	#ifdef G3D_WIN32
-	    FILE* file = fopen(filename.c_str(), "rb");
-		debugAssert(file);
-		int ret = fseek(file, (off_t)alreadyRead, SEEK_SET);
-		debugAssert(ret == 0);
-		size_t toRead = (size_t)G3D::min((int64)bufferLength, (int64)(length - alreadyRead));
-		ret = fread(buffer, 1, toRead, file);
-		debugAssert(ret == toRead);
-		fclose(file);
-		file = NULL;
-	
-	#else
-	    FILE* file = fopen(filename.c_str(), "rb");
-		debugAssert(file);
-		int ret = fseeko(file, (off_t)alreadyRead, SEEK_SET);
-		debugAssert(ret == 0);
-		size_t toRead = (size_t)G3D::min<int64>((int64)bufferLength, (int64)(length - alreadyRead));
-		ret = fread(buffer, 1, toRead, file);
-		debugAssert((size_t)ret == (size_t)toRead);
-		fclose(file);
-		file = NULL;
-	#endif
-
+#   ifdef G3D_WIN32
+        FILE* file = fopen(filename.c_str(), "rb");
+        debugAssert(file);
+        int ret = fseek(file, (off_t)alreadyRead, SEEK_SET);
+        debugAssert(ret == 0);
+        size_t toRead = (size_t)G3D::min((int64)bufferLength, (int64)(length - alreadyRead));
+        ret = fread(buffer, 1, toRead, file);
+        debugAssert(ret == toRead);
+        fclose(file);
+        file = NULL;
+    
+#   else
+        FILE* file = fopen(filename.c_str(), "rb");
+        debugAssert(file);
+        int ret = fseeko(file, (off_t)alreadyRead, SEEK_SET);
+        debugAssert(ret == 0);
+        size_t toRead = (size_t)G3D::min<int64>((int64)bufferLength, (int64)(length - alreadyRead));
+        ret = fread(buffer, 1, toRead, file);
+        debugAssert((size_t)ret == (size_t)toRead);
+        fclose(file);
+        file = NULL;
+#   endif
 
     pos = absPos - alreadyRead;
     debugAssert(pos >= 0);
@@ -219,7 +218,7 @@ BinaryInput::BinaryInput(
         // Read the decompressed size from the first 4 bytes
         length = G3D::readUInt32(data, swapBytes);
 
-		debugAssert(freeBuffer);
+        debugAssert(freeBuffer);
         buffer = (uint8*)System::alignedMalloc(length, 16);
 
         unsigned long L = length;
@@ -253,10 +252,10 @@ BinaryInput::BinaryInput(
     freeBuffer = true;
     this->fileEndian = fileEndian;
     this->filename = filename;
-	buffer = NULL;
+    buffer = NULL;
     bufferLength = 0;
-	length = 0;
-	pos = 0;
+    length = 0;
+    pos = 0;
     beginEndBits = 0;
     bitPos = 0;
 
@@ -275,6 +274,9 @@ BinaryInput::BinaryInput(
             zipRead(filename, v, s);
             buffer = reinterpret_cast<uint8*>(v);
             bufferLength = length = s;
+            if (compressed) {
+                decompress();
+            }
             freeBuffer = true;
         } else {
             Log::common()->printf("Warning: File not found: %s\n", filename.c_str());
@@ -288,10 +290,10 @@ BinaryInput::BinaryInput(
     // Read the file into memory
     FILE* file = fopen(filename.c_str(), "rb");
 
-	if (! file || (length == -1)) {
+    if (! file || (length == -1)) {
         throw format("File not found: \"%s\"", filename.c_str());
-		return;
-	}
+        return;
+    }
 
     if (! compressed && (length > INITIAL_BUFFER_LENGTH)) {
         // Read only a subset of the file so we don't consume
@@ -303,13 +305,13 @@ BinaryInput::BinaryInput(
         bufferLength = length;
     }
 
-	debugAssert(freeBuffer);
+    debugAssert(freeBuffer);
     buffer = (uint8*)System::alignedMalloc(bufferLength, 16);
     if (buffer == NULL) {
         if (compressed) {
             throw "Not enough memory to load compressed file. (1)";
         }
-
+        
         // Try to allocate a small array; not much memory is available.
         // Give up if we can't allocate even 1k.
         while ((buffer == NULL) && (bufferLength > 1024)) {
@@ -330,33 +332,37 @@ BinaryInput::BinaryInput(
             throw "Not enough memory to load compressed file. (2)";
         }
 
-        // Decompress
-        // Use the existing buffer as the source, allocate
-        // a new buffer to use as the destination.
-
-        int64 tempLength = length;
-        length = G3D::readUInt32(buffer, swapBytes);
-        
-        // The file couldn't have better than 500:1 compression
-        alwaysAssertM(length < bufferLength * 500, "Compressed file header is corrupted");
-
-        uint8* tempBuffer = buffer;
-        buffer = (uint8*)System::alignedMalloc(length, 16);
-
-        debugAssert(buffer);
-        debugAssert(isValidHeapPointer(tempBuffer));
-        debugAssert(isValidHeapPointer(buffer));
-
-        unsigned long L = length;
-        int64 result = uncompress(buffer, &L, tempBuffer + 4, tempLength - 4);
-        length = L;
-        bufferLength = length;
-
-        debugAssertM(result == Z_OK, "BinaryInput/zlib detected corruption in " + filename); 
-        (void)result;
-
-        System::alignedFree(tempBuffer);
+        decompress();
     }
+}
+
+void BinaryInput::decompress() {
+    // Decompress
+    // Use the existing buffer as the source, allocate
+    // a new buffer to use as the destination.
+    
+    int64 tempLength = length;
+    length = G3D::readUInt32(buffer, swapBytes);
+    
+    // The file couldn't have better than 500:1 compression
+    alwaysAssertM(length < bufferLength * 500, "Compressed file header is corrupted");
+    
+    uint8* tempBuffer = buffer;
+    buffer = (uint8*)System::alignedMalloc(length, 16);
+    
+    debugAssert(buffer);
+    debugAssert(isValidHeapPointer(tempBuffer));
+    debugAssert(isValidHeapPointer(buffer));
+    
+    unsigned long L = length;
+    int64 result = uncompress(buffer, &L, tempBuffer + 4, tempLength - 4);
+    length = L;
+    bufferLength = length;
+    
+    debugAssertM(result == Z_OK, "BinaryInput/zlib detected corruption in " + filename); 
+    (void)result;
+    
+    System::alignedFree(tempBuffer);
 }
 
 
