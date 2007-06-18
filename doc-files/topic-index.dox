@@ -27,6 +27,7 @@ features.  Not all API entry points are shown in this index.
 <tr><td></td><td>\link debugAssert <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
 <tr><td></td><td>\link G3D::GApp2::debugPrintf <b>GApp2::debugPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
 <tr><td></td><td>\link G3D::debugPrintf <b>G3D::debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
+<tr><td></td><td>\link G3D::logPrintf <b>logPrintf</b>\endlink</td><td>Prints to the log.txt file (which you should regularly check for warnings!)</td></tr>
 <tr><td></td><td>\link G3D::Draw Draw\endlink</td><td>Render simple geometric primitives without loading a model</td></tr>
 <tr><td></td><td>\link debugAssertM debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
 <tr><td></td><td>\link alwaysAssertM alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>

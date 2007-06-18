@@ -21,6 +21,14 @@
 
 namespace G3D {
 
+void logPrintf(const char* fmt, ...) {
+	va_list arg_list;
+	va_start(arg_list, fmt);
+    Log::common()->vprintf(fmt, arg_list);
+    va_end(arg_list);
+}
+
+
 Log* Log::commonLog = NULL;
 
 Log::Log(const std::string& filename, int stripFromStackBottom) : 

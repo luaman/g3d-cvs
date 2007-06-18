@@ -293,6 +293,7 @@ href="classes.html">Classes</a>.
         \link G3D::isValidHeapPointer isValidHeapPointer\endlink,
         \link G3D::isValidPointer isValidPointer\endlink,
         \link G3D::debugPrintf debugPrintf\endlink,
+        \link G3D::logPrintf logPrintf\endlink,
         \link G3D::Log Log\endlink,
         \link G3D::setAssertionHook setAssertionHook\endlink,
         \link G3D::setFailureHook setFailureHook\endlink

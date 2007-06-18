@@ -20,6 +20,22 @@
 
 namespace G3D {
 
+/** Prints to the common system log, log.txt, which is usually 
+    in the working directory of the program.  If your disk is 
+    not writable or is slow, it will attempt to write to "c:/tmp/log.txt" or
+     "c:/temp/log.txt" on Windows systems instead. 
+
+    Unlike printf or debugPrintf, 
+    this function guarantees that all output is committed before it returns.
+    This is very useful for debugging a crash, which might hide the last few
+    buffered print statements otherwise.
+
+    Many G3D routines write useful warnings and debugging information to the
+    system log, which makes it a good first place to go when tracking down
+    a problem.
+     */
+void logPrintf(const char* fmt, ...);
+
 /**
  System log for debugging purposes.  The first log opened
  is the "common log" and can be accessed with the static
