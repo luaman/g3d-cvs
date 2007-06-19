@@ -230,7 +230,15 @@ void GuiSkin::renderDropDownList
 
     // TODO: Offset by left_caption_width
 
-    m_dropDownList.render(rd, bounds, enabled, focused, down);
+    // Dropdown list has a fixed height
+    float h = m_dropDownList.base.left.height();
+    Rect2D adjustedBounds = 
+        Rect2D::xywh(bounds.x0(),
+                     bounds.center().y - h / 2,
+                     bounds.width(),
+                     h);
+
+    m_dropDownList.render(rd, adjustedBounds, enabled, focused, down);
 
     // Display cropped text
 
