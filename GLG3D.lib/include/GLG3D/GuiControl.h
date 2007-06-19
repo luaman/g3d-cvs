@@ -47,6 +47,9 @@ protected:
     GuiControl(GuiWindow* gui, GuiPane* parent);
     GuiControl(GuiWindow* gui, GuiPane* parent, const GuiCaption& text);
 
+    /** Fires an action event */
+    void fireActionEvent();
+
 public:
 
     virtual ~GuiControl() {}

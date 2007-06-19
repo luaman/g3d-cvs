@@ -10,7 +10,10 @@ GuiRadioButton::GuiRadioButton(GuiWindow* gui, GuiPane* parent, const GuiCaption
 
 
 void GuiRadioButton::setSelected() {
-    *m_value = m_myID;
+    if ((int)*m_value != m_myID) {
+        *m_value = m_myID;
+        fireActionEvent();
+    }
 }
 
 

@@ -58,4 +58,13 @@ GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent) : m_enabled(true), m_gui
 
 GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(parent), m_caption(caption), m_visible(true) {}
 
+
+void GuiControl::fireActionEvent() {
+    GEvent response;
+    response.gui.type = GEventType::GUI_ACTION;
+    response.gui.control = this;
+    m_gui->fireEvent(response);
 }
+
+}
+

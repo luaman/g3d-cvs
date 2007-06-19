@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GuiDropDownList.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GuiLabel.cpp"
 				>
 			</File>

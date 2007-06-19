@@ -45,11 +45,17 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
     } else if (event.type == GEventType::KEY_DOWN) {
         switch (event.key.keysym.sym) {
         case GKey::DOWN:
-            *m_indexValue = iMin(*m_indexValue + 1, m_listValue.size() - 1);
+            if (*m_indexValue < m_listValue.size() - 1) {
+                *m_indexValue = *m_indexValue + 1;
+                fireActionEvent();
+            }
             return true;
 
         case GKey::UP:
-            *m_indexValue = iMax(*m_indexValue - 1, 0);
+            if (*m_indexValue > 0) {
+                *m_indexValue = *m_indexValue - 1;
+                fireActionEvent();
+            }
             return true;
         default:;
         }

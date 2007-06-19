@@ -43,11 +43,7 @@ bool GuiButton::onEvent(const GEvent& event) {
 
         // Only trigger an action if the mouse was still over the control
         if (m_down && m_rect.contains(Vector2(event.button.x, event.button.y))) {
-            // Fire the button pressed event
-            GEvent response;
-            response.gui.type = GEventType::GUI_ACTION;
-            response.gui.control = this;
-            m_gui->fireEvent(response);
+            fireActionEvent();
         }
 
         m_down = false;

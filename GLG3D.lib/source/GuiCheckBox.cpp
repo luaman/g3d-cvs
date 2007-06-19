@@ -23,6 +23,7 @@ void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
 bool GuiCheckBox::onEvent(const GEvent& event) {
     if ((event.type == GEventType::MOUSE_BUTTON_DOWN) && m_visible) {
         *m_value = ! *m_value;
+        fireActionEvent();
         return true;
     } else {
         return false;
