@@ -183,15 +183,18 @@ def itools(args):
      if os.name == 'nt':
          return VC8('VC8\\G3D.sln', ['gfxviewer.lib', 'viewer.lib']);
 
+     x = 0
      if (x == 0):
         os.chdir("tools/gfxmeter")
-        run("../../bin/icompile", config + ['--opt'])
+        x = run("../../bin/icompile", config + ['--opt'])
         os.chdir("../..")
 
+     if (x == 0):
         os.chdir("tools/viewer")
-        run("../../bin/icompile", config + ['--opt'])
+        x = run("../../bin/icompile", config + ['--opt'])
         os.chdir("../..")
 
+     return x
 
 def iclean(args):
     if os.name == 'nt':
