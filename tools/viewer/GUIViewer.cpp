@@ -33,9 +33,9 @@ void GUIViewer::createGui(const std::string& filename) {
 
 	skin = GuiSkin::fromFile(filename, parentApp->debugFont);
 
-	window = GuiWindow::create(GuiCaption("Normal"), Rect2D::xywh(50,50,330,550), skin, GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-	toolWindow = GuiWindow::create(GuiCaption("Tool"), Rect2D::xywh(300,100,200,440), skin, GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-	bgControl = GuiWindow::create(GuiCaption("Dialog"), Rect2D::xywh(550,100,200,240), skin, GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	window = GuiWindow::create(GuiCaption("Normal"), skin, Rect2D::xywh(50,50,330,550), GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	toolWindow = GuiWindow::create(GuiCaption("Tool"), skin, Rect2D::xywh(300,100,200,440), GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	bgControl = GuiWindow::create(GuiCaption("Dialog"), skin, Rect2D::xywh(550,100,200,240), GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
     text = "Hello";
 

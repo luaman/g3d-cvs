@@ -23,7 +23,7 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
    Loads and renders G3D GUI .skn files, which can be used with G3D::Gui.  .skn files
    can be found in the data module data/gui directory.
 
-   Can also be used to explicitly render a UI without actual controls behind it, for example.
+   Can also be used to explicitly render a UI without actual controls behind it, for example:
 
   <pre>
    skin->beginRendering(rd);
@@ -37,17 +37,17 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
        skin->setFont(arialFont, 10, Color3::black(), Color4::clear());
        skin->renderHorizontalSlider(rd, Rect2D::xywh(100, 200, 150, 27), 0.5f, true, false, "Slider");
 
-       skin->setFont(iconFont, 18, Color3::black(), Color4::clear());
        int s = 30;
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, "7");
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, "4");
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, "=");
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, ";");
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, "<");
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, "8");
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, GuiCaption("7", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, GuiCaption("4", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, GuiCaption("=", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, GuiCaption(";", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, GuiCaption("<", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, GuiCaption("8", iconFont));
        skin->setFont(arialFont, 10, Color3::black(), Color4::clear());
     skin->endRendering(rd);
    </pre>
+  @sa G3D::GuiWindow
 */
 class GuiSkin : public ReferenceCountedObject {
 public:
@@ -190,6 +190,51 @@ private:
         void deserialize(const std::string& name, TextInput& b);
         void render(class RenderDevice* rd, const Rect2D& bounds, const Vector2& texOffset) const;
     };
+    class Pad {
+    public:
+        Vector2      topLeft;
+        Vector2      bottomRight;
+        
+        void deserialize(const std::string& name, TextInput& b);
+        
+        /** Net width and height of the padding */
+        inline Vector2 wh() const {
+            return topLeft + bottomRight;
+        }
+    };
+
+
+    class DropDownList {
+    public:
+        StretchRectH        base;
+
+        /** Offsets from base of area for text display */
+        Pad                 textPad;
+        
+        class Pair {
+        public:
+            /** For use during selection */
+            Vector2         down;
+
+            Vector2         up;
+            void deserialize(const std::string& name, TextInput& b);
+        };
+        
+        class Focus {
+        public:
+            Pair            focused;
+            Vector2         defocused;
+            void deserialize(const std::string& name, TextInput& b);
+        };
+ 
+        Focus               enabled;
+        Vector2             disabled;
+
+        TextStyle           textStyle;
+
+        void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
+    };
 
     class Button {
     public:
@@ -230,6 +275,8 @@ private:
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
     };
 
+
+
     class TextBox {
     public:
         /**
@@ -237,8 +284,7 @@ private:
          */
         StretchRectHV        base;
 
-        Vector2              padTopLeft;
-        Vector2              padBottomRight;
+        Pad                  textPad;
 
         /** Defaults */
         TextStyle            textStyle;
@@ -295,19 +341,6 @@ private:
 
         inline float height() const {
             return disabled.checked.height();
-        }
-    };
-
-    class Pad {
-    public:
-        Vector2      topLeft;
-        Vector2      bottomRight;
-        
-        void deserialize(const std::string& name, TextInput& b);
-        
-        /** Net width and height of the padding */
-        inline Vector2 wh() const {
-            return topLeft + bottomRight;
         }
     };
 
@@ -407,6 +440,7 @@ private:
     Pane              m_pane[PANE_STYLE_COUNT];
     WindowButton      m_closeButton;
     TextBox           m_textBox;
+    DropDownList      m_dropDownList;
 
     /** If true, the close button is on the left.  If false, it is on the right */
     bool              m_osxWindowButtons;
@@ -526,6 +560,15 @@ public:
         const GuiCaption&       cursor,
         int                     cursorPosition) const;
 
+    void renderDropDownList
+    (
+     const Rect2D&        bounds,
+     bool                 enabled,
+     bool                 focused,
+     bool                 menuOpen,
+     const GuiCaption&    contentText,
+     const GuiCaption&    text) const;
+
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool checked, const GuiCaption& text) const;
@@ -559,6 +602,7 @@ public:
     Rect2D horizontalSliderToTrackBounds(const Rect2D& bounds) const;
 
     Rect2D paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
+    Rect2D clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
 
     /** Only call between beginRendering and endRendering.
         Label is on the right, slider is aligned with the left edge

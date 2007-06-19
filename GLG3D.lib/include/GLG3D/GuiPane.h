@@ -86,11 +86,19 @@ protected:
 
     virtual bool onEvent(const GEvent& event) { return false; }
 
+    /** Updates this pane to ensure that its client rect is least as wide and
+        high as the specified extent, then recursively calls
+        increaseBounds on its parent.
+     */
+    void increaseBounds(const Vector2& extent);
+
     template<class T>
     T* addControl(T* c) {
         c->setRect(Rect2D::xywh(nextGuiControlPos, 
-                                Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+                                Vector2(max(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
         nextGuiControlPos.y += c->rect().height();
+
+        increaseBounds(c->rect().x1y1());
 
         controlArray.append(c);
         return c;
@@ -109,7 +117,10 @@ public:
 
     ~GuiPane();
 
-    GuiPane* addPane(const GuiCaption& text, float height, GuiPane::Style style = GuiPane::NO_FRAME_STYLE);
+    /** 
+        @param height Non-client size of the pane.  This will automatically grow as controls are added if left at zero.
+     */
+    GuiPane* addPane(const GuiCaption& text, float height = 0, GuiPane::Style style = GuiPane::NO_FRAME_STYLE);
 
     /**
        <pre>
@@ -159,6 +170,7 @@ public:
              list));
     }
 
+    GuiDropDownList* addDropDownList(const GuiCaption& caption, int* indexValue, Array<std::string>* list);
     
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID,  

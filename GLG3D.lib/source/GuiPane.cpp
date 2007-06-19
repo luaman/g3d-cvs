@@ -21,6 +21,24 @@ GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const 
 }
 
 
+void GuiPane::increaseBounds(const Vector2& extent) {
+    if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
+        Rect2D newRect = Rect2D::xywh(m_rect.x0y0(), extent);
+        if (m_style != NO_FRAME_STYLE) {
+            newRect = m_gui->skin->clientToPaneBounds(newRect, GuiSkin::PaneStyle(m_style));
+        }
+
+        setRect(newRect);
+
+        if (m_parent != NULL) {
+            m_parent->increaseBounds(m_rect.x1y1());
+        } else {
+            m_gui->increaseBounds(m_rect.x1y1());
+        }
+    }
+}
+
+
 void GuiPane::setRect(const Rect2D& rect) {
     m_rect = rect;
     
@@ -35,6 +53,11 @@ void GuiPane::setRect(const Rect2D& rect) {
 GuiPane::~GuiPane() {
     controlArray.deleteAll();
     labelArray.deleteAll();
+}
+
+
+GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, int* indexValue, Array<std::string>* list) {
+    return addControl(new GuiDropDownList(m_gui, this, caption, Pointer<int>(indexValue), list));
 }
 
 
@@ -78,10 +101,16 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
 
 
 GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style) {
-    GuiPane* p = new GuiPane(m_gui, this, text, Rect2D::xywh(nextGuiControlPos, Vector2(m_clientRect.width() - 4 - nextGuiControlPos.x * 2, h)), style);
+    // Make the pane at least as tall as it needs to be for its border
+    h = max(h, m_gui->skin->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style)).height());
+
+    Rect2D newRect = Rect2D::xywh(nextGuiControlPos, Vector2(m_clientRect.width() - 4 - nextGuiControlPos.x * 2, h));
+
+    GuiPane* p = new GuiPane(m_gui, this, text, newRect, style);
     nextGuiControlPos.y += p->rect().height();
 
     paneArray.append(p);
+    increaseBounds(p->rect().x1y1());
 
     return p;
 }

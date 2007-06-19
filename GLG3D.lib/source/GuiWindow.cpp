@@ -14,11 +14,26 @@
 
 namespace G3D {
 
-GuiWindow::Ref GuiWindow::create(const GuiCaption& label, const Rect2D& rect,
-                                 const GuiSkinRef& skin, Style style, CloseAction close) {
+GuiWindow::Ref GuiWindow::create
+(const GuiCaption& label, 
+ const GuiSkinRef& skin, 
+ const Rect2D& rect, 
+ Style style, 
+ CloseAction close) {
+
     return new GuiWindow(label, rect, skin, style, close);
 }
 
+void GuiWindow::increaseBounds(const Vector2& extent) {
+    if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
+        Rect2D newRect = Rect2D::xywh(m_rect.x0y0(), extent);
+        if (m_style != NO_FRAME_STYLE) {
+            newRect = skin->clientToWindowBounds(newRect, GuiSkin::WindowStyle(m_style));
+        }
+
+        setRect(newRect);
+    }
+}
 
 GuiWindow::GuiWindow(const GuiCaption& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 

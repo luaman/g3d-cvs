@@ -172,6 +172,9 @@ private:
      */
     void focusOnNextControl();
 
+    /** Called by GuiPane::increaseBounds() */
+    void increaseBounds(const Vector2& extent);
+
 public:
 
     /** Is this window in focus on the WidgetManager? */
@@ -216,7 +219,9 @@ public:
         return m_rootPane;
     }
 
-    static Ref create(const GuiCaption& windowTitle, const Rect2D& rect, const GuiSkinRef& skin, 
+    /** As controls are added, the window will automatically grow to contain them as needed */
+    static Ref create(const GuiCaption& windowTitle, const GuiSkinRef& skin, 
+                      const Rect2D& rect = Rect2D::xywh(100, 100, 100, 50), 
                       Style style = FRAME_STYLE, CloseAction = NO_CLOSE);
 
     void getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);

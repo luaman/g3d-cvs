@@ -90,33 +90,14 @@ void App::onInit() {
     dataDir = "/Volumes/McGuire/Projects/data/";
     //dataDir = "X:/morgan/data/";
 
-    GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
     GFontRef arialFont = GFont::fromFile(dataDir + "font/arial.fnt");
     GFontRef iconFont = GFont::fromFile(dataDir + "font/icon.fnt");
-
-    {
-
-        GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn");
-        GuiWindow::Ref window = GuiWindow::create
-            ("Person", Rect2D::xywh(300, 200, 300, 200),
-             skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
-
-        GuiPane* pane = window->pane();
-        pane->addTextBox("Name", &player.name);
-        pane->addCheckBox("Likes cats", &player.likesCats);
-        pane->addCheckBox("Is my friend", &player, &Person::getIsMyFriend, &Person::setIsMyFriend);
-        pane->addRadioButton("Male", Person::MALE, &player.gender);
-        pane->addRadioButton("Female", Person::FEMALE, &player.gender);
-        player.height = 1.5;
-        pane->addSlider("Height", &player.height, 1.0f, 2.2f);
-
-        addWidget(window);
-    }
+    GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn", arialFont);
 
     GuiWindow::Ref gui = GuiWindow::create
         (GuiCaption("Camera Spline", NULL, 9),
-         Rect2D::xywh(600, 200, 150, 120),
          skin,
+         Rect2D::xywh(600,200,0,0),//Rect2D::xywh(600, 200, 150, 120),
          GuiWindow::TOOL_FRAME_STYLE,
          GuiWindow::HIDE_ON_CLOSE);
 
@@ -145,33 +126,14 @@ void App::onInit() {
 
     b = pane->addRadioButton(GuiCaption(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
+
+
+    static Array<std::string> files;
+    static int choice = 1;
+    files.append("Curvy", "Fly-By", "Hover");
+    pane->addDropDownList("Path", &choice, &files);
     
     addWidget(gui);
-
-    {
-    enum Fruit {ORANGE, BANANA, PLUM};
-    static Fruit fruit = ORANGE;
-    static float f = 0.5;
-    static bool b = false;
-
-    {
-        GuiWindow::Ref gui2 = GuiWindow::create("Second Window", Rect2D::xywh(100,100,400,240), skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
-
-        GuiPane* pane = gui2->pane();
-        pane->addCheckBox("Option", &b);
-        pane->addCheckBox("Other window visible", gui.pointer(), &GuiWindow::visible, &GuiWindow::setVisible);
-
-        GuiPane* radioPane = pane->addPane("", 100, GuiPane::ORNATE_FRAME_STYLE);
-        radioPane->addRadioButton("Orange", ORANGE, &fruit);
-        radioPane->addRadioButton("Banana", BANANA, &fruit);
-        radioPane->addRadioButton("Plum", PLUM, &fruit);
-
-        pane->addSlider("Slider", &f, 0.0f, 1.0f);
-
-        GuiButton* button = pane->addButton("Push Me");
-        addWidget(gui2);
-    }
-    }
 }
 
 void App::onLogic() {

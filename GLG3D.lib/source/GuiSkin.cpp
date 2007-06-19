@@ -116,6 +116,9 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
 
     m_textBox.textStyle = m_textStyle;
     m_textBox.deserialize("textBox", path, b);
+
+    m_dropDownList.textStyle = m_textStyle;
+    m_dropDownList.deserialize("dropDownList", path, b);
 }
 
 
@@ -216,6 +219,24 @@ void GuiSkin::drawCheckable
 }
 
 
+void GuiSkin::renderDropDownList
+(
+ const Rect2D&        bounds,
+ bool                 enabled,
+ bool                 focused,
+ bool                 down,
+ const GuiCaption&    contentText,
+ const GuiCaption&    text) const {
+
+    // TODO: Offset by left_caption_width
+
+    m_dropDownList.render(rd, bounds, enabled, focused, down);
+
+    // Display cropped text
+
+    // Add delayed caption text
+}
+
 void GuiSkin::renderTextBox
     (const Rect2D&      fullBounds, 
      bool               enabled, 
@@ -241,7 +262,8 @@ void GuiSkin::renderTextBox
     const Color4& outlineColor = text.outlineColor(m_textBox.contentStyle.outlineColor);
 
     // Area in which text appears
-    Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_textBox.padTopLeft, bounds.wh() - (m_textBox.padBottomRight + m_textBox.padTopLeft));
+    Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_textBox.textPad.topLeft, 
+                                     bounds.wh() - (m_textBox.textPad.bottomRight + m_textBox.textPad.topLeft));
 
     Vector2 beforeBounds = font->bounds(beforeCursor, size);
 
@@ -644,6 +666,11 @@ GuiSkin::StretchMode GuiSkin::readStretchMode(TextInput& t) {
 Rect2D GuiSkin::paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const {
     return Rect2D::xywh(bounds.x0y0() + m_pane[paneStyle].clientPad.topLeft,
                         bounds.wh() - m_pane[paneStyle].clientPad.wh());
+}
+
+Rect2D GuiSkin::clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) const {
+    return Rect2D::xywh(bounds.x0y0() - m_pane[paneStyle].clientPad.topLeft,
+                        bounds.wh() + m_pane[paneStyle].clientPad.wh());
 }
 
 
@@ -1155,13 +1182,10 @@ void GuiSkin::TextBox::deserialize(const std::string& name, const std::string& p
 
     textStyle.deserialize(path, "font", b);
     contentStyle = textStyle;
-    contentStyle.deserialize(path, "font", b);
+    contentStyle.deserialize(path, "contentFont", b);
 
     base.deserialize("base", b);
-    b.readSymbols("textPad", "=", "{");
-    padTopLeft = readVector2("topLeft", b);
-    padBottomRight = readVector2("bottomRight", b);
-    b.readSymbol("}");
+    textPad.deserialize("textPad", b);
     enabled.deserialize("enabled", b);
     disabled = readVector2("disabled", b);
     b.readSymbol("}");
@@ -1191,6 +1215,57 @@ void GuiSkin::TextBox::render(RenderDevice* rd, const Rect2D& bounds, bool _enab
 
     base.render(rd, bounds, *r);
 }
+
+///////////////////////////////////////////////////////
+
+void GuiSkin::DropDownList::render(RenderDevice* rd, const Rect2D& bounds, bool _enabled, bool _focused, bool _down) const {
+    const Vector2* r = NULL;
+
+    if (_enabled) {
+        if (_focused) {
+            if (_down) {
+                r = &enabled.focused.down;
+            } else {
+                r = &enabled.focused.up;
+            }
+        } else {
+            r = &enabled.defocused;
+        }
+    } else {
+        r = &disabled;
+    }
+
+    base.render(rd, bounds, *r);
+}
+
+
+void GuiSkin::DropDownList::deserialize(const std::string& name, const std::string& path, TextInput& b) {
+    b.readSymbols(name, "=", "{");
+
+    textStyle.deserialize(path, "font", b);
+
+    base.deserialize("base", b);
+    textPad.deserialize("textPad", b);
+
+    enabled.deserialize("enabled", b);
+    disabled = readVector2("disabled", b);
+    b.readSymbol("}");
+}
+
+void GuiSkin::DropDownList::Focus::deserialize(const std::string& name, TextInput& b) {
+    b.readSymbols(name, "=", "{");
+    focused.deserialize("focused", b);
+    defocused = readVector2("defocused", b);
+    b.readSymbol("}");
+}
+
+void GuiSkin::DropDownList::Pair::deserialize(const std::string& name, TextInput& b) {
+    b.readSymbols(name, "=", "{");
+    down = readVector2("down", b);
+    up = readVector2("up", b);
+    b.readSymbol("}");
+}
+
 
 ///////////////////////////////////////////////////////
 

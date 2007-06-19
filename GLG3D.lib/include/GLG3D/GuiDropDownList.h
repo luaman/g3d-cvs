@@ -33,6 +33,9 @@ protected:
     Pointer<int>                    m_indexValue;
     Array<std::string>&             m_listValue;
 
+    /** True when the menu is open */
+    bool                            m_selecting;
+
     /** Called by GuiPane */
     GuiDropDownList
        (GuiWindow*                  gui, 
