@@ -409,7 +409,14 @@ void Map::loadEntities(BinaryInput&	bi,const BSPLump& lump){
 				} else {
 					startingPosition = Vector3::zero();
 				}
+			} else if(strstr(currEntity.name.c_str(), "info_player_start") ) {
+				if (currEntity.position != Vector3::inf()) {
+					startingPosition = currEntity.position;
+                } else {
+					startingPosition = Vector3::zero();
+                }
 			}
+
 			entityArray.append(currEntity);
 		}
 	}
