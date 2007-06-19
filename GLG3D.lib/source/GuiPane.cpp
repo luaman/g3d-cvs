@@ -32,7 +32,7 @@ Vector2 GuiPane::contentsExtent() const {
     }
 
     for (int i = 0; i < labelArray.size(); ++i) {
-        p = p.max(paneArray[i]->rect().x1y1());
+        p = p.max(labelArray[i]->rect().x1y1());
     }
 
     return p;

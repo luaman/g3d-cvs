@@ -123,30 +123,18 @@ since 2000.  He is a professor of computer science at Williams College and
 PhD in computer graphics from Brown University.  Morgan has been a senior architect at several 
 companies in the graphics industry, worked on several commercial games including IronLore's <I>Titan Quest</I>, 
 and published award-winning research papers.
-
-<B>Corey Taylor</B> is the %G3D Linux team lead.  
-His past professional software 
-experience covers both Windows, Linux and RTOS fields developing flight control
-and planning software, video and input control systems, and embedded development
-and testing.  He is currently developing 3D games at Electronic Arts.
   
-<B>Casey O'Donnell</B> is the %G3D OS X team lead. Casey has been a Mac user since 1986 when his mom first brought
+<B>Dr. Casey O'Donnell</B> is the %G3D OS X team lead. Casey has been a Mac user since 1986 when his mom first brought
 home a mac, and a code geek since 1994. A brief tryst with AutoDesk and the development of a cross-platform 3D
 sound system required him to convert to windows for a time, but that has been solved by going back into the academy.
-Casey is a PhD student at Rensselaer Polytechnic Institute (RPI) in upstate (Troy) New York state. His current work
+Casey is a post-doctoral student at Rensselaer Polytechnic Institute (RPI) in upstate (Troy) New York state. His current work
 looks at the politics and economics of the video game industry, and in particular the console game industry. Though
 his methods are largely anthropological, he still spends a significant amount of his time playing with code.
 Casey's undergraduate degree was from Drake University in Des Moines, Iowa, where he recieved was a computer science
 and mathematics major (and a sociology minor and women's studies concentration).
 
-<B>Gabe Taubman</B> and <B>Benjamin Landon</B> provide additional OS X support.  Gabe has been a Mac user since 1998
-and took first prize in the 2004 undergraduate ACM SIGGRAPH Student Research Competition 
-with his %G3D-based blast wave simulator.  He is currently a junior at Brown University.
-Ben is a senior engineer at Sensable Technologies and has 20 years of experience in 
-software development and scientific research.  
-
 %G3D is supported by donations from users (http://sourceforge.net/project/project_donations.php?group_id=76879),
-and by hardware and technical support from NVIDIA Corporation and ATI. 
+and by hardware, software, and technical support from Autodesk, NVIDIA, and AMD. 
 
 
 @section otherlibs Working With Other Libraries

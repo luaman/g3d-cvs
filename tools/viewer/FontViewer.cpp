@@ -24,19 +24,18 @@ void FontViewer::onInit(const std::string& filename) {
 
 	m_fontfilename = filename;
 	m_font = GFont::fromFile( m_fontfilename );
-
-	// Arial Black Randomly Chosen
-	// m_basefont = GFont::fromFile( "X:/morgan/data/font/arialblack-small.fnt");
 }
 
 
 void FontViewer::onGraphics(RenderDevice* rd, App* app) {
+    app->colorClear = Color3::white();
 
 rd->push2D();
 
 	Rect2D windowBounds = rd->viewport();
 
 	rd->setLineWidth(0.5f);
+    rd->setColor(Color3::black());
 	rd->setObjectToWorldMatrix(Vector3(0.375, 0.375, 0));
 	rd->beginPrimitive(RenderDevice::LINES);
 	
@@ -56,7 +55,7 @@ rd->push2D();
 
 	const Vector2 pos2D		= Vector2( 50.0, 50.0 );
 	double  size			= windowBounds.height()/16.0 /2.0 ;
-	const Color4  color		= Color3::white();
+	const Color4  color		= Color3::black();
 	const Color4 outline	= Color4::clear();
 	for ( int y = 0; y < 16; ++y ) {
 		for ( int x = 0; x < 16; ++x ) {

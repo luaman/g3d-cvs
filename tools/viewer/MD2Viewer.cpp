@@ -94,7 +94,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 
 
 void MD2Viewer::onGraphics(RenderDevice* rd, App* app) {
-
+    app->colorClear = Color3::white();
 	app->debugPrintf("Edges: %d", numEdges);
 	app->debugPrintf("Faces: %d", numFaces);
 	app->debugPrintf("Vertices: %d", numVertices);
