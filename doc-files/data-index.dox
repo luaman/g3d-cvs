@@ -17,11 +17,26 @@ Load with \link G3D::GFont GFont\endlink.
 </blockquote>
 \endhtmlonly
 
-@section sky Skies and Environment Maps 
+@section sky Skies and Environment Maps
 Load with \link G3D::Sky Sky\endlink and \link G3D::Texture Texture\endlink.
 
 @section gui GUI Skins 
 Load with \link G3D::GuiSkin GuiSkin\endlink.
+
+\htmlonly
+<blockquote>
+<table border=0 width=70%>
+<tr>
+<td>
+<center><a href="gui/osx.jpg"><img src="gui/osx-icon.png" border=0></a>
+<br>osx.skn</center>
+</td>
+<td>
+</td>
+</tr>
+</table>
+</blockquote>
+\endhtmlonly
 
 @section ifs IFS Models
 Load with \link G3D::IFSModel IFSModel\endlink and \link G3D::ArticulatedModel ArticulatedModel\endlink.
@@ -37,7 +52,8 @@ Load with \link G3D::MD2Model MD2Model\endlink.
 <table border=0 width=70%>
 <tr>
 <td>
-<a href="md2/pknight.jpg"><img src="md2/pknight-icon.png" border=0></a>
+<center><a href="md2/pknight.jpg"><img src="md2/pknight-icon.png" border=0></a>
+<br>pknight</center>
 </td>
 <td>
 </td>
