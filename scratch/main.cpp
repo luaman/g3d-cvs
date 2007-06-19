@@ -132,7 +132,7 @@ void App::onInit() {
     static int choice = 1;
     files.append("Curvy", "Fly-By", "Hover");
     pane->addDropDownList("Path", &choice, &files);
-    
+
     addWidget(gui);
 }
 

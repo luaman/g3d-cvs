@@ -221,29 +221,55 @@ void GuiSkin::drawCheckable
 
 void GuiSkin::renderDropDownList
 (
- const Rect2D&        bounds,
+ const Rect2D&        initialBounds,
  bool                 enabled,
  bool                 focused,
  bool                 down,
  const GuiCaption&    contentText,
  const GuiCaption&    text) const {
 
-    // TODO: Offset by left_caption_width
-
     // Dropdown list has a fixed height
+    // Offset by left_caption_width
     float h = m_dropDownList.base.left.height();
-    Rect2D adjustedBounds = 
-        Rect2D::xywh(bounds.x0(),
-                     bounds.center().y - h / 2,
-                     bounds.width(),
+    const Rect2D& bounds = 
+        Rect2D::xywh(initialBounds.x0() + LEFT_CAPTION_WIDTH,
+                     initialBounds.center().y - h / 2,
+                     initialBounds.width() - LEFT_CAPTION_WIDTH,
                      h);
 
-    m_dropDownList.render(rd, adjustedBounds, enabled, focused, down);
+    m_dropDownList.render(rd, bounds, enabled, focused, down);
+
+    // Area in which text appears
+    Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_dropDownList.textPad.topLeft, 
+                                     bounds.wh() - (m_dropDownList.textPad.bottomRight + m_dropDownList.textPad.topLeft));
 
     // Display cropped text
+    // Draw inside the client area
+    const_cast<GuiSkin*>(this)->pushClientRect(clientArea);
+    {
+        float size = text.size(m_dropDownList.textStyle.size);
+        const GFont::Ref& font = contentText.font(m_dropDownList.textStyle.font);
+        const Color4& color = contentText.color(m_dropDownList.textStyle.color);
+        const Color4& outlineColor = contentText.outlineColor(m_dropDownList.textStyle.outlineColor);
+        
+        // Draw main text
+        addDelayedText(font, contentText.text(), Vector2(0, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
+    }
+    const_cast<GuiSkin*>(this)->popClientRect();
 
     // Add delayed caption text
+    if (text.text() != "") {
+        addDelayedText(
+            text.font(m_dropDownList.textStyle.font),
+            text.text(), 
+            Vector2(initialBounds.x0(), (initialBounds.y0() + initialBounds.y1()) * 0.5f), 
+            text.size(m_dropDownList.textStyle.size), 
+            text.color(m_dropDownList.textStyle.color), 
+            text.outlineColor(m_dropDownList.textStyle.outlineColor),
+            GFont::XALIGN_LEFT);
+    }
 }
+
 
 void GuiSkin::renderTextBox
     (const Rect2D&      fullBounds, 
@@ -281,19 +307,19 @@ void GuiSkin::renderTextBox
     // Draw inside the client area
     const_cast<GuiSkin*>(this)->pushClientRect(clientArea);
 
-        // Draw main text
-        addDelayedText(font, text.text(), Vector2(textOffset, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
-
-        // Draw cursor
-        if (focused) {
-            addDelayedText(cursor.font(m_textBox.contentStyle.font), cursor.text(), 
-                Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, 
-                cursor.color(m_textBox.contentStyle.color), 
-                cursor.outlineColor(m_textBox.contentStyle.outlineColor), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
-        }
-
+    // Draw main text
+    addDelayedText(font, text.text(), Vector2(textOffset, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
+    
+    // Draw cursor
+    if (focused) {
+        addDelayedText(cursor.font(m_textBox.contentStyle.font), cursor.text(), 
+                       Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, 
+                       cursor.color(m_textBox.contentStyle.color), 
+                       cursor.outlineColor(m_textBox.contentStyle.outlineColor), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+    }
+    
     const_cast<GuiSkin*>(this)->popClientRect();
-
+    
     if (caption.text() != "") {
         addDelayedText(
             caption.font(m_textBox.textStyle.font),

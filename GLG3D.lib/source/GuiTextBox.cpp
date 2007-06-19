@@ -39,7 +39,7 @@ void GuiTextBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         if (m_editing) {
             if (! focused()) {
                 // Just lost focus
-                if (m_update == DELAYED_UPDATE) {
+                if ((m_update == DELAYED_UPDATE) && (m_oldValue != m_userValue)) {
                     *me->m_value = me->m_oldValue = m_userValue;
                     GEvent response;
                     response.gui.type = GEventType::GUI_ACTION;
