@@ -2,7 +2,7 @@
  @file GLG3D/GuiDropDownList.h
 
  @created 2007-06-15
- @edited  2007-06-15
+ @edited  2007-06-19
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -50,6 +50,8 @@ protected:
     virtual bool onEvent(const GEvent& event);
 
 public:
+
+    virtual void setRect(const Rect2D&);
     
 };
 

@@ -95,19 +95,24 @@ void App::onInit() {
     GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn", arialFont);
 
     GuiWindow::Ref gui = GuiWindow::create
-        (GuiCaption("Camera Spline", NULL, 9),
+        (GuiCaption("Camera Control", NULL, 9),
          skin,
-         Rect2D::xywh(600,200,0,0),//Rect2D::xywh(600, 200, 150, 120),
+         Rect2D::xywh(600,200,0,0),
          GuiWindow::TOOL_FRAME_STYLE,
          GuiWindow::HIDE_ON_CLOSE);
 
     GuiPane* pane = gui->pane();
 
-    pane->addLabel("Record");
- 
-    //    gui->addCheckBox("Controller active", defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
-    static bool active = true;
-    pane->addCheckBox("Controller active", &active);//defaultController.pointer(), &FirstPersonManipulator::active, &FirstPersonManipulator::setActive);
+    static int cmode = 0;
+    pane->addRadioButton("Program", 0, &cmode);
+    pane->addRadioButton("User", 1, &cmode);
+    pane->addRadioButton("Follow Track", 2, &cmode);
+
+    static Array<std::string> files;
+    static int choice = 1;
+    files.append("Curvy", "Fly-By", "Hover");
+    GuiControl* list = pane->addDropDownList("", &choice, &files);
+    list->setRect(list->rect() - Vector2(60, 0));
 
     const std::string STOP = "<";
     const std::string PLAY = "4";
@@ -118,7 +123,7 @@ void App::onInit() {
 
     GuiRadioButton* b;
     b = pane->addRadioButton(GuiCaption(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
-    Rect2D baseRect = Rect2D::xywh(b->rect().x0(), b->rect().y0(), 30, 30);
+    Rect2D baseRect = Rect2D::xywh(b->rect().x0() + 30, b->rect().y0(), 30, 30);
     b->setRect(baseRect + Vector2(baseRect.width() * 0, 0));
 
     b = pane->addRadioButton(GuiCaption(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
@@ -127,11 +132,12 @@ void App::onInit() {
     b = pane->addRadioButton(GuiCaption(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     b->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
 
+    static bool show = false;
+    GuiControl* last = pane->addCheckBox("Visible", &show);
+    last->setRect(last->rect() + Vector2(30, 0));
 
-    static Array<std::string> files;
-    static int choice = 1;
-    files.append("Curvy", "Fly-By", "Hover");
-    pane->addDropDownList("Path", &choice, &files);
+    gui->pack();
+    gui->setRect(Rect2D::xywh(gui->rect().x0y0(), Vector2(130, 165)));
 
     addWidget(gui);
 }

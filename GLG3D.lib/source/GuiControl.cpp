@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-01
- @edited  2007-06-10
+ @edited  2007-06-19
  */
 
 #include "G3D/platform.h"
@@ -51,7 +51,7 @@ const Rect2D& GuiControl::rect() const {
 }
 
 void GuiControl::setRect(const Rect2D& rect) {
-    m_rect = rect;
+    m_clickRect = m_rect = rect;
 }
 
 GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent) : m_enabled(true), m_gui(gui), m_parent(parent), m_visible(true) {}

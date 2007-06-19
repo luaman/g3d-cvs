@@ -34,8 +34,13 @@ protected:
     /** Parent pane */
     GuiPane*          m_parent;
 
-    /** Relative to the enclosing pane's clientRect */
+    /** Rect bounds used for rendering and layout.
+        Relative to the enclosing pane's clientRect. */
     Rect2D            m_rect;
+
+    /** Rect bounds used for mouse actions.  Updated by setRect.*/
+    Rect2D            m_clickRect;
+
     GuiCaption        m_caption;
     bool              m_visible;
 

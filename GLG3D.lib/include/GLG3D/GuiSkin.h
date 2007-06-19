@@ -584,6 +584,11 @@ public:
                       bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
                       const GuiCaption& text, WindowStyle frameStyle) const;
 
+    /** Given the bounds of a full dropDownList and caption, returns
+        the bounds around just the control itself. */
+    Rect2D dropDownListToClickBounds(const Rect2D& bounds) const;
+    Rect2D textBoxToClickBounds(const Rect2D& bounds) const;
+
     /** Given the bounds on a window's borders, returns the bounds of
      the area inside the window where controls will appear.*/
     Rect2D windowToClientBounds(const Rect2D& bounds, WindowStyle frameStyle) const;

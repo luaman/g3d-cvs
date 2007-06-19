@@ -86,7 +86,8 @@ protected:
     void processRepeatKeysym();
 
 public:
-    
+
+    virtual void setRect(const Rect2D&);    
 };
 
 } // G3D

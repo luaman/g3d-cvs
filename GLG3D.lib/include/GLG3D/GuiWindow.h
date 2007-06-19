@@ -78,6 +78,8 @@ class GuiWindow : public Widget {
     friend class GuiRadioButton;
     friend class _GuiSliderBase;
     friend class GuiPane;
+    friend class GuiTextBox;
+    friend class GuiDropDownList;
 
 private:
     enum {CONTROL_WIDTH = 180};
@@ -235,6 +237,14 @@ public:
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {}
 
     virtual void onUserInput(UserInput *ui);
+
+    /** 
+        Resize the pane so that all of its controls are visible and so that there is
+        no wasted space, then resize the window around the pane.
+
+        @sa G3D::GuiPane::pack
+     */
+    void pack();
 
 };
 

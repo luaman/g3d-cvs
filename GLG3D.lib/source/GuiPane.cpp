@@ -16,8 +16,31 @@
 namespace G3D {
 
 GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
-    : GuiControl(gui, parent, text), m_style(style), nextGuiControlPos(0,0) {
+    : GuiControl(gui, parent, text), m_style(style) {
     setRect(rect);
+}
+
+
+Vector2 GuiPane::contentsExtent() const {
+    Vector2 p;
+    for (int i = 0; i < controlArray.size(); ++i) {
+        p = p.max(controlArray[i]->rect().x1y1());
+    }
+
+    for (int i = 0; i < paneArray.size(); ++i) {
+        p = p.max(paneArray[i]->rect().x1y1());
+    }
+
+    for (int i = 0; i < labelArray.size(); ++i) {
+        p = p.max(paneArray[i]->rect().x1y1());
+    }
+
+    return p;
+}
+
+
+Vector2 GuiPane::nextControlPos() const {
+    return Vector2(0, contentsExtent().y);
 }
 
 
@@ -36,6 +59,11 @@ void GuiPane::increaseBounds(const Vector2& extent) {
             m_gui->increaseBounds(m_rect.x1y1());
         }
     }
+}
+
+
+void GuiPane::pack() {
+    increaseBounds(contentsExtent());
 }
 
 
@@ -80,8 +108,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 
 GuiButton* GuiPane::addButton(const GuiCaption& text) {
     GuiButton* b = new GuiButton(m_gui, this, text);
-    b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(80, CONTROL_HEIGHT)));
-    nextGuiControlPos.y += b->rect().height();
+    b->setRect(Rect2D::xywh(nextControlPos(), Vector2(80, CONTROL_HEIGHT)));
     
     controlArray.append(b);
 
@@ -91,8 +118,7 @@ GuiButton* GuiPane::addButton(const GuiCaption& text) {
 
 GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) {
     GuiLabel* b = new GuiLabel(m_gui, this, text, x, y);
-    b->setRect(Rect2D::xywh(nextGuiControlPos, Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-    nextGuiControlPos.y += b->rect().height();
+    b->setRect(Rect2D::xywh(nextControlPos(), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
     
     labelArray.append(b);
 
@@ -104,10 +130,10 @@ GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style)
     // Make the pane at least as tall as it needs to be for its border
     h = max(h, m_gui->skin->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style)).height());
 
-    Rect2D newRect = Rect2D::xywh(nextGuiControlPos, Vector2(m_clientRect.width() - 4 - nextGuiControlPos.x * 2, h));
+    Vector2 pos = nextControlPos();
+    Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, h));
 
     GuiPane* p = new GuiPane(m_gui, this, text, newRect, style);
-    nextGuiControlPos.y += p->rect().height();
 
     paneArray.append(p);
     increaseBounds(p->rect().x1y1());
@@ -130,7 +156,7 @@ void GuiPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
     }
 
     for (int i = 0; i < controlArray.size(); ++i) {
-        if (controlArray[i]->m_rect.contains(mouse) && controlArray[i]->visible() && controlArray[i]->enabled()) {
+        if (controlArray[i]->m_clickRect.contains(mouse) && controlArray[i]->visible() && controlArray[i]->enabled()) {
             control = controlArray[i];
             break;
         }

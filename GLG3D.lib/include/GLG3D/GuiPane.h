@@ -63,9 +63,6 @@ protected:
 
     Style               m_style;
 
-    /** Position to place the next control at. */
-    Vector2             nextGuiControlPos;
-
     Array<GuiControl*>  controlArray;
     /** Sub panes */
     Array<GuiPane*>     paneArray;
@@ -92,17 +89,21 @@ protected:
      */
     void increaseBounds(const Vector2& extent);
 
+    /** Finds the next vertical position for a control relative to the client rect. */
+    Vector2 nextControlPos() const;
+
     template<class T>
     T* addControl(T* c) {
-        c->setRect(Rect2D::xywh(nextGuiControlPos, 
-                                Vector2(max(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
-        nextGuiControlPos.y += c->rect().height();
+        Vector2 p = nextControlPos();
+        c->setRect(Rect2D::xywh(p, Vector2(max(m_clientRect.width() - p.x, (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
 
         increaseBounds(c->rect().x1y1());
 
         controlArray.append(c);
         return c;
     }
+
+    Vector2 contentsExtent() const;
 
 public:
 
@@ -244,6 +245,14 @@ public:
      Removes this control from the GuiPane.
      */
     void remove(GuiControl* gui);
+
+    /** 
+        Resize this pane so that all of its controls are visible and so that there is
+        no wasted space.
+
+        @sa G3D::GuiWindow::pack
+     */
+    void pack();
 };
 
 }

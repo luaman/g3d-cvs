@@ -285,6 +285,12 @@ void GuiWindow::close() {
 }
 
 
+void GuiWindow::pack() {
+    m_rootPane->pack();
+    increaseBounds(m_rootPane->rect().wh());
+}
+
+
 void GuiWindow::render(RenderDevice* rd) {
     // Offset by the window bounds 
     

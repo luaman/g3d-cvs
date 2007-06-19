@@ -230,12 +230,7 @@ void GuiSkin::renderDropDownList
 
     // Dropdown list has a fixed height
     // Offset by left_caption_width
-    float h = m_dropDownList.base.left.height();
-    const Rect2D& bounds = 
-        Rect2D::xywh(initialBounds.x0() + LEFT_CAPTION_WIDTH,
-                     initialBounds.center().y - h / 2,
-                     initialBounds.width() - LEFT_CAPTION_WIDTH,
-                     h);
+    const Rect2D& bounds = dropDownListToClickBounds(initialBounds);
 
     m_dropDownList.render(rd, bounds, enabled, focused, down);
 
@@ -280,11 +275,7 @@ void GuiSkin::renderTextBox
      const GuiCaption&  cursor, 
      int                cursorPosition) const {
 
-    const Rect2D& bounds
-        (Rect2D::xyxy(fullBounds.x0() + LEFT_CAPTION_WIDTH, 
-                      fullBounds.y0(), 
-                      fullBounds.x1(), 
-                      fullBounds.y1()));
+    const Rect2D& bounds = textBoxToClickBounds(fullBounds);
 
     m_textBox.render(rd, bounds, enabled, focused);
 
@@ -457,6 +448,23 @@ Rect2D GuiSkin::windowToClientBounds(const Rect2D& bounds, WindowStyle windowSty
 Rect2D GuiSkin::clientToWindowBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
     return Rect2D::xywh(bounds.x0y0() - m_window[windowStyle].clientPad.topLeft, 
                         bounds.wh() + m_window[windowStyle].clientPad.wh());
+}
+
+
+Rect2D GuiSkin::textBoxToClickBounds(const Rect2D& bounds) const {
+    return Rect2D::xyxy(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.x1(), bounds.y1());
+}
+
+
+Rect2D GuiSkin::dropDownListToClickBounds(const Rect2D& bounds) const {
+    // Note: if you change these bounds to not be the same as the
+    // rendering bounds for the control itself then update
+    // renderDropDownList to not call dropDownListToClickBounds.
+    float h = m_dropDownList.base.left.height();
+    return Rect2D::xywh(bounds.x0() + LEFT_CAPTION_WIDTH,
+                        bounds.center().y - h / 2,
+                        bounds.width() - LEFT_CAPTION_WIDTH,
+                        h);
 }
 
 
