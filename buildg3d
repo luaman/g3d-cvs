@@ -260,8 +260,34 @@ def data(args):
 
     return 0
 
+def installWin32(args):
+    if (len(args) > 0):
+        dest = args[0]
+    else:
+        dest = 'c:\\libraries'
+    
+    if not dest.endswith('/') and not dest.endswith('\\'):
+        dest = dest + '\\'
+
+    dest = dest + 'G3D-' + Version().toString() + '\\'
+    
+    print 'Installing G3D to ' + dest
+    
+    copyIfNewer('build/html', dest + 'html')
+    copyIfNewer('build/demos', dest + 'demos')
+    copyIfNewer('build/data', dest + 'data')
+    copyIfNewer('build/html', dest + 'html')
+    copyIfNewer('build/win-i386-vc8.0', dest)
+    
+
 def install(args):
-    return all(args)
+    x = all(args)
+    
+    if (x == 0):
+        if os.name == 'nt':
+            x = installWin32(args)
+    
+    return x
 
 def lib(args):
     return ilib(args)
@@ -335,9 +361,12 @@ install    Build all and then copy the files to the install dir.  The
            
            puts the include files in /usr/local/include/, the binaries
            in /usr/local/lib, tools in /usr/local/bin, and documentation 
-           and data in /usr/local/G3D-""" + Version().toString() + """
+           and data in /usr/local/G3D-""" + Version().toString() + """.  On Win32, the command:
            
-
+                buildg3d install c:\\libraries
+               
+           puts the entire build tree in c:\\libraries\\G3D-""" + Version().toString() + """.
+           
 all        Run lib, test, bin, tools, and doc targets
 
 tools      Build gfxmeter and viewer applications
@@ -348,7 +377,7 @@ lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            will also build those libraries.
 
 data       Copy data-files to build/data and the bin 
-           directory to """ + distribDir + """/bin
+           directory to build/<platform>/bin
 
 test       Build test and testd and then run both
 
