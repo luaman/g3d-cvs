@@ -107,11 +107,11 @@ void UserInput::processEvent(const GEvent& event) {
         break;
         
     case GEventType::MOUSE_BUTTON_DOWN:
-        processKey((GKey)(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEY_DOWN);
+        processKey((GKey)(GKey::LEFT_MOUSE + event.button.button), GEventType::KEY_DOWN);
         break;
         
     case GEventType::MOUSE_BUTTON_UP:
-        processKey(GKey(GKey::LEFT_MOUSE + (event.button.button - 1)), GEventType::KEY_UP);
+        processKey(GKey(GKey::LEFT_MOUSE + event.button.button), GEventType::KEY_UP);
         break;
     }
 }
