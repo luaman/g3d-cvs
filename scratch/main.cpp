@@ -10,6 +10,8 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "CameraSplineManipulator.h"
+#include "CameraControl.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -21,6 +23,9 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
+    Vector2 lastMouse;
+    CameraSplineManipulator::Ref splineManipulator;
+
     App(const GApp2::Settings& settings = GApp2::Settings());
 
     virtual void onInit();
@@ -29,12 +34,35 @@ public:
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onGraphics(RenderDevice* rd);
     virtual void onUserInput(UserInput* ui);
-    virtual void onCleanup();
     virtual void onConsoleCommand(const std::string& cmd);
     void printConsoleHelp();
 };
 
 App::App(const GApp2::Settings& settings) : GApp2(settings) {}
+
+class Person {
+private:
+    bool    myFriend;
+
+public:
+    enum Gender {MALE, FEMALE};
+
+    Gender  gender;        
+    float   height;
+    bool    likesCats;
+    std::string name;
+
+    void setIsMyFriend(bool f) {
+        myFriend = f;
+    }
+
+    bool getIsMyFriend() const {
+        return myFriend;
+    }
+    
+};
+
+Person player;
 
 void App::onInit() {
     // Called before the application loop beings.  Load data here
@@ -49,14 +77,16 @@ void App::onInit() {
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
 
-    defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
-
     toneMap->setEnabled(false);
-}
+    
+    splineManipulator = CameraSplineManipulator::create(&defaultCamera);
+    addWidget(splineManipulator);
+    
+    GFontRef arialFont = GFont::fromFile(System::findDataFile("arial.fnt"));
+    GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
 
-void App::onCleanup() {
-    // Called after the application loop ends.  Place a majority of cleanup code
-    // here instead of in the constructor so that exceptions can be caught
+    GuiWindow::Ref gui = CameraControlWindow::create(skin);
+    addWidget(gui);
 }
 
 void App::onLogic() {
@@ -73,7 +103,28 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 void App::onUserInput(UserInput* ui) {
-    // Add key handling here	
+    // Add key handling here
+    debugPrintf("Mode = %d", splineManipulator->mode());
+
+    if (ui->keyPressed(GKey::F1)) {
+        setCameraManipulator(defaultController);
+        defaultController->setActive(true);
+        splineManipulator->setMode(CameraSplineManipulator::RECORD_KEY_MODE);
+        splineManipulator->clear();
+    }
+
+    if (ui->keyPressed(GKey::F2)) {
+        defaultController->setActive(false);
+        setCameraManipulator(splineManipulator);
+        splineManipulator->setMode(CameraSplineManipulator::PLAY_MODE);
+        splineManipulator->setTime(0);
+    } 
+
+    if (ui->keyPressed(GKey::F3)) {
+        setCameraManipulator(defaultController);
+        splineManipulator->setMode(CameraSplineManipulator::INACTIVE_MODE);
+        defaultController->setActive(true);
+    } 
 }
 
 void App::onConsoleCommand(const std::string& str) {
@@ -135,5 +186,7 @@ void App::onGraphics(RenderDevice* rd) {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    return App().run();
+    GApp2::Settings s;
+    s.window.resizable = true;
+    return App(s).run();
 }

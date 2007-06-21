@@ -26,6 +26,7 @@
 #include "G3D/G3DGameUnits.h"
 #include "G3D/Crypto.h"
 #include "G3D/prompt.h"
+#include "G3D/Log.h"
 
 #ifdef G3D_WIN32
 
@@ -75,6 +76,68 @@ uint32 crc32(const void* byte, size_t numBytes) {
     return Crypto::crc32(byte, numBytes);
 }
 
+std::string System::findDataFile(const std::string& full, bool errorIfNotFound) {
+    if (fileExists(full)) {
+        return full;
+    }
+
+    std::string name = filenameBaseExt(full);
+    std::string originalPath = filenamePath(full);
+
+    // Search several paths
+    Array<std::string> path;
+
+    int backlen = 4;
+
+    path.append("");
+    std::string prev = "";
+    for (int i = 0; i < backlen; ++i) {
+        path.append(originalPath + prev);
+        path.append(originalPath + prev + "data-files/");
+        path.append(originalPath + prev + "data-files/font/");
+        path.append(originalPath + prev + "data-files/sky/");
+        path.append(originalPath + prev + "data-files/gui/");
+        path.append(originalPath + prev + "data/");
+        path.append(originalPath + prev + "data/font/");
+        path.append(originalPath + prev + "data/sky/");
+        path.append(originalPath + prev + "data/gui/");
+        prev = prev + "../";        
+    }
+
+    prev = "../";
+    for (int i = 0; i < backlen; ++i) {
+        path.append(prev);
+        path.append(prev + "data-files/");
+        path.append(prev + "data-files/font/");
+        path.append(prev + "data-files/sky/");
+        path.append(prev + "data-files/gui/");
+        path.append(prev + "data/");
+        path.append(prev + "data/font/");
+        path.append(prev + "data/sky/");
+        path.append(prev + "data/gui/");
+        prev = prev + "../";        
+    }
+
+    std::string data = demoFindData(false);
+    path.append(data);
+    path.append(data + "font/");
+    path.append(data + "gui/");
+    path.append(data + "sky/");
+
+    for (int i = 0; i < path.length(); ++i) {
+        std::string filename = path[i] + name;
+        if (fileExists(filename)) {
+            logPrintf("\nWARNING: Could not find '%s' so '%s' was loaded instead.\n\n", full.c_str(), filename.c_str());
+            return filename;
+        }
+    }
+
+    if (errorIfNotFound) {
+        alwaysAssertM(false, "Could not find " + full);
+    }
+    // Not found
+    return "";
+}
 
 std::string demoFindData(bool errorIfNotFound) {
 
@@ -91,7 +154,7 @@ std::string demoFindData(bool errorIfNotFound) {
     
     // Hard-code in likely install directories
     int ver = G3D_VER;
-    std::string lname = format("g3d-%d.%02d", ver / 10000, (ver / 100) % 100);
+    std::string lname = format("G3D-%d.%02d", ver / 10000, (ver / 100) % 100);
 
     if (G3D_VER % 10 != 0) {
         lname = lname + format("-b%02d/", ver % 100);

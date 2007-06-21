@@ -1336,25 +1336,20 @@ void GuiSkin::TextStyle::deserialize(const std::string& path, const std::string&
 
                 // Try to load the font
                 std::string fontFilename = t.readString();
-                Array<std::string> fontPaths;
-                fontPaths.append(path);
-                fontPaths.append("");
-                fontPaths.append("../");
-                fontPaths.append(path + "../font/");
-                fontPaths.append(demoFindData(false) + "font/");
 
-                for (int i = 0; i < fontPaths.size(); ++i) {
-                    std::string s = fontPaths[i] + fontFilename;
-                    if (fileExists(s)) {
-                        font = GFont::fromFile(s);
-                        break;
-                    }
-                }
-
-                if (font.isNull()) {
-                    Log::common()->printf("GuiSkin Warning: could not find font %s, looked in: \n", fontFilename.c_str());
-                    for (int i = 0; i < fontPaths.size(); ++i) {
-                        Log::common()->printf("  %s\n", fontPaths[i].c_str());
+                if (fileExists(fontFilename)) {
+                    font = GFont::fromFile(fontFilename);
+                } else {
+                    std::string x = System::findDataFile(fontFilename);
+                    if (x != "") {
+                        font = GFont::fromFile(x);
+                    } else {
+                        std::string x = System::findDataFile(path + filenameBaseExt(fontFilename));
+                        if (x != "") {
+                            font = GFont::fromFile(x);
+                        } else {
+                            Log::common()->printf("GuiSkin Warning: could not find font %s\n", fontFilename.c_str());
+                        }
                     }
                 }
 

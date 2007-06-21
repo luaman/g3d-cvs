@@ -17,6 +17,7 @@
      <li> Removed "G3D::" from the printed portion of the documentation index to make it easier to read.
      <li> GWindow::fireEvent for inserting user events into the queue
      <li> G3D::logPrintf
+     <li> System::findDataFile
      <li> System::getClipboardText, System::setClipboardText
      <li> Replaced SDLEvent with G3D::GEvent
      <li> Increased GFont rendering performance, added GFont::send2DQuads for fast rendering of large amounts of text

@@ -17,23 +17,27 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/WeakCache.h"
+#include "G3D/Log.h"
 
 namespace G3D {
 
 /** */
 static WeakCache<std::string, GFontRef> fontCache;
 
+
 GFontRef GFont::fromFile(const std::string& filename) {
+
     if (! fileExists(filename)) {
         debugAssertM(false, format("Could not load font: %s", filename.c_str()));
         return NULL;
     }
 
-    GFontRef font = fontCache[filename];
+    std::string key = filenameBaseExt(filename);
+    GFontRef font = fontCache[key];
     if (font.isNull()) {
         BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
         font = new GFont(filename, b);
-        fontCache.set(filename, font);
+        fontCache.set(key, font);
     }
 
     return font;

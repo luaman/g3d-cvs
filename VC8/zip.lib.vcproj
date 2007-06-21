@@ -41,6 +41,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;;&quot;$(SolutionDir)..\$(ProjectName)\include\zip&quot;;&quot;$(SolutionDir)..\zlib.lib\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"

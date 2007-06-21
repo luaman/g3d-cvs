@@ -287,6 +287,13 @@ public:
     /** Copies the text to the clipboard on Win32. */
     static void setClipboardText(const std::string& s);
 
+    /**
+     Tries to locate the resource by looking in related directories.
+     If found, returns the full path to the resource, otherwise
+     returns the empty string.
+     */    
+    static std::string findDataFile(const std::string& full, bool errorIfNotFound = true);
+
 private:
     /**
 	 (CKO) Note: Not sure why these are specifically needed
