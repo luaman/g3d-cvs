@@ -27,7 +27,8 @@ GuiDropDownList::GuiDropDownList
 
 void GuiDropDownList::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
-        skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, m_listValue[*m_indexValue], m_caption);
+        skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, 
+            m_listValue[iMax(0, iMin(m_listValue.size() - 1, *m_indexValue))], m_caption);
     }
 }
 
