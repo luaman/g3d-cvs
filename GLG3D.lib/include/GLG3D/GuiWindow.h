@@ -2,7 +2,7 @@
  @file GLG3D/GuiWindow.h
 
  @created 2006-05-01
- @edited  2007-06-10
+ @edited  2007-06-21
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -40,9 +40,7 @@ class GuiPane;
 
    <pre>
         GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn", app->debugFont);
-        GuiWindow::Ref window = GuiWindow::create
-            ("Person", Rect2D::xywh(300, 200, 150, 200),
-             skin, GuiWindow::FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
+        GuiWindow::Ref window = GuiWindow::create("Person", skin);
 
         GuiPane* pane = window->pane();
         pane->addCheckBox("Likes cats", &player.likesCats);
@@ -160,9 +158,19 @@ private:
     bool                m_focused;
     bool                m_mouseVisible;
 
+    bool                m_morphing;
+    Rect2D              m_morphStart;
+    RealTime            m_morphStartTime;
+    RealTime            m_morphDuration;
+    Rect2D              m_morphEnd;
+    
     GuiPane*            m_rootPane;
 
-    GuiWindow(const GuiCaption& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction closeAction);
+protected:
+
+    GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect, Style style, CloseAction closeAction);
+
+private:
 
     void render(RenderDevice* rd);
 
@@ -195,6 +203,18 @@ public:
      and glows.
       */
     void setRect(const Rect2D& r);
+
+    /**
+       Causes the window to change shape and/or position to meet the
+       specified location.  The window will not respond to drag events
+       while it is morphing.
+     */
+    void morphTo(const Rect2D& r);
+
+    /** Returns true while a morph is in progress. */
+    bool morphing() const {
+        return m_morphing;
+    }
 
     /** Client rect bounds, absolute on the GWindow. */
     const Rect2D& clientRect() const {
@@ -245,7 +265,6 @@ public:
         @sa G3D::GuiPane::pack
      */
     void pack();
-
 };
 
 }

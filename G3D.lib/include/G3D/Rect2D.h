@@ -183,6 +183,15 @@ public:
         return r;
     }
 
+    Rect2D lerp(const Rect2D& other, float alpha) const {
+        Rect2D out;
+        
+        out.min = min.lerp(other.min, alpha);
+        out.max = max.lerp(other.max, alpha);
+
+        return out;
+    }
+
     inline static Rect2D xyxy(const Vector2& v0, const Vector2& v1) {
         Rect2D r;
 

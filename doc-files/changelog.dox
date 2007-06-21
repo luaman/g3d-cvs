@@ -105,6 +105,7 @@
      <li> Increased maximum ReliableConduit message size to 60 MB
      <li> Removed error macro
      <li> G3D::GConsole
+     <li> Rect2D::lerp
      <li> Added GL_EXT_packed_depth_stencil
      <li> Added G3D::TextureFormat::DEPTH24_STENCIL8 packed stencil mode
      <li> getOpenGLState now includes GL_LIGHT_MODEL_TWO_SIDE value

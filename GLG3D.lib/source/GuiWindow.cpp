@@ -21,7 +21,7 @@ GuiWindow::Ref GuiWindow::create
  Style style, 
  CloseAction close) {
 
-    return new GuiWindow(label, rect, skin, style, close);
+    return new GuiWindow(label, skin, rect, style, close);
 }
 
 void GuiWindow::increaseBounds(const Vector2& extent) {
@@ -35,14 +35,15 @@ void GuiWindow::increaseBounds(const Vector2& extent) {
     }
 }
 
-GuiWindow::GuiWindow(const GuiCaption& text, const Rect2D& rect, GuiSkinRef skin, Style style, CloseAction close) 
+GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect, Style style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), skin(skin), 
       inDrag(false),
       mouseOverGuiControl(NULL), 
       keyFocusGuiControl(NULL),
       m_focused(false),
-      m_mouseVisible(false) {
+      m_mouseVisible(false),
+      m_morphing(false) {
 
     setRect(rect);
     posed = new Posed(this);
@@ -55,8 +56,26 @@ GuiWindow::~GuiWindow() {
 }
 
 
+void GuiWindow::morphTo(const Rect2D& r) {
+    // Terminate any drag
+    inDrag = false;
+
+    m_morphing = true;
+    m_morphStart = rect();
+    m_morphEnd = r;
+
+    // Make the morph approximately constant velocity
+    const float pixelsPerSecond = 1500;
+
+    m_morphDuration = max((double)0.2, (double)(m_morphStart.center() - m_morphEnd.center()).length() / pixelsPerSecond);
+
+    m_morphStartTime = System::time();
+}
+
+
 void GuiWindow::setRect(const Rect2D& r) {
     m_rect = r;
+    m_morphing = false;
     
     if (m_style == NO_FRAME_STYLE) {
         m_clientRect = m_rect;
@@ -113,7 +132,6 @@ void GuiWindow::onUserInput(UserInput* ui) {
             m_closeButton.mouseOver = 
                 skin->windowToCloseButtonBounds(m_rect, GuiSkin::WindowStyle(m_style)).contains(mouse);
         }
-
 
         mouse -= m_clientRect.x0y0();
         m_rootPane->findControlUnderMouse(mouse, mouseOverGuiControl);
@@ -292,7 +310,20 @@ void GuiWindow::pack() {
 
 
 void GuiWindow::render(RenderDevice* rd) {
-    // Offset by the window bounds 
+    
+    if (m_morphing) {
+        RealTime now = System::time();
+        float alpha = (now - m_morphStartTime) / m_morphDuration;
+        if (alpha > 1.0f) {
+            setRect(m_morphEnd);
+            // The setRect will terminate the morph
+        } else {
+            setRect(m_morphStart.lerp(m_morphEnd, alpha));
+            // setRect turns off morphing, so we have to turn it back
+            // on explicitly
+            m_morphing = true;
+        }
+    }
     
     skin->beginRendering(rd);
     {
