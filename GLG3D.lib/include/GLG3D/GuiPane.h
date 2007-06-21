@@ -140,7 +140,7 @@ public:
      void (T::*set)(bool),
      GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
      ) {
-        return addControl(new GuiCheckBox(m_gui, this, text, object, get, set, style));
+        return addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(object, get, set), style));
     }
 
     template<class T>

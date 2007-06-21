@@ -185,11 +185,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\scratch\CameraSplineManipulator.cpp"
+				RelativePath="..\scratch\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\scratch\main.cpp"
+				RelativePath="..\scratch\UprightSplineManipulator.cpp"
 				>
 			</File>
 		</Filter>
@@ -199,11 +199,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\scratch\CameraControl.h"
+				RelativePath="..\scratch\CameraControlWindow.h"
 				>
 			</File>
 			<File
-				RelativePath="..\scratch\CameraSplineManipulator.h"
+				RelativePath="..\scratch\UprightSplineManipulator.h"
 				>
 			</File>
 		</Filter>

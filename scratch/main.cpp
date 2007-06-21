@@ -10,8 +10,8 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-#include "CameraSplineManipulator.h"
-#include "CameraControl.h"
+#include "UprightSplineManipulator.h"
+#include "CameraControlWindow.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -24,7 +24,7 @@ public:
     SkyRef              sky;
 
     Vector2 lastMouse;
-    CameraSplineManipulator::Ref splineManipulator;
+    UprightSplineManipulator::Ref splineManipulator;
 
     App(const GApp2::Settings& settings = GApp2::Settings());
 
@@ -79,7 +79,7 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
     
-    splineManipulator = CameraSplineManipulator::create(&defaultCamera);
+    splineManipulator = UprightSplineManipulator::create(&defaultCamera);
     addWidget(splineManipulator);
     
     GFontRef arialFont = GFont::fromFile(System::findDataFile("arial.fnt"));
@@ -91,7 +91,7 @@ void App::onInit() {
         defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
 #   endif
 
-    GuiWindow::Ref gui = CameraControlWindow::create(defaultController, skin);
+    GuiWindow::Ref gui = CameraControlWindow::create(defaultController, splineManipulator, skin);
     addWidget(gui);
 }
 
@@ -115,20 +115,20 @@ void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(GKey::F1)) {
         setCameraManipulator(defaultController);
         defaultController->setActive(true);
-        splineManipulator->setMode(CameraSplineManipulator::RECORD_KEY_MODE);
+        splineManipulator->setMode(UprightSplineManipulator::RECORD_KEY_MODE);
         splineManipulator->clear();
     }
 
     if (ui->keyPressed(GKey::F2)) {
         defaultController->setActive(false);
         setCameraManipulator(splineManipulator);
-        splineManipulator->setMode(CameraSplineManipulator::PLAY_MODE);
+        splineManipulator->setMode(UprightSplineManipulator::PLAY_MODE);
         splineManipulator->setTime(0);
     } 
 
     if (ui->keyPressed(GKey::F3)) {
         setCameraManipulator(defaultController);
-        splineManipulator->setMode(CameraSplineManipulator::INACTIVE_MODE);
+        splineManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
         defaultController->setActive(true);
     } 
 }

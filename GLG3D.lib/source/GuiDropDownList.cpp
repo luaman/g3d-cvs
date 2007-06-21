@@ -27,8 +27,12 @@ GuiDropDownList::GuiDropDownList
 
 void GuiDropDownList::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
-        skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, 
-            m_listValue[iMax(0, iMin(m_listValue.size() - 1, *m_indexValue))], m_caption);
+        // If there are no elements in the list, display the empty string
+        const std::string& str = (m_listValue.size() > 0) ? 
+                m_listValue[iMax(0, iMin(m_listValue.size() - 1, *m_indexValue))] : 
+                "";
+
+        skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption);
     }
 }
 
