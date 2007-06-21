@@ -36,6 +36,7 @@ void GUIViewer::createGui(const std::string& filename) {
 	window = GuiWindow::create(GuiCaption("Normal"), skin, Rect2D::xywh(50,50,330,550), GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	toolWindow = GuiWindow::create(GuiCaption("Tool"), skin, Rect2D::xywh(300,100,200,440), GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 	bgControl = GuiWindow::create(GuiCaption("Dialog"), skin, Rect2D::xywh(550,100,200,240), GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	dropdownWindow = GuiWindow::create(GuiCaption("Normal"), skin, Rect2D::xywh(400,400, 200, 240), GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
     text = "Hello";
 
@@ -44,7 +45,8 @@ void GUIViewer::createGui(const std::string& filename) {
 	slider[1] = 1.8f;
 	pane->addSlider("Slider", &slider[0], 1.0f, 2.2f);
 	pane->addSlider("Slider Disabled", &slider[1], 1.0f, 2.2f)->setEnabled(false);
-		normalPane = pane->addPane(GuiCaption("Simple Pane"), 170, GuiPane::SIMPLE_FRAME_STYLE);
+		normalPane = pane->addPane(GuiCaption(""), 170, GuiPane::ORNATE_FRAME_STYLE);
+			normalPane->addLabel(GuiCaption("Ornate Pane"));
 			normalPane->addLabel(GuiCaption("Radio (Default)"));
 			radio[0] = 1;
 			radio[1] = 3;
@@ -54,19 +56,18 @@ void GUIViewer::createGui(const std::string& filename) {
 			normalPane->addRadioButton("Deselected, Disabled", 2, &radio[0])->setEnabled(false);
 			normalPane->addRadioButton("Selected, Enabled", 3, &radio[1]);
 			normalPane->addRadioButton("Deselected, Disabled", 4, &radio[1]);
-		normalPane = pane->addPane(GuiCaption("Simple Pane 2"), 170, GuiPane::ORNATE_FRAME_STYLE);
+		normalPane = pane->addPane(GuiCaption(""), 170, GuiPane::SIMPLE_FRAME_STYLE);
+			normalPane->addLabel(GuiCaption("Simple Pane"));
 			normalPane->addLabel(GuiCaption("Button (Radio)"));
 			normalPane->addRadioButton("Selected, Disabled", 5, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
 			normalPane->addRadioButton("Deselected, Disabled", 6, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
 			normalPane->addRadioButton("Selected, Enabled", 7, &radio[3], GuiRadioButton::BUTTON_STYLE);
 			normalPane->addRadioButton("Deselected, Disabled", 8, &radio[3], GuiRadioButton::BUTTON_STYLE);
 	pane->addButton("Button");
-    pane->addTextBox("TextBox", &text);
-    pane->addTextBox("Disabled", &text)->setEnabled(false);
-
 
 	pane = toolWindow->pane();
-		ornatePane = pane->addPane(GuiCaption("Ornate Pane"), 200, GuiPane::ORNATE_FRAME_STYLE);
+		ornatePane = pane->addPane(GuiCaption(""), 200, GuiPane::ORNATE_FRAME_STYLE);
+			ornatePane->addLabel(GuiCaption("Ornate Pane"));
 			ornatePane->addLabel(GuiCaption("Checkbox (Default)"));
 			checkbox[0] = true;
 			checkbox[1] = false;
@@ -76,7 +77,8 @@ void GUIViewer::createGui(const std::string& filename) {
 			ornatePane->addCheckBox(GuiCaption("Deselected, Enabled"), &checkbox[1]);
 			ornatePane->addCheckBox(GuiCaption("Selected, Disabled"), &checkbox[2])->setEnabled(false);
 			ornatePane->addCheckBox(GuiCaption("Deselected, Disabled"), &checkbox[3])->setEnabled(false);
-		ornatePane = pane->addPane(GuiCaption("Ornate Pane 2"), 170, GuiPane::SIMPLE_FRAME_STYLE);
+		ornatePane = pane->addPane(GuiCaption(""), 170, GuiPane::SIMPLE_FRAME_STYLE);
+			ornatePane->addLabel(GuiCaption("Simple Pane"));
 			ornatePane->addLabel(GuiCaption("Button (Checkbox)"));
 			checkbox[4] = true;
 			checkbox[5] = false;
@@ -87,6 +89,21 @@ void GUIViewer::createGui(const std::string& filename) {
 			ornatePane->addCheckBox(GuiCaption("Selected, Enabled"), &checkbox[6], GuiCheckBox::BUTTON_STYLE);
 			ornatePane->addCheckBox(GuiCaption("Deselected, Enabled"), &checkbox[7], GuiCheckBox::BUTTON_STYLE);
 	pane->addButton("Disabled")->setEnabled(false);
+
+	pane = dropdownWindow->pane();
+		dropdownIndex[0] = 0;
+		dropdownIndex[1] = 0;
+		dropdown.append("Option 1");
+		dropdown.append("Option 2");
+		dropdown.append("Option 3");
+		dropdownDisabled.append("Disabled");
+		pane->addLabel("Dropdown List");
+		pane->addDropDownList(GuiCaption("Enabled"), &dropdownIndex[0], &dropdown);
+		pane->addDropDownList(GuiCaption("Disabled"), &dropdownIndex[1], &dropdownDisabled)->setEnabled(false);
+		pane->addTextBox("TextBox", &text);
+	    pane->addTextBox("Disabled", &text)->setEnabled(false);
+		pane->addButton("Store Text");
+
 	pane = bgControl->pane();
     	pane->addLabel("Background Color");
 		windowControl = BLUE;
@@ -96,9 +113,16 @@ void GUIViewer::createGui(const std::string& filename) {
 		pane->addRadioButton(GuiCaption("background1.jpg"), BGIMAGE1, &windowControl)->setEnabled(background1.notNull());
 		pane->addRadioButton(GuiCaption("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background1.notNull());
 
+	// Gets rid of any empty, unused space in the windows
+	window->pack();
+	toolWindow->pack();
+	bgControl->pack();
+	dropdownWindow->pack();
+
 	parentApp->addWidget(window);
 	parentApp->addWidget(toolWindow);
 	parentApp->addWidget(bgControl);
+	parentApp->addWidget(dropdownWindow);
 }
 
 
@@ -106,6 +130,7 @@ GUIViewer::~GUIViewer(){
 	parentApp->removeWidget(window);
 	parentApp->removeWidget(toolWindow);
 	parentApp->removeWidget(bgControl);
+	parentApp->removeWidget(dropdownWindow);
 
 	parentApp->colorClear = Color3::blue();
 }

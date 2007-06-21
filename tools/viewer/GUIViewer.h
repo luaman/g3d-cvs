@@ -21,6 +21,7 @@ private:
 	GuiWindow::Ref		window;
 	GuiWindow::Ref		toolWindow;
 	GuiWindow::Ref		bgControl;
+	GuiWindow::Ref      dropdownWindow;
 	App*				parentApp;
 	GuiSkinRef			skin;
 	TextureRef			background1;
@@ -37,6 +38,9 @@ private:
 	 for example, you should not name your variables "checkbox", but instead hook a GuiCheckBox up to 
 	 an existing bool that has a useful name.
 	 */
+	Array<std::string>	dropdown;
+	Array<std::string>	dropdownDisabled;
+	int					dropdownIndex[2];
 	bool				checkbox[8];
 	int					radio[4];
 	float				slider[2];

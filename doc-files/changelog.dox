@@ -141,6 +141,7 @@
      <li> Removed CoordinateFrame::getStrafeVector (use rightVector)
      <li> Removed static constants (use equivalent lower-case methods)
      <li> Removed Cylinder::getPoint1 (use point)
+     <li> Fix: BSPMap::getStartingPosition now works correctly on all maps [Jeff]
      <li> Fix: Workaround for ATI drivers that do not support zero-area scissor region
      <li> Fix: GL_EXT_texture_3D -> GL_EXT_texture3D
      <li> Fix: ARB_texture_cube_map and EXT_texture_cube_map are now aliases on all cards
