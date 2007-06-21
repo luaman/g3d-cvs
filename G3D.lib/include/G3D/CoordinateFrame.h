@@ -45,7 +45,7 @@ Convert to Matrix4 using CoordinateFrame::toMatrix4.  You <I>can</I> construct a
 from a Matrix4 using Matrix4::approxCoordinateFrame, however, because a Matrix4 is more 
 general than a CoordinateFrame, some information may be lost.
 
-See also: G3D::Matrix4, G3D::Quat
+@sa G3D::UprightFrame, G3D::PhysicsFrame, G3D::Matrix4, G3D::Quat
 */
 class CoordinateFrame {
 public:

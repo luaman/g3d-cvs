@@ -24,7 +24,7 @@
      <li> G3D::GFont now supports fonts with 256 characters (.fnt file format version 2)
      <li> Upgraded to the OpenGL 2.0 glext/glxext/wglext headers
      <li> G3D::GuiSkin, G3D::GuiText
-     <li> G3D::CameraLocation, G3D::CameraSpline
+     <li> G3D::UprightFrame, G3D::UprightSpline
      <li> G3D::Spline
      <li> G3D::RenderDevice::clip2D
      <li> G3D::Win32Window now returns events for up to 5 mouse buttons

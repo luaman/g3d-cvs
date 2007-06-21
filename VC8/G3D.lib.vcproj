@@ -179,10 +179,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\G3D.lib\source\CameraLocation.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\G3D.lib\source\Capsule.cpp"
 				>
 			</File>
@@ -427,6 +423,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\UprightFrame.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Vector2.cpp"
 				>
 			</File>
@@ -494,10 +494,6 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Box.h"
-				>
-			</File>
-			<File
-				RelativePath="..\G3D.lib\include\G3D\CameraLocation.h"
 				>
 			</File>
 			<File
@@ -778,6 +774,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Triangle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\UprightFrame.h"
 				>
 			</File>
 			<File

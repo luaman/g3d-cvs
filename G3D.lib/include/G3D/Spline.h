@@ -23,7 +23,7 @@ namespace G3D {
 
  To provide shortest-path interpolation, override ensureShortestPath().
 
- See also G3D::CameraSpline, G3D::QuatSpline.
+ See also G3D::UprightSpline, G3D::QuatSpline.
  */
 template<typename Control>
 class Spline {

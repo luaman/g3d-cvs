@@ -1,5 +1,5 @@
 /**
-  @file CameraLocation.cpp
+  @file UprightFrame.cpp
   Box class
 
   @maintainer Morgan McGuire, matrix@graphics3d.com
@@ -8,13 +8,13 @@
   @edited  2007-05-05
 */
 
-#include "G3D/CameraLocation.h"
+#include "G3D/UprightFrame.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 
 namespace G3D {
 
-CameraLocation::CameraLocation(const CoordinateFrame& cframe) {
+UprightFrame::UprightFrame(const CoordinateFrame& cframe) {
     Vector3 look = cframe.lookVector();
 
     yaw = G3D::pi() + atan2(look.x, look.z);
@@ -24,7 +24,7 @@ CameraLocation::CameraLocation(const CoordinateFrame& cframe) {
 }
 
     
-CoordinateFrame CameraLocation::toCoordinateFrame() const {
+CoordinateFrame UprightFrame::toCoordinateFrame() const {
     CoordinateFrame cframe;
 
     Matrix3 P(Matrix3::fromAxisAngle(Vector3::unitX(), pitch));
@@ -37,17 +37,17 @@ CoordinateFrame CameraLocation::toCoordinateFrame() const {
 }
 
 
-CameraLocation CameraLocation::operator+(const CameraLocation& other) const {
-    return CameraLocation(translation + other.translation, pitch + other.pitch, yaw + other.yaw);
+UprightFrame UprightFrame::operator+(const UprightFrame& other) const {
+    return UprightFrame(translation + other.translation, pitch + other.pitch, yaw + other.yaw);
 }
 
 
-CameraLocation CameraLocation::operator*(const float k) const {
-    return CameraLocation(translation * k, pitch * k, yaw * k);
+UprightFrame UprightFrame::operator*(const float k) const {
+    return UprightFrame(translation * k, pitch * k, yaw * k);
 }
 
 
-void CameraLocation::unwrapYaw(CameraLocation* a, int N) {
+void UprightFrame::unwrapYaw(UprightFrame* a, int N) {
     // Use the first point to establish the wrapping convention
     for (int i = 1; i < N; ++i) {
         const float prev = a[i - 1].yaw;
@@ -78,21 +78,21 @@ void CameraLocation::unwrapYaw(CameraLocation* a, int N) {
 }
 
 
-void CameraLocation::serialize(class BinaryOutput& b) const {
+void UprightFrame::serialize(class BinaryOutput& b) const {
     translation.serialize(b);
     b.writeFloat32(pitch);
     b.writeFloat32(yaw);
 }
 
 
-void CameraLocation::deserialize(class BinaryInput& b) {
+void UprightFrame::deserialize(class BinaryInput& b) {
     translation.deserialize(b);
     pitch = b.readFloat32();
     yaw = b.readFloat32();
 }
 
 
-void CameraSpline::serialize(class BinaryOutput& b) const {
+void UprightSpline::serialize(class BinaryOutput& b) const {
     b.writeBool8(cyclic);
 
     b.writeInt32(control.size());
@@ -102,7 +102,7 @@ void CameraSpline::serialize(class BinaryOutput& b) const {
 }
 
 
-void CameraSpline::deserialize(class BinaryInput& b) {
+void UprightSpline::deserialize(class BinaryInput& b) {
     cyclic = b.readBool8();
 
     control.resize(b.readInt32());

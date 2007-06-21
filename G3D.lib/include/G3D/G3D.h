@@ -70,7 +70,7 @@
 #include "G3D/System.h"
 #include "G3D/splinefunc.h"
 #include "G3D/Spline.h"
-#include "G3D/CameraLocation.h"
+#include "G3D/UprightFrame.h"
 #include "G3D/LineSegment.h"
 #include "G3D/Capsule.h"
 #include "G3D/Cylinder.h"

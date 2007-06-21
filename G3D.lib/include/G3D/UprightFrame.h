@@ -1,5 +1,5 @@
 /**
- @file CameraLocation.h
+ @file UprightFrame.h
 
  @author Morgan McGuire, morgan@cs.williams.edu
  */
@@ -15,10 +15,13 @@
 namespace G3D {
 
 /**
- Camera position expressed in Euler angles, suitable for spline creation.
- Unlike a G3D::Quat, CameraLocation always keeps the camera from rolling.
+ Coordinate frame expressed in Euler angles.
+ Unlike a G3D::Quat, UprightFrame always keeps the reference frame from rolling about its own z axis.
+ Particularly useful for cameras.
+
+ @sa G3D::CoordinateFrame, G3D::Matrix4, G3D::PhysicsFrame
  */
-class CameraLocation {
+class UprightFrame {
 public:
 
     Vector3         translation;
@@ -29,10 +32,10 @@ public:
     /** In radians about the Y-axis */
     float           yaw;
 
-    inline CameraLocation(const Vector3& t = Vector3::zero(), float p = 0, float y = 0) 
+    inline UprightFrame(const Vector3& t = Vector3::zero(), float p = 0, float y = 0) 
         : translation(t), pitch(p), yaw(y) {}
 
-    CameraLocation(const CoordinateFrame& cframe);
+    UprightFrame(const CoordinateFrame& cframe);
     
     CoordinateFrame toCoordinateFrame() const;
 
@@ -42,17 +45,17 @@ public:
     }
 
     /** Required for use with spline */
-    CameraLocation operator+(const CameraLocation& other) const;
+    UprightFrame operator+(const UprightFrame& other) const;
 
     /** Required for use with spline */
-    CameraLocation operator*(const float k) const;
+    UprightFrame operator*(const float k) const;
 
     /**
        Unwraps the yaw values in the elements of the array such that
        they still represent the same angles but strictly increase/decrease
-       without wrapping about zero.  For use with Spline<CameraLocation>
+       without wrapping about zero.  For use with Spline<UprightFrame>
      */
-    static void unwrapYaw(CameraLocation* a, int N);
+    static void unwrapYaw(UprightFrame* a, int N);
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
@@ -60,11 +63,11 @@ public:
 
 /** Shortest-path linear velocity spline for camera positions.  Always keeps the camera from rolling.
 */
-class CameraSpline : public Spline<CameraLocation> {
+class UprightSpline : public Spline<UprightFrame> {
 protected:
 
-    virtual void ensureShortestPath(CameraLocation* A, int N) const {
-        CameraLocation::unwrapYaw(A, N);
+    virtual void ensureShortestPath(UprightFrame* A, int N) const {
+        UprightFrame::unwrapYaw(A, N);
     }
 
 public:

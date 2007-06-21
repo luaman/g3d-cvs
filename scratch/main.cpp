@@ -85,7 +85,13 @@ void App::onInit() {
     GFontRef arialFont = GFont::fromFile(System::findDataFile("arial.fnt"));
     GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
 
-    GuiWindow::Ref gui = CameraControlWindow::create(skin);
+    // OS X doesn't have a two button mouse by default.  On all other platforms,
+    // default to right button for flying so that the mouse can be used with the Gui.
+#   ifndef G3D_OSX
+        defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
+#   endif
+
+    GuiWindow::Ref gui = CameraControlWindow::create(defaultController, skin);
     addWidget(gui);
 }
 
