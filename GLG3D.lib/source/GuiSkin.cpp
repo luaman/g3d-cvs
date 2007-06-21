@@ -774,7 +774,6 @@ void GuiSkin::makeSkinFromSourceFiles
     b.commit();
 }
 
-
 void GuiSkin::pushClientRect(const Rect2D& r) {
     debugAssert(inRendering);
 
@@ -783,13 +782,17 @@ void GuiSkin::pushClientRect(const Rect2D& r) {
     drawDelayedText();
     rd->endPrimitive();
 
-    CoordinateFrame oldMatrix = rd->getObjectToWorldMatrix();
+    const CoordinateFrame& oldMatrix = rd->getObjectToWorldMatrix();
     coordinateFrameStack.append(oldMatrix);
-    scissorStack.append(rd->clip2D());
+    const Rect2D& oldRect = rd->clip2D();
+    scissorStack.append(oldRect);
 
-    CoordinateFrame newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
+    Rect2D newRect = r + oldMatrix.translation.xy();
+    newRect = oldRect.intersect(newRect);
+    rd->enableClip2D(newRect);
+
+    const CoordinateFrame& newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
     rd->setObjectToWorldMatrix(newMatrix);
-    rd->enableClip2D(r + oldMatrix.translation.xy());
     rd->beginPrimitive(RenderDevice::QUADS);
 }
 
@@ -1276,7 +1279,7 @@ void GuiSkin::DropDownList::render(RenderDevice* rd, const Rect2D& bounds, bool 
     } else {
         r = &disabled;
     }
-
+    
     base.render(rd, bounds, *r);
 }
 

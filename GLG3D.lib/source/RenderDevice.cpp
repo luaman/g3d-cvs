@@ -1414,12 +1414,19 @@ void RenderDevice::enableClip2D(const Rect2D& clip) {
 
     glScissor(clipX0, height() - clipY1, clipX1 - clipX0, clipY1 - clipY0);
 
+    if (clip.area() == 0) {
+        // On some graphics cards a clip region that is zero without being (0,0,0,0) 
+        // fails to actually clip everything.
+        glScissor(0,0,0,0);
+        glEnable(GL_SCISSOR_TEST);
+    }
+
     if (! state.useClip2D) {
         glEnable(GL_SCISSOR_TEST);
         minStateChange();
         minGLStateChange();
+        state.useClip2D = true;
     }
-    state.useClip2D = true;
 }
 
 
@@ -1428,8 +1435,8 @@ void RenderDevice::disableClip2D() {
     if (state.useClip2D) {
         minGLStateChange();
         glDisable(GL_SCISSOR_TEST);
+        state.useClip2D = false;
     }
-    state.useClip2D = false;
 }
 
 

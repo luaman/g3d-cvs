@@ -334,11 +334,11 @@ public:
      a union-like rectangle.
      */
     Rect2D intersect(const Rect2D& other) const {
-		if (intersects(other)) {
-			return Rect2D::xyxy(min.max(other.min), max.min(other.max));
-		}else{
-			return Rect2D::xywh(0, 0, 0, 0);
-		}
+        if (intersects(other)) {
+            return Rect2D::xyxy(min.max(other.min), max.min(other.max));
+        }else{
+            return Rect2D::xywh(0, 0, 0, 0);
+        }
     }
 
     float area() const {
