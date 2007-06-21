@@ -352,7 +352,7 @@ Called from buildBinary.
 def buildDependencyProjects(state):
 
     # Create arguments to pass to the child icompile process
-    libArgs = []
+    libArgs = ['--config', state.preferenceFile()]
     
     # We don't need to pass verbosity because it is globally 
     # specified; FYI, ['--verbosity', str(verbosity - QUIET)]
