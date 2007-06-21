@@ -10,7 +10,6 @@
  @edited  2007-06-08
  */
 #include "FontViewer.h"
-#include <sstream>
 
 
 FontViewer::FontViewer(GFontRef base) :
@@ -63,20 +62,18 @@ rd->push2D();
 			std::string s = "";
 			s += (char)i;
 
-			std::stringstream ss;
-			std::string str;
-			ss << i;
-			ss >> str;
-
+			// Character in the current font
 			m_font->draw2D( rd, s, Vector2( x* windowBounds.width()/16.0 + windowBounds.width()/32.0, 
 											y*windowBounds.height()/16.0 + windowBounds.height()/32.0), 
 												size, color, outline, GFont::XALIGN_CENTER, GFont::YALIGN_CENTER ); 
 			
-			
+			// Character in the normal font
 			m_basefont->draw2D( rd, s, Vector2( x* windowBounds.width()/16.0 + windowBounds.width()/64.0, 
 												y* windowBounds.height()/16.0 + windowBounds.height()/20.0), 
 													size/2.0, color, outline, GFont::XALIGN_CENTER, GFont::YALIGN_CENTER ); 
-			m_basefont->draw2D( rd, str,Vector2( x* windowBounds.width()/16.0 + windowBounds.width()/20.0, 
+
+			// Character number
+			m_basefont->draw2D( rd, format("%d", i), Vector2( x* windowBounds.width()/16.0 + windowBounds.width()/20.0, 
 												 y* windowBounds.height()/16.0 + windowBounds.height()/20.0), 
 													size/2.0, color, outline, GFont::XALIGN_CENTER, GFont::YALIGN_CENTER );
 
