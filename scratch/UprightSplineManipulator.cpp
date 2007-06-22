@@ -211,7 +211,7 @@ public:
     }
 };
 
-UprightSplineManipulator::Ref UprightSplineManipulator::create(const class GCamera* c) {
+UprightSplineManipulator::Ref UprightSplineManipulator::create(class GCamera* c) {
     UprightSplineManipulator* manipulator = new UprightSplineManipulator();
     manipulator->setCamera(c);
     return manipulator;
@@ -306,6 +306,9 @@ void UprightSplineManipulator::setTime(double t) {
         } else {
             // Not enough points for a spline
             m_currentFrame = CoordinateFrame();
+        }
+        if (m_camera != NULL) {
+            m_camera->setCoordinateFrame(m_currentFrame);
         }
         break;
         

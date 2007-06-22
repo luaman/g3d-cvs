@@ -17,10 +17,15 @@ CameraControlWindow::CameraControlWindow(
               GuiWindow::TOOL_FRAME_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
     trackFileIndex(0),
-    controller(PROGRAM_CONTROLLER),
     manualManipulator(manualManipulator),
     trackManipulator(trackManipulator)
     {
+
+    if (manualManipulator->active()) {
+        controller = MANUAL_CONTROLLER;
+    } else {
+        controller = PROGRAM_CONTROLLER;
+    }
 
     updateTrackFiles();
 
@@ -116,24 +121,6 @@ void CameraControlWindow::setManualActive(bool e) {
 
 
 bool CameraControlWindow::onEvent(const GEvent& event) {
-    /*
-    switch(event.type) {
-    case GEventType::MOUSE_BUTTON_DOWN:
-        debugPrintf("Mouse Button: %d\n", event.button.button);
-        break;
-    case GEventType::MOUSE_MOTION:
-        debugPrintf("Mouse Motion, state: %d\n", event.motion.state);
-        break;
-    case GEventType::KEY_DOWN:
-        debugPrintf("Key: %d\n", event.key.keysym.sym);
-        break;
-    default:;
-    }*/
-
-
-    // Recording
-    //bool recording = trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE;
-
     // Allow parent to process the event
     bool c = GuiWindow::onEvent(event);
     if (c) {
@@ -143,15 +130,16 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
     if (event.type == GEventType::GUI_ACTION) {
         sync();
 
-        if (event.gui.control == recordButton) {
-            // Start recording
-            trackManipulator->setMode(UprightSplineManipulator::RECORD_KEY_MODE);
+        if (event.gui.control == playButton) {
+            // Restart at the beginning of the path
+            trackManipulator->setTime(0);
         }
-
+        /*
         if (event.gui.control == stopButton) {
             // Start recording
             trackManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
         }
+        */
     }
 
     return false;

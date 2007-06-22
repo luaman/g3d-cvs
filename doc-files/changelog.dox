@@ -19,6 +19,7 @@
      <li> G3D::logPrintf
      <li> System::findDataFile
      <li> On OS X, G3D::FirstPersonManipulator now treats ctrl-click as right click
+     <li> Increased mouse sensitivity of G3D::FirstPersonManipulator on OS X
      <li> System::getClipboardText, System::setClipboardText
      <li> Replaced SDLEvent with G3D::GEvent
      <li> Increased GFont rendering performance, added GFont::send2DQuads for fast rendering of large amounts of text

@@ -84,7 +84,13 @@ void FirstPersonManipulator::reset() {
     m_pitch      = 0;
     translation  = Vector3::zero();
     setMoveRate(10);
-    setTurnRate(pi() * 5);
+
+#   ifdef G3D_OSX
+        // OS X has a really slow mouse by default
+        setTurnRate(pi() * 8);
+#   else
+        setTurnRate(pi() * 5);
+#   endif
 }
 
 bool FirstPersonManipulator::rightDown(UserInput* ui) const {
@@ -93,7 +99,10 @@ bool FirstPersonManipulator::rightDown(UserInput* ui) const {
        return 
            userInput->keyDown(GKey::RIGHT_MOUSE) || 
            (userInput->keyDown(GKey::LEFT_MOUSE) && 
-            (userInput->keyDown(GKey::LCTRL) ||
+            (
+             userInput->keyDown(GKey::LSHIFT) ||
+             userInput->keyDown(GKey::RSHIFT) ||
+             userInput->keyDown(GKey::LCTRL) ||
              userInput->keyDown(GKey::RCTRL)));
 #   else
        return userInput->keyDown(GKey::RIGHT_MOUSE)

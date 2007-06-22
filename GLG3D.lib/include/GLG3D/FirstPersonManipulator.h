@@ -44,7 +44,7 @@ public:
 
      MOUSE_DIRECT_RIGHT_BUTTON = RPG/World of Warcraft style, on right
      mouse button cursor is hidden and mouse controls yaw/pitch.  On
-     OS X, ctrl+right button is treated as the right mouse button.
+     OS X, ctrl+left and shift+left button are treated as the right mouse button.
 
      MOUSE_SCROLL_AT_EDGE = Leaves mouse cursor visible and rotates
      while mouse is near the window edge

@@ -41,7 +41,7 @@ protected:
     
     Mode                   m_mode;
 
-    const class GCamera*   m_camera;
+    class GCamera*         m_camera;
 
     CoordinateFrame        m_currentFrame;
 
@@ -58,7 +58,7 @@ protected:
 
 public:
     
-    static Ref create(const class GCamera* c = NULL);
+    static Ref create(class GCamera* c = NULL);
     
     virtual void onNetwork() {}
     virtual void onLogic() {}
@@ -131,12 +131,14 @@ public:
     /**
        Sets the camera from which the frame will be read when recording.  
        Argument may be NULL, but recording cannot proceed until this is non-null.
+
+       This camera will also be used for playback
      */
-    void setCamera(const GCamera* c) {
+    void setCamera(GCamera* c) {
         m_camera = c;
     }
 
-    const GCamera* camera() const {
+    GCamera* camera() {
         return m_camera;
     }
 

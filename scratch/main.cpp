@@ -86,6 +86,7 @@ void App::onInit() {
     GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
 
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
+    defaultController->setActive(true);
 
     GuiWindow::Ref gui = CameraControlWindow::create(defaultController, splineManipulator, skin);
     addWidget(gui);
