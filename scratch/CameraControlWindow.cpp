@@ -2,8 +2,8 @@
 
 namespace G3D {
 
-const Vector2 CameraControlWindow::smallSize(120, 84);
-const Vector2 CameraControlWindow::bigSize(120, 165);
+const Vector2 CameraControlWindow::smallSize(120, 184);
+const Vector2 CameraControlWindow::bigSize(120, 265);
 
 CameraControlWindow::Ref CameraControlWindow::create(
     const FirstPersonManipulatorRef&   manualManipulator,
@@ -41,6 +41,17 @@ CameraControlWindow::CameraControlWindow(
     updateTrackFiles();
 
     GuiPane* pane = GuiWindow::pane();
+
+    {
+    static bool b = false;
+
+    GuiCheckBox* activeBox = pane->addCheckBox("Active", &b);
+
+    drawerButton = pane->addButton(GuiCaption("6", GFont::fromFile(System::findDataFile("icon.fnt"))));
+    drawerButton->setRect(Rect2D::xywh(activeBox->rect().x0() + 60, activeBox->rect().y0(), 30, 30));
+    }
+
+
 
     programButton     = pane->addRadioButton("Program",      PROGRAM_CONTROLLER, &controller);
     manualButton      = pane->addRadioButton("Manual",       MANUAL_CONTROLLER,  &controller);

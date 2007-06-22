@@ -20,6 +20,15 @@ void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
 }
 
 
+void GuiCheckBox::setRect(const Rect2D& rect) {
+     m_rect = rect;
+
+     // TODO: use the actual font size etc. to compute bounds
+     // Prevent the checkbox from stealing clicks very far away
+     m_clickRect = Rect2D::xywh(rect.x0y0(), Vector2(min(rect.width(), 30.0f), rect.height()));
+}
+
+
 bool GuiCheckBox::onEvent(const GEvent& event) {
     if ((event.type == GEventType::MOUSE_BUTTON_DOWN) && m_visible) {
         *m_value = ! *m_value;

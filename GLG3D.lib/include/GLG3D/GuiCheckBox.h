@@ -28,6 +28,8 @@ public:
     /** Box is the normal checkbox appearance.  Button makes them appear as a normal button, Tool as a tool button.*/
     enum Style {BOX_STYLE, BUTTON_STYLE, TOOL_STYLE};
 
+    virtual void setRect(const Rect2D& rect);
+
 protected:
 
     Pointer<bool>     m_value;

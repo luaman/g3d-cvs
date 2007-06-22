@@ -52,6 +52,7 @@ protected:
     virtual bool onEvent(const GEvent& event);
 
 public:
+    virtual void setRect(const Rect2D& rect);
 };
 
 } // G3D

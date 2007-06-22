@@ -197,6 +197,11 @@ public:
         return m_rect;
     }
 
+    /** Interior bounds of the window, absolute on the GWindow */
+    const Rect2D& clientRect() const {
+        return m_clientRect;
+    }
+
     /**
      Set the border bounds relative to the GWindow. 
      The window may render outside the bounds because of drop shadows
@@ -214,11 +219,6 @@ public:
     /** Returns true while a morph is in progress. */
     bool morphing() const {
         return m_morphing;
-    }
-
-    /** Client rect bounds, absolute on the GWindow. */
-    const Rect2D& clientRect() const {
-        return m_clientRect;
     }
 
     bool visible() const {

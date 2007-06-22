@@ -42,6 +42,8 @@ protected:
     FirstPersonManipulatorRef   manualManipulator;
     UprightSplineManipulatorRef trackManipulator;
 
+    GuiButton*                  drawerButton;
+
     CameraControlWindow(
         const FirstPersonManipulatorRef&    manualManipulator, 
         const UprightSplineManipulatorRef&  trackManipulator, 
