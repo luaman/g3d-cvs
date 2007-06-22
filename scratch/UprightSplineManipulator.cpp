@@ -307,9 +307,6 @@ void UprightSplineManipulator::setTime(double t) {
             // Not enough points for a spline
             m_currentFrame = CoordinateFrame();
         }
-        if (m_camera != NULL) {
-            m_camera->setCoordinateFrame(m_currentFrame);
-        }
         break;
         
     case RECORD_INTERVAL_MODE:

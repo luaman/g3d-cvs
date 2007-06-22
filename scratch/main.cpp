@@ -88,7 +88,12 @@ void App::onInit() {
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
     defaultController->setActive(true);
 
-    GuiWindow::Ref gui = CameraControlWindow::create(defaultController, splineManipulator, skin);
+    GuiWindow::Ref gui = CameraControlWindow::create
+        (defaultController, 
+         splineManipulator, 
+         Pointer<Manipulator::Ref>(dynamic_cast<GApp2*>(this), &GApp2::cameraManipulator, &GApp2::setCameraManipulator), 
+         skin);
+
     addWidget(gui);
 }
 

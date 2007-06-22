@@ -5,11 +5,21 @@ namespace G3D {
 const Vector2 CameraControlWindow::smallSize(120, 84);
 const Vector2 CameraControlWindow::bigSize(120, 165);
 
+CameraControlWindow::Ref CameraControlWindow::create(
+    const FirstPersonManipulatorRef&   manualManipulator,
+    const UprightSplineManipulatorRef& trackManipulator,
+    const Pointer<Manipulator::Ref>&   cameraManipulator,
+    const GuiSkinRef&                  skin) {
+
+    return new CameraControlWindow(manualManipulator, trackManipulator, cameraManipulator, skin);
+}
+
 
 CameraControlWindow::CameraControlWindow(
-    FirstPersonManipulatorRef&      manualManipulator, 
-    UprightSplineManipulatorRef&    trackManipulator, 
-    const GuiSkinRef&               skin) : 
+    const FirstPersonManipulatorRef&      manualManipulator, 
+    const UprightSplineManipulatorRef&    trackManipulator, 
+    const Pointer<Manipulator::Ref>&      cameraManipulator,
+    const GuiSkinRef&                     skin) : 
 
     GuiWindow("Camera Control", 
               skin, 
@@ -17,6 +27,7 @@ CameraControlWindow::CameraControlWindow(
               GuiWindow::TOOL_FRAME_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
     trackFileIndex(0),
+    cameraManipulator(cameraManipulator),
     manualManipulator(manualManipulator),
     trackManipulator(trackManipulator)
     {
@@ -94,7 +105,7 @@ void CameraControlWindow::onUserInput(UserInput* ui) {
 
     // Detect if the user explicitly grabbed or released control of
     // the camera without using the gui.
-    bool guiActive = desireManualActive();
+    bool guiActive = (desiredSource() == MANUAL_SOURCE);
     bool userActive = manualManipulator->active();
     if (guiActive != userActive) {
         if (userActive) {
@@ -112,11 +123,32 @@ void CameraControlWindow::onUserInput(UserInput* ui) {
         }
         sync();
     }
+
+    if ((controller == TRACK_CONTROLLER) && 
+        (trackManipulator->mode() == UprightSplineManipulator::PLAY_MODE)) {
+        // Keep the FPS controller in sync with the spline controller
+        manualManipulator->setFrame(trackManipulator->frame());
+    }
 }
 
 
-void CameraControlWindow::setManualActive(bool e) {
-    manualManipulator->setActive(e);
+void CameraControlWindow::setSource(Source s) {
+    switch (s) {
+    case NO_SOURCE:
+        manualManipulator->setActive(false);
+        *cameraManipulator = Manipulator::Ref(NULL);
+        break;
+
+    case MANUAL_SOURCE:
+        manualManipulator->setActive(true);
+        *cameraManipulator = manualManipulator;
+        break;
+
+    case SPLINE_SOURCE:
+        manualManipulator->setActive(false);
+        *cameraManipulator = trackManipulator;
+        break;
+    }
 }
 
 
@@ -128,31 +160,45 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
     }
     
     if (event.type == GEventType::GUI_ACTION) {
-        sync();
-
         if (event.gui.control == playButton) {
             // Restart at the beginning of the path
             trackManipulator->setTime(0);
         }
-        /*
-        if (event.gui.control == stopButton) {
-            // Start recording
-            trackManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
-        }
-        */
+        sync();
     }
 
     return false;
 }
 
-bool CameraControlWindow::desireManualActive() const {
-    return (controller == MANUAL_CONTROLLER) ||
-        ((controller == TRACK_CONTROLLER) && 
-         (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE));
+
+CameraControlWindow::Source CameraControlWindow::desiredSource() const {
+    switch (controller) {
+    case PROGRAM_CONTROLLER:
+        return NO_SOURCE;
+
+    case MANUAL_CONTROLLER:
+        return MANUAL_SOURCE;
+
+    case TRACK_CONTROLLER:
+        switch (trackManipulator->mode()) {
+        case UprightSplineManipulator::RECORD_KEY_MODE:
+        case UprightSplineManipulator::RECORD_INTERVAL_MODE:
+            return MANUAL_SOURCE;
+
+        case UprightSplineManipulator::PLAY_MODE:
+            return SPLINE_SOURCE;
+
+        case UprightSplineManipulator::INACTIVE_MODE:
+            return NO_SOURCE;
+        }
+    }
+
+    return NO_SOURCE;
 }
 
+
 void CameraControlWindow::sync() {
-    setManualActive(desireManualActive());
+    setSource(desiredSource());
     
     Vector2 currentSize = rect().wh();
     Vector2 newSize = currentSize;

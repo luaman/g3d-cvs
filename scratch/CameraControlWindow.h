@@ -22,6 +22,8 @@ protected:
     /** Index into trackFileArray */
     int                         trackFileIndex;
 
+    enum Source {NO_SOURCE, MANUAL_SOURCE, SPLINE_SOURCE};
+
     enum Controller {PROGRAM_CONTROLLER, MANUAL_CONTROLLER, TRACK_CONTROLLER};
     Controller                  controller;
 
@@ -35,21 +37,22 @@ protected:
     GuiRadioButton*             stopButton;
     GuiRadioButton*             recordButton;
 
+    Pointer<Manipulator::Ref>   cameraManipulator;
+
     FirstPersonManipulatorRef   manualManipulator;
     UprightSplineManipulatorRef trackManipulator;
 
     CameraControlWindow(
-        FirstPersonManipulatorRef& manualManipulator, 
-        UprightSplineManipulatorRef& trackManipulator, 
-        const GuiSkinRef& skin);
+        const FirstPersonManipulatorRef&    manualManipulator, 
+        const UprightSplineManipulatorRef&  trackManipulator, 
+        const Pointer<Manipulator::Ref>&    cameraManipulator,
+        const GuiSkinRef&                   skin);
 
-    /** Turns on/off the manual camera controller */
-    void setManualActive(bool e);
+    /** Sets the controller for the cameraManipulator. */
+    void setSource(Source s);
 
-    /** Returns true if the Gui thinks that the manual manipulator
-        should be active (the user might have overriden our
-        controls) */
-    bool desireManualActive() const;
+    /** Control source that the Gui thinks should be in use */
+    Source desiredSource() const;
 
     void sync();
 
@@ -58,13 +61,15 @@ protected:
 
 public:
 
+    /**
+     @param cameraManipulator The manipulator that should drive the camera.  This will be assigned to
+     as the program runs.
+     */
     static Ref create(
-        FirstPersonManipulatorRef& manualManipulator,
-        UprightSplineManipulatorRef& trackManipulator, 
-        const GuiSkinRef& skin) {
-
-        return new CameraControlWindow(manualManipulator, trackManipulator, skin);
-    }
+        const FirstPersonManipulatorRef&   manualManipulator,
+        const UprightSplineManipulatorRef& trackManipulator,
+        const Pointer<Manipulator::Ref>&   cameraManipulator,
+        const GuiSkinRef&                  skin);
 
     virtual bool onEvent(const GEvent& event);
     virtual void onUserInput(UserInput*);
