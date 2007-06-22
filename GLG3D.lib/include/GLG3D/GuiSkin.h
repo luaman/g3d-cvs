@@ -67,6 +67,14 @@ public:
         PANE_STYLE_COUNT
     };
 
+    enum ButtonStyle {
+        NORMAL_BUTTON_STYLE,
+        TOOL_BUTTON_STYLE,
+        NO_BUTTON_STYLE,
+
+        BUTTON_STYLE_COUNT
+    };
+
 private:
 
     /**
@@ -441,7 +449,7 @@ private:
 
     Checkable         m_checkBox;
     Checkable         m_radioButton;
-    Button            m_button;
+    Button            m_button[BUTTON_STYLE_COUNT];
 
     Window            m_window[WINDOW_STYLE_COUNT];
     HSlider           m_hSlider;
@@ -584,7 +592,7 @@ public:
 
     /** Only call between beginRendering and endRendering */
     void renderButton(const Rect2D& bounds, bool enabled, bool focused, 
-                      bool pushed, const GuiCaption& text) const;
+                      bool pushed, const GuiCaption& text, ButtonStyle buttonStyle) const;
 
     /** Only call between beginRendering and endRendering.
         @param bounds Corresponds to the footprint of the window; dropshadows and glows may

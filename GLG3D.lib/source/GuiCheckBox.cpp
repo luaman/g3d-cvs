@@ -14,7 +14,7 @@ void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         if (m_style == BOX_STYLE) {
             skin->renderCheckBox(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption);
         } else {
-            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption);
+            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption, (m_style == BUTTON_STYLE) ? GuiSkin::NORMAL_BUTTON_STYLE : GuiSkin::TOOL_BUTTON_STYLE);
         }
     }
 }

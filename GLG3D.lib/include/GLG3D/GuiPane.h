@@ -24,6 +24,7 @@
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiTextBox.h"
+#include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiDropDownList.h"
 
 namespace G3D {
@@ -237,7 +238,7 @@ public:
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection,
                                 GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
-    GuiButton* addButton(const GuiCaption& text);
+    GuiButton* addButton(const GuiCaption& text, GuiButton::Style style = GuiButton::NORMAL_STYLE);
 
     GuiTextBox* addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE);
 

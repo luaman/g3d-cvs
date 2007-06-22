@@ -22,7 +22,8 @@ void GuiRadioButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         if (m_style == RADIO_STYLE) {
             skin->renderRadioButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption);
         } else {
-            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption);
+            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption,
+                               (m_style == BUTTON_STYLE) ? GuiSkin::NORMAL_BUTTON_STYLE : GuiSkin::TOOL_BUTTON_STYLE);
         }
     }
 }

@@ -26,7 +26,7 @@ class GuiRadioButton : public GuiControl {
     friend class GuiPane;
 public:
 
-    enum Style {RADIO_STYLE, BUTTON_STYLE};
+    enum Style {RADIO_STYLE, BUTTON_STYLE, TOOL_STYLE};
 
 protected:
     

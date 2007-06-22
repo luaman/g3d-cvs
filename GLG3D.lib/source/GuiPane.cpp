@@ -110,8 +110,8 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 }
 
 
-GuiButton* GuiPane::addButton(const GuiCaption& text) {
-    GuiButton* b = new GuiButton(m_gui, this, text);
+GuiButton* GuiPane::addButton(const GuiCaption& text, GuiButton::Style style) {
+    GuiButton* b = new GuiButton(m_gui, this, text, style);
     b->setRect(Rect2D::xywh(nextControlPos(), Vector2(80, CONTROL_HEIGHT)));
     
     controlArray.append(b);

@@ -92,9 +92,13 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     m_radioButton.disabledTextStyle = m_disabledTextStyle;
     m_radioButton.deserialize("radioButton",path,  b);
 
-    m_button.textStyle = m_textStyle;
-    m_button.disabledTextStyle = m_disabledTextStyle;
-    m_button.deserialize("button",path,  b);
+    m_button[NORMAL_BUTTON_STYLE].textStyle = m_textStyle;
+    m_button[NORMAL_BUTTON_STYLE].disabledTextStyle = m_disabledTextStyle;
+    m_button[NORMAL_BUTTON_STYLE].deserialize("button", path, b);
+
+    m_button[TOOL_BUTTON_STYLE].textStyle = m_textStyle;
+    m_button[TOOL_BUTTON_STYLE].disabledTextStyle = m_disabledTextStyle;
+    m_button[TOOL_BUTTON_STYLE].deserialize("toolButton", path, b);
 
     m_closeButton.deserialize("closeButton", b);
 
@@ -485,17 +489,19 @@ void GuiSkin::renderRadioButton(const Rect2D& bounds, bool enabled, bool focused
 
 
 void GuiSkin::renderButton(const Rect2D& bounds, bool enabled, bool focused, 
-                           bool pushed, const GuiCaption& text) const {
+                           bool pushed, const GuiCaption& text, ButtonStyle buttonStyle) const {
     debugAssert(inRendering);
-    m_button.render(rd, bounds, enabled, focused, pushed);
+    if (buttonStyle != NO_BUTTON_STYLE) {
+        m_button[buttonStyle].render(rd, bounds, enabled, focused, pushed);
+    }
 
     if (text.text() != "") {
-        const TextStyle& style = enabled ? m_button.textStyle : m_button.disabledTextStyle;
+        const TextStyle& style = enabled ? m_button[buttonStyle].textStyle : m_button[buttonStyle].disabledTextStyle;
 
         addDelayedText(
             text.font(style.font),
             text.text(), 
-            bounds.center() + m_button.textOffset,
+            bounds.center() + m_button[buttonStyle].textOffset,
             text.size(style.size),
             text.color(style.color),
             text.outlineColor(style.outlineColor),
