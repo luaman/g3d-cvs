@@ -231,6 +231,7 @@ private:
         Vector2             disabled;
 
         TextStyle           textStyle;
+        TextStyle           disabledTextStyle;
 
         void deserialize(const std::string& name, const std::string& path, TextInput& b);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
@@ -250,6 +251,8 @@ private:
 
         /** Defaults */
         TextStyle            textStyle;
+
+        TextStyle            disabledTextStyle;
 
         class Pair {
         public:
@@ -288,6 +291,8 @@ private:
 
         /** Defaults */
         TextStyle            textStyle;
+
+        TextStyle            disabledTextStyle;
 
         /** For the user value*/
         TextStyle            contentStyle;
@@ -331,6 +336,7 @@ private:
 
         /** Defaults */
         TextStyle            textStyle;
+        TextStyle            disabledTextStyle;
 
         void deserialize(const std::string& name, const std::string& path, TextInput& b);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool checked) const;
@@ -372,7 +378,8 @@ private:
         Vector2          defocused;
 
         /** Defaults */
-        TextStyle            textStyle;
+        TextStyle        textStyle;
+        TextStyle        defocusedTextStyle;
 
         void deserialize(const std::string& name, const std::string& path, TextInput& b);
 
@@ -411,7 +418,7 @@ private:
 
         /** Defaults */
         TextStyle            textStyle;
-
+        TextStyle        disabledTextStyle;
         void deserialize(const std::string& name, const std::string& path, TextInput& b);
 
         /** Renders along the center of the vertical bounds and stretches to fill horizontally.*/
@@ -425,7 +432,8 @@ private:
     class Pane {
     public:
         /** Defaults */
-        TextStyle            textStyle;
+        TextStyle        textStyle;
+        TextStyle        disabledTextStyle;
         StretchRectHV    frame;
         Pad              clientPad;
         void deserialize(const std::string& name, const std::string& path, TextInput& b);
@@ -447,6 +455,7 @@ private:
 
     /** Defaults */
     TextStyle         m_textStyle;
+    TextStyle         m_disabledTextStyle;
 
     TextureRef        texture;
 
