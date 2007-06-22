@@ -94,25 +94,38 @@ GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, int* indexV
 
 
 GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style style) {
-    return addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(value), style));
+    GuiCheckBox* c = addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(value), style));     
+    if (style == GuiCheckBox::TOOL_STYLE) {
+        c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
+    } else if (style == GuiCheckBox::BUTTON_STYLE) {
+        c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
+    }
+    return c;
 }
 
 
 GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update) {
-    
     return addControl(new GuiTextBox(m_gui, this, caption, Pointer<std::string>(value), update));
 }
 
 
 GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
-
-    return addControl(new GuiRadioButton(m_gui, this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
+    GuiRadioButton* c = addControl(new GuiRadioButton(m_gui, this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
+    if (style == GuiRadioButton::TOOL_STYLE) {
+        c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
+    } else if (style == GuiRadioButton::BUTTON_STYLE) {
+        c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
+    }
+    return c;
 }
 
 
 GuiButton* GuiPane::addButton(const GuiCaption& text, GuiButton::Style style) {
     GuiButton* b = new GuiButton(m_gui, this, text, style);
-    b->setRect(Rect2D::xywh(nextControlPos(), Vector2(80, CONTROL_HEIGHT)));
+
+    b->setRect(Rect2D::xywh(nextControlPos(), 
+        Vector2(((style == GuiButton::NORMAL_STYLE) ? BUTTON_WIDTH : TOOL_BUTTON_WIDTH), 
+               CONTROL_HEIGHT)));
     
     controlArray.append(b);
 

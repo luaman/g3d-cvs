@@ -13,6 +13,22 @@
 
 namespace G3D {
 
+void GuiControl::setSize(const Vector2& v) {
+    setRect(Rect2D::xywh(rect().x0y0(), v));
+}
+
+void GuiControl::setHeight(float h) {
+    setRect(Rect2D::xywh(rect().x0y0(), Vector2(rect().width(), h)));
+}
+
+void GuiControl::setWidth(float w) {
+    setRect(Rect2D::xywh(rect().x0y0(), Vector2(w, rect().height())));
+}
+
+void GuiControl::moveRightOf(const GuiControl* control) {
+    setRect(Rect2D::xywh(control->rect().x1y0(), rect().wh()));
+}
+
 bool GuiControl::mouseOver() const {
     return m_gui->mouseOverGuiControl == this;
 }

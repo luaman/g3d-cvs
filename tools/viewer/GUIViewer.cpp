@@ -52,10 +52,10 @@ void GUIViewer::createGui(const std::string& filename) {
 			radio[1] = 3;
 			radio[2] = 5;
 			radio[3] = 7;
-			normalPane->addRadioButton("Selected, Disabled", 1, &radio[0])->setEnabled(false);
-			normalPane->addRadioButton("Deselected, Disabled", 2, &radio[0])->setEnabled(false);
-			normalPane->addRadioButton("Selected, Enabled", 3, &radio[1]);
-			normalPane->addRadioButton("Deselected, Disabled", 4, &radio[1]);
+			normalPane->addRadioButton("Sel, Dis", 1, &radio[0])->setEnabled(false);
+			normalPane->addRadioButton("Desel, Dis", 2, &radio[0])->setEnabled(false);
+			normalPane->addRadioButton("Sel, Enabled", 3, &radio[1]);
+			normalPane->addRadioButton("Desel, Disabled", 4, &radio[1]);
 		normalPane = pane->addPane(GuiCaption(""), 170, GuiPane::SIMPLE_FRAME_STYLE);
 			normalPane->addLabel(GuiCaption("Simple Pane"));
 			normalPane->addLabel(GuiCaption("Button (Radio)"));
@@ -91,6 +91,14 @@ void GUIViewer::createGui(const std::string& filename) {
 	pane->addButton("Disabled")->setEnabled(false);
 
 	pane = dropdownWindow->pane();
+        GuiButton* t1 = pane->addButton("Tool", GuiButton::TOOL_STYLE);
+        GuiButton* t2 = pane->addButton("Tool", GuiButton::TOOL_STYLE);
+        t2->moveRightOf(t1);
+        t2->setEnabled(false);
+        static bool check = false;
+        GuiCheckBox* t3 = pane->addCheckBox("Check", &check, GuiCheckBox::TOOL_STYLE);
+        t3->moveRightOf(t2);
+
 		dropdownIndex[0] = 0;
 		dropdownIndex[1] = 0;
 		dropdown.append("Option 1");

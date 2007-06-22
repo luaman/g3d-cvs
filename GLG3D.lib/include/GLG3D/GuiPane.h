@@ -49,6 +49,8 @@ private:
 
     enum {CONTROL_HEIGHT = 25};
     enum {CONTROL_WIDTH = 180};
+    enum {BUTTON_WIDTH = 80};
+    enum {TOOL_BUTTON_WIDTH = CONTROL_HEIGHT * 2};
 
 public:
 

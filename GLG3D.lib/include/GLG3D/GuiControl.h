@@ -63,6 +63,12 @@ public:
     void setCaption(const GuiCaption& text);
     const Rect2D& rect() const;
     virtual void setRect(const Rect2D& rect);
+    void setSize(const Vector2& v);
+    void setWidth(float w);
+    void setHeight(float h);
+
+    /** If these two controls have the same parent, move this one immediately to the right of the argument*/
+    void moveRightOf(const GuiControl* control);
 
 protected:
 
