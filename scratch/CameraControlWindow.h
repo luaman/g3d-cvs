@@ -25,9 +25,6 @@ protected:
     enum Controller {PROGRAM_CONTROLLER, MANUAL_CONTROLLER, TRACK_CONTROLLER};
     Controller                  controller;
 
-    enum Mode {STOP_MODE, PLAY_MODE, RECORD_MODE};
-    Mode                        mode;
-
     GuiDropDownList*            trackList;
 
     GuiRadioButton*             programButton;
@@ -45,6 +42,14 @@ protected:
         FirstPersonManipulatorRef& manualManipulator, 
         UprightSplineManipulatorRef& trackManipulator, 
         const GuiSkinRef& skin);
+
+    /** Turns on/off the manual camera controller */
+    void setManualActive(bool e);
+
+    /** Returns true if the Gui thinks that the manual manipulator
+        should be active (the user might have overriden our
+        controls) */
+    bool desireManualActive() const;
 
     void sync();
 

@@ -180,6 +180,7 @@ std::string demoFindData(bool errorIfNotFound) {
         potential.append("/course/cs224/");
         potential.append("/map/gfx0/common/games/");
     #elif defined(G3D_OSX)
+        potential.append("/Volumes/McGuire/Projects/");
         potential.append("/Volumes/McGuire/Projects/G3D/");
     #endif
 

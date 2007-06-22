@@ -41,9 +41,16 @@ class FirstPersonManipulator : public Manipulator {
 public:
     /**
      MOUSE_DIRECT              = Shooter/Quake style (default), mouse cursor is hidden and mouse controls yaw/pitch
-     MOUSE_DIRECT_RIGHT_BUTTON = RPG/World of Warcraft style, on right mouse button cursor is hidden and mouse controls yaw/pitch
-     MOUSE_SCROLL_AT_EDGE      = Leaves mouse cursor visible and rotates while mouse is near the window edge
-     MOUSE_PUSH_AT_EDGE        = Leaves mouse cursor visible and rotates when the mouse is actively pushing against the window edge
+
+     MOUSE_DIRECT_RIGHT_BUTTON = RPG/World of Warcraft style, on right
+     mouse button cursor is hidden and mouse controls yaw/pitch.  On
+     OS X, ctrl+right button is treated as the right mouse button.
+
+     MOUSE_SCROLL_AT_EDGE = Leaves mouse cursor visible and rotates
+     while mouse is near the window edge
+
+     MOUSE_PUSH_AT_EDGE = Leaves mouse cursor visible and rotates when
+     the mouse is actively pushing against the window edge
      */
     enum MouseMode {
         MOUSE_DIRECT,
@@ -54,21 +61,25 @@ public:
 
 private:
 
-	/** m/s */
-	float                       maxMoveRate;
-
-	/** rad/s */
-	float                       maxTurnRate;
-
-	float                       m_yaw;
+    /** m/s */
+    float                       maxMoveRate;
+    
+    /** rad/s */
+    float                       maxTurnRate;
+    
+    float                       m_yaw;
     float                       m_pitch;
-	Vector3                     translation;
+    Vector3                     translation;
 
     bool                        _active;
 
     class UserInput*            userInput;
 
     MouseMode                   m_mouseMode;
+
+    /** Returns true if the right mouse button is down, or on OSX, the user is using
+        the left mouse and ctrl */
+    bool rightDown(UserInput*) const;
 
     FirstPersonManipulator();
 

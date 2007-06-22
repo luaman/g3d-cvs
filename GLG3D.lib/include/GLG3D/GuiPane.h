@@ -180,11 +180,13 @@ public:
         void (T::*set)(EnumOrInt), 
         GuiRadioButton::Style style) {
         
+        // Turn enums into ints to allow this to always act as a pointer to an int
         return addControl(new GuiRadioButton
                           (m_gui, this, text, myID, 
                            Pointer<int>(object, 
                                         reinterpret_cast<int (T::*)() const>(get), 
-                                        reinterpret_cast<void (T::*)(EnumOrInt)>(set)), style));
+                                        reinterpret_cast<void (T::*)(int)>(set)), 
+                           style));
     }
 
     /**

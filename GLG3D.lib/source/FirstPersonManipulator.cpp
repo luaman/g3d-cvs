@@ -82,11 +82,23 @@ void FirstPersonManipulator::reset() {
     _active      = false;
     m_yaw        = -halfPi();
     m_pitch      = 0;
-	translation  = Vector3::zero();
+    translation  = Vector3::zero();
     setMoveRate(10);
-	setTurnRate(pi() * 5);
+    setTurnRate(pi() * 5);
 }
 
+bool FirstPersonManipulator::rightDown(UserInput* ui) const {
+#   ifdef G3D_OSX
+    // Treat trackpad wheel click as right mouse button
+       return 
+           userInput->keyDown(GKey::RIGHT_MOUSE) || 
+           (userInput->keyDown(GKey::LEFT_MOUSE) && 
+            (userInput->keyDown(GKey::LCTRL) ||
+             userInput->keyDown(GKey::RCTRL)));
+#   else
+       return userInput->keyDown(GKey::RIGHT_MOUSE)
+#   endif
+}
 
 void FirstPersonManipulator::setActive(bool a) {
     if (_active == a) {
@@ -101,7 +113,7 @@ void FirstPersonManipulator::setActive(bool a) {
 
     case MOUSE_DIRECT_RIGHT_BUTTON:
         // Only turn on when activeand the right mouse button is down
-        userInput->setPureDeltaMouse(_active && userInput->keyDown(GKey::RIGHT_MOUSE));
+        userInput->setPureDeltaMouse(_active && rightDown(userInput));
         break;
 
     case MOUSE_SCROLL_AT_EDGE:
@@ -202,7 +214,7 @@ void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
     switch (m_mouseMode) {
     case MOUSE_DIRECT_RIGHT_BUTTON:
         {
-            bool mouseDown = userInput->keyDown(GKey::RIGHT_MOUSE);
+            bool mouseDown = rightDown(userInput);
             userInput->setPureDeltaMouse(mouseDown);
             if (! mouseDown) {
                 // Skip bottom case

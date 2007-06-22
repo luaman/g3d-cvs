@@ -94,6 +94,46 @@ public:
         }
     }
 
+    /** Loads standard symbols from the greek.fnt and icon.fnt fonts.*/
+    class Symbol {
+    private:
+        static GuiCaption greek(int asciiCode);
+    public:
+        static GuiCaption record();
+        static GuiCaption play();
+        static GuiCaption stop();
+        static GuiCaption pause();
+        static GuiCaption forward();
+        static GuiCaption reverse();
+        static GuiCaption previous();
+        static GuiCaption next();
+
+        /** >= */
+        static GuiCaption leq();
+
+        /** <= */
+        static GuiCaption geq();
+
+        /** +/- */
+        static GuiCaption pm();
+
+        /** Wiggly equals sign */
+        static GuiCaption approx();
+
+        /** Partial derivative symbol */
+        static GuiCaption partial();
+
+        /** Red heart */
+        static GuiCaption heartSuit();
+
+        static GuiCaption clubSuit();
+        static GuiCaption spadeSuit();
+
+        /** Red diamond */
+        static GuiCaption diamondSuit();
+
+    };
+
 };
 
 } // G3D

@@ -13,19 +13,16 @@ CameraControlWindow::CameraControlWindow(
 
     GuiWindow("Camera Control", 
               skin, 
-              Rect2D::xywh(600,200,0,0),
+              Rect2D::xywh(700, 140, 0, 0),
               GuiWindow::TOOL_FRAME_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
     trackFileIndex(0),
     controller(PROGRAM_CONTROLLER),
-    mode(STOP_MODE),
     manualManipulator(manualManipulator),
     trackManipulator(trackManipulator)
     {
 
     updateTrackFiles();
-
-    GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
 
     GuiPane* pane = GuiWindow::pane();
 
@@ -36,18 +33,35 @@ CameraControlWindow::CameraControlWindow(
     trackList = pane->addDropDownList("", &trackFileIndex, &trackFileArray);
     trackList->setRect(trackList->rect() - Vector2(70, 0));
 
-    const std::string STOP = "<";
-    const std::string PLAY = "4";
-    const std::string RECORD = "=";
+    recordButton = pane->addRadioButton
+        (GuiCaption::Symbol::record(), 
+         UprightSplineManipulator::RECORD_KEY_MODE, 
+         trackManipulator.pointer(),
+         &UprightSplineManipulator::mode,
+         &UprightSplineManipulator::setMode,
+         GuiRadioButton::BUTTON_STYLE);
 
-    recordButton = pane->addRadioButton(GuiCaption(RECORD, iconFont, 16, Color3::red() * 0.5f), RECORD_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
     Rect2D baseRect = Rect2D::xywh(recordButton->rect().x0() + 20, recordButton->rect().y0(), 30, 30);
     recordButton->setRect(baseRect + Vector2(baseRect.width() * 0, 0));
 
-    playButton = pane->addRadioButton(GuiCaption(PLAY, iconFont, 16), PLAY_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    playButton = pane->addRadioButton
+        (GuiCaption::Symbol::play(), 
+         UprightSplineManipulator::PLAY_MODE, 
+         trackManipulator.pointer(),
+         &UprightSplineManipulator::mode,
+         &UprightSplineManipulator::setMode,
+         GuiRadioButton::BUTTON_STYLE);
+
     playButton->setRect(baseRect + Vector2(baseRect.width() * 1, 0));
 
-    stopButton = pane->addRadioButton(GuiCaption(STOP, iconFont, 16), STOP_MODE, &mode, GuiRadioButton::BUTTON_STYLE);
+    stopButton = pane->addRadioButton
+        (GuiCaption::Symbol::stop(), 
+         UprightSplineManipulator::INACTIVE_MODE, 
+         trackManipulator.pointer(),
+         &UprightSplineManipulator::mode,
+         &UprightSplineManipulator::setMode,
+         GuiRadioButton::BUTTON_STYLE);
+
     stopButton->setRect(baseRect + Vector2(baseRect.width() * 2, 0));
 
     GuiControl* last = pane->addCheckBox("Visible", trackManipulator.pointer(), &UprightSplineManipulator::showPath, &UprightSplineManipulator::setShowPath);
@@ -73,32 +87,52 @@ void CameraControlWindow::updateTrackFiles() {
 void CameraControlWindow::onUserInput(UserInput* ui) {
     GuiWindow::onUserInput(ui);
 
-    // Because the control options don't map directly to the built-in camera controllers
-    // we must explicitly sync some of the variables.
-
-    if (manualManipulator->active()) {
-        if (controller != MANUAL_CONTROLLER) {
+    // Detect if the user explicitly grabbed or released control of
+    // the camera without using the gui.
+    bool guiActive = desireManualActive();
+    bool userActive = manualManipulator->active();
+    if (guiActive != userActive) {
+        if (userActive) {
             // The user took control of the camera explicitly
             controller = MANUAL_CONTROLLER;
-            sync();
+        } else {
+            // The user released control of the camera explicitly...
+            if (controller == TRACK_CONTROLLER) {
+                // ...while recording or playing back
+                trackManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
+            } else {
+                // ...while in manual mode
+                controller = PROGRAM_CONTROLLER;
+            }
         }
-    } else {
-        if (controller == MANUAL_CONTROLLER) {
-            // The user released control of the camera explicitly
-            controller = PROGRAM_CONTROLLER;
-            sync();
-        }
+        sync();
     }
 }
 
 
+void CameraControlWindow::setManualActive(bool e) {
+    manualManipulator->setActive(e);
+}
+
+
 bool CameraControlWindow::onEvent(const GEvent& event) {
+    /*
+    switch(event.type) {
+    case GEventType::MOUSE_BUTTON_DOWN:
+        debugPrintf("Mouse Button: %d\n", event.button.button);
+        break;
+    case GEventType::MOUSE_MOTION:
+        debugPrintf("Mouse Motion, state: %d\n", event.motion.state);
+        break;
+    case GEventType::KEY_DOWN:
+        debugPrintf("Key: %d\n", event.key.keysym.sym);
+        break;
+    default:;
+    }*/
+
 
     // Recording
-    bool recording = trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE;
-    if (recording) {
-        // See if the user pressed the capture frame key
-    }
+    //bool recording = trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE;
 
     // Allow parent to process the event
     bool c = GuiWindow::onEvent(event);
@@ -108,14 +142,29 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
     
     if (event.type == GEventType::GUI_ACTION) {
         sync();
+
+        if (event.gui.control == recordButton) {
+            // Start recording
+            trackManipulator->setMode(UprightSplineManipulator::RECORD_KEY_MODE);
+        }
+
+        if (event.gui.control == stopButton) {
+            // Start recording
+            trackManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
+        }
     }
 
     return false;
 }
 
+bool CameraControlWindow::desireManualActive() const {
+    return (controller == MANUAL_CONTROLLER) ||
+        ((controller == TRACK_CONTROLLER) && 
+         (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE));
+}
 
 void CameraControlWindow::sync() {
-    manualManipulator->setActive(controller == MANUAL_CONTROLLER);
+    setManualActive(desireManualActive());
     
     Vector2 currentSize = rect().wh();
     Vector2 newSize = currentSize;
@@ -124,12 +173,13 @@ void CameraControlWindow::sync() {
         newSize = bigSize;
 
         bool hasTracks = trackFileArray.size() > 0;
-
-        playButton->setEnabled(hasTracks);
         trackList->setEnabled(hasTracks);
+
+        playButton->setEnabled(trackManipulator->splineSize() > 1);
 
     } else {
         newSize = smallSize;
+        trackManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
     }
 
     if (newSize != currentSize) {

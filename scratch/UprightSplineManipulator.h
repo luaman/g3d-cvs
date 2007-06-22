@@ -34,7 +34,7 @@ public:
 
 protected:
 
-    UprightSpline           m_spline;
+    UprightSpline          m_spline;
 
     /** Current time during playback. */
     RealTime               m_time;
@@ -112,6 +112,11 @@ public:
     void setMode(Mode m);
 
     Mode mode() const;
+
+    /** Number of control points */
+    int splineSize() const {
+        return m_spline.control.size();
+    }
     
     /** Destroys the current path */
     void clear();

@@ -683,7 +683,15 @@ void SDLWindow::setInputCapture(bool c) {
 bool SDLWindow::pollOSEvent(GEvent& e) {
     // Note that GEvent conveniently has exactly the same memory layout
     // as SDL_Event.
-    return (SDL_PollEvent(reinterpret_cast<SDL_Event*>(&e)) != 0);
+    bool hadEvent = (SDL_PollEvent(reinterpret_cast<SDL_Event*>(&e)) != 0);
+    if (hadEvent) {
+        if ((e.type == GEventType::MOUSE_BUTTON_UP) ||
+            (e.type == GEventType::MOUSE_BUTTON_DOWN)) {
+            // SDL mouse buttons are off by one from our convention
+            --e.button.button;
+        }
+    }
+    return hadEvent;
 }
 
 

@@ -253,17 +253,17 @@ public:
 	    EURO		= 321,		/* Some european keyboards */
 	    UNDO		= 322,		/* Atari keyboard has Undo */
 
-        // The order of the mouse buttons is intentionally chosen to match SDL's button codes
-        // and cannot be changed.
-        LEFT_MOUSE        = 324,
-        MIDDLE_MOUSE,
-        RIGHT_MOUSE,
-        MOUSE_WHEEL_UP,
-        MOUSE_WHEEL_DOWN,
+            // The order of the mouse buttons is intentionally chosen to match SDL's button codes
+            // and cannot be changed.
+            LEFT_MOUSE        = 324,
+            MIDDLE_MOUSE,
+            RIGHT_MOUSE,
+            MOUSE_WHEEL_UP,
+            MOUSE_WHEEL_DOWN,
 
-        /* Add any other keys here */
-
-        LAST};
+            /* Add any other keys here */
+            
+            LAST};
 
 private:
     

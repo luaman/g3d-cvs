@@ -41,4 +41,78 @@ void GuiCaption::setDefault(const GFontRef& dfont, float dsize, const Color4& dc
     }
 }
 
+
+GuiCaption GuiCaption::Symbol::record() {
+    return GuiCaption("=", GFont::fromFile(System::findDataFile("icon.fnt")), 16, Color3::red() * 0.5f);
+}
+
+GuiCaption GuiCaption::Symbol::play() {
+    return GuiCaption("4", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+GuiCaption GuiCaption::Symbol::pause() {
+    return GuiCaption("3", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+GuiCaption GuiCaption::Symbol::stop() {
+    return GuiCaption("<", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+GuiCaption GuiCaption::Symbol::forward() {
+    return GuiCaption("0", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+GuiCaption GuiCaption::Symbol::reverse() {
+    return GuiCaption("/", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+GuiCaption GuiCaption::Symbol::previous() {
+    return GuiCaption("1", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+GuiCaption GuiCaption::Symbol::next() {
+    return GuiCaption("2", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
+
+GuiCaption GuiCaption::Symbol::greek(int code) {
+    return GuiCaption(std::string() + (char)code, GFont::fromFile(System::findDataFile("symbol.fnt")));
+}
+
+GuiCaption GuiCaption::Symbol::leq() {
+    return greek(0xA3);
+}
+
+GuiCaption GuiCaption::Symbol::geq() {
+    return greek(0xB3);
+}
+
+GuiCaption GuiCaption::Symbol::pm() {
+    return greek(0xB1);
+}
+
+GuiCaption GuiCaption::Symbol::heartSuit() {
+    return GuiCaption(std::string() + char(0xA9), GFont::fromFile(System::findDataFile("symbol.fnt")), -1, Color3::red() * 0.6f);
+}
+
+GuiCaption GuiCaption::Symbol::diamondSuit() {
+    return GuiCaption(std::string() + char(0xA8), GFont::fromFile(System::findDataFile("symbol.fnt")), -1, Color3::red() * 0.6f);
+}
+
+GuiCaption GuiCaption::Symbol::clubSuit() {
+    return greek(0xA7);
+}
+
+GuiCaption GuiCaption::Symbol::spadeSuit() {
+    return greek(0xAA);
+}
+
+GuiCaption GuiCaption::Symbol::approx() {
+    return greek(0xBB);
+}
+
+GuiCaption GuiCaption::Symbol::partial() {
+    return greek(0xB6);
+}
+
 }

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, graphics3d.com
  
   @created 2007-05-16
-  @edited  2007-06-16
+  @edited  2007-06-22
 
   Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
@@ -162,8 +162,10 @@ public:
 
     Pointer() : interface(NULL) {};
 
+    /** Allows implicit cast from real pointer */
     Pointer(ValueType* v) : interface(new Memory(v)) {}
 
+    // Assignment
     inline Pointer& operator=(const Pointer& r) {
         delete interface;
         if (r.interface != NULL) {
@@ -206,25 +208,25 @@ public:
     Pointer(Class* object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
-        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&) >(object, getMethod, setMethod)) {}
+        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
-        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&) >(object, getMethod, setMethod)) {}
+        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
-        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType) >(object, getMethod, setMethod)) {}
+        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
-        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType) >(object, getMethod, setMethod)) {}
+        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
     ~Pointer() {
         delete interface;
