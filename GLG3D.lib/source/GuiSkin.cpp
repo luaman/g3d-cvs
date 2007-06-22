@@ -81,7 +81,7 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
 
     m_textStyle.deserialize(path, "font", b);
     m_disabledTextStyle = m_textStyle;
-    m_disabledTextStyle.deserialize(path, "font", b);
+    m_disabledTextStyle.deserialize(path, "disabledFont", b);
     
     // Controls (all inherit the default text style and may override)
     m_checkBox.textStyle = m_textStyle;
