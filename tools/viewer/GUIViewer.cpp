@@ -33,10 +33,10 @@ void GUIViewer::createGui(const std::string& filename) {
 
 	skin = GuiSkin::fromFile(filename, parentApp->debugFont);
 
-	window = GuiWindow::create(GuiCaption("Normal"), skin, Rect2D::xywh(50,50,330,550), GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-	toolWindow = GuiWindow::create(GuiCaption("Tool"), skin, Rect2D::xywh(300,100,200,440), GuiWindow::TOOL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-	bgControl = GuiWindow::create(GuiCaption("Dialog"), skin, Rect2D::xywh(550,100,200,240), GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-	dropdownWindow = GuiWindow::create(GuiCaption("Normal"), skin, Rect2D::xywh(400,400, 200, 240), GuiWindow::FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	window         = GuiWindow::create("Normal", skin, Rect2D::xywh(50,50,0,0),   GuiWindow::FRAME_STYLE,        GuiWindow::IGNORE_CLOSE);
+	toolWindow     = GuiWindow::create("Tool",   skin, Rect2D::xywh(300,100,0,0), GuiWindow::TOOL_FRAME_STYLE,   GuiWindow::IGNORE_CLOSE);
+	bgControl      = GuiWindow::create("Dialog", skin, Rect2D::xywh(550,100,0,0), GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+	dropdownWindow = GuiWindow::create("Normal", skin, Rect2D::xywh(400,400,0,0), GuiWindow::FRAME_STYLE,        GuiWindow::IGNORE_CLOSE);
 
     text = "Hello";
 
@@ -102,7 +102,6 @@ void GUIViewer::createGui(const std::string& filename) {
 		pane->addDropDownList(GuiCaption("Disabled"), &dropdownIndex[1], &dropdownDisabled)->setEnabled(false);
 		pane->addTextBox("TextBox", &text);
 	    pane->addTextBox("Disabled", &text)->setEnabled(false);
-		pane->addButton("Store Text");
 
 	pane = bgControl->pane();
     	pane->addLabel("Background Color");

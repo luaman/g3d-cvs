@@ -105,7 +105,7 @@ bool FirstPersonManipulator::rightDown(UserInput* ui) const {
              userInput->keyDown(GKey::LCTRL) ||
              userInput->keyDown(GKey::RCTRL)));
 #   else
-       return userInput->keyDown(GKey::RIGHT_MOUSE)
+       return userInput->keyDown(GKey::RIGHT_MOUSE);
 #   endif
 }
 

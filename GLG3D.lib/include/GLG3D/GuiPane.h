@@ -119,7 +119,8 @@ public:
     ~GuiPane();
 
     /** 
-        @param height Non-client size of the pane.  This will automatically grow as controls are added if left at zero.
+        @param height Client size of the pane (size of the <i>inside</i>, not counting the border).  
+            This will automatically grow as controls are added, so it can safely be left as zero.
      */
     GuiPane* addPane(const GuiCaption& text, float height = 0, GuiPane::Style style = GuiPane::NO_FRAME_STYLE);
 

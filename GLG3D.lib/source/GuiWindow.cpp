@@ -24,16 +24,6 @@ GuiWindow::Ref GuiWindow::create
     return new GuiWindow(label, skin, rect, style, close);
 }
 
-void GuiWindow::increaseBounds(const Vector2& extent) {
-    if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
-        Rect2D newRect = Rect2D::xywh(m_rect.x0y0(), extent);
-        if (m_style != NO_FRAME_STYLE) {
-            newRect = skin->clientToWindowBounds(newRect, GuiSkin::WindowStyle(m_style));
-        }
-
-        setRect(newRect);
-    }
-}
 
 GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect, Style style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 
@@ -53,6 +43,22 @@ GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect
 
 GuiWindow::~GuiWindow() {
     delete m_rootPane;
+}
+
+
+void GuiWindow::increaseBounds(const Vector2& extent) {
+    if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
+        // Create the new client rect
+        Rect2D newRect = Rect2D::xywh(Vector2(0,0), extent.max(m_clientRect.wh()));
+
+        // Transform the client rect into an absolute rect
+        if (m_style != NO_FRAME_STYLE) {
+            newRect = skin->clientToWindowBounds(newRect, GuiSkin::WindowStyle(m_style));
+        }
+
+        // The new window has the old position and the new width
+        setRect(Rect2D::xywh(m_rect.x0y0(), newRect.wh()));
+    }
 }
 
 

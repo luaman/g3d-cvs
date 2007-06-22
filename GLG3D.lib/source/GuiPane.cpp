@@ -46,12 +46,16 @@ Vector2 GuiPane::nextControlPos() const {
 
 void GuiPane::increaseBounds(const Vector2& extent) {
     if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
-        Rect2D newRect = Rect2D::xywh(m_rect.x0y0(), extent);
+        // Create the new client rect
+        Rect2D newRect = Rect2D::xywh(Vector2(0,0), extent.max(m_clientRect.wh()));
+
+        // Transform the client rect into an absolute rect
         if (m_style != NO_FRAME_STYLE) {
             newRect = m_gui->skin->clientToPaneBounds(newRect, GuiSkin::PaneStyle(m_style));
         }
 
-        setRect(newRect);
+        // The new window has the old position and the new width
+        setRect(Rect2D::xywh(m_rect.x0y0(), newRect.wh()));
 
         if (m_parent != NULL) {
             m_parent->increaseBounds(m_rect.x1y1());
@@ -127,11 +131,15 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
 
 
 GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style) {
-    // Make the pane at least as tall as it needs to be for its border
-    h = max(h, m_gui->skin->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style)).height());
+    h = max(h, 0.0f);
+    Rect2D minRect = m_gui->skin->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style));
 
     Vector2 pos = nextControlPos();
-    Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, h));
+
+    // Back up by the border size
+    pos -= minRect.x0y0();
+
+    Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, h + minRect.height()));
 
     GuiPane* p = new GuiPane(m_gui, this, text, newRect, style);
 

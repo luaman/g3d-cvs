@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Viewer"
+	Name="viewer"
 	ProjectGUID="{F11EB24A-207D-4BBD-993F-F2757D91B2FC}"
 	RootNamespace="Viewer"
 	Keyword="Win32Proj"
@@ -24,7 +24,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(Solutiondir)..\tools\$(InputName)\data-files $(OutDir)"
+				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\tools\$(InputName)\data-files $(OutDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -103,7 +103,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(Solutiondir)..\tools\$(InputName)\data-files $(OutDir)"
+				CommandLine="$(SolutionDir)..\bin\copyifnewer --exclusions $(SolutionDir)..\tools\$(InputName)\data-files $(OutDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
