@@ -87,7 +87,7 @@ void FirstPersonManipulator::reset() {
 
 #   ifdef G3D_OSX
         // OS X has a really slow mouse by default
-        setTurnRate(pi() * 8);
+        setTurnRate(pi() * 12);
 #   else
         setTurnRate(pi() * 5);
 #   endif
