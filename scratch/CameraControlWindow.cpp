@@ -16,9 +16,9 @@ CameraControlWindow::CameraControlWindow(
               Rect2D::xywh(600,200,0,0),
               GuiWindow::TOOL_FRAME_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
+    trackFileIndex(0),
     controller(PROGRAM_CONTROLLER),
     mode(STOP_MODE),
-    trackFileIndex(0),
     manualManipulator(manualManipulator),
     trackManipulator(trackManipulator)
     {

@@ -58,8 +58,6 @@ protected:
 
 public:
     
-    typedef ReferenceCountedPointer<class UprightSplineManipulator> Ref;
-    
     static Ref create(const class GCamera* c = NULL);
     
     virtual void onNetwork() {}

@@ -147,7 +147,7 @@ void zipRead(const std::string& file,
             unzOpenCurrentFile(f);
             {
                 int test = unzReadCurrentFile(f, data, length);
-                debugAssertM(test == length,
+                debugAssertM((size_t)test == length,
                              desiredFile + " was corrupt because it unzipped to the wrong size.");
                 (void)test;
             }
@@ -776,8 +776,8 @@ static void getFileOrDirListNormal(
 
                 entry = readdir(dir);
             }
+            closedir(dir);
         }
-        closedir(dir);
 
     #endif
 }

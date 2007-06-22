@@ -127,13 +127,17 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     for (int i = 0; i < path.length(); ++i) {
         std::string filename = path[i] + name;
         if (fileExists(filename)) {
-            logPrintf("\nWARNING: Could not find '%s' so '%s' was loaded instead.\n\n", full.c_str(), filename.c_str());
+            logPrintf("\nWARNING: Could not find '%s' so '%s' was substituted.\n", full.c_str(), filename.c_str());
             return filename;
         }
     }
 
     if (errorIfNotFound) {
-        alwaysAssertM(false, "Could not find " + full);
+        std::string locations;
+        for (int i = 0; i < path.size(); ++i) {
+            locations += path[i] + name + "\n";
+        }
+        alwaysAssertM(false, "Could not find " + full + " in:\n" + locations);
     }
     // Not found
     return "";
