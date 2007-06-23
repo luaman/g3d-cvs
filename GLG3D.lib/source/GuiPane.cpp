@@ -22,7 +22,7 @@ GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const 
 
 
 Vector2 GuiPane::contentsExtent() const {
-    Vector2 p;
+    Vector2 p(0,0);
     for (int i = 0; i < controlArray.size(); ++i) {
         p = p.max(controlArray[i]->rect().x1y1());
     }
@@ -40,7 +40,8 @@ Vector2 GuiPane::contentsExtent() const {
 
 
 Vector2 GuiPane::nextControlPos() const {
-    return Vector2(0, contentsExtent().y);
+    float y = contentsExtent().y;
+    return Vector2(4, max(y, 4.0f));
 }
 
 
@@ -124,8 +125,8 @@ GuiButton* GuiPane::addButton(const GuiCaption& text, GuiButton::Style style) {
     GuiButton* b = new GuiButton(m_gui, this, text, style);
 
     b->setRect(Rect2D::xywh(nextControlPos(), 
-        Vector2(((style == GuiButton::NORMAL_STYLE) ? BUTTON_WIDTH : TOOL_BUTTON_WIDTH), 
-               CONTROL_HEIGHT)));
+                 Vector2(((style == GuiButton::NORMAL_STYLE) ? (float)BUTTON_WIDTH : (float)TOOL_BUTTON_WIDTH), 
+               (float)CONTROL_HEIGHT)));
     
     controlArray.append(b);
 

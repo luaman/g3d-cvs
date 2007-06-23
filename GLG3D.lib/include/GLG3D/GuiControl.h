@@ -64,6 +64,7 @@ public:
     const Rect2D& rect() const;
     virtual void setRect(const Rect2D& rect);
     void setSize(const Vector2& v);
+    void setPosition(const Vector2& v);
     void setWidth(float w);
     void setHeight(float h);
 

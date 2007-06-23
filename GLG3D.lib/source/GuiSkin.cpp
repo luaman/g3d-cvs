@@ -114,6 +114,9 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     m_window[DIALOG_WINDOW_STYLE].textStyle = m_textStyle;
     m_window[DIALOG_WINDOW_STYLE].deserialize("dialogWindow", path, b);
 
+    m_window[DRAWER_WINDOW_STYLE].textStyle = m_textStyle;
+    m_window[DRAWER_WINDOW_STYLE].deserialize("drawer", path, b);
+
     m_hSlider.textStyle = m_textStyle;
     m_hSlider.disabledTextStyle = m_disabledTextStyle;
     m_hSlider.deserialize("horizontalSlider", path, b);
@@ -365,7 +368,7 @@ Rect2D GuiSkin::closeButtonBounds(const Window& window, const Rect2D& bounds) co
     // If the close button is larger
     // than the title area, draw it half size (e.g., for tool
     // windows)
-    float titleHeight = window.clientPad.topLeft.y;
+    float titleHeight = window.borderThickness.topLeft.y;
     float scale = 1.0f;
     if (titleHeight < m_closeButton.base.height()) {
         scale = 0.5f;
@@ -374,11 +377,11 @@ Rect2D GuiSkin::closeButtonBounds(const Window& window, const Rect2D& bounds) co
     // Position button
     Vector2 center; 
     if (m_osxWindowButtons) {
-        center.x = bounds.x0() + window.clientPad.topLeft.x * scale + scale * m_closeButton.base.width() / 2;
+        center.x = bounds.x0() + window.borderThickness.topLeft.x * scale + scale * m_closeButton.base.width() / 2;
     } else {
-        center.x = bounds.x1() - window.clientPad.bottomRight.x * scale - scale * m_closeButton.base.width() / 2;
+        center.x = bounds.x1() - window.borderThickness.bottomRight.x * scale - scale * m_closeButton.base.width() / 2;
     }
-    center.y = bounds.y0() + window.clientPad.topLeft.y / 2;
+    center.y = bounds.y0() + window.borderThickness.topLeft.y / 2;
     
     // Draw button
     Vector2 wh = m_closeButton.base.wh() * scale;
@@ -424,8 +427,8 @@ void GuiSkin::drawWindow(const Window& window, const Rect2D& bounds,
         addDelayedText(
             text.font(style.font), 
             text.text(), 
-            Vector2(bounds.center().x, bounds.y0() + window.clientPad.topLeft.y * 0.5), 
-                       min(text.size(style.size), window.clientPad.topLeft.y - 2), 
+            Vector2(bounds.center().x, bounds.y0() + window.borderThickness.topLeft.y * 0.5), 
+                       min(text.size(style.size), window.borderThickness.topLeft.y - 2), 
             text.color(style.color), 
             text.outlineColor(style.outlineColor), 
             GFont::XALIGN_CENTER, 
@@ -450,19 +453,19 @@ Rect2D GuiSkin::horizontalSliderToTrackBounds(const Rect2D& bounds) const {
 
 
 Rect2D GuiSkin::windowToTitleBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
-    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_window[windowStyle].clientPad.topLeft.y));
+    return Rect2D::xywh(bounds.x0y0(), Vector2(bounds.width(), m_window[windowStyle].borderThickness.topLeft.y));
 }
 
 
 Rect2D GuiSkin::windowToClientBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
-    return Rect2D::xywh(bounds.x0y0() + m_window[windowStyle].clientPad.topLeft, 
-                        bounds.wh() - m_window[windowStyle].clientPad.wh());
+    return Rect2D::xywh(bounds.x0y0() + m_window[windowStyle].netClientPad.topLeft, 
+                        bounds.wh() - m_window[windowStyle].netClientPad.wh());
 }
 
 
 Rect2D GuiSkin::clientToWindowBounds(const Rect2D& bounds, WindowStyle windowStyle) const {
-    return Rect2D::xywh(bounds.x0y0() - m_window[windowStyle].clientPad.topLeft, 
-                        bounds.wh() + m_window[windowStyle].clientPad.wh());
+    return Rect2D::xywh(bounds.x0y0() - m_window[windowStyle].netClientPad.topLeft, 
+                        bounds.wh() + m_window[windowStyle].netClientPad.wh());
 }
 
 
@@ -942,7 +945,12 @@ void GuiSkin::Window::deserialize(const std::string& name, const std::string& pa
 
     base.deserialize("base", b);
     borderPad.deserialize("borderPad", b);
+    borderThickness.deserialize("borderThickness", b);
+    Pad clientPad;
     clientPad.deserialize("clientPad", b);
+    netClientPad.topLeft = borderThickness.topLeft + clientPad.topLeft; 
+    netClientPad.bottomRight = borderThickness.bottomRight + clientPad.bottomRight; 
+
     focused = readVector2("focused", b);
     defocused = readVector2("defocused", b);
     b.readSymbol("}");

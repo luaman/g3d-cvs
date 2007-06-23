@@ -13,6 +13,10 @@
 
 namespace G3D {
 
+void GuiControl::setPosition(const Vector2& v) {
+    setRect(Rect2D::xywh(v, rect().wh()));
+}
+
 void GuiControl::setSize(const Vector2& v) {
     setRect(Rect2D::xywh(rect().x0y0(), v));
 }

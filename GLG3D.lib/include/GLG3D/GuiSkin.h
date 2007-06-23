@@ -56,6 +56,7 @@ public:
         NORMAL_WINDOW_STYLE,
         TOOL_WINDOW_STYLE,
         DIALOG_WINDOW_STYLE,
+        DRAWER_WINDOW_STYLE,
 
         WINDOW_STYLE_COUNT
     };
@@ -198,6 +199,7 @@ private:
         void deserialize(const std::string& name, TextInput& b);
         void render(class RenderDevice* rd, const Rect2D& bounds, const Vector2& texOffset) const;
     };
+
     class Pad {
     public:
         Vector2      topLeft;
@@ -285,7 +287,6 @@ private:
         void deserialize(const std::string& name, const std::string& path, TextInput& b);
         void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused, bool pushed) const;
     };
-
 
 
     class TextBox {
@@ -379,8 +380,11 @@ private:
         /** Distance from edge to border */
         Pad              borderPad;
 
-        /** Distance from border to client area */
-        Pad              clientPad;
+        /** Thickness of border on each side (not counting rounded corners) */
+        Pad              borderThickness;
+
+        /** Distance from border exterior to client area */
+        Pad              netClientPad;
 
         Vector2          focused;
         Vector2          defocused;
@@ -394,6 +398,7 @@ private:
         /** Pass the bounds outside the border; the borderPad will automatically be added. */
         void render(RenderDevice* rd, const Rect2D& bounds, bool focused) const;
     };
+
 
     class HSlider {
     public:

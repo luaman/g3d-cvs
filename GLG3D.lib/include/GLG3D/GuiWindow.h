@@ -27,6 +27,24 @@ namespace G3D {
 
 class GuiPane;
 
+
+class GuiDrawer {
+private:
+    bool m_open;
+public:
+    enum Side {TOP_SIDE, LEFT_SIDE, RIGHT_SIDE, BOTTOM_SIDE};
+    
+    /** Returns true if this drawer has been pulled out */
+    bool open() const {
+        return m_open;
+    }
+
+    void setOpen(bool b) {
+        // TODO
+    }
+};
+    
+
 /**
    Retained-mode graphical user interface window. 
 
@@ -85,13 +103,13 @@ public:
     typedef ReferenceCountedPointer<GuiWindow> Ref;
 
     /** Controls the appearance of the window's borders and background.
-        FRAME_STYLE        - regular border and title
+        NORMAL_FRAME_STYLE - regular border and title
         TOOL_FRAME_STYLE   - small title, thin border
         DIALOG_FRAME_STYLE - thicker border
         NO_FRAME_STYLE     - do not render any background at all
      */
     // These constants are chosen to match the GuiSkin constants
-    enum Style {FRAME_STYLE, TOOL_FRAME_STYLE, DIALOG_FRAME_STYLE, NO_FRAME_STYLE};
+    enum Style {NORMAL_FRAME_STYLE, TOOL_FRAME_STYLE, DIALOG_FRAME_STYLE, NO_FRAME_STYLE};
 
     /**
       Controls the behavior when the close button is pressed (if there
@@ -163,7 +181,8 @@ private:
     RealTime            m_morphStartTime;
     RealTime            m_morphDuration;
     Rect2D              m_morphEnd;
-    
+
+    Array<GuiDrawer*>   m_drawerArray;
     GuiPane*            m_rootPane;
 
 protected:
@@ -244,9 +263,20 @@ public:
     /** As controls are added, the window will automatically grow to contain them as needed */
     static Ref create(const GuiCaption& windowTitle, const GuiSkinRef& skin, 
                       const Rect2D& rect = Rect2D::xywh(100, 100, 100, 50), 
-                      Style style = FRAME_STYLE, CloseAction = NO_CLOSE);
+                      Style style = NORMAL_FRAME_STYLE, CloseAction = NO_CLOSE);
 
-    void getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);
+    /**
+       Drawers are like windows that slide out of the side of another
+       GuiWindow.  Drawers are initially sized based on the side of
+       the window that they slide out of, but they can be explicitly
+       sized.  Multiple drawers can be attached to the same side,
+       however it is up to the caller to ensure that they do not overlap.
+
+       @param side Side that the drawer sticks out of
+     */
+    virtual GuiDrawer* addDrawer(const GuiCaption& caption = "", GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { return NULL; }
+
+    virtual void getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);
 
     virtual bool onEvent(const GEvent& event);
 

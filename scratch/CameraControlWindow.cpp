@@ -24,7 +24,7 @@ CameraControlWindow::CameraControlWindow(
     GuiWindow("Camera Control", 
               skin, 
               Rect2D::xywh(700, 140, 0, 0),
-              GuiWindow::TOOL_FRAME_STYLE,
+              GuiWindow::NORMAL_FRAME_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
     trackFileIndex(0),
     cameraManipulator(cameraManipulator),
@@ -42,16 +42,23 @@ CameraControlWindow::CameraControlWindow(
 
     GuiPane* pane = GuiWindow::pane();
 
+    GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
+
     {
     static bool b = false;
 
     GuiCheckBox* activeBox = pane->addCheckBox("Active", &b);
 
-    drawerButton = pane->addButton(GuiCaption("6", GFont::fromFile(System::findDataFile("icon.fnt"))));
-    drawerButton->setRect(Rect2D::xywh(activeBox->rect().x0() + 60, activeBox->rect().y0(), 30, 30));
+    // TODO: put the drawer button on an invisible pane so that it can float over the trayPane
+    drawerButton = pane->addButton(GuiCaption("6", iconFont), GuiButton::TOOL_STYLE);
+    drawerButton->setRect(Rect2D::xywh(70, activeBox->rect().y1() - 4, 12, 12));
     }
 
+    // Put all remaining controls in a pane that is offset so that its border lines up with the edge
+    GuiPane* trayPane = pane->addPane("", 0, GuiPane::SIMPLE_FRAME_STYLE);
+    trayPane->setPosition(Vector2(trayPane->rect().x0() - trayPane->clientRect().x0(), trayPane->rect().y0()));
 
+    pane = trayPane;
 
     programButton     = pane->addRadioButton("Program",      PROGRAM_CONTROLLER, &controller);
     manualButton      = pane->addRadioButton("Manual",       MANUAL_CONTROLLER,  &controller);
