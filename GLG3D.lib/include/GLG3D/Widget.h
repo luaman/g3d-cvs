@@ -88,6 +88,10 @@ public:
     virtual void onNetwork() = 0;
 
     virtual void onLogic() = 0;
+
+    /** Returns the operating system window that is currently
+        rendering this Widget. */
+    virtual GWindow* window() const;
 };
 
 
@@ -220,6 +224,8 @@ public:
     virtual void onNetwork();
 
     virtual void onLogic();
+
+    virtual GWindow* window() const;
 };
 
 

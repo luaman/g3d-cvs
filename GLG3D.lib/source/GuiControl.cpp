@@ -13,6 +13,11 @@
 
 namespace G3D {
 
+
+GuiSkinRef GuiControl::skin() const {
+    return m_gui->skin();
+}
+
 void GuiControl::setPosition(float x, float y) {
     setPosition(Vector2(x, y));
 }

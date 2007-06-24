@@ -72,7 +72,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
 
 void GuiDropDownList::setRect(const Rect2D& rect) {
      m_rect = rect;
-     m_clickRect = m_gui->skin->dropDownListToClickBounds(rect);
+     m_clickRect = skin()->dropDownListToClickBounds(rect);
 }
 
 

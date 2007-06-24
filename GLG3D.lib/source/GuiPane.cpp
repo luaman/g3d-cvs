@@ -15,9 +15,32 @@
 
 namespace G3D {
 
+GuiPane::Morph::Morph() : active(false) {}
+
+
+void GuiPane::Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
+    active = true;
+    start  = startPos;
+    end    = endPos;
+
+    // Make the morph approximately constant velocity
+    const float pixelsPerSecond = 1500;
+
+    duration = max((double)0.2, (double)(start.center() - end.center()).length() / pixelsPerSecond);
+
+    startTime = System::time();
+}
+
+
+
 GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
     : GuiControl(gui, parent, text), m_style(style) {
     setRect(rect);
+}
+
+
+void GuiPane::morphTo(const Rect2D& r) {
+    m_morph.morphTo(rect(), r);
 }
 
 
@@ -52,7 +75,7 @@ void GuiPane::increaseBounds(const Vector2& extent) {
 
         // Transform the client rect into an absolute rect
         if (m_style != NO_FRAME_STYLE) {
-            newRect = m_gui->skin->clientToPaneBounds(newRect, GuiSkin::PaneStyle(m_style));
+            newRect = skin()->clientToPaneBounds(newRect, GuiSkin::PaneStyle(m_style));
         }
 
         // The new window has the old position and the new width
@@ -78,7 +101,7 @@ void GuiPane::setRect(const Rect2D& rect) {
     if (m_style == NO_FRAME_STYLE) {
         m_clientRect = m_rect;
     } else {
-        m_clientRect = m_gui->skin->paneToClientBounds(m_rect, GuiSkin::PaneStyle(m_style));
+        m_clientRect = skin()->paneToClientBounds(m_rect, GuiSkin::PaneStyle(m_style));
     }
 }
 
@@ -146,7 +169,7 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
 
 GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style) {
     h = max(h, 0.0f);
-    Rect2D minRect = m_gui->skin->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style));
+    Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style));
 
     Vector2 pos = nextControlPos();
 
@@ -187,6 +210,10 @@ void GuiPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
 
 
 void GuiPane::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+    if (m_morph.active) {
+        GuiPane* me = const_cast<GuiPane*>(this);
+        me->m_morph.update(me);
+    }
 
     if (m_style != NO_FRAME_STYLE) {
         skin->renderPane(m_rect, GuiSkin::PaneStyle(m_style));
@@ -194,16 +221,16 @@ void GuiPane::render(RenderDevice* rd, const GuiSkinRef& skin) const {
 
     skin->pushClientRect(m_clientRect);
 
-    for (int p = 0; p < paneArray.size(); ++p) {
-        paneArray[p]->render(rd, skin);
+    for (int L = 0; L < labelArray.size(); ++L) {
+        labelArray[L]->render(rd, skin);
     }
 
     for (int c = 0; c < controlArray.size(); ++c) {
         controlArray[c]->render(rd, skin);
     }
 
-    for (int L = 0; L < labelArray.size(); ++L) {
-        labelArray[L]->render(rd, skin);
+    for (int p = 0; p < paneArray.size(); ++p) {
+        paneArray[p]->render(rd, skin);
     }
 
     skin->popClientRect();

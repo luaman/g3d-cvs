@@ -1,9 +1,10 @@
 #include "CameraControlWindow.h"
+#include "GuiDialog.h"
 
 namespace G3D {
 
 const Vector2 CameraControlWindow::smallSize(246, 48);
-const Vector2 CameraControlWindow::bigSize(246, 156);
+const Vector2 CameraControlWindow::bigSize(246, 157);
 
 CameraControlWindow::Ref CameraControlWindow::create(
     const FirstPersonManipulatorRef&   manualManipulator,
@@ -64,6 +65,7 @@ CameraControlWindow::CameraControlWindow(
     manualManipulator(manualManipulator),
     trackManipulator(trackManipulator),
     drawerButton(NULL),
+    drawerButtonPane(NULL),
     m_expanded(false)
     {
 
@@ -164,10 +166,12 @@ CameraControlWindow::CameraControlWindow(
     // layout to become broken.
     drawerCollapseCaption = GuiCaption("5", iconFont);
     drawerExpandCaption = GuiCaption("6", iconFont);
-    drawerButton = pane->addButton(drawerExpandCaption, GuiButton::TOOL_STYLE);
+    drawerButtonPane = pane->addPane("", 0, GuiPane::NO_FRAME_STYLE);
+    drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiButton::TOOL_STYLE);
     drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));
+    drawerButtonPane->setSize(12, 12);
     
-    // Resize the pane to include the drawer button
+    // Resize the pane to include the drawer button so that it is not clipped
     pane->setSize(clientRect().wh());
 
     setRect(Rect2D::xywh(rect().x0y0(), smallSize));
@@ -177,10 +181,10 @@ CameraControlWindow::CameraControlWindow(
 
 void CameraControlWindow::setRect(const Rect2D& r) {
     GuiWindow::setRect(r);
-    if (drawerButton) {
+    if (drawerButtonPane) {
         float s = 12;
         const Rect2D& r = clientRect();
-        drawerButton->setPosition((r.width() - s) / 2.0f, r.height() - s);
+        drawerButtonPane->setPosition((r.width() - s) / 2.0f, r.height() - s);
     }
 }
 
@@ -238,6 +242,13 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
         } else if ((event.gui.control == recordButton) || (event.gui.control == cameraLocationTextBox)) {
             // Take over manual operation
             manualOperation = true;
+            saveButton->setEnabled(true);
+        } else if (event.gui.control == saveButton) {
+            std::string saveName;
+            if (SaveDialog::getFilename(saveName, this)) {
+                // TODO: save
+                saveButton->setEnabled(false);
+            }
         }
         sync();
     } else if (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE) {

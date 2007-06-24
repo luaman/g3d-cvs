@@ -80,6 +80,8 @@ public:
     void moveBy(const Vector2& delta);
     void moveBy(float dx, float dy);    
 
+    GuiSkinRef skin() const;
+
 protected:
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const = 0;

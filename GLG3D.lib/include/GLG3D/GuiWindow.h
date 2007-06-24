@@ -22,6 +22,7 @@
 #include "GLG3D/GuiCheckBox.h"
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
+#include "GLG3D/GuiPane.h"
 
 namespace G3D {
 
@@ -86,6 +87,11 @@ public:
        return false;
    }
    </pre>
+
+   It is not necessary to subclass GuiWindow to create a user
+   interface.  Just instantiate GuiWindow and add controls to its
+   pane.  If you do choose to subclass GuiWindow, be sure to call
+   the superclass methods for those that you override.
  */
 class GuiWindow : public Widget {
 
@@ -142,6 +148,37 @@ private:
         ControlButton() : down(false), mouseOver(false) {};
     };
 
+    
+    /** State for managing modal dialogs */
+    class Modal {
+    public:
+        UserInput*          userInput;
+        WidgetManager::Ref  manager;
+        GWindow*            osWindow;
+        RenderDevice*       renderDevice;
+        
+        /** Image of the screen under the modal dialog.*/
+        TextureRef          image;
+
+        /** Size of the screen */
+        Rect2D              viewport;
+        
+        /** The dialog that is running */
+        GuiWindow*          dialog;
+
+        Modal(GWindow* osWindow);
+        /** Run an event loop until the window closes */
+        void run(GuiWindow::Ref dialog);
+        /** Callback for GWindow loop body */
+        static void loopBody(void* me);
+        /** Called from loop Body */
+        void oneFrame();
+        void processEventQueue();
+        ~Modal();
+    };
+
+    Modal*                 modal;
+
     /** Window label */
     GuiCaption          m_text;
 
@@ -161,7 +198,7 @@ private:
 
     PosedModel2DRef     posed;
 
-    GuiSkinRef          skin;
+    GuiSkinRef          m_skin;
 
     /** True when the window is being dragged */
     bool                inDrag;
@@ -175,12 +212,8 @@ private:
     
     bool                m_focused;
     bool                m_mouseVisible;
-
-    bool                m_morphing;
-    Rect2D              m_morphStart;
-    RealTime            m_morphStartTime;
-    RealTime            m_morphDuration;
-    Rect2D              m_morphEnd;
+    
+    GuiPane::Morph      m_morph;
 
     Array<GuiDrawer*>   m_drawerArray;
     GuiPane*            m_rootPane;
@@ -206,6 +239,16 @@ private:
 
 public:
 
+public:
+    
+    /** 
+        Blocks until the dialog is closed (visible = false).  Do not call between
+        RenderDevice::beginFrame and RenderDevice::endFrame.
+     */
+    void showModal(GWindow* osWindow);
+
+    void showModal(GuiWindow::Ref parent);
+
     /** Is this window in focus on the WidgetManager? */
     inline bool focused() const {
         return m_focused;
@@ -221,12 +264,19 @@ public:
         return m_clientRect;
     }
 
+    GuiSkinRef skin() const {
+        return m_skin;
+    }
+
     /**
      Set the border bounds relative to the GWindow. 
      The window may render outside the bounds because of drop shadows
      and glows.
       */
     virtual void setRect(const Rect2D& r);
+
+    /** Move to the center of the screen */
+    void moveToCenter();
 
     /**
        Causes the window to change shape and/or position to meet the
@@ -237,7 +287,7 @@ public:
 
     /** Returns true while a morph is in progress. */
     bool morphing() const {
-        return m_morphing;
+        return m_morph.active;
     }
 
     bool visible() const {

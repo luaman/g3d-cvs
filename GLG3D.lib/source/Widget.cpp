@@ -18,6 +18,16 @@ void Widget::fireEvent(const GEvent& event) {
 }
 
 
+GWindow* Widget::window() const {
+    return m_manager->window();
+}
+
+
+GWindow* WidgetManager::window() const {
+    return m_window;
+}
+
+
 WidgetManager::Ref WidgetManager::create(GWindow* window) {
     WidgetManager* m = new WidgetManager();
     m->m_window = window;

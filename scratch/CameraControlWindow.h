@@ -11,6 +11,8 @@ namespace G3D {
   TODO: 
   debug window bottom padding too large
 
+  fix modal locking up (are we calling poll event?  supporting the userinput?)
+
   disable old tab switch
   add new camera control window
   add button for displaying when minimized
@@ -62,13 +64,16 @@ protected:
 
     /** Button to expand and contract additional manual controls. */
     GuiButton*                  drawerButton;
+
+    /** The button must be in its own pane so that it can float over
+        the expanded pane. */
+    GuiPane*                    drawerButtonPane;
     GuiCaption                  drawerExpandCaption;
     GuiCaption                  drawerCollapseCaption;
 
     GuiButton*                  saveButton;
 
     GuiLabel*                   helpLabel;
-    GuiPane*                    savePane;
 
     GuiCaption                  manualHelpCaption;
     GuiCaption                  autoHelpCaption;

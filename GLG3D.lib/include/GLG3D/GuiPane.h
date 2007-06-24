@@ -64,6 +64,35 @@ protected:
     /** If this is a mouse event, make it relative to the client rectangle */
     static void makeRelative(GEvent& e, const Rect2D& clientRect);
 
+    class Morph {
+    public:
+        bool            active;
+        Rect2D          start;
+        RealTime        startTime;
+        RealTime        duration;
+        Rect2D          end;
+        Morph();
+        void morphTo(const Rect2D& s, const Rect2D& e);
+        /** Morph the object using setRect */
+        template<class T>
+        void update(T* object) {
+            RealTime now = System::time();
+            float alpha = (now - startTime) / duration;
+            if (alpha > 1.0f) {
+                object->setRect(end);
+                active = false;
+                // The setRect will terminate the morph
+            } else {
+                object->setRect(start.lerp(end, alpha));
+                // setRect turns off morphing, so we have to turn it back
+                // on explicitly
+                active = true;
+            }
+        }
+    };
+
+    Morph               m_morph;
+
     Style               m_style;
 
     Array<GuiControl*>  controlArray;
@@ -118,6 +147,18 @@ public:
 
     /** Set relative to the parent pane (or window) */
     virtual void setRect(const Rect2D& rect);
+
+    /**
+       Causes the window to change shape and/or position to meet the
+       specified location.  The window will not respond to drag events
+       while it is morphing.
+     */
+    virtual void morphTo(const Rect2D& r);
+
+    /** Returns true while a morph is in progress. */
+    bool morphing() const {
+        return m_morph.active;
+    }
 
     ~GuiPane();
 
