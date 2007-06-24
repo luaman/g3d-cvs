@@ -234,13 +234,13 @@ private:
      */
     void focusOnNextControl();
 
+    void setFocusControl(GuiControl* c);
+
     /** Called by GuiPane::increaseBounds() */
     void increaseBounds(const Vector2& extent);
 
 public:
 
-public:
-    
     /** 
         Blocks until the dialog is closed (visible = false).  Do not call between
         RenderDevice::beginFrame and RenderDevice::endFrame.

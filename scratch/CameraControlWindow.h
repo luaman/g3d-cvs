@@ -10,12 +10,14 @@ namespace G3D {
 /**
   TODO: 
   debug window bottom padding too large
+  debug setFocused(true) on the textbox
 
-  fix modal locking up (are we calling poll event?  supporting the userinput?)
+  distinguish change, action, and cancel events on text box
 
-  disable old tab switch
-  add new camera control window
   add button for displaying when minimized
+  disable old tab switch
+  add new camera control window to project
+  change GApp2 to create cameracontrolwindow
  */
 //
 // If you are looking for an example of how to create a straightforward

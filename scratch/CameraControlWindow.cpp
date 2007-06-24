@@ -6,6 +6,80 @@ namespace G3D {
 const Vector2 CameraControlWindow::smallSize(246, 48);
 const Vector2 CameraControlWindow::bigSize(246, 157);
 
+namespace _internal {
+class SaveDialog : public GuiWindow {
+protected:
+
+    bool               ok;
+
+    GuiButton*         okButton;
+    GuiButton*         cancelButton;
+    GuiTextBox*        textBox;
+
+    std::string&       saveName;
+
+    SaveDialog(std::string& saveName, GuiSkinRef skin) : 
+        GuiWindow("Save Path As", skin, Rect2D::xywh(100, 100, 10, 10), DIALOG_FRAME_STYLE, HIDE_ON_CLOSE), 
+        ok(false), saveName(saveName) {
+        GuiPane* rootPane = pane();
+
+        textBox = rootPane->addTextBox("Filename", &saveName, GuiTextBox::IMMEDIATE_UPDATE);
+        textBox->setSize(textBox->rect().wh() + Vector2(20, 0));
+        textBox->setFocused(true);
+
+        cancelButton = rootPane->addButton("Cancel");
+        okButton = rootPane->addButton("Ok");
+        okButton->moveRightOf(cancelButton);
+
+        okButton->setEnabled(trimWhitespace(saveName) != "");
+
+        pack();
+    }
+
+public:
+    
+    /**
+       @param saveName Initial value of the box and what will be returned in the event
+       that the user presses ok.
+
+       @return True unless cancelled
+     */
+    static bool getFilename(std::string& saveName, GWindow* osWindow, GuiSkinRef skin) {
+        ReferenceCountedPointer<SaveDialog> guiWindow = new SaveDialog(saveName, skin);
+        guiWindow->showModal(osWindow);
+        return guiWindow->ok;
+    }
+
+    static bool getFilename(std::string& saveName, GuiWindow* parent) {
+        return getFilename(saveName, parent->window(), parent->skin());
+    }
+
+    virtual bool onEvent(const GEvent& e) {
+        if (GuiWindow::onEvent(e)) {
+            return true;
+        }
+
+        okButton->setEnabled(trimWhitespace(saveName) != "");
+
+        if (e.type == GEventType::GUI_ACTION) {
+            // Text box, cancel button and ok button are the 
+            // only choices.  Anything but cancel means ok,
+            // and all mean close the dialog.
+            ok = (e.gui.control != cancelButton);
+            setVisible(false);
+        } else if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::ESCAPE)) {
+            // Cancel the dialog
+            ok = false;
+            setVisible(false);
+        }
+
+        return false;
+    }
+
+};
+}
+
+
 CameraControlWindow::Ref CameraControlWindow::create(
     const FirstPersonManipulatorRef&   manualManipulator,
     const UprightSplineManipulatorRef& trackManipulator,
@@ -245,12 +319,25 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
             saveButton->setEnabled(true);
         } else if (event.gui.control == saveButton) {
             std::string saveName;
-            if (SaveDialog::getFilename(saveName, this)) {
-                // TODO: save
-                saveButton->setEnabled(false);
+
+            if (_internal::SaveDialog::getFilename(saveName, this)) {
+                saveName = filenameBaseExt(trimWhitespace(saveName));
+
+                if (saveName != "") {
+                    saveName = saveName.substr(0, saveName.length() - filenameExt(saveName).length()) + ".trk";
+
+                    BinaryOutput b(saveName, G3D_LITTLE_ENDIAN);
+                    trackManipulator->spline().serialize(b);
+                    b.commit();
+
+                    updateTrackFiles();
+                    
+                    saveButton->setEnabled(false);
+                }
             }
         }
         sync();
+
     } else if (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE) {
         // Check if the user has added a point yet
         sync();

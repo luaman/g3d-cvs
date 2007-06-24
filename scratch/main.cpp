@@ -13,6 +13,13 @@
 #include "UprightSplineManipulator.h"
 #include "CameraControlWindow.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+   #include <dirent.h>
+   #include <fnmatch.h>
+   #include <unistd.h>
+   #define _getcwd getcwd
+
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
 #endif
@@ -195,7 +202,33 @@ void App::onGraphics(RenderDevice* rd) {
 
 G3D_START_AT_MAIN();
 
+
+
 int main(int argc, char** argv) {
+    /*
+    std::string path = "";
+
+    DIR* dir = opendir(path.c_str());
+
+    debugPrintf("dir = %x\n", dir);
+    if (dir != NULL) {
+        struct dirent* entry = readdir(dir);
+
+        while (entry != NULL) {
+            debugPrintf("entry = %s\n", entry->d_name);
+                entry = readdir(dir);
+        }
+        closedir(dir);
+
+    }
+    Array<std::string> f;
+    getFiles("*", f);
+    debugPrintf("Files\n");
+    for (int i = 0; i < f.size(); ++i) {
+        debugPrintf("%s\n", f[i].c_str());
+    }
+    return 0;
+    */
     GApp2::Settings s;
     s.window.resizable = true;
     return App(s).run();

@@ -46,6 +46,13 @@ GuiWindow::~GuiWindow() {
 }
 
 
+void GuiWindow::setFocusControl(GuiControl* c) {
+    if (c->enabled()) { 
+        keyFocusGuiControl = c;
+    }
+}
+
+
 void GuiWindow::increaseBounds(const Vector2& extent) {
     if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
         // Create the new client rect

@@ -42,7 +42,7 @@ void GuiTextBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
                 if ((m_update == DELAYED_UPDATE) && (m_oldValue != m_userValue)) {
                     *me->m_value = me->m_oldValue = m_userValue;
                     GEvent response;
-                    response.gui.type = GEventType::GUI_ACTION;
+                    response.gui.type = GEventType::GUI_CHANGE;
                     response.gui.control = me;
                     m_gui->fireEvent(response);
                 }
@@ -182,7 +182,7 @@ void GuiTextBox::processRepeatKeysym() {
     if (m_editing && (m_update == IMMEDIATE_UPDATE)) {
         *m_value = m_oldValue = m_userValue;
         GEvent response;
-        response.gui.type = GEventType::GUI_ACTION;
+        response.gui.type = GEventType::GUI_CHANGE;
         response.gui.control = this;
         m_gui->fireEvent(response);
     }
@@ -201,8 +201,13 @@ bool GuiTextBox::onEvent(const GEvent& event) {
         case GKey::ESCAPE:
             // Stop editing and revert
             m_editing = false;
-            
-            // TODO: lose focus
+            {
+                GEvent response;
+                response.gui.type = GEventType::GUI_CANCEL;
+                response.gui.control = this;
+                m_gui->fireEvent(response);
+            }            
+            setFocused(false);
             return true;
 
         case GKey::RIGHT:
@@ -218,18 +223,22 @@ bool GuiTextBox::onEvent(const GEvent& event) {
         case GKey::RETURN:
         case GKey::TAB:
             // Edit done
-            {
-                *m_value = m_userValue;
-                if (m_update == DELAYED_UPDATE) {
-                    GEvent response;
-                    response.gui.type = GEventType::GUI_ACTION;
-                    response.gui.control = this;
-                    m_gui->fireEvent(response);
-                }
-                m_editing = false;
+            *m_value = m_userValue;
+            m_editing = false;
+            if (m_update == DELAYED_UPDATE) {
+                GEvent response;
+                response.gui.type = GEventType::GUI_CHANGE;
+                response.gui.control = this;
+                m_gui->fireEvent(response);
+            }
+            if (event.key.keysym.sym == GKey::RETURN) {
+                GEvent response;
+                response.gui.type = GEventType::GUI_ACTION;
+                response.gui.control = this;
+                m_gui->fireEvent(response);
             }
 
-            // TODO: lose focus
+            setFocused(false);
             return true;
 
         default:

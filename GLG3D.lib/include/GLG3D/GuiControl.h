@@ -58,6 +58,9 @@ public:
     bool visible() const;
     void setVisible(bool b);
     bool focused() const;
+
+    /** Grab or release keyboard focus */
+    void setFocused(bool b);
     void setEnabled(bool e);
     const GuiCaption& caption() const;
     void setCaption(const GuiCaption& text);

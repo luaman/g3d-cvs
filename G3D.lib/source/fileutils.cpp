@@ -677,15 +677,16 @@ void parseFilename(
                         returns the files.
  @param includePath     If true, the names include paths
  */
-static void getFileOrDirListNormal(
-	const std::string&		filespec,
-	Array<std::string>&		files,
-	bool					wantFiles,
-	bool					includePath) {
-
-	bool test = wantFiles ? true : false;
-
-	std::string path = "";
+static void getFileOrDirListNormal
+(
+ const std::string&		filespec,
+ Array<std::string>&		files,
+ bool				wantFiles,
+ bool                           includePath) {
+    
+    bool test = wantFiles ? true : false;
+    
+    std::string path = "";
 
     // Find the place where the path ends and the file-spec begins
     size_t i = filespec.rfind('/');
@@ -716,8 +717,9 @@ static void getFileOrDirListNormal(
         path = path.substr(0, path.size() - 1);
     }
 
-    #ifdef G3D_WIN32
-	    struct _finddata_t fileinfo;
+#   ifdef G3D_WIN32
+    {
+       struct _finddata_t fileinfo;
 
         long handle = _findfirst(filespec.c_str(), &fileinfo);
         int result = handle;
@@ -736,8 +738,15 @@ static void getFileOrDirListNormal(
             
             result = _findnext(handle, &fileinfo);
         }
-    #else
-        // Linux implementation
+    }
+#   else
+    {
+        if (path == "") {
+            // Empty paths don't work on Unix
+            path = ".";
+        }
+
+        // Unix implementation
         DIR* dir = opendir(path.c_str());
 
         if (dir != NULL) {
@@ -746,12 +755,11 @@ static void getFileOrDirListNormal(
             while (entry != NULL) {
 
                 // Exclude '.' and '..'
-                if (strcmp(entry->d_name, ".") &&
-                    strcmp(entry->d_name, "..")) {
+                if ((strcmp(entry->d_name, ".") != 0) &&
+                    (strcmp(entry->d_name, "..") != 0)) {
                     
                     // Form a name with a path
                     std::string filename = prefix + entry->d_name;
-                    
                     // See if this is a file or a directory
                     struct _stat st;
                     bool exists = _stat(filename.c_str(), &st) != -1;
@@ -778,8 +786,8 @@ static void getFileOrDirListNormal(
             }
             closedir(dir);
         }
-
-    #endif
+    }
+#   endif
 }
 
 /**

@@ -14,6 +14,17 @@
 namespace G3D {
 
 
+void GuiControl::setFocused(bool b) {
+    if (! b) {
+        if (m_gui->keyFocusGuiControl == this) {
+            m_gui->focusOnNextControl();
+        }
+    } else {
+        m_gui->setFocusControl(this);
+    }
+}
+
+
 GuiSkinRef GuiControl::skin() const {
     return m_gui->skin();
 }
