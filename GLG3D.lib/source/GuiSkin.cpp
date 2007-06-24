@@ -223,14 +223,16 @@ void GuiSkin::drawCheckable
     control.render(rd, bounds, enabled, focused, selected);
 
     if (text.text() != "") {
+        const TextStyle& style = enabled ? control.textStyle : control.disabledTextStyle;
+
         addDelayedText(
-           text.font(control.textStyle.font), 
+           text.font(style.font), 
            text.text(), 
            Vector2(control.width() + bounds.x0(), 
                   (bounds.y0() + bounds.y1()) / 2) + control.textOffset,
-           text.size(control.textStyle.size), 
-           text.color(control.textStyle.color), 
-           text.outlineColor(control.textStyle.outlineColor), 
+           text.size(style.size), 
+           text.color(style.color), 
+           text.outlineColor(style.outlineColor), 
            GFont::XALIGN_LEFT);
     }
 }
@@ -377,9 +379,9 @@ Rect2D GuiSkin::closeButtonBounds(const Window& window, const Rect2D& bounds) co
     // Position button
     Vector2 center; 
     if (m_osxWindowButtons) {
-        center.x = bounds.x0() + window.borderThickness.topLeft.x * scale + scale * m_closeButton.base.width() / 2;
+        center.x = bounds.x0() + max(window.borderThickness.topLeft.x, window.borderThickness.topLeft.y * 0.25f) * scale + scale * m_closeButton.base.width() / 2;
     } else {
-        center.x = bounds.x1() - window.borderThickness.bottomRight.x * scale - scale * m_closeButton.base.width() / 2;
+        center.x = bounds.x1() - max(window.borderThickness.bottomRight.x, window.borderThickness.topLeft.y * 0.25f) * scale - scale * m_closeButton.base.width() / 2;
     }
     center.y = bounds.y0() + window.borderThickness.topLeft.y / 2;
     
@@ -542,7 +544,7 @@ void GuiSkin::renderHorizontalSlider
 }
 
 
-void GuiSkin::renderLabel(const Rect2D& bounds, const GuiCaption& text, GFont::XAlign xalign, GFont::YAlign yalign) const {
+void GuiSkin::renderLabel(const Rect2D& bounds, const GuiCaption& text, GFont::XAlign xalign, GFont::YAlign yalign, bool enabled) const {
     debugAssert(inRendering);
 
     if (text.text() != "") {
@@ -573,13 +575,15 @@ void GuiSkin::renderLabel(const Rect2D& bounds, const GuiCaption& text, GFont::X
             break;
         }
 
+        const TextStyle& style = enabled ? m_textStyle : m_disabledTextStyle;
+
         addDelayedText(
-            text.font(m_textStyle.font),
+            text.font(style.font),
             text.text(), 
             pos, 
-            text.size(m_textStyle.size),
-            text.color(m_textStyle.color),
-            text.outlineColor(m_textStyle.outlineColor),
+            text.size(style.size),
+            text.color(style.color),
+            text.outlineColor(style.outlineColor),
             xalign, yalign);
     }
 }

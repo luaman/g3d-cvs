@@ -62,14 +62,23 @@ public:
     const GuiCaption& caption() const;
     void setCaption(const GuiCaption& text);
     const Rect2D& rect() const;
+
+    /** If you explicitly change the rectangle of a control, the
+        containing pane may clip its borders.  Call pack() on the
+        containing pane (or window) to resize that container
+        appropriately.*/
     virtual void setRect(const Rect2D& rect);
     void setSize(const Vector2& v);
+    void setSize(float x, float y);
     void setPosition(const Vector2& v);
+    void setPosition(float x, float y);
     void setWidth(float w);
     void setHeight(float h);
 
     /** If these two controls have the same parent, move this one immediately to the right of the argument*/
     void moveRightOf(const GuiControl* control);
+    void moveBy(const Vector2& delta);
+    void moveBy(float dx, float dy);    
 
 protected:
 

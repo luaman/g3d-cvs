@@ -50,7 +50,7 @@ private:
     enum {CONTROL_HEIGHT = 25};
     enum {CONTROL_WIDTH = 180};
     enum {BUTTON_WIDTH = 80};
-    enum {TOOL_BUTTON_WIDTH = CONTROL_HEIGHT * 2};
+    enum {TOOL_BUTTON_WIDTH = 50};
 
 public:
 
@@ -125,7 +125,7 @@ public:
         @param height Client size of the pane (size of the <i>inside</i>, not counting the border).  
             This will automatically grow as controls are added, so it can safely be left as zero.
      */
-    GuiPane* addPane(const GuiCaption& text, float height = 0, GuiPane::Style style = GuiPane::NO_FRAME_STYLE);
+    GuiPane* addPane(const GuiCaption& text = "", float height = 0, GuiPane::Style style = GuiPane::SIMPLE_FRAME_STYLE);
 
     /**
        <pre>
@@ -159,6 +159,16 @@ public:
         return addControl(new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update));
     }
 
+    GuiTextBox* addTextBox
+    (const GuiCaption& caption,
+     const Pointer<std::string>& stringPointer,
+     GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
+     ) {
+        
+        return addControl(new GuiTextBox(m_gui, this, caption, stringPointer, update));
+    }
+
+
     template<class IndexObj>
     GuiDropDownList* addDropDownList
     (const GuiCaption& caption,
@@ -185,12 +195,18 @@ public:
         GuiRadioButton::Style style) {
         
         // Turn enums into ints to allow this to always act as a pointer to an int
-        return addControl(new GuiRadioButton
+        GuiRadioButton* c = addControl(new GuiRadioButton
                           (m_gui, this, text, myID, 
                            Pointer<int>(object, 
                                         reinterpret_cast<int (T::*)() const>(get), 
                                         reinterpret_cast<void (T::*)(int)>(set)), 
                            style));
+        if (style == GuiRadioButton::TOOL_STYLE) {
+            c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
+        } else if (style == GuiRadioButton::BUTTON_STYLE) {
+            c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
+        }
+        return c;
     }
 
     /**

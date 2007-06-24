@@ -13,8 +13,24 @@
 
 namespace G3D {
 
+void GuiControl::setPosition(float x, float y) {
+    setPosition(Vector2(x, y));
+}
+
 void GuiControl::setPosition(const Vector2& v) {
     setRect(Rect2D::xywh(v, rect().wh()));
+}
+
+void GuiControl::moveBy(float x, float y) {
+    moveBy(Vector2(x, y));
+}
+
+void GuiControl::moveBy(const Vector2& v) {
+    setRect(Rect2D::xywh(rect().x0y0() + v, rect().wh()));
+}
+
+void GuiControl::setSize(float x, float y) {
+    setSize(Vector2(x, y));
 }
 
 void GuiControl::setSize(const Vector2& v) {

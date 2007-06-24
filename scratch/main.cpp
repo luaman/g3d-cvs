@@ -70,6 +70,8 @@ void App::onInit() {
     // automatically caught.
     sky = Sky::fromFile(dataDir + "sky/");
 
+    setDesiredFrameRate(30);
+
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
 

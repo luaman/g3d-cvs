@@ -19,7 +19,7 @@ GuiLabel::GuiLabel(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, GFon
 
 void GuiLabel::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
-        skin->renderLabel(m_rect, m_caption, m_xalign, m_yalign);
+        skin->renderLabel(m_rect, m_caption, m_xalign, m_yalign, m_enabled);
     }
 }
 

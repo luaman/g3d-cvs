@@ -117,6 +117,10 @@ public:
     int splineSize() const {
         return m_spline.control.size();
     }
+
+    GCamera* camera() const {
+        return m_camera;
+    }
     
     /** Destroys the current path */
     void clear();

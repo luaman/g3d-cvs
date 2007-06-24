@@ -639,7 +639,8 @@ public:
 
     /** Only call between beginRendering and endRendering */
     void renderLabel(const Rect2D& bounds, const GuiCaption& text, 
-                     GFont::XAlign xalign, GFont::YAlign yalign) const;
+                     GFont::XAlign xalign, GFont::YAlign yalign,
+                     bool enabled) const;
 
     void renderPane(const Rect2D& bounds, PaneStyle paneStyle) const;
     

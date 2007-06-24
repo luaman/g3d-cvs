@@ -16,33 +16,44 @@ protected:
     static const Vector2        smallSize;
     static const Vector2        bigSize;
 
+    std::string cameraLocation() const;
+    void setCameraLocation(const std::string& s);
+
     /** Array of all .trk files in the current directory */
     Array<std::string>          trackFileArray;
 
     /** Index into trackFileArray */
     int                         trackFileIndex;
 
-    enum Source {NO_SOURCE, MANUAL_SOURCE, SPLINE_SOURCE};
+    //enum Source {NO_SOURCE, MANUAL_SOURCE, SPLINE_SOURCE};
 
-    enum Controller {PROGRAM_CONTROLLER, MANUAL_CONTROLLER, TRACK_CONTROLLER};
-    Controller                  controller;
-
+    GuiLabel*                   trackLabel;
     GuiDropDownList*            trackList;
-
-    GuiRadioButton*             programButton;
-    GuiRadioButton*             manualButton;
-    GuiRadioButton*             followTrackButton;
+    GuiTextBox*                 cameraLocationTextBox;
 
     GuiRadioButton*             playButton;
     GuiRadioButton*             stopButton;
     GuiRadioButton*             recordButton;
 
+    /** The manipulator from which the camera is copying its frame */
     Pointer<Manipulator::Ref>   cameraManipulator;
 
     FirstPersonManipulatorRef   manualManipulator;
     UprightSplineManipulatorRef trackManipulator;
 
+    GuiCheckBox*                visibleCheckBox;
+
+    /** Button to expand and contract additional manual controls. */
     GuiButton*                  drawerButton;
+    GuiCaption                  drawerExpandCaption;
+    GuiCaption                  drawerCollapseCaption;
+
+    /** If true, the window is big enough to show all controls */
+    bool                        m_expanded;
+
+    /** True when the user has chosen to override program control of
+        the camera. */
+    bool                        manualOperation;
 
     CameraControlWindow(
         const FirstPersonManipulatorRef&    manualManipulator, 
@@ -51,10 +62,10 @@ protected:
         const GuiSkinRef&                   skin);
 
     /** Sets the controller for the cameraManipulator. */
-    void setSource(Source s);
+    //void setSource(Source s);
 
     /** Control source that the Gui thinks should be in use */
-    Source desiredSource() const;
+    //Source desiredSource() const;
 
     void sync();
 
@@ -75,6 +86,7 @@ public:
 
     virtual bool onEvent(const GEvent& event);
     virtual void onUserInput(UserInput*);
+    virtual void setRect(const Rect2D& r);
 };
 
 }

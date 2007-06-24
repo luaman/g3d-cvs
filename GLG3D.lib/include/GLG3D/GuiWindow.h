@@ -226,7 +226,7 @@ public:
      The window may render outside the bounds because of drop shadows
      and glows.
       */
-    void setRect(const Rect2D& r);
+    virtual void setRect(const Rect2D& r);
 
     /**
        Causes the window to change shape and/or position to meet the
