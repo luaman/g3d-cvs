@@ -2,8 +2,8 @@
 
 namespace G3D {
 
-const Vector2 CameraControlWindow::smallSize(242, 48);
-const Vector2 CameraControlWindow::bigSize(242, 134);
+const Vector2 CameraControlWindow::smallSize(246, 48);
+const Vector2 CameraControlWindow::bigSize(246, 156);
 
 CameraControlWindow::Ref CameraControlWindow::create(
     const FirstPersonManipulatorRef&   manualManipulator,
@@ -81,21 +81,21 @@ CameraControlWindow::CameraControlWindow(
     pane->addLabel("xyz")->setPosition(5, 2);
     pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(24, 2);
     cameraLocationTextBox = pane->addTextBox("", Pointer<std::string>(this, &CameraControlWindow::cameraLocation, &CameraControlWindow::setCameraLocation));
-    cameraLocationTextBox->setRect(Rect2D::xywh(-50, 2, 290, 24));
+    cameraLocationTextBox->setRect(Rect2D::xywh(-50, 2, 292, 24));
     
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
 
-    manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 0);
+    manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, -1);
 
     trackLabel = manualPane->addLabel("Path");
     trackLabel->moveBy(0, -3);
     trackList = manualPane->addDropDownList("", &trackFileIndex, &trackFileArray);
-    trackList->setRect(Rect2D::xywh(trackList->rect().x0y0() - Vector2(54, 26), Vector2(215, trackList->rect().height())));
+    trackList->setRect(Rect2D::xywh(trackList->rect().x0y0() - Vector2(54, 25), Vector2(220, trackList->rect().height())));
 
-    visibleCheckBox = manualPane->addCheckBox("Visible", trackManipulator.pointer(), &UprightSplineManipulator::showPath, &UprightSplineManipulator::setShowPath);
+    visibleCheckBox = manualPane->addCheckBox("Visible", Pointer<bool>(trackManipulator, &UprightSplineManipulator::showPath, &UprightSplineManipulator::setShowPath));
     visibleCheckBox->moveRightOf(trackList);
-    visibleCheckBox->moveBy(10, 0);
+    visibleCheckBox->moveBy(6, 0);
     
     Vector2 buttonSize = Vector2(20, 20);
     recordButton = manualPane->addRadioButton
@@ -105,7 +105,7 @@ CameraControlWindow::CameraControlWindow(
          &UprightSplineManipulator::mode,
          &UprightSplineManipulator::setMode,
          GuiRadioButton::TOOL_STYLE);
-    recordButton->moveBy(38, 1);
+    recordButton->moveBy(38, 2);
     recordButton->setSize(buttonSize);
     
     playButton = manualPane->addRadioButton
@@ -128,9 +128,33 @@ CameraControlWindow::CameraControlWindow(
     stopButton->setSize(buttonSize);
     stopButton->moveRightOf(playButton);
 
+    saveButton = manualPane->addButton("Save...");
+    saveButton->moveRightOf(stopButton);
+    saveButton->setSize(saveButton->rect().wh() - Vector2(20, 1));
+    saveButton->moveBy(8, -3);
+    saveButton->setEnabled(false);
+
+    cyclicCheckBox = manualPane->addCheckBox("Cyclic", Pointer<bool>(trackManipulator, &UprightSplineManipulator::cyclic, &UprightSplineManipulator::setCyclic));
+    cyclicCheckBox->setPosition(visibleCheckBox->rect().x0(), saveButton->rect().y0() + 1);
+
+#   ifdef G3D_OSX
+        manualHelpCaption = GuiCaption("W,A,S,D and shift+left mouse to move.", NULL, 10);
+#   else
+        manualHelpCaption = GuiCaption("W,A,S,D and right mouse to move.", NULL, 10);
+#   endif
+
+    autoHelpCaption = "";
+
+    recordHelpCaption = GuiCaption("Spacebar to place a control point.", NULL, 10);
+
+    helpLabel = manualPane->addLabel(manualHelpCaption);
+    helpLabel->moveBy(0, 2);
+
     manualPane->pack();
     pack();
-    
+    // Set the width here so that the client rect is correct below
+    setRect(Rect2D::xywh(rect().x0y0(), bigSize));
+
     // Make the pane width match the window width
     manualPane->setPosition(0, manualPane->rect().y0());
     manualPane->setSize(clientRect().width(), manualPane->rect().height());
@@ -142,6 +166,9 @@ CameraControlWindow::CameraControlWindow(
     drawerExpandCaption = GuiCaption("6", iconFont);
     drawerButton = pane->addButton(drawerExpandCaption, GuiButton::TOOL_STYLE);
     drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));
+    
+    // Resize the pane to include the drawer button
+    pane->setSize(clientRect().wh());
 
     setRect(Rect2D::xywh(rect().x0y0(), smallSize));
     sync();
@@ -181,20 +208,20 @@ void CameraControlWindow::onUserInput(UserInput* ui) {
 }
 
 bool CameraControlWindow::onEvent(const GEvent& event) {
-    if (! visible()) {
-        return false;
-    }
-
     // Allow super class to process the event
     if (GuiWindow::onEvent(event)) {
         return true;
     }
     
-    // Accelerator key for toggling camera control
+    // Accelerator key for toggling camera control.  Active even when the window is hidden.
     if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::F2)) {
         manualOperation = ! manualOperation;
         sync();
         return true;
+    }
+
+    if (! visible()) {
+        return false;
     }
 
     // Special buttons
@@ -213,6 +240,9 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
             manualOperation = true;
         }
         sync();
+    } else if (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE) {
+        // Check if the user has added a point yet
+        sync();
     }
 
     return false;
@@ -220,7 +250,6 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
 
 
 void CameraControlWindow::sync() {
-    //setSource(desiredSource());
 
     if (m_expanded) {
         bool hasTracks = trackFileArray.size() > 0;
@@ -229,7 +258,18 @@ void CameraControlWindow::sync() {
 
         bool hasSpline = trackManipulator->splineSize() > 1;
         visibleCheckBox->setEnabled(hasSpline);
+        cyclicCheckBox->setEnabled(hasSpline);
         playButton->setEnabled(hasSpline);
+
+        if (manualOperation) {
+            if (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE) {
+                helpLabel->setCaption(recordHelpCaption);
+            } else {
+                helpLabel->setCaption(manualHelpCaption);
+            }
+        } else {
+            helpLabel->setCaption(autoHelpCaption);
+        }
     }
 
     if (manualOperation) {

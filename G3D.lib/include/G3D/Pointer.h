@@ -142,12 +142,12 @@ private:
             debugAssert(object != NULL);
         }
 
-        virtual void set(const ValueType& v) {
-            (object->*setMethod)(v);
+        virtual void set(ValueType v) {
+            (object.pointer()->*setMethod)(v);
         }
 
         virtual ValueType get() const {
-            return (object->*getMethod)();
+            return (object.pointer()->*getMethod)();
         }
 
         virtual Interface* clone() const {

@@ -7,6 +7,20 @@
 
 namespace G3D {
 
+/**
+  TODO: 
+  debug window bottom padding too large
+
+  disable old tab switch
+  add new camera control window
+  add button for displaying when minimized
+ */
+//
+// If you are looking for an example of how to create a straightforward
+// GUI in G3D do not look at this class.  CameraControlWindow uses a number
+// of unusual tricks to provide a fancy compact interface that you do not
+// need in a normal program.  The GUI code in this class is more complex
+// than what you would have to write for a less dynamic UI.
 class CameraControlWindow : public GuiWindow {
 public:
 
@@ -27,8 +41,10 @@ protected:
 
     //enum Source {NO_SOURCE, MANUAL_SOURCE, SPLINE_SOURCE};
 
+    /** Label for trackList.  Separate in order to allow condensed spacing */
     GuiLabel*                   trackLabel;
     GuiDropDownList*            trackList;
+
     GuiTextBox*                 cameraLocationTextBox;
 
     GuiRadioButton*             playButton;
@@ -42,11 +58,21 @@ protected:
     UprightSplineManipulatorRef trackManipulator;
 
     GuiCheckBox*                visibleCheckBox;
+    GuiCheckBox*                cyclicCheckBox;
 
     /** Button to expand and contract additional manual controls. */
     GuiButton*                  drawerButton;
     GuiCaption                  drawerExpandCaption;
     GuiCaption                  drawerCollapseCaption;
+
+    GuiButton*                  saveButton;
+
+    GuiLabel*                   helpLabel;
+    GuiPane*                    savePane;
+
+    GuiCaption                  manualHelpCaption;
+    GuiCaption                  autoHelpCaption;
+    GuiCaption                  recordHelpCaption;
 
     /** If true, the window is big enough to show all controls */
     bool                        m_expanded;

@@ -147,6 +147,14 @@ public:
         return addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(object, get, set), style));
     }
 
+    GuiCheckBox* addCheckBox
+    (const GuiCaption& text,
+     const Pointer<bool>& pointer,
+     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
+     ) {
+        return addControl(new GuiCheckBox(m_gui, this, text, pointer, style));
+    }
+
     template<class T>
     GuiTextBox* addTextBox
     (const GuiCaption& caption,
