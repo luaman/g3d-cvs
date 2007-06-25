@@ -38,8 +38,10 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "GL/gl.h"
-#include "GL/glxtokens.h"
+// G3D includes local versions of these GL headers rather than the
+// system versions ("gl.h" rather than <GL/gl.h>).
+#include "gl.h"
+#include "glxtokens.h"
 
 #ifdef __cplusplus
 extern "C" {
