@@ -197,7 +197,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
         if (! focused()) {
             // Set focus
-            m_manager->setFocusedModule(this);
+            m_manager->setFocusedWidget(this);
             m_focused = true;
 
             // Most windowing systems do not allow the original click
@@ -406,6 +406,7 @@ GuiWindow::Modal::~Modal() {
 void GuiWindow::Modal::run(GuiWindow::Ref dialog) {
     this->dialog = dialog.pointer();
     manager->add(dialog);
+    manager->setFocusedWidget(dialog);
     dialog->setVisible(true);
 
     if (osWindow->requiresMainLoop()) {

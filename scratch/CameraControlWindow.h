@@ -8,17 +8,16 @@
 namespace G3D {
 
 /**
-  TODO: 
-  debug setFocused(true) on the textbox
+  TODO:
   debug short spline evaluation
-
+  
+  add to project files
+  change GApp2 to create DevUI & CameraControlWindow
   disable old tab switch
-  add new camera control window to project
-  change GApp2 to create cameracontrolwindow
  */
 //
 // If you are looking for an example of how to create a straightforward
-// GUI in G3D do not look at this class.  CameraControlWindow uses a number
+// GUI in G3D do not look at this class!  CameraControlWindow uses a number
 // of unusual tricks to provide a fancy compact interface that you do not
 // need in a normal program.  The GUI code in this class is more complex
 // than what you would have to write for a less dynamic UI.
@@ -41,12 +40,11 @@ protected:
     /** Index into trackFileArray */
     int                         trackFileIndex;
 
-    //enum Source {NO_SOURCE, MANUAL_SOURCE, SPLINE_SOURCE};
-
     /** Label for trackList.  Separate in order to allow condensed spacing */
     GuiLabel*                   trackLabel;
     GuiDropDownList*            trackList;
 
+    /** Allows the user to override the current camera position */
     GuiTextBox*                 cameraLocationTextBox;
 
     GuiRadioButton*             playButton;

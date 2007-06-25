@@ -165,7 +165,7 @@ public:
 
         Setting the focus automatically brings a module to the front of the event processing list.
         */
-    void setFocusedModule(const Widget::Ref& m);
+    void setFocusedWidget(const Widget::Ref& m);
 
     /** Removes focus from this module if it had focus, otherwise does nothing */
     void setDefocusedModule(const Widget::Ref& m);

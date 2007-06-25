@@ -72,7 +72,7 @@ void GConsole::setActive(bool a) {
 
         if (m_manager != NULL) {
             if (m_active) {
-                m_manager->setFocusedModule(this);
+                m_manager->setFocusedWidget(this);
                 // Conservative; these bounds will be refined in render
                 m_rect = Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf());
             } else {
