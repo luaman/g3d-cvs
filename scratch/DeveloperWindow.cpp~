@@ -1,4 +1,0 @@
-#include "DeveloperWindow.h"
-
-void DeveloperWindow::launch(WidgetManager::Ref manager) {
-}

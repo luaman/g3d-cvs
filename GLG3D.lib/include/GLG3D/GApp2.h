@@ -20,6 +20,7 @@
 #include "GLG3D/Widget.h"
 #include "GLG3D/GConsole.h"
 #include "GLG3D/ToneMap.h"
+#include "GLG3D/DeveloperWindow.h"
 
 namespace G3D {
 
@@ -77,8 +78,15 @@ public:
 	       Default is "console-small.fnt"
 	    */
 	    std::string             debugFontName;
-    	
+
 	    std::string             logFilename;
+
+        /** If true, the G3D::DeveleloperWindow and G3D::CameraControlWindow will be enabled and
+            accessible by pushing F12.
+            These require osx.skn, arial.fnt, greek.fnt, and icon.fnt to be in locations where
+            System::findDataFile can locate them (the program working directory is one such location).
+          */  
+        bool                    useDeveloperTools;
     	
 	    /** 
 	        When true, GAapp ensures that g3d-license.txt exists in the current
@@ -86,7 +94,7 @@ public:
 	    bool                    writeLicenseFile;
     	    	
 	    Settings() : dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
-	        logFilename("log.txt"), writeLicenseFile(true) {
+	        logFilename("log.txt"), writeLicenseFile(true), useDeveloperTools(true) {
 	    }
     };
 
@@ -175,6 +183,10 @@ public:
 
     ToneMapRef              toneMap;
 
+    /** The window that displays buttons for debugging.  If GApp2::Settings::useDeveloperTools is true
+        this will be created and added as a Widget on the GApp2.  Otherwise this will be NULL.
+      */
+    DeveloperWindow::Ref    developerWindow;
 
     /**
      NULL if not loaded
@@ -233,11 +245,11 @@ public:
     Action                  escapeKeyAction;
 
     /**
-     When true GKey::TAB keydown deactivates
+     When true GKey::F2 keydown deactivates
      the camera and restores the mouse cursor.
-     (default is true)
+     (default is true). This works even if GApp2::Settings::useDeveloperTools is false.
      */
-    bool                    tabSwitchCamera;
+    bool                    fastSwitchCamera;
 
     /**
      When true,   renderDebugInfo prints the frame rate and

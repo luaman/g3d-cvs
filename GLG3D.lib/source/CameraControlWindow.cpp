@@ -1,4 +1,16 @@
-#include "CameraControlWindow.h"
+/**
+  @file CameraControlWindow.cpp
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2007-06-01
+  @edited  2007-06-28
+*/
+#include "G3D/platform.h"
+#include "G3D/GCamera.h"
+#include "G3D/Rect2D.h"
+#include "G3D/fileutils.h"
+#include "GLG3D/CameraControlWindow.h"
 
 namespace G3D {
 

@@ -1,19 +1,25 @@
 #ifndef G3D_CAMERACONTROLWINDOW_H
 #define G3D_CAMERACONTROLWINDOW_H
 
-#include <G3D/G3DAll.h>
-#include <GLG3D/GLG3D.h>
-#include "UprightSplineManipulator.h"
+/**
+  @file CameraControlWindow.h
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2002-07-28
+  @edited  2006-08-10
+*/
+#include "G3D/platform.h"
+#include "GLG3D/Widget.h"
+#include "GLG3D/UprightSplineManipulator.h"
+#include "GLG3D/GuiWindow.h"
+#include "GLG3D/FirstPersonManipulator.h"
 
 namespace G3D {
 
 /**
-  TODO:
-  debug short spline evaluation
-  
-  add to project files
-  change GApp2 to create DevUI & CameraControlWindow
-  disable old tab switch
+ Gui used by DeveloperWindow default for recording camera position and making splines.
+ @sa G3D::DeveloperWindow, G3D::GApp2
  */
 //
 // If you are looking for an example of how to create a straightforward

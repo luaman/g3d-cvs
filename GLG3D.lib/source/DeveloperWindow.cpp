@@ -1,5 +1,16 @@
-#include "DeveloperWindow.h"
-#include "CameraControlWindow.h"
+/**
+  @file DeveloperWindow.cpp
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2007-06-01
+  @edited  2007-06-28
+*/
+#include "G3D/platform.h"
+#include "GLG3D/DeveloperWindow.h"
+#include "GLG3D/CameraControlWindow.h"
+
+namespace G3D {
 
 DeveloperWindow::Ref DeveloperWindow::create(
      const FirstPersonManipulatorRef&   manualManipulator,
@@ -88,4 +99,6 @@ bool DeveloperWindow::onEvent(const GEvent& event) {
     }
     
     return false;
+}
+
 }

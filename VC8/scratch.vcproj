@@ -181,19 +181,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\scratch\CameraControlWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\DeveloperWindow.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\scratch\main.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\UprightSplineManipulator.cpp"
 				>
 			</File>
 		</Filter>
@@ -202,18 +190,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\scratch\CameraControlWindow.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\DeveloperWindow.h"
-				>
-			</File>
-			<File
-				RelativePath="..\scratch\UprightSplineManipulator.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

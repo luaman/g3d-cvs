@@ -10,9 +10,6 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-#include "UprightSplineManipulator.h"
-#include "CameraControlWindow.h"
-#include "DeveloperWindow.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -81,7 +78,7 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
-    
+    /*
     splineManipulator = UprightSplineManipulator::create(&defaultCamera);
     addWidget(splineManipulator);
     
@@ -101,6 +98,7 @@ void App::onInit() {
          &showDebugText);
 
     addWidget(gui);
+    */
 }
 
 void App::onLogic() {

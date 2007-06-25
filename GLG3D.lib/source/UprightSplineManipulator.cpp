@@ -1,4 +1,11 @@
-#include "UprightSplineManipulator.h"
+/**
+  @file UprightSplineManipulator.cpp
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2007-06-01
+  @edited  2007-06-28
+*/
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "GLG3D/RenderDevice.h"
@@ -7,6 +14,7 @@
 #include "GLG3D/Draw.h"
 #include "G3D/Sphere.h"
 #include "G3D/AABox.h"
+#include "GLG3D/UprightSplineManipulator.h"
 
 namespace G3D {
 

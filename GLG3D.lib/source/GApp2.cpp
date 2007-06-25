@@ -122,8 +122,8 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     autoResize                  = true;
     showDebugText               = true;
     escapeKeyAction             = ACTION_QUIT;
-    tabSwitchCamera             = true;
     showRenderingStats          = true;
+    fastSwitchCamera            = true;
     catchCommonExceptions       = true;
     manageUserInput             = true;
 
@@ -136,6 +136,28 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     }
 
     toneMap = ToneMap::create();
+
+    defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
+    defaultController->setActive(true);
+
+    if (settings.useDeveloperTools) {
+        UprightSplineManipulator::Ref splineManipulator = UprightSplineManipulator::create(&defaultCamera);
+        addWidget(splineManipulator);
+        
+        GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
+        GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
+
+        developerWindow = DeveloperWindow::create
+            (defaultController, 
+             splineManipulator, 
+             Pointer<Manipulator::Ref>(this, &GApp2::cameraManipulator, &GApp2::setCameraManipulator), 
+             skin,
+             console,
+             &showRenderingStats,
+             &showDebugText);
+
+        addWidget(developerWindow);
+    }
 
     debugAssertGLOk();
 
@@ -153,16 +175,7 @@ void GApp2::exit(int code) {
 
 
 void GApp2::loadFont(const std::string& fontName) {
-    std::string filename = fontName;
-    if (! fileExists(filename)) {
-
-        if (fileExists(dataDir + filename)) {
-            filename = dataDir + filename;
-        } else if (fileExists(dataDir + "font/" + filename)) {
-            filename = dataDir + "font/" + filename;
-        }
-    }
-
+    std::string filename = System::findDataFile(fontName);
     if (fileExists(filename)) {
         debugFont = GFont::fromFile(filename);
     } else {
@@ -292,7 +305,7 @@ void GApp2::renderDebugInfo() {
             if (showRenderingStats) {
 
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-                Draw::fastRect2D(Rect2D::xywh(2, 2, 796, size * 5), renderDevice, Color4(0, 0, 0, 0.3f));
+                Draw::fastRect2D(Rect2D::xywh(2, 2, renderDevice->width() - 4, size * 5), renderDevice, Color4(0, 0, 0, 0.3f));
 
                 Color3 statColor = Color3::yellow();
                 debugFont->configureRenderDevice(renderDevice);
@@ -614,6 +627,7 @@ void GApp2::processGEventQueue() {
                     
                     case ACTION_SHOW_CONSOLE:
                         console->setActive(true);
+                        continue;
                         break;
 
                     case ACTION_NONE:
@@ -621,13 +635,11 @@ void GApp2::processGEventQueue() {
                     }
                     break;
 
-                case GKey::TAB:
-                    // Make sure it wasn't ALT-TAB that was pressed !
-                    if (tabSwitchCamera && 
-                        ! (userInput->keyDown(GKey::RALT) || 
-                           userInput->keyDown(GKey::LALT))) {
-
+                case GKey::F2:
+                    if (fastSwitchCamera && developerWindow.isNull()) {
                         defaultController->setActive(! defaultController->active());
+                        // Consume event
+                        continue;
                     }
                     break;
 

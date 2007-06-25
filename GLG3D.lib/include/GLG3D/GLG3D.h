@@ -93,6 +93,11 @@
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiDropDownList.h"
 
+#include "GLG3D/UprightSplineManipulator.h"
+#include "GLG3D/CameraControlWindow.h"
+#include "GLG3D/DeveloperWindow.h"
+
+
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"
 #include "GLG3D/DXCaps.h"

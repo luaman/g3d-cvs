@@ -1,9 +1,28 @@
+/**
+  @file DeveloperWindow.h
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2007-06-10
+  @edited  2007-06-28
+*/
 #ifndef G3D_DEVELOPERWINDOW_H
 #define G3D_DEVELOPERWINDOW_H
 
-#include <G3D/G3DAll.h>
-#include "UprightSplineManipulator.h"
+#include "G3D/platform.h"
+#include "G3D/Pointer.h"
+#include "GLG3D/Widget.h"
+#include "GLG3D/UprightSplineManipulator.h"
+#include "GLG3D/FirstPersonManipulator.h"
+#include "GLG3D/GuiWindow.h"
+#include "GLG3D/GConsole.h"
+#include "GLG3D/GuiSkin.h"
 
+namespace G3D {
+/**
+ Develoepr controls instantiated by GApp2 for debugging.
+ @sa G3D::GApp2, G3D::CameraControlWindow, G3D::GConsole
+ */
 class DeveloperWindow : public GuiWindow {
 protected:
 
@@ -36,5 +55,7 @@ public:
 
     virtual bool onEvent(const GEvent& event);
 };
+
+}
 
 #endif

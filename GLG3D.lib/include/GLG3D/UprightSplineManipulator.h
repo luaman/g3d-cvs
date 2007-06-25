@@ -1,6 +1,15 @@
-#ifndef G3D_CAMERASPLINEMANIPULATOR_H
-#define G3D_CAMERASPLINEMANIPULATOR_H
+/**
+  @file UprightSplineManipulator.h
 
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2002-07-28
+  @edited  2006-08-10
+*/
+#ifndef G3D_UPRIGHTSPLINEMANIPULATOR_H
+#define G3D_UPRIGHTSPLINEMANIPULATOR_H
+
+#include "G3D/platform.h"
 #include "G3D/Color3.h"
 #include "G3D/UprightFrame.h"
 #include "G3D/g3dmath.h"
@@ -11,6 +20,10 @@ namespace G3D {
 typedef ReferenceCountedPointer<class UprightSplineManipulator> UprightSplineManipulatorRef;
 
 /**
+ Allows recording and playback of a G3D::UprightSpline based on a G3D::GCamera.
+ Used by G3D::CameraControlWindow.
+
+ @sa G3D::UprightFrame, G3D::UprightSpline, G3D::FirstPersonManipulator
  */
 class UprightSplineManipulator : public Manipulator {
 public:
