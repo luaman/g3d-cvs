@@ -401,8 +401,8 @@ void glDisableAllTextures() {
 
 } // namespace
 
-extern void* glXGetProcAddress (const GLubyte *);
-extern void* glXGetProcAddressARB (const GLubyte *);
+extern void (*glXGetProcAddress (const GLubyte *))( void );
+extern void (*glXGetProcAddressARB (const GLubyte *))( void );
 
 namespace G3D {
 void* glGetProcAddress(const char * name) {
