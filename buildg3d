@@ -322,6 +322,20 @@ def src(args):
     # Now produce the zipfile
     zip('temp/src/*', 'build/' + ver + '-src.zip')
 
+
+def jar(args):
+   mkdir('temp/G3D.jar')
+   mkdir('build')
+   x = run('javac', ['-d', 'temp/G3D.jar', 'G3D.jar/com/graphics3d/G3D/*.java'])
+
+   if (x == 0):
+      x = run('jar', ['-cf', 'build/G3D.jar', 'temp/G3D.jar/com'])
+
+      if (x == 0):
+         print 'Built G3D.jar'
+
+   return x
+
 ##################################################################################
 def getCompilerName(args = []):
     if '--compiler' in args:
@@ -376,6 +390,9 @@ lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers
            libraries do not come with the operating system this
            will also build those libraries.
 
+jar        Build G3D.jar, the Java version of network and
+           file access.
+
 data       Copy data-files to build/data and the bin 
            directory to build/<platform>/bin
 
@@ -421,4 +438,4 @@ if __name__ == "__main__":
         [lib, clean, test,
          clib, cclean, ctest, cfastlib,
          ilib, iclean, itest, itools,
-         doc, install, all, src, data, tools], buildHelp))
+         doc, install, all, src, data, tools, jar], buildHelp))
