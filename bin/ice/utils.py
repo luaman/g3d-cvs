@@ -709,7 +709,17 @@ def getCompilerNickname(compilerFilename):
 
        name = base
        if base.startswith('g++') or base.startswith('gcc'):
-           base = 'g++'
+
+           # If base is longer than g++ then assume base is of the form
+           # g++-3.3 and therefore already contains a version number --
+           # unless it is g++-latest.
+           if len(base) > 3:
+               if base.startswith('g++-latest') or base.startswith('gcc-latest'):
+                   base = 'g++'
+               else:
+                   return base
+           else:
+               base = 'g++'
 
        return name + '-' + version
          
