@@ -54,7 +54,7 @@ DeveloperWindow::DeveloperWindow(
 
     cameraControlWindow->setVisible(false);
     pack();
-    setRect(Rect2D::xywh(0, 0, 130, 40));
+    setRect(Rect2D::xywh(0, 0, 130, 38));
 }
 
 
@@ -72,7 +72,8 @@ void DeveloperWindow::setManager(WidgetManager* manager) {
     GuiWindow::setManager(manager);
 
     // Move to the lower left
-    setRect(Rect2D::xywh(manager->window()->dimensions().x1y1() - rect().wh(), rect().wh()));
+    Vector2 osWindowSize = manager->window()->dimensions().wh();
+    setRect(Rect2D::xywh(osWindowSize - rect().wh(), rect().wh()));
 }
 
 

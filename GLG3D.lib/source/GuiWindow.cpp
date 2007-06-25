@@ -332,7 +332,25 @@ void GuiWindow::render(RenderDevice* rd) {
         
         m_skin->pushClientRect(m_clientRect);
             m_rootPane->render(rd, m_skin);
+  /*
+  // Code for debugging window sizes
+rd->endPrimitive();
+rd->pushState();
+rd->setTexture(0, NULL);
+Draw::rect2D(Rect2D::xywh(-100, -100, 1000, 1000), rd, Color3::red());
+rd->popState();
+rd->beginPrimitive(RenderDevice::QUADS);
+*/
         m_skin->popClientRect();
+        /*
+  // Code for debugging window sizes
+rd->endPrimitive();
+rd->pushState();
+rd->setTexture(0, NULL);
+Draw::rect2D(m_rect + Vector2(20,0), rd, Color3::blue());
+rd->popState();
+rd->beginPrimitive(RenderDevice::QUADS);
+*/
     }
     m_skin->endRendering();
     

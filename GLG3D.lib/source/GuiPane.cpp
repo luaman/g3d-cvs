@@ -26,7 +26,7 @@ void GuiPane::Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
     // Make the morph approximately constant velocity
     const float pixelsPerSecond = 1500;
 
-    duration = max((double)0.2, (double)(start.center() - end.center()).length() / pixelsPerSecond);
+    duration = max((double)0.12, (double)(start.center() - end.center()).length() / pixelsPerSecond);
 
     startTime = System::time();
 }

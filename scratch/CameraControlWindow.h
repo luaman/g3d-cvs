@@ -9,11 +9,9 @@ namespace G3D {
 
 /**
   TODO: 
-  debug window bottom padding too large
   debug setFocused(true) on the textbox
   debug short spline evaluation
 
-  add button for displaying when minimized
   disable old tab switch
   add new camera control window to project
   change GApp2 to create cameracontrolwindow

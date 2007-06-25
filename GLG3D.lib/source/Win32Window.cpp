@@ -5,7 +5,7 @@
 @cite       Written by Corey Taylor & Morgan McGuire
 @cite       Special thanks to Max McGuire of Ironlore
 @created 	  2004-05-21
-@edited  	  2007-05-15
+@edited  	  2007-06-25
 
 Copyright 2000-2007, Morgan McGuire.
 All rights reserved.

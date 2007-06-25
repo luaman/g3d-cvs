@@ -14,14 +14,6 @@
 #include "CameraControlWindow.h"
 #include "DeveloperWindow.h"
 
-
-#include <sys/stat.h>
-#include <sys/types.h>
-   #include <dirent.h>
-   #include <fnmatch.h>
-   #include <unistd.h>
-   #define _getcwd getcwd
-
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
 #endif
@@ -181,6 +173,16 @@ void App::onGraphics(RenderDevice* rd) {
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
+
+    /*
+    rd->push2D();   
+    Rect2D rect = Rect2D::xywh(100, 100, 100, 100);
+    Draw::rect2D(rect + Vector2(0,0), rd, Color3::red());
+
+    rd->enableClip2D(rect + Vector2(101, 0));
+    Draw::rect2D(rect + Vector2(101,0), rd, Color3::red());
+    rd->pop2D();
+    */
 }
 
 G3D_START_AT_MAIN();

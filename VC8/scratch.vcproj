@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\scratch\DeveloperWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\scratch\main.cpp"
 				>
 			</File>
@@ -200,6 +204,10 @@
 			>
 			<File
 				RelativePath="..\scratch\CameraControlWindow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\scratch\DeveloperWindow.h"
 				>
 			</File>
 			<File
