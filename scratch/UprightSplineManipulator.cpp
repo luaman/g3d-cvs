@@ -22,8 +22,8 @@ private:
 public:
 
     PosedCameraSpline(UprightSpline* s, const Color3& c) : spline(s), color(c) {
-        if (spline->control.size() >= 4) {
-            numVertices = spline->control.size() * 12 + 1;
+        if (spline->control.size() > 1) {
+            numVertices = spline->control.size() * 11 + 1;
 
             int count = spline->control.size();
             if (spline->cyclic) {

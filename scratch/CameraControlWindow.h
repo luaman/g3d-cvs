@@ -11,8 +11,7 @@ namespace G3D {
   TODO: 
   debug window bottom padding too large
   debug setFocused(true) on the textbox
-
-  distinguish change, action, and cancel events on text box
+  debug short spline evaluation
 
   add button for displaying when minimized
   disable old tab switch
@@ -31,6 +30,7 @@ public:
     typedef ReferenceCountedPointer<class CameraControlWindow> Ref;
 
 protected:
+
     static const Vector2        smallSize;
     static const Vector2        bigSize;
 
@@ -80,6 +80,7 @@ protected:
     GuiCaption                  manualHelpCaption;
     GuiCaption                  autoHelpCaption;
     GuiCaption                  recordHelpCaption;
+    GuiCaption                  playHelpCaption;
 
     /** If true, the window is big enough to show all controls */
     bool                        m_expanded;
@@ -101,6 +102,8 @@ protected:
     //Source desiredSource() const;
 
     void sync();
+
+    void loadSpline(const std::string& filename);
 
     /** Updates the trackFileArray from the list of track files */
     void updateTrackFiles();

@@ -1,0 +1,9 @@
+#include <G3D/G3DAll.h>
+
+class DeveloperWindow {
+public:
+
+    GuiWindow::Ref  
+
+    static void addWindow(Manager
+};

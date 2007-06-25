@@ -150,6 +150,64 @@ public:
        and between 0 and 1
      */
     Control evaluate(float s) const {
+
+        if (control.size() < 4) {
+            switch (control.size()) {
+            case 0:
+                {
+                    Control c;
+                    // Hide the fact from C++ that we are using an uninitialized
+                    // variable here
+                    return *(&c) * 0;
+                }
+
+            case 1:
+                // Single point
+                return control[0];
+
+            case 2:
+                // Linear interpolation
+                {
+                    float a;
+                    if (cyclic) {
+                        a = wrap(s, 2.0f);
+                        if (a > 1.0f) {
+                            // Reflect around end points
+                            a = 2.0f - a;
+                        }
+                    } else {
+                        a = clamp(s, 0.0f, 1.0f);
+                    }
+                    return control[0] * (1.0f - a) + control[1] * a;
+                }
+   
+            case 3:
+                // Should be quadratic, but we just use piecewise
+                // linear in this implementation
+                {
+                    // interpolation param
+                    float a;
+                    // control point index
+                    int i = 0;
+                    if (cyclic) {
+                        a = wrap(s, 4.0f);
+                        if (a > 2.0f) {
+                            // Reflect around end points
+                            a = 4.0f - a;
+                        }
+                    } else {
+                        a = clamp(s, 0.0f, 2.0f);
+                    }
+                    if (a > 1.0f) {
+                        i = 1;
+                        a -= 1.0f;
+                    }
+                    return control[i] * (1.0f - a) + control[i + 1] * a;
+                }
+                
+            }
+        }
+
         debugAssertM(control.size() >= 4, "Requires at least four control points.");
 
         // Catmull-Rom basis, such that 

@@ -4,8 +4,8 @@
  @author Morgan McGuire, morgan@cs.williams.edu
  */
 
-#ifndef G3D_CAMERALOCATION_H
-#define G3D_CAMERALOCATION_H
+#ifndef G3D_UPRIGHTFRAME_H
+#define G3D_UPRIGHTFRAME_H
 
 #include "G3D/platform.h"
 #include "G3D/Spline.h"
@@ -19,7 +19,7 @@ namespace G3D {
  Unlike a G3D::Quat, UprightFrame always keeps the reference frame from rolling about its own z axis.
  Particularly useful for cameras.
 
- @sa G3D::CoordinateFrame, G3D::Matrix4, G3D::PhysicsFrame
+ @sa G3D::CoordinateFrame, G3D::Matrix4, G3D::PhysicsFrame, G3D::UprightSpline, G3D::UprightSplineManipulator
  */
 class UprightFrame {
 public:
@@ -62,6 +62,7 @@ public:
 };
 
 /** Shortest-path linear velocity spline for camera positions.  Always keeps the camera from rolling.
+@sa G3D::UprightSplineManipulator, G3D::UprightFrame
 */
 class UprightSpline : public Spline<UprightFrame> {
 protected:

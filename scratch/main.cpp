@@ -12,6 +12,8 @@
 #include <GLG3D/GLG3D.h>
 #include "UprightSplineManipulator.h"
 #include "CameraControlWindow.h"
+#include "DeveloperWindow.h"
+
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -91,17 +93,20 @@ void App::onInit() {
     splineManipulator = UprightSplineManipulator::create(&defaultCamera);
     addWidget(splineManipulator);
     
-    GFontRef arialFont = GFont::fromFile(System::findDataFile("arial.fnt"));
+    GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
 
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
     defaultController->setActive(true);
 
-    GuiWindow::Ref gui = CameraControlWindow::create
+    GuiWindow::Ref gui = DeveloperWindow::create
         (defaultController, 
          splineManipulator, 
          Pointer<Manipulator::Ref>(dynamic_cast<GApp2*>(this), &GApp2::cameraManipulator, &GApp2::setCameraManipulator), 
-         skin);
+         skin,
+         console,
+         &showRenderingStats,
+         &showDebugText);
 
     addWidget(gui);
 }
@@ -120,28 +125,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 void App::onUserInput(UserInput* ui) {
-    // Add key handling here
-    debugPrintf("Mode = %d", splineManipulator->mode());
-
-    if (ui->keyPressed(GKey::F1)) {
-        setCameraManipulator(defaultController);
-        defaultController->setActive(true);
-        splineManipulator->setMode(UprightSplineManipulator::RECORD_KEY_MODE);
-        splineManipulator->clear();
-    }
-
-    if (ui->keyPressed(GKey::F2)) {
-        defaultController->setActive(false);
-        setCameraManipulator(splineManipulator);
-        splineManipulator->setMode(UprightSplineManipulator::PLAY_MODE);
-        splineManipulator->setTime(0);
-    } 
-
-    if (ui->keyPressed(GKey::F3)) {
-        setCameraManipulator(defaultController);
-        splineManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
-        defaultController->setActive(true);
-    } 
 }
 
 void App::onConsoleCommand(const std::string& str) {

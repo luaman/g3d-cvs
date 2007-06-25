@@ -30,11 +30,14 @@ void GuiRadioButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
 
 
 void GuiRadioButton::setRect(const Rect2D& rect) {
-     m_rect = rect;
-
-     // TODO: use the actual font size etc. to compute bounds
-     // Prevent the checkbox from stealing clicks very far away
-     m_clickRect = Rect2D::xywh(rect.x0y0(), Vector2(min(rect.width(), 30.0f), rect.height()));
+     if (m_style == RADIO_STYLE) {
+         // TODO: use the actual font size etc. to compute bounds
+         // Prevent the radio button from stealing clicks very far away
+         m_rect = rect;
+         m_clickRect = Rect2D::xywh(rect.x0y0(), Vector2(min(rect.width(), 30.0f), rect.height()));
+     } else {
+         GuiControl::setRect(rect);
+     }
 }
 
 

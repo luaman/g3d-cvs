@@ -1,10 +1,12 @@
 #include "CameraControlWindow.h"
-#include "GuiDialog.h"
 
 namespace G3D {
 
 const Vector2 CameraControlWindow::smallSize(246, 48);
 const Vector2 CameraControlWindow::bigSize(246, 157);
+
+static const std::string noSpline = "< None >";
+static const std::string untitled = "< Unsaved >";
 
 namespace _internal {
 class SaveDialog : public GuiWindow {
@@ -220,6 +222,7 @@ CameraControlWindow::CameraControlWindow(
 #   endif
 
     autoHelpCaption = "";
+    playHelpCaption = "";
 
     recordHelpCaption = GuiCaption("Spacebar to place a control point.", NULL, 10);
 
@@ -265,8 +268,9 @@ void CameraControlWindow::setRect(const Rect2D& r) {
 
 void CameraControlWindow::updateTrackFiles() {
     trackFileArray.fastClear();
+    trackFileArray.append(noSpline);
     getFiles("*.trk", trackFileArray);
-    for (int i = 0; i < trackFileArray.size(); ++i) {
+    for (int i = 1; i < trackFileArray.size(); ++i) {
         trackFileArray[i] = trackFileArray[i].substr(0, trackFileArray[i].length() - 4);
     }
     trackFileIndex = iMin(trackFileArray.size() - 1, trackFileIndex);
@@ -286,6 +290,7 @@ void CameraControlWindow::onUserInput(UserInput* ui) {
 }
 
 bool CameraControlWindow::onEvent(const GEvent& event) {
+
     // Allow super class to process the event
     if (GuiWindow::onEvent(event)) {
         return true;
@@ -304,33 +309,69 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
 
     // Special buttons
     if (event.type == GEventType::GUI_ACTION) {
-        if (event.gui.control == drawerButton) {
+        GuiControl* control = event.gui.control;
+
+        if (control == drawerButton) {
+
+            // Change the window size
             m_expanded = ! m_expanded;
             morphTo(Rect2D::xywh(rect().x0y0(), m_expanded ? bigSize : smallSize));
             drawerButton->setCaption(m_expanded ? drawerCollapseCaption : drawerExpandCaption);
-        } else if (event.gui.control == playButton) {
+
+        } else if (control == trackList) {
+            
+            if (trackFileArray[trackFileIndex] != untitled) {
+                // Load the new spline
+                loadSpline(trackFileArray[trackFileIndex] + ".trk");
+
+                // When we load, we lose our temporarily recorded spline,
+                // so remove that display from the menu.
+                if (trackFileArray.last() == untitled) {
+                    trackFileArray.remove(trackFileArray.size() - 1);
+                }
+            }
+
+        } else if (control == playButton) {
+
             // Take over manual operation
             manualOperation = true;
             // Restart at the beginning of the path
             trackManipulator->setTime(0);
-        } else if ((event.gui.control == recordButton) || (event.gui.control == cameraLocationTextBox)) {
-            // Take over manual operation
+
+        } else if ((control == recordButton) || (control == cameraLocationTextBox)) {
+
+            // Take over manual operation and reset the recording
             manualOperation = true;
+            trackManipulator->clear();
+            trackManipulator->setTime(0);
+
+            // Select the untitled path
+            if ((trackFileArray.size() == 0) || (trackFileArray.last() != untitled)) {
+                trackFileArray.append(untitled);
+            }
+            trackFileIndex = trackFileArray.size() - 1;
+
             saveButton->setEnabled(true);
-        } else if (event.gui.control == saveButton) {
+
+        } else if (control == saveButton) {
+
+            // Save
             std::string saveName;
 
             if (_internal::SaveDialog::getFilename(saveName, this)) {
                 saveName = filenameBaseExt(trimWhitespace(saveName));
 
                 if (saveName != "") {
-                    saveName = saveName.substr(0, saveName.length() - filenameExt(saveName).length()) + ".trk";
+                    saveName = saveName.substr(0, saveName.length() - filenameExt(saveName).length());
 
-                    BinaryOutput b(saveName, G3D_LITTLE_ENDIAN);
+                    BinaryOutput b(saveName + ".trk", G3D_LITTLE_ENDIAN);
                     trackManipulator->spline().serialize(b);
                     b.commit();
 
                     updateTrackFiles();
+
+                    // Select the one we just saved
+                    trackFileIndex = iMax(0, trackFileArray.findIndex(saveName));
                     
                     saveButton->setEnabled(false);
                 }
@@ -347,6 +388,30 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
 }
 
 
+void CameraControlWindow::loadSpline(const std::string& filename) {
+    saveButton->setEnabled(false);
+    trackManipulator->setMode(UprightSplineManipulator::INACTIVE_MODE);
+
+    if (filename == noSpline) {
+        trackManipulator->clear();
+        return;
+    }
+
+    if (! fileExists(filename)) {
+        trackManipulator->clear();
+        return;
+    }
+
+    UprightSpline spline;
+
+    BinaryInput b(filename, G3D_LITTLE_ENDIAN);
+    spline.deserialize(b);
+
+    trackManipulator->setSpline(spline);
+    manualOperation = true;
+}
+
+
 void CameraControlWindow::sync() {
 
     if (m_expanded) {
@@ -354,15 +419,23 @@ void CameraControlWindow::sync() {
         trackList->setEnabled(hasTracks);
         trackLabel->setEnabled(hasTracks);
 
-        bool hasSpline = trackManipulator->splineSize() > 1;
+        bool hasSpline = trackManipulator->splineSize() > 0;
         visibleCheckBox->setEnabled(hasSpline);
         cyclicCheckBox->setEnabled(hasSpline);
         playButton->setEnabled(hasSpline);
 
         if (manualOperation) {
-            if (trackManipulator->mode() == UprightSplineManipulator::RECORD_KEY_MODE) {
+            switch (trackManipulator->mode()) {
+            case UprightSplineManipulator::RECORD_KEY_MODE:
+            case UprightSplineManipulator::RECORD_INTERVAL_MODE:
                 helpLabel->setCaption(recordHelpCaption);
-            } else {
+                break;
+
+            case UprightSplineManipulator::PLAY_MODE:
+                helpLabel->setCaption(playHelpCaption);
+                break;
+
+            case UprightSplineManipulator::INACTIVE_MODE:
                 helpLabel->setCaption(manualHelpCaption);
             }
         } else {

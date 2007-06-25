@@ -47,7 +47,7 @@ GuiWindow::~GuiWindow() {
 
 
 void GuiWindow::setFocusControl(GuiControl* c) {
-    if (c->enabled()) { 
+    if (c->enabled() && c->visible()) { 
         keyFocusGuiControl = c;
     }
 }
