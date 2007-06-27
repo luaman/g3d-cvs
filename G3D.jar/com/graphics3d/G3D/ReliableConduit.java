@@ -104,6 +104,17 @@ public class ReliableConduit {
     }
 
 
+    /** Waits for a message to come in and then returns its type. Due to network race conditions,
+        may return 0, indicating that there is no message.*/
+    public int waitForMessage() throws java.io.IOException {
+        // If the waiting message type is zero that means that there is no message
+        // currently in the local queue, so we have to wait for the next message.
+	if (waitingMessageType() == 0) {
+           selector.select();
+        }
+        return waitingMessageType();
+    }
+
     /** Accumulates whatever part of the message (not the header) is
         still waiting on the socket into the receiveBuffer during
         state = RECEIVING mode.  Closes the socket if anything goes

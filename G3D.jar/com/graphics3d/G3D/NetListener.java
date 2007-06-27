@@ -63,8 +63,21 @@ public class NetListener {
     /** Block until a connection is received.  Returns null if 
         something went wrong. */
     public ReliableConduit waitForConnection() throws java.io.IOException {
-        SocketChannel clientChannel = channel.accept(); 
-        assert clientChannel != null;
+
+	// Blocking select
+	int numReady = selector.select();
+
+        if (numReady == 0) {
+            throw new java.io.IOException("Interrupted while waiting on a socket");
+        }
+
+        SocketChannel clientChannel = channel.accept();
+
+	if (clientChannel == null) {
+            throw new java.io.IOException("Accepted clientChannel was null" +
+					  " in channel.accept()");
+	}
+
         return new ReliableConduit(clientChannel);
     }
 
@@ -72,10 +85,11 @@ public class NetListener {
         return immediately). */
     public boolean clientWaiting() {
         try {
-            int numReadyForRead = selector.selectNow();       
+            // Non-blocking select
+            int numReadyForRead = selector.selectNow();
             return numReadyForRead > 0;
         } catch (java.io.IOException e) {
-            // Somethign went wrong
+            // Something went wrong
             return false;
         }
     }
