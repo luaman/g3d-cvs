@@ -395,12 +395,12 @@ void GApp2::onGraphics(RenderDevice* rd) {
     rd->enableLighting();
         rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
         rd->setAmbientLightColor(lighting.ambient);
-        renderGModules(rd);
+        renderWidgets(rd);
     rd->disableLighting();
 }
 
 
-void GApp2::renderGModules(RenderDevice* rd) {
+void GApp2::renderWidgets(RenderDevice* rd) {
     Array<PosedModel::Ref> posedArray, opaque, transparent; 
     Array<PosedModel2DRef> posed2DArray;
     

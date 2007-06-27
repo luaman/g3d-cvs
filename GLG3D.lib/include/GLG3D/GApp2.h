@@ -441,7 +441,7 @@ protected:
     /**
      Get and render the posed GModules.
      */
-    virtual void renderGModules(RenderDevice* rd);
+    virtual void renderWidgets(RenderDevice* rd);
 
     /**
      Override this with your simulation code.

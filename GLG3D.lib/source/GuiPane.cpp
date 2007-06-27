@@ -113,23 +113,7 @@ GuiPane::~GuiPane() {
 
 
 GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, int* indexValue, Array<std::string>* list) {
-    return addControl(new GuiDropDownList(m_gui, this, caption, Pointer<int>(indexValue), list));
-}
-
-
-GuiCheckBox* GuiPane::addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style style) {
-    GuiCheckBox* c = addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(value), style));     
-    if (style == GuiCheckBox::TOOL_STYLE) {
-        c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
-    } else if (style == GuiCheckBox::BUTTON_STYLE) {
-        c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
-    }
-    return c;
-}
-
-
-GuiTextBox* GuiPane::addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update) {
-    return addControl(new GuiTextBox(m_gui, this, caption, Pointer<std::string>(value), update));
+    return addDropDownList(caption, Pointer<int>(indexValue), list);
 }
 
 

@@ -170,68 +170,59 @@ public:
 
     /**
        <pre>
+       bool enabled;
+       gui->addCheckBox("Enabled", &enabled);
+
        Foo* foo = new Foo();
-       gui->addCheckBox("Enabled", foo, &Foo::enabled, &Foo::setEnabled);
+       gui->addCheckBox("Enabled", Pointer<bool>(foo, &Foo::enabled, &Foo::setEnabled));
 
        BarRef foo = Bar::create();
-       gui->addCheckBox("Enabled", bar.pointer(), &Bar::enabled, &Bar::setEnabled);
+       gui->addCheckBox("Enabled", Pointer<bool>(bar, &Bar::enabled, &Bar::setEnabled));
        </pre>
     */
-    template<class T>
-    GuiCheckBox* addCheckBox
-    (const GuiCaption& text,
-     T* object,
-     bool (T::*get)() const,
-     void (T::*set)(bool),
-     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
-     ) {
-        return addControl(new GuiCheckBox(m_gui, this, text, Pointer<bool>(object, get, set), style));
-    }
-
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
      const Pointer<bool>& pointer,
      GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
      ) {
-        return addControl(new GuiCheckBox(m_gui, this, text, pointer, style));
+        GuiCheckBox* c = addControl(new GuiCheckBox(m_gui, this, text, pointer, style));
+        if (style == GuiCheckBox::TOOL_STYLE) {
+            c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
+        } else if (style == GuiCheckBox::BUTTON_STYLE) {
+            c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
+        }
+        return c;
     }
 
-    template<class T>
-    GuiTextBox* addTextBox
-    (const GuiCaption& caption,
-     T* object,
-     std::string (T::*get)() const,
-     void (T::*set)(std::string),
-     GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
+    GuiCheckBox* addCheckBox
+    (const GuiCaption& text,
+     bool* pointer,
+     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
      ) {
-        
-        return addControl(new GuiTextBox(m_gui, this, caption, Pointer<std::string>(object, get, set), update));
+        return addCheckBox(text, Pointer<bool>(pointer), style);
     }
 
     GuiTextBox* addTextBox
     (const GuiCaption& caption,
      const Pointer<std::string>& stringPointer,
      GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
-     ) {
-        
+     ) {        
         return addControl(new GuiTextBox(m_gui, this, caption, stringPointer, update));
+    }
+
+   GuiTextBox* addTextBox
+    (const GuiCaption& caption,
+     std::string* stringPointer,
+     GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
+     ) {        
+         return addTextBox(caption, Pointer<std::string>(stringPointer), update);
     }
 
 
     template<class IndexObj>
     GuiDropDownList* addDropDownList
-    (const GuiCaption& caption,
-     IndexObj* indexObject,
-     int (IndexObj::*indexGet)() const,
-     void (IndexObj::*indexSet)(int),
-     Array<std::string>* list) {
-        
-        return addControl(new GuiDropDownList
-            (m_gui, 
-            this, 
-            caption, 
-            Pointer<int>(indexObject, indexGet, indexSet),
-             list));
+    (const GuiCaption& caption, const Pointer<IndexObj>& indexObject, Array<std::string>* list) {
+        return addControl(new GuiDropDownList(m_gui, this, caption, indexObject, list));
     }
 
     GuiDropDownList* addDropDownList(const GuiCaption& caption, int* indexValue, Array<std::string>* list);
@@ -258,32 +249,15 @@ public:
         return c;
     }
 
-    /**
-       Example:
-       <pre>
-       gui->addCheckBox("Enabled", &enabled);
-       </pre>
-     */
-    GuiCheckBox* addCheckBox(const GuiCaption& text, bool* value, GuiCheckBox::Style = GuiCheckBox::BOX_STYLE);
-
-    template<typename Value, class T>
-    GuiSlider<Value>* addSlider
-    (const GuiCaption& text,
-     T* object,
-     Value (T::*get)() const,
-     void (T::*set)(Value),
-     Value min,
-     Value max,
-     bool horizontal = true) {
-        
-        return addControl(new GuiSlider<Value>(m_gui, this, text, Pointer<Value>(object, get, set), 
-                                               min, max, horizontal));
+    template<typename Value>
+    GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, Value min, Value max, bool horizontal = true) {
+        return addControl(new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal));
     }
 
+    
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, Value min, Value max, bool horizontal = true) {
-        
-        return addControl(new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal));
+        return addSlider(text, Pointer<Value>(value), min,  max, horizontal);
     }
 
     /**
@@ -302,15 +276,11 @@ public:
        @param selection Must be a pointer to an int or enum.  The
        current selection value for a group of radio buttons.
      */
-    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection,
-                                GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
+    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
     GuiButton* addButton(const GuiCaption& text, GuiButton::Style style = GuiButton::NORMAL_STYLE);
 
-    GuiTextBox* addTextBox(const GuiCaption& caption, std::string* value, GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE);
-
-    GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, 
-                    GFont::YAlign = GFont::YALIGN_CENTER);
+    GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, GFont::YAlign = GFont::YALIGN_CENTER);
 
     /**
      Removes this control from the GuiPane.
