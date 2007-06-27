@@ -181,7 +181,7 @@ def ilib(args):
 
 def itools(args):
      if os.name == 'nt':
-         return VC8('VC8\\G3D.sln', ['gfxviewer.lib', 'viewer.lib']);
+         return VC8('VC8\\G3D.sln', ['gfxmeter', 'viewer']);
 
      x = 0
      if (x == 0):
@@ -276,13 +276,12 @@ def installWin32(args):
     copyIfNewer('build/html', dest + 'html')
     copyIfNewer('build/demos', dest + 'demos')
     copyIfNewer('build/data', dest + 'data')
-    copyIfNewer('build/html', dest + 'html')
-    copyIfNewer('build/win-i386-vc8.0', dest)
+    copyIfNewer('build/G3D.jar', dest + 'lib/')
+    copyIfNewer('build/win-i386-vc8.0/*', dest)
     
 
 def install(args):
     x = all(args)
-    
     if (x == 0):
         if os.name == 'nt':
             x = installWin32(args)
@@ -305,6 +304,8 @@ def all(args):
     x = lib(args)
     if x == 0: x = doc(args)
     if x == 0: x = data(args)
+    if x == 0: x = tools(args)
+    if x == 0: x = jar(args)
     if x == 0: x = test(args)
     return x
 
