@@ -60,15 +60,32 @@ public class NetListener {
                              channel);
     }
 
-    /** Block until a connection is received.  Returns null if 
-        something went wrong. */
+
     public ReliableConduit waitForConnection() throws java.io.IOException {
+	return waitForConnection(0);
+    }
+
+    /** Block until a connection is received.  Returns null in the
+	event of a timeout or thread interruption. 
+
+	@param timeOutSeconds If zero, wait indefinitely
+    */
+    public ReliableConduit waitForConnection(float timeOutSeconds) throws java.io.IOException {
+
+	int milliseconds = Math.round(timeOutSeconds * 1000);
 
 	// Blocking select
-	int numReady = selector.select();
+	int numReady = 0;
+
+	if (timeOutSeconds > 0) {
+	    numReady = selector.select(milliseconds);
+ 	} else {
+	    numReady = selector.select();
+	}
 
         if (numReady == 0) {
-            throw new java.io.IOException("Interrupted while waiting on a socket");
+	    // Timed out
+	    return null;
         }
 
         SocketChannel clientChannel = channel.accept();
@@ -81,7 +98,7 @@ public class NetListener {
         return new ReliableConduit(clientChannel);
     }
 
-    /** True if a client is waiting (i.e., waitForConnection will
+    /** True if a client is waiting (i.e., if waitForConnection will
         return immediately). */
     public boolean clientWaiting() {
         try {

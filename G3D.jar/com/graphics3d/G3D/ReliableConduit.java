@@ -104,14 +104,29 @@ public class ReliableConduit {
     }
 
 
+    public int waitForMessage() throws java.io.IOException {
+	return waitForMessage(0);
+    }
+
     /** Waits for a message to come in and then returns its type. Due to network race conditions,
         may return 0, indicating that there is no message.*/
-    public int waitForMessage() throws java.io.IOException {
-        // If the waiting message type is zero that means that there is no message
-        // currently in the local queue, so we have to wait for the next message.
+    public int waitForMessage(int timeOutSeconds) throws java.io.IOException {
+	int milliseconds = Math.round(timeOutSeconds * 1000);
+
 	if (waitingMessageType() == 0) {
-           selector.select();
+	    // If the waiting message type is zero that means that there is no message
+	    // currently in the local queue, so we have to wait for the next message.
+	    if (timeOutSeconds > 0) {
+		if (selector.select(milliseconds) == 0) {
+		    // Timed out
+		    return 0;
+		}
+	    } else {
+		// Wait indefinitely
+		selector.select();
+	    }
         }
+
         return waitingMessageType();
     }
 
