@@ -118,10 +118,16 @@ public:
     void getBounds(class AABox& out) const;
 };
 
-} // namespace
-
-inline unsigned int hashCode(const G3D::Sphere& sphere) {
-    return (unsigned int)(hashCode(sphere.center) + (sphere.radius * 13));
 }
+
+template <>
+struct GHashCode<G3D::Sphere>
+{
+    size_t operator()(const G3D::Sphere& key) const
+    { 
+        return static_cast<size_t>(key.center.hashCode() + (key.radius * 13));
+    }
+};
+
 
 #endif

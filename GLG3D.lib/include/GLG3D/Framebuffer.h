@@ -194,8 +194,10 @@ private:
     /**
      Current attachments.
      Slots are not specified if they correspond to NULL elements.
+
+     Note: the uint32 key corresponds to an AttachmentPoint value
      */
-    Table<AttachmentPoint, Attachment>  attachmentTable;
+    Table<uint32, Attachment>  attachmentTable;
 
 	/** OpenGL Object ID */
 	GLuint							framebufferID;
@@ -221,7 +223,7 @@ private:
      add attachments with new sizes.
      */
     inline int numAttachments() const {
-        return attachmentTable.size();
+        return static_cast<int>(attachmentTable.size());
     }
 
 	/** Default Constructor. */
@@ -332,8 +334,6 @@ typedef Framebuffer FrameBuffer;
 typedef FramebufferRef FrameBufferRef;
 
 } //  G3D
-
-unsigned int hashCode(const G3D::Framebuffer::AttachmentPoint& a);
 
 #endif // GLG3D_FRAMEBUFFER_H
 

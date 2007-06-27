@@ -12,10 +12,11 @@
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Array.h"
-#include "GLG3D/glheaders.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/Table.h"
 #include "G3D/Vector2.h"
 #include "G3D/WrapMode.h"
+#include "GLG3D/glheaders.h"
+#include "GLG3D/TextureFormat.h"
 
 namespace G3D {
 
@@ -211,7 +212,7 @@ public:
 
         /** True if both Settings are identical, ignoring mipmap settings.*/
         bool equalsIgnoringMipMap(const Settings& other) const;
-        uint32 hashCode() const;
+        size_t hashCode() const;
     };
 
 
@@ -675,7 +676,11 @@ typedef Texture::Ref TextureRef;
 
 } // namespace
 
-G3D::uint32 hashCode(const G3D::Texture::Settings& p);
+template <>
+struct GHashCode<G3D::Texture::Settings>
+{
+    size_t operator()(const G3D::Texture::Settings& key) const { return key.hashCode(); }
+};
 
 
 #endif

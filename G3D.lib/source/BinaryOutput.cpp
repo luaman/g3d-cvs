@@ -15,6 +15,8 @@
 #include "G3D/Array.h"
 #include <zlib.h>
 
+#include <cstring>
+
 // Largest memory buffer that the system will use for writing to
 // disk.  After this (or if the system runs out of memory)
 // chunks of the file will be dumped to disk.

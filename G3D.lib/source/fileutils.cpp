@@ -18,6 +18,8 @@
 #include "G3D/stringutils.h"
 #include "G3D/Set.h"
 
+#include <cstring>
+
 #ifdef G3D_WIN32
    // Needed for _getcwd
    #include <direct.h>

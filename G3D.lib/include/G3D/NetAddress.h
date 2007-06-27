@@ -2,6 +2,7 @@
 #define G3D_NETADDRESS_H
 
 #include "G3D/platform.h"
+#include "G3D/Table.h"
 
 /** These control the version of Winsock used by G3D.
     Version 2.0 is standard for G3D 6.09 and later.
@@ -92,9 +93,14 @@ std::ostream& operator<<(std::ostream& os, const NetAddress&);
 
 } // namespace G3D
 
-inline unsigned int hashCode(const G3D::NetAddress& a) {
-    return a.ip() + ((G3D::uint32)a.port() << 16);
-}
+template <>
+struct GHashCode<G3D::NetAddress>
+{
+    size_t operator()(const G3D::NetAddress& key) const 
+    { 
+        return static_cast<size_t>(key.ip() + (static_cast<G3D::uint32>(key.port()) << 16));
+    }
+};
 
 namespace G3D {
 
@@ -111,6 +117,6 @@ inline bool operator!=(const NetAddress& a, const NetAddress& b) {
     return !(a == b);
 }
 
-}
+} // namespace G3D
 
 #endif

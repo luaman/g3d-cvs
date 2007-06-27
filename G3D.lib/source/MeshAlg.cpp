@@ -18,6 +18,8 @@
 #include "G3D/vectorMath.h"
 #include "G3D/AABox.h"
 
+#include <climits>
+
 namespace G3D {
 
 const int MeshAlg::Face::NONE             = INT_MIN;

@@ -106,17 +106,18 @@ namespace G3D {
             return *handle == m;
         }
 
-        inline uint32 hashCode() const {
+        inline size_t hashCode() const {
             return handle->hashCode();
         }
     };
-    }
-}
+ } // namespace internal
+} // namespace G3D
 
-template<class Handle>
-inline unsigned int hashCode(const G3D::_internal::Indirector<Handle>& m) {
-    return m.hashCode();
-}
+template <class Handle>
+struct GHashCode<typename G3D::_internal::Indirector<Handle> >
+{
+    size_t operator()(const G3D::_internal::Indirector<Handle>& key) const { return key.hashCode(); }
+};
 
 namespace G3D {
 
@@ -212,7 +213,7 @@ protected:
             return value.operator==(other.value);
         }
 
-        inline uint32 hashCode() const {
+        inline size_t hashCode() const {
             return value.hashCode();
         }
     };

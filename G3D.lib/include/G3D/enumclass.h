@@ -8,6 +8,9 @@
 #ifndef G3D_ENUMCLASS_H
 #define G3D_ENUMCLASS_H
 
+#include "G3D/Table.h"
+
+
 /**
   Creates a series of methods that turn a class into a scoped enumeration.
   Uses the "Intelligent Enum" design pattern 
@@ -113,15 +116,15 @@
         return (unsigned int)value;\
     }
 
-/** Use outside the namespace */
 #define G3D_DECLARE_ENUM_CLASS_HASHCODE(Classname)\
-inline unsigned int hashCode(const Classname::Value x) {\
-    return (unsigned int)x;\
-}\
-\
-inline unsigned int hashCode(const Classname x) {\
-    return x.hashCode();\
-}
-
+template <> struct GHashCode<Classname::Value>                                              \
+{                                                                                           \
+    size_t operator()(Classname::Value key) const { return static_cast<size_t>(key); }      \
+};                                                                                          \
+                                                                                            \
+template <> struct GHashCode<Classname>                                                     \
+{                                                                                           \
+    size_t operator()(Classname key) const { return static_cast<size_t>(key.hashCode()); }  \
+};
 
 #endif

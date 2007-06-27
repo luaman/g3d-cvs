@@ -23,9 +23,6 @@
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
 
-G3D::uint32 hashCode(const G3D::Texture::Settings& p) {
-    return p.hashCode();
-}
 
 namespace G3D {
 
@@ -1708,7 +1705,7 @@ void Texture::Settings::deserialize(class TextInput& t) {
 }
 */
 
-uint32 Texture::Settings::hashCode() const {
+size_t Texture::Settings::hashCode() const {
     return 
         (uint32)interpolateMode + 
         16 * (uint32)wrapMode + 

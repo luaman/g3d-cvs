@@ -13,6 +13,8 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 
+#include <cstring>
+
 namespace G3D {
 
 

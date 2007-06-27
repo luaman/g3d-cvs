@@ -9,15 +9,18 @@
 
 #include "G3D/platform.h"
 #include "G3D/Rect2D.h"
+#include "G3D/Table.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/GFont.h"
-#include "G3D/Table.h"
 
-inline unsigned int hashCode(const G3D::GFontRef& font) {
-    return hashCode(font.pointer());
-}
+template <>
+struct GHashCode<G3D::GFontRef>
+{
+    size_t operator()(const G3D::GFontRef& key) const { return reinterpret_cast<size_t>(key.pointer()); }
+};
 
 namespace G3D {
+
 
 /** 
     Text on a GuiControl. These are normally created

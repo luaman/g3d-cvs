@@ -23,7 +23,7 @@ namespace G3D {
 Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f), w(v.w / 127.0f) {
 }
 
-unsigned int Vector4::hashCode() const {
+size_t Vector4::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
     unsigned int zhash = (*(int*)(void*)(&z));

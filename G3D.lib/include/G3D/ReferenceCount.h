@@ -318,11 +318,8 @@ public:
         zeroPointer();
     }
   
-    inline uint32 hashCode() const {
-        // Avoid 64-bit pointer cast problems by turning
-        // the pointer itself into an array of integers.
-        int* intPtr = (int*)(((unsigned char*)&m_pointer) + (sizeof(void*) - sizeof(int)));
-        return *intPtr;
+    inline size_t hashCode() const {
+        return reinterpret_cast<size_t>(m_pointer);;
     }
 
     inline const ReferenceCountedPointer<T>& operator=(const ReferenceCountedPointer<T>& p) {

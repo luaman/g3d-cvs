@@ -19,9 +19,8 @@
 #include "G3D/System.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Crypto.h"
-#include <assert.h>
+#include <cstddef>
 #include <string>
-#include <locale>
 
 #ifdef G3D_WIN32
 #   pragma warning (push)
@@ -29,90 +28,71 @@
 #   pragma warning (disable : 4786)
 #endif
 
-namespace G3D {
-class Hashable {
-public:
-    virtual unsigned int hashCode() const = 0;
-    
-    /**
-     An empty virtual destructor for virtual methods.
-    */
-    virtual ~Hashable() {}
+
+template<typename Key>
+struct GHashCode{};
+
+template <>
+struct GHashCode<int>
+{
+    size_t operator()(int key) const { return static_cast<size_t>(key); }
 };
-}
 
+template <>
+struct GHashCode<G3D::uint32>
+{
+    size_t operator()(G3D::uint32 key) const { return static_cast<size_t>(key); }
+};
 
-// The hashCodes can be broken by inline global 'hashCode' functions
-// added to other files that are not implemented.
+template <>
+struct GHashCode<G3D::uint64>
+{
+    size_t operator()(G3D::uint64 key) const { return static_cast<size_t>(key); }
+};
 
-/**
- Int hashing function for use with Table.
- */
-inline unsigned int hashCode(const int a) {
-	return a;
-}
+template <>
+struct GHashCode<void*>
+{
+    size_t operator()(const void* key) const { return reinterpret_cast<size_t>(key); }
+};
 
-inline unsigned int hashCode(const G3D::uint32 a) {
-	return a;
-}
+template <>
+struct GHashCode<const std::string>
+{
+    size_t operator()(const std::string& key) const { return static_cast<size_t>(G3D::Crypto::crc32(key.c_str(), key.size())); }
+};
 
-inline unsigned int hashCode(const G3D::uint64 a) {
-	return (unsigned int)a;
-}
-
-inline unsigned int hashCode(const void* a) {
-    // Avoid 64-bit pointer cast problems by turning
-    // the pointer itself into an array of integers.
-    int* intPtr = (int*)(((unsigned char*)&a) + (sizeof(void*) - sizeof(int)));
-    return *intPtr;
-}
-
-/**
- Default class pointer hash.
- */
-inline unsigned int hashCode(const G3D::Hashable* a) {
-    return a->hashCode();
-}
-
-/**
- Default class hash.
- */
-inline unsigned int hashCode(const G3D::Hashable& a) {
-    return a.hashCode();
-}
-
-/**
- String hashing function for use with Table.
- */
-inline unsigned int hashCode(const std::string& a) {
-    //static const std::collate<char>& col = std::use_facet< std::collate<char> > (std::locale::empty( ));
-    //return col.hash(a.c_str(), a.c_str() + a.size());
-    return G3D::Crypto::crc32(a.c_str(), a.size());
-}
-
-inline unsigned int hashCode(std::string& a) {
-    return G3D::Crypto::crc32(a.c_str(), a.size());
-}
+template <>
+struct GHashCode<std::string>
+{
+    size_t operator()(const std::string& key) const { return static_cast<size_t>(G3D::Crypto::crc32(key.c_str(), key.size())); }
+};
 
 namespace G3D {
+
 
 /**
  An unordered data structure mapping keys to values.
 
  Key must be a pointer, an int, a std::string, a class with a hashCode() method,
- or provide overloads for the following <B>two</B> functions: 
+ or provide overloads for: 
 
   <PRE>
-   unsigned int hashCode(const Key&);
+    template<> struct GHashCode<class Key> {
+        size_t operator()(Key key) const { return reinterpret_cast<size_t>( ... ); }
+    };
+
    bool operator==(const Key&, const Key&);
   </PRE>
 
- G3D pre-defines hash functions for common types (like <CODE>int</CODE> and <CODE>std::string</CODE>).
+ G3D pre-defines GHashCode functions for common types (like <CODE>int</CODE> and <CODE>std::string</CODE>).
  If you use a Table with a different type you must write those functions yourself.  For example,
  an enum would use:
 
   <PRE>
-  unsigned int hashCode(const MyEnum& x) { return (unsigned int)x; };
+    template<> struct GHashCode<MyEnum> {
+        size_t operator()(MyEnum key) const { return reinterpret_cast<size_t>( key ); }
+    };
   </PRE>
 
   And rely on the default enum operator==.
@@ -122,7 +102,7 @@ namespace G3D {
   1.0 your hash function is badly designed and maps too many inputs to
   the same output.
  */
-template<class Key, class Value> 
+template<class Key, class Value, class HashFunc = GHashCode<Key> > 
 class Table {
 public:
 
@@ -141,9 +121,9 @@ private:
      */
     class Node {
     public:
-        unsigned int      hashCode;
-        Entry             entry;
-        Node*             next;
+        size_t      hashCode;
+        Entry       entry;
+        Node*       next;
 
         
         /** Provide pooled allocation for speed. */
@@ -156,7 +136,7 @@ private:
         }
 
 
-        Node(Key key, Value value, unsigned int hashCode, Node* next) {
+        Node(Key key, Value value, size_t hashCode, Node* next) {
             this->entry.key   = key;
             this->entry.value = value;
             this->hashCode    = hashCode;
@@ -171,11 +151,12 @@ private:
         }
     };
 
+    HashFunc m_HashFunc;
 
     /**
      Number of elements in the table.
      */
-    int     _size;
+    size_t  _size;
 
     /**
      Array of Node*. 
@@ -187,25 +168,25 @@ private:
     /**
      Length of the bucket array.
      */
-    int     numBuckets;
+    size_t  numBuckets;
 
     /**
      Re-hashes for a larger bucket size.
      */
-    void resize(int numBuckets) {
+    void resize(size_t numBuckets) {
 
         Node** oldBucket = bucket;
         bucket = (Node**)System::alignedMalloc(sizeof(Node*) * numBuckets, 16);
         System::memset(bucket, 0, sizeof(Node*) * numBuckets);
 
-        for (int b = 0; b < this->numBuckets; b++) {
+        for (size_t b = 0; b < this->numBuckets; b++) {
             Node* node = oldBucket[b];
          
             while (node != NULL) {
                 Node* nextNode = node->next;
         
                 // insert at the head of the list for bucket[i]
-                int i = node->hashCode % numBuckets;
+                size_t i = node->hashCode % numBuckets;
                 node->next = bucket[i];
                 bucket[i] = node;
         
@@ -222,7 +203,7 @@ private:
         this->numBuckets = h.numBuckets;
         this->bucket = (Node**)System::alignedMalloc(sizeof(Node*) * numBuckets, 16);
         System::memset(this->bucket, 0, sizeof(Node*) * numBuckets);
-        for (int b = 0; b < this->numBuckets; b++) {
+        for (size_t b = 0; b < this->numBuckets; b++) {
             if (h.bucket[b] != NULL) {
                 bucket[b] = h.bucket[b]->clone();
             }
@@ -233,7 +214,7 @@ private:
      Frees the heap structures for the nodes.
      */
     void freeMemory() {
-        for (int b = 0; b < numBuckets; b++) {
+        for (size_t b = 0; b < numBuckets; b++) {
            Node* node = bucket[b];
            while (node != NULL) {
                 Node* next = node->next;
@@ -286,11 +267,11 @@ public:
     /**
      Returns the length of the deepest bucket.
      */
-    int debugGetDeepestBucketSize() const {
-        int deepest = 0;
+    size_t debugGetDeepestBucketSize() const {
+        size_t deepest = 0;
 
-        for (int b = 0; b < numBuckets; b++) {
-            int     count = 0;
+        for (size_t b = 0; b < numBuckets; b++) {
+            size_t  count = 0;
             Node*   node = bucket[b];
             while (node != NULL) {
                 node = node->next;
@@ -319,7 +300,7 @@ public:
     /**
      Returns the number of buckets.
      */
-    int debugGetNumBuckets() const {
+    size_t debugGetNumBuckets() const {
         return numBuckets;
     }
 
@@ -333,16 +314,16 @@ public:
         /**
          Bucket index.
          */
-        int                index;
+        size_t              index;
 
         /**
          Linked list node.
          */
-        Node*              node;
-        Table<Key, Value>* table;
-        int                numBuckets;
-        Node**             bucket;
-        bool               isDone;
+        Node*               node;
+        Table<Key, Value>*  table;
+        size_t              numBuckets;
+        Node**              bucket;
+        bool                isDone;
 
         /**
          Creates the end iterator.
@@ -351,7 +332,7 @@ public:
             isDone = true;
         }
 
-        Iterator(const Table<Key, Value>* table, int numBuckets, Node** bucket) :
+        Iterator(const Table<Key, Value>* table, size_t numBuckets, Node** bucket) :
             table(const_cast<Table<Key, Value>*>(table)),
             numBuckets(numBuckets),
             bucket(bucket) {
@@ -465,7 +446,7 @@ public:
     /**
      Returns the number of keys.
      */
-    int size() const {
+    size_t size() const {
         return _size;
     }
 
@@ -476,8 +457,8 @@ public:
      key into a table is O(1), but may cause a potentially slow rehashing.
      */
     void set(const Key& key, const Value& value) {
-        unsigned int code = hashCode(key);
-        unsigned int b = code % numBuckets;
+        size_t code = m_HashFunc(key);
+        size_t b = code % numBuckets;
         
         // Go to the bucket
         Node* n = bucket[b];
@@ -489,7 +470,7 @@ public:
             return;
         }
 
-        int bucketLength = 1;
+        size_t bucketLength = 1;
 
         // Sometimes a bad hash code will cause all elements
         // to collide.  Detect this case and don't rehash when 
@@ -510,7 +491,7 @@ public:
             ++bucketLength;
         } while (n != NULL);
 
-        const int maxBucketLength = 5;
+        const size_t maxBucketLength = 5;
         if ((bucketLength > maxBucketLength) & ! allSameCode && (numBuckets < _size * 20)) {
             // This bucket was really large; rehash if all elements
             // don't have the same hashcode the number of buckets is reasonable.
@@ -529,11 +510,8 @@ public:
     */
    void remove(const Key& key) {
       
-	  // Intentionally not "::hashCode".  
-	  // See bug ticket [ 1535292 ] global hashCode overloads broken;
-      // http://sourceforge.net/tracker/index.php?func=detail&aid=1535292&group_id=76879&atid=548562
-      unsigned int code = hashCode(key);
-      unsigned int b = code % numBuckets;
+      size_t code = m_HashFunc(key);
+      size_t b = code % numBuckets;
 
       // Go to the bucket
       Node* n = bucket[b];
@@ -572,22 +550,22 @@ public:
     */
    Value& get(const Key& key) const {
 
-       unsigned int code = hashCode(key);
-      unsigned int b = code % numBuckets;
+        size_t  code = m_HashFunc(key);
+        size_t b = code % numBuckets;
 
-      Node* node = bucket[b];
+        Node* node = bucket[b];
 
-      while (node != NULL) {
-         if ((node->hashCode == code) && (node->entry.key == key)) {
-            return node->entry.value;
-         }
-         node = node->next;
-      }
+        while (node != NULL) {
+            if ((node->hashCode == code) && (node->entry.key == key)) {
+                return node->entry.value;
+            }
+            node = node->next;
+        }
 
-      debugAssertM(false, "Key not found");
-      // The next line is here just to make
-      // a compiler warning go away.
-      return node->entry.value;
+        debugAssertM(false, "Key not found");
+        // The next line is here just to make
+        // a compiler warning go away.
+        return node->entry.value;
    }
 
    /**
@@ -595,8 +573,8 @@ public:
     If the key is not present, returns false.
     */
    bool get(const Key& key, Value& val) const {
-	  unsigned int code = hashCode(key);
-      unsigned int b = code % numBuckets;
+	  size_t code = m_HashFunc(key);
+      size_t b = code % numBuckets;
 
       Node* node = bucket[b];
 
@@ -617,8 +595,8 @@ public:
     Returns true if key is in the table.
     */
    bool containsKey(const Key& key) const {
-       unsigned int code = hashCode(key);
-       unsigned int b = code % numBuckets;
+       size_t code = m_HashFunc(key);
+       size_t b = code % numBuckets;
 
        Node* node = bucket[b];
 
@@ -653,7 +631,7 @@ public:
 
    void getKeys(Array<Key>& keyArray) const {
        keyArray.resize(0, DONT_SHRINK_UNDERLYING_ARRAY);
-       for (int i = 0; i < numBuckets; i++) {
+       for (size_t i = 0; i < numBuckets; i++) {
            Node* node = bucket[i];
            while (node != NULL) {
                keyArray.append(node->entry.key);
@@ -704,7 +682,8 @@ public:
 
 } // namespace
 
-#endif
 #ifdef G3D_WIN32
 #   pragma warning (pop)
+#endif
+
 #endif

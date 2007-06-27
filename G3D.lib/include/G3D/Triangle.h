@@ -101,7 +101,7 @@ public:
         return true;
     }
 
-    inline unsigned int hashCode() const {
+    inline size_t hashCode() const {
         return
             _vertex[0].hashCode() +
             (_vertex[1].hashCode() >> 2) +
@@ -112,10 +112,12 @@ public:
 
 };
 
-} // namespace
+} // namespace G3D
 
-inline unsigned int hashCode(const G3D::Triangle& t) {
-	return t.hashCode();
-}
+template <>
+struct GHashCode<G3D::Triangle>
+{
+    size_t operator()(const G3D::Triangle& key) const { return key.hashCode(); }
+};
 
 #endif

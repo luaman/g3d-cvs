@@ -62,7 +62,7 @@ Vector3::Axis Vector3::primaryAxis() const {
 }
 
 
-unsigned int Vector3::hashCode() const {
+size_t Vector3::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
     unsigned int zhash = (*(int*)(void*)(&z));

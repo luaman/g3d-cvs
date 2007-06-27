@@ -19,6 +19,7 @@
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector2.h"
+#include "G3D/Table.h"
 #include <string>
 
 namespace G3D {
@@ -97,7 +98,7 @@ public:
         w = _w;
     }
 
-    unsigned int hashCode() const;
+    size_t hashCode() const;
     bool fuzzyEq(const Vector4& other) const;
     bool fuzzyNe(const Vector4& other) const;
 
@@ -696,16 +697,16 @@ inline float Vector4::squaredLength() const {
     return x * x + y * y + z * z + w * w;
 }
 
-} // namespace G3D
+}
+
+template <>
+struct GHashCode<G3D::Vector4>
+{
+    size_t operator()(const G3D::Vector4& key) const { return key.hashCode(); }
+};
 
 inline G3D::Vector4 operator* (float s, const G3D::Vector4& v) {
     return v * s;
 }
-
-
-inline unsigned int hashCode(const G3D::Vector4& v) {
-     return v.hashCode();
-}
-
 
 #endif

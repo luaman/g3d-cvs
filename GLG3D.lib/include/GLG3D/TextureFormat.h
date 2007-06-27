@@ -11,6 +11,7 @@
 #define GLG3D_TEXTUREFORMAT_H
 
 #include "G3D/platform.h"
+#include "G3D/Table.h"
 #include "GLG3D/glheaders.h"
 
 namespace G3D {
@@ -307,21 +308,14 @@ public:
      */
     static const TextureFormat* fromCode(TextureFormat::Code code);
 };
-
 }
 
-inline unsigned int hashCode(const G3D::TextureFormat* f) {
-//#   if defined(G3D_WIN32)
-        // Disable 64-bit pointer truncation warning
-//#       pragma warning (push)
-//#       pragma warning (disable : 4311)
-//#   endif	
-    
-    return reinterpret_cast<intptr_t>(f);
+template <>
+struct GHashCode<const G3D::TextureFormat*>
+{
+    size_t operator()(const G3D::TextureFormat* key) const   { return reinterpret_cast<size_t>(key); }
+};
 
-//#   if defined(G3D_WIN32)
-//#       pragma warning (pop)
-//#   endif	
-}
+
 
 #endif

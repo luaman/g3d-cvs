@@ -20,6 +20,8 @@
 #include "G3D/debugPrintf.h"
 #include "G3D/Log.h"
 
+#include <cstdlib>
+
 #ifdef G3D_WIN32
     // disable: "C++ exception handler used"
 #   pragma warning (push)

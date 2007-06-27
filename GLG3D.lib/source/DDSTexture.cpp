@@ -21,6 +21,8 @@
 #include "GLG3D/GLCaps.h"
 #include "G3D/BinaryInput.h"
 
+#include <cstring>
+
 namespace G3D {
 
 // Define the Windows data types for linux/OSX

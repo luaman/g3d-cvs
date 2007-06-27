@@ -63,7 +63,7 @@ const Vector2& Vector2::maxFinite() {
 }
 
 
-unsigned int Vector2::hashCode() const {
+size_t Vector2::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
 

@@ -28,6 +28,8 @@
 #include "G3D/prompt.h"
 #include "G3D/Log.h"
 
+#include <cstring>
+
 #ifdef G3D_WIN32
 
     #include <conio.h>

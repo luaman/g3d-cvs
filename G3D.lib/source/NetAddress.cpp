@@ -10,6 +10,7 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Array.h"
 #include "G3D/stringutils.h"
+#include "G3D/System.h"
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     #include <unistd.h>
@@ -25,7 +26,7 @@
 namespace G3D {
 
 NetAddress::NetAddress() {
-    memset(&addr, 0, sizeof(addr));
+    System::memset(&addr, 0, sizeof(addr));
 }
 
 void NetAddress::init(uint32 host, uint16 port) {
@@ -37,7 +38,7 @@ void NetAddress::init(uint32 host, uint16 port) {
         }
         addr.sin_addr.s_addr = htonl(host);
     } else {
-        memset(&addr, 0, sizeof(addr));
+        System::memset(&addr, 0, sizeof(addr));
     }
 }
 
@@ -71,7 +72,7 @@ void NetAddress::init(
             return;
         }
 
-        memcpy(&addr, host->h_addr_list[0], host->h_length);
+        System::memcpy(&addr, host->h_addr_list[0], host->h_length);
     }
 
     if (addr != INADDR_NONE) {

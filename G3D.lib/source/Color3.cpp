@@ -128,7 +128,7 @@ const Color3& Color3::wheelRandom() {
 }
 
 
-unsigned int Color3::hashCode() const {
+size_t Color3::hashCode() const {
     unsigned int rhash = (*(int*)(void*)(&r));
     unsigned int ghash = (*(int*)(void*)(&g));
     unsigned int bhash = (*(int*)(void*)(&b));

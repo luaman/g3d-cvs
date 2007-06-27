@@ -29,6 +29,8 @@
 #include <string>
 #include "G3D/platform.h"
 
+#include <cstdlib>
+
 #ifdef G3D_WIN32
 // conditional expression is constant
 #   pragma warning (disable : 4127)

@@ -9,6 +9,7 @@
 #define GLG3D_VARAREA_H
 
 #include "G3D/ReferenceCount.h"
+#include "G3D/Table.h"
 #include "GLG3D/Milestone.h"
 
 namespace G3D {
@@ -207,12 +208,12 @@ public:
     static void cleanupAllVARAreas();
 
 };
-
-
-} // namespace
-
-inline unsigned int hashCode(const G3D::VARArea* v) {
-    return reinterpret_cast<intptr_t>(v);
 }
+
+template <>
+struct GHashCode<G3D::VARArea*>
+{
+    size_t operator()(const G3D::VARArea* key) const { return reinterpret_cast<size_t>(key); }
+};
 
 #endif

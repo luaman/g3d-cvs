@@ -19,6 +19,8 @@
 #include "G3D/stringutils.h"
 #include "G3D/debug.h"
 
+#include <cstring>
+
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     #include <unistd.h>
     #include <errno.h>

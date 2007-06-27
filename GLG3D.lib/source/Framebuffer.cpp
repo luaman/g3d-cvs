@@ -206,6 +206,3 @@ void Framebuffer::set(
 
 } // G3D
 
-unsigned int hashCode(const G3D::Framebuffer::AttachmentPoint& a) {
-    return (int)a;
-}

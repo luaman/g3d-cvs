@@ -281,7 +281,6 @@ public:
         displaying key codes in a configuration window. */
     std::string toString() const;
 };
-
 } // namespace G3D
 
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GKey);

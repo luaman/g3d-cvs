@@ -10,6 +10,11 @@
 
  */
 
+#include "G3D/Table.h"
+#include "G3D/MeshAlg.h"
+#include "G3D/Set.h"
+
+
 namespace G3D {
 
 /**
@@ -49,13 +54,14 @@ public:
 
 }
 
-unsigned int hashCode(const G3D::MeshDirectedEdgeKey& e) {
-    return e.vertexIndex[0] + (e.vertexIndex[1] << 16);
-}
-
-#include "G3D/Table.h"
-#include "G3D/MeshAlg.h"
-#include "G3D/Set.h"
+template<>
+struct GHashCode<G3D::MeshDirectedEdgeKey>
+{
+    size_t operator()(const G3D::MeshDirectedEdgeKey& key) const
+    { 
+        return key.vertexIndex[0] + (key.vertexIndex[1] << 16);
+    }
+};
 
 namespace G3D {
 

@@ -17,6 +17,7 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector2.h"
+#include "G3D/Table.h"
 #include <iostream>
 #include <string>
 
@@ -141,7 +142,7 @@ public:
     Vector3& operator= (const Vector3& rkVector);
     bool operator== (const Vector3& rkVector) const;
     bool operator!= (const Vector3& rkVector) const;
-    unsigned int hashCode() const;
+    size_t hashCode() const;
     bool fuzzyEq(const Vector3& other) const;
     bool fuzzyNe(const Vector3& other) const;
 
@@ -724,11 +725,13 @@ inline bool Vector3::isUnit() const {
     return G3D::fuzzyEq(squaredMagnitude(), 1.0f);
 }
 
-}
+} // namespace G3D
 
-inline unsigned int hashCode(const G3D::Vector3& v) {
-     return v.hashCode();
-}
+template <>
+struct GHashCode<G3D::Vector3>
+{
+    size_t operator()(const G3D::Vector3& key) const { return key.hashCode(); }
+};
 
 
 #endif

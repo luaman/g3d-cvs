@@ -51,7 +51,7 @@ Color4::Color4(const Color4uint8& c) : r(c.r), g(c.g), b(c.b), a(c.a) {
     *this /= 255.0f;
 }
 
-unsigned int Color4::hashCode() const {
+size_t Color4::hashCode() const {
     unsigned int rhash = (*(int*)(void*)(&r));
     unsigned int ghash = (*(int*)(void*)(&g));
     unsigned int bhash = (*(int*)(void*)(&b));

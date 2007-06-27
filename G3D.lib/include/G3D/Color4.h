@@ -96,7 +96,7 @@ public:
     Color4& operator= (const Color4& rkVector);
     bool operator== (const Color4& rkVector) const;
     bool operator!= (const Color4& rkVector) const;
-    unsigned int hashCode() const;
+    size_t hashCode() const;
 
     // arithmetic operations
     Color4 operator+ (const Color4& rkVector) const;

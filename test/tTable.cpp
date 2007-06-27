@@ -19,24 +19,7 @@
 hash_map<int, int> x;
 #endif
 
-class TableKey : public Hashable {
-public:
-    int value;
-    
-    inline bool operator==(const TableKey& other) const {
-        return value == other.value;
-    }
-    
-    inline bool operator!=(const TableKey& other) const {
-        return value != other.value;
-    }
-
-    inline unsigned int hashCode() const {
-        return value;
-    }
-};
-
-class TableKeyB : public Hashable {
+class TableKey {
 public:
     int value;
     
@@ -53,21 +36,25 @@ public:
     }
 };
 
-
-
-class TableKeyWithGlobalFns {
-public:
-    int data;
-    TableKeyWithGlobalFns() { }
-    TableKeyWithGlobalFns(int data) : data(data) { }
+template <>
+struct GHashCode<TableKey*>
+{
+    size_t operator()(const TableKey* key) const    { return key->hashCode(); }
 };
 
-unsigned int hashCode(const TableKeyWithGlobalFns& key)
-{
-    return key.data;
-}
+class TableKeyWithCustomHashStruct {
+public:
+    int data;
+    TableKeyWithCustomHashStruct() { }
+    TableKeyWithCustomHashStruct(int data) : data(data) { }
+};
 
-bool operator==(const TableKeyWithGlobalFns& lhs, const TableKeyWithGlobalFns& rhs)
+struct TableKeyCustomHashStruct
+{
+    size_t operator()(const TableKeyWithCustomHashStruct& key) const { return static_cast<size_t>(key.data); }
+};
+
+bool operator==(const TableKeyWithCustomHashStruct& lhs, const TableKeyWithCustomHashStruct& rhs)
 {
     return (lhs.data == rhs.data);
 }
@@ -79,9 +66,9 @@ void testTable() {
 
 
     // Test ops involving HashCode / lookup for a table with a key
-    // that uses a global overload of hashCode.
+    // that uses a custom hashing struct
     {
-        Table<TableKeyWithGlobalFns, int> table;
+        Table<TableKeyWithCustomHashStruct, int, TableKeyCustomHashStruct> table;
         bool exists;
         int val;
 
@@ -101,12 +88,12 @@ void testTable() {
         exists = table.get(3, val);
         debugAssert(exists && val == 3);
 
-       exists = table.containsKey(1);
+        exists = table.containsKey(1);
         debugAssert(exists);
         exists = table.containsKey(2);
         debugAssert(!exists);
 
-       table.remove(1);
+        table.remove(1);
         table.remove(3);
 
         debugAssert(table.size() == 0);
@@ -130,32 +117,10 @@ void testTable() {
         debugAssert(table.debugGetDeepestBucketSize() == 1);
     }
 
-
-    // Test overloaded pointer hashing
+    // Test hash collisions
     {
-        TableKey        x[4];
-        x[0].value = 1;
-        x[1].value = 2;
-        x[2].value = 3;
-        x[3].value = 4;
+        TableKey        x[6];
         Table<TableKey*, int> table;
-
-        table.set(x, 10);
-        table.set(x + 1, 20);
-        table.set(x + 2, 30);
-        table.set(x + 3, 40);
-        debugAssert(table[x] == 10);
-        debugAssert(table[x + 1] == 20);
-        debugAssert(table[x + 2] == 30);
-        debugAssert(table[x + 3] == 40);
-
-        // Our current implementation should not have collisions in this case.
-        debugAssert(table.debugGetDeepestBucketSize() == 1);
-    }
-
-    {
-        TableKeyB        x[6];
-        Table<TableKeyB*, int> table;
         for (int i = 0; i < 6; ++i) {
             x[i].value = i;
             table.set(x + i, i);
@@ -164,6 +129,70 @@ void testTable() {
         debugAssert(table.size() == 6);
         debugAssert(table.debugGetDeepestBucketSize() == 6);
         debugAssert(table.debugGetNumBuckets() == 10);
+    }
+
+    // Test that all supported default key hashes compile
+    {
+        Table<int, int> table;
+    }
+    {
+        Table<uint32, int> table;
+    }
+    {
+        Table<uint64, int> table;
+    }
+    {
+        Table<void*, int> table;
+    }
+    {
+        Table<std::string, int> table;
+    }
+    {
+        Table<const std::string, int> table;
+    }
+
+    {
+        Table<GEvent, int> table;
+    }
+    {
+        Table<GKey, int> table;
+    }
+    {
+        Table<Texture::Settings, int> table;
+    }
+    {
+        Table<VARArea*, int> table;
+    }
+    {
+        Table<AABox, int> table;
+    }
+    {
+        typedef _internal::Indirector<AABox> AABoxIndrctr;
+        Table<AABoxIndrctr, int> table;
+    }
+    {
+        Table<NetAddress, int> table;
+    }
+    {
+        Table<Sphere, int> table;
+    }
+    {
+        Table<Triangle, int> table;
+    }
+    {
+        Table<Vector2, int> table;
+    }
+    {
+        Table<Vector3, int> table;
+    }
+    {
+        Table<Vector4, int> table;
+    }
+    {
+        Table<Vector4int8, int> table;
+    }
+    {
+        Table<WrapMode, int> table;
     }
 
     printf("passed\n");

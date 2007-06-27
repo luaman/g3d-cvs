@@ -485,7 +485,7 @@ void GPUProgram::setArgs(RenderDevice* renderDevice, const ArgList& args) {
         }
     }
 
-    if (numVariables < args.argTable.size()) {
+    if (numVariables < static_cast<int>(args.argTable.size())) {
         // Some variables were unused.  Figure out which they were.
         Table<std::string, ArgList::Arg>::Iterator arg = args.argTable.begin();
         Table<std::string, ArgList::Arg>::Iterator end = args.argTable.end();

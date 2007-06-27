@@ -39,6 +39,8 @@
 #include "G3D/Log.h"
 #include <zlib.h>
 
+#include <cstring>
+
 namespace G3D {
 
 void BinaryInput::readBool8(std::vector<bool>& out, int64 n) {

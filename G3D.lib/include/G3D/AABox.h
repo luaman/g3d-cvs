@@ -228,7 +228,7 @@ public:
         return AABox(L, H);
     }
 
-    inline unsigned int hashCode() const {
+    inline size_t hashCode() const {
         return lo.hashCode() + hi.hashCode();
     }
 
@@ -247,12 +247,12 @@ public:
 
 }
 
-/**
- Hashing function for use with Table.
- */
-inline unsigned int hashCode(const G3D::AABox& b) {
-	return b.hashCode();
-}
+template <>
+struct GHashCode<G3D::AABox>
+{
+    size_t operator()(const G3D::AABox& key) const { return key.hashCode(); }
+};
+
 
 
 #endif

@@ -65,12 +65,15 @@ public:
     void weld();
 };
 
-}}
+} // namespace _internal
 
+} // namespace G3D
 
-G3D::uint32 hashCode(const G3D::_internal::Welder::List* x) {
-    return (G3D::uint32)(reinterpret_cast<unsigned long>(x));
-}
+template<>
+struct GHashCode<G3D::_internal::Welder::List*>
+{
+    size_t operator()(const G3D::_internal::Welder::List* key) const { return reinterpret_cast<size_t>(key); }
+};
 
 namespace G3D {
 namespace _internal {
