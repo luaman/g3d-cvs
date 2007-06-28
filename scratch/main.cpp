@@ -57,6 +57,14 @@ public:
     bool getIsMyFriend() const {
         return myFriend;
     }
+
+    void setValue(float f) {
+        (void)f;
+    }
+
+    float getValue() const {
+        return 1.0f;
+    }
     
 };
 
@@ -78,27 +86,16 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
-    /*
-    splineManipulator = UprightSplineManipulator::create(&defaultCamera);
-    addWidget(splineManipulator);
     
     GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
 
-    defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
-    defaultController->setActive(true);
+    GuiWindow::Ref gui = GuiWindow::create("Test", skin);
+    GuiPane* pane = gui->pane();
 
-    GuiWindow::Ref gui = DeveloperWindow::create
-        (defaultController, 
-         splineManipulator, 
-         Pointer<Manipulator::Ref>(dynamic_cast<GApp2*>(this), &GApp2::cameraManipulator, &GApp2::setCameraManipulator), 
-         skin,
-         console,
-         &showRenderingStats,
-         &showDebugText);
-
-    addWidget(gui);
-    */
+    static float f;
+    pane->addSlider("Value", &f, 1.0f, 43.0f);
+    pane->addSlider("Value", Pointer<float>(&player, &Person::getValue, &Person::setValue), 0.0f, 1.0f);
 }
 
 void App::onLogic() {
