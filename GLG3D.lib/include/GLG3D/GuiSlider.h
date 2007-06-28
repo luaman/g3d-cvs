@@ -66,7 +66,7 @@ protected:
     }
 
     void setFloatValue(float f) {
-        *m_value = (Value)f * (m_maxValue - m_minValue) + m_minValue;
+        *m_value = (Value)(f * (m_maxValue - m_minValue) + m_minValue);
     }
 
     GuiSlider(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, 

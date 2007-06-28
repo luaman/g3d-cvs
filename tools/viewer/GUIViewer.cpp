@@ -43,6 +43,7 @@ void GUIViewer::createGui(const std::string& filename) {
 	pane = window->pane();
 	slider[0] = 1.5f;
 	slider[1] = 1.8f;
+	
 	pane->addSlider("Slider", &slider[0], 1.0f, 2.2f);
 	pane->addSlider("Slider Disabled", &slider[1], 1.0f, 2.2f)->setEnabled(false);
 		normalPane = pane->addPane(GuiCaption(""), 170, GuiPane::ORNATE_FRAME_STYLE);

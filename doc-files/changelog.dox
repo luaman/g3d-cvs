@@ -16,6 +16,7 @@
      <li> Key to toggle the user camera is now F2 (was Tab)
      <li> User camera control requires right mouse click to move
      <li> All classes that read from files can now read data inside zipfiles.
+     <li> Changed G3D::hashCode(T) to ::GHashCode<T>(T) [Corey]
      <li> Removed "G3D::" from the printed portion of the documentation index to make it easier to read.
      <li> GWindow::fireEvent for inserting user events into the queue
      <li> G3D::logPrintf
