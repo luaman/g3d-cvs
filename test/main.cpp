@@ -478,6 +478,19 @@ int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
 
+#   ifdef G3D_WIN32
+    {
+        // Change to the executable directory
+        chdir(filenamePath(argv[0]).c_str());
+    }
+#   endif
+
+    char x[2000];
+    getcwd(x, sizeof(x));
+    
+    debugAssertM(fileExists("apiTest.zip", false), 
+        format("Tests are being run from the wrong directory.  cwd = %s", x));
+
     RenderDevice* renderDevice = NULL;
 
     NetworkDevice* networkDevice = new NetworkDevice();

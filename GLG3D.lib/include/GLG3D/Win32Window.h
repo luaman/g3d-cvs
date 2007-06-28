@@ -52,16 +52,16 @@ private:
 
     /** Mouse Button State Array: false - up, true - down
         [0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
-    bool                 _mouseButtons[5];
-    bool                 _keyboardButtons[0xFF];
+    bool                 _mouseButtons[8];
+    bool                 _keyboardButtons[256];
 
-    mutable _DirectInput*        _diDevices;
+    mutable _DirectInput* _diDevices;
 
     G3D::Set< int >      _usedIcons;
 
     /** Coordinates of the client area in screen coordinates */
-    int		         clientX;
-    int			 clientY;
+    int		            clientX;
+    int			        clientY;
     
     /** Only one thread allowed for use with Win32Window::makeCurrent */
     HANDLE				 _thread;
@@ -113,7 +113,7 @@ private:
     explicit Win32Window(const GWindow::Settings& settings, HDC hdc);
     
     HWND                 window;
-    const bool		 createdWindow;
+    const bool		     createdWindow;
     
     // Intentionally illegal (private)
     Win32Window& operator=(const Win32Window& other);

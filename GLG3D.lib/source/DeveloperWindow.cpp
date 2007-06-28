@@ -32,7 +32,7 @@ DeveloperWindow::DeveloperWindow(
      const GuiSkinRef&                  skin,
      GConsoleRef                        console,
      bool*                              showStats,
-     bool*                              showText) : GuiWindow("Developer (F12)", skin, Rect2D::xywh(600,80,0,0), TOOL_FRAME_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
+     bool*                              showText) : GuiWindow("Developer (F11)", skin, Rect2D::xywh(600,80,0,0), TOOL_FRAME_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
 
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator, skin);
 
@@ -93,11 +93,12 @@ bool DeveloperWindow::onEvent(const GEvent& event) {
         return true;
     }
 
-    if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::F12)) {
+    if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::F11)) {
         // Toggle visibility
         setVisible(! visible());
+        return true;
     }
-    
+
     return false;
 }
 

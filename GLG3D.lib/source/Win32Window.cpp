@@ -637,6 +637,7 @@ bool Win32Window::pollOSEvent(GEvent& e) {
                 if (!((message.lParam >> 30) & 0x01)) {
                     // This is not an autorepeat message
                     makeKeyEvent(message.wParam, message.lParam, e);
+                    debugAssert(message.wParam < 256);
                     _keyboardButtons[message.wParam] = true;
                     return true;
                 }
@@ -649,6 +650,7 @@ bool Win32Window::pollOSEvent(GEvent& e) {
                 e.key.state = SDL_RELEASED;
 
                 makeKeyEvent(message.wParam, message.lParam, e);
+                debugAssert(message.wParam < 256);
                 _keyboardButtons[message.wParam] = false;
                 return true;
 
@@ -1135,7 +1137,7 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 
     } else {
 
-        e.key.keysym.sym = (GKey::Value)_sdlKeys[iClamp(vkCode, 0, GKey::LAST)];
+        e.key.keysym.sym = (GKey::Value)_sdlKeys[iClamp(vkCode, 0, GKey::LAST - 1)];
 
     }
 
