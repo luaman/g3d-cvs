@@ -1,0 +1,39 @@
+/**
+ Per-pixel Phong Shading
+ */
+
+uniform vec3 diffuseColor;
+uniform vec3 specularColor;
+
+uniform float diffuse;
+uniform float specular;
+uniform float shine;
+uniform float reflect;
+
+// Normalize world space direction to the light source
+uniform vec3 wsLight;
+
+uniform vec3 lightColor;
+
+uniform vec3 ambientLightColor;
+
+// World space eye point
+uniform vec3 wsEye;
+
+uniform samplerCube environmentMap;
+
+varying wsInterpolatedNormal;
+
+void main() {
+
+    vec3 wsNormal = normalize(wsInterpolatedNormal);
+
+//    vec3 wsReflectVector = (wsEye - wsNormal) - wsNormal  * 2.0 + wsNormal;
+
+    gl_FragColor.rgb =
+        diffuse * diffuseColor * (ambientLightColor + (max(dot(wsNormal, wsLight), 0.0) * lightColor)) +
+        specular * specularColor * pow(max(dot(wsReflectVector, wsLight), 0), shine) * lightColor +
+        reflect * specularColor * textureCube(environmentMap, wsReflectVector).rgb;
+
+    gl_FragColor.rgb = vec3(1.0, 0.2, 0.0);
+}

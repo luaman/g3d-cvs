@@ -729,14 +729,14 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromFiles(
 	std::string ps;
 
 	if (vsFilename != "") {
-		vs = readWholeFile(vs);
+		vs = readWholeFile(vsFilename);
 	}
 
 	if (psFilename != "") {
-		ps = readWholeFile(ps);
+		ps = readWholeFile(psFilename);
 	}
 
-    return new VertexAndPixelShader(vs, vsFilename, true, ps, psFilename, true, debugErrors, u);
+    return new VertexAndPixelShader(vs, vsFilename, vsFilename != "", ps, psFilename, (psFilename != ""), debugErrors, u);
 }
 
 

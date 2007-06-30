@@ -123,6 +123,8 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     std::string data = demoFindData(false);
     path.append(data);
     path.append(data + "font/");
+    path.append(data + "ifs/");
+    path.append(data + "3ds/");
     path.append(data + "gui/");
     path.append(data + "sky/");
 
@@ -170,7 +172,6 @@ std::string demoFindData(bool errorIfNotFound) {
 
     std::string lpath = "libraries/" + lname;
     #ifdef G3D_WIN32
-        potential.append(format("c:/libraries/g3d-%d.%02d/", ver / 10000, (ver / 100) % 100));
         potential.append(std::string("c:/") + lpath);
         potential.append(std::string("d:/") + lpath);
         potential.append(std::string("e:/") + lpath);
@@ -189,7 +190,7 @@ std::string demoFindData(bool errorIfNotFound) {
     // Scan all potentials for the font directory
     for (int p = 0; p < potential.size();  ++p) {
         std::string path = potential[p];
-        // printf("Looking at: %sdata\n", path.c_str());
+        //debugPrintf("Looking at: %sdata\n", path.c_str());
         if (fileExists(path + "data") && fileExists(path + "data/font")) {
             return path + "data/";
         }

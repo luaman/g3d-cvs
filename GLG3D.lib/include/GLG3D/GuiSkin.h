@@ -52,6 +52,8 @@ typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 class GuiSkin : public ReferenceCountedObject {
 public:
 
+    typedef ReferenceCountedPointer<class GuiSkin> Ref;
+
     enum WindowStyle {
         NORMAL_WINDOW_STYLE,
         TOOL_WINDOW_STYLE,

@@ -124,7 +124,7 @@ void App::onGraphics(RenderDevice* rd) {
 
         // Always render the installed GModules or the console and other
         // features will not appear.
-        renderGModules(rd);
+        renderWidgets(rd);
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);

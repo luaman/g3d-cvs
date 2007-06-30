@@ -96,6 +96,7 @@ std::string readWholeFile(
 
     std::string s;
 
+    debugAssert(filename != "");
     if (fileExists(filename, false)) {
 
         int64 length = fileLength(filename);
@@ -126,6 +127,8 @@ std::string readWholeFile(
         buffer[length] = '\0';
         s = std::string(buffer);
         System::alignedFree(buffer);
+    } else {
+        debugAssertM(false, filename + " not found");
     }
 
     return s;
