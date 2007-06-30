@@ -56,6 +56,7 @@ void App::onInit() {
     // This simple demo has no shadowing, so make all lights unshadowed
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
+    setDesiredFrameRate(60);
 
 #   ifdef G3D_WIN32
         if (! fileExists("phong.pix", false) && fileExists("G3D.sln", false)) {
