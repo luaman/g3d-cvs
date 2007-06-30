@@ -57,12 +57,14 @@ void App::onInit() {
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
 
-    toneMap->setEnabled(true);
 #   ifdef G3D_WIN32
-    if (! fileExists("phong.pix", false) && fileExists("G3D.sln", false)) {
-        // Running in the solution directory
-        chdir("../demos/shader/data-files");
-    }
+        if (! fileExists("phong.pix", false) && fileExists("G3D.sln", false)) {
+            // Running in the solution directory
+            chdir("../demos/shader/data-files");
+        }
+        toneMap->setEnabled(true);
+#   else
+        toneMap->setEnabled(false);
 #   endif
 
     phongShader = Shader::fromFiles("phong.vrt", "phong.pix");
