@@ -22,6 +22,24 @@ Image3uint8::Image3uint8(int w, int h, WrapMode wrap) : Map2D<Color3uint8>(w, h,
 }
 
 
+Image3uint8::Ref Image3uint8::fromGImage(const GImage& im, WrapMode wrap) {
+    switch (im.channels) {
+    case 1:
+        return fromArray(im.pixel1(), im.width, im.height, wrap);
+
+    case 3:
+        return fromArray(im.pixel3(), im.width, im.height, wrap);
+
+    case 4:
+        return fromArray(im.pixel4(), im.width, im.height, wrap);
+
+    default:
+        debugAssertM(false, "Input GImage must have 1, 3, or 4 channels.");
+        return NULL;
+    }
+}
+
+
 Image3uint8::Ref Image3uint8::fromImage3(const ReferenceCountedPointer<Image3>& im) {
     Ref out = createEmpty(static_cast<WrapMode>(im->wrapMode()));
     out->copyArray(im->getCArray(), im->width(), im->height());

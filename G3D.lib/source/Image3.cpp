@@ -23,6 +23,24 @@ Image3::Image3(int w, int h, WrapMode wrap) : Map2D<Color3, Color3>(w, h, wrap) 
 }
 
 
+Image3::Ref Image3::fromGImage(const GImage& im, WrapMode wrap) {
+    switch (im.channels) {
+    case 1:
+        return fromArray(im.pixel1(), im.width, im.height, wrap);
+
+    case 3:
+        return fromArray(im.pixel3(), im.width, im.height, wrap);
+
+    case 4:
+        return fromArray(im.pixel4(), im.width, im.height, wrap);
+
+    default:
+        debugAssertM(false, "Input GImage must have 1, 3, or 4 channels.");
+        return NULL;
+    }
+}
+
+
 Image3::Ref Image3::fromImage3uint8(const ReferenceCountedPointer<Image3uint8>& im) {
     Ref out = createEmpty(im->wrapMode());
     out->resize(im->width(), im->height());

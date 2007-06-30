@@ -64,7 +64,7 @@ public:
 
     static Ref fromImage4uint8(const ReferenceCountedPointer<class Image4uint8>& im);
 
-    static Ref fromGImage(const class GImage& im);
+    static Ref fromGImage(const class GImage& im, WrapMode wrap = WrapMode::ERROR);
 
     /** Loads from any of the file formats supported by G3D::GImage. */
     void load(const std::string& filename, GImage::Format fmt = GImage::AUTODETECT);

@@ -55,7 +55,7 @@ public:
 
     static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR, GImage::Format fmt = GImage::AUTODETECT);
 
-    static Ref fromGImage(const class GImage& im);
+    static Ref fromGImage(const class GImage& im, WrapMode wrap = WrapMode::ERROR);
 
     static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);

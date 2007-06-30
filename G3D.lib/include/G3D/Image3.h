@@ -62,7 +62,7 @@ public:
 
     static Ref fromImage3uint8(const ReferenceCountedPointer<class Image3uint8>& im);
 
-    static Ref fromGImage(const class GImage& im);
+    static Ref fromGImage(const class GImage& im, WrapMode wrap = WrapMode::ERROR);
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
         it is stripped. */
