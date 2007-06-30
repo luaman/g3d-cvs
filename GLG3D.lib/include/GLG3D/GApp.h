@@ -101,7 +101,7 @@ protected:
     Stopwatch           m_simulationWatch;
     Stopwatch           m_waitWatch;
 
-    WidgetManager::Ref   m_moduleManager;
+    WidgetManager::Ref   m_widgetManager;
 
 public:
 
@@ -317,7 +317,7 @@ private:
 
 protected:
 
-    WidgetManager::Ref   m_moduleManager;
+    WidgetManager::Ref   m_widgetManager;
 
 public:
 

@@ -69,7 +69,7 @@ GApp::GApp(const Settings& settings, GWindow* window) {
     _window->makeCurrent();
     debugAssertGLOk();
 
-    m_moduleManager = WidgetManager::create(_window);
+    m_widgetManager = WidgetManager::create(_window);
 
     if (settings.useNetwork) {
         networkDevice = new NetworkDevice();
@@ -317,12 +317,12 @@ void GApp::renderDebugInfo() {
 }
 
 void GApp::addWidget(const Widget::Ref& module) {
-    m_moduleManager->add(module);
+    m_widgetManager->add(module);
 }
 
 
 void GApp::removeWidget(const Widget::Ref& module) {
-    m_moduleManager->remove(module);
+    m_widgetManager->remove(module);
 }
 
 //////////////////////////////////////////////
@@ -335,14 +335,14 @@ GApplet::GApplet(GApp* _app) :
     m_simTimeRate(1.0), 
     m_realTime(0), 
     m_simTime(0), 
-    m_moduleManager(WidgetManager::create(_app->window())) {
+    m_widgetManager(WidgetManager::create(_app->window())) {
     
     debugAssert(app != NULL);
 }
 
 
 bool GApplet::onEvent(const GEvent& event) {
-    return WidgetManager::onEvent(event, app->m_moduleManager, m_moduleManager);
+    return WidgetManager::onEvent(event, app->m_widgetManager, m_widgetManager);
 }
 
 
@@ -350,8 +350,8 @@ void GApplet::getPosedModel(
     Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
-    m_moduleManager->getPosedModel(posedArray, posed2DArray);
-    app->m_moduleManager->getPosedModel(posedArray, posed2DArray);
+    m_widgetManager->getPosedModel(posedArray, posed2DArray);
+    app->m_widgetManager->getPosedModel(posedArray, posed2DArray);
 
 }
 
@@ -391,12 +391,12 @@ void GApplet::onGraphics(RenderDevice* rd) {
 
 
 void GApplet::addWidget(const Widget::Ref& module) {
-    m_moduleManager->add(module);
+    m_widgetManager->add(module);
 }
 
 
 void GApplet::removeWidget(const Widget::Ref& module) {
-    m_moduleManager->remove(module);
+    m_widgetManager->remove(module);
 }
 
 
@@ -420,15 +420,15 @@ void GApplet::oneFrame() {
     // User input
     app->m_userInputWatch.tick();
     onUserInput(app->userInput);
-    app->m_moduleManager->onUserInput(app->userInput);
-    m_moduleManager->onUserInput(app->userInput);
+    app->m_widgetManager->onUserInput(app->userInput);
+    m_widgetManager->onUserInput(app->userInput);
     app->m_userInputWatch.tock();
 
     // Network
     app->m_networkWatch.tick();
     onNetwork();
-    app->m_moduleManager->onNetwork();
-    m_moduleManager->onNetwork();
+    app->m_widgetManager->onNetwork();
+    m_widgetManager->onNetwork();
     app->m_networkWatch.tock();
 
     // Simulation
@@ -443,8 +443,8 @@ void GApplet::oneFrame() {
         SimTime  idt = desiredFrameDuration() * rate;
 
 		onSimulation(rdt, sdt, idt);
-        app->m_moduleManager->onSimulation(rdt, sdt, idt);
-        m_moduleManager->onSimulation(rdt, sdt, idt);
+        app->m_widgetManager->onSimulation(rdt, sdt, idt);
+        m_widgetManager->onSimulation(rdt, sdt, idt);
 
 		setRealTime(realTime() + rdt);
 		setSimTime(simTime() + sdt);
@@ -454,8 +454,8 @@ void GApplet::oneFrame() {
     // Logic
     app->m_logicWatch.tick();
         onLogic();
-        app->m_moduleManager->onLogic();
-        m_moduleManager->onLogic();
+        app->m_widgetManager->onLogic();
+        m_widgetManager->onLogic();
     app->m_logicWatch.tock();
 
     // Wait 

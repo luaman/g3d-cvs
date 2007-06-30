@@ -73,7 +73,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
     _window->makeCurrent();
     debugAssertGLOk();
 
-    m_moduleManager = WidgetManager::create(_window);
+    m_widgetManager = WidgetManager::create(_window);
 
     networkDevice = new NetworkDevice();
     networkDevice->init(debugLog);
@@ -377,14 +377,13 @@ void GApp2::getPosedModel(
     Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
-    m_moduleManager->getPosedModel(posedArray, posed2DArray);
-
+    m_widgetManager->getPosedModel(posedArray, posed2DArray);
 }
 
 
 void GApp2::onGraphics(RenderDevice* rd) {
     Array<PosedModel::Ref>        posedArray;
-    Array<PosedModel2DRef>      posed2DArray;
+    Array<PosedModel2DRef>        posed2DArray;
     Array<PosedModel::Ref>        opaque, transparent;
 
     SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
@@ -404,7 +403,6 @@ void GApp2::renderWidgets(RenderDevice* rd) {
     Array<PosedModel::Ref> posedArray, opaque, transparent; 
     Array<PosedModel2DRef> posed2DArray;
     
-    // By default, render the installed modules
     getPosedModel(posedArray, posed2DArray);
 
     // 3D
@@ -434,12 +432,12 @@ void GApp2::renderWidgets(RenderDevice* rd) {
 
     
 void GApp2::addWidget(const Widget::Ref& module) {
-    m_moduleManager->add(module);
+    m_widgetManager->add(module);
 }
 
 
 void GApp2::removeWidget(const Widget::Ref& module) {
-    m_moduleManager->remove(module);
+    m_widgetManager->remove(module);
 }
 
 
@@ -454,13 +452,13 @@ void GApp2::oneFrame() {
         processGEventQueue();
     }
     onUserInput(userInput);
-    m_moduleManager->onUserInput(userInput);
+    m_widgetManager->onUserInput(userInput);
     m_userInputWatch.tock();
 
     // Network
     m_networkWatch.tick();
     onNetwork();
-    m_moduleManager->onNetwork();
+    m_widgetManager->onNetwork();
     m_networkWatch.tock();
 
     // Simulation
@@ -473,7 +471,7 @@ void GApp2::oneFrame() {
 
         onBeforeSimulation(rdt, sdt, idt);
         onSimulation(rdt, sdt, idt);
-        m_moduleManager->onSimulation(rdt, sdt, idt);
+        m_widgetManager->onSimulation(rdt, sdt, idt);
         onAfterSimulation(rdt, sdt, idt);
 
         if (m_cameraManipulator.notNull()) {
@@ -490,7 +488,7 @@ void GApp2::oneFrame() {
     m_logicWatch.tick();
     {
         onLogic();
-        m_moduleManager->onLogic();
+        m_widgetManager->onLogic();
     }
     m_logicWatch.tock();
 
@@ -594,7 +592,7 @@ void GApp2::processGEventQueue() {
             continue;
         }
 
-        if (WidgetManager::onEvent(event, m_moduleManager)) {
+        if (WidgetManager::onEvent(event, m_widgetManager)) {
             continue;
         }
 

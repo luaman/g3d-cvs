@@ -196,6 +196,10 @@
 				RelativePath="..\demos\shader\data-files\phong.pix"
 				>
 			</File>
+			<File
+				RelativePath="..\demos\shader\data-files\phong.vrt"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -115,7 +115,7 @@ protected:
     Stopwatch               m_simulationWatch;
     Stopwatch               m_waitWatch;
 
-    WidgetManager::Ref       m_moduleManager;
+    WidgetManager::Ref       m_widgetManager;
 
     bool                    m_endProgram;
     int                     m_exitCode;
