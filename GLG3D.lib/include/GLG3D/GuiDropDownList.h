@@ -27,14 +27,20 @@ class GuiPane;
 class GuiDropDownList : public GuiControl {
     friend class GuiWindow;
     friend class GuiPane;
+
 protected:
 
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
-    Array<std::string>&             m_listValue;
+
+    Array<std::string>*             m_stringListValue;
+    Array<GuiCaption>*              m_captionListValue;
 
     /** True when the menu is open */
     bool                            m_selecting;
+
+    /** Which of the two list values to use */
+    bool                            m_useStringList;
 
     /** Called by GuiPane */
     GuiDropDownList
@@ -43,6 +49,13 @@ protected:
         const GuiCaption&           caption, 
         const Pointer<int>&         indexValue, 
         Array<std::string>*         listValue);
+
+    GuiDropDownList
+       (GuiWindow*                  gui, 
+        GuiPane*                    parent, 
+        const GuiCaption&           caption, 
+        const Pointer<int>&         indexValue, 
+        Array<GuiCaption>*          listValue);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;

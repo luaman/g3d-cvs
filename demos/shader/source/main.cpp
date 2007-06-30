@@ -29,7 +29,12 @@ private:
     float               diffuse;
     float               specular;
 
+    int                 diffuseColorIndex;
+    int                 specularColorIndex;
+    Array<GuiCaption>   colorList;
+
     void makeGui();
+    void makeColorList(GFontRef iconFont);
 
 public:
 
@@ -71,16 +76,52 @@ void App::onInit() {
     model = IFSModel::fromFile(System::findDataFile("teapot.ifs"));
 
     makeGui();
+
+    // Color 1 is red
+    diffuseColorIndex = 1;
+
+    // Last color is white
+    specularColorIndex = colorList.size() - 1;
+
+    diffuse = 1.0f;
+    specular = 0.5f;
+    shine = 20;
+    reflect = 0.1f;
+}
+
+void App::makeColorList(GFontRef iconFont) {
+    // Characters in icon font that make a solid block of color
+    const char* block = "gggggg";
+
+    float size = 18;
+    int N = 10;
+    colorList.append(GuiCaption(block, iconFont, size, Color3::black(), Color4::clear()));
+    for (int i = 0; i < N; ++i) {
+        colorList.append(GuiCaption(block, iconFont, size, Color3::rainbowColorMap((float)i / N), Color4::clear()));
+    }
+    colorList.append(GuiCaption(block, iconFont, size, Color3::white(), Color4::clear()));
 }
 
 void App::makeGui() {
     GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("twilight.skn"), debugFont);
-    GuiWindow::Ref gui = GuiWindow::create("Parameters", skin);
+    GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
+    GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin, Rect2D::xywh(10, 10, 0, 0));
+
+    makeColorList(iconFont);
 
     GuiPane* pane = gui->pane();
-//    pane->add
+    pane->addDropDownList("Diffuse", &diffuseColorIndex, &colorList);
+    pane->addSlider("Intensity", &diffuse, 0.0f, 1.0f);
+
+    pane->addDropDownList("Specular", &specularColorIndex, &colorList);
+    pane->addSlider("Intensity", &specular, 0.0f, 1.0f);
+
+    pane->addSlider("Shininess", &shine, 0.0f, 100.0f);
+    pane->addSlider("Reflectivity", &reflect, 0.0f, 1.0f);
 
     addWidget(gui);
+
+    showRenderingStats = false;
 }
 
 void App::onCleanup() {
@@ -128,6 +169,15 @@ void App::onGraphics(RenderDevice* rd) {
     phongShader->args.set("lightColor", light.color);
     phongShader->args.set("wsEye", defaultCamera.getCoordinateFrame().translation);
     phongShader->args.set("ambientLightColor", ambientLightColor);
+
+    phongShader->args.set("diffuseColor", colorList[diffuseColorIndex].color(Color3::white()).rgb());
+    phongShader->args.set("diffuse", diffuse);
+
+    phongShader->args.set("specularColor", colorList[specularColorIndex].color(Color3::white()).rgb());
+    phongShader->args.set("specular", specular);
+
+    phongShader->args.set("environmentMap", localLighting->environmentMap);
+    phongShader->args.set("environmentMapColor", localLighting->environmentMapColor);
 
     rd->setShader(phongShader);
         // Send model geometry to the graphics card

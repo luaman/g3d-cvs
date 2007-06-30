@@ -20,12 +20,17 @@ uniform vec3 ambientLightColor;
 // World space eye point
 uniform vec3 wsEye;
 
+// Used for reflections
 uniform samplerCube environmentMap;
 
-varying wsInterpolatedNormal;
+// Modulates the environment map values to simulate darkness or increase
+// dynamic range when tone mapping
+uniform vec3 environmentMapColor;
+
+//varying         wsInterpolatedNormal;
 
 void main() {
-
+/*
     vec3 wsNormal = normalize(wsInterpolatedNormal);
 
 //    vec3 wsReflectVector = (wsEye - wsNormal) - wsNormal  * 2.0 + wsNormal;
@@ -34,6 +39,6 @@ void main() {
         diffuse * diffuseColor * (ambientLightColor + (max(dot(wsNormal, wsLight), 0.0) * lightColor)) +
         specular * specularColor * pow(max(dot(wsReflectVector, wsLight), 0), shine) * lightColor +
         reflect * specularColor * textureCube(environmentMap, wsReflectVector).rgb;
-
-    gl_FragColor.rgb = vec3(1.0, 0.2, 0.0);
+*/
+    gl_FragColor.rgb = diffuseColor * diffuse;
 }

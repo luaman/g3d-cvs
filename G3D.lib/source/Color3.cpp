@@ -311,5 +311,10 @@ std::string Color3::toString() const {
 
 //----------------------------------------------------------------------------
 
+Color3 Color3::rainbowColorMap(float hue) {
+    return fromHSV(Vector3(hue, 1.0f, 1.0f));
+}
+
+
 }; // namespace
 

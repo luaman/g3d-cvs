@@ -20,19 +20,42 @@ GuiDropDownList::GuiDropDownList
  const Pointer<int>&         indexValue, 
  Array<std::string>*         listValue) : GuiControl(gui, parent, caption), 
                                           m_indexValue(indexValue), 
-                                          m_listValue(*listValue),
-                                          m_selecting(false) {
+                                          m_stringListValue(listValue),
+                                          m_selecting(false),
+                                          m_useStringList(true) {
 }
 
 
+GuiDropDownList::GuiDropDownList
+(GuiWindow*                  gui, 
+ GuiPane*                    parent, 
+ const GuiCaption&           caption, 
+ const Pointer<int>&         indexValue, 
+ Array<GuiCaption>*          listValue) : GuiControl(gui, parent, caption), 
+                                          m_indexValue(indexValue), 
+                                          m_captionListValue(listValue),
+                                          m_selecting(false),
+                                          m_useStringList(false) {
+}
+
 void GuiDropDownList::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
-        // If there are no elements in the list, display the empty string
-        const std::string& str = (m_listValue.size() > 0) ? 
-                m_listValue[iMax(0, iMin(m_listValue.size() - 1, *m_indexValue))] : 
-                "";
 
-        skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption);
+        if (m_useStringList) {
+            // If there are no elements in the list, display the empty string
+            const std::string& str = (m_stringListValue->size() > 0) ? 
+                    (*m_stringListValue)[iMax(0, iMin(m_stringListValue->size() - 1, *m_indexValue))] : 
+                    "";
+
+            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption);
+        } else {
+            // If there are no elements in the list, display the empty string
+            const GuiCaption& str = (m_captionListValue->size() > 0) ? 
+                    (*m_captionListValue)[iMax(0, iMin(m_captionListValue->size() - 1, *m_indexValue))] : 
+                    "";
+
+            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption);
+        }
     }
 }
 
@@ -50,7 +73,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
     } else if (event.type == GEventType::KEY_DOWN) {
         switch (event.key.keysym.sym) {
         case GKey::DOWN:
-            if (*m_indexValue < m_listValue.size() - 1) {
+            if (*m_indexValue < (m_useStringList ? m_stringListValue->size() : m_captionListValue->size()) - 1) {
                 *m_indexValue = *m_indexValue + 1;
                 fireActionEvent();
             }

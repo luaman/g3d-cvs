@@ -163,6 +163,9 @@ public:
     /** Duplicates the matlab jet colormap maps [0,1] --> (r,g,b) where blue is close to  0 and red is close to 1. */
     static Color3 jetColorMap(const float& val);
     
+    /** Returns colors with maximum saturation and value @param hue [0, 1]*/
+    static Color3 rainbowColorMap(float hue);
+
     std::string toString() const;
 
     /** Random unit vector */
