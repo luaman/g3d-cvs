@@ -153,6 +153,9 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
 
         if (s.resizable) {
             style |= WS_SIZEBOX;
+            if (s.allowMaximize) {
+                style |= WS_MAXIMIZEBOX;
+            }
         }
 
     } else {

@@ -137,6 +137,13 @@ public:
 	   docs for RenderDevice::resize.
 	*/
 	bool    resizable;
+
+    /**
+        If a window's settings define it to be both resizable and allowed
+        to maximize, it will have an activated maximize button (for Win32
+        windows only)
+    */
+    bool    allowMaximize;
 	
 	/**
 	   When true, a window frame and title bar are present.
@@ -175,6 +182,7 @@ public:
 	  stereo(false),
 	  refreshRate(85),
 	  resizable(false),
+      allowMaximize(true),
 	  framed(true),
 	  visible(true),
 	  defaultIconFilename("nodefault"),
