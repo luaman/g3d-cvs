@@ -42,7 +42,7 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 	
-	colorClear = Color3::blue();
+	colorClear = Color3::white();
 	//modelController = ThirdPersonManipulator::create();
 
 	setViewer(filename);
