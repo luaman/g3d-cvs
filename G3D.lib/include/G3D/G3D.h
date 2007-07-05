@@ -60,6 +60,11 @@
 #include "G3D/g3dmath.h"
 #include "G3D/fileutils.h"
 #include "G3D/ReferenceCount.h"
+
+template<class T> struct GHashCode< G3D::ReferenceCountedPointer<T> > {
+    size_t operator()(G3D::ReferenceCountedPointer<T> key) const { return reinterpret_cast<size_t>( key.pointer() ); }
+};
+
 #include "G3D/GImage.h"
 #include "G3D/CollisionDetection.h"
 #include "G3D/Log.h"

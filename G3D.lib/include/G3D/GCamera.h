@@ -88,7 +88,7 @@ public:
 	void setCoordinateFrame(const CoordinateFrame& c);
            
     /**
-       Sets the horizontal field of view, in radians.  The 
+       Sets the vertical field of view, in radians.  The 
        initial angle is toRadians(55).
 	 <UL>
 	  <LI> toRadians(50) - Telephoto

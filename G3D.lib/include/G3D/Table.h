@@ -56,6 +56,12 @@ struct GHashCode<void*>
     size_t operator()(const void* key) const { return reinterpret_cast<size_t>(key); }
 };
 
+template<class T>
+struct GHashCode<T*>
+{
+    size_t operator()(const T* key) const { return reinterpret_cast<size_t>(key); }
+};
+
 template <>
 struct GHashCode<const std::string>
 {

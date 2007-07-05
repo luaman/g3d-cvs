@@ -81,7 +81,7 @@ void App::onInit() {
     defaultCamera.setPosition(Vector3(1.0f, 1.0f, 2.5f));
     defaultCamera.lookAt(Vector3::zero());
 
-    // Add axes for dragging the camera
+    // Add axes for dragging and turning the model
     manipulator = ThirdPersonManipulator::create();
     addWidget(manipulator);
 
@@ -103,27 +103,34 @@ void App::makeColorList(GFontRef iconFont) {
     colorList.append(GuiCaption(block, iconFont, size, Color3::white(), Color4::clear()));
 }
 
-void App::makeGui() {
-    GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("twilight.skn"), debugFont);
-    GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
-    GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin, Rect2D::xywh(10, 10, 0, 0));
 
-    makeColorList(iconFont);
 
-    GuiPane* pane = gui->pane();
-    pane->addDropDownList("Diffuse", &diffuseColorIndex, &colorList);
-    pane->addSlider("Intensity", &diffuse, 0.0f, 1.0f);
 
-    pane->addDropDownList("Specular", &specularColorIndex, &colorList);
-    pane->addSlider("Intensity", &specular, 0.0f, 1.0f);
 
-    pane->addSlider("Shininess", &shine, 1.0f, 100.0f);
-    pane->addSlider("Reflectivity", &reflect, 0.0f, 1.0f);
 
-    addWidget(gui);
 
-    showRenderingStats = false;
-}
+	void App::makeGui() {
+		GuiSkinRef skin = GuiSkin::fromFile("twilight.skn", debugFont);
+		GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
+
+		GuiPane* pane = gui->pane();
+		pane->addDropDownList("Diffuse", &diffuseColorIndex, &colorList);
+		pane->addSlider("Intensity", &diffuse, 0.0f, 1.0f);
+
+		pane->addDropDownList("Specular", &specularColorIndex, &colorList);
+		pane->addSlider("Intensity", &specular, 0.0f, 1.0f);
+
+		pane->addSlider("Shininess", &shine, 1.0f, 100.0f);
+		pane->addSlider("Reflectivity", &reflect, 0.0f, 1.0f);
+
+		addWidget(gui);
+	}
+
+
+
+
+
+
 
 void App::onGraphics(RenderDevice* rd) {
     toneMap->beginFrame(rd);
@@ -199,25 +206,37 @@ void App::onGraphics(RenderDevice* rd) {
     sky->renderLensFlare(rd, localSky);
 }
 
-void App::configureShaderArgs(const LightingRef localLighting) {
-    const GLight& light = localLighting->lightArray[0]; 
 
-    phongShader->args.set("wsLight", light.position.xyz().direction());
-    phongShader->args.set("lightColor", light.color);
-    phongShader->args.set("wsEyePosition", defaultCamera.getCoordinateFrame().translation);
-    phongShader->args.set("ambientLightColor", localLighting->ambientAverage());
 
-    phongShader->args.set("diffuseColor", colorList[diffuseColorIndex].color(Color3::white()).rgb());
-    phongShader->args.set("diffuse", diffuse);
 
-    phongShader->args.set("specularColor", colorList[specularColorIndex].color(Color3::white()).rgb());
-    phongShader->args.set("specular", specular);
-    phongShader->args.set("shine", shine);
-    phongShader->args.set("reflect", reflect);
 
-    phongShader->args.set("environmentMap", localLighting->environmentMap);
-    phongShader->args.set("environmentMapColor", localLighting->environmentMapColor);
-}
+	void App::configureShaderArgs(const LightingRef lighting) {
+		const GLight& light = lighting->lightArray[0]; 
+
+		phongShader->args.set("wsLight", light.position.xyz().direction());
+		phongShader->args.set("lightColor", light.color);
+		phongShader->args.set("wsEyePosition", defaultCamera.getCoordinateFrame().translation);
+		phongShader->args.set("ambientLightColor", lighting->ambientAverage());
+
+		Color3 color = colorList[diffuseColorIndex].color(Color3::white()).rgb();
+		phongShader->args.set("diffuseColor", color);
+		phongShader->args.set("diffuse", diffuse);
+
+		color = colorList[specularColorIndex].color(Color3::white()).rgb();
+		phongShader->args.set("specularColor", color);
+		phongShader->args.set("specular", specular);
+		phongShader->args.set("shine", shine);
+		phongShader->args.set("reflect", reflect);
+
+		phongShader->args.set("environmentMap", lighting->environmentMap);
+		phongShader->args.set("environmentMapColor", lighting->environmentMapColor);
+	}
+
+
+
+
+
+
 
 G3D_START_AT_MAIN();
 
