@@ -186,12 +186,12 @@ def itools(args):
      x = 0
      if (x == 0):
         os.chdir("tools/gfxmeter")
-        x = run("../../bin/icompile", config + ['--opt'])
+        x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
         os.chdir("../..")
 
      if (x == 0):
         os.chdir("tools/viewer")
-        x = run("../../bin/icompile", config + ['--opt'])
+        x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
         os.chdir("../..")
 
      return x
