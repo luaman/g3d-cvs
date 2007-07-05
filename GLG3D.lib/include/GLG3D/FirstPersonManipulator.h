@@ -147,7 +147,7 @@ public:
     virtual CoordinateFrame frame() const;
 
     // Inherited from Widget
-    virtual void getPosedModel(Array<PosedModel::Ref>& p3d, Array<PosedModel2DRef>& p2d);
+    virtual void onPose(Array<PosedModel::Ref>& p3d, Array<PosedModel2DRef>& p2d);
     virtual void onNetwork();
     virtual void onLogic();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);

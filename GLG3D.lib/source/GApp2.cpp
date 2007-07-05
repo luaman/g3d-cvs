@@ -373,17 +373,7 @@ bool GApp2::onEvent(const GEvent& event) {
 }
 
 
-void GApp2::getPosedModel(
-    Array<PosedModel::Ref>& posedArray, 
-    Array<PosedModel2DRef>& posed2DArray) {
-
-    m_widgetManager->getPosedModel(posedArray, posed2DArray);
-}
-
-
-void GApp2::onGraphics(RenderDevice* rd) {
-    Array<PosedModel::Ref>        posedArray;
-    Array<PosedModel2DRef>        posed2DArray;
+void GApp2::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
     Array<PosedModel::Ref>        opaque, transparent;
 
     SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
@@ -394,32 +384,22 @@ void GApp2::onGraphics(RenderDevice* rd) {
     rd->enableLighting();
         rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
         rd->setAmbientLightColor(lighting.ambient);
-        renderWidgets(rd);
+
+        // 3D
+        if (posedArray.size() > 0) {
+            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+            PosedModel::sort(posedArray, lookVector, opaque, transparent);
+            
+            for (int i = 0; i < opaque.size(); ++i) {
+                opaque[i]->render(renderDevice);
+            }
+
+            for (int i = 0; i < transparent.size(); ++i) {
+                transparent[i]->render(renderDevice);
+            }
+        }
     rd->disableLighting();
-}
 
-
-void GApp2::renderWidgets(RenderDevice* rd) {
-    Array<PosedModel::Ref> posedArray, opaque, transparent; 
-    Array<PosedModel2DRef> posed2DArray;
-    
-    getPosedModel(posedArray, posed2DArray);
-
-    // 3D
-    if (posedArray.size() > 0) {
-        Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
-        PosedModel::sort(posedArray, lookVector, opaque, transparent);
-
-        for (int i = 0; i < opaque.size(); ++i) {
-            opaque[i]->render(renderDevice);
-        }
-
-        for (int i = 0; i < transparent.size(); ++i) {
-            transparent[i]->render(renderDevice);
-        }
-    }
-
-    // 2D
     if (posed2DArray.size() > 0) {
         renderDevice->push2D();
             PosedModel2D::sort(posed2DArray);
@@ -430,7 +410,7 @@ void GApp2::renderWidgets(RenderDevice* rd) {
     }
 }
 
-    
+
 void GApp2::addWidget(const Widget::Ref& module) {
     m_widgetManager->add(module);
 }
@@ -510,11 +490,16 @@ void GApp2::oneFrame() {
     // Graphics
     m_graphicsWatch.tick();
     {
+        m_posed3D.fastClear();
+        m_posed2D.fastClear();
+        m_widgetManager->onPose(m_posed3D, m_posed2D);
+        onPose(m_posed3D, m_posed2D);
+
         renderDevice->beginFrame();
         {
             renderDevice->pushState();
             {
-                onGraphics(renderDevice);
+                onGraphics(renderDevice, m_posed3D, m_posed2D);
             }
             renderDevice->popState();
             renderDebugInfo();

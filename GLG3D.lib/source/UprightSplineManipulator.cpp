@@ -265,7 +265,7 @@ UprightSplineManipulator::Mode UprightSplineManipulator::mode() const {
 }
 
 
-void UprightSplineManipulator::getPosedModel
+void UprightSplineManipulator::onPose
 (
  Array< PosedModelRef > &posedArray, 
  Array< PosedModel2DRef > &posed2DArray) {

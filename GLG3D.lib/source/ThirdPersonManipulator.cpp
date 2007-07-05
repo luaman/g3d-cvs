@@ -621,7 +621,7 @@ CoordinateFrame ThirdPersonManipulator::frame() const {
 }
 
 
-void ThirdPersonManipulator::getPosedModel(
+void ThirdPersonManipulator::onPose(
     Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 

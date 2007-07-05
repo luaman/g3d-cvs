@@ -313,7 +313,7 @@ public:
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 
-    virtual void getPosedModel(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray);
+    virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray);
 };
 
 } //G3D

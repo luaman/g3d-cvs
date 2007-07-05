@@ -350,8 +350,8 @@ void GApplet::getPosedModel(
     Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
-    m_widgetManager->getPosedModel(posedArray, posed2DArray);
-    app->m_widgetManager->getPosedModel(posedArray, posed2DArray);
+    m_widgetManager->onPose(posedArray, posed2DArray);
+    app->m_widgetManager->onPose(posedArray, posed2DArray);
 
 }
 

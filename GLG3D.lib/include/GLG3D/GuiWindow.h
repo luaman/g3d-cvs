@@ -326,7 +326,7 @@ public:
      */
     virtual GuiDrawer* addDrawer(const GuiCaption& caption = "", GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { return NULL; }
 
-    virtual void getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);
+    virtual void onPose(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);
 
     virtual bool onEvent(const GEvent& event);
 

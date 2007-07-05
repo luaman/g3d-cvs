@@ -37,7 +37,7 @@ public:
     App(const GApp2::Settings& settings = GApp2::Settings());
 
     virtual void onInit();
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 };
 
 App::App(const GApp2::Settings& settings) : GApp2(settings), diffuse(0.6f), specular(0.5f), shine(20.0f), reflect(0.1f) {}
@@ -103,36 +103,24 @@ void App::makeColorList(GFontRef iconFont) {
     colorList.append(GuiCaption(block, iconFont, size, Color3::white(), Color4::clear()));
 }
 
+void App::makeGui() {
+    GuiSkinRef skin = GuiSkin::fromFile("twilight.skn", debugFont);
+    GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
+    
+    GuiPane* pane = gui->pane();
+    pane->addDropDownList("Diffuse", &diffuseColorIndex, &colorList);
+    pane->addSlider("Intensity", &diffuse, 0.0f, 1.0f);
+    
+    pane->addDropDownList("Specular", &specularColorIndex, &colorList);
+    pane->addSlider("Intensity", &specular, 0.0f, 1.0f);
+    
+    pane->addSlider("Shininess", &shine, 1.0f, 100.0f);
+    pane->addSlider("Reflectivity", &reflect, 0.0f, 1.0f);
+    
+    addWidget(gui);
+}
 
-
-
-
-
-
-	void App::makeGui() {
-		GuiSkinRef skin = GuiSkin::fromFile("twilight.skn", debugFont);
-		GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
-
-		GuiPane* pane = gui->pane();
-		pane->addDropDownList("Diffuse", &diffuseColorIndex, &colorList);
-		pane->addSlider("Intensity", &diffuse, 0.0f, 1.0f);
-
-		pane->addDropDownList("Specular", &specularColorIndex, &colorList);
-		pane->addSlider("Intensity", &specular, 0.0f, 1.0f);
-
-		pane->addSlider("Shininess", &shine, 1.0f, 100.0f);
-		pane->addSlider("Reflectivity", &reflect, 0.0f, 1.0f);
-
-		addWidget(gui);
-	}
-
-
-
-
-
-
-
-void App::onGraphics(RenderDevice* rd) {
+void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     toneMap->beginFrame(rd);
 
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
@@ -165,9 +153,7 @@ void App::onGraphics(RenderDevice* rd) {
 
     // Process the installed widgets.
 
-    Array<PosedModel::Ref> posedArray, opaque, transparent; 
-    Array<PosedModel2DRef> posed2DArray;    
-    getPosedModel(posedArray, posed2DArray);
+    Array<PosedModel::Ref> opaque, transparent; 
 
     // Use fixed-function lighting for the 3D widgets for convenience.
     rd->pushState();
@@ -176,9 +162,9 @@ void App::onGraphics(RenderDevice* rd) {
         rd->setAmbientLightColor(localLighting->ambientAverage());
 
         // 3D
-        if (posedArray.size() > 0) {
+        if (posed3D.size() > 0) {
             Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
-            PosedModel::sort(posedArray, lookVector, opaque, transparent);
+            PosedModel::sort(posed3D, lookVector, opaque, transparent);
 
             for (int i = 0; i < opaque.size(); ++i) {
                 opaque[i]->render(renderDevice);
@@ -194,11 +180,11 @@ void App::onGraphics(RenderDevice* rd) {
     toneMap->endFrame(rd);
 
     // Render the 2D widgets
-    if (posed2DArray.size() > 0) {
+    if (posed2D.size() > 0) {
         renderDevice->push2D();
-            PosedModel2D::sort(posed2DArray);
-            for (int i = 0; i < posed2DArray.size(); ++i) {
-                posed2DArray[i]->render(renderDevice);
+            PosedModel2D::sort(posed2D);
+            for (int i = 0; i < posed2D.size(); ++i) {
+                posed2D[i]->render(renderDevice);
             }
         renderDevice->pop2D();
     }

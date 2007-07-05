@@ -143,7 +143,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
 }
 
 
-void GuiWindow::getPosedModel(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
+void GuiWindow::onPose(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
     if (m_visible) {
         posed2DArray.append(posed);
     }
@@ -467,7 +467,7 @@ void GuiWindow::Modal::oneFrame() {
             Array<PosedModel::Ref> posedArray, opaque, transparent; 
             Array<PosedModel2DRef> posed2DArray;
 
-            manager->getPosedModel(posedArray, posed2DArray);
+            manager->onPose(posedArray, posed2DArray);
 
             // 3D
             if (posedArray.size() > 0) {

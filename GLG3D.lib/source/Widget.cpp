@@ -182,13 +182,13 @@ void WidgetManager::clear() {
     endLock();
 
 
-void WidgetManager::getPosedModel(
+void WidgetManager::onPose(
     Array<PosedModel::Ref>& posedArray, 
     Array<PosedModel2DRef>& posed2DArray) {
 
     beginLock();
     for (int i = 0; i < m_moduleArray.size(); ++i) {
-        m_moduleArray[i]->getPosedModel(posedArray, posed2DArray);
+        m_moduleArray[i]->onPose(posedArray, posed2DArray);
     }
     endLock();
 

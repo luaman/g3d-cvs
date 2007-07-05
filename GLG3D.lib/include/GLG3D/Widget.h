@@ -62,7 +62,7 @@ public:
      reference the agent and is allowed to mutate if the agent is
      mutated.
      */
-    virtual void getPosedModel(
+    virtual void onPose(
         Array<PosedModel::Ref>& posedArray,
         Array<PosedModel2DRef>& posed2DArray) = 0;
 
@@ -210,8 +210,8 @@ public:
     /** Returns a module by index number.  The highest index is the one that receives events first.*/
     const Widget::Ref& operator[](int i) const;
 
-    /** Calls getPosedModel on all children.*/
-    virtual void getPosedModel(
+    /** Calls onPose on all children.*/
+    virtual void onPose(
         Array<PosedModel::Ref>& posedArray, 
         Array<PosedModel2DRef>& posed2DArray);
 

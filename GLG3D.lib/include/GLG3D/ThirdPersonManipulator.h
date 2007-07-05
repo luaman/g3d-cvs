@@ -352,7 +352,7 @@ public:
 
     virtual CoordinateFrame frame() const;
 
-    virtual void getPosedModel(
+    virtual void onPose(
         Array<PosedModel::Ref>& posedArray, 
         Array<PosedModel2DRef>& posed2DArray);
 

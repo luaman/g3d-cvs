@@ -322,6 +322,9 @@ private:
     SimTime             m_simTime;
     SimTime             m_idealSimTime;
 
+    Array<PosedModelRef> m_posed3D;
+    Array<PosedModel2DRef> m_posed2D;
+
 private:
 
     /** Helper for run() that actually starts the program loop. Called from run(). */
@@ -418,13 +421,8 @@ public:
     RealTime desiredFrameDuration() const {
         return 1.0 / m_desiredFrameRate;
     }
-
+    
 protected:
-
-    /** Default implementation poses the managed modules from the GApplet and GApp.*/
-    virtual void getPosedModel(
-                               Array<PosedModel::Ref>& posedArray, 
-                               Array<PosedModel2DRef>& posed2DArray);
 
     /**
        Load your data here.  Unlike the constructor, this catches common exceptions.
@@ -438,10 +436,6 @@ protected:
     */
     virtual void onCleanup() {}
 
-    /**
-       Get and render the posed GModules.
-    */
-    virtual void renderWidgets(RenderDevice* rd);
 
     /**
        Override this with your simulation code.
@@ -491,23 +485,24 @@ protected:
     }
 
     /**
-       Rendering callback.
+       Rendering callback used to paint the screen.  Called automatically.
 
        Override and implement.  The debugCamera's projection and object to world
        matrices are set by default; you can set other cameras as desired. 
        RenderDevice::beginFrame and endFrame are called for you.
      
-       Use getPosedModel() to obtain the installed GModules to be rendered.
-
-       See <A HREF="../demos/main.cpp">demos/main.cpp</A> for an example of
-       overriding lights.
+       See <A HREF="../demos/main.cpp">demos/main.cpp</A> for an example.
     */
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 
+    /** Called before onGraphics.  Append any models that you want
+        rendered (you can also explicitly pose and render in your
+        onGraphics method) */
+    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {}
 
     /**
-       For a networked app, override this to implement your
-       network message polling.
+       For a networked app, override this to implement your network
+       message polling.
     */
     virtual void onNetwork() {}
 

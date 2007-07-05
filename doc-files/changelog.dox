@@ -17,6 +17,8 @@
      <li> Support for g++ 4.1 [Corey]
      <li> Patches for 64-bit compilation [Corey]
      <li> User camera control requires right mouse click to move
+     <li> GApp2::onGraphics now takes posed model arguments
+     <li> GApp2::onPose
      <li> All classes that read from files can now read data inside zipfiles.
      <li> Changed G3D::hashCode(T) to ::GHashCode<T>(T) [Corey]
      <li> Removed "G3D::" from the printed portion of the documentation index to make it easier to read.

@@ -27,7 +27,8 @@ public:
     virtual void onLogic();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onUserInput(UserInput* ui);
     virtual void onCleanup();
     virtual void onConsoleCommand(const std::string& cmd);
@@ -102,7 +103,12 @@ void App::printConsoleHelp() {
     console->printf("TAB           - Enable first-person camera control\n");
 }
 
-void App::onGraphics(RenderDevice* rd) {
+void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    // Append any models to the array that you want rendered by onGraphics
+}
+
+void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
@@ -122,12 +128,32 @@ void App::onGraphics(RenderDevice* rd) {
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
-        // Always render the installed GModules or the console and other
-        // features will not appear.
-        renderWidgets(rd);
+        // Always render the posed models passed in or the console and
+        // other Widget features will not appear.
+        if (posedArray.size() > 0) {
+            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+            PosedModel::sort(posedArray, lookVector, opaque, transparent);
+            
+            for (int i = 0; i < opaque.size(); ++i) {
+                opaque[i]->render(renderDevice);
+            }
+
+            for (int i = 0; i < transparent.size(); ++i) {
+                transparent[i]->render(renderDevice);
+            }
+        }
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
+
+    if (posed2DArray.size() > 0) {
+        renderDevice->push2D();
+            PosedModel2D::sort(posed2DArray);
+            for (int i = 0; i < posed2DArray.size(); ++i) {
+                posed2DArray[i]->render(renderDevice);
+            }
+        renderDevice->pop2D();
+    }
 }
 
 G3D_START_AT_MAIN();
