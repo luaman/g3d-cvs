@@ -240,6 +240,13 @@ public:
         return !((lo == b.lo) && (hi == b.hi));
     }
 
+    inline AABox operator+(const Vector3& v) const {
+        AABox out;
+        out.lo = lo + v;
+        out.hi = hi + v;
+        return out;
+    }
+
     void getBounds(AABox& out) const {
         out = *this;
     }

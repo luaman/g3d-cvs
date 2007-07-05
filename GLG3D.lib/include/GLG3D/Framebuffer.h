@@ -229,23 +229,6 @@ private:
 	/** Default Constructor. */
 	Framebuffer(const std::string& name, GLuint framebufferID);
 
-	friend class RenderDevice;
-
-    /**
-     Checks to see if the framebuffer is complete.  
-
-     NOTE: This function is meant to be called by RenderDevice through
-     currentFramebufferComplete.  The results are unpredictable if
-     this function is directly called by the user.
-
-     @param whyNot Defined when the test fails.  Will contain the
-     reason for failure.
-
-     @return true   If complete framebuffer.
-     @return false  If incomplete or error.
-     */
-	bool debugIsComplete(std::string& whyNot) const;
-
 public:
 
 
