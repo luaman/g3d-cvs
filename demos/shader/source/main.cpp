@@ -179,50 +179,32 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     // Don't apply the tone map to the 2D widgets
     toneMap->endFrame(rd);
 
-    // Render the 2D widgets
-    if (posed2D.size() > 0) {
-        renderDevice->push2D();
-            PosedModel2D::sort(posed2D);
-            for (int i = 0; i < posed2D.size(); ++i) {
-                posed2D[i]->render(renderDevice);
-            }
-        renderDevice->pop2D();
-    }
+    PosedModel2D::sortAndRender(rd, posed2D);
 
     sky->renderLensFlare(rd, localSky);
 }
 
+void App::configureShaderArgs(const LightingRef lighting) {
+	const GLight& light = lighting->lightArray[0]; 
 
+	phongShader->args.set("wsLight", light.position.xyz().direction());
+	phongShader->args.set("lightColor", light.color);
+	phongShader->args.set("wsEyePosition", defaultCamera.getCoordinateFrame().translation);
+	phongShader->args.set("ambientLightColor", lighting->ambientAverage());
 
+	Color3 color = colorList[diffuseColorIndex].color(Color3::white()).rgb();
+	phongShader->args.set("diffuseColor", color);
+	phongShader->args.set("diffuse", diffuse);
 
+	color = colorList[specularColorIndex].color(Color3::white()).rgb();
+	phongShader->args.set("specularColor", color);
+	phongShader->args.set("specular", specular);
+	phongShader->args.set("shine", shine);
+	phongShader->args.set("reflect", reflect);
 
-	void App::configureShaderArgs(const LightingRef lighting) {
-		const GLight& light = lighting->lightArray[0]; 
-
-		phongShader->args.set("wsLight", light.position.xyz().direction());
-		phongShader->args.set("lightColor", light.color);
-		phongShader->args.set("wsEyePosition", defaultCamera.getCoordinateFrame().translation);
-		phongShader->args.set("ambientLightColor", lighting->ambientAverage());
-
-		Color3 color = colorList[diffuseColorIndex].color(Color3::white()).rgb();
-		phongShader->args.set("diffuseColor", color);
-		phongShader->args.set("diffuse", diffuse);
-
-		color = colorList[specularColorIndex].color(Color3::white()).rgb();
-		phongShader->args.set("specularColor", color);
-		phongShader->args.set("specular", specular);
-		phongShader->args.set("shine", shine);
-		phongShader->args.set("reflect", reflect);
-
-		phongShader->args.set("environmentMap", lighting->environmentMap);
-		phongShader->args.set("environmentMapColor", lighting->environmentMapColor);
-	}
-
-
-
-
-
-
+	phongShader->args.set("environmentMap", lighting->environmentMap);
+	phongShader->args.set("environmentMapColor", lighting->environmentMapColor);
+}
 
 G3D_START_AT_MAIN();
 

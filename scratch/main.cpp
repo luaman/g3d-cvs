@@ -21,62 +21,27 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
-    Vector2 lastMouse;
-    UprightSplineManipulator::Ref splineManipulator;
-
     App(const GApp2::Settings& settings = GApp2::Settings());
 
     virtual void onInit();
     virtual void onLogic();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onUserInput(UserInput* ui);
+    virtual void onCleanup();
     virtual void onConsoleCommand(const std::string& cmd);
     void printConsoleHelp();
 };
 
 App::App(const GApp2::Settings& settings) : GApp2(settings) {}
 
-class Person {
-private:
-    bool    myFriend;
-
-public:
-    enum Gender {MALE, FEMALE};
-
-    Gender  gender;        
-    float   height;
-    bool    likesCats;
-    std::string name;
-
-    void setIsMyFriend(bool f) {
-        myFriend = f;
-    }
-
-    bool getIsMyFriend() const {
-        return myFriend;
-    }
-
-    void setValue(float f) {
-        (void)f;
-    }
-
-    float getValue() const {
-        return 1.0f;
-    }
-    
-};
-
-Person player;
-
 void App::onInit() {
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
     // automatically caught.
     sky = Sky::fromFile(dataDir + "sky/");
-
-    setDesiredFrameRate(30);
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -86,16 +51,11 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
-    
-    GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
-    GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
+}
 
-    GuiWindow::Ref gui = GuiWindow::create("Test", skin);
-    GuiPane* pane = gui->pane();
-
-    static float f;
-    pane->addSlider("Value", &f, 1.0f, 43.0f);
-    pane->addSlider("Value", Pointer<float>(&player, &Person::getValue, &Person::setValue), 0.0f, 1.0f);
+void App::onCleanup() {
+    // Called after the application loop ends.  Place a majority of cleanup code
+    // here instead of in the constructor so that exceptions can be caught
 }
 
 void App::onLogic() {
@@ -112,6 +72,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 void App::onUserInput(UserInput* ui) {
+    // Add key handling here	
 }
 
 void App::onConsoleCommand(const std::string& str) {
@@ -142,7 +103,12 @@ void App::printConsoleHelp() {
     console->printf("TAB           - Enable first-person camera control\n");
 }
 
-void App::onGraphics(RenderDevice* rd) {
+void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    // Append any models to the array that you want rendered by onGraphics
+}
+
+void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
@@ -162,54 +128,29 @@ void App::onGraphics(RenderDevice* rd) {
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
-        // Always render the installed GModules or the console and other
-        // features will not appear.
-        renderWidgets(rd);
+        // Always render the posed models passed in or the console and
+        // other Widget features will not appear.
+        if (posed3D.size() > 0) {
+            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+            PosedModel::sort(posed3D, lookVector, opaque, transparent);
+            
+            for (int i = 0; i < opaque.size(); ++i) {
+                opaque[i]->render(renderDevice);
+            }
+
+            for (int i = 0; i < transparent.size(); ++i) {
+                transparent[i]->render(renderDevice);
+            }
+        }
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
 
-    /*
-    rd->push2D();   
-    Rect2D rect = Rect2D::xywh(100, 100, 100, 100);
-    Draw::rect2D(rect + Vector2(0,0), rd, Color3::red());
-
-    rd->enableClip2D(rect + Vector2(101, 0));
-    Draw::rect2D(rect + Vector2(101,0), rd, Color3::red());
-    rd->pop2D();
-    */
+    PosedModel2D::sortAndRender(rd, posed2D);
 }
 
 G3D_START_AT_MAIN();
 
-
-
 int main(int argc, char** argv) {
-    /*
-    std::string path = "";
-
-    DIR* dir = opendir(path.c_str());
-
-    debugPrintf("dir = %x\n", dir);
-    if (dir != NULL) {
-        struct dirent* entry = readdir(dir);
-
-        while (entry != NULL) {
-            debugPrintf("entry = %s\n", entry->d_name);
-                entry = readdir(dir);
-        }
-        closedir(dir);
-
-    }
-    Array<std::string> f;
-    getFiles("*", f);
-    debugPrintf("Files\n");
-    for (int i = 0; i < f.size(); ++i) {
-        debugPrintf("%s\n", f[i].c_str());
-    }
-    return 0;
-    */
-    GApp2::Settings s;
-    s.window.resizable = true;
-    return App(s).run();
+    return App().run();
 }

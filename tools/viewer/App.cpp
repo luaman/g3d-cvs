@@ -7,7 +7,7 @@
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  @created 2007-05-31
- @edited  2007-06-08
+ @edited  2007-07-08
  */
 #include "App.h"
 #include "IFSViewer.h"
@@ -72,7 +72,7 @@ bool App::onEvent(const GEvent& e) {
 }
 
 
-void App::onGraphics(RenderDevice* rd) {
+void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
     LightingRef localLighting = toneMap->prepareLighting(lighting);
 	toneMap->setEnabled(false);
@@ -92,10 +92,7 @@ void App::onGraphics(RenderDevice* rd) {
 			viewer->onGraphics(rd, this);
 		}
 	
-		// Always render the installed GModules or the console and other
-        // features will not appear.
-        renderWidgets(rd);
-
+        PosedModel2D::sortAndRender(rd, posed2D);
 	rd->disableLighting();
 }
 

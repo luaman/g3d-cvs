@@ -317,6 +317,9 @@ public:
 
     /** Sorts from farthest to nearest. */
     static void sort(Array<PosedModel2DRef>& array);
+
+    /** Calls sort, RenderDevice::push2D, and then render on all elements */
+    static void sortAndRender(RenderDevice* rd, Array<PosedModel2DRef>& array);
 };
 
 

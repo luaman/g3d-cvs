@@ -313,7 +313,7 @@ def src(args):
     # First copy everything to the temp directory to remove
     # CVS files
     V = Version()
-    ver = 'g3d-' + V.major + '_' + V.minor
+    ver = 'g3d-' + V.major + '.' + V.minor
     if (V.beta != ''):
        ver += '-b' + V.beta
     copyIfNewer('./*', 'temp/src/' + ver + '/src/')

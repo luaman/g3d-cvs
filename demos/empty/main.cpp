@@ -130,9 +130,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
         // Always render the posed models passed in or the console and
         // other Widget features will not appear.
-        if (posedArray.size() > 0) {
+        if (posed3D.size() > 0) {
             Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
-            PosedModel::sort(posedArray, lookVector, opaque, transparent);
+            PosedModel::sort(posed3D, lookVector, opaque, transparent);
             
             for (int i = 0; i < opaque.size(); ++i) {
                 opaque[i]->render(renderDevice);
@@ -146,14 +146,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     sky->renderLensFlare(rd, localSky);
 
-    if (posed2DArray.size() > 0) {
-        renderDevice->push2D();
-            PosedModel2D::sort(posed2DArray);
-            for (int i = 0; i < posed2DArray.size(); ++i) {
-                posed2DArray[i]->render(renderDevice);
-            }
-        renderDevice->pop2D();
-    }
+    PosedModel2D::sortAndRender(rd, posed2D);
 }
 
 G3D_START_AT_MAIN();

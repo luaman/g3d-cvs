@@ -14,6 +14,17 @@
 
 namespace G3D {
 
+void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2DRef>& posed2D) {
+    if (posed2D.size() > 0) {
+        rd->push2D();
+            PosedModel2D::sort(posed2D);
+            for (int i = 0; i < posed2D.size(); ++i) {
+                posed2D[i]->render(rd);
+            }
+        rd->pop2D();
+    }
+}
+
 class ModelSorter {
 public:
     double                  sortKey;

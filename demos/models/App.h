@@ -58,7 +58,7 @@ public:
 
     virtual void onUserInput(UserInput* ui);
 
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 };
 
 #endif

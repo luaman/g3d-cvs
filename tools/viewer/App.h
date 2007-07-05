@@ -32,7 +32,7 @@ public:
 	App(const GApp2::Settings& settings = GApp2::Settings(), const std::string& file = "");
 
 	virtual void onInit();
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onCleanup();
 	virtual bool onEvent(const GEvent& event);
 

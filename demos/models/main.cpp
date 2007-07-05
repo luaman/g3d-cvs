@@ -123,7 +123,8 @@ void App::generateShadowMap(const GLight& light, const Array<PosedModel::Ref>& s
 }
 
 
-void App::onGraphics(RenderDevice* rd) {
+
+void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
     SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
@@ -135,8 +136,6 @@ void App::onGraphics(RenderDevice* rd) {
     }
 
     // Pose all
-    Array<PosedModel2DRef> posed2D;
-    Array<PosedModel::Ref> posedModels, opaqueAModel, otherOpaque, transparent;
 
     for (int e = 0; e < entityArray.size(); ++e) {
         static RealTime t0 = System::time();
@@ -149,21 +148,19 @@ void App::onGraphics(RenderDevice* rd) {
             CoordinateFrame(Matrix3::fromAxisAngle(Vector3::unitY(), t/1000),
                             Vector3::zero()));
 
-        entityArray[e]->model->pose(posedModels, entityArray[e]->cframe, entityArray[e]->pose);
+        entityArray[e]->model->pose(posed3D, entityArray[e]->cframe, entityArray[e]->pose);
     }
-
-    // Get any Widget models
-    getPosedModel(posedModels, posed2D);
 
     if (GLCaps::supports_GL_ARB_shadow() && (lighting->shadowedLightArray.size() > 0)) {     
         // Generate shadow map
-        generateShadowMap(lighting->shadowedLightArray[0], posedModels);
+        generateShadowMap(lighting->shadowedLightArray[0], posed3D);
     }
 
     // Separate and sort the models
-    ArticulatedModel::extractOpaquePosedAModels(posedModels, opaqueAModel);
+    Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent;
+    ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
     PosedModel::sort(opaqueAModel, defaultCamera.getCoordinateFrame().lookVector(), opaqueAModel);
-    PosedModel::sort(posedModels, defaultCamera.getCoordinateFrame().lookVector(), otherOpaque, transparent);
+    PosedModel::sort(posed3D, defaultCamera.getCoordinateFrame().lookVector(), otherOpaque, transparent);
 
     /////////////////////////////////////////////////////////////////////
 
@@ -213,6 +210,7 @@ void App::onGraphics(RenderDevice* rd) {
     }
 
     toneMap->endFrame(rd);
+    PosedModel2D::sortAndRender(rd, posed2D);
 
     debugPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
     debugPrintf("%s Profile %s\n", toString(ArticulatedModel::profile()),
