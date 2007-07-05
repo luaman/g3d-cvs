@@ -113,7 +113,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
 
     m_focused =
         m_visible &&
-        (m_manager->focusedModule().pointer() == this) &&
+        (m_manager->focusedWidget().pointer() == this) &&
         m_mouseVisible;
 
     if (! focused()) {
@@ -190,7 +190,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
         if (! m_rect.contains(mouse)) {
             // The click was not on this object.  Lost focus if we have it
             if (focused()) {
-                m_manager->setDefocusedModule(this);
+                m_manager->setFocusedWidget(this);
             }
             return false;
         }

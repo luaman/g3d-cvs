@@ -91,42 +91,35 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
 
     int backlen = 4;
 
+    Array<std::string> subDir;
+    subDir.append("", "font/", "sky/", "gui/");
+    subDir.append("SuperShader/", "ifs/", "3ds/");
+
     path.append("");
     std::string prev = "";
     for (int i = 0; i < backlen; ++i) {
         path.append(originalPath + prev);
-        path.append(originalPath + prev + "data-files/");
-        path.append(originalPath + prev + "data-files/font/");
-        path.append(originalPath + prev + "data-files/sky/");
-        path.append(originalPath + prev + "data-files/gui/");
-        path.append(originalPath + prev + "data/");
-        path.append(originalPath + prev + "data/font/");
-        path.append(originalPath + prev + "data/sky/");
-        path.append(originalPath + prev + "data/gui/");
         prev = prev + "../";        
     }
 
     prev = "../";
     for (int i = 0; i < backlen; ++i) {
         path.append(prev);
-        path.append(prev + "data-files/");
-        path.append(prev + "data-files/font/");
-        path.append(prev + "data-files/sky/");
-        path.append(prev + "data-files/gui/");
-        path.append(prev + "data/");
-        path.append(prev + "data/font/");
-        path.append(prev + "data/sky/");
-        path.append(prev + "data/gui/");
         prev = prev + "../";        
     }
 
     std::string data = demoFindData(false);
     path.append(data);
-    path.append(data + "font/");
-    path.append(data + "ifs/");
-    path.append(data + "3ds/");
-    path.append(data + "gui/");
-    path.append(data + "sky/");
+
+    Array<std::string> pathBase = path;
+    path.fastClear();
+    for (int p = 0; p < pathBase.size(); ++p) {
+        for (int s = 0; s < subDir.size(); ++s) {
+            path.append(pathBase[p] + subDir[s]);
+            path.append(pathBase[p] + "data/" + subDir[s]);
+            path.append(pathBase[p] + "data-files/" + subDir[s]);
+        }
+    }
 
     for (int i = 0; i < path.length(); ++i) {
         std::string filename = path[i] + name;

@@ -76,7 +76,7 @@ void GConsole::setActive(bool a) {
                 // Conservative; these bounds will be refined in render
                 m_rect = Rect2D::xywh(-(float)inf(), -(float)inf(), (float)inf(), (float)inf());
             } else {
-                m_manager->setDefocusedModule(this);
+                m_manager->defocusWidget(this);
                 m_rect = Rect2D::xywh(0,0,0,0);
             }
         }
@@ -743,7 +743,7 @@ void GConsole::onLogic() {
 
 
 void GConsole::onUserInput(UserInput* ui) {
-    if (m_active && (m_manager->focusedModule().pointer() != this)) {
+    if (m_active && (m_manager->focusedWidget().pointer() != this)) {
         // Something else has stolen the focus; turn off the console.
         setActive(false);
     }

@@ -285,9 +285,6 @@ private:
 
 public:
 
-    /** Returns the path to the shader files needed at runtime. */
-    static std::string findDataFiles();
-
     static void createShaders(
         const Material& material,
         ShaderRef&      nonShadowedShader,

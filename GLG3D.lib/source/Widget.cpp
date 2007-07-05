@@ -85,7 +85,7 @@ void WidgetManager::endLock() {
             break;
 
         case DelayedEvent::SET_DEFOCUS:
-            setDefocusedModule(event.module);
+            defocusWidget(event.module);
             break;
         }
     }
@@ -129,15 +129,15 @@ void WidgetManager::add(const Widget::Ref& m) {
 }
 
 
-Widget::Ref WidgetManager::focusedModule() const {
+Widget::Ref WidgetManager::focusedWidget() const {
     return m_focusedModule;
 }
 
 
-void WidgetManager::setDefocusedModule(const Widget::Ref& m) {
+void WidgetManager::defocusWidget(const Widget::Ref& m) {
    if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_DEFOCUS, m));
-   } else if (focusedModule().pointer() == m.pointer()) {
+   } else if (focusedWidget().pointer() == m.pointer()) {
        setFocusedWidget(NULL);
    }    
 }

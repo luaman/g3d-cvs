@@ -152,9 +152,9 @@ public:
     void endLock();
 
     /** 
-        At most one module has focus at a time.  May be NULL.
+        At most one widget has focus at a time.  May be NULL.
      */
-    Widget::Ref focusedModule() const;
+    Widget::Ref focusedWidget() const;
 
     /** The module must have already been added.  This module will be moved to
         the top of the priority list (i.e., it will receive events first).
@@ -168,7 +168,7 @@ public:
     void setFocusedWidget(const Widget::Ref& m);
 
     /** Removes focus from this module if it had focus, otherwise does nothing */
-    void setDefocusedModule(const Widget::Ref& m);
+    void defocusWidget(const Widget::Ref& m);
 
     /** 
         If a lock is in effect, the add may be delayed until the

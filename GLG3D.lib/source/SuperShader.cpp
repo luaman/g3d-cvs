@@ -168,7 +168,7 @@ static const std::string& loadShaderCode(const std::string& filename) {
     static Table<std::string, std::string> shaderTextCache;
 
     if (! shaderTextCache.containsKey(filename)) {
-        shaderTextCache.set(filename, readWholeFile(filename));
+        shaderTextCache.set(filename, readWholeFile(System::findDataFile(filename)));
     }
 
     return shaderTextCache[filename];
@@ -181,7 +181,6 @@ static const std::string& loadShaderCode(const std::string& filename) {
  beginning of both vertex and pixel shaders.
  */
 static ShaderRef loadShader(const std::string& baseName, const std::string& defines) {
-    debugAssert(fileExists(baseName + ".vrt"));
 
     const std::string& vertexShader = loadShaderCode(baseName + ".vrt");
     const std::string& pixelShader  = loadShaderCode(baseName + ".pix");
@@ -195,26 +194,6 @@ static ShaderRef loadShader(const std::string& baseName, const std::string& defi
     return s;
 }
 
-std::string SuperShader::findDataFiles() {
-    std::string path = "";
-    std::string file = "NonShadowedPass.vrt";
-
-    if (! fileExists(file)) {
-        if (fileExists("data/" + file)) {
-            path = "data/";
-        } else if (fileExists("../" + file)) {
-            path = "../";
-        } else {
-            path = demoFindData(false) + "SuperShader/";
-            if (! fileExists(path + file)) {
-                debugAssertM(false, "Could not find the SuperShader *.pix and *.vrt files.");
-                return "";
-            }
-        }
-    }
-
-    return path;
-}
 
 SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
  
@@ -224,13 +203,9 @@ SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
     if (p.shadowMappedShader.isNull()) {
 
         // Not found in cache; load from disk
-        std::string path = findDataFiles();
 
         static const std::string shadowName    = "ShadowMappedLightPass";
         static const std::string nonShadowName = "NonShadowedPass";
-
-
-        debugAssertM(fileExists(path + shadowName + ".vrt"), "Could not find the SuperShader *.pix and *.vrt files.");
 
         std::string defines;
 
@@ -307,10 +282,8 @@ SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
             defines += "#define NORMALBUMPMAP\n";
         }
 
-        // TODO... other terms
-
-        p.nonShadowedShader  = loadShader(path + nonShadowName, defines);
-        p.shadowMappedShader = loadShader(path + shadowName,    defines);
+        p.nonShadowedShader  = loadShader(nonShadowName, defines);
+        p.shadowMappedShader = loadShader(shadowName,    defines);
 
         p.nonShadowedShader->args.set("backside", 1.0);
         p.shadowMappedShader->args.set("backside", 1.0);
