@@ -31,19 +31,13 @@ public:
 };
 
 
-
 class App : public GApp2 {
 private:
 
-    void generateShadowMap(const GLight& light, const Array<PosedModel::Ref>& shadowCaster);
-
-    Texture::Ref                shadowMap;
-    Matrix4                     lightMVP;
-
+    ShadowMap                   shadowMap;
     Texture::Ref                logo;
 
     SkyRef                      sky;
-
     SkyParameters               skyParameters;
     LightingRef                 lighting;
 
@@ -55,9 +49,8 @@ private:
 public:
 
     App(const GApp2::Settings& settings = GApp2::Settings());
-
     virtual void onUserInput(UserInput* ui);
-
+    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 };
 

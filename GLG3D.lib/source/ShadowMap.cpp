@@ -10,9 +10,7 @@
 
 namespace G3D {
 
-ShadowMap::ShadowMap() {
-    setSize();
-}
+ShadowMap::ShadowMap() {}
 
 
 void ShadowMap::setSize(int desiredSize) {
@@ -40,7 +38,7 @@ void ShadowMap::setSize(int desiredSize) {
     m_depthTexture = Texture::createEmpty(
                                      "Shadow Map",
                                      SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
-                                     TextureFormat::depth(24),
+                                     TextureFormat::depth(),
                                      Texture::DIM_2D, 
                                      Texture::Settings::shadow());
     
@@ -70,6 +68,21 @@ void ShadowMap::updateDepth(
     }
 
     debugAssert(GLCaps::supports_GL_ARB_shadow()); 
+
+    if (m_framebuffer.isNull()) {
+        // Ensure that the buffer fits on screen
+        if ((m_depthTexture->width() > renderDevice->width()) ||
+            (m_depthTexture->height() > renderDevice->height())) {
+
+            int size = iMin(renderDevice->width(), renderDevice->height());
+            if (! G3D::isPow2(size)) {
+                // Round *down* to the nearest power of 2 (can't round up or
+                // we might exceed the renderdevice size.
+                size = G3D::ceilPow2(size) / 2;
+            }
+            setSize(size);
+        }
+    }
 
     Rect2D rect = m_depthTexture->rect2DBounds();
     

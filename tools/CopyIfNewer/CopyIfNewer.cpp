@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 void printHelp() {
     printf("COPYIFNEWER\n\n");
     printf("SYNTAX:\n\n");
-    printf(" copyifnewer [--help] [--exclusions] <source> <destdir>\n\n");
+    printf(" copyifnewer [--help] [--exclusions | --super-exclusions] <source> <destdir>\n\n");
     printf("ARGUMENTS:\n\n");
     printf("  --exclusions  If specified, exclude CVS, svn, and ~ files. \n\n");
     printf("  --super-exclusions  If specified, exclude CVS, svn, ~, .ncb, .obj, .pyc, Release, Debug, build, temp files. \n\n");
