@@ -4,18 +4,25 @@
 This page lists the most commonly used %G3D APIs grouped into functional tasks:
 
 \htmlonly
+<table width=80%>
+<tr>
+<td>
 <ul>
 <li><a href="#debugging">Debugging</a>
 <li><a href="#profiling">Profiling and Optimization</a>
 <li><a href="#guix">2D Graphical User Interface</a>
 <li><a href="#scene">Scene Graph</a>
 <li><a href="#shadows">Shadows</a>
+</ul>
+</td>
+<td>
 <li><a href="#image">Images and Video</a>
 <li><a href="#strings">Strings</a>
 <li><a href="#files">File I/O</a>
 <li><a href="#raytrace">Ray Tracing and Physics</a>
 <li><a href="#network">Network</a>
 </ul>
+</td></tr></table>
 \endhtmlonly
 
 <b>Boldface</b> links designate the most common and easy-to-use
@@ -92,13 +99,13 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
 
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
-<tr><td></td><td><b>\link G3D::ShadowMap ShadowMap\endlink</b></td><td>Shadow map allocation and rendering</td></tr>
+<tr><td></td><td><b>\link G3D::ShadowMap <b>ShadowMap</b>\endlink</b></td><td>Shadow map allocation and rendering</td></tr>
+<tr><td></td><td>\link G3D::PosedModel::renderShadowedLightPass <b>PosedModel::renderShadowedLightPass</b>\endlink</td><td>Render shadow volume shadows on any model (when used with begin/endMarkShadows)</td></tr>
 <tr><td></td><td>\link G3D::RenderDevice::configureShadowMap RenderDevice::configureShadowMap\endlink</td><td>Fixed function shadow map rendering</td></tr>
 <tr><td></td><td>\link G3D::Texture::createEmpty Texture::createEmpty\endlink(...\link G3D::TextureFormat::DEPTH24 TextureFormat::DEPTH24\endlink, \link G3D::Texture::Settings::shadow Texture::Settings::shadow\endlink)</td><td>Create an empty shadow map</td></tr>
 <tr><td></td><td>\link G3D::SuperShader::configureShadowShader SuperShader::configureShadowShader\endlink</td><td>Programmable pipeline shadow map rendering</td></tr>
 <tr><td></td><td>\link G3D::PosedModel::renderShadowMappedLightPass PosedModel::renderShadowMappedLightPass\endlink</td><td>Render shadow mapped shadows on any model</td></tr>
 <tr><td></td><td>\link G3D::beginMarkShadows beginMarkShadows\endlink, \link G3D::beginMarkShadows markShadows\endlink, \link G3D::endMarkShadows endMarkShadows\endlink</td><td>Compute and render stenciled shadow volumes</td></tr>
-<tr><td></td><td>\link G3D::PosedModel::renderShadowedLightPass PosedModel::renderShadowedLightPass\endlink</td><td>Render shadow volume shadows on any model (when used with begin/endMarkShadows)</td></tr>
 </table>
 
 @section image Images and Video
@@ -209,11 +216,12 @@ See also the \link guidenetwork Networking Overview\endlink.
 
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
-<tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td></td></tr>
-<tr><td></td><td>\link G3D::NetListener <b>NetListener</b>\endlink</td><td></td></tr>
-<tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td></td></tr>
-<tr><td></td><td>\link G3D::NetAddress NetAddress\endlink</td><td></td></tr>
-<tr><td></td><td>\link G3D::LightweightConduit LightweightConduit\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td>Message-based TCP infrastructure ideal for most games</td></tr>
+<tr><td></td><td>\link G3D::DiscoveryClient <b>DiscoveryClient</b>\endlink</td>, \link G3D::DiscoveryServer <b>DiscoveryServer</b>\endlink, \link G3D::DiscoveryAdvertisement <b>DiscoveryAdvertisement</b>\endlink</td></td><td>LAN-browsing infrastructure</td></tr>
+<tr><td></td><td>\link G3D::NetListener <b>NetListener</b>\endlink</td><td>Server-side way of listening for incoming connections</td></tr>
+<tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td>Used by serialize/deserialize methods to binary encode messages for transfer.</td></tr>
+<tr><td></td><td>\link G3D::NetAddress NetAddress\endlink</td><td>IP, port, and hostname addressing</td></tr>
+<tr><td></td><td>\link G3D::LightweightConduit LightweightConduit\endlink</td><td>Message-based UDP infrastructure. Allows multi-cast and NAT traversal, but at the cost of unreliable transfer.</td></tr>
 </table>
 
 */

@@ -427,27 +427,21 @@ private:
         }
 
         if (timedOut) {
-            if (netDevice->log()) {
-                netDevice->log()->printf("Discovery: Timed out while reading advertisment from %s\n",
-                    hostname.c_str());
-            }
+            Log::common()->printf("Discovery: Timed out while reading advertisment from %s\n",
+                hostname.c_str());
             return false;
         }
 
 
         if (! server->ok()) {
-            if (netDevice->log()) {
-                netDevice->log()->printf("Discovery: Server %s dropped connection\n", hostname.c_str());
-            }
+            Log::common()->printf("Discovery: Server %s dropped connection\n", hostname.c_str());
             return false;
         }
 
         // Read the advertisement
         debugAssert(server->messageWaiting());
         if (! server->receive(advertisement)) {
-            if (netDevice->log()) {
-                netDevice->log()->printf("Discovery: Server %s failed to send advertisement\n", hostname.c_str());
-            }
+            Log::common()->printf("Discovery: Server %s failed to send advertisement\n", hostname.c_str());
             return false;
         }
 
