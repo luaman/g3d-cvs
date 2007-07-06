@@ -357,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\ShadowMap.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\shadowVolume.cpp"
 				>
 			</File>
@@ -616,6 +620,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Shader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\ShadowMap.h"
 				>
 			</File>
 			<File
