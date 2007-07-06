@@ -31,7 +31,7 @@ public:
 };
 
 
-class App : public GApp2 {
+class App : public GApp {
 private:
 
     ShadowMap                   shadowMap;
@@ -48,7 +48,7 @@ private:
 
 public:
 
-    App(const GApp2::Settings& settings = GApp2::Settings());
+    App(const GApp::Settings& settings = GApp::Settings());
     virtual void onUserInput(UserInput* ui);
     virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);

@@ -43,24 +43,16 @@ bool GWindow::pollEvent(GEvent& e) {
 
 void GWindow::executeLoopBody() {
     if (notDone()) {
-        if (loopBodyStack.last().isGApplet) {
-            loopBodyStack.last().applet->oneFrame();
-        } else if (loopBodyStack.last().isGApp) {
-            loopBodyStack.last().applet->oneFrame();
+        if (loopBodyStack.last().isGApp) {
+            loopBodyStack.last().app->oneFrame();
         } else {                
             loopBodyStack.last().func(loopBodyStack.last().arg);
         }
     }
- }
-
-
-void GWindow::pushLoopBody(GApplet* applet) {
-    loopBodyStack.push(LoopBody(applet));
-    applet->beginRun();
 }
 
 
-void GWindow::pushLoopBody(GApp2* app) {
+void GWindow::pushLoopBody(GApp* app) {
     loopBodyStack.push(LoopBody(app));
     app->beginRun();
 }
@@ -68,9 +60,7 @@ void GWindow::pushLoopBody(GApp2* app) {
 
 void GWindow::popLoopBody() {
     if (loopBodyStack.size() > 0) {
-        if (loopBodyStack.last().isGApplet) {
-            loopBodyStack.last().applet->endRun();
-        } else if (loopBodyStack.last().isGApp) {
+        if (loopBodyStack.last().isGApp) {
             loopBodyStack.last().app->endRun();
         }
         loopBodyStack.pop();

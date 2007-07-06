@@ -1,5 +1,5 @@
 /**
- @file GApp2.cpp
+ @file GApp.cpp
   
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
@@ -9,7 +9,7 @@
 
 #include "G3D/platform.h"
 
-#include "GLG3D/GApp2.h"
+#include "GLG3D/GApp.h"
 #include "G3D/GCamera.h"
 #include "G3D/fileutils.h"
 #include "G3D/Log.h"
@@ -32,7 +32,7 @@ static void writeLicense() {
 }
 
 
-GApp2::GApp2(const Settings& settings, GWindow* window) :
+GApp::GApp(const Settings& settings, GWindow* window) :
     lastWaitTime(System::time()),
     m_desiredFrameRate(2000),
     m_simTimeRate(1.0), 
@@ -145,7 +145,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
         developerWindow = DeveloperWindow::create
             (defaultController, 
              splineManipulator, 
-             Pointer<Manipulator::Ref>(this, &GApp2::cameraManipulator, &GApp2::setCameraManipulator), 
+             Pointer<Manipulator::Ref>(this, &GApp::cameraManipulator, &GApp::setCameraManipulator), 
              skin,
              console,
              &showRenderingStats,
@@ -163,20 +163,20 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
 }
 
 
-void GApp2::exit(int code) {
+void GApp::exit(int code) {
     m_endProgram = true;
     m_exitCode = code;
 }
 
 
-void GApp2::loadFont(const std::string& fontName) {
+void GApp::loadFont(const std::string& fontName) {
     std::string filename = System::findDataFile(fontName);
     if (fileExists(filename)) {
         debugFont = GFont::fromFile(filename);
     } else {
         debugLog->printf(
             "Warning: G3D::GApp could not load font \"%s\".\n"
-            "This may be because the G3D::GApp2::Settings::dataDir was not\n"
+            "This may be because the G3D::GApp::Settings::dataDir was not\n"
             "properly set in main().\n",
             filename.c_str());
 
@@ -185,7 +185,7 @@ void GApp2::loadFont(const std::string& fontName) {
 }
 
 
-void GApp2::debugPrintf(const char* fmt ...) {
+void GApp::debugPrintf(const char* fmt ...) {
     if (showDebugText) {
 
         va_list argList;
@@ -198,7 +198,7 @@ void GApp2::debugPrintf(const char* fmt ...) {
 }
 
 
-GApp2::~GApp2() {
+GApp::~GApp() {
     NetworkDevice::cleanup();
 
     debugFont = NULL;
@@ -221,7 +221,7 @@ GApp2::~GApp2() {
 }
 
 
-int GApp2::run() {
+int GApp::run() {
     int ret = 0;
     if (catchCommonExceptions) {
         try {
@@ -258,7 +258,7 @@ int GApp2::run() {
 }
 
 
-void GApp2::onRun() {
+void GApp::onRun() {
     if (window()->requiresMainLoop()) {
         
         // The window push/pop will take care of 
@@ -278,7 +278,7 @@ void GApp2::onRun() {
 }
 
 
-void GApp2::renderDebugInfo() {
+void GApp::renderDebugInfo() {
     if (debugFont.notNull()) {
         // Capture these values before we render debug output
         int majGL  = renderDevice->debugNumMajorOpenGLStateChanges();
@@ -360,12 +360,12 @@ void GApp2::renderDebugInfo() {
 }
 
 
-bool GApp2::onEvent(const GEvent& event) {
+bool GApp::onEvent(const GEvent& event) {
     return false;
 }
 
 
-void GApp2::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
+void GApp::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
     Array<PosedModel::Ref>        opaque, transparent;
 
     SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
@@ -403,17 +403,17 @@ void GApp2::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Arr
 }
 
 
-void GApp2::addWidget(const Widget::Ref& module) {
+void GApp::addWidget(const Widget::Ref& module) {
     m_widgetManager->add(module);
 }
 
 
-void GApp2::removeWidget(const Widget::Ref& module) {
+void GApp::removeWidget(const Widget::Ref& module) {
     m_widgetManager->remove(module);
 }
 
 
-void GApp2::oneFrame() {
+void GApp::oneFrame() {
     lastTime = now;
     now = System::time();
     RealTime timeStep = now - lastTime;
@@ -507,12 +507,12 @@ void GApp2::oneFrame() {
 }
 
 
-void GApp2::onWait(RealTime t, RealTime desiredT) {
+void GApp::onWait(RealTime t, RealTime desiredT) {
     System::sleep(max(0.0, desiredT - t));
 }
 
 
-void GApp2::beginRun() {
+void GApp::beginRun() {
 
     m_endProgram = false;
     m_exitCode = 0;
@@ -526,7 +526,7 @@ void GApp2::beginRun() {
 }
 
 
-void GApp2::endRun() {
+void GApp::endRun() {
     onCleanup();
 
     Log::common()->section("Files Used");
@@ -542,22 +542,22 @@ void GApp2::endRun() {
 }
 
 
-void GApp2::staticConsoleCallback(const std::string& command, void* me) {
-    ((GApp2*)me)->onConsoleCommand(command);
+void GApp::staticConsoleCallback(const std::string& command, void* me) {
+    ((GApp*)me)->onConsoleCommand(command);
 }
 
 
-void GApp2::onConsoleCommand(const std::string& cmd) {
+void GApp::onConsoleCommand(const std::string& cmd) {
     if (trimWhitespace(cmd) == "exit") {
         exit(0);
     }
 }
 
 
-void GApp2::onUserInput(UserInput* userInput) {
+void GApp::onUserInput(UserInput* userInput) {
 }
 
-void GApp2::processGEventQueue() {
+void GApp::processGEventQueue() {
     userInput->beginEvents();
 
     // Event handling

@@ -7,7 +7,7 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
-class App : public GApp2 {
+class App : public GApp {
 private:
     /** Lighting environment */
     LightingRef         lighting;
@@ -34,13 +34,13 @@ private:
 
 public:
 
-    App(const GApp2::Settings& settings = GApp2::Settings());
+    App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 };
 
-App::App(const GApp2::Settings& settings) : GApp2(settings), diffuse(0.6f), specular(0.5f), shine(20.0f), reflect(0.1f) {}
+App::App(const GApp::Settings& settings) : GApp(settings), diffuse(0.6f), specular(0.5f), shine(20.0f), reflect(0.1f) {}
 
 void App::onInit() {
     window()->setCaption("G3D Shader Demo");

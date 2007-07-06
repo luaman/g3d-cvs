@@ -28,13 +28,13 @@ subsystems like OpenGL and Winsock.  Choose whether you want to:
 
 \htmlonly <hr noshade> \endhtmlonly
 
-@subsection g3dframework Option 1: GApp2 Framework
+@subsection g3dframework Option 1: GApp Framework
 
 Small games, research projects, and homework assignments are written
-on short shedules and have limited GUI needs.  The G3D::GApp2 class is
+on short shedules and have limited GUI needs.  The G3D::GApp class is
 designed to get such projects running quickly and easily.  See <a href="../demos/empty/main.cpp">empty/main.cpp</a> for a sample program using it.
 
-G3D::GApp2 will create a window, initialize OpenGL, create a log file,
+G3D::GApp will create a window, initialize OpenGL, create a log file,
 and provide you with framerate and other debugging information
 on-screen.  It works exactly the same on every platform, so you can
 write once and run anywhere.  By subclassing it you can override methods to
@@ -42,7 +42,7 @@ respond to various high-level events like keypresses, rendering once
 per frame, and processing input from the network or simulation.
 
 See the \link guideapp Application Framework \endlink page for more
-information about using GApp2 classes.
+information about using GApp classes.
 
 \htmlonly <hr noshade> \endhtmlonly
 

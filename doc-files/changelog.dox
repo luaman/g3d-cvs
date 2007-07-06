@@ -18,8 +18,8 @@
      <li> Patches for 64-bit compilation [Corey]
      <li> G3D::ShadowMap
      <li> User camera control requires right mouse click to move
-     <li> GApp2::onGraphics now takes posed model arguments
-     <li> GApp2::onPose
+     <li> GApp::onGraphics now takes posed model arguments
+     <li> GApp::onPose
      <li> All classes that read from files can now read data inside zipfiles.
      <li> Changed G3D::hashCode(T) to ::GHashCode<T>(T) [Corey]
      <li> Removed "G3D::" from the printed portion of the documentation index to make it easier to read.
@@ -59,8 +59,8 @@
      <li> Added 10-bit cinema texture formats [Corey Taylor]
      <li> Added G3D::ArticulatedModel to the core (includes 3DS loading)
      <li> Added G3D::SuperShader to the core
-     <li> Merged GApp and GApplet into GApp2 to make the common case easier to implement
-     <li> Removed GApp2::debugMode options, removed "debug" prefix from most fields.
+     <li> Merged GApp and GApplet into GApp to make the common case easier to implement
+     <li> Removed GApp::debugMode options, removed "debug" prefix from most fields.
      <li> G3D::zipfileExists for testing if a filename path contains a .zip to be opened [Eric]
      <li> G3D::isZipfile tests the header of a file to see if it is a .zip [Eric]
      <li> G3D::zipRead and G3D::zipClose to open and close .zip files [Eric]
@@ -68,14 +68,14 @@
      <li> G3D::fileLength supports filename paths that contain .zip [Eric]
      <li> G3D::getFiles and G3D::getDirs support filename paths that contain .zip [Eric]
      <li> Viewer (tool) - Allows drag and drop viewing of many supported file formats [Eric]
-     <li> GApp2::debugCamera -> GApp2::defaultCamera
-     <li> GApp2::debugController -> GApp2::defaultController
-     <li> Made GApp2::debugText private
+     <li> GApp::debugCamera -> GApp::defaultCamera
+     <li> GApp::debugController -> GApp::defaultController
+     <li> Made GApp::debugText private
      <li> Added g3d_WorldLight0 to the G3D shader extensions
      <li> Added Shader support for GL_FLOAT_MAT3_ARB uniforms
      <li> Tab (command completion) no longer auto-repeats in GConsole
      <li> GConsole now limits the key repeat rate to the framerate
-     <li> Removed GApp2::Settings::useNetwork because it was no longer needed--Win32 does not trigger firewall checks anymore
+     <li> Removed GApp::Settings::useNetwork because it was no longer needed--Win32 does not trigger firewall checks anymore
      <li> Optimized AABSPTree balance and queries; now about 20% faster than 6.10, but requires 30 bytes more memory per member
      <li> G3D::Array::pop now shrinks the underlying array by default (Array::popRemove does not shrink the array and is faster)
      <li> Fast O(<i>n</i>), non-destructive G3D::Array::partition and G3D::Array::medianPartition

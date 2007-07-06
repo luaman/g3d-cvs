@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 		filename = argv[1];
 	}
 
-	GApp2::Settings s = GApp2::Settings();
+	GApp::Settings s = GApp::Settings();
 	s.window.resizable = true;
     s.window.width = 640;
     s.window.height = 480;

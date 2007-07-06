@@ -20,8 +20,8 @@
 
 namespace G3D {
 /**
- Develoepr controls instantiated by GApp2 for debugging.
- @sa G3D::GApp2, G3D::CameraControlWindow, G3D::GConsole
+ Develoepr controls instantiated by GApp for debugging.
+ @sa G3D::GApp, G3D::CameraControlWindow, G3D::GConsole
  */
 class DeveloperWindow : public GuiWindow {
 protected:

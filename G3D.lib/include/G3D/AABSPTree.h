@@ -840,8 +840,8 @@ protected:
 
    /**
     Wrapper for a Handle; used to create a memberTable that acts like Table<Handle, Node*> but
-        stores only Handle* internally to avoid memory copies.
-        */
+    stores only Handle* internally to avoid memory copies.
+    */
     typedef _internal::Indirector<Handle> Member;
 
     typedef Table<Member, Node*> MemberTable;
@@ -1478,7 +1478,11 @@ public:
      Returns an array of all members of the set.  See also AABSPTree::begin.
      */
     void getMembers(Array<T>& members) const {
-        memberTable.getKeys(members);
+        Array<Member> temp;
+        memberTable.getKeys(temp);
+        for (int i = 0; i < temp.size(); ++i) {
+            members.append(*(temp->handle));
+        }
     }
 
 

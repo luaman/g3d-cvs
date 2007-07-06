@@ -23,7 +23,7 @@ typedef ReferenceCountedPointer<class ToneMap> ToneMapRef;
 /** 
   Applies gamma correction and bloom. 
 
-  <b>GApp2 subclasses have a built-in ToneMap named GApp2::toneMap.</b>
+  <b>GApp subclasses have a built-in ToneMap named GApp::toneMap.</b>
 
   In the real world, the shadow under a car is about 1,000,000 times darker than 
   the specular highlight off its hood.  Most computer displays can only represent

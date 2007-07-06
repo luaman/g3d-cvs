@@ -57,7 +57,7 @@
 #include "GLG3D/VertexProgram.h"
 #include "GLG3D/Draw.h"
 #include "GLG3D/tesselate.h"
-#include "GLG3D/GApp2.h"
+#include "GLG3D/GApp.h"
 #include "GLG3D/PosedModel.h"
 #include "GLG3D/IFSModel.h"
 #include "GLG3D/MD2Model.h"

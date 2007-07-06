@@ -181,8 +181,8 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::Texture::WrapMode</td><td>G3D::WrapMode</td></tr>
 <tr><td>G3D::Texture::TRANSPARENT_BORDER</td><td>G3D::WrapMode::ZERO</td></tr>
 <tr><td>SDL_<i>eventname</i></td><td>G3D::GEventType::<i>eventname</i></td></tr>
-<tr><td>GApp::debugCamera</td><td>GApp2::defaultCamera</td></tr>
-<tr><td>GApp::debugController</td><td>GApp2::defaultController</td></tr>
+<tr><td>GApp::debugCamera</td><td>GApp::defaultCamera</td></tr>
+<tr><td>GApp::debugController</td><td>GApp::defaultController</td></tr>
 <tr><td>GWindow::pollEvent</td><td>GWindow::pollOSEvent</td></tr>
 <tr><td>G3D::Widget</td><td>G3D::Widget</td></tr>
 <tr><td>G3D::GModuleManager</td><td>G3D::WidgetManager</td></tr>

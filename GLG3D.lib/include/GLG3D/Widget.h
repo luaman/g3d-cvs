@@ -34,8 +34,8 @@ typedef ReferenceCountedPointer<class WidgetManager> WidgetManagerRef;
 
  Modules are objects like the G3D::FirstPersonController,
  G3D::GConsole, and debug text overlay that need to receive almost the
- same set of events (onXXX methods) as GApp2 and that you would like
- to be called from the corresponding methods of a GApp2.  They are a
+ same set of events (onXXX methods) as GApp and that you would like
+ to be called from the corresponding methods of a GApp.  They are a
  way to break large pieces of functionality for UI and debugging off
  so that they can be mixed and matched.
 
@@ -97,9 +97,9 @@ public:
 
 
 /**
- Manages a group of GModules.  This is used internally by G3D::GApp2
+ Manages a group of GModules.  This is used internally by G3D::GApp
  to process its modules.  It also enables use of GModules without
- the GApp2 infrastructure.  Most users do not need to use this class.
+ the GApp infrastructure.  Most users do not need to use this class.
 
  You can use GModules without this class.
  */

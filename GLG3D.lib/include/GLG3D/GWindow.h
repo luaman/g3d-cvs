@@ -202,22 +202,16 @@ private:
     public:
         union{
             void (*func)(void*);
-            class GApplet*      applet;
-            class GApp2*        app;
+            class GApp*         app;
         };
 
         void*                   arg;        
         
-        /** If true, the applet's oneFrame method is invoked in executeLoopBody.
-            If false, func is invoked on arg in  executeLoopBody. */
-        bool                    isGApplet;
-
         bool                    isGApp;
 
-        LoopBody() : func(NULL), arg(NULL), isGApplet(false), isGApp(false) {}
-        LoopBody(GApplet* a) : applet(a), arg(NULL), isGApplet(true), isGApp(false) {}
-        LoopBody(GApp2* a) : app(a), arg(NULL), isGApplet(false), isGApp(true) {}
-        LoopBody(void (*f)(void*), void* a) : func(f), arg(a), isGApplet(false), isGApp(false) {}
+        LoopBody() : func(NULL), arg(NULL), isGApp(false) {}
+        LoopBody(GApp* a) : app(a), arg(NULL),  isGApp(true) {}
+        LoopBody(void (*f)(void*), void* a) : func(f), arg(a), isGApp(false) {}
     };
 
     Array<LoopBody>             loopBodyStack;
@@ -510,10 +504,7 @@ public:
     }
 
     /** Invokes GApplet::beginRun after the applet is on the stack. */
-    virtual void pushLoopBody(GApplet* applet);
-
-    /** Invokes GApplet::beginRun after the applet is on the stack. */
-    virtual void pushLoopBody(GApp2* app);
+    virtual void pushLoopBody(GApp* app);
 
 
     /** Pops a loop body off the stack.  If the loop body was a GApplet,

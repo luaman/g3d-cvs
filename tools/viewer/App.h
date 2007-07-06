@@ -16,7 +16,7 @@
 #include <GLG3D/GLG3D.h>
 class Viewer;
 
-class App : public GApp2 {
+class App : public GApp {
 private:
     LightingRef					lighting;
     SkyParameters				skyParameters;
@@ -29,7 +29,7 @@ public:
 	/** Used by GUIViewer */
 	Color4						colorClear;
 
-	App(const GApp2::Settings& settings = GApp2::Settings(), const std::string& file = "");
+	App(const GApp::Settings& settings = GApp::Settings(), const std::string& file = "");
 
 	virtual void onInit();
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);

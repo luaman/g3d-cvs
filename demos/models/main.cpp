@@ -14,7 +14,7 @@ G3D_START_AT_MAIN();
  */
 int shadowMapSize = 512;
 
-App::App(const GApp2::Settings& settings) : GApp2(settings), lighting(Lighting::create()) {
+App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::create()) {
 
     try {
         showRenderingStats = true;
@@ -158,6 +158,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
 
 int main(int argc, char** argv) {
-	GApp2::Settings settings;    
+	GApp::Settings settings;    
     return App(settings).run();
 }

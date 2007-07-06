@@ -1,5 +1,5 @@
 /**
-   @file GApp2.h
+   @file GApp.h
  
    @maintainer Morgan McGuire, morgan@graphics3d.com
 
@@ -7,8 +7,8 @@
    @edited  2007-05-18
 */
 
-#ifndef G3D_GAPP2_H
-#define G3D_GAPP2_H
+#ifndef G3D_GAPP_H
+#define G3D_GAPP_H
 
 #include "G3D/Stopwatch.h"
 #include "GLG3D/GFont.h"
@@ -30,7 +30,7 @@ class UserInput;
 //  See @link guideapp @endlink for a discussion of GApp and GApplet. 
 /**
 
- For each frame, the GApp2 has several tasks that can be implemented by overriding
+ For each frame, the GApp has several tasks that can be implemented by overriding
  base class methods.  The use of cooperative, round-robbin scheduling avoids the need
  for threads in most applications.  These tasks are:
  
@@ -45,16 +45,16 @@ class UserInput;
  
  The onConsoleCommand handler allows you to add an in-game command console
  to your program.  By default it is activated when '~' is pressed; you can also
- set the GApp2::escapeAction to open the console on ESC.  The console is a Widget,
+ set the GApp::escapeAction to open the console on ESC.  The console is a Widget,
  so you can completely disable it (e.g., in a release build of the program) by
  executing <code>removeWidget(console)</code>.
  
- To invoke a GApp2 and let it control the main loop, call
+ To invoke a GApp and let it control the main loop, call
  run().  To control the main loop explicitly, invoke beginRun on
  initialization, call oneFrame() from the main loop, and call endRun on cleanup.
  
 */
-class GApp2 {
+class GApp {
 public:
     friend class GWindow;
 
@@ -182,8 +182,8 @@ public:
 
     ToneMapRef              toneMap;
 
-    /** The window that displays buttons for debugging.  If GApp2::Settings::useDeveloperTools is true
-        this will be created and added as a Widget on the GApp2.  Otherwise this will be NULL.
+    /** The window that displays buttons for debugging.  If GApp::Settings::useDeveloperTools is true
+        this will be created and added as a Widget on the GApp.  Otherwise this will be NULL.
     */
     DeveloperWindow::Ref    developerWindow;
 
@@ -246,7 +246,7 @@ public:
     /**
        When true GKey::F2 keydown deactivates
        the camera and restores the mouse cursor.
-       (default is true). This works even if GApp2::Settings::useDeveloperTools is false.
+       (default is true). This works even if GApp::Settings::useDeveloperTools is false.
     */
     bool                    fastSwitchCamera;
 
@@ -267,7 +267,7 @@ public:
 
     /**
        When true, the G3D::UserInput->beginEvents/endEvents processing is handled 
-       for you by calling processGEventQueue() before G3D::GApp2::onUserInput is called.  If you turn
+       for you by calling processGEventQueue() before G3D::GApp::onUserInput is called.  If you turn
        this off, you must call processGEventQueue() or provide your own event to userInput processing in onUserInput.
        (default is true)
     */
@@ -299,9 +299,9 @@ public:
        argument is useful for substituting a different window
        system (e.g. GlutWindow)
     */
-    GApp2(const Settings& options = Settings(), GWindow* window = NULL);
+    GApp(const Settings& options = Settings(), GWindow* window = NULL);
 
-    virtual ~GApp2();
+    virtual ~GApp();
 
     /**
        Call this to run the app.
@@ -463,7 +463,7 @@ protected:
         (void)sdt;
     }
 
-    /** Invoked before onSimulation is run on the installed GModules and GApp2.
+    /** Invoked before onSimulation is run on the installed GModules and GApp.
         This is not used by most programs; it is primarily a hook for those performing
         extensive physical simulation on the GModules that need a setup and cleanup step.
     */
@@ -474,7 +474,7 @@ protected:
     }
 
     /**
-       Invoked after onSimulation is run on the installed GModules and GApp2.
+       Invoked after onSimulation is run on the installed GModules and GApp.
        Not used by most programs.
     */
     virtual void onAfterSimulation(RealTime rdt, SimTime sdt, SimTime idt) {        
@@ -542,7 +542,7 @@ protected:
        basic input events.
 
        Return true if the event has been consumed (i.e., no-one else 
-       including GApp2 should process it further).
+       including GApp should process it further).
 
        The default implementation does nothing.
     */

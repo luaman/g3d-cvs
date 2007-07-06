@@ -213,7 +213,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\GApp2.cpp"
+				RelativePath="..\GLG3D.lib\source\GApp.cpp"
 				>
 			</File>
 			<File
@@ -471,7 +471,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GApp2.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\GApp.h"
 				>
 			</File>
 			<File

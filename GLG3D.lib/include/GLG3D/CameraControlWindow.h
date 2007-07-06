@@ -19,7 +19,7 @@ namespace G3D {
 
 /**
  Gui used by DeveloperWindow default for recording camera position and making splines.
- @sa G3D::DeveloperWindow, G3D::GApp2
+ @sa G3D::DeveloperWindow, G3D::GApp
  */
 //
 // If you are looking for an example of how to create a straightforward

@@ -21,8 +21,8 @@
 #include "EmptyViewer.h"
 
 
-App::App(const GApp2::Settings& settings, const std::string& file) :
-    GApp2(settings),
+App::App(const GApp::Settings& settings, const std::string& file) :
+    GApp(settings),
 	filename(file),
 	viewer(NULL) {
 

@@ -406,7 +406,7 @@ typedef struct SDL_SysWMEvent {
   }
   </pre>
 
-  @sa G3D::GEventType, G3D::Widget::onEvent, GApp2::onEvent, G3D::GWindow::pollEvent.
+  @sa G3D::GEventType, G3D::Widget::onEvent, GApp::onEvent, G3D::GWindow::pollEvent.
 
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */
