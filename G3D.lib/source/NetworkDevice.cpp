@@ -85,28 +85,30 @@
 
 namespace G3D {
 
+NetworkDevice* NetworkDevice::s_instance = NULL;
+
 std::ostream& operator<<(std::ostream& os, const NetAddress& a) {
     return os << a.toString();
 }
 
 
-static void logSocketInfo(Log* debugLog, const SOCKET& sock) {
+static void logSocketInfo(const SOCKET& sock) {
     uint32 val;
     socklen_t sz = 4;
     int ret;
 
     ret = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char*)&val, (socklen_t*)&sz);
-    debugLog->printf("SOL_SOCKET/SO_RCVBUF = %d\n", val);
+    Log::common()->printf("SOL_SOCKET/SO_RCVBUF = %d\n", val);
 
     ret = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char*)&val, (socklen_t*)&sz);
-    debugLog->printf("SOL_SOCKET/SO_SNDBUF = %d\n", val);
+    Log::common()->printf("SOL_SOCKET/SO_SNDBUF = %d\n", val);
 
     // Note: timeout = 0 means no timeout
     ret = getsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&val, (socklen_t*)&sz);
-    debugLog->printf("SOL_SOCKET/SO_RCVTIMEO = %d\n", val);
+    Log::common()->printf("SOL_SOCKET/SO_RCVTIMEO = %d\n", val);
 
     ret = getsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char*)&val, (socklen_t*)&sz);
-    debugLog->printf("SOL_SOCKET/SO_SNDTIMEO = %d\n", val);
+    Log::common()->printf("SOL_SOCKET/SO_SNDTIMEO = %d\n", val);
 }
 
 
@@ -132,16 +134,14 @@ static int selectOneReadSocket(const SOCKET& sock) {
 
 
 /** Returns true if the socket has a read pending */
-static bool readWaiting(Log* debugLog, const SOCKET& sock) {
+static bool readWaiting(const SOCKET& sock) {
     int ret = selectOneReadSocket(sock);
 
     switch (ret) {
     case SOCKET_ERROR:
-        if (debugLog) {
-            debugLog->println("ERROR: selectOneReadSocket returned "
-                              "SOCKET_ERROR in readWaiting().");
-            debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("ERROR: selectOneReadSocket returned "
+                          "SOCKET_ERROR in readWaiting().");
+        Log::common()->println(socketErrorCode());
         // Return true so that we'll force an error on read and close
         // the socket.
         return true;
@@ -172,55 +172,71 @@ static int selectOneWriteSocket(const SOCKET& sock) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+NetworkDevice* NetworkDevice::instance() {
+    if (s_instance == NULL) {
+        s_instance = new NetworkDevice();
+        if (! s_instance->init()) {
+            delete s_instance;
+            s_instance = NULL;
+        }
+    }
+    return s_instance;
+}
+
+
+void NetworkDevice::cleanup() {
+    if (s_instance) {
+        s_instance->_cleanup();
+        delete s_instance;
+        s_instance = NULL;
+    }
+}
+
+
 NetworkDevice::NetworkDevice() {
     initialized     = false;
-    debugLog        = NULL;
+}
+
+NetworkDevice::~NetworkDevice() {
 }
 
 
 std::string NetworkDevice::localHostName() const {   
     char ac[128];
     if (gethostname(ac, sizeof(ac)) == -1) {
-        if (debugLog) {
-            debugLog->printf("Error while getting local host name\n");
-        }
+        Log::common()->printf("Error while getting local host name\n");
         return "localhost";
     }
     return gethostbyname(ac)->h_name;
 }
 
-bool NetworkDevice::init(G3D::Log* _log) {
+bool NetworkDevice::init() {
     debugAssert(!initialized);
-    debugLog = _log;
 
     #ifdef G3D_WIN32
-        if (debugLog) {
-            debugLog->section("Network Startup");
-            debugLog->println("Starting WinSock networking.\n");
-        }
+        Log::common()->section("Network Startup");
+        Log::common()->println("Starting WinSock networking.\n");
         WSADATA wsda;		    
         WSAStartup(MAKEWORD(G3D_WINSOCK_MAJOR_VERSION, G3D_WINSOCK_MINOR_VERSION), &wsda);
 
-        if (debugLog) {
-            std::string machine = localHostName();
-            std::string addr    = NetAddress(machine, 0).ipString();
-            debugLog->printf(
-                "Network:\n"
-                "  localhost = %s (%s)\n"
-                "  %s\n"
-                "  Status: %s\n"
-                "  Loaded winsock specification version %d (%d is "
-                "the highest available)\n"
-                "  %d sockets available\n"
-                "  Largest UDP datagram packet size is %d bytes\n\n",
-                machine.c_str(), addr.c_str(),
-                wsda.szDescription,
-                wsda.szSystemStatus,
-                wsda.wVersion,
-                wsda.wHighVersion,
-                wsda.iMaxSockets,
-                wsda.iMaxUdpDg);
-        }
+        std::string machine = localHostName();
+        std::string addr    = NetAddress(machine, 0).ipString();
+        Log::common()->printf(
+            "Network:\n"
+            "  localhost = %s (%s)\n"
+            "  %s\n"
+            "  Status: %s\n"
+            "  Loaded winsock specification version %d (%d is "
+            "the highest available)\n"
+            "  %d sockets available\n"
+            "  Largest UDP datagram packet size is %d bytes\n\n",
+            machine.c_str(), addr.c_str(),
+            wsda.szDescription,
+            wsda.szSystemStatus,
+            wsda.wVersion,
+            wsda.wHighVersion,
+            wsda.iMaxSockets,
+            wsda.iMaxUdpDg);
     #endif
 
     initialized = true;
@@ -229,13 +245,13 @@ bool NetworkDevice::init(G3D::Log* _log) {
 }
 
 
-void NetworkDevice::cleanup() {
+void NetworkDevice::_cleanup() {
     debugAssert(initialized);
 
     #ifdef G3D_WIN32
-        if (debugLog) {debugLog->section("Network Cleanup");}
+        Log::common()->section("Network Cleanup");
         WSACleanup();
-        if (debugLog) {debugLog->println("Network cleaned up.");}
+        Log::common()->println("Network cleaned up.");
     #endif
 }
 
@@ -263,23 +279,18 @@ NetListenerRef NetworkDevice::createListener(const uint16 port) {
  
 
 bool NetworkDevice::bind(SOCKET sock, const NetAddress& addr) const {
-    if (debugLog) {
-        debugLog->printf("Binding socket %d on port %d ", 
-                         sock, htons(addr.addr.sin_port));
-    }
-
+    Log::common()->printf("Binding socket %d on port %d ", 
+                     sock, htons(addr.addr.sin_port));
     if (::bind(sock, (struct sockaddr*)&(addr.addr), sizeof(addr.addr)) == 
         SOCKET_ERROR) {
 
-        if (debugLog) {
-            debugLog->println("FAIL");
-            debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("FAIL");
+        Log::common()->println(socketErrorCode());
         closesocket(sock);
         return false;
     }
 
-    if (debugLog) {debugLog->println("Ok");}
+    Log::common()->println("Ok");
     return true;
 }
 
@@ -287,12 +298,12 @@ bool NetworkDevice::bind(SOCKET sock, const NetAddress& addr) const {
 void NetworkDevice::closesocket(SOCKET& sock) const {
     if (sock != 0) {
         #ifdef G3D_WIN32
-                ::closesocket(sock);
+            ::closesocket(sock);
         #else
 	        close(sock);
         #endif
 
-        if (debugLog) {debugLog->printf("Closed socket %d\n", sock);}
+        Log::common()->printf("Closed socket %d\n", sock);
         sock = 0;
     }
 }
@@ -304,17 +315,13 @@ void NetworkDevice::localHostAddresses(Array<NetAddress>& array) const {
     char ac[128];
 
     if (gethostname(ac, sizeof(ac)) == SOCKET_ERROR) {
-        if (debugLog) {
-            debugLog->printf("Error while getting local host name\n");
-        }
+        Log::common()->printf("Error while getting local host name\n");
         return;
     }
 
     struct hostent* phe = gethostbyname(ac);
     if (phe == 0) {
-        if (debugLog) {
-            debugLog->printf("Error while getting local host address\n");
-        }
+        Log::common()->printf("Error while getting local host address\n");
         return;
     }
 
@@ -368,14 +375,14 @@ bool Conduit::ok() const {
 
 
 bool Conduit::messageWaiting() const {
-    return readWaiting(nd->debugLog, sock);
+    return readWaiting(sock);
 }
 
 
 /**
  Increases the send and receive sizes of a socket to 2 MB from 8k
  */
-static void increaseBufferSize(SOCKET sock, Log* debugLog) {
+static void increaseBufferSize(SOCKET sock) {
 
     // Increase the buffer size; the default (8192) is too easy to
     // overflow when the network latency is high.
@@ -383,20 +390,16 @@ static void increaseBufferSize(SOCKET sock, Log* debugLog) {
         uint32 val = 1024 * 1024 * 2;
         if (setsockopt(sock, SOL_SOCKET, SO_RCVBUF, 
                        (char*)&val, sizeof(val)) == SOCKET_ERROR) {
-            if (debugLog) {
-                debugLog->printf("WARNING: Increasing socket "
-                                     "receive buffer to %d failed.\n", val);
-                debugLog->println(socketErrorCode());
-            }
+            Log::common()->printf("WARNING: Increasing socket "
+                                 "receive buffer to %d failed.\n", val);
+            Log::common()->println(socketErrorCode());
         }
 
         if (setsockopt(sock, SOL_SOCKET, SO_SNDBUF, 
                        (char*)&val, sizeof(val)) == SOCKET_ERROR) {
-            if (debugLog) {
-                debugLog->printf("WARNING: Increasing socket "
-                                     "send buffer to %d failed.\n", val);
-                debugLog->println(socketErrorCode());
-            }
+            Log::common()->printf("WARNING: Increasing socket "
+                                 "send buffer to %d failed.\n", val);
+            Log::common()->println(socketErrorCode());
         }
     }
 }
@@ -412,19 +415,17 @@ ReliableConduit::ReliableConduit(
     messageType         = 0;
 
     addr = _addr;
-    if (nd->debugLog) {nd->debugLog->print("Creating a TCP socket       ");}
+    Log::common()->print("Creating a TCP socket       ");
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     
     if (sock == SOCKET_ERROR) {
-        if (nd->debugLog) {
-            nd->debugLog->println("FAIL");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("FAIL");
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
         return;
     }
 
-    if (nd->debugLog) { nd->debugLog->println("Ok"); }
+    Log::common()->println("Ok");
 
     // Setup socket options (both constructors should set the same options)
 
@@ -433,14 +434,11 @@ ReliableConduit::ReliableConduit(
     if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, 
                    (const char*)&T, sizeof(T)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Disabling Nagel's "
-                                  "algorithm failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Disabled Nagel's algorithm.");
+        Log::common()->println("WARNING: Disabling Nagel's "
+                              "algorithm failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Disabled Nagel's algorithm.");
     }
 
     // Set the NO LINGER option so the socket doesn't hang around if
@@ -451,13 +449,10 @@ ReliableConduit::ReliableConduit(
     if (setsockopt(sock, SOL_SOCKET, SO_LINGER, 
                    (const char*)&ling, sizeof(ling)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Setting socket no linger failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Set socket option no_linger.");
+        Log::common()->println("WARNING: Setting socket no linger failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Set socket option no_linger.");
     }
 
     // Set reuse address so that a new server can start up soon after
@@ -465,33 +460,24 @@ ReliableConduit::ReliableConduit(
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, 
                    (const char*)&T, sizeof(T)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Setting socket reuseaddr failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Set socket option reuseaddr.");
+        Log::common()->println("WARNING: Setting socket reuseaddr failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Set socket option reuseaddr.");
     }
 
     // Ideally, we'd like to specify IPTOS_LOWDELAY as well.
 
-    if (nd->debugLog) {
-        logSocketInfo(nd->debugLog, sock);
-    }
+    logSocketInfo(sock);
 
-    increaseBufferSize(sock, nd->debugLog);
+    increaseBufferSize(sock);
 
-    if (nd->debugLog) {nd->debugLog->printf("Created TCP socket %d\n", sock);}
+    Log::common()->printf("Created TCP socket %d\n", sock);
 
     std::string x = addr.toString();
-    if (nd->debugLog) {
-        nd->debugLog->printf("Connecting to %s on TCP socket %d   ", 
-                             x.c_str(), sock);
-    }
+    Log::common()->printf("Connecting to %s on TCP socket %d   ", x.c_str(), sock);
 
-    int ret = connect(sock, (struct sockaddr *) &(addr.addr), 
-                      sizeof(addr.addr));
+    int ret = connect(sock, (struct sockaddr *) &(addr.addr), sizeof(addr.addr));
 
     if (ret == WSAEWOULDBLOCK) {
         RealTime t = System::time() + 5.0;
@@ -504,14 +490,12 @@ ReliableConduit::ReliableConduit(
 
     } else if (ret != 0) {
         sock = (SOCKET)SOCKET_ERROR;
-        if (nd->debugLog) {
-            nd->debugLog->println("FAIL");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("FAIL");
+        Log::common()->println(socketErrorCode());
         return;
     }
 
-    if (nd->debugLog) {nd->debugLog->println("Ok");}
+    Log::common()->println("Ok");
 }
 
 
@@ -533,14 +517,10 @@ ReliableConduit::ReliableConduit(
     if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, 
                    (const char*)&T, sizeof(T)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Disabling Nagel's "
-                                  "algorithm failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Disabled Nagel's algorithm.");
+        Log::common()->println("WARNING: Disabling Nagel's algorithm failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Disabled Nagel's algorithm.");
     }
 
     // Set the NO LINGER option so the socket doesn't hang around if
@@ -551,13 +531,10 @@ ReliableConduit::ReliableConduit(
     if (setsockopt(sock, SOL_SOCKET, SO_LINGER, 
                    (const char*)&ling, sizeof(ling)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Setting socket no linger failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Set socket option no_linger.");
+        Log::common()->println("WARNING: Setting socket no linger failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Set socket option no_linger.");
     }
 
     // Set reuse address so that a new server can start up soon after
@@ -565,20 +542,15 @@ ReliableConduit::ReliableConduit(
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, 
                    (const char*)&T, sizeof(T)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Setting socket reuseaddr failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Set socket option reuseaddr.");
+        Log::common()->println("WARNING: Setting socket reuseaddr failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Set socket option reuseaddr.");
     }
 
     // Ideally, we'd like to specify IPTOS_LOWDELAY as well.
 
-    if (nd->debugLog) {
-        logSocketInfo(nd->debugLog, sock);
-    }
+    logSocketInfo(sock);
 }
 
 
@@ -592,7 +564,6 @@ ReliableConduit::~ReliableConduit() {
 
 bool ReliableConduit::messageWaiting() const {
     ReliableConduit* me = const_cast<ReliableConduit*>(this);
-
 
     switch (state) {
     case HOLDING:
@@ -657,10 +628,8 @@ void ReliableConduit::sendBuffer(const BinaryOutput& b) {
     int ret = ::send(sock, (const char*)b.getCArray(), b.size(), 0);
     
     if (ret == SOCKET_ERROR) {
-        if (nd->debugLog) {
-            nd->debugLog->println("Error occured while sending message.");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("Error occured while sending message.");
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
         return;
     }
@@ -711,12 +680,10 @@ void ReliableConduit::receiveHeader() {
     }
 
     if ((ret == SOCKET_ERROR) || (ret != sizeof(messageType))) {
-        if (nd->debugLog) {
-            nd->debugLog->printf("Call to recv failed.  ret = %d,"
-                                 " sizeof(messageType) = %d\n", 
-                                 (int)ret, (int)sizeof(messageType));
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->printf("Call to recv failed.  ret = %d,"
+                             " sizeof(messageType) = %d\n", 
+                             (int)ret, (int)sizeof(messageType));
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
         messageType = 0;
         return;
@@ -726,12 +693,10 @@ void ReliableConduit::receiveHeader() {
     ret = recv(sock, (char*)&messageSize, sizeof(messageSize), 0);
 
     if ((ret == SOCKET_ERROR) || (ret != sizeof(messageSize))) {
-        if (nd->debugLog) {
-            nd->debugLog->printf("Call to recv failed.  ret = %d,"
-                                 " sizeof(len) = %d\n", (int)ret,
-                                 (int)sizeof(messageSize));
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->printf("Call to recv failed.  ret = %d,"
+                             " sizeof(len) = %d\n", (int)ret,
+                             (int)sizeof(messageSize));
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
         messageType = 0;
         return;
@@ -749,10 +714,8 @@ void ReliableConduit::receiveHeader() {
     }
 
     if (receiveBuffer == NULL) {
-        if (nd->debugLog) {
-            nd->debugLog->println("Could not allocate a memory buffer "
-                                  "during receivePacket.");
-        }
+        Log::common()->println("Could not allocate a memory buffer "
+                              "during receivePacket.");
         nd->closesocket(sock);
     }
 
@@ -795,14 +758,12 @@ void ReliableConduit::receiveIntoBuffer() {
 
     if ((ret == 0) || (ret == SOCKET_ERROR)) {
 
-        if (nd->debugLog) {
-            if (ret == SOCKET_ERROR) {
-                nd->debugLog->printf("Call to recv failed.  ret = %d,"
-                     " sizeof(messageSize) = %d\n", ret, messageSize);
-                nd->debugLog->println(socketErrorCode());
-            } else {
-                nd->debugLog->printf("recv returned 0\n");
-            }
+        if (ret == SOCKET_ERROR) {
+            Log::common()->printf("Call to recv failed.  ret = %d,"
+                 " sizeof(messageSize) = %d\n", ret, messageSize);
+            Log::common()->println(socketErrorCode());
+        } else {
+            Log::common()->printf("recv returned 0\n");
         }
         nd->closesocket(sock);
         return;
@@ -820,18 +781,16 @@ LightweightConduit::LightweightConduit(
     bool enableReceive, 
     bool enableBroadcast) : Conduit(_nd) {
 
-    if (nd->debugLog) {nd->debugLog->print("Creating a UDP socket        ");}
+    Log::common()->print("Creating a UDP socket        ");
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     
     if (sock == SOCKET_ERROR) {
         sock = 0;
-        if (nd->debugLog) {
-            nd->debugLog->println("FAIL");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("FAIL");
+        Log::common()->println(socketErrorCode());
         return;
     }
-    if (nd->debugLog) {nd->debugLog->println("Ok");}
+    Log::common()->println("Ok");
 
     if (enableReceive) {
         debugAssert(port != 0);
@@ -845,25 +804,21 @@ LightweightConduit::LightweightConduit(
     // which is likely to be safe.  See IP_MTU for more information.
     MTU = 1000;
 
-    increaseBufferSize(sock, nd->debugLog);
+    increaseBufferSize(sock);
 
     if (enableBroadcast) {
         int TR = true;
         if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, 
                        (const char*)&TR, sizeof(TR)) != 0) {
-            if (nd->debugLog) {
-                nd->debugLog->println("Call to setsockopt failed");
-                nd->debugLog->println(socketErrorCode());
-            }
+            Log::common()->println("Call to setsockopt failed");
+            Log::common()->println(socketErrorCode());
             nd->closesocket(sock);
             sock = 0;
             return;
         }
     }
 
-    if (nd->debugLog) {
-        nd->debugLog->printf("Done creating UDP socket %d\n", sock);
-    }
+    Log::common()->printf("Done creating UDP socket %d\n", sock);
 
     alreadyReadMessage = false;
 }
@@ -897,11 +852,9 @@ bool LightweightConduit::receive(NetAddress& sender) {
 void LightweightConduit::sendBuffer(const NetAddress& a, BinaryOutput& b) {
     if (sendto(sock, (const char*)b.getCArray(), b.size(), 0,
        (struct sockaddr *) &(a.addr), sizeof(a.addr)) == SOCKET_ERROR) {
-        if (nd->debugLog) {
-            nd->debugLog->printf("Error occured while sending packet "
-                                 "to %s\n", inet_ntoa(a.addr.sin_addr));
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->printf("Error occured while sending packet "
+                             "to %s\n", inet_ntoa(a.addr.sin_addr));
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
     } else {
         ++mSent;
@@ -932,11 +885,9 @@ uint32 LightweightConduit::waitingMessageType() {
             (socklen_t*)&iRemoteAddrLen);
 
         if (ret == SOCKET_ERROR) {
-            if (nd->debugLog) {
-                nd->debugLog->println("Error: recvfrom failed in "
-                        "LightweightConduit::waitingMessageType().");
-                nd->debugLog->println(socketErrorCode());
-            }
+            Log::common()->println("Error: recvfrom failed in "
+                    "LightweightConduit::waitingMessageType().");
+            Log::common()->println(socketErrorCode());
             nd->closesocket(sock);
             messageBuffer.resize(0);
             messageSender = NetAddress();
@@ -974,17 +925,15 @@ NetListener::NetListener(NetworkDevice* _nd, uint16 port) {
     nd = _nd;
 
     // Start the listener socket
-    if (nd->debugLog) {nd->debugLog->print("Creating a listener            ");}
+    Log::common()->print("Creating a listener            ");
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     
     if (sock == SOCKET_ERROR) {
-        if (nd->debugLog) {
-            nd->debugLog->printf("FAIL");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->printf("FAIL");
+        Log::common()->println(socketErrorCode());
         return;
     }
-    if (nd->debugLog) {nd->debugLog->println("Ok");}
+    Log::common()->println("Ok");
 
     const int T = true;
 
@@ -993,44 +942,35 @@ NetListener::NetListener(NetworkDevice* _nd, uint16 port) {
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, 
                    (const char*)&T, sizeof(T)) == SOCKET_ERROR) {
         
-        if (nd->debugLog) {
-            nd->debugLog->println("WARNING: Setting socket reuseaddr failed.");
-            nd->debugLog->println(socketErrorCode());
-        }
-    }
-    else if (nd->debugLog) {
-        nd->debugLog->println("Set socket option reuseaddr.");
+        Log::common()->println("WARNING: Setting socket reuseaddr failed.");
+        Log::common()->println(socketErrorCode());
+    } else {
+        Log::common()->println("Set socket option reuseaddr.");
     }
 
     
     if (! nd->bind(sock, NetAddress(0, port))) {
-        if (nd->debugLog) {nd->debugLog->printf("Unable to bind!\n");}
+        Log::common()->printf("Unable to bind!\n");
         nd->closesocket(sock);
         sock = (SOCKET)SOCKET_ERROR;
         return;
     }
 
-    if (nd->debugLog) {
-        nd->debugLog->printf("Listening on port %5d        ", port);
-    }
+    Log::common()->printf("Listening on port %5d        ", port);
 
     // listen is supposed to return 0 when there is no error.
     // The 2nd argument is the number of connections to allow pending
     // at any time.
     int L = listen(sock, 100);
     if (L == SOCKET_ERROR) {
-        if (nd->debugLog) {
-            nd->debugLog->println("FAIL");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("FAIL");
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
         sock = (SOCKET)SOCKET_ERROR;
         return;
     }
-    if (nd->debugLog) {
-        nd->debugLog->println("Ok");
-        nd->debugLog->printf("Now listening on socket %d.\n\n", sock);
-    }
+    Log::common()->println("Ok");
+    Log::common()->printf("Now listening on socket %d.\n\n", sock);
 }
 
 
@@ -1045,26 +985,20 @@ ReliableConduitRef NetListener::waitForConnection() {
     SOCKADDR_IN    remote_addr;
     int iAddrLen = sizeof(remote_addr);
 
-    if (nd->debugLog) {
-        nd->debugLog->println("Blocking in NetListener::waitForConnection().");
-    }
+    Log::common()->println("Blocking in NetListener::waitForConnection().");
 
     SOCKET sClient = accept(sock, (struct sockaddr*) &remote_addr, 
                             (socklen_t*)&iAddrLen);
 
     if (sClient == SOCKET_ERROR) {
-        if (nd->debugLog) {
-            nd->debugLog->println("Error in NetListener::acceptConnection.");
-            nd->debugLog->println(socketErrorCode());
-        }
+        Log::common()->println("Error in NetListener::acceptConnection.");
+        Log::common()->println(socketErrorCode());
         nd->closesocket(sock);
         return NULL;
     }
 
-    if (nd->debugLog) {
-        nd->debugLog->printf("%s connected, transferred to socket %d.\n", 
-                             inet_ntoa(remote_addr.sin_addr), sClient);
-    }
+    Log::common()->printf("%s connected, transferred to socket %d.\n", 
+                         inet_ntoa(remote_addr.sin_addr), sClient);
 
     #ifndef G3D_WIN32
         return new ReliableConduit(nd, sClient, 
@@ -1084,7 +1018,7 @@ bool NetListener::ok() const {
 
 
 bool NetListener::clientWaiting() const {
-    return readWaiting(nd->debugLog, sock);
+    return readWaiting(sock);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -576,9 +576,6 @@ private:
     friend class LightweightConduit;
     friend class ReliableConduit;
     friend class NetListener;
-
-    class Log*                  debugLog;
-
     bool                        initialized;
 
     /** Utility method. */
@@ -587,19 +584,26 @@ private:
     /** Utility method. Returns true on success.*/
     bool bind(SOCKET sock, const NetAddress& addr) const;
 
-public:
+    static NetworkDevice* s_instance;
 
     NetworkDevice();
 
-    /**
-     Returns false if there was a problem initializing the network.
-     */
-    bool init(class Log* log = NULL);
+    bool init();
+    void _cleanup();
+
+public:
+
+    ~NetworkDevice();
 
     /**
-     Shuts down the network device.
+     Returns NULL if there was a problem initializing the network.
      */
-    void cleanup();
+    static NetworkDevice* instance();
+
+    /**
+     Shuts down the network device (destroying the global instance).
+     */
+    static void cleanup();
 
     /**
      Prints a human-readable description of this machine
@@ -610,13 +614,6 @@ public:
 
     void describeSystem(
         std::string&        s);
-
-    /**
-     Returns the log this was initialized with.
-     */
-    Log* log() const {
-        return debugLog;
-    }
 
     /** Returns the name of this computer */
     std::string localHostName() const;

@@ -176,7 +176,6 @@ public:
     std::string             dataDir;
     Log*                    debugLog;
     RenderDevice*           renderDevice;
-    NetworkDevice*          networkDevice;
 
     /** Command console. */
     GConsoleRef             console;

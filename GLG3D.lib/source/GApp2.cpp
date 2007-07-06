@@ -75,9 +75,6 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
 
     m_widgetManager = WidgetManager::create(_window);
 
-    networkDevice = new NetworkDevice();
-    networkDevice->init(debugLog);
-
     {
         TextOutput t;
 
@@ -89,9 +86,7 @@ GApp2::GApp2(const Settings& settings, GWindow* window) :
             renderDevice->describeSystem(t);
         }
 
-        if (networkDevice) {
-            networkDevice->describeSystem(t);
-        }
+        NetworkDevice::instance()->describeSystem(t);
         t.writeNewline();
         t.writeSymbol("}");
         t.writeNewline();
@@ -204,10 +199,7 @@ void GApp2::debugPrintf(const char* fmt ...) {
 
 
 GApp2::~GApp2() {
-    if (networkDevice) {
-        networkDevice->cleanup();
-        delete networkDevice;
-    }
+    NetworkDevice::cleanup();
 
     debugFont = NULL;
     delete userInput;

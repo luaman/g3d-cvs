@@ -493,17 +493,12 @@ int main(int argc, char* argv[]) {
 
     RenderDevice* renderDevice = NULL;
 
-    NetworkDevice* networkDevice = new NetworkDevice();
-    if (networkDevice) {networkDevice->init();}
-
     std::string s;
     System::describeSystem(s);
     printf("%s\n", s.c_str());
 
-    if (networkDevice) {
-        networkDevice->describeSystem(s);
-        printf("%s\n", s.c_str());
-    }
+    NetworkDevice::instance()->describeSystem(s);
+    printf("%s\n", s.c_str());
 
 
 #    ifndef _DEBUG
@@ -663,10 +658,7 @@ int main(int argc, char* argv[]) {
         delete renderDevice;
     }
     
-    if (networkDevice) {
-		networkDevice->cleanup();
-	    delete networkDevice;
-	}
+    NetworkDevice::cleanup();
 
     return 0;
 }

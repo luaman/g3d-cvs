@@ -231,14 +231,14 @@ public:
         p = p - (int64)alreadyWritten;
 
         if (p > bufferLen) {
-            setLength(p + (int64)alreadyWritten);
+            setLength((int)(p + (int64)alreadyWritten));
         }
 
         if (p < 0) {
             throw "Cannot seek more than 10 MB backwards on huge files.";
         }
 
-        pos = p;
+        pos = (int)p;
     }
 
 
