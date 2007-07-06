@@ -97,6 +97,8 @@
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/DeveloperWindow.h"
 
+#include "GLG3D/ShadowMap.h"
+
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"

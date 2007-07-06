@@ -16,6 +16,7 @@
      <li> Key to toggle the user camera is now F2 (was Tab)
      <li> Support for g++ 4.1 [Corey]
      <li> Patches for 64-bit compilation [Corey]
+     <li> G3D::ShadowMap
      <li> User camera control requires right mouse click to move
      <li> GApp2::onGraphics now takes posed model arguments
      <li> GApp2::onPose

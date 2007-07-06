@@ -66,6 +66,7 @@ href="classes.html">Classes</a>.
     \link G3D::endMarkShadows endMarkShadows\endlink, 
     \link G3D::GaussianBlur GaussianBlur\endlink,
     \link G3D::markShadows markShadows\endlink,
+    \link G3D::ShadowMap ShadowMap\endlink,
     \link G3D::SuperShader SuperShader\endlink,
     \link G3D::ToneMap ToneMap\endlink
 
