@@ -9,7 +9,6 @@
 
 #include "GLG3D/GWindow.h"
 #include "GLG3D/GApp.h"
-#include "GLG3D/GApp2.h"
 #include "GLG3D/GLCaps.h"
 
 namespace G3D {
