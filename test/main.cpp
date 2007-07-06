@@ -581,8 +581,7 @@ int main(int argc, char* argv[]) {
 
     testCoordinateFrame();
 
-	testReliableConduit(networkDevice);
-
+    testReliableConduit(NetworkDevice::instance());
 
 	testQuat();
 

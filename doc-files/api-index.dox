@@ -32,7 +32,7 @@ href="classes.html">Classes</a>.
   <li><b>User Interface</b>&nbsp; &nbsp;
     \link G3D::CameraControlWindow CameraControlWindow\endlink,    
     \link G3D::DeveloperWindow DeveloperWindow\endlink,
-    \link G3D::GApp2 GApp2\endlink,
+    \link G3D::GApp GApp\endlink,
     \link G3D::GConsole GConsole\endlink,
     \link G3D::GEvent GEvent\endlink,
     \link G3D::GEventType GEventType\endlink,

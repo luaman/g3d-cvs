@@ -25,20 +25,20 @@ features.  Not all API entry points are shown in this index.
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
 <tr><td></td><td>\link debugAssert <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
-<tr><td></td><td>\link G3D::GApp2::debugPrintf <b>GApp2::debugPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
+<tr><td></td><td>\link G3D::GApp::debugPrintf <b>GApp::debugPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
 <tr><td></td><td>\link G3D::debugPrintf <b>G3D::debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
 <tr><td></td><td>\link G3D::logPrintf <b>logPrintf</b>\endlink</td><td>Prints to the log.txt file (which you should regularly check for warnings!)</td></tr>
 <tr><td></td><td>\link G3D::Draw Draw\endlink</td><td>Render simple geometric primitives without loading a model</td></tr>
 <tr><td></td><td>\link debugAssertM debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
 <tr><td></td><td>\link alwaysAssertM alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>
-<tr><td></td><td>\link G3D::GApp2::catchCommonExceptions GApp2::catchCommonExceptions\endlink</td><td>Turn uncaught exceptions into assertion failures</td></tr>
+<tr><td></td><td>\link G3D::GApp::catchCommonExceptions GApp::catchCommonExceptions\endlink</td><td>Turn uncaught exceptions into assertion failures</td></tr>
 <tr><td></td><td>\link G3D::Log Log\endlink</td><td>Guarantees output is written to disk before Log::printf returns</td></tr>
 <tr><td></td><td>\link G3D::describeSystem describeSystem\endlink</td><td>Returns a string describing the current machine</td></tr>
 <tr><td></td><td>\link G3D::isValidHeapPointer isValidHeapPointer\endlink</td><td>Used in assertions to identify bad pointers</td></tr>
 <tr><td></td><td>\link G3D::isValidPointer isValidPointer\endlink</td><td>Used in assertions to identify bad pointers</td></tr>
 <tr><td></td><td>\link G3D::setAssertionHook setAssertionHook\endlink</td><td>Override the behavior of assertion failures</td></tr>
 <tr><td></td><td>\link G3D::setFailureHook setFailureHook\endlink</td><td>Override the behavior of alwaysAssertM failures in RELEASE builds</td></tr>
-<tr><td></td><td>\link G3D::GApp2::showDebugText GApp2::showDebugText\endlink</td><td>Enable GApp2::debugPrintf output</td></tr>
+<tr><td></td><td>\link G3D::GApp::showDebugText GApp::showDebugText\endlink</td><td>Enable GApp::debugPrintf output</td></tr>
 </table>
 
 @section profiling Profiling and Optimization
@@ -46,7 +46,7 @@ features.  Not all API entry points are shown in this index.
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::Stopwatch <b>Stopwatch</b>\endlink</td><td>Accurately measure the duration and effective framerate of routines</td></tr>
 <tr><td></td><td>\link G3D::RenderDevice::getTriangleCount RenderDevice::getTriangleCount\endlink, \link G3D::RenderDevice::getTriangleRate RenderDevice::getTriangleRate\endlink, \link G3D::RenderDevice::getTrianglesPerFrame RenderDevice::getTrianglesPerFrame\endlink</td><td>Measure the GPU vertex throughput</td></tr>
-<tr><td></td><td>\link G3D::GApp2::showRenderingStats GApp2::showRenderingStats\endlink</td><td>Display performance information on the 3D window</td></tr>
+<tr><td></td><td>\link G3D::GApp::showRenderingStats GApp::showRenderingStats\endlink</td><td>Display performance information on the 3D window</td></tr>
 <tr><td></td><td>\link G3D::System::mallocPerformance System::mallocPerformance\endlink, \link G3D::System::mallocStatus System::mallocStatus\endlink, \link G3D::System::resetMallocPerformanceCounters System::resetMallocPerformanceCounters\endlink</td><td>Measure heap size and detect memory leaks</td></tr>
 <tr><td></td><td>\link G3D::System::beginCycleCount System::beginCycleCount\endlink, \link G3D::System::endCycleCount System::endCycleCount\endlink</td><td>Cycle-accurate timing of very short routines </td></tr>
 </table>
@@ -58,7 +58,7 @@ features.  Not all API entry points are shown in this index.
 <tr><td></td><td>\link G3D::GuiPane <b>GuiPane</b>\endlink</td><td>Container and creator of other GUI controls; obtained from a GuiWindow </td></tr>
 <tr><td></td><td>\link G3D::GEvent <b>GEvent</b>\endlink, \link G3D::GEventType <b>GEventType</b>\endlink</td><td>Event class and type enum, used inside an event handler</td></tr>
 <tr><td></td><td>\link G3D::UserInput <b>UserInput</b>\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
-<tr><td></td><td>\link G3D::GApp2::onEvent <b>GApp2::onEvent</b>\endlink, \link G3D::GApp2::onUserInput<b>GApp2::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
+<tr><td></td><td>\link G3D::GApp::onEvent <b>GApp::onEvent</b>\endlink, \link G3D::GApp::onUserInput<b>GApp::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
 <tr><td></td><td>\link G3D::GFont GFont\endlink</td><td>Explicitly render text</td></tr>
 <tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink</td><td>GUI controls created by GuiPanel </td></tr>
 <tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
