@@ -38,32 +38,31 @@ void main(void) {
 	// Compute the columns of the tangent space to world space matrix
     accessibility = length(gl_Normal);
 
-#	ifndef NORMALBUMPMAP
-		// When not normal-bump mapping, we still need tan_W for lighting.
-		vec4 tan_W;
-#	endif
+#   ifndef NORMALBUMPMAP
+      // When not normal-bump mapping, we still need tan_W for lighting.
+       vec4 tan_W;
+#   endif
 
-	tan_W = g3d_ObjectToWorldMatrix * gl_Vertex;
+    tan_W = g3d_ObjectToWorldMatrix * gl_Vertex;
 
-	tan_Z = g3d_ObjectToWorldMatrix * vec4(gl_Normal / accessibility, 0);
+    tan_Z = g3d_ObjectToWorldMatrix * vec4(gl_Normal / accessibility, 0);
 
-	wsPosition      = tan_W.xyz;
+    wsPosition      = tan_W.xyz;
 
-#	ifdef NORMALBUMPMAP      
-		tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
+#   ifdef NORMALBUMPMAP      
+	tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
 
-		// T and N are guaranteed perpendicular, so B is normalized.
-		tan_Y = vec4(cross(tan_Z.xyz, tan_X.xyz), 0);
+        // T and N are guaranteed perpendicular, so B is normalized.
+	tan_Y = vec4(cross(tan_Z.xyz, tan_X.xyz), 0);
 
-
-		// Compute the tangent space eye vector (ATI does not support the transpose operator)
-		mat3 objectToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
-									tan_X.y, tan_Y.y, tan_Z.y,
-									tan_X.z, tan_Y.z, tan_Z.z);
+	// Compute the tangent space eye vector (ATI does not support the transpose operator)
+	mat3 objectToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
+                                    tan_X.y, tan_Y.y, tan_Z.y,
+                                    tan_X.z, tan_Y.z, tan_Z.z);
       
-		_tsE             = objectToTangent * (osEyePos - osPosition);
-#	endif
+       _tsE             = objectToTangent * (osEyePos - osPosition);
+#    endif
 
-	texCoord	     = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
-    gl_Position      = ftransform();
+    texCoord     = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
+    gl_Position  = ftransform();
 }

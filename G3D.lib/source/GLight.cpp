@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-11-12
-  @edited  2005-01-10
+  @edited  2007-07-10
 */
 
 #include "G3D/GLight.h"
@@ -35,7 +35,7 @@ GLight GLight::directional(const Vector3& toLight, const Color3& color, bool s, 
 }
 
 
-GLight GLight::point(const Vector3& pos, const Color3& color, double constAtt, double linAtt, double quadAtt, bool s, bool d) {
+GLight GLight::point(const Vector3& pos, const Color3& color, float constAtt, float linAtt, float quadAtt, bool s, bool d) {
     GLight L;
     L.position = Vector4(pos, 1);
     L.color    = color;
@@ -48,7 +48,7 @@ GLight GLight::point(const Vector3& pos, const Color3& color, double constAtt, d
 }
 
 
-GLight GLight::spot(const Vector3& pos, const Vector3& pointDirection, double cutOffAngleDegrees, const Color3& color, double constAtt, double linAtt, double quadAtt, bool s, bool d) {
+GLight GLight::spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, const Color3& color, float constAtt, float linAtt, float quadAtt, bool s, bool d) {
     GLight L;
     L.position = Vector4(pos, 1);
     L.spotDirection = pointDirection;

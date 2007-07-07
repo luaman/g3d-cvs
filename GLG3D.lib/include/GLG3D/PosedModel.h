@@ -274,8 +274,8 @@ public:
         const Texture::Ref& shadowMap) const;
 
     /**
-      Sends all geometry including texture coordinates (uploading it first if necessary) but does not set any render device state or use 
-      any textures.
+      Sends all geometry including texture coordinates (uploading it
+      first if necessary) but does not set any render device state or use any textures.
 
       This is useful when applying your own G3D::Shader to an existing PosedModel.
     */

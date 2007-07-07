@@ -4,7 +4,7 @@
    @maintainer Morgan McGuire, morgan@graphics3d.com
 
    @created 2003-11-03
-   @edited  2007-05-18
+   @edited  2007-07-10
 */
 
 #ifndef G3D_GAPP_H
@@ -115,7 +115,7 @@ protected:
     Stopwatch               m_simulationWatch;
     Stopwatch               m_waitWatch;
 
-    WidgetManager::Ref       m_widgetManager;
+    WidgetManager::Ref      m_widgetManager;
 
     bool                    m_endProgram;
     int                     m_exitCode;
@@ -138,6 +138,11 @@ protected:
     static void staticConsoleCallback(const std::string& command, void* me);
 
 public:
+
+    /** Add your own debugging controls to this window.*/
+    GuiWindow::Ref          debugWindow;
+    /** debugWindow->pane() */
+    GuiPane*                debugPane;
 
     const Stopwatch& graphicsWatch() const {
         return m_graphicsWatch;

@@ -40,12 +40,40 @@ void SuperShader::Material::enforceDiffuseMask() {
     changed = false;
 }
 
-void SuperShader::configureShader(
+
+void SuperShader::configureShaderExtraLightArgs(
+    const Array<GLight>&            lightArray,
+    int                             lightIndex,
+    VertexAndPixelShader::ArgList&  args) {
+
+    args.set("ambientTop",      Color3::black());
+    args.set("ambientBottom",   Color3::black());
+
+    static const std::string num[2] = {"0", "1"};
+    for (int i = 0; i < 2; ++i) {
+        const std::string& N = num[i];
+        if (lightArray.size() > i + lightIndex) {
+            const GLight& light = lightArray[i + lightIndex];
+
+            args.set("lightPosition" + N,   light.position);
+            args.set("lightColor" + N,      light.color);
+            args.set("lightAttenuation" + N, Vector3(light.attenuation[0], 
+                                                     light.attenuation[1], light.attenuation[2]));
+        } else {
+            args.set("lightPosition" + N,    Vector4(0, 1, 0, 0));
+            args.set("lightColor" + N,       Color3::black());
+            args.set("lightAttenuation" + N, Vector3(1, 0, 0));
+        }
+    }
+}
+
+
+void SuperShader::configureShaderArgs(
     const LightingRef&              lighting,
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args) {
+
     // Material arguments
-    
     if (material.diffuse.constant != Color3::black()) {
         args.set("diffuseConstant",         material.diffuse.constant);
         if (material.diffuse.map.notNull()) {
@@ -53,20 +81,19 @@ void SuperShader::configureShader(
         }
     }
 
-
     if (material.specular.constant != Color3::black()) {
         args.set("specularConstant",        material.specular.constant);
-
         if (material.specular.map.notNull()) {
             args.set("specularMap",             material.specular.map);
         }
-    }
 
-    // If specular exponent is black we get into trouble-- pow(x, 0) doesn't work right in shaders for some reason
-    args.set("specularExponentConstant",Color3::white().max(material.specularExponent.constant));
+        // If specular exponent is black we get into trouble-- pow(x, 0)
+        // doesn't work right in shaders for some reason
+        args.set("specularExponentConstant", Color3::white().max(material.specularExponent.constant));
 
-    if (material.specularExponent.map.notNull()) {
-        args.set("specularExponentMap",     material.specularExponent.map);
+        if (material.specularExponent.map.notNull()) {
+            args.set("specularExponentMap",     material.specularExponent.map);
+        }
     }
 
     if (material.reflect.constant != Color3::black()) {
@@ -96,12 +123,19 @@ void SuperShader::configureShader(
     args.set("ambientTop",      lighting->ambientTop);
     args.set("ambientBottom",   lighting->ambientBottom);
 
-    if (lighting->lightArray.size() > 0) {
-        args.set("lightPosition",   lighting->lightArray[0].position);
-        args.set("lightColor",      lighting->lightArray[0].color);
-    } else {
-        args.set("lightPosition",   Vector4(0,1,0,0));
-        args.set("lightColor",      Color3::black());
+    static const std::string num[2] = {"0", "1"};
+    for (int i = 0; i < 2; ++i) {
+        const std::string& N = num[i];
+        if (lighting->lightArray.size() > i) {
+            const GLight& light = lighting->lightArray[i];
+            args.set("lightPosition" + N,    light.position);
+            args.set("lightColor" + N,       light.color);
+            args.set("lightAttenuation" + N, Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
+        } else {
+            args.set("lightPosition" + N,    Vector4(0, 1, 0, 0));
+            args.set("lightColor" + N,       Color3::black());
+            args.set("lightAttenuation" + N, Vector3(1, 0, 0));
+        }
     }
 
     // Only set the evt map if we need it
@@ -113,10 +147,10 @@ void SuperShader::configureShader(
 }
 
 
-void SuperShader::configureShadowShader(
+void SuperShader::configureShadowShaderArgs(
     const GLight&                   light, 
     const Matrix4&                  lightMVP, 
-    const Texture::Ref&               shadowMap,
+    const Texture::Ref&             shadowMap,
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args) {
     
@@ -146,8 +180,10 @@ void SuperShader::configureShadowShader(
     ///////////////////////////////////////////////////
     // Lighting Args
 
-    args.set("lightPosition",   Vector4(light.position.xyz().direction(),0));
+    args.set("lightPosition",   light.position);
     args.set("lightColor",      light.color);
+    args.set("lightAttenuation" , Vector3(light.attenuation[0], 
+                                             light.attenuation[1], light.attenuation[2]));
 
     // Shadow map setup
     args.set("shadowMap",       shadowMap);
@@ -185,11 +221,9 @@ static ShaderRef loadShader(const std::string& baseName, const std::string& defi
     const std::string& vertexShader = loadShaderCode(baseName + ".vrt");
     const std::string& pixelShader  = loadShaderCode(baseName + ".pix");
 
-    ShaderRef s = Shader::fromStrings(
-        baseName + ".glsl.vrt", 
-        defines + vertexShader, 
-        baseName + ".glsl.frg",
-        defines + pixelShader);
+    ShaderRef s = Shader::fromStrings
+        (baseName + ".vrt", defines + vertexShader, 
+         baseName + ".pix", defines + pixelShader);
 
     return s;
 }
@@ -233,18 +267,19 @@ SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
             } else  {
                 defines += "#define SPECULARCONSTANT\n";
             }
-        }
 
-        if (material.specularExponent.constant != Color3::black()) {
-            if (material.specularExponent.map.notNull()) {
-                defines += "#define SPECULAREXPONENTMAP\n";
 
-                // If the color is white, don't multiply by it
-                if (material.specularExponent.constant != Color3::white()) {
+            if (material.specularExponent.constant != Color3::black()) {
+                if (material.specularExponent.map.notNull()) {
+                    defines += "#define SPECULAREXPONENTMAP\n";
+                    
+                    // If the color is white, don't multiply by it
+                    if (material.specularExponent.constant != Color3::white()) {
+                        defines += "#define SPECULAREXPONENTCONSTANT\n";
+                    }
+                } else  {
                     defines += "#define SPECULAREXPONENTCONSTANT\n";
                 }
-            } else  {
-                defines += "#define SPECULAREXPONENTCONSTANT\n";
             }
         }
 
@@ -337,6 +372,27 @@ bool SuperShader::Material::similarTo(const Material& other) const {
         transmit.similarTo(other.transmit) &&
         reflect.similarTo(other.reflect) &&
         (normalBumpMap.isNull() == other.normalBumpMap.isNull());
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+bool SuperShader::Component::similarTo(const Component& other) const{
+    // Black and white are only similar to themselves
+    if (isBlack()) {
+        return other.isBlack();
+    } else if (other.isBlack()) {
+        return false;
+    }
+    
+    if (isWhite()) {
+        return other.isWhite();
+    } else if (other.isWhite()) {
+        return false;
+    }
+    
+    // Two components are similar if they both have/do not have texture
+    // maps.
+    return map.isNull() == other.map.isNull();
 }
 
 }

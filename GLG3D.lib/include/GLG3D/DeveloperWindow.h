@@ -32,6 +32,7 @@ protected:
      const Pointer<Manipulator::Ref>&   cameraManipulator,
      const GuiSkinRef&                  skin,
      GConsoleRef                        console,
+     const Pointer<bool>&               debugVisible,
      bool*                              showStats,
      bool*                              showText);
 
@@ -48,6 +49,7 @@ public:
      const Pointer<Manipulator::Ref>&   cameraManipulator,
      const GuiSkinRef&                  skin,
      GConsoleRef                        console,
+     const Pointer<bool>&               debugVisible,
      bool*                              showStats,
      bool*                              showText);
     

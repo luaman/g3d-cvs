@@ -80,10 +80,6 @@ higher level engines %G3D does not restrict access to low-level features-- every
 card function in OpenGL is exposed under %G3D, even if it isn't wrapped by a higher level
 API.  This means you can always drop down to raw OpenGL calls if needed.
 
-Releases contain precompiled libraries for MSVC 6, MSVC 7 .NET, Linux g++, and XCode.  
-For other compilers you will need to write your own Makefiles or project files and 
-build the library yourself.
-
 @section philosophy Design Philosophy
 Our philosophy is simple. The library should have the following properties:
 
@@ -102,16 +98,15 @@ Our philosophy is simple. The library should have the following properties:
   </UL>
 
 
-@section formats Data Formats
-%G3D supports images in PNG, TGA, BMP, JPG, PCX, PPM, PGM, PBM, DDS, and ICO format
-through the G3D::Texture and G3D::GImage classes.
-%G3D has sample loaders for the PLY2, IFS and MD2 3D mesh formats and comes with code 
-(in contrib/IFSBuilder and contrib/ArticulatedModel) to help you load other formats like 3DS and OBJ.
-%G3D uses its own font format to avoid legal issues with TrueType.  Over 20 popular fonts
-are provided in this format and the code contains a routine to help you make more from
-your TrueType and printer fonts. There is no official support for audio,
-however contrib/AudioDevice provides code to help you use some popular audio libraries 
-(SDLMixer, fMOD).
+@section formats Data Formats 
+
+%G3D supports images in PNG, TGA, BMP,
+JPG, PCX, PPM, PGM, PBM, DDS, and ICO format through the G3D::Texture
+and G3D::GImage classes.  %G3D has loaders for the BSP, PLY2, IFS, 3DS
+and MD2 mesh formats.  %G3D uses its own font format to avoid legal
+issues with TrueType.  Over 30 popular fonts are provided in this
+format and the code contains a routine to help you make more from your
+TrueType and printer fonts.
 
 @section team Team
 The library contains code, documentation, and demos from over 30 

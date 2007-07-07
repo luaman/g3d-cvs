@@ -18,10 +18,11 @@ DeveloperWindow::Ref DeveloperWindow::create(
      const Pointer<Manipulator::Ref>&   cameraManipulator,
      const GuiSkinRef&                  skin,
      GConsoleRef                        console,
+     const Pointer<bool>&               debugVisible,
      bool*                              showStats,
      bool*                              showText) {
 
-    return new DeveloperWindow(manualManipulator, trackManipulator, cameraManipulator, skin, console, showStats, showText);
+    return new DeveloperWindow(manualManipulator, trackManipulator, cameraManipulator, skin, console, debugVisible, showStats, showText);
     
 }
 
@@ -31,6 +32,7 @@ DeveloperWindow::DeveloperWindow(
      const Pointer<Manipulator::Ref>&   cameraManipulator,
      const GuiSkinRef&                  skin,
      GConsoleRef                        console,
+     const Pointer<bool>&               debugVisible,
      bool*                              showStats,
      bool*                              showText) : GuiWindow("Developer (F11)", skin, Rect2D::xywh(600,80,0,0), TOOL_FRAME_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
 
@@ -45,6 +47,7 @@ DeveloperWindow::DeveloperWindow(
     GuiCaption cameraIcon(std::string() + char(185), iconFont, iconSize);
     GuiCaption consoleIcon(std::string() + char(190), iconFont, iconSize * 0.9);
     GuiCaption statsIcon(std::string() + char(143), iconFont, iconSize);
+    GuiCaption debugIcon("@", iconFont, iconSize * 0.8);
     GuiCaption printIcon(std::string() + char(157), iconFont, iconSize * 0.8); //105 = information
 
     GuiControl* cameraButton = root->addCheckBox(cameraIcon, Pointer<bool>(cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible), GuiCheckBox::TOOL_STYLE);
@@ -55,9 +58,13 @@ DeveloperWindow::DeveloperWindow(
     consoleButton->setSize(buttonSize);
     consoleButton->moveRightOf(cameraButton);
 
+    GuiControl* debugButton = root->addCheckBox(debugIcon, debugVisible, GuiCheckBox::TOOL_STYLE);
+    debugButton->setSize(buttonSize);
+    debugButton->moveRightOf(consoleButton);
+
     GuiControl* statsButton = root->addCheckBox(statsIcon, showStats, GuiCheckBox::TOOL_STYLE);
     statsButton->setSize(buttonSize);
-    statsButton->moveRightOf(consoleButton);
+    statsButton->moveRightOf(debugButton);
 
     GuiControl* printButton = root->addCheckBox(printIcon, showText, GuiCheckBox::TOOL_STYLE);
     printButton->setSize(buttonSize);
@@ -65,7 +72,7 @@ DeveloperWindow::DeveloperWindow(
 
     cameraControlWindow->setVisible(false);
     pack();
-    setRect(Rect2D::xywh(0, 0, 130, 38));
+    setRect(Rect2D::xywh(0, 0, 162, 38));
 }
 
 

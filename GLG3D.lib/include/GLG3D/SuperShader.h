@@ -48,7 +48,7 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
     <i> in onGraphics:</i>
 
     rd->pushState();
-        SuperShader::configureShader(localLighting, material, shader->args);
+        SuperShader::configureShaderArgs(localLighting, material, shader->args);
         rd->setShader(shader);
         rd->setObjectToWorldMatrix(posed->coordinateFrame());
         rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
@@ -72,7 +72,7 @@ public:
         Color3              constant;
 
         /** Color that varies over position.  NULL means white.*/
-        Texture::Ref          map;
+        Texture::Ref        map;
 
         inline Component() : constant(0, 0, 0), map(NULL) {}
         inline Component(const Color3& c) : constant(c), map(NULL) {}
@@ -97,24 +97,7 @@ public:
 
         /** Returns true if both components will produce similar non-zero terms in a
             lighting equation.  Black and white are only similar to themselves. */
-        inline bool similarTo(const Component& other) const{
-            // Black and white are only similar to themselves
-            if (isBlack()) {
-                return other.isBlack();
-            } else if (other.isBlack()) {
-                return false;
-            }
-
-            if (isWhite()) {
-                return other.isWhite();
-            } else if (other.isWhite()) {
-                return false;
-            }
-
-            // Two components are similar if they both have/do not have texture
-            // maps.
-            return map.isNull() == other.map.isNull();
-        }
+        bool similarTo(const Component& other) const;
     };
 
     /** Describes the properties of a material to be used with SuperShader. Each of the Component fields
@@ -147,7 +130,7 @@ public:
         non-convex objects) to prevent rendering surfaces out of order.
 
         */
-	class Material {
+    class Material {
 	public:
         friend class SuperShader;
 
@@ -217,20 +200,26 @@ public:
           all other maps. Call before rendering with this material.
          */
         void enforceDiffuseMask();
-	};
+    };
 
-    /** Configures the material arguments on a SuperShader for
-        the opaque pass. */
-    static void configureShader(
+    /** Configures the material arguments on a SuperShader NonShadowed shader for
+        the opaque pass with 0, 1, or 2 lights. */
+    static void configureShaderArgs(
         const LightingRef&              lighting,
         const Material&                 material,
         VertexAndPixelShader::ArgList&  args);
 
+    /** Configures a SuperShader NonShadowed shader for an additive light pass
+        using lights lightArray[lightIndex] and lightArray[lightIndex+1] (if both are in bounds.)*/
+    static void configureShaderExtraLightArgs(
+        const Array<GLight>&           lightArray,
+        int                             lightIndex,
+        VertexAndPixelShader::ArgList&  args);
 
-    static void configureShadowShader(
-        const GLight&       light, 
-        const Matrix4&      lightMVP, 
-        const Texture::Ref&   shadowMap,
+    static void configureShadowShaderArgs(
+        const GLight&                   light, 
+        const Matrix4&                  lightMVP, 
+        const Texture::Ref&             shadowMap,
         const Material&                 material,
         VertexAndPixelShader::ArgList&  args);
 
@@ -265,19 +254,6 @@ private:
 
     static Cache::Pair getShader(const Material& material);
 
-#if 0
-    /** Configuration for a non-programmable card.
-        No reflection map, single ambient color. */
-    void configureFixedFunction(RenderDevice* rd);
-
-    LightingRef             lighting;
-
-    Material                material;
-
-    /** Underlying shader.  May be shared between multiple SuperShaders. */
-    ShaderRef               nonShadowedShader;
-    ShaderRef               shadowMappedShader;
-#endif
     // Don't call
     SuperShader() {
         debugAssert(false);

@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2004-04-25
- @edited  2006-05-04
+ @edited  2007-07-04
  */
 
 #ifndef G3D_SHADER_H
@@ -455,14 +455,19 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
     vec2 g3d_sampler2DInvSize(sampler2D t);     // Returns vec2(1.0, 1.0) / g3d_size(t) at no additional cost
   </PRE>
 
+  The macros <code>G3D_OSX, G3D_WIN32, G3D_FREEBSD, G3D_LINUX,
+  G3D_ATI, G3D_NVIDIA, G3D_MESA</code> are defined on the relevant
+  platforms.
+
   <code>g3d_sampler2DSize</code> and <code>g3d_sampler2DInvSize</code>
   require that there be no additional space between the function name
   and parens and no space between the parens and sampler name.  There
   is no cost for definining and then not using any of these; unused
   variables do not increase the runtime cost of the shader.
 
+
   If your GLSL 1.1 shader begins with <CODE>#include</CODE> or <CODE>#define</CODE> the
-  line numbers will be off by one in error messages because the G3D uniforms are 
+  line numbers will be off by 1 to 3 in error messages because the G3D uniforms are 
   inserted on the first line.  GLSL 1.2 shaders do not have this problem.
 
   <P>

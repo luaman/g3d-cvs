@@ -142,16 +142,24 @@ GApp::GApp(const Settings& settings, GWindow* window) :
         GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
         GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("osx.skn"), arialFont);
 
+        debugWindow = GuiWindow::create("Debug Controls", skin, Rect2D::xywh(0, 50, 150, 200), GuiWindow::TOOL_FRAME_STYLE, GuiWindow::HIDE_ON_CLOSE);
+        debugWindow->setVisible(false);
+        debugPane = debugWindow->pane();
+        addWidget(debugWindow);
+
         developerWindow = DeveloperWindow::create
             (defaultController, 
              splineManipulator, 
              Pointer<Manipulator::Ref>(this, &GApp::cameraManipulator, &GApp::setCameraManipulator), 
              skin,
              console,
+             Pointer<bool>(debugWindow, &GuiWindow::visible, &GuiWindow::setVisible),
              &showRenderingStats,
              &showDebugText);
 
         addWidget(developerWindow);
+    } else {
+        debugPane = NULL;
     }
 
     debugAssertGLOk();

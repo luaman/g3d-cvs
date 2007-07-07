@@ -325,8 +325,30 @@ void VertexAndPixelShader::GPUShader::init
         if ((uniforms == DEFINE_G3D_UNIFORMS) && (_code.size() > 0)) {
             // Replace g3d_size and g3d_invSize with corresponding magic names
             
+            switch (GLCaps::enumVendor()) {
+            case GLCaps::ATI:
+                _code = "#define G3D_ATI\n" + _code;
+                break;
+            case GLCaps::NVIDIA:
+                _code = "#define G3D_NVIDIA\n" + _code;
+                break;
+            case GLCaps::MESA:
+                _code = "#define G3D_MESA\n" + _code;
+                break;
+            default:;
+            }
+#           ifdef G3D_OSX 
+                _code = "#define G3D_OSX\n" + _code;
+#           elif defined(G3D_WIN32)
+                _code = "#define G3D_WIN32\n" + _code;
+#           elif defined(G3D_LINUX)
+                _code = "#define G3D_LINUX\n" + _code;
+#           elif defined(G3D_FREEBSD)
+                _code = "#define G3D_FREEBSD\n" + _code;
+#           endif
+                
             replaceG3DSize(_code, uniformString);
-
+            
             std::string lineDirective = "";
             if (versionLine != "") {
                 // Fix the line numbers since we inserted code at the top
@@ -335,7 +357,6 @@ void VertexAndPixelShader::GPUShader::init
                 // We only need to record that we've shifted line numbers
                 // if the version is pre-1.20, since all later version support
                 // the #line directive
-
                 shifted = true;
             }
 

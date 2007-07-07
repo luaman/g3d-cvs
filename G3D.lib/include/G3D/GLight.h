@@ -28,10 +28,10 @@ public:
     Vector3             spotDirection;
 
     /** In <B>degrees</B>.  180 = no cutoff (point/dir) >90 = spot light */
-    double              spotCutoff;
+    float               spotCutoff;
 
     /** Constant, linear, quadratic */
-    double              attenuation[3];
+    float               attenuation[3];
 
     /** May be outside the range [0, 1] */
     Color3              color;
@@ -49,8 +49,8 @@ public:
 
     /** @param toLight will be normalized */
     static GLight directional(const Vector3& toLight, const Color3& color, bool specular = true, bool diffuse = true);
-    static GLight point(const Vector3& pos, const Color3& color, double constAtt = 1, double linAtt = 0, double quadAtt = 0, bool specular = true, bool diffuse = true);
-    static GLight spot(const Vector3& pos, const Vector3& pointDirection, double cutOffAngleDegrees, const Color3& color, double constAtt = 1, double linAtt = 0, double quadAtt = 0, bool specular = true, bool diffuse = true);
+    static GLight point(const Vector3& pos, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0, bool specular = true, bool diffuse = true);
+    static GLight spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0, bool specular = true, bool diffuse = true);
 
     bool operator==(const GLight& other) const;
     bool operator!=(const GLight& other) const;
