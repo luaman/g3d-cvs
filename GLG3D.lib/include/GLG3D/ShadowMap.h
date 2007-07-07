@@ -9,7 +9,7 @@
 #include "G3D/Matrix4.h"
 #include "G3D/GLight.h"
 #include "GLG3D/Texture.h"
-#include "GLG3D/FrameBuffer.h"
+#include "GLG3D/Framebuffer.h"
 #include "GLG3D/PosedModel.h"
 
 namespace G3D {
