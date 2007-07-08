@@ -396,7 +396,7 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
                 for (int i = 0; i < a.size(); ++i) {
                     a[i].serialize(t);
                     if (i != a.size() - 1) {
-                        t.printf(",\n");
+                        t.printf(", \n");
                     }
                 }
             t.printf("]");
@@ -423,7 +423,7 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
                     i->value.serialize(t);
 
                     if (i != end) {
-                        t.printf(";\n\n");
+                        t.printf("\n");
                     }
                     ++i;
                 }
@@ -659,7 +659,7 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                     } else if (peek.extendedType() == Token::SINGLE_QUOTED_TYPE) {
                         key = t.readString();
                     } else {
-                        // Parse error: TODO
+                        throw CorruptText("Expected name inside table", peek);
                     }
 
                     t.readSymbol("=");
@@ -669,12 +669,8 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                     a[key].deserialize(t);
 
                     peek = t.peek();
-                    if (peek.type() != Token::SYMBOL) {
-                        throw CorruptText("Missing expected ';' or '}'", peek);
-                    } else if (peek.string() == ";") {
-                        t.readSymbol(";");
-                    } else if (peek.string() != "}") {
-                        throw CorruptText("Missing '}'", peek);
+                    if ((peek.type() != Token::SYMBOL) && (peek.extendedType() == Token::SINGLE_QUOTED_TYPE)) {
+                        throw CorruptText("Missing expected name or '}'", peek);
                     }
                 }
                 t.readSymbol("}");

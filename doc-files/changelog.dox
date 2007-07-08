@@ -17,7 +17,10 @@
      <li> Support for g++ 4.1 [Corey]
      <li> Patches for 64-bit compilation [Corey]
      <li> G3D::ShadowMap
+     <li> G3D::Shader now defines platform and graphics vendor macros
      <li> User camera control requires right mouse click to move
+     <li> G3D::AnyVal no longer separates table entries with ";"
+     <li> G3D::AnyVal now provides casts to basic data types
      <li> GApp::onGraphics now takes posed model arguments
      <li> GApp::onPose
      <li> All classes that read from files can now read data inside zipfiles.

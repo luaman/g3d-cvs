@@ -2,7 +2,7 @@
  @file AnyVal.h
  @author Morgan McGuire
  @created 2006-06-11
- @edited  2006-08-11
+ @edited  2007-07-11
  */
 
 #ifndef G3D_ANYVAL_H
@@ -42,7 +42,19 @@ class BinaryOutput;
  arrays and tables instead of generating errors.  get() has more strict semantics,
  like a C++ class.
 
- Example:
+ Reading example:
+ <pre>
+    AnyVal property(TextInput("c:/tmp/test.txt"));
+
+    Vector3 vel = propetery["angular velocity"]
+
+    \/\/ Using defaults to handle errors:
+    \/\/ If there was no "enabled" value, this will return the default instead of failing
+    bool enabled = property["enabled"].boolean(true);
+
+ </pre>
+
+ Writing to a file:
  <pre>
     AnyVal dict(AnyVal::TABLE);
 
@@ -53,10 +65,20 @@ class BinaryOutput;
     TextOutput t("c:/tmp/test.txt");
     dict.serialize(t);
     t.commit();
+  </pre>
 
-    // Reading (using defaults to handle errors)
-    // If there was no "enabled" value, this will return the default instead of failing
-    bool enabled = dict.get("enabled").boolean(true);
+  Example of a data file:
+  <pre>
+   {
+      heights = [1, 17, 32]
+      model = 
+        {
+           color = C3(1, 1, 1)
+           filename = "foo.md2"
+        }
+      position = V3(23, 14, 0)
+      name = "Elmer"
+   }
   </pre>
 
   <p>
@@ -245,32 +267,72 @@ public:
     const std::string& string() const;
     const std::string& string(const std::string& defaultVal) const;
 
+    operator const std::string& () const {
+        return string();
+    }
+
     const G3D::Vector2& vector2() const;
     const G3D::Vector2& vector2(const G3D::Vector2& defaultVal) const;
 
+    operator const Vector2& () const {
+        return vector2();
+    }
+
     const G3D::Vector3& vector3() const;
     const G3D::Vector3& vector3(const G3D::Vector3& defaultVal) const;
+    
+    operator const Vector3& () {
+        return vector3();
+    }
 
     const G3D::Vector4& vector4() const;
     const G3D::Vector4& vector4(const G3D::Vector4& defaultVal) const;
 
+    operator const Vector4& () const {
+        return vector4();
+    }
+
     const G3D::Color3& color3() const;
     const G3D::Color3& color3(const G3D::Color3& defaultVal) const;
+
+    operator const Color3& () const {
+        return color3();
+    }
 
     const G3D::Color4& color4() const;
     const G3D::Color4& color4(const G3D::Color4& defaultVal) const;
 
+    operator const Color4& () const {
+        return color4();
+    }
+
     const G3D::CoordinateFrame& coordinateFrame() const;
     const G3D::CoordinateFrame& coordinateFrame(const G3D::CoordinateFrame& defaultVal) const;
+
+    operator const CoordinateFrame& () const {
+        return coordinateFrame();
+    }
 
     const G3D::Matrix3& matrix3() const;
     const G3D::Matrix3& matrix3(const G3D::Matrix3& defaultVal) const;
 
+    operator const Matrix3& () const {
+        return matrix3();
+    }
+
     const G3D::Matrix4& matrix4() const;
     const G3D::Matrix4& matrix4(const G3D::Matrix4& defaultVal) const;
 
+    operator const Matrix4& () const {
+        return matrix4();
+    }
+
     const G3D::Quat& quat() const;
     const G3D::Quat& quat(const G3D::Quat& defaultVal) const;
+
+    operator const Quat& () const {
+        return quat();
+    }
 
     /** Array dereference.  If the index is out of bounds, IndexOutOfBounds is thrown */
     const AnyVal& operator[](int) const;
