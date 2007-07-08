@@ -3,7 +3,7 @@
  @author Morgan McGuire
  @maintainer Morgan McGuire
  @created 2006-06-11
- @edited  2006-08-06
+ @edited  2007-07-06
  */
 
 #include "G3D/AnyVal.h"
@@ -17,6 +17,8 @@
 #include "G3D/Color4.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Rect2D.h"
+#include "G3D/AABox.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/Quat.h"
 #include "G3D/TextInput.h"
@@ -46,6 +48,16 @@ AnyVal::AnyVal(G3D::TextInput& t) {
 
 AnyVal::AnyVal(double v) : m_type(NUMBER) {
     m_value = new double(v);
+}
+
+
+AnyVal::AnyVal(const Rect2D& v) : m_type(RECT2D) {
+    m_value = new Rect2D(v);
+}
+
+
+AnyVal::AnyVal(const AABox& v) : m_type(AABOX) {
+    m_value = new AABox(v);
 }
 
 
@@ -151,6 +163,14 @@ void AnyVal::deleteValue() {
         delete (std::string*)m_value;
         break;
         
+    case RECT2D:
+        delete (Rect2D*)m_value;
+        break;
+
+    case AABOX:
+        delete (AABox*)m_value;
+        break;
+
     case VECTOR2:
         delete (Vector2*)m_value;
         break;
@@ -223,6 +243,14 @@ AnyVal& AnyVal::operator=(const AnyVal& v) {
         m_value = new std::string(*(std::string*)v.m_value);
         break;
         
+    case RECT2D:
+        m_value = new Rect2D(*(Rect2D*)v.m_value);
+        break;
+
+    case AABOX:
+        m_value = new AABox(*(AABox*)v.m_value);
+        break;
+
     case VECTOR2:
         m_value = new Vector2(*(Vector2*)v.m_value);
         break;
@@ -317,6 +345,21 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
         t.writeString(*(std::string*)m_value);
         break;
         
+    case RECT2D:
+        t.printf("R(%g, %g, %g, %g)", ((Rect2D*)m_value)->x0(), ((Rect2D*)m_value)->y0(),
+                 ((Rect2D*)m_value)->width(), ((Rect2D*)m_value)->height());
+        break;
+
+    case AABOX:
+        t.printf("AAB(V3(%g, %g, %g), V3(%g, %g, %g))", 
+                 aabox().low().x,
+                 aabox().low().y,
+                 aabox().low().z,
+                 aabox().high().x,
+                 aabox().high().y,
+                 aabox().high().z);
+        break;
+
     case VECTOR2:
         t.printf("V2(%g, %g)", ((Vector2*)m_value)->x, ((Vector2*)m_value)->y);
         break;
@@ -487,6 +530,41 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 
                 m_type = BOOLEAN;
                 m_value = new bool(false);
+
+            } else if (s == "R") {
+                
+                m_type = RECT2D;
+                t.readSymbol("(");
+                float x,y,w,h;
+                x = (float)t.readNumber();
+                t.readSymbol(",");
+                y = (float)t.readNumber();
+                t.readSymbol(",");
+                w = (float)t.readNumber();
+                t.readSymbol(",");
+                h = (float)t.readNumber();
+                t.readSymbol(")");
+                m_value = new Rect2D(Rect2D::xywh(x, y, w, h));
+
+            } else if (s == "AAB") {
+
+                m_type = AABOX;
+                Vector3 v[2];
+                t.readSymbol("(");
+                for (int i = 0; i < 2; ++i) {
+                    t.readSymbols("V3", "(");
+                    v[i].x = (float)t.readNumber();
+                    t.readSymbol(",");
+                    v[i].y = (float)t.readNumber();
+                    t.readSymbol(",");
+                    v[i].z = (float)t.readNumber();
+                    t.readSymbol(",");
+                    if (i == 0) {
+                        t.readSymbol(",");
+                    }
+                }
+                t.readSymbol(")");
+                m_value = new AABox(v[0], v[1]);
 
             } else if (s == "V2") {
 
@@ -843,6 +921,42 @@ double AnyVal::number(double defaultVal) const {
         return defaultVal;
     } else {
         return *(double*)m_value;
+    }
+}
+
+
+const Rect2D& AnyVal::rect2D() const {
+    if (m_type != RECT2D) {
+        throw WrongType(RECT2D, m_type);
+    }
+
+    return *(Rect2D*)m_value;
+}
+
+
+const Rect2D& AnyVal::rect2D(const Rect2D& defaultVal) const {
+    if (m_type != RECT2D) {
+        return defaultVal;
+    } else {
+        return *(Rect2D*)m_value;
+    }
+}
+
+
+const AABox& AnyVal::aabox() const {
+    if (m_type != AABOX) {
+        throw WrongType(AABOX, m_type);
+    }
+
+    return *(AABox*)m_value;
+}
+
+
+const AABox& AnyVal::aabox(const AABox& defaultVal) const {
+    if (m_type != AABOX) {
+        return defaultVal;
+    } else {
+        return *(AABox*)m_value;
     }
 }
 

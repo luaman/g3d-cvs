@@ -28,6 +28,8 @@ class TextInput;
 class TextOutput;
 class BinaryInput;
 class BinaryOutput;
+class Rect2D;
+class AABox;
 
 /**
  A generic value, useful for defining property trees that can
@@ -46,7 +48,7 @@ class BinaryOutput;
  <pre>
     AnyVal property(TextInput("c:/tmp/test.txt"));
 
-    Vector3 vel = propetery["angular velocity"]
+    Vector3 vel = property["angular velocity"]
 
     \/\/ Using defaults to handle errors:
     \/\/ If there was no "enabled" value, this will return the default instead of failing
@@ -153,6 +155,8 @@ public:
         COORDINATEFRAME, 
         COLOR3, 
         COLOR4, 
+        RECT2D,
+        AABOX,
         ARRAY, 
         TABLE};
 
@@ -235,6 +239,9 @@ public:
 
     AnyVal(const G3D::Quat&);
 
+    AnyVal(const G3D::Rect2D&);
+    AnyVal(const G3D::AABox&);
+
     AnyVal(const G3D::CoordinateFrame&);
     AnyVal(const G3D::Matrix3&);
     AnyVal(const G3D::Matrix4&);
@@ -269,6 +276,20 @@ public:
 
     operator const std::string& () const {
         return string();
+    }
+
+    const G3D::Rect2D& rect2D() const;
+    const G3D::Rect2D& rect2D(const G3D::Rect2D& defaultVal) const;
+
+    operator const Rect2D& () const {
+        return rect2D();
+    }
+
+    const G3D::AABox& aabox() const;
+    const G3D::AABox& aabox(const G3D::AABox& defaultVal) const;
+
+    operator const AABox& () const {
+        return aabox();
     }
 
     const G3D::Vector2& vector2() const;

@@ -21,6 +21,7 @@
      <li> User camera control requires right mouse click to move
      <li> G3D::AnyVal no longer separates table entries with ";"
      <li> G3D::AnyVal now provides casts to basic data types
+     <li> G3D::AnyVal G3D::Rect2D and G3D::AABox types.
      <li> GApp::onGraphics now takes posed model arguments
      <li> GApp::onPose
      <li> All classes that read from files can now read data inside zipfiles.
