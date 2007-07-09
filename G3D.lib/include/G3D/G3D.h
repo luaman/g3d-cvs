@@ -52,6 +52,7 @@
 #include "G3D/prompt.h"
 #include "G3D/Table.h"
 #include "G3D/Set.h"
+#include "G3D/GUniqueID.h"
 #include "G3D/BinaryFormat.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"

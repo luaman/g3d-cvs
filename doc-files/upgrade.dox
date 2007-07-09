@@ -191,6 +191,9 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::GFont::get2DStringBounds</td><td>G3D::GFont::bounds</td></tr>
 <tr><td>G3D::GModule::getPosedModel</td><td>G3D::Widget::onPose</td></tr>
 <tr><td>G3D::GApp::getPosedModel</td><td>G3D::GApp::onPose</td></tr>
+<tr><td>G3D::NetworkDevice::createListener</td><td>G3D::NetListener::create</td></tr>
+<tr><td>G3D::NetworkDevice::createLightweightConduit</td><td>G3D::LightweightConduit::create</td></tr>
+<tr><td>G3D::NetworkDevice::createReliableConduit</td><td>G3D::ReliableConduit::create</td></tr>
 </table>
 </p>
 

@@ -24,6 +24,7 @@
      <li> G3D::AnyVal G3D::Rect2D and G3D::AABox types
      <li> G3D::NetListener, G3D::ReliableConduit, and G3D::LightweightConduit can now be created without an explicit NetworkDevice pointer
      <li> GApp::onGraphics now takes posed model arguments
+     <li> G3D::GUniqueID
      <li> GApp::onPose
      <li> All classes that read from files can now read data inside zipfiles.
      <li> Changed G3D::hashCode(T) to ::GHashCode<T>(T) [Corey]
