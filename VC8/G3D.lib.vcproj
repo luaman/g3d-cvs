@@ -299,6 +299,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\GUniqueID.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Image1.cpp"
 				>
 			</File>
@@ -614,6 +618,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\GThread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\GUniqueID.h"
 				>
 			</File>
 			<File
