@@ -591,7 +591,7 @@ bool PosedArticulatedModel::renderFFNonShadowedOpaqueTerms(
             }
             
             // Lights
-            for (int L = 0; L < iMin(8, lighting->lightArray.size()); ++L) {
+            for (int L = 0; L < iMin(7, lighting->lightArray.size()); ++L) {
                 rd->setLight(L + 1, lighting->lightArray[L]);
             }
         }
