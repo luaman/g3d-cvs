@@ -2,9 +2,9 @@
   @file empty/main.cpp
 
   This is a sample main.cpp to get you started with G3D.  It is designed to make writing an
-  application easy.  Although the GApp2 infrastructure is helpful for most projects, you are not 
+  application easy.  Although the GApp infrastructure is helpful for most projects, you are not 
   restricted to using it--choose the level of support that is best for your project.  You can 
-  also customize GApp2 through its members and change its behavior by overriding methods.
+  also customize GApp through its members and change its behavior by overriding methods.
 
   @author Morgan McGuire, morgan@cs.williams.edu
  */
@@ -15,13 +15,13 @@
 #   error Requires G3D 7.00
 #endif
 
-class App : public GApp2 {
+class App : public GApp {
 public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
 
-    App(const GApp2::Settings& settings = GApp2::Settings());
+    App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
     virtual void onLogic();
@@ -35,7 +35,7 @@ public:
     void printConsoleHelp();
 };
 
-App::App(const GApp2::Settings& settings) : GApp2(settings) {}
+App::App(const GApp::Settings& settings) : GApp(settings) {}
 
 void App::onInit() {
     // Called before the application loop beings.  Load data here

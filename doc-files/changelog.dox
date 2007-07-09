@@ -16,6 +16,7 @@
      <li> Key to toggle the user camera is now F2 (was Tab)
      <li> Support for g++ 4.1 [Corey]
      <li> Patches for 64-bit compilation [Corey]
+     <li> WinMain is now compiled as C++ code (fixed some "manifest" errors on certain VC8 installations)
      <li> G3D::ShadowMap
      <li> G3D::Shader now defines platform and graphics vendor macros
      <li> User camera control requires right mouse click to move

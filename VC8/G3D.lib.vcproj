@@ -455,7 +455,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\G3D.lib\source\WinMain.c"
+				RelativePath="..\G3D.lib\source\WinMain.cpp"
 				>
 			</File>
 		</Filter>
