@@ -409,7 +409,7 @@ private:
 
         RealTime TIMEOUT = 2.0;
 
-        ReliableConduitRef server = netDevice->createReliableConduit(address);
+        ReliableConduitRef server = ReliableConduit::create(address);
 
         if (! server->ok()) {
             return false;
@@ -512,7 +512,7 @@ public:
 
         lastServerCheck = System::time();
 
-        net = netDevice->createLightweightConduit(settings->serverBroadcastPort, true, true);
+        net = LightweightConduit::create(settings->serverBroadcastPort, true, true);
 
         // Send announcement
         NetAddress broadcast = NetAddress::broadcastAddress(settings->clientBroadcastPort);

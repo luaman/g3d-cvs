@@ -255,29 +255,6 @@ void NetworkDevice::_cleanup() {
     #endif
 }
 
-
-LightweightConduitRef NetworkDevice::createLightweightConduit(
-    uint16                      receivePort,
-    bool                        enableReceive,
-    bool                        enableBroadcast) {
-    
-    return new LightweightConduit(this, receivePort, 
-                                  enableReceive, enableBroadcast);
-}
-
-
-ReliableConduitRef NetworkDevice::createReliableConduit(
-    const NetAddress&           address) {
-
-    return new ReliableConduit(this, address);
-}
-
-
-NetListenerRef NetworkDevice::createListener(const uint16 port) {
-    return new NetListener(this, port);
-}
- 
-
 bool NetworkDevice::bind(SOCKET sock, const NetAddress& addr) const {
     Log::common()->printf("Binding socket %d on port %d ", 
                      sock, htons(addr.addr.sin_port));
@@ -334,9 +311,8 @@ void NetworkDevice::localHostAddresses(Array<NetAddress>& array) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Conduit::Conduit(NetworkDevice* _nd) : binaryOutput("<memory>", G3D_LITTLE_ENDIAN) {
+Conduit::Conduit() : binaryOutput("<memory>", G3D_LITTLE_ENDIAN) {
     sock                = 0;
-    nd                  = _nd;
     mSent               = 0;
     mReceived           = 0;
     bSent               = 0;
@@ -345,7 +321,7 @@ Conduit::Conduit(NetworkDevice* _nd) : binaryOutput("<memory>", G3D_LITTLE_ENDIA
 
 
 Conduit::~Conduit() {
-    nd->closesocket(sock);
+    NetworkDevice::instance()->closesocket(sock);
 }
 
 
@@ -406,12 +382,17 @@ static void increaseBufferSize(SOCKET sock) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+ReliableConduitRef ReliableConduit::create(const NetAddress& address) {
+    return new ReliableConduit(address);
+}
+
+
 ReliableConduit::ReliableConduit(
-    NetworkDevice*      _nd,
-    const NetAddress&   _addr) : 
-    Conduit(_nd), state(NO_MESSAGE), receiveBuffer(NULL),
+    const NetAddress&   _addr) : state(NO_MESSAGE), receiveBuffer(NULL),
     receiveBufferTotalSize(0), receiveBufferUsedSize(0) {
 
+    NetworkDevice* nd = NetworkDevice::instance();
+    
     messageType         = 0;
 
     addr = _addr;
@@ -500,10 +481,11 @@ ReliableConduit::ReliableConduit(
 
 
 ReliableConduit::ReliableConduit(
-    NetworkDevice*    _nd, 
     const SOCKET&      _sock, 
-    const NetAddress&  _addr) : Conduit(_nd), state(NO_MESSAGE), 
-    receiveBuffer(NULL), receiveBufferTotalSize(0), 
+    const NetAddress&  _addr) : 
+    state(NO_MESSAGE), 
+    receiveBuffer(NULL), 
+    receiveBufferTotalSize(0), 
     receiveBufferUsedSize(0) {
     sock                = _sock;
     addr                = _addr;
@@ -625,6 +607,7 @@ uint32 ReliableConduit::waitingMessageType() {
 
 
 void ReliableConduit::sendBuffer(const BinaryOutput& b) {
+    NetworkDevice* nd = NetworkDevice::instance();
     int ret = ::send(sock, (const char*)b.getCArray(), b.size(), 0);
     
     if (ret == SOCKET_ERROR) {
@@ -663,6 +646,7 @@ NetAddress ReliableConduit::address() const {
 
 
 void ReliableConduit::receiveHeader() {
+    NetworkDevice* nd = NetworkDevice::instance();
     debugAssert(state == RECEIVING);
 
     // Read the type
@@ -724,6 +708,7 @@ void ReliableConduit::receiveHeader() {
 
 
 void ReliableConduit::receiveIntoBuffer() {
+    NetworkDevice* nd = NetworkDevice::instance();
 
     debugAssert(state == RECEIVING);
     debugAssert(messageType != 0);
@@ -774,12 +759,19 @@ void ReliableConduit::receiveIntoBuffer() {
 
 
 ///////////////////////////////////////////////////////////////////////////////
+LightweightConduitRef LightweightConduit::create(
+    uint16                      receivePort,
+    bool                        enableReceive,
+    bool                        enableBroadcast) {
+    
+    return new LightweightConduit(receivePort, enableReceive, enableBroadcast);
+}
 
 LightweightConduit::LightweightConduit(
-    NetworkDevice* _nd, 
     uint16 port,
     bool enableReceive, 
-    bool enableBroadcast) : Conduit(_nd) {
+    bool enableBroadcast) {
+    NetworkDevice* nd = NetworkDevice::instance();
 
     Log::common()->print("Creating a UDP socket        ");
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -850,6 +842,7 @@ bool LightweightConduit::receive(NetAddress& sender) {
 
 
 void LightweightConduit::sendBuffer(const NetAddress& a, BinaryOutput& b) {
+    NetworkDevice* nd = NetworkDevice::instance();
     if (sendto(sock, (const char*)b.getCArray(), b.size(), 0,
        (struct sockaddr *) &(a.addr), sizeof(a.addr)) == SOCKET_ERROR) {
         Log::common()->printf("Error occured while sending packet "
@@ -870,6 +863,7 @@ bool LightweightConduit::messageWaiting() const {
 
 
 uint32 LightweightConduit::waitingMessageType() {
+    NetworkDevice* nd = NetworkDevice::instance();
     if (! messageWaiting()) {
         return 0;
     } 
@@ -921,8 +915,13 @@ uint32 LightweightConduit::waitingMessageType() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-NetListener::NetListener(NetworkDevice* _nd, uint16 port) {
-    nd = _nd;
+NetListenerRef NetListener::create(const uint16 port) {
+    return new NetListener(port);
+}
+
+
+NetListener::NetListener(uint16 port) {
+    NetworkDevice* nd = NetworkDevice::instance();
 
     // Start the listener socket
     Log::common()->print("Creating a listener            ");
@@ -975,12 +974,13 @@ NetListener::NetListener(NetworkDevice* _nd, uint16 port) {
 
 
 NetListener::~NetListener() {
+    NetworkDevice* nd = NetworkDevice::instance();
     nd->closesocket(sock);
 }
 
 
 ReliableConduitRef NetListener::waitForConnection() {
-
+    NetworkDevice* nd = NetworkDevice::instance();
     // The address of the connecting host
     SOCKADDR_IN    remote_addr;
     int iAddrLen = sizeof(remote_addr);
@@ -1001,11 +1001,11 @@ ReliableConduitRef NetListener::waitForConnection() {
                          inet_ntoa(remote_addr.sin_addr), sClient);
 
     #ifndef G3D_WIN32
-        return new ReliableConduit(nd, sClient, 
+        return new ReliableConduit(sClient, 
                      NetAddress(htonl(remote_addr.sin_addr.s_addr), 
                                 ntohs(remote_addr.sin_port)));
     #else
-        return new ReliableConduit(nd, sClient, 
+        return new ReliableConduit(sClient, 
                     NetAddress(ntohl(remote_addr.sin_addr.S_un.S_addr), 
                                ntohs(remote_addr.sin_port)));
     #endif

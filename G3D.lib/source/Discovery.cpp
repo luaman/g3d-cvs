@@ -116,9 +116,9 @@ void DiscoveryServer::init(
                        settings->serverAdvertisementPort);
     }
 
-    net = netDevice->createLightweightConduit(settings->clientBroadcastPort, true, true);
+    net = LightweightConduit::create(settings->clientBroadcastPort, true, true);
 
-    listener = netDevice->createListener(settings->serverAdvertisementPort);
+    listener = NetListener::create(settings->serverAdvertisementPort);
 
     // Send initial announcement
     sendAnnouncement();

@@ -66,7 +66,6 @@ protected:
     uint64                          bSent;
     uint64                          bReceived;
 
-    class NetworkDevice*            nd;
     SOCKET                          sock;
 
     /**
@@ -75,7 +74,7 @@ protected:
      */
     BinaryOutput                    binaryOutput;
 
-    Conduit(class NetworkDevice* _nd);
+    Conduit();
 
 public:
 
@@ -179,10 +178,9 @@ private:
       */
     size_t                          receiveBufferUsedSize;
 
-    ReliableConduit(class NetworkDevice* _nd, const NetAddress& addr);
+    ReliableConduit(const NetAddress& addr);
 
-    ReliableConduit(class NetworkDevice* _nd, 
-                    const SOCKET& sock, 
+    ReliableConduit(const SOCKET& sock, 
                     const NetAddress& addr);
 
     template<typename T> static void serializeMessage
@@ -231,6 +229,12 @@ private:
     void receiveHeader();
 
 public:
+
+    /**
+     Client invokes this to connect to a server.  The call blocks until the 
+     conduit is opened.  The conduit will not be ok() if it fails.
+     */
+    static ReliableConduitRef create(const NetAddress& address);
 
     /** Closes the socket. */
     ~ReliableConduit();
@@ -330,6 +334,8 @@ public:
 };
 
 
+typedef ReferenceCountedPointer<class LightweightConduit> LightweightConduitRef;
+
 /**
  Provides fast but unreliable transfer of messages.  On a LAN,
  LightweightConduit will probably never drop messages but you
@@ -345,19 +351,16 @@ public:
 
 [Server Side]
 <OL>
-<LI> Create a G3D::NetworkDevice on program startup (if you use G3D::GApp, 
-it will do this for you)
-
-<LI> Call G3D::NetworkDevice::createLightweightConduit(port, true, false), 
+<LI> Call LightweightConduit::create(port, true, false), 
 where port is the port on which you will receive messages.
 
-<LI> Poll G3D::LightWeightcontuit::messageWaiting from your main loop.  When 
-it is true (or, equivalently, when G3D::LightWeightcontuit::waitingMessageType
+<LI> Poll LightweightConduit::messageWaiting from your main loop.  When 
+it is true (or, equivalently, when LightweightConduit::waitingMessageType
 is non-zero) there is an incoming message.
 
-<LI> To read the incoming message, call G3D::LightWeightconduit::receive with 
-the appropriate subclass of G3D::NetMessage. 
-G3D::LightWeightcontuit::waitingMessageType tells you what subclass is 
+<LI> To read the incoming message, call LightweightConduit::receive with 
+the appropriate class type, which mist have a deserialize method.
+LightweightConduit::waitingMessageType tells you what class is 
 needed (you make up your own message constants for your program; numbers 
 under 1000 are reserved for G3D's internal use).
 
@@ -367,11 +370,7 @@ it go out of scope and the conduit cleans itself up automatically.
 
 [Client Side]
 <OL>
-
-<LI> Create a G3D::NetworkDevice on program startup (if you use G3D::GApp, 
-it will do this for you)
-
-<LI> Call G3D::NetworkDevice::createLightweightConduit().  If you will 
+<LI> Call G3D::LightweightConduit::create().  If you will 
 broadcast to all servers on a LAN, set the third optional argument to 
 true (the default is false for no broadcast).  You can also set up the
 receive port as if it was a server to send and receive from a single 
@@ -410,8 +409,7 @@ private:
      */
     Array<uint8>            messageBuffer;
 
-    LightweightConduit(class NetworkDevice* _nd, uint16 receivePort, 
-                       bool enableReceive, bool enableBroadcast);
+    LightweightConduit(uint16 receivePort, bool enableReceive, bool enableBroadcast);
     
     void sendBuffer(const NetAddress& a, BinaryOutput& b);
 
@@ -447,6 +445,8 @@ private:
     }
 
 public:
+
+    static LightweightConduitRef create(uint16 receivePort, bool enableReceive, bool enableBroadcast);
 
     class PacketSizeException {
     public:
@@ -515,9 +515,9 @@ public:
     virtual bool messageWaiting() const;
 };
 
-typedef ReferenceCountedPointer<class LightweightConduit> LightweightConduitRef;
-
 ///////////////////////////////////////////////////////////////////////////////
+
+typedef ReferenceCountedPointer<class NetListener> NetListenerRef;
 
 /**
  Runs on the server listening for clients trying to make reliable connections.
@@ -527,13 +527,14 @@ private:
 
     friend class NetworkDevice;
 
-    class NetworkDevice*            nd;
     SOCKET                          sock;
 
     /** Port is in host byte order. */
-    NetListener(class NetworkDevice* _nd, uint16 port);
+    NetListener(uint16 port);
 
 public:
+
+    static NetListenerRef create(const uint16 port);
 
     ~NetListener();
 
@@ -548,7 +549,6 @@ public:
     bool ok() const;
 };
 
-typedef ReferenceCountedPointer<class NetListener> NetListenerRef;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -622,28 +622,6 @@ public:
         returns all of them. */
     void localHostAddresses(Array<NetAddress>& array) const;
 
-
-    /**
-     If receivePort is specified and enableReceive is true, the conduit can 
-     receive as well as send.
-     @param receivePort host byte order
-     */
-    LightweightConduitRef createLightweightConduit(
-        uint16 receivePort = 0, 
-        bool enableReceive = false, 
-        bool enableBroadcast = false);
-
-    /**
-     Client invokes this to connect to a server.  The call blocks until the 
-     conduit is opened.  The conduit will not be ok() if it fails.
-     */
-    ReliableConduitRef createReliableConduit(const NetAddress& address);
-
-    /**
-     Call this on the server side to create an object that listens for
-     connections.
-     */
-    NetListenerRef createListener(const uint16 port);
 };
 
 

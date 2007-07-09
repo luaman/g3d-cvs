@@ -1,7 +1,6 @@
 /**
  @page changelog Change Log
 
-<IMG SRC="G3D.gif" ALIGN=RIGHT>
 <P>
 
    Major version numbers introduce API changes that are not backwards
@@ -9,6 +8,7 @@
    previous major release, except for critical bug fixes.  Deprecated functionality
    will be supported until (at least) the next major release.
 
+<hr>
    <P>
    Changes in 7.00:
    <ul>     
@@ -21,7 +21,8 @@
      <li> User camera control requires right mouse click to move
      <li> G3D::AnyVal no longer separates table entries with ";"
      <li> G3D::AnyVal now provides casts to basic data types
-     <li> G3D::AnyVal G3D::Rect2D and G3D::AABox types.
+     <li> G3D::AnyVal G3D::Rect2D and G3D::AABox types
+     <li> G3D::NetListener, G3D::ReliableConduit, and G3D::LightweightConduit can now be created without an explicit NetworkDevice pointer
      <li> GApp::onGraphics now takes posed model arguments
      <li> GApp::onPose
      <li> All classes that read from files can now read data inside zipfiles.
@@ -204,7 +205,7 @@
      <LI> Fix: [ 1511729 ] NVIDIA rectangle generates errors in mipmap code
      <LI> Fix: [ 1507296 ] RenderDevice must swapBuffer on resize
     </UL>
-
+<hr>
    <P>
    Changes in 6.09:
    <UL>
@@ -285,6 +286,7 @@
     <LI> Fix: [ 1484924 ] collisionTimeForMovingPointFixedBox normals
    </UL>
   <P>   
+<hr>
    Changes in 6.08:
     <UL>      
 	  <LI> Moved Win32 linker statements out of platform.h for IncrediBuild compatibility.
@@ -413,6 +415,7 @@
     </UL>
 
   <P>
+<hr>
    Changes in 6.07:
    <UL>
     <LI> G3D::GWindow::makeCurrent
@@ -502,6 +505,7 @@
    </UL>
 
   <P>
+<hr>
    Changes in 6.06:
    <UL>
     <LI> G3D::Lighting::emissiveScale
@@ -527,6 +531,7 @@
     <LI> FIX: [ 1191817 ] unsigned warnings in BinaryInput
    </UL>
 
+<hr>
    <P>
    Changes in 6.05:
    <UL>
@@ -719,6 +724,7 @@
      <LI> Fix: Texture mapping modes for pre-OpenGL 1.3 cards [Dan & Morgan]
    </UL>
 
+<hr>
    <P>
    Changes in 6.04:
    <UL>
@@ -825,7 +831,7 @@
 				don't support it.
 	 <LI> Fix: Texture binding for VertexAndPixelShader
    </UL>
-
+<hr>
    <P>
    Changes in 6.03:
    <UL>
@@ -906,6 +912,7 @@
 	 <LI> Fix: getDepthBufferValue off by 1 [Andi Fein]
    </UL>
 
+<hr>
    <P>
    Changes in 6.02:
    <UL>
@@ -975,6 +982,7 @@
           cursor that occurs after a break.
    </UL>
 
+<hr>
    <P>
    Changes in 6.01:
    <UL>
@@ -1027,6 +1035,7 @@
 	 <LI> Internal G3D::KDTreeSet state now private.
    </UL>
 
+<hr>
    <P>
    Changes in 6.00:
    <UL>
@@ -1282,6 +1291,7 @@
                longer tries to collect before re-assigning
    </UL>
 
+<hr>
    <P>
    Changes in 5.01
    <UL>
@@ -1350,7 +1360,7 @@
      <LI> Deprecated several arguments to the texture constructors.
    </UL>
 
-
+<hr>
    Changes in 5.00
    <UL>
      <LI> Color3::operator*=(const Color3&)
@@ -1460,6 +1470,7 @@
           collision detection
    </UL>
 
+<hr>
    <P>
     Changes in 4.01
    <UL>
@@ -1492,6 +1503,7 @@
      <LI> VideoFreak font by Jakob Fischer pizzadude@pizzadude.dk
    </UL>
 
+<hr>
    <P>
    Changes in 4.00
    <UL>
@@ -1513,6 +1525,7 @@
      <LI> Fix: Table.copyFrom and copy constructor now work
    </UL>
 
+<hr>
    <P>
    Changes in 3.02
    <UL>
@@ -1537,7 +1550,7 @@
      <LI> Removed G3D::Quat virtual destructor [Kevin]
    </UL>
 
-  
+  <hr>
    Changes in 3.01
    <UL>
      <LI> Changed an assert() to debugAssert() in Queue.h
@@ -1552,7 +1565,7 @@
      <LI> G3D::Texture (includes texture compression, image loading, and texture rectangle)
      <LI> Added a comment to the vector classes noting that they can't be sublcassed [Kevin Egan]
    </UL>
-
+<hr>
    Changes in 3.00
    <UL>
      <LI> G3D::NEWLINE
@@ -1585,6 +1598,7 @@
      <LI> IFS_Demo for loading IFS files, dealing with models in OpenGL [Nate Miller]
    </UL>
 
+<hr>
    <P>
    Changes in 2.00
    <UL>
@@ -1593,6 +1607,7 @@
      <LI> Removed Group
    </UL>
 
+<hr>
    <P>
    Changes in 1.10
    <UL>
@@ -1631,6 +1646,7 @@
    </UL>
    <P>
 
+<hr>
    Changes in 1.09
    <UL>
      <LI> Removed pointer hash [Aaron Orenstein]
