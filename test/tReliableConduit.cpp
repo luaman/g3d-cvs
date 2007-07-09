@@ -45,9 +45,9 @@ void testReliableConduit(NetworkDevice* nd) {
 
 	{
 		uint16 port = 10011;
-		NetListenerRef listener = nd->createListener(port);
+        NetListenerRef listener = NetListener::create(port);
 
-		ReliableConduitRef clientSide = nd->createReliableConduit(NetAddress("localhost", port));
+        ReliableConduitRef clientSide = ReliableConduit::create(NetAddress("localhost", port));
 		ReliableConduitRef serverSide = listener->waitForConnection();
 
 		debugAssert(clientSide->ok());

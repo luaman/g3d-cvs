@@ -74,9 +74,10 @@
      <li> G3D::fileLength supports filename paths that contain .zip [Eric]
      <li> G3D::getFiles and G3D::getDirs support filename paths that contain .zip [Eric]
      <li> Viewer (tool) - Allows drag and drop viewing of many supported file formats [Eric]
-     <li> GApp::debugCamera -> GApp::defaultCamera
-     <li> GApp::debugController -> GApp::defaultController
-     <li> Made GApp::debugText private
+     <li> GWindow::Settings has an allowMaximize field.  Win32Window will have an activated 'Maximize' button if true [Eric]
+     <li> GApp2::debugCamera -> GApp2::defaultCamera
+     <li> GApp2::debugController -> GApp2::defaultController
+     <li> Made GApp2::debugText private
      <li> Added g3d_WorldLight0 to the G3D shader extensions
      <li> Added Shader support for GL_FLOAT_MAT3_ARB uniforms
      <li> Tab (command completion) no longer auto-repeats in GConsole
