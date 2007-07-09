@@ -51,7 +51,7 @@ void shaderVersions(
 void App::showSplashScreen() {
 	Texture::Settings textureSettings;
 	textureSettings.wrapMode = WrapMode::CLAMP;
-    Texture::Ref gfxMeterTexture = Texture::fromFile("gears.jpg", TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
+    Texture::Ref gfxMeterTexture = Texture::fromFile("gears.jpg", TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
 
     // Load the font
     if (reportFont.isNull()) {
@@ -97,7 +97,7 @@ int App::main() {
         if (filename != "") {
 			Texture::Settings textureSettings;
 			textureSettings.wrapMode = WrapMode::CLAMP;
-            cardLogo = Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
+            cardLogo = Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
         }
     }
 
@@ -113,7 +113,7 @@ int App::main() {
         if (filename != "") {
 			Texture::Settings textureSettings;
 			textureSettings.wrapMode = WrapMode::CLAMP;
-            chipLogo = Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
+            chipLogo = Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
         }
 
 #       ifdef G3D_WIN32
@@ -141,7 +141,7 @@ int App::main() {
         if (filename != "") {
 			Texture::Settings textureSettings;
 			textureSettings.wrapMode = WrapMode::CLAMP;
-            osLogo = Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, textureSettings);
+            osLogo = Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
         }
     }
 

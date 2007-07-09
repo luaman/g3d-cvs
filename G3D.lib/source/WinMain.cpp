@@ -27,13 +27,10 @@
 #  undef for
 #endif
 
-
 extern int main(int argc, const char** argv);
 
 /* Parse a command line buffer into arguments */
-static int
-ParseCommandLine(char *cmdline, char **argv)
-{
+static int ParseCommandLine(char *cmdline, char **argv) {
     char *bufp;
     int argc;
 
@@ -82,9 +79,7 @@ ParseCommandLine(char *cmdline, char **argv)
 }
 
 /* Show an error message */
-static void
-ShowError(const char *title, const char *message)
-{
+static void ShowError(const char *title, const char *message) {
 /* If USE_MESSAGEBOX is defined, you need to link with user32.lib */
 #ifdef USE_MESSAGEBOX
     MessageBox(NULL, message, title, MB_ICONEXCLAMATION | MB_OK);
@@ -94,29 +89,24 @@ ShowError(const char *title, const char *message)
 }
 
 /* Pop up an out of memory message, returns to Windows */
-static BOOL
-OutOfMemory(void)
-{
+static BOOL OutOfMemory(void) {
     ShowError("Fatal Error", "Out of memory - aborting");
     return FALSE;
 }
 
 
-/* This is where execution begins [windowed apps] */
-int WINAPI
-G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
-{
+int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
     char **argv;
     int argc;
     int status;
     char *cmdline;
-#ifdef _WIN32_WCE
-    wchar_t *bufp;
-    int nLen;
-#else
-    char *bufp;
-    size_t nLen;
-#endif
+#   ifdef _WIN32_WCE
+        wchar_t *bufp;
+        int nLen;
+#   else
+        char *bufp;
+        size_t nLen;
+#   endif
 
 #ifdef _WIN32_WCE
 #error WinCE not supported
@@ -162,4 +152,3 @@ G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 }
 
 #endif // if Win32
-

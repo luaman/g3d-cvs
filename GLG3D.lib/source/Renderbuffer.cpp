@@ -77,7 +77,7 @@ RenderbufferRef Renderbuffer::createEmpty(
     debugAssertGLOk();
 
     // Allocate storage for it
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, _format->OpenGLFormat, _width, _height);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, _format->openGLFormat, _width, _height);
 
     // Check for successful generation (ie, no INVALID_OPERATION)
     debugAssertGLOk();

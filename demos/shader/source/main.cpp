@@ -71,6 +71,7 @@ void App::onInit() {
     phongShader = Shader::fromFiles("phong.vrt", "phong.pix");
     model = IFSModel::fromFile(System::findDataFile("teapot.ifs"));
 
+    makeColorList(GFont::fromFile(System::findDataFile("icon.fnt")));
     makeGui();
 
     // Color 1 is red
@@ -104,7 +105,7 @@ void App::makeColorList(GFontRef iconFont) {
 }
 
 void App::makeGui() {
-    GuiSkinRef skin = GuiSkin::fromFile("twilight.skn", debugFont);
+    GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("twilight.skn"), debugFont);
     GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
     
     GuiPane* pane = gui->pane();

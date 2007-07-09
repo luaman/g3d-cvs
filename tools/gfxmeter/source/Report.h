@@ -26,7 +26,7 @@ public:
 	Texture::PreProcess preProcess;
 	preProcess.brighten = 2.0;
         material.texture.append(Texture::fromFile(filename + ".pcx", 
-            TextureFormat::AUTO, Texture::DIM_2D, Texture::Settings(), preProcess));
+            TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preProcess));
     }
 
     void render(RenderDevice* rd) {

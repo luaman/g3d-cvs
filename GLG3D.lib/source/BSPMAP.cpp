@@ -54,8 +54,8 @@ Map::Map():
     settings.wrapMode = WrapMode::CLAMP;
 
     defaultLightmap =
-        Texture::fromMemory("Default Light Map", arry, TextureFormat::RGB8, 1, 1, 1,
-                            TextureFormat::RGB8, Texture::DIM_2D, settings);
+        Texture::fromMemory("Default Light Map", arry, TextureFormat::RGB8(), 1, 1, 1,
+                            TextureFormat::RGB8(), Texture::DIM_2D, settings);
 }
 
 

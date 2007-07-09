@@ -3038,7 +3038,7 @@ void RenderDevice::configureShadowMap(
 
     // http://www.nvidia.com/dev_content/nvopenglspecs/GL_ARB_shadow.txt
 
-    debugAssertM(shadowMap->format()->OpenGLBaseFormat == GL_DEPTH_COMPONENT,
+    debugAssertM(shadowMap->format()->openGLBaseFormat == GL_DEPTH_COMPONENT,
         "Can only configure shadow maps from depth textures");
 
     debugAssertM(shadowMap->settings().depthReadMode != Texture::DEPTH_NORMAL,

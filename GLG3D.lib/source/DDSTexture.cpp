@@ -317,7 +317,7 @@ const uint32  DDSD_ALL                 = 0x00fff9eel;
 
 Texture::DDSTexture::DDSTexture(const std::string& filename) :
     bytes(NULL),
-    bytesFormat(TextureFormat::AUTO),
+    bytesFormat(TextureFormat::AUTO()),
     m_width(0),
     m_height(0),
     numMipMaps(0) {
@@ -363,13 +363,13 @@ Texture::DDSTexture::DDSTexture(const std::string& filename) :
         if (ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_FOURCC) {
             switch(ddsSurfaceDesc.ddpfPixelFormat.dwFourCC) {
                 case FOURCC_DXT1:
-                    bytesFormat = TextureFormat::RGBA_DXT1;
+                    bytesFormat = TextureFormat::RGBA_DXT1();
                     break;
                 case FOURCC_DXT3:
-                    bytesFormat = TextureFormat::RGBA_DXT3;
+                    bytesFormat = TextureFormat::RGBA_DXT3();
                     break;
                 case FOURCC_DXT5:
-                    bytesFormat = TextureFormat::RGBA_DXT5;
+                    bytesFormat = TextureFormat::RGBA_DXT5();
                     break;
                 default:
                     throw G3D::format("Loading \"%s\" failed. Unsupported DDS FourCC format.\n", filename.c_str());
@@ -382,7 +382,7 @@ Texture::DDSTexture::DDSTexture(const std::string& filename) :
                 (ddsSurfaceDesc.ddpfPixelFormat.dwBBitMask == 8) &&
                 (ddsSurfaceDesc.ddpfPixelFormat.dwRGBAlphaBitMask == 0)) {
 
-                    bytesFormat = TextureFormat::RGB8;
+                    bytesFormat = TextureFormat::RGB8();
             } else {
                 throw G3D::format("Loading \"%s\" failed. Unsupported RGBA DDS format.\n", filename.c_str());
             }

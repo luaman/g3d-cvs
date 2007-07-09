@@ -79,9 +79,9 @@ SkyRef Sky::fromFile(
     std::string filename = _filename[0];
 
     if (quality > 0.55) {
-        format      = TextureFormat::RGB8;
+        format      = TextureFormat::RGB8();
     } else {
-        format      = TextureFormat::RGB_DXT1;
+        format      = TextureFormat::RGB_DXT1();
     }
 
     // Look for the filename
@@ -200,14 +200,14 @@ Sky::Sky(
     const TextureFormat* alphaFormat;
 
     if (quality > .66) {
-        format      = TextureFormat::RGB8;
-        alphaFormat = TextureFormat::RGBA8;
+        format      = TextureFormat::RGB8();
+        alphaFormat = TextureFormat::RGBA8();
     } else if (quality > .33) {
-        format      = TextureFormat::RGBA_DXT1;
-        alphaFormat = TextureFormat::RGBA_DXT5;
+        format      = TextureFormat::RGBA_DXT1();
+        alphaFormat = TextureFormat::RGBA_DXT5();
     } else {
-        format      = TextureFormat::RGBA_DXT1;
-        alphaFormat = TextureFormat::RGBA_DXT5;
+        format      = TextureFormat::RGBA_DXT1();
+        alphaFormat = TextureFormat::RGBA_DXT5();
     }
 
     if (drawCelestialBodies) {

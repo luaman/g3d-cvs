@@ -28,6 +28,9 @@ GuiSkin::GuiSkin(const std::string& filename,
         float               fallbackSize, 
         const Color4&       fallbackColor, 
         const Color4&       fallbackOutlineColor) : delayedTextCount(0), inRendering(false){
+
+    alwaysAssertM(fileExists(filename), "Cannot find " + filename);
+
     BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
     m_textStyle.font = fallbackFont;
     m_textStyle.size = fallbackSize;
@@ -155,7 +158,7 @@ void GuiSkin::deserialize(const std::string& path, BinaryInput& b) {
     GImage image;
     image.decode(b, GImage::TGA);
 
-    texture = Texture::fromGImage(b.getFilename(), image, TextureFormat::RGBA8, Texture::DIM_2D, Texture::Settings::video());
+    texture = Texture::fromGImage(b.getFilename(), image, TextureFormat::RGBA8(), Texture::DIM_2D, Texture::Settings::video());
 
     toGLMatrix(Matrix4(1.0f / texture->width(), 0, 0, 0,
             0, 1.0f / texture->height(), 0, 0,

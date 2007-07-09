@@ -1481,7 +1481,7 @@ public:
         Array<Member> temp;
         memberTable.getKeys(temp);
         for (int i = 0; i < temp.size(); ++i) {
-            members.append(*(temp->handle));
+            members.append(*(temp.handle));
         }
     }
 

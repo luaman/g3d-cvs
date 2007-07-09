@@ -345,7 +345,7 @@ static Texture::Ref whiteMap() {
                 im.pixel3(x, y) = Color3(1, 1, 1);
             }
         }
-        map = Texture::fromGImage("White", im, TextureFormat::RGB8);
+        map = Texture::fromGImage("White", im, TextureFormat::RGB8());
     }
     return map;
 }

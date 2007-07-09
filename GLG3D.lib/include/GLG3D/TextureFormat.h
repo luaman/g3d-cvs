@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-05-23
-  @edited  2006-01-11
+  @edited  2007-07-08
 */
 
 #ifndef GLG3D_TEXTUREFORMAT_H
@@ -19,14 +19,10 @@ namespace G3D {
 /**
  Used to describe texture formats to the G3D::Texture class.
  Don't construct these; use the static constants provided.
-
- @deprecated In 7.00, all static members will become functions with the 
- same name to avoid global initialization issues.
  */
 class TextureFormat {
 public:
 
-	static bool valid;		// A hack to deal with app destruction. Set to false when static TextureFormats are deleted
     enum Code {
         CODE_L8,
         CODE_L16,
@@ -124,12 +120,12 @@ public:
     /**
      The GL format equivalent to this one.  Zero if there is no equivalent.
      */
-    GLenum              OpenGLFormat;
+    GLenum              openGLFormat;
 
     /**
      The GL base format equivalent to this one (e.g., GL_RGB, GL_ALPHA).  Zero if there is no equivalent.
      */
-    GLenum              OpenGLBaseFormat;
+    GLenum              openGLBaseFormat;
 
     int                 luminanceBits;
 
@@ -174,6 +170,11 @@ public:
     int                 hardwareBitsPerTexel;
 
     /**
+     The GL bytes format of the data buffer used with this texture format.
+     */
+    GLenum              openGLDataFormat;
+
+    /**
      True if there is no alpha channel for this texture.
      */
     bool                opaque;
@@ -197,6 +198,7 @@ private:
         int             stencilBits,
         int             hardwareBitsPerTexel,
         int             packedBitsPerTexel,
+        GLenum          glDataFormat,
         bool            opaque,
         bool            floatingPoint,
         Code            code,
@@ -210,86 +212,86 @@ public:
      */
     enum {SAME_AS_SCREEN = 0};
 
-    static const TextureFormat* L8;
+    static const TextureFormat* L8();
 
-    static const TextureFormat* L16;
+    static const TextureFormat* L16();
 
-    static const TextureFormat* L16F;
+    static const TextureFormat* L16F();
     
-    static const TextureFormat* L32F;
+    static const TextureFormat* L32F();
 
-    static const TextureFormat* A8;
+    static const TextureFormat* A8();
 
-    static const TextureFormat* A16;
+    static const TextureFormat* A16();
 
-    static const TextureFormat* A16F;
+    static const TextureFormat* A16F();
     
-    static const TextureFormat* A32F;
+    static const TextureFormat* A32F();
 
-    static const TextureFormat* LA4;
+    static const TextureFormat* LA4();
 
-    static const TextureFormat* LA8;
+    static const TextureFormat* LA8();
 
-    static const TextureFormat* LA16;
+    static const TextureFormat* LA16();
 
-    static const TextureFormat* LA16F;
+    static const TextureFormat* LA16F();
     
-    static const TextureFormat* LA32F;
+    static const TextureFormat* LA32F();
 
-    static const TextureFormat* RGB5;
+    static const TextureFormat* RGB5();
 
-    static const TextureFormat* RGB5A1;
+    static const TextureFormat* RGB5A1();
 
-    static const TextureFormat* RGB8;
+    static const TextureFormat* RGB8();
 
-    static const TextureFormat* RGB10;
+    static const TextureFormat* RGB10();
 
-    static const TextureFormat* RGB10A2;
+    static const TextureFormat* RGB10A2();
 
-    static const TextureFormat* RGB16;
+    static const TextureFormat* RGB16();
 
-    static const TextureFormat* RGB16F;
+    static const TextureFormat* RGB16F();
 
-    static const TextureFormat* RGB32F;
+    static const TextureFormat* RGB32F();
 
-    static const TextureFormat* RGBA8;
+    static const TextureFormat* RGBA8();
 
-    static const TextureFormat* RGBA16;
+    static const TextureFormat* RGBA16();
 
-    static const TextureFormat* RGBA16F;
+    static const TextureFormat* RGBA16F();
     
-    static const TextureFormat* RGBA32F;
+    static const TextureFormat* RGBA32F();
     
-    static const TextureFormat* RGB_DXT1;
+    static const TextureFormat* RGB_DXT1();
 
-    static const TextureFormat* RGBA_DXT1;
+    static const TextureFormat* RGBA_DXT1();
 
-    static const TextureFormat* RGBA_DXT3;
+    static const TextureFormat* RGBA_DXT3();
 
-    static const TextureFormat* RGBA_DXT5;
+    static const TextureFormat* RGBA_DXT5();
 
-    static const TextureFormat* DEPTH16;
+    static const TextureFormat* DEPTH16();
 
-    static const TextureFormat* DEPTH24;
+    static const TextureFormat* DEPTH24();
 
-    static const TextureFormat* DEPTH32;
+    static const TextureFormat* DEPTH32();
 
-    static const TextureFormat* STENCIL1;
+    static const TextureFormat* STENCIL1();
 
-    static const TextureFormat* STENCIL4;
+    static const TextureFormat* STENCIL4();
 
-    static const TextureFormat* STENCIL8;
+    static const TextureFormat* STENCIL8();
 
-    static const TextureFormat* STENCIL16;
+    static const TextureFormat* STENCIL16();
 
-    static const TextureFormat* DEPTH24_STENCIL8;
+    static const TextureFormat* DEPTH24_STENCIL8();
 
 	/**
      NULL pointer; indicates that the texture class should choose
      either RGBA8 or RGB8 depending on the presence of an alpha channel
      in the input.
      */
-    static const TextureFormat* AUTO;
+    static const TextureFormat* AUTO()  { return NULL; }
 
     /**
      Returns DEPTH16, DEPTH24, or DEPTH32 according to the bits

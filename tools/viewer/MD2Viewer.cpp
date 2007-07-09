@@ -61,7 +61,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 
 	if(desiredTexture != "") {
 		materials[0].texture.push(Texture::fromFile(desiredTexture,
-													TextureFormat::AUTO,
+													TextureFormat::AUTO(),
 													Texture::DIM_2D,
 													Texture::Settings::defaults(),
 													p));
@@ -78,7 +78,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 
 	if(fileExists(resourceDir + "weapon.pcx") && validWeapon){
 				materials[1].texture.push(Texture::fromFile(resourceDir + "weapon.pcx",
-															TextureFormat::AUTO,
+															TextureFormat::AUTO(),
 															Texture::DIM_2D,
 															Texture::Settings::defaults(),
 															p));

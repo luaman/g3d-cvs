@@ -54,7 +54,7 @@ GFontRef GFont::fromMemory(const std::string& name, const uint8* bytes, const in
 
 GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 
-    debugAssertM(GLCaps::supports(TextureFormat::A8),
+    debugAssertM(GLCaps::supports(TextureFormat::A8()),
         "This graphics card does not support the GL_ALPHA8 texture format used by GFont.");
     debugAssertGLOk();
 
@@ -94,11 +94,11 @@ GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
         Texture::fromMemory(
 			filename, 
 			ptr,
-            TextureFormat::A8, 
+            TextureFormat::A8(), 
 			width, 
 			height,
 			1,
-			TextureFormat::A8, 
+			TextureFormat::A8(), 
 			Texture::DIM_2D,
 			fontSettings);
    

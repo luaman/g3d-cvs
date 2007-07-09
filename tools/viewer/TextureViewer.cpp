@@ -24,7 +24,7 @@ m_filename("") {
 
 void TextureViewer::onInit(const std::string& filename) {
 
-	m_texture = Texture::fromFile( filename, TextureFormat::AUTO, Texture::DIM_2D_NPOT, Texture::Settings::video() );
+	m_texture = Texture::fromFile( filename, TextureFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::video() );
 	m_height = m_texture->height();
 	m_width = m_texture->width();
 	m_filename = filename;

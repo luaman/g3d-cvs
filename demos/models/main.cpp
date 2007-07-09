@@ -30,7 +30,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
 
         Texture::Settings settings;
         settings.wrapMode = WrapMode::CLAMP;
-        logo = Texture::fromFile("G3D-logo-tiny-alpha.tga", TextureFormat::AUTO, Texture::DIM_2D, settings);
+        logo = Texture::fromFile("G3D-logo-tiny-alpha.tga", TextureFormat::AUTO(), Texture::DIM_2D, settings);
     } catch (const std::string& s) {
         alwaysAssertM(false, s);
         exit(-1);

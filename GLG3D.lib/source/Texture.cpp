@@ -28,7 +28,7 @@ namespace G3D {
 
 static const char* cubeMapString[] = {"ft", "bk", "up", "dn", "rt", "lf"};
 
-size_t Texture::_sizeOfAllTexturesInMemory = 0;
+size_t Texture::m_sizeOfAllTexturesInMemory = 0;
 
 /**
  Returns true if the system supports automatic MIP-map generation.
@@ -98,30 +98,30 @@ static void setTexParameters(
 /////////////////////////////////////////////////////////////////////////////
 
 Texture::Texture(
-    const std::string&      __name,
-    GLuint                  __textureID,
-    Dimension               __dimension,
-    const TextureFormat*    __format,
-	bool					__opaque,
-	const Settings&			__settings) :
-    textureID(__textureID),
-	_settings(__settings),
-    _name(__name),
-    _dimension(__dimension),
-    _opaque(__opaque),
-    _format(__format) {
+    const std::string&      name,
+    GLuint                  textureID,
+    Dimension               dimension,
+    const TextureFormat*    format,
+	bool					opaque,
+	const Settings&			settings) :
+    m_textureID(textureID),
+	m_settings(settings),
+    m_name(name),
+    m_dimension(dimension),
+    m_opaque(opaque),
+    m_format(format) {
 
-    debugAssert(_format);
+    debugAssert(m_format);
     debugAssertGLOk();
 
     glStatePush();
 
-        GLenum target = dimensionToTarget(_dimension);
-        glBindTexture(target, textureID);
+        GLenum target = dimensionToTarget(m_dimension);
+        glBindTexture(target, m_textureID);
 
 		// For cube map, we can't read "cube map" but must choose a face
 		GLenum readbackTarget = target;
-		if ((_dimension == DIM_CUBE_MAP) || (_dimension == DIM_CUBE_MAP_NPOT)) {
+		if ((m_dimension == DIM_CUBE_MAP) || (m_dimension == DIM_CUBE_MAP_NPOT)) {
 			readbackTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
 		}
 
@@ -132,12 +132,12 @@ Texture::Texture(
         invertY = false;
         
         debugAssertGLOk();
-        setTexParameters(target, _settings);
+        setTexParameters(target, m_settings);
         debugAssertGLOk();
     glStatePop();
     debugAssertGLOk();
 
-    _sizeOfAllTexturesInMemory += sizeInMemory();
+    m_sizeOfAllTexturesInMemory += sizeInMemory();
 }
 
 
@@ -171,13 +171,13 @@ Texture::Ref Texture::fromMemory(
 
 
 void Texture::setAutoMipMap(bool b) {
-    _settings.autoMipMap = b;
+    m_settings.autoMipMap = b;
 
     // Update the OpenGL state
-    GLenum target = dimensionToTarget(_dimension);
+    GLenum target = dimensionToTarget(m_dimension);
 
     glPushAttrib(GL_TEXTURE_BIT);
-    glBindTexture(target, textureID);
+    glBindTexture(target, m_textureID);
 
     if (hasAutoMipMap()) {
         glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, b ? GL_TRUE : GL_FALSE);
@@ -216,7 +216,7 @@ Texture::Ref Texture::fromFile(
     
     std::string realFilename[6];
 
-    const TextureFormat* format = TextureFormat::RGB8;
+    const TextureFormat* format = TextureFormat::RGB8();
     bool opaque = true;
 
     // The six cube map faces, or the one texture and 5 dummys.
@@ -321,7 +321,7 @@ Texture::Ref Texture::fromFile(
         image[f].load(realFilename[f]);
 
         if (image[f].channels == 4) {
-            format = TextureFormat::RGBA8;
+            format = TextureFormat::RGBA8();
             opaque = false;
         }
 
@@ -447,7 +447,7 @@ Texture::Ref Texture::fromTwoFiles(
 		t = fromMemory(
 				filename, 
 				mip, 
-				TextureFormat::RGBA8,
+				TextureFormat::RGBA8(),
 				color[0].width, 
 				color[0].height, 
 				1, 
@@ -514,9 +514,6 @@ Texture::Ref Texture::fromMemory(
     // Used for normal map computation
     GImage normal;
     
-    // For future expansion to support float texture creation
-    GLenum dataType = GL_UNSIGNED_BYTE;
-
     // Indirection needed in case we have to reallocate our own
     // data for preprocessing.
     MipArray* bytesPtr = const_cast<MipArray*>(&_bytes);
@@ -588,7 +585,7 @@ Texture::Ref Texture::fromMemory(
         bytesPtr->resize(1);
         (*bytesPtr)[0].append(normal.byte());
         
-        bytesFormat = TextureFormat::RGBA8;
+        bytesFormat = TextureFormat::RGBA8();
     }
 
     debugAssert(bytesFormat);
@@ -602,12 +599,12 @@ Texture::Ref Texture::fromMemory(
     GLuint textureID = newGLTextureID();
     GLenum target = dimensionToTarget(dimension);
 
-    if ((desiredFormat == TextureFormat::AUTO) || (bytesFormat->compressed)) {
+    if ((desiredFormat == TextureFormat::AUTO()) || (bytesFormat->compressed)) {
         desiredFormat = bytesFormat;
     }
 
-    if (GLCaps::hasBug_redBlueMipmapSwap() && (desiredFormat == TextureFormat::RGB8)) {
-        desiredFormat = TextureFormat::RGBA8;
+    if (GLCaps::hasBug_redBlueMipmapSwap() && (desiredFormat == TextureFormat::RGB8())) {
+        desiredFormat = TextureFormat::RGBA8();
     }
 
     debugAssertM(GLCaps::supports(desiredFormat), "Unsupported texture format.");
@@ -652,13 +649,13 @@ Texture::Ref Texture::fromMemory(
                     createMipMapTexture(
                                         target, 
                                         reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]),
-                                        bytesFormat->OpenGLFormat,
+                                        bytesFormat->openGLFormat,
                                         mipWidth, 
                                         mipHeight, 
-                                        desiredFormat->OpenGLFormat,
+                                        desiredFormat->openGLFormat,
                                         desiredFormat->packedBitsPerTexel / 8, 
                                         preProcess.scaleFactor,
-                                        dataType);
+                                        bytesFormat->openGLDataFormat);
                     
                 } else {
 
@@ -667,18 +664,18 @@ Texture::Ref Texture::fromMemory(
                     createTexture(
                                   target, 
                                   reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]), 
-                                  bytesFormat->OpenGLBaseFormat,
-                                  bytesFormat->OpenGLFormat, 
+                                  bytesFormat->openGLBaseFormat,
+                                  bytesFormat->openGLFormat, 
                                   mipWidth, 
                                   mipHeight, 
                                   depth,
-                                  desiredFormat->OpenGLFormat, 
+                                  desiredFormat->openGLFormat, 
                                   bytesFormat->packedBitsPerTexel / 8, 
                                   mipLevel, 
                                   bytesFormat->compressed, 
                                   useNPOT, 
                                   preProcess.scaleFactor,
-                                  dataType);
+                                  bytesFormat->openGLDataFormat);
                 }
 
                 debugAssertGLOk();
@@ -732,22 +729,22 @@ Texture::Ref Texture::fromGImage(
 	const Settings&					settings,
 	const PreProcess&				preProcess) {
 
-    const TextureFormat* format = TextureFormat::RGB8;
+    const TextureFormat* format = TextureFormat::RGB8();
     bool opaque = true;
 
     switch (image.channels) {
     case 4:
-        format = TextureFormat::RGBA8;
+        format = TextureFormat::RGBA8();
         opaque = false;
         break;
 
     case 3:
-        format = TextureFormat::RGB8;
+        format = TextureFormat::RGB8();
         opaque = true;
         break;
 
     case 1:
-        format = TextureFormat::L8;
+        format = TextureFormat::L8();
         opaque = true;
         break;
 
@@ -787,7 +784,7 @@ Texture::Ref Texture::createEmpty(
 	const Settings&					 settings) {
 
     debugAssertGLOk();
-    debugAssertM(desiredFormat, "desiredFormat may not be TextureFormat::AUTO");
+    debugAssertM(desiredFormat, "desiredFormat may not be TextureFormat::AUTO()");
 
     // We must pretend the input is in the desired format otherwise 
     // OpenGL might refuse to negotiate formats for us.
@@ -820,35 +817,35 @@ Rect2D Texture::rect2DBounds() const {
 
 
 const Texture::Settings& Texture::settings() const {
-    return _settings;
+    return m_settings;
 }
 
 
 void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
-    alwaysAssertM(outFormat == TextureFormat::AUTO ||
-                  outFormat == TextureFormat::RGB8 ||
-                  outFormat == TextureFormat::RGBA8 ||
-                  outFormat == TextureFormat::L8 ||
-                  outFormat == TextureFormat::A8, "Illegal texture format.");
+    alwaysAssertM(outFormat == TextureFormat::AUTO() ||
+                  outFormat == TextureFormat::RGB8() ||
+                  outFormat == TextureFormat::RGBA8() ||
+                  outFormat == TextureFormat::L8() ||
+                  outFormat == TextureFormat::A8(), "Illegal texture format.");
 
-    if (outFormat == TextureFormat::AUTO) {
-        switch(format()->OpenGLBaseFormat) { 
+    if (outFormat == TextureFormat::AUTO()) {
+        switch(format()->openGLBaseFormat) { 
         case GL_ALPHA:
-            outFormat = TextureFormat::A8;
+            outFormat = TextureFormat::A8();
             break;
 
         case GL_LUMINANCE:
-            outFormat = TextureFormat::L8;
+            outFormat = TextureFormat::L8();
             break;
 
         case GL_RGB:
-            outFormat = TextureFormat::RGB8;
+            outFormat = TextureFormat::RGB8();
             break;
 
         case GL_RGBA:
             // Fall through intentionally
         default:
-            outFormat = TextureFormat::RGBA8;
+            outFormat = TextureFormat::RGBA8();
             break;
         }
     }
@@ -856,7 +853,7 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
     int channels = 0;
 
 
-    switch(outFormat->OpenGLBaseFormat) {
+    switch(outFormat->openGLBaseFormat) {
     case GL_LUMINANCE:
     case GL_ALPHA:
         channels = 1;
@@ -876,16 +873,16 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
 
     dst.resize(m_width, m_height, channels);
 
-    GLenum target = dimensionToTarget(_dimension);
+    GLenum target = dimensionToTarget(m_dimension);
 
     glPushAttrib(GL_TEXTURE_BIT);
-    glBindTexture(target, textureID);
+    glBindTexture(target, m_textureID);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
     glGetTexImage(
        target,
        0,
-       outFormat->OpenGLBaseFormat,
+       outFormat->openGLBaseFormat,
        GL_UNSIGNED_BYTE,
        dst.byte());
 
@@ -911,9 +908,9 @@ void Texture::splitFilenameAtWildCard(
 
 
 Texture::~Texture() {
-    _sizeOfAllTexturesInMemory -= sizeInMemory();
-	glDeleteTextures(1, &textureID);
-	textureID = 0;
+    m_sizeOfAllTexturesInMemory -= sizeInMemory();
+	glDeleteTextures(1, &m_textureID);
+	m_textureID = 0;
 }
 
 
@@ -931,60 +928,6 @@ uint32 Texture::newGLTextureID() {
 
     return t;
 }
-
-
-uint32 Texture::newGLTexture2D(
-    GLint       internalFormat,
-    int32       width,
-    int32       height,
-    GLenum      pixelFormat,
-    GLenum      dataType,
-    const void* data,
-    uint32      compressedImageSize,
-    bool        compressedFormat) {
-
-    // Create the texture
-    GLuint textureId = newGLTextureID();
-    GLenum target = GL_TEXTURE_2D;
-
-    // TODO? Will an assert on failure work fine instead in this helper?
-    //debugAssertM(GLCaps::supports(desiredFormat), "Unsupported texture format.");
-
-    glStatePush();
-    {
-	    // Set unpacking alignment
-	    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-        glEnable(target);
-        glBindTexture(target, textureId);
-        debugAssertGLOk();
-        if (hasAutoMipMap()) {
-            // Enable hardware MIP-map generation.
-            // Must enable before setting the level 0 image (we'll set it again
-            // in setTexParameters, but that is intended primarily for 
-            // the case where that function is called for a pre-existing GL texture ID).
-            glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-        }
-
-        debugAssertM( ( !isPow2(width) && !isPow2(height) ) || GLCaps::supports_GL_ARB_texture_non_power_of_two(), ("newGLTexture2D() does not handle resizing NPOT texture on systems that don't support it!"));
-
-        if (compressedFormat) {
-            
-            glCompressedTexImage2DARB(target, 0, internalFormat, width, 
-                height, 0, compressedImageSize, data);
-
-        } else {
-
-            glTexImage2D(target, 0, internalFormat, width, height, 0, pixelFormat, dataType, data);
-        }
-    }
-    glStatePop();
-
-    debugAssertGLOk();
-
-    return textureId;
-}
-
 
 /** Returns the buffer constant that matches the current draw buffer (left vs. right) */
 static GLenum getCurrentBuffer(bool useBack) {
@@ -1030,22 +973,22 @@ void Texture::copyFromScreen(
 
     glReadBuffer(getCurrentBuffer(useBackBuffer));
 
-    _sizeOfAllTexturesInMemory -= sizeInMemory();
+    m_sizeOfAllTexturesInMemory -= sizeInMemory();
 
     // Set up new state
-    this->m_width   = (int)rect.width();
-    this->m_height  = (int)rect.height();
-    this->m_depth   = 1;
-    debugAssert(this->_dimension == DIM_2D || this->_dimension == DIM_2D_RECT || this->_dimension == DIM_2D_NPOT);
+    m_width   = (int)rect.width();
+    m_height  = (int)rect.height();
+    m_depth   = 1;
+    debugAssert(m_dimension == DIM_2D || m_dimension == DIM_2D_RECT || m_dimension == DIM_2D_NPOT);
 
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glActiveTextureARB(GL_TEXTURE0_ARB);
     }
     glDisableAllTextures();
-    GLenum target = dimensionToTarget(_dimension);
+    GLenum target = dimensionToTarget(m_dimension);
     glEnable(target);
 
-    glBindTexture(target, textureID);
+    glBindTexture(target, m_textureID);
     int e = glGetError();
     alwaysAssertM(e == GL_NONE, 
         std::string("Error encountered during glBindTexture: ") + GLenumToString(e));
@@ -1055,7 +998,7 @@ void Texture::copyFromScreen(
     double viewportHeight = viewport[3];
     debugAssertGLOk();
     
-    glCopyTexImage2D(target, 0, format()->OpenGLFormat,
+    glCopyTexImage2D(target, 0, format()->openGLFormat,
                      iRound(rect.x0()), 
                      iRound(viewportHeight - rect.y1()), 
                      iRound(rect.width()), iRound(rect.height()), 
@@ -1063,7 +1006,7 @@ void Texture::copyFromScreen(
 
     debugAssertGLOk();
     // Reset the original properties
-    setTexParameters(target, _settings);
+    setTexParameters(target, m_settings);
 
     debugAssertGLOk();
     glDisable(target);
@@ -1073,7 +1016,7 @@ void Texture::copyFromScreen(
 
     glStatePop();
 
-    _sizeOfAllTexturesInMemory += sizeInMemory();
+    m_sizeOfAllTexturesInMemory += sizeInMemory();
 }
 
 
@@ -1089,7 +1032,7 @@ void Texture::copyFromScreen(
     // Set up new state
     debugAssertM(m_width == rect.width(), "Cube maps require all six faces to have the same dimensions");
     debugAssertM(m_height == rect.height(), "Cube maps require all six faces to have the same dimensions");
-    debugAssert(this->_dimension == DIM_CUBE_MAP || this->_dimension == DIM_CUBE_MAP_NPOT);
+    debugAssert(m_dimension == DIM_CUBE_MAP || m_dimension == DIM_CUBE_MAP_NPOT);
     debugAssert(face >= 0);
     debugAssert(face < 6);
 
@@ -1099,7 +1042,7 @@ void Texture::copyFromScreen(
     glDisableAllTextures();
 
     glEnable(GL_TEXTURE_CUBE_MAP_ARB);
-    glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, m_textureID);
 
     GLenum target = cubeFaceTarget[(int)face];
 
@@ -1112,7 +1055,7 @@ void Texture::copyFromScreen(
     double viewportHeight = viewport[3];
     debugAssertGLOk();
 
-    glCopyTexImage2D(target, 0, format()->OpenGLFormat,
+    glCopyTexImage2D(target, 0, format()->openGLFormat,
                      iRound(rect.x0()), 
                      iRound(viewportHeight - rect.y1()), 
                      iRound(rect.width()), 
@@ -1155,14 +1098,11 @@ void Texture::getCameraRotation(CubeFace face, Matrix3& outMatrix) {
 
 size_t Texture::sizeInMemory() const {
 
-	if (!TextureFormat::valid)
-		return 0;
-
-    int base = (m_width * m_height * m_depth * _format->hardwareBitsPerTexel) / 8;
+    int base = (m_width * m_height * m_depth * m_format->hardwareBitsPerTexel) / 8;
 
     int total = 0;
 
-    if (_settings.interpolateMode == TRILINEAR_MIPMAP) {
+    if (m_settings.interpolateMode == TRILINEAR_MIPMAP) {
         int w = m_width;
         int h = m_height;
 
@@ -1177,7 +1117,7 @@ size_t Texture::sizeInMemory() const {
         total = base;
     }
 
-    if (_dimension == DIM_CUBE_MAP) {
+    if (m_dimension == DIM_CUBE_MAP) {
         total *= 6;
     }
 
@@ -1186,7 +1126,7 @@ size_t Texture::sizeInMemory() const {
 
 
 unsigned int Texture::openGLTextureTarget() const {
-    switch (_dimension) {
+    switch (m_dimension) {
     case DIM_CUBE_MAP_NPOT:
     case DIM_CUBE_MAP:
         return GL_TEXTURE_CUBE_MAP_ARB;
@@ -1210,11 +1150,11 @@ Texture::Ref Texture::alphaOnlyVersion() const {
         return NULL;
     }
 
-    debugAssert(_settings.depthReadMode == DEPTH_NORMAL);
+    debugAssert(m_settings.depthReadMode == DEPTH_NORMAL);
     debugAssertM(
-        _dimension == DIM_2D ||
-        _dimension == DIM_2D_RECT ||
-        _dimension == DIM_2D_NPOT,
+        m_dimension == DIM_2D ||
+        m_dimension == DIM_2D_RECT ||
+        m_dimension == DIM_2D_NPOT,
         "alphaOnlyVersion only supported for 2D textures");
 
     int numFaces = 1;
@@ -1222,13 +1162,13 @@ Texture::Ref Texture::alphaOnlyVersion() const {
 	Array< Array<const void*> > mip(1);
 	Array<const void*>& bytes = mip[0];
 	bytes.resize(numFaces);
-    const TextureFormat* bytesFormat = TextureFormat::A8;
+    const TextureFormat* bytesFormat = TextureFormat::A8();
 
     glStatePush();
     // Setup to later implement cube faces
     for (int f = 0; f < numFaces; ++f) {
-        GLenum target = dimensionToTarget(_dimension);
-        glBindTexture(target, textureID);
+        GLenum target = dimensionToTarget(m_dimension);
+        glBindTexture(target, m_textureID);
         bytes[f] = (const void*)System::malloc(m_width * m_height);
         glGetTexImage(target, 0, GL_ALPHA, GL_UNSIGNED_BYTE, const_cast<void*>(bytes[f]));
     }
@@ -1237,15 +1177,15 @@ Texture::Ref Texture::alphaOnlyVersion() const {
 
     Texture::Ref ret = 
         fromMemory(
-			_name + " Alpha", 
+			m_name + " Alpha", 
 			mip,
 			bytesFormat,
             m_width, 
 			m_height, 
 			1, 
-			TextureFormat::A8,
-            _dimension, 
-			_settings);
+			TextureFormat::A8(),
+            m_dimension, 
+			m_settings);
 
     for (int f = 0; f < numFaces; ++f) {
         System::free(const_cast<void*>(bytes[f]));

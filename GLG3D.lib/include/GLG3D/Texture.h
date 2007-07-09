@@ -266,21 +266,21 @@ public:
 private:
 
     /** OpenGL texture ID */
-    GLuint                          textureID;
+    GLuint                          m_textureID;
 
     /** Set in the base constructor. */
-    Settings                        _settings;
+    Settings                        m_settings;
 
-    std::string                     _name;
-    Dimension                       _dimension;
-    bool                            _opaque;
+    std::string                     m_name;
+    Dimension                       m_dimension;
+    bool                            m_opaque;
 
-    const class TextureFormat*      _format;
+    const class TextureFormat*      m_format;
     int                             m_width;
     int                             m_height;
     int                             m_depth;
 
-    static size_t                   _sizeOfAllTexturesInMemory;
+    static size_t                   m_sizeOfAllTexturesInMemory;
 
     Texture(
         const std::string&          name,
@@ -299,7 +299,7 @@ public:
         const std::string&              name,
         int                             m_width,
         int                             m_height,
-        const class TextureFormat*      desiredFormat  = TextureFormat::RGBA8,
+        const class TextureFormat*      desiredFormat  = TextureFormat::RGBA8(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults());
 
@@ -324,7 +324,7 @@ public:
      */    
     static Texture::Ref fromFile(
         const std::string&              filename,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
+        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
@@ -335,7 +335,7 @@ public:
      */
     static Texture::Ref fromFile(
         const std::string               filename[6],
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
+        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
@@ -348,7 +348,7 @@ public:
     static Texture::Ref fromTwoFiles(
         const std::string&              filename,
         const std::string&              alphaFilename,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
+        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
@@ -379,7 +379,7 @@ public:
         int                                 m_width,
         int                                 m_height,
         int                                 m_depth,
-        const TextureFormat*                desiredFormat  = TextureFormat::AUTO,
+        const TextureFormat*                desiredFormat  = TextureFormat::AUTO(),
         Dimension                           dimension      = DIM_2D,
         const Settings&                     settings       = Settings::defaults(),
         const PreProcess&                   preProcess     = PreProcess::defaults());
@@ -395,7 +395,7 @@ public:
         int                             m_width,
         int                             m_height,
         int				                m_depth,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
+        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
@@ -403,7 +403,7 @@ public:
     static Texture::Ref fromGImage(
         const std::string&              name,
         const GImage&                   image,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO,
+        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings	   = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
@@ -422,30 +422,6 @@ public:
      Helper method. Returns a new OpenGL texture ID that is not yet managed by a G3D Texture.
      */
     static uint32 newGLTextureID();
-
-    /**
-     Helper method. Only needed when creating textures outside of G3D::Texture.
-
-     Loads an arbitrary 2D texture into memory and binds to a new texture ID.  Closely wraps glTexture2D().
-     This helper method is useful for loading unusual data types.
-
-     You must use fromGLTexture() afterwards if you want to manage the new texture with G3D::Texture.
-
-     @param internalFormat This is an OpenGL value that matches the internalFormat parameter of glTexture2D()
-     @param pixelFormat This is an OpenGL value that matches the format parameter of glTexture2D()
-     @param dataType This is an OpenGL value that matches the dataType parameter of glTexture2D()
-     @param compressedImageSize Size in bytes of compressed data.  Only needed when loading compressed format.
-     @param compressedFormat This tells newGLTexture2D to use the compressed texture loading OpenGL functions
-    */
-    static uint32 newGLTexture2D(
-        GLint                           internalFormat,
-        int32                           width,
-        int32                           height, 
-        GLenum                          pixelFormat, 
-        GLenum                          dataType, 
-        const void*                     data, 
-        uint32                          compressedImageSize = 0,
-        bool                            compressedFormat = false);
 
     /**
      Copies data from screen into an existing texture (replacing whatever was
@@ -525,7 +501,7 @@ public:
      or maintained by pointers to a Texture.
      */
     inline static size_t sizeOfAllTexturesInMemory() {
-        return _sizeOfAllTexturesInMemory;
+        return m_sizeOfAllTexturesInMemory;
     }
 
     /**
@@ -538,7 +514,7 @@ public:
 	 for important information about turning on alpha blending. 
      */
     inline bool opaque() const {
-        return _opaque;
+        return m_opaque;
     }
 
     /**
@@ -546,10 +522,10 @@ public:
      outFormat.
      @param outFormat Must be one of: TextureFormat::AUTO, TextureFormat::RGB8, TextureFormat::RGBA8, TextureFormat::L8, TextureFormat::A8
      */
-    void getImage(GImage& dst, const TextureFormat* outFormat = TextureFormat::AUTO) const;
+    void getImage(GImage& dst, const TextureFormat* outFormat = TextureFormat::AUTO()) const;
 
     inline unsigned int openGLID() const {
-        return textureID;
+        return m_textureID;
     }
 
     /** @deprecated Use width() */
@@ -593,15 +569,15 @@ public:
     }
 
     inline const std::string& name() const {
-        return _name;
+        return m_name;
     }
 
     inline const TextureFormat* format() const {
-        return _format;
+        return m_format;
     }
     
     inline Dimension dimension() const {
-        return _dimension;
+        return m_dimension;
     }
 
     /**

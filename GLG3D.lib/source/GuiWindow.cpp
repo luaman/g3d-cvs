@@ -388,10 +388,10 @@ GuiWindow::Modal::Modal(GWindow* osWindow) : osWindow(osWindow) {
     // Grab the screen texture
     if (GLCaps::supports_GL_ARB_texture_non_power_of_two()) {
         image = Texture::createEmpty("Old screen image", (int)viewport.width(), (int)viewport.height(), 
-                                     TextureFormat::RGB8, Texture::DIM_2D_NPOT, Texture::Settings::video());
+                                     TextureFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::video());
     } else {
         image = Texture::createEmpty("Old screen image", 512, 512,
-                                     TextureFormat::RGB8, Texture::DIM_2D, Texture::Settings::video());
+                                     TextureFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
     }
 
     image->copyFromScreen(viewport, false);
