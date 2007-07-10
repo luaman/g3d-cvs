@@ -18,8 +18,10 @@
      <li> Patches for 64-bit compilation [Corey]
      <li> WinMain is now compiled as C++ code (fixed some "manifest" errors on certain VC8 installations)
      <li> G3D::ShadowMap
-     <li> G3D::Shader now defines platform and graphics vendor macros
+     <li> G3D::Shader now defines platform and graphics vendor macros     
      <li> User camera control requires right mouse click to move
+     <li> G3D::AnyVal::fromFile, G3D::AnyVal::load, G3D::AnyVal::save
+     <li> G3D::AnyVal now uses copy-on-mutate for fast Array/Table copies
      <li> G3D::AnyVal no longer separates table entries with ";"
      <li> G3D::AnyVal now provides casts to basic data types
      <li> G3D::AnyVal G3D::Rect2D and G3D::AABox types

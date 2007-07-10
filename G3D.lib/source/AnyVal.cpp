@@ -28,11 +28,29 @@
 
 namespace G3D {
 
-AnyVal::AnyVal() : m_type(NIL), m_value(NULL) {
+AnyVal AnyVal::fromFile(const std::string& filename) {
+    TextInput t(filename);
+    return AnyVal(t);
 }
 
 
-AnyVal::AnyVal(bool b) : m_type(BOOLEAN), m_value(new bool(b)) {
+void AnyVal::load(const std::string& filename) {
+    *this = fromFile(filename);
+}
+
+
+void AnyVal::save(const std::string& filename) const {
+    TextOutput t(filename);
+    serialize(t);
+    t.commit();
+}
+
+
+AnyVal::AnyVal() : m_type(NIL), m_value(NULL), m_referenceCount(NULL) {
+}
+
+
+AnyVal::AnyVal(bool b) : m_type(BOOLEAN), m_value(new bool(b)), m_referenceCount(NULL) {
 }
 
 
@@ -46,82 +64,83 @@ AnyVal::AnyVal(G3D::TextInput& t) {
 }
 */
 
-AnyVal::AnyVal(double v) : m_type(NUMBER) {
+AnyVal::AnyVal(double v) : m_type(NUMBER), m_referenceCount(NULL) {
     m_value = new double(v);
 }
 
 
-AnyVal::AnyVal(const Rect2D& v) : m_type(RECT2D) {
+AnyVal::AnyVal(const Rect2D& v) : m_type(RECT2D), m_referenceCount(NULL) {
     m_value = new Rect2D(v);
 }
 
 
-AnyVal::AnyVal(const AABox& v) : m_type(AABOX) {
+AnyVal::AnyVal(const AABox& v) : m_type(AABOX), m_referenceCount(NULL) {
     m_value = new AABox(v);
 }
 
 
-AnyVal::AnyVal(const Vector2& v) : m_type(VECTOR2) {
+AnyVal::AnyVal(const Vector2& v) : m_type(VECTOR2), m_referenceCount(NULL) {
     m_value = new Vector2(v);
 }
 
 
-AnyVal::AnyVal(const Vector3& v) : m_type(VECTOR3) {
+AnyVal::AnyVal(const Vector3& v) : m_type(VECTOR3), m_referenceCount(NULL) {
     m_value = new Vector3(v);
 }
 
 
-AnyVal::AnyVal(const Vector4& v) : m_type(VECTOR4) {
+AnyVal::AnyVal(const Vector4& v) : m_type(VECTOR4), m_referenceCount(NULL) {
     m_value = new Vector4(v);
 }
 
 
-AnyVal::AnyVal(const Color3& v) : m_type(COLOR3) {
+AnyVal::AnyVal(const Color3& v) : m_type(COLOR3), m_referenceCount(NULL) {
     m_value = new Color3(v);
 }
 
 
-AnyVal::AnyVal(const Color4& v) : m_type(COLOR4) {
+AnyVal::AnyVal(const Color4& v) : m_type(COLOR4), m_referenceCount(NULL) {
     m_value = new Color4(v);
 }
 
 
-AnyVal::AnyVal(const std::string& v) : m_type(STRING) {
+AnyVal::AnyVal(const std::string& v) : m_type(STRING), m_referenceCount(NULL) {
     m_value = new std::string(v);
 }
 
 
-AnyVal::AnyVal(const char* v) : m_type(STRING) {
+AnyVal::AnyVal(const char* v) : m_type(STRING), m_referenceCount(NULL) {
     m_value = new std::string(v);
 }
 
 
-AnyVal::AnyVal(const Quat& v) : m_type(QUAT) {
+AnyVal::AnyVal(const Quat& v) : m_type(QUAT), m_referenceCount(NULL) {
     m_value = new Quat(v);
 }
 
 
-AnyVal::AnyVal(const CoordinateFrame& v) : m_type(COORDINATEFRAME) {
+AnyVal::AnyVal(const CoordinateFrame& v) : m_type(COORDINATEFRAME), m_referenceCount(NULL) {
     m_value = new CoordinateFrame(v);
 }
 
 
-AnyVal::AnyVal(const Matrix3& v) : m_type(MATRIX3) {
+AnyVal::AnyVal(const Matrix3& v) : m_type(MATRIX3), m_referenceCount(NULL) {
     m_value = new Matrix3(v);
 }
 
 
-AnyVal::AnyVal(const Matrix4& v) : m_type(MATRIX4) {
+AnyVal::AnyVal(const Matrix4& v) : m_type(MATRIX4), m_referenceCount(NULL) {
     m_value = new Matrix4(v);
 }
 
 
-AnyVal::AnyVal(const AnyVal& c) : m_type(NIL), m_value(NULL) {
+AnyVal::AnyVal(const AnyVal& c) : m_type(NIL), m_value(NULL), m_referenceCount(NULL) {
     *this = c;
 }
 
 
-AnyVal::AnyVal(Type arrayOrTable) : m_type(NIL), m_value(NULL) {
+AnyVal::AnyVal(Type arrayOrTable) : m_type(NIL), m_value(NULL), m_referenceCount(new int(1)) {
+    // TODO: make AnyVal::createArray()
     switch (arrayOrTable) {
     case ARRAY:
         m_type = ARRAY;
@@ -134,8 +153,7 @@ AnyVal::AnyVal(Type arrayOrTable) : m_type(NIL), m_value(NULL) {
         break;
 
     default:
-        // Illegal!
-        ;
+        debugAssertM(false, "Cannot construct AnyVal from constants except ARRAY or TABLE.");
     }
 }
 
@@ -146,6 +164,20 @@ AnyVal::~AnyVal() {
 
 
 void AnyVal::deleteValue() {
+    if (m_referenceCount) {
+        --(*m_referenceCount);
+        if (*m_referenceCount <= 0) {
+            delete m_referenceCount;
+            m_referenceCount = NULL;
+            // Pass through and delete the real object now
+        } else {
+            // Someone else is holding a reference, so we can't delete 
+            // the object.
+            m_referenceCount = NULL;
+            return;
+        }
+    }
+
     switch (m_type) {
     case NIL:
         // Nothing to do
@@ -222,86 +254,83 @@ void AnyVal::deleteValue() {
     m_value = NULL;
 }
 
+
 AnyVal& AnyVal::operator=(const AnyVal& v) {
     deleteValue();
+
     m_type = v.m_type;
 
-    switch (m_type) {
-    case NIL:
-        // Nothing to do
-        break;
-
-    case NUMBER:
-        m_value = new double(*(double*)v.m_value);
-        break;
-
-    case BOOLEAN:
-        m_value = new bool(*(bool*)v.m_value);
-        break;
-
-    case STRING:
-        m_value = new std::string(*(std::string*)v.m_value);
-        break;
-        
-    case RECT2D:
-        m_value = new Rect2D(*(Rect2D*)v.m_value);
-        break;
-
-    case AABOX:
-        m_value = new AABox(*(AABox*)v.m_value);
-        break;
-
-    case VECTOR2:
-        m_value = new Vector2(*(Vector2*)v.m_value);
-        break;
-
-    case VECTOR3:
-        m_value = new Vector3(*(Vector3*)v.m_value);
-        break;
-
-    case VECTOR4:
-        m_value = new Vector4(*(Vector4*)v.m_value);
-        break;
-
-    case MATRIX3:
-        m_value = new Matrix3(*(Matrix3*)v.m_value);
-        break;
-
-    case MATRIX4:
-        m_value = new Matrix4(*(Matrix4*)v.m_value);
-        break;
-
-    case QUAT:
-        m_value = new Quat(*(Quat*)v.m_value);
-        break;
-
-    case COORDINATEFRAME:
-        m_value = new CoordinateFrame(*(CoordinateFrame*)v.m_value);
-        break;
-
-    case COLOR3:
-        m_value = new Color3(*(Color3*)v.m_value);
-        break;
-
-    case COLOR4:
-        m_value = new Color4(*(Color4*)v.m_value);
-        break;
-
-    case ARRAY:
-        m_value = new Array<AnyVal>(*(Array<AnyVal>*)v.m_value);
-        break;
-
-    case TABLE:
-        m_value = new Table<std::string, AnyVal>(*(Table<std::string, AnyVal>*)v.m_value);
-        break;
-
-    default:
-        debugAssertM(false, "Internal error: no assignment operator for this type.");
+    m_referenceCount = v.m_referenceCount;
+    
+    if (isSharedType()) {
+        ++(*m_referenceCount);
+        m_value = v.m_value;
+    } else {
+        m_value = v.copyValue();
     }
 
     return *this;
 }
 
+
+void* AnyVal::copyValue() const {
+  switch (m_type) {
+    case NIL:
+        return NULL;
+
+    case NUMBER:
+        return new double(*(double*)m_value);
+
+    case BOOLEAN:
+        return new bool(*(bool*)m_value);
+
+    case STRING:
+        return new std::string(*(std::string*)m_value);
+        
+    case RECT2D:
+        return new Rect2D(*(Rect2D*)m_value);
+
+    case AABOX:
+        return new AABox(*(AABox*)m_value);
+
+    case VECTOR2:
+        return new Vector2(*(Vector2*)m_value);
+
+    case VECTOR3:
+        return new Vector3(*(Vector3*)m_value);
+
+    case VECTOR4:
+        return new Vector4(*(Vector4*)m_value);
+
+    case MATRIX3:
+        return new Matrix3(*(Matrix3*)m_value);
+
+    case MATRIX4:
+        return new Matrix4(*(Matrix4*)m_value);
+
+    case QUAT:
+        return new Quat(*(Quat*)m_value);
+
+    case COORDINATEFRAME:
+        return new CoordinateFrame(*(CoordinateFrame*)m_value);
+
+    case COLOR3:
+        return new Color3(*(Color3*)m_value);
+
+    case COLOR4:
+        return new Color4(*(Color4*)m_value);
+
+    case ARRAY:
+        return new Array<AnyVal>(*(Array<AnyVal>*)m_value);
+
+    case TABLE:
+        return new Table<std::string, AnyVal>(*(Table<std::string, AnyVal>*)m_value);
+
+    default:
+        debugAssertM(false, "Internal error: no assignment operator for this type.");
+        return NULL;
+    }
+}
 
 AnyVal::Type AnyVal::type() const {
     return m_type;
@@ -772,6 +801,8 @@ AnyVal& AnyVal::operator[](const std::string& key) {
         throw WrongType(TABLE, m_type);
     }
 
+    makeMutable();
+
     Table<std::string, AnyVal>& t = *(Table<std::string, AnyVal>*)m_value;
 
     if (! t.containsKey(key)) {
@@ -801,6 +832,7 @@ void AnyVal::append(const AnyVal& v) {
     if (m_type != ARRAY) {
         throw WrongType(ARRAY, m_type);
     }
+    makeMutable();
 
     Array<AnyVal>& a = *(Array<AnyVal>*)m_value;
     a.append(v);
@@ -841,6 +873,7 @@ AnyVal& AnyVal::operator[](int i) {
     if (m_type != ARRAY) {
         throw WrongType(ARRAY, m_type);
     }
+    makeMutable();
 
     Array<AnyVal>& a = *(Array<AnyVal>*)m_value;
 
@@ -870,6 +903,15 @@ const AnyVal& AnyVal::operator[](int i) const {
     return a[i];
 }
 
+
+void AnyVal::makeMutable() {
+    if (*m_referenceCount > 1) {
+        // This is a shared instance
+        --(*m_referenceCount);
+        m_referenceCount = new int(1);
+        m_value = copyValue();
+    }
+}
 
 bool AnyVal::boolean() const {
     if (m_type != BOOLEAN) {

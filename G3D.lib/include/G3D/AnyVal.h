@@ -44,9 +44,12 @@ class AABox;
  arrays and tables instead of generating errors.  get() has more strict semantics,
  like a C++ class.
 
+ AnyVal uses copy-on-mutate, so that <code>AnyVal a = b</code> semantically copies <code>b</code> (like <code>int a = b</code> would), although in practice
+ it delays the copy until one is mutated so that it is still fast to "copy" large arrays and tables.
+
  Reading example:
  <pre>
-    AnyVal property(TextInput("c:/tmp/test.txt"));
+    AnyVal property = AnyVal::fromFile("c:/tmp/test.txt"));
 
     Vector3 vel = property["angular velocity"]
 
@@ -205,11 +208,35 @@ public:
 
 private:
 
-    /** Calls delete on @a m_value */
+    Type        m_type;
+    void*       m_value;
+
+    /** For table and array types, *m_value  is shared between multiple instances.  Mutation is allowed only if
+        the reference count is exactly 1, otherwise the mutating instance must copy the value.
+        This is not used for other types.
+        */
+    int*        m_referenceCount;
+
+    /** Decrements the reference count (if there is one).  If the reference count is zero or does not exist.
+    Calls delete on @a m_value and sets it to NULL.
+    */
     void deleteValue();
 
-    Type   m_type;
-    void*  m_value;
+    /** Returns a copy of the value. */
+    void* copyValue() const;
+
+    /** Assumes isSharedType.  Ensures that this has a unique reference */
+    void makeMutable();
+
+    /** True if this is a shared value between multiple instances. */
+    inline bool isShared() const {
+        return m_referenceCount && (*m_referenceCount > 1);
+    }
+
+    /** True when m_value is a double pointer */
+    inline bool isSharedType() const {
+        return (m_type == TABLE) || (m_type == ARRAY);
+    }
 
 public:
 
@@ -217,6 +244,12 @@ public:
 
     /** Deserialize */
     explicit AnyVal(G3D::TextInput& t);
+
+    static AnyVal fromFile(const std::string& filename);
+
+    void load(const std::string& filename);
+
+    void save(const std::string& filename) const;
 
     ///** Deserialize */
     //explicit AnyVal(G3D::BinaryInput& t);
