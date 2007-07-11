@@ -29,7 +29,7 @@ void GUniqueID::serialize(TextOutput& t) const {
 
 void GUniqueID::deserialize(TextInput& t) {
     t.readSymbol("(");
-    id = (uint64)t.readNumber() << 32 + (uint64)t.readNumber();
+    id = (((uint64)t.readNumber()) << 32) + (uint64)t.readNumber();
     t.readSymbol(")");
 }
 

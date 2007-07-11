@@ -11,35 +11,40 @@ namespace G3D {
 // TODO: Texture caching
 const ArticulatedModel::Pose ArticulatedModel::DEFAULT_POSE;
 
-ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
-    static GraphicsProfile p = UNKNOWN;
+static ArticulatedModel::GraphicsProfile graphicsProfile = ArticulatedModel::UNKNOWN;
 
-    if (p == UNKNOWN) {
+void ArticulatedModel::setProfile(GraphicsProfile p) {
+    graphicsProfile = p;
+}
+
+ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
+
+    if (graphicsProfile == UNKNOWN) {
         if (GLCaps::supports_GL_ARB_shader_objects()) {
-            p = PS20;
+            graphicsProfile = PS20;
 
             
             if (System::findDataFile("NonShadowedPass.vrt") == "") {
-                p = UNKNOWN;
+                graphicsProfile = UNKNOWN;
                 Log::common()->printf("\n\nWARNING: ArticulatedModel could not enter PS20 mode because"
                     "NonShadowedPass.vrt was not found.\n\n");
             }
         }
 
         
-        if (p == UNKNOWN) {
+        if (graphicsProfile == UNKNOWN) {
             if (GLCaps::supports("GL_ARB_texture_env_crossbar") &&
                 GLCaps::supports("GL_ARB_texture_env_combine") &&
                 GLCaps::supports("GL_EXT_texture_env_add") &&
                 (GLCaps::numTextureUnits() >= 4)) {
-                p = PS14;
+                graphicsProfile = PS14;
             } else {
-                p = FIXED_FUNCTION;
+                graphicsProfile = FIXED_FUNCTION;
             }
         }
     }
 
-    return p;
+    return graphicsProfile;
 }
 
 

@@ -70,8 +70,13 @@ public:
         PS14,
         PS20};
 
-    /** Measures the capabilities of this machine */
+    /** Returns a measure of the capabilities of this machine */
     static GraphicsProfile profile();
+
+    /** Force articulated model to use a different profile.  Only works if called
+        before any models are loaded. */
+    static void setProfile(GraphicsProfile p);
+
 
     class Pose {
     public:
