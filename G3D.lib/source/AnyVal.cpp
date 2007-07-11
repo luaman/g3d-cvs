@@ -54,7 +54,7 @@ AnyVal::AnyVal(bool b) : m_type(BOOLEAN), m_value(new bool(b)), m_referenceCount
 }
 
 
-AnyVal::AnyVal(G3D::TextInput& t) {
+AnyVal::AnyVal(G3D::TextInput& t) : m_type(NIL), m_value(NULL), m_referenceCount(NULL) {
     deserialize(t);
 }
 
@@ -516,6 +516,7 @@ void AnyVal::serialize(G3D::BinaryOutput& t) const {
 */
 
 void AnyVal::deserialize(G3D::TextInput& t) {
+    deleteValue();
     m_type = NIL;
     m_value = NULL;
 
@@ -731,6 +732,7 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 // Array
                 m_type = ARRAY;
                 m_value = new Array<AnyVal>();
+                m_referenceCount = new int(1);
                 Array<AnyVal>& a = *(Array<AnyVal>*)m_value;
 
                 Token peek = t.peek();
@@ -754,6 +756,7 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 // Table
                 m_type = TABLE;
                 m_value = new Table<std::string, AnyVal>();
+                m_referenceCount = new int(1);
                 Table<std::string, AnyVal>& a = *(Table<std::string, AnyVal>*)m_value;
 
                 Token peek = t.peek();

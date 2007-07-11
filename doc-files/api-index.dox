@@ -322,6 +322,7 @@ href="classes.html">Classes</a>.
         \link G3D::filenamePath filenamePath\endlink,
         \link G3D::fileIsNewer fileIsNewer\endlink,
         \link G3D::G3DEndian G3DEndian\endlink,
+        \link G3D::GMutex GMutex\endlink,
         \link G3D::GThread GThread\endlink,
         \link G3D::GUniqueID GUniqueID\endlink,
         \link G3D::getFiles getFiles\endlink, 

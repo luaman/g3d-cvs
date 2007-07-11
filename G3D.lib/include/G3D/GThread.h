@@ -35,6 +35,8 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
  GThread subclasses then neither class will ever be deallocated.  Also, 
  dropping all pointers (and causing deallocation) of a GThread does NOT 
  stop the underlying process.
+
+ @sa G3D::GMutex, G3D::AtomicInt32
 */
 class GThread : public ReferenceCountedObject {
 private:
@@ -53,18 +55,20 @@ private:
 
 protected:
 
-	GThread(const std::string& name);
+    GThread(const std::string& name);
 
 public:
 
-	virtual ~GThread();
+    virtual ~GThread();
 
     /** Constructs a basic GThread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
     static GThreadRef create(const std::string& name, void (*proc)());
 
-    /** Starts the thread and executes main() */
+    /** Starts the thread and executes threadMain().  Returns false if
+       the thread failed to start (either because it was already started
+       or because the OS refused).*/
     bool start();
 
     /** Terminates the thread without notifying or
@@ -99,6 +103,7 @@ protected:
 
 /**
  Mutual exclusion lock used for synchronization.
+ @sa G3D::GThread, G3D::AtomicInt32
 */
 class GMutex {
 private:
