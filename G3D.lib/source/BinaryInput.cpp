@@ -262,7 +262,7 @@ BinaryInput::BinaryInput(
     bitPos = 0;
 
     // Update global file tracker
-    _internal::currentFilesUsed.append(filename);
+    _internal::currentFilesUsed.insert(filename);
     
     swapBytes = needSwapBytes(fileEndian);
 

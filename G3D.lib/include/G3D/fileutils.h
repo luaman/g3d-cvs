@@ -17,6 +17,7 @@
 #include <string>
 #include <stdio.h>
 #include "G3D/Array.h"
+#include "G3D/Set.h"
 #include "G3D/g3dmath.h"
 
 #ifdef G3D_WIN32
@@ -27,7 +28,7 @@
 namespace G3D {
 
     namespace _internal {
-        extern Array<std::string> currentFilesUsed;
+        extern Set<std::string> currentFilesUsed;
     }
 
 /** Returns all the files used by G3D and GLG3D during the current execution. */

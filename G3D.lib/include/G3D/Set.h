@@ -43,7 +43,7 @@ public:
     virtual ~Set() {}
 
     int size() const {
-        return memberTable.size();
+        return (int)memberTable.size();
     }
 
     bool contains(const T& member) const {

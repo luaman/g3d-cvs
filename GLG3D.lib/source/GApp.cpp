@@ -538,8 +538,12 @@ void GApp::endRun() {
     onCleanup();
 
     Log::common()->section("Files Used");
-    for (int i = 0; i < _internal::currentFilesUsed.size(); ++i) {
-        Log::common()->println(_internal::currentFilesUsed[i]);
+    Set<std::string>::Iterator end = _internal::currentFilesUsed.end();
+    Set<std::string>::Iterator f = _internal::currentFilesUsed.begin();
+    
+    while (f != end) {
+        Log::common()->println(*f);
+        ++f;
     }
     Log::common()->println("");
 

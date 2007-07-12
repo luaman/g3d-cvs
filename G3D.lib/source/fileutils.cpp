@@ -43,9 +43,9 @@
 
 namespace G3D {
     
-    namespace _internal {
-        Array<std::string> currentFilesUsed(0);
-    }
+namespace _internal {
+    Set<std::string> currentFilesUsed;
+}
 
 
 std::string resolveFilename(const std::string& filename) {
@@ -92,7 +92,7 @@ bool zipfileExists(const std::string& filename) {
 std::string readWholeFile(
     const std::string& filename) {
 
-    _internal::currentFilesUsed.append(filename);
+    _internal::currentFilesUsed.insert(filename);
 
     std::string s;
 
@@ -1032,7 +1032,9 @@ bool fileIsNewer(const std::string& src, const std::string& dst) {
 
 
 Array<std::string> filesUsed() {
-    return _internal::currentFilesUsed;
+    Array<std::string> f;
+    _internal::currentFilesUsed.getMembers(f);
+    return f;
 }
 
 }
