@@ -86,7 +86,8 @@ protected:
         const LightingRef&              lighting,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material) const;
+        const SuperShader::Material&    material,
+        bool  preserveState) const;
 
     void renderFFShadowMappedLightPass(
         RenderDevice*                   rd,
@@ -204,7 +205,7 @@ void ArticulatedModel::renderNonShadowed(
                 }
             }
 
-            bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material);
+            bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
 
             if (triList.twoSided && ps20) {
                 // gl_FrontFacing doesn't work on most cards inside
@@ -212,7 +213,7 @@ void ArticulatedModel::renderNonShadowed(
                 // twice
                 rd->setCullFace(RenderDevice::CULL_FRONT);
                 triList.nonShadowedShader->args.set("backside", -1.0f);
-                posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material);
+                posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
                 triList.nonShadowedShader->args.set("backside", 1.0f);
             }
 
@@ -466,7 +467,8 @@ bool PosedArticulatedModel::renderNonShadowedOpaqueTerms(
     const LightingRef&              lighting,
     const ArticulatedModel::Part&   part,
     const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material&    material) const {
+    const SuperShader::Material&    material,
+    bool preserveState) const {
 
     bool renderedOnce = false;
 
@@ -476,15 +478,23 @@ bool PosedArticulatedModel::renderNonShadowedOpaqueTerms(
         break;
 
     case ArticulatedModel::PS14:
-        rd->pushState();
+        if (preserveState) {
+            rd->pushState();
+        }
             renderedOnce = renderPS14NonShadowedOpaqueTerms(rd, lighting, part, triList, material);
-        rd->popState();
+        if (preserveState) {
+            rd->popState();
+        }
         break;
 
     case ArticulatedModel::PS20:
-        rd->pushState();
+        if (preserveState) {
+            rd->pushState();
+        }
             renderedOnce = renderPS20NonShadowedOpaqueTerms(rd, lighting, part, triList, material);
-        rd->popState();
+        if (preserveState) {
+            rd->popState();
+        }
         break;
 
     default:
@@ -819,7 +829,7 @@ void PosedArticulatedModel::renderNonShadowed(
 
                 bool alreadyAdditive = false;
                 setAdditive(rd, alreadyAdditive);
-                renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material);
+                renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
             
                 // restore depth write
                 rd->setDepthWrite(oldDepthWrite);

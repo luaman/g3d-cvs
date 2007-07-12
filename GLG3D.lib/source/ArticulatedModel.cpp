@@ -277,6 +277,9 @@ void ArticulatedModel::Part::updateShaders() {
             triListArray[t].material,
             triListArray[t].nonShadowedShader, 
             triListArray[t].shadowMappedShader);
+
+        triListArray[t].nonShadowedShader->setPreserveState(false);
+        triListArray[t].shadowMappedShader->setPreserveState(false);
     }
 }
 

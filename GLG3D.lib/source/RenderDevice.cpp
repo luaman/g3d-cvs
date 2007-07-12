@@ -1210,12 +1210,13 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     GLint mask = 0;
 
     // TODO: do we need to enable write to clear these buffers?
-    pushState();
+    bool oldColorWrite = colorWrite();
     if (clearColor) {
         mask |= GL_COLOR_BUFFER_BIT;
         setColorWrite(true);
     }
 
+    bool oldDepthWrite = depthWrite();
     if (clearDepth) {
         mask |= GL_DEPTH_BUFFER_BIT;
         setDepthWrite(true);
@@ -1235,7 +1236,8 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     glStencilMask(oldMask);
     minGLStateChange();
     minStateChange();
-    popState();
+    setColorWrite(oldColorWrite);
+    setDepthWrite(oldDepthWrite);
 }
 
 
@@ -1268,7 +1270,6 @@ void RenderDevice::beginFrame() {
     ++beginEndFrame;
     triangleCount = 0;
     debugAssertM(beginEndFrame == 1, "Mismatched calls to beginFrame/endFrame");
-    pushState();
 }
 
 
@@ -1296,8 +1297,6 @@ void RenderDevice::setSwapBuffersAutomatically(bool b) {
 void RenderDevice::endFrame() {
     --beginEndFrame;
     debugAssertM(beginEndFrame == 0, "Mismatched calls to beginFrame/endFrame");
-
-    popState();
 
     // Schedule a swap buffer iff we are handling them automatically.
     swapGLBuffersPending = _swapBuffersAutomatically;

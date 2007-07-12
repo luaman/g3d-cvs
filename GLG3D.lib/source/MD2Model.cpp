@@ -464,14 +464,7 @@ PosedModel::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, 
 
 
 void MD2Model::render(RenderDevice* renderDevice, const Pose& pose) {
-
-    renderDevice->pushState();
-        renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
-
-        sendGeometry(renderDevice, pose);
-
-    renderDevice->popState();
-    
+    sendGeometry(renderDevice, pose);    
 }
 
 
@@ -878,6 +871,7 @@ void MD2Model::PosedMD2Model::sendGeometry(RenderDevice* renderDevice) const {
 
 void MD2Model::PosedMD2Model::render(RenderDevice* renderDevice) const {
     renderDevice->pushState();
+        renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
         renderDevice->setObjectToWorldMatrix(coordinateFrame());
         if (useMaterial && renderDevice->colorWrite()) {
             material.configure(renderDevice);
