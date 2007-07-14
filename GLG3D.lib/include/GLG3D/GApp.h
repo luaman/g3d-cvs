@@ -21,6 +21,7 @@
 #include "GLG3D/GConsole.h"
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/DeveloperWindow.h"
+#include "G3D/GThread.h"
 
 namespace G3D {
 
@@ -125,8 +126,11 @@ protected:
     */
     Manipulator::Ref        m_cameraManipulator;
 
+    GMutex                  m_debugTextMutex;
+
     /**
-       Strings that have been printed with debugPrint.
+       Strings that have been printed with screenPrintf.
+       Protected by m_debugTextMutex.
     */
     Array<std::string>      debugText;
 
@@ -289,9 +293,26 @@ public:
     /**
        If debugShowText is true, prints to an on-screen buffer that
        is cleared every frame.
-    */
-    virtual void debugPrintf(const char* fmt ...);
 
+       Called by G3D::screenPrintf
+
+       @sa G3D::logPrintf, G3D::screenPrintf, G3D::consolePrintf
+    */
+    void screenPrintf(const char* fmt ...) G3D_CHECK_PRINTF_METHOD_ARGS;;
+
+    void vscreenPrintf
+    (
+     const char*                 fmt,
+     va_list                     argPtr) G3D_CHECK_VPRINTF_METHOD_ARGS;;
+
+    /**
+       If debugShowText is true, prints to an on-screen buffer that
+       is cleared every frame.
+       @deprecated
+       @sa G3D::screenPrintf
+    */
+    virtual void debugPrintf(const char* fmt ...) G3D_CHECK_PRINTF_METHOD_ARGS;
+    
     /**
        Called from GApplet::run immediately after doGraphics to render
        the debugging text.  Does nothing if debugMode is false.  It
@@ -564,6 +585,20 @@ protected:
     */
     virtual void onConsoleCommand(const std::string& cmd);
 };
+
+
+/**
+   Displays output on the last G3D::GApp instantiated.  If there was no GApp instantiated,
+   does nothing.  Threadsafe.
+   
+   This is primarily useful for code that prints (almost) the same
+   values every frame (e.g., "current position = ...") because those
+   values will then appear in the same position on screen.
+
+   For one-off print statements (e.g., "network message received")
+   see G3D::consolePrintf.
+ */
+void screenPrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
 
 }
 

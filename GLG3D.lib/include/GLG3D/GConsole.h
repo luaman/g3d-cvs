@@ -255,10 +255,10 @@ protected:
     /** Called from repeatKeysym on UP/DOWN. */
     void historySelect(int direction);
 
+    GConsole(const GFontRef& f, const Settings& s, Callback c, void* callbackData);
+
     /** Issues text to the buffer. */
     virtual void print(const string& s, const Color4& c);
-
-    GConsole(const GFontRef& f, const Settings& s, Callback c, void* callbackData);
 
 public:
 
@@ -289,6 +289,8 @@ public:
 
     /** Clear command history. */
     void clearHistory();
+
+    void print(const string& s);
 
     /** Print to the buffer. */
     void __cdecl printf(const char* fmt, ...) G3D_CHECK_PRINTF_METHOD_ARGS;

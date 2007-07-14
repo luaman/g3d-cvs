@@ -51,6 +51,7 @@ href="classes.html">Classes</a>.
     \link G3D::GWindow GWindow\endlink,
     \link G3D::Manipulator Manipulator\endlink,
     \link G3D::FirstPersonManipulator FirstPersonManipulator\endlink,
+    \link G3D::screenPrintf screenPrintf\endlink,
     \link G3D::SDLWindow SDLWindow\endlink,
     \link G3D::ThirdPersonManipulator ThirdPersonManipulator\endlink,
     \link G3D::UprightSplineManipulator UprightSplineManipulator\endlink,
@@ -285,9 +286,7 @@ href="classes.html">Classes</a>.
         \link G3D::Image4uint8 Image4uint8\endlink,
         \link G3D::Map2D Map2D\endlink,
         \link G3D::gaussian1D gaussian1D\endlink,
-        \link G3D::WrapMode WrapMode\endlink,
-        <BR>
-
+        \link G3D::WrapMode WrapMode\endlink
 
      <LI><B>Debug</B> &nbsp; &nbsp;
         \link alwaysAssertM alwaysAssertM\endlink, 
@@ -295,8 +294,10 @@ href="classes.html">Classes</a>.
         \link debugAssertM debugAssertM\endlink,
         \link G3D::describeSystem describeSystem\endlink,
         \link G3D::isValidHeapPointer isValidHeapPointer\endlink,
-        \link G3D::isValidPointer isValidPointer\endlink,
-        \link G3D::debugPrintf debugPrintf\endlink,
+        \link G3D::isValidPointer isValidPointer\endlink
+        \link G3D::setConsolePrintHook setConsolePrintHook\endlink,
+        \link G3D::consolePrintHook consolePrintHook\endlink,
+        \link G3D::consolePrintf consolePrintf\endlink,
         \link G3D::logPrintf logPrintf\endlink,
         \link G3D::Log Log\endlink,
         \link G3D::setAssertionHook setAssertionHook\endlink,

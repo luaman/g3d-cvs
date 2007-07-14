@@ -22,6 +22,44 @@
 
 namespace G3D {
 
+static GApp* lastGApp = NULL;
+
+void screenPrintf(const char* fmt ...) {
+    va_list argList;
+    va_start(argList, fmt);
+    if (lastGApp) {
+        lastGApp->vscreenPrintf(fmt, argList);
+    }
+    va_end(argList);
+}
+
+void GApp::screenPrintf(const char* fmt ...) {
+    va_list argList;
+    va_start(argList, fmt);
+    vscreenPrintf(fmt, argList);
+    va_end(argList);
+}
+
+void GApp::debugPrintf(const char* fmt ...) {
+    va_list argList;
+    va_start(argList, fmt);
+    vscreenPrintf(fmt, argList);
+    va_end(argList);
+}
+
+void GApp::vscreenPrintf
+(
+ const char*                 fmt,
+ va_list                     argPtr) {
+    if (showDebugText) {
+        std::string s = G3D::vformat(fmt, argPtr);
+        m_debugTextMutex.lock();
+        debugText.append(s);
+        m_debugTextMutex.unlock();
+    }
+}
+
+
 /** Attempt to write license file */
 static void writeLicense() {
     FILE* f = fopen("g3d-license.txt", "wt");
@@ -44,6 +82,9 @@ GApp::GApp(const Settings& settings, GWindow* window) :
     m_endProgram      = false;
     m_exitCode        = 0;
 
+    debugLog = new Log(settings.logFilename);
+    lastGApp = this;
+
     defaultController = FirstPersonManipulator::create();
 
     if (settings.dataDir == "<AUTO>") {
@@ -56,7 +97,6 @@ GApp::GApp(const Settings& settings, GWindow* window) :
         writeLicense();
     }
 
-    debugLog	 = new Log(settings.logFilename);
     renderDevice = new RenderDevice();
 
     if (window != NULL) {
@@ -193,20 +233,11 @@ void GApp::loadFont(const std::string& fontName) {
 }
 
 
-void GApp::debugPrintf(const char* fmt ...) {
-    if (showDebugText) {
-
-        va_list argList;
-        va_start(argList, fmt);
-        std::string s = G3D::vformat(fmt, argList);
-        va_end(argList);
-
-        debugText.append(s);
-    }    
-}
-
-
 GApp::~GApp() {
+    if (lastGApp == this) {
+        lastGApp = NULL;
+    }
+
     NetworkDevice::cleanup();
 
     debugFont = NULL;
@@ -358,10 +389,12 @@ void GApp::renderDebugInfo() {
                 debugFont->configureRenderDevice(renderDevice);
             }
 
+            m_debugTextMutex.lock();
             for (int i = 0; i < debugText.length(); ++i) {
                 debugFont->send2DQuads(renderDevice, debugText[i], pos, size, color, Color3::black());
                 pos.y += size * 1.5;
             }
+            m_debugTextMutex.unlock();
 
         renderDevice->pop2D();
     }

@@ -32,6 +32,7 @@ using namespace std;
 
 namespace G3D { namespace _internal {
 
+ConsolePrintHook _consolePrintHook;
 AssertionHook _debugHook = _handleDebugAssert_;
 AssertionHook _failureHook = _handleErrorCheck_;
 
@@ -321,6 +322,51 @@ AssertionHook failureHook() {
     return G3D::_internal::_failureHook;
 }
 
+
+void setConsolePrintHook(ConsolePrintHook h) {
+    G3D::_internal::_consolePrintHook = h;
+}
+
+ConsolePrintHook consolePrintHook() {
+    return G3D::_internal::_consolePrintHook;
+}
+
+
+void __cdecl consolePrintf(const char* fmt ...) {
+    va_list argList;
+    va_start(argList, fmt);
+    std::string s = G3D::vformat(fmt, argList);
+    va_end(argList);
+
+#   ifdef G3D_WIN32
+        const int MAX_STRING_LEN = 1024;
+    
+        // Windows can't handle really long strings sent to
+        // the console, so we break the string.
+        if (s.size() < MAX_STRING_LEN) {
+            OutputDebugStringA(s.c_str());
+        } else {
+            for (unsigned int i = 0; i < s.size(); i += MAX_STRING_LEN) {
+                std::string sub = s.substr(i, MAX_STRING_LEN);
+                OutputDebugStringA(sub.c_str());
+            }
+        }
+#    else
+        fprintf(stderr, "%s", s.c_str());
+#    endif
+
+     FILE* L = Log::common()->getFile();
+     fprintf(L, "%s", s.c_str());
+
+     if (consolePrintHook()) {
+         consolePrintHook()(s);
+     }
+
+#    ifdef G3D_WIN32
+        fflush(stderr);
+#    endif
+     fflush(L);
+}
 
 } // namespace
 

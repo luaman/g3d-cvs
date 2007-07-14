@@ -6,10 +6,20 @@
 #include "GLG3D/GConsole.h"
 #include "G3D/stringutils.h"
 #include "G3D/fileutils.h"
+#include "G3D/debugPrintf.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
 
 namespace G3D {
+
+static WeakReferenceCountedPointer<GConsole> lastGConsole;
+
+static void gconsolePrintHook(const std::string& s) {
+    GConsoleRef last = lastGConsole.createStrongPtr();
+    if (last.notNull()) {
+        last->print(s);
+    }
+}
 
 GConsole::Settings::Settings() : 
     blinkRate(3),
@@ -28,7 +38,14 @@ GConsole::Settings::Settings() :
 }
 
 GConsoleRef GConsole::create(const GFontRef& f, const Settings& s, Callback callback, void* data) {
-    return new GConsole(f, s, callback, data);
+    GConsoleRef c = new GConsole(f, s, callback, data);
+    lastGConsole = c;
+
+    if (consolePrintHook() == NULL) {
+        setConsolePrintHook(gconsolePrintHook);
+    }
+
+    return c;
 }
 
 GConsole::GConsole(const GFontRef& f, const Settings& s, Callback callback, void* data) :
@@ -199,6 +216,10 @@ void __cdecl GConsole::vprintf(const char* fmt, va_list argPtr) {
     print(vformat(fmt, argPtr), m_settings.defaultPrintColor);
 }
 
+
+void GConsole::print(const string& s) {
+    print(s, m_settings.defaultPrintColor);
+}
 
 void GConsole::print(const string& s, const Color4& c) {
     addToCompletionHistory(s);

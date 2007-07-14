@@ -32,7 +32,9 @@ features.  Not all API entry points are shown in this index.
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
 <tr><td></td><td>\link debugAssert <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
-<tr><td></td><td>\link G3D::GApp::debugPrintf <b>GApp::debugPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
+<tr><td></td><td>\link G3D::screenPrintf <b>screenPrintf</b>\endlink</td><td>Prints over the 3D window</td></tr>
+<tr><td></td><td>\link G3D::consolePrintf <b>consolePrintf</b>\endlink</td><td>Prints to the 3D console and terminal and log.txt</td></tr>
+<tr><td></td><td>\link G3D::logPrintf <b>logPrintf</b>\endlink</td><td>Prints to log.txt</td></tr>
 <tr><td></td><td>\link G3D::GApp::debugPane <b>GApp::debugPane</b>\endlink</td><td>Add your own debugging GUI controls to this provided window</td></tr>
 <tr><td></td><td>\link G3D::debugPrintf <b>G3D::debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
 <tr><td></td><td>\link G3D::logPrintf <b>logPrintf</b>\endlink</td><td>Prints to the log.txt file (which you should regularly check for warnings!)</td></tr>
