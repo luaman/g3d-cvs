@@ -799,12 +799,18 @@ def isCFile(file):
              (ext == 'mi') or
              (ext == 'mii'))))
 
+""" Returns true if this is a cpp header filename. """
+def isCHeader(file):
+    ext = string.lower(extname(file))
+    return (ext == 'h') or (ext == 'hpp') or (ext == 'h++')
+
 #########################################################################
 
 """
 A regular expression matching files that should be excluded from compilation
 """
 excludeFromCompilation = None
+_includeHeaders = False
 
 def _listCFilesVisitor(result, dirname, files):
     dir = dirname
@@ -829,7 +835,7 @@ def _listCFilesVisitor(result, dirname, files):
             if verbosity >= VERBOSE: print "  Ignoring '" + f + "'"
             removelist.append(f)
             
-         elif isCFile(f):
+         elif isCFile(f) or (_includeHeaders and isCHeader(f)):
 
              if ((excludeFromCompilation == None) or
                  (excludeFromCompilation.search(f) == None)):
@@ -843,7 +849,7 @@ def _listCFilesVisitor(result, dirname, files):
         files.remove(f)
 
 
-"""Returns all files with gcc-recognized c/c++ endings for the given directory
+"""Returns all files with gcc-recognized C/C++ endings for the given directory
    and all subdirectories.
    
    Filenames must be relative to the "rootDir" directory.  dir will be
@@ -851,8 +857,10 @@ def _listCFilesVisitor(result, dirname, files):
 
    exclude must be a regular expression for files to exclude.
    """
-def listCFiles(dir = '', exclude = None):
+def listCFiles(dir = '', exclude = None, includeHeaders = False):
     global excludeFromCompilation
+    global _includeHeaders
+    _includeHeaders = includeHeaders
     if (dir == ''): dir = './'
 
     excludeFromCompilation = exclude
@@ -860,6 +868,15 @@ def listCFiles(dir = '', exclude = None):
 
     os.path.walk(dir, _listCFilesVisitor, result)
     return result
+
+####################################################################
+
+""" Reads an entire text file from disk """
+def readFile(filename):
+    f = file(filename, 'rt')
+    s = f.read()
+    f.close()
+    return s
 
 ####################################################################
 

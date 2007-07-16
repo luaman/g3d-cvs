@@ -675,7 +675,23 @@ def printInfo(state):
     print 'binaryName        = "' + state.binaryName + '"'
     print 'binaryType        = "' + state.binaryType + '"'
     print 'target            = "' + state.target + '"'
-    
+
+#########################################################################
+
+def printLineCount(state):
+    files = listCFiles('', state.excludeFromCompilation, True)
+    # equivalent to:
+    #   wc -l <files> | tail -1
+    #   grep ';' <files> | wc -l | tail -1
+    statementCount = 0
+    lineCount = 0
+    for file in files:
+        x = readFile(file)
+        statementCount += x.count(';')
+        lineCount += x.count('\n')
+
+    print 'Compiled %(files)d files, %(statements)d statements, %(loc)d lines of code' % \
+          {'files' : len(files), 'statements' : statementCount, 'loc' : lineCount}
         
 #########################################################################
 
@@ -713,6 +729,8 @@ def main(state, args, progArgs, doGDB, doRun):
         maybePrintBar()
 
     if (verbosity >= NORMAL):
+        printLineCount(state)
+        
         if state.binaryType == EXE:
             print '\nExecutable written to ' + state.binaryDir + state.binaryName
         else:
