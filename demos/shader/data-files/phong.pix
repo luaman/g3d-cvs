@@ -54,6 +54,6 @@ void main() {
 
     gl_FragColor.rgb =
         diffuse  * diffuseColor  * (ambientLightColor + (max(dot(wsNormal, wsLight), 0.0) * lightColor)) +
-        specular * specularColor * pow(max(dot(wsReflect, wsLight), 0), shine) * lightColor +
+        specular * specularColor * pow(max(dot(wsReflect, wsLight), 0.0), shine) * lightColor +
         reflect  * specularColor * textureCube(environmentMap, wsReflect).rgb;
 }
