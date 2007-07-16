@@ -152,5 +152,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
+    GUniqueID x = GUniqueID::create(0);
+    GUniqueID y = GUniqueID::create(1);
+
+    uint16 tagx = x.tag();
+    uint16 tagy = y.tag();
+
     return App().run();
 }

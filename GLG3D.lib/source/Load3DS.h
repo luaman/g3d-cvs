@@ -943,11 +943,11 @@ Color3 Load3DS::read3DSColor() {
 
 float Load3DS::read3DSPct() {
     ChunkHeader curChunkHeader = readChunkHeader();
-    float f = 0.0;
+    float f = 0.0f;
 
 	switch (curChunkHeader.id) {
 	case INT_PCT:
-        f = b->readUInt16() / 65536.0;
+        f = b->readUInt16() / 100.0f;
 		break;
 
 	case FLOAT_PCT:
