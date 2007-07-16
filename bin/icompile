@@ -464,6 +464,8 @@ def buildBinary(state):
             # Static library.
             makeStaticLibrary(state, ofiles)
 
+        if verbosity >= NORMAL: printLineCount(state)
+
     if verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
     
 #########################################################################
@@ -729,8 +731,6 @@ def main(state, args, progArgs, doGDB, doRun):
         maybePrintBar()
 
     if (verbosity >= NORMAL):
-        printLineCount(state)
-        
         if state.binaryType == EXE:
             print '\nExecutable written to ' + state.binaryDir + state.binaryName
         else:
