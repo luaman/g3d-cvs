@@ -78,115 +78,115 @@ public:
 
         /** Width of the client area in pixels. */
         int     width;
-      
-	int     height;
+          
+	    int     height;
 
-	/** Initial x position of the client area in screen space(can
-	    be overridden by fullScreen and center) */
-	int     x;
-	
-	/** Initial y position of the client area in screen space(can
-	    be overridden by fullScreen and center) */
-	int     y;
-	
-	/** If true, overrides the x and y settings */
-	bool    center;
+	    /** Initial x position of the client area in screen space(can
+	        be overridden by fullScreen and center) */
+	    int     x;
+    	
+	    /** Initial y position of the client area in screen space(can
+	        be overridden by fullScreen and center) */
+	    int     y;
+    	
+	    /** If true, overrides the x and y settings */
+	    bool    center;
 
-	/** The number of bits in <B>each</B> color channel of the
-	    frame buffer.  5, <B>8</B>.*/
-	int     rgbBits;
+	    /** The number of bits in <B>each</B> color channel of the
+	        frame buffer.  5, <B>8</B>.*/
+	    int     rgbBits;
 
-	/* The number of bits in the alpha channel of the frame
-	   buffer. <B>0</B>, 1, 8 Used in Win32Window to help
-	   determine resolution color depth (Added to rgbBits). */
-	int     alphaBits;
+	    /* The number of bits in the alpha channel of the frame
+	       buffer. <B>0</B>, 1, 8 Used in Win32Window to help
+	       determine resolution color depth (Added to rgbBits). */
+	    int     alphaBits;
 
-	/** <B>0 (autodetect the best for this card)</B>, 16,
-	    <B>24</B>, 32 */
-	int     depthBits;
+	    /** <B>0 (autodetect the best for this card)</B>, 16,
+	        <B>24</B>, 32 */
+	    int     depthBits;
 
-	/** <B>8</B> */
-	int     stencilBits;
-	
-	/** Number of samples per pixel for anti-aliasing purposes.
-	    <B>1</B> (none), 4, 8 */
-	int     fsaaSamples;
-	
-	/** Will you accept a software rendering pipeline?  Used to
-	  determine if a hardware only pixel format is
-	  required. */
-	bool    hardware;
+	    /** <B>8</B> */
+	    int     stencilBits;
+    	
+	    /** Number of samples per pixel for anti-aliasing purposes.
+	        <B>1</B> (none), 4, 8 */
+	    int     fsaaSamples;
+    	
+	    /** Will you accept a software rendering pipeline?  Used to
+	      determine if a hardware only pixel format is
+	      required. */
+	    bool    hardware;
 
-	/** Applications that fill the screen may also want to set
-	    framed = false. */
-	bool    fullScreen;
+	    /** Applications that fill the screen may also want to set
+	        framed = false. */
+	    bool    fullScreen;
 
-	/** Should buffer flips be un-hitched from refresh rate?
-			<B>true</B>, false.  True generally gives
-			higher frame rates.*/
-	bool    asychronous;
+	    /** Should buffer flips be un-hitched from refresh rate?
+			    <B>true</B>, false.  True generally gives
+			    higher frame rates.*/
+	    bool    asychronous;
 
-	/** Allocate a stereo display context. true, <B>false</B> */
-	bool    stereo;
-	
-	/** In cycles/sec */
-	int     refreshRate;
-	
-	/**
-	   If true, you should set up your event loop as described in the 
-	   docs for RenderDevice::resize.
-	*/
-	bool    resizable;
-
-    /**
-        If a window's settings define it to be both resizable and allowed
-        to maximize, it will have an activated maximize button (for Win32
-        windows only)
-    */
-    bool    allowMaximize;
-	
-	/**
-	   When true, a window frame and title bar are present.
-	*/
-	bool    framed;
-	
-	/**
-	   When true, the window begins visible.  <B>true</B>, false.
-	*/
-	bool    visible;
-
-	/**
-	   Default icon that the GWindow implementation tries to set initially.
-	*/
-	std::string  defaultIconFilename;
+	    /** Allocate a stereo display context. true, <B>false</B> */
+	    bool    stereo;
+    	
+	    /** In cycles/sec */
+	    int     refreshRate;
+    	
+	    /**
+	       If true, you should set up your event loop as described in the 
+	       docs for RenderDevice::resize.
+	    */
+	    bool    resizable;
 
         /**
-         Window title
+            If a window's settings define it to be both resizable and allowed
+            to maximize, it will have an activated maximize button (for Win32
+            windows only)
         */
-        std::string  caption;
+        bool    allowMaximize;
+    	
+	    /**
+	       When true, a window frame and title bar are present.
+	    */
+	    bool    framed;
+    	
+	    /**
+	       When true, the window begins visible.  <B>true</B>, false.
+	    */
+	    bool    visible;
 
-	Settings() :
-	  width(800),
-	  height(600),
-	  x(0),
-	  y(0),
-	  center(true),
-	  rgbBits(8),
-	  alphaBits(0),
-	  depthBits(24),
-	  stencilBits(8),
-	  fsaaSamples(1),
-	  hardware(true),
-	  fullScreen(false),
-	  asychronous(true),
-	  stereo(false),
-	  refreshRate(85),
-	  resizable(false),
-      allowMaximize(true),
-	  framed(true),
-	  visible(true),
-	  defaultIconFilename("nodefault"),
-	  caption("3D") {}
+	    /**
+	       Default icon that the GWindow implementation tries to set initially.
+	    */
+	    std::string  defaultIconFilename;
+
+            /**
+             Window title
+            */
+            std::string  caption;
+
+	    Settings() :
+	      width(800),
+	      height(600),
+	      x(0),
+	      y(0),
+	      center(true),
+	      rgbBits(8),
+	      alphaBits(0),
+	      depthBits(24),
+	      stencilBits(8),
+	      fsaaSamples(1),
+	      hardware(true),
+	      fullScreen(false),
+	      asychronous(true),
+	      stereo(false),
+	      refreshRate(85),
+	      resizable(false),
+          allowMaximize(true),
+	      framed(true),
+	      visible(true),
+	      defaultIconFilename("nodefault"),
+	      caption("3D") {}
     };
 protected:
 
@@ -227,6 +227,17 @@ protected:
 
     int                     m_inputCaptureCount;
     int                     m_mouseHideCount;
+
+    
+    /** 
+      Capture the keyboard and mouse focus, locking the mouse to the client area of this window.
+      Sets the inputCaptureCount to 1 if @a c is true and 0 if @a c is false
+      @deprecated use setInputCaptureCount
+     */
+    virtual void setInputCapture(bool c) = 0;
+
+    /** @deprecated Use setMouseVisibleCount */
+    virtual void setMouseVisible(bool b) = 0;
 
 public:
 
@@ -355,13 +366,6 @@ public:
      */
     virtual void getJoystickState(unsigned int stickNum, Array<float>& axis, Array<bool>& button) = 0;
 
-    /** 
-      Capture the keyboard and mouse focus, locking the mouse to the client area of this window.
-      Sets the inputCaptureCount to 1 if @a c is true and 0 if @a c is false
-      @deprecated use setInputCaptureCount
-     */
-    virtual void G3D_DEPRECATED setInputCapture(bool c) = 0;
-
     void setInputCaptureCount(int c) {
         if ((m_inputCaptureCount > 0) && (c <= 0)) {
             // Release mouse
@@ -395,17 +399,6 @@ public:
         setInputCaptureCount(inputCaptureCount() - 1);
     }
 
-    /** Returns the current state of input capture.
-        @deprecated use setInputCaptureCount
-      */
-    virtual bool G3D_DEPRECATED inputCapture() const = 0;
-
-
-    /** @deprecated Use setMouseVisibleCount */
-    virtual void G3D_DEPRECATED setMouseVisible(bool b) = 0;
-
-    /** @deprecated Use mouseVisibleCount */
-    virtual bool G3D_DEPRECATED mouseVisible() const = 0;
 
     void setMouseHideCount(int c) {
         if ((m_mouseHideCount > 0) && (c <= 0)) {
