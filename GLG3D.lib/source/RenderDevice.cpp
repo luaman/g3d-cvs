@@ -1288,14 +1288,16 @@ void RenderDevice::beginFrame() {
     mDebugPushStateCalls = 0;
 
     ++beginEndFrame;
-    triangleCount = 0;
+    m_triangleCount = 0;
     debugAssertM(beginEndFrame == 1, "Mismatched calls to beginFrame/endFrame");
 }
 
 
 void RenderDevice::swapBuffers() {
     // Process the pending swap buffers call
+    m_swapTimer.tick();
     _window->swapGLBuffers();
+    m_swapTimer.tock();
     swapGLBuffersPending = false;
 }
 
@@ -1335,8 +1337,8 @@ void RenderDevice::endFrame() {
         const double A = clamp(dt, .07, 1);
     
         emwaFrameRate     = lerp(emwaFrameRate, 1 / dt, A);
-        emwaTriangleRate  = lerp(emwaTriangleRate, triangleCount / dt, A);
-        emwaTriangleCount = lerp(emwaTriangleCount, triangleCount, A);
+        emwaTriangleRate  = lerp(emwaTriangleRate, m_triangleCount / dt, A);
+        emwaTriangleCount = lerp(emwaTriangleCount, m_triangleCount, A);
     }
 
     if ((emwaFrameRate == inf()) || (isNaN(emwaFrameRate))) {
@@ -2629,32 +2631,32 @@ void RenderDevice::endPrimitive() {
 void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVertices) {
 	switch (primitive) {
     case LINES:
-        triangleCount += (numVertices / 2);
+        m_triangleCount += (numVertices / 2);
         break;
 
     case LINE_STRIP:
-        triangleCount += (numVertices - 1);
+        m_triangleCount += (numVertices - 1);
         break;
 
     case TRIANGLES:
-        triangleCount += (numVertices / 3);
+        m_triangleCount += (numVertices / 3);
         break;
 
     case TRIANGLE_STRIP:
     case TRIANGLE_FAN:
-        triangleCount += (numVertices - 2);
+        m_triangleCount += (numVertices - 2);
         break;
 
     case QUADS:
-        triangleCount += ((numVertices / 4) * 2);
+        m_triangleCount += ((numVertices / 4) * 2);
         break;
 
     case QUAD_STRIP:
-        triangleCount += (((numVertices / 2) - 1) * 2);
+        m_triangleCount += (((numVertices / 2) - 1) * 2);
         break;
 
     case POINTS:
-        triangleCount += numVertices;
+        m_triangleCount += numVertices;
         break;
     }
 }
@@ -2848,17 +2850,17 @@ std::string RenderDevice::screenshot(const std::string& filepath) const {
 }
 
 
-double RenderDevice::getFrameRate() const {
+double RenderDevice::frameRate() const {
     return emwaFrameRate;
 }
 
 
-double RenderDevice::getTriangleRate() const {
+double RenderDevice::triangleRate() const {
     return emwaTriangleRate;
 }
 
 
-double RenderDevice::getTrianglesPerFrame() const {
+double RenderDevice::trianglesPerFrame() const {
     return emwaTriangleCount;
 }
 

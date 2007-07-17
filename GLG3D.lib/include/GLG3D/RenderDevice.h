@@ -32,6 +32,7 @@
 #include "GLG3D/VAR.h"
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/Lighting.h"
+#include "G3D/Stopwatch.h"
 
 namespace G3D {
 
@@ -234,7 +235,7 @@ private:
     VARAreaRef                  currentVARArea;
 
     /** Number of triangles since last beginFrame() */
-    int                         triangleCount;
+    int                         m_triangleCount;
 
     double                      emwaTriangleCount;
     double                      emwaTriangleRate;
@@ -383,6 +384,9 @@ public:
     /** Allows the UserInput to find the RenderDevice 
         @deprecated */
     static RenderDevice*        lastRenderDeviceCreated;
+
+    /** Times swapbuffers */
+    Stopwatch                   m_swapTimer;
 
     /** Number of RenderDevice state changes.
     
@@ -571,25 +575,31 @@ public:
      The result is smoothed using an exponentially weighted moving
      average filter so it is robust to unequal frame rendering times.
      */
-    double getFrameRate() const;
+    double frameRate() const;
 
     /**
      Returns an estimate of the triangles rendered per second.  The
      result is smoothed using an exponentially weighted moving average
      filter.
      */
-    double getTriangleRate() const;
+    double triangleRate() const;
 
     /**
      Returns an estimate of the triangles rendered per frame.  The
      result is smoothed using an exponentially weighted moving average
      filter.
      */
-    double getTrianglesPerFrame() const;
+    double trianglesPerFrame() const;
+
+    /** Measures the amount of time spent in swapBuffers.  If high, indicates that
+        the CPU and GPU are not working in parallel*/
+    const Stopwatch& swapBufferTimer() const {
+        return m_swapTimer;
+    }
 
 	/** Returns the number of triangles rendered since beginFrame.*/
-	inline int getTriangleCount() const {
-		return triangleCount;
+	inline int triangleCount() const {
+		return m_triangleCount;
 	}
 
     /**

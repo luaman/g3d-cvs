@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-11-03
- @edited  2007-04-22
+ @edited  2007-07-22
  */
 
 #include "G3D/platform.h"
@@ -349,8 +349,8 @@ void GApp::renderDebugInfo() {
                 std::string s = format(
                     "% 4dfps % 4.1gM tris % 4.1gM tris/s   GL Calls: %d/%d Maj; %d/%d Min; %d push", 
                     iRound(fps),
-                    iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
-                    iRound(fps * renderDevice->getTrianglesPerFrame() / 1e5) * 0.1f,
+                    iRound(fps * renderDevice->trianglesPerFrame() / 1e5) * 0.1f,
+                    iRound(fps * renderDevice->triangleRate() / 1e5) * 0.1f,
                     majGL, majAll, minGL, minAll, pushCalls);
                 debugFont->send2DQuads(renderDevice, s, pos, size, statColor);
 
@@ -369,8 +369,12 @@ void GApp::renderDebugInfo() {
 
                 float norm = 100.0f / total;
 
+                float swapTime = renderDevice->swapBufferTimer().smoothElapsedTime();
+                g -= swapTime;
+
                 // Normalize the numbers
                 g *= norm;
+                swapTime *= norm;
                 n *= norm;
                 s *= norm;
                 L *= norm;
@@ -378,8 +382,8 @@ void GApp::renderDebugInfo() {
                 w *= norm;
 
                 std::string str = 
-                    format("Time: %3.0f%% Gfx, %3.0f%% Sim, %3.0f%% Lgc, %3.0f%% Net, %3.0f%% UI, %3.0f%% wait", 
-                        g, s, L, n, u, w);
+                    format("Time:%3.0f%% Gfx,%3.0f%% Sync,%3.0f%% Sim,%3.0f%% AI,%3.0f%% Net,%3.0f%% UI,%3.0f%% idle", 
+                        g, swapTime, s, L, n, u, w);
                 debugFont->send2DQuads(renderDevice, str, pos, size, statColor);
                 }
 
