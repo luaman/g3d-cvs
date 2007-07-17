@@ -579,6 +579,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Lighting.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\MD2Model.h"
 				>
 			</File>

@@ -9,6 +9,7 @@
   Copyright 2004-2007, Morgan McGuire
  */
 #include "GLG3D/ArticulatedModel.h"
+#include "GLG3D/Lighting.h"
 
 namespace G3D {
 
@@ -175,8 +176,8 @@ void ArticulatedModel::renderNonShadowed(
                 "Cannot pass PosedModels not produced by ArticulatedModel to optimized routines.");
 
             if (! rd->colorWrite()) {
-                // No need for fancy shading, just render outright
-                posed->render(rd);
+                // No need for fancy shading, just send geometry
+                posed->sendGeometry2(rd);
                 continue;
             }
 
@@ -237,9 +238,9 @@ void ArticulatedModel::renderNonShadowed(
 
 void ArticulatedModel::renderShadowMappedLightPass(
     const Array<PosedModel::Ref>&     posedArray, 
-    RenderDevice*                   rd, 
-    const GLight&                   light, 
-    const Matrix4&                  lightMVP, 
+    RenderDevice*                     rd, 
+    const GLight&                     light, 
+    const Matrix4&                    lightMVP, 
     const Texture::Ref&               shadowMap) {
 
     rd->pushState();
@@ -407,7 +408,19 @@ void ArticulatedModel::Part::pose(
     }
 }
 
-void PosedArticulatedModel::render(RenderDevice* renderDevice) const {
+void PosedArticulatedModel::render(RenderDevice* rd) const {
+
+    // Infer the lighting from the fixed function
+
+    // Avoid allocating memory for each render
+    static LightingRef lighting = Lighting::create();
+
+    rd->getFixedFunctionLighting(lighting);
+
+    renderNonShadowed(rd, lighting);
+
+
+    /*
 
     const ArticulatedModel::Part& part = model->partArray[partIndex];
     const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];
@@ -447,6 +460,7 @@ void PosedArticulatedModel::render(RenderDevice* renderDevice) const {
     if (color) {
         renderDevice->popState();
     }
+    */
 }
 
 

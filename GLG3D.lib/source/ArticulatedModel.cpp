@@ -175,14 +175,28 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
                                     textureFile = path + textureFile;
                                 }
 
-                                if (fileExists(textureFile)) {
-                                    triList.material.diffuse.map = Texture::fromFile(textureFile);
+                                std::string f = System::findDataFile(textureFile, false);
+                                if (f != "") {
+                                    triList.material.diffuse.map = Texture::fromFile(f);
                                 } else {
                                     Log::common()->printf("Could not load texture '%s'\n", textureFile.c_str());
                                 }
                             }
+                            
 
-			                triList.material.diffuse.constant = material.diffuse;
+                            //strength of the shininess (higher is brighter)
+                            triList.material.specular.constant = material.shininessStrength * material.specular * (1 - material.transparency);
+
+                            //extent (area, higher is closely contained, lower is spread out) of shininess
+                            triList.material.specularExponent.constant = Color3::white() * material.shininess * 100.0f;
+
+                            triList.material.transmit.constant = Color3::white() * material.transparency;
+                            triList.material.emit.constant = material.diffuse * material.emissive;
+
+                            // TODO: load reflection, bump, etc maps.
+                            // triList.material.reflect.map = material.r
+
+			                triList.material.diffuse.constant = material.diffuse * (1 - material.transparency);
                             triList.twoSided = material.twoSided;
                             triList.computeBounds(part);
 

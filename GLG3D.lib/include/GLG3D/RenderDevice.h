@@ -31,6 +31,7 @@
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/Framebuffer.h"
+#include "GLG3D/Lighting.h"
 
 namespace G3D {
 
@@ -1622,6 +1623,13 @@ public:
 
     void setAmbientLightColor(
         const Color4&        color);
+
+    const Color4& ambientLightColor() const {
+        return state.lights.ambient;
+    }
+
+    /** Returns an approximation of the current fixed function lighting state */
+    void getFixedFunctionLighting(const LightingRef& lighting) const;
 
     /**
      Equivalent to glEnable(GL_LIGHTING).

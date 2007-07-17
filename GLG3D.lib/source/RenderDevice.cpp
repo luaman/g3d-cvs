@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2001-07-08
- @edited  2006-10-30
+ @edited  2007-07-30
  */
 
 #include "G3D/platform.h"
@@ -18,6 +18,7 @@
 #include "GLG3D/VAR.h"
 #include "GLG3D/Framebuffer.h"
 #include "G3D/fileutils.h"
+#include "GLG3D/Lighting.h"
 #include <time.h>
 #ifdef G3D_WIN32
     #include "GLG3D/Win32Window.h"
@@ -133,6 +134,25 @@ std::string RenderDevice::getCardDescription() const {
     return cardDescription;
 }
 
+
+void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
+    // Reset state
+    lighting->lightArray.fastClear();
+    lighting->shadowedLightArray.fastClear();
+    lighting->ambientBottom = lighting->ambientTop = Color3::black();
+
+    // Load the lights
+    if (state.lights.lightEnabled) {
+
+        lighting->ambientBottom = lighting->ambientTop = state.lights.ambient.rgb();
+
+        for (int i = 0; i < MAX_LIGHTS; ++i) {
+            if (state.lights.lightEnabled[i]) {
+                lighting->lightArray.append(state.lights.light[i]);
+            }
+        }
+    }
+}
 
 RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false) {
     emwaTriangleRate  = 0;

@@ -32,23 +32,23 @@ public:
                 MATSHININESS  = 0xA040,
 
                 MATSHIN2PCT     = 0xA041,
- 	            MATSHIN3PC      = 0xA042, 
+                MATSHIN3PC      = 0xA042, 
                 MATTRANSPARENCY = 0xA050, 
- 	            MATXPFALL       = 0xA052,
-	            MATREFBLUR      = 0xA053, 
- 	            MATSELFILLUM    = 0xA080,
- 	            MATTWOSIDE      = 0xA081,
- 	            MATDECAL        = 0xA082,
- 	            MATADDITIVE     = 0xA083,
- 	            MATSELFILPCT    = 0xA084,
- 	            MATWIRE         = 0xA085,
- 	            MATSUPERSMP     = 0xA086,
- 	            MATWIRESIZE     = 0xA087,
- 	            MATFACEMAP      = 0xA088,
- 	            MATXPFALLIN     = 0xA08A,
- 	            MATPHONG        = 0xA08C,
- 	            MATWIREABS      = 0xA08E,
- 	            MATSHADING      = 0xA100,
+                MATXPFALL       = 0xA052,
+                MATREFBLUR      = 0xA053, 
+                MATSELFILLUM    = 0xA080,
+                MATTWOSIDE      = 0xA081,
+                MATDECAL        = 0xA082,
+                MATADDITIVE     = 0xA083,
+                MATSELFILPCT    = 0xA084,
+                MATWIRE         = 0xA085,
+                MATSUPERSMP     = 0xA086,
+                MATWIRESIZE     = 0xA087,
+                MATFACEMAP      = 0xA088,
+                MATXPFALLIN     = 0xA08A,
+                MATPHONG        = 0xA08C,
+                MATWIREABS      = 0xA08E,
+                MATSHADING      = 0xA100,
 
                 MATTEXTUREMAP1              = 0xA200,
                     MAT_MAP_FILENAME        = 0xA300,
@@ -111,10 +111,10 @@ public:
             KFHIDE        = 0xB029,
             KFHIERARCHY   = 0xB030,
 
-		// float32 color
-		RGBF   = 0x0010,
+        // float32 color
+        RGBF   = 0x0010,
 
-		// G3D::uint8 color
+        // G3D::uint8 color
         RGB24  = 0x0011,
 
         // Scalar percentage
@@ -159,33 +159,34 @@ public:
         Map() : scale(Vector2(1,1)) {}
     };
 
-	class Material {
-	public:
-		/** The FaceMat inside an object will reference a material by name */
+    class Material {
+    public:
+        /** The FaceMat inside an object will reference a material by name */
         std::string					name;
 
-		bool						twoSided;
-		Color3						diffuse;
-		Color3						specular;
+        bool						twoSided;
+        Color3						diffuse;
+        Color3						specular;
 
-		// "Self illumination"
-		double						emissive;
+        // "Self illumination"
+        float 						emissive;
 
-		double						shininess;
-		double						shininessStrength;
-		double						transparency;
-		double						transparencyFalloff;
-		double						reflectionBlur;
+        float						shininess;
+        float						shininessStrength;
+        float						transparency;
+        float						transparencyFalloff;
+        float                       reflection;
+        float						reflectionBlur;
 
         Map                         texture1;
         Map                         texture2;
 
-		/** 1 = flat, 2 = gouraud, 3 = phong, 4 = metal */
-		int							materialType;
+        /** 1 = flat, 2 = gouraud, 3 = phong, 4 = metal */
+        int							materialType;
 
-		Material() : twoSided(false) {
-		}
-	};
+        Material() : twoSided(false) {
+        }
+    };
 
     class FaceMat {
     public:
@@ -248,10 +249,10 @@ public:
       */
     int                         currentObject;
 
-	int					        currentMaterial;
+    int					        currentMaterial;
 
     Array<Object>               objectArray;
-	Array<Material>		        materialArray;
+    Array<Material>		        materialArray;
 
     /** Maps material names to indices into the MaterialArray */
     Table<std::string, int>     materialNameToIndex;
@@ -330,9 +331,9 @@ public:
     int meshVersion;
 
 
-	/**
-	 @param t Should polygons be two sided?
-	 */
+    /**
+     @param t Should polygons be two sided?
+     */
     void load(const std::string& filename) {
         b = new BinaryInput(filename, G3D_LITTLE_ENDIAN);
         currentRotation= Matrix3::identity();
@@ -434,7 +435,7 @@ void Load3DS::processMaterialChunk(
 
         // EDITMATERIAL subchunks
         case MATNAME:					
-			material.name = b->readString();
+            material.name = b->readString();
             materialNameToIndex.set(material.name, currentMaterial);
             break;
 
@@ -442,29 +443,29 @@ void Load3DS::processMaterialChunk(
             break;
 
         case MATDIFFUSE:
-			material.diffuse = read3DSColor();
+            material.diffuse = read3DSColor();
             break;
 
         case MATSPECULAR:
-			material.specular = read3DSColor();
+            material.specular = read3DSColor();
             break;
 
         case MATSHININESS:
-			material.shininess = read3DSPct();
+            material.shininess = read3DSPct();
             break;
 
         case MATSHIN2PCT:
-			material.shininessStrength = read3DSPct();
+            material.shininessStrength = read3DSPct();
             break;
 
         case MATTRANSPARENCY:
             material.transparency = read3DSPct();
             break;
 
-		case MATTWOSIDE:
+        case MATTWOSIDE:
             // Carries no data.  The presence of this chunk always means two-sided.
-			material.twoSided = true;
-			break;
+            material.twoSided = true;
+            break;
 
         case MATTEXTUREMAP1:
             processMapChunk(material.texture1, curChunkHeader);
@@ -891,53 +892,53 @@ Vector3 Load3DS::readLin3Track() {
 Matrix3 Load3DS::readRotTrack() {
     int trackflags = b->readUInt16();
     (void)trackflags;
-	b->readUInt32();
-	b->readUInt32();
+    b->readUInt32();
+    b->readUInt32();
 
-	int keys = b->readInt32();
-	debugAssertM(keys == 1, "Can only read 1 frame of animation");
-	float   angle = 0;
-	Vector3 axis;
-	for (int k = 0; k < keys; ++k) {
-		readTCB();
-		angle = b->readFloat32();
-		axis  = read3DSVector();
-	}
+    int keys = b->readInt32();
+    debugAssertM(keys == 1, "Can only read 1 frame of animation");
+    float   angle = 0;
+    Vector3 axis;
+    for (int k = 0; k < keys; ++k) {
+        readTCB();
+        angle = b->readFloat32();
+        axis  = read3DSVector();
+    }
 
     if (axis.isZero()) {
         axis = Vector3::unitY();
         debugAssertM(fuzzyEq(angle, 0), "Zero axis rotation with non-zero angle!");
     }
 
-	debugPrintf("Axis = %s, angle = %g\n\n", axis.toString().c_str(), angle);
-	return Matrix3::fromAxisAngle(axis, angle);
+    debugPrintf("Axis = %s, angle = %g\n\n", axis.toString().c_str(), angle);
+    return Matrix3::fromAxisAngle(axis, angle);
 }
 
 
 Color3 Load3DS::read3DSColor() {
     ChunkHeader curChunkHeader = readChunkHeader();
-	Color3 color;
+    Color3 color;
 
-	switch (curChunkHeader.id) {
-	case RGBF:
-		color.r = b->readFloat32();
-		color.g = b->readFloat32();
-		color.b = b->readFloat32();
-		break;
+    switch (curChunkHeader.id) {
+    case RGBF:
+        color.r = b->readFloat32();
+        color.g = b->readFloat32();
+        color.b = b->readFloat32();
+        break;
 
-	case RGB24:
-		color.r = b->readUInt8() / 255.0;
-		color.g = b->readUInt8() / 255.0;
-		color.b = b->readUInt8() / 255.0;
-		break;
+    case RGB24:
+        color.r = b->readUInt8() / 255.0;
+        color.g = b->readUInt8() / 255.0;
+        color.b = b->readUInt8() / 255.0;
+        break;
 
-	default:
-		debugAssertM(false, format("Expected a color chunk, found: %d", curChunkHeader.id));
-	}
+    default:
+        debugAssertM(false, format("Expected a color chunk, found: %d", curChunkHeader.id));
+    }
 
     // Jump to the end of the chunk
     b->setPosition(curChunkHeader.end);
-	return color;
+    return color;
 }
 
 
@@ -945,21 +946,21 @@ float Load3DS::read3DSPct() {
     ChunkHeader curChunkHeader = readChunkHeader();
     float f = 0.0f;
 
-	switch (curChunkHeader.id) {
-	case INT_PCT:
+    switch (curChunkHeader.id) {
+    case INT_PCT:
         f = b->readUInt16() / 100.0f;
-		break;
+        break;
 
-	case FLOAT_PCT:
+    case FLOAT_PCT:
         f = b->readFloat32();
-		break;
-	default:
-		debugAssertM(false, format("Expected a percent chunk, found: %d", curChunkHeader.id));
-	}
+        break;
+    default:
+        debugAssertM(false, format("Expected a percent chunk, found: %d", curChunkHeader.id));
+    }
 
     // Jump to the end of the chunk
     b->setPosition(curChunkHeader.end);
-	return f;
+    return f;
 }
 
 #endif
