@@ -48,6 +48,9 @@ void MD2Viewer::onInit(const std::string& filename) {
 		desiredTexture = resourceDir + "weapon.pcx";
 	} else {
 		getFiles(resourceDir + "*.pcx", files, true);
+		getFiles(resourceDir + "*.jpg", files, true);
+		getFiles(resourceDir + "*.tga", files, true);
+		getFiles(resourceDir + "*.png", files, true);
 		for(int f = 0; f < files.length(); ++f){
 			if(fileLength(desiredTexture) < fileLength(files[f])){
 				if(beginsWith(filenameBaseExt(files[f]), "w_")||beginsWith(filenameBaseExt(files[f]), "weapon")){
@@ -59,7 +62,8 @@ void MD2Viewer::onInit(const std::string& filename) {
 		}
 	}
 
-	if(desiredTexture != "") {
+	if (desiredTexture != "") {
+        p.brighten = endsWith(toLower(desiredTexture), ".pcx") ? 2.0 : 1.0;
 		materials[0].texture.push(Texture::fromFile(desiredTexture,
 													TextureFormat::AUTO(),
 													Texture::DIM_2D,
@@ -77,12 +81,13 @@ void MD2Viewer::onInit(const std::string& filename) {
 	}
 
 	if(fileExists(resourceDir + "weapon.pcx") && validWeapon){
-				materials[1].texture.push(Texture::fromFile(resourceDir + "weapon.pcx",
-															TextureFormat::AUTO(),
-															Texture::DIM_2D,
-															Texture::Settings::defaults(),
-															p));
-	}
+        p.brighten = 2.0;
+		materials[1].texture.push(Texture::fromFile(resourceDir + "weapon.pcx",
+													TextureFormat::AUTO(),
+													Texture::DIM_2D,
+													Texture::Settings::defaults(),
+													p));
+    }
 
 	textureName = filenameBaseExt(desiredTexture);
 	numEdges = models[0]->edges().length();

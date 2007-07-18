@@ -370,7 +370,7 @@ void ArticulatedModel::pose(
 void ArticulatedModel::Part::pose(
     ArticulatedModelRef         model,
     int                         partIndex,
-    Array<PosedModel::Ref>&       posedArray,
+    Array<PosedModel::Ref>&     posedArray,
     const CoordinateFrame&      parent, 
     const Pose&                 posex) const {
 
