@@ -332,7 +332,7 @@ ConsolePrintHook consolePrintHook() {
 }
 
 
-std::string __cdecl debugePrint(const std::string& s) {
+std::string __cdecl debugPrint(const std::string& s) {
 #   ifdef G3D_WIN32
         const int MAX_STRING_LEN = 1024;
     
