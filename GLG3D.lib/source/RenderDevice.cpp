@@ -548,20 +548,20 @@ void RenderDevice::setVideoMode() {
 
 
 int RenderDevice::width() const {
-	if (state.framebuffer.isNull()) {
-	    return _window->width();
-	} else {
-		return state.framebuffer->width();
-	}
+    if (state.framebuffer.isNull()) {
+        return _window->width();
+    } else {
+        return state.framebuffer->width();
+    }
 }
 
 
 int RenderDevice::height() const {
-	if (state.framebuffer.isNull()) {
-	    return _window->height();
-	} else {
-		return state.framebuffer->height();
-	}
+    if (state.framebuffer.isNull()) {
+        return _window->height();
+    } else {
+        return state.framebuffer->height();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

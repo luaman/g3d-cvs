@@ -509,6 +509,15 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
     }
 }
 
+
+std::string AnyVal::toString() const {
+    TextOutput t;
+    serialize(t);
+    std::string s;
+    t.commitString(s);
+    return s;
+}
+
 /*
 void AnyVal::serialize(G3D::BinaryOutput& t) const {
     alwaysAssertM(false, "TODO");
@@ -798,6 +807,17 @@ void AnyVal::deserialize(G3D::BinaryInput& t) {
     alwaysAssertM(false, "TODO");
 }
 */
+
+
+AnyVal& AnyVal::operator[](const char* key) {
+    return this->operator[]((std::string)key);
+}
+
+
+const AnyVal& AnyVal::operator[](const char* key) const {
+    return this->operator[]((std::string)key);
+}
+
 
 AnyVal& AnyVal::operator[](const std::string& key) {
     if (m_type != TABLE) {

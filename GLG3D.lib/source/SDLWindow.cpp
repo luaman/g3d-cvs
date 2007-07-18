@@ -660,11 +660,6 @@ void SDLWindow::setMouseVisible(bool v) {
 }
 
 
-bool SDLWindow::mouseVisible() const {
-    return _mouseVisible;
-}
-
-
 void SDLWindow::setInputCapture(bool c) {
     m_inputCaptureCount = c ? 1 : 0;
 
@@ -692,11 +687,6 @@ bool SDLWindow::pollOSEvent(GEvent& e) {
         }
     }
     return hadEvent;
-}
-
-
-bool SDLWindow::inputCapture() const {
-    return _inputCapture;
 }
 
 

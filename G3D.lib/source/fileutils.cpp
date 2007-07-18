@@ -390,13 +390,13 @@ void createDirectory(
     for (int i = 0; i < path.size(); ++i) {
         p += "/" + path[i];
         if (! fileExists(p, false)) {
-			// Windows only requires one argument to mkdir,
-			// where as unix also requires the permissions.
-#			ifndef G3D_WIN32
-	 			mkdir(p.c_str(),0777);
-#			else
-				 _mkdir(p.c_str());
-#			endif
+            // Windows only requires one argument to mkdir,
+            // where as unix also requires the permissions.
+#           ifndef G3D_WIN32
+                mkdir(p.c_str(), 0777);
+#	    else
+                _mkdir(p.c_str());
+#	    endif
         }
     }
 }

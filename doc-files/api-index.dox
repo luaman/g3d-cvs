@@ -297,7 +297,10 @@ href="classes.html">Classes</a>.
         \link G3D::isValidPointer isValidPointer\endlink
         \link G3D::setConsolePrintHook setConsolePrintHook\endlink,
         \link G3D::consolePrintHook consolePrintHook\endlink,
+        \link G3D::consolePrint consolePrint\endlink,
         \link G3D::consolePrintf consolePrintf\endlink,
+        \link G3D::debugPrint debugPrint\endlink,
+        \link G3D::debugPrintf debugPrintf\endlink,
         \link G3D::logPrintf logPrintf\endlink,
         \link G3D::Log Log\endlink,
         \link G3D::setAssertionHook setAssertionHook\endlink,

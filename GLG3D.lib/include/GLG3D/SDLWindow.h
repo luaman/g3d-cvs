@@ -83,6 +83,10 @@ protected:
 
     Array<std::string> m_droppedFiles;
 
+    virtual void setMouseVisible(bool b);
+
+    virtual void setInputCapture(bool c);
+
 public:
 
     SDLWindow(const GWindow::Settings& settings);
@@ -134,15 +138,6 @@ public:
     virtual void getRelativeMouseState(Vector2& p, uint8& mouseButtons) const;
     virtual void getRelativeMouseState(int& x, int& y, uint8& mouseButtons) const;
     virtual void getRelativeMouseState(double& x, double& y, uint8& mouseButtons) const;
-
-    virtual void setMouseVisible(bool b);
-
-    virtual bool mouseVisible() const;
-
-    virtual void setInputCapture(bool c);
-
-    virtual bool inputCapture() const;
-
     /** Returns the underlying SDL joystick pointer */
     ::SDL_Joystick* getSDL_Joystick(unsigned int num) const;
 

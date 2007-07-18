@@ -290,10 +290,48 @@ public:
 
     Type type() const;
 
+    bool isNil() const {
+        return type() == NIL;
+    }
+
     void serialize(G3D::TextOutput& t) const;
     //void serialize(G3D::BinaryOutput& t) const;
     void deserialize(G3D::TextInput& t);
     //void deserialize(G3D::BinaryInput& t);
+
+    /** Array dereference.  If the index is out of bounds, IndexOutOfBounds is thrown */
+    const AnyVal& operator[](int) const;
+
+    /** Extend this array by one element. */
+    void append(const AnyVal&);
+
+    /** If the index is out of bounds, the array is resized.  If the index is negative,
+        IndexOutOfBounds is thrown.*/
+    AnyVal& operator[](int);
+
+    /** If @a i is out of bounds or this is not an ARRAY, defaultVal is returned.*/
+    const AnyVal& get(int i, const AnyVal& defaultVal) const;
+
+    /** If out of bounds, IndexOutOfBounds is thrown. */
+    const AnyVal& get(int i) const;
+
+    /** Returns defaultVal if this is not a TABLE or the key is not found. */
+    const AnyVal& get(const std::string& key, const AnyVal& defaultVal) const;
+
+    /** Throws KeyNotFound exception if the key is not present.*/
+    const AnyVal& get(const std::string& key) const;
+
+    /** Table reference */
+    const AnyVal& operator[](const std::string&) const;
+
+    /** Table reference.  If the element does not exist, it is created. */
+    AnyVal& operator[](const std::string&);
+
+    /** Table reference */
+    const AnyVal& operator[](const char*) const;
+
+    /** Table reference.  If the element does not exist, it is created. */
+    AnyVal& operator[](const char*);
 
     /** If this value is not a number throws a WrongType exception. */
     double number() const;
@@ -301,8 +339,20 @@ public:
     /** If this value is not a number, returns defaultVal. */
     double number(double defaultVal) const;
 
+    operator double () const {
+        return number();
+    }
+
+    operator float () const {
+        return (float)number();
+    }
+
     bool boolean() const;
     bool boolean(bool b) const;
+
+    operator bool() const {
+        return boolean();
+    }
 
     const std::string& string() const;
     const std::string& string(const std::string& defaultVal) const;
@@ -388,33 +438,7 @@ public:
         return quat();
     }
 
-    /** Array dereference.  If the index is out of bounds, IndexOutOfBounds is thrown */
-    const AnyVal& operator[](int) const;
-
-    /** Extend this array by one element. */
-    void append(const AnyVal&);
-
-    /** If the index is out of bounds, the array is resized.  If the index is negative,
-        IndexOutOfBounds is thrown.*/
-    AnyVal& operator[](int);
-
-    /** If @a i is out of bounds or this is not an ARRAY, defaultVal is returned.*/
-    const AnyVal& get(int i, const AnyVal& defaultVal) const;
-
-    /** If out of bounds, IndexOutOfBounds is thrown. */
-    const AnyVal& get(int i) const;
-
-    /** Returns defaultVal if this is not a TABLE or the key is not found. */
-    const AnyVal& get(const std::string& key, const AnyVal& defaultVal) const;
-
-    /** Throws KeyNotFound exception if the key is not present.*/
-    const AnyVal& get(const std::string& key) const;
-
-    /** Table reference */
-    const AnyVal& operator[](const std::string&) const;
-
-    /** Table reference.  If the element does not exist, it is created. */
-    AnyVal& operator[](const std::string&);
+    std::string toString() const;
 
     /** Number of elements for an array or table.*/
     int size() const;

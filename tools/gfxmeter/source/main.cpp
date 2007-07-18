@@ -49,9 +49,10 @@ void shaderVersions(
 
 
 void App::showSplashScreen() {
-	Texture::Settings textureSettings;
-	textureSettings.wrapMode = WrapMode::CLAMP;
-    Texture::Ref gfxMeterTexture = Texture::fromFile("gears.jpg", TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
+    Texture::Settings textureSettings;
+    textureSettings.wrapMode = WrapMode::CLAMP;
+    Texture::Ref gfxMeterTexture = 
+        Texture::fromFile("gears.jpg", TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
 
     // Load the font
     if (reportFont.isNull()) {
@@ -79,9 +80,9 @@ void App::showSplashScreen() {
 }
 
 
-int App::main() {
-	setDebugMode(false);
-	debugController->setActive(false);
+void App::onInit() {
+    setDebugMode(false);
+    debugController->setActive(false);
 
     //window()->swapGLBuffers();while(true);
 
@@ -95,8 +96,8 @@ int App::main() {
         }
 
         if (filename != "") {
-			Texture::Settings textureSettings;
-			textureSettings.wrapMode = WrapMode::CLAMP;
+            Texture::Settings textureSettings;
+            textureSettings.wrapMode = WrapMode::CLAMP;
             cardLogo = Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
         }
     }
@@ -111,8 +112,8 @@ int App::main() {
         }
 
         if (filename != "") {
-			Texture::Settings textureSettings;
-			textureSettings.wrapMode = WrapMode::CLAMP;
+            Texture::Settings textureSettings;
+            textureSettings.wrapMode = WrapMode::CLAMP;
             chipLogo = Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
         }
 
@@ -139,8 +140,8 @@ int App::main() {
         }
 
         if (filename != "") {
-			Texture::Settings textureSettings;
-			textureSettings.wrapMode = WrapMode::CLAMP;
+            Texture::Settings textureSettings;
+            textureSettings.wrapMode = WrapMode::CLAMP;
             osLogo = Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, textureSettings);
         }
     }
@@ -190,9 +191,6 @@ int App::main() {
     
     // Load objects here
     sky = NULL;//Sky::create(NULL, dataDir + "sky/");
-
-    applet->run();
-    return 0;
 }
 
 

@@ -332,12 +332,7 @@ ConsolePrintHook consolePrintHook() {
 }
 
 
-void __cdecl consolePrintf(const char* fmt ...) {
-    va_list argList;
-    va_start(argList, fmt);
-    std::string s = G3D::vformat(fmt, argList);
-    va_end(argList);
-
+std::string __cdecl debugePrint(const std::string& s) {
 #   ifdef G3D_WIN32
         const int MAX_STRING_LEN = 1024;
     
@@ -353,19 +348,41 @@ void __cdecl consolePrintf(const char* fmt ...) {
         }
 #    else
         fprintf(stderr, "%s", s.c_str());
-#    endif
-
-     FILE* L = Log::common()->getFile();
-     fprintf(L, "%s", s.c_str());
-
-     if (consolePrintHook()) {
-         consolePrintHook()(s);
-     }
-
-#    ifdef G3D_WIN32
         fflush(stderr);
 #    endif
-     fflush(L);
+
+     return s;
+}
+
+std::string __cdecl debugPrintf(const char* fmt ...) {
+    va_list argList;
+    va_start(argList, fmt);
+    std::string s = G3D::vformat(fmt, argList);
+    va_end(argList);
+
+    return debugPrint(consolePrint(s));
+}
+
+std::string consolePrint(const std::string& s) {
+    FILE* L = Log::common()->getFile();
+    fprintf(L, "%s", s.c_str());
+
+    if (consolePrintHook()) {
+        consolePrintHook()(s);
+    }
+
+    fflush(L);
+    return s;
+}
+
+
+std::string __cdecl consolePrintf(const char* fmt ...) {
+    va_list argList;
+    va_start(argList, fmt);
+    std::string s = G3D::vformat(fmt, argList);
+    va_end(argList);
+
+    return consolePrint(s);
 }
 
 } // namespace

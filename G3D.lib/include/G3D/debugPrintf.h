@@ -35,25 +35,26 @@ ConsolePrintHook consolePrintHook();
 
 /**
    Sends output to the log and to the last GConsole instantiated.
-   Under visual studio, the output also appears in the VS debug pane.
-   On unix-based operating systems the output is also sent to stderr.
 
    Guarantees that the output has been flushed by the time the routine
    returns.
    @sa G3D::logPrintf, G3D::screenPrintf
+   @return The string that was printed
  */
-void __cdecl consolePrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
+std::string __cdecl consolePrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
+std::string consolePrint(const std::string&);
 
 /**
- @deprecated See consolePrintf and screenPrintf
- */
-inline void __cdecl debugPrintf(const char* fmt ...) {
-    va_list argList;
-    va_start(argList, fmt);
-    std::string s = G3D::vformat(fmt, argList);
-    va_end(argList);
-    consolePrintf("%s", s.c_str());
-}
+   Under visual studio, appears in the VS debug pane.
+   On unix-based operating systems the output is sent to stderr.
+
+   Also sends output to the console (G3D::consolePrintf) if there is a consolePrintHook,
+   and log (G3D::logPrintf), and flushes before returning.   
+
+   @return The string that was printed
+*/
+std::string __cdecl debugPrintf(const char* fmt ...) G3D_CHECK_PRINTF_ARGS;
+std::string debugPrint(const std::string&);
 
 } // namespace G3D
 

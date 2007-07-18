@@ -391,7 +391,13 @@ void TextOutput::vprintf(const char* formatString, va_list argPtr) {
 
 
 void TextOutput::commit(bool flush) {
+    std::string p = filenamePath(filename);
+    if (! fileExists(p, false)) {
+        createDirectory(p);
+    }
+
     FILE* f = fopen(filename.c_str(), "wb");
+    debugAssert(f);
     fwrite(data.getCArray(), 1, data.size(), f);
     if (flush) {
         fflush(f);

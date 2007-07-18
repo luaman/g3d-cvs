@@ -9,16 +9,14 @@
 #include "G3D/G3DAll.h"
 
 class App : public GApp {
-protected:
-    int main();
 public:
 
     SkyRef                  sky;
 
-    Texture::Ref              cardLogo;
-    Texture::Ref              chipLogo;
+    Texture::Ref            cardLogo;
+    Texture::Ref            chipLogo;
     std::string             chipSpeed;
-    Texture::Ref              osLogo;
+    Texture::Ref            osLogo;
 
     GFontRef                titleFont;
     GFontRef                reportFont;
@@ -49,6 +47,8 @@ public:
 
     void computeFeatureRating();
     void countBugs();
+
+    void onInit();
 
     /** Also loads reportFont and gfxMeterTexture */
     void showSplashScreen();
