@@ -412,7 +412,7 @@ void Load3DS::processMapChunk(
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %d bytes of chunk 0x%x\n", 
+            debugPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -480,7 +480,7 @@ void Load3DS::processMaterialChunk(
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %d bytes of chunk 0x%x\n", 
+            debugPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -511,7 +511,7 @@ void Load3DS::processObjectChunk(
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %d bytes of chunk 0x%x\n", 
+            debugPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -659,7 +659,7 @@ void Load3DS::processTriMeshChunk(
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %d bytes of chunk 0x%x\n", 
+            debugPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -815,7 +815,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %d bytes of chunk 0x%x\n", 
+            debugPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
