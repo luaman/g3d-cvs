@@ -152,6 +152,7 @@ href="classes.html">Classes</a>.
     \link G3D::Line Line\endlink,
     \link G3D::LineSegment LineSegment\endlink,
     \link G3D::LineSegment2D LineSegment2D\endlink,
+    \link G3D::Matrix Matrix\endlink,
     \link G3D::Matrix3 Matrix3\endlink,
     \link G3D::Matrix4 Matrix4\endlink,
     \link G3D::MeshAlg MeshAlg\endlink,

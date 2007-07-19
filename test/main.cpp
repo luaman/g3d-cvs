@@ -599,9 +599,7 @@ int main(int argc, char* argv[]) {
 
     testQueue();
 
-	// Don't run contrib tests until the new 7.00 build system is in place
-    // testMatrix();
-    // testGChunk();
+    testMatrix();
 
     testMeshAlgTangentSpace();
 

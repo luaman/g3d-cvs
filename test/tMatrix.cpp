@@ -1,6 +1,4 @@
-#if 0
 #include "G3D/G3DAll.h"
-#include "../contrib/Matrix/Matrix.cpp"
 
 
 void testMatrix() {
@@ -210,4 +208,3 @@ void testMatrix() {
 
     printf("passed\n");
 }
-#endif

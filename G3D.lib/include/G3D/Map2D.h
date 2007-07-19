@@ -436,7 +436,7 @@ public:
 		for (int y = 0; y < halfHeight; ++y) {
 			int o1 = y * w;
 			int o2 = (h - y - 1) * w;
-			for (int x = 0; x < w; ++x) {
+			for (int x = 0; x < (int)w; ++x) {
 				int i1 = o1 + x;
 				int i2 = o2 + x;
 				Storage temp = d[i1];
@@ -450,7 +450,7 @@ public:
 		int halfWidth = w / 2;
 		Storage* d = data.getCArray();
 		for (int x = 0; x < halfWidth; ++x) {
-			for (int y = 0; y < h; ++y) {
+			for (int y = 0; y < (int)h; ++y) {
 				int i1 = y * w + x;
 				int i2 = y * w + (w - x - 1);
 				Storage temp = d[i1];

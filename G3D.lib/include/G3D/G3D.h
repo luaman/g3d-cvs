@@ -112,6 +112,7 @@ template<class T> struct GHashCode< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/filter.h"
 #include "G3D/WeakCache.h"
 #include "G3D/Pointer.h"
+#include "G3D/Matrix.h"
 
 #ifdef G3D_WIN32
 #   pragma comment(lib, "zlib")

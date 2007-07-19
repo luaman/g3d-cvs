@@ -343,6 +343,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Matrix.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Matrix3.cpp"
 				>
 			</File>
@@ -662,6 +666,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Map2D.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Matrix.h"
 				>
 			</File>
 			<File

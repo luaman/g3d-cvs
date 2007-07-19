@@ -10,6 +10,7 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "Matrix.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -152,11 +153,15 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    GUniqueID x = GUniqueID::create(0);
-    GUniqueID y = GUniqueID::create(1);
 
-    uint16 tagx = x.tag();
-    uint16 tagy = y.tag();
+	Matrix A = Matrix::random(5, 5);
+	Matrix B = A.inverse();
+
+	Matrix C = A * B;
+
+	debugPrint(A.toString("A"));
+	debugPrint(B.toString("B"));
+	debugPrint(C.toString("C"));
 
     return App().run();
 }
