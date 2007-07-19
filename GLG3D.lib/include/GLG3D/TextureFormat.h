@@ -80,6 +80,7 @@ public:
         CODE_DEPTH16,
         CODE_DEPTH24,
         CODE_DEPTH32,
+        CODE_DEPTH32F,
         
         CODE_STENCIL1,
         CODE_STENCIL4,
@@ -275,6 +276,8 @@ public:
     static const TextureFormat* DEPTH24();
 
     static const TextureFormat* DEPTH32();
+
+    static const TextureFormat* DEPTH32F();
 
     static const TextureFormat* STENCIL1();
 

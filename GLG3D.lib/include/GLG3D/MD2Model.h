@@ -56,16 +56,6 @@ typedef ReferenceCountedPointer<class MD2Model> MD2ModelRef;
  When getting geometry from the posed model, the normalArray 
  values are interpolated and may have slightly less than unit length.
 
- <P>
- <IMG SRC="md2000.jpg">
- <DT>
- <IMG SRC="md2001.jpg">
- <DT>
- <IMG SRC="md2002.jpg">
- <DT>
- <IMG SRC="md2003.jpg">
- <DT>
-
  */
 class MD2Model : public ReferenceCountedObject {
 public:

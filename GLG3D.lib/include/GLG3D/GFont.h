@@ -31,7 +31,7 @@ typedef ReferenceCountedPointer<class GFont> GFontRef;
  The following fonts are provided with G3D in the
  <CODE>data/font</CODE> directory.  See the <CODE>copyright.txt</CODE>
  file in that directory for information about the source of these
- files and rules for distribution.  <P> <IMG SRC="font.png">
+ files and rules for distribution. 
  */
 class GFont : public ReferenceCountedObject {
 public:

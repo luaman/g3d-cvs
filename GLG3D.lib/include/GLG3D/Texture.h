@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-02-28
-  @edited  2007-01-25
+  @edited  2007-07-18
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -17,6 +17,12 @@
 #include "G3D/WrapMode.h"
 #include "GLG3D/glheaders.h"
 #include "GLG3D/TextureFormat.h"
+#include "G3D/Image1.h"
+#include "G3D/Image1uint8.h"
+#include "G3D/Image3.h"
+#include "G3D/Image3uint8.h"
+#include "G3D/Image4.h"
+#include "G3D/Image4uint8.h"
 
 namespace G3D {
 
@@ -287,8 +293,11 @@ private:
         GLuint                      textureID,
         Dimension                   dimension,
         const class TextureFormat*  format,
-	bool		      	    opaque,
-	const Settings&             settings);
+		bool		      	        opaque,
+		const Settings&             settings);
+
+	/** Call glGetTexImage with appropriate target */
+	void getTexImage(void* data, const TextureFormat* desiredFormat) const;
 
 public:
 
@@ -523,6 +532,34 @@ public:
      @param outFormat Must be one of: TextureFormat::AUTO, TextureFormat::RGB8, TextureFormat::RGBA8, TextureFormat::L8, TextureFormat::A8
      */
     void getImage(GImage& dst, const TextureFormat* outFormat = TextureFormat::AUTO()) const;
+
+	/** Extracts the data as TextureFormat::RGBA32F */
+	Image4Ref toImage4() const;
+
+	/** Extracts the data as TextureFormat::RGBA8 */
+	Image4uint8Ref toImage4uint8() const;
+
+	/** Extracts the data as TextureFormat::RGB32F */
+	Image3Ref toImage3() const;
+
+	/** Extracts the data as TextureFormat::RGB8 */
+	Image3uint8Ref toImage3uint8() const;
+
+	/** Extracts the data as TextureFormat::L32F
+	 */
+	Image1Ref toImage1() const;
+
+	/** Extracts the data as TextureFormat::L8 */
+	Image1uint8Ref toImage1uint8() const;
+
+	/** Extracts the data as TextureFormat::DEPTH32F */
+	Image1Ref toDepthImage1() const;
+
+	/** Extracts the data as TextureFormat::DEPTH32F */
+	Map2D<float>::Ref toDepthMap() const;
+
+	/** Extracts the data as TextureFormat::DEPTH32F and converts to 8-bit. */
+	Image1uint8Ref toDepthImage1uint8() const;
 
     inline unsigned int openGLID() const {
         return m_textureID;

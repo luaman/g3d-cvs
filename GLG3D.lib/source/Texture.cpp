@@ -873,6 +873,11 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
 
     dst.resize(m_width, m_height, channels);
 
+	getTexImage(dst.byte(), outFormat);
+}
+
+
+void Texture::getTexImage(void* data, const TextureFormat* desiredFormat) const {
     GLenum target = dimensionToTarget(m_dimension);
 
     glPushAttrib(GL_TEXTURE_BIT);
@@ -882,11 +887,74 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
     glGetTexImage(
        target,
        0,
-       outFormat->openGLBaseFormat,
-       GL_UNSIGNED_BYTE,
-       dst.byte());
+       desiredFormat->openGLBaseFormat,
+       desiredFormat->openGLDataFormat,
+       data);
 
     glPopAttrib();
+}
+
+Image4Ref Texture::toImage4() const {
+	Image4Ref im = Image4::createEmpty(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::RGBA32F());
+	return im;
+}
+
+Image4uint8Ref Texture::toImage4uint8() const {
+	Image4uint8Ref im = Image4uint8::createEmpty(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::RGBA8());
+	return im;
+}
+
+Image3Ref Texture::toImage3() const {	
+	Image3Ref im = Image3::createEmpty(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::RGB32F());
+	return im;
+}
+
+Image3uint8Ref Texture::toImage3uint8() const {	
+	Image3uint8Ref im = Image3uint8::createEmpty(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::RGB8());
+	return im;
+}
+
+Map2D<float>::Ref Texture::toDepthMap() const {
+	Map2D<float>::Ref im = Map2D<float>::create(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::DEPTH32F());
+	return im;
+}
+
+Image1Ref Texture::toDepthImage1() const {
+	Image1Ref im = Image1::createEmpty(m_width, m_height);
+	getTexImage(im->getCArray(), TextureFormat::DEPTH32F());
+	return im;
+}
+
+Image1uint8Ref Texture::toDepthImage1uint8() const {
+	Image1Ref src = toDepthImage1();
+	Image1uint8Ref dst = Image1uint8::createEmpty(m_width, m_height);
+
+	const Color1* s = src->getCArray();
+	Color1uint8* d = dst->getCArray();
+
+	// Float to int conversion
+	for (int i = m_width * m_height - 1; i >= 0; --i) {
+		d[i] = s[i];
+	}
+
+	return dst;
+}
+
+Image1Ref Texture::toImage1() const {
+	Image1Ref im = Image1::createEmpty(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::L32F());
+	return im;
+}
+
+Image1uint8Ref Texture::toImage1uint8() const {
+	Image1uint8Ref im = Image1uint8::createEmpty(m_width, m_height); 
+	getTexImage(im->getCArray(), TextureFormat::L8());
+	return im;
 }
 
 void Texture::splitFilenameAtWildCard(

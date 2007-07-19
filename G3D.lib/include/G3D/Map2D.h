@@ -5,7 +5,7 @@
 
  @maintainer Morgan McGuire, morgan@cs.brown.edu
  @created 2004-10-10
- @edited  2007-01-31
+ @edited  2007-07-18
  */
 #ifndef G3D_MAP2D_H
 #define G3D_MAP2D_H
@@ -96,7 +96,6 @@ namespace G3D {
 
   G3D::Image4uint8 -  A subclass of Map2D<Color4uint8> that supports image loading and saving and conversion to Texture.
 
-  
   There are two type parameters-- the first (@ Storage) is the type 
   used to store the "pixel" values efficiently and 
   the second (@a Compute) is
@@ -431,6 +430,35 @@ public:
         setChanged(true);
     }
 
+	void flipVertical() {
+		int halfHeight = h/2;
+		Storage* d = data.getCArray();
+		for (int y = 0; y < halfHeight; ++y) {
+			int o1 = y * w;
+			int o2 = (h - y - 1) * w;
+			for (int x = 0; x < w; ++x) {
+				int i1 = o1 + x;
+				int i2 = o2 + x;
+				Storage temp = d[i1];
+				d[i1] = d[i2];
+				d[i2] = temp;
+			}
+		}
+	}
+
+	void flipHorizontal() {
+		int halfWidth = w / 2;
+		Storage* d = data.getCArray();
+		for (int x = 0; x < halfWidth; ++x) {
+			for (int y = 0; y < h; ++y) {
+				int i1 = y * w + x;
+				int i2 = y * w + (w - x - 1);
+				Storage temp = d[i1];
+				d[i1] = d[i2];
+				d[i2] = temp;
+			}
+		}
+	}
 
     /** Returns the nearest neighbor.  Pixel values are considered
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
