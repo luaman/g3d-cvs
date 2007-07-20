@@ -184,25 +184,7 @@ void MD2Model::computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf
     }
 }
 
-
-void MD2Model::Pose::doSimulation(
-    GameTime dt,
-    bool crouching,
-    bool movingForward,
-    bool movingBackward,
-    bool attack,
-    bool jump,
-    bool flip,
-    bool salute,
-    bool fallback,
-    bool wave,
-    bool point,
-    bool death1,
-    bool death2,
-    bool death3,
-    bool pain1,
-    bool pain2,
-    bool pain3) {
+void MD2Model::Pose::onSimulation(GameTime dt, const Action& a) {
 
     Pose currentPose = *this;
 
@@ -213,33 +195,33 @@ void MD2Model::Pose::doSimulation(
         return;
     }
 
-    if (death1 || death2 || death3) {
+    if (a.death1 || a.death2 || a.death3) {
         // Death interrupts anything
         preFrameNumber = getFrameNumber(currentPose);
         time           = -PRE_BLEND_TIME;
-        if (crouching) {
+        if (a.crouching) {
             animation  = CROUCH_DEATH;
-        } else if (death1) {
+        } else if (a.death1) {
             animation  = DEATH_FALLBACK;
-        } else if (death2) {
+        } else if (a.death2) {
             animation  = DEATH_FALLFORWARD;
-        } else if (death3) {
+        } else if (a.death3) {
             animation  = DEATH_FALLBACKSLOW;
         }
         return;
     }
 
-    if ((pain1 || pain2 || pain3) && ! animationPain(animation)) {
+    if ((a.pain1 || a.pain2 || a.pain3) && ! animationPain(animation)) {
         // Pain interrupts anything but death
         preFrameNumber = getFrameNumber(currentPose);
         time           = -PRE_BLEND_TIME;
-        if (crouching) {
+        if (a.crouching) {
             animation  = CROUCH_PAIN;
-        } else if (pain1) {
+        } else if (a.pain1) {
             animation  = PAIN_A;
-        } else if (pain2) {
+        } else if (a.pain2) {
             animation  = PAIN_B;
-        } else if (pain3) {
+        } else if (a.pain3) {
             animation  = PAIN_C;
         }
         return;
@@ -253,12 +235,12 @@ void MD2Model::Pose::doSimulation(
 
 
     // Run
-    if (movingForward) {
+    if (a.movingForward) {
         if ((! animationRunForward(animation)) && animationInterruptible(animation)) {
             // Start running
             animation = RUN;
         }
-    } else if (movingBackward) {
+    } else if (a.movingBackward) {
         if ((! animationRunBackward(animation)) && animationInterruptible(animation)) {
             // Start running
             animation = RUN_BACKWARD;
@@ -272,25 +254,25 @@ void MD2Model::Pose::doSimulation(
 
     if (animationInterruptible(animation)) {
 
-        if (attack) {
+        if (a.attack) {
             animation = ATTACK;
-        } else if (jump && ! animationJump(animation)) {
+        } else if (a.jump && ! animationJump(animation)) {
             animation = JUMP;
-        } else if (flip) {
+        } else if (a.flip) {
             animation = FLIP;
-        } else if (salute) {
+        } else if (a.salute) {
             animation = SALUTE;
-        } else if (fallback) {
+        } else if (a.fallback) {
             animation = FALLBACK;
-        } else if (wave) {
+        } else if (a.wave) {
             animation = WAVE;
-        } else if (point) {
+        } else if (a.point) {
             animation = POINT;
         }
     }
 
     // Crouch
-    if (crouching) {
+    if (a.crouching) {
         // Move to a crouch if necessary
         switch (animation) {
         case STAND:
@@ -342,6 +324,11 @@ void MD2Model::Pose::doSimulation(
         preFrameNumber = getFrameNumber(currentPose);
         time           = -PRE_BLEND_TIME;
     }
+}
+
+
+bool MD2Model::Pose::completelyDead() const {
+    return animationDeath(animation) && (time > animationLength(animation));
 }
 
 

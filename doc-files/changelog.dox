@@ -18,6 +18,7 @@
      <li> Patches for 64-bit compilation [Corey]
      <li> WinMain is now compiled as C++ code (fixed some "manifest" errors on certain VC8 installations)
      <li> G3D::ShadowMap
+     <li> Made G3D::MD2Model::Pose easier to use
      <li> G3D::Matrix
      <li> Added G3D::Texture methods for reading back color and depth textures
      <li> G3D::RenderDevice::getFixedFunctionLighting

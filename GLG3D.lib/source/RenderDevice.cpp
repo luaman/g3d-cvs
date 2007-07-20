@@ -1502,13 +1502,13 @@ void RenderDevice::setFramebuffer(const FramebufferRef &fbo) {
         majGLStateChange();
         // Set Framebuffer
         if (fbo.isNull()) {
-            state.drawBuffer = BUFFER_BACK;
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            state.drawBuffer = BUFFER_BACK;
         } else {
-            state.drawBuffer = BUFFER_COLOR0;
             debugAssertM(GLCaps::supports_GL_EXT_framebuffer_object(), 
                 "Framebuffer Object not supported!");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->openGLID());
+            state.drawBuffer = BUFFER_COLOR0;
         }
         state.framebuffer = fbo;
     }

@@ -14,9 +14,7 @@
 
 void MD2Viewer::pose(RealTime dt){
 
-	currentPose.doSimulation(dt, false, false, false, false, false,
-								false, false, false, false, false, false, false,
-								false, false, false, false);
+    currentPose.onSimulation(dt, MD2Model::Pose::Action());
 
 	CoordinateFrame cframe(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180)));
 

@@ -134,20 +134,32 @@ public:
         bool operator==(const Pose& other) const;
         bool operator!=(const Pose& other) const;
 
+        struct Action {
+            bool crouching;
+            bool movingForward;
+            bool movingBackward;
+            bool attack;
+            bool jump;
+            bool flip;
+            bool salute;
+            bool fallback;
+            bool wave;
+            bool point;
+            bool death1;
+            bool death2;
+            bool death3;
+            bool pain1;
+            bool pain2;
+            bool pain3;
+
+            Action() {
+                // Set all to false by default
+                System::memset(this, 0, sizeof(Action));
+            }
+        };
+
         /**
-         Given a time and state flags indicating a character's desires,
-         computes the new pose.
-         <P>
-         This may not be ideal for all applications; it is provided as a 
-         helper function.
-         <P>
-         If any death is triggered while crouching, the crouch death will be
-         played instead.
-         <P>
-         Game logic should generally not use the JUMP animation, or
-         the jump parameter to choosePose that triggers it.  Instead, play
-         the JUMP_UP animation when the character leaves the ground and
-         the JUMP_DOWN animation when they hit it again.
+         @deprecated
          */
          void doSimulation(
             GameTime deltaTime,
@@ -167,6 +179,28 @@ public:
             bool pain1,
             bool pain2,
             bool pain3);
+
+         /**
+        /**
+         Given a time and state flags indicating a character's desires,
+         computes the new pose.
+         <P>
+         This may not be ideal for all applications; it is provided as a 
+         helper function.
+         <P>
+         If any death is triggered while crouching, the crouch death will be
+         played instead.
+         <P>
+         Game logic should generally not use the JUMP animation, or
+         the jump parameter to choosePose that triggers it.  Instead, play
+         the JUMP_UP animation when the character leaves the ground and
+         the JUMP_DOWN animation when they hit it again.
+         */
+         void onSimulation(GameTime deltaTime, const Action& a);
+
+         /** True if the death animation has played and this object is now lying on the ground.
+             Typically used to decide when to remove dead bodies.*/
+         bool completelyDead() const;
     };
 
 

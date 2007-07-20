@@ -196,6 +196,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::NetworkDevice::createReliableConduit</td><td>G3D::ReliableConduit::create</td></tr>
 <tr><td>G3D::GApp::debugPrintf</td><td>G3D::screenPrintf</td></tr>
 <tr><td>G3D::debugPrintf</td><td>G3D::consolePrintf</td></tr>
+<tr><td>G3D::MD2Model::Pose::doSimulation</td><td>G3D::MD2Model::Pose::onSimulation</td></tr>
 </table>
 </p>
 

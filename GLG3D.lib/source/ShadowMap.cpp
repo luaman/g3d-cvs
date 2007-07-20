@@ -95,7 +95,6 @@ void ShadowMap::updateDepth(
             debugAssert(rect.width() <= renderDevice->width());
             renderDevice->setViewport(rect);
         }
-
         
         // Construct a projection and view matrix for the camera so we can 
         // render the scene from the light's point of view
