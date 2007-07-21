@@ -73,7 +73,7 @@ static void createErrorMessage(
     std::string&        outMessage) {
 
     std::string le = "";
-    char* newline = "\n";
+    const char* newline = "\n";
 
     #ifdef G3D_WIN32
         newline = "\r\n";
@@ -152,7 +152,7 @@ bool _handleDebugAssert_(
     const int cIgnoreAlways = 2;
     const int cAbort        = 3;
 
-    static char* choices[] = {"Debug", "Ignore", "Ignore Always", "Exit"};
+    static const char* choices[] = {"Debug", "Ignore", "Ignore Always", "Exit"};
 
     // Log the error
     Log::common()->print(std::string("\n**************************\n\n") + dialogTitle + "\n" + dialogText);
@@ -214,7 +214,7 @@ bool _handleErrorCheck_(
         debugPrintf("\n%s\n", dialogText.c_str());
     #endif
 
-    static char* choices[] = {"Ok"};
+    static const char* choices[] = {"Ok"};
 
     std::string m = 
         std::string("An internal error has occured in your program and it will now close.  Details about the error have been reported in \"") +

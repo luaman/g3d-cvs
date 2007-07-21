@@ -207,7 +207,7 @@ public:
      Seeks to the new position before reading (and leaves 
      that as the current position)
      */
-    inline const uint8 operator[](int64 n) {
+    inline uint8 operator[](int64 n) {
         setPosition(n);
         return readUInt8();
     }

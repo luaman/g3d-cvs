@@ -67,12 +67,12 @@ public:
     }
 
     /** Atomic set */
-    inline const void operator=(const AtomicInt32& x) {
+    inline void operator=(const AtomicInt32& x) {
         _value = x._value;
     }
 
     /** Returns the current value */
-    inline const int32 value() const {
+    inline int32 value() const {
         return _value;
     }
 

@@ -270,18 +270,10 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
         _X11Window  = info.info.x11.window;
         _X11WMWindow  = info.info.x11.wmwindow;
 
-        if (glXGetCurrentDisplay != NULL) {
-            G3D::_internal::x11Display = glXGetCurrentDisplay();
-        } else {
-            G3D::_internal::x11Display = info.info.x11.display;
-        }
+        G3D::_internal::x11Display = glXGetCurrentDisplay();
 
-        if (glXGetCurrentDrawable != NULL) {
-            // A Drawable appears to be either a Window or a Pixmap
-            G3D::_internal::x11Window  = glXGetCurrentDrawable();
-        } else {
-            G3D::_internal::x11Window  = info.info.x11.window;
-        }
+        // A Drawable appears to be either a Window or a Pixmap
+        G3D::_internal::x11Window  = glXGetCurrentDrawable();
     #endif
 
     // Adjust window position

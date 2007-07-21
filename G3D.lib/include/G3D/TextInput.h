@@ -103,7 +103,7 @@ public:
         return _string;
     }
 
-    const bool boolean() const {
+    bool boolean() const {
         return _bool;
     }
 

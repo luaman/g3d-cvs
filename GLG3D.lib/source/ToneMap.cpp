@@ -50,8 +50,8 @@ void ToneMap::endFrame(RenderDevice* rd) {
 
 Texture::Ref ToneMap::getBloomMap(RenderDevice* rd) const {
     if (stereo && 
-        (rd->drawBuffer() == RenderDevice::BUFFER_FRONT_RIGHT) ||
-        (rd->drawBuffer() == RenderDevice::BUFFER_BACK_RIGHT)) {
+        ((rd->drawBuffer() == RenderDevice::BUFFER_FRONT_RIGHT) ||
+         (rd->drawBuffer() == RenderDevice::BUFFER_BACK_RIGHT))) {
         return stereoBloomMap[1];
     } else {
         return stereoBloomMap[0];

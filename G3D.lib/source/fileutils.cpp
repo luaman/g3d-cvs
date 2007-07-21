@@ -237,14 +237,14 @@ static int isFileGood(FILE* f) {
 FILE* createTempFile() {
     FILE* t = NULL;
 
-#   ifdef G3D_WIN32
+//#   ifdef G3D_WIN32
         t = tmpfile();
-#   else
-        // On Unix, tmpfile generates a warning for any code that links against it.
-        char* tempfilename = "/tmp/g3dtemp.XXXXXXXX";
-        mktemp(tempfilename);
-        t = fopen(tempfilename, "w");    
-#   endif
+//#   else
+//        // On Unix, tmpfile generates a warning for any code that links against it.
+//        const char* tempfilename = "/tmp/g3dtemp.XXXXXXXX";
+//        mktemp(tempfilename);
+//        t = fopen(tempfilename, "w");    
+//#   endif
 
 #	ifdef _WIN32
 		char* n = NULL;
@@ -700,12 +700,12 @@ static void getFileOrDirListNormal
     // Drive letters on Windows can separate a path
     size_t k = filespec.rfind(':');
     
-    if ((j != std::string::npos) && (j > i) ||
+    if (((j != std::string::npos) && (j > i)) ||
         (i == std::string::npos)) {
         i = j;
     }
     
-    if ((k != std::string::npos) && (k > i) ||
+    if (((k != std::string::npos) && (k > i)) ||
         (i == std::string::npos)) {
         i = k;
     }

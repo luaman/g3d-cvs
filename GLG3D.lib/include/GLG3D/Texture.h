@@ -566,12 +566,12 @@ public:
     }
 
     /** @deprecated Use width() */
-    inline const int texelWidth() const {
+    inline int texelWidth() const {
         return m_width;
     }
 
     /** @deprecated Use height() */
-    inline const int texelHeight() const {
+    inline int texelHeight() const {
         return m_height;
     }
 
@@ -601,7 +601,7 @@ public:
      For 3D textures.
      @deprecated use m_depth()
      */
-    inline const int texelDepth() const {
+    inline int texelDepth() const {
         return m_depth;
     }
 
