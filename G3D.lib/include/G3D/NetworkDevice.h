@@ -87,7 +87,7 @@ public:
     /**
      If true, receive will return true.
      */
-    virtual bool messageWaiting() const;
+    virtual bool messageWaiting();
 
     /**
      Returns the type of the waiting message (i.e. the type supplied
@@ -242,7 +242,7 @@ public:
 
     // The message is actually copied from the socket to an internal buffer during
     // this call.  Receive only deserializes.
-    virtual bool messageWaiting() const;
+    virtual bool messageWaiting();
 
     /**
      Serializes the message and schedules it to be sent as soon as possible,
@@ -512,7 +512,7 @@ public:
     virtual uint32 waitingMessageType();
 
 
-    virtual bool messageWaiting() const;
+    virtual bool messageWaiting();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

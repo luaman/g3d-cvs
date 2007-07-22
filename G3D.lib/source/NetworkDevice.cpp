@@ -350,7 +350,7 @@ bool Conduit::ok() const {
 }
 
 
-bool Conduit::messageWaiting() const {
+bool Conduit::messageWaiting() {
     return readWaiting(sock);
 }
 
@@ -544,9 +544,7 @@ ReliableConduit::~ReliableConduit() {
 }
 
 
-bool ReliableConduit::messageWaiting() const {
-    ReliableConduit* me = const_cast<ReliableConduit*>(this);
-
+bool ReliableConduit::messageWaiting() {
     switch (state) {
     case HOLDING:
         // We've already read the message and are waiting
@@ -559,12 +557,12 @@ bool ReliableConduit::messageWaiting() const {
             return false;
         }
         // We're currently receiving the message.  Read a little more.
-        me->receiveIntoBuffer();
+        receiveIntoBuffer();
      
         if (messageSize == receiveBufferUsedSize) {
             // We've read the whole mesage.  Switch to holding state 
             // and return true.
-            me->state = HOLDING;
+            state = HOLDING;
             return true;
         } else {
             // There are more bytes left to read.  We'll read them on
@@ -578,8 +576,8 @@ bool ReliableConduit::messageWaiting() const {
         if (Conduit::messageWaiting()) {
             // Message incoming.  Read the header.
 
-            me->state = RECEIVING;
-            me->receiveHeader();
+            state = RECEIVING;
+            receiveHeader();
             
             // Loop back around now that we're in the receive state; we
             // may be able to read the whole message before returning 
@@ -856,7 +854,7 @@ void LightweightConduit::sendBuffer(const NetAddress& a, BinaryOutput& b) {
 }
 
 
-bool LightweightConduit::messageWaiting() const {
+bool LightweightConduit::messageWaiting() {
     // We may have already pulled the message off the network stream
     return alreadyReadMessage || Conduit::messageWaiting();
 }
