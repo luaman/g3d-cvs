@@ -265,11 +265,11 @@ void RenderDevice::init(GWindow* window, Log* log) {
         SetLastError(0);
     #endif
 
-	const int minimumDepthBits    = iMin(16, settings.depthBits);
-	const int desiredDepthBits    = settings.depthBits;
+    const int minimumDepthBits    = iMin(16, settings.depthBits);
+    const int desiredDepthBits    = settings.depthBits;
 
-	const int minimumStencilBits  = settings.stencilBits;
-	const int desiredStencilBits  = settings.stencilBits;
+    const int minimumStencilBits  = settings.stencilBits;
+    const int desiredStencilBits  = settings.stencilBits;
 
     // Don't use more texture units than allowed at compile time.
     if (GLCaps::supports_GL_ARB_multitexture()) {
@@ -383,7 +383,6 @@ void RenderDevice::init(GWindow* window, Log* log) {
             extStringCopy.c_str());
     }
  
-
     cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
 
     if (debugLog) {

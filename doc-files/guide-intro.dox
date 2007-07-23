@@ -1,5 +1,5 @@
 /** 
-@page guideintro Introduction
+@page guideoverview G3D Overview
 
 <IMG SRC="3dengine.jpg" style="float: right;">
 %G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
@@ -30,14 +30,15 @@ Notes for Expert Users at the end of this chapter for more information.
 </div>
 
 
-@section documentation Documentation and Support
-This guide gives a brief introduction to help you decide if %G3D is right
-for your project and introduce you to the major features.
-However, it covers only a fraction of the functionality in %G3D!  The individual 
-entry points are extensively documented and can be accessed through the 
-\link indexedbytopic Topic Index\endlink.  The source code for the entire 
-library is available (http://cvs.sourceforge.net/viewcvs.py/g3d-cpp/cpp/) and 
-can often answer detailed questions.
+@section documentation Documentation and Support 
+
+This guide gives a brief introduction to help you decide if %G3D is
+right for your project and introduce you to the major features.  The
+individual entry points are extensively documented and can be accessed
+through the links at the top of this page.  The source code for the
+entire library is available
+(http://cvs.sourceforge.net/viewcvs.py/g3d-cpp/G3D/) and can often
+help resolve ambiguities.
 
 Post questions and feedback on the User Forum 
 (http://sourceforge.net/forum/forum.php?forum_id=262426) and consider subscribing to 
@@ -49,16 +50,10 @@ abreast of changes coming in future releases and download Beta releases
 provide feedback.
 
 %G3D provides several demos with source that show different ways of structuring your 3D program 
-and how to use some of the most popular features in <A HREF="../demos">demos/</A>.  It also 
-contains a directory of user submitted source code in <A HREF="../contrib">contrib/</A> that 
-demonstrates aspects of the library and provides some useful routines.
-
+and how to use some of the most popular features in <A HREF="../demos">demos/</A>.
 
 The official support team and community respond to most user posts within
 hours and patches for critical user-discovered bugs are given top priority.  
-
-Write to <A HREF="http://mailto:morgan3d@sf.net">Morgan McGuire</A> (morgan3d@sf.net) 
-if your project has special commercial support needs.
 
 The latest version library is always available on the homepage,
 <A HREF="http://g3d-cpp.sf.net">http://g3d-cpp.sf.net</A>.
@@ -67,7 +62,7 @@ The latest version library is always available on the homepage,
 
 <IMG SRC="platforms.png" ALIGN=RIGHT>
 %G3D allows you to write code once that will compile and run on Windows, 
-Linux, and OS X without <CODE>ifdef</CODE>s or modifications.  
+FreeBSD, Linux, and OS X without <CODE>ifdef</CODE>s or modifications.  
 It supports all OpenGL implementations, from software 
 rasterization under Mesa to the latest GeForce and Radeon hardware accelerator 
 cards.
@@ -100,20 +95,25 @@ Our philosophy is simple. The library should have the following properties:
 
 @section formats Data Formats 
 
-%G3D supports images in PNG, TGA, BMP,
-JPG, PCX, PPM, PGM, PBM, DDS, and ICO format through the G3D::Texture
-and G3D::GImage classes.  %G3D has loaders for the BSP, PLY2, IFS, 3DS
-and MD2 mesh formats.  %G3D uses its own font format to avoid legal
-issues with TrueType.  Over 30 popular fonts are provided in this
-format and the code contains a routine to help you make more from your
-TrueType and printer fonts.
+%G3D supports images in PNG, TGA, BMP, JPG, PCX, PPM, PGM, PBM, DDS,
+and ICO format through the G3D::Texture and G3D::GImage classes.  %G3D
+has loaders for the BSP, PLY2, IFS, 3DS and MD2 mesh formats.  %G3D
+uses its own font format (FNT) to avoid legal issues with TrueType.
+Over 30 popular fonts are provided in this format and the code
+contains a routine to help you make more from your TrueType fonts.
+G3D::GuiWindow skins are in open source SKN format, which is
+implicitly documented by the G3D::GuiSkin class source code and will
+be explicitly documented in a future release (the format is currently
+under development).
+
+Download the %G3D data module for over 100 MB of models and other 3D data supported by %G3D.
 
 @section team Team
 The library contains code, documentation, and demos from over 30 
 \link contributors contributors \endlink.  The team leads are:
 
 <B>Dr. Morgan McGuire</B> has been the %G3D project manager and Windows team lead 
-since 2000.  He is a professor of computer science at Williams College and
+since 2000.  He is an assistant professor of computer science at Williams College and
 3D software consultant.  He holds a Masters degree in electrical engineering from MIT and a 
 PhD in computer graphics from Brown University.  Morgan has been a senior architect at several 
 companies in the graphics industry, worked on several commercial games including IronLore's <I>Titan Quest</I>, 
@@ -138,12 +138,9 @@ and by hardware, software, and technical support from Autodesk, NVIDIA, and AMD.
 Although %G3D uses SDL 
 (http://www.libsdl.org) for platform window management, you can use the G3D::GWindow API 
 to replace SDL with a platform-specific or alternative library.  Users have 
-contributed unsupported GWindow implementations for wxWindows, qtWindows, and the 
-Win32 API that can be found in the contrib directory.  Version 7.00 of G3D will not use
+created unsupported GWindow implementations for wxWindows, qtWindows, and the 
+Win32 API that can be found online.  Version 7.00 of G3D will not use
 SDL at all on Windows by default to reduce the size of your dependencies.
-
-The contrib directory also contains AudioDevice implementations for FMOD 
-(http://www.fmod.org) and SDL_Mixer (http://www.libsdl.com/sdl_mixer).
 
 It is possible to use DirectX instead of OpenGL.  The easiest way is to link 
 against %G3D.lib only and use DirectX calls instead of the GLG3D equivalents.  A more 
@@ -154,15 +151,10 @@ To avoid memory leaks, ensure that all libraries you use have been compiled agai
 the same version of the C++ standard library.  %G3D expects to be compiled with run-time
 type checking (RTTI), C++ exceptions, and a multithreaded, dynamically linked runtime.
 
-%G3D uses zlib (http://www.gzip.org/zlib/), which is distributed as part of %G3D (as headers and a windows .lib and .dll).
-GFont, BinaryInput, and BinaryOutput use zlib; you can also call zlib functions directly 
-from your %G3D program without additional headers or linking steps.
+%G3D uses zlib, libpng, libzip, and libjpeg, which are distributed as part of %G3D (as headers and a windows .libs).
 
-G3D::SDLWindow uses SDL and #including G3DAll.h automatically 
-causes your program to link SDL.  SDL is not included with the %G3D installation and
-must be downloaded separately. 
-
-The %G3D installation includes GLUT but does not use it by default.  You may #include glut.h if you like.
+On Unix, G3D::SDLWindow uses SDL.  SDL is not included with the %G3D installation and
+must be downloaded separately from http://libsdl.org. 
 
 In addition to those mentioned above, you may be interested in using the following 
 libraries to complement %G3D:
@@ -172,8 +164,6 @@ libraries to complement %G3D:
     <LI>Free Type2 (http://freetype.sourceforge.net/index2.html)
     <LI>STLport (http://www.stlport.org/download.html)
 </UL>
-
-
 
   @section b1 Release Schedule
    %G3D has a stable, backwards compatible API.  Most changes between versions add 
@@ -223,7 +213,7 @@ will assume nothing has changed and may become corrupted.  Most classes, like Te
 the relevant OpenGL handles so you can work with them directly as needed.
 
 The routines are packaged as two static libraries, %G3D and GLG3D, so that you can use 
-the low-level vector math without bringing in any of the SDL/OpenGL code.
+the low-level vector math without bringing in any of the OpenGL code.
 
 You may find it easier (particularly on Windows) to debug code if you build %G3D on
 your own machine so that you can step into the %G3D routines and set breakpoints
