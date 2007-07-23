@@ -39,11 +39,20 @@ void MD2Viewer::onInit(const std::string& filename) {
 	//Character texture handling
 	Array<std::string> files;
 	std::string desiredTexture;
-	if ((toLower(filenameBaseExt(filename)) == "weapon.md2") &&
-		fileExists(resourceDir + "weapon.pcx")) {
 
-		// Loading just the weapon
-		desiredTexture = resourceDir + "weapon.pcx";
+	// By convention, base .md2 models are named tris.md2.
+	// Weapons are either named weapon.md2 or w_(name).md2.
+	// First, we test to see whether a weapon has been loaded
+	// and find its corresponding texture.
+	if ("w" == toLower(filenameBaseExt(filename)).substr(0,1)) {
+		std::string textureTest = toLower(filenameBaseExt(filename));
+		int remove = (int) filenameExt(filename).length();
+		textureTest = textureTest.substr(0, textureTest.length() - remove);
+		textureTest = textureTest + "pcx";
+		if (Texture::isImage(resourceDir + textureTest)) {
+			desiredTexture = resourceDir + textureTest;
+		}
+		validWeapon = false;
 	} else {
 		getFiles(resourceDir + "*.pcx", files, true);
 		getFiles(resourceDir + "*.jpg", files, true);
@@ -51,12 +60,17 @@ void MD2Viewer::onInit(const std::string& filename) {
 		getFiles(resourceDir + "*.png", files, true);
 		for(int f = 0; f < files.length(); ++f){
 			if(fileLength(desiredTexture) < fileLength(files[f])){
-				if(beginsWith(filenameBaseExt(files[f]), "w_")||beginsWith(filenameBaseExt(files[f]), "weapon")){
+				if (beginsWith(filenameBaseExt(files[f]), "w_") || beginsWith(filenameBaseExt(files[f]), "weapon")){
 					//desired texture is unchanged
 				} else {
 					desiredTexture = files[f];
 				}
 			}
+		}
+		if (fileExists(resourceDir + "weapon.md2") && (filename != (resourceDir + "weapon.md2"))) {
+			validWeapon = true;
+		} else {
+			validWeapon = false;
 		}
 	}
 
@@ -70,9 +84,8 @@ void MD2Viewer::onInit(const std::string& filename) {
 	}
 	
 	// If there is a weapon.md2 file and that wasn't the file that was explicitly 
-	// requested, load it as well.
-	validWeapon = fileExists(resourceDir + "weapon.md2") && 
-					   (filename != (resourceDir + "weapon.md2"));
+	// requested, load it as well.  validWeapon is set when the primary file is
+	// loaded, above
 	if (validWeapon){
 		models.push(MD2Model::fromFile(resourceDir + "weapon.md2"));
 		materials.push(GMaterial());

@@ -144,6 +144,11 @@ public:
         std::string&        filenameBeforeWildCard,
         std::string&        filenameAfterWildCard);
 
+	/**
+	 Returns true if the specified filename exists and is an image that can be loaded as a Texture.
+	*/
+	static bool isImage(const std::string& filename);
+
 
     /**
      All parameters of a texture that are independent of the

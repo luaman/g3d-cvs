@@ -142,14 +142,7 @@ void App::setViewer(const std::string& newFilename) {
 
 		viewer = new ArticulatedViewer();
 
-	} else if ((ext == "jpg") ||	
-		 (ext == "ico") ||
-		 (ext == "dds") ||
-		 (ext == "png") ||
-		 (ext == "tga") || 
-		 (ext == "bmp") ||
-		 (ext == "ppm") ||
-		 (ext == "pcx")) {
+	} else if (Texture::isImage(filename)) {
 
 		// Images can be either a Texture or a Sky: figure out which we have
 	

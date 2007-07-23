@@ -975,6 +975,29 @@ void Texture::splitFilenameAtWildCard(
 }
 
 
+bool Texture::isImage(const std::string& filename) {
+	// Reminder: this looks in zipfiles as well
+	if (!fileExists(filename)) {
+		return false;
+	}
+
+	std::string ext = toLower(filenameExt(filename));
+
+	if ((ext == "jpg") ||	
+		(ext == "ico") ||
+		(ext == "dds") ||
+		(ext == "png") ||
+		(ext == "tga") || 
+		(ext == "bmp") ||
+		(ext == "ppm") ||
+		(ext == "pcx")) {
+			return true;
+	} else {
+		return false;
+	}
+}
+
+
 Texture::~Texture() {
     m_sizeOfAllTexturesInMemory -= sizeInMemory();
 	glDeleteTextures(1, &m_textureID);

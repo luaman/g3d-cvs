@@ -84,6 +84,7 @@
      <li> G3D::fileExists supports filename paths that contain .zip [Eric]
      <li> G3D::fileLength supports filename paths that contain .zip [Eric]
      <li> G3D::getFiles and G3D::getDirs support filename paths that contain .zip [Eric]
+     <li> Texture::isImage - static method, returns true if a filename exists and is compatible with Texture [Eric]
      <li> Viewer (tool) - Allows drag and drop viewing of many supported file formats [Eric]
      <li> GFXMeter (tool) - Updated for 7.00 compatibility: GApplet structure removed [Eric]
      <li> GWindow::Settings has an allowMaximize field.  Win32Window will have an activated 'Maximize' button if true [Eric]
