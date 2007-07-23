@@ -142,7 +142,7 @@ void App::setViewer(const std::string& newFilename) {
 
 		viewer = new ArticulatedViewer();
 
-	} else if (Texture::isImage(filename)) {
+	} else if (Texture::isSupportedImage(filename)) {
 
 		// Images can be either a Texture or a Sky: figure out which we have
 	

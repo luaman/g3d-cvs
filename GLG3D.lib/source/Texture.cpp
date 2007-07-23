@@ -975,7 +975,7 @@ void Texture::splitFilenameAtWildCard(
 }
 
 
-bool Texture::isImage(const std::string& filename) {
+bool Texture::isSupportedImage(const std::string& filename) {
 	// Reminder: this looks in zipfiles as well
 	if (!fileExists(filename)) {
 		return false;

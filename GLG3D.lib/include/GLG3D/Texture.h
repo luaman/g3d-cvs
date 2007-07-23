@@ -147,7 +147,7 @@ public:
 	/**
 	 Returns true if the specified filename exists and is an image that can be loaded as a Texture.
 	*/
-	static bool isImage(const std::string& filename);
+	static bool isSupportedImage(const std::string& filename);
 
 
     /**

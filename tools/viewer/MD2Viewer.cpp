@@ -49,7 +49,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 		int remove = (int) filenameExt(filename).length();
 		textureTest = textureTest.substr(0, textureTest.length() - remove);
 		textureTest = textureTest + "pcx";
-		if (Texture::isImage(resourceDir + textureTest)) {
+		if (Texture::isSupportedImage(resourceDir + textureTest)) {
 			desiredTexture = resourceDir + textureTest;
 		}
 		validWeapon = false;
