@@ -194,10 +194,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\tools\gfxmeter\source\Report.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\tools\gfxmeter\source\shaderVersions.cpp"
 				>
 			</File>
@@ -213,10 +209,6 @@
 			>
 			<File
 				RelativePath="..\tools\gfxmeter\source\App.h"
-				>
-			</File>
-			<File
-				RelativePath="..\tools\gfxmeter\source\Report.h"
 				>
 			</File>
 		</Filter>
