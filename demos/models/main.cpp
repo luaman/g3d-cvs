@@ -20,7 +20,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         showRenderingStats = true;
         window()->setCaption("G3D Model Demo");
 
-        shadowMap.setSize(1024);
+        shadowMap.setSize(64);
 
         defaultCamera.setPosition(Vector3(0, 0, 10));
         defaultCamera.lookAt(Vector3(0, 0, 0));
@@ -47,16 +47,6 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     for (int e = 0; e < entityArray.size(); ++e) {
-        static RealTime t0 = System::time();
-        RealTime t = (System::time() - t0) * 10;
-        entityArray[e]->pose.cframe.set("Top", 
-            CoordinateFrame(Matrix3::fromAxisAngle(Vector3::unitY(), t),
-                            Vector3::zero()));
-
-        entityArray[e]->pose.cframe.set("Clouds", 
-            CoordinateFrame(Matrix3::fromAxisAngle(Vector3::unitY(), t/1000),
-                            Vector3::zero()));
-
         entityArray[e]->model->pose(posed3D, entityArray[e]->cframe, entityArray[e]->pose);
     }
 }
@@ -66,18 +56,16 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
     SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
-    if (! shadowMap.enabled()) {
-        // We're not going to be able to draw shadows, so move the shadowed lights into
-        // the unshadowed category.
-        lighting->lightArray.append(lighting->shadowedLightArray);
-        lighting->shadowedLightArray.clear();
-    }
-
     if (shadowMap.enabled()) {     
         // Generate shadow map        
         const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
         shadowMap.updateDepth(rd,lighting->shadowedLightArray[0],
             lightProjX, lightProjY, lightProjNear, lightProjFar, posed3D);
+    } else {
+        // We're not going to be able to draw shadows, so move the shadowed lights into
+        // the unshadowed category.
+        lighting->lightArray.append(lighting->shadowedLightArray);
+        lighting->shadowedLightArray.clear();
     }
 
     // Separate and sort the models
@@ -90,8 +78,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
-
-    debugPrintf("%d opt opaque, %d opaque, %d transparent\n", opaqueAModel.size(), otherOpaque.size(), transparent.size());
+    
+    screenPrintf("%d opt opaque, %d opaque, %d transparent\n", opaqueAModel.size(), 
+                otherOpaque.size(), transparent.size());
 
     toneMap->beginFrame(rd);
 
@@ -110,12 +99,13 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     // Opaque shadowed
+    
     if (lighting->shadowedLightArray.size() > 0) {
         ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], shadowMap.lightMVP(), shadowMap.depthTexture());
         for (int m = 0; m < otherOpaque.size(); ++m) {
             otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], shadowMap.lightMVP(), shadowMap.depthTexture());
         }
-    }
+        }
 
     // Transparent
     for (int m = 0; m < transparent.size(); ++m) {
@@ -124,6 +114,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
             transparent[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], shadowMap.lightMVP(), shadowMap.depthTexture());
         }
     }
+    
 
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);
@@ -148,16 +139,10 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Rect2D::xywh(rd->width() - 96,rd->height() - 96, 64, 64), 
         rd, Color4(1,1,1,0.7f));
     rd->pop2D();
-
-    debugPrintf("\n");
-    debugPrintf("TAB to control camera\n");
-    debugPrintf("SPACE to toggle ToneMap\n");
-    debugPrintf("ESC to quit\n");
-
 }
 
 
 int main(int argc, char** argv) {
-	GApp::Settings settings;    
+    GApp::Settings settings;    
     return App(settings).run();
 }

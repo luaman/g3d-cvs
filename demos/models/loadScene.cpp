@@ -15,7 +15,7 @@ void App::loadScene() {
         xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.04f;
         xform.rotation = xform.rotation * rot180;
         xform.translation = Vector3(-0.35f, -1.45f, 2.25f);
-        ArticulatedModelRef model = ArticulatedModel::fromFile(dataDir + "3ds/legocar/legocar.3ds", xform);
+        ArticulatedModelRef model = ArticulatedModel::fromFile(System::findDataFile("legocar.3ds"), xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0,0))));
         x += 2;
     }
