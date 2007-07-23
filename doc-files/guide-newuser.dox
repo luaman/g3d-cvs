@@ -23,6 +23,7 @@ Contents:
 <li> Memory Management
 <li> Naming conventions
 <li> %G3D vs. STL
+<li> Image Processing
 </ol>
 
 \htmlonly <hr noshade> \endhtmlonly
@@ -237,5 +238,19 @@ use.
    The G3D::System class provides platform-independent access to low-level properties of the
    platform and CPU.  It also has highly optimized routines for timing (at the cycle level)
    and memory operations like System::memcpy.
+
+\htmlonly <hr noshade> \endhtmlonly
+
+  @section image Image Processing
+
+%G3D can be used to build image and video processing applications.  It
+provides easy to use CPU-side classes like G3D::Image3 and the
+hardware-accelerated class G3D::Texture.  G3D::RenderDevice::push2D
+puts the GPU in image mode and G3D::Texture::Settings::video selects
+appropriate image processing defaults.  See the API index for image
+file format support, Bayer conversion, gaussian filtering, tone
+mapping, and other routines.  Use Draw::fastRect2D and G3D::Shader to
+apply pixel shaders to full-screen images for fully programmable GPU
+image processing.
 
 */
