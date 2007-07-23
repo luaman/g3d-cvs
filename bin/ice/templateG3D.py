@@ -6,46 +6,87 @@ from variables import *
 
 main_cpp = """
 /**
-  @file empty/main.cpp
+  @file main.cpp
 
-  This is a sample main.cpp to get you started with G3D.  It is designed to make writing an
-  application easy.  Although the GApp2 infrastructure is helpful for most projects, you are not 
-  restricted to using it--choose the level of support that is best for your project.  You can 
-  also customize GApp2 through its members and change its behavior by overriding methods.
+  This is a sample set of project files to get you started.  It uses the G3D::GApp infrastructure
+  to make writing interactive 3D projects easy.  G3D does not restrict you to using GApp; see the
+  other examples.
 
   @author Morgan McGuire, morgan@cs.williams.edu
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "App.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
 #endif
 
-class App : public GApp2 {
+G3D_START_AT_MAIN();
+
+int main(int argc, char** argv) {
+    GApp::Settings settings;
+    
+    // Change the window and other startup parameters by modifying the
+    // settings class.  For example:
+    settings.window.width = 800; 
+    settings.window.height = 600;
+
+    return App(settings).run();
+}
+"""
+
+App_h ="""
+/**
+  @file App.h
+ */
+#ifndef APP_H
+#define APP_H
+
+#include <G3D/G3DAll.h>
+#include <GLG3D/GLG3D.h>
+
+class App : public GApp {
 public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
 
-    App(const GApp2::Settings& settings = GApp2::Settings());
+    App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
     virtual void onLogic();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onGraphics(RenderDevice* rd);
+    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual bool onEvent(const GEvent& e);
     virtual void onUserInput(UserInput* ui);
-    virtual void onCleanup();
     virtual void onConsoleCommand(const std::string& cmd);
     void printConsoleHelp();
+    virtual void onCleanup();
 };
 
-App::App(const GApp2::Settings& settings) : GApp2(settings) {}
+#endif
+"""
+
+App_cpp = """
+/**
+  @file App.cpp
+ */
+#include "App.h"
+
+App::App(const GApp::Settings& settings) : GApp(settings) {
+    // Uncomment the next line if you are running under a debugger:
+    // catchCommonExceptions = false;
+
+    // Uncomment the next line to hide the developer tools:
+    //developerWindow->setVisible(false);
+}
 
 void App::onInit() {
-    // Called before the application loop beings.  Load data here
-    // and not in the constructor so that common exceptions will be
+    // Called before the application loop beings.  Load data here and
+    // not in the constructor so that common exceptions will be
     // automatically caught.
     sky = Sky::fromFile(dataDir + "sky/");
 
@@ -56,12 +97,11 @@ void App::onInit() {
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
 
-    toneMap->setEnabled(false);
-}
+    // Example debug GUI:
+    // debugPane->addCheckBox("Use explicit checking", &explicitCheck);
+    // debugWindow->setVisible(true);
 
-void App::onCleanup() {
-    // Called after the application loop ends.  Place a majority of cleanup code
-    // here instead of in the constructor so that exceptions can be caught
+    toneMap->setEnabled(false);
 }
 
 void App::onLogic() {
@@ -77,42 +117,28 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // based on any of the three arguments.
 }
 
+bool App::onEvent(const GEvent& e) {
+    // If you need to track individual UI events, manage them here.
+    // Return true if you want to prevent other parts of the system
+    // from observing this specific event.
+    return false;
+}
+
 void App::onUserInput(UserInput* ui) {
-    // Add key handling here	
+    // Add key handling here based on the keys currently held or
+    // ones that changed in the last frame.
 }
 
-void App::onConsoleCommand(const std::string& str) {
-    // Add console processing here
-
-    TextInput t(TextInput::FROM_STRING, str);
-    if (t.hasMore() && (t.peek().type() == Token::SYMBOL)) {
-        std::string cmd = toLower(t.readSymbol());
-        if (cmd == "exit") {
-            exit(0);
-            return;
-        } else if (cmd == "help") {
-            printConsoleHelp();
-            return;
-        }
-
-        // Add commands here
-    }
-
-    console->printf("Unknown command\\n");
-    printConsoleHelp();
+void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    // Append any models to the array that you want rendered by onGraphics
 }
 
-void App::printConsoleHelp() {
-    console->printf("exit          - Quit the program\\n");
-    console->printf("help          - Display this text\\n\\n");
-    console->printf("~/ESC         - Open/Close console\\n");
-    console->printf("TAB           - Enable first-person camera control\\n");
-}
-
-void App::onGraphics(RenderDevice* rd) {
+void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
+    toneMap->beginFrame(rd);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
@@ -124,23 +150,64 @@ void App::onGraphics(RenderDevice* rd) {
         rd->setLight(0, localLighting->lightArray[0]);
         rd->setAmbientLightColor(localLighting->ambientAverage());
 
-        // Sample rendering code
+        // Sample immediate-mode rendering code
         Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
-        // Always render the installed GModules or the console and other
-        // features will not appear.
-        renderGModules(rd);
+        // Always render the posed models passed in or the Developer Window and
+        // other Widget features will not appear.
+        if (posed3D.size() > 0) {
+            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+            PosedModel::sort(posed3D, lookVector, opaque, transparent);
+            
+            for (int i = 0; i < opaque.size(); ++i) {
+                opaque[i]->render(renderDevice);
+            }
+
+            for (int i = 0; i < transparent.size(); ++i) {
+                transparent[i]->render(renderDevice);
+            }
+        }
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
+    toneMap->endFrame(rd);
+
+    PosedModel2D::sortAndRender(rd, posed2D);
 }
 
-G3D_START_AT_MAIN();
+void App::onConsoleCommand(const std::string& str) {
+    // Add console processing here
 
-int main(int argc, char** argv) {
-    return App().run();
+    TextInput t(TextInput::FROM_STRING, str);
+    if (t.hasMore() && (t.peek().type() == Token::SYMBOL)) {
+        std::string cmd = toLower(t.readSymbol());
+        if (cmd == "exit") {
+            setExitCode(0);
+            return;
+        } else if (cmd == "help") {
+            printConsoleHelp();
+            return;
+        }
+
+        // Add commands here
+    }
+
+    console->printf("Unknown command\n");
+    printConsoleHelp();
+}
+
+void App::printConsoleHelp() {
+    console->printf("exit          - Quit the program\\n");
+    console->printf("help          - Display this text\\n\\n");
+    console->printf("~/ESC         - Open/Close console\\n");
+    console->printf("F2            - Enable first-person camera control\\n");
+}
+
+void App::onCleanup() {
+    // Called after the application loop ends.  Place a majority of cleanup code
+    // here instead of in the constructor so that exceptions can be caught
 }
 """
 
@@ -156,3 +223,5 @@ def generateStarterFiles(state):
     mkdir('data-files')
     
     writeFile('source/main.cpp', main_cpp)
+    writeFile('source/App.h', App_h)
+    writeFile('source/App.cpp', App_cpp)
