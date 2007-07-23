@@ -12,6 +12,9 @@ your project.
 
 \htmlonly <hr noshade> \endhtmlonly
 
+@section base 
+
+
 @section app Application Framework
 
 Every application needs a framework that manages events, provides a

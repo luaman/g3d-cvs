@@ -36,13 +36,16 @@ class UserInput;
  for threads in most applications.  These tasks are:
  
  <ul>
- <li> doGraphics(G3D::RenderDevice*)
- <li> doUserInput(G3D::UserInput*)
- <li> doLogic()
- <li> doNetwork()
- <li> doSimulation(G3D::RealTime, G3D::SimTime, G3D::SimTime)
- <li> doWait(G3D::RealTime cumulativeTime, G3D::RealTime desiredCumulativeTime)
+ <li> Graphics
+ <li> User Input
+ <li> AI / Game Logic
+ <li> Network receive (network send occurs wherever needed)
+ <li> Physical simulation
+ <li> Wait (sleep to maintain constant frame rate)
  </ul>
+ 
+ Other event handlers include onInit/onCleanup, onEvent for fine-grain
+ event handling, and onConsoleCommand.
  
  The onConsoleCommand handler allows you to add an in-game command console
  to your program.  By default it is activated when '~' is pressed; you can also
@@ -51,9 +54,7 @@ class UserInput;
  executing <code>removeWidget(console)</code>.
  
  To invoke a GApp and let it control the main loop, call
- run().  To control the main loop explicitly, invoke beginRun on
- initialization, call oneFrame() from the main loop, and call endRun on cleanup.
- 
+ run(). 
 */
 class GApp {
 public:
@@ -203,7 +204,7 @@ public:
     UserInput*              userInput;
 
     /** Invoke to true to end the program at the end of the next event loop. */
-    virtual void exit(int code = 0);
+    virtual void setExitCode(int code = 0);
 
     /**
        A default camera that is driven by the defaultController.
@@ -515,14 +516,13 @@ protected:
        Override and implement.  The debugCamera's projection and object to world
        matrices are set by default; you can set other cameras as desired. 
        RenderDevice::beginFrame and endFrame are called for you.
-     
-       See <A HREF="../demos/main.cpp">demos/main.cpp</A> for an example.
     */
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 
     /** Called before onGraphics.  Append any models that you want
         rendered (you can also explicitly pose and render in your
-        onGraphics method) */
+        onGraphics method).  The provided arrays will already contain
+        posed models from any installed Widgets. */
     virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {}
 
     /**

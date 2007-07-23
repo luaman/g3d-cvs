@@ -1298,15 +1298,14 @@ static void setTexParameters(
         } else {
             mode = GL_CLAMP;
         }
-        {
-            glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, Color4::clear());
-            debugAssertGLOk();
-        }
+        glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, Color4::clear());
+        debugAssertGLOk();
       break;
 
     default:
         debugAssertM(Texture::supportsWrapMode(settings.wrapMode), "Unsupported wrap mode for Texture");
     }
+    
     glTexParameteri(target, GL_TEXTURE_WRAP_S, mode);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, mode);
     if (supports3D) {
@@ -1373,7 +1372,6 @@ static void setTexParameters(
     }
     debugAssertGLOk();
 
-
     static const bool anisotropic = GLCaps::supports("GL_EXT_texture_filter_anisotropic");
 
     if (anisotropic) {
@@ -1384,8 +1382,8 @@ static void setTexParameters(
         if (settings.depthReadMode == Texture::DEPTH_NORMAL) {
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
         } else {
+            //glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-
             glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
                 (settings.depthReadMode == Texture::DEPTH_LEQUAL) ? GL_LEQUAL : GL_GEQUAL);
         }

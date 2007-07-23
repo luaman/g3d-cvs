@@ -408,11 +408,11 @@ void Load3DS::processMapChunk(
             break;
 
         default:
-            debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %ld bytes of chunk 0x%x\n", 
+            logPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -476,11 +476,11 @@ void Load3DS::processMaterialChunk(
             break;
 
         default:
-            debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %ld bytes of chunk 0x%x\n", 
+            logPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -507,11 +507,11 @@ void Load3DS::processObjectChunk(
             break;
 
         default:
-            debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %ld bytes of chunk 0x%x\n", 
+            logPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -643,23 +643,23 @@ void Load3DS::processTriMeshChunk(
                              0,      0,      0,     1);
                          
             
-                //debugPrintf("%s\n", object.name.c_str());
+                //logPrintf("%s\n", object.name.c_str());
                 //for (int r = 0; r < 4; ++r) {
                 //    for (int c = 0; c < 4; ++c) {
-                //        debugPrintf("%3.3f ", object.cframe[r][c]);
+                //        logPrintf("%3.3f ", object.cframe[r][c]);
                 //    }
-                //    debugPrintf("\n");
+                //    logPrintf("\n");
                 //}
-                //debugPrintf("\n");
+                //logPrintf("\n");
             }
             break;
 
         default:
-            debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %ld bytes of chunk 0x%x\n", 
+            logPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -730,7 +730,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
             case KFFRAMES:
                 startFrame = b->readUInt32();
                 endFrame   = b->readUInt32();
-                debugPrintf("\nStart frame = %d, end frame = %d\n\n", startFrame, endFrame);
+                logPrintf("\nStart frame = %d, end frame = %d\n\n", startFrame, endFrame);
                 processChunk(curChunkHeader);
                 break;
 
@@ -761,7 +761,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                         b->readUInt16(); 
                         b->readUInt16();
                         int hierarchyIndex = b->readUInt16();
-                        debugPrintf("\n\"%s\", %d\n\n", name.c_str(), hierarchyIndex);
+                        logPrintf("\n\"%s\", %d\n\n", name.c_str(), hierarchyIndex);
 
                         // Find the current object
                         currentObject = -1;
@@ -784,13 +784,13 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                 case KFPIVOT:
                     {
                         Vector3 pivot = read3DSVector();
-                        debugPrintf("pivot = %s\n", pivot.toString().c_str());
+                        logPrintf("pivot = %s\n", pivot.toString().c_str());
                     }
                     break;
 
                 case KFTRANSLATION:
                     currentTranslation = readLin3Track();
-                    debugPrintf("translation = %s\n", currentTranslation.toString().c_str());
+                    logPrintf("translation = %s\n", currentTranslation.toString().c_str());
                     break;
 
                 case KFSCALE:
@@ -798,7 +798,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                     // The scale will have the x-coordinate flipped since our 
                     // code always negates the x-axis (assuming it is reading a point).
                     currentScale.x *= -1;
-                    debugPrintf("scale = %s\n", currentScale.toString().c_str());
+                    logPrintf("scale = %s\n", currentScale.toString().c_str());
                     break;
 
                 case KFROTATION:
@@ -811,11 +811,11 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                     }
                     break;
         default:
-            debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
-            debugPrintf("Skipping %ld bytes of chunk 0x%x\n", 
+            logPrintf("Skipping %lld bytes of chunk 0x%x\n", 
                 curChunkHeader.end - b->getPosition(),
                 curChunkHeader.id);
         }
@@ -910,7 +910,7 @@ Matrix3 Load3DS::readRotTrack() {
         debugAssertM(fuzzyEq(angle, 0), "Zero axis rotation with non-zero angle!");
     }
 
-    debugPrintf("Axis = %s, angle = %g\n\n", axis.toString().c_str(), angle);
+    logPrintf("Axis = %s, angle = %g\n\n", axis.toString().c_str(), angle);
     return Matrix3::fromAxisAngle(axis, angle);
 }
 

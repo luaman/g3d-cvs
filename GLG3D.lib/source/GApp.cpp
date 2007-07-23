@@ -211,7 +211,7 @@ GApp::GApp(const Settings& settings, GWindow* window) :
 }
 
 
-void GApp::exit(int code) {
+void GApp::setExitCode(int code) {
     m_endProgram = true;
     m_exitCode = code;
 }
@@ -586,7 +586,7 @@ void GApp::endRun() {
 
 
     if (window()->requiresMainLoop() && m_endProgram) {
-        exit(m_exitCode);
+        ::exit(m_exitCode);
     }
 }
 
@@ -598,7 +598,8 @@ void GApp::staticConsoleCallback(const std::string& command, void* me) {
 
 void GApp::onConsoleCommand(const std::string& cmd) {
     if (trimWhitespace(cmd) == "exit") {
-        exit(0);
+        setExitCode(0);
+        return;
     }
 }
 
@@ -624,7 +625,7 @@ void GApp::processGEventQueue() {
 
         switch(event.type) {
         case GEventType::QUIT:
-            exit(0);
+            setExitCode(0);
             break;
 
         case GEventType::VIDEO_RESIZE:
@@ -646,7 +647,7 @@ void GApp::processGEventQueue() {
                 case GKey::ESCAPE:
                     switch (escapeKeyAction) {
                     case ACTION_QUIT:
-                        exit(0);
+                        setExitCode(0);
                         break;
                     
                     case ACTION_SHOW_CONSOLE:

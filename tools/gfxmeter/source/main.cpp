@@ -189,7 +189,6 @@ void App::onInit() {
 
     countBugs();
     
-    // Load objects here
     sky = NULL;//Sky::create(NULL, dataDir + "sky/");
 }
 

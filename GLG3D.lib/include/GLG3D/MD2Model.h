@@ -181,7 +181,6 @@ public:
             bool pain3);
 
          /**
-        /**
          Given a time and state flags indicating a character's desires,
          computes the new pose.
          <P>
