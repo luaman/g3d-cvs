@@ -4,28 +4,29 @@ The following sections give step-by-step instructions for downloading,
 building, and installing the 7.00 version of %G3D on Linux and
 FreeBSD.  
 
-For experienced administrators who plan to write their own Makefiles
-the short version of these instructions is simple:
+The short version of these instructions is simple:
 
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-src.zip?download">g3d-7.00-src.zip</a>
+href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.00-src.zip?download">G3D-7.00-src.zip</a>
 <li> Type <code>buildg3d install /usr/local</code> to build the library
-<li> See <code>/usr/local/G3D-7.00/demos/empty/main.cpp</code> for a simple application framework
+<li> See <code><a href="file:///usr/local/G3D-7.00/demos/starter/">/usr/local/G3D-7.00/demos/starter/</A></code> for a simple application framework
 </ol>
 \endhtmlonly
 </p>
 
 
 <hr>
-@section source Unzip source files
-
 \htmlonly
+
+<ol>
+<li>Execute the following commands at the terminal prompt on your local machine to download, build, and install G3D:
+
 <pre>
 pushd /tmp
-curl http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-src.zip?download > g3d-7.00-src.zip
-unzip g3d-7.00-src.zip
+curl http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.00-src.zip?download > G3D-7.00-src.zip
+unzip G3D-7.00-src.zip
 pushd G3D
 chmod u+x buildg3d
 ./buildg3d install /usr/local
@@ -35,22 +36,23 @@ popd
 </pre>
 
 <p>
-You probably want to bookmark the local G3D documentation at
+<li>You probably want to bookmark the local G3D documentation at
 <code>/usr/local/G3D-7.00/html/index.html</code>.  Sample projects and
 data files can be found at <code>/usr/local/G3D-7.00/data</code> and
 <code>/usr/local/G3D-7.00/demos</code>.
 </p>
 
 <p>
-If you choose to install G3D to a path that is not already in your
+<li>G3D comes with a build tool called iCompile that automatically compiles and links programs using g++ on Linux, FreeBSD, and OS X.  This is a replacement for Makefiles.  If you choose to use it and installed G3D to a path and you plan to use the provided bin/icompile tool to create yourthat is not already in your
 INCLUDE and LIBRARY variables then you need to edit your
-<code>~/.icompile</code> file to work with G3D.  See the <b><a
-href="icompile-manual.html" >iCompile Manual</a> for details.  A sample .icompile file is:
+<code>~/.icompile</code> file to work with G3D.  See the <a
+href="icompile-manual.html" >iCompile Manual</a> for details.  A sample .icompile file that assumes you built in your home directory and never installed to the system is:
 
 <pre>
+<font size=2>
 [GLOBAL]
-defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL;/Volumes/Home/Projects/G3D/build/osx-i386-g++-4.0/include
-defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib;/Volumes/Home/Projects/G3D/build/osx-i386-g++-4.0/lib
+defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL;/Volumes/Home/Projects/G3D/build/linux-i386-g++-4.0/include
+defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib;/Volumes/Home/Projects/G3D/build/linux-i386-g++-4.0/lib
 defaultcompiler: <NEWESTGCC>
 defaultexclude:  <EXCLUDE>
 beep:            True
@@ -60,7 +62,9 @@ builddir:        build
 [DEBUG]
 
 [RELEASE]
+</font>
 </pre>
+</ol>
 
 </p>
 \endhtmlonly

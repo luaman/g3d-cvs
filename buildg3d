@@ -352,7 +352,7 @@ def getCompilerName(args = []):
 
 ##################################################################################
 #  General
-    # [--compiler {vc6|vc7|vc8|xcode|gcc[version]}] 
+
 def buildHelp():
     print """
 buildg3d - Automated build system for G3D.
@@ -411,20 +411,9 @@ help       Display this message
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
 
-
-NOTE:
-The G3D team is currently evaluating two build systems, CMake and
-iCompile.  The lib, test, clean, and makefile targets may be run with
-either a 'c' or an 'i' prefixed (e.g., clib) to select between the
-build systems.
+Note: the CMake files included with G3D are used internally by the dev
+team to generate Xcode project files but are not supported at all.
 """
-
-           
-"""compiler   Specifying the optional --compiler argument allows 
-           you to choose which compiler to use for building the 
-           library or project/makefiles.  The defaults are based on
-           operating system: Xcode/gcc for OS X, gcc for Linux and 
-           FreeBSD, and VC8 for Windows."""
 
 if __name__ == "__main__":
     distribDir = 'build/' + platform_directory(getCompilerName()) + '/'

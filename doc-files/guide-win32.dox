@@ -11,8 +11,8 @@ pipeline.)
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-win32.zip?download">g3d-7.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
-<li> See <code>g3d-7.00\demos\starter\main.cpp</code> for a simple application framework.
+href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.00-win32.zip?download">G3D-7.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
+<li> See <code><a href="../demos/starter">G3D-7.00\demos\starter</a></code> for a simple application framework.
 </ol>
 \endhtmlonly
 </p>
@@ -41,7 +41,7 @@ edition of Visual Studio 2005 that can be purchased.
 <li> <p>
 
 Download <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-win32.zip?download">g3d-7.00-win32.zip</a>
+href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.00-win32.zip?download">G3D-7.00-win32.zip</a>
 and unzip it into a directory like <code>c:\libraries</code>. This
 will create the directories <code>c:\libraries\G3D-7.00</code>,
 <code>c:\libraries\G3D-7.00\html</code>, etc.
@@ -65,7 +65,7 @@ src="vc8-tools-menu.png" border=0 align=top></center></p>
 in the central list box and type the full path to the G3D include
 directory, as demonstrated in the image below.  If you installed G3D to
 <code>c:\libraries</code>, this path is
-<code>c:\libraries\g3d-7.00\win-i386-vc8.0\include</code>.
+<code>c:\libraries\G3D-7.00\include</code>.
 
 <center><img src="vc8-options-dialog.png" border=0 align=top></center></p>
 
@@ -78,7 +78,7 @@ directory, as demonstrated in the image below.  If you installed G3D to
 in the central list box and type the full path to the %G3D lib
 directory.  If you installed G3D to
 <code>c:\libraries</code>, this path is
-<code>c:\libraries\g3d-7.00\win-i386-vc8.0\lib</code>.
+<code>c:\libraries\G3D-7.00\lib</code>.
 </p>
 
 <li><p>Push <b>Ok</b> to close the <b>Options</b> dialog.</p>
