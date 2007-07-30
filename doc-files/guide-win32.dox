@@ -1,7 +1,7 @@
 /** @page guidewin32 Installing G3D on Windows
 
 The following sections give step-by-step instructions for installing
-the free version of Visual Studio, the 7.00 beta 3 version of %G3D.
+the 7.00 version of %G3D.
 These assume no familiarity with Visual Studio or %G3D (however, to
 <i>use</i> %G3D, you'll need to know your way around a 3D graphics
 pipeline.)
@@ -11,17 +11,12 @@ pipeline.)
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-win32.zip?download">g3d-7.00-b03-win32.zip</a> and configure Visual Studio's Include and Library paths.
-<li> See <code>g3d-7.00\demos\empty\main.cpp</code> for a simple application framework.
+href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-win32.zip?download">g3d-7.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
+<li> See <code>g3d-7.00\demos\starter\main.cpp</code> for a simple application framework.
 </ol>
 \endhtmlonly
 </p>
 
-<p><b>Beta Note:</b>%G3D is compatible with previous versions of Visual
-Studio, however the %G3D 7.00 beta releases do not include binaries for
-previous versions.  The official 7.00 release may include Visual
-Studio 6 and Visual Studio 2003 binaries.  The instructions here are written for the 7.00 release.
-For beta releases, you need to change the path names to include the -b03 or other beta file extension.</p>
 
 <hr>
 @section vs8install Visual Studio 2005 Installation
@@ -46,10 +41,10 @@ edition of Visual Studio 2005 that can be purchased.
 <li> <p>
 
 Download <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-win32.zip?download">g3d-7.00-b03-win32.zip</a>
+href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-win32.zip?download">g3d-7.00-win32.zip</a>
 and unzip it into a directory like <code>c:\libraries</code>. This
-will create the directories <code>c:\libraries\g3d-7.00</code>,
-<code>c:\libraries\g3d-7.00\html</code>, etc.
+will create the directories <code>c:\libraries\G3D-7.00</code>,
+<code>c:\libraries\G3D-7.00\html</code>, etc.
 
 </p>
 

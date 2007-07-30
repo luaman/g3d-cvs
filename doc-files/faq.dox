@@ -1,14 +1,17 @@
 /** @page faq General FAQ
 
 
-There are several reoccuring questions that appear at the <A HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">G3D forums</A>. This document answers many of the most common questions. Questions closer related to building problems may be answered in the \link guidecompiling Compiling and Linking Guide \endlink and \link errorfaq Build Error FAQ \endlink.
+There are several reoccuring questions that appear at the <A
+HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">G3D
+forums</A>. This document answers many of the most common
+questions. 
 <P>
 
 <B>Table of Contents</B><P>
 1. <a href="#graphicscard">What hardware is supported?</a><BR>
 2. <a href="#no3d">Can G3D work without a 3D card?</a><BR>
 3. <a href="#matrices">G3D::Matrix4 vs. OpenGL Matrices</a><BR>
-4. <a href="#pbuffers">P-Buffers and G3D</a><BR>
+4. <a href="#pbuffers">P-Buffers</a><BR>
 5. <a href="#unicode">UNICODE Font Support</a><BR>
 6. <a href="#nextrelease">The next release</a><BR>
 7. <a href="#slowdemos">The demos run slowly</a><BR>
@@ -42,25 +45,55 @@ User may notice passing G3D::Matrix4 as a float* to OpenGL's matrix functions ha
 <P>
 
 <a NAME="pbuffers"></a>
-<B>P-Buffers and G3D</B><P>
-There is no extended functionality supporting p-buffers in G3D. This does not prevent you from using them through standard OpenGL calls, though. Using p-buffers is a recognizably difficult process, principally due to the extension's design. Fortunately, a new p-buffer specification is under work by the OpenGL review board. G3D intends to support this new specification.
+<B>P-Buffers</B><P>
+
+G3D::Framebuffer is a platform independent abstraction of OpenGL's
+Framebuffer mechanism, which replaces the older p-buffer mechanism.  As a result,
+there is no need for extended functionality supporting p-buffers in G3D. This
+does not prevent you from using them through standard OpenGL calls,
+though. Using p-buffers is a recognizably difficult process,
+principally due to the extension's design. 
 
 <a NAME="unicode"></a>
 <P><B>UNICODE Font Support</B><P>
-G3D supports rendering fonts through G3D::GFont, but only through the ASCII 8-bit characters. To implement extended characters, one might attempt extending G3D::GFont for extended characters. The FreeType generates little 2D bitmaps that you have to pack into a texture (using G3D::Texture the way G3D::GFont does) for rendering.
+
+G3D supports rendering fonts through G3D::GFont, but only through the
+ASCII 8-bit characters. This includes accented and Wingdings characters.
+
+To implement extended characters, one might
+attempt extending G3D::GFont for extended characters. The FreeType
+generates little 2D bitmaps that you have to pack into a texture
+(using G3D::Texture the way G3D::GFont does) for rendering.
 
 <a NAME="nextrelease"></a>
 <P><B>The Next Release, What's Coming, What's Going</B><P>
-One way to check on the overall progress of a release is to check the changelog.h in CVS for fixes and features added. This is in the cpp/source/docsource directory: http://cvs.sourceforge.net/viewcvs.py/g3d-cpp/cpp/source/docsource/
 
-Deprecated functionality is removed at major releases. (from 6.xx to 7.00)
-Because G3D builds as a static lib, there is no code bloat to your final executable. I would not be concerned about the deprecated routines-- just avoid using them in new code. The list of all deprecated entry points is:
+One way to check on the overall progress of a release is to check the
+changelog.h in CVS for fixes and features added. This is in the
+G3D/doc-files directory:
+http://cvs.sourceforge.net/viewcvs.py/g3d-cpp/G3D/doc-files/
+
+Deprecated functionality is removed at major releases (e.g., from 6.xx to 7.00)
+
+Because G3D builds as a static lib, there is no code bloat to your
+final executable. I would not be concerned about the deprecated
+routines-- just avoid using them in new code. The list of all
+deprecated entry points is:
 http://g3d-cpp.sourceforge.net/html/deprecated.html
 
 <a NAME="slowdemos"></a>
 <P><B>The Demos Run Slow</B><P>
-Most of the G3D demos are designed to stress high-end hardware, and will likely choke lower-end systems. The most significant component affecting demo performance is the video card; even with a high-speed processor, a low-end graphics card will likely be the bottleneck in the rendering pipeline. Low performance in these demos doesn't mean G3D is "slow." The demos are intentionally constructed to test against the computational limits using methods which may not accurately represent the "real" 3D applications.<BR>
-For system profiling, the developers recommend a program called 'gfxmeter'.
+
+Most of the G3D demos are designed to stress high-end hardware, and
+will likely choke lower-end systems. The most significant component
+affecting demo performance is the video card; even with a high-speed
+processor, a low-end graphics card will likely be the bottleneck in
+the rendering pipeline. Low performance in these demos doesn't mean
+G3D is "slow." The demos are intentionally constructed to test against
+the computational limits using methods which may not accurately
+represent the "real" 3D applications.
+
+For system profiling, the developers recommend using the 'gfxmeter' tool provided with %G3D.
 
 <a NAME="indexarrays"></a>
 <P><B>What are Index Arrays?</B><P>

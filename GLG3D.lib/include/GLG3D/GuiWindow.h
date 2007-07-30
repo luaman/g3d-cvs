@@ -45,7 +45,7 @@ public:
     }
 };
     
-
+typedef ReferenceCountedPointer<class GuiWindow> GuiWindowRef;
 /**
    Retained-mode graphical user interface window. 
 

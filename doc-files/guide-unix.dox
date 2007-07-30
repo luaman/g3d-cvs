@@ -1,10 +1,8 @@
 /** @page guideunix Installing G3D on Linux and FreeBSD
 
 The following sections give step-by-step instructions for downloading,
-building, and installing the 7.00 beta 3 version of %G3D on Linux and
+building, and installing the 7.00 version of %G3D on Linux and
 FreeBSD.  
-
-<b>WARNING: THESE INSTRUCTIONS ARE NEWER THAN THE BUILD SYSTEM.  DO NOT FOLLOW THEM YET</b>
 
 For experienced administrators who plan to write their own Makefiles
 the short version of these instructions is simple:
@@ -12,7 +10,7 @@ the short version of these instructions is simple:
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-src.zip?download">g3d-7.00-b03-src.zip</a>
+href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-src.zip?download">g3d-7.00-src.zip</a>
 <li> Type <code>buildg3d install /usr/local</code> to build the library
 <li> See <code>/usr/local/G3D-7.00/demos/empty/main.cpp</code> for a simple application framework
 </ol>
@@ -26,8 +24,8 @@ href="http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-src.zip?download">
 \htmlonly
 <pre>
 pushd /tmp
-curl http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-b03-src.zip?download > g3d-7.00-b03-src.zip
-unzip g3d-7.00-b03-src.zip
+curl http://prdownloads.sourceforge.net/g3d-cpp/g3d-7.00-src.zip?download > g3d-7.00-src.zip
+unzip g3d-7.00-src.zip
 pushd G3D
 chmod u+x buildg3d
 ./buildg3d install /usr/local
@@ -47,7 +45,23 @@ data files can be found at <code>/usr/local/G3D-7.00/data</code> and
 If you choose to install G3D to a path that is not already in your
 INCLUDE and LIBRARY variables then you need to edit your
 <code>~/.icompile</code> file to work with G3D.  See the <b><a
-href="icompile-manual.html" >iCompile Manual</a> for details.
+href="icompile-manual.html" >iCompile Manual</a> for details.  A sample .icompile file is:
+
+<pre>
+[GLOBAL]
+defaultinclude:  $(INCLUDE);/usr/include;/usr/X11R6/include;/usr/local/include;/usr/local/include/SDL11;/usr/include/SDL;/Volumes/Home/Projects/G3D/build/osx-i386-g++-4.0/include
+defaultlibrary:  $(LIBRARY);$(LD_LIBRARY_PATH);/usr/lib;/usr/X11R6/lib;/usr/local/lib;/Volumes/Home/Projects/G3D/build/osx-i386-g++-4.0/lib
+defaultcompiler: <NEWESTGCC>
+defaultexclude:  <EXCLUDE>
+beep:            True
+tempdir:         tmp
+builddir:        build
+
+[DEBUG]
+
+[RELEASE]
+</pre>
+
 </p>
 \endhtmlonly
 
