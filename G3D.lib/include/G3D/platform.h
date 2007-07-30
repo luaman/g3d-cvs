@@ -160,7 +160,7 @@
     //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore/html/_core_.2f.md.2c_2f.ml.2c_2f.mt.2c_2f.ld.asp
     //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_Compiler_Reference.asp
     //
-/*
+
     // DLL runtime
     #ifndef _DLL
 	    #define _DLL
@@ -200,7 +200,7 @@
 #        pragma comment(linker, "/NODEFAULTLIB:MSVCRT.LIB")
 #	 endif
 
-*/
+
 #    ifndef WIN32_LEAN_AND_MEAN
 #       define WIN32_LEAN_AND_MEAN 1
 #    endif
