@@ -1461,22 +1461,10 @@ void RenderDevice::disableClip2D() {
 
 
 void RenderDevice::setProjectionAndCameraMatrix(const GCamera& camera) {
-    float pixelAspect = state.viewport.width() / state.viewport.height();
-
-    // Half extents of viewport
-    float y = -camera.nearPlaneZ() * tan(camera.fieldOfView() / 2.0);
-    float x = y * pixelAspect;
-
-    float r, l, t, b, n, f;
-    n = -camera.nearPlaneZ();
-    f = -camera.farPlaneZ();
-    r = x;
-    l = -x;
-    t = y;
-    b = -y;
-
-    setProjectionMatrix(Matrix4::perspectiveProjection(l, r, b, t, n, f));
-	setCameraToWorldMatrix(camera.getCoordinateFrame());
+    Matrix4 P;
+    camera.getProjectUnitMatrix(viewport(), P);
+    setProjectionMatrix(P);
+	setCameraToWorldMatrix(camera.coordinateFrame());
 }
 
 

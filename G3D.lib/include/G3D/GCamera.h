@@ -3,8 +3,8 @@
 
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
-  @created 2001-06-02
-  @edited  2007-05-03
+  @created 2005-07-20
+  @edited  2007-07-24
 */
 
 #ifndef G3D_GCAMERA_H
@@ -18,40 +18,49 @@
 
 namespace G3D {
 
+class Matrix4;
+class Rect2D;
+
 /**
-  There is a viewport of width x height size in world space that corresponds to
-  a screenWidth x screenHeight pixel grid on a
-  renderDevice->getWidth() x renderDevice->getHeight()
-  window.
+  Abstraction of a pinhole camera.
+
+  The area a camera sees is called a frustum.  It is bounded by the near plane, the far plane, and the sides
+  of the view frame projected into the scene.  It has the shape of a pyramid with the top cut off.
+
+  Cameras can project points from 3D to 2D.  The "unit" projection matches OpenGL.  It maps the entire view frustum
+  to a cube of unit radius (i.e., edges of length 2) centered at the origin.  The non-unit projection then maps
+  that cube to the specified pixel viewport in X and Y and the range [0, 1] in Z.  The projection is reversable
+  as long as the projected Z value is known.
 
   All viewport arguments are the pixel bounds of the viewport-- e.g.,
-  RenderDevice::getViewport().
+  RenderDevice::viewport().
  */
 class GCamera  {
-private:
 
-    /**
-    Vertical field of view (in radians)
-    */
+public:
+    //Stores the direction of the field of view
+    enum FOVDirection {HORIZONTAL, VERTICAL};
+
+private:
+    
+    /** field of view (in radians) */
     float						m_fieldOfView;
 
-    /** 
-     The image plane depth corresponding to a vertical field of 
-     view, where the film size is 1x1.  
-     */
-    float						m_imagePlaneDepth;
+    /** Clipping plane, *not* imaging plane.  Negative numbers. */
+    float						m_nearPlaneZ;
 
-    /**
-     Clipping plane, *not* imaging plane.  Positive numbers.
-     */
-    float						nearPlane;
+    /** Negative */
+    float						m_farPlaneZ;
 
-    /**
-     Positive 
-     */
-    float						farPlane;
+    /** Stores the camera's location and orientation */
+    CoordinateFrame             m_cframe;
 
-    CoordinateFrame                                     cframe;
+    /** Horizontal or Vertical*/
+    FOVDirection                m_direction;
+
+    /** Converts projected points from OpenGL convention (-1, 1) to z-buffer convention (0, 1) 
+    */
+    Vector3 convertFromUnitToNormal(const Vector3& in, Rect2D viewport) const;
 
 public:
 
@@ -82,37 +91,34 @@ public:
 
     virtual ~GCamera();
 
+    /** Returns the current coordinate frame */
+    const CoordinateFrame& coordinateFrame() const {
+        return m_cframe;
+    }
 
-	CoordinateFrame getCoordinateFrame() const;
+    /** Sets c to the camera's coordinate frame */
 	void getCoordinateFrame(CoordinateFrame& c) const;
+
+    /** Sets a new coordinate frame for the camera */
 	void setCoordinateFrame(const CoordinateFrame& c);
            
-    /**
-       Sets the vertical field of view, in radians.  The 
-       initial angle is toRadians(55).
-	 <UL>
-	  <LI> toRadians(50) - Telephoto
-	  <LI> toRadians(110) - Normal
-	  <LI> toRadians(140) - Wide angle
-	 </UL>
+    /** 
+    This is the matrix that a RenderDevice (or OpenGL) uses as the projection matrix.  It does not 
+    @sa RenderDevice::setProjectionAndCameraMatrix, RenderDevice::setProjectionMatrix, Matrix4::perspectiveProjection
     */
-    void setFieldOfView(float angle);
+    void getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const;
+
 
     /**
-       Sets the field of view based on a desired image plane depth
-       (<I>s'</I>) and film dimensions in world space.  Depth must be positive.  Width,
-       depth, and height are measured in the same units (meters are
-       recommended).  The field of view will span the diagonal to the
-       image.<P> <I>Note</I>: to simulate a 35mm GCamera, set width =
-       0.36 mm and height = 0.24 mm.  The width and height used are
-       generally not the pixel dimensions of the image.  
+       Sets the vertical field of view, in radians.  The 
+       initial angle is toRadians(55).  Must specify the direction of the angle
     */
-    void setImagePlaneDepth(
-                            float                                   depth,
-                            const class Rect2D&                     viewport);
-    
-    inline float fieldOfView() const {
-        return m_fieldOfView;
+    void setFieldOfView(float angle, FOVDirection direction);
+
+    /** Returns the current field of view angle and direction */
+    inline void getFieldOfView(float& angle, FOVDirection& direction) const {
+        angle = m_fieldOfView;
+        direction = m_direction;
     }
 
     /**
@@ -123,9 +129,19 @@ public:
 
      If the point is behind the camera, Vector3::inf() is returned.
      */
-    Vector3 project(
-        const G3D::Vector3&                     point,
-        const class Rect2D&                     viewport) const;
+    Vector3 project(const G3D::Vector3& point,
+                    const class Rect2D& viewport) const;
+
+    /**
+     Projects a world space point onto a width x height screen.  The
+     returned coordinate uses pixmap addressing: x = right and y =
+     down.  The resulting x,y,z values range between -1 and 1, where z is -1
+     at the near plane and 1 at the far plane.  All axes vary hyperbolically
+
+     If the point is behind the camera, Vector3::inf() is returned.
+     */
+    Vector3 projectUnit(const G3D::Vector3& point,
+                        const class Rect2D& viewport) const;
 
     /**
        Gives the world-space coordinates of screen space point v, where
@@ -133,6 +149,13 @@ public:
        the top, and v.z is on the range 0 (near plane) to 1 (far plane).
      */
     Vector3 unproject(const Vector3& v, const Rect2D& viewport) const;
+
+     /**
+       Gives the world-space coordinates of unit cube point v, where
+       v varies from -1 to 1 hyperbolically on all axes.  The unproject first
+       transforms the unit cube into screen points, then calls unproject
+     */
+    Vector3 unprojectUnit(const Vector3& v, const Rect2D& viewport) const;
 
     /**
      Returns the pixel area covered by a shape of the given
@@ -143,23 +166,30 @@ public:
     /**
      Returns the world space 3D viewport corners.  These
      are at the near clipping plane.  The corners are constructed
-     from the nearPlaneZ, getViewportWidth, and getViewportHeight.
+     from the nearPlaneZ, viewportWidth, and viewportHeight.
      "left" and "right" are from the GCamera's perspective.
      */
-    void get3DViewportCorners(
-        const class Rect2D&                     viewport,
-        Vector3&                                outUR,
-        Vector3&                                outUL,
-        Vector3&                                outLL,
-        Vector3&                                outLR) const;
+    void getNearViewportCorners(const class Rect2D& viewport,
+                                Vector3& outUR, Vector3& outUL,
+                                Vector3& outLL, Vector3& outLR) const;
 
     /**
-     Returns the image plane depth, <I>s'</I>, given the current field
-     of view for film of dimensions width x height.  See
-     setImagePlaneDepth for a discussion of worldspace values width and height. 
-    */
-    float imagePlaneDepth(
-        const class Rect2D&                     viewport) const;
+     Returns the world space 3D viewport corners.  These
+     are at the Far clipping plane.  The corners are constructed
+     from the nearPlaneZ, viewportWidth, and viewportHeight.
+     "left" and "right" are from the GCamera's perspective.
+     */
+    void getFarViewportCorners(const class Rect2D& viewport,
+                               Vector3& outUR, Vector3& outUL,
+                               Vector3& outLL, Vector3& outLR) const;
+
+
+    /**
+     Returns the image plane depth,  assumes imagePlane
+     is the same as the near clipping plane.
+     returns a positive number.
+     */
+    float imagePlaneDepth() const;
 
     /**
       Returns the world space ray passing through the center of pixel
@@ -173,7 +203,7 @@ public:
       Integer (x, y) values correspond to
       the upper left corners of pixels.  If you want to cast rays
       through pixel centers, add 0.5 to x and y.        
-    */
+      */
     Ray worldRay(
         float                                  x,
         float                                  y,
@@ -183,33 +213,41 @@ public:
       Returns a negative z-value.
      */
     inline float nearPlaneZ() const {
-        return -nearPlane;
+        return m_nearPlaneZ;
     }
 
     /**
      Returns a negative z-value.
      */
     inline float farPlaneZ() const {
-        return -farPlane;
-    }
-
-    inline void setFarPlaneZ(float z) {
-        debugAssert(z < 0);
-        farPlane = -z;
-    }
-    
-    inline void setNearPlaneZ(float z) {
-        debugAssert(z < 0);
-        nearPlane = -z;
+        return m_farPlaneZ;
     }
 
     /**
-     Returns the GCamera space width of the viewport.
+     Sets a new value for the far clipping plane
+     Expects a negative value
+     */
+    inline void setFarPlaneZ(float z) {
+        debugAssert(z < 0);
+        m_farPlaneZ = z;
+    }
+    
+    /**
+     Sets a new value for the near clipping plane
+     Expects a negative value
+     */
+    inline void setNearPlaneZ(float z) {
+        debugAssert(z < 0);
+        m_nearPlaneZ = z;
+    }
+
+    /**
+     Returns the camera space width of the viewport at the near plane.
      */
     float viewportWidth(const class Rect2D& viewport) const;
 
     /**
-     Returns the GCamera space height of the viewport.
+     Returns the camera space height of the viewport at the near plane.
      */
     float viewportHeight(const class Rect2D& viewport) const;
 
@@ -244,13 +282,12 @@ public:
       Returns the world space view frustum, which is a truncated pyramid describing
       the volume of space seen by this camera.
     */
-    void getFrustum(const Rect2D& viewport, GCamera::Frustum& f) const;
+    void frustum(const Rect2D& viewport, GCamera::Frustum& f) const;
 
     GCamera::Frustum frustum(const Rect2D& viewport) const;
     
     /** Read and Write camera parameters */
     void serialize(class BinaryOutput& bo) const;
-
     void deserialize(class BinaryInput& bi);
    
 };

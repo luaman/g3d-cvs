@@ -156,7 +156,10 @@ public:
         */
         G3D::uint16                      flags;
 
-        Map() : scale(Vector2(1,1)) {}
+        /** Brightness (?) */
+        float                            pct;
+
+        Map() : scale(Vector2(1,1)), pct(1) {}
     };
 
     class Material {
@@ -184,7 +187,9 @@ public:
         /** 1 = flat, 2 = gouraud, 3 = phong, 4 = metal */
         int							materialType;
 
-        Material() : twoSided(false) {
+        Material() : twoSided(false), diffuse(Color3::white()), specular(Color3::white()), 
+            emissive(0), shininess(0.8f),  shininessStrength(0.25f), transparency(0),
+            transparencyFalloff(0), reflection(0), reflectionBlur(0), materialType(3) {
         }
     };
 
@@ -385,6 +390,10 @@ void Load3DS::processMapChunk(
         switch (curChunkHeader.id) {
         case MAT_MAP_FILENAME:
             map.filename = b->readString();
+            break;
+
+        case INT_PCT:
+            map.pct = b->readUInt8() / 100.0f;
             break;
 
         case MAT_MAP_TILING:

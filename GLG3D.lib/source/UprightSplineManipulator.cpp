@@ -283,7 +283,7 @@ bool UprightSplineManipulator::onEvent (const GEvent &event) {
         (m_camera != NULL)) {
 
         // Capture data point
-        m_spline.control.append(m_camera->getCoordinateFrame());
+        m_spline.control.append(m_camera->coordinateFrame());
         
         // Consume the event
         return true;
@@ -322,7 +322,7 @@ void UprightSplineManipulator::setTime(double t) {
             // We have a camera
             if (m_time * m_sampleRate > m_spline.control.size()) {
                 // Enough time has elapsed to capture a new data point
-                m_spline.control.append(m_camera->getCoordinateFrame());
+                m_spline.control.append(m_camera->coordinateFrame());
             }
         }
         break;

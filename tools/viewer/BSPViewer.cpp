@@ -55,7 +55,7 @@ void BSPViewer::onGraphics(RenderDevice* rd, App* app) {
 	app->debugPrintf("Vertices: %d", numVertices);
 	app->debugPrintf("Light Maps: %d", numLightMaps);
 	app->debugPrintf("Textures: %d", numTextures);
-	Vector3 camPos = app->defaultCamera.getCoordinateFrame().translation;
+	Vector3 camPos = app->defaultCamera.coordinateFrame().translation;
 	app->debugPrintf("Current camera position: (%f, %f, %f)", camPos.x, camPos.y, camPos.z);
 
 	map->render(rd, app->defaultCamera);

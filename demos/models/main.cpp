@@ -71,8 +71,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     // Separate and sort the models
     Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent;
     ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
-    PosedModel::sort(opaqueAModel, defaultCamera.getCoordinateFrame().lookVector(), opaqueAModel);
-    PosedModel::sort(posed3D, defaultCamera.getCoordinateFrame().lookVector(), otherOpaque, transparent);
+    PosedModel::sort(opaqueAModel, defaultCamera.coordinateFrame().lookVector(), opaqueAModel);
+    PosedModel::sort(posed3D, defaultCamera.coordinateFrame().lookVector(), otherOpaque, transparent);
 
     /////////////////////////////////////////////////////////////////////
 

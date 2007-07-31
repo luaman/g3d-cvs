@@ -97,7 +97,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera) {
 
     // Move the camera to object space
     GCamera camera = worldCamera;
-    camera.setCoordinateFrame(renderDevice->getObjectToWorldMatrix().toObjectSpace(worldCamera.getCoordinateFrame()));
+    camera.setCoordinateFrame(renderDevice->getObjectToWorldMatrix().toObjectSpace(worldCamera.coordinateFrame()));
 
     // Adjust intensity for tone mapping
     float adjustBrightness = 1;//0.4; // TODO: make into a rendering/loading parameter

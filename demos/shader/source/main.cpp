@@ -190,7 +190,7 @@ void App::configureShaderArgs(const LightingRef lighting) {
 
 	phongShader->args.set("wsLight", light.position.xyz().direction());
 	phongShader->args.set("lightColor", light.color);
-	phongShader->args.set("wsEyePosition", defaultCamera.getCoordinateFrame().translation);
+	phongShader->args.set("wsEyePosition", defaultCamera.coordinateFrame().translation);
 	phongShader->args.set("ambientLightColor", lighting->ambientAverage());
 
 	Color3 color = colorList[diffuseColorIndex].color(Color3::white()).rgb();

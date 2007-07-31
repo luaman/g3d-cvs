@@ -565,7 +565,7 @@ void GApp::beginRun() {
     onInit();
 
     // Move the controller to the camera's location
-    defaultController->setFrame(defaultCamera.getCoordinateFrame());
+    defaultController->setFrame(defaultCamera.coordinateFrame());
 
     now = System::time() - 0.001;
 }
