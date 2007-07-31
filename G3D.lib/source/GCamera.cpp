@@ -27,11 +27,9 @@ GCamera::GCamera() {
 GCamera::~GCamera() {
 }
 
-
 void GCamera::getCoordinateFrame(CoordinateFrame& c) const {
     c = m_cframe;
 }
-
 
 void GCamera::setCoordinateFrame(const CoordinateFrame& c) {
     m_cframe = c;
@@ -93,6 +91,10 @@ Ray GCamera::worldRay(float x, float y, const Rect2D& viewport) const {
     return out;
 }
 
+/** 
+This is the matrix that a RenderDevice (or OpenGL) uses as the projection matrix.
+@sa RenderDevice::setProjectionAndCameraMatrix, RenderDevice::setProjectionMatrix, Matrix4::perspectiveProjection
+*/
 void GCamera::getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const{
 
     float screenWidth  = viewport.width();
@@ -100,10 +102,11 @@ void GCamera::getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const{
 
     float r, l, t, b, n, f, x, y;
 
-    if (m_direction == VERTICAL){
+    if(m_direction == VERTICAL){
         y = -m_nearPlaneZ * tan(m_fieldOfView / 2);
         x = y * (screenWidth / screenHeight);
-    } else { //m_direction == HORIZONTAL
+    }
+    else{ //m_direction == HORIZONTAL
         x = -m_nearPlaneZ * tan(m_fieldOfView / 2);
         y = x * (screenHeight / screenWidth);
     }
@@ -337,10 +340,10 @@ void GCamera::getFarViewportCorners(
     Vector3& outLR) const {
 
     // Must be kept in sync with getFrustum()
-    const float w  = viewportWidth(viewport) / 2.0f;
-    const float h  = viewportHeight(viewport) / 2.0f;
-    const float z  = farPlaneZ();
-
+    const float w = viewportWidth(viewport) * m_farPlaneZ / m_nearPlaneZ;
+    const float h = viewportHeight(viewport) * m_farPlaneZ / m_nearPlaneZ;
+    const float z = m_farPlaneZ;
+    
     // Compute the points
     outUR = Vector3( w,  h, z);
     outUL = Vector3(-w,  h, z);

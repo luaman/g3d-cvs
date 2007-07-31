@@ -7,8 +7,8 @@
   @edited  2007-07-24
 */
 
-#ifndef G3D_GCAMERA_H
-#define G3D_GCAMERA_H
+#ifndef G3D_GCamera_H
+#define G3D_GCamera_H
 
 #include "G3D/platform.h"
 #include "G3D/CoordinateFrame.h"
@@ -38,10 +38,13 @@ class Rect2D;
 class GCamera  {
 
 public:
-    //Stores the direction of the field of view
+    /**
+    Stores the direction of the field of view
+    */
     enum FOVDirection {HORIZONTAL, VERTICAL};
 
 private:
+
     
     /** field of view (in radians) */
     float						m_fieldOfView;
@@ -55,12 +58,8 @@ private:
     /** Stores the camera's location and orientation */
     CoordinateFrame             m_cframe;
 
-    /** Horizontal or Vertical*/
+    /** Horizontal or Vertical */
     FOVDirection                m_direction;
-
-    /** Converts projected points from OpenGL convention (-1, 1) to z-buffer convention (0, 1) 
-    */
-    Vector3 convertFromUnitToNormal(const Vector3& in, Rect2D viewport) const;
 
 public:
 
@@ -102,12 +101,12 @@ public:
     /** Sets a new coordinate frame for the camera */
 	void setCoordinateFrame(const CoordinateFrame& c);
            
-    /** 
-    This is the matrix that a RenderDevice (or OpenGL) uses as the projection matrix.  It does not 
-    @sa RenderDevice::setProjectionAndCameraMatrix, RenderDevice::setProjectionMatrix, Matrix4::perspectiveProjection
-    */
+    /** Sets P equal to the camera's projection matrix */
     void getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const;
 
+    /** Converts projected points from OpenGL standards
+        (-1, 1) to normal 3D coordinate standards (0, 1) */
+    Vector3 convertFromUnitToNormal(const Vector3& in, Rect2D viewport) const;
 
     /**
        Sets the vertical field of view, in radians.  The 
@@ -125,7 +124,7 @@ public:
      Projects a world space point onto a width x height screen.  The
      returned coordinate uses pixmap addressing: x = right and y =
      down.  The resulting z value is 0 at the near plane, 1 at the far plane,
-     and varies hyperbolically in between.
+     and is a linear compression of unit cube projection.
 
      If the point is behind the camera, Vector3::inf() is returned.
      */
@@ -133,10 +132,9 @@ public:
                     const class Rect2D& viewport) const;
 
     /**
-     Projects a world space point onto a width x height screen.  The
-     returned coordinate uses pixmap addressing: x = right and y =
-     down.  The resulting x,y,z values range between -1 and 1, where z is -1
-     at the near plane and 1 at the far plane.  All axes vary hyperbolically
+     Projects a world space point onto a unit cube.  The resulting
+     x,y,z values range between -1 and 1, where z is -1
+     at the near plane and 1 at the far plane and varies hyperbolically in between.
 
      If the point is behind the camera, Vector3::inf() is returned.
      */
@@ -152,8 +150,8 @@ public:
 
      /**
        Gives the world-space coordinates of unit cube point v, where
-       v varies from -1 to 1 hyperbolically on all axes.  The unproject first
-       transforms the unit cube into screen points, then calls unproject
+       v varies from -1 to 1 on all axes.  The unproject first
+       transforms the point into a pixel location for the viewport, then calls unproject
      */
     Vector3 unprojectUnit(const Vector3& v, const Rect2D& viewport) const;
 
@@ -176,13 +174,12 @@ public:
     /**
      Returns the world space 3D viewport corners.  These
      are at the Far clipping plane.  The corners are constructed
-     from the nearPlaneZ, viewportWidth, and viewportHeight.
+     from the nearPlaneZ, farPlaneZ, viewportWidth, and viewportHeight.
      "left" and "right" are from the GCamera's perspective.
      */
     void getFarViewportCorners(const class Rect2D& viewport,
                                Vector3& outUR, Vector3& outUL,
                                Vector3& outLL, Vector3& outLR) const;
-
 
     /**
      Returns the image plane depth,  assumes imagePlane
