@@ -218,8 +218,9 @@ void main(void) {
 #       if defined(EMITCONSTANT) || defined(EMITMAP)
             + emitColor.rgb
 #       endif
-
         + accessibility * (
+
+        vec3(0.0, 0.0, 0.0)
 
 #       if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
            + diffuseColor.rgb * 

@@ -179,10 +179,11 @@ void main(void) {
     gl_FragColor.rgb =
             accessibility * attLightColor * shadow *
         ( 
-#          if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
-                // Diffuse
-                max(dot(wsL, wsN), 0.0) * diffuseColor.rgb
-#          endif
+        vec3(0.0, 0.0, 0.0)
+#       if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
+            // Diffuse
+            + max(dot(wsL, wsN), 0.0) * diffuseColor.rgb
+#       endif
 
 #       if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
             + pow(vec3(max(dot(wsL, wsR), 0.0)), specularExponentColor.rgb) * specularColor.rgb
