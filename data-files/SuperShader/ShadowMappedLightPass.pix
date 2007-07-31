@@ -199,7 +199,7 @@ void main(void) {
             * specularColor.a
 #       endif
 
-#       if defined(SPECULAEXPONENTRCONSTANT) || defined(SPECULAREXPONENTMAP)
+#       if defined(SPECULAREXPONENTRCONSTANT) || defined(SPECULAREXPONENTMAP)
             * specularExponentColor.a
 #       endif
         ;
