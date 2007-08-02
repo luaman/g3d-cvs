@@ -29,7 +29,7 @@ void testZip() {
 	// getFiles() - normal
 	bool normalFiles = true;
 	Array<std::string> files;
-	getFiles("Test/*", files);
+	getFiles("TestDir/*", files);
 
 	if (files.length() != 1) {
 		normalFiles = false;
@@ -43,7 +43,7 @@ void testZip() {
 
 	// getDirs() - normal
 	Array<std::string> dirs;
-	getDirs("Test/*", dirs);
+	getDirs("TestDir/*", dirs);
 
 	bool normalDirs = 	(dirs.length() == 1 && dirs[0] == "Folder") ||
 		(dirs.length() == 2 && (dirs[0] == "Folder" || dirs[1] == "Folder"));
@@ -92,7 +92,7 @@ void testZip() {
 
 	// fileLength() - normal
 	bool normalLength = false;
-	if (fileLength("Test/Test.txt") == 69) {
+	if (fileLength("TestDir/Test.txt") == 69) {
 		normalLength = true;
 	}
 	debugAssertM(normalLength, "Normal fileLength failed.");
@@ -119,7 +119,7 @@ void testZip() {
 	zipRead("apiTest.zip/Test.txt", test, zLength);
 
 	// Read correct results
-	const char* filename = "Test/Test.txt";
+	const char* filename = "TestDir/Test.txt";
 	FILE* file = fopen(filename, "r");
 	length = fileLength(filename);
 	debugAssert(file);
