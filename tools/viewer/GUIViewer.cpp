@@ -149,7 +149,7 @@ void GUIViewer::onInit(const std::string& filename) {
 }
 
 
-void GUIViewer::onGraphics(RenderDevice* rd, App* app) {
+void GUIViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	switch (windowControl) {
 	case WHITE:
 		app->colorClear = Color3::white();

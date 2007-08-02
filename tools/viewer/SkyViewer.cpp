@@ -39,7 +39,7 @@ void SkyViewer::onInit(const std::string& filename) {
 }
 
 
-void SkyViewer::onGraphics(RenderDevice* rd, App* app) {
+void SkyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	rd->disableLighting();
 	sky->render(rd, skyParameters);
 }

@@ -38,7 +38,7 @@ void IFSViewer::onInit(const std::string& filename) {
 }
 
 
-void IFSViewer::onGraphics(RenderDevice* rd, App* app) {
+void IFSViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	PosedModelRef posedifs = m_model->pose(CoordinateFrame(), true);
 
 	app->debugPrintf ( "Edges: %d", m_numEdges );

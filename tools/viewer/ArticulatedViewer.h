@@ -30,7 +30,7 @@ private:
 public:
 	ArticulatedViewer();
 	virtual void onInit(const std::string& filename);
-    virtual void onGraphics(RenderDevice* rd, App* app);
+    virtual void onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting);
 
 };
 

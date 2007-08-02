@@ -20,7 +20,7 @@ class Viewer {
 public:
 	virtual ~Viewer() {}
 	virtual void onInit(const std::string& filename) = 0;
-    virtual void onGraphics(RenderDevice* rd, App* app) = 0;
+    virtual void onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) = 0;
 
 };
 

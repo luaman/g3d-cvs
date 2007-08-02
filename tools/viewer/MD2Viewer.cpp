@@ -109,14 +109,14 @@ void MD2Viewer::onInit(const std::string& filename) {
 }
 
 
-void MD2Viewer::onGraphics(RenderDevice* rd, App* app) {
+void MD2Viewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
     app->colorClear = Color3::white();
 	app->debugPrintf("Edges: %d", numEdges);
 	app->debugPrintf("Faces: %d", numFaces);
 	app->debugPrintf("Vertices: %d", numVertices);
 	app->debugPrintf("Current texture: %s", textureName.c_str());
 	app->debugPrintf("Current animation: %d", currentPose.animation);
-	if(validWeapon){
+	if (validWeapon){
 		app->debugPrintf("Weapon found.");
 	}
 

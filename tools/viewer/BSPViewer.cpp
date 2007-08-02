@@ -44,7 +44,7 @@ void BSPViewer::onInit(const std::string& filename) {
 }
 
 
-void BSPViewer::onGraphics(RenderDevice* rd, App* app) {
+void BSPViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	if(reset == true){
 		reset = false;
 		app->defaultCamera.setCoordinateFrame(map->startingPosition);

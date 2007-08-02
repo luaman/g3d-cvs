@@ -26,6 +26,8 @@ App::App(const GApp::Settings& settings, const std::string& file) :
 	filename(file),
 	viewer(NULL) {
 
+    shadowMap.setSize(0);
+    shadowMap.setPolygonOffset(0.0f);
 	setDesiredFrameRate(60);
 }
 
@@ -37,8 +39,6 @@ void App::onInit() {
     sky = Sky::fromFile(dataDir + "sky/");
     skyParameters = SkyParameters( G3D::toSeconds(11, 00, 00, AM) );
     lighting = Lighting::fromSky( sky, skyParameters, Color3::white() );
-    lighting->lightArray.append( lighting->shadowedLightArray );
-    lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
 	
@@ -71,6 +71,16 @@ bool App::onEvent(const GEvent& e) {
 	return false;
 }
 
+void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+    // Make the camera spin when the debug controller is not active
+    if (false) {
+        static float angle = 0;
+        angle += rdt;
+        float radius = 5.5;
+        defaultCamera.setPosition(Vector3(cos(angle), 0, sin(angle)) * radius);
+        defaultCamera.lookAt(Vector3(0,0,0));
+    }
+}
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
@@ -78,22 +88,39 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 	toneMap->setEnabled(false);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
+    if (! shadowMap.enabled()) {
+        localLighting->lightArray.append(localLighting->shadowedLightArray);
+        localLighting->shadowedLightArray.clear();
+    }
+
     rd->setColorClearValue(colorClear);
     rd->clear(true, true, true);
 
     int width = rd->width();
     
     rd->enableLighting();
-        rd->setLight(0, localLighting->lightArray[0]);
-        rd->setAmbientLightColor(localLighting->ambientAverage());
+        rd->setAmbientLightColor(localLighting->ambientTop);
+        if (localLighting->ambientBottom != localLighting->ambientTop) {
+            rd->setLight(iMin(7, localLighting->lightArray.size()) + 1, GLight::directional(-Vector3::unitY(), 
+                localLighting->ambientBottom - localLighting->ambientTop, false)); 
+        }
+            
+        // Lights
+        for (int L = 0; L < iMin(7, localLighting->lightArray.size()); ++L) {
+            rd->setLight(L, localLighting->lightArray[L]);
+        }
 
 		// Render the file that is currently being viewed
 		if (viewer != NULL) {
-			viewer->onGraphics(rd, this);
+			viewer->onGraphics(rd, this, localLighting);
 		}
-	
-        PosedModel2D::sortAndRender(rd, posed2D);
+
+        for (int i = 0; i < posed3D.size(); ++i) {
+            posed3D[i]->render(rd);
+        }
 	rd->disableLighting();
+
+    PosedModel2D::sortAndRender(rd, posed2D);
 }
 
 /** Must all be lower case */
@@ -131,6 +158,7 @@ void App::setViewer(const std::string& newFilename) {
 	//modelController->setFrame(CoordinateFrame(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180))));
 	delete viewer;
 	viewer = NULL;
+    shadowMap.setSize(0);
 	
 	std::string ext = toLower(filenameExt(filename));
 
@@ -139,6 +167,11 @@ void App::setViewer(const std::string& newFilename) {
 		viewer = new IFSViewer();
 
 	} else if (ext == "3ds") {
+
+        if (false && (GLCaps::enumVendor() != GLCaps::ATI)) {
+            // ATI shadow maps are really slow under the G3D implementation
+            shadowMap.setSize(2048);
+        }
 
 		viewer = new ArticulatedViewer();
 

@@ -26,7 +26,7 @@ void FontViewer::onInit(const std::string& filename) {
 }
 
 
-void FontViewer::onGraphics(RenderDevice* rd, App* app) {
+void FontViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
     app->colorClear = Color3::white();
 
     rd->push2D();

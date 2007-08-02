@@ -21,7 +21,7 @@ class EmptyViewer : public Viewer {
 public:
 	EmptyViewer();
 	virtual void onInit(const std::string& filename);
-    virtual void onGraphics(RenderDevice* rd, App* app);
+    virtual void onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting);
 
 };
 

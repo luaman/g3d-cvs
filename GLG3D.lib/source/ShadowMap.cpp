@@ -10,8 +10,7 @@
 
 namespace G3D {
 
-ShadowMap::ShadowMap() {}
-
+ShadowMap::ShadowMap() : m_polygonOffset(0.5f) {}
 
 void ShadowMap::setSize(int desiredSize) {
     if (desiredSize == 0) {
@@ -141,7 +140,7 @@ void ShadowMap::updateDepth(
         m_lightMVP = lightProjectionMatrix * lightCFrame.inverse();
 
         // Avoid z-fighting
-        renderDevice->setPolygonOffset(1.5);
+        renderDevice->setPolygonOffset(m_polygonOffset);
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
         for (int s = 0; s < shadowCaster.size(); ++s) {

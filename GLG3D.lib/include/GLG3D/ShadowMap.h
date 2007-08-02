@@ -22,8 +22,19 @@ private:
     FramebufferRef      m_framebuffer;
 
     Matrix4             m_lightMVP;
-    
+
+    float               m_polygonOffset;
+
 public:
+
+    /** Increase to hide self-shadowing artifacts, decrease to avoid gap between shadow and object.  Default = 0.5 */
+    void setPolygonOffset(float s) {
+        m_polygonOffset = s;
+    }
+
+    float polygonOffset() const {
+        return m_polygonOffset;
+    }
 
     ShadowMap();
 

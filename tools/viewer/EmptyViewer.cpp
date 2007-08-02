@@ -18,7 +18,7 @@ EmptyViewer::EmptyViewer(){}
 void EmptyViewer::onInit(const std::string& filename) {}
 
 
-void EmptyViewer::onGraphics(RenderDevice* rd, App* app) {
+void EmptyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	app->debugPrintf("No valid item to view currently\n");
 	app->debugPrintf("Drag and drop an item to view it in 3D\n");
 	app->debugPrintf("\n");

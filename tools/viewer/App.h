@@ -23,14 +23,20 @@ private:
     SkyRef						sky;
 	Viewer*						viewer;
 	std::string					filename;
+
+
 	//ThirdPersonManipulatorRef	modelController;
 	
 public:
 	/** Used by GUIViewer */
 	Color4						colorClear;
 
+    /** Used by ArticulatedViewer */
+    ShadowMap                   shadowMap;
+
 	App(const GApp::Settings& settings = GApp::Settings(), const std::string& file = "");
 
+    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 	virtual void onInit();
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onCleanup();

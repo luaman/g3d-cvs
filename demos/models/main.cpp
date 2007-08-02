@@ -105,7 +105,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         for (int m = 0; m < otherOpaque.size(); ++m) {
             otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], shadowMap.lightMVP(), shadowMap.depthTexture());
         }
-        }
+    }
 
     // Transparent
     for (int m = 0; m < transparent.size(); ++m) {
@@ -115,7 +115,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         }
     }
     
-
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);
     }
