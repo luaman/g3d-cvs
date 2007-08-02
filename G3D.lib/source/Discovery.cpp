@@ -99,15 +99,14 @@ bool DiscoveryServer::ok() const {
 
 
 void DiscoveryServer::init(
-    NetworkDevice*           _netDevice,
     const DiscoverySettings* _settings,
     DiscoveryAdvertisement*  _advertisement) {
 
-    Discovery::init(_netDevice, _settings);
+    Discovery::init(_settings);
 
     advertisement = _advertisement;
     addressMessage.settings = settings;
-    netDevice->localHostAddresses(addressMessage.address);
+    NetworkDevice::instance()->localHostAddresses(addressMessage.address);
 
     // Set the port number
     for (int i = 0; i < addressMessage.address.size(); ++i) {

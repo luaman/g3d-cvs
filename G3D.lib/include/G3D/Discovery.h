@@ -197,7 +197,6 @@ public:
 class Discovery {
 public:
 
-    NetworkDevice*              netDevice;
     const DiscoverySettings*    settings;
 
     enum {
@@ -209,10 +208,7 @@ public:
      Only called from subclasses.
      */
     virtual void init(
-        NetworkDevice*           _netDevice,
         const DiscoverySettings* _settings) {
-        debugAssert(_netDevice);
-        netDevice = _netDevice;
         settings  = _settings;
     }
 
@@ -269,7 +265,6 @@ public:
      number of players or score for a game, for example.
      */
     virtual void init(
-        NetworkDevice*           _netDevice,
         const DiscoverySettings* _settings,
         DiscoveryAdvertisement*  _advertisement);
 
@@ -505,10 +500,9 @@ private:
 public:
 
     void init(
-        NetworkDevice*           _netDevice,
         const DiscoverySettings* _settings) {
 
-        Discovery::init(_netDevice, _settings);
+        Discovery::init(_settings);
 
         lastServerCheck = System::time();
 

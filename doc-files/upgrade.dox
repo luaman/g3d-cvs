@@ -42,6 +42,21 @@ Win32 programs must call the macro <b><code>G3D_START_AT_MAIN();</code></b> at t
 in which you defined <code>main</code>.
 </p>
 
+<hr noshade>
+<p><b>GApp changes</b></p>
+<p>
+A number of changes have been made to GApp.  Most notable - onGraphics now takes three arguments: 
+<code>onGraphics(RenderDevice* rd, Array<PosedModelRef> &posed3D, Array<PosedModel2DRef> &posed2D)</code>.
+<br>Similarly important is the removal of GApplet support.  Programs that were defined with a parallel structure using
+GApplets should be restructured.  See the chopper network demo for an example of how to set up an Applet-like structure 
+for programs where you may be having trouble making the switch.
+<br>DebugController and DebugCamera have been renamed DefaultController and DefaultCamera.
+<br>A number of fields that defined debug behavior are more easily accessible, as part of the GApp class; for 
+example, showRenderingStats and showDebugText.
+<br>Other behaviors are definable in a similar fashion, such as 
+escapeKeyAction, which is an enumerated type (Action) and can be set to Action::ACTION_NONE, Action::ACTION_QUIT, 
+or Action::ACTION_SHOW_CONSOLE.
+</p>
 
 <hr noshade>
 <p><b>SDLK_ is gone</b></p>
