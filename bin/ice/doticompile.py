@@ -419,6 +419,7 @@ def checkForProjectFile(state, args):
 
     # Everything below here executes only when there is no project file
     if not state.noPrompt:
+
         if ('--clean' in args) and not os.path.exists(state.buildDir):
             print
             colorPrint('Nothing to clean (you have never run iCompile in ' +
