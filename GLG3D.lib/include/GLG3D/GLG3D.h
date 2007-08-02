@@ -98,6 +98,9 @@
 
 #include "GLG3D/ShadowMap.h"
 
+#ifdef G3D_OSX
+#include "GLG3D/CarbonWindow.h"
+#endif
 
 #ifdef G3D_WIN32
 #include "GLG3D/Win32Window.h"
