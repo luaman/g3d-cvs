@@ -441,10 +441,11 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 }
 
 static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
-	UniChar uc;
+/*	UniChar uc;
 	unsigned char c;
 	UInt32 key;
-	UInt32 modifier;
+	UInt32 modifier;*/
+	return 0;
 }
 
 } // namespace G3D
