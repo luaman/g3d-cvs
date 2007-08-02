@@ -55,6 +55,13 @@ IF (NOT ZLIB_FOUND)
     ADD_SUBDIRECTORY (zlib.lib)
 ENDIF (NOT ZLIB_FOUND)
 
+IF (NOT ZIP_FOUND)
+    SET (ZIP_LIBRARIES zip)
+    SET (ZIP_INCLUDE_DIR ${G3D_SOURCE_DIR}/zip.lib/include)
+    INCLUDE_DIRECTORIES(${ZIP_INCLUDE_DIR})
+    ADD_SUBDIRECTORY (zip.lib)
+ENDIF (NOT ZIP_FOUND)
+
 IF (NOT PNG_FOUND)
     SET (PNG_LIBRARIES png)
     SET (PNG_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include)
@@ -72,6 +79,7 @@ ENDIF (NOT JPEG_FOUND)
 INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
                     ${PNG_INCLUDE_DIR}
                     ${ZLIB_INCLUDE_DIR}
+                    ${ZIP_INCLUDE_DIR}
                     ${JPEG_INCLUDE_DIR}
                     ${G3D_SOURCE_DIR}/G3D.lib/include 
                     ${G3D_SOURCE_DIR}/GLG3D.lib/include
@@ -93,5 +101,7 @@ ADD_SUBDIRECTORY (G3D.lib)
 IF (BUILD_BINARIES)
     ADD_SUBDIRECTORY (test)
     ADD_SUBDIRECTORY (tools/gfxmeter)
-    ADD_SUBDIRECTORY (demos/empty)
+    ADD_SUBDIRECTORY (tools/viewer)
+    ADD_SUBDIRECTORY (demos/starter)
+    ADD_SUBDIRECTORY (demos/models)
 ENDIF (BUILD_BINARIES)
