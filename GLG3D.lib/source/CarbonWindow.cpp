@@ -27,30 +27,30 @@ std::auto_ptr<CarbonWindow> CarbonWindow::_shareWindow(NULL);
 
 namespace _internal {
 static pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
-	CarbonWindow* pWindow = (CarbonWindow*)userData;
-	
-	if(pWindow) {
-		WindowRef win = NULL;
-		if(GetEventParameter(event,kEventParamDirectObject,typeWindowRef,NULL,sizeof(WindowRef),NULL,&win)==noErr) {
-			Rect rect;
-			if(GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
-				pWindow->injectSizeEvent(rect.right-rect.left, rect.bottom-rect.top);
-				std::cout << "Resize Event (" << rect.right-rect.left << "," << rect.bottom-rect.top << ")\n";
-			}
-		}
-	}
+    CarbonWindow* pWindow = (CarbonWindow*)userData;
+    
+    if(pWindow) {
+        WindowRef win = NULL;
+        if(GetEventParameter(event,kEventParamDirectObject,typeWindowRef,NULL,sizeof(WindowRef),NULL,&win)==noErr) {
+            Rect rect;
+            if(GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
+                pWindow->injectSizeEvent(rect.right-rect.left, rect.bottom-rect.top);
+                std::cout << "Resize Event (" << rect.right-rect.left << "," << rect.bottom-rect.top << ")\n";
+            }
+        }
+    }
 	
     return eventNotHandledErr;
 }
 
 static pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
-	CarbonWindow* pWindow = (CarbonWindow*)userData;
-	
-	if(pWindow) {
-		pWindow->_receivedCloseEvent = true;
-		std::cout << "Close Event\n";
-	}
-	
+    CarbonWindow* pWindow = (CarbonWindow*)userData;
+    
+    if(pWindow) {
+        pWindow->_receivedCloseEvent = true;
+        std::cout << "Close Event\n";
+    }
+    
     return eventNotHandledErr;
 }
 } // namespace _internal

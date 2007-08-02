@@ -62,8 +62,7 @@ enum UseG3DUniforms {DEFINE_G3D_UNIFORMS, DO_NOT_DEFINE_G3D_UNIFORMS};
   @cite http://oss.sgi.com/projects/ogl-sample/registry/ARB/shader_objects.txt
   @cite http://oss.sgi.com/projects/ogl-sample/registry/ARB/vertex_shader.txt
 
-  <B>BETA API</B>
-  This API is subject to change.
+@deprecated
  */
 class VertexAndPixelShader : public ReferenceCountedObject {
 public:
@@ -559,6 +558,10 @@ public:
         PIXEL_FILE};
 
     /**
+      This routine is a placeholder for 7.01 geometry shader API.  It is not implemented.
+
+      @beta
+
      Create a new GLSL shader.  Arguments are in pairs. The first argument in each pair is an ArgumentType
      specifying the type of shader (vertex, geometry, or pixel) and whether it comes from a string or a file.
      The second argument in each pair is the filename or shader source itself.

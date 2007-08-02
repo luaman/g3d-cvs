@@ -14,7 +14,7 @@ distribDir = None
 class Version:
     major = '7'
     minor = '00'
-    beta  = '04'
+    beta  = ''
     def toString(self):
         if (self.beta != ''):
             return self.major + '.' + self.minor + '-b' + self.beta
@@ -276,8 +276,34 @@ def installWin32(args):
     copyIfNewer('build/html', dest + 'html')
     copyIfNewer('build/demos', dest + 'demos')
     copyIfNewer('build/data', dest + 'data')
-    copyIfNewer('build/G3D.jar', dest + 'lib/')
+    copyIfNewer('build/G3D.jar', dest + 'java/')
     copyIfNewer('build/win-i386-vc8.0/*', dest)
+
+def installUnix(args):
+    if (len(args) > 0):
+        dest = args[0]
+    else:
+        dest = '/var/tmp/TESTROOT/usr/local'
+    
+    if not dest.endswith('/'):
+        dest = dest + '/'
+
+    datadest = dest + 'G3D-' + Version().toString() + '/'
+    
+    print 'Installing G3D to ' + dest
+    
+    copyIfNewer('build/html', datadest + 'html')
+    copyIfNewer('build/demos', datadest + 'demos')
+    copyIfNewer('build/data', datadest + 'data')
+    copyIfNewer('build/G3D.jar', datadest  + 'java/')
+
+    # Find build dir(s) and copy them over
+    testdirs = os.listdir('build')
+    operating_system = osTable[platform.system()]
+    for d in testdirs:
+        if (d.startswith(operating_system)):
+            copyIfNewer('build/' + d, dest)
+    
     
 
 def install(args):
@@ -285,7 +311,9 @@ def install(args):
     if (x == 0):
         if os.name == 'nt':
             x = installWin32(args)
-    
+        else:
+            x = installUnix(args)
+            
     return x
 
 def lib(args):
@@ -313,7 +341,7 @@ def src(args):
     # First copy everything to the temp directory to remove
     # CVS files
     V = Version()
-    ver = 'g3d-' + V.major + '.' + V.minor
+    ver = 'G3Z-' + V.major + '.' + V.minor
     if (V.beta != ''):
        ver += '-b' + V.beta
     copyIfNewer('./*', 'temp/src/' + ver + '/src/')
@@ -327,8 +355,9 @@ def src(args):
 def jar(args):
    mkdir('temp/G3D.jar/com/graphics3d/G3D')
    mkdir('build')
-   x = run('javac', ['-d', 'temp/G3D.jar', 'G3D.jar/com/graphics3d/G3D/*.java'])
+   shell('javac -d temp/G3D.jar G3D.jar/com/graphics3d/G3D/*.java')
 
+   x = 0
    if (x == 0):
       x = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'com'])
 
