@@ -26,7 +26,7 @@ namespace G3D {
 std::auto_ptr<CarbonWindow> CarbonWindow::_shareWindow(NULL);
 
 namespace _internal {
-static pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
     if(pWindow) {
@@ -43,7 +43,7 @@ static pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef ev
     return eventNotHandledErr;
 }
 
-static pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
     if(pWindow) {
