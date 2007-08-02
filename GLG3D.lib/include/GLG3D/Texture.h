@@ -259,6 +259,12 @@ public:
             return p;
         }
 
+        static const PreProcess& quake() {
+            static PreProcess p;
+            p.brighten = 2.0f;
+            return p;
+        }
+
         static const PreProcess& normalMap() {
             static bool initialized = false;
             static PreProcess p;

@@ -17,13 +17,12 @@ int shadowMapSize = 512;
 App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::create()) {
 
     try {
-        showRenderingStats = true;
+        showRenderingStats = false;
         window()->setCaption("G3D Model Demo");
 
         shadowMap.setSize(64);
-
-        defaultCamera.setPosition(Vector3(0, 0, 10));
-        defaultCamera.lookAt(Vector3(0, 0, 0));
+        defaultCamera.setPosition(Vector3(-5.8,   1.4,   4.0));
+        defaultCamera.lookAt(Vector3( -4.0,  -0.1,   0.9));
 
         loadScene();
         sky = Sky::fromFile(dataDir + "sky/");
@@ -37,9 +36,9 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
     }
 }
 
-void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     for (int e = 0; e < entityArray.size(); ++e) {
-        entityArray[e]->onsim(posed3D, entityArray[e]->cframe, entityArray[e]->pose);
+        entityArray[e]->onSimulation(rdt);
     }
 }
 
@@ -52,7 +51,7 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     for (int e = 0; e < entityArray.size(); ++e) {
-        entityArray[e]->pose(posed3D);
+        entityArray[e]->onPose(posed3D);
     }
 }
 
@@ -147,7 +146,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
 
 int main(int argc, char** argv) {
-    GApp::Settings settings;    
+    GApp::Settings settings;
+    settings.window.fsaaSamples = 4;
 
 #   ifdef G3D_WIN32
         if (! fileExists("G3D-logo-tiny-alpha.tga", false)) {

@@ -1,4 +1,4 @@
-#include <G3D/G3D.h>
+#include "G3D/G3D.h"
 
 using namespace G3D;
 

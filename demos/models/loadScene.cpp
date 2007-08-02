@@ -9,7 +9,7 @@ void App::loadScene() {
 
     double x = -5;
 
-    if (true) {
+    {
         CoordinateFrame xform;
 
         xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.04f;
@@ -19,7 +19,14 @@ void App::loadScene() {
         std::string filename = dataDir + "3ds/legocar/legocar.3ds";
         ArticulatedModelRef model = ArticulatedModel::fromFile(filename, xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0,0))));
-        x += 2;
+        x += 3;
+    }
+
+    {
+        MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.6f);
+        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
+        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0.1f,0))));
+        x += 3;
     }
 
 /*
