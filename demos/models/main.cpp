@@ -37,6 +37,11 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
     }
 }
 
+void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+    for (int e = 0; e < entityArray.size(); ++e) {
+        entityArray[e]->onsim(posed3D, entityArray[e]->cframe, entityArray[e]->pose);
+    }
+}
 
 void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(' ')) {
@@ -47,7 +52,7 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     for (int e = 0; e < entityArray.size(); ++e) {
-        entityArray[e]->model->pose(posed3D, entityArray[e]->cframe, entityArray[e]->pose);
+        entityArray[e]->pose(posed3D);
     }
 }
 

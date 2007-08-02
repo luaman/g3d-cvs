@@ -3,17 +3,19 @@
 
 #include <G3D/G3DAll.h>
 
+
 typedef ReferenceCountedPointer<class Entity> EntityRef;
 class Entity : public ReferenceCountedObject {
 private:
 
+    ArticulatedModelRef         artModel;
+
+    ArticulatedModel::Pose      artPose;
+
+
     Entity() {}
 
 public:
-
-    ArticulatedModelRef         model;
-
-    ArticulatedModel::Pose      pose;
 
     /** Root frame */
     CoordinateFrame             cframe;
@@ -24,9 +26,12 @@ public:
 
         Entity* e = new Entity();
 
-        e->model = model;
+        e->artModel = model;
         e->cframe = c;
         return e;
+    }
+
+    void onSimulation(RealTime dt) {
     }
 };
 
@@ -50,6 +55,7 @@ public:
 
     App(const GApp::Settings& settings = GApp::Settings());
     virtual void onUserInput(UserInput* ui);
+    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 };
