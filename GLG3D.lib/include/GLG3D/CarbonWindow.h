@@ -26,8 +26,8 @@
 namespace G3D {
 
 namespace _internal {
-static pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-static pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
 }
 
 class CarbonWindow : public GWindow {
