@@ -94,7 +94,7 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
         if actuallyCopy:
             shutil.copyfile(source, dest)
             
-        _copyIfNewerCopiedAnything = YES
+        _copyIfNewerCopiedAnything = True
         
     else:
 

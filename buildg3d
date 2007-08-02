@@ -283,7 +283,7 @@ def installUnix(args):
     if (len(args) > 0):
         dest = args[0]
     else:
-        dest = '/var/tmp/TESTROOT/usr/local'
+        dest = '/usr/local'
     
     if not dest.endswith('/'):
         dest = dest + '/'
