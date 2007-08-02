@@ -1,17 +1,17 @@
 ######################################################################
-# DIRECTORY:	empty
-# PROGRAMMER:	Morgan McGuire
+# DIRECTORY:	starter
+# PROGRAMMER:	Morgan McGuire, Casey O'Donnell
 # CREATED:	3 April 2007
-# MODIFIED:	3 April 2007
+# MODIFIED:	2 August 2007
 #
 # DESCRIPTION:
-#	Builds emptydemo.
+#	Builds starter.
 ######################################################################
 # Create glob of files used in empty
 AUX_SOURCE_DIRECTORY(. source_list)
 
 # Specify files that make up empty
-ADD_EXECUTABLE(emptydemo ${source_list})
+ADD_EXECUTABLE(starterdemo ${source_list})
 
 IF (APPLE)
     SET (CARBON "-framework Carbon")
@@ -19,10 +19,10 @@ ENDIF(APPLE)
 
 IF (UNIX)
     # Specify dependencies
-    TARGET_LINK_LIBRARIES(emptydemo G3D GLG3D ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
+    TARGET_LINK_LIBRARIES(starterdemo G3D GLG3D zip ${ZLIB} ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
 ELSE (UNIX)
     # Specify dependencies
-    TARGET_LINK_LIBRARIES(emptydemo G3D GLG3D ${OPENGL_LIBRARY})
+    TARGET_LINK_LIBRARIES(starterdemo G3D GLG3D zip ${ZLIB} ${OPENGL_LIBRARY})
 ENDIF (UNIX)
 
 FILE (GLOB DATA_FILES 
@@ -35,4 +35,4 @@ FILE (GLOB DATA_FILES
 
 # Specify installation locations
 INSTALL (FILES ${DATA_FILES} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin/data-files)
-INSTALL (TARGETS emptydemo RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
+INSTALL (TARGETS starterdemo RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
