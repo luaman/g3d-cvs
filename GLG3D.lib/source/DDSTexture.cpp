@@ -377,12 +377,8 @@ Texture::DDSTexture::DDSTexture(const std::string& filename) :
             }
         } else if (ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_RGB) {
             
-            if ((ddsSurfaceDesc.ddpfPixelFormat.dwRBitMask == 8) &&
-                (ddsSurfaceDesc.ddpfPixelFormat.dwGBitMask == 8) &&
-                (ddsSurfaceDesc.ddpfPixelFormat.dwBBitMask == 8) &&
-                (ddsSurfaceDesc.ddpfPixelFormat.dwRGBAlphaBitMask == 0)) {
-
-                    bytesFormat = TextureFormat::RGB8();
+            if (ddsSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 24) {
+                bytesFormat = TextureFormat::RGB8();
             } else {
                 throw G3D::format("Loading \"%s\" failed. Unsupported RGBA DDS format.\n", filename.c_str());
             }
