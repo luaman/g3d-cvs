@@ -20,7 +20,8 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         showRenderingStats = false;
         window()->setCaption("G3D Model Demo");
 
-        shadowMap.setSize(64);
+        shadowMap.setSize(1024, ArticulatedModel::useShadowDepthCompare());
+
         defaultCamera.setPosition(Vector3(-5.8,   1.4,   4.0));
         defaultCamera.lookAt(Vector3( -4.0,  -0.1,   0.9));
 

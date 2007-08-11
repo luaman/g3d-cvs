@@ -37,7 +37,11 @@ uniform vec3        lightAttenuation;
 /** Set to -1 to flip the normal. */
 uniform float       backside;
 
-uniform sampler2DShadow shadowMap;
+#ifdef G3D_ATI
+   uniform sampler2D shadowMap;
+#else
+   uniform sampler2DShadow shadowMap;
+#endif
 
 // World parameters
 varying vec3        wsEyePos;
@@ -163,7 +167,12 @@ void main(void) {
     vec4 s = vec4(g3d_sampler2DInvSize(shadowMap), -g3d_sampler2DInvSize(shadowMap).x, 0.0);
     vec4 d = s * 0.71;
 
-    vec3 shadow =
+#ifdef G3D_ATI
+
+    vec3 shadow = vec3(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z);
+
+#else
+    vec3 shadow = 
          (shadow2D(shadowMap, projShadowCoord.xyz).rgb +
          
           shadow2D(shadowMap, projShadowCoord.xyz + s.xww).rgb +
@@ -175,6 +184,8 @@ void main(void) {
           shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).rgb +
           shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).rgb +
           shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).rgb) / 9.0;
+
+#endif
 
     gl_FragColor.rgb =
             accessibility * attLightColor * shadow *

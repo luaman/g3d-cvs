@@ -1403,7 +1403,9 @@ static void setTexParameters(
 
     if (GLCaps::supports_GL_ARB_shadow()) {
         if (settings.depthReadMode == Texture::DEPTH_NORMAL) {
+
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+
         } else {
             //glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
@@ -1442,7 +1444,6 @@ static bool hasAutoMipMap() {
 }
 
 
-
 static GLenum dimensionToTarget(Texture::Dimension d) {
     switch (d) {
     case Texture::DIM_CUBE_MAP_NPOT:
@@ -1467,9 +1468,12 @@ static GLenum dimensionToTarget(Texture::Dimension d) {
 
 /** 
    @param bytesFormat OpenGL base format.
-   @param bytesActualFormat OpenGL true format.  For compressed data, distinguishes the format that the data has due to compression.
+
+   @param bytesActualFormat OpenGL true format.  For compressed data,
+   distinguishes the format that the data has due to compression.
  
-    @param dataType Type of the incoming data from the CPU, e.g. GL_UNSIGNED_BYTES */
+   @param dataType Type of the incoming data from the CPU, e.g. GL_UNSIGNED_BYTES 
+*/
 static void createTexture(
     GLenum          target,
     const uint8*    rawBytes,
@@ -1541,7 +1545,8 @@ static void createTexture(
                 "Compressed textures must be DIM_2D.");
 
             glCompressedTexImage2DARB(target, mipLevel, bytesActualFormat, m_width, 
-                m_height, 0, (bytesPerPixel * ((m_width + 3) / 4) * ((m_height + 3) / 4)), rawBytes);
+                m_height, 0, (bytesPerPixel * ((m_width + 3) / 4) * ((m_height + 3) / 4)), 
+                                      rawBytes);
 
         } else {
 
@@ -1549,9 +1554,12 @@ static void createTexture(
             debugAssertM(isValidPointer(bytes + (m_width * m_height - 1) * bytesPerPixel), 
                 "Byte array in Texture creation was too small");
 
-            // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
-            // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-            glTexImage2D(target, mipLevel, textureFormat, m_width, m_height, 0, bytesFormat, dataType, bytes);
+            // 2D texture, level of detail 0 (normal), internal
+            // format, x size from image, y size from image, border 0
+            // (normal), rgb color data, unsigned byte data, and
+            // finally the data itself.
+            glTexImage2D(target, mipLevel, textureFormat, m_width, m_height,
+                         0, bytesFormat, dataType, bytes);
         }
         break;
 
@@ -1561,7 +1569,8 @@ static void createTexture(
                      "DIM_3D textures must be a power of two size in each dimension.");
 
         debugAssert(isValidPointer(bytes));
-        glTexImage3DEXT(target, mipLevel, textureFormat, m_width, m_height, depth, 0, bytesFormat, dataType, bytes);
+        glTexImage3DEXT(target, mipLevel, textureFormat, m_width, m_height, depth, 0, 
+                        bytesFormat, dataType, bytes);
         break;
 
     default:
@@ -1620,7 +1629,8 @@ static void createMipMapTexture(
                     (void*)bytes);
             }
 
-            int r = gluBuild2DMipmaps(target, textureFormat, m_width, m_height, bytesFormat, dataType, bytes);
+            int r = gluBuild2DMipmaps(target, textureFormat, m_width, m_height, 
+                                      bytesFormat, dataType, bytes);
             debugAssertM(r == 0, (const char*)gluErrorString(r)); (void)r;
 
             if (freeBytes) {
@@ -1706,7 +1716,12 @@ const Texture::Settings& Texture::Settings::shadow() {
 
     if (! initialized) {
         initialized = true;
-        param.interpolateMode = BILINEAR_NO_MIPMAP;
+        if (GLCaps::enumVendor() == GLCaps::ATI) {
+            // ATI cards do not implement PCF for shadow maps
+            param.interpolateMode = NEAREST_NO_MIPMAP;
+        } else {
+            param.interpolateMode = BILINEAR_NO_MIPMAP;
+        }
         param.wrapMode = WrapMode::CLAMP;
         param.depthReadMode = DEPTH_LEQUAL;
         param.maxAnisotropy = 1.0;

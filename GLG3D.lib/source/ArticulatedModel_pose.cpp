@@ -860,6 +860,7 @@ void PosedArticulatedModel::renderNonShadowed(
         posedArray.resize(1);
         posedArray[0] = PosedModel::Ref(const_cast<PosedArticulatedModel*>(this));
         ArticulatedModel::renderNonShadowed(posedArray, rd, lighting);
+        posedArray.fastClear();
     }
 }
 

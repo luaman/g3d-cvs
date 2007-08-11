@@ -28,6 +28,9 @@ class ArticulatedModel : public ReferenceCountedObject {
 public:
     typedef ReferenceCountedPointer<class ArticulatedModel> Ref;
 
+    /** See G3D::ShadowMap */
+    static bool ArticulatedModel::useShadowDepthCompare();
+
 private:
 
     friend class PosedArticulatedModel;

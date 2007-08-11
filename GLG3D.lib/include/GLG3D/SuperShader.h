@@ -261,6 +261,10 @@ private:
 
 public:
 
+    /** Pass to ShadowMap constructor */
+    static bool useShadowDepthCompare();
+
+
     static void createShaders(
         const Material& material,
         ShaderRef&      nonShadowedShader,

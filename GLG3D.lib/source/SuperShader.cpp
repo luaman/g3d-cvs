@@ -10,6 +10,10 @@
 
 namespace G3D {
 
+bool SuperShader::useShadowDepthCompare() {
+    return (GLCaps::enumVendor() != GLCaps::ATI) || ! GLCaps::supports_GL_ARB_shader_objects();
+}
+
 void SuperShader::Material::enforceDiffuseMask() {
     if (! changed) {
         return;

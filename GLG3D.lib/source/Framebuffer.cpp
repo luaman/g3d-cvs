@@ -81,11 +81,11 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, ap, 
                                       GL_TEXTURE_2D, 0, 0);
-			debugAssertGLOk();
+            debugAssertGLOk();
 
-			if (attachmentTable[ap].hadAutoMipMap) {
-				attachmentTable[ap].texture->setAutoMipMap(true);
-			}
+            if (attachmentTable[ap].hadAutoMipMap) {
+                attachmentTable[ap].texture->setAutoMipMap(true);
+            }
         } else {
             glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, ap, 
                                          GL_RENDERBUFFER_EXT, 0);

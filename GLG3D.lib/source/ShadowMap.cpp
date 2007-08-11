@@ -12,20 +12,20 @@ namespace G3D {
 
 ShadowMap::ShadowMap() : m_polygonOffset(0.5f) {}
 
-void ShadowMap::setSize(int desiredSize) {
+void ShadowMap::setSize(int desiredSize, bool configureDepthCompare) {
     if (desiredSize == 0) {
         m_depthTexture = NULL;
         m_framebuffer = NULL;
         return;
     }
 
-    if (! GLCaps::supports_GL_ARB_shadow()) {
+    if (! GLCaps::supports_GL_ARB_shadow() && configureDepthCompare) {
         return;
     }
     
     int SHADOW_MAP_SIZE = desiredSize;
 
-    if (GLCaps::enumVendor() == GLCaps::ATI) {
+    if ((GLCaps::enumVendor() == GLCaps::ATI) && configureDepthCompare) {
         // ATI shadows are really slow and require
         // a small shadow map
         SHADOW_MAP_SIZE = 128;
@@ -34,13 +34,27 @@ void ShadowMap::setSize(int desiredSize) {
         SHADOW_MAP_SIZE = 512;
     }
 
+
+    Texture::Settings textureSettings = Texture::Settings::shadow();
+    if (! configureDepthCompare) {
+        textureSettings.depthReadMode = Texture::DEPTH_NORMAL;
+    }
+
     m_depthTexture = Texture::createEmpty(
                                      "Shadow Map",
                                      SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
-                                     TextureFormat::depth(),
+                                     TextureFormat::DEPTH16(),
                                      Texture::DIM_2D, 
-                                     Texture::Settings::shadow());
-    
+                                     textureSettings);
+
+    if (! configureDepthCompare) {
+        // Switch to intensity depth texture mode
+        GLenum target = m_depthTexture->openGLTextureTarget();
+        glBindTexture(target, m_depthTexture->openGLID());
+        glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+        glBindTexture(target, 0);
+    }
+
     if (GLCaps::supports_GL_EXT_framebuffer_object()) {
         m_framebuffer = Framebuffer::create("Shadow Frame Buffer");
         m_framebuffer->set(Framebuffer::DEPTH_ATTACHMENT, m_depthTexture);

@@ -27,7 +27,8 @@ private:
 
 public:
 
-    /** Increase to hide self-shadowing artifacts, decrease to avoid gap between shadow and object.  Default = 0.5 */
+    /** Increase to hide self-shadowing artifacts, decrease to avoid
+        gap between shadow and object.  Default = 0.5 */
     void setPolygonOffset(float s) {
         m_polygonOffset = s;
     }
@@ -38,8 +39,16 @@ public:
 
     ShadowMap();
 
-    /** Call with desiredSize = 0 to turn off shadow maps */
-    void setSize(int desiredSize = 1024);
+    /** Call with desiredSize = 0 to turn off shadow maps .
+
+       If you are using this with SuperShader or ArticulatedModel, set configureDepthCompare to
+       SuperShader::useShadowDepthCompare or ArticulatedModel::useShadowDepthCompare.       
+
+       @param configureDepthCompare If false, the depth compare mode is not
+       configured on the texture so that shaders can explicity perform
+       their own comparisons and filtering.
+     */
+    void setSize(int desiredSize = 1024, bool configureDepthCompare = true);
 
     bool enabled() const;
 
