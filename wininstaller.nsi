@@ -69,17 +69,27 @@ SetCompressor lzma
 ;; Main installation component (copy files and create links)
 ;;
 Section "!G3D Library for Visual C++ 8.0"
-  SetOutPath "$INSTDIR\win-i386-vc8.0"
   SetOverwrite try
+  SetOutPath "$INSTDIR"
   File /r "${INST_TO_ROOT}\build\win-i386-vc8.0\*"
+
   SetOutPath "$INSTDIR\html"
   File /r "${INST_TO_ROOT}\build\html\*"
+
   SetOutPath "$INSTDIR\demos"
   File /r "${INST_TO_ROOT}\build\demos\*"
+
   SetOutPath "$INSTDIR\data"
   File /r "${INST_TO_ROOT}\build\data\*"
 
+  SetOutPath "$INSTDIR\java"
+  File /r "${INST_TO_ROOT}\build\G3D.jar"
+
   ; Create shortcut to document index, gfxmeter and viewer
+  CreateShortCut "$DESKTOP\gfxmeter.lnk" "$INSTDIR\bin\gfxmeter\gfxmeter.exe"
+
+  CreateShortCut "$DESKTOP\viewer.lnk" "$INSTDIR\bin\viewer\viewer.exe"
+
   CreateShortCut "$DESKTOP\G3D Documentation.lnk" "$INSTDIR\html\index.html"
 SectionEnd
 
