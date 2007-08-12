@@ -40,7 +40,7 @@ std::string __cdecl format(const char* fmt,...) {
     return result;
 }
 
-#if defined(G3D_WIN32) && (_MSC_VER >= 1300)
+#if defined(G3D_WIN32) &&  !defined(G3D_MINGW) && (_MSC_VER >= 1300)
 // Both MSVC6 and 7 seem to use the non-standard vsnprintf
 // so we are using vscprintf to determine buffer size, however
 // only MSVC7 headers include vscprintf for some reason.
@@ -89,7 +89,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
     }
 }
 
-#elif defined(G3D_WIN32) && (_MSC_VER < 1300)
+#elif defined(G3D_WIN32) && !defined(G3D_MINGW) &&(_MSC_VER < 1300)
 
 std::string vformat(const char *fmt, va_list argPtr) {
     // We draw the line at a 1MB string.

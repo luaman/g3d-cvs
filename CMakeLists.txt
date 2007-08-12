@@ -1,24 +1,48 @@
-######################################################################
+# G3D project
 #
-# Main CMakeLists.txt file.  This file specifies a minimum cmake version
-# due to use of advanced features and certain bugs on earlier versions.
-#
-# @maintainer Daniel Hilferty, djhilferty@sourceforge.net
-#
-# @created 2006-08-18
-# @edited  2006-09-01
-#
-######################################################################
+# 
+# Library Installation: G3D GLG3D PNG JPEG ZLIB ZIP
+
 
 # Minimum CMake Version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
-# Set Project Name
+# set Project Name
+# this creates G3D_BINARY_DIR and G3D_SOURCE_DIR set to top-level dir
 PROJECT(G3D)
 
-SET(CMAKE_DEBUG_POSTFIX "d")
+# helper macro for copying data files
+    MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGET)
+    # Macro to implement copy_if_different for a list of files
+    # Arguments - 
+    #   FROM_DIR - this is the source directory
+    #   TO_DIR   - this is the destination directory
+    #   FILES    - names of the files to copy 
+    #   TARGET   - target this command is associated with (runs when target runs)
+    FOREACH(SRC ${FILES})
+       GET_FILENAME_COMPONENT(SRCFILE ${SRC} NAME) 
+       # Command to copy the files to ${STEP1}/src, if changed.
+       IF("${FROM_DIR}" STREQUAL "")
+           SET(FROM ${SRC})
+       ELSE("${FROM_DIR}" STREQUAL "")
+           SET(FROM ${FROM_DIR}/${SRC})
+       ENDIF("${FROM_DIR}" STREQUAL "")        
+       IF("${TO_DIR}" STREQUAL "")
+           SET(TO ${SRCFILE})
+       ELSE("${TO_DIR}" STREQUAL "")
+           SET(TO   ${TO_DIR}/${SRCFILE})
+       ENDIF("${TO_DIR}" STREQUAL "")
+       ADD_CUSTOM_COMMAND(
+           TARGET  ${TARGET}
+           COMMAND ${CMAKE_COMMAND}
+           ARGS    -E copy_if_different ${FROM} ${TO}
+           COMMENT "Copying ${SRCFILE} ${TO_DIR}"
+           )
+    ENDFOREACH(SRC ${FILES})
+    ENDMACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGET)
 
-# Include Modules to find packages
+
+# include cmake library find modules
 INCLUDE (FindOpenGL)
 INCLUDE (FindSDL)
 INCLUDE (FindPNG)
@@ -26,78 +50,115 @@ INCLUDE (FindZLIB)
 INCLUDE (FindJPEG)
 INCLUDE (FindX11)
 
-# Include Standard Modules to find certain libraries
+# find required library dependencies and setup library variables
+# LIBRARY_LIBRARIES = library name (for referencing library during linking)
+# LIBRARY_INCLUDE_DIR = library include path (for referencing library during compilation of dependents)
 FIND_PACKAGE(OpenGL REQUIRED)
-FIND_PACKAGE(SDL REQUIRED)
+FIND_PACKAGE(SDL)
 FIND_PACKAGE(PNG)
 FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(JPEG)
 FIND_PACKAGE(X11)
 
-IF(NOT PLATFORM_DIR)
-    SET (PLATFORM_DIR ".")
-ENDIF(NOT PLATFORM_DIR)
 
-MESSAGE ("Platform Directory:   " ${PLATFORM_DIR})
+SET(CMAKE_DEBUG_POSTFIX "d")
 
-# Set library and executable output paths
-SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/lib)
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/bin)
+# setup build directory name based on OS and compiler
+IF (NOT PLATFORM_DIR)
+    IF (MSVC80)
+        SET (PLATFORM_DIR "win-8.0")
+    ENDIF (MSVC80)
+    IF (MSVC71)
+        SET (PLATFORM_DIR "win-vc7.1")
+    ENDIF (MSVC71)
+    IF (MINGW)
+        SET (PLATFORM_DIR "win-mingw")
+    ENDIF (MINGW)
+    IF (APPLE)
+        # xcode is assumed for osx for now
+	    SET (PLATFORM_DIR "osx-xcode")
+    ENDIF (APPLE)
+    IF (UNIX AND NOT APPLE)
+        SET (PLATFORM_DIR "linux-g++")
+    ENDIF (UNIX AND NOT APPLE)
+    # provide a default
+    IF (NOT PLATFORM_DIR)
+        SET (PLATFORM_DIR "${CMAKE_SYSTEM_NAME}-unknown")
+    ENDIF(NOT PLATFORM_DIR)
+ENDIF (NOT PLATFORM_DIR)
+MESSAGE ("Output Platform Build Directory:   build/${PLATFORM_DIR}")
+
+# set library and installation output paths (executable path will be per-target)
+SET (LIBRARY_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/lib)
 SET (G3D_INSTALL_DIR ${G3D_SOURCE_DIR}/build/install)
 
-######################################################################
-# Configure environment specific settings
 
+# add zlib library on systems that need it
 IF (NOT ZLIB_FOUND)
     SET (ZLIB_LIBRARIES zlib)
     SET (ZLIB_INCLUDE_DIR ${G3D_SOURCE_DIR}/zlib.lib/include)
-    INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
     ADD_SUBDIRECTORY (zlib.lib)
 ENDIF (NOT ZLIB_FOUND)
 
-IF (NOT ZIP_FOUND)
-    SET (ZIP_LIBRARIES zip)
-    SET (ZIP_INCLUDE_DIR ${G3D_SOURCE_DIR}/zip.lib/include)
-    INCLUDE_DIRECTORIES(${ZIP_INCLUDE_DIR})
-    ADD_SUBDIRECTORY (zip.lib)
-ENDIF (NOT ZIP_FOUND)
-
+# add png library on systems that need it
 IF (NOT PNG_FOUND)
     SET (PNG_LIBRARIES png)
     SET (PNG_INCLUDE_DIR ${G3D_SOURCE_DIR}/png.lib/include)
-    INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
     ADD_SUBDIRECTORY (png.lib)
 ENDIF (NOT PNG_FOUND)
 
+# add jpeg library on systems that need it
 IF (NOT JPEG_FOUND)
     SET (JPEG_LIBRARIES jpeg)
     SET (JPEG_INCLUDE_DIR ${G3D_SOURCE_DIR}/jpeg.lib/include)
-    INCLUDE_DIRECTORIES(${JPEG_INCLUDE_DIR})
     ADD_SUBDIRECTORY (jpeg.lib)
 ENDIF (NOT JPEG_FOUND)
 
-INCLUDE_DIRECTORIES(${X11_INCLUDE_DIR}
-                    ${PNG_INCLUDE_DIR}
-                    ${ZLIB_INCLUDE_DIR}
-                    ${ZIP_INCLUDE_DIR}
-                    ${JPEG_INCLUDE_DIR}
-                    ${G3D_SOURCE_DIR}/G3D.lib/include 
-                    ${G3D_SOURCE_DIR}/GLG3D.lib/include
-                    ${OPENGL_INCLUDE_DIR}
-                    ${SDL_INCLUDE_DIR})
+# add zip library
+SET (ZIP_LIBRARIES zip)
+SET (ZIP_INCLUDE_DIR ${G3D_SOURCE_DIR}/zip.lib/include)
+ADD_SUBDIRECTORY (zip.lib)
+
+# helper variable to easily reference all required include paths
+# when compiling executables that use g3d project
+SET (ALL_EXE_INCLUDE_DIRS   ${OPENGL_INCLUDE_DIR}
+                            ${X11_INCLUDE_DIR}
+                            ${PNG_INCLUDE_DIR}
+                            ${JPEG_INCLUDE_DIR}
+                            ${ZLIB_INCLUDE_DIR}
+                            ${ZIP_INCLUDE_DIR}
+                            "${G3D_SOURCE_DIR}/G3D.lib/include"
+                            "${G3D_SOURCE_DIR}/GLG3D.lib/include")
 
 IF (APPLE)
-    SET (CARBON_FRAMEWORK "-framework Carbon")
+    LIST(APPEND ALL_EXE_INCLUDE_DIRS ${SDL_INCLUDE_DIR})
 ENDIF(APPLE)
 
-######################################################################
-# BUILD DIRECTORIES
+# helper variable to link all needed platform-specific libraries for executables
+SET (ALL_EXE_LIBRARIES GLG3D G3D ${PNG_LIBRARIES} ${ZIP_LIBRARIES} ${ZLIB_LIBRARIES} ${JPEG_LIBRARIES})
+If (APPLE)
+    LIST(APPEND ALL_EXE_LIBRARIES "-framework Carbon"  ${SDL_LIBRARY} ${OPENGL_LIBRARY})
+ENDIF (APPLE)
+IF (UNIX AND NOT APPLE)
+    LIST(APPEND ALL_EXE_LIBRARIES ${X11_LIBRARIES} ${SDL_LIBRARY} ${OPENGL_LIBRARY})
+ENDIF (APPLE AND NOT UNIX)
+IF (MSVC)
+    LIST(APPEND ALL_EXE_LIBRARIES ${SDL_LIBRARY} ${OPENGL_LIBRARY} ole32 ws2_32 winmm imagehlp gdi32 user32 kernel32 version advapi32)
+ENDIF (MSVC)
+IF (MINGW)
+    LIST(APPEND ALL_EXE_LIBRARIES ${SDL_LIBRARY} ${OPENGL_LIBRARY} ole32 ws2_32 winmm imagehlp gdi32 user32 kernel32 version advapi32)
+    
+    # set mingw compiler flag to create non-console executables
+    ADD_DEFINITIONS("-mwindows")
+ENDIF (MINGW)
 
-# Specify library subdirectory targets
+
+# add glg3d and g3d libraries to build
 ADD_SUBDIRECTORY (GLG3D.lib)
 ADD_SUBDIRECTORY (G3D.lib)
 
-# Determine whether to build executables
+
+# determine whether to add tool and demo targets
 IF (BUILD_BINARIES)
     ADD_SUBDIRECTORY (test)
     ADD_SUBDIRECTORY (tools/gfxmeter)

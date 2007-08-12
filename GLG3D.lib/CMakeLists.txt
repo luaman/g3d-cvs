@@ -1,32 +1,44 @@
-######################################################################
-# DIRECTORY:	glg3d.lib
-# PROGRAMMER:	Daniel Hilferty
-# CREATED:	3 August 2006
-# MODIFIED:	15 August 2006
-#
-# DESCRIPTION:
-# 	Build File for GLG3D.  It specifies OpenGL as a dependency.
-######################################################################
-# Create list of source files used in glg3d -- yes, this is poor form,
-# but as long as you recognize the need to re-run cmake after adding
-# a file to the project, there will be no problems.
+# GLG3D library
+# GLG3D.lib/
+# 
+# Installation: GLG3D -> lib/
+# Extra Installation: include/GLG3D/*.h -> include/GLG3D
+#                     include/GLG3D/GL/*.h -> include/GLG3D/GL
+
 IF (APPLE)
     SET (MM_FILES source/*.mm)
 ENDIF(APPLE)
 
+# create source and include file lists for easy use
 FILE(GLOB source_list source/*.cpp ${MM_FILES})
 FILE(GLOB header_list include/GLG3D/*.h)
+FILE(GLOB gl_header_list include/GL/*.h)
 
-# Specify code files for the library.
-ADD_LIBRARY(GLG3D ${source_list} ${header_list})
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR}
+                    ${X11_INCLUDE_DIR} 
+                    ${PNG_INCLUDE_DIR}
+                    ${JPEG_INCLUDE_DIR}
+                    ${ZLIB_INCLUDE_DIR}
+                    ${ZIP_INCLUDE_DIR}
+                    ${G3D_SOURCE_DIR}/G3D.lib/include
+                    include )
 
-# Required link libraries
-TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARY} $(CARBON_FRAMEWORK))
+IF (UNIX OR APPLE)
+    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+ENDIF (UNIX OR APPLE)
 
-FILE (GLOB gl_header_list include/GL/*.h)
+# specify glg3d source
+ADD_LIBRARY(GLG3D ${source_list})
 
+# specify glg3d library linking dependencies 
+#TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARY} $(CARBON_FRAMEWORK))
+
+# copy g3d headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/GLG3D)
-INSTALL (FILES ${gl_header_list} DESTINATION ${G3D_INSTALL_DIR}/include/GL)
+INSTALL (FILES ${gl_header_list} DESTINATION ${G3D_INSTALL_DIR}/include/GLG3D/GL)
+
+# copy glg3d to installation directory
 INSTALL (TARGETS GLG3D 
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib)
+                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
+                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)

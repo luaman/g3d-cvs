@@ -1,38 +1,39 @@
-######################################################################
-# DIRECTORY:	viewer
-# PROGRAMMER:	??
-# CREATED:	??
-# MODIFIED:	??
+# viewer executable
+# tools/viewer
 #
-# DESCRIPTION:
-#	Builds viewer.
-######################################################################
-# Create glob of files used in viewer
-AUX_SOURCE_DIRECTORY(. source_list)
+# Installation: gfxmeter -> bin/viewer/
+# Extra Installation: data-files/* -> bin/viewer/
 
-# Specify files that make up viewer
+
+# create source and data file lists for easy use
+FILE(GLOB source_list *.cpp)
+FILE(GLOB   data_files 
+            data-files/*.fnt 
+            data-files/*.ico 
+            data-files/*.ifs 
+            data-files/*.md2 
+            data-files/*.jpg 
+            data-files/*.png
+            data-files/*.zip
+            data-files/*.txt)
+
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
+
+# specify viewer source
 ADD_EXECUTABLE(viewer ${source_list})
 
-IF (APPLE)
-    SET (CARBON "-framework Carbon")
-ENDIF(APPLE)
+# specify viewer executable linking dependencies 
+TARGET_LINK_LIBRARIES(viewer ${ALL_EXE_LIBRARIES})
 
-IF (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(viewer G3D GLG3D zip ${ZLIB} ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
-ELSE (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(viewer G3D GLG3D zip ${ZLIB} ${OPENGL_LIBRARY})
-ENDIF (UNIX)
+# specify executable output directory
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/viewer)
 
-FILE (GLOB DATA_FILES 
-           data-files/*.fnt 
-           data-files/*.ico 
-           data-files/*.ifs 
-           data-files/*.md2 
-           data-files/*.jpg 
-           data-files/*.png)
+# copy data-files to build directory
+#COPY_IF_DIFFERENT("" ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/viewer ${data_files} viewer)
 
-# Specify installation locations
-INSTALL (FILES ${DATA_FILES} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin/data-files)
-INSTALL (TARGETS viewer RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
+# copy viewer data-files to installation directory
+INSTALL (FILES ${data_files} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/viewer)
+
+# copy viewer to installation directory
+INSTALL (TARGETS viewer RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/viewer)

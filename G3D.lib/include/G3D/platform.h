@@ -32,6 +32,9 @@
 
 #ifdef _MSC_VER 
     #define G3D_WIN32
+#elif __MINGW32__
+    #define G3D_WIN32
+    #define G3D_MINGW
 #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
     #define G3D_FREEBSD
     #define G3D_LINUX
@@ -51,20 +54,9 @@
    #define SSE
 #endif
 
-#ifdef G3D_WIN32
-// Turn off warnings about deprecated C routines (TODO: revisit)
-#	pragma warning (disable : 4996)
-#endif
-
 // On g++, recognize cases where the -msse2 flag was not specified
 #if defined(SSE) && defined(__GNUC__) && ! defined (__SSE__)
 #   undef SSE
-#endif
-
-#if defined(__GNUC__)
-#    if __STDC_VERSION__ < 199901
-#        define restrict __restrict__
-#    endif
 #endif
 
 
@@ -93,12 +85,15 @@
 #endif
 
 
-#ifdef G3D_WIN32
+#if defined(G3D_WIN32) && !defined(G3D_MINGW)
 // Microsoft Visual C++ 8.0 ("Express")       = 1400
 // Microsoft Visual C++ 7.1	("2003") _MSC_VER = 1310
 // Microsoft Visual C++ 7.0	("2002") _MSC_VER = 1300
 // Microsoft Visual C++ 6.0	_MSC_VER          = 1200
 // Microsoft Visual C++ 5.0	_MSC_VER          = 1100
+
+// Turn off warnings about deprecated C routines (TODO: revisit)
+#	pragma warning (disable : 4996)
 
 #   if (_MSC_VER <= 1200)
         typedef long intptr_t;
@@ -141,10 +136,7 @@
 
 #   define ZLIB_WINAPI
 
-// Mingw32 defines restrict
-#   ifndef G3D_MINGW32
-#          define restrict
-#   endif
+#   define restrict
 
 #   define G3D_CHECK_PRINTF_ARGS 
 #   define G3D_CHECK_VPRINTF_ARGS
@@ -231,6 +223,36 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
     return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
 }
 
+#elif defined(G3D_MINGW)
+
+// mingw needs some setup for windows but not visual c++
+
+#   define ZLIB_WINAPI
+
+#   ifndef WIN32_LEAN_AND_MEAN
+#       define WIN32_LEAN_AND_MEAN 1
+#   endif
+
+
+#   define NOMINMAX 1
+#   ifndef _WIN32_WINNT
+#       define _WIN32_WINNT 0x0500
+#   endif
+#   include <windows.h>
+#   undef WIN32_LEAN_AND_MEAN
+#   undef NOMINMAX
+
+#   ifdef _G3D_INTERNAL_HIDE_WINSOCK_
+#      undef _G3D_INTERNAL_HIDE_WINSOCK_
+#      undef _WINSOCKAPI_
+#   endif
+
+#   define G3D_START_AT_MAIN()\
+int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw);\
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
+    return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
+}
+
 #else
 
 #   define G3D_START_AT_MAIN()
@@ -238,6 +260,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #endif  // win32
 
 #ifdef __GNUC__
+
+#    if __STDC_VERSION__ < 199901
+#        define restrict __restrict__
+#    endif
 
 #   define G3D_DEPRECATED __attribute__((__deprecated__))
 

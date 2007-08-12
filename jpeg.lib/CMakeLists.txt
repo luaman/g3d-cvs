@@ -1,24 +1,24 @@
-######################################################################
-# DIRECTORY:	jpeg.lib
-# PROGRAMMER:	Daniel Hilferty
-# CREATED:	3 August 2006
-# MODIFIED:	28 August 2006
-#
-# DESCRIPTION:
-# 	Build File for jpeg.lib.  For use with Window's builds.
-######################################################################
-# Create list of source files used in glg3d -- yes, this is poor form,
-# but as long as you recognize the need to re-run cmake after adding
-# a file to the project, there will be no problems.
-AUX_SOURCE_DIRECTORY(source source_list)
+# PNG library
+# png.lib/
+# 
+# Installation: jpeg -> lib/
+# Extra Installation: include/*.h -> include/jpeg/
+
+
+# create source and include file lists for easy use
+FILE(GLOB source_list source/*.c)
 FILE(GLOB header_list include/*.h)
 
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(include)
 
-# Specify code files for the library.
-ADD_LIBRARY(jpeg ${source_list} ${header_list})
+# specify jpeg source
+ADD_LIBRARY(jpeg ${source_list})
 
-
+# copy jpeg headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/jpeg)
+
+# copy jpeg installation directory
 INSTALL (TARGETS jpeg
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib)
+                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
+                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)

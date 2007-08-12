@@ -29,7 +29,7 @@ namespace G3D {
 class AtomicInt32 {
 private:
 #   if defined(G3D_WIN32) 
-#   if (_MSC_VER <= 1200 || defined(G3D_MINGW32))
+#   if (_MSC_VER <= 1200 || defined(G3D_MINGW))
         // On VC6 the type of the argument is non-volatile
 #       define VCAST (long*)
 #   else
@@ -150,7 +150,7 @@ public:
      */ 
     inline int32 compareAndSet(const int32 comperand, const int32 exchange) {
 #       if defined(G3D_WIN32)
-#          if defined(G3D_MINGW32)
+#          if defined(G3D_MINGW)
                 return (int32)InterlockedCompareExchange(VCAST &_value, exchange, comperand);
 #          elif (_MSC_VER <= 1200)
                 // Specification changed after VC6 from PVOID* to volatile int*

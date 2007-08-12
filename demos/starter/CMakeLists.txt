@@ -1,38 +1,39 @@
-######################################################################
-# DIRECTORY:	starter
-# PROGRAMMER:	Morgan McGuire, Casey O'Donnell
-# CREATED:	3 April 2007
-# MODIFIED:	2 August 2007
+# starter executable
+# demos/starter
 #
-# DESCRIPTION:
-#	Builds starter.
-######################################################################
-# Create glob of files used in empty
-AUX_SOURCE_DIRECTORY(. source_list)
+# Installation: starter -> bin/starter/
+# Extra Installation: data-files/* -> bin/starter/
 
-# Specify files that make up empty
-ADD_EXECUTABLE(starterdemo ${source_list})
 
-IF (APPLE)
-    SET (CARBON "-framework Carbon")
-ENDIF(APPLE)
+# create source and data file lists for easy use
+FILE(GLOB source_list *.cpp)
+FILE(GLOB   data_files 
+            data-files/*.fnt 
+            data-files/*.ico 
+            data-files/*.ifs 
+            data-files/*.md2 
+            data-files/*.jpg 
+            data-files/*.png
+            data-files/*.zip
+            data-files/*.txt)
 
-IF (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(starterdemo G3D GLG3D zip ${ZLIB} ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
-ELSE (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(starterdemo G3D GLG3D zip ${ZLIB} ${OPENGL_LIBRARY})
-ENDIF (UNIX)
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
 
-FILE (GLOB DATA_FILES 
-           data-files/*.fnt 
-           data-files/*.ico 
-           data-files/*.ifs 
-           data-files/*.md2 
-           data-files/*.jpg 
-           data-files/*.png)
+# specify starter source
+ADD_EXECUTABLE(starter ${source_list})
 
-# Specify installation locations
-INSTALL (FILES ${DATA_FILES} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin/data-files)
-INSTALL (TARGETS starterdemo RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
+# specify starter executable linking dependencies 
+TARGET_LINK_LIBRARIES(starter ${ALL_EXE_LIBRARIES})
+
+# specify executable output directory
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/starter)
+
+# copy data-files to build directory
+#COPY_IF_DIFFERENT("" ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/starter ${data_files} starter)
+
+# copy starter data-files to installation directory
+INSTALL (FILES ${data_files} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/starter)
+
+# copy starter to installation directory
+INSTALL (TARGETS starter RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/starter)

@@ -263,6 +263,6 @@ Compiling and Linking <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I>
      <P>
 
      <B>G3D \#defines</B> one of the following based on the platform:
-     <B>G3D_WIN32, G3D_MINGW32, G3D_LINUX, G3D_OSX</B>
+     <B>G3D_WIN32, G3D_MINGW, G3D_LINUX, G3D_FREEBSD, G3D_OSX</B>
    <HR>
   */

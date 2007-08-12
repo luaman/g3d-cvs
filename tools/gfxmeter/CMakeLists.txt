@@ -1,38 +1,39 @@
-######################################################################
-# DIRECTORY:	gfxmeter
-# PROGRAMMER:	Daniel Hilferty
-# CREATED:	3 August 2006
-# MODIFIED:	15 September 2006
+# gfxmeter executable
+# tools/gfxmeter
 #
-# DESCRIPTION:
-#	Builds gfxmeter.
-######################################################################
-# Create glob of files used in gfxmeter
-AUX_SOURCE_DIRECTORY(source source_list)
+# Installation: gfxmeter -> bin/gfxmeter/
+# Extra Installation: data-files/* -> bin/gfxmeter/
 
-# Specify files that make up gfxmeter
+
+# create source and data file lists for easy use
+FILE(GLOB source_list source/*.cpp)
+FILE(GLOB   data_files 
+            data-files/*.fnt 
+            data-files/*.ico 
+            data-files/*.ifs 
+            data-files/*.md2 
+            data-files/*.jpg 
+            data-files/*.png
+            data-files/*.zip
+            data-files/*.txt)
+
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
+
+# specify gfxmeter source
 ADD_EXECUTABLE(gfxmeter ${source_list})
 
-IF (APPLE)
-    SET (CARBON "-framework Carbon")
-ENDIF(APPLE)
+# specify gfxmeter executable linking dependencies 
+TARGET_LINK_LIBRARIES(gfxmeter ${ALL_EXE_LIBRARIES})
 
-IF (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(gfxmeter G3D GLG3D zip ${ZLIB} ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
-ELSE (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(gfxmeter G3D GLG3D zip ${ZLIB} ${OPENGL_LIBRARY})
-ENDIF (UNIX)
+# specify executable output directory
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/gfxmeter)
 
-FILE (GLOB DATA_FILES 
-           data-files/*.fnt 
-           data-files/*.ico 
-           data-files/*.ifs 
-           data-files/*.md2 
-           data-files/*.jpg 
-           data-files/*.png)
+# copy data-files to build directory
+#COPY_IF_DIFFERENT("" ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/gfxmeter ${data_files} gfxmeter)
 
-# Specify installation locations
-INSTALL (FILES ${DATA_FILES} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin/data-files)
-INSTALL (TARGETS gfxmeter RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
+# copy gfxmeter data-files to installation directory
+INSTALL (FILES ${data_files} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/gfxmeter)
+
+# copy gfxmeter to installation directory
+INSTALL (TARGETS gfxmeter RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/gfxmeter)

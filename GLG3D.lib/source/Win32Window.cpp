@@ -28,9 +28,16 @@ All rights reserved.
 
 #include <time.h>
 #include <sstream>
-#if !defined(G3D_MINGW32)
+#if !defined(G3D_MINGW)
 #include <crtdbg.h>
 #endif
+
+// Might not be defined for mingw
+#   ifndef XBUTTON_PARAM
+    #define GET_XBUTTON_WPARAM(wParam)      (HIWORD(wParam))
+    #define XBUTTON1      0x0001
+    #define XBUTTON2      0x0002
+#   endif
 
 using G3D::_internal::_DirectInput;
 

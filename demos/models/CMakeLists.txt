@@ -1,38 +1,39 @@
-######################################################################
-# DIRECTORY:	demos/models
-# PROGRAMMER:	??
-# CREATED:	??
-# MODIFIED:	??
+# models executable
+# demos/models
 #
-# DESCRIPTION:
-#	Builds model.
-######################################################################
-# Create glob of files used in empty
-AUX_SOURCE_DIRECTORY(. source_list)
+# Installation: models -> bin/models/
+# Extra Installation: data-files/* -> bin/models/
 
-# Specify files that make up empty
-ADD_EXECUTABLE(modeldemo ${source_list})
 
-IF (APPLE)
-    SET (CARBON "-framework Carbon")
-ENDIF(APPLE)
+# create source and data file lists for easy use
+FILE(GLOB source_list *.cpp)
+FILE(GLOB   data_files 
+            data-files/*.fnt 
+            data-files/*.ico 
+            data-files/*.ifs 
+            data-files/*.md2 
+            data-files/*.jpg 
+            data-files/*.png
+            data-files/*.zip
+            data-files/*.txt)
 
-IF (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(modeldemo G3D GLG3D zip ${ZLIB} ${CARBON} ${OPENGL_LIBRARY} ${SDL_LIBRARY})
-ELSE (UNIX)
-    # Specify dependencies
-    TARGET_LINK_LIBRARIES(modeldemo G3D GLG3D zip ${ZLIB} ${OPENGL_LIBRARY})
-ENDIF (UNIX)
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
 
-FILE (GLOB DATA_FILES 
-           data-files/*.fnt 
-           data-files/*.ico 
-           data-files/*.ifs 
-           data-files/*.md2 
-           data-files/*.jpg 
-           data-files/*.png)
+# specify models source
+ADD_EXECUTABLE(models ${source_list})
 
-# Specify installation locations
-INSTALL (FILES ${DATA_FILES} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin/data-files)
-INSTALL (TARGETS modeldemo RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-bin)
+# specify models executable linking dependencies 
+TARGET_LINK_LIBRARIES(models ${ALL_EXE_LIBRARIES})
+
+# specify executable output directory
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/models)
+
+# copy data-files to build directory
+#COPY_IF_DIFFERENT("" ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/models ${data_files} models)
+
+# copy models data-files to installation directory
+INSTALL (FILES ${data_files} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/models)
+
+# copy models to installation directory
+INSTALL (TARGETS models RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/models)

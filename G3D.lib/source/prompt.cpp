@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 #ifdef G3D_WIN32
-#    if (defined(G3D_MINGW32) || (_MSC_VER > 1200))
+#    if (defined(G3D_MINGW) || (_MSC_VER > 1200))
 #        include <sstream>
 #    else
 #        include <strstream>

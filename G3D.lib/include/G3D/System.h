@@ -322,7 +322,7 @@ private:
         return ((uint64)timehi << 32) + (uint64)timelo;
     }
 
-#elif (defined(G3D_LINUX) || defined(G3D_MINGW32))
+#elif (defined(G3D_LINUX) || defined(G3D_MINGW))
 
     inline uint64 System::getCycleCount() {
         uint32 timehi, timelo;

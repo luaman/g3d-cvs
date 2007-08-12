@@ -1,23 +1,24 @@
-######################################################################
-# DIRECTORY:	zip.lib
-# PROGRAMMER:	??
-# CREATED:	??
-# MODIFIED:	??
-#
-# DESCRIPTION:
-# 	Build File for zip.lib
-######################################################################
-# Create list of source files used in glg3d -- yes, this is poor form,
-# but as long as you recognize the need to re-run cmake after adding
-# a file to the project, there will be no problems.
-AUX_SOURCE_DIRECTORY(source source_list)
+# ZIP library
+# zip.lib/
+# 
+# Installation: zip -> lib/
+# Extra Installation: include/zip/*.h -> include/zip/
+
+
+# create source and include file lists for easy use
+FILE(GLOB source_list source/*.c)
 FILE(GLOB header_list include/zip/*.h)
 
-# Specify code files for the library.
-ADD_LIBRARY(zip ${source_list} ${header_list})
-INCLUDE_DIRECTORIES(${ZIP_INCLUDE_DIR}/zip)
+# specify include paths during compilation
+INCLUDE_DIRECTORIES(include/zip ${ZLIB_INCLUDE_DIR})
 
+# specify zip source
+ADD_LIBRARY(zip ${source_list})
+
+# copy zip headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/zip)
+
+# copy zip to installation directory
 INSTALL (TARGETS zip 
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}-lib)
+                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
+                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)
