@@ -66,7 +66,7 @@ SET(CMAKE_DEBUG_POSTFIX "d")
 # setup build directory name based on OS and compiler
 IF (NOT PLATFORM_DIR)
     IF (MSVC80)
-        SET (PLATFORM_DIR "win-8.0")
+        SET (PLATFORM_DIR "win-vc8.0")
     ENDIF (MSVC80)
     IF (MSVC71)
         SET (PLATFORM_DIR "win-vc7.1")
