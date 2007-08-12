@@ -656,12 +656,12 @@ private:
     class DDSTexture {
     private:
                                     
-        uint8*                      bytes;
-        const TextureFormat*        bytesFormat;
+        uint8*                      m_bytes;
+        const TextureFormat*        m_bytesFormat;
         int                         m_width;
         int                         m_height;
-        int                         numMipMaps;
-        int                         numFaces;
+        int                         m_numMipMaps;
+        int                         m_numFaces;
 
     public:
 
@@ -678,19 +678,19 @@ private:
         }
 
         const TextureFormat* getBytesFormat() {
-            return bytesFormat;
+            return m_bytesFormat;
         }
 
         int getNumMipMaps() {
-            return numMipMaps;
+            return m_numMipMaps;
         }
 
         int getNumFaces() {
-            return numFaces;
+            return m_numFaces;
         }
 
         uint8* getBytes() {
-            return bytes;
+            return m_bytes;
         }
     };
 };

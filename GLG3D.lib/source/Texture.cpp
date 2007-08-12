@@ -1509,7 +1509,7 @@ static void createTexture(
             // NPOT texture with useNPOT disabled: resize to a power of two
 
             debugAssertM(! compressed,
-                "This device does not support NPOT compressed textures.");
+                "Cannot rescale compressed textures to power of two, use DIM_2D_NPOT");
 
             int oldWidth = m_width;
             int oldHeight = m_height;
@@ -1542,7 +1542,7 @@ static void createTexture(
         if (compressed) {
             
             debugAssertM((target != GL_TEXTURE_RECTANGLE_EXT),
-                "Compressed textures must be DIM_2D.");
+                "Compressed textures must be DIM_2D or DIM_2D_NPOT.");
 
             glCompressedTexImage2DARB(target, mipLevel, bytesActualFormat, m_width, 
                 m_height, 0, (bytesPerPixel * ((m_width + 3) / 4) * ((m_height + 3) / 4)), 

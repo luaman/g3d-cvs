@@ -316,102 +316,91 @@ const uint32  DDSD_DEPTH              = 0x00800000l;
 const uint32  DDSD_ALL                 = 0x00fff9eel;
 
 Texture::DDSTexture::DDSTexture(const std::string& filename) :
-    bytes(NULL),
-    bytesFormat(TextureFormat::AUTO()),
+    m_bytes(NULL),
+    m_bytesFormat(TextureFormat::AUTO()),
     m_width(0),
     m_height(0),
-    numMipMaps(0) {
+    m_numMipMaps(0),
+    m_numFaces(0) {
 
-    try {
+    BinaryInput ddsInput(filename, G3D_LITTLE_ENDIAN);
 
-        BinaryInput ddsInput(filename, G3D_LITTLE_ENDIAN);
-        DDSURFACEDESC2 ddsSurfaceDesc;
+    std::string ddsString = ddsInput.readString(4);
+    debugAssertM(ddsString == "DDS ", "Invalid DDS file");
 
-        std::string ddsString = ddsInput.readString(4);
-        if (ddsString != "DDS ") {
-            throw G3D::format("Loading \"%s\" failed. Not a DDS file.\n", filename.c_str());
-        }
+    DDSURFACEDESC2 ddsSurfaceDesc;
+    ddsInput.readBytes(&ddsSurfaceDesc, sizeof(ddsSurfaceDesc));
 
-        ddsInput.readBytes(&ddsSurfaceDesc, sizeof(ddsSurfaceDesc));
-
+    if (!GLCaps::supports_GL_ARB_texture_non_power_of_two())
+    {
         // Check the texture size for powers of 2.
         debugAssert( isPow2(ddsSurfaceDesc.dwWidth) );
         debugAssert( isPow2(ddsSurfaceDesc.dwHeight) );
-
-        // Check for enough valid header flags to import file
-        debugAssert( ddsSurfaceDesc.dwFlags & DDSD_WIDTH );
-        debugAssert( ddsSurfaceDesc.dwFlags & DDSD_HEIGHT );
-        debugAssert( ddsSurfaceDesc.dwFlags & DDSD_PIXELFORMAT );
-
-        // Check to make sure it isn't a volume texture
-        debugAssert( !(ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_VOLUME) ); 
-
-        if ( ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP ) {
-            debugAssert( (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEX) &&
-                (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEX) &&
-                (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_NEGATIVEX) &&
-                (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEY) &&
-                (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_NEGATIVEY) &&
-                (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEZ) &&
-                (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_NEGATIVEZ) );
-
-            numFaces = 6;
-        } else {
-            numFaces = 1;
-        }
-
-        if (ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_FOURCC) {
-            switch(ddsSurfaceDesc.ddpfPixelFormat.dwFourCC) {
-                case FOURCC_DXT1:
-                    bytesFormat = TextureFormat::RGBA_DXT1();
-                    break;
-                case FOURCC_DXT3:
-                    bytesFormat = TextureFormat::RGBA_DXT3();
-                    break;
-                case FOURCC_DXT5:
-                    bytesFormat = TextureFormat::RGBA_DXT5();
-                    break;
-                default:
-                    throw G3D::format("Loading \"%s\" failed. Unsupported DDS FourCC format.\n", filename.c_str());
-                    break;
-            }
-        } else if (ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_RGB) {
-            
-            if (ddsSurfaceDesc.ddpfPixelFormat.dwRGBBitCount == 24) {
-                bytesFormat = TextureFormat::RGB8();
-            } else {
-                throw G3D::format("Loading \"%s\" failed. Unsupported RGBA DDS format.\n", filename.c_str());
-            }
-        } else {
-            throw G3D::format("Loading \"%s\" failed. Unknown DDS format.\n", filename.c_str());
-        }
-
-        uint8* ddsInputPos = const_cast<uint8*>(ddsInput.getCArray());
-        ddsInputPos += sizeof(ddsSurfaceDesc) + 4;
-  
-        //Setup DDS data
-        bytes = new uint8[ddsInput.size() - ddsInput.getPosition()];
-        memcpy(bytes, ddsInputPos, ddsInput.size() - ddsInput.getPosition());
-
-        if( ddsSurfaceDesc.dwFlags & DDSD_MIPMAPCOUNT ) {
-            numMipMaps = ddsSurfaceDesc.dwMipMapCount;
-        } else {
-            numMipMaps = 1;
-        }
-
-        m_width = ddsSurfaceDesc.dwWidth;
-        m_height = ddsSurfaceDesc.dwHeight;
-
-    } catch (const std::string& e) {
-        Log::common()->printf("\n**************************\n\n"
-            "Loading \"%s\" failed. %s\n", filename.c_str(),
-            e.c_str());
     }
+
+    // Check for enough valid header flags to import file
+    debugAssert( ddsSurfaceDesc.dwFlags & DDSD_WIDTH );
+    debugAssert( ddsSurfaceDesc.dwFlags & DDSD_HEIGHT );
+    debugAssert( ddsSurfaceDesc.dwFlags & DDSD_PIXELFORMAT );
+
+    // Check to make sure it isn't a volume texture
+    debugAssert( !(ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_VOLUME) ); 
+
+    if ( ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP ) {
+        debugAssert( (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEX) &&
+            (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEX) &&
+            (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_NEGATIVEX) &&
+            (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEY) &&
+            (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_NEGATIVEY) &&
+            (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_POSITIVEZ) &&
+            (ddsSurfaceDesc.ddsCaps.dwCaps2 & DDSCAPS2_CUBEMAP_NEGATIVEZ) );
+
+        m_numFaces = 6;
+    } else {
+        m_numFaces = 1;
+    }
+
+    debugAssertM(ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_FOURCC, "Unsuported DDS format");
+
+    if (ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_FOURCC) {
+        switch(ddsSurfaceDesc.ddpfPixelFormat.dwFourCC) {
+            case FOURCC_DXT1:
+                m_bytesFormat = TextureFormat::RGBA_DXT1();
+                break;
+            case FOURCC_DXT3:
+                m_bytesFormat = TextureFormat::RGBA_DXT3();
+                break;
+            case FOURCC_DXT5:
+                m_bytesFormat = TextureFormat::RGBA_DXT5();
+                break;
+            default:
+                debugAssert(false, "Unsupported DXT DDS format");
+                break;
+        }
+    }
+
+    uint8* ddsInputPos = const_cast<uint8*>(ddsInput.getCArray());
+    debugAssert(ddsInputPos);
+
+    ddsInputPos += sizeof(ddsSurfaceDesc) + 4;
+
+    //Setup DDS data
+    m_bytes = new uint8[ddsInput.size() - ddsInput.getPosition()];
+    memcpy(m_bytes, ddsInputPos, ddsInput.size() - ddsInput.getPosition());
+
+    if( ddsSurfaceDesc.dwFlags & DDSD_MIPMAPCOUNT ) {
+        m_numMipMaps = ddsSurfaceDesc.dwMipMapCount;
+    } else {
+        m_numMipMaps = 1;
+    }
+
+    m_width = ddsSurfaceDesc.dwWidth;
+    m_height = ddsSurfaceDesc.dwHeight;
 }
 
 
 Texture::DDSTexture::~DDSTexture() {
-    delete[] bytes;
+    delete[] m_bytes;
 }
 
 } //G3D
