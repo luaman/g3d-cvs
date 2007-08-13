@@ -70,67 +70,6 @@ def process_args(args):
 
     return compilerName
 
-# Helper function for building libraries from scratch
-def cbuild(subdir, args):
-    x = 0
-    start_dir = os.getcwd()
-    build_dir = start_dir + '/build/' + subdir
-    mkdir (build_dir)
-    
-    if (os.path.exists(build_dir)):
-        os.chdir (build_dir)
-        print ('Changed directory to: ' + os.getcwd())
-        x = run('cmake', args)
-        if x == 0: x = run('make', [])  
-        os.chdir(start_dir)
-    else:
-        print ('Unable to change directories to:\n\t' + build_dir)
-        x = 1
-
-    return x
-
-# Helper function for building libraries from existing CMakeLists.txt
-# This will only work on make systems -- needs to be generalized
-def cfastbuild(subdir):
-    start_dir = os.getcwd()
-    build_dir = start_dir + "/build/" + subdir
-    os.chdir (build_dir)
-    if (os.path.exists(build_dir)):
-        print ("Changed directory to: " + os.getcwd())
-        run("make", [])
-        os.chdir(start_dir)
-    else:
-        print ("Unable to change directories to:\n\t" + build_dir)
- 
-def clib(cl_args):
-    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(getCompilerName(cl_args))
-    args = [os.getcwd(), '-DBUILD_BINARIES:BOOL=OFF', output_dir]
-
-    # Build Debug Version
-    cbuild("Debug", args + ['-DCMAKE_BUILD_TYPE:STRING=Debug'])
-    
-    # Build Release Version
-    cbuild("Release", args + ['-DCMAKE_BUILD_TYPE:STRING=Release'])
-
-    # Copy code for includes and libraries goes here....
-
-def cclean(cl_args):
-    rmdir(os.getcwd() + '/build')
-
-def ctest(cl_args):
-    output_dir = "-DPLATFORM_DIR:STRING=" + platform_directory(getCompilerName(cl_args))
-    args = [os.getcwd(), '-DBUILD_BINARIES:BOOL=ON', output_dir]
-
-    # Build Debug Version
-    cbuild("Debug", args + ['-DCMAKE_BUILD_TYPE:STRING=Debug'])
-    
-    # Build Release Version
-    cbuild("Release", args + ['-DCMAKE_BUILD_TYPE:STRING=Release'])
-
-def cfastlib(args):
-    cfastbuild(platform_directory(args) + "/Debug")
-    cfastbuild(platform_directory(args) + "/Release")
-
 
 ##################################################################################
 #  iCompile targets
@@ -366,6 +305,10 @@ def jar(args):
 
    return x
 
+def proj(args):
+    print 'proj target is not yet implemented'
+    return 1
+       
 ##################################################################################
 def getCompilerName(args = []):
     if '--compiler' in args:
@@ -437,6 +380,26 @@ doc        Generate documentation using Doxygen
 help       Display this message
 
 
+DEVELOPER TARGETS
+
+proj       Generates system-dependent makefiles and projects via cmake.
+           The --generator option is required.
+           
+           Example:
+           mkdir releaseBuild
+           cd releaseBuild
+           ../G3D/buildg3d proj --release --generator="MinGW Makefiles"
+           
+           --generator="cmake generator"
+                generator string supported by cmake on build system
+           --debug
+                generate debug configuration
+           --release
+                generate release configuration
+           --installation=installDir
+                sets installation target directory in case
+                not generating a makefile that supports DESTDIR
+
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
 
@@ -455,6 +418,5 @@ if __name__ == "__main__":
         
     sys.exit(dispatchOnTarget(argv,
         [lib, clean, test,
-         clib, cclean, ctest, cfastlib,
          ilib, iclean, itest, itools,
-         doc, install, all, src, data, tools, jar], buildHelp))
+         doc, install, all, src, data, tools, jar, proj], buildHelp))

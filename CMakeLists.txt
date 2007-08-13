@@ -11,6 +11,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 # this creates G3D_BINARY_DIR and G3D_SOURCE_DIR set to top-level dir
 PROJECT(G3D)
 
+SET(CMAKE_INSTALL_PREFIX "")
+
 # helper macro for copying data files
     MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR FILES TARGET)
     # Macro to implement copy_if_different for a list of files
@@ -141,15 +143,12 @@ If (APPLE)
 ENDIF (APPLE)
 IF (UNIX AND NOT APPLE)
     LIST(APPEND ALL_EXE_LIBRARIES ${X11_LIBRARIES} ${SDL_LIBRARY} ${OPENGL_LIBRARY})
-ENDIF (APPLE AND NOT UNIX)
+ENDIF (UNIX AND NOT APPLE)
 IF (MSVC)
     LIST(APPEND ALL_EXE_LIBRARIES ${SDL_LIBRARY} ${OPENGL_LIBRARY} ole32 ws2_32 winmm imagehlp gdi32 user32 kernel32 version advapi32)
 ENDIF (MSVC)
 IF (MINGW)
     LIST(APPEND ALL_EXE_LIBRARIES ${SDL_LIBRARY} ${OPENGL_LIBRARY} ole32 ws2_32 winmm imagehlp gdi32 user32 kernel32 version advapi32)
-    
-    # set mingw compiler flag to create non-console executables
-    ADD_DEFINITIONS("-mwindows")
 ENDIF (MINGW)
 
 
@@ -159,10 +158,8 @@ ADD_SUBDIRECTORY (G3D.lib)
 
 
 # determine whether to add tool and demo targets
-IF (BUILD_BINARIES)
-    ADD_SUBDIRECTORY (test)
-    ADD_SUBDIRECTORY (tools/gfxmeter)
-    ADD_SUBDIRECTORY (tools/viewer)
-    ADD_SUBDIRECTORY (demos/starter)
-    ADD_SUBDIRECTORY (demos/models)
-ENDIF (BUILD_BINARIES)
+ADD_SUBDIRECTORY (test)
+ADD_SUBDIRECTORY (tools/gfxmeter)
+ADD_SUBDIRECTORY (tools/viewer)
+ADD_SUBDIRECTORY (demos/starter)
+ADD_SUBDIRECTORY (demos/models)

@@ -21,9 +21,9 @@ INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR}
 ADD_LIBRARY(G3D ${source_list})
 
 # copy g3d headers to installation directory
-INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/G3D)
+INSTALL (FILES ${header_list} DESTINATION include/G3D)
 
 # copy g3d to installation directory
 INSTALL (TARGETS G3D LIBRARY 
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)
+                 LIBRARY DESTINATION lib
+                 ARCHIVE DESTINATION lib)

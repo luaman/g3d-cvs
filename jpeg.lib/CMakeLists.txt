@@ -16,9 +16,9 @@ INCLUDE_DIRECTORIES(include)
 ADD_LIBRARY(jpeg ${source_list})
 
 # copy jpeg headers to installation directory
-INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/jpeg)
+INSTALL (FILES ${header_list} DESTINATION include)
 
 # copy jpeg installation directory
 INSTALL (TARGETS jpeg
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)
+                 LIBRARY DESTINATION lib
+                 ARCHIVE DESTINATION lib)

@@ -7,15 +7,6 @@
 
 # create source and data file lists for easy use
 FILE(GLOB source_list *.cpp)
-FILE(GLOB   data_files 
-            data-files/*.fnt 
-            data-files/*.ico 
-            data-files/*.ifs 
-            data-files/*.md2 
-            data-files/*.jpg 
-            data-files/*.png
-            data-files/*.zip
-            data-files/*.txt)
 
 # specify include paths during compilation
 INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
@@ -41,11 +32,10 @@ ENDIF(APPLE)
 SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/test)
 
 # copy data-files to build directory
-#COPY_IF_DIFFERENT("" ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/test ${data_files} test)
 
 # copy test data-files to installation directory
-INSTALL (FILES ${data_files} DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/test)
+INSTALL (DIRECTORY data-files/ DESTINATION bin/test PATTERN "CVS" EXCLUDE)
 
 # copy test to installation directory
-INSTALL (TARGETS test RUNTIME DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/bin/test)
+INSTALL (TARGETS test RUNTIME DESTINATION bin/test)
 

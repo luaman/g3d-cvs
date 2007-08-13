@@ -16,9 +16,9 @@ INCLUDE_DIRECTORIES(include/zip ${ZLIB_INCLUDE_DIR})
 ADD_LIBRARY(zip ${source_list})
 
 # copy zip headers to installation directory
-INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/zip)
+INSTALL (FILES ${header_list} DESTINATION include/zip)
 
 # copy zip to installation directory
 INSTALL (TARGETS zip 
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)
+                 LIBRARY DESTINATION lib
+                 ARCHIVE DESTINATION lib)

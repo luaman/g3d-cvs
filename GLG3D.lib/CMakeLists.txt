@@ -31,14 +31,11 @@ ENDIF (UNIX OR APPLE)
 # specify glg3d source
 ADD_LIBRARY(GLG3D ${source_list})
 
-# specify glg3d library linking dependencies 
-#TARGET_LINK_LIBRARIES(GLG3D G3D ${OPENGL_LIBRARIES} ${SDL_LIBRARY} $(CARBON_FRAMEWORK))
-
 # copy g3d headers to installation directory
-INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/GLG3D)
-INSTALL (FILES ${gl_header_list} DESTINATION ${G3D_INSTALL_DIR}/include/GLG3D/GL)
+INSTALL (FILES ${header_list} DESTINATION include/GLG3D)
+INSTALL (FILES ${gl_header_list} DESTINATION include/GLG3D/GL)
 
 # copy glg3d to installation directory
 INSTALL (TARGETS GLG3D 
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)
+                 LIBRARY DESTINATION lib
+                 ARCHIVE DESTINATION lib)

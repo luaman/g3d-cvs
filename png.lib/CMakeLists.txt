@@ -16,9 +16,9 @@ INCLUDE_DIRECTORIES(include ${ZLIB_INCLUDE_DIR})
 ADD_LIBRARY(png ${source_list})
 
 # copy png headers to installation directory
-INSTALL (FILES ${header_list} DESTINATION ${G3D_INSTALL_DIR}/include/png)
+INSTALL (FILES ${header_list} DESTINATION include)
 
 # copy png installation directory
 INSTALL (TARGETS png 
-                 LIBRARY DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib
-                 ARCHIVE DESTINATION ${G3D_INSTALL_DIR}/${PLATFORM_DIR}/lib)
+                 LIBRARY DESTINATION lib
+                 ARCHIVE DESTINATION lib)
