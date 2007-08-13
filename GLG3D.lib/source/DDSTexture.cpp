@@ -374,7 +374,7 @@ Texture::DDSTexture::DDSTexture(const std::string& filename) :
                 m_bytesFormat = TextureFormat::RGBA_DXT5();
                 break;
             default:
-                debugAssert(false, "Unsupported DXT DDS format");
+                debugAssertM(false, "Unsupported DXT DDS format");
                 break;
         }
     }
