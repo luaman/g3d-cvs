@@ -106,7 +106,7 @@ public:
 
     /** Converts projected points from OpenGL standards
         (-1, 1) to normal 3D coordinate standards (0, 1) */
-    Vector3 convertFromUnitToNormal(const Vector3& in, Rect2D viewport) const;
+    Vector3 convertFromUnitToNormal(const Vector3& in, const Rect2D& viewport) const;
 
     /**
        Sets the vertical field of view, in radians.  The 
@@ -115,7 +115,7 @@ public:
     void setFieldOfView(float angle, FOVDirection direction);
 
     /** Returns the current field of view angle and direction */
-    inline void getFieldOfView(float& angle, FOVDirection& direction) const {
+    inline void getFieldOfView(float& angle, FOVDirection direction) const {
         angle = m_fieldOfView;
         direction = m_direction;
     }

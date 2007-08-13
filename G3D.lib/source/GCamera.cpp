@@ -392,7 +392,7 @@ void GCamera::deserialize(BinaryInput& bi) {
 }
 
 
-Vector3 GCamera::convertFromUnitToNormal(const Vector3& in, const Rect2D viewport) const{
+Vector3 GCamera::convertFromUnitToNormal(const Vector3& in, const Rect2D& viewport) const{
     return (in + Vector3(1,1,1)) * 0.5 * Vector3(viewport.width(), -viewport.height(), 1) + 
            Vector3(viewport.x0(), viewport.y1(), 0);
 }
