@@ -380,7 +380,7 @@ doc        Generate documentation using Doxygen
 help       Display this message
 
 
-DEVELOPER TARGETS
+DEVELOPER TARGETS (unsupported)
 
 proj       Generates system-dependent makefiles and projects via cmake.
            The --generator option is required.
@@ -402,9 +402,6 @@ proj       Generates system-dependent makefiles and projects via cmake.
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
-
-Note: the CMake files included with G3D are used internally by the dev
-team to generate Xcode project files but are not supported at all.
 """
 
 if __name__ == "__main__":

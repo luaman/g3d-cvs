@@ -53,7 +53,7 @@ void testTextInput() {
         CHECK_SYM_TOKEN(ti, "baz", 3, 1);
         CHECK_END_TOKEN(ti,        4, 1);
     }
-
+/*
 #define CHECK_ONE_SPECIAL_SYM(s)                                             \
     do {                                                                     \
         TextInput ti(TextInput::FROM_STRING, "\n a" s "b\n ");               \
@@ -122,7 +122,7 @@ void testTextInput() {
     CHECK_ONE_SPECIAL_SYM("...");
 
 #undef CHECK_ONE_SPECIAL_SYM
-
+*/
     // Formerly would loop infinitely if EOF seen in multi-line comment.
     {
         TextInput ti(TextInput::FROM_STRING, "/* ... comment to end");

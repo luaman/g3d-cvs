@@ -15,6 +15,9 @@ INCLUDE_DIRECTORIES(include ${ZLIB_INCLUDE_DIR})
 # specify png source
 ADD_LIBRARY(png ${source_list})
 
+# copy files to build directory
+COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/include ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/include png)
+
 # copy png headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION include)
 

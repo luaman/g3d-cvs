@@ -31,6 +31,9 @@ ENDIF (UNIX OR APPLE)
 # specify glg3d source
 ADD_LIBRARY(GLG3D ${source_list})
 
+# copy files to build directory
+COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/include/GLG3D ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/include/GLG3D GLG3D)
+
 # copy g3d headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION include/GLG3D)
 INSTALL (FILES ${gl_header_list} DESTINATION include/GLG3D/GL)

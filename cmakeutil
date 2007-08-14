@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+# -*- python -*-
+#
+
+import sys
+sys.path.append('bin')
+import ice.copyifnewer
+
+def copy_if_newer(args):
+    print args
+    ice.copyifnewer.copyIfNewer(args[0], args[1])
+
+"""
+Reads the command line arguments (sys.argv) and dispatches to the appropriate
+build target by name.
+
+validTargets - A list of functions that are build targets.
+"""
+def dispatchOnTarget(argv, validTargets):
+
+    # Execute the appropriate target:
+    if (len(argv) == 1):
+        # No arguments;
+        sys.exit(-1)
+
+    target = argv[1]
+    targetArgs = argv[2:]
+
+    found = 0
+    for v in validTargets:
+        if (target == v.func_name):
+            v(targetArgs)
+            found = 1
+            break
+
+    if (not found):
+        sys.exit(-1)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    sys.exit(dispatchOnTarget(sys.argv,
+        [copy_if_newer]))
+        

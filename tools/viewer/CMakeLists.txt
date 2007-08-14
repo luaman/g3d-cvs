@@ -25,7 +25,8 @@ TARGET_LINK_LIBRARIES(viewer ${ALL_EXE_LIBRARIES})
 # specify executable output directory
 SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/viewer)
 
-# copy data-files to build directory
+# copy files to build directory
+COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/viewer viewer)
 
 # copy viewer data-files to installation directory
 INSTALL (DIRECTORY data-files/ DESTINATION bin/viewer PATTERN "CVS" EXCLUDE)

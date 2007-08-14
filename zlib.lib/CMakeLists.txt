@@ -15,6 +15,9 @@ INCLUDE_DIRECTORIES(include)
 # specify zlib source
 ADD_LIBRARY(zlib ${source_list})
 
+# copy files to build directory
+COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/include/zlib ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/include zlib)
+
 # copy zlib headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION include)
 
