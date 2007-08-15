@@ -3,7 +3,7 @@
 #
 
 from buildlib import *
-import os, platform, commands, sys, time
+import os, platform, commands, sys, time, getopt
 sys.path.append('bin')
 import ice.copyifnewer
 
@@ -306,8 +306,28 @@ def jar(args):
    return x
 
 def proj(args):
-    print 'proj target is not yet implemented'
-    return 1
+
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'generator=', 'install='])
+    
+    buildType = 'Release'
+    installDir = ''
+    buildGenerator = ''
+    
+    for opt, arg in projOptions:    
+        if opt == '--generator':
+            buildGenerator = arg
+            
+        if opt == '--debug':
+            buildType = 'Debug'
+
+        if opt == '--install':
+            installDir = arg
+            
+    cmakeArgs = ['-G "' + buildGenerator + '"', '-DCMAKE_BUILD_TYPE=' + buildType]
+    if installDir != '':
+        cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
+        
+    return run('cmake', cmakeArgs)
        
 ##################################################################################
 def getCompilerName(args = []):
@@ -393,12 +413,10 @@ proj       Generates system-dependent makefiles and projects via cmake.
            --generator="cmake generator"
                 generator string supported by cmake on build system
            --debug
-                generate debug configuration
-           --release
-                generate release configuration
-           --installation=installDir
-                sets installation target directory in case
-                not generating a makefile that supports DESTDIR
+                generate debug configuration (defaults to release)
+           --install installDir
+                sets installation target directory
+                generated project will still have to make install target
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
