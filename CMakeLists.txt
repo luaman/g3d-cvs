@@ -7,10 +7,6 @@
 # Minimum CMake Version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
-IF (NOT CMAKE_INSTALL_PREFIX)
-    SET(CMAKE_INSTALL_PREFIX "build/install")
-ENDIF (NOT CMAKE_INSTALL_PREFIX)
-
 # create project
 # this creates G3D_BINARY_DIR and G3D_SOURCE_DIR set to top-level dir
 PROJECT(G3D)
@@ -54,7 +50,12 @@ FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(JPEG)
 FIND_PACKAGE(X11)
 
+# set installation prefix
+IF (NOT DEFINED CMAKE_INSTALL_PREFIX)
+    SET(CMAKE_INSTALL_PREFIX "build/install")
+ENDIF (NOT DEFINED CMAKE_INSTALL_PREFIX)
 
+# set debug suffix
 SET(CMAKE_DEBUG_POSTFIX "d")
 
 # setup build directory name based on OS and compiler
@@ -155,3 +156,6 @@ ADD_SUBDIRECTORY (tools/gfxmeter)
 ADD_SUBDIRECTORY (tools/viewer)
 ADD_SUBDIRECTORY (demos/starter)
 ADD_SUBDIRECTORY (demos/models)
+
+# add data-files installation
+INSTALL(DIRECTORY data-files DESTINATION data PATTERN "CVS" EXCLUDE)
