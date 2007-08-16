@@ -414,7 +414,7 @@ proj       Generates system-dependent makefiles and projects via cmake.
                 generator string supported by cmake on build system
            --debug
                 generate debug configuration (defaults to release)
-           --install installDir
+           --install=installDir
                 sets installation target directory
                 generated project will still have to make install target
 
