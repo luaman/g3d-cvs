@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2002-08-07
- @edited  2007-06-01
+ @edited  2007-08-01
 
  Copyright 2001-2007, Morgan McGuire.
  All rights reserved.
@@ -92,6 +92,7 @@
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiDropDownList.h"
 
+#include "GLG3D/BackgroundWidget.h"
 #include "GLG3D/UprightSplineManipulator.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/DeveloperWindow.h"

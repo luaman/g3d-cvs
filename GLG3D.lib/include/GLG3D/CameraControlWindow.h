@@ -1,6 +1,3 @@
-#ifndef G3D_CAMERACONTROLWINDOW_H
-#define G3D_CAMERACONTROLWINDOW_H
-
 /**
   @file CameraControlWindow.h
 
@@ -9,6 +6,9 @@
   @created 2002-07-28
   @edited  2006-08-10
 */
+#ifndef G3D_CAMERACONTROLWINDOW_H
+#define G3D_CAMERACONTROLWINDOW_H
+
 #include "G3D/platform.h"
 #include "GLG3D/Widget.h"
 #include "GLG3D/UprightSplineManipulator.h"
