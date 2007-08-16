@@ -30,6 +30,7 @@ href="classes.html">Classes</a>.
     \link G3D::SkyParameters SkyParameters\endlink
 
   <li><b>User Interface</b>&nbsp; &nbsp;
+    \link G3D::BackgroundWidget BackgroundWidget\endlink,
     \link G3D::CameraControlWindow CameraControlWindow\endlink,    
     \link G3D::CarbonWindow CarbonWindow\endlink,    
     \link G3D::DeveloperWindow DeveloperWindow\endlink,

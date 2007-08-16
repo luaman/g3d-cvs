@@ -69,6 +69,7 @@ features.  Not all API entry points are shown in this index.
 <tr><td></td><td>\link G3D::GuiPane <b>GuiPane</b>\endlink</td><td>Container and creator of other GUI controls; obtained from a GuiWindow </td></tr>
 <tr><td></td><td>\link G3D::GEvent <b>GEvent</b>\endlink, \link G3D::GEventType <b>GEventType</b>\endlink</td><td>Event class and type enum, used inside an event handler</td></tr>
 <tr><td></td><td>\link G3D::UserInput <b>UserInput</b>\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
+<tr><td></td><td>\link G3D::BackgroundWidget <b>BackgroundWidget</b>\endlink</td><td>Full-screen image</td></tr>
 <tr><td></td><td>\link G3D::GApp::onEvent <b>GApp::onEvent</b>\endlink, \link G3D::GApp::onUserInput<b>GApp::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
 <tr><td></td><td>\link G3D::GFont GFont\endlink</td><td>Explicitly render text</td></tr>
 <tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink</td><td>GUI controls created by GuiPanel </td></tr>

@@ -22,8 +22,8 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
 
         shadowMap.setSize(1024, ArticulatedModel::useShadowDepthCompare());
 
-        defaultCamera.setPosition(Vector3(-5.8,   1.4,   4.0));
-        defaultCamera.lookAt(Vector3( -4.0,  -0.1,   0.9));
+        defaultCamera.setPosition(Vector3(-5.8f,   1.4f,   4.0f));
+        defaultCamera.lookAt(Vector3( -4.0f,  -0.1f,   0.9f));
 
         loadScene();
         sky = Sky::fromFile(dataDir + "sky/");

@@ -165,6 +165,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\BackgroundWidget.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\BSPMAP.cpp"
 				>
 			</File>
@@ -432,6 +436,10 @@
 			>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\ArticulatedModel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\BackgroundWidget.h"
 				>
 			</File>
 			<File
