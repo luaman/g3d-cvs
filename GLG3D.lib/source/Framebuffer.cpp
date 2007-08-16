@@ -153,6 +153,8 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture) {
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, origFB);
     }
 
+    texture->invertY = true;
+
     debugAssertGLOk();
 }
 

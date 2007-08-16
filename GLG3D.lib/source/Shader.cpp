@@ -15,6 +15,10 @@
 
 namespace G3D {
 
+void Shader::reload() {
+    _vertexAndPixelShader->reload();
+}
+
 ShaderRef Shader::create(
     ShaderType          type0,
     const std::string&  value0,
@@ -195,6 +199,75 @@ const std::string& Shader::messages() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void replace(std::string& code, Set<std::string>& newNames, const std::string& generatedPrefix, const std::string& funcName, const std::string& prefix,
+                    const std::string& postfix) {
+
+    debugAssertM(generatedPrefix.length() + prefix.length() + postfix.length() == funcName.length() + 1, 
+        "Internal error: replacements must contain exactly the same number of characters");
+
+    size_t last = 0;
+    while (true) {
+        size_t next = code.find(funcName, last);
+        if (next == std::string::npos) {
+            break;
+        }
+
+        size_t nameStart = next + funcName.length();
+        size_t nameEnd   = code.find(')', nameStart);
+
+        alwaysAssertM(nameEnd != std::string::npos,
+            "Could not find the end of " + funcName + ") expression");
+
+        std::string name = code.substr(nameStart, nameEnd - nameStart);
+
+        std::string decoratedName = generatedPrefix + name;
+
+        std::string replacement = prefix + decoratedName + postfix;
+        for (size_t i = 0; i < replacement.size(); ++i) {
+            code[i + next] = replacement[i];
+        }
+
+        newNames.insert(decoratedName);
+
+        last = nameEnd;
+    }
+}
+
+
+void VertexAndPixelShader::GPUShader::replaceG3DIndex(std::string& code, std::string& defineString, 
+                                                      const Table<std::string, int>& samplerMappings, bool secondPass) {
+
+    // Ensure that defines are only declared once
+    Set<std::string> newDefines;
+
+    std::string funcName = "g3d_Index(";
+    std::string prefix   = "(";
+    std::string postfix  = "";
+
+    // Prefix contains spaces so that character counts match in the generated code; we replace by overwriting characters exactly.
+    replace(code, newDefines, "", "g3d_Index(", "(g3d_Indx_", ")");
+
+    // Add the unique uniforms to the header for the code.
+    Set<std::string>::Iterator current = newDefines.begin();
+    const Set<std::string>::Iterator end = newDefines.end();
+    while (current != end) {
+        int i = 0;
+
+        if (secondPass) {
+            // Make sure that the sampler was recognized
+            debugAssertM(samplerMappings.containsKey(*current), 
+                "g3d_Index() used with unknown sampler \"" + *current + "\"");
+
+            i = samplerMappings[*current];
+        }
+
+        // Insert the appropriate mapping
+        defineString += "#define g3d_Indx_" + *current + " " + format("%d\n", i); 
+
+        ++current;
+    }
+}
+
 void VertexAndPixelShader::GPUShader::replaceG3DSize(std::string& code, std::string& uniformString) {
 
     // Ensure that uniforms are only declared once
@@ -204,41 +277,9 @@ void VertexAndPixelShader::GPUShader::replaceG3DSize(std::string& code, std::str
     std::string prefix   = "     (";
     std::string postfix  = ".xy)";
 
-    for (int count = 0; count < 2; ++count) {
-
-        size_t last = 0;
-        while (true) {
-            size_t next = code.find(funcName, last);
-            if (next == std::string::npos) {
-                break;
-            }
-
-            size_t nameStart = next + funcName.length();
-            size_t nameEnd   = code.find(')', nameStart);
-
-            alwaysAssertM(nameEnd != std::string::npos,
-                "Could not find the end of " + funcName + ") expression");
-
-            std::string name = code.substr(nameStart, nameEnd - nameStart);
-
-            std::string decoratedName = "g3d_sz2D_" + name;
-
-            std::string replacement = prefix + decoratedName + postfix;
-            for (size_t i = 0; i < replacement.size(); ++i) {
-                code[i + next] = replacement[i];
-            }
-
-            newUniforms.insert(decoratedName);
-
-            last = nameEnd;
-
-        } // Iterating through all instances
-
-        // On the second iteration, replace g3d_invSize.
-        funcName = "g3d_sampler2DInvSize(";
-        prefix   = "        (";
-        postfix  = ".zw)";
-    }
+    // Prefix contains spaces so that character counts match in the generated code; we replace by overwriting characters exactly.
+    replace(code, newUniforms, "g3d_sz2D_", "g3d_sampler2DSize(", "     (", ".xy)");
+    replace(code, newUniforms, "g3d_sz2D_", "g3d_sampler2DInvSize(", "        (", ".zw)");
 
     // Add the unique uniforms to the header for the code.
     Set<std::string>::Iterator current = newUniforms.begin();
@@ -252,13 +293,16 @@ void VertexAndPixelShader::GPUShader::replaceG3DSize(std::string& code, std::str
 
 void VertexAndPixelShader::GPUShader::init
 (
- const std::string&	name,
- const std::string&	code,
- bool			_fromFile,
- bool			debug,	
- GLenum			glType,
- const std::string&	type,
- UseG3DUniforms         uniforms) {
+ const std::string&	    name,
+ const std::string&	    code,
+ bool			        _fromFile,
+ bool			        debug,	
+ GLenum			        glType,
+ const std::string&	    type,
+ UseG3DUniforms         uniforms,
+ const Table<std::string, int>& samplerMappings,
+ bool                   secondPass
+ ) {
     
     std::string uniformString = 
         STR(
@@ -349,6 +393,14 @@ void VertexAndPixelShader::GPUShader::init
                 
             replaceG3DSize(_code, uniformString);
             
+            std::string definesString;
+            replaceG3DIndex(_code, definesString, samplerMappings, secondPass);
+            m_usesG3DIndex = (definesString != "");
+            
+            if (m_usesG3DIndex) {
+                _code = definesString + _code;
+            }
+
             std::string lineDirective = "";
             if (versionLine != "") {
                 // Fix the line numbers since we inserted code at the top
@@ -454,6 +506,11 @@ VertexAndPixelShader::GPUShader::~GPUShader() {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+void VertexAndPixelShader::reload() {
+    debugAssert(false);
+    // TODO
+}
+
 VertexAndPixelShader::VertexAndPixelShader(
 	const std::string&  vsCode,
 	const std::string&  vsFilename,
@@ -471,74 +528,98 @@ VertexAndPixelShader::VertexAndPixelShader(
         return;
     }
 
-	vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", uniforms);
-	pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", uniforms);
-    
-    _vertCompileMessages += vertexShader.messages();
-    _messages += 
-		std::string("Compiling ") + vertexShader.shaderType() + " " + vsFilename + NEWLINE +
-		vertexShader.messages() + NEWLINE + NEWLINE;
-    if (! vertexShader.ok()) {
-        _ok = false;
-    }
+    Table<std::string, int> samplerMappings;
 
-    if (! pixelShader.ok()) {
-        _ok = false;
-    }    
-    _fragCompileMessages += pixelShader.messages();
-    _messages += 
-		std::string("Compiling ") + pixelShader.shaderType() + " " + psFilename + NEWLINE +
-		pixelShader.messages() + NEWLINE + NEWLINE;
-
-    lastTextureUnit = -1;
-
-    if (_ok) {
-        // Create GL object
-        _glProgramObject = glCreateProgramObjectARB();
-
-        // Attach vertex and pixel shaders
-        if (! vertexShader.fixedFunction()) {
-            glAttachObjectARB(_glProgramObject, vertexShader.glShaderObject());
+    // While loop used to recompile if samplerMappings is updated
+    bool repeat;
+    bool secondPass = false;
+    do {
+        repeat = false;
+	    vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", uniforms, samplerMappings, secondPass);
+	    pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", uniforms, samplerMappings, secondPass);
+        
+        _vertCompileMessages += vertexShader.messages();
+        _messages += 
+		    std::string("Compiling ") + vertexShader.shaderType() + " " + vsFilename + NEWLINE +
+		    vertexShader.messages() + NEWLINE + NEWLINE;
+        if (! vertexShader.ok()) {
+            _ok = false;
         }
 
-        if (! pixelShader.fixedFunction()) {
-            glAttachObjectARB(_glProgramObject, pixelShader.glShaderObject());
+        if (! pixelShader.ok()) {
+            _ok = false;
+        }    
+        _fragCompileMessages += pixelShader.messages();
+        _messages += 
+		    std::string("Compiling ") + pixelShader.shaderType() + " " + psFilename + NEWLINE +
+		    pixelShader.messages() + NEWLINE + NEWLINE;
+
+        lastTextureUnit = -1;
+
+        if (_ok) {
+            // Create GL object
+            _glProgramObject = glCreateProgramObjectARB();
+
+            // Attach vertex and pixel shaders
+            if (! vertexShader.fixedFunction()) {
+                glAttachObjectARB(_glProgramObject, vertexShader.glShaderObject());
+            }
+
+            if (! pixelShader.fixedFunction()) {
+                glAttachObjectARB(_glProgramObject, pixelShader.glShaderObject());
+            }
+
+            // Link
+            GLint linked = GL_FALSE;
+            glLinkProgramARB(_glProgramObject);
+
+            // Read back messages
+	        glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_LINK_STATUS_ARB, &linked);
+            GLint maxLength = 0, length = 0;
+	        glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
+	        GLcharARB* pInfoLog = (GLcharARB *)malloc(maxLength * sizeof(GLcharARB));
+	        glGetInfoLogARB(_glProgramObject, maxLength, &length, pInfoLog);
+
+            _messages += std::string("Linking\n") + std::string(pInfoLog) + "\n";
+            _linkMessages += std::string(pInfoLog);
+	        free(pInfoLog);
+            _ok = _ok && (linked == GL_TRUE);
+
+            if (debug) {
+                alwaysAssertM(_ok, _messages);
+            }
         }
 
-        // Link
-        GLint linked = GL_FALSE;
-        glLinkProgramARB(_glProgramObject);
+        if (_ok) {
+            uniformNames.clear();
+            computeUniformArray();
+            // note that the extra uniforms are computed from the original code,
+            // not from the code that has the g3d uniforms prepended.
+            addUniformsFromCode(vsFromFile ? readWholeFile(vsFilename) : vsCode);
+            addUniformsFromCode(psFromFile ? readWholeFile(psFilename) : psCode);
 
-        // Read back messages
-	    glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_LINK_STATUS_ARB, &linked);
-        GLint maxLength = 0, length = 0;
-	    glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
-	    GLcharARB* pInfoLog = (GLcharARB *)malloc(maxLength * sizeof(GLcharARB));
-	    glGetInfoLogARB(_glProgramObject, maxLength, &length, pInfoLog);
-
-        _messages += std::string("Linking\n") + std::string(pInfoLog) + "\n";
-        _linkMessages += std::string(pInfoLog);
-	    free(pInfoLog);
-        _ok = _ok && (linked == GL_TRUE);
-
-        if (debug) {
-            alwaysAssertM(_ok, _messages);
+            // Add all uniforms to the name list
+            for (int i = uniformArray.size() - 1; i >= 0; --i) {
+                uniformNames.insert(uniformArray[i].name);
+            }
         }
-    }
 
-    if (_ok) {
-        uniformNames.clear();
-        computeUniformArray();
-        // note that the extra uniforms are computed from the original code,
-        // not from the code that has the g3d uniforms prepended.
-        addUniformsFromCode(vsFromFile ? readWholeFile(vsFilename) : vsCode);
-        addUniformsFromCode(psFromFile ? readWholeFile(psFilename) : psCode);
+        if (_ok && (pixelShader.usesG3DIndex() || vertexShader.usesG3DIndex()) && ! secondPass) {
+            // The sampler mappings are needed and have not yet been inserted.  
+            // Insert them now and recompile the code.
 
-        // Add all uniforms to the name list
-        for (int i = uniformArray.size() - 1; i >= 0; --i) {
-            uniformNames.insert(uniformArray[i].name);
+            // Walk uniforms to construct the sampler mappings.  
+            for (int u = 0; u < uniformArray.size(); ++u) {
+                const UniformDeclaration& uniform = uniformArray[u];
+                if (isSamplerType(uniform.type)){
+                    samplerMappings.set(uniform.name, uniform.textureUnit);
+                }
+            }
+
+            repeat = true;
+            secondPass = true;
         }
-    }
+    } while (repeat);
 }
 
 
@@ -855,8 +936,8 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
 
             // check the type
             if (canonicalType(arg.type) != canonicalType(decl.type)) {
-                std::string v1 = GLenumToString(decl.type);
-                std::string v2 = GLenumToString(arg.type);
+                std::string v1  = GLenumToString(decl.type);
+                std::string v2  = GLenumToString(arg.type);
                 std::string v1c = GLenumToString(canonicalType(decl.type));
                 std::string v2c = GLenumToString(canonicalType(arg.type));
                 throw ArgumentError(

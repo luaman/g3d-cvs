@@ -66,6 +66,10 @@ enum UseG3DUniforms {DEFINE_G3D_UNIFORMS, DO_NOT_DEFINE_G3D_UNIFORMS};
  */
 class VertexAndPixelShader : public ReferenceCountedObject {
 public:
+
+    /** If this shader was loaded from disk, reload it. */
+    void reload();
+
     friend class Shader;
 
     class UniformDeclaration {
@@ -73,7 +77,7 @@ public:
         /** If true, this variable is declared but unused */
         bool                dummy;
 
-        /** Register location */
+        /** Register location if a sampler. */
         int                 location;
 
         /** Name of the variable.  May include [] and . (e.g.
@@ -100,6 +104,8 @@ protected:
         /** argument for output on subclasses */
         static std::string          ignore;
         
+        /** Filename if loaded from disk */
+        std::string                 filename;
         std::string                 _name;
         std::string                 _code;
         bool                        fromFile;
@@ -117,12 +123,12 @@ protected:
         static GPUShader*           init(GPUShader* shader, bool debug);
         
         /** Set to true when name and code both == "" */
-        bool			_fixedFunction;
+        bool			            _fixedFunction;
         
         GLenum                      _glShaderType;
         
         std::string                 _shaderType;
-        
+       
         /**
            Replaces all instances of 
            <code>"g3d_sampler2DSize(name)"</code> with 
@@ -142,16 +148,42 @@ protected:
          */
         void replaceG3DSize(std::string& code, std::string& uniformString);
 
+        /**
+         Replaces all instances of <code>g3d_Index[samplername]</code> with <code>(g3d_Indx_samplername)</code>
+         Called from init.
+
+         The first time a file is compiled, samplerMappings is empty.  It must then compiled again with correct mappings,
+         which are assigned elsewhere.
+
+         @param defineString New #defines to insert at the top of the program
+         @param code modified in place
+         @param secondPass On the scond pass, the samplerMappings must not be empty.
+         */
+        void replaceG3DIndex(std::string& code, std::string& defineString, const Table<std::string, int>& samplerMappings, bool secondPass);
+
+        bool            m_usesG3DIndex;
+
 	public:
 
-            void init(
-                      const std::string& name,
-                      const std::string& code,
-                      bool               fromFile,
-                      bool		 debug,
-                      GLenum		 glType,
-                      const std::string& type,
-                      UseG3DUniforms     u);
+        /** True if this shader uses the g3d_Index extension and therefore needs double-compilation to resolve dependencies. */
+        bool usesG3DIndex() const {
+            return m_usesG3DIndex;
+        }
+
+        /**
+         @param samplerMappings Table mapping sampler names to their gl_TexCoord indices.  
+         This may be empty if the mappings are not yet known.
+         */
+        void init(
+              const std::string& name,
+              const std::string& code,
+              bool               fromFile,
+              bool		         debug,
+              GLenum		     glType,
+              const std::string& type,
+              UseG3DUniforms     u,
+              const Table<std::string, int>& samplerMappings,
+              bool               secondPass);
             
 		/** Deletes the underlying glShaderObject.  Between GL's reference
 			counting and G3D's reference counting, an underlying object
@@ -192,7 +224,7 @@ protected:
 
     GPUShader	            vertexShader;
     GPUShader	            geometryShader;
-    GPUShader		    pixelShader;
+    GPUShader		        pixelShader;
 
     GLhandleARB             _glProgramObject;
 
@@ -204,6 +236,12 @@ protected:
     std::string             _linkMessages;
 
     int                     lastTextureUnit;
+
+    /** Does not contain g3d_ uniforms if they were compiled away */
+    Array<UniformDeclaration>   uniformArray;
+
+    /** Does not contain g3d_ uniforms if they were compiled away */
+    Set<std::string>            uniformNames;
 
     /** Converts from int and bool types to float types (e.g. GL_INT_VEC2_ARB -> GL_FLOAT_VEC2_ARB).
         Other types are left unmodified.*/
@@ -219,12 +257,6 @@ protected:
         setting variables that have been compiled away--those warnings
         are annoying when temporarily commenting out code. */
     void addUniformsFromCode(const std::string& code);
-
-    /** Does not contain g3d_ uniforms if they were compiled away */
-    Array<UniformDeclaration>   uniformArray;
-
-    /** Does not contain g3d_ uniforms if they were compiled away */
-    Set<std::string>            uniformNames;
 
     /** Returns true for types that are textures (e.g., GL_TEXTURE_2D) */
     static bool isSamplerType(GLenum e);
@@ -452,7 +484,14 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
 
     vec2 g3d_sampler2DSize(sampler2D t);        // Returns the x and y dimensions of t
     vec2 g3d_sampler2DInvSize(sampler2D t);     // Returns vec2(1.0, 1.0) / g3d_size(t) at no additional cost
+
+    int g3d_Index(sampler t); // Replaced at compile-time with the OpenGL index of the texture unit for samplerName (which must be a uniform).
+    // This is needed when reading from textures rendered using Framebuffer, which are likely upside down and have inverted texture coordinates.
+    // Typical usage : gl_TexCoord[g3d_Index(sampler)]
   </PRE>
+
+  The macros that take a sampler argument must not have anything (even spaces!) inside the
+  parentheses and their argument must be the name of a sampler uniform.
 
   The macros <code>G3D_OSX, G3D_WIN32, G3D_FREEBSD, G3D_LINUX,
   G3D_ATI, G3D_NVIDIA, G3D_MESA</code> are defined on the relevant
@@ -538,6 +577,9 @@ protected:
     inline Shader() {}
 
 public:
+
+    /** If this shader was loaded from disk, reload it */
+    void reload();
 
     /** Arguments to the vertex and pixel shader.  You may change these either
         before or after the shader is set on G3D::RenderDevice-- either way
