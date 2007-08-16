@@ -119,7 +119,7 @@ public:
     BayerPattern        bayerPattern;
 
     /**
-     The GL format equivalent to this one.  Zero if there is no equivalent.
+     The GL format equivalent to this one, e.g, GL_RGB8  Zero if there is no equivalent.
      */
     GLenum              openGLFormat;
 
@@ -171,7 +171,7 @@ public:
     int                 hardwareBitsPerTexel;
 
     /**
-     The GL bytes format of the data buffer used with this texture format.
+     The GL bytes format of the data buffer used with this texture format, e.g., GL_UNSIGNED_BYTE
      */
     GLenum              openGLDataFormat;
 

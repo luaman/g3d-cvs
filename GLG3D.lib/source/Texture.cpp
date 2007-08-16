@@ -79,12 +79,13 @@ static void createMipMapTexture(
     GLenum          target,
     const uint8*    _bytes,
     int             bytesFormat,
+    int             bytesBaseFormat,
     int             m_width,
     int             m_height,
     GLenum          textureFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
-    GLenum          dataType);
+    GLenum          bytesType);
 
 
 /**
@@ -650,10 +651,11 @@ Texture::Ref Texture::fromMemory(
                                         target, 
                                         reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]),
                                         bytesFormat->openGLFormat,
+                                        bytesFormat->openGLBaseFormat,
                                         mipWidth, 
                                         mipHeight, 
                                         desiredFormat->openGLFormat,
-                                        desiredFormat->packedBitsPerTexel / 8, 
+                                        bytesFormat->packedBitsPerTexel / 8, 
                                         preProcess.scaleFactor,
                                         bytesFormat->openGLDataFormat);
                     
@@ -1588,12 +1590,13 @@ static void createMipMapTexture(
     GLenum          target,
     const uint8*    _bytes,
     int             bytesFormat,
+    int             bytesBaseFormat,
     int             m_width,
     int             m_height,
-    GLenum          textureFormat,
+    GLenum          desiredFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
-    GLenum          dataType) {
+    GLenum          bytesType) {
 
     switch (target) {
     case GL_TEXTURE_2D:
@@ -1617,20 +1620,22 @@ static void createMipMapTexture(
                 freeBytes = true;
 
                 // Rescale the image to a power of 2
+
+                // http://www.csee.umbc.edu/help/C++/opengl/man_pages/html/glu/scaleimage.html
                 gluScaleImage(
-                    bytesFormat,
+                    bytesBaseFormat,
                     oldWidth,
                     oldHeight,
-                    dataType,
+                    bytesType,
                     _bytes,
                     m_width,
                     m_height,
-                    dataType,
+                    bytesType,
                     (void*)bytes);
             }
 
-            int r = gluBuild2DMipmaps(target, textureFormat, m_width, m_height, 
-                                      bytesFormat, dataType, bytes);
+            // http://www.opengl.org/sdk/docs/man/xhtml/gluBuild2DMipmaps.xml
+            int r = gluBuild2DMipmaps(target, desiredFormat, m_width, m_height, bytesFormat, bytesType, bytes);
             debugAssertM(r == 0, (const char*)gluErrorString(r)); (void)r;
 
             if (freeBytes) {
