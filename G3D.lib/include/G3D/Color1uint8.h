@@ -18,6 +18,12 @@
 
 namespace G3D {
 
+#if defined(G3D_WIN32)
+    // Switch to tight alignment
+    #pragma pack(push, 1)
+#endif
+
+
 /**
  Represents a Color1 as a packed integer.  Convenient
  for creating unsigned int vertex arrays. 
@@ -28,13 +34,30 @@ namespace G3D {
  colors back by this factor).  So Color3(1,1,1) == Color3uint8(255,255,255)
  but Vector3(1,1,1) == Vector3int16(1,1,1).
 
+ <B>Note</B>:
+ Conversion of a float32 to uint8 is accomplished by min(iFloor(f * 256)) and 
+ back to float32 by u / 255.0f.  This gives equal size intervals.
+Consider a number line from 0 to 1 and a corresponding one from 0 to 255.  If we use iRound(x * 255), then the mapping for three critical intervals are:
+
+<pre>
+let s = 0.5/255
+  float             int       size
+[0, s)           -> 0          s
+[s, s * 3)       -> 1         2*s
+(1 - s, 1]       -> 255        s
+</pre>
+
+If we use max(floor(x * 256), 255), then we get:
+
+<pre>
+let s = 1/256
+  float             int           size
+[0, s)           -> 0               s
+[s, 2 * s)       -> 1               s
+(1 - s, 1]       -> 255             s
+</PRE>
+and the intervals are all the same size, thus giving equal precision to all values.
  */
-
-#if defined(G3D_WIN32)
-    // Switch to tight alignment
-    #pragma pack(push, 1)
-#endif
-
 class Color1uint8 {
 private:
     // Hidden operators

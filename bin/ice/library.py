@@ -5,6 +5,7 @@
 from topsort import *
 from utils import *
 from variables import *
+from platform import machine
 import os, glob
 
 # Files can trigger additional linker options.  This is used to add
@@ -112,6 +113,9 @@ Library('ANN',         STATIC,    'ANN',     'ANN',      None,       None,    ['
 ]:
     defineLibrary(lib)
 
+if (os.uname()[0] == 'Darwin'):
+    defineLibrary(Library(
+        'FMOD',        DYNAMIC,   'fmodex','fmodex', None,   None,    ['fmod.hpp', 'fmod.h'], [], []))
 
 """ Constructs a dictionary mapping a library name to its
     relative dependency order in a library list. """

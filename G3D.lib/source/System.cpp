@@ -124,7 +124,8 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     for (int i = 0; i < path.length(); ++i) {
         std::string filename = path[i] + name;
         if (fileExists(filename)) {
-            logPrintf("\nWARNING: Could not find '%s' so '%s' was substituted.\n", full.c_str(), filename.c_str());
+            logPrintf("\nWARNING: Could not find '%s' so '%s' was substituted.\n", full.c_str(), 
+                      filename.c_str());
             return filename;
         }
     }
@@ -173,6 +174,7 @@ std::string demoFindData(bool errorIfNotFound) {
         potential.append(std::string("x:/") + lpath);
     #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
         potential.append("/usr/local/371/");
+        potential.append("/usr/local/" + lname);
         potential.append("/course/cs224/");
         potential.append("/map/gfx0/common/games/");
     #elif defined(G3D_OSX)

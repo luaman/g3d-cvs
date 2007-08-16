@@ -17,9 +17,9 @@
 namespace G3D {
 
 Color3uint8::Color3uint8(const class Color3& c) {
-    r = iMin(255, iRound(c.r * 256));
-    g = iMin(255, iRound(c.g * 256));
-    b = iMin(255, iRound(c.b * 256));
+    r = iMin(255, iFloor(c.r * 256));
+    g = iMin(255, iFloor(c.g * 256));
+    b = iMin(255, iFloor(c.b * 256));
 }
 
 

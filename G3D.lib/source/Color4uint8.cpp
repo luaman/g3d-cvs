@@ -16,10 +16,10 @@
 namespace G3D {
 
 Color4uint8::Color4uint8(const class Color4& c) {
-    r = iMin(255, iRound(c.r * 256));
-    g = iMin(255, iRound(c.g * 256));
-    b = iMin(255, iRound(c.b * 256));
-    a = iMin(255, iRound(c.a * 256));
+    r = iMin(255, iFloor(c.r * 256));
+    g = iMin(255, iFloor(c.g * 256));
+    b = iMin(255, iFloor(c.b * 256));
+    a = iMin(255, iFloor(c.a * 256));
 }
 
 

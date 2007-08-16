@@ -29,7 +29,7 @@ public:
     typedef ReferenceCountedPointer<class ArticulatedModel> Ref;
 
     /** See G3D::ShadowMap */
-    static bool ArticulatedModel::useShadowDepthCompare();
+    static bool useShadowDepthCompare();
 
 private:
 

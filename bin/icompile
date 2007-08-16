@@ -13,7 +13,7 @@
 # DO NOT MODIFY THIS SCRIPT.  EDIT ICE.TXT AND ~/.ICOMPILE TO CUSTOMIZE
 # YOUR PROJECT CONFIGURATION.
 
-version = [0, 5, 3]
+version = [0, 5, 4]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time
@@ -205,7 +205,10 @@ def extendLibrariesWithDependencies(libraries):
 def getLinkerOptions(state, allFiles):
     opt = state.linkerOptions
 
-    opt += [('-L' + path) for path in state.libraryPaths()]
+    for path in state.libraryPaths():
+        if (' ' in path):
+            path = path.replace(' ', '\\ ')
+        opt += ['-L' + path]
 
     # Set of canonically named libraries to link against
     libraries        = Set()
@@ -261,22 +264,6 @@ def getLinkerOptions(state, allFiles):
         elif verbosity >= NORMAL:
             colorPrint("Detected use of the '" + libname + 
                       "' library, which iCompile does not know how to use.", WARNING_COLOR)
-
-    # Add libraries on which we explicitly depend
-    #suffix = ''
-    #if state.target == DEBUG:
-    #    suffix = 'd'
-
-    #for u in usesProjectsList:
-    #    if u.endswith('/'):
-    #        u = u[:-1]
-    #    libname = rawfilename(u) + suffix
-    #    allLinks.append('-l' + libname)
-
-    # If SDL is already on the link list then it automatically links X11
-    # so avoid explicit link
-    #if ('SDL' in allLinks) and ('X11' in allLinks):
-    #    allLinks.remove('X11')
 
     if verbosity >= TRACE:
         print 'Library link options: ', allLinks

@@ -267,7 +267,12 @@ def getCompilerOptions(state, allFiles, extraOpts = []):
     opt = state.compilerOptions + extraOpts + ['-c']
     
     for i in state.includePaths():
-        opt += ['-I' + i]
+        if (' ' in i):
+            # Surround the path in quotes and escape slashes (still doesn't seem to work with spawnv)
+            i = '\'' + i + '\''
+            i = i.replace(' ', '\\ ')
+            
+        opt += ['-I', i]
 
     # See if the xmm intrinsics are being used
     # This was disabled because -msse2 allows code generation,

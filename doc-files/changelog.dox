@@ -8,8 +8,16 @@
    previous major release, except for critical bug fixes.  Deprecated functionality
    will be supported until (at least) the next major release.
 
-G3D::BackgroundWidget
-Fix: [ 1774479 ] texture glformats wrong
+
+<hr>
+
+   <P>
+   Changes in 7.01:
+   <ul>     
+     <li> Added /usr/local/-G3D dir- to system data file path [Kai Schroeder]
+     <li> G3D::BackgroundWidget
+     <li> Fix: [ 1774479 ] texture glformats wrong
+   </ul>
 
 <hr>
    <P>

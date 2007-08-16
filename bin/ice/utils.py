@@ -757,6 +757,12 @@ def cleanPathList(paths):
     out = {}
 
     for path in paths:
+        # Strip surrounding quotes
+        if path.startswith('\"') and path.endswith('\"'):
+            path = path[1:-1]
+        elif path.startswith('\'') and path.endswith('\''):
+            path = path[1:-1]
+            
         if path == "":
             # do nothing
             0
