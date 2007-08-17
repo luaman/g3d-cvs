@@ -203,7 +203,7 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
 
     const float x               = viewportWidth(viewport) / 2;
     const float y               = viewportHeight(viewport) / 2;
-    const float z               = -m_nearPlaneZ;
+    const float z               = m_nearPlaneZ;
     const float w               = z / -m_farPlaneZ;
     float fovx;
 
