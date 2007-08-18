@@ -361,7 +361,7 @@ void System::init() {
             (G3D_VER / 100) % 100);
     }
 
-    unsigned long eaxreg, ebxreg, ecxreg, edxreg;
+    unsigned int eaxreg, ebxreg, ecxreg, edxreg;
     eaxreg = ebxreg = ecxreg = edxreg = 0;
  
     // First of all we check if the CPUID command is available
@@ -383,7 +383,7 @@ void System::init() {
         // We read the standard CPUID level 0x00000000 which should
         // be available on every x86 processor.  This fills out
         // a string with the processor vendor tag.
-        #if defined(_MSC_VER)// || defined(G3D_OSX_INTEL)
+        #if defined(_MSC_VER)
             __asm {
                 push eax
                 push ebx
@@ -400,7 +400,7 @@ void System::init() {
                 pop ebx
                 pop eax
             }
-        #elif defined(__GNUC__) && defined(i386) && !defined(G3D_OSX_INTEL)
+        #elif defined(__GNUC__) && !defined(G3D_OSX_INTEL)
             asm (
                 "movl $0, %%eax \n"
                 "cpuid          \n"
@@ -433,7 +433,7 @@ void System::init() {
         maxSupportedCPUIDLevel = eaxreg & 0xFFFF;
 
         // Then we read the ext. CPUID level 0x80000000
-        #if defined(_MSC_VER) //|| defined(G3D_OSX_INTEL)
+        #if defined(_MSC_VER)
             __asm {
                 push eax
                 push ebx
@@ -447,7 +447,7 @@ void System::init() {
                 pop ebx
                 pop eax
             }
-        #elif defined(__GNUC__) && defined(i386) && !defined(G3D_OSX_INTEL)
+        #elif defined(__GNUC__) && !defined(G3D_OSX_INTEL)
             asm (
                 "movl $0x80000000, %%eax \n"
                 "cpuid                   \n"
@@ -609,55 +609,57 @@ void System::init() {
 
 
 void checkForCPUID() {
-    unsigned long bitChanged = 0;
+    unsigned int bitChanged = 0;
 
     // We've to check if we can toggle the flag register bit 21.
     // If we can't the processor does not support the CPUID command.
     
-#   if defined(_MSC_VER)// || defined(G3D_OSX_INTEL)
-        __asm {
-                push eax
-                push ebx
-                pushfd
-                pushfd
-                pop   eax
-                mov   ebx, eax
-                xor   eax, 0x00200000 
-                push  eax
-                popfd
-                pushfd
-                pop   eax
-                popfd
-                xor   eax, ebx 
-                mov   bitChanged, eax
-                pop ebx
-                pop eax
-        }
+#if defined(_MSC_VER)
+    __asm {
+        push eax
+        push ebx
+        pushfd
+        pushfd
+        pop   eax
+        mov   ebx, eax
+        xor   eax, 0x00200000 
+        push  eax
+        popfd
+        pushfd
+        pop   eax
+        popfd
+        xor   eax, ebx 
+        mov   bitChanged, eax
+        pop ebx
+        pop eax
+    }
+#elif defined(__GNUC__) && defined(i386) && !defined(G3D_OSX_INTEL)
+    // 32-bit g++
+    __asm__ (
+    "pushfl                      # Get original EFLAGS             \n"
+    "pushfl                                                        \n"
+    "popl    %%eax                                                 \n"
+    "movl    %%eax, %%ecx                                          \n"
+    "xorl    $0x200000, %%eax    # Flip ID bit in EFLAGS           \n"
+    "pushl   %%eax               # Save new EFLAGS value on stack  \n"
+    "popfl                       # Replace current EFLAGS value    \n"
+    "pushfl                      # Get new EFLAGS                  \n"
+    "popl    %%eax               # Store new EFLAGS in EAX         \n"
+    "popfl                                                         \n"
+    "xorl    %%ecx, %%eax        # Can not toggle ID bit,          \n"
+    "movl    %%eax, %0           # We have CPUID support           \n"
+    : "=m" (bitChanged)
+    : // No inputs
+    : "%eax", "%ecx"
+    );
+#elif defined(__GNUC__) && defined(__x86_64__) && !defined(G3D_OSX_INTEL)
+    // x86_64
 
-#    elif defined(__GNUC__) && defined(i386) && !defined(G3D_OSX_INTEL)
-        // Linux
-        __asm__ (
-"        pushfl                      # Get original EFLAGS             \n"
-"        pushfl                                                        \n"
-"        popl    %%eax                                                 \n"
-"        movl    %%eax, %%ecx                                          \n"
-"        xorl    $0x200000, %%eax    # Flip ID bit in EFLAGS           \n"
-"        pushl   %%eax               # Save new EFLAGS value on stack  \n"
-"        popfl                       # Replace current EFLAGS value    \n"
-"        pushfl                      # Get new EFLAGS                  \n"
-"        popl    %%eax               # Store new EFLAGS in EAX         \n"
-"        popfl                                                         \n"
-"        xorl    %%ecx, %%eax        # Can not toggle ID bit,          \n"
-"        movl    %%eax, %0           # We have CPUID support           \n"
-        : "=m" (bitChanged)
-        : // No inputs
-        : "%eax", "%ecx"
-        );
-
-#    else 
-       // Unknown architecture
-        _cpuID = false;
-#    endif
+    bitChanged = 1;
+#else 
+    // Unknown architecture
+    _cpuID = false;
+#endif
 
     _cpuID = ((bitChanged) ? true : false);
 }
@@ -668,81 +670,79 @@ void getStandardProcessorExtensions() {
         return;
     }
 
-    unsigned long features;
+    unsigned int features;
 
     // Invoking CPUID with '1' in EAX fills out edx with a bit string.
     // The bits of this value indicate the presence or absence of 
     // useful processor features.
-    #if defined(_MSC_VER) //|| defined(G3D_OSX_INTEL)
-        // Windows or OSX Intel
-
-            __asm {
-            push eax
-            push ebx
-            push ecx
-            push edx
-                    mov eax, 1
-                    cpuid
-                    mov features, edx
-            pop edx
-            pop ecx
-            pop ebx
-            pop eax
-            }
-
-    #elif defined(__GNUC__) && defined(i386) && ! defined(G3D_OSX_INTEL)
-        // Linux
-        __asm__ (
-                "movl    $1, %%eax                                                 \n"
-                "cpuid                       # Get family/model/stepping/features  \n"
-                "movl    %%edx, %0                                                 \n"
-                : 
-                "=m" (features)
-                : 
-                // No inputs
-                : 
-                "%eax", "%ebx", "%ecx", "%edx" );
-
-    #else
-        // Other
-        features = 0;
-    #endif
+#if defined(_MSC_VER)
+    // Windows
+    __asm {
+        push eax
+        push ebx
+        push ecx
+        push edx
+                mov eax, 1
+                cpuid
+                mov features, edx
+        pop edx
+        pop ecx
+        pop ebx
+        pop eax
+    }
+#elif defined(__GNUC__) && ! defined(G3D_OSX_INTEL)
+    // Linux
+    __asm__ (
+    "movl    $1, %%eax                                                 \n"
+    "cpuid                       # Get family/model/stepping/features  \n"
+    "movl    %%edx, %0                                                 \n"
+    : 
+    "=m" (features)
+    : 
+    // No inputs
+    : 
+    "%eax", "%ebx", "%ecx", "%edx"
+    );
+#else
+    // Other
+    features = 0;
+#endif
     
-        // FPU_FloatingPointUnit                                = checkBit(features, 0);
-        // VME_Virtual8086ModeEnhancements                      = checkBit(features, 1);
-        // DE_DebuggingExtensions                               = checkBit(features, 2);
-        // PSE_PageSizeExtensions                               = checkBit(features, 3);
-        // TSC_TimeStampCounter                                 = checkBit(features, 4);
-        // MSR_ModelSpecificRegisters                           = checkBit(features, 5);
-        // PAE_PhysicalAddressExtension                         = checkBit(features, 6);
-        // MCE_MachineCheckException                            = checkBit(features, 7);
-        // CX8_COMPXCHG8B_Instruction                           = checkBit(features, 8);
-        // APIC_AdvancedProgrammableInterruptController         = checkBit(features, 9);
-        // APIC_ID                                              = (ebxreg >> 24) & 0xFF;
-        // SEP_FastSystemCall                                   = checkBit(features, 11);
-        // MTRR_MemoryTypeRangeRegisters                        = checkBit(features, 12);
-        // PGE_PTE_GlobalFlag                                   = checkBit(features, 13);
-        // MCA_MachineCheckArchitecture                         = checkBit(features, 14);
-        // CMOV_ConditionalMoveAndCompareInstructions           = checkBit(features, 15);
+    // FPU_FloatingPointUnit                                = checkBit(features, 0);
+    // VME_Virtual8086ModeEnhancements                      = checkBit(features, 1);
+    // DE_DebuggingExtensions                               = checkBit(features, 2);
+    // PSE_PageSizeExtensions                               = checkBit(features, 3);
+    // TSC_TimeStampCounter                                 = checkBit(features, 4);
+    // MSR_ModelSpecificRegisters                           = checkBit(features, 5);
+    // PAE_PhysicalAddressExtension                         = checkBit(features, 6);
+    // MCE_MachineCheckException                            = checkBit(features, 7);
+    // CX8_COMPXCHG8B_Instruction                           = checkBit(features, 8);
+    // APIC_AdvancedProgrammableInterruptController         = checkBit(features, 9);
+    // APIC_ID                                              = (ebxreg >> 24) & 0xFF;
+    // SEP_FastSystemCall                                   = checkBit(features, 11);
+    // MTRR_MemoryTypeRangeRegisters                        = checkBit(features, 12);
+    // PGE_PTE_GlobalFlag                                   = checkBit(features, 13);
+    // MCA_MachineCheckArchitecture                         = checkBit(features, 14);
+    // CMOV_ConditionalMoveAndCompareInstructions           = checkBit(features, 15);
 
     // (According to SDL)
-        _rdtsc                                                   = checkBit(features, 16);
-        // PSE36_36bitPageSizeExtension                          = checkBit(features, 17);
-        // PN_ProcessorSerialNumber                              = checkBit(features, 18);
-        // CLFSH_CFLUSH_Instruction                              = checkBit(features, 19);
-        // CLFLUSH_InstructionCacheLineSize                      = (ebxreg >> 8) & 0xFF;
-        // DS_DebugStore                                         = checkBit(features, 21);
-        // ACPI_ThermalMonitorAndClockControl                    = checkBit(features, 22);
-        _mmx                                                     = checkBit(features, 23);
-        // FXSR_FastStreamingSIMD_ExtensionsSaveRestore          = checkBit(features, 24);
-        _sse                                                     = checkBit(features, 25);
-        _sse2                                                    = checkBit(features, 26);
-        // SS_SelfSnoop                                          = checkBit(features, 27);
-        // HT_HyperThreading                                     = checkBit(features, 28);
-        // HT_HyterThreadingSiblings                             = (ebxreg >> 16) & 0xFF;
-        // TM_ThermalMonitor                                     = checkBit(features, 29);
-        // IA64_Intel64BitArchitecture                           = checkBit(features, 30);
-        _3dnow                                                   = checkBit(features, 31);
+    _rdtsc                                                   = checkBit(features, 16);
+    // PSE36_36bitPageSizeExtension                          = checkBit(features, 17);
+    // PN_ProcessorSerialNumber                              = checkBit(features, 18);
+    // CLFSH_CFLUSH_Instruction                              = checkBit(features, 19);
+    // CLFLUSH_InstructionCacheLineSize                      = (ebxreg >> 8) & 0xFF;
+    // DS_DebugStore                                         = checkBit(features, 21);
+    // ACPI_ThermalMonitorAndClockControl                    = checkBit(features, 22);
+    _mmx                                                     = checkBit(features, 23);
+    // FXSR_FastStreamingSIMD_ExtensionsSaveRestore          = checkBit(features, 24);
+    _sse                                                     = checkBit(features, 25);
+    _sse2                                                    = checkBit(features, 26);
+    // SS_SelfSnoop                                          = checkBit(features, 27);
+    // HT_HyperThreading                                     = checkBit(features, 28);
+    // HT_HyterThreadingSiblings                             = (ebxreg >> 16) & 0xFF;
+    // TM_ThermalMonitor                                     = checkBit(features, 29);
+    // IA64_Intel64BitArchitecture                           = checkBit(features, 30);
+    _3dnow                                                   = checkBit(features, 31);
 }
 
 #undef checkBit
