@@ -44,7 +44,6 @@
     #include <sys/types.h>
     #include <sys/select.h>
     #include <termios.h>
-//#include <stropts.h>
     #include <unistd.h>
     #include <sys/ioctl.h>
     #include <sys/time.h>
@@ -74,9 +73,87 @@
 
 namespace G3D {
 
-uint32 crc32(const void* byte, size_t numBytes) {
-    return Crypto::crc32(byte, numBytes);
-}
+struct CpuInfo
+{
+public:
+    int     m_cpuSpeed;
+    bool    m_hasCPUID;
+    bool    m_hasRDTSC;
+    bool    m_hasMMX;
+    bool    m_hasSSE;
+    bool    m_hasSSE2;
+    bool    m_hasSSE3;
+    bool    m_has3DNOW;
+    char    m_cpuVendorStr[1024];
+};
+
+// helper macro to call cpuid functions and return all values
+#ifdef _MSC_VER
+#define CALL_CPUID(func, areg, breg, creg, dreg) \
+	__asm mov	eax, func   \
+	__asm cpuid             \
+	__asm mov	areg, eax   \
+	__asm mov	breg, ebx   \
+	__asm mov	creg, ecx   \
+	__asm mov	dreg, edx
+#elif defined(__GNUC__) && !defined(G3D_OSX_INTEL)
+#define CALL_CPUID(func, areg, breg, creg, dreg) \
+    __asm__ (           \
+    "cpuid \n":         \
+     "=a" (areg),       \
+     "=b" (breg),       \
+     "=c" (creg),       \
+     "=d" (dreg)        \
+    :"a" (func)         \
+    :                   \
+    );
+#else
+#define CALL_CPUID(func, areg, breg, creg, dreg) \
+    areg = 0;   \
+    breg = 0;   \
+    creg = 0;   \
+    dreg = 0;
+#endif
+
+static CpuInfo                                  g_cpuInfo = {
+    0, false, false, false, false, false, false, false, {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'}};
+
+static G3DEndian                                _machineEndian      = G3D_LITTLE_ENDIAN;
+static char                                     _cpuArchCstr[1024];
+static char                                     _operatingSystemCstr[1024];
+
+#ifdef G3D_WIN32
+/** Used by getTick() for timing */
+static LARGE_INTEGER                            _start;
+static LARGE_INTEGER                            _counterFrequency;
+#else
+static struct timeval                           _start;
+#endif
+
+static char                                     versionCstr[1024];
+System::OutOfMemoryCallback                     System::outOfMemoryCallback = NULL;
+
+#ifdef G3D_OSX
+long											System::m_OSXCPUSpeed;
+double											System::m_secondsPerNS;
+#endif
+
+/** The Real-World time of System::getTick() time 0.  Set by initTime */
+static RealTime             realWorldGetTickTime0;
+
+
+static unsigned int      maxSupportedCPUIDLevel = 0;
+static unsigned int      maxSupportedExtendedLevel = 0;
+
+/** Checks if the CPUID command is available on the processor (called from init) */
+static void checkForCPUID();
+
+/** ReadRead the standard processor extensions.  Called from init(). */
+static void getStandardProcessorExtensions();
+
+/** Called from init */
+static void initTime();
+
 
 std::string System::findDataFile(const std::string& full, bool errorIfNotFound) {
     if (fileExists(full)) {
@@ -207,96 +284,48 @@ std::string demoFindData(bool errorIfNotFound) {
     return "";
 }
 
-static int                                      _CPUSpeed           = 0;
-static bool                                     _rdtsc              = false;
-static bool                                     _mmx                = false;
-static bool                                     _sse                = false;
-static bool                                     _sse2               = false;
-static bool                                     _sse3               = false;
-static bool                                     _3dnow              = false;
-static char                                     _cpuVendorCstr[1024] = {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'};
-static bool                                     _cpuID              = false;
-static G3DEndian                                _machineEndian      = G3D_LITTLE_ENDIAN;
-static char                                     _cpuArchCstr[1024];
-static char                                     _operatingSystemCstr[1024];
-
-#ifdef G3D_WIN32
-/** Used by getTick() for timing */
-static LARGE_INTEGER                            _start;
-static LARGE_INTEGER                            _counterFrequency;
-#else
-static struct timeval                           _start;
-#endif
-
-static char                                     versionCstr[1024];
-System::OutOfMemoryCallback                     System::outOfMemoryCallback = NULL;
-
-#ifdef G3D_OSX
-long											System::m_OSXCPUSpeed;
-double											System::m_secondsPerNS;
-#endif
-
-/** The Real-World time of System::getTick() time 0.  Set by initTime */
-static RealTime             realWorldGetTickTime0;
-
-
-static int               maxSupportedCPUIDLevel = 0;
-static int               maxSupportedExtendedLevel = 0;
-
-#define checkBit(var, bit)   ((var & (1 << bit)) ? true : false)
-
-/** Checks if the CPUID command is available on the processor (called from init) */
-static void checkForCPUID();
-
-/** ReadRead the standard processor extensions.  Called from init(). */
-static void getStandardProcessorExtensions();
-
-/** Called from init */
-static void initTime();
-
-
 bool System::hasCPUID() {
     init();
-    return _cpuID;
+    return g_cpuInfo.m_hasCPUID;
 }
 
 bool System::hasRDTSC() {
     init();
-    return _rdtsc;
+    return g_cpuInfo.m_hasRDTSC;
 }
 
 
 bool System::hasSSE() {
     init();
-    return _sse;
+    return g_cpuInfo.m_hasSSE;
 }
 
 
 bool System::hasSSE2() {
     init();
-    return _sse2;
+    return g_cpuInfo.m_hasSSE2;
 }
 
 bool System::hasSSE3() {
 	init();
-	return _sse3;
+    return g_cpuInfo.m_hasSSE3;
 }
 
 bool System::hasMMX() {
     init();
-    return _mmx;
+    return g_cpuInfo.m_hasMMX;
 }
 
 
 bool System::has3DNow() {
     init();
-    return _3dnow;
+    return g_cpuInfo.m_has3DNOW;
 }
 
 
 const std::string& System::cpuVendor() {
     init();
-    static const std::string _cpuVendor = _cpuVendorCstr;
+    static const std::string _cpuVendor = g_cpuInfo.m_cpuVendorStr;
     return _cpuVendor;
 }
 
@@ -361,9 +390,6 @@ void System::init() {
             (G3D_VER / 100) % 100);
     }
 
-    unsigned int eaxreg, ebxreg, ecxreg, edxreg;
-    eaxreg = ebxreg = ecxreg = edxreg = 0;
- 
     // First of all we check if the CPUID command is available
     checkForCPUID();
 
@@ -377,90 +403,27 @@ void System::init() {
         }
     }
 
-    if (_cpuID) {
+    if (g_cpuInfo.m_hasCPUID) {
         // Process the CPUID information
 
         // We read the standard CPUID level 0x00000000 which should
         // be available on every x86 processor.  This fills out
         // a string with the processor vendor tag.
-        #if defined(_MSC_VER)
-            __asm {
-                push eax
-                push ebx
-                push ecx
-                push edx
-                mov eax, 0
-                cpuid
-                mov eaxreg, eax
-                mov ebxreg, ebx
-                mov edxreg, edx
-                mov ecxreg, ecx
-                pop edx
-                pop ecx
-                pop ebx
-                pop eax
-            }
-        #elif defined(__GNUC__) && !defined(G3D_OSX_INTEL)
-            asm (
-                "movl $0, %%eax \n"
-                "cpuid          \n"
-                "movl %%eax, %0 \n"
-                "movl %%ebx, %1 \n"
-                "movl %%ecx, %2 \n"
-                "movl %%edx, %3 \n"
-                : 
-                "=m" (eaxreg), 
-                "=m" (ebxreg), 
-                "=m" (ecxreg), 
-                "=m" (edxreg) 
-                :
-                // No inputs
-                : 
-                "%eax","%ebx","%ecx","%edx" );
-        #else
-            ebxreg = 0;
-            edxreg = 0;
-            ecxreg = 0;
-        #endif
+        unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0, edxreg = 0;
+
+        CALL_CPUID(0x00, eaxreg, ebxreg, ecxreg, edxreg);
 
         // Then we connect the single register values to the vendor string
-        *((unsigned long *) _cpuVendorCstr)       = ebxreg;
-        *((unsigned long *) (_cpuVendorCstr + 4)) = edxreg;
-        *((unsigned long *) (_cpuVendorCstr + 8)) = ecxreg;
-        _cpuVendorCstr[12] = '\0';
+        *((unsigned int*) g_cpuInfo.m_cpuVendorStr)         = ebxreg;
+        *((unsigned int*) (g_cpuInfo.m_cpuVendorStr + 4))   = edxreg;
+        *((unsigned int*) (g_cpuInfo.m_cpuVendorStr + 8))   = ecxreg;
+        g_cpuInfo.m_cpuVendorStr[12] = '\0';
 
         // We can also read the max. supported standard CPUID level
         maxSupportedCPUIDLevel = eaxreg & 0xFFFF;
 
         // Then we read the ext. CPUID level 0x80000000
-        #if defined(_MSC_VER)
-            __asm {
-                push eax
-                push ebx
-                push ecx
-                push edx
-                mov eax, 0x80000000
-                cpuid
-                mov eaxreg, eax
-                pop edx
-                pop ecx
-                pop ebx
-                pop eax
-            }
-        #elif defined(__GNUC__) && !defined(G3D_OSX_INTEL)
-            asm (
-                "movl $0x80000000, %%eax \n"
-                "cpuid                   \n"
-                "movl %%eax, %0          \n"
-                : 
-                "=m" (eaxreg)
-                :
-                // No inputs
-                : 
-                "%eax", "%ebx", "%ecx", "%edx" );
-        #else
-            eaxreg = 0;
-        #endif
+        CALL_CPUID(0x80000000, eaxreg, ebxreg, ecxreg, edxreg);
 
         // ...to check the max. supported extended CPUID level
         maxSupportedExtendedLevel = eaxreg;
@@ -490,8 +453,7 @@ void System::init() {
 
     #ifdef G3D_WIN32
         bool success = RegistryUtil::readInt32
-	  ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION"
-	   "\\System\\CentralProcessor\\0\\~MHz", _CPUSpeed);
+            ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0\\~MHz", g_cpuInfo.m_cpuSpeed);
 
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
@@ -607,8 +569,7 @@ void System::init() {
     getStandardProcessorExtensions();
 }
 
-
-void checkForCPUID() {
+static void checkForCPUID() {
     unsigned int bitChanged = 0;
 
     // We've to check if we can toggle the flag register bit 21.
@@ -636,116 +597,71 @@ void checkForCPUID() {
 #elif defined(__GNUC__) && defined(i386) && !defined(G3D_OSX_INTEL)
     // 32-bit g++
     __asm__ (
-    "pushfl                      # Get original EFLAGS             \n"
-    "pushfl                                                        \n"
-    "popl    %%eax                                                 \n"
-    "movl    %%eax, %%ecx                                          \n"
-    "xorl    $0x200000, %%eax    # Flip ID bit in EFLAGS           \n"
-    "pushl   %%eax               # Save new EFLAGS value on stack  \n"
-    "popfl                       # Replace current EFLAGS value    \n"
-    "pushfl                      # Get new EFLAGS                  \n"
-    "popl    %%eax               # Store new EFLAGS in EAX         \n"
-    "popfl                                                         \n"
-    "xorl    %%ecx, %%eax        # Can not toggle ID bit,          \n"
-    "movl    %%eax, %0           # We have CPUID support           \n"
-    : "=m" (bitChanged)
-    : // No inputs
-    : "%eax", "%ecx"
+        "pushfl                      # Get original EFLAGS             \n"
+        "pushfl                                                        \n"
+        "popl    %%eax                                                 \n"
+        "movl    %%eax, %%ecx                                          \n"
+        "xorl    $0x200000, %%eax    # Flip ID bit in EFLAGS           \n"
+        "pushl   %%eax               # Save new EFLAGS value on stack  \n"
+        "popfl                       # Replace current EFLAGS value    \n"
+        "pushfl                      # Get new EFLAGS                  \n"
+        "popl    %%eax               # Store new EFLAGS in EAX         \n"
+        "popfl                                                         \n"
+        "xorl    %%ecx, %%eax        # Can not toggle ID bit,          \n"
+        "movl    %%eax, %0           # We have CPUID support           \n"
+        : "=m" (bitChanged)
+        : // No inputs
+        : "%eax", "%ecx"
     );
 #elif defined(__GNUC__) && defined(__x86_64__) && !defined(G3D_OSX_INTEL)
-    // x86_64
+    // x86_64 has SSE and CPUID
 
     bitChanged = 1;
 #else 
     // Unknown architecture
-    _cpuID = false;
+    bitChanged = 0;
 #endif
 
-    _cpuID = ((bitChanged) ? true : false);
+    g_cpuInfo.m_hasCPUID = ((bitChanged == 0) ? false : true);
 }
 
-
 void getStandardProcessorExtensions() {
-    if (! _cpuID) {
+    if (! g_cpuInfo.m_hasCPUID) {
         return;
     }
 
-    unsigned int features;
+    unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0;
+    unsigned int features = 0;
+
+    // http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25481.pdf
+    // call cpuid with function 0x01 in EAX
 
     // Invoking CPUID with '1' in EAX fills out edx with a bit string.
     // The bits of this value indicate the presence or absence of 
     // useful processor features.
-#if defined(_MSC_VER)
-    // Windows
-    __asm {
-        push eax
-        push ebx
-        push ecx
-        push edx
-                mov eax, 1
-                cpuid
-                mov features, edx
-        pop edx
-        pop ecx
-        pop ebx
-        pop eax
+    CALL_CPUID(0x01, eaxreg, ebxreg, ecxreg, features);
+
+    #define checkBit(var, bit)   ((var & (1 << bit)) ? true : false)
+
+    g_cpuInfo.m_hasRDTSC    = checkBit(features, 16);
+    g_cpuInfo.m_hasMMX      = checkBit(features, 23);
+    g_cpuInfo.m_hasSSE      = checkBit(features, 25);
+    g_cpuInfo.m_hasSSE2     = checkBit(features, 26);
+    g_cpuInfo.m_hasSSE3     = checkBit(ecxreg, 0);
+
+    if (maxSupportedExtendedLevel >= 0x80000001)
+    {
+        // function 0x80000001 changes bit 31 of edx to 3dnow support flag
+        CALL_CPUID(0x80000001, eaxreg, ebxreg, ecxreg, features);
+        g_cpuInfo.m_has3DNOW = checkBit(features, 31);
     }
-#elif defined(__GNUC__) && ! defined(G3D_OSX_INTEL)
-    // Linux
-    __asm__ (
-    "movl    $1, %%eax                                                 \n"
-    "cpuid                       # Get family/model/stepping/features  \n"
-    "movl    %%edx, %0                                                 \n"
-    : 
-    "=m" (features)
-    : 
-    // No inputs
-    : 
-    "%eax", "%ebx", "%ecx", "%edx"
-    );
-#else
-    // Other
-    features = 0;
-#endif
-    
-    // FPU_FloatingPointUnit                                = checkBit(features, 0);
-    // VME_Virtual8086ModeEnhancements                      = checkBit(features, 1);
-    // DE_DebuggingExtensions                               = checkBit(features, 2);
-    // PSE_PageSizeExtensions                               = checkBit(features, 3);
-    // TSC_TimeStampCounter                                 = checkBit(features, 4);
-    // MSR_ModelSpecificRegisters                           = checkBit(features, 5);
-    // PAE_PhysicalAddressExtension                         = checkBit(features, 6);
-    // MCE_MachineCheckException                            = checkBit(features, 7);
-    // CX8_COMPXCHG8B_Instruction                           = checkBit(features, 8);
-    // APIC_AdvancedProgrammableInterruptController         = checkBit(features, 9);
-    // APIC_ID                                              = (ebxreg >> 24) & 0xFF;
-    // SEP_FastSystemCall                                   = checkBit(features, 11);
-    // MTRR_MemoryTypeRangeRegisters                        = checkBit(features, 12);
-    // PGE_PTE_GlobalFlag                                   = checkBit(features, 13);
-    // MCA_MachineCheckArchitecture                         = checkBit(features, 14);
-    // CMOV_ConditionalMoveAndCompareInstructions           = checkBit(features, 15);
+    else
+    {
+        g_cpuInfo.m_has3DNOW = false;
+    }
 
-    // (According to SDL)
-    _rdtsc                                                   = checkBit(features, 16);
-    // PSE36_36bitPageSizeExtension                          = checkBit(features, 17);
-    // PN_ProcessorSerialNumber                              = checkBit(features, 18);
-    // CLFSH_CFLUSH_Instruction                              = checkBit(features, 19);
-    // CLFLUSH_InstructionCacheLineSize                      = (ebxreg >> 8) & 0xFF;
-    // DS_DebugStore                                         = checkBit(features, 21);
-    // ACPI_ThermalMonitorAndClockControl                    = checkBit(features, 22);
-    _mmx                                                     = checkBit(features, 23);
-    // FXSR_FastStreamingSIMD_ExtensionsSaveRestore          = checkBit(features, 24);
-    _sse                                                     = checkBit(features, 25);
-    _sse2                                                    = checkBit(features, 26);
-    // SS_SelfSnoop                                          = checkBit(features, 27);
-    // HT_HyperThreading                                     = checkBit(features, 28);
-    // HT_HyterThreadingSiblings                             = (ebxreg >> 16) & 0xFF;
-    // TM_ThermalMonitor                                     = checkBit(features, 29);
-    // IA64_Intel64BitArchitecture                           = checkBit(features, 30);
-    _3dnow                                                   = checkBit(features, 31);
+    #undef checkBit
 }
-
-#undef checkBit
 
 #if defined(SSE)
 
@@ -1734,6 +1650,7 @@ void System::describeSystem(
         var(t, "hasMMX", System::hasMMX());
         var(t, "hasSSE", System::hasSSE());
         var(t, "hasSSE2", System::hasSSE2());
+        var(t, "hasSSE3", System::hasSSE3());
         var(t, "has3DNow", System::has3DNow());
         var(t, "hasRDTSC", System::hasRDTSC());
     t.popIndent();
@@ -1754,7 +1671,7 @@ void System::describeSystem(
 
 
 int System::cpuSpeedMHz() {
-    return _CPUSpeed;
+    return g_cpuInfo.m_cpuSpeed;
 }
 
 
