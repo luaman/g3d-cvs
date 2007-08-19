@@ -22,7 +22,7 @@
 
 #include <cstdlib>
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
     // disable: "C++ exception handler used"
 #   pragma warning (push)
 #   pragma warning (disable : 4530)
@@ -387,6 +387,6 @@ std::string __cdecl consolePrintf(const char* fmt ...) {
 
 } // namespace
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   pragma warning (pop)
 #endif

@@ -50,7 +50,7 @@ Vector3 CollisionDetection::separatingAxisForSolidBoxSolidBox(
     return axis;
 }
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   pragma warning (push)
 #   pragma warning (disable : 4244)
 #endif
@@ -1998,6 +1998,6 @@ bool CollisionDetection::movingSpherePassesThroughFixedSphere(
 
 
 } // namespace
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #pragma warning (pop)
 #endif

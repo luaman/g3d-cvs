@@ -24,7 +24,7 @@
 #include <vector>
 #include <algorithm>
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   include <new>
     
 #   pragma warning (push)
@@ -1149,8 +1149,8 @@ template<class T> bool contains(const T* array, int len, const T& e) {
 
 } // namespace
 
+#ifdef _MSC_VER
+#   pragma warning (pop)
 #endif
 
-#ifdef G3D_WIN32
-#   pragma warning (push)
 #endif

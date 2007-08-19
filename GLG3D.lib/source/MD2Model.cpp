@@ -501,7 +501,7 @@ size_t MD2Model::mainMemorySize() const {
 
 MeshAlg::Geometry MD2Model::interpolatedFrame;
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
     // Supress warnings about mutating ebx and ebp; we 
     // push and pop them during the asm code of getGeometry
     // to get 2 extra registers
@@ -686,7 +686,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
     #endif
 }
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
     #pragma warning( pop )
 #endif
 

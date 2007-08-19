@@ -31,7 +31,7 @@
 
 #include <cstdlib>
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 // conditional expression is constant
 #   pragma warning (disable : 4127)
 #endif

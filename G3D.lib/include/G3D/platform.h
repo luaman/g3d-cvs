@@ -85,7 +85,7 @@
 #endif
 
 
-#if defined(G3D_WIN32) && !defined(G3D_MINGW)
+#ifdef _MSC_VER
 // Microsoft Visual C++ 8.0 ("Express")       = 1400
 // Microsoft Visual C++ 7.1	("2003") _MSC_VER = 1310
 // Microsoft Visual C++ 7.0	("2002") _MSC_VER = 1300

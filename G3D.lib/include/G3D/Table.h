@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <string>
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   pragma warning (push)
     // Debug name too long warning
 #   pragma warning (disable : 4786)
@@ -688,7 +688,7 @@ public:
 
 } // namespace
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   pragma warning (pop)
 #endif
 

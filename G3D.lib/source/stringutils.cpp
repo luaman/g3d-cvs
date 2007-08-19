@@ -14,10 +14,12 @@
 
 namespace G3D {
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
     // disable: "C++ exception handler used"
 #   pragma warning (push)
 #   pragma warning (disable : 4530)
+#endif
+#ifdef G3D_WIN32
     const char* NEWLINE = "\r\n";
 #else
     const char* NEWLINE = "\n";
@@ -225,6 +227,6 @@ std::string trimWhitespace(
 }; // namespace
 
 #undef NEWLINE
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   pragma warning (pop)
 #endif
