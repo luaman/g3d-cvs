@@ -1,3 +1,4 @@
 build
 temp
 buildlib.pyc
+.DS_Store
