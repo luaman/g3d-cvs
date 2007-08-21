@@ -307,7 +307,7 @@ def jar(args):
 
 def proj(args):
 
-    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'generator=', 'installdir='])
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'generator=', 'install-dir='])
     
     buildType = 'Release'
     installDir = ''
@@ -320,7 +320,7 @@ def proj(args):
         if opt == '--debug':
             buildType = 'Debug'
 
-        if opt == '--installdir':
+        if opt == '--install-dir':
             installDir = arg
             
     if buildGenerator == '':
@@ -417,7 +417,7 @@ proj       Generates system-dependent makefiles and projects via cmake.
                 generator string supported by cmake on build system
            --debug / --release
                 generate debug/release configuration (defaults to release)
-           --installdir=installDir
+           --install-dir=installDir
                 sets installation target directory
                 generated project will still have to make install target
 
