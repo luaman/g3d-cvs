@@ -100,12 +100,11 @@ public:
 #define CALL_CPUID(func, areg, breg, creg, dreg) \
     __asm__ (           \
     "cpuid \n":         \
-     "=a" (areg),       \
-     "=b" (breg),       \
-     "=c" (creg),       \
-     "=d" (dreg)        \
-    :"a" (func)         \
-    :                   \
+    "=a" (areg),        \
+    "=b" (breg),        \
+    "=c" (creg),        \
+    "=d" (dreg):        \
+    "a" (func):         \
     );
 #else
 #define CALL_CPUID(func, areg, breg, creg, dreg) \
@@ -534,7 +533,7 @@ void System::init() {
                  
         // Clock Cycle Timing Information:
         Gestalt('pclk', &System::m_OSXCPUSpeed);
-        _CPUSpeed = iRound((double)m_OSXCPUSpeed / (1024 * 1024));
+        g_cpuInfo.cpuSpeed = iRound((double)m_OSXCPUSpeed / (1024 * 1024));
         m_secondsPerNS = 1.0 / 1.0e9;
         
         // System Architecture:
@@ -549,16 +548,16 @@ void System::init() {
 		case CPU_SUBTYPE_POWERPC_750:
 		case CPU_SUBTYPE_POWERPC_7400:
 		case CPU_SUBTYPE_POWERPC_7450:
-		    strcpy(_cpuVendorCstr, "Motorola");
+		    strcpy(g_cpuInfo.cpuVendorStr, "Motorola");
 		    break;
 		case CPU_SUBTYPE_POWERPC_970:
-		    strcpy(_cpuVendorCstr, "IBM");
+		    strcpy(g_cpuInfo.cpuVendorStr, "IBM");
 		    break;
 		}
 		break;
 	    
 	        case CPU_TYPE_I386:
-		    strcpy(_cpuVendorCstr, "Intel");
+		    strcpy(g_cpuInfo.cpuVendorStr, "Intel");
 		    break;
 	    }
 	}
