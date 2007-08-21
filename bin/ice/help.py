@@ -26,35 +26,50 @@ def printVersion(version):
 def printHelp():
     print ("""
 iCompile: the zero-configuration build system
-    
-icompile  [--doc] [--opt|--debug] [--clean] [--version]
+
+icompile  [--doc] [--opt | --debug] [--clean] [--version]
           [--config <custom .icompile>] [--verbosity n]
           [--help] [--noprompt [--template <tname>]] [--info] 
-          [--run|--gdb ...]
+          [--deploy | --run <args> | --gdb <args>]
 
 iCompile can build most C++ projects without options or manual
 configuration.  Just type 'icompile' with no arguments.  Run in an
 empty directory to generate a set of starter files.
 
 Options:
- --doc            Generate documentation before building.
- 
- --debug          (Default) Create a debug executable (define _DEBUG,
-                  disable optimizations).
-                  
- --opt or -O      Generate an optimized executable.
- 
- --run            Run the program if compilation succeeds, passing all
-                  further arguments (...) to the program.
-
  --config <file>  Use <file> instead of ~/.icompile as the user configuration
                   file.  This allows you to build certain projects with
                   a different compiler or include paths without changing the
                   project ice.txt file, e.g., when installing a 3rd party library
                   
+ --debug          (Default) Create a debug executable (define _DEBUG,
+                  disable optimizations).
+
+ --deploy         Create a distributable application in the build directory.
+                  This should only be used for GUI applications, not command-line
+                  tools. Changes the target default to --opt.
+ 
+ --doc            Generate documentation before building.
+ 
  --gdb            Run the program under gdb if compilation succeeds,
                   passing all further arguments (...) to the program.
                   You can also just run gdb yourself after using iCompile.
+
+ --info           Read configuration files and command line options, but instead
+                  of building, print out information about where the generated
+                  file will go.
+
+ --noprompt       Run even if there is no ice.txt file, don't prompt the
+                  user for input.  This is handy for launching iCompile
+                  from automated build shell scripts.  If
+                  --template <tname> is specified as well, a default
+                  set of files will be built.  The only legal templates
+                  are 'hello', 'G3D', and 'empty' (default).
+
+ --opt or -O      Generate an optimized executable.
+ 
+ --run            Run the program if compilation succeeds, passing all
+                  further arguments (...) to the program.
 
  --verbosity n    Change the amount of information printed by icompile
 
@@ -69,16 +84,6 @@ Options:
                   3   |   Trace: Additional debugging information is also
                       |   displayed.
 
- --noprompt       Run even if there is no ice.txt file, don't prompt the
-                  user for input.  This is handy for launching iCompile
-                  from automated build shell scripts.  If
-                  --template <tname> is specified as well, a default
-                  set of files will be built.  The only legal templates
-                  are 'hello', 'G3D', and 'empty' (default).
-
- --info           Read configuration files and command line options, but instead
-                  of building, print out information about where the generated
-                  file will go.
 
 Exclusive options:
  --help           Print this information.
@@ -98,6 +103,8 @@ iCompile will not look for source files in directories matching: """ +
 
 You may edit ice.txt and ~/.icompile if your project has unusual configuration
 needs.  See manual.html or http://ice.sf.net for full information.
+iCompile was created by Morgan McGuire with additional programming by
+Robert Hunter and Corey Taylor.
 """)
     sys.exit(0)
 

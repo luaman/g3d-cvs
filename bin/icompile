@@ -29,6 +29,7 @@ from ice.variables import *
 from ice.doticompile import *
 from ice.doxygen import *
 from ice.library import *
+from ice.deploy import *
 import ice.copyifnewer
 from ice.copyifnewer import copyIfNewer
 from ice.topsort import *
@@ -46,7 +47,7 @@ if int(sys.version[:string.find(sys.version, '.')]) < 2:
 """ Loads the icompile cache that preserves values between calls """
 def loadCache(state, filename):
 
-    if verbosity >= TRACE: print "Loading cache from " + filename + "\n"
+    if ice.utils.verbosity >= TRACE: print "Loading cache from " + filename + "\n"
 
     if os.path.exists(filename):
         file = open(filename, 'r')
@@ -55,10 +56,10 @@ def loadCache(state, filename):
         except:
             # The cache was corrupted; ignore it
             state.cache = {}
-            if verbosity >= NORMAL: 
+            if ice.utils.verbosity >= NORMAL: 
                 print "Internal iCompile cache at '" + filename + "' corrupted."
 
-        if verbosity >= TRACE: print "cache = ", state.cache
+        if ice.utils.verbosity >= TRACE: print "cache = ", state.cache
 
 
         file.close()
@@ -87,12 +88,12 @@ def buildDocumentation():
         createDoxyfile()
         print "Done creating 'Doxyfile'\n\n"
 
-    run("doxygen", ["Doxyfile"], verbosity >= VERBOSE)
+    run("doxygen", ["Doxyfile"], ice.utils.verbosity >= VERBOSE)
 
     if (os.path.exists(state.rootDir + 'doc-files')):
         copyIfNewer(rootDir + 'doc-files', 
                     state.buildDir + 'doc', 
-                    verbosity >= VERBOSE)
+                    ice.utils.verbosity >= VERBOSE)
 
     maybeColorPrint('Done building documentation', SECTION_COLOR)
 
@@ -108,12 +109,12 @@ def buildDataFiles(state):
         outOfDate = copyIfNewer(src, dst, False, False, False)
 
         if outOfDate:
-            if verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
-            copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity == NORMAL)
-            if verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
+            if ice.utils.verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
+            copyIfNewer(src, dst, ice.utils.verbosity >= VERBOSE, ice.utils.verbosity == NORMAL)
+            if ice.utils.verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
             maybePrintBar()
         else:
-            if verbosity > NORMAL:
+            if ice.utils.verbosity > NORMAL:
                 colorPrint('\nData files are up to date', SECTION_COLOR)
                 maybePrintBar()
                 
@@ -126,21 +127,21 @@ def buildInclude(state):
     dst = state.installDir + 'include'
     
     if os.path.exists(src):
-        if verbosity >= NORMAL: colorPrint('\nCopying public header files', SECTION_COLOR)
-        copyIfNewer(src, dst, verbosity >= VERBOSE, verbosity >= NORMAL)
-        if verbosity >= VERBOSE: colorPrint('Done copying public header files', SECTION_COLOR)
+        if ice.utils.verbosity >= NORMAL: colorPrint('\nCopying public header files', SECTION_COLOR)
+        copyIfNewer(src, dst, ice.utils.verbosity >= VERBOSE, ice.utils.verbosity >= NORMAL)
+        if ice.utils.verbosity >= VERBOSE: colorPrint('Done copying public header files', SECTION_COLOR)
 
 ##############################################################################
 #                                 Build Clean                                #
 ##############################################################################
 
 def buildClean(state):
-    if verbosity >= NORMAL: colorPrint('Deleting all generated files', SECTION_COLOR)
+    if ice.utils.verbosity >= NORMAL: colorPrint('Deleting all generated files', SECTION_COLOR)
     
-    rmdir(state.buildDir, verbosity >= VERBOSE)
-    rmdir(state.tempDir, verbosity >= VERBOSE)
+    rmdir(state.buildDir, ice.utils.verbosity >= VERBOSE)
+    rmdir(state.tempDir, ice.utils.verbosity >= VERBOSE)
 
-    if verbosity >= VERBOSE: colorPrint('Done deleting generated files\n', SECTION_COLOR)
+    if ice.utils.verbosity >= VERBOSE: colorPrint('Done deleting generated files\n', SECTION_COLOR)
 
 
 #########################################################################
@@ -153,7 +154,7 @@ def makeObjectFile(state, cfile, options):
     # Create the directory for the ofile as needed
     i = ofile.rfind("/")
     if (i >= 0):
-        mkdir(ofile[:i], verbosity >= VERBOSE)
+        mkdir(ofile[:i], ice.utils.verbosity >= VERBOSE)
 
     args = string.split(options) 
   
@@ -165,19 +166,19 @@ def makeObjectFile(state, cfile, options):
 
     args += ['-o', ofile, cfile]
 
-    if verbosity == NORMAL:
+    if ice.utils.verbosity == NORMAL:
         # 'run' will not print the full command, so we just
         # print the filename to be compiled here.  Flush
         # stdout so that the names appear during compilation.
         print shortname(state.rootDir, cfile)
         sys.stdout.flush()
 
-    ret = run(state.compiler, args, verbosity >= VERBOSE)
+    ret = run(state.compiler, args, ice.utils.verbosity >= VERBOSE)
 
     if ret != 0:
         sys.exit(ret)
     else:
-        if verbosity >= VERBOSE: print
+        if ice.utils.verbosity >= VERBOSE: print
 
 #########################################################################
 
@@ -197,7 +198,7 @@ def extendLibrariesWithDependencies(libraries, state):
                 if not dependency in libraries:
                     # This is a new dependency, add it to both the process
                     # stack and to the set of libraries
-                    if (verbosity >= TRACE):
+                    if (ice.utils.verbosity >= TRACE):
                         print libname + ' triggered a link to ' + dependency
                     libraries.add(dependency)
                     stack.append(dependency)
@@ -222,7 +223,7 @@ def getLinkerOptions(state, allFiles):
             libs = headerToLibraryTable[header]
             libraries.update(libs)
                 
-            if verbosity >= TRACE:
+            if ice.utils.verbosity >= TRACE:
                 if len(libs) > 1:
                    print '#include "' + header + '" triggered links to ' + libs
                 elif len(libs) > 0:
@@ -241,9 +242,9 @@ def getLinkerOptions(state, allFiles):
 
     # Topologically sort library list to satisfy linker ordering
     libList = [libname for libname in libraries]
-    if verbosity >= TRACE: print 'Libraries before sort: ', libList
+    if ice.utils.verbosity >= TRACE: print 'Libraries before sort: ', libList
     sortLibraries(libList)
-    if verbosity >= TRACE: print 'Libraries after sort: ', libList
+    if ice.utils.verbosity >= TRACE: print 'Libraries after sort: ', libList
 
     # Separate into static libs, dynamic libs, and frameworks
     allLinks = []
@@ -263,11 +264,11 @@ def getLinkerOptions(state, allFiles):
                 elif (lib.type != FRAMEWORK) and (lib.releaseLib != None):
                     allLinks += ['-l' + rawLibraryFilename(findLibrary(lib.releaseLib, lib.type, state.libraryPaths()))]
 
-        elif verbosity >= NORMAL:
+        elif ice.utils.verbosity >= NORMAL:
             colorPrint("Detected use of the '" + libname + 
                       "' library, which iCompile does not know how to use.", WARNING_COLOR)
 
-    if verbosity >= TRACE:
+    if ice.utils.verbosity >= TRACE:
         print 'Library link options: ', allLinks
     
     return opt + allLinks
@@ -276,13 +277,13 @@ def getLinkerOptions(state, allFiles):
 
 """ Makes a static library from a list of object files and libraries."""
 def makeStaticLibrary(state, objectFiles):
-    if verbosity >= QUIET: colorPrint("\nCreating static library", SECTION_COLOR)
+    if ice.utils.verbosity >= QUIET: colorPrint("\nCreating static library", SECTION_COLOR)
 
-    ret = run('ar', ['cr', state.binaryDir + state.binaryName] + objectFiles, verbosity >= VERBOSE)
-    if verbosity >= VERBOSE: print
+    ret = run('ar', ['cr', state.binaryDir + state.binaryName] + objectFiles, ice.utils.verbosity >= VERBOSE)
+    if ice.utils.verbosity >= VERBOSE: print
     
     if (ret == 0):
-        ret = run('ranlib', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
+        ret = run('ranlib', [state.binaryDir + state.binaryName], ice.utils.verbosity >= VERBOSE)
 
 
 #########################################################################
@@ -321,15 +322,15 @@ def makeExecutable(state, objectFiles, linkOptions):
 	    # framework.  This option appears to work around the problem.
 	    options += ['-all_load']
 
-    if verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
+    if ice.utils.verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
 
-    ret = run(state.compiler, options, verbosity >= VERBOSE)
+    ret = run(state.compiler, options, ice.utils.verbosity >= VERBOSE)
 
     if ret != 0:
         sys.exit(ret)
     elif (state.target == RELEASE):
         # Strip debug symbols
-	run('strip', [state.binaryDir + state.binaryName], verbosity >= VERBOSE)
+	run('strip', [state.binaryDir + state.binaryName], ice.utils.verbosity >= VERBOSE)
 
 ###################################################################################
 
@@ -343,8 +344,8 @@ def buildDependencyProjects(state):
     # Create arguments to pass to the child icompile process
     libArgs = ['--config', state.preferenceFile()]
     
-    # We don't need to pass verbosity because it is globally 
-    # specified; FYI, ['--verbosity', str(verbosity - QUIET)]
+    # We don't need to pass ice.utils.verbosity because it is globally 
+    # specified; FYI, ['--verbosity', str(ice.utils.verbosity - QUIET)]
 
     if state.target == DEBUG:
         libArgs.append('--debug')
@@ -364,25 +365,25 @@ def buildDependencyProjects(state):
 """ Creates the object files and links them. """
 def buildBinary(state):
 
-    if verbosity >= NORMAL: 
+    if ice.utils.verbosity >= NORMAL: 
         printBar()
         colorPrint('Building ' + state.binaryName, SECTION_COLOR)
 
     # Create the temp directory for object files
-    mkdir(state.objDir, verbosity >= VERBOSE)
+    mkdir(state.objDir, ice.utils.verbosity >= VERBOSE)
 
-    if verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
-    (cfiles, dependencies, files, parents) = getDependencyInformation(state, verbosity)
+    if ice.utils.verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
+    (cfiles, dependencies, files, parents) = getDependencyInformation(state, ice.utils.verbosity)
 
-    if verbosity >= TRACE: 
+    if ice.utils.verbosity >= TRACE: 
         print '\nBefore identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
 
     identifySiblingLibraryDependencies(files, parents, state)
 
-    if verbosity >= TRACE: 
+    if ice.utils.verbosity >= TRACE: 
         print '\nAfter identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
 
-    if verbosity >= TRACE:
+    if ice.utils.verbosity >= TRACE:
         print 'Header files #included:'
         for f in files:
             print '  ' + f
@@ -405,12 +406,12 @@ def buildBinary(state):
     copt = string.join(getCompilerOptions(state, 
         files, state.compilerWarningOptions + state.compilerVerboseOptions), ' ')
 
-    if verbosity >= TRACE:
+    if ice.utils.verbosity >= TRACE:
         print "\nBuilding out of date files\n"    
 
     # Build all out of date files
     if (buildList != []):
-        if verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
+        if ice.utils.verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
     
     for file in buildList:
         makeObjectFile(state, file, copt)
@@ -430,7 +431,7 @@ def buildBinary(state):
         exeTime = getTimeStamp(state.binaryDir + state.binaryName)
         for file in ofiles:
             if getTimeStamp(file) > exeTime:
-                if verbosity >= TRACE:
+                if ice.utils.verbosity >= TRACE:
                     print ("Relinking because " + file + 
                            " is newer than " + state.binaryDir + state.binaryName)
                 doLink = True
@@ -439,7 +440,7 @@ def buildBinary(state):
     # Only link when necessary
     if doLink:
         if not os.path.exists(state.binaryDir):
-            mkdir(state.binaryDir, verbosity >= VERBOSE)
+            mkdir(state.binaryDir, ice.utils.verbosity >= VERBOSE)
 
         if ((state.binaryType == EXE) or
             (state.binaryType == DLL)):
@@ -453,9 +454,9 @@ def buildBinary(state):
             # Static library.
             makeStaticLibrary(state, ofiles)
 
-        if verbosity >= NORMAL: printLineCount(state)
+        if ice.utils.verbosity >= NORMAL: printLineCount(state)
 
-    if verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
+    if ice.utils.verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
     
 #########################################################################
 
@@ -609,7 +610,7 @@ def configureGpp(state):
     if state.os == 'linux':
         # LARGEFILE_SOURCE enables some newer interfaces for
         # fopen that work with >2GB files
-        flags = shell('getconf LFS_CFLAGS', verbosity >= VERBOSE)
+        flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
         state.compilerOptions += string.split(flags, ' ')
 
     if state.os == 'osx':
@@ -691,12 +692,12 @@ def printLineCount(state):
   args     - arguments to iCompile
   progArgs - arguments to pass on to the compiled program
 """
-def main(state, args, progArgs, doGDB, doRun):
+def main(state, args, progArgs, doGDB, doRun, doDeploy):
     if ('--info' in args):
         printInfo(state);
         sys.exit(0)
 
-    if (verbosity >= TRACE):
+    if (ice.utils.verbosity >= TRACE):
         print state
             
     if '--clean' in args:
@@ -719,7 +720,7 @@ def main(state, args, progArgs, doGDB, doRun):
         buildInclude(state)
         maybePrintBar()
 
-    if (verbosity >= NORMAL):
+    if (ice.utils.verbosity >= NORMAL):
         if state.binaryType == EXE:
             print '\nExecutable written to ' + state.binaryDir + state.binaryName
         else:
@@ -733,6 +734,10 @@ def main(state, args, progArgs, doGDB, doRun):
         maybePrintBar()
         return runCompiledProgram(state, progArgs)
 
+    if doDeploy:
+        maybePrintBar()
+        deploy(state)
+        
     return 0
 
 ########################################################################################
@@ -771,22 +776,28 @@ def icompile(projectDir, allArgs):
 
     doGDB   = '--gdb' in args
     doRun   = '--run' in args
+    doDeploy = '--deploy' in args
 
-    if doGDB and doRun:
-        colorPrint('Cannot specify both --gdb and --run options.', WARNING_COLOR)
+    c = 0
+    if doGDB: c = c + 1
+    if doRun: c = c + 1
+    if doDeploy: c = c + 1
+
+    if c > 1:
+        colorPrint('Cannot specify more than one of --gdb, --run, or --deploy.', WARNING_COLOR)
         sys.exit(-1)
 
-    if (doGDB or doRun) and (state.binaryType != EXE):
-        colorPrint('Cannot specify --gdb or --run for a library.', WARNING_COLOR)
+    if (doGDB or doRun or doDeploy) and (state.binaryType != EXE):
+        colorPrint('Cannot specify --gdb, --run, or --deploy for a library.', WARNING_COLOR)
         sys.exit(-1)
 
     # Load cached dependencies for this project
     cacheFilename = pathConcat(state.tempDir, '.icompile-cache')
     loadCache(state, cacheFilename)
 
-    ret = main(state, args, progArgs, doGDB, doRun)
+    ret = main(state, args, progArgs, doGDB, doRun, doDeploy)
 
-    mkdir(state.tempDir, verbosity >= VERBOSE)
+    mkdir(state.tempDir, ice.utils.verbosity >= VERBOSE)
     saveCache(state, cacheFilename)
 
     os.chdir(curdir)
@@ -809,8 +820,8 @@ if __name__ == '__main__':
     if i > -1:
         if i < len(args) - 1:
             try:
-                # Clamp verbosity to the legal levels
-                verbosity = max(min(string.atoi(args[i + 1]) + QUIET, TRACE), QUIET)
+                # Clamp ice.utils.verbosity to the legal levels
+                ice.utils.verbosity = max(min(string.atoi(args[i + 1]) + QUIET, TRACE), QUIET)
             except ValueError:
                 maybeWarn('WARNING: illegal --verbosity argument: ' + args[i + 1], state)
         else:
@@ -827,7 +838,7 @@ if __name__ == '__main__':
 
     ret = icompile('.', sys.argv[1:])
 
-    if (verbosity >= NORMAL) and doBeep:
+    if (ice.utils.verbosity >= NORMAL) and doBeep:
         beep()
 
     sys.exit(ret)

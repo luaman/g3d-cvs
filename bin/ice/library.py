@@ -43,9 +43,13 @@ class Library:
     # sort for link ordering
     dependsOnList    = None
 
+    # If true, when deployed this dynamic lib or framework should be copied
+    # to the user's machine
+    deploy           = None
+
     def __init__(self, name, type, releaseLib, debugLib, 
                  releaseFramework, debugFramework, headerList,
-                 symbolList, dependsOnList):
+                 symbolList, dependsOnList, deploy = False):
         self.name             = name
         self.type             = type
         self.releaseLib       = releaseLib
@@ -55,6 +59,7 @@ class Library:
         self.headerList       = headerList
         self.symbolList       = symbolList
         self.dependsOnList    = dependsOnList
+        self.deploy           = deploy
 
 #
 # Create a table mapping canonical library names to descriptions of the library
@@ -103,7 +108,7 @@ else:
 # OS X frameworks are automatically ignored on linux
 for lib in [
 #       Canonical name  Type       Release    Debug      F.Release   F.Debug  Header List       Symbol list                                    Depends on
-Library('SDL',         DYNAMIC,   'SDL',     'SDL',     'SDL',      'SDL',    ['SDL.h'],        ['SDL_GetMouseState'],                         ['OpenGL', 'Cocoa', 'pthread']),
+Library('SDL',         DYNAMIC,   'SDL',     'SDL',     'SDL',      'SDL',    ['SDL.h'],        ['SDL_GetMouseState'],                         ['OpenGL', 'Cocoa', 'pthread'], True),
 Library('curses',      DYNAMIC,   'curses',  'curses',   None,       None,    ['curses.h'],     [],                                            []),
 Library('zlib',        DYNAMIC,   'z',       'z',        None,       None,    ['zlib.h'],       ['compress2'],                                 []),
 Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['zip.h'],        ['unzClose'],                                  ['zlib']),
@@ -120,13 +125,10 @@ Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
 Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           []),
-Library('ANN',         STATIC,    'ANN',     'ANN',      None,       None,    ['ANN.h'],        [],             [])
-]:
+Library('ANN',         STATIC,    'ANN',     'ANN',      None,       None,    ['ANN.h'],        [],                                            []),
+Library('FMOD',        DYNAMIC,   'fmodex',  'fmodex',   None,       None,    ['fmod.hpp', 'fmod.h'], [],                                      [])]:
     defineLibrary(lib)
 
-if isOSX:
-    defineLibrary(Library(
-        'FMOD',        DYNAMIC,   'fmodex','fmodex', None,   None,    ['fmod.hpp', 'fmod.h'], [], []))
 
 """ Constructs a dictionary mapping a library name to its
     relative dependency order in a library list. """

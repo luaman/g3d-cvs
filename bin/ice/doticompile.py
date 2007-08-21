@@ -360,7 +360,7 @@ def getConfigurationState(args):
                   "' and will be compiled as an executable.", state)
 
     # Choose target
-    if ('--opt' in args) or ('-O' in args):
+    if ('--opt' in args) or ('-O' in args) or (('--deploy' in args) and not ('--debug' in args)):
         if ('--debug' in args):
             colorPrint("Cannot specify '--debug' and '--opt' at " +
                        "the same time.", WARNING_COLOR)
