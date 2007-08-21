@@ -533,7 +533,7 @@ void System::init() {
                  
         // Clock Cycle Timing Information:
         Gestalt('pclk', &System::m_OSXCPUSpeed);
-        g_cpuInfo.cpuSpeed = iRound((double)m_OSXCPUSpeed / (1024 * 1024));
+        g_cpuInfo.m_cpuSpeed = iRound((double)m_OSXCPUSpeed / (1024 * 1024));
         m_secondsPerNS = 1.0 / 1.0e9;
         
         // System Architecture:
@@ -548,16 +548,16 @@ void System::init() {
 		case CPU_SUBTYPE_POWERPC_750:
 		case CPU_SUBTYPE_POWERPC_7400:
 		case CPU_SUBTYPE_POWERPC_7450:
-		    strcpy(g_cpuInfo.cpuVendorStr, "Motorola");
+		    strcpy(g_cpuInfo.m_cpuVendorStr, "Motorola");
 		    break;
 		case CPU_SUBTYPE_POWERPC_970:
-		    strcpy(g_cpuInfo.cpuVendorStr, "IBM");
+		    strcpy(g_cpuInfo.m_cpuVendorStr, "IBM");
 		    break;
 		}
 		break;
 	    
 	        case CPU_TYPE_I386:
-		    strcpy(g_cpuInfo.cpuVendorStr, "Intel");
+		    strcpy(g_cpuInfo.m_cpuVendorStr, "Intel");
 		    break;
 	    }
 	}
@@ -1630,6 +1630,18 @@ void System::describeSystem(
 
 void System::describeSystem(
     TextOutput& t) {
+
+    t.writeSymbols("App", "{");
+    t.writeNewline();
+    t.pushIndent();
+        var(t, "Name", System::currentProgramFilename());
+        char cwd[1024];
+        getcwd(cwd, 1024);
+        var(t, "cwd", cwd);
+    t.popIndent();
+    t.writeSymbols("}");
+    t.writeNewline();
+    t.writeNewline();
 
     t.writeSymbols("OS", "{");
     t.writeNewline();

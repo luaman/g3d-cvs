@@ -13,11 +13,15 @@
 
    <P>
    Changes in 7.01:
-   <ul>     
+   <ul> 
+     <li> System::describeSystem now prints current working directory and application name
      <li> Added /usr/local/-G3D dir- to system data file path [Kai Schroeder]
+     <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
+     <li> OS X build no longer depends on X11
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
-     <li> Fix: [ 1774479 ] texture glformats wrong
+     <li> Fix: GCamera::Frustum was facing backwards
+     <li> Fix: [ 1774479 ] texture glformats wrong (caused incorrect font rendering on Intel)
    </ul>
 
 <hr>
