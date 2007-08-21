@@ -184,7 +184,7 @@ def makeObjectFile(state, cfile, options):
 """ Add the dependencies from the libraries list (recursively)
     libraries must be a set of canonical library names
 """
-def extendLibrariesWithDependencies(libraries):
+def extendLibrariesWithDependencies(libraries, state):
     # Start with an initial list of all libraries
     stack = [libname for libname in libraries]
 
@@ -197,6 +197,8 @@ def extendLibrariesWithDependencies(libraries):
                 if not dependency in libraries:
                     # This is a new dependency, add it to both the process
                     # stack and to the set of libraries
+                    if (verbosity >= TRACE):
+                        print libname + ' triggered a link to ' + dependency
                     libraries.add(dependency)
                     stack.append(dependency)
 
@@ -227,7 +229,7 @@ def getLinkerOptions(state, allFiles):
                    print '#include "' + header + '" triggered a link to ' + libs[0]
 
     # Add the dependencies from the libraries list
-    extendLibrariesWithDependencies(libraries)
+    extendLibrariesWithDependencies(libraries, state)
     
     # Check for additional libraries that will be needed from the
     # symbols in the static libraries on which we depend.
