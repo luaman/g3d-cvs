@@ -14,6 +14,11 @@ INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
 # specify starter source
 ADD_EXECUTABLE(starter ${source_list})
 
+IF (MINGW)
+    # set mingw compiler flag to create non-console executables
+    SET_TARGET_PROPERTIES(starter PROPERTIES LINK_FLAGS -mwindows)
+ENDIF (MINGW)
+
 # specify starter executable linking dependencies 
 TARGET_LINK_LIBRARIES(starter ${ALL_EXE_LIBRARIES})
 

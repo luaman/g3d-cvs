@@ -14,6 +14,11 @@ INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
 # specify models source
 ADD_EXECUTABLE(models ${source_list})
 
+IF (MINGW)
+    # set mingw compiler flag to create non-console executables
+    SET_TARGET_PROPERTIES(models PROPERTIES LINK_FLAGS -mwindows)
+ENDIF (MINGW)
+
 # specify models executable linking dependencies 
 TARGET_LINK_LIBRARIES(models ${ALL_EXE_LIBRARIES})
 

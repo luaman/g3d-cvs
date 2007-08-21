@@ -14,6 +14,11 @@ INCLUDE_DIRECTORIES(${ALL_EXE_INCLUDE_DIRS})
 # specify gfxmeter source
 ADD_EXECUTABLE(gfxmeter ${source_list})
 
+IF (MINGW)
+    # set mingw compiler flag to create non-console executables
+    SET_TARGET_PROPERTIES(gfxmeter PROPERTIES LINK_FLAGS -mwindows)
+ENDIF (MINGW)
+
 # specify gfxmeter executable linking dependencies 
 TARGET_LINK_LIBRARIES(gfxmeter ${ALL_EXE_LIBRARIES})
 
