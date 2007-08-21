@@ -90,11 +90,15 @@ def defineLibrary(lib):
 
 isOSX = (os.uname()[0] == 'Darwin')
 
-# On non-OSX unix systems G3D needs X11
+# On non-OSX unix systems G3D needs X11.  On OS X, GL is a framework
 if not isOSX:
     maybeG3DX11 = ['X11']
+    maybeFwk    = DYNAMIC
 else:
     maybeG3DX11 = []
+    maybeFwk    = FRAMEWORK
+
+    
 
 # OS X frameworks are automatically ignored on linux
 for lib in [
@@ -103,11 +107,11 @@ Library('SDL',         DYNAMIC,   'SDL',     'SDL',     'SDL',      'SDL',    ['
 Library('curses',      DYNAMIC,   'curses',  'curses',   None,       None,    ['curses.h'],     [],                                            []),
 Library('zlib',        DYNAMIC,   'z',       'z',        None,       None,    ['zlib.h'],       ['compress2'],                                 []),
 Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['zip.h'],        ['unzClose'],                                  ['zlib']),
-Library('glut',        DYNAMIC,   'glut',    'glut',     None,       None,    ['glut.h'],       [],                                            []),
-Library('GLU',         DYNAMIC,   'GLU',     'GLU',      None,       None,    ['glu.h'],        ['gluBuild2DMipmaps'],                         ['OpenGL']),
-Library('OpenGL',      DYNAMIC,   'GL',      'GL',      'OpenGL',   'OpenGL', ['gl.h'],         ['glBegin', 'glVertex3'],                      []),
+Library('glut',        maybeFwk,  'glut',    'glut',     None,       None,    ['glut.h'],       [],                                            []),
+Library('OpenGL',      maybeFwk,  'GL',      'GL',      'OpenGL',   'OpenGL', ['gl.h'],         ['glBegin', 'glVertex3'],                      []),
 Library('jpeg',        DYNAMIC,   'jpeg',    'jpeg',     None,       None,    ['jpeg.h'],       ['jpeg_memory_src', 'jpeg_CreateCompress'],    []),
 Library('png',         DYNAMIC,   'png',     'png',      None,       None,    ['png.h'],        ['png_create_info_struct'],                    []),
+Library('GLU',         maybeFwk,  'GLU',     'GLU',      None,       None,    ['glu.h'],        ['gluBuild2DMipmaps'],                         ['OpenGL']),
 Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['Cocoa.h'],      ['DebugStr'],                                  []),
 Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                []),
 Library('AppleGL',     FRAMEWORK,  None,      None,     'AGL',      'AGL',    ['agl.h'],        ['_aglChoosePixelFormat'],                     []),
