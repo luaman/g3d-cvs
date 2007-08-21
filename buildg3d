@@ -307,7 +307,7 @@ def jar(args):
 
 def proj(args):
 
-    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'generator=', 'install='])
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'generator=', 'installdir='])
     
     buildType = 'Release'
     installDir = ''
@@ -320,9 +320,13 @@ def proj(args):
         if opt == '--debug':
             buildType = 'Debug'
 
-        if opt == '--install':
+        if opt == '--installdir':
             installDir = arg
             
+    if buildGenerator == '':
+        print '--generator option is required for proj target'
+        return -1
+
     cmakeArgs = ['-G "' + buildGenerator + '"', '-DCMAKE_BUILD_TYPE=' + buildType]
     if installDir != '':
         cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
@@ -403,18 +407,17 @@ help       Display this message
 DEVELOPER TARGETS (unsupported)
 
 proj       Generates system-dependent makefiles and projects via cmake.
-           The --generator option is required.
+           The --generator option is required. To find generators for
+           the build system run: cmake --help
            
            Example:
-           mkdir releaseBuild
-           cd releaseBuild
-           ../G3D/buildg3d proj --release --generator="MinGW Makefiles"
+           buildg3d proj --debug --generator="MinGW Makefiles"
            
            --generator="cmake generator"
                 generator string supported by cmake on build system
-           --debug
-                generate debug configuration (defaults to release)
-           --install=installDir
+           --debug / --release
+                generate debug/release configuration (defaults to release)
+           --installdir=installDir
                 sets installation target directory
                 generated project will still have to make install target
 
