@@ -114,7 +114,7 @@ template<class T> struct GHashCode< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/Pointer.h"
 #include "G3D/Matrix.h"
 
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 #   pragma comment(lib, "zlib")
 #   pragma comment(lib, "ws2_32")
 #   pragma comment(lib, "winmm")

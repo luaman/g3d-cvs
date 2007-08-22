@@ -19,7 +19,7 @@
 #include "G3D/G3D.h"
 
 // Set up the linker on Windows
-#ifdef G3D_WIN32
+#ifdef _MSC_VER
 
 #   pragma comment(lib, "ole32")
 #   pragma comment(lib, "opengl32")
