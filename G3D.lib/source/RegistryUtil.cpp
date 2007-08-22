@@ -208,7 +208,7 @@ bool RegistryUtil::writeInt32(const std::string& key, int32 valueData) {
         int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
-            result = RegSetValueExA(openKey, value.c_str(), NULL, REG_DWORD, reinterpret_cast<const BYTE*>(&valueData), sizeof(int32));
+            result = RegSetValueExA(openKey, value.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&valueData), sizeof(int32));
 
             debugAssertM(result == ERROR_SUCCESS, "Could not write registry key value.");
 
@@ -247,7 +247,7 @@ bool RegistryUtil::writeBytes(const std::string& key, const uint8* valueData, ui
         if ( result == ERROR_SUCCESS ) {
 
             if (valueData) {
-                result = RegSetValueExA(openKey, value.c_str(), NULL, REG_BINARY, reinterpret_cast<const BYTE*>(valueData), dataSize);
+                result = RegSetValueExA(openKey, value.c_str(), 0, REG_BINARY, reinterpret_cast<const BYTE*>(valueData), dataSize);
             }
 
             debugAssertM(result == ERROR_SUCCESS, "Could not write registry key value.");
@@ -284,7 +284,7 @@ bool RegistryUtil::writeString(const std::string& key, const std::string& valueD
         int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
-            result = RegSetValueExA(openKey, value.c_str(), NULL, REG_SZ, reinterpret_cast<const BYTE*>(valueData.c_str()), (valueData.size() + 1));                
+            result = RegSetValueExA(openKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(valueData.c_str()), (valueData.size() + 1));                
             debugAssertM(result == ERROR_SUCCESS, "Could not write registry key value.");
 
             RegCloseKey(openKey);
