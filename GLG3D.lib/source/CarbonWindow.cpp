@@ -17,6 +17,7 @@
 #include "GLG3D/glcalls.h"
 #include "GLG3D/UserInput.h"
 
+// TODO: Replace these with proper calls.
 #define OSX_MENU_BAR_HEIGHT 45
 #define OSX_WINDOW_TITLE_HEIGHT 22
 #define OSX_RESIZE_DIMS 10
@@ -67,6 +68,7 @@ EventTypeSpec CarbonWindow::_closeSpec = {kEventClassWindow, kEventWindowClose};
 // Static Helper Functions Prototypes
 static unsigned char makeKeyEvent(EventRef,GEvent&);
 static uint8 buttonsToUint8(const bool*);
+static OSStatus aglReportError();
 
 pascal void CarbonWindow::quitApplicationEventLoop(EventLoopTimerRef inTimer, void* inUserData) {
 	QuitApplicationEventLoop();
@@ -136,10 +138,29 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	_mouseVisible = true;
 	_receivedCloseEvent = false;
 	_windowActive = false;
-	_settings = s;	
+	_settings = s;
+	_glDrawable = 0;
 	
 	GLint attribs[100];
+	memset(attribs,AGL_NONE,sizeof(attribs));
 	int i = 0;
+	
+	// use component colors, not indexed colors
+	attribs[i++] = AGL_RGBA;				attribs[i++] = GL_TRUE;
+	attribs[i++] = AGL_DOUBLEBUFFER;		attribs[i++] = GL_TRUE;
+	attribs[i++] = AGL_PBUFFER;				attribs[i++] = GL_TRUE;
+	attribs[i++] = AGL_NO_RECOVERY;			attribs[i++] = GL_TRUE;
+
+	if (_settings.fullScreen) {
+		attribs[i++] = AGL_FULLSCREEN;		attribs[i++] = GL_TRUE;
+	}
+	else {
+		attribs[i++] = AGL_WINDOW;			attribs[i++] = GL_TRUE;
+	}
+	
+	if (_settings.stereo) {
+		attribs[i++] = AGL_STEREO;			attribs[i++] = GL_TRUE;
+	}
 	
 	attribs[i++] = AGL_RED_SIZE;			attribs[i++] = _settings.rgbBits;
 	attribs[i++] = AGL_GREEN_SIZE;			attribs[i++] = _settings.rgbBits;
@@ -149,16 +170,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	attribs[i++] = AGL_DEPTH_SIZE;			attribs[i++] = _settings.depthBits;
 	attribs[i++] = AGL_STENCIL_SIZE;		attribs[i++] = _settings.stencilBits;
 
-	if (_settings.stereo)					attribs[i++] = AGL_STEREO;
-
-	// use component colors, not indexed colors
-	attribs[i++] = AGL_RGBA;				attribs[i++] = GL_TRUE;
-	attribs[i++] = AGL_WINDOW;				attribs[i++] = GL_TRUE;
-	attribs[i++] = AGL_DOUBLEBUFFER;		attribs[i++] = GL_TRUE;
-	attribs[i++] = AGL_PBUFFER;				attribs[i++] = GL_TRUE;
-	attribs[i++] = AGL_NO_RECOVERY;			attribs[i++] = GL_TRUE;
 	attribs[i++] = AGL_NONE;
-	attribs[i++] = NULL;
 	
 	AGLPixelFormat format;
 	
@@ -169,10 +181,29 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 		if(_settings.y <= OSX_MENU_BAR_HEIGHT)
 			_settings.y = OSX_MENU_BAR_HEIGHT;
 	}
-	else {
-		// TODO: Add fullscreen code.
-	}
+	
+	// If the user wanted the window centered, then it is likely that our
+	// settings.x and .y are not right. We should set those now:
+	GDHandle displayHandle;
+	CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
 
+	if(_settings.fullScreen) {
+		_settings.x = rScreen.origin.x;
+		_settings.y = rScreen.origin.y;
+		_settings.width = rScreen.size.width;
+		_settings.height = rScreen.size.height;
+
+		CGDisplayCapture(kCGDirectMainDisplay);
+		osErr = DMGetGDeviceByDisplayID((DisplayIDType)kCGDirectMainDisplay,&displayHandle,false);
+	}
+	
+	if(!_settings.fullScreen && _settings.center) {
+		_settings.x = (rScreen.size.width - rScreen.origin.x)/2;
+		_settings.x = _settings.x - (_settings.width/2);
+		_settings.y = (rScreen.size.height - rScreen.origin.y)/2;
+		_settings.y = _settings.y - (_settings.height/2);
+	}
+	
 	Rect rWin = {_settings.y, _settings.x, _settings.height+_settings.y, _settings.width+_settings.x};
 	
 	_title = _settings.caption;
@@ -187,13 +218,39 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowClosed), GetEventTypeCount(_closeSpec), &_closeSpec, this, NULL);
 	
 	_glDrawable = (AGLDrawable) GetWindowPort(_window);
+
+	if(!_settings.fullScreen)
+		format = aglChoosePixelFormat(NULL,0,attribs);
+	else
+		format = aglChoosePixelFormat(&displayHandle,1,attribs);
 	
-	format = aglChoosePixelFormat(NULL,0,attribs);
+	osErr = aglReportError();
+	
+	alwaysAssertM(format != 0, "Unsupported Pixel Format.");
 	
 	_glContext = aglCreateContext(format,NULL/*TODO: Share context*/);
 	
-	aglSetDrawable(_glContext, _glDrawable);
+	alwaysAssertM(_glContext != NULL, "Failed to create OpenGL Context.");
+
+	aglDestroyPixelFormat(format);
+
+	if(_settings.fullScreen)
+		aglEnable(_glContext, AGL_FS_CAPTURE_SINGLE);
+	else
+		aglSetDrawable(_glContext, _glDrawable);
+		
+	osErr = aglReportError();
+	
+	alwaysAssertM(osErr == noErr, "Error Encountered Enabling Full Screen or Setting Drawable.");
+	
 	aglSetCurrentContext(_glContext);
+	
+	if(_settings.fullScreen)
+		aglSetFullScreen(_glContext,rScreen.size.width,rScreen.size.height,0,0);
+
+	osErr = aglReportError();
+	
+	alwaysAssertM(osErr == noErr, "Error Encountered Entering Full Screen Context Rendering.");
 
 	init(_window);
 }
@@ -599,6 +656,20 @@ static uint8 buttonsToUint8(const bool* buttons) {
     mouseButtons |= (buttons[3] ? 1 : 0) << 4;
     mouseButtons |= (buttons[4] ? 1 : 0) << 8;
     return mouseButtons;
+}
+
+static OSStatus aglReportError (void) {
+	GLenum err = aglGetError();
+	if (AGL_NO_ERROR != err) {
+		char errStr[256];
+		sprintf (errStr, "AGL Error: %s",(char *) aglErrorString(err));
+		std::cout << errStr << std::endl;
+	}
+
+	if (err == AGL_NO_ERROR)
+		return noErr;
+	else
+		return (OSStatus) err;
 }
 
 } // namespace G3D
