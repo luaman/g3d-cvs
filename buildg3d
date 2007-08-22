@@ -307,7 +307,7 @@ def jar(args):
 
 def proj(args):
 
-    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'generator=', 'install-dir='])
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release', 'generator=', 'install-dir='])
     
     buildType = 'Release'
     installDir = ''
