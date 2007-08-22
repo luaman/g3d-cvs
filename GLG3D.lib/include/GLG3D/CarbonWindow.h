@@ -37,6 +37,7 @@ private:
 	Vector2			_clientXY;
 	Settings		_settings;
 	std::string		_title;
+	CFStringRef		_titleRef;
 	
 	// Carbon Event Application Initialization
 	static bool					_runApplicationEventLoopCalled;
@@ -51,9 +52,10 @@ private:
 	
 	bool			_receivedCloseEvent;
 
-	/** Mouse and Keyboard Button State Array */
-	bool			_mouseButtons[3];
-	bool			_keyboardButtons[0xFF];
+    /** Mouse Button State Array: false - up, true - down
+        [0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
+	bool			_mouseButtons[8];
+	bool			_keyboardButtons[256];
 	
 	// TODO: Add Input Device Array
 	
@@ -68,8 +70,8 @@ private:
 	friend pascal OSStatus _internal::OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
 	friend pascal OSStatus _internal::OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
 	
+	static EventTypeSpec _resizeSpec[];
 	static EventTypeSpec _closeSpec;
-	static EventTypeSpec _resizeSpec;
 	
 	Array<GEvent>        _sizeEventInjects;
 
@@ -80,7 +82,9 @@ private:
 		e.resize.h = height;
 		_sizeEventInjects.append(e);
 	}
-
+	
+	bool makeMouseEvent(EventRef theEvent, GEvent& e);
+	
 	/** Called from all constructors */
 	void init(WindowRef window, bool creatingShareWindow = false);
 	
