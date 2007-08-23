@@ -14,7 +14,9 @@
    <P>
    Changes in 7.01:
    <ul> 
-     <li> Removed G3D::uint in favor of G3D::uint32
+     <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]
+     <li> G3D::CarbonWindow [Casey]
+     <li> Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
      <li> Added /usr/local/-G3D dir- to system data file path [Kai Schroeder]
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]

@@ -10,7 +10,7 @@ Notes:
 </UL>
 
 @created 2006-01-07
-@edited  2006-08-10
+@edited  2007-08-10
 */
 
 #include "GLG3D/Framebuffer.h"
@@ -107,6 +107,12 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 
 
 void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture) {
+    set(ap, texture, Texture::CUBE_NEG_X);
+}
+
+    
+void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face) {
+
     if (texture.isNull()) {
         // We're in the wrong overload
         set(ap, (void*)NULL);
@@ -137,14 +143,25 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture) {
                      "have identical dimensions!");
     }
     
-    attachmentTable.set(ap, Attachment(texture));
+    attachmentTable.set(ap, Attachment(texture, face));
+
+    bool isCubeMap = (texture->dimension() == Texture::DIM_CUBE_MAP) ||
+        (texture->dimension() == Texture::DIM_CUBE_MAP_NPOT);
 
     // Bind texture to framebuffer
-    glFramebufferTexture2DEXT(
-        GL_FRAMEBUFFER_EXT, 
-        ap, 
-        texture->openGLTextureTarget(), 
-        texture->openGLID(), 0);
+    if (isCubeMap) {
+        glFramebufferTexture2DEXT(
+            GL_FRAMEBUFFER_EXT, 
+            ap,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, 
+            texture->openGLID(), 0);
+    } else {
+        glFramebufferTexture2DEXT(
+            GL_FRAMEBUFFER_EXT, 
+            ap, 
+            texture->openGLTextureTarget(), 
+            texture->openGLID(), 0);
+    }
     debugAssertGLOk();
 
     // If we were already bound, don't bother restoring

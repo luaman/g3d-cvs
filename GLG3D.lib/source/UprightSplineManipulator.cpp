@@ -310,7 +310,7 @@ void UprightSplineManipulator::setTime(double t) {
     switch (m_mode) {
     case PLAY_MODE:
         if (m_spline.control.size() >= 4) {
-            m_currentFrame = m_spline.evaluate(t * m_sampleRate);
+            m_currentFrame = m_spline.evaluate((float)t * (float)m_sampleRate);
         } else {
             // Not enough points for a spline
             m_currentFrame = CoordinateFrame();

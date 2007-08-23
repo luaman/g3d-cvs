@@ -169,7 +169,10 @@ private:
         Type                        type;
 
         RenderbufferRef             renderbuffer;
-        Texture::Ref                  texture;
+        Texture::Ref                texture;
+
+        /** If texture is a cube map, this is the face that is bound */
+        Texture::CubeFace           cubeFace;
 
 		/** True if the texture had autoMipMap on when it was set. */
 		bool						hadAutoMipMap;
@@ -180,9 +183,10 @@ private:
             type(RENDERBUFFER), 
             renderbuffer(r) {}
 
-        Attachment(const Texture::Ref& r) : 
+        Attachment(const Texture::Ref& r, Texture::CubeFace c) : 
             type(TEXTURE), 
             texture(r),
+            cubeFace(c),
             hadAutoMipMap(r->settings().autoMipMap) {
 
 			if (hadAutoMipMap) {
@@ -197,7 +201,7 @@ private:
 
      Note: the uint32 key corresponds to an AttachmentPoint value
      */
-    Table<uint32, Attachment>  attachmentTable;
+    Table<uint32, Attachment>       attachmentTable;
 
 	/** OpenGL Object ID */
 	GLuint							framebufferID;
@@ -268,6 +272,8 @@ public:
 	 @param ap	Attachment point to bind texture to.
 	 */
 	void set(AttachmentPoint ap, const Texture::Ref& texture);
+
+    void set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face);
 
 	/**
 	 Set one of the attachment points to reference a renderbuffer.
