@@ -3,7 +3,7 @@
   
   @maintainer Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-24
-  @edited  2007-04-03
+  @edited  2007-08-23
 */
 
 #include "G3D/platform.h"
@@ -53,6 +53,57 @@ pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, v
     }
     
     return eventNotHandledErr;
+}
+
+pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag) {
+    CarbonWindow* pWindow = (CarbonWindow*)userData;
+	pWindow->_droppedFiles.clear();
+
+	OSErr osErr = noErr;
+	Point point;
+	UInt16 iNumItems = 0;
+	
+	osErr = CountDragItems(theDrag, &iNumItems);
+	osErr = GetDragMouse(theDrag, &point, NULL);
+	
+	for(UInt16 i = 1; i <= iNumItems; i++) {
+		DragItemRef itemRef = 0;
+		UInt16 iNumFlavors = 0;
+		
+		osErr = GetDragItemReferenceNumber(theDrag,i,&itemRef);
+		osErr = CountDragItemFlavors(theDrag,itemRef,&iNumFlavors);
+		
+		for(UInt16 j = 1; j <= iNumFlavors; j++) {
+			FlavorType flavor;
+			
+			osErr = GetFlavorType(theDrag,itemRef,j,&flavor);
+			
+			if(kDragFlavorTypeHFS == flavor) {
+				HFSFlavor flavorData;
+				Size size = sizeof(flavorData);
+				
+				osErr = GetFlavorData(theDrag,itemRef,flavorTypeHFS,&flavorData,&size,0);
+				
+				if(sizeof(flavorData) == size) {
+					UInt8 path[2024];
+					FSRef fsRef;
+					
+					osErr = FSpMakeFSRef(&flavorData.fileSpec,&fsRef);
+					osErr = FSRefMakePath(&fsRef,&path[0],sizeof(path));
+					
+					std::string szPath = (const char*)path;
+					pWindow->_droppedFiles.append(szPath);
+				}
+			}
+		}
+	}
+	
+	if(pWindow->_droppedFiles.size() > 0) {
+		pWindow->injectDropEvent(point.h,point.v);
+		return noErr;
+	}
+	
+	return dragNotAcceptedErr;
 }
 } // namespace _internal
 
@@ -216,6 +267,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	osErr = InstallStandardEventHandler(GetWindowEventTarget(_window));
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), &_resizeSpec[0], this, NULL);
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowClosed), GetEventTypeCount(_closeSpec), &_closeSpec, this, NULL);
+	osErr = InstallReceiveHandler(NewDragReceiveHandlerUPP(_internal::OnDragReceived),_window,this);
 	
 	_glDrawable = (AGLDrawable) GetWindowPort(_window);
 
@@ -273,6 +325,9 @@ CarbonWindow::~CarbonWindow() {
 	aglSetCurrentContext(NULL);
 	aglDestroyContext(_glContext);
 	
+	if(_settings.fullScreen)
+		CGDisplayRelease(kCGDirectMainDisplay);
+	
 	if(NULL == _titleRef)
 		CFRelease(_titleRef);
 	
@@ -306,19 +361,35 @@ Rect2D CarbonWindow::dimensions() const {
 
 void CarbonWindow::setDimensions(const Rect2D &dims) {
 	// TODO: Fill in with code to set window dimensions.
+	CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
+	int W = rScreen.size.width;
+	int H = rScreen.size.height;
+	
+    int x = iClamp((int)dims.x0(), 0, W);
+    int y = iClamp((int)dims.y0(), 0, H);
+    int w = iClamp((int)dims.width(), 1, W);
+    int h = iClamp((int)dims.height(), 1, H);
+
+    // Set dimensions and repaint.
+	MoveWindow(_window,x,y,false);
+	SizeWindow(_window,w,h,true);
 }
 
 void CarbonWindow::getDroppedFilenames(Array<std::string>& files) {
-	// TODO: Fill in with code to get names of files dropped on window.
+	files.fastClear();
+	if(_droppedFiles.size() > 0) {
+		files.append(_droppedFiles);
+	}
 }
 
 bool CarbonWindow::hasFocus() const {
-	// TODO: Fill in with code to determin focus.
+	// TODO: Fill in with code to determine focus.
 	return true;
 }
 
 void CarbonWindow::setGammaRamp(const Array<uint16>& gammaRamp) {
 	// TODO: Fill in with gamma adjustement code.
+	// This is likely going to be done with CGSetDisplayTransferByTable()
 }
 
 void CarbonWindow::setCaption(const std::string& title) {
@@ -398,6 +469,10 @@ void CarbonWindow::getJoystickState(unsigned int stickNum, Array<float> &axis, A
 
 void CarbonWindow::setInputCapture(bool c) {
 	// TODO: Fill in with input capturing code.
+	if(_inputCapture == c)
+		return;
+	
+	_inputCapture = c;
 }
 
 bool CarbonWindow::inputCapture() const {
@@ -405,8 +480,15 @@ bool CarbonWindow::inputCapture() const {
 }
 
 void CarbonWindow::setMouseVisible(bool b) {
-	// TODO: Fill in with mouse invisible code.
-	// CGCursorIsVisible()
+	if(_mouseVisible == b)
+		return;
+
+	_mouseVisible = b;
+	
+	if(_mouseVisible)
+		CGDisplayShowCursor(kCGDirectMainDisplay);
+	else
+		CGDisplayShowCursor(kCGDirectMainDisplay);
 }
 
 bool CarbonWindow::mouseVisible() const {
@@ -420,6 +502,8 @@ void CarbonWindow::swapGLBuffers() {
 	}
 }
 
+#pragma mark Private:
+
 bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 	UInt32 eventKind = GetEventKind(theEvent);
 	HIPoint point;
@@ -429,6 +513,23 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 	GetEventParameter(theEvent, kEventParamMouseLocation, typeHIPoint, NULL, sizeof(HIPoint), NULL, &point);
 
 	if(GetWindowBounds(_window, kWindowContentRgn, &rect)==noErr) {
+		// If we've captured the mouse, we want to force the mouse to stay in our window region.
+		if(_inputCapture) {
+			CGPoint newPoint = point;
+			
+			if(point.x < rect.left)
+				newPoint.x = rect.left;
+			if(point.x > rect.right)
+				newPoint.x = rect.right;
+			if(point.y < rect.top)
+				newPoint.y = rect.top;
+			if(point.y > rect.bottom)
+				newPoint.y = rect.bottom;
+				
+			CGWarpMouseCursorPosition(newPoint);
+			point = newPoint;
+		}
+		
 		// If the mouse event didn't happen in our content region, then
 		// we want to punt it to other event handlers. (Return FALSE)
 		if((point.x >= rect.left) && (point.y >= rect.top) && (point.x <= rect.right) && (point.y <= rect.bottom)) {
@@ -456,7 +557,7 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 				case kEventMouseDragged:
 				case kEventMouseMoved:
 					e.motion.type = GEventType::MOUSE_MOTION;
-					e.motion.which = 0;
+					e.motion.which = 0;		// TODO: Which Mouse is Being Used?
 					e.motion.state = buttonsToUint8(_mouseButtons);
 					e.motion.x = point.x-rect.left;
 					e.motion.y = point.y-rect.top;
@@ -470,6 +571,10 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 		}
 	}
 
+	return false;
+}
+
+bool CarbonWindow::makeFileDropEvent(EventRef theEvent, GEvent& e) {
 	return false;
 }
 

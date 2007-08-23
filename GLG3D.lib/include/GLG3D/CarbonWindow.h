@@ -3,7 +3,7 @@
   
   @maintainer Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-20
-  @edited  2007-04-03
+  @edited  2007-08-23
 */
 
 #ifndef G3D_CARBONWINDOW_H
@@ -28,6 +28,7 @@ namespace G3D {
 namespace _internal {
 pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
 pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag);
 }
 
 class CarbonWindow : public GWindow {
@@ -69,11 +70,14 @@ private:
 	// Make Event Handlers Capable of Seeing Private Parts
 	friend pascal OSStatus _internal::OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
 	friend pascal OSStatus _internal::OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+	friend pascal OSErr _internal::OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag);
 	
 	static EventTypeSpec _resizeSpec[];
 	static EventTypeSpec _closeSpec;
 	
-	Array<GEvent>        _sizeEventInjects;
+	Array<GEvent>       _sizeEventInjects;
+	Array<GEvent>		_dropEventInjects;
+	Array<std::string>	_droppedFiles;
 
 	void injectSizeEvent(int width, int height) {
 		GEvent e;
@@ -83,7 +87,16 @@ private:
 		_sizeEventInjects.append(e);
 	}
 	
+	void injectDropEvent(int x, int y) {
+		GEvent e;
+		e.type = GEventType::FILE_DROP;
+		e.drop.x = x;
+		e.drop.y = y;
+		_dropEventInjects.append(e);
+	}
+	
 	bool makeMouseEvent(EventRef theEvent, GEvent& e);
+	bool makeFileDropEvent(EventRef theEvent, GEvent& e);
 	
 	/** Called from all constructors */
 	void init(WindowRef window, bool creatingShareWindow = false);
