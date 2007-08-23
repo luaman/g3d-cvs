@@ -107,10 +107,8 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
 }
 } // namespace _internal
 
-// Static Variables for Standard Event Handler Installation
-bool CarbonWindow::_runApplicationEventLoopCalled = false;
-EventLoopTimerRef CarbonWindow::_timer = NULL;
-EventLoopTimerUPP CarbonWindow::_timerUPP = NULL;
+// Static Variables for Brining Process to Front
+bool CarbonWindow::_ProcessBroughtToFront = false;
 
 // Static Event Type Specs
 EventTypeSpec CarbonWindow::_resizeSpec[] = {{kEventClassWindow, kEventWindowResizeCompleted},{kEventClassWindow, kEventWindowZoomed}};
@@ -120,10 +118,6 @@ EventTypeSpec CarbonWindow::_closeSpec = {kEventClassWindow, kEventWindowClose};
 static unsigned char makeKeyEvent(EventRef,GEvent&);
 static uint8 buttonsToUint8(const bool*);
 static OSStatus aglReportError();
-
-pascal void CarbonWindow::quitApplicationEventLoop(EventLoopTimerRef inTimer, void* inUserData) {
-	QuitApplicationEventLoop();
-}
 
 void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) {
     // Initialize mouse buttons to up
@@ -157,30 +151,13 @@ void CarbonWindow::createShareWindow(GWindow::Settings s) {
 }
 
 CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow /*= false*/) : _createdWindow(true) {
-	// If we haven't yet initialized our standard event hanlders
-	// by having RunApplicationEventLoopCalled, we have to do that
-	// now.
-	if(!_runApplicationEventLoopCalled) {
-		EventLoopRef mainLoop;
-		
-		mainLoop = GetMainEventLoop();
-		
-		_timerUPP = NewEventLoopTimerUPP(quitApplicationEventLoop);
-		InstallEventLoopTimer(mainLoop,kEventDurationMicrosecond,kEventDurationForever,_timerUPP,NULL,&_timer);
-		
-		RunApplicationEventLoop();
-		
+	if(!_ProcessBroughtToFront) {
 		// Hack to get our window/process to the front...
 		ProcessSerialNumber psn = { 0, kCurrentProcess};    
 		TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 		SetFrontProcess (&psn);
 
-		RemoveEventLoopTimer(_timer);
-		_timer=NULL;
-		DisposeEventLoopTimerUPP(_timerUPP);
-		_timerUPP = NULL;
-		
-		_runApplicationEventLoopCalled = true;
+		_ProcessBroughtToFront = true;
 	}
 	
 	OSStatus osErr = noErr;
@@ -227,7 +204,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	
 	// If the user is creating a windowed application that is above the menu
 	// bar, it will be confusing. We'll move it down for them so it makes more
-	// sense. ? ? Possible to GetMenuHeight() ?
+	// sense.
 	if(! _settings.fullScreen) {
 		if(_settings.y <= OSX_MENU_BAR_HEIGHT)
 			_settings.y = OSX_MENU_BAR_HEIGHT;
@@ -262,7 +239,12 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 
 	_titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
 	
-	_window = NewCWindow(NULL, &rWin, CFStringGetPascalStringPtr(_titleRef, kCFStringEncodingMacRoman), _settings.visible, zoomDocProc, (WindowPtr) -1L, true, 0);
+	osErr = CreateNewWindow(kDocumentWindowClass,kWindowStandardDocumentAttributes|kWindowStandardHandlerAttribute,&rWin,&_window);
+
+	alwaysAssertM(_window != NULL, "Could Not Create Window.");
+
+	osErr = SetWindowTitleWithCFString(_window,_titleRef);
+	ShowWindow(_window);
 
 	osErr = InstallStandardEventHandler(GetWindowEventTarget(_window));
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), &_resizeSpec[0], this, NULL);
@@ -569,6 +551,24 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 					break;
 			}
 		}
+		else if(!_settings.fullScreen && eventKind == kEventMouseDown) {
+		// We want to indentify and handle menu events too
+		// because we don't have the standard event handlers.
+			Point thePoint;
+			WindowRef theWindow;
+			thePoint.v = point.y;
+			thePoint.h = point.x;
+			WindowPartCode partCode = FindWindow(thePoint, &theWindow);
+			if(partCode == inMenuBar) {
+				long iVal = MenuSelect(thePoint);
+				short iID = HiWord(iVal);
+				short iItem = LoWord(iVal);
+				HiliteMenu(iID);
+				
+				if(iItem == 9)
+					_receivedCloseEvent = true;
+			}
+		}
 	}
 
 	return false;
@@ -644,12 +644,6 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 					break;
 			} break;
 		case kEventClassCommand:
-			switch (eventKind) {
-				case kEventCommandProcess:
-				case kEventCommandUpdateStatus:
-				default:
-					break;
-			} break;
 		case kEventClassTablet:
 		case kEventClassMenu:
 		case kEventClassTextInput:

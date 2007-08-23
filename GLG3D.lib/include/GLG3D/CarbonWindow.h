@@ -40,11 +40,8 @@ private:
 	std::string		_title;
 	CFStringRef		_titleRef;
 	
-	// Carbon Event Application Initialization
-	static bool					_runApplicationEventLoopCalled;
-	static EventLoopTimerUPP	_timerUPP;
-	static EventLoopTimerRef	_timer;
-	static pascal void quitApplicationEventLoop(EventLoopTimerRef inTimer, void* inUserData);
+	// Process to Front Initialization
+	static bool		_ProcessBroughtToFront;
 	
 	// State Information
 	bool			_mouseVisible;
