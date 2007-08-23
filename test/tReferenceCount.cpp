@@ -295,7 +295,9 @@ static void testThreads() {
     f1 = new RCPFoo();
     f2 = new RCPFoo();
     f3 = new RCPFoo();
-
+    // TODO: Use GThread
+    // TODO: Use different variables (but the same values) in each thread
+#if 0
 #   ifdef G3D_LINUX
     {
         pthread_t thread;
@@ -307,6 +309,7 @@ static void testThreads() {
         pthread_join(thread, NULL);
     }
 #   endif
+#endif
 }
 
 void testReferenceCount() {
