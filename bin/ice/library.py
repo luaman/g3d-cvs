@@ -103,12 +103,11 @@ else:
     maybeG3DX11 = []
     maybeFwk    = FRAMEWORK
 
-    
 
 # OS X frameworks are automatically ignored on linux
 for lib in [
 #       Canonical name  Type       Release    Debug      F.Release   F.Debug  Header List       Symbol list                                    Depends on
-Library('SDL',         DYNAMIC,   'SDL',     'SDL',     'SDL',      'SDL',    ['SDL.h'],        ['SDL_GetMouseState'],                         ['OpenGL', 'Cocoa', 'pthread'], True),
+Library('SDL',         maybeFwk,  'SDL',     'SDL',     'SDL',      'SDL',    ['SDL.h'],        ['SDL_GetMouseState'],                         ['OpenGL', 'Cocoa', 'pthread'], True),
 Library('curses',      DYNAMIC,   'curses',  'curses',   None,       None,    ['curses.h'],     [],                                            []),
 Library('zlib',        DYNAMIC,   'z',       'z',        None,       None,    ['zlib.h'],       ['compress2'],                                 []),
 Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['zip.h'],        ['unzClose'],                                  ['zlib']),

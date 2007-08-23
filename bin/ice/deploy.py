@@ -9,6 +9,7 @@ import math
 from variables import *
 from utils import *
 from copyifnewer import copyIfNewer
+from library import libraryTable, FRAMEWORK
 
 def _makePList(appname, binaryName):
     return """<?xml version="1.0" encoding="UTF-8"?>
@@ -36,9 +37,7 @@ def _makePList(appname, binaryName):
 	<key>CFBundleSignature</key>
         <string>""" + appname[0:4] + """</string>
 	<key>CFBundleVersion</key>
-	<string>487</string>
-	<key>NSPrincipalClass</key>
-	<string>""" + binaryName + """</string>
+	<string>1</string>
 </dict>
 </plist>"""
 
@@ -57,28 +56,32 @@ def _createApp(tmpDir, appDir, srcDir, state):
     mkdir(macos,      utils.verbosity >= VERBOSE)
 
     # Create Info.plist
-    if (utils.verbosity >= VERBOSE):
-        print 'Writing Info.plist'
+    if utils.verbosity >= NORMAL: colorPrint('\nWriting Info.plist and PkgInfo', SECTION_COLOR)
     writeFile(contents + 'Info.plist', _makePList(state.projectName, state.binaryName))
+    writeFile(contents + 'PkgInfo', 'APPL' + state.binaryName[0:4] + '\n') 
 
     # Copy binary
-    copyIfNewer(state.binaryDir + state.binaryName, macos, utils.verbosity >= VERBOSE, utils.verbosity >= TRACE)
+    if utils.verbosity >= NORMAL: colorPrint('\nCopying executable', SECTION_COLOR)
+    shell('cp ' + state.binaryDir + state.binaryName + ' ' + macos + state.binaryName, utils.verbosity >= VERBOSE) 
 
-    # Copy resources
-    print state.binaryDir + '*'
-    shell('cp -R ' + state.binaryDir + '* ' + resources, utils.verbosity >= VERBOSE)
+    # Copy data-files to Resources
+    if utils.verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
+    copyIfNewer('data-files', resources, utils.verbosity >= VERBOSE, utils.verbosity == NORMAL)
+    if utils.verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
 
-    # Remove binary (and debug binary, if left over) from Resources
-    os.remove(resources + state.projectName)
-    os.remove(resources + state.projectName + 'd')
+    # Copy frameworks
+    for libName in state.libList():
+        if libraryTable.has_key(libName):
+            lib = libraryTable[libName]
+            if lib.deploy and (lib.type == FRAMEWORK):
+                print 'Copying ' + lib.name + ' Framework'
+                fwk = lib.releaseFramework + '.framework'
+                src = '/Library/Frameworks/' + fwk
+                copyIfNewer(src, frameworks + fwk, utils.verbosity >= VERBOSE, utils.verbosity == NORMAL)
 
-    # TODO: Create icon
-
-    # TODO: Copy frameworks
-    
 
 def _createDmg(tmpDir, dmgName, projectName):
-    shell('hdiutil create -fs HFS+ -srcfolder ' + tmpDir + ' ' + dmgName + ' -volname "' + projectName + '"')
+    shell('hdiutil create -fs HFS+ -srcfolder ' + tmpDir + ' ' + dmgName + ' -volname "' + projectName + '"', utils.verbosity >= VERBOSE)
 
 def _deployOSX(state):
     print
@@ -87,7 +90,7 @@ def _deployOSX(state):
     appDir = tmpDir + '/' + state.projectName + '.app/'
     dmgName = state.buildDir + state.projectName + '.dmg'
 
-    rmdir('tempDir')
+    rmdir(tmpDir)
     _createApp(tmpDir + '/', appDir, srcDir, state)
     _createDmg(tmpDir, dmgName, state.projectName)
     

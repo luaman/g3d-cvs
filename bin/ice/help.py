@@ -48,6 +48,11 @@ Options:
  --deploy         Create a distributable application in the build directory.
                   This should only be used for GUI applications, not command-line
                   tools. Changes the target default to --opt.
+
+                  OS X Specific: data-files/icons.icns  will automatically become
+                  the application icon.  Your program will launch with Applications
+                  as the current working directory.  Look at argv[0] to change to
+                  the directory of your project.
  
  --doc            Generate documentation before building.
  

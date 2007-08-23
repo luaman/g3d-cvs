@@ -195,6 +195,9 @@ class State:
     _includePaths               = None
     _libraryPaths               = None
 
+    # All libraries (by name) that are used
+    _libList                    = None
+
     def __init__(self):
         self.usesProjectsList = []
         self.usesLibrariesList = []
@@ -215,6 +218,12 @@ class State:
     # Returns a list of all include paths
     def libraryPaths(self):
         return self._libraryPaths
+
+    def setLibList(self, L):
+        self._libList = L
+
+    def libList(self):
+        return self._libList
 
     # Location of the user configuration (.icompile) file, including the filename
     # Defaults to $HOME/.icompile

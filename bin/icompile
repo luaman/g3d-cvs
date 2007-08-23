@@ -249,6 +249,8 @@ def getLinkerOptions(state, allFiles):
     # Separate into static libs, dynamic libs, and frameworks
     allLinks = []
 
+    state.setLibList(libList)
+
     for libname in libList:
         if libraryTable.has_key(libname):
             lib = libraryTable[libname]
@@ -704,6 +706,10 @@ def main(state, args, progArgs, doGDB, doRun, doDeploy):
         buildClean(state)
         # Exit early, preventing the cache from being written
         sys.exit(0)
+
+    if '--deploy' in args:
+        # Start by building clean so that we can be sure dependencies will be honored.
+        buildClean(state)
 
     if '--doc' in args:
         buildDocumentation(state)
