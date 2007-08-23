@@ -553,7 +553,7 @@ void Matrix::Impl::setSize(int newRows, int newCols) {
 
     // Only allocate if we need more space
     // or the size difference is ridiculous
-    if (((uint)newSize > (uint)dataSize) || ((uint)newSize < (uint)dataSize / 4)) {
+    if ((newSize > dataSize) || (newSize < dataSize / 4)) {
         System::alignedFree(data);
         data = (float*)System::alignedMalloc(R * C * sizeof(T), 16);
         ++Matrix::debugNumAllocOps;

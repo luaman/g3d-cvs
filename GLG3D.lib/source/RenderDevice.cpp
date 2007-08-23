@@ -1260,17 +1260,17 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
 }
 
 
-uint RenderDevice::numTextureUnits() const {
+uint32 RenderDevice::numTextureUnits() const {
     return _numTextureUnits;
 }
 
 
-uint RenderDevice::numTextures() const {
+uint32 RenderDevice::numTextures() const {
     return _numTextures;
 }
 
 
-uint RenderDevice::numTextureCoords() const {
+uint32 RenderDevice::numTextureCoords() const {
     return _numTextureCoords;
 }
 
@@ -2313,7 +2313,7 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
 }
 
 
-Matrix4 RenderDevice::getTextureMatrix(uint unit) {
+Matrix4 RenderDevice::getTextureMatrix(uint32 unit) {
     debugAssertM((int)unit < _numTextureUnits,
         format("Attempted to access texture unit %d on a device with %d units.",
         unit, _numTextureUnits));
@@ -2329,7 +2329,7 @@ Matrix4 RenderDevice::getTextureMatrix(uint unit) {
 
 
 void RenderDevice::setTextureMatrix(
-    uint                 unit,
+    uint32               unit,
     const Matrix4&	     m) {
 
     float f[16];
@@ -2344,7 +2344,7 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureMatrix(
-    uint                 unit,
+    uint32               unit,
     const double*        m) {
 
     debugAssert(! inPrimitive);
@@ -2357,7 +2357,7 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureMatrix(
-    uint                 unit,
+    uint32              unit,
     const float*        m) {
 
     debugAssert(! inPrimitive);
@@ -2372,7 +2372,7 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureMatrix(
-    uint                    unit,
+    uint32                  unit,
     const CoordinateFrame&  c) {
 
     float m[16] = 
@@ -2386,7 +2386,7 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureLODBias(
-    uint                    unit,
+    uint32                  unit,
     float                   bias) {
 
     minStateChange();
@@ -2406,7 +2406,7 @@ void RenderDevice::setTextureLODBias(
 
 
 void RenderDevice::setTextureCombineMode(
-    uint                    unit,
+    uint32                  unit,
     const CombineMode       mode) {
 
     minStateChange();
@@ -2478,7 +2478,7 @@ void RenderDevice::setTextureCombineMode(
 
 
 void RenderDevice::resetTextureUnit(
-    uint                    unit) {
+    uint32                  unit) {
     debugAssertM((int)unit < _numTextureUnits,
         format("Attempted to access texture unit %d on a device with %d units.",
         unit, _numTextureUnits));
@@ -2521,7 +2521,7 @@ void RenderDevice::setNormal(const Vector3& normal) {
 }
 
 
-void RenderDevice::setTexCoord(uint unit, const Vector4& texCoord) {
+void RenderDevice::setTexCoord(uint32 unit, const Vector4& texCoord) {
     debugAssertM((int)unit < _numTextureCoords,
         format("Attempted to access texture coordinate %d on a device with %d coordinates.",
         unit, _numTextureCoords));
@@ -2539,27 +2539,27 @@ void RenderDevice::setTexCoord(uint unit, const Vector4& texCoord) {
 }
 
 
-void RenderDevice::setTexCoord(uint unit, const Vector3& texCoord) {
+void RenderDevice::setTexCoord(uint32 unit, const Vector3& texCoord) {
     setTexCoord(unit, Vector4(texCoord, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint unit, const Vector3int16& texCoord) {
+void RenderDevice::setTexCoord(uint32 unit, const Vector3int16& texCoord) {
     setTexCoord(unit, Vector4(texCoord.x, texCoord.y, texCoord.z, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint unit, const Vector2& texCoord) {
+void RenderDevice::setTexCoord(uint32 unit, const Vector2& texCoord) {
     setTexCoord(unit, Vector4(texCoord, 0, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint unit, const Vector2int16& texCoord) {
+void RenderDevice::setTexCoord(uint32 unit, const Vector2int16& texCoord) {
     setTexCoord(unit, Vector4(texCoord.x, texCoord.y, 0, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint unit, double texCoord) {
+void RenderDevice::setTexCoord(uint32 unit, double texCoord) {
     setTexCoord(unit, Vector4(texCoord, 0, 0, 1));
 }
 
@@ -2650,8 +2650,8 @@ void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVert
 
 
 void RenderDevice::setTexture(
-    uint                unit,
-    Texture::Ref          texture) {
+    uint32                  unit,
+    Texture::Ref            texture) {
 
     // NVIDIA cards have more textures than texture units.
     // "fixedFunction" textures have an associated unit 
@@ -3037,9 +3037,9 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
 
 
 void RenderDevice::configureShadowMap(
-    uint                unit,
+    uint32              unit,
     const Matrix4&      lightMVP,
-    const Texture::Ref&   shadowMap) {
+    const Texture::Ref& shadowMap) {
 
     minStateChange();
     minGLStateChange();
@@ -3102,8 +3102,8 @@ void RenderDevice::configureShadowMap(
 
 
 void RenderDevice::configureReflectionMap(
-    uint                textureUnit,
-    Texture::Ref          reflectionTexture) {
+    uint32              textureUnit,
+    Texture::Ref        reflectionTexture) {
 
     debugAssert(! GLCaps::hasBug_normalMapTexGen());
     debugAssert(reflectionTexture->dimension() == Texture::DIM_CUBE_MAP);

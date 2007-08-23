@@ -90,7 +90,7 @@ private:
         /** The number of columns */
         int                 C;
 
-        size_t              dataSize;
+        int                 dataSize;
 
         /** If R*C is much larger or smaller than the current, deletes all previous data
             and resets to random data.  Otherwise re-uses existing memory and just resets
@@ -121,14 +121,14 @@ private:
         void setZero();
 
         inline void set(int r, int c, T v) {
-            debugAssert((uint)r < (uint)R);
-            debugAssert((uint)c < (uint)C);
+            debugAssert(r < R);
+            debugAssert(c < C);
             elt[r][c] = v;
         }
 
         inline const T& get(int r, int c) const {
-            debugAssert((uint)r < (uint)R);
-            debugAssert((uint)c < (uint)C);
+            debugAssert(r < R);
+            debugAssert(c < C);
             return elt[r][c];
         }
 

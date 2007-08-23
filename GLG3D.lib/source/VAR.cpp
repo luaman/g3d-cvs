@@ -189,7 +189,7 @@ void VAR::colorPointer() const {
 }
 
 
-void VAR::texCoordPointer(uint unit) const {
+void VAR::texCoordPointer(uint32 unit) const {
 	debugAssert(valid());
     debugAssertM(GLCaps::supports_GL_ARB_multitexture() || (unit == 0),
         "Graphics card does not support multitexture");
@@ -207,7 +207,7 @@ void VAR::texCoordPointer(uint unit) const {
 }
 
 
-void VAR::vertexAttribPointer(uint attribNum, bool normalize) const {
+void VAR::vertexAttribPointer(uint32 attribNum, bool normalize) const {
 	debugAssert(valid());
     if (GLCaps::supports_GL_ARB_vertex_program()) {
 	    glEnableVertexAttribArrayARB(attribNum);
