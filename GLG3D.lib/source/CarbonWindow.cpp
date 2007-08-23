@@ -574,10 +574,6 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 	return false;
 }
 
-bool CarbonWindow::makeFileDropEvent(EventRef theEvent, GEvent& e) {
-	return false;
-}
-
 #pragma mark Protected:
 
 bool CarbonWindow::pollOSEvent(GEvent &e) {
@@ -695,6 +691,12 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 		aglUpdateContext(_glContext);
         return true;
     }
+	
+	if (_dropEventInjects.size() > 0) {
+		e = _dropEventInjects.last();
+		_dropEventInjects.pop_back();
+		return true;
+	}
 
 	if(osErr == noErr) {
 		theTarget = GetEventDispatcherTarget();	

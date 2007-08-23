@@ -96,7 +96,6 @@ private:
 	}
 	
 	bool makeMouseEvent(EventRef theEvent, GEvent& e);
-	bool makeFileDropEvent(EventRef theEvent, GEvent& e);
 	
 	/** Called from all constructors */
 	void init(WindowRef window, bool creatingShareWindow = false);
