@@ -103,10 +103,10 @@ Texture::Texture(
     GLuint                  textureID,
     Dimension               dimension,
     const TextureFormat*    format,
-	bool					opaque,
-	const Settings&			settings) :
+    bool                    opaque,
+    const Settings&         settings) :
     m_textureID(textureID),
-	m_settings(settings),
+    m_settings(settings),
     m_name(name),
     m_dimension(dimension),
     m_opaque(opaque),
@@ -120,11 +120,11 @@ Texture::Texture(
         GLenum target = dimensionToTarget(m_dimension);
         glBindTexture(target, m_textureID);
 
-		// For cube map, we can't read "cube map" but must choose a face
-		GLenum readbackTarget = target;
-		if ((m_dimension == DIM_CUBE_MAP) || (m_dimension == DIM_CUBE_MAP_NPOT)) {
-			readbackTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
-		}
+            // For cube map, we can't read "cube map" but must choose a face
+            GLenum readbackTarget = target;
+            if ((m_dimension == DIM_CUBE_MAP) || (m_dimension == DIM_CUBE_MAP_NPOT)) {
+                readbackTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
+            }
 
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_WIDTH, &m_width);
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_HEIGHT, &m_height);
@@ -1406,10 +1406,12 @@ static void setTexParameters(
     if (GLCaps::supports_GL_ARB_shadow()) {
         if (settings.depthReadMode == Texture::DEPTH_NORMAL) {
 
+            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
 
         } else {
-            //glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+
+            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
             glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
                 (settings.depthReadMode == Texture::DEPTH_LEQUAL) ? GL_LEQUAL : GL_GEQUAL);

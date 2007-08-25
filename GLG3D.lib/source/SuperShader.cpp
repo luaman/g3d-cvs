@@ -4,15 +4,12 @@
  @author Morgan McGuire, matrix@graphics3d.com
  */
 
+#include "GLG3D/ShadowMap.h"
 #include "GLG3D/SuperShader.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/fileutils.h"
 
 namespace G3D {
-
-bool SuperShader::useShadowDepthCompare() {
-    return (GLCaps::enumVendor() != GLCaps::ATI) || ! GLCaps::supports_GL_ARB_shader_objects();
-}
 
 void SuperShader::Material::enforceDiffuseMask() {
     if (! changed) {
@@ -153,8 +150,7 @@ void SuperShader::configureShaderArgs(
 
 void SuperShader::configureShadowShaderArgs(
     const GLight&                   light, 
-    const Matrix4&                  lightMVP, 
-    const Texture::Ref&             shadowMap,
+    const ShadowMapRef&             shadowMap,
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args) {
     
@@ -172,7 +168,7 @@ void SuperShader::configureShadowShaderArgs(
     args.set("specularConstant",        material.specular.constant);
 
     if (material.specularExponent.map.notNull()) {
-        args.set("specularExponentMap",     material.specularExponent.map);
+        args.set("specularExponentMap", material.specularExponent.map);
     }
     args.set("specularExponentConstant",material.specularExponent.constant);
 
@@ -187,10 +183,14 @@ void SuperShader::configureShadowShaderArgs(
     args.set("lightPosition",   light.position);
     args.set("lightColor",      light.color);
     args.set("lightAttenuation" , Vector3(light.attenuation[0], 
-                                             light.attenuation[1], light.attenuation[2]));
+                                         light.attenuation[1], light.attenuation[2]));
 
     // Shadow map setup
-    args.set("shadowMap",       shadowMap);
+    if (GLCaps::enumVendor() == GLCaps::ATI) {
+        args.set("shadowMap",       shadowMap->colorDepthTexture());
+    } else {
+        args.set("shadowMap",       shadowMap->depthTexture());
+    }
 
     // Bias the shadow map so that we don't get acne
     static const Matrix4 bias(
@@ -199,7 +199,7 @@ void SuperShader::configureShadowShaderArgs(
         0.0f, 0.0f, 0.5f, 0.5f - 0.003f,
         0.0f, 0.0f, 0.0f, 1.0f);
 
-    args.set("lightMVP",        bias * lightMVP);
+    args.set("lightMVP",        bias * shadowMap->lightMVP());
 }
 
 /** Loads the specified text file, using an internal cache to avoid 

@@ -22,7 +22,7 @@ void App::loadScene() {
         x += 3;
     }
 
-    {
+    if (false) {
         MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.6f);
         TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0.1f,0))));

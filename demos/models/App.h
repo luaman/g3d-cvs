@@ -3,7 +3,6 @@
 
 #include <G3D/G3DAll.h>
 
-
 typedef ReferenceCountedPointer<class Entity> EntityRef;
 class Entity : public ReferenceCountedObject {
 private:
@@ -71,7 +70,7 @@ public:
 class App : public GApp {
 private:
 
-    ShadowMap                   shadowMap;
+    ShadowMap::Ref              shadowMap;
     Texture::Ref                logo;
 
     SkyRef                      sky;

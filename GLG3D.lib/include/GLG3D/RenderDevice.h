@@ -1711,6 +1711,10 @@ public:
         const Matrix4&      lightMVP,
         const Texture::Ref& shadowMap);
 
+    void configureShadowMap(
+        uint32              unit,
+        const ReferenceCountedPointer<class ShadowMap>& shadowMap);
+
     /**
      Call within RenderDevice::pushState()...popState() so that you can
      restore the texture coordinate generation.  Note that you can 

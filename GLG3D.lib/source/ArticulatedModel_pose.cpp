@@ -4,7 +4,7 @@
 
   @maintainer Morgan McGuire
   @created 2004-11-20
-  @edited  2006-05-03
+  @edited  2007-08-20
 
   Copyright 2004-2007, Morgan McGuire
  */
@@ -93,8 +93,7 @@ protected:
     void renderFFShadowMappedLightPass(
         RenderDevice*                   rd,
         const GLight&                   light,
-        const Matrix4&                  lightMVP, 
-        const Texture::Ref&               shadowMap,
+        const ShadowMapRef&             shadowMap,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
         const SuperShader::Material&    material) const;
@@ -102,8 +101,7 @@ protected:
     void renderPS20ShadowMappedLightPass(
         RenderDevice*                   rd,
         const GLight&                   light,
-        const Matrix4&                  lightMVP, 
-        const Texture::Ref&               shadowMap,
+        const ShadowMapRef&             shadowMap,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
         const SuperShader::Material&    material) const;
@@ -149,6 +147,8 @@ public:
     virtual void renderShadowedLightPass(RenderDevice* rd, const GLight& light) const;
 
     virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const Matrix4& lightMVP, const Texture::Ref& shadowMap) const;
+
+    virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const ShadowMapRef& shadowMap) const;
 
     virtual int numBoundaryEdges() const;
 
@@ -236,12 +236,11 @@ void ArticulatedModel::renderNonShadowed(
 }
 
 
-void ArticulatedModel::renderShadowMappedLightPass(
-    const Array<PosedModel::Ref>&     posedArray, 
-    RenderDevice*                     rd, 
-    const GLight&                     light, 
-    const Matrix4&                    lightMVP, 
-    const Texture::Ref&               shadowMap) {
+void ArticulatedModel::renderShadowMappedLightPass
+    (const Array<PosedModel::Ref>& posedArray, 
+     RenderDevice* rd, 
+     const GLight& light, 
+     const ShadowMapRef& shadowMap) {
 
     rd->pushState();
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
@@ -279,7 +278,7 @@ void ArticulatedModel::renderShadowMappedLightPass(
                     rd->setCullFace(RenderDevice::CULL_NONE);
                 }
 
-                posed->renderFFShadowMappedLightPass(rd, light, lightMVP, shadowMap, part, triList, material);
+                posed->renderFFShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
 
                 if (triList.twoSided) {
                     rd->disableTwoSidedLighting();
@@ -294,14 +293,14 @@ void ArticulatedModel::renderShadowMappedLightPass(
                     rd->setCullFace(RenderDevice::CULL_BACK);
                 }
 
-                posed->renderPS20ShadowMappedLightPass(rd, light, lightMVP, shadowMap, part, triList, material);
+                posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
 
                 if (triList.twoSided) {
                     // The GLSL built-in gl_FrontFacing does not work on most cards, so we have to draw 
                     // two-sided objects twice since there is no way to distinguish them in the shader.
                     rd->setCullFace(RenderDevice::CULL_FRONT);
                     triList.shadowMappedShader->args.set("backside", -1.0f);
-                    posed->renderPS20ShadowMappedLightPass(rd, light, lightMVP, shadowMap, part, triList, material);
+                    posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
                     triList.shadowMappedShader->args.set("backside", 1.0f);
                     rd->setCullFace(RenderDevice::CULL_BACK);
                 }
@@ -312,7 +311,7 @@ void ArticulatedModel::renderShadowMappedLightPass(
             }
         }
     rd->popState();
-}
+ }
 
 
 void ArticulatedModel::extractOpaquePosedAModels(
@@ -873,6 +872,7 @@ void PosedArticulatedModel::renderShadowedLightPass(
     debugAssertM(false, "Unimplemented");
 }
 
+
 void PosedArticulatedModel::renderShadowMappedLightPass(
     RenderDevice*       rd, 
     const GLight&       light, 
@@ -881,25 +881,35 @@ void PosedArticulatedModel::renderShadowMappedLightPass(
 
     // This is the unoptimized, single-object version of renderShadowMappedLightPass.
     // It just calls the optimized version with a single-element array.
+    alwaysAssertM(false, "Deprecated: use the method that takes a ShadowMap");
+}
+
+
+void PosedArticulatedModel::renderShadowMappedLightPass(
+    RenderDevice*       rd, 
+    const GLight&       light, 
+    const ShadowMapRef&   shadowMap) const {
+
+    // This is the unoptimized, single-object version of renderShadowMappedLightPass.
+    // It just calls the optimized version with a single-element array.
 
     static Array<PosedModel::Ref> posedArray;
 
     posedArray.resize(1);
     posedArray[0] = PosedModel::Ref(const_cast<PosedArticulatedModel*>(this));
-    ArticulatedModel::renderShadowMappedLightPass(posedArray, rd, light, lightMVP, shadowMap);
+    ArticulatedModel::renderShadowMappedLightPass(posedArray, rd, light, shadowMap);
 }
 
 
 void PosedArticulatedModel::renderPS20ShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
-    const Matrix4&      lightMVP, 
-    const Texture::Ref&   shadowMap,
+    const ShadowMapRef& shadowMap,
     const ArticulatedModel::Part& part,
     const ArticulatedModel::Part::TriList& triList,
     const SuperShader::Material& material) const {
 
-    SuperShader::configureShadowShaderArgs(light, lightMVP, shadowMap, material, triList.shadowMappedShader->args);
+    SuperShader::configureShadowShaderArgs(light, shadowMap, material, triList.shadowMappedShader->args);
     rd->setShader(triList.shadowMappedShader);
     sendGeometry2(rd);
 }
@@ -908,13 +918,12 @@ void PosedArticulatedModel::renderPS20ShadowMappedLightPass(
 void PosedArticulatedModel::renderFFShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
-    const Matrix4&      lightMVP, 
-    const Texture::Ref&   shadowMap,
+    const ShadowMapRef& shadowMap,
     const ArticulatedModel::Part& part,
     const ArticulatedModel::Part::TriList& triList,
     const SuperShader::Material& material) const {
 
-    rd->configureShadowMap(1, lightMVP, shadowMap);
+    rd->configureShadowMap(1, shadowMap);
 
     rd->setObjectToWorldMatrix(cframe);
 

@@ -7,38 +7,87 @@
 #include "GLG3D/RenderDevice.h"
 #include "G3D/AABox.h"
 #include "G3D/Box.h"
+#include "GLG3D/Draw.h"
 
 namespace G3D {
 
-ShadowMap::ShadowMap() : m_polygonOffset(0.5f) {}
+ShadowMap::ShadowMap() : m_polygonOffset(0.5f), m_lastRenderDevice(NULL), m_colorTextureIsDirty(true) {
+    m_depthModeStack.append(Texture::DEPTH_LEQUAL);
+}
 
-void ShadowMap::setSize(int desiredSize, bool configureDepthCompare) {
-    if (desiredSize == 0) {
-        m_depthTexture = NULL;
-        m_framebuffer = NULL;
+
+void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
+    Texture::DepthReadMode old = m_depthModeStack.last();
+    m_depthModeStack.append(m);
+
+    // Only make the OpenGL calls if necessayr
+    if (m != old) {
+        setMode(m);
+    }
+}
+
+
+void ShadowMap::popDepthReadMode() {
+    Texture::DepthReadMode old = m_depthModeStack.pop();
+
+    // Only make the OpenGL calls if necessary
+    if (m_depthModeStack.last() != old) {
+        setMode(old);
+    }
+}
+
+
+void ShadowMap::setMode(Texture::DepthReadMode m) {
+    if (m_depthTexture.isNull()) {
         return;
     }
 
-    if (! GLCaps::supports_GL_ARB_shadow() && configureDepthCompare) {
+    GLenum target = m_depthTexture->openGLTextureTarget();
+
+    debugAssert(target == GL_TEXTURE_2D);
+    glBindTexture(target, m_depthTexture->openGLID());
+    GLenum old = glGetInteger(GL_TEXTURE_BINDING_2D);
+
+    switch (m) {
+    case Texture::DEPTH_NORMAL:
+        glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+        break;
+
+    default:
+        glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, 
+                        GL_COMPARE_R_TO_TEXTURE_ARB);
+
+        glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
+                        (m == Texture::DEPTH_LEQUAL) ? 
+                        GL_LEQUAL : GL_GEQUAL);
+        break;
+    }
+    
+    // Unbind the texture
+    glBindTexture(target, old);
+}
+
+
+void ShadowMap::setSize(int desiredSize) {
+    if (desiredSize == 0) {
+        m_depthTexture = NULL;
+        m_framebuffer = NULL;
+        m_colorTexture = NULL;
+        return;
+    }
+
+    if (! GLCaps::supports_GL_ARB_shadow()) {
         return;
     }
     
     int SHADOW_MAP_SIZE = desiredSize;
 
-    if ((GLCaps::enumVendor() == GLCaps::ATI) && configureDepthCompare) {
-        // ATI shadows are really slow and require
-        // a small shadow map
-        SHADOW_MAP_SIZE = 128;
-    } else if (! GLCaps::supports_GL_EXT_framebuffer_object()) {
+    if (! GLCaps::supports_GL_EXT_framebuffer_object()) {
         // Restrict to screen size
         SHADOW_MAP_SIZE = 512;
     }
 
-
     Texture::Settings textureSettings = Texture::Settings::shadow();
-    if (! configureDepthCompare) {
-        textureSettings.depthReadMode = Texture::DEPTH_NORMAL;
-    }
 
     m_depthTexture = Texture::createEmpty(
                                      "Shadow Map",
@@ -46,19 +95,14 @@ void ShadowMap::setSize(int desiredSize, bool configureDepthCompare) {
                                      TextureFormat::DEPTH16(),
                                      Texture::DIM_2D, 
                                      textureSettings);
-
-    if (! configureDepthCompare) {
-        // Switch to intensity depth texture mode
-        GLenum target = m_depthTexture->openGLTextureTarget();
-        glBindTexture(target, m_depthTexture->openGLID());
-        glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-        glBindTexture(target, 0);
-    }
+    m_colorTexture = NULL;
 
     if (GLCaps::supports_GL_EXT_framebuffer_object()) {
         m_framebuffer = Framebuffer::create("Shadow Frame Buffer");
         m_framebuffer->set(Framebuffer::DEPTH_ATTACHMENT, m_depthTexture);
     }
+
+    setMode(m_depthModeStack.last());
 }
 
 
@@ -79,6 +123,8 @@ void ShadowMap::updateDepth(
     if (shadowCaster.size() == 0) {
         return;
     }
+
+    m_lastRenderDevice = renderDevice;
 
     debugAssert(GLCaps::supports_GL_ARB_shadow()); 
 
@@ -168,6 +214,52 @@ void ShadowMap::updateDepth(
     } else {
         glDrawBuffer(GL_BACK);
     }
+
+    m_colorTextureIsDirty = true;
+}
+
+
+TextureRef ShadowMap::colorDepthTexture() const {
+    if (m_colorTextureIsDirty) {
+        // We pretend that this is a const method, but
+        // we might have to update the internal cache.
+        const_cast<ShadowMap*>(this)->computeColorTexture();
+    }
+
+    return m_colorTexture;
+}
+
+
+void ShadowMap::computeColorTexture() {
+    RenderDevice* rd = m_lastRenderDevice;
+    debugAssert(rd);
+
+    if (m_colorTexture.isNull()) {
+        Texture::Settings settings = Texture::Settings::video();
+        settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
+        // Must be RGB16 or RGB16F because OpenGL can't render to luminance textures
+        m_colorTexture = Texture::createEmpty("Depth map", m_depthTexture->width(), m_depthTexture->height(), 
+                                              TextureFormat::RGB16F(), Texture::DIM_2D, settings);
+    }
+
+    // Convert depth to color
+    if (m_colorConversionFramebuffer.isNull()) {
+        m_colorConversionFramebuffer = Framebuffer::create("Depth to Color Conversion");
+    }
+    
+    m_colorConversionFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_colorTexture);
+    
+    // Just read color values
+    pushDepthReadMode(Texture::DEPTH_NORMAL);
+    rd->push2D(m_colorConversionFramebuffer);
+        rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+        rd->setColorWrite(true);
+        rd->setDepthWrite(false);
+        rd->setTexture(0, m_depthTexture);
+        Draw::rect2D(m_depthTexture->rect2DBounds(), rd);
+    rd->pop2D();
+    popDepthReadMode();
+    m_colorTextureIsDirty = false;
 }
 
 }

@@ -4,13 +4,14 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-11-15
-  @edited  2006-02-24
+  @edited  2007-08-25
  */ 
 
 #include "GLG3D/PosedModel.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
+#include "GLG3D/ShadowMap.h"
 
 namespace G3D {
 
@@ -228,6 +229,15 @@ void PosedModel::renderShadowedLightPass(
         rd->setAmbientLightColor(Color3::black());
         render(rd);
     rd->popState();
+}
+
+
+void PosedModel::renderShadowMappedLightPass(
+    RenderDevice* rd, 
+    const GLight& light,
+    const ShadowMapRef& shadowMap) const {
+
+    renderShadowMappedLightPass(rd, light, shadowMap->lightMVP(), shadowMap->depthTexture());
 }
 
 

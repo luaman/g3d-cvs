@@ -13,6 +13,7 @@
 #include "G3D/ReferenceCount.h"
 #include "GLG3D/SkyParameters.h"
 #include "GLG3D/Shader.h"
+#include "GLG3D/ShadowMap.h"
 
 namespace G3D {
 
@@ -213,13 +214,12 @@ public:
         using lights lightArray[lightIndex] and lightArray[lightIndex+1] (if both are in bounds.)*/
     static void configureShaderExtraLightArgs(
         const Array<GLight>&           lightArray,
-        int                             lightIndex,
+        int                            lightIndex,
         VertexAndPixelShader::ArgList&  args);
 
     static void configureShadowShaderArgs(
         const GLight&                   light, 
-        const Matrix4&                  lightMVP, 
-        const Texture::Ref&             shadowMap,
+        const ShadowMapRef&             shadowMap,
         const Material&                 material,
         VertexAndPixelShader::ArgList&  args);
 
@@ -260,10 +260,6 @@ private:
     }
 
 public:
-
-    /** Pass to ShadowMap constructor */
-    static bool useShadowDepthCompare();
-
 
     static void createShaders(
         const Material& material,

@@ -18,6 +18,9 @@
 
 namespace G3D {
 
+class ShadowMap;
+typedef ReferenceCountedPointer<ShadowMap> ShadowMapRef;
+
 /** 
   Simple material used by IFSModel and MD2Model pose methods.
   This class is provided as a convenience; it is not necessary
@@ -267,6 +270,12 @@ public:
     /** Render illumination from this source additively, held out by the shadow map (which the caller 
         must have computed, probably using renderNonShadowed).  Default implementation
         configures the shadow map in texture unit 1 and calls render. */
+    virtual void renderShadowMappedLightPass(
+        RenderDevice* rd, 
+        const GLight& light,
+        const ShadowMapRef& shadowMap) const;
+
+    /** @deprecated */
     virtual void renderShadowMappedLightPass(
         RenderDevice* rd, 
         const GLight& light,

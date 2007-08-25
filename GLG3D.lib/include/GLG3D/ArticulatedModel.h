@@ -28,9 +28,6 @@ class ArticulatedModel : public ReferenceCountedObject {
 public:
     typedef ReferenceCountedPointer<class ArticulatedModel> Ref;
 
-    /** See G3D::ShadowMap */
-    static bool useShadowDepthCompare();
-
 private:
 
     friend class PosedArticulatedModel;
@@ -51,8 +48,7 @@ public:
         const Array<PosedModel::Ref>& posedAModelArray, 
         RenderDevice* rd, 
         const GLight& light, 
-        const Matrix4& lightMVP, 
-        const Texture::Ref& shadowMap);
+        const ShadowMapRef& shadowMap);
 
     /** Removes the opaque PosedAModels from array @a all and appends them to the opaqueAmodels array (transparents
         must be rendered inline with other model types).
@@ -113,7 +109,7 @@ public:
                 does not cull back faces.*/
             bool                    twoSided;
         
-            SuperShader::Material	material;
+            SuperShader::Material   material;
 
             /** In the same space as the vertices. Computed by computeBounds() */
             Sphere                  sphereBounds;
@@ -132,7 +128,7 @@ public:
             /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
                 Must be invoked manually if the geometry is later changed. */
             void computeBounds(const Part& parentPart);
-	    };
+	};
 
         /** Each part must have a unique name */
         std::string                 name;
@@ -235,9 +231,9 @@ public:
         providing detailed illuminaton.
     */
     void pose(
-        Array<PosedModel::Ref>&   posedModelArray, 
-        const CoordinateFrame&  cframe = CoordinateFrame(),
-        const Pose&             pose = DEFAULT_POSE);
+        Array<PosedModel::Ref>&  posedModelArray, 
+        const CoordinateFrame&   cframe = CoordinateFrame(),
+        const Pose&              pose = DEFAULT_POSE);
 
     /** 
       Supports 3DS, IFS, and PLY2 file formats.  The format of a file is detected by the extension. 
@@ -271,9 +267,8 @@ public:
     }
 };
 
-
 const char* toString(ArticulatedModel::GraphicsProfile p);
+
 }
 
 #endif //G3D_ARTICULATEDMODEL
-

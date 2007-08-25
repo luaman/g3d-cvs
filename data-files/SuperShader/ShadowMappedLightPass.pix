@@ -10,6 +10,13 @@ uniform vec4        lightPosition;
 uniform vec3        lightColor;
 uniform vec3        lightAttenuation;
 
+#ifdef G3D_ATI
+vec3 manualShadow2D(sampler2D map, vec3 coord) {
+   return vec3(texture2D(map, coord.xy).r > coord.z);
+}
+#endif
+
+
 #ifdef SPECULARCONSTANT
     uniform vec3        specularConstant;
 #endif
@@ -38,6 +45,8 @@ uniform vec3        lightAttenuation;
 uniform float       backside;
 
 #ifdef G3D_ATI
+   // On ATI cards, use regular 2D texturing since
+   // depth textures provide no advantage.
    uniform sampler2D shadowMap;
 #else
    uniform sampler2DShadow shadowMap;
@@ -130,7 +139,7 @@ void main(void) {
 #   endif
 
 
-#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)     
+#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
         vec4 specularColor =
 #       ifdef SPECULARCONSTANT
             vec4(specularConstant, 1.0)
@@ -162,32 +171,53 @@ void main(void) {
     // Compute projected shadow coord.
     vec4 projShadowCoord = shadowCoord / shadowCoord.w;
 
-	// Used to produce vectors to the 8-neighbors, which leads to a smoother
-	// shadow result
+    // "side" and "diagonal" offset variables used to produce vectors to the 
+    // 8-neighbors, which leads to a smoother shadow result (0.71 is sqrt(2)/2).
     vec4 s = vec4(g3d_sampler2DInvSize(shadowMap), -g3d_sampler2DInvSize(shadowMap).x, 0.0);
     vec4 d = s * 0.71;
 
-#ifdef G3D_ATI
+#   ifdef G3D_ATI
+        // On ATI, percentage closer filtering is not available.  Perform nearest neighbor
+        // sampling with explicit depth comparisons.  We use dot products to perform four compares
+        // at once and sum their results; this saves four instructions.  We could also (but do not
+        // in this implementation) perform our own bilinear to smooth as well as blur the results.
 
-    vec3 shadow = vec3(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z);
+       vec3 shadow = 
+vec3(
 
-#else
-    vec3 shadow = 
-         (shadow2D(shadowMap, projShadowCoord.xyz).rgb +
+float(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z) +
+
+dot(vec4(1,1,1,1),
+vec4(greaterThan(vec4(
+     texture2D(shadowMap, projShadowCoord.xy + s.xw).r,
+     texture2D(shadowMap, projShadowCoord.xy - s.xw).r,
+     texture2D(shadowMap, projShadowCoord.xy + s.wy).r,
+     texture2D(shadowMap, projShadowCoord.xy - s.wy).r), projShadowCoord.zzzz))) +
+
+dot(vec4(1,1,1,1),
+vec4(greaterThan(vec4(
+     texture2D(shadowMap, projShadowCoord.xy + s.xy).r,
+     texture2D(shadowMap, projShadowCoord.xy - s.xy).r,
+     texture2D(shadowMap, projShadowCoord.xy + s.zy).r,
+     texture2D(shadowMap, projShadowCoord.xy - s.zy).r), projShadowCoord.zzzz))) 
+) / 9.0;
+       
+#   else
+       vec3 shadow = 
+            (shadow2D(shadowMap, projShadowCoord.xyz).rgb +
          
-          shadow2D(shadowMap, projShadowCoord.xyz + s.xww).rgb +
-          shadow2D(shadowMap, projShadowCoord.xyz - s.xww).rgb +
-          shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).rgb +
-          shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz + s.xww).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz - s.xww).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).rgb +
 
-          shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).rgb +
-          shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).rgb +
-          shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).rgb +
-          shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).rgb) / 9.0;
+            shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).rgb +
+            shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).rgb) / 9.0;
+#   endif
 
-#endif
-
-    gl_FragColor.rgb =
+    gl_FragColor.rgb = 
             accessibility * attLightColor * shadow *
         ( 
         vec3(0.0, 0.0, 0.0)

@@ -19,6 +19,7 @@
 #include "GLG3D/Framebuffer.h"
 #include "G3D/fileutils.h"
 #include "GLG3D/Lighting.h"
+#include "GLG3D/ShadowMap.h"
 #include <time.h>
 #ifdef G3D_WIN32
     #include "GLG3D/Win32Window.h"
@@ -3035,6 +3036,11 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
     
 }
 
+void RenderDevice::configureShadowMap(
+    uint32              unit,
+    const ShadowMapRef& shadowMap) {
+    configureShadowMap(unit, shadowMap->lightMVP(), shadowMap->depthTexture());
+}
 
 void RenderDevice::configureShadowMap(
     uint32              unit,

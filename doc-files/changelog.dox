@@ -23,6 +23,8 @@
      <li> OS X build no longer depends on X11
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Patched ShadowMap to work around ATI and OS X driver shadow map bugs.  
+          <b>Incombatible change:</b>Required changing several interfaces to take ShadowMapRef arguments.
      <li> Fix: GCamera::Frustum was facing backwards
      <li> Fix: [ 1774479 ] texture glformats wrong (caused incorrect font rendering on Intel)
    </ul>
