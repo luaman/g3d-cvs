@@ -149,6 +149,11 @@ public:
     /** debugWindow->pane() */
     GuiPane*                debugPane;
 
+    void vscreenPrintf
+    (
+     const char*                 fmt,
+     va_list                     argPtr) G3D_CHECK_VPRINTF_METHOD_ARGS;;
+
     const Stopwatch& graphicsWatch() const {
         return m_graphicsWatch;
     }
@@ -291,29 +296,6 @@ public:
     */
     bool                    catchCommonExceptions;
 
-    /**
-       If debugShowText is true, prints to an on-screen buffer that
-       is cleared every frame.
-
-       Called by G3D::screenPrintf
-
-       @sa G3D::logPrintf, G3D::screenPrintf, G3D::consolePrintf
-    */
-    void screenPrintf(const char* fmt ...) G3D_CHECK_PRINTF_METHOD_ARGS;;
-
-    void vscreenPrintf
-    (
-     const char*                 fmt,
-     va_list                     argPtr) G3D_CHECK_VPRINTF_METHOD_ARGS;;
-
-    /**
-       If debugShowText is true, prints to an on-screen buffer that
-       is cleared every frame.
-       @deprecated
-       @sa G3D::screenPrintf
-    */
-    virtual void debugPrintf(const char* fmt ...) G3D_CHECK_PRINTF_METHOD_ARGS;
-    
     /**
        Called from GApplet::run immediately after doGraphics to render
        the debugging text.  Does nothing if debugMode is false.  It

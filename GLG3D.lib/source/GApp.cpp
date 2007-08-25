@@ -33,20 +33,6 @@ void screenPrintf(const char* fmt ...) {
     va_end(argList);
 }
 
-void GApp::screenPrintf(const char* fmt ...) {
-    va_list argList;
-    va_start(argList, fmt);
-    vscreenPrintf(fmt, argList);
-    va_end(argList);
-}
-
-void GApp::debugPrintf(const char* fmt ...) {
-    va_list argList;
-    va_start(argList, fmt);
-    vscreenPrintf(fmt, argList);
-    va_end(argList);
-}
-
 void GApp::vscreenPrintf
 (
  const char*                 fmt,
