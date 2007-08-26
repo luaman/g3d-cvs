@@ -290,6 +290,36 @@ public:
     */
     virtual void sendGeometry(RenderDevice* rd) const;
 
+
+    /**
+       Renders an array of models with the full G3D illumination model (correct
+       transparency, multiple direct lights, multiple shadow mapped lights), optimizing
+       ArticulatedModels separately to minimize state changes.  As many shadow maps
+       as there are shadow casting lights must be provided.
+       
+       @beta
+
+       The shadow map bounds are more-or-less hardcoded for the demo scenes and may not work
+       well for general scenes.  Most significant programs customize the rendering loop and
+       cannot use this routine (although it is often helpful to copy the source code from it).
+    */
+    static void sortAndRender
+    (
+     class RenderDevice*            rd, 
+     const class GCamera&           camera,
+     const Array<PosedModelRef>&    allModels, 
+     const LightingRef&             _lighting, 
+     const Array<ShadowMapRef>&     shadowMaps);
+    
+    static void sortAndRender
+    (
+     RenderDevice*                  rd, 
+     const GCamera&                 camera,
+     const Array<PosedModelRef>&    posed3D, 
+     const LightingRef&             lighting, 
+     const ShadowMapRef             shadowMap = NULL);
+
+
 protected:
 
     /**

@@ -12,8 +12,112 @@
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
 #include "GLG3D/ShadowMap.h"
+#include "GLG3D/ArticulatedModel.h"
+#include "G3D/GCamera.h"
 
 namespace G3D {
+
+void PosedModel::sortAndRender
+(
+ RenderDevice*                  rd, 
+ const GCamera&                 camera,
+ const Array<PosedModelRef>&    allModels, 
+ const LightingRef&             _lighting, 
+ const Array<ShadowMapRef>&     shadowMaps) {
+    static bool recurse = false;
+
+    alwaysAssertM(! recurse, "Cannot call PosedModel::sortAndRender recursively");
+    recurse = true;
+
+    Array<PosedModelRef> posed3D = allModels;
+    LightingRef lighting = _lighting->clone();
+
+    bool renderShadows = (shadowMaps.size() > 0) && (lighting->shadowedLightArray.size() > 0) && shadowMaps[0]->enabled();
+
+    if (renderShadows) {
+        // Remove excess lights
+        if (shadowMaps.size() < lighting->shadowedLightArray.size()) {
+            for (int L = shadowMaps.size() - 1; L < lighting->shadowedLightArray.size(); ++L) {
+                lighting->lightArray.append(lighting->shadowedLightArray[L]);
+            }
+            lighting->shadowedLightArray.resize(shadowMaps.size());
+        }
+
+        // Generate shadow maps
+        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+            const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
+            shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L],
+                                      lightProjX, lightProjY, lightProjNear, lightProjFar, posed3D);
+        }
+    } else {
+        // We're not going to be able to draw shadows, so move the shadowed lights into
+        // the unshadowed category.
+        lighting->lightArray.append(lighting->shadowedLightArray);
+        lighting->shadowedLightArray.clear();
+    }
+
+    // Separate and sort the models
+    static Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent;
+    ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
+    PosedModel::sort(opaqueAModel, camera.coordinateFrame().lookVector(), opaqueAModel);
+    PosedModel::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
+    
+    rd->setProjectionAndCameraMatrix(camera);
+    rd->setObjectToWorldMatrix(CoordinateFrame());
+
+    // Opaque unshadowed
+    // TODO: Something in here destroys the shadow map if we don't render the 
+    // otherOpaque array first.
+    for (int m = 0; m < otherOpaque.size(); ++m) {
+        otherOpaque[m]->renderNonShadowed(rd, lighting);
+    }
+    ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
+
+    // Opaque shadowed
+
+    // TODO: Why doesn't the MD2 model receive shadowing?
+    // TODO: If we render the otherOpaque first, it destroys the shadow map
+    for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+        rd->pushState();
+        ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], shadowMaps[L]);
+        rd->popState();
+        for (int m = 0; m < otherOpaque.size(); ++m) {
+            otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        }
+    }
+
+    // Transparent, must be rendered from back to front
+    for (int m = 0; m < transparent.size(); ++m) {
+        transparent[m]->renderNonShadowed(rd, lighting);
+        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+            transparent[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        }
+    }
+
+    opaqueAModel.fastClear();
+    otherOpaque.fastClear();
+    transparent.fastClear();
+
+    recurse = false;
+}
+
+
+void PosedModel::sortAndRender
+(
+ RenderDevice*                  rd, 
+ const GCamera&                 camera,
+ const Array<PosedModelRef>&    posed3D, 
+ const LightingRef&             lighting, 
+ const ShadowMapRef             shadowMap) {
+
+    static Array<ShadowMapRef> shadowMaps;
+    if (shadowMap.notNull()) {
+        shadowMaps.append(shadowMap);
+    }
+    sortAndRender(rd, camera, posed3D, lighting, shadowMaps);
+    shadowMaps.fastClear();
+}
+
 
 void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2DRef>& posed2D) {
     if (posed2D.size() > 0) {

@@ -73,50 +73,10 @@ void depthToColor(TextureRef depth, TextureRef& color, RenderDevice* rd) {
 }
 
 
-static void renderModels
-(
- RenderDevice*                  rd, 
- const Array<PosedModelRef>&    posed3D, 
- const LightingRef&             lighting, 
- const Array<ShadowMapRef>&     shadowMaps) {
-
-}
-
-static void renderModels
-(
- RenderDevice*                  rd, 
- const Array<PosedModelRef>&    posed3D, 
- const LightingRef&             lighting, 
- const ShadowMapRef             shadowMap) {
-    static Array<ShadowMapRef> shadowMaps;
-    shadowMaps.fastClear();
-    shadowMaps.append(shadowMap);
-    renderModels(rd, posed3D, lighting, shadowMaps);
-}
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
     SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
-
-    if (shadowMap->enabled()) {
-        // Generate shadow map        
-        const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
-        shadowMap->updateDepth(rd,lighting->shadowedLightArray[0],
-            lightProjX, lightProjY, lightProjNear, lightProjFar, posed3D);
-    } else {
-        // We're not going to be able to draw shadows, so move the shadowed lights into
-        // the unshadowed category.
-        lighting->lightArray.append(lighting->shadowedLightArray);
-        lighting->shadowedLightArray.clear();
-    }
-
-    // Separate and sort the models
-    Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent;
-    ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
-    PosedModel::sort(opaqueAModel, defaultCamera.coordinateFrame().lookVector(), opaqueAModel);
-    PosedModel::sort(posed3D, defaultCamera.coordinateFrame().lookVector(), otherOpaque, transparent);
-
-    /////////////////////////////////////////////////////////////////////
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
@@ -127,36 +87,13 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->setColorClearValue(Color3(.1f, .5f, 1));
 
     rd->clear(sky.notNull(), true, true);
+
     if (sky.notNull()) {
         sky->render(rd, skyParameters);
     }
 
-    // Opaque unshadowed
-    // TODO: Something in here destroys the shadow map if we don't render the 
-    // otherOpaque array first.
-    for (int m = 0; m < otherOpaque.size(); ++m) {
-        otherOpaque[m]->renderNonShadowed(rd, lighting);
-    }
-    ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
+    PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
 
-    // Opaque shadowed
-
-    // TODO: Why doesn't the MD2 model get self-shadowing?
-    if (lighting->shadowedLightArray.size() > 0) {
-        ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], shadowMap);
-        for (int m = 0; m < otherOpaque.size(); ++m) {
-            otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], shadowMap);
-        }
-    }
-
-    // Transparent, must be rendered from back to front
-    for (int m = 0; m < transparent.size(); ++m) {
-        transparent[m]->renderNonShadowed(rd, lighting);
-        if (lighting->shadowedLightArray.size() > 0) {
-            transparent[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], shadowMap);
-        }
-    }
-    
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);
     }
