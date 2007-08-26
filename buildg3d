@@ -34,9 +34,6 @@ def copyIfNewer(source, dest):
         return 0
 
 
-##################################################################################
-#  CMake targets
-
 osTable = \
     {'Windows'  : 'win32',
      'Linux'    : 'linux',
@@ -315,7 +312,10 @@ def proj(args):
     
     for opt, arg in projOptions:    
         if opt == '--generator':
-            buildGenerator = arg
+            if os.name == 'nt':
+                buildGenerator = '"' + arg + '"'
+            else:
+                buildGenerator = arg
             
         if opt == '--debug':
             buildType = 'Debug'
@@ -327,7 +327,7 @@ def proj(args):
         print '--generator option is required for proj target'
         return -1
 
-    cmakeArgs = ['-G "' + buildGenerator + '"', '-DCMAKE_BUILD_TYPE=' + buildType]
+    cmakeArgs = ['-G', buildGenerator, '-DCMAKE_BUILD_TYPE=' + buildType]
     if installDir != '':
         cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
         
@@ -436,5 +436,4 @@ if __name__ == "__main__":
         
     sys.exit(dispatchOnTarget(argv,
         [lib, clean, test,
-         ilib, iclean, itest, itools,
          doc, install, all, src, data, tools, jar, proj], buildHelp))
