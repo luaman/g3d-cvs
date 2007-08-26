@@ -26,6 +26,7 @@ private:
     FramebufferRef      m_colorConversionFramebuffer;
 
     Matrix4             m_lightMVP;
+    Matrix4             m_biasedLightMVP;
 
     float               m_polygonOffset;
 
@@ -79,6 +80,10 @@ public:
         return m_polygonOffset;
     }
 
+    /** MVP adjusted for depth comparisons to avoid self-shadowing artifacts on front faces. */
+    const Matrix4& biasedLightMVP() const {
+        return m_biasedLightMVP;
+    }
 
     bool enabled() const;
 
@@ -91,6 +96,9 @@ public:
         float lightProjFar,
         const Array<PosedModel::Ref>& shadowCaster);
 
+    /** Model-View-Projection matrix that maps world space to the
+        shadow map pixels.  Most applications will use biasedLightMVP
+        to avoid self-shadowing problems. */
     const Matrix4& lightMVP() const {
         return m_lightMVP;
     }

@@ -73,11 +73,32 @@ void depthToColor(TextureRef depth, TextureRef& color, RenderDevice* rd) {
 }
 
 
+static void renderModels
+(
+ RenderDevice*                  rd, 
+ const Array<PosedModelRef>&    posed3D, 
+ const LightingRef&             lighting, 
+ const Array<ShadowMapRef>&     shadowMaps) {
+
+}
+
+static void renderModels
+(
+ RenderDevice*                  rd, 
+ const Array<PosedModelRef>&    posed3D, 
+ const LightingRef&             lighting, 
+ const ShadowMapRef             shadowMap) {
+    static Array<ShadowMapRef> shadowMaps;
+    shadowMaps.fastClear();
+    shadowMaps.append(shadowMap);
+    renderModels(rd, posed3D, lighting, shadowMaps);
+}
+
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
     SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
-    if (shadowMap->enabled()) {     
+    if (shadowMap->enabled()) {
         // Generate shadow map        
         const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
         shadowMap->updateDepth(rd,lighting->shadowedLightArray[0],
@@ -111,12 +132,16 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     // Opaque unshadowed
-    ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
+    // TODO: Something in here destroys the shadow map if we don't render the 
+    // otherOpaque array first.
     for (int m = 0; m < otherOpaque.size(); ++m) {
         otherOpaque[m]->renderNonShadowed(rd, lighting);
     }
+    ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
 
-    // Opaque shadowed    
+    // Opaque shadowed
+
+    // TODO: Why doesn't the MD2 model get self-shadowing?
     if (lighting->shadowedLightArray.size() > 0) {
         ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], shadowMap);
         for (int m = 0; m < otherOpaque.size(); ++m) {
@@ -124,7 +149,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         }
     }
 
-    // Transparent
+    // Transparent, must be rendered from back to front
     for (int m = 0; m < transparent.size(); ++m) {
         transparent[m]->renderNonShadowed(rd, lighting);
         if (lighting->shadowedLightArray.size() > 0) {
@@ -140,8 +165,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     PosedModel2D::sortAndRender(rd, posed2D);
 
-    debugPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
-    debugPrintf("%s Profile %s\n", toString(ArticulatedModel::profile()),
+    screenPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
+    screenPrintf("%s Profile %s\n", toString(ArticulatedModel::profile()),
         #ifdef _DEBUG
                 "(DEBUG mode)"
         #else

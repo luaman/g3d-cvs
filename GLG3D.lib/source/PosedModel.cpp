@@ -237,7 +237,7 @@ void PosedModel::renderShadowMappedLightPass(
     const GLight& light,
     const ShadowMapRef& shadowMap) const {
 
-    renderShadowMappedLightPass(rd, light, shadowMap->lightMVP(), shadowMap->depthTexture());
+    renderShadowMappedLightPass(rd, light, shadowMap->biasedLightMVP(), shadowMap->depthTexture());
 }
 
 

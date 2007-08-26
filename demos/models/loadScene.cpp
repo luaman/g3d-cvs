@@ -9,7 +9,7 @@ void App::loadScene() {
 
     double x = -5;
 
-    {
+    if (true) {
         CoordinateFrame xform;
 
         xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.04f;
@@ -22,55 +22,115 @@ void App::loadScene() {
         x += 3;
     }
 
-    if (false) {
+    if (true) {
         MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.6f);
         TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0.1f,0))));
         x += 3;
     }
 
-/*
     if (false) {
-        ArticulatedModelRef model = ArticulatedModel::fromFile("sphere.ifs", 1);
-
-        SuperShader::Material& material = model->partArray[0].triListArray[0].material;
-        model->partArray[0].triListArray[0].twoSided = false;
-        material.diffuse = Color3::white() * 1.0f;
-        material.specular = Color3::white() * 0.7f;
-        material.specularExponent = Color3::white() * 60;
-        model->updateAll();
-
-    //for (int i = 0; i < 100; ++i) {
-        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(x,0,-2))));
-        x += 0.1;
-    //}
+        MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.6f);
+        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
+        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x-3,-1,-2))));
+        x += 3;
     }
 
     if (true) {
-        CoordinateFrame xform;
-        xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.2f;
-        //xform.rotation = xform.rotation * rot180;
-        xform.translation = Vector3(0, 0, 0);
-        std::string path = "";
-        ArticulatedModelRef model = ArticulatedModel::fromFile(path + "box.3ds", xform);
+        ArticulatedModelRef model = ArticulatedModel::createEmpty();
 
-       
-        // Override the textures in the file with more interesting ones
-        {
-            SuperShader::Material& material = model->partArray[0].triListArray[0].material;
-            material.diffuse.map = Texture::fromFile(path + "box.jpg");
-            material.diffuse.constant = Color3::white();
-            material.specularExponent = Color3::white() * 40;
-        }
+        model->name = "Ground Plane";
+        ArticulatedModel::Part& part = model->partArray.next();
+        part.cframe = CoordinateFrame();
+        part.name = "root";
+    
+        const float S = 10.0;
+        part.geometry.vertexArray.append(
+            Vector3(-S, 0, -S),
+            Vector3(-S, 0, S),
+            Vector3(S, 0, S),
+            Vector3(S, 0, -S));
 
-        model->updateAll();
-        
+        double texScale = 5;
+        part.texCoordArray.append(
+            Vector2(0,0) * texScale,
+            Vector2(0,1) * texScale,
+            Vector2(1,1) * texScale,
+            Vector2(1,0) * texScale);
 
-        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,2,0))));
-        Log::common()->printf("Ramp: %gs\n", System::time() - t0); t0 = System::time();
+        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
+        triList.indexArray.clear();
+        triList.indexArray.append(0, 1, 2);
+        triList.indexArray.append(0, 2, 3);
+
+        triList.twoSided = true;
+        triList.material.emit.constant = Color3::black();
+
+        triList.material.specular.constant = Color3::black();
+        triList.material.specularExponent.constant = Color3::white() * 60;
+        triList.material.reflect.constant = Color3::black();
+
+        triList.material.diffuse.constant = Color3::white() * 0.8f;
+        triList.material.diffuse.map = Texture::fromFile("stone.jpg");
+
+        GImage normalBumpMap;
+		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, false, true);
+        triList.material.normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);
+
+        triList.material.bumpMapScale = 0.04f;
+
+        triList.computeBounds(part);
+
+        part.indexArray = triList.indexArray;
+
+        part.computeIndexArray();
+        part.computeNormalsAndTangentSpace();
+        part.updateVAR();
+        part.updateShaders();
+
+        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0,-1,0))));
     }
 
-*/
+
+//		"contrib/ArticulatedModel/3ds/f16/f16b.3ds"
+//		"contrib/ArticulatedModel/3ds/cube.3ds"
+//		"contrib/ArticulatedModel/3ds/jeep/jeep.3ds", 0.1
+//		"contrib/ArticulatedModel/3ds/house/house.3ds", 0.01
+//		"contrib/ArticulatedModel/3ds/delorean/delorean.3ds", 0.1
+//		"contrib/ArticulatedModel/3ds/car35/car35.3ds", 0.1
+//		"d:/users/morgan/projects/3ds/fs/fs.3ds"
+    lighting = Lighting::create();
+    {
+        skyParameters = SkyParameters(G3D::toSeconds(1, 00, 00, PM));
+    
+        skyParameters.skyAmbient = Color3::white();
+
+        if (sky.notNull()) {
+            lighting->environmentMap = sky->getEnvironmentMap();
+            lighting->environmentMapColor = skyParameters.skyAmbient;
+        } else {
+            lighting->environmentMapColor = Color3::black();
+        }
+
+        lighting->ambientTop = Color3(0.7f, 0.7f, 1.0f) * skyParameters.diffuseAmbient;
+        lighting->ambientBottom = Color3::brown() * skyParameters.diffuseAmbient;
+
+        lighting->emissiveScale = skyParameters.emissiveScale;
+
+        lighting->lightArray.clear();
+
+        lighting->shadowedLightArray.clear();
+
+        GLight L = skyParameters.directionalLight();
+        // Decrease the blue since we're adding blue ambient
+        L.color *= Color3(1.2f, 1.2f, 1);
+        L.position = Vector4(Vector3(0,1,1).direction(), 0);
+
+        lighting->shadowedLightArray.append(L);
+    }
+}
+
+
 #if LOAD_ALL
     if (true) {
         CoordinateFrame xform;
@@ -464,96 +524,3 @@ void App::loadScene() {
         x += 2;
     }
 #endif
-    if (true) {
-        ArticulatedModelRef model = ArticulatedModel::createEmpty();
-
-        model->name = "Ground Plane";
-        ArticulatedModel::Part& part = model->partArray.next();
-        part.cframe = CoordinateFrame();
-        part.name = "root";
-    
-        const float S = 10.0;
-        part.geometry.vertexArray.append(
-            Vector3(-S, 0, -S),
-            Vector3(-S, 0, S),
-            Vector3(S, 0, S),
-            Vector3(S, 0, -S));
-
-        double texScale = 5;
-        part.texCoordArray.append(
-            Vector2(0,0) * texScale,
-            Vector2(0,1) * texScale,
-            Vector2(1,1) * texScale,
-            Vector2(1,0) * texScale);
-
-        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.indexArray.clear();
-        triList.indexArray.append(0, 1, 2);
-        triList.indexArray.append(0, 2, 3);
-
-        triList.twoSided = true;
-        triList.material.emit.constant = Color3::black();
-
-        triList.material.specular.constant = Color3::black();
-        triList.material.specularExponent.constant = Color3::white() * 60;
-        triList.material.reflect.constant = Color3::black();
-
-        triList.material.diffuse.constant = Color3::white() * 0.8f;
-        triList.material.diffuse.map = Texture::fromFile("stone.jpg");
-
-        GImage normalBumpMap;
-		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, false, true);
-        triList.material.normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);
-
-        triList.material.bumpMapScale = 0.04f;
-
-        triList.computeBounds(part);
-
-        part.indexArray = triList.indexArray;
-
-        part.computeIndexArray();
-        part.computeNormalsAndTangentSpace();
-        part.updateVAR();
-        part.updateShaders();
-
-        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0,-1,0))));
-    }
-
-
-//		"contrib/ArticulatedModel/3ds/f16/f16b.3ds"
-//		"contrib/ArticulatedModel/3ds/cube.3ds"
-//		"contrib/ArticulatedModel/3ds/jeep/jeep.3ds", 0.1
-//		"contrib/ArticulatedModel/3ds/house/house.3ds", 0.01
-//		"contrib/ArticulatedModel/3ds/delorean/delorean.3ds", 0.1
-//		"contrib/ArticulatedModel/3ds/car35/car35.3ds", 0.1
-//		"d:/users/morgan/projects/3ds/fs/fs.3ds"
-    lighting = Lighting::create();
-    {
-        skyParameters = SkyParameters(G3D::toSeconds(1, 00, 00, PM));
-    
-        skyParameters.skyAmbient = Color3::white();
-
-        if (sky.notNull()) {
-            lighting->environmentMap = sky->getEnvironmentMap();
-            lighting->environmentMapColor = skyParameters.skyAmbient;
-        } else {
-            lighting->environmentMapColor = Color3::black();
-        }
-
-        lighting->ambientTop = Color3(0.7f, 0.7f, 1.0f) * skyParameters.diffuseAmbient;
-        lighting->ambientBottom = Color3::brown() * skyParameters.diffuseAmbient;
-
-        lighting->emissiveScale = skyParameters.emissiveScale;
-
-        lighting->lightArray.clear();
-
-        lighting->shadowedLightArray.clear();
-
-        GLight L = skyParameters.directionalLight();
-        // Decrease the blue since we're adding blue ambient
-        L.color *= Color3(1.2f, 1.2f, 1);
-        L.position = Vector4(Vector3(0,1,1).direction(), 0);
-
-        lighting->shadowedLightArray.append(L);
-    }
-}

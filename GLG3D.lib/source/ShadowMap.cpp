@@ -20,7 +20,7 @@ void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
     Texture::DepthReadMode old = m_depthModeStack.last();
     m_depthModeStack.append(m);
 
-    // Only make the OpenGL calls if necessayr
+    // Only make the OpenGL calls if necessary
     if (m != old) {
         setMode(m);
     }
@@ -38,6 +38,7 @@ void ShadowMap::popDepthReadMode() {
 
 
 void ShadowMap::setMode(Texture::DepthReadMode m) {
+
     if (m_depthTexture.isNull()) {
         return;
     }
@@ -50,10 +51,12 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
 
     switch (m) {
     case Texture::DEPTH_NORMAL:
+        glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
         glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
         break;
 
     default:
+        glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
         glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, 
                         GL_COMPARE_R_TO_TEXTURE_ARB);
 
@@ -120,11 +123,11 @@ void ShadowMap::updateDepth(
     float lightProjFar,
     const Array<PosedModel::Ref>& shadowCaster) {
 
+    m_lastRenderDevice = renderDevice;
+
     if (shadowCaster.size() == 0) {
         return;
     }
-
-    m_lastRenderDevice = renderDevice;
 
     debugAssert(GLCaps::supports_GL_ARB_shadow()); 
 
@@ -199,6 +202,14 @@ void ShadowMap::updateDepth(
         // Flip the Y-axis to account for the upside down Y-axis on read back textures
         m_lightMVP = lightProjectionMatrix * lightCFrame.inverse();
 
+        static const Matrix4 bias(
+                                  0.5f, 0.0f, 0.0f, 0.5f,
+                                  0.0f, 0.5f, 0.0f, 0.5f,
+                                  0.0f, 0.0f, 0.5f, 0.5f - 0.003f,
+                                  0.0f, 0.0f, 0.0f, 1.0f);
+
+        m_biasedLightMVP = bias * m_lightMVP;
+
         // Avoid z-fighting
         renderDevice->setPolygonOffset(m_polygonOffset);
 
@@ -232,7 +243,7 @@ TextureRef ShadowMap::colorDepthTexture() const {
 
 void ShadowMap::computeColorTexture() {
     RenderDevice* rd = m_lastRenderDevice;
-    debugAssert(rd);
+    debugAssertM(rd, "Must call updateDepth() before colorDepthTexture()");
 
     if (m_colorTexture.isNull()) {
         Texture::Settings settings = Texture::Settings::video();

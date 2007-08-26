@@ -192,14 +192,7 @@ void SuperShader::configureShadowShaderArgs(
         args.set("shadowMap",       shadowMap->depthTexture());
     }
 
-    // Bias the shadow map so that we don't get acne
-    static const Matrix4 bias(
-        0.5f, 0.0f, 0.0f, 0.5f,
-        0.0f, 0.5f, 0.0f, 0.5f,
-        0.0f, 0.0f, 0.5f, 0.5f - 0.003f,
-        0.0f, 0.0f, 0.0f, 1.0f);
-
-    args.set("lightMVP",        bias * shadowMap->lightMVP());
+    args.set("lightMVP",        shadowMap->biasedLightMVP());
 }
 
 /** Loads the specified text file, using an internal cache to avoid 

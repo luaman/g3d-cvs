@@ -812,7 +812,7 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
         VAR varTexCoord(_texCoordArray, varArea[nextVarArea]);
         VAR varNormal  (normalArray,   varArea[nextVarArea]);
         VAR varVertex  (vertexArray,   varArea[nextVarArea]);
-
+        
         renderDevice->beginIndexedPrimitives();
             renderDevice->setTexCoordArray(0, varTexCoord);
             renderDevice->setNormalArray(varNormal);
@@ -852,9 +852,11 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
     }
 }
 
+
 void MD2Model::PosedMD2Model::sendGeometry(RenderDevice* renderDevice) const {
     model->sendGeometry(renderDevice, pose);
 }
+
 
 void MD2Model::PosedMD2Model::render(RenderDevice* renderDevice) const {
     renderDevice->pushState();
