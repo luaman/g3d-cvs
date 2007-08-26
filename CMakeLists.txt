@@ -18,7 +18,7 @@ IF (UNIX)
     ADD_CUSTOM_COMMAND(
         TARGET  ${TARGET}
         PRE_BUILD
-        COMMAND cmakeutil ARGS copy_if_newer ${FROM_DIR} ${TO_DIR}
+        COMMAND ./cmakeutil ARGS copy_if_newer ${FROM_DIR} ${TO_DIR}
         WORKING_DIRECTORY ${G3D_SOURCE_DIR}
     )
 ELSE (UNIX)
