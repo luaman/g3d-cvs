@@ -17,17 +17,6 @@ ADD_EXECUTABLE(test ${source_list})
 # specify test executable linking dependencies 
 TARGET_LINK_LIBRARIES(test ${ALL_EXE_LIBRARIES})
 
-IF (APPLE)
-  FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
-  IF(VTK_APPLE_RESOURCE)
-    ADD_CUSTOM_COMMAND(SOURCE test
-                       COMMAND ${VTK_APPLE_RESOURCE}
-                       ARGS Carbon.r -o 
-                       ${G3D_BINARY_DIR}/bin/test
-                       TARGET test)
-  ENDIF(VTK_APPLE_RESOURCE)
-ENDIF(APPLE)
-
 # specify executable output directory
 SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/test)
 
