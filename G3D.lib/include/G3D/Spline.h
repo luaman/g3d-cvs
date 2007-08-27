@@ -170,7 +170,7 @@ public:
                 {
                     float a;
                     if (cyclic) {
-                        a = wrap((float)s, 2.0f);
+                        a = (float)wrap((float)s, 2.0f);
                         if (a > 1.0f) {
                             // Reflect around end points
                             a = 2.0f - a;
