@@ -95,61 +95,19 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 
 void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 
-    // Separate and sort the models	
-	static Array<G3D::PosedModel::Ref> otherOpaque;
-	static Array<G3D::PosedModel::Ref> opaqueAModel;
-	static Array<G3D::PosedModel::Ref> transparent;
+    // Separate and sort the models
+	static Array<G3D::PosedModel::Ref> posed3D;
+    
+    m_model->pose(posed3D);
+    PosedModel::sortAndRender(rd, app->defaultCamera, posed3D, lighting, app->shadowMap);
+    posed3D.fastClear();
 
-	const CoordinateFrame cameraFrame = rd->getCameraToWorldMatrix();
-
-	otherOpaque.fastClear();
-	opaqueAModel.fastClear();
-	transparent.fastClear();
-
-//    static RealTime t0 = System::time();
-//    float angle = (System::time() - t0);
-    m_model->pose(otherOpaque);//, Matrix3::fromAxisAngle(Vector3::unitY(), angle));
-
-    bool shadows = (lighting->shadowedLightArray.size() > 0) && app->shadowMap.enabled();
-
-    if (shadows) {  
-        // Generate shadow map        
-        const float lightProjX = 8, lightProjY = 8, lightProjNear = 1, lightProjFar = 20;
-        app->shadowMap.updateDepth(rd, lighting->shadowedLightArray[0],
-            lightProjX, lightProjY, lightProjNear, lightProjFar, otherOpaque);
-    }
-
-	Vector3 cameraLook = cameraFrame.lookVector();
-	PosedModel::sort(otherOpaque, cameraLook , opaqueAModel, transparent);
-
-    // Opaque unshadowed
-    ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
-    for (int m = 0; m < otherOpaque.size(); ++m) {
-        otherOpaque[m]->renderNonShadowed(rd, lighting);
-    }
-
-    // Opaque shadowed    
-    if (shadows) {
-        ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], app->shadowMap.lightMVP(), app->shadowMap.depthTexture());
-        for (int m = 0; m < otherOpaque.size(); ++m) {
-            otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], app->shadowMap.lightMVP(), app->shadowMap.depthTexture());
-        }
-    }
-
-    // Transparent
-    for (int m = 0; m < transparent.size(); ++m) {
-        transparent[m]->renderNonShadowed(rd, lighting);
-        if (shadows) {
-            transparent[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[0], app->shadowMap.lightMVP(), app->shadowMap.depthTexture());
-        }
-    }
-
-	app->debugPrintf("Faces: %d", m_numFaces);
-	app->debugPrintf("Vertices: %d", m_numVertices);
+	screenPrintf("Faces: %d", m_numFaces);
+	screenPrintf("Vertices: %d", m_numVertices);
 
 	if (m_texturebool) {
-		app->debugPrintf("Contains texture Coordinates");
+		screenPrintf("Contains texture Coordinates");
 	} else {
-		app->debugPrintf("No texture coordinates");
+		screenPrintf("No texture coordinates");
 	}
 }

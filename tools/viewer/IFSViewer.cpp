@@ -41,13 +41,13 @@ void IFSViewer::onInit(const std::string& filename) {
 void IFSViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	PosedModelRef posedifs = m_model->pose(CoordinateFrame(), true);
 
-	app->debugPrintf ( "Edges: %d", m_numEdges );
-	app->debugPrintf ( "Faces: %d", m_numFaces );
-	app->debugPrintf ( "Vertices: %d", m_numVertex );
+	screenPrintf ( "Edges: %d", m_numEdges );
+	screenPrintf ( "Faces: %d", m_numFaces );
+	screenPrintf ( "Vertices: %d", m_numVertex );
 	if (m_texturebool) {
-		app->debugPrintf ( "Contains texture coordinates" );
+		screenPrintf ( "Contains texture coordinates" );
 	} else {
-		app->debugPrintf ( "No texture coordinates" );
+		screenPrintf ( "No texture coordinates" );
 	}
 		
 	posedifs->render( rd ); 

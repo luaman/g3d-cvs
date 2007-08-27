@@ -51,12 +51,12 @@ void BSPViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighti
 		app->defaultController->setFrame(map->startingPosition);
 	}
 
-	app->debugPrintf("Faces: %d", numFaces);
-	app->debugPrintf("Vertices: %d", numVertices);
-	app->debugPrintf("Light Maps: %d", numLightMaps);
-	app->debugPrintf("Textures: %d", numTextures);
+	screenPrintf("Faces: %d", numFaces);
+	screenPrintf("Vertices: %d", numVertices);
+	screenPrintf("Light Maps: %d", numLightMaps);
+	screenPrintf("Textures: %d", numTextures);
 	Vector3 camPos = app->defaultCamera.coordinateFrame().translation;
-	app->debugPrintf("Current camera position: (%f, %f, %f)", camPos.x, camPos.y, camPos.z);
+	screenPrintf("Current camera position: (%f, %f, %f)", camPos.x, camPos.y, camPos.z);
 
 	map->render(rd, app->defaultCamera);
 	

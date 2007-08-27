@@ -35,9 +35,9 @@ void TextureViewer::onInit(const std::string& filename) {
 
 
 void TextureViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
-	app->debugPrintf ( "Width: %d", m_width);
-	app->debugPrintf ( "Height: %d",  m_height);
-	app->debugPrintf ( "Format: .%s", m_ext.c_str());
+	screenPrintf("Width: %d",  m_width);
+	screenPrintf("Height: %d",  m_height);
+	screenPrintf("Format: .%s", m_ext.c_str());
 
 	rd->push2D();
 		

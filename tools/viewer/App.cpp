@@ -26,8 +26,8 @@ App::App(const GApp::Settings& settings, const std::string& file) :
 	filename(file),
 	viewer(NULL) {
 
-    shadowMap.setSize(0);
-    shadowMap.setPolygonOffset(0.0f);
+    shadowMap = ShadowMap::create(1024);
+    shadowMap->setPolygonOffset(0.0f);
 	setDesiredFrameRate(60);
 }
 
@@ -87,11 +87,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     LightingRef localLighting = toneMap->prepareLighting(lighting);
 	toneMap->setEnabled(false);
     rd->setProjectionAndCameraMatrix(defaultCamera);
-
-    if (! shadowMap.enabled()) {
-        localLighting->lightArray.append(localLighting->shadowedLightArray);
-        localLighting->shadowedLightArray.clear();
-    }
 
     rd->setColorClearValue(colorClear);
     rd->clear(true, true, true);
@@ -158,7 +153,7 @@ void App::setViewer(const std::string& newFilename) {
 	//modelController->setFrame(CoordinateFrame(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180))));
 	delete viewer;
 	viewer = NULL;
-    shadowMap.setSize(0);
+    shadowMap->setSize(0);
 	
 	std::string ext = toLower(filenameExt(filename));
 
@@ -168,10 +163,7 @@ void App::setViewer(const std::string& newFilename) {
 
 	} else if (ext == "3ds") {
 
-        if (false && (GLCaps::enumVendor() != GLCaps::ATI)) {
-            // ATI shadow maps are really slow under the G3D implementation
-            shadowMap.setSize(2048);
-        }
+        shadowMap->setSize(2048);
 
 		viewer = new ArticulatedViewer();
 

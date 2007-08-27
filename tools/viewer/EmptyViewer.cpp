@@ -19,8 +19,8 @@ void EmptyViewer::onInit(const std::string& filename) {}
 
 
 void EmptyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
-	app->debugPrintf("No valid item to view currently\n");
-	app->debugPrintf("Drag and drop an item to view it in 3D\n");
-	app->debugPrintf("\n");
-	app->debugPrintf("Supported files: ICO, JPG, BMP, PCX, DDS, TGA, PPM, PNG, GIF, PK3, MD2, BSP, FNT, 3DS, IFS, SKN");
+	screenPrintf("No valid item to view currently\n");
+	screenPrintf("Drag and drop an item to view it in 3D\n");
+	screenPrintf("\n");
+	screenPrintf("Supported files: ICO, JPG, BMP, PCX, DDS, TGA, PPM, PNG, GIF, PK3, MD2, BSP, FNT, 3DS, IFS, SKN");
 }
