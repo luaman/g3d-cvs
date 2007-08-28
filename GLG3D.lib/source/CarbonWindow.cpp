@@ -19,8 +19,6 @@
 
 // TODO: Replace these with proper calls.
 #define OSX_MENU_BAR_HEIGHT 45
-#define OSX_WINDOW_TITLE_HEIGHT 22
-#define OSX_RESIZE_DIMS 10
 
 namespace G3D {
 
@@ -125,6 +123,7 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
 
     // Clear all keyboard buttons to up (not down)
     memset(_keyboardButtons, 0, sizeof(_keyboardButtons));
+	memset(_mouseButtons, 0, sizeof(_mouseButtons));
 
     if (! creatingShareWindow) {
         GLCaps::init();
@@ -181,8 +180,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 
 	if (_settings.fullScreen) {
 		attribs[i++] = AGL_FULLSCREEN;		attribs[i++] = GL_TRUE;
-	}
-	else {
+	} else {
 		attribs[i++] = AGL_WINDOW;			attribs[i++] = GL_TRUE;
 	}
 	
@@ -245,6 +243,8 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 
 	osErr = SetWindowTitleWithCFString(_window,_titleRef);
 	ShowWindow(_window);
+	
+	// TODO: SetApplicationDockTileImage
 
 	osErr = InstallStandardEventHandler(GetWindowEventTarget(_window));
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), &_resizeSpec[0], this, NULL);
@@ -342,7 +342,6 @@ Rect2D CarbonWindow::dimensions() const {
 }
 
 void CarbonWindow::setDimensions(const Rect2D &dims) {
-	// TODO: Fill in with code to set window dimensions.
 	CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
 	int W = rScreen.size.width;
 	int H = rScreen.size.height;
@@ -365,13 +364,11 @@ void CarbonWindow::getDroppedFilenames(Array<std::string>& files) {
 }
 
 bool CarbonWindow::hasFocus() const {
-	// TODO: Fill in with code to determine focus.
-	return true;
+	return _windowActive;
 }
 
 void CarbonWindow::setGammaRamp(const Array<uint16>& gammaRamp) {
-	// TODO: Fill in with gamma adjustement code.
-	// This is likely going to be done with CGSetDisplayTransferByTable()
+	// Soon to be depricated.
 }
 
 void CarbonWindow::setCaption(const std::string& title) {
@@ -406,9 +403,11 @@ void CarbonWindow::notifyResize(int w, int h) {
 
 void CarbonWindow::setRelativeMousePosition(double x, double y) {
 	CGPoint point;
-	point.x = x;
-	point.y = y;
-	CGDisplayMoveCursorToPoint(0,point);
+
+	point.x = x + _settings.x;
+	point.y = y + _settings.y;
+	
+	CGWarpMouseCursorPosition(point);
 }
 
 void CarbonWindow::setRelativeMousePosition(const Vector2 &p) {
@@ -426,15 +425,9 @@ void CarbonWindow::getRelativeMouseState(int &x, int &y, uint8 &mouseButtons) co
 	Point point;
 	GetGlobalMouse(&point);
 	
-	if(!_settings.fullScreen) {
-		x = point.h - _settings.x;
-		y = point.v - _settings.y - OSX_WINDOW_TITLE_HEIGHT;
-	}
-	else {
-		x = point.h;
-		y = point.v;
-	}
-	
+	x = point.h - _settings.x;
+	y = point.v - _settings.y;
+
 	mouseButtons = buttonsToUint8(_mouseButtons);
 }
 
@@ -450,11 +443,12 @@ void CarbonWindow::getJoystickState(unsigned int stickNum, Array<float> &axis, A
 }
 
 void CarbonWindow::setInputCapture(bool c) {
-	// TODO: Fill in with input capturing code.
 	if(_inputCapture == c)
 		return;
 	
 	_inputCapture = c;
+	
+	setRelativeMousePosition(_settings.width/2.0,_settings.height/2.0);
 }
 
 bool CarbonWindow::inputCapture() const {
@@ -470,7 +464,7 @@ void CarbonWindow::setMouseVisible(bool b) {
 	if(_mouseVisible)
 		CGDisplayShowCursor(kCGDirectMainDisplay);
 	else
-		CGDisplayShowCursor(kCGDirectMainDisplay);
+		CGDisplayHideCursor(kCGDirectMainDisplay);
 }
 
 bool CarbonWindow::mouseVisible() const {
@@ -490,34 +484,45 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 	UInt32 eventKind = GetEventKind(theEvent);
 	HIPoint point;
 	EventMouseButton button;
-	Rect rect;
+	Rect rect, rectGrow;
 	
 	GetEventParameter(theEvent, kEventParamMouseLocation, typeHIPoint, NULL, sizeof(HIPoint), NULL, &point);
 
 	if(GetWindowBounds(_window, kWindowContentRgn, &rect)==noErr) {
 		// If we've captured the mouse, we want to force the mouse to stay in our window region.
 		if(_inputCapture) {
+			bool reposition = false;
 			CGPoint newPoint = point;
 			
-			if(point.x < rect.left)
+			if(point.x < rect.left) {
 				newPoint.x = rect.left;
-			if(point.x > rect.right)
+				reposition = true;
+			}
+			if(point.x > rect.right) {
 				newPoint.x = rect.right;
-			if(point.y < rect.top)
+				reposition = true;
+			}
+			if(point.y < rect.top) {
 				newPoint.y = rect.top;
-			if(point.y > rect.bottom)
+				reposition = true;
+			}
+			if(point.y > rect.bottom) {
 				newPoint.y = rect.bottom;
-				
-			CGWarpMouseCursorPosition(newPoint);
-			point = newPoint;
+				reposition = true;
+			}
+			
+			if(reposition) {
+				CGWarpMouseCursorPosition(newPoint);
+				point = newPoint;
+			}
 		}
 		
 		// If the mouse event didn't happen in our content region, then
 		// we want to punt it to other event handlers. (Return FALSE)
 		if((point.x >= rect.left) && (point.y >= rect.top) && (point.x <= rect.right) && (point.y <= rect.bottom)) {
 			// If the user wants to resize, we should allow them to.
-			// TODO: Use GetWindowBounds with kWindowGrowRgn rather than my hack.
-			if(!_settings.fullScreen && _settings.resizable && ((point.x >= (rect.right - OSX_RESIZE_DIMS)) && (point.y >= (rect.bottom - OSX_RESIZE_DIMS))))
+			GetWindowBounds(_window, kWindowGrowRgn, &rectGrow);
+			if(!_settings.fullScreen && _settings.resizable && ((point.x >= rectGrow.left) && (point.y >= rectGrow.top)))
 				return false;
 			
 			GetEventParameter(theEvent, kEventParamMouseButton, typeMouseButton, NULL, sizeof(EventMouseButton), NULL, &button);
@@ -525,7 +530,7 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 			switch (eventKind) {
 				case kEventMouseDown:
 				case kEventMouseUp:
-					e.type = (eventKind == kEventMouseDown) ? GEventType::MOUSE_BUTTON_DOWN : GEventType::MOUSE_BUTTON_UP;
+					e.type = ((eventKind == kEventMouseDown) || (eventKind == kEventMouseDragged)) ? GEventType::MOUSE_BUTTON_DOWN : GEventType::MOUSE_BUTTON_UP;
 					e.button.x = point.x-rect.left;
 					e.button.y = point.y-rect.top;
 
@@ -543,15 +548,14 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 					e.motion.state = buttonsToUint8(_mouseButtons);
 					e.motion.x = point.x-rect.left;
 					e.motion.y = point.y-rect.top;
-					e.motion.xrel = point.x-rect.left;
-					e.motion.yrel = point.x-rect.left;
+					e.motion.xrel = 0;
+					e.motion.yrel = 0;
 					return true;
 				case kEventMouseWheelMoved:
 				default:
 					break;
 			}
-		}
-		else if(!_settings.fullScreen && eventKind == kEventMouseDown) {
+		} else if(!_settings.fullScreen && eventKind == kEventMouseDown) {
 		// We want to indentify and handle menu events too
 		// because we don't have the standard event handlers.
 			Point thePoint;
@@ -668,12 +672,10 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 	}
 	
 	Rect rect;
-	if(GetWindowBounds(_window, kWindowStructureRgn, &rect)==noErr) {
-		_settings.x = rect.left;
-		_settings.y = rect.top;
-	}
 	
 	if(GetWindowBounds(_window, kWindowContentRgn, &rect)==noErr) {
+		_settings.x = rect.left;
+		_settings.y = rect.top;
 		_settings.width = rect.right-rect.left;
 		_settings.height = rect.bottom-rect.top;
 	}
@@ -702,50 +704,141 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 }
 
 static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
+	static GKeyMod lastMod = GKEYMOD_NONE;
 	UniChar uc;
 	unsigned char c;
 	UInt32 key;
 	UInt32 modifiers;
+	
+	KeyMap keyMap;
+	unsigned char * keyBytes;
+	enum {
+			/* modifier keys (TODO: need to determine right command key value) */
+		kVirtualLShiftKey = 0x038,
+		kVirtualLControlKey = 0x03B,
+		kVirtualLOptionKey = 0x03A,
+		kVirtualRShiftKey = 0x03C,
+		kVirtualRControlKey = 0x03E,
+		kVirtualROptionKey = 0x03D,
+		kVirtualCommandKey = 0x037
+	};
 	
 	GetEventParameter(theEvent, kEventParamKeyUnicodes, typeUnicodeText, NULL, sizeof(uc), NULL, &uc);
 	GetEventParameter(theEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
 	GetEventParameter(theEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(key), NULL, &key);
 	GetEventParameter(theEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modifiers), NULL, &modifiers);
 	
-	e.key.keysym.sym = (GKey::Value)c;
+	GetKeys(keyMap);
+	keyBytes = (unsigned char *)keyMap;
+	
 	e.key.keysym.scancode = key;
 	e.key.keysym.unicode = uc;
 	e.key.keysym.mod = (GKeyMod)0;
 	
+	if(modifiers & shiftKey) {
+		if(keyBytes[kVirtualLShiftKey>>3] & (1 << (kVirtualLShiftKey&7)))
+			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LSHIFT);
+
+		if(keyBytes[kVirtualRShiftKey>>3] & (1 << (kVirtualRShiftKey&7)))
+			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RSHIFT);		
+	}
+	
+	if(modifiers & controlKey) {
+		if(keyBytes[kVirtualLControlKey>>3] & (1 << (kVirtualLControlKey&7)))
+			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LCTRL);
+
+		if(keyBytes[kVirtualRControlKey>>3] & (1 << (kVirtualRControlKey&7)))
+			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RCTRL);
+	}
+
+	if(modifiers & optionKey) {
+		if(keyBytes[kVirtualLOptionKey>>3] & (1 << (kVirtualLOptionKey&7)))
+			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LALT);
+
+		if(keyBytes[kVirtualROptionKey>>3] & (1 << (kVirtualROptionKey&7)))
+			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RALT);
+	}
+
 	if(modifiers & cmdKey) {
 		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LMETA);
 	}
 	
-	if(modifiers & shiftKey) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LSHIFT);
+	if(modifiers & kEventKeyModifierFnMask) {
+		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_MODE);
 	}
-	
+
 	if(modifiers & alphaLock) {
 		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_CAPS);
-	}
-
-	if(modifiers & optionKey) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LALT);
-	}
-
-	if(modifiers & controlKey) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LCTRL);
 	}
 
 	if(modifiers & kEventKeyModifierNumLockMask) {
 		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_NUM);
 	}
+	
+	// If c is 0, then we've actually recieved a modifier key event,
+	// which takes a little more logic to figure out. Especially since
+	// under Carbon there isn't a distinction between right/left hand
+	// versions of keys.
+	if(c != 0)
+		e.key.keysym.sym = (GKey::Value)c;
+	else {
+		// We must now determine what changed since last time and see
+		// if we've got a key-up or key-down. :-p The assumption is a
+		// key down, so we must only set e.key.type = GEventType::KEY_UP
+		// if we've lost a modifier.
+		if(lastMod == GKEYMOD_NONE)
+			lastMod = e.key.keysym.mod;
+		
+		if(lastMod > e.key.keysym.mod) {
+			e.key.type = GEventType::KEY_UP;
 
-//	if(modifiers & kEventKeyModifierFnMask) {
-//		e.key.keysym.mod = e.key.keysym.mod | GKEYMOD_;
-//	}
+			switch(e.key.keysym.mod | lastMod) {
+				case GKEYMOD_LSHIFT:
+					e.key.keysym.sym = GKey::LSHIFT;
+				break;
+				case GKEYMOD_RSHIFT:
+					e.key.keysym.sym = GKey::RSHIFT;
+					break;
+				case GKEYMOD_LCTRL:
+					e.key.keysym.sym = GKey::LCTRL;
+					break;
+				case GKEYMOD_RCTRL:
+					e.key.keysym.sym = GKey::RCTRL;
+					break;
+				case GKEYMOD_LALT:
+					e.key.keysym.sym = GKey::LALT;
+					break;
+				case GKEYMOD_RALT:
+					e.key.keysym.sym = GKey::RALT;
+					break;
+			}
+		} else {
+			switch(e.key.keysym.mod & lastMod) {
+				case GKEYMOD_LSHIFT:
+					e.key.keysym.sym = GKey::LSHIFT;
+				break;
+				case GKEYMOD_RSHIFT:
+					e.key.keysym.sym = GKey::RSHIFT;
+					break;
+				case GKEYMOD_LCTRL:
+					e.key.keysym.sym = GKey::LCTRL;
+					break;
+				case GKEYMOD_RCTRL:
+					e.key.keysym.sym = GKey::RCTRL;
+					break;
+				case GKEYMOD_LALT:
+					e.key.keysym.sym = GKey::LALT;
+					break;
+				case GKEYMOD_RALT:
+					e.key.keysym.sym = GKey::RALT;
+					break;
+			}
+		}
+	}
 
-	return c;
+	lastMod = e.key.keysym.mod;
+
+	return e.key.keysym.sym;
 }
 
 static uint8 buttonsToUint8(const bool* buttons) {
