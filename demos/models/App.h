@@ -13,6 +13,10 @@ private:
     MD2ModelRef                 md2Model;
     MD2Model::Pose              md2Pose;
     GMaterial                   md2Material;
+
+    IFSModelRef                 ifsModel;
+    GMaterial                   ifsMaterial;
+    bool                        ifsVertexNormals;
     
     Entity() {}
 
@@ -31,16 +35,30 @@ public:
         e->cframe = c;
         return e;
     }
-
+    
     static EntityRef create(
         MD2ModelRef model,
-        TextureRef texture,
+        const GMaterial& material = GMaterial(),
         const CoordinateFrame& c = CoordinateFrame()) {
 
         Entity* e = new Entity();
 
-        e->md2Material.texture.append(texture);
-        e->md2Model = model;
+        e->md2Material = material;
+        e->cframe = c;
+        return e;
+    }
+
+    static EntityRef create(
+        IFSModelRef model,
+        const GMaterial& material = GMaterial(),
+        const CoordinateFrame& c = CoordinateFrame(),
+        bool vertexNormals = true) {
+
+        Entity* e = new Entity();
+
+        e->ifsMaterial = material;
+        e->ifsModel = model;
+        e->ifsVertexNormals = vertexNormals;
         e->cframe = c;
         return e;
     }
@@ -52,6 +70,10 @@ public:
 
         if (md2Model.notNull()) {
             array.append(md2Model->pose(cframe, md2Pose, md2Material));
+        }
+
+        if (ifsModel.notNull()) {
+            array.append(ifsModel->pose(cframe, ifsMaterial, ifsVertexNormals));
         }
     }
 

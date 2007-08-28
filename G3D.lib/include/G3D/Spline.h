@@ -190,7 +190,7 @@ public:
                     // control point index
                     int i = 0;
                     if (cyclic) {
-                        a = wrap((float)s, 4.0f);
+                        a = (float)wrap((float)s, 4.0f);
                         if (a > 2.0f) {
                             // Reflect around end points
                             a = 4.0f - a;

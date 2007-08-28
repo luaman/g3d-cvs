@@ -25,18 +25,26 @@ typedef ReferenceCountedPointer<ShadowMap> ShadowMapRef;
   Simple material used by IFSModel and MD2Model pose methods.
   This class is provided as a convenience; it is not necessary
   to use it.  If you do not provide a material, whatever
-  state is currently on the G3D::RenderDevice is used.  You
+  state is currently on the G3D::RenderDevice is used.  
+  
+  This is a legacy class for fixed function rendering. You
   probably don't want to use GMaterial at all if you
-  are writing vertex and pixel programs.
+  are writing vertex and pixel shaders.
  */
 class GMaterial {
 public:
-    double                  specularCoefficient;
-    double                  shininess;
+    float                   specularCoefficient;
+    float                   shininess;
+    /** Diffuse color */
     Color4                  color;
-    Array<Texture::Ref>       texture;
+    Array<Texture::Ref>     texture;
 
-    inline GMaterial() : specularCoefficient(0.2), shininess(10), color(Color3::white()) {}
+    inline GMaterial(TextureRef t = NULL) : specularCoefficient(0.2f), shininess(10), color(Color3::white()) {
+        if (t.notNull()) {
+            texture.append(t);
+        }
+    }
+
     /** Applies this material to the render device */
     void configure(class RenderDevice* rd) const;
 };

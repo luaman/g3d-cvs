@@ -16,6 +16,8 @@
    <ul> 
      <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]
      <li> G3D::CarbonWindow [Casey]
+     <li> Added GMaterial(TextureRef) constructor
+     <li> Made GMaterial fields floats
      <li> G3D::PosedModel::sortAndRender
      <li> Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
