@@ -584,14 +584,16 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 					e.button.which = 0;		// TODO: Which Mouse is Being Used?
 					e.button.state = true;
 
-					if(kEventMouseButtonPrimary == button)
+					if(kEventMouseButtonPrimary == button) {
 						e.button.button = 0;
-					else if(kEventMouseButtonTertiary == button)
+						_mouseButtons[0] = (eventKind == kEventMouseDown);
+					} else if(kEventMouseButtonTertiary == button) {
 						e.button.button = 1;
-					else if (kEventMouseButtonSecondary == button)
+						_mouseButtons[2] = (eventKind == kEventMouseDown);
+					} else if (kEventMouseButtonSecondary == button) {
 						e.button.button = 2;
-
-					_mouseButtons[button - 1] = (eventKind == kEventMouseDown);
+						_mouseButtons[1] = (eventKind == kEventMouseDown);
+					}
 					return true;
 				case kEventMouseDragged:
 				case kEventMouseMoved:
@@ -636,6 +638,7 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 	EventRef		theEvent;
 	EventTargetRef	theTarget;
 	OSStatus osErr = noErr;
+	bool			puntEvent = false;
 	
 	osErr = ReceiveNextEvent(0, NULL,kEventDurationNanosecond,true, &theEvent);
 
@@ -686,12 +689,21 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 			switch (eventKind) {
 				case kEventWindowCollapsing:
 					_windowActive = false;
+					e.active.type = GEventType::ACTIVE;
+					e.active.gain = 0;
+					e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS;
+					puntEvent = true;
 					break;
 				case kEventWindowActivated:
 					_windowActive = true;
+					e.active.type = GEventType::ACTIVE;
+					e.active.gain = 1;
+					e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS;
+					puntEvent = true;
 					break;
 				case kEventWindowDrawContent:
 				case kEventWindowShown:
+					return false;
 				default:
 					break;
 			}  break;
@@ -699,16 +711,22 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 			switch (eventKind) {
 				case kEventAppActivated:
 					_windowActive = true;
+					e.active.type = GEventType::ACTIVE;
+					e.active.gain = 1;
+					e.active.state = SDL_APPACTIVE;
+					puntEvent = true;
+					break;
+				case kEventAppDeactivated:
+				case kEventAppHidden:
+					_windowActive = false;
+					e.active.type = GEventType::ACTIVE;
+					e.active.gain = 0;
+					e.active.state = SDL_APPACTIVE;
+					puntEvent = true;
 					break;
 				case kEventAppActiveWindowChanged:
 					break;
-				case kEventAppDeactivated:
-					_windowActive = false;
-					break;
 				case kEventAppGetDockTileMenu:
-					break;
-				case kEventAppHidden:
-					_windowActive = false;
 					break;
 				case kEventAppQuit:
 				case kEventAppTerminated:
@@ -769,7 +787,7 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 		ReleaseEvent(theEvent);
 	}
 	
-	return false;
+	return puntEvent;
 }
 
 static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
