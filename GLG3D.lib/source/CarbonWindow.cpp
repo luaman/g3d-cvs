@@ -28,33 +28,33 @@ std::auto_ptr<CarbonWindow> CarbonWindow::_shareWindow(NULL);
 
 namespace _internal {
 pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
-    CarbonWindow* pWindow = (CarbonWindow*)userData;
-    
-    if(pWindow) {
-        WindowRef win = NULL;
-        if(GetEventParameter(event,kEventParamDirectObject,typeWindowRef,NULL,sizeof(WindowRef),NULL,&win)==noErr) {
-            Rect rect;
-            if(GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
-                pWindow->injectSizeEvent(rect.right-rect.left, rect.bottom-rect.top);
-            }
-        }
-    }
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
 	
-    return eventNotHandledErr;
+	if(pWindow) {
+		WindowRef win = NULL;
+		if(GetEventParameter(event,kEventParamDirectObject,typeWindowRef,NULL,sizeof(WindowRef),NULL,&win)==noErr) {
+			Rect rect;
+			if(GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
+				pWindow->injectSizeEvent(rect.right-rect.left, rect.bottom-rect.top);
+			}
+		}
+	}
+	
+	return eventNotHandledErr;
 }
 
 pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
-    CarbonWindow* pWindow = (CarbonWindow*)userData;
-    
-    if(pWindow) {
-        pWindow->_receivedCloseEvent = true;
-    }
-    
-    return eventNotHandledErr;
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
+	
+	if(pWindow) {
+		pWindow->_receivedCloseEvent = true;
+	}
+	
+	return eventNotHandledErr;
 }
 
 pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag) {
-    CarbonWindow* pWindow = (CarbonWindow*)userData;
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
 	pWindow->_droppedFiles.clear();
 
 	OSErr osErr = noErr;
@@ -118,17 +118,17 @@ static uint8 buttonsToUint8(const bool*);
 static OSStatus aglReportError();
 
 void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) {
-    // Initialize mouse buttons to up
-    _mouseButtons[0] = _mouseButtons[1] = _mouseButtons[2] = false;
+	// Initialize mouse buttons to up
+	_mouseButtons[0] = _mouseButtons[1] = _mouseButtons[2] = false;
 
-    // Clear all keyboard buttons to up (not down)
-    memset(_keyboardButtons, 0, sizeof(_keyboardButtons));
+	// Clear all keyboard buttons to up (not down)
+	memset(_keyboardButtons, 0, sizeof(_keyboardButtons));
 	memset(_mouseButtons, 0, sizeof(_mouseButtons));
 
-    if (! creatingShareWindow) {
-        GLCaps::init();
-        setCaption(_settings.caption);
-    }
+	if (! creatingShareWindow) {
+		GLCaps::init();
+		setCaption(_settings.caption);
+	}
 }
 
 void CarbonWindow::createShareWindow(GWindow::Settings s) {
@@ -152,7 +152,7 @@ void CarbonWindow::createShareWindow(GWindow::Settings s) {
 CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow /*= false*/) : _createdWindow(true) {
 	if(!_ProcessBroughtToFront) {
 		// Hack to get our window/process to the front...
-		ProcessSerialNumber psn = { 0, kCurrentProcess};    
+		ProcessSerialNumber psn = { 0, kCurrentProcess};
 		TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 		SetFrontProcess (&psn);
 
@@ -164,7 +164,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	_inputCapture = false;
 	_mouseVisible = true;
 	_receivedCloseEvent = false;
-	_windowActive = false;
+	_windowActive = true;
 	_settings = s;
 	_glDrawable = 0;
 	
@@ -232,20 +232,33 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	
 	Rect rWin = {_settings.y, _settings.x, _settings.height+_settings.y, _settings.width+_settings.x};
 	
-	_title = _settings.caption;
-	_titleRef = NULL;
-
-	_titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
-	
 	osErr = CreateNewWindow(kDocumentWindowClass,kWindowStandardDocumentAttributes|kWindowStandardHandlerAttribute,&rWin,&_window);
 
 	alwaysAssertM(_window != NULL, "Could Not Create Window.");
 
-	osErr = SetWindowTitleWithCFString(_window,_titleRef);
+	_title = _settings.caption;
+	CFStringRef titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
+	
+	osErr = SetWindowTitleWithCFString(_window,titleRef);
+	
+	CFRelease(titleRef);
+	
+	// Set default icon if available
+	if(_settings.defaultIconFilename != "nodefault") {
+		try {
+			GImage defaultIcon;
+			defaultIcon.load(_settings.defaultIconFilename);
+
+			setIcon(defaultIcon);
+		} catch (const GImage::Error& e) {
+			// Throw away default icon
+			debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
+			Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
+		}
+	}
+	
 	ShowWindow(_window);
 	
-	// TODO: SetApplicationDockTileImage
-
 	osErr = InstallStandardEventHandler(GetWindowEventTarget(_window));
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), &_resizeSpec[0], this, NULL);
 	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowClosed), GetEventTypeCount(_closeSpec), &_closeSpec, this, NULL);
@@ -310,9 +323,6 @@ CarbonWindow::~CarbonWindow() {
 	if(_settings.fullScreen)
 		CGDisplayRelease(kCGDirectMainDisplay);
 	
-	if(NULL == _titleRef)
-		CFRelease(_titleRef);
-	
 	if(_createdWindow)
 		DisposeWindow(_window);
 }
@@ -346,12 +356,12 @@ void CarbonWindow::setDimensions(const Rect2D &dims) {
 	int W = rScreen.size.width;
 	int H = rScreen.size.height;
 	
-    int x = iClamp((int)dims.x0(), 0, W);
-    int y = iClamp((int)dims.y0(), 0, H);
-    int w = iClamp((int)dims.width(), 1, W);
-    int h = iClamp((int)dims.height(), 1, H);
+	int x = iClamp((int)dims.x0(), 0, W);
+	int y = iClamp((int)dims.y0(), 0, H);
+	int w = iClamp((int)dims.width(), 1, W);
+	int h = iClamp((int)dims.height(), 1, H);
 
-    // Set dimensions and repaint.
+	// Set dimensions and repaint.
 	MoveWindow(_window,x,y,false);
 	SizeWindow(_window,w,h,true);
 }
@@ -374,12 +384,11 @@ void CarbonWindow::setGammaRamp(const Array<uint16>& gammaRamp) {
 void CarbonWindow::setCaption(const std::string& title) {
 	_title = title;
 
-	if(NULL == _titleRef)
-		CFRelease(_titleRef);
+	CFStringRef titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
 
-	_titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
+	SetWindowTitleWithCFString(_window,titleRef);
 	
-	SetWindowTitleWithCFString(_window,_titleRef);
+	CFRelease(titleRef);
 }
 
 std::string CarbonWindow::caption() {
@@ -396,6 +405,44 @@ std::string CarbonWindow::joystickName(unsigned int stickNum) {
 	return "";
 }
 
+void CarbonWindow::setIcon(const GImage& image) {
+	// SetApplicationDockTileImage
+	CGImageRef dockImage = NULL;
+	CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+	CGDataProviderRef dataProviderRef = CGDataProviderCreateWithData(NULL,image.byte(),image.sizeInMemory(),NULL);
+	
+	size_t bPC = (image.channels == 4) ? 8 : 6;
+	CGBitmapInfo bmpInfo = (image.channels == 4) ? kCGBitmapByteOrderDefault|kCGImageAlphaLast : kCGBitmapByteOrderDefault;
+	
+	if((NULL != colorSpaceRef) && (NULL != dataProviderRef)) {
+		dockImage = CGImageCreate(	image.width,
+									image.height,
+									bPC,
+									bPC*image.channels,
+									image.width * image.channels,
+									colorSpaceRef,
+									bmpInfo,
+									dataProviderRef,
+									NULL,
+									true,
+									kCGRenderingIntentDefault);
+	}
+	
+	if(NULL != colorSpaceRef)
+		CGColorSpaceRelease(colorSpaceRef);
+	
+	if(NULL != dataProviderRef)
+		CGDataProviderRelease(dataProviderRef);
+
+	if(NULL != dockImage)
+		SetApplicationDockTileImage(dockImage);
+	
+	if(NULL != dockImage) {
+		CGImageRelease(dockImage);
+		dockImage = NULL;
+	}
+}
+
 void CarbonWindow::notifyResize(int w, int h) {
 	_settings.width = w;
 	_settings.height = h;
@@ -407,6 +454,7 @@ void CarbonWindow::setRelativeMousePosition(double x, double y) {
 	point.x = x + _settings.x;
 	point.y = y + _settings.y;
 	
+	CGSetLocalEventsSuppressionInterval(0.0);
 	CGWarpMouseCursorPosition(point);
 }
 
@@ -447,8 +495,6 @@ void CarbonWindow::setInputCapture(bool c) {
 		return;
 	
 	_inputCapture = c;
-	
-	setRelativeMousePosition(_settings.width/2.0,_settings.height/2.0);
 }
 
 bool CarbonWindow::inputCapture() const {
@@ -525,7 +571,7 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 			if(!_settings.fullScreen && _settings.resizable && ((point.x >= rectGrow.left) && (point.y >= rectGrow.top)))
 				return false;
 			
-			GetEventParameter(theEvent, kEventParamMouseButton, typeMouseButton, NULL, sizeof(EventMouseButton), NULL, &button);
+			GetEventParameter(theEvent, kEventParamMouseButton, typeMouseButton, NULL, sizeof(button), NULL, &button);
 		
 			switch (eventKind) {
 				case kEventMouseDown:
@@ -537,7 +583,13 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 					// Mouse button index
 					e.button.which = 0;		// TODO: Which Mouse is Being Used?
 					e.button.state = true;
-					e.button.button = button - 1;
+
+					if(kEventMouseButtonPrimary == button)
+						e.button.button = 0;
+					else if(kEventMouseButtonTertiary == button)
+						e.button.button = 1;
+					else if (kEventMouseButtonSecondary == button)
+						e.button.button = 2;
 
 					_mouseButtons[button - 1] = (eventKind == kEventMouseDown);
 					return true;
@@ -602,34 +654,42 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 			// makeMouseEvent will only return true if we need to handle
 			// the mouse event. Otherwise it will return false and allow
 			// subsequent handlers to deal with the event.
-			if(makeMouseEvent(theEvent, e))
-				return true;
+			if(_windowActive) {
+				if(makeMouseEvent(theEvent, e))
+					return true;
+			}
 			break;
 		case kEventClassKeyboard:
-			switch (eventKind) {
-				case kEventRawKeyDown:
-				case kEventRawKeyModifiersChanged:
-				case kEventRawKeyRepeat:
-					e.key.type = GEventType::KEY_DOWN;
-					e.key.state = SDL_PRESSED;
-					
-					_keyboardButtons[makeKeyEvent(theEvent, e)] = true;
-					return true;
-				case kEventRawKeyUp:
-					e.key.type = GEventType::KEY_UP;
-					e.key.state = SDL_RELEASED;
-					
-					_keyboardButtons[makeKeyEvent(theEvent, e)] = false;
-					return true;
-				case kEventHotKeyPressed:
-				case kEventHotKeyReleased:
-				default:
-					break;
+			if(_windowActive) {
+				switch (eventKind) {
+					case kEventRawKeyDown:
+					case kEventRawKeyModifiersChanged:
+					case kEventRawKeyRepeat:
+						e.key.type = GEventType::KEY_DOWN;
+						e.key.state = SDL_PRESSED;
+						
+						_keyboardButtons[makeKeyEvent(theEvent, e)] = true;
+						return true;
+					case kEventRawKeyUp:
+						e.key.type = GEventType::KEY_UP;
+						e.key.state = SDL_RELEASED;
+						
+						_keyboardButtons[makeKeyEvent(theEvent, e)] = false;
+						return true;
+					case kEventHotKeyPressed:
+					case kEventHotKeyReleased:
+					default:
+						break;
+				}
 			} break;
 		case kEventClassWindow:
 			switch (eventKind) {
 				case kEventWindowCollapsing:
+					_windowActive = false;
+					break;
 				case kEventWindowActivated:
+					_windowActive = true;
+					break;
 				case kEventWindowDrawContent:
 				case kEventWindowShown:
 				default:
@@ -638,12 +698,21 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 		case kEventClassApplication:
 			switch (eventKind) {
 				case kEventAppActivated:
+					_windowActive = true;
+					break;
 				case kEventAppActiveWindowChanged:
+					break;
 				case kEventAppDeactivated:
+					_windowActive = false;
+					break;
 				case kEventAppGetDockTileMenu:
+					break;
 				case kEventAppHidden:
+					_windowActive = false;
+					break;
 				case kEventAppQuit:
 				case kEventAppTerminated:
+					_receivedCloseEvent = true;
 				default:
 					break;
 			} break;
@@ -680,13 +749,13 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 		_settings.height = rect.bottom-rect.top;
 	}
 	
-    if (_sizeEventInjects.size() > 0) {
-        e = _sizeEventInjects.last();
-        _sizeEventInjects.clear();
+	if (_sizeEventInjects.size() > 0) {
+		e = _sizeEventInjects.last();
+		_sizeEventInjects.clear();
 		aglSetCurrentContext(_glContext);
 		aglUpdateContext(_glContext);
-        return true;
-    }
+		return true;
+	}
 	
 	if (_dropEventInjects.size() > 0) {
 		e = _dropEventInjects.last();
@@ -842,14 +911,14 @@ static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
 }
 
 static uint8 buttonsToUint8(const bool* buttons) {
-    uint8 mouseButtons = 0;
-    // Clear mouseButtons and set each button bit.
-    mouseButtons |= (buttons[0] ? 1 : 0) << 0;
-    mouseButtons |= (buttons[1] ? 1 : 0) << 1;
-    mouseButtons |= (buttons[2] ? 1 : 0) << 2;
-    mouseButtons |= (buttons[3] ? 1 : 0) << 4;
-    mouseButtons |= (buttons[4] ? 1 : 0) << 8;
-    return mouseButtons;
+	uint8 mouseButtons = 0;
+	// Clear mouseButtons and set each button bit.
+	mouseButtons |= (buttons[0] ? 1 : 0) << 0;
+	mouseButtons |= (buttons[1] ? 1 : 0) << 1;
+	mouseButtons |= (buttons[2] ? 1 : 0) << 2;
+	mouseButtons |= (buttons[3] ? 1 : 0) << 4;
+	mouseButtons |= (buttons[4] ? 1 : 0) << 8;
+	return mouseButtons;
 }
 
 static OSStatus aglReportError (void) {

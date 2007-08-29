@@ -38,7 +38,6 @@ private:
 	Vector2			_clientXY;
 	Settings		_settings;
 	std::string		_title;
-	CFStringRef		_titleRef;
 	
 	// Process to Front Initialization
 	static bool		_ProcessBroughtToFront;
@@ -50,8 +49,8 @@ private:
 	
 	bool			_receivedCloseEvent;
 
-    /** Mouse Button State Array: false - up, true - down
-        [0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
+	/** Mouse Button State Array: false - up, true - down
+		[0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
 	bool			_mouseButtons[8];
 	bool			_keyboardButtons[256];
 	
@@ -72,7 +71,7 @@ private:
 	static EventTypeSpec _resizeSpec[];
 	static EventTypeSpec _closeSpec;
 	
-	Array<GEvent>       _sizeEventInjects;
+	Array<GEvent>		_sizeEventInjects;
 	Array<GEvent>		_dropEventInjects;
 	Array<std::string>	_droppedFiles;
 
@@ -149,6 +148,8 @@ public:
 	virtual int numJoysticks() const;
 	
 	virtual std::string joystickName(unsigned int stickNum);
+	
+	virtual void setIcon(const GImage& image);
 	
 	virtual void notifyResize(int w, int h);
 	
