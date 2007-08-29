@@ -157,6 +157,11 @@ G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GEventType);
 
 namespace G3D {
 
+/* The available application states */
+#define SDL_APPMOUSEFOCUS	0x01		/* The app has mouse coverage */
+#define SDL_APPINPUTFOCUS	0x02		/* The app has input focus */
+#define SDL_APPACTIVE		0x04		/* The application is active */
+
 /** Application visibility event structure */
 class ActiveEvent {
 public:
