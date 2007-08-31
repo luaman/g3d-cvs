@@ -32,7 +32,7 @@ typedef ReferenceCountedPointer<class IFSModel> IFSModelRef;
 
  */
 class IFSModel : public ReferenceCountedObject {
-private:
+protected:
     class PosedIFSModel : public PosedModel {
     public:
         IFSModelRef             model;
@@ -125,11 +125,11 @@ public:
                    This is not part of the object to world transformation
                    for the model when posed; it really modifies the object
                    space geometry.
-	 @param weld   Toggles welding colocated vertices, an O(n^2) operation. Defaults to true
-     @param removeDegenerateFaces Removes any faces that contain two copies of the same vertex
+	 @param weld   Toggles welding colocated vertices, an O(n^2) operation. Defaults to false
+     @param removeDegenerateFaces Removes any faces that contain two copies of the same vertex. Defaults to false
      */
-    static IFSModelRef fromFile(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=true, bool removeDegenerateFaces = true);
-    static IFSModelRef fromFile(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = true,bool removeDegenerateFaces = true);
+    static IFSModelRef fromFile(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=false, bool removeDegenerateFaces = false);
+    static IFSModelRef fromFile(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = false, bool removeDegenerateFaces = false);
 
     /**
      If perVertexNormals is false, the model is rendered with per-face normals,

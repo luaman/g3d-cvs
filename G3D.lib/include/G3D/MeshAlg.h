@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2003-09-14
- @edited  2004-12-26
+ @edited  2007-08-30
 */
 
 #ifndef G3D_MESHALG_H
@@ -15,6 +15,7 @@
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/Vector3.h"
+#include "G3D/CoordinateFrame.h"
 
 namespace G3D {
 
@@ -524,6 +525,28 @@ public:
         const Array<Face>&      faceArray,
         const Array<Edge>&      edgeArray,
         const Array<Vertex>&    vertexArray);
+
+    /**
+     Generates a unit square in the X-Z plane composed of a grid of wCells x hCells
+     squares and then transforms it by xform.
+
+     @param vertex Output vertices
+     @param texCoord Output texture coordinates
+     @param index Output triangle list indices
+     @param textureScale Lower-right texture coordinate
+     @param spaceCentered If true, the coordinates generated are centered at the origin before the transformation.
+     @param twoSided If true, matching top and bottom planes are generated.
+     */
+    static void generateGrid(
+        Array<Vector3>&     vertex,
+        Array<Vector2>&     texCoord,
+        Array<int>&         index,
+        int                 wCells = 10, 
+        int                 hCells = 10,
+        const Vector2&      textureScale = Vector2(1,1),
+        bool                spaceCentered = true,
+        bool                twoSided = true,
+        const CoordinateFrame& xform = CoordinateFrame());
 
     /** Converts quadlist (QUADS), tristrip(TRIANGLE_STRIP), and quadstrip (QUAD_STRIP)indices into triangle list (TRIANGLES)  indices. */
     template<class IndexType>

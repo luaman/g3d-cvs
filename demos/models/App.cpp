@@ -93,6 +93,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
+    Draw::axes(CoordinateFrame(), rd);
 
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);

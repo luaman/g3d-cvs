@@ -24,6 +24,73 @@ namespace G3D {
 
 const int MeshAlg::Face::NONE             = INT_MIN;
 
+void MeshAlg::generateGrid(
+    Array<Vector3>&     vertex,
+    Array<Vector2>&     texCoord,
+    Array<int>&         index,
+    int                 wCells, 
+    int                 hCells,
+    const Vector2&      textureScale,
+    bool                spaceCentered,
+    bool                twoSided,
+    const CoordinateFrame& xform) {
+        
+    vertex.fastClear();
+    texCoord.fastClear();
+    index.fastClear();
+
+    // Generate vertices                  
+    for (int z = 0; z <= hCells; ++z) {
+        for (int x = 0; x <= wCells; ++x) {
+            Vector3 v(x / (float)wCells, 0, z / (float)hCells);
+
+            Vector2 t = v.xz() * textureScale;
+
+            texCoord.append(t);
+
+            if (spaceCentered) {
+                v -= Vector3(0.5f, 0, 0.5f);
+            }
+            v = xform.pointToWorldSpace(v);
+            vertex.append(v);
+        }
+    }
+
+    // Generate indices
+    for (int z = 0; z < hCells; ++z) {
+        for (int x = 0; x < wCells; ++x) {
+            int A = x + z * (hCells + 1);
+            int B = A + 1;
+            int C = A + (hCells + 1);
+            int D = C + 1;
+
+            //  A       B
+            //   *-----*
+            //   | \   |
+            //   |   \ |
+            //   *-----*
+            //  C       D
+
+            index.append(A, D, B);
+            index.append(A, C, D);
+        }
+    }
+
+    if (twoSided) {
+        // The index array needs to have reversed winding for the bottom
+        // and offset by the original number of vertices
+        Array<int> ti = index;
+        ti.reverse();
+        for (int i = 0; i < ti.size(); ++i) {
+            ti[i] += vertex.size();
+        }
+        index.append(ti);
+
+        // Duplicate the arrays
+        vertex.append(Array<Vector3>(vertex));
+        texCoord.append(Array<Vector2>(texCoord));
+    }
+}
 
 MeshAlg::Face::Face() {
     for (int i = 0; i < 3; ++i) {

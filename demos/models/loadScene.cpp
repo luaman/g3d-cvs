@@ -7,7 +7,7 @@ void App::loadScene() {
 
     const Matrix3 rot180 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(180));
 
-    double x = -5;
+    double x = -2;
 
     if (false) {
         CoordinateFrame xform;
@@ -25,26 +25,26 @@ void App::loadScene() {
     if (false) {
         MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.6f);
         TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
-        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0.1f,0))));
+        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0.1f,2))));
         x += 3;
     }
 
     if (false) {
         MD2ModelRef model = MD2Model::fromFile(dataDir + "ifs/dow.ifs/tris.md2", 0.6f);
         TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
-        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x-3,-1,-2))));
+        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x-3,-1,0))));
         x += 3;
     }
 
     if (true) {
         IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/cow.ifs");
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,0))));
+        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
         x += 3;
     }
 
     if (true) {
         IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/teapot.ifs");
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x-3,-1,-2))));
+        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x-3,-1,0))));
         x += 3;
     }
 
@@ -56,24 +56,8 @@ void App::loadScene() {
         part.cframe = CoordinateFrame();
         part.name = "root";
     
-        const float S = 10.0;
-        part.geometry.vertexArray.append(
-            Vector3(-S, 0, -S),
-            Vector3(-S, 0, S),
-            Vector3(S, 0, S),
-            Vector3(S, 0, -S));
-
-        double texScale = 5;
-        part.texCoordArray.append(
-            Vector2(0,0) * texScale,
-            Vector2(0,1) * texScale,
-            Vector2(1,1) * texScale,
-            Vector2(1,0) * texScale);
-
         ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.indexArray.clear();
-        triList.indexArray.append(0, 1, 2);
-        triList.indexArray.append(0, 2, 3);
+        MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList.indexArray, 5, 5, Vector2(5, 5), true, false, Matrix3::identity() * 5);
 
         triList.twoSided = true;
         triList.material.emit.constant = Color3::black();
@@ -103,14 +87,6 @@ void App::loadScene() {
         entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0,-1,0))));
     }
 
-
-//		"contrib/ArticulatedModel/3ds/f16/f16b.3ds"
-//		"contrib/ArticulatedModel/3ds/cube.3ds"
-//		"contrib/ArticulatedModel/3ds/jeep/jeep.3ds", 0.1
-//		"contrib/ArticulatedModel/3ds/house/house.3ds", 0.01
-//		"contrib/ArticulatedModel/3ds/delorean/delorean.3ds", 0.1
-//		"contrib/ArticulatedModel/3ds/car35/car35.3ds", 0.1
-//		"d:/users/morgan/projects/3ds/fs/fs.3ds"
     lighting = Lighting::create();
     {
         skyParameters = SkyParameters(G3D::toSeconds(1, 00, 00, PM));

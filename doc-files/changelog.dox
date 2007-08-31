@@ -14,8 +14,13 @@
    <P>
    Changes in 7.01:
    <ul> 
-     <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]
      <li> G3D::CarbonWindow [Casey]
+     <li> iCompile now generates OS X application bundles and dmg files
+     <li> OS X build no longer depends on X11
+     <li> G3D::MeshAlg::generateGrid
+     <li> IFSModel::fromFile now defaults to not welding for improved performance
+     <li> IFSModel members are now protected to allow subclassing
+     <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]
      <li> Added GMaterial(TextureRef) constructor
      <li> Made GMaterial fields floats
      <li> G3D::PosedModel::sortAndRender
@@ -23,7 +28,6 @@
      <li> System::describeSystem now prints current working directory and application name
      <li> Added /usr/local/-G3D dir- to system data file path [Kai Schroeder]
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
-     <li> OS X build no longer depends on X11
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
      <li> Fix: Patched ShadowMap to work around ATI and OS X driver shadow map bugs.  
