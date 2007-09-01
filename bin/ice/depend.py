@@ -84,6 +84,27 @@ def getObjectFilename(state, sourceFile):
 
 #########################################################################
 
+# Returns a new list that has any -arch flags removed from oldList.
+def _removeArch(oldList):
+    if not ('-arch' in oldList):
+        return oldList
+    
+    newList = []
+    skipNext = False
+    for arg in oldList:
+        if skipNext:
+            # explicitly skip this element, but disable skipping from now on
+            skipNext = False
+        elif (arg == '-arch'):
+            skipNext = True
+            # and implicitly skip this element
+        else:
+            newList += [arg]
+
+    return newList
+
+        
+
 """Returns a list of *all* files on which this file depends (including
    itself).  Returned filenames must either be fully qualified or
    relative to the "rootDir" dir.
@@ -97,11 +118,14 @@ def getDependencies(state, file, verbosity, iteration = 1):
     #
     # -MG means "don't give errors for header files that don't exist"
     # -MM means "don't tell me about system header files"
+    #
+    # We have to remove -arch flags, which are not compatible with the -M flags
     raw = shell(state.compiler + ' -M -msse2 -MG ' +
-                string.join(getCompilerOptions(state, []), ' ') + ' ' + file,
+                string.join(_removeArch(getCompilerOptions(state, [])), ' ') + ' ' + file,
                 verbosity >= SUPERTRACE)
     
     if verbosity >= SUPERTRACE:
+        print 'ffff'
         print raw
 
     if raw.startswith('In file included from'):

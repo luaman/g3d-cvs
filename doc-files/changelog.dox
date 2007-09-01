@@ -14,9 +14,11 @@
    <P>
    Changes in 7.01:
    <ul> 
-     <li> G3D::CarbonWindow [Casey]
-     <li> iCompile now generates OS X application bundles and dmg files
+     <li> OS X: G3D::CarbonWindow [Casey]
+     <li> OS X: iCompile now generates OS X application bundles and dmg files
      <li> OS X build no longer depends on X11
+     <li> cmake now generates project files for Xcode and all Visual Studio versions [Corey Taylor]
+     <li> OS X: icompile and buildg3d now generate universal binaries on Intel machines
      <li> G3D::MeshAlg::generateGrid
      <li> IFSModel::fromFile now defaults to not welding for improved performance
      <li> IFSModel members are now protected to allow subclassing

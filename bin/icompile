@@ -616,7 +616,7 @@ def configureGpp(state):
         state.compilerOptions += string.split(flags, ' ')
 
     if state.os == 'osx':
-        universalBinary = False # TODO: Add universal binary support for libraries later
+        universalBinary = (machine() == 'i386')
 
         # Not supported on OS X
         state.compilerOptions += ['-D__cdecl=', '-D__stdcall=']
@@ -827,7 +827,7 @@ if __name__ == '__main__':
         if i < len(args) - 1:
             try:
                 # Clamp ice.utils.verbosity to the legal levels
-                ice.utils.verbosity = max(min(string.atoi(args[i + 1]) + QUIET, TRACE), QUIET)
+                ice.utils.verbosity = max(min(string.atoi(args[i + 1]) + QUIET, SUPERTRACE), QUIET)
             except ValueError:
                 maybeWarn('WARNING: illegal --verbosity argument: ' + args[i + 1], state)
         else:
