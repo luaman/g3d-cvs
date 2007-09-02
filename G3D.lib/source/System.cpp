@@ -30,11 +30,15 @@
 
 #include <cstring>
 
+#if defined(__i386__) || defined(G3D_WIN32)
+#    define G3D_INTEL
+#endif
+
 #ifdef G3D_WIN32
 
-    #include <conio.h>
-    #include <sys/timeb.h>
-    #include "G3D/RegistryUtil.h"
+#   include <conio.h>
+#   include <sys/timeb.h>
+#   include "G3D/RegistryUtil.h"
 
 #elif defined(G3D_LINUX) 
 
@@ -404,7 +408,7 @@ void System::init() {
 
     if (g_cpuInfo.m_hasCPUID) {
         // Process the CPUID information
-
+        #ifdef G3D_INTEL
         // We read the standard CPUID level 0x00000000 which should
         // be available on every x86 processor.  This fills out
         // a string with the processor vendor tag.
@@ -448,6 +452,7 @@ void System::init() {
             strcpy(_cpuArchCstr, "Unknown Processor Vendor");
             break;
         }
+        #endif
     }
 
     #ifdef G3D_WIN32
@@ -625,6 +630,7 @@ static void checkForCPUID() {
 }
 
 void getStandardProcessorExtensions() {
+#if !defined(G3D_OSX) || defined(G3D_OSX_INTEL)
     if (! g_cpuInfo.m_hasCPUID) {
         return;
     }
@@ -648,18 +654,16 @@ void getStandardProcessorExtensions() {
     g_cpuInfo.m_hasSSE2     = checkBit(features, 26);
     g_cpuInfo.m_hasSSE3     = checkBit(ecxreg, 0);
 
-    if (maxSupportedExtendedLevel >= 0x80000001)
-    {
+    if (maxSupportedExtendedLevel >= 0x80000001) {
         // function 0x80000001 changes bit 31 of edx to 3dnow support flag
         CALL_CPUID(0x80000001, eaxreg, ebxreg, ecxreg, features);
         g_cpuInfo.m_has3DNOW = checkBit(features, 31);
-    }
-    else
-    {
+    } else {
         g_cpuInfo.m_has3DNOW = false;
     }
 
     #undef checkBit
+#endif
 }
 
 #if defined(SSE)

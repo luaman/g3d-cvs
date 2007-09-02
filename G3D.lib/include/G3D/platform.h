@@ -70,17 +70,17 @@
 #endif
 
 #ifdef G3D_OSX
-    #ifndef __GNUC__
-        #error G3D only supports the gcc compiler on OS X.
-    #endif
+#    ifndef __GNUC__
+#        error G3D only supports the gcc compiler on OS X.
+#    endif
 	
-	#if defined(__i386__)
-		#define G3D_OSX_INTEL
-	#elif defined(__PPC__)
-		#define G3D_OSX_PPC
-	#else
-		#define G3D_OSX_UNKNOWN
-	#endif
+#    if defined(__i386__)
+#        define G3D_OSX_INTEL
+#    elif defined(__PPC__)
+#        define G3D_OSX_PPC
+#    else
+#        define G3D_OSX_UNKNOWN
+#    endif
 
 #endif
 
