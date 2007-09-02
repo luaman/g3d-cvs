@@ -61,7 +61,6 @@ void FirstPersonManipulator::setMouseMode(FirstPersonManipulator::MouseMode m) {
             // Toggle activity to let the cursor and 
             // state variables reset.
             setActive(false);
-
         }
 
         m_mouseMode = m;

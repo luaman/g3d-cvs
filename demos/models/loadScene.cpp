@@ -7,7 +7,7 @@ void App::loadScene() {
 
     const Matrix3 rot180 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(180));
 
-    double x = -2;
+    double x = 0;
 
     if (false) {
         CoordinateFrame xform;
@@ -49,6 +49,16 @@ void App::loadScene() {
     }
 
     if (true) {
+        Array<Vector3> vertex;
+        Array<int> index;
+        Array<Vector2> texCoord;
+
+        MeshAlg::generateGrid(vertex, texCoord, index, 5, 5, Vector2(5, 5), true, false, Matrix3::identity() * 5);
+        IFSModelRef model = IFSModel::fromData("Ground", vertex, index, texCoord);        
+        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(Vector3(0,-1,0))));
+    }
+
+    if (false) {
         ArticulatedModelRef model = ArticulatedModel::createEmpty();
 
         model->name = "Ground Plane";

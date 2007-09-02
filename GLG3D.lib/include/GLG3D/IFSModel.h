@@ -97,16 +97,16 @@ protected:
     static VAR                  lastNormalVAR;
     static VAR                  lastTexCoordVAR;
 
-    /** Only called from create */
     IFSModel();
     
-    /** Only called from create */
-    void load(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces);
+    /** Only called from computes all other values from the current index, vertex, and texCoord arrays. */
+    void init(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces);
 
     /** Only called from create */
     void reset();
 
 public:
+
     static void* operator new(size_t size) {
         return System::malloc(size);
     }
@@ -130,6 +130,7 @@ public:
      */
     static IFSModelRef fromFile(const std::string& filename, const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), const bool weld=false, bool removeDegenerateFaces = false);
     static IFSModelRef fromFile(const std::string& filename, const double scale, const CoordinateFrame& cframe = CoordinateFrame(), const bool weld = false, bool removeDegenerateFaces = false);
+    static IFSModelRef fromData(const std::string& name, const Array<Vector3>& vertex, const Array<int>& index, const Array<Vector2>& texCoord = Array<Vector2>(), const Vector3& scale = Vector3(1,1,1), const CoordinateFrame& cframe = CoordinateFrame(), bool weld = false, bool removeDegenerateFaces = false);
 
     /**
      If perVertexNormals is false, the model is rendered with per-face normals,

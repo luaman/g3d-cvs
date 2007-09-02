@@ -51,9 +51,30 @@ IFSModelRef IFSModel::fromFile(const std::string& filename, double scale, const 
 }
 
 
+IFSModelRef IFSModel::fromData(const std::string& name, const Array<Vector3>& vertex, const Array<int>& index, 
+                               const Array<Vector2>& texCoord, const Vector3& scale, const CoordinateFrame& cframe, 
+                               bool weld, bool removeDegenerateFaces) {
+    IFSModel* ret = new IFSModel();
+
+    ret->reset();
+    ret->filename = "";
+    ret->indexArray = index;
+    ret->geometry.vertexArray = vertex;
+    ret->texArray = texCoord;
+    ret->init(name, scale, cframe, weld, removeDegenerateFaces);
+
+    return ret;
+}
+
+
 IFSModelRef IFSModel::fromFile(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
     IFSModel* ret = new IFSModel();
-    ret->load(filename, scale, cframe, weld, removeDegenerateFaces);
+
+    ret->reset();
+    ret->filename = filename;
+    load(filename, ret->name, ret->indexArray, ret->geometry.vertexArray, ret->texArray);
+
+    ret->init(ret->name, scale, cframe, weld, removeDegenerateFaces);
     return ret;
 }
 
@@ -65,11 +86,9 @@ static bool close(const Vector3& v0, const Vector2& t0, const Vector3& v1, const
 }
 
 
-void IFSModel::load(const std::string& filename, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
-    reset();
 
-    this->filename = filename;
-    load(filename, name, indexArray, geometry.vertexArray, texArray);
+
+void IFSModel::init(const std::string& name, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
 
     debugAssert(geometry.vertexArray.size() > 0);
     debugAssert(indexArray.size() > 0);

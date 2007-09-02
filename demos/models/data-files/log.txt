@@ -1,5 +1,5 @@
 Application Log
-Start: Fri Aug 31 09:38:50 2007
+Start: Sun Sep 02 17:14:52 2007
 
 _____________________________________________________
 
@@ -153,23 +153,12 @@ WARNING: Could not find 'icon.fnt' so '../../../data-files/font/icon.fnt' was su
 WARNING: Could not find 'icon.fnt' so '../../../data-files/font/icon.fnt' was substituted.
 
 WARNING: Could not find 'NonShadowedPass.vrt' so '../../../data-files/SuperShader/NonShadowedPass.vrt' was substituted.
-
-WARNING: Could not find 'NonShadowedPass.vrt' so '../../../data-files/SuperShader/NonShadowedPass.vrt' was substituted.
-
-WARNING: Could not find 'NonShadowedPass.pix' so '../../../data-files/SuperShader/NonShadowedPass.pix' was substituted.
-
-WARNING: Could not find 'ShadowMappedLightPass.vrt' so '../../../data-files/SuperShader/ShadowMappedLightPass.vrt' was substituted.
-
-WARNING: Could not find 'ShadowMappedLightPass.pix' so '../../../data-files/SuperShader/ShadowMappedLightPass.pix' was substituted.
 _____________________________________________________
 
     ###    Files Used    ###
 
 ../../../data-files/sky/plainsky/null_plainsky512_rt.jpg
 ../../../data-files/sky/plainsky/null_plainsky512_bk.jpg
-../../../data-files/SuperShader/NonShadowedPass.vrt
-../../../data-files/SuperShader/ShadowMappedLightPass.vrt
-../../../data-files/SuperShader/NonShadowedPass.pix
 ../../../data-files/ifs/cow.ifs
 ../../../data-files/font/console-small.fnt
 ../../../data-files/sky/lensflare.jpg
@@ -186,11 +175,8 @@ _____________________________________________________
 ../../../data-files/gui/osx.skn
 G3D-logo-tiny-alpha.tga
 ../../../data-files/sky/moon-alpha.jpg
-stone-bump.png
 ../../../data-files/sky/sun-rays.jpg
 ../../../data-files/sky/plainsky/null_plainsky512_up.jpg
-../../../data-files/SuperShader/ShadowMappedLightPass.pix
-stone.jpg
 
 _____________________________________________________
 

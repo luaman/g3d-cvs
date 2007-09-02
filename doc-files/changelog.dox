@@ -19,14 +19,15 @@
      <li> OS X build no longer depends on X11
      <li> cmake now generates project files for Xcode and all Visual Studio versions [Corey Taylor]
      <li> OS X: icompile and buildg3d now generate universal binaries on Intel machines
+     <li> G3D::IFSModel::fromData
      <li> G3D::MeshAlg::generateGrid
-     <li> IFSModel::fromFile now defaults to not welding for improved performance
-     <li> IFSModel members are now protected to allow subclassing
+     <li> G3D::IFSModel::fromFile now defaults to not welding for improved performance
+     <li> G3D::IFSModel members are now protected to allow subclassing
      <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]
-     <li> Added GMaterial(TextureRef) constructor
-     <li> Made GMaterial fields floats
+     <li> Added G3D::GMaterial(TextureRef) constructor
+     <li> Made G3D::GMaterial fields floats
      <li> G3D::PosedModel::sortAndRender
-     <li> Framebuffer can now attach cube map faces
+     <li> G3D::Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
      <li> Added /usr/local/-G3D dir- to system data file path [Kai Schroeder]
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
