@@ -1406,17 +1406,16 @@ static void setTexParameters(
     if (GLCaps::supports_GL_ARB_shadow()) {
         if (settings.depthReadMode == Texture::DEPTH_NORMAL) {
 
-            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
 
         } else {
 
-            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
             glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
             glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
                 (settings.depthReadMode == Texture::DEPTH_LEQUAL) ? GL_LEQUAL : GL_GEQUAL);
         }
-
     }
     debugAssertGLOk();
 }

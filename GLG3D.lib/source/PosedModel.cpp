@@ -66,17 +66,12 @@ void PosedModel::sortAndRender
     rd->setObjectToWorldMatrix(CoordinateFrame());
 
     // Opaque unshadowed
-    // TODO: Something in here destroys the shadow map if we don't render the 
-    // otherOpaque array first.
     for (int m = 0; m < otherOpaque.size(); ++m) {
         otherOpaque[m]->renderNonShadowed(rd, lighting);
     }
     ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
 
     // Opaque shadowed
-
-    // TODO: Why doesn't the MD2 model receive shadowing?
-    // TODO: If we render the otherOpaque first, it destroys the shadow map
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
         rd->pushState();
         ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], shadowMaps[L]);

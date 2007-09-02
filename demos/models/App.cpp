@@ -16,8 +16,8 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
 
         shadowMap = ShadowMap::create(1024);
 
-        defaultCamera.setPosition(Vector3(-5.8f,   1.4f,   4.0f));
-        defaultCamera.lookAt(Vector3( -4.0f,  -0.1f,   0.9f));
+        defaultCamera.setPosition(Vector3(-2,   1.4f,   4.0f));
+        defaultCamera.lookAt(Vector3( 0,  -0.1f,   0.9f));
 
         loadScene();
         sky = Sky::fromFile(dataDir + "sky/");
@@ -52,27 +52,6 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     }
 }
 
-/** Converts a depth map to a 16-bit luminance color map */
-void depthToColor(TextureRef depth, TextureRef& color, RenderDevice* rd) {
-    if (color.isNull()) {
-        Texture::Settings settings = Texture::Settings::video();
-        settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-        // Must be RGB16; can't render to luminance textures
-        color = Texture::createEmpty("Depth map", depth->width(), depth->height(), TextureFormat::RGB16F(), Texture::DIM_2D, settings);
-    }
-
-    // Convert depth to color
-    static FramebufferRef fbo = Framebuffer::create("Offscreen");
-    
-    fbo->set(Framebuffer::COLOR_ATTACHMENT0, color);
-    
-    rd->push2D(fbo);
-        rd->setTexture(0, depth);
-        Draw::rect2D(depth->rect2DBounds(), rd);
-    rd->pop2D();
-}
-
-
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
@@ -93,7 +72,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
-    Draw::axes(CoordinateFrame(), rd);
+    //Draw::axes(CoordinateFrame(), rd);
 
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);

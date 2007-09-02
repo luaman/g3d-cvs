@@ -7,48 +7,46 @@ void App::loadScene() {
 
     const Matrix3 rot180 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(180));
 
-    double x = 0;
+    double x = -2;
 
-    if (false) {
+    
+    // MD2
+    if (true) {
+        MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.4f);
+        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
+        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,-0.35f,0))));
+        x += 2;
+    }
+
+    // 3DS
+    if (true) {
         CoordinateFrame xform;
 
-        xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.04f;
+        xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.03f;
         xform.rotation = xform.rotation * rot180;
         xform.translation = Vector3(-0.35f, -1.45f, 2.25f);
 
         std::string filename = dataDir + "3ds/legocar/legocar.3ds";
         ArticulatedModelRef model = ArticulatedModel::fromFile(filename, xform);
-        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0,0))));
-        x += 3;
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
+        x += 2;
     }
 
-    if (false) {
-        MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.6f);
-        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
-        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0.1f,2))));
-        x += 3;
-    }
-
-    if (false) {
-        MD2ModelRef model = MD2Model::fromFile(dataDir + "ifs/dow.ifs/tris.md2", 0.6f);
-        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
-        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x-3,-1,0))));
-        x += 3;
-    }
-
-    if (true) {
-        IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/cow.ifs");
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
-        x += 3;
-    }
-
+    // IFSModel (note that IFS files can be loaded with ArticulatedModel and will render better)
     if (true) {
         IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/teapot.ifs");
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x-3,-1,0))));
-        x += 3;
+        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
+        x += 2;
     }
 
-    if (true) {
+    if (false) {
+        IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/cow.ifs");
+        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
+        x += 2;
+    }
+
+    // Simple ground plane
+    if (false) {
         Array<Vector3> vertex;
         Array<int> index;
         Array<Vector2> texCoord;
@@ -58,7 +56,8 @@ void App::loadScene() {
         entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(Vector3(0,-1,0))));
     }
 
-    if (false) {
+    // Textured ground plane generated mathematically on the fly
+    if (true) {
         ArticulatedModelRef model = ArticulatedModel::createEmpty();
 
         model->name = "Ground Plane";

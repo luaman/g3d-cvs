@@ -201,6 +201,10 @@
 				RelativePath="..\demos\models\App.h"
 				>
 			</File>
+			<File
+				RelativePath="..\demos\models\Entity.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1195,6 +1195,8 @@ void RenderDevice::setCullFace(CullFace f) {
 void RenderDevice::pushState() {
     debugAssert(! inPrimitive);
 
+    // texgen enables
+    glPushAttrib(GL_TEXTURE_BIT);
     stateStack.push(state);
 
     // Record that that the lights and matrices are unchanged since the previous state.
@@ -1213,6 +1215,8 @@ void RenderDevice::popState() {
     debugAssertM(stateStack.size() > 0, "More calls to RenderDevice::pushState() than RenderDevice::popState().");
     setState(stateStack.last());
     stateStack.popDiscard();
+    // texgen enables
+    glPopAttrib();
 }
 
 
@@ -3076,17 +3080,11 @@ void RenderDevice::configureShadowMap(
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glActiveTextureARB(GL_TEXTURE0_ARB + unit);
     }
-
-    static const Matrix4 bias(
-        0.5f, 0.0f, 0.0f, 0.5f,
-        0.0f, 0.5f, 0.0f, 0.5f,
-        0.0f, 0.0f, 0.5f, 0.5f - .000001f,
-        0.0f, 0.0f, 0.0f, 1.0f);
     
     Matrix4 textureMatrix = glGetMatrix(GL_TEXTURE_MATRIX);
 
 	Matrix4 textureProjectionMatrix2D =
-        textureMatrix * bias * lightMVP;
+        textureMatrix  * lightMVP;
 
 	// Set up tex coord generation - all 4 coordinates required
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
