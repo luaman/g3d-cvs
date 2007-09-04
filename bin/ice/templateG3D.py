@@ -145,35 +145,29 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->clear(false, true, true);
     sky->render(rd, localSky);
 
-    // Setup lighting
-    rd->enableLighting();
-        rd->setLight(0, localLighting->lightArray[0]);
+    // Render all objects (or, you can call PosedModel methods on the elements of posed3D 
+    // directly to customize rendering.  Pass a ShadowMap as the final argument to create 
+    // shadows.)
+    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+
+    // Sample immediate-mode rendering code
+    rd->pushState();
+        rd->enableLighting();
+
+        for (int i = 0; i < localLighting->lightArray.size(); ++i) {
+            rd->setLight(i, localLighting->lightArray[i]);
+        }
         rd->setAmbientLightColor(localLighting->ambientAverage());
 
-        // Sample immediate-mode rendering code
-        Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
-        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
-
-        // Always render the posed models passed in or the Developer Window and
-        // other Widget features will not appear.
-        if (posed3D.size() > 0) {
-            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
-            PosedModel::sort(posed3D, lookVector, opaque, transparent);
-            
-            for (int i = 0; i < opaque.size(); ++i) {
-                opaque[i]->render(renderDevice);
-            }
-
-            for (int i = 0; i < transparent.size(); ++i) {
-                transparent[i]->render(renderDevice);
-            }
-        }
-    rd->disableLighting();
+        Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
+        Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());
+        Draw::box(AABox(Vector3(-3.0f, -0.5f, -0.5f), Vector3(-2.0f, 0.5f, 0.5f)), rd, Color3::green());
+    rd->popState();
 
     sky->renderLensFlare(rd, localSky);
     toneMap->endFrame(rd);
 
+    // Render 2D objects like Widgets
     PosedModel2D::sortAndRender(rd, posed2D);
 }
 
@@ -194,7 +188,7 @@ void App::onConsoleCommand(const std::string& str) {
         // Add commands here
     }
 
-    console->printf("Unknown command\n");
+    console->printf("Unknown command\\n");
     printConsoleHelp();
 }
 
