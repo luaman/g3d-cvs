@@ -74,6 +74,8 @@ private:
 	Array<GEvent>		_sizeEventInjects;
 	Array<GEvent>		_dropEventInjects;
 	Array<std::string>	_droppedFiles;
+	uint8				_sendWheelUpEvent;
+	uint16				_wheelUpX, _wheelUpY;
 
 	void injectSizeEvent(int width, int height) {
 		GEvent e;
@@ -92,6 +94,8 @@ private:
 	}
 	
 	bool makeMouseEvent(EventRef theEvent, GEvent& e);
+	
+	bool enableJoysticks();
 	
 	/** Called from all constructors */
 	void init(WindowRef window, bool creatingShareWindow = false);

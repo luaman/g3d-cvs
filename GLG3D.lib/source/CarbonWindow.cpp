@@ -167,6 +167,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	_windowActive = true;
 	_settings = s;
 	_glDrawable = 0;
+	_sendWheelUpEvent = 0;
 	
 	GLint attribs[100];
 	memset(attribs,AGL_NONE,sizeof(attribs));
@@ -175,6 +176,13 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	// use component colors, not indexed colors
 	attribs[i++] = AGL_RGBA;				attribs[i++] = GL_TRUE;
 	attribs[i++] = AGL_DOUBLEBUFFER;		attribs[i++] = GL_TRUE;
+	
+	if(_settings.fsaaSamples > 0) {
+		attribs[i++] = AGL_SAMPLE_BUFFERS_ARB; attribs[i++] = 1;
+		attribs[i++] = AGL_SAMPLES_ARB; attribs[i++] = _settings.fsaaSamples;
+		attribs[i++] = AGL_SUPERSAMPLE; attribs[i++] = GL_TRUE;
+	}
+	
 	attribs[i++] = AGL_PBUFFER;				attribs[i++] = GL_TRUE;
 	attribs[i++] = AGL_NO_RECOVERY;			attribs[i++] = GL_TRUE;
 
@@ -395,6 +403,10 @@ std::string CarbonWindow::caption() {
 	return _title;
 }
 
+bool CarbonWindow::enableJoysticks() {
+	return false;
+}
+
 int CarbonWindow::numJoysticks() const {
 	// TODO: Fill in with joystick code.
 	return 0;
@@ -582,7 +594,7 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 
 					// Mouse button index
 					e.button.which = 0;		// TODO: Which Mouse is Being Used?
-					e.button.state = true;
+					e.button.state = ((eventKind == kEventMouseDown) || (eventKind == kEventMouseDragged)) ? SDL_PRESSED : SDL_RELEASED;
 
 					if(kEventMouseButtonPrimary == button) {
 						e.button.button = 0;
@@ -605,7 +617,57 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 					e.motion.xrel = 0;
 					e.motion.yrel = 0;
 					return true;
+				case 11 /*kEventMouseScroll*/:
+					SInt32 smoothDelta;
+					// See: http://developer.apple.com/qa/qa2005/qa1453.html
+					GetEventParameter(theEvent, 'saxy'/*kEventParamMouseWheelSmoothVerticalDelta*/, typeSInt32, NULL, sizeof(smoothDelta), NULL, &smoothDelta);
+					e.type = GEventType::MOUSE_BUTTON_DOWN;
+					e.button.x = point.x-rect.left;
+					e.button.y = point.y-rect.top;
+
+					// Mouse button index
+					e.button.which = 0;		// TODO: Which Mouse is Being Used?
+					e.button.state = SDL_PRESSED;
+					
+					if(smoothDelta > 0) {
+						e.button.button = 4;
+						_sendWheelUpEvent = 4;
+						_wheelUpX = e.button.x;
+						_wheelUpY = e.button.y;
+					}
+					if(smoothDelta < 0) {
+						e.button.button = 5;
+						_sendWheelUpEvent = 5;
+						_wheelUpX = e.button.x;
+						_wheelUpY = e.button.y;
+					}
+					return true;
 				case kEventMouseWheelMoved:
+					EventMouseWheelAxis axis;
+					SInt32 wheelDelta;
+					GetEventParameter(theEvent, kEventParamMouseWheelAxis, typeMouseWheelAxis, NULL, sizeof(axis), NULL, &axis);
+					GetEventParameter(theEvent, kEventParamMouseWheelDelta, typeSInt32, NULL, sizeof(wheelDelta), NULL, &wheelDelta);
+					e.type = GEventType::MOUSE_BUTTON_DOWN;
+					e.button.x = point.x-rect.left;
+					e.button.y = point.y-rect.top;
+
+					// Mouse button index
+					e.button.which = 0;		// TODO: Which Mouse is Being Used?
+					e.button.state = SDL_PRESSED;
+					
+					if((kEventMouseWheelAxisY == axis) && (wheelDelta > 0)) {
+						e.button.button = 4;
+						_sendWheelUpEvent = 4;
+						_wheelUpX = e.button.x;
+						_wheelUpY = e.button.y;
+					}
+					if((kEventMouseWheelAxisY == axis) && (wheelDelta < 0)) {
+						e.button.button = 5;
+						_sendWheelUpEvent = 5;
+						_wheelUpX = e.button.x;
+						_wheelUpY = e.button.y;
+					}
+					return true;
 				default:
 					break;
 			}
@@ -639,6 +701,21 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 	EventTargetRef	theTarget;
 	OSStatus osErr = noErr;
 	bool			puntEvent = false;
+	
+	if(_sendWheelUpEvent > 0) {
+		e.type = GEventType::MOUSE_BUTTON_UP;
+		e.button.x = _wheelUpX;
+		e.button.y = _wheelUpY;
+
+		// Mouse button index
+		e.button.which = 0;		// TODO: Which Mouse is Being Used?
+		e.button.state = SDL_PRESSED;
+		
+		e.button.button = _sendWheelUpEvent;
+
+		_sendWheelUpEvent = 0;
+		return true;
+	}
 	
 	osErr = ReceiveNextEvent(0, NULL,kEventDurationNanosecond,true, &theEvent);
 
