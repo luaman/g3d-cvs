@@ -22,9 +22,7 @@
 
 namespace G3D {
 
-#pragma mark Private:
-
-std::auto_ptr<CarbonWindow> CarbonWindow::_shareWindow(NULL);
+#pragma mark Private - _internal - Callback Functions:
 
 namespace _internal {
 pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
@@ -50,6 +48,146 @@ pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, v
 		pWindow->_receivedCloseEvent = true;
 	}
 	
+	return eventNotHandledErr;
+}
+
+pascal OSStatus OnAppQuit(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
+	
+	if(pWindow) {
+		pWindow->_receivedCloseEvent = true;
+	}
+	
+	return eventNotHandledErr;
+}
+
+pascal OSStatus OnActivation(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
+	
+	if(pWindow) {
+		GEvent e;
+		pWindow->_windowActive = true;
+		e.active.type = GEventType::ACTIVE;
+		e.active.gain = 1;
+		e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS|SDL_APPACTIVE;
+		pWindow->fireEvent(e);
+	}
+	
+	return eventNotHandledErr;
+}
+
+pascal OSStatus OnDeactivation(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
+	
+	if(pWindow) {
+		GEvent e;
+		pWindow->_windowActive = false;
+		e.active.type = GEventType::ACTIVE;
+		e.active.gain = 0;
+		e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS|SDL_APPACTIVE;
+		pWindow->fireEvent(e);
+	}
+
+	return eventNotHandledErr;
+}
+
+pascal OSStatus OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+	UInt32 eventKind = GetEventKind(event);
+	CarbonWindow* pWindow = (CarbonWindow*)userData;
+	
+	if(pWindow) {
+		HIPoint point;
+		Rect rect;
+		
+		GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, NULL, sizeof(HIPoint), NULL, &point);
+
+		if(GetWindowBounds(pWindow->_window, kWindowContentRgn, &rect)==noErr) {
+			// If the event is in our content region, we'll generate events.
+			// Otherwise, we'll pass them to someone else.
+			if((point.x >= rect.left) && (point.y >= rect.top) && (point.x <= rect.right) && (point.y <= rect.bottom)) {
+				if(eventKind == 11 /*kEventMouseScroll*/) {
+					GEvent eWheelDown, eWheelUp, eScroll2D;
+					SInt32 smoothDeltaY;
+					SInt32 smoothDeltaX;
+					// See: http://developer.apple.com/qa/qa2005/qa1453.html
+
+					GetEventParameter(event, 'saxy'/*kEventParamMouseWheelSmoothVerticalDelta*/, typeSInt32, NULL, sizeof(smoothDeltaY), NULL, &smoothDeltaY);
+					GetEventParameter(event, 'saxx'/*kEventParamMouseWheelSmoothHorizontalDelta*/,typeSInt32,NULL, sizeof(smoothDeltaX), NULL, &smoothDeltaX);
+					
+					eWheelDown.type = GEventType::MOUSE_BUTTON_DOWN;
+					eWheelUp.type = GEventType::MOUSE_BUTTON_UP;
+
+					eWheelDown.button.x = point.x-rect.left;
+					eWheelDown.button.y = point.y-rect.top;
+					eWheelUp.button.x = point.x-rect.left;
+					eWheelUp.button.y = point.y-rect.top;
+
+					// Mouse button index
+					eWheelDown.button.which = 0;	// TODO: Which Mouse is Being Used?
+					eWheelDown.button.state = SDL_PRESSED;
+					
+					eWheelUp.button.which = 0;		// TODO: Which Mouse is Being Used?
+					eWheelUp.button.state = SDL_RELEASED;
+					
+					if(smoothDeltaY > 0) {
+						eWheelDown.button.button = 4;
+						eWheelUp.button.button = 4;
+					}
+					if(smoothDeltaY < 0) {
+						eWheelDown.button.button = 5;
+						eWheelUp.button.button = 5;
+					}
+					
+					eScroll2D.type = GEventType::MOUSE_SCROLL_2D;
+					eScroll2D.scroll2d.which = 0;			// TODO: Which Mouse is Being Used?
+					eScroll2D.scroll2d.dx = smoothDeltaX;
+					eScroll2D.scroll2d.dy = smoothDeltaY;
+					
+					pWindow->fireEvent(eWheelDown);
+					pWindow->fireEvent(eWheelUp);
+					pWindow->fireEvent(eScroll2D);
+
+					return noErr;
+				} else if (eventKind == kEventMouseWheelMoved) {
+					GEvent eWheelDown, eWheelUp;
+					EventMouseWheelAxis axis;
+					SInt32 wheelDelta;
+					GetEventParameter(event, kEventParamMouseWheelAxis, typeMouseWheelAxis, NULL, sizeof(axis), NULL, &axis);
+					GetEventParameter(event, kEventParamMouseWheelDelta, typeSInt32, NULL, sizeof(wheelDelta), NULL, &wheelDelta);
+					
+					eWheelDown.type = GEventType::MOUSE_BUTTON_DOWN;
+					eWheelUp.type = GEventType::MOUSE_BUTTON_UP;
+					
+					eWheelDown.button.x = point.x-rect.left;
+					eWheelDown.button.y = point.y-rect.top;
+					eWheelUp.button.x = point.x-rect.left;
+					eWheelUp.button.y = point.y-rect.top;
+
+					// Mouse button index
+					eWheelDown.button.which = 0;	// TODO: Which Mouse is Being Used?
+					eWheelDown.button.state = SDL_PRESSED;
+					
+					eWheelUp.button.which = 0;		// TODO: Which Mouse is Being Used?
+					eWheelUp.button.state = SDL_RELEASED;
+
+					if((kEventMouseWheelAxisY == axis) && (wheelDelta > 0)) {
+						eWheelDown.button.button = 4;
+						eWheelUp.button.button = 4;
+					}
+					if((kEventMouseWheelAxisY == axis) && (wheelDelta < 0)) {
+						eWheelDown.button.button = 5;
+						eWheelUp.button.button = 5;
+					}
+					
+					pWindow->fireEvent(eWheelDown);
+					pWindow->fireEvent(eWheelUp);
+					
+					return noErr;
+				}
+			}
+		}
+	}
+
 	return eventNotHandledErr;
 }
 
@@ -97,25 +235,122 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
 	}
 	
 	if(pWindow->_droppedFiles.size() > 0) {
-		pWindow->injectDropEvent(point.h,point.v);
+		GEvent e;
+		e.type = GEventType::FILE_DROP;
+		e.drop.x = point.h;
+		e.drop.y = point.v;
+
+		pWindow->fireEvent(e);
 		return noErr;
 	}
 	
 	return dragNotAcceptedErr;
 }
+
+void HIDCollectJoyElementsArrayHandler(const void *value, void *parameter) {
+	CarbonWindow::GJoyDevice *pDevice = (CarbonWindow::GJoyDevice *)parameter;
+
+	if(pDevice && (CFGetTypeID(value) == CFDictionaryGetTypeID())) {
+		pDevice->addJoyElement((CFTypeRef) value);
+	}
+}
 } // namespace _internal
+
+#pragma mark Private - Initialization:
+
+std::auto_ptr<CarbonWindow> CarbonWindow::_shareWindow(NULL);
 
 // Static Variables for Brining Process to Front
 bool CarbonWindow::_ProcessBroughtToFront = false;
 
 // Static Event Type Specs
 EventTypeSpec CarbonWindow::_resizeSpec[] = {{kEventClassWindow, kEventWindowResizeCompleted},{kEventClassWindow, kEventWindowZoomed}};
-EventTypeSpec CarbonWindow::_closeSpec = {kEventClassWindow, kEventWindowClose};
+EventTypeSpec CarbonWindow::_closeSpec[] = {{kEventClassWindow, kEventWindowClose}};
+EventTypeSpec CarbonWindow::_appQuitSpec[] = {{kEventClassApplication, kEventAppTerminated},{kEventClassApplication, kEventAppQuit},{kEventClassCommand,kHICommandQuit}};
+EventTypeSpec CarbonWindow::_activateSpec[] = {{kEventClassWindow, kEventWindowActivated},{kEventClassApplication, kEventAppActivated},{kEventClassWindow, kEventWindowFocusAcquired},{kEventClassApplication, kEventAppShown}};
+EventTypeSpec CarbonWindow::_deactivateSpec[] = {{kEventClassWindow, kEventWindowDeactivated},{kEventClassApplication, kEventAppDeactivated},{kEventClassApplication, kEventAppHidden}};
+EventTypeSpec CarbonWindow::_deviceScrollSpec[] = {{kEventClassMouse,11/*kEventMouseScroll*/},{kEventClassMouse,kEventMouseWheelMoved}};
+
+#pragma mark Private - Prototypes:
 
 // Static Helper Functions Prototypes
 static unsigned char makeKeyEvent(EventRef,GEvent&);
 static uint8 buttonsToUint8(const bool*);
 static OSStatus aglReportError();
+
+#pragma mark Private - GJoyDevice and GJoyElement:
+
+// GJoyDevice and GJoyElement Member Functions
+bool CarbonWindow::GJoyDevice::buildDevice(io_object_t hidDevice) {
+	// get dictionary for HID properties
+	/*CFMutableDictionaryRef hidProperties = 0;
+	
+	kern_return_t result = IORegistryEntryCreateCFProperties(hidDevice, &hidProperties, kCFAllocatorDefault, kNilOptions);
+
+	if ((result == KERN_SUCCESS) && hidProperties) {
+		// create device interface
+		IOReturn result = kIOReturnSuccess;
+		HRESULT plugInResult = S_OK;
+		SInt32 score = 0;
+		IOCFPlugInInterface **ppPlugInInterface = NULL;
+
+		result = IOCreatePlugInInterfaceForService(hidDevice, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &ppPlugInInterface, &score);
+		if (kIOReturnSuccess == result) {
+			// Call a method of the intermediate plug-in to create the device interface
+			plugInResult = (*ppPlugInInterface)->QueryInterface(ppPlugInInterface, CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID), (LPVOID *) &(this->interface));
+			
+			if (S_OK != plugInResult)
+				debugPrintf("Couldn't query HID class device interface from plugInInterface\n");
+			
+			(*ppPlugInInterface)->Release(ppPlugInInterface);
+		} else
+			debugPrintf("Failed to create **plugInInterface via IOCreatePlugInInterfaceForService.");
+			
+		if (NULL != this->interface) {
+			result = (*(this->interface))->open(this->interface, 0);
+			if (kIOReturnSuccess != result)
+				debugPrintf("Failed to open pDevice->interface via open.");
+//			else
+//				(*(pDevice->interface))->setRemovalCallback(pDevice->interface, HIDRemovalCallback, pDevice, pDevice);
+		}
+
+		if (kIOReturnSuccess == result) {
+//			HIDGetDeviceInfo(hidDevice, hidProperties, pDevice);    // hidDevice used to find parents in registry tree
+			CFTypeRef refCF = 0;
+			char szVal[256];
+			refCF = CFDictionaryGetValue(hidProperties,CFSTR(kIOHIDProductKey));
+			CFStringGetCString((CFStringRef)refCF, szVal, 256, CFStringGetSystemEncoding());
+			this->product = szVal;
+			
+//			HIDGetCollectionElements(hidProperties, pDevice);
+			CFTypeRef refElementTop = CFDictionaryGetValue(hidProperties, CFSTR(kIOHIDElementKey));
+			if(NULL != refElementTop) {
+				CFTypeID type = CFGetTypeID(refElementTop);
+				if(type == CFArrayGetTypeID()) {
+					CFRange range = { 0, CFArrayGetCount(refElementTop) };
+					CFArrayApplyFunction(refElementTop,range,_internal::HIDCollectJoyElementsArrayHandler,this);
+				}
+			}
+		}
+		
+		CFRelease(hidProperties);
+	}
+	*/
+	return false;
+}
+
+void CarbonWindow::GJoyDevice::addJoyElement(CFTypeRef refElement) {
+/*	GJoyElement element;
+	
+	long elementType, usagePage, usage;
+
+    CFTypeRef refElementType = CFDictionaryGetValue(refElement, CFSTR(kIOHIDElementTypeKey));
+    CFTypeRef refUsagePage = CFDictionaryGetValue(refElement, CFSTR(kIOHIDElementUsagePageKey));
+    CFTypeRef refUsage = CFDictionaryGetValue(refElement, CFSTR(kIOHIDElementUsageKey));
+*/	
+}
+
+#pragma mark Private - CarbonWindow Constructors/Initialization:
 
 void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) {
 	// Initialize mouse buttons to up
@@ -129,6 +364,8 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
 		GLCaps::init();
 		setCaption(_settings.caption);
 	}
+	
+	enableJoysticks();
 }
 
 void CarbonWindow::createShareWindow(GWindow::Settings s) {
@@ -155,7 +392,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 		ProcessSerialNumber psn = { 0, kCurrentProcess};
 		TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 		SetFrontProcess (&psn);
-
+		
 		_ProcessBroughtToFront = true;
 	}
 	
@@ -167,7 +404,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	_windowActive = true;
 	_settings = s;
 	_glDrawable = 0;
-	_sendWheelUpEvent = 0;
+	_enabledJoysticks = false;
 	
 	GLint attribs[100];
 	memset(attribs,AGL_NONE,sizeof(attribs));
@@ -268,8 +505,12 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	ShowWindow(_window);
 	
 	osErr = InstallStandardEventHandler(GetWindowEventTarget(_window));
-	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), &_resizeSpec[0], this, NULL);
-	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowClosed), GetEventTypeCount(_closeSpec), &_closeSpec, this, NULL);
+	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowSized), GetEventTypeCount(_resizeSpec), _resizeSpec, this, NULL);
+	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnWindowClosed), GetEventTypeCount(_closeSpec), _closeSpec, this, NULL);
+	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnAppQuit), GetEventTypeCount(_appQuitSpec), _appQuitSpec, this, NULL);
+	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnActivation), GetEventTypeCount(_activateSpec), _activateSpec, this, NULL);
+	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnDeactivation), GetEventTypeCount(_deactivateSpec), _deactivateSpec, this, NULL);
+	osErr = InstallWindowEventHandler(_window, NewEventHandlerUPP(_internal::OnDeviceScroll), GetEventTypeCount(_deviceScrollSpec), _deviceScrollSpec, this, NULL);
 	osErr = InstallReceiveHandler(NewDragReceiveHandlerUPP(_internal::OnDragReceived),_window,this);
 	
 	_glDrawable = (AGLDrawable) GetWindowPort(_window);
@@ -314,7 +555,7 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, WindowRef window) : _crea
 	// TODO: Fill with code!
 }
 
-#pragma mark Public:
+#pragma mark Public - CarbonWindow Creation:
 
 CarbonWindow* CarbonWindow::create(const GWindow::Settings& s /*= GWindow::Settings()*/) {
 	return new CarbonWindow(s);
@@ -323,6 +564,8 @@ CarbonWindow* CarbonWindow::create(const GWindow::Settings& s /*= GWindow::Setti
 CarbonWindow* CarbonWindow::create(const GWindow::Settings& s, WindowRef window) {
 	return new CarbonWindow(s, window);
 }
+
+#pragma mark Public - CarbonWindow Destruction:
 
 CarbonWindow::~CarbonWindow() {
 	aglSetCurrentContext(NULL);
@@ -335,6 +578,8 @@ CarbonWindow::~CarbonWindow() {
 		DisposeWindow(_window);
 }
 
+#pragma mark Public - CarbonWindow Info:
+
 std::string CarbonWindow::getAPIVersion() const {
 	return "0.2";
 }
@@ -342,6 +587,8 @@ std::string CarbonWindow::getAPIVersion() const {
 std::string CarbonWindow::getAPIName() const {
 	return "Carbon Window";
 }
+
+#pragma mark Public - CarbonWindow Public API:
 
 void CarbonWindow::getSettings(GWindow::Settings& s) const {
 	s = _settings;
@@ -403,17 +650,95 @@ std::string CarbonWindow::caption() {
 	return _title;
 }
 
+void CarbonWindow::findJoysticks(UInt32 usagePage, UInt32 usage) {
+}
+
 bool CarbonWindow::enableJoysticks() {
-	return false;
+/*	if(!_enabledJoysticks) {
+		// TODO: Fill in with joystick code.
+		IOReturn result = kIOReturnSuccess;
+		mach_port_t masterPort = 0;
+		io_iterator_t hidObjectIterator = 0;
+		CFMutableDictionaryRef hidMatchDictionary = NULL;
+		GJoyDevice device;
+		io_object_t ioHIDDeviceObject = 0;
+
+		result = IOMasterPort(bootstrap_port, &masterPort);
+		if (kIOReturnSuccess != result) {
+			debugPrintf("Joystick: IOMasterPort error with bootstrap_port.\n");
+			Log::common()->printf("Joystick: IOMasterPort error with bootstrap_port.\n");
+			return false;
+		}
+
+		// Set up a matching dictionary to search I/O Registry by class name for all HID class devices.
+		hidMatchDictionary = IOServiceMatching(kIOHIDDeviceKey);
+		if(NULL == hidMatchDictionary) {
+			debugPrintf("Joystick: Failed to get HID CFMutableDictionaryRef via IOServiceMatching.");
+			Log::common()->printf("Joystick: Failed to get HID CFMutableDictionaryRef via IOServiceMatching.");
+			return false;
+		}
+
+		// Add key for device type (joystick, in this case) to refine the matching dictionary.
+		UInt32 usagePage = kHIDPage_GenericDesktop;
+		UInt32 usageJoy = kHIDUsage_GD_Joystick;
+//		UInt32 usageJoy = kHIDUsage_GD_GamePad;
+//		UInt32 usageJoy = kHIDUsage_GD_MultiAxisController;
+		CFNumberRef refUsage = NULL, refUsagePage = NULL;
+
+		refUsage = CFNumberCreate (kCFAllocatorDefault, kCFNumberIntType, &usageJoy);
+		CFDictionarySetValue (hidMatchDictionary, CFSTR (kIOHIDPrimaryUsageKey), refUsage);
+		refUsagePage = CFNumberCreate (kCFAllocatorDefault, kCFNumberIntType, &usagePage);
+		CFDictionarySetValue (hidMatchDictionary, CFSTR (kIOHIDPrimaryUsagePageKey), refUsagePage);		
+		
+		// Now search I/O Registry for matching devices.
+		result = IOServiceGetMatchingServices(masterPort, hidMatchDictionary, &hidObjectIterator);
+
+		// Check for errors
+		if (kIOReturnSuccess != result) {
+			debugPrintf("Joystick: Couldn't create a HID object iterator.");
+			Log::common()->printf("Joystick: Couldn't create a HID object iterator.");
+			return false;
+		}
+
+		if (!hidObjectIterator) {   // there are no joysticks
+			return true;
+		}
+
+		// IOServiceGetMatchingServices consumes a reference to the dictionary, so we don't need to release the dictionary ref.
+
+		while ((ioHIDDeviceObject = IOIteratorNext(hidObjectIterator))) {
+			// build a device record
+			if (!device.buildDevice(ioHIDDeviceObject))
+				continue;
+
+			// dump device object, it is no longer needed
+			result = IOObjectRelease(ioHIDDeviceObject);
+
+			// Add device to the end of the list
+			_joysticks.append(device);
+		}
+		
+		result = IOObjectRelease(hidObjectIterator);        // release the iterator
+		
+		_enabledJoysticks = true;
+	}*/
+	
+	return _enabledJoysticks;
 }
 
 int CarbonWindow::numJoysticks() const {
-	// TODO: Fill in with joystick code.
+	return _joysticks.size();
+	
 	return 0;
 }
 
 std::string CarbonWindow::joystickName(unsigned int stickNum) {
-	// TODO: Fill in with joystick code.
+    debugAssert(sticknum < ((unsigned int) _joysticks.size()));
+
+	if(stickNum < ((unsigned int) _joysticks.size())) {
+		return _joysticks[stickNum].product;
+	}
+	
 	return "";
 }
 
@@ -499,7 +824,24 @@ void CarbonWindow::getRelativeMouseState(double &x, double &y, uint8 &mouseButto
 }
 
 void CarbonWindow::getJoystickState(unsigned int stickNum, Array<float> &axis, Array<bool> &buttons) {
-	// TODO: Fill in with joystick code.
+	debugAssert(stickNum < ((unsigned int) _joysticks.size()));
+
+	if(stickNum < ((unsigned int) _joysticks.size())) {
+		// TODO: POLL Joystick State
+		GJoyDevice& joystick = _joysticks[stickNum];
+		
+		axis.resize(joystick.axis.size(), DONT_SHRINK_UNDERLYING_ARRAY);
+		
+		for(int a = 0; a < joystick.axis.size(); a++) {
+			axis[a] = joystick.axis[a].value / 32768.0;
+		}
+		
+		buttons.resize(joystick.button.size(), DONT_SHRINK_UNDERLYING_ARRAY);
+		
+		for(int b = 0; b < joystick.button.size(); b++) {
+			buttons[b] = joystick.button[b].value != 0;
+		}
+	}
 }
 
 void CarbonWindow::setInputCapture(bool c) {
@@ -536,7 +878,7 @@ void CarbonWindow::swapGLBuffers() {
 	}
 }
 
-#pragma mark Private:
+#pragma mark Private - CarbonWindow - Mouse Event Generation:
 
 bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 	UInt32 eventKind = GetEventKind(theEvent);
@@ -617,57 +959,6 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 					e.motion.xrel = 0;
 					e.motion.yrel = 0;
 					return true;
-				case 11 /*kEventMouseScroll*/:
-					SInt32 smoothDelta;
-					// See: http://developer.apple.com/qa/qa2005/qa1453.html
-					GetEventParameter(theEvent, 'saxy'/*kEventParamMouseWheelSmoothVerticalDelta*/, typeSInt32, NULL, sizeof(smoothDelta), NULL, &smoothDelta);
-					e.type = GEventType::MOUSE_BUTTON_DOWN;
-					e.button.x = point.x-rect.left;
-					e.button.y = point.y-rect.top;
-
-					// Mouse button index
-					e.button.which = 0;		// TODO: Which Mouse is Being Used?
-					e.button.state = SDL_PRESSED;
-					
-					if(smoothDelta > 0) {
-						e.button.button = 4;
-						_sendWheelUpEvent = 4;
-						_wheelUpX = e.button.x;
-						_wheelUpY = e.button.y;
-					}
-					if(smoothDelta < 0) {
-						e.button.button = 5;
-						_sendWheelUpEvent = 5;
-						_wheelUpX = e.button.x;
-						_wheelUpY = e.button.y;
-					}
-					return true;
-				case kEventMouseWheelMoved:
-					EventMouseWheelAxis axis;
-					SInt32 wheelDelta;
-					GetEventParameter(theEvent, kEventParamMouseWheelAxis, typeMouseWheelAxis, NULL, sizeof(axis), NULL, &axis);
-					GetEventParameter(theEvent, kEventParamMouseWheelDelta, typeSInt32, NULL, sizeof(wheelDelta), NULL, &wheelDelta);
-					e.type = GEventType::MOUSE_BUTTON_DOWN;
-					e.button.x = point.x-rect.left;
-					e.button.y = point.y-rect.top;
-
-					// Mouse button index
-					e.button.which = 0;		// TODO: Which Mouse is Being Used?
-					e.button.state = SDL_PRESSED;
-					
-					if((kEventMouseWheelAxisY == axis) && (wheelDelta > 0)) {
-						e.button.button = 4;
-						_sendWheelUpEvent = 4;
-						_wheelUpX = e.button.x;
-						_wheelUpY = e.button.y;
-					}
-					if((kEventMouseWheelAxisY == axis) && (wheelDelta < 0)) {
-						e.button.button = 5;
-						_sendWheelUpEvent = 5;
-						_wheelUpX = e.button.x;
-						_wheelUpY = e.button.y;
-					}
-					return true;
 				default:
 					break;
 			}
@@ -694,29 +985,13 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 	return false;
 }
 
-#pragma mark Protected:
+#pragma mark Protected - CarbonWindow - Event Generation:
 
 bool CarbonWindow::pollOSEvent(GEvent &e) {
 	EventRef		theEvent;
 	EventTargetRef	theTarget;
 	OSStatus osErr = noErr;
-	bool			puntEvent = false;
-	
-	if(_sendWheelUpEvent > 0) {
-		e.type = GEventType::MOUSE_BUTTON_UP;
-		e.button.x = _wheelUpX;
-		e.button.y = _wheelUpY;
-
-		// Mouse button index
-		e.button.which = 0;		// TODO: Which Mouse is Being Used?
-		e.button.state = SDL_PRESSED;
 		
-		e.button.button = _sendWheelUpEvent;
-
-		_sendWheelUpEvent = 0;
-		return true;
-	}
-	
 	osErr = ReceiveNextEvent(0, NULL,kEventDurationNanosecond,true, &theEvent);
 
 	// If we've gotten no event, we should just return false so that
@@ -762,68 +1037,11 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 						break;
 				}
 			} break;
-		case kEventClassWindow:
-			switch (eventKind) {
-				case kEventWindowCollapsing:
-					_windowActive = false;
-					e.active.type = GEventType::ACTIVE;
-					e.active.gain = 0;
-					e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS;
-					puntEvent = true;
-					break;
-				case kEventWindowActivated:
-					_windowActive = true;
-					e.active.type = GEventType::ACTIVE;
-					e.active.gain = 1;
-					e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS;
-					puntEvent = true;
-					break;
-				case kEventWindowDrawContent:
-				case kEventWindowShown:
-					return false;
-				default:
-					break;
-			}  break;
-		case kEventClassApplication:
-			switch (eventKind) {
-				case kEventAppActivated:
-					_windowActive = true;
-					e.active.type = GEventType::ACTIVE;
-					e.active.gain = 1;
-					e.active.state = SDL_APPACTIVE;
-					puntEvent = true;
-					break;
-				case kEventAppDeactivated:
-				case kEventAppHidden:
-					_windowActive = false;
-					e.active.type = GEventType::ACTIVE;
-					e.active.gain = 0;
-					e.active.state = SDL_APPACTIVE;
-					puntEvent = true;
-					break;
-				case kEventAppActiveWindowChanged:
-					break;
-				case kEventAppGetDockTileMenu:
-					break;
-				case kEventAppQuit:
-				case kEventAppTerminated:
-					_receivedCloseEvent = true;
-				default:
-					break;
-			} break;
+		case kHighLevelEvent:
+		case kEventAppleEvent:
 		case kEventClassCommand:
-		case kEventClassTablet:
 		case kEventClassMenu:
-		case kEventClassTextInput:
-		case kEventClassAppleEvent:
-		case kEventClassControl:
-		case kEventClassVolume:
-		case kEventClassAppearance:
 		case kEventClassService:
-		case kEventClassToolbar:
-		case kEventClassToolbarItem:
-		case kEventClassToolbarItemView:
-		case kEventClassAccessibility:
 		case kEventClassSystem:
 		default:
 			break;
@@ -852,19 +1070,13 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 		return true;
 	}
 	
-	if (_dropEventInjects.size() > 0) {
-		e = _dropEventInjects.last();
-		_dropEventInjects.pop_back();
-		return true;
-	}
-
 	if(osErr == noErr) {
 		theTarget = GetEventDispatcherTarget();	
-		SendEventToEventTarget (theEvent, theTarget);
+		SendEventToEventTarget(theEvent, theTarget);
 		ReleaseEvent(theEvent);
 	}
 	
-	return puntEvent;
+	return false;
 }
 
 static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
