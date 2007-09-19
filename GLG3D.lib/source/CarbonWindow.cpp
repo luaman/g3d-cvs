@@ -733,7 +733,7 @@ int CarbonWindow::numJoysticks() const {
 }
 
 std::string CarbonWindow::joystickName(unsigned int stickNum) {
-    debugAssert(sticknum < ((unsigned int) _joysticks.size()));
+    debugAssert(stickNum < ((unsigned int) _joysticks.size()));
 
 	if(stickNum < ((unsigned int) _joysticks.size())) {
 		return _joysticks[stickNum].product;
