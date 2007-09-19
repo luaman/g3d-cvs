@@ -136,6 +136,7 @@ public:
        GUI_CLOSE,           /* GuiWindow close button pressed. */
        FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
                                GWindow.getDroppedFilenames to receive the actual data.*/
+	   MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
 
        /* This last event is only for bounding internal arrays
   	     It is the number of bits in the event mask datatype -- uint32
@@ -232,6 +233,19 @@ public:
     uint16 x, y;
     
     // TODO: add     /** Current key modifiers */    GKeyMod         mod;	
+};
+
+/** 2D scroll event structure **/
+class MouseScroll2DEvent { 
+public:
+	/** GEventType::MOUSE_SCROLL_2D **/
+    uint8 type;
+	
+	/** The mouse device index **/
+    uint8 which;
+	
+	/** The change in x and y directions of scroll **/
+    uint16 dx, dy; /*Change in pixels x and y*/ 
 };
 
 
@@ -435,6 +449,7 @@ typedef union {
     GuiEvent                gui;
     GuiCloseEvent           guiClose;
     FileDropEvent           drop;
+	MouseScroll2DEvent      scroll2d;
 } GEvent;
 
 }
