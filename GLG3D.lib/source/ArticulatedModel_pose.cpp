@@ -161,6 +161,10 @@ void ArticulatedModel::renderNonShadowed(
     RenderDevice* rd, 
     const LightingRef& lighting) {
 
+    if (posedArray.size() == 0) {
+        return;
+    }
+
     rd->pushState();
         rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
@@ -241,6 +245,10 @@ void ArticulatedModel::renderShadowMappedLightPass
      RenderDevice* rd, 
      const GLight& light, 
      const ShadowMapRef& shadowMap) {
+
+    if (posedArray.size() == 0) {
+        return;
+    }
 
     rd->pushState();
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
