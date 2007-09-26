@@ -345,6 +345,13 @@ public:
         @sa G3D::GuiPane::pack
      */
     void pack();
+
+    virtual void setCaption(const GuiCaption& text);
+
+    const GuiCaption& caption() const {
+        return m_text;
+    }
+
 };
 
 }

@@ -53,17 +53,18 @@ protected:
 public:
 
     virtual ~GuiControl() {}
+
     bool enabled() const;
     bool mouseOver() const;
     bool visible() const;
     void setVisible(bool b);
     bool focused() const;
+    virtual void setCaption(const GuiCaption& caption);
 
     /** Grab or release keyboard focus */
     void setFocused(bool b);
     void setEnabled(bool e);
     const GuiCaption& caption() const;
-    void setCaption(const GuiCaption& text);
     const Rect2D& rect() const;
 
     /** If you explicitly change the rectangle of a control, the

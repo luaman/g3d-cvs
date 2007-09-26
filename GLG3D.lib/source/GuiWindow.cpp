@@ -26,6 +26,11 @@ GuiWindow::Ref GuiWindow::create
 }
 
 
+void GuiWindow::setCaption(const GuiCaption& text) {
+    m_text = text;
+}
+
+
 GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect, Style style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), m_skin(skin), 

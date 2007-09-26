@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-01
- @edited  2007-06-19
+ @edited  2007-09-27
  */
 
 #include "G3D/platform.h"
@@ -12,7 +12,6 @@
 #include "GLG3D/GuiWindow.h"
 
 namespace G3D {
-
 
 void GuiControl::setFocused(bool b) {
     if (! b) {

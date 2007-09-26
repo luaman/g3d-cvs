@@ -26,6 +26,7 @@
      <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]
      <li> Added G3D::GMaterial(TextureRef) constructor
      <li> Made G3D::GMaterial fields floats
+     <li> G3D::GuiControl::setCaption, G3D::GuiWindow::setCaption
      <li> G3D::PosedModel::sortAndRender
      <li> G3D::Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
@@ -37,6 +38,7 @@
           <b>Incombatible change:</b>Required changing several interfaces to take ShadowMapRef arguments.
      <li> Fix: GCamera::Frustum was facing backwards
      <li> Fix: [ 1774479 ] texture glformats wrong (caused incorrect font rendering on Intel)
+     <li> Fix: ArticulatedModel static methods do not force loading of shaders unless an ArticulatedModel has actually been loaded.
    </ul>
 
 <hr>
