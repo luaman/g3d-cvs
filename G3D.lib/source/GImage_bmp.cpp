@@ -134,8 +134,8 @@ void GImage::encodeBMP(
             dest += channels;
         }
 
-        if (BMPadding) {
-            out.skip(2);
+        if (BMPadding > 0) {
+            out.skip(BMPadding);
         }
     }
 }
