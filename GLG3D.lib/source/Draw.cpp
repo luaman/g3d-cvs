@@ -348,7 +348,7 @@ void Draw::capsule(
 
     CoordinateFrame cframe(capsule.point(0));
 
-    Vector3 Y = (capsule.point(1) - capsule.point(1)).direction();
+    Vector3 Y = (capsule.point(1) - capsule.point(0)).direction();
     Vector3 X = (abs(Y.dot(Vector3::unitX())) > 0.9) ? Vector3::unitY() : Vector3::unitX();
     Vector3 Z = X.cross(Y).direction();
     X = Y.cross(Z);        
