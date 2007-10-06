@@ -88,6 +88,10 @@ public:
 
 protected:
 
+    /**
+     Only methods on @a skin may be called from this method by default.  To make arbitrary RenderDevice calls,
+     wrap them in GuiSkin::pauseRendering ... GuiSkin::resumeRendering.
+     */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const = 0;
 
     /** Events are only delivered to a control when the control that

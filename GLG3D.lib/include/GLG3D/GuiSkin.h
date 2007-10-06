@@ -567,6 +567,15 @@ public:
     /** Call after all other render methods. */
     void endRendering();
 
+    /** Invoke from a custom GuiControl::render to make arbitrary RenderDevice 
+        calls.  Be sure to call resumeRendering() when done.  Invokes 
+        RenderDevice::pushState automatically.
+     */
+    void pauseRendering();
+
+    void resumeRendering();
+
+
     /** Only call between beginRendering and endRendering */
     void renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
                         bool checked, const GuiCaption& text) const;

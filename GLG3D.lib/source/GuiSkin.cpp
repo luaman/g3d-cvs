@@ -202,6 +202,20 @@ void GuiSkin::endText() const {
 }
 
 
+void GuiSkin::pauseRendering() {
+    drawDelayedText();
+    debugAssert(inRendering);
+    rd->endPrimitive();
+    rd->pushState();
+}
+
+
+void GuiSkin::resumeRendering() {
+    rd->popState();
+    rd->beginPrimitive(RenderDevice::QUADS);
+}
+
+
 void GuiSkin::endRendering() {
     // Draw any remaining text
     drawDelayedText();
