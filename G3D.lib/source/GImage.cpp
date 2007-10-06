@@ -720,31 +720,53 @@ void GImage::encode(
     }
 }
 
+void GImage::insertRedAsAlpha(const GImage& alpha, GImage& output) const {
+    debugAssert(alpha.width == width);
+    debugAssert(alpha.height == height);
+
+    // make sure output GImage is valid
+    if (output.width != width || output.height != height || output.channels != 4) {
+        output.resize(width, height, 4);
+    }
+
+    for (int i = 0; i < width * height; ++i) {
+        output.byte()[i * 4 + 0] = byte()[i * channels + 0];
+        output.byte()[i * 4 + 1] = byte()[i * channels + 1];
+        output.byte()[i * 4 + 2] = byte()[i * channels + 2];
+        output.byte()[i * 4 + 3] = alpha.byte()[i * alpha.channels];
+    }
+}
+
 GImage GImage::insertRedAsAlpha(const GImage& alpha) const {
     debugAssert(alpha.width == width);
     debugAssert(alpha.height == height);
 
     GImage out(width, height, 4);
 
-    for (int i = 0; i < width * height; ++i) {
-        out.byte()[i * 4 + 0] = byte()[i * channels + 0];
-        out.byte()[i * 4 + 1] = byte()[i * channels + 1];
-        out.byte()[i * 4 + 2] = byte()[i * channels + 2];
-        out.byte()[i * 4 + 3] = alpha.byte()[i * alpha.channels];
-    }
+    insertRedAsAlpha(alpha, out);
 
     return out;
 }
 
 
+void GImage::stripAlpha(GImage& output) const {
+
+    if (output.width != width || output.height != height || output.channels != 3)
+    {
+        output.resize(width, height, 3);
+    }
+
+    for (int i = 0; i < width * height; ++i) {
+        output.byte()[i * 3 + 0] = byte()[i * channels + 0];
+        output.byte()[i * 3 + 1] = byte()[i * channels + 1];
+        output.byte()[i * 3 + 2] = byte()[i * channels + 2];
+    }
+}
+
 GImage GImage::stripAlpha() const {
     GImage out(width, height, 3);
 
-    for (int i = 0; i < width * height; ++i) {
-        out.byte()[i * 3 + 0] = byte()[i * channels + 0];
-        out.byte()[i * 3 + 1] = byte()[i * channels + 1];
-        out.byte()[i * 3 + 2] = byte()[i * channels + 2];
-    }
+    stripAlpha(out);
 
     return out;
 }

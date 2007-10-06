@@ -292,15 +292,21 @@ public:
     /**
      Returns a new GImage that has 4 channels.  RGB is
      taken from this GImage and the alpha from the red
-     channel of the second image.
+     channel of the supplied image. The new GImage is passed
+     as a reference parameter for speed.
      */ 
-     GImage insertRedAsAlpha(const GImage& alpha) const;
+     void insertRedAsAlpha(const GImage& alpha, GImage& output) const;
+
+     GImage G3D_DEPRECATED insertRedAsAlpha(const GImage& alpha) const;
 
     /**
      Returns a new GImage with 3 channels, removing
-     the alpha channel if there is one.
+     the alpha channel if there is one. The new GImage
+     is passed as a reference parameter for speed.
      */
-     GImage stripAlpha() const;
+     void stripAlpha(GImage& output) const;
+
+     GImage G3D_DEPRECATED stripAlpha() const;
 
     /**
      Loads an image from disk (clearing the old one first).
