@@ -40,7 +40,7 @@ public:
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
 };
 
-App::App(const GApp::Settings& settings) : GApp(settings), diffuse(0.6f), specular(0.5f), shine(20.0f), reflect(0.1f) {}
+App::App(const GApp::Settings& settings) : GApp(settings), reflect(0.1f), shine(20.0f), diffuse(0.6f), specular(0.5f) {}
 
 void App::onInit() {
     window()->setCaption("G3D Shader Demo");

@@ -44,8 +44,8 @@ protected:
     GuiCaption        m_caption;
     bool              m_visible;
 
-    GuiControl(GuiWindow* gui, GuiPane* parent);
-    GuiControl(GuiWindow* gui, GuiPane* parent, const GuiCaption& text);
+    GuiControl(GuiWindow* gui, const GuiCaption& text = "");
+    GuiControl(GuiPane* parent, const GuiCaption& text = "");
 
     /** Fires an action event */
     void fireActionEvent();

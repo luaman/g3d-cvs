@@ -14,11 +14,10 @@
 namespace G3D {
 
 GuiDropDownList::GuiDropDownList
-(GuiWindow*                  gui, 
- GuiPane*                    parent, 
+(GuiPane*                    parent, 
  const GuiCaption&           caption, 
  const Pointer<int>&         indexValue, 
- Array<std::string>*         listValue) : GuiControl(gui, parent, caption), 
+ Array<std::string>*         listValue) : GuiControl(parent, caption), 
                                           m_indexValue(indexValue), 
                                           m_stringListValue(listValue),
                                           m_selecting(false),
@@ -27,11 +26,10 @@ GuiDropDownList::GuiDropDownList
 
 
 GuiDropDownList::GuiDropDownList
-(GuiWindow*                  gui, 
- GuiPane*                    parent, 
+(GuiPane*                    parent, 
  const GuiCaption&           caption, 
  const Pointer<int>&         indexValue, 
- Array<GuiCaption>*          listValue) : GuiControl(gui, parent, caption), 
+ Array<GuiCaption>*          listValue) : GuiControl(parent, caption), 
                                           m_indexValue(indexValue), 
                                           m_captionListValue(listValue),
                                           m_selecting(false),

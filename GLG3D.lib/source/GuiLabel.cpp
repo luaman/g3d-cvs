@@ -13,8 +13,8 @@
 
 namespace G3D {
 
-GuiLabel::GuiLabel(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) 
-    : GuiControl(gui, parent, text), m_xalign(x), m_yalign(y) {}
+GuiLabel::GuiLabel(GuiPane* parent, const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) 
+    : GuiControl(parent, text), m_xalign(x), m_yalign(y) {}
 
 
 void GuiLabel::render(RenderDevice* rd, const GuiSkinRef& skin) const {

@@ -33,8 +33,13 @@ void GuiPane::Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
 
 
 
-GuiPane::GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
-    : GuiControl(gui, parent, text), m_style(style) {
+GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, Style style) 
+    : GuiControl(gui, text), m_style(style) {
+    setRect(rect);
+}
+
+GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
+    : GuiControl(parent, text), m_style(style) {
     setRect(rect);
 }
 
@@ -113,16 +118,16 @@ GuiPane::~GuiPane() {
 
 
 GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, const Pointer<int>& pointer, Array<std::string>* list) {
-    return addControl(new GuiDropDownList(m_gui, this, caption, pointer, list));
+    return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 
 GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, const Pointer<int>& pointer, Array<GuiCaption>* list) {
-    return addControl(new GuiDropDownList(m_gui, this, caption, pointer, list));
+    return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 
 
 GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
-    GuiRadioButton* c = addControl(new GuiRadioButton(m_gui, this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
+    GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
     if (style == GuiRadioButton::TOOL_STYLE) {
         c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
     } else if (style == GuiRadioButton::BUTTON_STYLE) {
@@ -132,8 +137,14 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 }
 
 
+void GuiPane::addCustom(GuiControl* c) {
+    c->setPosition(nextControlPos());
+    controlArray.append(c);
+}
+
+
 GuiButton* GuiPane::addButton(const GuiCaption& text, GuiButton::Style style) {
-    GuiButton* b = new GuiButton(m_gui, this, text, style);
+    GuiButton* b = new GuiButton(this, text, style);
 
     b->setRect(Rect2D::xywh(nextControlPos(), 
                  Vector2(((style == GuiButton::NORMAL_STYLE) ? (float)BUTTON_WIDTH : (float)TOOL_BUTTON_WIDTH), 
@@ -146,7 +157,7 @@ GuiButton* GuiPane::addButton(const GuiCaption& text, GuiButton::Style style) {
 
 
 GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) {
-    GuiLabel* b = new GuiLabel(m_gui, this, text, x, y);
+    GuiLabel* b = new GuiLabel(this, text, x, y);
     b->setRect(Rect2D::xywh(nextControlPos(), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
     
     labelArray.append(b);
@@ -166,7 +177,7 @@ GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style)
 
     Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, h + minRect.height()));
 
-    GuiPane* p = new GuiPane(m_gui, this, text, newRect, style);
+    GuiPane* p = new GuiPane(this, text, newRect, style);
 
     paneArray.append(p);
     increaseBounds(p->rect().x1y1());

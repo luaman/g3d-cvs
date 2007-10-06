@@ -105,9 +105,9 @@ void GuiControl::setRect(const Rect2D& rect) {
     m_clickRect = m_rect = rect;
 }
 
-GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent) : m_enabled(true), m_gui(gui), m_parent(parent), m_visible(true) {}
+GuiControl::GuiControl(GuiWindow* gui, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_caption(caption), m_visible(true) {}
 
-GuiControl::GuiControl(GuiWindow* gui, GuiPane* parent, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(parent), m_caption(caption), m_visible(true) {}
+GuiControl::GuiControl(GuiPane* parent, const GuiCaption& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_caption(caption), m_visible(true) {}
 
 
 void GuiControl::fireActionEvent() {

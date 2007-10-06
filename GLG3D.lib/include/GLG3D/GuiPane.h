@@ -2,7 +2,7 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2007-06-15
+ @edited  2007-10-15
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -102,7 +102,8 @@ protected:
 
     Rect2D              m_clientRect;
 
-    GuiPane(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style);
+    GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, Style style);
+    GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style);
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
     
@@ -162,6 +163,13 @@ public:
 
     ~GuiPane();
 
+    /**
+       Add a custom ("user-created") subclass of GuiControl.  @a control
+       should not be a subclass of GuiPane.  Do not add a standard
+       (e.g., G3D::GuiButton, G3D::GuiPane) control using this method.
+     */
+    void addCustom(GuiControl* control);
+
     /** 
         @param height Client size of the pane (size of the <i>inside</i>, not counting the border).  
             This will automatically grow as controls are added, so it can safely be left as zero.
@@ -185,7 +193,7 @@ public:
      const Pointer<bool>& pointer,
      GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
      ) {
-        GuiCheckBox* c = addControl(new GuiCheckBox(m_gui, this, text, pointer, style));
+        GuiCheckBox* c = addControl(new GuiCheckBox(this, text, pointer, style));
         if (style == GuiCheckBox::TOOL_STYLE) {
             c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
         } else if (style == GuiCheckBox::BUTTON_STYLE) {
@@ -207,7 +215,7 @@ public:
      const Pointer<std::string>& stringPointer,
      GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
      ) {        
-        return addControl(new GuiTextBox(m_gui, this, caption, stringPointer, update));
+        return addControl(new GuiTextBox(this, caption, stringPointer, update));
     }
 /*
    GuiTextBox* addTextBox
@@ -230,7 +238,7 @@ public:
         
         // Turn enums into ints to allow this to always act as a pointer to an int
         GuiRadioButton* c = addControl(new GuiRadioButton
-                          (m_gui, this, text, myID, 
+                          (this, text, myID, 
                            Pointer<int>(object, 
                                         reinterpret_cast<int (T::*)() const>(get), 
                                         reinterpret_cast<void (T::*)(int)>(set)), 
@@ -245,7 +253,7 @@ public:
 
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, Value min, Value max, bool horizontal = true) {
-        return addControl(new GuiSlider<Value>(m_gui, this, text, value, min,  max, horizontal));
+        return addControl(new GuiSlider<Value>(this, text, value, min,  max, horizontal));
     }
 
     

@@ -12,8 +12,8 @@
 
 namespace G3D {
 
-_GuiSliderBase::_GuiSliderBase(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, bool horizontal) :
-    GuiControl(gui, parent, text), 
+_GuiSliderBase::_GuiSliderBase(GuiPane* parent, const GuiCaption& text, bool horizontal) :
+    GuiControl(parent, text), 
     m_horizontal(horizontal),
     m_inDrag(false) {
 }

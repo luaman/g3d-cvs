@@ -35,7 +35,7 @@ protected:
     Pointer<bool>     m_value;
     Style             m_style;
     
-    GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, Style style = BOX_STYLE);
+    GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, Style style = BOX_STYLE);
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
 

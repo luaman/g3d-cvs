@@ -4,9 +4,9 @@
 
 namespace G3D {
 
-GuiCheckBox::GuiCheckBox(GuiWindow* gui, GuiPane* parent, const GuiCaption& text, 
+GuiCheckBox::GuiCheckBox(GuiPane* parent, const GuiCaption& text, 
                          const Pointer<bool>& value, Style style) 
-    : GuiControl(gui, parent, text), m_value(value), m_style(style) {}
+    : GuiControl(parent, text), m_value(value), m_style(style) {}
 
 
 void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
@@ -14,7 +14,8 @@ void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         if (m_style == BOX_STYLE) {
             skin->renderCheckBox(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption);
         } else {
-            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption, (m_style == BUTTON_STYLE) ? GuiSkin::NORMAL_BUTTON_STYLE : GuiSkin::TOOL_BUTTON_STYLE);
+            skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption, 
+                               (m_style == BUTTON_STYLE) ? GuiSkin::NORMAL_BUTTON_STYLE : GuiSkin::TOOL_BUTTON_STYLE);
         }
     }
 }

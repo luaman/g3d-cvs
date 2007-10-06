@@ -44,15 +44,13 @@ protected:
 
     /** Called by GuiPane */
     GuiDropDownList
-       (GuiWindow*                  gui, 
-        GuiPane*                    parent, 
+       (GuiPane*                    parent, 
         const GuiCaption&           caption, 
         const Pointer<int>&         indexValue, 
         Array<std::string>*         listValue);
 
     GuiDropDownList
-       (GuiWindow*                  gui, 
-        GuiPane*                    parent, 
+       (GuiPane*                    parent, 
         const GuiCaption&           caption, 
         const Pointer<int>&         indexValue, 
         Array<GuiCaption>*          listValue);

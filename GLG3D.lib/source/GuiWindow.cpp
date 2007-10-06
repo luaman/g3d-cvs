@@ -42,7 +42,7 @@ GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect
 
     setRect(rect);
     posed = new Posed(this);
-    m_rootPane = new GuiPane(this, NULL, "", clientRect() - clientRect().x0y0(), GuiPane::NO_FRAME_STYLE);
+    m_rootPane = new GuiPane(this, "", clientRect() - clientRect().x0y0(), GuiPane::NO_FRAME_STYLE);
 }
 
 
