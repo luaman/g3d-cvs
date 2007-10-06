@@ -206,12 +206,18 @@ void GuiSkin::pauseRendering() {
     drawDelayedText();
     debugAssert(inRendering);
     rd->endPrimitive();
+
+    rd->setTexture(TEXTURE_UNIT, NULL);
+    rd->setTextureMatrix(TEXTURE_UNIT, Matrix4::identity());
     rd->pushState();
 }
 
 
 void GuiSkin::resumeRendering() {
     rd->popState();
+
+    rd->setTexture(TEXTURE_UNIT, texture);
+    rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
     rd->beginPrimitive(RenderDevice::QUADS);
 }
 
@@ -518,6 +524,13 @@ Rect2D GuiSkin::textBoxToClickBounds(const Rect2D& bounds) const {
 
 Rect2D GuiSkin::canvasToClickBounds(const Rect2D& bounds) const {
     return Rect2D::xyxy(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.x1(), bounds.y1());
+}
+
+
+Rect2D GuiSkin::canvasToClientBounds(const Rect2D& bounds) const {
+    Rect2D r = canvasToClickBounds(bounds);
+
+    return Rect2D::xyxy(r.x0y0() + m_textBox.textPad.topLeft, r.x1y1() - m_textBox.textPad.bottomRight);
 }
 
 

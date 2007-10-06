@@ -27,6 +27,9 @@
      <li> Added G3D::GMaterial(TextureRef) constructor
      <li> Made G3D::GMaterial fields floats
      <li> G3D::GuiControl::setCaption, G3D::GuiWindow::setCaption
+     <li> G3D::GuiControl can now be subclassed for custom user-defined controls
+     <li> G3D::GuiSkin::renderCanvas
+     <li> G3D::GuiSkin::pauseRendering, G3D::GuiSkin::resumeRendering
      <li> G3D::PosedModel::sortAndRender
      <li> G3D::Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
