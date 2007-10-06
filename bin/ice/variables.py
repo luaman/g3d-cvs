@@ -198,6 +198,10 @@ class State:
     # All libraries (by name) that are used
     _libList                    = None
 
+    # On OS X, should we build universal binaries?
+    # Set in 
+    universalBinary             = False
+
     def __init__(self):
         self.usesProjectsList = []
         self.usesLibrariesList = []
@@ -314,7 +318,9 @@ def discoverPlatform(state):
     else:
         raise 'Error', ('iCompile only supports FreeBSD, Linux, ' + 
           'OS X, and Windows')
- 
+
+    state.universalBinary = False#(state.os == 'osx') and (machine() == 'i386')
+
     nickname = getCompilerNickname(state.compiler)
 
     state.platform = state.os + '-' + machine() + '-' + nickname
