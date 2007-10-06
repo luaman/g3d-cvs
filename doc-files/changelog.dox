@@ -34,6 +34,8 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: GImage::save() with odd-widths bmp files [Corey Taylor]
+     <li> Fix: Draw::capule renders properly (capule was not visible) [Corey Taylor]
      <li> Fix: Patched ShadowMap to work around ATI and OS X driver shadow map bugs.  
           <b>Incombatible change:</b>Required changing several interfaces to take ShadowMapRef arguments.
      <li> Fix: GCamera::Frustum was facing backwards
