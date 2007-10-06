@@ -584,6 +584,15 @@ public:
         const GuiCaption&       cursor,
         int                     cursorPosition) const;
 
+    /**
+       Render a drawing area with borders that look like a text box.
+     */
+    void renderCanvas(
+        const Rect2D&           bounds, 
+        bool                    enabled,
+        bool                    focused, 
+        const GuiCaption&       caption) const;
+
     void renderDropDownList
     (
      const Rect2D&        bounds,
@@ -612,6 +621,10 @@ public:
         the bounds around just the control itself. */
     Rect2D dropDownListToClickBounds(const Rect2D& bounds) const;
     Rect2D textBoxToClickBounds(const Rect2D& bounds) const;
+    Rect2D canvasToClickBounds(const Rect2D& bounds) const;
+
+    // /** Given the full bounds around a canvas, returns the internal region for rendering in. */
+    //   Rect2D canvasToClientBounds(const Rect2D& bounds) const;
 
     /** Given the bounds on a window's borders, returns the bounds of
      the area inside the window where controls will appear.*/

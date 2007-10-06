@@ -346,6 +346,29 @@ void GuiSkin::renderTextBox
 }
 
 
+void GuiSkin::renderCanvas
+    (const Rect2D&      fullBounds, 
+     bool               enabled, 
+     bool               focused, 
+     const GuiCaption&  caption) const {
+
+    const Rect2D& bounds = canvasToClickBounds(fullBounds);
+
+    m_textBox.render(rd, bounds, enabled, focused);
+
+    if (caption.text() != "") {
+        addDelayedText(
+            caption.font(m_textBox.textStyle.font),
+            caption.text(), 
+            Vector2(fullBounds.x0(), (fullBounds.y0() + fullBounds.y1()) * 0.5f), 
+            caption.size(m_textBox.textStyle.size), 
+            caption.color(m_textBox.textStyle.color), 
+            caption.outlineColor(m_textBox.textStyle.outlineColor),
+            GFont::XALIGN_LEFT);
+    }
+}
+
+
 void GuiSkin::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, bool selected, 
                              const GuiCaption& text) const {
     drawCheckable(m_checkBox, bounds, enabled, focused, selected, text);
@@ -475,6 +498,11 @@ Rect2D GuiSkin::clientToWindowBounds(const Rect2D& bounds, WindowStyle windowSty
 
 
 Rect2D GuiSkin::textBoxToClickBounds(const Rect2D& bounds) const {
+    return Rect2D::xyxy(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.x1(), bounds.y1());
+}
+
+
+Rect2D GuiSkin::canvasToClickBounds(const Rect2D& bounds) const {
     return Rect2D::xyxy(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.x1(), bounds.y1());
 }
 
