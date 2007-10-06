@@ -30,8 +30,8 @@
 
 #include <cstring>
 
-#if defined(__i386__) || defined(G3D_WIN32)
-#    define G3D_INTEL
+#if defined(__i386__) || defined(__x86_64__) || defined(G3D_WIN32)
+#    define G3D_NOT_OSX_PPC
 #endif
 
 #ifdef G3D_WIN32
@@ -406,9 +406,9 @@ void System::init() {
         }
     }
 
+#   ifdef G3D_NOT_OSX_PPC
+    // Process the CPUID information
     if (g_cpuInfo.m_hasCPUID) {
-        // Process the CPUID information
-        #ifdef G3D_INTEL
         // We read the standard CPUID level 0x00000000 which should
         // be available on every x86 processor.  This fills out
         // a string with the processor vendor tag.
@@ -452,8 +452,8 @@ void System::init() {
             strcpy(_cpuArchCstr, "Unknown Processor Vendor");
             break;
         }
-        #endif
     }
+    #endif // G3D_NOT_OSX_PPC
 
     #ifdef G3D_WIN32
         bool success = RegistryUtil::readInt32
@@ -1641,7 +1641,7 @@ void System::describeSystem(
         var(t, "Name", System::currentProgramFilename());
         char cwd[1024];
         getcwd(cwd, 1024);
-        var(t, "cwd", cwd);
+        var(t, "cwd", std::string(cwd));
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
