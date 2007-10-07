@@ -323,6 +323,27 @@ private:
     };
 
 
+    class Canvas {
+    public:
+        /**
+           General texture coordinates for any mode
+         */
+        StretchRectHV        base;
+
+        Pad                  pad;
+
+        /** Defaults */
+        TextStyle            textStyle;
+
+        TextStyle            disabledTextStyle;
+
+        TextBox::Focus       enabled;
+        Vector2              disabled;
+
+        //void deserialize(const std::string& name, const std::string& path, TextInput& b);
+        void render(RenderDevice* rd, const Rect2D& bounds, bool enabled, bool focused) const;
+    };
+
     /** Used for radio and check boxes */
     class Checkable {
     public:
@@ -463,6 +484,7 @@ private:
     Pane              m_pane[PANE_STYLE_COUNT];
     WindowButton      m_closeButton;
     TextBox           m_textBox;
+    Canvas            m_canvas;
     DropDownList      m_dropDownList;
 
     /** If true, the close button is on the left.  If false, it is on the right */

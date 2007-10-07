@@ -139,6 +139,17 @@ void GuiSkin::deserialize(const std::string& path, TextInput& b) {
     m_dropDownList.textStyle = m_textStyle;
     m_dropDownList.disabledTextStyle = m_disabledTextStyle;
     m_dropDownList.deserialize("dropDownList", path, b);
+
+    // TODO: eventually, set canvas separately when the skin files have been updated
+    m_canvas.base = m_textBox.base;
+    m_canvas.disabled = m_textBox.disabled;
+    m_canvas.disabledTextStyle = m_textBox.disabledTextStyle;
+    m_canvas.enabled = m_textBox.enabled;
+    m_canvas.pad = m_textBox.textPad;
+    m_canvas.textStyle = m_textBox.textStyle;
+
+    m_canvas.pad.bottomRight -= Vector2(4, 2);
+    m_canvas.pad.topLeft     -= Vector2(5, 2);
 }
 
 
@@ -374,16 +385,16 @@ void GuiSkin::renderCanvas
 
     const Rect2D& bounds = canvasToClickBounds(fullBounds);
 
-    m_textBox.render(rd, bounds, enabled, focused);
+    m_canvas.render(rd, bounds, enabled, focused);
 
     if (caption.text() != "") {
         addDelayedText(
-            caption.font(m_textBox.textStyle.font),
+            caption.font(m_canvas.textStyle.font),
             caption.text(), 
             Vector2(fullBounds.x0(), (fullBounds.y0() + fullBounds.y1()) * 0.5f), 
-            caption.size(m_textBox.textStyle.size), 
-            caption.color(m_textBox.textStyle.color), 
-            caption.outlineColor(m_textBox.textStyle.outlineColor),
+            caption.size(m_canvas.textStyle.size), 
+            caption.color(m_canvas.textStyle.color), 
+            caption.outlineColor(m_canvas.textStyle.outlineColor),
             GFont::XALIGN_LEFT);
     }
 }
@@ -530,7 +541,7 @@ Rect2D GuiSkin::canvasToClickBounds(const Rect2D& bounds) const {
 Rect2D GuiSkin::canvasToClientBounds(const Rect2D& bounds) const {
     Rect2D r = canvasToClickBounds(bounds);
 
-    return Rect2D::xyxy(r.x0y0() + m_textBox.textPad.topLeft, r.x1y1() - m_textBox.textPad.bottomRight);
+    return Rect2D::xyxy(r.x0y0() + m_canvas.pad.topLeft, r.x1y1() - m_canvas.pad.bottomRight);
 }
 
 
@@ -1352,6 +1363,24 @@ void GuiSkin::TextBox::Focus::deserialize(const std::string& name, TextInput& b)
 
 
 void GuiSkin::TextBox::render(RenderDevice* rd, const Rect2D& bounds, bool _enabled, bool focused) const {
+    const Vector2* r = NULL;
+
+    if (_enabled) {
+        if (focused) {
+            r = &enabled.focused;
+        } else {
+            r = &enabled.defocused;
+        }
+    } else {
+        r = &disabled;
+    }
+
+    base.render(rd, bounds, *r);
+}
+///////////////////////////////////////////////////////
+
+
+void GuiSkin::Canvas::render(RenderDevice* rd, const Rect2D& bounds, bool _enabled, bool focused) const {
     const Vector2* r = NULL;
 
     if (_enabled) {
