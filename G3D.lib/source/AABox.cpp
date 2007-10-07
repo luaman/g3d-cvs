@@ -280,4 +280,68 @@ bool AABox::intersects(const class Sphere& sphere) const {
     return d <= square(sphere.radius);
 }
 
+Vector3 AABox::corner(int index) const {
+
+    // default constructor inits all components to 0
+    Vector3 v;
+
+    switch (index)
+    {
+    case 0:
+        v.x = lo.x;
+        v.y = lo.y;
+        v.z = hi.z;
+        break;
+
+    case 1:
+        v.x = hi.x;
+        v.y = lo.y;
+        v.z = hi.z;
+        break;
+
+    case 2:
+        v.x = hi.x;
+        v.y = hi.y;
+        v.z = hi.z;
+        break;
+
+    case 3:
+        v.x = lo.x;
+        v.y = hi.y;
+        v.z = hi.z;
+        break;
+
+    case 4:
+        v.x = lo.x;
+        v.y = lo.y;
+        v.z = lo.z;
+        break;
+
+    case 5:
+        v.x = hi.x;
+        v.y = lo.y;
+        v.z = lo.z;
+        break;
+
+    case 6:
+        v.x = hi.x;
+        v.y = hi.y;
+        v.z = lo.z;
+        break;
+
+    case 7:
+        v.x = lo.x;
+        v.y = hi.y;
+        v.z = lo.z;
+        break;
+
+    default:
+        debugAssertM(false, "Invalid corner index");
+        break;
+    }
+
+    return v;
+}
+
+
 }

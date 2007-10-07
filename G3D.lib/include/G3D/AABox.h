@@ -116,6 +116,8 @@ public:
         return (lo + hi) * 0.5;
     }
 
+    Vector3 corner(int index) const;
+
     /**
      Distance from corner(0) to the next corner along axis a.
      */
