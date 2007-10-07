@@ -14,6 +14,7 @@
    <P>
    Changes in 7.01:
    <ul> 
+     <li> patch to continue build when javac isn't found on windows systems
      <li> Added G3D::AABox::corner() to match G3D::Box::corner() [Corey Taylor]
      <li> OS X: G3D::CarbonWindow [Casey]
      <li> OS X: iCompile now generates OS X application bundles and dmg files
@@ -38,6 +39,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: [ 1599139 ] Fixes to make buildg3d work on non C:\ windows systems  [Patrick Burke]
      <li> Fix: Added faster overloads of GImage::stripAlpha() and GImage::insertRedAsAlpha() [Corey Taylor]
      <li> Fix: GImage::save() with odd-widths bmp files [Corey Taylor]
      <li> Fix: Draw::capule renders properly (capule was not visible) [Corey Taylor]

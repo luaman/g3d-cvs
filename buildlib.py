@@ -95,19 +95,22 @@ Finds an executable on Windows."""
 def findBinary(program):     
     # Paths that may contain the program
 
+    PROGRAMFILES = os.getenv('PROGRAMFILES', '')
+    SYSTEMDRIVE = os.getenv('SystemDrive', '')
+
     PATH = os.getenv('PATH', '').split(';') + \
           ['.',\
-           'C:/Program Files/Microsoft Visual Studio 8/Common7/IDE',\
-           'C:/Program Files/Microsoft Visual Studio/Common/MSDev98/Bin',\
-           'C:/Program Files/Microsoft Visual Studio .NET 2003/Common7/IDE',\
-           'C:/Program Files/Microsoft Visual Studio .NET 2002/Common7/IDE',\
-           'C:/Program Files/Microsoft Visual Studio .NET/Common7/IDE',\
-           'C:/python',\
-           'C:/doxygen/bin',\
-           'C:/Program Files/doxygen/bin',\
-           'C:/Program Files/PKZIP',\
+           PROGRAMFILES + '/Microsoft Visual Studio 8/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio/Common/MSDev98/Bin',\
+           PROGRAMFILES + '/Microsoft Visual Studio .NET 2003/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio .NET 2002/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio .NET/Common7/IDE',\
+           SYSTEMDRIVE + '/python',\
+           SYSTEMDRIVE + '/doxygen/bin',\
+           PROGRAMFILES + '/doxygen/bin',\
+           PROGRAMFILES + '/PKZIP',\
            'bin']
-
+           
     for path in PATH:
         filename = path + '/' + program + '.exe'
         if (os.path.exists(filename)):

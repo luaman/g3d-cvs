@@ -289,6 +289,14 @@ def src(args):
 
 
 def jar(args):
+   if os.name == 'nt':
+       try:
+           findBinary('javac')
+           findBinary('jar')
+       except:
+           print 'javac or jar not found on this machine, skipping .jar creation!'
+           return 0
+     
    mkdir('temp/G3D.jar/com/graphics3d/G3D')
    mkdir('build')
    shell('javac -d temp/G3D.jar G3D.jar/com/graphics3d/G3D/*.java')
