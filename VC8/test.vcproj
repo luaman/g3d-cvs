@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\win-i386-vc8.0\lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\build\win-i386-vc8.0\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
