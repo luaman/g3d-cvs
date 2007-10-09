@@ -41,6 +41,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: GuiWindow::pack now recursively packs all child panes
      <li> Fix: [ 1599139 ] Fixes to make buildg3d work on non C:\ windows systems  [Patrick Burke]
      <li> Fix: Added faster overloads of GImage::stripAlpha() and GImage::insertRedAsAlpha() [Corey Taylor]
      <li> Fix: GImage::save() with odd-widths bmp files [Corey Taylor]

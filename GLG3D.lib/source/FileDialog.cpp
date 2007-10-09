@@ -12,12 +12,12 @@
 namespace G3D {
 
 FileDialog::FileDialog(std::string& saveName, GuiSkinRef skin, const std::string& caption) : 
-    GuiWindow(caption, skin, Rect2D::xywh(100, 100, 10, 10), DIALOG_FRAME_STYLE, HIDE_ON_CLOSE), 
+    GuiWindow(caption, skin, Rect2D::xywh(150, 100, 10, 10), DIALOG_FRAME_STYLE, HIDE_ON_CLOSE), 
     ok(false), saveName(saveName) {
     GuiPane* rootPane = pane();
 
     textBox = rootPane->addTextBox("Filename", &saveName, GuiTextBox::IMMEDIATE_UPDATE);
-    textBox->setSize(textBox->rect().wh() + Vector2(20, 0));
+    textBox->setSize(textBox->rect().wh() + Vector2(70, 0));
     textBox->setFocused(true);
 
     cancelButton = rootPane->addButton("Cancel");

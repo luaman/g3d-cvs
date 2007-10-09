@@ -96,6 +96,9 @@ void GuiPane::increaseBounds(const Vector2& extent) {
 
 
 void GuiPane::pack() {
+    for (int i = 0; i < paneArray.size(); ++i) {
+        paneArray[i]->pack();
+    }
     increaseBounds(contentsExtent());
 }
 
