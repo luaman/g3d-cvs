@@ -19,6 +19,7 @@
      <li> OS X: G3D::CarbonWindow [Casey]
      <li> OS X: iCompile now generates OS X application bundles and dmg files
      <li> OS X build no longer depends on X11
+     <li> G3D::FileDialog
      <li> <b>Incompatible change</b>: GApp::onBeforeSimulation now allows mutation of the timesteps
      <li> cmake now generates project files for Xcode, MinGW, and all Visual Studio versions [Corey Taylor]
      <li> OS X: icompile and buildg3d now generate universal binaries on Intel machines

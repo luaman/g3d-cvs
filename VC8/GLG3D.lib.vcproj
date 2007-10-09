@@ -205,6 +205,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\FileDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\FirstPersonManipulator.cpp"
 				>
 			</File>
@@ -464,6 +468,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\edgeFeatures.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\FileDialog.h"
 				>
 			</File>
 			<File

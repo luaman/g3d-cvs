@@ -91,6 +91,7 @@
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/FileDialog.h"
 
 #include "GLG3D/BackgroundWidget.h"
 #include "GLG3D/UprightSplineManipulator.h"
