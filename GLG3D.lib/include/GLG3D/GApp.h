@@ -475,8 +475,12 @@ protected:
     /** Invoked before onSimulation is run on the installed GModules and GApp.
         This is not used by most programs; it is primarily a hook for those performing
         extensive physical simulation on the GModules that need a setup and cleanup step.
+
+        If you mutate the timestep arguments then those mutated time steps are passed
+        to the onSimulation method.  However, the accumulated time will not be affected by
+        the changed timestep.
     */
-    virtual void onBeforeSimulation(RealTime rdt, SimTime sdt, SimTime idt) {        
+    virtual void onBeforeSimulation(RealTime& rdt, SimTime& sdt, SimTime& idt) {        
         (void)idt;
         (void)rdt;
         (void)sdt;
