@@ -34,7 +34,7 @@ protected:
 
     std::string&       saveName;
 
-    FileDialog(std::string& saveName, GuiSkinRef skin);
+    FileDialog(std::string& saveName, GuiSkinRef skin, const std::string& caption);
 
 public:
     
@@ -44,9 +44,9 @@ public:
 
        @return True unless cancelled
      */
-    static bool getFilename(std::string& saveName, GWindow* osWindow, GuiSkinRef skin);
+    static bool getFilename(std::string& saveName, GWindow* osWindow, GuiSkinRef skin, const std::string& caption = "Enter Filename");
 
-    static bool getFilename(std::string& saveName, GuiWindowRef parent);
+    static bool getFilename(std::string& saveName, GuiWindowRef parent, const std::string& caption = "Enter Filename");
 
     virtual bool onEvent(const GEvent& e);
 

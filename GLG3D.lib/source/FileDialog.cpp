@@ -11,8 +11,8 @@
 
 namespace G3D {
 
-FileDialog::FileDialog(std::string& saveName, GuiSkinRef skin) : 
-    GuiWindow("Save Path As", skin, Rect2D::xywh(100, 100, 10, 10), DIALOG_FRAME_STYLE, HIDE_ON_CLOSE), 
+FileDialog::FileDialog(std::string& saveName, GuiSkinRef skin, const std::string& caption) : 
+    GuiWindow(caption, skin, Rect2D::xywh(100, 100, 10, 10), DIALOG_FRAME_STYLE, HIDE_ON_CLOSE), 
     ok(false), saveName(saveName) {
     GuiPane* rootPane = pane();
 
@@ -29,15 +29,16 @@ FileDialog::FileDialog(std::string& saveName, GuiSkinRef skin) :
     pack();
 }
 
-bool FileDialog::getFilename(std::string& saveName, GWindow* osWindow, GuiSkinRef skin) {
-    ReferenceCountedPointer<FileDialog> guiWindow = new FileDialog(saveName, skin);
+
+bool FileDialog::getFilename(std::string& saveName, GWindow* osWindow, GuiSkinRef skin, const std::string& caption) {
+    ReferenceCountedPointer<FileDialog> guiWindow = new FileDialog(saveName, skin, caption);
     guiWindow->showModal(osWindow);
     return guiWindow->ok;
 }
 
 
-bool FileDialog::getFilename(std::string& saveName, GuiWindowRef parent) {
-    return getFilename(saveName, parent->window(), parent->skin());
+bool FileDialog::getFilename(std::string& saveName, GuiWindowRef parent, const std::string& caption) {
+    return getFilename(saveName, parent->window(), parent->skin(), caption);
 }
 
 
