@@ -186,6 +186,7 @@ void GLCaps::init() {
 // We're going to need exactly the same code for each of 
 // several extensions.
 #define DECLARE_EXT(extname)    bool GLCaps::_supports_##extname = false; 
+    DECLARE_EXT(GL_ARB_texture_float);
     DECLARE_EXT(GL_ARB_texture_non_power_of_two);
     DECLARE_EXT(GL_EXT_texture_rectangle);
     DECLARE_EXT(GL_ARB_vertex_program);
@@ -445,6 +446,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // several extensions.
         #define DECLARE_EXT(extname) _supports_##extname = supports(#extname)
         #define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || _hasGLMajorVersion2)
+            DECLARE_EXT(GL_ARB_texture_float);
             DECLARE_EXT_GL2(GL_ARB_texture_non_power_of_two);
             DECLARE_EXT(GL_EXT_texture_rectangle);
             DECLARE_EXT(GL_ARB_vertex_program);
@@ -602,27 +604,34 @@ bool GLCaps::supports(const TextureFormat* fmt) {
 
     // First, check if we've already tested this format
     if (! _supportedTextureFormat.containsKey(fmt)) {
-        uint8 bytes[8 * 8 * 4];
 
-        glPushAttrib(GL_TEXTURE_BIT);
+        bool supportsFormat = false;
 
-            // See if we can create a texture in this format
-            unsigned int id;
-            glGenTextures(1, &id);
-            glBindTexture(GL_TEXTURE_2D, id);
+        if (!fmt->floatingPoint || supports_GL_ARB_texture_float())
+        {
+            uint8 bytes[8 * 8 * 4];
 
-            // Clear the old error flag
-            glGetError();
-            // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
-            // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-            glTexImage2D(GL_TEXTURE_2D, 0, fmt->openGLFormat, 8, 8, 0, fmt->openGLBaseFormat, GL_UNSIGNED_BYTE, bytes);
+            glPushAttrib(GL_TEXTURE_BIT);
 
-            bool success = (glGetError() == GL_NO_ERROR);
-            _supportedTextureFormat.set(fmt, success);
+                // See if we can create a texture in this format
+                unsigned int id;
+                glGenTextures(1, &id);
+                glBindTexture(GL_TEXTURE_2D, id);
 
-            glDeleteTextures(1, &id);
-        // Restore old texture state
-        glPopAttrib();
+                // Clear the old error flag
+                glGetError();
+                // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
+                // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
+                glTexImage2D(GL_TEXTURE_2D, 0, fmt->openGLFormat, 8, 8, 0, fmt->openGLBaseFormat, GL_UNSIGNED_BYTE, bytes);
+
+                supportsFormat = (glGetError() == GL_NO_ERROR);
+
+                glDeleteTextures(1, &id);
+            // Restore old texture state
+            glPopAttrib();
+        }
+
+        _supportedTextureFormat.set(fmt, supportsFormat);
     }
 
     return _supportedTextureFormat[fmt];
