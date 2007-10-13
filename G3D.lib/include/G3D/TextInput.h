@@ -289,6 +289,23 @@ public:
         bool                msvcSpecials;
 
         /**
+         Parse the following set of useful proof symbols:
+         
+           =>
+           ::>
+           <::
+           :>
+           <:
+           |-
+           ::=
+           :=
+           <-
+
+           Default is false.
+        */
+        bool                proofSymbols;
+
+        /**
          When parsing booleans and msvcSpecials, is case significant?
          Default is true
         */

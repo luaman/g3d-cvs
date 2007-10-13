@@ -59,7 +59,8 @@ TextInput::Settings::Settings ()
    : cComments(true), cppComments(true), escapeSequencesInStrings(true), 
      otherCommentCharacter('\0'), otherCommentCharacter2('\0'),
      signedNumbers(true), singleQuotedStrings(true), sourceFileName(),
-     startingLineNumberOffset(0), msvcSpecials(true), caseSensitive(true)
+     startingLineNumberOffset(0), msvcSpecials(true), proofSymbols(false),
+     caseSensitive(true)
 { 
     trueSymbols.insert("true");
     falseSymbols.insert("false");
@@ -321,10 +322,36 @@ Token TextInput::nextToken() {
 
         return t;
 
-    case ':':                   // : or ::
+    case ':':                   // : or :: or ::> or ::= or := or :>
         SETUP_SYMBOL(c);
         
         if (c == ':') {
+            t._string += c;
+            eatInputChar();
+
+            if (options.proofSymbols) {
+                c = peekInputChar(0);
+                
+                if ((c == '>') || (c == '=')) {
+                    t._string += c;
+                    eatInputChar();
+                }
+            }
+        }
+        else if (options.proofSymbols && (c == '=' || c == '>')) {
+            t._string += c;
+            eatInputChar();
+        }
+        return t;
+
+    case '=':                   // = or == or =>
+        SETUP_SYMBOL(c);
+
+        if (c == '=') {
+            t._string += c;
+            eatInputChar();
+            return t;
+        } else if (options.proofSymbols && (c == '>')) {
             t._string += c;
             eatInputChar();
             return t;
@@ -335,7 +362,6 @@ Token TextInput::nextToken() {
     case '/':                   // / or /=
     case '!':                   // ! or !=
     case '~':                   // ~ or ~=
-    case '=':                   // = or ==
     case '^':                   // ^ or ^=
         SETUP_SYMBOL(c);
         
@@ -347,8 +373,8 @@ Token TextInput::nextToken() {
         return t;
 
     case '>':                   // >, >>,or >=
-    case '<':                   // <<, <<, or <=
-    case '|':                   // ||, ||, or |=
+    case '<':                   // <<, <<, or <= or <- or <:
+    case '|':                   // ||, ||, or |= or |-
     case '&':                   // &, &&, or &=
         {
             int orig_c = c;
@@ -358,6 +384,23 @@ Token TextInput::nextToken() {
                 t._string += c;
                 eatInputChar();
                 return t;
+            } else if (options.proofSymbols) {
+                if ((orig_c == '<') && (c == '-')) {
+                    t._string += c;
+                    eatInputChar();
+                } else if ((orig_c == '|') && (c == '-')) {
+                    t._string += c;
+                    eatInputChar();
+                } else if ((orig_c == '<') && (c == ':')) {
+                    t._string += c;
+
+                    c = eatAndPeekInputChar();
+
+                    if (c == ':') {
+                        t._string += c;
+                        eatInputChar();
+                    }
+                }
             }
         }
         return t;
