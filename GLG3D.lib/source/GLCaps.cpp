@@ -501,7 +501,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // GL Version:     1.3.3842 WinXP Release
         // Driver version: 6.14.10.6371
 
-        if (beginsWith(renderer(), "MOBILITY RADEON") &&
+        if ((beginsWith(renderer(), "MOBILITY RADEON") || beginsWith(renderer(), "ATI MOBILITY RADEON")) &&
             beginsWith(driverVersion(), "6.14.10.6")) {
             Log::common()->printf("WARNING: This ATI Radeon Mobility card has a known bug with cube maps.\n"
                                   "   Put cube map texture coordinates in the normals and use ARB_NORMAL_MAP to work around.\n\n");
