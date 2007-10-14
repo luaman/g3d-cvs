@@ -96,8 +96,8 @@ private:
         void deserialize(const std::string& path, const std::string& name, TextInput& t);
     };
 
-    /** When a caption appears on the left of a control, inset the control by this amount */
-    enum {LEFT_CAPTION_WIDTH = 90};
+    /** When a caption appears on the left or left of a control, inset the control by this amount */
+    enum {LEFT_CAPTION_WIDTH = 90, TOP_CAPTION_HEIGHT = 20};
     
     /** Used for delayed text rendering. */
     class Text {
@@ -617,6 +617,8 @@ public:
 
     /**
        Render a drawing area with borders that look like a text box.
+       The caption for a canvas is rendered above it and the canvas
+       has the full width of its bounds.
      */
     void renderCanvas(
         const Rect2D&           bounds, 

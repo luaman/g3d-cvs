@@ -906,6 +906,7 @@ void PosedArticulatedModel::renderShadowMappedLightPass(
     posedArray.resize(1);
     posedArray[0] = PosedModel::Ref(const_cast<PosedArticulatedModel*>(this));
     ArticulatedModel::renderShadowMappedLightPass(posedArray, rd, light, shadowMap);
+    posedArray.fastClear();
 }
 
 

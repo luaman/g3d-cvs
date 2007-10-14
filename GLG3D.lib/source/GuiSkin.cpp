@@ -229,6 +229,7 @@ void GuiSkin::resumeRendering() {
 
     rd->setTexture(TEXTURE_UNIT, texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
+    rd->setColor(Color3::white());
     rd->beginPrimitive(RenderDevice::QUADS);
 }
 
@@ -391,11 +392,12 @@ void GuiSkin::renderCanvas
         addDelayedText(
             caption.font(m_canvas.textStyle.font),
             caption.text(), 
-            Vector2(fullBounds.x0(), (fullBounds.y0() + fullBounds.y1()) * 0.5f), 
+            Vector2(fullBounds.x0(), bounds.y0()), 
             caption.size(m_canvas.textStyle.size), 
             caption.color(m_canvas.textStyle.color), 
             caption.outlineColor(m_canvas.textStyle.outlineColor),
-            GFont::XALIGN_LEFT);
+            GFont::XALIGN_LEFT,
+            GFont::YALIGN_BOTTOM);
     }
 }
 
@@ -534,7 +536,8 @@ Rect2D GuiSkin::textBoxToClickBounds(const Rect2D& bounds) const {
 
 
 Rect2D GuiSkin::canvasToClickBounds(const Rect2D& bounds) const {
-    return Rect2D::xyxy(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.x1(), bounds.y1());
+    // Canvas does not receive indent; its caption goes on top
+    return Rect2D::xyxy(bounds.x0(), bounds.y0() + TOP_CAPTION_HEIGHT, bounds.x1(), bounds.y1());
 }
 
 
