@@ -1636,7 +1636,7 @@ static void createMipMapTexture(
             }
 
             // http://www.opengl.org/sdk/docs/man/xhtml/gluBuild2DMipmaps.xml
-            int r = gluBuild2DMipmaps(target, desiredFormat, m_width, m_height, bytesFormat, bytesType, bytes);
+            int r = gluBuild2DMipmaps(target, desiredFormat, m_width, m_height, bytesBaseFormat, bytesType, bytes);
             debugAssertM(r == 0, (const char*)gluErrorString(r)); (void)r;
 
             if (freeBytes) {
