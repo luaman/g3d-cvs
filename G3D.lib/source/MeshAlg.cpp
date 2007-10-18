@@ -59,9 +59,9 @@ void MeshAlg::generateGrid(
     // Generate indices
     for (int z = 0; z < hCells; ++z) {
         for (int x = 0; x < wCells; ++x) {
-            int A = x + z * (hCells + 1);
+            int A = x + z * (wCells + 1);
             int B = A + 1;
-            int C = A + (hCells + 1);
+            int C = A + (wCells + 1);
             int D = C + 1;
 
             //  A       B
