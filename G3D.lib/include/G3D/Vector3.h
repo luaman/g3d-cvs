@@ -94,14 +94,14 @@ public:
 
     /** Divides by 127 */
     Vector3(const Vector4int8&);
-    Vector3(class BinaryInput& b);
+    explicit Vector3(class BinaryInput& b);
     Vector3(float _x, float _y, float _z);
-    Vector3(const class Vector2& v, float _z);
-    Vector3(float coordinate[3]);
-    Vector3(double coordinate[3]);
+    explicit Vector3(const class Vector2& v, float _z);
+    explicit Vector3(float coordinate[3]);
+    explicit Vector3(double coordinate[3]);
     Vector3(const Vector3& rkVector);
     Vector3(const class Vector3int16& v);
-	Vector3(class TextInput& t);
+	explicit Vector3(class TextInput& t);
 
 	/** Format is three float32's */
     void serialize(class BinaryOutput& b) const;
