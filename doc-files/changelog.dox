@@ -23,6 +23,7 @@
      <li> <b>Incompatible change</b>: GApp::onBeforeSimulation now allows mutation of the timesteps
      <li> cmake now generates project files for Xcode, MinGW, and all Visual Studio versions [Corey Taylor]
      <li> OS X: icompile and buildg3d now generate universal binaries on Intel machines
+     <li> G3D::PosedModel::objectSpaceTangents
      <li> G3D::IFSModel::fromData
      <li> G3D::MeshAlg::generateGrid
      <li> G3D::IFSModel::fromFile now defaults to not welding for improved performance

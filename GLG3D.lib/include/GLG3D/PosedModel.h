@@ -181,6 +181,12 @@ public:
         return t;
     }
 
+    /** Returns per-vertex tangent vectors, if available. May return an empty array.*/
+    virtual const Array<Vector3>& objectSpaceTangents() const {
+        static Array<Vector3> t;
+        return t;
+    }
+
     /** Returns true if this model has texture coordinates. */
     virtual bool hasTexCoords() const {
         return false;

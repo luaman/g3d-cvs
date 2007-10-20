@@ -153,6 +153,8 @@ public:
     virtual int numBoundaryEdges() const;
 
     virtual int numWeldedBoundaryEdges() const;
+
+    virtual const Array<Vector3>& objectSpaceTangents() const;
 };
 
 
@@ -1064,6 +1066,12 @@ void PosedArticulatedModel::getCoordinateFrame(CoordinateFrame& c) const {
 const MeshAlg::Geometry& PosedArticulatedModel::objectSpaceGeometry() const {
     const ArticulatedModel::Part& part = model->partArray[partIndex];
     return part.geometry;
+}
+
+
+const Array<Vector3>& PosedArticulatedModel::objectSpaceTangents() const {
+    const ArticulatedModel::Part& part = model->partArray[partIndex];
+    return part.tangentArray;
 }
 
 
