@@ -106,7 +106,7 @@ void SuperShader::configureShaderArgs(
     }
 
     if (material.emit.constant != Color3::black()) {
-        args.set("emitConstant",            material.emit.constant);
+        args.set("emitConstant",            material.emit.constant * lighting->emissiveScale);
 
         if (material.emit.map.notNull()) {
             args.set("emitMap",             material.emit.map);

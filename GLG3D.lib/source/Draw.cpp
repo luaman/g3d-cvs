@@ -70,7 +70,7 @@ void Draw::lighting(LightingRef lighting, RenderDevice* rd) {
                 Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, light.color, Color4::clear());
             } else {
                 // Directional light
-                Draw::sphere(Sphere(light.position.xyz() * 100, 50.0f), rd, light.color, Color4::clear());
+                Draw::sphere(Sphere(light.position.xyz() * 200, 20.0f), rd, light.color, Color4::clear());
             }
         }
     rd->popState();
