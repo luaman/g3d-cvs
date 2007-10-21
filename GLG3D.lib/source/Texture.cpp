@@ -1561,6 +1561,7 @@ static void createTexture(
             // format, x size from image, y size from image, border 0
             // (normal), rgb color data, unsigned byte data, and
             // finally the data itself.
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
             glTexImage2D(target, mipLevel, textureFormat, m_width, m_height,
                          0, bytesFormat, dataType, bytes);
         }

@@ -1,5 +1,5 @@
 Application Log
-Start: Sun Sep 02 18:10:08 2007
+Start: Sun Oct 21 16:50:38 2007
 
 _____________________________________________________
 
@@ -64,7 +64,7 @@ Network:
 System { 
     App { 
         Name = "x:\\morgan\\G3D\\temp\\models\\build\\modelsd.exe"
-        cwd = Yes 
+        cwd = "x:\\morgan\\G3D\\demos\\models\\data-files"
     } 
     
     OS { 
@@ -102,7 +102,7 @@ System {
         API = "Win32"
         Version = "1.1"
         
-        In focus = No 
+        In focus = Yes 
         Centered = Yes 
         Framed = Yes 
         Visible = Yes 

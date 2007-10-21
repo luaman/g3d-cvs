@@ -78,6 +78,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->renderLensFlare(rd, skyParameters);
     }
 
+    Draw::lighting(lighting, rd);
+
     toneMap->endFrame(rd);
 
     PosedModel2D::sortAndRender(rd, posed2D);

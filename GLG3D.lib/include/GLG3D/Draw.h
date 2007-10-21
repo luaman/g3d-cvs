@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-10-29
- @edited  2005-08-06
+ @edited  2007-10-21
  */
 
 #ifndef G3D_DRAW_H
@@ -16,6 +16,7 @@
 #include "G3D/MeshAlg.h"
 #include "G3D/Rect2D.h"
 #include "G3D/GCamera.h"
+#include "GLG3D/Lighting.h"
 
 namespace G3D {
 
@@ -78,6 +79,8 @@ public:
     static void poly2DOutline(const Array<Vector2>& polygon, RenderDevice* renderDevice, const Color4& color = Color3::yellow());
     static void poly2D(const Array<Vector2>& polygon, RenderDevice* renderDevice, const Color4& color = Color3::yellow());
 
+    /** Visualize the light sources in this scene. */
+    static void lighting(LightingRef lighting, RenderDevice* rd);
 
     /**
      Set the solid color or wire color to Color4::clear() to

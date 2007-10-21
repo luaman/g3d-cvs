@@ -12,7 +12,7 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     GApp::Settings settings;
     settings.window.fsaaSamples = 1;
-
+    
 #   ifdef G3D_WIN32
         if (! fileExists("G3D-logo-tiny-alpha.tga", false)) {
             // Running under visual studio from the wrong directory
@@ -22,5 +22,10 @@ int main(int argc, char** argv) {
 
     alwaysAssertM(fileExists("G3D-logo-tiny-alpha.tga", false), 
         "Cannot find runtime data files.");
+
+    // Uncomment the next line to see what articulated model will look like
+    // on a legacy OpenGL 1.x graphics card.
+    // ArticulatedModel::setProfile(ArticulatedModel::FIXED_FUNCTION);
+
     return App(settings).run();
 }

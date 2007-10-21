@@ -547,6 +547,42 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
     rd->setShader(triList.nonShadowedShader);
     sendGeometry2(rd);
 
+    int numLights = lighting->lightArray.size();
+    if (numLights <= 2) {
+        return true;
+    }
+
+    // SuperShader only supports two lights, so we have to make multiple passes
+    LightingRef reducedLighting = Lighting::create();
+
+    // Turn off everything except our two additional lights
+    reducedLighting->ambientBottom = Color3::black();
+    reducedLighting->ambientTop    = Color3::black();
+    reducedLighting->emissiveScale = Color3::black();
+    reducedLighting->environmentMapColor = Color3::black();
+    reducedLighting->shadowedLightArray.fastClear();
+
+    // Add extra lighting terms
+    rd->pushState();
+        rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+        rd->setDepthWrite(false);
+        rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
+        for (int L = 2; L < numLights; L += 2) {
+            int x = 1;
+            if (L + 1 < numLights) {
+                x = 2;
+            }
+            reducedLighting->lightArray.resize(x);
+            for (int i = 0; i < x; ++i) {
+                reducedLighting->lightArray[i] = lighting->lightArray[i + L];
+            }
+
+            // Shader is already set from above
+            SuperShader::configureShaderArgs(reducedLighting, material, triList.nonShadowedShader->args);
+            sendGeometry2(rd);
+        }
+    rd->popState();
+
     return true;
 }
 
@@ -944,7 +980,7 @@ void PosedArticulatedModel::renderFFShadowMappedLightPass(
     // We disable specular highlights because they will not be modulated
     // by the shadow map.  We then make a separate pass to render specular
     // highlights.
-    rd->setSpecularCoefficient(Vector3::zero());
+    rd->setSpecularCoefficient(Color3::zero());
 
     rd->enableLighting();
     rd->setAmbientLightColor(Color3::black());

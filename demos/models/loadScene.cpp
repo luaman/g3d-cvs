@@ -35,7 +35,9 @@ void App::loadScene() {
     // IFSModel (note that IFS files can be loaded with ArticulatedModel and will render better)
     if (true) {
         IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/teapot.ifs");
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
+        GMaterial material;
+        material.color = Color3::white() * 0.6f;
+        entityArray.append(Entity::create(model, material, CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
         x += 2;
     }
 
@@ -77,13 +79,12 @@ void App::loadScene() {
 
         triList.material.diffuse.constant = Color3::white() * 0.8f;
         triList.material.diffuse.map = Texture::fromFile("stone.jpg");
-
+        
         GImage normalBumpMap;
-		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, false, true);
+		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, -1, true, false);
         triList.material.normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);
-
-        triList.material.bumpMapScale = 0.04f;
-
+        triList.material.bumpMapScale = 0.05f;
+        
         triList.computeBounds(part);
 
         part.indexArray = triList.indexArray;
@@ -115,15 +116,18 @@ void App::loadScene() {
         lighting->emissiveScale = skyParameters.emissiveScale;
 
         lighting->lightArray.clear();
-
         lighting->shadowedLightArray.clear();
 
         GLight L = skyParameters.directionalLight();
         // Decrease the blue since we're adding blue ambient
-        L.color *= Color3(1.2f, 1.2f, 1);
+        L.color *= Color3(1.2f, 1.2f, 1) * 0.8f;
         L.position = Vector4(Vector3(0,1,1).direction(), 0);
 
         lighting->shadowedLightArray.append(L);
+
+        lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 1, 0, 0.5, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(0,-0.6f,1.5f), Color3::yellow() * 0.7f, 1, 0, 0.5, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,1), Color3::red() * 0.7f, 1, 0, 0.5, true, true));
     }
 }
 

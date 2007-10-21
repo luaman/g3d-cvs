@@ -59,6 +59,23 @@ void Draw::poly2D(const Array<Vector2>& polygon, RenderDevice* renderDevice, con
 }
 
 
+void Draw::lighting(LightingRef lighting, RenderDevice* rd) {
+    rd->pushState();
+        rd->setShader(NULL);
+        rd->disableLighting();
+        for (int L = 0; L < lighting->lightArray.size(); ++L) {
+            const GLight& light = lighting->lightArray[L];
+            if (light.position.w != 0) {
+                // Point light
+                Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, light.color, Color4::clear());
+            } else {
+                // Directional light
+                Draw::sphere(Sphere(light.position.xyz() * 100, 50.0f), rd, light.color, Color4::clear());
+            }
+        }
+    rd->popState();
+}
+
 void Draw::axes(
     RenderDevice*       renderDevice,
     const Color4&       xColor,

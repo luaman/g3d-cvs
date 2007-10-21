@@ -41,13 +41,13 @@ public:
      */
     Color3();
 
-    Color3(class BinaryInput& bi);
+    explicit Color3(class BinaryInput& bi);
 
     Color3(float r, float g, float b);
 
-    Color3(const class Vector3& v);
+    explicit Color3(const class Vector3& v);
     
-    Color3(const float value[3]);
+    explicit Color3(const float value[3]);
 
     /**
      Initialize from another color.

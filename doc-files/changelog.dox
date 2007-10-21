@@ -14,6 +14,9 @@
    <P>
    Changes in 7.01:
    <ul> 
+     <li> G3D::Draw::lighting for visualizing light sources
+     <li> Opaque G3D::ArticulatedModels now support more than 2 non-shadow casting light sources
+     <li> Fixed SuperShader to correctly light bump-mapped surfaces in tangent space [Kyle Whitson]
      <li> Added proof symbol parsing to TextInput [Corey Taylor]
      <li> Added G3D::AABox::corner() to match G3D::Box::corner() [Corey Taylor]
      <li> OS X: G3D::CarbonWindow [Casey]
