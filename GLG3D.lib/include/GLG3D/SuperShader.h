@@ -157,12 +157,23 @@ public:
 
         /** RGB*2-1 = tangent space normal, A = tangent space bump height.
           If NULL bump mapping is disabled. */
-        Texture::Ref              normalBumpMap;
+        Texture::Ref            normalBumpMap;
+
+        /** Reserved for experimentation. This allows you to pass one additional texture of your choice into the shader; 
+            you can then modify the shader code directly to recieve and apply this map.  If non-NULL, CUSTOMMAP is 
+            #defined in the shader. */
+        Texture::Ref            customMap;
+
+        /** Reserved for experimentation.  If finite, CUSTOMCONSTANT is #defined in the shader.  */
+        Vector4                 customConstant;
        
         /** Multiply normal map alpha values (originally on the range 0-1)
             by this constant to obtain the real-world bump height. Should
             already be factored in to the normal map normals.*/
         float                   bumpMapScale;
+
+        /** on the range [0, 1].  Translates the bump map in and out of the surface. */
+        float                   bumpMapBias;
 
         /**
          If the diffuse texture is changed, set this to true.  Defaults to true.
@@ -171,7 +182,8 @@ public:
 
         Material() : diffuse(1), emit(0), 
             specular(0.25), specularExponent(60), 
-            transmit(0), reflect(0), changed(true) {
+            transmit(0), reflect(0), changed(true), customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
+            bumpMapScale(0), bumpMapBias(0) {
         }
 
         /** Returns true if this material uses similar terms as other
@@ -189,7 +201,10 @@ public:
                    (transmit == other.transmit) &&
                    (reflect == other.reflect) &&
                    (normalBumpMap == other.normalBumpMap) &&
-                   (bumpMapScale == other.bumpMapScale);
+                   (bumpMapScale == other.bumpMapScale) &&
+                   (bumpMapBias == other.bumpMapBias) &&
+                   (customMap == other.customMap) &&
+                   (customConstant == other.customConstant);
         }
 
         inline bool operator!=(const Material& other) const {

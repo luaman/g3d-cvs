@@ -82,6 +82,14 @@ void SuperShader::configureShaderArgs(
         }
     }
 
+    if (material.customConstant.isFinite()) {
+        args.set("customConstant",         material.customConstant);
+    }
+
+    if (material.customMap.notNull()) {
+        args.set("customMap",              material.customMap);
+    }
+
     if (material.specular.constant != Color3::black()) {
         args.set("specularConstant",        material.specular.constant);
         if (material.specular.map.notNull()) {
@@ -116,6 +124,7 @@ void SuperShader::configureShaderArgs(
     if (material.normalBumpMap.notNull() && (material.bumpMapScale != 0)) {
         args.set("normalBumpMap",       material.normalBumpMap);
         args.set("bumpMapScale",        material.bumpMapScale);
+        args.set("bumpMapBias",         material.bumpMapBias);
     }
 
     ///////////////////////////////////////////////////
@@ -162,6 +171,14 @@ void SuperShader::configureShadowShaderArgs(
     // TODO: bind only the constants that are used
     args.set("diffuseConstant",         material.diffuse.constant);
 
+    if (material.customConstant.isFinite()) {
+        args.set("customConstant",         material.customConstant);
+    }
+
+    if (material.customMap.notNull()) {
+        args.set("customMap",         material.customMap);
+    }
+
     if (material.specular.map.notNull()) {
         args.set("specularMap",         material.specular.map);
     }
@@ -175,6 +192,7 @@ void SuperShader::configureShadowShaderArgs(
     if (material.normalBumpMap.notNull() && (material.bumpMapScale != 0)) {
         args.set("normalBumpMap",       material.normalBumpMap);
         args.set("bumpMapScale",        material.bumpMapScale);
+        args.set("bumpMapBias",         material.bumpMapBias);
     }
 
     ///////////////////////////////////////////////////
@@ -251,6 +269,14 @@ SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
             } else {
                 defines += "#define DIFFUSECONSTANT\n";
             }
+        }
+
+        if (material.customConstant.isFinite()) {
+            defines += "#define CUSTOMCONSTANT\n";
+        }
+
+        if (material.customMap.notNull()) {
+            defines += "#define CUSTOMMAP\n";
         }
 
         if (material.specular.constant != Color3::black()) {
@@ -368,6 +394,8 @@ bool SuperShader::Material::similarTo(const Material& other) const {
         specularExponent.similarTo(other.specularExponent) &&
         transmit.similarTo(other.transmit) &&
         reflect.similarTo(other.reflect) &&
+        (customMap.notNull() == other.customMap.notNull()) &&
+        (customConstant.isFinite() == other.customConstant.isFinite()) &&
         (normalBumpMap.isNull() == other.normalBumpMap.isNull());
 }
 

@@ -1,7 +1,11 @@
 /**
  @file SuperShader.vert
  @author Morgan McGuire, matrix@graphics3d.com
+ @modified 2007-10-22
  */
+#ifdef CUSTOMCONSTANT
+    uniform vec4        customConstant;
+#endif
 
 /** Texture coordinate */
 varying vec2 texCoord;

@@ -1,7 +1,11 @@
 /**
- @file SuperShader.vert
+ @file SuperShader.vrt
  @author Morgan McGuire, matrix@graphics3d.com
+ @modified 2007-10-22
  */
+#ifdef CUSTOMCONSTANT
+    uniform vec4        customConstant;
+#endif
 
 #ifdef NORMALBUMPMAP
     /** Vector to the eye in tangent space (needed for parallax) */

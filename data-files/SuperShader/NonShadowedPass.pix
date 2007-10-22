@@ -17,6 +17,14 @@ uniform vec3        lightAttenuation1;
 uniform vec3        environmentConstant;
 uniform samplerCube environmentMap;
 
+#ifdef CUSTOMCONSTANT
+    uniform vec4        customConstant;
+#endif
+
+#ifdef CUSTOMMAP
+    uniform sampler2D   customMap;
+#endif
+
 // Material
 #ifdef REFLECTCONSTANT
     uniform vec3        reflectConstant;
@@ -62,6 +70,9 @@ uniform samplerCube environmentMap;
     /** Multiplier for bump map.  Typically on the range [0, 0.05]
       This increases with texture scale and bump height. */
     uniform float       bumpMapScale;
+
+    /** How high is the 0-level of the bump map? On the range [0, 1] */
+    uniform float       bumpMapBias;
 
     /** xyz = normal, w = bump height */
     uniform sampler2D   normalBumpMap;
