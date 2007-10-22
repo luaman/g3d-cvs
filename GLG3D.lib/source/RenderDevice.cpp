@@ -2832,7 +2832,7 @@ std::string RenderDevice::screenshot(const std::string& filepath) const {
     std::string filename;
     i = 0;
     do {
-        filename = filepath + basename + "_" + format("%03d", i) + ".jpg";
+        filename = filepath + basename + "_" + format("%03d", i) + ".png";
         ++i;
     } while (fileExists(filename));   
 
