@@ -17,13 +17,6 @@ void ArticulatedModel::setProfile(GraphicsProfile p) {
     graphicsProfile = p;
 }
 
-    /*
-bool ArticulatedModel::useShadowDepthCompare() {
-    return  ! (
-               (ArticulatedModel::profile() == PS20) &&
-               (GLCaps::enumVendor() == GLCaps::ATI));
-}
-    */
 
 ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
 

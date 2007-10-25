@@ -182,8 +182,8 @@ public:
 
         Material() : diffuse(1), emit(0), 
             specular(0.25), specularExponent(60), 
-            transmit(0), reflect(0), changed(true), customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
-            bumpMapScale(0), bumpMapBias(0) {
+            transmit(0), reflect(0), customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
+            bumpMapScale(0), bumpMapBias(0), changed(true) {
         }
 
         /** Returns true if this material uses similar terms as other

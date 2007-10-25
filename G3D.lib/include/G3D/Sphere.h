@@ -36,9 +36,9 @@ public:
         radius = 0;
     }
 
-	Sphere(class BinaryInput& b);
-	void serialize(class BinaryOutput& b) const;
-	void deserialize(class BinaryInput& b);
+    Sphere(class BinaryInput& b);
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
 
     Sphere(
         const Vector3&  center,
@@ -68,37 +68,38 @@ public:
 	 @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
-        const class Plane*  plane,
-        int                 numPlanes,
-		int32&				cullingPlaneIndex,
-		const uint32  		testMask,
-        uint32&             childMask) const;
-
+                  const class Plane*  plane,
+                  int                 numPlanes,
+                  int32&				cullingPlaneIndex,
+                  const uint32  		testMask,
+                  uint32&             childMask) const;
+    
     /**
 	 @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
-        const class Plane*  plane,
-        int                 numPlanes,
-		int32&				cullingPlaneIndex = dummy,
-		const uint32  		testMask = -1) const;
+                  const class Plane*  plane,
+                  int                 numPlanes,
+                  int32&				cullingPlaneIndex = dummy,
+                  const uint32  		testMask = -1) const;
 
-	/**
-      See AABox::culledBy
-	 */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex,
-		const uint32  			testMask,
-        uint32&                 childMask) const;
-
+    /**
+       See AABox::culledBy
+    */
+    bool culledBy(
+                  const Array<Plane>&		plane,
+                  int32&					cullingPlaneIndex,
+                  const uint32  			testMask,
+                  uint32&                 childMask) const;
+    
     /**
      Conservative culling test that does not produce a mask for children.
      */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex = dummy,
-		const uint32  			testMask		  = -1) const;
+    bool culledBy(
+                  const Array<Plane>&		plane,
+                  int32&					cullingPlaneIndex = dummy,
+                  const uint32  			testMask		  = -1) const;
+
     virtual std::string toString() const;
 
     float volume() const;
@@ -116,6 +117,8 @@ public:
     Vector3 randomInteriorPoint() const;
 
     void getBounds(class AABox& out) const;
+
+    bool intersects(const Sphere& other) const;
 };
 
 }

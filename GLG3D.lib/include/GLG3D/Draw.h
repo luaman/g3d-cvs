@@ -80,7 +80,7 @@ public:
     static void poly2D(const Array<Vector2>& polygon, RenderDevice* renderDevice, const Color4& color = Color3::yellow());
 
     /** Visualize the light sources in this scene. */
-    static void lighting(LightingRef lighting, RenderDevice* rd);
+    static void lighting(LightingRef lighting, RenderDevice* rd, bool showEffectSpheres = false);
 
     /**
      Set the solid color or wire color to Color4::clear() to

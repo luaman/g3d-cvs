@@ -22,25 +22,25 @@ namespace G3D {
 int32 Sphere::dummy;
 
 Sphere::Sphere(class BinaryInput& b) {
-	deserialize(b);
+    deserialize(b);
 }
 
 
 void Sphere::serialize(class BinaryOutput& b) const {
-	center.serialize(b);
-	b.writeFloat64(radius);
+    center.serialize(b);
+    b.writeFloat64(radius);
 }
 
 
 void Sphere::deserialize(class BinaryInput& b) {
-	center.deserialize(b);
-	radius = (float)b.readFloat64();
+    center.deserialize(b);
+    radius = (float)b.readFloat64();
 }
 
 
 std::string Sphere::toString() const {
     return format("Sphere(<%g, %g, %g>, %g)", 
-        center.x, center.y, center.z, radius);
+                  center.x, center.y, center.z, radius);
 }
 
 
@@ -50,30 +50,34 @@ bool Sphere::contains(const Vector3& point) const {
 }
 
 
-bool Sphere::culledBy(
-    const Array<Plane>&		plane,
-	int&				    cullingPlaneIndex,
-	const uint32			inMask,
-	uint32&					outMask) const {
-
-	return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
+bool Sphere::intersects(const Sphere& other) const {
+    return (other.center - center).length() <= (radius + other.radius);
 }
 
+bool Sphere::culledBy(
+                      const Array<Plane>&		plane,
+                      int&				    cullingPlaneIndex,
+                      const uint32			inMask,
+                      uint32&					outMask) const {
+    
+    return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
+}
+    
 
 bool Sphere::culledBy(
-    const Array<Plane>&		plane,
-	int&				    cullingPlaneIndex,
-	const uint32			inMask) const {
-
-	return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
+                      const Array<Plane>&		plane,
+                      int&				    cullingPlaneIndex,
+                      const uint32			inMask) const {
+    
+    return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
 }
 
 
 bool Sphere::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask,
+    int&				cullingPlane,
+    const uint32		_inMask,
     uint32&             childMask) const {
 
     if (radius == inf()) {

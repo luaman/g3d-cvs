@@ -72,13 +72,22 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
+
+    /*
+      // See bounding volumes:
+    for (int i = 0; i < posed3D.size(); ++i) {
+        Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
+    }
+    */
+
     //Draw::axes(CoordinateFrame(), rd);
 
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);
     }
-
-    Draw::lighting(lighting, rd);
+    
+    rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.0f);
+    Draw::lighting(lighting, rd, false);
 
     toneMap->endFrame(rd);
 

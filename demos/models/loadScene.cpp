@@ -68,7 +68,7 @@ void App::loadScene() {
         part.name = "root";
     
         ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList.indexArray, 5, 5, Vector2(5, 5), true, false, Matrix3::identity() * 5);
+        MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList.indexArray, 7, 7, Vector2(10, 10), true, false, Matrix3::identity() * 10);
 
         triList.twoSided = true;
         triList.material.emit.constant = Color3::black();
@@ -125,9 +125,9 @@ void App::loadScene() {
 
         lighting->shadowedLightArray.append(L);
 
-        lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 1, 0, 0.5, true, true));
-        lighting->lightArray.append(GLight::point(Vector3(0,-0.6f,1.5f), Color3::yellow() * 0.7f, 1, 0, 0.5, true, true));
-        lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,1), Color3::red() * 0.7f, 1, 0, 0.5, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 0.1, 0, 1.5, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(0,-0.6f,3.5f), Color3::yellow() * 0.7f, 0.1, 0, 1.5, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,1), Color3::red() * 0.7f, 0.1, 0, 1.5, true, true));
     }
 }
 

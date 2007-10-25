@@ -59,7 +59,7 @@ void Draw::poly2D(const Array<Vector2>& polygon, RenderDevice* renderDevice, con
 }
 
 
-void Draw::lighting(LightingRef lighting, RenderDevice* rd) {
+void Draw::lighting(LightingRef lighting, RenderDevice* rd, bool showEffectSpheres) {
     rd->pushState();
         rd->setShader(NULL);
         rd->disableLighting();
@@ -68,6 +68,12 @@ void Draw::lighting(LightingRef lighting, RenderDevice* rd) {
             if (light.position.w != 0) {
                 // Point light
                 Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, light.color, Color4::clear());
+                if (showEffectSpheres) {
+                    Sphere s = light.effectSphere();
+                    if (s.radius < inf()) {
+                        Draw::sphere(s, rd, Color4::clear(), Color4(light.color, 0.5f));
+                    }
+                }
             } else {
                 // Directional light
                 Draw::sphere(Sphere(light.position.xyz() * 200, 20.0f), rd, light.color, Color4::clear());

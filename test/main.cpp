@@ -473,6 +473,26 @@ void measureRDPushPopPerformance(RenderDevice* rd) {
     printf("RenderDevice::push+pop:             %g cycles\n", identityCycles / (double)N);
 }
 
+void testGLight() {
+    GLight L = GLight::point(Vector3(1,2,3), Color3::white(), 1,0,0);
+    Sphere s;
+    
+    s = L.effectSphere();
+    debugAssert(s.contains(Vector3(1,2,3)));
+    debugAssert(s.contains(Vector3(0,0,0)));
+    debugAssert(s.contains(Vector3(100,100,100)));
+
+    {
+        GLight L = GLight::point(Vector3(1,2,3), Color3::white(), 1,0,1);
+        Sphere s;
+        
+        s = L.effectSphere();
+        debugAssert(s.contains(Vector3(1,2,3)));
+        debugAssert(s.contains(Vector3(1,1,3)));
+        debugAssert(! s.contains(Vector3(100,100,100)));
+    }
+}
+
 
 int main(int argc, char* argv[]) {
     (void)argc;
@@ -533,7 +553,7 @@ int main(int argc, char* argv[]) {
         measureMemsetPerformance();
         measureNormalizationPerformance();
 
-	    GWindow::Settings settings;
+        GWindow::Settings settings;
         settings.width = 800;
         settings.height = 600;
         settings.alphaBits = 0;
@@ -563,7 +583,9 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
-	testZip();
+    testGLight();
+
+    testZip();
 
     testMap2D();
 
@@ -583,7 +605,7 @@ int main(int argc, char* argv[]) {
 
     testReliableConduit(NetworkDevice::instance());
 
-	testQuat();
+    testQuat();
 
     testReferenceCount();
 

@@ -4,10 +4,11 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-11-12
-  @edited  2007-07-10
+  @edited  2007-10-22
 */
 
 #include "G3D/GLight.h"
+#include "G3D/Sphere.h"
 
 namespace G3D {
 
@@ -78,6 +79,64 @@ bool GLight::operator==(const GLight& other) const {
 
 bool GLight::operator!=(const GLight& other) const {
     return !(*this == other);
+}
+
+
+Sphere GLight::effectSphere(float cutoff) const {
+    if (position.w == 0) {
+        // Directional light
+        return Sphere(Vector3::zero(), (float)inf());
+    } else {
+        // Avoid divide by zero
+        cutoff = max(cutoff, 0.0001f);
+        float maxIntensity = max(color.r, max(color.g, color.b));
+
+        float radius = (float)inf();
+            
+        if (attenuation[2] != 0) {
+
+            // Solve I / attenuation.dot(1, r, r^2) < cutoff for r
+            //
+            //  a[0] + a[1] r + a[2] r^2 > I/cutoff
+            //
+            
+            float a = attenuation[2];
+            float b = attenuation[1];
+            float c = attenuation[0] - maxIntensity / cutoff;
+            
+            float discrim = square(b) - 4 * a * c;
+            
+            if (discrim >= 0) {
+                discrim = sqrt(discrim);
+                
+                float r1 = (-b + discrim) / (2 * a);
+                float r2 = (-b - discrim) / (2 * a);
+
+                if (r1 < 0) {
+                    if (r2 > 0) {
+                        radius = r2;
+                    }
+                } else if (r2 > 0) {
+                    radius = min(r1, r2);
+                } else {
+                    radius = r1;
+                }
+            }
+                
+        } else if (attenuation[1] != 0) {
+            
+            // Solve I / attenuation.dot(1, r) < cutoff for r
+            //
+            // r * a[1] + a[0] = I / cutoff
+            // r = (I / cutoff - a[0]) / a[1]
+
+            float radius = (maxIntensity / cutoff - attenuation[0]) / attenuation[1];
+            radius = max(radius, 0.0f);
+        }
+
+        return Sphere(position.xyz(), radius);
+
+    }
 }
 
 }

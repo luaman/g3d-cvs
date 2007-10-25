@@ -49,8 +49,12 @@ public:
 
     /** @param toLight will be normalized */
     static GLight directional(const Vector3& toLight, const Color3& color, bool specular = true, bool diffuse = true);
-    static GLight point(const Vector3& pos, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0, bool specular = true, bool diffuse = true);
+    static GLight point(const Vector3& pos, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0.5f, bool specular = true, bool diffuse = true);
     static GLight spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0, bool specular = true, bool diffuse = true);
+
+    /** Returns the sphere within which this light has some noticable effect.  May be infinite.
+        @param cutoff The value at which the light intensity is considered negligible. */
+    class Sphere effectSphere(float cutoff = 30.0f / 255) const;
 
     bool operator==(const GLight& other) const;
     bool operator!=(const GLight& other) const;

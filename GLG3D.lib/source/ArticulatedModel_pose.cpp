@@ -547,8 +547,10 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
     rd->setShader(triList.nonShadowedShader);
     sendGeometry2(rd);
 
+    static const int lightsPerPass = 2;
+
     int numLights = lighting->lightArray.size();
-    if (numLights <= 2) {
+    if (numLights <= lightsPerPass) {
         return true;
     }
 
@@ -562,19 +564,38 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
     reducedLighting->environmentMapColor = Color3::black();
     reducedLighting->shadowedLightArray.fastClear();
 
+    Array<GLight> lights(lighting->lightArray);
+
+    // We already rendered the first few lights
+    for (int L = 0; L < lightsPerPass; ++L) {
+        lights.fastRemove(L);
+    }
+
+    Sphere myBounds = worldSpaceBoundingSphere();
+    // Remove lights that cannot affect this object
+    for (int L = 0; L < lights.size(); ++L) {
+        Sphere s = lights[L].effectSphere();
+        if (! s.intersects(myBounds)) {
+            // This light does not affect this object
+            lights.fastRemove(L);
+        }
+    }
+    numLights = lights.size();
+
     // Add extra lighting terms
     rd->pushState();
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
         rd->setDepthWrite(false);
         rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
-        for (int L = 2; L < numLights; L += 2) {
-            int x = 1;
-            if (L + 1 < numLights) {
-                x = 2;
-            }
+        for (int L = 0; L < numLights; L += lightsPerPass) {
+
+            // Number of lights to use
+            int x = iMin(lightsPerPass, numLights - L);
+
+            // Copy the lights into the reduced lighting structure
             reducedLighting->lightArray.resize(x);
             for (int i = 0; i < x; ++i) {
-                reducedLighting->lightArray[i] = lighting->lightArray[i + L];
+                reducedLighting->lightArray[i] = lights[i + L];
             }
 
             // Shader is already set from above
