@@ -543,66 +543,79 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
         return false;
     }
 
-    SuperShader::configureShaderArgs(lighting, material, triList.nonShadowedShader->args);
-    rd->setShader(triList.nonShadowedShader);
-    sendGeometry2(rd);
-
     static const int lightsPerPass = 2;
 
     int numLights = lighting->lightArray.size();
+
     if (numLights <= lightsPerPass) {
+
+        SuperShader::configureShaderArgs(lighting, material, triList.nonShadowedShader->args);
+        rd->setShader(triList.nonShadowedShader);
+        sendGeometry2(rd);
         return true;
-    }
+    } else {
 
-    // SuperShader only supports two lights, so we have to make multiple passes
-    LightingRef reducedLighting = Lighting::create();
+        // SuperShader only supports two lights, so we have to make multiple passes
+        LightingRef reducedLighting = lighting->clone();
 
-    // Turn off everything except our two additional lights
-    reducedLighting->ambientBottom = Color3::black();
-    reducedLighting->ambientTop    = Color3::black();
-    reducedLighting->emissiveScale = Color3::black();
-    reducedLighting->environmentMapColor = Color3::black();
-    reducedLighting->shadowedLightArray.fastClear();
+        Array<GLight> lights(lighting->lightArray);
 
-    Array<GLight> lights(lighting->lightArray);
-
-    // We already rendered the first few lights
-    for (int L = 0; L < lightsPerPass; ++L) {
-        lights.fastRemove(L);
-    }
-
-    Sphere myBounds = worldSpaceBoundingSphere();
-    // Remove lights that cannot affect this object
-    for (int L = 0; L < lights.size(); ++L) {
-        Sphere s = lights[L].effectSphere();
-        if (! s.intersects(myBounds)) {
-            // This light does not affect this object
-            lights.fastRemove(L);
-        }
-    }
-    numLights = lights.size();
-
-    // Add extra lighting terms
-    rd->pushState();
-        rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
-        rd->setDepthWrite(false);
-        rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
-        for (int L = 0; L < numLights; L += lightsPerPass) {
-
-            // Number of lights to use
-            int x = iMin(lightsPerPass, numLights - L);
-
-            // Copy the lights into the reduced lighting structure
-            reducedLighting->lightArray.resize(x);
-            for (int i = 0; i < x; ++i) {
-                reducedLighting->lightArray[i] = lights[i + L];
+        Sphere myBounds = worldSpaceBoundingSphere();
+        // Remove lights that cannot affect this object
+        for (int L = 0; L < lights.size(); ++L) {
+            Sphere s = lights[L].effectSphere();
+            if (! s.intersects(myBounds)) {
+                // This light does not affect this object
+                lights.fastRemove(L);
             }
-
-            // Shader is already set from above
-            SuperShader::configureShaderArgs(reducedLighting, material, triList.nonShadowedShader->args);
-            sendGeometry2(rd);
         }
-    rd->popState();
+        numLights = lights.size();
+
+        // Number of lights to use
+        int x = iMin(lightsPerPass, lights.size());
+
+        // Copy the lights into the reduced lighting structure
+        reducedLighting->lightArray.resize(x);
+        for (int i = 0; i < x; ++i) {
+            reducedLighting->lightArray[i] = lights[i];
+        }
+
+        SuperShader::configureShaderArgs(reducedLighting, material, triList.nonShadowedShader->args);
+        rd->setShader(triList.nonShadowedShader);
+        sendGeometry2(rd);
+
+        if (numLights > lightsPerPass) {
+            // Turn off everything except our additional lights
+            reducedLighting->ambientBottom = Color3::black();
+            reducedLighting->ambientTop    = Color3::black();
+            reducedLighting->emissiveScale = Color3::black();
+            reducedLighting->environmentMapColor = Color3::black();
+            reducedLighting->shadowedLightArray.fastClear();
+            
+
+            // Add extra lighting terms
+            rd->pushState();
+            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+            rd->setDepthWrite(false);
+            rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
+            for (int L = lightsPerPass; L < numLights; L += lightsPerPass) {
+
+                // Number of lights to use
+                int x = iMin(lightsPerPass, numLights - L);
+                
+                // Copy the lights into the reduced lighting structure
+                reducedLighting->lightArray.resize(x);
+                for (int i = 0; i < x; ++i) {
+                    reducedLighting->lightArray[i] = lights[i + L];
+                }
+                
+                // Shader is already set from above
+                SuperShader::configureShaderArgs(reducedLighting, material, triList.nonShadowedShader->args);
+                sendGeometry2(rd);
+            }
+            rd->popState();
+        }
+    }
 
     return true;
 }
