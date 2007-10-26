@@ -177,7 +177,7 @@ void ArticulatedModel::renderNonShadowed(
 
         for (int p = 0; p < posedArray.size(); ++p) {
             const PosedArticulatedModel* posed = 
-		dynamic_cast<const PosedArticulatedModel*>(posedArray[p].pointer());
+        		dynamic_cast<const PosedArticulatedModel*>(posedArray[p].pointer());
             debugAssertM(posed != NULL,
                 "Cannot pass PosedModels not produced by ArticulatedModel to optimized routines.");
 
@@ -427,49 +427,6 @@ void PosedArticulatedModel::render(RenderDevice* rd) const {
     rd->getFixedFunctionLighting(lighting);
 
     renderNonShadowed(rd, lighting);
-
-
-    /*
-
-    const ArticulatedModel::Part& part = model->partArray[partIndex];
-    const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];
-    const SuperShader::Material& material = triList.material;
-
-    bool color = 
-        renderDevice->colorWrite() ||
-        (material.diffuse.map.notNull() && ! material.diffuse.map->opaque());
-
-    // Only configure color if the renderer requires it
-    if (color) {
-        renderDevice->pushState();
-
-        renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
-
-        renderDevice->setTexture(0, material.diffuse.map);
-        renderDevice->setColor(material.diffuse.constant);
-
-        renderDevice->setSpecularCoefficient(material.specular.constant);
-        renderDevice->setShininess(material.specularExponent.constant.average());
-
-        if (triList.twoSided) {
-            renderDevice->enableTwoSidedLighting();
-        }
-    }
-
-    if (triList.twoSided) {
-        renderDevice->setCullFace(RenderDevice::CULL_NONE);
-    }
-
-    sendGeometry2(renderDevice);
-
-    if (triList.twoSided) {
-        renderDevice->setCullFace(RenderDevice::CULL_BACK);
-    }
-
-    if (color) {
-        renderDevice->popState();
-    }
-    */
 }
 
 
@@ -565,6 +522,7 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
             if (! s.intersects(myBounds)) {
                 // This light does not affect this object
                 lights.fastRemove(L);
+                --L;
             }
         }
         numLights = lights.size();
@@ -583,8 +541,7 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
         sendGeometry2(rd);
 
         if (numLights > SuperShader::LIGHTS_PER_PASS) {
-            // TODO: see
-            // configureShaderExtraLightArgs
+            // TODO: see configureShaderExtraLightArgs; it is never used and appears intended for this case
 
             // Turn off everything except our additional lights
             reducedLighting->ambientBottom = Color3::black();
@@ -1062,6 +1019,7 @@ void PosedArticulatedModel::renderFFShadowMappedLightPass(
 void PosedArticulatedModel::sendGeometry2(
     RenderDevice*           rd) const {
 
+
     CoordinateFrame o2w = rd->getObjectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe);
 
@@ -1075,6 +1033,7 @@ void PosedArticulatedModel::sendGeometry2(
 
 void PosedArticulatedModel::sendGeometry(
     RenderDevice*           rd) const {
+    ++ArticulatedModel::debugNumSendGeometryCalls;
 
     const ArticulatedModel::Part& part = model->partArray[partIndex];
     const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];

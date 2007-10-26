@@ -57,6 +57,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
     SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
+    ArticulatedModel::debugNumSendGeometryCalls = 0;
+
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
 
@@ -111,5 +113,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     //    rd->setTexture(0, shadowMap->colorDepthTexture());
     //Draw::rect2D(shadowMap->colorDepthTexture()->rect2DBounds(), rd);
     rd->pop2D();
+
+    screenPrintf("ArticulatedModel::debugNumSendGeometryCalls = %d\n", ArticulatedModel::debugNumSendGeometryCalls);
 }
 

@@ -35,6 +35,9 @@ private:
 
 public:
 
+    /** Incremented every time sendGeometry is invoked on any posed piece of an ArticulatedModel. */
+    static int debugNumSendGeometryCalls;
+
     /** Renders an array of PosedAModels in the order that they appear in the array, taking advantage of 
         the fact that all objects have the same subclass to optimize the rendering calls.*/
     static void renderNonShadowed(

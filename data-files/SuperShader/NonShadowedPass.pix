@@ -117,6 +117,13 @@ void addLightContribution(in vec3 wsN, in vec3 wsR, in vec3 wsPosition, in vec4 
     wsL = wsL / lightDistance;
     vec3 attLightColor = lightColor / dot( vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation);
 
+#   ifdef NORMALBUMPMAP
+        // For a bump mapped surface, do not allow illumination on the back side even if the
+        // displacement creates a light-facing surface, since it should be self-shadowed for any 
+        // large polygon.
+        attLightColor = attLightColor * float(dot(tan_Z.xyz, wsL) * backside > 0);
+#   endif
+
 #   if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
         I_diffuse = I_diffuse + max(dot(wsL, wsN), 0.0) * attLightColor;
 #   endif
@@ -147,10 +154,10 @@ void main(void) {
         vec3 tsN = (texture2D(normalBumpMap, offsetTexCoord).xyz - vec3(0.5, 0.5, 0.5)) * 2.0;
 
 	    // note that the columns might be slightly not orthogonal due to interpolation
-	    mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz);
+	    mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz * backside);
 
 	    // Take the normal to world space
-	    vec3 wsN = (tangentToWorld * tsN) * backside; 
+	    vec3 wsN = tangentToWorld * tsN;
 
 #   else
 

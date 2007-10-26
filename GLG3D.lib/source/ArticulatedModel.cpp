@@ -8,6 +8,8 @@
 
 namespace G3D {
 
+int ArticulatedModel::debugNumSendGeometryCalls = 0;
+
 // TODO: Texture caching
 const ArticulatedModel::Pose ArticulatedModel::DEFAULT_POSE;
 
