@@ -50,16 +50,15 @@ void SuperShader::configureShaderExtraLightArgs(
     args.set("ambientTop",      Color3::black());
     args.set("ambientBottom",   Color3::black());
 
-    static const std::string num[2] = {"0", "1"};
-    for (int i = 0; i < 2; ++i) {
+    static const std::string num[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
+    for (int i = 0; i < LIGHTS_PER_PASS; ++i) {
         const std::string& N = num[i];
         if (lightArray.size() > i + lightIndex) {
             const GLight& light = lightArray[i + lightIndex];
 
             args.set("lightPosition" + N,   light.position);
             args.set("lightColor" + N,      light.color);
-            args.set("lightAttenuation" + N, Vector3(light.attenuation[0], 
-                                                     light.attenuation[1], light.attenuation[2]));
+            args.set("lightAttenuation" + N, Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
         } else {
             args.set("lightPosition" + N,    Vector4(0, 1, 0, 0));
             args.set("lightColor" + N,       Color3::black());
@@ -129,24 +128,10 @@ void SuperShader::configureShaderArgs(
 
     ///////////////////////////////////////////////////
     // Lighting Args
+    configureShaderExtraLightArgs(lighting->lightArray, 0, args);
 
     args.set("ambientTop",      lighting->ambientTop);
     args.set("ambientBottom",   lighting->ambientBottom);
-
-    static const std::string num[2] = {"0", "1"};
-    for (int i = 0; i < 2; ++i) {
-        const std::string& N = num[i];
-        if (lighting->lightArray.size() > i) {
-            const GLight& light = lighting->lightArray[i];
-            args.set("lightPosition" + N,    light.position);
-            args.set("lightColor" + N,       light.color);
-            args.set("lightAttenuation" + N, Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
-        } else {
-            args.set("lightPosition" + N,    Vector4(0, 1, 0, 0));
-            args.set("lightColor" + N,       Color3::black());
-            args.set("lightAttenuation" + N, Vector3(1, 0, 0));
-        }
-    }
 
     // Only set the evt map if we need it
     if (! material.reflect.isBlack()) {

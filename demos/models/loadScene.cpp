@@ -32,30 +32,18 @@ void App::loadScene() {
         x += 2;
     }
 
-    // IFSModel (note that IFS files can be loaded with ArticulatedModel and will render better)
+    // IFSModel as ArticulatedModel
     if (true) {
-        IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/teapot.ifs");
-        GMaterial material;
-        material.color = Color3::white() * 0.6f;
-        entityArray.append(Entity::create(model, material, CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
+        ArticulatedModelRef model = ArticulatedModel::fromFile(dataDir + "ifs/teapot.ifs");
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
         x += 2;
     }
 
+    // IFSModel (note that IFS files can be loaded with ArticulatedModel and will render better)
     if (false) {
         IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/cow.ifs");
         entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
         x += 2;
-    }
-
-    // Simple ground plane
-    if (false) {
-        Array<Vector3> vertex;
-        Array<int> index;
-        Array<Vector2> texCoord;
-
-        MeshAlg::generateGrid(vertex, texCoord, index, 5, 5, Vector2(5, 5), true, false, Matrix3::identity() * 5);
-        IFSModelRef model = IFSModel::fromData("Ground", vertex, index, texCoord);        
-        entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(Vector3(0,-1,0))));
     }
 
     // Textured ground plane generated mathematically on the fly
@@ -125,9 +113,11 @@ void App::loadScene() {
 
         lighting->shadowedLightArray.append(L);
 
-        lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 0.1, 0, 1.5, true, true));
-        lighting->lightArray.append(GLight::point(Vector3(0,-0.6f,3.5f), Color3::yellow() * 0.7f, 0.1, 0, 1.5, true, true));
-        lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,1), Color3::red() * 0.7f, 0.1, 0, 1.5, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,2.5f), Color3::blue() * 0.7f, 0.1f, 0, 1.5f, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,2.5f), Color3::purple() * 0.7f, 0.1f, 0, 1.5f, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 0.1f, 0, 1.5f, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(0,-0.6f,1.5f), Color3::yellow() * 0.7f, 0.1f, 0, 1.5f, true, true));
+        lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,1), Color3::red() * 0.7f, 0.1f, 0, 1.5f, true, true));
     }
 }
 

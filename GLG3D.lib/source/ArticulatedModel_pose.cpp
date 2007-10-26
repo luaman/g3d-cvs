@@ -543,11 +543,9 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
         return false;
     }
 
-    static const int lightsPerPass = 2;
-
     int numLights = lighting->lightArray.size();
 
-    if (numLights <= lightsPerPass) {
+    if (numLights <= SuperShader::LIGHTS_PER_PASS) {
 
         SuperShader::configureShaderArgs(lighting, material, triList.nonShadowedShader->args);
         rd->setShader(triList.nonShadowedShader);
@@ -572,7 +570,7 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
         numLights = lights.size();
 
         // Number of lights to use
-        int x = iMin(lightsPerPass, lights.size());
+        int x = iMin(SuperShader::LIGHTS_PER_PASS, lights.size());
 
         // Copy the lights into the reduced lighting structure
         reducedLighting->lightArray.resize(x);
@@ -584,7 +582,10 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
         rd->setShader(triList.nonShadowedShader);
         sendGeometry2(rd);
 
-        if (numLights > lightsPerPass) {
+        if (numLights > SuperShader::LIGHTS_PER_PASS) {
+            // TODO: see
+            // configureShaderExtraLightArgs
+
             // Turn off everything except our additional lights
             reducedLighting->ambientBottom = Color3::black();
             reducedLighting->ambientTop    = Color3::black();
@@ -598,10 +599,10 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
             rd->setDepthWrite(false);
             rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
-            for (int L = lightsPerPass; L < numLights; L += lightsPerPass) {
+            for (int L = SuperShader::LIGHTS_PER_PASS; L < numLights; L += SuperShader::LIGHTS_PER_PASS) {
 
                 // Number of lights to use
-                int x = iMin(lightsPerPass, numLights - L);
+                int x = iMin(SuperShader::LIGHTS_PER_PASS, numLights - L);
                 
                 // Copy the lights into the reduced lighting structure
                 reducedLighting->lightArray.resize(x);

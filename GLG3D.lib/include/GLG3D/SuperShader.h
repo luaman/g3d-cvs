@@ -62,6 +62,10 @@ typedef ReferenceCountedPointer<class SuperShader> SuperShaderRef;
 class SuperShader {
 public:
 
+    /** Number of non-shadowed lights supported in a single pass.  Using more lights than this on one object
+        will be slow because it will make multiple rendering passes. */
+    enum {LIGHTS_PER_PASS = 4};
+
     /** Material property coefficients are specified as 
         a constant color times a texture map.  If the color
         is white the texture map entirely controls the result.
@@ -155,6 +159,15 @@ public:
         /** Perfect specular (mirror) reflection of the environment. */
         Component               reflect;
 
+        /** 
+            Only relevant if normalBumpMap is non-NULL.
+
+            If 0, normal mapping is used with no displacement.
+            If 1, Kaneko-Welsh parallax mapping with offset limiting is used.
+            If >1, Brawley-Tatarchuk parallax occlusion mapping is used.
+            */
+        int                     parallaxSteps;
+
         /** RGB*2-1 = tangent space normal, A = tangent space bump height.
           If NULL bump mapping is disabled. */
         Texture::Ref            normalBumpMap;
@@ -182,7 +195,7 @@ public:
 
         Material() : diffuse(1), emit(0), 
             specular(0.25), specularExponent(60), 
-            transmit(0), reflect(0), customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
+            transmit(0), reflect(0), parallaxSteps(1), customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
             bumpMapScale(0), bumpMapBias(0), changed(true) {
         }
 
@@ -219,14 +232,14 @@ public:
     };
 
     /** Configures the material arguments on a SuperShader NonShadowed shader for
-        the opaque pass with 0, 1, or 2 lights. */
+        the opaque pass with LIGHTS_PER_PASS lights. */
     static void configureShaderArgs(
         const LightingRef&              lighting,
         const Material&                 material,
         VertexAndPixelShader::ArgList&  args);
 
     /** Configures a SuperShader NonShadowed shader for an additive light pass
-        using lights lightArray[lightIndex] and lightArray[lightIndex+1] (if both are in bounds.)*/
+        using lights lightArray[lightIndex] through lightArray[lightIndex+LIGHTS_PER_PASS] (if both are in bounds.)*/
     static void configureShaderExtraLightArgs(
         const Array<GLight>&           lightArray,
         int                            lightIndex,

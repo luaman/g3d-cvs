@@ -3,6 +3,8 @@
   @author Morgan McGuire morgan@cs.williams.edu
 
   For use with G3D::SuperShader.
+
+  @modified 2007-10-26
  */
 
 /** World space light position */
@@ -13,6 +15,14 @@ uniform vec3        lightAttenuation0;
 uniform vec4        lightPosition1;
 uniform vec3        lightColor1;
 uniform vec3        lightAttenuation1;
+
+uniform vec4        lightPosition2;
+uniform vec3        lightColor2;
+uniform vec3        lightAttenuation2;
+
+uniform vec4        lightPosition3;
+uniform vec3        lightColor3;
+uniform vec3        lightAttenuation3;
 
 uniform vec3        environmentConstant;
 uniform samplerCube environmentMap;
@@ -97,7 +107,28 @@ uniform float       backside;
 varying float       accessibility;
 
 
+void addLightContribution(in vec3 wsN, in vec3 wsR, in vec3 wsPosition, in vec4 specularExponentColor, 
+                          in vec4 lightPosition, in vec3 lightAttenuation, 
+                          in vec3 lightColor, inout vec3 I_diffuse, inout vec3 I_specular) {
+    
+    // Light vector
+    vec3 wsL = lightPosition.xyz - wsPosition.xyz * lightPosition.w;
+    float lightDistance = length(wsL);
+    wsL = wsL / lightDistance;
+    vec3 attLightColor = lightColor / dot( vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation);
+
+#   if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
+        I_diffuse = I_diffuse + max(dot(wsL, wsN), 0.0) * attLightColor;
+#   endif
+
+#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+        I_specular = I_specular + pow(vec3(max(dot(wsL, wsR), 0.0)), specularExponentColor.rgb) * attLightColor;
+#   endif
+}
+
 void main(void) {
+
+    const vec3 BLACK = vec3(0.0, 0.0, 0.0);
 
     vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
 
@@ -129,18 +160,6 @@ void main(void) {
         vec2 offsetTexCoord = texCoord;
 #   endif
 
-    // Light vector      
-    vec3 wsL0 = lightPosition0.xyz - wsPosition.xyz * lightPosition0.w;
-    float lightDistance0 = length(wsL0);
-    wsL0 = wsL0 / lightDistance0;
-    vec3 attLightColor0 = lightColor0 / dot( vec3(1.0, lightDistance0, lightDistance0 * lightDistance0), 
-                                           lightAttenuation0);
-
-    vec3 wsL1 = lightPosition1.xyz - wsPosition.xyz * lightPosition1.w;
-    float lightDistance1 = length(wsL1);
-    wsL1 = wsL1 / lightDistance1;
-    vec3 attLightColor1 = lightColor1 / dot( vec3(1.0, lightDistance1, lightDistance1 * lightDistance1), 
-                                           lightAttenuation1);
 
 #   if defined(REFLECTCONSTANT) || defined(REFLECTMAP) || defined(SPECULARCONSTANT) || defined(SPECULARMAP)
         // Eye vector
@@ -149,12 +168,14 @@ void main(void) {
 
         // Reflection vector
         vec3 wsR = normalize((wsN * 2.0 * dot(wsN, wsE)) - wsE);
+#   else
+        const vec3 wsR = BLACK;
 #   endif
 
 #   if (defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP))
         vec4 diffuseColor =
 #       ifdef DIFFUSECONSTANT
-            vec4(diffuseConstant, 1)
+            vec4(diffuseConstant, 1.0)
 #           ifdef DIFFUSEMAP
                 * texture2D(diffuseMap, offsetTexCoord)
 #           endif
@@ -168,7 +189,7 @@ void main(void) {
 #   if defined(EMITCONSTANT) || defined(EMITMAP)     
         vec4 emitColor =
 #       ifdef EMITCONSTANT
-            vec4(emitConstant, 1)
+            vec4(emitConstant, 1.0)
 #           ifdef EMITMAP
                 * texture2D(emitMap, offsetTexCoord)
 #          endif
@@ -182,7 +203,7 @@ void main(void) {
 #   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)     
         vec4 specularColor =
 #       ifdef SPECULARCONSTANT
-            vec4(specularConstant, 1)
+            vec4(specularConstant, 1.0)
 #           ifdef SPECULARMAP
                 * texture2D(specularMap, offsetTexCoord)
 #          endif
@@ -222,26 +243,30 @@ void main(void) {
         ;
 #   endif
 
-    vec3 ambient = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);
+
+    vec3 I_diffuse  = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);
+    vec3 I_specular = BLACK;
+
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition0, lightAttenuation0, lightColor0, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition1, lightAttenuation1, lightColor1, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition2, lightAttenuation2, lightColor2, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition3, lightAttenuation3, lightColor3, I_diffuse, I_specular);
 
     gl_FragColor.rgb =
-        vec3(0.0, 0.0, 0.0)
+        BLACK
 #       if defined(EMITCONSTANT) || defined(EMITMAP)
             + emitColor.rgb
 #       endif
         + accessibility * (
 
-        vec3(0.0, 0.0, 0.0)
+        BLACK
 
 #       if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
-           + diffuseColor.rgb * 
-            (ambient.rgb + max(dot(wsL0, wsN), 0.0) * attLightColor0
-                         + max(dot(wsL1, wsN), 0.0) * attLightColor1)
+           + I_diffuse * diffuseColor.rgb 
 #       endif
 
 #       if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
-            + pow(vec3(max(dot(wsL0, wsR), 0.0)), specularExponentColor.rgb) * attLightColor0 * specularColor.rgb
-            + pow(vec3(max(dot(wsL1, wsR), 0.0)), specularExponentColor.rgb) * attLightColor1 * specularColor.rgb
+            + I_specular * specularColor.rgb
 #       endif
 
 #       if defined(REFLECTCONSTANT) || defined(REFLECTMAP)     

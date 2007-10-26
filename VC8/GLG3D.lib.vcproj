@@ -747,6 +747,30 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Shaders"
+			>
+			<Filter
+				Name="SuperShader"
+				>
+				<File
+					RelativePath="..\data-files\SuperShader\NonShadowedPass.pix"
+					>
+				</File>
+				<File
+					RelativePath="..\data-files\SuperShader\NonShadowedPass.vrt"
+					>
+				</File>
+				<File
+					RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.pix"
+					>
+				</File>
+				<File
+					RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.vrt"
+					>
+				</File>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

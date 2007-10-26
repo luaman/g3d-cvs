@@ -1,5 +1,5 @@
 Application Log
-Start: Mon Oct 22 19:48:28 2007
+Start: Fri Oct 26 08:22:27 2007
 
 _____________________________________________________
 
@@ -63,8 +63,8 @@ Network:
 
 System { 
     App { 
-        Name = "x:\\Kyle\\G3D\\temp\\models\\build\\modelsd.exe"
-        cwd = "x:\\Kyle\\G3D\\demos\\models\\data-files"
+        Name = "x:\\morgan\\G3D\\temp\\models\\build\\modelsd.exe"
+        cwd = "x:\\morgan\\G3D\\demos\\models\\data-files"
     } 
     
     OS { 
