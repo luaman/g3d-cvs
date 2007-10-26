@@ -29,7 +29,8 @@ void PosedModel::sortAndRender
     alwaysAssertM(! recurse, "Cannot call PosedModel::sortAndRender recursively");
     recurse = true;
 
-    Array<PosedModelRef> posed3D = allModels;
+    static Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent, posed3D;
+
     LightingRef lighting = _lighting->clone();
 
     bool renderShadows = (shadowMaps.size() > 0) && (lighting->shadowedLightArray.size() > 0) && shadowMaps[0]->enabled();
@@ -47,7 +48,7 @@ void PosedModel::sortAndRender
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
             shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L],
-                                      lightProjX, lightProjY, lightProjNear, lightProjFar, posed3D);
+                                      lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
         }
     } else {
         // We're not going to be able to draw shadows, so move the shadowed lights into
@@ -56,14 +57,23 @@ void PosedModel::sortAndRender
         lighting->shadowedLightArray.clear();
     }
 
+    // Cull objects outside the view frustum
+    static Array<Plane> clipPlanes;
+    camera.getClipPlanes (rd->viewport(), clipPlanes);
+    for (int i = 0; i < allModels.size(); ++i) {
+        if (! allModels[i]->worldSpaceBoundingSphere().culledBy(clipPlanes)) {
+            posed3D.append(allModels[i]);
+        }
+    }
+
     // Separate and sort the models
-    static Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent;
     ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
     PosedModel::sort(opaqueAModel, camera.coordinateFrame().lookVector(), opaqueAModel);
     PosedModel::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
     
     rd->setProjectionAndCameraMatrix(camera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
+
 
     // Opaque unshadowed
     for (int m = 0; m < otherOpaque.size(); ++m) {
@@ -92,6 +102,7 @@ void PosedModel::sortAndRender
     opaqueAModel.fastClear();
     otherOpaque.fastClear();
     transparent.fastClear();
+    posed3D.fastClear();
 
     recurse = false;
 }

@@ -17,6 +17,7 @@
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files
      <li> G3D::SuperShader now supports a customMap and customConstant for experimenting with shaders.
      <li> G3D::SuperShader now does not ever light the "back" of a bump-mapped poly, even if the bumps should create a light-facing surface
+     <li> G3D::PosedModel::sortAndRender now performs view-frustum culling of objects
      <li> G3D::Draw::lighting for visualizing light sources
      <li> G3D::GLight::effectSphere
      <li> G3D::GLight::point now has quadratic attenuation by default.
