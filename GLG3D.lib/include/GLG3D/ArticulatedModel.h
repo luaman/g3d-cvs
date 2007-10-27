@@ -194,7 +194,7 @@ public:
             update (or allocate for the first time) the VAR data.  You
             should either call updateNormals first, or write your own
             normals into the array in geometry before calling this.*/
-        void updateVAR();
+        void updateVAR(VARArea::UsageHint hint = VARArea::WRITE_ONCE);
 
         /** Invoke when the trilist materials have changed to recompute the shaders. */
         void updateShaders();

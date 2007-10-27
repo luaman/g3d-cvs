@@ -245,7 +245,7 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
 }
 
 
-void ArticulatedModel::Part::updateVAR() {
+void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRITE_ONCE */) {
     if (geometry.vertexArray.size() == 0) {
         // Has no geometry
         return;
@@ -278,7 +278,7 @@ void ArticulatedModel::Part::updateVAR() {
         size_t roundOff = 8 * 3;
 
         // Allocate new VARs
-        VARAreaRef varArea = VARArea::create(vtxSize * 2 + texSize + tanSize + roundOff, VARArea::WRITE_ONCE);
+        VARAreaRef varArea = VARArea::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
         vertexVAR    = VAR(geometry.vertexArray, varArea);
         normalVAR    = VAR(geometry.normalArray, varArea);
         tangentVAR   = VAR(tangentArray, varArea);
