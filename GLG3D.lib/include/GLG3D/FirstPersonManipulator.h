@@ -62,18 +62,18 @@ public:
 private:
 
     /** m/s */
-    float                       maxMoveRate;
+    float                       m_maxMoveRate;
     
     /** rad/s */
-    float                       maxTurnRate;
+    float                       m_maxTurnRate;
     
     float                       m_yaw;
     float                       m_pitch;
-    Vector3                     translation;
+    Vector3                     m_translation;
 
-    bool                        _active;
+    bool                        m_active;
 
-    class UserInput*            userInput;
+    class UserInput*            m_userInput;
 
     MouseMode                   m_mouseMode;
 
@@ -119,7 +119,7 @@ public:
     void reset();
 
 	void setPosition(const Vector3& t) {
-		translation = t;
+		m_translation = t;
 	}
 
     void lookAt(const Vector3& position);
@@ -134,7 +134,7 @@ public:
 
 	/** @deprecated Rename to translation() */
 	const Vector3& position() const {
-		return translation;
+		return m_translation;
 	}
 
     /**

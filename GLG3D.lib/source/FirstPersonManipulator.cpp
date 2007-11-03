@@ -21,17 +21,17 @@ FirstPersonManipulatorRef FirstPersonManipulator::create() {
 }
 
 FirstPersonManipulator::FirstPersonManipulator() : 
-    maxMoveRate(10),
-    maxTurnRate(20),
+    m_maxMoveRate(10),
+    m_maxTurnRate(20),
     m_yaw(0),
     m_pitch(0),
-    _active(false),
+    m_active(false),
     m_mouseMode(MOUSE_DIRECT) {
 }
 
 
 void FirstPersonManipulator::getFrame(CoordinateFrame& c) const {
-	c.translation = translation;
+	c.translation = m_translation;
     c.rotation = Matrix3::fromEulerAnglesZYX(0, -m_yaw, -m_pitch);
     debugAssert(isFinite(c.rotation[0][0]));
 }
@@ -73,15 +73,15 @@ void FirstPersonManipulator::setMouseMode(FirstPersonManipulator::MouseMode m) {
 
 
 bool FirstPersonManipulator::active() const {
-    return _active;
+    return m_active;
 }
 
 
 void FirstPersonManipulator::reset() {
-    _active      = false;
+    m_active      = false;
     m_yaw        = -halfPi();
     m_pitch      = 0;
-    translation  = Vector3::zero();
+    m_translation  = Vector3::zero();
     setMoveRate(10);
 
 #   ifdef G3D_OSX
@@ -104,33 +104,33 @@ bool FirstPersonManipulator::rightDown(UserInput* ui) const {
              userInput->keyDown(GKey::LCTRL) ||
              userInput->keyDown(GKey::RCTRL)));
 #   else
-       return userInput->keyDown(GKey::RIGHT_MOUSE);
+       return m_userInput->keyDown(GKey::RIGHT_MOUSE);
 #   endif
 }
 
 void FirstPersonManipulator::setActive(bool a) {
-    if (_active == a) {
+    if (m_active == a) {
         return;
     }
-    _active = a;
+    m_active = a;
 
     switch (m_mouseMode) {
     case MOUSE_DIRECT:
-        userInput->setPureDeltaMouse(_active);
+        m_userInput->setPureDeltaMouse(m_active);
         break;
 
     case MOUSE_DIRECT_RIGHT_BUTTON:
         // Only turn on when activeand the right mouse button is down
-        userInput->setPureDeltaMouse(_active && rightDown(userInput));
+        m_userInput->setPureDeltaMouse(m_active && rightDown(m_userInput));
         break;
 
     case MOUSE_SCROLL_AT_EDGE:
     case MOUSE_PUSH_AT_EDGE:        
-        userInput->setPureDeltaMouse(false);
-        if (_active) {
-            userInput->window()->incInputCaptureCount();
+        m_userInput->setPureDeltaMouse(false);
+        if (m_active) {
+            m_userInput->window()->incInputCaptureCount();
         } else {
-            userInput->window()->decInputCaptureCount();
+            m_userInput->window()->decInputCaptureCount();
         }
         break;
 
@@ -141,19 +141,19 @@ void FirstPersonManipulator::setActive(bool a) {
 
 
 void FirstPersonManipulator::setMoveRate(double metersPerSecond) {
-    maxMoveRate = metersPerSecond;
+    m_maxMoveRate = metersPerSecond;
 }
 
 
 void FirstPersonManipulator::setTurnRate(double radiansPerSecond) {
-    maxTurnRate = radiansPerSecond;
+    m_maxTurnRate = radiansPerSecond;
 }
 
 
 void FirstPersonManipulator::lookAt(
     const Vector3&      position) {
 
-    const Vector3 look = (position - translation);
+    const Vector3 look = (position - m_translation);
 
     m_yaw   = aTan2(look.x, -look.z);
     m_pitch = -aTan2(look.y, distance(look.x, look.z));
@@ -195,35 +195,35 @@ void FirstPersonManipulator::onLogic() {
 
 
 void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-    if (! _active) {
+    if (! m_active) {
         return;
     }
 
-    if (userInput == NULL) {
+    if (m_userInput == NULL) {
         return;
     }
 
-    RealTime elapsedTime = sdt;
+    RealTime elapsedTime = rdt;
 
     {
         // Translation direction
-        Vector2 direction(userInput->getX(), userInput->getY());
+        Vector2 direction(m_userInput->getX(), m_userInput->getY());
         direction.unitize();
 
         // Translate forward
-        translation += (lookVector() * direction.y + 
-            frame().rightVector() * direction.x) * elapsedTime * maxMoveRate;
+        m_translation += (lookVector() * direction.y + frame().rightVector() * direction.x) *
+            elapsedTime * m_maxMoveRate;
     }
     
     // Desired change in yaw and pitch
     Vector2 delta;
-    float maxTurn = maxTurnRate * elapsedTime;
+    float maxTurn = m_maxTurnRate * elapsedTime;
 
     switch (m_mouseMode) {
     case MOUSE_DIRECT_RIGHT_BUTTON:
         {
-            bool mouseDown = rightDown(userInput);
-            userInput->setPureDeltaMouse(mouseDown);
+            bool mouseDown = rightDown(m_userInput);
+            m_userInput->setPureDeltaMouse(mouseDown);
             if (! mouseDown) {
                 // Skip bottom case
                 break;
@@ -232,14 +232,14 @@ void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
         // Intentionally fall through to MOUSE_DIRECT
 
     case MOUSE_DIRECT:
-        delta = userInput->mouseDXY() / 100.0f;
+        delta = m_userInput->mouseDXY() / 100.0f;
         break;
 
 
     case MOUSE_SCROLL_AT_EDGE:
         {
-            Rect2D viewport = Rect2D::xywh(0, 0, userInput->window()->width(), userInput->window()->height());
-            Vector2 mouse = userInput->mouseXY();
+            Rect2D viewport = Rect2D::xywh(0, 0, m_userInput->window()->width(), m_userInput->window()->height());
+            Vector2 mouse = m_userInput->mouseXY();
 
             Vector2 hotExtent(max(50.0f, viewport.width() / 8), 
                               max(50.0f, viewport.height() / 6));
@@ -298,7 +298,7 @@ void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
 
 
 void FirstPersonManipulator::onUserInput(UserInput* ui) {
-    userInput = ui;
+    m_userInput = ui;
 }
 
 
