@@ -197,7 +197,7 @@ void RenderDevice::setVARAreaMilestone() {
 
 
 RenderDevice::~RenderDevice() {
-    debugAssertM(cleanedup, "You deleted a RenderDevice without calling RenderDevice::cleanup()");
+    debugAssertM(cleanedup || !initialized(), "You deleted an initialized RenderDevice without calling RenderDevice::cleanup()");
 }
 
 /**
