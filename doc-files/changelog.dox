@@ -63,6 +63,7 @@
      <li> Fix: GCamera::Frustum was facing backwards
      <li> Fix: [ 1774479 ] texture glformats wrong (caused incorrect font rendering on Intel)
      <li> Fix: ArticulatedModel static methods do not force loading of shaders unless an ArticulatedModel has actually been loaded.
+     <li> Fix: RenderDevice::setAlphaWrite/setColorWrite implemented correctly
    </ul>
 
 <hr>
