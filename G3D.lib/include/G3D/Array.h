@@ -638,7 +638,7 @@ public:
    }
 
    inline T& operator[](unsigned int n) {
-        debugAssertM(((int)n < num), format("Array index out of bounds. n = %d, size() = %d", n, num));
+        debugAssertM(n < (unsigned int)num), format("Array index out of bounds. n = %d, size() = %d", n, num));
         return data[n];
    }
 
