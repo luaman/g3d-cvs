@@ -96,15 +96,15 @@ bool FirstPersonManipulator::rightDown(UserInput* ui) const {
 #   ifdef G3D_OSX
     // Treat trackpad wheel click as right mouse button
        return 
-           userInput->keyDown(GKey::RIGHT_MOUSE) || 
-           (userInput->keyDown(GKey::LEFT_MOUSE) && 
+           ui->keyDown(GKey::RIGHT_MOUSE) || 
+           (ui->keyDown(GKey::LEFT_MOUSE) && 
             (
-             userInput->keyDown(GKey::LSHIFT) ||
-             userInput->keyDown(GKey::RSHIFT) ||
-             userInput->keyDown(GKey::LCTRL) ||
-             userInput->keyDown(GKey::RCTRL)));
+             ui->keyDown(GKey::LSHIFT) ||
+             ui->keyDown(GKey::RSHIFT) ||
+             ui->keyDown(GKey::LCTRL) ||
+             ui->keyDown(GKey::RCTRL)));
 #   else
-       return m_userInput->keyDown(GKey::RIGHT_MOUSE);
+       return ui->keyDown(GKey::RIGHT_MOUSE);
 #   endif
 }
 
