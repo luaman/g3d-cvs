@@ -121,7 +121,7 @@ void addLightContribution(in vec3 wsN, in vec3 wsR, in vec3 wsPosition, in vec4 
         // For a bump mapped surface, do not allow illumination on the back side even if the
         // displacement creates a light-facing surface, since it should be self-shadowed for any 
         // large polygon.
-        attLightColor = attLightColor * float(dot(tan_Z.xyz, wsL) * backside > 0);
+        attLightColor = attLightColor * float(dot(tan_Z.xyz, wsL) * backside > 0.0);
 #   endif
 
 #   if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
