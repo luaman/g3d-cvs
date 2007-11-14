@@ -239,6 +239,8 @@ public:
     
     static const TextureFormat* LA32F();
 
+    static const TextureFormat* BGR8();
+
     static const TextureFormat* RGB5();
 
     static const TextureFormat* RGB5A1();

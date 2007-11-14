@@ -10,6 +10,7 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "G3D/AVIInput.h"
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -20,6 +21,9 @@ public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
+
+    AVIInputRef         aviInput;
+    Texture::Ref        aviTexture;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -51,6 +55,9 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
+
+    aviInput = AVIInput::fromFile("c:/black0.avi");
+    debugAssert(aviInput.notNull());
 }
 
 void App::onCleanup() {
@@ -69,6 +76,14 @@ void App::onNetwork() {
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
+
+    // check for video frame and update
+    if (aviInput.notNull() && aviInput->isFrameAvailable(rdt)) {
+        AVIInput::FrameInfo frame = aviInput->nextFrame();
+        const AVIInput::AVIInfo& info = aviInput->currentInfo();
+        aviTexture = Texture::fromMemory("avi", frame.frameData, TextureFormat::BGR8(), info.width, info.height, 1, TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::video());
+        aviTexture->invertY = true;
+    }
 }
 
 void App::onUserInput(UserInput* ui) {
@@ -145,6 +160,14 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
+
+    if (aviInput.notNull()) {
+        Rect2D videoRect(Vector2(aviInput->currentInfo().width, aviInput->currentInfo().height));
+        rd->push2D(videoRect);
+        rd->setTexture(0, aviTexture);
+        Draw::fastRect2D(videoRect, rd);
+        rd->pop2D();
+    }
 
     PosedModel2D::sortAndRender(rd, posed2D);
 }
