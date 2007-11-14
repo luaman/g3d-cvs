@@ -333,7 +333,7 @@ void GApp::renderDebugInfo() {
                 
                 double fps = m_graphicsWatch.smoothFPS();
                 std::string s = format(
-                    "% 4dfps % 4.1gM tris % 4.1gM tris/s   GL Calls: %d/%d Maj; %d/%d Min; %d push", 
+                    "% 5dfps % 5.1fM tris % 6.1fM tris/s  GL Calls: %d/%d Maj; %d/%d Min; %d push", 
                     iRound(fps),
                     iRound(fps * renderDevice->trianglesPerFrame() / 1e5) * 0.1f,
                     iRound(fps * renderDevice->triangleRate() / 1e5) * 0.1f,

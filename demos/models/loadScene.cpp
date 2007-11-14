@@ -6,6 +6,7 @@ void App::loadScene() {
     const std::string path = "";
 
     const Matrix3 rot180 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(180));
+    const Matrix3 rot270 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(270));
 
     double x = -2;
 
@@ -22,11 +23,11 @@ void App::loadScene() {
     if (true) {
         CoordinateFrame xform;
 
-        xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.03f;
-        xform.rotation = xform.rotation * rot180;
-        xform.translation = Vector3(-0.35f, -1.45f, 2.25f);
+        xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.009f;
+        xform.rotation = xform.rotation * rot270;
+        xform.translation = Vector3(0, -1.0f, 0);
 
-        std::string filename = dataDir + "3ds/legocar/legocar.3ds";
+        std::string filename = dataDir + "3ds/cannon/cannon.3ds";
         ArticulatedModelRef model = ArticulatedModel::fromFile(filename, xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
