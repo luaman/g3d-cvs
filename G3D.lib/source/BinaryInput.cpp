@@ -197,6 +197,13 @@ static uint32 readUInt32(const uint8* data, bool swapBytes) {
     }
 }
 
+
+void BinaryInput::setEndian(G3DEndian e) {
+    fileEndian = e;
+    swapBytes = needSwapBytes(fileEndian);
+}
+
+
 BinaryInput::BinaryInput(
     const uint8*        data,
     int64               dataLen,
@@ -211,10 +218,9 @@ BinaryInput::BinaryInput(
 
     freeBuffer = copyMemory || compressed;
 
-    this->fileEndian = dataEndian;
     this->filename = "<memory>";
     pos = 0;
-    swapBytes = needSwapBytes(fileEndian);
+    setEndian(fileEndian);
 
     if (compressed) {
         // Read the decompressed size from the first 4 bytes
@@ -252,7 +258,7 @@ BinaryInput::BinaryInput(
 
     alreadyRead = 0;
     freeBuffer = true;
-    this->fileEndian = fileEndian;
+    setEndian(fileEndian);
     this->filename = filename;
     buffer = NULL;
     bufferLength = 0;
@@ -264,7 +270,6 @@ BinaryInput::BinaryInput(
     // Update global file tracker
     _internal::currentFilesUsed.insert(filename);
     
-    swapBytes = needSwapBytes(fileEndian);
 
     if (! fileExists(filename, false)) {
         std::string zipfile;

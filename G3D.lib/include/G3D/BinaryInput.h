@@ -185,6 +185,10 @@ public:
 
     virtual ~BinaryInput();
 
+    /** Change the endian-ness of the file.  This only changes the
+        interpretation of the file for future read calls; the
+        underlying data is unmodified.*/
+    void setEndian(G3DEndian endian);
 
     std::string getFilename() const {
         return filename;
