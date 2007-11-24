@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2001-07-08
- @edited  2007-07-30
+ @edited  2007-11-30
  */
 
 #include "G3D/platform.h"
@@ -20,6 +20,7 @@
 #include "G3D/fileutils.h"
 #include "GLG3D/Lighting.h"
 #include "GLG3D/ShadowMap.h"
+#include "GLG3D/SuperShader.h" // to purge cache
 #include <time.h>
 #ifdef G3D_WIN32
     #include "GLG3D/Win32Window.h"
@@ -579,6 +580,8 @@ Vector4 RenderDevice::project(const Vector4& v) const {
 
 void RenderDevice::cleanup() {
     debugAssert(initialized());
+
+    SuperShader::purgeCache();
 
     if (debugLog) {debugLog->println("Shutting down RenderDevice.");}
 
