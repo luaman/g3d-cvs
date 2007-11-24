@@ -21,9 +21,12 @@ class Version:
         else:
             return self.major + '.' + self.minor
 
-
+def onWindows():
+    s = platform.system()
+    return (s == 'Windows') or (s == 'Microsoft')
+    
 def copyIfNewer(source, dest):
-    if platform.system() == 'Windows':
+    if onWindows():
         # Just use the binary for this
         print 'copyifnewer', source, dest
         return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', 
@@ -35,7 +38,8 @@ def copyIfNewer(source, dest):
 
 
 osTable = \
-    {'Windows'  : 'win32',
+    {'Microsoft': 'win32', # Vista
+     'Windows'  : 'win32', # XP/NT
      'Linux'    : 'linux',
      'Darwin'   : 'osx',
      'FreeBSD'  : 'freebsd'}
