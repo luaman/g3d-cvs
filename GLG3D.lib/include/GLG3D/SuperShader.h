@@ -172,9 +172,11 @@ public:
           If NULL bump mapping is disabled. */
         Texture::Ref            normalBumpMap;
 
-        /** Reserved for experimentation. This allows you to pass one additional texture of your choice into the shader; 
-            you can then modify the shader code directly to recieve and apply this map.  If non-NULL, CUSTOMMAP is 
-            #defined in the shader. */
+        /** Reserved for experimentation. This allows you to pass one
+            additional texture of your choice into the shader; you can
+            then modify the shader code directly to recieve and apply
+            this map.  If non-NULL, CUSTOMMAP is #defined in the
+            shader. */
         Texture::Ref            customMap;
 
         /** Reserved for experimentation.  If finite, CUSTOMCONSTANT is #defined in the shader.  */
@@ -276,6 +278,11 @@ private:
         /** Returns the shader for a similar material or 
             NULL, NULL if one does not exist. */
         Pair getSimilar(const Material& mat) const;
+
+        void clear() {
+            materialArray.clear();
+            shaderArray.clear();
+        }
     };
 
     static Cache cache;
@@ -289,10 +296,20 @@ private:
 
 public:
 
+    /** Creates the non-shadow casting and shadow casting shaders
+        appropriate for this material.  These may come from a
+        pre-compiled cache. */
     static void createShaders(
         const Material& material,
         ShaderRef&      nonShadowedShader,
         ShaderRef&      shadowMappedShader);
+
+    /**
+      Clears the static cache of shaders to clean up memory.
+     */
+    static void purgeCache() {
+        cache.clear();
+    }
 
 }; // SuperShader
 
