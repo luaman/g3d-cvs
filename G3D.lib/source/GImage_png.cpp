@@ -162,10 +162,10 @@ void GImage::decodePNG(
     //read in sequentially so that three copies of the file are not in memory at once
     png_read_info(png_ptr, info_ptr);
 
-    uint32 png_width, png_height;
+    png_uint_32 png_width, png_height;
     int bit_depth, color_type, interlace_type;
     //this will validate the data it extracts from info_ptr
-    png_get_IHDR(png_ptr, info_ptr, (png_uint_32*)&png_width, (png_uint_32*)&png_height, &bit_depth, &color_type,
+    png_get_IHDR(png_ptr, info_ptr, &png_width, &png_height, &bit_depth, &color_type,
        &interlace_type, int_p_NULL, int_p_NULL);
 
     if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
@@ -173,8 +173,8 @@ void GImage::decodePNG(
         throw GImage::Error("Unsupported PNG color type - PNG_COLOR_TYPE_GRAY_ALPHA.", input.getFilename());
     }
 
-    this->width = png_width;
-    this->height = png_height;
+    this->width = static_cast<uint32>(png_width);
+    this->height = static_cast<uint32>(png_height);
 
     //swap bytes of 16 bit files to least significant byte first
     png_set_swap(png_ptr);

@@ -239,7 +239,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
     _hasGLMajorVersion2 = beginsWith(glver, "2.");
 
     #define LOAD_EXTENSION(name) \
-        *((void**)&name) = glGetProcAddress(#name);
+        name = reinterpret_cast<typeof(name)>(glGetProcAddress(#name));
 
     // Don't load the multitexture extensions when they are
     // statically linked

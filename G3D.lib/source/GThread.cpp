@@ -139,7 +139,7 @@ bool GThread::start() {
 
     return (handle != NULL);
 #   else
-    if (!pthread_create((pthread_t*)&handle,
+    if (!pthread_create(&handle,
                         NULL,
                         &_internal::GThreadPrivate::GThreadProc, 
                         this)) {
@@ -156,7 +156,7 @@ void GThread::terminate() {
 #       ifdef G3D_WIN32
         ::TerminateThread(handle, 0);
 #       else
-        pthread_kill((pthread_t)handle, SIGSTOP);
+        pthread_kill(handle, SIGSTOP);
 #       endif
         handle = NULL;
     }
@@ -176,7 +176,7 @@ void GThread::waitForCompletion() {
     ::WaitForSingleObject(pthread->event, INFINITE);
 #   else
     debugAssert(handle);
-    pthread_join((pthread_t)handle, NULL);
+    pthread_join(handle, NULL);
 #   endif
 }
 

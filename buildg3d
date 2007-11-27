@@ -303,14 +303,18 @@ def jar(args):
      
    mkdir('temp/G3D.jar/com/graphics3d/G3D')
    mkdir('build')
-   shell('javac -d temp/G3D.jar G3D.jar/com/graphics3d/G3D/*.java')
-
+   
    x = 0
-   if (x == 0):
-      x = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'com'])
+   x = run('javac', ['-d', 'temp/G3D.jar', 'G3D.jar/com/graphics3d/G3D/*.java'])
 
-      if (x == 0):
-         print 'Built G3D.jar'
+   if (os.name != 'nt') and (x == 127):
+       print 'javac  not found on this machine, skipping .jar creation!'
+       return 0
+   elif (x == 0):
+       x = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'com'])
+
+       if (x == 0):
+           print 'Built G3D.jar'
 
    return x
 

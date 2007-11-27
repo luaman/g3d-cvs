@@ -44,7 +44,11 @@ private:
     _internal::GThreadPrivate*          pthread;
 
     // Thread handle to hold HANDLE and pthread_t
-    void*                               handle;
+#ifdef G3D_WIN32
+    HANDLE                              handle;
+#else
+    pthread_t                           handle;
+#endif //G3D_WIN32
 
     std::string                         _name;
 

@@ -293,11 +293,21 @@ public:
 
     inline void writeFloat32(float32 f) {
         debugAssert(beginEndBits == 0);
-        writeUInt32(*(uint32*)&f);
+        union {
+            float32 a;
+            uint32 b;
+        };
+        a = f;
+        writeUInt32(b);
     }
 
     inline void writeFloat64(float64 f) {
-        writeUInt64(*(uint64*)&f);
+        union {
+            float64 a;
+            uint64 b;
+        };
+        a = f;
+        writeUInt64(b);
     }
 
     /**

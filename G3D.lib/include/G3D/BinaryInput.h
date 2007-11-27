@@ -334,13 +334,21 @@ public:
     }
 
     inline float32 readFloat32() {
-        uint32 a = readUInt32();
-        return *(float32*)&a;
+        union {
+            uint32 a;
+            float32 b;
+        };
+        a = readUInt32();
+        return b;
     }    
 
     inline float64 readFloat64() {
-        uint64 a = readUInt64();
-        return *(float64*)&a;
+        union {
+            uint64 a;
+            float64 b;
+        };
+        a = readUInt64();
+        return b;
     }
 
     void readBytes(void* bytes, int64 n);

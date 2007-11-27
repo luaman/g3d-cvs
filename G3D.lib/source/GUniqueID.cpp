@@ -48,8 +48,12 @@ GUniqueID GUniqueID::create(uint16 tag) {
             systemID |= addr[0].ip();
         }
         
-        float64 t = System::time();
-        systemID = (*reinterpret_cast<uint64*>(&t)) << 22;
+        union {
+            float64 ft;
+            uint64 ut;
+        };
+        ft = System::time();
+        systemID = ut << 22;
         systemID ^= ((uint64)iRandom(0, 32768)) << 8;
         
         systemID &= ~((uint64)1023 << 54);
