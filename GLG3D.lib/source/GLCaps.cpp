@@ -238,8 +238,14 @@ void GLCaps::loadExtensions(Log* debugLog) {
     const std::string glver = glVersion();
     _hasGLMajorVersion2 = beginsWith(glver, "2.");
 
+#ifdef _MSC_VER
+    #define LOAD_EXTENSION(name)                           \
+        { void** tmpPtr = reinterpret_cast<void**>(&name); \
+          *tmpPtr = (glGetProcAddress(#name)); }
+#else
     #define LOAD_EXTENSION(name) \
         name = reinterpret_cast<typeof(name)>(glGetProcAddress(#name));
+#endif //_MSC_VER
 
     // Don't load the multitexture extensions when they are
     // statically linked
