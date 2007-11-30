@@ -38,6 +38,8 @@ public:
 App::App(const GApp::Settings& settings) : GApp(settings) {}
 
 void App::onInit() {
+
+
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
     // automatically caught.
@@ -152,15 +154,5 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-
-	Matrix A = Matrix::random(5, 5);
-	Matrix B = A.inverse();
-
-	Matrix C = A * B;
-
-	debugPrint(A.toString("A"));
-	debugPrint(B.toString("B"));
-	debugPrint(C.toString("C"));
-
     return App().run();
 }

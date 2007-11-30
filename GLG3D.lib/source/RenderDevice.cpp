@@ -383,6 +383,16 @@ void RenderDevice::init(GWindow* window, Log* log) {
         debugLog->printf(
             "GL extensions: \"%s\"\n\n",
             extStringCopy.c_str());
+
+        logPrintf("Texture format support:\n");
+        for (int code = 0; code < TextureFormat::CODE_NUM; ++code) {
+            const TextureFormat* fmt = TextureFormat::fromCode((TextureFormat::Code)code);
+            if (fmt) {
+                bool b = GLCaps::supports(fmt);
+                logPrintf("%20s %s\n", fmt->name().c_str(), b ? "Yes" : "No");
+            }
+        }
+        logPrintf("\n");
     }
  
     cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();

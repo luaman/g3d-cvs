@@ -80,6 +80,7 @@ const TextureFormat* TextureFormat::depth(int depthBits) {
     }
 }
 
+
 const TextureFormat* TextureFormat::stencil(int bits) {
 
     if (bits == SAME_AS_SCREEN) {
@@ -106,7 +107,83 @@ const TextureFormat* TextureFormat::stencil(int bits) {
     }
 }
 
-const TextureFormat* fromCode(TextureFormat::Code code) {
+
+std::string TextureFormat::name() const {
+    
+    static const std::string nameArray[] = 
+    {
+        "L8", 
+        "L16",
+        "L16F",
+        "L32F",
+
+        "A8",
+        "A16",
+        "A16F",
+        "A32F",
+
+        "LA4",
+        "LA8",
+        "LA16",
+        "LA16F",
+        "LA32F",
+
+        "RGB5",
+        "RGB5A1",
+        "RGB8",
+        "RGB10",
+        "RGB10A2",
+        "RGB16",
+        "RGB16F",
+        "RGB32F",
+
+        "ARGB8",
+        "BGR8",
+
+        "RGBA8",
+        "RGBA16",
+        "RGBA16F",
+        "RGBA32F",
+
+        "BAYER_RGGB8",
+        "BAYER_GRBG8",
+        "BAYER_GBRG8",
+        "BAYER_BGGR8",
+        "BAYER_RGGB32F",
+        "BAYER_GRBG32F",
+        "BAYER_GBRG32F",
+        "BAYER_BGGR32F",
+
+        "HSV8",
+        "HSV32F",
+
+        "YUV8",
+        "YUV32F",
+
+        "RGB_DXT1",
+        "RGBA_DXT1",
+        "RGBA_DXT3",
+        "RGBA_DXT5",
+
+        "DEPTH16",
+        "DEPTH24",
+        "DEPTH32",
+        "DEPTH32F",
+        
+        "STENCIL1",
+        "STENCIL4",
+        "STENCIL8",
+        "STENCIL16",
+
+        "DEPTH24_STENCIL8"
+    };
+
+    debugAssert(code < CODE_NUM);
+    return nameArray[code];
+}
+
+
+const TextureFormat* TextureFormat::fromCode(TextureFormat::Code code) {
     switch (code) {
     case TextureFormat::CODE_L8:
         return TextureFormat::L8();
@@ -176,13 +253,10 @@ const TextureFormat* fromCode(TextureFormat::Code code) {
         break;
 
     case TextureFormat::CODE_ARGB8:
-        debugAssertM(TextureFormat::AUTO(), "Unsupported TextureFormat at decoding.");
-        return TextureFormat::AUTO();
-        break;
+        return NULL;
+
     case TextureFormat::CODE_BGR8:
-        debugAssertM(TextureFormat::AUTO(), "Unsupported TextureFormat at decoding.");
-        return TextureFormat::AUTO();
-        break;
+        return NULL;
 
     case TextureFormat::CODE_RGBA8:
         return TextureFormat::RGBA8();
@@ -211,8 +285,8 @@ const TextureFormat* fromCode(TextureFormat::Code code) {
 
     case TextureFormat::CODE_YUV8:
     case TextureFormat::CODE_YUV32F:
-        debugAssertM(TextureFormat::AUTO(), "Unsupported TextureFormat at decoding.");
-        return TextureFormat::AUTO();
+        //debugAssertM(TextureFormat::AUTO(), "Unsupported TextureFormat at decoding.");
+        return NULL;
         break;
 
     case TextureFormat::CODE_RGB_DXT1:
@@ -252,6 +326,10 @@ const TextureFormat* fromCode(TextureFormat::Code code) {
         break;
     case TextureFormat::CODE_STENCIL16:
         return TextureFormat::STENCIL16();
+        break;
+
+    case TextureFormat::CODE_DEPTH24_STENCIL8:
+        return TextureFormat::DEPTH24_STENCIL8();
         break;
 
     default:

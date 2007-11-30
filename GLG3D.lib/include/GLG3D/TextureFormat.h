@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-05-23
-  @edited  2007-07-08
+  @edited  2007-12-01
 */
 
 #ifndef GLG3D_TEXTUREFORMAT_H
@@ -23,6 +23,7 @@ namespace G3D {
 class TextureFormat {
 public:
 
+    // Must update TextureFormat::name() when this enum changes.
     enum Code {
         CODE_L8,
         CODE_L16,
@@ -87,7 +88,9 @@ public:
         CODE_STENCIL8,
         CODE_STENCIL16,
 
-        CODE_DEPTH24_STENCIL8
+        CODE_DEPTH24_STENCIL8,
+
+        CODE_NUM
         };
 
     enum ColorSpace {
@@ -182,6 +185,8 @@ public:
 
     /** True if the bit depths specified are for float formats. */
     bool                floatingPoint;
+
+    std::string name() const;
 
 private:
 
@@ -311,7 +316,8 @@ public:
     static const TextureFormat* stencil(int bits = SAME_AS_SCREEN);
 
     /**
-     Returns the matching TextureFormat* identified by the Code.
+     Returns the matching TextureFormat* identified by the Code.  May return NULL
+     if this format is reserved but not yet implemented by G3D.
      */
     static const TextureFormat* fromCode(TextureFormat::Code code);
 };

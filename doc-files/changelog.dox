@@ -22,6 +22,7 @@
      <li> G3D::SuperShader::purgeCache
      <li> G3D::GLight::effectSphere
      <li> G3D::GLight::point now has quadratic attenuation by default.
+     <li> G3D::TextureFormat::name
      <li> G3D::BinaryInput::setEndian
      <li> Opaque G3D::ArticulatedModels now support more than 2 non-shadow casting light sources
      <li> Fixed SuperShader to correctly light bump-mapped surfaces in tangent space [Kyle Whitson]
@@ -66,6 +67,7 @@
      <li> Fix: [ 1774479 ] texture glformats wrong (caused incorrect font rendering on Intel)
      <li> Fix: ArticulatedModel static methods do not force loading of shaders unless an ArticulatedModel has actually been loaded.
      <li> Fix: RenderDevice::setAlphaWrite/setColorWrite implemented correctly
+     <li> Fix: Implemented TextureFormat::fromCode
    </ul>
 
 <hr>
