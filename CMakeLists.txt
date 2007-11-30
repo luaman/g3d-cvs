@@ -156,6 +156,7 @@ ADD_SUBDIRECTORY (tools/gfxmeter)
 ADD_SUBDIRECTORY (tools/viewer)
 ADD_SUBDIRECTORY (demos/starter)
 ADD_SUBDIRECTORY (demos/models)
+ADD_SUBDIRECTORY (demos/shader)
 
 # add data-files installation
 INSTALL(DIRECTORY data-files DESTINATION data PATTERN "CVS" EXCLUDE)
