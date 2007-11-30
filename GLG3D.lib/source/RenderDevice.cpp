@@ -384,12 +384,14 @@ void RenderDevice::init(GWindow* window, Log* log) {
             "GL extensions: \"%s\"\n\n",
             extStringCopy.c_str());
 
-        logPrintf("Texture format support:\n");
+        logPrintf("Supported Formats:\n");
+        logPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
         for (int code = 0; code < TextureFormat::CODE_NUM; ++code) {
             const TextureFormat* fmt = TextureFormat::fromCode((TextureFormat::Code)code);
             if (fmt) {
-                bool b = GLCaps::supports(fmt);
-                logPrintf("%20s %s\n", fmt->name().c_str(), b ? "Yes" : "No");
+                bool t = GLCaps::supports(fmt);
+                // TODO: Morgan implement render buffer case
+                logPrintf("%20s  %s       %s\n", fmt->name().c_str(), t ? "Yes" : "No", "Unknown");
             }
         }
         logPrintf("\n");
