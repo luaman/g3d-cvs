@@ -220,7 +220,7 @@ BinaryInput::BinaryInput(
 
     this->filename = "<memory>";
     pos = 0;
-    setEndian(fileEndian);
+    setEndian(dataEndian);
 
     if (compressed) {
         // Read the decompressed size from the first 4 bytes
