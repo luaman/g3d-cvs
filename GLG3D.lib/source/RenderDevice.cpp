@@ -392,7 +392,7 @@ void RenderDevice::init(GWindow* window, Log* log) {
             if (fmt) {
                 bool t = GLCaps::supportsTexture(fmt);
                 bool r = GLCaps::supportsRenderBuffer(fmt);
-                logPrintf("%20s  %s       %s\n", fmt->name().c_str(), t ? "Yes" : "No", r ? "Yes" : "No");
+                logPrintf("%20s  %s       %s\n", fmt->name().c_str(), t ? "Yes" : "No ", r ? "Yes" : "No ");
             }
         }
         logPrintf("\n");
