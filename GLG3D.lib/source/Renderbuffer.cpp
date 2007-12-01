@@ -19,11 +19,11 @@ namespace G3D {
 /////////////////////////////////////////////////////////////////////////////
 
 Renderbuffer::Renderbuffer (	
-    const std::string&			_name, 
-    const GLuint				_imageID,
-    const G3D::TextureFormat*	_format, 
-    const int					_width, 
-    const int					_height) : 
+    const std::string&          _name, 
+    const GLuint                _imageID,
+    const G3D::TextureFormat*   _format, 
+    const int                   _width, 
+    const int                   _height) : 
     mName(_name),
     mImageID(_imageID),
     mFormat(_format),
@@ -40,9 +40,9 @@ Renderbuffer::~Renderbuffer () {
 
 
 RenderbufferRef Renderbuffer::fromGLRenderbuffer(
-    const std::string&			_name, 
-    const GLuint				_imageID,
-    const G3D::TextureFormat	*_format) {
+    const std::string&		 _name, 
+    const GLuint                 _imageID,
+    const G3D::TextureFormat*    _format) {
 
     GLint w, h;
 
@@ -58,8 +58,8 @@ RenderbufferRef Renderbuffer::fromGLRenderbuffer(
 
 RenderbufferRef Renderbuffer::createEmpty(
     const std::string&			_name, 
-    const int					_width, 
-    const int					_height,
+    const int				_width, 
+    const int				_height,
     const G3D::TextureFormat*   _format) { 
     // New Renderbuffer ID
     GLuint _imageID;

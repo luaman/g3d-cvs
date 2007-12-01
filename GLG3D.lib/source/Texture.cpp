@@ -608,7 +608,7 @@ Texture::Ref Texture::fromMemory(
         desiredFormat = TextureFormat::RGBA8();
     }
 
-    debugAssertM(GLCaps::supports(desiredFormat), "Unsupported texture format.");
+    debugAssertM(GLCaps::supportsTexture(desiredFormat), "Unsupported texture format.");
 
     glStatePush();
 

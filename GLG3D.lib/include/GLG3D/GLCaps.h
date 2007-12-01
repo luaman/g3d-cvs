@@ -189,8 +189,14 @@ public:
 
     static bool supports(const std::string& extName);
 
-    /** Returns true if the given texture format is supported on this device.*/
-    static bool supports(const class TextureFormat* fmt);
+    /** @deprecated.  Call GLCaps::supportsTexture instead. */
+    static bool G3D_DEPRECATED supports(const class TextureFormat* fmt);
+
+    /** Returns true if the given texture format is supported on this device for Textures.*/
+    static bool supportsTexture(const class TextureFormat* fmt);
+
+    /** Returns true if the given texture format is supported on this device for RenderBuffers.*/
+    static bool supportsRenderBuffer(const class TextureFormat* fmt);
 
     static const std::string& glVersion();
 

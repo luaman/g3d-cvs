@@ -1,10 +1,11 @@
 /**
   @file Renderbuffer.h
 
-  @maintainer Daniel Hilferty, djhilferty@users.sourceforge.net
+  @author Daniel Hilferty, djhilferty@users.sourceforge.net
+  @maintainer Morgan McGuire
 
   @created 2006-01-06
-  @edited  2006-11-14
+  @edited  2007-11-14
 */
 
 #ifndef GLG3D_RENDERBUFFER_H
@@ -43,34 +44,35 @@ typedef ReferenceCountedPointer<Renderbuffer> RenderbufferRef;
 
  <B>BETA API</B> -- Subject to change
 
-  @cite http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt
+ @cite http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt
 */
 class Renderbuffer : public ReferenceCountedObject {
 private:
 
-	/** Renderbuffer name */
-    std::string						mName;
+    /** Renderbuffer name */
+    std::string                     mName;
 
-	/** OpenGL Object ID */
-	GLuint							mImageID;
-
-	/** Texel format */
+    /** OpenGL Object ID */
+    GLuint                          mImageID;
+    
+    /** Texel format */
     const class TextureFormat*      mFormat;
 
-	/** Buffer width */
-    int								mWidth;
+    /** Buffer width */
+    int                             mWidth;
 
-	/** Buffer height */
-    int								mHeight;
+    /** Buffer height */
+    int                             mHeight;
 
-	/** Constructor */
-	Renderbuffer (	
-		const std::string&			_name,
-		const GLuint				_renderbufferID,
-		const G3D::TextureFormat*	_format, 
-		const int					_width, 
-		const int					_height);
-
+    
+    Renderbuffer 
+    (	
+     const std::string&         _name,
+     const GLuint               _renderbufferID,
+     const G3D::TextureFormat*	_format, 
+     const int                  _width, 
+     const int                  _height);
+    
 public:
 
 	/** Destroys the underlying OpenGL id */
@@ -87,11 +89,12 @@ public:
 	 @param _height			Height
 	 @param _depth			Image depth
 	 */
-	static RenderbufferRef fromGLRenderbuffer(
-		const std::string&			name, 
-		const GLuint				imageID,
-		const G3D::TextureFormat*   format);
-
+	static RenderbufferRef fromGLRenderbuffer
+        (
+         const std::string&          name, 
+         const GLuint                imageID,
+         const G3D::TextureFormat*   format);
+    
 	/**
 	 Creates an empty renderbuffer object.
 
@@ -101,11 +104,12 @@ public:
 	 @param _height Height
 	 @param _depth  Image depth
 	 */
-    static RenderbufferRef createEmpty(
-		const std::string&			name, 
-		const int					width, 
-		const int					height,
-		const class TextureFormat*  format); 
+    static RenderbufferRef createEmpty
+    (
+     const std::string&          name, 
+     const int                   width, 
+     const int                   height,
+     const class TextureFormat*  format); 
 
 	/**
 	 Get OpenGL renderbuffer ID, useful for accessing

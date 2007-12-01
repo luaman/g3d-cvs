@@ -50,6 +50,7 @@ static void __stdcall glIgnore(GLenum e) {
     to construct their own TextureFormats.
  */
 static Table<const TextureFormat*, bool>      _supportedTextureFormat;
+static Table<const TextureFormat*, bool>      _supportedRenderBufferFormat;
 
 Set<std::string> GLCaps::extensionSet;
 
@@ -601,18 +602,25 @@ bool GLCaps::supports(const std::string& extension) {
 
 
 bool GLCaps::supports(const TextureFormat* fmt) {
+    return supportsTexture(fmt);
+}
+
+
+bool GLCaps::supportsTexture(const TextureFormat* fmt) {
 
     // First, check if we've already tested this format
     if (! _supportedTextureFormat.containsKey(fmt)) {
 
         bool supportsFormat = false;
 
-        if (!fmt->floatingPoint || supports_GL_ARB_texture_float())
-        {
+        if (fmt->floatingPoint && ! supports_GL_ARB_texture_float()) {
+            supportsFormat = false;
+        } else {
+            // Allocate some space for making a dummy texture
             uint8 bytes[8 * 8 * 4];
 
             glPushAttrib(GL_TEXTURE_BIT);
-
+            {
                 // See if we can create a texture in this format
                 unsigned int id;
                 glGenTextures(1, &id);
@@ -622,11 +630,14 @@ bool GLCaps::supports(const TextureFormat* fmt) {
                 glGetError();
                 // 2D texture, level of detail 0 (normal), internal format, x size from image, y size from image, 
                 // border 0 (normal), rgb color data, unsigned byte data, and finally the data itself.
-                glTexImage2D(GL_TEXTURE_2D, 0, fmt->openGLFormat, 8, 8, 0, fmt->openGLBaseFormat, GL_UNSIGNED_BYTE, bytes);
+                glTexImage2D(GL_TEXTURE_2D, 0, fmt->openGLFormat, 8, 8, 0, 
+                             fmt->openGLBaseFormat, GL_UNSIGNED_BYTE, bytes);
 
                 supportsFormat = (glGetError() == GL_NO_ERROR);
 
+                glBindTexture(GL_TEXTURE_2D, 0);
                 glDeleteTextures(1, &id);
+            }
             // Restore old texture state
             glPopAttrib();
         }
@@ -635,6 +646,48 @@ bool GLCaps::supports(const TextureFormat* fmt) {
     }
 
     return _supportedTextureFormat[fmt];
+}
+
+
+bool GLCaps::supportsRenderBuffer(const TextureFormat* fmt) {
+
+    // First, check if we've already tested this format
+    if (! _supportedRenderBufferFormat.containsKey(fmt)) {
+
+        bool supportsFormat = false;
+
+        if (! supports_GL_EXT_framebuffer_object()) {
+            // No frame buffers
+            supportsFormat = false;
+
+        } else if (fmt->floatingPoint && ! supports_GL_ARB_texture_float()) {
+            supportsFormat = false;
+        } else {
+            glPushAttrib(GL_COLOR_BUFFER_BIT);
+            {
+                // See if we can create a render buffer in this format
+                unsigned int id;
+                glGenRenderbuffersEXT (1, &id);
+
+                // Clear the old error flag
+                glGetError();
+
+                glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, id);
+                glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, fmt->openGLFormat, 8, 8);
+
+                supportsFormat = (glGetError() == GL_NO_ERROR);
+
+                glBindRenderbufferEXT (GL_RENDERBUFFER_EXT, 0);
+                glDeleteRenderbuffersEXT(1, &id);
+            }
+            // Restore old  state
+            glPopAttrib();
+        }
+
+        _supportedRenderBufferFormat.set(fmt, supportsFormat);
+    }
+
+    return _supportedRenderBufferFormat[fmt];
 }
 
 
