@@ -12,7 +12,7 @@ ENDIF(APPLE)
 # create source and include file lists for easy use
 FILE(GLOB source_list source/*.cpp ${MM_FILES})
 FILE(GLOB header_list include/GLG3D/*.h)
-FILE(GLOB gl_header_list include/GL/*.h)
+FILE(GLOB gl_header_list include/GLG3D/GL/*.h)
 
 # specify include paths during compilation
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR}
