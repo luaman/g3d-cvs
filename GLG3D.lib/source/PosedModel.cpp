@@ -14,6 +14,8 @@
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/ArticulatedModel.h"
 #include "G3D/GCamera.h"
+#include "G3D/debugPrintf.h"
+#include "G3D/Log.h"
 
 namespace G3D {
 
@@ -33,7 +35,10 @@ void PosedModel::sortAndRender
 
     LightingRef lighting = _lighting->clone();
 
-    bool renderShadows = (shadowMaps.size() > 0) && (lighting->shadowedLightArray.size() > 0) && shadowMaps[0]->enabled();
+    bool renderShadows =
+        (shadowMaps.size() > 0) && 
+        (lighting->shadowedLightArray.size() > 0) && 
+        shadowMaps[0]->enabled();
 
     if (renderShadows) {
         // Remove excess lights
@@ -61,7 +66,8 @@ void PosedModel::sortAndRender
     static Array<Plane> clipPlanes;
     camera.getClipPlanes (rd->viewport(), clipPlanes);
     for (int i = 0; i < allModels.size(); ++i) {
-        if (! allModels[i]->worldSpaceBoundingSphere().culledBy(clipPlanes)) {
+        const Sphere& sphere = allModels[i]->worldSpaceBoundingSphere();
+        if (! sphere.culledBy(clipPlanes)) {
             posed3D.append(allModels[i]);
         }
     }
@@ -74,7 +80,6 @@ void PosedModel::sortAndRender
     rd->setProjectionAndCameraMatrix(camera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
 
-
     // Opaque unshadowed
     for (int m = 0; m < otherOpaque.size(); ++m) {
         otherOpaque[m]->renderNonShadowed(rd, lighting);
@@ -83,6 +88,7 @@ void PosedModel::sortAndRender
 
     // Opaque shadowed
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+logPrintf("Render shadow pass\n");
         rd->pushState();
         ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[0], shadowMaps[L]);
         rd->popState();

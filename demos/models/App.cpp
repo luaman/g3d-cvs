@@ -33,11 +33,13 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
     toneMap->setEnabled(false);
 }
 
+
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     for (int e = 0; e < entityArray.size(); ++e) {
         entityArray[e]->onSimulation(rdt);
     }
 }
+
 
 void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(' ')) {
@@ -75,6 +77,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
 
+    //shadowMap->depthTexture()->toDepthImage1()->save("depth.png");
+    //shadowMap->colorDepthTexture()->toImage3()->save("color-depth.png");
+    //    exit(0);
     /*
       // See bounding volumes:
     for (int i = 0; i < posed3D.size(); ++i) {

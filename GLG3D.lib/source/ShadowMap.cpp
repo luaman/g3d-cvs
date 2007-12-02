@@ -180,7 +180,8 @@ void ShadowMap::updateDepth(
 
         CoordinateFrame lightCFrame;
         Vector3 center = sceneBounds.center();
-        lightCFrame.translation = (light.position.xyz() * 20 + center) * (1 - light.position.w) + light.position.w * light.position.xyz();
+        lightCFrame.translation = (light.position.xyz() * 20 + center) * (1 - light.position.w) + 
+            light.position.w * light.position.xyz();
 
         Vector3 perp = Vector3::unitZ();
         // Avoid singularity when looking along own z-axis
@@ -248,9 +249,18 @@ void ShadowMap::computeColorTexture() {
     if (m_colorTexture.isNull()) {
         Texture::Settings settings = Texture::Settings::video();
         settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-        // Must be RGB16 or RGB16F because OpenGL can't render to luminance textures
-        m_colorTexture = Texture::createEmpty("Depth map", m_depthTexture->width(), m_depthTexture->height(), 
-                                              TextureFormat::RGB16F(), Texture::DIM_2D, settings);
+        settings.wrapMode = WrapMode::CLAMP;
+
+        // Must be RGB16 or RGB16F because OpenGL can't render to
+        // luminance textures and we need high bit depth for the
+        // depth.
+        
+        const TextureFormat* fmt = TextureFormat::RGB16F();
+        debugAssert(GLCaps::supportsTexture(fmt));
+
+        m_colorTexture = Texture::createEmpty
+            ("ShadowMap color texture", m_depthTexture->width(), m_depthTexture->height(), 
+             fmt, Texture::DIM_2D, settings);
     }
 
     // Convert depth to color
@@ -260,14 +270,16 @@ void ShadowMap::computeColorTexture() {
     
     m_colorConversionFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_colorTexture);
     
-    // Just read color values
     pushDepthReadMode(Texture::DEPTH_NORMAL);
     rd->push2D(m_colorConversionFramebuffer);
+    {
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+        rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);
         rd->setColorWrite(true);
         rd->setDepthWrite(false);
         rd->setTexture(0, m_depthTexture);
-        Draw::rect2D(m_depthTexture->rect2DBounds(), rd);
+        Draw::fastRect2D(m_depthTexture->rect2DBounds(), rd);
+    }
     rd->pop2D();
     popDepthReadMode();
     m_colorTextureIsDirty = false;

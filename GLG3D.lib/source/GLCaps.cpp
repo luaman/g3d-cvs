@@ -621,6 +621,9 @@ bool GLCaps::supportsTexture(const TextureFormat* fmt) {
 
             glPushAttrib(GL_TEXTURE_BIT);
             {
+                // Clear the error bit
+                glGetError();
+
                 // See if we can create a texture in this format
                 unsigned int id;
                 glGenTextures(1, &id);
@@ -665,6 +668,9 @@ bool GLCaps::supportsRenderBuffer(const TextureFormat* fmt) {
         } else {
             glPushAttrib(GL_COLOR_BUFFER_BIT);
             {
+                // Clear the error bit
+                glGetError();
+
                 // See if we can create a render buffer in this format
                 unsigned int id;
                 glGenRenderbuffersEXT (1, &id);
