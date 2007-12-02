@@ -137,6 +137,7 @@ public:
        FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
                                GWindow.getDroppedFilenames to receive the actual data.*/
 	   MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
+       MOUSE_BUTTON_CLICK,         /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
 
        /* This last event is only for bounding internal arrays
   	     It is the number of bits in the event mask datatype -- uint32
@@ -217,7 +218,7 @@ public:
 /* Mouse button event structure */
 class MouseButtonEvent {
 public:
-    /** MOUSEBUTTONDOWN or MOUSEBUTTONUP */
+    /** MOUSE_BUTTON_DOWN, MOUSE_BUTTON_UP, or MOUSE_CLICK */
     uint8 type;
 
     /** The mouse device index */
@@ -226,14 +227,19 @@ public:
     /** The mouse button index */
     uint8 button;	
 
-    /* SDL_PRESSED or SDL_RELEASED */
-    uint8 state;
+    /* For MOUSE_CLICK, this is numClicks.  For MOUSE_BUTTON_DOWN or MOUSE_BUTTON_UP, this is 
+       SDL_PRESSED or SDL_RELEASED */
+    union {
+        uint8 numClicks;
+        uint8 state;
+    };
 
     /** The X/Y coordinates of the mouse at press time */
     uint16 x, y;
     
     // TODO: add     /** Current key modifiers */    GKeyMod         mod;	
 };
+
 
 /** 2D scroll event structure **/
 class MouseScroll2DEvent { 
