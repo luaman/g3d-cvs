@@ -790,12 +790,12 @@ Texture::Ref Texture::createEmpty(
 
     // We must pretend the input is in the desired format otherwise 
     // OpenGL might refuse to negotiate formats for us.
-    Array<uint8> data(w * h * desiredFormat->packedBitsPerTexel / 8);
+    //Array<uint8> data(w * h * desiredFormat->packedBitsPerTexel / 8);
 
     Texture::Ref t = 
 		fromMemory(
 			name, 
-			data.getCArray(), 
+			NULL, 
 			desiredFormat, 
 			w, 
 			h, 
@@ -1511,29 +1511,31 @@ static void createTexture(
             (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two())) {
             // NPOT texture with useNPOT disabled: resize to a power of two
 
+
             debugAssertM(! compressed,
                 "Cannot rescale compressed textures to power of two, use DIM_2D_NPOT");
 
-            int oldWidth = m_width;
-            int oldHeight = m_height;
-            m_width  = ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor));
-            m_height = ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor));
+            if (rawBytes != NULL) {
+                int oldWidth = m_width;
+                int oldHeight = m_height;
+                m_width  = ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor));
+                m_height = ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor));
 
-            bytes = new uint8[m_width * m_height * bytesPerPixel];
-            freeBytes = true;
+                bytes = new uint8[m_width * m_height * bytesPerPixel];
+                freeBytes = true;
 
-            // Rescale the image to a power of 2
-            gluScaleImage(
-                bytesFormat,
-                oldWidth,
-                oldHeight,
-                dataType,
-                rawBytes,
-                m_width,
-                m_height,
-                dataType,
-                bytes);
-
+                // Rescale the image to a power of 2
+                gluScaleImage(
+                    bytesFormat,
+                    oldWidth,
+                    oldHeight,
+                    dataType,
+                    rawBytes,
+                    m_width,
+                    m_height,
+                    dataType,
+                    bytes);
+            }
         }
 
         // Intentionally fall through for power of 2 case
@@ -1553,9 +1555,11 @@ static void createTexture(
 
         } else {
 
-            debugAssert(isValidPointer(bytes));
-            debugAssertM(isValidPointer(bytes + (m_width * m_height - 1) * bytesPerPixel), 
-                "Byte array in Texture creation was too small");
+            if (bytes != NULL) {
+                debugAssert(isValidPointer(bytes));
+                debugAssertM(isValidPointer(bytes + (m_width * m_height - 1) * bytesPerPixel), 
+                    "Byte array in Texture creation was too small");
+            }
 
             // 2D texture, level of detail 0 (normal), internal
             // format, x size from image, y size from image, border 0
@@ -1572,7 +1576,10 @@ static void createTexture(
         debugAssertM(isPow2(m_width) && isPow2(m_height) && isPow2(depth),
                      "DIM_3D textures must be a power of two size in each dimension.");
 
-        debugAssert(isValidPointer(bytes));
+        if (bytes != NULL) {
+            debugAssert(isValidPointer(bytes));
+        }
+
         glTexImage3DEXT(target, mipLevel, textureFormat, m_width, m_height, depth, 0, 
                         bytesFormat, dataType, bytes);
         break;
