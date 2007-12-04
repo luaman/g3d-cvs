@@ -24,6 +24,7 @@
      <li> G3D::GLight::point now has quadratic attenuation by default.
      <li> G3D::TextureFormat::name
      <li> G3D::BinaryInput::setEndian
+     <li> G3D::GEvent::MOUSE_BUTTON_CLICK
      <li> G3D::GLCaps::supportsTexture, G3D::GLCaps::supportsRenderBuffer
      <li> Opaque G3D::ArticulatedModels now support more than 2 non-shadow casting light sources
      <li> Fixed SuperShader to correctly light bump-mapped surfaces in tangent space [Kyle Whitson]

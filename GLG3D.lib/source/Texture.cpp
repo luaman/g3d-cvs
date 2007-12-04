@@ -792,6 +792,10 @@ Texture::Ref Texture::createEmpty(
     // OpenGL might refuse to negotiate formats for us.
     //Array<uint8> data(w * h * desiredFormat->packedBitsPerTexel / 8);
 
+    // When testing, it is sometimes convenient to zero the array.  We don't
+    // do this in general, though, for performance reasons.
+    // System::memset(data.getCArray(), 0, data.size());
+
     Texture::Ref t = 
 		fromMemory(
 			name, 

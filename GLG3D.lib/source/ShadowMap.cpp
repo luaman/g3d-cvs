@@ -130,6 +130,7 @@ void ShadowMap::updateDepth(
     }
 
     debugAssert(GLCaps::supports_GL_ARB_shadow()); 
+    debugAssertGLOk();
 
     if (m_framebuffer.isNull()) {
         // Ensure that the buffer fits on screen
@@ -148,6 +149,8 @@ void ShadowMap::updateDepth(
 
     Rect2D rect = m_depthTexture->rect2DBounds();
     
+    GLenum oldDrawBuffer = glGetInteger(GL_DRAW_BUFFER);
+
     renderDevice->pushState(m_framebuffer);
         if (m_framebuffer.notNull()) {
             glReadBuffer(GL_NONE);
@@ -157,7 +160,7 @@ void ShadowMap::updateDepth(
             debugAssert(rect.width() <= renderDevice->width());
             renderDevice->setViewport(rect);
         }
-        
+
         // Construct a projection and view matrix for the camera so we can 
         // render the scene from the light's point of view
         //
@@ -224,7 +227,7 @@ void ShadowMap::updateDepth(
         debugAssert(m_depthTexture.notNull());
         m_depthTexture->copyFromScreen(rect);
     } else {
-        glDrawBuffer(GL_BACK);
+        glDrawBuffer(oldDrawBuffer);
     }
 
     m_colorTextureIsDirty = true;
