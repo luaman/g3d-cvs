@@ -441,7 +441,10 @@ public:
     }
 
     /**
-     A<SUP>-1</SUP>
+     A<SUP>-1</SUP> computed using the Gauss-Jordan algorithm,
+     for square matrices.
+     Run time is <I>O(R<sup>3</sup>)</I>, where <I>R</i> is the 
+     number of rows.
      */
     inline Matrix inverse() const {
         Impl* A = new Impl(*impl);
@@ -489,10 +492,12 @@ public:
     }
 
     /** Singular value decomposition.  Factors into three matrices 
-        such that this = U * fromDiagonal(d) * V.transpose().
+        such that @a this = @a U * fromDiagonal(@a d) * @a V.transpose().
 
         The matrix must have at least as many rows as columns.
-         
+        
+        Run time is <I>O(C<sup>2</sup>*R)</I>.
+
         @param sort If true (default), the singular values
         are arranged so that D is sorted from largest to smallest.
         */

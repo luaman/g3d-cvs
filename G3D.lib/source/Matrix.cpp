@@ -920,7 +920,11 @@ Matrix Matrix::pseudoInverse(float tolerance) const {
 }
 
 void Matrix::Impl::inverseInPlaceGaussJordan() {
-    debugAssert(R == C);
+    debugAssertM(R == C, 
+        format(
+        "Cannot perform Gauss-Jordan inverse on a non-square matrix."
+        " (Argument was %dx%d)",
+        R, C));
 
     // Exchange to float elements
 #   define SWAP(x, y) {float temp = x; x = y; y = temp;}
@@ -1083,7 +1087,7 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
     debugAssert(rv1);
 
     // Householder reduction to bidiagonal form
-    for (i = 0; i < cols; i++)  {
+    for (i = 0; i < cols; ++i) {
         
         // Left-hand reduction
         l = i + 1;
@@ -1092,12 +1096,12 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
         
         if (i < rows) {
 
-            for (k = i; k < rows; k++) {
+            for (k = i; k < rows; ++k) {
                 scale += fabs((double)U[k][i]);
             }
 
             if (scale) {
-                for (k = i; k < rows; k++) {
+                for (k = i; k < rows; ++k) {
                     U[k][i] = (float)((double)U[k][i]/scale);
                     s += ((double)U[k][i] * (double)U[k][i]);
                 }
@@ -1112,17 +1116,17 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
                 if (i != cols - 1) {
                     for (j = l; j < cols; j++) {
 
-                        for (s = 0.0, k = i; k < rows; k++) {
+                        for (s = 0.0, k = i; k < rows; ++k) {
                             s += ((double)U[k][i] * (double)U[k][j]);
                         }
 
                         f = s / h;
-                        for (k = i; k < rows; k++) {
+                        for (k = i; k < rows; ++k) {
                             U[k][j] += (float)(f * (double)U[k][i]);
                         }
                     }
                 }
-                for (k = i; k < rows; k++) {
+                for (k = i; k < rows; ++k) {
                     U[k][i] = (float)((double)U[k][i]*scale);
                 }
             }
@@ -1132,7 +1136,7 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
         // right-hand reduction
         g = s = scale = 0.0;
         if (i < rows && i != cols - 1) {
-            for (k = l; k < cols; k++) {
+            for (k = l; k < cols; ++k) {
                 scale += fabs((double)U[i][k]);
             }
 
@@ -1147,13 +1151,13 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
                 h = f * g - s;
                 U[i][l] = (float)(f - g);
 
-                for (k = l; k < cols; k++) {
+                for (k = l; k < cols; ++k) {
                     rv1[k] = (double)U[i][k] / h;
                 }
 
                 if (i != rows - 1) {
 
-                    for (j = l; j < rows; j++) {
+                    for (j = l; j < rows; ++j) {
                         for (s = 0.0, k = l; k < cols; ++k) {
                             s += ((double)U[j][k] * (double)U[i][k]);
                         }
@@ -1164,7 +1168,7 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
                     }
                 }
 
-                for (k = l; k < cols; k++) {
+                for (k = l; k < cols; ++k) {
                     U[i][k] = (float)((double)U[i][k]*scale);
                 }
             }
@@ -1182,18 +1186,18 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
                 }
 
                 // double division to avoid underflow 
-                for (j = l; j < cols; j++) {
+                for (j = l; j < cols; ++j) {
                     for (s = 0.0, k = l; k < cols; k++) {
                         s += ((double)U[i][k] * (double)V[k][j]);
                     }
 
-                    for (k = l; k < cols; k++) {
+                    for (k = l; k < cols; ++k) {
                         V[k][j] += (float)(s * (double)V[k][i]);
                     }
                 }
             }
 
-            for (j = l; j < cols; j++) {
+            for (j = l; j < cols; ++j) {
                 V[i][j] = V[j][i] = 0.0;
             }
         }
@@ -1204,11 +1208,11 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
     }
   
     // accumulate the left-hand transformation
-    for (i = cols - 1; i >= 0; i--) {
+    for (i = cols - 1; i >= 0; --i) {
         l = i + 1;
         g = (double)D[i];
-        if (i < cols - 1)  {
-            for (j = l; j < cols; j++) {
+        if (i < cols - 1) {
+            for (j = l; j < cols; ++j) {
                 U[i][j] = 0.0;
             }
         }
@@ -1216,25 +1220,25 @@ const char* Matrix::svdCore(float** U, int rows, int cols, float* D, float** V) 
         if (g) {
             g = 1.0 / g;
             if (i != cols - 1) {
-                for (j = l; j < cols; j++) {
-                    for (s = 0.0, k = l; k < rows; k++) {
+                for (j = l; j < cols; ++j) {
+                    for (s = 0.0, k = l; k < rows; ++k) {
                         s += ((double)U[k][i] * (double)U[k][j]);
                     }
 
                     f = (s / (double)U[i][i]) * g;
                     
-                    for (k = i; k < rows; k++) {
+                    for (k = i; k < rows; ++k) {
                         U[k][j] += (float)(f * (double)U[k][i]);
                     }
                 }
             }
 
-            for (j = i; j < rows; j++) {
+            for (j = i; j < rows; ++j) {
                 U[j][i] = (float)((double)U[j][i]*g);
             }
         
         } else {
-            for (j = i; j < rows; j++) {
+            for (j = i; j < rows; ++j) {
                 U[j][i] = 0.0;
             }
         }
