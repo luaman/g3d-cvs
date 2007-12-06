@@ -13,6 +13,7 @@
 #include "G3D/Vector3.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/format.h"
 
 namespace G3D {
 
@@ -41,5 +42,8 @@ void Vector3int16::deserialize(class BinaryInput& bi) {
     z = bi.readInt16();
 }
 
+std::string Vector3int16::toString() const {
+    return G3D::format("(%d, %d, %d)", x, y, z);
+}
 
 }

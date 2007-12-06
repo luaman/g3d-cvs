@@ -42,8 +42,14 @@ public:
     Vector3int16(G3D::int16 _x, G3D::int16 _y, G3D::int16 _z) : x(_x), y(_y), z(_z) {}
     Vector3int16(const class Vector3& v);
     Vector3int16(class BinaryInput& bi);
+
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);
+
+    bool operator== (const Vector3int16& rkVector) const;
+    bool operator!= (const Vector3int16& rkVector) const;
+
+    std::string toString() const;
 }
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     __attribute((aligned(1)))
@@ -53,6 +59,15 @@ public:
 #ifdef G3D_WIN32
     #pragma pack(pop)
 #endif
+
+inline bool Vector3int16::operator== (const Vector3int16& rkVector) const {
+    return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
+}
+
+inline bool Vector3int16::operator!= (const Vector3int16& rkVector) const {
+    return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
+}
+
 
 }
 #endif

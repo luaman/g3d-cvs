@@ -205,19 +205,24 @@ void perfBinaryIO() {
 
 void testBasicSerialization() {
     Vector3 tmp(-100.0f, -10.0f, 2.0f);
+    Vector3int16 tmp2(100, -10, 2);
 
     {
 
         BinaryOutput bo("outfile.bin", G3D_LITTLE_ENDIAN);
         tmp.serialize(bo);
+        tmp2.serialize(bo);
         bo.commit();
 
     }
     {
         BinaryInput bi("outfile.bin", G3D_LITTLE_ENDIAN);
         Vector3 alpha;
+        Vector3int16 alpha2;
         alpha.deserialize(bi);
+        alpha2.deserialize(bi);
         debugAssertM(alpha == tmp, format("%s should be %s \n", alpha.toString().c_str(), tmp.toString().c_str()));
+        debugAssertM(alpha2 == tmp2, format("%s should be %s \n", alpha2.toString().c_str(), tmp2.toString().c_str()));
     }
 }
 
