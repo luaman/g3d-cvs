@@ -21,6 +21,10 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
+    TextureRef          test;
+
+    ShaderRef           showAlpha;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -53,6 +57,20 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
+
+    FrameBufferRef fbo = FrameBuffer::create("hello");
+    test = Texture::createEmpty("", 256, 256, TextureFormat::RGBA8());
+    fbo->set(FrameBuffer::COLOR_ATTACHMENT0, test);
+    renderDevice->push2D(fbo);
+        renderDevice->clear();
+        Draw::rect2D(Rect2D::xywh(0,0,128,256), renderDevice, Color4(1,1,1,0.5));
+    renderDevice->pop2D();
+
+    showAlpha = Shader::fromStrings("", STR(
+        uniform sampler2D texture;
+        void main() {
+            gl_FragColor.rgb = texture2D(texture, gl_TexCoord[0].st).a;
+        }));
 }
 
 void App::onCleanup() {
@@ -147,6 +165,12 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
+
+    rd->push2D();
+        showAlpha->args.set("texture", test);
+        rd->setShader(showAlpha);
+        Draw::fastRect2D(test->rect2DBounds(), rd);
+    rd->pop2D();
 
     PosedModel2D::sortAndRender(rd, posed2D);
 }

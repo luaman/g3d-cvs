@@ -129,6 +129,10 @@ Texture::Texture(
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_WIDTH, &m_width);
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_HEIGHT, &m_height);
 
+        if (readbackTarget == GL_TEXTURE_3D) {
+            glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_DEPTH, &m_depth);
+        }
+
         m_depth = 1;
         invertY = false;
         
@@ -690,8 +694,9 @@ Texture::Ref Texture::fromMemory(
 
     if ((dimension != DIM_2D_RECT) &&
         ((dimension != DIM_2D_NPOT && (dimension != DIM_CUBE_MAP_NPOT)))) {
-        m_width  = ceilPow2(m_width);
+        m_width = ceilPow2(m_width);
         m_height = ceilPow2(m_height);
+        m_depth = ceilPow2(depth);
     }
 
     debugAssertGLOk();
@@ -700,6 +705,7 @@ Texture::Ref Texture::fromMemory(
 
     t->m_width = m_width;
     t->m_height = m_height;
+    t->m_depth = m_depth;
 
     if (bytesPtr != &_bytes) {
 
@@ -776,17 +782,21 @@ Texture::Ref Texture::fromGImage(
     return t;
 }
 
-
 Texture::Ref Texture::createEmpty(
     const std::string&               name,
     int                              w,
     int                              h,
     const TextureFormat*             desiredFormat,
     Dimension                        dimension,
-	const Settings&					 settings) {
+	const Settings&					 settings,
+    int                              d) {
 
     debugAssertGLOk();
     debugAssertM(desiredFormat, "desiredFormat may not be TextureFormat::AUTO()");
+
+    if (dimension != DIM_3D && dimension != DIM_3D_NPOT) {
+        debugAssertM(d == 1, "Depth must be 1 for DIM_2D textures");
+    }
 
     // We must pretend the input is in the desired format otherwise 
     // OpenGL might refuse to negotiate formats for us.
@@ -803,7 +813,7 @@ Texture::Ref Texture::createEmpty(
 			desiredFormat, 
 			w, 
 			h, 
-			1, 
+			d, 
 			desiredFormat, 
 			dimension, 
 			settings);
@@ -1235,6 +1245,9 @@ unsigned int Texture::openGLTextureTarget() const {
     case Texture::DIM_2D_RECT:
         return GL_TEXTURE_RECTANGLE_EXT;
 
+    case Texture::DIM_3D:
+        return GL_TEXTURE_3D;
+
     default:
         debugAssertM(false, "Fell through switch");
     }
@@ -1296,10 +1309,12 @@ Texture::Ref Texture::alphaOnlyVersion() const {
 static void setTexParameters(
     GLenum                          target,
     const Texture::Settings&        settings) {
+
     debugAssert(
         target == GL_TEXTURE_2D ||
         target == GL_TEXTURE_RECTANGLE_EXT ||
-        target == GL_TEXTURE_CUBE_MAP_ARB);
+        target == GL_TEXTURE_CUBE_MAP_ARB ||
+        target == GL_TEXTURE_3D);
 
     debugAssertGLOk();
 
@@ -1515,7 +1530,6 @@ static void createTexture(
             (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two())) {
             // NPOT texture with useNPOT disabled: resize to a power of two
 
-
             debugAssertM(! compressed,
                 "Cannot rescale compressed textures to power of two, use DIM_2D_NPOT");
 
@@ -1577,8 +1591,10 @@ static void createTexture(
 
     case GL_TEXTURE_3D:
         // Can't rescale, so ensure that the texture is a power of two in each dimension
-        debugAssertM(isPow2(m_width) && isPow2(m_height) && isPow2(depth),
-                     "DIM_3D textures must be a power of two size in each dimension.");
+        debugAssertM(
+            (useNPOT && GLCaps::supports_GL_ARB_texture_non_power_of_two())) ||
+            (isPow2(m_width) && isPow2(m_height) && isPow2(depth)),
+                     "DIM_3D textures must be a power of two size in each dimension");
 
         if (bytes != NULL) {
             debugAssert(isValidPointer(bytes));

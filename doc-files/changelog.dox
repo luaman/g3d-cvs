@@ -71,6 +71,7 @@
      <li> Fix: ArticulatedModel static methods do not force loading of shaders unless an ArticulatedModel has actually been loaded.
      <li> Fix: RenderDevice::setAlphaWrite/setColorWrite implemented correctly
      <li> Fix: Implemented TextureFormat::fromCode
+     <li> Fix: [ 1766509 ] Texture doesn't handle 3D textures correctly
    </ul>
 
 <hr>

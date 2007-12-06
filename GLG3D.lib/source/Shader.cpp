@@ -886,6 +886,9 @@ GLenum VertexAndPixelShader::canonicalType(GLenum e) {
     case GL_SAMPLER_2D_RECT_ARB:
         return GL_TEXTURE_RECTANGLE_EXT;
 
+    case GL_SAMPLER_3D_ARB:
+        return GL_TEXTURE_3D;
+
     default:
         // Return the input
         return e;    
