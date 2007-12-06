@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-02-28
-  @edited  2007-07-18
+  @edited  2007-12-18
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -317,11 +317,13 @@ public:
      */
     static Texture::Ref createEmpty(
         const std::string&              name,
-        int                             m_width,
-        int                             m_height,
+        int                             width,
+        int                             height,
         const class TextureFormat*      desiredFormat  = TextureFormat::RGBA8(),
         Dimension                       dimension      = DIM_2D,
-        const Settings&                 settings       = Settings::defaults());
+        const Settings&                 settings       = Settings::defaults(),
+        int                             depth          = 1);
+
 
     /**
      Wrap and interpolate will override the existing parameters on the
