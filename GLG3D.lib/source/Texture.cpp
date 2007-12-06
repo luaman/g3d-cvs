@@ -507,8 +507,8 @@ Texture::Ref Texture::fromMemory(
     const std::string&                  name,
     const Array< Array<const void*> >&  _bytes,
     const TextureFormat*                bytesFormat,
-    int                                 m_width,
-    int                                 m_height,
+    int                                 width,
+    int                                 height,
     int                                 depth,
     const TextureFormat*                desiredFormat,
     Dimension                           dimension,
@@ -554,7 +554,7 @@ Texture::Ref Texture::fromMemory(
             
                 for (int f = 0; f < face.size(); ++f) {
 
-                    size_t numBytes = iCeil(m_width * m_height * depth * bytesFormat->packedBitsPerTexel / 8.0f);
+                    size_t numBytes = iCeil(width * height * depth * bytesFormat->packedBitsPerTexel / 8.0f);
 
                     // Allocate space for the converted image
                     face[f] = System::alignedMalloc(numBytes, 16);
@@ -580,7 +580,7 @@ Texture::Ref Texture::fromMemory(
         debugAssertM(bytesFormat->numComponents == 1 || bytesFormat->numComponents == 3 || bytesFormat->numComponents == 4, "1, 3, or 4 channels needed to compute normal maps");
         debugAssertM(bytesPtr->size() == 1, "Cannot specify mipmaps when computing normal maps automatically");
 
-        GImage::computeNormalMap(m_width, m_height, bytesFormat->numComponents, 
+        GImage::computeNormalMap(width, height, bytesFormat->numComponents, 
                                  reinterpret_cast<const uint8*>((*bytesPtr)[0][0]),
                                  normal, preProcess.normalMapWhiteHeightInPixels, 
                                  preProcess.normalMapLowPassBump, preProcess.normalMapScaleHeightByNz);
@@ -630,8 +630,8 @@ Texture::Ref Texture::fromMemory(
             glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         }
 
-        int mipWidth = m_width;
-        int mipHeight = m_height;
+        int mipWidth = width;
+        int mipHeight = height;
         for (int mipLevel = 0; mipLevel < numMipMaps; ++mipLevel) {
 
             const int numFaces = (*bytesPtr)[mipLevel].length();
@@ -694,18 +694,18 @@ Texture::Ref Texture::fromMemory(
 
     if ((dimension != DIM_2D_RECT) &&
         ((dimension != DIM_2D_NPOT && (dimension != DIM_CUBE_MAP_NPOT)))) {
-        m_width = ceilPow2(m_width);
-        m_height = ceilPow2(m_height);
-        m_depth = ceilPow2(depth);
+        width  = ceilPow2(width);
+        height = ceilPow2(height);
+        depth  = ceilPow2(depth);
     }
 
     debugAssertGLOk();
     Texture::Ref t = fromGLTexture(name, textureID, desiredFormat, dimension, settings);
     debugAssertGLOk();
 
-    t->m_width = m_width;
-    t->m_height = m_height;
-    t->m_depth = m_depth;
+    t->m_width  = width;
+    t->m_height = height;
+    t->m_depth  = depth;
 
     if (bytesPtr != &_bytes) {
 
@@ -1592,7 +1592,7 @@ static void createTexture(
     case GL_TEXTURE_3D:
         // Can't rescale, so ensure that the texture is a power of two in each dimension
         debugAssertM(
-            (useNPOT && GLCaps::supports_GL_ARB_texture_non_power_of_two())) ||
+            (useNPOT && GLCaps::supports_GL_ARB_texture_non_power_of_two()) ||
             (isPow2(m_width) && isPow2(m_height) && isPow2(depth)),
                      "DIM_3D textures must be a power of two size in each dimension");
 

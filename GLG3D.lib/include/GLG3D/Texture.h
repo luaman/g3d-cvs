@@ -96,7 +96,7 @@ public:
     /** DIM_2D_NPOT and DIM_CUBE_MAP_NPOT attempt to use
         ARB_non_power_of_two texture support with POT fallback. */
     enum Dimension       {DIM_2D = 2, DIM_3D = 3, DIM_2D_RECT = 4, 
-                          DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7};
+                          DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7, DIM_3D_NPOT = 8};
 
     /** 
       Returns true if this is a legal wrap mode for a G3D::Texture.
