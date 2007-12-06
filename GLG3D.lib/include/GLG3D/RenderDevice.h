@@ -1742,8 +1742,8 @@ inline void RenderDevice::setAlphaWrite(bool a) {
     if (state.alphaWrite != a) {
         minGLStateChange();
         GLint c = state.colorWrite ? GL_TRUE : GL_FALSE;
-        glColorMask(c, c, c, state.alphaWrite ? GL_TRUE : GL_FALSE);
         state.alphaWrite = a;
+        glColorMask(c, c, c, state.alphaWrite ? GL_TRUE : GL_FALSE);
     }
 }
 
@@ -1754,8 +1754,8 @@ inline void RenderDevice::setColorWrite(bool a) {
     if (state.colorWrite != a) {
         minGLStateChange();
         GLint c = a ? GL_TRUE : GL_FALSE;
-        glColorMask(c, c, c, state.alphaWrite ? GL_TRUE : GL_FALSE);
         state.colorWrite = a;
+        glColorMask(c, c, c, state.alphaWrite ? GL_TRUE : GL_FALSE);
     }
 }
 
