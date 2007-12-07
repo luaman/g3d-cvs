@@ -39,6 +39,41 @@ public:
     }
 };
 
+static void testIteration() {
+    Array<int> array;
+    array.append(100, 10, -10);
+
+    {
+        Array<int>::Iterator it = array.begin();
+        int val = (*it);
+        debugAssert(val == 100);
+        val = (*++it);
+        debugAssert(val == 10);
+        val = (*++it);
+        debugAssert(val == -10);
+    }
+
+    {
+        Array<int>::ConstIterator it = array.begin();
+        int val = (*it);
+        debugAssert(val == 100);
+        val = (*++it);
+        debugAssert(val == 10);
+        val = (*++it);
+        debugAssert(val == -10);
+    }
+
+    // test stl helper typedefs
+    {
+        Array<int>::iterator it = array.begin();
+        int val = (*it);
+        debugAssert(val == 100);
+        val = (*++it);
+        debugAssert(val == 10);
+        val = (*++it);
+        debugAssert(val == -10);
+    }
+}
 
 static void testSort() {
     printf("Array::Sort\n");
@@ -551,6 +586,7 @@ void perfArray() {
 
 void testArray() {
     printf("G3D::Array  ");
+    testIteration();
     testPartition();
     testMedianPartition();
     testSort();

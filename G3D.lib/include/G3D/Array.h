@@ -170,12 +170,24 @@ private:
 public:
 
     /**
-     C++ STL style iterator variable.  Call begin() to get 
+     G3D C++ STL style iterator variable.  Call begin() to get 
      the first iterator, pre-increment (++i) the iterator to get to
      the next value.  Use dereference (*i) to access the element.
      */
     typedef T* Iterator;
+    /** G3D C++ STL style const iterator in same style as Iterator. */
     typedef const T* ConstIterator;
+
+    /** stl porting compatibility helper */
+    typedef Iterator iterator;
+    /** stl porting compatibility helper */
+    typedef ConstIterator const_iterator;
+    /** stl porting compatibility helper */
+    typedef T value_type;
+    /** stl porting compatibility helper */
+    typedef int size_type;
+    /** stl porting compatibility helper */
+    typedef int difference_type;
 
     /**
      C++ STL style iterator method.  Returns the first iterator element.
