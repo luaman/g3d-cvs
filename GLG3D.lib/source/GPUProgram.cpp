@@ -34,26 +34,26 @@ void GPUProgram::ArgList::set(const std::string& var, const Texture::Ref& val) {
     switch (val->dimension()) {
     case Texture::DIM_2D_NPOT:
     case Texture::DIM_2D:
-	arg.type = SAMPLER2D;
-	break;
+	    arg.type = SAMPLER2D;
+	    break;
 
     case Texture::DIM_3D:
-	arg.type = SAMPLER3D;
-	break;
+    case Texture::DIM_3D_NPOT:
+	    arg.type = SAMPLER3D;
+	    break;
 
     case Texture::DIM_2D_RECT:
-	arg.type = SAMPLERRECT;
-	break;
+	    arg.type = SAMPLERRECT;
+	    break;
 
     case Texture::DIM_CUBE_MAP_NPOT:
     case Texture::DIM_CUBE_MAP:
-	arg.type = SAMPLERCUBE;
-	break;
+	    arg.type = SAMPLERCUBE;
+	    break;
     }
 
     arg.texture = val;
     argTable.set(var, arg);
-
 }
 
 
