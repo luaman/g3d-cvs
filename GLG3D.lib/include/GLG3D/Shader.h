@@ -272,6 +272,9 @@ protected:
      bool                debug,
      UseG3DUniforms      u);
 
+    /** Returns true if Shader will allow this coercion. These should be non-canonical types. */
+    static bool compatibleTypes(GLenum actual, GLenum formal);
+
 public:
 
     /** Thrown by validateArgList */
@@ -335,10 +338,13 @@ public:
         class Arg {
         public:
 
-            /** Row-major */ 
+            /** Row-major.  Element [0][0] is a float if this is a GL_FLOAT */ 
             Vector4                    vector[4];
 
-            Texture::Ref                 texture;
+            Texture::Ref               texture;
+
+            /** Stores individual ints and bools */
+            int                        intVal;
 
             GLenum                     type;
         };
@@ -356,7 +362,10 @@ public:
         void set(const std::string& var, const Vector4& val);
         void set(const std::string& var, const Vector3& val);
         void set(const std::string& var, const Vector2& val);
+        void set(const std::string& var, double         val);
         void set(const std::string& var, float          val);
+        void set(const std::string& var, int            val);
+        void set(const std::string& var, bool           val);
 
         /**
          GLSL does not natively support arrays and structs in the uniform binding API.  Instead, each

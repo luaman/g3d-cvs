@@ -856,12 +856,22 @@ bool VertexAndPixelShader::fullySupported() {
 }
 
 
+bool VertexAndPixelShader::compatibleTypes(GLenum actual, GLenum formal) {
+    return
+        (canonicalType(actual) == canonicalType(formal)) ||
+        (((actual == GL_FLOAT) || (actual == GL_INT) || (actual == GL_BOOL)) &&
+         ((formal == GL_FLOAT) || (formal == GL_INT) || (formal == GL_BOOL)));
+}
+
+
 GLenum VertexAndPixelShader::canonicalType(GLenum e) {
 
     switch (e) {
     case GL_INT:
+        return GL_INT;
+
     case GL_BOOL_ARB:
-        return GL_FLOAT;
+        return GL_BOOL;
 
     case GL_INT_VEC2_ARB:
     case GL_BOOL_VEC2_ARB:
@@ -938,7 +948,7 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
             const ArgList::Arg& arg = args.argTable[decl.name];
 
             // check the type
-            if (canonicalType(arg.type) != canonicalType(decl.type)) {
+            if (! compatibleTypes(arg.type, decl.type)) {
                 std::string v1  = GLenumToString(decl.type);
                 std::string v2  = GLenumToString(arg.type);
                 std::string v1c = GLenumToString(canonicalType(decl.type));
@@ -1016,7 +1026,7 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
             const ArgList::Arg&       value = args.argTable.get(decl.name); 
 
-            // Bind based on the declared type
+            // Bind based on the *declared* type
             switch (canonicalType(decl.type)) {
             case GL_TEXTURE_1D:
                 debugAssertM(false, "1D texture binding not implemented");
@@ -1034,8 +1044,25 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
                 rd->setTexture(decl.textureUnit, value.texture);
                 break;
 
+            case GL_INT:
+            case GL_BOOL:
+                {
+                    int i = value.vector[0][0];
+                    if ((value.type == GL_INT) || (value.type == GL_BOOL)) {
+                        i = value.intVal;
+                    }
+                    glUniform1iARB(location, i);
+                }
+                break;
+
             case GL_FLOAT:
-                glUniform1fvARB(location, 1, value.vector[0]);
+                {
+                    float f = value.vector[0][0];
+                    if ((value.type == GL_INT) || (value.type == GL_BOOL)) {
+                        f = value.intVal;
+                    }
+                    glUniform1fvARB(location, 1, &f);
+                }
                 break;
 
             case GL_FLOAT_VEC2_ARB:
@@ -1048,12 +1075,6 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
             case GL_FLOAT_VEC4_ARB:
                 glUniform4fvARB(location, 1, value.vector[0]);
-                break;
-
-            case GL_INT:
-            case GL_BOOL_ARB:
-                // OpenGL allows us to treat bools as ints, but not ints as floats
-                glUniform1iARB(location, (int)value.vector[0][0]);
                 break;
 
             case GL_INT_VEC2_ARB:
@@ -1187,10 +1208,31 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector2& v
 }
 
 
+void VertexAndPixelShader::ArgList::set(const std::string& var, double          val) {
+    set(var, (float)val);
+}
+
+
 void VertexAndPixelShader::ArgList::set(const std::string& var, float          val) {
     Arg arg;
     arg.type = GL_FLOAT;
     arg.vector[0] = Vector4(val, 0, 0, 0);
+    argTable.set(var, arg);
+}
+
+
+void VertexAndPixelShader::ArgList::set(const std::string& var, int          val) {
+    Arg arg;
+    arg.type = GL_INT;
+    arg.intVal = val;
+    argTable.set(var, arg);
+}
+
+
+void VertexAndPixelShader::ArgList::set(const std::string& var, bool          val) {
+    Arg arg;
+    arg.type = GL_BOOL;
+    arg.intVal = val;
     argTable.set(var, arg);
 }
 
