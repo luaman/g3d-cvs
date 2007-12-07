@@ -255,6 +255,52 @@ public:
 
 private:
 
+    /*
+     TODO:
+      Put a separate cache in each subclass
+       (Make superShader handle fixed function cases as well?)
+
+      // ArticulatedModel knows how to set the lighting fields of these automatically
+      class NonShadowedSuperShader : public SuperShader;
+      class ShadowMappedSuperShader : public SuperShader;
+      
+      // Set your own lighting fields explicitly
+      class SpotLightCustomSuperShader : public SuperShader;
+      SuperShaderRef spotShader = SpotLightCustomSuperShader::create();
+      spotShader->setLightPosition(v); ...
+
+      rd->setBlendFunc(additive);
+      PosedModel::renderSuperShaderPass(spotShader, rd);
+
+      void PosedModel::renderSuperShaderPass(const Array<PosedModelRef>& posed, SuperShaderRef superShader, RenderDevice* rd) {
+          bool corrupted = false;
+
+          rd->pushState();  // Just assume that state will be corrupted
+          for (int p = 0; p < posed.size(); ++p) {
+              if (posed[p]->hasSuperShader()) {
+                 // SuperShader
+                 posed[p]->renderSuperShaderPass(rd, superShader);
+              }
+          }
+          rd->popState();
+      }
+
+      // Returns false if it left state modified
+      bool PosedArticulatedModel::renderSuperShaderPass(RenderDevice* rd, SuperShaderRef superShader) {
+           ShaderRef shader = superShader->getShader(material); // Does cache and configure
+           rd->setShader(shader);
+           renderGeometry();
+           return shader->preservesState();
+      }
+
+      
+        ShaderRef NonShadowedSuperShader::getShader(MaterialRef) {
+            shader = get from cache
+            configureShaderArgs(shader);
+            return shader
+        }
+      */
+
     class Cache {
     public:
         struct Pair {
@@ -268,8 +314,6 @@ private:
         Array<Pair>         shaderArray;
 
     public:
-
-        // TODO: mechansim for purging old shaders
 
         /** Adds a shader to the list of cached ones.  Only call when 
             getSimilar returned NULL.*/
@@ -310,7 +354,7 @@ public:
     static void purgeCache() {
         cache.clear();
     }
-
+    
 }; // SuperShader
 
 }
