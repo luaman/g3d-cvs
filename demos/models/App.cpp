@@ -9,7 +9,7 @@
 
 
 App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::create()) {
-
+//    ArticulatedModel::setProfile(ArticulatedModel::FIXED_FUNCTION);
     try {
         showRenderingStats = false;
         window()->setCaption("G3D Model Demo");
@@ -67,7 +67,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     toneMap->beginFrame(rd);
 
     // Cyan background
-    rd->setColorClearValue(Color3(.1f, .5f, 1));
+    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
 
     rd->clear(sky.notNull(), true, true);
 
