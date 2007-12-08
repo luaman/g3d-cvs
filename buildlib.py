@@ -406,6 +406,17 @@ def checkVersion(verCmdString, minVerString, errString, stderr = 0):
     
 ###############################################################################
 
+def getShellRetOnly(cmd):
+    mkdir('temp')
+    
+    try:
+         os.remove('tmp/system.tmp')
+    except:
+        pass
+
+    ret = os.system(cmd + ' &> temp/system.tmp')
+    return ret / 256
+
 def shell(cmd, stderr = 0):
     mkdir('temp')
     print cmd
