@@ -443,7 +443,7 @@ public:
     /**
      Helper method. Returns a new OpenGL texture ID that is not yet managed by a G3D Texture.
      */
-    static uint32 newGLTextureID();
+    static unsigned int newGLTextureID();
 
     /**
      Copies data from screen into an existing texture (replacing whatever was

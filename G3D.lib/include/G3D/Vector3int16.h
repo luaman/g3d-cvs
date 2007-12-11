@@ -46,8 +46,60 @@ public:
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);
 
-    bool operator== (const Vector3int16& rkVector) const;
-    bool operator!= (const Vector3int16& rkVector) const;
+    inline G3D::int16& operator[] (int i) {
+        debugAssert(i <= 2);
+        return ((G3D::int16*)this)[i];
+    }
+
+    inline const G3D::int16& operator[] (int i) const {
+        debugAssert(i <= 2);
+        return ((G3D::int16*)this)[i];
+    }
+
+    inline Vector3int16 operator+(const Vector3int16& other) const {
+        return Vector3int16(x + other.x, y + other.y, z + other.z);
+    }
+
+    inline Vector3int16 operator-(const Vector3int16& other) const {
+        return Vector3int16(x - other.x, y - other.y, z - other.z);
+    }
+
+    inline Vector3int16 operator*(const Vector3int16& other) const {
+        return Vector3int16(x * other.x, y * other.y, z * other.z);
+    }
+
+    inline Vector3int16 operator*(const int s) const {
+        return Vector3int16(x * s, y * s, z * s);
+    }
+
+    inline Vector3int16& operator+=(const Vector3int16& other) {
+        x += other.x;
+        y += other.y;
+        z += other.y;
+        return *this;
+    }
+
+    inline Vector3int16& operator-=(const Vector3int16& other) {
+        x -= other.x;
+        y -= other.y;
+        z -= other.z;
+        return *this;
+    }
+
+    inline Vector3int16& operator*=(const Vector3int16& other) {
+        x *= other.x;
+        y *= other.y;
+        z *= other.z;
+        return *this;
+    }
+
+    inline bool operator== (const Vector3int16& rkVector) const {
+        return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
+    }
+
+    inline bool operator!= (const Vector3int16& rkVector) const {
+        return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
+    }
 
     std::string toString() const;
 }
@@ -59,15 +111,6 @@ public:
 #ifdef G3D_WIN32
     #pragma pack(pop)
 #endif
-
-inline bool Vector3int16::operator== (const Vector3int16& rkVector) const {
-    return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
-}
-
-inline bool Vector3int16::operator!= (const Vector3int16& rkVector) const {
-    return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
-}
-
 
 }
 #endif

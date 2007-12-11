@@ -1021,19 +1021,18 @@ Texture::~Texture() {
 }
 
 
-uint32 Texture::newGLTextureID() {
-    uint32 t;
-
+unsigned int Texture::newGLTextureID() {
     // Clear the OpenGL error flag
     glGetError();
 
-    glGenTextures(1, &t);
+    unsigned int id;
+    glGenTextures(1, &id);
 
     alwaysAssertM(glGetError() != GL_INVALID_OPERATION, 
          "GL_INVALID_OPERATION: Probably caused by invoking "
          "glGenTextures between glBegin and glEnd.");
 
-    return t;
+    return id;
 }
 
 /** Returns the buffer constant that matches the current draw buffer (left vs. right) */

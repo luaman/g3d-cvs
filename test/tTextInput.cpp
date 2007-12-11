@@ -1,9 +1,5 @@
 #include "G3D/G3DAll.h"
 
-static void testTextInputChunk1();
-static void testTextInputChunk2();
-static void testTextInputChunk3();
-
 void testTextInput() {
     printf("TextInput\n");
 
@@ -303,36 +299,34 @@ void testTextInput() {
         alwaysAssertM(t.extendedType() == G3D::Token::SYMBOL_TYPE, "");
     }
 
-#define CHECK_EXC_POS(e, lnum, chnum)                                        \
-    do {                                                                     \
-        alwaysAssertM((int)(e).line == (int)(lnum) && (int)(e).character == (int)(chnum), "");   \
-    } while (0)
-#define CHECK_TOKEN_POS(t, lnum, chnum)                                      \
-    do {                                                                     \
-        alwaysAssertM((int)(t).line() == (int)(lnum)                         \
-                      && (int)(t).character() == (int)(chnum), "");          \
-    } while (0)
-#define CHECK_TOKEN_TYPE(t, typ, etyp)                                       \
-    do {                                                                     \
-        alwaysAssertM((t).type() == (typ), "");                              \
-        alwaysAssertM((t).extendedType() == (etyp), "");                     \
-    } while (0)
-#define CHECK_SYM_TOKEN(ti, str, lnum, chnum)                                \
-    do {                                                                     \
-        Token _t;                                                            \
-        _t = (ti).read();                                                    \
-        CHECK_TOKEN_TYPE(_t, Token::SYMBOL, Token::SYMBOL_TYPE);             \
-                                                                             \
-        CHECK_TOKEN_POS(_t, (lnum), (chnum));                                \
-        alwaysAssertM(_t.string() == (str), "");                             \
-    } while (0)
-#define CHECK_END_TOKEN(ti, lnum, chnum)                                     \
-    do {                                                                     \
-        Token _t;                                                            \
-        _t = (ti).read();                                                    \
-        CHECK_TOKEN_TYPE(_t, Token::END, Token::END_TYPE);                   \
-        CHECK_TOKEN_POS(_t, (lnum), (chnum));                                \
-    } while (0)
+#define CHECK_EXC_POS(e, lnum, chnum)                                       \
+        alwaysAssertM((int)(e).line == (int)(lnum) && (int)(e).character == (int)(chnum), "");
+
+#define CHECK_TOKEN_POS(t, lnum, chnum)                                     \
+        alwaysAssertM((int)(t).line() == (int)(lnum)                        \
+                      && (int)(t).character() == (int)(chnum), "");         
+
+#define CHECK_TOKEN_TYPE(t, typ, etyp)                                      \
+        alwaysAssertM((t).type() == (typ), "");                             \
+        alwaysAssertM((t).extendedType() == (etyp), "");                    
+
+#define CHECK_SYM_TOKEN(ti, str, lnum, chnum)                               \
+    {                                                                       \
+        Token _t;                                                           \
+        _t = (ti).read();                                                   \
+        CHECK_TOKEN_TYPE(_t, Token::SYMBOL, Token::SYMBOL_TYPE);            \
+                                                                            \
+        CHECK_TOKEN_POS(_t, (lnum), (chnum));                               \
+        alwaysAssertM(_t.string() == (str), "");                            \
+    }
+
+#define CHECK_END_TOKEN(ti, lnum, chnum)                                    \
+    {                                                                       \
+        Token _t;                                                           \
+        _t = (ti).read();                                                   \
+        CHECK_TOKEN_TYPE(_t, Token::END, Token::END_TYPE);                  \
+        CHECK_TOKEN_POS(_t, (lnum), (chnum));                               \
+    }
 
     // Basic line number checking test.  Formerly would skip over line
     // numbers (i.e., report 1, 3, 5, 7 as the lines for the tokens), because
@@ -346,14 +340,14 @@ void testTextInput() {
         CHECK_END_TOKEN(ti,        4, 1);
     }
 
-#define CHECK_ONE_SPECIAL_SYM(s)                                             \
-    do {                                                                     \
-        TextInput ti(TextInput::FROM_STRING, "\n a" s "b\n ");               \
-        CHECK_SYM_TOKEN(ti, "a", 2, 2);                                      \
-        CHECK_SYM_TOKEN(ti,   s, 2, 3);                                      \
-        CHECK_SYM_TOKEN(ti, "b", 2, 3 + strlen(s));                          \
-        CHECK_END_TOKEN(ti,      3, 2);                                      \
-    } while (0)
+#define CHECK_ONE_SPECIAL_SYM(s)                                            \
+    {                                                                       \
+        TextInput ti(TextInput::FROM_STRING, "\n a" s "b\n ");              \
+        CHECK_SYM_TOKEN(ti, "a", 2, 2);                                     \
+        CHECK_SYM_TOKEN(ti,   s, 2, 3);                                     \
+        CHECK_SYM_TOKEN(ti, "b", 2, 3 + strlen(s));                         \
+        CHECK_END_TOKEN(ti,      3, 2);                                     \
+    }
 
     CHECK_ONE_SPECIAL_SYM("@");
     CHECK_ONE_SPECIAL_SYM("(");
@@ -416,7 +410,7 @@ void testTextInput() {
 #undef CHECK_ONE_SPECIAL_SYM
 
 #define CHECK_ONE_SPECIAL_PROOF_SYM(s)                                      \
-    do {                                                                    \
+    {                                                                       \
         TextInput::Settings ps;                                             \
         ps.proofSymbols = true;                                             \
         TextInput ti(TextInput::FROM_STRING, "\n a" s "b\n ", ps);          \
@@ -424,7 +418,7 @@ void testTextInput() {
         CHECK_SYM_TOKEN(ti,   s, 2, 3);                                     \
         CHECK_SYM_TOKEN(ti, "b", 2, 3 + strlen(s));                         \
         CHECK_END_TOKEN(ti,      3, 2);                                     \
-    } while (0)
+    }
 
     // proof symbols
     CHECK_ONE_SPECIAL_PROOF_SYM("=>");
