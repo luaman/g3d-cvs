@@ -1135,6 +1135,15 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
 ////////////////////////////////////////////////////////////////////////
 
+void VertexAndPixelShader::ArgList::set(const ArgList& a) {
+    Table<std::string, Arg>::Iterator& it = a.begin();
+    const Table<std::string, Arg>::Iterator& end = a.end();
+
+    while (it != end) {
+        argTable.set(it->key, it->value);
+    }
+}
+
 void VertexAndPixelShader::ArgList::set(const std::string& var, const Texture::Ref& val, bool optional) {
     Arg arg;
     debugAssert(val.notNull());

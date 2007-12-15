@@ -91,6 +91,7 @@ features.  Not all API entry points are shown in this index.
 <tr><td></td><td>\link G3D::PosedModel <b>PosedModel</b>\endlink</td><td>Static object that is prepared for rendering.  Exposes geometry and adjacency information</td></tr>
 <tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole perspective camera abstraction</td></tr>
 <tr><td></td><td>\link G3D::Shape Shape\endlink</td><td>Geometric primitives primarily used for bounding volumes and debugging</td></tr>
+<tr><td></td><td>\link G3D::Material Material\endlink</td><td>BSDF; surface material properties</td></tr>
 </table>
 
 

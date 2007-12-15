@@ -374,6 +374,9 @@ public:
 
     public:
 
+        /** Merges @a a into this list. Values from @a override any currently in the arglist.*/
+        void set(const ArgList& a);
+
         void set(const std::string& var, const Texture::Ref& val, bool optional = false);
         void set(const std::string& var, const CoordinateFrame& val, bool optional = false);
         void set(const std::string& var, const Matrix4& val, bool optional = false);

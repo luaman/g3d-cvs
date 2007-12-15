@@ -30,6 +30,9 @@ typedef ReferenceCountedPointer<ShadowMap> ShadowMapRef;
   This is a legacy class for fixed function rendering. You
   probably don't want to use GMaterial at all if you
   are writing vertex and pixel shaders.
+
+  @deprecated
+  @sa Material
  */
 class GMaterial {
 public:
