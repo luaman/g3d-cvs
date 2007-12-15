@@ -22,11 +22,6 @@
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/SuperShader.h" // to purge cache
 #include <time.h>
-#ifdef G3D_WIN32
-    #include "GLG3D/Win32Window.h"
-#else
-    #include "GLG3D/SDLWindow.h"    
-#endif
 #include "GLG3D/GLCaps.h"
 
 namespace G3D {
@@ -229,11 +224,7 @@ void RenderDevice::init(
     Log*                        log) {
 
     deleteWindow = true;
-    #ifdef G3D_WIN32
-        init(Win32Window::create(_settings), log);
-    #else
-        init(new SDLWindow(_settings), log);
-    #endif
+    init(GWindow::create(_settings), log);
 }
 
 

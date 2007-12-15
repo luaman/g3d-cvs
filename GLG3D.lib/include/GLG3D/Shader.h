@@ -72,29 +72,32 @@ public:
 
     friend class Shader;
 
-    class UniformDeclaration {
-    public:
-        /** If true, this variable is declared but unused */
-        bool                dummy;
+/** Used by Shader */
+class UniformDeclaration {
+public:
+    /** If true, this variable is declared but unused */
+    bool                dummy;
+    
+    /** Register location if a sampler. */
+    int                 location;
+    
+    /** Name of the variable.  May include [] and . (e.g.
+        "foo[1].normal")*/
+    std::string         name;
+    
+    /** OpenGL type of the variable (e.g. GL_INT) */
+    GLenum              type;
+    
+    /** Unknown... appears to always be 1 */
+    int                 size;
+    
+    /**
+       Index of the texture unit in which this value
+       is stored.  -1 for uniforms that are not textures. */  
+    int                 textureUnit;
+};
 
-        /** Register location if a sampler. */
-        int                 location;
 
-        /** Name of the variable.  May include [] and . (e.g.
-            "foo[1].normal")*/
-        std::string         name;
-
-        /** OpenGL type of the variable (e.g. GL_INT) */
-        GLenum              type;
-
-        /** Unknown... appears to always be 1 */
-        int                 size;
-
-        /**
-         Index of the texture unit in which this value
-         is stored.  -1 for uniforms that are not textures. */  
-        int                 textureUnit;
-    };
 
 protected:
 
@@ -123,7 +126,7 @@ protected:
         static GPUShader*           init(GPUShader* shader, bool debug);
         
         /** Set to true when name and code both == "" */
-        bool			            _fixedFunction;
+        bool			     _fixedFunction;
         
         GLenum                      _glShaderType;
         
@@ -185,46 +188,46 @@ protected:
               const Table<std::string, int>& samplerMappings,
               bool               secondPass);
             
-		/** Deletes the underlying glShaderObject.  Between GL's reference
-			counting and G3D's reference counting, an underlying object
-			can never be deleted while in use. */
-		~GPUShader();
-
-		/** Shader type, e.g. GL_VERTEX_SHADER_ARB */
-		inline GLenum glShaderType() const {
-			return _glShaderType;
-		}
-
-		inline const std::string& shaderType() const {
-			return _shaderType;
-		}
-
-		/** Why compilation failed, or any compiler warnings if it succeeded.*/
-		inline const std::string& messages() const {
-			return _messages;
-		}
-
-		/** Returns true if compilation and loading succeeded.  If they failed,
-			check the message string.*/
-		inline bool ok() const {
-			return _ok;
-		}
-
-		/** Returns the underlying OpenGL shader object for this shader */
-		inline GLhandleARB glShaderObject() const {
-			return _glShaderObject;
-		}
-
-		inline bool fixedFunction() const {
-			return _fixedFunction;
-		}
-	};
+        /** Deletes the underlying glShaderObject.  Between GL's reference
+            counting and G3D's reference counting, an underlying object
+            can never be deleted while in use. */
+        ~GPUShader();
+        
+        /** Shader type, e.g. GL_VERTEX_SHADER_ARB */
+        inline GLenum glShaderType() const {
+            return _glShaderType;
+        }
+        
+        inline const std::string& shaderType() const {
+            return _shaderType;
+        }
+        
+        /** Why compilation failed, or any compiler warnings if it succeeded.*/
+        inline const std::string& messages() const {
+            return _messages;
+        }
+        
+        /** Returns true if compilation and loading succeeded.  If they failed,
+            check the message string.*/
+        inline bool ok() const {
+            return _ok;
+        }
+        
+        /** Returns the underlying OpenGL shader object for this shader */
+        inline GLhandleARB glShaderObject() const {
+            return _glShaderObject;
+        }
+        
+        inline bool fixedFunction() const {
+            return _fixedFunction;
+        }
+    };
 
     static std::string      ignore;
 
     GPUShader	            vertexShader;
     GPUShader	            geometryShader;
-    GPUShader		        pixelShader;
+    GPUShader	            pixelShader;
 
     GLhandleARB             _glProgramObject;
 
@@ -277,6 +280,16 @@ protected:
 
 public:
 
+    /** True if this variable is defined. @beta */
+    bool definesArgument(const std::string& name) {
+        return uniformNames.contains(name);
+    }
+
+    /** @beta */
+    const Array<UniformDeclaration>& argumentArray() const {
+        return uniformArray;
+    }
+
     /** Thrown by validateArgList */
     class ArgumentError {
     public:
@@ -307,21 +320,22 @@ public:
          UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
          bool debugErrors = DEBUG_SHADER);
     
-	/**
-	 To use the fixed function pipeline for part of the
-	 shader, pass an empty string.
-
-     @param debugErrors If true, a debugging dialog will
-        appear when there are syntax errors in the shaders.
-        If false, failures will occur silently; check
-        VertexAndPixelShader::ok() to see if the files
-        compiled correctly.
-	 */
-	static VertexAndPixelShaderRef fromFiles(
-		const std::string& vertexShader,
-		const std::string& pixelShader,
-        UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
-        bool debugErrors = DEBUG_SHADER);
+    /**
+       To use the fixed function pipeline for part of the
+       shader, pass an empty string.
+       
+       @param debugErrors If true, a debugging dialog will
+       appear when there are syntax errors in the shaders.
+       If false, failures will occur silently; check
+       VertexAndPixelShader::ok() to see if the files
+       compiled correctly.
+    */
+    static VertexAndPixelShaderRef fromFiles
+    (
+     const std::string& vertexShader,
+     const std::string& pixelShader,
+     UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
+     bool debugErrors = DEBUG_SHADER);
 
     /**
      Bindings of values to uniform variables for a VertexAndPixelShader.
@@ -586,6 +600,16 @@ protected:
     inline Shader() {}
 
 public:
+
+    /** True if this variable is defined. @beta */
+    bool definesArgument(const std::string& name) {
+        return _vertexAndPixelShader->definesArgument(name);
+    }
+
+    /** @beta */
+    const Array<VertexAndPixelShader::UniformDeclaration>& argumentArray() const {
+        return _vertexAndPixelShader->argumentArray();
+    }
 
     /** If this shader was loaded from disk, reload it */
     void reload();

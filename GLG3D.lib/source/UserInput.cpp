@@ -31,8 +31,8 @@ void UserInput::init(
     _window = window;
     windowCenter = Vector2((float)window->width() / 2.0f, (float)window->height() / 2.0f);
 
-	up = left = down = right = false;
-	jx = jy = 0.0;
+    up = left = down = right = false;
+    jx = jy = 0.0;
 
     inEventProcessing = false;
 
@@ -193,37 +193,37 @@ Vector2 UserInput::getXY() const {
 
 float UserInput::getX() const {
 
-	if (left && !right) {
-		return -1.0f;
-	} else if (right && !left) {
-		return 1.0f;
-	}
-
-	if (useJoystick && (fabs(jx) > 0.1)) {
-		return (float)jx;
-	}
-
-	return 0.0f;
+    if (left && !right) {
+        return -1.0f;
+    } else if (right && !left) {
+        return 1.0f;
+    }
+    
+    if (useJoystick && (fabs(jx) > 0.1)) {
+        return (float)jx;
+    }
+    
+    return 0.0f;
 }
 
 
 float UserInput::getY() const {
-	if (down && !up) {
-		return -1.0f;
-	} else if (up && !down) {
-		return 1.0f;
-	}
-
-	if (useJoystick && (fabs(jy) > 0.1)) {
-		return (float)jy;
-	}
-
-	return 0.0f;
+    if (down && !up) {
+        return -1.0f;
+    } else if (up && !down) {
+        return 1.0f;
+    }
+    
+    if (useJoystick && (fabs(jy) > 0.1)) {
+        return (float)jy;
+    }
+    
+    return 0.0f;
 }
 
 
 void UserInput::processKey(GKey code, int event) {
-	bool state = (event == GEventType::KEY_DOWN);
+    bool state = (event == GEventType::KEY_DOWN);
 
     if (code < GKey(keyFunction.size())) {
         switch (keyFunction[(int)code]) {
@@ -245,7 +245,7 @@ void UserInput::processKey(GKey code, int event) {
 
         case NONE:
             break;
-	    }
+        }
 
         keyState[(int)code] = state;
 

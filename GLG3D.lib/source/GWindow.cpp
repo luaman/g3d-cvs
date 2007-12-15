@@ -10,8 +10,25 @@
 #include "GLG3D/GWindow.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/GLCaps.h"
+#ifdef G3D_WIN32
+#    include "GLG3D/Win32Window.h"
+#elif defined(G3D_OSX)
+#    include "GLG3D/CarbonWindow.h"
+#else
+#    include "GLG3D/SDLWindow.h"
+#endif
 
 namespace G3D {
+
+GWindow* GWindow::create(const GWindow::Settings& s) {
+#   ifdef G3D_WIN32
+        return Win32Window::create(s);
+#   elif defined(G3D_OSX)
+        return CarbonWindow::create(s);
+#   else
+        return SDLWindow::create(s);
+#   endif
+}
 
 void GWindow::fireEvent(const GEvent& event) {
     m_eventQueue.pushBack(event);
