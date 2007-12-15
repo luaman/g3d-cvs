@@ -21,6 +21,7 @@
      <li> G3D::Draw::lighting for visualizing light sources
      <li> G3D::SuperShader::purgeCache
      <li> G3D::GLight::effectSphere
+     <li> G3D::Shader arguments (in G3D::VertexAndPixelShader::ArgList) may now be "optional"
      <li> G3D::GLight::point now has quadratic attenuation by default.
      <li> G3D::TextureFormat::name
      <li> G3D::BinaryInput::setEndian

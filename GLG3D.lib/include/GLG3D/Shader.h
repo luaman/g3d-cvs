@@ -342,8 +342,10 @@ public:
      Be aware that 
      the uniform namespace is global across the pixel and vertex shader.
 
-     GL_BOOL_ARB and GL_INT_ARB-based values are coerced to floats
-     automatically by the arg list.
+
+     If an argument is marked optional then it is only bound when the shader
+     requires it.  If a non-optional variable is not declared within the shader
+     an error occurs at runtime (so that you can debug the mismatch).
      */
     class ArgList {
     private:
@@ -361,25 +363,30 @@ public:
             int                        intVal;
 
             GLenum                     type;
+
+            /** If an argument is marked as optional, it is only applied to the shader if it is defined within the shader.*/
+            bool                       optional;
+
+            Arg() : optional(false) {}
         };
 
         Table<std::string, Arg>        argTable;
 
     public:
 
-        void set(const std::string& var, const Texture::Ref& val);
-        void set(const std::string& var, const CoordinateFrame& val);
-        void set(const std::string& var, const Matrix4& val);
-        void set(const std::string& var, const Matrix3& val);
-        void set(const std::string& var, const Color4& val);
-        void set(const std::string& var, const Color3& val);
-        void set(const std::string& var, const Vector4& val);
-        void set(const std::string& var, const Vector3& val);
-        void set(const std::string& var, const Vector2& val);
-        void set(const std::string& var, double         val);
-        void set(const std::string& var, float          val);
-        void set(const std::string& var, int            val);
-        void set(const std::string& var, bool           val);
+        void set(const std::string& var, const Texture::Ref& val, bool optional = false);
+        void set(const std::string& var, const CoordinateFrame& val, bool optional = false);
+        void set(const std::string& var, const Matrix4& val, bool optional = false);
+        void set(const std::string& var, const Matrix3& val, bool optional = false);
+        void set(const std::string& var, const Color4& val, bool optional = false);
+        void set(const std::string& var, const Color3& val, bool optional = false);
+        void set(const std::string& var, const Vector4& val, bool optional = false);
+        void set(const std::string& var, const Vector3& val, bool optional = false);
+        void set(const std::string& var, const Vector2& val, bool optional = false);
+        void set(const std::string& var, double         val, bool optional = false);
+        void set(const std::string& var, float          val, bool optional = false);
+        void set(const std::string& var, int            val, bool optional = false);
+        void set(const std::string& var, bool           val, bool optional = false);
 
         /**
          GLSL does not natively support arrays and structs in the uniform binding API.  Instead, each
@@ -387,15 +394,15 @@ public:
          each element of an array.  You can instead set them using <CODE>args.set("arry[3]", myVal)</CODE>.
          Likewise for structs, <CODE>args.set("str.foo.bar", myVal)</CODE>.
          */
-        template<class T> void set(const std::string& arrayName, const G3D::Array<T>& arrayVal) {
+        template<class T> void set(const std::string& arrayName, const G3D::Array<T>& arrayVal, bool optional = false) {
             for (int i = 0; i < arrayVal.size(); ++i) {
-                set(format("%s[%d]", arrayName.c_str(), i), arrayVal[i]);
+                set(format("%s[%d]", arrayName.c_str(), i), arrayVal[i], optional);
             }
         }
 
-        template<class T> void set(const std::string& arrayName, const std::vector<T>& arrayVal) {
+        template<class T> void set(const std::string& arrayName, const std::vector<T>& arrayVal, bool optional = false) {
             for (int i = 0; i < arrayVal.size(); ++i) {
-                set(format("%s[%d]", arrayName.c_str(), i), arrayVal[i]);
+                set(format("%s[%d]", arrayName.c_str(), i), arrayVal[i], optional);
             }
         }
         

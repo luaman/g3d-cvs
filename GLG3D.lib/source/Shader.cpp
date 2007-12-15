@@ -935,6 +935,7 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
 
         } else {
 
+            // See if this variable was declared
             declared = args.argTable.containsKey(decl.name);
 
             if (! declared && ! decl.dummy) {
@@ -969,18 +970,20 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
         while (arg != end) {
             // See if this arg was in the formal binding list
 
-            bool foundArgument = false;
-            
-            for (int u = 0; u < uniformArray.size(); ++u) {
-                if (uniformArray[u].name == arg->key) {
-                    foundArgument = true;
-                    break;
+            if (! arg->value.optional) {
+                bool foundArgument = false;
+                
+                for (int u = 0; u < uniformArray.size(); ++u) {
+                    if (uniformArray[u].name == arg->key) {
+                        foundArgument = true;
+                        break;
+                    }
                 }
-            }
 
-            if (! foundArgument) {
-                throw ArgumentError(
-                std::string("Extra VertexAndPixelShader uniform variable provided at runtime: ") + arg->key + ".");
+                if (! foundArgument) {
+                    throw ArgumentError(
+                    std::string("Extra VertexAndPixelShader uniform variable provided at runtime: ") + arg->key + ".");
+                }
             }
 
             ++arg;
@@ -1132,88 +1135,95 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
 ////////////////////////////////////////////////////////////////////////
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Texture::Ref& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Texture::Ref& val, bool optional) {
     Arg arg;
     debugAssert(val.notNull());
     arg.type    = val->openGLTextureTarget();
     arg.texture = val;
+    arg.optional = optional;
     argTable.set(var, arg);
 
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const CoordinateFrame& val) {
-    set(var, Matrix4(val));
+void VertexAndPixelShader::ArgList::set(const std::string& var, const CoordinateFrame& val, bool optional) {
+    set(var, Matrix4(val), optional);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix4& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix4& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_MAT4_ARB;
     for (int r = 0; r < 4; ++r) {
         arg.vector[r] = val.getRow(r);
     }
+    arg.optional = optional;
 
     argTable.set(var, arg);
 }
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix3& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix3& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_MAT3_ARB;
     for (int r = 0; r < 3; ++r) {
         arg.vector[r] = Vector4(val.getRow(r), 0);
     }
+    arg.optional = optional;
 
     argTable.set(var, arg);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector4& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector4& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_VEC4_ARB;
     arg.vector[0] = val;
+    arg.optional = optional;
     argTable.set(var, arg);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector3& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector3& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_VEC3_ARB;
     arg.vector[0] = Vector4(val, 0);
+    arg.optional = optional;
     argTable.set(var, arg);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Color4& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Color4& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_VEC4_ARB;
     arg.vector[0] = Vector4(val.r, val.g, val.b, val.a);
+    arg.optional = optional;
     argTable.set(var, arg);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Color3& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Color3& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_VEC3_ARB;
     arg.vector[0] = Vector4(val.r, val.g, val.b, 0);
+    arg.optional = optional;
     argTable.set(var, arg);
-
 }
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector2& val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector2& val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT_VEC2_ARB;
     arg.vector[0] = Vector4(val, 0, 0);
+    arg.optional = optional;
     argTable.set(var, arg);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, double          val) {
-    set(var, (float)val);
+void VertexAndPixelShader::ArgList::set(const std::string& var, double          val, bool optional) {
+    set(var, (float)val, optional);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, float          val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, float          val, bool optional) {
     Arg arg;
     arg.type = GL_FLOAT;
     arg.vector[0] = Vector4(val, 0, 0, 0);
@@ -1221,18 +1231,20 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, float          v
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, int          val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, int          val, bool optional) {
     Arg arg;
     arg.type = GL_INT;
     arg.intVal = val;
+    arg.optional = optional;
     argTable.set(var, arg);
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, bool          val) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, bool          val, bool optional) {
     Arg arg;
     arg.type = GL_BOOL;
     arg.intVal = val;
+    arg.optional = optional;
     argTable.set(var, arg);
 }
 
