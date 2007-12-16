@@ -13,6 +13,7 @@
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
 #include "G3D/Vector4.h"
+#include "GLG3D/Shader.h"
 #include "GLG3D/Texture.h"
 
 namespace G3D {
@@ -49,8 +50,7 @@ namespace G3D {
     
     @sa G3D::SuperShader
   */
-
-    class Material {
+class Material {
 public:
 
     /** Material property coefficients are specified as 
@@ -191,6 +191,11 @@ public:
         describe the specified components of this material.
       */
     void computeDefines(std::string& defines) const;
+
+    /** Configure the properties of this material as optional arguments
+        for a shader.
+      */
+    void configure(VertexAndPixelShader::ArgList& a) const;
 };
 
 } // Namespace G3D

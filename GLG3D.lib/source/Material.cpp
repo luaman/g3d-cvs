@@ -163,4 +163,59 @@ void Material::enforceDiffuseMask() {
 }
 
 
+void Material::configure(VertexAndPixelShader::ArgList& args) const {
+
+    if (diffuse.constant != Color3::black()) {
+        args.set("diffuseConstant",         diffuse.constant);
+        if (diffuse.map.notNull()) {
+            args.set("diffuseMap",              diffuse.map);
+        }
+    }
+
+    if (customConstant.isFinite()) {
+        args.set("customConstant",         customConstant);
+    }
+
+    if (customMap.notNull()) {
+        args.set("customMap",              customMap);
+    }
+
+    if (specular.constant != Color3::black()) {
+        args.set("specularConstant",        specular.constant);
+        if (specular.map.notNull()) {
+            args.set("specularMap",             specular.map);
+        }
+
+        // If specular exponent is black we get into trouble-- pow(x, 0)
+        // doesn't work right in shaders for some reason
+        args.set("specularExponentConstant", Color3::white().max(specularExponent.constant));
+
+        if (specularExponent.map.notNull()) {
+            args.set("specularExponentMap",     specularExponent.map);
+        }
+    }
+
+    if (reflect.constant != Color3::black()) {
+        args.set("reflectConstant",         reflect.constant);
+
+        if (reflect.map.notNull()) {
+            args.set("reflectMap",              reflect.map);
+        }
+    }
+
+    if (emit.constant != Color3::black()) {
+        args.set("emitConstant",            emit.constant * lighting->emissiveScale);
+
+        if (emit.map.notNull()) {
+            args.set("emitMap",             emit.map);
+        }
+    }
+
+    if (normalBumpMap.notNull() && (bumpMapScale != 0)) {
+        args.set("normalBumpMap",       normalBumpMap);
+        args.set("bumpMapScale",        bumpMapScale);
+        args.set("bumpMapBias",         bumpMapBias);
+    }
+}
+
 }
