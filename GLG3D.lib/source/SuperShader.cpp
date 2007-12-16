@@ -26,13 +26,14 @@ void SuperShader::configureShaderExtraLightArgs(
         if (lightArray.size() > i + lightIndex) {
             const GLight& light = lightArray[i + lightIndex];
 
-            args.set("lightPosition" + N,   light.position);
-            args.set("lightColor" + N,      light.color);
-            args.set("lightAttenuation" + N, Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
+            args.set("lightPosition[" + N + "]",   light.position);
+            args.set("lightColor[" + N + "]",      light.color);
+            args.set("lightAttenuation[" + N + "]", 
+                     Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
         } else {
-            args.set("lightPosition" + N,    Vector4(0, 1, 0, 0));
-            args.set("lightColor" + N,       Color3::black());
-            args.set("lightAttenuation" + N, Vector3(1, 0, 0));
+            args.set("lightPosition[" + N + "]",    Vector4(0, 1, 0, 0));
+            args.set("lightColor[" + N + "]",       Color3::black());
+            args.set("lightAttenuation[" + N + "]", Vector3(1, 0, 0));
         }
     }
 }

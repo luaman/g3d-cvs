@@ -4,10 +4,11 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2004-04-24
- @edited  2007-03-16
+ @edited  2007-12-16
  */
 
 #include "G3D/fileutils.h"
+#include "G3D/Log.h"
 #include "GLG3D/Shader.h"
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/getOpenGLState.h"
@@ -907,9 +908,10 @@ GLenum VertexAndPixelShader::canonicalType(GLenum e) {
 
 
 void VertexAndPixelShader::validateArgList(const ArgList& args) const {
+    // Number of distinct variables declared in the shader.  Arrays count as a single
+    // argument, which appears as arrayname[0] in the declaration list.
     int numVariables = 0;
 
-    // Iterate through formal bindings
     for (int u = 0; u < uniformArray.size(); ++u) {
         const UniformDeclaration& decl = uniformArray[u];
 
@@ -959,37 +961,68 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
                         decl.name.c_str(), v1.c_str(), v1c.c_str(), v2.c_str(), v2.c_str()));
             }
         }
-
     }
 
-    if (numVariables < static_cast<int>(args.argTable.size())) {
+#ifdef G3D_DEBUG
+    if (numVariables < args.size()) {
+
+        /*
+          logPrintf("numVariables = %d, args.size = %d\n\n", numVariables, args.size());
+          // Iterate through formal bindings
+          logPrintf("Formals:\n"); 
+          for (int u = 0; u < uniformArray.size(); ++u) {
+          const UniformDeclaration& decl = uniformArray[u];
+          if (! decl.dummy) {
+          logPrintf("  %s\n",decl.name.c_str());
+          }
+          }
+          logPrintf("\nActuals:\n");
+          {
+          Table<std::string, ArgList::Arg>::Iterator        arg = args.argTable.begin();
+          const Table<std::string, ArgList::Arg>::Iterator& end = args.argTable.end();
+          while (arg != end) {
+          logPrintf("  %s\n",arg->key.c_str());
+          ++arg;
+          }
+          }
+        */
+
         // Some variables were unused.  Figure out which they were.
-        Table<std::string, ArgList::Arg>::Iterator arg = args.argTable.begin();
-        Table<std::string, ArgList::Arg>::Iterator end = args.argTable.end();
+        Table<std::string, ArgList::Arg>::Iterator        arg = args.argTable.begin();
+        const Table<std::string, ArgList::Arg>::Iterator& end = args.argTable.end();
 
         while (arg != end) {
             // See if this arg was in the formal binding list
 
             if (! arg->value.optional) {
                 bool foundArgument = false;
-                
+
+                std::string target = arg->key;
+                if (target[target.size() - 1] == ']') {
+                    // Looking for an array, which GLSL represents with suffix [0] always
+                    // Replace our target name with this.
+                    int j = target.rfind('[');
+                    target = target.substr(0, j + 1) + "0]";
+                }
+
                 for (int u = 0; u < uniformArray.size(); ++u) {
-                    if (uniformArray[u].name == arg->key) {
+                    if (uniformArray[u].name == target) {
                         foundArgument = true;
                         break;
                     }
                 }
 
                 if (! foundArgument) {
-                    throw ArgumentError(
-                    std::string("Extra VertexAndPixelShader uniform variable provided at runtime: ") + arg->key + ".");
+                    throw ArgumentError
+                        (std::string("Extra VertexAndPixelShader uniform variable provided at runtime: ") +
+                         arg->key + ".");
                 }
             }
 
             ++arg;
         }
     }
-
+#endif
 }
 
 
@@ -1135,12 +1168,25 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 
 ////////////////////////////////////////////////////////////////////////
 
+void VertexAndPixelShader::ArgList::set(const std::string& key, const Arg& value) {
+    debugAssert(key != "");
+
+    if (! argTable.containsKey(key) &&
+        ((key[key.size() - 1] != ']') || endsWith(key, "[0]"))) {
+        // New argument
+        ++m_size;
+    }
+
+    argTable.set(key, value);
+}
+
+
 void VertexAndPixelShader::ArgList::set(const ArgList& a) {
     Table<std::string, Arg>::Iterator it = a.argTable.begin();
     const Table<std::string, Arg>::Iterator& end = a.argTable.end();
 
     while (it != end) {
-        argTable.set(it->key, it->value);
+        set(it->key, it->value);
     }
 }
 
@@ -1150,8 +1196,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Texture::R
     arg.type    = val->openGLTextureTarget();
     arg.texture = val;
     arg.optional = optional;
-    argTable.set(var, arg);
-
+    set(var, arg);
 }
 
 
@@ -1168,7 +1213,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix4& v
     }
     arg.optional = optional;
 
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix3& val, bool optional) {
@@ -1179,7 +1224,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix3& v
     }
     arg.optional = optional;
 
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1188,7 +1233,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector4& v
     arg.type = GL_FLOAT_VEC4_ARB;
     arg.vector[0] = val;
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1197,7 +1242,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector3& v
     arg.type = GL_FLOAT_VEC3_ARB;
     arg.vector[0] = Vector4(val, 0);
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1206,7 +1251,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Color4& va
     arg.type = GL_FLOAT_VEC4_ARB;
     arg.vector[0] = Vector4(val.r, val.g, val.b, val.a);
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1215,7 +1260,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Color3& va
     arg.type = GL_FLOAT_VEC3_ARB;
     arg.vector[0] = Vector4(val.r, val.g, val.b, 0);
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector2& val, bool optional) {
@@ -1223,7 +1268,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Vector2& v
     arg.type = GL_FLOAT_VEC2_ARB;
     arg.vector[0] = Vector4(val, 0, 0);
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1236,7 +1281,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, float          v
     Arg arg;
     arg.type = GL_FLOAT;
     arg.vector[0] = Vector4(val, 0, 0, 0);
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1245,7 +1290,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, int          val
     arg.type = GL_INT;
     arg.intVal = val;
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
@@ -1254,12 +1299,13 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, bool          va
     arg.type = GL_BOOL;
     arg.intVal = val;
     arg.optional = optional;
-    argTable.set(var, arg);
+    set(var, arg);
 }
 
 
 void VertexAndPixelShader::ArgList::clear() {
     argTable.clear();
+    m_size = 0;
 }
 
 

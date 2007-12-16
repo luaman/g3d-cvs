@@ -371,8 +371,19 @@ public:
         };
 
         Table<std::string, Arg>        argTable;
+        int                            m_size;
+
+        /** Adds an argument to the argTable.  Called by all other set methods */
+        void set(const std::string& key, const Arg& value);
 
     public:
+
+        ArgList() : m_size(0) {}
+        
+        /** Arrays only count as a single argument. */
+        int size() const {
+            return m_size;
+        }
 
         /** Merges @a a into this list. Values from @a override any currently in the arglist.*/
         void set(const ArgList& a);

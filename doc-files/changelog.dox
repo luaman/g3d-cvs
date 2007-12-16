@@ -14,10 +14,13 @@
    <P>
    Changes in 7.01:
    <ul>
+     <li> GWindow::create
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files
      <li> G3D::SuperShader now supports a customMap and customConstant for experimenting with shaders.
      <li> G3D::SuperShader now does not ever light the "back" of a bump-mapped poly, even if the bumps should create a light-facing surface
      <li> G3D::Material promoted to its own class (was G3D::SuperShader::Material)
+     <li> G3D::VertexAndPixelShader::ArgList::size
+     <li> Reduced cost of release-mode Shader argument validation
      <li> G3D::PosedModel::sortAndRender now performs view-frustum culling of objects
      <li> G3D::Draw::lighting for visualizing light sources
      <li> G3D::SuperShader::purgeCache
@@ -58,6 +61,8 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: various Framebuffer/empty texture initialization bugs on ATI cards
+     <li> Fix: uniform arrays for GLSL
      <li> Fix: All aliasing warnings have been fixed no longer needs -fno-strict-aliasing [Corey Taylor]
      <li> Fix: [ 1829704 ] debugAssert in Array::operator[](unsigned int n) wrong
      <li> Fix: GuiWindow::pack now recursively packs all child panes
@@ -74,6 +79,7 @@
      <li> Fix: RenderDevice::setAlphaWrite/setColorWrite implemented correctly
      <li> Fix: Implemented TextureFormat::fromCode
      <li> Fix: [ 1766509 ] Texture doesn't handle 3D textures correctly
+     <li> Fix: Separate bool, float, and int back ends for GLSL shaders
    </ul>
 
 <hr>

@@ -8,21 +8,9 @@
  */
 
 /** World space light position */
-uniform vec4        lightPosition0;
-uniform vec3        lightColor0;
-uniform vec3        lightAttenuation0;
-
-uniform vec4        lightPosition1;
-uniform vec3        lightColor1;
-uniform vec3        lightAttenuation1;
-
-uniform vec4        lightPosition2;
-uniform vec3        lightColor2;
-uniform vec3        lightAttenuation2;
-
-uniform vec4        lightPosition3;
-uniform vec3        lightColor3;
-uniform vec3        lightAttenuation3;
+uniform vec4        lightPosition[4];
+uniform vec3        lightColor[4];
+uniform vec3        lightAttenuation[4];
 
 uniform vec3        environmentConstant;
 uniform samplerCube environmentMap;
@@ -106,7 +94,6 @@ uniform float       backside;
 /** Used for "ambient occlusion" */
 varying float       accessibility;
 
-
 void addLightContribution(in vec3 wsN, in vec3 wsR, in vec3 wsPosition, in vec4 specularExponentColor, 
                           in vec4 lightPosition, in vec3 lightAttenuation, 
                           in vec3 lightColor, inout vec3 I_diffuse, inout vec3 I_specular) {
@@ -143,21 +130,21 @@ void main(void) {
         // Convert bumps to a world space distance
         float  bump   = (texture2D(normalBumpMap, texCoord).w - 0.5) * bumpMapScale;
 
-	    vec3 tsE = normalize(_tsE);
+        vec3 tsE = normalize(_tsE);
 
         // Offset the texture coord.  Note that texture coordinates are inverted (in the y direction)
-	    // from TBN space, so we must flip the y-axis.
+        // from TBN space, so we must flip the y-axis.
 
         vec2 offsetTexCoord = texCoord.xy + vec2(tsE.x, -tsE.y) * bump;
     	    
         // Take the normal map values back to (-1, 1) range to compute a tangent space normal
         vec3 tsN = (texture2D(normalBumpMap, offsetTexCoord).xyz - vec3(0.5, 0.5, 0.5)) * 2.0;
 
-	    // note that the columns might be slightly not orthogonal due to interpolation
-	    mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz * backside);
+        // note that the columns might be slightly not orthogonal due to interpolation
+        mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz * backside);
 
-	    // Take the normal to world space
-	    vec3 wsN = tangentToWorld * tsN;
+        // Take the normal to world space
+        vec3 wsN = tangentToWorld * tsN;
 
 #   else
 
@@ -171,7 +158,7 @@ void main(void) {
 #   if defined(REFLECTCONSTANT) || defined(REFLECTMAP) || defined(SPECULARCONSTANT) || defined(SPECULARMAP)
         // Eye vector
         vec3 wsE = wsEyePos - wsPosition;
-	    // or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
+        // or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
 
         // Reflection vector
         vec3 wsR = normalize((wsN * 2.0 * dot(wsN, wsE)) - wsE);
@@ -254,10 +241,10 @@ void main(void) {
     vec3 I_diffuse  = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);
     vec3 I_specular = BLACK;
 
-    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition0, lightAttenuation0, lightColor0, I_diffuse, I_specular);
-    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition1, lightAttenuation1, lightColor1, I_diffuse, I_specular);
-    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition2, lightAttenuation2, lightColor2, I_diffuse, I_specular);
-    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition3, lightAttenuation3, lightColor3, I_diffuse, I_specular);
+    for (int i = 0; i < 4; ++i) {
+        addLightContribution(wsN, wsR, wsPosition, specularExponentColor, 
+                             lightPosition[i], lightAttenuation[i], lightColor[i], I_diffuse, I_specular);
+    }
 
     gl_FragColor.rgb =
         BLACK
