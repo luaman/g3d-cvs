@@ -132,4 +132,35 @@ bool Material::Component::similarTo(const Component& other) const{
 }
 
 
+void Material::enforceDiffuseMask() {
+    if (! changed) {
+        return;
+    }
+
+    if (diffuse.map.notNull() && ! diffuse.map->opaque()) {
+        // There is a mask.  Extract it.
+
+        Texture::Ref mask = diffuse.map->alphaOnlyVersion();
+
+        static const int numComponents = 5;
+        Component* component[numComponents] = {&emit, &specular, &specularExponent, &transmit, &reflect};
+
+        // Spread the mask to other channels that are not black
+        for (int i = 0; i < numComponents; ++i) {
+            if (! component[i]->isBlack()) {
+                if (component[i]->map.isNull()) {
+                    // Add a new map that is the mask
+                    component[i]->map = mask;
+                } else {
+                    // TODO: merge instead of replacing!
+                    component[i]->map = mask;
+                }
+            }
+        }
+    }
+
+    changed = false;
+}
+
+
 }
