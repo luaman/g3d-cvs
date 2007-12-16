@@ -11,7 +11,7 @@
 
 namespace G3D {
 
-void Material::computeDefines(std::string& defines) {
+void Material::computeDefines(std::string& defines) const {
     defines = "";
 
     if (diffuse.constant != Color3::black()) {
@@ -53,7 +53,7 @@ void Material::computeDefines(std::string& defines) {
                 defines += "#define SPECULAREXPONENTMAP\n";
                 
                 // If the color is white, don't multiply by it
-                if (material.specularExponent.constant != Color3::white()) {
+                if (specularExponent.constant != Color3::white()) {
                     defines += "#define SPECULAREXPONENTCONSTANT\n";
                 }
             } else  {
@@ -92,7 +92,7 @@ void Material::computeDefines(std::string& defines) {
         }
     }
 
-    if ((bumpMapScale != 0) && material.normalBumpMap.notNull()) {
+    if ((bumpMapScale != 0) && normalBumpMap.notNull()) {
         defines += "#define NORMALBUMPMAP\n";
     }
 }
@@ -204,7 +204,7 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
     }
 
     if (emit.constant != Color3::black()) {
-        args.set("emitConstant",            emit.constant * lighting->emissiveScale);
+        args.set("emitConstant",            emit.constant);
 
         if (emit.map.notNull()) {
             args.set("emitMap",             emit.map);
