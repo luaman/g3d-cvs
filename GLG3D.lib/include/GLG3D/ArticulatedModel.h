@@ -131,7 +131,7 @@ public:
             /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
                 Must be invoked manually if the geometry is later changed. */
             void computeBounds(const Part& parentPart);
-	};
+        };
 
         /** Each part must have a unique name */
         std::string                 name;

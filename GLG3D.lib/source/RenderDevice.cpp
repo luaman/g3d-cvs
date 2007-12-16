@@ -585,7 +585,7 @@ Vector4 RenderDevice::project(const Vector4& v) const {
 void RenderDevice::cleanup() {
     debugAssert(initialized());
 
-    SuperShader::purgeCache();
+    SuperShader::Pass::purgeCache();
 
     if (debugLog) {debugLog->println("Shutting down RenderDevice.");}
 
