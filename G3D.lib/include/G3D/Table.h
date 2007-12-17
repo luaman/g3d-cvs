@@ -5,8 +5,8 @@
 
   @maintainer Morgan McGuire, matrix@graphics3d.com
   @created 2001-04-22
-  @edited  2006-10-14
-  Copyright 2000-2006, Morgan McGuire.
+  @edited  2007-12-17
+  Copyright 2000-2007, Morgan McGuire.
   All rights reserved.
  */
 
@@ -74,6 +74,14 @@ struct GHashCode<std::string>
     size_t operator()(const std::string& key) const { return static_cast<size_t>(G3D::Crypto::crc32(key.c_str(), key.size())); }
 };
 
+template<typename Key>
+struct GEquals{
+    bool operator()(const Key& a, const Key& b) const {
+        return a == b;
+    }
+};
+
+
 namespace G3D {
 
 
@@ -108,7 +116,7 @@ namespace G3D {
   1.0 your hash function is badly designed and maps too many inputs to
   the same output.
  */
-template<class Key, class Value, class HashFunc = GHashCode<Key> > 
+template<class Key, class Value, class HashFunc = GHashCode<Key>, class EqualsFunc = GEquals<Key> > 
 class Table {
 public:
 
@@ -157,24 +165,25 @@ private:
         }
     };
 
-    HashFunc m_HashFunc;
+    HashFunc        m_HashFunc;
+    EqualsFunc      m_EqualsFunc;
 
     /**
      Number of elements in the table.
      */
-    size_t  _size;
+    size_t          _size;
 
     /**
      Array of Node*. 
      We don't use Array<Node*> because Table is lower level.
      Some elements may be NULL.
      */
-    Node**  bucket;
+    Node**          bucket;
     
     /**
      Length of the bucket array.
      */
-    size_t  numBuckets;
+    size_t          numBuckets;
 
     /**
      Re-hashes for a larger bucket size.
@@ -487,7 +496,7 @@ public:
         do {
             allSameCode = allSameCode && (code == n->hashCode);
 
-            if ((code == n->hashCode) && (n->entry.key == key)) {
+            if ((code == n->hashCode) && m_EqualsFunc(n->entry.key, key)) {
                // Replace the existing node.
                n->entry.value = value;
                return;
@@ -529,7 +538,7 @@ public:
 
       // Try to find the node
       do {
-          if ((code == n->hashCode) && (n->entry.key == key)) {
+          if ((code == n->hashCode) && m_EqualsFunc(n->entry.key, key)) {
               // This is the node; remove it
               if (previous == NULL) {
                   bucket[b] = n->next;
@@ -562,7 +571,7 @@ public:
         Node* node = bucket[b];
 
         while (node != NULL) {
-            if ((node->hashCode == code) && (node->entry.key == key)) {
+            if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
                 return node->entry.value;
             }
             node = node->next;
@@ -585,7 +594,7 @@ public:
       Node* node = bucket[b];
 
       while (node != NULL) {
-          if ((node->hashCode == code) && (node->entry.key == key)) {
+          if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
              // found key
              val = node->entry.value;
              return true;
@@ -607,7 +616,7 @@ public:
        Node* node = bucket[b];
 
        while (node != NULL) {
-           if ((node->hashCode == code) && (node->entry.key == key)) {
+           if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
               return true;
            }
            node = node->next;

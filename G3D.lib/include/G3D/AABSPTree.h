@@ -98,11 +98,11 @@ namespace G3D {
         inline Indirector() : handle(NULL) {}
 
         /** Returns true iff the values referenced by the handles are equivalent. */
-        inline bool operator==(const Indirector& m) {
+        inline bool operator==(const Indirector& m) const {
             return *handle == *(m.handle);
         }
 
-        inline bool operator==(const Type& m) {
+        inline bool operator==(const Type& m) const {
             return *handle == m;
         }
 
