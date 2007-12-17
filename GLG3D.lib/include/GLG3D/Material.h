@@ -196,6 +196,20 @@ public:
         for a shader.
       */
     void configure(VertexAndPixelShader::ArgList& a) const;
+
+
+    /** Can be used with Table as an Equals function */
+    struct SimilarTo {
+        bool operator()(const Material& a, const Material& b) const {
+            return a.similarTo(b);
+        }
+    };
+
+    /** Can be used with Table as a hash function; if two Materials
+        have the same SimilarHashCode then they are SimilarTo each other.*/
+    struct SimilarHashCode {
+        size_t operator()(const Material& mat) const;
+    };
 };
 
 } // Namespace G3D

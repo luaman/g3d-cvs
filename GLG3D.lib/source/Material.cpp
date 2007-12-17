@@ -218,4 +218,46 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
     }
 }
 
+
+/** Mini-hash of a component */
+static size_t encode(const Material::Component& c) {
+    if (c.isBlack()) {
+        return 0;
+    } else if (c.isWhite()) {
+        return 1;
+    } else if (c.map.notNull()) {
+        return 3;
+    } else {
+        return 4;
+    }
 }
+
+
+size_t Material::SimilarHashCode::operator()(const Material& mat) const {
+    size_t h = 0;
+
+    h |= encode(mat.diffuse) << 0;
+    h |= encode(mat.emit)    << 2;
+    h |= encode(mat.specular) << 4;
+    h |= encode(mat.specularExponent) << 6;
+    h |= encode(mat.transmit) << 8;
+    h |= encode(mat.reflect)  << 10;
+    h |= encode(mat.transmit) << 12;
+
+    if (mat.customMap.notNull()) {
+        h |= 1 << 14;
+    }
+    
+    if (mat.customConstant.isFinite()) {
+        h |= 1 << 15;
+    }
+
+    if (mat.normalBumpMap.notNull()) {
+        h |= 1 << 16;
+    }
+
+    return h;
+}
+
+
+} // G3D
