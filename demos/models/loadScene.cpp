@@ -81,7 +81,6 @@ void App::loadScene() {
         part.computeIndexArray();
         part.computeNormalsAndTangentSpace();
         part.updateVAR();
-        part.updateShaders();
 
         entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0,-1,0))));
     }
@@ -283,7 +282,6 @@ void App::loadScene() {
 
         part.computeIndexArray();
         part.updateVAR();
-        part.updateShaders();
 
         entityArray.append(Entity::create(model, CoordinateFrame(Vector3(x,0,0))));
         x += 2;
@@ -454,7 +452,6 @@ void App::loadScene() {
 
         part.computeIndexArray();
         part.updateVAR();
-        part.updateShaders();
 
         entityArray.append(Entity::create(model, CoordinateFrame(Vector3(x,0,0))));
         x += 2;
@@ -510,7 +507,6 @@ void App::loadScene() {
 
         part.computeIndexArray();
         part.updateVAR();
-        part.updateShaders();
 
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0,0))));
         x += 2;

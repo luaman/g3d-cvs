@@ -402,6 +402,13 @@ public:
         void set(const std::string& var, int            val, bool optional = false);
         void set(const std::string& var, bool           val, bool optional = false);
 
+        /** Removes an argument from the list.  Error if that argument does not exist. */
+        void remove(const std::string& var);
+
+        bool contains(const std::string& var) const {
+            return argTable.containsKey(var);
+        }
+        
         /**
          GLSL does not natively support arrays and structs in the uniform binding API.  Instead, each
          element of an array is treated as a separate element.  This method expands out to setting

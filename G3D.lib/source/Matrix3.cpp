@@ -1035,8 +1035,9 @@ float Matrix3::spectralNorm () const {
 
 //----------------------------------------------------------------------------
 void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
+    // 
     // Let (x,y,z) be the unit-length axis and let A be an angle of rotation.
-    // The rotation matrix is R = I + sin(A)*P + (1-cos(A))*P^2 where
+    // The rotation matrix is R = I + sin(A)*P + (1-cos(A))*P^2 (Rodrigues' formula) where
     // I is the identity and
     //
     //       +-        -+
@@ -1058,7 +1059,7 @@ void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
     // it does not matter which sign you choose on the square roots.
 
     float fTrace = elt[0][0] + elt[1][1] + elt[2][2];
-    float fCos = 0.5 * (fTrace - 1.0);
+    float fCos = 0.5f * (fTrace - 1.0f);
     rfRadians = G3D::aCos(fCos);  // in [0,PI]
 
     if ( rfRadians > 0.0 ) {

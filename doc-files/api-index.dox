@@ -73,6 +73,10 @@ href="classes.html">Classes</a>.
     \link G3D::markShadows markShadows\endlink,
     \link G3D::ShadowMap ShadowMap\endlink,
     \link G3D::SuperShader SuperShader\endlink,
+    \link G3D::SuperShader::Pass SuperShader::Pass\endlink,
+    \link G3D::SuperShader::NonShadowedPass SuperShader::NonShadowedPass\endlink,
+    \link G3D::SuperShader::ExtraLightPass SuperShader::ExtraLightPass\endlink,
+    \link G3D::SuperShader::ShadowedPass SuperShader::ShadowedPass\endlink,
     \link G3D::ToneMap ToneMap\endlink
 
    </UL>

@@ -1171,7 +1171,7 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
 void VertexAndPixelShader::ArgList::set(const std::string& key, const Arg& value) {
     debugAssert(key != "");
 
-    if (! argTable.containsKey(key) &&
+    if (! contains(key) &&
         ((key[key.size() - 1] != ']') || endsWith(key, "[0]"))) {
         // New argument
         ++m_size;
@@ -1181,12 +1181,21 @@ void VertexAndPixelShader::ArgList::set(const std::string& key, const Arg& value
 }
 
 
+void VertexAndPixelShader::ArgList::remove(const std::string& key) {
+    if ((key[key.size() - 1] != ']') || endsWith(key, "[0]")) {
+         --m_size;
+    }
+    argTable.remove(key);
+}
+
+
 void VertexAndPixelShader::ArgList::set(const ArgList& a) {
     Table<std::string, Arg>::Iterator it = a.argTable.begin();
     const Table<std::string, Arg>::Iterator& end = a.argTable.end();
 
     while (it != end) {
         set(it->key, it->value);
+        ++it;
     }
 }
 
