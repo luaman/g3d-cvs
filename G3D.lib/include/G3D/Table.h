@@ -140,8 +140,8 @@ private:
      */
     class Node {
     public:
-        size_t      hashCode;
         Entry       entry;
+        size_t      hashCode;
         Node*       next;
         
         /** Provide pooled allocation for speed. */
