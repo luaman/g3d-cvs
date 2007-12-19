@@ -134,6 +134,7 @@ public:
 private:
 
     typedef Table<Key, Value, HashFunc, EqualsFunc> ThisType;
+
     /**
      Linked list nodes used internally by HashTable.
      */
@@ -363,7 +364,7 @@ public:
      */
     class Iterator {
     private:
-        friend class ThisType;
+        friend class Table<Key, Value, HashFunc, EqualsFunc>;
 
         /**
          Bucket index.

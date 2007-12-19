@@ -47,7 +47,6 @@ void Material::computeDefines(std::string& defines) const {
             defines += "#define SPECULARCONSTANT\n";
         }
 
-
         if (specularExponent.constant != Color3::black()) {
             if (specularExponent.map.notNull()) {
                 defines += "#define SPECULAREXPONENTMAP\n";
@@ -63,32 +62,20 @@ void Material::computeDefines(std::string& defines) const {
     }
 
     if (emit.constant != Color3::black()) {
+        // Must always multiply by the emission constant because it is modified to
+        // contain tone mapping information.
+        defines += "#define EMITCONSTANT\n";
         if (emit.map.notNull()) {
             defines += "#define EMITMAP\n";
-
-            // If the color is white, don't multiply by it
-            if (emit.constant != Color3::white()) {
-                defines += "#define EMITCONSTANT\n";
-            }
-        } else  {
-            defines += "#define EMITCONSTANT\n";
         }
     }
 
     if (reflect.constant != Color3::black()) {
+        // Must always multiply by the reflection constant because it is modified to
+        // contain tone mapping information.
+        defines += "#define REFLECTCONSTANT\n";
         if (reflect.map.notNull()) {
             defines += "#define REFLECTMAP\n";
-
-            // If the color is white, don't multiply by it
-            if (reflect.constant != Color3::white()) {
-                defines += "#define REFLECTCONSTANT\n";
-            }
-        } else  {
-            defines += "#define REFLECTCONSTANT\n";
-
-            if (reflect.constant == Color3::white()) {
-                defines += "#define REFLECTWHITE\n";
-            }
         }
     }
 

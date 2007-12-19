@@ -1,9 +1,8 @@
 /** 
   @file Material.h
 
-
   @created 2005-01-01
-  @edited  2007-12-14
+  @edited  2007-12-19
   @author  Morgan McGuire, morgan@cs.williams.edu
  */
 
@@ -193,8 +192,13 @@ public:
       */
     void computeDefines(std::string& defines) const;
 
-    /** Configure the properties of this material as optional arguments
-        for a shader.
+    /** Configure the properties of this material as optional
+        arguments for a shader.  If an emissive map or reflectivity
+        map is used then the constant will also be specified for those
+        two fields; the lighting environment should take care of
+        multiplying those two fields by the lighting.emissiveScale and
+        lighting.environmentConstant as needed (e.g., for some
+        tone-mapping algorithms.)
       */
     void configure(VertexAndPixelShader::ArgList& a) const;
 
