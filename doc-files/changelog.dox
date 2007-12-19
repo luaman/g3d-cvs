@@ -64,6 +64,8 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: G3D::Table iterator now correctly parameterized on hashfunction and equality function as well as key and value
+     <li> Fix: G3D::Table now passes Values by reference when setting them, avoiding one copy
      <li> Fix: various Framebuffer/empty texture initialization bugs on ATI cards
      <li> Fix: uniform arrays for GLSL
      <li> Fix: All aliasing warnings have been fixed no longer needs -fno-strict-aliasing [Corey Taylor]

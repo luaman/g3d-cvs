@@ -127,9 +127,13 @@ public:
     public:
         Key    key;
         Value  value;
+        Entry() {}
+        Entry(const Key& k, const Value& v) : key(k), value(v) {}
     };
 
 private:
+
+    typedef Table<Key, Value, HashFunc, EqualsFunc> ThisType;
     /**
      Linked list nodes used internally by HashTable.
      */
@@ -138,7 +142,6 @@ private:
         size_t      hashCode;
         Entry       entry;
         Node*       next;
-
         
         /** Provide pooled allocation for speed. */
         inline void* operator new (size_t size) {
@@ -149,12 +152,8 @@ private:
             System::free(p);
         }
 
-
-        Node(Key key, Value value, size_t hashCode, Node* next) {
-            this->entry.key   = key;
-            this->entry.value = value;
-            this->hashCode    = hashCode;
-            this->next        = next;
+        Node(const Key& k, const Value& v, size_t h, Node* n) 
+            : entry(k, v), hashCode(h), next(n) {
         }
 
         /**
@@ -164,6 +163,16 @@ private:
            return new Node(this->entry.key, this->entry.value, hashCode, (next == NULL) ? NULL : next->clone());
         }
     };
+
+    void checkIntegrity() const {
+#       ifdef G3D_DEBUG
+           assert(bucket == NULL || isValidHeapPointer(bucket));
+           for (size_t b = 0; b < numBuckets; ++b) {
+               Node* node = bucket[b];
+               assert(node == NULL || isValidHeapPointer(node));
+           }
+#       endif
+    }
 
     HashFunc        m_HashFunc;
     EqualsFunc      m_EqualsFunc;
@@ -188,47 +197,68 @@ private:
     /**
      Re-hashes for a larger bucket size.
      */
-    void resize(size_t numBuckets) {
+    void resize(size_t newSize) {
 
+        // Hang onto the old bucket array
         Node** oldBucket = bucket;
-        bucket = (Node**)System::alignedMalloc(sizeof(Node*) * numBuckets, 16);
-        System::memset(bucket, 0, sizeof(Node*) * numBuckets);
 
-        for (size_t b = 0; b < this->numBuckets; b++) {
+        // Allocate a new bucket array with the new size
+        bucket = (Node**)System::malloc(sizeof(Node*) * newSize);
+
+        // Zero the new pointers
+        System::memset(bucket, 0, sizeof(Node*) * newSize);
+
+        // Move each node to its new hash location
+        for (size_t b = 0; b < numBuckets; b++) {
             Node* node = oldBucket[b];
          
+            // There is a linked list of nodes at this bucket
             while (node != NULL) {
+                // Hang onto the old next pointer
                 Node* nextNode = node->next;
         
-                // insert at the head of the list for bucket[i]
-                size_t i = node->hashCode % numBuckets;
+                // Insert at the head of the list for bucket[i]
+                size_t i = node->hashCode % newSize;
                 node->next = bucket[i];
                 bucket[i] = node;
-        
+
+                // Move on to the next node
                 node = nextNode;
             }
+
+            // Drop the old pointer for cleanliness when debugging
+            oldBucket[b] = NULL;
         }
 
-        System::alignedFree(oldBucket);
-        this->numBuckets = numBuckets;
+        // Delete the old storage
+        System::free(oldBucket);
+        this->numBuckets = newSize;
+
+        checkIntegrity();
     }
 
-    void copyFrom(const Table<Key, Value>& h) {
-        this->_size = h._size;
-        this->numBuckets = h.numBuckets;
-        this->bucket = (Node**)System::alignedMalloc(sizeof(Node*) * numBuckets, 16);
-        System::memset(this->bucket, 0, sizeof(Node*) * numBuckets);
-        for (size_t b = 0; b < this->numBuckets; b++) {
+
+    void copyFrom(const ThisType& h) {
+        _size = h._size;
+        numBuckets = h.numBuckets;
+        bucket = (Node**)System::malloc(sizeof(Node*) * numBuckets);
+        System::memset(bucket, 0, sizeof(Node*) * numBuckets);
+
+        for (size_t b = 0; b < numBuckets; b++) {
             if (h.bucket[b] != NULL) {
                 bucket[b] = h.bucket[b]->clone();
             }
         }
+
+        checkIntegrity();
     }
 
     /**
      Frees the heap structures for the nodes.
      */
     void freeMemory() {
+        checkIntegrity();
+
         for (size_t b = 0; b < numBuckets; b++) {
            Node* node = bucket[b];
            while (node != NULL) {
@@ -236,23 +266,26 @@ private:
                 delete node;
                 node = next;
            }
+           bucket[b] = NULL;
         }
-        System::alignedFree(bucket);
+        System::free(bucket);
         bucket     = NULL;
         numBuckets = 0;
         _size     = 0;
     }
+
 
 public:
 
     /**
      Creates an empty hash table.  This causes some heap allocation to occur.
      */
-    Table() {
+    Table() : bucket(NULL) {
         numBuckets = 10;
         _size      = 0;
-        bucket     = (Node**)System::alignedMalloc(sizeof(Node*) * numBuckets, 16);
+        bucket     = (Node**)System::malloc(sizeof(Node*) * numBuckets);
         System::memset(bucket, 0, sizeof(Node*) * numBuckets);
+        checkIntegrity();
     }
 
     /**
@@ -265,16 +298,22 @@ public:
         freeMemory();
     }
 
-    Table(const Table<Key, Value>& h) {
+    Table(const ThisType& h) {
+        numBuckets = 0;
+        _size = 0;
+        bucket = NULL;
         this->copyFrom(h);
+        checkIntegrity();
     }
 
-    Table& operator=(const Table<Key, Value>& h) {
+
+    Table& operator=(const ThisType& h) {
         // No need to copy if the argument is this
         if (this != &h) {
             // Free the existing nodes
             freeMemory();
             this->copyFrom(h);
+            checkIntegrity();
         }
         return *this;
     }
@@ -324,7 +363,7 @@ public:
      */
     class Iterator {
     private:
-        friend class Table<Key, Value>;
+        friend class ThisType;
 
         /**
          Bucket index.
@@ -335,7 +374,7 @@ public:
          Linked list node.
          */
         Node*               node;
-        Table<Key, Value>*  table;
+        ThisType*           table;
         size_t              numBuckets;
         Node**              bucket;
         bool                isDone;
@@ -343,12 +382,12 @@ public:
         /**
          Creates the end iterator.
          */
-        Iterator(const Table<Key, Value>* table) : table(const_cast<Table<Key, Value>*>(table)) {
+        Iterator(const ThisType* table) : table(const_cast<ThisType*>(table)) {
             isDone = true;
         }
 
-        Iterator(const Table<Key, Value>* table, size_t numBuckets, Node** bucket) :
-            table(const_cast<Table<Key, Value>*>(table)),
+        Iterator(const ThisType* table, size_t numBuckets, Node** bucket) :
+            table(const_cast<ThisType*>(table)),
             numBuckets(numBuckets),
             bucket(bucket) {
             
@@ -451,9 +490,9 @@ public:
      */
     void clear() {
          freeMemory();
-         numBuckets = 20;
+         numBuckets = 10;
          _size = 0;
-         bucket = (Node**)System::alignedMalloc(sizeof(Node*) * numBuckets, 16);
+         bucket = (Node**)System::malloc(sizeof(Node*) * numBuckets);
          System::memset(bucket, 0, sizeof(Node*) * numBuckets);
     }
 
@@ -540,11 +579,14 @@ public:
       do {
           if ((code == n->hashCode) && m_EqualsFunc(n->entry.key, key)) {
               // This is the node; remove it
+
+              // Replace the previous's next pointer
               if (previous == NULL) {
                   bucket[b] = n->next;
               } else {
                   previous->next = n->next;
               }
+
               // Delete the node
               delete n;
               --_size;
@@ -637,6 +679,7 @@ public:
    /**
     Returns an array of all of the keys in the table.
     You can iterate over the keys to get the values.
+    @deprecated
     */
    Array<Key> getKeys() const {
        Array<Key> keyArray;
@@ -656,24 +699,17 @@ public:
    }
 
    /**
-    Calls delete on all of the keys.  Does not clear the table, 
-    however, so you are left with a table of dangling pointers.
-
-    Same as <CODE>getKeys().deleteAll();</CODE>
-
-    To delete all of the values, you may want something like
-    <PRE>
-        Array<Key> keys = table.getKeys();
-        Set<Value> value;
-        for (int k = 0; k < keys.length(); k++) {
-           value.insert(keys[k]);
-        }
-        value.getMembers().deleteAll();
-        keys.deleteAll();
-    </PRE>
+    Calls delete on all of the keys and then clears the table.
     */
    void deleteKeys() {
-       getKeys().deleteAll();
+       for (size_t i = 0; i < numBuckets; i++) {
+           Node* node = bucket[i];
+           while (node != NULL) {
+               delete node->entry.key;
+               node = node->next;
+           }
+       }
+       clear();
    }
 
    /**
@@ -682,13 +718,14 @@ public:
     at most once.
 
     Does not clear the table, so you are left with a table
-    of dangling pointers.
+    of NULL pointers.
     */
    void deleteValues() {
        for (int i = 0; i < numBuckets; i++) {
            Node* node = bucket[i];
            while (node != NULL) {
                delete node->entry.value;
+               node->entry->value = NULL;
                node = node->next;
            }
        }

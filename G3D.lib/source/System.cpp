@@ -15,7 +15,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2006-10-17
+  @edited  2007-12-17
  */
 
 #include "G3D/platform.h"
@@ -29,6 +29,11 @@
 #include "G3D/Log.h"
 
 #include <cstring>
+
+// Uncomment the following line to turn off 
+// G3D::System memory allocation and use the operating system's
+// malloc.
+// #define NO_BUFFERPOOL
 
 #if defined(__i386__) || defined(__x86_64__) || defined(G3D_WIN32)
 #    define G3D_NOT_OSX_PPC
@@ -1117,20 +1122,32 @@ private:
     }
 
     /** 
-     Malloc out of the tiny heap.
+     Malloc out of the tiny heap. Returns NULL if allocation failed.
      */
     inline void* tinyMalloc(size_t bytes) {
         // Note that we ignore the actual byte size
         // and create a constant size block.
         (void)bytes;
-        debugAssert(tinyBufferSize >= bytes);
+        assert(tinyBufferSize >= bytes);
 
         void* ptr = NULL;
 
         if (tinyPoolSize > 0) {
             --tinyPoolSize;
-            // Return the last one
+
+            // Return the old last pointer from the freelist
             ptr = tinyPool[tinyPoolSize];
+
+#           ifdef G3D_DEBUG
+                if (tinyPoolSize > 0) {
+                    assert(tinyPool[tinyPoolSize - 1] != ptr); 
+                     //   "System::malloc heap corruption detected: "
+                     //   "the last two pointers on the freelist are identical (during tinyMalloc).");
+                }
+#           endif
+
+            // NULL out the entry to help detect corruption
+            tinyPool[tinyPoolSize] = NULL;
         }
 
         return ptr;
@@ -1138,12 +1155,26 @@ private:
 
     /** Returns true if this is a pointer into the tiny heap. */
     bool inTinyHeap(void* ptr) {
-        return (ptr >= tinyHeap) && 
-               (ptr < (uint8*)tinyHeap + maxTinyBuffers * tinyBufferSize);
+        return 
+            (ptr >= tinyHeap) && 
+            (ptr < (uint8*)tinyHeap + maxTinyBuffers * tinyBufferSize);
     }
 
     void tinyFree(void* ptr) {
-        debugAssert(tinyPoolSize < maxTinyBuffers);
+        assert(ptr);
+        assert(tinyPoolSize < maxTinyBuffers);
+ //           "Tried to free a tiny pool buffer when the tiny pool freelist is full.");
+
+#       ifdef G3D_DEBUG
+            if (tinyPoolSize > 0) {
+                void* prevOnHeap = tinyPool[tinyPoolSize - 1];
+                assert(prevOnHeap != ptr); 
+//                    "System::malloc heap corruption detected: "
+//                    "the last two pointers on the freelist are identical (during tinyFree).");
+            }
+#       endif
+
+        assert(tinyPool[tinyPoolSize] == NULL);
 
         // Put the pointer back into the free list
         tinyPool[tinyPoolSize] = ptr;
@@ -1372,7 +1403,7 @@ public:
             return;
         }
 
-        debugAssert(isValidPointer(ptr));
+        assert(isValidPointer(ptr));
 
         if (inTinyHeap(ptr)) {
             lock();
@@ -1520,6 +1551,7 @@ void System::free(void* p) {
 
 
 void* System::alignedMalloc(size_t bytes, size_t alignment) {
+
     alwaysAssertM(isPow2(alignment), "alignment must be a power of 2");
 
     // We must align to at least a word boundary.
