@@ -25,7 +25,9 @@ void PosedModel::sortAndRender
  const GCamera&                 camera,
  const Array<PosedModelRef>&    allModels, 
  const LightingRef&             _lighting, 
- const Array<ShadowMapRef>&     shadowMaps) {
+ const Array<ShadowMapRef>&     shadowMaps,
+ const Array<SuperShader::PassRef>& extraAdditivePasses) {
+
     static bool recurse = false;
 
     alwaysAssertM(! recurse, "Cannot call PosedModel::sortAndRender recursively");
@@ -89,18 +91,37 @@ void PosedModel::sortAndRender
     // Opaque shadowed
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
         rd->pushState();
-        ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+            ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
         rd->popState();
         for (int m = 0; m < otherOpaque.size(); ++m) {
             otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
         }
     }
 
+    // Extra additive passes
+    if (extraAdditivePasses.size() > 0) {
+        rd->pushState();
+            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+            for (int p = 0; p < extraAdditivePasses.size(); ++p) {
+                for (int m = 0; m < opaqueAModel.size(); ++m) {
+                    opaqueAModel[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                }
+                for (int m = 0; m < otherOpaque.size(); ++m) {
+                    otherOpaque[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                }
+        }
+        rd->popState();
+    }
+
+
     // Transparent, must be rendered from back to front
     for (int m = 0; m < transparent.size(); ++m) {
         transparent[m]->renderNonShadowed(rd, lighting);
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             transparent[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        }
+        for (int p = 0; p < extraAdditivePasses.size(); ++p) {
+            transparent[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
         }
     }
 
@@ -119,13 +140,14 @@ void PosedModel::sortAndRender
  const GCamera&                 camera,
  const Array<PosedModelRef>&    posed3D, 
  const LightingRef&             lighting, 
- const ShadowMapRef             shadowMap) {
+ const ShadowMapRef             shadowMap,
+ const Array<SuperShader::PassRef>& extraAdditivePasses) {
 
     static Array<ShadowMapRef> shadowMaps;
     if (shadowMap.notNull()) {
         shadowMaps.append(shadowMap);
     }
-    sortAndRender(rd, camera, posed3D, lighting, shadowMaps);
+    sortAndRender(rd, camera, posed3D, lighting, shadowMaps, extraAdditivePasses);
     shadowMaps.fastClear();
 }
 

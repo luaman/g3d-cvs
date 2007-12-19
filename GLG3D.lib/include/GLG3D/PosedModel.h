@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-11-15
-  @edited  2006-04-22
+  @edited  2007-12-19
  */ 
 
 #ifndef GLG3D_POSEDMODEL_H
@@ -21,6 +21,11 @@ namespace G3D {
 class ShadowMap;
 typedef ReferenceCountedPointer<ShadowMap> ShadowMapRef;
 
+namespace SuperShader {
+class Pass;
+typedef ReferenceCountedPointer<Pass> PassRef;
+}
+
 /** 
   Simple material used by IFSModel and MD2Model pose methods.
   This class is provided as a convenience; it is not necessary
@@ -32,7 +37,7 @@ typedef ReferenceCountedPointer<ShadowMap> ShadowMapRef;
   are writing vertex and pixel shaders.
 
   @deprecated
-  @sa Material
+  @sa G3D::Material
  */
 class GMaterial {
 public:
@@ -140,7 +145,7 @@ public:
     /** Sorts the array in place along the look vector from front-to-back.*/
     static void sort(
         const Array<PosedModel::Ref>& inModels, 
-        const Vector3&              wsLookVector,
+        const Vector3&                wsLookVector,
         Array<PosedModel::Ref>&       opaque);
 
     /** Object to world space coordinate frame.*/
@@ -292,6 +297,21 @@ public:
         const GLight& light,
         const ShadowMapRef& shadowMap) const;
 
+    /**
+     Configures the SuperShader with the G3D::Material for this object
+     and renders it.  If this object does not support G3D::Materials
+     (or an equivalent) may render nothing.  These passes will be additively blended
+     with previous ones.
+
+     @return True if state was preserved, false if the renderdevice is in a different state than when called.
+     @beta
+     */
+    virtual bool renderSuperShaderPass(
+        RenderDevice* rd, 
+        const SuperShader::PassRef& pass) const {
+        return true;
+    }
+
     /** @deprecated */
     virtual void renderShadowMappedLightPass(
         RenderDevice* rd, 
@@ -326,7 +346,8 @@ public:
      const class GCamera&           camera,
      const Array<PosedModelRef>&    allModels, 
      const LightingRef&             _lighting, 
-     const Array<ShadowMapRef>&     shadowMaps);
+     const Array<ShadowMapRef>&     shadowMaps,
+     const Array<SuperShader::PassRef>& extraAdditivePasses = Array<SuperShader::PassRef>());
     
     static void sortAndRender
     (
@@ -334,7 +355,8 @@ public:
      const GCamera&                 camera,
      const Array<PosedModelRef>&    posed3D, 
      const LightingRef&             lighting, 
-     const ShadowMapRef             shadowMap = NULL);
+     const ShadowMapRef             shadowMap = NULL,
+     const Array<SuperShader::PassRef>& extraAdditivePasses = Array<SuperShader::PassRef>());
 
 
 protected:

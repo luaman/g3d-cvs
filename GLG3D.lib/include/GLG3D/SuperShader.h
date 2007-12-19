@@ -72,7 +72,6 @@ namespace G3D {
  the built-in SuperShader Passes
 
  @sa SuperShader::Pass
- @sa SuperShader::GenericPass
 
  @cite McGuire, The %SuperShader. Chapter 8.1, 485--498, in <i>ShaderX<sup>4</sup></i>, W. Engel ed., 2005.
  */

@@ -155,6 +155,10 @@ public:
     virtual int numWeldedBoundaryEdges() const;
 
     virtual const Array<Vector3>& objectSpaceTangents() const;
+   
+    virtual bool renderSuperShaderPass(
+        RenderDevice* rd, 
+        const SuperShader::PassRef& pass) const;
 };
 
 
@@ -426,6 +430,29 @@ void PosedArticulatedModel::render(RenderDevice* rd) const {
     rd->getFixedFunctionLighting(lighting);
 
     renderNonShadowed(rd, lighting);
+}
+
+
+bool PosedArticulatedModel::renderSuperShaderPass(
+    RenderDevice* rd, 
+    const SuperShader::PassRef& pass) const {
+
+    const ArticulatedModel::Part& part = model->partArray[partIndex];
+    const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];
+
+
+    if (triList.twoSided) {
+        // We're going to render the front and back faces separately.
+        rd->setCullFace(RenderDevice::CULL_FRONT);
+        rd->setShader(pass->getConfiguredShader(triList.material, rd->cullFace()));
+        sendGeometry2(rd);
+    }
+
+    rd->setCullFace(RenderDevice::CULL_BACK);
+    rd->setShader(pass->getConfiguredShader(triList.material, rd->cullFace()));
+    sendGeometry2(rd);
+
+    return false;
 }
 
 
