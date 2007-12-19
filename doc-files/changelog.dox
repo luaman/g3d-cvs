@@ -14,6 +14,8 @@
    <P>
    Changes in 7.01:
    <ul>
+     <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
+     <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> GWindow::create
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files
      <li> G3D::SuperShader now supports a customMap and customConstant for experimenting with shaders.

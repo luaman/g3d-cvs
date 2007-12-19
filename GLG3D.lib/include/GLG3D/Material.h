@@ -173,7 +173,8 @@ public:
                (bumpMapScale == other.bumpMapScale) &&
                (bumpMapBias == other.bumpMapBias) &&
                (customMap == other.customMap) &&
-               (customConstant == other.customConstant);
+               (customConstant == other.customConstant) &&
+               (parallaxSteps == other.parallaxSteps);
     }
 
     inline bool operator!=(const Material& other) const {

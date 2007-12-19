@@ -239,6 +239,9 @@ public:
 class NonShadowedPass : public Pass {
 protected:
     
+    Color3   m_emissiveScale;
+    Color3   m_environmentMapColor;
+
     NonShadowedPass();
 
 public:
@@ -264,6 +267,10 @@ public:
         If you need more lights, make an additional pass with ExtraLightPass.
      */
     void setLighting(const LightingRef& lighting);
+
+    virtual ShaderRef getConfiguredShader(
+        const Material& material,
+        RenderDevice::CullFace c = RenderDevice::CULL_CURRENT);
 };
 
 

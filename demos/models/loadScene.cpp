@@ -69,6 +69,8 @@ void App::loadScene() {
         triList.material.diffuse.constant = Color3::white() * 0.8f;
         triList.material.diffuse.map = Texture::fromFile("stone.jpg");
         
+        triList.material.parallaxSteps = 1;
+
         GImage normalBumpMap;
 		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, -1, true, false);
         triList.material.normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);

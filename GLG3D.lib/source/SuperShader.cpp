@@ -248,13 +248,30 @@ void NonShadowedPass::setLighting(const LightingRef& lighting) {
     args.set("ambientTop",      lighting->ambientTop);
     args.set("ambientBottom",   lighting->ambientBottom);
 
-    // Only set the evt map if we need it
-    args.set("environmentConstant", lighting->environmentMapColor, OPTIONAL);
+    // Environment constant and emissive constant are modified in getConfiguredShader
+
     if (lighting->environmentMap.notNull()) {
         args.set("environmentMap",  lighting->environmentMap, OPTIONAL);
     }
 
-    // TODO: Emissive constant
+    m_emissiveScale       = lighting->emissiveScale;
+    m_environmentMapColor = lighting->environmentMapColor;
+
+}
+
+
+ShaderRef NonShadowedPass::getConfiguredShader(
+    const Material& material,
+    RenderDevice::CullFace c) {
+
+    ShaderRef s = Pass::getConfiguredShader(material, c);
+
+    // Adjust the material properties by the lighting scale 
+    // to avoid having to pass extra arguments to the shader.
+    s->args.set("emitConstant",    material.emit.constant    * m_emissiveScale,       OPTIONAL);
+    s->args.set("reflectConstant", material.reflect.constant * m_environmentMapColor, OPTIONAL);
+
+    return s;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -277,16 +294,22 @@ ExtraLightPass::ExtraLightPass() :
     args.set("ambientTop",      Color3::black());
     args.set("ambientBottom",   Color3::black());
 
-    // Only set the evt map if we need it
+    // Knock out all other terms if they are specified
+
     args.set("environmentConstant", Color3::black(), OPTIONAL);
     static TextureRef emptyCubeMap = Texture::createEmpty("empty cube map", 16, 16, TextureFormat::RGB8(), Texture::DIM_CUBE_MAP);
     args.set("environmentMap",  emptyCubeMap, OPTIONAL);
+
+    args.set("emitConstant", Color3::black(), OPTIONAL);
+    args.set("reflectConstant", Color3::black(), OPTIONAL);
+    args.set("transmitConstant", Color3::black(), OPTIONAL);
 }
 
 
 void ExtraLightPass::setLighting(const Array<GLight>& lightArray, int index) {
     configureLights(index, LIGHTS_PER_PASS, lightArray, args);
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // 

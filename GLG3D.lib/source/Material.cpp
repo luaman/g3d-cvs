@@ -95,6 +95,8 @@ void Material::computeDefines(std::string& defines) const {
     if ((bumpMapScale != 0) && normalBumpMap.notNull()) {
         defines += "#define NORMALBUMPMAP\n";
     }
+
+    defines += format("#define PARALLAXSTEPS (%d)\n", parallaxSteps);
 }
 
 
@@ -108,7 +110,8 @@ bool Material::similarTo(const Material& other) const {
         reflect.similarTo(other.reflect) &&
         (customMap.notNull() == other.customMap.notNull()) &&
         (customConstant.isFinite() == other.customConstant.isFinite()) &&
-        (normalBumpMap.isNull() == other.normalBumpMap.isNull());
+        (normalBumpMap.isNull() == other.normalBumpMap.isNull()) &&
+        (parallaxSteps == other.parallaxSteps);
 }
 
 
@@ -216,6 +219,9 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
         args.set("bumpMapScale",        bumpMapScale);
         args.set("bumpMapBias",         bumpMapBias);
     }
+
+
+    debugAssert(parallaxSteps >= 0);
 }
 
 
@@ -254,6 +260,10 @@ size_t Material::SimilarHashCode::operator()(const Material& mat) const {
 
     if (mat.normalBumpMap.notNull()) {
         h |= 1 << 16;
+    }
+
+    if (mat.normalBumpMap.notNull()) {
+        h |= mat.parallaxSteps << 17;
     }
 
     return h;
