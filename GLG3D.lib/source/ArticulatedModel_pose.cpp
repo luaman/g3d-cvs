@@ -219,9 +219,9 @@ void ArticulatedModel::renderNonShadowed(
                 // the shader, so we have to draw two-sided objects
                 // twice
                 rd->setCullFace(RenderDevice::CULL_FRONT);
-                triList.nonShadowedShader->args.set("backside", -1.0f);
-                posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
-                triList.nonShadowedShader->args.set("backside", 1.0f);
+                
+                wroteDepth = wroteDepth || posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
+
             }
 
             if (! wroteDepth) {
@@ -229,6 +229,9 @@ void ArticulatedModel::renderNonShadowed(
                 // do so now.
                 rd->disableLighting();
                 rd->setColor(Color3::black());
+                if (triList.twoSided) {
+                    rd->setCullFace(RenderDevice::CULL_NONE);
+                }
                 posed->sendGeometry2(rd);
                 rd->enableLighting();
             }
@@ -297,11 +300,9 @@ void ArticulatedModel::renderShadowMappedLightPass
                 break;
 
             case ArticulatedModel::PS20:
-                if (triList.twoSided) {
-                    // Even if back face culling is reversed, for two-sided objects 
-                    // we always draw the front.
-                    rd->setCullFace(RenderDevice::CULL_BACK);
-                }
+                // Even if back face culling is reversed, for two-sided objects 
+                // we always draw the front first.
+                rd->setCullFace(RenderDevice::CULL_BACK);
 
                 posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
 
@@ -309,9 +310,7 @@ void ArticulatedModel::renderShadowMappedLightPass
                     // The GLSL built-in gl_FrontFacing does not work on most cards, so we have to draw 
                     // two-sided objects twice since there is no way to distinguish them in the shader.
                     rd->setCullFace(RenderDevice::CULL_FRONT);
-                    triList.shadowMappedShader->args.set("backside", -1.0f);
                     posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
-                    triList.shadowMappedShader->args.set("backside", 1.0f);
                     rd->setCullFace(RenderDevice::CULL_BACK);
                 }
                 break;
@@ -486,11 +485,11 @@ bool PosedArticulatedModel::renderNonShadowedOpaqueTerms(
 
 
 bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
-    RenderDevice*                   rd,
-    const LightingRef&              lighting,
-    const ArticulatedModel::Part&   part,
-    const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material&    material) const {
+    RenderDevice*                           rd,
+    const LightingRef&                      lighting,
+    const ArticulatedModel::Part&           part,
+    const ArticulatedModel::Part::TriList&  triList,
+    const SuperShader::Material&            material) const {
 
     if (material.emit.isBlack() && 
         material.reflect.isBlack() &&
@@ -502,12 +501,14 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
 
     int numLights = lighting->lightArray.size();
 
-    if (numLights <= SuperShader::LIGHTS_PER_PASS) {
+    if (numLights <= SuperShader::NonShadowedPass::LIGHTS_PER_PASS) {
+        
+        SuperShader::NonShadowedPass::instance()->setLighting(lighting);
+        rd->setShader(SuperShader::NonShadowedPass::instance()->getConfiguredShader(material, rd->cullFace()));
 
-        SuperShader::configureShaderArgs(lighting, material, triList.nonShadowedShader->args);
-        rd->setShader(triList.nonShadowedShader);
         sendGeometry2(rd);
         return true;
+
     } else {
 
         // SuperShader only supports two lights, so we have to make multiple passes
@@ -528,47 +529,23 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
         numLights = lights.size();
 
         // Number of lights to use
-        int x = iMin(SuperShader::LIGHTS_PER_PASS, lights.size());
+        int x = iMin(SuperShader::NonShadowedPass::LIGHTS_PER_PASS, lights.size());
 
         // Copy the lights into the reduced lighting structure
         reducedLighting->lightArray.resize(x);
-        for (int i = 0; i < x; ++i) {
-            reducedLighting->lightArray[i] = lights[i];
-        }
-
-        SuperShader::configureShaderArgs(reducedLighting, material, triList.nonShadowedShader->args);
-        rd->setShader(triList.nonShadowedShader);
+        SuperShader::NonShadowedPass::instance()->setLighting(reducedLighting);
+        rd->setShader(SuperShader::NonShadowedPass::instance()->getConfiguredShader(material, rd->cullFace()));
         sendGeometry2(rd);
 
-        if (numLights > SuperShader::LIGHTS_PER_PASS) {
-            // TODO: see configureShaderExtraLightArgs; it is never used and appears intended for this case
-
-            // Turn off everything except our additional lights
-            reducedLighting->ambientBottom = Color3::black();
-            reducedLighting->ambientTop    = Color3::black();
-            reducedLighting->emissiveScale = Color3::black();
-            reducedLighting->environmentMapColor = Color3::black();
-            reducedLighting->shadowedLightArray.fastClear();
-            
-
+        if (numLights > SuperShader::NonShadowedPass::LIGHTS_PER_PASS) {
             // Add extra lighting terms
             rd->pushState();
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
             rd->setDepthWrite(false);
             rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
-            for (int L = SuperShader::LIGHTS_PER_PASS; L < numLights; L += SuperShader::LIGHTS_PER_PASS) {
-
-                // Number of lights to use
-                int x = iMin(SuperShader::LIGHTS_PER_PASS, numLights - L);
-                
-                // Copy the lights into the reduced lighting structure
-                reducedLighting->lightArray.resize(x);
-                for (int i = 0; i < x; ++i) {
-                    reducedLighting->lightArray[i] = lights[i + L];
-                }
-                
-                // Shader is already set from above
-                SuperShader::configureShaderArgs(reducedLighting, material, triList.nonShadowedShader->args);
+            for (int L = SuperShader::NonShadowedPass::LIGHTS_PER_PASS; L < numLights; L += SuperShader::ExtraLightPass::LIGHTS_PER_PASS) {
+                SuperShader::ExtraLightPass::instance()->setLighting(lighting->lightArray, L);
+                rd->setShader(SuperShader::ExtraLightPass::instance()->getConfiguredShader(material, rd->cullFace()));
                 sendGeometry2(rd);
             }
             rd->popState();
@@ -948,8 +925,8 @@ void PosedArticulatedModel::renderPS20ShadowMappedLightPass(
     const ArticulatedModel::Part::TriList& triList,
     const SuperShader::Material& material) const {
 
-    SuperShader::configureShadowShaderArgs(light, shadowMap, material, triList.shadowMappedShader->args);
-    rd->setShader(triList.shadowMappedShader);
+    SuperShader::ShadowedPass::instance()->setLight(light, shadowMap);
+    rd->setShader(SuperShader::ShadowedPass::instance()->getConfiguredShader(material, rd->cullFace()));
     sendGeometry2(rd);
 }
 

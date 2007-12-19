@@ -9,7 +9,7 @@
 
 
 App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::create()) {
-//    ArticulatedModel::setProfile(ArticulatedModel::FIXED_FUNCTION);
+    catchCommonExceptions = false;
     try {
         showRenderingStats = false;
         window()->setCaption("G3D Model Demo");

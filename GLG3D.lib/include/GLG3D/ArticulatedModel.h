@@ -23,6 +23,21 @@ typedef ReferenceCountedPointer<class ArticulatedModel> ArticulatedModelRef;
 
  Since G3D doesn't load GIF files, any material with a GIF filename is converted to
  a PNG filename.
+
+ To use on a pixel shader 2.0 or higher GPU, you will need the four files in the current directory
+ at runtime:
+
+ <ul>
+ <li>ShadowMappedLightPass.vrt
+ <li>ShadowMappedLightPass.pix
+ <li>NonShadowedPass.vrt
+ <li>NonShadowedPass.pix
+ </ol>
+
+ These are located in the data/SuperShader directory of the G3D distribution.
+
+
+
  */
 class ArticulatedModel : public ReferenceCountedObject {
 public:
@@ -120,12 +135,6 @@ public:
             /** In the same space as the vertices. Computed by computeBounds() */
             Box                     boxBounds;
 
-            /** Set by Part::updateShader */
-            ShaderRef               nonShadowedShader;
-
-            /** Set by Part::updateShader */
-            ShaderRef               shadowMappedShader;
-
             TriList() : twoSided(false) {}
 
             /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
@@ -195,11 +204,7 @@ public:
             should either call updateNormals first, or write your own
             normals into the array in geometry before calling this.*/
         void updateVAR(VARArea::UsageHint hint = VARArea::WRITE_ONCE);
-
-        /** Invoke when the trilist materials have changed to recompute the shaders. */
-        void updateShaders();
     };
-
 
     // TODO: who fills this out?  when?
     /** Returns the index in partArray of the part with this name */

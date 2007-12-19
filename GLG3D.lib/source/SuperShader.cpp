@@ -8,152 +8,309 @@
 #include "GLG3D/SuperShader.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/fileutils.h"
+#include "G3D/Log.h"
+
+#ifdef OPTIONAL
+#undef OPTIONAL
+#endif
 
 namespace G3D {
 
+namespace SuperShader {
 
-void SuperShader::configureShaderExtraLightArgs(
-    const Array<GLight>&            lightArray,
-    int                             lightIndex,
-    VertexAndPixelShader::ArgList&  args) {
+////////////////////////////////////////////////////////////////////////////
+// 
+// G3D::SuperShader::Pass
+//
 
-    args.set("ambientTop",      Color3::black());
-    args.set("ambientBottom",   Color3::black());
+Table<std::string, std::string> Pass::shaderTextCache;
+NonShadowedPassRef Pass::nonShadowedInstance;
+ExtraLightPassRef  Pass::extraLightInstance;
+ShadowedPassRef    Pass::shadowedInstance;
 
-    static const std::string num[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
-    for (int i = 0; i < LIGHTS_PER_PASS; ++i) {
-        const std::string& N = num[i];
+ShaderRef Pass::getConfiguredShader(
+    const std::string&  vertexFilename,
+    const std::string&  pixelFilename,
+    const Material&     material) {
+
+    const std::string& key = vertexFilename + pixelFilename;
+
+    // First try to load from the cache
+
+    ShaderRef shader = cache.getSimilar(key, material);
+
+    if (shader.isNull()) {
+        // Load
+        std::string defines;
+        material.computeDefines(defines);
+        shader = loadShader(vertexFilename, pixelFilename, defines);
+
+        // Put into the cache
+        cache.add(key, material, shader);
+    }
+
+    material.configure(shader->args);
+
+    return shader;
+}
+
+
+ShaderRef Pass::loadShader(
+    const std::string& vertexFilename,
+    const std::string& pixelFilename,
+    const std::string& defines) {
+
+    // Fill the cache
+    if (! shaderTextCache.containsKey(vertexFilename)) {
+        if (vertexFilename == "") {
+            shaderTextCache.set("", "");
+        } else {
+            shaderTextCache.set(vertexFilename, readWholeFile(System::findDataFile(vertexFilename)));
+        }
+    }
+
+    if (! shaderTextCache.containsKey(pixelFilename)) {
+        if (pixelFilename == "") {
+            shaderTextCache.set("", "");
+        } else {
+            shaderTextCache.set(pixelFilename, readWholeFile(System::findDataFile(pixelFilename)));
+        }
+    }
+
+    // Fetch and compile the customized shader
+    ShaderRef s = 
+        Shader::fromStrings(
+            defines + shaderTextCache[vertexFilename],
+            defines + shaderTextCache[pixelFilename]);
+
+    // By default, assume backface culling
+    s->args.set("backside", 1.0, true);
+
+    s->setPreserveState(false);
+
+    return s;
+}
+
+
+void Pass::purgeCache() {
+    cache.clear();
+    shaderTextCache.clear();
+    nonShadowedInstance = NULL;
+    shadowedInstance = NULL;
+}
+
+
+Pass::Pass() {}
+
+
+Pass::Pass(const std::string& vertexFilename, const std::string& pixelFilename)
+: m_vertexFilename(vertexFilename), m_pixelFilename(pixelFilename) {
+
+    debugAssert(fileExists(vertexFilename));
+    debugAssert(fileExists(pixelFilename));
+}
+
+
+PassRef Pass::fromFiles(const std::string& vertexFilename, const std::string& pixelFilename) {
+    return new Pass(vertexFilename, pixelFilename);
+}
+
+
+ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::CullFace c) {
+
+    if (c != RenderDevice::CULL_CURRENT) {
+        float f = 1.0f;
+        if (c == RenderDevice::CULL_FRONT) {
+            f = -1.0f;
+        }
+        args.set("backside", f, true);
+    }
+
+    // Get the shader from the cache
+    ShaderRef s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material);
+
+    // Merge arguments
+    s->args.set(args);
+
+    return s;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// 
+// G3D::SuperShader::Pass::Cache
+//
+
+Pass::Cache Pass::cache;
+
+
+void Pass::Cache::add(const std::string& key, const Material& mat, const ShaderRef& shader) {
+
+    if (! table.containsKey(key)) {
+        const ShaderTable newTable;
+        table.set(key, newTable);
+    }
+
+    ShaderTable& shaderTable = table[key];
+
+    shaderTable.set(mat, shader);
+}
+
+
+ShaderRef Pass::Cache::getSimilar(const std::string& key, const Material& mat) const {
+    
+    if (! table.containsKey(key)) {
+        return NULL;
+    }
+
+    const ShaderTable& shaderTable = table[key];
+    if (! shaderTable.containsKey(mat)) {
+        return NULL;
+    } else {
+        return shaderTable[mat];
+    }
+}
+    
+
+/////////////////////////////////////////////////////////////////////////////
+// 
+// G3D::SuperShader::NonShadowedPass
+//
+
+NonShadowedPassRef NonShadowedPass::instance() {
+    if (nonShadowedInstance.isNull()) {
+        nonShadowedInstance = new NonShadowedPass();
+    }
+    return nonShadowedInstance;
+}
+
+
+NonShadowedPass::NonShadowedPass() : 
+    Pass(System::findDataFile("NonShadowedPass.vrt"),
+         System::findDataFile("NonShadowedPass.pix")) {
+}
+
+// Avoid synthesizing new strings during shader configuration
+static const int NUM_LIGHTS = 8;
+static std::string lightPositionString[NUM_LIGHTS];
+static std::string lightColorString[NUM_LIGHTS];
+static std::string lightAttenuationString[NUM_LIGHTS];
+static const bool OPTIONAL = true;
+
+static void initializeStringConstants() {
+    static bool stringConstantsInitialized = false;
+
+    if (stringConstantsInitialized) {
+        return;
+    }
+
+    for (int L = 0; L < NUM_LIGHTS; ++L) {
+        std::string N = format("%d", L);
+        lightPositionString[L]    = "lightPosition" + N;
+        lightColorString[L]       = "lightColor" + N;
+        lightAttenuationString[L] = "lightAttenuation" + N;
+    }
+
+    stringConstantsInitialized = true;
+}
+
+
+/** Called by NonShadowedPass::setLighting and ExtraLightPass::setLighting.
+ @param lightIndex index of the first light in the array to use.
+ @param N number of lights to configure*/
+static void configureLights
+(int lightIndex, 
+ int N, 
+ const Array<GLight>& lightArray,
+ VertexAndPixelShader::ArgList&  args) {
+
+    initializeStringConstants();
+
+    for (int i = 0; i < N; ++i) {
         if (lightArray.size() > i + lightIndex) {
             const GLight& light = lightArray[i + lightIndex];
 
-            args.set("lightPosition[" + N + "]",   light.position);
-            args.set("lightColor[" + N + "]",      light.color);
-            args.set("lightAttenuation[" + N + "]", 
-                     Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
+            args.set(lightPositionString[i],    light.position);
+            args.set(lightColorString[i],       light.color);
+            args.set(lightAttenuationString[i], Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
         } else {
-            args.set("lightPosition[" + N + "]",    Vector4(0, 1, 0, 0));
-            args.set("lightColor[" + N + "]",       Color3::black());
-            args.set("lightAttenuation[" + N + "]", Vector3(1, 0, 0));
+            args.set(lightPositionString[i],    Vector4(0, 1, 0, 0));
+            args.set(lightColorString[i],       Color3::black());
+            args.set(lightAttenuationString[i], Vector3(1, 0, 0));
         }
     }
 }
 
 
-void SuperShader::configureShaderArgs(
-    const LightingRef&              lighting,
-    const Material&                 material,
-    VertexAndPixelShader::ArgList&  args) {
+void NonShadowedPass::setLighting(const LightingRef& lighting) {
 
-    // Material arguments
-    if (material.diffuse.constant != Color3::black()) {
-        args.set("diffuseConstant",         material.diffuse.constant);
-        if (material.diffuse.map.notNull()) {
-            args.set("diffuseMap",              material.diffuse.map);
-        }
-    }
-
-    if (material.customConstant.isFinite()) {
-        args.set("customConstant",         material.customConstant);
-    }
-
-    if (material.customMap.notNull()) {
-        args.set("customMap",              material.customMap);
-    }
-
-    if (material.specular.constant != Color3::black()) {
-        args.set("specularConstant",        material.specular.constant);
-        if (material.specular.map.notNull()) {
-            args.set("specularMap",             material.specular.map);
-        }
-
-        // If specular exponent is black we get into trouble-- pow(x, 0)
-        // doesn't work right in shaders for some reason
-        args.set("specularExponentConstant", Color3::white().max(material.specularExponent.constant));
-
-        if (material.specularExponent.map.notNull()) {
-            args.set("specularExponentMap",     material.specularExponent.map);
-        }
-    }
-
-    if (material.reflect.constant != Color3::black()) {
-        args.set("reflectConstant",         material.reflect.constant);
-
-        if (material.reflect.map.notNull()) {
-            args.set("reflectMap",              material.reflect.map);
-        }
-    }
-
-    if (material.emit.constant != Color3::black()) {
-        args.set("emitConstant",            material.emit.constant * lighting->emissiveScale);
-
-        if (material.emit.map.notNull()) {
-            args.set("emitMap",             material.emit.map);
-        }
-    }
-
-    if (material.normalBumpMap.notNull() && (material.bumpMapScale != 0)) {
-        args.set("normalBumpMap",       material.normalBumpMap);
-        args.set("bumpMapScale",        material.bumpMapScale);
-        args.set("bumpMapBias",         material.bumpMapBias);
-    }
-
-    ///////////////////////////////////////////////////
-    // Lighting Args
-    configureShaderExtraLightArgs(lighting->lightArray, 0, args);
-
+    configureLights(0, LIGHTS_PER_PASS, lighting->lightArray, args);
+    
     args.set("ambientTop",      lighting->ambientTop);
     args.set("ambientBottom",   lighting->ambientBottom);
 
     // Only set the evt map if we need it
-    if (! material.reflect.isBlack()) {
-        args.set("environmentConstant", lighting->environmentMapColor);
-        debugAssert(lighting->environmentMap.notNull());
-        args.set("environmentMap",  lighting->environmentMap);
+    args.set("environmentConstant", lighting->environmentMapColor, OPTIONAL);
+    if (lighting->environmentMap.notNull()) {
+        args.set("environmentMap",  lighting->environmentMap, OPTIONAL);
     }
+
+    // TODO: Emissive constant
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// 
+// G3D::SuperShader::ExtraLightPass
+//
+
+ExtraLightPassRef ExtraLightPass::instance() {
+    if (extraLightInstance.isNull()) {
+        extraLightInstance = new ExtraLightPass();
+    }
+    return extraLightInstance;
 }
 
 
-void SuperShader::configureShadowShaderArgs(
+ExtraLightPass::ExtraLightPass() : 
+    Pass(System::findDataFile("NonShadowedPass.vrt"),
+         System::findDataFile("NonShadowedPass.pix")) {
+
+    args.set("ambientTop",      Color3::black());
+    args.set("ambientBottom",   Color3::black());
+
+    // Only set the evt map if we need it
+    args.set("environmentConstant", Color3::black(), OPTIONAL);
+    static TextureRef emptyCubeMap = Texture::createEmpty("empty cube map", 16, 16, TextureFormat::RGB8(), Texture::DIM_CUBE_MAP);
+    args.set("environmentMap",  emptyCubeMap, OPTIONAL);
+}
+
+
+void ExtraLightPass::setLighting(const Array<GLight>& lightArray, int index) {
+    configureLights(index, LIGHTS_PER_PASS, lightArray, args);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// 
+// G3D::SuperShader::ShadowedPass
+//
+
+ShadowedPassRef ShadowedPass::instance() {
+    if (shadowedInstance.isNull()) {
+        shadowedInstance = new ShadowedPass();
+    }
+    return shadowedInstance;
+}
+
+
+ShadowedPass::ShadowedPass() : 
+    Pass(System::findDataFile("ShadowMappedLightPass.vrt"),
+         System::findDataFile("ShadowMappedLightPass.pix")) {
+}
+
+
+void ShadowedPass::setLight(
     const GLight&                   light, 
-    const ShadowMapRef&             shadowMap,
-    const Material&                 material,
-    VertexAndPixelShader::ArgList&  args) {
+    const ShadowMapRef&             shadowMap) {
     
-    // TODO: don't even set fields that have no corresponding map
-    if (material.diffuse.map.notNull()) {
-        args.set("diffuseMap",          material.diffuse.map);
-    }
-
-    // TODO: bind only the constants that are used
-    args.set("diffuseConstant",         material.diffuse.constant);
-
-    if (material.customConstant.isFinite()) {
-        args.set("customConstant",         material.customConstant);
-    }
-
-    if (material.customMap.notNull()) {
-        args.set("customMap",         material.customMap);
-    }
-
-    if (material.specular.map.notNull()) {
-        args.set("specularMap",         material.specular.map);
-    }
-    args.set("specularConstant",        material.specular.constant);
-
-    if (material.specularExponent.map.notNull()) {
-        args.set("specularExponentMap", material.specularExponent.map);
-    }
-    args.set("specularExponentConstant",material.specularExponent.constant);
-
-    if (material.normalBumpMap.notNull() && (material.bumpMapScale != 0)) {
-        args.set("normalBumpMap",       material.normalBumpMap);
-        args.set("bumpMapScale",        material.bumpMapScale);
-        args.set("bumpMapBias",         material.bumpMapBias);
-    }
-
-    ///////////////////////////////////////////////////
-    // Lighting Args
-
     args.set("lightPosition",   light.position);
     args.set("lightColor",      light.color);
     args.set("lightAttenuation" , Vector3(light.attenuation[0], 
@@ -169,175 +326,6 @@ void SuperShader::configureShadowShaderArgs(
     args.set("lightMVP",        shadowMap->biasedLightMVP());
 }
 
-/** Loads the specified text file, using an internal cache to avoid 
-    extraneous disk access. */
-static const std::string& loadShaderCode(const std::string& filename) {
-    static Table<std::string, std::string> shaderTextCache;
+} // SuperShader namespace
 
-    if (! shaderTextCache.containsKey(filename)) {
-        shaderTextCache.set(filename, readWholeFile(System::findDataFile(filename)));
-    }
-
-    return shaderTextCache[filename];
-}
-
-
-/**
- Loads a shader, where <I>basename</I> contains the path and filename up to the 
- ".vrt"/".pix" extensions, and <I>defines</I> is a string to prepend to the 
- beginning of both vertex and pixel shaders.
- */
-static ShaderRef loadShader(const std::string& baseName, const std::string& defines) {
-
-    const std::string& vertexShader = loadShaderCode(baseName + ".vrt");
-    const std::string& pixelShader  = loadShaderCode(baseName + ".pix");
-
-    ShaderRef s = Shader::fromStrings
-        (baseName + ".vrt", defines + vertexShader, 
-         baseName + ".pix", defines + pixelShader);
-
-    return s;
-}
-
-
-SuperShader::Cache::Pair SuperShader::getShader(const Material& material) {
- 
-    // First check the cache
-    Cache::Pair p = cache.getSimilar(material);
-
-    if (p.shadowMappedShader.isNull()) {
-
-        // Not found in cache; load from disk
-
-        static const std::string shadowName    = "ShadowMappedLightPass";
-        static const std::string nonShadowName = "NonShadowedPass";
-
-        std::string defines;
-
-        if (material.diffuse.constant != Color3::black()) {
-            if (material.diffuse.map.notNull()) {
-                defines += "#define DIFFUSEMAP\n";
-
-                // If the color is white, don't multiply by it
-                if (material.diffuse.constant != Color3::white()) {
-                    defines += "#define DIFFUSECONSTANT\n";
-                }
-            } else {
-                defines += "#define DIFFUSECONSTANT\n";
-            }
-        }
-
-        if (material.customConstant.isFinite()) {
-            defines += "#define CUSTOMCONSTANT\n";
-        }
-
-        if (material.customMap.notNull()) {
-            defines += "#define CUSTOMMAP\n";
-        }
-
-        if (material.specular.constant != Color3::black()) {
-            if (material.specular.map.notNull()) {
-                defines += "#define SPECULARMAP\n";
-
-                // If the color is white, don't multiply by it
-                if (material.specular.constant != Color3::white()) {
-                    defines += "#define SPECULARCONSTANT\n";
-                }
-            } else  {
-                defines += "#define SPECULARCONSTANT\n";
-            }
-
-
-            if (material.specularExponent.constant != Color3::black()) {
-                if (material.specularExponent.map.notNull()) {
-                    defines += "#define SPECULAREXPONENTMAP\n";
-                    
-                    // If the color is white, don't multiply by it
-                    if (material.specularExponent.constant != Color3::white()) {
-                        defines += "#define SPECULAREXPONENTCONSTANT\n";
-                    }
-                } else  {
-                    defines += "#define SPECULAREXPONENTCONSTANT\n";
-                }
-            }
-        }
-
-        if (material.emit.constant != Color3::black()) {
-            if (material.emit.map.notNull()) {
-                defines += "#define EMITMAP\n";
-
-                // If the color is white, don't multiply by it
-                if (material.emit.constant != Color3::white()) {
-                    defines += "#define EMITCONSTANT\n";
-                }
-            } else  {
-                defines += "#define EMITCONSTANT\n";
-            }
-        }
-
-        if (material.reflect.constant != Color3::black()) {
-            if (material.reflect.map.notNull()) {
-                defines += "#define REFLECTMAP\n";
-
-                // If the color is white, don't multiply by it
-                if (material.reflect.constant != Color3::white()) {
-                    defines += "#define REFLECTCONSTANT\n";
-                }
-            } else  {
-                defines += "#define REFLECTCONSTANT\n";
-
-                if (material.reflect.constant == Color3::white()) {
-                    defines += "#define REFLECTWHITE\n";
-                }
-            }
-        }
-
-        if ((material.bumpMapScale != 0) && material.normalBumpMap.notNull()) {
-            defines += "#define NORMALBUMPMAP\n";
-        }
-
-        p.nonShadowedShader  = loadShader(nonShadowName, defines);
-        p.shadowMappedShader = loadShader(shadowName,    defines);
-
-        p.nonShadowedShader->args.set("backside", 1.0);
-        p.shadowMappedShader->args.set("backside", 1.0);
-
-        cache.add(material, p);
-    }
-
-    return p;
-}
-
-
-void SuperShader::createShaders(
-    const Material& material, 
-    ShaderRef& nonShadowedShader, 
-    ShaderRef& shadowMappedShader) {
-
-    Cache::Pair p       = getShader(material);
-
-    nonShadowedShader   = p.nonShadowedShader;
-    shadowMappedShader  = p.shadowMappedShader;
-}
-
-
-////////////////////////////////////////////////////////////////////////////
-SuperShader::Cache SuperShader::cache;
-
-void SuperShader::Cache::add(const Material& mat, const Cache::Pair& p) {
-    materialArray.append(mat);
-    shaderArray.append(p);
-}
-
-
-SuperShader::Cache::Pair SuperShader::Cache::getSimilar(const Material& mat) const {
-    for (int m = 0; m < materialArray.size(); ++m) {
-        if (materialArray[m].similarTo(mat)) {
-            return shaderArray[m];
-        }
-    }
-
-    return Pair();
-}
-
-}
+} // G3D namespace

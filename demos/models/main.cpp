@@ -12,12 +12,6 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     GApp::Settings settings;
     settings.window.fsaaSamples = 1;
-    /*
-    GLight L = GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 1, 0, 0.5, true, true);
-    Sphere s = L.effectSphere();
-    printf("%s, %f\n", s.center.toString().c_str(), s.radius);
-    return 0;
-    */
     
 #   ifdef G3D_WIN32
         if (! fileExists("G3D-logo-tiny-alpha.tga", false)) {

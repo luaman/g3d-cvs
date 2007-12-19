@@ -905,6 +905,10 @@ public:
      */
     void setCullFace(CullFace f);
 
+    inline CullFace cullFace() const {
+        return state.cullFace;
+    }
+
     /**
      (0, 0) is the <B>upper</B>-left corner of the screen.
      */

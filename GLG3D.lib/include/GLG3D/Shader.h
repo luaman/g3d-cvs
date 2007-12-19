@@ -75,14 +75,15 @@ public:
 /** Used by Shader */
 class UniformDeclaration {
 public:
-    /** If true, this variable is declared but unused */
+    /** If true, this variable is declared in the shader but is not used in its body. */
     bool                dummy;
     
     /** Register location if a sampler. */
     int                 location;
     
     /** Name of the variable.  May include [] and . (e.g.
-        "foo[1].normal")*/
+        "foo[1].normal"). As of 12/18/07, NVIDIA drivers process this incorrectly
+        and only return "foo" in the example case. */
     std::string         name;
     
     /** OpenGL type of the variable (e.g. GL_INT) */
@@ -392,8 +393,8 @@ public:
         void set(const std::string& var, const CoordinateFrame& val, bool optional = false);
         void set(const std::string& var, const Matrix4& val, bool optional = false);
         void set(const std::string& var, const Matrix3& val, bool optional = false);
-        void set(const std::string& var, const Color4& val, bool optional = false);
-        void set(const std::string& var, const Color3& val, bool optional = false);
+        void set(const std::string& var, const Color4&  val, bool optional = false);
+        void set(const std::string& var, const Color3&  val, bool optional = false);
         void set(const std::string& var, const Vector4& val, bool optional = false);
         void set(const std::string& var, const Vector3& val, bool optional = false);
         void set(const std::string& var, const Vector2& val, bool optional = false);
@@ -405,10 +406,16 @@ public:
         /** Removes an argument from the list.  Error if that argument does not exist. */
         void remove(const std::string& var);
 
+        /** Returns true if an argument named var or var + "[0]" appears in this list (the latter
+            is a convenience because some OpenGL drivers (e.g., ATI) name arrays ending in [0] and others
+            (e.g., NVIDIA) name them as the variable without brackets. */
         bool contains(const std::string& var) const {
-            return argTable.containsKey(var);
+            return argTable.containsKey(var) || argTable.containsKey(var + "[0]");
         }
         
+        /** Returns a newline separated list of arguments specified in this list. */
+        std::string toString() const;
+
         /**
          GLSL does not natively support arrays and structs in the uniform binding API.  Instead, each
          element of an array is treated as a separate element.  This method expands out to setting

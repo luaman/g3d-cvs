@@ -287,36 +287,18 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
 }
 
 
-void ArticulatedModel::Part::updateShaders() {
-    if (ArticulatedModel::profile() != PS20) {
-        return;
-    }
-
-    for (int t = 0; t < triListArray.size(); ++t) {
-        SuperShader::createShaders(
-            triListArray[t].material,
-            triListArray[t].nonShadowedShader, 
-            triListArray[t].shadowMappedShader);
-
-        triListArray[t].nonShadowedShader->setPreserveState(false);
-        triListArray[t].shadowMappedShader->setPreserveState(false);
-    }
-}
-
-
 void ArticulatedModel::updateAll() {
     for (int p = 0; p < partArray.size(); ++p) {
         Part& part = partArray[p];
         part.computeIndexArray();
         part.computeNormalsAndTangentSpace();
         part.updateVAR();
-        part.updateShaders();
     }
 }
 
 
 void ArticulatedModel::initIFS(const std::string& filename, const CoordinateFrame& xform) {
-    Array<int>   	index;
+    Array<int>      index;
     Array<Vector3>  vertex;
     Array<Vector2>  texCoord;
     
