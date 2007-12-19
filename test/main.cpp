@@ -94,6 +94,17 @@ void testGThread();
 
 void testfilter();
 
+void testTableTable() {
+
+    // Test making tables out of tables
+    typedef Table<std::string, int> StringTable;
+    Table<int, StringTable> table;
+
+    table.set(3, StringTable());
+    table.set(0, StringTable());
+    table[3].set("Hello", 3);
+}
+
 
 void testConvexPolygon2D() {
     printf("ConvexPolygon2D\n");
@@ -495,6 +506,8 @@ void testGLight() {
 
 
 int main(int argc, char* argv[]) {
+
+
     (void)argc;
     (void)argv;
 
@@ -598,6 +611,8 @@ int main(int argc, char* argv[]) {
     testMatrix3();
 
     testTable();
+
+    testTableTable();
 
     testCollisionDetection();    
 

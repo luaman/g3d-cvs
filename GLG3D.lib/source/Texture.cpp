@@ -798,25 +798,38 @@ Texture::Ref Texture::createEmpty(
         debugAssertM(d == 1, "Depth must be 1 for DIM_2D textures");
     }
 
-    // We must pretend the input is in the desired format otherwise 
-    // OpenGL might refuse to negotiate formats for us.
-    //Array<uint8> data(w * h * desiredFormat->packedBitsPerTexel / 8);
+    Texture::Ref t;
 
-    // When testing, it is sometimes convenient to zero the array.  We don't
-    // do this in general, though, for performance reasons.
-    // System::memset(data.getCArray(), 0, data.size());
+    if (dimension == DIM_CUBE_MAP || dimension == DIM_CUBE_MAP_NPOT) {
+        // Cube map requires six faces
+        Array< Array<const void*> > data(1);
+        data[0].resize(6);
+        for (int i = 0; i < 6; ++i) {
+            data[0][i] = NULL;
+        }
+        t = fromMemory(
+                name, 
+                data,
+                desiredFormat, 
+                w, 
+                h, 
+                d, 
+                desiredFormat,
+                dimension,
+                settings);
+    } else {
 
-    Texture::Ref t = 
-		fromMemory(
-			name, 
-			NULL, 
-			desiredFormat, 
-			w, 
-			h, 
-			d, 
-			desiredFormat, 
-			dimension, 
-			settings);
+        t = fromMemory(
+                name, 
+                NULL, 
+                desiredFormat, 
+                w, 
+                h, 
+                d, 
+                desiredFormat, 
+                dimension, 
+                settings);
+    }
 
     // The only purpose of creating an empty texture is to render to it with FBO/readback,
     // so clearly the caller will want Y inverted.
