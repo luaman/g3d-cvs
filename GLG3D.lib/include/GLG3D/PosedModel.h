@@ -347,7 +347,15 @@ public:
      const Array<PosedModelRef>&    allModels, 
      const LightingRef&             _lighting, 
      const Array<ShadowMapRef>&     shadowMaps,
-     const Array<SuperShader::PassRef>& extraAdditivePasses = Array<SuperShader::PassRef>());
+     const Array<SuperShader::PassRef>& extraAdditivePasses);
+
+    static void sortAndRender
+    (
+     class RenderDevice*            rd, 
+     const class GCamera&           camera,
+     const Array<PosedModelRef>&    allModels, 
+     const LightingRef&             _lighting, 
+     const Array<ShadowMapRef>&     shadowMaps);
     
     static void sortAndRender
     (
@@ -355,8 +363,7 @@ public:
      const GCamera&                 camera,
      const Array<PosedModelRef>&    posed3D, 
      const LightingRef&             lighting, 
-     const ShadowMapRef             shadowMap = NULL,
-     const Array<SuperShader::PassRef>& extraAdditivePasses = Array<SuperShader::PassRef>());
+     const ShadowMapRef             shadowMap = NULL);
 
 
 protected:

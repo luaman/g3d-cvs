@@ -135,19 +135,29 @@ void PosedModel::sortAndRender
 
 
 void PosedModel::sortAndRender
+    (
+     class RenderDevice*            rd, 
+     const class GCamera&           camera,
+     const Array<PosedModelRef>&    allModels, 
+     const LightingRef&             _lighting, 
+     const Array<ShadowMapRef>&     shadowMaps) {
+    sortAndRender(rd, camera, allModels, _lighting, shadowMaps, Array<SuperShader::PassRef>());
+}
+
+
+void PosedModel::sortAndRender
 (
  RenderDevice*                  rd, 
  const GCamera&                 camera,
  const Array<PosedModelRef>&    posed3D, 
  const LightingRef&             lighting, 
- const ShadowMapRef             shadowMap,
- const Array<SuperShader::PassRef>& extraAdditivePasses) {
+ const ShadowMapRef             shadowMap) {
 
     static Array<ShadowMapRef> shadowMaps;
     if (shadowMap.notNull()) {
         shadowMaps.append(shadowMap);
     }
-    sortAndRender(rd, camera, posed3D, lighting, shadowMaps, extraAdditivePasses);
+    sortAndRender(rd, camera, posed3D, lighting, shadowMaps, Array<SuperShader::PassRef>());
     shadowMaps.fastClear();
 }
 
