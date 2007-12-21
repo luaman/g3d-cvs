@@ -54,7 +54,7 @@ void PosedModel::sortAndRender
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
-            shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L],
+            shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
                                       lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
         }
     } else {

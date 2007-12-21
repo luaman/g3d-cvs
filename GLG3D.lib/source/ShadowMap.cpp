@@ -115,12 +115,66 @@ bool ShadowMap::enabled() const {
 
 
 void ShadowMap::updateDepth(
-    RenderDevice* renderDevice,
-    const GLight& light, 
+    class RenderDevice* renderDevice, 
+    const Vector4& lightPosition, 
     float lightProjX,
     float lightProjY,
     float lightProjNear,
     float lightProjFar,
+    const Array<PosedModel::Ref>& shadowCaster) {
+
+    // Find the scene bounds
+    AABox sceneBounds;
+    shadowCaster[0]->worldSpaceBoundingBox().getBounds(sceneBounds);
+
+    for (int i = 1; i < shadowCaster.size(); ++i) {
+        AABox bounds;
+        shadowCaster[i]->worldSpaceBoundingBox().getBounds(bounds);
+        sceneBounds.merge(bounds);
+    }
+
+    CoordinateFrame lightCFrame;
+    Vector3 center = sceneBounds.center();
+    Matrix4 lightProjectionMatrix;
+
+    if (lightPosition.w == 0) {
+        // Move directional light away from the scene.  It must be far enough to see all objects
+        lightCFrame.translation = lightPosition.xyz() * max(sceneBounds.extent().length() / 2.0f, max(lightProjNear, 30.0f)) + center;
+
+        // Construct a projection and view matrix for the camera so we can 
+        // render the scene from the light's point of view
+        //
+        // Since we're working with a directional light, 
+        // we want to make the center of projection for the shadow map
+        // be in the direction of the light but at a finite distance 
+        // to preserve z precision.
+        
+        lightProjectionMatrix = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
+                                                              lightProjY, lightProjNear, lightProjFar);
+
+    } else {
+        lightCFrame.translation = lightPosition.xyz();
+
+        // TODO: for a spot (finite) light, we should not be computing an orthogonal matrix
+        lightProjectionMatrix = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
+                                                              lightProjY, lightProjNear, lightProjFar);
+    }
+
+    Vector3 perp = Vector3::unitZ();
+    // Avoid singularity when looking along own z-axis
+    if (abs((lightCFrame.translation - center).direction().dot(perp)) > 0.8) {
+        perp = Vector3::unitY();
+    }
+    lightCFrame.lookAt(center, perp);
+
+    updateDepth(renderDevice, lightCFrame, lightProjectionMatrix, shadowCaster);
+}
+
+
+void ShadowMap::updateDepth(
+    RenderDevice* renderDevice,
+    const CoordinateFrame& lightCFrame, 
+    const Matrix4& lightProjectionMatrix,
     const Array<PosedModel::Ref>& shadowCaster) {
 
     m_lastRenderDevice = renderDevice;
@@ -161,38 +215,6 @@ void ShadowMap::updateDepth(
             renderDevice->setViewport(rect);
         }
 
-        // Construct a projection and view matrix for the camera so we can 
-        // render the scene from the light's point of view
-        //
-        // Since we're working with a directional light, 
-        // we want to make the center of projection for the shadow map
-        // be in the direction of the light but at a finite distance 
-        // to preserve z precision.
-        Matrix4 lightProjectionMatrix(Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                                    lightProjY, lightProjNear, lightProjFar));
-
-        // Find the scene bounds
-        AABox sceneBounds;
-        shadowCaster[0]->worldSpaceBoundingBox().getBounds(sceneBounds);
-
-        for (int i = 1; i < shadowCaster.size(); ++i) {
-            AABox bounds;
-            shadowCaster[i]->worldSpaceBoundingBox().getBounds(bounds);
-            sceneBounds.merge(bounds);
-        }
-
-        CoordinateFrame lightCFrame;
-        Vector3 center = sceneBounds.center();
-        lightCFrame.translation = (light.position.xyz() * 20 + center) * (1 - light.position.w) + 
-            light.position.w * light.position.xyz();
-
-        Vector3 perp = Vector3::unitZ();
-        // Avoid singularity when looking along own z-axis
-        if (abs((lightCFrame.translation - center).direction().dot(perp)) > 0.8) {
-            perp = Vector3::unitY();
-        }
-        lightCFrame.lookAt(center, perp);
-        
         //renderDevice->setColorClearValue(Color3::white());
         bool debugShadows = false;
         renderDevice->setColorWrite(debugShadows);

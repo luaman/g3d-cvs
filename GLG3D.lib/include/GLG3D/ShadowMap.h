@@ -89,7 +89,13 @@ public:
 
     void updateDepth(
         class RenderDevice* renderDevice, 
-        const GLight& light, 
+        const CoordinateFrame& lightFrame,
+        const Matrix4& lightProjectionMatrix,
+        const Array<PosedModel::Ref>& shadowCaster);
+
+    void updateDepth(
+        class RenderDevice* renderDevice, 
+        const Vector4& lightPosition, 
         float lightProjX,
         float lightProjY,
         float lightProjNear,
