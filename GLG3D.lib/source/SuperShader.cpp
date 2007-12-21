@@ -106,8 +106,9 @@ Pass::Pass() {}
 Pass::Pass(const std::string& vertexFilename, const std::string& pixelFilename)
 : m_vertexFilename(vertexFilename), m_pixelFilename(pixelFilename) {
 
-    debugAssert(fileExists(vertexFilename));
-    debugAssert(fileExists(pixelFilename));
+    // Make sure that we can locate the files
+    System::findDataFile(vertexFilename);
+    System::findDataFile(pixelFilename);
 }
 
 
