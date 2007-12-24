@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-11-15
-  @edited  2007-12-19
+  @edited  2007-12-24
  */ 
 
 #ifndef GLG3D_POSEDMODEL_H
@@ -147,6 +147,9 @@ public:
         const Array<PosedModel::Ref>& inModels, 
         const Vector3&                wsLookVector,
         Array<PosedModel::Ref>&       opaque);
+
+    static void getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bounds);
+    static void getSphereBounds(const Array<PosedModel::Ref>& models, Sphere& bounds);
 
     /** Object to world space coordinate frame.*/
     virtual void getCoordinateFrame(CoordinateFrame& c) const = 0;

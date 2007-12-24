@@ -17,6 +17,8 @@
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> GWindow::create
+     <li> G3D::PosedModel::getBoxBounds on an array
+     <li> G3D::PosedModel::getSphereBounds on an array
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files
      <li> G3D::SuperShader now supports a customMap and customConstant for experimenting with shaders.
      <li> G3D::SuperShader now does not ever light the "back" of a bump-mapped poly, even if the bumps should create a light-facing surface

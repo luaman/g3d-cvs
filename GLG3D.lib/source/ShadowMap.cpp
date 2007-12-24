@@ -116,7 +116,7 @@ bool ShadowMap::enabled() const {
 
 void ShadowMap::updateDepth(
     class RenderDevice* renderDevice, 
-    const Vector4& lightPosition, 
+    const Vector4& lightPosition,
     float lightProjX,
     float lightProjY,
     float lightProjNear,
@@ -125,13 +125,7 @@ void ShadowMap::updateDepth(
 
     // Find the scene bounds
     AABox sceneBounds;
-    shadowCaster[0]->worldSpaceBoundingBox().getBounds(sceneBounds);
-
-    for (int i = 1; i < shadowCaster.size(); ++i) {
-        AABox bounds;
-        shadowCaster[i]->worldSpaceBoundingBox().getBounds(bounds);
-        sceneBounds.merge(bounds);
-    }
+    PosedModel::getBoxBounds(shadowCaster, sceneBounds);
 
     CoordinateFrame lightCFrame;
     Vector3 center = sceneBounds.center();
@@ -154,9 +148,7 @@ void ShadowMap::updateDepth(
 
     } else {
         lightCFrame.translation = lightPosition.xyz();
-
-        // TODO: for a spot (finite) light, we should not be computing an orthogonal matrix
-        lightProjectionMatrix = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
+        lightProjectionMatrix = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
                                                               lightProjY, lightProjNear, lightProjFar);
     }
 
@@ -225,7 +217,6 @@ void ShadowMap::updateDepth(
         renderDevice->setCameraToWorldMatrix(lightCFrame);
         renderDevice->setProjectionMatrix(lightProjectionMatrix);
 
-        // Flip the Y-axis to account for the upside down Y-axis on read back textures
         m_lightMVP = lightProjectionMatrix * lightCFrame.inverse();
 
         static const Matrix4 bias(

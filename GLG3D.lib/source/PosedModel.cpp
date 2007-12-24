@@ -16,8 +16,33 @@
 #include "G3D/GCamera.h"
 #include "G3D/debugPrintf.h"
 #include "G3D/Log.h"
+#include "G3D/AABox.h"
+#include "G3D/Sphere.h"
 
 namespace G3D {
+
+void PosedModel::getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bounds) {
+    if (models.size() == 0) {
+        bounds = AABox();
+        return;
+    }
+
+    models[0]->worldSpaceBoundingBox().getBounds(bounds);
+
+    for (int i = 1; i < models.size(); ++i) {
+        AABox temp;
+        models[i]->worldSpaceBoundingBox().getBounds(temp);
+        bounds.merge(temp);
+    }
+}
+
+
+void PosedModel::getSphereBounds(const Array<PosedModel::Ref>& models, Sphere& bounds) {
+    AABox temp;
+    getBoxBounds(models, temp);
+    bounds = Sphere(temp.center(), temp.extent().length() / 2.0f);
+}
+
 
 void PosedModel::sortAndRender
 (

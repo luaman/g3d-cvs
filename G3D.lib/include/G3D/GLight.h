@@ -25,6 +25,7 @@ public:
     /** World space position (for a directional light, w = 0 */
     Vector4             position;
 
+    /** Direction in which the light faces, if a spot light.  This is the "look vector" of the light source. */
     Vector3             spotDirection;
 
     /** In <B>degrees</B>.  180 = no cutoff (point/dir) >90 = spot light */
