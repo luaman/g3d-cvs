@@ -1160,8 +1160,6 @@ static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
 			e.key.keysym.sym = (GKey::Value)(c - 'A' + 'a');
 		else
 			e.key.keysym.sym = (GKey::Value)c;
-			
-		debugPrintf("KeySym: %c.\n", e.key.keysym.sym);
 	}
 	else {
 		// We must now determine what changed since last time and see
