@@ -1155,8 +1155,14 @@ static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
 	// which takes a little more logic to figure out. Especially since
 	// under Carbon there isn't a distinction between right/left hand
 	// versions of keys.
-	if(c != 0)
-		e.key.keysym.sym = (GKey::Value)c;
+	if(c != 0) {
+		if((c >= 'A') && (c <= 'Z'))
+			e.key.keysym.sym = (GKey::Value)(c - 'A' + 'a');
+		else
+			e.key.keysym.sym = (GKey::Value)c;
+			
+		debugPrintf("KeySym: %c.\n", e.key.keysym.sym);
+	}
 	else {
 		// We must now determine what changed since last time and see
 		// if we've got a key-up or key-down. :-p The assumption is a
