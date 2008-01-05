@@ -466,6 +466,7 @@ def buildBinary(state):
             # Static library.
             makeStaticLibrary(state, ofiles)
 
+
     if ice.utils.verbosity >= NORMAL:
         print stats
         
@@ -695,8 +696,20 @@ def processStatistics(state):
         writeFile(logfile, '"Date","Source Files","Statements","Lines","Comment Lines","Documentation Lines","Data Files","Data Bytes","User"\n')
 
     info = '%s,%d,%d,%d,%d,%d,%d,%d,"%s"\n' % (stats.dateTime, stats.numFiles, stats.statementCount, stats.lineCount, stats.commentLines, stats.documentationLines, stats.numDataFiles, stats.dataBytes, stats.user)
-            
-    appendFile(logfile, info)
+
+    # See if the logfile ends with the current date
+    oldLog = readFile(logfile).strip().split('\n')
+    lastLine = oldLog[-1]
+
+    lastDate = lastLine.split(' ')
+    lastDate = lastDate[0]
+    if lastDate != stats.dateTime[0:len(lastDate)]:
+        # Today is a new day, append our info
+        appendFile(logfile, info)
+    else:
+        # Overwrite
+        oldLog[-1] = info
+        writeFile(logfile, '\n'.join(oldLog) + '\n')
 
     if ice.utils.verbosity >= VERBOSE: 
         print 'Done computing statistics.'
