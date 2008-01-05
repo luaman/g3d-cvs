@@ -144,10 +144,9 @@ private:
 public:
 
     /**
-       Return the position at parameter s.
+       Return the position at parameter s. Integer values of s correspond to control points.
 
-       For a non-cyclic spline, the curve is clamped at the beginning and ending points
-       and between 0 and 1
+       For a non-cyclic spline, the curve is clamped at the beginning and ending points.
      */
     Control evaluate(float s) const {
 

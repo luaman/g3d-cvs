@@ -244,13 +244,13 @@ public:
 /** 2D scroll event structure **/
 class MouseScroll2DEvent { 
 public:
-	/** GEventType::MOUSE_SCROLL_2D **/
+    /** GEventType::MOUSE_SCROLL_2D **/
     uint8 type;
 	
-	/** The mouse device index **/
+    /** The mouse device index **/
     uint8 which;
 	
-	/** The change in x and y directions of scroll **/
+    /** The change in x and y directions of scroll **/
     uint16 dx, dy; /*Change in pixels x and y*/ 
 };
 
@@ -436,7 +436,11 @@ typedef struct SDL_SysWMEvent {
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */
 typedef union {
-    /** This is a G3D::GEventType, but is given uint8 type so that it does not call the constructor because GEvent is a union. */
+    /** This is a G3D::GEventType, but is given uint8 type so that it
+        does not call the constructor because GEvent is a union. 
+
+        @sa G3D::GEventType
+    */
     uint8                   type;
     
     ActiveEvent             active;
@@ -455,7 +459,7 @@ typedef union {
     GuiEvent                gui;
     GuiCloseEvent           guiClose;
     FileDropEvent           drop;
-	MouseScroll2DEvent      scroll2d;
+    MouseScroll2DEvent      scroll2d;
 } GEvent;
 
 }

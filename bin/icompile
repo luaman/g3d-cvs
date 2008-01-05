@@ -3,7 +3,7 @@
 #
 # See manual.html for documentation.  http://ice.sf.net
 #
-# Copyright 2003-2007 Morgan McGuire
+# Copyright 2003-2008 Morgan McGuire
 # All rights reserved.
 #
 # morgan@cs.williams.edu
@@ -378,6 +378,9 @@ def buildBinary(state):
         printBar()
         colorPrint('Building ' + state.binaryName, SECTION_COLOR)
 
+    # Must process statistics here in case compilation terminates early due to an error
+    stats = processStatistics(state)
+
     # Create the temp directory for object files
     mkdir(state.objDir, ice.utils.verbosity >= VERBOSE)
 
@@ -406,7 +409,7 @@ def buildBinary(state):
 
     # Static libraries can have mutually recursive dependencies and don't
     # link against their dependencies anyway.  Everything else must build
-    # its dependencies first
+    # its dependencies first.
     if state.binaryType != LIB:
         ret = buildDependencyProjects(state)
 
@@ -463,8 +466,9 @@ def buildBinary(state):
             # Static library.
             makeStaticLibrary(state, ofiles)
 
-        if ice.utils.verbosity >= NORMAL: printLineCount(state)
-
+    if ice.utils.verbosity >= NORMAL:
+        print stats
+        
     if ice.utils.verbosity >= VERBOSE: colorPrint('Done building ' + state.binaryName, SECTION_COLOR)
     
 #########################################################################
@@ -599,9 +603,14 @@ def configureGpp(state):
         state.compilerOptions = ['-O3',
                                  '-D_RELEASE', 
                                  '-fno-trapping-math',
+                                 '-fno-strict-aliasing',
                                  '-s']
         # Had to remove '-fno-math-errno' because g++ occasionally
         # crashes with that option.
+
+        # -fno-strict-aliasing slows down the produced code but allows
+        # type-punned aliasing to be safe, which is what many C++ programmers
+        # need.
 
         # Removed '-fno-finite-math-only' because it is not supported
         # by g++3.2
@@ -672,22 +681,71 @@ def printInfo(state):
     print 'target            = "' + state.target + '"'
 
 #########################################################################
+# Computes development progress metrics. Returns a string briefly
+# describing the result.
+def processStatistics(state):
+    if ice.utils.verbosity >= VERBOSE: 
+        print 'Computing statistics...'
+        
+    stats = generateStatistics(state)
+    
+    logfile = 'ice-stats.csv'
 
-def printLineCount(state):
+    if not os.path.exists(logfile):
+        writeFile(logfile, '"Date","Source Files","Statements","Lines","Comment Lines","Documentation Lines","Data Files","Data Bytes","User"\n')
+
+    info = '%s,%d,%d,%d,%d,%d,%d,%d,"%s"\n' % (stats.dateTime, stats.numFiles, stats.statementCount, stats.lineCount, stats.commentLines, stats.documentationLines, stats.numDataFiles, stats.dataBytes, stats.user)
+            
+    appendFile(logfile, info)
+
+    if ice.utils.verbosity >= VERBOSE: 
+        print 'Done computing statistics.'
+
+    return '\nCompiled %(files)d files, %(statements)d statements, %(comments)d comment lines\n' % \
+              {'files' : stats.numFiles,
+               'statements' : stats.statementCount,
+               'comments' : (stats.commentLines + stats.documentationLines)}
+
+
+# Information about the project for development tracing purposes.
+# See processStatistics
+class Stats:
+    statementCount = 0
+
+    # Non-doxygen comments
+    commentLines = 0
+    
+    # .htm and .html files in the doc-files directory plus doxygen comments
+    documentationLines = 0
+    
+def generateStatistics(state):
+    stats = Stats()
+    
     files = listCFiles('', state.excludeFromCompilation, True)
     # equivalent to:
     #   wc -l <files> | tail -1
     #   grep ';' <files> | wc -l | tail -1
-    statementCount = 0
-    lineCount = 0
+    stats.statementCount = 0
+    stats.lineCount = 0
+    stats.numFiles = len(files)
+    
     for file in files:
         x = readFile(file)
-        statementCount += x.count(';')
-        lineCount += x.count('\n')
+        stats.statementCount += x.count(';')
+        stats.lineCount += x.count('\n')
 
-    print 'Compiled %(files)d files, %(statements)d statements, %(loc)d lines of code' % \
-          {'files' : len(files), 'statements' : statementCount, 'loc' : lineCount}
-        
+        (comments, docLines) = countComments(x)
+        stats.commentLines += comments
+        stats.documentationLines += docLines
+
+    stats.dateTime = time.strftime('%d-%b-%Y %H:%M')
+    stats.user = os.environ.get('USER')
+
+    stats.dataBytes = 0
+    stats.numDataFiles = 0
+
+    return stats
+
 #########################################################################
 
 """ Main program execution.

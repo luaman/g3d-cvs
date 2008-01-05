@@ -892,3 +892,39 @@ def writeFile(filename, contents):
     f.write(contents)
     f.close()
     
+####################################################################
+
+""" Appends new contents to existing file (creating it if it does not exist) """
+def appendFile(filename, contents):
+    f = file(filename, 'at')
+    f.write(contents)
+    f.close()
+
+####################################################################
+
+# Returns a tuple of the number of lines of non-doxygen comments and
+# doxygen comments.
+def countComments(str):
+    
+    # Count C++ comments
+    comments = str.count('//')
+    doxygen = str.count('///')
+    
+    # Count C-style comments
+    start = str.find('/*')
+    while start != -1:
+        end   = str.find('*/', start + 1)
+
+        if end != -1:
+            numLines = str.count('\n', start, end) + 1
+            if (str[start + 2] == '*'):
+                # This is a doxygen comment
+                doxygen += numLines
+            else:
+                # This is a regular C comment
+                comments += numLines
+            start = str.find('/*', end + 1)
+        else:
+            start = -1
+
+    return (comments, doxygen)

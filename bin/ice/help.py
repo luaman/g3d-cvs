@@ -2,7 +2,6 @@
 #
 # Help Information and Printing Routines for iCompile
 
-
 from variables import *
 from utils import *
 import copyifnewer
@@ -13,7 +12,7 @@ import copyifnewer
 
 def printVersion(version):
     print "iCompile " + versionToString(version)
-    print "Copyright 2003-2007 Morgan McGuire"
+    print "Copyright 2003-2008 Morgan McGuire"
     print "All rights reserved"
     print
     print "http://ice.sf.net"
@@ -106,12 +105,16 @@ iCompile will not look for source files in directories matching: """ +
            str(copyifnewer._excludeDirPatterns) +
 """
 
+Generated file ice-stats.csv contains a history of the size of your files at
+compilation times that is interesting for tracking development progress.
+
 You may edit ice.txt and ~/.icompile if your project has unusual configuration
 needs.  See manual.html or http://ice.sf.net for full information.
 iCompile was created by Morgan McGuire with additional programming by
 Robert Hunter and Corey Taylor.
 """)
     sys.exit(0)
+
 
 
 """ If the exact warning string passed in hasn't been printed
