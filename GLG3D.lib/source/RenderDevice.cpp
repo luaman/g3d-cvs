@@ -771,7 +771,7 @@ void RenderDevice::resetState() {
 
         _glViewport(state.viewport.x0(), state.viewport.y0(), state.viewport.width(), state.viewport.height());
         glDepthMask(GL_TRUE);
-        glColorMask(1,1,1,0);
+        glColorMask(1,1,1,1);
 
         if (GLCaps::supports_GL_EXT_stencil_two_side()) {
             glActiveStencilFaceEXT(GL_BACK);
