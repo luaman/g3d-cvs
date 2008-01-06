@@ -390,6 +390,11 @@ inline float SSErsq(float x) {
  */
 int ceilPow2(unsigned int in);
 
+/** Returns 2^x */
+inline int pow2(unsigned int x) {
+    return 1 << x;
+}
+
 /**
  * True if num is a power of two.
  */

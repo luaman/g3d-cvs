@@ -205,7 +205,8 @@ href="classes.html">Classes</a>.
         \link G3D::int8 int8\endlink,
         \link G3D::int16 in16\endlink,
         \link G3D::int32 int32\endlink,
-        \link G3D::int64 int64\endlink
+        \link G3D::int64 int64\endlink,
+        \link G3D::pow2 pow2\endlink
      
      <LI><B>Floating point</B> &nbsp; &nbsp;
      \link G3D::abs abs\endlink,
