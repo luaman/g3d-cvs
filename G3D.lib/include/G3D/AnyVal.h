@@ -18,6 +18,7 @@ namespace G3D {
 class Vector2;
 class Vector3;
 class Vector4;
+class Color1;
 class Color3;
 class Color4;
 class Quat;
@@ -156,8 +157,9 @@ public:
         MATRIX4, 
         QUAT, 
         COORDINATEFRAME, 
-        COLOR3, 
-        COLOR4, 
+        COLOR1,
+        COLOR3,
+        COLOR4,
         RECT2D,
         AABOX,
         ARRAY, 
@@ -264,6 +266,7 @@ public:
     AnyVal(const G3D::Vector3&);
     AnyVal(const G3D::Vector4&);
 
+    AnyVal(const G3D::Color1&);
     AnyVal(const G3D::Color3&);
     AnyVal(const G3D::Color4&);
 
@@ -395,6 +398,9 @@ public:
     operator const Vector4& () const {
         return vector4();
     }
+
+    const G3D::Color1& color1() const;
+    const G3D::Color1& color1(const G3D::Color1& defaultVal) const;
 
     const G3D::Color3& color3() const;
     const G3D::Color3& color3(const G3D::Color3& defaultVal) const;

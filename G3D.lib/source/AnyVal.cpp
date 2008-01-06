@@ -13,6 +13,7 @@
 #include "G3D/Vector2.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector4.h"
+#include "G3D/Color1.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
 #include "G3D/Matrix3.h"
@@ -91,6 +92,11 @@ AnyVal::AnyVal(const Vector3& v) : m_type(VECTOR3), m_referenceCount(NULL) {
 
 AnyVal::AnyVal(const Vector4& v) : m_type(VECTOR4), m_referenceCount(NULL) {
     m_value = new Vector4(v);
+}
+
+
+AnyVal::AnyVal(const Color1& v) : m_type(COLOR1), m_referenceCount(NULL) {
+    m_value = new Color1(v);
 }
 
 
@@ -231,6 +237,10 @@ void AnyVal::deleteValue() {
         delete (CoordinateFrame*)m_value;
         break;
 
+    case COLOR1:
+        delete (Color1*)m_value;
+        break;
+
     case COLOR3:
         delete (Color3*)m_value;
         break;
@@ -313,6 +323,9 @@ void* AnyVal::copyValue() const {
 
     case COORDINATEFRAME:
         return new CoordinateFrame(*(CoordinateFrame*)m_value);
+
+    case COLOR1:
+        return new Color1(*(Color1*)m_value);
 
     case COLOR3:
         return new Color3(*(Color3*)m_value);
@@ -450,6 +463,10 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
                 c.rotation[2][0], c.rotation[2][1], c.rotation[2][2], c.translation.z);
             t.popIndent();
         }
+        break;
+
+    case COLOR1:
+        t.printf("C1(%g)", ((Color1*)m_value)->value);
         break;
 
     case COLOR3:
@@ -707,6 +724,14 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 t.readSymbol(")");
                 m_value = new CoordinateFrame(m);
                 m_type = COORDINATEFRAME;
+
+            } else if (s == "C3") {
+
+                t.readSymbol("(");
+                float v = (float)t.readNumber();
+                t.readSymbol(")");
+                m_value = new Color1(v);
+                m_type = COLOR1;
 
             } else if (s == "C3") {
 
@@ -1022,6 +1047,60 @@ const AABox& AnyVal::aabox(const AABox& defaultVal) const {
         return defaultVal;
     } else {
         return *(AABox*)m_value;
+    }
+}
+
+
+const Color1& AnyVal::color1() const {
+    if (m_type != COLOR1) {
+        throw WrongType(COLOR1, m_type);
+    }
+
+    return *(Color1*)m_value;
+}
+
+
+const Color1& AnyVal::color1(const Color1& defaultVal) const {
+    if (m_type != COLOR1) {
+        return defaultVal;
+    } else {
+        return *(Color1*)m_value;
+    }
+}
+
+
+const Color3& AnyVal::color3() const {
+    if (m_type != COLOR3) {
+        throw WrongType(COLOR3, m_type);
+    }
+
+    return *(Color3*)m_value;
+}
+
+
+const Color3& AnyVal::color3(const Color3& defaultVal) const {
+    if (m_type != COLOR3) {
+        return defaultVal;
+    } else {
+        return *(Color3*)m_value;
+    }
+}
+
+
+const Color4& AnyVal::color4() const {
+    if (m_type != COLOR4) {
+        throw WrongType(COLOR4, m_type);
+    }
+
+    return *(Color4*)m_value;
+}
+
+
+const Color4& AnyVal::color4(const Color4& defaultVal) const {
+    if (m_type != COLOR4) {
+        return defaultVal;
+    } else {
+        return *(Color4*)m_value;
     }
 }
 
