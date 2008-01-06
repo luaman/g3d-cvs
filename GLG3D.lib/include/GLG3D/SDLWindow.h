@@ -3,9 +3,9 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2007-06-01
+  @edited  2008-01-01
 
-  Copyright 2000-2007, Morgan McGuire
+  Copyright 2000-2008, Morgan McGuire
   All rights reserved.
 */
 
@@ -14,7 +14,7 @@
 
 #include "G3D/platform.h"
 
-#if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
+#if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 #include "G3D/Queue.h"
 #include "GLG3D/GWindow.h"

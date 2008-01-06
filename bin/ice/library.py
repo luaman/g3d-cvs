@@ -120,7 +120,7 @@ Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['
 Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                []),
 Library('AppleGL',     FRAMEWORK,  None,      None,     'AGL',      'AGL',    ['agl.h'],        ['_aglChoosePixelFormat'],                     []),
 Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['G3D.h'], [],                                                   ['zlib', 'jpeg', 'png', 'zip', 'Cocoa', 'pthread', 'Carbon'] + maybeG3DX11),
-Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'SDL', 'OpenGL', 'GLU', 'AppleGL']),
+Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'OpenGL', 'GLU', 'AppleGL']),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
 Library('IOKit',       FRAMEWORK,  None,     None,       'IOKit',    'IOKit', ['IOHIDKeys.h', 'IOKitLib.h', 'IOHIDLib.h'],  ['IOMasterPort'],  []),

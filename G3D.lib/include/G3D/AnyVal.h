@@ -2,7 +2,7 @@
  @file AnyVal.h
  @author Morgan McGuire
  @created 2006-06-11
- @edited  2007-07-11
+ @edited  2008-01-08
  */
 
 #ifndef G3D_ANYVAL_H
@@ -258,10 +258,11 @@ public:
 
     /** Construct a number */
     AnyVal(double);
+    AnyVal(int);
 
     // Explicit to avoid ambiguity with the 'double' constructor
     // when an integer type is constructed
-    explicit AnyVal(bool);
+    AnyVal(bool);
     AnyVal(const G3D::Vector2&);
     AnyVal(const G3D::Vector3&);
     AnyVal(const G3D::Vector4&);

@@ -4,11 +4,12 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-11-03
- @edited  2007-07-22
+ @edited  2008-01-08
  */
 
 #include "G3D/platform.h"
 
+#include "G3D/AnyVal.h"
 #include "GLG3D/GApp.h"
 #include "G3D/GCamera.h"
 #include "G3D/fileutils.h"
@@ -272,6 +273,9 @@ int GApp::run() {
             ret = -1;
         } catch (const LightweightConduit::PacketSizeException& e) {
             alwaysAssertM(false, e.message);
+            ret = -1;
+        } catch (const AnyVal::WrongType& e) {
+            alwaysAssertM(false, format("AnyVal::WrongType.  Expected %d, got %d.", e.expected, e.actual));
             ret = -1;
         }
     } else {

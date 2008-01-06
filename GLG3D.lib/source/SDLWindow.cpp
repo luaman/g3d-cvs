@@ -3,12 +3,12 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2007-01-30
+  @edited  2008-01-01
 */
 
 #include "G3D/platform.h"
 
-#if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
+#if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 #include "G3D/Log.h"
 #include "G3D/Rect2D.h"

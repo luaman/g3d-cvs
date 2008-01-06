@@ -70,6 +70,11 @@ AnyVal::AnyVal(double v) : m_type(NUMBER), m_referenceCount(NULL) {
 }
 
 
+AnyVal::AnyVal(int v) : m_type(NUMBER), m_referenceCount(NULL) {
+    m_value = new double(v);
+}
+
+
 AnyVal::AnyVal(const Rect2D& v) : m_type(RECT2D), m_referenceCount(NULL) {
     m_value = new Rect2D(v);
 }
