@@ -725,7 +725,7 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 m_value = new CoordinateFrame(m);
                 m_type = COORDINATEFRAME;
 
-            } else if (s == "C3") {
+            } else if (s == "C1") {
 
                 t.readSymbol("(");
                 float v = (float)t.readNumber();
