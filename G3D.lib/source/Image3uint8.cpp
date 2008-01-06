@@ -4,9 +4,10 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2007-01-31
-  @edited  2007-01-31
+  @edited  2008-01-08
 */
 
+#include "G3D/Image1uint8.h"
 #include "G3D/Image3uint8.h"
 #include "G3D/Image3.h"
 #include "G3D/GImage.h"
@@ -192,6 +193,22 @@ void Image3uint8::save(const std::string& filename, GImage::Format fmt) {
     GImage im(width(), height(), 3);
     System::memcpy(im.byte(), getCArray(), width() * height() * 3);
     im.save(filename, fmt);
+}
+
+
+ReferenceCountedPointer<class Image1uint8> Image3uint8::getChannel(int c) const {
+    debugAssert(c >= 0 && c <= 2);
+
+    Image1uint8Ref dst = Image1uint8::createEmpty(width(), height(), wrapMode());
+    const Color3uint8* srcArray = getCArray();
+    Color1uint8* dstArray = dst->getCArray();
+
+    const int N = width() * height();
+    for (int i = 0; i < N; ++i) {
+        dstArray[i] = Color1uint8(srcArray[i][c]);
+    }
+
+    return dst;
 }
 
 } // G3D

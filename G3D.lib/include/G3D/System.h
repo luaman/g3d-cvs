@@ -8,7 +8,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2007-06-14
+  @edited  2008-01-14
  */
 
 #ifndef G3D_SYSTEM_H
@@ -106,6 +106,11 @@ public:
      Returns the endianness of this machine.
      */
     static G3DEndian machineEndian();
+
+    /**
+    Returns the current date as a string in the form YYYY-MM-DD
+    */
+    static std::string currentDateString();
 
     /**
      Guarantees that the start of the array is aligned to the 

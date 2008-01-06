@@ -17,6 +17,7 @@
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> GWindow::create
+     <li> System::currentDateString
      <li> G3D::PosedModel::getBoxBounds on an array
      <li> G3D::PosedModel::getSphereBounds on an array
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files

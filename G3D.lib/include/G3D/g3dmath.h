@@ -395,15 +395,22 @@ inline int pow2(unsigned int x) {
     return 1 << x;
 }
 
+
 /** Log base 2 */
-float log2(float x) {
+inline float log2(float x) {
     return ::logf(x) / ::logf(2.0f);
 }
 
 /** Log base 2 */
-double log2(double x) {
+inline double log2(double x) {
     return ::log(x) / ::log(2.0);
 }
+
+/** Log base 2 */
+inline double log2(int x) {
+    return log2((double)x);
+}
+
 
 /**
  * True if num is a power of two.

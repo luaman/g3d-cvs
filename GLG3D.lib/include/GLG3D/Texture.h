@@ -546,32 +546,32 @@ public:
      */
     void getImage(GImage& dst, const TextureFormat* outFormat = TextureFormat::AUTO()) const;
 
-	/** Extracts the data as TextureFormat::RGBA32F */
+	/** Extracts the data as TextureFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
 	Image4Ref toImage4() const;
 
-	/** Extracts the data as TextureFormat::RGBA8 */
+	/** Extracts the data as TextureFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
 	Image4uint8Ref toImage4uint8() const;
 
-	/** Extracts the data as TextureFormat::RGB32F */
+	/** Extracts the data as TextureFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
 	Image3Ref toImage3() const;
 
-	/** Extracts the data as TextureFormat::RGB8 */
+	/** Extracts the data as TextureFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
 	Image3uint8Ref toImage3uint8() const;
 
-	/** Extracts the data as TextureFormat::L32F
+	/** Extracts the data as TextureFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
 	 */
 	Image1Ref toImage1() const;
 
-	/** Extracts the data as TextureFormat::L8 */
+	/** Extracts the data as TextureFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
 	Image1uint8Ref toImage1uint8() const;
 
-	/** Extracts the data as TextureFormat::DEPTH32F */
+	/** Extracts the data as TextureFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
 	Image1Ref toDepthImage1() const;
 
 	/** Extracts the data as TextureFormat::DEPTH32F */
 	Map2D<float>::Ref toDepthMap() const;
 
-	/** Extracts the data as TextureFormat::DEPTH32F and converts to 8-bit. */
+	/** Extracts the data as TextureFormat::DEPTH32F and converts to 8-bit. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true.*/
 	Image1uint8Ref toDepthImage1uint8() const;
 
     inline unsigned int openGLID() const {

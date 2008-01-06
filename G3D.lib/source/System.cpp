@@ -15,7 +15,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2007-12-17
+  @edited  2008-01-08
  */
 
 #include "G3D/platform.h"
@@ -27,6 +27,7 @@
 #include "G3D/Crypto.h"
 #include "G3D/prompt.h"
 #include "G3D/Log.h"
+#include <time.h>
 
 #include <cstring>
 
@@ -1762,5 +1763,14 @@ std::string System::getClipboardText() {
 #   endif
     return s;
 }
+
+
+std::string System::currentDateString() {
+    time_t t1;
+    ::time(&t1);
+    tm* t = localtime(&t1);
+    return format("%d-%02d-%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday); 
+}
+
 
 }  // namespace

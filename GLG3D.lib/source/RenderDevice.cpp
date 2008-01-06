@@ -21,7 +21,6 @@
 #include "GLG3D/Lighting.h"
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/SuperShader.h" // to purge cache
-#include <time.h>
 #include "GLG3D/GLCaps.h"
 
 namespace G3D {
@@ -2761,17 +2760,6 @@ double RenderDevice::getDepthBufferValue(
 }
 
 
-/**
- Returns the current date as a string in the form YYYY-MM-DD
- */
-static std::string currentDateString() {
-    time_t t1;
-    time(&t1);
-    tm* t = localtime(&t1);
-    return format("%d-%02d-%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday); 
-}
-
-
 void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha) const {
     if (useBackBuffer) {
         glReadBuffer(GL_BACK);
@@ -2839,7 +2827,7 @@ std::string RenderDevice::screenshot(const std::string& filepath) const {
     screenshotPic(screen);
 
     // Save the file
-    std::string basename = currentDateString();
+    std::string basename = System::currentDateString();
     std::string filename;
     i = 0;
     do {
