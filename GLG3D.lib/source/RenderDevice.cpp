@@ -1801,8 +1801,12 @@ void RenderDevice::setShader(const ShaderRef& s) {
     majStateChange();
     
     if (s != state.shader) {
-      debugAssertM(! inShader, "Cannot set the Shader from within a Shader!");
-      state.shader = s;
+        debugAssertM(! inShader, "Cannot set the Shader from within a Shader!");
+        state.shader = s;
+    }
+
+    if (s.isNull()) {
+        setVertexAndPixelShader(NULL);
     }
 }
 
