@@ -228,6 +228,7 @@ href="classes.html">Classes</a>.
          \link G3D::gaussRandom gaussRandom\endlink,
          \link G3D::lerp lerp\endlink,
      \link G3D::linearSpline linearSpline\endlink,
+     \link G3D::log2 log2\endlink,
          \link G3D::sign sign\endlink,
      \link G3D::rsq rsq\endlink,
      \link G3D::uniformRandom uniformRandom\endlink,
