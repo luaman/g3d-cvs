@@ -37,9 +37,9 @@ public:
     float value;
 
     /**
-     Does not initialize fields.
+    Initializes to 0
      */
-    inline Color1() {}
+    inline Color1() : value(0) {}
 
     Color1(class BinaryInput& bi);
 
