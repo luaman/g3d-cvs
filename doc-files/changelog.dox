@@ -17,7 +17,6 @@
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> GWindow::create
-     <li> Added multi-line printing to GConsole
      <li> System::currentDateString
      <li> G3D::PosedModel::getBoxBounds on an array
      <li> G3D::PosedModel::getSphereBounds on an array
@@ -72,6 +71,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Added multi-line printing to GConsole
      <li> Fix: G3D::Texture can now create empty cube maps
      <li> Fix: G3D::Table iterator now correctly parameterized on hashfunction and equality function as well as key and value
      <li> Fix: G3D::Table now passes Values by reference when setting them, avoiding one copy
