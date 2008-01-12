@@ -231,11 +231,8 @@ void GConsole::print(const string& s, const Color4& c) {
         for (int i = 0; i < lines.size() - 1; ++i) {
             print(lines[i] + "\n", c);
         }
-        if (s[s.size() - 1] != '\n') {
-            // The original string did not end in a newline
-            print(lines.last(), c);
-        } else {
-            // Restore the newline from the original string
+
+        if (lines.last() != "") {
             print(lines.last() + "\n", c);
         }
         return;

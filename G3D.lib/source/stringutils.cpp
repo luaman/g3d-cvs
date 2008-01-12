@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2000-09-09
- @edited  2005-09-10
+ @edited  2008-01-10
 */
 
 #include "G3D/platform.h"
@@ -150,19 +150,20 @@ Array<std::string> stringSplit(
     const std::string&          x,
     char                        splitChar) {
 
-    size_t prev, cur = 0;
     Array<std::string> out;
+    int start = 0, stop = 0;
 
-    while (cur < x.size()) {
-        prev = cur;
-        cur = x.find(splitChar, prev + 1);
+    while (start < (int)x.size()) {
+        stop = x.find(splitChar, start);
 
-        if (cur == std::string::npos) {
-            cur = x.size();
+        if (stop == std::string::npos) {
+            stop = x.size() - 1;
         }
 
-        out.append(x.substr(prev, cur - prev));
-        ++cur;
+        // We're stripping the splitting character, so we want 
+        // one less than the length of the found substring.
+        out.append(x.substr(start, stop - start));
+        start = stop + 1;
     }
 
     return out;
