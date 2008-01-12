@@ -221,7 +221,17 @@ void GConsole::print(const string& s) {
     print(s, m_settings.defaultPrintColor);
 }
 
+
 void GConsole::print(const string& s, const Color4& c) {
+    // Break by newlines
+    if (s.find('\n') != 0) {
+        Array<std::string> lines = stringSplit(s, '\n');
+        for (int i = 0; i < lines.size(); ++i) {
+            print(lines[i] + "\n", c);
+        }
+        return;
+    }
+
     addToCompletionHistory(s);
 
     // If the buffer is too long, pop one from the front

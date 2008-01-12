@@ -557,14 +557,14 @@ public:
     }
 
     /** Pixel width */
-    inline uint32 width() const {
-        return w;
+    inline int32 width() const {
+        return (int32)w;
     }
 
 
     /** Pixel height */
-    inline uint32 height() const {
-        return h;
+    inline int32 height() const {
+        return (int32)h;
     }
 
 

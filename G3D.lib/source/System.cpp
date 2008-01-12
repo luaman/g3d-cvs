@@ -1185,9 +1185,9 @@ private:
 
     void flushPool(MemBlock* pool, int& poolSize) {
         for (int i = 0; i < poolSize; ++i) {
-            ::free(pool->ptr);
-            pool->ptr = NULL;
-            pool->bytes = 0;
+            ::free(pool[i].ptr);
+            pool[i].ptr = NULL;
+            pool[i].bytes = 0;
         }
         poolSize = 0;
     }
