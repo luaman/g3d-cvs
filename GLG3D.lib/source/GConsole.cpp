@@ -224,10 +224,19 @@ void GConsole::print(const string& s) {
 
 void GConsole::print(const string& s, const Color4& c) {
     // Break by newlines
-    if (s.find('\n') != 0) {
+    int firstNewline = s.find('\n')
+    if ((firstNewline != -1) && (firstNewline != s.size() - 1)) {
+        // There are newlines in the middle of this string
         Array<std::string> lines = stringSplit(s, '\n');
-        for (int i = 0; i < lines.size(); ++i) {
+        for (int i = 0; i < lines.size() - 1; ++i) {
             print(lines[i] + "\n", c);
+        }
+        if (s[s.size() - 1] != '\n') {
+            // The original string did not end in a newline
+            print(lines.last(), c);
+        } else {
+            // Restore the newline from the original string
+            print(lines.last() + "\n", c);
         }
         return;
     }
