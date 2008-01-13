@@ -273,6 +273,7 @@ Token TextInput::nextToken() {
     case '#':
     case '$':
     case '?':
+    case '%':
         SETUP_SYMBOL(c);
         return t;
 

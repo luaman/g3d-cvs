@@ -45,12 +45,29 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
             m_inDrag = true;
             m_dragStart = mouse;
             m_dragStartValue = v;
+
+            GEvent response;
+            response.gui.type = GEventType::GUI_DOWN;
+            response.gui.control = this;
+            m_gui->fireEvent(response);
+
+            response.gui.type = GEventType::GUI_CHANGE;
+            response.gui.control = this;
+            m_gui->fireEvent(response);
+
             return true;
         } else if (trackRect.contains(mouse)) {
             // Jump to this position
             float p = clamp((mouse.x - trackRect.x0()) / trackRect.width(), 0.0f, 1.0f);
             setFloatValue(p);
             m_inDrag = false;
+
+            GEvent response;
+            response.gui.type = GEventType::GUI_CHANGE;
+            response.gui.control = this;
+            m_gui->fireEvent(response);
+
+            fireActionEvent();
             return true;
         }
 
@@ -58,6 +75,13 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
         if (m_inDrag) {
             // End the drag
             m_inDrag = false;
+
+            GEvent response;
+            response.gui.type = GEventType::GUI_DOWN;
+            response.gui.control = this;
+            m_gui->fireEvent(response);
+            fireActionEvent();
+
             return true;
         }
 
@@ -71,6 +95,11 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
         float delta = (mouse.x - m_dragStart.x) / trackRect.width();
         float p = clamp(m_dragStartValue + delta, 0.0f, 1.0f);
         setFloatValue(p);
+
+        GEvent response;
+        response.gui.type = GEventType::GUI_CHANGE;
+        response.gui.control = this;
+        m_gui->fireEvent(response);
 
         return true;
     }

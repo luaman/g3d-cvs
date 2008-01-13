@@ -32,9 +32,12 @@
      <li> G3D::SuperShader::Pass::purgeCache
      <li> G3D::VertexAndPixelShader::ArgList::remove
      <li> G3D::GLight::effectSphere
+     <li> G3D::GuiWindow::moveTo
+     <li> G3D::GuiSlider now fires events on change and drag
      <li> G3D::Shader arguments (in G3D::VertexAndPixelShader::ArgList) may now be "optional"
      <li> G3D::GLight::point now has quadratic attenuation by default.
      <li> G3D::TextureFormat::name
+     <li> g3dmath.h now includes inttypes.h on gcc and simulates it on visual studio
      <li> G3D::RenderDevice::cullFace
      <li> G3D::BinaryInput::setEndian
      <li> G3D::GEvent::MOUSE_BUTTON_CLICK
@@ -71,6 +74,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Added % operator to TextInput
      <li> Fix: Added multi-line printing to GConsole
      <li> Fix: G3D::Texture can now create empty cube maps
      <li> Fix: G3D::Table iterator now correctly parameterized on hashfunction and equality function as well as key and value

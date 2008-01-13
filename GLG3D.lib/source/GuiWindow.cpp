@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2007-06-10
+ @edited  2008-01-12
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiWindow.h"
@@ -360,6 +360,12 @@ rd->beginPrimitive(RenderDevice::QUADS);
     m_skin->endRendering();
     
 }
+
+
+void GuiWindow::moveTo(const Vector2& position) {
+    setRect(Rect2D::xywh(position, rect().wh()));
+}
+
 
 void GuiWindow::moveToCenter() {
     if (window() != NULL) {

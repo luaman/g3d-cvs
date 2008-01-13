@@ -278,6 +278,8 @@ public:
     /** Move to the center of the screen */
     void moveToCenter();
 
+    void moveTo(const Vector2& position);
+
     /**
        Causes the window to change shape and/or position to meet the
        specified location.  The window will not respond to drag events

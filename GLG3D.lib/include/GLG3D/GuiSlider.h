@@ -50,7 +50,13 @@ protected:
 };
 
 
-/** Slider.  See GuiWindow for an example of creating a slider. */
+/** Slider.  See GuiWindow for an example of creating a slider. 
+
+    Fires GEventType::GUI_ACTION when the thumb is released.
+    Fires GEventType::GUI_CHANGE during scrolling.
+    Fires GEventType::GUI_DOWN when the mouse is pressed down.
+    Fires GEventType::GUI_UP when the mouse is released.
+*/
 template<class Value>
 class GuiSlider : public _GuiSliderBase {
     friend class GuiPane;
