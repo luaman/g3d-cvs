@@ -62,7 +62,6 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
             setFloatValue(p);
             m_inDrag = false;
 
-            GEvent response;
             response.gui.type = GEventType::GUI_CHANGE;
             response.gui.control = this;
             m_gui->fireEvent(response);
