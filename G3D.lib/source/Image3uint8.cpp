@@ -18,6 +18,11 @@
 
 namespace G3D {
 
+Image3uint8::Ref Image3uint8::fromImage1uint8(const ReferenceCountedPointer<class Image1uint8>& im) {
+    return fromArray(im->getCArray(), im->width(), im->height(), im->wrapMode());
+}
+
+
 Image3uint8::Image3uint8(int w, int h, WrapMode wrap) : Map2D<Color3uint8>(w, h, wrap) {
     setAll(Color3::black());
 }

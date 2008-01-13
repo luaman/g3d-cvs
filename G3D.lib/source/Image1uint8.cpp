@@ -4,10 +4,11 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2007-01-31
-  @edited  2007-01-31
+  @edited  2008-01-13
 */
 
 #include "G3D/Image1uint8.h"
+#include "G3D/Image3uint8.h"
 #include "G3D/Image1.h"
 #include "G3D/GImage.h"
 #include "G3D/Color1.h"
@@ -19,6 +20,11 @@ namespace G3D {
 
 Image1uint8::Image1uint8(int w, int h, WrapMode wrap) : Map2D<Color1uint8, Color1>(w, h, wrap) {
     setAll(Color1uint8(0));
+}
+
+
+Image1uint8::Ref Image1uint8::fromImage3uint8(const ReferenceCountedPointer<class Image3uint8>& im) {
+    return fromArray(im->getCArray(), im->width(), im->height(), im->wrapMode());
 }
 
 

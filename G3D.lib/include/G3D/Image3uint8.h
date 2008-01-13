@@ -65,6 +65,7 @@ public:
     static Ref fromArray(const class Color4* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
 
     static Ref fromImage3(const ReferenceCountedPointer<class Image3>& im);
+    static Ref fromImage1uint8(const ReferenceCountedPointer<class Image1uint8>& im);
 
     /** Loads from any of the file formats supported by G3D::GImage.  If there is an alpha channel on the input,
         it is stripped. */
