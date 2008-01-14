@@ -430,6 +430,13 @@ public:
         setChanged(true);
     }
 
+    /** flips if @a flip is true*/
+    void maybeFlipVertical(bool flip) {
+        if (flip) {
+            flipVertical();
+        }
+    }
+
 	void flipVertical() {
 		int halfHeight = h/2;
 		Storage* d = data.getCArray();
@@ -475,6 +482,27 @@ public:
         return nearest(p.x, p.y);
     }
 
+    /** Returns the average value of all elements of the map */
+    Compute average() const {
+        if ((w == 0) || (h == 0)) {
+            return ZERO;
+        }
+
+        // To avoid overflows, compute the average of row averages
+
+        Compute rowSum = ZERO;
+        for (int y = 0; y < h; ++y) {
+            Compute sum = ZERO;
+            int offset = y * w;
+            for (int x = 0; x < w; ++x) {
+                sum += Compute(data[offset + x]);
+            }
+            rowSum += sum * (1.0f / w);
+        }
+
+        return rowSum * (1.0f / h);
+    }
+
     /** 
       Needs to access elements from (floor(x), floor(y))
       to (floor(x) + 1, floor(y) + 1) and will use
@@ -514,7 +542,6 @@ public:
     inline Compute bilinear(const Vector2& p, WrapMode wrap) const {
         return bilinear(p.x, p.y, wrap);
     }
-
 
     /**
      Uses Catmull-Rom splines to interpolate between grid
