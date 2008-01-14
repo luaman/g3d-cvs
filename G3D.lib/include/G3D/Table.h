@@ -18,6 +18,7 @@
 #include "G3D/debug.h"
 #include "G3D/System.h"
 #include "G3D/g3dmath.h"
+#include "G3D/Vector2int16.h"
 #include "G3D/Crypto.h"
 #include <cstddef>
 #include <string>
@@ -74,12 +75,19 @@ struct GHashCode<std::string>
     size_t operator()(const std::string& key) const { return static_cast<size_t>(G3D::Crypto::crc32(key.c_str(), key.size())); }
 };
 
+template <>
+struct GHashCode<G3D::Vector2int16>
+{
+    size_t operator()(const G3D::Vector2int16& key) const { return static_cast<size_t>(key.x + ((int)key.y >> 16)); }
+};
+
 template<typename Key>
 struct GEquals{
     bool operator()(const Key& a, const Key& b) const {
         return a == b;
     }
 };
+
 
 
 namespace G3D {

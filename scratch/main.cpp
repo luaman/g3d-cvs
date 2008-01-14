@@ -178,6 +178,5 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    Array<std::string> x = stringSplit("1\n2\n\n", '\n');
     return App().run();
 }

@@ -437,7 +437,7 @@ public:
         }
     }
 
-	void flipVertical() {
+	virtual void flipVertical() {
 		int halfHeight = h/2;
 		Storage* d = data.getCArray();
 		for (int y = 0; y < halfHeight; ++y) {
@@ -451,9 +451,10 @@ public:
 				d[i2] = temp;
 			}
 		}
+        setChanged(true);
 	}
 
-	void flipHorizontal() {
+	virtual void flipHorizontal() {
 		int halfWidth = w / 2;
 		Storage* d = data.getCArray();
 		for (int x = 0; x < halfWidth; ++x) {
@@ -465,7 +466,28 @@ public:
 				d[i2] = temp;
 			}
 		}
+        setChanged(true);
 	}
+
+    /**
+     Crops this map so that it only contains pixels between (x, y) and (x + w - 1, y + h - 1) inclusive.
+     */
+    virtual void crop(int newX, int newY, int newW, int newH) {
+        alwaysAssertM(newX + newW <= (int)w, "Cannot grow when cropping");
+        alwaysAssertM(newY + newH <= (int)h, "Cannot grow when cropping");
+        alwaysAssertM(newX >= 0 && newY >= 0, "Origin out of bounds.");
+
+        // Always safe to copy towards the upper left, provided 
+        // that we're iterating towards the lower right.  This lets us avoid
+        // reallocating the underlying array.
+        for (int y = 0; y < newH; ++y) {
+            for (int x = 0; x < newW; ++x) {
+                data[x + y * newW] = data[(x + newX) + (y + newY) * w];
+            }
+        }
+
+        resize(newW, newH);
+    }
 
     /** Returns the nearest neighbor.  Pixel values are considered
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
@@ -491,10 +513,10 @@ public:
         // To avoid overflows, compute the average of row averages
 
         Compute rowSum = ZERO;
-        for (int y = 0; y < h; ++y) {
+        for (unsigned int y = 0; y < h; ++y) {
             Compute sum = ZERO;
             int offset = y * w;
-            for (int x = 0; x < w; ++x) {
+            for (unsigned int x = 0; x < w; ++x) {
                 sum += Compute(data[offset + x]);
             }
             rowSum += sum * (1.0f / w);
