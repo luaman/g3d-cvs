@@ -554,6 +554,9 @@ public:
         return toString(name);
     }
 
+    /** 2-norm squared: sum(squares). (i.e., dot product with itself) */
+    double normSquared() const;
+
     /** 2-norm (sqrt(sum(squares)) */
     double norm() const;
 

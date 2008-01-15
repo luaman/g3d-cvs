@@ -503,7 +503,7 @@ COMPARE_SCALAR(!=)
 
 #undef COMPARE_SCALAR
 
-double Matrix::norm() const {
+double Matrix::normSquared() const {
     int R = rows();
     int C = cols();
     int N = R * C;
@@ -515,7 +515,11 @@ double Matrix::norm() const {
         sum += square(raw[i]);
     }
 
-    return sqrt(sum);
+    return sum;
+}
+
+double Matrix::norm() const {
+    return sqrt(norm());
 }
 
 ///////////////////////////////////////////////////////////

@@ -489,6 +489,11 @@ public:
         resize(newW, newH);
     }
 
+    /** iRounds to the nearest x0 and y0. */
+    virtual void crop(const Rect2D& rect) {
+        crop(iRound(rect.x0()), iRound(rect.y0()), iRound(rect.x1()) - iRound(rect.x0()), iRound(rect.y1()) - iRound(rect.y0()));
+    }
+
     /** Returns the nearest neighbor.  Pixel values are considered
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
       */

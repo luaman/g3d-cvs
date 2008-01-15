@@ -107,6 +107,14 @@ public:
         return ((int32*)this)[0] != ((int32*)&rkVector)[0];
     }
 
+    Vector2int16 max(const Vector2int16& v) const {
+        return Vector2int16(iMax(x, v.x), iMax(y, v.y));
+    }
+
+    Vector2int16 min(const Vector2int16& v) const {
+        return Vector2int16(iMin(x, v.x), iMin(y, v.y));
+    }
+
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);
 }

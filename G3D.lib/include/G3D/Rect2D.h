@@ -115,7 +115,8 @@ public:
     /** Creates a rectangle at 0,0 with the given width and height*/
     inline Rect2D(const Vector2& wh) : min(0, 0), max(wh.x, wh.y) {}
 
-    /** Computes a rectangle that contains both @a a and @a b.*/
+    /** Computes a rectangle that contains both @a a and @a b.  
+        Note that even if @a or @b has zero area, its origin will be included.*/
     inline Rect2D(const Rect2D& a, const Rect2D& b) {
         min = a.min.min(b.min);
         max = a.max.max(b.max);
@@ -275,8 +276,8 @@ public:
     }
 
 
-    /** Returns a new Rect2D that is bigger/smaller by the specified amount 
-        (negative is shrink.) */
+    /** @deprecated  
+     @sa expand() */
     inline Rect2D border(float delta) const {
         return Rect2D::xywh(x0() + delta, 
                      y0() + delta, 
@@ -284,6 +285,25 @@ public:
                      height() - 2.0f * delta);
     }
 
+    /** Returns a new Rect2D that is bigger/smaller by the specified amount 
+        (negative is shrink.) */
+    inline Rect2D expand(float delta) const {
+        float newX = x0() - delta;
+        float newY = y0() - delta;
+        float newW = width() + 2.0f * delta;
+        float newH = height() + 2.0f * delta;
+
+        if (newW < 0.0f) {
+            newX = (x0() + width()) / 2.0f;
+            newW = 0.0f;
+        }
+
+        if (newH < 0.0f) {
+            newY = (y0() + height()) / 2.0f;
+            newH = 0.0f;
+        }
+        return Rect2D::xywh(newX, newY, newW, newH);
+    }
 
     /** 
      Clips so that the rightmost point of the outPoly is at rect.x1 (e.g. a 800x600 window produces

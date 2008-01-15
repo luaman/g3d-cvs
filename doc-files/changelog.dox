@@ -74,6 +74,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Rect2D::border now grows the correct way (positive = grow)
      <li> Fix: Added % operator to TextInput
      <li> Fix: Added multi-line printing to GConsole
      <li> Fix: G3D::Texture can now create empty cube maps
