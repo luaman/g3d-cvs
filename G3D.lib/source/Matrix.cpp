@@ -411,6 +411,7 @@ Matrix Matrix::subMatrix(int r1, int r2, int c1, int c2) const {
     return X;
 }
 
+
 bool Matrix::anyNonZero() const {
     return impl->anyNonZero();
 }
@@ -519,7 +520,7 @@ double Matrix::normSquared() const {
 }
 
 double Matrix::norm() const {
-    return sqrt(norm());
+    return sqrt(normSquared());
 }
 
 ///////////////////////////////////////////////////////////
@@ -565,8 +566,9 @@ void Matrix::Impl::setSize(int newRows, int newCols) {
     }
 
     // Construct the row pointers
-    delete[] elt;
-    elt = new T*[R];
+    //delete[] elt;
+    System::free(elt);
+    elt = (T**)System::malloc(R * sizeof(T*));// new T*[R];
 
     for (int r = 0; r < R; ++ r) {
         elt[r] = data + r * C;
@@ -575,7 +577,8 @@ void Matrix::Impl::setSize(int newRows, int newCols) {
 
 
 Matrix::Impl::~Impl() {
-    delete[] elt;
+    //delete[] elt;
+    System::free(elt);
     System::alignedFree(data);
 }
 
@@ -879,17 +882,25 @@ void Matrix::Impl::withoutRowAndCol(int excludeRow, int excludeCol, Impl& out) c
 
 
 Matrix Matrix::pseudoInverse(float tolerance) const {
+    return generalPseudoInverse(tolerance);
+}
+
+
+Matrix Matrix::generalPseudoInverse(float tolerance) const {
     if (cols() > rows()) {
         return transpose().pseudoInverse(tolerance).transpose();
     }
 
+    // Matrices from SVD
     Matrix U, V;
+
+    // Diagonal elements
     Array<T> d;
 
     svd(U, d, V);
 
     if (rows() == 1) {
-        d.resize(1);
+        d.resize(1, false);
     }
 
     if (tolerance < 0) {
@@ -912,12 +923,76 @@ Matrix Matrix::pseudoInverse(float tolerance) const {
         X = zero(cols(), rows());
     } else {
         // Use the first r columns
-        U = U.subMatrix(0, U.rows() - 1, 0, r - 1).transpose();
-        V = V.subMatrix(0, V.rows() - 1, 0, r - 1);
-
+        
+        // Test code (the rest is below)
+        /*
         d.resize(r);
+        Matrix testU = U.subMatrix(0, U.rows() - 1, 0, r - 1);
+        Matrix testV = V.subMatrix(0, V.rows() - 1, 0, r - 1);
+        Matrix testX = testV * Matrix::fromDiagonal(d) * testU.transpose();
+        X = testX;
+        */
+        
 
-        X = V * Matrix::fromDiagonal(d) * U;
+        // We want to do this:
+        //
+        //   d.resize(r);
+        //   U = U.subMatrix(0, U.rows() - 1, 0, r - 1);
+        //   X = V * Matrix::fromDiagonal(d) * U.transpose();
+        //
+        // but creating a large diagonal matrix and then
+        // multiplying by it is wasteful.  So we instead
+        // explicitly perform A = (D * U')' = U * D, and 
+        // then multiply X = V * A'.
+
+        Matrix A = Matrix(U.rows(), r);
+
+        const T* dPtr = d.getCArray();
+        T** Uelt = U.impl->elt;
+        for (int i = 0; i < A.rows(); ++i) {
+            const T* Urow = U.impl->elt[i];
+            T* Arow = A.impl->elt[i];
+            const int Acols = A.cols();
+            for (int j = 0; j < Acols; ++j) {
+                // A(i,j) = U(i,:) * D(:,j)
+                // This is non-zero only at j = i because D is diagonal
+                // A(i,j) = U(i,j) * D(j,j)
+                Arow[j] = Urow[j] * dPtr[j];
+            }
+        }
+
+        //
+        // Compute X = V.subMatrix(0, V.rows() - 1, 0, r - 1) * A.transpose()
+        // 
+        // Avoid the explicit subMatrix call, and by storing A' instead of A, avoid
+        // both the transpose and the memory incoherence of striding across memory
+        // in big steps.
+
+        alwaysAssertM(A.cols() == r, 
+            "Internal dimension mismatch during pseudoInverse()");
+        alwaysAssertM(V.cols() >= r, 
+            "Internal dimension mismatch during pseudoInverse()");
+
+        X = Matrix(V.rows(), A.rows());
+        T** Xelt = X.impl->elt;
+        for (int i = 0; i < X.rows(); ++i) {
+            const T* Vrow = V.impl->elt[i];
+            for (int j = 0; j < X.cols(); ++j) {
+                const T* Arow = A.impl->elt[j];
+                T sum = 0;
+                for (int k = 0; k < r; ++k) {
+                    sum += Vrow[k] * Arow[k];
+                }
+                Xelt[i][j] = sum;
+            }
+        }
+
+        /*
+        // Test that results are the same after optimizations:
+        Matrix diff = X - testX;
+        T n = diff.norm();
+        debugAssert(n < 0.0001);
+        */
     }
 
     return X;

@@ -258,6 +258,9 @@ private:
         }
     };
 
+    /** Called from pseudoInverse when the matrix has size > 4 along some dimension.*/
+    Matrix generalPseudoInverse(float tolerance = -1) const;
+
 public:
 
     Matrix() : impl(new Impl(0, 0)) {}

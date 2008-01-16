@@ -10,6 +10,7 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include <conio.h>
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -178,5 +179,29 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    return App().run();
+//    return App().run();
+
+    Matrix M = Matrix::random(20, 10);
+
+    const int runs = 50000;
+
+    RealTime t0 = System::time();   
+    for (int i = 0; i < runs; ++i) {
+        Matrix Minv = M.pseudoInverse();
+    }
+    t0 = System::time() - t0;
+
+    M = M.transpose();
+
+    RealTime t1 = System::time();
+    for (int i = 0; i < runs; ++i) {
+        Matrix Minv = M.pseudoInverse();
+    }
+    t1 = System::time() - t1;
+
+    printf("Tall inverse time: %f/%d = %fs\n", t0, runs, t0 / runs);
+    printf("Fat inverse time:  %f/%d = %fs\n", t1, runs, t1 / runs);
+    _getch();
+
+    return 0;
 }

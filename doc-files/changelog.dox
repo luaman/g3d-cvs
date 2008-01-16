@@ -31,6 +31,7 @@
      <li> G3D::Draw::lighting for visualizing light sources
      <li> G3D::SuperShader::Pass::purgeCache
      <li> G3D::VertexAndPixelShader::ArgList::remove
+     <li> Optimized G3D::Matrix::pseudoInverse; now about 2x faster
      <li> G3D::GLight::effectSphere
      <li> G3D::GuiWindow::moveTo
      <li> G3D::GuiSlider now fires events on change and drag
