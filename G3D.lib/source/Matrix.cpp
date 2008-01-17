@@ -882,14 +882,23 @@ void Matrix::Impl::withoutRowAndCol(int excludeRow, int excludeCol, Impl& out) c
 
 
 Matrix Matrix::pseudoInverse(float tolerance) const {
-    return generalPseudoInverse(tolerance);
+    if ((cols() == 1) || (rows() == 1)) {
+        return vectorPseudoInverse();
+    } else if ((cols() <= 4) || (rows() <= 4)) {
+        return partitionPseudoInverse();
+    } else {
+        return svdPseudoInverse(tolerance);
+    }
 }
 
-
-Matrix Matrix::generalPseudoInverse(float tolerance) const {
-    if (cols() > rows()) {
-        return transpose().pseudoInverse(tolerance).transpose();
-    }
+/*
+    Public function for testing purposes only. Use pseudoInverse(), as it contains optimizations for 
+    nonsingular matrices with at least one small (<5) dimension.
+*/
+Matrix Matrix::svdPseudoInverse(float tolerance) const {
+   	if (cols() > rows()) {
+		return transpose().svdPseudoInverse(tolerance).transpose();
+	}
 
     // Matrices from SVD
     Matrix U, V;
@@ -897,32 +906,32 @@ Matrix Matrix::generalPseudoInverse(float tolerance) const {
     // Diagonal elements
     Array<T> d;
 
-    svd(U, d, V);
+	svd(U, d, V);
 
     if (rows() == 1) {
         d.resize(1, false);
     }
 
-    if (tolerance < 0) {
-        // TODO: Should be eps(d[0]), which is the largest diagonal
-        tolerance = G3D::max(rows(), cols()) * 0.0001f;
-    }
+	if (tolerance < 0) {
+		// TODO: Should be eps(d[0]), which is the largest diagonal
+		tolerance = G3D::max(rows(), cols()) * 0.0001f;
+	}
 
-    Matrix X;
+	Matrix X;
 
-    int r = 0;
-    for (int i = 0; i < d.size(); ++i) {
-        if (d[i] > tolerance) {
+	int r = 0;
+	for (int i = 0; i < d.size(); ++i) {
+		if (d[i] > tolerance) {
 			d[i] = Matrix::T(1) / d[i];
-            ++r;
-        }
-    }
+			++r;
+		}
+	}
 
-    if (r == 0) {
-        // There were no non-zero elements
-        X = zero(cols(), rows());
-    } else {
-        // Use the first r columns
+	if (r == 0) {
+		// There were no non-zero elements
+		X = zero(cols(), rows());
+	} else {
+		// Use the first r columns
         
         // Test code (the rest is below)
         /*
@@ -994,8 +1003,344 @@ Matrix Matrix::generalPseudoInverse(float tolerance) const {
         debugAssert(n < 0.0001);
         */
     }
+	return X;
+}
 
-    return X;
+// Computes pseudoinverse for a vector
+Matrix Matrix::vectorPseudoInverse() const {
+    // If vector A has nonzero elements: transpose A, then divide each elt. by the squared norm
+    // If A is zero vector: transpose A
+    float x;
+    if(anyNonZero()) {
+        x = 1.0f/normSquared();
+    } else {
+        x = 0.0f;
+    }
+    Impl* A = new Impl(cols(), rows());
+    for (int r = 0; r < rows(); ++r) {
+        for (int c = 0; c < cols(); ++c) {
+            A->set(c, r, get(r, c) * x); 
+        }
+    }
+    return Matrix(A);
+}
+
+Matrix Matrix::rowPartPseudoInverse() const{
+    int m = rows();
+    int n = cols();
+    alwaysAssertM((m<=n),"Row-partitioned block matrix pseudoinverse requires R<C");
+
+    // B = A * A'
+    Matrix A = *this;
+    Matrix B = Matrix(m,m);
+
+    T** Aelt = A.impl->elt;
+    T** Belt = B.impl->elt;
+    for (int i = 0; i < m; ++i) {
+        const T* Arow = Aelt[i];
+        for (int j = 0; j < m; ++j) {
+            const T* Brow = Aelt[j];
+            T sum = 0;
+            for (int k = 0; k < n; ++k) {
+                sum += Arow[k] * Brow[k];
+            }
+            Belt[i][j] = sum;
+        }
+    }
+    
+    // B has size m x m
+    switch (m) {
+    case 2:
+        return row2PseudoInverse(B);
+
+    case 3:
+        return row3PseudoInverse(B);
+
+    case 4:
+        return row4PseudoInverse(B);
+
+    default:
+        alwaysAssertM(false, "G3D internal error: Should have used the vector or general case!");
+        return Matrix();
+    }
+}
+
+Matrix Matrix::colPartPseudoInverse() const{
+    int m = rows();
+    int n = cols();
+    alwaysAssertM((m>=n),"Column-partitioned block matrix pseudoinverse requires R>C");
+    // TODO: Put each of the individual cases in its own helper function
+    // TODO: Push the B computation down into the individual cases
+    // B = A' * A
+    Matrix A = *this;
+    Matrix B = Matrix(n, n);
+    T** Aelt = A.impl->elt;
+    T** Belt = B.impl->elt;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            T sum = 0;
+            for (int k = 0; k < m; ++k) {
+                sum += Aelt[k][i] * Aelt[k][j];
+            }
+            Belt[i][j] = sum;
+        }
+    }
+
+    // B has size n x n
+    switch (n) {
+    case 2:
+        return col2PseudoInverse(B);
+
+    case 3:
+        return col3PseudoInverse(B);
+
+    case 4:
+        return col4PseudoInverse(B);
+
+    default:
+        alwaysAssertM(false, "G3D internal error: Should have used the vector or general case!");
+        return Matrix();
+    }
+}
+
+Matrix Matrix::col2PseudoInverse(const Matrix& B) const {
+
+    Matrix A = *this;
+    int m = rows();
+    int n = cols();
+
+    // Row-major 2x2 matrix
+    const float B2[2][2] = 
+       {{B.get(0,0), B.get(0,1)}, 
+        {B.get(1,0), B.get(1,1)}};
+
+    float det = (B2[0][0]*B2[1][1]) - (B2[0][1]*B2[1][0]);
+
+    if (fuzzyEq(det, T(0))) {
+        
+        // Matrix was singular; the block matrix pseudo-inverse can't
+        // handle that, so fall back to the old case
+        return svdPseudoInverse();
+
+    } else {
+        // invert using formula at http://www.netsoc.tcd.ie/~jgilbert/maths_site/applets/algebra/matrix_inversion.html
+
+        // Multiply by Binv * A'
+        Matrix X(cols(), rows());
+
+        T** Xelt = X.impl->elt;
+        T** Aelt = A.impl->elt;
+        float binv00 =  B2[1][1]/det, binv01 = -B2[1][0]/det;
+        float binv10 = -B2[0][1]/det, binv11 =  B2[0][0]/det;
+        for (int j = 0; j < m; ++j) {
+            const T* Arow = Aelt[j];
+            float a0 = Arow[0];
+            float a1 = Arow[1];
+            Xelt[0][j] = binv00 * a0 + binv01 * a1;
+            Xelt[1][j] = binv10 * a0 + binv11 * a1;
+        }
+        return X;
+    }
+}
+
+Matrix Matrix::col3PseudoInverse(const Matrix& B) const {
+    Matrix A = *this;
+    int m = rows();
+    int n = cols();
+
+    Matrix3 B3 = B.toMatrix3(); 
+    if (fuzzyEq(B3.determinant(), (T)0.0)) {
+
+        // Matrix was singular; the block matrix pseudo-inverse can't
+        // handle that, so fall back to the old case
+        return svdPseudoInverse();
+
+    } else {
+        Matrix3 B3inv = B3.inverse();
+
+        // Multiply by Binv * A'
+        Matrix X(cols(), rows());
+
+        T** Xelt = X.impl->elt;
+        T** Aelt = A.impl->elt;
+        for (int i = 0; i < n; ++i) {
+            T* Xrow = Xelt[i];
+            for (int j = 0; j < m; ++j) {
+                const T* Arow = Aelt[j];
+                T sum = 0;
+                const float* Binvrow = B3inv[i];
+                for (int k = 0; k < n; ++k) {
+                    sum += Binvrow[k] * Arow[k];
+                }
+                Xrow[j] = sum;
+            }
+        }
+        return X;
+    }
+}
+
+Matrix Matrix::col4PseudoInverse(const Matrix& B) const {
+    Matrix A = *this;
+    int m = rows();
+    int n = cols();
+
+    Matrix4 B4 = B.toMatrix4(); 
+    if (fuzzyEq(B4.determinant(), (T)0.0)) {
+
+        // Matrix was singular; the block matrix pseudo-inverse can't
+        // handle that, so fall back to the old case
+        return svdPseudoInverse();
+
+    } else {
+        Matrix4 B4inv = B4.inverse();
+
+        // Multiply by Binv * A'
+        Matrix X(cols(), rows());
+
+        T** Xelt = X.impl->elt;
+        T** Aelt = A.impl->elt;
+        for (int i = 0; i < n; ++i) {
+            T* Xrow = Xelt[i];
+            for (int j = 0; j < m; ++j) {
+                const T* Arow = Aelt[j];
+                T sum = 0;
+                const float* Binvrow = B4inv[i];
+                for (int k = 0; k < n; ++k) {
+                    sum += Binvrow[k] * Arow[k];
+                }
+                Xrow[j] = sum;
+            }
+        }
+        return X;
+    }
+}
+
+Matrix Matrix::row2PseudoInverse(const Matrix& B) const {
+
+    Matrix A = *this;
+    int m = rows();
+    int n = cols();
+
+    // Row-major 2x2 matrix
+    const float B2[2][2] = 
+       {{B.get(0,0), B.get(0,1)}, 
+        {B.get(1,0), B.get(1,1)}};
+
+    float det = (B2[0][0]*B2[1][1]) - (B2[0][1]*B2[1][0]);
+
+    if (fuzzyEq(det, T(0))) {
+        
+        // Matrix was singular; the block matrix pseudo-inverse can't
+        // handle that, so fall back to the old case
+        return svdPseudoInverse();
+
+    } else {
+        // invert using formula at http://www.netsoc.tcd.ie/~jgilbert/maths_site/applets/algebra/matrix_inversion.html
+
+        // Multiply by Binv * A'
+        Matrix X(cols(), rows());
+
+        T** Xelt = X.impl->elt;
+        T** Aelt = A.impl->elt;
+        float binv00 =  B2[1][1]/det, binv01 = -B2[1][0]/det;
+        float binv10 = -B2[0][1]/det, binv11 =  B2[0][0]/det;
+        for (int j = 0; j < n; ++j) {
+            Xelt[j][0] = Aelt[0][j] * binv00 + Aelt[1][j] * binv10;
+            Xelt[j][1] = Aelt[0][j] * binv01 + Aelt[1][j] * binv11;
+        }
+        return X;
+    }
+}
+
+Matrix Matrix::row3PseudoInverse(const Matrix& B) const {
+
+    Matrix A = *this;
+    int m = rows();
+    int n = cols();
+
+    Matrix3 B3 = B.toMatrix3(); 
+    if (fuzzyEq(B3.determinant(), (T)0.0)) {
+
+        // Matrix was singular; the block matrix pseudo-inverse can't
+        // handle that, so fall back to the old case
+        return svdPseudoInverse();
+
+    } else {
+        Matrix3 B3inv = B3.inverse();
+
+        // Multiply by Binv * A'
+        Matrix X(cols(), rows());
+
+        T** Xelt = X.impl->elt;
+        T** Aelt = A.impl->elt;
+        for (int i = 0; i < n; ++i) {
+            T* Xrow = Xelt[i];
+            for (int j = 0; j < m; ++j) {
+                T sum = 0;
+                for (int k = 0; k < m; ++k) {
+                    sum += Aelt[k][i] * B3inv[j][k];
+                }
+                Xrow[j] = sum;
+            }
+        }
+        return X;
+    }
+}
+
+Matrix Matrix::row4PseudoInverse(const Matrix& B) const {
+
+    Matrix A = *this;
+    int m = rows();
+    int n = cols();
+
+    Matrix4 B4 = B.toMatrix4(); 
+    if (fuzzyEq(B4.determinant(), (T)0.0)) {
+
+        // Matrix was singular; the block matrix pseudo-inverse can't
+        // handle that, so fall back to the old case
+        return svdPseudoInverse();
+
+    } else {
+        Matrix4 B4inv = B4.inverse();
+
+        // Multiply by Binv * A'
+        Matrix X(cols(), rows());
+
+        T** Xelt = X.impl->elt;
+        T** Aelt = A.impl->elt;
+        for (int i = 0; i < n; ++i) {
+            T* Xrow = Xelt[i];
+            for (int j = 0; j < m; ++j) {
+                T sum = 0;
+                for (int k = 0; k < m; ++k) {
+                    sum += Aelt[k][i] * B4inv[j][k];
+                }
+                Xrow[j] = sum;
+            }
+        }
+        return X;
+    }
+}
+
+// Uses the block matrix pseudoinverse to compute the pseudoinverse of a full-rank mxn matrix with m >= n
+// http://en.wikipedia.org/wiki/Block_matrix_pseudoinverse
+Matrix Matrix::partitionPseudoInverse() const {
+
+    // Logic:
+    // A^-1 = (A'A)^-1 A'
+    // A has few (n) columns, so A'A is small (n x n) and fast to invert
+    
+    int m = rows();
+    int n = cols();
+
+    if (m < n) {
+        // TODO: optimize by pushing through the transpose
+        //return transpose().partitionPseudoInverse().transpose();
+        return rowPartPseudoInverse();
+
+    } else {
+        return colPartPseudoInverse();
+    }
 }
 
 void Matrix::Impl::inverseInPlaceGaussJordan() {

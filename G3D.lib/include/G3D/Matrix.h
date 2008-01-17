@@ -258,8 +258,17 @@ private:
         }
     };
 
-    /** Called from pseudoInverse when the matrix has size > 4 along some dimension.*/
-    Matrix generalPseudoInverse(float tolerance = -1) const;
+    Matrix vectorPseudoInverse() const;
+    Matrix partitionPseudoInverse() const;
+    Matrix colPartPseudoInverse() const;
+    Matrix rowPartPseudoInverse() const;
+
+    Matrix col2PseudoInverse(const Matrix& B) const;
+    Matrix col3PseudoInverse(const Matrix& B) const;
+    Matrix col4PseudoInverse(const Matrix& B) const;
+    Matrix row2PseudoInverse(const Matrix& B) const;
+    Matrix row3PseudoInverse(const Matrix& B) const;
+    Matrix row4PseudoInverse(const Matrix& B) const;
 
 public:
 
@@ -484,6 +493,9 @@ public:
      @param tolerance Use -1 for automatic tolerance.
      */
     Matrix pseudoInverse(float tolerance = -1) const;
+
+    /** Called from pseudoInverse when the matrix has size > 4 along some dimension.*/
+    Matrix svdPseudoInverse(float tolerance = -1) const;
 
     /**
      (A<SUP>T</SUP>A)<SUP>-1</SUP>A<SUP>T</SUP>) computed

@@ -1,6 +1,56 @@
 #include "G3D/G3DAll.h"
 
 
+void testPseudoInverse() {
+    float normThreshold = 0.0001f;
+
+    for(int n = 4; n <= 30; ++n) {
+        Matrix& A = Matrix::random(1,n);
+        Matrix& B = Matrix::random(n,1);
+        Matrix& C = Matrix::random(2,n);
+        Matrix& D = Matrix::random(n,2);
+        Matrix& E = Matrix::random(3,n);
+        Matrix& F = Matrix::random(n,3);
+        Matrix& G = Matrix::random(4,n);
+        Matrix& H = Matrix::random(n,4);
+        Matrix& A1 = A.pseudoInverse();
+        Matrix& A2 = A.svdPseudoInverse();
+        Matrix& B1 = B.pseudoInverse();
+        Matrix& B2 = B.svdPseudoInverse();
+        Matrix& C1 = C.pseudoInverse();
+        Matrix& C2 = C.svdPseudoInverse();
+        Matrix& D1 = D.pseudoInverse();
+        Matrix& D2 = D.svdPseudoInverse();
+        Matrix& E1 = E.pseudoInverse();
+        Matrix& E2 = E.svdPseudoInverse();
+        Matrix& F1 = F.pseudoInverse();
+        Matrix& F2 = F.svdPseudoInverse();
+        Matrix& G1 = G.pseudoInverse();
+        Matrix& G2 = G.svdPseudoInverse();
+        Matrix& H1 = H.pseudoInverse();
+        Matrix& H2 = H.svdPseudoInverse();
+
+        /*
+        log.println(format("1x%d:%f",n,(A1-A2).norm()));
+        log.println(format("%dx1:%f",n,(B1-B2).norm()));
+        log.println(format("2x%d:%f",n,(C1-C2).norm()));
+        log.println(format("%dx2:%f",n,(D1-D2).norm()));
+        log.println(format("3x%d:%f",n,(E1-E2).norm()));
+        log.println(format("%dx3:%f",n,(F1-F2).norm()));
+        log.println(format("4x%d:%f",n,(G1-G2).norm()));
+        log.println(format("%dx4:%f",n,(H1-H2).norm()));
+        */
+
+        debugAssertM((A1-A2).norm() < normThreshold, format("%dx1 case failed",n));
+        debugAssertM((B1-B2).norm() < normThreshold, format("1x%d case failed",n));
+        debugAssertM((C1-C2).norm() < normThreshold, format("%dx2 case failed",n));
+        debugAssertM((D1-D2).norm() < normThreshold, format("2x%d case failed",n));
+        debugAssertM((E1-E2).norm() < normThreshold, format("%dx3 case failed",n));
+        debugAssertM((F1-F2).norm() < normThreshold, format("3x%d case failed",n));
+        debugAssertM((G1-G2).norm() < normThreshold, format("%dx4 case failed",n));
+        debugAssertM((H1-H2).norm() < normThreshold, format("4x%d case failed",n));
+    }
+}
 void testMatrix() {
     printf("Matrix ");
     // Zeros
@@ -187,6 +237,8 @@ void testMatrix() {
         debugAssert(m < 0.01f);
         (void)m;
     }
+
+    testPseudoInverse();
 
     /*
     Matrix a(3, 5);
