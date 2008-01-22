@@ -227,6 +227,9 @@ bool filenameContainsWildcards(const std::string& filename);
 /** Returns true if dst does not exist or src is newer than dst.  Works on both files and directories. */
 bool fileIsNewer(const std::string& src, const std::string& dst);
 
+/** Appends file onto dirname, ensuring a / if needed. */
+std::string pathConcat(const std::string& dirname, const std::string& file);
+
 } // namespace
 
 #endif

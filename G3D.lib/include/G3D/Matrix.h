@@ -73,11 +73,28 @@ public:
     static int                     debugNumAllocOps;
 
 private:
+public:
 
-    /** Does not throw exceptions-- assumes the caller has taken care of 
-        argument checking.*/
+    /** Used internally by Matrix.
+    
+        Does not throw exceptions-- assumes the caller has taken care of 
+        argument checking. */
     class Impl : public ReferenceCountedObject {
     public:
+
+        static void* operator new(size_t size) {
+            return System::malloc(size);
+        }
+
+        static void operator delete(void* p) {
+            System::free(p);
+        }
+
+        ~Impl();
+
+    private:
+        friend class Matrix;
+
         /** elt[r][c] = the element.  Pointers into data.*/
         T**                 elt;
 
@@ -97,8 +114,6 @@ private:
             R, C, and the row pointers. */
         void setSize(int newRows, int newCols);
 
-    public:
-
         inline Impl() : elt(NULL), data(NULL), R(0), C(0), dataSize(0) {}
 
         Impl(const Matrix3& M);
@@ -115,8 +130,6 @@ private:
             // Use the assignment operator
             *this = B;
         }
-
-        ~Impl();
 
         void setZero();
 
@@ -219,6 +232,7 @@ private:
 
         void setCol(int c, const T* vals);
     };
+private:
 
     typedef ReferenceCountedPointer<Impl> ImplRef;
 

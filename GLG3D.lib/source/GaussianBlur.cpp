@@ -15,7 +15,7 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
 void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N, const Vector2& destSize) {
     debugAssert(isOdd(N));
 
-    ShaderRef gaussian1DShader = getShader(17);
+    ShaderRef gaussian1DShader = getShader(N);
 
     gaussian1DShader->args.set("source", source);
     gaussian1DShader->args.set("pixelStep", direction / source->vector2Bounds());

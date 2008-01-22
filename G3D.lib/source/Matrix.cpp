@@ -1010,20 +1010,23 @@ Matrix Matrix::svdPseudoInverse(float tolerance) const {
 Matrix Matrix::vectorPseudoInverse() const {
     // If vector A has nonzero elements: transpose A, then divide each elt. by the squared norm
     // If A is zero vector: transpose A
-    float x;
-    if(anyNonZero()) {
-        x = 1.0f/normSquared();
-    } else {
-        x = 0.0f;
+    double x = 0.0;
+
+    if (anyNonZero()) {
+        x = 1.0 / normSquared();
     }
-    Impl* A = new Impl(cols(), rows());
+
+    Matrix A(cols(), rows());
+    T** Aelt = A.impl->elt;
     for (int r = 0; r < rows(); ++r) {
+        const T* MyRow = impl->elt[r];
         for (int c = 0; c < cols(); ++c) {
-            A->set(c, r, get(r, c) * x); 
+            Aelt[c][r] = T(MyRow[c] * x); 
         }
     }
     return Matrix(A);
 }
+
 
 Matrix Matrix::rowPartPseudoInverse() const{
     int m = rows();

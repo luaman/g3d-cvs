@@ -4,7 +4,7 @@
  @author Morgan McGuire, graphics3d.com
  
  @author  2002-06-06
- @edited  2007-06-12
+ @edited  2008-01-20
  */
 
 #include "G3D/platform.h"
@@ -47,6 +47,17 @@ namespace _internal {
     Set<std::string> currentFilesUsed;
 }
 
+std::string pathConcat(const std::string& dirname, const std::string& file) {
+    // Ensure that the directory ends in a slash
+    if ((dirname.size() != 0) && 
+        (dirname[dirname.size() - 1] != '/') &&
+        (dirname[dirname.size() - 1] != '\\') &&
+        (dirname[dirname.size() - 1] != ':')) {
+        return dirname + '/' + file;
+    } else {
+        return dirname + file;
+    }
+}
 
 std::string resolveFilename(const std::string& filename) {
     if (filename.size() >= 1) {

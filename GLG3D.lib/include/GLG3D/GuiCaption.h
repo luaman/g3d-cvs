@@ -106,6 +106,7 @@ public:
         static GuiCaption play();
         static GuiCaption stop();
         static GuiCaption pause();
+        static GuiCaption eye();
         static GuiCaption forward();
         static GuiCaption reverse();
         static GuiCaption previous();

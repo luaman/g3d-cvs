@@ -197,4 +197,20 @@ void Image4uint8::save(const std::string& filename, GImage::Format fmt) {
     im.save(filename, fmt);
 }
 
+
+ReferenceCountedPointer<class Image1uint8> Image4uint8::getChannel(int c) const {
+    debugAssert(c >= 0 && c <= 3);
+
+    Image1uint8Ref dst = Image1uint8::createEmpty(width(), height(), wrapMode());
+    const Color4uint8* srcArray = getCArray();
+    Color1uint8* dstArray = dst->getCArray();
+
+    const int N = width() * height();
+    for (int i = 0; i < N; ++i) {
+        dstArray[i] = Color1uint8(srcArray[i][c]);
+    }
+
+    return dst;
+}
+
 } // G3D

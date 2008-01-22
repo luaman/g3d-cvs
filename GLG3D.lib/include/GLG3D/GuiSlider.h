@@ -2,10 +2,10 @@
  @file GLG3D/GuiSlider.h
 
  @created 2006-05-01
- @edited  2007-06-01
+ @edited  2008-01-18
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
+ Copyright 2001-2008, Morgan McGuire morgan@users.sf.net
  All rights reserved.
 */
 #ifndef G3D_GUISLIDER_H
@@ -84,6 +84,11 @@ public:
 
     Value minValue() const {
         return m_minValue;
+    }
+
+    void setRange(Value lo, Value hi) {
+        m_minValue = min(lo, hi);
+        m_maxValue = max(lo, hi);
     }
 
     Value maxValue() const {

@@ -248,6 +248,7 @@ Color3 Color3::fromHSV(const Vector3& _hsv) {
 	return Color3::black();
 }
 
+
 Vector3 Color3::toHSV(const Color3& _rgb) {
 	debugAssertM((_rgb.r <= 1.0f && _rgb.r >= 0.0f) 
 			&& (_rgb.g <= 1.0f && _rgb.g >= 0.0f)

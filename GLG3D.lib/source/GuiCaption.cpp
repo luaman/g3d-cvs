@@ -50,8 +50,12 @@ GuiCaption GuiCaption::Symbol::play() {
     return GuiCaption("4", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
 }
 
+GuiCaption GuiCaption::Symbol::eye() {
+    return GuiCaption("N", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+}
+
 GuiCaption GuiCaption::Symbol::pause() {
-    return GuiCaption("3", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+    return GuiCaption(";", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
 }
 
 GuiCaption GuiCaption::Symbol::stop() {

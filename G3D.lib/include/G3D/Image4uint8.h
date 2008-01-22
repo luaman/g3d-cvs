@@ -15,6 +15,7 @@
 #include "G3D/Color4uint8.h"
 #include "G3D/Color4.h"
 #include "G3D/GImage.h"
+#include "G3D/Image1uint8.h"
 
 namespace G3D {
 
@@ -72,6 +73,9 @@ public:
 
     /** Saves in any of the formats supported by G3D::GImage. */
     void save(const std::string& filename, GImage::Format fmt = GImage::AUTODETECT);
+
+    /** Extracts color channel 0 <= c <= 3 and returns it as a new monochrome image. */
+    ReferenceCountedPointer<class Image1uint8> getChannel(int c) const;
 };
 
 } // G3D

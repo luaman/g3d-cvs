@@ -173,6 +173,7 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
         \link G3D::filenameBaseExt filenameBaseExt\endlink,
         \link G3D::filenameExt filenameExt\endlink,
         \link G3D::filenamePath filenamePath\endlink,
+        \link G3D::pathConcat pathConcat\endlink,
         \link G3D::parseFilename parseFilename\endlink</td><td>Filename parsing and manipulation</td></tr>
 <tr><td></td><td>
         \link G3D::isDirectory isDirectory\endlink,

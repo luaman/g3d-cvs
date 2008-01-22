@@ -346,6 +346,7 @@ href="classes.html">Classes</a>.
         \link G3D::isZipfile isZipfile\endlink
         \link G3D::msgBox msgBox\endlink,
         \link G3D::parseFilename parseFilename\endlink, 
+        \link G3D::pathConcat pathConcat\endlink,
         \link G3D::prompt prompt\endlink, 
         \link G3D::readWholeFile readWholeFile\endlink,
         \link G3D::serialize serialize\endlink,
