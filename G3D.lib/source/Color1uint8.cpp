@@ -16,7 +16,7 @@
 
 namespace G3D {
 
-Color1uint8::Color1uint8(const class Color1& c) : value(iMin(255, iFloor(c.value * 256))) {
+Color1uint8::Color1uint8(const class Color1& c) : value(iClamp(0, 255, iFloor(c.value * 256))) {
 }
 
 

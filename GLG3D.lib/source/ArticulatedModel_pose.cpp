@@ -686,6 +686,7 @@ bool PosedArticulatedModel::renderPS14NonShadowedOpaqueTerms(
 
     // Emissive
     if (! material.emit.isBlack()) {
+        rd->disableLighting();
         rd->setColor(material.emit.constant);
         rd->setTexture(0, material.emit.map);
         sendGeometry2(rd);
