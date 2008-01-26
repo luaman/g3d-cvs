@@ -18,32 +18,34 @@
 
 class GUIViewer : public Viewer {
 private:
-	GuiWindow::Ref		window;
-	GuiWindow::Ref		toolWindow;
-	GuiWindow::Ref		bgControl;
-	GuiWindow::Ref      dropdownWindow;
-	App*				parentApp;
-	GuiSkinRef			skin;
-	TextureRef			background1;
-	TextureRef	        background2;
+    GuiWindow::Ref		window;
+    GuiWindow::Ref		toolWindow;
+    GuiWindow::Ref		bgControl;
+    GuiWindow::Ref          dropdownWindow;
+    App*			parentApp;
+    GuiSkinRef	        skin;
+    TextureRef		background1;
+    TextureRef	        background2;
+    
+    enum WindowBackground {WHITE = 1, BLUE = 2, BLACK = 3, 
+                           BGIMAGE1 = 4, BGIMAGE2 = 5};
+    
+    WindowBackground	windowControl;
 
-	enum WindowBackground {WHITE = 1, BLUE = 2, BLACK = 3, BGIMAGE1 = 4, BGIMAGE2 = 5};
-
-	WindowBackground	windowControl;
-
-
-	/**
-	 A typical GUI has actual state that it is connected to.  We're just showing off the GUI and not
-	 changing any real state, so we make up some variables to hold the values.  In a normal program,
-	 for example, you should not name your variables "checkbox", but instead hook a GuiCheckBox up to 
-	 an existing bool that has a useful name.
-	 */
-	Array<std::string>	dropdown;
-	Array<std::string>	dropdownDisabled;
-	int					dropdownIndex[2];
-	bool				checkbox[8];
-	int					radio[4];
-	float				slider[2];
+    /**
+       A typical GUI has actual state that it is connected to.
+       We're just showing off the GUI and not changing any real
+       state, so we make up some variables to hold the values.  In a
+       normal program, for example, you should not name your
+       variables "checkbox", but instead hook a GuiCheckBox up to an
+       existing bool that has a useful name.
+    */
+    Array<std::string>	dropdown;
+    Array<std::string>	dropdownDisabled;
+    int                 dropdownIndex[2];
+    bool                checkbox[8];
+    int                 radio[4];
+    float               slider[2];
     std::string         text;
 
     void createGui(const std::string& filename);

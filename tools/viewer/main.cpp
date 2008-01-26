@@ -23,14 +23,14 @@ G3D_START_AT_MAIN();
 
 
 int main(int argc, char** argv) {
-	std::string filename;
-
-	if (argc > 1) {
-		filename = argv[1];
-	}
-
-	GApp::Settings s = GApp::Settings();
-	s.window.resizable = true;
+    std::string filename;
+    
+    if (argc > 1) {
+        filename = argv[1];
+    }
+    
+    GApp::Settings s = GApp::Settings();
+    s.window.resizable = true;
     s.window.width = 800;
     s.window.height = 600;
 

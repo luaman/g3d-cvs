@@ -3,7 +3,6 @@
  
  App that allows viewing of 3D assets
  
- @maintainer Eric Muller 09edm@williams.edu
  @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
  @created 2007-05-31
@@ -23,18 +22,20 @@
 
 App::App(const GApp::Settings& settings, const std::string& file) :
     GApp(settings),
-	filename(file),
-	viewer(NULL) {
+    viewer(NULL),
+    filename(file) {
+
+    GuiSkin::makeSkinFromSourceFiles("/Volumes/McGuire/Projects/data/source/skins/osx/", "white.png", "black.png", "osx.txt", "/Volumes/McGuire/Projects/data/source/skins/osx/osx.skn");
 
     shadowMap = ShadowMap::create(1024);
     shadowMap->setPolygonOffset(0.0f);
-	setDesiredFrameRate(60);
+    setDesiredFrameRate(60);
 }
 
 
 void App::onInit() {
-	showRenderingStats = false;
-	window()->setCaption(filenameBaseExt(filename) + " - G3D Viewer");
+    showRenderingStats = false;
+    window()->setCaption(filenameBaseExt(filename) + " - G3D Viewer");
 
     sky = Sky::fromFile(dataDir + "sky/");
     skyParameters = SkyParameters( G3D::toSeconds(11, 00, 00, AM) );
@@ -91,8 +92,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->setColorClearValue(colorClear);
     rd->clear(true, true, true);
 
-    int width = rd->width();
-    
     rd->enableLighting();
         rd->setAmbientLightColor(localLighting->ambientTop);
         if (localLighting->ambientBottom != localLighting->ambientTop) {
