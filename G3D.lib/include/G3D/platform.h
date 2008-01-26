@@ -93,7 +93,7 @@
 // Microsoft Visual C++ 5.0	_MSC_VER          = 1100
 
 // Turn off warnings about deprecated C routines (TODO: revisit)
-#	pragma warning (disable : 4996)
+#   pragma warning (disable : 4996)
 
 #   if (_MSC_VER <= 1200)
         typedef long intptr_t;
@@ -308,6 +308,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #               define __stdcall
 #           endif
 #       endif
+#   endif // OSX
 
 #   define G3D_CHECK_PRINTF_METHOD_ARGS   __attribute__((__format__(__printf__, 2, 3)))
 #   define G3D_CHECK_VPRINTF_METHOD_ARGS  __attribute__((__format__(__printf__, 2, 0)))

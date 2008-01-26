@@ -565,15 +565,26 @@ void GuiSkin::renderRadioButton(const Rect2D& bounds, bool enabled, bool focused
 }
 
 
+Vector2 GuiSkin::buttonCaptionBounds(const GuiCaption& text, ButtonStyle buttonStyle) const {
+    const TextStyle& style = m_button[buttonStyle].textStyle;
+    GFontRef font = text.font(style.font);
+    float size = text.size(style.size);
+    return font->bounds(text.text(), size);
+}
+
 void GuiSkin::renderButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool pushed, const GuiCaption& text, ButtonStyle buttonStyle) const {
+
     debugAssert(inRendering);
     if (buttonStyle != NO_BUTTON_STYLE) {
         m_button[buttonStyle].render(rd, bounds, enabled, focused, pushed);
     }
 
     if (text.text() != "") {
-        const TextStyle& style = enabled ? m_button[buttonStyle].textStyle : m_button[buttonStyle].disabledTextStyle;
+        const TextStyle& style = 
+            enabled ? 
+              m_button[buttonStyle].textStyle : 
+              m_button[buttonStyle].disabledTextStyle;
 
         addDelayedText(
             text.font(style.font),

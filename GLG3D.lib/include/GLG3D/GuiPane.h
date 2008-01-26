@@ -91,6 +91,9 @@ protected:
         }
     };
 
+    /** Caption label */
+    GuiLabel*           m_label;
+
     Morph               m_morph;
 
     Style               m_style;
@@ -104,6 +107,11 @@ protected:
 
     GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, Style style);
     GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style);
+
+    /**
+       Called from constructors.
+     */
+    void init(const Rect2D& rect);
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
     
@@ -140,6 +148,10 @@ protected:
 
 public:
 
+    /** If the original caption was non-empty (even if it was " "), 
+        the new caption will be shown.*/
+    virtual void setCaption(const GuiCaption& caption);
+
     /** Client rect bounds, relative to the parent pane (or window if
         there is no parent). */
     const Rect2D& clientRect() const {
@@ -171,10 +183,10 @@ public:
     void addCustom(GuiControl* control);
 
     /** 
-        @param height Client size of the pane (size of the <i>inside</i>, not counting the border).  
-            This will automatically grow as controls are added, so it can safely be left as zero.
+        If the text is "", no space is reserved for a caption.  If non-empty (even " "), then
+        space is reserved and the caption may later be changed.
      */
-    GuiPane* addPane(const GuiCaption& text = "", float height = 0, GuiPane::Style style = GuiPane::SIMPLE_FRAME_STYLE);
+    GuiPane* addPane(const GuiCaption& text = "", GuiPane::Style style = GuiPane::SIMPLE_FRAME_STYLE);
 
     /**
        <pre>
@@ -280,7 +292,7 @@ public:
      */
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
-    GuiButton* addButton(const GuiCaption& text, GuiButton::Style style = GuiButton::NORMAL_STYLE);
+    GuiButton* addButton(const GuiCaption& text, GuiSkin::ButtonStyle style = GuiSkin::NORMAL_BUTTON_STYLE);
 
     GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, GFont::YAlign = GFont::YALIGN_CENTER);
 

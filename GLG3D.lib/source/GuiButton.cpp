@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2007-06-10
+ @edited  2008-01-30
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiButton.h"
@@ -13,12 +13,15 @@
 
 namespace G3D {
 
-GuiButton::GuiButton(GuiPane* parent, const GuiCaption& text, Style style) : GuiControl(parent, text), m_down(false), m_style(style) {}
+GuiButton::GuiButton(GuiPane* parent, const GuiCaption& text, GuiSkin::ButtonStyle style) : 
+    GuiControl(parent, text), 
+    m_down(false), m_style(style) {}
 
 
 void GuiButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
     if (m_visible) {
-        skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), m_down && mouseOver(), m_caption, (GuiSkin::ButtonStyle)m_style);
+        skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), 
+                           m_down && mouseOver(), m_caption, (GuiSkin::ButtonStyle)m_style);
     }
 }
 

@@ -957,7 +957,6 @@ Matrix Matrix::svdPseudoInverse(float tolerance) const {
         Matrix A = Matrix(U.rows(), r);
 
         const T* dPtr = d.getCArray();
-        T** Uelt = U.impl->elt;
         for (int i = 0; i < A.rows(); ++i) {
             const T* Urow = U.impl->elt[i];
             T* Arow = A.impl->elt[i];

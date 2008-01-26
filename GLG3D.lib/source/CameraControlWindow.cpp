@@ -104,7 +104,7 @@ CameraControlWindow::CameraControlWindow(
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
 
-    manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, -1);
+    manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 2);
 
     trackLabel = manualPane->addLabel("Path");
     trackLabel->moveBy(0, -3);
@@ -183,8 +183,8 @@ CameraControlWindow::CameraControlWindow(
     // layout to become broken.
     drawerCollapseCaption = GuiCaption("5", iconFont);
     drawerExpandCaption = GuiCaption("6", iconFont);
-    drawerButtonPane = pane->addPane("", 0, GuiPane::NO_FRAME_STYLE);
-    drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiButton::TOOL_STYLE);
+    drawerButtonPane = pane->addPane("", GuiPane::NO_FRAME_STYLE);
+    drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiSkin::TOOL_BUTTON_STYLE);
     drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));
     drawerButtonPane->setSize(12, 12);
     

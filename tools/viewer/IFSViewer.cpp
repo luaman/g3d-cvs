@@ -25,8 +25,6 @@ IFSViewer::IFSViewer() :
 void IFSViewer::onInit(const std::string& filename) {
 	const double scale = 2;
 	const bool weld = true;
-	bool whichref = true;
-	const double length = filename.length();
 
 	m_model = IFSModel::fromFile( filename, scale,  CoordinateFrame(), weld, true );
 	PosedModelRef posedifs = m_model->pose(CoordinateFrame(), true);

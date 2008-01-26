@@ -12,6 +12,7 @@
 #define G3D_GUIBUTTON_H
 
 #include "GLG3D/GuiControl.h"
+#include "GLG3D/GuiSkin.h"
 
 namespace G3D {
 
@@ -25,16 +26,6 @@ class GuiPane;
     when pressed.
 */
 class GuiButton : public GuiControl {
-public:
-
-    /** Controls the appearance of the button.  Tool buttons are
-        square and less 3D.  They are also able to shrink to smaller
-        sizes.  The NO_STYLE creates buttons with a caption but no
-        visible borders.
-     */
-    // These constants must match the GuiSkin::PaneStyle constants
-    enum Style {NORMAL_STYLE, TOOL_STYLE, NO_STYLE};
-
     friend class GuiWindow;
     friend class GuiPane;
 
@@ -43,10 +34,10 @@ protected:
     /** Is the mouse currently down over this control? */
     bool m_down;
 
-    Style m_style;
+    GuiSkin::ButtonStyle m_style;
 
     /** Called by GuiPanew */
-    GuiButton(GuiPane*, const GuiCaption& text, Style style);
+    GuiButton(GuiPane*, const GuiCaption& text, GuiSkin::ButtonStyle style);
 
     /** Called by GuiWindow */
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;

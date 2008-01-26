@@ -1,7 +1,7 @@
 /**
   @file GuiSkin.h
   @maintainer Morgan McGuire, morgan@cs.williams.edu
-  Copyright 2001-2007, Morgan McGuire
+  Copyright 2001-2008, Morgan McGuire
  */
 
 #ifndef G3D_GUISKIN_H
@@ -70,6 +70,11 @@ public:
         PANE_STYLE_COUNT
     };
 
+    /** Controls the appearance of the button.  Tool buttons are
+        square and less 3D.  They are also able to shrink to smaller
+        sizes.  The NO_STYLE creates buttons with a caption but no
+        visible borders.
+     */
     enum ButtonStyle {
         NORMAL_BUTTON_STYLE,
         TOOL_BUTTON_STYLE,
@@ -710,6 +715,9 @@ public:
               const std::string& blackName,
               const std::string& coordsFile,
               const std::string& destFile);
+
+    /** Returns the bounds on the caption for a button. */
+    Vector2 buttonCaptionBounds(const GuiCaption& text, ButtonStyle buttonStyle) const;
 
 }; // GuiSkin
 

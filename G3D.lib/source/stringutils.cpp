@@ -156,7 +156,7 @@ Array<std::string> stringSplit(
     while (start < (int)x.size()) {
         stop = x.find(splitChar, start);
 
-        if (stop == std::string::npos) {
+        if (stop == (int)std::string::npos) {
             stop = x.size() - 1;
         }
 

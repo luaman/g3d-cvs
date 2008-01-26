@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2007-06-10
+ @edited  2008-01-30
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
@@ -32,21 +32,41 @@ void GuiPane::Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
 }
 
 
+void GuiPane::init(const Rect2D& rect) {
+    setRect(rect);
+
+    if (m_caption.text() != "") {
+        m_label = addLabel(m_caption);
+    } else {
+        m_label = NULL;
+    }
+}
+
 
 GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, Style style) 
     : GuiControl(gui, text), m_style(style) {
-    setRect(rect);
+    init(rect);
 }
+
 
 GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
     : GuiControl(parent, text), m_style(style) {
-    setRect(rect);
+    init(rect);
 }
 
 
 void GuiPane::morphTo(const Rect2D& r) {
     m_morph.morphTo(rect(), r);
 }
+
+
+void GuiPane::setCaption(const GuiCaption& caption) {
+    if (m_label != NULL) {
+        m_label->setCaption(caption);
+    }
+    GuiControl::setCaption(caption);
+}
+
 
 
 Vector2 GuiPane::contentsExtent() const {
@@ -146,12 +166,20 @@ void GuiPane::addCustom(GuiControl* c) {
 }
 
 
-GuiButton* GuiPane::addButton(const GuiCaption& text, GuiButton::Style style) {
+GuiButton* GuiPane::addButton(const GuiCaption& text, GuiSkin::ButtonStyle style) {
     GuiButton* b = new GuiButton(this, text, style);
 
-    b->setRect(Rect2D::xywh(nextControlPos(), 
-                 Vector2(((style == GuiButton::NORMAL_STYLE) ? (float)BUTTON_WIDTH : (float)TOOL_BUTTON_WIDTH), 
-               (float)CONTROL_HEIGHT)));
+    float width = (float)BUTTON_WIDTH;
+
+    if (style == GuiSkin::NORMAL_BUTTON_STYLE) {
+        // Ensure that the button is wide enough for the caption
+        Vector2 bounds = skin()->buttonCaptionBounds(text, style);
+        width = max(bounds.x, width);
+    } else {
+        width = (float) TOOL_BUTTON_WIDTH;
+    }
+
+    b->setRect(Rect2D::xywh(nextControlPos(), Vector2(width, (float)CONTROL_HEIGHT)));
     
     controlArray.append(b);
 
@@ -169,8 +197,7 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
 }
 
 
-GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style) {
-    h = max(h, 0.0f);
+GuiPane* GuiPane::addPane(const GuiCaption& text, GuiPane::Style style) {
     Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style));
 
     Vector2 pos = nextControlPos();
@@ -178,7 +205,7 @@ GuiPane* GuiPane::addPane(const GuiCaption& text, float h, GuiPane::Style style)
     // Back up by the border size
     pos -= minRect.x0y0();
 
-    Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, h + minRect.height()));
+    Rect2D newRect = Rect2D::xywh(pos, Vector2(m_clientRect.width() - pos.x * 2, minRect.height()));
 
     GuiPane* p = new GuiPane(this, text, newRect, style);
 

@@ -30,10 +30,14 @@ void GUIViewer::createGui(const std::string& filename) {
     
     skin = GuiSkin::fromFile(filename, parentApp->debugFont);
     
-    window         = GuiWindow::create("Normal", skin, Rect2D::xywh(50,50,0,0),   GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-    toolWindow     = GuiWindow::create("Tool",   skin, Rect2D::xywh(300,100,0,0), GuiWindow::TOOL_FRAME_STYLE,   GuiWindow::IGNORE_CLOSE);
-    bgControl      = GuiWindow::create("Dialog", skin, Rect2D::xywh(550,100,0,0), GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
-    dropdownWindow = GuiWindow::create("Normal", skin, Rect2D::xywh(400,400,0,0), GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+    window         = GuiWindow::create("Normal", skin, Rect2D::xywh(50,50,0,0),   
+                                       GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+    toolWindow     = GuiWindow::create("Tool",   skin, Rect2D::xywh(300,100,0,0), 
+                                       GuiWindow::TOOL_FRAME_STYLE,   GuiWindow::IGNORE_CLOSE);
+    bgControl      = GuiWindow::create("Dialog", skin, Rect2D::xywh(550,100,0,0), 
+                                       GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+    dropdownWindow = GuiWindow::create("Normal", skin, Rect2D::xywh(400,400,0,0), 
+                                       GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
 
     text = "Hello";
 
@@ -42,14 +46,12 @@ void GUIViewer::createGui(const std::string& filename) {
     slider[1] = 1.8f;
 
     {
-        GuiPane* p = pane->addPane("Pane (NO_FRAME_STYLE)", 0, GuiPane::NO_FRAME_STYLE);
-        p->addLabel("Pane (NO_FRAME_STYLE)");
-        pane->addSlider("Slider", &slider[0], 1.0f, 2.2f);
-        pane->addSlider("Slider Disabled", &slider[1], 1.0f, 2.2f)->setEnabled(false);
+        GuiPane* p = pane->addPane("Pane (NO_FRAME_STYLE)", GuiPane::NO_FRAME_STYLE);
+        p->addSlider("Slider", &slider[0], 1.0f, 2.2f);
+        p->addSlider("Slider Disabled", &slider[1], 1.0f, 2.2f)->setEnabled(false);
     }
     {
-        GuiPane* p = pane->addPane("", 0, GuiPane::SIMPLE_FRAME_STYLE);
-        p->addLabel("Pane (SIMPLE_FRAME_STYLE)");
+        GuiPane* p = pane->addPane("Pane (SIMPLE_FRAME_STYLE)", GuiPane::SIMPLE_FRAME_STYLE);
         p->addLabel("RadioButton (RADIO_STYLE)");
         p->addRadioButton("Sel, Dis", 1, &radio[0])->setEnabled(false);
         p->addRadioButton("Desel, Dis", 2, &radio[0])->setEnabled(false);
@@ -58,8 +60,7 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     {
-        GuiPane* p = pane->addPane("", 170, GuiPane::SIMPLE_FRAME_STYLE);
-        p->addLabel("Pane (SIMPLE_FRAME_STYLE)");
+        GuiPane* p = pane->addPane("Pane (SIMPLE_FRAME_STYLE)", GuiPane::SIMPLE_FRAME_STYLE);
         p->addLabel("RadioButton (BUTTON_STYLE)");
         p->addRadioButton("Selected, Disabled", 5, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
         p->addRadioButton("Deselected, Disabled", 6, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
@@ -70,8 +71,7 @@ void GUIViewer::createGui(const std::string& filename) {
 
     pane = toolWindow->pane();
     {
-        GuiPane* p = pane->addPane("", 200, GuiPane::ORNATE_FRAME_STYLE);
-        p->addLabel("Pane (ORNATE_FRAME_STYLE)");
+        GuiPane* p = pane->addPane("Pane (ORNATE_FRAME_STYLE)", GuiPane::ORNATE_FRAME_STYLE);
         p->addLabel("Checkbox (CHECKBOX_SYLE)");
         checkbox[0] = true;
         checkbox[1] = false;
@@ -84,8 +84,7 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     {
-        GuiPane* p = pane->addPane("", 170, GuiPane::SIMPLE_FRAME_STYLE);
-        p->addLabel("Simple Pane");
+        GuiPane* p = pane->addPane("", GuiPane::SIMPLE_FRAME_STYLE);
         p->addLabel("Button (Checkbox)");
         checkbox[4] = true;
         checkbox[5] = false;
@@ -99,8 +98,8 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     pane = dropdownWindow->pane();
-    GuiButton* t1 = pane->addButton("Tool", GuiButton::TOOL_STYLE);
-    GuiButton* t2 = pane->addButton("Tool", GuiButton::TOOL_STYLE);
+    GuiButton* t1 = pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
+    GuiButton* t2 = pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
     t2->moveRightOf(t1);
     t2->setEnabled(false);
     static bool check = false;
@@ -120,8 +119,8 @@ void GUIViewer::createGui(const std::string& filename) {
     pane->addTextBox("Disabled", &text)->setEnabled(false);
 
     pane = bgControl->pane();
-    pane->addLabel("Background Color");
     windowControl = BLUE;
+    pane->addLabel("Background Color");
     pane->addRadioButton(GuiCaption("White"), WHITE, &windowControl);
     pane->addRadioButton(GuiCaption("Blue"), BLUE, &windowControl);
     pane->addRadioButton(GuiCaption("Black"), BLACK, &windowControl);
