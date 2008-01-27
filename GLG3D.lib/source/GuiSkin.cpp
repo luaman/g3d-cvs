@@ -334,10 +334,10 @@ void GuiSkin::renderTextBox
     m_textBox.render(rd, bounds, enabled, focused);
 
     // Compute pixel distance from left edge to cursor position
-    std::string beforeCursor = text.text().substr(0, cursorPosition);
-    float size = text.size(m_textBox.contentStyle.size);
-    const GFont::Ref& font = text.font(m_textBox.contentStyle.font);
-    const Color4& color = text.color(m_textBox.contentStyle.color);
+    std::string beforeCursor   = text.text().substr(0, cursorPosition);
+    float size                 = text.size(m_textBox.contentStyle.size);
+    const GFont::Ref& font     = text.font(m_textBox.contentStyle.font);
+    Color4 color               = text.color(m_textBox.contentStyle.color);
     const Color4& outlineColor = text.outlineColor(m_textBox.contentStyle.outlineColor);
 
     // Area in which text appears
@@ -352,15 +352,22 @@ void GuiSkin::renderTextBox
     // Draw inside the client area
     const_cast<GuiSkin*>(this)->pushClientRect(clientArea);
 
+    if (! enabled) {
+        // Dim disabled text color
+        color.a *= 0.8f;
+    }
+
     // Draw main text
-    addDelayedText(font, text.text(), Vector2(textOffset, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
+    addDelayedText(font, text.text(), Vector2(textOffset, clientArea.height() / 2), size, color, 
+                   outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
     
     // Draw cursor
     if (focused) {
         addDelayedText(cursor.font(m_textBox.contentStyle.font), cursor.text(), 
                        Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, 
                        cursor.color(m_textBox.contentStyle.color), 
-                       cursor.outlineColor(m_textBox.contentStyle.outlineColor), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+                       cursor.outlineColor(m_textBox.contentStyle.outlineColor), 
+                       GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
     }
     
     const_cast<GuiSkin*>(this)->popClientRect();
@@ -565,12 +572,20 @@ void GuiSkin::renderRadioButton(const Rect2D& bounds, bool enabled, bool focused
 }
 
 
-Vector2 GuiSkin::buttonCaptionBounds(const GuiCaption& text, ButtonStyle buttonStyle) const {
+Vector2 GuiSkin::minButtonSize(const GuiCaption& text, ButtonStyle buttonStyle) const {
     const TextStyle& style = m_button[buttonStyle].textStyle;
     GFontRef font = text.font(style.font);
     float size = text.size(style.size);
-    return font->bounds(text.text(), size);
+
+    Vector2 textBounds = font->bounds(text.text(), size);
+
+    Vector2 borderPadding = 
+        m_button[buttonStyle].base.centerLeft.rect.wh() + 
+        m_button[buttonStyle].base.centerRight.rect.wh();
+
+    return textBounds + borderPadding;
 }
+
 
 void GuiSkin::renderButton(const Rect2D& bounds, bool enabled, bool focused, 
                            bool pushed, const GuiCaption& text, ButtonStyle buttonStyle) const {

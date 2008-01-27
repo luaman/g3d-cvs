@@ -13,11 +13,11 @@
 
 
 TextureViewer::TextureViewer() :
-m_height(0), 
-m_texture(NULL),
-m_width(0),
-m_ext(""),
-m_filename("") {
+    m_texture(NULL),
+    m_width(0),
+    m_height(0), 
+    m_filename(""),
+    m_ext("") {
 
 }
 

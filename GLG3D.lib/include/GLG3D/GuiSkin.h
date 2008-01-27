@@ -716,8 +716,8 @@ public:
               const std::string& coordsFile,
               const std::string& destFile);
 
-    /** Returns the bounds on the caption for a button. */
-    Vector2 buttonCaptionBounds(const GuiCaption& text, ButtonStyle buttonStyle) const;
+    /** Returns the size a button would have to be to enclose this caption.*/
+    Vector2 minButtonSize(const GuiCaption& text, ButtonStyle buttonStyle) const;
 
 }; // GuiSkin
 

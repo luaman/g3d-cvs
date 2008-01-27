@@ -151,11 +151,41 @@ GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, const Point
 
 GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
     GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
+
+    Vector2 size(0, (float)CONTROL_HEIGHT);
+
     if (style == GuiRadioButton::TOOL_STYLE) {
-        c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
+        size.x = TOOL_BUTTON_WIDTH;
     } else if (style == GuiRadioButton::BUTTON_STYLE) {
-        c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
+        size.x = BUTTON_WIDTH;
+        Vector2 bounds = skin()->minButtonSize(text, GuiSkin::NORMAL_BUTTON_STYLE);
+        size = size.max(bounds);
     }
+
+    c->setSize(size);
+
+    return c;
+}
+
+
+GuiCheckBox* GuiPane::addCheckBox
+(const GuiCaption& text,
+ const Pointer<bool>& pointer,
+ GuiCheckBox::Style style) {
+    GuiCheckBox* c = addControl(new GuiCheckBox(this, text, pointer, style));
+    
+    Vector2 size(0, CONTROL_HEIGHT);
+
+    if (style == GuiCheckBox::TOOL_STYLE) {
+        size.x = TOOL_BUTTON_WIDTH;
+    } else {
+        size.x = BUTTON_WIDTH;
+        Vector2 bounds = skin()->minButtonSize(text, GuiSkin::NORMAL_BUTTON_STYLE);
+        size = size.max(bounds);
+    }
+
+    c->setSize(size);
+
     return c;
 }
 
@@ -169,20 +199,20 @@ void GuiPane::addCustom(GuiControl* c) {
 GuiButton* GuiPane::addButton(const GuiCaption& text, GuiSkin::ButtonStyle style) {
     GuiButton* b = new GuiButton(this, text, style);
 
-    float width = (float)BUTTON_WIDTH;
+    addControl(b);
+
+    Vector2 size((float)BUTTON_WIDTH, (float)CONTROL_HEIGHT);
 
     if (style == GuiSkin::NORMAL_BUTTON_STYLE) {
         // Ensure that the button is wide enough for the caption
-        Vector2 bounds = skin()->buttonCaptionBounds(text, style);
-        width = max(bounds.x, width);
+        Vector2 bounds = skin()->minButtonSize(text, style);
+        size = size.max(bounds);
     } else {
-        width = (float) TOOL_BUTTON_WIDTH;
+        size.x = (float) TOOL_BUTTON_WIDTH;
     }
 
-    b->setRect(Rect2D::xywh(nextControlPos(), Vector2(width, (float)CONTROL_HEIGHT)));
+    b->setSize(size);
     
-    controlArray.append(b);
-
     return b;
 }
 

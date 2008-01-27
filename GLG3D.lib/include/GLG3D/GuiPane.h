@@ -203,16 +203,7 @@ public:
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
      const Pointer<bool>& pointer,
-     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
-     ) {
-        GuiCheckBox* c = addControl(new GuiCheckBox(this, text, pointer, style));
-        if (style == GuiCheckBox::TOOL_STYLE) {
-            c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
-        } else if (style == GuiCheckBox::BUTTON_STYLE) {
-            c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
-        }
-        return c;
-    }
+     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE);
 
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
