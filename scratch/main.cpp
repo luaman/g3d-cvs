@@ -28,6 +28,8 @@ public:
 
     App(const GApp::Settings& settings = GApp::Settings());
 
+    void makeUI();
+
     virtual void onInit();
     virtual void onLogic();
     virtual void onNetwork();
@@ -59,19 +61,26 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 
-    FrameBufferRef fbo = FrameBuffer::create("hello");
-    test = Texture::createEmpty("", 256, 256, TextureFormat::RGBA8());
-    fbo->set(FrameBuffer::COLOR_ATTACHMENT0, test);
-    renderDevice->push2D(fbo);
-        renderDevice->clear();
-        Draw::rect2D(Rect2D::xywh(0,0,128,256), renderDevice, Color4(1,1,1,0.5));
-    renderDevice->pop2D();
+    makeUI();
+}
 
-    showAlpha = Shader::fromStrings("", STR(
-        uniform sampler2D texture;
-        void main() {
-            gl_FragColor.rgb = texture2D(texture, gl_TexCoord[0].st).a;
-        }));
+void App::makeUI() {
+    GuiWindowRef personEditor = GuiWindow::create("Person Editor", debugWindow->skin());
+    GuiPane* p = personEditor->pane();
+
+    static std::string name = "Oliver";
+    p->addTextBox("Name", &name);
+
+    static float height = 3.01f;
+    p->addSlider<float>("Height", &height, 2.0f, 4.0f);
+    p->addLabel("Gender:");
+    static int gender = 0;
+    p->addRadioButton("Male", 0, &gender)->moveBy(Vector2(30,0));
+    p->addRadioButton("Female", 1, &gender)->moveBy(Vector2(30,0));
+    static bool bald = true;
+    p->addCheckBox("Bald", &bald);
+
+    addWidget(personEditor);
 }
 
 void App::onCleanup() {
@@ -148,7 +157,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
         // Sample rendering code
         //Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
+        //Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         //Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
     rd->disableLighting();

@@ -160,6 +160,8 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
         size.x = BUTTON_WIDTH;
         Vector2 bounds = skin()->minButtonSize(text, GuiSkin::NORMAL_BUTTON_STYLE);
         size = size.max(bounds);
+    } else {
+        size.x = 30.0f;
     }
 
     c->setSize(size);
