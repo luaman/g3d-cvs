@@ -25,7 +25,7 @@ App::App(const GApp::Settings& settings, const std::string& file) :
     viewer(NULL),
     filename(file) {
 
-    GuiSkin::makeSkinFromSourceFiles("/Volumes/McGuire/Projects/data/source/skins/osx/", "white.png", "black.png", "osx.txt", "/Volumes/McGuire/Projects/data/source/skins/osx/osx.skn");
+//    GuiSkin::makeSkinFromSourceFiles("/Volumes/McGuire/Projects/data/source/skins/osx/", "white.png", "black.png", "osx.txt", "/Volumes/McGuire/Projects/data/source/skins/osx/osx.skn");
 
     shadowMap = ShadowMap::create(1024);
     shadowMap->setPolygonOffset(0.0f);

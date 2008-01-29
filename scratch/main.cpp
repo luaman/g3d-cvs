@@ -10,7 +10,6 @@
  */
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-#include <conio.h>
 
 #if defined(G3D_VER) && (G3D_VER < 70000)
 #   error Requires G3D 7.00
@@ -21,14 +20,10 @@ public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
-
-    TextureRef          test;
-
-    ShaderRef           showAlpha;
+    BSPMapRef           map;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
-    void makeUI();
 
     virtual void onInit();
     virtual void onLogic();
@@ -46,6 +41,7 @@ App::App(const GApp::Settings& settings) : GApp(settings) {}
 
 void App::onInit() {
 
+	map = BSPMap::fromFile("X:/morgan/data/quake3/tremulous/map-arachnid2-1.1.0.pk3/", "arachnid2.bsp");
 
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
@@ -60,27 +56,6 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
-
-    makeUI();
-}
-
-void App::makeUI() {
-    GuiWindowRef personEditor = GuiWindow::create("Person Editor", debugWindow->skin());
-    GuiPane* p = personEditor->pane();
-
-    static std::string name = "Oliver";
-    p->addTextBox("Name", &name);
-
-    static float height = 3.01f;
-    p->addSlider<float>("Height", &height, 2.0f, 4.0f);
-    p->addLabel("Gender:");
-    static int gender = 0;
-    p->addRadioButton("Male", 0, &gender)->moveBy(Vector2(30,0));
-    p->addRadioButton("Female", 1, &gender)->moveBy(Vector2(30,0));
-    static bool bald = true;
-    p->addCheckBox("Bald", &bald);
-
-    addWidget(personEditor);
 }
 
 void App::onCleanup() {
@@ -146,10 +121,12 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(false, true, true);
-    sky->render(rd, localSky);
+//    sky->render(rd, localSky);
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
+	map->render(rd, defaultCamera);
+    /*
     // Setup lighting
     rd->enableLighting();
         rd->setLight(0, localLighting->lightArray[0]);
@@ -163,12 +140,16 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
-
+*/
     PosedModel2D::sortAndRender(rd, posed2D);
 }
 
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    return App().run();
+    GApp::Settings set;
+//    set.window.width = 1440;
+//    set.window.height = 900;
+    set.window.fsaaSamples = 4;
+    return App(set).run();
 }

@@ -18,6 +18,7 @@
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> GWindow::create
      <li> System::currentDateString
+     <li> Increased BSPMap rendering by 10% by reducing state changes
      <li> G3D::PosedModel::getBoxBounds on an array
      <li> G3D::PosedModel::getSphereBounds on an array
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files

@@ -172,9 +172,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////
 
 MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale) {
-    debugAssertM(path == "" || path[path.size() - 1] == '/' || path[path.size() - 1] == '\\', "Path must end in a slash");
     Map* m = new Map();
-    if (m->load(path, fileName)) {
+    if (m->load(pathConcat(path, ""), fileName)) {
         return m;
     } else {
         delete m;

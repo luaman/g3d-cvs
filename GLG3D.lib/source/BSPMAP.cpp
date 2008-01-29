@@ -36,8 +36,6 @@ void BitSet::resize(int count) {
 }
 
 
-
-
 Map::Map(): 
     lightVolumesCount(0),
     lightVolumes(NULL) {
@@ -101,7 +99,6 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera) {
 
     // Adjust intensity for tone mapping
     float adjustBrightness = 1;//0.4; // TODO: make into a rendering/loading parameter
-
 
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
@@ -310,7 +307,6 @@ void Map::getVisibleFaces(
 }
 
 
-
 void Map::renderFaces(
 	RenderDevice*               renderDevice,
 	const GCamera&              camera,
@@ -322,38 +318,44 @@ void Map::renderFaces(
 		int lastTextureID = -1;
 		int lastLightmapID = -1;
 
+        // Configure base texture
+		glActiveTextureARB(GL_TEXTURE0_ARB);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
+	    glEnable(GL_TEXTURE_2D);
+
+        // Configure light map
+	    glActiveTextureARB(GL_TEXTURE1_ARB);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_PREVIOUS_EXT);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_TEXTURE);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+	    glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, 2.0f);
+	    glEnable(GL_TEXTURE_2D);
+
 		Texture::Ref texture;
 		for (int i = 0; i < visibleFaceArray.size(); ++i) {
 			FaceSet* theFace = visibleFaceArray[i];
-		
+
+            // Bind new texture
 			if (lastTextureID != theFace->textureID) {
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				texture = textures[theFace->textureID];
 
 				if (texture.isNull()) {
 					texture = defaultTexture;
-				}
-
-                if (texture.notNull()) {
-				    glEnable(GL_TEXTURE_2D);
+                } else {
 				    glClientActiveTextureARB(GL_TEXTURE0_ARB);
 				    glBindTexture(GL_TEXTURE_2D, texture->openGLID());
-				    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  
                 }
 
 				lastTextureID = theFace->textureID;
 			}
 
-			if (lastLightmapID != theFace->lightmapID) {
+            // Bind new lightmap
+            if (lastLightmapID != theFace->lightmapID) {
 				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_PREVIOUS_EXT);
-				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_TEXTURE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-				glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, 2.0f);
-				glEnable(GL_TEXTURE_2D);
 
 				if (theFace->lightmapID >= 0) {
 					glBindTexture(GL_TEXTURE_2D, lightmaps[theFace->lightmapID]->openGLID());
@@ -366,7 +368,7 @@ void Map::renderFaces(
 			theFace->render(this);
 		}
 
-
+		glActiveTextureARB(GL_TEXTURE0_ARB);
 	glPopClientAttrib();
 	glPopAttrib();
 
@@ -870,7 +872,6 @@ void Patch::Bezier2D::tessellate(int L) {
 		}
 	}
 
-
 	// Compute the indices
 	int row;
 	indexes.resize(L * (L + 1) * 2);
@@ -956,7 +957,6 @@ void Mesh::render(Map* map) const {
 
 	glDrawElements(GL_TRIANGLES, meshVertexesCount, GL_UNSIGNED_INT,
 		&(map->meshVertexArray[firstMeshVertex]));
-
 }
 
 

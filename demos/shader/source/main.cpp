@@ -210,5 +210,9 @@ void App::configureShaderArgs(const LightingRef lighting) {
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
-    return App().run();
+    GApp::Settings set;
+    set.window.width = 1440;
+    set.window.height = 900;
+    set.window.fsaaSamples = 4;
+    return App(set).run();( 18.5,   1.0,  13.2),  4.4, -0.0
 }
