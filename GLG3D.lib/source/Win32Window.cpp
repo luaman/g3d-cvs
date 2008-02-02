@@ -571,7 +571,18 @@ void Win32Window::setIcon(const GImage& image) {
 
 
 void Win32Window::swapGLBuffers() {
-    SwapBuffers(hdc());
+    debugAssertGLOk();
+
+    ::SwapBuffers(hdc());
+
+    GLenum e = glGetError();
+    if (e == GL_INVALID_ENUM) {
+        logPrintf("WARNING: SwapBuffers failed inside G3D::Win32Window; probably because "
+            "the context changed when switching monitors.\n\n");
+    }
+
+    debugAssertGLOk();
+
 }
 
 

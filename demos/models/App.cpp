@@ -71,6 +71,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->clear(sky.notNull(), true, true);
 
+        debugAssertGLOk();
     if (sky.notNull()) {
         sky->render(rd, skyParameters);
     }
