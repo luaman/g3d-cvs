@@ -194,9 +194,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
         if (! m_rect.contains(mouse)) {
             // The click was not on this object.  Lose focus if we have it
-            if (focused()) {
-                m_manager->setFocusedWidget(NULL);
-            }
+            m_manager->defocusWidget(this);
             return false;
         }
 

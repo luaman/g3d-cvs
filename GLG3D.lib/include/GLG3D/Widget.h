@@ -115,7 +115,7 @@ private:
      */
     Array<Widget::Ref>   m_moduleArray;
 
-    bool                m_locked;
+    bool                 m_locked;
 
     Widget::Ref          m_focusedModule;
 
@@ -125,7 +125,7 @@ private:
         to GEvent in any way. */
     class DelayedEvent {
     public:
-        enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_DEFOCUS};
+        enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_DEFOCUS, MOVE_TO_BACK};
         Type type;
         Widget::Ref module;
 
@@ -151,6 +151,11 @@ public:
 
     void endLock();
 
+    /** Pushes this widget to the back of the z order.  This window will render first and receive events last.
+        This is the opposite of focussing a window.
+     */
+    void moveWidgetToBack(const Widget::Ref& widget);
+
     /** 
         At most one widget has focus at a time.  May be NULL.
      */
@@ -163,11 +168,15 @@ public:
         If you change the focus during a lock, the actual focus change
         will not take effect until the lock is released.
 
-        Setting the focus automatically brings a module to the front of the event processing list.
+        Setting the focus automatically brings a module to the front of the 
+        event processing list. 
         */
     void setFocusedWidget(const Widget::Ref& m);
 
-    /** Removes focus from this module if it had focus, otherwise does nothing */
+    /** Removes focus from this module if it had focus, otherwise does nothing.
+        The widget will move down one z order in focus.  See moveToBack to push it
+        all of the way to the back.
+      */
     void defocusWidget(const Widget::Ref& m);
 
     /** 

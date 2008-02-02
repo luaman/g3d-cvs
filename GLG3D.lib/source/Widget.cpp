@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
  @created 2006-04-22
- @edited  2007-05-31
+ @edited  2008-02-02
 */
 
 #include "GLG3D/Widget.h"
@@ -87,6 +87,10 @@ void WidgetManager::endLock() {
         case DelayedEvent::SET_DEFOCUS:
             defocusWidget(event.module);
             break;
+
+        case DelayedEvent::MOVE_TO_BACK:
+            moveWidgetToBack(event.module);
+            break;
         }
     }
 
@@ -131,6 +135,20 @@ void WidgetManager::add(const Widget::Ref& m) {
 
 Widget::Ref WidgetManager::focusedWidget() const {
     return m_focusedModule;
+}
+
+
+void WidgetManager::moveWidgetToBack(const Widget::Ref& widget) {
+   if (m_locked) {
+        m_delayedEvent.append(DelayedEvent(DelayedEvent::MOVE_TO_BACK, widget));
+   } else {
+       int i = m_moduleArray.findIndex(widget);
+       if (i > 0) {
+           // Found and not already at the bottom
+           m_moduleArray.remove(i);
+           m_moduleArray.insert(0, widget);
+       } 
+   }
 }
 
 

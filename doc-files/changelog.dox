@@ -27,6 +27,7 @@
      <li> G3D::Material promoted to its own class (was G3D::SuperShader::Material)
      <li> G3D::VertexAndPixelShader::ArgList::size
      <li> G3D::pathConcat
+     <li> G3D::WidgetManager::moveWidgetToBack
      <li> SuperShader / NonShadowed.pix now uses arrays of lights instead of separate variables
      <li> Reduced cost of release-mode Shader argument validation
      <li> G3D::PosedModel::sortAndRender now performs view-frustum culling of objects
