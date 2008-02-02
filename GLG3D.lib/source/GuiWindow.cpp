@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2008-01-12
+ @edited  2008-02-02
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiWindow.h"
@@ -193,9 +193,9 @@ bool GuiWindow::onEvent(const GEvent &event) {
         Vector2 mouse(event.button.x, event.button.y);
 
         if (! m_rect.contains(mouse)) {
-            // The click was not on this object.  Lost focus if we have it
+            // The click was not on this object.  Lose focus if we have it
             if (focused()) {
-                m_manager->setFocusedWidget(this);
+                m_manager->setFocusedWidget(NULL);
             }
             return false;
         }

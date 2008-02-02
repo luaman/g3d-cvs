@@ -41,7 +41,7 @@ App::App(const GApp::Settings& settings) : GApp(settings) {}
 
 void App::onInit() {
 
-	map = BSPMap::fromFile("X:/morgan/data/quake3/tremulous/map-arachnid2-1.1.0.pk3/", "arachnid2.bsp");
+//	map = BSPMap::fromFile("X:/morgan/data/quake3/tremulous/map-arachnid2-1.1.0.pk3/", "arachnid2.bsp");
 
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
@@ -121,11 +121,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(false, true, true);
-//    sky->render(rd, localSky);
+    sky->render(rd, localSky);
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
-	map->render(rd, defaultCamera);
+//	map->render(rd, defaultCamera);
     /*
     // Setup lighting
     rd->enableLighting();
