@@ -462,8 +462,8 @@ int Win32Window::height() const {
 
 void Win32Window::setDimensions(const Rect2D& dims) {
 
-    int W = ::GetSystemMetrics(SM_CXSCREEN);
-    int H = ::GetSystemMetrics(SM_CYSCREEN);
+    int W = ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    int H = ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
     int x = iClamp((int)dims.x0(), 0, W);
     int y = iClamp((int)dims.y0(), 0, H);
