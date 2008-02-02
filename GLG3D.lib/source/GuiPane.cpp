@@ -276,6 +276,10 @@ void GuiPane::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         me->m_morph.update(me);
     }
 
+    if (! m_visible) {
+        return;
+    }
+
     if (m_style != NO_FRAME_STYLE) {
         skin->renderPane(m_rect, GuiSkin::PaneStyle(m_style));
     }

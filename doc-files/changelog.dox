@@ -80,6 +80,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: GuiPane no longer renders when invisible
      <li> Fix: Clicking off of all GuiWindows makes none of them have focus
      <li> Fix: Win32Window now allows windows programmatically positioned anywhere on a multiple monitor screen
      <li> Fix: Win32Window now does not fail when dragging a GL context between multiple monitors
