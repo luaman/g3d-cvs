@@ -806,6 +806,22 @@ inline int iMod3(int x) {
     return x % 3;
 }
 
+/**
+ Given a 32-bit integer, returns the integer with the bytes in the opposite order.
+ */
+inline uint32 flipEndian32(const uint32 x) {
+    return (x << 24) | ((x & 0xFF00) << 8) | 
+           ((x & 0xFF0000) >> 8) | ((x & 0xFF000000) >> 24);
+}
+
+/**
+ Given a 16-bit integer, returns the integer with the bytes in the opposite order.
+ */
+inline uint16 flipEndian16(const uint16 x) {
+    return (x << 8) | ((x & 0xFF00) >> 8);
+}
+
+
 } // namespace
 
 #ifdef _MSC_VER
