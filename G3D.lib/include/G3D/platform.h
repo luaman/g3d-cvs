@@ -261,54 +261,35 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 
 #ifdef __GNUC__
 
+#    include <stdint.h>
+
 #   if __STDC_VERSION__ < 199901
 #        define restrict __restrict__
 #   endif
 
 #   define G3D_DEPRECATED __attribute__((__deprecated__))
 
-#   if defined(G3D_OSX)
-#       include <stdint.h>
+// setup function calling conventions
+#   if defined(__i386__) && ! defined(__x86_64__)
 
-#       if defined(__i386__) && ! defined(__x86_64__)
-
-#           ifndef __cdecl
-#               define __cdecl __attribute__((cdecl))
-#           endif
-
-#           ifndef __stdcall
-#               define __stdcall __attribute__((stdcall))
-#           endif
-
-//            typedef long intptr_t;
-// Works on OSX 386...what about Linux?
-#           include <stdint.h>
-
-#       elif defined(__x86_64__)
-
-            // for intptr
-#           include <stdint.h>
-
-#           ifndef __cdecl
-#               define __cdecl
-#           endif
-
-#           ifndef __stdcall
-#               define __stdcall
-#           endif
-#       else // PowerPC
-            // for intptr
-#           include <stdint.h>
-
-#           ifndef __cdecl
-#               define __cdecl
-#           endif
-
-#           ifndef __stdcall
-#               define __stdcall
-#           endif
+#       ifndef __cdecl
+#           define __cdecl __attribute__((cdecl))
 #       endif
-#   endif // OSX
+
+#       ifndef __stdcall
+#           define __stdcall __attribute__((stdcall))
+#       endif
+
+#   elif defined(__x86_64__) || defined(__powerpc__)
+
+#       ifndef __cdecl
+#           define __cdecl
+#       endif
+
+#       ifndef __stdcall
+#           define __stdcall
+#       endif
+#   endif // calling conventions
 
 #   define G3D_CHECK_PRINTF_METHOD_ARGS   __attribute__((__format__(__printf__, 2, 3)))
 #   define G3D_CHECK_VPRINTF_METHOD_ARGS  __attribute__((__format__(__printf__, 2, 0)))

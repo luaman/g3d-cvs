@@ -8,6 +8,7 @@
  */
 
 #include "G3D/GThread.h"
+#include "G3D/System.h"
 #include "G3D/debugAssert.h"
 
 
@@ -81,8 +82,10 @@ protected:
 
 
 GThread::GThread(const std::string& name):
-    handle(NULL),
     _name(name) {
+
+    // system-independent clear of handle
+    System::memset(&handle, 0, sizeof(handle));
 
     pthread = new _internal::GThreadPrivate;
 }
@@ -145,7 +148,9 @@ bool GThread::start() {
                         this)) {
         return true;
     } else {
-        handle = NULL;
+        // system-independent clear of handle
+        System::memset(&handle, 0, sizeof(handle));
+
         return false;
     }
 #   endif
@@ -158,7 +163,8 @@ void GThread::terminate() {
 #       else
         pthread_kill(handle, SIGSTOP);
 #       endif
-        handle = NULL;
+        // system-independent clear of handle
+        System::memset(&handle, 0, sizeof(handle));
     }
 }
 

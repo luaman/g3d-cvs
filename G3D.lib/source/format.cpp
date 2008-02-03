@@ -137,9 +137,9 @@ std::string vformat(const char* fmt, va_list argPtr) {
       // We didn't allocate a big enough string.
       char* heapBuffer = (char*)System::malloc((numChars + 1) * sizeof(char));
 
-      assert(heapBuffer);
+      debugAssert(heapBuffer);
       int numChars2 = vsnprintf(heapBuffer, numChars + 1, fmt, argPtr);
-      assert(numChars2 == numChars);
+      debugAssert(numChars2 == numChars);
 
       std::string result(heapBuffer);
       
