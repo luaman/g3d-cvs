@@ -46,6 +46,7 @@
      <li> G3D::TextureFormat::name
      <li> g3dmath.h now includes inttypes.h on gcc and simulates it on visual studio
      <li> G3D::RenderDevice::cullFace
+     <li> G3D::LineSegment2D::intersection
      <li> G3D::BinaryInput::setEndian
      <li> G3D::GEvent::MOUSE_BUTTON_CLICK
      <li> Generalized ShadowMap to work with spotlights as well as directional lights

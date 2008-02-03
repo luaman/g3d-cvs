@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-01-01
- @edited  2007-05-14
+ @edited  2008-02-02
  */
 
 #include "G3D/G3D.h"
@@ -505,6 +505,22 @@ void testGLight() {
 }
 
 
+void testLineSegment2D() {
+    LineSegment2D A = LineSegment2D::fromTwoPoints(Vector2(1,1), Vector2(2,2));
+    LineSegment2D B = LineSegment2D::fromTwoPoints(Vector2(2,1), Vector2(1,2));
+    LineSegment2D C = LineSegment2D::fromTwoPoints(Vector2(2,1), Vector2(3,-1));
+    LineSegment2D D = LineSegment2D::fromTwoPoints(Vector2(1,1.2f), Vector2(2,1.2f));
+
+    Vector2 i0 = A.intersection(B);
+    debugAssert(i0.fuzzyEq(Vector2(1.5f, 1.5f)));
+
+    Vector2 i1 = A.intersection(C);
+    debugAssert(i1 == Vector2::inf());
+
+    Vector2 i2 = D.intersection(A);
+    debugAssert(i2.fuzzyEq(Vector2(1.2f, 1.2f)));
+}
+
 int main(int argc, char* argv[]) {
 
 
@@ -595,6 +611,8 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testLineSegment2D();
 
     testGLight();
 

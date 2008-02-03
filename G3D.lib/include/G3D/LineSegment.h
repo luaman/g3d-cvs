@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-02-08
- @edited  2006-02-22
+ @edited  2008-02-02
  */
 
 #ifndef G3D_LINESEGMENT_H
@@ -95,6 +95,10 @@ public:
     LineSegment2D() {}
 
     static LineSegment2D fromTwoPoints(const Vector2& p0, const Vector2& p1);
+
+    /** Returns the intersection of these segements (including 
+       testing endpoints), or Vector2::inf() if they do not intersect. */
+    Vector2 intersection(const LineSegment2D& other) const;
 
     Vector2 point(int i) const;
 

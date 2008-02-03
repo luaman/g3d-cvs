@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-02-08
- @edited  2006-04-20
+ @edited  2008-02-02
  */
 
 #include "G3D/platform.h"
@@ -159,6 +159,77 @@ float LineSegment2D::distance(const Vector2& p) const {
 
 float LineSegment2D::length() const {
     return m_length;
+}
+
+
+Vector2 LineSegment2D::intersection(const LineSegment2D& other) const {
+
+    if ((m_origin == other.m_origin) ||
+        (m_origin == other.m_origin + other.m_direction)) {
+        return m_origin;
+    }
+
+    if (m_origin + m_direction == other.m_origin) {
+        return other.m_origin;
+    }
+
+    // Note: Now that we've checked the endpoints, all other parallel lines can now be assumed
+    // to not intersect (within numerical precision)
+
+    Vector2 dir1    = m_direction;
+    Vector2 dir2    = other.m_direction;
+    Vector2 origin1 = m_origin;
+    Vector2 origin2 = other.m_origin;
+
+    if (dir1.x == 0) {
+        // Avoid an upcoming divide by zero
+        dir1 = dir1.yx();
+        dir2 = dir2.yx();
+        origin1 = origin1.yx();
+        origin2 = origin2.yx();
+    }
+
+    // t1 = ((other.m_origin.x - m_origin.x) + other.m_direction.x * t2) / m_direction.x
+    //
+    // ((other.m_origin.x - m_origin.x) + other.m_direction.x * t2) * m_direction.y / m_direction.x = 
+    //        (other.m_origin.y - m_origin.y) + other.m_direction.y * t2
+    //
+    // m = m_direction.y / m_direction.x
+    // d = other.m_origin - m_origin
+    //
+    // (d.x + other.m_direction.x * t2) * m = d.y + other.m_direction.y * t2
+    //
+    // d.x * m + other.m_direction.x * m * t2 = d.y + other.m_direction.y * t2
+    //
+    // d.x * m - d.y  = (other.m_direction.y - other.m_direction.x * m) * t2
+    //
+    // (d.x * m - d.y) / (other.m_direction.y - other.m_direction.x * m)  = t2
+    //
+
+    Vector2 d = origin2 - origin1;
+    float m = dir1.y / dir1.x;
+
+    float t2 = (d.x * m - d.y) / (dir2.y - dir2.x * m);
+    if (! isFinite(t2)) {
+        // Parallel lines: no intersection
+        return Vector2::inf();
+    }
+
+    if ((t2 < 0.0f) || (t2 > 1.0f)) {
+        // Intersection occurs past the end of the line segments
+        return Vector2::inf();
+    }
+
+    float t1 = (d.x + dir2.x * t2) / dir1.x;
+    if ((t1 < 0.0f) || (t1 > 1.0f)) {
+        // Intersection occurs past the end of the line segments
+        return Vector2::inf();
+    }
+
+    // Return the intersection point (computed from non-transposed 
+    // variables even if we flipped above)
+    return m_origin + m_direction * t1;
+    
 }
 
 }
