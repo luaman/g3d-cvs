@@ -17,10 +17,6 @@
 #include <string>
 #include <stdio.h>
 #include <cstdarg>
-#include <assert.h>
-#ifndef G3D_WIN32
-#    include <stdarg.h>
-#endif
 
 namespace G3D {
 
@@ -43,6 +39,6 @@ std::string vformat(
     va_list                     argPtr) G3D_CHECK_VPRINTF_ARGS;
 
 
-}; // namespace
+} // namespace
 
 #endif
