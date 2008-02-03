@@ -119,13 +119,13 @@ void GUIViewer::createGui(const std::string& filename) {
     pane->addTextBox("Disabled", &text)->setEnabled(false);
 
     pane = bgControl->pane();
-    windowControl = BLUE;
+    windowControl = BGIMAGE2;
     pane->addLabel("Background Color");
     pane->addRadioButton(GuiCaption("White"), WHITE, &windowControl);
     pane->addRadioButton(GuiCaption("Blue"), BLUE, &windowControl);
     pane->addRadioButton(GuiCaption("Black"), BLACK, &windowControl);
     pane->addRadioButton(GuiCaption("background1.jpg"), BGIMAGE1, &windowControl)->setEnabled(background1.notNull());
-    pane->addRadioButton(GuiCaption("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background1.notNull());
+    pane->addRadioButton(GuiCaption("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background2.notNull());
 
     // Gets rid of any empty, unused space in the windows
     window->pack();

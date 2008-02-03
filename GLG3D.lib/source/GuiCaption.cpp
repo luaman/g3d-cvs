@@ -63,11 +63,11 @@ GuiCaption GuiCaption::Symbol::stop() {
 }
 
 GuiCaption GuiCaption::Symbol::forward() {
-    return GuiCaption("0", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+    return GuiCaption(std::string() + (char)0x38, GFont::fromFile(System::findDataFile("icon.fnt")), 16);
 }
 
 GuiCaption GuiCaption::Symbol::reverse() {
-    return GuiCaption("/", GFont::fromFile(System::findDataFile("icon.fnt")), 16);
+    return GuiCaption(std::string() + (char)0x37, GFont::fromFile(System::findDataFile("icon.fnt")), 16);
 }
 
 GuiCaption GuiCaption::Symbol::previous() {
