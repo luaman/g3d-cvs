@@ -175,10 +175,10 @@ private:
 
     void checkIntegrity() const {
 #       ifdef G3D_DEBUG
-           assert(bucket == NULL || isValidHeapPointer(bucket));
+           debugAssert(bucket == NULL || isValidHeapPointer(bucket));
            for (size_t b = 0; b < numBuckets; ++b) {
                Node* node = bucket[b];
-               assert(node == NULL || isValidHeapPointer(node));
+               debugAssert(node == NULL || isValidHeapPointer(node));
            }
 #       endif
     }

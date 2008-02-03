@@ -22,8 +22,8 @@ Cone::Cone(const Vector3 &tip, const Vector3 &direction, float angle) {
     this->direction = direction.direction();
     this->angle = angle;
 
-    assert(angle >= 0);
-    assert(angle <= pi());
+    debugAssert(angle >= 0);
+    debugAssert(angle <= pi());
 }
 
 /**
@@ -40,7 +40,7 @@ Cone::Cone(const Vector3& tip, const Box& box) {
     for (int i = 1; i < 8; ++i) {
         float dp = direction.dot((box.corner(i) - tip).direction());
 
-        assert(dp > 0);
+        debugAssert(dp > 0);
 
         if (dp < smallestDotProduct) {
             smallestDotProduct = dp;

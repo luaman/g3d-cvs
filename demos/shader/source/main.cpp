@@ -214,5 +214,5 @@ int main(int argc, char** argv) {
     set.window.width = 1440;
     set.window.height = 900;
     set.window.fsaaSamples = 4;
-    return App(set).run();( 18.5,   1.0,  13.2),  4.4, -0.0
+    return App(set).run();
 }
