@@ -190,7 +190,7 @@ Vector2 GFont::computePackedArray(
     // bilinear interpolation interactions with mipmapping.
     float sy = h / charHeight;
 
-    float x0 = 0;
+    float x0 = x;
 
     const float mwidth = subWidth[(int)'M'] * 0.85f * propW;
 
@@ -452,7 +452,7 @@ Vector2 GFont::draw2D(
         // For each character we need 4 vertices.
         array.resize(numChars * 4 * 2, DONT_SHRINK_UNDERLYING_ARRAY);
 
-        const Vector2 bounds = computePackedArray(s, x, y, w, h, spacing, array);
+        const Vector2 b = computePackedArray(s, x, y, w, h, spacing, array);
 
         int N = numChars * 4;
 
@@ -495,7 +495,7 @@ Vector2 GFont::draw2D(
 
     debugAssertGLOk();
 
-    return bounds;
+    return b;
 }
 
 

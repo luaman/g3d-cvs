@@ -256,6 +256,8 @@ bool GuiTextBox::onEvent(const GEvent& event) {
             } else if (((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
                 (event.key.keysym.sym == 'k')) {
 
+                debugAssert(m_cursorPos < (int)m_userValue.size());
+
                 // Cut (not autorepeatable)
                 std::string cut = m_userValue.substr(m_cursorPos);
                 m_userValue = m_userValue.substr(0, m_cursorPos);

@@ -56,6 +56,10 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
+
+    static std::string text = "hi";
+    debugPane->addTextBox("Text", &text);
+    debugWindow->setVisible(true);
 }
 
 void App::onCleanup() {
@@ -124,6 +128,10 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     sky->render(rd, localSky);
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+
+    rd->push2D();
+        Vector2 b = debugFont->draw2D(rd, "hello, there!", Vector2(100, 100), 30);
+    rd->pop2D();
 
 //	map->render(rd, defaultCamera);
     /*
