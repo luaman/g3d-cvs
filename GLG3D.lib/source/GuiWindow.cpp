@@ -287,6 +287,7 @@ void GuiWindow::close() {
     
     case HIDE_ON_CLOSE:
         setVisible(false);
+
         // Intentionally fall through
 
     case IGNORE_CLOSE:
