@@ -304,7 +304,7 @@ public:
     */
     void setVisible(bool v) { 
         m_visible = v;
-        if (! v && m_manager->notNull()) {
+        if (! v && m_manager != NULL) {
             m_manager->defocusWidget(this);
         }
     }
