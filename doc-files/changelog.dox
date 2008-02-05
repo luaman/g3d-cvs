@@ -39,6 +39,7 @@
      <li> Optimized G3D::Matrix::pseudoInverse; now about 2x faster
      <li> G3D::GLight::effectSphere
      <li> G3D::GuiWindow::moveTo
+     <li> G3D::GuiWindow::setEnabled, enabled
      <li> G3D::GuiButton now sizes to its caption
      <li> G3D::GuiSlider now fires events on change and drag
      <li> G3D::Shader arguments (in G3D::VertexAndPixelShader::ArgList) may now be "optional"

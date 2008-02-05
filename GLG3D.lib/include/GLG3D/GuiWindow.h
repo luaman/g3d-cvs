@@ -177,7 +177,7 @@ private:
         ~Modal();
     };
 
-    Modal*                 modal;
+    Modal*              modal;
 
     /** Window label */
     GuiCaption          m_text;
@@ -210,6 +210,7 @@ private:
     GuiControl*         mouseOverGuiControl;
     GuiControl*         keyFocusGuiControl;
     
+    bool                m_enabled;
     bool                m_focused;
     bool                m_mouseVisible;
     
@@ -308,6 +309,15 @@ public:
             m_manager->defocusWidget(this);
         }
     }
+
+    void setEnabled(bool e) {
+        m_enabled = e;
+    }
+
+    bool enabled() const {
+        return m_enabled;
+    }
+
 
     ~GuiWindow();
 

@@ -38,7 +38,8 @@ GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect
       mouseOverGuiControl(NULL), 
       keyFocusGuiControl(NULL),
       m_focused(false),
-      m_mouseVisible(false) {
+      m_mouseVisible(false),   
+      m_enabled(true) {
 
     setRect(rect);
     posed = new Posed(this);
@@ -117,6 +118,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
     m_mouseVisible = (ui->window()->mouseHideCount() <= 0);
 
     m_focused =
+        m_enabled &&
         m_visible &&
         (m_manager->focusedWidget().pointer() == this) &&
         m_mouseVisible;
@@ -154,11 +156,13 @@ void GuiWindow::onPose(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>&
     }
 }
 
+
 static bool isMouseEvent(const GEvent& e) {
     return (e.type == GEventType::MOUSE_MOTION) ||
         (e.type == GEventType::MOUSE_BUTTON_DOWN) ||
         (e.type == GEventType::MOUSE_BUTTON_UP);
 }
+
 
 static GEvent makeRelative(const GEvent& e, const Vector2& clientOrigin) {
     GEvent out(e);
@@ -183,6 +187,10 @@ static GEvent makeRelative(const GEvent& e, const Vector2& clientOrigin) {
 bool GuiWindow::onEvent(const GEvent &event) {
     if (! m_mouseVisible || ! m_visible) {
         // Can't be using the GuiWindow if the mouse isn't visible or the gui isn't visible
+        return false;
+    }
+
+    if (! m_enabled) {
         return false;
     }
 
@@ -278,6 +286,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
     return consumed;
 }
+
 
 void GuiWindow::close() {
     switch (m_closeAction) {
