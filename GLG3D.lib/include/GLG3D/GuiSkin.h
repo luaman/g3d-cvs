@@ -63,9 +63,13 @@ public:
         WINDOW_STYLE_COUNT
     };
     
+    /**
+    NO_PANE_STYLE has no visible borders or back
+    */
     enum PaneStyle {
         SIMPLE_PANE_STYLE,
         ORNATE_PANE_STYLE,
+        NO_PANE_STYLE,
 
         PANE_STYLE_COUNT
     };
@@ -81,6 +85,18 @@ public:
         NO_BUTTON_STYLE,
 
         BUTTON_STYLE_COUNT
+    };
+
+    /** NORMAL_CHECK_BOX_STYLE is the normal checkbox appearance.  
+        BUTTON_CHECK_BOX_STYLE makes checkbox that looks like a button,
+        TOOL_CHECK_BOX_STYLE appears as a tool-bar button.
+    */
+    enum CheckBoxStyle {
+        NORMAL_CHECK_BOX_STYLE, 
+        BUTTON_CHECK_BOX_STYLE,
+        TOOL_CHECK_BOX_STYLE,
+
+        CHECK_BOX_STYLE_COUNT
     };
 
 private:

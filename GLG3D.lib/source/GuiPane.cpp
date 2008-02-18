@@ -17,6 +17,8 @@ namespace G3D {
 
 GuiPane::Morph::Morph() : active(false) {}
 
+/** Pixels of padding between controls */
+static const float CONTROL_PADDING = 4.0f;
 
 void GuiPane::Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
     active = true;
@@ -43,13 +45,13 @@ void GuiPane::init(const Rect2D& rect) {
 }
 
 
-GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, Style style) 
+GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style) 
     : GuiControl(gui, text), m_style(style) {
     init(rect);
 }
 
 
-GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style) 
+GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style) 
     : GuiControl(parent, text), m_style(style) {
     init(rect);
 }
@@ -87,9 +89,14 @@ Vector2 GuiPane::contentsExtent() const {
 }
 
 
-Vector2 GuiPane::nextControlPos() const {
-    float y = contentsExtent().y;
-    return Vector2(4, max(y, 4.0f));
+Vector2 GuiPane::nextControlPos(bool isTool) const {
+    if (isTool && (controlArray.size() > 0) && controlArray.last()->toolStyle() ) {
+        // Place next to previous tool
+        return controlArray.last()->rect().x1y0();
+    } else {
+        float y = contentsExtent().y;
+        return Vector2(CONTROL_PADDING, max(y, CONTROL_PADDING));
+    }
 }
 
 
@@ -99,7 +106,7 @@ void GuiPane::increaseBounds(const Vector2& extent) {
         Rect2D newRect = Rect2D::xywh(Vector2(0,0), extent.max(m_clientRect.wh()));
 
         // Transform the client rect into an absolute rect
-        if (m_style != NO_FRAME_STYLE) {
+        if (m_style != GuiSkin::NO_PANE_STYLE) {
             newRect = skin()->clientToPaneBounds(newRect, GuiSkin::PaneStyle(m_style));
         }
 
@@ -126,7 +133,7 @@ void GuiPane::pack() {
 void GuiPane::setRect(const Rect2D& rect) {
     m_rect = rect;
     
-    if (m_style == NO_FRAME_STYLE) {
+    if (m_style == GuiSkin::NO_PANE_STYLE) {
         m_clientRect = m_rect;
     } else {
         m_clientRect = skin()->paneToClientBounds(m_rect, GuiSkin::PaneStyle(m_style));
@@ -173,12 +180,12 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 GuiCheckBox* GuiPane::addCheckBox
 (const GuiCaption& text,
  const Pointer<bool>& pointer,
- GuiCheckBox::Style style) {
+ GuiSkin::CheckBoxStyle style) {
     GuiCheckBox* c = addControl(new GuiCheckBox(this, text, pointer, style));
     
     Vector2 size(0, CONTROL_HEIGHT);
 
-    if (style == GuiCheckBox::TOOL_STYLE) {
+    if (style == GuiSkin::TOOL_CHECK_BOX_STYLE) {
         size.x = TOOL_BUTTON_WIDTH;
     } else {
         size.x = BUTTON_WIDTH;
@@ -193,7 +200,7 @@ GuiCheckBox* GuiPane::addCheckBox
 
 
 void GuiPane::addCustom(GuiControl* c) {
-    c->setPosition(nextControlPos());
+    c->setPosition(nextControlPos(c->toolStyle()));
     controlArray.append(c);
 }
 
@@ -229,8 +236,8 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
 }
 
 
-GuiPane* GuiPane::addPane(const GuiCaption& text, GuiPane::Style style) {
-    Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), GuiSkin::PaneStyle(style));
+GuiPane* GuiPane::addPane(const GuiCaption& text, GuiSkin::PaneStyle style) {
+    Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
 
     Vector2 pos = nextControlPos();
 
@@ -280,9 +287,7 @@ void GuiPane::render(RenderDevice* rd, const GuiSkinRef& skin) const {
         return;
     }
 
-    if (m_style != NO_FRAME_STYLE) {
-        skin->renderPane(m_rect, GuiSkin::PaneStyle(m_style));
-    }
+    skin->renderPane(m_rect, m_style);
 
     skin->pushClientRect(m_clientRect);
 

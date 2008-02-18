@@ -50,25 +50,21 @@ DeveloperWindow::DeveloperWindow(
     GuiCaption debugIcon("@", iconFont, iconSize * 0.8);
     GuiCaption printIcon(std::string() + char(157), iconFont, iconSize * 0.8); //105 = information
 
-    GuiControl* cameraButton = root->addCheckBox(cameraIcon, Pointer<bool>(cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible), GuiCheckBox::TOOL_STYLE);
+    GuiControl* cameraButton = root->addCheckBox(cameraIcon, Pointer<bool>(cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible), GuiSkin::TOOL_CHECK_BOX_STYLE);
     cameraButton->setSize(buttonSize);
     cameraButton->setPosition(0, 0);
 
-    GuiControl* consoleButton = root->addCheckBox(consoleIcon, Pointer<bool>(consoleWindow, &GConsole::active, &GConsole::setActive), GuiCheckBox::TOOL_STYLE);
+    GuiControl* consoleButton = root->addCheckBox(consoleIcon, Pointer<bool>(consoleWindow, &GConsole::active, &GConsole::setActive), GuiSkin::TOOL_CHECK_BOX_STYLE);
     consoleButton->setSize(buttonSize);
-    consoleButton->moveRightOf(cameraButton);
 
-    GuiControl* debugButton = root->addCheckBox(debugIcon, debugVisible, GuiCheckBox::TOOL_STYLE);
+    GuiControl* debugButton = root->addCheckBox(debugIcon, debugVisible, GuiSkin::TOOL_CHECK_BOX_STYLE);
     debugButton->setSize(buttonSize);
-    debugButton->moveRightOf(consoleButton);
 
-    GuiControl* statsButton = root->addCheckBox(statsIcon, showStats, GuiCheckBox::TOOL_STYLE);
+    GuiControl* statsButton = root->addCheckBox(statsIcon, showStats, GuiSkin::TOOL_CHECK_BOX_STYLE);
     statsButton->setSize(buttonSize);
-    statsButton->moveRightOf(debugButton);
 
-    GuiControl* printButton = root->addCheckBox(printIcon, showText, GuiCheckBox::TOOL_STYLE);
+    GuiControl* printButton = root->addCheckBox(printIcon, showText, GuiSkin::TOOL_CHECK_BOX_STYLE);
     printButton->setSize(buttonSize);
-    printButton->moveRightOf(statsButton);
 
     cameraControlWindow->setVisible(false);
     pack();

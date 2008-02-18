@@ -37,13 +37,13 @@ GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect
       inDrag(false),
       mouseOverGuiControl(NULL), 
       keyFocusGuiControl(NULL),
+      m_enabled(true),
       m_focused(false),
-      m_mouseVisible(false),   
-      m_enabled(true) {
+      m_mouseVisible(false) {
 
     setRect(rect);
     posed = new Posed(this);
-    m_rootPane = new GuiPane(this, "", clientRect() - clientRect().x0y0(), GuiPane::NO_FRAME_STYLE);
+    m_rootPane = new GuiPane(this, "", clientRect() - clientRect().x0y0(), GuiSkin::NO_PANE_STYLE);
 }
 
 

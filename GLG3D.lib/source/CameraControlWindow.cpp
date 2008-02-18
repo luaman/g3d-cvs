@@ -134,7 +134,6 @@ CameraControlWindow::CameraControlWindow(
          &UprightSplineManipulator::setMode,
          GuiRadioButton::TOOL_STYLE);
     playButton->setSize(buttonSize);
-    playButton->moveRightOf(recordButton);
 
     stopButton = manualPane->addRadioButton
         (GuiCaption::Symbol::stop(), 
@@ -144,7 +143,6 @@ CameraControlWindow::CameraControlWindow(
          &UprightSplineManipulator::setMode,
          GuiRadioButton::TOOL_STYLE);
     stopButton->setSize(buttonSize);
-    stopButton->moveRightOf(playButton);
 
     saveButton = manualPane->addButton("Save...");
     saveButton->moveRightOf(stopButton);
@@ -183,7 +181,7 @@ CameraControlWindow::CameraControlWindow(
     // layout to become broken.
     drawerCollapseCaption = GuiCaption("5", iconFont);
     drawerExpandCaption = GuiCaption("6", iconFont);
-    drawerButtonPane = pane->addPane("", GuiPane::NO_FRAME_STYLE);
+    drawerButtonPane = pane->addPane("", GuiSkin::NO_PANE_STYLE);
     drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiSkin::TOOL_BUTTON_STYLE);
     drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));
     drawerButtonPane->setSize(12, 12);

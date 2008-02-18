@@ -26,6 +26,7 @@
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/GuiSkin.h"
 
 namespace G3D {
 
@@ -52,13 +53,6 @@ private:
     enum {BUTTON_WIDTH = 80};
     enum {TOOL_BUTTON_WIDTH = 50};
 
-public:
-
-    /** Controls the appearance of the pane's borders and background.
-     */
-    // These constants must match the GuiSkin::PaneStyle constants
-    enum Style {SIMPLE_FRAME_STYLE, ORNATE_FRAME_STYLE, NO_FRAME_STYLE};
-    
 protected:
 
     /** If this is a mouse event, make it relative to the client rectangle */
@@ -96,7 +90,7 @@ protected:
 
     Morph               m_morph;
 
-    Style               m_style;
+    GuiSkin::PaneStyle  m_style;
 
     Array<GuiControl*>  controlArray;
     /** Sub panes */
@@ -105,8 +99,8 @@ protected:
 
     Rect2D              m_clientRect;
 
-    GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, Style style);
-    GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, Style style);
+    GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style);
+    GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style);
 
     /**
        Called from constructors.
@@ -131,12 +125,13 @@ protected:
     void increaseBounds(const Vector2& extent);
 
     /** Finds the next vertical position for a control relative to the client rect. */
-    Vector2 nextControlPos() const;
+    Vector2 nextControlPos(bool isTool = false) const;
 
     template<class T>
     T* addControl(T* c) {
-        Vector2 p = nextControlPos();
-        c->setRect(Rect2D::xywh(p, Vector2(max(m_clientRect.width() - p.x, (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+        Vector2 p = nextControlPos(c->toolStyle());
+        c->setRect(Rect2D::xywh(p, Vector2(max(m_clientRect.width() - p.x, 
+                                               (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
 
         increaseBounds(c->rect().x1y1());
 
@@ -186,7 +181,7 @@ public:
         If the text is "", no space is reserved for a caption.  If non-empty (even " "), then
         space is reserved and the caption may later be changed.
      */
-    GuiPane* addPane(const GuiCaption& text = "", GuiPane::Style style = GuiPane::SIMPLE_FRAME_STYLE);
+    GuiPane* addPane(const GuiCaption& text = "", GuiSkin::PaneStyle style = GuiSkin::SIMPLE_PANE_STYLE);
 
     /**
        <pre>
@@ -203,12 +198,12 @@ public:
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
      const Pointer<bool>& pointer,
-     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE);
+     GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE);
 
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
      bool* pointer,
-     GuiCheckBox::Style style = GuiCheckBox::BOX_STYLE
+     GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE
      ) {
         return addCheckBox(text, Pointer<bool>(pointer), style);
     }

@@ -86,6 +86,11 @@ public:
 
     GuiSkinRef skin() const;
 
+    /** Return true if this is in tool button style */
+    virtual bool toolStyle() const { 
+        return false;
+    }
+
 protected:
 
     /**

@@ -46,12 +46,12 @@ void GUIViewer::createGui(const std::string& filename) {
     slider[1] = 1.8f;
 
     {
-        GuiPane* p = pane->addPane("Pane (NO_FRAME_STYLE)", GuiPane::NO_FRAME_STYLE);
+        GuiPane* p = pane->addPane("Pane (NO_PANE_STYLE)", GuiSkin::NO_PANE_STYLE);
         p->addSlider("Slider", &slider[0], 1.0f, 2.2f);
         p->addSlider("Slider Disabled", &slider[1], 1.0f, 2.2f)->setEnabled(false);
     }
     {
-        GuiPane* p = pane->addPane("Pane (SIMPLE_FRAME_STYLE)", GuiPane::SIMPLE_FRAME_STYLE);
+        GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiSkin::SIMPLE_PANE_STYLE);
         p->addLabel("RadioButton (RADIO_STYLE)");
         p->addRadioButton("Sel, Dis", 1, &radio[0])->setEnabled(false);
         p->addRadioButton("Desel, Dis", 2, &radio[0])->setEnabled(false);
@@ -60,7 +60,7 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     {
-        GuiPane* p = pane->addPane("Pane (SIMPLE_FRAME_STYLE)", GuiPane::SIMPLE_FRAME_STYLE);
+        GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiSkin::SIMPLE_PANE_STYLE);
         p->addLabel("RadioButton (BUTTON_STYLE)");
         p->addRadioButton("Selected, Disabled", 5, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
         p->addRadioButton("Deselected, Disabled", 6, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
@@ -71,8 +71,8 @@ void GUIViewer::createGui(const std::string& filename) {
 
     pane = toolWindow->pane();
     {
-        GuiPane* p = pane->addPane("Pane (ORNATE_FRAME_STYLE)", GuiPane::ORNATE_FRAME_STYLE);
-        p->addLabel("Checkbox (CHECKBOX_SYLE)");
+        GuiPane* p = pane->addPane("Pane (ORNATE_PANE_STYLE)", GuiSkin::ORNATE_PANE_STYLE);
+        p->addLabel("CheckBox (NORMAL_CHECK_BOX_SYLE)");
         checkbox[0] = true;
         checkbox[1] = false;
         checkbox[2] = true;
@@ -84,27 +84,25 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     {
-        GuiPane* p = pane->addPane("", GuiPane::SIMPLE_FRAME_STYLE);
-        p->addLabel("Button (Checkbox)");
+        GuiPane* p = pane->addPane("", GuiSkin::SIMPLE_PANE_STYLE);
+        p->addLabel("CheckBox (BUTTON_CHECK_BOX_STYLE)");
         checkbox[4] = true;
         checkbox[5] = false;
         checkbox[6] = true;
         checkbox[7] = false;
-        p->addCheckBox("Selected, Disabled", &checkbox[4], GuiCheckBox::BUTTON_STYLE)->setEnabled(false);
-        p->addCheckBox("Deselected, Disabled", &checkbox[5], GuiCheckBox::BUTTON_STYLE)->setEnabled(false);
-        p->addCheckBox("Selected, Enabled", &checkbox[6], GuiCheckBox::BUTTON_STYLE);
-        p->addCheckBox("Deselected, Enabled", &checkbox[7], GuiCheckBox::BUTTON_STYLE);
+        p->addCheckBox("Selected, Disabled", &checkbox[4], GuiSkin::BUTTON_CHECK_BOX_STYLE)->setEnabled(false);
+        p->addCheckBox("Deselected, Disabled", &checkbox[5], GuiSkin::BUTTON_CHECK_BOX_STYLE)->setEnabled(false);
+        p->addCheckBox("Selected, Enabled", &checkbox[6], GuiSkin::BUTTON_CHECK_BOX_STYLE);
+        p->addCheckBox("Deselected, Enabled", &checkbox[7], GuiSkin::BUTTON_CHECK_BOX_STYLE);
         p->addButton("Disabled")->setEnabled(false);
     }
 
     pane = dropdownWindow->pane();
-    GuiButton* t1 = pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
+    pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
     GuiButton* t2 = pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
-    t2->moveRightOf(t1);
     t2->setEnabled(false);
     static bool check = false;
-    GuiCheckBox* t3 = pane->addCheckBox("Check", &check, GuiCheckBox::TOOL_STYLE);
-    t3->moveRightOf(t2);
+    pane->addCheckBox("Check", &check, GuiSkin::TOOL_CHECK_BOX_STYLE);
 
     dropdownIndex[0] = 0;
     dropdownIndex[1] = 0;

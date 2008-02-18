@@ -2,10 +2,10 @@
  @file GLG3D/GuiCheckBox.h
 
  @created 2006-05-01
- @edited  2007-06-01
+ @edited  2008-02-01
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
+ Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
 #ifndef G3D_GUICHECKBOX_H
@@ -13,6 +13,7 @@
 
 #include "GLG3D/GuiControl.h"
 #include "G3D/Pointer.h"
+#include "GLG3D/GuiSkin.h"
 
 namespace G3D {
 
@@ -25,9 +26,6 @@ class GuiCheckBox : public GuiControl {
     friend class GuiPane;
 public:
 
-    /** Box is the normal checkbox appearance.  Button makes them appear as a normal button, Tool as a tool button.*/
-    enum Style {BOX_STYLE, BUTTON_STYLE, TOOL_STYLE};
-
     virtual void setRect(const Rect2D& rect);
 
 protected:
@@ -35,7 +33,7 @@ protected:
     Pointer<bool>     m_value;
     Style             m_style;
     
-    GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, Style style = BOX_STYLE);
+    GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE);
 
     virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
 
@@ -43,6 +41,10 @@ protected:
     virtual bool onEvent(const GEvent& event);
 
 public:
+
+    virtual bool toolStyle() const { 
+        return m_style == GuiSkin::TOOL_CHECK_BOX_STYLE;
+    }
 };
 
 } // G3D

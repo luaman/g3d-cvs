@@ -416,7 +416,9 @@ void GuiSkin::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, b
 
 
 void GuiSkin::renderPane(const Rect2D& bounds, PaneStyle paneStyle) const {
-    m_pane[paneStyle].frame.render(rd, bounds, Vector2::zero());
+    if (paneStyle != NO_PANE_STYLE) {
+        m_pane[paneStyle].frame.render(rd, bounds, Vector2::zero());
+    }
 }
 
 

@@ -53,6 +53,10 @@ protected:
 
 public:
     virtual void setRect(const Rect2D& rect);
+
+    virtual bool toolStyle() const { 
+        return m_style == TOOL_STYLE;
+    }
 };
 
 } // G3D

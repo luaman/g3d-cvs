@@ -45,6 +45,11 @@ protected:
     virtual bool onEvent(const GEvent& event);
     
 public:
+
+    virtual bool toolStyle() const { 
+        return m_style == GuiSkin::TOOL_BUTTON_STYLE;
+    }
+
 };
 
 } // G3D
