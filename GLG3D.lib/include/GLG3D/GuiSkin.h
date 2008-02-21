@@ -16,6 +16,38 @@
 
 namespace G3D {
 
+namespace _internal {
+    class Morph {
+    public:
+        bool            active;
+        Rect2D          start;
+        RealTime        startTime;
+        RealTime        duration;
+        Rect2D          end;
+
+        Morph();
+
+        void morphTo(const Rect2D& s, const Rect2D& e);
+
+        /** Morph the object using setRect */
+        template<class T>
+        void update(T* object) {
+            RealTime now = System::time();
+            float alpha = (now - startTime) / duration;
+            if (alpha > 1.0f) {
+                object->setRect(end);
+                active = false;
+                // The setRect will terminate the morph
+            } else {
+                object->setRect(start.lerp(end, alpha));
+                // setRect turns off morphing, so we have to turn it back
+                // on explicitly
+                active = true;
+            }
+        }    
+    };
+}
+
 typedef ReferenceCountedPointer<class GuiSkin> GuiSkinRef;
 
 /**

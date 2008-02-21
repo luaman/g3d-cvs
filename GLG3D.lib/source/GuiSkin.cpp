@@ -14,6 +14,25 @@
 
 namespace G3D {
 
+namespace _internal {    
+    Morph::Morph() : active(false) {}
+
+void Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
+    active = true;
+    start  = startPos;
+    end    = endPos;
+
+    // Make the morph approximately constant velocity
+    const float pixelsPerSecond = 1500;
+
+    duration = max((double)0.12, (double)(start.center() - end.center()).length() / pixelsPerSecond);
+
+    startTime = System::time();
+}
+
+}
+
+
 static void toGLMatrix(const Matrix4& m, float f[]) {
     for (int r = 0; r < 4; ++r) {
         for (int c = 0; c < 4; ++c) {

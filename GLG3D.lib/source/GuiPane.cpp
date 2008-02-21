@@ -15,24 +15,8 @@
 
 namespace G3D {
 
-GuiPane::Morph::Morph() : active(false) {}
-
 /** Pixels of padding between controls */
 static const float CONTROL_PADDING = 4.0f;
-
-void GuiPane::Morph::morphTo(const Rect2D& startPos, const Rect2D& endPos) {
-    active = true;
-    start  = startPos;
-    end    = endPos;
-
-    // Make the morph approximately constant velocity
-    const float pixelsPerSecond = 1500;
-
-    duration = max((double)0.12, (double)(start.center() - end.center()).length() / pixelsPerSecond);
-
-    startTime = System::time();
-}
-
 
 void GuiPane::init(const Rect2D& rect) {
     setRect(rect);

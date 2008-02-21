@@ -19,10 +19,8 @@
 #include "GLG3D/Widget.h"
 #include "GLG3D/GuiSkin.h"
 #include "GLG3D/GuiControl.h"
-#include "GLG3D/GuiCheckBox.h"
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
-#include "GLG3D/GuiPane.h"
 
 namespace G3D {
 
@@ -129,7 +127,7 @@ public:
      */
     enum CloseAction {NO_CLOSE, IGNORE_CLOSE, HIDE_ON_CLOSE, REMOVE_ON_CLOSE};
     
-private:
+protected:
 
     /** Used for rendering the UI */
     class Posed : public PosedModel2D {
@@ -214,7 +212,7 @@ private:
     bool                m_focused;
     bool                m_mouseVisible;
     
-    GuiPane::Morph      m_morph;
+    _internal::Morph    m_morph;
 
     Array<GuiDrawer*>   m_drawerArray;
     GuiPane*            m_rootPane;
@@ -308,6 +306,10 @@ public:
         if (! v && m_manager != NULL) {
             m_manager->defocusWidget(this);
         }
+    }
+
+    WidgetManager* manager() const {
+        return m_manager;
     }
 
     void setEnabled(bool e) {

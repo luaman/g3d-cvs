@@ -11,13 +11,13 @@
 #ifndef G3D_GUIDROPDOWNLIST_H
 #define G3D_GUIDROPDOWNLIST_H
 
-#include "GLG3D/GuiControl.h"
 #include "G3D/Pointer.h"
 #include "G3D/Array.h"
+#include "GLG3D/GuiWindow.h"
+#include "GLG3D/GuiControl.h"
 
 namespace G3D {
 
-class GuiWindow;
 class GuiPane;
 
 typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
@@ -28,7 +28,7 @@ typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
 class GuiMenu : public GuiWindow {
 protected:
     
-    GuiMenu(GuiSkinRef skin, const Rect2D& rect);
+    GuiMenu(const GuiSkinRef& skin, const Rect2D& rect);
 
 public:
 
@@ -49,10 +49,8 @@ class GuiDropDownList : public GuiControl {
 
 protected:
 
-    /**
-       Menu
-     */
-    GuiWindowRef                    m_menu;
+    /** Pop-up list menu */
+    GuiMenuRef                      m_menu;
 
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;

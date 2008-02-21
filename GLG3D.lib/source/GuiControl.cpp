@@ -10,6 +10,7 @@
 #include "G3D/platform.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiWindow.h"
+#include "GLG3D/GuiPane.h"
 
 namespace G3D {
 

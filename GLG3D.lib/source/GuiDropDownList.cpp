@@ -14,8 +14,8 @@
 namespace G3D {
 
 
-    // TODO: Special menu style
-GuiMenu::GuiMenu(GuiSkinRef skin, const Rect2D& rect) : 
+// TODO: Special menu style
+GuiMenu::GuiMenu(const GuiSkinRef& skin, const Rect2D& rect) : 
     GuiWindow("", skin, rect, GuiWindow::NORMAL_FRAME_STYLE, NO_CLOSE) {
 }
 
@@ -52,7 +52,7 @@ void GuiMenu::show(WidgetManager* manager, const Vector2& position) {
 
 void GuiMenu::hide() {
     setVisible(false);
-    setFocused(false);
+    m_manager->setFocusedWidget(this);
     m_manager->remove(this);
 }        
 
@@ -111,7 +111,8 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
     if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
 
         // Show the menu
-        m_menu->show(m_manager, rect.x0y0());
+        // TODO:
+//        m_menu->show(m_gui->manager(), rect().x0y0());
         return true;
 
     } else if (event.type == GEventType::KEY_DOWN) {

@@ -30,8 +30,8 @@ public:
 
 protected:
 
-    Pointer<bool>     m_value;
-    Style             m_style;
+    Pointer<bool>           m_value;
+    GuiSkin::CheckBoxStyle  m_style;
     
     GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE);
 

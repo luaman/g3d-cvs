@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2002-07-28
-  @edited  2006-08-10
+  @edited  2008-02-10
 */
 #ifndef G3D_CAMERACONTROLWINDOW_H
 #define G3D_CAMERACONTROLWINDOW_H
@@ -13,6 +13,8 @@
 #include "GLG3D/Widget.h"
 #include "GLG3D/UprightSplineManipulator.h"
 #include "GLG3D/GuiWindow.h"
+#include "GLG3D/GuiLabel.h"
+#include "GLG3D/GuiCheckBox.h"
 #include "GLG3D/FirstPersonManipulator.h"
 
 namespace G3D {

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-06-01
-  @edited  2007-06-28
+  @edited  2008-02-28
 */
 #include "G3D/platform.h"
 #include "G3D/GCamera.h"
@@ -12,6 +12,7 @@
 #include "G3D/fileutils.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/FileDialog.h"
+#include "GLG3D/GuiPane.h"
 
 namespace G3D {
 

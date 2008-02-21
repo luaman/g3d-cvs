@@ -4,10 +4,11 @@
 @maintainer Morgan McGuire, morgan@cs.williams.edu
 
 @created 2007-10-01
-@edited  2007-10-10
+@edited  2008-02-10
 */
 
 #include "GLG3D/FileDialog.h"
+#include "GLG3D/GuiPane.h"
 
 namespace G3D {
 
