@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2007-06-19
+ @edited  2008-02-19
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiDropDownList.h"
@@ -12,6 +12,51 @@
 #include "GLG3D/GuiPane.h"
 
 namespace G3D {
+
+
+    // TODO: Special menu style
+GuiMenu::GuiMenu(GuiSkinRef skin, const Rect2D& rect) : 
+    GuiWindow("", skin, rect, GuiWindow::NORMAL_FRAME_STYLE, NO_CLOSE) {
+}
+
+   
+bool GuiMenu::onEvent(const GEvent& event) {
+    // Hide on escape
+    if (m_visible && 
+        (event.type == GEventType::KEY_DOWN) && 
+        (event.key.keysym.sym == GKey::ESCAPE)) {
+
+        hide();
+        return true;
+    }
+
+    // TODO: Enter == selection
+
+    bool handled = GuiWindow::onEvent(event);
+
+    if (! focused()) {
+        hide();
+    }
+
+    return handled;
+}
+
+
+void GuiMenu::show(WidgetManager* manager, const Vector2& position) {
+    manager->add(this);
+    moveTo(position);
+    setVisible(true);
+    manager->setFocusedWidget(this);
+}
+
+
+void GuiMenu::hide() {
+    setVisible(false);
+    setFocused(false);
+    m_manager->remove(this);
+}        
+
+///////////////////////////////////////////////////
 
 GuiDropDownList::GuiDropDownList
 (GuiPane*                    parent, 
@@ -64,10 +109,11 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
     }
 
     if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
-        // TODO: handle selection TODO: GuiWindow must support an
-        // active "menu" that can float over everything and steal all
-        // events
+
+        // Show the menu
+        m_menu->show(m_manager, rect.x0y0());
         return true;
+
     } else if (event.type == GEventType::KEY_DOWN) {
         switch (event.key.keysym.sym) {
         case GKey::DOWN:

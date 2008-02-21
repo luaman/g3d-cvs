@@ -3,7 +3,6 @@
 
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
-
  @created 2006-04-22
  @edited  2007-05-30
 */

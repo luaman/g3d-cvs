@@ -20,6 +20,25 @@ namespace G3D {
 class GuiWindow;
 class GuiPane;
 
+typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
+
+/**
+ A special window that hides itself when it loses focus.
+ */
+class GuiMenu : public GuiWindow {
+protected:
+    
+    GuiMenu(GuiSkinRef skin, const Rect2D& rect);
+
+public:
+
+    virtual bool onEvent(const GEvent& event);
+
+    void hide();
+    void show(WidgetManager* manager, const Vector2& position);
+};
+
+
 /** List box for viewing strings.  Fires
     a G3D::GuiEvent of type G3D::GEventType::GUI_ACTION on the containing window when
     the user selects a new value.
@@ -29,6 +48,11 @@ class GuiDropDownList : public GuiControl {
     friend class GuiPane;
 
 protected:
+
+    /**
+       Menu
+     */
+    GuiWindowRef                    m_menu;
 
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
