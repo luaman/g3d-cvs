@@ -43,7 +43,7 @@ protected:
     /** Set value on the range 0 - 1 */
     virtual void setFloatValue(float f) = 0;
     
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
 

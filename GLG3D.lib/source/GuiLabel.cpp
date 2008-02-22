@@ -17,7 +17,7 @@ GuiLabel::GuiLabel(GuiPane* parent, const GuiCaption& text, GFont::XAlign x, GFo
     : GuiControl(parent, text), m_xalign(x), m_yalign(y) {}
 
 
-void GuiLabel::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiLabel::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
         skin->renderLabel(m_rect, m_caption, m_xalign, m_yalign, m_enabled);
     }

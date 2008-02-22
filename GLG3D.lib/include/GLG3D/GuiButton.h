@@ -12,7 +12,7 @@
 #define G3D_GUIBUTTON_H
 
 #include "GLG3D/GuiControl.h"
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 
@@ -34,20 +34,20 @@ protected:
     /** Is the mouse currently down over this control? */
     bool m_down;
 
-    GuiSkin::ButtonStyle m_style;
+    GuiTheme::ButtonStyle m_style;
 
     /** Called by GuiPanew */
-    GuiButton(GuiPane*, const GuiCaption& text, GuiSkin::ButtonStyle style);
+    GuiButton(GuiPane*, const GuiCaption& text, GuiTheme::ButtonStyle style);
 
     /** Called by GuiWindow */
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
     
 public:
 
     virtual bool toolStyle() const { 
-        return m_style == GuiSkin::TOOL_BUTTON_STYLE;
+        return m_style == GuiTheme::TOOL_BUTTON_STYLE;
     }
 
 };

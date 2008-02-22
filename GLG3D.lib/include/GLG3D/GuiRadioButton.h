@@ -47,7 +47,7 @@ protected:
     
     void setSelected();
 
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
 

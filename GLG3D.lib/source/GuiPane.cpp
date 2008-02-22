@@ -29,13 +29,13 @@ void GuiPane::init(const Rect2D& rect) {
 }
 
 
-GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style) 
+GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
     : GuiControl(gui, text), m_style(style) {
     init(rect);
 }
 
 
-GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style) 
+GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
     : GuiControl(parent, text), m_style(style) {
     init(rect);
 }
@@ -90,8 +90,8 @@ void GuiPane::increaseBounds(const Vector2& extent) {
         Rect2D newRect = Rect2D::xywh(Vector2(0,0), extent.max(m_clientRect.wh()));
 
         // Transform the client rect into an absolute rect
-        if (m_style != GuiSkin::NO_PANE_STYLE) {
-            newRect = skin()->clientToPaneBounds(newRect, GuiSkin::PaneStyle(m_style));
+        if (m_style != GuiTheme::NO_PANE_STYLE) {
+            newRect = skin()->clientToPaneBounds(newRect, GuiTheme::PaneStyle(m_style));
         }
 
         // The new window has the old position and the new width
@@ -117,10 +117,10 @@ void GuiPane::pack() {
 void GuiPane::setRect(const Rect2D& rect) {
     m_rect = rect;
     
-    if (m_style == GuiSkin::NO_PANE_STYLE) {
+    if (m_style == GuiTheme::NO_PANE_STYLE) {
         m_clientRect = m_rect;
     } else {
-        m_clientRect = skin()->paneToClientBounds(m_rect, GuiSkin::PaneStyle(m_style));
+        m_clientRect = skin()->paneToClientBounds(m_rect, GuiTheme::PaneStyle(m_style));
     }
 }
 
@@ -149,7 +149,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
         size.x = TOOL_BUTTON_WIDTH;
     } else if (style == GuiRadioButton::BUTTON_STYLE) {
         size.x = BUTTON_WIDTH;
-        Vector2 bounds = skin()->minButtonSize(text, GuiSkin::NORMAL_BUTTON_STYLE);
+        Vector2 bounds = skin()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
         size = size.max(bounds);
     } else {
         size.x = 30.0f;
@@ -164,16 +164,16 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 GuiCheckBox* GuiPane::addCheckBox
 (const GuiCaption& text,
  const Pointer<bool>& pointer,
- GuiSkin::CheckBoxStyle style) {
+ GuiTheme::CheckBoxStyle style) {
     GuiCheckBox* c = addControl(new GuiCheckBox(this, text, pointer, style));
     
     Vector2 size(0, CONTROL_HEIGHT);
 
-    if (style == GuiSkin::TOOL_CHECK_BOX_STYLE) {
+    if (style == GuiTheme::TOOL_CHECK_BOX_STYLE) {
         size.x = TOOL_BUTTON_WIDTH;
     } else {
         size.x = BUTTON_WIDTH;
-        Vector2 bounds = skin()->minButtonSize(text, GuiSkin::NORMAL_BUTTON_STYLE);
+        Vector2 bounds = skin()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
         size = size.max(bounds);
     }
 
@@ -189,14 +189,14 @@ void GuiPane::addCustom(GuiControl* c) {
 }
 
 
-GuiButton* GuiPane::addButton(const GuiCaption& text, GuiSkin::ButtonStyle style) {
+GuiButton* GuiPane::addButton(const GuiCaption& text, GuiTheme::ButtonStyle style) {
     GuiButton* b = new GuiButton(this, text, style);
 
     addControl(b);
 
     Vector2 size((float)BUTTON_WIDTH, (float)CONTROL_HEIGHT);
 
-    if (style == GuiSkin::NORMAL_BUTTON_STYLE) {
+    if (style == GuiTheme::NORMAL_BUTTON_STYLE) {
         // Ensure that the button is wide enough for the caption
         Vector2 bounds = skin()->minButtonSize(text, style);
         size = size.max(bounds);
@@ -220,7 +220,7 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
 }
 
 
-GuiPane* GuiPane::addPane(const GuiCaption& text, GuiSkin::PaneStyle style) {
+GuiPane* GuiPane::addPane(const GuiCaption& text, GuiTheme::PaneStyle style) {
     Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
 
     Vector2 pos = nextControlPos();
@@ -261,7 +261,7 @@ void GuiPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
 }
 
 
-void GuiPane::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiPane::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_morph.active) {
         GuiPane* me = const_cast<GuiPane*>(this);
         me->m_morph.update(me);

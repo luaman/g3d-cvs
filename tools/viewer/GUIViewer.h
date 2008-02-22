@@ -23,7 +23,7 @@ private:
     GuiWindow::Ref		bgControl;
     GuiWindow::Ref          dropdownWindow;
     App*			parentApp;
-    GuiSkinRef	        skin;
+    GuiThemeRef	        skin;
     TextureRef		background1;
     TextureRef	        background2;
     

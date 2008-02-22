@@ -28,7 +28,7 @@ GUIViewer::GUIViewer(App* app) : parentApp(app) {
 void GUIViewer::createGui(const std::string& filename) {
     GuiPane*			pane;
     
-    skin = GuiSkin::fromFile(filename, parentApp->debugFont);
+    skin = GuiTheme::fromFile(filename, parentApp->debugFont);
     
     window         = GuiWindow::create("Normal", skin, Rect2D::xywh(50,50,0,0),   
                                        GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
@@ -46,12 +46,12 @@ void GUIViewer::createGui(const std::string& filename) {
     slider[1] = 1.8f;
 
     {
-        GuiPane* p = pane->addPane("Pane (NO_PANE_STYLE)", GuiSkin::NO_PANE_STYLE);
+        GuiPane* p = pane->addPane("Pane (NO_PANE_STYLE)", GuiTheme::NO_PANE_STYLE);
         p->addSlider("Slider", &slider[0], 1.0f, 2.2f);
         p->addSlider("Slider Disabled", &slider[1], 1.0f, 2.2f)->setEnabled(false);
     }
     {
-        GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiSkin::SIMPLE_PANE_STYLE);
+        GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiTheme::SIMPLE_PANE_STYLE);
         p->addLabel("RadioButton (RADIO_STYLE)");
         p->addRadioButton("Sel, Dis", 1, &radio[0])->setEnabled(false);
         p->addRadioButton("Desel, Dis", 2, &radio[0])->setEnabled(false);
@@ -60,7 +60,7 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     {
-        GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiSkin::SIMPLE_PANE_STYLE);
+        GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiTheme::SIMPLE_PANE_STYLE);
         p->addLabel("RadioButton (BUTTON_STYLE)");
         p->addRadioButton("Selected, Disabled", 5, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
         p->addRadioButton("Deselected, Disabled", 6, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
@@ -71,7 +71,7 @@ void GUIViewer::createGui(const std::string& filename) {
 
     pane = toolWindow->pane();
     {
-        GuiPane* p = pane->addPane("Pane (ORNATE_PANE_STYLE)", GuiSkin::ORNATE_PANE_STYLE);
+        GuiPane* p = pane->addPane("Pane (ORNATE_PANE_STYLE)", GuiTheme::ORNATE_PANE_STYLE);
         p->addLabel("CheckBox (NORMAL_CHECK_BOX_SYLE)");
         checkbox[0] = true;
         checkbox[1] = false;
@@ -84,25 +84,25 @@ void GUIViewer::createGui(const std::string& filename) {
     }
 
     {
-        GuiPane* p = pane->addPane("", GuiSkin::SIMPLE_PANE_STYLE);
+        GuiPane* p = pane->addPane("", GuiTheme::SIMPLE_PANE_STYLE);
         p->addLabel("CheckBox (BUTTON_CHECK_BOX_STYLE)");
         checkbox[4] = true;
         checkbox[5] = false;
         checkbox[6] = true;
         checkbox[7] = false;
-        p->addCheckBox("Selected, Disabled", &checkbox[4], GuiSkin::BUTTON_CHECK_BOX_STYLE)->setEnabled(false);
-        p->addCheckBox("Deselected, Disabled", &checkbox[5], GuiSkin::BUTTON_CHECK_BOX_STYLE)->setEnabled(false);
-        p->addCheckBox("Selected, Enabled", &checkbox[6], GuiSkin::BUTTON_CHECK_BOX_STYLE);
-        p->addCheckBox("Deselected, Enabled", &checkbox[7], GuiSkin::BUTTON_CHECK_BOX_STYLE);
+        p->addCheckBox("Selected, Disabled", &checkbox[4], GuiTheme::BUTTON_CHECK_BOX_STYLE)->setEnabled(false);
+        p->addCheckBox("Deselected, Disabled", &checkbox[5], GuiTheme::BUTTON_CHECK_BOX_STYLE)->setEnabled(false);
+        p->addCheckBox("Selected, Enabled", &checkbox[6], GuiTheme::BUTTON_CHECK_BOX_STYLE);
+        p->addCheckBox("Deselected, Enabled", &checkbox[7], GuiTheme::BUTTON_CHECK_BOX_STYLE);
         p->addButton("Disabled")->setEnabled(false);
     }
 
     pane = dropdownWindow->pane();
-    pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
-    GuiButton* t2 = pane->addButton("Tool", GuiSkin::TOOL_BUTTON_STYLE);
+    pane->addButton("Tool", GuiTheme::TOOL_BUTTON_STYLE);
+    GuiButton* t2 = pane->addButton("Tool", GuiTheme::TOOL_BUTTON_STYLE);
     t2->setEnabled(false);
     static bool check = false;
-    pane->addCheckBox("Check", &check, GuiSkin::TOOL_CHECK_BOX_STYLE);
+    pane->addCheckBox("Check", &check, GuiTheme::TOOL_CHECK_BOX_STYLE);
 
     dropdownIndex[0] = 0;
     dropdownIndex[1] = 0;

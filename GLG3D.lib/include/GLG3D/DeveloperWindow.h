@@ -16,7 +16,7 @@
 #include "GLG3D/FirstPersonManipulator.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GConsole.h"
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 /**
@@ -30,7 +30,7 @@ protected:
     (const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
-     const GuiSkinRef&                  skin,
+     const GuiThemeRef&                  skin,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
      bool*                              showStats,
@@ -47,7 +47,7 @@ public:
     (const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
-     const GuiSkinRef&                  skin,
+     const GuiThemeRef&                  skin,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
      bool*                              showStats,

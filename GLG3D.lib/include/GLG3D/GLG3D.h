@@ -81,7 +81,7 @@
 #include "GLG3D/SuperShader.h"
 #include "GLG3D/GaussianBlur.h"
 
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiCheckBox.h"

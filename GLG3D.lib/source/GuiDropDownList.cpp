@@ -15,7 +15,7 @@ namespace G3D {
 
 
 // TODO: Special menu style
-GuiMenu::GuiMenu(const GuiSkinRef& skin, const Rect2D& rect) : 
+GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect) : 
     GuiWindow("", skin, rect, GuiWindow::NORMAL_FRAME_STYLE, NO_CLOSE) {
 }
 
@@ -81,7 +81,7 @@ GuiDropDownList::GuiDropDownList
                                           m_useStringList(false) {
 }
 
-void GuiDropDownList::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
 
         if (m_useStringList) {

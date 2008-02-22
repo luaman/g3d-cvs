@@ -27,7 +27,7 @@ CameraControlWindow::Ref CameraControlWindow::create(
     const FirstPersonManipulatorRef&   manualManipulator,
     const UprightSplineManipulatorRef& trackManipulator,
     const Pointer<Manipulator::Ref>&   cameraManipulator,
-    const GuiSkinRef&                  skin) {
+    const GuiThemeRef&                  skin) {
 
     return new CameraControlWindow(manualManipulator, trackManipulator, cameraManipulator, skin);
 }
@@ -71,7 +71,7 @@ CameraControlWindow::CameraControlWindow(
     const FirstPersonManipulatorRef&      manualManipulator, 
     const UprightSplineManipulatorRef&    trackManipulator, 
     const Pointer<Manipulator::Ref>&      cameraManipulator,
-    const GuiSkinRef&                     skin) : 
+    const GuiThemeRef&                     skin) : 
     GuiWindow("Camera Control", 
               skin, 
               Rect2D::xywh(5, 54, 200, 0),
@@ -182,8 +182,8 @@ CameraControlWindow::CameraControlWindow(
     // layout to become broken.
     drawerCollapseCaption = GuiCaption("5", iconFont);
     drawerExpandCaption = GuiCaption("6", iconFont);
-    drawerButtonPane = pane->addPane("", GuiSkin::NO_PANE_STYLE);
-    drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiSkin::TOOL_BUTTON_STYLE);
+    drawerButtonPane = pane->addPane("", GuiTheme::NO_PANE_STYLE);
+    drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiTheme::TOOL_BUTTON_STYLE);
     drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));
     drawerButtonPane->setSize(12, 12);
     

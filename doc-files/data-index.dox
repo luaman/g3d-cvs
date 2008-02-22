@@ -371,7 +371,7 @@ Load with \link G3D::GFont GFont\endlink.
 Load with \link G3D::Sky Sky\endlink and \link G3D::Texture Texture\endlink.
 
 @section gui GUI Skins 
-Load with \link G3D::GuiSkin GuiSkin\endlink.
+Load with \link G3D::GuiTheme GuiTheme\endlink.
 
 \htmlonly
 <blockquote>

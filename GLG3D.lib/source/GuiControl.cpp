@@ -25,7 +25,7 @@ void GuiControl::setFocused(bool b) {
 }
 
 
-GuiSkinRef GuiControl::skin() const {
+GuiThemeRef GuiControl::skin() const {
     return m_gui->skin();
 }
 

@@ -28,7 +28,7 @@ typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
 class GuiMenu : public GuiWindow {
 protected:
     
-    GuiMenu(const GuiSkinRef& skin, const Rect2D& rect);
+    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect);
 
 public:
 
@@ -78,7 +78,7 @@ protected:
         Array<GuiCaption>*          listValue);
 
     /** Called by GuiPane */
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
 

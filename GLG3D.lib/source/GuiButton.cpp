@@ -13,15 +13,15 @@
 
 namespace G3D {
 
-GuiButton::GuiButton(GuiPane* parent, const GuiCaption& text, GuiSkin::ButtonStyle style) : 
+GuiButton::GuiButton(GuiPane* parent, const GuiCaption& text, GuiTheme::ButtonStyle style) : 
     GuiControl(parent, text), 
     m_down(false), m_style(style) {}
 
 
-void GuiButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiButton::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
         skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), 
-                           m_down && mouseOver(), m_caption, (GuiSkin::ButtonStyle)m_style);
+                           m_down && mouseOver(), m_caption, (GuiTheme::ButtonStyle)m_style);
     }
 }
 

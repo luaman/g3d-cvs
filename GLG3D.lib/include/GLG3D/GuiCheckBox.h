@@ -13,7 +13,7 @@
 
 #include "GLG3D/GuiControl.h"
 #include "G3D/Pointer.h"
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 
@@ -31,11 +31,11 @@ public:
 protected:
 
     Pointer<bool>           m_value;
-    GuiSkin::CheckBoxStyle  m_style;
+    GuiTheme::CheckBoxStyle  m_style;
     
-    GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE);
+    GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);
 
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     /** Delivers events when this control is clicked on and when it has the key focus. */
     virtual bool onEvent(const GEvent& event);
@@ -43,7 +43,7 @@ protected:
 public:
 
     virtual bool toolStyle() const { 
-        return m_style == GuiSkin::TOOL_CHECK_BOX_STYLE;
+        return m_style == GuiTheme::TOOL_CHECK_BOX_STYLE;
     }
 };
 

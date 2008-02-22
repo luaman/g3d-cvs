@@ -297,15 +297,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\GuiSkin.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\GuiSlider.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\GuiTextBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiTheme.cpp"
 				>
 			</File>
 			<File
@@ -575,15 +575,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSkin.h"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSlider.h"
 				>
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiTextBox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiTheme.h"
 				>
 			</File>
 			<File

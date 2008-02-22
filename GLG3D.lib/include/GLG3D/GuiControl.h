@@ -12,7 +12,7 @@
 #define GUICONTROL_H
 
 #include <string>
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 #include "GLG3D/Widget.h"
 
 namespace G3D {
@@ -84,7 +84,7 @@ public:
     void moveBy(const Vector2& delta);
     void moveBy(float dx, float dy);    
 
-    GuiSkinRef skin() const;
+    GuiThemeRef skin() const;
 
     /** Return true if this is in tool button style */
     virtual bool toolStyle() const { 
@@ -95,9 +95,9 @@ protected:
 
     /**
      Only methods on @a skin may be called from this method by default.  To make arbitrary RenderDevice calls,
-     wrap them in GuiSkin::pauseRendering ... GuiSkin::resumeRendering.
+     wrap them in GuiTheme::pauseRendering ... GuiTheme::resumeRendering.
      */
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const = 0;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const = 0;
 
     /** Events are only delivered to a control when the control that
         control has the key focus (which is transferred during a mouse

@@ -17,7 +17,7 @@ namespace G3D {
 
 GuiWindow::Ref GuiWindow::create
 (const GuiCaption& label, 
- const GuiSkinRef& skin, 
+ const GuiThemeRef& skin, 
  const Rect2D& rect, 
  Style style, 
  CloseAction close) {
@@ -31,7 +31,7 @@ void GuiWindow::setCaption(const GuiCaption& text) {
 }
 
 
-GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect, Style style, CloseAction close) 
+GuiWindow::GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, Style style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), m_skin(skin), 
       inDrag(false),
@@ -43,7 +43,7 @@ GuiWindow::GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect
 
     setRect(rect);
     posed = new Posed(this);
-    m_rootPane = new GuiPane(this, "", clientRect() - clientRect().x0y0(), GuiSkin::NO_PANE_STYLE);
+    m_rootPane = new GuiPane(this, "", clientRect() - clientRect().x0y0(), GuiTheme::NO_PANE_STYLE);
 }
 
 
@@ -66,7 +66,7 @@ void GuiWindow::increaseBounds(const Vector2& extent) {
 
         // Transform the client rect into an absolute rect
         if (m_style != NO_FRAME_STYLE) {
-            newRect = m_skin->clientToWindowBounds(newRect, GuiSkin::WindowStyle(m_style));
+            newRect = m_skin->clientToWindowBounds(newRect, GuiTheme::WindowStyle(m_style));
         }
 
         // The new window has the old position and the new width
@@ -90,7 +90,7 @@ void GuiWindow::setRect(const Rect2D& r) {
     if (m_style == NO_FRAME_STYLE) {
         m_clientRect = m_rect;
     } else {
-        m_clientRect = m_skin->windowToClientBounds(m_rect, GuiSkin::WindowStyle(m_style));
+        m_clientRect = m_skin->windowToClientBounds(m_rect, GuiTheme::WindowStyle(m_style));
     }
 }
 
@@ -141,7 +141,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
         
         if ((m_closeAction != NO_CLOSE) && (m_style != NO_FRAME_STYLE)) {
             m_closeButton.mouseOver = 
-                m_skin->windowToCloseButtonBounds(m_rect, GuiSkin::WindowStyle(m_style)).contains(mouse);
+                m_skin->windowToCloseButtonBounds(m_rect, GuiTheme::WindowStyle(m_style)).contains(mouse);
         }
 
         mouse -= m_clientRect.x0y0();
@@ -224,8 +224,8 @@ bool GuiWindow::onEvent(const GEvent &event) {
         if (m_style ==  NO_FRAME_STYLE) {
             titleRect = Rect2D::xywh(m_rect.x0y0(), Vector2(m_rect.width(), 0));
         } else {
-            titleRect = m_skin->windowToTitleBounds(m_rect, GuiSkin::WindowStyle(m_style));
-            closeRect = m_skin->windowToCloseButtonBounds(m_rect, GuiSkin::WindowStyle(m_style));
+            titleRect = m_skin->windowToTitleBounds(m_rect, GuiTheme::WindowStyle(m_style));
+            closeRect = m_skin->windowToCloseButtonBounds(m_rect, GuiTheme::WindowStyle(m_style));
         }
 
         if ((m_closeAction != NO_CLOSE) && closeRect.contains(mouse)) {
@@ -338,7 +338,7 @@ void GuiWindow::render(RenderDevice* rd) {
 
         if (m_style != NO_FRAME_STYLE) {
             m_skin->renderWindow(m_rect, focused(), hasClose, m_closeButton.down,
-                               m_closeButton.mouseOver, m_text, GuiSkin::WindowStyle(m_style));
+                               m_closeButton.mouseOver, m_text, GuiTheme::WindowStyle(m_style));
         } else {
             debugAssertM(m_closeAction == NO_CLOSE, "Windows without frames cannot have a close button.");
         }

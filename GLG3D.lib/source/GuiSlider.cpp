@@ -19,7 +19,7 @@ _GuiSliderBase::_GuiSliderBase(GuiPane* parent, const GuiCaption& text, bool hor
 }
 
 
-void _GuiSliderBase::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void _GuiSliderBase::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
         if (m_horizontal) {
             skin->renderHorizontalSlider(m_rect, floatValue(), m_enabled, focused() || mouseOver(), m_caption);
@@ -62,6 +62,7 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
             setFloatValue(p);
             m_inDrag = false;
 
+            GEvent response;
             response.gui.type = GEventType::GUI_CHANGE;
             response.gui.control = this;
             m_gui->fireEvent(response);

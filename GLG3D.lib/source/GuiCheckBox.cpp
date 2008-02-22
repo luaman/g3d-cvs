@@ -5,28 +5,28 @@
 namespace G3D {
 
 GuiCheckBox::GuiCheckBox(GuiPane* parent, const GuiCaption& text, 
-                         const Pointer<bool>& value, GuiSkin::CheckBoxStyle style) 
+                         const Pointer<bool>& value, GuiTheme::CheckBoxStyle style) 
     : GuiControl(parent, text), m_value(value), m_style(style) {}
 
 
-void GuiCheckBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiCheckBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
         switch (m_style) {
-        case GuiSkin::NORMAL_CHECK_BOX_STYLE:
+        case GuiTheme::NORMAL_CHECK_BOX_STYLE:
             skin->renderCheckBox(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption);
             break;
 
         default:
             skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), *m_value, m_caption, 
-                               (m_style == GuiSkin::BUTTON_CHECK_BOX_STYLE) ? 
-                               GuiSkin::NORMAL_BUTTON_STYLE : GuiSkin::TOOL_BUTTON_STYLE);
+                               (m_style == GuiTheme::BUTTON_CHECK_BOX_STYLE) ? 
+                               GuiTheme::NORMAL_BUTTON_STYLE : GuiTheme::TOOL_BUTTON_STYLE);
         }
     }
 }
 
 
 void GuiCheckBox::setRect(const Rect2D& rect) {
-     if (m_style == GuiSkin::NORMAL_CHECK_BOX_STYLE) {
+     if (m_style == GuiTheme::NORMAL_CHECK_BOX_STYLE) {
          // TODO: use the actual font size etc. to compute bounds
          // Prevent the checkbox from stealing clicks very far away
          m_rect = rect;

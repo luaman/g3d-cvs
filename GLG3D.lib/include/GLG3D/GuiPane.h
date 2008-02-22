@@ -17,7 +17,7 @@
 #include "GLG3D/GFont.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Widget.h"
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiCheckBox.h"
 #include "GLG3D/GuiRadioButton.h"
@@ -26,7 +26,7 @@
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiDropDownList.h"
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 
@@ -63,7 +63,7 @@ protected:
 
     _internal::Morph    m_morph;
 
-    GuiSkin::PaneStyle  m_style;
+    GuiTheme::PaneStyle  m_style;
 
     Array<GuiControl*>  controlArray;
     /** Sub panes */
@@ -72,15 +72,15 @@ protected:
 
     Rect2D              m_clientRect;
 
-    GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style);
-    GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiSkin::PaneStyle style);
+    GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
+    GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
 
     /**
        Called from constructors.
      */
     void init(const Rect2D& rect);
 
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
     
     /**
     Finds the visible, enabled control underneath the mouse
@@ -154,7 +154,7 @@ public:
         If the text is "", no space is reserved for a caption.  If non-empty (even " "), then
         space is reserved and the caption may later be changed.
      */
-    GuiPane* addPane(const GuiCaption& text = "", GuiSkin::PaneStyle style = GuiSkin::SIMPLE_PANE_STYLE);
+    GuiPane* addPane(const GuiCaption& text = "", GuiTheme::PaneStyle style = GuiTheme::SIMPLE_PANE_STYLE);
 
     /**
        <pre>
@@ -171,12 +171,12 @@ public:
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
      const Pointer<bool>& pointer,
-     GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE);
+     GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);
 
     GuiCheckBox* addCheckBox
     (const GuiCaption& text,
      bool* pointer,
-     GuiSkin::CheckBoxStyle style = GuiSkin::NORMAL_CHECK_BOX_STYLE
+     GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE
      ) {
         return addCheckBox(text, Pointer<bool>(pointer), style);
     }
@@ -251,7 +251,7 @@ public:
      */
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
-    GuiButton* addButton(const GuiCaption& text, GuiSkin::ButtonStyle style = GuiSkin::NORMAL_BUTTON_STYLE);
+    GuiButton* addButton(const GuiCaption& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
 
     GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, GFont::YAlign = GFont::YALIGN_CENTER);
 

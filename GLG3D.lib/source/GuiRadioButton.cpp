@@ -17,13 +17,13 @@ void GuiRadioButton::setSelected() {
 }
 
 
-void GuiRadioButton::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiRadioButton::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
         if (m_style == RADIO_STYLE) {
             skin->renderRadioButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption);
         } else {
             skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), selected(), m_caption,
-                               (m_style == BUTTON_STYLE) ? GuiSkin::NORMAL_BUTTON_STYLE : GuiSkin::TOOL_BUTTON_STYLE);
+                               (m_style == BUTTON_STYLE) ? GuiTheme::NORMAL_BUTTON_STYLE : GuiTheme::TOOL_BUTTON_STYLE);
         }
     }
 }

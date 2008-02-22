@@ -105,7 +105,7 @@ void App::makeColorList(GFontRef iconFont) {
 }
 
 void App::makeGui() {
-    GuiSkinRef skin = GuiSkin::fromFile(System::findDataFile("twilight.skn"), debugFont);
+    GuiThemeRef skin = GuiTheme::fromFile(System::findDataFile("twilight.skn"), debugFont);
     GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
     
     GuiPane* pane = gui->pane();

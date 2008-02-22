@@ -75,8 +75,8 @@
      <li> Made G3D::GMaterial fields floats
      <li> G3D::GuiControl::setCaption, G3D::GuiWindow::setCaption
      <li> G3D::GuiControl can now be subclassed for custom user-defined controls
-     <li> G3D::GuiSkin::renderCanvas
-     <li> G3D::GuiSkin::pauseRendering, G3D::GuiSkin::resumeRendering
+     <li> G3D::GuiTheme::renderCanvas
+     <li> G3D::GuiTheme::pauseRendering, G3D::GuiTheme::resumeRendering
      <li> G3D::PosedModel::sortAndRender
      <li> G3D::Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
@@ -163,7 +163,7 @@
      <li> Increased GFont rendering performance, added GFont::send2DQuads for fast rendering of large amounts of text
      <li> G3D::GFont now supports fonts with 256 characters (.fnt file format version 2)
      <li> Upgraded to the OpenGL 2.0 glext/glxext/wglext headers
-     <li> G3D::GuiSkin, G3D::GuiText
+     <li> G3D::GuiTheme, G3D::GuiText
      <li> G3D::UprightFrame, G3D::UprightSpline
      <li> G3D::Spline
      <li> G3D::RenderDevice::clip2D

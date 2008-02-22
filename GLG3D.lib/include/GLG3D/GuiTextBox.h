@@ -72,7 +72,7 @@ protected:
                const Pointer<std::string>& value, Update update);
 
     /** Called by GuiPane */
-    virtual void render(RenderDevice* rd, const GuiSkinRef& skin) const;
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
 

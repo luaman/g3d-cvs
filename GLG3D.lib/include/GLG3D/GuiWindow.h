@@ -17,7 +17,7 @@
 #include "GLG3D/GFont.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Widget.h"
-#include "GLG3D/GuiSkin.h"
+#include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
@@ -48,7 +48,7 @@ typedef ReferenceCountedPointer<class GuiWindow> GuiWindowRef;
    Retained-mode graphical user interface window. 
 
    %G3D Guis (Graphical User Interfaces) are "skinnable", meaning that the appearance is controled by data files.
-   %G3D provides already made skins in the data/gui directory of the installation.  See GuiSkin for information
+   %G3D provides already made skins in the data/gui directory of the installation.  See GuiTheme for information
    on how to draw your own.
 
    The Gui API connects existing variables and methods directly to controls.  Except for GuiButton, you don't have
@@ -56,7 +56,7 @@ typedef ReferenceCountedPointer<class GuiWindow> GuiWindowRef;
    value of the control when the control is created.  An example of creating a dialog is shown below:
 
    <pre>
-        GuiSkinRef skin = GuiSkin::fromFile(dataDir + "gui/osx.skn", app->debugFont);
+        GuiThemeRef skin = GuiTheme::fromFile(dataDir + "gui/osx.skn", app->debugFont);
         GuiWindow::Ref window = GuiWindow::create("Person", skin);
 
         GuiPane* pane = window->pane();
@@ -112,7 +112,7 @@ public:
         DIALOG_FRAME_STYLE - thicker border
         NO_FRAME_STYLE     - do not render any background at all
      */
-    // These constants are chosen to match the GuiSkin constants
+    // These constants are chosen to match the GuiTheme constants
     enum Style {NORMAL_FRAME_STYLE, TOOL_FRAME_STYLE, DIALOG_FRAME_STYLE, NO_FRAME_STYLE};
 
     /**
@@ -196,7 +196,7 @@ protected:
 
     PosedModel2DRef     posed;
 
-    GuiSkinRef          m_skin;
+    GuiThemeRef          m_skin;
 
     /** True when the window is being dragged */
     bool                inDrag;
@@ -219,7 +219,7 @@ protected:
 
 protected:
 
-    GuiWindow(const GuiCaption& text, GuiSkinRef skin, const Rect2D& rect, Style style, CloseAction closeAction);
+    GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, Style style, CloseAction closeAction);
 
 private:
 
@@ -263,7 +263,7 @@ public:
         return m_clientRect;
     }
 
-    GuiSkinRef skin() const {
+    GuiThemeRef skin() const {
         return m_skin;
     }
 
@@ -328,7 +328,7 @@ public:
     }
 
     /** As controls are added, the window will automatically grow to contain them as needed */
-    static Ref create(const GuiCaption& windowTitle, const GuiSkinRef& skin, 
+    static Ref create(const GuiCaption& windowTitle, const GuiThemeRef& skin, 
                       const Rect2D& rect = Rect2D::xywh(100, 100, 100, 50), 
                       Style style = NORMAL_FRAME_STYLE, CloseAction = NO_CLOSE);
 

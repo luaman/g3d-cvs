@@ -97,7 +97,7 @@ protected:
         const FirstPersonManipulatorRef&    manualManipulator, 
         const UprightSplineManipulatorRef&  trackManipulator, 
         const Pointer<Manipulator::Ref>&    cameraManipulator,
-        const GuiSkinRef&                   skin);
+        const GuiThemeRef&                   skin);
 
     /** Sets the controller for the cameraManipulator. */
     //void setSource(Source s);
@@ -122,7 +122,7 @@ public:
         const FirstPersonManipulatorRef&   manualManipulator,
         const UprightSplineManipulatorRef& trackManipulator,
         const Pointer<Manipulator::Ref>&   cameraManipulator,
-        const GuiSkinRef&                  skin);
+        const GuiThemeRef&                  skin);
 
     virtual bool onEvent(const GEvent& event);
     virtual void onUserInput(UserInput*);

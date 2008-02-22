@@ -32,7 +32,7 @@ GuiTextBox::GuiTextBox(GuiPane* parent, const GuiCaption& caption,
 }
 
 
-void GuiTextBox::render(RenderDevice* rd, const GuiSkinRef& skin) const {
+void GuiTextBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     GuiTextBox* me = const_cast<GuiTextBox*>(this);
 
     if (m_visible) {

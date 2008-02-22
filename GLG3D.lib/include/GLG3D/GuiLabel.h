@@ -30,7 +30,7 @@ private:
     
     GuiLabel(GuiPane*,const GuiCaption&, GFont::XAlign, GFont::YAlign);
 
-    void render(RenderDevice* rd, const GuiSkinRef&) const;
+    void render(RenderDevice* rd, const GuiThemeRef&) const;
 
 public:
 };

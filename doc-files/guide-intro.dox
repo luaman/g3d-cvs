@@ -102,7 +102,7 @@ uses its own font format (FNT) to avoid legal issues with TrueType.
 Over 30 popular fonts are provided in this format and the code
 contains a routine to help you make more from your TrueType fonts.
 G3D::GuiWindow skins are in open source SKN format, which is
-implicitly documented by the G3D::GuiSkin class source code and will
+implicitly documented by the G3D::GuiTheme class source code and will
 be explicitly documented in a future release (the format is currently
 under development).
 
