@@ -219,9 +219,9 @@ void CoordinateFrame::lookAt(
     up = up.direction();
 
     Vector3 look = (target - translation).direction();
-    if (look.dot(up) > .99) {
+    if (fabs(look.dot(up)) > .99f) {
         up = Vector3::unitX();
-        if (look.dot(up) > .99) {
+        if (fabs(look.dot(up)) > .99f) {
             up = Vector3::unitY();
         }
     }
