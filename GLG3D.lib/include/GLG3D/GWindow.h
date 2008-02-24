@@ -185,7 +185,6 @@ public:
             allowMaximize(true),
             framed(true),
             visible(true),
-            defaultIconFilename("nodefault"),
             caption("3D") {}
     };
     
