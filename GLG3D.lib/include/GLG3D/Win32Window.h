@@ -14,31 +14,27 @@
 #ifndef G3D_WIN32WINDOW_H
 #define G3D_WIN32WINDOW_H
 
+#include <string>
 #include "G3D/platform.h"
 #include "G3D/Set.h"
+#include "G3D/Queue.h"
 #include "G3D/Rect2D.h"
 
 // This file is only used on Windows
 #ifdef G3D_WIN32
 
 #include "GLG3D/GWindow.h"
-#include <string>
 
 namespace G3D {
 
 // Forward declaration so directinput8.h is included in cpp
-namespace _internal {
-class _DirectInput;
-static LRESULT WINAPI window_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
-}
+namespace _internal { class _DirectInput; }
 using _internal::_DirectInput;
 
 
 class Win32Window : public GWindow {
 private:
 	
-    //static Array<GWindowSettings> _supportedSettings;
-
     Vector2              clientRectOffset;
 	Settings			 settings;
 	std::string			 _title;
@@ -68,18 +64,13 @@ private:
     
     Array<GEvent>        sizeEventInjects;
 
-    void injectSizeEvent(int width, int height) {
-        GEvent e;
-        e.type = GEventType::VIDEO_RESIZE;
-        e.resize.w = width;
-        e.resize.h = height;
-        sizeEventInjects.append(e);
-    }
-
     bool                justReceivedFocus;
 
-    friend LRESULT WINAPI _internal::window_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
-	
+    Array<std::string> m_droppedFiles;
+
+    HWND                 window;
+    const bool		     createdWindow;
+
     /** Called from all constructors */
 	void init(HWND hwnd, bool creatingShareWindow = false);
 
@@ -102,7 +93,15 @@ private:
         API: fsaa window creation is supported through a WGL extension, but WGL 
         extensions can't be called until after a window has already been created. */
     static void initWGL();
-    
+
+    static LRESULT CALLBACK windowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
+    static LPCTSTR g3dWndClass();
+
+    /** 
+    Configures a mouse up/down event
+    */
+    void mouseButton(bool down, int index, GKey keyEquivalent, int clickCount, DWORD lParam, DWORD wParam, GEvent& e);
+
     /** Constructs from a new window */
     explicit Win32Window(const GWindow::Settings& settings, bool creatingShareWindow = false);
     
@@ -112,20 +111,9 @@ private:
     /** Constructs from an existing window */
     explicit Win32Window(const GWindow::Settings& settings, HDC hdc);
     
-    HWND                 window;
-    const bool		     createdWindow;
-    
-    // Intentionally illegal (private)
+    // Disallow copy constructor (made private)
     Win32Window& operator=(const Win32Window& other);
 
-    /** 
-    Configures a mouse up/down event
-    */
-    void mouseButton(bool down, int index, GKey keyEquivalent, DWORD lParam, DWORD wParam, GEvent& e);
-
-    virtual bool pollOSEvent(GEvent& e);
-
-    Array<std::string> m_droppedFiles;
 public:
 
     /** Different subclasses will be returned depending on
@@ -138,22 +126,6 @@ public:
     /** The HDC should be a private CS_OWNDC device context because it is assumed to
         be perisistant.*/
     static Win32Window* create(const GWindow::Settings& settings, HDC hdc);
-
-    /** Finds all of the compatible GWindowSettings supported by hardware.
-
-        The width and height fields always refer to full-screen resolution.
-
-        Only width, height, rgbBits, alphaBits, depthBits, stencilBits, fsaaSamples,
-        stereo and refreshRate are valid. */
-    //static const Array<GWindowSettings>& SupportedWindowSettings();
-
-    /** Finds the closest match to the desired GWindowSettings.
-
-        The width and height fields always refer to full-screen resolution.
-
-        Only width, height, rgbBits, alphaBits, depthBits, stencilBits, fsaaSamples,
-        stereo and refreshRate are valid. */
-    //static bool ClosestSupportedWindowSettings(const GWindowSettings& desired, GWindowSettings& closest);
 	
     virtual ~Win32Window();
 	
@@ -230,8 +202,10 @@ public:
 protected:
     virtual void reallyMakeCurrent() const;
 
+    virtual bool pollOSEvent(GEvent& e);
+
 private:
-	inline void enableDirectInput() const;
+	void enableDirectInput() const;
 };
 
 

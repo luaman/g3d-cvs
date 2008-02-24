@@ -96,17 +96,6 @@ static bool ChangeResolution(int, int, int, int);
 static void makeKeyEvent(int, int, GEvent&);
 static void mouseButton(bool, int, DWORD, GEvent&);
 static void initWin32KeyMap();
-//static LRESULT WINAPI _internal::window_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
-
-#if 0
-// For use when debugging format negotiation
-static void printPixelFormatDescription(int, HDC, TextOutput&);
-#endif
-
-/** Return the G3D window class, which owns a private DC. 
-See http://www.starstonesoftware.com/OpenGL/whyyou.htm
-for a discussion of why this is necessary. */
-static LPCTSTR G3DWndClass();
 
 std::auto_ptr<Win32Window> Win32Window::_shareWindow(NULL);
 
@@ -203,7 +192,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     clientY = settings.y = startY;
 
     HWND window = CreateWindow(
-        G3DWndClass(), 
+        Win32Window::g3dWndClass(), 
         toTCHAR(name),
         style,
         startX,
@@ -240,7 +229,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     init(window, creatingShareWindow);
 
     // Set default icon if available
-    if (settings.defaultIconFilename != "nodefault") {
+    if (!settings.defaultIconFilename.empty()) {
 
         try {
 
@@ -439,16 +428,6 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         setCaption(settings.caption);
     }
 }
-
-/* TODO
-const Array<GWindow::Settings>& Win32Window::SupportedWindowSettings() {
-return _supportedSettings;
-}
-
-bool Win32Window::ClosestSupportedWindowSettings(const GWindow::Settings& desired, GWindow::Settings& closest) {
-return false;
-}
-*/
 
 int Win32Window::width() const {
     return settings.width;
@@ -685,36 +664,52 @@ bool Win32Window::pollOSEvent(GEvent& e) {
                 e.motion.yrel = 0;
                 return true;
 
+            case WM_LBUTTONDBLCLK:
+                mouseButton(true, 0, GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
+                return true;
+
+            case WM_MBUTTONDBLCLK:
+                mouseButton(true, 1, GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
+                return true;
+
+            case WM_RBUTTONDBLCLK:
+                mouseButton(true, 2, GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
+                return true;
+
+            case WM_XBUTTONDBLCLK:
+                mouseButton(true, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
+                return true;
+
             case WM_LBUTTONDOWN:
-                mouseButton(true, 0, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(true, 0, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_MBUTTONDOWN:
-                mouseButton(true, 1, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(true, 1, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_RBUTTONDOWN:
-                mouseButton(true, 2, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(true, 2, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_XBUTTONDOWN:
-                mouseButton(true, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(true, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_LBUTTONUP:
-                mouseButton(false, 0, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(false, 0, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_MBUTTONUP:
-                mouseButton(false, 1, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(false, 1, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_RBUTTONUP:
-                mouseButton(false, 2, GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(false, 2, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_XBUTTONUP:
-                mouseButton(false, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, message.lParam, message.wParam, e);
+                mouseButton(false, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
                 return true;
 
             case WM_DROPFILES:
@@ -747,7 +742,7 @@ bool Win32Window::pollOSEvent(GEvent& e) {
     } // while
 
     // We never seem to "receive" the WM_QUIT message 
-    // so test for WM_CLOSE in the window_proc
+    // so test for WM_CLOSE in the windowProc
     if (_receivedCloseEvent) {
 
         // Reset so SDL_QUIT is only sent once
@@ -881,9 +876,10 @@ void Win32Window::getRelativeMouseState(double& x, double& y, uint8& mouseButton
     y = iy;
 }
 
-inline void Win32Window::enableDirectInput() const {
-    if (_diDevices==NULL)
+void Win32Window::enableDirectInput() const {
+    if (_diDevices == NULL) {
         _diDevices = new _DirectInput(window);
+    }
 }
 
 int Win32Window::numJoysticks() const {
@@ -948,7 +944,7 @@ void Win32Window::initWGL() {
     WNDCLASS window_class;
 
     window_class.style         = CS_HREDRAW | CS_VREDRAW;
-    window_class.lpfnWndProc   = _internal::window_proc;
+    window_class.lpfnWndProc   = Win32Window::windowProc;
     window_class.cbClsExtra    = 0; 
     window_class.cbWndExtra    = 0;
     window_class.hInstance     = GetModuleHandle(NULL);
@@ -1198,17 +1194,26 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 }
 
 
-void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, DWORD lParam, DWORD wParam, GEvent& e) {
-    e.type = down ? GEventType::MOUSE_BUTTON_DOWN : GEventType::MOUSE_BUTTON_UP;
+void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, int clickCount, DWORD lParam, DWORD wParam, GEvent& e) {
+    if (clickCount == 0)
+    {
+        e.type = down ? GEventType::MOUSE_BUTTON_DOWN : GEventType::MOUSE_BUTTON_UP;
+        e.button.state = 0;
+
+        _mouseButtons[index] = down;
+    }
+    else
+    {
+        e.type = GEventType::MOUSE_BUTTON_CLICK;
+        e.button.numClicks = clickCount;
+    }
+
     e.button.x = GET_X_LPARAM(lParam);
     e.button.y = GET_Y_LPARAM(lParam);
 
     // Mouse button index
     e.button.which = 0;
-    e.button.state = true;
     e.button.button = index;
-
-    _mouseButtons[index] = down;
 
     /*
     // TODO: in the future, we will merge mouse and key events
@@ -1439,17 +1444,15 @@ static void printPixelFormatDescription(int format, HDC hdc, TextOutput& out) {
 }
 #endif
 
-namespace _internal{
-static LRESULT WINAPI window_proc(
-    HWND                window,
-    UINT                message,
-    WPARAM              wparam,
-    LPARAM              lparam) {
+LRESULT CALLBACK Win32Window::windowProc(HWND     window,
+                                         UINT     message,
+                                         WPARAM   wparam,
+                                         LPARAM   lparam) {
 
-        Win32Window* this_window = (Win32Window*)GetWindowLong(window, GWL_USERDATA);
+    Win32Window* this_window = (Win32Window*)GetWindowLong(window, GWL_USERDATA);
 
-        if (this_window != NULL) {
-            switch (message) {
+    if (this_window != NULL) {
+        switch (message) {
         case WM_ACTIVATE:
             if ((LOWORD(wparam) != WA_INACTIVE) &&
                 (HIWORD(wparam) == 0) &&
@@ -1466,8 +1469,14 @@ static LRESULT WINAPI window_proc(
 
         case WM_SIZE:
             if ((wparam == SIZE_MAXIMIZED) ||
-                (wparam == SIZE_RESTORED)) {
-                    this_window->injectSizeEvent(LOWORD(lparam), HIWORD(lparam));
+                (wparam == SIZE_RESTORED))
+            {
+                // Add a size event that will be returned next GWindow poll
+                GEvent e;
+                e.type = GEventType::VIDEO_RESIZE;
+                e.resize.w = LOWORD(lparam);
+                e.resize.h = HIWORD(lparam);
+                this_window->sizeEventInjects.append(e);
             }
             break;
 
@@ -1492,13 +1501,15 @@ static LRESULT WINAPI window_proc(
             }
             break;
             }
-        }
+    }
 
-        return DefWindowProc(window, message, wparam, lparam);
-}
+    return DefWindowProc(window, message, wparam, lparam);
 }
 
-static LPCTSTR G3DWndClass() {
+/** Return the G3D window class, which owns a private DC. 
+    See http://www.starstonesoftware.com/OpenGL/whyyou.htm
+    for a discussion of why this is necessary. */
+LPCTSTR Win32Window::g3dWndClass() {
 
     static LPCTSTR g3dWindowClassName = NULL;
 
@@ -1507,7 +1518,7 @@ static LPCTSTR G3DWndClass() {
         WNDCLASS wndcls;
 
         wndcls.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS | CS_OWNDC;
-        wndcls.lpfnWndProc = _internal::window_proc;
+        wndcls.lpfnWndProc = Win32Window::windowProc;
         wndcls.cbClsExtra = wndcls.cbWndExtra = 0;
         wndcls.hInstance = ::GetModuleHandle(NULL);
         wndcls.hIcon = NULL;
