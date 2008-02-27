@@ -14,6 +14,36 @@
 
 namespace G3D {
 
+    
+Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
+
+    Vector2 result = v + m_rect.x0y0();
+
+    const GuiPane* current = m_parent;
+
+    while (current != NULL) {
+        result += current->m_rect.x0y0();
+        current = current->m_parent;
+    }
+
+    // result is now relative to a GuiWindow   
+    result += m_gui->rect().x0y0();
+
+    // result is now relative to the GWindow
+    return result;
+}
+
+
+void GuiPane::init(const Rect2D& rect) {
+    setRect(rect);
+
+    if (m_caption.text() != "") {
+        m_label = addLabel(m_caption);
+    } else {
+        m_label = NULL;
+    }
+}
+
 void GuiControl::setFocused(bool b) {
     if (! b) {
         if (m_gui->keyFocusGuiControl == this) {

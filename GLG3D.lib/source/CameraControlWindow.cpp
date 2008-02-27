@@ -75,7 +75,7 @@ CameraControlWindow::CameraControlWindow(
     GuiWindow("Camera Control", 
               skin, 
               Rect2D::xywh(5, 54, 200, 0),
-              GuiWindow::TOOL_FRAME_STYLE,
+              GuiTheme::TOOL_WINDOW_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
     trackFileIndex(0),
     cameraManipulator(cameraManipulator),

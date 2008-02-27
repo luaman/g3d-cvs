@@ -86,11 +86,21 @@ public:
 
     typedef ReferenceCountedPointer<class GuiTheme> Ref;
 
+
+    /** Controls the appearance of the window's borders and background.
+        NORMAL - regular border and title
+        TOOL   - small title, thin border
+        DIALOG - thicker border
+        MENU   - Menu; no title-bar
+        NO     - do not render any background at all
+     */
     enum WindowStyle {
         NORMAL_WINDOW_STYLE,
         TOOL_WINDOW_STYLE,
         DIALOG_WINDOW_STYLE,
         DRAWER_WINDOW_STYLE,
+        MENU_WINDOW_STYLE,
+        NO_WINDOW_STYLE,
 
         WINDOW_STYLE_COUNT
     };
@@ -757,7 +767,7 @@ public:
         @param coordsFile Text file describing the location of controls
         @param destFile Output .skn file, not relative to sourceDir
     */
-    static void makeSkinFromSourceFiles(
+    static void makeThemeFromSourceFiles(
               const std::string& sourceDir,
               const std::string& whiteName,
               const std::string& blackName,

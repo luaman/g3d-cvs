@@ -31,13 +31,13 @@ void GUIViewer::createGui(const std::string& filename) {
     skin = GuiTheme::fromFile(filename, parentApp->debugFont);
     
     window         = GuiWindow::create("Normal", skin, Rect2D::xywh(50,50,0,0),   
-                                       GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+                                       GuiTheme::NORMAL_WINDOW_STYLE, GuiWindow::IGNORE_CLOSE);
     toolWindow     = GuiWindow::create("Tool",   skin, Rect2D::xywh(300,100,0,0), 
-                                       GuiWindow::TOOL_FRAME_STYLE,   GuiWindow::IGNORE_CLOSE);
+                                       GuiTheme::TOOL_WINDOW_STYLE,   GuiWindow::IGNORE_CLOSE);
     bgControl      = GuiWindow::create("Dialog", skin, Rect2D::xywh(550,100,0,0), 
-                                       GuiWindow::DIALOG_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+                                       GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::IGNORE_CLOSE);
     dropdownWindow = GuiWindow::create("Normal", skin, Rect2D::xywh(400,400,0,0), 
-                                       GuiWindow::NORMAL_FRAME_STYLE, GuiWindow::IGNORE_CLOSE);
+                                       GuiTheme::NORMAL_WINDOW_STYLE, GuiWindow::IGNORE_CLOSE);
 
     text = "Hello";
 

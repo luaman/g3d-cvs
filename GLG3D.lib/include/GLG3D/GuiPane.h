@@ -63,7 +63,7 @@ protected:
 
     _internal::Morph    m_morph;
 
-    GuiTheme::PaneStyle  m_style;
+    GuiTheme::PaneStyle m_style;
 
     Array<GuiControl*>  controlArray;
     /** Sub panes */

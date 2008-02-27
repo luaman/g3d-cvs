@@ -37,7 +37,8 @@ public:
     void printConsoleHelp();
 };
 
-App::App(const GApp::Settings& settings) : GApp(settings) {}
+App::App(const GApp::Settings& settings) : GApp(settings) {
+}
 
 void App::onInit() {
 
@@ -155,6 +156,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
+
+/*    RenderDevice* rd = new RenderDevice();
+    rd->init();
+    GuiTheme::makeThemeFromSourceFiles("C:/Projects/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "c:/osx.skn");
+*/
     GApp::Settings set;
 //    set.window.width = 1440;
 //    set.window.height = 900;

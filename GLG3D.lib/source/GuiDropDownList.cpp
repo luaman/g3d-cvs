@@ -14,9 +14,13 @@
 namespace G3D {
 
 
-// TODO: Special menu style
+GuiMenuRef GuiMenu::create(const GuiThemeRef& skin) {
+    return new GuiMenu(skin, Rect2D::xywh(0,0,100,200));
+}
+
+
 GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect) : 
-    GuiWindow("", skin, rect, GuiWindow::NORMAL_FRAME_STYLE, NO_CLOSE) {
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE) {
 }
 
    
@@ -81,6 +85,16 @@ GuiDropDownList::GuiDropDownList
                                           m_useStringList(false) {
 }
 
+
+GuiMenuRef GuiDropDownList::menu() { 
+    if (m_menu.isNull()) {
+        m_menu = GuiMenu::create(skin());
+    }
+
+    return m_menu;
+}
+
+
 void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
 
@@ -103,6 +117,16 @@ void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 }
 
 
+void GuiDropDownList::showMenu() {
+    // Show the menu
+    Rect2D clickRect = skin()->dropDownListToClickBounds(rect());
+    Vector2 clickOffset = clickRect.x0y0() - rect().x0y0();
+    Vector2 menuOffset(10, clickRect.height() + 10);
+
+    menu()->show(m_gui->manager(), toGWindowCoords(clickOffset + menuOffset));
+}
+
+
 bool GuiDropDownList::onEvent(const GEvent& event) {
     if (! m_visible) {
         return false;
@@ -110,9 +134,12 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
 
     if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
 
-        // Show the menu
-        // TODO:
-//        m_menu->show(m_gui->manager(), rect().x0y0());
+        if (m_gui->manager()->contains(menu())) {
+            // If the menu was already open, close it
+            m_menu->hide();
+        } else {
+            showMenu();
+        }
         return true;
 
     } else if (event.type == GEventType::KEY_DOWN) {

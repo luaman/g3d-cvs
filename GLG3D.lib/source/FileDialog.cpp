@@ -13,7 +13,7 @@
 namespace G3D {
 
 FileDialog::FileDialog(std::string& saveName, GuiThemeRef skin, const std::string& caption) : 
-    GuiWindow(caption, skin, Rect2D::xywh(150, 100, 10, 10), DIALOG_FRAME_STYLE, HIDE_ON_CLOSE), 
+    GuiWindow(caption, skin, Rect2D::xywh(150, 100, 10, 10), GuiTheme::DIALOG_WINDOW_STYLE, HIDE_ON_CLOSE), 
     ok(false), saveName(saveName) {
     GuiPane* rootPane = pane();
 

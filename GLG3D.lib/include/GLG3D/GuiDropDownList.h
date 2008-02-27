@@ -2,7 +2,7 @@
  @file GLG3D/GuiDropDownList.h
 
  @created 2007-06-15
- @edited  2007-06-19
+ @edited  2008-02-20
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -32,6 +32,8 @@ protected:
 
 public:
 
+    static GuiMenuRef create(const GuiThemeRef& skin);
+
     virtual bool onEvent(const GEvent& event);
 
     void hide();
@@ -49,8 +51,10 @@ class GuiDropDownList : public GuiControl {
 
 protected:
 
-    /** Pop-up list menu */
+    /** Pop-up list menu; call menu() to create this. */
     GuiMenuRef                      m_menu;
+    
+    GuiMenuRef menu();
 
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
@@ -81,6 +85,9 @@ protected:
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
+   
+    /** Makes the menu appear */
+    void showMenu();
 
 public:
 

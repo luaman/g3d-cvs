@@ -194,6 +194,9 @@ public:
      */
     void remove(const Widget::Ref& m);
 
+    /** If this widget is currently visible (note: as of the last lock) */
+    bool contains(const Widget::Ref& m) const;
+
     /**
      Removes all.
      */

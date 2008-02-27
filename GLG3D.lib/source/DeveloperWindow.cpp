@@ -35,7 +35,8 @@ DeveloperWindow::DeveloperWindow(
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
      bool*                              showStats,
-     bool*                              showText) : GuiWindow("Developer (F11)", skin, Rect2D::xywh(600,80,0,0), TOOL_FRAME_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
+     bool*                              showText) : 
+    GuiWindow("Developer (F11)", skin, Rect2D::xywh(600,80,0,0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
 
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator, skin);
 

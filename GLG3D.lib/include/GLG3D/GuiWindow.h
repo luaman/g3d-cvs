@@ -106,15 +106,6 @@ private:
 public:
     typedef ReferenceCountedPointer<GuiWindow> Ref;
 
-    /** Controls the appearance of the window's borders and background.
-        NORMAL_FRAME_STYLE - regular border and title
-        TOOL_FRAME_STYLE   - small title, thin border
-        DIALOG_FRAME_STYLE - thicker border
-        NO_FRAME_STYLE     - do not render any background at all
-     */
-    // These constants are chosen to match the GuiTheme constants
-    enum Style {NORMAL_FRAME_STYLE, TOOL_FRAME_STYLE, DIALOG_FRAME_STYLE, NO_FRAME_STYLE};
-
     /**
       Controls the behavior when the close button is pressed (if there
       is one).  
@@ -189,7 +180,7 @@ protected:
     /** Is this window visible? */
     bool                m_visible;
 
-    Style               m_style;
+    GuiTheme::WindowStyle   m_style;
 
     CloseAction         m_closeAction;
     ControlButton       m_closeButton;
@@ -219,7 +210,7 @@ protected:
 
 protected:
 
-    GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, Style style, CloseAction closeAction);
+    GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
 
 private:
 
@@ -330,7 +321,8 @@ public:
     /** As controls are added, the window will automatically grow to contain them as needed */
     static Ref create(const GuiCaption& windowTitle, const GuiThemeRef& skin, 
                       const Rect2D& rect = Rect2D::xywh(100, 100, 100, 50), 
-                      Style style = NORMAL_FRAME_STYLE, CloseAction = NO_CLOSE);
+                      GuiTheme::WindowStyle style = GuiTheme::NORMAL_WINDOW_STYLE, 
+                      CloseAction = NO_CLOSE);
 
     /**
        Drawers are like windows that slide out of the side of another

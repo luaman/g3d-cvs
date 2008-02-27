@@ -48,7 +48,7 @@ protected:
     GuiControl(GuiPane* parent, const GuiCaption& text = "");
 
     /** Fires an action event */
-    void fireActionEvent();
+    void fireActionEvent();    
 
 public:
 
@@ -104,7 +104,16 @@ protected:
         down)
     */
     virtual bool onEvent(const GEvent& event) { return false; }
-};
+
+    /**
+      Returns the coordinates of v, which is in the coordinate system of this object,
+      relative to the GWindow on which it will be rendered.
+     */
+    Vector2 toGWindowCoords(const Vector2& v) const;
+
+    Rect2D toGWindowCoords(const Rect2D& r) const {
+        return Rect2D::xywh(toGWindowCoords(r.x0y0()), r.wh());
+    }};
 
 }
 

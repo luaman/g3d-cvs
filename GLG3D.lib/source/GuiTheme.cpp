@@ -127,17 +127,14 @@ void GuiTheme::deserialize(const std::string& path, TextInput& b) {
     b.readSymbols("windowButtonStyle", "=");
     m_osxWindowButtons = (b.readSymbol() == "osx");
 
-    m_window[NORMAL_WINDOW_STYLE].textStyle = m_textStyle;
-    m_window[NORMAL_WINDOW_STYLE].deserialize("window", path, b);
 
-    m_window[TOOL_WINDOW_STYLE].textStyle = m_textStyle;
-    m_window[TOOL_WINDOW_STYLE].deserialize("toolWindow", path, b);
-
-    m_window[DIALOG_WINDOW_STYLE].textStyle = m_textStyle;
-    m_window[DIALOG_WINDOW_STYLE].deserialize("dialogWindow", path, b);
-
-    m_window[DRAWER_WINDOW_STYLE].textStyle = m_textStyle;
-    m_window[DRAWER_WINDOW_STYLE].deserialize("drawer", path, b);
+    static std::string windowStyleName[WINDOW_STYLE_COUNT] = {"window", "toolWindow", "dialogWindow", "drawer", "menu", "no"};
+    debugAssert(windowStyleName[WINDOW_STYLE_COUNT - 1] == "no");
+    // Skip the no-style window
+    for (int i = 0; i < WINDOW_STYLE_COUNT - 1; ++i) {
+        m_window[i].textStyle = m_textStyle;
+        m_window[i].deserialize(windowStyleName[i], path, b);
+    }
 
     m_hSlider.textStyle = m_textStyle;
     m_hSlider.disabledTextStyle = m_disabledTextStyle;
@@ -510,7 +507,7 @@ void GuiTheme::drawWindow(const Window& window, const Rect2D& bounds,
         drawRect(vertex, m_closeButton.base + offset, rd);
     }
     
-    if (text.text() != "") {
+    if ((text.text() != "") && (window.borderThickness.topLeft.y > 4)) {
         const TextStyle& style = focused ? window.textStyle : window.defocusedTextStyle;
 
         addDelayedText(
@@ -865,7 +862,7 @@ Rect2D GuiTheme::clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) c
 
 GuiTheme::GuiTheme() {}
 
-void GuiTheme::makeSkinFromSourceFiles
+void GuiTheme::makeThemeFromSourceFiles
 (
  const std::string& sourceDir,
  const std::string& whiteName,

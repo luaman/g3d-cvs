@@ -116,19 +116,27 @@ void WidgetManager::remove(const Widget::Ref& m) {
 }
 
 
+bool WidgetManager::contains(const Widget::Ref& m) const {
+    return m_moduleArray.contains(m);
+}
+
+
 void WidgetManager::add(const Widget::Ref& m) {
     debugAssert(m.notNull());
     if (m_locked) {
         m_delayedEvent.append(DelayedEvent(DelayedEvent::ADD, m));
     } else {
-        if (m_focusedModule.notNull()) {
-            // Cannot replace the focused module at the top of the priority list
-            m_moduleArray[m_moduleArray.size() - 1] = m;
-            m_moduleArray.append(m_focusedModule);
-        } else {
-            m_moduleArray.append(m);
+        // Do not add elements that already are in the manager
+        if (! m_moduleArray.contains(m)) {
+            if (m_focusedModule.notNull()) {
+                // Cannot replace the focused module at the top of the priority list
+                m_moduleArray[m_moduleArray.size() - 1] = m;
+                m_moduleArray.append(m_focusedModule);
+            } else {
+                m_moduleArray.append(m);
+            }
+            m->setManager(this);
         }
-        m->setManager(this);
     }
 }
 

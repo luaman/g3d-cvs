@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2008-01-30
+ @edited  2008-02-30
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
@@ -18,15 +18,7 @@ namespace G3D {
 /** Pixels of padding between controls */
 static const float CONTROL_PADDING = 4.0f;
 
-void GuiPane::init(const Rect2D& rect) {
-    setRect(rect);
 
-    if (m_caption.text() != "") {
-        m_label = addLabel(m_caption);
-    } else {
-        m_label = NULL;
-    }
-}
 
 
 GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 

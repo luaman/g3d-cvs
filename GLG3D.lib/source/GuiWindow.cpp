@@ -19,7 +19,7 @@ GuiWindow::Ref GuiWindow::create
 (const GuiCaption& label, 
  const GuiThemeRef& skin, 
  const Rect2D& rect, 
- Style style, 
+ GuiTheme::WindowStyle style, 
  CloseAction close) {
 
     return new GuiWindow(label, skin, rect, style, close);
@@ -31,7 +31,7 @@ void GuiWindow::setCaption(const GuiCaption& text) {
 }
 
 
-GuiWindow::GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, Style style, CloseAction close) 
+GuiWindow::GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction close) 
     : m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), m_skin(skin), 
       inDrag(false),
@@ -65,7 +65,7 @@ void GuiWindow::increaseBounds(const Vector2& extent) {
         Rect2D newRect = Rect2D::xywh(Vector2(0,0), extent.max(m_clientRect.wh()));
 
         // Transform the client rect into an absolute rect
-        if (m_style != NO_FRAME_STYLE) {
+        if (m_style != GuiTheme::NO_WINDOW_STYLE) {
             newRect = m_skin->clientToWindowBounds(newRect, GuiTheme::WindowStyle(m_style));
         }
 
@@ -87,7 +87,7 @@ void GuiWindow::setRect(const Rect2D& r) {
     m_rect = r;
     m_morph.active = false;
     
-    if (m_style == NO_FRAME_STYLE) {
+    if (m_style == GuiTheme::NO_WINDOW_STYLE) {
         m_clientRect = m_rect;
     } else {
         m_clientRect = m_skin->windowToClientBounds(m_rect, GuiTheme::WindowStyle(m_style));
@@ -139,7 +139,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
     if (m_rect.contains(mouse)) {
         // The mouse is over this window, update the mouseOver control
         
-        if ((m_closeAction != NO_CLOSE) && (m_style != NO_FRAME_STYLE)) {
+        if ((m_closeAction != NO_CLOSE) && (m_style != GuiTheme::NO_WINDOW_STYLE)) {
             m_closeButton.mouseOver = 
                 m_skin->windowToCloseButtonBounds(m_rect, GuiTheme::WindowStyle(m_style)).contains(mouse);
         }
@@ -221,7 +221,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
         Rect2D titleRect;
         Rect2D closeRect;
-        if (m_style ==  NO_FRAME_STYLE) {
+        if (m_style == GuiTheme::NO_WINDOW_STYLE) {
             titleRect = Rect2D::xywh(m_rect.x0y0(), Vector2(m_rect.width(), 0));
         } else {
             titleRect = m_skin->windowToTitleBounds(m_rect, GuiTheme::WindowStyle(m_style));
@@ -233,7 +233,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
             return true;
         }
 
-        if (titleRect.contains(mouse)) {
+        if (titleRect.contains(mouse) && (m_style != GuiTheme::MENU_WINDOW_STYLE)) {
             inDrag = true;
             dragStart = mouse;
             dragOriginalRect = m_rect;
@@ -247,7 +247,7 @@ bool GuiWindow::onEvent(const GEvent &event) {
             m_rootPane->findControlUnderMouse(mouse, keyFocusGuiControl);
         }
 
-        if (m_style != NO_FRAME_STYLE) {
+        if (m_style != GuiTheme::NO_WINDOW_STYLE) {
             // Consume the click, since it was somewhere on this window (it may still
             // be used by another one of the controls on this window).
             consumed = true;
@@ -336,7 +336,7 @@ void GuiWindow::render(RenderDevice* rd) {
     {
         bool hasClose = m_closeAction != NO_CLOSE;
 
-        if (m_style != NO_FRAME_STYLE) {
+        if (m_style != GuiTheme::NO_WINDOW_STYLE) {
             m_skin->renderWindow(m_rect, focused(), hasClose, m_closeButton.down,
                                m_closeButton.mouseOver, m_text, GuiTheme::WindowStyle(m_style));
         } else {
