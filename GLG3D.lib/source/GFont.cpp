@@ -89,6 +89,7 @@ GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 
 	Texture::Settings fontSettings;
 	fontSettings.wrapMode = WrapMode::CLAMP;
+    fontSettings.interpolateMode = Texture::BILINEAR_MIPMAP;
 
     m_texture = 
         Texture::fromMemory(
