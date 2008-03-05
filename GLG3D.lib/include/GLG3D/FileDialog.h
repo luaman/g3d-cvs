@@ -15,12 +15,54 @@
 
 namespace G3D {
 
+typedef ReferenceCountedPointer<class FileDialog> FileDialogRef;
+
 /** Example:         
 <pre>
-if (getFilename("Save File", mywidow)) {
-  save code
+std::string filename = "";
+if (FileDialog::create(window)->getFilename(filename)) {
+  // save code
+}
+</pre>
+
+
+Custom file dialog:
+
+
+<pre>
+class MyFileDialog : public FileDialog {
+protected:
+    
+    bool m_saveAlpha;
+
+    MyFileDialog(GWindow* osWindow, GuiThemeRef skin) : FileDialog(osWindow, skin, "") {
+        pane()->addCheckBox("Save Alpha", &m_saveAlpha);
+    }
+
+public:
+    FileDialogRef create(GuiWindowRef parent) {
+        return new MyFileDialog(parent->window(), parent->skin());
+    }
+
+    bool getFilename(std::string& filename, bool& saveAlpha, const std::string& caption = "Enter Filename") {
+        m_saveAlpha = saveAlpha;
+
+        FileDialog::getFilename(filename, caption);
+
+        if (ok) { saveAlpha = m_saveAlpha; }
+        return ok;
+    }
+
 }
 
+...
+
+std::string filename = "";
+bool saveAlpha = true;
+
+if (MyFileDialog::create(window)->->getFilename(filename, saveAlpha)) {
+  // save code
+}
 </pre>
 */
 class FileDialog : public GuiWindow {
@@ -32,21 +74,33 @@ protected:
     GuiButton*         cancelButton;
     GuiTextBox*        textBox;
 
-    std::string&       saveName;
+    std::string        m_filename;
 
-    FileDialog(std::string& saveName, GuiThemeRef skin, const std::string& caption);
+    GWindow*           m_osWindow;
+
+    FileDialog(GWindow* osWindow, GuiThemeRef skin, const std::string& note);
 
 public:
-    
-    /**
+
+    /** 
        @param saveName Initial value of the box and what will be returned in the event
        that the user presses ok.
+     */
+    static FileDialogRef create(GWindow* osWindow, GuiThemeRef skin, const std::string& note = "") {
+        return new FileDialog(osWindow, skin, note);
+    }
 
+    static FileDialogRef create(GuiWindowRef parent, const std::string& note = "") {
+        return create(parent->window(), parent->skin(), note);
+    }
+
+    /**
+       @param filename  This is the initial filename shown, and unless cancelled, receives the final filename as well.
        @return True unless cancelled
      */
-    static bool getFilename(std::string& saveName, GWindow* osWindow, GuiThemeRef skin, const std::string& caption = "Enter Filename");
-
-    static bool getFilename(std::string& saveName, GuiWindowRef parent, const std::string& caption = "Enter Filename");
+    // filename is passed as a reference instead of a pointer because it will not be used after the
+    // method ends, so there is no danger of the caller misunderstanding as there is with the GuiPane::addTextBox method.
+    virtual bool getFilename(std::string& filename, const std::string& caption = "Enter Filename");
 
     virtual bool onEvent(const GEvent& e);
 

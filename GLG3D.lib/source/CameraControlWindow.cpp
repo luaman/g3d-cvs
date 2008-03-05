@@ -297,7 +297,7 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
             // Save
             std::string saveName;
 
-            if (FileDialog::getFilename(saveName, this)) {
+            if (FileDialog::create(this)->getFilename(saveName)) {
                 saveName = filenameBaseExt(trimWhitespace(saveName));
 
                 if (saveName != "") {
