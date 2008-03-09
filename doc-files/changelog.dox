@@ -18,10 +18,13 @@
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> GWindow::create
+     <li> FileDialog now accepts an extra "note" argument
+     <li> FileDialog::getFilename non-static to support subclassing
      <li> System::currentDateString
      <li> Tool buttons added to a G3D::GuiPane automatically align to the previous one.
      <li> Added invisible GuiPane style
      <li> Increased BSPMap rendering by 10% by reducing state changes
+     <li> Added prompt argument to FileDialog::getFilename
      <li> G3D::PosedModel::getBoxBounds on an array
      <li> G3D::PosedModel::getSphereBounds on an array
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files

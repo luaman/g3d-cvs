@@ -56,16 +56,18 @@ bool FileDialog::onEvent(const GEvent& e) {
 
     okButton->setEnabled(trimWhitespace(m_filename) != "");
 
-    if (e.type == GEventType::GUI_ACTION) {
-        // Text box, cancel button and ok button are the 
-        // only choices.  Anything but cancel means ok,
-        // and all mean close the dialog.
+    if ((e.type == GEventType::GUI_ACTION) && 
+        ((e.gui.control == cancelButton) ||
+         (e.gui.control == texBox) ||
+         (e.gui.control == okButton))) {
         ok = (e.gui.control != cancelButton);
         setVisible(false);
+        return true;
     } else if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::ESCAPE)) {
         // Cancel the dialog
         ok = false;
         setVisible(false);
+        return true;
     }
 
     return false;
