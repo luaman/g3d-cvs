@@ -1540,6 +1540,7 @@ static void createTexture(
     // If true, we're supposed to free the byte array at the end of
     // the function.
     bool   freeBytes = false; 
+    int maxSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
 
     switch (target) {
     case GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB:
@@ -1550,17 +1551,26 @@ static void createTexture(
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB:
     case GL_TEXTURE_2D:
         if ((! isPow2(m_width) || ! isPow2(m_height)) &&
-            (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two())) {
+            (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two() ||
+             (m_width > maxSize) || (m_height > maxSize))) {
             // NPOT texture with useNPOT disabled: resize to a power of two
 
             debugAssertM(! compressed,
                 "Cannot rescale compressed textures to power of two, use DIM_2D_NPOT");
 
+
             if (rawBytes != NULL) {
                 int oldWidth = m_width;
                 int oldHeight = m_height;
-                m_width  = ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor));
-                m_height = ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor));
+                m_width  = iMin(maxSize, ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor)));
+                m_height = iMin(maxSize, ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor)));
+
+
+                if ((oldWidth > maxSize) || (oldHeight > maxSize)) {
+                    logPrintf("WARNING: %d x %d texture exceeded maximum size and was resized to %d x %d\n",
+                              oldWidth, oldHeight, m_width, m_height);
+                }
+
 
                 bytes = new uint8[m_width * m_height * bytesPerPixel];
                 freeBytes = true;

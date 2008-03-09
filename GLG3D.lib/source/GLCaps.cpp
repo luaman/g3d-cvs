@@ -434,7 +434,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
     #undef LOAD_EXTENSION
 
     std::istringstream extensions;
-	std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
+    std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
     extensions.str(extStringCopy.c_str());
     {
         // Parse the extensions into the supported set
@@ -1277,9 +1277,9 @@ void describeSystem(
     class NetworkDevice* nd, 
     TextOutput& t) {
 
-	System::describeSystem(t);
-	rd->describeSystem(t);
-	nd->describeSystem(t);
+    System::describeSystem(t);
+    rd->describeSystem(t);
+    nd->describeSystem(t);
 }
 
 

@@ -140,6 +140,7 @@ std::string vformat(const char* fmt, va_list argPtr) {
       debugAssert(heapBuffer);
       int numChars2 = vsnprintf(heapBuffer, numChars + 1, fmt, argPtr);
       debugAssert(numChars2 == numChars);
+      (void)numChars2;
 
       std::string result(heapBuffer);
       

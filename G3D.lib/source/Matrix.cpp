@@ -1110,6 +1110,7 @@ Matrix Matrix::col2PseudoInverse(const Matrix& B) const {
     Matrix A = *this;
     int m = rows();
     int n = cols();
+    (void)n;
 
     // Row-major 2x2 matrix
     const float B2[2][2] = 
@@ -1222,6 +1223,7 @@ Matrix Matrix::row2PseudoInverse(const Matrix& B) const {
     Matrix A = *this;
     int m = rows();
     int n = cols();
+    (void)m;
 
     // Row-major 2x2 matrix
     const float B2[2][2] = 

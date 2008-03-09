@@ -16,6 +16,7 @@
    <ul>
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
+     <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> GWindow::create
      <li> System::currentDateString
      <li> Tool buttons added to a G3D::GuiPane automatically align to the previous one.
