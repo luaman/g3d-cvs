@@ -58,7 +58,7 @@ bool FileDialog::onEvent(const GEvent& e) {
 
     if ((e.type == GEventType::GUI_ACTION) && 
         ((e.gui.control == cancelButton) ||
-         (e.gui.control == texBox) ||
+         (e.gui.control == textBox) ||
          (e.gui.control == okButton))) {
         ok = (e.gui.control != cancelButton);
         setVisible(false);
