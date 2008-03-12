@@ -123,6 +123,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
     rd->setProjectionAndCameraMatrix(defaultCamera);
+    rd->setViewport(Rect2D::xywh(Vector2(0, 100), Vector2(rd->width(), rd->height() - 300)));
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(false, true, true);
@@ -130,26 +131,20 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
-    rd->push2D();
-        Vector2 b = debugFont->draw2D(rd, "hello, there!", Vector2(100, 100), 30);
-    rd->pop2D();
-
-//	map->render(rd, defaultCamera);
-    /*
     // Setup lighting
     rd->enableLighting();
         rd->setLight(0, localLighting->lightArray[0]);
         rd->setAmbientLightColor(localLighting->ambientAverage());
 
         // Sample rendering code
-        //Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-        //Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
-        //Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
+        Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
+        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
+        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
-*/
+
     PosedModel2D::sortAndRender(rd, posed2D);
 }
 
