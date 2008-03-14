@@ -123,7 +123,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
     rd->setProjectionAndCameraMatrix(defaultCamera);
-    rd->setViewport(Rect2D::xywh(Vector2(0, 100), Vector2(rd->width(), rd->height() - 300)));
+    rd->setViewport(Rect2D::xywh(Vector2(50, 100), Vector2(rd->width() - 200, rd->height() - 300)));
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(false, true, true);

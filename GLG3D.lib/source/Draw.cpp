@@ -125,6 +125,7 @@ void Draw::axes(
     const float yy = xx * 1.4f;
 
     Vector4 viewportOffset = Vector4(renderDevice->viewport().x0y0(), 0, 0);
+    viewportOffset.x = 0;
 
     // Project the 3D locations of the labels
     Vector4 xc2D = renderDevice->project(c + x * 1.1f) - viewportOffset;
