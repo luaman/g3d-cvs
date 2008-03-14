@@ -33,7 +33,16 @@ FirstPersonManipulator::FirstPersonManipulator() :
 void FirstPersonManipulator::getFrame(CoordinateFrame& c) const {
 	c.translation = m_translation;
     c.rotation = Matrix3::fromEulerAnglesZYX(0, -m_yaw, -m_pitch);
+
     debugAssert(isFinite(c.rotation[0][0]));
+
+    debugAssert(c.rotation[1][1] >= 0, 
+        "y-axis tipped under the equator due to an internal "
+        "inconsistency in FirstPersonManipulator");
+
+    debugAssert(fuzzyEq(c.rotation[1][0], 0.0f),
+        "x-axis is not in the plane of the equator due to an internal "
+        "inconsistency in FirstPersonManipulator");
 }
 
 
