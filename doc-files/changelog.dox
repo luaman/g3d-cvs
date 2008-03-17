@@ -72,6 +72,7 @@
      <li> G3D::PosedModel::objectSpaceTangents
      <li> G3D::IFSModel::fromData
      <li> G3D::MeshAlg::generateGrid
+     <li> G3D::BinaryOutput::ok()
      <li> G3D::IFSModel::fromFile now defaults to not welding for improved performance
      <li> G3D::IFSModel members are now protected to allow subclassing
      <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]

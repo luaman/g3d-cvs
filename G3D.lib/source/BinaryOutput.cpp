@@ -5,7 +5,7 @@
  Copyright 2002-2007, Morgan McGuire, All rights reserved.
  
  @created 2002-02-20
- @edited  2005-06-07
+ @edited  2008-01-07
  */
 
 #include "G3D/platform.h"
@@ -200,6 +200,7 @@ BinaryOutput::BinaryOutput() {
     beginEndBits = 0;
     bitString = 0;
     bitPos = 0;
+    m_ok = true;
     committed = false;
 }
 
@@ -218,6 +219,11 @@ BinaryOutput::BinaryOutput(
     beginEndBits = 0;
     bitString = 0;
     bitPos = 0;
+    committed = false;
+
+    m_ok = true;    
+    /** Verify ability to write to disk */
+    commit(false);
     committed = false;
 }
 
@@ -249,6 +255,11 @@ BinaryOutput::~BinaryOutput() {
 
 void BinaryOutput::setEndian(G3DEndian fileEndian) {
     swapBytes = (fileEndian != System::machineEndian());
+}
+
+
+bool BinaryOutput::ok() const {
+    return m_ok;
 }
 
 
@@ -312,17 +323,21 @@ void BinaryOutput::commit(bool flush) {
     const char* mode = (alreadyWritten > 0) ? "ab" : "wb";
 
     FILE* file = fopen(filename.c_str(), mode);
-    debugAssertM(file, 
-                 std::string("Could not open '") + filename + "'");
 
-    alreadyWritten += bufferLen;
+    m_ok = (file != NULL) && m_ok;
 
-    fwrite(buffer, bufferLen, 1, file);
-    if (flush) {
-        fflush(file);
+    if (m_ok) {
+        debugAssertM(file, std::string("Could not open '") + filename + "'");
+
+        alreadyWritten += bufferLen;
+
+        fwrite(buffer, bufferLen, 1, file);
+        if (flush) {
+            fflush(file);
+        }
+        fclose(file);
+        file = NULL;
     }
-    fclose(file);
-    file = NULL;
 }
 
 

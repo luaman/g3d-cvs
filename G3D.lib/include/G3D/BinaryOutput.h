@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, graphics3d.com
  
  @created 2001-08-09
- @edited  2006-01-24
+ @edited  2008-01-24
 
  Copyright 2000-2006, Morgan McGuire.
  All rights reserved.
@@ -85,6 +85,8 @@ private:
     /** Number of bytes already written to the file.*/
     size_t          alreadyWritten;             
 
+    bool            m_ok;
+
     void reserveBytesWhenOutOfMemory(size_t bytes);
 
     void reallocBuffer(size_t bytes, size_t oldBufferLen);
@@ -136,6 +138,9 @@ public:
         was already written to disk)-- will throw char*.
      */
     void compress();
+
+    /** True if no errors have been encountered.*/
+    bool ok() const;
 
     /**
      Returns a pointer to the internal memory buffer.
