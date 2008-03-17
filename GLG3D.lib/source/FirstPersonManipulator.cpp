@@ -36,11 +36,11 @@ void FirstPersonManipulator::getFrame(CoordinateFrame& c) const {
 
     debugAssert(isFinite(c.rotation[0][0]));
 
-    debugAssert(c.rotation[1][1] >= 0, 
+    debugAssertM(c.rotation[1][1] >= 0, 
         "y-axis tipped under the equator due to an internal "
         "inconsistency in FirstPersonManipulator");
 
-    debugAssert(fuzzyEq(c.rotation[1][0], 0.0f),
+    debugAssertM(fuzzyEq(c.rotation[1][0], 0.0f),
         "x-axis is not in the plane of the equator due to an internal "
         "inconsistency in FirstPersonManipulator");
 }
