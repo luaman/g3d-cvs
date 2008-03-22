@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY (gfxmeter)
+ADD_SUBDIRECTORY (viewer)

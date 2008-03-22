@@ -23,13 +23,15 @@ ENDIF (MINGW)
 TARGET_LINK_LIBRARIES(models ${ALL_EXE_LIBRARIES})
 
 # specify executable output directory
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/models)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/bin/models)
 
 # copy files to build directory
-COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/models models)
+COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/bin/models models)
 
 # copy models data-files to installation directory
-INSTALL (DIRECTORY ${data_files} DESTINATION bin/models PATTERN "CVS" EXCLUDE)
+INSTALL (DIRECTORY data-files/ DESTINATION bin/models 
+  PATTERN "CVS" EXCLUDE
+  )
 
 # copy models to installation directory
 INSTALL (TARGETS models RUNTIME DESTINATION bin/models)

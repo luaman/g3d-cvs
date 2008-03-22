@@ -18,7 +18,7 @@ ADD_EXECUTABLE(test ${source_list})
 TARGET_LINK_LIBRARIES(test ${ALL_EXE_LIBRARIES})
 
 # specify executable output directory
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/test)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/bin/test)
 
 # copy data-files to build directory
 

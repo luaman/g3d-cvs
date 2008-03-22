@@ -15,9 +15,6 @@ INCLUDE_DIRECTORIES(include)
 # specify jpeg source
 ADD_LIBRARY(jpeg ${source_list})
 
-# copy files to build directory
-COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/include ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/include jpeg)
-
 # copy jpeg headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION include)
 

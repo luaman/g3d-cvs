@@ -89,7 +89,7 @@ void tesselateComplexPolygon(const Array<Vector3>& input, Array<Triangle>& outpu
     if (tobj == NULL) {
         tobj = gluNewTess();
 #if defined(G3D_OSX) 
-        #define CAST(x) reinterpret_cast<void (*)(...)>(x)
+        #define CAST(x) reinterpret_cast<GLvoid (*)()>(x)
 #elif defined(G3D_LINUX)
         #define CAST(x) reinterpret_cast<void (*)()>(x)
 #else

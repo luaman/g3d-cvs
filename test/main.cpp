@@ -29,6 +29,10 @@ using namespace G3D;
 #endif
 #include <string>
 
+using G3D::uint64;
+using G3D::uint32;
+using G3D::uint8;
+
 //#define RUN_SLOW_TESTS
 
 // Forward declarations

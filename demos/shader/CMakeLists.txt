@@ -23,13 +23,13 @@ ENDIF (MINGW)
 TARGET_LINK_LIBRARIES(shader ${ALL_EXE_LIBRARIES})
 
 # specify executable output directory
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/shader)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/bin/shader)
 
 # copy files to build directory
-COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/shader shader)
+COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/bin/shader shader)
 
 # copy shader data-files to installation directory
-INSTALL (DIRECTORY ${data_files} DESTINATION bin/shader PATTERN "CVS" EXCLUDE)
+INSTALL (DIRECTORY data-files/ DESTINATION bin/shader PATTERN "CVS" EXCLUDE)
 
 # copy shader to installation directory
 INSTALL (TARGETS shader RUNTIME DESTINATION bin/shader)

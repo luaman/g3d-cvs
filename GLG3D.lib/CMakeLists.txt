@@ -16,7 +16,6 @@ FILE(GLOB gl_header_list include/GLG3D/GL/*.h)
 
 # specify include paths during compilation
 INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR}
-                    ${X11_INCLUDE_DIR} 
                     ${PNG_INCLUDE_DIR}
                     ${JPEG_INCLUDE_DIR}
                     ${ZLIB_INCLUDE_DIR}
@@ -24,16 +23,18 @@ INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR}
                     ${G3D_SOURCE_DIR}/G3D.lib/include
                     include )
 
-IF (UNIX OR APPLE)
-    INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-ENDIF (UNIX OR APPLE)
+IF (UNIX AND NOT APPLE)
+    INCLUDE_DIRECTORIES(
+      ${SDL_INCLUDE_DIR}
+      ${X11_INCLUDE_DIR} 
+    )
+ENDIF (UNIX AND NOT APPLE)
 
 # specify glg3d source
 ADD_LIBRARY(GLG3D ${source_list})
 
 # copy files to build directory
-COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/include/GLG3D ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/include/GLG3D GLG3D)
-COPY_IF_DIFFERENT(${CMAKE_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/build/data GLG3D) 
+COPY_IF_DIFFERENT(${CMAKE_SOURCE_DIR}/data-files ${G3D_BINARY_DIR}/data GLG3D) 
 
 # copy g3d headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION include/GLG3D)

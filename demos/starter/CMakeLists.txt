@@ -23,7 +23,7 @@ ENDIF (MINGW)
 TARGET_LINK_LIBRARIES(starter ${ALL_EXE_LIBRARIES})
 
 # specify executable output directory
-SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/bin/starter)
+SET (EXECUTABLE_OUTPUT_PATH ${G3D_BINARY_DIR}/bin/starter)
 
 # copy data-files to build directory
 

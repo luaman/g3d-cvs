@@ -3,7 +3,7 @@
 #
 
 from buildlib import *
-import os, platform, commands, sys, time, getopt
+import os, platform, commands, sys, time, getopt, errno
 sys.path.append('bin')
 import ice.copyifnewer
 
@@ -104,9 +104,9 @@ def ilib(args):
          # Build zlib
          if x == 0: runicompile('zlib.lib')
 
-     if (os.name == 'nt') or (os.uname()[0] == 'Darwin'):
+     # if (os.name == 'nt') or (os.uname()[0] == 'Darwin'):
          # Build png
-         if x == 0: x = runicompile('png.lib')
+         # if x == 0: x = runicompile('png.lib')
 
      if (x == 0):
          x = runicompile('zip.lib')
@@ -322,8 +322,10 @@ def jar(args):
 
 def proj(args):
 
-    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release', 'generator=', 'install-dir='])
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release',
+      'generator=', 'build-dir=', 'install-dir='])
     
+    buildDir = 'build'
     buildType = 'Release'
     installDir = ''
     buildGenerator = ''
@@ -338,6 +340,9 @@ def proj(args):
         if opt == '--debug':
             buildType = 'Debug'
 
+        if opt == '--build-dir':
+            buildDir = arg
+
         if opt == '--install-dir':
             installDir = arg
             
@@ -349,7 +354,22 @@ def proj(args):
     if installDir != '':
         cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
         
-    return run('cmake', cmakeArgs)
+    curDir = os.getcwd();
+
+    try:
+      os.makedirs(buildDir)
+    except OSError, e:
+      if e.errno == errno.EEXIST:
+        print "Build directory " + buildDir + " already exists..."
+      else:
+        print "Error: " + buildDir + " could not be created...  aborting."
+        return -1 
+
+    os.chdir(buildDir)
+    cmakeArgs.insert(0, curDir)
+    ret = run('cmake', cmakeArgs)
+    os.chdir(curDir)
+    return ret
        
 ##################################################################################
 def getCompilerName(args = []):
@@ -438,6 +458,8 @@ proj       Generates system-dependent makefiles and projects via cmake.
            --install-dir=installDir
                 sets installation target directory
                 generated project will still have to make install target
+           --build-dir=buildDir
+                sets the build directory (defaults to ./build)
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).

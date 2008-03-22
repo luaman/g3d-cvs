@@ -15,13 +15,10 @@ INCLUDE_DIRECTORIES(include/zip ${ZLIB_INCLUDE_DIR})
 # specify zip source
 ADD_LIBRARY(zip ${source_list})
 
-# copy files to build directory
-COPY_IF_DIFFERENT(${CMAKE_CURRENT_SOURCE_DIR}/include ${G3D_BINARY_DIR}/build/${PLATFORM_DIR}/include zip)
-
 # copy zip headers to installation directory
 INSTALL (FILES ${header_list} DESTINATION include/zip)
 
 # copy zip to installation directory
 INSTALL (TARGETS zip 
-                 LIBRARY DESTINATION lib
-                 ARCHIVE DESTINATION lib)
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib)

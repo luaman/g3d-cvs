@@ -192,7 +192,7 @@ public:
 
         cpuIndex16.resize(cpuIndex.size());
         for (int i = 0; i < (int)cpuIndex.size(); ++i) {
-            cpuIndex16[i] = (uint16)cpuIndex[i];
+          cpuIndex16[i] = (G3D::uint16)cpuIndex[i];
         }
     }
 };

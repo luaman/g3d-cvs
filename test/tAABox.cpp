@@ -1,4 +1,9 @@
 #include "G3D/G3DAll.h"
+using G3D::uint8;
+using G3D::uint32;
+using G3D::uint64;
+
+using G3D::uint32;
 
 static void testAABoxCulledBy() {
     const uint32 b00000000 = 0;

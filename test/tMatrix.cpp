@@ -1,34 +1,37 @@
 #include "G3D/G3DAll.h"
+using G3D::uint8;
+using G3D::uint32;
+using G3D::uint64;
 
 
 void testPseudoInverse() {
     float normThreshold = 0.0001f;
 
     for(int n = 4; n <= 30; ++n) {
-        Matrix& A = Matrix::random(1,n);
-        Matrix& B = Matrix::random(n,1);
-        Matrix& C = Matrix::random(2,n);
-        Matrix& D = Matrix::random(n,2);
-        Matrix& E = Matrix::random(3,n);
-        Matrix& F = Matrix::random(n,3);
-        Matrix& G = Matrix::random(4,n);
-        Matrix& H = Matrix::random(n,4);
-        Matrix& A1 = A.pseudoInverse();
-        Matrix& A2 = A.svdPseudoInverse();
-        Matrix& B1 = B.pseudoInverse();
-        Matrix& B2 = B.svdPseudoInverse();
-        Matrix& C1 = C.pseudoInverse();
-        Matrix& C2 = C.svdPseudoInverse();
-        Matrix& D1 = D.pseudoInverse();
-        Matrix& D2 = D.svdPseudoInverse();
-        Matrix& E1 = E.pseudoInverse();
-        Matrix& E2 = E.svdPseudoInverse();
-        Matrix& F1 = F.pseudoInverse();
-        Matrix& F2 = F.svdPseudoInverse();
-        Matrix& G1 = G.pseudoInverse();
-        Matrix& G2 = G.svdPseudoInverse();
-        Matrix& H1 = H.pseudoInverse();
-        Matrix& H2 = H.svdPseudoInverse();
+        const Matrix& A = Matrix::random(1,n);
+        const Matrix& B = Matrix::random(n,1);
+        const Matrix& C = Matrix::random(2,n);
+        const Matrix& D = Matrix::random(n,2);
+        const Matrix& E = Matrix::random(3,n);
+        const Matrix& F = Matrix::random(n,3);
+        const Matrix& G = Matrix::random(4,n);
+        const Matrix& H = Matrix::random(n,4);
+        const Matrix& A1 = A.pseudoInverse();
+        const Matrix& A2 = A.svdPseudoInverse();
+        const Matrix& B1 = B.pseudoInverse();
+        const Matrix& B2 = B.svdPseudoInverse();
+        const Matrix& C1 = C.pseudoInverse();
+        const Matrix& C2 = C.svdPseudoInverse();
+        const Matrix& D1 = D.pseudoInverse();
+        const Matrix& D2 = D.svdPseudoInverse();
+        const Matrix& E1 = E.pseudoInverse();
+        const Matrix& E2 = E.svdPseudoInverse();
+        const Matrix& F1 = F.pseudoInverse();
+        const Matrix& F2 = F.svdPseudoInverse();
+        const Matrix& G1 = G.pseudoInverse();
+        const Matrix& G2 = G.svdPseudoInverse();
+        const Matrix& H1 = H.pseudoInverse();
+        const Matrix& H2 = H.svdPseudoInverse();
 
         /*
         log.println(format("1x%d:%f",n,(A1-A2).norm()));

@@ -2,8 +2,9 @@
 # -*- python -*-
 #
 
-import sys
+import sys,os
 sys.path.append('bin')
+sys.path.append(os.path.realpath(os.path.dirname(sys.argv[0])) + '/bin')
 import ice.copyifnewer
 
 def copy_if_newer(args):

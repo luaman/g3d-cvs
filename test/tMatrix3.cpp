@@ -1,4 +1,7 @@
 #include "G3D/G3DAll.h"
+using G3D::uint8;
+using G3D::uint32;
+using G3D::uint64;
 
 static void mul(float (&A)[3][3], float (&B)[3][3], float (&C)[3][3]) {
     for (int r = 0; r < 3; ++r) {
