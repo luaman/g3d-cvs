@@ -104,9 +104,9 @@ def ilib(args):
          # Build zlib
          if x == 0: runicompile('zlib.lib')
 
-     # if (os.name == 'nt') or (os.uname()[0] == 'Darwin'):
+     if (os.name == 'nt') or (os.uname()[0] == 'Darwin'):
          # Build png
-         # if x == 0: x = runicompile('png.lib')
+         if x == 0: x = runicompile('png.lib')
 
      if (x == 0):
          x = runicompile('zip.lib')
