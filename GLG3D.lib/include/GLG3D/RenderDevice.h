@@ -8,9 +8,9 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2001-05-29
-  @edited  2007-01-30
+  @edited  2008-03-30
 
-  Copyright 2001-2007, Morgan McGuire
+  Copyright 2001-2008, Morgan McGuire
 */
 
 #ifndef GLG3D_RENDERDEVICE_H
@@ -1668,6 +1668,8 @@ public:
      The result is the 2D position to which the 3D point v corresponds.  You
      can use this to make results rendered with push2D() line up with those
      rendered with a 3D transformation.
+
+     The value returned is relative to the current viewport.
 
      See G3D::glToScreen
      */

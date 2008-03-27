@@ -577,7 +577,12 @@ Vector4 RenderDevice::project(const Vector3& v) const {
 
 
 Vector4 RenderDevice::project(const Vector4& v) const {
-    return glToScreen(v);
+//    return glToScreen(v) + Vector4(0, viewport().y0(), 0, 0);
+    Vector4 p = glToScreen(v);
+    
+    p.y += viewport().y1() + viewport().y0() - height();
+
+    return p;
 }
 
 
