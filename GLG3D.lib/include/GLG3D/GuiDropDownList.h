@@ -27,14 +27,23 @@ typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
  */
 class GuiMenu : public GuiWindow {
 protected:
-    
-    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect);
+
+    Array<std::string>*             m_stringListValue;
+    Array<GuiCaption>*              m_captionListValue;
+
+    /** Which of the two list values to use */
+    bool                            m_useStringList;
+
+    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr);
+    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr);
 
 public:
 
-    static GuiMenuRef create(const GuiThemeRef& skin);
+    static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr);
+    static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr);
 
     virtual bool onEvent(const GEvent& event);
+//    virtual void render(RenderDevice* rd);
 
     void hide();
     void show(WidgetManager* manager, const Vector2& position);

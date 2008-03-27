@@ -14,16 +14,30 @@
 namespace G3D {
 
 
-GuiMenuRef GuiMenu::create(const GuiThemeRef& skin) {
-    return new GuiMenu(skin, Rect2D::xywh(0,0,100,200));
+GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr) {
+    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr);
+}
+
+GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr) {
+    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr);
 }
 
 
-GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect) : 
-    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE) {
+GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr) : 
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(listPtr), m_captionListValue(NULL), m_useStringList(true) {
+    for (int i = 0; i < listPtr->size(); ++i) {
+        pane()->addLabel((*listPtr)[i]);
+    }
 }
 
-   
+GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr) : 
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(NULL), m_captionListValue(listPtr), m_useStringList(false) {
+    for (int i = 0; i < listPtr->size(); ++i) {
+        pane()->addLabel((*listPtr)[i]);
+    }
+}
+
+
 bool GuiMenu::onEvent(const GEvent& event) {
     // Hide on escape
     if (m_visible && 
@@ -58,7 +72,24 @@ void GuiMenu::hide() {
     setVisible(false);
     m_manager->setFocusedWidget(this);
     m_manager->remove(this);
-}        
+}
+
+
+/*void GuiMenu::render(RenderDevice* rd) {
+    GuiWindow::render(rd);
+    
+    m_skin->beginRendering(rd);
+    {
+        m_skin->pushClientRect(m_clientRect);
+        {
+            // Draw menu contents
+            m_rootPane->render(rd, m_skin);
+        }
+        m_skin->popClientRect();
+    }
+    m_skin->endRendering();    
+}
+*/
 
 ///////////////////////////////////////////////////
 
@@ -88,7 +119,11 @@ GuiDropDownList::GuiDropDownList
 
 GuiMenuRef GuiDropDownList::menu() { 
     if (m_menu.isNull()) {
-        m_menu = GuiMenu::create(skin());
+        if (m_useStringList) {
+            m_menu = GuiMenu::create(skin(), m_stringListValue);
+        } else {
+            m_menu = GuiMenu::create(skin(), m_captionListValue);
+        }
     }
 
     return m_menu;
