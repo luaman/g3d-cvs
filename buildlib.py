@@ -100,6 +100,7 @@ def findBinary(program):
 
     PATH = os.getenv('PATH', '').split(';') + \
           ['.',\
+           PROGRAMFILES + '/Microsoft Visual Studio 9.0/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio 8/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio/Common/MSDev98/Bin',\
            PROGRAMFILES + '/Microsoft Visual Studio .NET 2003/Common7/IDE',\
@@ -219,18 +220,40 @@ def VCExpress(filename, configs):
  VC8 dispatcher
 """
 
-win32RegKeyTable = \
-	{'vcexpress'	: r"HKEY_LOCAL_MACHINE\Software\Microsoft\VCExpress\8.0\Setup",
-	 'vc8' 			: r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\8.0\Setup\VS"}
+baseRegPath = r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft"
+vc8ePaths = ("VCExpress", "8.0", "Setup")
+vc9ePaths = ("VCExpress", "9.0", "Setup")
+vc8Paths = ("VisualStudio", "8.0", "Setup", "VS")
+vc9Paths = ("VisualStudio", "9.0", "Setup", "VS")
+
+def checkHasVC(paths, testSection, testOption):
+     from regconfig import RegConfig
+
+     regConf = RegConfig(baseRegPath)
+     currentPath = baseRegPath
+     
+     missingSection = False
+     for section in paths:
+         if regConf.has_section(section):
+             currentPath += "\\" + section
+             regConf = RegConfig(currentPath)
+         else:
+             missingSection = True
+             break
+
+     if not missingSection:
+         return regConf.has_option(testSection, testOption)
+     else:
+         return False
 
 def VC8(filename, configs):
-     from regconfig import RegConfig
      # find out the flavor of MSVC
-     if RegConfig(win32RegKeyTable['vc8']).has_option('Pro','ProductDir'):
+     
+     if checkHasVC(vc8Paths, 'Pro','ProductDir') or checkHasVC(vc9Paths, 'Pro','ProductDir'):
          return devenv('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
-     elif RegConfig(win32RegKeyTable['vc8']).has_option('Std','ProductDir'):
+     elif checkHasVC(vc8Paths, 'Std','ProductDir') or checkHasVC(vc9Paths, 'Std','ProductDir'):
          return devenv('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
-     elif RegConfig(win32RegKeyTable['vcexpress']).has_option('VS','ProductDir'):
+     elif checkHasVC(vc8ePaths, 'VS','ProductDir') or checkHasVC(vc9ePaths, 'VS','ProductDir'):
          return VCExpress('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
      else:
          print "Failed to find MSVC environment. Is this a valid MSDEV shell?"
