@@ -185,7 +185,7 @@ def devenv(filename, configs):
     return 0
 
 ##############################################
-"""Runs VCExpress (VC8) on the given sln filename and builds the 
+"""Runs VCExpress (VC9) on the given sln filename and builds the 
 specified configs.  configs is a list of strings
 """
 def VCExpress(filename, configs):
@@ -217,7 +217,7 @@ def VCExpress(filename, configs):
 
 ###############################################################################
 """ 
- VC8 dispatcher
+ VC9 dispatcher
 """
 
 baseRegPath = r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft"
@@ -246,15 +246,15 @@ def checkHasVC(paths, testSection, testOption):
      else:
          return False
 
-def VC8(filename, configs):
+def VC9(filename, configs):
      # find out the flavor of MSVC
      
      if checkHasVC(vc8Paths, 'Pro','ProductDir') or checkHasVC(vc9Paths, 'Pro','ProductDir'):
-         return devenv('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+         return devenv(filename, configs)
      elif checkHasVC(vc8Paths, 'Std','ProductDir') or checkHasVC(vc9Paths, 'Std','ProductDir'):
-         return devenv('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+         return devenv(filename, configs)
      elif checkHasVC(vc8ePaths, 'VS','ProductDir') or checkHasVC(vc9ePaths, 'VS','ProductDir'):
-         return VCExpress('VC8/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'G3D.lib', 'GLG3D.lib'])
+         return VCExpress(filename, configs)
      else:
          print "Failed to find MSVC environment. Is this a valid MSDEV shell?"
          return -1

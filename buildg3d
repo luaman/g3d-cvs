@@ -38,17 +38,18 @@ def copyIfNewer(source, dest):
 
 
 osTable = \
-    {'Microsoft': 'win32', # Vista
-     'Windows'  : 'win32', # XP/NT
+    {'Microsoft': 'win', # Vista
+     'Windows'  : 'win', # XP/NT
      'Linux'    : 'linux',
      'Darwin'   : 'osx',
      'FreeBSD'  : 'freebsd'}
 
 compilerTable = \
-    {'vc6'      : 'Visual Studio 6',
-     'vc7'      : 'Visual Studio 7',
-     'vc71'     : 'Visual Studio 7 .NET 2003',
-     'vc8'      : 'Visual Studio 8 2005',
+    {'vc6.0'    : 'Visual Studio 6',
+     'vc7.0'    : 'Visual Studio 7',
+     'vc7.1'    : 'Visual Studio 7 .NET 2003',
+     'vc8.0'    : 'Visual Studio 8 2005',
+     'vc9.0'    : 'Visual Studio 9 2009',
      'gcc'      : 'gcc',
      'xcode'    : 'XCode'}
 
@@ -57,7 +58,7 @@ def platform_directory(compiler):
     operating_system = osTable[platform.system()]
 
     machine = 'i386'
-    if operating_system != 'Windows':
+    if (operating_system != 'win'):
         machine = platform.machine()
 
     return operating_system + '-' + machine + '-' + compiler
@@ -94,7 +95,7 @@ def ilib(args):
      x = 0
 
      if os.name == 'nt':
-         return VC8('VC8\\G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'G3D.lib', 'GLG3D.lib']);
+         return VC9('VC9/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'G3D.lib', 'GLG3D.lib']);
 
      if (os.uname()[0] == 'Darwin') or (os.name == 'nt'):
          # Build jpeg
@@ -121,7 +122,7 @@ def ilib(args):
 
 def itools(args):
      if os.name == 'nt':
-         return VC8('VC8\\G3D.sln', ['gfxmeter', 'viewer']);
+         return VC9('VC9/G3D.sln', ['gfxmeter', 'viewer']);
 
      x = 0
      if (x == 0):
@@ -138,7 +139,7 @@ def itools(args):
 
 def iclean(args):
     if os.name == 'nt':
-       # iCompile does not support VC8 yet, so explicitly run the project files
+       # iCompile does not support VC9 yet, so explicitly run the project files
        return 0
 
     rmdir('build')
@@ -159,7 +160,7 @@ def iclean(args):
 
 def itest(args):
     if os.name == 'nt':
-       # iCompile does not support VC8 yet, so explicitly run the project files
+       # iCompile does not support VC9 yet, so explicitly run the project files
        return 0
     else:
 
@@ -217,7 +218,7 @@ def installWin32(args):
     copyIfNewer('build/demos', dest + 'demos')
     copyIfNewer('build/data', dest + 'data')
     copyIfNewer('build/G3D.jar', dest + 'java/')
-    copyIfNewer('build/win-i386-vc8.0/*', dest)
+    copyIfNewer('build/win-i386-vc9.0/*', dest)
 
 def installUnix(args):
     if (len(args) > 0):
@@ -380,7 +381,7 @@ def getCompilerName(args = []):
 
     # Return the default compiler for this platform
     if platform.system() == 'Windows':
-        return 'vc8'
+        return 'vc9.0'
     else:
         return 'gcc'
 

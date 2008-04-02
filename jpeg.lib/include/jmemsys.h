@@ -113,7 +113,7 @@ EXTERN(long) jpeg_mem_available JPP((j_common_ptr cinfo,
  * are private to the system-dependent backing store routines.
  */
 
-#define TEMP_NAME_LENGTH   64	/* max length of a temporary file's name */
+#define TEMP_NAME_LENGTH   128	/* max length of a temporary file's name */
 
 
 #ifdef USE_MSDOS_MEMMGR		/* DOS-specific junk */

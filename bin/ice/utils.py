@@ -680,6 +680,10 @@ def getCompilerNickname(compilerFilename):
        verString = shell('"' + compilerFilename.replace('/', '\\') + '"', False)
 
        if verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
+                               'Compiler Version 15.'):
+           return 'vc9.0'
+
+       elif verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
                                'Compiler Version 14.'):
            return 'vc8.0'
  

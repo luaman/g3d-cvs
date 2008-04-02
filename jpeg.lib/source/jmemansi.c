@@ -98,9 +98,10 @@ read_backing_store (j_common_ptr cinfo, backing_store_ptr info,
 		    void FAR * buffer_address,
 		    long file_offset, long byte_count)
 {
+  int read_count = 0;
   if (fseek(info->temp_file, file_offset, SEEK_SET))
     ERREXIT(cinfo, JERR_TFILE_SEEK);
-  if (JFREAD(info->temp_file, buffer_address, byte_count)
+  if ((read_count = JFREAD(info->temp_file, buffer_address, byte_count))
       != (size_t) byte_count)
     ERREXIT(cinfo, JERR_TFILE_READ);
 }
@@ -125,7 +126,13 @@ close_backing_store (j_common_ptr cinfo, backing_store_ptr info)
   fclose(info->temp_file);
   /* Since this implementation uses tmpfile() to create the file,
    * no explicit file deletion is needed.
+   * - tmpfile() has been replaced with fopen() - corey
    */
+#ifdef _MSC_VER
+  _unlink(info->temp_name);
+#else
+  unlink(info->temp_name);
+#endif
 }
 
 
@@ -141,7 +148,15 @@ GLOBAL(void)
 jpeg_open_backing_store (j_common_ptr cinfo, backing_store_ptr info,
 			 long total_bytes_needed)
 {
-  if ((info->temp_file = tmpfile()) == NULL)
+  const char* fname = NULL;
+#ifdef _MSC_VER
+  fname = _tempnam("c:/temp/", "ljp");
+#else
+  fname = tempnam("c:/temp/", "ljp");
+#endif
+  strncpy(info->temp_name, fname, sizeof(info->temp_name));
+  free(fname);
+  if ((info->temp_file = fopen(info->temp_name, "w+b")) == NULL)
     ERREXITS(cinfo, JERR_TFILE_CREATE, "");
   info->read_backing_store = read_backing_store;
   info->write_backing_store = write_backing_store;
