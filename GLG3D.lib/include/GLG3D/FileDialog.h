@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-10-01
-  @edited  2007-10-10
+  @edited  2008-03-10
 */
 #ifndef G3D_FileDialog_H
 #define G3D_FileDialog_H
@@ -12,6 +12,8 @@
 #include "G3D/platform.h"
 #include "GLG3D/Widget.h"
 #include "GLG3D/GuiWindow.h"
+#include "GLG3D/GuiButton.h"
+#include "GLG3D/GuiTextBox.h"
 
 namespace G3D {
 

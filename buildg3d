@@ -105,7 +105,7 @@ def ilib(args):
          # Build zlib
          if x == 0: runicompile('zlib.lib')
 
-     if (os.name == 'nt') or (os.uname()[0] == 'Darwin'):
+     if (os.name == 'nt') or ((os.uname()[0] == 'Darwin') and not (os.path.exists('/usr/X11/include/png.h'))):
          # Build png
          if x == 0: x = runicompile('png.lib')
 
