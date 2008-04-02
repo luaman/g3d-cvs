@@ -15,6 +15,9 @@
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiCheckBox.h"
+#include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/GuiTextBox.h"
+#include "GLG3D/GuiButton.h"
 #include "GLG3D/FirstPersonManipulator.h"
 
 namespace G3D {
