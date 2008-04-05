@@ -20,10 +20,6 @@
 
 
 namespace G3D {
-
-namespace _internal {
-    class GThreadPrivate;
-}
         
 typedef ReferenceCountedPointer<class GThread> GThreadRef;
 
@@ -39,35 +35,19 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
  @sa G3D::GMutex, G3D::AtomicInt32
 */
 class GThread : public ReferenceCountedObject {
-private:
-
-    _internal::GThreadPrivate*          pthread;
-
-    // Thread handle to hold HANDLE and pthread_t
-#ifdef G3D_WIN32
-    HANDLE                              handle;
-#else
-    pthread_t                           handle;
-#endif //G3D_WIN32
-
-    std::string                         _name;
-
-    // Not implemented on purpose, don't use
-    GThread(const GThread &);
-    GThread& operator=(const GThread&);
-    bool operator==(const GThread&);
-
-protected:
-
-    GThread(const std::string& name);
 
 public:
+
+    GThread(const std::string& name);
 
     virtual ~GThread();
 
     /** Constructs a basic GThread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
+    static GThreadRef create(const std::string& name, void (*proc)(void*), void* param);
+
+    /** @deprecated use overload that accepts void* param */
     static GThreadRef create(const std::string& name, void (*proc)());
 
     /** Starts the thread and executes threadMain().  Returns false if
@@ -93,15 +73,37 @@ public:
 
     /** Returns thread name */
     inline const std::string& name() {
-        return _name;
+        return m_name;
     }
 
     /** Overriden by the thread implementor */
     virtual void threadMain() = 0;
 
-protected:
-    friend class _internal::GThreadPrivate;
+private:
+    enum Status {STATUS_CREATED, STATUS_RUNNING, STATUS_COMPLETED};
 
+    // Not implemented on purpose, don't use
+    GThread(const GThread &);
+    GThread& operator=(const GThread&);
+    bool operator==(const GThread&);
+
+#ifdef G3D_WIN32
+    static DWORD WINAPI internalThreadProc(LPVOID param);
+#else
+    static void* internalThreadProc(void* param);
+#endif //G3D_WIN32
+
+    Status              m_status;
+
+    // Thread handle to hold HANDLE and pthread_t
+#ifdef G3D_WIN32
+    HANDLE              m_handle;
+    HANDLE              m_event;
+#else
+    pthread_t           m_handle;
+#endif //G3D_WIN32
+
+    std::string         m_name;
 };
 
 
@@ -112,9 +114,9 @@ protected:
 class GMutex {
 private:
 #   ifdef G3D_WIN32
-    CRITICAL_SECTION                    handle;
+    CRITICAL_SECTION                    m_handle;
 #   else
-    pthread_mutex_t                     handle;
+    pthread_mutex_t                     m_handle;
 #   endif
 
     // Not implemented on purpose, don't use
