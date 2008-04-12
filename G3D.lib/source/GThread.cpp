@@ -81,13 +81,7 @@ bool GThread::start() {
     m_event = ::CreateEvent(NULL, TRUE, FALSE, NULL);
     debugAssert(m_event);
 
-    m_handle = ::CreateThread(
-        NULL,
-        0,
-        &internalThreadProc,
-        this,
-        0,
-        &threadId);
+    m_handle = ::CreateThread(NULL, 0, &internalThreadProc, this, 0, &threadId);
 
     if (m_handle == NULL) {
         ::CloseHandle(m_event);
@@ -96,10 +90,7 @@ bool GThread::start() {
 
     return (m_handle != NULL);
 #   else
-    if (!m_pthread_create(&m_handle,
-                          NULL,
-                          &internalThreadProc, 
-                          this)) {
+    if (!pthread_create(&m_handle, NULL, &internalThreadProc, this)) {
         return true;
     } else {
         // system-independent clear of handle
@@ -153,7 +144,7 @@ DWORD WINAPI GThread::internalThreadProc(LPVOID param) {
 #else
 void* GThread::internalThreadProc(void* param) {
     GThread* current = reinterpret_cast<GThread*>(param);
-    current->m_status = STATUS_STARTED;
+    current->m_status = STATUS_RUNNING;
     current->threadMain();
     current->m_status = STATUS_COMPLETED;
     return (void*)NULL;

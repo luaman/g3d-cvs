@@ -80,7 +80,7 @@ public:
     virtual void threadMain() = 0;
 
 private:
-    enum Status {STATUS_CREATED, STATUS_RUNNING, STATUS_COMPLETED};
+    enum STATE {STATUS_CREATED, STATUS_RUNNING, STATUS_COMPLETED};
 
     // Not implemented on purpose, don't use
     GThread(const GThread &);
@@ -93,7 +93,7 @@ private:
     static void* internalThreadProc(void* param);
 #endif //G3D_WIN32
 
-    Status              m_status;
+    STATE               m_status;
 
     // Thread handle to hold HANDLE and pthread_t
 #ifdef G3D_WIN32
