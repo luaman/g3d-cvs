@@ -115,7 +115,7 @@ public:
     void setFieldOfView(float angle, FOVDirection direction);
 
     /** Returns the current field of view angle and direction */
-    inline void getFieldOfView(float& angle, FOVDirection direction) const {
+    inline void getFieldOfView(float& angle, FOVDirection& direction) const {
         angle = m_fieldOfView;
         direction = m_direction;
     }
