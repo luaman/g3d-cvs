@@ -202,10 +202,13 @@ class State:
     # Set in 
     universalBinary             = False
 
+    numProcessors               = None
+    
     def __init__(self):
         self.usesProjectsList = []
         self.usesLibrariesList = []
         self.compilerVerboseOptions = []
+        self.numProcessors = cpuCount()
 
     # path is either a string or a list of paths
     # Paths are only added if they exist.
@@ -258,7 +261,9 @@ class State:
            '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions) +
            '\n includePaths           = ' + str(self.includePaths()) +
            '\n libraryPaths           = ' + str(self.libraryPaths()) +
-           '\n preferenceFile         = ' + str(self.preferenceFile()))
+           '\n preferenceFile         = ' + str(self.preferenceFile()) +
+           '\n numProcessors          = ' + str(self.numProcessors))
+    
 
 ###############################################
 

@@ -10,6 +10,7 @@ _excludeDirPatterns = \
      '^#',\
      '~$',\
      '^\.svn$',\
+     '^\.git$',\
      '^CVS$', \
      '^Debug$', \
      '^Release$', \

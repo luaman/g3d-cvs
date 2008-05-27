@@ -41,9 +41,10 @@ def dispatchOnTarget(argv, validTargets, help):
     targetArgs = argv[2:]
 
     found = 0
+    code = 0
     for v in validTargets:
         if (target == v.func_name):
-            v(targetArgs)
+            code = v(targetArgs)
             found = 1
             break
 
@@ -51,7 +52,7 @@ def dispatchOnTarget(argv, validTargets, help):
         print '"' + target + '" is not a valid build target (type "build help" to see all targets).'
         sys.exit(-1)
 
-    sys.exit(0)
+    return code
 
 
 ###############################################################################

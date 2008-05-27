@@ -4,7 +4,7 @@
 #
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
-import commands, pickle, time, ConfigParser
+import commands, pickle, time, ConfigParser, subprocess
 
 #############################################################################
 # Verbosity levels
@@ -353,6 +353,75 @@ def run(prog, args = [], echo = True, env = {}):
 
     return exitcode
 
+
+"""Run a program with command line arguments.
+
+args must be a list of arguments (argv).  Spaces in arguments are *not* the same as having
+separate list elements; these will not be re-parsed when they become the argv 
+strings.
+
+args must be a list.
+Switches the slashes from unix to dos style in program.
+Blocks until shell returns, then returns the (exit code, stdout text, stdin text) of the program.
+Environment defaults to the current one if not specified.
+"""
+def runWithOutput(prog, args = [], echo = True, env = None):
+    program = toLocalPath(prog)
+
+    # Windows doesn't support spawnvp, so we have to locate the binary
+    if (os.name == 'nt'):
+        program = _findBinary(program)
+
+    # If the program name contains spaces, we
+    # add quotes around it.
+    if (' ' in program) and not ('"' in program):
+        program = '"' + program + '"'
+
+    # spawn requires specification of argv[0]
+    # Because the program name may contain spaces, we
+    # add quotes around it.
+    newArgs = [program] + args
+
+    if echo: colorPrint(string.join(newArgs), COMMAND_COLOR)
+
+    outPipe = subprocess.PIPE
+    inPipe = None
+    errPipe = subprocess.PIPE
+    preexec = None
+    proc = subprocess.Popen(newArgs, 0, program, inPipe, outPipe, errPipe, preexec,
+                       False, False, None, env, True)
+
+    (out, err) = proc.communicate()
+    return (proc.returncode, out, err)
+
+
+""" Returns the current processor count.
+   From processing <http://cheeseshop.python.org/pypi/processing/0.34>
+"""
+def cpuCount():
+    num = 1
+    
+    if sys.platform == 'win32':
+        try:
+            num = int(os.environ['NUMBER_OF_PROCESSORS'])
+        except (ValueError, KeyError):
+            pass
+    elif sys.platform == 'darwin':
+        try:
+            num = int(os.popen('sysctl -n hw.ncpu').read())
+        except ValueError:
+            pass
+    else:
+        try:
+            num = os.sysconf('SC_NPROCESSORS_ONLN')
+        except (ValueError, OSError, AttributeError):
+            pass
+
+    if num >= 1:
+        return num
+    else:
+        return 1
+
 ##############################################################################
 
 """Returns 0 if the file does not exist, otherwise returns the modification
@@ -680,10 +749,6 @@ def getCompilerNickname(compilerFilename):
        verString = shell('"' + compilerFilename.replace('/', '\\') + '"', False)
 
        if verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
-                               'Compiler Version 15.'):
-           return 'vc9.0'
-
-       elif verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
                                'Compiler Version 14.'):
            return 'vc8.0'
  

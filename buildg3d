@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- python -*-
-# Build single-threaded: 831s
+
 
 from buildlib import *
 import os, platform, commands, sys, time, getopt, errno

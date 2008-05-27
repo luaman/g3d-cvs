@@ -13,10 +13,10 @@
 # DO NOT MODIFY THIS SCRIPT.  EDIT ICE.TXT AND ~/.ICOMPILE TO CUSTOMIZE
 # YOUR PROJECT CONFIGURATION.
 
-version = [0, 5, 4]
+version = [0, 5, 5]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
-import commands, pickle, time
+import commands, pickle, time, copy, threading
 
 from sets import Set
 from platform import machine
@@ -145,9 +145,83 @@ def buildClean(state):
 
 
 #########################################################################
+""" Thread used by makeObjectFiles """
+class CompileJob(threading.Thread):
+    """ When finished, this is the output from the compilation job."""
+    messages = None
+    
+    returnCode = None
+    
+    def __init__(self, file, state, copt):
+        threading.Thread.__init__(self)
+        self.file = file
+        self.state = state
+        self.copt = copt
+        self.start()
 
+    """ Inherited from Thread. """
+    def run(self):
+        (self.returnCode, self.messages) = makeObjectFile(self.state, self.file, self.copt)
 
-""" Compiles the source file. """
+    
+"""
+Compiles all specified source files to object files.  If it encounters
+a compiler error prints it and, exits the program.
+
+buildList - list of source files
+copt - list of options to pass to the compiler
+"""
+def makeObjectFiles(buildList, state, copt):
+    maxSimultaneousJobs = state.numProcessors
+
+    # Make a copy, since we're destructive with the build list
+    jobQueue = copy.copy(buildList)
+
+    jobs = []
+
+    while len(jobQueue) > 0:
+        file = jobQueue.pop(0)
+
+        while len(jobs) >= maxSimultaneousJobs:
+            serviceCompileJobs(jobs)
+                    
+        # Create new job
+        jobs.append(CompileJob(file, state, copt))
+
+    # Wait for all jobs to complete
+    while len(jobs) > 0:
+        serviceCompileJobs(jobs)
+
+""" Process a list of CompileJobs. """
+def serviceCompileJobs(jobs):
+    POLL_INTERVAL = 0.05 # seconds
+    # Terminate any completed jobs
+    doneJobs = [j for j in jobs if not j.isAlive()]
+    if len(doneJobs) == 0:
+        # Wait
+        time.sleep(POLL_INTERVAL)
+    else:
+        for j in doneJobs:
+            # Remove done jobs
+            jobs.remove(j)
+            
+            # Print the results of the done jobs
+            print j.messages,
+            sys.stdout.flush()
+            if j.returnCode != 0: sys.exit(j.returnCode)
+            
+"""    
+    for file in buildList:
+        (ret, messages) = makeObjectFile(state, file, copt)
+        print messages,
+        sys.stdout.flush()
+        if ret != 0:
+            sys.exit(ret)
+"""
+
+""" Compiles the source file.
+    Returns (return code, message string) from the compiler
+"""
 def makeObjectFile(state, cfile, options):
     ofile = getObjectFilename(state, cfile)
 
@@ -166,19 +240,25 @@ def makeObjectFile(state, cfile, options):
 
     args += ['-o', ofile, cfile]
 
-    if ice.utils.verbosity == NORMAL:
+    messages = ''
+    if ice.utils.verbosity >= NORMAL:
         # 'run' will not print the full command, so we just
-        # print the filename to be compiled here.  Flush
-        # stdout so that the names appear during compilation.
-        print shortname(state.rootDir, cfile)
-        sys.stdout.flush()
+        # print the filename to be compiled here. 
+        messages += shortname(state.rootDir, cfile) + '\n'
 
-    ret = run(state.compiler, args, ice.utils.verbosity >= VERBOSE)
+    (ret, out, err) = runWithOutput(state.compiler, args, ice.utils.verbosity >= VERBOSE)
 
-    if ret != 0:
-        sys.exit(ret)
-    else:
-        if ice.utils.verbosity >= VERBOSE: print
+    if err != '' and err != None:
+        messages += err + '\n'
+
+    if out != '' and out != None:
+        messages += out + '\n'
+
+    if ice.utils.verbosity >= VERBOSE:
+        # Add a blank line
+        messages += '\n'
+    
+    return (ret, messages)
 
 #########################################################################
 
@@ -424,13 +504,12 @@ def buildBinary(state):
     # Build all out of date files
     if (buildList != []):
         if ice.utils.verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
-    
-    for file in buildList:
-        makeObjectFile(state, file, copt)
-        relink = 1
+
+    makeObjectFiles(buildList, state, copt)
+    relink = len(buildList) > 0
  
     # Generate *all* object file names (even ones that
-    # aren't rebuilt
+    # weren't rebuilt)
     ofiles = []
     for cfile in cfiles: 
         ofiles.append(getObjectFilename(state, cfile))
