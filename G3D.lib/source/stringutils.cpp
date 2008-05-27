@@ -151,21 +151,19 @@ Array<std::string> stringSplit(
     char                        splitChar) {
 
     Array<std::string> out;
-    int start = 0, stop = 0;
-
-    while (start < (int)x.size()) {
-        stop = x.find(splitChar, start);
-
-        if (stop == (int)std::string::npos) {
-            stop = x.size() - 1;
-        }
-
-        // We're stripping the splitting character, so we want 
-        // one less than the length of the found substring.
-        out.append(x.substr(start, stop - start));
+    
+    // Pointers to the beginning and end of the substring
+    const char* start = x.c_str();
+    const char* stop = start;
+    
+    while ((stop = index(start, splitChar))) {
+        out.append(std::string(start, stop - start));
         start = stop + 1;
     }
 
+    // Append the last one
+    out.append(std::string(start));
+    
     return out;
 }
 

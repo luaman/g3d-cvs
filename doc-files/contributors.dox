@@ -4,19 +4,15 @@
  <b>Team Members</b>
  <br><i>7.00 Release Team</i>
  <br>Morgan McGuire [Williams College] - Project Manager
- <br>Casey O'Donnell [RPI]- OS X Lead
- <br>Corey Taylor [EA] - Developer
- <br>Eric Muller [Williams College] - Developer
- <br>Dan Fast [Williams College] - Artist
-
- <P><i>Other Team Members</i>
- <br>Daniel Hilferty [US Air Force] - Documentation
+ <br>Corey Taylor [EA] - Assistant Project Manager
+ <br>Casey O'Donnell [RPI] - Developer
  <br>Dan Keefe [Brown University] - Developer
+ <br>Kyle Whitson [Williams College] - Developer
 
-  <b>Previous Contributors and Cited Sources</b>
-  <br>This library contains code and resources contributed by the
-   following people, or based open code and articles by them.  Starred (*) developers
-are previous members of the %G3D team.
+ <b>Previous Contributors and Cited Sources</b> <br>This library
+ contains code and resources contributed by the following people, or
+ based open code and articles by them.  Starred (*) developers are
+ previous members of the %G3D team.
 
    <p>David Baszucki
    <BR>Seth Block
@@ -33,19 +29,21 @@ are previous members of the %G3D team.
    <BR>Dave Eberly
    <BR>Kevin Egan*
    <BR>Cass Everitt
-   <BR>Dan Fast
+   <BR>Dan Fast*
    <BR>Andi Fein
    <BR>Jakob Fischer
    <BR>Dan Keefe*
    <BR>Harishabd Khalsa
    <BR>Nicolai Haehnle
    <BR>Michael Herf
+   <br>Daniel Hilferty*
    <BR>Pete Hopkins
    <BR>Peter Hunt
    <BR>Robert Hunter
    <BR>Ed Johnson
    <BR>Benjamin Jurke
    <BR>Chris Kern
+   <BR>Akita Noek
    <BR>James O'Sullivan*
    <BR>Aaron Orenstein
    <BR>Jordan Parker
@@ -63,7 +61,7 @@ are previous members of the %G3D team.
    <BR>Kurt Miller
    <BR>Nate Miller
    <BR>Tomas Moller
-   <BR>Eric Muller
+   <BR>Eric Muller*
    <BR>Nick Musurca
    <BR>Edward Resnick
    <BR>Alex Rice
@@ -82,5 +80,4 @@ are previous members of the %G3D team.
    <BR>Simon Winkelbach
    <BR>Laura Wollstadt
    <BR>Andrew Woo
-
 */

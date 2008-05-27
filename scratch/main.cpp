@@ -149,7 +149,38 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
 G3D_START_AT_MAIN();
 
+
+Array<std::string> sstringSplit(
+    const std::string&          x,
+    char                        splitChar) {
+
+    Array<std::string> out;
+    
+    // Pointers to the beginning and end of the substring
+    const char* start = x.c_str();
+    const char* stop = start;
+    
+    while ((stop = index(start, splitChar))) {
+        out.append(std::string(start, stop - start));
+        start = stop + 1;
+    }
+
+    // Append the last one
+    out.append(std::string(start));
+    
+    return out;
+}
+
 int main(int argc, char** argv) {
+
+    Array<std::string> s;
+
+    s = stringSplit("Hello\n\nWorld", '\n');
+    for (int i = 0; i < s.length(); ++i) {
+        debugPrintf("\"%s\"\n", s[i].c_str());
+    }
+    exit(0);
+
 
 /*    RenderDevice* rd = new RenderDevice();
     rd->init();
