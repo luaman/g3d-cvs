@@ -66,6 +66,10 @@ useColor = 'Unknown'
 
 """
 def colorPrint(text, color = 'default'):
+    print colorize(text, color)
+    sys.stdout.flush()
+    
+def colorize(text, color = 'default'):
     global useColor
 
     if useColor == 'Unknown':
@@ -77,8 +81,7 @@ def colorPrint(text, color = 'default'):
    
     if not useColor:
 
-        print text
-        sys.stdout.flush()
+        return text
         
     else:
 
@@ -91,8 +94,7 @@ def colorPrint(text, color = 'default'):
             print ('Warning: illegal icompile color specified ("' +
                    color + '")\n\n')
             useColor = False
-            print text
-            return
+            return text
 
         styleString     = ''
         foreColorString = ''
@@ -114,8 +116,7 @@ def colorPrint(text, color = 'default'):
                 useColor = False
                 print ('Warning: illegal icompile background color' +
                        ' specified ("' + color + '")\n\n')
-                print text
-                return
+                return text
             backColorString = tokens[1]
 
         foreDigit = '3'
@@ -146,8 +147,7 @@ def colorPrint(text, color = 'default'):
         closeCol = 'm'
         stop = openCol + '0' + closeCol
         start = openCol + featureString + closeCol
-        print start + text + stop
-        sys.stdout.flush()
+        return start + text + stop
 
 
 WARNING_COLOR = 'bold red'
@@ -382,7 +382,8 @@ def runWithOutput(prog, args = [], echo = True, env = None):
     # add quotes around it.
     newArgs = [program] + args
 
-    if echo: colorPrint(string.join(newArgs), COMMAND_COLOR)
+    messages = ''
+    if echo: messages += colorize(string.join(newArgs), COMMAND_COLOR) + '\n'
 
     outPipe = subprocess.PIPE
     inPipe = None
@@ -392,7 +393,7 @@ def runWithOutput(prog, args = [], echo = True, env = None):
                        False, False, None, env, True)
 
     (out, err) = proc.communicate()
-    return (proc.returncode, out, err)
+    return (proc.returncode, messages + out, err)
 
 
 """ Returns the current processor count.
