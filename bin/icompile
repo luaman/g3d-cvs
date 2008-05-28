@@ -61,7 +61,6 @@ def loadCache(state, filename):
 
         if ice.utils.verbosity >= TRACE: print "cache = ", state.cache
 
-
         file.close()
     else:
         state.cache = {}
@@ -174,9 +173,20 @@ copt - list of options to pass to the compiler
 def makeObjectFiles(buildList, state, copt):
     maxSimultaneousJobs = state.numProcessors
 
+    if maxSimultaneousJobs == 1:
+        # Single-threaded compilation
+        for file in buildList:
+            (ret, messages) = makeObjectFile(state, file, copt)
+            print messages,
+            sys.stdout.flush()
+            if ret != 0:
+                sys.exit(ret)
+        return
+
+    # Multithreaded compilation
+
     # Make a copy, since we're destructive with the build list
     jobQueue = copy.copy(buildList)
-
     jobs = []
 
     while len(jobQueue) > 0:
@@ -192,13 +202,14 @@ def makeObjectFiles(buildList, state, copt):
     while len(jobs) > 0:
         serviceCompileJobs(jobs)
 
+
 """ Process a list of CompileJobs. """
 def serviceCompileJobs(jobs):
     POLL_INTERVAL = 0.05 # seconds
-    # Terminate any completed jobs
+    
     doneJobs = [j for j in jobs if not j.isAlive()]
     if len(doneJobs) == 0:
-        # Wait
+        # Wait; none of the jobs have completed
         time.sleep(POLL_INTERVAL)
     else:
         for j in doneJobs:
@@ -210,16 +221,8 @@ def serviceCompileJobs(jobs):
             sys.stdout.flush()
             if j.returnCode != 0: sys.exit(j.returnCode)
             
-"""    
-    for file in buildList:
-        (ret, messages) = makeObjectFile(state, file, copt)
-        print messages,
-        sys.stdout.flush()
-        if ret != 0:
-            sys.exit(ret)
-"""
 
-""" Compiles the source file.
+""" Compile the specified source file (cfile).
     Returns (return code, message string) from the compiler
 """
 def makeObjectFile(state, cfile, options):
@@ -493,7 +496,12 @@ def buildBinary(state):
     if state.binaryType != LIB:
         ret = buildDependencyProjects(state)
 
-    buildList = getOutOfDateFiles(state, cfiles, dependencies, files)
+    # Get modification times for all of the files
+    timeStamp = {}
+    for file in files:
+        timeStamp[file] = getTimeStamp(file)
+
+    buildList = getOutOfDateFiles(state, cfiles, dependencies, files, timeStamp)
 
     copt = string.join(getCompilerOptions(state, 
         files, state.compilerWarningOptions + state.compilerVerboseOptions), ' ')

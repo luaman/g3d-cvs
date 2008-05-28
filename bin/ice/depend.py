@@ -1,7 +1,14 @@
 #
 # icedepend.py
 #
-# Manages .icompile and ice.txt
+# Determines if files are out of date. Routines:
+# 
+#  getOutOfDateFiles
+#  getObjectFilename
+#  getDependencies
+#  getDependencyInformation
+#  getLibrarySiblingDirs
+#  identifySiblingLibraryDependencies
 #
 
 from utils import *
@@ -18,15 +25,22 @@ _IGNORE_ICOMPILE_DEPENDENCY = False
 
 ###############################################################
 
-def getOutOfDateFiles(state, cfiles, dependencies, files):
-    # Get modification times for all of the files
-    timeStamp = {}
-    for file in files:
-        timeStamp[file] = getTimeStamp(file)
+"""
+  cfiles - list of fully qualified source files
+  dependences - table(cfile, list of files on which it depends)
+  files - list of all fully qualified files that are the dependencies of anything
+  timeStamp - table(filename, timestamp) for everything in files list
+
+  Returns a list of all files that are older than their dependencies.
+  
+  The dependences have already been recursively expanded; if A depends on B and
+  B depends on C, then dependencies[A] = [B, C]
+"""
+def getOutOfDateFiles(state, cfiles, dependencies, files, timeStamp):
     
     buildList = []
     
-    # Need to rebuild all if this script was modified more
+    # Need to rebuild all if iCompile itself was modified more
     # recently than a given file.
     icompileTime = getTimeStamp(sys.argv[0])
     if _IGNORE_ICOMPILE_DEPENDENCY:
@@ -51,11 +65,13 @@ def getOutOfDateFiles(state, cfiles, dependencies, files):
     for cfile in cfiles:
         ofile = getObjectFilename(state, cfile)
         otime = getTimeStamp(ofile)
+
+        # See if the object file is out of date because it is older than iCompile
         rebuild = (otime < icompileTime)
+        if rebuild and (verbosity >= TRACE):
+            print 'iCompile is newer than ' + ofile
 
-        if rebuild and verbosity >= TRACE:
-            print "iCompile is newer than " + ofile
-
+        # See if the object file is out of date because it is older than a dependency
         if not rebuild:
             # Check dependencies
             for d in dependencies[cfile]:
@@ -103,16 +119,58 @@ def _removeArch(oldList):
 
     return newList
 
-        
 
-"""Returns a list of *all* files on which this file depends (including
-   itself).  Returned filenames must either be fully qualified or
-   relative to the "rootDir" dir.
+"""
 
-   May modify the default compiler and linker options
-   
-   """
-def getDependencies(state, file, verbosity, iteration = 1):
+   Returns a list of *all* files on which file depends (including
+   itself).  Returned filenames will either be fully qualified or
+   relative to state.rootDir.
+
+   May modify the default compiler and linker options as a result of
+   discovering common library dependencies.
+ 
+   timeStamp = table(filename, timestamp) that is updated as getDependencies runs   
+"""
+def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
+    # dependencyCache: table(file, (timestamp at which dependencies were computed, dependency list))
+    if not state.cache.has_key('dependencies'):
+        state.cache['dependencies'] = {}
+    dependencyCache = state.cache['dependencies']
+    
+    # Assume that we can trust the cache, and try to prove otherwise
+    trustCache = dependencyCache.has_key(file)
+    if trustCache:
+        entry = dependencyCache[file]
+        timeComputed = entry[0]
+        if getTimeStampCached(file, timeStamp) > timeComputed:
+            if verbosity >= SUPERTRACE:
+                print ('Cannot use cached dependency information for ' + file +
+                       ' because it has changed.')
+            # The file has changed since we checked dependencies
+            trustCache = False
+        else:
+            dependencies = entry[1]
+            for d in dependencies:
+                if getTimeStampCached(d, timeStamp) > timeComputed:
+                    if verbosity >= SUPERTRACE:
+                        print ('Cannot use cached dependency information for ' + file +
+                        ' because ' + d + ' has changed.')
+                    # One of the dependencies has itself changed since
+                    # we checked dependencies, which means that there might
+                    # be new dependencies for file
+                    trustCache = False
+                    break
+    else:
+        if verbosity >= SUPERTRACE:
+            print 'There is no cached dependency information for ' + file + '.'
+                    
+    if trustCache:
+        # The entry for this file is up to date
+        if verbosity >= SUPERTRACE: print 'Using cached dependency information for ' + file        
+        return dependencies
+    
+    # ...otherwise, dependency information for this file is out of date, so recompute it
+
     # We need to use the -msse2 flad during dependency checking because of the way
     # xmmintrin.h is set up
     #
@@ -155,14 +213,14 @@ def getDependencies(state, file, verbosity, iteration = 1):
 
         if verbosity >= NORMAL: print 'Files not found:', noSuchFile
         
-        # Look for files we know how to handle
+        # Look for specific header files that we know how to handle
         for f in noSuchFile:
             if f == 'wx.h':
                 if verbosity >= NORMAL: print 'wxWindows detected.'
                 state.compilerOptions.append(shell('wx-config --cxxflags', verbosity >= VERBOSE))
                 state.linkerOptions.append(shell('wx-config --gl-libs --libs', verbosity >= VERBOSE))
                 
-        return getDependencies(state, file, verbosity,  iteration + 1)
+        return getDependencies(state, file, verbosity, timeStamp, iteration + 1)
 
     else:
 
@@ -176,7 +234,8 @@ def getDependencies(state, file, verbosity, iteration = 1):
             if not line.startswith('# '):
                 result += string.split(line, ' ')
 
-        # There is always at least one file since everything depends on itself.
+        # There is always at least one file in the raw file list,
+        # since every file depends on itself.
         
         # The first element of result will be "file:", so strip it
         files = result[1:]
@@ -192,6 +251,9 @@ def getDependencies(state, file, verbosity, iteration = 1):
                 files.remove(f)
             else:
                 result.append('./' + f)
+
+        # Update the cache
+        dependencyCache[file] = (time.time(), result)
 
         return result
 
@@ -220,6 +282,9 @@ def getDependencies(state, file, verbosity, iteration = 1):
  directory is missing.
 """
 def getDependencyInformation(state, verbosity):
+    # Cached time stamps
+    timeStamp = {}
+    
     # Hash table mapping C files to the list of all files
     # on which they depend.
     dependencies = {}
@@ -239,7 +304,7 @@ def getDependencyInformation(state, verbosity):
 
         # Do not use warning or verbose options for this; they
         # would corrupt the output.
-        dlist = getDependencies(state, cfile, verbosity)
+        dlist = getDependencies(state, cfile, verbosity, timeStamp)
 
         # Update the dependency set
         for d in dlist: 

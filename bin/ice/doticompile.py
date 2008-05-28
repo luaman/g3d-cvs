@@ -420,12 +420,12 @@ def checkForProjectFile(state, args):
     # Everything below here executes only when there is no project file
     if not state.noPrompt:
 
-        if ('--clean' in args) and not os.path.exists(state.buildDir):
+        if '--clean' in args:
             print
             colorPrint('Nothing to clean (you have never run iCompile in ' +
                    os.getcwd() + ')', WARNING_COLOR)
             print
-            # Doesn't matter, there's nothing to delete anyway, so just exit
+            # There's nothing to delete anyway, so just exit
             sys.exit(0)
 
         print

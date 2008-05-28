@@ -426,12 +426,18 @@ def cpuCount():
 ##############################################################################
 
 """Returns 0 if the file does not exist, otherwise returns the modification
-time of the file."""
+   time of the file in the same form as time.time()."""
 def getTimeStamp(file):
    try:
        return os.path.getmtime(file)
    except OSError:
-       return
+       return 0
+
+""" Like getTimeStamp, but uses the specified cache. """
+def getTimeStampCached(file, cache):
+    if not cache.has_key(file):
+        cache[file] = getTimeStamp(file)
+    return cache[file]
 
 ##############################################################################
 

@@ -133,7 +133,12 @@ class State:
     # Name of the project (without .lib/.dll extension)
     projectName                 = None
 
-    # A dictionary used to store values between invocations of iCompile
+    # A dictionary used to store values between invocations of iCompile.
+    # Loaded by loadCache in icompile.  Keys:
+    #
+    #  'warnings': list of warnings recently printed that should not be repeated
+    #  'dependencies': table used by in getDependencies in depend.py
+    #
     cache                       = None
 
     # Filename of the compiler
