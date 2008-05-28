@@ -239,8 +239,14 @@ void GLCaps::loadExtensions(Log* debugLog) {
     const std::string glver = glVersion();
     _hasGLMajorVersion2 = beginsWith(glver, "2.");
 
-    #define LOAD_EXTENSION(name, type) \
-        name = reinterpret_cast<type>(glGetProcAddress(#name));
+#   ifdef __GNUC__
+       // Avoid "ISO C++ forbids casting between pointer-to-function and pointer-to-object" error
+#      define LOAD_EXTENSION(name, type) \
+            name = (type)(glGetProcAddress(#name));
+#   else
+#      define LOAD_EXTENSION(name, type) \
+            name = reinterpret_cast<type>(glGetProcAddress(#name));
+#   endif
 
     // Don't load the multitexture extensions when they are
     // statically linked

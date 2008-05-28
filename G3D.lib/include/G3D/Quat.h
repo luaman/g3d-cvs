@@ -89,10 +89,10 @@ public:
     }
 
     /** Note: two quats can represent the Quat::sameRotation and not be equal. */
-	bool fuzzyEq(const Quat& q) {
-		return G3D::fuzzyEq(x, q.x) && G3D::fuzzyEq(y, q.y) && G3D::fuzzyEq(z, q.z) && G3D::fuzzyEq(w, q.w);
-	}
-
+    bool fuzzyEq(const Quat& q) {
+      return G3D::fuzzyEq(x, q.x) && G3D::fuzzyEq(y, q.y) && G3D::fuzzyEq(z, q.z) && G3D::fuzzyEq(w, q.w);
+    }
+    
     /** True if these quaternions represent the same rotation (note that every rotation is 
         represented by two values; q and -q).
       */
