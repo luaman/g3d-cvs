@@ -9,7 +9,7 @@
 #  getDependencyInformation
 #  getLibrarySiblingDirs
 #  identifySiblingLibraryDependencies
-#
+#  anyRelativeFilenameIn
 
 from utils import *
 from variables import *
@@ -18,18 +18,13 @@ from library import *
 from doticompile import *
 from help import *
 
-# If True, the project will not be rebuilt if all dependencies
-# other than iCompile are up to date.  This is handy when
-# working on iCompile and testing with large libraries.
-_IGNORE_ICOMPILE_DEPENDENCY = False
-
 ###############################################################
 
 """
   cfiles - list of fully qualified source files
   dependences - table(cfile, list of files on which it depends)
   files - list of all fully qualified files that are the dependencies of anything
-  timeStamp - table(filename, timestamp) for everything in files list
+  timeStamp - table(filename, timestamp) time stamp cache for use with getTimeStampCached
 
   Returns a list of all files that are older than their dependencies.
   
@@ -42,43 +37,27 @@ def getOutOfDateFiles(state, cfiles, dependencies, files, timeStamp):
     
     # Need to rebuild all if iCompile itself was modified more
     # recently than a given file.
-    icompileTime = getTimeStamp(sys.argv[0])
-    if _IGNORE_ICOMPILE_DEPENDENCY:
-        # Set to the beginning of time, so that it looks like
-        # iCompile was never modified.
-        icompileTime = 0
 
-    # Rebuild all if ice.txt or .icompile was modified
-    # more recently.
-    if os.path.exists('ice.txt'):
-        iceTime = getTimeStamp('ice.txt')
-        if iceTime > icompileTime:
-            icompileTime = iceTime
-
-    if os.path.exists(state.preferenceFile()):
-        configTime = getTimeStamp(state.preferenceFile())
-        if configTime > icompileTime:
-            icompileTime = configTime
-
+    icompileTime = state.icompileTime
 
     # Generate a list of all files newer than their targets
     for cfile in cfiles:
-        ofile = getObjectFilename(state, cfile)
-        otime = getTimeStamp(ofile)
+        targetFile = getObjectFilename(state, cfile)
+        targetTime = getTimeStampCached(targetFile, timeStamp)
 
         # See if the object file is out of date because it is older than iCompile
-        rebuild = (otime < icompileTime)
+        rebuild = (targetTime < icompileTime)
         if rebuild and (verbosity >= TRACE):
-            print 'iCompile is newer than ' + ofile
+            print 'iCompile is newer than ' + targetFile
 
         # See if the object file is out of date because it is older than a dependency
         if not rebuild:
             # Check dependencies
-            for d in dependencies[cfile]:
-                dtime = timeStamp[d]
-                if otime < dtime:
+            for dependencyFile in dependencies[cfile]:
+                dependencyTime = getTimeStampCached(dependencyFile, timeStamp)
+                if targetTime < dependencyTime:
                     if verbosity >= TRACE:
-                        print d + " is newer than " + ofile
+                        print d + " is newer than " + targetFile
                     rebuild = 1
                     break
 
@@ -121,8 +100,9 @@ def _removeArch(oldList):
 
 
 """
-
-   Returns a list of *all* files on which file depends (including
+   Returns a tuple.  The first element is True if dependencies need to
+   be recomputed after sibling libraries are added.  The second
+   element is a list of *all* files on which file depends (including
    itself).  Returned filenames will either be fully qualified or
    relative to state.rootDir.
 
@@ -132,10 +112,11 @@ def _removeArch(oldList):
    timeStamp = table(filename, timestamp) that is updated as getDependencies runs   
 """
 def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
+    if verbosity >= VERBOSE: print '  ' + file
+    
     # dependencyCache: table(file, (timestamp at which dependencies were computed, dependency list))
-    if not state.cache.has_key('dependencies'):
-        state.cache['dependencies'] = {}
-    dependencyCache = state.cache['dependencies']
+    targetCache = state.getTargetCache()    
+    dependencyCache = targetCache.dependencies
     
     # Assume that we can trust the cache, and try to prove otherwise
     trustCache = dependencyCache.has_key(file)
@@ -151,8 +132,12 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
         else:
             dependencies = entry[1]
             for d in dependencies:
+                if not os.path.exists(d):
+                    raise Exception('Internal error: dependency ' + d +
+                                    ' of ' + file + ' does not exist.')
+                
                 if getTimeStampCached(d, timeStamp) > timeComputed:
-                    if verbosity >= SUPERTRACE:
+                    if verbosity >= TRACE:
                         print ('Cannot use cached dependency information for ' + file +
                         ' because ' + d + ' has changed.')
                     # One of the dependencies has itself changed since
@@ -165,9 +150,10 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
             print 'There is no cached dependency information for ' + file + '.'
                     
     if trustCache:
-        # The entry for this file is up to date
+        # The entry for this file is up to date.  If it is up to date,
+        # it must also not need resolution.
         if verbosity >= SUPERTRACE: print 'Using cached dependency information for ' + file        
-        return dependencies
+        return (False, dependencies)
     
     # ...otherwise, dependency information for this file is out of date, so recompute it
 
@@ -178,12 +164,13 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
     # -MM means "don't tell me about system header files"
     #
     # We have to remove -arch flags, which are not compatible with the -M flags
-    raw = shell(state.compiler + ' -M -msse2 -MG ' +
-                string.join(_removeArch(getCompilerOptions(state, [])), ' ') + ' ' + file,
-                verbosity >= SUPERTRACE)
+    argsWithoutArchitecture = _removeArch(getCompilerOptions(state, []))
+    argsWithoutArchitecture = ' '.join(argsWithoutArchitecture)
+    
+    raw = shell(state.compiler + ' -M -msse2 -MG ' + argsWithoutArchitecture + ' ' + file, verbosity >= TRACE)
     
     if verbosity >= SUPERTRACE:
-        print 'ffff'
+        print 'Raw output of dependency determination:'
         print raw
 
     if raw.startswith('In file included from'):
@@ -217,8 +204,12 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
         for f in noSuchFile:
             if f == 'wx.h':
                 if verbosity >= NORMAL: print 'wxWindows detected.'
-                state.compilerOptions.append(shell('wx-config --cxxflags', verbosity >= VERBOSE))
-                state.linkerOptions.append(shell('wx-config --gl-libs --libs', verbosity >= VERBOSE))
+                copt = shell('wx-config --cxxflags', verbosity >= VERBOSE)
+                lopt = shell('wx-config --gl-libs --libs', verbosity >= VERBOSE)
+                targetCache.compilerOptions += copt
+                targetCache.linkerOptions += lopt
+                state.compilerOptions.append(copt)
+                state.linkerOptions.append(lopt)
                 
         return getDependencies(state, file, verbosity, timeStamp, iteration + 1)
 
@@ -252,21 +243,60 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
             else:
                 result.append('./' + f)
 
-        # Update the cache
-        dependencyCache[file] = (time.time(), result)
+        # Make all paths absolute.  We can't just call abspath
+        # since some files are in sibling directories.
+        result = [makeAbsolute(f, state.includePaths()) for f in result]
 
-        return result
+        needResolution = anyRelativeFilenameIn(result)
+        if needResolution:
+            # Wipe the cache entry, since we're going to have to re-process
+            # this file's dependencies
+            if dependencyCache.has_key(file): del dependencyCache[file]
+        else:
+            # Update the cache entry.
+            dependencyCache[file] = (time.time(), result)
 
+        return (needResolution, result)
 
 #########################################################################
 
-"""Finds all of the C++/C files in rootDir and returns
- dependency information for them as the tuple
- 
-   (allCFiles, dependencies, allDependencyFiles, parents)
+"""
+ Returns true if any file in this list has a relative (instead of absolute)
+ name.
+"""
+def anyRelativeFilenameIn(fileList):
+    for file in fileList:
+        if not os.path.isabs(file):
+            return True
+    return False
 
- where: 
- 
+#########################################################################
+
+"""
+ Finds file in searchPath if it is not already fully qualified.
+ If the file cannot be found anywhere, it is returned unchanged.
+"""
+def makeAbsolute(file, searchPath):
+    if os.path.isabs(file):
+        return file
+
+    f = os.path.abspath(file)
+    if os.path.exists(f):
+        return f
+
+    for path in searchPath:
+        f = os.path.join(path, file)
+        if os.path.exists(f):
+            return f
+
+    # Could not find this file; just return it
+    return file
+
+#########################################################################
+
+"""
+ Returns (files that need to be rechecked, headers that were not found)
+
  allCFiles is the list of all source files to compile,
 
  dependencies[f] is the list of all files on which
@@ -277,49 +307,61 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
 
  parents[f] is the list of all files that depend on f
 
+ rerun is a list of files that need their dependencies recomputed after
+ sibling libraries are processed.
+
  While getting dependencies, this may change the include/library
  list and restart the process if it appears that some include
  directory is missing.
+
+ allCFiles is a list of source files (.c, .cpp)
+ 
+ timeStamp is a dict of cached time stamps for use with
+ getTimeStampCached. It is updated by the function.
+ 
+ dependencySet is a Set of files on which something depends. It is
+ updated by the function.
+
+ dependencies is a dict mapping source files to the list of all files
+ on which they depend.
+
+ parents is a dict. parents[file] is a list of all files that depend on file.
 """
-def getDependencyInformation(state, verbosity):
-    # Cached time stamps
-    timeStamp = {}
-    
-    # Hash table mapping C files to the list of all files
-    # on which they depend.
-    dependencies = {}
-
-    parents = {}
-
-    # All files on which something depends
-    dependencySet = Set()
-
-    # Find all the c files
-    allCFiles = listCFiles(state.rootDir, state.excludeFromCompilation)
-
+def getDependencyInformation(allCFiles, dependencySet, dependencies, parents, state, verbosity, timeStamp):
     if verbosity >= TRACE: print 'Source files found:', allCFiles
 
-    # Get their dependencies
+    rerun = []
+    missingHeaders = []
+ 
     for cfile in allCFiles:
 
         # Do not use warning or verbose options for this; they
         # would corrupt the output.
-        dlist = getDependencies(state, cfile, verbosity, timeStamp)
+        (needResolution, dlist) = getDependencies(state, cfile, verbosity, timeStamp)
 
+        if needResolution:
+            # Add this file to the list of those that need to be recomputed after
+            # checking for sibling libraries
+            if verbosity >= TRACE:
+                for d in dlist:
+                    if not os.path.isabs(d): print '    Header not found (yet): ' + d
+                    
+            rerun += [cfile]
+        
         # Update the dependency set
-        for d in dlist: 
+        for d in dlist:
             dependencySet.add(d)
             if d in parents:
                 parents[d] += cfile
             else:
                 parents[d] = [cfile]
+                
+            if not os.path.isabs(d):
+                missingHeaders += [d]
  
         dependencies[cfile] = dlist
     
-    # List of all files on which some other file depends
-    dependencyFiles = [d for d in dependencySet]
-
-    return (allCFiles, dependencies, dependencyFiles, parents)
+    return (rerun, missingHeaders)
 
 ###############################################################################
 
@@ -362,6 +404,8 @@ def identifySiblingLibraryDependencies(files, parents, state):
     librarySiblingDirs = getLibrarySiblingDirs(3)
 
     for header in files:
+        if len(header) == 1:
+            raise Exception('Unexpected format from dependency checker: ' + str(files))
 
         # Try to locate the file using the existing include path
         found = False
@@ -395,17 +439,18 @@ def identifySiblingLibraryDependencies(files, parents, state):
 
                     if isLibrary(type):
                         if not libraryTable.has_key(libname):
-                           defineLibrary(Library(libname, type, libname, libname + 'd',  
-	                                         None,  None, [betterbasename(header)], [], []))
+                            # TODO: do these definitions need to go in the cache as well?
+                            defineLibrary(Library(libname, type, libname, libname + 'd',  
+                                                  None,  None, [betterbasename(header)], [], []))
 
                         if not libname in state.usesLibrariesList:
                             state.usesLibrariesList.append(libname)
-                            
+
                         if not dirname in state.usesProjectsList:
                             print ('Detected dependency on ' + dirname + ' from inclusion of ' + 
                                    header + ' by'), shortname(state.rootDir, parents[header][0])
 
-                            state.usesProjectsList.append(dirname)
+                            state.addUsesProject(dirname)
 
                             # Load the configuration state for the dependency project
                             curDir = os.getcwd()
@@ -416,9 +461,9 @@ def identifySiblingLibraryDependencies(files, parents, state):
                             includepath = pathConcat(dirname, 'include')
                             libpath = pathConcat(dirname, other.binaryDir)
 
-                            state.addIncludePath(includepath, False)
-                            state.addLibraryPath(libpath, False)
-                            
+                            state.addIncludePath(includepath)
+                            state.addLibraryPath(libpath)
+
                             # Update incPaths, which also includes the empty directory (that will
                             # not appear as a -I argument to the compiler because doing so generates an error)
                             incPaths = [''] + state.includePaths()

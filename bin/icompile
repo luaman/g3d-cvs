@@ -35,44 +35,10 @@ from ice.copyifnewer import copyIfNewer
 from ice.topsort import *
 
 if int(sys.version[:string.find(sys.version, '.')]) < 2:
-    print ('iCompile requires Python 2.0 or later.  You are running Python '
+    print ('iCompile requires Python 2.5 or later.  You are running Python '
            + sys.version)
     sys.exit(-10)
 
-   
-##############################################################################
-#                            Cache Management                                #
-##############################################################################
-
-""" Loads the icompile cache that preserves values between calls """
-def loadCache(state, filename):
-
-    if ice.utils.verbosity >= TRACE: print "Loading cache from " + filename + "\n"
-
-    if os.path.exists(filename):
-        file = open(filename, 'r')
-        try:
-            state.cache = pickle.load(file);
-        except:
-            # The cache was corrupted; ignore it
-            state.cache = {}
-            if ice.utils.verbosity >= NORMAL: 
-                print "Internal iCompile cache at '" + filename + "' corrupted."
-
-        if ice.utils.verbosity >= TRACE: print "cache = ", state.cache
-
-        file.close()
-    else:
-        state.cache = {}
-
-##############################################################################
-
-def saveCache(state, filename):
-    file = open(filename, 'w')
-    pickle.dump(state.cache, file)
-    file.close()
-
-    
 ##############################################################################
 #                            Build Documentation                             #
 ##############################################################################
@@ -131,7 +97,7 @@ def buildInclude(state):
         if ice.utils.verbosity >= VERBOSE: colorPrint('Done copying public header files', SECTION_COLOR)
 
 ##############################################################################
-#                                 Build Clean                                #
+#                                Build Clean                                 #
 ##############################################################################
 
 def buildClean(state):
@@ -222,8 +188,9 @@ def serviceCompileJobs(jobs):
             if j.returnCode != 0: sys.exit(j.returnCode)
             
 
-""" Compile the specified source file (cfile).
-    Returns (return code, message string) from the compiler
+"""
+  Compile the specified source file (cfile).
+  Returns (return code, message string) from the compiler
 """
 def makeObjectFile(state, cfile, options):
     ofile = getObjectFilename(state, cfile)
@@ -251,26 +218,27 @@ def makeObjectFile(state, cfile, options):
 
     (ret, out, err) = runWithOutput(state.compiler, args, ice.utils.verbosity >= VERBOSE)
 
-    if err != '' and err != None:
-        messages += err + '\n'
-
     if out != '' and out != None:
         messages += out + '\n'
 
+    if err != '' and err != None:
+        messages += err + '\n'
+
     if ice.utils.verbosity >= VERBOSE:
         # Add a blank line
-        messages += '\n'
-    
+        if messages[-2:] != '\n\n': messages += '\n'
+            
     return (ret, messages)
 
 #########################################################################
 
-""" Add the dependencies from the libraries list (recursively)
-    libraries must be a set of canonical library names
+"""
+  Add the dependencies from the libraries list (recursively)
+  libraries must be a set of canonical library names
 """
 def extendLibrariesWithDependencies(libraries, state):
     # Start with an initial list of all libraries
-    stack = [libname for libname in libraries]
+    stack = list(libraries)
 
     # Keep looping as long as we added something
     while len(stack) > 0:
@@ -286,18 +254,24 @@ def extendLibrariesWithDependencies(libraries, state):
                     libraries.add(dependency)
                     stack.append(dependency)
 
-"""allFiles is a list of all files on which something
-   depends for the project. """
+"""
+ allFiles is a list of all files on which something
+ depends for the project.
+"""
 def getLinkerOptions(state, allFiles):
     opt = state.linkerOptions
 
+    for arg in state.linkerOptions:
+        if arg.strip() == '': raise Exception('Empty linker argument')
+
+    # Construct the linker path list
     for path in state.libraryPaths():
-        if (' ' in path):
-            path = path.replace(' ', '\\ ')
+        # Escape spaces in paths
+        if ' ' in path: path = path.replace(' ', '\\ ')
         opt += ['-L' + path]
 
     # Set of canonically named libraries to link against
-    libraries        = Set()
+    libraries        = Set(state.usesLibrariesList)
 
     # Compute a list of all libraries needed from the headers
     for path in allFiles:
@@ -324,7 +298,7 @@ def getLinkerOptions(state, allFiles):
     # TODO:     extendLibrariesWithDependencies(libraries)
 
     # Topologically sort library list to satisfy linker ordering
-    libList = [libname for libname in libraries]
+    libList = list(libraries)
     if ice.utils.verbosity >= TRACE: print 'Libraries before sort: ', libList
     sortLibraries(libList)
     if ice.utils.verbosity >= TRACE: print 'Libraries after sort: ', libList
@@ -335,7 +309,7 @@ def getLinkerOptions(state, allFiles):
     state.setLibList(libList)
 
     for libname in libList:
-        if libraryTable.has_key(libname):
+        if libname in libraryTable:
             lib = libraryTable[libname]
 
             if state.target == DEBUG:
@@ -355,6 +329,9 @@ def getLinkerOptions(state, allFiles):
 
     if ice.utils.verbosity >= TRACE:
         print 'Library link options: ', allLinks
+
+    for arg in opt:
+        if arg.strip() == '': raise Exception('Empty linker argument')
     
     return opt + allLinks
 
@@ -416,11 +393,16 @@ def makeExecutable(state, objectFiles, linkOptions):
 
     if ice.utils.verbosity >= NORMAL: colorPrint('\nLinking', SECTION_COLOR)
 
+    # Check the options for errors
+    for opt in options:
+        if (opt == None) or ('\0' in opt) or ('\r' in opt) or ('\t' in opt) or (opt.strip() == ''):
+            raise Exception('Illegal option: "' + str(opt) + '"')
+ 
     ret = run(state.compiler, options, ice.utils.verbosity >= VERBOSE)
 
     if ret != 0:
         sys.exit(ret)
-    elif (state.target == RELEASE):
+    elif state.target == RELEASE:
         # Strip debug symbols
 	run('strip', [state.binaryDir + state.binaryName], ice.utils.verbosity >= VERBOSE)
 
@@ -467,21 +449,48 @@ def buildBinary(state):
     # Create the temp directory for object files
     mkdir(state.objDir, ice.utils.verbosity >= VERBOSE)
 
-    if ice.utils.verbosity >= VERBOSE: colorPrint('Computing dependencies', SECTION_COLOR)
-    (cfiles, dependencies, files, parents) = getDependencyInformation(state, ice.utils.verbosity)
+    # Cached time stamps
+    timeStamp = {}
+    if ice.utils.verbosity >= NORMAL: colorPrint('Computing dependencies', SECTION_COLOR)
 
-    if ice.utils.verbosity >= TRACE: 
-        print '\nBefore identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
+    # Find all the c files
+    cfiles = listCFiles(state.rootDir, state.excludeFromCompilation)
+    
+    # All files on which something depends
+    dependencySet = Set()
 
-    identifySiblingLibraryDependencies(files, parents, state)
+    dependencies = {}
+    parents = {}
 
-    if ice.utils.verbosity >= TRACE: 
-        print '\nAfter identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
+    (rerunFiles, missingHeaders) = getDependencyInformation(cfiles, dependencySet, dependencies,
+                                                            parents, state, ice.utils.verbosity, timeStamp)
+
+    count = 0
+    while len(rerunFiles) > 0:
+        if ice.utils.verbosity >= TRACE:
+            print 'Searching for sibling libraries to resolve headers found in ' + str(rerunFiles)
+        
+        if ice.utils.verbosity >= SUPERTRACE: 
+            print '\nBefore identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
+
+        identifySiblingLibraryDependencies(missingHeaders, parents, state)
+
+        if ice.utils.verbosity >= SUPERTRACE: 
+            print '\nAfter identifySiblingLibraryDependencies, state.usesProjectsList = ', state.usesProjectsList
+
+        (rerunFiles, missingHeaders) = getDependencyInformation(rerunFiles, dependencySet, dependencies,
+                                              parents, state, ice.utils.verbosity, timeStamp)
+
+        count = count + 1
+        if count > 10:
+            raise Exception('Iterated ' + str(count) + ' times while trying to resolve dependencies')
+
+    # List of all files on which some other file depends
+    files = list(dependencySet)
 
     if ice.utils.verbosity >= TRACE:
         print 'Header files #included:'
-        for f in files:
-            print '  ' + f
+        for f in files: print '  ' + f
         print
 
     if cfiles == []:
@@ -497,10 +506,6 @@ def buildBinary(state):
         ret = buildDependencyProjects(state)
 
     # Get modification times for all of the files
-    timeStamp = {}
-    for file in files:
-        timeStamp[file] = getTimeStamp(file)
-
     buildList = getOutOfDateFiles(state, cfiles, dependencies, files, timeStamp)
 
     copt = string.join(getCompilerOptions(state, 
@@ -510,7 +515,7 @@ def buildBinary(state):
         print "\nBuilding out of date files\n"    
 
     # Build all out of date files
-    if (buildList != []):
+    if len(buildList) > 0:
         if ice.utils.verbosity >= NORMAL: colorPrint('\nCompiling', SECTION_COLOR)
 
     makeObjectFiles(buildList, state, copt)
@@ -635,7 +640,7 @@ def configureVC(state):
     userCompilerOptions = state.compilerOptions
     userLinkerOptions = state.linkerOptions
 
-    if (state.target == RELEASE):
+    if state.target == RELEASE:
         state.compilerOptions = \
                 ['/O2',           # Optimization
                  '/D_RELEASE']
@@ -666,18 +671,19 @@ def configureVC(state):
         else:
             state.linkerOptions  += ['/MTd']
 
-
-    # 64-bit warnings and most others
+    # Enable 64-bit warnings and most other warnings
     state.compilerWarningOptions = ['/Wp64', '/W2']
   
     # Put user options last so that they can override ours
     if userCompilerOptions != None: state.compilerOptions += userCompilerOptions
     if userLinkerOptions != None: state.linkerOptions += userLinkerOptions
 
-    # Remove empty arguments (they will confuse the linker)
+    # Remove empty arguments (they will confuse the linker and compiler)
     while '' in state.linkerOptions:
         state.linkerOptions.remove('')
-    
+
+    while '' in state.compilerOptions:
+        state.compilerOptions.remove('')
 
 
 """ Configure g++ as our compiler of choice.
@@ -687,7 +693,7 @@ def configureGpp(state):
     userCompilerOptions = state.compilerOptions
     userLinkerOptions = state.linkerOptions
 
-    if (state.target == RELEASE):
+    if state.target == RELEASE:
         state.compilerOptions = ['-O3',
                                  '-D_RELEASE', 
                                  '-fno-trapping-math',
@@ -753,6 +759,8 @@ def configureGpp(state):
     # Remove empty arguments (they will confuse the linker)
     while '' in state.linkerOptions:
         state.linkerOptions.remove('')
+    while '' in state.compilerOptions:
+        state.compilerOptions.remove('')
 
 #########################################################################
 
@@ -854,11 +862,12 @@ def generateStatistics(state):
   progArgs - arguments to pass on to the compiled program
 """
 def main(state, args, progArgs, doGDB, doRun, doDeploy):
-    if ('--info' in args):
+    
+    if '--info' in args:
         printInfo(state);
         sys.exit(0)
 
-    if (ice.utils.verbosity >= TRACE):
+    if ice.utils.verbosity >= TRACE:
         print state
             
     if '--clean' in args:
@@ -939,13 +948,14 @@ def icompile(projectDir, allArgs):
 
     configureCompiler(state)
 
-    doGDB   = '--gdb' in args
-    doRun   = '--run' in args
+    doGDB    = '--gdb'    in args
+    doRun    = '--run'    in args
     doDeploy = '--deploy' in args
 
+    # Argument count
     c = 0
-    if doGDB: c = c + 1
-    if doRun: c = c + 1
+    if doGDB:    c = c + 1
+    if doRun:    c = c + 1
     if doDeploy: c = c + 1
 
     if c > 1:
@@ -958,12 +968,12 @@ def icompile(projectDir, allArgs):
 
     # Load cached dependencies for this project
     cacheFilename = pathConcat(state.tempDir, '.icompile-cache')
-    loadCache(state, cacheFilename)
+    state.loadCache(cacheFilename)
 
     ret = main(state, args, progArgs, doGDB, doRun, doDeploy)
 
     mkdir(state.tempDir, ice.utils.verbosity >= VERBOSE)
-    saveCache(state, cacheFilename)
+    state.saveCache(cacheFilename)
 
     os.chdir(curdir)
 

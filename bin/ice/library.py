@@ -75,20 +75,20 @@ symbolToLibraryTable = {}
 def defineLibrary(lib):
     global libraryTable, headerToLibraryTable, symbolToLibraryTable
 
-    if (libraryTable.has_key(lib.name)):
+    if lib.name in libraryTable:
         colorPrint("ERROR: Library '" + lib.name + "' defined twice.", WARNING_COLOR)
         sys.exit(-1)
 
     libraryTable[lib.name] = lib
 
     for header in lib.headerList:
-        if headerToLibraryTable.has_key(header):
+        if header in headerToLibraryTable:
             headerToLibraryTable[header] += [lib.name]
         else:
             headerToLibraryTable[header] = [lib.name]
 
     for symbol in lib.symbolList:
-        if symbolToLibraryTable.has_key(symbol):
+        if symbol in symbolToLibraryTable:
            symbolToLibraryTable[symbol] += [lib.name]
         else:
            symbolToLibraryTable[symbol] = [lib.name]

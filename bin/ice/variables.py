@@ -2,10 +2,10 @@
 #
 # Global variables for iCompile modules
 
-import os
+import os, utils
 from utils import *
 from platform import machine
-
+from library import *
 
 ##############################################################################
 #                                 Constants                                  #
@@ -24,15 +24,13 @@ NO                        = False
 # and then returns the mutated plist.  If plist was None
 # when the function was invoked, a new list is returned.
 def _pathAppend(plist, newPath, checkForExist = False):
-    if plist == None:
-        plist = []
+    if plist == None: plist = []
 
     if isinstance(newPath, list):
         for p in newPath:
-            _pathAppend(plist, p)
-    else:
-        if not checkForExist or os.path.exists(newPath):
-            plist.append(newPath)
+            _pathAppend(plist, p, checkForExist)
+    elif (not checkForExist or os.path.exists(newPath)) and (not newPath in plist):
+        plist.append(newPath)
    
     return plist
 
@@ -109,6 +107,134 @@ class Compiler:
         # /EP      Suppress compilation and write preprocessor output without #line directives        
         dependencyFlag = ['/showIncludes', '/EP']
 
+
+
+"""
+  Items marked with * are written to cache directly from state
+  during save and are read from cache to state directly after load.
+"""
+class Depend:
+    """ dict used by in getDependencies in depend.py"""
+    dependencies = None
+            
+    """ * list of extra include paths triggered by dependencies """
+    includePaths = None
+    
+    """ * list of extra link paths triggered by dependencies """
+    libraryPaths = None
+
+    """ * list of extra libraries to link against, triggered by dependencies """
+    usesProjectsList = None
+    
+    """ * list of extra compiler options """
+    compilerOptions = None
+    
+    """ * list of extra linker options """
+    linkerOptions = None
+
+    def __init__(self):
+        self.dependencies = {}
+                        
+    def __str__(self):
+        s = ''
+        for k in self.__dict__:
+            if k != 'dependencies':
+                s += '\n    ' + str(k) + ' = ' + str(self.__dict__[k])
+        return s
+
+    # For pickle module
+    def __getinitargs__(self):
+        return ()
+            
+    def __getnewargs__(self):
+        return __getinitargs__(self)        
+
+    def setPropertiesOn(self, state):
+        if self.includePaths == None:
+            # This is an empty cache
+            return
+        
+        for p in self.includePaths:
+            state.addIncludePath(p)
+            if state.includePaths().count(p) > 1:
+                raise Exception('Duplicate instance of "' + p + '" in: ' + str(state.includePaths()))
+
+        for p in self.libraryPaths:
+            state.addLibraryPath(p)
+
+        for opt in self.compilerOptions:
+            if not opt in state.compilerOptions:
+                state.compilerOptions.append(opt)
+
+        for opt in self.linkerOptions:
+            if not opt in state.linkerOptions:
+                state.linkerOptions.append(opt)
+
+        for p in self.usesProjectsList:
+            if not p in state.usesProjectsList:
+                state.addUsesProject(p)
+
+        for p in self.usesLibrariesList:
+            if not p in state.usesLibrariesList:
+                state.addUsesLibrary(p)
+
+  
+
+    """ Copy over whatever state was using in order to preserve those
+    values for the next invokation.  Some of these values are coming
+    from the configuration files, however if the configuration files
+    change the cache will be thrown away so that does not matter."""
+    def getPropertiesFrom(self, state):
+        self.includePaths = state.includePaths()
+        self.libraryPaths = state.libraryPaths()
+        self.compilerOptions = state.compilerOptions
+        self.linkerOptions = state.linkerOptions
+        self.usesProjectsList = state.usesProjectsList
+        self.usesLibrariesList = state.usesLibrariesList
+
+
+class Cache:
+    # Definition of Cache
+    warnings = None
+    depend = None
+
+    """ * copy of the library table values """
+    customLibraryList = []
+    
+    # For pickle module
+    def __getinitargs__(self):
+        return ()
+    
+    def __getnewargs__(self):
+        return __getinitargs__(self)        
+
+    def __init__(self):
+        self.warnings = []
+        self.depend = {}
+        self.customLibraryList = []
+
+    def __str__(self):
+        s = 'Cache:'
+        s += '\n  warnings = ' + str(self.warnings)
+        s += '\n  customLibraryList = ' + str(self.customLibraryList)
+        for k in self.depend:
+            s+= '\n  depend[\'' + str(k) + '\'] = ' + str(self.depend[k])
+            
+        return s
+
+    def setPropertiesOn(self, state):
+        self.depend.setPropertiesOn(state)
+
+        # Add libraries that are not already in the table
+        for lib in self.customLibraryList:
+            if not lib.name in libraryTable:
+                defineLibrary(lib)
+        
+    def getPropertiesFrom(self, state):
+        self.depend.getPropertiesFrom(state)
+        self.customLibraryList = [lib for name, lib in libraryTable]
+
+
 # Use getConfigurationState to load
 #
 class State:
@@ -133,12 +259,7 @@ class State:
     # Name of the project (without .lib/.dll extension)
     projectName                 = None
 
-    # A dictionary used to store values between invocations of iCompile.
-    # Loaded by loadCache in icompile.  Keys:
-    #
-    #  'warnings': list of warnings recently printed that should not be repeated
-    #  'dependencies': table used by in getDependencies in depend.py
-    #
+    # Instance of Cache
     cache                       = None
 
     # Filename of the compiler
@@ -208,6 +329,10 @@ class State:
     universalBinary             = False
 
     numProcessors               = None
+
+    # Time at which icompile or the project file
+    # was most recently modified
+    icompileTime                = None
     
     def __init__(self):
         self.usesProjectsList = []
@@ -217,17 +342,16 @@ class State:
 
     # path is either a string or a list of paths
     # Paths are only added if they exist.
-    def addIncludePath(self, path, checkForExist = True):
-        self._includePaths = _pathAppend(self._includePaths, path, checkForExist)
+    def addIncludePath(self, path):
+        self._includePaths = _pathAppend(self._includePaths, path, True)
 
     # Returns a list of all include paths
     def includePaths(self):
         return self._includePaths
 
-    def addLibraryPath(self, path, checkForExist = True):
-        self._libraryPaths = _pathAppend(self._libraryPaths, path, checkForExist)
+    def addLibraryPath(self, path):
+        self._libraryPaths = _pathAppend(self._libraryPaths, path, True)
 
-    # Returns a list of all include paths
     def libraryPaths(self):
         return self._libraryPaths
 
@@ -236,6 +360,12 @@ class State:
 
     def libList(self):
         return self._libList
+
+    def addUsesProject(self, dirname):
+        self.usesProjectsList.append(dirname)
+
+    def addUsesLibrary(self, dirname):
+        self.usesLibrariesList.append(dirname)
 
     # Location of the user configuration (.icompile) file, including the filename
     # Defaults to $HOME/.icompile
@@ -257,18 +387,66 @@ class State:
         HOME = os.environ['HOME']
         return pathConcat(HOME, '.icompile')
 
+    """ Returns the cache containing information about this compilation target. """
+    def getTargetCache(self):
+        if self.cache.depend == None:
+            raise Exception('Dependency cache has not been initialized')
+        
+        if not self.target in self.cache.depend:
+            self.cache.depend[self.target] = Depend()
+            
+        return self.cache.depend[self.target]
+
+        
     def __str__(self):
-        return ('State:' + 
-           '\n rootDir                = ' + str(self.rootDir) +
-           '\n binaryName             = ' + str(self.binaryName) +
-           '\n usesProjectsList       = ' + str(self.usesProjectsList) + 
-           '\n compiler               = ' + str(self.compiler) +
-           '\n compilerVerboseOptions = ' + str(self.compilerVerboseOptions) +
-           '\n includePaths           = ' + str(self.includePaths()) +
-           '\n libraryPaths           = ' + str(self.libraryPaths()) +
-           '\n preferenceFile         = ' + str(self.preferenceFile()) +
-           '\n numProcessors          = ' + str(self.numProcessors))
-    
+        s = 'State:'
+        for k in self.__dict__:
+            if k != 'cache':
+                s += '\n  ' + str(k) + ' = ' + str(self.__dict__[k])
+        return s
+
+    def saveCache(self, filename):
+        self.getTargetCache().getPropertiesFrom(self)
+        
+        file = open(filename, 'w')
+        pickle.dump(self.cache, file)
+        file.close()
+        if utils.verbosity >= TRACE:
+            print 'Saved cache:'
+            print self.cache
+
+    def loadCache(self, filename):
+        if utils.verbosity >= TRACE: print "Loading cache from " + filename + "\n"
+
+        self.cache = Cache()
+
+        if os.path.exists(filename) and (getTimeStamp(filename) >= self.icompileTime):
+            # Cache exists and is newer than the project file
+        
+            file = open(filename, 'r')
+            try:
+                self.cache = pickle.load(file);
+                if not isinstance(self.cache, Cache):
+                    raise Exception('Cache format changed in version 0.5.5')
+            
+            except Exception, e:
+                # The cache is corrupt; ignore (and delete) it
+                print e
+                self.cache = Cache()
+                if utils.verbosity >= NORMAL: 
+                    colorPrint("Warning: Internal iCompile cache at '" + os.path.abspath(filename) +
+                               "' is corrupt.", WARNING_COLOR)
+                os.remove(filename)
+ 
+            file.close()
+        elif utils.verbosity >= TRACE: print 'No cache found, or cache is out of date'
+
+        if utils.verbosity >= TRACE:
+            print 'Loaded Cache:'
+            print self.cache
+            print
+
+        self.getTargetCache().setPropertiesOn(self)
 
 ###############################################
 

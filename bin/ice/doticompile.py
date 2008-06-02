@@ -8,6 +8,10 @@ from doxygen import *
 from variables import *
 from help import *
 
+# If True, the project will not be rebuilt if all dependencies
+# other than iCompile are up to date.  This is handy when
+# working on iCompile and testing with large libraries.
+_IGNORE_ICOMPILE_DEPENDENCY = False
 
 ##############################################################################
 #                             Default .icompile                              #
@@ -280,9 +284,9 @@ def processProjectFile(state):
         if u.strip() != '':
             if os.path.exists(pathConcat(u, 'ice.txt')):
                 # This is another iCompile project
-                state.usesProjectsList.append(u)
+                state.addUsesProject(u, False)
             else:
-                state.usesLibrariesList.append(u)
+                state.addUsesLibrary(u, False)
 
     state.buildDir = addTrailingSlash(configGet(state, config, 'GLOBAL', 'builddir', True))
     
@@ -405,6 +409,25 @@ def getConfigurationState(args):
     # Make separate directories for object files based on
     # debug/release
     state.objDir = state.tempDir + state.platform + '/' + state.target + '/'
+
+    # Find out when icompile was itself modified
+    state.icompileTime = getTimeStamp(sys.argv[0])
+    if _IGNORE_ICOMPILE_DEPENDENCY:
+        # Set the iCompile timestamp to the beginning of time, so that
+        # it looks like icompile itself was never modified.
+        state.icompileTime = 0
+
+    # Rebuild if ice.txt or .icompile was modified
+    # more recently than the source.
+    if os.path.exists('ice.txt'):
+        iceTime = getTimeStamp('ice.txt')
+        if iceTime > state.icompileTime:
+            state.icompileTime = iceTime
+
+    if os.path.exists(state.preferenceFile()):
+        configTime = getTimeStamp(state.preferenceFile())
+        if configTime > state.icompileTime:
+            state.icompileTime = configTime
 
     return state
 

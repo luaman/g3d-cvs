@@ -429,9 +429,14 @@ def cpuCount():
    time of the file in the same form as time.time()."""
 def getTimeStamp(file):
    try:
-       return os.path.getmtime(file)
+       t = os.path.getmtime(file)
+       if t > time.time():
+           colorPrint('Warning: ' + file +
+                      ' time stamp is in the future (' + time.ctime(t) + ')', WARNING_COLOR)
+       return t
    except OSError:
        return 0
+
 
 """ Like getTimeStamp, but uses the specified cache. """
 def getTimeStampCached(file, cache):
@@ -914,7 +919,7 @@ def _listCFilesVisitor(result, dirname, files):
     for f in files:
          if ((excludeFromCompilation != None) and
              (excludeFromCompilation.search(f) != None)):
-            if verbosity >= VERBOSE: print "  Ignoring '" + f + "'"
+            if verbosity >= SUPERTRACE: print "  Ignoring '" + f + "'"
             removelist.append(f)
             
          elif isCFile(f) or (_includeHeaders and isCHeader(f)):

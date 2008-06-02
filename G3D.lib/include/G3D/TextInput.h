@@ -194,6 +194,7 @@ public:
   double height = ti. readNumber();
   </PRE>
 
+ Assumes that the file is not modified once opened.
  */
 class TextInput {
 public:
