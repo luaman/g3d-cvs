@@ -27,7 +27,7 @@ void App::loadScene() {
         xform.rotation = xform.rotation * rot270;
         xform.translation = Vector3(0, -1.0f, 0);
 
-        std::string filename = dataDir + "3ds/cannon/cannon.3ds";
+        std::string filename = dataDir + "3ds/weapon/cannon/cannon.3ds";
         ArticulatedModelRef model = ArticulatedModel::fromFile(filename, xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
