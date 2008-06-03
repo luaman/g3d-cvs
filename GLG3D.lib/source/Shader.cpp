@@ -1102,7 +1102,7 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
             case GL_INT:
             case GL_BOOL:
                 {
-                    int i = value.vector[0][0];
+                    int i = (int)value.vector[0][0];
                     if ((value.type == GL_INT) || (value.type == GL_BOOL)) {
                         i = value.intVal;
                     }

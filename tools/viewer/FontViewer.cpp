@@ -13,9 +13,9 @@
 
 
 FontViewer::FontViewer(GFontRef base) :
+    m_fontfilename(""),
     m_font(NULL),
-    m_basefont(base),
-    m_fontfilename("")	
+    m_basefont(base)
 {}
 
 

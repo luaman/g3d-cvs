@@ -225,7 +225,7 @@ void GConsole::print(const string& s) {
 void GConsole::print(const string& s, const Color4& c) {
     // Break by newlines
     int firstNewline = s.find('\n');
-    if ((firstNewline != -1) && (firstNewline != s.size() - 1)) {
+    if (((int)firstNewline != -1) && ((int)firstNewline != (int)s.size() - 1)) {
         // There are newlines in the middle of this string
         Array<std::string> lines = stringSplit(s, '\n');
         for (int i = 0; i < lines.size() - 1; ++i) {
