@@ -99,29 +99,34 @@ public:
 
 // helper macro to call cpuid functions and return all values
 #ifdef _MSC_VER
-#define CALL_CPUID(func, areg, breg, creg, dreg) \
-	__asm mov	eax, func   \
-	__asm cpuid             \
-	__asm mov	areg, eax   \
-	__asm mov	breg, ebx   \
-	__asm mov	creg, ecx   \
-	__asm mov	dreg, edx
-#elif defined(__GNUC__) && !defined(G3D_OSX_INTEL)
-#define CALL_CPUID(func, areg, breg, creg, dreg) \
-    __asm__ (           \
-    "cpuid \n":         \
-    "=a" (areg),        \
-    "=b" (breg),        \
-    "=c" (creg),        \
-    "=d" (dreg):        \
-    "a" (func):         \
-    );
+
+    // VC on Intel
+#   define CALL_CPUID(func, areg, breg, creg, dreg) \
+	   __asm mov	eax, func   \
+	   __asm cpuid             \
+       __asm mov	areg, eax   \
+       __asm mov	breg, ebx   \
+	   __asm mov	creg, ecx   \
+	   __asm mov	dreg, edx
+
+#elif defined(__GNUC__) && defined(G3D_OSX_INTEL)
+    // GCC on OS X intel
+#    define CALL_CPUID(func, areg, breg, creg, dreg) \
+       areg = 0;   \
+       breg = 0;   \
+       creg = 0;   \
+       dreg = 0;
 #else
-#define CALL_CPUID(func, areg, breg, creg, dreg) \
-    areg = 0;   \
-    breg = 0;   \
-    creg = 0;   \
-    dreg = 0;
+    // Any other compiler/platform, likely GCC
+#   define CALL_CPUID(func, areg, breg, creg, dreg) \
+       __asm__ (           \
+       "cpuid \n":         \
+       "=a" (areg),        \
+       "=b" (breg),        \
+       "=c" (creg),        \
+       "=d" (dreg):        \
+       "a" (func)          \
+       );
 #endif
 
 static CpuInfo                                  g_cpuInfo = {
