@@ -327,11 +327,13 @@ def getConfigurationState(args):
     state.universalBinary = (machine() == 'i386')
 
     state.template = ''
-    if ('--template' in args):
+    if '--template' in args:
         for i in xrange(0, len(args)):
             if args[i] == '--template':
                 if i < len(args) - 1:
                     state.template = args[i + 1]
+
+    state.noPrompt = '--noprompt' in args
 
     if state.template != '' and not state.noPrompt:
         colorPrint("ERROR: cannot specify --template without --noprompt", ERROR_COLOR)
@@ -518,11 +520,11 @@ def checkForProjectFile(state, args):
                     templateG3D.generateStarterFiles(state)
 
     if state.noPrompt and state.template != '':
-        if (state.template == 'hello'):
+        if state.template == 'hello':
             templateHello.generateStarterFiles(state)
-        elif (state.template == 'G3D'):
+        elif state.template == 'G3D':
             templateG3D.generateStarterFiles(state)
-        elif (state.template == 'empty'):
+        elif state.template == 'empty':
             # Intentionally do nothing
             ''
         else:
