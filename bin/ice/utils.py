@@ -211,13 +211,20 @@ getch = _Getch()
 
 """Create a directory if it does not exist."""
 def mkdir(path, echo = True):
-    if (path[-1] == "/"):
+    if path[-1] == '/':
         path = path[:-1]
 
-    if ((not os.path.exists(path)) and (path != "./")):
+    if not os.path.exists(path) and (path != '.'):
         if echo: colorPrint('mkdir ' + path, COMMAND_COLOR)
         # TODO: set group and permissions from parent directory
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        except OSError:
+            # There can be a race condition when two compile jobs try to
+            # create the same directory at the same time.  If the directory
+            # exists here, we can ignore the error
+            if not os.path.exists(path):
+                raise
 
 ##############################################################################
 

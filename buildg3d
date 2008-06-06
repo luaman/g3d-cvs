@@ -274,8 +274,8 @@ def all(args):
     if x == 0: x = doc(args)
     if x == 0: x = data(args)
     if x == 0: x = tools(args)
-    if x == 0: x = jar(args)
-    if x == 0: x = test(args)
+    #if x == 0: x = jar(args)
+    #if x == 0: x = test(args)
     return x
 
 def src(args):
