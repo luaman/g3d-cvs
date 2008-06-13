@@ -16,6 +16,7 @@
 #include "G3D/Color1.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
+#include "G3D/Matrix2.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Matrix4.h"
 #include "G3D/Rect2D.h"
@@ -135,6 +136,10 @@ AnyVal::AnyVal(const CoordinateFrame& v) : m_type(COORDINATEFRAME), m_referenceC
 }
 
 
+AnyVal::AnyVal(const Matrix2& v) : m_type(MATRIX2), m_referenceCount(NULL) {
+    m_value = new Matrix2(v);
+}
+
 AnyVal::AnyVal(const Matrix3& v) : m_type(MATRIX3), m_referenceCount(NULL) {
     m_value = new Matrix3(v);
 }
@@ -224,6 +229,10 @@ void AnyVal::deleteValue() {
 
     case VECTOR4:
         delete (Vector4*)m_value;
+        break;
+
+    case MATRIX2:
+        delete (Matrix2*)m_value;
         break;
 
     case MATRIX3:
@@ -316,6 +325,9 @@ void* AnyVal::copyValue() const {
 
     case VECTOR4:
         return new Vector4(*(Vector4*)m_value);
+
+    case MATRIX2:
+        return new Matrix2(*(Matrix2*)m_value);
 
     case MATRIX3:
         return new Matrix3(*(Matrix3*)m_value);
@@ -417,6 +429,18 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
 
     case VECTOR4:
         t.printf("V4(%g, %g, %g, %g)", ((Vector4*)m_value)->x, ((Vector4*)m_value)->y, ((Vector4*)m_value)->z, ((Vector4*)m_value)->w);
+        break;
+
+    case MATRIX2:
+        {
+            const Matrix2& m = *(Matrix2*)m_value;
+            t.printf("M2(\n");
+            t.pushIndent();
+            t.printf("%10.5f, %10.5f,\n%10.5f, %10.5f)",
+                     m[0][0], m[0][1],
+                     m[1][0], m[1][1]);
+            t.popIndent();
+        }
         break;
 
     case MATRIX3:
@@ -665,6 +689,22 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                 t.readSymbol(")");
                 m_value = new Vector4(v);
                 m_type = VECTOR4;
+
+            } else if (s == "M2") {
+
+                t.readSymbol("(");
+                Matrix2 m;
+                for (int r = 0; r < 2; ++r) {
+                    for (int c = 0; c < 2; ++c) {
+                        m[r][c] = (float)t.readNumber();
+                        if ((c != 1) || (r != 1)) {
+                            t.readSymbol(",");
+                        }
+                    }
+                }
+                t.readSymbol(")");
+                m_value = new Matrix2(m);
+                m_type = MATRIX2;
 
             } else if (s == "M3") {
 
@@ -1179,6 +1219,23 @@ const CoordinateFrame& AnyVal::coordinateFrame(const CoordinateFrame& defaultVal
     } else {
         return *(CoordinateFrame*)m_value;
     }
+}
+
+const Matrix2& AnyVal::matrix2(const Matrix2& defaultVal) const {
+    if (m_type != MATRIX2) {
+        return defaultVal;
+    } else {
+        return *(Matrix2*)m_value;
+    }
+}
+
+
+const Matrix2& AnyVal::matrix2() const {
+    if (m_type != MATRIX2) {
+        throw WrongType(MATRIX2, m_type);
+    }
+
+    return *(Matrix2*)m_value;
 }
 
 

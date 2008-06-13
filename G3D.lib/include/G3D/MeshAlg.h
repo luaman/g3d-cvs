@@ -192,13 +192,16 @@ public:
     
 
     /**
-     Convenient for passing around the data that changes under
+     Convenient for passing around the per-vertex data that changes under
      animation. The faces and edges are needed to interpret 
      these values.
      */
     class Geometry {
     public:        
+        /** Vertex positions */
         Array<Vector3>          vertexArray;
+
+        /** Vertex normals */
         Array<Vector3>          normalArray;
 
         /**

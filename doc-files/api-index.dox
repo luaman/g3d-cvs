@@ -137,6 +137,7 @@ href="classes.html">Classes</a>.
     <UL>
      <LI><B>Geometry</B> &nbsp; &nbsp;
     \link G3D::AABox AABox\endlink,
+    \link G3D::AABox2D AABox2D (Rect2D)\endlink,
     \link G3D::Box Box\endlink,
     \link G3D::Capsule Capsule\endlink,
     \link G3D::UprightFrame UprightFrame\endlink,
@@ -153,6 +154,7 @@ href="classes.html">Classes</a>.
     \link G3D::ConvexPolygon2D ConvexPolygon2D\endlink,
     \link G3D::ConvexPolyhedron ConvexPolyhedron\endlink,
     \link G3D::CoordinateFrame CoordinateFrame\endlink,
+    \link G3D::CFrame CFrame (CoordinateFrame)\endlink,
     \link G3D::Cylinder Cylinder\endlink,
     \link G3D::GameTime GameTime\endlink,
     \link G3D::GCamera GCamera\endlink,
@@ -161,9 +163,11 @@ href="classes.html">Classes</a>.
     \link G3D::LineSegment LineSegment\endlink,
     \link G3D::LineSegment2D LineSegment2D\endlink,
     \link G3D::Matrix Matrix\endlink,
+    \link G3D::Matrix2 Matrix2\endlink,
     \link G3D::Matrix3 Matrix3\endlink,
     \link G3D::Matrix4 Matrix4\endlink,
     \link G3D::MeshAlg MeshAlg\endlink,
+    \link G3D::MeshAlg::Geometry MeshAlg::Geometry\endlink,
     \link G3D::MeshBuilder MeshBuilder\endlink,
     \link G3D::Quat Quat\endlink,
     \link G3D::Plane Plane\endlink,

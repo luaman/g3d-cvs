@@ -22,6 +22,7 @@ class Color1;
 class Color3;
 class Color4;
 class Quat;
+class Matrix2;
 class Matrix3;
 class Matrix4;
 class CoordinateFrame;
@@ -153,14 +154,19 @@ public:
         VECTOR2, 
         VECTOR3, 
         VECTOR4, 
+        MATRIX2,
         MATRIX3, 
         MATRIX4, 
         QUAT, 
-        COORDINATEFRAME, 
+        COORDINATEFRAME,
+        COORDINATEFRAME2D,
+        CFRAME = COORDINATEFRAME,
+        CFRAME2D = COORDINATEFRAME2D,
         COLOR1,
         COLOR3,
         COLOR4,
         RECT2D,
+        AABOX2D = RECT2D,
         AABOX,
         ARRAY, 
         TABLE};
@@ -280,6 +286,7 @@ public:
     AnyVal(const G3D::AABox&);
 
     AnyVal(const G3D::CoordinateFrame&);
+    AnyVal(const G3D::Matrix2&);
     AnyVal(const G3D::Matrix3&);
     AnyVal(const G3D::Matrix4&);
 
@@ -422,6 +429,13 @@ public:
 
     operator const CoordinateFrame& () const {
         return coordinateFrame();
+    }
+
+    const G3D::Matrix2& matrix2() const;
+    const G3D::Matrix2& matrix2(const G3D::Matrix2& defaultVal) const;
+
+    operator const Matrix2& () const {
+        return matrix2();
     }
 
     const G3D::Matrix3& matrix3() const;

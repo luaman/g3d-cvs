@@ -35,6 +35,7 @@
 #include "G3D/Color1.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
+#include "G3D/Matrix2.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Matrix4.h"
 #include "G3D/CoordinateFrame.h"

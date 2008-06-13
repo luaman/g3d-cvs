@@ -295,6 +295,8 @@ public:
 
 };
 
+typedef CoordinateFrame CFrame;
+
 } // namespace
 
 #endif

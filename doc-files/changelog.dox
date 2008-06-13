@@ -34,6 +34,7 @@
      <li> G3D::SuperShader now supports a customMap and customConstant for experimenting with shaders.
      <li> G3D::SuperShader now does not ever light the "back" of a bump-mapped poly, even if the bumps should create a light-facing surface
      <li> G3D::Material promoted to its own class (was G3D::SuperShader::Material)
+     <li> G3D::Matrix2
      <li> G3D::VertexAndPixelShader::ArgList::size
      <li> G3D::pathConcat
      <li> G3D::WidgetManager::moveWidgetToBack

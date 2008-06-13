@@ -652,7 +652,9 @@ numLabel:
     }
 
     // Some unknown token
-    debugAssert(false);
+    debugAssertM(false, 
+                 format("Unrecognized token type beginning with character '%c' (ASCII %d)", 
+                        c, c));
     return t;
 }
 

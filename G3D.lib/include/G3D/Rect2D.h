@@ -375,6 +375,7 @@ public:
     }
 };
 
+typedef Rect2D AABox2D;
 }
 
 #endif
