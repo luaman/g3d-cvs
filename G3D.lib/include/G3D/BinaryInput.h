@@ -123,6 +123,7 @@ private:
 
     /** Verifies that at least this number of bytes can be read.*/
     inline void prepareToRead(int64 nbytes) {
+        debugAssertM(m_length > 0, m_filename + " not found or corrupt.");
         debugAssertM(m_pos + nbytes + m_alreadyRead <= m_length, "Read past end of file.");
 
         if (m_pos + nbytes > m_bufferLength) {
