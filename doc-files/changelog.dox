@@ -21,6 +21,7 @@
      <li> FileDialog now accepts an extra "note" argument
      <li> FileDialog::getFilename non-static to support subclassing
      <li> System::currentDateString
+     <li> Expanded G3D::ArticulatedModel documentation
      <li> Build system now executes on multiple processors (about 1.8x speedup for dual-core)
      <li> Build system now caches dependencies (about 5x speedup for small incremental builds)
      <li> Patched LOAD_EXTENSION to work around gcc pointer-to-function cast issues

@@ -75,6 +75,10 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
     // Note: vertices are actually mutated by scale; it is not carried along as
     // part of the scene graph transformation.
 
+    // Returns the index in partArray of the part with this name.
+    Table<std::string, int>     partNameToIndex;
+
+
     Load3DS load;
 
     std::string path = filenamePath(filename);

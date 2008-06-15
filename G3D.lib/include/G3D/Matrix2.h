@@ -29,14 +29,14 @@ public:
                        data[1][0] * v[0] + data[1][1] * v[1]);
     }
     
-    inline Matrix2 transpose() const {
-        return Matrix2(data[0][0], data[1][0],
-                       data[0][1], data[1][1]);
-    }
-
     inline Matrix2 inverse() const {
         return Matrix2(data[0][0], data[1][0],
                        data[0][1], data[1][1]) * (1.0f / determinant());
+    }
+
+    inline Matrix2 transpose() const {
+        return Matrix2(data[0][0], data[1][0],
+                       data[0][1], data[1][1]);
     }
 
     inline float determinant() const {
