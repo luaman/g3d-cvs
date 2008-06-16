@@ -60,7 +60,7 @@ TextInput::Settings::Settings ()
      otherCommentCharacter('\0'), otherCommentCharacter2('\0'),
      signedNumbers(true), singleQuotedStrings(true), sourceFileName(),
      startingLineNumberOffset(0), msvcSpecials(true), proofSymbols(false),
-     caseSensitive(true)
+     caseSensitive(true), allowNumberSymbolPrefix(false)
 { 
     trueSymbols.insert("true");
     falseSymbols.insert("false");
@@ -147,7 +147,7 @@ int TextInput::eatInputChar() {
     // We eat all whitespace between tokens, so they should never see a
     // lineNumber that points to a CR.  However, if they have some kind of
     // syntax error in a token that appears *after* a quoted string
-    // containing CRs, they should get a correct character number.  ("ugh!")
+    // containing CRs, they should get a correct character number.
 
     // TODO: http://sourceforge.net/tracker/index.php?func=detail&aid=1341266&group_id=76879&atid=548565
 
@@ -177,8 +177,8 @@ Token TextInput::nextToken() {
 
     t._line         = lineNumber;
     t._character    = charNumber;
-	t._type         = Token::END;
-	t._extendedType = Token::END_TYPE;
+    t._type         = Token::END;
+    t._extendedType = Token::END_TYPE;
 
     int c = peekInputChar();
     if (c == EOF) {
@@ -212,8 +212,7 @@ Token TextInput::nextToken() {
             // whitespace at the start of the next line.
             whitespaceDone = false;
 
-        } else if (options.cComments
-                   && c == '/' && c2 == '*') {
+        } else if (options.cComments && (c == '/') && (c2 == '*')) {
 
             // consume both start-comment chars, can't let the trailing one
             // help close the comment.
@@ -223,8 +222,7 @@ Token TextInput::nextToken() {
             // Multi-line comment, consume to end-marker or EOF.
             c = peekInputChar();
             c2 = peekInputChar(1);
-            while (! (c == '*' && c2 == '/')
-                   && c != EOF) {
+            while (! ((c == '*') && (c2 == '/')) && (c != EOF)) {
                 eatInputChar();
                 c = c2;
                 c2 = peekInputChar(1);
@@ -248,8 +246,8 @@ Token TextInput::nextToken() {
         return t;
     }
 
-    // Does appropriate setup for a symbol (including setting up the token
-    // string to start with 'c'), eats the input character, and overwrites
+    // Perform appropriate setup for a symbol (including setting up the token
+    // string to start with c), eat the input character, and overwrite
     // 'c' with the peeked next input character.
 #define SETUP_SYMBOL(c)                                                         \
     {                                                                           \
@@ -463,12 +461,12 @@ numLabel:
             t._string = "";
         }
         t._type = Token::NUMBER;
-		if (c == '.') {
-			t._extendedType = Token::FLOATING_POINT_TYPE;
-		} else {
-			t._extendedType = Token::INTEGER_TYPE;
-		}
-
+        if (c == '.') {
+            t._extendedType = Token::FLOATING_POINT_TYPE;
+        } else {
+            t._extendedType = Token::INTEGER_TYPE;
+        }
+        
         if ((c == '0') && (peekInputChar(1) == 'x')) {
             // Hex number
             t._string += "0x";
@@ -484,6 +482,7 @@ numLabel:
             }
 
         } else {
+			// Non-hex number
 
             // Read the part before the decimal.
             while (isDigit(c)) {
@@ -496,7 +495,7 @@ numLabel:
 
             // Read the decimal, if one exists
             if (c == '.') {
-				t._extendedType = Token::FLOATING_POINT_TYPE;
+                t._extendedType = Token::FLOATING_POINT_TYPE;
 
                 // The '.' character was a decimal point, not the start of a
                 // method or range operator
@@ -570,7 +569,7 @@ numLabel:
 
             if (! isSpecial && ((c == 'e') || (c == 'E'))) {
                 // Read exponent
-				t._extendedType = Token::FLOATING_POINT_TYPE;
+                t._extendedType = Token::FLOATING_POINT_TYPE;
                 t._string += c;
 
                 c = eatAndPeekInputChar();

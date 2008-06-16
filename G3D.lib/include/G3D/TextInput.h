@@ -32,6 +32,7 @@ namespace G3D {
  */
 class Token {
 public:
+
     /**
      More detailed type information than Type.
      */
@@ -42,17 +43,19 @@ public:
       FLOATING_POINT_TYPE, 
       INTEGER_TYPE,
       BOOLEAN_TYPE,
-      END_TYPE};
+      END_TYPE
+    };
 
     /**
      Strings are enclosed in quotes, symbols are not.
      */
     enum Type {
-      STRING = DOUBLE_QUOTED_TYPE, 
-      SYMBOL = SYMBOL_TYPE, 
-      NUMBER = FLOATING_POINT_TYPE, 
+      STRING  = DOUBLE_QUOTED_TYPE, 
+      SYMBOL  = SYMBOL_TYPE, 
+      NUMBER  = FLOATING_POINT_TYPE, 
       BOOLEAN = BOOLEAN_TYPE, 
-      END = END_TYPE};
+      END     = END_TYPE
+    };
 
 private:
 
@@ -60,11 +63,11 @@ private:
 
     /** 
       Holds the actual value, which might be any type.  If a number, it will be 
-      parsed at runtime.*/
+      parsed at runtime.
+    */
     std::string             _string;
 
     bool                    _bool;
-
     int                     _line;
     int                     _character;
     Type                    _type;
@@ -72,8 +75,8 @@ private:
 
 public:
 
-    Token() : 
-        _string(""), 
+    Token() :
+        _string(""),
         _bool(false),
         _line(0), 
         _character(0), 
@@ -131,12 +134,12 @@ public:
 
 
 /**
- A simple style tokenizer for reading text files that also supports
- C++-like syntaxes.  TextInput handles a superset of C++/Java-like
- text including single line comments, block comments, quoted strings
- with escape sequences, and operators.  TextInput recognizes four
- categories of tokens, which are separated by white space, quotation
- marks, or the end of a recognized operator:
+ A simple style tokenizer for reading text files.  TextInput handles a
+ superset of C++,Java, Matlab, and Bash code text including single
+ line comments, block comments, quoted strings with escape sequences,
+ and operators.  TextInput recognizes several categories of tokens,
+ which are separated by white space, quotation marks, or the end of a
+ recognized operator:
 
  <ul>
   <li><CODE>Token::SINGLE_QUOTED_TYPE</CODE> string of characters surrounded by single quotes, e.g., 'x', '\0', 'foo'.
@@ -147,7 +150,9 @@ public:
   <li><CODE>Token::BOOLEAN_TYPE</CODE> special symbols like "true" and "false"; the exact details can be configured in TextInput::Settings
  </ul>
 
- <P>The special ".." and "..." tokens are recognized in addition to normal C++ operators.
+ <P>The special ".." and "..." tokens are always recognized in
+ addition to normal C++ operators. Additional tokens can be made
+ available by changing the Settings.
 
  Negative numbers are handled specially because of the ambiguity between unary minus and negative numbers-- 
  see the note on TextInput::read.
@@ -238,12 +243,12 @@ public:
             symbol "-" followed by the number 1.  Default is true.*/
         bool                signedNumbers;
 
-		/** If true, strings can be marked with single quotes (e.g.,
-		    'aaa').  If false, the quote character is parsed as a
-		    symbol. Default is true.  Backquote (`) is always parsed
-		    as a symbol. */
-		bool				singleQuotedStrings;
-
+        /** If true, strings can be marked with single quotes (e.g.,
+            'aaa').  If false, the quote character is parsed as a
+            symbol. Default is true.  Backquote (`) is always parsed
+            as a symbol. */
+        bool                singleQuotedStrings;
+        
         /** If set to a non-empty string, that string will be used in
             place of the real file name (or in place of a pseudonym
             constructed from the buffer if given FROM_STRING) in
@@ -308,7 +313,7 @@ public:
 
         /**
          When parsing booleans and msvcSpecials, is case significant?
-         Default is true
+         Default is {true}
         */
         bool                caseSensitive;
 
@@ -321,6 +326,12 @@ public:
 
         /** See trueSymbols. Default is {false}*/
         Set<std::string>    falseSymbols;
+
+        /** Parse a number adjacent to a non-operator symbol without intervening 
+            whitespace as a symbol.
+           
+            Default is {false}.*/
+        bool                allowNumberSymbolPrefix;
 
         Settings ();
     };
