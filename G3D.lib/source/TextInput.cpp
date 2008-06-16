@@ -60,7 +60,7 @@ TextInput::Settings::Settings ()
      otherCommentCharacter('\0'), otherCommentCharacter2('\0'),
      signedNumbers(true), singleQuotedStrings(true), sourceFileName(),
      startingLineNumberOffset(0), msvcSpecials(true), proofSymbols(false),
-     caseSensitive(true), allowNumberSymbolPrefix(false)
+     caseSensitive(true)
 { 
     trueSymbols.insert("true");
     falseSymbols.insert("false");

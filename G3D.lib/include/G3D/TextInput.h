@@ -327,12 +327,6 @@ public:
         /** See trueSymbols. Default is {false}*/
         Set<std::string>    falseSymbols;
 
-        /** Parse a number adjacent to a non-operator symbol without intervening 
-            whitespace as a symbol.
-           
-            Default is {false}.*/
-        bool                allowNumberSymbolPrefix;
-
         Settings ();
     };
 	

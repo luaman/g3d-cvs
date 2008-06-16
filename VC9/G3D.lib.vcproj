@@ -674,6 +674,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\Matrix2.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Matrix3.h"
 				>
 			</File>
