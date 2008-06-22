@@ -468,6 +468,14 @@ void GApp::oneFrame() {
     m_widgetManager->onNetwork();
     m_networkWatch.tock();
 
+    // Logic
+    m_logicWatch.tick();
+    {
+        onLogic();
+        m_widgetManager->onLogic();
+    }
+    m_logicWatch.tock();
+
     // Simulation
     m_simulationWatch.tick();
     {
@@ -490,14 +498,6 @@ void GApp::oneFrame() {
         setIdealSimTime(idealSimTime() + idt);
     }
     m_simulationWatch.tock();
-
-    // Logic
-    m_logicWatch.tick();
-    {
-        onLogic();
-        m_widgetManager->onLogic();
-    }
-    m_logicWatch.tock();
 
     // Wait 
     // Note: we might end up spending all of our time inside of

@@ -14,6 +14,7 @@
    <P>
    Changes in 7.01:
    <ul>
+     <li> <b>Incompatible change</b>:GApp now calls the onLogic handler before the simulation handlers but after the user input and network handlers
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
