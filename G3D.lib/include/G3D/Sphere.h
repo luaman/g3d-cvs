@@ -64,24 +64,24 @@ public:
      */
     bool contains(const Vector3& point) const;
 
-   /**
-	 @deprecated Use culledBy(Array<Plane>&)
+    /**
+       @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
                   const class Plane*  plane,
                   int                 numPlanes,
-                  int32&				cullingPlaneIndex,
-                  const uint32  		testMask,
+                  int32&	      cullingPlaneIndex,
+                  const uint32        testMask,
                   uint32&             childMask) const;
     
     /**
-	 @deprecated Use culledBy(Array<Plane>&)
+       @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
                   const class Plane*  plane,
                   int                 numPlanes,
-                  int32&				cullingPlaneIndex = dummy,
-                  const uint32  		testMask = -1) const;
+                  int32&              cullingPlaneIndex = dummy,
+                  const uint32        testMask = 0xFFFFFFFF) const;
 
     /**
        See AABox::culledBy
