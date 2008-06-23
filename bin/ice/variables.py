@@ -209,7 +209,7 @@ class Cache:
         return __getinitargs__(self)        
 
     def __init__(self):
-        self.warnings = []
+        self.warnings = {}
         self.depend = {}
         self.customLibraryList = []
 

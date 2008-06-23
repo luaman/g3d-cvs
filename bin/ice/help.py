@@ -6,6 +6,8 @@ from variables import *
 from utils import *
 import copyifnewer
 
+version = [0, 5, 3]
+
 ##############################################################################
 #                                  Version                                   #
 ##############################################################################
@@ -133,12 +135,9 @@ def maybeWarn(warning, state):
 	colorPrint(warning, WARNING_COLOR)
         return
 
-    if not state.cache.has_key('warnings'):
-        state.cache['warnings'] = {}
 
-    allWarnings = state.cache['warnings']
-
-    if (not allWarnings.has_key(warning) or
+    allWarnings = state.cache.warnings
+    if (not warning in allWarnings or
         ((allWarnings[warning] + WARNING_PERIOD) < time.time())):
 
         # Either this key is not in the dictionary or
