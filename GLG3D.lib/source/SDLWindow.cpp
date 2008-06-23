@@ -137,6 +137,13 @@ static bool SDL_handleErrorCheck_(
 #endif
 
 
+SDLWindow* SDLWindow::create(const GWindow::Settings& settings) {
+
+    return new SDLWindow(settings);    
+
+}
+
+
 SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 
 #   if defined(G3D_OSX)

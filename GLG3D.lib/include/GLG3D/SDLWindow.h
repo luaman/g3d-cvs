@@ -89,6 +89,8 @@ protected:
 
 public:
 
+    static SDLWindow* create(const GWindow::Settings& settings = GWindow::Settings());
+
     SDLWindow(const GWindow::Settings& settings);
 
     virtual ~SDLWindow();

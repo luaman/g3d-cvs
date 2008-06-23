@@ -111,7 +111,7 @@ uses:
 
 compileoptions:
 
-linkoptions:
+linkoptions: -lSDL
 
 ################################################################
 [RELEASE]
