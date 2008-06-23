@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
     
     // Change the window and other startup parameters by modifying the
     // settings class.  For example:
-    settings.window.width = 800; 
-    settings.window.height = 600;
+    settings.window.width       = 800; 
+    settings.window.height      = 600;
 
     return App(settings).run();
 }

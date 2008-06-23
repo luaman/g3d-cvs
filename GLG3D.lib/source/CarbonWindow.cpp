@@ -490,16 +490,15 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
 	
 	// Set default icon if available
 	if(_settings.defaultIconFilename != "nodefault") {
-		try {
-			GImage defaultIcon;
-			defaultIcon.load(_settings.defaultIconFilename);
+  	    try {
+	        GImage defaultIcon;
+		defaultIcon.load(_settings.defaultIconFilename);
 
-			setIcon(defaultIcon);
-		} catch (const GImage::Error& e) {
-			// Throw away default icon
-			debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-			Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-		}
+		setIcon(defaultIcon);
+	    } catch (const GImage::Error& e) {
+	        logPrintf("GWindow's default icon failed to load: %s (%s)", 
+			  e.filename.c_str(), e.reason.c_str());
+	    }
 	}
 	
 	ShowWindow(_window);

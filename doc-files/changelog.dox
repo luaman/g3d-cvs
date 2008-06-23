@@ -95,6 +95,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: patch to initialize correctly on the Mesa library, which crashes when requesting DEPTH24_STENCIL8
      <li> Fix: stringSplit now works correctly for adjacent split characters [Akita Noek]
      <li> Fix: Draw::axes labels now obey current viewport
      <li> Fix: GuiWindow now loses focus when hidden

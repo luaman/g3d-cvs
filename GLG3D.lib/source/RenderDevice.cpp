@@ -340,7 +340,6 @@ void RenderDevice::init(GWindow* window, Log* log) {
     }
 
     glViewport(0, 0, width(), height());
-
     int depthBits, stencilBits, redBits, greenBits, blueBits, alphaBits;
     depthBits       = glGetInteger(GL_DEPTH_BITS);
     stencilBits     = glGetInteger(GL_STENCIL_BITS);
@@ -368,7 +367,7 @@ void RenderDevice::init(GWindow* window, Log* log) {
 
         debugLog->printf("Driver version: %s\n\n", GLCaps::driverVersion().c_str());
 
-		std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
+	std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
 
         debugLog->printf(
             "GL extensions: \"%s\"\n\n",
@@ -377,9 +376,19 @@ void RenderDevice::init(GWindow* window, Log* log) {
         // Test which texture and render buffer formats are supported by this card
         logPrintf("Supported Formats:\n");
         logPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
+	
         for (int code = 0; code < TextureFormat::CODE_NUM; ++code) {
-            const TextureFormat* fmt = TextureFormat::fromCode((TextureFormat::Code)code);
+	    if ((code == TextureFormat::CODE_DEPTH24_STENCIL8) && 
+		(GLCaps::enumVendor() == GLCaps::MESA)) {
+	        // Mesa seems to crash on this format
+	        continue;
+   	    }
+
+            const TextureFormat* fmt = 
+	      TextureFormat::fromCode((TextureFormat::Code)code);
+
             if (fmt) {
+	        // printf("Format: %s\n", fmt->name().c_str());
                 bool t = GLCaps::supportsTexture(fmt);
                 bool r = GLCaps::supportsRenderBuffer(fmt);
                 logPrintf("%20s  %s       %s\n", fmt->name().c_str(), t ? "Yes" : "No ", r ? "Yes" : "No ");
@@ -388,6 +397,7 @@ void RenderDevice::init(GWindow* window, Log* log) {
         logPrintf("\n");
     }
  
+
     cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
 
     if (debugLog) {

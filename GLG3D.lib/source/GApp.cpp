@@ -100,6 +100,7 @@ GApp::GApp(const Settings& settings, GWindow* window) :
     _window->makeCurrent();
     debugAssertGLOk();
 
+
     m_widgetManager = WidgetManager::create(_window);
 
     {
@@ -156,6 +157,7 @@ GApp::GApp(const Settings& settings, GWindow* window) :
         console->setActive(false);
         addWidget(console);
     }
+
 
     toneMap = ToneMap::create();
 

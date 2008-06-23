@@ -177,10 +177,8 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 	
 	    setIcon(defaultIcon);
       } catch (const GImage::Error& e) {
-	  // Throw away default icon
-	  fprintf(stderr, "GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-	  debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-	  Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
+	    logPrintf("GWindow's default icon failed to load: %s (%s)", 
+		      e.filename.c_str(), e.reason.c_str());            
       }
     }
 
@@ -215,18 +213,34 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
         }
     #endif
 
-	// Create a width x height OpenGL screen 
+    // Create a width x height OpenGL screen 
     int flags = 
-        SDL_HWSURFACE |
+        (settings.hardware ? SDL_HWSURFACE : 0) |
         SDL_OPENGL |
         (settings.fullScreen ? SDL_FULLSCREEN : 0) |
         (settings.resizable ? SDL_RESIZABLE : 0) |
         (settings.framed ? 0 : SDL_NOFRAME);
 
     if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
-        Log::common()->printf("Unable to create OpenGL screen: %s\n", SDL_GetError());
-        debugAssert(false);
+      // Try dropping down to 16-bit depth buffer, the most
+      // common problem on X11
+      SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+
+      if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
+        logPrintf("SDLWindow was unable to create an OpenGL screen: %s\n", 
+		  SDL_GetError());
+	logPrintf(" width       = %d\n", settings.width);
+	logPrintf(" height      = %d\n", settings.height);
+	logPrintf(" fullscreen  = %d\n", settings.fullScreen);
+	logPrintf(" resizable   = %d\n", settings.resizable);
+	logPrintf(" framed      = %d\n", settings.framed);
+	logPrintf(" rgbBits     = %d\n", settings.rgbBits);
+	logPrintf(" alphaBits   = %d\n", settings.alphaBits);
+	logPrintf(" depthBits   = %d\n", settings.depthBits);
+	logPrintf(" stencilBits = %d\n", settings.stencilBits);
         alwaysAssertM(false, "Unable to create OpenGL screen");
+	exit(-3);
+      }
     }
 
     // See what video mode we really got
@@ -300,23 +314,23 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
         }
     #endif
 
-	#ifdef G3D_LINUX
-		 if (! settings.fullScreen) {
-            int W = screenWidth(_X11Display);
-            int H = screenHeight(_X11Display);
-            int x = iClamp(settings.x, 0, W);
-            int y = iClamp(settings.y, 0, H);
-
-            if (settings.center) {
-                x = (W  - settings.width) / 2;
-                y = (H - settings.height) / 2;
-            }
-			XMoveWindow(_X11Display, _X11WMWindow, x, y);
+#   ifdef G3D_LINUX
+	if (! settings.fullScreen) {
+	  int W = screenWidth(_X11Display);
+	  int H = screenHeight(_X11Display);
+	  int x = iClamp(settings.x, 0, W);
+	  int y = iClamp(settings.y, 0, H);
+	  
+	  if (settings.center) {
+	    x = (W  - settings.width) / 2;
+	    y = (H - settings.height) / 2;
+	  }
+	  XMoveWindow(_X11Display, _X11WMWindow, x, y);
         }
-	#endif
+#    endif
 
 
-		 // Check for joysticks
+    // Check for joysticks
     int j = SDL_NumJoysticks();
     if ((j < 0) || (j > 10)) {
         // If there is no joystick adapter on Win32,
@@ -341,27 +355,27 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
     makeCurrent();
 
 #   if defined(G3D_LINUX)
-    // If G3D is using the default assertion hooks, replace them with
-    // our own that use SDL functions to release the mouse, since
-    // we've been unable to implement a non-SDL way of releasing the
-    // mouse using the X11 handle directly.
-    if (assertionHook() == _internal::_handleDebugAssert_) {
-        setFailureHook(SDL_handleDebugAssert_);
-    }
+        // If G3D is using the default assertion hooks, replace them with
+        // our own that use SDL functions to release the mouse, since
+        // we've been unable to implement a non-SDL way of releasing the
+        // mouse using the X11 handle directly.
+        if (assertionHook() == _internal::_handleDebugAssert_) {
+	    setFailureHook(SDL_handleDebugAssert_);
+	}
 
-    if (failureHook() == _internal::_handleErrorCheck_) {
-        setFailureHook(SDL_handleErrorCheck_);
-    }
+	if (failureHook() == _internal::_handleErrorCheck_) {
+          setFailureHook(SDL_handleErrorCheck_);
+	}
 #   endif
 }
 
 
 
 SDLWindow::~SDLWindow() {
-	// Close joysticks, if opened
+    // Close joysticks, if opened
     for (int j = 0; j < joy.size(); ++j) {
-  		SDL_JoystickClose(joy[j]);
-	}
+        SDL_JoystickClose(joy[j]);
+    }
 
     // Release the mouse
     setMouseVisible(true);

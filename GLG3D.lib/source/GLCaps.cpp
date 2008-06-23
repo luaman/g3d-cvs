@@ -61,7 +61,7 @@ GLCaps::Vendor GLCaps::computeVendor() {
         return ATI;
     } else if (s == "NVIDIA Corporation") {
         return NVIDIA;
-    } else if (s == "Brian Paul") {
+    } else if ((s == "Brian Paul") || (s == "Mesa project: www.mesa3d.org")) {
         return MESA;
     } else {
         return ARB;

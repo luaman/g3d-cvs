@@ -9,7 +9,6 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
     // Uncomment the next line to hide the developer tools:
     //developerWindow->setVisible(false);
-    printf("Max size: %d\n", glGetInteger(GL_MAX_TEXTURE_SIZE)); 
 }
 
 void App::onInit() {
