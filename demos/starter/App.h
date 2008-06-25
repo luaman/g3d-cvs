@@ -26,6 +26,9 @@ public:
     virtual void onConsoleCommand(const std::string& cmd);
     void printConsoleHelp();
     virtual void onCleanup();
+
+	/** Sets m_endProgram to true. */
+	virtual void endProgram();
 };
 
 #endif
