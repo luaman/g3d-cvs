@@ -24,6 +24,141 @@ class GuiPane;
 class GuiControl {
     friend class GuiWindow;
     friend class GuiPane;
+
+protected:
+
+	/** Interface to hide the default Callback implementation from programmers using it. */
+	class CallbackInterface {
+	public:
+		/** Execute the callback */
+		virtual void onPush() = 0;
+		inline virtual ~CallbackInterface() {};
+
+		/** Used by Callback's copy constructor */
+		virtual CallbackInterface* clone() = 0;
+	};
+
+
+	/** Callback for functions. */
+	class FunctionCallback : public CallbackInterface {
+	private:
+		void (*m_callback)();
+	public:
+		FunctionCallback(
+			void (*callback)()) : m_callback(callback) {
+		}
+
+		virtual void onPush() {
+			(*m_callback)();
+		}
+
+		virtual CallbackInterface* clone() {
+			return new FunctionCallback(m_callback);
+		}
+	};
+
+
+	/** Callback for classes. */
+	template<class Class>
+	class MethodCallback : public CallbackInterface {
+	private:
+		Class*		m_object;
+		void (Class::*m_callback)();
+	public:
+		MethodCallback(
+			Class* object,
+			void (Class::*callback)()) : m_object(object), m_callback(callback) {}
+
+		virtual void onPush() {
+			(m_object->*m_callback)();
+		}
+
+		virtual CallbackInterface* clone() {
+			return new MethodCallback<Class>(m_object, m_callback);
+		}
+	};
+
+
+	/** Callback for reference counted objects */
+	template<class Class>
+	class MethodRefCallback : public CallbackInterface {
+	private:
+		ReferenceCountedPointer<Class> m_object;
+		void (Class::*m_callback)();
+	public:
+		MethodRefCallback(
+			const ReferenceCountedPointer<Class>& object,
+			void (Class::*callback)()) : m_object(object), m_callback(callback) {}
+
+		virtual void onPush() {
+            (m_object.pointer()->*m_callback)();
+		}
+
+		virtual CallbackInterface* clone() {
+			return new MethodRefCallback<Class>(m_object, m_callback);
+		}
+	};
+
+public:
+
+    /** Base class for GuiButton pre-event handlers. You may subclass this and override onPush or
+	    simply use one of the provided constructors. */
+	class Callback {
+	private:
+
+		CallbackInterface*		m_internal;
+
+	public:
+
+		inline Callback() : m_internal(NULL) {}
+
+		/** Create a callback from a function, e.g., <code>Callback( &printWarning )</code> */
+		inline Callback(void (*function)()) : m_internal(new FunctionCallback(function)) {}
+
+		/** Create a callback from a class and method of no arguments, e.g., <code>App* app = ...; Callback( app, &App::endProgram );</code>.
+		    If the method is defined on a base class and not overriden in the derived class, you must cast the pointer:
+			<code>Callback(static_cast<Base*>(ptr), &Base::method);</code>*/
+		template<class Class>
+		inline Callback(
+			Class* const object,
+			void (Class::*method)()) : m_internal(new MethodCallback<Class>(object, method)) {}
+
+		/** Create a callback from a reference counted class and method of no arguments, 
+		    e.g., <code>PlayerRef player = ...; 
+			            Callback( player, &Player::jump )</code> */
+		template<class Class>
+		inline Callback(
+			const ReferenceCountedPointer<Class>& object,
+			void (Class::*method)()) : m_internal(new MethodRefCallback<Class>(object, method)) {}
+
+		/** Execute the callback.*/
+		virtual void onPush() {
+			if (m_internal) {
+				m_internal->onPush();
+			}
+		}
+
+		/** Assignment */
+		inline Callback& operator=(const Callback& c) {
+			delete m_internal;
+			if (c.m_internal != NULL) {
+				m_internal = c.m_internal->clone();
+			} else {
+				m_internal = NULL;
+			}
+			return this[0];
+		}
+
+		/** Copy constructor */
+		Callback(const Callback& c) : m_internal(NULL) {
+			this[0] = c;
+		}
+
+		inline virtual ~Callback() {
+			delete m_internal;
+		};
+	};
+
 protected:
 
     bool              m_enabled;

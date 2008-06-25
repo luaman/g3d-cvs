@@ -19,6 +19,7 @@
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> GWindow::create
+     <li> GuiButton now accepts an optional callback function/method
      <li> FileDialog now accepts an extra "note" argument
      <li> FileDialog::getFilename non-static to support subclassing
      <li> System::currentDateString

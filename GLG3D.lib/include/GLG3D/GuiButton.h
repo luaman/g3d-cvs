@@ -19,11 +19,14 @@ namespace G3D {
 class GuiWindow;
 class GuiPane;
 
-/** Push button that can be temporarily pressed.  When the button has been pressed and released,
-    a G3D::GuiEvent of type G3D::GEventType::GUI_ACTION is fired on the containing window.
+/** 
+  Push button that can be temporarily pressed.  When the button has been pressed and released,
+  a G3D::GuiEvent of type G3D::GEventType::GUI_ACTION is fired on the containing window. Alternatively,
+  you can assign a GuiButton::Callback to execute when the button is pressed, <i>before</i> the event 
+  is handled.
 
-    See also GuiRadioButton and GuiCheckBox for creating buttons that stay down
-    when pressed.
+  See also GuiRadioButton and GuiCheckBox for creating buttons that stay down
+  when pressed.
 */
 class GuiButton : public GuiControl {
     friend class GuiWindow;
@@ -32,12 +35,14 @@ class GuiButton : public GuiControl {
 protected:
 
     /** Is the mouse currently down over this control? */
-    bool m_down;
+    bool                    m_down;
 
-    GuiTheme::ButtonStyle m_style;
+	Callback				m_callback;
 
-    /** Called by GuiPanew */
-    GuiButton(GuiPane*, const GuiCaption& text, GuiTheme::ButtonStyle style);
+    GuiTheme::ButtonStyle   m_style;
+
+    /** Called by GuiPane */
+    GuiButton(GuiPane*, const Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style);
 
     /** Called by GuiWindow */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;

@@ -50,6 +50,7 @@ void testCollisionDetection();
 void perfCollisionDetection();
 
 void testWeakCache();
+void testCallback();
 
 void testGChunk();
 
@@ -696,7 +697,10 @@ int main(int argc, char* argv[]) {
     printf("  passed\n");
     testSwizzle();
 
+	testCallback();
+
     testBinaryIO();
+
 
 #   ifdef RUN_SLOW_TESTS
         testHugeBinaryIO();

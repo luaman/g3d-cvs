@@ -181,10 +181,6 @@
 				RelativePath="..\demos\starter\App.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\demos\starter\main.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

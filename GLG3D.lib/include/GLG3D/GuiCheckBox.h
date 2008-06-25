@@ -30,7 +30,7 @@ public:
 
 protected:
 
-    Pointer<bool>           m_value;
+    Pointer<bool>            m_value;
     GuiTheme::CheckBoxStyle  m_style;
     
     GuiCheckBox(GuiPane* parent, const GuiCaption& text, const Pointer<bool>& value, GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);

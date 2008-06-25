@@ -43,7 +43,7 @@ void App::onInit() {
 
 	/////////////////////////////////////////////////////////////
 	// Example of how to add debugging controls
-	debugPane->addButton("Exit", GuiControl::Callback(this, &App::endProgram), GuiTheme::NORMAL_BUTTON_STYLE);
+	debugPane->addButton("Exit", this, &App::endProgram);
 
 	debugPane->addLabel("Add more debug controls");
 	debugPane->addLabel("in App::onInit().");

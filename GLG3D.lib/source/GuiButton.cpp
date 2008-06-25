@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2007-06-02
- @edited  2008-01-30
+ @edited  2008-06-20
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiButton.h"
@@ -13,9 +13,9 @@
 
 namespace G3D {
 
-GuiButton::GuiButton(GuiPane* parent, const GuiCaption& text, GuiTheme::ButtonStyle style) : 
+GuiButton::GuiButton(GuiPane* parent, const GuiButton::Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style) : 
     GuiControl(parent, text), 
-    m_down(false), m_style(style) {}
+    m_down(false), m_callback(callback), m_style(style) {}
 
 
 void GuiButton::render(RenderDevice* rd, const GuiThemeRef& skin) const {
@@ -31,6 +31,9 @@ bool GuiButton::onEvent(const GEvent& event) {
     case GEventType::MOUSE_BUTTON_DOWN:
         m_down = true;
         {
+			// invoke the pre-event handler
+			m_callback.onPush();
+
             GEvent response;
             response.gui.type = GEventType::GUI_DOWN;
             response.gui.control = this;

@@ -46,7 +46,6 @@ void GuiPane::setCaption(const GuiCaption& caption) {
 }
 
 
-
 Vector2 GuiPane::contentsExtent() const {
     Vector2 p(0,0);
     for (int i = 0; i < controlArray.size(); ++i) {
@@ -182,7 +181,12 @@ void GuiPane::addCustom(GuiControl* c) {
 
 
 GuiButton* GuiPane::addButton(const GuiCaption& text, GuiTheme::ButtonStyle style) {
-    GuiButton* b = new GuiButton(this, text, style);
+	return addButton(text, GuiButton::Callback(), style);
+}
+
+
+GuiButton* GuiPane::addButton(const GuiCaption& text, const GuiControl::Callback& callback, GuiTheme::ButtonStyle style) {
+    GuiButton* b = new GuiButton(this, callback, text, style);
 
     addControl(b);
 

@@ -251,7 +251,23 @@ public:
      */
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
 
-    GuiButton* addButton(const GuiCaption& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
+	GuiButton* addButton(const GuiCaption& text, const GuiControl::Callback& callback, GuiTheme::ButtonStyle style);
+
+	template<class Class>
+	inline GuiButton* addButton(const GuiCaption& text, Class* const callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+		return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
+	}
+
+	template<class Class>
+	inline GuiButton* addButton(const GuiCaption& text, const ReferenceCountedPointer<Class>& callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+		return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
+	}
+
+	inline GuiButton* addButton(const GuiCaption& text, void (*callbackFunction)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+		return addButton(text, GuiControl::Callback(callbackFunction), style);
+	}
+
+	GuiButton* addButton(const GuiCaption& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
 
     GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, GFont::YAlign = GFont::YALIGN_CENTER);
 

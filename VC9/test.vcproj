@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tCallback.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tCollisionDetection.cpp"
 				>
 			</File>
