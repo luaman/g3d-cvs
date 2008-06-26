@@ -283,6 +283,10 @@ public:
             should either call updateNormals first, or write your own
             normals into the array in geometry before calling this.*/
         void updateVAR(VARArea::UsageHint hint = VARArea::WRITE_ONCE);
+
+		/** Called automatically by updateAll
+			Calls computeBounds on each triList in this Part's triListArray.*/
+		void computeBounds();
     };
 
     /** All parts. Root parts are identified by (parent == -1).

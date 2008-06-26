@@ -143,7 +143,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
                 // Lump everything into one part
                 Part::TriList& triList = part.triListArray.next();
                 triList.indexArray = object.indexArray;
-                triList.computeBounds(part);
+                //triList.computeBounds(part);
 
             } else {
                 for (int m = 0; m < object.faceMatArray.size(); ++m) {
@@ -208,7 +208,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
                             // triList.material.reflect.map = material.r
 
                             triList.twoSided = material.twoSided;
-                            triList.computeBounds(part);
+                            //triList.computeBounds(part);
 
                         } else {
                             Log::common()->printf("Referenced unknown material '%s'\n", materialName.c_str());
@@ -290,6 +290,12 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
     }
 }
 
+void ArticulatedModel::Part::computeBounds() {
+	for(int t = 0; t < triListArray.size(); ++t) {
+		triListArray[t].computeBounds(*this);
+	}
+}
+
 
 void ArticulatedModel::updateAll() {
     for (int p = 0; p < partArray.size(); ++p) {
@@ -297,6 +303,7 @@ void ArticulatedModel::updateAll() {
         part.computeIndexArray();
         part.computeNormalsAndTangentSpace();
         part.updateVAR();
+		part.computeBounds();
     }
 }
 
@@ -324,7 +331,7 @@ void ArticulatedModel::initIFS(const std::string& filename, const CoordinateFram
 
     Part::TriList& triList = part.triListArray.next();
     triList.indexArray = index;
-    triList.computeBounds(part);
+    //triList.computeBounds(part);
 }
 
 
