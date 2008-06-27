@@ -9,6 +9,7 @@
 
 class App : public GApp {
 public:
+	// Sample scene
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
