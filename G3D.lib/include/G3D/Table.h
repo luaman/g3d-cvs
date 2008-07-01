@@ -5,7 +5,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-04-22
-  @edited  2008-06-30
+  @edited  2008-07-01
   Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
  */
@@ -19,6 +19,8 @@
 #include "G3D/System.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector2int16.h"
+#include "G3D/Vector3int16.h"
+#include "G3D/Vector3int32.h"
 #include "G3D/Crypto.h"
 #include <cstddef>
 #include <string>
@@ -79,6 +81,18 @@ template <>
 struct GHashCode<G3D::Vector2int16>
 {
     size_t operator()(const G3D::Vector2int16& key) const { return static_cast<size_t>(key.x + ((int)key.y >> 16)); }
+};
+
+template <>
+struct GHashCode<G3D::Vector3int16>
+{
+    size_t operator()(const G3D::Vector3int16& key) const { return static_cast<size_t>(key.x + ((int)key.y >> 10) + ((int)key.z >> 21)); }
+};
+
+template <>
+struct GHashCode<G3D::Vector3int32>
+{
+    size_t operator()(const G3D::Vector3int32& key) const { return static_cast<size_t>(key.x + (key.y >> 10) + (key.z >> 21)); }
 };
 
 template<typename Key>
