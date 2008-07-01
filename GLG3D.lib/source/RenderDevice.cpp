@@ -25,8 +25,6 @@
 
 namespace G3D {
 
-const GWindow* GWindow::m_current = NULL;
-
 
 RenderDevice* RenderDevice::lastRenderDeviceCreated = NULL;
 

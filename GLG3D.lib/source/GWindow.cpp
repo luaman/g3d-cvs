@@ -30,6 +30,8 @@ GWindow* GWindow::create(const GWindow::Settings& s) {
 #   endif
 }
 
+const GWindow* GWindow::m_current = NULL;
+
 void GWindow::fireEvent(const GEvent& event) {
     m_eventQueue.pushBack(event);
 }
