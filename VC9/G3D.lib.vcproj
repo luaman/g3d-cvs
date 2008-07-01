@@ -452,6 +452,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Vector3int32.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Vector4.cpp"
 				>
 			</File>
@@ -815,6 +819,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Vector3int16.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Vector3int32.h"
 				>
 			</File>
 			<File

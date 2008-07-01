@@ -185,6 +185,7 @@ href="classes.html">Classes</a>.
     \link G3D::Vector2int16 Vector2int16\endlink,
     \link G3D::Vector3 Vector3\endlink,
     \link G3D::Vector3int16 Vector3int16\endlink,
+    \link G3D::Vector3int32 Vector3int32\endlink,
     \link G3D::Vector4 Vector4\endlink,
     \link G3D::Vector4int8 Vector4int8\endlink
      

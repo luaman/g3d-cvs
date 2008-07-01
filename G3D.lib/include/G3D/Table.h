@@ -3,10 +3,10 @@
 
   Templated hash table class.
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-04-22
-  @edited  2007-12-17
-  Copyright 2000-2007, Morgan McGuire.
+  @edited  2008-06-30
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
  */
 
@@ -92,7 +92,6 @@ struct GEquals{
 
 namespace G3D {
 
-
 /**
  An unordered data structure mapping keys to values.
 
@@ -101,10 +100,20 @@ namespace G3D {
 
   <PRE>
     template<> struct GHashCode<class Key> {
-        size_t operator()(Key key) const { return reinterpret_cast<size_t>( ... ); }
+        size_t operator()(const Key& key) const { return reinterpret_cast<size_t>( ... ); }
+    }; 
+  </PRE>
+
+  and one of 
+
+  <PRE>
+	template<>
+    struct GEquals<class Key>{
+         bool operator()(const Key& a, const Key& b) const { return ... ; }
     };
 
-   bool operator==(const Key&, const Key&);
+
+    bool operator==(const Key&, const Key&);
   </PRE>
 
  G3D pre-defines GHashCode functions for common types (like <CODE>int</CODE> and <CODE>std::string</CODE>).
@@ -113,7 +122,7 @@ namespace G3D {
 
   <PRE>
     template<> struct GHashCode<MyEnum> {
-        size_t operator()(MyEnum key) const { return reinterpret_cast<size_t>( key ); }
+        size_t operator()(const MyEnum& key) const { return reinterpret_cast<size_t>( key ); }
     };
   </PRE>
 
