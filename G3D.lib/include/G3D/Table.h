@@ -591,10 +591,10 @@ public:
    }
 
    /**
-    Removes an element from the table if it is present.  It is an error
-    to remove an element that isn't present.
+    Removes an element from the table if it is present.  
+    @return true if the element was found and removed, otherwise  false
     */
-   void remove(const Key& key) {
+   bool remove(const Key& key) {
       
       size_t code = m_HashFunc(key);
       size_t b = code % numBuckets;
@@ -622,20 +622,21 @@ public:
               // Delete the node
               delete n;
               --_size;
-              return;
+              return true;
           }
 
           previous = n;
           n = n->next;
-       } while (n != NULL);
+      } while (n != NULL);
 
 
-      alwaysAssertM(false, "Tried to remove a key that was not in the table.");
+      return false;
+      //alwaysAssertM(false, "Tried to remove a key that was not in the table.");
    }
 
    /**
     Returns the value associated with key.
-    @deprecated Use get(key, val) or 
+    @deprecated Use get(key, val) or getPointer(key) 
     */
    Value& get(const Key& key) const {
 
@@ -657,11 +658,18 @@ public:
         return node->entry.value;
    }
 
-   /**
-    If the key is present in the table, val is set to the associated value and returns true.
-    If the key is not present, returns false.
-    */
-   bool get(const Key& key, Value& val) const {
+
+   /** Returns a pointer to the element if it exists, or NULL if it does not.
+       Note that if your value type <i>is</i> a pointer, the return value is 
+       a pointer to a pointer.  Do not remove the element while holding this 
+       pointer.
+
+       It is easy to accidentally mis-use this method.  Consider making 
+       a Table<Value*> and using get(key, val) instead, which makes you manage
+       the memory for the values yourself and is less likely to result in 
+       pointer errors.
+     */
+   Value* getPointer(const Key& key) const {
 	  size_t code = m_HashFunc(key);
       size_t b = code % numBuckets;
 
@@ -670,14 +678,27 @@ public:
       while (node != NULL) {
           if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
              // found key
-             val = node->entry.value;
-             return true;
+             return &(node->entry.value);
           }
           node = node->next;
       }
 
       // Failed to find key
-      return false;
+      return NULL;
+   }
+
+   /**
+    If the key is present in the table, val is set to the associated value and returns true.
+    If the key is not present, returns false.
+    */
+   bool get(const Key& key, Value& val) const {
+       Value* v = getPointer(key);
+       if (v != NULL) {
+           val = *v;
+           return true;
+       } else {
+           return false;
+       }
    }
 
    /**

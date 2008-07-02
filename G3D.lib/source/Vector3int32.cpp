@@ -10,6 +10,7 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3int32.h"
+#include "G3D/Vector3int16.h"
 #include "G3D/Vector3.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
@@ -21,6 +22,13 @@ Vector3int32::Vector3int32(const class Vector3& v) {
     x = (int32)iFloor(v.x + 0.5);
     y = (int32)iFloor(v.y + 0.5);
     z = (int32)iFloor(v.z + 0.5);
+}
+
+
+Vector3int32::Vector3int32(const class Vector3int16& v) {
+    x = v.x;
+    y = v.y;
+    z = v.z;
 }
 
 

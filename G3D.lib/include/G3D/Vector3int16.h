@@ -101,6 +101,14 @@ public:
         return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
     }
 
+    Vector3int16 max(const Vector3int16& v) const {
+        return Vector3int16(iMax(x, v.x), iMax(y, v.y), iMax(z, v.z));
+    }
+
+    Vector3int16 min(const Vector3int16& v) const {
+        return Vector3int16(iMin(x, v.x), iMin(y, v.y), iMin(z, v.z));
+    }
+
     std::string toString() const;
 }
 #if defined(G3D_LINUX) || defined(G3D_OSX)

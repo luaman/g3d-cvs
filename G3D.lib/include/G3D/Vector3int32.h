@@ -40,6 +40,7 @@ public:
 
     Vector3int32() : x(0), y(0), z(0) {}
     Vector3int32(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
+    Vector3int32(const class Vector3int16& v);
     Vector3int32(const class Vector3& v);
     Vector3int32(class BinaryInput& bi);
 
@@ -99,6 +100,14 @@ public:
 
     inline bool operator!= (const Vector3int32& rkVector) const {
         return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
+    }
+
+    Vector3int32 max(const Vector3int32& v) const {
+        return Vector3int32(iMax(x, v.x), iMax(y, v.y), iMax(z, v.z));
+    }
+
+    Vector3int32 min(const Vector3int32& v) const {
+        return Vector3int32(iMin(x, v.x), iMin(y, v.y), iMin(z, v.z));
     }
 
     std::string toString() const;
