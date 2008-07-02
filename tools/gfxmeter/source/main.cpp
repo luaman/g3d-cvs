@@ -12,7 +12,6 @@
 #   include <direct.h>
 #endif
 
-
 //#define FAST
  
 static const float gfxMeterVersion = 1.0f;
@@ -473,6 +472,8 @@ void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array<
                 p.x = box.x0() + 10;
                 p.y = box.y0() + 30;
 
+                Vector2 spacing(box.width() / 6.5, 0);
+
                 std::string str;
 
                 float factor = 3 * vertexPerformance.numTris / 1e6;
@@ -481,22 +482,24 @@ void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array<
                     reportFont->draw2D(rd, cap, p, s, Color3::black());\
                     reportFont->draw2D(rd, (vertexPerformance.val[0] > 0) ? \
                         format("%5.1f", vertexPerformance.val[0]) : \
-                        std::string("X"), p + Vector2(190, 0), s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
+                        std::string("X"), p + spacing * 3, s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
                     reportFont->draw2D(rd, (vertexPerformance.val[0] > 0) ? \
                         format("%5.1f", factor * vertexPerformance.val[0]) : \
-                        std::string("X"), p + Vector2(240, 0), s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
+                        std::string("X"), p + spacing * 4, s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
                     reportFont->draw2D(rd, (vertexPerformance.val[1] > 0) ? \
                         format("%5.1f", vertexPerformance.val[1]) : \
-                        std::string("X"), p + Vector2(330, 0), s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
+                        std::string("X"), p + spacing * 5, s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
                     p.y += reportFont->draw2D(rd, (vertexPerformance.val[1] > 0) ? \
                         format("%5.1f", factor * vertexPerformance.val[1]) : \
-                        std::string("X"), p + Vector2(380, 0), s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT).y;
+                        std::string("X"), p + spacing * 6, s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT).y;
 
-                reportFont->draw2D(rd, "Incoherent", p + Vector2(220, 0), s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT);
-                p.y += reportFont->draw2D(rd, "Coherent", p + Vector2(350, 0), s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT).y;
+                reportFont->draw2D(rd, "Incoherent", p + spacing * 3.5, s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT);
+                p.y += reportFont->draw2D(rd, "Coherent", p + spacing * 5.5, s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT).y;
 
-                reportFont->draw2D(rd, "FPS*   MVerts/s", p + Vector2(240, 0), s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT);
-                p.y += reportFont->draw2D(rd, "FPS*   MVerts/s", p + Vector2(370, 0), s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT).y;
+                reportFont->draw2D(rd, "FPS*", p + spacing * 3, s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT);
+                reportFont->draw2D(rd, "MVerts/s", p + spacing * 4, s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT);
+                reportFont->draw2D(rd, "FPS*", p + spacing * 5, s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT).y;
+                p.y += reportFont->draw2D(rd, "MVerts/s", p + spacing * 6, s, Color3::black(), Color4::clear(), GFont::XALIGN_RIGHT).y;
                 
                 PRINT("glBegin/glEnd", beginEndFPS);
                 PRINT("glDrawElements", drawElementsRAMFPS); 
@@ -508,10 +511,10 @@ void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array<
                 reportFont->draw2D(rd, "glDrawArrays", p, s, Color3::black());
                 reportFont->draw2D(rd, (vertexPerformance.drawArraysVBOPeakFPS > 0) ? \
                     format("%5.1f", vertexPerformance.drawArraysVBOPeakFPS) : \
-                    std::string("X"), p + Vector2(330, 0), s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
+                    std::string("X"), p + spacing * 5, s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT);\
                 p.y += reportFont->draw2D(rd, (vertexPerformance.drawArraysVBOPeakFPS > 0) ? \
                     format("%5.1f", factor * vertexPerformance.drawArraysVBOPeakFPS) : \
-                    std::string("X"), p + Vector2(380, 0), s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT).y;
+                    std::string("X"), p + spacing * 6, s, Color3::red() * 0.5, Color4::clear(), GFont::XALIGN_RIGHT).y;
 
 #               undef PRINT
 
