@@ -4,9 +4,9 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2004-01-11
-  @edited  2007-02-12
+  @edited  2008-07-02
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
   
   */
@@ -29,14 +29,32 @@
 #include "G3D/GCamera.h"
 #include <algorithm>
 
+template<typename Value>
+struct GPosition{};
+
+template<> struct GPosition<class G3D::Vector3> {
+	void getPosition(const G3D::Vector3& v, G3D::Vector3& p) { p = v; }
+};
+
+template<> struct GPosition<class G3D::Vector2> {
+	void getPosition(const G3D::Vector2& v, G3D::Vector3& p) { p = G3D::Vector3(v, 0); }
+};
+
+template<> struct GPosition<class G3D::Vector4> {
+	void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
+};
+
+/** @deprecated */
 inline void getPosition(const G3D::Vector3& v, G3D::Vector3& p) {
     p = v;
 }
 
+/** @deprecated */
 inline void getPosition(const G3D::Vector4& v,  G3D::Vector3& p) {
     p = v.xyz();
 }
 
+/** @deprecated */
 inline void getPosition(const G3D::Vector2& v, G3D::Vector3& p) {
     p.x = v.x;
     p.y = v.y;
