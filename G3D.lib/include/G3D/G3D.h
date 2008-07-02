@@ -86,6 +86,7 @@ template<class T> struct GHashCode< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/Color4uint8.h"
 #include "G3D/Vector2int16.h"
 #include "G3D/Vector3int16.h"
+#include "G3D/Vector3int32.h"
 #include "G3D/Vector4int8.h"
 #include "G3D/ConvexPolyhedron.h"
 #include "G3D/Discovery.h"
