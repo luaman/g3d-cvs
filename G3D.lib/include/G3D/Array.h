@@ -273,13 +273,14 @@ public:
     remove all elements without deallocating the underlying array
     so that future append() calls will be faster.
     */
-   void clear() {
-       resize(0);
+   void clear(bool shrink = true) {
+       resize(0, shrink);
    }
 
-   /** resize(0, false) */
+   /** resize(0, false) 
+      @deprecated*/
    void fastClear() {
-       resize(0, false);
+       clear(false);
    }
 
    /**
@@ -320,23 +321,15 @@ public:
     Swaps element index with the last element in the array then
     shrinks the array by one.
     */
-   void fastRemove(int index) {
+   void fastRemove(int index, bool shrinkIfNecessary = false) {
        debugAssert(index >= 0);
        debugAssert(index < num);
        data[index] = data[num - 1];
-       resize(size() - 1);
+       resize(size() - 1, shrinkIfNecessary);
    }
 
-   /**
-    Resizes, calling the default constructor for 
-    newly created objects and shrinking the underlying
-    array as needed (and calling destructors as needed).
-    */
-   void resize(int n) {
-      resize(n, true);
-   }
-
-   /** Resizes without shrinking the underlying array */
+   /** Resizes without shrinking the underlying array. Same as resize(n, false).
+       @deprecated*/
    void fastResize(int n) {
       resize(n, false);
    }
@@ -358,7 +351,7 @@ public:
     /** @param shrinkIfNecessary if false, memory will never be
       reallocated when the array shrinks.  This makes resizing much
       faster but can waste memory. */
-   void resize(int n, bool shrinkIfNecessary) {
+   void resize(int n, bool shrinkIfNecessary = true) {
       int oldNum = num;
       num = n;
 

@@ -3,27 +3,31 @@
 This page gives a quick overview of %G3D for new users. For
 information on how to install %G3D on your system and compile your own
 projects that use %G3D, see the Installing %G3D page for your
-operating system linked from the <a href="index.html">title page</a>.
+operating system linked from the <a class="el" href="index.html">title page</a>.
 
 To get started quickly, refer to the <a
-href="../demos/starter/">demos/starter</a> starter project for a small
+class="el" href="../demos/starter/">demos/starter</a> starter project for a small
 example program of how most people use G3D.
 
 Contents:
 <ol>
-<li> Frameworks:
+<li> <a class="el" href="#framework">Frameworks:</a>
 <ol>
- <li>GApp Framework
- <li>OpenGL Framework
- <li>External Framework
- <li>%G3D as a Utility Library
+ <li> GApp Framework
+ <li> OpenGL Framework
+ <li> External Framework
+ <li> %G3D as a Utility Library
 </ol>
-<li> Building 3D Scenes
-<li> Coordinate Systems
-<li> Memory Management
-<li> Naming conventions
-<li> %G3D vs. STL
-<li> Image Processing
+<li> <a class="el" href="#conventions">Conventions:</a>
+<ol>
+  <li> Coordinate Systems
+  <li> Memory Management
+  <li> Traits
+  <li> Naming Conventions
+</ol>
+<li> <a class="el" href="#scenes">Building 3D Scenes</a>
+<li> <a class="el" href="#stl">%G3D vs. STL</a>
+<li> <a class="el" href="#image">Image Processing</a>
 </ol>
 
 \htmlonly <hr noshade> \endhtmlonly
@@ -132,32 +136,11 @@ linking against OpenGL or setting up an event handling routine.
 
 \htmlonly <hr noshade> \endhtmlonly
 
-@section scenes Building 3D Scenes
-
-There are two ways of creating 3D images: <b>Retained Mode</b> (also
-known as Scene Graph) graphics, where you create persistent objects
-that render themselves, and <b>Immediate Mode</b> graphics, where you
-explicitly issue commands to draw each frame.  %G3D uses both.
-
-Scene graphs are application specific, so %G3D does not impose one.
-Instead, the GApp::onPose method is a hook for you to flatten
-your own scene graph into an array.  The G3D model loading classes,
-G3D::MD2Model, G3D::IFSModel, and G3D::ArticulatedModel (for 3DS
-files) all provide pose methods to aid in this process.  The flattened
-scene graph is an array of G3D::PosedModel references that can then be
-rendered.  To support user interfaces, a separate G3D::Posed2DModel
-reference array is also maintained.
-
-The default GApp::onGraphics method renders all posed models.  You can
-override this to provide improved rendering (e.g., with shadows), or
-to add your own immediate mode graphics.  Classes like G3D::Sky,
-G3D::BSPMap, G3D::GFont, and G3D::Draw provide high-level helper
-routines.  You can also send individual meshes or triangles to the
-graphics card using the G3D::RenderDevice methods.
 
 \htmlonly <hr noshade> \endhtmlonly
+@section conventions Conventions
 
-  @section coordinates Coordinate Systems
+  @subsection coordinates Coordinate Systems
 
   RenderDevice uses separate matrices for the object-to-world, world-to-camera, and perspective
   transformations (the concatenation of the first two is the equivalent of the OpenGL ModelView
@@ -171,9 +154,8 @@ graphics card using the G3D::RenderDevice methods.
   and viewport) has the origin in the upper-left, with Y extending downward and X extending
   to the right.
 
-\htmlonly <hr noshade> \endhtmlonly
 
-  @section ref Memory Management
+  @subsection ref Memory Management
   
   You can allocate memory for your own objects as you would in any C++ program, using malloc, calloc, alloca, new, and heap allocation.
   In addition, %G3D provides System::malloc, System::alignedMalloc, and a reference counting garabage collector that you may choose
@@ -202,11 +184,65 @@ use.
        class MyClass : public G3D::ReferenceCountedObject { ... };
     </PRE>
 
-\htmlonly <hr noshade> \endhtmlonly
+  
+@subsection traits Traits
 
-  @section nm Naming Conventions
+%G3D uses a C++ convention called "traits" for separating the properties of some objects from the methods on their classes.
+This is useful for cases when you need an adaptor to tell one (usually templated) class how to work with another one that 
+wasn't designed in anticipation of that cooperation.  For example, say that you have a class called Model that you'd like
+to use with G3D::Table.  G3D::Table is a hash table, so it requires a function that computes the hash code of any particular 
+Model, yet Model wasn't originally written with a hashCode() method.
 
-  All G3D routines are in the "G3D" namespace and can be referenced as %G3D::xxx.  
+The solution is a series of overloaded templates.  There are currently four different kinds of these, and they are 
+outside of the G3D namespace (since you'll be writing them yourself).  An example is more explanatory than the specification,
+so here are examples of the four.  You only need to define the ones required by the classes you are using, like G3D::BSPTree 
+and G3D::Table.  %G3D provides implementations for many built-in classes, like G3D::Vector3 and G3D::AABox.
+
+For G3D::AABSPTree:
+ <pre>
+
+  template<> struct GetBounds<class MyClass> {
+  void getBounds(const MyClass& obj, G3D::AABox& out) { 
+     // compute out from obj
+  }};
+
+ </pre>
+For G3D::Set and G3D::Table:
+</pre>
+
+  template <> struct GHashCode<class MyClass> {
+  size_t operator()(const MyClass& key) const { 
+	  return static_cast<size_t>( ... ); // some  value computed from key
+  }};
+
+</pre>
+  
+For G3D::PointAABSPTree:
+  <pre>
+  
+  template<> struct GetPosition<class MyClass> {
+  void getPosition(const MyClass& obj, G3D::Vector3& p) { 
+      // compute p from obj
+  }};
+</pre>
+
+For G3D::Table and G3D::Set.  The default version calls operator== on a and rarely
+needs to be overriden.
+
+<pre>
+
+  template<class MyClass>
+  struct GEquals{
+  bool operator()(const MyClass& a, const MyClass& b) const {
+       return ...;  // true if a and b are "equal"
+  }};
+
+ </pre>
+
+
+  @subsection nm Naming Conventions
+
+  All %G3D routines are in the "G3D" namespace and can be referenced as %G3D::xxx.  
   Unlike other libraries, there is (generally) no prefix on the routines, since 
   that is the job of a namespace.  The G3DAll.h header includes
   <code>using namespace G3D;</code> so that you don't have to type
@@ -219,6 +255,31 @@ use.
   on the front.
 
   All classes ending in "Ref" are reference counted pointers in %G3D/
+
+\htmlonly <hr noshade> \endhtmlonly
+
+@section scenes Building 3D Scenes
+
+There are two ways of creating 3D images: <b>Retained Mode</b> (also
+known as Scene Graph) graphics, where you create persistent objects
+that render themselves, and <b>Immediate Mode</b> graphics, where you
+explicitly issue commands to draw each frame.  %G3D uses both.
+
+Scene graphs are application specific, so %G3D does not impose one.
+Instead, the GApp::onPose method is a hook for you to flatten
+your own scene graph into an array.  The G3D model loading classes,
+G3D::MD2Model, G3D::IFSModel, and G3D::ArticulatedModel (for 3DS
+files) all provide pose methods to aid in this process.  The flattened
+scene graph is an array of G3D::PosedModel references that can then be
+rendered.  To support user interfaces, a separate G3D::Posed2DModel
+reference array is also maintained.
+
+The default GApp::onGraphics method renders all posed models.  You can
+override this to provide improved rendering (e.g., with shadows), or
+to add your own immediate mode graphics.  Classes like G3D::Sky,
+G3D::BSPMap, G3D::GFont, and G3D::Draw provide high-level helper
+routines.  You can also send individual meshes or triangles to the
+graphics card using the G3D::RenderDevice methods.
 
 \htmlonly <hr noshade> \endhtmlonly
 
@@ -245,12 +306,16 @@ use.
 
 %G3D can be used to build image and video processing applications.  It
 provides easy to use CPU-side classes like G3D::Image3 and the
-hardware-accelerated class G3D::Texture.  G3D::RenderDevice::push2D
+hardware-accelerated class G3D::Texture.  
+
+G3D::RenderDevice::push2D
 puts the GPU in image mode and G3D::Texture::Settings::video selects
-appropriate image processing defaults.  See the API index for image
-file format support, Bayer conversion, gaussian filtering, tone
-mapping, and other routines.  Use Draw::fastRect2D and G3D::Shader to
+appropriate image processing defaults.  Use Draw::fastRect2D and G3D::Shader to
 apply pixel shaders to full-screen images for fully programmable GPU
 image processing.
+
+See the API index for image
+file format support, Bayer conversion, gaussian filtering, tone
+mapping, and other routines.  
 
 */

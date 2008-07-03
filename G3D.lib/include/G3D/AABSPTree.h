@@ -4,9 +4,9 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2004-01-11
-  @edited  2007-02-16
+  @edited  2008-07-03
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
   
   */
@@ -17,7 +17,9 @@
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/Table.h"
+#include "G3D/Vector2.h"
 #include "G3D/Vector3.h"
+#include "G3D/Vector4.h"
 #include "G3D/AABox.h"
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
@@ -33,6 +35,72 @@
 // If defined, in debug mode the tree is checked for consistency
 // as a way of detecting corruption due to implementation bugs
 // #define VERIFY_TREE
+
+template<typename Value>
+struct GetBounds{};
+
+template<> struct GetBounds<class G3D::Vector2> {
+    void getBounds(const G3D::Vector2& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(v, 0)); }
+};
+
+template<> struct GetBounds<class G3D::Vector3> {
+    void getBounds(const G3D::Vector3& v, G3D::AABox& out) { out = G3D::AABox(v); }
+};
+
+template<> struct GetBounds<class G3D::Vector4> {
+    void getBounds(const G3D::Vector4& v, G3D::AABox& out) { out = G3D::AABox(v.xyz()); }
+};
+
+template<> struct GetBounds<class G3D::AABox> {
+    void getBounds(const G3D::AABox& v, G3D::AABox& out) { out = v; }
+};
+
+template<> struct GetBounds<class G3D::Sphere> {
+    void getBounds(const G3D::Sphere& s, G3D::AABox& out) { s.getBounds(out); }
+};
+
+
+template<> struct GetBounds<class G3D::Box> {
+    void getBounds(const G3D::Box& b, G3D::AABox& out) { b.getBounds(out); }
+};
+
+
+template<> struct GetBounds<class G3D::Triangle> {
+    void getBounds(const G3D::Triangle& t, G3D::AABox& out) { t.getBounds(out); }
+};
+
+
+template<> struct GetBounds<class G3D::Vector2*> {
+    void getBounds(const G3D::Vector2*& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(*v, 0)); }
+};
+
+template<> struct GetBounds<class G3D::Vector3*> {
+    void getBounds(const G3D::Vector3*& v, G3D::AABox& out) { out = G3D::AABox(*v); }
+};
+
+template<> struct GetBounds<class G3D::Vector4*> {
+    void getBounds(const G3D::Vector4*& v, G3D::AABox& out) { out = G3D::AABox(v->xyz()); }
+};
+
+template<> struct GetBounds<class G3D::AABox*> {
+    void getBounds(const G3D::AABox*& v, G3D::AABox& out) { out = *v; }
+};
+
+template<> struct GetBounds<class G3D::Sphere*> {
+    void getBounds(const G3D::Sphere*& s, G3D::AABox& out) { s->getBounds(out); }
+};
+
+
+template<> struct GetBounds<class G3D::Box*> {
+    void getBounds(const G3D::Box*& b, G3D::AABox& out) { b->getBounds(out); }
+};
+
+
+template<> struct GetBounds<class G3D::Triangle*> {
+    void getBounds(const G3D::Triangle*& t, G3D::AABox& out) { t->getBounds(out); }
+};
+
+///////////////////////////////////////////////////////////////
 
 inline void getBounds(const G3D::Vector3& v, G3D::AABox& out) {
     out = G3D::AABox(v);

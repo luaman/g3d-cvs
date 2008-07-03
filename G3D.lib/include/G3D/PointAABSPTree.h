@@ -30,19 +30,21 @@
 #include <algorithm>
 
 template<typename Value>
-struct GPosition{};
+struct GetPosition{};
 
-template<> struct GPosition<class G3D::Vector3> {
+template<> struct GetPosition<class G3D::Vector3> {
 	void getPosition(const G3D::Vector3& v, G3D::Vector3& p) { p = v; }
 };
 
-template<> struct GPosition<class G3D::Vector2> {
+template<> struct GetPosition<class G3D::Vector2> {
 	void getPosition(const G3D::Vector2& v, G3D::Vector3& p) { p = G3D::Vector3(v, 0); }
 };
 
-template<> struct GPosition<class G3D::Vector4> {
+template<> struct GetPosition<class G3D::Vector4> {
 	void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
 };
+
+///////////////////////////////////////////////////////
 
 /** @deprecated */
 inline void getPosition(const G3D::Vector3& v, G3D::Vector3& p) {

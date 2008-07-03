@@ -31,7 +31,6 @@
 #   pragma warning (disable : 4786)
 #endif
 
-
 template<typename Key>
 struct GHashCode{};
 
