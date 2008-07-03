@@ -60,10 +60,11 @@ public:
     void terminate();
 
     /**
-        Returns true if threadMain is currently executing. */
+        Returns true if threadMain is currently executing.  This will only be set when the thread is actually running
+        and might not be set when start() returns. */
     bool running();
 
-    /** Returns completed status of thread. */
+    /** Returns true if the thread has exited. */
     bool completed();
 
     /** 
@@ -93,7 +94,7 @@ private:
     static void* internalThreadProc(void* param);
 #endif //G3D_WIN32
 
-    STATE               m_status;
+    volatile STATE      m_status;
 
     // Thread handle to hold HANDLE and pthread_t
 #ifdef G3D_WIN32
