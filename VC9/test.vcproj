@@ -283,6 +283,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tTextInput2.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tTextOutput.cpp"
 				>
 			</File>
