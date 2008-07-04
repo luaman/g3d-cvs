@@ -1,4 +1,4 @@
-package com.graphics3d.G3D;
+package G3D;
 
 public interface TextSerializable {
     public void serialize(TextOutput out);

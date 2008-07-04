@@ -1,4 +1,4 @@
-package com.graphics3d.G3D;
+package G3D;
 
 import java.lang.IndexOutOfBoundsException;
 import java.lang.Long;
