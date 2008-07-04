@@ -85,6 +85,7 @@ void testHugeBinaryIO();
 void perfBinaryIO();
 
 void testTextInput();
+void testTextInput2();
 
 void testTable();
 void testAdjacency();
@@ -686,6 +687,7 @@ int main(int argc, char* argv[]) {
     testRandom();
 
     testTextInput();
+    testTextInput2();
     printf("  passed\n");
 
     testBox();
