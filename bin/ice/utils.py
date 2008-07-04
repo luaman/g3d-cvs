@@ -768,6 +768,10 @@ def getCompilerNickname(compilerFilename):
        verString = shell('"' + compilerFilename.replace('/', '\\') + '"', False)
 
        if verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
+                               'Compiler Version 15.'):
+           return 'vc9.0'
+ 
+       elif verString.startswith('Microsoft (R) 32-bit C/C++ Optimizing ' +
                                'Compiler Version 14.'):
            return 'vc8.0'
  
@@ -795,21 +799,11 @@ def getCompilerNickname(compilerFilename):
            v = v + 0
        version = string.join(map(str, v), '.')
 
-       name = base
        if base.startswith('g++') or base.startswith('gcc'):
+           base = base[0:3]
+       name = base
 
-           # If base is longer than g++ then assume base is of the form
-           # g++-3.3 and therefore already contains a version number --
-           # unless it is g++-latest.
-           if len(base) > 3:
-               if base.startswith('g++-latest') or base.startswith('gcc-latest'):
-                   base = 'g++'
-               else:
-                   return base
-           else:
-               base = 'g++'
-
-       return name + '-' + version
+       return name + version
          
 #############################################################
 

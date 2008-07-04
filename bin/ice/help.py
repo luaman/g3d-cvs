@@ -135,7 +135,6 @@ def maybeWarn(warning, state):
 	colorPrint(warning, WARNING_COLOR)
         return
 
-
     allWarnings = state.cache.warnings
     if (not warning in allWarnings or
         ((allWarnings[warning] + WARNING_PERIOD) < time.time())):

@@ -1,0 +1,480 @@
+#!/usr/bin/env python
+# -*- python -*-
+#
+# Build system for G3D.  Run 'buildg3d help' for options.
+#
+
+import os, platform, commands, sys, time, getopt, errno
+
+# To get access to icompile routines
+sys.path.append('bin')
+import ice.copyifnewer, ice.utils
+
+doxygen = 'doxygen'
+config = []
+distribDir = None
+
+# G3D version.  Update this when the library version changes.
+class Version:
+    major = '7'
+    minor = '01'
+    beta  = '01'
+    
+    def toString(self):
+        if (self.beta != ''):
+            return self.major + '.' + self.minor + '-b' + self.beta
+        else:
+            return self.major + '.' + self.minor
+
+g3dVersion = Version()
+windows = None
+freebsd = None
+linux   = None
+osx     = None
+unix    = None
+platformName = None
+
+# e.g., win, osx
+osShortName  = None
+
+# Where lib, include, and bin go
+libInstallDir = None
+
+# Where all other files go
+docInstallDir = None
+
+# Location of binary (subdir of build)
+# Set by ??? TODO
+buildDir = None
+
+# .icompile config file
+configFile = None
+
+def initOS():
+    global windows, freebsd, linux, osx, unix, osShortName
+    global libInstallDir, docInstallDir, configFile, platformName
+
+    s = platform.system()
+    windows = (s == 'Windows') or (s == 'Microsoft')
+    freebsd = (s == 'FreeBSD')
+    linux   = (s == 'Linux')
+    osx     = (s == 'Darwin')
+    unix    = freebsd or linux or osx
+
+    osTable = \
+            {'Microsoft': 'win', # Vista
+             'Windows'  : 'win', # XP/NT
+             'Linux'    : 'linux',
+             'Darwin'   : 'osx',
+             'FreeBSD'  : 'freebsd'}
+    
+    osShortName = osTable[platform.system()]
+
+    if unix:
+        # Extract and remove config file from argument list
+        try:
+            i = sys.argv.index('--config')
+
+            icompileConfig = sys.argv[i:i + 1]
+            del sys.argv[i]
+            del sys.argv[i + 1]
+        except ValueError:
+            # TODO: if ~/.icompile-buildg3d exists, use it
+            icompileConfig = []
+            pass
+
+    if windows:
+        libInstallDir = 'c:/libraries/G3D-' + g3dVersion.toString()
+        docInstallDir = libInstallDir
+        platformName = 'win-i386-vc9.0'
+        
+    else:
+        libInstallDir = '/usr/local'
+        docInstallDir = '/usr/local/G3D-' + g3dVersion.toString()
+
+        os.chdir('G3D.lib')
+        info = ice.utils.shell('../bin/icompile ' + ' '.join(icompileConfig + ['--info']), False)
+        try:
+            i = info.index('\nplatform')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            platformName = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            raise Exception('icompile --info returned unparsable data')
+
+        os.chdir('..')
+
+initOS()
+
+compilerTable = \
+    {'vc6.0'    : 'Visual Studio 6',
+     'vc7.0'    : 'Visual Studio 7',
+     'vc7.1'    : 'Visual Studio 7 .NET 2003',
+     'vc8.0'    : 'Visual Studio 8 2005',
+     'vc9.0'    : 'Visual Studio 9 2009',
+     'gcc'      : 'gcc',
+     'xcode'    : 'XCode'}
+
+
+def copyIfNewer(source, dest):
+    if windows:
+        # Use the binary
+        print 'copyifnewer', source, dest
+        return os.spawnv(os.P_WAIT, 'bin\\copyifnewer.exe', 
+                   ['bin\\copyifnewer.exe', '--super-exclusions', source, dest])
+    else:
+        # Use python commands
+        ice.copyifnewer.copyIfNewer(source, dest)
+        return 0
+
+
+""" Runs iCompile in both debug and release mode (if debug succeeds) and returns
+    the error code from the last run. 
+"""
+def runicompile(dir):
+     os.chdir(dir)
+     x = run('../bin/icompile', config + ['--noprompt'])
+
+     if (x == 0): 
+         x =run('../bin/icompile', config + ['-O', '--noprompt'])
+
+     os.chdir('..')
+
+     return x
+
+##################################################################################
+ 
+def libTarget():
+     x = 0
+
+     if windows:
+         x = VC9('VC9/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'G3D.lib', 'GLG3D.lib']);
+     else:
+    
+         if osx:
+             # Build jpeg
+             if x == 0: x = runicompile('jpeg.lib')
+
+         if osx and not os.path.exists('/usr/X11/include/png.h'):
+             # Build png
+             if x == 0: x = runicompile('png.lib')
+
+         if (x == 0):
+             x = runicompile('zip.lib')
+
+         if (x == 0):
+             x = runicompile('G3D.lib')
+
+         if (x == 0):
+             x = runicompile('GLG3D.lib')
+
+     return x
+
+##################################################################################
+def toolsTarget(args):
+     x = 0
+     
+     if windows:
+         x = VC9('VC9/G3D.sln', ['gfxmeter', 'viewer']);
+
+     else:
+         if (x == 0):
+             os.chdir("tools/gfxmeter")
+             x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
+             os.chdir("../..")
+
+         if (x == 0):
+             os.chdir("tools/viewer")
+             x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
+             os.chdir("../..")
+
+     if (x == 0):
+         dest = pathConcat(buildDir, 'bin')
+         copyIfNewer('bin', dest)
+         os.remove(pathConcat(dest, 'PKZIP25.EXE'))
+
+     return x
+
+##################################################################################
+
+def cleanTarget(args):
+    rmdir('build')
+    rmdir('temp')
+
+    if windows:
+       # iCompile does not support VC9 yet, so explicitly run the project files
+       # TODO
+       return 0
+
+    os.chdir("test")
+    run("../bin/icompile", config + ['--clean'])
+    os.chdir("..")
+
+    os.chdir("tools/gfxmeter")
+    run("../../bin/icompile", config + ['--clean'])
+    os.chdir("../..")
+
+    os.chdir("tools/viewer")
+    run("../../bin/icompile", config + ['--clean'])
+    os.chdir("../..")
+
+##################################################################################
+    
+def testTarget(args):    
+    if windows:
+       # iCompile does not support VC9 yet, so explicitly run the project files
+       # TODO
+       return 0
+    else:
+
+        os.chdir("test")
+        x = run('../bin/icompile', config + ['--noprompt', '--run']) 
+        if (x == 0):
+            x = run('../bin/icompile', config + ['--noprompt', '-O', '--run'])
+        os.chdir('..')
+
+        return x
+
+##################################################################################
+    
+def docTarget(args):
+    # TODO: build java docs
+    
+    version = 'version ' + g3dVersion.major + '.' + g3dVersion.minor
+    if (g3dVersion.beta != ''):
+        version += ' beta ' + v.beta
+
+    version += ' ' + string.join([str(s) for s in time.localtime()[0:2]], '-')
+
+    env = {'HEADER_FILE':    'doc-files/data-files/header.html',
+           'FOOTER_FILE':    'doc-files/data-files/footer.html',
+           'PROJECT_NUMBER': version}
+    run(doxygen, ['Doxyfile'], env)
+    copyIfNewer('doc-files/data-files', 'build/html')
+
+    copyIfNewer('data-files', 'build/data')
+    copyIfNewer('demos', 'build/demos')
+
+    return 0
+
+##################################################################################
+
+def allTarget():
+    x = clean()
+    if x == 0: x = libTarget(args)
+    if x == 0: x = jarTarget(args)
+    if x == 0: x = testTarget(args)
+    if x == 0: x = toolsTarget(args)
+    if x == 0: x = docTarget(args)
+    return x
+
+##################################################################################
+
+def srcTarget(args):
+    # First copy everything to the temp directory to remove
+    # CVS files
+    ver = 'G3D-' + g3dVersion
+    copyIfNewer('./*', 'temp/src/' + ver + '/src/')
+   
+    os.remove('temp/src/' + ver + '/src/bin/PKZIP25.EXE')
+    
+    # Now produce the zipfile
+    zip('temp/src/*', 'build/' + ver + '-src.zip')
+
+##################################################################################
+    
+def jarTarget(args):
+   print 'Testing for javac and jar...'
+   if os.name == 'nt':
+       try:
+           findBinary('javac')
+           findBinary('jar')
+       except:
+           print 'javac or jar not found on this machine, skipping .jar creation!'
+           return 0
+   else:
+       retJavac = getShellRetOnly('javac')
+       retJar = getShellRetOnly('jar')
+       if (retJavac == 127) or (retJar == 127):
+           print 'javac or jar not found on this machine, skipping .jar creation!'
+           return 0
+  
+   mkdir('temp/G3D.jar/com/graphics3d/G3D')
+   mkdir('build')
+   
+   shell('javac -d temp/G3D.jar G3D.jar/com/graphics3d/G3D/*.java')
+
+   ret = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'com'])
+
+   if (ret == 0):
+       print 'Built G3D.jar'
+
+   return ret
+
+################################################################################
+
+def ideTarget():
+    """
+           The --generator option is required. To find generators for
+           the build system run: cmake --help
+           
+           Example:
+           buildg3d proj --debug --generator="MinGW Makefiles"
+           
+           --generator="cmake generator"
+                generator string supported by cmake on build system
+           --debug / --release
+                generate debug/release configuration (defaults to release)
+           --install-dir=installDir
+                sets installation target directory
+                generated project will still have to make install target
+           --build-dir=buildDir
+                sets the build directory (defaults to ./build)"""
+
+    # TODO: automatically configure the args based on the platform
+    #    compilerName = compilerTable[args[1]]
+    
+    args = []
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release',
+      'generator=', 'build-dir=', 'install-dir='])
+    
+    buildDir = 'build'
+    buildType = 'Release'
+    installDir = ''
+    buildGenerator = ''
+    
+    for opt, arg in projOptions:    
+        if opt == '--generator':
+            if windows:
+                buildGenerator = '"' + arg + '"'
+            else:
+                buildGenerator = arg
+            
+        if opt == '--debug':
+            buildType = 'Debug'
+
+        if opt == '--build-dir':
+            buildDir = arg
+
+        if opt == '--install-dir':
+            installDir = arg
+            
+    if buildGenerator == '':
+        print '--generator option is required for proj target'
+        return -1
+
+    cmakeArgs = ['-G', buildGenerator, '-DCMAKE_BUILD_TYPE=' + buildType]
+    if installDir != '':
+        cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
+        
+    curDir = os.getcwd();
+
+    try:
+      os.makedirs(buildDir)
+    except OSError, e:
+      if e.errno == errno.EEXIST:
+        print "Build directory " + buildDir + " already exists..."
+      else:
+        print "Error: " + buildDir + " could not be created...  aborting."
+        return -1 
+
+    os.chdir(buildDir)
+    cmakeArgs.insert(0, curDir)
+    ret = run('cmake', cmakeArgs)
+    os.chdir(curDir)
+    return ret
+
+################################################################################
+
+def helpTarget():
+    print """
+buildg3d - Automated build system for G3D.
+
+Syntax: 
+    buildg3d [--config config-file] [--install [install-dir] target
+
+    The targets are: help, clean, lib, test, doc, jar, ide, all, ffmpeg, src
+
+Options:
+--config <config-file>
+       Specify an optional .icompile file to use on Unix. This
+       allows you to build G3D with different INCLUDE, LIBRARY,
+       and compiler settings than you normally use for writing
+       programs.  See the iCompile manual for more information.
+
+       Example: buildg3d --config ~/.icompile-buildg3d lib
+
+--install [<install-dir>]
+       After building, copy files to this location. The default
+       install-dir is """ + libInstallDir + """.
+       
+Targets:
+TARGET     DESCRIPTION
+
+all        clean + lib + test + jar + tools + doc
+           
+lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers. Also build
+           all dependencies (e.g., zlib, libpng)
+
+doc        Generate documentation using Doxygen
+
+tools      Build gfxmeter and viewer applications and copy copyifnewer and icompile
+
+
+jar        Build G3D.jar, the Java version of network and
+           file access.
+
+test       Build test and testd and then run both
+
+clean      Delete all generated files
+
+help       Display this message
+
+DEVELOPER TARGETS (unsupported)
+
+src        Build a sources zipfile (Win32 only)
+
+ide        Generates Xcode, Visual Studio, and g++ Makefiles using cmake.
+
+The return code of buildg3d is the return code of the last process it
+launched (i.e., you can expect 0 on success).
+"""
+
+################################################################################
+
+""" Copy generated files to libInstallDir and docInstallDir """
+def install():
+    TODO
+    return 0
+
+
+################################################################################
+
+def dispatchOnTarget(target, validTargets):
+    found = 0
+    code = 0
+    for v in validTargets:
+        if target == v.func_name:
+            return v()
+
+    print '"' + target + '" is not a valid build target (type "build help" to see all targets).'
+    return -1
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        helpTarget()
+        sys.exit(-1)
+        
+    t0 = time.time()
+    
+    code = dispatchOnTarget(sys.argv[1],
+        [libTarget, cleanTarget, testTarget,
+         docTarget, allTarget, srcTarget, toolsTarget,
+         jarTarget, ideTarget, helpTarget])
+         
+    t1 = time.time()
+    print '%ds' % (t1 - t0)
+
+    sys.exit(code)

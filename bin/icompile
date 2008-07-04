@@ -482,8 +482,10 @@ def buildBinary(state):
                                               parents, state, ice.utils.verbosity, timeStamp)
 
         count = count + 1
-        if count > 10:
-            raise Exception('Iterated ' + str(count) + ' times while trying to resolve dependencies')
+        if count > 4:
+            # Could not find some of the headers
+            sys.exit(-10)
+            # raise Exception('Iterated ' + str(count) + ' times while trying to resolve dependencies')
 
     # List of all files on which some other file depends
     files = list(dependencySet)
@@ -775,6 +777,7 @@ def printInfo(state):
     print 'binaryName        = "' + state.binaryName + '"'
     print 'binaryType        = "' + state.binaryType + '"'
     print 'target            = "' + state.target + '"'
+    print 'platform          = "' + state.platform + '"'
 
 #########################################################################
 # Computes development progress metrics. Returns a string briefly

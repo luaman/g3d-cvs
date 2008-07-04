@@ -472,4 +472,4 @@ def identifySiblingLibraryDependencies(files, parents, state):
                 i += 1
 
         if not found:
-            maybeWarn("Header file not found: '" + header + "'.", state)
+            maybeWarn("Header not found: '" + header + "'.", state)

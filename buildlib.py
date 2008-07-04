@@ -441,12 +441,14 @@ def getShellRetOnly(cmd):
     ret = os.system(cmd + ' &> temp/system.tmp')
     return ret / 256
 
+
+""" Like commands.getOutput, but can choose whether to capture stderr."""
 def shell(cmd, stderr = 0):
     mkdir('temp')
     print cmd
     
     try:
-        os.remove('tmp/system.tmp')
+        os.remove('temp/system.tmp')
     except:
         pass
 
