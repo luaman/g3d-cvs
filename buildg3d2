@@ -79,8 +79,13 @@ def initOS():
             del sys.argv[i]
             del sys.argv[i + 1]
         except ValueError:
-            # TODO: if ~/.icompile-buildg3d exists, use it
-            icompileConfig = []
+            filename = pathConcat(os.environ['HOME'], '.icompile-buildg3d')
+            if os.path.exists(filename):
+                icompileConfig = ['--config', filename]
+            else:
+                icompileConfig = []
+
+        print 'iCompile options: ', icompileConfig
 
     if windows:
         platformName = 'win-i386-vc9.0'
@@ -181,6 +186,7 @@ def libTarget():
      return x
 
 ##################################################################################
+ 
 def toolsTarget(args):
     x = libTarget()
     if x != 0: return x
@@ -426,6 +432,7 @@ def ffmpegTarget():
             crossCompiler = arg
 
 #########################################################
+
 def ideTarget():
     """
            The --generator option is required. To find generators for
@@ -519,14 +526,19 @@ Syntax:
 
     The targets are: help, clean, lib, test, doc, jar, ide, all, ffmpeg, src
 
+If you are installing G3D, you want to run:
+
+    buildg3d --install all
+
 Options:
 --config <config-file>
-       Specify an optional .icompile file to use on Unix. This
+       By default, buildg3d tries to use ~/.icompile-buildg3d
+       as a configuration file. If it does not exist, it tries
+       .icompile.  This allows you to explicitly specify another
+       .icompile file to use on Unix. This
        allows you to build G3D with different INCLUDE, LIBRARY,
        and compiler settings than you normally use for writing
        programs.  See the iCompile manual for more information.
-
-       Example: buildg3d --config ~/.icompile-buildg3d lib
 
 --install [<install-dir>]
        After building, copy files to this location. The default
@@ -552,11 +564,18 @@ clean      Delete all generated files
 
 help       Display this message
 
+
 DEVELOPER TARGETS (unsupported)
 
 src        Build a sources zipfile (Win32 only)
 
 ide        Generates Xcode, Visual Studio, and g++ Makefiles using cmake.
+
+ffmpeg1    Build precompiled Windows libraries for ffmpeg using a Unix 
+           g++ cross-compiler.
+
+ffmpeg2    Use Visual Studio to complete the ffmpeg compilation process
+           started by ffmpeg1.
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
