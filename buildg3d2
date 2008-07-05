@@ -174,20 +174,18 @@ def libTarget():
              # Build png
              if x == 0: x = runicompile('png.lib')
 
-         if (x == 0):
-             x = runicompile('zip.lib')
+         if x == 0: x = runicompile('zip.lib')
 
-         if (x == 0):
-             x = runicompile('G3D.lib')
+         if x == 0: x = runicompile('G3D.lib')
 
-         if (x == 0):
-             x = runicompile('GLG3D.lib')
+         if x == 0: x = runicompile('GLG3D.lib')
 
+         
      return x
 
 ##################################################################################
  
-def toolsTarget(args):
+def toolsTarget():
     x = libTarget()
     if x != 0: return x
      
@@ -206,7 +204,7 @@ def toolsTarget(args):
             os.chdir("../..")
 
     if (x == 0):
-        dest = pathConcat(buildDir, 'bin')
+        dest = pathConcat('build', pathConcat(platformName, 'bin'))
         copyIfNewer('bin', dest)
         os.remove(pathConcat(dest, 'PKZIP25.EXE'))
 
@@ -214,9 +212,9 @@ def toolsTarget(args):
 
 ##################################################################################
 
-def cleanTarget(args):
-    rmdir('build')
-    rmdir('temp')
+def cleanTarget():
+    ice.utils.rmdir('build')
+    ice.utils.rmdir('temp')
 
     if windows:
        # iCompile does not support VC9 yet, so explicitly run the project files
@@ -234,6 +232,8 @@ def cleanTarget(args):
     os.chdir("tools/viewer")
     run("../../bin/icompile", config + ['--clean'])
     os.chdir("../..")
+
+    return 0
 
 ##################################################################################
     
@@ -288,29 +288,28 @@ def docTarget():
 ##################################################################################
 
 def allTarget():
-    x = clean()
-    if x == 0: x = libTarget(args)
+    x = cleanTarget()
+    if x == 0: x = libTarget()
     if x == 0:
         # Pretend that jar always succeeds;
         # it might fail for people who don't
         # have java
-        jarTarget(args)
+        jarTarget()
     
-    if x == 0: x = testTarget(args)
-    if x == 0: x = toolsTarget(args)
-    if x == 0: x = docTarget(args)
+    if x == 0: x = testTarget()
+    if x == 0: x = toolsTarget()
+    if x == 0: x = docTarget()
+    
     return x
 
 ##################################################################################
 
-def srcTarget(args):
+def srcTarget():
     # First copy everything to the temp directory to remove
     # CVS files
     ver = 'G3D-' + g3dVersion
     copyIfNewer('./*', 'temp/src/' + ver + '/src/')
    
-    os.remove('temp/src/' + ver + '/src/bin/PKZIP25.EXE')
-    
     # Now produce the zipfile
     zip('temp/src/*', 'build/' + ver + '-src.zip')
 
@@ -585,7 +584,16 @@ launched (i.e., you can expect 0 on success).
 
 """ Copy generated files to libInstallDir and docInstallDir """
 def install():
-    TODO
+
+    copyIfNewer('build/' + platformName + '/bin', pathConcat(libInstallDir, 'bin'))
+    copyIfNewer('build/' + platformName + '/include', pathConcat(libInstallDir, 'include'))
+    copyIfNewer('build/' + platformName + '/lib', pathConcat(libInstallDir, 'lib'))
+    copyIfNewer('build/G3D.jar', pathConcat(libInstallDir, 'lib/G3D.jar'))
+    
+    copyIfNewer('build/html',    pathConcat(docInstallDir, 'html'))
+    copyIfNewer('build/data',    pathConcat(docInstallDir, 'data'))
+    copyIfNewer('build/demos',   pathConcat(docInstallDir, 'demos'))
+    
     return 0
 
 
