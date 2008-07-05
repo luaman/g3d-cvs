@@ -4,7 +4,7 @@
 # Build system for G3D.  Run 'buildg3d help' for options.
 #
 
-import os, platform, commands, sys, time, getopt, errno
+import os, platform, commands, sys, time, getopt, errno, urllib, tarfile
 
 # To get access to icompile routines
 sys.path.append('bin')
@@ -387,6 +387,94 @@ def ideTarget():
 
 ################################################################################
 
+def buildMingwCrossCompiler(installDir):
+    downloadDir = os.path.abspath('temp/crosscompiler')
+    sourceDir = downloadDir + '/src'
+
+    oldcwd = os.getcwd()
+    
+    # clean out cross compiler
+    ice.utils.rmdir(downloadDir, False)
+    
+    # make destination directory
+    ice.utils.mkdir(installDir, False)
+    
+    # download binutils
+    urllib.urlretrieve('http://heanet.dl.sourceforge.net/sourceforge/mingw/binutils-2.18.50-20080109-2-src.tar.gz', downloadDir + '/binutils-2.18.50-20080109-2-src.tar.gz')
+    
+    # download mingw components
+    urllib.urlretrieve('http://heanet.dl.sourceforge.net/sourceforge/mingw/mingw-runtime-3.14.tar.gz', downloadDir + '/mingw-runtime-3.14.tar.gz')
+    urllib.urlretrieve('http://heanet.dl.sourceforge.net/sourceforge/mingw/w32api-3.11.tar.gz', downloadDir + '/w32api-3.11.tar.gz')
+
+    # download gcc core
+    urllib.urlretrieve('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.3.0/gcc-core-4.3.0.tar.bz2', downloadDir + '/gcc-core-4.3.0.tar.bz2')
+
+    # extract mingw components
+    tarObject = tarfile.open(downloadDir + '/mingw-runtime-3.14.tar.gz', 'r')
+    tarObject.extractall(installDir)
+    tarObject.close()
+    
+    tarObject = tarfile.open(downloadDir + '/w32api-3.11.tar.gz', 'r')
+    tarObject.extractall(installDir)
+    tarObject.close()
+
+    # extract binutils
+    tarObject = tarfile.open(downloadDir + '/binutils-2.18.50-20080109-2-src.tar.gz', 'r')
+    binutilsName = tarObject.next().name
+    tarObject.extractall(sourceDir)
+    tarObject.close()
+    
+    # configure binutils
+    ice.utils.mkdir(sourceDir + '/binutils_obj')
+    os.chdir(sourceDir + '/binutils_obj')
+    ice.utils.shell(sourceDir + '/' + binutilsName + '/configure --prefix="' + installDir + '" --target=mingw32 --disable-nls --with-gcc --with-gnu-as --with-gnu-ld --disable-shared', True)
+    
+    # build binutils
+    ice.utils.shell('make CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s"', True)
+    ice.utils.shell('make install')
+    os.chdir(oldcwd)
+    
+    # extract gcc core
+    tarObject = tarfile.open(downloadDir + '/gcc-core-4.3.0.tar.bz2', 'r')
+    gccName = tarObject.next().name
+    tarObject.extractall(sourceDir)
+    tarObject.close()
+
+    # configure gcc core
+    ice.utils.mkdir(sourceDir + '/gcc_obj')
+    os.chdir(sourceDir + '/gcc_obj')
+    ice.utils.shell(sourceDir + '/' + gccName + '/configure -v --prefix="' + installDir + '" --target=mingw32 --with-headers="' + installDir + '/include" --with-gcc --with-gnu-ld --with-gnu-as --enable-threads --disable-nls --enable-languages="c" --disable-win32-registry --disable-shared --enable-sjlj-exceptions --without-x', True)
+    
+    # build gcc core
+    ice.utils.shell('make CFLAGS="-O2" CXXFLAGS="-O2"', True)
+    ice.utils.shell('make install')
+    os.chdir(oldcwd)
+    
+def ffmpegTarget():
+    """
+        A custom gcc build can be specified with --use-cross-compiler 
+        or a cross-compiler can be built before ffmpeg is built by specifying
+        --build-cross-compiler otherwise defaults to using the exiting cross compiler.
+    """
+
+    # check for compiler options
+    args = []
+    print sys.argv
+    projOptions, projArgs = getopt.getopt(sys.argv[2:], '', ['use-cross-compiler=', 'build-cross-compiler'])
+    
+    crossCompiler = 'temp/crosscompiler/mingw/bin'
+    
+    for opt, arg in projOptions:    
+        if opt == '--build-cross-compiler':
+            buildMingwCrossCompiler(os.path.abspath('temp/crosscompiler/mingw'))
+            
+        if opt == '--use-cross-compiler':
+            crossCompiler = arg
+        
+    
+
+################################################################################
+
 def helpTarget():
     print """
 buildg3d - Automated build system for G3D.
@@ -472,7 +560,7 @@ if __name__ == "__main__":
     code = dispatchOnTarget(sys.argv[1],
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
-         jarTarget, ideTarget, helpTarget])
+         jarTarget, ideTarget, helpTarget, ffmpegTarget])
          
     t1 = time.time()
     print '%ds' % (t1 - t0)
