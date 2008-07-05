@@ -330,35 +330,36 @@ Blocks until shell returns, then returns the exit code of the program.
 def run(prog, args = [], echo = True, env = {}):
     program = toLocalPath(prog)
 
+    windows = os.name == 'nt' or os.name == 'vista'
+    
     # Windows doesn't support spawnvp, so we have to locate the binary
-    if (os.name == 'nt'):
+    if windows:
         program = _findBinary(program)
 
-    # If the program name contains spaces, we
-    # add quotes around it.
-    if (' ' in program) and not ('"' in program):
-        program = '"' + program + '"'
+        # If the program name contains spaces, we
+        # add quotes around it.
+        if (' ' in program) and not ('"' in program):
+            program = '"' + program + '"'
                     
     # spawn requires specification of argv[0]
     # Because the program name may contain spaces, we
     # add quotes around it.
     newArgs = [program] + args
 
+    newEnv = {}
+    newEnv.update(os.environ)
+    newEnv.update(env)
+
     if echo: colorPrint(string.join(newArgs), COMMAND_COLOR)
 
-    if (os.name == 'nt'):
-        # Windows doesn't support spawnvp
-        if env != {}:
-            exitcode = os.spawnve(os.P_WAIT, program, newArgs, env)
-        else:
-            exitcode = os.spawnv(os.P_WAIT, program, newArgs)
+    if windows:
+        # Windows doesn't support spawnvpe
+        exitcode = os.spawnve(os.P_WAIT, program, newArgs, newEnv)
     else:
-        if env != {}:
-            exitcode = os.spawnvpe(os.P_WAIT, program, newArgs, env)
-        else:
-            exitcode = os.spawnvp(os.P_WAIT, program, newArgs)
+        exitcode = os.spawnvpe(os.P_WAIT, program, newArgs, newEnv)
 
     return exitcode
+
 
 
 """Run a program with command line arguments.

@@ -4,11 +4,12 @@
 # Build system for G3D.  Run 'buildg3d help' for options.
 #
 
-import os, platform, commands, sys, time, getopt, errno, urllib, tarfile
+import os, platform, commands, sys, time, getopt, errno
 
 # To get access to icompile routines
 sys.path.append('bin')
 import ice.copyifnewer, ice.utils
+from ice.utils import run, pathConcat, shell, mkdir
 
 doxygen = 'doxygen'
 config = []
@@ -37,10 +38,8 @@ platformName = None
 # e.g., win, osx
 osShortName  = None
 
-# Where lib, include, and bin go
+doInstall     = None
 libInstallDir = None
-
-# Where all other files go
 docInstallDir = None
 
 # Location of binary (subdir of build)
@@ -53,6 +52,7 @@ configFile = None
 def initOS():
     global windows, freebsd, linux, osx, unix, osShortName
     global libInstallDir, docInstallDir, configFile, platformName
+    global doInstall
 
     s = platform.system()
     windows = (s == 'Windows') or (s == 'Microsoft')
@@ -81,19 +81,15 @@ def initOS():
         except ValueError:
             # TODO: if ~/.icompile-buildg3d exists, use it
             icompileConfig = []
-            pass
 
     if windows:
-        libInstallDir = 'c:/libraries/G3D-' + g3dVersion.toString()
-        docInstallDir = libInstallDir
         platformName = 'win-i386-vc9.0'
-        
+        installDir = 'c:/libraries'
     else:
-        libInstallDir = '/usr/local'
-        docInstallDir = '/usr/local/G3D-' + g3dVersion.toString()
+        installDir = '/usr/local'
 
         os.chdir('G3D.lib')
-        info = ice.utils.shell('../bin/icompile ' + ' '.join(icompileConfig + ['--info']), False)
+        info = shell('../bin/icompile ' + ' '.join(icompileConfig + ['--info']), False)
         try:
             i = info.index('\nplatform')
             i = info.index('"', i) + 1
@@ -105,17 +101,30 @@ def initOS():
 
         os.chdir('..')
 
+    # Extract and remove config file from argument list
+    try:
+        i = sys.argv.index('--install')
+        del sys.argv[i]
+
+        doInstall = True
+        # See if there is a directory
+        if len(sys.argv) > i:
+            pathname = sys.argv[i]
+            if os.path.exists(pathname) and pathname != 'lib':
+                installDir = pathname
+                del sys.argv[i]
+            
+    except ValueError:
+        doInstall = False
+
+    if windows:
+        libInstallDir = pathConcat(installDir, 'G3D-' + g3dVersion.toString())
+        docInstallDir = libInstallDir
+    else:
+        libInstallDir = installDir
+        docInstallDir = pathConcat(installDir, 'G3D-' + g3dVersion.toString())
+
 initOS()
-
-compilerTable = \
-    {'vc6.0'    : 'Visual Studio 6',
-     'vc7.0'    : 'Visual Studio 7',
-     'vc7.1'    : 'Visual Studio 7 .NET 2003',
-     'vc8.0'    : 'Visual Studio 8 2005',
-     'vc9.0'    : 'Visual Studio 9 2009',
-     'gcc'      : 'gcc',
-     'xcode'    : 'XCode'}
-
 
 def copyIfNewer(source, dest):
     if windows:
@@ -173,28 +182,29 @@ def libTarget():
 
 ##################################################################################
 def toolsTarget(args):
-     x = 0
+    x = libTarget()
+    if x != 0: return x
      
-     if windows:
-         x = VC9('VC9/G3D.sln', ['gfxmeter', 'viewer']);
+    if windows:
+        x = VC9('VC9/G3D.sln', ['gfxmeter', 'viewer']);
 
-     else:
-         if (x == 0):
-             os.chdir("tools/gfxmeter")
-             x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
-             os.chdir("../..")
+    else:
+        if (x == 0):
+            os.chdir("tools/gfxmeter")
+            x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
+            os.chdir("../..")
+            
+        if (x == 0):
+            os.chdir("tools/viewer")
+            x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
+            os.chdir("../..")
 
-         if (x == 0):
-             os.chdir("tools/viewer")
-             x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
-             os.chdir("../..")
+    if (x == 0):
+        dest = pathConcat(buildDir, 'bin')
+        copyIfNewer('bin', dest)
+        os.remove(pathConcat(dest, 'PKZIP25.EXE'))
 
-     if (x == 0):
-         dest = pathConcat(buildDir, 'bin')
-         copyIfNewer('bin', dest)
-         os.remove(pathConcat(dest, 'PKZIP25.EXE'))
-
-     return x
+    return x
 
 ##################################################################################
 
@@ -221,11 +231,15 @@ def cleanTarget(args):
 
 ##################################################################################
     
-def testTarget(args):    
+def testTarget():
+    x = libTarget()
+    if x != 0:
+        return x
+    
     if windows:
        # iCompile does not support VC9 yet, so explicitly run the project files
        # TODO
-       return 0
+       return -1
     else:
 
         os.chdir("test")
@@ -238,21 +252,28 @@ def testTarget(args):
 
 ##################################################################################
     
-def docTarget(args):
-    # TODO: build java docs
-    
+def docTarget():
     version = 'version ' + g3dVersion.major + '.' + g3dVersion.minor
     if (g3dVersion.beta != ''):
-        version += ' beta ' + v.beta
+        version += ' beta ' + g3dVersion.beta
 
-    version += ' ' + string.join([str(s) for s in time.localtime()[0:2]], '-')
+    version += ' - ' + time.strftime('%B %Y')
 
     env = {'HEADER_FILE':    'doc-files/data-files/header.html',
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
            'PROJECT_NUMBER': version}
-    run(doxygen, ['Doxyfile'], env)
+
+    # Generate C++ docs
+    # TODO: this version of run seems to generate different results than
+    # the one in buildlib
+    run(doxygen, ['Doxyfile'], True, env)
+
+    # Generate Java docs
+    run(doxygen, ['Doxyfile-java'], True, env)
+
     copyIfNewer('doc-files/data-files', 'build/html')
 
+    # Generate demos and support
     copyIfNewer('data-files', 'build/data')
     copyIfNewer('demos', 'build/demos')
 
@@ -263,7 +284,12 @@ def docTarget(args):
 def allTarget():
     x = clean()
     if x == 0: x = libTarget(args)
-    if x == 0: x = jarTarget(args)
+    if x == 0:
+        # Pretend that jar always succeeds;
+        # it might fail for people who don't
+        # have java
+        jarTarget(args)
+    
     if x == 0: x = testTarget(args)
     if x == 0: x = toolsTarget(args)
     if x == 0: x = docTarget(args)
@@ -284,109 +310,37 @@ def srcTarget(args):
 
 ##################################################################################
     
-def jarTarget(args):
+def jarTarget():
    print 'Testing for javac and jar...'
-   if os.name == 'nt':
+   if windows:
        try:
+           # TODO: use the found binary!
            findBinary('javac')
            findBinary('jar')
        except:
            print 'javac or jar not found on this machine, skipping .jar creation!'
-           return 0
+           return -1
    else:
-       retJavac = getShellRetOnly('javac')
-       retJar = getShellRetOnly('jar')
-       if (retJavac == 127) or (retJar == 127):
+       x = shell('javac', False)
+       y = shell('jar', False)
+       if len(x) < 200 or len(y) < 200:
            print 'javac or jar not found on this machine, skipping .jar creation!'
-           return 0
-  
-   mkdir('temp/G3D.jar/com/graphics3d/G3D')
+           return -1
+
+   print 'Building G3D.jar...'
+   mkdir('temp/G3D.jar/G3D')
    mkdir('build')
    
-   shell('javac -d temp/G3D.jar G3D.jar/com/graphics3d/G3D/*.java')
+   shell('javac -d temp/G3D.jar G3D.jar/G3D/*.java')
 
-   ret = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'com'])
+   ret = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'G3D'])
 
-   if (ret == 0):
-       print 'Built G3D.jar'
+   if ret == 0:
+       print 'Built build/G3D.jar'
 
    return ret
 
 ################################################################################
-
-def ideTarget():
-    """
-           The --generator option is required. To find generators for
-           the build system run: cmake --help
-           
-           Example:
-           buildg3d proj --debug --generator="MinGW Makefiles"
-           
-           --generator="cmake generator"
-                generator string supported by cmake on build system
-           --debug / --release
-                generate debug/release configuration (defaults to release)
-           --install-dir=installDir
-                sets installation target directory
-                generated project will still have to make install target
-           --build-dir=buildDir
-                sets the build directory (defaults to ./build)"""
-
-    # TODO: automatically configure the args based on the platform
-    #    compilerName = compilerTable[args[1]]
-    
-    args = []
-    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release',
-      'generator=', 'build-dir=', 'install-dir='])
-    
-    buildDir = 'build'
-    buildType = 'Release'
-    installDir = ''
-    buildGenerator = ''
-    
-    for opt, arg in projOptions:    
-        if opt == '--generator':
-            if windows:
-                buildGenerator = '"' + arg + '"'
-            else:
-                buildGenerator = arg
-            
-        if opt == '--debug':
-            buildType = 'Debug'
-
-        if opt == '--build-dir':
-            buildDir = arg
-
-        if opt == '--install-dir':
-            installDir = arg
-            
-    if buildGenerator == '':
-        print '--generator option is required for proj target'
-        return -1
-
-    cmakeArgs = ['-G', buildGenerator, '-DCMAKE_BUILD_TYPE=' + buildType]
-    if installDir != '':
-        cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
-        
-    curDir = os.getcwd();
-
-    try:
-      os.makedirs(buildDir)
-    except OSError, e:
-      if e.errno == errno.EEXIST:
-        print "Build directory " + buildDir + " already exists..."
-      else:
-        print "Error: " + buildDir + " could not be created...  aborting."
-        return -1 
-
-    os.chdir(buildDir)
-    cmakeArgs.insert(0, curDir)
-    ret = run('cmake', cmakeArgs)
-    os.chdir(curDir)
-    return ret
-
-################################################################################
-
 def buildMingwCrossCompiler(installDir):
     downloadDir = os.path.abspath('temp/crosscompiler')
     sourceDir = downloadDir + '/src'
@@ -470,8 +424,89 @@ def ffmpegTarget():
             
         if opt == '--use-cross-compiler':
             crossCompiler = arg
-        
+
+#########################################################
+def ideTarget():
+    """
+           The --generator option is required. To find generators for
+           the build system run: cmake --help
+           
+           Example:
+           buildg3d proj --debug --generator="MinGW Makefiles"
+           
+           --generator="cmake generator"
+                generator string supported by cmake on build system
+           --debug / --release
+                generate debug/release configuration (defaults to release)
+           --install-dir=installDir
+                sets installation target directory
+                generated project will still have to make install target
+           --build-dir=buildDir
+                sets the build directory (defaults to ./build)
+
+compilerTable = \
+    {'vc6.0'    : 'Visual Studio 6',
+     'vc7.0'    : 'Visual Studio 7',
+     'vc7.1'    : 'Visual Studio 7 .NET 2003',
+     'vc8.0'    : 'Visual Studio 8 2005',
+     'vc9.0'    : 'Visual Studio 9 2009',
+     'gcc'      : 'gcc',
+     'xcode'    : 'XCode'}
+
+                """
+
+    # TODO: automatically configure the args based on the platform
+    #    compilerName = compilerTable[args[1]]
     
+    args = []
+    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release',
+      'generator=', 'build-dir=', 'install-dir='])
+    
+    buildDir = 'build'
+    buildType = 'Release'
+    installDir = ''
+    buildGenerator = ''
+    
+    for opt, arg in projOptions:    
+        if opt == '--generator':
+            if windows:
+                buildGenerator = '"' + arg + '"'
+            else:
+                buildGenerator = arg
+            
+        if opt == '--debug':
+            buildType = 'Debug'
+
+        if opt == '--build-dir':
+            buildDir = arg
+
+        if opt == '--install-dir':
+            installDir = arg
+            
+    if buildGenerator == '':
+        print '--generator option is required for proj target'
+        return -1
+
+    cmakeArgs = ['-G', buildGenerator, '-DCMAKE_BUILD_TYPE=' + buildType]
+    if installDir != '':
+        cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
+        
+    curDir = os.getcwd();
+
+    try:
+      os.makedirs(buildDir)
+    except OSError, e:
+      if e.errno == errno.EEXIST:
+        print "Build directory " + buildDir + " already exists..."
+      else:
+        print "Error: " + buildDir + " could not be created...  aborting."
+        return -1 
+
+    os.chdir(buildDir)
+    cmakeArgs.insert(0, curDir)
+    ret = run('cmake', cmakeArgs)
+    os.chdir(curDir)
+    return ret
 
 ################################################################################
 
@@ -497,7 +532,6 @@ Options:
        After building, copy files to this location. The default
        install-dir is """ + libInstallDir + """.
        
-Targets:
 TARGET     DESCRIPTION
 
 all        clean + lib + test + jar + tools + doc
@@ -508,7 +542,6 @@ lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers. Also build
 doc        Generate documentation using Doxygen
 
 tools      Build gfxmeter and viewer applications and copy copyifnewer and icompile
-
 
 jar        Build G3D.jar, the Java version of network and
            file access.
@@ -557,11 +590,14 @@ if __name__ == "__main__":
         
     t0 = time.time()
     
-    code = dispatchOnTarget(sys.argv[1],
+    code = dispatchOnTarget(sys.argv[1] + 'Target',
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
-         jarTarget, ideTarget, helpTarget, ffmpegTarget])
-         
+         jarTarget, ideTarget, helpTarget])
+
+    if (code == 0) and (sys.argv[1] != 'help') and doInstall:
+        install()
+        
     t1 = time.time()
     print '%ds' % (t1 - t0)
 

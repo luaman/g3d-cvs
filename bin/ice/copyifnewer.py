@@ -42,6 +42,7 @@ _excludeFromCopyingPatterns =\
     '\.pyc$', \
     '\.plg$', \
     '^#.*#$', \
+    '^ice-stats\.csv$'\
     '~$', \
     '\.old$' \
     '^log.txt$', \

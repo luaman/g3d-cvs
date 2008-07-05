@@ -693,5 +693,15 @@ Load with \link G3D::Texture Texture\endlink,
 \link G3D::Image3uint8 Image3uint8\endlink,
 \link G3D::Image4uint8 Image4uint8\endlink, and
 \link G3D::GImage GImage\endlink.
+\htmlonly
+<blockquote>
+<table border=0 width=70%>
+<tr>
+<td><center><img src="../data/image/checkerboard.jpg"><br>checkerboard.jpg</center></td>
+</tr>
+</table>
+</table>
+</blockquote>
+\endhtmlonly
 
 */
