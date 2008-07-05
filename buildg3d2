@@ -304,14 +304,29 @@ def allTarget():
 
 ##################################################################################
 
+"""
+ Recursively zips the source into zipfile
+"""
+def zip(source, zipfile):
+    print 'Creating ' + zipfile
+
+    if windows:
+        run('PKZIP25', ['-add', '-rec', '-lev=9', '-path=relative', zipfile, source])
+    else:
+        run('zip', ['-r', '-9', zipfile, source])
+
 def srcTarget():
-    # First copy everything to the temp directory to remove
-    # CVS files
-    ver = 'G3D-' + g3dVersion
-    copyIfNewer('./*', 'temp/src/' + ver + '/src/')
-   
-    # Now produce the zipfile
-    zip('temp/src/*', 'build/' + ver + '-src.zip')
+   # First copy everything to the temp directory to remove
+   # CVS files
+   ver = 'G3D-' + g3dVersion.toString()
+   dest ='temp/' + ver + '/src/'
+   mkdir(dest)
+   copyIfNewer('.', dest)
+
+   os.chdir('temp')
+   # Now produce the zipfile
+   zip(ver, '../build/' + ver + '-src.zip')
+   os.chdir('..')
 
 ##################################################################################
     

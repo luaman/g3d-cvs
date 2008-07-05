@@ -83,11 +83,11 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
 
     dest = removeTrailingSlash(dest)
 
-    if (not os.path.exists(source)):
+    if not os.path.exists(source):
         # Source does not exist
         return False
 
-    if (not os.path.isdir(source) and newer(source, dest)):
+    if not os.path.isdir(source) and newer(source, dest):
         if echoCommands: 
             colorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
         elif echoFilenames:
