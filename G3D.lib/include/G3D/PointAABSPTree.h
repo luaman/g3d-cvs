@@ -30,18 +30,18 @@
 #include <algorithm>
 
 template<typename Value>
-struct GetPosition{};
+struct PositionTrait{};
 
-template<> struct GetPosition<class G3D::Vector3> {
-	void getPosition(const G3D::Vector3& v, G3D::Vector3& p) { p = v; }
+template<> struct PositionTrait<class G3D::Vector3> {
+    static void getPosition(const G3D::Vector3& v, G3D::Vector3& p) { p = v; }
 };
 
-template<> struct GetPosition<class G3D::Vector2> {
-	void getPosition(const G3D::Vector2& v, G3D::Vector3& p) { p = G3D::Vector3(v, 0); }
+template<> struct PositionTrait<class G3D::Vector2> {
+    static void getPosition(const G3D::Vector2& v, G3D::Vector3& p) { p = G3D::Vector3(v, 0); }
 };
 
-template<> struct GetPosition<class G3D::Vector4> {
-	void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
+template<> struct PositionTrait<class G3D::Vector4> {
+    static void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
 };
 
 ///////////////////////////////////////////////////////
@@ -81,17 +81,19 @@ namespace G3D {
  <br>The template parameter <I>T</I> must be one for which
  the following functions are overloaded:
 
-  <DT><CODE>bool ::operator==(const T&, const T&);</CODE>
-  <DT><CODE>unsigned int ::hashCode(const T&);</CODE>
-  <DT><CODE>T::T();</CODE> <I>(public constructor of no arguments)</I>
+  <pre>
+      T::T(); <I>(public constructor of no arguments)</I>
 
- If template parameter useReferences is <code>true</code>, then
-  <P><CODE>const Vector3& ::getPosition(const T&);</CODE>
-<p>
- must be overloaded. Otherwise
-  <P><CODE>void ::getPosition(const T&, G3D::Vector3&);</CODE>
-<p>
- must be overloaded.
+       template<> struct PositionTrait<class T> {
+         static void getPosition(const T& v, G3D::Vector3& p);};
+
+       template <> struct HashTrait<class T> {
+         static size_t hashCode(const T& key);};
+
+       template<> struct EqualsTrait<class T> {
+           static bool equals(const T& a, const T& b); };
+    </pre>
+
  <p>
 
  G3D provides these for the Vector2, Vector3, and Vector4 classes.
@@ -126,7 +128,11 @@ namespace G3D {
  that are always zero along one or more dimensions.
 
 */
-template<class T> class PointAABSPTree {
+template<class T,
+         class PositionFunc = PositionTrait<T>, 
+         class HashFunc     = HashTrait<T>, 
+         class EqualsFunc   = EqualsTrait<T> > 
+class PointAABSPTree {
 protected:
 
     // Unlike the AABSPTree, the PointAABSPTree assumes that T elements are
@@ -142,7 +148,7 @@ protected:
 
         inline Handle() {}
         inline Handle(const T& v) : value(v) {
-            getPosition(v, m_position);
+            PositionTrait::getPosition(v, m_position);
         }
 
         /** Used by makeNode to create fake handles for partitioning. */
@@ -465,28 +471,28 @@ protected:
         int valuesPerNode, 
         int numMeanSplits)  {
 
-	    Node* node = NULL;
-	    
-	    if (source.size() <= valuesPerNode) {
-		    // Make a new leaf node
-		    node = new Node(source);
-		    
-		    // Set the pointers in the memberTable
-		    for (int i = 0; i < source.size(); ++i) {
-			    memberTable.set(source[i].value, node);
-		    }
-		    
+        Node* node = NULL;
+        
+        if (source.size() <= valuesPerNode) {
+            // Make a new leaf node
+            node = new Node(source);
+            
+            // Set the pointers in the memberTable
+            for (int i = 0; i < source.size(); ++i) {
+                memberTable.set(source[i].value, node);
+            }
+            
         } else {
-		    // Make a new internal node
-		    node = new Node();
-		    
+            // Make a new internal node
+            node = new Node();
+            
             const AABox bounds = computeBounds(source);
-		    const Vector3 extent = bounds.high() - bounds.low();
-		    
-		    Vector3::Axis splitAxis = extent.primaryAxis();
-		    
+            const Vector3 extent = bounds.high() - bounds.low();
+            
+            Vector3::Axis splitAxis = extent.primaryAxis();
+            
             float splitLocation;
-
+            
             Array<Handle> lt, gt;
 
             if (numMeanSplits <= 0) {
@@ -571,7 +577,8 @@ protected:
     }
 
     /** Maps members to the node containing them */
-    Table<T, Node*>         memberTable;
+    typedef Table<T, Node*, HashFunc, EqualsFunc> MemberTable;
+    MemberTable             memberTable;
 
     Node*                   root;
 
@@ -1109,9 +1116,9 @@ public:
 
         // Note: this is a Table iterator, we are currently defining
         // Set iterator
-        typename Table<T, Node*>::Iterator it;
+        typename MemberTable::Iterator it;
 
-        Iterator(const typename Table<T, Node*>::Iterator& it) : it(it) {}
+        Iterator(const typename MemberTable::Iterator& it) : it(it) {}
 
     public:
         inline bool operator!=(const Iterator& other) const {

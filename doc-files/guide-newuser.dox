@@ -233,9 +233,9 @@ needs to be overriden.
 
  <PRE>
 
-  template<class MyClass>
-  struct EqualsTrait {
-  static bool operator()(const MyClass& a, const MyClass& b) {
+  template<>
+  struct EqualsTrait<class MyClass> {
+  static bool equals(const MyClass& a, const MyClass& b) {
        return ...;  // true if a and b are "equal"
   }};
 

@@ -196,7 +196,11 @@ namespace G3D {
  that are always zero along one or more dimensions.
 
 */
-template< class T, class BoundsFunc = BoundsTrait<T>, class HashFunc = HashTrait<T>, class EqualsFunc = EqualsTrait<T> > class AABSPTree {
+template< class T, 
+          class BoundsFunc = BoundsTrait<T>, 
+          class HashFunc   = HashTrait<T>, 
+          class EqualsFunc = EqualsTrait<T> > 
+class AABSPTree {
 protected:
 
     /** Wrapper for a value that includes a cache of its bounds. 
