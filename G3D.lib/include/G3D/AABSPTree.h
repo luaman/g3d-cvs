@@ -37,117 +37,65 @@
 // #define VERIFY_TREE
 
 template<typename Value>
-struct GetBounds{};
+struct BoundsTrait{};
 
-template<> struct GetBounds<class G3D::Vector2> {
-    void getBounds(const G3D::Vector2& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(v, 0)); }
+template<> struct BoundsTrait<class G3D::Vector2> {
+    static void getBounds(const G3D::Vector2& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(v, 0)); }
 };
 
-template<> struct GetBounds<class G3D::Vector3> {
-    void getBounds(const G3D::Vector3& v, G3D::AABox& out) { out = G3D::AABox(v); }
+template<> struct BoundsTrait<class G3D::Vector3> {
+    static void getBounds(const G3D::Vector3& v, G3D::AABox& out) { out = G3D::AABox(v); }
 };
 
-template<> struct GetBounds<class G3D::Vector4> {
-    void getBounds(const G3D::Vector4& v, G3D::AABox& out) { out = G3D::AABox(v.xyz()); }
+template<> struct BoundsTrait<class G3D::Vector4> {
+    static void getBounds(const G3D::Vector4& v, G3D::AABox& out) { out = G3D::AABox(v.xyz()); }
 };
 
-template<> struct GetBounds<class G3D::AABox> {
-    void getBounds(const G3D::AABox& v, G3D::AABox& out) { out = v; }
+template<> struct BoundsTrait<class G3D::AABox> {
+    static void getBounds(const G3D::AABox& v, G3D::AABox& out) { out = v; }
 };
 
-template<> struct GetBounds<class G3D::Sphere> {
-    void getBounds(const G3D::Sphere& s, G3D::AABox& out) { s.getBounds(out); }
+template<> struct BoundsTrait<class G3D::Sphere> {
+    static void getBounds(const G3D::Sphere& s, G3D::AABox& out) { s.getBounds(out); }
 };
 
-
-template<> struct GetBounds<class G3D::Box> {
-    void getBounds(const G3D::Box& b, G3D::AABox& out) { b.getBounds(out); }
+template<> struct BoundsTrait<class G3D::Box> {
+    static void getBounds(const G3D::Box& b, G3D::AABox& out) { b.getBounds(out); }
 };
 
-
-template<> struct GetBounds<class G3D::Triangle> {
-    void getBounds(const G3D::Triangle& t, G3D::AABox& out) { t.getBounds(out); }
+template<> struct BoundsTrait<class G3D::Triangle> {
+    static void getBounds(const G3D::Triangle& t, G3D::AABox& out) { t.getBounds(out); }
 };
 
-
-template<> struct GetBounds<class G3D::Vector2*> {
-    void getBounds(const G3D::Vector2*& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(*v, 0)); }
+template<> struct BoundsTrait<class G3D::Vector2*> {
+    static void getBounds(const G3D::Vector2*& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(*v, 0)); }
 };
 
-template<> struct GetBounds<class G3D::Vector3*> {
-    void getBounds(const G3D::Vector3*& v, G3D::AABox& out) { out = G3D::AABox(*v); }
+template<> struct BoundsTrait<class G3D::Vector3*> {
+    static void getBounds(const G3D::Vector3*& v, G3D::AABox& out) { out = G3D::AABox(*v); }
 };
 
-template<> struct GetBounds<class G3D::Vector4*> {
-    void getBounds(const G3D::Vector4*& v, G3D::AABox& out) { out = G3D::AABox(v->xyz()); }
+template<> struct BoundsTrait<class G3D::Vector4*> {
+    static void getBounds(const G3D::Vector4*& v, G3D::AABox& out) { out = G3D::AABox(v->xyz()); }
 };
 
-template<> struct GetBounds<class G3D::AABox*> {
-    void getBounds(const G3D::AABox*& v, G3D::AABox& out) { out = *v; }
+template<> struct BoundsTrait<class G3D::AABox*> {
+    static void getBounds(const G3D::AABox*& v, G3D::AABox& out) { out = *v; }
 };
 
-template<> struct GetBounds<class G3D::Sphere*> {
-    void getBounds(const G3D::Sphere*& s, G3D::AABox& out) { s->getBounds(out); }
+template<> struct BoundsTrait<class G3D::Sphere*> {
+    static void getBounds(const G3D::Sphere*& s, G3D::AABox& out) { s->getBounds(out); }
 };
 
-
-template<> struct GetBounds<class G3D::Box*> {
-    void getBounds(const G3D::Box*& b, G3D::AABox& out) { b->getBounds(out); }
+template<> struct BoundsTrait<class G3D::Box*> {
+    static void getBounds(const G3D::Box*& b, G3D::AABox& out) { b->getBounds(out); }
 };
 
 
-template<> struct GetBounds<class G3D::Triangle*> {
-    void getBounds(const G3D::Triangle*& t, G3D::AABox& out) { t->getBounds(out); }
+template<> struct BoundsTrait<class G3D::Triangle*> {
+    static void getBounds(const G3D::Triangle*& t, G3D::AABox& out) { t->getBounds(out); }
 };
 
-///////////////////////////////////////////////////////////////
-
-inline void getBounds(const G3D::Vector3& v, G3D::AABox& out) {
-    out = G3D::AABox(v);
-}
-
-
-inline void getBounds(const G3D::AABox& a, G3D::AABox& out) {
-    out = a;
-}
-
-inline void getBounds(const G3D::Sphere& s, G3D::AABox& out) {
-    s.getBounds(out);
-}
-
-
-inline void getBounds(const G3D::Box& b, G3D::AABox& out) {
-    b.getBounds(out);
-}
-
-
-inline void getBounds(const G3D::Triangle& t, G3D::AABox& out) {
-    t.getBounds(out);
-}
-
-
-
-inline void getBounds(const G3D::Vector3* v, G3D::AABox& out) {
-    out = G3D::AABox(*v);
-}
-
-
-inline void getBounds(const G3D::AABox* a, G3D::AABox& out) {
-    getBounds(*a, out);
-}
-
-inline void getBounds(const G3D::Sphere* s, G3D::AABox& out) {
-    s->getBounds(out);
-}
-
-
-inline void getBounds(const G3D::Box* b, G3D::AABox& out) {
-    b->getBounds(out);
-}
-
-inline void getBounds(const G3D::Triangle* t, G3D::AABox& out) {
-    t->getBounds(out);
-}
 namespace G3D {
     namespace _internal {
 
@@ -210,10 +158,11 @@ namespace G3D {
  <DT>The template parameter <I>T</I> must be one for which
  the following functions are all overloaded:
 
-  <P><CODE>void ::getBounds(const T&, G3D::AABox&);</CODE>
-  <DT><CODE>bool ::operator==(const T&, const T&);</CODE>
-  <DT><CODE>unsigned int ::hashCode(const T&);</CODE>
-  <DT><CODE>T::T();</CODE> <I>(public constructor of no arguments)</I>
+ <pre>
+  T::T();</CODE> <I>(public constructor of no arguments)</I>
+  template <> struct HashTrait<T> { static size_t hashCode(int key); };
+  template<> struct BoundsTrait<T> { static void getBounds(const T& obj, G3D::AABox& out); };
+ </pre>
 
  G3D provides these for common classes like G3D::Vector3 and G3D::Sphere.
  If you use a custom class, or a pointer to a custom class, you will need
@@ -247,7 +196,7 @@ namespace G3D {
  that are always zero along one or more dimensions.
 
 */
-template<class T> class AABSPTree {
+template< class T, class BoundsFunc = BoundsTrait<T>, class HashFunc = HashTrait<T>, class EqualsFunc = EqualsTrait<T> > class AABSPTree {
 protected:
 
     /** Wrapper for a value that includes a cache of its bounds. 
@@ -272,17 +221,17 @@ protected:
         Handle() {}
 
         inline Handle(const T& v) : value(v) {
-            getBounds(v, bounds);
+            BoundsFunc::getBounds(v, bounds);
             bounds = bounds.intersect(AABox::maxFinite());
             center = bounds.center();
         }
 
         inline bool operator==(const Handle& other) const {
-            return value.operator==(other.value);
+            return EqualsFunc::equals(value, other.value);
         }
 
         inline size_t hashCode() const {
-            return value.hashCode();
+            return HashFunc::hashCode(value);
         }
     };
 
@@ -1338,51 +1287,51 @@ public:
         BoxIntersectionIterator& operator++() {
             ++nextValueArrayIndex;
 
-			bool foundIntersection = false;
+            bool foundIntersection = false;
             while (! isEnd && ! foundIntersection) {
 
-				// Search for the next node if we've exhausted this one
+                // Search for the next node if we've exhausted this one
                 while ((! isEnd) &&  (nextValueArrayIndex >= node->valueArray.length())) {
-					// If we entered this loop, then the iterator has exhausted the elements at 
-					// node (possibly because it just switched to a child node with no members).
-					// This loop continues until it finds a node with members or reaches
-					// the end of the whole intersection search.
-
-					// If the right child overlaps the box, push it onto the stack for
-					// processing.
-					if ((node->child[1] != NULL) &&
-						(box.high()[node->splitAxis] > node->splitLocation)) {
-						stack.push(node->child[1]);
-					}
+                    // If we entered this loop, then the iterator has exhausted the elements at 
+                    // node (possibly because it just switched to a child node with no members).
+                    // This loop continues until it finds a node with members or reaches
+                    // the end of the whole intersection search.
+                    
+                    // If the right child overlaps the box, push it onto the stack for
+                    // processing.
+                    if ((node->child[1] != NULL) &&
+                        (box.high()[node->splitAxis] > node->splitLocation)) {
+                        stack.push(node->child[1]);
+                    }
+                    
+                    // If the left child overlaps the box, push it onto the stack for
+                    // processing.
+                    if ((node->child[0] != NULL) &&
+                        (box.low()[node->splitAxis] < node->splitLocation)) {
+                        stack.push(node->child[0]);
+                    }
+                    
+                    if (stack.length() > 0) {
+                        // Go on to the next node (which may be either one of the ones we 
+                        // just pushed, or one from farther back the tree).
+                        node = stack.pop();
+                        nextValueArrayIndex = 0;
+                    } else {
+                        // That was the last node; we're done iterating
+                        isEnd = true;
+                    }
+                }
                 
-					// If the left child overlaps the box, push it onto the stack for
-					// processing.
-					if ((node->child[0] != NULL) &&
-						(box.low()[node->splitAxis] < node->splitLocation)) {
-						stack.push(node->child[0]);
-					}
-
-					if (stack.length() > 0) {
-						// Go on to the next node (which may be either one of the ones we 
-						// just pushed, or one from farther back the tree).
-						node = stack.pop();
-						nextValueArrayIndex = 0;
-					} else {
-						// That was the last node; we're done iterating
-						isEnd = true;
-					}
-				}
-
-				// Search for the next intersection at this node until we run out of children
-				while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
-					if (box.intersects(node->boundsArray[nextValueArrayIndex])) {
-						foundIntersection = true;
-					} else {
-						++nextValueArrayIndex;
-						// If we exhaust this node, we'll loop around the master loop 
-						// to find a new node.
-					}
-				}
+                // Search for the next intersection at this node until we run out of children
+                while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
+                    if (box.intersects(node->boundsArray[nextValueArrayIndex])) {
+                        foundIntersection = true;
+                    } else {
+                        ++nextValueArrayIndex;
+                        // If we exhaust this node, we'll loop around the master loop 
+                        // to find a new node.
+                    }
+                }
             }
 
             return *this;

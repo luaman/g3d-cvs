@@ -225,8 +225,7 @@ static size_t encode(const Material::Component& c) {
     }
 }
 
-
-size_t Material::SimilarHashCode::operator()(const Material& mat) const {
+size_t Material::SimilarHashCode::hashCode(const Material& mat) {
     size_t h = 0;
 
     h |= encode(mat.diffuse) << 0;
@@ -254,6 +253,10 @@ size_t Material::SimilarHashCode::operator()(const Material& mat) const {
     }
 
     return h;
+}
+
+size_t Material::SimilarHashCode::operator()(const Material& mat) const {
+    return hashCode(mat);
 }
 
 

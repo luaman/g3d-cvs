@@ -156,7 +156,7 @@ Array<std::string> stringSplit(
     const char* start = x.c_str();
     const char* stop = start;
     
-    while (stop = strchr(start, splitChar)) {
+    while ((stop = strchr(start, splitChar))) {
         out.append(std::string(start, stop - start));
         start = stop + 1;
     }

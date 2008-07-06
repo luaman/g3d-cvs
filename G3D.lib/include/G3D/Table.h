@@ -31,6 +31,7 @@
 #   pragma warning (disable : 4786)
 #endif
 
+/** @deprecated Use HashTrait */
 template<typename Key>
 struct GHashCode{};
 
@@ -94,6 +95,7 @@ struct GHashCode<G3D::Vector3int32>
     size_t operator()(const G3D::Vector3int32& key) const { return static_cast<size_t>(key.x + (key.y >> 10) + (key.z >> 21)); }
 };
 
+/** @ deprecated Use EqualsTrait*/
 template<typename Key>
 struct GEquals{
     bool operator()(const Key& a, const Key& b) const {
@@ -101,6 +103,28 @@ struct GEquals{
     }
 };
 
+
+//////////////////////////////////////
+
+template<typename Key>
+class EqualsTrait {
+public:
+    static bool equals(const Key& a, const Key& b) {
+        return a == b;
+    }
+};
+
+
+/** Adapter for making old GHashCode functions still work */
+template <class T>
+struct HashTrait {
+    static size_t hashCode(const T& k) {
+        static GHashCode<T> f;
+        return f(k);
+    }
+};
+
+/////////////////////////////////////////
 
 
 namespace G3D {
@@ -112,17 +136,17 @@ namespace G3D {
  or provide overloads for: 
 
   <PRE>
-    template<> struct GHashCode<class Key> {
-        size_t operator()(const Key& key) const { return reinterpret_cast<size_t>( ... ); }
+    template<> struct HashTrait<class Key> {
+        static size_t hashCode(const Key& key) { return reinterpret_cast<size_t>( ... ); }
     }; 
   </PRE>
 
   and one of 
 
   <PRE>
-	template<>
-    struct GEquals<class Key>{
-         bool operator()(const Key& a, const Key& b) const { return ... ; }
+    template<>
+    struct EqualsTrait<class Key>{
+         static bool equals(const Key& a, const Key& b) { return ... ; }
     };
 
 
@@ -134,8 +158,8 @@ namespace G3D {
  an enum would use:
 
   <PRE>
-    template<> struct GHashCode<MyEnum> {
-        size_t operator()(const MyEnum& key) const { return reinterpret_cast<size_t>( key ); }
+    template<> struct HashTrait<MyEnum> {
+        static size_t equals(const MyEnum& key) const { return reinterpret_cast<size_t>( key ); }
     };
   </PRE>
 
@@ -146,7 +170,7 @@ namespace G3D {
   1.0 your hash function is badly designed and maps too many inputs to
   the same output.
  */
-template<class Key, class Value, class HashFunc = GHashCode<Key>, class EqualsFunc = GEquals<Key> > 
+template<class Key, class Value, class HashFunc = HashTrait<Key>, class EqualsFunc = EqualsTrait<Key> > 
 class Table {
 public:
 
@@ -204,9 +228,6 @@ private:
            }
 #       endif
     }
-
-    HashFunc        m_HashFunc;
-    EqualsFunc      m_EqualsFunc;
 
     /**
      Number of elements in the table.
@@ -542,7 +563,7 @@ public:
      key into a table is O(1), but may cause a potentially slow rehashing.
      */
     void set(const Key& key, const Value& value) {
-        size_t code = m_HashFunc(key);
+        size_t code = HashFunc::hashCode(key);
         size_t b = code % numBuckets;
         
         // Go to the bucket
@@ -566,7 +587,7 @@ public:
         do {
             allSameCode = allSameCode && (code == n->hashCode);
 
-            if ((code == n->hashCode) && m_EqualsFunc(n->entry.key, key)) {
+            if ((code == n->hashCode) && EqualsFunc::equals(n->entry.key, key)) {
                // Replace the existing node.
                n->entry.value = value;
                return;
@@ -595,7 +616,7 @@ public:
     */
    bool remove(const Key& key) {
       
-      size_t code = m_HashFunc(key);
+       size_t code = HashFunc::hashCode(key);
       size_t b = code % numBuckets;
 
       // Go to the bucket
@@ -608,7 +629,7 @@ public:
 
       // Try to find the node
       do {
-          if ((code == n->hashCode) && m_EqualsFunc(n->entry.key, key)) {
+          if ((code == n->hashCode) && EqualsFunc::equals(n->entry.key, key)) {
               // This is the node; remove it
 
               // Replace the previous's next pointer
@@ -639,13 +660,13 @@ public:
     */
    Value& get(const Key& key) const {
 
-        size_t  code = m_HashFunc(key);
+       size_t  code = HashFunc::hashCode(key);
         size_t b = code % numBuckets;
 
         Node* node = bucket[b];
 
         while (node != NULL) {
-            if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
+            if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
                 return node->entry.value;
             }
             node = node->next;
@@ -669,13 +690,13 @@ public:
        pointer errors.
      */
    Value* getPointer(const Key& key) const {
-	  size_t code = m_HashFunc(key);
+       size_t code = HashFunc::hashCode(key);
       size_t b = code % numBuckets;
 
       Node* node = bucket[b];
 
       while (node != NULL) {
-          if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
+          if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
              // found key
              return &(node->entry.value);
           }
@@ -704,13 +725,13 @@ public:
     Returns true if key is in the table.
     */
    bool containsKey(const Key& key) const {
-       size_t code = m_HashFunc(key);
+       size_t code = HashFunc::hashCode(key);
        size_t b = code % numBuckets;
 
        Node* node = bucket[b];
 
        while (node != NULL) {
-           if ((node->hashCode == code) && m_EqualsFunc(node->entry.key, key)) {
+           if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
               return true;
            }
            node = node->next;

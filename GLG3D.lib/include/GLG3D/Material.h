@@ -204,15 +204,23 @@ public:
 
 
     /** Can be used with Table as an Equals function */
-    struct SimilarTo {
+    class SimilarTo {
+    public:
+        /** @deprecated */
         bool operator()(const Material& a, const Material& b) const {
+            return a.similarTo(b);
+        }
+        static bool equals(const Material& a, const Material& b) {
             return a.similarTo(b);
         }
     };
 
     /** Can be used with Table as a hash function; if two Materials
         have the same SimilarHashCode then they are SimilarTo each other.*/
-    struct SimilarHashCode {
+    class SimilarHashCode {
+    public:
+        static size_t hashCode(const Material& mat);
+        /** @deprecated */
         size_t operator()(const Material& mat) const;
     };
 };

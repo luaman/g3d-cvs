@@ -113,14 +113,14 @@ uses:
 ################################################################
 [DEBUG]
 
-compileoptions:
+compileoptions: -Wno-deprecated-declarations
 
 linkoptions:
 
 ################################################################
 [RELEASE]
 
-compileoptions:
+compileoptions: -Wno-deprecated-declarations
 
 linkoptions:
 

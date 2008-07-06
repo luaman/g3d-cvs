@@ -199,45 +199,47 @@ so here are examples of the four.  You only need to define the ones required by 
 and G3D::Table.  %G3D provides implementations for many built-in classes, like G3D::Vector3 and G3D::AABox.
 
 For G3D::AABSPTree:
- <pre>
+ <PRE>
 
-  template<> struct GetBounds<class MyClass> {
-  void getBounds(const MyClass& obj, G3D::AABox& out) { 
+  template<> struct BoundsTrait<class MyClass> {
+  static void getBounds(const MyClass& obj, G3D::AABox& out) { 
      // compute out from obj
   }};
 
- </pre>
-For G3D::Set and G3D::Table:
-</pre>
+ </PRE>
 
-  template <> struct GHashCode<class MyClass> {
-  size_t operator()(const MyClass& key) const { 
+For G3D::Set and G3D::Table:
+
+ <PRE>
+
+  template <> struct HashTrait<class MyClass> {
+  static size_t hashCode(const MyClass& key) { 
 	  return static_cast<size_t>( ... ); // some  value computed from key
   }};
 
-</pre>
+ </PRE>
   
 For G3D::PointAABSPTree:
-  <pre>
+  <PRE>
   
-  template<> struct GetPosition<class MyClass> {
-  void getPosition(const MyClass& obj, G3D::Vector3& p) { 
+  template<> struct PositionTrait<class MyClass> {
+  static void getPosition(const MyClass& obj, G3D::Vector3& p) { 
       // compute p from obj
   }};
-</pre>
+ </PRE>
 
 For G3D::Table and G3D::Set.  The default version calls operator== on a and rarely
 needs to be overriden.
 
-<pre>
+ <PRE>
 
   template<class MyClass>
-  struct GEquals{
-  bool operator()(const MyClass& a, const MyClass& b) const {
+  struct EqualsTrait {
+  static bool operator()(const MyClass& a, const MyClass& b) {
        return ...;  // true if a and b are "equal"
   }};
 
- </pre>
+ </PRE>
 
 
   @subsection nm Naming Conventions

@@ -321,6 +321,9 @@ public:
      */
     static const TextureFormat* fromCode(TextureFormat::Code code);
 };
+
+typedef TextureFormat ImageFormat;
+
 }
 
 template <>
