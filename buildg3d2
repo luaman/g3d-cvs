@@ -75,9 +75,8 @@ def initOS():
         try:
             i = sys.argv.index('--config')
 
-            icompileConfig = sys.argv[i:i + 1]
-            del sys.argv[i]
-            del sys.argv[i + 1]
+            icompileConfig = sys.argv[i:i + 2]
+            del sys.argv[i:i + 2]
         except ValueError:
             filename = pathConcat(os.environ['HOME'], '.icompile-buildg3d')
             if os.path.exists(filename):
@@ -265,6 +264,8 @@ def docTarget():
 
     version += ' - ' + time.strftime('%B %Y')
 
+    copyIfNewer('doc-files/data-files', 'build/html')
+
     env = {'HEADER_FILE':    'doc-files/data-files/header.html',
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
            'PROJECT_NUMBER': version}
@@ -276,8 +277,6 @@ def docTarget():
 
     # Generate Java docs
     run(doxygen, ['Doxyfile-java'], True, env)
-
-    copyIfNewer('doc-files/data-files', 'build/html')
 
     # Generate demos and support
     copyIfNewer('data-files', 'build/data')
