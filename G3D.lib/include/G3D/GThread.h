@@ -35,6 +35,32 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
  @sa G3D::GMutex, G3D::AtomicInt32
 */
 class GThread : public ReferenceCountedObject {
+private:
+
+    enum STATE {STATUS_CREATED, STATUS_RUNNING, STATUS_COMPLETED};
+
+    // Not implemented on purpose, don't use
+    GThread(const GThread &);
+    GThread& operator=(const GThread&);
+    bool operator==(const GThread&);
+
+#ifdef G3D_WIN32
+    static DWORD WINAPI internalThreadProc(LPVOID param);
+#else
+    static void* internalThreadProc(void* param);
+#endif //G3D_WIN32
+
+    volatile STATE      m_status;
+
+    // Thread handle to hold HANDLE and pthread_t
+#ifdef G3D_WIN32
+    HANDLE              m_handle;
+    HANDLE              m_event;
+#else
+    pthread_t           m_handle;
+#endif //G3D_WIN32
+
+    std::string         m_name;
 
 public:
 
@@ -60,16 +86,15 @@ public:
     void terminate();
 
     /**
-        Returns true if threadMain is currently executing.  This will only be set when the thread is actually running
-        and might not be set when start() returns. */
+        Returns true if threadMain is currently executing.  This will
+        only be set when the thread is actually running and might not
+        be set when start() returns. */
     bool running();
 
     /** Returns true if the thread has exited. */
     bool completed();
 
-    /** 
-        Waits for the thread to finish executing. 
-     */
+    /** Waits for the thread to finish executing. */
     void waitForCompletion();
 
     /** Returns thread name */
@@ -79,32 +104,6 @@ public:
 
     /** Overriden by the thread implementor */
     virtual void threadMain() = 0;
-
-private:
-    enum STATE {STATUS_CREATED, STATUS_RUNNING, STATUS_COMPLETED};
-
-    // Not implemented on purpose, don't use
-    GThread(const GThread &);
-    GThread& operator=(const GThread&);
-    bool operator==(const GThread&);
-
-#ifdef G3D_WIN32
-    static DWORD WINAPI internalThreadProc(LPVOID param);
-#else
-    static void* internalThreadProc(void* param);
-#endif //G3D_WIN32
-
-    volatile STATE      m_status;
-
-    // Thread handle to hold HANDLE and pthread_t
-#ifdef G3D_WIN32
-    HANDLE              m_handle;
-    HANDLE              m_event;
-#else
-    pthread_t           m_handle;
-#endif //G3D_WIN32
-
-    std::string         m_name;
 };
 
 
