@@ -561,10 +561,8 @@ int main(int argc, char* argv[]) {
 
         perfAABSPTree();
 
-#       ifdef G3D_WIN32
-            // Pause so that we can see the values in the debugger
-	        getch();
-#       endif
+        // Pause so that we can see the values in the debugger
+//	        getch();
 
         perfCollisionDetection();
 
