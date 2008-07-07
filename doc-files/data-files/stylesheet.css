@@ -162,16 +162,22 @@ BODY,TD {
        font-size: 90%;
 }
 H1 {
-	text-align: center;
+       text-align: center;
        font-size: 160%;
+       color: #704000;
 }
 H2 {
-       font-size: 120%;
+       font-size: 140%;
+       font-weight: bold;
+       color: #704000;
 }
 H3 {
-       font-size: 100%;
+       font-style: italic;
+       font-weight: bold;
+       font-size: 120%;
+       color: #704000;
 }
-CAPTION { font-weight: bold }
+CAPTION { font-weight: bold; }
 DIV.qindex {
 	width: 100%;
 	background-color: #e8eef2;

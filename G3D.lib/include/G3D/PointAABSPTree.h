@@ -148,7 +148,7 @@ protected:
 
         inline Handle() {}
         inline Handle(const T& v) : value(v) {
-            PositionTrait::getPosition(v, m_position);
+            PositionFunc::getPosition(v, m_position);
         }
 
         /** Used by makeNode to create fake handles for partitioning. */

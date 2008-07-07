@@ -793,11 +793,11 @@ public:
     of NULL pointers.
     */
    void deleteValues() {
-       for (int i = 0; i < numBuckets; i++) {
+       for (size_t i = 0; i < numBuckets; ++i) {
            Node* node = bucket[i];
            while (node != NULL) {
                delete node->entry.value;
-               node->entry->value = NULL;
+               node->entry.value = NULL;
                node = node->next;
            }
        }
