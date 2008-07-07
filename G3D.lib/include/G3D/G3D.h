@@ -102,6 +102,7 @@ template<class T> struct GHashCode< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/Stopwatch.h"
 #include "G3D/AtomicInt32.h"
 #include "G3D/GThread.h"
+#include "G3D/ThreadSet.h"
 #include "G3D/RegistryUtil.h"
 #include "G3D/AnyVal.h"
 #include "G3D/Map2D.h"

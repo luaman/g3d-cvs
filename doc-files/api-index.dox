@@ -173,6 +173,7 @@ href="classes.html">Classes</a>.
     \link G3D::MeshBuilder MeshBuilder\endlink,
     \link G3D::Quat Quat\endlink,
     \link G3D::Plane Plane\endlink,
+    \link G3D::PointAABSPTree PointAABSPTree\endlink,
     \link G3D::Ray Ray\endlink,
     \link G3D::RealTime RealTime\endlink,
     \link G3D::Rect2D Rect2D\endlink,
