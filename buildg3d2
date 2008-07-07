@@ -12,7 +12,7 @@ import ice.copyifnewer, ice.utils
 from ice.utils import run, pathConcat, shell, mkdir
 
 doxygen = 'doxygen'
-config = []
+icompileConfig = []
 distribDir = None
 
 # G3D version.  Update this when the library version changes.
@@ -46,13 +46,10 @@ docInstallDir = None
 # Set by ??? TODO
 buildDir = None
 
-# .icompile config file
-configFile = None
-
 def initOS():
     global windows, freebsd, linux, osx, unix, osShortName
     global libInstallDir, docInstallDir, configFile, platformName
-    global doInstall
+    global doInstall, icompileConfig
 
     s = platform.system()
     windows = (s == 'Windows') or (s == 'Microsoft')
@@ -147,10 +144,10 @@ def copyIfNewer(source, dest):
 """
 def runicompile(dir):
      os.chdir(dir)
-     x = run('../bin/icompile', config + ['--noprompt'])
+     x = run('../bin/icompile', icompileConfig + ['--noprompt'], True)
 
      if (x == 0): 
-         x =run('../bin/icompile', config + ['-O', '--noprompt'])
+         x = run('../bin/icompile', icompileConfig + ['-O', '--noprompt'], True)
 
      os.chdir('..')
 
@@ -194,13 +191,19 @@ def toolsTarget():
     else:
         if (x == 0):
             os.chdir("tools/gfxmeter")
-            x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
+            x = run("../../bin/icompile", icompileConfig + ['--noprompt', '--opt'])
             os.chdir("../..")
+            if x == 0:
+                copyIfNewer(pathConcat('temp/tools/gfxmeter', platformName),
+                            pathConcat(pathConcat('build/', platformName), 'bin/gfxmeter'))
             
         if (x == 0):
             os.chdir("tools/viewer")
-            x = run("../../bin/icompile", config + ['--noprompt', '--opt'])
+            x = run("../../bin/icompile", icompileConfig + ['--noprompt', '--opt'])
             os.chdir("../..")
+            if x == 0:
+                copyIfNewer(pathConcat('temp/tools/viewer', platformName),
+                            pathConcat(pathConcat('build/', platformName), 'bin/viewer'))
 
     if (x == 0):
         dest = pathConcat('build', pathConcat(platformName, 'bin'))
@@ -221,15 +224,15 @@ def cleanTarget():
        return 0
 
     os.chdir("test")
-    run("../bin/icompile", config + ['--clean'])
+    run("../bin/icompile", icompileConfig + ['--clean'])
     os.chdir("..")
 
     os.chdir("tools/gfxmeter")
-    run("../../bin/icompile", config + ['--clean'])
+    run("../../bin/icompile", icompileConfig + ['--clean'])
     os.chdir("../..")
 
     os.chdir("tools/viewer")
-    run("../../bin/icompile", config + ['--clean'])
+    run("../../bin/icompile", icompileConfig + ['--clean'])
     os.chdir("../..")
 
     return 0
@@ -248,9 +251,9 @@ def testTarget():
     else:
 
         os.chdir("test")
-        x = run('../bin/icompile', config + ['--noprompt', '--run']) 
+        x = run('../bin/icompile', icompileConfig + ['--noprompt', '--run']) 
         if (x == 0):
-            x = run('../bin/icompile', config + ['--noprompt', '-O', '--run'])
+            x = run('../bin/icompile', icompileConfig + ['--noprompt', '-O', '--run'])
         os.chdir('..')
 
         return x

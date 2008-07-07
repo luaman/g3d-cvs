@@ -98,7 +98,7 @@ library: %(defaultlibrary)s
 
 exclude: %(defaultexclude)s
 
-builddir: ../../temp/tools/gfxmeter
+builddir: ../../temp/tools/viewer
 
 tempdir: ../../temp
 
