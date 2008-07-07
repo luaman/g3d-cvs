@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-01-01
- @edited  2008-02-02
+ @edited  2008-07-07
  */
 
 #include "G3D/G3D.h"
@@ -609,12 +609,14 @@ int main(int argc, char* argv[]) {
 
 #       ifdef G3D_WIN32
             // Pause so that we can see the values in the debugger
-	        getch();
+//	        getch();
 #       endif
 
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testMatrix();
 
     testLineSegment2D();
 
@@ -658,8 +660,6 @@ int main(int argc, char* argv[]) {
 
     testQueue();
 
-    testMatrix();
-
     testMeshAlgTangentSpace();
 
     testConvexPolygon2D();
@@ -697,10 +697,9 @@ int main(int argc, char* argv[]) {
     printf("  passed\n");
     testSwizzle();
 
-	testCallback();
+    testCallback();
 
     testBinaryIO();
-
 
 #   ifdef RUN_SLOW_TESTS
         testHugeBinaryIO();
