@@ -327,24 +327,26 @@ args must be a list.
 Switches the slashes from unix to dos style in program.
 Blocks until shell returns, then returns the exit code of the program.
 """
-def run(prog, args = [], echo = True, env = {}):
-    program = toLocalPath(prog)
-
+def run(program, args = [], echo = True, env = {}):
     windows = os.name == 'nt' or os.name == 'vista'
     
     # Windows doesn't support spawnvp, so we have to locate the binary
     if windows:
         program = _findBinary(program)
 
+    program = toLocalPath(program)
+    argProgram = program
+
+    if windows:
         # If the program name contains spaces, we
         # add quotes around it.
-        if (' ' in program) and not ('"' in program):
-            program = '"' + program + '"'
+        if (' ' in argProgram) and not ('"' in argProgram):
+            argProgram = '"' + argProgram + '"'
                     
     # spawn requires specification of argv[0]
     # Because the program name may contain spaces, we
     # add quotes around it.
-    newArgs = [program] + args
+    newArgs = [argProgram] + args
 
     newEnv = {}
     newEnv.update(os.environ)

@@ -40,9 +40,8 @@ public:
 };
 
 template <>
-struct GHashCode<TableKey*>
-{
-    size_t operator()(const TableKey* key) const    { return key->hashCode(); }
+struct HashTrait<TableKey*> {
+    static size_t hashCode(const TableKey* key) { return key->hashCode(); }
 };
 
 class TableKeyWithCustomHashStruct {
@@ -52,13 +51,13 @@ public:
     TableKeyWithCustomHashStruct(int data) : data(data) { }
 };
 
-struct TableKeyCustomHashStruct
-{
-    size_t operator()(const TableKeyWithCustomHashStruct& key) const { return static_cast<size_t>(key.data); }
+struct TableKeyCustomHashStruct {
+    static size_t hashCode(const TableKeyWithCustomHashStruct& key) { 
+        return static_cast<size_t>(key.data); 
+    }
 };
 
-bool operator==(const TableKeyWithCustomHashStruct& lhs, const TableKeyWithCustomHashStruct& rhs)
-{
+bool operator==(const TableKeyWithCustomHashStruct& lhs, const TableKeyWithCustomHashStruct& rhs) {
     return (lhs.data == rhs.data);
 }
 
@@ -66,7 +65,6 @@ bool operator==(const TableKeyWithCustomHashStruct& lhs, const TableKeyWithCusto
 void testTable() {
 
     printf("G3D::Table  ");
-
 
     // Test ops involving HashCode / lookup for a table with a key
     // that uses a custom hashing struct

@@ -428,6 +428,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\ThreadSet.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Triangle.cpp"
 				>
 			</File>
@@ -795,6 +799,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\TextOutput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\ThreadSet.h"
 				>
 			</File>
 			<File

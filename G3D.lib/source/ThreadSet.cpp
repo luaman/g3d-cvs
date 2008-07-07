@@ -1,4 +1,4 @@
-#include "ThreadSet.h"
+#include "G3D/ThreadSet.h"
 
 namespace G3D {
 
