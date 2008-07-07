@@ -7,9 +7,9 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2001-08-25
- @edited  2007-05-01
+ @edited  2008-05-01
 
- Copyright 2000-2007, Morgan McGuire.
+ Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
 */
 
@@ -63,8 +63,8 @@
 #include "G3D/fileutils.h"
 #include "G3D/ReferenceCount.h"
 
-template<class T> struct GHashCode< G3D::ReferenceCountedPointer<T> > {
-    size_t operator()(G3D::ReferenceCountedPointer<T> key) const { return reinterpret_cast<size_t>( key.pointer() ); }
+template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
+    static size_t hashCode(G3D::ReferenceCountedPointer<T> key) { return reinterpret_cast<size_t>( key.pointer() ); }
 };
 
 #include "G3D/GImage.h"
