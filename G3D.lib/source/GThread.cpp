@@ -67,13 +67,19 @@ GThreadRef GThread::create(const std::string& name, void (*proc)(void*), void* p
     return new _internal::BasicThread(name, proc, param);
 }
 
+
+bool GThread::started() const {
+    return m_status != STATUS_CREATED;
+}
+
 bool GThread::start() {
-
-    debugAssertM(m_status == STATUS_CREATED, "Thread has already executed.");
-
-    if (m_status != STATUS_CREATED) {
+    
+    debugAssertM(! started(), "Thread has already executed.");
+    if (started()) {
         return false;
     }
+
+    m_status = STATUS_STARTED;
 
 #   ifdef G3D_WIN32
     DWORD threadId;
@@ -113,11 +119,11 @@ void GThread::terminate() {
     }
 }
 
-bool GThread::running() {
+bool GThread::running() const{
     return (m_status == STATUS_RUNNING);
 }
 
-bool GThread::completed() {
+bool GThread::completed() const {
     return (m_status == STATUS_COMPLETED);
 }
 

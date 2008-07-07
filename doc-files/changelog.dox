@@ -15,10 +15,14 @@
    Changes in 7.01:
    <ul>
      <li> <b>Incompatible change</b>:GApp now calls the onLogic handler before the simulation handlers but after the user input and network handlers
+     <li> <b>Incompatible change</b>: Changed GHashCode and other functors to traits.  See \link guidenewuser \endlink.  Added typedefs and adapters to make this mostly backwards compatible.
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> GWindow::create
+     <li> G3D::ThreadSet
+     <li> G3D::GThread::started
+     <li> buildg3d installation arguments changed--see 
      <li> G3D::Vector3int32
      <li> GuiButton now accepts an optional callback function/method
      <li> FileDialog now accepts an extra "note" argument
@@ -98,6 +102,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Rewrote buildg3d to fix many longstanding bugs, including mismatched 'bin' directories and confusion about the 'install' target
      <li> Fix: gfxmeter reports now format correctly regardless of monitor width
      <li> Fix: patch to initialize correctly on the Mesa library, which crashes when requesting DEPTH24_STENCIL8
      <li> Fix: stringSplit now works correctly for adjacent split characters [Akita Noek]

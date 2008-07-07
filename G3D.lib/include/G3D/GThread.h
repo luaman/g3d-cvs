@@ -37,7 +37,7 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
 class GThread : public ReferenceCountedObject {
 private:
 
-    enum STATE {STATUS_CREATED, STATUS_RUNNING, STATUS_COMPLETED};
+    enum Status {STATUS_CREATED, STATUS_STARTED, STATUS_RUNNING, STATUS_COMPLETED};
 
     // Not implemented on purpose, don't use
     GThread(const GThread &);
@@ -50,7 +50,7 @@ private:
     static void* internalThreadProc(void* param);
 #endif //G3D_WIN32
 
-    volatile STATE      m_status;
+    volatile Status     m_status;
 
     // Thread handle to hold HANDLE and pthread_t
 #ifdef G3D_WIN32
@@ -89,10 +89,14 @@ public:
         Returns true if threadMain is currently executing.  This will
         only be set when the thread is actually running and might not
         be set when start() returns. */
-    bool running();
+    bool running() const;
+
+    /** True after start() has been called, even through the thread
+        may have already completed(), or be currently running().*/
+    bool started() const;
 
     /** Returns true if the thread has exited. */
-    bool completed();
+    bool completed() const;
 
     /** Waits for the thread to finish executing. */
     void waitForCompletion();

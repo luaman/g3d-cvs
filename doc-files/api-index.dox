@@ -362,6 +362,7 @@ href="classes.html">Classes</a>.
         \link G3D::resolveFilename resolveFilename\endlink,
         \link G3D::TextInput TextInput\endlink,
         \link G3D::TextOutput TextOutput\endlink,
+        \link G3D::ThreadSet ThreadSet\endlink,
         \link G3D::Token Token\endlink,
         \link G3D::TextInput::WrongTokenType TextInput::WrongTokenType\endlink,
         \link G3D::writeWholeFile writeWholeFile\endlink,
