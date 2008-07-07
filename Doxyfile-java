@@ -1,0 +1,9 @@
+@INCLUDE = Doxyfile
+
+PROJECT_NAME           = "G3D Java"
+OUTPUT_DIRECTORY       = build/$(OUTPUT_DEST)
+HTML_OUTPUT            = html/java
+OPTIMIZE_OUTPUT_JAVA   = YES
+INPUT                  = G3D.jar/
+FILE_PATTERNS          = *.java
+
