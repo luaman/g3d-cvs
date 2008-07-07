@@ -35,6 +35,10 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 		m_numFaces += ((partArray[y].indexArray.size())/3);
 	}
 
+    return;
+
+    // TODO: Scale the model in place, rather than re-loading!
+
     bool overwrite = true;
 
 	// Gind the size of the bounding box of the entire model

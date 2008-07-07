@@ -80,6 +80,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
 
 
     Load3DS load;
+    Table<std::string, TextureRef> texCache;
 
     std::string path = filenamePath(filename);
     load.load(filename);
@@ -184,7 +185,10 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
 
                                 std::string f = System::findDataFile(textureFile, false);
                                 if (f != "") {
-                                    triList.material.diffuse.map = Texture::fromFile(f);
+                                    if (! texCache.containsKey(f)) {
+                                        texCache.set(f, Texture::fromFile(f));
+                                    }
+                                    triList.material.diffuse.map = texCache[f];
                                 } else {
                                     Log::common()->printf("Could not load texture '%s'\n", textureFile.c_str());
                                 }
