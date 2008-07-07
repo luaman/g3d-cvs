@@ -9,7 +9,7 @@ import os, platform, commands, sys, time, getopt, errno
 # To get access to icompile routines
 sys.path.append('bin')
 import ice.copyifnewer, ice.utils
-from ice.utils import run, pathConcat, shell, mkdir
+from ice.utils import run, pathConcat, shell, mkdir, VC9
 
 doxygen = 'doxygen'
 icompileConfig = []

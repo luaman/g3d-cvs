@@ -1,7 +1,7 @@
 /** 
 @page guideoverview G3D Overview
 
-<IMG SRC="3dengine.jpg" style="float: right;">
+<IMG SRC="3dengine.jpg" style="float: right;" >
 %G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
 It is used in games, tech demos, research papers, military simulators, and
 university courses.  It provides a set of routines and structures so common
@@ -19,10 +19,9 @@ we recommend using one with %G3D if your project has extensive UI needs.
 This manual begins with a \link guidetutorial Tutorial \endlink and
 \link guideapp Application Framework \endlink that help
 programmers who know C++ but are either new to 3D or starting without
-a base of 3D code get up and running quickly.  The demos directory also contains
-a starter <A HREF="../demos/empty/main.cpp">main.cpp</A> for the
-application framework (it is how the %G3D developers usually
-start a new project in their own work).
+a base of 3D code get up and running quickly.  The demos directory contains
+a <a href="../demos/starter">starter</a> project(it is how the %G3D development team usually
+start new projects in their own work).
 
 The library also provides lower-level interfaces that programmers who are
 already working with OpenGL and existing code may prefer.  See the
@@ -96,12 +95,12 @@ Our philosophy is simple. The library should have the following properties:
 @section formats Data Formats 
 
 %G3D supports images in PNG, TGA, BMP, JPG, PCX, PPM, PGM, PBM, DDS,
-and ICO format through the G3D::Texture and G3D::GImage classes.  %G3D
+and ICO format through the G3D::Texture, G3D::Image3, G3D::GImage classes.  %G3D
 has loaders for the BSP, PLY2, IFS, 3DS and MD2 mesh formats.  %G3D
 uses its own font format (FNT) to avoid legal issues with TrueType.
 Over 30 popular fonts are provided in this format and the code
 contains a routine to help you make more from your TrueType fonts.
-G3D::GuiWindow skins are in open source SKN format, which is
+G3D::GuiTheme skins are in open source SKN format, which is
 implicitly documented by the G3D::GuiTheme class source code and will
 be explicitly documented in a future release (the format is currently
 under development).
@@ -135,12 +134,8 @@ and by hardware, software, and technical support from Autodesk, NVIDIA, and AMD.
 @section otherlibs Working With Other Libraries
 %G3D is compatible with most other libraries.  
 
-Although %G3D uses SDL 
-(http://www.libsdl.org) for platform window management, you can use the G3D::GWindow API 
-to replace SDL with a platform-specific or alternative library.  Users have 
-created unsupported GWindow implementations for wxWindows, qtWindows, and the 
-Win32 API that can be found online.  Version 7.00 of G3D will not use
-SDL at all on Windows by default to reduce the size of your dependencies.
+Although %G3D provides its own native window management, you can use the G3D::GWindow API 
+to replace that with GUI libraries, likw wxWindows and qtWindows.
 
 It is possible to use DirectX instead of OpenGL.  The easiest way is to link 
 against %G3D.lib only and use DirectX calls instead of the GLG3D equivalents.  A more 
@@ -151,10 +146,11 @@ To avoid memory leaks, ensure that all libraries you use have been compiled agai
 the same version of the C++ standard library.  %G3D expects to be compiled with run-time
 type checking (RTTI), C++ exceptions, and a multithreaded, dynamically linked runtime.
 
-%G3D uses zlib, libpng, libzip, and libjpeg, which are distributed as part of %G3D (as headers and a windows .libs).
+%G3D uses zlib, libpng, libzip, and libjpeg, which are distributed as part of %G3D 
+(as headers and a windows .libs).
 
-On Unix, G3D::SDLWindow uses SDL.  SDL is not included with the %G3D installation and
-must be downloaded separately from http://libsdl.org. 
+On Linux and FreeBSD, G3D::SDLWindow uses SDL. SDL is not included with the %G3D installation and
+must be downloaded separately from http://libsdl.org if it is not installed on your machine already.
 
 In addition to those mentioned above, you may be interested in using the following 
 libraries to complement %G3D:

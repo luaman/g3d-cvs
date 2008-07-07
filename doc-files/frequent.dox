@@ -1,6 +1,5 @@
 /** @page frequent Frequently Used Documentation
 
-
   <DT>G3D::RenderDevice
   <DT>G3D::Texture::fromFile
   <DT>G3D::Texture::createEmpty

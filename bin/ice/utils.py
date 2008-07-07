@@ -280,15 +280,23 @@ def shell(cmd, printCmd = True):
 """Finds an executable on Windows."""
 def _findBinary(program):     
     # Paths that may contain the program
+       
+    PROGRAMFILES = os.getenv('PROGRAMFILES', '')
+    SYSTEMDRIVE = os.getenv('SystemDrive', '')
 
     PATH = [''] + os.getenv('PATH', '').split(';') + \
            ['.',\
-           'C:/Program Files/Microsoft Visual Studio 8/VC/bin',\
-           'C:/Program Files/Microsoft Visual Studio .NET 2003/Vc7/bin',\
-           'C:/Program Files/Microsoft Visual Studio/Common/MSDev98/Bin',\
-           'C:/python',\
-           'C:/doxygen/bin',\
-           'C:/Program Files/PKZIP']
+           PROGRAMFILES + '/Microsoft Visual Studio 9.0/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio 8/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio/Common/MSDev98/Bin',\
+           PROGRAMFILES + '/Microsoft Visual Studio .NET 2003/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio .NET 2002/Common7/IDE',\
+           PROGRAMFILES + '/Microsoft Visual Studio .NET/Common7/IDE',\
+           SYSTEMDRIVE + '/python',\
+           SYSTEMDRIVE + '/doxygen/bin',\
+           PROGRAMFILES + '/doxygen/bin',\
+           PROGRAMFILES + '/PKZIP',\
+           'bin']
 
     for path in PATH:
         filename = pathConcat(path, program)
@@ -362,7 +370,140 @@ def run(program, args = [], echo = True, env = {}):
 
     return exitcode
 
+###########################################################################
 
+"""Runs MSDEV (VC6) on the given dsw filename and builds the 
+specified configs.  configs is a list of strings
+"""
+def msdev(filename, configs):
+    binary = 'msdev'
+
+    logfile = tempfile.mktemp()
+    args = [filename]
+
+    for config in configs:
+        args.append('/MAKE')
+        args.append('"' + config + '"')
+
+    args.append('/OUT')
+    args.append(logfile)
+
+    x = run(binary, args)
+  
+    # Print the output to standard out
+    for line in fileinput.input(logfile):
+        print line.rstrip('\n')
+ 
+    return x
+
+###############################################################################
+
+"""Runs DEVENV (VC7) on the given sld filename and builds the 
+specified configs.  configs is a list of strings
+"""
+def devenv(filename, configs):
+    binary = 'devenv'
+
+    for config in configs:
+        for target in ['debug', 'release']:
+            logfile = tempfile.mktemp()
+            args = [filename]
+
+            args.append('/build')
+            args.append(target)
+            args.append('/project "' + config + '"')
+
+            args.append('/out')
+            args.append(logfile)
+
+            x = run(binary, args)
+  
+            # Print the output to standard out
+            for line in fileinput.input(logfile):
+                print line.rstrip('\n')
+
+            if x != 0:
+                # Abort-- a build failed
+                return x;
+ 
+    return 0
+
+##############################################
+"""Runs VCExpress (VC9) on the given sln filename and builds the 
+specified configs.  configs is a list of strings
+"""
+def VCExpress(filename, configs):
+    binary = 'VCExpress'
+
+    for config in configs:
+        for target in ['debug', 'release']:
+            logfile = tempfile.mktemp()
+            args = [toLocalPath(filename)]
+
+            args.append('/build')
+            args.append(target)
+            args.append('/project "' + config + '"')
+
+            args.append('/out')
+            args.append(logfile)
+
+            x = run(binary, args)
+  
+            # Print the output to standard out
+            for line in fileinput.input(logfile):
+                print line.rstrip('\n')
+
+            if x != 0:
+                # Abort-- a build failed
+                return x;
+ 
+    return 0
+
+###############################################################################
+""" 
+ VC9 dispatcher
+"""
+
+baseRegPath = r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft"
+vc8ePaths = ("VCExpress", "8.0", "Setup")
+vc9ePaths = ("VCExpress", "9.0", "Setup")
+vc8Paths = ("VisualStudio", "8.0", "Setup", "VS")
+vc9Paths = ("VisualStudio", "9.0", "Setup", "VS")
+
+def checkHasVC(paths, testSection, testOption):
+     from regconfig import RegConfig
+
+     regConf = RegConfig(baseRegPath)
+     currentPath = baseRegPath
+     
+     missingSection = False
+     for section in paths:
+         if regConf.has_section(section):
+             currentPath += "\\" + section
+             regConf = RegConfig(currentPath)
+         else:
+             missingSection = True
+             break
+
+     if not missingSection:
+         return regConf.has_option(testSection, testOption)
+     else:
+         return False
+
+def VC9(filename, configs):
+     # find out the flavor of MSVC
+     
+     if checkHasVC(vc8Paths, 'Pro','ProductDir') or checkHasVC(vc9Paths, 'Pro','ProductDir'):
+         return devenv(filename, configs)
+     elif checkHasVC(vc8Paths, 'Std','ProductDir') or checkHasVC(vc9Paths, 'Std','ProductDir'):
+         return devenv(filename, configs)
+     elif checkHasVC(vc8ePaths, 'VS','ProductDir') or checkHasVC(vc9ePaths, 'VS','ProductDir'):
+         return VCExpress(filename, configs)
+     else:
+         print "Failed to find MSVC environment. Is this a valid MSDEV shell?"
+         return -1
+
+###########################################################################
 
 """Run a program with command line arguments.
 
