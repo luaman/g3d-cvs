@@ -36,8 +36,8 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
 */
 class GThread : public ReferenceCountedObject {
 private:
-
-    enum Status {STATUS_CREATED, STATUS_STARTED, STATUS_RUNNING, STATUS_COMPLETED};
+    // "Status" is a reserved work on FreeBSD
+    enum GStatus {STATUS_CREATED, STATUS_STARTED, STATUS_RUNNING, STATUS_COMPLETED};
 
     // Not implemented on purpose, don't use
     GThread(const GThread &);
@@ -50,7 +50,7 @@ private:
     static void* internalThreadProc(void* param);
 #endif //G3D_WIN32
 
-    volatile Status     m_status;
+    volatile GStatus     m_status;
 
     // Thread handle to hold HANDLE and pthread_t
 #ifdef G3D_WIN32
