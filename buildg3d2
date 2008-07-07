@@ -160,6 +160,7 @@ def libTarget():
 
      if windows:
          x = VC9('VC9/G3D.sln', ['jpeg.lib', 'png.lib', 'zlib.lib', 'zip.lib', 'G3D.lib', 'GLG3D.lib']);
+             
      else:
     
          if osx:
@@ -182,13 +183,12 @@ def libTarget():
 ##################################################################################
  
 def toolsTarget():
-    x = libTarget()
-    if x != 0: return x
-     
     if windows:
         x = VC9('VC9/G3D.sln', ['gfxmeter', 'viewer']);
 
     else:
+        x = libTarget()
+     
         if (x == 0):
             os.chdir("tools/gfxmeter")
             x = run("../../bin/icompile", icompileConfig + ['--noprompt', '--opt'])
@@ -218,9 +218,7 @@ def cleanTarget():
     ice.utils.rmdir('build')
     ice.utils.rmdir('temp')
 
-    if windows:
-       # iCompile does not support VC9 yet, so explicitly run the project files
-       # TODO
+    if windows:       
        return 0
 
     os.chdir("test")
@@ -240,15 +238,17 @@ def cleanTarget():
 ##################################################################################
     
 def testTarget():
-    x = libTarget()
-    if x != 0:
-        return x
     
     if windows:
-       # iCompile does not support VC9 yet, so explicitly run the project files
-       # TODO
-       return -1
+       x = VC9('VC9/G3D.sln', ['test']);
+       if x == 0:
+          x = run('temp/test/build/testd.exe')
+          if x == 0:
+              run('temp/test/build/test.exe')             
     else:
+        x = libTarget()
+        if x != 0:
+            return x
 
         os.chdir("test")
         x = run('../bin/icompile', icompileConfig + ['--noprompt', '--run']) 
@@ -256,7 +256,7 @@ def testTarget():
             x = run('../bin/icompile', icompileConfig + ['--noprompt', '-O', '--run'])
         os.chdir('..')
 
-        return x
+    return x
 
 ##################################################################################
     
