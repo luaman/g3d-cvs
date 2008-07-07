@@ -9,7 +9,7 @@ import os, platform, commands, sys, time, getopt, errno
 # To get access to icompile routines
 sys.path.append('bin')
 import ice.copyifnewer, ice.utils
-from ice.utils import run, pathConcat, shell, mkdir, VC9
+from ice.utils import run, pathConcat, shell, mkdir, VC9, _findBinary
 
 doxygen = 'doxygen'
 icompileConfig = []
@@ -274,8 +274,6 @@ def docTarget():
            'PROJECT_NUMBER': version}
 
     # Generate C++ docs
-    # TODO: this version of run seems to generate different results than
-    # the one in buildlib
     run(doxygen, ['Doxyfile'], True, env)
 
     # Generate Java docs
@@ -336,11 +334,11 @@ def jarTarget():
    print 'Testing for javac and jar...'
    if windows:
        try:
-           # TODO: use the found binary!
-           findBinary('javac')
-           findBinary('jar')
-       except:
+           javac = _findBinary('javac')
+           _findBinary('jar')
+       except Exception:
            print 'javac or jar not found on this machine, skipping .jar creation!'
+           raise
            return -1
    else:
        x = shell('javac', False)
@@ -348,12 +346,13 @@ def jarTarget():
        if len(x) < 200 or len(y) < 200:
            print 'javac or jar not found on this machine, skipping .jar creation!'
            return -1
+       javac = 'javac'
 
    print 'Building G3D.jar...'
    mkdir('temp/G3D.jar/G3D')
    mkdir('build')
    
-   shell('javac -d temp/G3D.jar G3D.jar/G3D/*.java')
+   shell(javac + ' -d temp/G3D.jar G3D.jar/G3D/*.java')
 
    ret = run('jar', ['-cf', 'build/G3D.jar', '-C', 'temp/G3D.jar', 'G3D'])
 

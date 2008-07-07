@@ -292,6 +292,7 @@ def _findBinary(program):
            PROGRAMFILES + '/Microsoft Visual Studio .NET 2003/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio .NET 2002/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio .NET/Common7/IDE',\
+           PROGRAMFILES + '/Java/jdk1.5.0_06/bin',\
            SYSTEMDRIVE + '/python',\
            SYSTEMDRIVE + '/doxygen/bin',\
            PROGRAMFILES + '/doxygen/bin',\
@@ -314,7 +315,7 @@ def _findBinary(program):
             return filename
             break
 
-    raise 'Error', 'Cannot find "' + program + '"'
+    raise Exception('Cannot find "' + program + '"')
     return program
 
 
