@@ -232,11 +232,10 @@ protected:
         m_oldValue = *m_value;
         roundAndClamp(m_oldValue);
         *m_value = m_oldValue;
-        updateText();
 
-        m_textBox->setRect(Rect2D::xywh(captionWidth, 0, 160, CONTROL_HEIGHT));
+        m_textBox->setRect(Rect2D::xywh(captionWidth, 0, 120, CONTROL_HEIGHT));
         // Account for the caption space
-        m_textBox->moveBy(-140, 0);
+        m_textBox->moveBy(-100, 0);
 
         if (m_slider != NULL) {
             m_slider->setRect(Rect2D::xywh(captionWidth + textBoxWidth, 0, sliderWidth, CONTROL_HEIGHT));
@@ -305,10 +304,10 @@ public:
             }
 
             // Render caption and suffix
-            skin->renderLabel(m_rect - m_clientRect.x0y0(), m_caption, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
+            skin->renderLabel(m_rect, m_caption, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
 
             const Rect2D& textBounds = m_textBox->rect();
-            skin->renderLabel(Rect2D::xywh(textBounds.x1y0() + Vector2(2, 0), Vector2(suffixWidth, textBounds.height())), 
+            skin->renderLabel(Rect2D::xywh(textBounds.x1y0() + Vector2(10, 0), Vector2(suffixWidth, textBounds.height())), 
                 m_suffix, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
         skin->popClientRect();
     }
