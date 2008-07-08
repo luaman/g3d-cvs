@@ -2,10 +2,10 @@
  @file GLG3D/GuiControl.h
 
  @created 2006-05-01
- @edited  2007-06-01
+ @edited  2008-07-08
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
+ Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
 #ifndef GUICONTROL_H
@@ -18,12 +18,13 @@
 namespace G3D {
 
 class GuiWindow;
-class GuiPane;
+class GuiContainer;
 
 /** Base class for all controls. */
 class GuiControl {
     friend class GuiWindow;
     friend class GuiPane;
+    friend class GuiContainer;
 
 protected:
 
@@ -161,13 +162,18 @@ public:
 
 protected:
 
+    /** Sent events should appear to be from this object, which is
+       usually "this".  Other controls can set the event source
+       to create compound controls that seem atomic from the outside. */
+    GuiControl*       m_eventSource;
+
     bool              m_enabled;
 
     /** The window that ultimately contains this control */
     GuiWindow*        m_gui;
 
     /** Parent pane */
-    GuiPane*          m_parent;
+    GuiContainer*     m_parent;
 
     /** Rect bounds used for rendering and layout.
         Relative to the enclosing pane's clientRect. */
@@ -180,7 +186,7 @@ protected:
     bool              m_visible;
 
     GuiControl(GuiWindow* gui, const GuiCaption& text = "");
-    GuiControl(GuiPane* parent, const GuiCaption& text = "");
+    GuiControl(GuiContainer* parent, const GuiCaption& text = "");
 
     /** Fires an action event */
     void fireActionEvent();    
@@ -198,7 +204,7 @@ public:
 
     /** Grab or release keyboard focus */
     void setFocused(bool b);
-    void setEnabled(bool e);
+    virtual void setEnabled(bool e);
     const GuiCaption& caption() const;
     const Rect2D& rect() const;
 
@@ -214,7 +220,8 @@ public:
     void setWidth(float w);
     void setHeight(float h);
 
-    /** If these two controls have the same parent, move this one immediately to the right of the argument*/
+    /** If these two controls have the same parent, move this one 
+        immediately to the right of the argument*/
     void moveRightOf(const GuiControl* control);
     void moveBy(const Vector2& delta);
     void moveBy(float dx, float dy);    
@@ -226,29 +233,33 @@ public:
         return false;
     }
 
-protected:
-
     /**
-     Only methods on @a skin may be called from this method by default.  To make arbitrary RenderDevice calls,
-     wrap them in GuiTheme::pauseRendering ... GuiTheme::resumeRendering.
+     Only methods on @a skin may be called from this method by default.  To make arbitrary 
+     RenderDevice calls, wrap them in GuiTheme::pauseRendering ... GuiTheme::resumeRendering.
      */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const = 0;
 
+    /** Used by GuiContainers */
+    const Rect2D& clickRect() const {
+        return m_clickRect;
+    }
+
+protected:
+
     /** Events are only delivered to a control when the control that
         control has the key focus (which is transferred during a mouse
-        down)
-    */
+        down) */
     virtual bool onEvent(const GEvent& event) { return false; }
 
-    /**
-      Returns the coordinates of v, which is in the coordinate system of this object,
-      relative to the GWindow on which it will be rendered.
-     */
+    /** Returns the coordinates of v, which is in the coordinate system of this object,
+       relative to the GWindow on which it will be rendered. */
     Vector2 toGWindowCoords(const Vector2& v) const;
 
     Rect2D toGWindowCoords(const Rect2D& r) const {
         return Rect2D::xywh(toGWindowCoords(r.x0y0()), r.wh());
-    }};
+    }
+
+};
 
 }
 

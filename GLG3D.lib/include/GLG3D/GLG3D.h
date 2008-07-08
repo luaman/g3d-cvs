@@ -4,10 +4,10 @@
  This header includes all of the GLG3D libraries in 
  appropriate namespaces.
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2008-01-01
+ @edited  2008-07-01
 
  Copyright 2001-2008, Morgan McGuire.
  All rights reserved.
@@ -86,12 +86,14 @@
 #include "GLG3D/GuiWindow.h"
 #include "GLG3D/GuiCheckBox.h"
 #include "GLG3D/GuiControl.h"
+#include "GLG3D/GuiContainer.h"
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiPane.h"
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/FileDialog.h"
 
 #include "GLG3D/BackgroundWidget.h"

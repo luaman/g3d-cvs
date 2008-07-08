@@ -94,7 +94,7 @@ void GuiMenu::hide() {
 ///////////////////////////////////////////////////
 
 GuiDropDownList::GuiDropDownList
-(GuiPane*                    parent, 
+(GuiContainer*               parent, 
  const GuiCaption&           caption, 
  const Pointer<int>&         indexValue, 
  Array<std::string>*         listValue) : GuiControl(parent, caption), 
@@ -106,7 +106,7 @@ GuiDropDownList::GuiDropDownList
 
 
 GuiDropDownList::GuiDropDownList
-(GuiPane*                    parent, 
+(GuiContainer*               parent, 
  const GuiCaption&           caption, 
  const Pointer<int>&         indexValue, 
  Array<GuiCaption>*          listValue) : GuiControl(parent, caption), 

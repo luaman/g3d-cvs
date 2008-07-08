@@ -22,7 +22,7 @@ static const float               keyRepeatDelay = 0.25f;
 
 namespace G3D {
 
-GuiTextBox::GuiTextBox(GuiPane* parent, const GuiCaption& caption, 
+GuiTextBox::GuiTextBox(GuiContainer* parent, const GuiCaption& caption, 
                        const Pointer<std::string>& value, Update update) 
     : GuiControl(parent, caption), m_value(value), 
       m_cursorPos(0), m_editing(false), m_update(update), m_cursor("|") {
@@ -40,10 +40,11 @@ void GuiTextBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
             if (! focused()) {
                 // Just lost focus
                 if ((m_update == DELAYED_UPDATE) && (m_oldValue != m_userValue)) {
-                    *me->m_value = me->m_oldValue = m_userValue;
+                    me->m_oldValue = m_userValue;
+                    me->commit();
                     GEvent response;
                     response.gui.type = GEventType::GUI_CHANGE;
-                    response.gui.control = me;
+                    response.gui.control = me->m_eventSource;
                     m_gui->fireEvent(response);
                 }
                 me->m_editing = false;
@@ -88,8 +89,8 @@ void GuiTextBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 
         // Note that textbox does not have a mouseover state
         skin->renderTextBox
-           (m_rect, 
-            m_enabled, 
+           (m_rect,
+            m_enabled,
             focused(), 
             m_caption,
             m_editing ? m_userValue : *m_value, 
@@ -180,13 +181,19 @@ void GuiTextBox::processRepeatKeysym() {
     }
 
     if (m_editing && (m_update == IMMEDIATE_UPDATE)) {
-        *m_value = m_oldValue = m_userValue;
+        m_oldValue = m_userValue;
+        commit();
         GEvent response;
         response.gui.type = GEventType::GUI_CHANGE;
-        response.gui.control = this;
+        response.gui.control = m_eventSource;
         m_gui->fireEvent(response);
     }
 
+}
+
+
+void GuiTextBox::commit() {
+    *m_value = m_userValue;
 }
 
 
@@ -204,7 +211,7 @@ bool GuiTextBox::onEvent(const GEvent& event) {
             {
                 GEvent response;
                 response.gui.type = GEventType::GUI_CANCEL;
-                response.gui.control = this;
+                response.gui.control = m_eventSource;
                 m_gui->fireEvent(response);
             }            
             setFocused(false);
@@ -223,18 +230,18 @@ bool GuiTextBox::onEvent(const GEvent& event) {
         case GKey::RETURN:
         case GKey::TAB:
             // Edit done
-            *m_value = m_userValue;
+            commit();
             m_editing = false;
             if (m_update == DELAYED_UPDATE) {
                 GEvent response;
                 response.gui.type = GEventType::GUI_CHANGE;
-                response.gui.control = this;
+                response.gui.control = m_eventSource;
                 m_gui->fireEvent(response);
             }
             if (event.key.keysym.sym == GKey::RETURN) {
                 GEvent response;
                 response.gui.type = GEventType::GUI_ACTION;
-                response.gui.control = this;
+                response.gui.control = m_eventSource;
                 m_gui->fireEvent(response);
             }
 

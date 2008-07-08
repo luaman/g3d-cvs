@@ -130,8 +130,8 @@ public:
        EVENT_RESERVED7,		/* Reserved for future use.. */
        GUI_DOWN,            /* GuiControl button, etc. pressed. */
        GUI_UP,              /* GuiControl button, etc. released. */
-       GUI_ACTION,          /* Button fire, enter pressed in a text box, slider released, menu selecion. */
-       GUI_CHANGE,          /* Text box value changed, slider dragged. */
+       GUI_ACTION,          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
+       GUI_CHANGE,          /* Continuous changing (e.g., typing in text box, slider dragged.) */
        GUI_CANCEL,          /* esc pressed in a text box or menu */
        GUI_CLOSE,           /* GuiWindow close button pressed. */
        FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 

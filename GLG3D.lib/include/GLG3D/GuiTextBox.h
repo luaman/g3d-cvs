@@ -19,9 +19,14 @@ namespace G3D {
 class GuiWindow;
 class GuiPane;
 
-/** Text box for entering strings.  Fires
-    a G3D::GuiEvent of type G3D::GEventType::GUI_ACTION on the containing window when
-    the contents change or when the box loses focus, depending on how it is configured.
+/** Text box for entering strings.  
+
+    <b>Events:</b>
+    <ol> 
+      <li> GEventType::GUI_ACTION when enter is pressed or the box loses focus
+      <li> GEventType::GUI_CHANGE as text is entered (in IMMEDIATE_UPDATE mode)
+      <li> GEventType::GUI_CANCEL when ESC is pressed
+    </ol>
 */
 class GuiTextBox : public GuiControl {
     friend class GuiWindow;
@@ -68,11 +73,8 @@ protected:
     RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
-    GuiTextBox(GuiPane* parent, const GuiCaption& caption, 
+    GuiTextBox(GuiContainer* parent, const GuiCaption& caption, 
                const Pointer<std::string>& value, Update update);
-
-    /** Called by GuiPane */
-    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
     virtual bool onEvent(const GEvent& event);
 
@@ -85,9 +87,16 @@ protected:
     /** Called from render and onEvent to enact the action triggered by the repeat key. */
     void processRepeatKeysym();
 
+    /** Called to change the value to the typed value.*/
+    virtual void commit();
+
 public:
 
     virtual void setRect(const Rect2D&);    
+
+    /** Called by GuiPane */
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
+
 };
 
 } // G3D

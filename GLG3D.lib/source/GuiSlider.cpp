@@ -12,7 +12,7 @@
 
 namespace G3D {
 
-_GuiSliderBase::_GuiSliderBase(GuiPane* parent, const GuiCaption& text, bool horizontal) :
+_GuiSliderBase::_GuiSliderBase(GuiContainer* parent, const GuiCaption& text, bool horizontal) :
     GuiControl(parent, text), 
     m_horizontal(horizontal),
     m_inDrag(false) {
@@ -48,11 +48,11 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
 
             GEvent response;
             response.gui.type = GEventType::GUI_DOWN;
-            response.gui.control = this;
+            response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
 
             response.gui.type = GEventType::GUI_CHANGE;
-            response.gui.control = this;
+            response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
 
             return true;
@@ -64,7 +64,7 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
 
             GEvent response;
             response.gui.type = GEventType::GUI_CHANGE;
-            response.gui.control = this;
+            response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
 
             fireActionEvent();
@@ -78,7 +78,7 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
 
             GEvent response;
             response.gui.type = GEventType::GUI_DOWN;
-            response.gui.control = this;
+            response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
             fireActionEvent();
 
@@ -98,7 +98,7 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
 
         GEvent response;
         response.gui.type = GEventType::GUI_CHANGE;
-        response.gui.control = this;
+        response.gui.control = m_eventSource;
         m_gui->fireEvent(response);
 
         return true;

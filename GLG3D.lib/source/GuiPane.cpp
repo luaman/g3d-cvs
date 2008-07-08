@@ -1,10 +1,10 @@
 /**
  @file GuiPane.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
- @edited  2008-02-30
+ @edited  2008-07-08
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
@@ -18,17 +18,24 @@ namespace G3D {
 /** Pixels of padding between controls */
 static const float CONTROL_PADDING = 4.0f;
 
+void GuiPane::init(const Rect2D& rect) {
+    setRect(rect);
 
-
+    if (m_caption.text() != "") {
+        m_label = addLabel(m_caption);
+    } else {
+        m_label = NULL;
+    }
+}
 
 GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
-    : GuiControl(gui, text), m_style(style) {
+    : GuiContainer(gui, text), m_style(style) {
     init(rect);
 }
 
 
-GuiPane::GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
-    : GuiControl(parent, text), m_style(style) {
+GuiPane::GuiPane(GuiContainer* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
+    : GuiContainer(parent, text), m_style(style) {
     init(rect);
 }
 
@@ -52,8 +59,8 @@ Vector2 GuiPane::contentsExtent() const {
         p = p.max(controlArray[i]->rect().x1y1());
     }
 
-    for (int i = 0; i < paneArray.size(); ++i) {
-        p = p.max(paneArray[i]->rect().x1y1());
+    for (int i = 0; i < containerArray.size(); ++i) {
+        p = p.max(containerArray[i]->rect().x1y1());
     }
 
     for (int i = 0; i < labelArray.size(); ++i) {
@@ -89,7 +96,7 @@ void GuiPane::increaseBounds(const Vector2& extent) {
         setRect(Rect2D::xywh(m_rect.x0y0(), newRect.wh()));
 
         if (m_parent != NULL) {
-            m_parent->increaseBounds(m_rect.x1y1());
+            dynamic_cast<GuiPane*>(m_parent)->increaseBounds(m_rect.x1y1());
         } else {
             m_gui->increaseBounds(m_rect.x1y1());
         }
@@ -98,8 +105,11 @@ void GuiPane::increaseBounds(const Vector2& extent) {
 
 
 void GuiPane::pack() {
-    for (int i = 0; i < paneArray.size(); ++i) {
-        paneArray[i]->pack();
+    for (int i = 0; i < containerArray.size(); ++i) {
+        GuiPane* p = dynamic_cast<GuiPane*>(containerArray[i]);
+        if (p != NULL) {
+            p->pack();
+        }
     }
     increaseBounds(contentsExtent());
 }
@@ -228,7 +238,7 @@ GuiPane* GuiPane::addPane(const GuiCaption& text, GuiTheme::PaneStyle style) {
 
     GuiPane* p = new GuiPane(this, text, newRect, style);
 
-    paneArray.append(p);
+    containerArray.append(p);
     increaseBounds(p->rect().x1y1());
 
     return p;
@@ -241,8 +251,8 @@ void GuiPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
     }
 
     mouse -= m_clientRect.x0y0();
-    for (int i = 0; i < paneArray.size(); ++i) {
-        paneArray[i]->findControlUnderMouse(mouse, control);
+    for (int i = 0; i < containerArray.size(); ++i) {
+        containerArray[i]->findControlUnderMouse(mouse, control);
         if (control != NULL) {
             return;
         }
@@ -269,6 +279,11 @@ void GuiPane::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 
     skin->renderPane(m_rect, m_style);
 
+    renderChildren(rd, skin);
+}
+
+
+void GuiPane::renderChildren(RenderDevice* rd, const GuiThemeRef& skin) const {
     skin->pushClientRect(m_clientRect);
 
     for (int L = 0; L < labelArray.size(); ++L) {
@@ -279,8 +294,8 @@ void GuiPane::render(RenderDevice* rd, const GuiThemeRef& skin) const {
         controlArray[c]->render(rd, skin);
     }
 
-    for (int p = 0; p < paneArray.size(); ++p) {
-        paneArray[p]->render(rd, skin);
+    for (int p = 0; p < containerArray.size(); ++p) {
+        containerArray[p]->render(rd, skin);
     }
 
     skin->popClientRect();
@@ -291,7 +306,7 @@ void GuiPane::remove(GuiControl* control) {
     
     int i = labelArray.findIndex(reinterpret_cast<GuiLabel* const>(control));
     int j = controlArray.findIndex(control);
-    int k = paneArray.findIndex(reinterpret_cast<GuiPane* const>(control));
+    int k = containerArray.findIndex(reinterpret_cast<GuiPane* const>(control));
 
     if (i != -1) {
 
@@ -314,7 +329,7 @@ void GuiPane::remove(GuiControl* control) {
 
     } else if (k != -1) {
 
-        paneArray.fastRemove(k);
+        containerArray.fastRemove(k);
         delete control;
 
     }

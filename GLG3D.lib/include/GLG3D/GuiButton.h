@@ -42,7 +42,7 @@ protected:
     GuiTheme::ButtonStyle   m_style;
 
     /** Called by GuiPane */
-    GuiButton(GuiPane*, const Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style);
+    GuiButton(GuiContainer*, const Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style);
 
     /** Called by GuiWindow */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;

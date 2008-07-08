@@ -10,7 +10,7 @@
 #include "G3D/platform.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiWindow.h"
-#include "GLG3D/GuiPane.h"
+#include "GLG3D/GuiContainer.h"
 
 namespace G3D {
 
@@ -19,7 +19,7 @@ Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
 
     Vector2 result = v + m_rect.x0y0();
 
-    const GuiPane* current = m_parent;
+    const GuiContainer* current = m_parent;
 
     while (current != NULL) {
         result += current->m_rect.x0y0();
@@ -31,17 +31,6 @@ Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
 
     // result is now relative to the GWindow
     return result;
-}
-
-
-void GuiPane::init(const Rect2D& rect) {
-    setRect(rect);
-
-    if (m_caption.text() != "") {
-        m_label = addLabel(m_caption);
-    } else {
-        m_label = NULL;
-    }
 }
 
 void GuiControl::setFocused(bool b) {
@@ -136,15 +125,19 @@ void GuiControl::setRect(const Rect2D& rect) {
     m_clickRect = m_rect = rect;
 }
 
-GuiControl::GuiControl(GuiWindow* gui, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_caption(caption), m_visible(true) {}
+GuiControl::GuiControl(GuiWindow* gui, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_caption(caption), m_visible(true) {
+    m_eventSource = this;
+}
 
-GuiControl::GuiControl(GuiPane* parent, const GuiCaption& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_caption(caption), m_visible(true) {}
+GuiControl::GuiControl(GuiContainer* parent, const GuiCaption& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_caption(caption), m_visible(true) {
+    m_eventSource = this;
+}
 
 
 void GuiControl::fireActionEvent() {
     GEvent response;
     response.gui.type = GEventType::GUI_ACTION;
-    response.gui.control = this;
+    response.gui.control = m_eventSource;
     m_gui->fireEvent(response);
 }
 

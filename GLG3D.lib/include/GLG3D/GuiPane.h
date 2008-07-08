@@ -12,11 +12,13 @@
 #define G3D_GUIPANE_H
 
 #include <string>
+#include <limits.h>
 #include "G3D/Pointer.h"
 #include "G3D/Rect2D.h"
 #include "GLG3D/GFont.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Widget.h"
+#include "GLG3D/GuiContainer.h"
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiControl.h"
 #include "GLG3D/GuiCheckBox.h"
@@ -25,8 +27,8 @@
 #include "GLG3D/GuiLabel.h"
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiButton.h"
+#include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/GuiDropDownList.h"
-#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 
@@ -39,24 +41,13 @@ class GuiButton;
  All coordinates of objects inside a pane are relative to the pane's
  clientRect().  See GuiWindow for an example of creating a user interface.
  */
-class GuiPane : public GuiControl {
+class GuiPane : public GuiContainer {
     friend class GuiWindow;
     friend class GuiControl;
     friend class GuiButton;
     friend class GuiRadioButton;
     friend class _GuiSliderBase;
-
-private:
-
-    enum {CONTROL_HEIGHT = 25};
-    enum {CONTROL_WIDTH = 180};
-    enum {BUTTON_WIDTH = 80};
-    enum {TOOL_BUTTON_WIDTH = 50};
-
 protected:
-
-    /** If this is a mouse event, make it relative to the client rectangle */
-    static void makeRelative(GEvent& e, const Rect2D& clientRect);
 
     /** Caption label */
     GuiLabel*           m_label;
@@ -66,28 +57,19 @@ protected:
     GuiTheme::PaneStyle m_style;
 
     Array<GuiControl*>  controlArray;
+
     /** Sub panes */
-    Array<GuiPane*>     paneArray;
+    Array<GuiContainer*> containerArray;
+
     Array<GuiLabel*>    labelArray;
 
-    Rect2D              m_clientRect;
-
     GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
-    GuiPane(GuiPane* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
+    GuiPane(GuiContainer* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
 
     /**
        Called from constructors.
      */
     void init(const Rect2D& rect);
-
-    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
-    
-    /**
-    Finds the visible, enabled control underneath the mouse
-    @param control (Output) pointer to the control that the mouse is over
-    @param mouse Relative to the parent of this pane.
-    */
-    void findControlUnderMouse(Vector2 mouse, GuiControl*& control) const;
 
     virtual bool onEvent(const GEvent& event) { return false; }
 
@@ -101,30 +83,37 @@ protected:
     Vector2 nextControlPos(bool isTool = false) const;
 
     template<class T>
-    T* addControl(T* c) {
-        Vector2 p = nextControlPos(c->toolStyle());
-        c->setRect(Rect2D::xywh(p, Vector2(max(m_clientRect.width() - p.x, 
+    T* addControl(T* control) {
+        Vector2 p = nextControlPos(control->toolStyle());
+        control->setRect(Rect2D::xywh(p, Vector2(max(m_clientRect.width() - p.x, 
                                                (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
 
-        increaseBounds(c->rect().x1y1());
+        increaseBounds(control->rect().x1y1());
 
-        controlArray.append(c);
-        return c;
+        GuiContainer* container = dynamic_cast<GuiContainer*>(control);
+        if (container == NULL) {
+            controlArray.append(control);
+        } else {
+            containerArray.append(container);
+        }
+
+        return control;
     }
 
     Vector2 contentsExtent() const;
 
+    /** Called from render() */
+    void renderChildren(RenderDevice* rd, const GuiThemeRef& skin) const;
+
 public:
+
+    virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
+
+    virtual void findControlUnderMouse(Vector2 mouse, GuiControl*& control) const;
 
     /** If the original caption was non-empty (even if it was " "), 
         the new caption will be shown.*/
-    virtual void setCaption(const GuiCaption& caption);
-
-    /** Client rect bounds, relative to the parent pane (or window if
-        there is no parent). */
-    const Rect2D& clientRect() const {
-        return m_clientRect;
-    }
+    virtual void setCaption(const GuiCaption& caption);    
 
     /** Set relative to the parent pane (or window) */
     virtual void setRect(const Rect2D& rect);
@@ -188,15 +177,7 @@ public:
      ) {        
         return addControl(new GuiTextBox(this, caption, stringPointer, update));
     }
-/*
-   GuiTextBox* addTextBox
-    (const GuiCaption& caption,
-     std::string* stringPointer,
-     GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
-     ) {        
-         return addTextBox(caption, Pointer<std::string>(stringPointer), update);
-    }
-*/
+
     GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, Array<std::string>* list);
     GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, Array<GuiCaption>* list);
     
@@ -222,12 +203,50 @@ public:
         return c;
     }
 
+    /** Provide the default clamp bounds for addNumberBox.*/
+    static int minVal(int x) { return INT_MAX; }
+    /** Provide the default clamp bounds for addNumberBox.*/
+    static int maxVal(int x) { return INT_MIN; }
+    /** Provide the default clamp bounds for addNumberBox.*/
+    static double minVal(double x) { return -inf();}
+    /** Provide the default clamp bounds for addNumberBox.*/
+    static double maxVal(double x) { return inf();}
+
+    /** Create a text box for numbers.
+      @param suffix A label to the right of the number, e.g., units
+      @param roundIncrement Round typed values to the nearest increment of this, 0 for no rounding.
+    */
+    template<typename Value>
+    GuiNumberBox<Value>* addNumberBox(
+        const GuiCaption&   text, 
+        const Pointer<Value>& value, 
+        const GuiCaption&   suffix = "", 
+        bool                showSlider = false, 
+        Value               min = (Value)minVal(Value()), 
+        Value               max = (Value)maxVal(Value()), 
+        Value               roundIncrement = 0) {
+
+        return addControl(new GuiNumberBox<Value>(this, text, value, suffix, showSlider, min, max, roundIncrement));
+    }
+
+    template<typename Value>
+    GuiNumberBox<Value>* addNumberBox(
+        const GuiCaption&   text, 
+        Value*              value, 
+        const GuiCaption&   suffix = "", 
+        bool                showSlider = false, 
+        Value               min = (Value)minVal(Value()), 
+        Value               max = (Value)maxVal(Value()), 
+        Value               roundIncrement = 0) {
+
+        return addControl(new GuiNumberBox<Value>(this, text, Pointer<Value>(value), suffix, showSlider, min, max, roundIncrement));
+    }
+
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, Value min, Value max, bool horizontal = true) {
         return addControl(new GuiSlider<Value>(this, text, value, min,  max, horizontal));
     }
 
-    
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, Value min, Value max, bool horizontal = true) {
         return addSlider(text, Pointer<Value>(value), min,  max, horizontal);

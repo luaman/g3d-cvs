@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-GuiButton::GuiButton(GuiPane* parent, const GuiButton::Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style) : 
+GuiButton::GuiButton(GuiContainer* parent, const GuiButton::Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style) : 
     GuiControl(parent, text), 
     m_down(false), m_callback(callback), m_style(style) {}
 
@@ -36,7 +36,7 @@ bool GuiButton::onEvent(const GEvent& event) {
 
             GEvent response;
             response.gui.type = GEventType::GUI_DOWN;
-            response.gui.control = this;
+            response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
             return true;
         }
@@ -45,7 +45,7 @@ bool GuiButton::onEvent(const GEvent& event) {
         {
             GEvent response;
             response.gui.type = GEventType::GUI_UP;
-            response.gui.control = this;
+            response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
         }
 

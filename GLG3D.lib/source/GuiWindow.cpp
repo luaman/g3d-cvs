@@ -272,9 +272,9 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
             // Make the event relative by accumulating all of the transformations
             Vector2 origin = m_clientRect.x0y0();
-            GuiPane* p = keyFocusGuiControl->m_parent;
+            GuiContainer* p = keyFocusGuiControl->m_parent;
             while (p != NULL) {
-                origin += p->m_clientRect.x0y0();
+                origin += p->clientRect().x0y0();
                 p = p->m_parent;
             }
             consumed = keyFocusGuiControl->onEvent(makeRelative(event, origin)) || consumed;

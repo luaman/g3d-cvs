@@ -61,6 +61,14 @@ void App::onInit() {
     static std::string text = "hi";
     debugPane->addTextBox("Text", &text);
     debugWindow->setVisible(true);
+
+
+    static float f = 3.5;
+    debugPane->addNumberBox("Time", &f, "s", true, 0.0f, 10.0f, 0.5f);
+
+    // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
+    // defaults:                        /   , ptr, "", false, -inf, inf, 0
+
 }
 
 void App::onCleanup() {
@@ -153,14 +161,6 @@ G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
 
-	TextInput t(TextInput::FROM_STRING, "*3DS_MAX 1.0 4.0 aaa true");
-
-	Token tok = t.read();
-	tok = t.read();
-	tok = t.read();
-
-	return 0;
-
 
 /*    RenderDevice* rd = new RenderDevice();
     rd->init();
@@ -169,6 +169,6 @@ int main(int argc, char** argv) {
     GApp::Settings set;
 //    set.window.width = 1440;
 //    set.window.height = 900;
-    set.window.fsaaSamples = 4;
+//    set.window.fsaaSamples = 4;
     return App(set).run();
 }
