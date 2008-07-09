@@ -95,22 +95,20 @@ CameraControlWindow::CameraControlWindow(
     GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     GFontRef greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
 
-    // The default G3D textbox label leaves too much space between
-    // the box and the label, so we override it.
-    pane->addLabel("xyz")->setPosition(5, 2);
-    pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(24, 2);
-    cameraLocationTextBox = pane->addTextBox("", Pointer<std::string>(this, &CameraControlWindow::cameraLocation, &CameraControlWindow::setCameraLocation));
-    cameraLocationTextBox->setRect(Rect2D::xywh(-50, 2, 292, 24));
+    // The default G3D textbox label doesn't support multiple fonts
+    pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(22, 2);
+    cameraLocationTextBox = pane->addTextBox("xyz", Pointer<std::string>(this, &CameraControlWindow::cameraLocation, &CameraControlWindow::setCameraLocation));
+    cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 244, 24));
+    cameraLocationTextBox->setCaptionSize(40);
     
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
 
     manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 2);
 
-    trackLabel = manualPane->addLabel("Path");
-    trackLabel->moveBy(0, -3);
-    trackList = manualPane->addDropDownList("", &trackFileIndex, &trackFileArray);
-    trackList->setRect(Rect2D::xywh(trackList->rect().x0y0() - Vector2(54, 25), Vector2(220, trackList->rect().height())));
+    trackList = manualPane->addDropDownList("Path", &trackFileIndex, &trackFileArray);
+    trackList->setRect(Rect2D::xywh(Vector2(0, trackList->rect().y1() - 25), Vector2(170, trackList->rect().height())));
+    trackList->setCaptionSize(40);
 
     visibleCheckBox = manualPane->addCheckBox("Visible", Pointer<bool>(trackManipulator, &UprightSplineManipulator::showPath, &UprightSplineManipulator::setShowPath));
     visibleCheckBox->moveRightOf(trackList);
@@ -356,7 +354,6 @@ void CameraControlWindow::sync() {
     if (m_expanded) {
         bool hasTracks = trackFileArray.size() > 0;
         trackList->setEnabled(hasTracks);
-        trackLabel->setEnabled(hasTracks);
 
         bool hasSpline = trackManipulator->splineSize() > 0;
         visibleCheckBox->setEnabled(hasSpline);

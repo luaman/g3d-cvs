@@ -296,11 +296,12 @@ void GuiTheme::renderDropDownList
  bool                 focused,
  bool                 down,
  const GuiCaption&    contentText,
- const GuiCaption&    text) const {
+ const GuiCaption&    text,
+ float                captionWidth) const {
 
     // Dropdown list has a fixed height
     // Offset by left_caption_width
-    const Rect2D& bounds = dropDownListToClickBounds(initialBounds);
+    const Rect2D& bounds = dropDownListToClickBounds(initialBounds, captionWidth);
 
     m_dropDownList.render(rd, bounds, enabled, focused, down);
 
@@ -341,11 +342,12 @@ void GuiTheme::renderTextBox
      bool               enabled, 
      bool               focused, 
      const GuiCaption&  caption,
+     float              captionWidth,
      const GuiCaption&  text, 
      const GuiCaption&  cursor, 
      int                cursorPosition) const {
 
-    const Rect2D& bounds = textBoxToClickBounds(fullBounds);
+    const Rect2D& bounds = textBoxToClickBounds(fullBounds, captionWidth);
 
     m_textBox.render(rd, bounds, enabled, focused);
 
@@ -405,9 +407,10 @@ void GuiTheme::renderCanvas
     (const Rect2D&      fullBounds, 
      bool               enabled, 
      bool               focused, 
-     const GuiCaption&  caption) const {
+     const GuiCaption&  caption,
+     float              captionHeight) const {
 
-    const Rect2D& bounds = canvasToClickBounds(fullBounds);
+    const Rect2D& bounds = canvasToClickBounds(fullBounds, captionHeight);
 
     m_canvas.render(rd, bounds, enabled, focused);
 
@@ -523,18 +526,18 @@ void GuiTheme::drawWindow(const Window& window, const Rect2D& bounds,
 }
 
 
-Rect2D GuiTheme::horizontalSliderToSliderBounds(const Rect2D& bounds) const {
-    return Rect2D::xywh(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.width() - LEFT_CAPTION_WIDTH, bounds.height());
+Rect2D GuiTheme::horizontalSliderToSliderBounds(const Rect2D& bounds, float captionWidth) const {
+    return Rect2D::xywh(bounds.x0() + captionWidth, bounds.y0(), bounds.width() - captionWidth, bounds.height());
 }
 
 
-Rect2D GuiTheme::horizontalSliderToThumbBounds(const Rect2D& bounds, float pos) const {
-    return m_hSlider.thumbBounds(horizontalSliderToSliderBounds(bounds), pos);
+Rect2D GuiTheme::horizontalSliderToThumbBounds(const Rect2D& bounds, float pos, float captionWidth) const {
+    return m_hSlider.thumbBounds(horizontalSliderToSliderBounds(bounds, captionWidth), pos);
 }
 
 
-Rect2D GuiTheme::horizontalSliderToTrackBounds(const Rect2D& bounds) const {
-    return m_hSlider.trackBounds(horizontalSliderToSliderBounds(bounds));
+Rect2D GuiTheme::horizontalSliderToTrackBounds(const Rect2D& bounds, float captionWidth) const {
+    return m_hSlider.trackBounds(horizontalSliderToSliderBounds(bounds, captionWidth));
 }
 
 
@@ -555,32 +558,32 @@ Rect2D GuiTheme::clientToWindowBounds(const Rect2D& bounds, WindowStyle windowSt
 }
 
 
-Rect2D GuiTheme::textBoxToClickBounds(const Rect2D& bounds) const {
-    return Rect2D::xyxy(bounds.x0() + LEFT_CAPTION_WIDTH, bounds.y0(), bounds.x1(), bounds.y1());
+Rect2D GuiTheme::textBoxToClickBounds(const Rect2D& bounds, float captionWidth) const {
+    return Rect2D::xyxy(bounds.x0() + captionWidth, bounds.y0(), bounds.x1(), bounds.y1());
 }
 
 
-Rect2D GuiTheme::canvasToClickBounds(const Rect2D& bounds) const {
+Rect2D GuiTheme::canvasToClickBounds(const Rect2D& bounds, float captionHeight) const {
     // Canvas does not receive indent; its caption goes on top
-    return Rect2D::xyxy(bounds.x0(), bounds.y0() + TOP_CAPTION_HEIGHT, bounds.x1(), bounds.y1());
+    return Rect2D::xyxy(bounds.x0(), bounds.y0() + captionHeight, bounds.x1(), bounds.y1());
 }
 
 
-Rect2D GuiTheme::canvasToClientBounds(const Rect2D& bounds) const {
-    Rect2D r = canvasToClickBounds(bounds);
+Rect2D GuiTheme::canvasToClientBounds(const Rect2D& bounds, float captionHeight) const {
+    Rect2D r = canvasToClickBounds(bounds, captionHeight);
 
     return Rect2D::xyxy(r.x0y0() + m_canvas.pad.topLeft, r.x1y1() - m_canvas.pad.bottomRight);
 }
 
 
-Rect2D GuiTheme::dropDownListToClickBounds(const Rect2D& bounds) const {
+Rect2D GuiTheme::dropDownListToClickBounds(const Rect2D& bounds, float captionWidth) const {
     // Note: if you change these bounds to not be the same as the
     // rendering bounds for the control itself then update
     // renderDropDownList to not call dropDownListToClickBounds.
     float h = m_dropDownList.base.left.height();
-    return Rect2D::xywh(bounds.x0() + LEFT_CAPTION_WIDTH,
+    return Rect2D::xywh(bounds.x0() + captionWidth,
                         bounds.center().y - h / 2,
-                        bounds.width() - LEFT_CAPTION_WIDTH,
+                        bounds.width() - captionWidth,
                         h);
 }
 
@@ -637,12 +640,13 @@ void GuiTheme::renderHorizontalSlider
     float pos, 
     bool enabled, 
     bool focused, 
-    const GuiCaption& text) const {
+    const GuiCaption& text,
+    float captionWidth) const {
     
     debugAssert(inRendering);
     m_hSlider.render
         (rd, 
-         horizontalSliderToSliderBounds(bounds),
+         horizontalSliderToSliderBounds(bounds, captionWidth),
          pos, enabled, focused);
 
     if (text.text() != "") {

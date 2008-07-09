@@ -26,7 +26,7 @@ namespace G3D {
 class GuiContainer : public GuiControl {
 protected:
     enum {CONTROL_HEIGHT = 25};
-    enum {CONTROL_WIDTH = 180};
+    enum {CONTROL_WIDTH = 190};
     enum {BUTTON_WIDTH = 80};
     enum {TOOL_BUTTON_WIDTH = 50};
 

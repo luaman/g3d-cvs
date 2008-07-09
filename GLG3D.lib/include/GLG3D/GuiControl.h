@@ -25,8 +25,12 @@ class GuiControl {
     friend class GuiWindow;
     friend class GuiPane;
     friend class GuiContainer;
-
 protected:
+
+    enum {
+        LEFT_CAPTION_SIZE = 80,
+        TOP_CAPTION_SIZE = 20
+    };
 
 	/** Interface to hide the default Callback implementation from programmers using it. */
 	class CallbackInterface {
@@ -183,6 +187,10 @@ protected:
     Rect2D            m_clickRect;
 
     GuiCaption        m_caption;
+
+    /** For classes that have a caption, this is the size reserved for it.*/
+    float             m_captionSize;
+
     bool              m_visible;
 
     GuiControl(GuiWindow* gui, const GuiCaption& text = "");
@@ -205,6 +213,14 @@ public:
     /** Grab or release keyboard focus */
     void setFocused(bool b);
     virtual void setEnabled(bool e);
+
+    /** For controls that have a caption outside the bounds of the control,
+        this is the size reserved for the caption. The caption width defaults
+        to CAPTION_LEFT_WIDTH, CAPTION_RIGHT_WIDTH, or CAPTION_TOP_HEIGHT, depending 
+        on the control type, if the initial caption is not "" (even if it is " ") 
+        and 0 if the initial caption is "". */
+    float captionSize() const;
+    virtual void setCaptionSize(float c);
     const GuiCaption& caption() const;
     const Rect2D& rect() const;
 
@@ -231,6 +247,11 @@ public:
     /** Return true if this is in tool button style */
     virtual bool toolStyle() const { 
         return false;
+    }
+
+    /** Default caption size for this control. */
+    virtual float defaultCaptionSize() const {
+        return LEFT_CAPTION_SIZE;
     }
 
     /**

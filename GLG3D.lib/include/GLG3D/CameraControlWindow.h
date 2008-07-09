@@ -51,8 +51,6 @@ protected:
     /** Index into trackFileArray */
     int                         trackFileIndex;
 
-    /** Label for trackList.  Separate in order to allow condensed spacing */
-    GuiLabel*                   trackLabel;
     GuiDropDownList*            trackList;
 
     /** Allows the user to override the current camera position */

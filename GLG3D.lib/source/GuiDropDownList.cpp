@@ -139,14 +139,14 @@ void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
                     (*m_stringListValue)[iMax(0, iMin(m_stringListValue->size() - 1, *m_indexValue))] : 
                     "";
 
-            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption);
+            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption, m_captionSize);
         } else {
             // If there are no elements in the list, display the empty string
             const GuiCaption& str = (m_captionListValue->size() > 0) ? 
                     (*m_captionListValue)[iMax(0, iMin(m_captionListValue->size() - 1, *m_indexValue))] : 
                     "";
 
-            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption);
+            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption, m_captionSize);
         }
     }
 }
@@ -154,7 +154,7 @@ void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 
 void GuiDropDownList::showMenu() {
     // Show the menu
-    Rect2D clickRect = skin()->dropDownListToClickBounds(rect());
+    Rect2D clickRect = skin()->dropDownListToClickBounds(rect(), m_captionSize);
     Vector2 clickOffset = clickRect.x0y0() - rect().x0y0();
     Vector2 menuOffset(10, clickRect.height() + 10);
 
@@ -202,7 +202,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
 
 void GuiDropDownList::setRect(const Rect2D& rect) {
      m_rect = rect;
-     m_clickRect = skin()->dropDownListToClickBounds(rect);
+     m_clickRect = skin()->dropDownListToClickBounds(rect, m_captionSize);
 }
 
 

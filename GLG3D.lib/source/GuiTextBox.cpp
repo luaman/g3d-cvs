@@ -93,6 +93,7 @@ void GuiTextBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
             m_enabled,
             focused(), 
             m_caption,
+            m_captionSize,
             m_editing ? m_userValue : *m_value, 
             solidCursor ? m_cursor : std::string(), 
             m_cursorPos);
@@ -300,10 +301,9 @@ bool GuiTextBox::onEvent(const GEvent& event) {
 }
 
 
-
 void GuiTextBox::setRect(const Rect2D& rect) {
      m_rect = rect;
-     m_clickRect = skin()->textBoxToClickBounds(rect);
+     m_clickRect = skin()->textBoxToClickBounds(rect, m_captionSize);
 }
 
 

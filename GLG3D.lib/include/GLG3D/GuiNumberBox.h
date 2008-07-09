@@ -48,10 +48,8 @@ class GuiNumberBox : public GuiContainer {
 protected:
 
     // Constants
-    enum {suffixWidth = 30,
-          captionWidth = 100,
-          sliderWidth  = 50,
-          textBoxWidth = 80};
+    enum {suffixWidth = 22,
+          textBoxWidth = 45};
 
     /** Current value */
     Pointer<Value>    m_value;
@@ -232,16 +230,7 @@ protected:
         m_oldValue = *m_value;
         roundAndClamp(m_oldValue);
         *m_value = m_oldValue;
-
-        m_textBox->setRect(Rect2D::xywh(captionWidth, 0, 120, CONTROL_HEIGHT));
-        // Account for the caption space
-        m_textBox->moveBy(-100, 0);
-
-        if (m_slider != NULL) {
-            m_slider->setRect(Rect2D::xywh(captionWidth + textBoxWidth, 0, sliderWidth, CONTROL_HEIGHT));
-            // Account for the caption space
-            m_slider->moveBy(-100, 0);
-        }
+        updateText();
     }
 
 public:
@@ -260,6 +249,13 @@ public:
         return m_maxValue;
     }
 
+    virtual void setCaption(const std::string& c) {
+        GuiContainer::setCaption(c);
+
+        // Resize other parts in response to caption size changing
+        setRect(m_rect);
+    }
+
     void setRange(Value lo, Value hi) {
         if (m_slider != NULL) {
             m_slider->setRange(lo, hi);
@@ -267,6 +263,20 @@ public:
 
         m_minValue = min(lo, hi);
         m_maxValue = max(lo, hi);
+    }
+
+    virtual void setRect(const Rect2D& rect) {
+        GuiContainer::setRect(rect);
+
+        float controlSpace = m_rect.width() - m_captionSize;
+
+        m_textBox->setRect(Rect2D::xywh(m_captionSize, 0, textBoxWidth, CONTROL_HEIGHT));
+
+        if (m_slider != NULL) {
+            float x = m_textBox->rect().x1() + suffixWidth;
+            m_slider->setRect(Rect2D::xywh(x, 0.0f, 
+                max(controlSpace - (x - m_captionSize) - 2, 5.0f), (float)CONTROL_HEIGHT));
+        }
     }
 
     virtual void setEnabled(bool e) {
@@ -299,15 +309,17 @@ public:
 
         skin->pushClientRect(m_clientRect);
             m_textBox->render(rd, skin);
-            if (m_slider != NULL) {
+
+            // Don't render the slider if there isn't enough space for it 
+            if ((m_slider != NULL) && (m_slider->rect().width() > 10)) {
                 m_slider->render(rd, skin);
             }
 
             // Render caption and suffix
-            skin->renderLabel(m_rect, m_caption, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
+            skin->renderLabel(m_rect - m_clientRect.x0y0(), m_caption, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
 
             const Rect2D& textBounds = m_textBox->rect();
-            skin->renderLabel(Rect2D::xywh(textBounds.x1y0() + Vector2(10, 0), Vector2(suffixWidth, textBounds.height())), 
+            skin->renderLabel(Rect2D::xywh(textBounds.x1y0(), Vector2(suffixWidth, textBounds.height())), 
                 m_suffix, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
         skin->popClientRect();
     }

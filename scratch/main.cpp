@@ -59,7 +59,9 @@ void App::onInit() {
     toneMap->setEnabled(false);
 
     static std::string text = "hi";
-    debugPane->addTextBox("Text", &text);
+    debugPane->addTextBox("Text", &text);    // Indent and display a caption
+    debugPane->addTextBox(" ", &text);       // Indent, but display no caption
+    debugPane->addTextBox("", &text);        // Align the text box to the left
     debugWindow->setVisible(true);
 
 

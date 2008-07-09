@@ -21,6 +21,9 @@
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> GWindow::create
      <li> G3D::ThreadSet
+     <li> Gui controls now have configureable GuiControl::setCaptionSize
+     <li> Gui controls now default to no indent if the caption is "" (use " " for indent with no caption)
+     <li> G3D::GuiContainer
      <li> G3D::GThread::started
      <li> buildg3d installation arguments changed--see 
      <li> G3D::Vector3int32

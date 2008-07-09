@@ -14,6 +14,15 @@
 
 namespace G3D {
 
+GuiControl::GuiControl(GuiWindow* gui, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_visible(true) {
+    m_eventSource = this;
+    setCaption(caption);
+}
+
+GuiControl::GuiControl(GuiContainer* parent, const GuiCaption& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_visible(true) {
+    m_eventSource = this;
+    setCaption(caption);
+}
     
 Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
 
@@ -46,6 +55,14 @@ void GuiControl::setFocused(bool b) {
 
 GuiThemeRef GuiControl::skin() const {
     return m_gui->skin();
+}
+
+float GuiControl::captionSize() const {
+    return m_captionSize;
+}
+
+void GuiControl::setCaptionSize(float c) {
+    m_captionSize = c;
 }
 
 void GuiControl::setPosition(float x, float y) {
@@ -115,6 +132,11 @@ const GuiCaption& GuiControl::caption() const {
 
 void GuiControl::setCaption(const GuiCaption& text) {
     m_caption = text;
+    if (m_caption.text() == "") {
+        m_captionSize = 0;
+    } else {
+        m_captionSize = defaultCaptionSize();
+    }
 }
 
 const Rect2D& GuiControl::rect() const {
@@ -124,15 +146,6 @@ const Rect2D& GuiControl::rect() const {
 void GuiControl::setRect(const Rect2D& rect) {
     m_clickRect = m_rect = rect;
 }
-
-GuiControl::GuiControl(GuiWindow* gui, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_caption(caption), m_visible(true) {
-    m_eventSource = this;
-}
-
-GuiControl::GuiControl(GuiContainer* parent, const GuiCaption& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_caption(caption), m_visible(true) {
-    m_eventSource = this;
-}
-
 
 void GuiControl::fireActionEvent() {
     GEvent response;

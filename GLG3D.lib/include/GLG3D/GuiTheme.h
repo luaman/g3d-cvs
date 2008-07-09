@@ -158,9 +158,6 @@ private:
          */
         void deserialize(const std::string& path, const std::string& name, TextInput& t);
     };
-
-    /** When a caption appears on the left or left of a control, inset the control by this amount */
-    enum {LEFT_CAPTION_WIDTH = 90, TOP_CAPTION_HEIGHT = 20};
     
     /** Used for delayed text rendering. */
     class Text {
@@ -619,7 +616,7 @@ private:
     /** Call after GFont::send2DQuads */
     void endText() const;    
     
-    Rect2D horizontalSliderToSliderBounds(const Rect2D& bounds) const;
+    Rect2D horizontalSliderToSliderBounds(const Rect2D& bounds, float captionWidth) const;
     Rect2D closeButtonBounds(const Window& window, const Rect2D& bounds) const;
 
 public:
@@ -667,13 +664,13 @@ public:
 
     /** Render a single-line text box. Only call between beginRendering and endRendering.
         Automatically shifts text so that a cursor at character index given by 
-        cursorPosition is visible on screen.
-     */
+        cursorPosition is visible on screen. */
     void renderTextBox(
         const Rect2D&           bounds, 
         bool                    enabled,
         bool                    focused, 
         const GuiCaption&       caption,
+        float                   captionWidth,
         const GuiCaption&       text,
         const GuiCaption&       cursor,
         int                     cursorPosition) const;
@@ -687,7 +684,8 @@ public:
         const Rect2D&           bounds, 
         bool                    enabled,
         bool                    focused, 
-        const GuiCaption&       caption) const;
+        const GuiCaption&       caption,
+        float                   captionHeight) const;
 
     void renderDropDownList
     (
@@ -696,7 +694,8 @@ public:
      bool                 focused,
      bool                 menuOpen,
      const GuiCaption&    contentText,
-     const GuiCaption&    text) const;
+     const GuiCaption&    text,
+     float                captionWidth) const;
 
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 
@@ -715,12 +714,12 @@ public:
 
     /** Given the bounds of a full dropDownList and caption, returns
         the bounds around just the control itself. */
-    Rect2D dropDownListToClickBounds(const Rect2D& bounds) const;
-    Rect2D textBoxToClickBounds(const Rect2D& bounds) const;
-    Rect2D canvasToClickBounds(const Rect2D& bounds) const;
+    Rect2D dropDownListToClickBounds(const Rect2D& bounds, float captionWidth) const;
+    Rect2D textBoxToClickBounds(const Rect2D& bounds, float captionWidth) const;
+    Rect2D canvasToClickBounds(const Rect2D& bounds, float captionHeight) const;
 
     /** Given the full bounds around a canvas, returns the internal region for rendering in. */
-    Rect2D canvasToClientBounds(const Rect2D& bounds) const;
+    Rect2D canvasToClientBounds(const Rect2D& bounds, float captionHeight) const;
 
     /** Given the bounds on a window's borders, returns the bounds of
      the area inside the window where controls will appear.*/
@@ -736,8 +735,8 @@ public:
 
     /** Returns the position of the thumb button, which is needed for processing
         UI events for the slider. */
-    Rect2D horizontalSliderToThumbBounds(const Rect2D& bounds, float pos) const;
-    Rect2D horizontalSliderToTrackBounds(const Rect2D& bounds) const;
+    Rect2D horizontalSliderToThumbBounds(const Rect2D& bounds, float pos, float captionWidth) const;
+    Rect2D horizontalSliderToTrackBounds(const Rect2D& bounds, float captionWidth) const;
 
     Rect2D paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
     Rect2D clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
@@ -746,7 +745,7 @@ public:
         Label is on the right, slider is aligned with the left edge
         @param pos 0 = left edge, 1 = right edge*/
     void renderHorizontalSlider(const Rect2D& bounds, float pos, bool enabled, bool focused, 
-                                const GuiCaption& text) const;
+                                const GuiCaption& text, float captionWidth) const;
 
     /** Only call between beginRendering and endRendering */
     void renderLabel(const Rect2D& bounds, const GuiCaption& text, 
