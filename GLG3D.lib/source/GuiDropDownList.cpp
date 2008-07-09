@@ -28,6 +28,7 @@ GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>
     for (int i = 0; i < listPtr->size(); ++i) {
         pane()->addLabel((*listPtr)[i]);
     }
+    pane()->pack();
 }
 
 GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr) : 
@@ -35,6 +36,7 @@ GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>*
     for (int i = 0; i < listPtr->size(); ++i) {
         pane()->addLabel((*listPtr)[i]);
     }
+    pane()->pack();
 }
 
 

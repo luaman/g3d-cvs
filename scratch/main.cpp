@@ -58,15 +58,26 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 
+
+
     static std::string text = "hi";
     debugPane->addTextBox("Text", &text);    // Indent and display a caption
     debugPane->addTextBox(" ", &text);       // Indent, but display no caption
     debugPane->addTextBox("", &text);        // Align the text box to the left
     debugWindow->setVisible(true);
 
-
     static float f = 3.5;
     debugPane->addNumberBox("Time", &f, "s", true, 0.0f, 10.0f, 0.5f);
+
+
+    static Array<std::string> list;
+    list.append("First");
+    for (int i = 0; i < 10; ++i) {
+        list.append(format("Item %d", i + 2));
+    }
+    list.append("Last");
+    static int index = 0;
+    debugPane->addDropDownList("List", &index, &list);
 
     // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
     // defaults:                        /   , ptr, "", false, -inf, inf, 0
