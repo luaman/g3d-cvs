@@ -2,7 +2,7 @@
  @file GLG3D/GuiDropDownList.h
 
  @created 2007-06-15
- @edited  2008-02-20
+ @edited  2008-07-20
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -30,17 +30,20 @@ protected:
 
     Array<std::string>*             m_stringListValue;
     Array<GuiCaption>*              m_captionListValue;
+    /** The created labels */
+    Array<GuiControl*>              m_labelArray;
+    Pointer<int>                    m_indexValue;
 
     /** Which of the two list values to use */
     bool                            m_useStringList;
 
-    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr);
-    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr);
+    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue);
+    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
 public:
 
-    static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr);
-    static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr);
+    static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue);
+    static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     virtual bool onEvent(const GEvent& event);
 //    virtual void render(RenderDevice* rd);

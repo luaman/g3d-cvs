@@ -14,43 +14,69 @@
 namespace G3D {
 
 
-GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr) {
-    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr);
+GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue) {
+    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr, indexValue);
 }
 
-GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr) {
-    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr);
+GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue) {
+    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr, indexValue);
 }
 
 
-GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr) : 
-    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(listPtr), m_captionListValue(NULL), m_useStringList(true) {
+GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue) : 
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(listPtr), 
+    m_captionListValue(NULL), m_indexValue(indexValue), m_useStringList(true) {
+
+    m_labelArray.resize(listPtr->size());
     for (int i = 0; i < listPtr->size(); ++i) {
-        pane()->addLabel((*listPtr)[i]);
+        m_labelArray[i] = pane()->addLabel((*listPtr)[i]);
     }
     pane()->pack();
 }
 
-GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr) : 
-    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(NULL), m_captionListValue(listPtr), m_useStringList(false) {
+
+GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue) : 
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(NULL), 
+    m_captionListValue(listPtr), m_indexValue(indexValue), m_useStringList(false) {
+
+    m_labelArray.resize(listPtr->size());
     for (int i = 0; i < listPtr->size(); ++i) {
-        pane()->addLabel((*listPtr)[i]);
+        m_labelArray[i] = pane()->addLabel((*listPtr)[i]);
     }
     pane()->pack();
 }
 
 
 bool GuiMenu::onEvent(const GEvent& event) {
-    // Hide on escape
-    if (m_visible && 
-        (event.type == GEventType::KEY_DOWN) && 
-        (event.key.keysym.sym == GKey::ESCAPE)) {
+    if (! m_visible) {
+        return false;
+    }
 
+    // Hide on escape
+    if ((event.type == GEventType::KEY_DOWN) && 
+        (event.key.keysym.sym == GKey::ESCAPE)) {
         hide();
         return true;
     }
 
     // TODO: Enter == selection
+
+    // TODO: Mouse
+    if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
+        // See what was clicked on
+        Vector2 click(event.button.x, event.button.y);
+        click += pane()->clientRect().x0y0() - m_clientRect.x0y0();
+        for (int i = 0; i < m_labelArray.size(); ++i) {
+            if (m_labelArray[i]->rect().contains(click)) {
+                // Clicked on this element
+                *m_indexValue = i;
+                hide();
+                return true;
+            }
+        }
+
+        return true;
+    }
 
     bool handled = GuiWindow::onEvent(event);
 
@@ -122,9 +148,9 @@ GuiDropDownList::GuiDropDownList
 GuiMenuRef GuiDropDownList::menu() { 
     if (m_menu.isNull()) {
         if (m_useStringList) {
-            m_menu = GuiMenu::create(skin(), m_stringListValue);
+            m_menu = GuiMenu::create(skin(), m_stringListValue, m_indexValue);
         } else {
-            m_menu = GuiMenu::create(skin(), m_captionListValue);
+            m_menu = GuiMenu::create(skin(), m_captionListValue, m_indexValue);
         }
     }
 
