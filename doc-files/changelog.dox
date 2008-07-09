@@ -19,7 +19,7 @@
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
-     <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES
+     <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> GWindow::create
      <li> G3D::ThreadSet
      <li> Gui controls now have configureable GuiControl::setCaptionSize
@@ -32,7 +32,6 @@
      <li> FileDialog now accepts an extra "note" argument
      <li> FileDialog::getFilename non-static to support subclassing
      <li> System::currentDateString
-     <li> Added G3D::GPosition functor for brining PointAABSPTree API in line with Table's GHashCode and GEquals
      <li> Expanded G3D::ArticulatedModel documentation
      <li> Build system now executes on multiple processors (about 1.8x speedup for dual-core)
      <li> Build system now caches dependencies (about 5x speedup for small incremental builds)
