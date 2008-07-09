@@ -19,6 +19,7 @@
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
+     <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES
      <li> GWindow::create
      <li> G3D::ThreadSet
      <li> Gui controls now have configureable GuiControl::setCaptionSize

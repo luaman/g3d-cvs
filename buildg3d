@@ -111,7 +111,7 @@ def initOS():
         # See if there is a directory
         if len(sys.argv) > i:
             pathname = sys.argv[i]
-            if os.path.exists(pathname) and pathname != 'lib':
+            if os.path.exists(pathname) and pathname != 'lib' and pathname != 'tools':
                 installDir = pathname
                 del sys.argv[i]
             

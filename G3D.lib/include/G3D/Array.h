@@ -5,9 +5,9 @@
   @cite Portions written by Aaron Orenstein, a@orenstein.name
  
   @created 2001-03-11
-  @edited  2008-07-02
+  @edited  2008-07-09
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2008, Morgan McGuire, morgan@cs.williams.edu
   All rights reserved.
  */
 
@@ -81,9 +81,17 @@ const int SORT_DECREASING = -1;
 
  To serialize an array, see G3D::serialize.
 
+ The template parameter MIN_ELEMENTS indicates the smallest number of 
+ elements that will be allocated.  The default of 10 is designed to avoid 
+ the overhead of repeatedly allocating the array as it grows from 1, to 2, and so on.
+ If you are creating a lot of small Arrays, however, you may want to set this smaller
+ to reduce the memory cost. Once the array has been allocated, it will never
+ deallocate the underlying array unless MIN_ELEMENTS is set to 0, MIN_BYTES is 0, and the array
+ is empty.
+
  Do not subclass an Array.
  */
-template <class T>
+template <class T, int MIN_ELEMENTS = 10, size_t MIN_BYTES = 32>
 class Array {
 private:
     /** 0...num-1 are initialized elements, num...numAllocated-1 are not */
@@ -360,8 +368,16 @@ public:
           (data + i)->~T();
       }
 
-      // Once allocated, always maintain 10 elements or 32 bytes, whichever is higher.
-      static const int minSize = iMax(10, 32 / sizeof(T));
+      // Once allocated, always maintain MIN_ELEMENTS elements or 32 bytes, whichever is higher.
+      static const int minSize = iMax(MIN_ELEMENTS, MIN_BYTES / sizeof(T));
+
+      if ((MIN_ELEMENTS == 0) && (MIN_BYTES == 0) && (n == 0) && shrinkIfNecessary) {
+          // Deallocate the array completely
+          numAllocated = 0;
+          System::alignedFree(data);
+          data = NULL;
+          return;
+      }
 
       if (num > numAllocated) {
           // Grow the underlying array
