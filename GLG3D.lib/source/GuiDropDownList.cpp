@@ -65,17 +65,22 @@ bool GuiMenu::onEvent(const GEvent& event) {
     if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
         // See what was clicked on
         Vector2 click(event.button.x, event.button.y);
-        click += pane()->clientRect().x0y0() - m_clientRect.x0y0();
-        for (int i = 0; i < m_labelArray.size(); ++i) {
-            if (m_labelArray[i]->rect().contains(click)) {
-                // Clicked on this element
-                *m_indexValue = i;
-                hide();
-                return true;
+        if (m_clientRect.contains(click)) {
+            click += pane()->clientRect().x0y0() - m_clientRect.x0y0();
+            for (int i = 0; i < m_labelArray.size(); ++i) {
+                if (m_labelArray[i]->rect().contains(click)) {
+                    // Clicked on this element
+                    *m_indexValue = i;
+                    hide();
+                    return true;
+                }
             }
+            return true;
         }
 
-        return true;
+        // Clicked off the menu
+        hide();
+        return false;
     }
 
     bool handled = GuiWindow::onEvent(event);
