@@ -2,7 +2,7 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2007-10-15
+ @edited  2008-07-15
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
@@ -29,6 +29,7 @@
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/GuiFunctionBox.h"
 
 namespace G3D {
 
@@ -169,6 +170,8 @@ public:
      ) {
         return addCheckBox(text, Pointer<bool>(pointer), style);
     }
+
+    GuiFunctionBox* addFunctionBox(const GuiCaption& text, Spline<float>* spline);
 
     GuiTextBox* addTextBox
     (const GuiCaption& caption,

@@ -225,6 +225,10 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
     return b;
 }
 
+GuiFunctionBox* GuiPane::addFunctionBox(const GuiCaption& text, Spline<float>* spline) {
+    return addControl(new GuiFunctionBox(this, text, spline));
+}
+
 
 GuiPane* GuiPane::addPane(const GuiCaption& text, GuiTheme::PaneStyle style) {
     Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
