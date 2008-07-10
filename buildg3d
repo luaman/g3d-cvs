@@ -304,6 +304,21 @@ def allTarget():
 
 ##################################################################################
 
+def updateTarget():
+    x = libTarget()
+    if x == 0:
+        # Pretend that jar always succeeds;
+        # it might fail for people who don't
+        # have java
+        jarTarget()
+    
+    if x == 0: x = toolsTarget()
+    if x == 0: x = docTarget()
+    
+    return x
+
+##################################################################################
+
 """
  Recursively zips the source into zipfile
 """
@@ -562,6 +577,8 @@ Options:
 TARGET     DESCRIPTION
 
 all        clean + lib + test + jar + tools + doc
+
+update     lib + tools + doc + jar 
            
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers. Also build
            all dependencies (e.g., zlib, libpng)
@@ -636,7 +653,7 @@ if __name__ == "__main__":
     code = dispatchOnTarget(sys.argv[1] + 'Target',
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
-         jarTarget, ideTarget, helpTarget])
+         jarTarget, ideTarget, helpTarget, updateTarget])
 
     if (code == 0) and (sys.argv[1] != 'help') and doInstall:
         install()
