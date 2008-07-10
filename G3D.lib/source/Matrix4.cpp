@@ -177,16 +177,20 @@ void Matrix4::setColumn(int c, const Vector4& v) {
 
 
 Vector4 Matrix4::getRow(int r) const {
-    Vector4 v;
-    for (int c = 0; c < 4; ++c) {
-        v[c] = elt[r][c];
-    }
-    return v;
+    return row(r);
 }
 
 
+const Vector4& Matrix4::row(int r) const {
+    return reinterpret_cast<const Vector4*>(elt[r])[0];
+}
+
 
 Vector4 Matrix4::getColumn(int c) const {
+    return column(c);
+}
+
+Vector4 Matrix4::column(int c) const {
     Vector4 v;
     for (int r = 0; r < 4; ++r) {
         v[r] = elt[r][c];
