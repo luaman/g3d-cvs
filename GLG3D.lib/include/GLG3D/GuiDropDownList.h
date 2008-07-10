@@ -22,9 +22,8 @@ class GuiPane;
 
 typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
 
-/**
- A special window that hides itself when it loses focus.
- */
+/**A special "popup" window that hides itself when it loses focus.
+   Used by GuiDropDownList for the popup and can be used to build context menus. */
 class GuiMenu : public GuiWindow {
 protected:
 
@@ -37,8 +36,17 @@ protected:
     /** Which of the two list values to use */
     bool                            m_useStringList;
 
+    /** Window to select when the menu is closed */
+    GuiWindow*                      m_superior;
+
+    /** Mouse is over this option */
+    int                             m_highlightIndex;
+
     GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue);
     GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue);
+
+    /** Returns -1 if none */
+    int labelIndexUnderMouse(Vector2 click) const;
 
 public:
 
@@ -46,10 +54,12 @@ public:
     static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     virtual bool onEvent(const GEvent& event);
-//    virtual void render(RenderDevice* rd);
+    virtual void render(RenderDevice* rd);
 
     void hide();
-    void show(WidgetManager* manager, const Vector2& position);
+
+    /** @param superior The window from which the menu is being created. */
+    void show(WidgetManager* manager, GuiWindow* superior, const Vector2& position);
 };
 
 

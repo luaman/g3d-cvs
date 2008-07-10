@@ -550,6 +550,8 @@ private:
     /** If true, the close button is on the left.  If false, it is on the right */
     bool              m_osxWindowButtons;
 
+    StretchRectHV     m_selection;
+
     /** Defaults */
     TextStyle         m_textStyle;
     TextStyle         m_disabledTextStyle;
@@ -686,6 +688,9 @@ public:
         bool                    focused, 
         const GuiCaption&       caption,
         float                   captionHeight) const;
+
+    /** Render the selection region for a menu or list. */
+    void renderSelection(const Rect2D& bounds) const;
 
     void renderDropDownList
     (

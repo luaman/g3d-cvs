@@ -212,7 +212,7 @@ protected:
 
     GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
 
-private:
+protected:
 
     void render(RenderDevice* rd);
 
@@ -315,6 +315,10 @@ public:
     ~GuiWindow();
 
     GuiPane* pane() {
+        return m_rootPane;
+    }
+
+    const GuiPane* pane() const {
         return m_rootPane;
     }
 

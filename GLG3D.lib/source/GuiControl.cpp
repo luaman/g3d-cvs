@@ -23,6 +23,16 @@ GuiControl::GuiControl(GuiContainer* parent, const GuiCaption& caption) : m_enab
     m_eventSource = this;
     setCaption(caption);
 }
+
+
+GuiWindow* GuiControl::window() const {
+    const GuiControl* current = this;
+    while (current->m_parent != NULL) {
+        current = current->m_parent;
+    }
+    return const_cast<GuiWindow*>(dynamic_cast<const GuiWindow*>(current));
+}
+
     
 Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
 

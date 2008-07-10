@@ -166,6 +166,9 @@ void GuiTheme::deserialize(const std::string& path, TextInput& b) {
 
     m_canvas.pad.bottomRight -= Vector2(4, 2);
     m_canvas.pad.topLeft     -= Vector2(5, 2);
+
+    // TODO: uncomment
+    // m_selection.deserialize("selection", b);
 }
 
 
@@ -334,6 +337,11 @@ void GuiTheme::renderDropDownList
             text.outlineColor(m_dropDownList.textStyle.outlineColor),
             GFont::XALIGN_LEFT);
     }
+}
+
+
+void GuiTheme::renderSelection(const Rect2D& bounds) const {
+    m_selection.render(rd, bounds, Vector2(0, 0));
 }
 
 
