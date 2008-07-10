@@ -267,6 +267,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tSpline.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tSystemMemcpy.cpp"
 				>
 			</File>

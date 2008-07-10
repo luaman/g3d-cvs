@@ -22,6 +22,7 @@
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> GWindow::create
      <li> G3D::ThreadSet
+     <li> Added variable time control points to G3D::Spline
      <li> Gui controls now have configureable GuiControl::setCaptionSize
      <li> Gui controls now default to no indent if the caption is "" (use " " for indent with no caption)
      <li> G3D::GuiContainer

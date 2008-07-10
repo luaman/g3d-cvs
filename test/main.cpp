@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, matrix@graphics3d.com
  @created 2002-01-01
- @edited  2008-02-02
+ @edited  2008-07-07
  */
 
 #include "G3D/G3D.h"
@@ -51,6 +51,8 @@ void perfCollisionDetection();
 
 void testWeakCache();
 void testCallback();
+
+void testSpline();
 
 void testGChunk();
 
@@ -616,6 +618,8 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
+    testMatrix();
+
     testLineSegment2D();
 
     testGLight();
@@ -627,6 +631,8 @@ int main(int argc, char* argv[]) {
     testfilter();
 
     testArray();
+
+    testSpline();
 
     testAABSPTree();
 
@@ -657,8 +663,6 @@ int main(int argc, char* argv[]) {
     testSystemMemcpy();
 
     testQueue();
-
-    testMatrix();
 
     testMeshAlgTangentSpace();
 
@@ -697,10 +701,9 @@ int main(int argc, char* argv[]) {
     printf("  passed\n");
     testSwizzle();
 
-	testCallback();
+    testCallback();
 
     testBinaryIO();
-
 
 #   ifdef RUN_SLOW_TESTS
         testHugeBinaryIO();

@@ -408,6 +408,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\SplineBase.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Stopwatch.cpp"
 				>
 			</File>
