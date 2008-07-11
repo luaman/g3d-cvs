@@ -13,7 +13,7 @@
 #include "GLG3D/SkyParameters.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/g3dmath.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 #include "GLG3D/getOpenGLState.h"
 
 namespace G3D {
@@ -75,13 +75,13 @@ SkyRef Sky::fromFile(
         (directory[directory.size() - 1] == '\\'), 
         "Directory must end in a slash");
 
-    const TextureFormat* format;
+    const ImageFormat* format;
     std::string filename = _filename[0];
 
     if (quality > 0.55) {
-        format      = TextureFormat::RGB8();
+        format      = ImageFormat::RGB8();
     } else {
-        format      = TextureFormat::RGB_DXT1();
+        format      = ImageFormat::RGB_DXT1();
     }
 
     // Look for the filename
@@ -196,18 +196,18 @@ Sky::Sky(
         }
     }
 
-    const TextureFormat* format;
-    const TextureFormat* alphaFormat;
+    const ImageFormat* format;
+    const ImageFormat* alphaFormat;
 
     if (quality > .66) {
-        format      = TextureFormat::RGB8();
-        alphaFormat = TextureFormat::RGBA8();
+        format      = ImageFormat::RGB8();
+        alphaFormat = ImageFormat::RGBA8();
     } else if (quality > .33) {
-        format      = TextureFormat::RGBA_DXT1();
-        alphaFormat = TextureFormat::RGBA_DXT5();
+        format      = ImageFormat::RGBA_DXT1();
+        alphaFormat = ImageFormat::RGBA_DXT5();
     } else {
-        format      = TextureFormat::RGBA_DXT1();
-        alphaFormat = TextureFormat::RGBA_DXT5();
+        format      = ImageFormat::RGBA_DXT1();
+        alphaFormat = ImageFormat::RGBA_DXT5();
     }
 
     if (drawCelestialBodies) {

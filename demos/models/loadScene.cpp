@@ -14,7 +14,7 @@ void App::loadScene() {
     // MD2
     if (true) {
         MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.4f);
-        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
+        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,-0.35f,0))));
         x += 2;
     }
@@ -432,21 +432,21 @@ void App::loadScene() {
 		Texture::Settings settings;
 		settings.wrapMode = Texture::CLAMP;
         triList.material.normalBumpMap =         
-            Texture::fromGImage("Bump Map", normalBumpMap, TextureFormat::AUTO, Texture::DIM_2D, settings);
+            Texture::fromGImage("Bump Map", normalBumpMap, ImageFormat::AUTO, Texture::DIM_2D, settings);
 
         triList.material.bumpMapScale = 0.02f;
 
 		settings.wrapMode = Texture::CLAMP;
 
         triList.material.specular.constant = Color3::white() * 0.4f;
-        triList.material.specular.map = Texture::fromFile("stained-glass-mask.png", TextureFormat::AUTO, Texture::DIM_2D, settings);
+        triList.material.specular.map = Texture::fromFile("stained-glass-mask.png", ImageFormat::AUTO, Texture::DIM_2D, settings);
         triList.material.specularExponent.constant = Color3::white() * 60;
 
         triList.material.reflect.constant = Color3::white() * 0.2f;
-        triList.material.reflect.map = Texture::fromFile("stained-glass-mask.png", TextureFormat::AUTO,Texture::DIM_2D, settings);
+        triList.material.reflect.map = Texture::fromFile("stained-glass-mask.png", ImageFormat::AUTO,Texture::DIM_2D, settings);
 
         triList.material.transmit.constant = Color3::white();
-        triList.material.transmit.map = Texture::fromFile("stained-glass-transmit.png", TextureFormat::AUTO,Texture::DIM_2D, settings);
+        triList.material.transmit.map = Texture::fromFile("stained-glass-transmit.png", ImageFormat::AUTO,Texture::DIM_2D, settings);
 
         triList.computeBounds(part);
 

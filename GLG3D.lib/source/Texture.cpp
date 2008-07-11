@@ -18,7 +18,7 @@
 #include "G3D/GImage.h"
 #include "G3D/fileutils.h"
 #include "GLG3D/glcalls.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
@@ -53,7 +53,7 @@ static void glStatePop() {
 /**
  Scales the intensity up or down of an entire image.
  */
-static void brightenImage(TextureFormat::Code fmt, void* byte, int n, float brighten);
+static void brightenImage(ImageFormat::Code fmt, void* byte, int n, float brighten);
 
 static GLenum dimensionToTarget(Texture::Dimension d);
 
@@ -65,7 +65,7 @@ static void createTexture(
     int             m_width,
     int             m_height,
     int             depth,
-    GLenum          textureFormat,
+    GLenum          ImageFormat,
     int             bytesPerPixel,
     int             mipLevel,
     bool            compressed,
@@ -82,7 +82,7 @@ static void createMipMapTexture(
     int             bytesBaseFormat,
     int             m_width,
     int             m_height,
-    GLenum          textureFormat,
+    GLenum          ImageFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
     GLenum          bytesType);
@@ -102,7 +102,7 @@ Texture::Texture(
     const std::string&      name,
     GLuint                  textureID,
     Dimension               dimension,
-    const TextureFormat*    format,
+    const ImageFormat*      format,
     bool                    opaque,
     const Settings&         settings) :
     m_textureID(textureID),
@@ -149,11 +149,11 @@ Texture::Texture(
 Texture::Ref Texture::fromMemory(
     const std::string&              name,
     const void*                     bytes,
-    const class TextureFormat*      bytesFormat,
+    const class ImageFormat*      bytesFormat,
     int                             m_width,
     int                             m_height,
     int                             depth,
-    const class TextureFormat*      desiredFormat,
+    const class ImageFormat*      desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
     const PreProcess&               preprocess) {
@@ -196,32 +196,32 @@ void Texture::setAutoMipMap(bool b) {
 Texture::Ref Texture::fromGLTexture(
     const std::string&      name,
     GLuint                  textureID,
-    const TextureFormat*    textureFormat,
+    const ImageFormat*    ImageFormat,
     Dimension               dimension,
 	const Settings&			settings) {
 
-    debugAssert(textureFormat);
+    debugAssert(ImageFormat);
 
     return new Texture(
 		name, 
 		textureID, 
 		dimension,
-		textureFormat, 
-        textureFormat->opaque, 
+		ImageFormat, 
+        ImageFormat->opaque, 
 		settings);
 }
 
 
 Texture::Ref Texture::fromFile(
     const std::string               filename[6],
-    const class TextureFormat*      desiredFormat,
+    const class ImageFormat*      desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
     const PreProcess&               preProcess) {
     
     std::string realFilename[6];
 
-    const TextureFormat* format = TextureFormat::RGB8();
+    const ImageFormat* format = ImageFormat::RGB8();
     bool opaque = true;
 
     // The six cube map faces, or the one texture and 5 dummys.
@@ -254,7 +254,7 @@ Texture::Ref Texture::fromFile(
         uint8* byteStart = ddsTexture.getBytes();
         debugAssert( byteStart != NULL );
 
-        const TextureFormat* bytesFormat = ddsTexture.getBytesFormat();
+        const ImageFormat* bytesFormat = ddsTexture.getBytesFormat();
         debugAssert( bytesFormat );
 
         // Assert that we are loading a cubemap DDS
@@ -326,7 +326,7 @@ Texture::Ref Texture::fromFile(
         image[f].load(realFilename[f]);
 
         if (image[f].channels == 4) {
-            format = TextureFormat::RGBA8();
+            format = ImageFormat::RGBA8();
             opaque = false;
         }
 
@@ -356,7 +356,7 @@ Texture::Ref Texture::fromFile(
 
 Texture::Ref Texture::fromFile(
     const std::string&      filename,
-    const TextureFormat*    desiredFormat,
+    const ImageFormat*    desiredFormat,
     Dimension               dimension,
     const Settings&         settings,
     const PreProcess&       preProcess) {
@@ -376,7 +376,7 @@ Texture::Ref Texture::fromFile(
 Texture::Ref Texture::fromTwoFiles(
     const std::string&      filename,
     const std::string&      alphaFilename,
-    const TextureFormat*    desiredFormat,
+    const ImageFormat*    desiredFormat,
     Dimension               dimension,
 	const Settings&			settings,
 	const PreProcess&		preProcess) {
@@ -452,7 +452,7 @@ Texture::Ref Texture::fromTwoFiles(
 		t = fromMemory(
 				filename, 
 				mip, 
-				TextureFormat::RGBA8(),
+				ImageFormat::RGBA8(),
 				color[0].width, 
 				color[0].height, 
 				1, 
@@ -506,11 +506,11 @@ static bool isMipMapformat(Texture::InterpolateMode i) {
 Texture::Ref Texture::fromMemory(
     const std::string&                  name,
     const Array< Array<const void*> >&  _bytes,
-    const TextureFormat*                bytesFormat,
+    const ImageFormat*                bytesFormat,
     int                                 width,
     int                                 height,
     int                                 depth,
-    const TextureFormat*                desiredFormat,
+    const ImageFormat*                desiredFormat,
     Dimension                           dimension,
     const Settings&                     settings,
     const PreProcess&                   preProcess) {
@@ -537,13 +537,13 @@ Texture::Ref Texture::fromMemory(
     if (preProcess.brighten != 1.0f) {
 
         debugAssert(
-            (bytesFormat->code == TextureFormat::CODE_RGB8) ||
-            (bytesFormat->code == TextureFormat::CODE_RGBA8));
+            (bytesFormat->code == ImageFormat::CODE_RGB8) ||
+            (bytesFormat->code == ImageFormat::CODE_RGBA8));
 
         // Allow brightening to fail silently in release mode
         if (
-            ( bytesFormat->code == TextureFormat::CODE_RGB8) ||
-            ( bytesFormat->code == TextureFormat::CODE_RGBA8)) {
+            ( bytesFormat->code == ImageFormat::CODE_RGB8) ||
+            ( bytesFormat->code == ImageFormat::CODE_RGBA8)) {
 
             bytesPtr = new MipArray;
             bytesPtr->resize(_bytes.size());
@@ -590,7 +590,7 @@ Texture::Ref Texture::fromMemory(
         bytesPtr->resize(1);
         (*bytesPtr)[0].append(normal.byte());
         
-        bytesFormat = TextureFormat::RGBA8();
+        bytesFormat = ImageFormat::RGBA8();
     }
 
     debugAssert(bytesFormat);
@@ -604,12 +604,12 @@ Texture::Ref Texture::fromMemory(
     GLuint textureID = newGLTextureID();
     GLenum target = dimensionToTarget(dimension);
 
-    if ((desiredFormat == TextureFormat::AUTO()) || (bytesFormat->compressed)) {
+    if ((desiredFormat == ImageFormat::AUTO()) || (bytesFormat->compressed)) {
         desiredFormat = bytesFormat;
     }
 
-    if (GLCaps::hasBug_redBlueMipmapSwap() && (desiredFormat == TextureFormat::RGB8())) {
-        desiredFormat = TextureFormat::RGBA8();
+    if (GLCaps::hasBug_redBlueMipmapSwap() && (desiredFormat == ImageFormat::RGB8())) {
+        desiredFormat = ImageFormat::RGBA8();
     }
 
     debugAssertM(GLCaps::supportsTexture(desiredFormat), "Unsupported texture format.");
@@ -732,27 +732,27 @@ Texture::Ref Texture::fromMemory(
 Texture::Ref Texture::fromGImage(
     const std::string&              name,
     const GImage&                   image,
-    const class TextureFormat*      desiredFormat,
+    const class ImageFormat*      desiredFormat,
     Dimension                       dimension,
 	const Settings&					settings,
 	const PreProcess&				preProcess) {
 
-    const TextureFormat* format = TextureFormat::RGB8();
+    const ImageFormat* format = ImageFormat::RGB8();
     bool opaque = true;
 
     switch (image.channels) {
     case 4:
-        format = TextureFormat::RGBA8();
+        format = ImageFormat::RGBA8();
         opaque = false;
         break;
 
     case 3:
-        format = TextureFormat::RGB8();
+        format = ImageFormat::RGB8();
         opaque = true;
         break;
 
     case 1:
-        format = TextureFormat::L8();
+        format = ImageFormat::L8();
         opaque = true;
         break;
 
@@ -786,13 +786,13 @@ Texture::Ref Texture::createEmpty(
     const std::string&               name,
     int                              w,
     int                              h,
-    const TextureFormat*             desiredFormat,
+    const ImageFormat*             desiredFormat,
     Dimension                        dimension,
 	const Settings&					 settings,
     int                              d) {
 
     debugAssertGLOk();
-    debugAssertM(desiredFormat, "desiredFormat may not be TextureFormat::AUTO()");
+    debugAssertM(desiredFormat, "desiredFormat may not be ImageFormat::AUTO()");
 
     if (dimension != DIM_3D && dimension != DIM_3D_NPOT) {
         debugAssertM(d == 1, "Depth must be 1 for DIM_2D textures");
@@ -850,31 +850,31 @@ const Texture::Settings& Texture::settings() const {
 }
 
 
-void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
-    alwaysAssertM(outFormat == TextureFormat::AUTO() ||
-                  outFormat == TextureFormat::RGB8() ||
-                  outFormat == TextureFormat::RGBA8() ||
-                  outFormat == TextureFormat::L8() ||
-                  outFormat == TextureFormat::A8(), "Illegal texture format.");
+void Texture::getImage(GImage& dst, const ImageFormat* outFormat) const {
+    alwaysAssertM(outFormat == ImageFormat::AUTO() ||
+                  outFormat == ImageFormat::RGB8() ||
+                  outFormat == ImageFormat::RGBA8() ||
+                  outFormat == ImageFormat::L8() ||
+                  outFormat == ImageFormat::A8(), "Illegal texture format.");
 
-    if (outFormat == TextureFormat::AUTO()) {
+    if (outFormat == ImageFormat::AUTO()) {
         switch(format()->openGLBaseFormat) { 
         case GL_ALPHA:
-            outFormat = TextureFormat::A8();
+            outFormat = ImageFormat::A8();
             break;
 
         case GL_LUMINANCE:
-            outFormat = TextureFormat::L8();
+            outFormat = ImageFormat::L8();
             break;
 
         case GL_RGB:
-            outFormat = TextureFormat::RGB8();
+            outFormat = ImageFormat::RGB8();
             break;
 
         case GL_RGBA:
             // Fall through intentionally
         default:
-            outFormat = TextureFormat::RGBA8();
+            outFormat = ImageFormat::RGBA8();
             break;
         }
     }
@@ -906,7 +906,7 @@ void Texture::getImage(GImage& dst, const TextureFormat* outFormat) const {
 }
 
 
-void Texture::getTexImage(void* data, const TextureFormat* desiredFormat) const {
+void Texture::getTexImage(void* data, const ImageFormat* desiredFormat) const {
     GLenum target = dimensionToTarget(m_dimension);
 
     glPushAttrib(GL_TEXTURE_BIT);
@@ -925,42 +925,42 @@ void Texture::getTexImage(void* data, const TextureFormat* desiredFormat) const 
 
 Image4Ref Texture::toImage4(bool applyInvertY) const {
 	Image4Ref im = Image4::createEmpty(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::RGBA32F());
+	getTexImage(im->getCArray(), ImageFormat::RGBA32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
 Image4uint8Ref Texture::toImage4uint8(bool applyInvertY) const {
 	Image4uint8Ref im = Image4uint8::createEmpty(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::RGBA8());
+	getTexImage(im->getCArray(), ImageFormat::RGBA8());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
 Image3Ref Texture::toImage3(bool applyInvertY) const {	
 	Image3Ref im = Image3::createEmpty(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::RGB32F());
+	getTexImage(im->getCArray(), ImageFormat::RGB32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
 Image3uint8Ref Texture::toImage3uint8(bool applyInvertY) const {	
 	Image3uint8Ref im = Image3uint8::createEmpty(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::RGB8());
+	getTexImage(im->getCArray(), ImageFormat::RGB8());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
 Map2D<float>::Ref Texture::toDepthMap(bool applyInvertY) const {
 	Map2D<float>::Ref im = Map2D<float>::create(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::DEPTH32F());
+	getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
 Image1Ref Texture::toDepthImage1(bool applyInvertY) const {
 	Image1Ref im = Image1::createEmpty(m_width, m_height);
-	getTexImage(im->getCArray(), TextureFormat::DEPTH32F());
+	getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
@@ -983,7 +983,7 @@ Image1uint8Ref Texture::toDepthImage1uint8(bool applyInvertY) const {
 
 Image1Ref Texture::toImage1(bool applyInvertY) const {
 	Image1Ref im = Image1::createEmpty(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::L32F());
+	getTexImage(im->getCArray(), ImageFormat::L32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
@@ -991,7 +991,7 @@ Image1Ref Texture::toImage1(bool applyInvertY) const {
 
 Image1uint8Ref Texture::toImage1uint8(bool applyInvertY) const {
 	Image1uint8Ref im = Image1uint8::createEmpty(m_width, m_height); 
-	getTexImage(im->getCArray(), TextureFormat::L8());
+	getTexImage(im->getCArray(), ImageFormat::L8());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
@@ -1295,7 +1295,7 @@ Texture::Ref Texture::alphaOnlyVersion() const {
 	Array< Array<const void*> > mip(1);
 	Array<const void*>& bytes = mip[0];
 	bytes.resize(numFaces);
-    const TextureFormat* bytesFormat = TextureFormat::A8();
+    const ImageFormat* bytesFormat = ImageFormat::A8();
 
     glStatePush();
     // Setup to later implement cube faces
@@ -1316,7 +1316,7 @@ Texture::Ref Texture::alphaOnlyVersion() const {
             m_width, 
 			m_height, 
 			1, 
-			TextureFormat::A8(),
+			ImageFormat::A8(),
             m_dimension, 
 			m_settings);
 
@@ -1527,7 +1527,7 @@ static void createTexture(
     int             m_width,
     int             m_height,
     int             depth,
-    GLenum          textureFormat,
+    GLenum          ImageFormat,
     int             bytesPerPixel,
     int             mipLevel,
     bool            compressed,
@@ -1617,7 +1617,7 @@ static void createTexture(
             // (normal), rgb color data, unsigned byte data, and
             // finally the data itself.
             glPixelStorei(GL_PACK_ALIGNMENT, 1);
-            glTexImage2D(target, mipLevel, textureFormat, m_width, m_height,
+            glTexImage2D(target, mipLevel, ImageFormat, m_width, m_height,
                          0, bytesFormat, dataType, bytes);
         }
         break;
@@ -1633,7 +1633,7 @@ static void createTexture(
             debugAssert(isValidPointer(bytes));
         }
 
-        glTexImage3DEXT(target, mipLevel, textureFormat, m_width, m_height, depth, 0, 
+        glTexImage3DEXT(target, mipLevel, ImageFormat, m_width, m_height, depth, 0, 
                         bytesFormat, dataType, bytes);
         break;
 
@@ -1712,11 +1712,11 @@ static void createMipMapTexture(
 }
 
 
-static void brightenImage(TextureFormat::Code fmt, void* _byte, int n, float brighten) {
+static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brighten) {
 
     debugAssert(
-        (fmt == TextureFormat::CODE_RGB8) ||
-        (fmt == TextureFormat::CODE_RGBA8));
+        (fmt == ImageFormat::CODE_RGB8) ||
+        (fmt == ImageFormat::CODE_RGBA8));
 
     uint8* byte = static_cast<uint8*>(_byte);
 
@@ -1727,7 +1727,7 @@ static void brightenImage(TextureFormat::Code fmt, void* _byte, int n, float bri
     }
 
     int skipAlpha = 0;
-    if (fmt == TextureFormat::CODE_RGBA8) {
+    if (fmt == ImageFormat::CODE_RGBA8) {
         skipAlpha = 1;
     }
 

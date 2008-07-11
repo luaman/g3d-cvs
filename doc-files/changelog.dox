@@ -22,6 +22,8 @@
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> GWindow::create
      <li> G3D::ThreadSet
+     <li> Removed TextureFormat::SAME_AS_SCREEN to break dependence on OpenGL
+     <li> TextureFormat has been renamed to G3D::ImageFormat and moved into G3D.lib
      <li> Added variable time control points to G3D::Spline
      <li> Gui controls now have configureable GuiControl::setCaptionSize
      <li> Gui controls now default to no indent if the caption is "" (use " " for indent with no caption)
@@ -67,7 +69,7 @@
      <li> G3D::GuiSlider now fires events on change and drag
      <li> G3D::Shader arguments (in G3D::VertexAndPixelShader::ArgList) may now be "optional"
      <li> G3D::GLight::point now has quadratic attenuation by default.
-     <li> G3D::TextureFormat::name
+     <li> G3D::ImageFormat::name
      <li> g3dmath.h now includes inttypes.h on gcc and simulates it on visual studio
      <li> G3D::RenderDevice::cullFace
      <li> G3D::LineSegment2D::intersection
@@ -141,7 +143,7 @@
      <li> Fix: [ 1774479 ] texture glformats wrong (caused incorrect font rendering on Intel)
      <li> Fix: ArticulatedModel static methods do not force loading of shaders unless an ArticulatedModel has actually been loaded.
      <li> Fix: RenderDevice::setAlphaWrite/setColorWrite implemented correctly
-     <li> Fix: Implemented TextureFormat::fromCode
+     <li> Fix: Implemented ImageFormat::fromCode
      <li> Fix: [ 1766509 ] Texture doesn't handle 3D textures correctly
      <li> Fix: Separate bool, float, and int back ends for GLSL shaders
    </ul>
@@ -278,7 +280,7 @@
      <li> G3D::GConsole
      <li> Rect2D::lerp
      <li> Added GL_EXT_packed_depth_stencil
-     <li> Added G3D::TextureFormat::DEPTH24_STENCIL8 packed stencil mode
+     <li> Added G3D::ImageFormat::DEPTH24_STENCIL8 packed stencil mode
      <li> getOpenGLState now includes GL_LIGHT_MODEL_TWO_SIDE value
      <li> Made ThirdPersonManipulator constructor protected (use ThirdPersonManipulator::create now)
      <li> G3D::ToneMap
@@ -420,7 +422,7 @@
     <LI> Win32Window destructor now releases the mouse if it was captured and the current GL context is that window and the window was not created from an existing HDC/HWND
     <LI> Fix: com.graphics3d.g3d.ReliableConduit now correctly selects on the waiting socket
 	<LI> Fix: [ 1166057 ]  AABSPTree::beginBoxIntersection
-    <LI> Fix: GLCaps::supports(TextureFormat) now returns correct results on all cards
+    <LI> Fix: GLCaps::supports(ImageFormat) now returns correct results on all cards
     <LI> Fix: Shadow map rendering of default PosedModels now enables lighting
     <LI> Fix: G3D::UserInput now restores the mouse position after pureDeltaMouse is turned off
     <LI> Fix: G3D::Win32Window now clips precisely to the client area during an input grab.
@@ -453,9 +455,9 @@
            increased RenderDevice state change optimization.
 	  <LI> Minimized header interdependencies (GLG3D headers no longer include all of G3D)
       <LI> Added GThread and GMutex classes. [Corey]
-      <LI> Added TextureFormat::fromCode(). [Corey]
+      <LI> Added ImageFormat::fromCode(). [Corey]
       <LI> Added Plane::distance() and Plane::closestPoint() helper methods. [Corey] 
-      <LI> G3D::TextureFormat::code, G3D::TextureFormat::colorSpace
+      <LI> G3D::ImageFormat::code, G3D::ImageFormat::colorSpace
       <LI> <B>incompatible change</B> G3D::MeshAlg::computeTangentSpace basis now computes a right-handed coordinate frame,
            where the binormal direction is the negative of the direction it faced in G3D 6.07.
       <LI> Exposed G3D::RenderDevice::beforePrimitive and G3D::RenderDevice::afterPrimitive to end-user code for
@@ -603,22 +605,22 @@
     <LI> New texture interpolation modes: BILINEAR_MIPMAP, NEAREST_MIPMAP, NEAREST_NO_MIPMAP
     <LI> New texture formats:
       <UL>
-        <LI> G3D::TextureFormat::L16;
-        <LI> G3D::TextureFormat::L16F;
-        <LI> G3D::TextureFormat::L32F;
-        <LI> G3D::TextureFormat::A16;
-        <LI> G3D::TextureFormat::A16F;
-        <LI> G3D::TextureFormat::A32F;
-        <LI> G3D::TextureFormat::LA4;
-        <LI> G3D::TextureFormat::LA16;
-        <LI> G3D::TextureFormat::LA16F;
-        <LI> G3D::TextureFormat::LA32F;
-        <LI> G3D::TextureFormat::RGB16;
-        <LI> G3D::TextureFormat::RGB16F;
-        <LI> G3D::TextureFormat::RGB32F;
-        <LI> G3D::TextureFormat::RGBA16;
-        <LI> G3D::TextureFormat::RGBA16F;
-        <LI> G3D::TextureFormat::RGBA32F;
+        <LI> G3D::ImageFormat::L16;
+        <LI> G3D::ImageFormat::L16F;
+        <LI> G3D::ImageFormat::L32F;
+        <LI> G3D::ImageFormat::A16;
+        <LI> G3D::ImageFormat::A16F;
+        <LI> G3D::ImageFormat::A32F;
+        <LI> G3D::ImageFormat::LA4;
+        <LI> G3D::ImageFormat::LA16;
+        <LI> G3D::ImageFormat::LA16F;
+        <LI> G3D::ImageFormat::LA32F;
+        <LI> G3D::ImageFormat::RGB16;
+        <LI> G3D::ImageFormat::RGB16F;
+        <LI> G3D::ImageFormat::RGB32F;
+        <LI> G3D::ImageFormat::RGBA16;
+        <LI> G3D::ImageFormat::RGBA16F;
+        <LI> G3D::ImageFormat::RGBA32F;
       </UL>
      <LI> isValidPointer and isValidHeapPointer no longer check the Win32 debug heap in order to support offset and padded memory blocks.
      <LI> Restructured unit tests
@@ -651,7 +653,7 @@
      <LI> Fix: [ 1277854 ] Win32Window fails on 24-bit modes
      <LI> RFE: [ 1242466 ] Inline Matrix3 methods
      <LI> Fix: [ 1226272 ] end caps of capsules in wrong position
-     <LI> Fix: G3D::TextureFormat::LA8 now has 8-bits per channel
+     <LI> Fix: G3D::ImageFormat::LA8 now has 8-bits per channel
      <LI> Fix: [ 1124491 ] Remove GL_SAMPLER_2DRECT_ARB
      <LI> Fix: [ 1257113 ] G3D::Queue problems comining pushFront and pushBack
      <LI> Fix: MeshAlg::Weld now linear time (was O(n^2) due to a bug)
@@ -1037,7 +1039,7 @@
 	 <LI> contrib/ObjModel [Corey Taylor]
      <LI> G3D::GLCaps
 	 <LI> GAppSettings::logFilename
-	 <LI> Deprecated RenderDevice::suportsOpenGLExtension, RenderDevice::supportsTextureFormat,
+	 <LI> Deprecated RenderDevice::suportsOpenGLExtension, RenderDevice::supportsImageFormat,
 	      other supports shortcuts (use GLCaps instead).
 	 <LI> DiscoveryClient::cleanup
 	 <LI> Optimized BinaryInput::readUInt32, readUInt16
@@ -1174,7 +1176,7 @@
      <LI> G3D::GMaterial
      <LI> ManualCameraController renamed to G3D::FPCameraController
      <LI> glGetCurrentContext (beta)
-     <LI> G3D::RenderDevice::supportsTextureFormat
+     <LI> G3D::RenderDevice::supportsImageFormat
      <LI> G3D::Vector3::magnitude
      <LI> G3D::Vector3::cross() [returns Matrix3]
      <LI> G3D::Quat changes (API is still in beta)
@@ -1429,7 +1431,7 @@
      <LI> Platform specific #defines G3D_WIN32, G3D_LINUX, G3D_OSX
      <LI> G3D::Array::contains
      <LI> G3D::Queue::contains
-     <LI> G3D::TextureFormat
+     <LI> G3D::ImageFormat
      <LI> G3D::Texture::DIM_CUBE_MAP
      <LI> G3D::Texture resizes non-power of two textures
      <LI> G3D::Texture constructors are completely changed from 5.01 (and hopefully easier to use)

@@ -54,7 +54,7 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
 
  <PRE>
     // Create Texture
-	static Texture::Ref tex = Texture::createEmpty(256, 256, "Rendered Texture", TextureFormat::RGB8, Texture::CLAMP, Texture::NEAREST_NO_MIPMAP, Texture::DIM_2D);
+	static Texture::Ref tex = Texture::createEmpty(256, 256, "Rendered Texture", ImageFormat::RGB8, Texture::CLAMP, Texture::NEAREST_NO_MIPMAP, Texture::DIM_2D);
 
 	// Create a framebuffer that uses this texture as the color buffer
 	static FramebufferRef fb = Framebuffer::create("Offscreen target");
@@ -214,7 +214,7 @@ private:
 	 for Framebuffer completeness.  Width & Height should also be
 	 implemented for this check.
 	*/
-    const class TextureFormat*      format;
+    const class ImageFormat*      format;
 
     /**
      Framebuffer Height

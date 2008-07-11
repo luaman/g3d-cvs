@@ -10,7 +10,7 @@
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/GWindow.h"
 #include "GLG3D/glcalls.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/NetworkDevice.h"
@@ -45,12 +45,12 @@ static void __stdcall glIgnore(GLenum e) {
     (void)e;
 }
 
-/** Cache of values supplied to supportsTextureFormat.
+/** Cache of values supplied to supportsImageFormat.
     Works on pointers since there is no way for users
-    to construct their own TextureFormats.
+    to construct their own ImageFormats.
  */
-static Table<const TextureFormat*, bool>      _supportedTextureFormat;
-static Table<const TextureFormat*, bool>      _supportedRenderBufferFormat;
+static Table<const ImageFormat*, bool>      _supportedImageFormat;
+static Table<const ImageFormat*, bool>      _supportedRenderBufferFormat;
 
 Set<std::string> GLCaps::extensionSet;
 
@@ -607,15 +607,15 @@ bool GLCaps::supports(const std::string& extension) {
 }
 
 
-bool GLCaps::supports(const TextureFormat* fmt) {
+bool GLCaps::supports(const ImageFormat* fmt) {
     return supportsTexture(fmt);
 }
 
 
-bool GLCaps::supportsTexture(const TextureFormat* fmt) {
+bool GLCaps::supportsTexture(const ImageFormat* fmt) {
 
     // First, check if we've already tested this format
-    if (! _supportedTextureFormat.containsKey(fmt)) {
+    if (! _supportedImageFormat.containsKey(fmt)) {
 
         bool supportsFormat = false;
 
@@ -651,14 +651,14 @@ bool GLCaps::supportsTexture(const TextureFormat* fmt) {
             glPopAttrib();
         }
 
-        _supportedTextureFormat.set(fmt, supportsFormat);
+        _supportedImageFormat.set(fmt, supportsFormat);
     }
 
-    return _supportedTextureFormat[fmt];
+    return _supportedImageFormat[fmt];
 }
 
 
-bool GLCaps::supportsRenderBuffer(const TextureFormat* fmt) {
+bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
 
     // First, check if we've already tested this format
     if (! _supportedRenderBufferFormat.containsKey(fmt)) {

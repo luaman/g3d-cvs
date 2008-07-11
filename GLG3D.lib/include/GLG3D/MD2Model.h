@@ -549,7 +549,7 @@ public:
      Texture::PreProcess preprocess;
      preprocess.brighten = 2.0f;
 
-     Texture::fromFile(filename, TextureFormat::AUTO, Texture::DIM_2D, settings, preprocess)
+     Texture::fromFile(filename, ImageFormat::AUTO, Texture::DIM_2D, settings, preprocess)
      </pre>
      */
     static Texture::Ref textureFromFile(const std::string& filename);

@@ -116,6 +116,7 @@ template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/WeakCache.h"
 #include "G3D/Pointer.h"
 #include "G3D/Matrix.h"
+#include "G3D/ImageFormat.h"
 
 #ifdef _MSC_VER
 #   pragma comment(lib, "zlib")

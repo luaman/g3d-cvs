@@ -375,15 +375,15 @@ void RenderDevice::init(GWindow* window, Log* log) {
         logPrintf("Supported Formats:\n");
         logPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
 	
-        for (int code = 0; code < TextureFormat::CODE_NUM; ++code) {
-	    if ((code == TextureFormat::CODE_DEPTH24_STENCIL8) && 
+        for (int code = 0; code < ImageFormat::CODE_NUM; ++code) {
+	    if ((code == ImageFormat::CODE_DEPTH24_STENCIL8) && 
 		(GLCaps::enumVendor() == GLCaps::MESA)) {
 	        // Mesa seems to crash on this format
 	        continue;
    	    }
 
-            const TextureFormat* fmt = 
-	      TextureFormat::fromCode((TextureFormat::Code)code);
+            const ImageFormat* fmt = 
+	      ImageFormat::fromCode((ImageFormat::Code)code);
 
             if (fmt) {
 	        // printf("Format: %s\n", fmt->name().c_str());

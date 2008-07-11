@@ -1413,11 +1413,11 @@ private:
     bool                            _initialized;
     bool                            cleanedup;
 
-    /** Cache of values supplied to supportsTextureFormat.
+    /** Cache of values supplied to supportsImageFormat.
         Works on pointers since there is no way for users
-        to construct their own TextureFormats.
+        to construct their own ImageFormats.
      */
-    Table<const TextureFormat*, bool>      _supportedTextureFormat;
+    Table<const ImageFormat*, bool>      _supportedImageFormat;
 
 	void push2D(const FramebufferRef& fb, const Rect2D& viewport);
 

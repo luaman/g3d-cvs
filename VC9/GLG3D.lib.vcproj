@@ -406,10 +406,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\TextureFormat.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\ThirdPersonManipulator.cpp"
 				>
 			</File>
@@ -693,10 +689,6 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Texture.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\TextureFormat.h"
 				>
 			</File>
 			<File

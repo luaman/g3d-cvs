@@ -235,7 +235,7 @@ void ToneMap::makeGammaCorrectionTextures() {
     }
     
     // MIP-mapping causes bad interpolation for some reason
-    RG = Texture::fromGImage("RG Gamma", data, TextureFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
+    RG = Texture::fromGImage("RG Gamma", data, ImageFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
     
     if (profile != PS20) {
         // On PS20 we can re-use the original RG texture
@@ -247,7 +247,7 @@ void ToneMap::makeGammaCorrectionTextures() {
             p.b = ramp[b];
         }
     
-        B = Texture::fromGImage("B Gamma", data, TextureFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
+        B = Texture::fromGImage("B Gamma", data, ImageFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
     }
 }
 
@@ -492,14 +492,14 @@ void ToneMap::resizeImages(RenderDevice* rd) {
         screenImage = Texture::createEmpty
           ("Copied Screen Image",
            (int)viewport.width(), (int)viewport.height(), 
-           TextureFormat::RGB8(),
+           ImageFormat::RGB8(),
            Texture::DIM_2D_NPOT, 
            Texture::Settings::video());
 
         bloomMapIntermediate = Texture::createEmpty
           ("Bloom map intermediate",
            (int)viewport.width() / 4, (int)viewport.height(), 
-           TextureFormat::RGB8(), 
+           ImageFormat::RGB8(), 
            Texture::DIM_2D_NPOT, 
            Texture::Settings::video());
 
@@ -514,7 +514,7 @@ void ToneMap::resizeBloomMap(int w, int h) {
     for (int i = 0; i < (stereo ? 2 : 1); ++i) {
         stereoBloomMap[i] = Texture::createEmpty(
 			"Bloom map", w, h, 
-            TextureFormat::RGB8(), Texture::DIM_2D_NPOT, 
+            ImageFormat::RGB8(), Texture::DIM_2D_NPOT, 
 			Texture::Settings::video());
     }
 }

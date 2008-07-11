@@ -887,7 +887,7 @@ Texture::Ref MD2Model::textureFromFile(const std::string& filename) {
     Texture::PreProcess preprocess;
     preprocess.brighten = 2.0f;
 
-    return Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, settings, preprocess);
+    return Texture::fromFile(filename, ImageFormat::AUTO(), Texture::DIM_2D, settings, preprocess);
 }
 
 }

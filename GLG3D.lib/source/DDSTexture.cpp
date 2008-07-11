@@ -15,7 +15,7 @@
 #include "G3D/platform.h"
 #include "G3D/Log.h"
 #include "GLG3D/glcalls.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
@@ -317,7 +317,7 @@ const uint32  DDSD_ALL                 = 0x00fff9eel;
 
 Texture::DDSTexture::DDSTexture(const std::string& filename) :
     m_bytes(NULL),
-    m_bytesFormat(TextureFormat::AUTO()),
+    m_bytesFormat(ImageFormat::AUTO()),
     m_width(0),
     m_height(0),
     m_numMipMaps(0),
@@ -365,13 +365,13 @@ Texture::DDSTexture::DDSTexture(const std::string& filename) :
     if (ddsSurfaceDesc.ddpfPixelFormat.dwFlags & DDPF_FOURCC) {
         switch(ddsSurfaceDesc.ddpfPixelFormat.dwFourCC) {
             case FOURCC_DXT1:
-                m_bytesFormat = TextureFormat::RGBA_DXT1();
+                m_bytesFormat = ImageFormat::RGBA_DXT1();
                 break;
             case FOURCC_DXT3:
-                m_bytesFormat = TextureFormat::RGBA_DXT3();
+                m_bytesFormat = ImageFormat::RGBA_DXT3();
                 break;
             case FOURCC_DXT5:
-                m_bytesFormat = TextureFormat::RGBA_DXT5();
+                m_bytesFormat = ImageFormat::RGBA_DXT5();
                 break;
             default:
                 debugAssertM(false, "Unsupported DXT DDS format");

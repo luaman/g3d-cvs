@@ -101,7 +101,6 @@ href="classes.html">Classes</a>.
     \link G3D::Renderbuffer Renderbuffer\endlink,
     \link G3D::RenderDevice RenderDevice\endlink,
     \link G3D::Texture Texture\endlink,
-    \link G3D::TextureFormat TextureFormat\endlink,
     \link G3D::VAR VAR\endlink,
     \link G3D::VARArea VARArea\endlink, 
     \link G3D::Shader Shader\endlink
@@ -307,6 +306,7 @@ href="classes.html">Classes</a>.
         \link G3D::Image3uint8 Image3uint8\endlink,
         \link G3D::Image4 Image4\endlink,
         \link G3D::Image4uint8 Image4uint8\endlink,
+        \link G3D::ImageFormat ImageFormat\endlink,
         \link G3D::Map2D Map2D\endlink,
         \link G3D::gaussian1D gaussian1D\endlink,
         \link G3D::WrapMode WrapMode\endlink

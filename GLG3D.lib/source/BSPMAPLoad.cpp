@@ -536,7 +536,7 @@ static Texture::Ref loadBrightTexture(const std::string& filename, double bright
     //debugAssert(fileExists(filename));
     Texture::PreProcess preprocess;
     preprocess.brighten = brighten;
-    return Texture::fromFile(filename, TextureFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess);
+    return Texture::fromFile(filename, ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess);
 }
 
 
@@ -634,8 +634,8 @@ void Map::loadLightMaps(
         Texture::Settings settings;
         settings.wrapMode = WrapMode::CLAMP;
         Texture::Ref txt = 
-            Texture::fromMemory("Light map", lightmapData, TextureFormat::RGB8(), 128, 128, 1, 
-            TextureFormat::RGB8(), Texture::DIM_2D, settings);
+            Texture::fromMemory("Light map", lightmapData, ImageFormat::RGB8(), 128, 128, 1, 
+            ImageFormat::RGB8(), Texture::DIM_2D, settings);
 
         lightmaps[ct] = txt;
     }

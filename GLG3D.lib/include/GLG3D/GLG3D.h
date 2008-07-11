@@ -42,7 +42,6 @@
 #include "GLG3D/glheaders.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/getOpenGLState.h"
-#include "GLG3D/TextureFormat.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/glFormat.h"
 #include "GLG3D/Milestone.h"

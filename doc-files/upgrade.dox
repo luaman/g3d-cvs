@@ -161,7 +161,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D_PI</td><td>G3D::pi()</td></tr>
 <tr><td>G3D_HALF_PI</td><td>G3D::halfPi()</td></tr>
 <tr><td>G3D_TWO_PI</td><td>G3D::twoPi()</td></tr>
-<tr><td>G3D::RenderDevice::supportsTextureFormat</td><td>GLCaps::supports</td></tr>
+<tr><td>G3D::RenderDevice::supportsImageFormat</td><td>GLCaps::supports</td></tr>
 <tr><td>G3D::FirstPersonManipulator::doSimulation</td><td>G3D::FirstPersonManipulator::onSimulation</td></tr>
 <tr><td>G3D::GApplet::doGraphics</td><td>G3D::GApplet::onGraphics</td></tr>
 <tr><td>G3D::GApplet::doNetwork</td><td>G3D::GApplet::onNetwork</td></tr>

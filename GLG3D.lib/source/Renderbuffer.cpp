@@ -11,7 +11,7 @@
 
 #include "GLG3D/Renderbuffer.h"
 #include "GLG3D/glcalls.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 
 namespace G3D {
 
@@ -21,7 +21,7 @@ namespace G3D {
 Renderbuffer::Renderbuffer (	
     const std::string&          _name, 
     const GLuint                _imageID,
-    const G3D::TextureFormat*   _format, 
+    const G3D::ImageFormat*   _format, 
     const int                   _width, 
     const int                   _height) : 
     mName(_name),
@@ -42,7 +42,7 @@ Renderbuffer::~Renderbuffer () {
 RenderbufferRef Renderbuffer::fromGLRenderbuffer(
     const std::string&		 _name, 
     const GLuint                 _imageID,
-    const G3D::TextureFormat*    _format) {
+    const G3D::ImageFormat*    _format) {
 
     GLint w, h;
 
@@ -60,7 +60,7 @@ RenderbufferRef Renderbuffer::createEmpty(
     const std::string&			_name, 
     const int				_width, 
     const int				_height,
-    const G3D::TextureFormat*   _format) { 
+    const G3D::ImageFormat*   _format) { 
     // New Renderbuffer ID
     GLuint _imageID;
 

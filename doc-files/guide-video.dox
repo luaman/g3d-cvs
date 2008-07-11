@@ -45,7 +45,7 @@ Framebuffer Objects</A></I></FONT></TD></TR></TABLE>
 <pre>
     GImage im(1024, 768, 3);
     GImage::makeCheckerboard(im);
-    Texture::Ref t = Texture::fromGImage("Checker", im, TextureFormat::AUTO, Texture::DIM_2D_NPOT, Texture::Parameters::video());
+    Texture::Ref t = Texture::fromGImage("Checker", im, ImageFormat::AUTO, Texture::DIM_2D_NPOT, Texture::Parameters::video());
 
     ...
 

@@ -95,7 +95,7 @@ void ShadowMap::setSize(int desiredSize) {
     m_depthTexture = Texture::createEmpty(
                                      "Shadow Map",
                                      SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
-                                     TextureFormat::DEPTH16(),
+                                     ImageFormat::DEPTH16(),
                                      Texture::DIM_2D, 
                                      textureSettings);
     m_colorTexture = NULL;
@@ -271,7 +271,7 @@ void ShadowMap::computeColorTexture() {
         // luminance textures and we need high bit depth for the
         // depth.
         
-        const TextureFormat* fmt = TextureFormat::RGB16F();
+        const ImageFormat* fmt = ImageFormat::RGB16F();
         debugAssert(GLCaps::supportsTexture(fmt));
 
         m_colorTexture = Texture::createEmpty

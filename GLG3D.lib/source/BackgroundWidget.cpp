@@ -50,7 +50,7 @@ void BackgroundWidget::setTexture(const std::string& textureFilename) {
         dim = Texture::DIM_2D;
     }
 
-    setTexture(Texture::fromFile(textureFilename, TextureFormat::AUTO(), dim, Texture::Settings::video()));
+    setTexture(Texture::fromFile(textureFilename, ImageFormat::AUTO(), dim, Texture::Settings::video()));
 }
 
 }

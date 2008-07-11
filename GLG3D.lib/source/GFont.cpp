@@ -9,7 +9,7 @@
 
 #include "GLG3D/GFont.h"
 #include "GLG3D/RenderDevice.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 #include "G3D/Vector2.h"
 #include "G3D/System.h"
 #include "G3D/Array.h"
@@ -54,7 +54,7 @@ GFontRef GFont::fromMemory(const std::string& name, const uint8* bytes, const in
 
 GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 
-    debugAssertM(GLCaps::supportsTexture(TextureFormat::A8()),
+    debugAssertM(GLCaps::supportsTexture(ImageFormat::A8()),
         "This graphics card does not support the GL_ALPHA8 texture format used by GFont.");
     debugAssertGLOk();
 
@@ -95,11 +95,11 @@ GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
         Texture::fromMemory(
 			filename, 
 			ptr,
-            TextureFormat::A8(), 
+            ImageFormat::A8(), 
 			width, 
 			height,
 			1,
-			TextureFormat::A8(), 
+			ImageFormat::A8(), 
 			Texture::DIM_2D,
 			fontSettings);
    

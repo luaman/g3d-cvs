@@ -62,7 +62,7 @@ Video<IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD></TR>
 
     <PRE>
         FramebufferRef fb = Framebuffer::create("New Framebuffer");
-        Texture someBuffer = Texture::createEmpty("Some Buffer", 256, 256, TextureFormat::RGBA8);
+        Texture someBuffer = Texture::createEmpty("Some Buffer", 256, 256, ImageFormat::RGBA8);
         fb->set (Framebuffer::COLOR_ATTACHMENT0, someBuffer);
 
         renderDevice->setFramebuffer(fb);

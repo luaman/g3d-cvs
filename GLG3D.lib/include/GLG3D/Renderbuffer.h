@@ -31,7 +31,7 @@ typedef ReferenceCountedPointer<Renderbuffer> RenderbufferRef;
  A Renderbuffer object is essentially an image that cannot be used as a
  texture.  It may be rendered to, but not used for rendering. On most hardware
  there is no advantage to using a Renderbuffer instead of a G3D::Texture, although
- theoretically hardware could support some G3D::TextureFormat s as Renderbuffers
+ theoretically hardware could support some G3D::ImageFormat s as Renderbuffers
  but not as Textures.  
 
  Note that G3D allows you to spell the class name either as G3D::Renderbuffer (matching
@@ -56,7 +56,7 @@ private:
     GLuint                          mImageID;
     
     /** Texel format */
-    const class TextureFormat*      mFormat;
+    const class ImageFormat*      mFormat;
 
     /** Buffer width */
     int                             mWidth;
@@ -69,7 +69,7 @@ private:
     (	
      const std::string&         _name,
      const GLuint               _renderbufferID,
-     const G3D::TextureFormat*	_format, 
+     const G3D::ImageFormat*	_format, 
      const int                  _width, 
      const int                  _height);
     
@@ -93,7 +93,7 @@ public:
         (
          const std::string&          name, 
          const GLuint                imageID,
-         const G3D::TextureFormat*   format);
+         const G3D::ImageFormat*   format);
     
 	/**
 	 Creates an empty renderbuffer object.
@@ -109,7 +109,7 @@ public:
      const std::string&          name, 
      const int                   width, 
      const int                   height,
-     const class TextureFormat*  format); 
+     const class ImageFormat*  format); 
 
 	/**
 	 Get OpenGL renderbuffer ID, useful for accessing
@@ -119,7 +119,7 @@ public:
         return mImageID;
 	}
 
-    inline const TextureFormat* format() const {
+    inline const ImageFormat* format() const {
         return mFormat;
     }
 

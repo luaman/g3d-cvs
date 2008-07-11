@@ -328,6 +328,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\ImageFormat.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\license.cpp"
 				>
 			</File>
@@ -663,6 +667,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Image4uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\ImageFormat.h"
 				>
 			</File>
 			<File

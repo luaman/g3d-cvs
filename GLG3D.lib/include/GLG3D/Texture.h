@@ -15,14 +15,14 @@
 #include "G3D/Table.h"
 #include "G3D/Vector2.h"
 #include "G3D/WrapMode.h"
-#include "GLG3D/glheaders.h"
-#include "GLG3D/TextureFormat.h"
+#include "G3D/ImageFormat.h"
 #include "G3D/Image1.h"
 #include "G3D/Image1uint8.h"
 #include "G3D/Image3.h"
 #include "G3D/Image3uint8.h"
 #include "G3D/Image4.h"
 #include "G3D/Image4uint8.h"
+#include "GLG3D/glheaders.h"
 
 namespace G3D {
 
@@ -292,7 +292,7 @@ private:
     Dimension                       m_dimension;
     bool                            m_opaque;
 
-    const class TextureFormat*      m_format;
+    const ImageFormat*              m_format;
     int                             m_width;
     int                             m_height;
     int                             m_depth;
@@ -303,12 +303,12 @@ private:
         const std::string&          name,
         GLuint                      textureID,
         Dimension                   dimension,
-        const class TextureFormat*  format,
+        const ImageFormat*          format,
 		bool		      	        opaque,
 		const Settings&             settings);
 
 	/** Call glGetTexImage with appropriate target */
-	void getTexImage(void* data, const TextureFormat* desiredFormat) const;
+	void getTexImage(void* data, const ImageFormat* desiredFormat) const;
 
 public:
 
@@ -319,7 +319,7 @@ public:
         const std::string&              name,
         int                             width,
         int                             height,
-        const class TextureFormat*      desiredFormat  = TextureFormat::RGBA8(),
+        const ImageFormat*              desiredFormat  = ImageFormat::RGBA8(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         int                             depth          = 1);
@@ -335,18 +335,18 @@ public:
     static Texture::Ref fromGLTexture(
         const std::string&              name,
         GLuint                          textureID,
-        const class TextureFormat*      textureFormat,
+        const ImageFormat*              textureFormat,
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults());
 
     /**
      Creates a texture from a single image.  The image must have a format understood
-     by G3D::GImage or a DirectDraw Surface (DDS).  If dimension is DIM_CUBE_MAP, this replaces "*" in the filename with
-     ft, bk, rt, lt, up, dn to load a cube map.
+     by G3D::GImage or a DirectDraw Surface (DDS).  If dimension is DIM_CUBE_MAP, this loads the 6 files with names
+     _ft, _bk, ... following the G3D::Sky documentation.
      */    
     static Texture::Ref fromFile(
         const std::string&              filename,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
+        const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
@@ -357,7 +357,7 @@ public:
      */
     static Texture::Ref fromFile(
         const std::string               filename[6],
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
+        const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
@@ -370,7 +370,7 @@ public:
     static Texture::Ref fromTwoFiles(
         const std::string&              filename,
         const std::string&              alphaFilename,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
+        const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
@@ -397,11 +397,11 @@ public:
     static Texture::Ref fromMemory(
         const std::string&                  name,
         const Array< Array<const void*> >&  bytes,
-        const TextureFormat*                bytesFormat,
+        const ImageFormat*                bytesFormat,
         int                                 m_width,
         int                                 m_height,
         int                                 m_depth,
-        const TextureFormat*                desiredFormat  = TextureFormat::AUTO(),
+        const ImageFormat*                desiredFormat  = ImageFormat::AUTO(),
         Dimension                           dimension      = DIM_2D,
         const Settings&                     settings       = Settings::defaults(),
         const PreProcess&                   preProcess     = PreProcess::defaults());
@@ -413,11 +413,11 @@ public:
     static Texture::Ref fromMemory(
         const std::string&              name,
         const void*                     bytes,
-        const class TextureFormat*      bytesFormat,
+        const ImageFormat*              bytesFormat,
         int                             m_width,
         int                             m_height,
         int				                m_depth,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
+        const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
@@ -425,7 +425,7 @@ public:
     static Texture::Ref fromGImage(
         const std::string&              name,
         const GImage&                   image,
-        const class TextureFormat*      desiredFormat  = TextureFormat::AUTO(),
+        const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
         Dimension                       dimension      = DIM_2D,
         const Settings&                 settings	   = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
@@ -542,36 +542,36 @@ public:
     /**
      Returns the level 0 mip-map data in the format that most closely matches
      outFormat.
-     @param outFormat Must be one of: TextureFormat::AUTO, TextureFormat::RGB8, TextureFormat::RGBA8, TextureFormat::L8, TextureFormat::A8
+     @param outFormat Must be one of: ImageFormat::AUTO, ImageFormat::RGB8, ImageFormat::RGBA8, ImageFormat::L8, ImageFormat::A8
      */
-    void getImage(GImage& dst, const TextureFormat* outFormat = TextureFormat::AUTO()) const;
+    void getImage(GImage& dst, const ImageFormat* outFormat = ImageFormat::AUTO()) const;
 
-	/** Extracts the data as TextureFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
+	/** Extracts the data as ImageFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
 	Image4Ref toImage4(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
+	/** Extracts the data as ImageFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
 	Image4uint8Ref toImage4uint8(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
+	/** Extracts the data as ImageFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
 	Image3Ref toImage3(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
+	/** Extracts the data as ImageFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
 	Image3uint8Ref toImage3uint8(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
+	/** Extracts the data as ImageFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
 	 */
 	Image1Ref toImage1(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
+	/** Extracts the data as ImageFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
 	Image1uint8Ref toImage1uint8(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
+	/** Extracts the data as ImageFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
 	Image1Ref toDepthImage1(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::DEPTH32F */
+	/** Extracts the data as ImageFormat::DEPTH32F */
 	Map2D<float>::Ref toDepthMap(bool applyInvertY = false) const;
 
-	/** Extracts the data as TextureFormat::DEPTH32F and converts to 8-bit. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true.*/
+	/** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true.*/
 	Image1uint8Ref toDepthImage1uint8(bool applyInvertY = false) const;
 
     inline unsigned int openGLID() const {
@@ -622,7 +622,7 @@ public:
         return m_name;
     }
 
-    inline const TextureFormat* format() const {
+    inline const ImageFormat* format() const {
         return m_format;
     }
     
@@ -659,7 +659,7 @@ private:
     private:
                                     
         uint8*                      m_bytes;
-        const TextureFormat*        m_bytesFormat;
+        const ImageFormat*        m_bytesFormat;
         int                         m_width;
         int                         m_height;
         int                         m_numMipMaps;
@@ -679,7 +679,7 @@ private:
             return m_height;
         }
 
-        const TextureFormat* getBytesFormat() {
+        const ImageFormat* getBytesFormat() {
             return m_bytesFormat;
         }
 
