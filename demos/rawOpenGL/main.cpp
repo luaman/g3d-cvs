@@ -10,6 +10,10 @@
   introductory 3D graphics course.  You can then add in more
   high-level G3D routines as students become more sophisticated.
 
+  This demo also shows how G3D can abstract the platform-specific
+  aspect of creating a window and initializing OpenGL while still
+  leaving you with full control over OpenGL.
+
   @author Morgan McGuire, morgan@cs.williams.edu
  */
 #include <G3D/G3DAll.h>
@@ -59,6 +63,12 @@ void drawCube() {
 }
 
 void drawFrame(int w, int h, int frameNum) {
+    // Set up the camera
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(50.0f, (GLfloat)w/(GLfloat)h, 0.1f, 100.0f);
+
     glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -67,12 +77,6 @@ void drawFrame(int w, int h, int frameNum) {
     glDepthFunc(GL_LEQUAL);
     glDisable(GL_LIGHTING);
 
-    // Set up the camera
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(50.0f, (GLfloat)w/(GLfloat)h, 0.1f, 100.0f);
-
     float angle = frameNum * 2;
 
     //TODO: Why are the clipping planes in such weird places?  They are too close, not at 100
@@ -80,7 +84,7 @@ void drawFrame(int w, int h, int frameNum) {
     // Move the cube in camera space
     glMatrixMode(GL_MODELVIEW_MATRIX);
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -2.0f);
+    glTranslatef(0.0f, 0.0f, -10.0f);
 
     // Rotate the cube around the Y axis
     glRotatef(angle, 0.0f, 1.0f, 0.0f);
@@ -97,7 +101,7 @@ int main(int argc, char** argv) {
     settings.height = HEIGHT;
     rd->init(settings);
 
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 100; ++i) {
         drawFrame(WIDTH, HEIGHT, i);
 
         // Render at 30 fps
@@ -106,6 +110,9 @@ int main(int argc, char** argv) {
         // See also RenderDevice::beginFrame, RenderDevice::endFrame
         rd->swapBuffers();
     }
+
+    rd->cleanup();
+    delete rd;
 
     return 0;
 }
