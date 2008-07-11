@@ -587,11 +587,20 @@ void perfArray() {
 }
 
 
+void testParams() {
+    // Make sure this compiles and links
+    Array<int, 0, 0> packed;
+    packed.append(1);
+    packed.append(2);
+    packed.clear();
+}
+
 void testArray() {
     printf("G3D::Array  ");
     testIteration();
     testPartition();
     testMedianPartition();
     testSort();
+    testParams();
     printf("passed\n");
 }

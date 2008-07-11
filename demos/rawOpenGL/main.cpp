@@ -79,10 +79,8 @@ void drawFrame(int w, int h, int frameNum) {
 
     float angle = frameNum * 2;
 
-    //TODO: Why are the clipping planes in such weird places?  They are too close, not at 100
-
     // Move the cube in camera space
-    glMatrixMode(GL_MODELVIEW_MATRIX);
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -10.0f);
 
