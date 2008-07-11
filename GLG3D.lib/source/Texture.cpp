@@ -388,7 +388,7 @@ Texture::Ref Texture::fromTwoFiles(
 	Array<const void*>& array = mip[0];
 
     const int numFaces = 
-		((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) ? 
+        ((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) ? 
         6 : 1;
 
     array.resize(numFaces);

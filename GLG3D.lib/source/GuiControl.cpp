@@ -143,9 +143,9 @@ const GuiCaption& GuiControl::caption() const {
 void GuiControl::setCaption(const GuiCaption& text) {
     m_caption = text;
     if (m_caption.text() == "") {
-        m_captionSize = 0;
+        setCaptionSize(0);
     } else {
-        m_captionSize = defaultCaptionSize();
+        setCaptionSize(defaultCaptionSize());
     }
 }
 

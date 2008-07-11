@@ -95,11 +95,13 @@ def defineLibrary(lib):
 
 isOSX = (os.uname()[0] == 'Darwin')
 
-# On non-OSX unix systems G3D needs X11.  On OS X, GL is a framework
+# On non-OSX unix systems G3D needs X11 and SDL.  On OS X, GL is a framework
 if not isOSX:
     maybeG3DX11 = ['X11']
+    maybeG3DSDL = ['SDL']
     maybeFwk    = DYNAMIC
 else:
+    maybeG3DSDL = []
     maybeG3DX11 = []
     maybeFwk    = FRAMEWORK
 
@@ -111,7 +113,7 @@ Library('SDL',         maybeFwk,  'SDL',     'SDL',     'SDL',      'SDL',    ['
 Library('curses',      DYNAMIC,   'curses',  'curses',   None,       None,    ['curses.h'],     [],                                            []),
 Library('zlib',        DYNAMIC,   'z',       'z',        None,       None,    ['zlib.h'],       ['compress2'],                                 []),
 Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['zip.h'],        ['unzClose'],                                  ['zlib']),
-Library('glut',        maybeFwk,  'glut',    'glut',     None,       None,    ['glut.h'],       [],                                            []),
+Library('glut',        maybeFwk,  'glut',    'glut',    'GLUT',     'GLUT',   ['glut.h'],       [],                                            []),
 Library('OpenGL',      maybeFwk,  'GL',      'GL',      'OpenGL',   'OpenGL', ['gl.h'],         ['glBegin', 'glVertex3'],                      []),
 Library('jpeg',        DYNAMIC,   'jpeg',    'jpeg',     None,       None,    ['jpeg.h'],       ['jpeg_memory_src', 'jpeg_CreateCompress'],    []),
 Library('png',         DYNAMIC,   'png',     'png',      None,       None,    ['png.h'],        ['png_create_info_struct'],                    []),
@@ -120,7 +122,7 @@ Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['
 Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                []),
 Library('AppleGL',     FRAMEWORK,  None,      None,     'AGL',      'AGL',    ['agl.h'],        ['_aglChoosePixelFormat'],                     []),
 Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['G3D.h'], [],                                                   ['zlib', 'jpeg', 'png', 'zip', 'Cocoa', 'pthread', 'Carbon'] + maybeG3DX11),
-Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'OpenGL', 'GLU', 'AppleGL']),
+Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'OpenGL', 'GLU', 'AppleGL'] + maybeG3DSDL),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
 Library('IOKit',       FRAMEWORK,  None,     None,       'IOKit',    'IOKit', ['IOHIDKeys.h', 'IOKitLib.h', 'IOHIDLib.h'],  ['IOMasterPort'],  []),

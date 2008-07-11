@@ -341,8 +341,8 @@ public:
 
     /**
      Creates a texture from a single image.  The image must have a format understood
-     by G3D::GImage or a DirectDraw Surface (DDS).  If dimension is DIM_CUBE_MAP, this loads the 6 files with names
-     _ft, _bk, ... following the G3D::Sky documentation.
+     by G3D::GImage or a DirectDraw Surface (DDS).  If dimension is DIM_CUBE_MAP, this replaces "*" in the filename with
+     ft, bk, rt, lt, up, dn to load a cube map.
      */    
     static Texture::Ref fromFile(
         const std::string&              filename,
