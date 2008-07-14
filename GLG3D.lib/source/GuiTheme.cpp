@@ -167,8 +167,7 @@ void GuiTheme::deserialize(const std::string& path, TextInput& b) {
     m_canvas.pad.bottomRight -= Vector2(4, 2);
     m_canvas.pad.topLeft     -= Vector2(5, 2);
 
-    // TODO: uncomment
-    // m_selection.deserialize("selection", b);
+    m_selection.deserialize("selection", b);
 }
 
 

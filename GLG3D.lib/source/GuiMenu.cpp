@@ -134,13 +134,14 @@ void GuiMenu::render(RenderDevice* rd) {
     
     m_skin->beginRendering(rd);
     {
+        m_skin->renderWindow(m_rect, focused(), false, false, false, m_text, GuiTheme::WindowStyle(m_style));
         m_skin->pushClientRect(m_clientRect);
-            m_skin->renderWindow(m_rect, focused(), false, false, false, m_text, GuiTheme::WindowStyle(m_style));
             
             // Draw the hilight (the root pane is invisible, so it will not overwrite)
             int i = m_highlightIndex;
             if ((i >= 0) && (i < m_labelArray.size())) {
-                m_skin->renderSelection(m_labelArray[i]->rect());
+                const Rect2D& r = m_labelArray[i]->rect();
+                m_skin->renderSelection(Rect2D::xywh(0, r.y0(), m_clientRect.width(), r.height()));
             }
             
             m_rootPane->render(rd, m_skin);

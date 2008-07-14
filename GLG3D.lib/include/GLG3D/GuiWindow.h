@@ -214,7 +214,7 @@ protected:
 
 protected:
 
-    void render(RenderDevice* rd);
+    virtual void render(RenderDevice* rd);
 
     /** Take the specified close action */
     void close();

@@ -91,10 +91,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
 
     if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
 
-        if (m_gui->manager()->contains(menu())) {
-            // If the menu was already open, close it
-            m_menu->hide();
-        } else {
+        if (! m_gui->manager()->contains(menu())) {
             showMenu();
         }
         return true;

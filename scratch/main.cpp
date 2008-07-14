@@ -187,12 +187,12 @@ G3D_START_AT_MAIN();
 
 
 int main(int argc, char** argv) {
-
-
-/*    RenderDevice* rd = new RenderDevice();
+/*
+    RenderDevice* rd = new RenderDevice();
     rd->init();
-    GuiTheme::makeThemeFromSourceFiles("C:/Projects/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "c:/osx.skn");
-*/
+    GuiTheme::makeThemeFromSourceFiles("C:/Projects/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "C:/Projects/G3D/data-files/gui/osx.skn");
+//    return 0;*/
+
     GApp::Settings set;
 //    set.window.width = 1440;
 //    set.window.height = 900;
