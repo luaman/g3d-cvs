@@ -6,9 +6,9 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2002-08-07
- @edited  2006-05-05
+ @edited  2008-07-14
 
- Copyright 2002-2006, Morgan McGuire.
+ Copyright 2002-2008, Morgan McGuire.
  All rights reserved.
 */
 
@@ -25,7 +25,7 @@
 #include "G3D/Color4.h"
 #include "G3D/Color4uint8.h"
 #include "G3D/debugAssert.h"
-#include "GLG3D/glheaders.h"
+#include "./glheaders.h"
 #ifdef _DEBUG
 // Needed for debugAssertGLOk
 #   include "GLG3D/getOpenGLState.h"
