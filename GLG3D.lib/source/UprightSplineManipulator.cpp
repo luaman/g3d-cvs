@@ -66,7 +66,7 @@ public:
         //AABox box(spline->control[i].translation - extent, spline->control[i].translation + extent);
         AABox box(-extent, extent);
         for (int i = 1; i < spline->control.size() - 1; ++i) {
-            rd->setObjectToWorldMatrix(spline->control[i]);
+            rd->setObjectToWorldMatrix(spline->control[i].toCoordinateFrame());
             Draw::box(box, rd, color, Color4::clear());
         }
         rd->popState();
@@ -310,7 +310,7 @@ void UprightSplineManipulator::setTime(double t) {
     switch (m_mode) {
     case PLAY_MODE:
         if (m_spline.control.size() >= 4) {
-            m_currentFrame = m_spline.evaluate((float)t * (float)m_sampleRate);
+            m_currentFrame = m_spline.evaluate((float)t * (float)m_sampleRate).toCoordinateFrame();
         } else {
             // Not enough points for a spline
             m_currentFrame = CoordinateFrame();

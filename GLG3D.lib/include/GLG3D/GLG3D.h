@@ -91,6 +91,7 @@
 #include "GLG3D/GuiRadioButton.h"
 #include "GLG3D/GuiSlider.h"
 #include "GLG3D/GuiTextBox.h"
+#include "GLG3D/GuiMenu.h"
 #include "GLG3D/GuiDropDownList.h"
 #include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/GuiFunctionBox.h"

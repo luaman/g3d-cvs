@@ -26,11 +26,14 @@ GuiControl::GuiControl(GuiContainer* parent, const GuiCaption& caption) : m_enab
 
 
 GuiWindow* GuiControl::window() const {
+    return m_gui;
+    /*
     const GuiControl* current = this;
     while (current->m_parent != NULL) {
         current = current->m_parent;
     }
     return const_cast<GuiWindow*>(dynamic_cast<const GuiWindow*>(current));
+    */
 }
 
     

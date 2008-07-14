@@ -32,7 +32,7 @@ void GuiWindow::setCaption(const GuiCaption& text) {
 
 
 GuiWindow::GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction close) 
-    : m_text(text), m_rect(rect), m_visible(true), 
+    : modal(NULL), m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), m_skin(skin), 
       inDrag(false),
       mouseOverGuiControl(NULL), 

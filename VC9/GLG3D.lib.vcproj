@@ -298,6 +298,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GuiMenu.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GuiPane.cpp"
 				>
 			</File>
@@ -577,6 +581,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiLabel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiMenu.h"
 				>
 			</File>
 			<File
