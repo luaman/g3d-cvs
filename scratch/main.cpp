@@ -136,6 +136,18 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     // Append any models to the array that you want rendered by onGraphics
 }
 
+
+CoordinateFrame fromXYZYPR(float x, float y, float z, float yaw, float pitch, float roll) {
+    Matrix3 rotation = Matrix3::fromAxisAngle(Vector3::unitY(), yaw);
+    
+    rotation = Matrix3::fromAxisAngle(rotation.column(0), pitch) * rotation;
+    rotation = Matrix3::fromAxisAngle(rotation.column(2), roll) * rotation;
+    
+    const Vector3 translation(x, y, z);
+
+    return CoordinateFrame(rotation, translation);
+}
+
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
@@ -159,12 +171,16 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
+        
+        Draw::axes(fromXYZYPR(0,0,0,toRadians(45), toRadians(90), toRadians(45)), rd);
+
     rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
 
     PosedModel2D::sortAndRender(rd, posed2D);
 }
+
 
 G3D_START_AT_MAIN();
 

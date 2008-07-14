@@ -1,12 +1,12 @@
 /**
  @file CoordinateFrame.h
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-03-04
- @edited  2006-04-07
+ @edited  2008-07-14
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
 */
 
@@ -50,14 +50,10 @@ general than a CoordinateFrame, some information may be lost.
 class CoordinateFrame {
 public:
 
-    /**
-     Takes object space points to world space.
-     */
+    /**  Takes object space points to world space.  */
     Matrix3							rotation;
 
-    /**
-     Takes object space points to world space.
-     */
+    /** Takes object space points to world space. */
     Vector3							translation;
 
     inline bool operator==(const CoordinateFrame& other) const {
@@ -81,10 +77,10 @@ public:
         rotation(Matrix3::identity()), translation(Vector3::zero()) {
     }
 
-	CoordinateFrame(const Vector3& _translation) :
+    CoordinateFrame(const Vector3& _translation) :
         rotation(Matrix3::identity()), translation(_translation) {
-	}
-
+    }
+    
     CoordinateFrame(const Matrix3 &rotation, const Vector3 &translation) :
         rotation(rotation), translation(translation) {
     }
@@ -93,6 +89,17 @@ public:
         rotation(rotation), translation(Vector3::zero()) {
     }
 
+    CoordinateFrame(const class UprightFrame& f);
+
+    static CoordinateFrame fromXYZYPRRadians(float x, float y, float z, float yaw, float pitch, float roll);
+
+    /** Construct a coordinate frame from translation = (x,y,z) and
+     rotations (in that order) about Y, object space X, object space
+     Z.  Note that because object-space axes are used, these are not
+     equivalent to Euler angles; they are known as Tait-Bryan
+     rotations and are more convenient for intuitive positioning.*/
+    static CoordinateFrame fromXYZYPRDegrees(float x, float y, float z, float yaw, float pitch, float roll);
+    
     CoordinateFrame(class BinaryInput& b);
 
     void deserialize(class BinaryInput& b);
@@ -117,8 +124,13 @@ public:
     /** See also Matrix4::approxCoordinateFrame */
     class Matrix4 toMatrix4() const;
 
+    void getXYZYPRRadians(float& x, float& y, float& z, float& yaw, float& pitch, float& roll) const;
+    void getXYZYPRDegrees(float& x, float& y, float& z, float& yaw, float& pitch, float& roll) const;
+
+
     /**
      Produces an XML serialization of this coordinate frame.
+     @deprecated
      */
     std::string toXML() const;
 

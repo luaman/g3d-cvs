@@ -3,7 +3,7 @@
  @author Morgan McGuire
  @maintainer Morgan McGuire
  @created 2006-06-11
- @edited  2007-07-06
+ @edited  2008-07-14
  */
 
 #include "G3D/AnyVal.h"
@@ -481,16 +481,20 @@ void AnyVal::serialize(G3D::TextOutput& t) const {
     case COORDINATEFRAME:
         {
             const CoordinateFrame& c = *(CoordinateFrame*)m_value;
-            t.printf("CF(\n");
+            float x,y,z,yaw,pitch,roll;
+            c.getXYZYPRDegrees(x,y,z,yaw,pitch,roll);
+            t.printf("CF(V3(%g,%g,%g), %g, %g, %g)", x, y, z, yaw, pitch, roll);
+            /*
             t.pushIndent();
             t.printf(
-                "%10.5f, %10.5f, %10.5f,   %10.5f,\n"
+                "CF(\n%10.5f, %10.5f, %10.5f,   %10.5f,\n"
                 "%10.5f, %10.5f, %10.5f,   %10.5f,\n"
                 "%10.5f, %10.5f, %10.5f,   %10.5f)",
                 c.rotation[0][0], c.rotation[0][1], c.rotation[0][2], c.translation.x,
                 c.rotation[1][0], c.rotation[1][1], c.rotation[1][2], c.translation.y,
                 c.rotation[2][0], c.rotation[2][1], c.rotation[2][2], c.translation.z);
             t.popIndent();
+            */
         }
         break;
 
@@ -757,13 +761,35 @@ void AnyVal::deserialize(G3D::TextInput& t) {
 
                 t.readSymbol("(");
                 CoordinateFrame m;
-                for (int r = 0; r < 3; ++r) {
-                    for (int c = 0; c < 3; ++c) {
-                        m.rotation[r][c] = (float)t.readNumber();
-                    }
-                    m.translation[r] = (float)t.readNumber();
-                    if (r != 2) {
+                if (t.peek().type() == Token::SYMBOL) {
+                    // Angle format
+                    float x, y, z, yaw, roll, pitch;
+                    t.readSymbols("V3", "(");
+                    x = (float)t.readNumber();
+                    t.readSymbol(",");
+                    y = (float)t.readNumber();
+                    t.readSymbol(",");
+                    z = (float)t.readNumber();
+                    t.readSymbols(")", ",");
+                    yaw = (float)t.readNumber();
+                    t.readSymbol(",");
+                    pitch = (float)t.readNumber();
+                    roll = 0;
+                    if (t.peek().string() == ",") {
                         t.readSymbol(",");
+                        roll = (float)t.readNumber();
+                    }                        
+                    m = CoordinateFrame::fromXYZYPRDegrees(x, y, z, yaw, pitch, roll);
+                } else {
+                    // Matrix format
+                    for (int r = 0; r < 3; ++r) {
+                        for (int c = 0; c < 3; ++c) {
+                            m.rotation[r][c] = (float)t.readNumber();
+                        }
+                        m.translation[r] = (float)t.readNumber();
+                        if (r != 2) {
+                            t.readSymbol(",");
+                        }
                     }
                 }
                 t.readSymbol(")");

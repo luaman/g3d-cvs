@@ -752,7 +752,7 @@ def configureGpp(state):
     if (state.binaryType == DLL):
         state.linkerOptions  += ['-shared']
 
-    state.compilerWarningOptions = ['-Wall', '-Wformat=2']
+    state.compilerWarningOptions = ['-Wall', '-Wformat=2', '-Wno-format-nonliteral']
   
     # Put user options last so that they can override ours
     if userCompilerOptions != None: state.compilerOptions += userCompilerOptions

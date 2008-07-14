@@ -36,9 +36,48 @@ class AABox;
 /**
  A generic value, useful for defining property trees that can
  be loaded from and saved to disk.  The values are intentionally
- restricted to a small set.
+ restricted to a small set.  
 
- See also boost::any for a more general puprose but slightly harder to use
+ When written to files, the syntax is as follows.  Note that you can
+ nest arrays and tables in order to create full tree (i.e., XML-like)
+ structures as configuration files:
+
+ <table>
+  <tr><td>NULL</td><td><code>Nil</code></td></tr>
+  <tr><td>double</td><td><i>The number in printf double format</i></td></tr>
+  <tr><td>bool</td><td><code>true</code> <i>or</i> <code>false</code></td></tr>
+  <tr><td>std::string</td><td><i>The string in double-quotes (</i><code>"</code><i>)</i></td></tr>
+  <tr><td>Rect2D</td><td><code>R(</code><i>x<sub>0</sub></i><code>,</code><i>y<sub>0</sub></i><code>,</code><i>x<sub>1</sub></i><code>,</code><i>y<sub>1</sub></i><code>)</code></td></tr>
+  <tr><td>Color1</td><td><code>C1(</code><i>value</i><code>)</code></td></tr>
+  <tr><td>Color3</td><td><code>C3(</code><i>r</i><code>,</code><i>g</i><code>,</code><i>b</i><code>)</code></td></tr>
+  <tr><td>Color4</td><td><code>C4(</code><i>r</i><code>,</code><i>g</i><code>,</code><i>b</i><code>,</code><i>a</i><code>)</code></td></tr>
+  <tr><td>Vector2</td><td><code>V2(</code><i>x</i><code>,</code><i>y</i><code>)</code></td></tr>
+  <tr><td>Vector3</td><td><code>V3(</code><i>x</i><code>,</code><i>y</i><code>,</code><i>z</i><code>)</code></td></tr>
+  <tr><td>Vector4</td><td><code>V4(</code><i>x</i><code>,</code><i>y</i><code>,</code><i>z</i><code>,</code><i>w</i><code>)</code></td></tr>
+  <tr><td>Quat</td><td><code>V(</code>x<code>,</code>y<code>,</code>z<code>,</code>w<code>)</code></td></tr>
+  <tr><td>AABox</td><td><code>AAB(</code>low Vector3<code>, </code>high Vector3<code>)</code></td></tr>
+  <tr><td>Matrix2</td><td><code>M2(</code>r0c0<code>, </code>r0c1<code>,
+                             <br>&nbsp;&nbsp;&nbsp;</code>r1c0<code>, </code>r1c1<code>)</code></td></tr>
+  <tr><td>Matrix3</td><td><code>M3(</code>r0c0<code>, </code>r0c1<code>, </code>r0c2<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r1c0<code>, </code>r1c1<code>, </code>r1c2<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r2c0<code>, </code>r2c1<code>, </code>r2c2<code>)</code></td></tr>
+  <tr><td>Matrix4</td><td><code>M4(</code>r0c0<code>, </code>r0c1<code>, </code>r0c2<code>, </code>r0c3<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r1c0<code>, </code>r1c1<code>, </code>r1c2<code>, </code>r1c3<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r2c0<code>, </code>r2c1<code>, </code>r2c2<code>, </code>r2c3<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r3c0<code>, </code>r3c1<code>, </code>r3c2<code>, </code>r3c3<code>)</code></td></tr>
+  <tr><td>CoordinateFrame</td><td><code>CF(</code>r0c0<code>, </code>r0c1<code>, </code>r0c2<code>,   </code>r0c3<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r1c0<code>, </code>r1c1<code>, </code>r1c2<code>,   </code>r1c3<code>,
+         <br>&nbsp;&nbsp;&nbsp;</code>r2c0<code>, </code>r2c1<code>, </code>r2c2<code>,   </code>r2c3<code>)</code></td></tr>
+  <tr><td>CoordinateFrame</td><td><code>CF(V3(</code><i>x</i><code>, </code><i>y</i><code>, </code><i>z</i><code>), </code><i>yaw deg</i><code>, </code><i>pitch deg</i><code>, </code><i>optional roll deg</i><code>)</code></td></tr>
+
+  <tr><td>Array</td><td><code>[</code><i>element<sub>0</sub></i><code>, </code><i>element<sub>1</sub></i><code>, </code> ... <code>, </code><i>element<sub>n-1</sub></i><code>]</code></td></tr>
+  <tr><td>Table</td><td><code>{</code><i>symbol<sub>0</sub></i><code> = </code><i>value<sub>0</sub></i>
+                               <br><code>&nbsp;</code><i>symbol<sub>1</sub></i><code> = </code><i>value<sub>1</sub></i>  
+                               <br><code>&nbsp;</code>...
+                               <br><code>&nbsp;</code><i>symbol<sub>n-1</sub></i><code> = </code><i>value<sub>n-1</sub></i><code>}</code></td></tr>
+  </table>
+
+ See also boost::any for a more general purpose but slightly harder to use
  "any" for C++.
 
  The semantics of operator[] and the get() methods are slightly different;
@@ -55,8 +94,8 @@ class AABox;
 
     Vector3 vel = property["angular velocity"]
 
-    \/\/ Using defaults to handle errors:
-    \/\/ If there was no "enabled" value, this will return the default instead of failing
+    <i>Using defaults to handle errors:
+       If there was no "enabled" value, this will return the default instead of failing</i>
     bool enabled = property["enabled"].boolean(true);
 
  </pre>
@@ -117,23 +156,17 @@ Table<boost::any> tree;
 
    if (tree.containsKey("enabled")) {
       const boost::any& val = tree["enabled"];
-      try
-      {
+      try {
         enabled = any_cast<bool>(val);
-      }
-      catch(const boost::bad_any_cast &)
-      {
+      } catch(const boost::bad_any_cast &) {
       }
     }
 
    if (tree.containsKey("direction")) {
       const boost::any& val = tree["direction"];
-      try
-      {
+      try {
         direction = any_cast<Vector3>(val);
-      }
-      catch(const boost::bad_any_cast &)
-      {
+      } catch(const boost::bad_any_cast &) {
       }
     }
    ...
@@ -143,9 +176,7 @@ Table<boost::any> tree;
 class AnyVal {
 public:
 
-    /** 
-      Arrays and tables have heterogeneous element types.
-     */
+    /** Array and table values are all Any.*/
     enum Type {
         NIL, 
         NUMBER,
@@ -219,14 +250,16 @@ private:
     Type        m_type;
     void*       m_value;
 
-    /** For table and array types, *m_value  is shared between multiple instances.  Mutation is allowed only if
-        the reference count is exactly 1, otherwise the mutating instance must copy the value.
-        This is not used for other types.
+    /** For table and array types, *m_value is shared between multiple
+        instances.  Mutation is allowed only if the reference count is
+        exactly 1, otherwise the mutating instance must copy the
+        value.  This is not used for other types.
         */
     int*        m_referenceCount;
 
-    /** Decrements the reference count (if there is one).  If the reference count is zero or does not exist.
-    Calls delete on @a m_value and sets it to NULL.
+    /** Decrements the reference count (if there is one).  If the
+    reference count is zero or does not exist.  Calls delete on @a
+    m_value and sets it to NULL.
     */
     void deleteValue();
 

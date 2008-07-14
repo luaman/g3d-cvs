@@ -26,7 +26,7 @@ namespace G3D {
 
 namespace _internal {
 
-static pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
     if (pWindow) {
@@ -42,7 +42,7 @@ static pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef ev
     return eventNotHandledErr;
 }
 
-static pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
     if(pWindow) {
@@ -52,7 +52,7 @@ static pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef e
     return eventNotHandledErr;
 }
 
-static pascal OSStatus OnAppQuit(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnAppQuit(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
     if (pWindow) {
@@ -62,7 +62,7 @@ static pascal OSStatus OnAppQuit(EventHandlerCallRef handlerRef, EventRef event,
     return eventNotHandledErr;
 }
 
-static pascal OSStatus OnActivation(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnActivation(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
 	
     if(pWindow) {
@@ -77,7 +77,7 @@ static pascal OSStatus OnActivation(EventHandlerCallRef handlerRef, EventRef eve
     return eventNotHandledErr;
 }
 
-static pascal OSStatus OnDeactivation(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnDeactivation(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
     if(pWindow) {
@@ -92,7 +92,7 @@ static pascal OSStatus OnDeactivation(EventHandlerCallRef handlerRef, EventRef e
     return eventNotHandledErr;
 }
     
-static pascal OSStatus OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
+pascal OSStatus OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     UInt32 eventKind = GetEventKind(event);
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
@@ -192,7 +192,7 @@ static pascal OSStatus OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef e
     return eventNotHandledErr;
 }
 
-static pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag) {
+pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     pWindow->_droppedFiles.clear();
     
@@ -248,7 +248,7 @@ static pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef 
     return dragNotAcceptedErr;
 }
     
-static void HIDCollectJoyElementsArrayHandler(const void *value, void *parameter) {
+void HIDCollectJoyElementsArrayHandler(const void *value, void *parameter) {
     CarbonWindow::GJoyDevice *pDevice = (CarbonWindow::GJoyDevice *)parameter;
 
     if(pDevice && (CFGetTypeID(value) == CFDictionaryGetTypeID())) {
@@ -261,10 +261,10 @@ static void HIDCollectJoyElementsArrayHandler(const void *value, void *parameter
 
 std::auto_ptr<CarbonWindow> CarbonWindow::_shareWindow(NULL);
 
-// Static Variables for Brining Process to Front
+// Variables for Brining Process to Front
 bool CarbonWindow::_ProcessBroughtToFront = false;
 
-// Static Event Type Specs
+// Event Type Specs
 EventTypeSpec CarbonWindow::_resizeSpec[] = {{kEventClassWindow, kEventWindowResizeCompleted},{kEventClassWindow, kEventWindowZoomed}};
 EventTypeSpec CarbonWindow::_closeSpec[] = {{kEventClassWindow, kEventWindowClose}};
 EventTypeSpec CarbonWindow::_appQuitSpec[] = {{kEventClassApplication, kEventAppTerminated},{kEventClassApplication, kEventAppQuit},{kEventClassCommand,kHICommandQuit}};
@@ -274,10 +274,10 @@ EventTypeSpec CarbonWindow::_deviceScrollSpec[] = {{kEventClassMouse,11/*kEventM
 
 #pragma mark Private - Prototypes:
 
-// Static Helper Functions Prototypes
-static unsigned char makeKeyEvent(EventRef,GEvent&);
-static uint8 buttonsToUint8(const bool*);
-static OSStatus aglReportError();
+// Helper Functions Prototypes
+unsigned char makeKeyEvent(EventRef,GEvent&);
+uint8 buttonsToUint8(const bool*);
+OSStatus aglReportError();
 
 #pragma mark Private - GJoyDevice and GJoyElement:
 
@@ -370,7 +370,7 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
 }
 
 void CarbonWindow::createShareWindow(GWindow::Settings s) {
-    static bool hasInited = false;
+    bool hasInited = false;
     
     if (hasInited) {
         return;
@@ -1082,8 +1082,8 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 	return false;
 }
 
-static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
-	static GKeyMod lastMod = GKEYMOD_NONE;
+unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
+	GKeyMod lastMod = GKEYMOD_NONE;
 	UniChar uc;
 	unsigned char c;
 	UInt32 key;
@@ -1224,7 +1224,7 @@ static unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
 	return e.key.keysym.sym;
 }
 
-static uint8 buttonsToUint8(const bool* buttons) {
+uint8 buttonsToUint8(const bool* buttons) {
 	uint8 mouseButtons = 0;
 	// Clear mouseButtons and set each button bit.
 	mouseButtons |= (buttons[0] ? 1 : 0) << 0;
@@ -1235,7 +1235,7 @@ static uint8 buttonsToUint8(const bool* buttons) {
 	return mouseButtons;
 }
 
-static OSStatus aglReportError (void) {
+OSStatus aglReportError (void) {
 	GLenum err = aglGetError();
 	if (AGL_NO_ERROR != err) {
 		char errStr[256];

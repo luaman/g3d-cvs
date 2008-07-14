@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-06-01
-  @edited  2008-02-28
+  @edited  2008-07-14
 */
 #include "G3D/platform.h"
 #include "G3D/GCamera.h"
@@ -16,8 +16,8 @@
 
 namespace G3D {
 
-const Vector2 CameraControlWindow::smallSize(246, 48);
-const Vector2 CameraControlWindow::bigSize(246, 157);
+const Vector2 CameraControlWindow::smallSize(286, 48);
+const Vector2 CameraControlWindow::bigSize(286, 157);
 
 static const std::string noSpline = "< None >";
 static const std::string untitled = "< Unsaved >";
@@ -38,9 +38,10 @@ std::string CameraControlWindow::cameraLocation() const {
     trackManipulator->camera()->getCoordinateFrame(cframe);
     UprightFrame uframe(cframe);
     
-    return format("(% 5.1f, % 5.1f, % 5.1f), % 3.1f, % 3.1f", 
+    // \xba is the character 186, which is the degree symbol
+    return format("(% 5.1f, % 5.1f, % 5.1f), % 5.0f\xba, % 5.0f\xba", 
                   uframe.translation.x, uframe.translation.y, uframe.translation.z, 
-                  uframe.yaw, uframe.pitch);
+                  toDegrees(uframe.yaw), toDegrees(uframe.pitch));
 }
 
 
@@ -52,8 +53,15 @@ void CameraControlWindow::setCameraLocation(const std::string& s) {
         uframe.translation.deserialize(t);
         t.readSymbol(",");
         uframe.yaw = t.readNumber();
+        std::string DEGREE = "\xba";
+        if (t.peek().string() == DEGREE) {
+            t.readSymbol();
+        }
         t.readSymbol(",");
         uframe.pitch = t.readNumber();
+        if (t.peek().string() == DEGREE) {
+            t.readSymbol();
+        }
         
         CoordinateFrame cframe = uframe;
 
@@ -65,7 +73,6 @@ void CameraControlWindow::setCameraLocation(const std::string& s) {
         (void)e;
     }
 }
-
 
 CameraControlWindow::CameraControlWindow(
     const FirstPersonManipulatorRef&      manualManipulator, 
@@ -96,10 +103,28 @@ CameraControlWindow::CameraControlWindow(
     GFontRef greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
 
     // The default G3D textbox label doesn't support multiple fonts
-    pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(22, 2);
-    cameraLocationTextBox = pane->addTextBox("xyz", Pointer<std::string>(this, &CameraControlWindow::cameraLocation, &CameraControlWindow::setCameraLocation));
-    cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 244, 24));
-    cameraLocationTextBox->setCaptionSize(40);
+    pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(20, 2);
+    cameraLocationTextBox = 
+        pane->addTextBox("xyz", Pointer<std::string>(this, &CameraControlWindow::cameraLocation, 
+                                                     &CameraControlWindow::setCameraLocation));
+    cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 246, 24));
+    cameraLocationTextBox->setCaptionSize(36);
+
+    const char* DOWN = "6";
+    const char* CHECK = "\x98";
+    float h = cameraLocationTextBox->rect().height() - 4;
+
+    GuiButton* dropDownButton = pane->addButton(GuiCaption(DOWN, iconFont, 18), GuiTheme::TOOL_BUTTON_STYLE);
+
+    dropDownButton->setSize(h-1, h);
+    dropDownButton->moveRightOf(cameraLocationTextBox);
+    dropDownButton->moveBy(-2, 2);
+
+    // Change to black "r" (x) for remove
+    GuiButton* bookMarkButton = 
+        pane->addButton(GuiCaption(CHECK, iconFont, 16, Color3::blue() * 0.8f), GuiTheme::TOOL_BUTTON_STYLE);
+    bookMarkButton->setSize(h-1, h);
+
     
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
@@ -107,8 +132,8 @@ CameraControlWindow::CameraControlWindow(
     manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 2);
 
     trackList = manualPane->addDropDownList("Path", &trackFileIndex, &trackFileArray);
-    trackList->setRect(Rect2D::xywh(Vector2(0, trackList->rect().y1() - 25), Vector2(170, trackList->rect().height())));
-    trackList->setCaptionSize(40);
+    trackList->setRect(Rect2D::xywh(Vector2(0, trackList->rect().y1() - 25), Vector2(180, trackList->rect().height())));
+    trackList->setCaptionSize(34);
 
     visibleCheckBox = manualPane->addCheckBox("Visible", Pointer<bool>(trackManipulator, &UprightSplineManipulator::showPath, &UprightSplineManipulator::setShowPath));
     visibleCheckBox->moveRightOf(trackList);
@@ -122,7 +147,7 @@ CameraControlWindow::CameraControlWindow(
          &UprightSplineManipulator::mode,
          &UprightSplineManipulator::setMode,
          GuiRadioButton::TOOL_STYLE);
-    recordButton->moveBy(38, 2);
+    recordButton->moveBy(32, 2);
     recordButton->setSize(buttonSize);
     
     playButton = manualPane->addRadioButton
@@ -146,7 +171,7 @@ CameraControlWindow::CameraControlWindow(
     saveButton = manualPane->addButton("Save...");
     saveButton->moveRightOf(stopButton);
     saveButton->setSize(saveButton->rect().wh() - Vector2(20, 1));
-    saveButton->moveBy(8, -3);
+    saveButton->moveBy(20, -3);
     saveButton->setEnabled(false);
 
     cyclicCheckBox = manualPane->addCheckBox("Cyclic", Pointer<bool>(trackManipulator, &UprightSplineManipulator::cyclic, &UprightSplineManipulator::setCyclic));

@@ -3,10 +3,10 @@
 
  Coordinate frame class
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2001-06-02
- @edited  2006-03-25
+ @edited  2008-07-13
 */
 
 #include "G3D/platform.h"
@@ -20,8 +20,70 @@
 #include "G3D/Ray.h"
 #include "G3D/Capsule.h"
 #include "G3D/Cylinder.h"
+#include "G3D/UprightFrame.h"
 
 namespace G3D {
+
+CoordinateFrame::CoordinateFrame(const class UprightFrame& f) {
+    *this = f.toCoordinateFrame();
+}
+
+CoordinateFrame CoordinateFrame::fromXYZYPRRadians(float x, float y, float z, float yaw, float pitch, float roll) {
+    Matrix3 rotation = Matrix3::fromAxisAngle(Vector3::unitY(), yaw);
+    
+    rotation = Matrix3::fromAxisAngle(rotation.column(0), pitch) * rotation;
+    rotation = Matrix3::fromAxisAngle(rotation.column(2), roll) * rotation;
+
+    const Vector3 translation(x, y, z);
+
+    
+    return CoordinateFrame(rotation, translation);
+}
+
+void CoordinateFrame::getXYZYPRRadians(float& x, float& y, float& z, 
+                                       float& yaw, float& pitch, float& roll) const {
+    x = translation.x;
+    y = translation.y;
+    z = translation.z;
+    
+    const Vector3& look = lookVector();
+
+    if (abs(look.y) > 0.99f) {
+        // Looking nearly straight up or down
+
+        yaw   = G3D::pi() + atan2(look.x, look.z);
+        pitch = asin(look.y);
+        roll  = 0.0f;
+        
+    } else {
+
+        // Yaw cannot be affected by others, so pull it first
+        yaw = G3D::pi() + atan2(look.x, look.z);
+        
+        // Pitch is the elevation of the yaw vector
+        pitch = asin(look.y);
+        
+        Vector3 actualRight = rightVector();
+        Vector3 expectedRight = look.cross(Vector3::unitY());
+
+        roll = 0;//acos(actualRight.dot(expectedRight));  TODO
+    }
+}
+
+void CoordinateFrame::getXYZYPRDegrees(float& x, float& y, float& z, 
+                                       float& yaw, float& pitch, float& roll) const {
+    getXYZYPRRadians(x, y, z, yaw, pitch, roll);
+    yaw   = toDegrees(yaw);
+    pitch = toDegrees(pitch);
+    roll  = toDegrees(roll);
+}
+    
+
+CoordinateFrame CoordinateFrame::fromXYZYPRDegrees(float x, float y, float z, 
+                                                   float yaw, float pitch, float roll) {
+    return fromXYZYPRRadians(x, y, z, toRadians(yaw), toRadians(pitch), toRadians(roll));
+}
+
 
 Ray CoordinateFrame::lookRay() const {
     return Ray::fromOriginAndDirection(translation, lookVector());

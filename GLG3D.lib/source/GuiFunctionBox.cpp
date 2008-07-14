@@ -268,8 +268,8 @@ int GuiFunctionBox::getNearestControlPoint(const Vector2& pos) {
     // See if the curve itself is near the click point
     int N = 100;
     closestDistance2 = inf();
-    float closestT;
-    float closestV;
+    float closestT = 0;
+    float closestV = 0;
 
     for (int i = 0; i < N; ++i) {
         float t = (m_maxTime - m_minTime) * i / (N - 1.0f) + m_minTime;

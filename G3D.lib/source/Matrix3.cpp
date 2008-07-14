@@ -53,9 +53,9 @@ bool Matrix3::fuzzyEq(const Matrix3& b) const {
 
 
 bool Matrix3::isOrthonormal() const {
-    Vector3 X = getColumn(0);
-    Vector3 Y = getColumn(1);
-    Vector3 Z = getColumn(2);
+    Vector3 X = column(0);
+    Vector3 Y = column(1);
+    Vector3 Z = column(2);
 
     return 
         (G3D::fuzzyEq(X.dot(Y), 0.0f) &&
@@ -148,6 +148,18 @@ void Matrix3::serialize(BinaryOutput& b) const {
 
 
 //----------------------------------------------------------------------------
+Vector3 Matrix3::column (int iCol) const {
+    assert((0 <= iCol) && (iCol < 3));
+    return Vector3(elt[0][iCol], elt[1][iCol],
+                   elt[2][iCol]);
+}
+
+const Vector3& Matrix3::row (int iRow) const {
+    assert((0 <= iRow) && (iRow < 3));
+    return *reinterpret_cast<const Vector3*>(elt[iRow]);
+}
+
+
 Vector3 Matrix3::getColumn (int iCol) const {
     assert((0 <= iCol) && (iCol < 3));
     return Vector3(elt[0][iCol], elt[1][iCol],

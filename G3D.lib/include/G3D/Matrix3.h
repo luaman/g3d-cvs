@@ -89,9 +89,15 @@ public:
     inline operator const float* () const{
         return (const float*)&elt[0][0];
     }
-
+    
+    /** @deprecated */
     Vector3 getColumn (int iCol) const;
+    /** @deprecated */
     Vector3 getRow (int iRow) const;
+
+    Vector3 column(int c) const;
+    const Vector3& row(int r) const;
+
     void setColumn(int iCol, const Vector3 &vector);
     void setRow(int iRow, const Vector3 &vector);
 
@@ -257,7 +263,7 @@ public:
     // "You might be tempted to write [...] them as inline functions 
     // inside their respective header files, but this is something you 
     // must definitely not do. An inline function can be duplicated 
-    // in every file in which it appears пїЅ and this duplication 
+    // in every file in which it appears њухЅ and this duplication 
     // includes the static object definition. Because inline functions 
     // automatically default to internal linkage, this would result in 
     // having multiple static objects across the various translation 

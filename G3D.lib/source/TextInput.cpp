@@ -6,7 +6,7 @@
  @cite Based on a lexer written by Aaron Orenstein. 
  
  @created 2001-11-27
- @edited  2006-10-24
+ @edited  2008-07-14
  */
 
 #include "G3D/fileutils.h"
@@ -245,6 +245,15 @@ Token TextInput::nextToken() {
     if (c == EOF) {
         return t;
     }
+
+    // Extended ASCII parses as itself, except for EOF
+    if (c > 127 && c < 255) {
+        t._type = Token::SYMBOL;                                                
+        t._extendedType = Token::SYMBOL_TYPE;                                   
+        t._string = c;                                                          
+        c = eatAndPeekInputChar();                                              
+    }
+
 
     // Perform appropriate setup for a symbol (including setting up the token
     // string to start with c), eat the input character, and overwrite

@@ -20,7 +20,11 @@
      <li> Added normal mapping to G3D::SuperShader (specify Material::parallaxSteps == 0)
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
+     <li> Clarified G3D::Any file format in documentation
+     <li> G3D::Any CoordinateFrame now serialized using angles
+     <li> CameraControlWindow now prints angles in degrees
      <li> GWindow::create
+     <li> G3D::TextInput now treats characters with ASCII code greater than 127 as symbols
      <li> G3D::ThreadSet
      <li> Removed TextureFormat::SAME_AS_SCREEN to break dependence on OpenGL
      <li> TextureFormat has been renamed to G3D::ImageFormat and moved into G3D.lib
