@@ -8,8 +8,10 @@
 */
 #include "G3D/platform.h"
 #include "G3D/GCamera.h"
+#include "G3D/prompt.h"
 #include "G3D/Rect2D.h"
 #include "G3D/fileutils.h"
+#include "G3D/AnyVal.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/FileDialog.h"
 #include "GLG3D/GuiPane.h"
@@ -90,7 +92,8 @@ CameraControlWindow::CameraControlWindow(
     trackManipulator(trackManipulator),
     drawerButton(NULL),
     drawerButtonPane(NULL),
-    m_expanded(false)
+    m_expanded(false),
+    m_bookmarkSelection(NO_BOOKMARK)
     {
 
     manualOperation = manualManipulator->active();
@@ -114,18 +117,20 @@ CameraControlWindow::CameraControlWindow(
     const char* CHECK = "\x98";
     float h = cameraLocationTextBox->rect().height() - 4;
 
-    GuiButton* dropDownButton = pane->addButton(GuiCaption(DOWN, iconFont, 18), GuiTheme::TOOL_BUTTON_STYLE);
+    m_showBookmarksButton = pane->addButton(GuiCaption(DOWN, iconFont, 18), 
+        GuiTheme::TOOL_BUTTON_STYLE);
 
-    dropDownButton->setSize(h-1, h);
-    dropDownButton->moveRightOf(cameraLocationTextBox);
-    dropDownButton->moveBy(-2, 2);
+    m_showBookmarksButton->setSize(h-1, h);
+    m_showBookmarksButton->moveRightOf(cameraLocationTextBox);
+    m_showBookmarksButton->moveBy(-2, 2);
 
     // Change to black "r" (x) for remove
     GuiButton* bookMarkButton = 
-        pane->addButton(GuiCaption(CHECK, iconFont, 16, Color3::blue() * 0.8f), GuiTheme::TOOL_BUTTON_STYLE);
+        pane->addButton(GuiCaption(CHECK, iconFont, 16, Color3::blue() * 0.8f), 
+            GuiControl::Callback(this, &CameraControlWindow::onBookmarkButton),
+            GuiTheme::TOOL_BUTTON_STYLE);
     bookMarkButton->setSize(h-1, h);
 
-    
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
 
@@ -213,8 +218,101 @@ CameraControlWindow::CameraControlWindow(
     // Resize the pane to include the drawer button so that it is not clipped
     pane->setSize(clientRect().wh());
 
+    setBookmarkFile("g3d-bookmarks.txt");        
+    if (m_bookmarkName.size() == 0) {
+        // Make a default home bookmark
+        m_bookmarkName.append("Home");
+        m_bookmarkPosition.append(CoordinateFrame::fromXYZYPRDegrees(0,2,10,0,0,0));
+    }
+
     setRect(Rect2D::xywh(rect().x0y0(), smallSize));
     sync();
+}
+
+
+void CameraControlWindow::showBookmarkList() {
+    if (m_bookmarkName.size() > 0) {
+        m_menu = GuiMenu::create(theme(), &m_bookmarkName, &m_bookmarkSelection);
+        manager()->add(m_menu);
+        m_menu->show(manager(), this, cameraLocationTextBox->toGWindowCoords(cameraLocationTextBox->clickRect().x0y1() + Vector2(45, 8)), false);
+    }
+}
+
+
+void CameraControlWindow::onBookmarkButton() {
+    // TODO: edit current bookmark if haven't moved
+    // TODO: show modal
+    CoordinateFrame frame;
+    trackManipulator->camera()->getCoordinateFrame(frame);
+
+    setBookmark("Here", frame);
+    saveBookmarks();
+}
+
+
+void CameraControlWindow::saveBookmarks() {
+    AnyVal all(AnyVal::TABLE);
+    for (int i = 0; i < m_bookmarkName.size(); ++i) {
+        all[m_bookmarkName[i]] = m_bookmarkPosition[i];
+    }
+    all.save(m_bookmarkFilename);
+}
+
+
+void CameraControlWindow::setBookmarkFile(const std::string& filename) {
+    m_bookmarkPosition.clear();
+    m_bookmarkName.clear();
+    m_bookmarkFilename = filename;
+
+    if (fileExists(m_bookmarkFilename)) {
+        // Load bookmarks
+        AnyVal all;
+        all.load(m_bookmarkFilename);
+        if (all.type() != AnyVal::TABLE) {
+            msgBox(m_bookmarkFilename + " is corrupt.");
+            return;
+        }
+
+        all.getKeys(m_bookmarkName);
+        m_bookmarkPosition.resize(m_bookmarkName.size());
+        for (int i = 0; i < m_bookmarkName.size(); ++i) {
+            m_bookmarkPosition[i] = all.get(m_bookmarkName[i], CoordinateFrame()).coordinateFrame();
+        }
+    }
+}
+
+
+void CameraControlWindow::setBookmark(const std::string& name, const CoordinateFrame& frame) {
+    for (int i = 0; i < m_bookmarkName.size(); ++i) {
+        if (m_bookmarkName[i] == name) {
+            m_bookmarkPosition[i] = frame;
+            return;
+        }
+    }
+
+    m_bookmarkName.append(name);
+    m_bookmarkPosition.append(frame);
+}
+
+
+void CameraControlWindow::removeBookmark(const std::string& name) {
+    for (int i = 0; i < m_bookmarkName.size(); ++i) {
+        if (m_bookmarkName[i] == name) {
+            m_bookmarkName.remove(i);
+            m_bookmarkPosition.remove(i);
+            return;
+        }
+    }
+}
+
+
+CoordinateFrame CameraControlWindow::bookmark(const std::string& name, const CoordinateFrame& defaultValue) const {
+    for (int i = 0; i < m_bookmarkName.size(); ++i) {
+        if (m_bookmarkName[i] == name) {
+            return m_bookmarkPosition[i];
+        }
+    }
+    return defaultValue;
 }
 
 
@@ -273,7 +371,10 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
     if (event.type == GEventType::GUI_ACTION) {
         GuiControl* control = event.gui.control;
 
-        if (control == drawerButton) {
+        if (control == m_showBookmarksButton) {
+            showBookmarkList();
+            return true;
+        } else if (control == drawerButton) {
 
             // Change the window size
             m_expanded = ! m_expanded;

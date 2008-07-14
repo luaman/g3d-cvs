@@ -59,7 +59,7 @@ public:
     void hide();
 
     /** @param superior The window from which the menu is being created. */
-    void show(WidgetManager* manager, GuiWindow* superior, const Vector2& position);
+    virtual void show(WidgetManager* manager, GuiWindow* superior, const Vector2& position, bool modal = false);
 };
 
 }

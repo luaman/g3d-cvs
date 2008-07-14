@@ -249,7 +249,7 @@ public:
     void moveBy(const Vector2& delta);
     void moveBy(float dx, float dy);    
 
-    GuiThemeRef skin() const;
+    GuiThemeRef theme() const;
 
     /** Return true if this is in tool button style */
     virtual bool toolStyle() const { 
@@ -272,13 +272,6 @@ public:
         return m_clickRect;
     }
 
-protected:
-
-    /** Events are only delivered to a control when the control that
-        control has the key focus (which is transferred during a mouse
-        down) */
-    virtual bool onEvent(const GEvent& event) { return false; }
-
     /** Returns the coordinates of v, which is in the coordinate system of this object,
        relative to the GWindow on which it will be rendered. */
     Vector2 toGWindowCoords(const Vector2& v) const;
@@ -286,6 +279,12 @@ protected:
     Rect2D toGWindowCoords(const Rect2D& r) const {
         return Rect2D::xywh(toGWindowCoords(r.x0y0()), r.wh());
     }
+protected:
+
+    /** Events are only delivered to a control when the control that
+        control has the key focus (which is transferred during a mouse
+        down) */
+    virtual bool onEvent(const GEvent& event) { return false; }
 
 };
 

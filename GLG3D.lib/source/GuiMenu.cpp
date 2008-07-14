@@ -14,11 +14,11 @@
 namespace G3D {
 
 GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue) {
-    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr, indexValue);
+    return new GuiMenu(skin, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue);
 }
 
 GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue) {
-    return new GuiMenu(skin, Rect2D::xywh(0, 0, 100, 200), listPtr, indexValue);
+    return new GuiMenu(skin, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue);
 }
 
 
@@ -26,6 +26,7 @@ GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>
     GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(listPtr), 
     m_captionListValue(NULL), m_indexValue(indexValue), m_useStringList(true), m_superior(NULL) {
 
+    pane()->setPosition(Vector2(0,0));
     m_labelArray.resize(listPtr->size());
     for (int i = 0; i < listPtr->size(); ++i) {
         m_labelArray[i] = pane()->addLabel((*listPtr)[i]);
@@ -40,11 +41,12 @@ GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>*
     GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(NULL), 
     m_captionListValue(listPtr), m_indexValue(indexValue), m_useStringList(false), m_superior(NULL) {
 
+    pane()->setHeight(0);
     m_labelArray.resize(listPtr->size());
     for (int i = 0; i < listPtr->size(); ++i) {
         m_labelArray[i] = pane()->addLabel((*listPtr)[i]);
     }
-    pane()->pack();
+    pack();
     m_highlightIndex = *m_indexValue;
 }
 
@@ -110,12 +112,17 @@ int GuiMenu::labelIndexUnderMouse(Vector2 click) const {
 }
 
 
-void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, const Vector2& position) {
+void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, const Vector2& position, bool modal) {
     m_superior = superior;
     manager->add(this);
     moveTo(position);
-    setVisible(true);
     manager->setFocusedWidget(this);
+
+    if (modal) {
+        showModal(superior);
+    } else {
+        setVisible(true);
+    }
 }
 
 

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2002-07-28
-  @edited  2008-02-10
+  @edited  2008-07-14
 */
 #ifndef G3D_CAMERACONTROLWINDOW_H
 #define G3D_CAMERACONTROLWINDOW_H
@@ -45,6 +45,15 @@ protected:
     std::string cameraLocation() const;
     void setCameraLocation(const std::string& s);
 
+
+    /** Name of the file in which current bookmarks are stored. */
+    std::string                 m_bookmarkFilename;
+
+    Array<std::string>          m_bookmarkName;
+
+    /** Parallel to m_bookmarkName */
+    Array<CoordinateFrame>      m_bookmarkPosition;
+
     /** Array of all .trk files in the current directory */
     Array<std::string>          trackFileArray;
 
@@ -52,6 +61,13 @@ protected:
     int                         trackFileIndex;
 
     GuiDropDownList*            trackList;
+
+    enum {NO_BOOKMARK = -1};
+
+    /** Selected bookmark.  When not NO_BOOKMARK, move to this location */
+    int                         m_bookmarkSelection;
+
+    GuiMenuRef                  m_menu;
 
     /** Allows the user to override the current camera position */
     GuiTextBox*                 cameraLocationTextBox;
@@ -87,6 +103,8 @@ protected:
     GuiCaption                  recordHelpCaption;
     GuiCaption                  playHelpCaption;
 
+    GuiButton*                  m_showBookmarksButton;
+
     /** If true, the window is big enough to show all controls */
     bool                        m_expanded;
 
@@ -113,7 +131,40 @@ protected:
     /** Updates the trackFileArray from the list of track files */
     void updateTrackFiles();
 
+    void saveBookmarks();
+
+    void showBookmarkList();
+
+    void onBookmarkButton();
+
 public:
+
+    /** Replace current bookmarks with those from this file. New bookmarks will
+        be saved to this file when they are added. The default bookmark file is 
+        "g3d-bookmarks.txt". */
+    void setBookmarkFile(const std::string& filename);
+
+    /** Add/replace bookmark and immediately update the file.*/
+    void setBookmark(const std::string& name, const CoordinateFrame& frame);
+
+    void removeBookmark(const std::string& name);
+
+    /** Get a bookmark, or use the defaultValue if it is not present. */
+    CoordinateFrame bookmark(const std::string& name, const CoordinateFrame& defaultValue = CoordinateFrame()) const;
+
+    /** True if this bookmark is present */
+    bool containsBookmark(const std::string& name) const {
+        return m_bookmarkName.contains(name);
+    }
+
+    /** Name of the file storing the bookmarks.  */
+    const std::string& bookmarkFile() const{
+        return m_bookmarkFilename;
+    }
+
+    const Array<std::string>& bookmarkNameArray() const {
+        return m_bookmarkName;
+    }
 
     /**
      @param cameraManipulator The manipulator that should drive the camera.  This will be assigned to

@@ -254,7 +254,7 @@ public:
         return m_clientRect;
     }
 
-    GuiThemeRef skin() const {
+    GuiThemeRef theme() const {
         return m_skin;
     }
 

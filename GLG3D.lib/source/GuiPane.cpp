@@ -89,7 +89,7 @@ void GuiPane::increaseBounds(const Vector2& extent) {
 
         // Transform the client rect into an absolute rect
         if (m_style != GuiTheme::NO_PANE_STYLE) {
-            newRect = skin()->clientToPaneBounds(newRect, GuiTheme::PaneStyle(m_style));
+            newRect = theme()->clientToPaneBounds(newRect, GuiTheme::PaneStyle(m_style));
         }
 
         // The new window has the old position and the new width
@@ -121,7 +121,7 @@ void GuiPane::setRect(const Rect2D& rect) {
     if (m_style == GuiTheme::NO_PANE_STYLE) {
         m_clientRect = m_rect;
     } else {
-        m_clientRect = skin()->paneToClientBounds(m_rect, GuiTheme::PaneStyle(m_style));
+        m_clientRect = theme()->paneToClientBounds(m_rect, GuiTheme::PaneStyle(m_style));
     }
 }
 
@@ -150,7 +150,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
         size.x = TOOL_BUTTON_WIDTH;
     } else if (style == GuiRadioButton::BUTTON_STYLE) {
         size.x = BUTTON_WIDTH;
-        Vector2 bounds = skin()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
+        Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
         size = size.max(bounds);
     } else {
         size.x = 30.0f;
@@ -174,7 +174,7 @@ GuiCheckBox* GuiPane::addCheckBox
         size.x = TOOL_BUTTON_WIDTH;
     } else {
         size.x = BUTTON_WIDTH;
-        Vector2 bounds = skin()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
+        Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
         size = size.max(bounds);
     }
 
@@ -204,7 +204,7 @@ GuiButton* GuiPane::addButton(const GuiCaption& text, const GuiControl::Callback
 
     if (style == GuiTheme::NORMAL_BUTTON_STYLE) {
         // Ensure that the button is wide enough for the caption
-        Vector2 bounds = skin()->minButtonSize(text, style);
+        Vector2 bounds = theme()->minButtonSize(text, style);
         size = size.max(bounds);
     } else {
         size.x = (float) TOOL_BUTTON_WIDTH;
@@ -231,7 +231,7 @@ GuiFunctionBox* GuiPane::addFunctionBox(const GuiCaption& text, Spline<float>* s
 
 
 GuiPane* GuiPane::addPane(const GuiCaption& text, GuiTheme::PaneStyle style) {
-    Rect2D minRect = skin()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
+    Rect2D minRect = theme()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
 
     Vector2 pos = nextControlPos();
 

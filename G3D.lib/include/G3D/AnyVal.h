@@ -2,7 +2,7 @@
  @file AnyVal.h
  @author Morgan McGuire
  @created 2006-06-11
- @edited  2008-01-08
+ @edited  2008-07-14
  */
 
 #ifndef G3D_ANYVAL_H

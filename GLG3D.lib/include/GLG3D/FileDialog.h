@@ -43,7 +43,7 @@ protected:
 
 public:
     FileDialogRef create(GuiWindowRef parent) {
-        return new MyFileDialog(parent->window(), parent->skin());
+        return new MyFileDialog(parent->window(), parent->theme());
     }
 
     bool getFilename(std::string& filename, bool& saveAlpha, const std::string& caption = "Enter Filename") {
@@ -93,7 +93,7 @@ public:
     }
 
     static FileDialogRef create(GuiWindowRef parent, const std::string& note = "") {
-        return create(parent->window(), parent->skin(), note);
+        return create(parent->window(), parent->theme(), note);
     }
 
     /**

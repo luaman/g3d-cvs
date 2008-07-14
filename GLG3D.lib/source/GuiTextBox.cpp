@@ -303,7 +303,7 @@ bool GuiTextBox::onEvent(const GEvent& event) {
 
 void GuiTextBox::setRect(const Rect2D& rect) {
      m_rect = rect;
-     m_clickRect = skin()->textBoxToClickBounds(rect, m_captionSize);
+     m_clickRect = theme()->textBoxToClickBounds(rect, m_captionSize);
 }
 
 

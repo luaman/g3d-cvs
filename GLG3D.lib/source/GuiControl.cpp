@@ -66,8 +66,8 @@ void GuiControl::setFocused(bool b) {
 }
 
 
-GuiThemeRef GuiControl::skin() const {
-    return m_gui->skin();
+GuiThemeRef GuiControl::theme() const {
+    return m_gui->theme();
 }
 
 float GuiControl::captionSize() const {

@@ -41,9 +41,9 @@ GuiDropDownList::GuiDropDownList
 GuiMenuRef GuiDropDownList::menu() { 
     if (m_menu.isNull()) {
         if (m_useStringList) {
-            m_menu = GuiMenu::create(skin(), m_stringListValue, m_indexValue);
+            m_menu = GuiMenu::create(theme(), m_stringListValue, m_indexValue);
         } else {
-            m_menu = GuiMenu::create(skin(), m_captionListValue, m_indexValue);
+            m_menu = GuiMenu::create(theme(), m_captionListValue, m_indexValue);
         }
     }
 
@@ -76,7 +76,7 @@ void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 
 void GuiDropDownList::showMenu() {
     // Show the menu
-    Rect2D clickRect = skin()->dropDownListToClickBounds(rect(), m_captionSize);
+    Rect2D clickRect = theme()->dropDownListToClickBounds(rect(), m_captionSize);
     Vector2 clickOffset = clickRect.x0y0() - rect().x0y0();
     Vector2 menuOffset(10, clickRect.height() + 10);
 
@@ -121,7 +121,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
 
 void GuiDropDownList::setRect(const Rect2D& rect) {
      m_rect = rect;
-     m_clickRect = skin()->dropDownListToClickBounds(rect, m_captionSize);
+     m_clickRect = theme()->dropDownListToClickBounds(rect, m_captionSize);
 }
 
 
