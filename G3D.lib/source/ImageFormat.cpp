@@ -7,8 +7,8 @@
  @edited  2006-01-11
  */
 
-#include "GLG3D/glheaders.h"
-#include "GLG3D/glcalls.h"
+#include "../../GLG3D.lib/include/GLG3D/glheaders.h"
+#include "../../GLG3D.lib/include/GLG3D/glcalls.h"
 #include "G3D/ImageFormat.h"
 
 namespace G3D {
