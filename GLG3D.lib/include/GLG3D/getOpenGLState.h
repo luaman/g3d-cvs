@@ -11,8 +11,8 @@
 #define G3D_GETOPENGLSTATE_H
 
 #include "G3D/platform.h"
-#include "GLG3D/glheaders.h"
-#include "GLG3D/glcalls.h"
+#include "./glheaders.h"
+#include "./glcalls.h"
 
 namespace G3D {
 

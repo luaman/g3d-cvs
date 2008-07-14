@@ -28,7 +28,7 @@
 #include "./glheaders.h"
 #ifdef _DEBUG
 // Needed for debugAssertGLOk
-#   include "GLG3D/getOpenGLState.h"
+#   include "./getOpenGLState.h"
 #endif
 
 namespace G3D {
