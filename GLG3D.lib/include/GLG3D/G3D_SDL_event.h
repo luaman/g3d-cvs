@@ -1,19 +1,10 @@
 #if 0
 #include "G3D/platform.h"
 
-#ifndef G3D_WIN32
-
+#if (defined(G3D_LINUX) || defined(G3D_FREEBSD)) && ! defined(SDL_TABLESIZE)
 
 // For SDL_Event
-#if defined(G3D_OSX) 
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_FREEBSD)
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_LINUX)
-#   include <SDL/SDL_events.h>
-#elif defined(G3D_WIN32)
-
-#endif
+#include <SDL/SDL_events.h>
 
 #if (defined(main) && ! defined(G3D_WIN32))
 #   undef main
@@ -577,6 +568,6 @@ typedef union {
 	SDL_SysWMEvent syswm;
 } SDL_Event;
 
-#endif // win32
-#endif // SDL_event
+#endif // platform
+
 #endif

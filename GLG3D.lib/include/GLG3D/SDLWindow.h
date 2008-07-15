@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2004-02-10
-  @edited  2008-01-01
+  @edited  2008-07-15
 
   Copyright 2000-2008, Morgan McGuire
   All rights reserved.
@@ -20,7 +20,11 @@
 #include "GLG3D/GWindow.h"
 #include "GLG3D/glcalls.h"
 
-#include "GLG3D/G3D_SDL_event.h"
+#include <SDL/SDL_events.h>
+// A G3D-specific copy of SDL_events was previously used to break
+// the dependence of G3D headers on SDL, since only the .cpp files
+// actually need the full SDL headers.
+//#include "GLG3D/G3D_SDL_event.h"
 
 #if defined(G3D_OSX)
 #    include "GLG3D/NSAutoreleasePoolWrapper.h"
@@ -31,16 +35,10 @@
 namespace G3D {
 
 /**
- An implementation of G3D::Window that uses the Open Source SDL library.
- Works on Windows, Linux, and OS/X.
-
- On Windows, centering is relative to the primary monitor and full-screen
- means on the primary monitor.
-
- @deprecated on Windows, use Win32Window instead.  SDL will not be 
- supported (or required) on Windows in future versions of G3D.  It will
- be available for Mac and Linux (and will still work on Windows, but
- it won't be part of the build).
+ An implementation of G3D::GWindow that uses the Open Source SDL
+ library.  Works on Windows, Linux, FreeBSD, and OS X.  Only built
+ into the normal GLG3D library on Linux/FreeBSD because other
+ platforms have native GWindows.
  */
 class SDLWindow : public GWindow {
 private:
