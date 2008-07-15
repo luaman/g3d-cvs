@@ -62,7 +62,7 @@ or Action::ACTION_SHOW_CONSOLE.
 <p><b>SDLK_ is gone</b></p>
 <p>
 G3D 7.00 replaced SDL event types with G3D event types.  The change affecting the most users is that SDLK_* is now GKey::*.
-Other changes include KMOD_* to GKEYMOD_*.
+Other changes include KMOD_* to GKeyMod::*.
 </p>
 
 <hr noshade>

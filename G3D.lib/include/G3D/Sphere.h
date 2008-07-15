@@ -98,7 +98,7 @@ public:
     bool culledBy(
                   const Array<Plane>&		plane,
                   int32&					cullingPlaneIndex = dummy,
-                  const uint32  			testMask		  = -1) const;
+                  const uint32  			testMask		  = 0xFFFFFFFF) const;
 
     virtual std::string toString() const;
 

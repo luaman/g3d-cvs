@@ -101,7 +101,7 @@ void GuiTextBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 }
 
 
-void GuiTextBox::setRepeatKeysym(SDL_keysym key) {
+void GuiTextBox::setRepeatKeysym(GKeySym key) {
     m_keyDownTime = System::time();
     m_keyRepeatTime = m_keyDownTime + keyRepeatDelay;
     m_repeatKeysym = key;
@@ -251,17 +251,17 @@ bool GuiTextBox::onEvent(const GEvent& event) {
 
         default:
 
-            if ((((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
+            if ((((event.key.keysym.mod & GKeyMod::CTRL) != 0) &&
                  ((event.key.keysym.sym == 'v') || (event.key.keysym.sym == 'y'))) ||
 
-                (((event.key.keysym.mod & GKEYMOD_SHIFT) != 0) &&
+                (((event.key.keysym.mod & GKeyMod::SHIFT) != 0) &&
                 (event.key.keysym.sym == GKey::INSERT))) {
 
                 // Paste (not autorepeatable)
                 m_userValue = System::getClipboardText();
                 return true;
 
-            } else if (((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
+            } else if (((event.key.keysym.mod & GKeyMod::CTRL) != 0) &&
                 (event.key.keysym.sym == 'k')) {
 
                 debugAssert(m_cursorPos < (int)m_userValue.size());

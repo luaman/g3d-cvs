@@ -1,5 +1,5 @@
+#if 0
 #include "G3D/platform.h"
-
 
 #ifndef G3D_WIN32
 
@@ -47,7 +47,7 @@ typedef enum {
 } SDL_DUMMY_ENUM;
 
 /* General keyboard/mouse state definitions */
-enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
+enum { GButtonState::PRESSED = 0x01, GButtonState::RELEASED = 0x00 };
 
 //////////////////////////////////////////////////////////
 
@@ -462,7 +462,7 @@ typedef struct SDL_ActiveEvent {
 typedef struct SDL_KeyboardEvent {
 	Uint8 type;	/* SDL_KEYDOWN or SDL_KEYUP */
 	Uint8 which;	/* The keyboard device index */
-	Uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
+	Uint8 state;	/* GButtonState::PRESSED or GButtonState::RELEASED */
 	SDL_keysym keysym;
 } SDL_KeyboardEvent;
 
@@ -481,7 +481,7 @@ typedef struct SDL_MouseButtonEvent {
 	Uint8 type;	/* SDL_MOUSEBUTTONDOWN or SDL_MOUSEBUTTONUP */
 	Uint8 which;	/* The mouse device index */
 	Uint8 button;	/* The mouse button index */
-	Uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
+	Uint8 state;	/* GButtonState::PRESSED or GButtonState::RELEASED */
 	Uint16 x, y;	/* The X/Y coordinates of the mouse at press time */
 } SDL_MouseButtonEvent;
 
@@ -520,7 +520,7 @@ typedef struct SDL_JoyButtonEvent {
 	Uint8 type;	/* SDL_JOYBUTTONDOWN or SDL_JOYBUTTONUP */
 	Uint8 which;	/* The joystick device index */
 	Uint8 button;	/* The joystick button index */
-	Uint8 state;	/* SDL_PRESSED or SDL_RELEASED */
+	Uint8 state;	/* GButtonState::PRESSED or GButtonState::RELEASED */
 } SDL_JoyButtonEvent;
 
 /* The "window resized" event
@@ -579,3 +579,4 @@ typedef union {
 
 #endif // win32
 #endif // SDL_event
+#endif

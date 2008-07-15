@@ -64,7 +64,7 @@ protected:
     GuiCaption           m_cursor;
 
     /** Key that is currently auto-repeating. */
-    SDL_keysym           m_repeatKeysym;
+    GKeySym              m_repeatKeysym;
 
     /** Time at which setRepeatKeysym was called. */
     RealTime             m_keyDownTime;
@@ -79,7 +79,7 @@ protected:
     virtual bool onEvent(const GEvent& event);
 
     /** Called from onEvent when a key is pressed. */
-    void setRepeatKeysym(SDL_keysym key);
+    void setRepeatKeysym(GKeySym key);
 
     /** Called from onEvent when the repeat key is released. */
     void unsetRepeatKeysym();

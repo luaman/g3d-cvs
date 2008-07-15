@@ -141,7 +141,7 @@ protected:
     void*               m_callbackData;
 
     /** Key that is currently auto-repeating. */
-    SDL_keysym          m_repeatKeysym;
+    GKeySym             m_repeatKeysym;
 
     GFontRef            m_font;
 
@@ -241,7 +241,7 @@ protected:
 
 
     /** Called from onEvent when a key is pressed. */
-    void setRepeatKeysym(SDL_keysym key);
+    void setRepeatKeysym(GKeySym key);
 
     /** Called from onEvent when the repeat key is released. */
     void unsetRepeatKeysym();

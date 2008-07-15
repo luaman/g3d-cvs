@@ -141,7 +141,7 @@ void GuiFunctionBox::drawBackground(RenderDevice* rd, const GuiThemeRef& skin) c
 
 
 void GuiFunctionBox::drawSpline(RenderDevice* rd, const GuiThemeRef& skin) const {
-    int N = iMax(m_bounds.width() / 4, 30);
+    int N = iMax((int)(m_bounds.width() / 4), 30);
 
 #   if 0  // Debugging code for looking at the slope of the curve
 

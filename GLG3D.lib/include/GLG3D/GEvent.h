@@ -14,20 +14,43 @@
 
 namespace G3D {
 
+/** General keyboard/mouse state definitions used by GEvent */
+class GButtonState {
+public:
 
-/* General keyboard/mouse state definitions */
+    enum Value {
+        RELEASED = 0,
+        PRESSED = 1
+    };
+
+private:
+    
+    Value value;
+
+public:
+
+    G3D_DECLARE_ENUM_CLASS_METHODS(GButtonState);
+
+};
+} // namespace G3D
+
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GButtonState);
+
+namespace G3D {
+
+/** General keyboard/mouse state definitions. 
+    @deprecated  Use GButtonState*/
 enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
-
+    
 //////////////////////////////////////////////////////////
-
-// SDL_joystick.h
 
 /*
  * Get the current state of a POV hat on a joystick
  * The return value is one of the following positions:
  */
+#ifndef SDL_HAT_CENTERED
 #define SDL_HAT_CENTERED	0x00
-#define SDL_HAT_UP              0x01
+#define SDL_HAT_UP          0x01
 #define SDL_HAT_RIGHT		0x02
 #define SDL_HAT_DOWN		0x04
 #define SDL_HAT_LEFT		0x08
@@ -35,14 +58,52 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
 #define SDL_HAT_RIGHTDOWN	(SDL_HAT_RIGHT|SDL_HAT_DOWN)
 #define SDL_HAT_LEFTUP		(SDL_HAT_LEFT|SDL_HAT_UP)
 #define SDL_HAT_LEFTDOWN	(SDL_HAT_LEFT|SDL_HAT_DOWN)
+#endif
 
-/* The joystick structure used to identify an SDL joystick */
+/** The joystick structure used to identify an joystick */
 struct _SDL_Joystick;
 typedef struct _SDL_Joystick SDL_Joystick;
 
+/** Enumeration of valid key modifier codes (often used  ORed together) */
+class GKeyMod {
+public:
+    enum Value {
+        NONE  = 0x0000,
+        LSHIFT= 0x0001,
+        RSHIFT= 0x0002,
+        LCTRL = 0x0040,
+        RCTRL = 0x0080,
+        LALT  = 0x0100,
+        RALT  = 0x0200,
+        LMETA = 0x0400,
+        RMETA = 0x0800,
+        NUM   = 0x1000,
+        CAPS  = 0x2000,
+        MODE  = 0x4000,
+        RESERVED = 0x8000,  
+        CTRL  = LCTRL  | RCTRL,
+        SHIFT = LSHIFT | RSHIFT,
+        ALT   = LALT   | RALT,
+        META = LMETA  | RMETA
+    };
 
-/** Enumeration of valid key mods (possibly OR'd together) */
-typedef enum {
+private:
+    
+    Value value;
+
+public:
+
+    G3D_DECLARE_ENUM_CLASS_METHODS(GKeyMod);
+
+};
+} // namespace G3D
+
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GKeyMod);
+
+namespace G3D {
+
+/** @deprecated use GKeyMod */
+enum {
     GKEYMOD_NONE  = 0x0000,
     GKEYMOD_LSHIFT= 0x0001,
     GKEYMOD_RSHIFT= 0x0002,
@@ -56,7 +117,7 @@ typedef enum {
     GKEYMOD_CAPS  = 0x2000,
     GKEYMOD_MODE  = 0x4000,
     GKEYMOD_RESERVED = 0x8000
-} GKeyMod;
+};
 
 #define GKEYMOD_CTRL	(GKEYMOD_LCTRL  | GKEYMOD_RCTRL)
 #define GKEYMOD_SHIFT	(GKEYMOD_LSHIFT | GKEYMOD_RSHIFT)
@@ -64,41 +125,36 @@ typedef enum {
 #define GKEYMOD_META	(GKEYMOD_LMETA  | GKEYMOD_RMETA)
 
 
-/** Keysym structure
-   - The scancode is hardware dependent, and should not be used by general
-     applications.  If no hardware scancode is available, it will be 0.
-
-   - The 'unicode' translated character is only available when character
-     translation is enabled by the SDL_EnableUNICODE() API.  If non-zero,
-     this is a UNICODE character corresponding to the keypress.  If the
-     high 9 bits of the character are 0, then this maps to the equivalent
-     ASCII character:
-        <pre>
-	char ch;
-	if ( (keysym.unicode & 0xFF80) == 0 ) {
-		ch = keysym.unicode & 0x7F;
-	} else {
-		An international character..
-	}
-        </pre>
- */
-class SDL_keysym {
+/** Symbolic key structure */
+class GKeySym {
 public:
-    /** Hardware specific scancode */
+    /** Hardware specific scancode.
+        Should not be used by general
+        applications.  If no hardware scancode is available, it will be 0.
+        */
     uint8           scancode;			
 
     /** G3D virtual raw key code */
     GKey::Value     sym;		
 
     /** Current key modifiers */
-    GKeyMod         mod;	
+    GKeyMod::Value  mod;	
 
-    /** Translated character */
+    /** Translated character. If non-zero,
+     this is a UNICODE character corresponding to the keypress.  If the
+     high 9 bits of the character are 0, then this maps to the equivalent
+     ASCII character:
+        <pre>
+	    char ch;
+	    if ( (keysym.unicode & 0xFF80) == 0 ) {
+		    ch = keysym.unicode & 0x7F;
+	    } else {
+		    An international character..
+	    }
+        </pre>
+     */
     uint16          unicode;
 };
-
-/* This is the mask which refers to all hotkey bindings */
-#define SDL_ALL_HOTKEYS		0xFFFFFFFF
 
 ///////////////////////////////////////////////////////////
 
@@ -109,7 +165,7 @@ public:
        NONE = 0,	        /* Unused (do not remove) */
        ACTIVE,	        	/* Application loses/gains visibility */
        KEY_DOWN,	        /* Keys pressed */
-       KEY_UP,	                /* Keys released */
+       KEY_UP,	            /* Keys released */
        MOUSE_MOTION,		/* Mouse moved */
        MOUSE_BUTTON_DOWN,	/* Mouse button pressed */
        MOUSE_BUTTON_UP,		/* Mouse button released */
@@ -130,20 +186,19 @@ public:
        EVENT_RESERVED5,		/* Reserved for future use.. */
        EVENT_RESERVED6,		/* Reserved for future use.. */
        EVENT_RESERVED7,		/* Reserved for future use.. */
-       GUI_DOWN,                /* GuiControl button, etc. pressed. */
-       GUI_UP,                  /* GuiControl button, etc. released. */
-       GUI_ACTION,              /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
-       GUI_CHANGE,              /* Continuous changing (e.g., typing in text box, slider dragged.) */
-       GUI_CANCEL,              /* esc pressed in a text box or menu */
-       GUI_CLOSE,               /* GuiWindow close button pressed. */
-       FILE_DROP,               /* Signifies that files have been dropped onto the program. Call 
-                                    GWindow.getDroppedFilenames to receive the actual data.*/
-       MOUSE_SCROLL_2D,        /* A 2D scroll event has occured */
-       MOUSE_BUTTON_CLICK,     /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
+       GUI_DOWN,            /* GuiControl button, etc. pressed. */
+       GUI_UP,              /* GuiControl button, etc. released. */
+       GUI_ACTION,          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
+       GUI_CHANGE,          /* Continuous changing (e.g., typing in text box, slider dragged.) */
+       GUI_CANCEL,          /* Esc pressed in a text box or menu */
+       GUI_CLOSE,           /* GuiWindow close button pressed. */
+       FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
+                               GWindow.getDroppedFilenames to receive the actual data.*/
+       MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
+       MOUSE_BUTTON_CLICK,  /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
 
        /* This last event is only for bounding internal arrays
-  	     It is the number of bits in the event mask datatype -- uint32
-        */
+  	     It is the number of bits in the event mask datatype -- uint32 */
        NUMEVENTS
     };
 private:
@@ -161,10 +216,12 @@ G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GEventType);
 
 namespace G3D {
 
+#ifndef SDL_APPMOUSEFOCUS
 /* The available application states */
 #define SDL_APPMOUSEFOCUS	0x01		/* The app has mouse coverage */
 #define SDL_APPINPUTFOCUS	0x02		/* The app has input focus */
 #define SDL_APPACTIVE		0x04		/* The application is active */
+#endif
 
 /** Application visibility event structure */
 class ActiveEvent {
@@ -179,19 +236,20 @@ public:
     uint8 state;
 };
 
+
 /** Keyboard event structure */
 class KeyboardEvent {
 public:
     /** GEventType::KEY_DOWN or GEventType::KEY_UP */
-    uint8 type;
+    uint8           type;
 
     /** The keyboard device index */
-    uint8 which;
+    uint8           which;
 
-    /** SDL_PRESSED or SDL_RELEASED */
-    uint8 state;
+    /** GButtonState::PRESSED or GButtonState::RELEASED */
+    uint8           state;
 
-    SDL_keysym keysym;
+    GKeySym         keysym;
 };
 
 
@@ -230,7 +288,7 @@ public:
     uint8 button;
 
     /* For MOUSE_CLICK, this is numClicks.  For MOUSE_BUTTON_DOWN or MOUSE_BUTTON_UP, this is 
-       SDL_PRESSED or SDL_RELEASED */
+       GButtonState::PRESSED or GButtonState::RELEASED */
     union {
         uint8 numClicks;
         uint8 state;
@@ -326,7 +384,7 @@ public:
     /** The joystick button index */
     uint8 button;
 
-    /** SDL_PRESSED or SDL_RELEASED */
+    /** GButtonState::PRESSED or GButtonState::RELEASED */
     uint8 state;
 };
 
@@ -411,17 +469,22 @@ public:
     class GuiWindow*   window;
 };
 
-/* If you want to use this event, you should include SDL_syswm.h */
-struct SDL_SysWMmsg;
-typedef struct SDL_SysWMmsg SDL_SysWMmsg;
-typedef struct SDL_SysWMEvent {
-    uint8 type;
-    SDL_SysWMmsg *msg;
-} SDL_SysWMEvent;
-
 /** 
   General low-level event structure.
-  
+ 
+  <b>Event Dispatch Overview</b>:
+
+  <ol>
+    <li> The GWindow polls the operating system for events like key strokes and mouse movement, and
+  recieves events fired by Gui and other classes.  
+    <li> GApp::onUserInput polls GEvents from the GWindow.
+    <li> GApp calls WidgetManager::onEvent for its widget manager.
+    <li> WidgetManager invokes Widget::onEvent for every installed widget (e.g., GuiWindow, FirstPersonManipulator).
+    <li> When a GuiWindow receives an event, it dispatches that event to the control that 
+     has focus if that control is inside the window (for mouse clicks, it first changes focus to the control under the mouse).
+  </ol>
+
+
   Most event processing code looks like:
 
   <pre>
@@ -455,7 +518,6 @@ public:
     ExposeEvent             expose;
     QuitEvent               quit;
     UserEvent               user;
-    SDL_SysWMEvent          syswm;
     GuiEvent                gui;
     GuiCloseEvent           guiClose;
     FileDropEvent           drop;

@@ -27,6 +27,7 @@
      <li> GEvent::toString
      <li> G3D::TextInput now treats characters with ASCII code greater than 127 as symbols
      <li> G3D::ThreadSet
+     <li> Removed SDL_SysWMEvent, which was never supported by GEvent anyway
      <li> Removed TextureFormat::SAME_AS_SCREEN to break dependence on OpenGL
      <li> TextureFormat has been renamed to G3D::ImageFormat and moved into G3D.lib
      <li> Added variable time control points to G3D::Spline

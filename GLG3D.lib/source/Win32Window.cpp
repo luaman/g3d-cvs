@@ -625,7 +625,7 @@ bool Win32Window::pollOSEvent(GEvent& e) {
             case WM_SYSKEYDOWN:
 
                 e.key.type = GEventType::KEY_DOWN;
-                e.key.state = SDL_PRESSED;
+                e.key.state = GButtonState::PRESSED;
 
                 // Fix invalid repeat key flag
                 if (justReceivedFocus) {
@@ -647,7 +647,7 @@ bool Win32Window::pollOSEvent(GEvent& e) {
             case WM_KEYUP:
             case WM_SYSKEYUP:
                 e.key.type = GEventType::KEY_UP;
-                e.key.state = SDL_RELEASED;
+                e.key.state = GButtonState::RELEASED;
 
                 makeKeyEvent(message.wParam, message.lParam, e);
                 debugAssert(message.wParam < 256);
@@ -1166,29 +1166,29 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 
     int mod = 0;
     if (lpKeyState[VK_LSHIFT] & 0x80) {
-        mod = mod | GKEYMOD_LSHIFT;
+        mod = mod | GKeyMod::LSHIFT;
     }
 
     if (lpKeyState[VK_RSHIFT] & 0x80) {
-        mod = mod | GKEYMOD_RSHIFT;
+        mod = mod | GKeyMod::RSHIFT;
     }
 
     if (lpKeyState[VK_LCONTROL] & 0x80) {
-        mod = mod | GKEYMOD_LCTRL;
+        mod = mod | GKeyMod::LCTRL;
     }
 
     if (lpKeyState[VK_RCONTROL] & 0x80) {
-        mod = mod | GKEYMOD_RCTRL;
+        mod = mod | GKeyMod::RCTRL;
     }
 
     if (lpKeyState[VK_LMENU] & 0x80) {
-        mod = mod | GKEYMOD_LALT;
+        mod = mod | GKeyMod::LALT;
     }
 
     if (lpKeyState[VK_RMENU] & 0x80) {
-        mod = mod | GKEYMOD_RALT;
+        mod = mod | GKeyMod::RALT;
     }
-    e.key.keysym.mod = (GKeyMod)mod;
+    e.key.keysym.mod = (GKeyMod::Value)mod;
 
     ToUnicode(vkCode, e.key.keysym.scancode, lpKeyState, (LPWSTR)&e.key.keysym.unicode, 1, 0);
 }
@@ -1219,10 +1219,10 @@ void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, int clic
     // TODO: in the future, we will merge mouse and key events
     if (down) {
         e.key.type  = GEventType::KEY_DOWN;
-        e.key.state = SDL_PRESSED;
+        e.key.state = GButtonState::PRESSED;
     } else {
         e.key.type  = GEventType::KEY_UP;
-        e.key.state = SDL_RELEASED;
+        e.key.state = GButtonState::RELEASED;
     }
 
     e.key.keysym.unicode = ' ';
@@ -1235,27 +1235,27 @@ void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, int clic
 
     int mod = 0;
     if (lpKeyState[VK_LSHIFT] & 0x80) {
-        mod = mod | GKEYMOD_LSHIFT;
+        mod = mod | GKeyMod::LSHIFT;
     }
 
     if (lpKeyState[VK_RSHIFT] & 0x80) {
-        mod = mod | GKEYMOD_RSHIFT;
+        mod = mod | GKeyMod::RSHIFT;
     }
 
     if (lpKeyState[VK_LCONTROL] & 0x80) {
-        mod = mod | GKEYMOD_LCTRL;
+        mod = mod | GKeyMod::LCTRL;
     }
 
     if (lpKeyState[VK_RCONTROL] & 0x80) {
-        mod = mod | GKEYMOD_RCTRL;
+        mod = mod | GKeyMod::RCTRL;
     }
 
     if (lpKeyState[VK_LMENU] & 0x80) {
-        mod = mod | GKEYMOD_LALT;
+        mod = mod | GKeyMod::LALT;
     }
 
     if (lpKeyState[VK_RMENU] & 0x80) {
-        mod = mod | GKEYMOD_RALT;
+        mod = mod | GKeyMod::RALT;
     }
     e.key.keysym.mod = (GKeyMod)mod;
     */

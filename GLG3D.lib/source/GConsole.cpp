@@ -508,7 +508,7 @@ void GConsole::processRepeatKeysym() {
 
     case GKey::TAB:
         // Command completion
-        if ((m_repeatKeysym.mod & GKEYMOD_SHIFT) != 0) {
+        if ((m_repeatKeysym.mod & GKeyMod::SHIFT) != 0) {
             completeCommand(-1);
         } else {
             completeCommand(1);
@@ -562,7 +562,7 @@ void GConsole::historySelect(int direction) {
 }
 
 
-void GConsole::setRepeatKeysym(SDL_keysym key) {
+void GConsole::setRepeatKeysym(GKeySym key) {
     m_keyDownTime = System::time();
     m_keyRepeatTime = m_keyDownTime + m_settings.keyRepeatDelay;
     m_repeatKeysym = key;
@@ -625,17 +625,17 @@ bool GConsole::onEvent(const GEvent& event) {
 
         default:
 
-            if ((((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
+            if ((((event.key.keysym.mod & GKeyMod::CTRL) != 0) &&
                  ((event.key.keysym.sym == 'v') || (event.key.keysym.sym == 'y'))) ||
 
-                (((event.key.keysym.mod & GKEYMOD_SHIFT) != 0) &&
+                (((event.key.keysym.mod & GKeyMod::SHIFT) != 0) &&
                 (event.key.keysym.sym == GKey::INSERT))) {
 
                 // Paste (not autorepeatable)
                 paste(System::getClipboardText());
                 return true;
 
-            } else if (((event.key.keysym.mod & GKEYMOD_CTRL) != 0) &&
+            } else if (((event.key.keysym.mod & GKeyMod::CTRL) != 0) &&
                 (event.key.keysym.sym == 'k')) {
 
                 // Cut (not autorepeatable)

@@ -36,10 +36,10 @@ class GKey {
 public:
     /** Don't use this enum; use GKey instances instead. */
     enum Value {
-        UNKNOWN         = 0,
+        UNKNOWN     = 0,
         FIRST		= 0,
         BACKSPACE	= 8,
-        TAB		= 9,
+        TAB		    = 9,
 
         CLEAR		= 12,
         RETURN		= 13,
