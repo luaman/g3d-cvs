@@ -3,7 +3,7 @@
   
   @maintainer Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-24
-  @edited  2007-08-23
+  @edited  2008-07-15
 */
 
 #include "G3D/platform.h"
@@ -17,7 +17,6 @@
 #include "GLG3D/glcalls.h"
 #include "GLG3D/UserInput.h"
 
-// TODO: Replace these with proper calls.
 #define OSX_MENU_BAR_HEIGHT 45
 
 namespace G3D {
@@ -31,9 +30,10 @@ pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, vo
     
     if (pWindow) {
         WindowRef win = NULL;
-        if(GetEventParameter(event,kEventParamDirectObject,typeWindowRef,NULL,sizeof(WindowRef),NULL,&win)==noErr) {
+        if (GetEventParameter(event,kEventParamDirectObject,typeWindowRef,NULL,
+                              sizeof(WindowRef),NULL,&win)==noErr) {
             Rect rect;
-            if(GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
+            if (GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
                 pWindow->injectSizeEvent(rect.right-rect.left, rect.bottom-rect.top);
             }
         }
@@ -45,7 +45,7 @@ pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, vo
 pascal OSStatus OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData) {
     CarbonWindow* pWindow = (CarbonWindow*)userData;
     
-    if(pWindow) {
+    if (pWindow) {
         pWindow->_receivedCloseEvent = true;
     }
     
@@ -102,11 +102,12 @@ pascal OSStatus OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, v
 	
         GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, NULL, sizeof(HIPoint), NULL, &point);
         
-        if(GetWindowBounds(pWindow->_window, kWindowContentRgn, &rect)==noErr) {
+        if (GetWindowBounds(pWindow->_window, kWindowContentRgn, &rect) == noErr) {
             // If the event is in our content region, we'll generate events.
             // Otherwise, we'll pass them to someone else.
-            if((point.x >= rect.left) && (point.y >= rect.top) && (point.x <= rect.right) && (point.y <= rect.bottom)) {
-                if(eventKind == 11 /*kEventMouseScroll*/) {
+            if((point.x >= rect.left) && (point.y >= rect.top) && 
+               (point.x <= rect.right) && (point.y <= rect.bottom)) {
+                if (eventKind == 11 /*kEventMouseScroll*/) {
                     GEvent eWheelDown, eWheelUp, eScroll2D;
                     SInt32 smoothDeltaY;
                     SInt32 smoothDeltaX;
@@ -368,6 +369,7 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
     enableJoysticks();
 }
 
+
 void CarbonWindow::createShareWindow(GWindow::Settings s) {
     static bool initialized = false;
     
@@ -413,30 +415,43 @@ CarbonWindow::CarbonWindow(
     _enabledJoysticks = false;
     
     GLint attribs[100];
-    memset(attribs,AGL_NONE,sizeof(attribs));
+    memset(attribs, AGL_NONE, sizeof(attribs));
     int i = 0;
     
-    // use component colors, not indexed colors
-    attribs[i++] = AGL_RGBA;				attribs[i++] = GL_TRUE;
-    attribs[i++] = AGL_DOUBLEBUFFER;		attribs[i++] = GL_TRUE;
+    // For attribute specification, see
+    //
+    // http://developer.apple.com/documentation/GraphicsImaging/Reference/AGL_OpenGL/Reference/reference.html#//apple_ref/c/macro/ 
+    //
+    // and refer to video/maccommon/SDL_macgl.c in the SDL library for reference code
+
+    attribs[i++] = AGL_RGBA;
+    attribs[i++] = AGL_DOUBLEBUFFER;
     
     if(_settings.fsaaSamples > 0) {
         attribs[i++] = AGL_SAMPLE_BUFFERS_ARB; attribs[i++] = 1;
-        attribs[i++] = AGL_SAMPLES_ARB; attribs[i++] = _settings.fsaaSamples;
-        attribs[i++] = AGL_SUPERSAMPLE; attribs[i++] = GL_TRUE;
+        attribs[i++] = AGL_SAMPLES_ARB;        attribs[i++] = _settings.fsaaSamples;
+        //attribs[i++] = AGL_SUPERSAMPLE;
     }
     
-    attribs[i++] = AGL_PBUFFER;				attribs[i++] = GL_TRUE;
-    attribs[i++] = AGL_NO_RECOVERY;			attribs[i++] = GL_TRUE;
+    // P-buffer support
+    //attribs[i++] = AGL_PBUFFER;				attribs[i++] = GL_TRUE;
+
+    // Do not allow revert to software rendering
+    attribs[i++] = AGL_NO_RECOVERY;
+    if (_settings.hardware) {
+        attribs[i++] = AGL_ACCELERATED;
+    }
     
     if (_settings.fullScreen) {
-        attribs[i++] = AGL_FULLSCREEN;		attribs[i++] = GL_TRUE;
+        attribs[i++] = AGL_FULLSCREEN;		        attribs[i++] = GL_TRUE;
     } else {
         attribs[i++] = AGL_WINDOW;			attribs[i++] = GL_TRUE;
+        // Allow windows to span multiple screens
+        attribs[i++] = AGL_MULTISCREEN;			attribs[i++] = GL_TRUE;
     }
     
     if (_settings.stereo) {
-        attribs[i++] = AGL_STEREO;			attribs[i++] = GL_TRUE;
+        attribs[i++] = AGL_STEREO;
     }
     
     attribs[i++] = AGL_RED_SIZE;			attribs[i++] = _settings.rgbBits;
@@ -445,8 +460,11 @@ CarbonWindow::CarbonWindow(
     attribs[i++] = AGL_ALPHA_SIZE;			attribs[i++] = _settings.alphaBits;
     
     attribs[i++] = AGL_DEPTH_SIZE;			attribs[i++] = _settings.depthBits;
-    attribs[i++] = AGL_STENCIL_SIZE;		attribs[i++] = _settings.stencilBits;
+    if (_settings.stencilBits > 0) {
+        attribs[i++] = AGL_STENCIL_SIZE;	        attribs[i++] = _settings.stencilBits;
+    }
     
+    attribs[i++] = AGL_ALL_RENDERERS;
     attribs[i++] = AGL_NONE;
     
     AGLPixelFormat format;
@@ -454,9 +472,10 @@ CarbonWindow::CarbonWindow(
     // If the user is creating a windowed application that is above the menu
     // bar, it will be confusing. We'll move it down for them so it makes more
     // sense.
-    if(! _settings.fullScreen) {
-        if(_settings.y <= OSX_MENU_BAR_HEIGHT)
+    if (! _settings.fullScreen) {
+        if (_settings.y <= OSX_MENU_BAR_HEIGHT) {
             _settings.y = OSX_MENU_BAR_HEIGHT;
+        }
     }
     
     // If the user wanted the window centered, then it is likely that our
@@ -464,7 +483,7 @@ CarbonWindow::CarbonWindow(
     GDHandle displayHandle;
     CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
     
-    if(_settings.fullScreen) {
+    if (_settings.fullScreen) {
         _settings.x = rScreen.origin.x;
         _settings.y = rScreen.origin.y;
         _settings.width = rScreen.size.width;
@@ -523,16 +542,16 @@ CarbonWindow::CarbonWindow(
     _glDrawable = (AGLDrawable) GetWindowPort(_window);
     
     if(!_settings.fullScreen) {
-        format = aglChoosePixelFormat(NULL,0,attribs);
+        format = aglChoosePixelFormat(NULL, 0, attribs);
     } else {
-        format = aglChoosePixelFormat(&displayHandle,1,attribs);
+        format = aglChoosePixelFormat(&displayHandle, 1, attribs);
     }
     
     osErr = aglReportError();
     
     alwaysAssertM(format != 0, "Unsupported Pixel Format.");
     
-    _glContext = aglCreateContext(format,NULL/*TODO: Share context*/);
+    _glContext = aglCreateContext(format, NULL /*TODO: Share context*/);
     
     alwaysAssertM(_glContext != NULL, "Failed to create OpenGL Context.");
     
@@ -550,8 +569,8 @@ CarbonWindow::CarbonWindow(
     
     aglSetCurrentContext(_glContext);
     
-    if(_settings.fullScreen) {
-        aglSetFullScreen(_glContext,rScreen.size.width,rScreen.size.height,0,0);
+    if (_settings.fullScreen) {
+        aglSetFullScreen(_glContext, rScreen.size.width, rScreen.size.height, 0, 0);
     }
 
     osErr = aglReportError();
@@ -567,10 +586,12 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, WindowRef window) : _crea
 #pragma mark Public - CarbonWindow Creation:
 
 CarbonWindow* CarbonWindow::create(const GWindow::Settings& s /*= GWindow::Settings()*/) {
+    // TODO: Create shared window if not already present
     return new CarbonWindow(s);
 }
 
 CarbonWindow* CarbonWindow::create(const GWindow::Settings& s, WindowRef window) {
+    // TODO: Create shared window if not already present
     return new CarbonWindow(s, window);
 }
 
