@@ -82,6 +82,8 @@ protected:
 
     FileDialog(GWindow* osWindow, GuiThemeRef skin, const std::string& note);
 
+    void close();
+
 public:
 
     /** 

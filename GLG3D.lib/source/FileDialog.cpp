@@ -48,6 +48,10 @@ bool FileDialog::getFilename(std::string& filename, const std::string& caption) 
     return ok;
 }
 
+void FileDialog::close() {
+    setVisible(false);
+    m_manager->remove(this);
+}
 
 bool FileDialog::onEvent(const GEvent& e) {
     if (GuiWindow::onEvent(e)) {
@@ -61,12 +65,12 @@ bool FileDialog::onEvent(const GEvent& e) {
          (e.gui.control == textBox) ||
          (e.gui.control == okButton))) {
         ok = (e.gui.control != cancelButton);
-        setVisible(false);
+        close();
         return true;
     } else if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::ESCAPE)) {
         // Cancel the dialog
         ok = false;
-        setVisible(false);
+        close();
         return true;
     }
 

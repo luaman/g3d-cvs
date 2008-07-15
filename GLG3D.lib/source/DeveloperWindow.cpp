@@ -31,12 +31,12 @@ DeveloperWindow::DeveloperWindow(
      const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
-     const GuiThemeRef&                  skin,
+     const GuiThemeRef&                 skin,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
      bool*                              showStats,
      bool*                              showText) : 
-    GuiWindow("Developer (F11)", skin, Rect2D::xywh(600,80,0,0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
+    GuiWindow("Developer (F11)", skin, Rect2D::xywh(600, 80, 0, 0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
 
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator, skin);
 
@@ -68,7 +68,7 @@ DeveloperWindow::DeveloperWindow(
     GuiControl* printButton = root->addCheckBox(printIcon, showText, GuiTheme::TOOL_CHECK_BOX_STYLE);
     printButton->setSize(buttonSize);
 
-    cameraControlWindow->setVisible(false);
+    cameraControlWindow->setVisible(true);
     pack();
     setRect(Rect2D::xywh(0, 0, 162, 38));
 }

@@ -45,7 +45,6 @@ protected:
     std::string cameraLocation() const;
     void setCameraLocation(const std::string& s);
 
-
     /** Name of the file in which current bookmarks are stored. */
     std::string                 m_bookmarkFilename;
 
@@ -165,6 +164,9 @@ public:
     const Array<std::string>& bookmarkNameArray() const {
         return m_bookmarkName;
     }
+
+    virtual void setManager(WidgetManager* manager);
+
 
     /**
      @param cameraManipulator The manipulator that should drive the camera.  This will be assigned to

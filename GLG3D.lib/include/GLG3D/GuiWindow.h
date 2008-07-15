@@ -212,8 +212,6 @@ protected:
 
     GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
 
-protected:
-
     virtual void render(RenderDevice* rd);
 
     /** Take the specified close action */

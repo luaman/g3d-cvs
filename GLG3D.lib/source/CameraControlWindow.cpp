@@ -24,63 +24,116 @@ const Vector2 CameraControlWindow::bigSize(286, 157);
 static const std::string noSpline = "< None >";
 static const std::string untitled = "< Unsaved >";
 
+typedef ReferenceCountedPointer<class BookmarkDialog> BookmarkDialogRef;
+class BookmarkDialog : public GuiWindow {
+public:
 
-CameraControlWindow::Ref CameraControlWindow::create(
-    const FirstPersonManipulatorRef&   manualManipulator,
-    const UprightSplineManipulatorRef& trackManipulator,
-    const Pointer<Manipulator::Ref>&   cameraManipulator,
-    const GuiThemeRef&                  skin) {
+    bool               ok;
 
-    return new CameraControlWindow(manualManipulator, trackManipulator, cameraManipulator, skin);
-}
+    std::string&       m_name;
+    std::string        m_originalName;
+    GuiButton*         m_okButton;
+    GuiButton*         m_deleteButton;
 
+    /** Name */
+    GuiTextBox*        m_textBox;
 
-std::string CameraControlWindow::cameraLocation() const {
-    CoordinateFrame cframe;
-    trackManipulator->camera()->getCoordinateFrame(cframe);
-    UprightFrame uframe(cframe);
+    GWindow*           m_osWindow;
     
-    // \xba is the character 186, which is the degree symbol
-    return format("(% 5.1f, % 5.1f, % 5.1f), % 5.0f\xba, % 5.0f\xba", 
-                  uframe.translation.x, uframe.translation.y, uframe.translation.z, 
-                  toDegrees(uframe.yaw), toDegrees(uframe.pitch));
-}
+    BookmarkDialog(GWindow* osWindow, const Vector2& position, GuiThemeRef skin, std::string& name, const std::string& note) : 
+        GuiWindow("Bookmark Properties", skin, Rect2D::xywh(position - Vector2(160, 0), Vector2(300, 100)), GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::NO_CLOSE),
+        m_name(name),
+        m_originalName(name) {
 
-
-void CameraControlWindow::setCameraLocation(const std::string& s) {
-    TextInput t(TextInput::FROM_STRING, s);
-    try {
+        m_textBox = pane()->addTextBox("Name", &name, GuiTextBox::IMMEDIATE_UPDATE);
         
-        UprightFrame uframe;
-        uframe.translation.deserialize(t);
-        t.readSymbol(",");
-        uframe.yaw = t.readNumber();
-        std::string DEGREE = "\xba";
-        if (t.peek().string() == DEGREE) {
-            t.readSymbol();
-        }
-        t.readSymbol(",");
-        uframe.pitch = t.readNumber();
-        if (t.peek().string() == DEGREE) {
-            t.readSymbol();
-        }
-        
-        CoordinateFrame cframe = uframe;
+        GuiLabel* loc = pane()->addLabel("Location");
+        loc->setWidth(84);
+        GuiLabel* locDisplay = pane()->addLabel(note);
+        locDisplay->moveRightOf(loc);
 
-        trackManipulator->camera()->setCoordinateFrame(cframe);
-        manualManipulator->setFrame(cframe);
+        m_okButton = pane()->addButton("Ok");
+        m_okButton->moveBy(130, 20);
+        m_deleteButton = pane()->addButton("Delete");
+        m_deleteButton->moveRightOf(m_okButton);
+        setRect(Rect2D::xywh(rect().x0y0(), Vector2::zero()));
+        pane()->setSize(0, 0);
+        pane()->pack();
+        sync();
 
-    } catch (const TextInput::TokenException& e) {
-        // Ignore the incorrectly formatted value
-        (void)e;
+        m_textBox->setFocused(true);
     }
-}
+
+protected:
+
+    void close() {
+        setVisible(false);
+        m_manager->remove(this);
+    }
+
+    void doOk() {
+        // TODO
+        close();
+    }
+
+    void doCancel() {
+        // TODO
+        close();
+    }
+
+    void doDelete() {
+        // TODO
+        close();
+    }
+
+    /** Update enables/captions */
+    void sync() {
+        if ((m_originalName != m_name) || (m_name == "")) {
+            m_deleteButton->setCaption("Cancel");
+        }
+
+        m_okButton->setEnabled(m_name != "");
+    }
+
+public:
+
+    virtual bool onEvent(const GEvent& e) {
+        if (GuiWindow::onEvent(e)) {
+            return true;
+        }
+
+        sync();
+
+        if (e.type == GEventType::GUI_ACTION) {
+            if (e.gui.control == m_okButton) {
+                close();
+                return true;
+            } else if (e.gui.control == m_deleteButton) {
+                if (m_deleteButton->caption().text() == "Cancel") {
+                    doCancel();
+                } else {
+                    doDelete();
+                }
+                return true;
+            }
+        }
+
+        if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::ESCAPE)) {
+            doCancel();
+            return true;
+        }
+
+        return false;
+    }
+
+};
+
 
 CameraControlWindow::CameraControlWindow(
     const FirstPersonManipulatorRef&      manualManipulator, 
     const UprightSplineManipulatorRef&    trackManipulator, 
     const Pointer<Manipulator::Ref>&      cameraManipulator,
-    const GuiThemeRef&                     skin) : 
+    const GuiThemeRef&                    skin) : 
     GuiWindow("Camera Control", 
               skin, 
               Rect2D::xywh(5, 54, 200, 0),
@@ -108,8 +161,9 @@ CameraControlWindow::CameraControlWindow(
     // The default G3D textbox label doesn't support multiple fonts
     pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(20, 2);
     cameraLocationTextBox = 
-        pane->addTextBox("xyz", Pointer<std::string>(this, &CameraControlWindow::cameraLocation, 
-                                                     &CameraControlWindow::setCameraLocation));
+        pane->addTextBox("xyz", 
+        Pointer<std::string>(this, &CameraControlWindow::cameraLocation, 
+                                   &CameraControlWindow::setCameraLocation));
     cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 246, 24));
     cameraLocationTextBox->setCaptionSize(36);
 
@@ -129,7 +183,7 @@ CameraControlWindow::CameraControlWindow(
         pane->addButton(GuiCaption(CHECK, iconFont, 16, Color3::blue() * 0.8f), 
             GuiControl::Callback(this, &CameraControlWindow::onBookmarkButton),
             GuiTheme::TOOL_BUTTON_STYLE);
-    bookMarkButton->setSize(h-1, h);
+    bookMarkButton->setSize(h - 1, h);
 
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
@@ -140,7 +194,11 @@ CameraControlWindow::CameraControlWindow(
     trackList->setRect(Rect2D::xywh(Vector2(0, trackList->rect().y1() - 25), Vector2(180, trackList->rect().height())));
     trackList->setCaptionSize(34);
 
-    visibleCheckBox = manualPane->addCheckBox("Visible", Pointer<bool>(trackManipulator, &UprightSplineManipulator::showPath, &UprightSplineManipulator::setShowPath));
+    visibleCheckBox = manualPane->addCheckBox("Visible", 
+        Pointer<bool>(trackManipulator, 
+                      &UprightSplineManipulator::showPath, 
+                      &UprightSplineManipulator::setShowPath));
+
     visibleCheckBox->moveRightOf(trackList);
     visibleCheckBox->moveBy(6, 0);
     
@@ -179,7 +237,11 @@ CameraControlWindow::CameraControlWindow(
     saveButton->moveBy(20, -3);
     saveButton->setEnabled(false);
 
-    cyclicCheckBox = manualPane->addCheckBox("Cyclic", Pointer<bool>(trackManipulator, &UprightSplineManipulator::cyclic, &UprightSplineManipulator::setCyclic));
+    cyclicCheckBox = manualPane->addCheckBox("Cyclic", 
+        Pointer<bool>(trackManipulator, 
+                      &UprightSplineManipulator::cyclic, 
+                      &UprightSplineManipulator::setCyclic));
+
     cyclicCheckBox->setPosition(visibleCheckBox->rect().x0(), saveButton->rect().y0() + 1);
 
 #   ifdef G3D_OSX
@@ -229,6 +291,68 @@ CameraControlWindow::CameraControlWindow(
     sync();
 }
 
+CameraControlWindow::Ref CameraControlWindow::create(
+    const FirstPersonManipulatorRef&   manualManipulator,
+    const UprightSplineManipulatorRef& trackManipulator,
+    const Pointer<Manipulator::Ref>&   cameraManipulator,
+    const GuiThemeRef&                  skin) {
+
+    return new CameraControlWindow(manualManipulator, trackManipulator, cameraManipulator, skin);
+}
+
+
+void CameraControlWindow::setManager(WidgetManager* manager) {
+    GuiWindow::setManager(manager);
+    if (manager) {
+        // Move to the upper right
+        float osWindowWidth = manager->window()->dimensions().width();
+        setRect(Rect2D::xywh(osWindowWidth - rect().width(), 40, rect().width(), rect().height()));
+    }
+}
+
+
+std::string CameraControlWindow::cameraLocation() const {
+    CoordinateFrame cframe;
+    trackManipulator->camera()->getCoordinateFrame(cframe);
+    UprightFrame uframe(cframe);
+    
+    // \xba is the character 186, which is the degree symbol
+    return format("(% 5.1f, % 5.1f, % 5.1f), % 5.0f\xba, % 5.0f\xba", 
+                  uframe.translation.x, uframe.translation.y, uframe.translation.z, 
+                  toDegrees(uframe.yaw), toDegrees(uframe.pitch));
+}
+
+
+void CameraControlWindow::setCameraLocation(const std::string& s) {
+    TextInput t(TextInput::FROM_STRING, s);
+    try {
+        
+        UprightFrame uframe;
+        uframe.translation.deserialize(t);
+        t.readSymbol(",");
+        uframe.yaw = t.readNumber();
+        std::string DEGREE = "\xba";
+        if (t.peek().string() == DEGREE) {
+            t.readSymbol();
+        }
+        t.readSymbol(",");
+        uframe.pitch = t.readNumber();
+        if (t.peek().string() == DEGREE) {
+            t.readSymbol();
+        }
+        
+        CoordinateFrame cframe = uframe;
+
+        trackManipulator->camera()->setCoordinateFrame(cframe);
+        manualManipulator->setFrame(cframe);
+
+    } catch (const TextInput::TokenException& e) {
+        // Ignore the incorrectly formatted value
+        (void)e;
+    }
+}
+
+
 
 void CameraControlWindow::showBookmarkList() {
     if (m_bookmarkName.size() > 0) {
@@ -240,6 +364,14 @@ void CameraControlWindow::showBookmarkList() {
 
 
 void CameraControlWindow::onBookmarkButton() {
+    std::string name;
+
+    BookmarkDialogRef dialog = new BookmarkDialog(m_manager->window(), rect().center() + Vector2(0, 100), theme(), name, cameraLocation());
+
+    dialog->showModal(m_manager->window());
+
+    dialog = NULL;
+
     // TODO: edit current bookmark if haven't moved
     // TODO: show modal
     CoordinateFrame frame;
