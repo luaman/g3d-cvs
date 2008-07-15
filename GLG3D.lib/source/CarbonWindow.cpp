@@ -392,7 +392,7 @@ void CarbonWindow::createShareWindow(GWindow::Settings s) {
 CarbonWindow::CarbonWindow(
                            const GWindow::Settings& s, 
                            bool creatingShareWindow) : 
-    lastMod(GKEYMOD_NONE),
+    lastMod(GKeyMod::NONE),
     _createdWindow(true) {
 
     if(!_ProcessBroughtToFront) {
@@ -443,11 +443,11 @@ CarbonWindow::CarbonWindow(
     }
     
     if (_settings.fullScreen) {
-        attribs[i++] = AGL_FULLSCREEN;		        attribs[i++] = GL_TRUE;
+        attribs[i++] = AGL_FULLSCREEN;
     } else {
-        attribs[i++] = AGL_WINDOW;			attribs[i++] = GL_TRUE;
-        // Allow windows to span multiple screens
-        attribs[i++] = AGL_MULTISCREEN;			attribs[i++] = GL_TRUE;
+        attribs[i++] = AGL_WINDOW;
+        // Allow windows to span multiple screens.  Not recommended by Apple
+        //attribs[i++] = AGL_MULTISCREEN;			attribs[i++] = GL_TRUE;
     }
     
     if (_settings.stereo) {
@@ -1151,52 +1151,52 @@ unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
     
     e.key.keysym.scancode = key;
     e.key.keysym.unicode = uc;
-    e.key.keysym.mod = (GKeyMod)0;
+    e.key.keysym.mod = (GKeyMod::Value)0;
 
     if (modifiers & shiftKey) {
         if (keyBytes[kVirtualLShiftKey >> 3] & (1 << (kVirtualLShiftKey & 7))) {
-            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LSHIFT);
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LSHIFT);
         }
 
         if (keyBytes[kVirtualRShiftKey >> 3] & (1 << (kVirtualRShiftKey & 7))) {
-            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RSHIFT);		
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RSHIFT);		
         }
     }
 	
     if (modifiers & controlKey) {
         if (keyBytes[kVirtualLControlKey >> 3] & (1 << (kVirtualLControlKey & 7))) {
-            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LCTRL);
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LCTRL);
         }
         
         if (keyBytes[kVirtualRControlKey >> 3] & (1 << (kVirtualRControlKey & 7))) {
-            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RCTRL);
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RCTRL);
         }
     }
     
     if (modifiers & optionKey) {
         if (keyBytes[kVirtualLOptionKey >> 3] & (1 << (kVirtualLOptionKey & 7))) {
-            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LALT);
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LALT);
         }
 
         if(keyBytes[kVirtualROptionKey >> 3] & (1 << (kVirtualROptionKey & 7))) {
-            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RALT);
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RALT);
 	}
     }
 
     if (modifiers & cmdKey) {
-        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LMETA);
+        e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LMETA);
     }
     
     if (modifiers & kEventKeyModifierFnMask) {
-        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_MODE);
+        e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::MODE);
     }
     
     if (modifiers & alphaLock) {
-        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_CAPS);
+        e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::CAPS);
     }
 
     if (modifiers & kEventKeyModifierNumLockMask) {
-        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_NUM);
+        e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::NUM);
     }
     
     // If c is 0, then we've actually recieved a modifier key event,
@@ -1243,22 +1243,22 @@ unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
 
         // Find out which bit flipped
         switch (e.key.keysym.mod ^ lastMod) {
-        case GKEYMOD_LSHIFT:
+        case GKeyMod::LSHIFT:
             e.key.keysym.sym = GKey::LSHIFT;
             break;
-        case GKEYMOD_RSHIFT:
+        case GKeyMod::RSHIFT:
             e.key.keysym.sym = GKey::RSHIFT;
             break;
-        case GKEYMOD_LCTRL:
+        case GKeyMod::LCTRL:
             e.key.keysym.sym = GKey::LCTRL;
             break;
-        case GKEYMOD_RCTRL:
+        case GKeyMod::RCTRL:
             e.key.keysym.sym = GKey::RCTRL;
             break;
-        case GKEYMOD_LALT:
+        case GKeyMod::LALT:
             e.key.keysym.sym = GKey::LALT;
             break;
-        case GKEYMOD_RALT:
+        case GKeyMod::RALT:
             e.key.keysym.sym = GKey::RALT;
             break;
         }
