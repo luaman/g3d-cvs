@@ -24,6 +24,7 @@
      <li> G3D::Any CoordinateFrame now serialized using angles
      <li> CameraControlWindow now prints angles in degrees
      <li> GWindow::create
+     <li> GEvent::toString
      <li> G3D::TextInput now treats characters with ASCII code greater than 127 as symbols
      <li> G3D::ThreadSet
      <li> Removed TextureFormat::SAME_AS_SCREEN to break dependence on OpenGL
@@ -112,6 +113,8 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: OS X modifier keys now work correctly under CarbonWindow
+     <li> Fix: OS X arrow keys now work correctly under CarbonWindow
      <li> Fix: Rewrote buildg3d to fix many longstanding bugs, including mismatched 'bin' directories and confusion about the 'install' target
      <li> Fix: gfxmeter reports now format correctly regardless of monitor width
      <li> Fix: patch to initialize correctly on the Mesa library, which crashes when requesting DEPTH24_STENCIL8

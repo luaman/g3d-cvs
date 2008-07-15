@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.brown.edu
 
   @created 2002-07-28
-  @edited  2006-08-10
+  @edited  2008-07-15
 */
 
 #include "G3D/platform.h"
@@ -19,6 +19,7 @@ namespace G3D {
 FirstPersonManipulatorRef FirstPersonManipulator::create() {
     return new FirstPersonManipulator();
 }
+
 
 FirstPersonManipulator::FirstPersonManipulator() : 
     m_maxMoveRate(10),
@@ -103,7 +104,6 @@ void FirstPersonManipulator::reset() {
 
 bool FirstPersonManipulator::rightDown(UserInput* ui) const {
 #   ifdef G3D_OSX
-    // Treat trackpad wheel click as right mouse button
        return 
            ui->keyDown(GKey::RIGHT_MOUSE) || 
            (ui->keyDown(GKey::LEFT_MOUSE) && 

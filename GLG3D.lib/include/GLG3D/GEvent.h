@@ -198,7 +198,7 @@ public:
 /** Mouse motion event structure */
 class MouseMotionEvent {
 public:
-    /** SDL_MOUSEMOTION */
+    /** GEventType::MOUSEMOTION */
     uint8 type;	
 
     /** The mouse device index */
@@ -227,7 +227,7 @@ public:
     uint8 which;	
     
     /** The mouse button index */
-    uint8 button;	
+    uint8 button;
 
     /* For MOUSE_CLICK, this is numClicks.  For MOUSE_BUTTON_DOWN or MOUSE_BUTTON_UP, this is 
        SDL_PRESSED or SDL_RELEASED */
@@ -296,7 +296,7 @@ public:
 /** Joystick hat position change event structure */
 class JoyHatEvent {
 public:
-    /* JOYHATMOTION */
+    /** GEventType::JOYHATMOTION */
     uint8 type;
 
     /** The joystick device index */
@@ -330,13 +330,13 @@ public:
     uint8 state;
 };
 
-/* The "window resized" event
+/** The "window resized" event
    When you get this event, you are responsible for setting a new video
    mode with the new width and height.
  */
 class ResizeEvent {
 public:
-    /** SDL_VIDEORESIZE */
+    /** GEventType::VIDEORESIZE */
     uint8 type;	
 
     /** New width */
@@ -437,7 +437,8 @@ typedef struct SDL_SysWMEvent {
 
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */
-typedef union {
+union GEvent {
+public:
     /** This is a G3D::GEventType, but is given uint8 type so that it
         does not call the constructor because GEvent is a union. */
     uint8                   type;
@@ -461,7 +462,7 @@ typedef union {
     MouseScroll2DEvent      scroll2d;
 
     std::string toString() const;
-} GEvent;
+};
 
 }
 

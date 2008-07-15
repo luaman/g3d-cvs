@@ -275,7 +275,6 @@ EventTypeSpec CarbonWindow::_deviceScrollSpec[] = {{kEventClassMouse,11/*kEventM
 #pragma mark Private - Prototypes:
 
 // Helper Functions Prototypes
-unsigned char makeKeyEvent(EventRef,GEvent&);
 uint8 buttonsToUint8(const bool*);
 OSStatus aglReportError();
 
@@ -370,24 +369,30 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
 }
 
 void CarbonWindow::createShareWindow(GWindow::Settings s) {
-    bool hasInited = false;
+    static bool initialized = false;
     
-    if (hasInited) {
+    if (initialized) {
         return;
     }
     
-    hasInited = true;
+    initialized = true;
     
     // We want a small (low memory), invisible window
     s.visible = false;
-    s.width = 16;
-    s.height = 16;
-    s.framed = false;
+    s.width   = 16;
+    s.height  = 16;
+    s.framed  = false;
     
     _shareWindow.reset(new CarbonWindow(s, true));
 }
     
-CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow /*= false*/) : _createdWindow(true) {
+
+CarbonWindow::CarbonWindow(
+                           const GWindow::Settings& s, 
+                           bool creatingShareWindow) : 
+    lastMod(GKEYMOD_NONE),
+    _createdWindow(true) {
+
     if(!_ProcessBroughtToFront) {
         // Hack to get our window/process to the front...
         ProcessSerialNumber psn = { 0, kCurrentProcess};
@@ -497,8 +502,10 @@ CarbonWindow::CarbonWindow(const GWindow::Settings& s, bool creatingShareWindow 
             
             setIcon(defaultIcon);
         } catch (const GImage::Error& e) {
+            /*
             logPrintf("GWindow's default icon failed to load: %s (%s)", 
                       e.filename.c_str(), e.reason.c_str());
+            */
         }
     }
     
@@ -999,7 +1006,7 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
     
     // If we've gotten no event, we should just return false so that
     // a render pass can occur.
-    if(osErr == eventLoopTimedOutErr) {
+    if (osErr == eventLoopTimedOutErr) {
         return false;
     }
 
@@ -1008,7 +1015,7 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
     UInt32 eventClass = GetEventClass(theEvent);
     UInt32 eventKind = GetEventKind(theEvent);
     
-    switch(eventClass) { 
+    switch (eventClass) { 
     case kEventClassMouse:
         // makeMouseEvent will only return true if we need to handle
         // the mouse event. Otherwise it will return false and allow
@@ -1028,15 +1035,19 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
             case kEventRawKeyRepeat:
                 e.key.type = GEventType::KEY_DOWN;
                 e.key.state = SDL_PRESSED;
-                
-                _keyboardButtons[makeKeyEvent(theEvent, e)] = true;
+                {
+                    int i = makeKeyEvent(theEvent, e);
+                    _keyboardButtons[i] = (e.key.state == SDL_PRESSED);
+                }
                 return true;
                 
             case kEventRawKeyUp:
                 e.key.type = GEventType::KEY_UP;
                 e.key.state = SDL_RELEASED;
-                
-                _keyboardButtons[makeKeyEvent(theEvent, e)] = false;
+                {
+                    int i = makeKeyEvent(theEvent, e);
+                    _keyboardButtons[i] = (e.key.state == SDL_PRESSED);
+                }
                 return true;
 
             case kEventHotKeyPressed:
@@ -1090,8 +1101,7 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
 
 
 /** Fills out @e and returns the index of the key for use with _keyboardButtons.*/
-unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
-    GKeyMod lastMod = GKEYMOD_NONE;
+unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
     UniChar uc;
     unsigned char c;
     UInt32 key;
@@ -1122,34 +1132,32 @@ unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
     e.key.keysym.unicode = uc;
     e.key.keysym.mod = (GKeyMod)0;
 
-    //printf("Raw key event with scancode %d\n", (int)key);
-
     if (modifiers & shiftKey) {
-        if(keyBytes[kVirtualLShiftKey>>3] & (1 << (kVirtualLShiftKey&7))) {
+        if (keyBytes[kVirtualLShiftKey >> 3] & (1 << (kVirtualLShiftKey & 7))) {
             e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LSHIFT);
         }
 
-        if(keyBytes[kVirtualRShiftKey>>3] & (1 << (kVirtualRShiftKey&7))) {
+        if (keyBytes[kVirtualRShiftKey >> 3] & (1 << (kVirtualRShiftKey & 7))) {
             e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RSHIFT);		
         }
     }
 	
     if (modifiers & controlKey) {
-        if (keyBytes[kVirtualLControlKey>>3] & (1 << (kVirtualLControlKey&7))) {
+        if (keyBytes[kVirtualLControlKey >> 3] & (1 << (kVirtualLControlKey & 7))) {
             e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LCTRL);
         }
         
-        if (keyBytes[kVirtualRControlKey>>3] & (1 << (kVirtualRControlKey&7))) {
+        if (keyBytes[kVirtualRControlKey >> 3] & (1 << (kVirtualRControlKey & 7))) {
             e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RCTRL);
         }
     }
     
     if (modifiers & optionKey) {
-        if (keyBytes[kVirtualLOptionKey>>3] & (1 << (kVirtualLOptionKey&7))) {
+        if (keyBytes[kVirtualLOptionKey >> 3] & (1 << (kVirtualLOptionKey & 7))) {
             e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LALT);
         }
 
-        if(keyBytes[kVirtualROptionKey>>3] & (1 << (kVirtualROptionKey&7))) {
+        if(keyBytes[kVirtualROptionKey >> 3] & (1 << (kVirtualROptionKey & 7))) {
             e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RALT);
 	}
     }
@@ -1174,68 +1182,66 @@ unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
     // which takes a little more logic to figure out. Especially since
     // under Carbon there isn't a distinction between right/left hand
     // versions of keys.
-    if(c != 0) {
-        if((c >= 'A') && (c <= 'Z')) {
-            e.key.keysym.sym = (GKey::Value)(c - 'A' + 'a');
-        } else {
-            e.key.keysym.sym = (GKey::Value)c;
+    if (c != 0) {
+        // Non-modifier key
+        switch (c) {
+        case 4: e.key.keysym.sym = GKey::END;    break;
+        case 11: e.key.keysym.sym = GKey::PAGEUP; break;
+        case 12: e.key.keysym.sym = GKey::PAGEDOWN; break;
+        case 28: e.key.keysym.sym = GKey::LEFT;   break;
+        case 29: e.key.keysym.sym = GKey::RIGHT;  break;
+        case 30: e.key.keysym.sym = GKey::UP;     break;
+        case 31: e.key.keysym.sym = GKey::DOWN;   break;
+        default:
+            if ((c >= 'A') && (c <= 'Z')) {
+                // Capital letter; make canonically lower case
+                e.key.keysym.sym = (GKey::Value)(c - 'A' + 'a');
+            } else {
+                e.key.keysym.sym = (GKey::Value)c;
+            }
         }
     } else {
+        // Modifier key
+
         // We must now determine what changed since last time and see
-        // if we've got a key-up or key-down. :-p The assumption is a
+        // if we've got a key-up or key-down. The assumption is a
         // key down, so we must only set e.key.type = GEventType::KEY_UP
         // if we've lost a modifier.
-        if (lastMod == GKEYMOD_NONE) {
-            lastMod = e.key.keysym.mod;
-        }
-		
+
         if (lastMod > e.key.keysym.mod) {
+            // Lost a modifier key (bit)
             e.key.type = GEventType::KEY_UP;
-            
-            switch(e.key.keysym.mod | lastMod) {
-            case GKEYMOD_LSHIFT:
-                e.key.keysym.sym = GKey::LSHIFT;
-                break;
-            case GKEYMOD_RSHIFT:
-                e.key.keysym.sym = GKey::RSHIFT;
-                break;
-            case GKEYMOD_LCTRL:
-                e.key.keysym.sym = GKey::LCTRL;
-                break;
-            case GKEYMOD_RCTRL:
-                e.key.keysym.sym = GKey::RCTRL;
-                break;
-            case GKEYMOD_LALT:
-                e.key.keysym.sym = GKey::LALT;
-                break;
-            case GKEYMOD_RALT:
-                e.key.keysym.sym = GKey::RALT;
-                break;
-            }
+            e.key.state = SDL_RELEASED;
         } else {
-            switch(e.key.keysym.mod & lastMod) {
-            case GKEYMOD_LSHIFT:
-                e.key.keysym.sym = GKey::LSHIFT;
-                break;
-            case GKEYMOD_RSHIFT:
-                e.key.keysym.sym = GKey::RSHIFT;
-                break;
-            case GKEYMOD_LCTRL:
-                e.key.keysym.sym = GKey::LCTRL;
-                break;
-            case GKEYMOD_RCTRL:
-                e.key.keysym.sym = GKey::RCTRL;
-                break;
-            case GKEYMOD_LALT:
-                e.key.keysym.sym = GKey::LALT;
-                break;
-            case GKEYMOD_RALT:
-                e.key.keysym.sym = GKey::RALT;
-                break;
-            }
+            e.key.type = GEventType::KEY_DOWN;
+            e.key.state = SDL_PRESSED;
+        }
+        
+        //printf(" lastMod = 0x%x, mod = 0x%x, xor = 0x%x ", lastMod, 
+        //       e.key.keysym.mod, e.key.keysym.mod ^ lastMod);
+
+        // Find out which bit flipped
+        switch (e.key.keysym.mod ^ lastMod) {
+        case GKEYMOD_LSHIFT:
+            e.key.keysym.sym = GKey::LSHIFT;
+            break;
+        case GKEYMOD_RSHIFT:
+            e.key.keysym.sym = GKey::RSHIFT;
+            break;
+        case GKEYMOD_LCTRL:
+            e.key.keysym.sym = GKey::LCTRL;
+            break;
+        case GKEYMOD_RCTRL:
+            e.key.keysym.sym = GKey::RCTRL;
+            break;
+        case GKEYMOD_LALT:
+            e.key.keysym.sym = GKey::LALT;
+            break;
+        case GKEYMOD_RALT:
+            e.key.keysym.sym = GKey::RALT;
+            break;
         }
     }
-    
     lastMod = e.key.keysym.mod;
     
     return e.key.keysym.sym;
@@ -1243,28 +1249,30 @@ unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
 
 
 uint8 buttonsToUint8(const bool* buttons) {
-	uint8 mouseButtons = 0;
-	// Clear mouseButtons and set each button bit.
-	mouseButtons |= (buttons[0] ? 1 : 0) << 0;
-	mouseButtons |= (buttons[1] ? 1 : 0) << 1;
-	mouseButtons |= (buttons[2] ? 1 : 0) << 2;
-	mouseButtons |= (buttons[3] ? 1 : 0) << 4;
-	mouseButtons |= (buttons[4] ? 1 : 0) << 8;
-	return mouseButtons;
+    uint8 mouseButtons = 0;
+    // Clear mouseButtons and set each button bit.
+    mouseButtons |= (buttons[0] ? 1 : 0) << 0;
+    mouseButtons |= (buttons[1] ? 1 : 0) << 1;
+    mouseButtons |= (buttons[2] ? 1 : 0) << 2;
+    mouseButtons |= (buttons[3] ? 1 : 0) << 4;
+    mouseButtons |= (buttons[4] ? 1 : 0) << 8;
+    return mouseButtons;
 }
 
-OSStatus aglReportError (void) {
-	GLenum err = aglGetError();
-	if (AGL_NO_ERROR != err) {
-		char errStr[256];
-		sprintf (errStr, "AGL Error: %s",(char *) aglErrorString(err));
-		std::cout << errStr << std::endl;
-	}
 
-	if (err == AGL_NO_ERROR)
-		return noErr;
-	else
-		return (OSStatus) err;
+OSStatus aglReportError (void) {
+    GLenum err = aglGetError();
+    if (AGL_NO_ERROR != err) {
+        char errStr[256];
+        sprintf (errStr, "AGL Error: %s",(char *) aglErrorString(err));
+        std::cout << errStr << std::endl;
+    }
+    
+    if (err == AGL_NO_ERROR) {
+        return noErr;
+    } else {
+        return (OSStatus) err;
+    }
 }
 
 } // namespace G3D

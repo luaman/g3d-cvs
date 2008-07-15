@@ -87,13 +87,13 @@ CameraControlWindow::CameraControlWindow(
               GuiTheme::TOOL_WINDOW_STYLE,
               GuiWindow::HIDE_ON_CLOSE),
     trackFileIndex(0),
+    m_bookmarkSelection(NO_BOOKMARK),
     cameraManipulator(cameraManipulator),
     manualManipulator(manualManipulator),
     trackManipulator(trackManipulator),
     drawerButton(NULL),
     drawerButtonPane(NULL),
-    m_expanded(false),
-    m_bookmarkSelection(NO_BOOKMARK)
+    m_expanded(false)
     {
 
     manualOperation = manualManipulator->active();

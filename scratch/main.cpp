@@ -102,6 +102,11 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onUserInput(UserInput* ui) {
     // Add key handling here	
+    screenPrintf("LS %d  RS %d   LC %d RC %d\n", 
+           ui->keyDown(GKey::LSHIFT),
+           ui->keyDown(GKey::RSHIFT),
+           ui->keyDown(GKey::LCTRL),
+           ui->keyDown(GKey::RCTRL));
 }
 
 void App::onConsoleCommand(const std::string& str) {
