@@ -991,238 +991,256 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 #pragma mark Protected - CarbonWindow - Event Generation:
 
 bool CarbonWindow::pollOSEvent(GEvent &e) {
-	EventRef		theEvent;
-	EventTargetRef	theTarget;
-	OSStatus osErr = noErr;
-		
-	osErr = ReceiveNextEvent(0, NULL,kEventDurationNanosecond,true, &theEvent);
+    EventRef		theEvent;
+    EventTargetRef	theTarget;
+    OSStatus osErr = noErr;
+    
+    osErr = ReceiveNextEvent(0, NULL,kEventDurationNanosecond,true, &theEvent);
+    
+    // If we've gotten no event, we should just return false so that
+    // a render pass can occur.
+    if(osErr == eventLoopTimedOutErr) {
+        return false;
+    }
 
-	// If we've gotten no event, we should just return false so that
-	// a render pass can occur.
-	if(osErr == eventLoopTimedOutErr)
-		return false;
+    // If we've recieved an event, then we need to convert it into the G3D::GEvent
+    // equivalent. This is going to get messy.
+    UInt32 eventClass = GetEventClass(theEvent);
+    UInt32 eventKind = GetEventKind(theEvent);
+    
+    switch(eventClass) { 
+    case kEventClassMouse:
+        // makeMouseEvent will only return true if we need to handle
+        // the mouse event. Otherwise it will return false and allow
+        // subsequent handlers to deal with the event.
+        if (_windowActive) {
+            if (makeMouseEvent(theEvent, e)) {
+                return true;
+            }
+        }
+        break;
+        
+    case kEventClassKeyboard:
+        if (_windowActive) {
+            switch (eventKind) {
+            case kEventRawKeyDown:
+            case kEventRawKeyModifiersChanged:
+            case kEventRawKeyRepeat:
+                e.key.type = GEventType::KEY_DOWN;
+                e.key.state = SDL_PRESSED;
+                
+                _keyboardButtons[makeKeyEvent(theEvent, e)] = true;
+                return true;
+                
+            case kEventRawKeyUp:
+                e.key.type = GEventType::KEY_UP;
+                e.key.state = SDL_RELEASED;
+                
+                _keyboardButtons[makeKeyEvent(theEvent, e)] = false;
+                return true;
 
-	// If we've recieved an event, then we need to convert it into the G3D::GEvent
-	// equivalent. This is going to get messy.
-	UInt32 eventClass = GetEventClass(theEvent);
-	UInt32 eventKind = GetEventKind(theEvent);
-	
-	switch(eventClass) { 
-		case kEventClassMouse:
-			// makeMouseEvent will only return true if we need to handle
-			// the mouse event. Otherwise it will return false and allow
-			// subsequent handlers to deal with the event.
-			if(_windowActive) {
-				if(makeMouseEvent(theEvent, e))
-					return true;
-			}
-			break;
-		case kEventClassKeyboard:
-			if(_windowActive) {
-				switch (eventKind) {
-					case kEventRawKeyDown:
-					case kEventRawKeyModifiersChanged:
-					case kEventRawKeyRepeat:
-						e.key.type = GEventType::KEY_DOWN;
-						e.key.state = SDL_PRESSED;
-						
-						_keyboardButtons[makeKeyEvent(theEvent, e)] = true;
-						return true;
-					case kEventRawKeyUp:
-						e.key.type = GEventType::KEY_UP;
-						e.key.state = SDL_RELEASED;
-						
-						_keyboardButtons[makeKeyEvent(theEvent, e)] = false;
-						return true;
-					case kEventHotKeyPressed:
-					case kEventHotKeyReleased:
-					default:
-						break;
-				}
-			} break;
-		case kHighLevelEvent:
-		case kEventAppleEvent:
-		case kEventClassCommand:
-		case kEventClassMenu:
-		case kEventClassService:
-		case kEventClassSystem:
-		default:
-			break;
-	}
-	
-	if(_receivedCloseEvent) {
-		_receivedCloseEvent = false;
-		e.type = GEventType::QUIT;
-		return true;
-	}
-	
-	Rect rect;
-	
-	if(GetWindowBounds(_window, kWindowContentRgn, &rect)==noErr) {
-		_settings.x = rect.left;
-		_settings.y = rect.top;
-		_settings.width = rect.right-rect.left;
-		_settings.height = rect.bottom-rect.top;
-	}
-	
-	if (_sizeEventInjects.size() > 0) {
-		e = _sizeEventInjects.last();
-		_sizeEventInjects.clear();
-		aglSetCurrentContext(_glContext);
-		aglUpdateContext(_glContext);
-		return true;
-	}
-	
-	if(osErr == noErr) {
-		theTarget = GetEventDispatcherTarget();	
-		SendEventToEventTarget(theEvent, theTarget);
-		ReleaseEvent(theEvent);
-	}
-	
-	return false;
+            case kEventHotKeyPressed:
+            case kEventHotKeyReleased:
+            default:
+                break;
+            }
+        } 
+        break;
+    case kHighLevelEvent:
+    case kEventAppleEvent:
+    case kEventClassCommand:
+    case kEventClassMenu:
+    case kEventClassService:
+    case kEventClassSystem:
+    default:
+        break;
+    }
+    
+    if(_receivedCloseEvent) {
+        _receivedCloseEvent = false;
+        e.type = GEventType::QUIT;
+        return true;
+    }
+    
+    Rect rect;
+    
+    if (GetWindowBounds(_window, kWindowContentRgn, &rect) == noErr) {
+        _settings.x = rect.left;
+        _settings.y = rect.top;
+        _settings.width = rect.right-rect.left;
+        _settings.height = rect.bottom-rect.top;
+    }
+    
+    if (_sizeEventInjects.size() > 0) {
+        e = _sizeEventInjects.last();
+        _sizeEventInjects.clear();
+        aglSetCurrentContext(_glContext);
+        aglUpdateContext(_glContext);
+        return true;
+    }
+    
+    if (osErr == noErr) {
+        theTarget = GetEventDispatcherTarget();	
+        SendEventToEventTarget(theEvent, theTarget);
+        ReleaseEvent(theEvent);
+    }
+    
+    return false;
 }
 
+
+/** Fills out @e and returns the index of the key for use with _keyboardButtons.*/
 unsigned char makeKeyEvent(EventRef theEvent, GEvent& e) {
-	GKeyMod lastMod = GKEYMOD_NONE;
-	UniChar uc;
-	unsigned char c;
-	UInt32 key;
-	UInt32 modifiers;
-	
-	KeyMap keyMap;
-	unsigned char * keyBytes;
-	enum {
-			/* modifier keys (TODO: need to determine right command key value) */
-		kVirtualLShiftKey = 0x038,
-		kVirtualLControlKey = 0x03B,
-		kVirtualLOptionKey = 0x03A,
-		kVirtualRShiftKey = 0x03C,
-		kVirtualRControlKey = 0x03E,
-		kVirtualROptionKey = 0x03D,
-		kVirtualCommandKey = 0x037
-	};
-	
-	GetEventParameter(theEvent, kEventParamKeyUnicodes, typeUnicodeText, NULL, sizeof(uc), NULL, &uc);
-	GetEventParameter(theEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
-	GetEventParameter(theEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(key), NULL, &key);
-	GetEventParameter(theEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modifiers), NULL, &modifiers);
-	
-	GetKeys(keyMap);
-	keyBytes = (unsigned char *)keyMap;
-	
-	e.key.keysym.scancode = key;
-	e.key.keysym.unicode = uc;
-	e.key.keysym.mod = (GKeyMod)0;
-	
-	if(modifiers & shiftKey) {
-		if(keyBytes[kVirtualLShiftKey>>3] & (1 << (kVirtualLShiftKey&7)))
-			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LSHIFT);
+    GKeyMod lastMod = GKEYMOD_NONE;
+    UniChar uc;
+    unsigned char c;
+    UInt32 key;
+    UInt32 modifiers;
+    
+    KeyMap keyMap;
+    unsigned char * keyBytes;
+    enum {
+        /* modifier keys (TODO: need to determine right command key value) */
+        kVirtualLShiftKey = 0x038,
+        kVirtualLControlKey = 0x03B,
+        kVirtualLOptionKey = 0x03A,
+        kVirtualRShiftKey = 0x03C,
+        kVirtualRControlKey = 0x03E,
+        kVirtualROptionKey = 0x03D,
+        kVirtualCommandKey = 0x037
+    };
+    
+    GetEventParameter(theEvent, kEventParamKeyUnicodes, typeUnicodeText, NULL, sizeof(uc), NULL, &uc);
+    GetEventParameter(theEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
+    GetEventParameter(theEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(key), NULL, &key);
+    GetEventParameter(theEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modifiers), NULL, &modifiers);
+    
+    GetKeys(keyMap);
+    keyBytes = (unsigned char *)keyMap;
+    
+    e.key.keysym.scancode = key;
+    e.key.keysym.unicode = uc;
+    e.key.keysym.mod = (GKeyMod)0;
 
-		if(keyBytes[kVirtualRShiftKey>>3] & (1 << (kVirtualRShiftKey&7)))
-			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RSHIFT);		
-	}
+    //printf("Raw key event with scancode %d\n", (int)key);
+
+    if (modifiers & shiftKey) {
+        if(keyBytes[kVirtualLShiftKey>>3] & (1 << (kVirtualLShiftKey&7))) {
+            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LSHIFT);
+        }
+
+        if(keyBytes[kVirtualRShiftKey>>3] & (1 << (kVirtualRShiftKey&7))) {
+            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RSHIFT);		
+        }
+    }
 	
-	if(modifiers & controlKey) {
-		if(keyBytes[kVirtualLControlKey>>3] & (1 << (kVirtualLControlKey&7)))
-			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LCTRL);
+    if (modifiers & controlKey) {
+        if (keyBytes[kVirtualLControlKey>>3] & (1 << (kVirtualLControlKey&7))) {
+            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LCTRL);
+        }
+        
+        if (keyBytes[kVirtualRControlKey>>3] & (1 << (kVirtualRControlKey&7))) {
+            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RCTRL);
+        }
+    }
+    
+    if (modifiers & optionKey) {
+        if (keyBytes[kVirtualLOptionKey>>3] & (1 << (kVirtualLOptionKey&7))) {
+            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LALT);
+        }
 
-		if(keyBytes[kVirtualRControlKey>>3] & (1 << (kVirtualRControlKey&7)))
-			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RCTRL);
+        if(keyBytes[kVirtualROptionKey>>3] & (1 << (kVirtualROptionKey&7))) {
+            e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RALT);
 	}
+    }
 
-	if(modifiers & optionKey) {
-		if(keyBytes[kVirtualLOptionKey>>3] & (1 << (kVirtualLOptionKey&7)))
-			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LALT);
+    if (modifiers & cmdKey) {
+        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LMETA);
+    }
+    
+    if (modifiers & kEventKeyModifierFnMask) {
+        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_MODE);
+    }
+    
+    if (modifiers & alphaLock) {
+        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_CAPS);
+    }
 
-		if(keyBytes[kVirtualROptionKey>>3] & (1 << (kVirtualROptionKey&7)))
-			e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_RALT);
-	}
-
-	if(modifiers & cmdKey) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_LMETA);
-	}
-	
-	if(modifiers & kEventKeyModifierFnMask) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_MODE);
-	}
-
-	if(modifiers & alphaLock) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_CAPS);
-	}
-
-	if(modifiers & kEventKeyModifierNumLockMask) {
-		e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_NUM);
-	}
-	
-	// If c is 0, then we've actually recieved a modifier key event,
-	// which takes a little more logic to figure out. Especially since
-	// under Carbon there isn't a distinction between right/left hand
-	// versions of keys.
-	if(c != 0) {
-		if((c >= 'A') && (c <= 'Z'))
-			e.key.keysym.sym = (GKey::Value)(c - 'A' + 'a');
-		else
-			e.key.keysym.sym = (GKey::Value)c;
-	}
-	else {
-		// We must now determine what changed since last time and see
-		// if we've got a key-up or key-down. :-p The assumption is a
-		// key down, so we must only set e.key.type = GEventType::KEY_UP
-		// if we've lost a modifier.
-		if(lastMod == GKEYMOD_NONE)
-			lastMod = e.key.keysym.mod;
+    if (modifiers & kEventKeyModifierNumLockMask) {
+        e.key.keysym.mod = (GKeyMod)(e.key.keysym.mod | GKEYMOD_NUM);
+    }
+    
+    // If c is 0, then we've actually recieved a modifier key event,
+    // which takes a little more logic to figure out. Especially since
+    // under Carbon there isn't a distinction between right/left hand
+    // versions of keys.
+    if(c != 0) {
+        if((c >= 'A') && (c <= 'Z')) {
+            e.key.keysym.sym = (GKey::Value)(c - 'A' + 'a');
+        } else {
+            e.key.keysym.sym = (GKey::Value)c;
+        }
+    } else {
+        // We must now determine what changed since last time and see
+        // if we've got a key-up or key-down. :-p The assumption is a
+        // key down, so we must only set e.key.type = GEventType::KEY_UP
+        // if we've lost a modifier.
+        if (lastMod == GKEYMOD_NONE) {
+            lastMod = e.key.keysym.mod;
+        }
 		
-		if(lastMod > e.key.keysym.mod) {
-			e.key.type = GEventType::KEY_UP;
-
-			switch(e.key.keysym.mod | lastMod) {
-				case GKEYMOD_LSHIFT:
-					e.key.keysym.sym = GKey::LSHIFT;
-				break;
-				case GKEYMOD_RSHIFT:
-					e.key.keysym.sym = GKey::RSHIFT;
-					break;
-				case GKEYMOD_LCTRL:
-					e.key.keysym.sym = GKey::LCTRL;
-					break;
-				case GKEYMOD_RCTRL:
-					e.key.keysym.sym = GKey::RCTRL;
-					break;
-				case GKEYMOD_LALT:
-					e.key.keysym.sym = GKey::LALT;
-					break;
-				case GKEYMOD_RALT:
-					e.key.keysym.sym = GKey::RALT;
-					break;
-			}
-		} else {
-			switch(e.key.keysym.mod & lastMod) {
-				case GKEYMOD_LSHIFT:
-					e.key.keysym.sym = GKey::LSHIFT;
-				break;
-				case GKEYMOD_RSHIFT:
-					e.key.keysym.sym = GKey::RSHIFT;
-					break;
-				case GKEYMOD_LCTRL:
-					e.key.keysym.sym = GKey::LCTRL;
-					break;
-				case GKEYMOD_RCTRL:
-					e.key.keysym.sym = GKey::RCTRL;
-					break;
-				case GKEYMOD_LALT:
-					e.key.keysym.sym = GKey::LALT;
-					break;
-				case GKEYMOD_RALT:
-					e.key.keysym.sym = GKey::RALT;
-					break;
-			}
-		}
-	}
-
-	lastMod = e.key.keysym.mod;
-
-	return e.key.keysym.sym;
+        if (lastMod > e.key.keysym.mod) {
+            e.key.type = GEventType::KEY_UP;
+            
+            switch(e.key.keysym.mod | lastMod) {
+            case GKEYMOD_LSHIFT:
+                e.key.keysym.sym = GKey::LSHIFT;
+                break;
+            case GKEYMOD_RSHIFT:
+                e.key.keysym.sym = GKey::RSHIFT;
+                break;
+            case GKEYMOD_LCTRL:
+                e.key.keysym.sym = GKey::LCTRL;
+                break;
+            case GKEYMOD_RCTRL:
+                e.key.keysym.sym = GKey::RCTRL;
+                break;
+            case GKEYMOD_LALT:
+                e.key.keysym.sym = GKey::LALT;
+                break;
+            case GKEYMOD_RALT:
+                e.key.keysym.sym = GKey::RALT;
+                break;
+            }
+        } else {
+            switch(e.key.keysym.mod & lastMod) {
+            case GKEYMOD_LSHIFT:
+                e.key.keysym.sym = GKey::LSHIFT;
+                break;
+            case GKEYMOD_RSHIFT:
+                e.key.keysym.sym = GKey::RSHIFT;
+                break;
+            case GKEYMOD_LCTRL:
+                e.key.keysym.sym = GKey::LCTRL;
+                break;
+            case GKEYMOD_RCTRL:
+                e.key.keysym.sym = GKey::RCTRL;
+                break;
+            case GKEYMOD_LALT:
+                e.key.keysym.sym = GKey::LALT;
+                break;
+            case GKEYMOD_RALT:
+                e.key.keysym.sym = GKey::RALT;
+                break;
+            }
+        }
+    }
+    
+    lastMod = e.key.keysym.mod;
+    
+    return e.key.keysym.sym;
 }
+
 
 uint8 buttonsToUint8(const bool* buttons) {
 	uint8 mouseButtons = 0;

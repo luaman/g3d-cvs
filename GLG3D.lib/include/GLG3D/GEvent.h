@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2006-10-20
-  @edited  2007-01-27
+  @edited  2008-07-14
 */
 #ifndef G3D_GEVENT_H
 #define G3D_GEVENT_H
@@ -27,7 +27,7 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
  * The return value is one of the following positions:
  */
 #define SDL_HAT_CENTERED	0x00
-#define SDL_HAT_UP          0x01
+#define SDL_HAT_UP              0x01
 #define SDL_HAT_RIGHT		0x02
 #define SDL_HAT_DOWN		0x04
 #define SDL_HAT_LEFT		0x08
@@ -41,30 +41,30 @@ struct _SDL_Joystick;
 typedef struct _SDL_Joystick SDL_Joystick;
 
 
-/* Enumeration of valid key mods (possibly OR'd together) */
+/** Enumeration of valid key mods (possibly OR'd together) */
 typedef enum {
-	GKEYMOD_NONE  = 0x0000,
-	GKEYMOD_LSHIFT= 0x0001,
-	GKEYMOD_RSHIFT= 0x0002,
-	GKEYMOD_LCTRL = 0x0040,
-	GKEYMOD_RCTRL = 0x0080,
-	GKEYMOD_LALT  = 0x0100,
-	GKEYMOD_RALT  = 0x0200,
-	GKEYMOD_LMETA = 0x0400,
-	GKEYMOD_RMETA = 0x0800,
-	GKEYMOD_NUM   = 0x1000,
-	GKEYMOD_CAPS  = 0x2000,
-	GKEYMOD_MODE  = 0x4000,
-	GKEYMOD_RESERVED = 0x8000
+    GKEYMOD_NONE  = 0x0000,
+    GKEYMOD_LSHIFT= 0x0001,
+    GKEYMOD_RSHIFT= 0x0002,
+    GKEYMOD_LCTRL = 0x0040,
+    GKEYMOD_RCTRL = 0x0080,
+    GKEYMOD_LALT  = 0x0100,
+    GKEYMOD_RALT  = 0x0200,
+    GKEYMOD_LMETA = 0x0400,
+    GKEYMOD_RMETA = 0x0800,
+    GKEYMOD_NUM   = 0x1000,
+    GKEYMOD_CAPS  = 0x2000,
+    GKEYMOD_MODE  = 0x4000,
+    GKEYMOD_RESERVED = 0x8000
 } GKeyMod;
 
 #define GKEYMOD_CTRL	(GKEYMOD_LCTRL  | GKEYMOD_RCTRL)
 #define GKEYMOD_SHIFT	(GKEYMOD_LSHIFT | GKEYMOD_RSHIFT)
-#define GKEYMOD_ALT	    (GKEYMOD_LALT   | GKEYMOD_RALT)
+#define GKEYMOD_ALT     (GKEYMOD_LALT   | GKEYMOD_RALT)
 #define GKEYMOD_META	(GKEYMOD_LMETA  | GKEYMOD_RMETA)
 
 
-/* Keysym structure
+/** Keysym structure
    - The scancode is hardware dependent, and should not be used by general
      applications.  If no hardware scancode is available, it will be 0.
 
@@ -73,12 +73,14 @@ typedef enum {
      this is a UNICODE character corresponding to the keypress.  If the
      high 9 bits of the character are 0, then this maps to the equivalent
      ASCII character:
+        <pre>
 	char ch;
 	if ( (keysym.unicode & 0xFF80) == 0 ) {
 		ch = keysym.unicode & 0x7F;
 	} else {
 		An international character..
 	}
+        </pre>
  */
 class SDL_keysym {
 public:
@@ -107,7 +109,7 @@ public:
        NONE = 0,	        /* Unused (do not remove) */
        ACTIVE,	        	/* Application loses/gains visibility */
        KEY_DOWN,	        /* Keys pressed */
-       KEY_UP,	            /* Keys released */
+       KEY_UP,	                /* Keys released */
        MOUSE_MOTION,		/* Mouse moved */
        MOUSE_BUTTON_DOWN,	/* Mouse button pressed */
        MOUSE_BUTTON_UP,		/* Mouse button released */
@@ -117,7 +119,7 @@ public:
        JOY_BUTTON_DOWN,		/* Joystick button pressed */
        JOY_BUTTON_UP,		/* Joystick button released */
        QUIT,		        /* User-requested quit */
-       SYSWMEVENT,		    /* System specific event */
+       SYSWMEVENT,	        /* System specific event */
        EVENT_RESERVEDA,		/* Reserved for future use.. */
        EVENT_RESERVEDB,		/* Reserved for future use.. */
        VIDEO_RESIZE,		/* User resized video mode */
@@ -128,16 +130,16 @@ public:
        EVENT_RESERVED5,		/* Reserved for future use.. */
        EVENT_RESERVED6,		/* Reserved for future use.. */
        EVENT_RESERVED7,		/* Reserved for future use.. */
-       GUI_DOWN,            /* GuiControl button, etc. pressed. */
-       GUI_UP,              /* GuiControl button, etc. released. */
-       GUI_ACTION,          /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
-       GUI_CHANGE,          /* Continuous changing (e.g., typing in text box, slider dragged.) */
-       GUI_CANCEL,          /* esc pressed in a text box or menu */
-       GUI_CLOSE,           /* GuiWindow close button pressed. */
-       FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
-                               GWindow.getDroppedFilenames to receive the actual data.*/
-	   MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
-       MOUSE_BUTTON_CLICK,         /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
+       GUI_DOWN,                /* GuiControl button, etc. pressed. */
+       GUI_UP,                  /* GuiControl button, etc. released. */
+       GUI_ACTION,              /* Commit action: Button fire, enter pressed in a text box, slider released, menu selecion. */
+       GUI_CHANGE,              /* Continuous changing (e.g., typing in text box, slider dragged.) */
+       GUI_CANCEL,              /* esc pressed in a text box or menu */
+       GUI_CLOSE,               /* GuiWindow close button pressed. */
+       FILE_DROP,               /* Signifies that files have been dropped onto the program. Call 
+                                    GWindow.getDroppedFilenames to receive the actual data.*/
+       MOUSE_SCROLL_2D,        /* A 2D scroll event has occured */
+       MOUSE_BUTTON_CLICK,     /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
 
        /* This last event is only for bounding internal arrays
   	     It is the number of bits in the event mask datatype -- uint32
@@ -169,7 +171,7 @@ class ActiveEvent {
 public:
     /** GEventType::ACTIVE */
     uint8 type;
-
+    
     /** Whether given states were gained or lost (1/0) */
     uint8 gain;
 
@@ -437,10 +439,7 @@ typedef struct SDL_SysWMEvent {
  */
 typedef union {
     /** This is a G3D::GEventType, but is given uint8 type so that it
-        does not call the constructor because GEvent is a union. 
-
-        @sa G3D::GEventType
-    */
+        does not call the constructor because GEvent is a union. */
     uint8                   type;
     
     ActiveEvent             active;
@@ -460,6 +459,8 @@ typedef union {
     GuiCloseEvent           guiClose;
     FileDropEvent           drop;
     MouseScroll2DEvent      scroll2d;
+
+    std::string toString() const;
 } GEvent;
 
 }

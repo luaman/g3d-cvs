@@ -606,6 +606,8 @@ void GApp::processGEventQueue() {
     GEvent event;
     while (window()->pollEvent(event)) {
 
+        //print("%s\n", event.toString().c_str());
+
         if (onEvent(event)) {
             // Event was consumed
             continue;
