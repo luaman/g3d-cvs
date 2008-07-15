@@ -557,7 +557,7 @@ CarbonWindow::CarbonWindow(
     
     aglDestroyPixelFormat(format);
     
-    if(_settings.fullScreen) {
+    if (_settings.fullScreen) {
         aglEnable(_glContext, AGL_FS_CAPTURE_SINGLE);
     } else {
         aglSetDrawable(_glContext, _glDrawable);
