@@ -66,6 +66,8 @@ void multiplyAndCarry(const uint64& _a, const uint64& _b, uint64& carry, uint64&
 uint128::uint128(const uint64& hi, const uint64& lo) : hi(hi), lo(lo) {
 }
 
+uint128::uint128(const uint64& lo) : hi(0), lo(lo) {
+}
 
 uint128& uint128::operator+=(const uint128& x) {
 
@@ -118,4 +120,28 @@ bool uint128::operator==(const uint128& x) {
     return (hi == x.hi) && (lo == x.lo);
 }
 
+uint128& uint128::operator >>=(const int x) {
+    int tmp;
+    for( ; x > 0; --x) {
+        tmp = hi & 1;
+        hi >>= 1;
+        lo = (lo >> 1) + (tmp << 31);
+    }
+    
+    return *this;
+}
+
+uint128& uint128::operator <<=(const int x) {
+    int tmp;
+    for( ; x > 0; --x) {
+        tmp = lo & (1 << 31);
+        hi = (hi << 1) + (tmp >> 31);
+        lo <<= 1;
+    }
+
+    return *this;
+}
+
+uint128& uint128::operator &(const uint128& x) {
+    return uint128(hi & x.hi, lo & x.lo);
 }

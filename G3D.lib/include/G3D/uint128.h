@@ -23,6 +23,8 @@ public:
 	G3D::uint64 hi;
 	G3D::uint64 lo;
 
+    uint128(const uint64& lo);
+
 	uint128(const uint64& hi, const uint64& lo);
 
 	uint128& operator+=(const uint128& x);
@@ -36,6 +38,12 @@ public:
 	uint128& operator|=(const uint128& x);
 
 	bool operator==(const uint128& x);
+
+    uint128& operator>>=(const uint128& x);
+
+    uint128& operator<<=(const uint128& x);
+
+    uint128& operator&(const uint128& x);
 
 };
 }
