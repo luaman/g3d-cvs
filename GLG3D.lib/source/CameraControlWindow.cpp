@@ -24,12 +24,18 @@ const Vector2 CameraControlWindow::bigSize(286, 157);
 static const std::string noSpline = "< None >";
 static const std::string untitled = "< Unsaved >";
 
+#ifdef DELETE
+#    undef DELETE
+#endif
+
 typedef ReferenceCountedPointer<class BookmarkDialog> BookmarkDialogRef;
 class BookmarkDialog : public GuiWindow {
 public:
+    enum Result {OK, CANCEL, DELETE};
 
     bool               ok;
 
+    Result&            m_result;
     std::string&       m_name;
     std::string        m_originalName;
     GuiButton*         m_okButton;
@@ -40,8 +46,12 @@ public:
 
     GWindow*           m_osWindow;
     
-    BookmarkDialog(GWindow* osWindow, const Vector2& position, GuiThemeRef skin, std::string& name, const std::string& note) : 
-        GuiWindow("Bookmark Properties", skin, Rect2D::xywh(position - Vector2(160, 0), Vector2(300, 100)), GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::NO_CLOSE),
+    BookmarkDialog(GWindow* osWindow, const Vector2& position, GuiThemeRef skin, 
+                   std::string& name, Result& result,
+                   const std::string& note) : 
+        GuiWindow("Bookmark Properties", skin, Rect2D::xywh(position - Vector2(160, 0), Vector2(300, 100)), 
+                  GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::NO_CLOSE),
+        m_result(result),
         m_name(name),
         m_originalName(name) {
 
@@ -66,24 +76,10 @@ public:
 
 protected:
 
-    void close() {
+    void close(Result r) {
         setVisible(false);
         m_manager->remove(this);
-    }
-
-    void doOk() {
-        // TODO
-        close();
-    }
-
-    void doCancel() {
-        // TODO
-        close();
-    }
-
-    void doDelete() {
-        // TODO
-        close();
+        m_result = r;
     }
 
     /** Update enables/captions */
@@ -106,20 +102,20 @@ public:
 
         if (e.type == GEventType::GUI_ACTION) {
             if (e.gui.control == m_okButton) {
-                close();
+                close(OK);
                 return true;
             } else if (e.gui.control == m_deleteButton) {
                 if (m_deleteButton->caption().text() == "Cancel") {
-                    doCancel();
+                    close(CANCEL);
                 } else {
-                    doDelete();
+                    close(DELETE);
                 }
                 return true;
             }
         }
 
         if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::ESCAPE)) {
-            doCancel();
+            close(CANCEL);
             return true;
         }
 
@@ -365,8 +361,11 @@ void CameraControlWindow::showBookmarkList() {
 
 void CameraControlWindow::onBookmarkButton() {
     std::string name;
+    BookmarkDialog::Result result = BookmarkDialog::CANCEL;
 
-    BookmarkDialogRef dialog = new BookmarkDialog(m_manager->window(), rect().center() + Vector2(0, 100), theme(), name, cameraLocation());
+    BookmarkDialogRef dialog = 
+        new BookmarkDialog(m_manager->window(), rect().center() + Vector2(0, 100), 
+                           theme(), name, result, cameraLocation());
 
     dialog->showModal(m_manager->window());
 
