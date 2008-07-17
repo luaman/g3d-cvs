@@ -106,7 +106,7 @@ uint128& uint128::operator^=(const uint128& x) {
 
 uint128& uint128::operator&=(const uint128& x) {
     hi &= x.hi;
-    lo ^= x.lo;
+    lo &= x.lo;
     return *this;
 }
 
@@ -142,6 +142,6 @@ uint128& uint128::operator <<=(const int x) {
     return *this;
 }
 
-uint128& uint128::operator &(const uint128& x) {
+uint128 uint128::operator&(const uint128& x) {
     return uint128(hi & x.hi, lo & x.lo);
 }
