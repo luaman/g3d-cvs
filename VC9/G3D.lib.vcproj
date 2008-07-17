@@ -332,6 +332,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\ImageFormat_convert.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\license.cpp"
 				>
 			</File>

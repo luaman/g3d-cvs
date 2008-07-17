@@ -8,9 +8,9 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2001-06-02
- @edited  2005-11-13
+ @edited  2008-07-17
 
- Copyright 2000-2004, Morgan McGuire.
+ Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
  */
 
@@ -189,6 +189,9 @@ public:
     static const Color3& zero();
     static const Color3& one();
 
+    inline Color3 bgr() const {
+        return Color3(b, g, r);
+    }
 };
 
 inline G3D::Color3 operator* (float s, const G3D::Color3& c) {

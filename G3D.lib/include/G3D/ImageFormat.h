@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-05-23
-  @edited  2008-07-01
+  @edited  2008-07-17
 */
 
 #ifndef GLG3D_ImageFormat_H
@@ -12,6 +12,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Table.h"
+#include "G3D/enumclass.h"
 
 namespace G3D {
 
@@ -303,6 +304,32 @@ public:
     /** Returns the matching ImageFormat* identified by the Code.  May return NULL
       if this format's code is reserved but not yet implemented by G3D. */
     static const ImageFormat* fromCode(ImageFormat::Code code);
+
+
+
+    /** For use with ImageFormat::convert. */
+    class BayerAlgorithm {
+    public:
+        enum Value { 
+            NEAREST,
+            BILINEAR,
+            mhc,
+            HIGH_QUALITY = mhc
+        };
+    private:
+
+        Value value;
+
+    public:
+
+        G3D_DECLARE_ENUM_CLASS_METHODS(BayerAlgorithm);
+    };
+
+    /** Convert between arbitrary formats on the CPU */
+    static void convert(const void* srcBytes, int srcWidth, int srcHeight, 
+        const ImageFormat* srcFormat, size_t srcRowPadBits,
+	    void* dstBytes, const ImageFormat* dstFormat, size_t dstRowPadBits,
+	    const bool invertY = false, BayerAlgorithm conversionAlg = BayerAlgorithm::HIGH_QUALITY);
 };
 
 typedef ImageFormat TextureFormat;

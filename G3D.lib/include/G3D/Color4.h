@@ -8,9 +8,9 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2007-01-16
+ @edited  2008-07-16
 
- Copyright 2000-2007, Morgan McGuire.
+ Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
  */
 
@@ -141,6 +141,10 @@ public:
     static const Color4& clear();
 
     static const Color4& inf();
+
+    inline Color3 bgr() const {
+        return Color3(b, g, r);
+    }
 };
 
 /**
