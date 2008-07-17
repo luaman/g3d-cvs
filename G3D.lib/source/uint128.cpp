@@ -122,7 +122,7 @@ bool uint128::operator==(const uint128& x) {
 
 uint128& uint128::operator>>=(const int x) {
     int tmp;
-    for( ; x > 0; --x) {
+    for(int y = x; y > 0; --y) {
         tmp = hi & 1;
         hi >>= 1;
         lo = (lo >> 1) + (tmp << 31);
@@ -133,7 +133,7 @@ uint128& uint128::operator>>=(const int x) {
 
 uint128& uint128::operator<<=(const int x) {
     int tmp;
-    for( ; x > 0; --x) {
+    for(int y = x; y > 0; --y) {
         tmp = lo & (1 << 31);
         hi = (hi << 1) + (tmp >> 31);
         lo <<= 1;
@@ -144,4 +144,5 @@ uint128& uint128::operator<<=(const int x) {
 
 uint128 uint128::operator&(const uint128& x) {
     return uint128(hi & x.hi, lo & x.lo);
+}
 }
