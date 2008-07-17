@@ -213,6 +213,7 @@ href="classes.html">Classes</a>.
         \link G3D::uint16 uint16\endlink,
         \link G3D::uint32 uint32\endlink,
         \link G3D::uint64 uint64\endlink,
+        \link G3D::uint128 uint128\endlink,
         \link G3D::int8 int8\endlink,
         \link G3D::int16 in16\endlink,
         \link G3D::int32 int32\endlink,

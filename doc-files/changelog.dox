@@ -47,6 +47,7 @@
      <li> Patched LOAD_EXTENSION to work around gcc pointer-to-function cast issues
      <li> Tool buttons added to a G3D::GuiPane automatically align to the previous one.
      <li> Added invisible GuiPane style
+     <li> G3D::uint128 [Kyle]
      <li> Increased BSPMap rendering by 10% by reducing state changes
      <li> Added prompt argument to FileDialog::getFilename
      <li> G3D::PosedModel::getBoxBounds on an array

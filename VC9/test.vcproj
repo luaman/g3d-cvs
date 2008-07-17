@@ -295,6 +295,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tuint128.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tWeakCache.cpp"
 				>
 			</File>
@@ -302,12 +306,6 @@
 				RelativePath="..\test\tzip.cpp"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
 		</Filter>
 	</Files>
 	<Globals>

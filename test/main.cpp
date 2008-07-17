@@ -46,6 +46,8 @@ void perfMatrix3();
 
 void testZip();
 
+void testuint128();
+
 void testCollisionDetection();
 void perfCollisionDetection();
 
@@ -661,6 +663,8 @@ int main(int argc, char* argv[]) {
     testSystemMemset();
 
     testSystemMemcpy();
+
+    testuint128();
 
     testQueue();
 

@@ -444,6 +444,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\uint128.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\UprightFrame.cpp"
 				>
 			</File>
@@ -819,6 +823,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Triangle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\uint128.h"
 				>
 			</File>
 			<File

@@ -60,6 +60,7 @@
 #include "G3D/debug.h"
 #include "G3D/G3DGameUnits.h"
 #include "G3D/g3dmath.h"
+#include "G3D/uint128.h"
 #include "G3D/fileutils.h"
 #include "G3D/ReferenceCount.h"
 
