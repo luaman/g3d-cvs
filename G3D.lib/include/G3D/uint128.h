@@ -9,7 +9,7 @@
  */
 
 #ifndef G3D_UINT128_H
-#define G3D__UINT128_H
+#define G3D_UINT128_H
 
 #include "G3D/g3dmath.h"
 
@@ -39,11 +39,11 @@ public:
 
 	bool operator==(const uint128& x);
 
-    uint128& operator>>=(const uint128& x);
+    uint128& operator>>=(const int x);
 
-    uint128& operator<<=(const uint128& x);
+    uint128& operator<<=(const int x);
 
-    uint128& operator&(const uint128& x);
+    uint128 operator&(const uint128& x);
 
 };
 }
