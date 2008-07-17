@@ -120,7 +120,7 @@ bool uint128::operator==(const uint128& x) {
     return (hi == x.hi) && (lo == x.lo);
 }
 
-uint128& uint128::operator >>=(const int x) {
+uint128& uint128::operator>>=(const int x) {
     int tmp;
     for( ; x > 0; --x) {
         tmp = hi & 1;
@@ -131,7 +131,7 @@ uint128& uint128::operator >>=(const int x) {
     return *this;
 }
 
-uint128& uint128::operator <<=(const int x) {
+uint128& uint128::operator<<=(const int x) {
     int tmp;
     for( ; x > 0; --x) {
         tmp = lo & (1 << 31);
