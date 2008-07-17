@@ -171,7 +171,8 @@ GApp::GApp(const Settings& settings, GWindow* window) :
         GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
         GuiThemeRef skin = GuiTheme::fromFile(System::findDataFile("osx.skn"), arialFont);
 
-        debugWindow = GuiWindow::create("Debug Controls", skin, Rect2D::xywh(0, 50, 150, 200), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE);
+        debugWindow = GuiWindow::create("Debug Controls", skin, 
+            Rect2D::xywh(settings.window.width - 160, 350, 150, 150), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE);
         debugWindow->setVisible(false);
         debugPane = debugWindow->pane();
         addWidget(debugWindow);
@@ -246,6 +247,11 @@ GApp::~GApp() {
 
     delete debugLog;
     debugLog = NULL;
+}
+
+
+CoordinateFrame GApp::bookmark(const std::string& name, const CoordinateFrame& defaultValue) const {
+    return developerWindow->cameraControlWindow->bookmark(name, defaultValue);
 }
 
 

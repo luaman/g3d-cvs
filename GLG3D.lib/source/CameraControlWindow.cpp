@@ -280,7 +280,7 @@ CameraControlWindow::CameraControlWindow(
     if (m_bookmarkName.size() == 0) {
         // Make a default home bookmark
         m_bookmarkName.append("Home");
-        m_bookmarkPosition.append(CoordinateFrame::fromXYZYPRDegrees(0,2,10,0,0,0));
+        m_bookmarkPosition.append(CoordinateFrame::fromXYZYPRDegrees(0,1,7,0,-15,0));
     }
 
     setRect(Rect2D::xywh(rect().x0y0(), smallSize));
@@ -371,13 +371,22 @@ void CameraControlWindow::onBookmarkButton() {
 
     dialog = NULL;
 
-    // TODO: edit current bookmark if haven't moved
-    // TODO: show modal
-    CoordinateFrame frame;
-    trackManipulator->camera()->getCoordinateFrame(frame);
+    switch (result) {
+    case BookmarkDialog::CANCEL:
+        break;
 
-    setBookmark("Here", frame);
-    saveBookmarks();
+    case BookmarkDialog::OK:
+        {
+            CoordinateFrame frame;
+            trackManipulator->camera()->getCoordinateFrame(frame);
+            setBookmark(name, frame);
+        }
+        break;
+
+    case BookmarkDialog::DELETE:
+        removeBookmark(name);
+        break;
+    }
 }
 
 
@@ -398,8 +407,12 @@ void CameraControlWindow::setBookmarkFile(const std::string& filename) {
     if (fileExists(m_bookmarkFilename)) {
         // Load bookmarks
         AnyVal all;
-        all.load(m_bookmarkFilename);
-        if (all.type() != AnyVal::TABLE) {
+        try {
+            all.load(m_bookmarkFilename);
+            if (all.type() != AnyVal::TABLE) {
+                throw std::string("Was not a table");
+            }
+        } catch (...) {
             msgBox(m_bookmarkFilename + " is corrupt.");
             return;
         }
@@ -417,12 +430,14 @@ void CameraControlWindow::setBookmark(const std::string& name, const CoordinateF
     for (int i = 0; i < m_bookmarkName.size(); ++i) {
         if (m_bookmarkName[i] == name) {
             m_bookmarkPosition[i] = frame;
+            saveBookmarks();
             return;
         }
     }
 
     m_bookmarkName.append(name);
     m_bookmarkPosition.append(frame);
+    saveBookmarks();
 }
 
 
@@ -431,6 +446,7 @@ void CameraControlWindow::removeBookmark(const std::string& name) {
         if (m_bookmarkName[i] == name) {
             m_bookmarkName.remove(i);
             m_bookmarkPosition.remove(i);
+            saveBookmarks();
             return;
         }
     }
@@ -478,7 +494,18 @@ void CameraControlWindow::onUserInput(UserInput* ui) {
         manualManipulator->setFrame(cframe);
         trackManipulator->camera()->setCoordinateFrame(cframe);
     }
+
+    if (m_bookmarkSelection != NO_BOOKMARK) {
+        // Clicked on a bookmark
+        const CoordinateFrame& cframe = m_bookmarkPosition[m_bookmarkSelection];
+        trackManipulator->camera()->setCoordinateFrame(cframe);
+        manualManipulator->setFrame(cframe);
+
+        m_bookmarkSelection = NO_BOOKMARK;
+        // TODO: change "bookmark" caption to "edit"
+    }
 }
+
 
 bool CameraControlWindow::onEvent(const GEvent& event) {
 
@@ -502,7 +529,7 @@ bool CameraControlWindow::onEvent(const GEvent& event) {
     if (event.type == GEventType::GUI_ACTION) {
         GuiControl* control = event.gui.control;
 
-        if (control == m_showBookmarksButton) {
+        if ((control == m_showBookmarksButton) && (m_menu.isNull() || ! m_menu->visible())) {
             showBookmarkList();
             return true;
         } else if (control == drawerButton) {

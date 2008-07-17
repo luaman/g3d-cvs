@@ -52,7 +52,8 @@ DeveloperWindow::DeveloperWindow(
     GuiCaption debugIcon("@", iconFont, iconSize * 0.8);
     GuiCaption printIcon(std::string() + char(157), iconFont, iconSize * 0.8); //105 = information
 
-    GuiControl* cameraButton = root->addCheckBox(cameraIcon, Pointer<bool>(cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible), GuiTheme::TOOL_CHECK_BOX_STYLE);
+    Pointer<bool> ptr = Pointer<bool>((GuiWindow::Ref)cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible);
+    GuiControl* cameraButton = root->addCheckBox(cameraIcon, ptr, GuiTheme::TOOL_CHECK_BOX_STYLE);
     cameraButton->setSize(buttonSize);
     cameraButton->setPosition(0, 0);
 

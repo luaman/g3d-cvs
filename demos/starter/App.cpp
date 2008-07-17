@@ -53,6 +53,8 @@ void App::onInit() {
     // debugPane->addTextBox("Name", &myName);
     // button = debugPane->addButton("Run Simulator");
     debugWindow->setVisible(true);
+
+    defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
 
 void App::onLogic() {

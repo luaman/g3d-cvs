@@ -196,7 +196,8 @@ int main(int argc, char** argv) {
     RenderDevice* rd = new RenderDevice();
     rd->init();
     GuiTheme::makeThemeFromSourceFiles("C:/Projects/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "C:/Projects/G3D/data-files/gui/osx.skn");
-//    return 0;*/
+//    return 0;
+    */
 
     GApp::Settings set;
 //    set.window.width = 1440;

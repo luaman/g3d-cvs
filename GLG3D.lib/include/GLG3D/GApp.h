@@ -432,6 +432,9 @@ public:
     
 protected:
 
+    /** Shorthand for developerWindow->cameraControlWindow->bookmark(name) */
+    CoordinateFrame bookmark(const std::string& name, const CoordinateFrame& defaultValue = CoordinateFrame()) const;
+
     /**
        Load your data here.  Unlike the constructor, this catches common exceptions.
        It is called before the first frame is processed.
