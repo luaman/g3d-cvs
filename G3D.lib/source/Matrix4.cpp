@@ -52,6 +52,13 @@ Matrix4::Matrix4(const class CoordinateFrame& cframe) {
 }
 
 
+Matrix3 Matrix4::upper3x3() const {
+    return Matrix3(elt[0][0], elt[0][1], elt[0][2],
+                   elt[1][0], elt[1][1], elt[1][2],
+                   elt[2][0], elt[2][1], elt[2][2]);
+}
+
+
 Matrix4 Matrix4::orthogonalProjection(
     const class Rect2D& rect,
     float            nearval,
@@ -222,6 +229,12 @@ Matrix4 Matrix4::operator*(const float s) const {
     }
 
     return result;
+}
+
+
+Vector3 Matrix4::homoMul(const class Vector3& v, float w) const {
+    Vector4 r = (*this) * Vector4(v, w);
+    return r.xyz() * (1.0f / r.w);
 }
 
 

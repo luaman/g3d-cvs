@@ -300,10 +300,10 @@ public:
 private:
 
     /** Called from the constructor */
-    void init3DS(const std::string& filename, const CoordinateFrame& xform);
+    void init3DS(const std::string& filename, const Matrix4& xform);
 
     /** Called from the constructor */
-    void initIFS(const std::string& filename, const CoordinateFrame& xform);
+    void initIFS(const std::string& filename, const Matrix4& xform);
 
 public:
 
@@ -334,16 +334,25 @@ public:
       </pre>
 
       @param xform Transform all vertices by this RST matrix during loading loading
+      @deprecated Use the Matrix4 version
       */
     static ArticulatedModelRef fromFile(const std::string& filename, const CoordinateFrame& xform);
 
-    static ArticulatedModelRef fromFile(const std::string& filename, const Vector3& scale) {
-        CoordinateFrame xform;
-        xform.rotation[0][0] = scale.x;
-        xform.rotation[1][1] = scale.y;
-        xform.rotation[2][2] = scale.z;
-        return fromFile(filename, xform);
-    }
+    /**
+      Supports 3DS, IFS, and PLY2 file formats.  The format of a file is detected by the extension. 
+
+      You can use the @a xform parameter to scale, translate, and rotate (or even invert!) the model
+      as it is loaded.  Example:
+      <pre>
+      Matrix4 xform(Matrix3::fromAxisAngle(axis, angle) * scale, translation);
+      model = ArticulatedModel::fromFile(filename, xform);
+      </pre>
+
+      @param xform Transform all vertices by this matrix during loading 
+     */
+    static ArticulatedModelRef fromFile(const std::string& filename, const Matrix4& xform);
+
+    static ArticulatedModelRef fromFile(const std::string& filename, const Vector3& scale);
 
     /**
      Creates a new model, on which you can manually build geometry by editing the partArray directly. 

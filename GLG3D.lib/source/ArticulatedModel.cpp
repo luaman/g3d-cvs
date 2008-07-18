@@ -51,7 +51,20 @@ ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
 }
 
 
+ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
+    return fromFile(filename, Matrix4(scale.x, 0, 0, 0,
+                                      0, scale.y, 0, 0,
+                                      0, 0, scale.z, 0,
+                                      0, 0, 0, 1));
+}
+
+
 ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const CoordinateFrame& xform) {
+    return fromFile(filename, xform.toMatrix4());
+}
+
+
+ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const Matrix4& xform) {
     ArticulatedModel* model = new ArticulatedModel();
 
     if (endsWith(toLower(filename), ".3ds")) {
@@ -71,7 +84,7 @@ ArticulatedModelRef ArticulatedModel::createEmpty() {
 }
 
 
-void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFrame& xform) {
+void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform) {
     // Note: vertices are actually mutated by scale; it is not carried along as
     // part of the scene graph transformation.
 
@@ -86,6 +99,10 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
     load.load(filename);
 
     partArray.resize(load.objectArray.size());
+
+    // Rotation/scale component
+    Matrix3 R = xform.upper3x3();
+
     for (int p = 0; p < load.objectArray.size(); ++p) {
         const Load3DS::Object& object = load.objectArray[p];
 
@@ -102,11 +119,11 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
 
         part.cframe = object.keyframe.approxCoordinateFrame();
         debugAssert(isFinite(part.cframe.rotation.determinant()));
-
+        
         // Scale and rotate the cframe positions, but do not translate them
-        part.cframe.translation = xform.rotation * part.cframe.translation;
+        part.cframe.translation = R * part.cframe.translation;
 
-        debugAssert(xform.rotation.getColumn(0).isFinite());
+        debugAssert(R.getColumn(0).isFinite());
 
         part.name = name;
         partNameToIndex.set(part.name, p);
@@ -120,6 +137,14 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
 
             // Convert to object space (there is no normal data at this point)
             debugAssert(part.geometry.normalArray.size() == 0);
+            Matrix4 netXForm = part.cframe.inverse().toMatrix4() * xform;
+            
+            debugAssertM(netXForm.row(3) == Vector4(0,0,0,1), 
+                        "3DS file loading requires that the last row of the xform matrix be 0, 0, 0, 1");
+            
+            Matrix3 S = netXForm.upper3x3();
+            Vector3 T = netXForm.column(3).xyz();
+
             for (int v = 0; v < part.geometry.vertexArray.size(); ++v) {
 #               ifdef G3D_DEBUG
                 {
@@ -127,8 +152,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const CoordinateFram
                     debugAssert(vec.isFinite());
                 }
 #               endif
-                part.geometry.vertexArray[v] = part.cframe.pointToObjectSpace(
-                    xform.pointToWorldSpace(part.geometry.vertexArray[v]));
+                part.geometry.vertexArray[v] = S * part.geometry.vertexArray[v] + T;
 #               ifdef G3D_DEBUG
                 {
                     const Vector3& vec = part.geometry.vertexArray[v];
@@ -312,7 +336,7 @@ void ArticulatedModel::updateAll() {
 }
 
 
-void ArticulatedModel::initIFS(const std::string& filename, const CoordinateFrame& xform) {
+void ArticulatedModel::initIFS(const std::string& filename, const Matrix4& xform) {
     Array<int>      index;
     Array<Vector3>  vertex;
     Array<Vector2>  texCoord;
@@ -321,7 +345,7 @@ void ArticulatedModel::initIFS(const std::string& filename, const CoordinateFram
 
     // Transform vertices
     for (int v = 0; v < vertex.size(); ++v) {
-        vertex[v] = xform.pointToWorldSpace(vertex[v]);
+        vertex[v] = xform.homoMul(vertex[v], 1.0f);
     }
 
     // Convert to a Part
@@ -335,7 +359,6 @@ void ArticulatedModel::initIFS(const std::string& filename, const CoordinateFram
 
     Part::TriList& triList = part.triListArray.next();
     triList.indexArray = index;
-    //triList.computeBounds(part);
 }
 
 

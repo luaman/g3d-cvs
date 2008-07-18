@@ -95,6 +95,11 @@ public:
 
     Matrix4 operator*(const Matrix4& other) const;
 
+    class Matrix3 upper3x3() const;
+
+    /** Homogeneous multiplication. Let k = M * [v w]^T.  result = k.xyz() / k.w */
+    class Vector3 homoMul(const class Vector3& v, float w) const;
+
     /**
      Constructs an orthogonal projection matrix from the given parameters.
      Near and far are the <b>NEGATIVE</b> of the near and far plane Z values
