@@ -21,9 +21,9 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
     BSPMapRef           map;
+    ArticulatedModelRef model;
 
     App(const GApp::Settings& settings = GApp::Settings());
-
 
     virtual void onInit();
     virtual void onLogic();
@@ -76,6 +76,8 @@ void App::onInit() {
     list.append("Last");
     static int index = 0;
     debugPane->addDropDownList("List", &index, &list);
+
+    model = ArticulatedModel::createCornellBox();
 
     // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
     // defaults:                        /   , ptr, "", false, -inf, inf, 0
@@ -139,6 +141,7 @@ void App::printConsoleHelp() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
+    model->pose(posed3D);
 }
 
 
@@ -173,8 +176,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
         // Sample rendering code
         Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
-        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
+//        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
+//        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
         
         Draw::axes(fromXYZYPR(0,0,0,toRadians(45), toRadians(90), toRadians(45)), rd);

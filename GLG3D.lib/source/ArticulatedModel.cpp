@@ -420,10 +420,14 @@ ArticulatedModelRef ArticulatedModel::createCornellBox() {
 
     float c = -0.275f;
 
+    // Data used is captured from the photographs and balanced to achieve (perceptual) uniform brightness on all surfaces; 
+    // this integrates the spectral data.
+
     // White faces
     {
         ArticulatedModel::Part::TriList& triList = part.triListArray.next();
         triList.material = Material::createDiffuse(Color3::white() * 0.72f);
+        triList.twoSided = true;
 
         Array<int>& index = triList.indexArray;
 
@@ -440,7 +444,8 @@ ArticulatedModelRef ArticulatedModel::createCornellBox() {
     // Left red face
     {
         ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = Material::createDiffuse(Color3(0.65f, 0.60f, 0.50f));
+        triList.material = Material::createDiffuse(Color3::fromARGB(0xB82C1F));
+        triList.twoSided = true;
 
         Array<int>& index = triList.indexArray;
         addRect(Vector3(-c,  c,  c), Vector3(-c, -c,  c), Vector3(-c, -c, -c), Vector3(-c,  c, -c), vertex, index);
@@ -449,7 +454,8 @@ ArticulatedModelRef ArticulatedModel::createCornellBox() {
     // Right green face
     {
         ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = Material::createDiffuse(Color3(0.14f, 0.48f, 0.97f));
+        triList.material = Material::createDiffuse(Color3::fromARGB(0x6AB8B8));
+        triList.twoSided = true;
 
         Array<int>& index = triList.indexArray;
         addRect(Vector3( c,  c, -c), Vector3( c, -c, -c), Vector3( c, -c,  c), Vector3( c,  c,  c), vertex, index);

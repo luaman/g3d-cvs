@@ -224,7 +224,7 @@ void ArticulatedModel::renderNonShadowed(
                 // twice
                 rd->setCullFace(RenderDevice::CULL_FRONT);
                 
-                wroteDepth = wroteDepth || posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
+                wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false) || wroteDepth;
 
             }
 
