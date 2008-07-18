@@ -11,6 +11,14 @@
 
 namespace G3D {
 
+Material Material::createDiffuse(const Color3& diffuse) {
+    Material m;
+    m.diffuse = diffuse;
+    m.specular = Color3::black();
+    return m;
+}
+
+
 void Material::computeDefines(std::string& defines) const {
     defines = "";
 

@@ -371,4 +371,70 @@ const char* toString(ArticulatedModel::GraphicsProfile p) {
     }
 }
 
+
+
+static void addRect(const Vector3& v0, const Vector3& v1, 
+                    const Vector3& v2, const Vector3& v3, 
+                    Array<Vector3>& vertexArray, 
+                    Array<int>& indexArray) {
+
+    int v = vertexArray.size();
+    vertexArray.append(v0, v1, v2, v3);
+
+    indexArray.append(v + 0, v + 1, v + 2);
+    indexArray.append(v + 0, v + 2, v + 3);
+}
+
+
+ArticulatedModelRef ArticulatedModel::createCornellBox() {
+
+    ArticulatedModelRef model = ArticulatedModel::createEmpty();
+    model->name = "Cornell Box";
+
+    ArticulatedModel::Part& part = model->partArray.next();
+    Array<Vector3>& vertex = part.geometry.vertexArray;
+    part.name = "Root";
+
+    float c = -0.275f;
+
+    // White faces
+    {
+        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
+        triList.material = Material::createDiffuse(Color3::white() * 0.72f);
+
+        Array<int>& index = triList.indexArray;
+
+        // Top
+        addRect(Vector3(-c,  c,  c), Vector3(-c,  c, -c), Vector3( c,  c, -c), Vector3( c,  c,  c), vertex, index);
+    
+        // Back
+        addRect(Vector3(-c,  c, -c), Vector3(-c, -c, -c), Vector3( c, -c, -c), Vector3( c,  c, -c), vertex, index);
+
+        // Floor
+        addRect(Vector3( c, -c,  c), Vector3( c, -c, -c), Vector3(-c, -c, -c), Vector3(-c, -c,  c), vertex, index);
+    }
+
+    // Left red face
+    {
+        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
+        triList.material = Material::createDiffuse(Color3(0.65f, 0.60f, 0.50f));
+
+        Array<int>& index = triList.indexArray;
+        addRect(Vector3(-c,  c,  c), Vector3(-c, -c,  c), Vector3(-c, -c, -c), Vector3(-c,  c, -c), vertex, index);
+    }
+
+    // Right green face
+    {
+        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
+        triList.material = Material::createDiffuse(Color3(0.14f, 0.48f, 0.97f));
+
+        Array<int>& index = triList.indexArray;
+        addRect(Vector3( c,  c, -c), Vector3( c, -c, -c), Vector3( c, -c,  c), Vector3( c,  c,  c), vertex, index);
+    }
+
+    model->updateAll();
+
+    return model;
+}
+
 }

@@ -350,10 +350,14 @@ public:
      */
     static ArticulatedModelRef createEmpty();
 
-	/** Load a model from disk */
+    /** Load a model from disk */
     static ArticulatedModelRef fromFile(const std::string& filename, float scale = 1.0) {
         return fromFile(filename, Vector3(scale, scale, scale));
     }
+
+    /** Create a 0.5^3 meter cube with colored sides, approximating the data from
+        http://www.graphics.cornell.edu/online/box/data.html */
+    static ArticulatedModelRef createCornellBox();
 };
 
 const char* toString(ArticulatedModel::GraphicsProfile p);

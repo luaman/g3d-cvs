@@ -147,12 +147,16 @@ public:
      */
     bool                    changed;
 
+    /** Default material is white and slightly shiny. */
     Material() : diffuse(1), emit(0), 
         specular(0.25), specularExponent(60), 
         transmit(0), reflect(0), parallaxSteps(1), 
         customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
         bumpMapScale(0), bumpMapBias(0), changed(true) {
     }
+
+    /** Create a purely diffuse material with this reflectivity. */
+    static Material createDiffuse(const Color3& diffuse);
 
     /** Returns true if this material uses similar terms as other
         (used by SuperShader), although the actual textures may differ. */
