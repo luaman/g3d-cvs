@@ -502,7 +502,7 @@ public:
     }
 
     inline Compute nearest(float x, float y) const {
-        return nearest(x, y, wrapMode);
+        return nearest(x, y, _wrapMode);
     }
 
     inline Compute nearest(const Vector2& p) const {
