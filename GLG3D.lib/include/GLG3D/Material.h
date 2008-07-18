@@ -2,7 +2,7 @@
   @file Material.h
 
   @created 2005-01-01
-  @edited  2007-12-19
+  @edited  2008-07-18
   @author  Morgan McGuire, morgan@cs.williams.edu
  */
 
@@ -180,6 +180,19 @@ public:
                (parallaxSteps == other.parallaxSteps);
     }
 
+    inline size_t hashCode() const {
+        // Intentionally does not take all terms into account
+        return
+            (size_t)((diffuse.constant.b + (diffuse.constant.r + (diffuse.constant.g * 1024)) * 1024) * 1024) ^ 
+            (size_t)(diffuse.map.pointer()) ^
+            (size_t)((specular.constant.b + (specular.constant.r + (specular.constant.g * 1024)) * 1024) * 1024) ^ 
+            (size_t)(specular.map.pointer()) ^
+            (size_t)(reflect.constant.b * 0xFFFFFF) ^ 
+            (size_t)(transmit.constant.b * 0xFFFFFF) ^ 
+            (size_t)(customMap.pointer()) ^
+            (size_t)((customConstant.x + (customConstant.y + (customConstant.z * 1024)) * 1024) * 1024);
+    }
+
     inline bool operator!=(const Material& other) const {
         return !(*this == other);
     }
@@ -230,4 +243,11 @@ public:
 };
 
 } // Namespace G3D
+
+template <>
+struct HashTrait<G3D::Material> {
+    static size_t hashCode(const G3D::Material& m) {
+        return m.hashCode();
+    }
+};
 #endif

@@ -56,6 +56,8 @@ public:
      init should be <B>row major</B>.
      */
     Matrix4(const float* init);
+    
+    Matrix4(const class Matrix3& upper3x3, const class Vector3& lastCol);
 
     Matrix4(const class CoordinateFrame& c);
 

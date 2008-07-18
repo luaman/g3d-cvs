@@ -5,12 +5,14 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-10-02
-  @edited  2006-07-08
+  @edited  2008-07-17
  */
 
 #include "G3D/platform.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Matrix3.h"
 #include "G3D/Vector4.h"
+#include "G3D/Vector3.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/CoordinateFrame.h"
@@ -44,6 +46,20 @@ Matrix4::Matrix4(const class CoordinateFrame& cframe) {
             elt[r][c] = cframe.rotation[r][c];
         }
         elt[r][3] = cframe.translation[r];
+    }
+    elt[3][0] = 0.0f;
+    elt[3][1] = 0.0f;
+    elt[3][2] = 0.0f;
+    elt[3][3] = 1.0f;
+}
+
+
+Matrix4::Matrix4(const Matrix3& upper3x3, const Vector3& lastCol) {
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            elt[r][c] = upper3x3[r][c];
+        }
+        elt[r][3] = lastCol[r];
     }
     elt[3][0] = 0.0f;
     elt[3][1] = 0.0f;
