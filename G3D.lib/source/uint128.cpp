@@ -121,24 +121,31 @@ bool uint128::operator==(const uint128& x) {
 }
 
 uint128& uint128::operator>>=(const int x) {
-    int tmp;
-    for(int y = x; y > 0; --y) {
-        tmp = hi & 1;
-        hi >>= 1;
-        lo = (lo >> 1) + (tmp << 31);
-    }
+
+    //Before shifting, mask out the bits that will be shifted out of hi.
+    //Put a 1 in the first bit that will not be lost in the shift, then subtract 1 to get the mask.
+    uint64 mask = ((uint64)1L << x) - 1;
+    uint64 tmp = hi & mask;
+    hi >>= x;
+
+    //Shift lo and add the bits shifted down from hi
+    lo = (lo >> x) + (tmp << (64 - x));
     
     return *this;
 }
 
 uint128& uint128::operator<<=(const int x) {
-    int tmp;
-    for(int y = x; y > 0; --y) {
-        tmp = lo & (1 << 31);
-        hi = (hi << 1) + (tmp >> 31);
-        lo <<= 1;
-    }
 
+    //Before shifting, mask out the bits that will be shifted out of lo.
+    //Put a 1 in the last bit that will be lost in the shift, then subtract 1 to get the logical inverse of the mask.
+    //A bitwise NOT will then produce the correct mask.
+    uint64 mask = ~((((uint64)1L) << (64 - x)) - 1);
+    uint64 tmp = lo & mask;
+    lo <<= x;
+
+    //Shift hi and add the bits shifted up from lo
+    hi = (hi << x) + (tmp >> (64 - x));
+    
     return *this;
 }
 
