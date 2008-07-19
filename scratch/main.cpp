@@ -22,6 +22,7 @@ public:
     SkyRef              sky;
     BSPMapRef           map;
     ArticulatedModelRef model;
+    Array<Vector3>      points;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -41,6 +42,10 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 }
 
 void App::onInit() {
+
+    for (int i= 0;i < 10000; ++i) {
+        points.append(Vector3::random());
+    }
 
 //	map = BSPMap::fromFile("X:/morgan/data/quake3/tremulous/map-arachnid2-1.1.0.pk3/", "arachnid2.bsp");
 
@@ -180,6 +185,13 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 //        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
 
         
+        rd->beginPrimitive(RenderDevice::POINTS);
+        rd->setColor(Color3::black());
+        for (int i = 0; i < points.size(); ++i) {
+            rd->sendVertex(points[i]);
+        }
+        rd->endPrimitive();
+
         Draw::axes(fromXYZYPR(0,0,0,toRadians(45), toRadians(90), toRadians(45)), rd);
 
     rd->disableLighting();
