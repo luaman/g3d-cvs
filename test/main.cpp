@@ -620,6 +620,8 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
+    testAABSPTree();
+
     testMatrix();
 
     testLineSegment2D();
@@ -635,8 +637,6 @@ int main(int argc, char* argv[]) {
     testArray();
 
     testSpline();
-
-    testAABSPTree();
 
     testMatrix3();
 

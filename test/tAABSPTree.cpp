@@ -185,12 +185,80 @@ void perfAABSPTree() {
            arraycount / 1e6);
 }
 
+class IntersectCallback {
+public:
+    void operator()(const Ray& ray, const Triangle& tri, float& distance) {
+        float d = ray.intersectionTime(tri);
+        if (d > 0 && d < distance) {
+            distance = d;
+        }
+    }
+};
+
+void testRayIntersect() {
+    AABSPTree<Triangle> tree;
+
+    std::string name;
+    Array<int> index;
+    Array<Vector3> vertex;
+    Array<Vector2> texCoord;
+    printf(" (load model, ");
+    fflush(stdout);
+    IFSModel::load(System::findDataFile("cow.ifs"), name, index, vertex, texCoord);
+    
+    for (int i = 0; i < index.size(); i += 3) {
+        int i0 = index[i];
+        int i1 = index[i + 1];
+        int i2 = index[i + 2];
+        tree.insert(Triangle(vertex[i0], vertex[i1], vertex[i2]));
+    }
+    printf("balance tree, ");
+    fflush(stdout);
+    tree.balance();
+
+    Vector3 origin = Vector3(0, 5, 0);
+    IntersectCallback intersectCallback;
+    printf("raytrace, ");
+    fflush(stdout);
+    for (int i = 0; i < 10000; ++i) {
+        // Cast towards a random point around the cow
+        Ray ray = Ray::fromOriginAndDirection(origin, (Vector3::random() * Vector3(0.5, 1.0, 0) - origin).direction());
+
+        // Exhaustively test against each triangle
+        float exhaustiveDistance = inf();
+        {
+            const AABSPTree<Triangle>::Iterator& end = tree.end();
+            AABSPTree<Triangle>::Iterator it = tree.begin();
+
+            while (it != end) {
+                const Triangle& tri = *it;
+                float d = ray.intersectionTime(tri);
+                if (d > 0 && d < exhaustiveDistance) {
+                    exhaustiveDistance = d;
+                }
+                ++it;
+            }
+        }
+
+        // Test using the ray iterator
+        float treeDistance = inf();
+        tree.intersectRay(ray, intersectCallback, treeDistance, true);
+
+        debugAssertM(fuzzyEq(treeDistance, exhaustiveDistance),
+                     format("AABSPTree::intersectRay found a point at %f, "
+                            "exhaustive ray intersection found %f.",
+                            treeDistance, exhaustiveDistance));
+    }
+    printf("done) ");
+}
+
 
 void testAABSPTree() {
-	printf("AABSPTree ");
+    printf("AABSPTree ");
+    
+    testRayIntersect();
+    testBoxIntersect();
+    testSerialize();
 
-	testBoxIntersect();
-	testSerialize();
-
-	printf("passed\n");
+    printf("passed\n");
 }
