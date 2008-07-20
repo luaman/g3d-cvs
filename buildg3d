@@ -378,7 +378,8 @@ def jarTarget():
    return ret
 
 ################################################################################
-def buildMingwCrossCompiler():
+def ffmpegcTarget():
+    # This builds the mingw cross-compiler
     downloadDir = os.path.abspath('temp/mingw')
     sourceDir = downloadDir + '/src'
     installDir = downloadDir + '/cc'
@@ -410,11 +411,11 @@ def buildMingwCrossCompiler():
     # extract mingw components
     print "Extracting mingw + w32api...\n"
     tarObject = tarfile.open(downloadDir + '/mingw-runtime-3.14.tar.gz', 'r')
-    tarObject.extractall(installDir)
+    tarObject.extractall(installDir + '/mingw32')
     tarObject.close()
     
     tarObject = tarfile.open(downloadDir + '/w32api-3.11.tar.gz', 'r')
-    tarObject.extractall(installDir)
+    tarObject.extractall(installDir + '/mingw32')
     tarObject.close()
 
     # extract binutils
@@ -426,13 +427,13 @@ def buildMingwCrossCompiler():
     
     # configure binutils
     print "Building binutils...\n"
-    ice.utils.mkdir(sourceDir + '/binutils_obj')
+    ice.utils.mkdir(sourceDir + '/binutils_obj', False)
     os.chdir(sourceDir + '/binutils_obj')
     ice.utils.shell(sourceDir + '/' + binutilsName + '/configure --prefix="' + installDir + '" --target=mingw32 --disable-nls --with-gcc --with-gnu-as --with-gnu-ld --disable-shared', False)
     
     # build binutils
     ice.utils.shell('make CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s"', False)
-    ice.utils.shell('make install')
+    ice.utils.shell('make install', False)
     os.chdir(oldcwd)
     
     # extract gcc core
@@ -444,26 +445,44 @@ def buildMingwCrossCompiler():
 
     # configure gcc core
     print "Building gcc core...\n"
-    ice.utils.mkdir(sourceDir + '/gcc_obj')
+    ice.utils.mkdir(sourceDir + '/gcc_obj', False)
     os.chdir(sourceDir + '/gcc_obj')
-    ice.utils.shell(sourceDir + '/' + gccName + '/configure -v --prefix="' + installDir + '" --target=mingw32 --with-headers="' + installDir + '/include" --with-gcc --with-gnu-ld --with-gnu-as --enable-threads --disable-nls --enable-languages="c" --disable-win32-registry --disable-shared --enable-sjlj-exceptions --without-x', False)
+    ice.utils.shell(sourceDir + '/' + gccName + '/configure -v --prefix="' + installDir + '" --target=mingw32 --with-headers="' + installDir + '/mingw32/include" --with-gcc --with-gnu-ld --with-gnu-as --enable-threads --disable-nls --enable-languages="c" --disable-win32-registry --disable-shared --enable-sjlj-exceptions --without-x', False)
     
     # build gcc core
-    ice.utils.shell('make CFLAGS="-O2" CXXFLAGS="-O2"', True)
-    ice.utils.shell('make install')
+    ice.utils.shell('make CFLAGS="-O2" CXXFLAGS="-O2"', False)
+    ice.utils.shell('make install', False)
     os.chdir(oldcwd)
     
 def ffmpegbTarget():
     #This target builds the .dll and .def pre-built mingw windows binaries
-    crossCompiler = 'temp/mingw/cc/bin'
+    crossCompilerDir = os.path.abspath('temp/mingw/cc/bin')
+    sourceDir = os.path.abspath('temp/ffmpeg/mingw')
+    installDir = os.path.abspath('temp/ffmpeg/mingw/install')
+
+    # extract ffmpeg sources
+    ice.utils.mkdir(sourceDir, False)
+    tarObject = tarfile.open('ffmpeg.dll/source/ffmpeg_source.tar.bz2')
+    ffmpegName = tarObject.next().name
+    tarObject.extractall(sourceDir)
+    tarObject.close()
+
+    #build ffmpeg with mingw cross-compiler
+    oldcwd = os.getcwd()
+    os.chdir(sourceDir + '/' + ffmpegName)
+    ffmpegBuildScript = """
+    configure --disable-static --enable-shared --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --disable-ffplay --disable-ffserver --disable-ffmpeg
+    make
+    make install
+    """
+    ice.utils.run('sh', ['-c', ffmpegBuildScript], True, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
+    os.chdir(oldcwd)
+
+
 
 def ffmpeglTarget():
     #This target builds the .lib files from the .def files
-    crossCompiler = 'temp/mingw/cc/bin'
-
-def ffmpegcTarget():
-    #This target builds the mingw cross-compiler
-    buildMingwCrossCompiler()
+    crossCompiler = os.path.abspath('temp/mingw/cc/bin')
 
 
 #########################################################
