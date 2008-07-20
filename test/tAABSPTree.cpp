@@ -220,9 +220,10 @@ void testRayIntersect() {
     IntersectCallback intersectCallback;
     printf("raytrace, ");
     fflush(stdout);
-    for (int i = 0; i < 10000; ++i) {
-        // Cast towards a random point around the cow
-        Ray ray = Ray::fromOriginAndDirection(origin, (Vector3::random() * Vector3(0.5, 1.0, 0) - origin).direction());
+    for (int i = 0; i < 4000; ++i) {
+        // Cast towards a random point near the cow surface
+        Vector3 target = vertex.randomElement() + Vector3::random() * 0.0001;
+        Ray ray = Ray::fromOriginAndDirection(origin, (target - origin).direction());
 
         // Exhaustively test against each triangle
         float exhaustiveDistance = inf();
@@ -244,10 +245,18 @@ void testRayIntersect() {
         float treeDistance = inf();
         tree.intersectRay(ray, intersectCallback, treeDistance, true);
 
+        float treeDistance2 = inf();
+        tree.intersectRay(ray, intersectCallback, treeDistance2, false);
+
         debugAssertM(fuzzyEq(treeDistance, exhaustiveDistance),
                      format("AABSPTree::intersectRay found a point at %f, "
                             "exhaustive ray intersection found %f.",
                             treeDistance, exhaustiveDistance));
+
+        debugAssertM(fuzzyEq(treeDistance2, exhaustiveDistance),
+                     format("AABSPTree::intersectRay found a point at %f, "
+                            "exhaustive ray intersection found %f.",
+                            treeDistance2, exhaustiveDistance));
     }
     printf("done) ");
 }
