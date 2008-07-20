@@ -460,6 +460,9 @@ def ffmpegbTarget():
     sourceDir = os.path.abspath('temp/ffmpeg/mingw')
     installDir = os.path.abspath('temp/ffmpeg/mingw/install')
 
+    # remove old build
+    ice.utils.rmdir(os.path.abspath('temp/ffmpeg'), False)
+
     # extract ffmpeg sources
     ice.utils.mkdir(sourceDir, False)
     tarObject = tarfile.open('ffmpeg.dll/source/ffmpeg_source.tar.bz2')
@@ -478,12 +481,16 @@ def ffmpegbTarget():
     ice.utils.run('sh', ['-c', ffmpegBuildScript], True, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
     os.chdir(oldcwd)
 
+    # copy the new .dll and header files to ffmpeg.dll directory
+    print "Copying win32 ffmpeg binaries - please make sure avutil-49, avcodec-51 and avformat-52 are the right names\n"
+    ice.copyifnewer.copyIfNewer(installDir + '/bin/avutil-49.dll', 'ffmpeg.dll/bin/avutil-49.dll', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/bin/avcodec-51.dll', 'ffmpeg.dll/bin/avcodec-51.dll', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/bin/avformat-52.dll', 'ffmpeg.dll/bin/avformat-52.dll', False)
 
-
-def ffmpeglTarget():
-    #This target builds the .lib files from the .def files
-    crossCompiler = os.path.abspath('temp/mingw/cc/bin')
-
+    print "Copying ffmpeg headers since building pre-compiled binaries should update include\n"
+    ice.copyifnewer.copyIfNewer(installDir + '/include/libavutil', 'ffmpeg.dll/include/libavutil', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/include/libavcodec', 'ffmpeg.dll/include/libavcodec', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/include/libavformat', 'ffmpeg.dll/include/libavformat', False)
 
 #########################################################
 
@@ -630,9 +637,6 @@ ide        Generates Xcode, Visual Studio, and g++ Makefiles using cmake.
 ffmpegb    Build precompiled Windows libraries for ffmpeg using a Unix 
            g++ cross-compiler.
 
-ffmpegl    Use Visual Studio to complete the ffmpeg compilation process
-           started by ffmpeg1.
-
 ffmpegc    Build cross-compiler used during ffmpegb target
 
 The return code of buildg3d is the return code of the last process it
@@ -679,8 +683,8 @@ if __name__ == "__main__":
     code = dispatchOnTarget(sys.argv[1] + 'Target',
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
-         jarTarget, ideTarget, helpTarget, updateTarget, ffmpegbTarget,
-         ffmpeglTarget, ffmpegcTarget])
+         jarTarget, ideTarget, helpTarget, updateTarget, 
+         ffmpegbTarget, ffmpegcTarget])
 
     if (code == 0) and (sys.argv[1] != 'help') and doInstall:
         install()
