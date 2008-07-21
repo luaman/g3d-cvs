@@ -222,7 +222,7 @@ void testRayIntersect() {
     fflush(stdout);
     for (int i = 0; i < 4000; ++i) {
         // Cast towards a random point near the cow surface
-        Vector3 target = vertex.randomElement() + Vector3::random() * 0.0001;
+        Vector3 target = vertex.randomElement() + Vector3::random() * 0.0001f;
         Ray ray = Ray::fromOriginAndDirection(origin, (target - origin).direction());
 
         // Exhaustively test against each triangle
