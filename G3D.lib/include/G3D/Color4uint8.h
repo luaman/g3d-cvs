@@ -83,6 +83,11 @@ public:
     operator G3D::uint8* ();
     operator const G3D::uint8* () const;
 
+
+    inline Color3uint8 bgr() const {
+        return Color3uint8(b, g, r);
+    }
+
     void serialize(class BinaryOutput& bo) const;
 
     void deserialize(class BinaryInput& bi);

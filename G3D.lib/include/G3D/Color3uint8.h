@@ -65,6 +65,10 @@ public:
         return c;
     }
 
+    inline Color3uint8 bgr() const {
+        return Color3uint8(b, g, r);
+    }
+
     /**
      Returns the color packed into a uint32
      (the upper byte is 0xFF)
