@@ -49,7 +49,7 @@ protected:
 
     // Constants
     enum {suffixWidth = 22,
-          textBoxWidth = 45};
+          textBoxWidth = 60};
 
     /** Current value */
     Pointer<Value>    m_value;

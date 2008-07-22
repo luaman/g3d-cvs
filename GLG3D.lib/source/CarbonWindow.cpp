@@ -1145,7 +1145,7 @@ unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
     GetEventParameter(theEvent, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(c), NULL, &c);
     GetEventParameter(theEvent, kEventParamKeyCode, typeUInt32, NULL, sizeof(key), NULL, &key);
     GetEventParameter(theEvent, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modifiers), NULL, &modifiers);
-    
+
     GetKeys(keyMap);
     keyBytes = (unsigned char *)keyMap;
     
@@ -1205,14 +1205,29 @@ unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
     // versions of keys.
     if (c != 0) {
         // Non-modifier key
-        switch (c) {
-        case 4: e.key.keysym.sym = GKey::END;    break;
-        case 11: e.key.keysym.sym = GKey::PAGEUP; break;
-        case 12: e.key.keysym.sym = GKey::PAGEDOWN; break;
-        case 28: e.key.keysym.sym = GKey::LEFT;   break;
-        case 29: e.key.keysym.sym = GKey::RIGHT;  break;
-        case 30: e.key.keysym.sym = GKey::UP;     break;
-        case 31: e.key.keysym.sym = GKey::DOWN;   break;
+        switch(key) {
+        case 122: e.key.keysym.sym = GKey::F1;    break;
+        case 120: e.key.keysym.sym = GKey::F2;    break;
+        case 99:  e.key.keysym.sym = GKey::F3;    break;
+        case 118: e.key.keysym.sym = GKey::F4;    break;
+        case 96:  e.key.keysym.sym = GKey::F5;    break;
+        case 97:  e.key.keysym.sym = GKey::F6;    break;
+        case 98:  e.key.keysym.sym = GKey::F7;    break;
+        case 100: e.key.keysym.sym = GKey::F8;    break;
+        case 101: e.key.keysym.sym = GKey::F9;    break;
+        case 109: e.key.keysym.sym = GKey::F10;   break;
+        case 103: e.key.keysym.sym = GKey::F11;   break;
+        case 111: e.key.keysym.sym = GKey::F12;   break;
+
+        case 119: e.key.keysym.sym = GKey::END;   break;
+        case 115: e.key.keysym.sym = GKey::HOME;  break;
+        case 116: e.key.keysym.sym = GKey::PAGEUP; break;
+        case 121: e.key.keysym.sym = GKey::PAGEDOWN; break;
+        case 123: e.key.keysym.sym = GKey::LEFT;   break;
+        case 124: e.key.keysym.sym = GKey::RIGHT;  break;
+        case 126: e.key.keysym.sym = GKey::UP;     break;
+        case 125: e.key.keysym.sym = GKey::DOWN;   break;
+
         default:
             if ((c >= 'A') && (c <= 'Z')) {
                 // Capital letter; make canonically lower case
