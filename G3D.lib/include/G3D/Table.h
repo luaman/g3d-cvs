@@ -13,6 +13,7 @@
 #ifndef G3D_TABLE_H
 #define G3D_TABLE_H
 
+#include "G3D/uint128.h"
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/debug.h"
@@ -40,7 +41,6 @@ struct GHashCode<int>
 {
     size_t operator()(int key) const { return static_cast<size_t>(key); }
 };
-
 template <>
 struct GHashCode<G3D::uint32>
 {
@@ -52,7 +52,6 @@ struct GHashCode<G3D::uint64>
 {
     size_t operator()(G3D::uint64 key) const { return static_cast<size_t>(key); }
 };
-
 template <>
 struct GHashCode<void*>
 {
@@ -80,20 +79,20 @@ struct GHashCode<std::string>
 template <>
 struct GHashCode<G3D::Vector2int16>
 {
-    size_t operator()(const G3D::Vector2int16& key) const { return static_cast<size_t>(key.x + ((int)key.y >> 16)); }
+    size_t operator()(const G3D::Vector2int16& key) const { return static_cast<size_t>(key.x + ((int)key.y << 16)); }
 };
-
 template <>
 struct GHashCode<G3D::Vector3int16>
 {
-    size_t operator()(const G3D::Vector3int16& key) const { return static_cast<size_t>(key.x + ((int)key.y >> 10) + ((int)key.z >> 21)); }
+    size_t operator()(const G3D::Vector3int16& key) const { return static_cast<size_t>(key.x + ((int)key.y << 5) + ((int)key.z << 10)); }
 };
 
 template <>
 struct GHashCode<G3D::Vector3int32>
 {
-    size_t operator()(const G3D::Vector3int32& key) const { return static_cast<size_t>(key.x + (key.y >> 10) + (key.z >> 21)); }
+    size_t operator()(const G3D::Vector3int32& key) const { return static_cast<size_t>(key.x + (key.y << 10) + (key.z << 21)); }
 };
+
 
 /** @ deprecated Use EqualsTrait*/
 template<typename Key>
@@ -114,13 +113,45 @@ public:
     }
 };
 
-
 /** Adapter for making old GHashCode functions still work */
 template <class T>
 struct HashTrait {
     static size_t hashCode(const T& k) {
         static GHashCode<T> f;
         return f(k);
+    }
+};
+
+template <>
+struct HashTrait<G3D::uint128> {
+
+	// Use the FNV-1 hash (http://isthe.com/chongo/tech/comp/fnv/#FNV-1).
+    static size_t hashCode(G3D::uint128 key) {
+        static const G3D::uint128 FNV_PRIME_128(1 << 24, 0x159);
+        static const G3D::uint128 FNV_OFFSET_128(0xCF470AAC6CB293D2L, 0xF52F88BF32307F8FL);
+
+        G3D::uint128 hash = FNV_OFFSET_128;
+        G3D::uint128 mask(0, 0xFF);
+		for (int i = 0; i < 16; ++i) {
+			hash *= FNV_PRIME_128;
+            hash ^= (mask & key);
+            key >>= 8;
+		}
+		
+        G3D::uint64 foldedHash = hash.hi ^ hash.lo;
+		return static_cast<size_t>((foldedHash >> 32) ^ (foldedHash & 0xFFFFFFFF));
+	}
+};
+
+template <>
+struct HashTrait<G3D::Vector3int32>
+{
+    static size_t hashCode(const G3D::Vector3int32& key) {
+        // Mask for the top bit of a uint32
+        const G3D::uint32 top = (1 << 31);
+        // Mask for the bottom 10 bits of a uint32
+        const G3D::uint32 bot = 0x000003FF;
+        return static_cast<size_t>((key.x & top) | ((key.y & top) >> 1) | ((key.z & top) >> 2) | ((key.x & bot) << 19) ^ ((key.y & bot) << 10) ^ (key.z & bot));
     }
 };
 
@@ -391,6 +422,27 @@ public:
         return deepest;
     }
 
+	/**
+     Returns the average size of non-empty buckets.
+     */
+    float debugGetAverageBucketSize() const {
+		size_t num = 0;
+        size_t count = 0;
+
+        for (size_t b = 0; b < numBuckets; b++) {
+            Node*   node = bucket[b];
+			if (node != NULL) {
+				++num;
+				while (node != NULL) {
+					node = node->next;
+					++count;
+				}
+			}
+
+        }
+
+        return (float)((double)count / num);
+    }
     /**
      A small load (close to zero) means the hash table is acting very
      efficiently most of the time.  A large load (close to 1) means 
@@ -516,6 +568,10 @@ public:
         operator Entry*() const {
             return &(node->entry);
         }
+
+		bool hasMore() const {
+			return ! isDone;
+		}
     };
 
 
@@ -596,11 +652,12 @@ public:
             ++bucketLength;
         } while (n != NULL);
 
-        const size_t maxBucketLength = 5;
-        if ((bucketLength > maxBucketLength) & ! allSameCode && (numBuckets < _size * 20)) {
+        const size_t maxBucketLength = 3;
+		// (Don't bother changing the size of the table if all entries have the same hashcode--they'll still collide)
+        if ((bucketLength > maxBucketLength) && ! allSameCode && (numBuckets < _size * 20)) {
             // This bucket was really large; rehash if all elements
             // don't have the same hashcode the number of buckets is reasonable.
-            resize(numBuckets * 2 + 1);
+            resize(iMax(numBuckets * 5 + 1, (int)(_size * 2.5)));
         }
 
         // Not found; insert at the head.
