@@ -43,20 +43,20 @@ if int(sys.version[:string.find(sys.version, '.')]) < 2:
 #                            Build Documentation                             #
 ##############################################################################
 
-def buildDocumentation():
+def buildDocumentation(state):
     maybeColorPrint('Building documentation', SECTION_COLOR)
 
     # See if there is a Doxygen file already
     if not os.path.exists(state.rootDir + 'Doxyfile'):
         print ("Your project does not have a 'Doxyfile' file, so iCompile " +
                "will now create one for you.\n")
-        createDoxyfile()
+        createDoxyfile(state)
         print "Done creating 'Doxyfile'\n\n"
 
-    run("doxygen", ["Doxyfile"], ice.utils.verbosity >= VERBOSE)
+    run('doxygen', ['Doxyfile'], ice.utils.verbosity >= VERBOSE)
 
     if (os.path.exists(state.rootDir + 'doc-files')):
-        copyIfNewer(rootDir + 'doc-files', 
+        copyIfNewer(state.rootDir + 'doc-files', 
                     state.buildDir + 'doc', 
                     ice.utils.verbosity >= VERBOSE)
 

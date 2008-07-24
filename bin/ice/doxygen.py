@@ -11,22 +11,24 @@ from utils import *
 """
  Called from buildDocumentation.
 """
-def createDoxyfile():
+def createDoxyfile(state):
     # Create the template, surpressing Doxygen's usual output
     shell("doxygen -g Doxyfile > /dev/null")
 
     # Edit it
-    f = open("Doxyfile", "r+")
+    f = open('Doxyfile', 'r+')
     text = f.read()
 
+    # TODO: excludes
     propertyMapping = {
-    "PROJECT_NAME"            : '"' + projectName.capitalize() + '"',
-    "OUTPUT_DIRECTORY"        : '"' + BUILDDIR + '/doc"',
+    "PROJECT_NAME"            : '"' + state.projectName.capitalize() + '"',
+    "OUTPUT_DIRECTORY"        : '"' + pathConcat(state.buildDir, 'doc') + '"',
     "EXTRACT_ALL"             : "YES",
-    "STRIP_FROM_PATH"         : '"' + rootDir + '"',
+    "STRIP_FROM_PATH"         : '"' + state.rootDir + '"',
     "TAB_SIZE"                : "4",
     "HTML_OUTPUT"             : '"./"',
     "GENERATE_LATEX"          : "NO",
+    "RECURSIVE"               : "YES",
     "ALIASES"                 : ('"cite=\par Referenced Code:\\n " ' +
                                  '"created=\par Created:\\n" ' +
                                  '"edited=\par Last modified:\\n" ' + 
@@ -49,14 +51,15 @@ def createDoxyfile():
 """ Called from createDoxyfile. """
 def doxyLineRewriter(lineStr, hash):
     line = string.strip(lineStr) # remove leading and trailing whitespace
-    if (line == ""): # it's a blank line
+    if (line == ''): # it's a blank line
         return lineStr
-    elif (line[0] == "#"): # it's a comment line
+    elif (line[0] == '#'): # it's a comment line
         return lineStr
     else : # here we know it's a property assignment
         prop = string.strip(line[0:string.find(line, "=")])
         if hash.has_key(prop):
-            return prop + " = " + hash[prop]
+            print prop + ' = ' + hash[prop]
+            return prop + ' = ' + hash[prop]
         else:
             return lineStr
 
