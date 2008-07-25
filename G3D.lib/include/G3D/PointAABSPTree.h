@@ -547,6 +547,11 @@ protected:
             if (gt.size() > 0) {
                 node->child[1] = makeNode(gt, temp, valuesPerNode, numMeanSplits - 1);
             }
+
+            // Add the values stored at this interior node to the member table
+            for(int i = 0; i < node->valueArray.size(); ++i) {
+                memberTable.set(node->valueArray[i].value, node);
+            }
 		    
 	    }
 	    
