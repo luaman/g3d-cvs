@@ -321,6 +321,7 @@ void GuiWindow::close() {
 
 
 void GuiWindow::pack() {
+    setRect(Rect2D::xywh(m_rect.x0y0(), Vector2::zero()));
     m_rootPane->pack();
     increaseBounds(m_rootPane->rect().wh());
 }

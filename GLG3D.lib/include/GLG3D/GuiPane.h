@@ -2,10 +2,10 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2008-07-15
+ @edited  2008-07-25
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
+ Copyright 2001-2008, Morgan McGuire, morgan@cs.williams.edu
  All rights reserved.
 */
 #ifndef G3D_GUIPANE_H
@@ -86,8 +86,8 @@ protected:
     template<class T>
     T* addControl(T* control) {
         Vector2 p = nextControlPos(control->toolStyle());
-        control->setRect(Rect2D::xywh(p, Vector2(max(m_clientRect.width() - p.x, 
-                                               (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+        control->setRect
+            (Rect2D::xywh(p, Vector2((float)CONTROL_WIDTH, CONTROL_HEIGHT)));
 
         increaseBounds(control->rect().x1y1());
 
@@ -229,7 +229,8 @@ public:
         Value               max = (Value)maxVal(Value()), 
         Value               roundIncrement = 0) {
 
-        return addControl(new GuiNumberBox<Value>(this, text, value, suffix, showSlider, min, max, roundIncrement));
+        return addControl(new GuiNumberBox<Value>(this, text, value, suffix, showSlider, 
+                                                  min, max, roundIncrement));
     }
 
     template<typename Value>
@@ -242,16 +243,19 @@ public:
         Value               max = (Value)maxVal(Value()), 
         Value               roundIncrement = 0) {
 
-        return addControl(new GuiNumberBox<Value>(this, text, Pointer<Value>(value), suffix, showSlider, min, max, roundIncrement));
+        return addControl(new GuiNumberBox<Value>(this, text, Pointer<Value>(value), 
+                                                  suffix, showSlider, min, max, roundIncrement));
     }
 
     template<typename Value>
-    GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, Value min, Value max, bool horizontal = true) {
+    GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, 
+                                Value min, Value max, bool horizontal = true) {
         return addControl(new GuiSlider<Value>(this, text, value, min,  max, horizontal));
     }
 
     template<typename Value>
-    GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, Value min, Value max, bool horizontal = true) {
+    GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, 
+                                Value min, Value max, bool horizontal = true) {
         return addSlider(text, Pointer<Value>(value), min,  max, horizontal);
     }
 
@@ -299,8 +303,8 @@ public:
     void remove(GuiControl* gui);
 
     /** 
-        Resize this pane so that all of its controls are visible and so that there is
-        no wasted space.
+        Resize this pane so that all of its controls are visible and
+        so that there is no wasted space.
 
         @sa G3D::GuiWindow::pack
      */

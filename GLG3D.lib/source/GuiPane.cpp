@@ -103,8 +103,8 @@ void GuiPane::increaseBounds(const Vector2& extent) {
     }
 }
 
-
 void GuiPane::pack() {
+    setSize(0, 0);
     for (int i = 0; i < containerArray.size(); ++i) {
         GuiPane* p = dynamic_cast<GuiPane*>(containerArray[i]);
         if (p != NULL) {
@@ -132,17 +132,22 @@ GuiPane::~GuiPane() {
 }
 
 
-GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, const Pointer<int>& pointer, Array<std::string>* list) {
+GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, 
+                                          const Pointer<int>& pointer, Array<std::string>* list) {
     return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 
-GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, const Pointer<int>& pointer, Array<GuiCaption>* list) {
+GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, 
+                                          const Pointer<int>& pointer, Array<GuiCaption>* list) {
     return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 
 
-GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style) {
-    GuiRadioButton* c = addControl(new GuiRadioButton(this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
+GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, 
+                                        GuiRadioButton::Style style) {
+
+    GuiRadioButton* c = addControl
+        (new GuiRadioButton(this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
 
     Vector2 size(0, (float)CONTROL_HEIGHT);
 
