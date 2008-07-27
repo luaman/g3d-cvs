@@ -1,7 +1,10 @@
 /** 
+ @file VideoOutput.cpp
+ @author Corey Taylor
  */
+#if 0
 
-// includes
+#include "G3D/platform.h"
 #include <cstdio>
 #include "GLG3D/VideoOutput.h"
 
@@ -338,3 +341,5 @@ void VideoOutput::abort() {
 }
 
 } // namespace G3D
+
+#endif

@@ -1,7 +1,10 @@
 /** 
+ @file VideoInput.cpp
+ @author Corey Taylor
  */
+#if 0
 
-// includes
+#include "G3D/platform.h"
 #include "GLG3D/VideoInput.h"
 #include "GLG3D/Texture.h"
 
@@ -555,3 +558,4 @@ void VideoInput::decodingThreadProc(void* param) {
 }
 
 } // namespace G3D
+#endif
