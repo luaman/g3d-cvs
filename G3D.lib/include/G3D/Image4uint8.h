@@ -46,6 +46,8 @@ protected:
 
 public:
 
+    const class ImageFormat* format() const;
+
     /** Creates an all-zero width x height image. */
     static Ref createEmpty(int width, int height, WrapMode wrap = WrapMode::ERROR);
 

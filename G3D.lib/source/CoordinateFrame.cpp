@@ -28,17 +28,19 @@ CoordinateFrame::CoordinateFrame(const class UprightFrame& f) {
     *this = f.toCoordinateFrame();
 }
 
-CoordinateFrame CoordinateFrame::fromXYZYPRRadians(float x, float y, float z, float yaw, float pitch, float roll) {
+
+CoordinateFrame CoordinateFrame::fromXYZYPRRadians(float x, float y, float z, float yaw, 
+                                                   float pitch, float roll) {
     Matrix3 rotation = Matrix3::fromAxisAngle(Vector3::unitY(), yaw);
     
     rotation = Matrix3::fromAxisAngle(rotation.column(0), pitch) * rotation;
     rotation = Matrix3::fromAxisAngle(rotation.column(2), roll) * rotation;
 
     const Vector3 translation(x, y, z);
-
     
     return CoordinateFrame(rotation, translation);
 }
+
 
 void CoordinateFrame::getXYZYPRRadians(float& x, float& y, float& z, 
                                        float& yaw, float& pitch, float& roll) const {
@@ -69,6 +71,7 @@ void CoordinateFrame::getXYZYPRRadians(float& x, float& y, float& z,
         roll = 0;//acos(actualRight.dot(expectedRight));  TODO
     }
 }
+
 
 void CoordinateFrame::getXYZYPRDegrees(float& x, float& y, float& z, 
                                        float& yaw, float& pitch, float& roll) const {

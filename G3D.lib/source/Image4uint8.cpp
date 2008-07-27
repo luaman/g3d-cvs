@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2007-01-31
-  @edited  2007-01-31
+  @edited  2008-07-31
 */
 
 #include "G3D/Image4uint8.h"
@@ -16,6 +16,7 @@
 #include "G3D/Color1uint8.h"
 #include "G3D/Color4.h"
 #include "G3D/Color4uint8.h"
+#include "G3D/ImageFormat.h"
 
 namespace G3D {
 
@@ -211,6 +212,11 @@ ReferenceCountedPointer<class Image1uint8> Image4uint8::getChannel(int c) const 
     }
 
     return dst;
+}
+
+
+const ImageFormat* Image4uint8::format() const {
+    return ImageFormat::RGBA8();
 }
 
 } // G3D

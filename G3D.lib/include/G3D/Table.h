@@ -128,7 +128,7 @@ struct HashTrait<G3D::uint128> {
 	// Use the FNV-1 hash (http://isthe.com/chongo/tech/comp/fnv/#FNV-1).
     static size_t hashCode(G3D::uint128 key) {
         static const G3D::uint128 FNV_PRIME_128(1 << 24, 0x159);
-        static const G3D::uint128 FNV_OFFSET_128(0xCF470AAC6CB293D2L, 0xF52F88BF32307F8FL);
+        static const G3D::uint128 FNV_OFFSET_128(0xCF470AAC6CB293D2LL, 0xF52F88BF32307F8FLL);
 
         G3D::uint128 hash = FNV_OFFSET_128;
         G3D::uint128 mask(0, 0xFF);
@@ -144,14 +144,14 @@ struct HashTrait<G3D::uint128> {
 };
 
 template <>
-struct HashTrait<G3D::Vector3int32>
-{
+struct HashTrait<G3D::Vector3int32> {
     static size_t hashCode(const G3D::Vector3int32& key) {
         // Mask for the top bit of a uint32
         const G3D::uint32 top = (1 << 31);
         // Mask for the bottom 10 bits of a uint32
         const G3D::uint32 bot = 0x000003FF;
-        return static_cast<size_t>((key.x & top) | ((key.y & top) >> 1) | ((key.z & top) >> 2) | ((key.x & bot) << 19) ^ ((key.y & bot) << 10) ^ (key.z & bot));
+        return static_cast<size_t>(((key.x & top) | ((key.y & top) >> 1) | ((key.z & top) >> 2)) | 
+                                   (((key.x & bot) << 19) ^ ((key.y & bot) << 10) ^ (key.z & bot)));
     }
 };
 
@@ -426,19 +426,18 @@ public:
      Returns the average size of non-empty buckets.
      */
     float debugGetAverageBucketSize() const {
-		size_t num = 0;
+        size_t num = 0;
         size_t count = 0;
 
         for (size_t b = 0; b < numBuckets; b++) {
-            Node*   node = bucket[b];
-			if (node != NULL) {
-				++num;
-				while (node != NULL) {
-					node = node->next;
-					++count;
-				}
-			}
-
+            Node* node = bucket[b];
+            if (node != NULL) {
+                ++num;
+                while (node != NULL) {
+                    node = node->next;
+                    ++count;
+                }
+            }
         }
 
         return (float)((double)count / num);
@@ -653,11 +652,12 @@ public:
         } while (n != NULL);
 
         const size_t maxBucketLength = 3;
-		// (Don't bother changing the size of the table if all entries have the same hashcode--they'll still collide)
+        // (Don't bother changing the size of the table if all entries have the same 
+        // hashcode--they'll still collide)
         if ((bucketLength > maxBucketLength) && ! allSameCode && (numBuckets < _size * 20)) {
             // This bucket was really large; rehash if all elements
             // don't have the same hashcode the number of buckets is reasonable.
-            resize(iMax(numBuckets * 5 + 1, (int)(_size * 2.5)));
+            resize(iMax(numBuckets * 5 + 1, (int)(_size * 3)));
         }
 
         // Not found; insert at the head.

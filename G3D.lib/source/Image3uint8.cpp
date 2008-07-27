@@ -15,6 +15,7 @@
 #include "G3D/Color1uint8.h"
 #include "G3D/Color4.h"
 #include "G3D/Color4uint8.h"
+#include "G3D/ImageFormat.h"
 
 namespace G3D {
 
@@ -214,6 +215,11 @@ ReferenceCountedPointer<class Image1uint8> Image3uint8::getChannel(int c) const 
     }
 
     return dst;
+}
+
+
+const ImageFormat* Image3uint8::format() const {
+    return ImageFormat::RGB8();
 }
 
 } // G3D

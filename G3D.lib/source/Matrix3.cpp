@@ -1130,29 +1130,31 @@ void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
 }
 
 //----------------------------------------------------------------------------
-Matrix3 Matrix3::fromAxisAngle (const Vector3& axis, float fRadians) {
-    Vector3 rkAxis = axis.direction();
+Matrix3 Matrix3::fromAxisAngle (const Vector3& _axis, float fRadians) {
+    Vector3 axis = _axis.direction();
 
     Matrix3 m;
-    float fCos = cos(fRadians);
-    float fSin = sin(fRadians);
+    float fCos  = cos(fRadians);
+    float fSin  = sin(fRadians);
     float fOneMinusCos = 1.0 - fCos;
-    float fX2 = rkAxis.x * rkAxis.x;
-    float fY2 = rkAxis.y * rkAxis.y;
-    float fZ2 = rkAxis.z * rkAxis.z;
-    float fXYM = rkAxis.x * rkAxis.y * fOneMinusCos;
-    float fXZM = rkAxis.x * rkAxis.z * fOneMinusCos;
-    float fYZM = rkAxis.y * rkAxis.z * fOneMinusCos;
-    float fXSin = rkAxis.x * fSin;
-    float fYSin = rkAxis.y * fSin;
-    float fZSin = rkAxis.z * fSin;
+    float fX2   = square(axis.x);
+    float fY2   = square(axis.y);
+    float fZ2   = square(axis.z);
+    float fXYM  = axis.x * axis.y * fOneMinusCos;
+    float fXZM  = axis.x * axis.z * fOneMinusCos;
+    float fYZM  = axis.y * axis.z * fOneMinusCos;
+    float fXSin = axis.x * fSin;
+    float fYSin = axis.y * fSin;
+    float fZSin = axis.z * fSin;
 
     m.elt[0][0] = fX2 * fOneMinusCos + fCos;
     m.elt[0][1] = fXYM - fZSin;
     m.elt[0][2] = fXZM + fYSin;
+
     m.elt[1][0] = fXYM + fZSin;
     m.elt[1][1] = fY2 * fOneMinusCos + fCos;
     m.elt[1][2] = fYZM - fXSin;
+
     m.elt[2][0] = fXZM - fYSin;
     m.elt[2][1] = fYZM + fXSin;
     m.elt[2][2] = fZ2 * fOneMinusCos + fCos;

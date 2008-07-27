@@ -15,6 +15,7 @@
 #include "G3D/Color4uint8.h"
 #include "G3D/Color1.h"
 #include "G3D/Color1uint8.h"
+#include "G3D/ImageFormat.h"
 
 namespace G3D {
 
@@ -213,6 +214,11 @@ void Image3::save(const std::string& filename, GImage::Format fmt) {
     }
     
     im.save(filename, fmt);
+}
+
+
+const ImageFormat* Image3::format() const {
+    return ImageFormat::RGB32F();
 }
 
 } // G3D

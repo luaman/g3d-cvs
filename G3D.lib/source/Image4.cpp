@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2007-01-31
-  @edited  2007-01-31
+  @edited  2008-07-27
 */
 
 
@@ -15,6 +15,7 @@
 #include "G3D/Color3uint8.h"
 #include "G3D/Color1.h"
 #include "G3D/Color1uint8.h"
+#include "G3D/ImageFormat.h"
 
 namespace G3D {
 
@@ -216,6 +217,10 @@ void Image4::save(const std::string& filename, GImage::Format fmt) {
     }
     
     im.save(filename, fmt);
+}
+
+const ImageFormat* Image4::format() const {
+    return ImageFormat::RGBA32F();
 }
 
 } // G3D
