@@ -465,7 +465,7 @@ def ffmpegbTarget():
 
     # extract ffmpeg sources
     ice.utils.mkdir(sourceDir, False)
-    tarObject = tarfile.open('ffmpeg.dll/source/ffmpeg_source.tar.bz2')
+    tarObject = tarfile.open('ffmpeg/source/ffmpeg_source.tar.bz2')
     ffmpegName = tarObject.next().name
     tarObject.extractall(sourceDir)
     tarObject.close()
@@ -474,23 +474,23 @@ def ffmpegbTarget():
     oldcwd = os.getcwd()
     os.chdir(sourceDir + '/' + ffmpegName)
     ffmpegBuildScript = """
-    configure --disable-static --enable-shared --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --disable-ffplay --disable-ffserver --disable-ffmpeg
+    configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
     make
     make install
     """
     ice.utils.run('sh', ['-c', ffmpegBuildScript], True, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
     os.chdir(oldcwd)
 
-    # copy the new .dll and header files to ffmpeg.dll directory
-    print "Copying win32 ffmpeg binaries - please make sure avutil-49, avcodec-51 and avformat-52 are the right names\n"
-    ice.copyifnewer.copyIfNewer(installDir + '/bin/avutil-49.dll', 'ffmpeg.dll/bin/avutil-49.dll', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/bin/avcodec-51.dll', 'ffmpeg.dll/bin/avcodec-51.dll', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/bin/avformat-52.dll', 'ffmpeg.dll/bin/avformat-52.dll', False)
+    # copy the new .lib and header files to ffmpeg directory
+    print "Copying win32 ffmpeg binaries\n"
+    ice.copyifnewer.copyIfNewer(installDir + '/lib/libavutil.a', 'ffmpeg/lib/win32/avutil.lib', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/lib/libavcodec.a', 'ffmpeg/lib/win32/avcodec.lib', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/lib/libavformat.a', 'ffmpeg/lib/win32/avformat.lib', False)
 
     print "Copying ffmpeg headers since building pre-compiled binaries should update include\n"
-    ice.copyifnewer.copyIfNewer(installDir + '/include/libavutil', 'ffmpeg.dll/include/libavutil', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/include/libavcodec', 'ffmpeg.dll/include/libavcodec', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/include/libavformat', 'ffmpeg.dll/include/libavformat', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/include/libavutil', 'ffmpeg/include/libavutil', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/include/libavcodec', 'ffmpeg/include/libavcodec', False)
+    ice.copyifnewer.copyIfNewer(installDir + '/include/libavformat', 'ffmpeg/include/libavformat', False)
 
 #########################################################
 
