@@ -31,10 +31,9 @@
 
 #include <cstring>
 
-// Uncomment the following line to turn off 
-// G3D::System memory allocation and use the operating system's
-// malloc.
-// #define NO_BUFFERPOOL
+// Uncomment the following line to turn off G3D::System memory
+// allocation and use the operating system's malloc.
+//#define NO_BUFFERPOOL
 
 #if defined(__i386__) || defined(__x86_64__) || defined(G3D_WIN32)
 #    define G3D_NOT_OSX_PPC
@@ -1066,16 +1065,18 @@ public:
 
         A large block is preallocated for tiny buffers; they are used with
         tremendous frequency.  Other buffers are allocated as demanded.
+        Tiny buffers are 128 bytes long because that seems to align well with
+        cache sizes on many machines.
       */
     enum {tinyBufferSize = 128, smallBufferSize = 1024, medBufferSize = 4096};
 
     /** 
        Most buffers we're allowed to store.
-       64000 * 128  = 8 MB (preallocated)
-        1024 * 1024 = 1 MB (allocated on demand)
-        1024 * 4096 = 4 MB (allocated on demand)
+       128000 * 128  = 16 MB (preallocated)
+         2048 * 1024 =  2 MB (allocated on demand)
+         1024 * 4096 =  4 MB (allocated on demand)
      */
-    enum {maxTinyBuffers = 64000, maxSmallBuffers = 1024, maxMedBuffers = 1024};
+    enum {maxTinyBuffers = 128000, maxSmallBuffers = 2048, maxMedBuffers = 1024};
 
 private:
 
@@ -1240,7 +1241,7 @@ public:
         of a buffer.
         Primarily useful for detecting leaks.*/
     // TODO: make me an atomic int!
-    int bytesAllocated;
+    volatile int bytesAllocated;
 
     BufferPool() {
         totalMallocs         = 0;

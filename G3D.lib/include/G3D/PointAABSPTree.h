@@ -656,6 +656,9 @@ public:
         than inserting each element in turn.  You still need to balance
         the tree at the end.*/
     void insert(const Array<T>& valueArray) {
+        // Pre-size the member table to avoid multiple allocations
+        memberTable.setSizeHint(valueArray.size() + size());
+
         if (root == NULL) {
             // Optimized case for an empty tree; don't bother
             // searching or reallocating the root node's valueArray

@@ -74,6 +74,13 @@ int ThreadSet::removeCompleted() {
     m_lock.unlock();
     return s;
 }
+
+
+void ThreadSet::clear() {
+    m_lock.lock();
+    m_thread.clear();
+    m_lock.unlock();
+}
     
 
 int ThreadSet::insert(const ThreadRef& t) {

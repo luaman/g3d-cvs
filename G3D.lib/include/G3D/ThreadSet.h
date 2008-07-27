@@ -47,6 +47,9 @@ public:
     /** Waits until all started threads have completed. */
     void waitForCompletion() const;
 
+    /** Remove all (not stopping them) */
+    void clear();
+
     /** Removes completed threads and returns the new size.*/
     int removeCompleted();
 

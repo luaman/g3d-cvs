@@ -255,6 +255,10 @@ private:
            for (size_t b = 0; b < numBuckets; ++b) {
                Node* node = bucket[b];
                debugAssert(node == NULL || isValidHeapPointer(node));
+               while (node != NULL) {
+                   debugAssert(node == NULL || isValidHeapPointer(node));
+                   node = node->next;
+               }
            }
 #       endif
     }
@@ -285,13 +289,9 @@ private:
         Node** oldBucket = bucket;
 
         // Allocate a new bucket array with the new size
-        bucket = (Node**)System::malloc(sizeof(Node*) * newSize);
-
-        // Zero the new pointers
-        System::memset(bucket, 0, sizeof(Node*) * newSize);
-
+        bucket = (Node**)System::calloc(sizeof(Node*), newSize);
         // Move each node to its new hash location
-        for (size_t b = 0; b < numBuckets; b++) {
+        for (size_t b = 0; b < numBuckets; ++b) {
             Node* node = oldBucket[b];
          
             // There is a linked list of nodes at this bucket
@@ -321,10 +321,14 @@ private:
 
 
     void copyFrom(const ThisType& h) {
+        if (&h == this) {
+            return;
+        }
+
+        debugAssert(bucket == NULL);
         _size = h._size;
         numBuckets = h.numBuckets;
-        bucket = (Node**)System::malloc(sizeof(Node*) * numBuckets);
-        System::memset(bucket, 0, sizeof(Node*) * numBuckets);
+        bucket = (Node**)System::calloc(sizeof(Node*), numBuckets);
 
         for (size_t b = 0; b < numBuckets; b++) {
             if (h.bucket[b] != NULL) {
@@ -342,18 +346,18 @@ private:
         checkIntegrity();
 
         for (size_t b = 0; b < numBuckets; b++) {
-           Node* node = bucket[b];
-           while (node != NULL) {
+            Node* node = bucket[b];
+            while (node != NULL) {
                 Node* next = node->next;
                 delete node;
                 node = next;
-           }
-           bucket[b] = NULL;
+            }
+            bucket[b] = NULL;
         }
         System::free(bucket);
         bucket     = NULL;
         numBuckets = 0;
-        _size     = 0;
+        _size      = 0;
     }
 
 
@@ -365,16 +369,25 @@ public:
     Table() : bucket(NULL) {
         numBuckets = 10;
         _size      = 0;
-        bucket     = (Node**)System::malloc(sizeof(Node*) * numBuckets);
-        System::memset(bucket, 0, sizeof(Node*) * numBuckets);
+        bucket     = (Node**)System::calloc(sizeof(Node*), numBuckets);
         checkIntegrity();
     }
 
+    /** 
+        Recommends that the table resize to anticipate at least this number of elements.
+     */
+    void setSizeHint(size_t n) {
+        size_t s = n * 3;
+        if (s > numBuckets) {
+            resize(s);
+        }
+    }
+    
     /**
-    Destroys all of the memory allocated by the table, but does <B>not</B>
-    call delete on keys or values if they are pointers.  If you want to
-    deallocate things that the table points at, use getKeys() and Array::deleteAll()
-    to delete them.
+       Destroys all of the memory allocated by the table, but does <B>not</B>
+       call delete on keys or values if they are pointers.  If you want to
+       deallocate things that the table points at, use getKeys() and Array::deleteAll()
+       to delete them.
     */
     virtual ~Table() {
         freeMemory();
@@ -422,9 +435,9 @@ public:
         return deepest;
     }
 
-	/**
-     Returns the average size of non-empty buckets.
-     */
+    /**
+       Returns the average size of non-empty buckets.
+    */
     float debugGetAverageBucketSize() const {
         size_t num = 0;
         size_t count = 0;
@@ -442,6 +455,7 @@ public:
 
         return (float)((double)count / num);
     }
+
     /**
      A small load (close to zero) means the hash table is acting very
      efficiently most of the time.  A large load (close to 1) means 
@@ -595,11 +609,10 @@ public:
      Removes all elements
      */
     void clear() {
-         freeMemory();
-         numBuckets = 10;
-         _size = 0;
-         bucket = (Node**)System::malloc(sizeof(Node*) * numBuckets);
-         System::memset(bucket, 0, sizeof(Node*) * numBuckets);
+        freeMemory();
+        numBuckets = 10;
+        _size = 0;
+        bucket = (Node**)System::calloc(sizeof(Node*), numBuckets);
     }
 
    
@@ -657,7 +670,7 @@ public:
         if ((bucketLength > maxBucketLength) && ! allSameCode && (numBuckets < _size * 20)) {
             // This bucket was really large; rehash if all elements
             // don't have the same hashcode the number of buckets is reasonable.
-            resize(iMax(numBuckets * 5 + 1, (int)(_size * 3)));
+            resize(iMax(numBuckets * 3 + 1, (int)(_size * 3)));
         }
 
         // Not found; insert at the head.
