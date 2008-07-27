@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;;&quot;$(SolutionDir)..\ffmpeg\include&quot;;&quot;$(SolutionDir)..\c99util\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -111,7 +111,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;;&quot;$(SolutionDir)..\ffmpeg\include&quot;;&quot;$(SolutionDir)..\c99util\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -438,6 +438,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\VideoInput.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\VideoOutput.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\Widget.cpp"
 				>
 			</File>
@@ -725,6 +733,14 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\VertexProgram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\VideoInput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\VideoOutput.h"
 				>
 			</File>
 			<File
