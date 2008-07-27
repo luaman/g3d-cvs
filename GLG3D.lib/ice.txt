@@ -92,7 +92,7 @@
 
 compiler: %(defaultcompiler)s
 
-include: %(defaultinclude)s;ffmpeg.dll/include
+include: %(defaultinclude)s
 
 library: %(defaultlibrary)s
 
