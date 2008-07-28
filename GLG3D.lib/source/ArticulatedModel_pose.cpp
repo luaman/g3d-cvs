@@ -65,21 +65,21 @@ protected:
         const LightingRef&              lighting,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material) const;
-
+        const Material&    material) const;
+    
     bool renderPS14NonShadowedOpaqueTerms(
         RenderDevice*                   rd,
         const LightingRef&              lighting,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material) const;
+        const Material&    material) const;
 
     bool renderPS20NonShadowedOpaqueTerms(
         RenderDevice*                   rd,
         const LightingRef&              lighting,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material) const;
+        const Material&    material) const;
 
     /** Switches between rendering paths.  Called from renderNonShadowed.*/
     bool renderNonShadowedOpaqueTerms(
@@ -87,7 +87,7 @@ protected:
         const LightingRef&              lighting,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material,
+        const Material&    material,
         bool  preserveState) const;
 
     void renderFFShadowMappedLightPass(
@@ -96,7 +96,7 @@ protected:
         const ShadowMapRef&             shadowMap,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material) const;
+        const Material&    material) const;
 
     void renderPS20ShadowMappedLightPass(
         RenderDevice*                   rd,
@@ -104,7 +104,7 @@ protected:
         const ShadowMapRef&             shadowMap,
         const ArticulatedModel::Part&   part,
         const ArticulatedModel::Part::TriList& triList,
-        const SuperShader::Material&    material) const;
+        const Material&    material) const;
 
 public:
 
@@ -193,9 +193,9 @@ void ArticulatedModel::renderNonShadowed(
 
             const ArticulatedModel::Part& part             = posed->model->partArray[posed->partIndex];
             const ArticulatedModel::Part::TriList& triList = part.triListArray[posed->listIndex];
-            const SuperShader::Material& material          = triList.material;
+            const Material& material          = triList.material;
             
-            const_cast<SuperShader::Material&>(material).enforceDiffuseMask();
+            const_cast<Material&>(material).enforceDiffuseMask();
 
             debugAssertM(material.transmit.isBlack(), 
                 "Transparent object passed through the batch version of "
@@ -273,8 +273,8 @@ void ArticulatedModel::renderShadowMappedLightPass
 
             const ArticulatedModel::Part& part              = posed->model->partArray[posed->partIndex];
             const ArticulatedModel::Part::TriList& triList  = part.triListArray[posed->listIndex];
-            const SuperShader::Material& material           = triList.material;
-            const_cast<SuperShader::Material&>(material).enforceDiffuseMask();
+            const Material& material           = triList.material;
+            const_cast<Material&>(material).enforceDiffuseMask();
 
             if (material.diffuse.isBlack() && material.specular.isBlack()) {
                 // Nothing to draw for this object
@@ -473,7 +473,7 @@ bool PosedArticulatedModel::renderNonShadowedOpaqueTerms(
     const LightingRef&              lighting,
     const ArticulatedModel::Part&   part,
     const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material&    material,
+    const Material&    material,
     bool preserveState) const {
 
     bool renderedOnce = false;
@@ -516,7 +516,7 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
     const LightingRef&                      lighting,
     const ArticulatedModel::Part&           part,
     const ArticulatedModel::Part::TriList&  triList,
-    const SuperShader::Material&            material) const {
+    const Material&            material) const {
 
     if (material.emit.isBlack() && 
         material.reflect.isBlack() &&
@@ -592,7 +592,7 @@ bool PosedArticulatedModel::renderFFNonShadowedOpaqueTerms(
     const LightingRef&              lighting,
     const ArticulatedModel::Part&   part,
     const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material&    material) const {
+    const Material&    material) const {
 
     bool renderedOnce = false;
 
@@ -684,7 +684,7 @@ bool PosedArticulatedModel::renderPS14NonShadowedOpaqueTerms(
     const LightingRef&              lighting,
     const ArticulatedModel::Part&   part,
     const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material&    material) const {
+    const Material&    material) const {
 
     bool renderedOnce = false;
 
@@ -857,7 +857,7 @@ void PosedArticulatedModel::renderNonShadowed(
 
     const ArticulatedModel::Part& part = model->partArray[partIndex];
     const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];
-    const SuperShader::Material& material = triList.material;
+    const Material& material = triList.material;
 
     // The transparent rendering path is not optimized to amortize state changes because 
     // it is only called by the single-object version of this function.  Only
@@ -955,7 +955,7 @@ void PosedArticulatedModel::renderPS20ShadowMappedLightPass(
     const ShadowMapRef& shadowMap,
     const ArticulatedModel::Part& part,
     const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material& material) const {
+    const Material& material) const {
 
     SuperShader::ShadowedPass::instance()->setLight(light, shadowMap);
     rd->setShader(SuperShader::ShadowedPass::instance()->getConfiguredShader(material, rd->cullFace()));
@@ -969,7 +969,7 @@ void PosedArticulatedModel::renderFFShadowMappedLightPass(
     const ShadowMapRef& shadowMap,
     const ArticulatedModel::Part& part,
     const ArticulatedModel::Part::TriList& triList,
-    const SuperShader::Material& material) const {
+    const Material& material) const {
 
     rd->configureShadowMap(1, shadowMap);
 

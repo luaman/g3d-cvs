@@ -131,6 +131,11 @@ public:
         return Color3(::pow(r, other), ::pow(g, other), ::pow(b, other));
     }
 
+    /**@return the largest component */
+    inline float max() const {
+        return G3D::max(G3D::max(r, g), b);
+    }
+
     inline Color3 max(const Color3& other) const {
         return Color3(G3D::max(r, other.r), G3D::max(g, other.g), G3D::max(b, other.b));
     }

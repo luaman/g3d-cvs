@@ -77,9 +77,6 @@ namespace G3D {
  */
 namespace SuperShader {
 
-/** @deprecated For backwards compatibility with G3D 7.00 */
-typedef G3D::Material Material;
-
 /** Configures the material arguments on a SuperShader NonShadowed shader for
     the opaque pass with LIGHTS_PER_PASS lights. */
 void configureShaderArgs(

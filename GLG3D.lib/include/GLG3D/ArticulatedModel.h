@@ -173,25 +173,25 @@ public:
             single OpenGL primitive. */
 	    class TriList {
 	    public:
-		    Array<int>		  	    indexArray;
+                Array<int>              indexArray;
 
-            /** When true, this trilist enables two-sided lighting and texturing and
-                does not cull back faces.*/
-            bool                    twoSided;
+                /** When true, this trilist enables two-sided lighting and texturing and
+                    does not cull back faces.*/
+                bool                    twoSided;
         
-            SuperShader::Material   material;
+                Material                material;
 
-            /** In the same space as the vertices. Computed by computeBounds() */
-            Sphere                  sphereBounds;
-            
-            /** In the same space as the vertices. Computed by computeBounds() */
-            Box                     boxBounds;
+                /** In the same space as the vertices. Computed by computeBounds() */
+                Sphere                  sphereBounds;
+                
+                /** In the same space as the vertices. Computed by computeBounds() */
+                Box                     boxBounds;
 
-            TriList() : twoSided(false) {}
-
-            /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
-                Must be invoked manually if the geometry is later changed. */
-            void computeBounds(const Part& parentPart);
+                TriList() : twoSided(false) {}
+                
+                /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
+                    Must be invoked manually if the geometry is later changed. */
+                void computeBounds(const Part& parentPart);
         };
 
         /** Each part must have a unique name */
