@@ -570,9 +570,13 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
             rd->setDepthWrite(false);
             rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
-            for (int L = SuperShader::NonShadowedPass::LIGHTS_PER_PASS; L < numLights; L += SuperShader::ExtraLightPass::LIGHTS_PER_PASS) {
+            for (int L = SuperShader::NonShadowedPass::LIGHTS_PER_PASS; 
+                 L < numLights; 
+                 L += SuperShader::ExtraLightPass::LIGHTS_PER_PASS) {
+
                 SuperShader::ExtraLightPass::instance()->setLighting(lighting->lightArray, L);
-                rd->setShader(SuperShader::ExtraLightPass::instance()->getConfiguredShader(material, rd->cullFace()));
+                rd->setShader(SuperShader::ExtraLightPass::instance()->
+                              getConfiguredShader(material, rd->cullFace()));
                 sendGeometry2(rd);
             }
             rd->popState();
