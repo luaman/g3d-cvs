@@ -155,7 +155,49 @@ def runicompile(dir):
      return x
 
 ##################################################################################
- 
+
+def buildNativeFFMPEG():
+
+    retVal = 0
+    
+    # check to see if libraries are built
+    buildLibPath = 'build/' + platformName + '/lib/'
+    if not os.path.exists(buildLibPath + 'libavformat.a') or not os.path.exists(buildLibPath + 'libavcodec.a') or not os.path.exists(buildLibPath + 'libavutil.a'):
+
+        sourceDir = os.path.abspath('temp/ffmpeg/native')
+        installDir = os.path.abspath('temp/ffmpeg/native/install')
+
+        # remove old build
+        #ice.utils.rmdir(os.path.abspath('temp/ffmpeg/native'), False)
+
+        # extract ffmpeg sources
+        ice.utils.mkdir(sourceDir, False)
+        tarObject = tarfile.open('ffmpeg/source/ffmpeg_source.tar.bz2')
+        ffmpegName = tarObject.next().name
+        #tarObject.extractall(sourceDir)
+        tarObject.close()
+
+        #build ffmpeg with mingw cross-compiler
+        oldcwd = os.getcwd()
+        os.chdir(sourceDir + '/' + ffmpegName)
+        ffmpegBuildScript = """
+        configure --enable-static --prefix=""" + installDir + """ --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+        make
+        make install
+        """
+        #retVal = ice.utils.run('sh', ['-c', ffmpegBuildScript], False)
+        os.chdir(oldcwd)
+
+        # copy the static libraries to the build directory
+        if retVal == 0:
+            ice.copyifnewer.copyIfNewer(installDir + '/lib/libavutil.a', buildLibPath + 'libavutil.a')
+            ice.copyifnewer.copyIfNewer(installDir + '/lib/libavcodec.a', buildLibPath + 'libavcodec.a')
+            ice.copyifnewer.copyIfNewer(installDir + '/lib/libavformat.a', buildLibPath + 'libavformat.a')
+    
+    return retVal
+
+#################################################################################
+
 def libTarget():
      x = 0
 
@@ -173,6 +215,9 @@ def libTarget():
              if x == 0: x = runicompile('png.lib')
 
          if x == 0: x = runicompile('zip.lib')
+
+         # enable when ffmpeg is tested on all platforms
+         #if x == 0: x = buildNativeFFMPEG()
 
          if x == 0: x = runicompile('G3D.lib')
 
@@ -461,7 +506,7 @@ def ffmpegbTarget():
     installDir = os.path.abspath('temp/ffmpeg/mingw/install')
 
     # remove old build
-    ice.utils.rmdir(os.path.abspath('temp/ffmpeg'), False)
+    ice.utils.rmdir(os.path.abspath('temp/ffmpeg/mingw'), False)
 
     # extract ffmpeg sources
     ice.utils.mkdir(sourceDir, False)
