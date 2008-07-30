@@ -99,11 +99,16 @@ isOSX = (os.uname()[0] == 'Darwin')
 if not isOSX:
     maybeG3DX11 = ['X11']
     maybeG3DSDL = ['SDL']
+    maybeAppleGL = []
     maybeFwk    = DYNAMIC
 else:
     maybeG3DSDL = []
     maybeG3DX11 = []
+    maybeAppleGL = ['AppleGL']
     maybeFwk    = FRAMEWORK
+
+
+GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format'] + maybeG3DSDL + maybeAppleGL
 
 
 # OS X frameworks are automatically ignored on linux
@@ -122,15 +127,17 @@ Library('Cocoa',       FRAMEWORK,  None,      None,     'Cocoa',    'Cocoa',  ['
 Library('Carbon',      FRAMEWORK,  None,      None,     'Carbon',   'Carbon', ['Carbon.h'],     ['ShowWindow'],                                []),
 Library('AppleGL',     FRAMEWORK,  None,      None,     'AGL',      'AGL',    ['agl.h'],        ['_aglChoosePixelFormat'],                     []),
 Library('G3D',         STATIC,    'G3D',     'G3Dd',     None,       None,    ['G3D.h'], [],                                                   ['zlib', 'jpeg', 'png', 'zip', 'Cocoa', 'pthread', 'Carbon'] + maybeG3DX11),
-Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          ['G3D', 'OpenGL', 'GLU', 'AppleGL'] + maybeG3DSDL),
+Library('GLG3D',       STATIC,    'GLG3D',   'GLG3Dd',   None,       None,    ['GLG3D.h', 'RenderDevice.h'],      [],                          GLG3DDepend),
 Library('pthread',     DYNAMIC,   'pthread', 'pthread',  None,       None,    ['pthread.h'],    [],                                            []),
 Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['qobject.h'],    [],                                            []),
 Library('IOKit',       FRAMEWORK,  None,     None,       'IOKit',    'IOKit', ['IOHIDKeys.h', 'IOKitLib.h', 'IOHIDLib.h'],  ['IOMasterPort'],  []),
 Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           []),
 Library('ANN',         STATIC,    'ANN',     'ANN',      None,       None,    ['ANN.h'],        [],                                            []),
+Library('FFMPEG-util', STATIC,    'avutil',  'avutil',   None,       None,    [],               [],                                            []),
+Library('FFMPEG-codec', STATIC,   'avcodec', 'avcodec',  None,       None,    [],               [],                                            []),
+Library('FFMPEG-format', STATIC,  'avformat', 'avformat', None,      None,    [],               [],                                            []),
 Library('FMOD',        DYNAMIC,   'fmodex',  'fmodex',   None,       None,    ['fmod.hpp', 'fmod.h'], [],                                      [])]:
     defineLibrary(lib)
-
 
 """ Constructs a dictionary mapping a library name to its
     relative dependency order in a library list. """

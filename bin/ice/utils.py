@@ -737,11 +737,8 @@ def rawLibraryFilename(filename):
         n = n[3:]
     return n
 
-"""
- Concatenates a file or path onto a path with a '/' if the first
- is non-empty and lacks a '/'
-"""
-def pathConcat(a, b):
+
+def _pathConcat2(a, b):
     if len(b) == 0:
         return a
  
@@ -759,6 +756,20 @@ def pathConcat(a, b):
         return a + '/' + b
     else:
         return a + b
+
+"""
+ Concatenates a file or path onto a path with a '/' if the first
+ is non-empty and lacks a '/'
+"""
+def pathConcat(*args):
+    if len(args) == 2:
+        return _pathConcat2(args[0], args[1])
+    else:
+        current = ''
+        for x in args:
+            current = _pathConcat2(current, x)
+        return current
+    
 
 """ Returns the version number of a file as a list.  Note that under
 comparison, 1.10 != 1.1 and 1.01 == 1.1, which is usually what you

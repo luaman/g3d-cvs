@@ -156,45 +156,59 @@ def runicompile(dir):
 
 ##################################################################################
 
+# Called frum libTarget on unix-platforms to build the ffmpeg libraries, which do not use icompile
 def buildNativeFFMPEG():
+    if windows: raise Error('Cannot build FFMPEG directly on Windows.  Must use cross-compiler')
 
-    retVal = 0
-    
-    # check to see if libraries are built
-    buildLibPath = 'build/' + platformName + '/lib/'
-    if not os.path.exists(buildLibPath + 'libavformat.a') or not os.path.exists(buildLibPath + 'libavcodec.a') or not os.path.exists(buildLibPath + 'libavutil.a'):
+    libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
+    print '----------------------------------------------------\n'
+    print 'Building ' + ', '.join(libs)
 
-        sourceDir = os.path.abspath('temp/ffmpeg/native')
-        installDir = os.path.abspath('temp/ffmpeg/native/install')
+    buildLibPath = pathConcat('build', platformName, 'lib')
 
-        # remove old build
-        #ice.utils.rmdir(os.path.abspath('temp/ffmpeg/native'), False)
+    # Check to see if any ffmpeg library needs to be built
+    outOfDate = [(not os.path.exists(pathConcat(buildLibPath, lib))) for lib in libs]
+    needRebuild = reduce(lambda x,y: x or y, outOfDate, False)
 
-        # extract ffmpeg sources
-        ice.utils.mkdir(sourceDir, False)
-        tarObject = tarfile.open('ffmpeg/source/ffmpeg_source.tar.bz2')
-        ffmpegName = tarObject.next().name
-        #tarObject.extractall(sourceDir)
-        tarObject.close()
+    if not needRebuild:
+        return 0
 
-        #build ffmpeg with mingw cross-compiler
-        oldcwd = os.getcwd()
-        os.chdir(sourceDir + '/' + ffmpegName)
-        ffmpegBuildScript = """
-        configure --enable-static --prefix=""" + installDir + """ --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
-        make
-        make install
-        """
-        #retVal = ice.utils.run('sh', ['-c', ffmpegBuildScript], False)
-        os.chdir(oldcwd)
+    sourceDir = os.path.abspath('temp/ffmpeg/native')
+    installDir = os.path.abspath('temp/ffmpeg/native/install')
 
+    # remove old build
+    ice.utils.rmdir(os.path.abspath('temp/ffmpeg/native'), False)
+
+    # extract ffmpeg sources
+    ice.utils.mkdir(sourceDir, False)
+    tarObject = tarfile.open('ffmpeg/source/ffmpeg_source.tar.bz2')
+    ffmpegName = tarObject.next().name
+    print '\nExtracting tarfile'
+    tarObject.extractall(sourceDir)
+    tarObject.close()
+    tarObject = None
+
+    # build ffmpeg with mingw cross-compiler
+    oldcwd = os.getcwd()
+    os.chdir(pathConcat(sourceDir, ffmpegName))
+    ffmpegBuildScript = """
+    configure --enable-static --prefix=""" + installDir + """ --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+    make
+    make install
+    """
+    print 'Compiling...'
+    retVal = ice.utils.run('sh', ['-c', ffmpegBuildScript], False)
+    os.chdir(oldcwd)
+
+    if retVal == 0:
         # copy the static libraries to the build directory
-        if retVal == 0:
-            ice.copyifnewer.copyIfNewer(installDir + '/lib/libavutil.a', buildLibPath + 'libavutil.a')
-            ice.copyifnewer.copyIfNewer(installDir + '/lib/libavcodec.a', buildLibPath + 'libavcodec.a')
-            ice.copyifnewer.copyIfNewer(installDir + '/lib/libavformat.a', buildLibPath + 'libavformat.a')
-    
+        for lib in libs:
+            ice.copyifnewer.copyIfNewer(pathConcat(installDir, 'lib', lib),
+                                        pathConcat(buildLibPath, lib))
+
+    print '----------------------------------------------------'
     return retVal
+
 
 #################################################################################
 
@@ -216,7 +230,7 @@ def libTarget():
 
          if x == 0: x = runicompile('zip.lib')
 
-         # enable when ffmpeg is tested on all platforms
+         # TODO: Uncomment
          #if x == 0: x = buildNativeFFMPEG()
 
          if x == 0: x = runicompile('G3D.lib')
