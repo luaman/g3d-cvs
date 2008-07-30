@@ -36,6 +36,8 @@ using G3D::uint8;
 //#define RUN_SLOW_TESTS
 
 // Forward declarations
+void testImageConvert();
+
 void perfArray();
 void testArray();
 
@@ -619,6 +621,8 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testImageConvert();
 
     testAABSPTree();
 
