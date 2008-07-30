@@ -108,8 +108,8 @@ else:
     maybeFwk    = FRAMEWORK
 
 
-GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format'] + maybeG3DSDL + maybeAppleGL
-
+#GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format'] + maybeG3DSDL + maybeAppleGL
+GLG3DDepend = ['G3D', 'OpenGL', 'GLU'] + maybeG3DSDL + maybeAppleGL
 
 # OS X frameworks are automatically ignored on linux
 for lib in [

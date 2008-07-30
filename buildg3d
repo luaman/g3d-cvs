@@ -229,9 +229,8 @@ def libTarget():
              if x == 0: x = runicompile('png.lib')
 
          if x == 0: x = runicompile('zip.lib')
-
-         # TODO: Uncomment
-         #if x == 0: x = buildNativeFFMPEG()
+         
+         if x == 0: x = buildNativeFFMPEG()
 
          if x == 0: x = runicompile('G3D.lib')
 
