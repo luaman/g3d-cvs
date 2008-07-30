@@ -181,12 +181,21 @@ def buildNativeFFMPEG():
 
     # extract ffmpeg sources
     ice.utils.mkdir(sourceDir, False)
-    tarObject = tarfile.open('ffmpeg/source/ffmpeg_source.tar.bz2')
+    tarname = 'ffmpeg/source/ffmpeg_source.tar.bz2'
+    tarObject = tarfile.open(tarname)
     ffmpegName = tarObject.next().name
     print '\nExtracting tarfile'
-    tarObject.extractall(sourceDir)
+    #tarObject.extractall(sourceDir)  <--- only available on python 2.5
+    os.chdir(sourceDir)
+    retVal = ice.utils.run('tar', ['--bzip2', '-xvf', pathConcat('../../..', tarname)])
+    os.chdir('../../..')
     tarObject.close()
     tarObject = None
+
+    if retVal != 0:
+        print 'Tar command failed'
+        return retVal
+
 
     # build ffmpeg with mingw cross-compiler
     oldcwd = os.getcwd()
