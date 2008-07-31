@@ -197,11 +197,11 @@ def buildNativeFFMPEG():
         return retVal
 
 
-    # build ffmpeg with mingw cross-compiler
+    # build ffmpeg 
     oldcwd = os.getcwd()
     os.chdir(pathConcat(sourceDir, ffmpegName))
     ffmpegBuildScript = """
-    configure --enable-static --prefix=""" + installDir + """ --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+    configure --enable-static --prefix=""" + installDir + """ --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
     make
     make install
     """
@@ -239,7 +239,7 @@ def libTarget():
 
          if x == 0: x = runicompile('zip.lib')
          
-         # if x == 0: x = buildNativeFFMPEG()
+         if x == 0: x = buildNativeFFMPEG()
 
          if x == 0: x = runicompile('G3D.lib')
 
@@ -541,7 +541,7 @@ def ffmpegbTarget():
     oldcwd = os.getcwd()
     os.chdir(sourceDir + '/' + ffmpegName)
     ffmpegBuildScript = """
-    configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+    configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
     make
     make install
     """

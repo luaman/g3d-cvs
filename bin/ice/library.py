@@ -108,8 +108,7 @@ else:
     maybeFwk    = FRAMEWORK
 
 
-#GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format'] + maybeG3DSDL + maybeAppleGL
-GLG3DDepend = ['G3D', 'OpenGL', 'GLU'] + maybeG3DSDL + maybeAppleGL
+GLG3DDepend = ['G3D', 'OpenGL', 'GLU', 'FFMPEG-util', 'FFMPEG-codec', 'FFMPEG-format'] + maybeG3DSDL + maybeAppleGL
 
 # OS X frameworks are automatically ignored on linux
 for lib in [
@@ -155,7 +154,9 @@ def _makeLibOrder():
     # the library you want second on the right
     pairs = [('GLG3D', 'G3D'), ('G3D', 'Cocoa'), ('Cocoa', 'SDL'), ('SDL', 'OpenGL'), ('GLU', 'OpenGL'), 
             ('GLG3D', 'GLU'), ('G3D', 'zlib'), ('G3D', 'zip'), ('G3D', 'png'), ('G3D', 'jpeg'), ('Cocoa', 'pthread'), 
-            ('Cocoa', 'zlib'), ('OpenGL', 'png'), ('OpenGL', 'jpeg'), ('OpenGL', 'pthread'), ('Cocoa', 'Carbon')]
+            ('Cocoa', 'zlib'), ('OpenGL', 'png'), ('OpenGL', 'jpeg'), ('OpenGL', 'pthread'), ('Cocoa', 'Carbon'),
+            ('FFMPEG-format', 'FFMPEG-codec'), ('FFMPEG-codec', 'FFMPEG-util'), ('FFMPEG-format', 'zlib'), 
+            ('GLG3D', 'FFMPEG-format')]
 
     E, V = pairsToVertexEdgeGraph(pairs)
     L = topSort(E, V)

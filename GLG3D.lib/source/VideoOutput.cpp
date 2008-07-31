@@ -2,7 +2,6 @@
  @file VideoOutput.cpp
  @author Corey Taylor
  */
-#if 0
 
 #include "G3D/platform.h"
 #include <cstdio>
@@ -342,4 +341,3 @@ void VideoOutput::abort() {
 
 } // namespace G3D
 
-#endif

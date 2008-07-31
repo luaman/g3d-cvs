@@ -2,7 +2,6 @@
  @file VideoInput.cpp
  @author Corey Taylor
  */
-#if 0
 
 #include "G3D/platform.h"
 #include "GLG3D/VideoInput.h"
@@ -558,4 +557,4 @@ void VideoInput::decodingThreadProc(void* param) {
 }
 
 } // namespace G3D
-#endif
+
