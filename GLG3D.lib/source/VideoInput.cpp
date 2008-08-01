@@ -399,7 +399,7 @@ void VideoInput::skipTime(RealTime length) {
     setTimePosition(m_currentTime + length);
 }
 
-void VideoInput::skipFrames(RealTime length) {
+void VideoInput::skipFrames(int length) {
     setTimePosition(m_currentTime + (length * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate)));
 }
 

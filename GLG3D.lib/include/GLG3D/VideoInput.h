@@ -1,15 +1,19 @@
 /** 
+  @file VideoInput.h
+
+  @maintainer Corey Taylor
+
+  @created 2008-08-01
+  @edited  2008-08-01
  */
 
 #ifndef G3D_VIDEOINPUT_H
 #define G3D_VIDEOINPUT_H
 
-// includes
 #include <string>
 #include "G3D/ReferenceCount.h"
 #include "G3D/Queue.h"
 #include "G3D/GThread.h"
-#include "G3D/GImage.h"
 #include "GLG3D/Texture.h"
 
 // forward declarations for ffmpeg
@@ -20,56 +24,105 @@ struct AVCodec;
 
 namespace G3D {
 
+class GImage;
 
-/** video input */
+/** 
+    Read video files from MPG, AVI, MOV, and WMV files.
+    
+    There are three ways to read: by frame index, by time position, and
+    reading the next frame to display
+ */
 class VideoInput : public ReferenceCountedObject {
-
 public:
-    struct Settings
-    {
+
+    class Settings {
     public:
         Settings(): numBuffers(2) {}
 
-        /** Number of asynchronous buffers to allocate */
+        /** Number of asynchronous buffers to allocate. */
         int     numBuffers;
     };
 
     typedef ReferenceCountedPointer<VideoInput> Ref;
 
-    static Ref  fromFile(const std::string& filename, const Settings& settings);
+    /** @return NULL if the file is not found or cannot be opened. */
+    static Ref fromFile(const std::string& filename, const Settings& settings);
 
     ~VideoInput();
 
-    /** Gets the next frame if available and returns false if not. */
+    /** Advances the current file position to pos() + timeStep. If
+        that advance stepped over a frame boundary, sets frame to that
+        frame and returns true. Otherwise, returns false. */
     bool        readNext(RealTime timeStep, Texture::Ref& frame);
+    /** Advances the current file position to pos() + timeStep. If
+        that advance stepped over a frame boundary, sets frame to that
+        frame and returns true. Otherwise, returns false. */
     bool        readNext(RealTime timeStep, GImage& frame);
+    /** Advances the current file position to pos() + timeStep. If
+        that advance stepped over a frame boundary, sets frame to that
+        frame and returns true. Otherwise, returns false. */
     bool        readNext(RealTime timeStep, Image3uint8::Ref& frame);
+    /** Advances the current file position to pos() + timeStep. If
+        that advance stepped over a frame boundary, sets frame to that
+        frame and returns true. Otherwise, returns false. */
     bool        readNext(RealTime timeStep, Image3::Ref& frame);
 
-    /* Gets the frame at playback position pos and returns false if pos is invalid */
+
+    /** Gets the frame at playback position pos and returns false if
+        pos is out of bounds. 
+
+        @param pos Time in seconds from the beginning of playback.  */
     bool        readFromPos(RealTime pos, Texture::Ref& frame);
+    /** Gets the frame at playback position pos and returns false if
+        pos is out of bounds. 
+
+        @param pos Time in seconds from the beginning of playback.  */
     bool        readFromPos(RealTime pos, GImage& frame);
+    /** Gets the frame at playback position pos and returns false if
+        pos is out of bounds. 
+
+        @param pos Time in seconds from the beginning of playback.  */
     bool        readFromPos(RealTime pos, Image3uint8::Ref& frame);
+    /** Gets the frame at playback position pos and returns false if
+        pos is out of bounds. 
+
+        @param pos Time in seconds from the beginning of playback.  */
     bool        readFromPos(RealTime pos, Image3::Ref& frame);
 
-    /* Gets the frame at frame index and returns false if index is invalid */
+
+
+
+    /** Gets the frame at frame index and returns false if index is out of bounds. */
     bool        readFromIndex(int index, Texture::Ref& frame);
+    /** Gets the frame at frame index and returns false if index is out of bounds. */
     bool        readFromIndex(int index, GImage& frame);
+    /** Gets the frame at frame index and returns false if index is out of bounds. */
     bool        readFromIndex(int index, Image3uint8::Ref& frame);
+    /** Gets the frame at frame index and returns false if index is out of bounds. */
     bool        readFromIndex(int index, Image3::Ref& frame);
 
-    /** Seek to playback position */
+    /** Seek to playback position
+        @param pos Seek time, in seconds.*/
     void        setTimePosition(RealTime pos);
+    /** Seek to playback position
+        @param index Seek frame index (zero based)*/
     void        setFrameIndex(int index);
 
-    /** Seek ahead in playback position */
-    void        skipTime(RealTime length);
-    void        skipFrames(RealTime length);
 
+    /** Seek ahead in playback position
+        @param length seek time in seconds. */
+    void        skipTime(RealTime length);
+
+    /** Seek ahead @a length frames. */
+    void        skipFrames(int length);
+
+    /** Horizontal pixels in each frame */
     int         width() const;
 
+    /** Vertical pixels in each frame */
     int         height() const;
 
+    /** Preferred playback speed in frames per second */
     float       fps() const;
 
     /** Length of video in seconds */
@@ -81,6 +134,7 @@ public:
     bool        finished() const    { return m_finished; }
 
 private:
+
     VideoInput();
 
     void initialize(const std::string& filename, const Settings& settings);
@@ -93,8 +147,7 @@ private:
     RealTime            m_currentTime;
     volatile bool       m_finished;
 
-    struct Buffer
-    {
+    struct Buffer {
         AVFrame* m_frame;
         RealTime m_pos;
     };
