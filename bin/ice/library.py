@@ -132,10 +132,10 @@ Library('QT',          DYNAMIC,   'qt-mt',   'qt-mt',    None,       None,    ['
 Library('IOKit',       FRAMEWORK,  None,     None,       'IOKit',    'IOKit', ['IOHIDKeys.h', 'IOKitLib.h', 'IOHIDLib.h'],  ['IOMasterPort'],  []),
 Library('X11',         DYNAMIC,   'X11',     'X11',      None,       None,    ['x11.h'],        ['XSync', 'XFlush'],                           []),
 Library('ANN',         STATIC,    'ANN',     'ANN',      None,       None,    ['ANN.h'],        [],                                            []),
-Library('FFMPEG-util', STATIC,    'avutil',  'avutil',   None,       None,    [],               [],                                            []),
-Library('FFMPEG-codec', STATIC,   'avcodec', 'avcodec',  None,       None,    [],               [],                                            []),
-Library('FFMPEG-format', STATIC,  'avformat', 'avformat', None,      None,    [],               [],                                            []),
-Library('FMOD',        DYNAMIC,   'fmodex',  'fmodex',   None,       None,    ['fmod.hpp', 'fmod.h'], [],                                      [])]:
+Library('FFMPEG-util', STATIC,    'avutil',  'avutil',   None,       None,    ['avutil.h'],     ['av_malloc'],                                 []),
+Library('FFMPEG-codec', STATIC,   'avcodec', 'avcodec',  None,       None,    ['avcodec.h'],    ['avcodec_open'],                              ['zlib']),
+Library('FFMPEG-format', STATIC,  'avformat', 'avformat', None,      None,    ['avformat.h'],   ['av_register_all'],                           ['FFMPEG-util']),
+Library('FMOD',        DYNAMIC,   'fmodex',  'fmodex',   None,       None,    ['fmod.hpp', 'fmod.h'], [],                                      ['FFMPEG-codec', 'FFPMEG-util'])]:
     defineLibrary(lib)
 
 """ Constructs a dictionary mapping a library name to its

@@ -451,7 +451,7 @@ void VideoInput::decodingThreadProc(void* param) {
 
             // seek to timestamp
             int seekRet = av_seek_frame(vi->m_avFormatContext, vi->m_avVideoStreamIdx, vi->m_seekTimestamp, AVSEEK_FLAG_BACKWARD);
-            debugAssert(seekRet >= 0);
+            debugAssert(seekRet >= 0);(void)seekRet;
 
             // todo: shutdown on seekRet error?
 
