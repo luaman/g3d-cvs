@@ -14,7 +14,7 @@ href="classes.html">Classes</a>.
 <I>High-level building blocks for creating applications.</I>
 
   <UL>
-  <LI><B>3D Models</B> &nbsp; &nbsp;
+  <LI><B>3D Models and Data</B> &nbsp; &nbsp;
     \link G3D::ArticulatedModel ArticulatedModel\endlink,
     \link G3D::_BSPMAP::Map BSPMap\endlink,
     \link G3D::GFont GFont\endlink,
@@ -28,7 +28,9 @@ href="classes.html">Classes</a>.
     \link G3D::PosedModel PosedModel\endlink,
     \link G3D::PosedModel2D PosedModel2D\endlink,
     \link G3D::Sky Sky\endlink,
-    \link G3D::SkyParameters SkyParameters\endlink
+    \link G3D::SkyParameters SkyParameters\endlink,
+    \link G3D::VideoInput VideoInput\endlink,
+    \link G3D::VideoOutput VideoOutput\endlink
 
   <li><b>User Interface</b>&nbsp; &nbsp;
     \link G3D::BackgroundWidget BackgroundWidget\endlink,
@@ -84,7 +86,6 @@ href="classes.html">Classes</a>.
     \link G3D::SuperShader::ExtraLightPass SuperShader::ExtraLightPass\endlink,
     \link G3D::SuperShader::ShadowedPass SuperShader::ShadowedPass\endlink,
     \link G3D::ToneMap ToneMap\endlink
-
    </UL>
 
 @section gl Hardware Rendering (G3DAll.h, GLG3D.lib)

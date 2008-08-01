@@ -117,6 +117,8 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
 @section image Images and Video
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::VideoInput <b>VideoInput</b>\endlink</td><td>Read from AVI, MPG and other video files in real-time</td></tr>
+<tr><td></td><td>\link G3D::VideoOutut <b>VideoOutput</b>\endlink</td><td>Write video files</td></tr>
 <tr><td></td><td>\link G3D::Draw::rect2D <b>Draw::rect2D</b>\endlink</td><td>Stretch a Texture over a rectangle on screen</td></tr>
 <tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>GPU image representation</td></tr>
 <tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>An "off-screen" rendering surface used for image processing on the GPU</td></tr>
