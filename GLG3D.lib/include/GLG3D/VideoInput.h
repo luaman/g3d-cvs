@@ -30,7 +30,10 @@ class GImage;
     Read video files from MPG, AVI, MOV, and WMV files.
     
     There are three ways to read: by frame index, by time position, and
-    reading the next frame to display
+    selectively reading a frame if it is time for it to display.
+
+    Reading frames in non-sequential order can decrease performance due 
+    to seek times.
  */
 class VideoInput : public ReferenceCountedObject {
 public:
@@ -46,7 +49,7 @@ public:
     typedef ReferenceCountedPointer<VideoInput> Ref;
 
     /** @return NULL if the file is not found or cannot be opened. */
-    static Ref fromFile(const std::string& filename, const Settings& settings);
+    static Ref fromFile(const std::string& filename, const Settings& settings = Settings());
 
     ~VideoInput();
 

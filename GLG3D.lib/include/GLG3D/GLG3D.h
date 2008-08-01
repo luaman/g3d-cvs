@@ -26,6 +26,11 @@
 #   pragma comment(lib, "glu32")
 #   pragma comment(lib, "shell32") // for drag drop
 
+// FFMPEG:
+#   pragma comment(lib, "avutil")
+#   pragma comment(lib, "avcodec")
+#   pragma comment(lib, "avformat")
+
 #   ifdef _DEBUG
         // Don't link against G3D when building G3D itself.
 #       ifndef G3D_BUILDING_LIBRARY_DLL
@@ -102,6 +107,8 @@
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/DeveloperWindow.h"
 
+#include "GLG3D/VideoInput.h"
+#include "GLG3D/VideoOutput.h"
 #include "GLG3D/ShadowMap.h"
 
 #ifdef G3D_OSX
