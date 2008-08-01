@@ -4,6 +4,7 @@
  */
 
 #include "GLG3D/ArticulatedModel.h"
+#include "GLG3D/IFSModel.h"
 #include "Load3DS.h"
 
 namespace G3D {

@@ -1,18 +1,14 @@
 /** @file ArticulatedModel.h
     @author Morgan McGuire
-
-  TODO: hierarchy
-  TODO: smoothing groups
-  TODO: Posed edges, etc.
 */
-#ifndef G3D_ARTICULATEDMODEL
-#define G3D_ARTICULATEDMODEL
+#ifndef G3D_ARTICULATEDMODEL_H
+#define G3D_ARTICULATEDMODEL_H
 
-#include "SuperShader.h"
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/PosedModel.h"
+#include "GLG3D/SuperShader.h"
 
 namespace G3D {
 

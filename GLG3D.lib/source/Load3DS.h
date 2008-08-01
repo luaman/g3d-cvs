@@ -1,10 +1,17 @@
-#ifndef LOAD3DS_H
-#define LOAD3DS_H
+#ifndef G3D_LOAD3DS_H
+#define G3D_LOAD3DS_H
 
-#include <G3D/G3DAll.h>
+#include "G3D/platform.h"
+#include <string>
+#include "G3D/Array.h"
+#include "G3D/Vector2.h"
+#include "G3D/Vector3.h"
+#include "G3D/Color3.h"
+#include "G3D/Log.h"
+#include "G3D/fileutils.h"
+#include "GLG3D/Texture.h"
 
-
-// TODO: Create two polygons when MATTWOSIDE is detected?
+using namespace G3D;
 
 /**
  This class maps the 3DS file format to a runtime object, which is then
@@ -624,7 +631,7 @@ void Load3DS::processTriMeshChunk(
                     }
                 } else {
                     // Wrong number of vertices!
-                    Log::common()->printf("WARNING: encountered bad number of vertices in TRIUV chunk.");
+                    logPrintf("WARNING: encountered bad number of vertices in TRIUV chunk.");
                 }
             }
             break;

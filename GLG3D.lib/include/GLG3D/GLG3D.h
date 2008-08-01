@@ -27,10 +27,10 @@
 #   pragma comment(lib, "shell32") // for drag drop
 
 // FFMPEG:
+#   pragma comment(lib, "mingwex")
 #   pragma comment(lib, "avutil")
 #   pragma comment(lib, "avcodec")
 #   pragma comment(lib, "avformat")
-#   pragma comment(lib, "mingwex")
 
 #   ifdef _DEBUG
         // Don't link against G3D when building G3D itself.
