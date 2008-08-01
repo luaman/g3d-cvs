@@ -365,7 +365,7 @@ static Texture::Ref whiteMap() {
 }
 
 void ArticulatedModel::pose(
-    Array<PosedModel::Ref>&       posedArray, 
+    Array<PosedModel::Ref>&     posedArray, 
     const CoordinateFrame&      cframe, 
     const Pose&                 posex) {
 

@@ -19,7 +19,7 @@ namespace G3D {
 typedef ReferenceCountedPointer<class ArticulatedModel> ArticulatedModelRef;
 
 /**
- A model composed of a heirarchy of rigid parts (i.e., a scene graph).  
+ A model composed of a hierarchy of rigid parts (i.e., a scene graph).  The hierarchy may have multiple roots.  
  Renders efficiently using the static methods on PosedModel.  PosedModel recognizes ArticulatedModels explicitly and
  optimizes across them.
  Rendering provides full effects including shadows, parallax mapping, and correct transparency. Use a custom SuperShader::Pass 
@@ -319,7 +319,7 @@ public:
         providing detailed illuminaton.
     */
     void pose(
-        Array<PosedModel::Ref>&  posedModelArray, 
+        Array<PosedModel::Ref>&  posedModelArray,
         const CoordinateFrame&   cframe = CoordinateFrame(),
         const Pose&              pose = DEFAULT_POSE);
 

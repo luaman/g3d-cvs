@@ -667,9 +667,9 @@ static void bayer_rggb8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in, 
 				       Color4* _out, 
 				       const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];
-    bayer_rggb8_to_rgb8_mhc(w, h, in, tmp);
-    rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    bayer_rggb8_to_rgb8_mhc(w, h, in, tmp.getCArray());
+    rgb8_to_rgba32f(w, h, tmp.getCArray(), 0, _out, invertY);
 }
 
 
@@ -677,9 +677,9 @@ static void bayer_grbg8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in,
 				       Color4* _out,
 				       const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];
-    bayer_grbg8_to_rgb8_mhc(w, h, in, tmp);
-    rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    bayer_grbg8_to_rgb8_mhc(w, h, in, tmp.getCArray());
+    rgb8_to_rgba32f(w, h, tmp.getCArray(), 0, _out, invertY);
 }
 
 
@@ -687,9 +687,9 @@ static void bayer_bggr8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in,
 				       Color4* _out, 
 				       const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];           
-    bayer_bggr8_to_rgb8_mhc(w, h, in, tmp);
-    rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    bayer_bggr8_to_rgb8_mhc(w, h, in, tmp.getCArray());
+    rgb8_to_rgba32f(w, h, tmp.getCArray(), 0, _out, invertY);
 }
 
 
@@ -697,9 +697,9 @@ static void bayer_gbrg8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in,
 				       Color4* _out,
 				       const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];
-    bayer_gbrg8_to_rgb8_mhc(w, h, in, tmp);
-    rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    bayer_gbrg8_to_rgb8_mhc(w, h, in, tmp.getCArray());
+    rgb8_to_rgba32f(w, h, tmp.getCArray(), 0, _out, invertY);
 }
 
 
@@ -862,33 +862,33 @@ static void rgb8_to_bayer_gbrg8(const int w, const int h,
 
 static void rgba32f_to_bayer_rggb8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];
-    rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
-    rgb8_to_bayer_rggb8(w, h, tmp, _out);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    rgba32f_to_rgb8(w, h, in, 0, tmp.getCArray(), invertY);
+    rgb8_to_bayer_rggb8(w, h, tmp.getCArray(), _out);
 }
 
 
 static void rgba32f_to_bayer_grbg8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];
-    rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
-    rgb8_to_bayer_grbg8(w, h, tmp, _out);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    rgba32f_to_rgb8(w, h, in, 0, tmp.getCArray(), invertY);
+    rgb8_to_bayer_grbg8(w, h, tmp.getCArray(), _out);
 }
 
 
 static void rgba32f_to_bayer_bggr8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];	
-    rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
-    rgb8_to_bayer_bggr8(w, h, tmp, _out);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    rgba32f_to_rgb8(w, h, in, 0, tmp.getCArray(), invertY);
+    rgb8_to_bayer_bggr8(w, h, tmp.getCArray(), _out);
 }
 
 
 static void rgba32f_to_bayer_gbrg8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8 tmp[w * h * sizeof(Color3uint8)];
-    rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
-    rgb8_to_bayer_gbrg8(w, h, tmp, _out);
+    Array<uint8> tmp(w * h * sizeof(Color3uint8));
+    rgba32f_to_rgb8(w, h, in, 0, tmp.getCArray(), invertY);
+    rgb8_to_bayer_gbrg8(w, h, tmp.getCArray(), _out);
 }
 
 
