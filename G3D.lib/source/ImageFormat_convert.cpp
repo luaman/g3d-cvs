@@ -540,113 +540,118 @@ static void bayer_bggr8_to_rgb8_mhc(int w, int h,
 }
 
 
-
-// =====================================================================
-// bayer --> bgr8 
-// =====================================================================
-
-static void bayer_rggb8_to_bgr8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
-    debugAssert(in != _out);
-
-    Color3uint8* out = (Color3uint8*)_out;
-
-    for (int y = 0; y < h; ++y) {
-
-	// Row beginning in the input array.
-	int offset = y * w;
-
-	// RG row
-	for (int x = 0; x < w; ++x, ++out) {
-	    // R pixel
-	    {
-		out->b = in[x + offset];
-		out->g = applyFilter(in, x, y, w, h, G_GRR);
-		out->r = applyFilter(in, x, y, w, h, B_GRR);
-	    }
-	    ++x; ++out;
-
-	    // G pixel
-	    {
-		out->b = applyFilter(in, x, y, w, h, R_GRG);
-		out->g = in[x + offset];
-		out->r = applyFilter(in, x, y, w, h, B_GRG);
-	    }
-	}
-
-	++y;
-	offset += w;
-
-	// GB row
-	for (int x = 0; x < w; ++x, ++out) {
-	    // G pixel
-	    {
-		out->b = applyFilter(in, x, y, w, h, R_BGG);
-		out->g = in[x + offset];
-		out->r = applyFilter(in, x, y, w, h, B_BGG);
-	    }
-	    ++x; ++out;
-
-	    // B pixel
-	    {
-		out->b = applyFilter(in, x, y, w, h, R_BGB);
-		out->g = applyFilter(in, x, y, w, h, G_BGB);
-		out->r = in[x + offset];
-	    }
-	}
-    }
-}
+    // TODO: The following region is commented out because so far
+    // those conversions are not used anywhere else. Until it is
+    // decided that such conversions are not needed, this region
+    // remains commented out.
 
 
-static void bayer_gbrg8_to_bgr8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
+// // =====================================================================
+// // bayer --> bgr8 
+// // =====================================================================
 
-    debugAssert(in != _out);
+// static void bayer_rggb8_to_bgr8_mhc(int w, int h, 
+// 				    const uint8* in, uint8* _out) {
+//     debugAssert(in != _out);
 
-    Color3uint8* out = (Color3uint8*)_out;
+//     Color3uint8* out = (Color3uint8*)_out;
 
-    for (int y = 0; y < h; ++y) {
+//     for (int y = 0; y < h; ++y) {
 
-	// Row beginning in the input array.
-	int offset = y * w;
+// 	// Row beginning in the input array.
+// 	int offset = y * w;
 
-	// GB row
-	for (int x = 0; x < w; ++x, ++out) {
-	    // G pixel
-	    {
-		out->b = applyFilter(in, x, y, w, h, R_BGG);
-		out->g = in[x + offset];
-		out->r = applyFilter(in, x, y, w, h, B_BGG);
-	    }
-	    ++x; ++out;
+// 	// RG row
+// 	for (int x = 0; x < w; ++x, ++out) {
+// 	    // R pixel
+// 	    {
+// 		out->b = in[x + offset];
+// 		out->g = applyFilter(in, x, y, w, h, G_GRR);
+// 		out->r = applyFilter(in, x, y, w, h, B_GRR);
+// 	    }
+// 	    ++x; ++out;
 
-	    // B pixel
-	    {
-		out->b = applyFilter(in, x, y, w, h, R_BGB);
-		out->g = applyFilter(in, x, y, w, h, G_BGB);
-		out->r = in[x + offset];
-	    }
-	}
-    }
-}
+// 	    // G pixel
+// 	    {
+// 		out->b = applyFilter(in, x, y, w, h, R_GRG);
+// 		out->g = in[x + offset];
+// 		out->r = applyFilter(in, x, y, w, h, B_GRG);
+// 	    }
+// 	}
 
-static void bayer_grbg8_to_bgr8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
-    // Run the equivalent function for red
-    bayer_gbrg8_to_bgr8_mhc(w, h, in, _out);
+// 	++y;
+// 	offset += w;
 
-    // Now swap red and blue
-    swapRedAndBlue(w * h, (Color3uint8*)_out);
-}
+// 	// GB row
+// 	for (int x = 0; x < w; ++x, ++out) {
+// 	    // G pixel
+// 	    {
+// 		out->b = applyFilter(in, x, y, w, h, R_BGG);
+// 		out->g = in[x + offset];
+// 		out->r = applyFilter(in, x, y, w, h, B_BGG);
+// 	    }
+// 	    ++x; ++out;
 
-static void bayer_bggr8_to_bgr8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
-    // Run the equivalent function for red
-    bayer_rggb8_to_bgr8_mhc(w, h, in, _out);
+// 	    // B pixel
+// 	    {
+// 		out->b = applyFilter(in, x, y, w, h, R_BGB);
+// 		out->g = applyFilter(in, x, y, w, h, G_BGB);
+// 		out->r = in[x + offset];
+// 	    }
+// 	}
+//     }
+// }
 
-    // Now swap red and blue
-    swapRedAndBlue(w * h, (Color3uint8*)_out);
-}
+
+// static void bayer_gbrg8_to_bgr8_mhc(int w, int h, 
+// 				    const uint8* in, uint8* _out) {
+
+//     debugAssert(in != _out);
+
+//     Color3uint8* out = (Color3uint8*)_out;
+
+//     for (int y = 0; y < h; ++y) {
+
+// 	// Row beginning in the input array.
+// 	int offset = y * w;
+
+// 	// GB row
+// 	for (int x = 0; x < w; ++x, ++out) {
+// 	    // G pixel
+// 	    {
+// 		out->b = applyFilter(in, x, y, w, h, R_BGG);
+// 		out->g = in[x + offset];
+// 		out->r = applyFilter(in, x, y, w, h, B_BGG);
+// 	    }
+// 	    ++x; ++out;
+
+// 	    // B pixel
+// 	    {
+// 		out->b = applyFilter(in, x, y, w, h, R_BGB);
+// 		out->g = applyFilter(in, x, y, w, h, G_BGB);
+// 		out->r = in[x + offset];
+// 	    }
+// 	}
+//     }
+// }
+
+// static void bayer_grbg8_to_bgr8_mhc(int w, int h, 
+// 				    const uint8* in, uint8* _out) {
+//     // Run the equivalent function for red
+//     bayer_gbrg8_to_bgr8_mhc(w, h, in, _out);
+
+//     // Now swap red and blue
+//     swapRedAndBlue(w * h, (Color3uint8*)_out);
+// }
+
+// static void bayer_bggr8_to_bgr8_mhc(int w, int h, 
+// 				    const uint8* in, uint8* _out) {
+//     // Run the equivalent function for red
+//     bayer_rggb8_to_bgr8_mhc(w, h, in, _out);
+
+//     // Now swap red and blue
+//     swapRedAndBlue(w * h, (Color3uint8*)_out);
+// }
 
 
 
@@ -662,7 +667,7 @@ static void bayer_rggb8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in, 
 				       Color4* _out, 
 				       const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];
     bayer_rggb8_to_rgb8_mhc(w, h, in, tmp);
     rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
 }
@@ -672,7 +677,7 @@ static void bayer_grbg8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in,
 				       Color4* _out,
 				       const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];
     bayer_grbg8_to_rgb8_mhc(w, h, in, tmp);
     rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
 }
@@ -682,7 +687,7 @@ static void bayer_bggr8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in,
 				       Color4* _out, 
 				       const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];           
     bayer_bggr8_to_rgb8_mhc(w, h, in, tmp);
     rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
 }
@@ -692,7 +697,7 @@ static void bayer_gbrg8_to_rgba32f_mhc(int w, int h,
 				       const uint8* in,
 				       Color4* _out,
 				       const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];
     bayer_gbrg8_to_rgb8_mhc(w, h, in, tmp);
     rgb8_to_rgba32f(w, h, tmp, 0, _out, invertY);
 }
@@ -857,7 +862,7 @@ static void rgb8_to_bayer_gbrg8(const int w, const int h,
 
 static void rgba32f_to_bayer_rggb8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];
     rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
     rgb8_to_bayer_rggb8(w, h, tmp, _out);
 }
@@ -865,7 +870,7 @@ static void rgba32f_to_bayer_rggb8(int w, int h, const Color4* in,
 
 static void rgba32f_to_bayer_grbg8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];
     rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
     rgb8_to_bayer_grbg8(w, h, tmp, _out);
 }
@@ -873,7 +878,7 @@ static void rgba32f_to_bayer_grbg8(int w, int h, const Color4* in,
 
 static void rgba32f_to_bayer_bggr8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8* tmp;	
+    uint8 tmp[w * h * sizeof(Color3uint8)];	
     rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
     rgb8_to_bayer_bggr8(w, h, tmp, _out);
 }
@@ -881,7 +886,7 @@ static void rgba32f_to_bayer_bggr8(int w, int h, const Color4* in,
 
 static void rgba32f_to_bayer_gbrg8(int w, int h, const Color4* in, 
 				   uint8* _out, const bool invertY) {
-    uint8* tmp;
+    uint8 tmp[w * h * sizeof(Color3uint8)];
     rgba32f_to_rgb8(w, h, in, 0, tmp, invertY);
     rgb8_to_bayer_gbrg8(w, h, tmp, _out);
 }
@@ -1099,6 +1104,7 @@ void ImageFormat::convert(const void* src,
 	    default:;
 	    }
 	    break;
+
 
 	default:;
 
