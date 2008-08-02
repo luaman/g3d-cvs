@@ -6,30 +6,32 @@
 #include "G3D/platform.h"
 #include "GLG3D/VideoInput.h"
 #include "GLG3D/Texture.h"
+#include "G3D/fileutils.h"
 
 extern "C" {
 #include "libavformat/avformat.h"
 #include "libavcodec/avcodec.h"
 #include "libavutil/avutil.h"
+#include <errno.h>
 }
 
 namespace G3D {
 
 VideoInput::Ref VideoInput::fromFile(const std::string& filename, const Settings& settings) {
-    VideoInput* vi = new VideoInput;
+    Ref vi = new VideoInput;
 
-    // todo: should the exception still be thrown when we're creating a reference?
+    debugAssert(fileExists(filename, false)); // TODO: make exception
+
     try {
         vi->initialize(filename, settings);
-    } catch (std::string s) {
+    } catch (const std::string& s) {
+        // TODO: Throw the exception
         debugAssertM(false, s);
-
-        delete vi;
         vi = NULL;
     }
-
-    return Ref(vi);
+    return vi;
 }
+
 
 VideoInput::VideoInput() : 
     m_currentTime(0.0f),
@@ -69,6 +71,42 @@ VideoInput::~VideoInput() {
     }
 }
 
+
+static const char* ffmpegError(int code) {
+    switch (iAbs(code)) {
+    case AVERROR_UNKNOWN:
+        return "Unknown error";
+    
+    case AVERROR_IO:
+        return "I/O error";
+
+    case AVERROR_NUMEXPECTED:
+        return "Number syntax expected in filename.";
+
+        // gives the compilation error, "case 22 already used."
+//    case AVERROR_INVALIDDATA:
+//        return "Invalid data found.";
+
+    case AVERROR_NOMEM:
+        return "Not enough memory.";
+
+    case AVERROR_NOFMT:
+        return "Unknown format";
+
+    case AVERROR_NOTSUPP:
+        return "Operation not supported.";
+
+    case AVERROR_NOENT:
+        return "No such file or directory.";
+
+    case AVERROR_PATCHWELCOME:
+        return "Not implemented in FFMPEG";
+
+    default:
+        return "Unrecognized error code.";
+    }
+}
+
 void VideoInput::initialize(const std::string& filename, const Settings& settings) {
     // helper for exiting VideoInput construction (exceptions caught by static ref creator)
     #define throwException(exp, msg) if (!(exp)) { throw std::string(msg); }
@@ -81,7 +119,7 @@ void VideoInput::initialize(const std::string& filename, const Settings& setting
     m_settings = settings;
 
     int avRet = av_open_input_file(&m_avFormatContext, filename.c_str(), NULL, 0, NULL);
-    throwException(avRet >= 0, ("Unable to initialize ffmpeg."));
+    throwException(avRet >= 0, ffmpegError(avRet));
 
     // find and use the first video stream by default
     // this may need to be expanded to configure or accommodate multiple streams in a file
