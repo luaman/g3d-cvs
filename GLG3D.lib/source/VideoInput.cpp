@@ -176,9 +176,10 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
     if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // clear exiting texture
+        // clear existing texture
         frame = NULL;
 
+        // TODO: reuse existing texture if possible.  That preserves its settings and avoids reallocating GPU memory
         // create new texture
         frame = Texture::fromMemory("VideoInput frame", buffer->m_frame->data[0], TextureFormat::RGB8(), width(), height(), 1, TextureFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::video());
 

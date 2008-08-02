@@ -27,7 +27,7 @@ namespace G3D {
 class GImage;
 
 /** 
-    Read video files from MPG, MP4, AVI, MOV, OGG, and WMV files.
+    Read video files from MPG, MP4, AVI, MOV, OGG, ASF, and WMV files.
     
     There are three ways to read: by frame index, by time position, and
     selectively reading a frame if it is time for it to display.
