@@ -26,7 +26,7 @@ VideoInput::Ref VideoInput::fromFile(const std::string& filename, const Settings
         vi->initialize(filename, settings);
     } catch (const std::string& s) {
         // TODO: Throw the exception
-        debugAssertM(false, s);
+        debugAssertM(false, s);(foid)s;
         vi = NULL;
     }
     return vi;
