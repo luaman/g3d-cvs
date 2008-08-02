@@ -27,6 +27,7 @@
 #   pragma comment(lib, "shell32") // for drag drop
 
 // FFMPEG:
+#   pragma comment(lib, "gcc")
 #   pragma comment(lib, "mingwex")
 #   pragma comment(lib, "avutil")
 #   pragma comment(lib, "avcodec")
