@@ -376,10 +376,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\G3D.lib\source\MeshAlgWeld2.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\G3D.lib\source\MeshBuilder.cpp"
 				>
 			</File>
