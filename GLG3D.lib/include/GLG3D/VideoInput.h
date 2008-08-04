@@ -109,7 +109,7 @@ public:
     void        setTimePosition(RealTime pos);
     /** Seek to playback position
         @param index Seek frame index (zero based)*/
-    void        setFrameIndex(int index);
+    void        setIndex(int index);
 
 
     /** Seek ahead in playback position
@@ -126,13 +126,19 @@ public:
     int         height() const;
 
     /** Preferred playback speed in frames per second */
-    float       fps() const;
+    RealTime    fps() const;
 
     /** Length of video in seconds */
     RealTime    length() const;
 
     /** Current playback position in seconds */
-    RealTime    pos() const         { return m_currentTime; }
+    RealTime    pos() const;
+
+    /** Length of video in frames */
+    int         numFrames() const;
+
+    /** Current playback frame index */
+    int         index() const;
 
     bool        finished() const    { return m_finished; }
 
@@ -148,6 +154,8 @@ private:
     std::string         m_filename;
 
     RealTime            m_currentTime;
+    int                 m_currentIndex;
+
     volatile bool       m_finished;
 
     struct Buffer {

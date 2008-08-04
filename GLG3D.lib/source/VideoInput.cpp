@@ -35,9 +35,10 @@ VideoInput::Ref VideoInput::fromFile(const std::string& filename, const Settings
 
 VideoInput::VideoInput() : 
     m_currentTime(0.0f),
+    m_currentIndex(-1),
     m_finished(false),
     m_clearBuffersAndSeek(false),
-    m_seekTimestamp(0),
+    m_seekTimestamp(-1),
     m_avFormatContext(NULL),
     m_avCodecContext(NULL),
     m_avVideoCodec(NULL),
@@ -71,41 +72,7 @@ VideoInput::~VideoInput() {
     }
 }
 
-
-static const char* ffmpegError(int code) {
-    switch (iAbs(code)) {
-    case AVERROR_UNKNOWN:
-        return "Unknown error";
-    
-    case AVERROR_IO:
-        return "I/O error";
-
-    case AVERROR_NUMEXPECTED:
-        return "Number syntax expected in filename.";
-
-        // gives the compilation error, "case 22 already used."
-//    case AVERROR_INVALIDDATA:
-//        return "Invalid data found.";
-
-    case AVERROR_NOMEM:
-        return "Not enough memory.";
-
-    case AVERROR_NOFMT:
-        return "Unknown format";
-
-    case AVERROR_NOTSUPP:
-        return "Operation not supported.";
-
-    case AVERROR_NOENT:
-        return "No such file or directory.";
-
-    case AVERROR_PATCHWELCOME:
-        return "Not implemented in FFMPEG";
-
-    default:
-        return "Unrecognized error code.";
-    }
-}
+static const char* ffmpegError(int code);
 
 void VideoInput::initialize(const std::string& filename, const Settings& settings) {
     // helper for exiting VideoInput construction (exceptions caught by static ref creator)
@@ -134,15 +101,15 @@ void VideoInput::initialize(const std::string& filename, const Settings& setting
     }
 
     // We load on the assumption that this is a video file
-    throwException(m_avCodecContext != NULL, ("Unable to initialize ffmpeg."));
+    throwException(m_avCodecContext != NULL, ("Unable to initialize FFmpeg."));
 
     // Find the video codec
     m_avVideoCodec = avcodec_find_decoder(m_avCodecContext->codec_id);
-    throwException(m_avVideoCodec, ("Unable to initialize ffmpeg."));
+    throwException(m_avVideoCodec, ("Unable to initialize FFmpeg."));
 
     // Initialize the codecs
     avRet = avcodec_open(m_avCodecContext, m_avVideoCodec);
-    throwException(avRet >= 0, ("Unable to initialize ffmpeg."));
+    throwException(avRet >= 0, ("Unable to initialize FFmpeg."));
 
     // Create array of buffers for decoding
     int bufferSize = avpicture_get_size(PIX_FMT_RGB24, m_avCodecContext->width, m_avCodecContext->height);
@@ -176,6 +143,19 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
     if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
         Buffer* buffer = m_decodedBuffers.dequeue();
 
+        // in order to set the index when the seek is initiated,
+        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
+        if (m_seekTimestamp == -1) {
+            // increment current playback index
+            ++m_currentIndex;
+        } else {
+            // reset seek
+            m_seekTimestamp = -1;
+        }
+
+        // adjust current playback position to the time of the frame
+        m_currentTime = buffer->m_pos;
+
         // clear existing texture
         frame = NULL;
 
@@ -204,6 +184,19 @@ bool VideoInput::readNext(RealTime timeStep, GImage& frame) {
     if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
         Buffer* buffer = m_decodedBuffers.dequeue();
 
+        // in order to set the index when the seek is initiated,
+        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
+        if (m_seekTimestamp == -1) {
+            // increment current playback index
+            ++m_currentIndex;
+        } else {
+            // reset seek
+            m_seekTimestamp = -1;
+        }
+
+        // adjust current playback position to the time of the frame
+        m_currentTime = buffer->m_pos;
+
         // create 3-channel GImage (RGB8)
         frame.resize(width(), height(), 3);
 
@@ -230,6 +223,19 @@ bool VideoInput::readNext(RealTime timeStep, Image3uint8::Ref& frame) {
     bool frameUpdated = false;
     if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
         Buffer* buffer = m_decodedBuffers.dequeue();
+
+        // in order to set the index when the seek is initiated,
+        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
+        if (m_seekTimestamp == -1) {
+            // increment current playback index
+            ++m_currentIndex;
+        } else {
+            // reset seek
+            m_seekTimestamp = -1;
+        }
+
+        // adjust current playback position to the time of the frame
+        m_currentTime = buffer->m_pos;
 
         // clear existing image
         frame = NULL;
@@ -258,6 +264,19 @@ bool VideoInput::readNext(RealTime timeStep, Image3::Ref& frame) {
     if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
         Buffer* buffer = m_decodedBuffers.dequeue();
 
+        // in order to set the index when the seek is initiated,
+        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
+        if (m_seekTimestamp == -1) {
+            // increment current playback index
+            ++m_currentIndex;
+        } else {
+            // reset seek
+            m_seekTimestamp = -1;
+        }
+
+        // adjust current playback position to the time of the frame
+        m_currentTime = buffer->m_pos;
+
         // clear existing image
         frame = NULL;
         
@@ -277,113 +296,35 @@ bool VideoInput::readNext(RealTime timeStep, Image3::Ref& frame) {
 }
 
 bool VideoInput::readFromPos(RealTime pos, Texture::Ref& frame) {
-    setTimePosition(pos);
-
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
-        System::sleep(0.005);
-
-        m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            // adjust current playback position to the time of keyframe found
-            m_currentTime = m_decodedBuffers[0]->m_pos;
-
-            m_bufferMutex.unlock();
-
-            readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
-        } else {
-            m_bufferMutex.unlock();
-        }
-    }
-
-    // invalidate video if seek failed
-    if (!foundFrame) {
-        m_finished = true;
-    }
-
-    return foundFrame;
+    // find the closest index to seek to
+    return readFromIndex(pos * fps(), frame);
 }
 
 bool VideoInput::readFromPos(RealTime pos, GImage& frame) {
-    setTimePosition(pos);
-
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
-        System::sleep(0.005);
-
-        m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            // adjust current playback position to the time of keyframe found
-            m_currentTime = m_decodedBuffers[0]->m_pos;
-
-            m_bufferMutex.unlock();
-
-            readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
-        } else {
-            m_bufferMutex.unlock();
-        }
-    }
-
-    // invalidate video if seek failed
-    if (!foundFrame) {
-        m_finished = true;
-    }
-
-    return foundFrame;
+    // find the closest index to seek to
+    return readFromIndex(pos * fps(), frame);
 }
 
 bool VideoInput::readFromPos(RealTime pos, Image3uint8::Ref& frame) {
-    setTimePosition(pos);
-
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
-        System::sleep(0.005);
-
-        m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            // adjust current playback position to the time of keyframe found
-            m_currentTime = m_decodedBuffers[0]->m_pos;
-
-            m_bufferMutex.unlock();
-
-            readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
-        } else {
-            m_bufferMutex.unlock();
-        }
-    }
-
-    // invalidate video if seek failed
-    if (!foundFrame) {
-        m_finished = true;
-    }
-
-    return foundFrame;
+    // find the closest index to seek to
+    return readFromIndex(pos * fps(), frame);
 }
 
 bool VideoInput::readFromPos(RealTime pos, Image3::Ref& frame) {
-    setTimePosition(pos);
+    // find the closest index to seek to
+    return readFromIndex(pos * fps(), frame);
+}
+
+bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
+    setIndex(index);
 
     bool foundFrame = false;
     while (!m_decodingThread->completed()) {
         System::sleep(0.005);
 
+        // check for a new frame after seek and read it
         m_bufferMutex.lock();
         if (m_decodedBuffers.length() > 0) {
-            // adjust current playback position to the time of keyframe found
-            m_currentTime = m_decodedBuffers[0]->m_pos;
-
             m_bufferMutex.unlock();
 
             readNext(0.0, frame);
@@ -404,34 +345,111 @@ bool VideoInput::readFromPos(RealTime pos, Image3::Ref& frame) {
     return foundFrame;
 }
 
-bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
-    return readFromPos(index * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate), frame);
-}
-
 bool VideoInput::readFromIndex(int index, GImage& frame) {
-    return readFromPos(index * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate), frame);
+    setIndex(index);
+
+    bool foundFrame = false;
+    while (!m_decodingThread->completed()) {
+        System::sleep(0.005);
+
+        // check for a new frame after seek and read it
+        m_bufferMutex.lock();
+        if (m_decodedBuffers.length() > 0) {
+            m_bufferMutex.unlock();
+
+            readNext(0.0, frame);
+
+            foundFrame = true;
+
+            break;
+        } else {
+            m_bufferMutex.unlock();
+        }
+    }
+
+    // invalidate video if seek failed
+    if (!foundFrame) {
+        m_finished = true;
+    }
+
+    return foundFrame;
 }
 
 bool VideoInput::readFromIndex(int index, Image3uint8::Ref& frame) {
-    return readFromPos(index * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate), frame);
+    setIndex(index);
+
+    bool foundFrame = false;
+    while (!m_decodingThread->completed()) {
+        System::sleep(0.005);
+
+        // check for a new frame after seek and read it
+        m_bufferMutex.lock();
+        if (m_decodedBuffers.length() > 0) {
+            m_bufferMutex.unlock();
+
+            readNext(0.0, frame);
+
+            foundFrame = true;
+
+            break;
+        } else {
+            m_bufferMutex.unlock();
+        }
+    }
+
+    // invalidate video if seek failed
+    if (!foundFrame) {
+        m_finished = true;
+    }
+
+    return foundFrame;
 }
 
 bool VideoInput::readFromIndex(int index, Image3::Ref& frame) {
-    return readFromPos(index * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate), frame);
+    setIndex(index);
+
+    bool foundFrame = false;
+    while (!m_decodingThread->completed()) {
+        System::sleep(0.005);
+
+        // check for a new frame after seek and read it
+        m_bufferMutex.lock();
+        if (m_decodedBuffers.length() > 0) {
+            m_bufferMutex.unlock();
+
+            readNext(0.0, frame);
+
+            foundFrame = true;
+
+            break;
+        } else {
+            m_bufferMutex.unlock();
+        }
+    }
+
+    // invalidate video if seek failed
+    if (!foundFrame) {
+        m_finished = true;
+    }
+
+    return foundFrame;
 }
 
 void VideoInput::setTimePosition(RealTime pos) {
+    // find the closest index to seek to
+    setIndex(pos * fps());
+}
+
+void VideoInput::setIndex(int index) {
+    m_currentIndex = index;
+
+    m_currentTime = index / fps();
+
     // calculate timestamp in stream time base units
-    m_seekTimestamp = static_cast<int64>(pos / av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->time_base)) + m_avFormatContext->streams[m_avVideoStreamIdx]->start_time;
+    m_seekTimestamp = static_cast<int64>(m_currentTime / av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->time_base)) + m_avFormatContext->streams[m_avVideoStreamIdx]->start_time;
 
     // tell decoding thread to clear buffers and start at this position
     m_clearBuffersAndSeek = true;
-
-    m_currentTime = pos;
-}
-
-void VideoInput::setFrameIndex(int index) {
-    setTimePosition(index * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate));
 }
 
 void VideoInput::skipTime(RealTime length) {
@@ -439,7 +457,7 @@ void VideoInput::skipTime(RealTime length) {
 }
 
 void VideoInput::skipFrames(int length) {
-    setTimePosition(m_currentTime + (length * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate)));
+    setIndex(m_currentIndex + length);
 }
 
 int VideoInput::width() const {
@@ -450,12 +468,25 @@ int VideoInput::height() const {
     return m_avCodecContext->height;
 }
 
-float VideoInput::fps() const {
-    return static_cast<float>(av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate));
+RealTime VideoInput::fps() const {
+    return av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate);
 }
 
 RealTime VideoInput::length() const {
     return m_avFormatContext->streams[m_avVideoStreamIdx]->duration * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->time_base);
+}
+
+RealTime VideoInput::pos() const {
+    return m_currentTime;
+}
+
+int VideoInput::numFrames() const {
+    return static_cast<int>(length() * fps());
+}
+
+int VideoInput::index() const {
+    // -1 is used internally but representes index 0 still
+    return (m_currentIndex >= 0) ? m_currentIndex : 0;
 }
 
 void VideoInput::decodingThreadProc(void* param) {
@@ -593,6 +624,42 @@ void VideoInput::decodingThreadProc(void* param) {
 
     // free codec decoding frame
     av_free(decodingFrame);
+}
+
+// static helpers
+static const char* ffmpegError(int code) {
+    switch (iAbs(code)) {
+    case AVERROR_UNKNOWN:
+        return "Unknown error";
+    
+    case AVERROR_IO:
+        return "I/O error";
+
+    case AVERROR_NUMEXPECTED:
+        return "Number syntax expected in filename.";
+
+        // gives the compilation error, "case 22 already used."
+//    case AVERROR_INVALIDDATA:
+//        return "Invalid data found.";
+
+    case AVERROR_NOMEM:
+        return "Not enough memory.";
+
+    case AVERROR_NOFMT:
+        return "Unknown format";
+
+    case AVERROR_NOTSUPP:
+        return "Operation not supported.";
+
+    case AVERROR_NOENT:
+        return "No such file or directory.";
+
+    case AVERROR_PATCHWELCOME:
+        return "Not implemented in FFmpeg";
+
+    default:
+        return "Unrecognized error code.";
+    }
 }
 
 } // namespace G3D
