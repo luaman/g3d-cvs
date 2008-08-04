@@ -65,6 +65,11 @@ ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, cons
 }
 
 
+ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, float scale) {
+    return fromFile(filename, Vector3(scale, scale, scale));
+}
+
+
 ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const Matrix4& xform) {
     ArticulatedModel* model = new ArticulatedModel();
 
