@@ -205,6 +205,7 @@ void ArticulatedModel::renderNonShadowed(
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
             rd->setDepthWrite(true);
 
+            debugAssertGLOk();  //remove
             if (triList.twoSided) {
                 if (! ps20) {
                     rd->enableTwoSidedLighting();
@@ -218,6 +219,7 @@ void ArticulatedModel::renderNonShadowed(
 
             bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
 
+            debugAssertGLOk();  //remove
             if (triList.twoSided && ps20) {
                 // gl_FrontFacing doesn't work on most cards inside
                 // the shader, so we have to draw two-sided objects
@@ -228,6 +230,7 @@ void ArticulatedModel::renderNonShadowed(
 
             }
 
+			debugAssertGLOk();	//remove - fails here
             if (! wroteDepth) {
                 // We failed to write to the depth buffer, so
                 // do so now.
@@ -240,6 +243,7 @@ void ArticulatedModel::renderNonShadowed(
                 rd->enableLighting();
             }
 
+			debugAssertGLOk();	//remove
             if (triList.twoSided) {
                 rd->disableTwoSidedLighting();
                 rd->setCullFace(RenderDevice::CULL_BACK);
@@ -603,7 +607,7 @@ bool PosedArticulatedModel::renderFFNonShadowedOpaqueTerms(
         sendGeometry2(rd);
         setAdditive(rd, renderedOnce);
     }
-    
+
     // Add reflective
     if (! material.reflect.isBlack() && 
         lighting.notNull() &&
@@ -649,6 +653,7 @@ bool PosedArticulatedModel::renderFFNonShadowedOpaqueTerms(
 
         // Fixed function does not receive specular texture maps, only constants.
         rd->setSpecularCoefficient(material.specular.constant);
+		float avg = material.specularExponent.constant.average();
         rd->setShininess(material.specularExponent.constant.average());
 
         // Ambient

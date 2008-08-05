@@ -53,7 +53,6 @@ Matrix4::Matrix4(const class CoordinateFrame& cframe) {
     elt[3][3] = 1.0f;
 }
 
-
 Matrix4::Matrix4(const Matrix3& upper3x3, const Vector3& lastCol) {
     for (int r = 0; r < 3; ++r) {
         for (int c = 0; c < 3; ++c) {

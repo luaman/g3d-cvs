@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2003-09-14
- @edited  2007-08-30
+ @edited  2008-07-30
 */
 
 #ifndef G3D_MESHALG_H
@@ -349,6 +349,7 @@ public:
 
      @param vertexNormalArray Output. Unit length
      @param faceNormalArray Output.   Degenerate faces produce zero magnitude normals. Unit length
+     @see weld
     */
     static void computeNormals(
         const Array<Vector3>&   vertexGeometry,
@@ -358,15 +359,16 @@ public:
         Array<Vector3>&         faceNormalArray);
 
     /** Computes unit length normals in place using the other computeNormals methods.
-    If you already have a face array use another method; it will be faster. */
+     If you already have a face array use another method; it will be faster. 
+         @see weld*/
     static void computeNormals(
         Geometry&               geometry,
         const Array<int>&       indexArray);
 
-
     /**
      Computes face normals only.  Significantly faster (especially if
      normalize is false) than computeNormals.
+     @see weld
      */
     static void computeFaceNormals(
         const Array<Vector3>&           vertexArray,
@@ -436,6 +438,8 @@ public:
      @cite The method is that described as the 'Grouper' in Baum, Mann, Smith, and Winget, 
      Making Radiosity Usable: Automatic Preprocessing and Meshing Techniques for
      the Generation of Accurate Radiosity Solutions, Computer Graphics vol 25, no 4, July 1991.
+
+     @deprecated Use weld.
      */
     static void computeWeld(
         const Array<Vector3>& oldVertexPositions,
@@ -462,6 +466,8 @@ public:
      
      If you have not computed adjacency already, use MeshAlg::computeWeld
      instead and compute adjacency information after welding.
+
+     @deprecated Use weld.
 
      @param faceArray Mutated in place.  Size is maintained (degenerate
             faces are <b>not</B> removed).
@@ -519,6 +525,37 @@ public:
 
     /** Computes bounds for a subset of the vertices.  It is ok if vertices appear more than once in the index array. */
     static void computeBounds(const Array<Vector3>& vertex, const Array<int>& index, class Box& box, class Sphere& sphere);
+
+    /**
+     Mutates geometry, texCoord, and indexArray so that the output has collocated vertices collapsed (welded).
+
+     Let v be the vertex array before weld and v' be the vertex array after welding.  The index conversion array is:
+
+     <pre>
+       v[i] == v'[ oldToNewIndex[i] ]
+     </pre>
+
+     If you are converting an index array itself, then:
+
+     <pre>
+       index'[j] == oldToNewIndex[ index[j]  ]
+     </pre>
+
+     @param recomputeNormals If true, vertex normals are replaced with face normals and then smoothed in groups 
+     smoothed in groups separated by less than @a normalSmoothingAngle.  Smoothing groups can cross texcoord boundaries.
+
+     @param normalSmoothingAngle Varies from 0 (flat shading) to toRadians(180) for extremely smooth shading. Default is toRadians(70)
+     */
+    static void weld(
+        Geometry&             geometry, 
+        Array<Vector2>&       texCoord, 
+        Array<int>&           indexArray,
+        Array<int>&           oldToNewIndex, 
+        bool                  recomputeNormals = true,
+        float                 normalSmoothingAngle = toRadians(70),
+        float                 vertexWeldRadius   = 0.0001f,
+        float                 texCoordWeldRadius = 0.0001f,
+        float                 normalWeldRadius   = 0.01f);
 
     /**
      In debug mode, asserts that the adjacency references between the

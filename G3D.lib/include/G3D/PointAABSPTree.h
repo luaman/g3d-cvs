@@ -612,13 +612,31 @@ public:
     }
 
     /**
-     Throws out all elements of the set.
+     Throws out all elements of the set and erases the structure of the tree.
      */
     void clear() {
         memberTable.clear();
         delete root;
         root = NULL;
     }
+
+    /** Removes all elements of the set while maintaining the structure of the tree */
+    void clearData() {
+        memberTable.clear();
+        Array<Node*> stack;
+        stack.push(root);
+        while (stack.size() > 0) {
+            Node* node = stack.pop();
+            node->valueArray.fastClear();
+
+            for (int i = 0; i < 2; ++i) {
+                if (node->child[i] != NULL) {
+                    stack.push(node->child[i]);
+                }
+            }
+        }
+    }
+
 
     int size() const {
         return memberTable.size();
