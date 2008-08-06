@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @author  2000-09-09
- @edited  2002-11-30
+ @edited  2008-08-05
  */
 
 #ifndef G3D_STRINGUTILS_H
@@ -12,7 +12,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
-#include <string>
+#include <cstring>
 
 namespace G3D {
 
