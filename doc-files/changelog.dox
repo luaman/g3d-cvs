@@ -127,6 +127,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: AtomicInt32 decrement returns int32 instead of uint32
      <li> Fix: OS X function keys now work correctly under CarbonWindow
      <li> Fix: OS X modifier keys now work correctly under CarbonWindow
      <li> Fix: OS X arrow keys now work correctly under CarbonWindow
