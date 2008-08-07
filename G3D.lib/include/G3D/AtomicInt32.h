@@ -35,105 +35,103 @@ private:
 #   else
 #       define VCAST
 #   endif
-    volatile long           _value;
+    volatile long           m_value;
 #   elif defined(G3D_OSX)
-	int32_t					_value;
+	int32_t					m_value;
 #   else
-    volatile int32          _value;
+    volatile int32          m_value;
 #   endif
 
 
 public:
 
     /** Initial value is undefined. */
-    inline AtomicInt32() {}
+    AtomicInt32() {}
 
     /** Atomic set */
-    explicit inline AtomicInt32(const int32 x) {
-        // APR does this assignment using InterlockedExchange
-        // Morgan believes that volatile should be sufficient, however.
-        _value = x;
+    explicit AtomicInt32(const int32 x) {
+        m_value = x;
     }
 
     /** Atomic set */
-    inline AtomicInt32(const AtomicInt32& x) {
-        _value = x._value;
+    AtomicInt32(const AtomicInt32& x) {
+        m_value = x.m_value;
     }
 
     /** Atomic set */
-    inline const AtomicInt32& operator=(const int32 x) {
-        _value = x;
+    const AtomicInt32& operator=(const int32 x) {
+        m_value = x;
         return *this;
     }
 
     /** Atomic set */
-    inline void operator=(const AtomicInt32& x) {
-        _value = x._value;
+    void operator=(const AtomicInt32& x) {
+        m_value = x.m_value;
     }
 
     /** Returns the current value */
-    inline int32 value() const {
-        return _value;
+    int32 value() const {
+        return m_value;
     }
 
     /** Returns the old value, before the add. */
-    inline int32 add(const int32 x) {
+    int32 add(const int32 x) {
 #       if defined(G3D_WIN32)
 
-            return InterlockedExchangeAdd(VCAST &_value, x);
+            return InterlockedExchangeAdd(VCAST &m_value, x);
 
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
             int32 old;
             asm volatile ("lock; xaddl %0,%1"
-                  : "=r"(old), "=m"(_value) /* outputs */
-                  : "0"(x), "m"(_value)   /* inputs */
+                  : "=r"(old), "=m"(m_value) /* outputs */
+                  : "0"(x), "m"(m_value)   /* inputs */
                   : "memory", "cc");
             return old;
             
 #       elif defined(G3D_OSX)
 
-			int32 old = _value;
-			OSAtomicAdd32(x, &_value);
+			int32 old = m_value;
+			OSAtomicAdd32(x, &m_value);
 			return old;
 
 #       endif
     }
 
     /** Returns old value. */
-    inline int32 sub(const int32 x) {
+    int32 sub(const int32 x) {
         return add(-x);
     }
 
-    inline void increment() {
+    void increment() {
 #       if defined(G3D_WIN32)
             // Note: returns the newly incremented value
-            InterlockedIncrement(VCAST &_value);
+            InterlockedIncrement(VCAST &m_value);
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
             add(1);
 #       elif defined(G3D_OSX)
             // Note: returns the newly incremented value
-			OSAtomicIncrement32(&_value);
+			OSAtomicIncrement32(&m_value);
 #       endif
     }
 
     /** Returns zero if the result is zero after decrement, non-zero otherwise.*/
-    inline uint32 decrement() {
+    int32 decrement() {
 #       if defined(G3D_WIN32)
             // Note: returns the newly decremented value
-            return InterlockedDecrement(VCAST &_value) != 0;
+            return InterlockedDecrement(VCAST &m_value);
 #       elif defined(G3D_LINUX)  || defined(G3D_FREEBSD)
             unsigned char nz;
 
             asm volatile ("lock; decl %1;\n\t"
                           "setnz %%al"
                           : "=a" (nz)
-                          : "m" (_value)
+                          : "m" (m_value)
                           : "memory", "cc");
             return nz;
 #       elif defined(G3D_OSX)
 			// Note: returns the newly decremented value
-            return OSAtomicDecrement32(&_value);
+            return OSAtomicDecrement32(&m_value);
 #       endif
     }
 
@@ -148,27 +146,27 @@ public:
         Under VC6 the sign bit may be lost.
 
      */ 
-    inline int32 compareAndSet(const int32 comperand, const int32 exchange) {
+    int32 compareAndSet(const int32 comperand, const int32 exchange) {
 #       if defined(G3D_WIN32)
 #          if defined(G3D_MINGW)
-                return (int32)InterlockedCompareExchange(VCAST &_value, exchange, comperand);
+                return (int32)InterlockedCompareExchange(VCAST &m_value, exchange, comperand);
 #          elif (_MSC_VER <= 1200)
                 // Specification changed after VC6 from PVOID* to volatile int*
-                return (int32)InterlockedCompareExchange((PVOID*)&_value, (PVOID)exchange, (PVOID)comperand);
+                return (int32)InterlockedCompareExchange((PVOID*)&m_value, (PVOID)exchange, (PVOID)comperand);
 #          else
-                return InterlockedCompareExchange(VCAST &_value, exchange, comperand);
+                return InterlockedCompareExchange(VCAST &m_value, exchange, comperand);
 #          endif
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
             int32 ret;
             asm volatile ("lock; cmpxchgl %1, %2"
                           : "=a" (ret)
-                          : "r" (exchange), "m" (_value), "0"(comperand)
+                          : "r" (exchange), "m" (m_value), "0"(comperand)
                           : "memory", "cc");
             return ret;
 #       elif defined(G3D_OSX)
-			int32 old = _value;
+			int32 old = m_value;
 
-			OSAtomicCompareAndSwap32(comperand, exchange, &_value);
+			OSAtomicCompareAndSwap32(comperand, exchange, &m_value);
 
 			return old;
 #       endif
