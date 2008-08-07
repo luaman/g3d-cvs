@@ -43,7 +43,7 @@ ShaderRef GaussianBlur::getShader(int N) {
 }
 
 ShaderRef GaussianBlur::makeShader(int N) {
-
+    debugAssert(N >= 2);
     // Make a string of the coefficients to insert into the shader
     Array<float> coeff;
     float stddev = N / 2.0f;
@@ -51,7 +51,9 @@ ShaderRef GaussianBlur::makeShader(int N) {
 
     std::string coefDecl;
 
-    if (GLCaps::enumVendor() == GLCaps::ATI) {
+    std::string version;
+
+    if (true || GLCaps::enumVendor() == GLCaps::ATI) {
         // ATI doesn't yet support the new array syntax
 
         coefDecl = format("  const int kernelSize = %d;\n  float gaussCoef[%d];\n", N, N);
@@ -61,7 +63,20 @@ ShaderRef GaussianBlur::makeShader(int N) {
         }
 
     } else {
-        // NVIDIA has their own array syntax   
+        /*
+        // New GLSL syntax
+        version = "#version 120\n";
+        coefDecl = format("  const int kernelSize = %d;\n  float gaussCoef[%d] = float[](", N, N);
+        for (int i = 0; i < N; ++i) {
+            coefDecl += format("%10.8f", coeff[i]);
+            if (i < N - 1) {
+                coefDecl += ", ";
+            }
+        }
+        coefDecl += ");\n";
+        */
+        /*
+        // Old NVIDIA  array syntax   
         coefDecl = format("  const int kernelSize = %d;\n  const float gaussCoef[] = {", N);
         for (int i = 0; i < N; ++i) {
             coefDecl += format("%10.8f", coeff[i]);
@@ -71,6 +86,7 @@ ShaderRef GaussianBlur::makeShader(int N) {
         }
 
         coefDecl += "};\n";
+        */
     }
 
     std::string pixelSource =
@@ -93,8 +109,9 @@ ShaderRef GaussianBlur::makeShader(int N) {
                 
                 gl_FragColor = sum;) + "}";
     
+    
     //debugPrintf("%s\n", pixelSource.c_str());
-    return Shader::fromStrings("", pixelSource);
+    return Shader::fromStrings("", version + pixelSource);
 }
     
 }

@@ -129,6 +129,9 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
         debugAssertGLOk();
     }
 
+    // Remove the attachment that is being replaced so it does not affect size
+    attachmentTable.remove(ap);
+
     // Check for completeness
     if (numAttachments() == 0) {
         // This is the first attachment.

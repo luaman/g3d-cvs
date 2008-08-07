@@ -686,18 +686,19 @@ public:
    bool remove(const Key& key) {
       
        size_t code = HashFunc::hashCode(key);
-      size_t b = code % numBuckets;
+       size_t b = code % numBuckets;
 
-      // Go to the bucket
-      Node* n = bucket[b];
+       // Go to the bucket
+       Node* n = bucket[b];
 
-      // Make sure it was found
-      alwaysAssertM(n != NULL, "Tried to remove a key that was not in the table.");
+       if (n == NULL) {
+           return false;
+       }
 
-      Node* previous = NULL;
-
-      // Try to find the node
-      do {
+       Node* previous = NULL;
+      
+       // Try to find the node
+       do {
           if ((code == n->hashCode) && EqualsFunc::equals(n->entry.key, key)) {
               // This is the node; remove it
 
