@@ -1105,15 +1105,20 @@ void Draw::rect2D(
     int N = iMin(4, GLCaps::numTextureCoords());
 
     rd->pushState();
-    rd->setColor(color);
-    rd->beginPrimitive(RenderDevice::QUADS);
-        for (int i = 0; i < 4; ++i) {
-            for (int t = 0; t < N; ++t) {
-                rd->setTexCoord(t, tx[t]->corner(i));
+    {
+        rd->setColor(color);
+        debugAssertGLOk();
+        rd->beginPrimitive(RenderDevice::QUADS);
+        {
+            for (int i = 0; i < 4; ++i) {
+                for (int t = 0; t < N; ++t) {
+                    rd->setTexCoord(t, tx[t]->corner(i));
+                }
+                rd->sendVertex(rect.corner(i));
             }
-            rd->sendVertex(rect.corner(i));
         }
-    rd->endPrimitive();
+        rd->endPrimitive();
+    }
     rd->popState();
 }
 

@@ -12,17 +12,23 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
     apply(rd, source, direction, N, source->vector2Bounds());
 }
 
-void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N, const Vector2& destSize) {
+
+void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N, 
+                         const Vector2& destSize) {
     debugAssert(isOdd(N));
 
-    ShaderRef gaussian1DShader = getShader(N);
-
-    gaussian1DShader->args.set("source", source);
-    gaussian1DShader->args.set("pixelStep", direction / source->vector2Bounds());
-    rd->setShader(gaussian1DShader);
-
     Rect2D dest = Rect2D::xywh(Vector2(0, 0), destSize);
-    Draw::rect2D(dest, rd);
+    rd->push2D(dest);
+    {
+        ShaderRef gaussian1DShader = getShader(N);
+
+        gaussian1DShader->args.set("source", source);
+        gaussian1DShader->args.set("pixelStep", direction / source->vector2Bounds());
+        rd->setShader(gaussian1DShader);
+        
+        Draw::fastRect2D(dest, rd);
+    }
+    rd->pop2D();
 }
 
 
@@ -41,6 +47,7 @@ ShaderRef GaussianBlur::getShader(int N) {
 
     return shaderCache[N];
 }
+
 
 ShaderRef GaussianBlur::makeShader(int N) {
     debugAssert(N >= 2);

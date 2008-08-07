@@ -319,8 +319,28 @@ float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
     }
 
     template <class T>
+    inline T min(const T& x, const T& y, const T& z) {
+        return std::min<T>(std::min<T>(x, y), z);
+    }
+
+    template <class T>
+    inline T min(const T& x, const T& y, const T& z, const T& w) {
+        return std::min<T>(std::min<T>(x, y), std::min<T>(z, w));
+    }
+
+    template <class T>
     inline T max(const T& x, const T& y) {
         return std::max<T>(x, y);
+    }
+
+    template <class T>
+    inline T max(const T& x, const T& y, const T& z) {
+        return std::max<T>(std::max<T>(x, y), z);
+    }
+
+    template <class T>
+    inline T max(const T& x, const T& y, const T& z, const T& w) {
+        return std::max<T>(std::max<T>(x, y), std::max<T>(z, w));
     }
 
 #endif

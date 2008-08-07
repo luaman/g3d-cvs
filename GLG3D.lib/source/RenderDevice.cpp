@@ -620,14 +620,17 @@ void RenderDevice::push2D() {
     push2D(viewport());
 }
 
+
 void RenderDevice::push2D(const Rect2D& viewport) {
     push2D(state.framebuffer, viewport);
 }
 
+
 void RenderDevice::push2D(const FramebufferRef& fb) {
-    const Rect2D& viewport = fb.notNull() ? fb->rect2DBounds() : Rect2D::xywh(0, 0, _window->width(), _window->height());
+    const Rect2D& viewport = (fb.notNull() && (fb->width() > 0)) ? fb->rect2DBounds() : Rect2D::xywh(0, 0, _window->width(), _window->height());
     push2D(fb, viewport);
 }
+
 
 void RenderDevice::push2D(const FramebufferRef& fb, const Rect2D& viewport) {
     pushState();
@@ -645,7 +648,8 @@ void RenderDevice::push2D(const FramebufferRef& fb, const Rect2D& viewport) {
 
     setCameraToWorldMatrix(CoordinateFrame());
 
-    setProjectionMatrix(Matrix4::orthogonalProjection(viewport.x0(), viewport.x0() + viewport.width(), viewport.y0() + viewport.height(), viewport.y0(), -1, 1));
+    setProjectionMatrix(Matrix4::orthogonalProjection(viewport.x0(), viewport.x0() + viewport.width(), 
+                                                      viewport.y0() + viewport.height(), viewport.y0(), -1, 1));
 }
 
 
@@ -911,18 +915,17 @@ void RenderDevice::setState(
     // the state changes so we can set all of the
     // new state explicitly.
     
-	// Set framebuffer first, since it can affect the viewport
-	if (state.framebuffer != newState.framebuffer) {
-		setFramebuffer(newState.framebuffer);
+    // Set framebuffer first, since it can affect the viewport
+    if (state.framebuffer != newState.framebuffer) {
+        setFramebuffer(newState.framebuffer);
         debugAssertGLOk();
-
-		// Intentionally corrupt the viewport, forcing renderdevice to reset it
-		state.viewport = Rect2D::xywh(-1,-1,-1,-1);
-	}
-
-    debugAssertGLOk();
+        
+        // Intentionally corrupt the viewport, forcing renderdevice to
+        // reset it below.
+        state.viewport = Rect2D::xywh(-1, -1, -1, -1);
+    }
+    
     setViewport(newState.viewport);
-    debugAssertGLOk();
 
     if (newState.useClip2D) {
         enableClip2D(newState.clip2D);
@@ -1071,25 +1074,25 @@ void RenderDevice::disableTwoSidedLighting() {
 
 
 void RenderDevice::beforePrimitive() {
-	if (! state.shader.isNull()) {
+    if (! state.shader.isNull()) {
         debugAssert(! inShader);
         inShader = true;
-		state.shader->beforePrimitive(this);
+        state.shader->beforePrimitive(this);
         inShader = false;
-	}
-
+    }
+    
     // If a Shader was bound, it will force this.  Otherwise we need to do so.
     forceVertexAndPixelShaderBind();
 }
 
 
 void RenderDevice::afterPrimitive() {
-	if (! state.shader.isNull()) {
+    if (! state.shader.isNull()) {
         debugAssert(! inShader);
-		inShader = true;
+        inShader = true;
         state.shader->afterPrimitive(this);
         inShader = false;
-	}
+    }
 }
 
 
@@ -1438,7 +1441,7 @@ void RenderDevice::setViewport(const Rect2D& v) {
     minStateChange();
     if (state.viewport != v) {
         // Flip to OpenGL y-axis
-		float h = height();
+        float h = height();
         _glViewport(v.x0(), h - v.y1(), v.width(), v.height());
         state.viewport = v;
         minGLStateChange();
@@ -1506,7 +1509,8 @@ void RenderDevice::pushState(const FramebufferRef& fb) {
     }
 }
 
-void RenderDevice::setFramebuffer(const FramebufferRef &fbo) {
+
+void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
     // Check for extension
     majStateChange();
     if (fbo != state.framebuffer) {
@@ -3177,30 +3181,30 @@ void RenderDevice::internalSendIndices(
 
     beforePrimitive();
 
-	GLenum i;
-
-	switch (indexSize) {
-	case sizeof(uint32):
-		i = GL_UNSIGNED_INT;
-		break;
-
-	case sizeof(uint16):
-		i = GL_UNSIGNED_SHORT;
-		break;
-
-	case sizeof(uint8):
-		i = GL_UNSIGNED_BYTE;
-		break;
-
-	default:
-		debugAssertM(false, "Indices must be either 8, 16, or 32-bytes each.");
+    GLenum i;
+    
+    switch (indexSize) {
+    case sizeof(uint32):
+        i = GL_UNSIGNED_INT;
+    break;
+    
+    case sizeof(uint16):
+        i = GL_UNSIGNED_SHORT;
+    break;
+    
+    case sizeof(uint8):
+        i = GL_UNSIGNED_BYTE;
+    break;
+    
+    default:
+        debugAssertM(false, "Indices must be either 8, 16, or 32-bytes each.");
         i = 0;
-	}
-
+    }
+    
     GLenum p = primitiveToGLenum(primitive);
-
-	glDrawElements(p, numIndices, i, index);
-
+    
+    glDrawElements(p, numIndices, i, index);
+        
     afterPrimitive();
 }
 
