@@ -24,15 +24,12 @@ class GuiWindow;
 class GuiRadioButton : public GuiControl {
     friend class GuiWindow;
     friend class GuiPane;
-public:
-
-    enum Style {RADIO_STYLE, BUTTON_STYLE, TOOL_STYLE};
 
 protected:
     
-    Pointer<int>     m_value;
-    int              m_myID;
-    Style            m_style;
+    Pointer<int>                m_value;
+    int                         m_myID;
+    GuiTheme::RadioButtonStyle  m_style;
 
     /** 
         @param myID The ID of this button 
@@ -41,7 +38,8 @@ protected:
         when myID == *groupSelection
      */
     GuiRadioButton(GuiContainer* parent, const GuiCaption& text, int myID,
-                   const Pointer<int>& groupSelection, Style style = RADIO_STYLE);
+                   const Pointer<int>& groupSelection,
+                   GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
 
     bool selected() const;
     
@@ -55,7 +53,7 @@ public:
     virtual void setRect(const Rect2D& rect);
 
     virtual bool toolStyle() const { 
-        return m_style == TOOL_STYLE;
+        return m_style == GuiTheme::TOOL_RADIO_BUTTON_STYLE;
     }
 };
 

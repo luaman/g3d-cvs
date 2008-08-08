@@ -293,10 +293,12 @@ def cleanTarget():
     run("../bin/icompile", icompileConfig + ['--clean'])
     os.chdir("..")
 
+    print 'gfxmeter'
     os.chdir("tools/gfxmeter")
     run("../../bin/icompile", icompileConfig + ['--clean'])
     os.chdir("../..")
 
+    print 'viewer'
     os.chdir("tools/viewer")
     run("../../bin/icompile", icompileConfig + ['--clean'])
     os.chdir("../..")

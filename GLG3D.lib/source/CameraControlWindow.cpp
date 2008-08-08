@@ -205,7 +205,7 @@ CameraControlWindow::CameraControlWindow(
          trackManipulator.pointer(),
          &UprightSplineManipulator::mode,
          &UprightSplineManipulator::setMode,
-         GuiRadioButton::TOOL_STYLE);
+         GuiTheme::TOOL_RADIO_BUTTON_STYLE);
     recordButton->moveBy(32, 2);
     recordButton->setSize(buttonSize);
     
@@ -215,7 +215,7 @@ CameraControlWindow::CameraControlWindow(
          trackManipulator.pointer(),
          &UprightSplineManipulator::mode,
          &UprightSplineManipulator::setMode,
-         GuiRadioButton::TOOL_STYLE);
+         GuiTheme::TOOL_RADIO_BUTTON_STYLE);
     playButton->setSize(buttonSize);
 
     stopButton = manualPane->addRadioButton
@@ -224,7 +224,7 @@ CameraControlWindow::CameraControlWindow(
          trackManipulator.pointer(),
          &UprightSplineManipulator::mode,
          &UprightSplineManipulator::setMode,
-         GuiRadioButton::TOOL_STYLE);
+         GuiTheme::TOOL_RADIO_BUTTON_STYLE);
     stopButton->setSize(buttonSize);
 
     saveButton = manualPane->addButton("Save...");

@@ -144,16 +144,16 @@ GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption,
 
 
 GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, 
-                                        GuiRadioButton::Style style) {
+                                        GuiTheme::RadioButtonStyle style) {
 
     GuiRadioButton* c = addControl
         (new GuiRadioButton(this, text, myID, Pointer<int>(reinterpret_cast<int*>(selection)), style));
 
     Vector2 size(0, (float)CONTROL_HEIGHT);
 
-    if (style == GuiRadioButton::TOOL_STYLE) {
+    if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
         size.x = TOOL_BUTTON_WIDTH;
-    } else if (style == GuiRadioButton::BUTTON_STYLE) {
+    } else if (style == 1) { // Doesn't compile on gcc for some reason: GuiTheme::BUTTON_RADIO_BUTTON_STYLE) {
         size.x = BUTTON_WIDTH;
         Vector2 bounds = theme()->minButtonSize(text, GuiTheme::NORMAL_BUTTON_STYLE);
         size = size.max(bounds);

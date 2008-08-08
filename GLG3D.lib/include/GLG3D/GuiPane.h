@@ -189,7 +189,7 @@ public:
         T* object,
         EnumOrInt (T::*get)() const,
         void (T::*set)(EnumOrInt), 
-        GuiRadioButton::Style style) {
+        GuiTheme::RadioButtonStyle style) {
         
         // Turn enums into ints to allow this to always act as a pointer to an int
         GuiRadioButton* c = addControl(new GuiRadioButton
@@ -198,9 +198,9 @@ public:
                                         reinterpret_cast<int (T::*)() const>(get), 
                                         reinterpret_cast<void (T::*)(int)>(set)), 
                            style));
-        if (style == GuiRadioButton::TOOL_STYLE) {
+        if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
             c->setSize(Vector2(TOOL_BUTTON_WIDTH, CONTROL_HEIGHT));
-        } else if (style == GuiRadioButton::BUTTON_STYLE) {
+        } else if (style == GuiTheme::TOOL_RADIO_BUTTON_STYLE) {
             c->setSize(Vector2(BUTTON_WIDTH, CONTROL_HEIGHT));
         }
         return c;
@@ -275,27 +275,30 @@ public:
        @param selection Must be a pointer to an int or enum.  The
        current selection value for a group of radio buttons.
      */
-    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, GuiRadioButton::Style style = GuiRadioButton::RADIO_STYLE);
+    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, 
+                                   GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
 
-	GuiButton* addButton(const GuiCaption& text, const GuiControl::Callback& callback, GuiTheme::ButtonStyle style);
+    GuiButton* addButton(const GuiCaption& text, const GuiControl::Callback& callback, 
+                         GuiTheme::ButtonStyle style);
 
-	template<class Class>
-	inline GuiButton* addButton(const GuiCaption& text, Class* const callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
-		return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
-	}
-
-	template<class Class>
-	inline GuiButton* addButton(const GuiCaption& text, const ReferenceCountedPointer<Class>& callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
-		return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
-	}
-
-	inline GuiButton* addButton(const GuiCaption& text, void (*callbackFunction)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
-		return addButton(text, GuiControl::Callback(callbackFunction), style);
-	}
-
-	GuiButton* addButton(const GuiCaption& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
-
-    GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT, GFont::YAlign = GFont::YALIGN_CENTER);
+    template<class Class>
+    inline GuiButton* addButton(const GuiCaption& text, Class* const callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+        return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
+    }
+    
+    template<class Class>
+    inline GuiButton* addButton(const GuiCaption& text, const ReferenceCountedPointer<Class>& callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+        return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
+    }
+    
+    inline GuiButton* addButton(const GuiCaption& text, void (*callbackFunction)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+        return addButton(text, GuiControl::Callback(callbackFunction), style);
+    }
+    
+    GuiButton* addButton(const GuiCaption& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
+    
+    GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT,
+                       GFont::YAlign = GFont::YALIGN_CENTER);
 
     /**
      Removes this control from the GuiPane.

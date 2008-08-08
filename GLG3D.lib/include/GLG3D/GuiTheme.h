@@ -141,6 +141,14 @@ public:
         CHECK_BOX_STYLE_COUNT
     };
 
+    enum RadioButtonStyle {
+        NORMAL_RADIO_BUTTON_STYLE,
+        BUTTON_RADIO_BUTTON_STYLE = 1,
+        TOOL_RADIO_BUTTON_STYLE,
+
+        RADIO_BUTTON_STYLE_COUNT
+    };
+
 private:
 
     /**
