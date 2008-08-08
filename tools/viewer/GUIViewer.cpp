@@ -62,10 +62,10 @@ void GUIViewer::createGui(const std::string& filename) {
     {
         GuiPane* p = pane->addPane("Pane (SIMPLE_PANE_STYLE)", GuiTheme::SIMPLE_PANE_STYLE);
         p->addLabel("RadioButton (BUTTON_STYLE)");
-        p->addRadioButton("Selected, Disabled", 5, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
-        p->addRadioButton("Deselected, Disabled", 6, &radio[2], GuiRadioButton::BUTTON_STYLE)->setEnabled(false);
-        p->addRadioButton("Selected, Enabled", 7, &radio[3], GuiRadioButton::BUTTON_STYLE);
-        p->addRadioButton("Deselected, Disabled", 8, &radio[3], GuiRadioButton::BUTTON_STYLE);
+        p->addRadioButton("Selected, Disabled", 5, &radio[2], GuiTheme::BUTTON_RADIO_BUTTON_STYLE)->setEnabled(false);
+        p->addRadioButton("Deselected, Disabled", 6, &radio[2], GuiTheme::BUTTON_RADIO_BUTTON_STYLE)->setEnabled(false);
+        p->addRadioButton("Selected, Enabled", 7, &radio[3], GuiTheme::BUTTON_RADIO_BUTTON_STYLE);
+        p->addRadioButton("Deselected, Disabled", 8, &radio[3], GuiTheme::BUTTON_RADIO_BUTTON_STYLE);
         p->addButton("Button");
     }
 
