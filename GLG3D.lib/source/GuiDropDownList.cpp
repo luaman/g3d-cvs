@@ -104,14 +104,14 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
         case GKey::DOWN:
             if (*m_indexValue < (m_useStringList ? m_stringListValue->size() : m_captionListValue->size()) - 1) {
                 *m_indexValue = *m_indexValue + 1;
-                fireActionEvent();
+                fireEvent(GEventType::GUI_ACTION);
             }
             return true;
 
         case GKey::UP:
             if (*m_indexValue > 0) {
                 *m_indexValue = *m_indexValue - 1;
-                fireActionEvent();
+                fireEvent(GEventType::GUI_ACTION);
             }
             return true;
         default:;

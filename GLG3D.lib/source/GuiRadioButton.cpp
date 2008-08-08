@@ -12,7 +12,7 @@ GuiRadioButton::GuiRadioButton(GuiContainer* parent, const GuiCaption& text, int
 void GuiRadioButton::setSelected() {
     if ((int)*m_value != m_myID) {
         *m_value = m_myID;
-        fireActionEvent();
+        fireEvent(GEventType::GUI_ACTION);
     }
 }
 

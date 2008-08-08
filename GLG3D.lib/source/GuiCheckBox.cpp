@@ -40,7 +40,7 @@ void GuiCheckBox::setRect(const Rect2D& rect) {
 bool GuiCheckBox::onEvent(const GEvent& event) {
     if ((event.type == GEventType::MOUSE_BUTTON_DOWN) && m_visible) {
         *m_value = ! *m_value;
-        fireActionEvent();
+        fireEvent(GEventType::GUI_ACTION);
         return true;
     } else {
         return false;
