@@ -120,7 +120,7 @@ void GuiMenu::fireEvent(GEventType type) {
     GEvent e;
     e.gui.type = type;
     e.gui.control = m_eventSource;
-    Widget::fireEvent(e);
+    fireEvent(e);
 }
 
 
