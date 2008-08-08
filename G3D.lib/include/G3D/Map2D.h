@@ -232,13 +232,13 @@ public:
 
     /** Unsafe access to the underlying data structure with no wrapping support; requires that (x, y) is in bounds. */
     inline const Storage& fastGet(int x, int y) const {
-        debugAssert(((uint32)x < w) && ((uint)y < h));
+        debugAssert(((uint32)x < w) && ((uint32)y < h));
         return data[x + y * w];
     }
 
     /** Unsafe access to the underlying data structure with no wrapping support; requires that (x, y) is in bounds. */
     inline void fastSet(int x, int y, const Storage& v) {
-        debugAssert(((uint32)x < w) && ((uint)y < h));
+        debugAssert(((uint32)x < w) && ((uint32)y < h));
         data[x + y * w] = v;
     }
 
