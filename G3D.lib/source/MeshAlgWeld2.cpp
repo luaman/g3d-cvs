@@ -17,15 +17,20 @@
 namespace G3D {
 namespace _internal {
 
-class NodeArrays;
-
 typedef Vector2 TexCoord;
-
+class NodeArrays;
+class Node;
 
 /**
-	Class containing arrays which specify vertices, normals, and texture coordinates of mesh vertices.
-	vertexArray, normalArray, and texCoordArray are parallel arrays, so vertexArray[i], normalArray[i], and
-	texCoordArray[i] together describe one vertex.
+	Class containing arrays which specify vertices, normals, and texture 
+    coordinates of mesh vertices.
+    vertexArray, normalArray, and texCoordArray are parallel arrays, so 
+    vertexArray[i], normalArray[i], and texCoordArray[i] together describe 
+    one vertex.
+    Pointers are used to the arrays so that NodeArrays can be easily created
+    to use pre-existing mesh data without copying arrays. All pointers are
+    const except for normalArray, which is changed when vertex normals are
+    merged.
 */
 class NodeArrays {
 private:
@@ -37,123 +42,151 @@ public:
 	Array<TexCoord>* const		texCoordArray;
 
 	/** Constructor that allocates Arrays.*/
-	NodeArrays() : indexArray(new Array<int>()), vertexArray(new Array<Vector3>()), normalArray(new Array<Vector3>()), 
-		texCoordArray(new Array<TexCoord>()) {
-		deleteArrays = true;
-	}
+	NodeArrays();
 
 	/** Constructor that uses pre-existing Arrays.*/
-	NodeArrays(Array<int>* const _indexArray, Array<Vector3>* const _vertexArray, Array<Vector3>* const _normalArray, 
-		Array<TexCoord>* const _texCoordArray) : 
-		indexArray(_indexArray), vertexArray(_vertexArray), normalArray(_normalArray), texCoordArray(_texCoordArray) {
-		deleteArrays = false;
-	}
+	NodeArrays(Array<int>* const _indexArray, 
+        Array<Vector3>* const _vertexArray, 
+        Array<Vector3>* const _normalArray, 
+		Array<TexCoord>* const _texCoordArray);
 
-	/** If the constructor allocated arrays, delete them here.*/
-	~NodeArrays() {
-		if(deleteArrays) {
-			delete indexArray;
-			delete vertexArray;
-			delete normalArray;
-			delete texCoordArray;
-		}
-	}
+    /** Returns the size of the vertex array.
+        Both the normal and texCoord arrays have either this size or zero (the 
+        texCoord array has size 0 if the mesh is untextured, and the normal
+        array has size 0 if normals have not yet been computed by the welding 
+        algorithm.*/
+    int size();
+
+    /** Appends the vertex, normal, and texCoord values referenced by the
+        passed Node to the arrays referenced by this NodeArrays object.
+        The index array is left unchanged.*/
+    void append(const Node& n);
+
+    /** Clears each array without de-allocating memory.*/
+    void fastClearAll();
+
+	/** If the constructor allocated arrays, deletes them here.*/
+	~NodeArrays();
 };
 
-/** A pointer to one index in parallel vertex, normal, and texCoord arrays. This describes one vertex of a mesh face.*/
+/** A pointer to one index in parallel vertex, normal, and texCoord arrays. 
+    This describes one vertex of a mesh face.*/
 class Node {
 
 private:
-	int					m_index;
-	NodeArrays*			m_arrays;
+	int					        m_index;
+	NodeArrays*                 m_arrays;
 
 public:
-	class Position {
-	public:
-		static void getPosition(const Node& obj, G3D::Vector3& p) {
-			p = obj.vertex();
-		}
-	};
 
-	class Equals {
-	public:
-		static bool equals(const Node& a, const Node& b) {
-			return a == b;
-		}
-	};
+    class Position;
+    class Equals;
+    class HashFunc;
 
-    class HashFunc {
-    public:
-        static size_t hashCode(const Node& key) {
-            return HashTrait<Vector3>::hashCode(key.vertex());
-        }
-    };
-
-	bool operator==(const Node& other) const {
-		return m_index == other.m_index && m_arrays == other.m_arrays;
-	}
+	bool operator==(const Node& other) const;
 	
-	Node(const int index, NodeArrays* const arrays) : m_index(index), m_arrays(arrays) {}
-    Node() : m_index(0), m_arrays(NULL) {}
+	Node(const int index, NodeArrays* arrays);
 
-	Vector3& vertex () {
-		return (*m_arrays->vertexArray)[m_index];
-	}
-	Vector3& normal() {
-		return (*m_arrays->normalArray)[m_index];
-	}
-	TexCoord texCoord() {
-        if(m_arrays->texCoordArray->size() > 0) {
-		    return (*m_arrays->texCoordArray)[m_index];
-        } else {
-            return TexCoord::zero();
-        }
-	}
-	int index() {
-		return m_index;
-	}
+    Node();
 
-	const Vector3& vertex() const {
-		return (*(m_arrays->vertexArray))[m_index];
-	}
-	const Vector3& normal() const {
-		return (*(m_arrays->normalArray))[m_index];
-	}
-	const TexCoord texCoord() const {
-        if(m_arrays->texCoordArray->size() > 0) {
-		    return (*m_arrays->texCoordArray)[m_index];
-        } else {
-            return TexCoord::zero();
-        }
-	}
-	const int index() const {
-		return m_index;
-	}
+	const Vector3& vertex() const;
 
-	/** Returns a node that is the average of the values in an array of nodes*/
-	static void average(const Array<Node>& nodes, Node& n, NodeArrays* const averageNode) {
-		debugAssert(nodes.size() > 0);
-		Vector3 vertexSum;
-		Vector3 normalSum;
-		TexCoord texCoordSum;
-		int numNodes = nodes.size();
-		for(int i = 0; i < numNodes; ++i) {
-			vertexSum += nodes[i].vertex();
-			normalSum += nodes[i].normal();
-			texCoordSum += nodes[i].texCoord();
-		}
+	const Vector3& normal() const;
 
-		// Put the averages into the first index of averageNode and return a node which refers to that index
-		(*averageNode->vertexArray)[0] = vertexSum / numNodes;
-		(*averageNode->normalArray)[0] = normalSum / numNodes;
-		(*averageNode->texCoordArray)[0] = texCoordSum / numNodes;
+	const TexCoord& texCoord() const;
 
-		// TODO: why does n(0, averageNode); cause a compiler error?
-		n = Node(0, averageNode);
+	const int index() const;
+};
+
+NodeArrays::NodeArrays() : 
+    indexArray(new Array<int>()),
+    vertexArray(new Array<Vector3>()), 
+    normalArray(new Array<Vector3>()), 
+	texCoordArray(new Array<TexCoord>()),
+    deleteArrays(true) {}
+
+NodeArrays::NodeArrays(Array<int>* const _indexArray, 
+    Array<Vector3>* const _vertexArray, 
+    Array<Vector3>* const _normalArray, 
+    Array<TexCoord>* const _texCoordArray) : 
+    indexArray(_indexArray),
+    vertexArray(_vertexArray), 
+    normalArray(_normalArray), 
+    texCoordArray(_texCoordArray), 
+    deleteArrays(false) {}
+
+int NodeArrays::size() {
+    return vertexArray->size();
+}
+
+void NodeArrays::append(const Node& n) {
+    vertexArray->append(n.vertex());
+    normalArray->append(n.normal());
+    texCoordArray->append(n.texCoord());
+}
+
+void NodeArrays::fastClearAll() {
+    indexArray->fastClear();
+    vertexArray->fastClear();
+    normalArray->fastClear();
+    texCoordArray->fastClear();
+}
+
+NodeArrays::~NodeArrays() {
+	if(deleteArrays) {
+		delete indexArray;
+		delete vertexArray;
+		delete normalArray;
+		delete texCoordArray;
+	}
+}
+
+class Node::Position {
+public:
+	static void getPosition(const Node& obj, G3D::Vector3& p) {
+		p = obj.vertex();
 	}
 };
 
+class Node::Equals {
+public:
+	static bool equals(const Node& a, const Node& b) {
+		return a == b;
+	}
+};
 
+class Node::HashFunc {
+public:
+    static size_t hashCode(const Node& key) {
+        return HashTrait<Vector3>::hashCode(key.vertex());
+    }
+};
+
+bool Node::operator==(const Node& other) const {
+	return m_index == other.m_index && m_arrays == other.m_arrays;
+}
+
+Node::Node(const int index, NodeArrays* arrays) : 
+    m_index(index), m_arrays(arrays) {}
+
+Node::Node() : m_index(0), m_arrays(NULL) {}
+
+const Vector3& Node::vertex() const {
+	return (*(m_arrays->vertexArray))[m_index];
+}
+const Vector3& Node::normal() const {
+	return (*(m_arrays->normalArray))[m_index];
+}
+const TexCoord& Node::texCoord() const {
+    if(m_arrays->texCoordArray->size() > 0) {
+	    return (*m_arrays->texCoordArray)[m_index];
+    } else {
+        return TexCoord::zero();
+    }
+}
+const int Node::index() const {
+	return m_index;
+}
 
 class MeshHelper {
 
@@ -162,53 +195,67 @@ public:
 private:
 	
 
-    typedef PointAABSPTree<Node, Node::Position, Node::HashFunc, Node::Equals> Grid;
+    typedef PointAABSPTree<Node, Node::Position, Node::HashFunc, Node::Equals> 
+        Grid;
 
 	/** Constructed from the arrays passed to the constructor.*/
 	NodeArrays		inputArrays;
-	/** The input arrays are "unrolled" (so that each face has its own vertex, normal, and texCoords) here.*/
+
+	/** The input arrays are "unrolled" (so that each face has its own vertex, 
+        normal, and texCoords) here.*/
 	NodeArrays		unrolledArrays;
-	/** This is a temporary instance to store neighborhood averages. Its arrays should only be length 1.*/
-	NodeArrays		averageNode;
+
 	/** Contains the arrays after similar nodes have been merged.*/
 	NodeArrays		outputArrays;
-	/** The nodes from the unrolled arrays are placed here. Used for finding nearby vertices when computing neighborhoods.*/
-	Grid			inputNodes;
-	/** After nodes have been placed in the outputArrays, they are placed here so that similar nodes are not created.*/
-	Grid			outputNodes;
 
-    /** Tracks which index in the unrolled arrays has been assigned to each index in the input arrays. */
+	/** Used for finding nearby nodes. 
+        After unrolling, the nodes from the unrolled arrays are placed here.
+        When merging, the merged nodes are placed here so that no two similar 
+        nodes appear in the output.*/
+	Grid			nodes;
+
+    /** Tracks which index in the unrolled arrays has been assigned to each 
+        index in the input arrays. */
     Array<int> unrolledIndex;
 
-    /** Tracks which index in the output arrays has been assigned to each index in the unrolled arrays. */
+    /** Tracks which index in the output arrays has been assigned to each index 
+        in the unrolled arrays. */
     Array<int> outputIndex;
 
-	double			r;
-	/** 1/(r^2), for use in the distance formula.*/
-	double			rSquaredInverse;
-	/** 1/(s^2), for use in the distance formula.*/
-	double			sSquaredInverse;
-	/** 1-cos(theta), for use in the distance formula.*/
-	double			oneMinusCosineTheta;
+	float			r;
 
-    /** Computes the average of an array of Vector3s. */
-    Vector3 average(const Array<Vector3>& v) {
+	/** 1/(r^2), for use in the distance formula.*/
+	float			rSquaredInverse;
+
+	/** 1/(s^2), for use in the distance formula.*/
+	float			sSquaredInverse;
+
+	/** 1-cos(theta), for use in the distance formula.*/
+	float			oneMinusCosineTheta;
+
+    /** Called by mergeNormals.
+        Computes the sum of an Array of Vector3s.*/
+    Vector3 vec3Sum(const Array<Vector3>& v) {
         if(v.size() == 0) return Vector3::zero();
 
-        Vector3 sum = Vector3::zero();
-        for(int i = 0; i < v.size(); ++i) {
+        Vector3 sum = v[0];
+        for(int i = 1; i < v.size(); ++i) {
             sum += v[i];
         }
-        return sum / v.size();
+        return sum;
     }
 
-	/** "Unrolls" the arrays in inputArrays according to the index array. The unrolled arrays are stored in unrolledArrays,
-		and any old data in the vertex and texCoord arrays of unrolledArrays is lost.*/
+	/** Called by the constructor.
+        "Unrolls" the arrays in inputArrays according to the index array. The 
+        unrolled arrays are stored in unrolledArrays, and any old data in the 
+        vertex and texCoord arrays of unrolledArrays is lost.*/
 	void unroll() {
-        alwaysAssertM((inputArrays.vertexArray->size() == inputArrays.texCoordArray->size()) || (inputArrays.texCoordArray->size() == 0), 
+        alwaysAssertM((inputArrays.vertexArray->size() == 
+            inputArrays.texCoordArray->size()) || 
+            (inputArrays.texCoordArray->size() == 0), 
             "Mesh is textured, but vertex and texCoord arrays are different lengths");
        
-        unrolledIndex.resize(inputArrays.vertexArray->size());
+        unrolledIndex.resize(inputArrays.size());
 
 		unrolledArrays.vertexArray->fastClear();
 		unrolledArrays.texCoordArray->fastClear();
@@ -217,8 +264,10 @@ private:
 
             // Textured mesh
 		    for(int i = 0; i < inputArrays.indexArray->size(); ++i) {
-			    unrolledArrays.vertexArray->append((*inputArrays.vertexArray)[(*inputArrays.indexArray)[i]]);
-                unrolledArrays.texCoordArray->append((*inputArrays.texCoordArray)[(*inputArrays.indexArray)[i]]);
+			    unrolledArrays.vertexArray->append(
+                    (*inputArrays.vertexArray)[(*inputArrays.indexArray)[i]]);
+                unrolledArrays.texCoordArray->append(
+                    (*inputArrays.texCoordArray)[(*inputArrays.indexArray)[i]]);
                 
                 int oldIndex = (*inputArrays.indexArray)[i];
                 unrolledIndex[oldIndex] = i;
@@ -227,7 +276,8 @@ private:
 
             // Untextured mesh
             for(int i = 0; i < inputArrays.indexArray->size(); ++i) {
-                unrolledArrays.vertexArray->append((*inputArrays.vertexArray)[(*inputArrays.indexArray)[i]]);
+                unrolledArrays.vertexArray->append(
+                    (*inputArrays.vertexArray)[(*inputArrays.indexArray)[i]]);
 
                 int oldIndex = (*inputArrays.indexArray)[i];
                 unrolledIndex[oldIndex] = i;
@@ -235,14 +285,19 @@ private:
         }
 	}
 
-	/** Uses the data in unrolledArrays.vertexArray to fill unrolledArrays.normalArray with the vector normals before smoothing.
-		Assumes unroll has been called, and overwrites any old data in the normal array of unrolledArrays.*/
+	/** Called by the constructor.
+        Uses the data in unrolledArrays.vertexArray to fill 
+        unrolledArrays.normalArray with the vector normals before smoothing.
+		Assumes unroll has been called, and overwrites any old data in the 
+        normal array of unrolledArrays.*/
 	void computeFlatNormals() {
-		debugAssert(unrolledArrays.vertexArray->size() > 0);
+		debugAssert(unrolledArrays.size() > 0);
 		unrolledArrays.normalArray->fastClear();
-		for(int i = 0; i < unrolledArrays.vertexArray->size(); i += 3) {
-			Vector3 f = ((*unrolledArrays.vertexArray)[i+1] - (*unrolledArrays.vertexArray)[i]).cross(
-				(*unrolledArrays.vertexArray)[i+2] - (*unrolledArrays.vertexArray)[i]);
+		for(int i = 0; i < unrolledArrays.size(); i += 3) {
+			Vector3 f = ((*unrolledArrays.vertexArray)[i+1] - 
+                (*unrolledArrays.vertexArray)[i]).cross(
+				(*unrolledArrays.vertexArray)[i+2] - 
+                (*unrolledArrays.vertexArray)[i]);
 			Vector3 normal = f;
 			if(normal != Vector3::zero()) {
 				normal = f.direction();
@@ -253,13 +308,18 @@ private:
 		}
 	}
 
-	/** Finds all neighboring nodes (as dictated by vertex position) which also have similar normals. Any old data in similarNormals 
-        will be lost. The normals of neighboring nodes with similar normals will be put into similarNormals. */
-	void getSimilarNormals(const Node& n, Array<Vector3>& similarNormals, const float cosThreshold) {
+	/** Called by mergeNormals.
+        Finds all neighboring nodes (as dictated by vertex position) which also 
+        have similar normals. 
+        Any old data in similarNormals will be lost. 
+        The normals of neighboring nodes with similar normals will be put into 
+        similarNormals. */
+	void getSimilarNormals(const Node& n, Array<Vector3>& similarNormals, 
+        const float cosThreshold) {
 		similarNormals.fastClear();
 		Sphere s(n.vertex(), r);
         Array<Node> neighbors;
-        inputNodes.getIntersectingMembers(s, neighbors);
+        nodes.getIntersectingMembers(s, neighbors);
 
 		for(int i = 0; i < neighbors.size(); ++i) {
             float cosAngle = n.normal().dot(neighbors[i].normal());
@@ -270,47 +330,40 @@ private:
 		}
 	}
 
-    /** Uses the data in unrolledArrays.normalArray to merge the normals of nearby vertices with similar normals.
-        Assumes that computeFlatNormals has been called, and changes the data in unrolledArrays->normalArray.*/
+    /** Called by the constructor.
+        Uses the data in unrolledArrays.normalArray to merge the normals of 
+        nearby vertices with similar normals. 
+        Assumes that computeFlatNormals has been called, and changes the data 
+        in unrolledArrays->normalArray.*/
     void mergeNormals(const float cosThreshold) {
         Array<Vector3>* newNormals = new Array<Vector3>();
 
-        for(int i = 0; i < unrolledArrays.vertexArray->size(); ++i) {
+        for(int i = 0; i < unrolledArrays.size(); ++i) {
             Node n(i, &unrolledArrays);
             Array<Vector3> neighbors;
 
             // Get the neighbors of this node
             getSimilarNormals(n, neighbors, cosThreshold);
-            // The new normal of this node is the average of the vectors in neighbors
-            Vector3 newNormal = average(neighbors).direction();
+
+            // The new normal of this node is the average of the vectors in 
+            // neighbors
+            Vector3 newNormal = vec3Sum(neighbors).direction();
             newNormals->append(newNormal);
         }
 
         delete unrolledArrays.normalArray;
         unrolledArrays.normalArray = newNormals;
+        newNormals = NULL;
     }
 
-	/** Find all neighbors (nodes which have a distance <= 1) of a node, and put them into nodeArray. Any old data in nodeArray will be lost.
-		In this case, "distance" is a measure of how similar two nodes are, and its square is the value returned by distanceSquared.*/
-	void getNeighbors(const Node& n, Array<Node>& nodeArray) {
-		nodeArray.fastClear();
-		Sphere s(n.vertex(), r);
-        Array<Node> possibleNeighbors;
-        inputNodes.getIntersectingMembers(s, possibleNeighbors);
-
-		for(int i = 0; i < possibleNeighbors.size(); ++i) {
-			if(distanceSquared(n, possibleNeighbors[i]) <= 1.0) {
-				nodeArray.append(possibleNeighbors[i]);
-			}
-		}
-	}
-
-	/** If there is at least one node in outputGrid within a distance of 1 (per the distanceSquared function), 
-		returns true and and stores the nearest node in newNode.
+	/** Called by getMatchingNodeIndex
+        If there is at least one node in outputGrid within a distance of 1 (per 
+        the distanceSquared function), returns true and and stores the nearest 
+        node in newNode.
 		If there is no such node, returns false and leaves newNode unchanged.*/
 	bool getNearest(const Node& n, Node& newNode) {
 
-		if(outputNodes.size() == 0) {
+		if(nodes.size() == 0) {
 
 			// The output grid is empty, so return false
 			return false;
@@ -320,7 +373,7 @@ private:
 			double minDist = inf();
 
             Array<Node> neighbors;
-            outputNodes.getIntersectingMembers(s, neighbors);
+            nodes.getIntersectingMembers(s, neighbors);
 
 			Node nearest;
 			bool nodeFound = false;
@@ -342,63 +395,51 @@ private:
 		}
 	}
 
-	/** Creates an entry in the output grid that is equivalent to a node, putting its values into the outputArrays. Called by MergeNodes.*/
-	void createOutputNode(Node& n) {
-		outputArrays.vertexArray->append(n.vertex());
-		outputArrays.normalArray->append(n.normal());
-		outputArrays.texCoordArray->append(n.texCoord());
-	}
-
-	/** Returns the index in the outputArrays which contains either the passed node or a node which it will be merged into.*/
+	/** Called by mergeNodes.
+        Returns the index in the outputArrays which contains either the passed 
+        node or a node which it will be merged into.*/
 	int getMatchingNodeIndex(Node& n) {
-		Array<Node> neighbors;
-		getNeighbors(n, neighbors);
-		Node average;
-		Node::average(neighbors, average, &averageNode);
-		Node nearestNode;
-		bool merge = getNearest(average, nearestNode);
-		if(!merge) {
 
-			// n is not being merged, so put it into the output arrays and the output grid
-			createOutputNode(n);
-			int index = outputArrays.vertexArray->size() - 1;				// the index for n is the last index of the output arrays
-			outputNodes.insert(Node(index, &outputArrays));
-			return index;
-		} else {
+        // Check if a similar node has already been put into the output grid
+        Node nearestNode;
+        if(getNearest(n, nearestNode)) {
 
-			// n is being merged, so return the index of the node it is being merged into
+			// n is being merged, so return the index of the node it is being 
+            // merged into
 			return nearestNode.index();
+        } else {
+
+			// n is not being merged, so put it into the output arrays and the 
+            // output grid
+			outputArrays.append(n);
+
+            // the index for n is the last index of the output arrays
+			int index = outputArrays.size() - 1;				
+			nodes.insert(Node(index, &outputArrays));
+			return index;
+
 		}
 	}
 
-	/** Finds similar indices in unrolledArrays, then merges them and fills the outputArrays. Assumes that unroll and computeFlatNormals have been called.*/
+	/** Called by the constructor.
+        Finds similar indices in unrolledArrays, then merges them and fills the 
+        outputArrays. 
+        Assumes that unroll and computeFlatNormals have been called.*/
 	void mergeNodes() {
-		debugAssert(unrolledArrays.vertexArray->size() > 0);
+		debugAssert(unrolledArrays.size() > 0);
 
-		outputArrays.indexArray->fastClear();
-		outputArrays.vertexArray->fastClear();
-		outputArrays.normalArray->fastClear();
-		outputArrays.texCoordArray->fastClear();
-
-		averageNode.vertexArray->fastResize(1);
-		averageNode.normalArray->fastResize(1);
-		averageNode.texCoordArray->fastResize(1);
-
-        //"Prime" the tree so that the next step is fast
-        for(int i = 0; i < unrolledArrays.vertexArray->size(); ++i) {
-            Node n(i, &unrolledArrays);
-            outputNodes.insert(n);
-        }
-        outputNodes.balance();
-        outputNodes.clearData();
+        // Clear the grid before any output nodes will be put there
+        nodes.clearData();
+        outputArrays.fastClearAll();
+        outputIndex.resize(unrolledIndex.size());
 
 		//Iterate through each vertex of the unrolled arrays
-        outputIndex.resize(unrolledIndex.size());
 		Array<Node> neighbors;
-		for(int i = 0; i < unrolledArrays.vertexArray->size(); ++i) {
+		for(int i = 0; i < unrolledArrays.size(); ++i) {
 			Node n(i, &unrolledArrays);
 
-			//get the index in the output arrays where this vertex (or the vertex it is being merged into) is stored
+			//get the index in the output arrays where this vertex (or the 
+            //vertex it is being merged into) is stored
 			int index = getMatchingNodeIndex(n);
 
 			//add to the end of the output index array to store the vertex
@@ -410,37 +451,56 @@ private:
 	}
 
 
-	/** Computes the squared distance between two nodes.
+	/** Called by getNearest.
+        Computes the squared distance between two nodes.
 		Formula: d^2 =	 (1/r^2)(||vertex(a) - vertex(b)||^2)
 						+([1 - (normal(a)*normal(b))]/[1 - cos(theta)])^2
 						+(1/s^2)(||texCoord(a) - texCoord(b)||^2)
 						
-		NOTE: Some meshes contain zero-area faces to eliminate "holes" in the mesh due to round-off error.
-		If either vertex has a zero normal vector, the normals should be ignored when computing the distance.
-		Since all nonzero normals have unit length, we do this by multiplying by the magnitudes of a and b in the
-		second line of the formula.*/
-	double distanceSquared(const Node& a, const Node& b) {
-		double vertexMagnitude2 = (a.vertex() - b.vertex()).squaredLength();
-		double texCoordMagnitude2 = (a.texCoord() - b.texCoord()).squaredLength();
-        double dotProd = a.normal().dot(b.normal());
-        double normalDist = (1.0 - dotProd) * a.normal().magnitude() * b.normal().magnitude() / oneMinusCosineTheta;
-        if(!isFinite(normalDist)) {
-            normalDist = 0.0;
+		NOTE: Some meshes contain zero-area faces to eliminate "holes" in the 
+        mesh due to round-off error.
+		If either vertex has a zero normal vector, the normals should be ignored 
+        when computing the distance.
+		Since all nonzero normals have unit length, we do this by multiplying by 
+        the magnitudes of a and b in the second line of the formula.*/
+	float distanceSquared(const Node& a, const Node& b) {
+
+        if(a == b) {
+
+            // a and b specify the same index in the same arrays, so their
+            // distance should be 0.
+            return 0.0;
+        } else {
+		    float vertexMagnitude2 = (a.vertex() - b.vertex()).squaredLength();
+		    float texCoordMagnitude2 = (a.texCoord() - b.texCoord()).squaredLength();
+            float normalDist = 0.0f;
+
+            // If either normal is the zero vector, disregard the normals
+            // in the distance computation.
+            if(!(a.normal().isZero() || b.normal().isZero())) {
+                float dotProd = a.normal().dot(b.normal());
+                normalDist = (1.0 - dotProd) / oneMinusCosineTheta;
+            }
+
+		    return rSquaredInverse * vertexMagnitude2 + square(normalDist) +
+                sSquaredInverse * texCoordMagnitude2;
         }
-
-		return rSquaredInverse * square(vertexMagnitude2) + square(normalDist) + sSquaredInverse * texCoordMagnitude2;
 	}
 
-	/** Creates nodes from the entries of unrolledArrays and puts them into the inputGrid.*/
+	/** Called by the constructor.
+        Creates nodes from the entries of unrolledArrays and puts them into the
+        inputGrid.*/
 	void buildInputGrid() {
-		for(int i = 0; i < unrolledArrays.vertexArray->size(); ++i) {
+		for(int i = 0; i < unrolledArrays.size(); ++i) {
 			Node n(i, &unrolledArrays);
-			inputNodes.insert(n);
+			nodes.insert(n);
 		}
-        inputNodes.balance();
+        nodes.balance();
 	}
 
-    /** Computes an array which maps indices in the input arrays to indices in the output arrays.*/
+    /** Called by the constructor.
+        Computes an array which maps indices in the input arrays to indices in 
+        the output arrays.*/
     void computeOldToNew(Array<int>& oldToNewArray) {
         oldToNewArray.resize(unrolledIndex.size());
         for(int i = 0; i < oldToNewArray.size(); ++i) {
@@ -452,9 +512,30 @@ private:
 
 public:
 
-	MeshHelper(Array<Vector3>& vertices, Array<Vector3>& normals, Array<TexCoord>& texCoords, Array<int>& indices, 
-		const double _r, const double _s, const double _theta, const double cosNormalThreshold, Array<int>& oldToNewIndex, bool recomputeNormals = true) : 
-		inputArrays(&indices, &vertices, &normals, &texCoords), outputArrays(&indices, &vertices, &normals, &texCoords) {
+    /** Identifies and merges similar vertices in a triangle mesh, and performs
+        normal smoothing.
+        vertices, normals, texCoords, and indices should be the vertex, normal,
+        texCoord, and index arrays of the input mesh.
+        _r, _s, and _theta indicate the maximum allowed vertex, texCoord, and 
+        normal angle differences for vertices to be merged.
+        normal smoothing will be applied on all angles with a cosine less than 
+        cosNormalThreshold.
+        After the merging takes place, vertices, normals, texCoords, and 
+        indices will store the new mesh, and the ith value in oldToNewIndex
+        will be the new index of index i in the old mesh.*/
+	MeshHelper(
+        Array<Vector3>& vertices, 
+        Array<Vector3>& normals, 
+        Array<TexCoord>& texCoords, 
+        Array<int>& indices, 
+        const float _r, 
+        const float _s, 
+        const float _theta, 
+        const float cosNormalThreshold, 
+        Array<int>& oldToNewIndex, 
+        bool recomputeNormals = true) : 
+		inputArrays(&indices, &vertices, &normals, &texCoords), 
+        outputArrays(&indices, &vertices, &normals, &texCoords) {
 
 		r = _r;
 		rSquaredInverse = 1.0 / square(r);
