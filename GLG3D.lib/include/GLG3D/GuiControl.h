@@ -201,7 +201,7 @@ protected:
     GuiControl(GuiContainer* parent, const GuiCaption& text = "");
 
     /** Fires an action event */
-    void fireActionEvent();    
+    void fireEvent();    
 
 public:
 

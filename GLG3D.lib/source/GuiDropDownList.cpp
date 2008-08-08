@@ -45,6 +45,9 @@ GuiMenuRef GuiDropDownList::menu() {
         } else {
             m_menu = GuiMenu::create(theme(), m_captionListValue, m_indexValue);
         }
+
+        // Make menu events appear to come from the drop down
+        m_menu->m_eventSource = this;
     }
 
     return m_menu;

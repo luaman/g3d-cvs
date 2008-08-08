@@ -67,7 +67,7 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
             response.gui.control = m_eventSource;
             m_gui->fireEvent(response);
 
-            fireActionEvent();
+            fireEvent(GEventType::GUI_ACTION);
             return true;
         }
 
@@ -76,11 +76,8 @@ bool _GuiSliderBase::onEvent(const GEvent& event) {
             // End the drag
             m_inDrag = false;
 
-            GEvent response;
-            response.gui.type = GEventType::GUI_DOWN;
-            response.gui.control = m_eventSource;
-            m_gui->fireEvent(response);
-            fireActionEvent();
+            fireEvent(GEventType::GUI_DOWN);
+            fireEvent(GEventType::GUI_ACTION);
 
             return true;
         }

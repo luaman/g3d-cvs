@@ -30,28 +30,17 @@ bool GuiButton::onEvent(const GEvent& event) {
     switch (event.type) {
     case GEventType::MOUSE_BUTTON_DOWN:
         m_down = true;
-        {
-			// invoke the pre-event handler
-			m_callback.onPush();
-
-            GEvent response;
-            response.gui.type = GEventType::GUI_DOWN;
-            response.gui.control = m_eventSource;
-            m_gui->fireEvent(response);
-            return true;
-        }
+		// invoke the pre-event handler
+		m_callback.onPush();
+        fireEvent(GEventType::GUI_DOWN);
+        return true;
     
     case GEventType::MOUSE_BUTTON_UP:
-        {
-            GEvent response;
-            response.gui.type = GEventType::GUI_UP;
-            response.gui.control = m_eventSource;
-            m_gui->fireEvent(response);
-        }
+        fireEvent(GEventType::GUI_UP);
 
         // Only trigger an action if the mouse was still over the control
         if (m_down && m_rect.contains(Vector2(event.button.x, event.button.y))) {
-            fireActionEvent();
+            fireEvent(GEventType::GUI_ACTION);
         }
 
         m_down = false;
