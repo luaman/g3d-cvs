@@ -187,7 +187,7 @@ protected:
 
     PosedModel2DRef     posed;
 
-    GuiThemeRef          m_skin;
+    GuiThemeRef         m_skin;
 
     /** True when the window is being dragged */
     bool                inDrag;

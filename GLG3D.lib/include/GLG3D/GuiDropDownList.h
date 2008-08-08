@@ -23,7 +23,7 @@ class GuiPane;
 
 /** List box for viewing strings.  Fires
     a G3D::GuiEvent of type G3D::GEventType::GUI_ACTION on the containing window when
-    the user selects a new value.
+    the user selects a new value, GEventType::GUI_CANCEL when the user opens the dropdown and then clicks off or presses ESC.
 */
 class GuiDropDownList : public GuiControl {
     friend class GuiWindow;

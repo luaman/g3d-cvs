@@ -23,7 +23,7 @@ GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, 
 
 
 GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue) : 
-    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(listPtr), 
+    GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_eventSource(NULL), m_stringListValue(listPtr), 
     m_captionListValue(NULL), m_indexValue(indexValue), m_useStringList(true), m_superior(NULL) {
 
     pane()->setPosition(Vector2(0,0));
@@ -116,8 +116,17 @@ int GuiMenu::labelIndexUnderMouse(Vector2 click) const {
 }
 
 
-void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, const Vector2& position, bool modal) {
+void GuiMenu::fireEvent(GEventType type) {
+    GEvent e;
+    e.gui.type = type;
+    e.gui.control = m_eventSource;
+    Widget::fireEvent(e);
+}
+
+
+void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal) {
     m_superior = superior;
+    m_eventSource = eventSource;
     manager->add(this);
     moveTo(position);
     manager->setFocusedWidget(this);

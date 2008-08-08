@@ -27,6 +27,8 @@ typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
 class GuiMenu : public GuiWindow {
 protected:
 
+    GuiControl*                     m_eventSource;
+
     Array<std::string>*             m_stringListValue;
     Array<GuiCaption>*              m_captionListValue;
     /** The created labels */
@@ -48,6 +50,8 @@ protected:
     /** Returns -1 if none */
     int labelIndexUnderMouse(Vector2 click) const;
 
+    /** Fires an action event */
+    void fireEvent(GEventType type);
 public:
 
     static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue);
@@ -59,7 +63,7 @@ public:
     void hide();
 
     /** @param superior The window from which the menu is being created. */
-    virtual void show(WidgetManager* manager, GuiWindow* superior, const Vector2& position, bool modal = false);
+    virtual void show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal = false);
 };
 
 }

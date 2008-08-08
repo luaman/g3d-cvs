@@ -45,9 +45,6 @@ GuiMenuRef GuiDropDownList::menu() {
         } else {
             m_menu = GuiMenu::create(theme(), m_captionListValue, m_indexValue);
         }
-
-        // Make menu events appear to come from the drop down
-        m_menu->m_eventSource = this;
     }
 
     return m_menu;
@@ -83,7 +80,7 @@ void GuiDropDownList::showMenu() {
     Vector2 clickOffset = clickRect.x0y0() - rect().x0y0();
     Vector2 menuOffset(10, clickRect.height() + 10);
 
-    menu()->show(m_gui->manager(), window(), toGWindowCoords(clickOffset + menuOffset));
+    menu()->show(m_gui->manager(), window(), this, toGWindowCoords(clickOffset + menuOffset));
 }
 
 

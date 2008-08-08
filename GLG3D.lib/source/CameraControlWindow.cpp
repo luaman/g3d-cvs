@@ -354,7 +354,7 @@ void CameraControlWindow::showBookmarkList() {
     if (m_bookmarkName.size() > 0) {
         m_menu = GuiMenu::create(theme(), &m_bookmarkName, &m_bookmarkSelection);
         manager()->add(m_menu);
-        m_menu->show(manager(), this, cameraLocationTextBox->toGWindowCoords(cameraLocationTextBox->clickRect().x0y1() + Vector2(45, 8)), false);
+        m_menu->show(manager(), this, NULL, cameraLocationTextBox->toGWindowCoords(cameraLocationTextBox->clickRect().x0y1() + Vector2(45, 8)), false);
     }
 }
 

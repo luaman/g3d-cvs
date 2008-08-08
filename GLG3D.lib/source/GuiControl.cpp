@@ -160,7 +160,7 @@ void GuiControl::setRect(const Rect2D& rect) {
     m_clickRect = m_rect = rect;
 }
 
-void GuiControl::fireGuiEvent(GEventType type) {
+void GuiControl::fireEvent(GEventType type) {
     GEvent e;
     e.gui.type = type;
     e.gui.control = m_eventSource;
