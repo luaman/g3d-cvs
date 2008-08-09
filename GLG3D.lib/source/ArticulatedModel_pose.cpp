@@ -653,7 +653,6 @@ bool PosedArticulatedModel::renderFFNonShadowedOpaqueTerms(
 
         // Fixed function does not receive specular texture maps, only constants.
         rd->setSpecularCoefficient(material.specular.constant);
-		float avg = material.specularExponent.constant.average();
         rd->setShininess(material.specularExponent.constant.average());
 
         // Ambient

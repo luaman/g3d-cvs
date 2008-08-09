@@ -10,7 +10,7 @@
  </UL>
 
  @created 2006-01-07
- @edited  2006-10-30
+ @edited  2008-08-09
 */
 
 #ifndef GLG3D_FRAMEBUFFER_H
@@ -133,32 +133,32 @@ public:
 
     /**
 	 Specifies which channels of the framebuffer the renderbuffer or texture will 
-     define. These mirror
+         define. These mirror
 	 the OpenGL definition as do their values.
 
-     A DEPTH_STENCIL format renderbuffer or texture can be attached to either the 
-     DEPTH_ATTACHMENT or the STENCIL_ATTACHMENT, or both simultaneously; Framebuffer will
-     understand the format and use the appropriate channels.
+         A DEPTH_STENCIL format renderbuffer or texture can be attached to either the 
+         DEPTH_ATTACHMENT or the STENCIL_ATTACHMENT, or both simultaneously; Framebuffer will
+         understand the format and use the appropriate channels.
 	 */
 	enum AttachmentPoint {
-		COLOR_ATTACHMENT0  = 0x8CE0,
-        COLOR_ATTACHMENT1  = 0x8CE1,
-        COLOR_ATTACHMENT2  = 0x8CE2,
-        COLOR_ATTACHMENT3  = 0x8CE3,
-        COLOR_ATTACHMENT4  = 0x8CE4,
-        COLOR_ATTACHMENT5  = 0x8CE5,
-        COLOR_ATTACHMENT6  = 0x8CE6,
-        COLOR_ATTACHMENT7  = 0x8CE7,
-        COLOR_ATTACHMENT8  = 0x8CE8,
-        COLOR_ATTACHMENT9  = 0x8CE9,
-        COLOR_ATTACHMENT10 = 0x8CEA,
-        COLOR_ATTACHMENT11 = 0x8CEB,
-        COLOR_ATTACHMENT12 = 0x8CEC,
-        COLOR_ATTACHMENT13 = 0x8CED,
-        COLOR_ATTACHMENT14 = 0x8CEE,
-        COLOR_ATTACHMENT15 = 0x8CEF,
-        DEPTH_ATTACHMENT   = 0x8D00,
-		STENCIL_ATTACHMENT = 0x8D20,
+            COLOR_ATTACHMENT0  = 0x8CE0,
+            COLOR_ATTACHMENT1  = 0x8CE1,
+            COLOR_ATTACHMENT2  = 0x8CE2,
+            COLOR_ATTACHMENT3  = 0x8CE3,
+            COLOR_ATTACHMENT4  = 0x8CE4,
+            COLOR_ATTACHMENT5  = 0x8CE5,
+            COLOR_ATTACHMENT6  = 0x8CE6,
+            COLOR_ATTACHMENT7  = 0x8CE7,
+            COLOR_ATTACHMENT8  = 0x8CE8,
+            COLOR_ATTACHMENT9  = 0x8CE9,
+            COLOR_ATTACHMENT10 = 0x8CEA,
+            COLOR_ATTACHMENT11 = 0x8CEB,
+            COLOR_ATTACHMENT12 = 0x8CEC,
+            COLOR_ATTACHMENT13 = 0x8CED,
+            COLOR_ATTACHMENT14 = 0x8CEE,
+            COLOR_ATTACHMENT15 = 0x8CEF,
+            DEPTH_ATTACHMENT   = 0x8D00,
+            STENCIL_ATTACHMENT = 0x8D20,
         };
 
 private:
@@ -174,8 +174,8 @@ private:
         /** If texture is a cube map, this is the face that is bound */
         Texture::CubeFace           cubeFace;
 
-		/** True if the texture had autoMipMap on when it was set. */
-		bool						hadAutoMipMap;
+        /** True if the texture had autoMipMap on when it was set. */
+        bool                        hadAutoMipMap;
 
         Attachment() {}
 
@@ -189,10 +189,10 @@ private:
             cubeFace(c),
             hadAutoMipMap(r->settings().autoMipMap) {
 
-			if (hadAutoMipMap) {
-				texture->setAutoMipMap(false);
-			}
-		}
+            if (hadAutoMipMap) {
+                texture->setAutoMipMap(false);
+            }
+        }
     };
 
     /**
@@ -203,18 +203,18 @@ private:
      */
     Table<uint32, Attachment>       attachmentTable;
 
-	/** OpenGL Object ID */
-	GLuint							framebufferID;
-
-	/** Framebuffer name */
-	std::string                     m_name;
-
-	/** 
-	 Not yet implemented yet -- for non-gl error checking to pre-check
-	 for Framebuffer completeness.  Width & Height should also be
-	 implemented for this check.
-	*/
-    const class ImageFormat*      format;
+    /** OpenGL Object ID */
+    GLuint                          framebufferID;
+    
+    /** Framebuffer name */
+    std::string                     m_name;
+    
+    /** 
+        Not yet implemented yet -- for non-gl error checking to pre-check
+        for Framebuffer completeness.  Width & Height should also be
+        implemented for this check.
+    */
+    const class ImageFormat*        format;
 
     /**
      Framebuffer Height
@@ -230,85 +230,84 @@ private:
         return static_cast<int>(attachmentTable.size());
     }
 
-	/** Default Constructor. */
-	Framebuffer(const std::string& name, GLuint framebufferID);
-
+    /** Default Constructor. */
+    Framebuffer(const std::string& name, GLuint framebufferID);
+    
 public:
-
-
-	/** Reclaims OpenGL ID.  All buffers/textures are automatically
-        detacted on destruction. */
-	~Framebuffer();
-
-	/**
-	 Creates a framebuffer object from an OpenGL context.
-
-	 @param name			Name of framebuffer
-	 @param framebufferID	OpenGL id of ramebuffer
-	 */
-	static FramebufferRef fromGLFramebuffer
+    
+    /** Reclaims OpenGL ID.  All buffers/textures are automatically
+        detatched on destruction. */
+    ~Framebuffer();
+    
+    /**
+       Creates a framebuffer object from an OpenGL context.
+       
+       @param name			Name of framebuffer
+       @param framebufferID	OpenGL id of ramebuffer
+    */
+    static FramebufferRef fromGLFramebuffer
     (const std::string& name, GLuint framebufferID);
-
-	/**
-	 Creates a framebuffer object from scratch.
-
-	 @param name			Name of framebuffer
-	 */
-	static FramebufferRef create(const std::string& name);
-
+    
+    /**
+       Creates a framebuffer object from scratch.
+       
+       @param name			Name of framebuffer
+    */
+    static FramebufferRef create(const std::string& name);
+    
     /** Overload used when setting attachment points to NULL */
     void set(AttachmentPoint ap, const void* n);
-
-	/**
-	 Set one of the attachment points to reference a texture.  Set to
-	 NULL to unset.  Auto-mipmap will automatically be disabled on
-	 set.  It will be re-enabled when the texture is unbound.
-
-	 Do not use a texture that is bound to the *current* framebuffer
-	 for rendering, however, you can render using a texture that is
-	 bound on a different frame buffer.
-
-	 @param texture		Texture to bind to the framebuffer.
-	 @param ap	Attachment point to bind texture to.
-	 */
-	void set(AttachmentPoint ap, const Texture::Ref& texture);
-
+    
+    /**
+       Set one of the attachment points to reference a texture.  Set to
+       NULL to unset.  Auto-mipmap will automatically be disabled on
+       set.  It will be re-enabled when the texture is unbound.
+       
+       Do not use a texture that is bound to the *current* framebuffer
+       for rendering, however, you can render using a texture that is
+       bound on a different frame buffer.
+       
+       @param texture		Texture to bind to the framebuffer.
+       @param ap	Attachment point to bind texture to.
+    */
+    void set(AttachmentPoint ap, const Texture::Ref& texture);
+    
     void set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face);
-
-	/**
-	 Set one of the attachment points to reference a renderbuffer.
-	 Set to NULL to unset.
-
-	 @param renderbuffer	Renderbuffer to bind to the framebuffer
-	 @param slot		Attachment point to bind renderbuffer to.
-	 */
-	void set(AttachmentPoint ap, const RenderbufferRef& renderbuffer);
-
+    
+    /**
+       Set one of the attachment points to reference a renderbuffer.
+       Set to NULL to unset.
+       
+       @param renderbuffer	Renderbuffer to bind to the framebuffer
+       @param slot		Attachment point to bind renderbuffer to.
+    */
+    void set(AttachmentPoint ap, const RenderbufferRef& renderbuffer);
+    
     /** Returns true if this attachment is currently non-null.*/
     bool has(AttachmentPoint ap) const;
-
+    
     /**
-     Gets the OpenGL ID of the framebuffer object.
-     */
-	inline unsigned int openGLID() const {
+       Gets the OpenGL ID of the framebuffer object.
+    */
+    inline unsigned int openGLID() const {
         return framebufferID;
     }
-
-	inline int width() const {
+    
+    inline int width() const {
         return m_width;
     }
-
+    
     /**
-     Gets the OpenGL ID of the framebuffer object.
-     */
-	inline int height() const {
+       Gets the OpenGL ID of the framebuffer object.
+    */
+    inline int height() const {
         return m_height;
     }
-
-	inline Rect2D rect2DBounds() const {
-		return Rect2D::xywh(0.0f, 0.0f, (float)m_width, (float)m_height);
-	}
-
+    
+    inline Rect2D rect2DBounds() const {
+        return Rect2D::xywh(0.0f, 0.0f, (float)m_width, (float)m_height);
+    }
+    
     inline Vector2 vector2Bounds() const {
         return Vector2((float)m_width, (float)m_height);
     }
@@ -316,6 +315,9 @@ public:
     inline const std::string& name() const {
         return m_name;
     }
+
+    /** Detach all */
+    void clear();
 
 }; // class Framebuffer 
 

@@ -61,6 +61,7 @@ bool Framebuffer::has(AttachmentPoint ap) const {
     return attachmentTable.containsKey(ap);
 }
 
+
 void Framebuffer::set(AttachmentPoint ap, const void* n) {
     debugAssert(n == NULL);
 
@@ -179,8 +180,7 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
 }
 
 
-
-void Framebuffer::set(                      
+void Framebuffer::set(          
     AttachmentPoint ap,
     const RenderbufferRef& renderbuffer) {
 
@@ -224,6 +224,60 @@ void Framebuffer::set(
     }
 
     debugAssertGLOk();
+}
+
+
+void Framebuffer::clear() {
+    // Get current framebuffer
+    GLint origFB = glGetInteger(GL_FRAMEBUFFER_BINDING_EXT);
+    debugAssertGLOk();
+
+    // If we aren't already bound, bind us now
+    if (origFB != (GLint)openGLID()) {
+        // Bind this framebuffer
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
+        debugAssertGLOk();
+    }
+
+    for (int i = 0; i < 18; ++i) {
+        int ap;
+        if (i < 16) {
+            ap = COLOR_ATTACHMENT0 + i;
+        } else if (i == 16) {
+            ap = DEPTH_ATTACHMENT;
+        } else if (i == 17) {
+            ap = STENCIL_ATTACHMENT;
+        }
+
+        if (attachmentTable.containsKey(ap)) { 
+            // Detach
+            if (attachmentTable[ap].type == Attachment::TEXTURE) {
+                
+                glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, ap, 
+                                          GL_TEXTURE_2D, 0, 0);
+                debugAssertGLOk();
+                
+                if (attachmentTable[ap].hadAutoMipMap) {
+                    attachmentTable[ap].texture->setAutoMipMap(true);
+                }
+            } else {
+                glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, ap, 
+                                             GL_RENDERBUFFER_EXT, 0);
+                debugAssertGLOk();
+            }
+
+            // Wipe our record for that slot
+            attachmentTable.remove(ap);
+        } 
+
+    }
+
+    // If we were already bound, don't bother restoring
+    if (origFB != (GLint)openGLID()) {
+        // Bind original framebuffer
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, origFB);
+        debugAssertGLOk();
+    }
 }
 
 } // G3D
