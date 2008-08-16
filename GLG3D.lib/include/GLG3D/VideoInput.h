@@ -21,6 +21,7 @@ struct AVFrame;
 struct AVFormatContext;
 struct AVCodecContext;
 struct AVCodec;
+struct AVPacket;
 
 namespace G3D {
 
@@ -93,8 +94,6 @@ public:
     bool        readFromPos(RealTime pos, Image3::Ref& frame);
 
 
-
-
     /** Gets the frame at frame index and returns false if index is out of bounds. */
     bool        readFromIndex(int index, Texture::Ref& frame);
     /** Gets the frame at frame index and returns false if index is out of bounds. */
@@ -149,6 +148,7 @@ private:
     void initialize(const std::string& filename, const Settings& settings);
 
     static void decodingThreadProc(void* param);
+    static void seekToTimestamp(VideoInput* vi, AVFrame* decodingFrame, AVPacket* packet, bool& validPacket);
 
     Settings            m_settings;
     std::string         m_filename;
@@ -156,11 +156,12 @@ private:
     RealTime            m_currentTime;
     int                 m_currentIndex;
 
-    volatile bool       m_finished;
+    bool                m_finished;
 
     struct Buffer {
-        AVFrame* m_frame;
-        RealTime m_pos;
+        AVFrame*    m_frame;
+        RealTime    m_pos;
+        int64       m_timestamp;
     };
 
     Queue<Buffer*>      m_decodedBuffers;
@@ -168,9 +169,11 @@ private:
     GMutex              m_bufferMutex;
 
     GThreadRef          m_decodingThread;
+    volatile bool       m_quitThread;
 
     volatile bool       m_clearBuffersAndSeek;
     int64               m_seekTimestamp;
+    int64               m_lastTimestamp;
 
     // ffmpeg management
     AVFormatContext*    m_avFormatContext;

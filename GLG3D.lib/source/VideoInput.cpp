@@ -37,8 +37,10 @@ VideoInput::VideoInput() :
     m_currentTime(0.0f),
     m_currentIndex(-1),
     m_finished(false),
+    m_quitThread(false),
     m_clearBuffersAndSeek(false),
     m_seekTimestamp(-1),
+    m_lastTimestamp(-1),
     m_avFormatContext(NULL),
     m_avCodecContext(NULL),
     m_avVideoCodec(NULL),
@@ -47,9 +49,9 @@ VideoInput::VideoInput() :
 }
 
 VideoInput::~VideoInput() {
-    m_finished = true;
-
+    // shutdown decoding thread
     if (m_decodingThread.notNull() && !m_decodingThread->completed()) {
+        m_quitThread = true;
         m_decodingThread->waitForCompletion();
     }
 
@@ -57,6 +59,7 @@ VideoInput::~VideoInput() {
     avcodec_close(m_avCodecContext);
     av_close_input_file(m_avFormatContext);
 
+    // clear decoding buffers
     while (m_emptyBuffers.length() > 0) {
         Buffer* buffer = m_emptyBuffers.dequeue();
         av_free(buffer->m_frame->data[0]);
@@ -139,18 +142,21 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
 
     m_currentTime += timeStep;
 
+    bool readAfterSeek = (m_seekTimestamp != -1);
+
     bool frameUpdated = false;
-    if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
+    if ((m_decodedBuffers.length() > 0) && 
+        (readAfterSeek || (m_decodedBuffers[0]->m_pos <= m_currentTime))) {
+
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // in order to set the index when the seek is initiated,
-        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
-        if (m_seekTimestamp == -1) {
-            // increment current playback index
-            ++m_currentIndex;
-        } else {
+        // don't increment the index after a seek
+        if (readAfterSeek) {
             // reset seek
             m_seekTimestamp = -1;
+        } else {
+            // increment current playback index
+            ++m_currentIndex;
         }
 
         // adjust current playback position to the time of the frame
@@ -180,18 +186,21 @@ bool VideoInput::readNext(RealTime timeStep, GImage& frame) {
 
     m_currentTime += timeStep;
 
+    bool readAfterSeek = (m_seekTimestamp != -1);
+
     bool frameUpdated = false;
-    if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
+    if ((m_decodedBuffers.length() > 0) && 
+        (readAfterSeek || (m_decodedBuffers[0]->m_pos <= m_currentTime))) {
+
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // in order to set the index when the seek is initiated,
-        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
-        if (m_seekTimestamp == -1) {
-            // increment current playback index
-            ++m_currentIndex;
-        } else {
+        // don't increment the index after a seek
+        if (readAfterSeek) {
             // reset seek
             m_seekTimestamp = -1;
+        } else {
+            // increment current playback index
+            ++m_currentIndex;
         }
 
         // adjust current playback position to the time of the frame
@@ -220,18 +229,21 @@ bool VideoInput::readNext(RealTime timeStep, Image3uint8::Ref& frame) {
 
     m_currentTime += timeStep;
 
+    bool readAfterSeek = (m_seekTimestamp != -1);
+
     bool frameUpdated = false;
-    if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
+    if ((m_decodedBuffers.length() > 0) && 
+        (readAfterSeek || (m_decodedBuffers[0]->m_pos <= m_currentTime))) {
+
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // in order to set the index when the seek is initiated,
-        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
-        if (m_seekTimestamp == -1) {
-            // increment current playback index
-            ++m_currentIndex;
-        } else {
+        // don't increment the index after a seek
+        if (readAfterSeek) {
             // reset seek
             m_seekTimestamp = -1;
+        } else {
+            // increment current playback index
+            ++m_currentIndex;
         }
 
         // adjust current playback position to the time of the frame
@@ -260,18 +272,21 @@ bool VideoInput::readNext(RealTime timeStep, Image3::Ref& frame) {
 
     m_currentTime += timeStep;
 
+    bool readAfterSeek = (m_seekTimestamp != -1);
+
     bool frameUpdated = false;
-    if ((m_decodedBuffers.length() > 0) && (m_decodedBuffers[0]->m_pos <= m_currentTime)) {
+    if ((m_decodedBuffers.length() > 0) && 
+        (readAfterSeek || (m_decodedBuffers[0]->m_pos <= m_currentTime))) {
+
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // in order to set the index when the seek is initiated,
-        // detect a read after seek (usually with 0.0 from one of the readFrom* functions)
-        if (m_seekTimestamp == -1) {
-            // increment current playback index
-            ++m_currentIndex;
-        } else {
+        // don't increment the index after a seek
+        if (readAfterSeek) {
             // reset seek
             m_seekTimestamp = -1;
+        } else {
+            // increment current playback index
+            ++m_currentIndex;
         }
 
         // adjust current playback position to the time of the frame
@@ -318,22 +333,27 @@ bool VideoInput::readFromPos(RealTime pos, Image3::Ref& frame) {
 bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
     setIndex(index);
 
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
+    // wait for seek to complete
+    while (!m_decodingThread->completed() && m_clearBuffersAndSeek) {
         System::sleep(0.005);
+    }
 
-        // check for a new frame after seek and read it
+    bool foundFrame = false;
+
+    // wait for a new frame after seek and read it
+    while(!m_decodingThread->completed() && !foundFrame) {
+
+        // check for frame
         m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            m_bufferMutex.unlock();
+        foundFrame = (m_decodedBuffers.length() > 0);
+        m_bufferMutex.unlock();
 
-            readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
+        if (foundFrame) {
+            // read new frame
+            debugAssert(readNext(0.0, frame));
         } else {
-            m_bufferMutex.unlock();
+            // let decode run more
+            System::sleep(0.005);
         }
     }
 
@@ -348,22 +368,27 @@ bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
 bool VideoInput::readFromIndex(int index, GImage& frame) {
     setIndex(index);
 
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
+    // wait for seek to complete
+    while (!m_decodingThread->completed() && m_clearBuffersAndSeek) {
         System::sleep(0.005);
+    }
 
-        // check for a new frame after seek and read it
+    bool foundFrame = false;
+
+    // wait for a new frame after seek and read it
+    while(!m_decodingThread->completed() && !foundFrame) {
+
+        // check for frame
         m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            m_bufferMutex.unlock();
+        foundFrame = (m_decodedBuffers.length() > 0);
+        m_bufferMutex.unlock();
 
+        if (foundFrame) {
+            // read new frame
             readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
         } else {
-            m_bufferMutex.unlock();
+            // let decode run more
+            System::sleep(0.005);
         }
     }
 
@@ -378,22 +403,27 @@ bool VideoInput::readFromIndex(int index, GImage& frame) {
 bool VideoInput::readFromIndex(int index, Image3uint8::Ref& frame) {
     setIndex(index);
 
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
+    // wait for seek to complete
+    while (!m_decodingThread->completed() && m_clearBuffersAndSeek) {
         System::sleep(0.005);
+    }
 
-        // check for a new frame after seek and read it
+    bool foundFrame = false;
+
+    // wait for a new frame after seek and read it
+    while(!m_decodingThread->completed() && !foundFrame) {
+
+        // check for frame
         m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            m_bufferMutex.unlock();
+        foundFrame = (m_decodedBuffers.length() > 0);
+        m_bufferMutex.unlock();
 
+        if (foundFrame) {
+            // read new frame
             readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
         } else {
-            m_bufferMutex.unlock();
+            // let decode run more
+            System::sleep(0.005);
         }
     }
 
@@ -408,22 +438,27 @@ bool VideoInput::readFromIndex(int index, Image3uint8::Ref& frame) {
 bool VideoInput::readFromIndex(int index, Image3::Ref& frame) {
     setIndex(index);
 
-    bool foundFrame = false;
-    while (!m_decodingThread->completed()) {
+    // wait for seek to complete
+    while (!m_decodingThread->completed() && m_clearBuffersAndSeek) {
         System::sleep(0.005);
+    }
 
-        // check for a new frame after seek and read it
+    bool foundFrame = false;
+
+    // wait for a new frame after seek and read it
+    while(!m_decodingThread->completed() && !foundFrame) {
+
+        // check for frame
         m_bufferMutex.lock();
-        if (m_decodedBuffers.length() > 0) {
-            m_bufferMutex.unlock();
+        foundFrame = (m_decodedBuffers.length() > 0);
+        m_bufferMutex.unlock();
 
+        if (foundFrame) {
+            // read new frame
             readNext(0.0, frame);
-
-            foundFrame = true;
-
-            break;
         } else {
-            m_bufferMutex.unlock();
+            // let decode run more
+            System::sleep(0.005);
         }
     }
 
@@ -446,7 +481,7 @@ void VideoInput::setIndex(int index) {
     m_currentTime = index / fps();
 
     // calculate timestamp in stream time base units
-    m_seekTimestamp = static_cast<int64>(m_currentTime / av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->time_base)) + m_avFormatContext->streams[m_avVideoStreamIdx]->start_time;
+    m_seekTimestamp = static_cast<int64>(G3D::fuzzyEpsilon + m_currentTime / av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->time_base)) + m_avFormatContext->streams[m_avVideoStreamIdx]->start_time;
 
     // tell decoding thread to clear buffers and start at this position
     m_clearBuffersAndSeek = true;
@@ -469,10 +504,12 @@ int VideoInput::height() const {
 }
 
 RealTime VideoInput::fps() const {
+    // return FFmpeg's calculated base frame rate
     return av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->r_frame_rate);
 }
 
 RealTime VideoInput::length() const {
+    // return duration in seconds calculated from stream duration in FFmpeg's stream time base
     return m_avFormatContext->streams[m_avVideoStreamIdx]->duration * av_q2d(m_avFormatContext->streams[m_avVideoStreamIdx]->time_base);
 }
 
@@ -499,124 +536,80 @@ void VideoInput::decodingThreadProc(void* param) {
 
     Buffer* emptyBuffer = NULL;
 
-    bool completed = false;
-    while (!vi->m_finished && !completed) {
+    AVPacket packet;
+    bool useExistingSeekPacket = false;
 
-        // packet used during seeking and decoding
-        AVPacket packet;
-        memset(&packet, 0, sizeof(packet));
+    while (!vi->m_quitThread) {
 
-        bool useSeekDecodedFrame = false;
-
-        // check if a seek was requested
+        // seek to frame if requested
         if (vi->m_clearBuffersAndSeek) {
-            GMutexLock lock(&vi->m_bufferMutex);
-
-            while (vi->m_decodedBuffers.length() > 0) {
-                vi->m_emptyBuffers.enqueue(vi->m_decodedBuffers.dequeue());
-            }
-
-            // flush codec
-            avcodec_flush_buffers(vi->m_avCodecContext);
-
-            // seek to timestamp
-            int seekRet = av_seek_frame(vi->m_avFormatContext, vi->m_avVideoStreamIdx, vi->m_seekTimestamp, AVSEEK_FLAG_BACKWARD);
-            debugAssert(seekRet >= 0);(void)seekRet;
-
-            // todo: shutdown on seekRet error?
-
-            // read frames up to desired frame since can only seek to a key frame
-            do {
-
-                int readRet = av_read_frame(vi->m_avFormatContext, &packet);
-                debugAssert(readRet >= 0);
-
-                if ((readRet >= 0) && packet.stream_index == vi->m_avVideoStreamIdx) {
-                    int completedFrame = 0;
-                    avcodec_decode_video(vi->m_avCodecContext, decodingFrame, &completedFrame, packet.data, packet.size);
-                    debugAssert(completedFrame);
-
-                    // if checking the seek find that we're at the frame we want, then use it
-                    // otherwise quit seeking and the next decoded frame will be the target frame
-                    if (packet.pts >= vi->m_seekTimestamp) {
-                        useSeekDecodedFrame = true;
-                    }
-                }
-
-                // only delete the packet if we're reading past it, otherwise save for decoder
-                if (packet.pts < (vi->m_seekTimestamp)) {
-                    av_free_packet(&packet);
-                }
-            } while (packet.pts < vi->m_seekTimestamp);
-
-            // reset seek flag
+            seekToTimestamp(vi, decodingFrame, &packet, useExistingSeekPacket);
             vi->m_clearBuffersAndSeek = false;
         }
 
-        // wait until buffer is available
-        while (!emptyBuffer && !vi->m_finished) {
+        // get next available empty buffer
+        if (emptyBuffer == NULL) {
+            // yield while no available buffers
             System::sleep(0.005f);
 
+            // check for a new buffer
             GMutexLock lock(&vi->m_bufferMutex);
             if (vi->m_emptyBuffers.length() > 0) {
                 emptyBuffer = vi->m_emptyBuffers.dequeue();
             }
         }
 
-        // read in a full frame and decode
-        bool frameRead = false;
-        while (!frameRead && !vi->m_finished) {
+        if (emptyBuffer && !vi->m_quitThread) {
 
-            // if packet.data is still valid from seek, use that packet
-            if (useSeekDecodedFrame || (av_read_frame(vi->m_avFormatContext, &packet) >= 0)) {
-
-                // ignore frames other than our video frame
-                if (packet.stream_index == vi->m_avVideoStreamIdx) {
-
-                    // decode video frame
-                    int completedFrame = 0;
-                    if (useSeekDecodedFrame) {
-                        completedFrame = 1;
-                    } else {
-                        avcodec_decode_video(vi->m_avCodecContext, decodingFrame, &completedFrame, packet.data, packet.size);
-                    }
-              
-                    // for some reason completed frame is an int
-                    if (completedFrame != 0) {
-                        // Convert the image from its native format to RGB
-                        img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
-
-                        // calculate start time based off of presentation time stamp
-                        // might need to check for valid pts and use dts
-                        emptyBuffer->m_pos = (packet.pts - vi->m_avFormatContext->streams[vi->m_avVideoStreamIdx]->start_time) * av_q2d(vi->m_avCodecContext->time_base);
-
-                        // add frame to decoded queue
-                        {
-                            GMutexLock lock(&vi->m_bufferMutex);                        
-                            vi->m_decodedBuffers.enqueue(emptyBuffer);
-
-                            if (vi->m_emptyBuffers.length() > 0) {
-                                emptyBuffer = vi->m_emptyBuffers.dequeue();
-                            } else {
-                                emptyBuffer = NULL;
-                            }
-                        }
-
-                        // current frame is finished
-                        frameRead = true;
-                    }
+            // decode next frame
+            if (!useExistingSeekPacket) {
+                // exit thread if video is complete (or errors)
+                if (av_read_frame(vi->m_avFormatContext, &packet) != 0) {
+                    vi->m_quitThread = true;
                 }
-
-                // clean up packaet allocated during frame decoding
-                av_free_packet(&packet);
-            } else {
-                // no more frames to decode so break out of this loop
-                completed = true;
-                frameRead = true;
             }
-        }
 
-        // make sure the packet isn't leaked if decoding is canceled mid-frame somehow
+            // reeset now that we are decoding the frame and not waiting on a free buffer
+            useExistingSeekPacket = false;
+
+            // ignore frames other than our video frame
+            if (packet.stream_index == vi->m_avVideoStreamIdx) {
+
+                // decode the frame
+                int completedFrame = 0;
+                avcodec_decode_video(vi->m_avCodecContext, decodingFrame, &completedFrame, packet.data, packet.size);
+
+                // we have a valid frame, let's use it!
+                if (completedFrame != 0) {
+
+                    // Convert the image from its native format to RGB
+                    img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
+
+                    // calculate start time based off of presentation time stamp
+                    emptyBuffer->m_pos = (packet.pts - vi->m_avFormatContext->streams[vi->m_avVideoStreamIdx]->start_time) * av_q2d(vi->m_avCodecContext->time_base);
+
+                    // store original time stamp of frame
+                    emptyBuffer->m_timestamp = packet.pts;
+
+                    // set last decoded timestamp
+                    vi->m_lastTimestamp = packet.pts;
+
+                    // add frame to decoded queue
+                    vi->m_bufferMutex.lock();
+                    vi->m_decodedBuffers.enqueue(emptyBuffer);
+
+                    // get new buffer if available since we have the lock
+                    if (vi->m_emptyBuffers.length() > 0) {
+                        emptyBuffer = vi->m_emptyBuffers.dequeue();
+                    } else {
+                        emptyBuffer = NULL;
+                    }
+                    vi->m_bufferMutex.unlock();
+                }
+            }
+        }          
+
+        // always clean up packaet allocated during av_read_frame
         if (packet.data != NULL) {
             av_free_packet(&packet);
         }
@@ -625,6 +618,71 @@ void VideoInput::decodingThreadProc(void* param) {
     // free codec decoding frame
     av_free(decodingFrame);
 }
+
+
+
+
+// decoding thread helpers
+void VideoInput::seekToTimestamp(VideoInput* vi, AVFrame* decodingFrame, AVPacket* packet, bool& validPacket) {
+    // maximum number of frames to decode before seeking (1 second)
+    const int64 MAX_DECODE_FRAMES = iRound(vi->fps());
+
+    GMutexLock lock(&vi->m_bufferMutex);
+
+    // remove frames before target timestamp
+    while ((vi->m_decodedBuffers.length() > 0)) {
+        if ((vi->m_decodedBuffers[0]->m_timestamp != vi->m_seekTimestamp)) {
+            vi->m_emptyBuffers.enqueue(vi->m_decodedBuffers.dequeue());
+        } else {
+            // don't remove buffers past desired frame!
+            break;
+        }
+    }
+
+    // will be set below if valid
+    validPacket = false;
+
+    if (vi->m_decodedBuffers.length() == 0) {
+        // TODO - try to use av_index_search_timestamp() to calculate if a seek will just cause a key frame reset
+
+        // don't need to seek if we are close enough to just decode
+        int64 seekDiff = vi->m_seekTimestamp - vi->m_lastTimestamp;
+
+        if ((seekDiff <= 0) || (seekDiff > MAX_DECODE_FRAMES)) {
+            // flush FFmpeg decode buffers for seek
+            avcodec_flush_buffers(vi->m_avCodecContext);
+
+            int seekRet = av_seek_frame(vi->m_avFormatContext, vi->m_avVideoStreamIdx, vi->m_seekTimestamp, AVSEEK_FLAG_BACKWARD);
+            debugAssert(seekRet >= 0);(void)seekRet;
+        }
+
+        // read frames up to desired frame since can only seek to a key frame
+        do {
+            int readRet = av_read_frame(vi->m_avFormatContext, packet);
+            debugAssert(readRet >= 0);
+
+            if ((readRet >= 0) && (packet->stream_index == vi->m_avVideoStreamIdx)) {
+
+                // if checking the seek find that we're at the frame we want, then use it
+                // otherwise quit seeking and the next decoded frame will be the target frame
+                if (packet->pts >= vi->m_seekTimestamp) {
+                    validPacket = true;
+                } else {
+                    int completedFrame = 0;
+                    avcodec_decode_video(vi->m_avCodecContext, decodingFrame, &completedFrame, packet->data, packet->size);
+                    debugAssert(completedFrame);
+                }
+            }
+
+            // only delete the packet if we're reading past it, otherwise save for decoder
+            if (packet->pts < (vi->m_seekTimestamp)) {
+                av_free_packet(packet);
+            }
+
+        } while (packet->pts < vi->m_seekTimestamp);    
+    }
+}
+
 
 // static helpers
 static const char* ffmpegError(int code) {
