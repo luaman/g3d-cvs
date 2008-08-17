@@ -18,6 +18,7 @@
 #include "MD2Viewer.h"
 #include "GUIViewer.h"
 #include "EmptyViewer.h"
+#include "VideoViewer.h"
 
 
 App::App(const GApp::Settings& settings, const std::string& file) :
@@ -81,6 +82,11 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         defaultCamera.setPosition(Vector3(cos(angle), 0, sin(angle)) * radius);
         defaultCamera.lookAt(Vector3(0,0,0));
     }
+
+    // let viewer sim with time step if needed
+	if (viewer != NULL) {
+		viewer->onSimulation(rdt, sdt, idt);
+	}
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
@@ -220,6 +226,8 @@ void App::setViewer(const std::string& newFilename) {
 		if (!set) {
 			viewer = new EmptyViewer();
 		}
+    } else if (ext == "avi" || ext == "wmv" || ext == "mp4" || ext == "asf" || ext == "mov") {
+        viewer = new VideoViewer();
 	} else {
 
 		viewer = new EmptyViewer();
