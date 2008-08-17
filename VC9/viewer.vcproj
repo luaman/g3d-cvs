@@ -223,6 +223,10 @@
 				RelativePath="..\tools\Viewer\TextureViewer.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\tools\viewer\VideoViewer.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -267,6 +271,10 @@
 			</File>
 			<File
 				RelativePath="..\tools\Viewer\TextureViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\tools\viewer\VideoViewer.h"
 				>
 			</File>
 			<File
