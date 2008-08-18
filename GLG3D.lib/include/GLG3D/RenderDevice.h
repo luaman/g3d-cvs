@@ -535,7 +535,7 @@ public:
                       BUFFER_COLOR8, BUFFER_COLOR9, BUFFER_COLOR10, BUFFER_COLOR11,
                       BUFFER_COLOR12, BUFFER_COLOR13, BUFFER_COLOR14, BUFFER_COLOR15};
 
-    GLenum BufferToGL[MAX_BUFFER_SIZE];
+    static GLenum BufferToGL[MAX_BUFFER_SIZE];
 
     /**
      Call to begin the rendering frame.

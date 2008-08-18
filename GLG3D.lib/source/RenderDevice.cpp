@@ -29,7 +29,8 @@ namespace G3D {
 RenderDevice* RenderDevice::lastRenderDeviceCreated = NULL;
 
 
-GLenum BufferToGL[MAX_BUFFER_SIZE] = {GL_NONE,
+GLenum RenderDevice::BufferToGL[MAX_BUFFER_SIZE] =
+                                     {GL_NONE,
                                       GL_FRONT_LEFT,
                                       GL_FRONT_RIGHT,
                                       GL_BACK_LEFT,
@@ -1526,16 +1527,21 @@ void RenderDevice::pushState(const FramebufferRef& fb) {
 
 
 void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
-    // Check for extension
-    majStateChange();
     if (fbo != state.framebuffer) {
         majGLStateChange();
+
+        debugAssertM(BufferToGL[0] == GL_NONE, "G3D internal error: BufferToGL initialized incorrectly.");
+
         // Set Framebuffer
         if (fbo.isNull()) {
+            debugAssertGLOk();
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            debugAssertGLOk();
 
             // Restore the buffer that was in use before the framebuffer was attached
-            glDrawBuffer(BufferToGL[state.drawBuffer]);
+            GLenum b = BufferToGL[state.drawBuffer];
+            glDrawBuffer(b);
+            debugAssertGLOk();
         } else {
             debugAssertM(GLCaps::supports_GL_EXT_framebuffer_object(), 
                 "Framebuffer Object not supported!");
