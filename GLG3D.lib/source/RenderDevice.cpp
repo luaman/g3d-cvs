@@ -1074,6 +1074,20 @@ void RenderDevice::disableTwoSidedLighting() {
 
 
 void RenderDevice::beforePrimitive() {
+    if (state.framebuffer.notNull()) {
+        // Apply the bindings from this framebuffer
+        const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
+        debugAssertM(array.size() > 0, "Framebuffer must have at least one buffer attached");
+        debugPrintf("glDrawBuffersARB: ");
+        for (int i = 0; i < array.size(); ++i) {
+            debugPrintf("0x%x ", array[i]);
+        }
+        debugPrintf("\n");
+        debugAssertGLOk();
+        glDrawBuffersARB(array.size(), array.getCArray());
+        debugAssertGLOk();
+    }
+
     if (! state.shader.isNull()) {
         debugAssert(! inShader);
         inShader = true;
@@ -1083,6 +1097,7 @@ void RenderDevice::beforePrimitive() {
     
     // If a Shader was bound, it will force this.  Otherwise we need to do so.
     forceVertexAndPixelShaderBind();
+
 }
 
 
@@ -1172,15 +1187,15 @@ void RenderDevice::setDrawBuffer(Buffer b) {
     if (state.framebuffer.isNull()) {
         alwaysAssertM((b >= BUFFER_NONE) && (b <= BUFFER_CURRENT), 
                   "Drawing to a color buffer is only supported by application-created framebuffers!");
-    } else {
-        alwaysAssertM((b >= BUFFER_CURRENT) && (b <= BUFFER_COLOR15), 
-                  "Visible buffers cannot be specified for application-created framebuffers!");
     }
 
     if (b != state.drawBuffer) {
         minGLStateChange();
         state.drawBuffer = b;
-        glDrawBuffer (BufferToGL[state.drawBuffer]);
+        if (state.framebuffer.isNull()) {
+            // Only update the GL state if there is no framebuffer bound.
+            glDrawBuffer(BufferToGL[state.drawBuffer]);
+        }
     }
 }
 
@@ -1518,12 +1533,14 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
         // Set Framebuffer
         if (fbo.isNull()) {
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-            state.drawBuffer = BUFFER_BACK;
+
+            // Restore the buffer that was in use before the framebuffer was attached
+            glDrawBuffer(BufferToGL[state.drawBuffer]);
         } else {
             debugAssertM(GLCaps::supports_GL_EXT_framebuffer_object(), 
                 "Framebuffer Object not supported!");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->openGLID());
-            state.drawBuffer = BUFFER_COLOR0;
+            // The enables for this framebuffer will be set during beforePrimitive()            
         }
         state.framebuffer = fbo;
     }

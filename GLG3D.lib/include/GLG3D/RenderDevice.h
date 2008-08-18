@@ -524,6 +524,9 @@ public:
 
     #define MAX_BUFFER_SIZE 27
 
+    /** 
+        Draw buffer constants.
+     */
     enum Buffer      {BUFFER_NONE, BUFFER_FRONT_LEFT, BUFFER_FRONT_RIGHT, BUFFER_BACK_LEFT,
                       BUFFER_BACK_RIGHT, BUFFER_FRONT, BUFFER_BACK, BUFFER_LEFT, BUFFER_RIGHT, 
                       BUFFER_FRONT_AND_BACK, BUFFER_CURRENT,
@@ -625,10 +628,15 @@ public:
 
     /**
      Sets the frame buffer that is written to.  Used to intentionally
-     draw to the front buffer and for stereo rendering.  Its operation is sensitive
-     to the current framebuffer being written to. If the framebuffer is the primary
-     display then only visible buffers may be specified.  If the framebuffer is an
-     application-created framebuffer then only color attachments may be specified.
+     draw to the front buffer and for stereo rendering.  Its operation
+     is sensitive to the current framebuffer being written to. If the
+     framebuffer is the primary display then only visible buffers may
+     be specified.  If framebuffer() is non-NULL then the drawBuffer
+     is stored for later use but the actual draw buffers remain the
+     ones specified by the framebuffer.
+
+     When using a G3D::Framebuffer it is not necessary to explicitly set the
+     draw buffer; that is handled automatically by beforePrimitive().
      */
     void setDrawBuffer(Buffer drawBuffer);
 
@@ -1489,6 +1497,10 @@ public:
      @param fbo Framebuffer to render to.
     */
     void setFramebuffer(const FramebufferRef &fbo);
+
+    FramebufferRef framebuffer() {
+        return state.framebuffer;
+    }
 
     /**
      Checks to ensure that the current framebuffer is complete and error free.  

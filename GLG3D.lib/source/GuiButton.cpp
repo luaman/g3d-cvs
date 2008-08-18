@@ -30,9 +30,11 @@ bool GuiButton::onEvent(const GEvent& event) {
     switch (event.type) {
     case GEventType::MOUSE_BUTTON_DOWN:
         m_down = true;
-		// invoke the pre-event handler
-		m_callback.onPush();
+        // invoke the pre-event handler
+        m_callback.onPush();
+        debugAssertGLOk();
         fireEvent(GEventType::GUI_DOWN);
+        debugAssertGLOk();
         return true;
     
     case GEventType::MOUSE_BUTTON_UP:

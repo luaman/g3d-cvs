@@ -33,20 +33,30 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
  efficient way of rendering to textures.  This class can be used with raw OpenGL, 
  without RenderDevice or SDL.
 
+ RenderDevice::setFramebuffer automatically configures the appropriate
+ OpenGL draw buffers.  These are maintained even if the frame buffer is changed
+ while set on the RenderDevice.  Inside a pixel shader gl_FragData[i] is the ith
+ attached buffer, in number order.  For example, if there are attachments to buffer0
+ and buffer2, then gl_FragData[0] maps to buffer0 and gl_FragData[1] maps to buffer2.
+
+
  Basic Framebuffer Theory:
 	Every OpenGL program has at least one Framebuffer.  This framebuffer is
  setup by the windowing system and its image format is that specified by the
  OS.  With the Framebuffer Object extension, OpenGL gives the developer
  the ability to create offscreen framebuffers that can be used to render 
  to textures of any specified format.
+
     The Framebuffer class is used in conjunction with the RenderDevice to
  set a render target.  The RenderDevice method setFramebuffer performs this
  action.  If a NULL argument is passed to setFramebuffer, the render target
  defaults to the window display framebuffer.
+
     Framebuffer works in conjunction with the push/pop RenderDevice state, but
  in a limited form.   The state will save the current Framebuffer, but will not
  save the state of the Framebuffer itself.  If the attachment points are changed
  in the push/pop block, these will not be restored by a pop.
+
     The following example shows how to create a texture and bind it to Framebuffer
  for rendering.
 
@@ -126,41 +136,41 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
  Framebuffer have incorrect defaults.  To fix this, call <code>glDrawBuffer(GL_NONE);glReadBuffer(GL_NONE);</code>
  <b>after</b> binding the Framebuffer to the RenderDevice but before rendering.
 
-	<B>BETA API</B> -- Subject to change
+ <B>BETA API</B> -- Subject to change
 */
 class Framebuffer : public ReferenceCountedObject {
 public:
 
     /**
-	 Specifies which channels of the framebuffer the renderbuffer or texture will 
-         define. These mirror
-	 the OpenGL definition as do their values.
-
-         A DEPTH_STENCIL format renderbuffer or texture can be attached to either the 
-         DEPTH_ATTACHMENT or the STENCIL_ATTACHMENT, or both simultaneously; Framebuffer will
-         understand the format and use the appropriate channels.
-	 */
-	enum AttachmentPoint {
-            COLOR_ATTACHMENT0  = 0x8CE0,
-            COLOR_ATTACHMENT1  = 0x8CE1,
-            COLOR_ATTACHMENT2  = 0x8CE2,
-            COLOR_ATTACHMENT3  = 0x8CE3,
-            COLOR_ATTACHMENT4  = 0x8CE4,
-            COLOR_ATTACHMENT5  = 0x8CE5,
-            COLOR_ATTACHMENT6  = 0x8CE6,
-            COLOR_ATTACHMENT7  = 0x8CE7,
-            COLOR_ATTACHMENT8  = 0x8CE8,
-            COLOR_ATTACHMENT9  = 0x8CE9,
-            COLOR_ATTACHMENT10 = 0x8CEA,
-            COLOR_ATTACHMENT11 = 0x8CEB,
-            COLOR_ATTACHMENT12 = 0x8CEC,
-            COLOR_ATTACHMENT13 = 0x8CED,
-            COLOR_ATTACHMENT14 = 0x8CEE,
-            COLOR_ATTACHMENT15 = 0x8CEF,
-            DEPTH_ATTACHMENT   = 0x8D00,
-            STENCIL_ATTACHMENT = 0x8D20,
-        };
-
+       Specifies which channels of the framebuffer the renderbuffer or texture will 
+       define. These mirror
+       the OpenGL definition as do their values.
+       
+       A DEPTH_STENCIL format renderbuffer or texture can be attached to either the 
+       DEPTH_ATTACHMENT or the STENCIL_ATTACHMENT, or both simultaneously; Framebuffer will
+       understand the format and use the appropriate channels.
+    */
+    enum AttachmentPoint {
+        COLOR_ATTACHMENT0   = GL_COLOR_ATTACHMENT0_EXT,
+        COLOR_ATTACHMENT1   = GL_COLOR_ATTACHMENT1_EXT,
+        COLOR_ATTACHMENT2   = GL_COLOR_ATTACHMENT2_EXT,
+        COLOR_ATTACHMENT3   = GL_COLOR_ATTACHMENT3_EXT,
+        COLOR_ATTACHMENT4   = GL_COLOR_ATTACHMENT4_EXT,
+        COLOR_ATTACHMENT5   = GL_COLOR_ATTACHMENT5_EXT,
+        COLOR_ATTACHMENT6   = GL_COLOR_ATTACHMENT6_EXT,
+        COLOR_ATTACHMENT7   = GL_COLOR_ATTACHMENT7_EXT,
+        COLOR_ATTACHMENT8   = GL_COLOR_ATTACHMENT8_EXT,
+        COLOR_ATTACHMENT9   = GL_COLOR_ATTACHMENT9_EXT,
+        COLOR_ATTACHMENT10  = GL_COLOR_ATTACHMENT10_EXT,
+        COLOR_ATTACHMENT11  = GL_COLOR_ATTACHMENT11_EXT,
+        COLOR_ATTACHMENT12  = GL_COLOR_ATTACHMENT12_EXT,
+        COLOR_ATTACHMENT13  = GL_COLOR_ATTACHMENT13_EXT,
+        COLOR_ATTACHMENT14  = GL_COLOR_ATTACHMENT14_EXT,
+        COLOR_ATTACHMENT15  = GL_COLOR_ATTACHMENT15_EXT,
+        DEPTH_ATTACHMENT   = 0x8D00,
+        STENCIL_ATTACHMENT = 0x8D20,
+    };
+    
 private:
 
     class Attachment {
@@ -198,10 +208,13 @@ private:
     /**
      Current attachments.
      Slots are not specified if they correspond to NULL elements.
-
+     
      Note: the uint32 key corresponds to an AttachmentPoint value
      */
     Table<uint32, Attachment>       attachmentTable;
+
+    /** The current attachments, in increasing number order.*/
+    Array<GLenum>                   colorDrawBufferArray;
 
     /** OpenGL Object ID */
     GLuint                          framebufferID;
@@ -209,13 +222,6 @@ private:
     /** Framebuffer name */
     std::string                     m_name;
     
-    /** 
-        Not yet implemented yet -- for non-gl error checking to pre-check
-        for Framebuffer completeness.  Width & Height should also be
-        implemented for this check.
-    */
-    const class ImageFormat*        format;
-
     /**
      Framebuffer Height
      */
@@ -230,10 +236,19 @@ private:
         return static_cast<int>(attachmentTable.size());
     }
 
+    /** Adds ap to colorDrawBufferArray. */
+    void attach(AttachmentPoint ap);
+
     /** Default Constructor. */
     Framebuffer(const std::string& name, GLuint framebufferID);
     
 public:
+
+    /** The draw array for use with glDrawBuffers. 
+        RenderDevice automatically uses this.*/
+    const Array<GLenum>& openGLDrawArray() const {
+        return colorDrawBufferArray;
+    }
     
     /** Reclaims OpenGL ID.  All buffers/textures are automatically
         detatched on destruction. */

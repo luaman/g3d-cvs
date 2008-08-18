@@ -14,6 +14,7 @@
 #include <string>
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/Widget.h"
+#include "GLG3D/RenderDevice.h" // TODO: Remove
 
 namespace G3D {
 
@@ -75,7 +76,9 @@ protected:
                        void (Class::*callback)()) : m_object(object), m_callback(callback) {}
         
         virtual void onPush() {
+            debugAssertGLOk();
             (m_object->*m_callback)();
+            debugAssertGLOk();
         }
         
         virtual CallbackInterface* clone() {

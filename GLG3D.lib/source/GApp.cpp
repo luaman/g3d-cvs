@@ -466,6 +466,7 @@ void GApp::oneFrame() {
     if (manageUserInput) {
         processGEventQueue();
     }
+    debugAssertGLOk();
     onUserInput(userInput);
     m_widgetManager->onUserInput(userInput);
     m_userInputWatch.tock();
@@ -530,8 +531,10 @@ void GApp::oneFrame() {
         m_widgetManager->onPose(m_posed3D, m_posed2D);
         onPose(m_posed3D, m_posed2D);
 
+        debugAssertGLOk();
         renderDevice->beginFrame();
         {
+            debugAssertGLOk();
             renderDevice->pushState();
             {
                 onGraphics(renderDevice, m_posed3D, m_posed2D);

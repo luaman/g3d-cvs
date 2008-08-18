@@ -275,21 +275,27 @@ bool WidgetManager::onEvent(const GEvent& event, WidgetManager::Ref& a, WidgetMa
             b->m_moduleArray;
                 
         for (int i = array.size() - 1; i >= 0; --i) {
+
+            debugAssertGLOk();
             if (array[i]->onEvent(event)) {
+                debugAssertGLOk();
                 if (b.notNull()) {
                     b->endLock();
                 }
-                
                 a->endLock();
+                debugAssertGLOk();
                 return true;
             }
         }
+        debugAssertGLOk();
     }
     
     if (b.notNull()) {
         b->endLock();
     }
     a->endLock();
+
+    debugAssertGLOk();
 
     return false;
 }

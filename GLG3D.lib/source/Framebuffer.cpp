@@ -1,16 +1,16 @@
 /**
-@file Framebuffer.cpp
+   @file Framebuffer.cpp
 
-@author Daniel Hilferty, djhilferty@users.sourceforge.net
-@maintainer Morgan McGuire
-
-Notes:
-<UL>
-<LI>http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt
-</UL>
-
-@created 2006-01-07
-@edited  2007-08-10
+   @author Daniel Hilferty, djhilferty@users.sourceforge.net
+   @maintainer Morgan McGuire
+   
+   Notes:
+   <UL>
+   <LI>http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt
+   </UL>
+   
+   @created 2006-01-07
+   @edited  2008-08-10
 */
 
 #include "GLG3D/Framebuffer.h"
@@ -41,7 +41,7 @@ FramebufferRef Framebuffer::fromGLFramebuffer(const std::string& _name, GLuint _
     alwaysAssertM(_framebufferID == 0 || GLCaps::supports_GL_EXT_framebuffer_object(), 
         "Framebuffer Object not supported!");
 
-	// TODO: If there are existing attachments, find their size
+    // TODO: If there are existing attachments, find their size
     return new Framebuffer(_name, _framebufferID);
 }
 
@@ -98,6 +98,12 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 
     }
 
+    int i = colorDrawBufferArray.findIndex(ap);
+    if (i != -1) {
+        // Remove this element
+        colorDrawBufferArray.remove(i);
+    }
+
     // If we were already bound, don't bother restoring
     if (origFB != (GLint)openGLID()) {
         // Bind original framebuffer
@@ -149,6 +155,8 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
     
     attachmentTable.set(ap, Attachment(texture, face));
 
+    attach(ap);
+        
     bool isCubeMap = (texture->dimension() == Texture::DIM_CUBE_MAP) ||
         (texture->dimension() == Texture::DIM_CUBE_MAP_NPOT);
 
@@ -177,6 +185,19 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
     texture->invertY = true;
 
     debugAssertGLOk();
+}
+
+
+void Framebuffer::attach(AttachmentPoint ap) {
+    if ((ap >= COLOR_ATTACHMENT0) && (ap <= COLOR_ATTACHMENT15)) {
+        int i = colorDrawBufferArray.findIndex(ap);
+        if (i == -1) {
+            
+            // find the index of the last element before this one
+            for (i = 0; (i < colorDrawBufferArray.size()) && ((int)colorDrawBufferArray[i] < ap); ++i) {}
+            colorDrawBufferArray.insert(i, ap);
+        }
+    }
 }
 
 
@@ -217,6 +238,8 @@ void Framebuffer::set(
 
     attachmentTable.set(ap, Attachment(renderbuffer));
 
+    attach(ap);
+
     // If we were already bound, don't bother restoring
     if (origFB != (GLint)openGLID()) {
         // Bind original framebuffer
@@ -238,6 +261,8 @@ void Framebuffer::clear() {
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
         debugAssertGLOk();
     }
+
+    colorDrawBufferArray.clear();
 
     for (int i = 0; i < 18; ++i) {
         int ap;
