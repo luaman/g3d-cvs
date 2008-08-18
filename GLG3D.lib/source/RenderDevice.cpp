@@ -1074,20 +1074,27 @@ void RenderDevice::disableTwoSidedLighting() {
 }
 
 
-void RenderDevice::beforePrimitive() {
+void RenderDevice::syncDrawBuffer() {
     if (state.framebuffer.notNull()) {
         // Apply the bindings from this framebuffer
         const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
         debugAssertM(array.size() > 0, "Framebuffer must have at least one buffer attached");
+        /*
         debugPrintf("glDrawBuffersARB: ");
         for (int i = 0; i < array.size(); ++i) {
             debugPrintf("0x%x ", array[i]);
         }
         debugPrintf("\n");
         debugAssertGLOk();
+        */
         glDrawBuffersARB(array.size(), array.getCArray());
         debugAssertGLOk();
     }
+}
+
+
+void RenderDevice::beforePrimitive() {
+    syncDrawBuffer();
 
     if (! state.shader.isNull()) {
         debugAssert(! inShader);
@@ -1098,7 +1105,6 @@ void RenderDevice::beforePrimitive() {
     
     // If a Shader was bound, it will force this.  Otherwise we need to do so.
     forceVertexAndPixelShaderBind();
-
 }
 
 
@@ -1260,6 +1266,8 @@ void RenderDevice::popState() {
 
 void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     debugAssert(! inPrimitive);
+    syncDrawBuffer();
+
 #   ifdef G3D_DEBUG
     {
         std::string why;
@@ -1271,7 +1279,6 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
 
     GLint mask = 0;
 
-    // TODO: do we need to enable write to clear these buffers?
     bool oldColorWrite = colorWrite();
     if (clearColor) {
         mask |= GL_COLOR_BUFFER_BIT;

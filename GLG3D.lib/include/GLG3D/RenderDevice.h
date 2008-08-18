@@ -252,6 +252,7 @@ private:
     /**
      Sets the milestones on the currentVARArea.
      */
+
     void setVARAreaMilestone();
 
     /** Called by sendIndices. */
@@ -279,6 +280,10 @@ private:
         whyIncomplete explaining the problem.
         Potentially slow. */
     bool checkFramebuffer(std::string& whyIncomplete = dummyString) const;
+
+    /** Sets the glDrawBuffersARB to match the current FBO's 
+        capabilities.  Called from clear() and beforePrimitive(). */
+    void syncDrawBuffer();
 
 public:
 
