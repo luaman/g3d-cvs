@@ -35,7 +35,7 @@ VideoInput::Ref VideoInput::fromFile(const std::string& filename, const Settings
 
 VideoInput::VideoInput() : 
     m_currentTime(0.0f),
-    m_currentIndex(-1),
+    m_currentIndex(0),
     m_finished(false),
     m_quitThread(false),
     m_clearBuffersAndSeek(false),
@@ -150,14 +150,13 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
 
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // don't increment the index after a seek
+        // reset seek
         if (readAfterSeek) {
-            // reset seek
             m_seekTimestamp = -1;
-        } else {
-            // increment current playback index
-            ++m_currentIndex;
         }
+
+        // increment current playback index
+        ++m_currentIndex;
 
         // adjust current playback position to the time of the frame
         m_currentTime = buffer->m_pos;
@@ -194,14 +193,13 @@ bool VideoInput::readNext(RealTime timeStep, GImage& frame) {
 
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // don't increment the index after a seek
+        // reset seek
         if (readAfterSeek) {
-            // reset seek
             m_seekTimestamp = -1;
-        } else {
-            // increment current playback index
-            ++m_currentIndex;
         }
+
+        // increment current playback index
+        ++m_currentIndex;
 
         // adjust current playback position to the time of the frame
         m_currentTime = buffer->m_pos;
@@ -237,14 +235,13 @@ bool VideoInput::readNext(RealTime timeStep, Image3uint8::Ref& frame) {
 
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // don't increment the index after a seek
+        // reset seek
         if (readAfterSeek) {
-            // reset seek
             m_seekTimestamp = -1;
-        } else {
-            // increment current playback index
-            ++m_currentIndex;
         }
+
+        // increment current playback index
+        ++m_currentIndex;
 
         // adjust current playback position to the time of the frame
         m_currentTime = buffer->m_pos;
@@ -280,14 +277,13 @@ bool VideoInput::readNext(RealTime timeStep, Image3::Ref& frame) {
 
         Buffer* buffer = m_decodedBuffers.dequeue();
 
-        // don't increment the index after a seek
+        // reset seek
         if (readAfterSeek) {
-            // reset seek
             m_seekTimestamp = -1;
-        } else {
-            // increment current playback index
-            ++m_currentIndex;
         }
+
+        // increment current playback index
+        ++m_currentIndex;
 
         // adjust current playback position to the time of the frame
         m_currentTime = buffer->m_pos;
@@ -522,8 +518,7 @@ int VideoInput::numFrames() const {
 }
 
 int VideoInput::index() const {
-    // -1 is used internally but representes index 0 still
-    return (m_currentIndex >= 0) ? m_currentIndex : 0;
+    return m_currentIndex;
 }
 
 void VideoInput::decodingThreadProc(void* param) {
