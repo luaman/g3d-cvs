@@ -16,6 +16,7 @@ namespace G3D {
 
 class ShadowMap : public ReferenceCountedObject {
 private:
+    std::string         m_name;
 
     TextureRef          m_depthTexture;
 
@@ -43,14 +44,19 @@ private:
 
     void computeColorTexture();
 
-    ShadowMap();
+    ShadowMap(const std::string& name);
 
 public:
 
     typedef ShadowMapRef Ref;
 
-    static ShadowMapRef create() {
-        return new ShadowMap();
+    /** For debugging purposes. */
+    const std::string& name() const {
+        return m_name;
+    }
+
+    static ShadowMapRef create(const std::string& name = "Shadow Map") {
+        return new ShadowMap(name);
     }
 
     /** Call with desiredSize = 0 to turn off shadow maps.

@@ -11,7 +11,7 @@
 
 namespace G3D {
 
-ShadowMap::ShadowMap() : m_polygonOffset(0.5f), m_lastRenderDevice(NULL), m_colorTextureIsDirty(true) {
+ShadowMap::ShadowMap(const std::string& name) : m_name(name), m_polygonOffset(0.5f), m_lastRenderDevice(NULL), m_colorTextureIsDirty(true) {
     m_depthModeStack.append(Texture::DEPTH_LEQUAL);
 }
 
@@ -93,7 +93,7 @@ void ShadowMap::setSize(int desiredSize) {
     Texture::Settings textureSettings = Texture::Settings::shadow();
 
     m_depthTexture = Texture::createEmpty(
-                                     "Shadow Map",
+                                     m_name,
                                      SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
                                      ImageFormat::DEPTH16(),
                                      Texture::DIM_2D, 
@@ -101,7 +101,7 @@ void ShadowMap::setSize(int desiredSize) {
     m_colorTexture = NULL;
 
     if (GLCaps::supports_GL_EXT_framebuffer_object()) {
-        m_framebuffer = Framebuffer::create("Shadow Frame Buffer");
+        m_framebuffer = Framebuffer::create(m_name + " Frame Buffer");
         m_framebuffer->set(Framebuffer::DEPTH_ATTACHMENT, m_depthTexture);
     }
 
@@ -275,7 +275,7 @@ void ShadowMap::computeColorTexture() {
         debugAssert(GLCaps::supportsTexture(fmt));
 
         m_colorTexture = Texture::createEmpty
-            ("ShadowMap color texture", m_depthTexture->width(), m_depthTexture->height(), 
+            (m_name, m_depthTexture->width(), m_depthTexture->height(), 
              fmt, Texture::DIM_2D, settings);
     }
 
