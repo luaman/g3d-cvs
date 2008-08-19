@@ -71,24 +71,18 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->clear(sky.notNull(), true, true);
 
-        debugAssertGLOk();
     if (sky.notNull()) {
         sky->render(rd, skyParameters);
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
 
-    //shadowMap->depthTexture()->toDepthImage1()->save("depth.png");
-    //shadowMap->colorDepthTexture()->toImage3()->save("color-depth.png");
-    //    exit(0);
     /*
       // See bounding volumes:
     for (int i = 0; i < posed3D.size(); ++i) {
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
     */
-
-    //Draw::axes(CoordinateFrame(), rd);
 
     if (sky.notNull()) {
         sky->renderLensFlare(rd, skyParameters);
@@ -116,8 +110,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     Draw::rect2D(
         Rect2D::xywh(rd->width() - 96,rd->height() - 96, 64, 64), 
         rd, Color4(1,1,1,0.7f));
-    //    rd->setTexture(0, shadowMap->colorDepthTexture());
-    //Draw::rect2D(shadowMap->colorDepthTexture()->rect2DBounds(), rd);
     rd->pop2D();
 
     screenPrintf("ArticulatedModel::debugNumSendGeometryCalls = %d\n", ArticulatedModel::debugNumSendGeometryCalls);
