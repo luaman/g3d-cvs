@@ -161,12 +161,21 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
         // adjust current playback position to the time of the frame
         m_currentTime = buffer->m_pos;
 
-        // clear existing texture
-        frame = NULL;
+        // check if the texture is re-usable and create a new one if not
+        if (frame.notNull() && frame->width() == width() && frame->height() == height()) {
+            // update existing texture
+            glBindTexture(frame->openGLTextureTarget(), frame->openGLID());
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
+            glTexImage2D(frame->openGLTextureTarget(), 0, frame->format()->openGLFormat, frame->width(), frame->height(), 0,
+                TextureFormat::RGB8()->openGLBaseFormat, TextureFormat::RGB8()->openGLDataFormat, buffer->m_frame->data[0]);
+            glBindTexture(frame->openGLTextureTarget(), NULL);
+        } else {
+            // clear existing texture
+            frame = NULL;
 
-        // TODO: reuse existing texture if possible.  That preserves its settings and avoids reallocating GPU memory
-        // create new texture
-        frame = Texture::fromMemory("VideoInput frame", buffer->m_frame->data[0], TextureFormat::RGB8(), width(), height(), 1, TextureFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+            // create new texture with right dimentions
+            frame = Texture::fromMemory("VideoInput frame", buffer->m_frame->data[0], TextureFormat::RGB8(), width(), height(), 1, TextureFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+        }
 
         m_emptyBuffers.enqueue(buffer);
         frameUpdated = true;
