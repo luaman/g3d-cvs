@@ -1078,16 +1078,12 @@ void RenderDevice::syncDrawBuffer() {
     if (state.framebuffer.notNull()) {
         // Apply the bindings from this framebuffer
         const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
-        debugAssertM(array.size() > 0, "Framebuffer must have at least one buffer attached");
-        /*
-        debugPrintf("glDrawBuffersARB: ");
-        for (int i = 0; i < array.size(); ++i) {
-            debugPrintf("0x%x ", array[i]);
+        if (array.size() > 0) {
+            glDrawBuffersARB(array.size(), array.getCArray());
+        } else {
+            // May be only depth or stencil; don't need a draw buffer.
+            glDrawBuffersARB(0, NULL);
         }
-        debugPrintf("\n");
-        debugAssertGLOk();
-        */
-        glDrawBuffersARB(array.size(), array.getCArray());
         debugAssertGLOk();
     }
 }
