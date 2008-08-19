@@ -169,6 +169,9 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
             glTexImage2D(frame->openGLTextureTarget(), 0, frame->format()->openGLFormat, frame->width(), frame->height(), 0,
                 TextureFormat::RGB8()->openGLBaseFormat, TextureFormat::RGB8()->openGLDataFormat, buffer->m_frame->data[0]);
             glBindTexture(frame->openGLTextureTarget(), NULL);
+
+            // make sure this renders correctly since we didn't create the texture
+            frame->invertY = false;
         } else {
             // clear existing texture
             frame = NULL;
