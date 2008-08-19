@@ -423,7 +423,6 @@ def jarTarget():
            _findBinary('jar')
        except Exception:
            print 'javac or jar not found on this machine, skipping .jar creation!'
-           raise
            return -1
    else:
        x = shell('javac', False)
@@ -524,7 +523,7 @@ def ffmpegcTarget():
     os.chdir(oldcwd)
     
 def ffmpegbTarget():
-    #This target builds the .dll and .def pre-built mingw windows binaries
+    #This target builds the pre-built windows .dll binaries with mingw
     crossCompilerDir = os.path.abspath('temp/mingw/cc/bin')
     sourceDir = os.path.abspath('temp/ffmpeg/mingw')
     installDir = os.path.abspath('temp/ffmpeg/mingw/install')
