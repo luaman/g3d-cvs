@@ -63,8 +63,8 @@ public:
      */
     void setSize(int desiredSize = 1024);
 
-    static ShadowMapRef create(int size) {
-        ShadowMap* s = new ShadowMap();
+    static ShadowMapRef create(int size, const std::string& name = "Shadow Map") {
+        ShadowMap* s = new ShadowMap(name);
         s->setSize(size);
         return s;
     }
