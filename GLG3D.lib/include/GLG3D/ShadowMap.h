@@ -93,11 +93,15 @@ public:
 
     bool enabled() const;
 
+    /** 
+      @param biasDepth amount to bias z values by in the biasedMVP when later rendering
+      */
     void updateDepth(
         class RenderDevice* renderDevice, 
         const CoordinateFrame& lightFrame,
         const Matrix4& lightProjectionMatrix,
-        const Array<PosedModel::Ref>& shadowCaster);
+        const Array<PosedModel::Ref>& shadowCaster,
+        float biasDepth = 0.003f);
 
     void updateDepth(
         class RenderDevice* renderDevice, 

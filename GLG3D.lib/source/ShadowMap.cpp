@@ -165,7 +165,8 @@ void ShadowMap::updateDepth(
     RenderDevice* renderDevice,
     const CoordinateFrame& lightCFrame, 
     const Matrix4& lightProjectionMatrix,
-    const Array<PosedModel::Ref>& shadowCaster) {
+    const Array<PosedModel::Ref>& shadowCaster,
+    float biasDepth) {
 
     m_lastRenderDevice = renderDevice;
 
@@ -220,7 +221,7 @@ void ShadowMap::updateDepth(
         static const Matrix4 bias(
                                   0.5f, 0.0f, 0.0f, 0.5f,
                                   0.0f, 0.5f, 0.0f, 0.5f,
-                                  0.0f, 0.0f, 0.5f, 0.5f - 0.003f,
+                                  0.0f, 0.0f, 0.5f, 0.5f - biasDepth,
                                   0.0f, 0.0f, 0.0f, 1.0f);
 
         m_biasedLightMVP = bias * m_lightMVP;
