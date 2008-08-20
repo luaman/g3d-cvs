@@ -29,9 +29,13 @@ def _pathAppend(plist, newPath, checkForExist = False):
     if isinstance(newPath, list):
         for p in newPath:
             _pathAppend(plist, p, checkForExist)
-    elif (not checkForExist or os.path.exists(newPath)) and (not newPath in plist):
-        plist.append(newPath)
-   
+
+    elif not newPath in plist:
+        if not checkForExist or os.path.exists(newPath):
+            plist.append(newPath)
+        else:
+            print 'Path ' + newPath + ' specified in configuration file does not exist.'
+
     return plist
 
 
