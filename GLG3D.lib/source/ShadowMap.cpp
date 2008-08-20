@@ -71,7 +71,7 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
 }
 
 
-void ShadowMap::setSize(int desiredSize) {
+void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSettings) {
     if (desiredSize == 0) {
         m_depthTexture = NULL;
         m_framebuffer = NULL;
@@ -89,8 +89,6 @@ void ShadowMap::setSize(int desiredSize) {
         // Restrict to screen size
         SHADOW_MAP_SIZE = 512;
     }
-
-    Texture::Settings textureSettings = Texture::Settings::shadow();
 
     m_depthTexture = Texture::createEmpty(
                                      m_name,

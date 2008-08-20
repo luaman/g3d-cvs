@@ -61,11 +61,11 @@ public:
 
     /** Call with desiredSize = 0 to turn off shadow maps.
      */
-    void setSize(int desiredSize = 1024);
+    void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
 
-    static ShadowMapRef create(int size, const std::string& name = "Shadow Map") {
+    static ShadowMapRef create(int size, const std::string& name = "Shadow Map", const Texture::Settings& settings = Texture::Settings::shadow()) {
         ShadowMap* s = new ShadowMap(name);
-        s->setSize(size);
+        s->setSize(size, settings);
         return s;
     }
 
@@ -85,7 +85,8 @@ public:
         return m_polygonOffset;
     }
 
-    /** MVP adjusted for depth comparisons to avoid self-shadowing artifacts on front faces. */
+    /** MVP adjusted to map to [0,0],[1,1] texture coordinates and addjusted in z 
+        for depth comparisons to avoid self-shadowing artifacts on front faces. */
     const Matrix4& biasedLightMVP() const {
         return m_biasedLightMVP;
     }
@@ -108,7 +109,8 @@ public:
         const Array<PosedModel::Ref>& shadowCaster);
 
     /** Model-View-Projection matrix that maps world space to the
-        shadow map pixels.  Most applications will use biasedLightMVP
+        shadow map pixels; used for rendering the shadow map itself.  Note that
+        this maps XY to [-1,-1],[1,1]. Most applications will use biasedLightMVP
         to avoid self-shadowing problems. */
     const Matrix4& lightMVP() const {
         return m_lightMVP;

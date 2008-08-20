@@ -24,6 +24,7 @@
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> Clarified G3D::Any file format in documentation
      <li> PointAABSPTree::clearData
+     <li> PosedModel now computes appropriate shadow map matrices for spot lights
      <li> Added ImageFormat::convert [Danny and Kyle]
      <li> 3- and 4- argument min and max
      <li> G3D::GaussianBlur now correctly sets the output viewport

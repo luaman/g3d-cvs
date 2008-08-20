@@ -78,9 +78,31 @@ void PosedModel::sortAndRender
 
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            const float lightProjX = 12, lightProjY = 12, lightProjNear = 1, lightProjFar = 40;
-            shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
-                                      lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
+            float lightProjX = 12, lightProjY = 12, lightProjNear = 0.5f, lightProjFar = 60;
+
+            if (lighting->shadowedLightArray[L].spotCutoff <= 90) {
+                // Spot light; we can set the lightProjX/Y intelligently
+
+                debugAssert(lighting->shadowedLightArray[L].position.w == 1.0f);
+
+                // The cutoff is half the angle of extent (See the Red Book, page 193)
+                float angle = toRadians(lighting->shadowedLightArray[L].spotCutoff);
+                lightProjX = lightProjNear * sin(angle);
+                lightProjY = lightProjX;
+
+                CFrame lightFrame;
+                lightFrame.lookAt(lighting->shadowedLightArray[L].spotDirection);
+                lightFrame.translation = lighting->shadowedLightArray[L].position.xyz();
+
+                Matrix4 lightProjectionMatrix = 
+                    Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
+                                                              lightProjY, lightProjNear, lightProjFar);
+                shadowMaps[L]->updateDepth(rd, lightFrame, lightProjectionMatrix, allModels);
+            } else {
+                // Point or directional light
+                shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
+                                          lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
+            }
         }
     } else {
         // We're not going to be able to draw shadows, so move the shadowed lights into
