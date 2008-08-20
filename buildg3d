@@ -160,6 +160,11 @@ def runicompile(dir):
 def buildNativeFFMPEG():
     if windows: raise Error('Cannot build FFMPEG directly on Windows.  Must use cross-compiler')
 
+    make = 'make'
+    if freebsd:
+        # freebsd ships with an ancient make version
+        make = 'gmake'
+
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
     print '----------------------------------------------------\n'
     print 'Building ' + ', '.join(libs)
@@ -201,9 +206,12 @@ def buildNativeFFMPEG():
     oldcwd = os.getcwd()
     os.chdir(pathConcat(sourceDir, ffmpegName))
     ffmpegBuildScript = """
+    echo Running configure in """ + pathConcat(sourceDir, ffmpegName) + """
     configure --enable-static --prefix=""" + installDir + """ --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
-    make
-    make install
+    echo Running make...
+    """ + make + """
+    echo Make install...
+    """ + make + """ install
     """
     print 'Compiling...'
     retVal = ice.utils.run('sh', ['-c', ffmpegBuildScript], False)
