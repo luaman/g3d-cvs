@@ -39,16 +39,18 @@ VideoOutput::Settings VideoOutput::Settings::uncompressedAVI() {
     return s;
 }
 
-VideoOutput::Settings VideoOutput::Settings::nativeMPEG4() {
+VideoOutput::Settings VideoOutput::Settings::ffmpegMPEG4() {
     Settings s;
 
     // native ffmpeg iso mpeg4 implementation
     s.codec = CODEC_ID_MPEG4;
+    
     // this is just a default and should be overriden by user, we don't have width/height to pre-calculate
     s.bitrate = 1024 * 512;
+
     // the 'XVID' fourcc code will make this a more compatible stream
     // but still using ffmpeg's native encoder
-    s.customFOURCC = 'XVID';
+    s.customFOURCC = ('X' << 24) | ('V' << 16) | ('I' << 8) | ('D');
 
     return s;
 }

@@ -241,7 +241,7 @@ public:
         static Settings uncompressedAVI();
 
         /** Settings that can be used when writing an mpeg4 avi video using ffmpeg's native implementation */
-        static Settings nativeMPEG4();
+        static Settings ffmpegMPEG4();
     };
 
     typedef ReferenceCountedPointer<VideoOutput> Ref;
