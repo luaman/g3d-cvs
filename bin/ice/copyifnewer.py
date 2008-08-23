@@ -158,7 +158,7 @@ def _copyIfNewerVisit(args, sourceDirname, names):
                     print name
                 _copyIfNewerCopiedAnything = True
                 if actuallyCopy:
-                    shutil.copyfile(source, dest)
+                    shutil.copy(source, dest)
 
 
                     
