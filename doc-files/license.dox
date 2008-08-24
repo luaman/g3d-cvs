@@ -67,13 +67,14 @@ Installation <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></
   @section reallicense License
 
    <I>G3D is licensed under the <A HREF="http://www.opensource.org/licenses/bsd-license.php">BSD license</A>, 
-   with portions controlled by the <A HREF="IJG-README.TXT">IJG license</A> and 
-   <A HREF="libpng-LICENSE.txt">PNG Reference Library license</A></I>
+   with portions controlled by the <A HREF="IJG-README.TXT">IJG license</A>, 
+   <A HREF="libpng-LICENSE.txt">PNG Reference Library license</A> and 
+   <A HREF="http://www.gnu.org/copyleft/lesser.html">GNU Lesser General Public License (LGPL)</A>.</I>
 
   <CODE>
    <IMG SRC="http://opensource.org/trademarks/osi-certified/web/osi-certified-120x100.gif">
    <DT>This product uses software from the G3D project (http://g3d-cpp.sf.net)
-   <DT>Copyright &copy; 2000-2006, Morgan McGuire
+   <DT>Copyright &copy; 2000-2008, Morgan McGuire
    <DT>All rights reserved.
    <P>
    Redistribution and use in source and binary forms, with or without
