@@ -144,7 +144,7 @@ void RenderDevice::beginOpenGL() {
 
 
 void RenderDevice::endOpenGL() {
-    debugAssert(! inRawOpenGL);
+    debugAssert(inRawOpenGL);
     inRawOpenGL = false;
 
     glPopClientAttrib();
