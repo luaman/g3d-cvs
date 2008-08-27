@@ -135,7 +135,9 @@ void RenderDevice::beginOpenGL() {
 
     beforePrimitive();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
+    GLenum GL_CLIENT_ALL_ATTRIB_BITS = 0xFFFFFFFF;
     glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    debugAssertGLOk();
 
     inRawOpenGL = true;
 }
