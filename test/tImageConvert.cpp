@@ -1,27 +1,4 @@
 #include "G3D/G3DAll.h"
-// #include "G3D/platform.h"
-// #include "G3D/Vector2.h"
-// #include "G3D/Vector3.h"
-// #include "G3D/Vector3int16.h"
-// #include "G3D/Vector4.h"
-// #include "G3D/Color1.h"
-// #include "G3D/Color1uint8.h"
-// #include "G3D/Color3.h"
-// #include "G3D/Color3uint8.h"
-// #include "G3D/Color4.h"
-// #include "G3D/Color4uint8.h"
-// #include "G3D/debugAssert.h"
-// #include "./glheaders.h"
-// #ifdef _DEBUG
-// // Needed for debugAssertGLOk
-// #   include "./getOpenGLState.h"
-// #endif
-using G3D::uint8;
-using G3D::uint32;
-using G3D::uint64;
-
-
-
 
 static void printBoard(const Color3uint8* b, int S) {
     printf("\n");

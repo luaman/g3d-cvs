@@ -148,10 +148,9 @@ std::string ImageFormat::name() const {
         "HSV8",
         "HSV32F",
 
-        "YUV8",
-        "YUV32F",
         "YUV411",
         "YUV420",
+        "YUV420_PLANAR",
         "YUV444",
 
         "RGB_DXT1",
@@ -277,8 +276,11 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     case ImageFormat::CODE_HSV8:
     case ImageFormat::CODE_HSV32F:
 
-    case ImageFormat::CODE_YUV8:
-    case ImageFormat::CODE_YUV32F:
+    case ImageFormat::CODE_YUV411:
+    case ImageFormat::CODE_YUV420:
+    case ImageFormat::CODE_YUV420_PLANAR:
+    case ImageFormat::CODE_YUV444:
+
         //debugAssertM(ImageFormat::AUTO(), "Unsupported ImageFormat at decoding.");
         return NULL;
         break;

@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test\tImageConvert.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\test\tMap2D.cpp"
 				>
 			</File>

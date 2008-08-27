@@ -26,6 +26,7 @@ public:
 
     // Must update ImageFormat::name() when this enum changes.
     enum Code {
+        CODE_NONE = -1,
         CODE_L8,
         CODE_L16,
         CODE_L16F,
@@ -71,10 +72,9 @@ public:
         CODE_HSV8,
         CODE_HSV32F,
 
-        CODE_YUV8,
-        CODE_YUV32F,
         CODE_YUV411,
         CODE_YUV420,
+        CODE_YUV420_PLANAR,
         CODE_YUV444,
 
         CODE_RGB_DXT1,
@@ -326,10 +326,10 @@ public:
     };
 
     /** Convert between arbitrary formats on the CPU */
-    static void convert(const void* srcBytes, int srcWidth, int srcHeight, 
-        const ImageFormat* srcFormat, size_t srcRowPadBits,
-	    void* dstBytes, const ImageFormat* dstFormat, size_t dstRowPadBits,
-	    const bool invertY = false, BayerAlgorithm conversionAlg = BayerAlgorithm::HIGH_QUALITY);
+    static bool convert(const void* srcBytes, int srcWidth, int srcHeight, 
+        const ImageFormat* srcFormat, int srcRowPadBits,
+	    void* dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
+	    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::HIGH_QUALITY);
 };
 
 typedef ImageFormat TextureFormat;
