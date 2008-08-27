@@ -23,6 +23,7 @@
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> Clarified G3D::Any file format in documentation
+     <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
      <li> PosedModel now computes appropriate shadow map matrices for spot lights
      <li> Added ImageFormat::convert [Danny and Kyle]

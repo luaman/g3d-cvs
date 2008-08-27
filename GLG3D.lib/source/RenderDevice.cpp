@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2001-07-08
- @edited  2007-11-30
+ @edited  2008-08-27
  */
 
 #include "G3D/platform.h"
@@ -130,6 +130,28 @@ std::string RenderDevice::getCardDescription() const {
 }
 
 
+void RenderDevice::beginOpenGL() {
+    debugAssert(! inRawOpenGL);
+
+    beforePrimitive();
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+
+    inRawOpenGL = true;
+}
+
+
+void RenderDevice::endOpenGL() {
+    debugAssert(! inRawOpenGL);
+    inRawOpenGL = false;
+
+    glPopClientAttrib();
+    glPopAttrib();
+
+    afterPrimitive();    
+}
+
+
 void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
     // Reset state
     lighting->lightArray.fastClear();
@@ -149,7 +171,7 @@ void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
     }
 }
 
-RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false) {
+RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(false) {
     emwaTriangleRate  = 0;
     emwaTriangleCount = 0;
 
@@ -1090,6 +1112,8 @@ void RenderDevice::syncDrawBuffer() {
 
 
 void RenderDevice::beforePrimitive() {
+    debugAssertM(! inRawOpenGL, "Cannot make RenderDevice calls while inside beginOpenGL...endOpenGL");
+
     syncDrawBuffer();
 
     if (! state.shader.isNull()) {

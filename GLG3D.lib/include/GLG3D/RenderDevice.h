@@ -1391,6 +1391,9 @@ private:
      */
     bool                            inPrimitive;
 
+    /** Has beginOpenGL been called? */
+    bool                            inRawOpenGL;
+
     /** True while invoking a Shader's methods */
     bool                            inShader;
 
@@ -1677,6 +1680,19 @@ public:
      */
     void enableLighting();
     void disableLighting();
+
+    /** Begin a section of raw OpenGL calls.  All RenderDevice state is 
+        synchronized with OpenGL and backed up.
+        
+        You can always make raw OpenGL calls with G3D, however in some cases
+        RenderDevice makes lazy state changes and you'll be surprised by the outcome.
+        This lets you switch to a pure OpenGL mode.  Do not make other RenderDevice
+        calls while in beginOpenGL...endOpenGL.
+        */
+    void beginOpenGL();
+
+    /** The state of the previous beginOpenGL is restored.*/
+    void endOpenGL();
 
     /**
      Multiplies v by the current object to world and world to camera matrices,
