@@ -30,6 +30,7 @@
 #include <time.h>
 
 #include <cstring>
+#include <cstdio>
 
 // Uncomment the following line to turn off G3D::System memory
 // allocation and use the operating system's malloc.
@@ -128,6 +129,9 @@ public:
        );
 #endif
 
+// this holds the data directory set by the application (currently GApp) for use by findDataFile
+static char                                     g_appDataDir[FILENAME_MAX];
+
 static CpuInfo                                  g_cpuInfo = {
     0, false, false, false, false, false, false, false, {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'}};
 
@@ -173,6 +177,8 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
         return full;
     }
 
+    std::string initialAppDataDir(g_appDataDir);
+
     std::string name = filenameBaseExt(full);
     std::string originalPath = filenamePath(full);
 
@@ -185,7 +191,12 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     subDir.append("", "font/", "sky/", "gui/");
     subDir.append("SuperShader/", "ifs/", "3ds/");
 
+    // add what should be the current working directory
     path.append("");
+
+    // add application specified data directory to be searched first
+    path.append(initialAppDataDir);
+
     std::string prev = "";
     for (int i = 0; i < backlen; ++i) {
         path.append(originalPath + prev);
@@ -230,6 +241,12 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     // Not found
     return "";
 }
+
+void System::setAppDataDir(const std::string& path) {
+    // just copy the path, it needs to be valid
+    strncpy(g_appDataDir, path.c_str(), sizeof(g_appDataDir));
+}
+
 
 std::string demoFindData(bool errorIfNotFound) {
 

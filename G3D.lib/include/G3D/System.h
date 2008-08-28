@@ -299,6 +299,13 @@ public:
      */    
     static std::string findDataFile(const std::string& full, bool errorIfNotFound = true);
 
+    /**
+        Sets the path that the application is using as its data directory.
+        Used by findDataDir as an initial search location.  GApp sets this
+        upon constrution.
+    */
+    static void setAppDataDir(const std::string& path);
+
 private:
     /**
 	 (CKO) Note: Not sure why these are specifically needed

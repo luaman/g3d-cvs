@@ -79,6 +79,7 @@ GApp::GApp(const Settings& settings, GWindow* window) :
     } else {
         dataDir = settings.dataDir;
     }
+    System::setAppDataDir(dataDir);
 
     if (settings.writeLicenseFile && ! fileExists("g3d-license.txt", false)) {
         writeLicense();
