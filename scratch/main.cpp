@@ -218,6 +218,5 @@ int main(int argc, char** argv) {
 //    set.window.width = 1440;
 //    set.window.height = 900;
 //    set.window.fsaaSamples = 4;
-    set.dataDir = "c:\\dev\\crazy\\data-files\\";
     return App(set).run();
 }

@@ -130,7 +130,7 @@ public:
 #endif
 
 // this holds the data directory set by the application (currently GApp) for use by findDataFile
-static char                                     g_appDataDir[FILENAME_MAX];
+static char                                     g_appDataDir[FILENAME_MAX] = "";
 
 static CpuInfo                                  g_cpuInfo = {
     0, false, false, false, false, false, false, false, {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'}};
