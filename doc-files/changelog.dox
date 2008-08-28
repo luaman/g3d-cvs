@@ -14,6 +14,7 @@
    <P>
    Changes in 7.01:
    <ul>
+     <li> Video file reading and writing via FFmpeg added
      <li> Added computeBounds method to ArticulatedModel::Part that calls computeBounds on each TriList. Changed updateAll to automatically call computeBounds [Kyle]
 	 <li> Added constructor to Matrix4 to construct a matrix from an upper-left 3x3 submatrix and an upper-right 3x1 submatrix [Kyle]
      <li> <b>Incompatible change</b>:GApp now calls the onLogic handler before the simulation handlers but after the user input and network handlers
@@ -132,6 +133,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: System::findDataFile uses data directory set by GApp
      <li> Fix: AtomicInt32 decrement returns int32 instead of uint32
      <li> Fix: OS X function keys now work correctly under CarbonWindow
      <li> Fix: OS X modifier keys now work correctly under CarbonWindow
