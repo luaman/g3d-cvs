@@ -8,11 +8,6 @@
 */
 
 #include "G3D/platform.h"
-#   if defined(_MSC_VER) && (_MSC_VER <= 1200)
-        // VC6 std:: has signed/unsigned problems
-#       pragma warning (disable : 4018)
-#   endif
-
 #include "G3D/AABox.h"
 #include "G3D/Box.h"
 #include "G3D/Plane.h"

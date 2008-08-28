@@ -2,7 +2,7 @@
 
 // @cite based on code by Ian Cheswick
 
-#if defined(G3D_WIN32) && !defined(G3D_MINGW)
+#if defined(G3D_WIN32)
 
 /**
  Time is in milliseconds

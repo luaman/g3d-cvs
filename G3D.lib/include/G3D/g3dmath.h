@@ -107,14 +107,8 @@ const double fuzzyEpsilon = 0.00001;
     G3D::isNan() and G3D::isFinite() will return reliable results. */
 inline const double& inf() {
 
-// We already have <limits> included but
-// not using it in older gcc for safe compilations
-#if (__GNUC__ == 2)    
-    static const double i = 1.0/sin(0.0);
-#else
     // double is a standard type and should have infinity
     static const double i = std::numeric_limits<double>::infinity();
-#endif
 	return i;
 }
 
@@ -123,14 +117,8 @@ inline const double& inf() {
     G3D::isNan() and G3D::isFinite() will return reliable results. */
 inline const double& nan() {
 
-// We already have <limits> included but
-// not using it in older gcc for safe compilations
-#if (__GNUC__ == 2)
-    static const double n = 0.0/sin(0.0);
-#else
     // double is a standard type and should have quiet NaN
     static const double n = std::numeric_limits<double>::quiet_NaN();
-#endif
     return n;
 }
 
@@ -270,80 +258,35 @@ float uniformRandom(float low = 0.0f, float hi = 1.0f);
  */
 float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+template <class T>
+inline T min(const T& x, const T& y) {
+    return std::min<T>(x, y);
+}
 
-    /** VC6 lacks std::min and std::max */
-    inline double min(double x, double y) {
-        return std::_cpp_min(x, y);
-    }
+template <class T>
+inline T min(const T& x, const T& y, const T& z) {
+    return std::min<T>(std::min<T>(x, y), z);
+}
 
-    /** VC6 lacks std::min and std::max */
-    inline float min(float x, float y) {
-        return std::_cpp_min(x, y);
-    }
+template <class T>
+inline T min(const T& x, const T& y, const T& z, const T& w) {
+    return std::min<T>(std::min<T>(x, y), std::min<T>(z, w));
+}
 
-    /** VC6 lacks std::min and std::max */
-    inline int64 min(int64 x, int64 y) {
-        return std::_cpp_min(x, y);
-    }
+template <class T>
+inline T max(const T& x, const T& y) {
+    return std::max<T>(x, y);
+}
 
-    /** VC6 lacks std::min and std::max */
-    inline int min(int x, int y) {
-        return std::_cpp_min(x, y);
-    }
+template <class T>
+inline T max(const T& x, const T& y, const T& z) {
+    return std::max<T>(std::max<T>(x, y), z);
+}
 
-    /** VC6 lacks std::min and std::max */
-    inline double max(double x, double y) {
-        return std::_cpp_max(x, y);
-    }
-
-    /** VC6 lacks std::min and std::max */
-    inline float max(float x, float y) {
-        return std::_cpp_max(x, y);
-    }
-
-    /** VC6 lacks std::min and std::max */
-    inline int64 max(int64 x, int64 y) {
-        return std::_cpp_max(x, y);
-    }
-
-    /** VC6 lacks std::min and std::max */
-    inline int max(int x, int y) {
-        return std::_cpp_max(x, y);
-    }
-
-#else
-    template <class T>
-    inline T min(const T& x, const T& y) {
-        return std::min<T>(x, y);
-    }
-
-    template <class T>
-    inline T min(const T& x, const T& y, const T& z) {
-        return std::min<T>(std::min<T>(x, y), z);
-    }
-
-    template <class T>
-    inline T min(const T& x, const T& y, const T& z, const T& w) {
-        return std::min<T>(std::min<T>(x, y), std::min<T>(z, w));
-    }
-
-    template <class T>
-    inline T max(const T& x, const T& y) {
-        return std::max<T>(x, y);
-    }
-
-    template <class T>
-    inline T max(const T& x, const T& y, const T& z) {
-        return std::max<T>(std::max<T>(x, y), z);
-    }
-
-    template <class T>
-    inline T max(const T& x, const T& y, const T& z, const T& w) {
-        return std::max<T>(std::max<T>(x, y), std::max<T>(z, w));
-    }
-
-#endif
+template <class T>
+inline T max(const T& x, const T& y, const T& z, const T& w) {
+    return std::max<T>(std::max<T>(x, y), std::max<T>(z, w));
+}
 
 int iMin(int x, int y);
 int iMax(int x, int y);

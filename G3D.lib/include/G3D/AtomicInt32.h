@@ -29,12 +29,6 @@ namespace G3D {
 class AtomicInt32 {
 private:
 #   if defined(G3D_WIN32) 
-#   if (_MSC_VER <= 1200 || defined(G3D_MINGW))
-        // On VC6 the type of the argument is non-volatile
-#       define VCAST (long*)
-#   else
-#       define VCAST
-#   endif
     volatile long           m_value;
 #   elif defined(G3D_OSX)
 	int32_t					m_value;
@@ -78,7 +72,7 @@ public:
     int32 add(const int32 x) {
 #       if defined(G3D_WIN32)
 
-            return InterlockedExchangeAdd(VCAST &m_value, x);
+            return InterlockedExchangeAdd(&m_value, x);
 
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
@@ -106,7 +100,7 @@ public:
     void increment() {
 #       if defined(G3D_WIN32)
             // Note: returns the newly incremented value
-            InterlockedIncrement(VCAST &m_value);
+            InterlockedIncrement(&m_value);
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
             add(1);
 #       elif defined(G3D_OSX)
@@ -119,7 +113,7 @@ public:
     int32 decrement() {
 #       if defined(G3D_WIN32)
             // Note: returns the newly decremented value
-            return InterlockedDecrement(VCAST &m_value);
+            return InterlockedDecrement(&m_value);
 #       elif defined(G3D_LINUX)  || defined(G3D_FREEBSD)
             unsigned char nz;
 
@@ -148,14 +142,7 @@ public:
      */ 
     int32 compareAndSet(const int32 comperand, const int32 exchange) {
 #       if defined(G3D_WIN32)
-#          if defined(G3D_MINGW)
-                return (int32)InterlockedCompareExchange(VCAST &m_value, exchange, comperand);
-#          elif (_MSC_VER <= 1200)
-                // Specification changed after VC6 from PVOID* to volatile int*
-                return (int32)InterlockedCompareExchange((PVOID*)&m_value, (PVOID)exchange, (PVOID)comperand);
-#          else
-                return InterlockedCompareExchange(VCAST &m_value, exchange, comperand);
-#          endif
+            return InterlockedCompareExchange(&m_value, exchange, comperand);
 #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
             int32 ret;
             asm volatile ("lock; cmpxchgl %1, %2"

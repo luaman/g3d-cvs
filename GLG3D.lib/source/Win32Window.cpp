@@ -28,9 +28,7 @@ All rights reserved.
 
 #include <time.h>
 #include <sstream>
-#if !defined(G3D_MINGW)
 #include <crtdbg.h>
-#endif
 
 // Might not be defined for mingw
 #   ifndef XBUTTON_PARAM
@@ -1057,15 +1055,7 @@ void Win32Window::createShareWindow(GWindow::Settings settings) {
     // This call will force us to re-enter createShareWindow, however
     // the second time through init will be true, so we'll skip the 
     // recursion.
-#	if defined(_MSC_VER) && (_MSC_VER <= 1200)
-        // VC6 doesn't have a "reset" method on auto_ptr.  This statement 
-        // accomplishes the same purpose for that implementation, however.
-        // Morgan verified that the source correctly passes ownership from the
-        // newly created auto_ptr to the old one.
-        _shareWindow = std::auto_ptr<Win32Window>(new Win32Window(settings, true));
-#	else
-        _shareWindow.reset(new Win32Window(settings, true));
-#	endif
+    _shareWindow.reset(new Win32Window(settings, true));
 }
 
 

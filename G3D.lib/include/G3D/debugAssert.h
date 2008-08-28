@@ -115,13 +115,7 @@ namespace _internal {
 #ifdef G3D_DEBUG
 
 #    if defined(_MSC_VER) 
-#        if (_MSC_VER >= 1300)
-            // VC7 or VC8
-#           define rawBreak()  DebugBreak();
-#        else
-            // MSVC6
-#           define rawBreak()  _asm { int 3 };
-#        endif
+#       define rawBreak()  DebugBreak();
 #    elif defined(__i386__)
         // gcc on intel
 #       define rawBreak() __asm__ __volatile__ ( "int $3" ); 

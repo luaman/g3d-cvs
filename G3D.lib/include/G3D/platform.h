@@ -32,9 +32,6 @@
 
 #ifdef _MSC_VER 
     #define G3D_WIN32
-#elif __MINGW32__
-    #define G3D_WIN32
-    #define G3D_MINGW
 #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
     #define G3D_FREEBSD
     #define G3D_LINUX
@@ -95,28 +92,11 @@
 // Turn off warnings about deprecated C routines (TODO: revisit)
 #   pragma warning (disable : 4996)
 
-#   if (_MSC_VER <= 1200)
-        typedef long intptr_t;
-#   endif
-
-    // Old versions of MSVC (6.0 and previous) don't
-    // support C99 for loop scoping rules.  This fixes them.
-#    if (_MSC_VER <= 1200)
-        // This trick will generate a warning; disable the warning
-#       pragma warning (disable : 4127)
-#       define for if (false) {} else for
-#    endif
-
 // Turn off "conditional expression is constant" warning; MSVC generates this
 // for debug assertions in inlined methods.
-#    pragma warning (disable : 4127)
+#  pragma warning (disable : 4127)
 
-#   if (_MSC_VER <= 1200)
-//      Nothing we can do on VC6 for deprecated functions
-#      define G3D_DEPRECATED
-#   else
-#      define G3D_DEPRECATED __declspec(deprecated)
-#   endif
+#  define G3D_DEPRECATED __declspec(deprecated)
 
 // Prevent Winsock conflicts by hiding the winsock API
 #   ifndef _WINSOCKAPI_
@@ -128,11 +108,6 @@
 #   pragma warning (disable : 4786)
 // TODO: remove
 #   pragma warning (disable : 4244)
-
-#	if defined(_MSC_VER) && (_MSC_VER <= 1200)
-		//	VC6 std:: has signed problems in it	
-#		pragma warning (disable : 4018)
-#	endif
 
 #   define ZLIB_WINAPI
 
@@ -211,41 +186,6 @@
 #      undef _WINSOCKAPI_
 #   endif
 
-
-#   if defined(_MSC_VER) && (_MSC_VER <= 1200)
-        // VC6 std:: has signed/unsigned problems
-#       pragma warning (disable : 4018)
-#   endif
-
-#   define G3D_START_AT_MAIN()\
-int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw);\
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
-    return G3D_WinMain(hInst, hPrev, szCmdLine, sw);\
-}
-
-#elif defined(G3D_MINGW)
-
-// mingw needs some setup for windows but not visual c++
-
-#   define ZLIB_WINAPI
-
-#   ifndef WIN32_LEAN_AND_MEAN
-#       define WIN32_LEAN_AND_MEAN 1
-#   endif
-
-
-#   define NOMINMAX 1
-#   ifndef _WIN32_WINNT
-#       define _WIN32_WINNT 0x0500
-#   endif
-#   include <windows.h>
-#   undef WIN32_LEAN_AND_MEAN
-#   undef NOMINMAX
-
-#   ifdef _G3D_INTERNAL_HIDE_WINSOCK_
-#      undef _G3D_INTERNAL_HIDE_WINSOCK_
-#      undef _WINSOCKAPI_
-#   endif
 
 #   define G3D_START_AT_MAIN()\
 int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw);\
