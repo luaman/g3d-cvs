@@ -280,7 +280,6 @@ std::string demoFindData(bool errorIfNotFound) {
         potential.append(std::string("g:/") + lpath);
         potential.append(std::string("x:/") + lpath);
     #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
-        potential.append("/usr/local/371/");
         potential.append("/usr/local/" + lname);
         potential.append("/course/cs224/");
         potential.append("/map/gfx0/common/games/");
