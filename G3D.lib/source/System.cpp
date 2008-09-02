@@ -279,11 +279,16 @@ std::string demoFindData(bool errorIfNotFound) {
         potential.append(std::string("f:/") + lpath);
         potential.append(std::string("g:/") + lpath);
         potential.append(std::string("x:/") + lpath);
-    #elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
+    #elif defined(G3D_LINUX)
         potential.append("/usr/local/" + lname);
         potential.append("/course/cs224/");
         potential.append("/map/gfx0/common/games/");
+    #elif defined(G3D_FREEBSD)
+        potential.append("/usr/local/" + lname);
+	potential.append("/usr/local/371/")
+	potential.append("/usr/cs-local/371/")
     #elif defined(G3D_OSX)
+        potential.append("/usr/local/" + lname);
         potential.append("/Volumes/McGuire/Projects/");
         potential.append("/Volumes/McGuire/Projects/G3D/");
     #endif
