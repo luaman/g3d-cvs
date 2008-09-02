@@ -320,22 +320,22 @@ bool VideoInput::readNext(RealTime timeStep, Image3::Ref& frame) {
 
 bool VideoInput::readFromPos(RealTime pos, Texture::Ref& frame) {
     // find the closest index to seek to
-    return readFromIndex(pos * fps(), frame);
+    return readFromIndex(iFloor(pos * fps()), frame);
 }
 
 bool VideoInput::readFromPos(RealTime pos, GImage& frame) {
     // find the closest index to seek to
-    return readFromIndex(pos * fps(), frame);
+    return readFromIndex(iFloor(pos * fps()), frame);
 }
 
 bool VideoInput::readFromPos(RealTime pos, Image3uint8::Ref& frame) {
     // find the closest index to seek to
-    return readFromIndex(pos * fps(), frame);
+    return readFromIndex(iFloor(pos * fps()), frame);
 }
 
 bool VideoInput::readFromPos(RealTime pos, Image3::Ref& frame) {
     // find the closest index to seek to
-    return readFromIndex(pos * fps(), frame);
+    return readFromIndex(iFloor(pos * fps()), frame);
 }
 
 bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
