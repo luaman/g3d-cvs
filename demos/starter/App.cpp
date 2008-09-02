@@ -30,7 +30,7 @@ void App::onInit() {
     // Called before the application loop beings.  Load data here and
     // not in the constructor so that common exceptions will be
     // automatically caught.
-    sky = Sky::fromFile(dataDir + "sky/");
+    sky = Sky::fromFile(System::findDataFile("sky"));
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -41,14 +41,14 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 
-	/////////////////////////////////////////////////////////////
-	// Example of how to add debugging controls
-	debugPane->addButton("Exit", this, &App::endProgram);
+    /////////////////////////////////////////////////////////////
+    // Example of how to add debugging controls
+    debugPane->addButton("Exit", this, &App::endProgram);
+    
+    debugPane->addLabel("Add more debug controls");
+    debugPane->addLabel("in App::onInit().");
 
-	debugPane->addLabel("Add more debug controls");
-	debugPane->addLabel("in App::onInit().");
-
-	// More examples of debugging GUI controls:
+    // More examples of debugging GUI controls:
     // debugPane->addCheckBox("Use explicit checking", &explicitCheck);
     // debugPane->addTextBox("Name", &myName);
     // button = debugPane->addButton("Run Simulator");

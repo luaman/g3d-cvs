@@ -63,17 +63,17 @@ SkyRef Sky::fromFile(
 
 
 SkyRef Sky::fromFile(
-    const std::string&                  directory,
+    const std::string&                  d,
     const std::string                   _filename[6],
     bool                                _drawCelestialBodies,
     double                              quality,
     int                                 scaleDownFactor) {
 
-    debugAssertM(
-        (directory == "") || 
-        (directory[directory.size() - 1] == '/') || 
-        (directory[directory.size() - 1] == '\\'), 
-        "Directory must end in a slash");
+    std::string directory = d;
+    if ((d != "") && ! endsWith(d, "/") && ! endsWith(d, "\\") && 
+        ! endsWith(d, ":")) {
+        directory += "/";
+    }
 
     const ImageFormat* format;
     std::string filename = _filename[0];
