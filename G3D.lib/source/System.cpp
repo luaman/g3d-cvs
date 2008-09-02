@@ -15,7 +15,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2008-01-08
+  @edited  2008-09-02
  */
 
 #include "G3D/platform.h"
@@ -172,7 +172,10 @@ static void getStandardProcessorExtensions();
 static void initTime();
 
 
-std::string System::findDataFile(const std::string& full, bool errorIfNotFound) {
+std::string System::findDataFile
+(const std::string&  full,
+ bool                errorIfNotFound) {
+
     if (fileExists(full)) {
         return full;
     }
@@ -183,37 +186,77 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     std::string originalPath = filenamePath(full);
 
     // Search several paths
-    Array<std::string> path;
+    Array<std::string> pathBase;
 
     int backlen = 4;
 
-    Array<std::string> subDir;
-    subDir.append("", "font/", "sky/", "gui/");
-    subDir.append("SuperShader/", "ifs/", "3ds/");
-
     // add what should be the current working directory
-    path.append("");
+    pathBase.append("");
 
     // add application specified data directory to be searched first
-    path.append(initialAppDataDir);
+    pathBase.append(initialAppDataDir);
 
+    // try walking back along the directory tree
     std::string prev = "";
     for (int i = 0; i < backlen; ++i) {
-        path.append(originalPath + prev);
+        pathBase.append(originalPath + prev);
         prev = prev + "../";        
     }
 
     prev = "../";
     for (int i = 0; i < backlen; ++i) {
-        path.append(prev);
+        pathBase.append(prev);
         prev = prev + "../";        
     }
 
-    std::string data = demoFindData(false);
-    path.append(data);
+    // Hard-code in likely install directories
+    int ver = G3D_VER;
+    std::string lname = format("G3D-%d.%02d", ver / 10000, (ver / 100) % 100);
 
-    Array<std::string> pathBase = path;
-    path.fastClear();
+    if (G3D_VER % 100 != 0) {
+        lname = lname + format("-b%02d/", ver % 100);
+    } else {
+        lname = lname + "/";
+    }
+
+    // Look in some other likely places
+#   ifdef G3D_WIN32
+        std::string lpath = "libraries/";
+        pathBase.append(std::string("c:/") + lpath);
+        pathBase.append(std::string("d:/") + lpath);
+        pathBase.append(std::string("e:/") + lpath);
+        pathBase.append(std::string("f:/") + lpath);
+        pathBase.append(std::string("g:/") + lpath);
+        pathBase.append(std::string("x:/") + lpath);
+#   endif
+#   if defined(G3D_LINUX)
+        pathBase.append("/usr/local/");
+        pathBase.append("/course/cs224/");
+        pathBase.append("/map/gfx0/common/games/");
+#   endif
+#   if defined(G3D_FREEBSD)
+        pathBase.append("/usr/local/");
+	pathBase.append("/usr/local/371/");
+        pathBase.append("/usr/cs-local/371/");
+#   endif
+#   if defined(G3D_OSX)
+        pathBase.append("/usr/local/" + lname);
+        pathBase.append("/Volumes/McGuire/Projects/");
+        pathBase.append("/Volumes/McGuire/Projects/G3D/");
+#   endif
+
+    // Add the library name to all variations
+    int N = pathBase.size();
+    for (int i = 0; i < N; ++i) {
+        pathBase.append(pathBase[i] + lname);
+    }
+
+    Array<std::string> subDir;
+    subDir.append("", "font/", "sky/", "gui/");
+    subDir.append("image/", "quake2/");
+    subDir.append("SuperShader/", "ifs/", "3ds/");
+
+    Array<std::string> path;
     for (int p = 0; p < pathBase.size(); ++p) {
         for (int s = 0; s < subDir.size(); ++s) {
             path.append(pathBase[p] + subDir[s]);
@@ -225,22 +268,25 @@ std::string System::findDataFile(const std::string& full, bool errorIfNotFound) 
     for (int i = 0; i < path.length(); ++i) {
         std::string filename = path[i] + name;
         if (fileExists(filename)) {
-            logPrintf("\nWARNING: Could not find '%s' so '%s' was substituted.\n", full.c_str(), 
+            logPrintf("\nWARNING: Could not find '%s' so '%s' "
+                      "was substituted.\n", full.c_str(), 
                       filename.c_str());
             return filename;
         }
     }
 
     if (errorIfNotFound) {
+        // Generate an error message
         std::string locations;
         for (int i = 0; i < path.size(); ++i) {
             locations += path[i] + name + "\n";
         }
-        alwaysAssertM(false, "Could not find " + full + " in:\n" + locations);
+        alwaysAssertM(false, "Could not find '" + full + "' in:\n" + locations);
     }
     // Not found
     return "";
 }
+
 
 void System::setAppDataDir(const std::string& path) {
     // just copy the path, it needs to be valid
@@ -249,7 +295,6 @@ void System::setAppDataDir(const std::string& path) {
 
 
 std::string demoFindData(bool errorIfNotFound) {
-
     // Directories that might contain the data
     Array<std::string> potential;
 
@@ -265,7 +310,7 @@ std::string demoFindData(bool errorIfNotFound) {
     int ver = G3D_VER;
     std::string lname = format("G3D-%d.%02d", ver / 10000, (ver / 100) % 100);
 
-    if (G3D_VER % 10 != 0) {
+    if (G3D_VER % 100 != 0) {
         lname = lname + format("-b%02d/", ver % 100);
     } else {
         lname = lname + "/";
