@@ -13,8 +13,8 @@ void App::loadScene() {
     
     // MD2
     if (true) {
-        MD2ModelRef model = MD2Model::fromFile(dataDir + "quake2/players/pknight/tris.md2", 0.4f);
-        TextureRef texture = Texture::fromFile(dataDir + "quake2/players/pknight/knight.pcx", ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
+        MD2ModelRef model = MD2Model::fromFile(System::findDataFile("quake2/players") + "/pknight/tris.md2", 0.4f);
+        TextureRef texture = Texture::fromFile(System::findDataFile("quake2/players") + "/pknight/knight.pcx", ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings::defaults(), Texture::PreProcess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,-0.35f,0))));
         x += 2;
     }
@@ -27,7 +27,7 @@ void App::loadScene() {
         xform.rotation = xform.rotation * rot270;
         xform.translation = Vector3(0, -1.0f, 0);
 
-        std::string filename = dataDir + "3ds/weapon/cannon/cannon.3ds";
+        std::string filename = System::findDataFile("3ds/weapon") + "/cannon/cannon.3ds";
         ArticulatedModelRef model = ArticulatedModel::fromFile(filename, xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
@@ -35,7 +35,7 @@ void App::loadScene() {
 
     // IFSModel as ArticulatedModel
     if (true) {
-        ArticulatedModelRef model = ArticulatedModel::fromFile(dataDir + "ifs/teapot.ifs");
+        ArticulatedModelRef model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
         x += 2;
     }

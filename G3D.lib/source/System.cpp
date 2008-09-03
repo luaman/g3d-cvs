@@ -236,7 +236,7 @@ std::string System::findDataFile
 #   endif
 #   if defined(G3D_FREEBSD)
         pathBase.append("/usr/local/");
-	pathBase.append("/usr/local/371/");
+        pathBase.append("/usr/local/371/");
         pathBase.append("/usr/cs-local/371/");
 #   endif
 #   if defined(G3D_OSX)

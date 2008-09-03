@@ -20,7 +20,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         defaultCamera.lookAt(Vector3( 0,  -0.1f,   0.9f));
 
         loadScene();
-        sky = Sky::fromFile(dataDir + "sky/");
+        sky = Sky::fromFile(System::findDataFile("sky"));
 
         Texture::Settings settings;
         settings.wrapMode = WrapMode::CLAMP;
