@@ -480,7 +480,7 @@ bool VideoInput::readFromIndex(int index, Image3::Ref& frame) {
 
 void VideoInput::setTimePosition(RealTime pos) {
     // find the closest index to seek to
-    setIndex(pos * fps());
+    setIndex(iFloor(pos * fps()));
 }
 
 void VideoInput::setIndex(int index) {

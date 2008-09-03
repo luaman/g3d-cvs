@@ -253,7 +253,7 @@ std::string System::findDataFile
 
     Array<std::string> subDir;
     subDir.append("", "font/", "sky/", "gui/");
-    subDir.append("image/", "quake2/");
+    subDir.append("image/", "quake2/", "quake2/players/");
     subDir.append("SuperShader/", "ifs/", "3ds/");
 
     Array<std::string> path;
