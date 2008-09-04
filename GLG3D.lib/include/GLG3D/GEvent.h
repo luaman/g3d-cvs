@@ -36,6 +36,13 @@ public:
 
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::GButtonState);
 
+
+#ifndef _SDL_joystick_h
+/** The joystick structure used to identify an joystick */
+struct _SDL_Joystick;
+typedef struct _SDL_Joystick SDL_Joystick;
+#endif
+
 namespace G3D {
 
 /** General keyboard/mouse state definitions. 
@@ -59,10 +66,6 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
 #define SDL_HAT_LEFTUP		(SDL_HAT_LEFT|SDL_HAT_UP)
 #define SDL_HAT_LEFTDOWN	(SDL_HAT_LEFT|SDL_HAT_DOWN)
 #endif
-
-/** The joystick structure used to identify an joystick */
-struct _SDL_Joystick;
-typedef struct _SDL_Joystick SDL_Joystick;
 
 /** Enumeration of valid key modifier codes (often used  ORed together) */
 class GKeyMod {
