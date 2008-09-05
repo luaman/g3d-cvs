@@ -4,37 +4,6 @@
 from utils import *
 from variables import *
 
-main_cpp = """
-/**
-  @file main.cpp
-
-  This is a sample set of project files to get you started.  It uses the G3D::GApp infrastructure
-  to make writing interactive 3D projects easy.  G3D does not restrict you to using GApp; see the
-  other examples.
-
-  @author Morgan McGuire, morgan@cs.williams.edu
- */
-#include <G3D/G3DAll.h>
-#include <GLG3D/GLG3D.h>
-#include "App.h"
-
-#if defined(G3D_VER) && (G3D_VER < 70000)
-#   error Requires G3D 7.00
-#endif
-
-G3D_START_AT_MAIN();
-
-int main(int argc, char** argv) {
-    GApp::Settings settings;
-    
-    // Change the window and other startup parameters by modifying the
-    // settings class.  For example:
-    settings.window.width = 800; 
-    settings.window.height = 600;
-
-    return App(settings).run();
-}
-"""
 
 App_h ="""
 /**
@@ -48,6 +17,7 @@ App_h ="""
 
 class App : public GApp {
 public:
+    // Sample scene
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
@@ -65,6 +35,9 @@ public:
     virtual void onConsoleCommand(const std::string& cmd);
     void printConsoleHelp();
     virtual void onCleanup();
+
+    /** Sets m_endProgram to true. */
+    virtual void endProgram();
 };
 
 #endif
@@ -76,19 +49,34 @@ App_cpp = """
  */
 #include "App.h"
 
+// Tells C++ to invoke command-line main() function even on OS X and Win32.
+G3D_START_AT_MAIN();
+
+int main(int argc, char** argv) {
+    GApp::Settings settings;
+    
+    // Change the window and other startup parameters by modifying the
+    // settings class.  For example:
+    settings.window.width       = 800; 
+    settings.window.height      = 600;
+
+    return App(settings).run();
+}
+
 App::App(const GApp::Settings& settings) : GApp(settings) {
     // Uncomment the next line if you are running under a debugger:
     // catchCommonExceptions = false;
 
     // Uncomment the next line to hide the developer tools:
     //developerWindow->setVisible(false);
+
 }
 
 void App::onInit() {
     // Called before the application loop beings.  Load data here and
     // not in the constructor so that common exceptions will be
     // automatically caught.
-    sky = Sky::fromFile(dataDir + "sky/");
+    sky = Sky::fromFile(System::findDataFile("sky"));
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -97,11 +85,22 @@ void App::onInit() {
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
 
-    // Example debug GUI:
-    // debugPane->addCheckBox("Use explicit checking", &explicitCheck);
-    // debugWindow->setVisible(true);
-
     toneMap->setEnabled(false);
+
+    /////////////////////////////////////////////////////////////
+    // Example of how to add debugging controls
+    debugPane->addButton("Exit", this, &App::endProgram);
+    
+    debugPane->addLabel("Add more debug controls");
+    debugPane->addLabel("in App::onInit().");
+
+    // More examples of debugging GUI controls:
+    // debugPane->addCheckBox("Use explicit checking", &explicitCheck);
+    // debugPane->addTextBox("Name", &myName);
+    // button = debugPane->addButton("Run Simulator");
+    debugWindow->setVisible(true);
+
+    defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
 
 void App::onLogic() {
@@ -121,6 +120,10 @@ bool App::onEvent(const GEvent& e) {
     // If you need to track individual UI events, manage them here.
     // Return true if you want to prevent other parts of the system
     // from observing this specific event.
+    //
+	// For example,
+	// if ((e.type == GEventType::GUI_ACTION) && (e.gui.control == m_button)) { ... return true;}
+
     return false;
 }
 
@@ -203,6 +206,10 @@ void App::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code
     // here instead of in the constructor so that exceptions can be caught
 }
+
+void App::endProgram() {
+    m_endProgram = true;
+}
 """
 
 """ Generates an empty project. """
@@ -216,6 +223,5 @@ def generateStarterFiles(state):
     mkdir('doc-files')
     mkdir('data-files')
     
-    writeFile('source/main.cpp', main_cpp)
     writeFile('source/App.h', App_h)
     writeFile('source/App.cpp', App_cpp)
