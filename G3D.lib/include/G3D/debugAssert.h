@@ -115,13 +115,13 @@ namespace _internal {
 #ifdef G3D_DEBUG
 
 #    if defined(_MSC_VER) 
-#       define rawBreak()  DebugBreak();
+#       define rawBreak()  ::DebugBreak();
 #    elif defined(__i386__)
         // gcc on intel
 #       define rawBreak() __asm__ __volatile__ ( "int $3" ); 
 #    else
         // some other gcc
-#      define rawBreak() abort()
+#      define rawBreak() ::abort()
 #   endif
 // old mac code:
 //#       define rawBreak() DebugStr((const unsigned char*)("\nG3D: Invoking breakpoint in debugger.")); /* XCode must be set to break on Debugger()/DebugStr() */
@@ -158,7 +158,7 @@ namespace _internal {
     #endif
 
     // In the release build, just define away assertions.
-	#define rawBreak() do {} while (0)
+    #define rawBreak() do {} while (0)
     #define debugAssert(exp) do {} while (0)
     #define debugAssertM(exp, message) do {} while (0)
     #define debugBreak() do {} while (0)
@@ -170,7 +170,7 @@ namespace _internal {
             G3D::_internal::_releaseInputGrab_(); \
             if ((G3D::_internal::_failureHook != NULL) && \
                 G3D::_internal::_failureHook(#exp, message, __FILE__, __LINE__, __alwaysAssertIgnoreAlways__, __debugPromptShowDialog__)) { \
-               exit(-1); \
+                ::exit(-1);                                             \
             } \
             G3D::_internal::_restoreInputGrab_(); \
          } \
