@@ -685,7 +685,9 @@ Options:
 
 --install [<install-dir>]
        After building, copy files to this location. The default
-       install-dir is """ + libInstallDir + """.
+       install-dir is """ + libInstallDir + """.  Note that installing
+       sets all files in the target directory to be all-readable
+       on Unix using chmod -R a+rx.
        
 TARGET     DESCRIPTION
 
@@ -730,14 +732,23 @@ launched (i.e., you can expect 0 on success).
 """ Copy generated files to libInstallDir and docInstallDir """
 def install():
 
-    copyIfNewer('build/' + platformName + '/bin', pathConcat(libInstallDir, 'bin'))
-    copyIfNewer('build/' + platformName + '/include', pathConcat(libInstallDir, 'include'))
-    copyIfNewer('build/' + platformName + '/lib', pathConcat(libInstallDir, 'lib'))
+    installBin     = pathConcat(libInstallDir, 'bin')
+    installInclude = pathConcat(libInstallDir, 'include')
+    installLib     = pathConcat(libInstallDir, 'lib')
+
+    copyIfNewer('build/' + platformName + '/bin', installBin)
+    copyIfNewer('build/' + platformName + '/include', installInclude)
+    copyIfNewer('build/' + platformName + '/lib', installLib)
     copyIfNewer('build/G3D.jar', pathConcat(libInstallDir, 'lib/G3D.jar'))
     
     copyIfNewer('build/html',    pathConcat(docInstallDir, 'html'))
     copyIfNewer('build/data',    pathConcat(docInstallDir, 'data'))
     copyIfNewer('build/demos',   pathConcat(docInstallDir, 'demos'))
+
+    if unix:
+        # Set file permissions to world-readable
+        for path in [installBin, installInclude, installLib, docInstallDir]:
+            shell('chmod -R a+rx ' + path)
     
     return 0
 

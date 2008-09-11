@@ -1166,3 +1166,10 @@ def countComments(str):
             start = -1
 
     return (comments, doxygen)
+
+
+###############################################################
+
+""" Adds the Unix mode mod (e.g., S_IROTH) to the specified path """
+def addFilePermission(path, mod):
+    os.chmod(os.stat().ST_MOD | mod)

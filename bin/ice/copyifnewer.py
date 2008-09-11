@@ -64,6 +64,7 @@ excludeFromCopying  = re.compile(string.join(_excludeFromCopyingPatterns, '|'))
 
 _copyIfNewerCopiedAnything = False
 
+
 """
 Recursively copies all contents of source to dest 
 (including source itself) that are out of date.  Does 
@@ -72,6 +73,7 @@ not copy files matching the excludeFromCopying patterns.
 Returns true if any files were copied
 
 If actuallyCopy is false, doesn't actually copy the files, but still prints.
+
 """
 def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuallyCopy = True):
     global _copyIfNewerCopiedAnything
@@ -95,7 +97,7 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
         
         if actuallyCopy:
             shutil.copyfile(source, dest)
-            
+                
         _copyIfNewerCopiedAnything = True
         
     else:
