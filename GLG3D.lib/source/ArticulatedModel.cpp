@@ -75,7 +75,7 @@ ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, cons
 
     if (endsWith(toLower(filename), ".3ds")) {
         model->init3DS(filename, xform);
-    } else if (endsWith(toLower(filename), ".ifs") || endsWith(toLower(filename), ".ply2")) {
+    } else if (endsWith(toLower(filename), ".ifs") || endsWith(toLower(filename), ".ply2") || endsWith(toLower(filename), ".off")) {
         model->initIFS(filename, xform);
     }
 

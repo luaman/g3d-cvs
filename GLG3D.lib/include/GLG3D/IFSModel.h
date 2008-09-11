@@ -26,10 +26,9 @@ typedef ReferenceCountedPointer<class IFSModel> IFSModelRef;
 
 
 /**
- Loads the IFS file format.  Note that you can convert 
- many other formats (e.g. 3DS, SM, OBJ, MD2) to IFS format
- using the IFSBuilder sample code provided with G3D.
-
+ Loads the IFS, PLY2, and OFF research file formats.
+ You can also load these using ArticulatedModel, which provides more sophisticated 
+ rendering mechanisms.
  */
 class IFSModel : public ReferenceCountedObject {
 protected:

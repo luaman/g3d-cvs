@@ -31,10 +31,12 @@
      <li> 3- and 4- argument min and max
      <li> G3D::GaussianBlur now correctly sets the output viewport
      <li> G3D::Framebuffer::clear
+     <li> IFSModel and ArticulatedModel now load Princeton Shape Benchmark OFF files.
      <li> G3D::Any CoordinateFrame now serialized using angles
      <li> CameraControlWindow now prints angles in degrees
      <li> ImageXXX classes now have a format() method
      <li> GWindow::create
+     <li> MeshAlg::toIndexedTriList now supports TRIANGLE_FAN input.
      <li> Tuned Table and hash functions for performance [Kyle & Morgan]
      <li> GEvent::toString
      <li> G3D::TextInput now treats characters with ASCII code greater than 127 as symbols

@@ -6,7 +6,7 @@
   @cite Original IFS code by Nate Robbins
 
   @created 2003-11-12
-  @edited  2006-10-30
+  @edited  2008-09-15
  */ 
 
 
@@ -308,6 +308,51 @@ void IFSModel::load(
                 }
             }
         }
+    } else if ("off" == filenameExt(filename)) {
+
+        TextInput ti(filename);
+
+        // Based on http://shape.cs.princeton.edu/benchmark/documentation/off_format.html
+        ti.readSymbol("OFF");
+        int nV = iFloor(ti.readNumber());
+        int nF = iFloor(ti.readNumber());
+        int nE = iFloor(ti.readNumber());
+        
+        vertex.resize(nV);
+        texCoord.resize(0);
+        name = filenameBaseExt(filename);
+
+        for (int i = 0; i < nV; ++i) {
+            vertex[i].x = ti.readNumber();
+            vertex[i].y = ti.readNumber();
+            vertex[i].z = ti.readNumber();            
+        }
+
+        // Convert arbitrary triangle fans to triangles
+        Array<int> poly;
+        for (int i = 0; i < nF; ++i) {
+            poly.fastClear();
+            int polySize = iFloor(ti.readNumber());
+            debugAssert(polySize > 2);
+
+            if (polySize == 3) {
+                // Triangle (common case)
+                for (int j = 0; j < 3; ++j) {
+                    index.append(iFloor(ti.readNumber()));
+                }
+            } else {
+                poly.resize(polySize);
+                for (int j = 0; j < polySize; ++j) {
+                    poly[j] = iFloor(ti.readNumber());
+                    debugAssertM(poly[j] < nV, 
+                        "OFF file contained an index greater than the number of vertices."); 
+                }
+
+                // Expand the poly into triangles
+                MeshAlg::toIndexedTriList(poly, MeshAlg::TRIANGLE_FAN, index);
+            }
+        }
+
     } else if ("ply2" == filenameExt(filename)) {	
         
         TextInput ti(filename);

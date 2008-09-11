@@ -588,7 +588,10 @@ public:
         bool                twoSided = true,
         const CoordinateFrame& xform = CoordinateFrame());
 
-    /** Converts quadlist (QUADS), tristrip(TRIANGLE_STRIP), and quadstrip (QUAD_STRIP)indices into triangle list (TRIANGLES)  indices. */
+    /** Converts quadlist (QUADS), 
+        triangle fan (TRIANGLE_FAN),
+        tristrip(TRIANGLE_STRIP), and quadstrip (QUAD_STRIP) indices into
+        triangle list (TRIANGLES) indices and appends them to outIndices. */
     template<class IndexType>
     static void toIndexedTriList(
         const Array<IndexType>& inIndices, 
@@ -597,20 +600,38 @@ public:
 
         debugAssert(
             inType == MeshAlg::TRIANGLE_STRIP ||
+            inType == MeshAlg::TRIANGLE_FAN ||
             inType == MeshAlg::QUADS ||
             inType == MeshAlg::QUAD_STRIP);
 
         const int inSize = inIndices.size();
 
         switch(inType) {
+        case MeshAlg::TRIANGLE_FAN:
+            {
+            debugAssert(inSize >= 3);
+
+            int N = outIndices.size();
+            outIndices.resize(N + (inSize - 2) * 3);
+
+            for (IndexType i = 1, outIndex = N; i <= (inSize - 2); ++i, outIndex += 3) {
+                outIndices[outIndex] = inIndices[0];
+                outIndices[outIndex + 1] = inIndices[i];
+                outIndices[outIndex + 2] = inIndices[i + 1];
+            }
+
+            break;
+            }
+
         case MeshAlg::TRIANGLE_STRIP:
             {
             debugAssert(inSize >= 3);
 
-            outIndices.resize((inSize - 2) * 3);
+            int N = outIndices.size();
+            outIndices.resize(N + (inSize - 2) * 3);
 
             bool atEven = false;
-            for (IndexType i = 0, outIndex = 0; i <= (inSize - 2); ++i, outIndex += 3) {
+            for (IndexType i = 0, outIndex = N; i <= (inSize - 2); ++i, outIndex += 3) {
                 if (atEven) {
                     outIndices[outIndex] = inIndices[i + 1];
                     outIndices[outIndex + 1] = inIndices[i];
@@ -626,13 +647,15 @@ public:
 
             break;
             }
+
         case MeshAlg::QUADS:
             {
             debugAssert(inIndices.size() >= 4);
 
-            outIndices.resize(inSize * 1.5);
+            int N = outIndices.size();
+            outIndices.resize(N + inSize * 1.5);
 
-            for (IndexType i = 0, outIndex = 0; i <= (inSize - 4); i += 4, outIndex += 6) {
+            for (IndexType i = 0, outIndex = N; i <= (inSize - 4); i += 4, outIndex += 6) {
                 outIndices[outIndex] = inIndices[i];
                 outIndices[outIndex + 1] = inIndices[i + 1];
                 outIndices[outIndex + 2] = inIndices[i + 3];
@@ -643,13 +666,15 @@ public:
 
             break;
             }
+
         case MeshAlg::QUAD_STRIP:
             {
             debugAssert(inIndices.size() >= 4);
 
-            outIndices.resize((inSize - 2) * 3);
+            int N = outIndices.size();
+            outIndices.resize(N + (inSize - 2) * 3);
 
-            for (IndexType i = 0, outIndex = 0; i <= (inSize - 2); i += 2, outIndex += 6) {
+            for (IndexType i = 0, outIndex = N; i <= (inSize - 2); i += 2, outIndex += 6) {
                 outIndices[outIndex] = inIndices[i];
                 outIndices[outIndex + 1] = inIndices[i + 1];
                 outIndices[outIndex + 2] = inIndices[i + 2];

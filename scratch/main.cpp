@@ -21,6 +21,7 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
     BSPMapRef           map;
+    IFSModelRef         ifsModel;
     ArticulatedModelRef model;
     Array<Vector3>      points;
 
@@ -47,6 +48,7 @@ void App::onInit() {
         points.append(Vector3::random());
     }
 
+    ifsModel = IFSModel::fromFile("c:/temp/db/2/m213/m213.off");
 //	map = BSPMap::fromFile("X:/morgan/data/quake3/tremulous/map-arachnid2-1.1.0.pk3/", "arachnid2.bsp");
 
     // Called before the application loop beings.  Load data here
@@ -147,6 +149,7 @@ void App::printConsoleHelp() {
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
     model->pose(posed3D);
+    posed3D.append(ifsModel->pose());
 }
 
 
