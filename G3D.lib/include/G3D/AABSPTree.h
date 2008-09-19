@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2004-01-11
-  @edited  2008-07-03
+  @edited  2008-09-19
 
   Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
@@ -202,6 +202,7 @@ template< class T,
           class EqualsFunc = EqualsTrait<T> > 
 class AABSPTree {
 protected:
+#define TreeType AABSPTree<T, BoundsFunc, HashFunc, EqualsFunc>
 
     /** Wrapper for a value that includes a cache of its bounds. 
         Except for the test value used in a set-query operation, there
@@ -1215,7 +1216,7 @@ public:
     // and allowing the computation to be restarted.
     class BoxIntersectionIterator {
     private:
-        friend class AABSPTree<T>;
+        friend class TreeType;
 
         /** True if this is the "end" iterator instance */
         bool            isEnd;
@@ -1514,7 +1515,7 @@ public:
     */
     class Iterator {
     private:
-        friend class AABSPTree<T>;
+        friend class TreeType;
 
         // Note: this is a Table iterator, we are currently defining
         // Set iterator
@@ -1583,6 +1584,7 @@ public:
     Iterator end() const {
         return Iterator(memberTable.end());
     }
+#undef TreeType
 };
 
 }

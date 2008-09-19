@@ -53,6 +53,8 @@ def buildDocumentation(state):
         createDoxyfile(state)
         print "Done creating 'Doxyfile'\n\n"
 
+    mkdir(state.buildDir + 'doc')
+
     run('doxygen', ['Doxyfile'], ice.utils.verbosity >= VERBOSE)
 
     if (os.path.exists(state.rootDir + 'doc-files')):
@@ -605,7 +607,7 @@ def gdbCompiledProgram(state, progArgs):
     # accept it on the command line.  This has to be in an absolute
     # path since gdb changes directory before reading it.
     tempDir = state.tempDir
-    if not isUnixAbsolutePath(tempDir[1]):
+    if not isUnixAbsolutePath(tempDir):
         tempDir = os.path.abspath(tempDir)
     commandFile = tempDir + 'gdb-commands.txt'
     f = open(commandFile, 'w')

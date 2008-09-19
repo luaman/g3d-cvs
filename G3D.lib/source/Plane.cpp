@@ -93,7 +93,7 @@ Plane::Plane(
     const Vector3&      __normal,
     const Vector3&      point) {
 
-    _normal   = __normal.direction();
+    _normal    = __normal.direction();
     _distance  = _normal.dot(point);
 }
 

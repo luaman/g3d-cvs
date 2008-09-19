@@ -134,6 +134,7 @@ template<class T,
          class EqualsFunc   = EqualsTrait<T> > 
 class PointAABSPTree {
 protected:
+#define TreeType PointAABSPTree<T, PositionFunc, HashFunc, EqualsFunc>
 
     // Unlike the AABSPTree, the PointAABSPTree assumes that T elements are
     // small and keeps the handle and cached position together instead of
@@ -911,7 +912,7 @@ public:
     // and allowing the computation to be restarted.
     class BoxIntersectionIterator {
     private:
-        friend class PointAABSPTree<T>;
+        friend class TreeType;
 
         /** True if this is the "end" iterator instance */
         bool            isEnd;
@@ -1138,7 +1139,7 @@ public:
     */
     class Iterator {
     private:
-        friend class PointAABSPTree<T>;
+        friend class TreeType;
 
         // Note: this is a Table iterator, we are currently defining
         // Set iterator
@@ -1204,6 +1205,7 @@ public:
     Iterator end() const {
         return Iterator(memberTable.end());
     }
+#undef TreeType
 };
 
 }

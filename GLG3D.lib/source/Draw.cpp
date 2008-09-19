@@ -248,9 +248,10 @@ void Draw::plane(
     Vector3 N, P;
     
     {
-        double d;
+        float d;
         plane.getEquation(N, d);
-        P = N * (float)d;
+        float distance = -d;
+        P = N * distance;
     }
 
     CoordinateFrame cframe1(P);
@@ -276,11 +277,11 @@ void Draw::plane(
 
         renderDevice->setCullFace(RenderDevice::CULL_NONE);
         // Infinite strip
-        const int N = 12;
+        const int numStrips = 12;
         float r1 = 100;
         renderDevice->beginPrimitive(RenderDevice::QUAD_STRIP);
-            for (int i = 0; i <= N; ++i) {
-                float a = i * (float)twoPi() / N;
+            for (int i = 0; i <= numStrips; ++i) {
+                float a = i * (float)twoPi() / numStrips;
                 float c = cosf(a);
                 float s = sinf(a);
 
@@ -301,8 +302,8 @@ void Draw::plane(
             }
 
             renderDevice->beginPrimitive(RenderDevice::QUAD_STRIP);
-                for (int i = 0; i <= N; ++i) {
-                    float a = i * (float)twoPi() / N;
+                for (int i = 0; i <= numStrips; ++i) {
+                    float a = i * (float)twoPi() / numStrips;
                     float c = cosf(a);
                     float s = sinf(a);
 
@@ -321,6 +322,7 @@ void Draw::plane(
         renderDevice->setLineWidth(1.5);
 
         renderDevice->beginPrimitive(RenderDevice::LINES);
+        {
             renderDevice->setColor(wireColor);
             renderDevice->setNormal(Vector3::unitZ());
 
@@ -336,6 +338,7 @@ void Draw::plane(
 
             renderDevice->sendVertex(Vector4(0,  1, 0, 0));
             renderDevice->sendVertex(Vector4(0,  0, 0, 1));
+        }
         renderDevice->endPrimitive();
 
         renderDevice->setLineWidth(0.5);
@@ -343,10 +346,10 @@ void Draw::plane(
         renderDevice->beginPrimitive(RenderDevice::LINES);
 
             // Horizontal and vertical lines
-            const int N = 10;
+            const int numStrips = 10;
             const float space = 1;
-            const float Ns = N * space;
-            for (int x = -N; x <= N; ++x) {
+            const float Ns = numStrips * space;
+            for (int x = -numStrips; x <= numStrips; ++x) {
                 float sx = x * space;
                 renderDevice->sendVertex(Vector3( Ns, sx, 0));
                 renderDevice->sendVertex(Vector3(-Ns, sx, 0));
