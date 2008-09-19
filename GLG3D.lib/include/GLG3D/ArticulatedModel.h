@@ -164,79 +164,79 @@ public:
      */
     class Part {
     public:
-
+        
         /** A set of triangles that have a single material and can be rendered as a 
             single OpenGL primitive. */
-	    class TriList {
-	    public:
-                Array<int>              indexArray;
-
-                /** When true, this trilist enables two-sided lighting and texturing and
-                    does not cull back faces.*/
-                bool                    twoSided;
-        
-                Material                material;
-
-                /** In the same space as the vertices. Computed by computeBounds() */
-                Sphere                  sphereBounds;
-                
-                /** In the same space as the vertices. Computed by computeBounds() */
-                Box                     boxBounds;
-
-                TriList() : twoSided(false) {}
-                
-                /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
-                    Must be invoked manually if the geometry is later changed. */
-                void computeBounds(const Part& parentPart);
+        class TriList {
+        public:
+            Array<int>              indexArray;
+            
+            /** When true, this trilist enables two-sided lighting and texturing and
+                does not cull back faces.*/
+            bool                    twoSided;
+            
+            Material                material;
+            
+            /** In the same space as the vertices. Computed by computeBounds() */
+            Sphere                  sphereBounds;
+            
+            /** In the same space as the vertices. Computed by computeBounds() */
+            Box                     boxBounds;
+            
+            TriList() : twoSided(false) {}
+            
+            /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
+                Must be invoked manually if the geometry is later changed. */
+            void computeBounds(const Part& parentPart);
         };
 
         /** Each part must have a unique name */
         std::string                 name;
 
         /** Position of this part's reference frame <B>relative to parent</B>.
-		    During posing, any dynamically applied transformation at this part
-		    occurs after the cframe is applied.
-		  */
+            During posing, any dynamically applied transformation at this part
+            occurs after the cframe is applied.
+        */
         CoordinateFrame             cframe;
 
-		/** Copy of geometry.vertexArray stored on the GPU. Written by updateVAR.*/
+        /** Copy of geometry.vertexArray stored on the GPU. Written by updateVAR.*/
         VAR                         vertexVAR;
 		
-		/** Copy of geometry.normalArray stored on the GPU. Written by updateVAR. */
+        /** Copy of geometry.normalArray stored on the GPU. Written by updateVAR. */
         VAR                         normalVAR;
-
-		/** Copy of tangentArray stored on the GPU.  Written by updateVAR.*/
+        
+        /** Copy of tangentArray stored on the GPU.  Written by updateVAR.*/
         VAR                         tangentVAR;
-
-		/** Copy of texCoordArray stored on the GPU.  Written by updateVAR.*/
+        
+        /** Copy of texCoordArray stored on the GPU.  Written by updateVAR.*/
         VAR                         texCoord0VAR;
-
-		/** CPU geometry; per-vertex positions and normals.
-		 
-		    After changing, call updateVAR.  
-		    Note that you may call computeNormalsAndTangentSpace if you update the 
-		    vertices and texture coordinates but need updated tangents and normals
-		    computed for you.
-		  */
+        
+        /** CPU geometry; per-vertex positions and normals.
+            
+            After changing, call updateVAR.  
+            Note that you may call computeNormalsAndTangentSpace if you update the 
+            vertices and texture coordinates but need updated tangents and normals
+            computed for you.
+        */
         MeshAlg::Geometry           geometry;
-		
-		/** CPU texture coordinates. */
+	
+        /** CPU texture coordinates. */
         Array<Vector2>              texCoordArray;
-
-		/** CPU per-vertex tangent vectors, typically computed by computeNormalsAndTangentSpace. */
+        
+        /** CPU per-vertex tangent vectors, typically computed by computeNormalsAndTangentSpace. */
         Array<Vector3>              tangentArray;
 		
-		/** A collection of meshes that describe this part.*/
+        /** A collection of meshes that describe this part.*/
         Array<TriList>              triListArray;
-
+        
         /** Indices into part array of sub-parts (scene graph children) in the containing model.*/
         Array<int>                  subPartArray;
-
+        
         /** Index into the part array of the parent.  If -1, this is a root node. */
         int                         parent;
 
         /** All faces described in the triListArray as an indexed triangle list.  
-		   Used for updateNormals and rendering without materials. 
+            Used for updateNormals and rendering without materials. 
             Call computeIndexArray to update this automatically from the triListArray (which
             might be less efficient than computing it manually if there are split 
             vertices) */

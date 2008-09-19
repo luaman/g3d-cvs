@@ -97,7 +97,6 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
     // Returns the index in partArray of the part with this name.
     Table<std::string, int>     partNameToIndex;
 
-
     Load3DS load;
     Table<std::string, TextureRef> texCache;
 
@@ -137,7 +136,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
         // All 3DS parts are promoted to the root in the current implementation.
         part.parent = -1;
 
-//debugPrintf("%s %d %d\n", object.name.c_str(), object.hierarchyIndex, object.nodeID);
+        //debugPrintf("%s %d %d\n", object.name.c_str(), object.hierarchyIndex, object.nodeID);
 
         if (part.hasGeometry()) {
 
@@ -158,7 +157,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
                     debugAssert(vec.isFinite());
                 }
 #               endif
+
                 part.geometry.vertexArray[v] = S * part.geometry.vertexArray[v] + T;
+
 #               ifdef G3D_DEBUG
                 {
                     const Vector3& vec = part.geometry.vertexArray[v];
@@ -174,7 +175,6 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
                 // Lump everything into one part
                 Part::TriList& triList = part.triListArray.next();
                 triList.indexArray = object.indexArray;
-                //triList.computeBounds(part);
 
             } else {
                 for (int m = 0; m < object.faceMatArray.size(); ++m) {
@@ -260,15 +260,34 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
 
 
 void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
+    Array<int> oldToNewIndex;
+    bool recomputeNormals      = true;
+    float normalSmoothingAngle = toRadians(70);
+    float vertexWeldRadius     = 0.0001f;
+    float texCoordWeldRadius   = 0.0001f;
+    float normalWeldRadius     = 0.01f;
+
+    MeshAlg::weld(geometry, texCoordArray, indexArray, oldToNewIndex, recomputeNormals, 
+                  normalSmoothingAngle, vertexWeldRadius, texCoordWeldRadius, normalWeldRadius);
+
+    // convert trilist indices using oldToNewIndex
+    for (int t = 0; t < triListArray.size(); ++t) {
+        TriList&    triList = triListArray[t];
+        Array<int>& tind    = triList.indexArray;
+        for (int i = 0; i < tind.size(); ++i) {
+            tind[i] = oldToNewIndex[tind[i]];
+        }
+    }
+    /*
+    MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
+
+    MeshAlg::computeNormals(geometry.vertexArray, faceArray, vertexArray, geometry.normalArray, faceNormalArray);
+    */
     Array<MeshAlg::Face>    faceArray;
     Array<MeshAlg::Vertex>  vertexArray;
     Array<MeshAlg::Edge>    edgeArray;
     Array<Vector3>          faceNormalArray;
-
     MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
-
-    MeshAlg::computeNormals(geometry.vertexArray, faceArray, vertexArray, 
-                   geometry.normalArray, faceNormalArray);
 
     // Compute a tangent space basis
     if (texCoordArray.size() > 0) {
@@ -282,7 +301,6 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
             faceArray,
             tangentArray,
             empty);
-        
     }
 }
 

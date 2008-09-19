@@ -86,8 +86,6 @@ static bool close(const Vector3& v0, const Vector2& t0, const Vector3& v1, const
 }
 
 
-
-
 void IFSModel::init(const std::string& name, const Vector3& scale, const CoordinateFrame& cframe, const bool weld, bool removeDegenerateFaces) {
 
     debugAssert(geometry.vertexArray.size() > 0);
@@ -176,64 +174,64 @@ void IFSModel::save(
     const std::string&          name,
     const Array<int>&           index,
     const Array<Vector3>&       vertex,
-	const Array<Vector2>&		texCoord) {
+    const Array<Vector2>&	texCoord) {
+    
+    if ("ifs" == filenameExt(filename)) {
+        
+        float32 ifs_version = (texCoord.size() == 0)? 1.0f : 1.1f;
+        
+        BinaryOutput b(filename, G3D_LITTLE_ENDIAN);
+        
+        b.writeString32("IFS");
+        b.writeFloat32(ifs_version);
+        b.writeString32(name);
+        
+        b.writeString32("VERTICES");
 
-	if ("ifs" == filenameExt(filename)) {
+        b.writeUInt32(vertex.size());
+
+        for (uint32 v = 0; v < (uint32)vertex.size(); ++v) {
+            vertex[v].serialize(b);
+        }
+
+        b.writeString32("TRIANGLES");
+
+        b.writeUInt32(index.size() / 3);
+        for (uint32 i = 0; i < (uint32)index.size(); ++i) {
+            b.writeUInt32(index[i]);
+        }
 		
-		float32 ifs_version = (texCoord.size() == 0)? 1.0f : 1.1f;
+        if (ifs_version == 1.1f) {
+            b.writeString32("TEXTURECOORD");
+            alwaysAssertM(texCoord.size() == vertex.size(), "Number of texCoords must match the number of vertices") ;
+            b.writeUInt32(texCoord.size());
+            for(uint32 t = 0; t < (uint32)texCoord.size(); ++t) {
+                texCoord[t].serialize(b);
+            }
+        }
 
-		BinaryOutput b(filename, G3D_LITTLE_ENDIAN);
+        b.commit(false);
+    } else if ("ply2" == filenameExt(filename)) { 
+        alwaysAssertM(texCoord.size() == 0,  format("texCoord.size() != 0, PLY2 files do not support saving texCoords."));
+        TextOutput to(filename);
 
-		b.writeString32("IFS");
-		b.writeFloat32(ifs_version);
-		b.writeString32(name);
+        const int nF = index.size() / 3;
+        to.printf("%d\n%d\n",vertex.size(), nF);
 
-		b.writeString32("VERTICES");
+        for(uint32 i = 0; i < (uint32)vertex.size(); ++i) {
+            to.printf("%f ",vertex[i].x);
+            to.printf("%f ",vertex[i].y);
+            to.printf("%f\n",vertex[i].z);
+        }
 
-		b.writeUInt32(vertex.size());
+        for(uint32 i = 0; i < (uint32)nF; ++i) {
+            to.printf("3 %d  %d  %d\n", index[3*i], index[3*i + 1], index[3*i + 2]);
+        }
 
-		for (uint32 v = 0; v < (uint32)vertex.size(); ++v) {
-			vertex[v].serialize(b);
-		}
-
-		b.writeString32("TRIANGLES");
-
-		b.writeUInt32(index.size() / 3);
-		for (uint32 i = 0; i < (uint32)index.size(); ++i) {
-			b.writeUInt32(index[i]);
-		}
-		
-		if (ifs_version == 1.1f) {
-			b.writeString32("TEXTURECOORD");
-			alwaysAssertM(texCoord.size() == vertex.size(), "Number of texCoords must match the number of vertices") ;
-			b.writeUInt32(texCoord.size());
-			for(uint32 t = 0; t < (uint32)texCoord.size(); ++t) {
-				texCoord[t].serialize(b);
-			}
-		}
-
-		b.commit(false);
-	} else if ("ply2" == filenameExt(filename)) { 
-		alwaysAssertM(texCoord.size() == 0,  format("texCoord.size() != 0, PLY2 files do not support saving texCoords."));
-		TextOutput to(filename);
-
-		const int nF = index.size() / 3;
-		to.printf("%d\n%d\n",vertex.size(), nF);
-
-		for(uint32 i = 0; i < (uint32)vertex.size(); ++i) {
-			to.printf("%f ",vertex[i].x);
-			to.printf("%f ",vertex[i].y);
-			to.printf("%f\n",vertex[i].z);
-		}
-
-		for(uint32 i = 0; i < (uint32)nF; ++i) {
-			to.printf("3 %d  %d  %d\n", index[3*i], index[3*i + 1], index[3*i + 2]);
-		}
-
-		to.commit(false);
-	} else {
-		alwaysAssertM(false,  format("unsupported filename type %s", filenameExt(filename).c_str()));
-	}
+        to.commit(false);
+    } else {
+        alwaysAssertM(false,  format("unsupported filename type %s", filenameExt(filename).c_str()));
+    }
 }
 
 
@@ -317,7 +315,8 @@ void IFSModel::load(
         int nV = iFloor(ti.readNumber());
         int nF = iFloor(ti.readNumber());
         int nE = iFloor(ti.readNumber());
-        
+        (void)nE;
+
         vertex.resize(nV);
         texCoord.resize(0);
         name = filenameBaseExt(filename);

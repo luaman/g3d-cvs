@@ -684,6 +684,8 @@ public:
             }
             break;
             }
+        default:
+            alwaysAssertM(false, "Illegal argument");
         }
     }
 
