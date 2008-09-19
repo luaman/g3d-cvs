@@ -361,6 +361,18 @@ public:
     /** Create a 0.5^3 meter cube with colored sides, approximating the data from
         http://www.graphics.cornell.edu/online/box/data.html */
     static ArticulatedModelRef createCornellBox();
+
+    /**
+     Iterate through the entire model and force all triangles to use vertex 
+     normals instead of face normals.
+
+     This forces "flat shading" on the model and causes it to render significantly
+     slower than normal. However, it can be very useful for debugging in certain
+     conditions.
+
+     @beta
+     */
+    void facet();
 };
 
 const char* toString(ArticulatedModel::GraphicsProfile p);

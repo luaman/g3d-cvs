@@ -439,20 +439,19 @@ private:
         outputArrays.fastClearAll();
         outputIndex.resize(unrolledIndex.size());
 
-		//Iterate through each vertex of the unrolled arrays
-		Array<Node> neighbors;
+		// Iterate through each vertex of the unrolled arrays
 		for(int i = 0; i < unrolledArrays.size(); ++i) {
 			Node n(i, &unrolledArrays);
 
-			//get the index in the output arrays where this vertex (or the 
-            //vertex it is being merged into) is stored
-			int index = getMatchingNodeIndex(n);
+			// Get the index in the output arrays where this vertex (or the 
+            // vertex it is being merged into) is now stored
+			int newIndex = getMatchingNodeIndex(n);
 
-			//add to the end of the output index array to store the vertex
-			outputArrays.indexArray->append(index);
+			// add to the end of the output index array to store the vertex
+			outputArrays.indexArray->append(newIndex);
 
-            //remember where index i in the output arrays was sent
-            outputIndex[i] = index;
+            // remember where index i in the output arrays was sent
+            outputIndex[i] = newIndex;
 		}
 	}
 
@@ -505,6 +504,7 @@ private:
 	}
 
     /** Called by the constructor.
+
         Computes an array which maps indices in the input arrays to indices in 
         the output arrays.*/
     void computeOldToNew(Array<int>& oldToNewArray) {
@@ -520,12 +520,16 @@ public:
 
     /** Identifies and merges similar vertices in a triangle mesh, and performs
         normal smoothing.
-        vertices, normals, texCoords, and indices should be the vertex, normal,
+        
+        Vertices, normals, texCoords, and indices should be the vertex, normal,
         texCoord, and index arrays of the input mesh.
+
         _r, _s, and _theta indicate the maximum allowed vertex, texCoord, and 
         normal angle differences for vertices to be merged.
-        normal smoothing will be applied on all angles with a cosine less than 
+        
+        Normal smoothing will be applied on all angles with a cosine less than 
         cosNormalThreshold.
+
         After the merging takes place, vertices, normals, texCoords, and 
         indices will store the new mesh, and the ith value in oldToNewIndex
         will be the new index of index i in the old mesh.*/
@@ -548,15 +552,19 @@ public:
 		sSquaredInverse = 1.0 / square(_s);
 		oneMinusCosineTheta = 1.0 - cos(_theta);
 
+        oldToNewIndex.resize(vertices.size());
+
         // Unroll the arrays and compute the normals.
 		unroll();
 		computeFlatNormals();
 
 		// For each array index, create a node and put it into the inputGrid
 		buildInputGrid();
-        if(recomputeNormals) {
+        
+        if (recomputeNormals) {
             mergeNormals(cosNormalThreshold);
         }
+
 		mergeNodes();
 
         computeOldToNew(oldToNewIndex);

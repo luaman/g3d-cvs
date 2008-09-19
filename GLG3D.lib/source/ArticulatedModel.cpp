@@ -260,6 +260,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
 
 
 void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
+    /*
+    Buggy; 
+
     Array<int> oldToNewIndex;
     bool recomputeNormals      = true;
     float normalSmoothingAngle = toRadians(70);
@@ -278,16 +281,14 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
             tind[i] = oldToNewIndex[tind[i]];
         }
     }
-    /*
-    MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
-
-    MeshAlg::computeNormals(geometry.vertexArray, faceArray, vertexArray, geometry.normalArray, faceNormalArray);
     */
     Array<MeshAlg::Face>    faceArray;
     Array<MeshAlg::Vertex>  vertexArray;
     Array<MeshAlg::Edge>    edgeArray;
     Array<Vector3>          faceNormalArray;
+
     MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
+    MeshAlg::computeNormals(geometry.vertexArray, faceArray, vertexArray, geometry.normalArray, faceNormalArray);
 
     // Compute a tangent space basis
     if (texCoordArray.size() > 0) {
@@ -493,6 +494,43 @@ ArticulatedModelRef ArticulatedModel::createCornellBox() {
     model->updateAll();
 
     return model;
+}
+
+
+void ArticulatedModel::facet() {
+    for (int p = 0; p < partArray.size(); ++p) {
+        Part& dstPart = partArray[p];
+
+        // Copy the old part
+        Part srcPart = dstPart;
+
+        dstPart.geometry.vertexArray.fastClear();
+        dstPart.geometry.normalArray.fastClear();
+        dstPart.texCoordArray.fastClear();
+        dstPart.indexArray.fastClear();
+
+        int n = 0;
+        for (int t = 0; t < srcPart.triListArray.size(); ++t) {
+            const Part::TriList& srcTriList = srcPart.triListArray[t];
+            Part::TriList& dstTriList = dstPart.triListArray[t];
+            dstTriList.indexArray.fastClear();
+
+            // Unroll the arrays
+            for (int x = 0; x < srcTriList.indexArray.size(); ++x) {
+                int i = srcTriList.indexArray[x];
+
+                // Create the vertex
+                dstPart.geometry.vertexArray.append(srcPart.geometry.vertexArray[i]);
+                if (srcPart.texCoordArray.size() > 0) {
+                    dstPart.texCoordArray.append(srcPart.texCoordArray[i]);
+                }
+                dstPart.indexArray.append(n);
+                dstTriList.indexArray.append(n);
+                ++n;
+            }
+        }
+    }
+    updateAll();
 }
 
 } // G3D
