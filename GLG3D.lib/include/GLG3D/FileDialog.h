@@ -98,7 +98,7 @@ public:
        that the user presses ok.
      */
     static FileDialogRef create(GWindow* osWindow, GuiThemeRef theme, const std::string& note = "") {
-        return new FileDialog(osWindow, theme, note);
+        return new FileDialog(osWindow, skin, note);
     }
 
     static FileDialogRef create(GuiWindowRef parent, const std::string& note = "") {
