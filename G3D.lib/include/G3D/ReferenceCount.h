@@ -8,7 +8,7 @@
   @cite See also http://www.jelovic.com/articles/cpp_without_memory_errors_slides.htm
 
   @created 2001-10-23
-  @edited  2007-02-24
+  @edited  2008-09-25
 */
 
 #ifndef G3D_RGC_H
@@ -325,24 +325,20 @@ public:
     inline const ReferenceCountedPointer<T>& operator=(const ReferenceCountedPointer<T>& p) {
         setPointer(p.m_pointer);
         return *this;
-    }   
-
+    }
 
     inline ReferenceCountedPointer<T>& operator=(T* p) {
         setPointer(p);
         return *this;
     }
 
-
     inline bool operator==(const ReferenceCountedPointer<T>& y) const { 
         return (m_pointer == y.m_pointer); 
     }
 
-
     inline bool operator!=(const ReferenceCountedPointer<T>& y) const { 
         return (m_pointer != y.m_pointer); 
     }
-
 
     bool operator < (const ReferenceCountedPointer<T>& y) const {
         return (m_pointer < y.m_pointer); 
@@ -361,11 +357,12 @@ public:
     }
     
     inline T& operator*() const {
-        debugAssert(m_pointer != NULL);
+        debugAssertM(m_pointer != NULL, "Dereferenced a NULL ReferenceCountedPointer");
         return (*m_pointer);
     }
 
     inline T* operator->() const {
+        debugAssertM(m_pointer != NULL, "Dereferenced a NULL ReferenceCountedPointer");
         return m_pointer;
     }
 

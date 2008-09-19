@@ -27,6 +27,7 @@
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
      <li> ArticulatedModel::facet
+     <li> ReferenceCountedPointer now asserts that the pointer is not NULL on method invocation
      <li> PosedModel now computes appropriate shadow map matrices for spot lights
      <li> Added ImageFormat::convert [Danny and Kyle]
      <li> 3- and 4- argument min and max

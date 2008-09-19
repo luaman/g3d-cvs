@@ -19,17 +19,24 @@ namespace G3D {
 
 typedef ReferenceCountedPointer<class FileDialog> FileDialogRef;
 
-/** Example:         
+/** 
+@param A G3D GUI dialog that prompts for a load or save file name.  
+
+The dialog needs a default theme to use, so it requires either a GuiTheme or a GuiWindow
+from which to copy the theme.
+
+Example of typical use within a GApp subclass, where GApp::debugWindow is an inherited
+GuiWindow*:
+
 <pre>
 std::string filename = "";
-if (FileDialog::create(window)->getFilename(filename)) {
+if (FileDialog::create(debugWindow)->getFilename(filename)) {
   // save code
 }
 </pre>
 
 
-Custom file dialog:
-
+Example of a custom file dialog:
 
 <pre>
 class MyFileDialog : public FileDialog {
@@ -80,7 +87,7 @@ protected:
 
     GWindow*           m_osWindow;
 
-    FileDialog(GWindow* osWindow, GuiThemeRef skin, const std::string& note);
+    FileDialog(GWindow* osWindow, GuiThemeRef theme, const std::string& note);
 
     void close();
 
@@ -90,8 +97,8 @@ public:
        @param saveName Initial value of the box and what will be returned in the event
        that the user presses ok.
      */
-    static FileDialogRef create(GWindow* osWindow, GuiThemeRef skin, const std::string& note = "") {
-        return new FileDialog(osWindow, skin, note);
+    static FileDialogRef create(GWindow* osWindow, GuiThemeRef theme, const std::string& note = "") {
+        return new FileDialog(osWindow, theme, note);
     }
 
     static FileDialogRef create(GuiWindowRef parent, const std::string& note = "") {
