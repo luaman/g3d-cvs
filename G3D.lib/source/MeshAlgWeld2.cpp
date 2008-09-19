@@ -45,9 +45,10 @@ public:
 	NodeArrays();
 
 	/** Constructor that uses pre-existing Arrays.*/
-	NodeArrays(Array<int>* const _indexArray, 
-        Array<Vector3>* const _vertexArray, 
-        Array<Vector3>* const _normalArray, 
+	NodeArrays
+        (Array<int>* const     _indexArray, 
+         Array<Vector3>* const _vertexArray, 
+         Array<Vector3>* const _normalArray, 
 		Array<TexCoord>* const _texCoordArray);
 
     /** Returns the size of the vertex array.
@@ -99,31 +100,34 @@ public:
 };
 
 NodeArrays::NodeArrays() : 
+    deleteArrays(true),
     indexArray(new Array<int>()),
     vertexArray(new Array<Vector3>()), 
     normalArray(new Array<Vector3>()), 
-	texCoordArray(new Array<TexCoord>()),
-    deleteArrays(true) {}
+	texCoordArray(new Array<TexCoord>()) {}
 
 NodeArrays::NodeArrays(Array<int>* const _indexArray, 
     Array<Vector3>* const _vertexArray, 
     Array<Vector3>* const _normalArray, 
     Array<TexCoord>* const _texCoordArray) : 
+    deleteArrays(false),
     indexArray(_indexArray),
     vertexArray(_vertexArray), 
     normalArray(_normalArray), 
-    texCoordArray(_texCoordArray), 
-    deleteArrays(false) {}
+    texCoordArray(_texCoordArray) {}
+
 
 int NodeArrays::size() {
     return vertexArray->size();
 }
+
 
 void NodeArrays::append(const Node& n) {
     vertexArray->append(n.vertex());
     normalArray->append(n.normal());
     texCoordArray->append(n.texCoord());
 }
+
 
 void NodeArrays::fastClearAll() {
     indexArray->fastClear();
@@ -132,14 +136,16 @@ void NodeArrays::fastClearAll() {
     texCoordArray->fastClear();
 }
 
+
 NodeArrays::~NodeArrays() {
-	if(deleteArrays) {
+	if (deleteArrays) {
 		delete indexArray;
 		delete vertexArray;
 		delete normalArray;
 		delete texCoordArray;
 	}
 }
+
 
 class Node::Position {
 public:
