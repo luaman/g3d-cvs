@@ -1417,7 +1417,7 @@ public:
                 return ptr;
             }
 
-        } else  if (bytes <= medBufferSize) {
+        } else if (bytes <= medBufferSize) {
             // Note that a small allocation failure does *not* fall
             // through into a medium allocation because that would
             // waste the medium buffer's resources.
@@ -1427,6 +1427,7 @@ public:
             if (ptr) {
                 ++mallocsFromMedPool;
                 unlock();
+                debugAssertM(ptr != NULL, "BufferPool::malloc returned NULL");
                 return ptr;
             }
         }
@@ -1444,9 +1445,8 @@ public:
             // Flush memory pools to try and recover space
             flushPool(smallPool, smallPoolSize);
             flushPool(medPool, medPoolSize);
-            ptr = ::malloc(REALBLOCK_SIZE(bytes + 4));
+            ptr = ::malloc(REALBLOCK_SIZE(bytes));
         }
-
 
         if (ptr == NULL) {
             if ((System::outOfMemoryCallback != NULL) &&
@@ -1461,6 +1461,13 @@ public:
                 // Notify the application
                 System::outOfMemoryCallback(REALBLOCK_SIZE(bytes), false);
             }
+#           ifdef G3D_DEBUG
+                debugPrintf("::malloc(%d) returned NULL\n", REALBLOCK_SIZE(bytes));
+#           endif
+            debugAssertM(ptr != NULL, 
+                         "::malloc returned NULL. Either the "
+                         "operating system is out of memory or the "
+                         "heap is corrupt.");
             return NULL;
         }
 
@@ -1596,6 +1603,8 @@ void* System::malloc(size_t bytes) {
 void* System::calloc(size_t n, size_t x) {
 #ifndef NO_BUFFERPOOL
     void* b = System::malloc(n * x);
+    debugAssertM(b != NULL, "System::malloc returned NULL");
+    debugAssertM(isValidHeapPointer(b), "System::malloc returned an invalid pointer");
     System::memset(b, 0, n * x);
     return b;
 #else

@@ -290,6 +290,7 @@ private:
 
         // Allocate a new bucket array with the new size
         bucket = (Node**)System::calloc(sizeof(Node*), newSize);
+        debugAssertM(bucket != NULL, "System::calloc returned NULL. Out of memory.");
         // Move each node to its new hash location
         for (size_t b = 0; b < numBuckets; ++b) {
             Node* node = oldBucket[b];
@@ -665,12 +666,26 @@ public:
         } while (n != NULL);
 
         const size_t maxBucketLength = 3;
-        // (Don't bother changing the size of the table if all entries have the same 
-        // hashcode--they'll still collide)
-        if ((bucketLength > maxBucketLength) && ! allSameCode && (numBuckets < _size * 20)) {
+        // (Don't bother changing the size of the table if all entries
+        // have the same hashcode--they'll still collide)
+        if ((bucketLength > maxBucketLength) && 
+            ! allSameCode && 
+            (numBuckets < _size * 15)) {
+
             // This bucket was really large; rehash if all elements
-            // don't have the same hashcode the number of buckets is reasonable.
-            resize(iMax(numBuckets * 3 + 1, (int)(_size * 3)));
+            // don't have the same hashcode the number of buckets is
+            // reasonable.
+
+            // Back off the scale factor as the number of buckets gets 
+            // large
+            float f = 3.0f;
+            if (numBuckets > 1000000) {
+                f = 1.5f;
+            } else if (numBuckets > 100000) {
+                f = 2.0f;
+            }
+            int newSize = iMax((int)(numBuckets * f) + 1, (int)(_size * f));
+            resize(newSize);
         }
 
         // Not found; insert at the head.

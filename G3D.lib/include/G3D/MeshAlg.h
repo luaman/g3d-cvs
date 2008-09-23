@@ -653,7 +653,7 @@ public:
             debugAssert(inIndices.size() >= 4);
 
             int N = outIndices.size();
-            outIndices.resize(N + inSize * 1.5);
+            outIndices.resize(N + (inSize / 4) * 3);
 
             for (IndexType i = 0, outIndex = N; i <= (inSize - 4); i += 4, outIndex += 6) {
                 outIndices[outIndex] = inIndices[i];
