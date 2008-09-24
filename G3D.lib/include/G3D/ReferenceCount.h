@@ -300,6 +300,11 @@ public:
     ReferenceCountedPointer<S> downcast() {
         return ReferenceCountedPointer<S>(dynamic_cast<S*>(m_pointer));
     }
+
+    template <class S>
+    const ReferenceCountedPointer<S> downcast() const {
+        return ReferenceCountedPointer<S>(dynamic_cast<const S*>(m_pointer));
+    }
 #   endif
 
     // We need an explicit version of the copy constructor as well or 

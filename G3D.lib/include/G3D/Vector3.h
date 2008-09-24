@@ -289,6 +289,16 @@ public:
     Vector3 min(const Vector3 &v) const;
     Vector3 max(const Vector3 &v) const;
 
+    /** Smallest element */
+    inline float min() const {
+        return G3D::min(G3D::min(x, y), z);
+    }
+
+    /** Largest element */
+    inline float max() const {
+        return G3D::max(G3D::max(x, y), z);
+    }
+
     std::string toString() const;
 
     inline Vector3 clamp(const Vector3& low, const Vector3& high) const {
