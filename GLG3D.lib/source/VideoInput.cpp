@@ -592,12 +592,6 @@ void VideoInput::decodingThreadProc(void* param) {
                 // we have a valid frame, let's use it!
                 if (completedFrame != 0) {
 
-                    Array<const void*> srcBuffers;
-                    srcBuffers.append(decodingFrame->data[0], decodingFrame->data[1], decodingFrame->data[2]);
-
-                    Array<void*> dstBuffers;
-                    dstBuffers.append(emptyBuffer->m_frame->data[0]);
-
                     // Convert the image from its native format to RGB
                     img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
 
