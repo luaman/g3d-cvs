@@ -334,6 +334,14 @@
 			<File
 				RelativePath="..\G3D.lib\source\ImageFormat_convert.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						EnableEnhancedInstructionSet="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\G3D.lib\source\license.cpp"

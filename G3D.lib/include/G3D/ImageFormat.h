@@ -73,8 +73,8 @@ public:
         CODE_HSV32F,
 
         CODE_YUV411,
-        CODE_YUV420,
         CODE_YUV420_PLANAR,
+        CODE_YUV422,
         CODE_YUV444,
 
         CODE_RGB_DXT1,
@@ -284,6 +284,8 @@ public:
 
     static const ImageFormat* DEPTH24_STENCIL8();
 
+    static const ImageFormat* YUV420_PLANAR();
+
 	/**
      NULL pointer; indicates that the G3D::Texture class should choose
      either RGBA8 or RGB8 depending on the presence of an alpha channel
@@ -325,11 +327,17 @@ public:
         G3D_DECLARE_ENUM_CLASS_METHODS(BayerAlgorithm);
     };
 
-    /** Convert between arbitrary formats on the CPU */
-    static bool convert(const void* srcBytes, int srcWidth, int srcHeight, 
-        const ImageFormat* srcFormat, int srcRowPadBits,
-	    void* dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
-	    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::HIGH_QUALITY);
+    /** Converts between arbitrary formats on the CPU.  Not all format conversions are supported or directly supported.
+        Formats without direct conversions will attempt to convert through RGBA first.
+
+        A conversion routine might only support source or destination padding or y inversion or none.
+        If support is needed and not available in any of the direct conversion routines, then no conversion is done.
+
+        Returns true if a conversion was available, false if none occurred.
+    */
+    static bool convert(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits,
+	                    const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
+	                    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::HIGH_QUALITY);
 };
 
 typedef ImageFormat TextureFormat;

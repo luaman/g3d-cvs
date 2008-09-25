@@ -88,25 +88,55 @@ void testImageConvert() {
     Color4       _rgba32f[S * S];
 
     // rgb32f <--> rgba32f
-    ImageFormat::convert(RECONCAST(rgb32f), S, S, ImageFormat::RGB32F(), 0,
-			 RECAST(rgba32f), ImageFormat::RGBA32F(), 0, false);
-    {
-	// rgba32f <--> rgb8
-	ImageFormat::convert(RECONCAST(rgba32f), S, S, ImageFormat::RGBA32F(), 0,
-			     RECAST(rgb8), ImageFormat::RGB8(), 0, false);
-	{
-	    // rgb8 <--> bgr8
-	    ImageFormat::convert(RECONCAST(rgb8), S, S, ImageFormat::RGB8(), 0,
-				 RECAST(bgr8), ImageFormat::BGR8(), 0, false);
-	    ImageFormat::convert(RECONCAST(bgr8), S, S, ImageFormat::BGR8(), 0,
-				 RECAST(_rgb8), ImageFormat::RGB8(), 0, false);
-	}
-	ImageFormat::convert(RECONCAST(rgb8), S, S, ImageFormat::RGB8(), 0,
-			     RECAST(_rgba32f), ImageFormat::RGBA32F(), 0, false);
-    }
+    Array<const void*> input;
+    Array<void*> output;
 
-    ImageFormat::convert(RECONCAST(_rgba32f), S, S, ImageFormat::RGBA32F(), 0,
-			 RECAST(_rgb32f), ImageFormat::RGB32F(), 0, false);
+    input.append(RECONCAST(rgb32f));
+    output.append(RECAST(rgba32f));
+    ImageFormat::convert(input, S, S, ImageFormat::RGB32F(), 0,
+			 output, ImageFormat::RGBA32F(), 0, false);
+    {
+        input.clear();
+        output.clear();
+        input.append(RECONCAST(rgba32f));
+        output.append(RECAST(rgb8));
+
+	    // rgba32f <--> rgb8
+	    ImageFormat::convert(input, S, S, ImageFormat::RGBA32F(), 0,
+			         output, ImageFormat::RGB8(), 0, false);
+	    {
+            input.clear();
+            output.clear();
+            input.append(RECONCAST(rgb8));
+            output.append(RECAST(bgr8));
+
+	        // rgb8 <--> bgr8
+	        ImageFormat::convert(input, S, S, ImageFormat::RGB8(), 0,
+				     output, ImageFormat::BGR8(), 0, false);
+
+            input.clear();
+            output.clear();
+            input.append(RECONCAST(bgr8));
+            output.append(RECAST(_rgb8));
+
+	        ImageFormat::convert(input, S, S, ImageFormat::BGR8(), 0,
+				     output, ImageFormat::RGB8(), 0, false);
+	    }
+        input.clear();
+        output.clear();
+        input.append(RECONCAST(_rgb8));
+        output.append(RECAST(_rgba32f));
+
+	    ImageFormat::convert(input, S, S, ImageFormat::RGB8(), 0,
+			         output, ImageFormat::RGBA32F(), 0, false);
+    }
+    input.clear();
+    output.clear();
+    input.append(RECONCAST(_rgba32f));
+    output.append(RECAST(_rgb32f));
+
+    ImageFormat::convert(input, S, S, ImageFormat::RGBA32F(), 0,
+			 output, ImageFormat::RGB32F(), 0, false);
 
 
 

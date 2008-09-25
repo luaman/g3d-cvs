@@ -149,8 +149,8 @@ std::string ImageFormat::name() const {
         "HSV32F",
 
         "YUV411",
-        "YUV420",
         "YUV420_PLANAR",
+        "YUV422",
         "YUV444",
 
         "RGB_DXT1",
@@ -277,8 +277,6 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     case ImageFormat::CODE_HSV32F:
 
     case ImageFormat::CODE_YUV411:
-    case ImageFormat::CODE_YUV420:
-    case ImageFormat::CODE_YUV420_PLANAR:
     case ImageFormat::CODE_YUV444:
 
         //debugAssertM(ImageFormat::AUTO(), "Unsupported ImageFormat at decoding.");
@@ -326,6 +324,10 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
 
     case ImageFormat::CODE_DEPTH24_STENCIL8:
         return ImageFormat::DEPTH24_STENCIL8();
+        break;
+
+    case ImageFormat::CODE_YUV420_PLANAR:
+        return ImageFormat::YUV420_PLANAR();
         break;
 
     default:
@@ -430,5 +432,7 @@ DEFINE_TEXTUREFORMAT_METHOD(STENCIL8,   1, UNCOMP_FORMAT,   GL_STENCIL_INDEX8_EX
 DEFINE_TEXTUREFORMAT_METHOD(STENCIL16,  1, UNCOMP_FORMAT,   GL_STENCIL_INDEX16_EXT,             GL_STENCIL_INDEX_EXT, 0, 0, 0, 0, 0, 0, 16, 16, 16,   GL_UNSIGNED_SHORT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_STENCIL16, ImageFormat::COLOR_SPACE_NONE);
 
 DEFINE_TEXTUREFORMAT_METHOD(DEPTH24_STENCIL8,   2, UNCOMP_FORMAT,   GL_DEPTH24_STENCIL8_EXT,    GL_DEPTH_STENCIL_EXT,0, 0, 0, 0, 0, 24, 8, 32, 32,  GL_UNSIGNED_INT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH24_STENCIL8, ImageFormat::COLOR_SPACE_NONE);
+
+DEFINE_TEXTUREFORMAT_METHOD(YUV420_PLANAR,  3, UNCOMP_FORMAT,   GL_NONE,    GL_NONE, 0, 0, 0, 0, 0, 0, 0, 12, 12,  GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_YUV420_PLANAR, ImageFormat::COLOR_SPACE_YUV);
 
 }

@@ -4,9 +4,9 @@
  */
 
 #include "G3D/platform.h"
+#include "G3D/fileutils.h"
 #include "GLG3D/VideoInput.h"
 #include "GLG3D/Texture.h"
-#include "G3D/fileutils.h"
 
 extern "C" {
 #include "libavformat/avformat.h"
@@ -163,11 +163,14 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
 
         // check if the texture is re-usable and create a new one if not
         if (frame.notNull() && frame->width() == width() && frame->height() == height()) {
+
             // update existing texture
             glBindTexture(frame->openGLTextureTarget(), frame->openGLID());
             glPixelStorei(GL_PACK_ALIGNMENT, 1);
+            
             glTexImage2D(frame->openGLTextureTarget(), 0, frame->format()->openGLFormat, frame->width(), frame->height(), 0,
                 TextureFormat::RGB8()->openGLBaseFormat, TextureFormat::RGB8()->openGLDataFormat, buffer->m_frame->data[0]);
+            
             glBindTexture(frame->openGLTextureTarget(), NULL);
 
             // make sure this renders correctly since we didn't create the texture
@@ -588,6 +591,12 @@ void VideoInput::decodingThreadProc(void* param) {
 
                 // we have a valid frame, let's use it!
                 if (completedFrame != 0) {
+
+                    Array<const void*> srcBuffers;
+                    srcBuffers.append(decodingFrame->data[0], decodingFrame->data[1], decodingFrame->data[2]);
+
+                    Array<void*> dstBuffers;
+                    dstBuffers.append(emptyBuffer->m_frame->data[0]);
 
                     // Convert the image from its native format to RGB
                     img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
