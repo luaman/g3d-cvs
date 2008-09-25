@@ -500,6 +500,7 @@ protected:
                 for (int c = 0; c < 2; ++c) {
                     n->child[c] = deserializeStructure(bi);
                 }
+                return n;
             }
         }
 
