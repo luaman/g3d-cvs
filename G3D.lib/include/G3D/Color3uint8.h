@@ -28,7 +28,6 @@ namespace G3D {
  scaled by 255 (because OpenGL automatically scales integer
  colors back by this factor).  So Color3(1,1,1) == Color3uint8(255,255,255)
  but Vector3(1,1,1) == Vector3int16(1,1,1).
-
  */
 
 #if defined(G3D_WIN32)

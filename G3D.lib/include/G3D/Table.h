@@ -23,6 +23,8 @@
 #include "G3D/Vector3int16.h"
 #include "G3D/Vector3int32.h"
 #include "G3D/Crypto.h"
+#include "G3D/EqualsTrait.h"
+#include "G3D/HashTrait.h"
 #include <cstddef>
 #include <string>
 
@@ -31,10 +33,6 @@
     // Debug name too long warning
 #   pragma warning (disable : 4786)
 #endif
-
-/** @deprecated Use HashTrait */
-template<typename Key>
-struct GHashCode{};
 
 template <>
 struct GHashCode<int>
@@ -105,22 +103,7 @@ struct GEquals{
 
 //////////////////////////////////////
 
-template<typename Key>
-class EqualsTrait {
-public:
-    static bool equals(const Key& a, const Key& b) {
-        return a == b;
-    }
-};
 
-/** Adapter for making old GHashCode functions still work */
-template <class T>
-struct HashTrait {
-    static size_t hashCode(const T& k) {
-        static GHashCode<T> f;
-        return f(k);
-    }
-};
 
 template <>
 struct HashTrait<G3D::uint128> {

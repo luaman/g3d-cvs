@@ -19,6 +19,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
+#include "G3D/HashTrait.h"
 #include <string>
 
 namespace G3D {
@@ -368,6 +369,14 @@ inline Color3 Color3::unitCross (const Color3& rkVector) const {
     return kCross;
 }
 } // namespace
+
+
+template <>
+struct HashTrait<G3D::Color3> {
+    static size_t hashCode(const G3D::Color3& key) {
+        return key.hashCode();
+    }
+};
 
 
 #endif

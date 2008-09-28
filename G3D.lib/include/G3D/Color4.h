@@ -314,4 +314,11 @@ inline Color4& Color4::operator*= (float fScalar) {
 
 } // namespace
 
+template <>
+struct HashTrait<G3D::Color4> {
+    static size_t hashCode(const G3D::Color4& key) {
+        return key.hashCode();
+    }
+};
+
 #endif

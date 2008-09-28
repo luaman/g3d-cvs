@@ -3,12 +3,12 @@
  
   Homogeneous vector class.
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2002-07-09
-  @edited  2007-04-28
+  @edited  2008-10-01
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
  */
 
@@ -20,6 +20,7 @@
 #include "G3D/Vector3.h"
 #include "G3D/Vector2.h"
 #include "G3D/Table.h"
+#include "G3D/HashTrait.h"
 #include <string>
 
 namespace G3D {

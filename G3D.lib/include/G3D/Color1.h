@@ -3,11 +3,11 @@
  
  Monochrome Color class
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2007-01-31
- @edited  2007-01-31
+ @edited  2008-10-02
 
- Copyright 2000-2007, Morgan McGuire.
+ Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
  */
 
@@ -16,14 +16,15 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
+#include "G3D/HashTrait.h"
 #include <string>
 
 namespace G3D {
 
 /**
- Monochrome color.  This is just a float, but it has nice semantics because
- a scaling by 255 automatically occurs when switching between fixed point (Color1uint8) and floating point
- (Color1) formats.
+ Monochrome color.  This is just a float, but it has nice semantics
+ because a scaling by 255 automatically occurs when switching between
+ fixed point (Color1uint8) and floating point (Color1) formats.
  */
 class Color1 {
 private:
@@ -105,12 +106,24 @@ public:
         return Color1(G3D::min(value, other.value));
     }
 
-	inline Color1 lerp(const Color1& other, float a) const {
+    inline Color1 lerp(const Color1& other, float a) const {
         return Color1(value + (other.value - value) * a); 
 
+    }
+
+    inline size_t hashCode() const {
+        return (size_t)(value * 0xFFFFFF);
     }
 };
 
 }
+
+template <>
+struct HashTrait<G3D::Color1> {
+    static size_t hashCode(const G3D::Color1& key) {
+        return key.hashCode();
+    }
+};
+
 
 #endif

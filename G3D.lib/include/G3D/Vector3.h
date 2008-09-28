@@ -6,8 +6,8 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-06-02
-  @edited  2007-02-23
-  Copyright 2000-2006, Morgan McGuire.
+  @edited  2008-10-01
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
  */
 
@@ -18,6 +18,7 @@
 #include "G3D/g3dmath.h"
 #include "G3D/Vector2.h"
 #include "G3D/Table.h"
+#include "G3D/HashTrait.h"
 #include <iostream>
 #include <string>
 
@@ -737,11 +738,14 @@ inline bool Vector3::isUnit() const {
 
 } // namespace G3D
 
+
 template <>
-struct GHashCode<G3D::Vector3>
-{
-    size_t operator()(const G3D::Vector3& key) const { return key.hashCode(); }
+struct HashTrait<G3D::Vector3> {
+    static size_t hashCode(const G3D::Vector3& key) {
+        return key.hashCode();
+    }
 };
+
 
 
 #endif

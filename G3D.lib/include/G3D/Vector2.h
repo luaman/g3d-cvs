@@ -18,7 +18,8 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Table.h"
-#include "Vector2int16.h"
+#include "G3D/HashTrait.h"
+#include "G3D/Vector2int16.h"
 #include <string>
 
 namespace G3D {
@@ -437,9 +438,10 @@ inline bool Vector2::isUnit() const {
 } // namespace G3D
 
 template <>
-struct GHashCode<G3D::Vector2>
-{
-    size_t operator()(const G3D::Vector2& key) const { return key.hashCode(); }
+struct HashTrait<G3D::Vector2> {
+    static size_t hashCode(const G3D::Vector2& key) {
+        return key.hashCode();
+    }
 };
 
 
