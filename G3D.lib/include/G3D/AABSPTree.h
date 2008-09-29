@@ -30,14 +30,12 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
 #include "G3D/GCamera.h"
+#include "G3D/BoundsTrait.h"
 #include <algorithm>
 
 // If defined, in debug mode the tree is checked for consistency
 // as a way of detecting corruption due to implementation bugs
 // #define VERIFY_TREE
-
-template<typename Value>
-struct BoundsTrait{};
 
 template<> struct BoundsTrait<class G3D::Vector2> {
     static void getBounds(const G3D::Vector2& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(v, 0)); }
@@ -249,9 +247,18 @@ protected:
         Vector3 lo = Vector3::inf();
         Vector3 hi = -lo;
 
+        debugAssertM(beginIndex <= endIndex, "No points");
         for (int p = beginIndex; p <= endIndex; ++p) {
-            lo = lo.min(point[p]->bounds.low());
-            hi = hi.max(point[p]->bounds.high());
+            // This code is written with the vector min and max expanded
+            // because otherwise it compiles incorrectly with -O3 on
+            // gcc 3.4 
+
+            const Vector3& pLo = point[p]->bounds.low();
+            const Vector3& pHi = point[p]->bounds.high();
+            for (int a = 0; a < 3; ++a) {
+                lo[a] = G3D::min(lo[a], pLo[a]);
+                hi[a] = G3D::max(hi[a], pHi[a]);
+            }
         }
 
         return AABox(lo, hi);
@@ -727,8 +734,8 @@ protected:
 		    // Make a new internal node
 		    node = new Node();
 		    
-            const AABox bounds = computeBounds(source, 0, source.size() - 1);
-		    const Vector3 extent = bounds.high() - bounds.low();
+            const AABox& bounds = computeBounds(source, 0, source.size() - 1);
+		    const Vector3& extent = bounds.high() - bounds.low();
 		    
 		    Vector3::Axis splitAxis = extent.primaryAxis();
 		    
@@ -781,9 +788,13 @@ protected:
 
             if (numMeanSplits > 0) {
                 // Split along the mean
-                splitLocation = (bounds.high()[splitAxis] + 
-                                 bounds.low()[splitAxis]) / 2.0;
+                splitLocation = 
+                    bounds.high()[splitAxis] * 0.5f + 
+                    bounds.low()[splitAxis] * 0.5f;
                 
+                debugAssertM(isFinite(splitLocation),
+                            "Internal error: split location must be finite.");
+
                 source.partition(NULL, lt, node->valueArray, gt, Comparator(splitAxis, splitLocation));
 
                 // The Comparator ensures that elements are strictly on the correct side of the split
