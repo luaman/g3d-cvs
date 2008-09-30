@@ -92,10 +92,17 @@ public:
     }
 
     /**
-     The largest possible finite box. This is smaller than FLT_MAX
-     because it leaves room to add boxes together.
+     The largest possible finite box.
      */
     static inline const AABox& maxFinite() {
+        static const AABox b = AABox(Vector3::minFinite(), 
+                                     Vector3::maxFinite());
+        return b;
+    }
+
+    /** A large finite box. This is smaller than FLT_MAX
+        because it leaves room to add boxes together. */
+    static inline const AABox& large() {
         static const AABox b = AABox(Vector3::minFinite() * 0.5f, 
                                      Vector3::maxFinite() * 0.5f);
         return b;

@@ -210,7 +210,7 @@ protected:
      */
     class Handle {
     public:
-        /** The bounds of each object are constrained to AABox::maxFinite */
+        /** The bounds of each object are constrained to AABox::large */
         AABox               bounds;
 
         /** Center of bounds.  We cache this value to avoid recomputing it
@@ -225,7 +225,7 @@ protected:
 
         inline Handle(const T& v) : value(v) {
             BoundsFunc::getBounds(v, bounds);
-            bounds = bounds.intersect(AABox::maxFinite());
+            bounds = bounds.intersect(AABox::large());
             center = bounds.center();
         }
 
@@ -438,43 +438,45 @@ protected:
             }
         }
 
-	    void verifyNode(const Vector3& lo, const Vector3& hi) {
+        void verifyNode(const Vector3& lo, const Vector3& hi) {
             //		debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
             //			    splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
-
-            debugAssert(lo == splitBounds.low());
+            
+            debugAssertM(lo == splitBounds.low(),
+                         format("lo = %s, splitBounds.lo = %s",
+                                lo.toString().c_str(), splitBounds.low().toString().c_str()));
             debugAssert(hi == splitBounds.high());
-
-		    for (int i = 0; i < valueArray.length(); ++i) {
-			    const AABox& b = valueArray[i]->bounds;
+            
+            for (int i = 0; i < valueArray.length(); ++i) {
+                const AABox& b = valueArray[i]->bounds;
                 debugAssert(b == boundsArray[i]);
-
-			    for(int axis = 0; axis < 3; ++axis) {
-				    debugAssert(b.low()[axis] <= b.high()[axis]);
-				    debugAssert(b.low()[axis] >= lo[axis]);
-				    debugAssert(b.high()[axis] <= hi[axis]);
-			    }
-		    }
-
-		    if (child[0] || child[1]) {
-			    debugAssert(lo[splitAxis] < splitLocation);
-			    debugAssert(hi[splitAxis] > splitLocation);
-		    }
-
-		    Vector3 newLo = lo;
-		    newLo[splitAxis] = splitLocation;
-		    Vector3 newHi = hi;
-		    newHi[splitAxis] = splitLocation;
-
-		    if (child[0] != NULL) {
-			    child[0]->verifyNode(lo, newHi);
-		    }
-
-		    if (child[1] != NULL) {
-			    child[1]->verifyNode(newLo, hi);
-		    }
-	    }
-
+                
+                for(int axis = 0; axis < 3; ++axis) {
+                    debugAssert(b.low()[axis] <= b.high()[axis]);
+                    debugAssert(b.low()[axis] >= lo[axis]);
+                    debugAssert(b.high()[axis] <= hi[axis]);
+                }
+            }
+            
+            if (child[0] || child[1]) {
+                debugAssert(lo[splitAxis] < splitLocation);
+                debugAssert(hi[splitAxis] > splitLocation);
+            }
+            
+            Vector3 newLo = lo;
+            newLo[splitAxis] = splitLocation;
+            Vector3 newHi = hi;
+            newHi[splitAxis] = splitLocation;
+            
+            if (child[0] != NULL) {
+                child[0]->verifyNode(lo, newHi);
+            }
+            
+            if (child[1] != NULL) {
+                child[1]->verifyNode(newLo, hi);
+            }
+        }
+        
 
         /**
           Stores the locations of the splitting planes (the structure but not the content)
@@ -1124,11 +1126,14 @@ public:
 
         // Walk the tree, assigning splitBounds.  We start with unbounded
         // space.  This will override the current member table.
-        root->assignSplitBounds(AABox::maxFinite());
+        const AABox& LARGE = AABox::large();
+        root->assignSplitBounds(LARGE);
 
 #       ifdef _DEBUG
-            // Ensure that the balanced tree is till correct
-            root->verifyNode(Vector3::minFinite(), Vector3::maxFinite());
+        {
+            // Ensure that the balanced tree is still correct
+            root->verifyNode(LARGE.low(), LARGE.high());
+        }
 #       endif
     }
 
