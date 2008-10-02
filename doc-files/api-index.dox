@@ -291,6 +291,7 @@ href="classes.html">Classes</a>.
         \link G3D::AnyVal AnyVal\endlink,
         \link G3D::AABSPTree AABSPTree\endlink,
         \link G3D::Array Array\endlink,
+        \link G3D::Pointer Pointer\endlink,
         \link G3D::Queue Queue\endlink,
         \link G3D::Set Set\endlink,
         \link G3D::Table Table\endlink,
