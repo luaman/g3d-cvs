@@ -128,7 +128,7 @@ public:
     static Pointer<T> wrap(Pointer<T> ptr, const T& low, const T& high) {
         debugAssert(high >= low);
         Ptr p = new LogScaleAdapter(ptr, low, high);
-        return Pointer<T>(p, &get, &set);
+        return Pointer<T>(p, &LogScaleAdapter<T>::get, &LogScaleAdapter<T>::set);
     }
 };
 
