@@ -155,13 +155,14 @@ CameraControlWindow::CameraControlWindow(
     GFontRef greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
 
     // The default G3D textbox label doesn't support multiple fonts
-    pane->addLabel(GuiCaption("qf", greekFont, 12))->setPosition(20, 2);
+    pane->addLabel(GuiCaption("q q", greekFont, 12))->setRect(Rect2D::xywh(19, 6, 10, 15));
+    pane->addLabel(GuiCaption("y  x", NULL, 9))->setRect(Rect2D::xywh(24, 12, 10, 9));
     cameraLocationTextBox = 
-        pane->addTextBox("xyz", 
+        pane->addTextBox("xyz",
         Pointer<std::string>(this, &CameraControlWindow::cameraLocation, 
                                    &CameraControlWindow::setCameraLocation));
     cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 246, 24));
-    cameraLocationTextBox->setCaptionSize(36);
+    cameraLocationTextBox->setCaptionSize(38);
 
     const char* DOWN = "6";
     const char* CHECK = "\x98";
@@ -184,7 +185,7 @@ CameraControlWindow::CameraControlWindow(
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
 
-    manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 2);
+    manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 3);
 
     trackList = manualPane->addDropDownList("Path", &trackFileIndex, &trackFileArray);
     trackList->setRect(Rect2D::xywh(Vector2(0, trackList->rect().y1() - 25), Vector2(180, trackList->rect().height())));
@@ -313,7 +314,7 @@ std::string CameraControlWindow::cameraLocation() const {
     UprightFrame uframe(cframe);
     
     // \xba is the character 186, which is the degree symbol
-    return format("(% 5.1f, % 5.1f, % 5.1f), % 5.0f\xba, % 5.0f\xba", 
+    return format("(% 5.1f, % 5.1f, % 5.1f), % 5.1f\xba, % 5.1f\xba", 
                   uframe.translation.x, uframe.translation.y, uframe.translation.z, 
                   toDegrees(uframe.yaw), toDegrees(uframe.pitch));
 }
@@ -326,13 +327,13 @@ void CameraControlWindow::setCameraLocation(const std::string& s) {
         UprightFrame uframe;
         uframe.translation.deserialize(t);
         t.readSymbol(",");
-        uframe.yaw = t.readNumber();
+        uframe.yaw = toRadians(t.readNumber());
         std::string DEGREE = "\xba";
         if (t.peek().string() == DEGREE) {
             t.readSymbol();
         }
         t.readSymbol(",");
-        uframe.pitch = t.readNumber();
+        uframe.pitch = toRadians(t.readNumber());
         if (t.peek().string() == DEGREE) {
             t.readSymbol();
         }
@@ -426,7 +427,8 @@ void CameraControlWindow::setBookmarkFile(const std::string& filename) {
 }
 
 
-void CameraControlWindow::setBookmark(const std::string& name, const CoordinateFrame& frame) {
+void CameraControlWindow::setBookmark(const std::string& name, 
+                                      const CoordinateFrame& frame) {
     for (int i = 0; i < m_bookmarkName.size(); ++i) {
         if (m_bookmarkName[i] == name) {
             m_bookmarkPosition[i] = frame;
@@ -453,7 +455,10 @@ void CameraControlWindow::removeBookmark(const std::string& name) {
 }
 
 
-CoordinateFrame CameraControlWindow::bookmark(const std::string& name, const CoordinateFrame& defaultValue) const {
+CoordinateFrame CameraControlWindow::bookmark
+(const std::string& name, 
+ const CoordinateFrame& defaultValue) const {
+
     for (int i = 0; i < m_bookmarkName.size(); ++i) {
         if (m_bookmarkName[i] == name) {
             return m_bookmarkPosition[i];
@@ -477,6 +482,8 @@ void CameraControlWindow::updateTrackFiles() {
     trackFileArray.fastClear();
     trackFileArray.append(noSpline);
     getFiles("*.trk", trackFileArray);
+
+    // Element 0 is <unsaved>, so skip it
     for (int i = 1; i < trackFileArray.size(); ++i) {
         trackFileArray[i] = trackFileArray[i].substr(0, trackFileArray[i].length() - 4);
     }

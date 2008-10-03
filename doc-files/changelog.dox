@@ -138,6 +138,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Changed all of the isXXX(char) methods to take unsigned char arguments so that they can parse extended symbols
      <li> Fix: AABSPTree::deserializeStructure was missing a return statement [Derex]
      <li> Fix: Draw::plane was drawing the plane reflected through the origin [Macklin Chaffee]
      <li> Fix: Added template parameters to friends in AABSPTree and PointAABSPTree [expiring_frog]

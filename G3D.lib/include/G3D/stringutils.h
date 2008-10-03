@@ -91,36 +91,36 @@ std::string trimWhitespace(
 /** These standard C functions are renamed for clarity/naming
    conventions and to return bool, not int.
    */
-inline bool isWhiteSpace(const char c) {
+inline bool isWhiteSpace(const unsigned char c) {
     return isspace(c) != 0;
 }
 
 /** These standard C functions are renamed for clarity/naming
    conventions and to return bool, not int.
    */
-inline bool isNewline(const char c) {
+inline bool isNewline(const unsigned char c) {
     return (c == '\n') || (c == '\r');
 }
 
 /** These standard C functions are renamed for clarity/naming
    conventions and to return bool, not int.
    */
-inline bool isDigit(const char c) {
+inline bool isDigit(const unsigned char c) {
     return isdigit(c) != 0;
 }
 
 /** These standard C functions are renamed for clarity/naming
    conventions and to return bool, not int.
    */
-inline bool isLetter(const char c) {
+inline bool isLetter(const unsigned char c) {
     return isalpha(c) != 0;
 }
 
-inline bool isSlash(const char c) {
+inline bool isSlash(const unsigned char c) {
     return (c == '\\') || (c == '/');
 }
 
-inline bool isQuote(const char c) {
+inline bool isQuote(const unsigned char c) {
     return (c == '\'') || (c == '\"');
 }
 

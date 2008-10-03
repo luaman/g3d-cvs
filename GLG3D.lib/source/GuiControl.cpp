@@ -76,6 +76,8 @@ float GuiControl::captionSize() const {
 
 void GuiControl::setCaptionSize(float c) {
     m_captionSize = c;
+    // Update the click rect bounds
+    setRect(rect());
 }
 
 void GuiControl::setPosition(float x, float y) {
