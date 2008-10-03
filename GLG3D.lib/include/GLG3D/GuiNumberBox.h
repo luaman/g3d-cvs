@@ -201,7 +201,7 @@ protected:
         const GuiCaption&       caption, 
         const Pointer<Value>&   value, 
         const GuiCaption&       suffix,
-        bool                    sliderVisible,
+        GuiTheme::SliderScale   scale,
         Value                   minValue, 
         Value                   maxValue,
         Value                   roundIncrement) :
@@ -216,11 +216,11 @@ protected:
 
         debugAssert(m_roundIncrement >= 0);
 
-        if (sliderVisible) {
+        if (scale != GuiTheme::NO_SLIDER) {
             debugAssertM(m_minValue > -inf() && m_maxValue < inf(), 
                 "Cannot have a NumberBox with infinite bounds and a slider");
 
-            m_slider = new GuiSlider<Value>(this, "", value, m_minValue, m_maxValue, true, this);
+            m_slider = new GuiSlider<Value>(this, "", value, m_minValue, m_maxValue, true, scale, this);
         }
 
         m_textBox = new MyTextBox(this, "", &m_textValue, GuiTextBox::DELAYED_UPDATE);

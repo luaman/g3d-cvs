@@ -2,7 +2,7 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2008-07-25
+ @edited  2008-10-03
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2008, Morgan McGuire, morgan@cs.williams.edu
@@ -224,12 +224,12 @@ public:
         const GuiCaption&   text, 
         const Pointer<Value>& value, 
         const GuiCaption&   suffix = "", 
-        bool                showSlider = false, 
+        GuiTheme::SliderScale sliderScale = GuiTheme::NO_SLIDER, 
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
         Value               roundIncrement = 0) {
 
-        return addControl(new GuiNumberBox<Value>(this, text, value, suffix, showSlider, 
+        return addControl(new GuiNumberBox<Value>(this, text, value, suffix, sliderScale, 
                                                   min, max, roundIncrement));
     }
 
@@ -238,25 +238,55 @@ public:
         const GuiCaption&   text, 
         Value*              value, 
         const GuiCaption&   suffix = "", 
-        bool                showSlider = false, 
+        GuiTheme::SliderScale sliderScale = GuiTheme::NO_SLIDER, 
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
         Value               roundIncrement = 0) {
 
         return addControl(new GuiNumberBox<Value>(this, text, Pointer<Value>(value), 
-                                                  suffix, showSlider, min, max, roundIncrement));
+                                                  suffix, sliderScale, min, max, roundIncrement));
+    }
+
+    /** @deprecated Use the new version with a GuiTheme::SliderScale argument.*/
+    template<typename Value>
+    GuiNumberBox<Value>* addNumberBox(
+        const GuiCaption&   text, 
+        Value*              value, 
+        const GuiCaption&   suffix = "", 
+        bool                showSlider = false,
+        Value               min = (Value)minVal(Value()), 
+        Value               max = (Value)maxVal(Value()), 
+        Value               roundIncrement = 0) {
+
+        return addControl(new GuiNumberBox<Value>(this, text, Pointer<Value>(value), 
+            suffix, showSlider ? GuiTheme::LINEAR_SLIDER : GuiTheme::NO_SLIDER, min, max, roundIncrement));
+    }
+
+    /** @deprecated Use the new version with a GuiTheme::SliderScale argument.*/
+    template<typename Value>
+    GuiNumberBox<Value>* addNumberBox(
+        const GuiCaption&   text, 
+        const Pointer<Value>& value, 
+        const GuiCaption&   suffix = "", 
+        bool  showSlider = false, 
+        Value               min = (Value)minVal(Value()), 
+        Value               max = (Value)maxVal(Value()), 
+        Value               roundIncrement = 0) {
+
+        return addControl(new GuiNumberBox<Value>(this, text, value, suffix, showSlider ? GuiTheme::LINEAR_SLIDER : GuiTheme::NO_SLIDER, 
+                                                  min, max, roundIncrement));
     }
 
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, 
-                                Value min, Value max, bool horizontal = true) {
-        return addControl(new GuiSlider<Value>(this, text, value, min,  max, horizontal));
+        Value min, Value max, bool horizontal = true, GuiTheme::SliderScale scale = GuiTheme::LINEAR_SLIDER) {
+        return addControl(new GuiSlider<Value>(this, text, value, min,  max, horizontal, scale));
     }
 
     template<typename Value>
     GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, 
-                                Value min, Value max, bool horizontal = true) {
-        return addSlider(text, Pointer<Value>(value), min,  max, horizontal);
+                                Value min, Value max, bool horizontal = true, GuiTheme::SliderScale scale = GuiTheme::LINEAR_SLIDER) {
+        return addSlider(text, Pointer<Value>(value), min, max, horizontal, scale);
     }
 
     /**

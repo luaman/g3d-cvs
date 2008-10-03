@@ -86,6 +86,8 @@ public:
 
     typedef ReferenceCountedPointer<class GuiTheme> Ref;
 
+    /** Scale for sliders */
+    enum SliderScale {NO_SLIDER, LINEAR_SLIDER, LOG_SLIDER};
 
     /** Controls the appearance of the window's borders and background.
         NORMAL - regular border and title

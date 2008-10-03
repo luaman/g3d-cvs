@@ -42,10 +42,18 @@ public:
 App::App(const GApp::Settings& settings) : GApp(settings) {
 }
 
+enum None {NONE};
+enum Scale {LOG, LINEAR};
+typedef int Both;
+
+Both x = NONE;
+
 void App::onInit() {
 
-    for (int i= 0;i < 10000; ++i) {
-        points.append(Vector3::random());
+    setDesiredFrameRate(20);
+
+    for (int i= 0;i < 1000; ++i) {
+        points.append(Vector3::cosRandom(Vector3::unitY()));
     }
 
     ifsModel = IFSModel::fromFile("c:/temp/db/2/m213/m213.off");
@@ -71,8 +79,22 @@ void App::onInit() {
     debugPane->addTextBox("", &text);        // Align the text box to the left
     debugWindow->setVisible(true);
 
-    static float f = 3.5;
-    debugPane->addNumberBox("Time", &f, "s", true, 0.0f, 10.0f, 0.5f);
+    static float f = 0.5f;
+
+    float low = 0.0f;
+    float high = 100.0f;
+/*
+    Pointer<float> ptr(&f);
+    
+    Pointer<float> ptr2 = LogScaleAdapter<float>::wrap(ptr, low, high);
+//    debugPane->addSlider("Log", ptr2, low, high);
+//    debugPane->addSlider("Linear", ptr, low, high);
+    debugPane->addNumberBox("Log", ptr2, "s", true, low, high);
+    debugPane->addNumberBox("Linear", ptr, "s", true, low, high);
+    */
+    debugPane->addNumberBox("Log", &f, "s", GuiTheme::LOG_SLIDER, low, high);
+    debugPane->addNumberBox("Linear", &f, "s", GuiTheme::LINEAR_SLIDER, low, high);
+//    debugPane->addNumberBox("Exposure", &f, "s", true, 0.1f, 1000.0f, 0.5f);
 
 
     static Array<std::string> list;
