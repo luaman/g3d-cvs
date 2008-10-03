@@ -5,7 +5,7 @@
  @edited  2007-06-21
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2007, Morgan McGuire morgan@users.sf.net
+ Copyright 2001-2008, Morgan McGuire morgan@users.sf.net
  All rights reserved.
 */
 #ifndef G3D_GUIWINDOW_H
@@ -64,6 +64,7 @@ typedef ReferenceCountedPointer<class GuiWindow> GuiWindowRef;
         pane->addCheckBox("Is my friend", &player, &Person::getIsMyFriend, &Person::setIsMyFriend);
         pane->addRadioButton("Male", Person::MALE, &player.gender);
         pane->addRadioButton("Female", Person::FEMALE, &player.gender);
+        pane->addNumberBox<int>("Age", &player.age, "yrs", true, 1, 100);
         player.height = 1.5;
         pane->addSlider("Height", &player.height, 1.0f, 2.2f);
         GuiButton* invite = pane->addButton("Invite");
