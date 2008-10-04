@@ -202,11 +202,12 @@ class, or let G3D::GApp provide the entire structure for your program.  For exam
 you might want to use the G3D::Vector3 and other low-level classes but provide your
 own rendering state abstraction, or use DirectX instead of OpenGL.
 
-Most %G3D programs need not access OpenGL directly.  However, you can always execute OpenGL
-functions directly and mix them with RenderDevice calls <B>as long as you restore 
-GL state afterwards.</B>  If you change the GL state and do not restore it, RenderDevice
-will assume nothing has changed and may become corrupted.  Most classes, like Texture, expose
-the relevant OpenGL handles so you can work with them directly as needed.
+Most %G3D programs need not access OpenGL directly.  However, you can
+always execute OpenGL functions directly and mix them with
+RenderDevice calls. To ensure that the G3D::RenderDevice is properly
+synchronized, wrap this code in G3D::RenderDevice::beginOpenGL,
+G3D::RenderDevice::endOpenGL.  Most classes, like Texture, expose the
+relevant OpenGL handles so you can work with them directly as needed.
 
 The routines are packaged as two static libraries, %G3D and GLG3D, so that you can use 
 the low-level vector math without bringing in any of the OpenGL code.

@@ -31,7 +31,7 @@ private:
     /** Maximum number of cached Gaussian shaders. A random replacement
         strategy is used, and shaders that are not in use even if not
         replaced should be swapped to main memory by the graphics driver. */
-    enum {MAX_CACHE_SIZE = 10};
+    enum {MAX_CACHE_SIZE = 8};
 
     /**
      Cached shaders, indexed by filter width.  This cache does not need threadsafe access

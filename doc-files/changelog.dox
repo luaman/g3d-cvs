@@ -26,6 +26,7 @@
      <li> Clarified G3D::Any file format in documentation
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
+     <li> Adjusted standard deviation used in G3D::GaussianBlur to provide smoother filtering
      <li> Put HashTrait and EqualsTrait in their own headers separate from Table.h
      <li> ArticulatedModel::facet
      <li> ReferenceCountedPointer now asserts that the pointer is not NULL on method invocation
