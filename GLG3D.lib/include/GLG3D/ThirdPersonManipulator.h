@@ -189,8 +189,16 @@ typedef ReferenceCountedPointer<class ThirdPersonManipulator> ThirdPersonManipul
 
 /**
   By default, the ThirdPersonManipulator moves an object relative to its own axes.
-  To move the object relative to the world axes, use setOffsetFrame.  getFrame()
-  will still return the frame for the object, but the 
+  To move the object relative to the world axes, use setOffsetFrame.
+
+  To manipulate an object, set that object's coordinate frame to the frame(), as in:
+
+  <code>
+  PosedModel::Ref posedModel = model->pose(manipulator->frame());
+  </code>
+  
+  (see the shader demo for an example)
+
 
 
   Examples:
@@ -210,25 +218,6 @@ typedef ReferenceCountedPointer<class ThirdPersonManipulator> ThirdPersonManipul
     manipulator.setControlFrame(CoordinateFrame(obj.translation));
   </pre>
 
- TODO:
-  track-ball rotation circle
-     draw
-     drag
-  
-  center translate
-     draw 
-     drag
-
-  shift key 
-    for integer-size increments
-    45-degrees
-    close to axes
-
-  clip to near plane
-  enable/disable
-
-  double-axis 
-     drag  
  */
 class ThirdPersonManipulator : public Manipulator {
 private:
@@ -360,11 +349,10 @@ public:
         Changes the value of frame() constant. */
     void setControlFrame(const CoordinateFrame& c);
 
+    /** */
     void getControlFrame(CoordinateFrame& c) const;
 
-     /** 
-       Moves the object and the control in world space.
-       */
+    /** @brief Moves the object and the control in world space. */
     void setFrame(const CoordinateFrame& c);
 
     /** Returns the object's new frame */

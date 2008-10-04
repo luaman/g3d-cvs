@@ -650,7 +650,6 @@ void ThirdPersonManipulator::setFrame(const CoordinateFrame& c) {
 }
 
 
-/** Returns the object's new frame */
 void ThirdPersonManipulator::getFrame(CoordinateFrame& c) const {
     c = m_controlFrame * m_offsetFrame;
 }
