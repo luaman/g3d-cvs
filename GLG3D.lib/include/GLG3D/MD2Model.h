@@ -130,6 +130,8 @@ public:
                 time -= t0;
             }
         }
+
+        inline virtual ~Pose() {}
         
         bool operator==(const Pose& other) const;
         bool operator!=(const Pose& other) const;
