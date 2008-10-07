@@ -4,11 +4,11 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2003-04-05
- @edited  2004-03-14
+ @edited  2008-10-06
 
  @cite Random point method by  Greg Turk, Generating random points in triangles.  In A. S. Glassner, ed., Graphics Gems, pp. 24-28. Academic Press, 1990
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
  */
 
@@ -19,6 +19,7 @@
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
 #include "G3D/Plane.h"
+#include "G3D/BoundsTrait.h"
 #include "G3D/debugAssert.h"
 #include <string>
 
@@ -39,14 +40,15 @@ private:
 
     /** edgeDirection[i] is the normalized vector v[i+1] - v[i] */
     Vector3                     edgeDirection[3];
-    double                      edgeMagnitude[3];
+    float                       edgeMagnitude[3];
     Plane                       _plane;
     Vector3::Axis               _primaryAxis;
 
     /** vertex[1] - vertex[0] */
-    Vector3                     edge01;
+    Vector3                     _edge01;
+
     /** vertex[2] - vertex[0] */
-    Vector3                     edge02;
+    Vector3                     _edge02;
 
     float                       _area;
 
@@ -70,7 +72,17 @@ public:
         return _vertex[n];
     }
 
-    double area() const;
+    /** vertex[1] - vertex[0] */
+    inline const Vector3& edge01() const {
+        return _edge01;
+    }
+
+    /** vertex[2] - vertex[0] */
+    inline const Vector3& edge02() const {
+        return _edge02;
+    }
+
+    float area() const;
 
     Vector3::Axis primaryAxis() const {
         return _primaryAxis;
@@ -105,7 +117,7 @@ public:
         return
             _vertex[0].hashCode() +
             (_vertex[1].hashCode() >> 2) +
-            _vertex[2].hashCode();
+            (_vertex[2].hashCode() >> 3);
     }
 
     void getBounds(class AABox&) const;
@@ -114,10 +126,15 @@ public:
 
 } // namespace G3D
 
+/** @deprecated */
 template <>
-struct GHashCode<G3D::Triangle>
-{
+struct GHashCode<G3D::Triangle> {
     size_t operator()(const G3D::Triangle& key) const { return key.hashCode(); }
+};
+
+
+template<> struct BoundsTrait<class G3D::Triangle> {
+    static void getBounds(const G3D::Triangle& t, G3D::AABox& out) { t.getBounds(out); }
 };
 
 #endif

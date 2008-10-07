@@ -149,7 +149,7 @@ public:
     inline float intersectionTime(const Triangle& triangle) const {
         return intersectionTime(
             triangle.vertex(0), triangle.vertex(1), triangle.vertex(2),
-            triangle.edge01, triangle.edge02);
+            triangle.edge01(), triangle.edge02());
     }
 
     inline float intersectionTime(
@@ -158,7 +158,7 @@ public:
         double&         w1,
         double&         w2) const {
         return intersectionTime(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2),
-            triangle.edge01, triangle.edge02, w0, w1, w2);
+            triangle.edge01(), triangle.edge02(), w0, w1, w2);
     }
 
     /** Refracts about the normal

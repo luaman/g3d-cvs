@@ -61,10 +61,6 @@ template<> struct BoundsTrait<class G3D::Box> {
     static void getBounds(const G3D::Box& b, G3D::AABox& out) { b.getBounds(out); }
 };
 
-template<> struct BoundsTrait<class G3D::Triangle> {
-    static void getBounds(const G3D::Triangle& t, G3D::AABox& out) { t.getBounds(out); }
-};
-
 template<> struct BoundsTrait<class G3D::Vector2*> {
     static void getBounds(const G3D::Vector2*& v, G3D::AABox& out) { out = G3D::AABox(G3D::Vector3(*v, 0)); }
 };

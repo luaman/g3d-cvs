@@ -41,8 +41,8 @@ void Triangle::init(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
         }
     }
 
-    edge01 = _vertex[1] - _vertex[0];
-    edge02 = _vertex[2] - _vertex[0];
+    _edge01 = _vertex[1] - _vertex[0];
+    _edge02 = _vertex[2] - _vertex[0];
 
     _primaryAxis = _plane.normal().primaryAxis();
     _area = (float)edgeDirection[0].cross(edgeDirection[2]).magnitude() * (edgeMagnitude[0] * edgeMagnitude[2]);
@@ -84,7 +84,7 @@ void Triangle::deserialize(class BinaryInput& b) {
 }
 
 
-double Triangle::area() const {
+float Triangle::area() const {
     return _area;
 }
 
@@ -116,7 +116,7 @@ Vector3 Triangle::randomPoint() const {
         s = 1.0f - s;
     }
 
-    return edge01 * s + edge02 * t + _vertex[0];
+    return _edge01 * s + _edge02 * t + _vertex[0];
 }
 
 

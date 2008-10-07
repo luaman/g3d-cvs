@@ -25,6 +25,7 @@
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> Clarified G3D::Any file format in documentation
      <li> Texture::PreProcess::gammaAdjust
+     <li> Added Barycentric coordinates to CollisionDetection::isPointInTriangle
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
      <li> Adjusted standard deviation used in G3D::GaussianBlur to provide smoother filtering
@@ -140,6 +141,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> Fix: Changed some doubles to floats in G3D::Triangle
      <li> Fix: Changed all of the isXXX(char) methods to take unsigned char arguments so that they can parse extended symbols
      <li> Fix: AABSPTree::deserializeStructure was missing a return statement [Derex]
      <li> Fix: Draw::plane was drawing the plane reflected through the origin [Macklin Chaffee]

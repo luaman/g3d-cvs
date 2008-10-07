@@ -772,9 +772,10 @@ public:
     static float collisionTimeForMovingSphereFixedTriangle(
         const class Sphere&		sphere,
         const Vector3&		    velocity,
-        const Triangle&       triangle,
+        const Triangle&         triangle,
         Vector3&				outLocation,
-        Vector3&                outNormal = ignore);
+        Vector3&                outNormal = ignore,
+        float                   b[3] = (float*)&ignore);
 
 	/**
 	 Calculates time between the intersection of a moving sphere and a fixed
@@ -940,8 +941,8 @@ public:
 	 and direction can be used in this function if already pre-calculated.  This
 	 prevents doing the same work twice.
 
-	 @param v0 line vertex 1.
-	 @param v1 line vertex 2.
+	 @param v0 line vertex 0.
+	 @param v1 line vertex 1.
      @param edgeDirection The direction of the segment (unit length).
      @param edgeLength The length of the segment.
      @param point External point.
@@ -952,22 +953,22 @@ public:
         const Vector3&			v0,
         const Vector3&			v1,
         const Vector3&          edgeDirection,
-        float                  edgeLength,
+        float                   edgeLength,
         const Vector3&			point);
 
     /**
 	 Finds the closest point on the perimeter of the triangle to an external point;
 	 given a triangle defined by three points v0, v1, & v2, and the external point.
 
-	 @param v0 Triangle vertex 1.
-	 @param v1 Triangle vertex 2.
-	 @param v2 Triangle vertex 3.
+	 @param v0 Triangle vertex 0.
+	 @param v1 Triangle vertex 1.
+	 @param v2 Triangle vertex 2.
 	 @param point External point.
 
 	 @return Closests point to <code>point</code> on the perimeter of the
 	 triangle.
  	*/
-    static Vector3 closestPointToTrianglePerimeter(
+    static Vector3 closestPointOnTrianglePerimeter(
         const Vector3&			v0,
         const Vector3&			v1,
         const Vector3&			v2,
@@ -982,31 +983,34 @@ public:
 	 and direction can be used in this function if already pre-calculated.  This
 	 prevents doing the same work twice.
 
-	 @param v0 Triangle vertex 1.
-	 @param v1 Triangle vertex 2.
-	 @param v2 Triangle vertex 3.
+	 @param v0 Triangle vertex 0.
+	 @param v1 Triangle vertex 1.
+	 @param v2 Triangle vertex 2.
 	 @param point External point.
+     @param edgeIndex The point lies on the edge between v[edgeIndex] and v[(edgeIndex + 1) % 3]
 
 	 @return Closests point to <code>point</code> on the perimeter of the
 	 triangle.
  	*/
-    static Vector3 closestPointToTrianglePerimeter(
+    static Vector3 closestPointOnTrianglePerimeter(
         const Vector3           v[3],
         const Vector3           edgeDirection[3],
-        const double            edgeLength[3],
-        const Vector3&			point);
+        const float             edgeLength[3],
+        const Vector3&			point,
+        int&                    edgeIndex);
 
     /**
 	 Tests whether a point is contained within the triangle defined by
-	 v0, v1, & v2 and its plane's normal.
+	 v0, v1, and v2 and its plane's normal.
 
-	 @param v0 Triangle vertex 1.
-	 @param v1 Triangle vertex 2.
-	 @param v2 Triangle vertex 3.
+	 @param v0 Triangle vertex 0.
+	 @param v1 Triangle vertex 1.
+	 @param v2 Triangle vertex 2.
 	 @param normal Normal to triangle's plane.
 	 @param point The point in question.
 	 @param primaryAxis Primary axis of triangle.  This will be detected
 	        if not given. This parameter is provided as an optimization.
+     @param b Barycentric coordinates; b[i] is the weight on v[i]
 
 	 @return true  - if point is inside the triangle.
 	 @return false - otherwise
@@ -1016,8 +1020,21 @@ public:
         const Vector3&			v1,
         const Vector3&			v2,
         const Vector3&			normal,
+        const Vector3&          point,
+        float                   b[3],
+        Vector3::Axis           primaryAxis = Vector3::DETECT_AXIS);
+
+    inline static bool isPointInsideTriangle(
+        const Vector3&			v0,
+        const Vector3&			v1,
+        const Vector3&			v2,
+        const Vector3&			normal,
         const Vector3&			point,
-        Vector3::Axis  primaryAxis = Vector3::DETECT_AXIS);
+        Vector3::Axis           primaryAxis = Vector3::DETECT_AXIS) {
+
+        float b[3];
+        return isPointInsideTriangle(v0, v1, v2, normal, point, b, primaryAxis);
+    }
 
      /**
 	  Tests for the intersection of a moving sphere and a fixed box in a

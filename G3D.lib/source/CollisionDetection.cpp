@@ -1513,7 +1513,8 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
     const Vector3&		    velocity,
     const Triangle&         triangle,
     Vector3&				outLocation,
-    Vector3&                outNormal) {
+    Vector3&                outNormal,
+    float                   b[3]) {
 
     Vector3 dummy;
 
@@ -1525,7 +1526,8 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
         return time;
     }
 
-    if (isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), outLocation, triangle.primaryAxis())) {
+    if (isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
+        outLocation, b, triangle.primaryAxis())) {
         // The intersection point is inside the triangle; that is the location where
         // the sphere hits the triangle.
         return time;
@@ -1535,9 +1537,22 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
     // they will hit.
 
     // Closest point on the triangle to the sphere intersection with the plane.
-    Vector3 point = closestPointToTrianglePerimeter(triangle._vertex, triangle.edgeDirection, triangle.edgeMagnitude, outLocation);
+    int edgeIndex;
+    Vector3 point = closestPointOnTrianglePerimeter(triangle._vertex, triangle.edgeDirection, triangle.edgeMagnitude, outLocation, edgeIndex);
 
-    double t = collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
+    float t = collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
+
+    if (t < inf()) {
+        // Compute Barycentric coords
+
+        // Index of the next vertex
+        static const int next[] = {1, 2, 0};
+
+        // Avoid sqrt by taking advantage of the existing edgeDirection unit vector.
+        b[edgeIndex] = (outLocation - triangle._vertex[edgeIndex]).dot(triangle.edgeDirection[edgeIndex]) / triangle.edgeMagnitude[edgeIndex];
+        b[next[edgeIndex]] = 1.0f - b[edgeIndex];
+        b[next[next[edgeIndex]]] = 0.0f;
+    }
 
     // The collision occured at the point, if it occured.  The normal was the plane normal,
     // computed above.
@@ -1668,7 +1683,7 @@ Vector3 CollisionDetection::bounceDirection(
 Vector3 CollisionDetection::slideDirection(
     const Sphere&   sphere,
     const Vector3&  velocity,
-    const float      collisionTime,
+    const float     collisionTime,
     const Vector3&  collisionLocation) {
 
     Vector3 sphereLocation  = sphere.center + velocity * collisionTime;
@@ -1715,7 +1730,7 @@ Vector3 CollisionDetection::closestPointOnLineSegment(
 }
 
 
-Vector3 CollisionDetection::closestPointToTrianglePerimeter(
+Vector3 CollisionDetection::closestPointOnTrianglePerimeter(
     const Vector3&			v0, 
     const Vector3&			v1,
     const Vector3&			v2,
@@ -1723,28 +1738,30 @@ Vector3 CollisionDetection::closestPointToTrianglePerimeter(
     
     Vector3 v[3] = {v0, v1, v2};
     Vector3 edgeDirection[3] = {(v1 - v0), (v2 - v1), (v0 - v2)};
-    double edgeLength[3];
+    float   edgeLength[3];
     
     for (int i = 0; i < 3; ++i) {
         edgeLength[i] = edgeDirection[i].magnitude();
         edgeDirection[i] /= edgeLength[i];
     }
 
-    return closestPointToTrianglePerimeter(v, edgeDirection, edgeLength, point);
+    int edgeIndex;
+    return closestPointOnTrianglePerimeter(v, edgeDirection, edgeLength, point, edgeIndex);
 }
 
 
-Vector3 CollisionDetection::closestPointToTrianglePerimeter(
+Vector3 CollisionDetection::closestPointOnTrianglePerimeter(
     const Vector3   v[3],
     const Vector3   edgeDirection[3],
-    const double    edgeLength[3],
-    const Vector3&  point) {
+    const float     edgeLength[3],
+    const Vector3&  point,
+    int&            edgeIndex) {
 
     // Closest point on each segment
     Vector3 r[3];
 
     // Distance squared
-    double d[3];
+    float d[3];
 
     // Index of the next point
     static int next[] = {1, 2, 0};
@@ -1756,17 +1773,22 @@ Vector3 CollisionDetection::closestPointToTrianglePerimeter(
 
     if (d[0] < d[1]) {
         if (d[0] < d[2]) {
-            return r[0];
+            // Between v0 and v1
+            edgeIndex = 0;
         } else {
-            return r[2];
+            // Between v2 and v0
+            edgeIndex = 2;
         }
     } else {
         if (d[1] < d[2]) {
-            return r[1];
+            // Between v1 and v2
+            edgeIndex = 1;
         } else {
-            return r[2];
+            // Between v2 and v0
+            edgeIndex = 2;
         }
     }
+    return r[edgeIndex];
 }
 
 
@@ -1776,6 +1798,7 @@ bool CollisionDetection::isPointInsideTriangle(
     const Vector3&			v2,
     const Vector3&			normal,
     const Vector3&			point,
+    float                   b[3],
     Vector3::Axis           primaryAxis) {
     
     if (primaryAxis == Vector3::DETECT_AXIS) {
@@ -1809,33 +1832,41 @@ bool CollisionDetection::isPointInsideTriangle(
         break;
     }
 
+    // See if all barycentric coordinates are non-negative
 
-    // 2D area via crossproduct
-    #define AREA2(d, e, f)  (((e)[i] - (d)[i]) * ((f)[j] - (d)[j]) - ((f)[i] - (d)[i]) * ((e)[j] - (d)[j]))
+    // 2D area via cross product
+#   define AREA2(d, e, f)  (((e)[i] - (d)[i]) * ((f)[j] - (d)[j]) - ((f)[i] - (d)[i]) * ((e)[j] - (d)[j]))
 
     // Area of the polygon
-    double  area = AREA2(v0, v1, v2);
+    float area = AREA2(v0, v1, v2);
     if (area == 0) {
+        // This triangle has zero area, so the point must not
+        // be in it unless the triangle point is the test point.
         return (v0 == point);
     }
 
     debugAssert(area != 0);
 
-    double a = AREA2(point, v1, v2) / area;
+    // (avoid normalization until absolutely necessary)
+    b[0] = AREA2(point, v1, v2);
 
-    if (a < 0) {
+    if (b[0] < 0) {
         return false;
     }
 
-    double b = AREA2(v0,  point, v2) / area;
-
-    if ((b < 0) || ((1 - (a + b)) < 0)) {
+    b[1] = AREA2(v0,  point, v2);
+    if (b[1] < 0) {
         return false;
     }
 
-    #undef AREA2
+    float invArea = 1.0f / area;
+    b[0] *= invArea;
+    b[1] *= invArea;
+    b[2] = 1.0f - b[0] - b[1];
 
-    return true;
+#   undef AREA2
+
+    return (b[2] < 0);
 }
 
 
