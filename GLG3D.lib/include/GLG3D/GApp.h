@@ -4,7 +4,7 @@
    @maintainer Morgan McGuire, morgan@graphics3d.com
 
    @created 2003-11-03
-   @edited  2007-07-10
+   @edited  2008-10-07
 */
 
 #ifndef G3D_GAPP_H
@@ -22,11 +22,23 @@
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/DeveloperWindow.h"
 #include "G3D/GThread.h"
+#include "GLG3D/Shape.h"
 
 namespace G3D {
 
 class RenderDevice;
 class UserInput;
+
+/**
+ @brief Schedule a G3D::Shape for later rendering.
+
+ Adds this shape and the specified information to the current G3D::GApp::debugShapeArray, 
+ to be rendered at runtime for debugging purposes.
+
+ @sa debugPrintf, logPrintf, screenPrintf
+ */
+void debugDraw(const ShapeRef& shape, const Color4& solidColor = Color3::white(), 
+               const Color4& wireColor = Color3::black(), const CFrame& frame = CFrame());
 
 //  See @link guideapp @endlink for a discussion of GApp and GApplet. 
 /**
@@ -99,6 +111,28 @@ public:
                      logFilename("log.txt"),useDeveloperTools(true), writeLicenseFile(true) {
         }
     };
+
+    class DebugShape {
+    public:
+        ShapeRef        shape;
+        Color4          solidColor;
+        Color4          wireColor;
+        CFrame          frame;
+    };
+
+    /** @brief Shapes to be rendered each frame.  
+        Added to by G3D::debugDraw.
+        Rendered by drawDebugShapes();
+        Automatically cleared once per frame.
+      */
+    Array<DebugShape>    debugShapeArray;
+
+    /** @brief Draw everything in debugShapeArray.
+        Subclasses should call from onGraphics().
+        This will sort the debugShapeArray from back to front
+        according to the current camera.
+     */
+    void drawDebugShapes();
 
 private:
 
