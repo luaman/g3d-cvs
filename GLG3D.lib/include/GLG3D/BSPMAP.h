@@ -626,7 +626,17 @@ public:
     /** Reserved for future use. Do not call.*/
     void render(GCamera& camera, void* object);
 
-    /** @param Returns the triangles in the map for use outside of this class.
+    /** @brief Returns the triangles in the map for use outside of this class.
+
+        The @a outVertexArray, @a outNormalArray,  @a outTexCoordArray, and @a outLightCoordArray
+        are parallel arrays
+        that are the source data for an indexed triangle list.
+        Every three sequential values in @a outIndexArray are the indices into those
+
+        @a textureMapIndexArray has length <code>outIndexArray.size()/3</code>. It specifies
+        the index of the texture in @a outTextureMapArray to use for each triangle. 
+        @a outLightMapIndexArray is a parallel array to @a textureMapIndexArray that specifies
+        the index of the light map.
         */
     void getTriangles(
         Array<Vector3>&       outVertexArray,

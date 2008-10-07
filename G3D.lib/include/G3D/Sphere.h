@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
  @created 2001-06-02
- @edited  2004-07-05
+ @edited  2008-10-07
  */
 
 #ifndef G3D_SPHERE_H
@@ -119,6 +119,16 @@ public:
     void getBounds(class AABox& out) const;
 
     bool intersects(const Sphere& other) const;
+
+    /** Translates the sphere */
+    Sphere operator+(const Vector3& v) const {
+        return Sphere(center + v, radius);
+    }
+
+    /** Translates the sphere */
+    Sphere operator-(const Vector3& v) const {
+        return Sphere(center - v, radius);
+    }
 };
 
 }
