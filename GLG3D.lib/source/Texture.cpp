@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2006-08-08
+ @edited  2008-10-08
 */
 
 #include "G3D/Log.h"
@@ -51,9 +51,9 @@ static void glStatePop() {
 }
 
 /**
- Scales the intensity up or down of an entire image.
+ Scales the intensity up or down of an entire image and gamma corrects.
  */
-static void brightenImage(ImageFormat::Code fmt, void* byte, int n, float brighten);
+static void brightenImage(ImageFormat::Code fmt, void* byte, int n, float brighten, float gamma);
 
 static GLenum dimensionToTarget(Texture::Dimension d);
 
@@ -349,7 +349,7 @@ Texture::Ref Texture::fromFile(
                    dimension,
                    settings,
                    preProcess);
-
+    
     return t;
 }
 
@@ -534,7 +534,7 @@ Texture::Ref Texture::fromMemory(
         debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D");
     }
 
-    if (preProcess.brighten != 1.0f) {
+    if (preProcess.brighten != 1.0f || preProcess.gammaAdjust != 1.0f) {
 
         debugAssert(
             (bytesFormat->code == ImageFormat::CODE_RGB8) ||
@@ -567,7 +567,8 @@ Texture::Ref Texture::fromMemory(
                         bytesFormat->code,
                         const_cast<void*>(face[f]),
                         numBytes,
-                        preProcess.brighten);
+                        preProcess.brighten,
+                        preProcess.gammaAdjust);
                 }
             }
         }
@@ -1712,7 +1713,7 @@ static void createMipMapTexture(
 }
 
 
-static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brighten) {
+static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brighten, float gamma) {
 
     debugAssert(
         (fmt == ImageFormat::CODE_RGB8) ||
@@ -1723,7 +1724,8 @@ static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brigh
     // Make a lookup table
     uint8 bright[256];
     for (int i = 0; i < 256; ++i) {
-        bright[i] = iClamp(iRound(i * brighten), 0, 255);
+        float s = pow((i * brighten) / 255.0f, gamma) * 255;
+        bright[i] = iClamp(iRound(s), 0, 255);
     }
 
     int skipAlpha = 0;

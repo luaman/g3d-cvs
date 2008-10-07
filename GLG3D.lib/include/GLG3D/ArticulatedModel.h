@@ -252,7 +252,7 @@ public:
          */
         void render(RenderDevice* rd, const CoordinateFrame& parent, const Pose& pose) const;
 
-		/** Called by ArticulatedModel::pose */
+        /** Called by ArticulatedModel::pose */
         void pose(
             ArticulatedModelRef     model,
             int                     partIndex,

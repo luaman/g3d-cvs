@@ -587,9 +587,15 @@ public:
     void checkCollision(Vector3& pos, Vector3& vel, Vector3& extent);
 
     /**
-     Returns null if an error occurs while loading.
-     @param path to the Quake 3 resource directory (i.e. the directory that contains the "maps" subdir).  End in a "/" 
+     Returns NULL if an error occurs while loading.
+
+     @param path to the Quake 3 resource directory (i.e., the
+     directory that contains the "maps" subdir. This is the .pk3 file
+     if working from a compressed map file.
+
      @param fileName Name of the .bsp file; include the extension
+
+     @param scale Multiply all vertices by this scale factor on load.
      */
     static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f);
 
@@ -608,9 +614,11 @@ public:
     }
 
     /**
-     Draws the scene from the perspective of the camera.
+     @brief Draws the scene from the perspective of the camera.
      */
     void render(RenderDevice* renderDevice, const GCamera& camera);
+
+    /** Reserved for future use. Do not call.*/
     void render(GCamera& camera, void* object);
 
     /** Returns the triangles in the map for use outside of this class.

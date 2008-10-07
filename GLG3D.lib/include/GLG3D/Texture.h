@@ -230,13 +230,26 @@ public:
     class PreProcess {
     public:
 
-        /** Amount to brighten colors by (e.g., useful for Quake textures, which are dark). 
-            Brightening happens first of all preprocessing.
+        /** Amount to brighten colors by (e.g., useful for Quake
+            textures, which are dark).  Brightening happens first of
+            all preprocessing.
          */
         float                       brighten;
 
-        /** Amount to resize images by before loading onto the graphics card to save memory; 
-            typically a negative power of 2 (e.g., 1.0, 0.5, 0.25). Scaling happens last of all preprocessing.*/
+        /**
+           After brightening, each (unit-scale) pixel is raised to
+           this power. Many textures are drawn to look good
+           when displayed on the screen, which means that they
+           are drawn with gamma ~= 2.0. For realistic rendering,
+           textures should have gamma = 1.0. Set gammaAdjust to
+           the value that the texture was drawn for.
+         */
+        float                       gammaAdjust;
+
+        /** Amount to resize images by before loading onto the
+            graphics card to save memory; typically a negative power
+            of 2 (e.g., 1.0, 0.5, 0.25). Scaling happens last of all
+            preprocessing.*/
         float                       scaleFactor;
 
         /** If true, treat the input as a monochrome bump map and compute a normal map from
@@ -251,7 +264,8 @@ public:
 
         bool                        normalMapScaleHeightByNz;
 
-        PreProcess() : brighten(1.0f), scaleFactor(1.0f), computeNormalMap(false), normalMapLowPassBump(false),
+        PreProcess() : brighten(1.0f), gammaAdjust(1.0f), scaleFactor(1.0f),
+                       computeNormalMap(false), normalMapLowPassBump(false),
                        normalMapWhiteHeightInPixels(-1), normalMapScaleHeightByNz(false) {}
 
         static const PreProcess& defaults() {
@@ -262,6 +276,7 @@ public:
         static const PreProcess& quake() {
             static PreProcess p;
             p.brighten = 2.0f;
+            p.gammaAdjust = 1.6f;
             return p;
         }
 

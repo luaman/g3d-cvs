@@ -445,7 +445,7 @@ ArticulatedModelRef ArticulatedModel::createCornellBox() {
 
     ArticulatedModel::Part& part = model->partArray.next();
     Array<Vector3>& vertex = part.geometry.vertexArray;
-    part.name = "Root";
+    part.name = "root";
 
     float c = -0.275f;
 

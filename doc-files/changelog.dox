@@ -16,7 +16,7 @@
    <ul>
      <li> Video file reading and writing via FFmpeg added
      <li> Added computeBounds method to ArticulatedModel::Part that calls computeBounds on each TriList. Changed updateAll to automatically call computeBounds [Kyle]
-	 <li> Added constructor to Matrix4 to construct a matrix from an upper-left 3x3 submatrix and an upper-right 3x1 submatrix [Kyle]
+     <li> Added constructor to Matrix4 to construct a matrix from an upper-left 3x3 submatrix and an upper-right 3x1 submatrix [Kyle]
      <li> <b>Incompatible change</b>:GApp now calls the onLogic handler before the simulation handlers but after the user input and network handlers
      <li> <b>Incompatible change</b>: Changed GHashCode and other functors to traits.  See \link guidenewuser \endlink.  Added typedefs and adapters to make this mostly backwards compatible.
      <li> Added parallax occlusion mapping to G3D::SuperShader (specify Material::parallaxSteps > 1)
@@ -24,6 +24,7 @@
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> Clarified G3D::Any file format in documentation
+     <li> Texture::PreProcess::gammaAdjust
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
      <li> Adjusted standard deviation used in G3D::GaussianBlur to provide smoother filtering
