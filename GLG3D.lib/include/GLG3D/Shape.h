@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2005-08-10
-  @edited  2006-03-25
+  @edited  2008-10-07
 */
 #ifndef G3D_SHAPE_H
 #define G3D_SHAPE_H
@@ -41,12 +41,12 @@ typedef ReferenceCountedPointer<class Shape> ShapeRef;
 class Shape : public ReferenceCountedObject {
 public:
 
-    enum Type {NONE = 0, MESH = 1, BOX, CYLINDER, SPHERE, RAY, CAPSULE, PLANE, AXES, POINT};
+    enum Type {NONE = 0, MESH = 1, BOX, CYLINDER, SPHERE, RAY, CAPSULE, PLANE, AXES, POINT, TRIANGLE};
 
     static std::string typeToString(Type t);
 
-    virtual Type type() const = 0;
-   
+    virtual Type type() const = 0;    
+
     virtual void render(
         class RenderDevice* rd, 
         const CoordinateFrame& cframe, 
@@ -92,6 +92,18 @@ public:
     virtual const Cylinder& cylinder() const { 
         debugAssertM(false, "Not a cylinder");
         static Cylinder c;
+        return c; 
+    }
+
+    virtual Triangle& triangle() { 
+        debugAssertM(false, "Not a triangle");
+        static Triangle c;
+        return c; 
+    }
+
+    virtual const Triangle& triangle() const { 
+        debugAssertM(false, "Not a triangle");
+        static Triangle c;
         return c; 
     }
 
@@ -314,6 +326,67 @@ public:
 
     virtual Vector3 randomInteriorPoint() const {
         return geometry.randomInteriorPoint();
+    }
+};
+
+/** A single triangle.
+    @sa Mesh */
+class TriangleShape : public Shape {
+private:
+
+    float              radius;    
+    G3D::Triangle      geometry;
+
+public:
+
+    explicit inline TriangleShape(const Triangle& t) : geometry(t) {}
+
+    explicit inline TriangleShape(const Vector3& v0, const Vector3& v1, const Vector3& v2) : geometry(v0, v1, v2) {}
+
+    virtual void render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor = Color4(.5,.5,0,.5), Color4 wireColor = Color3::black());
+
+    virtual Type type() const {
+        return TRIANGLE;
+    }
+
+    virtual Triangle& triangle() { 
+        return geometry;
+    }
+
+    virtual const Triangle& triangle() const { 
+        return geometry;
+    }
+
+    virtual float area() const {
+        return geometry.area();
+    }
+
+    virtual float volume() const {
+        return 0.0f;
+    }
+
+    virtual Vector3 center() const {
+        return geometry.center();
+    }
+
+    virtual AABox boundingAABox() const {
+        AABox aab;
+        geometry.getBounds(aab);
+        return aab;
+    }
+
+    virtual Sphere boundingSphere() const {
+        AABox b = boundingAABox();
+        return Sphere(b.center(), b.extent().max() * 0.5f);
+    }
+
+    virtual void getRandomSurfacePoint(Vector3& P, 
+                                       Vector3& N = Vector3::dummy) const {
+        geometry.getRandomSurfacePoint(P, N);
+    }
+
+    virtual Vector3 randomInteriorPoint() const {
+        return geometry.randomPoint();
     }
 };
 

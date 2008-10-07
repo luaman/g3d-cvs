@@ -98,6 +98,11 @@ public:
     /** Returns a random point in the triangle. */
     Vector3 randomPoint() const;
 
+    inline void getRandomSurfacePoint(Vector3& P, 
+                                       Vector3& N = Vector3::dummy) const {
+        P = randomPoint();
+        N = normal();
+    }
     /**
      For two triangles to be equal they must have
      the same vertices <I>in the same order</I>.

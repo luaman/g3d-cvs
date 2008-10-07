@@ -141,6 +141,7 @@
      <li> Various patches for detecting new CPUs in System.cpp [Corey Taylor]
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
+     <li> G3D::TriangleShape
      <li> Fix: Changed some doubles to floats in G3D::Triangle
      <li> Fix: Changed all of the isXXX(char) methods to take unsigned char arguments so that they can parse extended symbols
      <li> Fix: AABSPTree::deserializeStructure was missing a return statement [Derex]
