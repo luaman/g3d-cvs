@@ -46,6 +46,17 @@ void GApp::vscreenPrintf
     }
 }
 
+void debugDraw(const ShapeRef& shape, const Color4& solidColor, 
+               const Color4& wireColor, const CFrame& frame) {
+    if (lastGApp) {
+        GApp::DebugShape& s = lastGApp->debugShapeArray.next();
+        s.shape = shape;
+        s.solidColor = solidColor;
+        s.wireColor = wireColor;
+        s.frame = frame;
+    }
+}
+
 
 /** Attempt to write license file */
 static void writeLicense() {
@@ -544,12 +555,21 @@ void GApp::oneFrame() {
             renderDebugInfo();
         }
         renderDevice->endFrame();
-        debugText.clear();
+        debugShapeArray.fastClear();
+        debugText.fastClear();
     }
     m_graphicsWatch.tock();
 
     if (m_endProgram && window()->requiresMainLoop()) {
         window()->popLoopBody();
+    }
+}
+
+
+void GApp::drawDebugShapes() {
+    for (int i = 0; i < debugShapeArray.size(); ++i) {
+        const DebugShape& s = debugShapeArray[i];
+        s.shape->render(renderDevice, s.frame, s.solidColor, s.wireColor); 
     }
 }
 

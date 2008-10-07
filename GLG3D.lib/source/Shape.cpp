@@ -15,9 +15,9 @@ namespace G3D {
 
 std::string Shape::typeToString(Type t) {
     const static std::string name[] = 
-    {"NONE", "MESH", "BOX", "CYLINDER", "SPHERE", "RAY", "CAPSULE", "PLANE", "AXES", "POINT"};
+    {"NONE", "MESH", "BOX", "CYLINDER", "SPHERE", "RAY", "CAPSULE", "PLANE", "AXES", "POINT", "TRIANGLE"};
 
-    if (t <= POINT) {
+    if (t <= TRIANGLE) {
         return name[t];
     } else {
         return "";
@@ -185,6 +185,40 @@ void BoxShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 so
     rd->setObjectToWorldMatrix(cframe0);
 }
 
+
+void TriangleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
+    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    rd->pushState();
+        rd->setObjectToWorldMatrix(cframe0 * cframe);
+        rd->setNormal(geometry.normal());
+
+        if (wireColor.a > 0.0f) {
+            rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+            rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
+            rd->setLineWidth(2);
+            rd->beginPrimitive(RenderDevice::TRIANGLES);
+                for (int i = 0; i < 3; ++i) {
+                    rd->sendVertex(geometry.vertex(i));
+                }
+            rd->endPrimitive();
+            rd->setPolygonOffset(-0.2f);
+        }
+        rd->setRenderMode(RenderDevice::RENDER_SOLID);
+
+        if (solidColor.a < 1.0f) {
+            rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+        }
+        rd->setCullFace(RenderDevice::CULL_NONE);
+        rd->enableTwoSidedLighting();
+        rd->setColor(solidColor);
+        rd->beginPrimitive(RenderDevice::TRIANGLES);
+            rd->setNormal(geometry.normal());
+            for (int i = 0; i < 3; ++i) {
+                rd->sendVertex(geometry.vertex(i));
+            }
+        rd->endPrimitive();
+    rd->popState();
+}
 
 void SphereShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
     CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();

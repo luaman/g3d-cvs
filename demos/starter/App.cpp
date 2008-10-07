@@ -119,6 +119,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
         Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());
         Draw::box(AABox(Vector3(-3.0f, -0.5f, -0.5f), Vector3(-2.0f, 0.5f, 0.5f)), rd, Color3::green());
+
+        // Call to make the GApp show the output of debugDraw
+        drawDebugShapes();
     rd->popState();
 
     sky->renderLensFlare(rd, localSky);

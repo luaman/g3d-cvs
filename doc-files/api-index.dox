@@ -17,6 +17,7 @@ href="classes.html">Classes</a>.
   <LI><B>3D Models and Data</B> &nbsp; &nbsp;
     \link G3D::ArticulatedModel ArticulatedModel\endlink,
     \link G3D::_BSPMAP::Map BSPMap\endlink,
+    \link G3D::debugDraw debugDraw\endlink,
     \link G3D::GFont GFont\endlink,
     \link G3D::GLight GLight\endlink,
     \link G3D::GMaterial GMaterial\endlink,

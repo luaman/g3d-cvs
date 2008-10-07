@@ -35,6 +35,8 @@ class UserInput;
  Adds this shape and the specified information to the current G3D::GApp::debugShapeArray, 
  to be rendered at runtime for debugging purposes.
 
+ @beta
+
  @sa debugPrintf, logPrintf, screenPrintf
  */
 void debugDraw(const ShapeRef& shape, const Color4& solidColor = Color3::white(), 
@@ -131,6 +133,8 @@ public:
         Subclasses should call from onGraphics().
         This will sort the debugShapeArray from back to front
         according to the current camera.
+
+        @beta
      */
     void drawDebugShapes();
 
