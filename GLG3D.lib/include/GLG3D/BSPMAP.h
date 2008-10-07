@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2003-05-22
-  @edited  2006-10-31
+  @edited  2008-10-07
 
   @cite http://graphics.stanford.edu/~kekoa/q3/
   @cite http://www.gametutorials.com/Tutorials/OpenGL/Quake3Format.htm
@@ -582,6 +582,8 @@ public:
     
     ~Map();
     
+    /** 
+     */
     void slideCollision(Vector3& pos, Vector3& vel, Vector3& extent);
 
     void checkCollision(Vector3& pos, Vector3& vel, Vector3& extent);
@@ -615,23 +617,26 @@ public:
 
     /**
      @brief Draws the scene from the perspective of the camera.
+
+     @param brightnessScale Multiply precomputed lightmap intensities by this value.
+     Passed as an OpenGL color, so this may be clamped to [0,1] on the GPU.
      */
-    void render(RenderDevice* renderDevice, const GCamera& camera);
+    void render(RenderDevice* renderDevice, const GCamera& camera, float brightnessScale = 1.0f);
 
     /** Reserved for future use. Do not call.*/
     void render(GCamera& camera, void* object);
 
-    /** Returns the triangles in the map for use outside of this class.
+    /** @param Returns the triangles in the map for use outside of this class.
         */
     void getTriangles(
-        Array<Vector3>&     outVertexArray,
-        Array<Vector3>&     outNormalArray,
-        Array<int>&         outIndexArray,
-        Array<Vector2>&     outTexCoordArray,
-        Array<int>&         outTextureMapIndexArray,
-        Array<Vector2>&     outLightCoordArray,
-        Array<int>&         outLightMapIndexArray,
-        Array<int>&         outTexCoordIndexArray,
+        Array<Vector3>&       outVertexArray,
+        Array<Vector3>&       outNormalArray,
+        Array<int>&           outIndexArray,
+        Array<Vector2>&       outTexCoordArray,
+        Array<int>&           outTextureMapIndexArray,
+        Array<Vector2>&       outLightCoordArray,
+        Array<int>&           outLightMapIndexArray,
+        Array<int>&           outTexCoordIndexArray,
         Array<Texture::Ref>&  outTextureMapArray,
         Array<Texture::Ref>&  outLightMapArray) const;
 

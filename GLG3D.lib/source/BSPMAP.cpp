@@ -4,14 +4,11 @@
 @maintainer Morgan McGuire, matrix@graphics3d.com
 
 @created 2003-05-22
-@edited  2006-11-07
+@edited  2008-10-07
 */ 
 
 #include "GLG3D/BSPMAP.h"
 #include "GLG3D/RenderDevice.h"
-
-//extern Log*   debugLog;
-//extern GFont* font;
 
 namespace G3D {
 
@@ -87,7 +84,7 @@ int Map::findLeaf(const Vector3& pt) const {
 	return -(index + 1);
 }
 
-void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera) {
+void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float adjustBrightness) {
     renderDevice->pushState();
 
     renderDevice->resetTextureUnit(0);
@@ -96,9 +93,6 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera) {
     // Move the camera to object space
     GCamera camera = worldCamera;
     camera.setCoordinateFrame(renderDevice->getObjectToWorldMatrix().toObjectSpace(worldCamera.coordinateFrame()));
-
-    // Adjust intensity for tone mapping
-    float adjustBrightness = 1;//0.4; // TODO: make into a rendering/loading parameter
 
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
@@ -431,8 +425,8 @@ void Map::slideCollision(Vector3& pos, Vector3& vel, Vector3& extent) {
 		return;
 	}
 	
-	Vector3 startPos = pos;
-	Vector3 startVel = vel;
+	Vector3 startPos  = pos;
+	Vector3 startVel  = vel;
 	Vector3 normalPos = pos;
 	Vector3 normalVel = vel;
 
@@ -521,16 +515,18 @@ void Map::slide(Vector3& pos, Vector3& vel, Vector3& extent) {
 	Vector3 initPos = pos;
 	Vector3 initVel = vel;
 	Vector3 planeArray[5];
-	float fractionLeft = 1;
+
+	float fractionLeft = 1.0f;
+
 	Vector3 dir;
 	int planesCount = 0;
 	
-	for (int plane = 0; plane < 4; plane++) {
+	for (int plane = 0; plane < 4; ++plane) {
 		
 		fractionLeft -= collision.fraction;
 		Vector3 startPoint = pos;
-		Vector3 endPoint = startPoint+vel;
-		collision = checkMove(startPoint,endPoint,extent);
+		Vector3 endPoint = startPoint + vel;
+		collision = checkMove(startPoint, endPoint, extent);
 
 		if (collision.isSolid) {
 			vel.y = 0;
@@ -555,9 +551,9 @@ void Map::slide(Vector3& pos, Vector3& vel, Vector3& extent) {
 		int i, j;
 		for (i = 0; i < planesCount; i++) {
 		    
-			clipVelocity(vel,planeArray[i],vel,1.01f);
+			clipVelocity(vel, planeArray[i], vel, 1.01f);
 		    
-			for (j = 0; j < planesCount; j++) {
+			for (j = 0; j < planesCount; ++j) {
 				if (j != i) {
 					if (vel.dot(planeArray[j]) < 0) {
 						break;
@@ -594,6 +590,7 @@ void Map::slide(Vector3& pos, Vector3& vel, Vector3& extent) {
 		}
 	}
 }
+
 
 BSPCollision Map::checkMove(Vector3& start, Vector3& end, Vector3& extent) {
 
