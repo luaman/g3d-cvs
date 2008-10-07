@@ -1,0 +1,177 @@
+#! /usr/bin/python
+#
+
+import sys, os, datetime
+from socket import gethostname
+
+if (len(sys.argv) == 1) or (len(sys.argv) > 1 and sys.argv[1] == '--help'):
+   print """
+newclass [--help] [-r] [classname]
+
+Generates a new .cpp and .h template file for a class of the given name.
+The files are written to the current directory unless there is a subdirectory
+named 'source'.
+
+Your name will be read from the 'ph' program, 'finger', or your user
+name. You can hardcode it by manually editing the hash table inside
+the script.
+
+-r   Make the class a G3D::ReferenceCountedObject
+
+Written by Morgan McGuire
+http://cs.williams.edu/~morgan
+Edited 2008-10-06
+"""
+   sys.exit(1)
+
+
+def generate(classname, path, doG3D, doRef, baseclass, programmer):
+    typedef = ''
+    include = ''
+    inherit = ''
+    hbody = ''
+    cbody = ''
+
+    if doRef:
+        typedef += ('class %(classname)s;\ntypedef ' +
+                   'ReferenceCountedPointer<%(classname)s> %(classname)sRef;\n') % {'classname' : classname}
+        if baseclass == '':
+            inherit = ': public ReferenceCountedObject '
+
+        hbody = """protected:
+
+    %(classname)s();
+
+public:
+
+    /** @brief */
+    static %(classname)sRef create();
+""" % {'classname' : classname}
+
+        cbody = """
+%(classname)s::%(classname)s() {
+}
+
+
+%(classname)sRef %(classname)s::create() {
+    return new %(classname)s();
+}
+""" % {'classname' : classname}
+
+
+    if doG3D or doRef:
+        include += '\n#include <G3D/G3DAll.h>\n'
+
+
+    vars = {'classname' : classname,
+            'programmer': programmer,
+            'include'   : include,
+            'typedef'   : typedef,
+            'inherit'   : inherit,
+            'cbody'     : cbody,
+            'hbody'     : hbody,
+            'date'      : datetime.date.today()}
+
+    header = """/**
+ @file   %(classname)s.h
+ @author %(programmer)s
+ @date   %(date)s
+*/
+#ifndef %(classname)s_h
+#define %(classname)s_h
+%(include)s
+%(typedef)s
+/** 
+  @brief
+ */
+class %(classname)s %(inherit)s{
+%(hbody)s
+};
+
+#endif
+""" % vars
+
+    cpp = """/**
+ @file   %(classname)s.cpp
+ @author %(programmer)s
+ @date   %(date)s
+*/
+#include "%(classname)s.h"
+%(cbody)s
+""" % vars
+
+    writeFile(path + classname + '.h', header)
+    writeFile(path + classname + '.cpp', cpp)
+    
+def writeFile(filename, contents):
+    if os.path.exists(filename):
+        print 'Error: ' + filename + ' already exists.'
+        sys.exit(-1)
+
+    print filename
+    f = open(filename, 'w')
+    f.write(contents)
+    f.close()
+
+hostname = gethostname()
+
+# Are we running at Williams College?
+williamsCollege = hostname.endswith('williams.edu')
+
+# Try to pretty print the user's name
+def getUser():
+    # Find the user name and try to pretty-print it
+    user = os.environ['USER']
+
+    # Edit this to add your own hard-coded user name
+    knownUsers ={}
+    
+    if williamsCollege or (hostname == 'mcguire.local'):
+       knownUsers['morgan'] = 'Morgan McGuire, morgan@cs.williams.edu'
+    
+    if user in knownUsers:
+
+        return knownUsers[user]
+    
+    elif williamsCollege:
+        # look up the user in ph (http://www.vub.ac.be/tools/ph.1.html)
+        try:
+            result = commands.getoutput('ph -m unix=' + user + ' return name email').split('\n')
+            # Format is:
+            #----------------------------------------
+            #     name: Ephriam Williams
+            #    email: Ephriam.Williams@williams.edu
+            #----------------------------------------
+            name = result[1].strip()
+            name = name[len('name: '):]
+            email = result[2].strip()
+            email = email[len('email: '):]
+         
+            return name + ', ' + email
+        except:
+            pass
+
+    try:
+        result = commands.getoutput('finger -l').split('\n')
+        name = result[0]
+        i = name.find('Name: ')
+        name = name[i + len('Name: '):]
+        return name
+    except:
+        pass
+        
+    return user
+
+       
+user = getUser()                      
+
+doG3D = True
+doRef = '-r' in sys.argv
+classname = sys.argv[-1]
+
+path = ''
+
+if os.path.exists('source'):
+    path = 'source/'
+
+generate(classname, path, doG3D, doRef, '', user)
