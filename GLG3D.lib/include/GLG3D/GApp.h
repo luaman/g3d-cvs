@@ -357,18 +357,20 @@ public:
 
 private:
     /** Used by doSimulation for elapsed time. */
-    RealTime            now, lastTime;
+    RealTime               now, lastTime;
 
     /** Used by doWait for elapsed time. */
-    RealTime            lastWaitTime;
+    RealTime               lastWaitTime;
 
-    float               m_desiredFrameRate;
-    double              m_simTimeRate;
-    RealTime            m_realTime;
-    SimTime             m_simTime;
-    SimTime             m_idealSimTime;
+    /** FPS for ideal time */
+    float                  m_desiredFrameRate;
 
-    Array<PosedModelRef> m_posed3D;
+    /** SPF for sim time */
+    float                  m_simTimeStep;
+    RealTime               m_realTime;
+    SimTime                m_simTime;
+
+    Array<PosedModelRef>   m_posed3D;
     Array<PosedModel2DRef> m_posed2D;
 
 private:
@@ -405,16 +407,14 @@ public:
     */
     virtual void removeWidget(const Widget::Ref& module);
 
-    /** Amount of time that passes in simTime for every second of realTime.
-        e.g., 1.0 == real-time, 2.0 == fast, 0.5 == slow, 0.0 = stop time.
-        Default is 1.0.
-    */
-    inline double simTimeRate() const {
-        return m_simTimeRate;
+    /** @brief Elapsed time per frame for ideal simulation. Set to 0 to pause
+        simulation, 1/fps to match real-time.*/
+    inline float simTimeStep() const {
+        return m_simTimeStep;
     }
 
-    virtual void setSimTimeRate(double s) {
-        m_simTimeRate = s;
+    virtual void setSimTimeStep(float s) {
+        m_simTimeStep = s;
     }
 
     /** Accumulated wall-clock time since init was called on this applet. 
@@ -434,19 +434,6 @@ public:
     */
     inline SimTime simTime() const {
         return m_simTime;
-    }
-
-    virtual void setIdealSimTime(SimTime s) {
-        m_idealSimTime = s;
-    }
-
-    /**
-       Simulation time that is always advanced by precisely the
-       desiredFrameDuration * simTimeRate, regardless of the 
-       actual frame duration.
-    */
-    inline SimTime idealSimTime() const {
-        return m_idealSimTime;
     }
 
     virtual void setSimTime(SimTime s) {

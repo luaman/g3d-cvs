@@ -1528,8 +1528,28 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
 
     if (isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
         outLocation, b, triangle.primaryAxis())) {
+
         // The intersection point is inside the triangle; that is the location where
         // the sphere hits the triangle.
+
+#       ifdef G3D_DEBUG
+        {
+            // Internal consistency checks
+            debugAssert(b[0] >= 0.0 && b[0] <= 1.0f);
+            debugAssert(b[1] >= 0.0 && b[1] <= 1.0f);
+            debugAssert(b[2] >= 0.0 && b[2] <= 1.0f);
+            Vector3 blend = 
+                b[0] * triangle.vertex(0) + 
+                b[1] * triangle.vertex(1) + 
+                b[2] * triangle.vertex(2);
+            debugAssertM(blend.fuzzyEq(outLocation), "Intersection is outside triangle.");    
+
+            // Call again so that we can debug the problem
+            //isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
+             //outLocation, b, triangle.primaryAxis());
+        }
+#       endif
+
         return time;
     }
 
@@ -1866,7 +1886,7 @@ bool CollisionDetection::isPointInsideTriangle(
 
 #   undef AREA2
 
-    return (b[2] < 0);
+    return (b[2] >= 0) && (b[2] <= 1.0f) && (b[0] <= 1.0f) && (b[1] <= 1.0f);
 }
 
 

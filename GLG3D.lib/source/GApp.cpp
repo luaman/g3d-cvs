@@ -49,6 +49,7 @@ void GApp::vscreenPrintf
 void debugDraw(const ShapeRef& shape, const Color4& solidColor, 
                const Color4& wireColor, const CFrame& frame) {
     if (lastGApp) {
+        debugAssert(shape.notNull());
         GApp::DebugShape& s = lastGApp->debugShapeArray.next();
         s.shape = shape;
         s.solidColor = solidColor;
@@ -70,8 +71,8 @@ static void writeLicense() {
 
 GApp::GApp(const Settings& settings, GWindow* window) :
     lastWaitTime(System::time()),
-    m_desiredFrameRate(2000),
-    m_simTimeRate(1.0), 
+    m_desiredFrameRate(5000),
+    m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
     m_simTime(0) {
 
@@ -208,7 +209,6 @@ GApp::GApp(const Settings& settings, GWindow* window) :
 
     m_simTime     = 0;
     m_realTime    = 0;
-    m_simTimeRate = 1.0;
     lastWaitTime  = System::time();
 }
 
@@ -500,10 +500,9 @@ void GApp::oneFrame() {
     // Simulation
     m_simulationWatch.tick();
     {
-        double rate = simTimeRate();    
         RealTime rdt = timeStep;
-        SimTime  sdt = timeStep * rate;
-        SimTime  idt = desiredFrameDuration() * rate;
+        SimTime  sdt = m_simTimeStep;
+        SimTime  idt = desiredFrameDuration();
 
         onBeforeSimulation(rdt, sdt, idt);
         onSimulation(rdt, sdt, idt);
@@ -516,7 +515,6 @@ void GApp::oneFrame() {
 
         setRealTime(realTime() + rdt);
         setSimTime(simTime() + sdt);
-        setIdealSimTime(idealSimTime() + idt);
     }
     m_simulationWatch.tock();
 
