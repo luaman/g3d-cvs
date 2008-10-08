@@ -762,9 +762,10 @@ public:
 	 @param sphere		Moving sphere.
 	 @param velocity	Sphere's velocity.
 	 @param triangle	Fixed Triangle.
-	 @param location	Location of collision -- not center position of sphere
-	 					at the collision time. [Post Condition]
-	 @param outNormal	Box's surface normal to collision [Post Condition]
+	 @param outLocation	Location of collision, if collision occurs -- not center position of sphere
+	 					at the collision time. If there is interpenetration at the start, this point may be inside
+                        the sphere.
+     @param b           Barycentric coordinates. These are not valid unless collision occurs.
 
 	 @return Time til collision.  If there is no collision then the return
 	         value will be inf().
@@ -774,7 +775,6 @@ public:
         const Vector3&		    velocity,
         const Triangle&         triangle,
         Vector3&				outLocation,
-        Vector3&                outNormal = ignore,
         float                   b[3] = (float*)&ignore);
 
 	/**

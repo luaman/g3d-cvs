@@ -1513,12 +1513,10 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
     const Vector3&		    velocity,
     const Triangle&         triangle,
     Vector3&				outLocation,
-    Vector3&                outNormal,
     float                   b[3]) {
 
     Vector3 dummy;
 
-    outNormal = triangle.normal();
     float time = collisionTimeForMovingSphereFixedPlane(sphere, velocity, triangle.plane(), outLocation, dummy);
 
     if (time == inf()) {
@@ -1535,15 +1533,14 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
 #       ifdef G3D_DEBUG
         {
             // Internal consistency checks
-            debugAssert(b[0] >= 0.0 && b[0] <= 1.0f);
-            debugAssert(b[1] >= 0.0 && b[1] <= 1.0f);
-            debugAssert(b[2] >= 0.0 && b[2] <= 1.0f);
+            debugAssertM(b[0] >= 0.0 && b[0] <= 1.0f, "Intersection is outside triangle.");
+            debugAssertM(b[1] >= 0.0 && b[1] <= 1.0f, "Intersection is outside triangle.");
+            debugAssertM(b[2] >= 0.0 && b[2] <= 1.0f, "Intersection is outside triangle.");
             Vector3 blend = 
                 b[0] * triangle.vertex(0) + 
                 b[1] * triangle.vertex(1) + 
                 b[2] * triangle.vertex(2);
-            debugAssertM(blend.fuzzyEq(outLocation), "Intersection is outside triangle.");    
-
+            debugAssertM(blend.fuzzyEq(outLocation), "Barycentric coords don't match intersection.");
             // Call again so that we can debug the problem
             //isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
              //outLocation, b, triangle.primaryAxis());
@@ -1553,25 +1550,51 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
         return time;
     }
 
+    // The collision (if it exists) is with a point on the triangle perimeter.
     // Switch over to moving the triangle towards a fixed sphere and see at what time
     // they will hit.
 
     // Closest point on the triangle to the sphere intersection with the plane.
     int edgeIndex;
-    Vector3 point = closestPointOnTrianglePerimeter(triangle._vertex, triangle.edgeDirection, triangle.edgeMagnitude, outLocation, edgeIndex);
+    const Vector3& point = closestPointOnTrianglePerimeter(triangle._vertex, triangle.edgeDirection, triangle.edgeMagnitude, outLocation, edgeIndex);
 
     float t = collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
 
     if (t < inf()) {
+        outLocation = point;
         // Compute Barycentric coords
 
         // Index of the next vertex
         static const int next[] = {1, 2, 0};
 
+        // Project along the edge in question.
         // Avoid sqrt by taking advantage of the existing edgeDirection unit vector.
-        b[edgeIndex] = (outLocation - triangle._vertex[edgeIndex]).dot(triangle.edgeDirection[edgeIndex]) / triangle.edgeMagnitude[edgeIndex];
-        b[next[edgeIndex]] = 1.0f - b[edgeIndex];
+        b[next[edgeIndex]] = (outLocation - triangle._vertex[edgeIndex]).dot(triangle.edgeDirection[edgeIndex]) / triangle.edgeMagnitude[edgeIndex];
+        b[edgeIndex] = 1.0f - b[next[edgeIndex]];
         b[next[next[edgeIndex]]] = 0.0f;
+
+#       ifdef G3D_DEBUG
+        {
+            Vector3 toPoint = outLocation - triangle._vertex[edgeIndex];
+            //debugAssert(toPoint.dot(triangle.edgeDirection[edgeIndex])
+
+            // Internal consistency checks
+            debugAssertM(b[0] >= 0.0 && b[0] <= 1.0f, "Intersection is outside triangle.");
+            debugAssertM(b[1] >= 0.0 && b[1] <= 1.0f, "Intersection is outside triangle.");
+            debugAssertM(b[2] >= 0.0 && b[2] <= 1.0f, "Intersection is outside triangle.");
+            Vector3 blend = 
+                b[0] * triangle.vertex(0) + 
+                b[1] * triangle.vertex(1) + 
+                b[2] * triangle.vertex(2);
+            debugAssertM(blend.fuzzyEq(outLocation), 
+                format("Barycentric coords don't match intersection. %s != %s", 
+                    blend.toString().c_str(), 
+                    outLocation.toString().c_str()));    
+
+            // Call again so that we can debug the problem
+            collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
+        }
+#       endif
     }
 
     // The collision occured at the point, if it occured.  The normal was the plane normal,
@@ -1737,14 +1760,20 @@ Vector3 CollisionDetection::closestPointOnLineSegment(
     debugAssert((v1 - v0).direction().fuzzyEq(edgeDirection));
     debugAssert(fuzzyEq((v1 - v0).magnitude(), edgeLength));
 
-    Vector3 c = point - v0;
+    // Vector towards the point
+    const Vector3& c = point - v0;
+
+    // Projected onto the edge itself
     float t = edgeDirection.dot(c);
 
-    if (t < 0) {
+    if (t <= 0) {
+        // Before the start
         return v0;
-    } else if (t > edgeLength) {
+    } else if (t >= edgeLength) {
+        // After the end
         return v1;
     } else {
+        // At distance t along the edge
         return v0 + edgeDirection * t;
     }
 }
@@ -1777,14 +1806,14 @@ Vector3 CollisionDetection::closestPointOnTrianglePerimeter(
     const Vector3&  point,
     int&            edgeIndex) {
 
-    // Closest point on each segment
+    // Closest point on segment from v[i] to v[i + 1]
     Vector3 r[3];
 
-    // Distance squared
+    // Distance squared from r[i] to point
     float d[3];
 
     // Index of the next point
-    static int next[] = {1, 2, 0};
+    static const int next[] = {1, 2, 0};
 
     for (int i = 0; i < 3; ++i) {
         r[i] = closestPointOnLineSegment(v[i], v[next[i]], edgeDirection[i], edgeLength[i], point);
@@ -1808,6 +1837,18 @@ Vector3 CollisionDetection::closestPointOnTrianglePerimeter(
             edgeIndex = 2;
         }
     }
+
+#   ifdef G3D_DEBUG
+    {
+        Vector3 diff = r[edgeIndex] - v[edgeIndex];
+        debugAssertM(fuzzyEq(diff.direction().dot(edgeDirection[edgeIndex]), 1.0f) ||
+            diff.fuzzyEq(Vector3::zero()), "Point not on correct triangle edge");
+        float frac = diff.dot(edgeDirection[edgeIndex])/edgeLength[edgeIndex];
+        debugAssertM(frac >= 0.0, "Point off low side of edge.");
+        debugAssertM(frac <= 1.0, "Point off high side of edge.");
+    }
+#   endif
+
     return r[edgeIndex];
 }
 
@@ -1831,8 +1872,8 @@ bool CollisionDetection::isPointInsideTriangle(
 
     switch (primaryAxis) {
     case Vector3::X_AXIS:
-        i = Vector3::Z_AXIS;
-        j = Vector3::Y_AXIS;
+        i = Vector3::Y_AXIS;
+        j = Vector3::Z_AXIS;
         break;
 
     case Vector3::Y_AXIS:
@@ -1866,6 +1907,7 @@ bool CollisionDetection::isPointInsideTriangle(
     }
 
     debugAssert(area != 0);
+    debugAssertM(area > 0, "Triangle has clockwise winding order");
 
     // (avoid normalization until absolutely necessary)
     b[0] = AREA2(point, v1, v2);
