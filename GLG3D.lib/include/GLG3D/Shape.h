@@ -427,12 +427,12 @@ public:
     }
 
     /** Bounds the graphic representation of the ray */
-    virtual Sphere BoundingSphere() const {
+    virtual Sphere boundingSphere() const {
         return Sphere(geometry.origin + geometry.direction / 2, geometry.direction.magnitude() / 2);
     }
 
     /** Bounds the graphic representation of the ray */
-    virtual AABox BoundingAABox() const {
+    virtual AABox boundingAABox() const {
         debugAssertM(false, "No bounding axis aligned box for ray.");
         static AABox aab;
         return aab;
@@ -487,11 +487,11 @@ public:
     }
 
     /** Returns a bound on the graphic representation of the axes */
-    virtual Sphere BoundingSphere() const {
+    virtual Sphere boundingSphere() const {
         return Sphere(geometry.translation, 1);
     }
 
-    virtual AABox BoundingAABox() const {
+    virtual AABox boundingAABox() const {
         debugAssertM(false, "No bounding axis aligned box for axes.");
         static AABox aab;
         return aab;
