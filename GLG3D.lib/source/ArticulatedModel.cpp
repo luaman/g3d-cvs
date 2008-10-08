@@ -71,6 +71,9 @@ ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, floa
 
 
 ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const Matrix4& xform) {
+    debugAssertM(fileExists(filename),
+        filename + " cannot be loaded by ArticulatedModel because it does not exist.");
+
     ArticulatedModel* model = new ArticulatedModel();
 
     if (endsWith(toLower(filename), ".3ds")) {
