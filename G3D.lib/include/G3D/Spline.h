@@ -130,6 +130,7 @@ public:
                      "Control points must have monotonically increasing times.");
         time.append(t);
         control.append(c);
+        debugAssert(control.size() == time.size());
     }
 
 
@@ -152,8 +153,8 @@ public:
 
         default:
             append(2 * time[time.size() - 1] - time[time.size() - 2], c);
-
         }
+        debugAssert(control.size() == time.size());
     }
 
     /** Erases all control points and times, but retains the state of 
@@ -286,7 +287,8 @@ public:
        of the time samples by extrapolation or cycling.
      */
     Control evaluate(float s) const {
-        
+        debugAssertM(control.size() == time.size(), "Corrupt spline: wrong number of control points.");
+
         /*
         @cite http://www.gamedev.net/reference/articles/article1497.asp 
         Derivation of basis matrix follows.

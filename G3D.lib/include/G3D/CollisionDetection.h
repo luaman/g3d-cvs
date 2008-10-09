@@ -761,7 +761,7 @@ public:
 
 	 @param sphere		Moving sphere.
 	 @param velocity	Sphere's velocity.
-	 @param triangle	Fixed Triangle.
+	 @param triangle	Fixed Triangle.  (collisions can happen on the back side of the triangle)
 	 @param outLocation	Location of collision, if collision occurs -- not center position of sphere
 	 					at the collision time. If there is interpenetration at the start, this point may be inside
                         the sphere.

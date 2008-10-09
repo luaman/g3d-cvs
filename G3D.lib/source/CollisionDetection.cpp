@@ -1575,13 +1575,10 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
 
 #       ifdef G3D_DEBUG
         {
-            Vector3 toPoint = outLocation - triangle._vertex[edgeIndex];
-            //debugAssert(toPoint.dot(triangle.edgeDirection[edgeIndex])
-
             // Internal consistency checks
-            debugAssertM(b[0] >= 0.0 && b[0] <= 1.0f, "Intersection is outside triangle.");
-            debugAssertM(b[1] >= 0.0 && b[1] <= 1.0f, "Intersection is outside triangle.");
-            debugAssertM(b[2] >= 0.0 && b[2] <= 1.0f, "Intersection is outside triangle.");
+            for (int i = 0; i < 3; ++i) {
+                debugAssertM(fuzzyGe(b[i], 0.0f) && fuzzyLe(b[i], 1.0f), "Intersection is outside triangle.");
+            }
             Vector3 blend = 
                 b[0] * triangle.vertex(0) + 
                 b[1] * triangle.vertex(1) + 
@@ -1595,6 +1592,13 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
             collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
         }
 #       endif
+
+        // Due to tiny roundoffs, these values might be slightly out of bounds.
+        // Ensure that they are legal.  Note that the above debugging code
+        // verifies that we are not clamping truly illegal values.
+        for (int i = 0; i < 3; ++i) {
+            b[i] = clamp(b[i], 0.0f, 1.0f);
+        }
     }
 
     // The collision occured at the point, if it occured.  The normal was the plane normal,
@@ -1844,8 +1848,8 @@ Vector3 CollisionDetection::closestPointOnTrianglePerimeter(
         debugAssertM(fuzzyEq(diff.direction().dot(edgeDirection[edgeIndex]), 1.0f) ||
             diff.fuzzyEq(Vector3::zero()), "Point not on correct triangle edge");
         float frac = diff.dot(edgeDirection[edgeIndex])/edgeLength[edgeIndex];
-        debugAssertM(frac >= 0.0, "Point off low side of edge.");
-        debugAssertM(frac <= 1.0, "Point off high side of edge.");
+        debugAssertM(frac >= -0.000001, "Point off low side of edge.");
+        debugAssertM(frac <= 1.000001, "Point off high side of edge.");
     }
 #   endif
 
@@ -1907,28 +1911,26 @@ bool CollisionDetection::isPointInsideTriangle(
     }
 
     debugAssert(area != 0);
-    debugAssertM(area > 0, "Triangle has clockwise winding order");
-
-    // (avoid normalization until absolutely necessary)
-    b[0] = AREA2(point, v1, v2);
-
-    if (b[0] < 0) {
-        return false;
-    }
-
-    b[1] = AREA2(v0,  point, v2);
-    if (b[1] < 0) {
-        return false;
-    }
 
     float invArea = 1.0f / area;
-    b[0] *= invArea;
-    b[1] *= invArea;
+
+    // (avoid normalization until absolutely necessary)
+    b[0] = AREA2(point, v1, v2) * invArea;
+
+    if ((b[0] < 0.0f) || (b[0] > 1.0f)) {
+        return false;
+    }
+
+    b[1] = AREA2(v0,  point, v2) * invArea;
+    if ((b[1] < 0.0f) || (b[1] > 1.0f)) {
+        return false;
+    }
+
     b[2] = 1.0f - b[0] - b[1];
 
 #   undef AREA2
 
-    return (b[2] >= 0) && (b[2] <= 1.0f) && (b[0] <= 1.0f) && (b[1] <= 1.0f);
+    return (b[2] >= 0.0f) && (b[2] <= 1.0f);
 }
 
 

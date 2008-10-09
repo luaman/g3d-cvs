@@ -89,6 +89,7 @@ void SplineBase::computeIndexInBounds(float s, int& i, float& u) const {
 
 void SplineBase::computeIndex(float s, int& i, float& u) const {
     int N = time.size();
+    debugAssertM(N > 0, "No control points");
     float t0 = time[0];
     float tn = time[N - 1];
     

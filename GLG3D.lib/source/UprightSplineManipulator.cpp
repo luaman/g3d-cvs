@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-06-01
-  @edited  2007-06-28
+  @edited  2008-10-08
 */
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
@@ -14,6 +14,7 @@
 #include "GLG3D/Draw.h"
 #include "G3D/Sphere.h"
 #include "G3D/AABox.h"
+#include "G3D/Box.h"
 #include "GLG3D/UprightSplineManipulator.h"
 
 namespace G3D {
@@ -145,12 +146,12 @@ public:
         c = CoordinateFrame();
     }
 
-    virtual void getObjectSpaceBoundingBox (Box &) const {
-        // TODO:
+    virtual void getObjectSpaceBoundingBox(Box& b) const {
+        b = Box(Vector3::minFinite(), Vector3::maxFinite());
     }
 
-    virtual void getObjectSpaceBoundingSphere (Sphere &) const {
-        // TODO:
+    virtual void getObjectSpaceBoundingSphere(Sphere& s) const {
+        s = Sphere(Vector3::zero(), (float)inf());
     }
 
     virtual void getObjectSpaceFaceNormals (Array< Vector3 > &faceNormals, bool normalize=true) const {}
@@ -283,7 +284,7 @@ bool UprightSplineManipulator::onEvent (const GEvent &event) {
         (m_camera != NULL)) {
 
         // Capture data point
-        m_spline.control.append(m_camera->coordinateFrame());
+        m_spline.append(m_camera->coordinateFrame());
         
         // Consume the event
         return true;
@@ -322,7 +323,7 @@ void UprightSplineManipulator::setTime(double t) {
             // We have a camera
             if (m_time * m_sampleRate > m_spline.control.size()) {
                 // Enough time has elapsed to capture a new data point
-                m_spline.control.append(m_camera->coordinateFrame());
+                m_spline.append(m_camera->coordinateFrame());
             }
         }
         break;
