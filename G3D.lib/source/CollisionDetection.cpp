@@ -2092,6 +2092,38 @@ bool CollisionDetection::movingSpherePassesThroughFixedSphere(
 }
 
 
+
+bool CollisionDetection::fixedSolidSphereIntersectsFixedTriangle(
+    const Sphere&           sphere,
+    const Triangle&         triangle) {
+
+    // How far is the sphere from the plane of the triangle
+    const Plane& plane = triangle.plane();
+
+    // Does the closest point to the sphere center lie within the triangle?
+    Vector3 v = plane.closestPoint(sphere.center);
+
+    // Is the closest point to the plane within the sphere?
+    if ((v - sphere.center).squaredLength() <= square(sphere.radius)) {
+        // Is it also within the triangle?
+        float b[3];
+        if (isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
+                v, b, triangle.primaryAxis())){
+            // The closest point is inside the triangle
+            return true;
+        }
+    }
+
+    // ignored
+    int edgeIndex;
+
+    v = closestPointOnTrianglePerimeter(triangle._vertex, triangle.edgeDirection, triangle.edgeMagnitude, sphere.center, edgeIndex);
+
+    // Is the closest point within the sphere?
+    return ((v - sphere.center).squaredLength() <= square(sphere.radius));
+}
+
+
 } // namespace
 #ifdef _MSC_VER
 #pragma warning (pop)

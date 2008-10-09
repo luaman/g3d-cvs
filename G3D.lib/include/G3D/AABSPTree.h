@@ -1481,6 +1481,9 @@ public:
 
 
     /**
+      @brief Finds all members whose bounding boxes intersect the sphere.  The actual
+      elements may not intersect the sphere.
+
       @param members The results are appended to this array.
      */
     void getIntersectingMembers(const Sphere& sphere, Array<T>& members) const {

@@ -1105,6 +1105,10 @@ public:
         const Sphere&           sphere,
         const Box&              box);
 
+    static bool fixedSolidSphereIntersectsFixedTriangle(
+        const Sphere&           sphere,
+        const Triangle&         triangle);
+
     /**
 	 Tests whether a point is inside a rectangle defined by the vertexes
 	 v0, v1, v2, & v3, and the rectangle's plane normal.
