@@ -14,22 +14,33 @@ int main(int argc, char** argv) {
     settings.window.width       = 800; 
     settings.window.height      = 600;
 
+#   ifdef G3D_WIN32
+        // On unix-like operating systems, icompile automatically
+        // copies data files.  On Windows, we just run from the data
+        // directory.
+        if (fileExists("data-files")) {
+            chdir("data-files");
+        }
+#   endif
+
     return App(settings).run();
 }
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
-    // Uncomment the next line if you are running under a debugger:
-    // catchCommonExceptions = false;
-
-    // Uncomment the next line to hide the developer tools:
-    //developerWindow->setVisible(false);
-
+#   ifdef G3D_DEBUG
+        // Let the debugger catch unhandled exceptions
+        catchCommonExceptions = false;
+#   endif
 }
 
 void App::onInit() {
     // Called before the application loop beings.  Load data here and
     // not in the constructor so that common exceptions will be
     // automatically caught.
+
+    // Uncomment the next line to hide the developer tools:
+    //developerWindow->setVisible(false);
+
     sky = Sky::fromFile(System::findDataFile("sky"));
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
@@ -51,44 +62,52 @@ void App::onInit() {
     // More examples of debugging GUI controls:
     // debugPane->addCheckBox("Use explicit checking", &explicitCheck);
     // debugPane->addTextBox("Name", &myName);
+    // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
     debugWindow->setVisible(true);
 
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
 
+
 void App::onLogic() {
     // Add non-simulation game logic and AI code here
 }
+
 
 void App::onNetwork() {
     // Poll net messages here
 }
 
+
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-    // Add physical simulation here.  You can make your time advancement
-    // based on any of the three arguments.
+    // Add physical simulation here.  You can make your time
+    // advancement based on any of the three arguments.
 }
+
 
 bool App::onEvent(const GEvent& e) {
     // If you need to track individual UI events, manage them here.
     // Return true if you want to prevent other parts of the system
     // from observing this specific event.
     //
-	// For example,
-	// if ((e.type == GEventType::GUI_ACTION) && (e.gui.control == m_button)) { ... return true;}
+    // For example,
+    // if ((e.type == GEventType::GUI_ACTION) && (e.gui.control == m_button)) { ... return true;}
 
     return false;
 }
+
 
 void App::onUserInput(UserInput* ui) {
     // Add key handling here based on the keys currently held or
     // ones that changed in the last frame.
 }
 
+
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
 }
+
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     Array<PosedModel::Ref>        opaque, transparent;
@@ -102,9 +121,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->clear(false, true, true);
     sky->render(rd, localSky);
 
-    // Render all objects (or, you can call PosedModel methods on the elements of posed3D 
-    // directly to customize rendering.  Pass a ShadowMap as the final argument to create 
-    // shadows.)
+    // Render all objects (or, you can call PosedModel methods on the
+    // elements of posed3D directly to customize rendering.  Pass a
+    // ShadowMap as the final argument to create shadows.)
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
     // Sample immediate-mode rendering code
@@ -131,6 +150,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     PosedModel2D::sortAndRender(rd, posed2D);
 }
 
+
 void App::onConsoleCommand(const std::string& str) {
     // Add console processing here
 
@@ -152,6 +172,7 @@ void App::onConsoleCommand(const std::string& str) {
     printConsoleHelp();
 }
 
+
 void App::printConsoleHelp() {
     console->printf("exit          - Quit the program\n");
     console->printf("help          - Display this text\n\n");
@@ -159,11 +180,13 @@ void App::printConsoleHelp() {
     console->printf("F2            - Enable first-person camera control\n");
 }
 
+
 void App::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code
     // here instead of in the constructor so that exceptions can be caught
 }
 
+
 void App::endProgram() {
-	m_endProgram = true;
+    m_endProgram = true;
 }

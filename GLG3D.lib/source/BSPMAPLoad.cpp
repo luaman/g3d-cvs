@@ -879,16 +879,19 @@ void Map::loadLightVolumes(
     lightVolumesGrid.x      = floor(staticModel.max.x / 64) - ceil(staticModel.min.x / 64) + 1;
     lightVolumesInvSizes.x  = lightVolumesGrid.x / (staticModel.max[0] - staticModel.min[0]);
 
+    // Switch from Quake to G3D coordinate system here
     lightVolumesGrid.y      = floor(staticModel.max.y / 128) - ceil(staticModel.min.y / 128) + 1;
     lightVolumesInvSizes.y  = lightVolumesGrid.y / (staticModel.max[2] - staticModel.min[2]);
 
     lightVolumesGrid.z      = floor(staticModel.max.z / 64) - ceil(staticModel.min.z / 64) + 1;
     lightVolumesInvSizes.z  = lightVolumesGrid.z / (staticModel.max[1] - staticModel.min[1]);
     
-    lightVolumesCount       = lump.length / sizeof(LightVolume);
+    // size = RGB+RGB+2
+    lightVolumesCount       = lump.length / 8;
     lightVolumes            = new LightVolume[lightVolumesCount];
     
     bi.setPosition(lump.offset);
+    // Read diretly as bytes since endianness won't affect uint8s.
     bi.readBytes(lightVolumes, lightVolumesCount * sizeof(LightVolume));
 }
 

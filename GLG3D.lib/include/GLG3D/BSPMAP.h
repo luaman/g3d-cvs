@@ -232,29 +232,44 @@ public:
 class BSPEntity {
 public:
     Vector3             position;
-	std::string         name;
-	int					spawnflags;
-	std::string         targetName;
-	std::string         target;
-	
-	/** Index into dynamicModels array */
-	int                 modelNum;
-	std::string         otherInfo;
+    std::string         name;
+    int	                spawnflags;
+    std::string         targetName;
+    std::string         target;
+    
+    /** Index into dynamicModels array */
+    int                 modelNum;
+    std::string         otherInfo;
 };
 
 class LightVolume {
 public:
-    G3D::uint8               ambient[3];
-    G3D::uint8               directional[3];
+    /** Ambient color component. RGB.  */
+    Color3uint8              ambient;
+
+    /** Directional color component. RGB. */
+    Color3uint8              directional;
+
+    /** Direction to light. 0=phi, 1=theta. in the Q3 coordinate
+        system.*/
     G3D::uint8               direction[2];
+
+#if 0
+    /** Returns the direction to the light in the G3D coordinate system.*/
+    Vector3 lightDirection() const {
+        float theta = direction[1] * G3D::pi() / 255.0f;
+        float phi = direction[0] * G3D::pi() / 255.0f;
+        return Vector3(cos(),);
+    }
+#endif
 };
 
 
 class VisData {
 public:
-    int                 clustersCount;
-    int                 bytesPerCluster;
-    G3D::uint8*              bitsets;
+    int                     clustersCount;
+    int                     bytesPerCluster;
+    G3D::uint8*             bitsets;
 };
 
 
@@ -432,25 +447,26 @@ private:
     BSPModel            staticModel;
 public:
     Array<BSPModel>     dynamicModels;
-private:
+public:// TODO: make private
     Vector3             lightVolumesGrid;
     Vector3             lightVolumesInvSizes;
     int                 lightVolumesCount;
     LightVolume*        lightVolumes;
+private:
     VisData             visData;
     
     /**
-     Visible polygons
-     */
-    // The individual faceArray are various subclasses of
-    // FaceSet, so we store pointers to them.  Allocated
-    // on load, deleted on destruction of the Map class.
-    Array<FaceSet*>     faceArray;
+       @brief Visible polygons
+
+       The individual faceArray are various subclasses of
+      FaceSet, so we store pointers to them.  Allocated
+      on load, deleted on destruction of the Map class.*/
+    Array<FaceSet*>       faceArray;
 
     Array<Texture::Ref>   textures;
-    BitSet              textureIsHollow;
+    BitSet                textureIsHollow;
     Array<Texture::Ref>   lightmaps;
-    BitSet              facesDrawn;
+    BitSet                facesDrawn;
     Texture::Ref          defaultTexture;
     Texture::Ref          defaultLightmap;
 
