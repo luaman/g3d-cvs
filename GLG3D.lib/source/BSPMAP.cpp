@@ -240,7 +240,7 @@ void Map::getVisibleFaces(
 				}
 
 				face->updateSortKey(this, zAxis, origin);
-				if (texture.isNull() || (texture->opaque())) {
+				if (texture.isNull() || texture->opaque()) {
 					opaqueFaceArray.append(face);
 				} else {
 					translucentFaceArray.append(face);
@@ -275,28 +275,30 @@ void Map::getVisibleFaces(
 		}
 	}
 
-    // Faces of dynamic models.
-	// Models are not in the BSP tree, we don't perform visibility testing on them
-    for (int i = 0; i < dynamicModels.size(); ++i) {
-		const BSPModel& currentModel = dynamicModels[i];
-		for(int f = 0; f < currentModel.numOfFaces; ++f){
-			
-            FaceSet* face = faceArray[currentModel.faceIndex + f];
-			
-			Texture::Ref texture = textures[face->textureID];
-			if ((face->lightmapID < 0) && texture.isNull()) {
-                // Ignore untextured faces
-				continue;
-			}
-			face->updateSortKey(this, zAxis, origin);
+    if (false) { // Commented out to prevent strange objects from rendering
+        // Faces of dynamic models.
+	    // Models are not in the BSP tree, we don't perform visibility testing on them
+        for (int i = 0; i < dynamicModels.size(); ++i) {
+		    const BSPModel& currentModel = dynamicModels[i];
+		    for(int f = 0; f < currentModel.numOfFaces; ++f){
+    			
+                FaceSet* face = faceArray[currentModel.faceIndex + f];
+    			
+			    Texture::Ref texture = textures[face->textureID];
+			    if ((face->lightmapID < 0) && texture.isNull()) {
+                    // Ignore untextured faces
+				    continue;
+			    }
+			    face->updateSortKey(this, zAxis, origin);
 
-			if (texture.isNull() || texture->opaque()) {
-				opaqueFaceArray.append(face);
-			} else {
-				translucentFaceArray.append(face);
-			}
-		}
-	}
+			    if (texture.isNull() || texture->opaque()) {
+				    opaqueFaceArray.append(face);
+			    } else {
+				    translucentFaceArray.append(face);
+			    }
+		    }
+	    }
+    }
 }
 
 
@@ -330,6 +332,11 @@ void Map::renderFaces(
 		Texture::Ref texture;
 		for (int i = 0; i < visibleFaceArray.size(); ++i) {
 			FaceSet* theFace = visibleFaceArray[i];
+            if (theFace->lightmapID < 0) {
+                // Don't render objects which don't have light maps; they require
+                // special shaders that we haven't implemented.
+                continue;
+            }
 
             // Bind new texture
 			if (lastTextureID != theFace->textureID) {
