@@ -160,7 +160,7 @@ public:
     int                 vertexesCount;
     int                 firstMeshVertex;
     int                 meshVertexesCount;
-    int                  lightmapID;
+    int                 lightmapID;
     int                 lightmapCorner[2];
     int                 lightmapSize[2];
     Vector3             lightmapPosition;
@@ -171,9 +171,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale) {
+MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale, std::string altLoad) {
+    if (altLoad == "") {
+        altLoad = System::findDataFile("pak0.pk3");
+    }
     Map* m = new Map();
-    if (m->load(pathConcat(path, ""), fileName)) {
+    if (m->load(pathConcat(path, ""), fileName, altLoad)) {
         return m;
     } else {
         delete m;
@@ -183,7 +186,8 @@ MapRef Map::fromFile(const std::string& path, const std::string& fileName, float
 
 bool Map::load(
     const std::string&  resPath,
-    const std::string&  filename) {
+    const std::string&  filename,
+    const std::string&  altPath) {
 
     int supportedVersion[NUM_FILE_FORMATS + 1];
 //    supportedVersion[Q1] = 23;
@@ -195,11 +199,11 @@ bool Map::load(
     std::string full = resPath + "maps/" + filename;
 
     if (! fileExists(full)) {
+        debugAssertM(fileExists(full), "Could not find " + full);
         return false;
     }
 
     BinaryInput bi(full, G3D_LITTLE_ENDIAN);
-
     
     // Determine file type
     MapFileFormat mapFormat;
@@ -213,11 +217,11 @@ bool Map::load(
 
     switch (mapFormat) {
     case Q3:
-        loadQ3(bi, resPath);
+        loadQ3(bi, resPath, altPath);
         break;
 
     case HL:
-        loadHL(bi, resPath);
+        loadHL(bi, resPath, altPath);
         break;
 
     default:
@@ -234,14 +238,14 @@ bool Map::load(
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-void Map::loadQ3(BinaryInput& bi, const std::string& resPath) {
+void Map::loadQ3(BinaryInput& bi, const std::string& resPath, const std::string& altPath) {
     BSPLump lumps[BSPLump::Q3_MAX_LUMPS];
     loadLumps        (bi, lumps, BSPLump::Q3_MAX_LUMPS);
     loadEntities     (bi, lumps[BSPLump::Q3_ENTITIES_LUMP]);
     loadVertices     (bi, lumps[BSPLump::Q3_VERTEXES_LUMP]);
     loadMeshVertices (bi, lumps[BSPLump::Q3_MESHVERTEXES_LUMP]);
     loadFaces        (bi, lumps[BSPLump::Q3_FACES_LUMP]);
-    loadTextures     (resPath, bi, lumps[BSPLump::Q3_TEXTURES_LUMP]);
+    loadTextures     (resPath, altPath, bi, lumps[BSPLump::Q3_TEXTURES_LUMP]);
     loadLightMaps    (bi, lumps[BSPLump::Q3_LIGHTMAPS_LUMP]);
     loadNodes        (bi, lumps[BSPLump::Q3_NODES_LUMP]);
     loadQ3Leaves     (bi, lumps[BSPLump::Q3_LEAVES_LUMP]);
@@ -257,7 +261,7 @@ void Map::loadQ3(BinaryInput& bi, const std::string& resPath) {
 }
 
 
-void Map::loadHL(BinaryInput& bi, const std::string& resPath) {    
+void Map::loadHL(BinaryInput& bi, const std::string& resPath, const std::string& altPath) {    
     BSPLump lumps[BSPLump::HL_MAX_LUMPS];
     loadLumps        (bi, lumps, BSPLump::HL_MAX_LUMPS);
 
@@ -274,7 +278,7 @@ void Map::loadHL(BinaryInput& bi, const std::string& resPath) {
     loadStaticModel  (bi, lumps[BSPLump::HL_MODELS_LUMP]);
 
     loadEntities     (bi, lumps[BSPLump::HL_ENTITIES_LUMP]);
-    loadTextures     (resPath, bi, lumps[BSPLump::HL_TEXTURES_LUMP]);
+    loadTextures     (resPath, altPath, bi, lumps[BSPLump::HL_TEXTURES_LUMP]);
 
     loadLightMaps    (bi, lumps[BSPLump::HL_LIGHTING_LUMP]);
 
@@ -540,31 +544,44 @@ static Texture::Ref loadBrightTexture(const std::string& filename, double bright
 }
 
 
-Texture::Ref Map::loadTexture(const std::string& filename) {
-    float brighten = 2.0;
+Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename) {
+
+    float brighten = 2.0f;
+    const int numExt = 2;
+    static const std::string ext[] = {".jpg", ".tga"};
+    
+    int numPath = 2;
+    const std::string path[] = {resPath, altPath};
 
     try {
-        if (fileExists(filename + ".jpg")) {
+        for (int p = 0; p < 2; ++p) {
+            for (int i = 0; i < numExt; ++i) {
+                const std::string& full = pathConcat(path[p], filename) + ext[i];
+                
+                if (fileExists(full)) {
+                    TextureRef t = loadBrightTexture(full, brighten);
 
-            return loadBrightTexture(filename + ".jpg", brighten);
-
-        } else if (fileExists(filename + ".tga")) {
-
-            return loadBrightTexture(filename + ".tga", brighten);
-
-        } else {
-            Log::common()->printf("Texture missing: \"%s\"\n", filename.c_str());
-            return NULL;
+                    if (defaultTexture.isNull()) {
+                        defaultTexture = t;
+                    }
+                    return t;
+                }
+            }
         }
-    } catch (GImage::Error e) {
-        Log::common()->printf("Error loading: \"%s\"\n", filename.c_str());
-        return NULL;
+        
+        logPrintf("Texture missing: \"%s\"\n", filename.c_str());
+        return Texture::white();
+
+    } catch (const GImage::Error& e) {
+        logPrintf("Error while loading %s: %s\n", e.filename.c_str(), e.reason.c_str());
+        return Texture::white();
     }
 }
 
 
 void Map::loadTextures(
     const std::string&     resPath,
+    const std::string&     altPath,
     BinaryInput&           bi,
     const BSPLump&         lump) {
 
@@ -587,14 +604,9 @@ void Map::loadTextures(
             textureIsHollow.set(ct);
         }
 
-        std::string filename = resPath + textureData[ct].name;
-        // The filename doesn't have an extension.  See which extension is
-        // available.
-    
-        textures[ct] = loadTexture(filename);
-        if (textures[ct].notNull() && defaultTexture.isNull()) {
-            defaultTexture = textures[ct];
-        }
+        // Locate the texture
+        std::string filename = textureData[ct].name;
+        textures[ct] = loadTexture(resPath, altPath, filename);
     }
 }
 

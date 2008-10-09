@@ -419,7 +419,7 @@ public:
 typedef ReferenceCountedPointer<class Map> MapRef;
 
 /**
- A BSP Map loaded from either a Quake 3 or Half-Life file.
+ @brief A BSP Map loaded from Quake 3.
  */
 class Map : public ReferenceCountedObject {
 private:
@@ -479,7 +479,7 @@ private:
      filename has no extension.  JPG and TGA files are sought.
      The texture is brightened by a factor of 2.0.
      */
-    static Texture::Ref loadTexture(const std::string& filename);
+    Texture::Ref loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename);
 
     /**
      Loads version information from the front of a file.  Called from load.
@@ -487,10 +487,12 @@ private:
     static void loadVersion(BinaryInput& bi, MapFileFormat& mapFormat, int& version);
 
     /** Called from load */
-    void loadQ3(BinaryInput& bi, const std::string& resPath);
+    void loadQ3(BinaryInput& bi, const std::string& resPath,
+        const std::string&  altPath);
 
     /** Called from load */
-    void loadHL(BinaryInput& bi, const std::string& resPath);
+    void loadHL(BinaryInput& bi, const std::string& resPath,
+        const std::string&  altPath);
 
     /**
      Loads the header info into an appropriately size lump array.
@@ -500,7 +502,7 @@ private:
     void loadVertices       (BinaryInput& bi, const class BSPLump& lump);
     void loadMeshVertices   (BinaryInput& bi, const class BSPLump& lump);
     void loadFaces          (BinaryInput& bi, const class BSPLump& lump);
-    void loadTextures       (const std::string& resPath, BinaryInput& bi, const class BSPLump& lump);
+    void loadTextures       (const std::string& resPath, const std::string& altResPath, BinaryInput& bi, const class BSPLump& lump);
     void loadLightMaps      (BinaryInput& bi, const class BSPLump& lump);
     void loadNodes          (BinaryInput& bi, const class BSPLump& lump);
     void loadQ3Leaves       (BinaryInput& bi, const class BSPLump& lump);
@@ -591,7 +593,8 @@ private:
 
     bool load(
         const std::string&  resPath,
-        const std::string&  filename);
+        const std::string&  filename,
+        const std::string&  altPath);
 
 public:
 
@@ -614,8 +617,18 @@ public:
      @param fileName Name of the .bsp file; include the extension
 
      @param scale Multiply all vertices by this scale factor on load.
+
+     @param altLoad The root of a directory to search for missing textures. When loading 
+     Quake3 maps that use default textures, this should be the pak0.pk3 file that
+     comes with Quake3 Arena.  Note that this file is copyrighted by id software and
+     is not redistributable. It is not part of G3D. 
+     
+     You can obtain a limited version of this file by downloading the Q3A demo from:
+     http://www.idsoftware.com/games/quake/quake3-arena/index.php?game_section=demo
+     On Windows, the relevant file is at C:\Q3Ademo\demoq3\pak0.pk3
+     If the file is not specified, G3D looks for pak0.pk3 in the data/quake3 directory.
      */
-    static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f);
+    static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f, std::string altLoad = "");
 
     inline void setDefaultTexture(Texture::Ref txt) {
         defaultTexture = txt;

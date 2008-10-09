@@ -96,7 +96,6 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
-
 	    static Array<FaceSet*> opaqueFaceArray;
 	    static Array<FaceSet*> translucentFaceArray;
 
@@ -130,7 +129,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
         // Translucent
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glAlphaFunc(GL_GREATER, 0.2f);
+		glAlphaFunc(GL_GREATER, 0.1f);
 		glEnable(GL_ALPHA_TEST);
 		glDisable(GL_CULL_FACE);
 

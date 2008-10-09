@@ -21,9 +21,6 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
     BSPMapRef           map;
-    IFSModelRef         ifsModel;
-    ArticulatedModelRef model;
-    Array<Vector3>      points;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -42,22 +39,12 @@ public:
 App::App(const GApp::Settings& settings) : GApp(settings) {
 }
 
-enum None {NONE};
-enum Scale {LOG, LINEAR};
-typedef int Both;
-
-Both x = NONE;
 
 void App::onInit() {
 
-    setDesiredFrameRate(20);
+    setDesiredFrameRate(60);
 
-    for (int i= 0;i < 1000; ++i) {
-        points.append(Vector3::cosRandom(Vector3::unitY()));
-    }
-
-    ifsModel = IFSModel::fromFile("c:/temp/db/2/m213/m213.off");
-//	map = BSPMap::fromFile("X:/morgan/data/quake3/tremulous/map-arachnid2-1.1.0.pk3/", "arachnid2.bsp");
+	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
 
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
@@ -83,18 +70,9 @@ void App::onInit() {
 
     float low = 0.0f;
     float high = 100.0f;
-/*
-    Pointer<float> ptr(&f);
-    
-    Pointer<float> ptr2 = LogScaleAdapter<float>::wrap(ptr, low, high);
-//    debugPane->addSlider("Log", ptr2, low, high);
-//    debugPane->addSlider("Linear", ptr, low, high);
-    debugPane->addNumberBox("Log", ptr2, "s", true, low, high);
-    debugPane->addNumberBox("Linear", ptr, "s", true, low, high);
-    */
+
     debugPane->addNumberBox("Log", &f, "s", GuiTheme::LOG_SLIDER, low, high);
     debugPane->addNumberBox("Linear", &f, "s", GuiTheme::LINEAR_SLIDER, low, high);
-//    debugPane->addNumberBox("Exposure", &f, "s", true, 0.1f, 1000.0f, 0.5f);
 
 
     static Array<std::string> list;
@@ -105,8 +83,6 @@ void App::onInit() {
     list.append("Last");
     static int index = 0;
     debugPane->addDropDownList("List", &index, &list);
-
-    model = ArticulatedModel::createCornellBox();
 
     // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
     // defaults:                        /   , ptr, "", false, -inf, inf, 0
@@ -132,12 +108,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 void App::onUserInput(UserInput* ui) {
-    // Add key handling here	
-    screenPrintf("LS %d  RS %d   LC %d RC %d\n", 
-           ui->keyDown(GKey::LSHIFT),
-           ui->keyDown(GKey::RSHIFT),
-           ui->keyDown(GKey::LCTRL),
-           ui->keyDown(GKey::RCTRL));
 }
 
 void App::onConsoleCommand(const std::string& str) {
@@ -170,20 +140,7 @@ void App::printConsoleHelp() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
-    model->pose(posed3D);
-    posed3D.append(ifsModel->pose());
-}
 
-
-CoordinateFrame fromXYZYPR(float x, float y, float z, float yaw, float pitch, float roll) {
-    Matrix3 rotation = Matrix3::fromAxisAngle(Vector3::unitY(), yaw);
-    
-    rotation = Matrix3::fromAxisAngle(rotation.column(0), pitch) * rotation;
-    rotation = Matrix3::fromAxisAngle(rotation.column(2), roll) * rotation;
-    
-    const Vector3 translation(x, y, z);
-
-    return CoordinateFrame(rotation, translation);
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
@@ -197,29 +154,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->clear(false, true, true);
     sky->render(rd, localSky);
 
+    map->render(rd, defaultCamera);
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
-
-    // Setup lighting
-    rd->enableLighting();
-        rd->setLight(0, localLighting->lightArray[0]);
-        rd->setAmbientLightColor(localLighting->ambientAverage());
-
-        // Sample rendering code
-        Draw::axes(CoordinateFrame(Vector3(0, 4, 0)), rd);
-//        Draw::sphere(Sphere(Vector3::zero(), 0.5f), rd, Color3::white());
-//        Draw::box(AABox(Vector3(-3,-0.5,-0.5), Vector3(-2,0.5,0.5)), rd, Color3::green());
-
-        
-        rd->beginPrimitive(RenderDevice::POINTS);
-        rd->setColor(Color3::black());
-        for (int i = 0; i < points.size(); ++i) {
-            rd->sendVertex(points[i]);
-        }
-        rd->endPrimitive();
-
-        Draw::axes(fromXYZYPR(0,0,0,toRadians(45), toRadians(90), toRadians(45)), rd);
-
-    rd->disableLighting();
 
     sky->renderLensFlare(rd, localSky);
 

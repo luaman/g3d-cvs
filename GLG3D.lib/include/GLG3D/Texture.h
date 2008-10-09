@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
   @created 2001-02-28
-  @edited  2008-01-13
+  @edited  2008-10-13
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -31,7 +31,12 @@ class Rect2D;
 class Matrix3;
 class Texture;
 
+
+typedef ReferenceCountedPointer<Texture> TextureRef;
+
 /**
+ @brief A 2D array (e.g., an image) stored on the GPU
+
  Abstraction of OpenGL textures.  This class can be used with raw OpenGL, 
  without RenderDevice.  G3D::Texture supports all of the image formats
  that G3D::GImage can load, and DDS (DirectX textures), and Quake-style cube 
@@ -82,10 +87,10 @@ class Texture;
   // (to disable: renderDevice->setTexture(0, NULL);)
   </PRE>
 
-
   3D MIP Maps are not supported because gluBuild3DMipMaps is not in all GLU implementations.
 
-  See G3D::RenderDevice::setBlendFunc for important information about turning on alpha blending. 
+  @sa G3D::RenderDevice::setBlendFunc for important information about turning on 
+  alpha blending when using textures with alpha.
  */
 class Texture : public ReferenceCountedObject {
 public:
@@ -149,6 +154,11 @@ public:
 	*/
 	static bool isSupportedImage(const std::string& filename);
 
+    /** @brief Returns a small all-white texture.  
+    
+        Multiple instances are cached and shared. Do not mutate this texture
+        or future calls will return the mutated texture as well. */
+    static TextureRef white();
 
     /**
      All parameters of a texture that are independent of the
@@ -712,8 +722,6 @@ private:
     };
 };
 
-/** For backwards compatibility to 6.xx*/
-typedef Texture::Ref TextureRef;
 
 } // namespace
 

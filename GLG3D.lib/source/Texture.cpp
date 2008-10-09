@@ -48,6 +48,24 @@ static void glStatePush();
 static void glStatePop() {
     glPopClientAttrib();
     glPopAttrib();
+}  
+
+
+TextureRef Texture::white() {
+    static WeakReferenceCountedPointer<Texture> cache;
+
+    TextureRef t = cache.createStrongPtr();
+    if (t.isNull()) {
+        // Cache is empty
+        GImage im(8, 8, 3);
+        System::memset(im.byte(), 0xFF, im.width * im.height * im.channels);
+        t = Texture::fromGImage("White", im);
+
+        // Store in cache
+        cache = t;
+    }
+
+    return t;
 }
 
 /**

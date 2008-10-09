@@ -254,7 +254,7 @@ std::string System::findDataFile
     Array<std::string> subDir;
     subDir.append("", "font/", "sky/", "gui/");
     subDir.append("image/", "quake2/", "quake2/players/");
-    subDir.append("SuperShader/", "ifs/", "3ds/");
+    subDir.append("quake3/", "SuperShader/", "ifs/", "3ds/");
 
     Array<std::string> path;
     for (int p = 0; p < pathBase.size(); ++p) {

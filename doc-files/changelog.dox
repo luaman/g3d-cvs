@@ -47,8 +47,9 @@
      <li> GEvent::toString
      <li> G3D::TextInput now treats characters with ASCII code greater than 127 as symbols
      <li> G3D::ThreadSet
-     <li> Matrix4::upper3x3
-     <li> Matrix4::homoMul
+     <li> G3D::Texture::white
+     <li> G3D::Matrix4::upper3x3
+     <li> G3D::Matrix4::homoMul
      <li> ArticulateModel::fromFile now takes a Matrix4 instead of a CoordinateFrame to allow arbitrary linear transformations.
      <li> ArticulatedModel::createCornellBox
      <li> Material::createDiffuse
