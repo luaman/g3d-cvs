@@ -233,6 +233,8 @@ bool Map::load(
     
     facesDrawn.resize(faceArray.size());
 
+    m_bounds = AABox(staticModel.min, staticModel.max);
+
     return true;
 }
 
@@ -545,6 +547,8 @@ static Texture::Ref loadBrightTexture(const std::string& filename, double bright
 
 
 Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename) {
+    return Texture::white(); // TODO: Remove
+
 
     float brighten = 2.0f;
     const int numExt = 2;
@@ -554,7 +558,7 @@ Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& alt
     const std::string path[] = {resPath, altPath};
 
     try {
-        for (int p = 0; p < 2; ++p) {
+        for (int p = 0; p < numPath; ++p) {
             for (int i = 0; i < numExt; ++i) {
                 const std::string& full = pathConcat(path[p], filename) + ext[i];
                 
@@ -835,7 +839,20 @@ void Map::loadStaticModel(
 
     bi.setPosition(lump.offset);
     bi.readBytes(&staticModel, sizeof(BSPModel));
-	
+
+    {
+        // This block works with input in the quake coordinate system
+        lightVolumesGrid.x      = floor(staticModel.max.x / 64) - ceil(staticModel.min.x / 64) + 1;
+        lightVolumesInvSizes.x  = lightVolumesGrid.x / (staticModel.max.x - staticModel.min.x);
+
+        // Switch from Quake to G3D coordinate system here
+        lightVolumesGrid.y      = floor(staticModel.max.z / 128) - ceil(staticModel.min.z / 128) + 1;
+        lightVolumesInvSizes.y  = lightVolumesGrid.y / (staticModel.max.z - staticModel.min.z);
+
+        lightVolumesGrid.z      = floor(-staticModel.min.y / 64) - ceil(-staticModel.max.y / 64) + 1;
+        lightVolumesInvSizes.z  = lightVolumesGrid.z / (staticModel.max.y - staticModel.min.y);
+    }
+
     Vector3 a = staticModel.min * G3D_LOAD_SCALE;
     Vector3 b = staticModel.max * G3D_LOAD_SCALE;
     swizzle(a);
@@ -887,24 +904,18 @@ void Map::loadDynamicModels(
 void Map::loadLightVolumes(
     BinaryInput&           bi,
     const BSPLump&         lump) {
-
-    lightVolumesGrid.x      = floor(staticModel.max.x / 64) - ceil(staticModel.min.x / 64) + 1;
-    lightVolumesInvSizes.x  = lightVolumesGrid.x / (staticModel.max[0] - staticModel.min[0]);
-
-    // Switch from Quake to G3D coordinate system here
-    lightVolumesGrid.y      = floor(staticModel.max.y / 128) - ceil(staticModel.min.y / 128) + 1;
-    lightVolumesInvSizes.y  = lightVolumesGrid.y / (staticModel.max[2] - staticModel.min[2]);
-
-    lightVolumesGrid.z      = floor(staticModel.max.z / 64) - ceil(staticModel.min.z / 64) + 1;
-    lightVolumesInvSizes.z  = lightVolumesGrid.z / (staticModel.max[1] - staticModel.min[1]);
-    
     // size = RGB+RGB+2
-    lightVolumesCount       = lump.length / 8;
+    size_t size = 8;
+    lightVolumesCount       = lump.length / size;
+    debugAssert(lightVolumesCount == lightVolumesGrid.x * lightVolumesGrid.y * lightVolumesGrid.z);
     lightVolumes            = new LightVolume[lightVolumesCount];
     
     bi.setPosition(lump.offset);
-    // Read diretly as bytes since endianness won't affect uint8s.
-    bi.readBytes(lightVolumes, lightVolumesCount * sizeof(LightVolume));
+
+    debugAssert(size == sizeof(LightVolume));
+    // Read directly as bytes since endianness won't affect uint8s.
+    bi.readBytes(lightVolumes, lightVolumesCount * size);
+
 }
 
 static double log2(double x) {

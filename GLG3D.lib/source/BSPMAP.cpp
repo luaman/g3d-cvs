@@ -136,6 +136,53 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
         glColor(Color3::white() * adjustBrightness);
 		renderFaces(renderDevice, camera, translucentFaceArray);
 
+
+        if (false) {
+            // Draw lighting (for debugging)
+		    glDisable(GL_BLEND);
+            glPointSize(5);
+            glDisable(GL_TEXTURE_2D);
+            glBegin(GL_POINTS);
+            for (int x = 0; x < lightVolumesGrid.x; ++x) {
+                for (int y = 0; y < lightVolumesGrid.y; ++y) {
+                    for (int z = 0; z < lightVolumesGrid.z; ++z) {
+                        Vector3 v(x, y, z);
+                        v /= lightVolumesGrid;
+                        v *= (staticModel.max - staticModel.min);
+                        v += staticModel.min;
+                        
+                        // Scale to the sampling resolution of the light volumes
+                        Vector3 rel = ((v - staticModel.min) / (staticModel.max - staticModel.min)) * lightVolumesGrid;
+                        int idxX = iClamp(rel.x, 0, (int)lightVolumesGrid.x);
+                        int idxY = iClamp(rel.y, 0, (int)lightVolumesGrid.y);
+                        int idxZ = iClamp(rel.z, 0, (int)lightVolumesGrid.z);
+
+                        if ((idxX >= 0 && idxX < lightVolumesGrid.x) &&
+                            (idxY >= 0 && idxY < lightVolumesGrid.y) &&
+                            (idxZ >= 0 && idxZ < lightVolumesGrid.z)) {
+
+                            // In bounds
+
+                            // Compute index (using Quake coordinate system)
+	                        int index = 
+                                idxX + 
+                                (lightVolumesGrid.z - idxZ - 1) * lightVolumesGrid.x + 
+                                idxY * (lightVolumesGrid.x * lightVolumesGrid.z);
+
+                	        const LightVolume* light = &lightVolumes[index];
+
+                            // Draw points that are likely inside the map
+                            if (light->ambient.r + light->ambient.g + light->ambient.b > 0) {
+                                glColor(Color3(light->directional) + Color3(light->ambient));
+                                glVertex(v);
+                            }
+                        }
+                    }
+                }
+            }
+            glEnd();
+        }
+
 	glPopClientAttrib();
 	glPopAttrib();
 

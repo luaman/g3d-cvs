@@ -47,8 +47,8 @@ void BSPViewer::onInit(const std::string& filename) {
 void BSPViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 	if(reset == true){
 		reset = false;
-		app->defaultCamera.setCoordinateFrame(map->startingPosition);
-		app->defaultController->setFrame(map->startingPosition);
+		app->defaultCamera.setCoordinateFrame(map->getStartingPosition());
+		app->defaultController->setFrame(map->getStartingPosition());
 	}
 
 	screenPrintf("Faces: %d", numFaces);

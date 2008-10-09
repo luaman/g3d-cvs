@@ -242,6 +242,12 @@ public:
     std::string         otherInfo;
 };
 
+
+////////////////////////////////////////////////////////////////////////
+#if defined(G3D_WIN32)
+    // Switch to tight alignment
+    #pragma pack(push, 1)
+#endif
 class LightVolume {
 public:
     /** Ambient color component. RGB.  */
@@ -262,7 +268,16 @@ public:
         return Vector3(cos(),);
     }
 #endif
-};
+}
+#if defined(G3D_LINUX) || defined(G3D_OSX)
+    __attribute((aligned(1)))
+#endif
+;
+
+#ifdef G3D_WIN32
+  #pragma pack(pop)
+#endif
+////////////////////////////////////////////////////////////////////////
 
 
 class VisData {
@@ -451,7 +466,10 @@ public:// TODO: make private
     Vector3             lightVolumesGrid;
     Vector3             lightVolumesInvSizes;
     int                 lightVolumesCount;
+
+    /** lightVolumes[x + (MAX_Z - z - 1) * MAX_X + y * MAX_X * MAX_Z] */
     LightVolume*        lightVolumes;
+
 private:
     VisData             visData;
     
@@ -472,8 +490,12 @@ private:
 
 public:
 	Array<BSPEntity>	entityArray;
-    Vector3             startingPosition;
+
 private:
+    Vector3             startingPosition;
+
+    /** Bounding box on the whole map */
+    AABox               m_bounds;
 
     /**
      filename has no extension.  JPG and TGA files are sought.
@@ -678,6 +700,11 @@ public:
         Array<int>&           outTexCoordIndexArray,
         Array<Texture::Ref>&  outTextureMapArray,
         Array<Texture::Ref>&  outLightMapArray) const;
+
+    /** Returns a bounding box on the whole map */
+    const AABox& bounds() const {
+        return m_bounds;
+    }
 
 };
 

@@ -44,7 +44,8 @@ void App::onInit() {
 
     setDesiredFrameRate(60);
 
-	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
+//	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
+	map = BSPMap::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3", "charon3dm11v2.bsp");
 
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
@@ -155,6 +156,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     sky->render(rd, localSky);
 
     map->render(rd, defaultCamera);
+//    Draw::box(map->bounds(), rd);
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
     sky->renderLensFlare(rd, localSky);
