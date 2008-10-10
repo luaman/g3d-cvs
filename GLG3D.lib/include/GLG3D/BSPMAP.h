@@ -648,7 +648,8 @@ public:
      You can obtain a limited version of this file by downloading the Q3A demo from:
      http://www.idsoftware.com/games/quake/quake3-arena/index.php?game_section=demo
      On Windows, the relevant file is at C:\Q3Ademo\demoq3\pak0.pk3
-     If the file is not specified, G3D looks for pak0.pk3 in the data/quake3 directory.
+     If the altLoad is not specified, G3D uses System::findDataFile to locate pak0.pk3 or mini-pak0.pk3 on the
+     hard drive.
      */
     static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f, std::string altLoad = "");
 

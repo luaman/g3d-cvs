@@ -174,6 +174,9 @@ public:
 MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale, std::string altLoad) {
     if (altLoad == "") {
         altLoad = System::findDataFile("pak0.pk3");
+        if (! fileExists(altLoad)) {
+            altLoad = System::findDataFile("mini-pak0.pk3");
+        }
     }
     Map* m = new Map();
     if (m->load(pathConcat(path, ""), fileName, altLoad)) {
