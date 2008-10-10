@@ -144,11 +144,18 @@ public:
     /** 
       Between beginLock and endLock, add and remove operations are
       delayed so that iteration is safe.  Locks may not be executed
-      recursively; only one level of locking is allowed.
+      recursively; only one level of locking is allowed.  If using with
+      G3D::GApp, allow the G3D::GApp to perform the locking for you.
       */
     void beginLock();
 
     void endLock();
+
+    /** Widgets currently executing. Note that some widgets may have already been added
+        but if the WidgetManager is locked they will not appear in this array yet.*/
+    inline const Array<Widget::Ref>& widgetArray() const {
+        return m_moduleArray;
+    }
 
     /** Pushes this widget to the back of the z order.  This window will render first and receive events last.
         This is the opposite of focussing a window.

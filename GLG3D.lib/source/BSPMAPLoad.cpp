@@ -550,9 +550,6 @@ static Texture::Ref loadBrightTexture(const std::string& filename, double bright
 
 
 Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename) {
-    return Texture::white(); // TODO: Remove
-
-
     float brighten = 2.0f;
     const int numExt = 2;
     static const std::string ext[] = {".jpg", ".tga"};
