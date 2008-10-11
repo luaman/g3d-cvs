@@ -99,6 +99,10 @@ void UprightSpline::serialize(class BinaryOutput& b) const {
     for (int i = 0; i < control.size(); ++i) {
         control[i].serialize(b);
     }
+    b.writeInt32(time.size());
+    for (int i = 0; i < time.size(); ++i) {
+        b.writeFloat32(time[i]);
+    }
 }
 
 
@@ -108,6 +112,20 @@ void UprightSpline::deserialize(class BinaryInput& b) {
     control.resize(b.readInt32());
     for (int i = 0; i < control.size(); ++i) {
         control[i].deserialize(b);
+    }
+
+    if (b.hasMore()) {
+        time.resize(b.readInt32());
+        for (int i = 0; i < time.size(); ++i) {
+            time[i] = b.readFloat32();
+        }
+        debugAssert(time.size() == control.size());
+    } else {
+        // Import legacy path
+        time.resize(control.size());
+        for (int i = 0; i < time.size(); ++i) {
+            time[i] = i;
+        }
     }
 }
 
