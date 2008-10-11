@@ -55,6 +55,13 @@ def buildDocumentation(state):
 
     mkdir(state.buildDir + 'doc')
 
+    # These files caches latex equations. It easily becomes corrupted
+    # and can confuse the user, so we force it to regenerate each
+    # time.
+    for f in ['formulas.repository', '_formulas.tex']:
+        file = pathConcat(state.buildDir, 'doc', f)
+        if os.path.exists(file): os.remove(file)
+    
     run('doxygen', ['Doxyfile'], ice.utils.verbosity >= VERBOSE)
 
     if (os.path.exists(state.rootDir + 'doc-files')):
@@ -751,10 +758,15 @@ def configureGpp(state):
     # inter-process communication; this should be faster.
     state.compilerOptions += ['-pipe']
  
-    if (state.binaryType == DLL):
+    if state.binaryType == DLL:
         state.linkerOptions  += ['-shared']
 
     state.compilerWarningOptions = ['-Wall', '-Wformat=2', '-Wno-format-nonliteral']
+    
+    if state.os == 'osx':
+        # G3D's use of CarbonWindow on OS X generates tons of annoying
+        # deprecated warnings from a system header.
+        state.compilerWarningOptions += ['-Wno-deprecated-declarations']
   
     # Put user options last so that they can override ours
     if userCompilerOptions != None: state.compilerOptions += userCompilerOptions
