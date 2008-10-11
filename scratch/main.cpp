@@ -21,6 +21,7 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
     BSPMapRef           map;
+    VideoOutput::Ref    video;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -45,7 +46,7 @@ void App::onInit() {
     setDesiredFrameRate(60);
 
 //	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
-	map = BSPMap::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3", "charon3dm11v2.bsp");
+//	map = BSPMap::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3", "charon3dm11v2.bsp");
 
     // Called before the application loop beings.  Load data here
     // and not in the constructor so that common exceptions will be
@@ -97,6 +98,12 @@ void App::onCleanup() {
 
 void App::onLogic() {
     // Add non-simulation game logic and AI code here
+    if (video.notNull()) {
+        static GImage frame;
+        renderDevice->screenshotPic(frame);
+        video->append(frame);
+        screenPrintf("RECORDING");
+    }
 }
 
 void App::onNetwork() {
@@ -109,6 +116,12 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 void App::onUserInput(UserInput* ui) {
+    if (ui->keyPressed(' ') && video.isNull()) {
+        video = VideoOutput::create("c:/test.mp4", VideoOutput::Settings::ffmpegMPEG4());
+//        video = VideoOutput::create("c:/test.avi", VideoOutput::Settings::uncompressedAVI());
+    } else if (ui->keyPressed('x') && video.notNull()) {
+        video->commit();
+    }
 }
 
 void App::onConsoleCommand(const std::string& str) {
@@ -155,8 +168,10 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->clear(false, true, true);
     sky->render(rd, localSky);
 
-    map->render(rd, defaultCamera);
-//    Draw::box(map->bounds(), rd);
+    if (map.notNull()) {
+        map->render(rd, defaultCamera);
+    //    Draw::box(map->bounds(), rd);
+    }
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
     sky->renderLensFlare(rd, localSky);

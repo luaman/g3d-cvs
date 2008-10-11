@@ -61,7 +61,7 @@ VideoOutput::Ref VideoOutput::create(const std::string& filename, const Settings
     // todo: should the exception still be thrown when we're creating a reference?
     try {
         vo->initialize(filename, settings);
-    } catch (std::string s) {
+    } catch (const std::string& s) {
         debugAssertM(false, s);
 
         delete vo;
@@ -187,10 +187,10 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     // set null parameters as this call is required
     int avRet = av_set_parameters(m_avFormatContext, NULL);
-    throwException(avRet >= 0, ("Error initializing ffmpeg."));
+    throwException(avRet >= 0, ("Error initializing ffmpeg in av_set_parameters"));
 
     avRet = avcodec_open(m_avStream->codec, codec);
-    throwException(avRet >= 0, ("Error initializing ffmpeg."));
+    throwException(avRet >= 0, ("Error initializing ffmpeg in avcodec_open"));
 
     // create encoding buffer - just allocate largest possible for now (3 channels)
     m_avEncodingBufferSize = iMax(m_settings.width * m_settings.height * 3, 512 * 1024);
@@ -200,15 +200,15 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
     int inputBufferSize = avpicture_get_size(m_avStream->codec->pix_fmt, m_settings.width, m_settings.height);
 
     m_avInputBuffer = static_cast<uint8*>(av_malloc(inputBufferSize));
-    throwException(m_avInputBuffer, ("Error initializing ffmpeg."));
+    throwException(m_avInputBuffer, ("Error initializing ffmpeg in av_malloc"));
 
     m_avInputFrame = avcodec_alloc_frame();
-    throwException(m_avInputFrame, ("Error initializing ffmpeg."));
+    throwException(m_avInputFrame, ("Error initializing ffmpeg in avcodec_alloc_frame"));
     avpicture_fill(reinterpret_cast<AVPicture*>(m_avInputFrame), m_avInputBuffer, m_avStream->codec->pix_fmt, m_settings.width, m_settings.height);
 
     // open output file for writing using ffmpeg
     avRet = url_fopen(&m_avFormatContext->pb, filename.c_str(), URL_WRONLY);
-    throwException(avRet >= 0, ("Error opening ffmpeg video file."));
+    throwException(avRet >= 0, ("Error opening ffmpeg video file with url_fopen"));
 
     // start the stream
     avRet = av_write_header(m_avFormatContext);
