@@ -15,13 +15,13 @@ extern "C" {
 
 namespace G3D {
 
-VideoOutput::Settings::Settings() :
+VideoOutput::Settings::Settings(CodecID c, int w, int h, float f, int fourcc) :
     codec(CODEC_ID_NONE),
-    fps(0),
-    width(0),
-    height(0),
+    fps(f),
+    width(w),
+    height(h),
     bitrate(0),
-    customFOURCC(0) {
+    customFOURCC(fourcc) {
 
     // just initializes the values so the optional entries aren't used
     raw.format = PIX_FMT_NONE;
@@ -29,28 +29,22 @@ VideoOutput::Settings::Settings() :
     mpeg.gop = 0;
 }
 
-VideoOutput::Settings VideoOutput::Settings::uncompressedAVI() {
-    Settings s;
+
+VideoOutput::Settings VideoOutput::Settings::rawAVI(int width, int height, float fps) {
+    Settings s(CODEC_ID_RAWVIDEO, width, height, fps);
 
     // uncompressed avi files use BGR not RGB
-    s.codec = CODEC_ID_RAWVIDEO;
     s.raw.format = PIX_FMT_BGR24;
 
     return s;
 }
 
-VideoOutput::Settings VideoOutput::Settings::ffmpegMPEG4() {
-    Settings s;
 
-    // native ffmpeg iso mpeg4 implementation
-    s.codec = CODEC_ID_MPEG4;
+VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float fps, int fourCC) {
+    Settings s(CODEC_ID_MPEG4, width, height, fps, fourCC);
     
-    // this is just a default and should be overriden by user, we don't have width/height to pre-calculate
-    s.bitrate = 1024 * 512;
-
-    // the 'XVID' fourcc code will make this a more compatible stream
-    // but still using ffmpeg's native encoder
-    s.customFOURCC = ('X' << 24) | ('V' << 16) | ('I' << 8) | ('D');
+    // About 1 MB / min for 640 * 480
+    s.bitrate = 260000 * (width * height) / (640 * 480);
 
     return s;
 }
@@ -122,6 +116,10 @@ VideoOutput::~VideoOutput() {
 void VideoOutput::initialize(const std::string& filename, const Settings& settings) {
     // helper for exiting VideoOutput construction (exceptions caught by static ref creator)
     #define throwException(exp, msg) if (!(exp)) { throw std::string(msg); }
+
+    debugAssert(settings.width > 0);
+    debugAssert(settings.height > 0);
+    debugAssert(settings.fps > 0);
 
     // initialize list of available muxers/demuxers and codecs in ffmpeg
     avcodec_register_all();
@@ -242,14 +240,20 @@ void VideoOutput::append(const Texture::Ref& frame) {
 
 void VideoOutput::append(const GImage& frame) {
     throwException(frame.channels == 3, ("Appending 4-channel Gimage is not currently supported"));
+    debugAssert(frame.width == m_settings.width);
+    debugAssert(frame.height == m_settings.height);
     encodeAndWriteFrame(const_cast<uint8*>(frame.byte()), PIX_FMT_RGB24);
 }
 
 void VideoOutput::append(const Image1uint8::Ref& frame) {
+    debugAssert(frame->width() == m_settings.width);
+    debugAssert(frame->height() == m_settings.height);
     encodeAndWriteFrame(reinterpret_cast<uint8*>(frame->getCArray()), PIX_FMT_GRAY8);
 }
 
 void VideoOutput::append(const Image3uint8::Ref& frame) {
+    debugAssert(frame->width() == m_settings.width);
+    debugAssert(frame->height() == m_settings.height);
     encodeAndWriteFrame(reinterpret_cast<uint8*>(frame->getCArray()), PIX_FMT_RGB24);
 }
 
@@ -268,34 +272,55 @@ void VideoOutput::append(const Image3::Ref& frame) {
     throwException(false, ("Appending Image3 frame is not currently supported"));
 }
 
+
 void VideoOutput::append(const Image4::Ref& frame) {
     // not currently supported
     throwException(false, ("Appending Image4 frame is not currently supported"));
 }
 
+
 void VideoOutput::append(uint8* frame, PixelFormat frameFormat) {
     encodeAndWriteFrame(frame, frameFormat);
 }
 
-void VideoOutput::encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat)
-{
+
+void VideoOutput::encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat) {
     if (static_cast< ::PixelFormat>(frameFormat) != m_avStream->codec->pix_fmt) {
         // convert to required input format
         AVFrame* convFrame = avcodec_alloc_frame();
         throwException(convFrame, ("Unable to add frame."));
 
-        avpicture_fill(reinterpret_cast<AVPicture*>(convFrame), reinterpret_cast<uint8_t*>(frame), frameFormat, m_settings.width, m_settings.height);
-        int convertRet = img_convert(reinterpret_cast<AVPicture*>(m_avInputFrame), m_avStream->codec->pix_fmt, reinterpret_cast<AVPicture*>(convFrame), frameFormat, m_settings.width, m_settings.height);
+        avpicture_fill(reinterpret_cast<AVPicture*>(convFrame), 
+                       reinterpret_cast<uint8_t*>(frame),
+                       frameFormat, 
+                       m_settings.width, 
+                       m_settings.height);
+
+        int convertRet = img_convert(reinterpret_cast<AVPicture*>(m_avInputFrame), 
+                                     m_avStream->codec->pix_fmt, 
+                                     reinterpret_cast<AVPicture*>(convFrame),
+                                     frameFormat, 
+                                     m_settings.width, 
+                                     m_settings.height);
 
         av_free(convFrame);
 
         throwException(convertRet >= 0, ("Unable to add frame of this format."));
+
     } else {
-        avpicture_fill(reinterpret_cast<AVPicture*>(m_avInputFrame), reinterpret_cast<uint8_t*>(frame), frameFormat, m_settings.width, m_settings.height);
+
+        avpicture_fill(reinterpret_cast<AVPicture*>(m_avInputFrame), 
+                       reinterpret_cast<uint8_t*>(frame), 
+                       frameFormat, 
+                       m_settings.width, 
+                       m_settings.height);
     }
 
     // encode frame
-    int encodeSize = avcodec_encode_video(m_avStream->codec, m_avEncodingBuffer, m_avEncodingBufferSize, m_avInputFrame);
+    int encodeSize = avcodec_encode_video(m_avStream->codec, 
+                                          m_avEncodingBuffer, 
+                                          m_avEncodingBufferSize,
+                                          m_avInputFrame);
 
     // write the frame
     if (encodeSize > 0) {
@@ -333,11 +358,11 @@ void VideoOutput::abort() {
         url_fclose(m_avFormatContext->pb);
         m_avFormatContext->pb = NULL;
 
-#ifdef _MSC_VER
-        _unlink(m_filename.c_str());
-#else
-        unlink(m_filename.c_str());
-#endif //_MSVC_VER
+#       ifdef _MSC_VER
+            _unlink(m_filename.c_str());
+#       else
+            unlink(m_filename.c_str());
+#       endif //_MSVC_VER
     }
 }
 

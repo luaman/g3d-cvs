@@ -1,10 +1,10 @@
 /** 
+    @file VideoOutput.h
  */
 
 #ifndef G3D_VIDEOOUTPUT_H
 #define G3D_VIDEOOUTPUT_H
 
-// includes
 #include <string>
 #include "G3D/g3dmath.h"
 #include "G3D/GImage.h"
@@ -198,11 +198,17 @@ public:
         PIX_FMT_NB,        ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
     };
 
-    struct Settings
-    {
-    public:
-        Settings();
+    /** Constants for customFOURCC */
+    enum {
+        /** FFMPEG broadly compatible format for MPG4  */
+        XVID_FOURCC = ('X' << 24) | ('V' << 16) | ('I' << 8) | ('D'),
+        /** Generic format for MPG4  */
+        FMP4_FOURCC = ('F' << 24) | ('M' << 16) | ('P' << 8) | ('4')
+    };
 
+    class Settings {
+    public:
+        
         /** ffmpeg codec id */
         CodecID         codec;
 
@@ -215,7 +221,7 @@ public:
         /** Frame height */
         int             height;
 
-        /** Stream avarage bitrate if needed */
+        /** Stream avarage bits per second, if needed by the codec.*/
         int             bitrate;
 
         /** Custom fourcc if the automatic fourcc for a codec needs to be changed
@@ -237,27 +243,52 @@ public:
             int         gop;
         } mpeg;
 
-        /** Settings that can be used to when writing an uncompressed avi video (with BGR pixel format output) */
-        static Settings uncompressedAVI();
+        /** Defaults to MPEG-4 */
+        Settings(CodecID codec = CODEC_ID_MPEG4, int width = 640, int height = 480, 
+                 float fps = 30.0f, int customFourCC = 0);
 
-        /** Settings that can be used when writing an mpeg4 avi video using ffmpeg's native implementation */
-        static Settings ffmpegMPEG4();
+        /** Settings that can be used to when writing an uncompressed
+            avi video (with BGR pixel format output) */
+        static Settings rawAVI(int width = 640, int height = 480, float fps = 30.0f);
+
+        /** Settings that can be used when writing an MPEG4 video. The
+            default customFourCC XVID uses ffmpeg's native
+            implementation, so it is most likely to be widely compatible. */
+        static Settings MPEG4(int width = 640, int height = 480, float fps = 30.0f, 
+                              int customFourCC = XVID_FOURCC);
     };
 
     typedef ReferenceCountedPointer<VideoOutput> Ref;
     
-    static Ref create(const std::string& filename, const Settings& settings);
+    static Ref create(const std::string& filename, const Settings& settings = Settings::MPEG4());
 
     ~VideoOutput();
 
     void append(const Texture::Ref& frame); 
+
+    /** The image must have exactly three channels. */
     void append(const GImage& frame); 
+
+    /** @brief Append the current frame on the RenderDevice to this video.*/
+    void append(class RenderDevice* rd); 
+
+    /** Reserved for future use */
     void append(const Image1uint8::Ref& frame); 
+
     void append(const Image3uint8::Ref& frame); 
+
+    /** Reserved for future use */
     void append(const Image4uint8::Ref& frame); 
-    void append(const Image1::Ref& frame); 
-    void append(const Image3::Ref& frame); 
+
+    /** Reserved for future use */
+    void append(const Image1::Ref& frame);
+
+    void append(const Image3::Ref& frame);
+
+    /** Reserved for future use */ 
     void append(const Image4::Ref& frame); 
+
+    /** @param frame must match the settings width and height */
     void append(uint8* frame, PixelFormat frameFormat); 
 
     /** Aborts writing video file and ends encoding */
