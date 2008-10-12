@@ -21,6 +21,10 @@ namespace G3D {
 
 /** video output */
 class VideoOutput : public ReferenceCountedObject {
+private:
+
+    /** Used by append(RenderDevice) to hold the read-back frame.*/
+    GImage              m_temp;
 
 public:
     enum CodecID {

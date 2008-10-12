@@ -6,6 +6,7 @@
 #include "G3D/platform.h"
 #include <cstdio>
 #include "GLG3D/VideoOutput.h"
+#include "GLG3D/RenderDevice.h"
 
 extern "C" {
 #include "libavformat/avformat.h"
@@ -220,6 +221,13 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     m_isInitialized = true;
 }
+
+
+void VideoOutput::append(RenderDevice* rd) {
+    rd->screenshotPic(m_temp);
+    append(m_temp);
+}
+
 
 void VideoOutput::append(const Texture::Ref& frame) {
 
