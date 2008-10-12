@@ -125,7 +125,6 @@ void PosedModel::sortAndRender
     ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
     PosedModel::sort(opaqueAModel, camera.coordinateFrame().lookVector(), opaqueAModel);
     PosedModel::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
-    
     rd->setProjectionAndCameraMatrix(camera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
 
@@ -159,7 +158,6 @@ void PosedModel::sortAndRender
         }
         rd->popState();
     }
-
 
     // Transparent, must be rendered from back to front
     for (int m = 0; m < transparent.size(); ++m) {
@@ -222,13 +220,13 @@ void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2DRef>& posed
 
 class ModelSorter {
 public:
-    double                  sortKey;
+    float                     sortKey;
     PosedModel::Ref           model;
 
     ModelSorter() {}
 
     ModelSorter(const PosedModel::Ref& m, const Vector3& axis) : model(m) {
-        static Sphere s;
+        Sphere s;
         m->getWorldSpaceBoundingSphere(s);
         sortKey = axis.dot(s.center);
     }
@@ -245,12 +243,12 @@ public:
 
 void PosedModel::sort(
     const Array<PosedModel::Ref>& inModels, 
-    const Vector3&              wsLook,
+    const Vector3&                wsLook,
     Array<PosedModel::Ref>&       opaque,
     Array<PosedModel::Ref>&       transparent) {
 
-    Array<ModelSorter> op;
-    Array<ModelSorter> tr;
+    static Array<ModelSorter> op;
+    static Array<ModelSorter> tr;
     
     for (int m = 0; m < inModels.size(); ++m) {
         if (inModels[m]->hasTransparency()) {
@@ -273,12 +271,15 @@ void PosedModel::sort(
     for (int m = 0; m < op.size(); ++m) {
         opaque[m] = op[m].model;
     }
+
+    tr.fastClear();
+    op.fastClear();
 }
 
 
 void PosedModel::sort(
     const Array<PosedModel::Ref>& inModels, 
-    const Vector3&              wsLook,
+    const Vector3&                wsLook,
     Array<PosedModel::Ref>&       opaque) { 
 
     if (&inModels == &opaque) {
@@ -288,7 +289,7 @@ void PosedModel::sort(
         return;
     }
 
-    Array<ModelSorter> op;
+    static Array<ModelSorter> op;
     
     for (int m = 0; m < inModels.size(); ++m) {
         op.append(ModelSorter(inModels[m], wsLook));
@@ -301,6 +302,7 @@ void PosedModel::sort(
     for (int m = 0; m < op.size(); ++m) {
         opaque[m] = op[m].model;
     }
+    op.fastClear();
 }
 
 
