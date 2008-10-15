@@ -1,10 +1,12 @@
 /**
   @file empty/main.cpp
 
-  This is a sample main.cpp to get you started with G3D.  It is designed to make writing an
-  application easy.  Although the GApp infrastructure is helpful for most projects, you are not 
-  restricted to using it--choose the level of support that is best for your project.  You can 
-  also customize GApp through its members and change its behavior by overriding methods.
+  This is a sample main.cpp to get you started with G3D.  It is
+  designed to make writing an application easy.  Although the GApp
+  infrastructure is helpful for most projects, you are not restricted
+  to using it--choose the level of support that is best for your
+  project.  You can also customize GApp through its members and change
+  its behavior by overriding methods.
 
   @author Morgan McGuire, morgan@cs.williams.edu
  */
@@ -38,6 +40,7 @@ public:
 };
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
+    catchCommonExceptions = false;
 }
 
 
@@ -48,10 +51,8 @@ void App::onInit() {
 //	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
 //	map = BSPMap::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3", "charon3dm11v2.bsp");
 
-    // Called before the application loop beings.  Load data here
-    // and not in the constructor so that common exceptions will be
-    // automatically caught.
-    sky = Sky::fromFile(dataDir + "sky/");
+    sky = Sky::fromFile(System::findDataFile("sky"));
+
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -117,8 +118,9 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(' ') && video.isNull()) {
-        video = VideoOutput::create("c:/test.mp4", VideoOutput::Settings::ffmpegMPEG4());
-//        video = VideoOutput::create("c:/test.avi", VideoOutput::Settings::uncompressedAVI());
+        VideoOutput::Settings s = VideoOutput::Settings::rawAVI();
+
+        video = VideoOutput::create("test.avi", s);
     } else if (ui->keyPressed('x') && video.notNull()) {
         video->commit();
     }

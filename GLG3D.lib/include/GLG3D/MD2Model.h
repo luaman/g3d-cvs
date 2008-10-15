@@ -543,10 +543,17 @@ public:
     virtual size_t mainMemorySize() const;
 
     /**
-     Loads a Quake2 character texture.  Same as:
+     @brief Loads a Quake2 character texture.  
+
+     Note that you may want to
+     apply gamma correction as well if you are using tone mapping.
+
+
+     Same as:
+
      <pre>
      Texture::Settings settings;
-     settings.wrapMode = Texture::CLAMP;
+     settings.wrapMode = WrapMode::CLAMP;
 
      Texture::PreProcess preprocess;
      preprocess.brighten = 2.0f;
