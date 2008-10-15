@@ -44,8 +44,9 @@ VideoOutput::Settings VideoOutput::Settings::rawAVI(int width, int height, float
 VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float fps, int fourCC) {
     Settings s(CODEC_ID_MPEG4, width, height, fps, fourCC);
     
-    // About 1 MB / min for 640 * 480
-    s.bitrate = 260000 * (width * height) / (640 * 480);
+    // About 3 MB / min for 640 * 480 gives decent quality at a
+    // reasonable file size.
+    s.bitrate = (3000000 * 8 / 60) * (width * height) / (640 * 480);
 
     return s;
 }
@@ -131,14 +132,14 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     // see if ffmpeg can support this muxer and setup output format
     m_avOutputFormat = guess_format(NULL, filename.c_str(), NULL);
-    throwException(m_avOutputFormat, ("Error initializing ffmpeg."));
+    throwException(m_avOutputFormat, ("Error initializing ffmpeg in guess_format."));
 
     // set the codec id
     m_avOutputFormat->video_codec = static_cast< ::CodecID>(m_settings.codec);
 
     // create format context which controls writing the file
     m_avFormatContext = av_alloc_format_context();
-    throwException(m_avFormatContext, ("Error initializing ffmpeg."));
+    throwException(m_avFormatContext, ("Error initializing ffmpeg in av_alloc_format_context."));
 
     // attach format to context
     m_avFormatContext->oformat = m_avOutputFormat;
@@ -146,7 +147,7 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     // add video stream 0
     m_avStream = av_new_stream(m_avFormatContext, 0);
-    throwException(m_avStream, ("Error initializing ffmpeg."));
+    throwException(m_avStream, ("Error initializing ffmpeg in av_new_stream."));
 
     // setup video stream
     m_avStream->codec->codec_id     = m_avOutputFormat->video_codec;
@@ -154,7 +155,7 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     // find and open required codec
     AVCodec* codec = avcodec_find_encoder(m_avStream->codec->codec_id);
-    throwException(codec, ("Error initializing ffmpeg."));
+    throwException(codec, ("Error initializing ffmpeg in avcodec_find_encoder."));
 
     // finish setting codec parameters
     m_avStream->codec->bit_rate     = m_settings.bitrate;
