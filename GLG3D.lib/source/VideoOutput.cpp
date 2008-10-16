@@ -147,33 +147,32 @@ const char* VideoOutput::toString(CodecID c) {
         CODEC_ID_VP6F,
         CODEC_ID_TARGA,
         CODEC_ID_DSICINVIDEO,
-        CODEC_ID_TIERTEXSEQVIDEO,
-        CODEC_ID_TIFF,
-        CODEC_ID_GIF,*/
+        CODEC_ID_TIERTEXSEQVIDEO,*/
+    case CODEC_ID_TIFF: return "TIFF";
+    case CODEC_ID_GIF: return "GIF";
     case CODEC_ID_FFH264: return "FF H.264";
-        /*
-        CODEC_ID_DXA,
-        CODEC_ID_DNXHD,
-        CODEC_ID_THP,
-        CODEC_ID_SGI,
-        CODEC_ID_C93,
-        CODEC_ID_BETHSOFTVID,
-        CODEC_ID_PTX,
-        CODEC_ID_TXD,
-        CODEC_ID_VP6A,
-        CODEC_ID_AMV,
-        CODEC_ID_VB,
-        CODEC_ID_PCX,
-        CODEC_ID_SUNRAST,
-        CODEC_ID_INDEO4,
-        CODEC_ID_INDEO5,
-        CODEC_ID_MIMIC,
-        CODEC_ID_RL2,
-        CODEC_ID_8SVX_EXP,
-        CODEC_ID_8SVX_FIB,
-        CODEC_ID_ESCAPE124,
-        CODEC_ID_DIRAC,
-        CODEC_ID_BFI*/
+    case CODEC_ID_DXA: return "DXA";
+    case CODEC_ID_DNXHD: return "DNX HD";
+    case CODEC_ID_THP: return "THP";
+    case CODEC_ID_SGI: return "SGI";
+    case CODEC_ID_C93: return "C93";
+    case CODEC_ID_BETHSOFTVID: return "BethSoftVid";
+    case CODEC_ID_PTX: return "PTX";
+    case CODEC_ID_TXD: return "TXD";
+    case CODEC_ID_VP6A: return "VP6A";
+    case CODEC_ID_AMV: return "AMV";
+    case CODEC_ID_VB: return "VB";
+    case CODEC_ID_PCX: return "PCX";
+    case CODEC_ID_SUNRAST: return "Sun Raster";
+    case CODEC_ID_INDEO4: return "Indeo 4";
+    case CODEC_ID_INDEO5: return "Indeo 5";
+    case CODEC_ID_MIMIC: return "Mimic";
+    case CODEC_ID_RL2: return "RL 2";
+    case CODEC_ID_8SVX_EXP: return "8SVX EXP";
+    case CODEC_ID_8SVX_FIB: return "8SVX FIB";
+    case CODEC_ID_ESCAPE124: return "Escape 124";
+    case CODEC_ID_DIRAC: return "Dirac";
+    case CODEC_ID_BFI: return "BFI";
     default:
         return "Unknown";
     }

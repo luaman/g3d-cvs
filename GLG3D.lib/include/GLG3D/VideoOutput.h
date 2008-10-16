@@ -264,12 +264,12 @@ public:
 
         /** Settings that can be used to when writing an uncompressed
             avi video (with BGR pixel format output) */
-        static Settings rawAVI(int width = 640, int height = 480, float fps = 30.0f);
+        static Settings rawAVI(int width, int height, float fps = 30.0f);
 
         /** Settings that can be used when writing an MPEG4 video. The
             default customFourCC XVID uses ffmpeg's native
             implementation, so it is most likely to be widely compatible. */
-        static Settings MPEG4(int width = 640, int height = 480, float fps = 30.0f, 
+        static Settings MPEG4(int width, int height, float fps = 30.0f, 
                               int customFourCC = XVID_FOURCC);
     };
 

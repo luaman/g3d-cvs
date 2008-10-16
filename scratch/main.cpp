@@ -127,8 +127,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(' ') && video.isNull()) {
-        //VideoOutput::Settings s = VideoOutput::Settings::rawAVI();
-        VideoOutput::Settings s = VideoOutput::Settings::MPEG4();
+        VideoOutput::Settings s = VideoOutput::Settings::MPEG4(window()->width(), window()->height());
         video = VideoOutput::create("test.mp4", s);
     } else if (ui->keyPressed('x') && video.notNull()) {
         video->commit();
