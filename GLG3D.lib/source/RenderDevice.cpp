@@ -531,13 +531,13 @@ void RenderDevice::setVideoMode() {
     #ifdef G3D_WIN32
         if (wglSwapIntervalEXT != NULL) {
             if (debugLog) {
-                if (settings.asychronous) {
+                if (settings.asynchronous) {
                     debugLog->printf("wglSwapIntervalEXT(0);\n");
                 } else {
                     debugLog->printf("wglSwapIntervalEXT(1);\n");
                 }
             }
-            wglSwapIntervalEXT(settings.asychronous ? 0 : 1);
+            wglSwapIntervalEXT(settings.asynchronous ? 0 : 1);
         }
     #endif
 
