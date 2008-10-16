@@ -275,7 +275,7 @@ public:
 
     typedef ReferenceCountedPointer<VideoOutput> Ref;
     
-    static Ref create(const std::string& filename, const Settings& settings = Settings::MPEG4());
+    static Ref create(const std::string& filename, const Settings& settings);
 
     ~VideoOutput();
 
