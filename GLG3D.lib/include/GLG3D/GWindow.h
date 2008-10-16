@@ -124,7 +124,7 @@ public:
         /** Should buffer flips be un-hitched from refresh rate?
             <B>true</B>, false.  True generally gives
             higher frame rates.*/
-        bool    asychronous;
+        bool    asynchronous;
         
         /** Allocate a stereo display context. true, <B>false</B> */
         bool    stereo;
@@ -178,7 +178,7 @@ public:
             fsaaSamples(1),
             hardware(true),
             fullScreen(false),
-            asychronous(true),
+            asynchronous(true),
             stereo(false),
             refreshRate(85),
             resizable(false),

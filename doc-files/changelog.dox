@@ -144,6 +144,7 @@
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
      <li> G3D::TriangleShape
+     <li> Fix: <B>incompatible change</b> GWindow::Settings::asynchronous is now spelled correclty, with two "n"s
      <li> Fix: Fixes for point-in-triangle and moving-sphere-fixed-tri; previous code projected onto the wrong axes, so barycentric coords were wrong for nearly vertical triangles.
      <li> Fix: Changed some doubles to floats in G3D::Triangle
      <li> Fix: Changed all of the isXXX(char) methods to take unsigned char arguments so that they can parse extended symbols

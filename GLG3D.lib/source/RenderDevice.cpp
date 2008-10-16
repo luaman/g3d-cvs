@@ -3430,7 +3430,7 @@ void RenderDevice::describeSystem(
         var(t, "Blue bits", settings.rgbBits);
         var(t, "Depth bits", settings.depthBits);
         var(t, "Stencil bits", settings.stencilBits);
-        var(t, "Asynchronous", settings.asychronous);
+        var(t, "Asynchronous", settings.asynchronous);
         var(t, "Stereo", settings.stereo);
         var(t, "FSAA samples", settings.fsaaSamples);
 
