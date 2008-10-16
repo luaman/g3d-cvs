@@ -228,7 +228,7 @@ public:
         CodecID         codec;
 
         /** Frames per second the video should be encoded as */
-        int             fps;
+        float           fps;
 
         /** Frame width */
         int             width;
