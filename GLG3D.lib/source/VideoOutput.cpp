@@ -16,8 +16,172 @@ extern "C" {
 
 namespace G3D {
 
+void VideoOutput::getSupportedCodecs(Array<std::string>& list) {
+    Array<CodecID> codec;
+    getSupportedCodecs(codec);
+    list.resize(codec.size());
+    for (int i = 0; i < codec.size(); ++i) {
+        list[i] = toString(codec[i]);
+    }
+}
+
+
+void VideoOutput::getSupportedCodecs(Array<CodecID>& list) {
+    for (int i = CODEC_ID_NONE; i < CODEC_ID_LAST; ++i) {
+        CodecID c = (CodecID)i;
+        if (supports(c)) {
+            list.append(c);
+        }
+    }
+}
+
+
+bool VideoOutput::supports(CodecID c) {
+    // initialize list of available muxers/demuxers and codecs in ffmpeg
+    // TODO: is it ok to execute this multiple times?
+    avcodec_register_all();
+    av_register_all();
+
+    AVCodec* codec = avcodec_find_encoder(static_cast< ::CodecID>(c));
+    return codec != NULL;
+}
+
+
+const char* VideoOutput::toString(CodecID c) {
+    switch (c) {
+    case CODEC_ID_MPEG1VIDEO: return "MPEG1";
+    case CODEC_ID_MPEG2VIDEO: return "MPEG2";
+    case CODEC_ID_MPEG2VIDEO_XVMC: return "MPEG2_XVMC";
+    case CODEC_ID_H261: return "H.261";
+    case CODEC_ID_H263: return "H.263";
+    case CODEC_ID_RV10: return "RV10";
+    case CODEC_ID_RV20: return "RV20";
+    case CODEC_ID_MJPEG: return "MJPEG";
+    case CODEC_ID_MJPEGB: return "MJPEGB";
+    case CODEC_ID_LJPEG: return "LJPEG";
+    case CODEC_ID_SP5X: return "SP5X";
+    case CODEC_ID_JPEGLS: return "JPEGLS";
+    case CODEC_ID_MPEG4: return "MPEG4";
+    case CODEC_ID_RAWVIDEO: return "Raw Video";
+    case CODEC_ID_MSMPEG4V1: return "MS MPEG v1";
+    case CODEC_ID_MSMPEG4V2: return "MS MPEG v2";
+    case CODEC_ID_MSMPEG4V3: return "MS MPEG v3";
+    case CODEC_ID_WMV1: return "WMV1";
+    case CODEC_ID_WMV2: return "WMV2";
+    case CODEC_ID_H263P: return "H.263P";
+    case CODEC_ID_H263I: return "H.263I";
+    case CODEC_ID_FLV1: return "FLV1";
+    case CODEC_ID_SVQ1: return "SVQ1";
+    case CODEC_ID_SVQ3: return "SVQ3";
+    case CODEC_ID_DVVIDEO: return "DV";
+    case CODEC_ID_HUFFYUV: return "HuffYUV";
+    case CODEC_ID_CYUV: return "CYUV";
+    case CODEC_ID_H264: return "H.264";
+    case CODEC_ID_INDEO3: return "Indeo3";
+    case CODEC_ID_VP3: return "VP3";
+    case CODEC_ID_THEORA: return "Theora";
+    case CODEC_ID_ASV1: return "ASV1";
+    case CODEC_ID_ASV2: return "ASV2";
+    case CODEC_ID_FFV1: return "FFV1";
+    case CODEC_ID_4XM: return "4XM";
+    case CODEC_ID_VCR1: return "VCR1";
+    case CODEC_ID_CLJR: return "CLJR";
+    case CODEC_ID_MDEC: return "MDEC";
+    case CODEC_ID_ROQ: return "Roq";
+    case CODEC_ID_INTERPLAY_VIDEO: return "Interplay";
+    case CODEC_ID_XAN_WC3: return "XAN_WC3";
+    case CODEC_ID_XAN_WC4: return "XAN_WC4";
+    case CODEC_ID_RPZA: return "RPZA";
+    case CODEC_ID_CINEPAK: return "Cinepak";
+    case CODEC_ID_WS_VQA: return "WS_VQA";
+    case CODEC_ID_MSRLE: return "MS RLE";
+    case CODEC_ID_MSVIDEO1: return "MS Video1";
+    case CODEC_ID_IDCIN: return "IDCIN";
+    case CODEC_ID_8BPS: return "8BPS";
+    case CODEC_ID_SMC: return "SMC";
+    case CODEC_ID_FLIC: return "FLIC";
+    case CODEC_ID_TRUEMOTION1: return "TrueMotion1";
+    case CODEC_ID_VMDVIDEO: return "VMD Video";
+    case CODEC_ID_MSZH: return "MS ZH";
+    case CODEC_ID_ZLIB: return "zlib";
+    case CODEC_ID_QTRLE: return "QT RLE";
+    case CODEC_ID_SNOW: return "Snow";
+    case CODEC_ID_TSCC : return "TSCC";
+    case CODEC_ID_ULTI: return "ULTI";
+    case CODEC_ID_QDRAW: return "QDRAW";
+    case CODEC_ID_VIXL: return "VIXL";
+    case CODEC_ID_QPEG: return "QPEG";
+    case CODEC_ID_XVID: return "XVID";
+    case CODEC_ID_PNG: return "PNG";
+    case CODEC_ID_PPM: return "PPM";
+    case CODEC_ID_PBM: return "PBM";
+    case CODEC_ID_PGM: return "PGM";
+    case CODEC_ID_PGMYUV: return "PGM YUV";
+    case CODEC_ID_PAM: return "PAM";
+    case CODEC_ID_FFVHUFF: return "FFV Huff";
+    case CODEC_ID_RV30: return "RV30";
+    case CODEC_ID_RV40: return "RV40";
+    case CODEC_ID_VC1: return "VC 1";
+    case CODEC_ID_WMV3: return "WMV 3";
+    case CODEC_ID_LOCO: return "LOCO";
+    case CODEC_ID_WNV1: return "WNV1";
+    case CODEC_ID_AASC: return "AASC";
+    case CODEC_ID_INDEO2: return "Indeo 2";
+    case CODEC_ID_FRAPS: return "Fraps";
+    case CODEC_ID_TRUEMOTION2: return "TrueMotion 2";
+    case CODEC_ID_BMP: return "BMP";
+        /*
+        CODEC_ID_CSCD,
+        CODEC_ID_MMVIDEO,
+        CODEC_ID_ZMBV,
+        CODEC_ID_AVS,
+        CODEC_ID_SMACKVIDEO,
+        CODEC_ID_NUV,
+        CODEC_ID_KMVC,
+        CODEC_ID_FLASHSV,
+        CODEC_ID_CAVS,
+        CODEC_ID_JPEG2000,
+        CODEC_ID_VMNC,
+        CODEC_ID_VP5,
+        CODEC_ID_VP6,
+        CODEC_ID_VP6F,
+        CODEC_ID_TARGA,
+        CODEC_ID_DSICINVIDEO,
+        CODEC_ID_TIERTEXSEQVIDEO,
+        CODEC_ID_TIFF,
+        CODEC_ID_GIF,*/
+    case CODEC_ID_FFH264: return "FF H.264";
+        /*
+        CODEC_ID_DXA,
+        CODEC_ID_DNXHD,
+        CODEC_ID_THP,
+        CODEC_ID_SGI,
+        CODEC_ID_C93,
+        CODEC_ID_BETHSOFTVID,
+        CODEC_ID_PTX,
+        CODEC_ID_TXD,
+        CODEC_ID_VP6A,
+        CODEC_ID_AMV,
+        CODEC_ID_VB,
+        CODEC_ID_PCX,
+        CODEC_ID_SUNRAST,
+        CODEC_ID_INDEO4,
+        CODEC_ID_INDEO5,
+        CODEC_ID_MIMIC,
+        CODEC_ID_RL2,
+        CODEC_ID_8SVX_EXP,
+        CODEC_ID_8SVX_FIB,
+        CODEC_ID_ESCAPE124,
+        CODEC_ID_DIRAC,
+        CODEC_ID_BFI*/
+    default:
+        return "Unknown";
+    }
+}
+
+
 VideoOutput::Settings::Settings(CodecID c, int w, int h, float f, int fourcc) :
-    codec(CODEC_ID_NONE),
+    codec(c),
     fps(f),
     width(w),
     height(h),
@@ -155,7 +319,10 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     // find and open required codec
     AVCodec* codec = avcodec_find_encoder(m_avStream->codec->codec_id);
-    throwException(codec, ("Error initializing ffmpeg in avcodec_find_encoder."));
+    throwException(codec, 
+                   format("Could not find an %s (%d) encoder on this machine.",
+                          toString(static_cast<CodecID>(m_avStream->codec->codec_id)),
+                          m_avStream->codec->codec_id));
 
     // finish setting codec parameters
     m_avStream->codec->bit_rate     = m_settings.bitrate;

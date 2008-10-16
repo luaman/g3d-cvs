@@ -152,8 +152,19 @@ public:
         CODEC_ID_8SVX_FIB,
         CODEC_ID_ESCAPE124,
         CODEC_ID_DIRAC,
-        CODEC_ID_BFI
+        CODEC_ID_BFI,
+        CODEC_ID_LAST
     };
+
+    /** Tests each codec for whether it is supported on this operating system. */
+    static void getSupportedCodecs(Array<CodecID>& c);
+    static void getSupportedCodecs(Array<std::string>& c);
+
+    /** Returns true if this operating system/G3D build supports this codec. */
+    static bool supports(CodecID c);
+
+    /** Returns a human readable name for the codec. */
+    static const char* toString(CodecID c);
 
     enum PixelFormat {
         PIX_FMT_NONE= -1,

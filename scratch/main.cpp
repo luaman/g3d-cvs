@@ -46,6 +46,15 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 void App::onInit() {
 
+    {
+        Array<std::string> s;
+        VideoOutput::getSupportedCodecs(s);
+        printf ("Supported Codecs:\n");
+        for (int i = 0; i < s.size(); ++i) {
+            printf("  %s\n", s[i].c_str());
+        }
+    }
+
     setDesiredFrameRate(60);
 
 //	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
@@ -118,9 +127,9 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(' ') && video.isNull()) {
-        VideoOutput::Settings s = VideoOutput::Settings::rawAVI();
-
-        video = VideoOutput::create("test.avi", s);
+        //VideoOutput::Settings s = VideoOutput::Settings::rawAVI();
+        VideoOutput::Settings s = VideoOutput::Settings::MPEG4();
+        video = VideoOutput::create("test.mp4", s);
     } else if (ui->keyPressed('x') && video.notNull()) {
         video->commit();
     }
