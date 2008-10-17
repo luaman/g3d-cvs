@@ -214,6 +214,7 @@ VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float 
     return s;
 }
 
+
 VideoOutput::Ref VideoOutput::create(const std::string& filename, const Settings& settings) {
     VideoOutput* vo = new VideoOutput;
 
@@ -229,6 +230,7 @@ VideoOutput::Ref VideoOutput::create(const std::string& filename, const Settings
 
     return Ref(vo);
 }
+
 
 VideoOutput::VideoOutput() :
     m_isInitialized(false),
@@ -401,17 +403,16 @@ void VideoOutput::append(const Texture::Ref& frame) {
     // Only support formats available to GImage and ffmpeg and that are convertable
     const TextureFormat* format = TextureFormat::RGB8();
 
-    // todo: should this be pre-allocated after first call?
-    GImage img;
-    frame->getImage(img, format);
+    frame->getImage(m_temp, format);
 
     // todo: this can be slow flipping in-place - good candidate for simd optimization with 2nd buffer?
     if (frame->invertY) {
-        GImage::flipRGBVertical(img.byte(), img.byte(), img.width, img.height);
+        GImage::flipRGBVertical(m_temp.byte(), m_temp.byte(), m_temp.width, m_temp.height);
     }
 
-    append(img);
+    append(m_temp);
 }
+
 
 void VideoOutput::append(const GImage& frame) {
     throwException(frame.channels == 3, ("Appending 4-channel Gimage is not currently supported"));
@@ -420,11 +421,13 @@ void VideoOutput::append(const GImage& frame) {
     encodeAndWriteFrame(const_cast<uint8*>(frame.byte()), PIX_FMT_RGB24);
 }
 
+
 void VideoOutput::append(const Image1uint8::Ref& frame) {
     debugAssert(frame->width() == m_settings.width);
     debugAssert(frame->height() == m_settings.height);
     encodeAndWriteFrame(reinterpret_cast<uint8*>(frame->getCArray()), PIX_FMT_GRAY8);
 }
+
 
 void VideoOutput::append(const Image3uint8::Ref& frame) {
     debugAssert(frame->width() == m_settings.width);
@@ -460,6 +463,9 @@ void VideoOutput::append(uint8* frame, PixelFormat frameFormat) {
 
 
 void VideoOutput::encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat) {
+    alwaysAssertM(m_isInitialized, "VideoOutput was not initialized before call to encodeAndWriteFrame.");
+    alwaysAssertM(! m_isFinished, "Cannot call VideoOutput::append() after commit() or abort().");
+    
     if (static_cast< ::PixelFormat>(frameFormat) != m_avStream->codec->pix_fmt) {
         // convert to required input format
         AVFrame* convFrame = avcodec_alloc_frame();

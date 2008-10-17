@@ -19,14 +19,10 @@ struct AVFrame;
 
 namespace G3D {
 
-/** video output */
+/** @brief Saves video to disk in a variety of popular formats, including AVI and MPEG. */
 class VideoOutput : public ReferenceCountedObject {
-private:
-
-    /** Used by append(RenderDevice) to hold the read-back frame.*/
-    GImage              m_temp;
-
 public:
+
     enum CodecID {
         CODEC_ID_NONE,
 
@@ -156,16 +152,6 @@ public:
         CODEC_ID_LAST
     };
 
-    /** Tests each codec for whether it is supported on this operating system. */
-    static void getSupportedCodecs(Array<CodecID>& c);
-    static void getSupportedCodecs(Array<std::string>& c);
-
-    /** Returns true if this operating system/G3D build supports this codec. */
-    static bool supports(CodecID c);
-
-    /** Returns a human readable name for the codec. */
-    static const char* toString(CodecID c);
-
     enum PixelFormat {
         PIX_FMT_NONE= -1,
         PIX_FMT_YUV420P,   ///< Planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples)
@@ -272,6 +258,45 @@ public:
         static Settings MPEG4(int width, int height, float fps = 30.0f, 
                               int customFourCC = XVID_FOURCC);
     };
+protected:
+
+    VideoOutput();
+
+    void initialize(const std::string& filename, const Settings& settings);
+    void encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat);
+
+    Settings            m_settings;
+    std::string         m_filename;
+
+    bool                m_isInitialized;
+    bool                m_isFinished;
+
+    // ffmpeg management
+    AVOutputFormat*     m_avOutputFormat;
+    AVFormatContext*    m_avFormatContext;
+    AVStream*           m_avStream;
+
+    uint8*              m_avInputBuffer;
+    AVFrame*            m_avInputFrame;
+
+    uint8*              m_avEncodingBuffer;
+    int                 m_avEncodingBufferSize;
+
+    /** Used by append(RenderDevice) to hold the read-back frame.*/
+    GImage              m_temp;
+
+public:
+
+    /** Tests each codec for whether it is supported on this operating system. */
+    static void getSupportedCodecs(Array<CodecID>& c);
+    static void getSupportedCodecs(Array<std::string>& c);
+
+    /** Returns true if this operating system/G3D build supports this codec. */
+    static bool supports(CodecID c);
+
+    /** Returns a human readable name for the codec. */
+    static const char* toString(CodecID c);
+
 
     typedef ReferenceCountedPointer<VideoOutput> Ref;
     
@@ -314,28 +339,6 @@ public:
 
     bool finished()       { return m_isFinished; }
 
-private:
-    VideoOutput();
-
-    void initialize(const std::string& filename, const Settings& settings);
-    void encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat);
-
-    Settings    m_settings;
-    std::string m_filename;
-
-    bool        m_isInitialized;
-    bool        m_isFinished;
-
-    // ffmpeg management
-    AVOutputFormat*     m_avOutputFormat;
-    AVFormatContext*    m_avFormatContext;
-    AVStream*           m_avStream;
-
-    uint8*              m_avInputBuffer;
-    AVFrame*            m_avInputFrame;
-
-    uint8*              m_avEncodingBuffer;
-    int                 m_avEncodingBufferSize;
 };
 
 } // namespace G3D

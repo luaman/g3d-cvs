@@ -131,6 +131,7 @@ void App::onUserInput(UserInput* ui) {
         video = VideoOutput::create("test.mp4", s);
     } else if (ui->keyPressed('x') && video.notNull()) {
         video->commit();
+        video = NULL;
     }
 }
 
