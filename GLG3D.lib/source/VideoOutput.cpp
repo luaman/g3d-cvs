@@ -405,7 +405,8 @@ void VideoOutput::append(const Texture::Ref& frame) {
 
     frame->getImage(m_temp, format);
 
-    // todo: this can be slow flipping in-place - good candidate for simd optimization with 2nd buffer?
+    // TODO: the image formats/append calls need to take invertY into account so that 
+    // flipping can be delayed until image conversion.
     if (frame->invertY) {
         GImage::flipRGBVertical(m_temp.byte(), m_temp.byte(), m_temp.width, m_temp.height);
     }
@@ -466,14 +467,22 @@ void VideoOutput::encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat) {
     alwaysAssertM(m_isInitialized, "VideoOutput was not initialized before call to encodeAndWriteFrame.");
     alwaysAssertM(! m_isFinished, "Cannot call VideoOutput::append() after commit() or abort().");
     
+    if (m_settings.codec == CODEC_ID_RAWVIDEO && frameFormat == PIX_FMT_RGB24) {
+        // TODO: Generalize this; it should not be a hack just for AVI files!
+
+        // Flip the frame upside down for AVI format
+        GImage::flipRGBVertical(frame, frame, m_settings.width, m_settings.height);
+    }
+
     if (static_cast< ::PixelFormat>(frameFormat) != m_avStream->codec->pix_fmt) {
         // convert to required input format
         AVFrame* convFrame = avcodec_alloc_frame();
-        throwException(convFrame, ("Unable to add frame."));
+        throwException(convFrame, "Unable to append frame because in "
+            "VideoOutput, avcodec_alloc_frame returned NULL");
 
         avpicture_fill(reinterpret_cast<AVPicture*>(convFrame), 
                        reinterpret_cast<uint8_t*>(frame),
-                       frameFormat, 
+                       frameFormat,
                        m_settings.width, 
                        m_settings.height);
 

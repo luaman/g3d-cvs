@@ -127,11 +127,16 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onUserInput(UserInput* ui) {
     if (ui->keyPressed(' ') && video.isNull()) {
-        VideoOutput::Settings s = VideoOutput::Settings::MPEG4(window()->width(), window()->height());
-        video = VideoOutput::create("test.mp4", s);
+        VideoOutput::Settings s = VideoOutput::Settings::rawAVI(window()->width(), window()->height());
+        video = VideoOutput::create("test.avi", s);
     } else if (ui->keyPressed('x') && video.notNull()) {
         video->commit();
         video = NULL;
+    } else if (ui->keyPressed('p')) {
+        GImage im;
+        renderDevice->screenshotPic(im);
+        im.save("test.png");
+        exit(0);
     }
 }
 
@@ -188,6 +193,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     sky->renderLensFlare(rd, localSky);
 
     PosedModel2D::sortAndRender(rd, posed2D);
+
+
 }
 
 
