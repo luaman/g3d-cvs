@@ -17,6 +17,91 @@
 #   error Requires G3D 7.00
 #endif
 
+
+/**********************************************************/
+/**
+  @file VideoRecordWindow.h
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2002-07-28
+  @edited  2008-07-14
+*/
+#ifndef G3D_VideoRecordWindow_h
+#define G3D_VideoRecordWindow_h
+
+#include "G3D/platform.h"
+#include "GLG3D/Widget.h"
+#include "GLG3D/UprightSplineManipulator.h"
+#include "GLG3D/GuiWindow.h"
+#include "GLG3D/GuiLabel.h"
+#include "GLG3D/GuiCheckBox.h"
+#include "GLG3D/GuiDropDownList.h"
+#include "GLG3D/GuiTextBox.h"
+#include "GLG3D/GuiButton.h"
+#include "GLG3D/FirstPersonManipulator.h"
+
+namespace G3D {
+
+/** 
+ Changes the GWindow caption to "... - Recording" while recording.
+ */
+class VideoRecordWindow : public GuiWindow {
+public:
+
+    typedef ReferenceCountedPointer<class VideoRecordWindow> Ref;
+
+protected:
+
+    GuiRadioButton*             m_playButton;
+    GuiRadioButton*             m_stopButton;
+    GuiRadioButton*             m_recordButton;
+
+    /**
+     When false, the screen is captured at the beginning of 
+     Posed2DModel rendering from the back buffer, which may 
+     slow down rendering.
+
+     When true, the screen is captured from the the previous 
+     frame, which will not introduce latency into rendering.
+     */
+    bool                        m_renderGUI;
+
+    /** Key to start/stop recording even when the GUI is not
+        visible. TODO: make this an index into a dropdownlist 
+        of options
+      */
+    KeyCode                     m_hotKey;
+
+public:
+
+    /**
+     */
+    static Ref create(const GuiThemeRef& skin);
+
+    virtual bool onEvent(const GEvent& event);
+    virtual void onUserInput(UserInput*);
+};
+
+}
+
+#endif
+/*********************************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class App : public GApp {
 public:
     LightingRef         lighting;
