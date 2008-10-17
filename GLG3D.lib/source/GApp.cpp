@@ -185,7 +185,7 @@ GApp::GApp(const Settings& settings, GWindow* window) :
         GuiThemeRef skin = GuiTheme::fromFile(System::findDataFile("osx.skn"), arialFont);
 
         debugWindow = GuiWindow::create("Debug Controls", skin, 
-            Rect2D::xywh(settings.window.width - 160, 350, 150, 150), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE);
+            Rect2D::xywh(0, settings.window.height - 150, 150, 150), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE);
         debugWindow->setVisible(false);
         debugPane = debugWindow->pane();
         addWidget(debugWindow);

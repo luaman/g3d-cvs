@@ -17,7 +17,7 @@ DeveloperWindow::Ref DeveloperWindow::create(
      const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
-     const GuiThemeRef&                  skin,
+     const GuiThemeRef&                 skin,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
      bool*                              showStats,
@@ -47,6 +47,7 @@ DeveloperWindow::DeveloperWindow(
     Vector2 buttonSize(32, 26);
 
     GuiCaption cameraIcon(std::string() + char(185), iconFont, iconSize);
+    GuiCaption movieIcon(std::string() + char(183), iconFont, iconSize * 0.9);
     GuiCaption consoleIcon(std::string() + char(190), iconFont, iconSize * 0.9);
     GuiCaption statsIcon(std::string() + char(143), iconFont, iconSize);
     GuiCaption debugIcon("@", iconFont, iconSize * 0.8);
@@ -56,6 +57,12 @@ DeveloperWindow::DeveloperWindow(
     GuiControl* cameraButton = root->addCheckBox(cameraIcon, ptr, GuiTheme::TOOL_CHECK_BOX_STYLE);
     cameraButton->setSize(buttonSize);
     cameraButton->setPosition(0, 0);
+
+    // Reserved for future use
+    static bool temp = false;
+    GuiControl* movieButton = root->addCheckBox(movieIcon, &temp, GuiTheme::TOOL_CHECK_BOX_STYLE);
+    movieButton->setSize(buttonSize);
+    movieButton->setEnabled(false);
 
     GuiControl* consoleButton = root->addCheckBox(consoleIcon, Pointer<bool>(consoleWindow, &GConsole::active, &GConsole::setActive), GuiTheme::TOOL_CHECK_BOX_STYLE);
     consoleButton->setSize(buttonSize);
@@ -71,7 +78,7 @@ DeveloperWindow::DeveloperWindow(
 
     cameraControlWindow->setVisible(true);
     pack();
-    setRect(Rect2D::xywh(0, 0, 162, 38));
+    setRect(Rect2D::xywh(0, 0, 194, 38));
 }
 
 
