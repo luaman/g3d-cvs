@@ -54,6 +54,7 @@
      <li> ArticulatedModel::createCornellBox
      <li> Material::createDiffuse
      <li> ImageFormat::convert
+     <li> G3D::filenameBase
      <li> Removed SDL_SysWMEvent, which was never supported by GEvent anyway
      <li> Removed TextureFormat::SAME_AS_SCREEN to break dependence on OpenGL
      <li> TextureFormat has been renamed to G3D::ImageFormat and moved into G3D.lib
@@ -127,6 +128,7 @@
      <li> G3D::IFSModel::fromData
      <li> G3D::MeshAlg::generateGrid
      <li> G3D::BinaryOutput::ok()
+     <li> G3D::generateFilenameBase
      <li> G3D::IFSModel::fromFile now defaults to not welding for improved performance
      <li> G3D::IFSModel members are now protected to allow subclassing
      <li> Removed G3D::uint in favor of G3D::uint32 [Corey Taylor]

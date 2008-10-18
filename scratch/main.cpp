@@ -50,7 +50,7 @@ namespace G3D {
    The playback rate is the frames-per-second value to be stored in
    the movie file.  The record rate 1/G3D::GApp::simTimeStep.
  */
-class VideoRecordWindow : public GuiWindow {
+class VideoRecordDialog : public GuiWindow {
 public:
 
     typedef ReferenceCountedPointer<class VideoRecordWindow> Ref;
@@ -58,9 +58,16 @@ public:
 protected:
     GApp*                        m_app;
 
-    Array<VideoOutput::Settings> m_settingsTemplates;
-    std::string                  m_filename;
+    Array<VideoOutput::Settings> m_settingsTemplate;
+
+    /** Parallel array to m_settingsTemplate of the descriptions for
+        use with a drop-down list. */
     Array<std::string>           m_formatList;
+
+    /** Index into m_settingsTemplate and m_formatList */
+    int                          m_templateIndex;
+
+    std::string                  m_filename;
 
     float                        m_playbackFPS;
     float                        m_recordFPS;
@@ -68,6 +75,9 @@ protected:
     bool                         m_halfSize;
     bool                         m_enableMotionBlur;
     int                          m_motionBlurFrames;
+
+    /** Motion blur frames */
+    GuiNumberBox<int>*           m_framesBox;
 
     /**
        When false, the screen is captured at the beginning of 
@@ -79,13 +89,25 @@ protected:
     */
     bool                         m_captureGUI;
 
-    /** Key to start/stop recording even when the GUI is not
-        visible. TODO: make this an index into a dropdownlist 
-        of options
-      */
-    //KeyCode                     m_hotKey;
+    /** Draw a software cursor on the frame after capture, since the
+     hardware cursor will not be visible.*/
+    bool                         m_showCursor;
 
-    VideoRecordWindow(const GuiThemeRef& theme, GApp* app);
+    GuiButton*                   m_recordButton;
+
+    /** Key to start/stop recording even when the GUI is not
+        visible.
+      */
+    GKey                         m_hotKey;
+    GKeyMod                      m_hotKeyMod;
+
+    /** Hotkey + mod as a human readable string */
+    std::string                  m_hotKeyString;
+
+    /** Non-NULL while recording */
+    VideoOutput::Ref             m_video;
+
+    VideoRecordDialog(const GuiThemeRef& theme, GApp* app);
 
 public:
 
@@ -96,6 +118,12 @@ public:
     static Ref create(const GuiThemeRef& theme, GApp* app = NULL);
     static Ref create(GApp* app);
 
+    /** Automatically invoked when the record button is pressed. */
+    void startRecording();
+    void recordFrame(RenderDevice* rd);
+    void stopRecording();
+
+    virtual void onLogic();
     /*    virtual bool onEvent(const GEvent& event);
           virtual void onUserInput(UserInput*);*/
 };
@@ -105,48 +133,55 @@ public:
 #endif
 /*********************************************************/
 
-VideoRecordWindow::Ref VideoRecordWindow::create(const GuiThemeRef& theme, GApp* app) {
-    return new VideoRecordWindow(theme, app);
+VideoRecordWindow::Ref VideoRecordDialog::create(const GuiThemeRef& theme, GApp* app) {
+    return new VideoRecordDialog(theme, app);
 }
 
 
-VideoRecordWindow::Ref VideoRecordWindow::create(GApp* app) {
+VideoRecordDialog::Ref VideoRecordDialog::create(GApp* app) {
     alwaysAssertM(app, "GApp may not be NULL");
-    return new VideoRecordWindow(app->debugWindow->theme(), app);
+    return new VideoRecordDialog(app->debugWindow->theme(), app);
 }
 
 
-VideoRecordWindow::VideoRecordWindow(const GuiThemeRef& theme, GApp* app) : 
+VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) : 
     GuiWindow("Record Video", theme, Rect2D::xywh(0, 100, 310, 200),
               GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
     m_app(app),
+    m_templateIndex(0),
     m_playbackFPS(30),
     m_recordFPS(30),
-    m_halfSize(true),
+    m_halfSize(false),
     m_enableMotionBlur(false),
-    m_motionBlurFrames(10) {
+    m_motionBlurFrames(10),
+    m_framesBox(NULL),
+    m_showCursor(false) {
 
-    m_settingsTemplates.append(VideoOutput::Settings::MPEG4(640, 680));
-    m_settingsTemplates.append(VideoOutput::Settings::WMV(640, 680));
-    m_settingsTemplates.append(VideoOutput::Settings::AVI(640, 680));
-    m_settingsTemplates.append(VideoOutput::Settings::rawAVI(640, 680));
-    m_settingsTemplates.append(VideoOutput::Settings::DV(640, 680));
+    m_hotKey = GKey::F4;
+    m_hotKeyMod = GKeyMod::NONE;
+    m_hotKeyString = m_hotKey.toString();
 
-    // Remove unsupported formats
-    for (int i = 0; i < m_settingsTemplates.size(); ++i) {
-        if (! VideoOutput::supports(m_settingsTemplates[i].codec)) {
-            m_settingsTemplates.remove(i);
+    m_settingsTemplate.append(VideoOutput::Settings::MPEG4(640, 680));
+    m_settingsTemplate.append(VideoOutput::Settings::WMV(640, 680));
+    m_settingsTemplate.append(VideoOutput::Settings::AVI(640, 680));
+    m_settingsTemplate.append(VideoOutput::Settings::rawAVI(640, 680));
+    m_settingsTemplate.append(VideoOutput::Settings::DV(640, 680));
+
+    // Remove unsupported formats and build a drop-down list
+    for (int i = 0; i < m_settingsTemplate.size(); ++i) {
+        if (! VideoOutput::supports(m_settingsTemplate[i].codec)) {
+            m_settingsTemplate.remove(i);
             --i;
         } else {
-            m_formatList.append(m_settingsTemplates[i].description);
+            m_formatList.append(m_settingsTemplate[i].description);
         }
     }
 
+    m_filename = generateFilenameBase("movie-");
     GuiTextBox* filenameBox = pane()->addTextBox("Save as", &m_filename);
-    static int index = 0;
-    GuiDropDownList* formatList = pane()->addDropDownList("Format", &index, &m_formatList);
+    GuiDropDownList* formatList = pane()->addDropDownList("Format", &m_templateIndex, &m_formatList);
 
-    int width = 290;
+    int width = 300;
     // Increase caption size to line up with the motion blur box
     int captionSize = 90;
     filenameBox->setWidth(width);
@@ -155,30 +190,45 @@ VideoRecordWindow::VideoRecordWindow(const GuiThemeRef& theme, GApp* app) :
     formatList->setWidth(width);
     formatList->setCaptionSize(captionSize);
     
+    GuiCheckBox*  motionCheck = pane()->addCheckBox("Motion Blur",  &m_enableMotionBlur);
+    m_framesBox   = pane()->addNumberBox("", &m_motionBlurFrames, "frames", true, 2, 20);
+    m_framesBox->setUnitsSize(46);
+    m_framesBox->moveRightOf(motionCheck);
+    m_framesBox->setWidth(210);
 
     GuiNumberBox<float>* playbackBox = pane()->addNumberBox("Playback",    &m_playbackFPS, "fps", false, 1.0f, 120.0f, 0.1f);
-    playBackBox->setCaptionSize(captionSize);
+    playbackBox->setCaptionSize(captionSize);
 
     GuiNumberBox<float>* recordBox   = pane()->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f);
     recordBox->setCaptionSize(captionSize);
-    recordBox->moveRightOf(playbackBox);    
 
-    pane()->addCheckBox("Half-size",    &m_halfSize);
+    const GWindow* window = GWindow::current();
+    int w = window->width() / 2;
+    int h = window->height() / 2;
+
     pane()->addCheckBox("Record GUI (PosedModel2D)", &m_captureGUI);
 
-    GuiCheckBox*       motionCheck = pane()->addCheckBox("Motion Blur",  &m_enableMotionBlur);
-    GuiNumberBox<int>* framesBox   = pane()->addNumberBox("", &m_motionBlurFrames, "frames", true, 2, 20);
-    framesBox->setUnitsSize(46);
-    framesBox->moveRightOf(motionCheck);
-    framesBox->setWidth(180);
+    pane()->addCheckBox(format("Half-size (%d x %d)", w, h), &m_halfSize);
+    pane()->addCheckBox("Show cursor", &m_showCursor);
 
-    pane()->addButton("Hide");
-    pane()->addButton("Record");
+    m_recordButton = pane()->addButton("Record (" + m_hotKeyString + ")");
+    m_recordButton->moveBy(pane()->rect().width() - m_recordButton->rect().width() - 5, 0);
 }
 
 
+void VideoRecordDialog::onLogic () {
+    m_framesBox->setEnabled(m_enableMotionBlur);
+
+    // Fix filename extension based on settings
+    m_filename = filenameBase(m_filename) + "." + m_settingsTemplate[m_templateIndex].extension;
+}
 
 
+void VideoRecordDialog::startRecording() {
+    debugAssert(
+
+    m_recordButton->setCaption("Stop (" + m_hotKeyString + ")");
+}
 
 
 
@@ -272,9 +322,9 @@ void App::onInit() {
     // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
     // defaults:                        /   , ptr, "", false, -inf, inf, 0
 
-    addWidget(VideoRecordWindow::create(debugWindow->theme()));
-
+    addWidget(VideoRecordDialog::create(this));
 }
+
 
 void App::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code

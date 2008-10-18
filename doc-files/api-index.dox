@@ -348,11 +348,13 @@ href="classes.html">Classes</a>.
         \link G3D::filenameContainsWildcards filenameContainsWildcards\endlink,
         \link G3D::fileExists fileExists\endlink, 
         \link G3D::fileLength fileLength\endlink,
+        \link G3D::filenameBase filenameBase\endlink,
         \link G3D::filenameBaseExt filenameBaseExt\endlink,
         \link G3D::filenameExt filenameExt\endlink,
         \link G3D::filenamePath filenamePath\endlink,
         \link G3D::fileIsNewer fileIsNewer\endlink,
         \link G3D::G3DEndian G3DEndian\endlink,
+        \link G3D::generateFilenameBase generateFilenameBase\endlink,
         \link G3D::GMutex GMutex\endlink,
         \link G3D::GThread GThread\endlink,
         \link G3D::GUniqueID GUniqueID\endlink,
@@ -375,8 +377,8 @@ href="classes.html">Classes</a>.
         \link G3D::Token Token\endlink,
         \link G3D::TextInput::WrongTokenType TextInput::WrongTokenType\endlink,
         \link G3D::writeWholeFile writeWholeFile\endlink,
-        \link G3D::zipfileExists zipfileExists\endlink
-        \link G3D::zipClose zipClose\endlink
+        \link G3D::zipfileExists zipfileExists\endlink,
+        \link G3D::zipClose zipClose\endlink,
         \link G3D::zipRead zipRead\endlink
 
     <LI><B>Network</B> &nbsp; &nbsp;

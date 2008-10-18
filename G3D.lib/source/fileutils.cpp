@@ -497,9 +497,9 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
 
 		// Put the filename back together
 		if ((base != "") && (ext != "")) {
-			infile = base + "." + ext;
+                    infile = base + "." + ext;
 		} else {
-			infile = base + ext;
+                    infile = base + ext;
 		}
 
 		// Remove "." from path
@@ -629,11 +629,13 @@ void parseFilename(
         // Find the period
         size_t i = f.rfind('.');
 
-        // Make sure it is before a slash!
-        size_t j = iMax(f.rfind('/'), f.rfind('\\'));
-        if ((i != std::string::npos) && (i > j)) {
-            ext = f.substr(i + 1, f.size() - i - 1);
-            f = f.substr(0, i);
+        if (i != std::string::npos) {
+            // Make sure it is after the last slash!
+            size_t j = iMax(f.rfind('/'), f.rfind('\\'));
+            if ((j == std::string::npos) || (i > j)) {
+                ext = f.substr(i + 1, f.size() - i - 1);
+                f = f.substr(0, i);
+            }
         }
     }
 
@@ -683,7 +685,6 @@ void parseFilename(
         ++cur;
     }
 }
-
 
 
 /**
@@ -961,6 +962,17 @@ std::string filenameBaseExt(const std::string& filename) {
     } else {
         return filename.substr(i + 1, filename.length() - i);
     }
+}
+
+
+std::string filenameBase(const std::string& s) {
+    std::string drive;
+    std::string base;
+    std::string ext;
+    Array<std::string> path;
+
+    parseFilename(s, drive, path, base, ext);
+    return base;
 }
 
 

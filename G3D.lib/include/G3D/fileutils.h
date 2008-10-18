@@ -214,6 +214,16 @@ std::string filenameBaseExt(const std::string& filename);
  */
 std::string filenameExt(const std::string& filename);
 
+
+/** Returns the portion of a filename to the left of the last period
+    and to the right of the last slash or colon.
+ */
+std::string filenameBase(const std::string& filename);
+
+/** Creates a unique filename base in the current directory using the
+    specified prefix.*/
+std::string generateFilenameBase(const std::string& prefix = "");
+
 /** 
  Returns the drive (if Win32) and path from a filename, including 
  a slash if there was one.
