@@ -20,15 +20,15 @@
 
 /**********************************************************/
 /**
-  @file VideoRecordWindow.h
+  @file VideoRecordDialog.h
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2002-07-28
   @edited  2008-07-14
 */
-#ifndef G3D_VideoRecordWindow_h
-#define G3D_VideoRecordWindow_h
+#ifndef G3D_VideoRecordDialog_h
+#define G3D_VideoRecordDialog_h
 
 #include "G3D/platform.h"
 #include "GLG3D/Widget.h"
@@ -53,7 +53,7 @@ namespace G3D {
 class VideoRecordDialog : public GuiWindow {
 public:
 
-    typedef ReferenceCountedPointer<class VideoRecordWindow> Ref;
+    typedef ReferenceCountedPointer<class VideoRecordDialog> Ref;
 
 protected:
     GApp*                        m_app;
@@ -76,6 +76,10 @@ protected:
     bool                         m_enableMotionBlur;
     int                          m_motionBlurFrames;
 
+    /** Recording modifies the GApp::simTimeStep; this is the old value */
+    float                        m_oldSimTimeStep;
+    float                        m_oldDesiredFrameRate;
+    
     /** Motion blur frames */
     GuiNumberBox<int>*           m_framesBox;
 
@@ -112,7 +116,7 @@ protected:
 public:
 
     /**
-       @param app If not NULL, the VideoRecordWindow will set the app's
+       @param app If not NULL, the VideoRecordDialog will set the app's
        simTimeStep.
      */
     static Ref create(const GuiThemeRef& theme, GApp* app = NULL);
@@ -133,7 +137,7 @@ public:
 #endif
 /*********************************************************/
 
-VideoRecordWindow::Ref VideoRecordDialog::create(const GuiThemeRef& theme, GApp* app) {
+VideoRecordDialog::Ref VideoRecordDialog::create(const GuiThemeRef& theme, GApp* app) {
     return new VideoRecordDialog(theme, app);
 }
 
@@ -225,9 +229,57 @@ void VideoRecordDialog::onLogic () {
 
 
 void VideoRecordDialog::startRecording() {
-    debugAssert(
+    debugAssert(m_video.isNull());
+
+    // Create the video file
+    VideoOutput::Settings settings = m_settingsTemplate[m_templateIndex];
+    const GWindow* window = GWindow::current();
+    settings.width = window->width();
+    settings.height = window->height();
+    if (settings.codec == VideoOutput::CODEC_ID_MPEG4) {
+        settings.bitrate = (3000000 * 8 / 60) * (settings.width * settings.height) / (640 * 480);
+    }
+    settings.fps = m_playbackFPS;
+
+    m_video = VideoOutput::create(m_filename, settings);
+
+    // TODO: motion blur support
+
+    if (m_app) {
+        m_oldSimTimeStep = m_app->simTimeStep();
+        m_oldDesiredFrameRate = m_app->desiredFrameRate();
+
+        m_app->setSimTimeStep(1.0f / m_recordFPS);
+        m_app->setDesiredFrameRate(m_recordFPS);
+    }
 
     m_recordButton->setCaption("Stop (" + m_hotKeyString + ")");
+    setVisible(false);
+}
+
+
+void VideoRecordDialog::recordFrame(RenderDevice* rd) {
+    debugAssert(m_video.notNull());
+
+    bool useBackBuffer = ! m_captureGUI;
+    
+    m_video->append(rd, useBackBuffer);
+
+}
+
+
+void VideoRecordDialog::stopRecording() {
+    debugAssert(m_video.notNull());
+
+    // Save the movie
+    m_video->commit();
+    m_video = NULL;
+
+    // Make a new unique filename
+    m_filename = generateFilenameBase("movie-");
+
+    // Reset the GUI
+    m_recordButton->setCaption("Record (" + m_hotKeyString + ")");
 }
 
 
@@ -419,7 +471,16 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     PosedModel2D::sortAndRender(rd, posed2D);
 
+    // TODO: Draw "recording" on the screen
+    rd->push2D();
+        GFontRef font = GFont::fromFile("arial.fnt");
+        /*
+        if (! useBackBuffer) {
+            rd->setDrawBuffer(RenderDevice::BUFFER_FRONT);
+        }*/
 
+        font->draw2D(rd, "REC", Vector2(rd->width() - 100, 5), 30, Color3::red());
+    rd->pop2D();
 }
 
 

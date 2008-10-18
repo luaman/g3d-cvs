@@ -1603,12 +1603,20 @@ public:
     void notifyResize(int w, int h);
 
     /**
-     Takes a screenshot and puts the data into the G3D::GImage dest variable.
-     @param useBackBuffer If true, the image is read from the back buffer instead
-     of the front buffer (default false).
+       @brief Takes a screenshot and puts the data into the G3D::GImage dest variable.
+
+     @param useBackBuffer If true, the image is read from the back
+     buffer instead of the front buffer (default false).  The back
+     buffer is the current frame, which is slower to read from because
+     pending draw operations must complete first.
+
      @param getAlpha If true, the alpha channel of the frame buffer is also read back.
+
+     @param invertY It is faster to read back images upside down
+     because that is how OpenGL stores them.  Set invertY=false for
+     this fast but upsidedown result.
      */
-    void screenshotPic(GImage& dest, bool useBackBuffer = false, bool getAlpha = false) const;
+    void screenshotPic(GImage& dest, bool useBackBuffer = false, bool getAlpha = false, bool invertY = true) const;
 
 	/**
 	 Pixel dimensions of the OpenGL window interior

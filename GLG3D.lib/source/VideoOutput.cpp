@@ -427,9 +427,9 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 }
 
 
-void VideoOutput::append(RenderDevice* rd) {
-    rd->screenshotPic(m_temp);
-    append(m_temp);
+void VideoOutput::append(RenderDevice* rd, bool backbuffer) {
+    rd->screenshotPic(m_temp, backbuffer, false, false);
+    append(m_temp, true);
 }
 
 
@@ -440,21 +440,15 @@ void VideoOutput::append(const Texture::Ref& frame) {
 
     frame->getImage(m_temp, format);
 
-    // TODO: the image formats/append calls need to take invertY into account so that 
-    // flipping can be delayed until image conversion.
-    if (frame->invertY) {
-        GImage::flipRGBVertical(m_temp.byte(), m_temp.byte(), m_temp.width, m_temp.height);
-    }
-
-    append(m_temp);
+    append(m_temp, frame->invertY);
 }
 
 
-void VideoOutput::append(const GImage& frame) {
+void VideoOutput::append(const GImage& frame, bool invertY) {
     throwException(frame.channels == 3, ("Appending 4-channel Gimage is not currently supported"));
     debugAssert(frame.width == m_settings.width);
     debugAssert(frame.height == m_settings.height);
-    encodeAndWriteFrame(const_cast<uint8*>(frame.byte()), PIX_FMT_RGB24);
+    encodeAndWriteFrame(const_cast<uint8*>(frame.byte()), PIX_FMT_RGB24, invertY);
 }
 
 
@@ -498,15 +492,29 @@ void VideoOutput::append(uint8* frame, PixelFormat frameFormat) {
 }
 
 
-void VideoOutput::encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat) {
+void VideoOutput::encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat, bool invertY) {
     alwaysAssertM(m_isInitialized, "VideoOutput was not initialized before call to encodeAndWriteFrame.");
     alwaysAssertM(! m_isFinished, "Cannot call VideoOutput::append() after commit() or abort().");
     
-    if (m_settings.codec == CODEC_ID_RAWVIDEO && frameFormat == PIX_FMT_RGB24) {
-        // TODO: Generalize this; it should not be a hack just for AVI files!
+    // TODO: Generalize this; it should not be a hack just for AVI files!
+    bool codecInvertY = (m_settings.codec == CODEC_ID_RAWVIDEO);
 
-        // Flip the frame upside down for AVI format
-        GImage::flipRGBVertical(frame, frame, m_settings.width, m_settings.height);
+    if (codecInvertY != invertY) {
+        switch(frameFormat) {
+        case PIX_FMT_RGB24:
+        case PIX_FMT_BGR24:
+            GImage::flipRGBVertical(frame, frame, m_settings.width, m_settings.height);
+            break;
+
+        case PIX_FMT_RGB32:
+        case PIX_FMT_BGR32:
+            GImage::flipRGBAVertical(frame, frame, m_settings.width, m_settings.height);
+            break;
+
+        default:
+            // Flip the frame upside down
+            debugAssertM(false, "Flipping is not implemented for this pixel format.");
+        }
     }
 
     if (static_cast< ::PixelFormat>(frameFormat) != m_avStream->codec->pix_fmt) {

@@ -316,7 +316,7 @@ protected:
     VideoOutput();
 
     void initialize(const std::string& filename, const Settings& settings);
-    void encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat);
+    void encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat, bool invertY = false);
 
     Settings            m_settings;
     std::string         m_filename;
@@ -363,11 +363,21 @@ public:
 
     void append(const Texture::Ref& frame); 
 
-    /** The image must have exactly three channels. */
-    void append(const GImage& frame); 
+    /** The image must have exactly three channels. 
 
-    /** @brief Append the current frame on the RenderDevice to this video.*/
-    void append(class RenderDevice* rd); 
+        @param invertY If true, the image is upside down and should be
+        flipped before saving.
+    */
+    void append(const GImage& frame, bool invertY = false); 
+
+    /** @brief Append the current frame on the RenderDevice to this
+        video.  
+
+
+        @param useBackBuffer If true, read from the back
+        buffer (the current frame) instead of the front buffer.
+     */
+    void append(class RenderDevice* rd, bool useBackBuffer = false); 
 
     /** Reserved for future use */
     void append(const Image1uint8::Ref& frame); 

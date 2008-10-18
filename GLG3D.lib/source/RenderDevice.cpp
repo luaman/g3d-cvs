@@ -2829,7 +2829,7 @@ double RenderDevice::getDepthBufferValue(
 }
 
 
-void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha) const {
+void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha, bool invertY) const {
     if (useBackBuffer) {
         glReadBuffer(GL_BACK);
     } else {
@@ -2855,37 +2855,16 @@ void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha
     glPopClientAttrib();
 
     // Flip right side up
-    if (getAlpha) {
-	GImage::flipRGBAVertical(dest.byte(), dest.byte(), width(), height());
-    } else {
-        GImage::flipRGBVertical(dest.byte(), dest.byte(), width(), height());
+    if (invertY) {
+        if (getAlpha) {
+            GImage::flipRGBAVertical(dest.byte(), dest.byte(), width(), height());
+        } else {
+            GImage::flipRGBVertical(dest.byte(), dest.byte(), width(), height());
+        }
     }
 
     // Restore the read buffer to the back
     glReadBuffer(GL_BACK);
-
-    int i;
-    double s = 1.0;
-
-    if (s != 1.0) {
-        // Adjust the coloring for gamma correction
-        // Lookup table for mapping v -> v * lightSaturation;
-        uint8 L[255];
-        uint8 *data = dest.byte();
-        
-        for (i = 255; i >= 0; --i) {
-            L[i] = iMin(255, iRound((double)i * s));
-        }
-
-        // skip the alpha channel if there is one
-        int sz = dest.width * dest.height * dest.channels;
-        for (i = 0; i < sz; i += ch) {
-            for (int c = 0; c < 3; ++c) {
-                data[i + c] = L[data[i + c]];
-            }
-        }
-    }
-
 }
 
 
