@@ -237,6 +237,29 @@ void testCollisionDetection() {
         debugAssert(t == 0.5);
     }
 
+    {
+        Sphere s = Sphere(Vector3(0, 1, 0), 1.5);
+        
+        Vector3 v = -Vector3::unitY();
+        
+        //  .:::.
+        // ::::::: 
+        //::::X::*:
+        // ::::::| \             .
+        //  ':::'*--*
+        //
+        
+        Triangle tri = Triangle(Vector3(1, 0, 0),
+                                Vector3(1, 1, 0),
+                                Vector3(2, 0, 0));
+        Vector3 outLocation;
+        
+        float time = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(s, v, tri, outLocation);
+        
+        debugAssertM(time == 0.0f, "Missed pre-existing collision");
+        debugAssertM(outLocation.fuzzyEq(Vector3(1,1,0)), "Wrong collision location");
+    }
+
     printf("passed\n");
 }
 

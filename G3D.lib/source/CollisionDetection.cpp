@@ -2,10 +2,11 @@
   @file CollisionDetection.cpp
   
   @maintainer Morgan McGuire, matrix@graphics3d.com
+
   @cite Bounce direction based on Paul Nettle's ftp://ftp.3dmaileffects.com/pub/FluidStudios/CollisionDetection/Fluid_Studios_Generic_Collision_Detection_for_Games_Using_Ellipsoids.pdf and comments by Max McGuire.  Ray-sphere code by Eric Haines.
 
   @created 2001-11-24
-  @edited  2006-02-19
+  @edited  2008-10-10
  */
 
 #include "G3D/CoordinateFrame.h"
@@ -1510,19 +1511,23 @@ float CollisionDetection::collisionTimeForMovingSphereFixedPlane(
 
 float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
     const class Sphere&		sphere,
-    const Vector3&		    velocity,
-    const Triangle&         triangle,
-    Vector3&				outLocation,
-    float                   b[3]) {
+    const Vector3&              velocity,
+    const Triangle&             triangle,
+    Vector3&                    outLocation,
+    float                       b[3]) {
 
     Vector3 dummy;
-
-    float time = collisionTimeForMovingSphereFixedPlane(sphere, velocity, triangle.plane(), outLocation, dummy);
+        printf("Begin\n");
+    float time = collisionTimeForMovingSphereFixedPlane(sphere, velocity, triangle.plane(), 
+                                                        outLocation, dummy);
 
     if (time == inf()) {
         // No collision is ever going to happen
         return time;
     }
+
+    // We will hit the plane of the triangle at *time*. See if
+    // the intersection point actually is within the triangle.
 
     if (isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
         outLocation, b, triangle.primaryAxis())) {
@@ -1542,8 +1547,8 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
                 b[2] * triangle.vertex(2);
             debugAssertM(blend.fuzzyEq(outLocation), "Barycentric coords don't match intersection.");
             // Call again so that we can debug the problem
-            //isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
-             //outLocation, b, triangle.primaryAxis());
+            // isPointInsideTriangle(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2), triangle.normal(), 
+            // outLocation, b, triangle.primaryAxis());
         }
 #       endif
 
@@ -1556,9 +1561,14 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
 
     // Closest point on the triangle to the sphere intersection with the plane.
     int edgeIndex;
-    const Vector3& point = closestPointOnTrianglePerimeter(triangle._vertex, triangle.edgeDirection, triangle.edgeMagnitude, outLocation, edgeIndex);
+    const Vector3& point = closestPointOnTrianglePerimeter(triangle._vertex, triangle.edgeDirection,
+                                                           triangle.edgeMagnitude, outLocation, edgeIndex);
 
-    float t = collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
+    float t = 0;
+    if (! sphere.contains(point)) {
+        // The point is outside the sphere--see when it will hit
+        t = collisionTimeForMovingPointFixedSphere(point, -velocity, sphere, dummy, dummy);
+    }
 
     if (t < inf()) {
         outLocation = point;
@@ -1569,8 +1579,11 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
 
         // Project along the edge in question.
         // Avoid sqrt by taking advantage of the existing edgeDirection unit vector.
-        b[next[edgeIndex]] = (outLocation - triangle._vertex[edgeIndex]).dot(triangle.edgeDirection[edgeIndex]) / triangle.edgeMagnitude[edgeIndex];
+        b[next[edgeIndex]] = (outLocation - triangle._vertex[edgeIndex]).dot
+            (triangle.edgeDirection[edgeIndex]) / triangle.edgeMagnitude[edgeIndex];
+
         b[edgeIndex] = 1.0f - b[next[edgeIndex]];
+
         b[next[next[edgeIndex]]] = 0.0f;
 
 #       ifdef G3D_DEBUG
@@ -1601,8 +1614,8 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
         }
     }
 
-    // The collision occured at the point, if it occured.  The normal was the plane normal,
-    // computed above.
+    // The collision occured at the point, if it occured.  The normal
+    // was the plane normal, computed above.
 
     return t;
 }
