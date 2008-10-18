@@ -1517,7 +1517,6 @@ float CollisionDetection::collisionTimeForMovingSphereFixedTriangle(
     float                       b[3]) {
 
     Vector3 dummy;
-        printf("Begin\n");
     float time = collisionTimeForMovingSphereFixedPlane(sphere, velocity, triangle.plane(), 
                                                         outLocation, dummy);
 
