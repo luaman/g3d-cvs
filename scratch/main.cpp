@@ -44,8 +44,11 @@
 namespace G3D {
 
 /**
-   @brief A dialog that allows the user to launch 
-   Changes the GWindow caption to "... - Recording" while recording.
+   @brief A dialog that allows the user to launch recording of the
+   on-screen image to a movie.
+
+   The playback rate is the frames-per-second value to be stored in
+   the movie file.  The record rate 1/G3D::GApp::simTimeStep.
  */
 class VideoRecordWindow : public GuiWindow {
 public:
@@ -53,39 +56,48 @@ public:
     typedef ReferenceCountedPointer<class VideoRecordWindow> Ref;
 
 protected:
+    GApp*                        m_app;
 
     Array<VideoOutput::Settings> m_settingsTemplates;
-    std::string                 m_filename;
-    Array<std::string>          m_formatList;
+    std::string                  m_filename;
+    Array<std::string>           m_formatList;
 
-    GuiRadioButton*             m_playButton;
-    GuiRadioButton*             m_stopButton;
-    GuiRadioButton*             m_recordButton;
+    float                        m_playbackFPS;
+    float                        m_recordFPS;
+
+    bool                         m_halfSize;
+    bool                         m_enableMotionBlur;
+    int                          m_motionBlurFrames;
 
     /**
-     When false, the screen is captured at the beginning of 
-     Posed2DModel rendering from the back buffer, which may 
-     slow down rendering.
-
-     When true, the screen is captured from the the previous 
-     frame, which will not introduce latency into rendering.
-     */
-    bool                        m_renderGUI;
+       When false, the screen is captured at the beginning of 
+       Posed2DModel rendering from the back buffer, which may 
+       slow down rendering.
+       
+       When true, the screen is captured from the the previous 
+       frame, which will not introduce latency into rendering.
+    */
+    bool                         m_captureGUI;
 
     /** Key to start/stop recording even when the GUI is not
         visible. TODO: make this an index into a dropdownlist 
         of options
       */
-    KeyCode                     m_hotKey;
+    //KeyCode                     m_hotKey;
+
+    VideoRecordWindow(const GuiThemeRef& theme, GApp* app);
 
 public:
 
     /**
+       @param app If not NULL, the VideoRecordWindow will set the app's
+       simTimeStep.
      */
-    static Ref create(const GuiThemeRef& theme);
+    static Ref create(const GuiThemeRef& theme, GApp* app = NULL);
+    static Ref create(GApp* app);
 
-    virtual bool onEvent(const GEvent& event);
-    virtual void onUserInput(UserInput*);
+    /*    virtual bool onEvent(const GEvent& event);
+          virtual void onUserInput(UserInput*);*/
 };
 
 }
@@ -93,11 +105,27 @@ public:
 #endif
 /*********************************************************/
 
-VideoRecordWindow::Ref VideoRecordWindow::create(const GuiThemeRef& theme) : 
-    GuiWindow("Bookmark Properties", skin, Rect2D::xywh(0,0, 300, 300),
-              GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE) {
+VideoRecordWindow::Ref VideoRecordWindow::create(const GuiThemeRef& theme, GApp* app) {
+    return new VideoRecordWindow(theme, app);
+}
 
-    
+
+VideoRecordWindow::Ref VideoRecordWindow::create(GApp* app) {
+    alwaysAssertM(app, "GApp may not be NULL");
+    return new VideoRecordWindow(app->debugWindow->theme(), app);
+}
+
+
+VideoRecordWindow::VideoRecordWindow(const GuiThemeRef& theme, GApp* app) : 
+    GuiWindow("Record Video", theme, Rect2D::xywh(0, 100, 290, 200),
+              GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
+    m_app(app),
+    m_playbackFPS(30),
+    m_recordFPS(30),
+    m_halfSize(true),
+    m_enableMotionBlur(false),
+    m_motionBlurFrames(10) {
+
     m_settingsTemplates.append(VideoOutput::Settings::MPEG4(640, 680));
     m_settingsTemplates.append(VideoOutput::Settings::WMV(640, 680));
     m_settingsTemplates.append(VideoOutput::Settings::AVI(640, 680));
@@ -114,10 +142,33 @@ VideoRecordWindow::Ref VideoRecordWindow::create(const GuiThemeRef& theme) :
         }
     }
 
-    pane()->addTextBox("Save as", &filename);
+    GuiTextBox* filenameBox = pane()->addTextBox("Save as", &m_filename);
     static int index = 0;
-    pane()->addDropDownList("Format", &index, &m_formatList);
+    GuiDropDownList* formatList = pane()->addDropDownList("Format", &index, &m_formatList);
+
+    int width = 270;
+    // Increase caption size to line up with the motion blur box
+    int captionSize = 90;
+    filenameBox->setWidth(width);
+    filenameBox->setCaptionSize(captionSize);
+
+    formatList->setWidth(width);
+    formatList->setCaptionSize(captionSize);
     
+
+    pane()->addNumberBox("Playback",    &m_playbackFPS, "fps", false, 1.0f, 120.0f, 0.1f)->setCaptionSize(captionSize);
+    pane()->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f)->setCaptionSize(captionSize);
+
+    pane()->addCheckBox("Half-size",    &m_halfSize);
+    pane()->addCheckBox("Record GUI (PosedModel2D)", &m_captureGUI);
+
+    GuiCheckBox*       motionCheck = pane()->addCheckBox("Motion Blur",  &m_enableMotionBlur);
+    GuiNumberBox<int>* framesBox   = pane()->addNumberBox("", &m_motionBlurFrames, "frames", true, 2, 20);
+    framesBox->moveRightOf(motionCheck);
+    framesBox->setWidth(180);
+
+    pane()->addButton("Hide");
+    pane()->addButton("Record");
 }
 
 
@@ -215,6 +266,8 @@ void App::onInit() {
 
     // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
     // defaults:                        /   , ptr, "", false, -inf, inf, 0
+
+    addWidget(VideoRecordWindow::create(debugWindow->theme()));
 
 }
 

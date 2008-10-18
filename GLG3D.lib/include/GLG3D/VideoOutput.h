@@ -38,7 +38,7 @@ public:
         CODEC_ID_LJPEG,
         CODEC_ID_SP5X,
         CODEC_ID_JPEGLS,
-        CODEC_ID_MPEG4,
+        CODEC_ID_MPEG4,  // Uses xvid.org's encoding algorithm for MPEG4
         CODEC_ID_RAWVIDEO,
         CODEC_ID_MSMPEG4V1,
         CODEC_ID_MSMPEG4V2,
@@ -53,7 +53,7 @@ public:
         CODEC_ID_DVVIDEO,
         CODEC_ID_HUFFYUV,
         CODEC_ID_CYUV,
-        CODEC_ID_H264,
+        CODEC_ID_H264,   // Uses libx264 encoding algorithm for MPEG4
         CODEC_ID_INDEO3,
         CODEC_ID_VP3,
         CODEC_ID_THEORA,
@@ -350,9 +350,13 @@ public:
     /** Returns a human readable name for the codec. */
     static const char* toString(CodecID c);
 
-
     typedef ReferenceCountedPointer<VideoOutput> Ref;
-    
+
+    /**
+       Video files have a file format and a codec.  VideoOutput
+       chooses the file format based on the filename's extension
+       (e.g., .avi creates an AVI file) and the codec based on Settings::codec
+     */
     static Ref create(const std::string& filename, const Settings& settings);
 
     ~VideoOutput();

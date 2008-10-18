@@ -2,7 +2,7 @@
  @file GLG3D/GuiNumberBox.h
 
  @created 2008-07-09
- @edited  2008-07-09
+ @edited  2008-10-15
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
@@ -39,6 +39,8 @@ class GuiPane;
     if it is changed programmatically. 
 
     "nan", "inf", and "-inf" are all parsed to the appropriate floating point values.
+
+    @sa G3D::GuiPane::addNumberBox
 */
 template<class Value>
 class GuiNumberBox : public GuiContainer {
@@ -48,8 +50,7 @@ class GuiNumberBox : public GuiContainer {
 protected:
 
     // Constants
-    enum {suffixWidth = 22,
-          textBoxWidth = 60};
+    enum {textBoxWidth = 60};
 
     /** Current value */
     Pointer<Value>    m_value;
@@ -67,6 +68,8 @@ protected:
 
     Value             m_minValue;
     Value             m_maxValue;
+
+    float             m_unitsSize;
 
     // Methods declared in the middle of member variables
     // to provide forward declarations.  Do not change 
@@ -150,7 +153,7 @@ protected:
 
     GuiTextBox*       m_textBox;
 
-    GuiCaption        m_suffix;
+    GuiCaption        m_units;
 
     ////////////////////////////////////////////////////////
     // The following overloads allow GuiNumberBox to select the appropriate format() string
@@ -200,7 +203,7 @@ protected:
         GuiContainer*           parent, 
         const GuiCaption&       caption, 
         const Pointer<Value>&   value, 
-        const GuiCaption&       suffix,
+        const GuiCaption&       units,
         GuiTheme::SliderScale   scale,
         Value                   minValue, 
         Value                   maxValue,
@@ -212,7 +215,8 @@ protected:
         m_maxValue(maxValue),
         m_slider(NULL),
         m_textBox(NULL),
-        m_suffix(suffix) {
+        m_units(units),
+        m_unitsSize(22) {
 
         debugAssert(m_roundIncrement >= 0);
 
@@ -273,10 +277,20 @@ public:
         m_textBox->setRect(Rect2D::xywh(m_captionSize, 0, textBoxWidth, CONTROL_HEIGHT));
 
         if (m_slider != NULL) {
-            float x = m_textBox->rect().x1() + suffixWidth;
+            float x = m_textBox->rect().x1() + m_unitsSize;
             m_slider->setRect(Rect2D::xywh(x, 0.0f, 
                 max(controlSpace - (x - m_captionSize) - 2, 5.0f), (float)CONTROL_HEIGHT));
         }
+    }
+
+    void setUnitsSize(float s) {
+        m_unitsSize = s;
+        setRect(rect());
+    }
+
+    /** The number of pixels between the text box and the slider.*/
+    float unitsSize() const {
+        return m_unitsSize;
     }
 
     virtual void setEnabled(bool e) {
@@ -315,12 +329,12 @@ public:
                 m_slider->render(rd, skin);
             }
 
-            // Render caption and suffix
+            // Render caption and units
             skin->renderLabel(m_rect - m_clientRect.x0y0(), m_caption, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
 
             const Rect2D& textBounds = m_textBox->rect();
-            skin->renderLabel(Rect2D::xywh(textBounds.x1y0(), Vector2(suffixWidth, textBounds.height())), 
-                m_suffix, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
+            skin->renderLabel(Rect2D::xywh(textBounds.x1y0(), Vector2(m_unitsSize, textBounds.height())), 
+                m_units, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER, m_enabled);
         skin->popClientRect();
     }
 
