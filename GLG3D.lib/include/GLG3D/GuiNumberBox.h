@@ -69,6 +69,12 @@ protected:
     Value             m_minValue;
     Value             m_maxValue;
 
+    /** NULL if there is no slider */
+    GuiSlider<Value>* m_slider;
+
+    GuiTextBox*       m_textBox;
+
+    GuiCaption        m_units;
     float             m_unitsSize;
 
     // Methods declared in the middle of member variables
@@ -148,13 +154,6 @@ protected:
        }
     };
   
-    /** NULL if there is no slider */
-    GuiSlider<Value>* m_slider;
-
-    GuiTextBox*       m_textBox;
-
-    GuiCaption        m_units;
-
     ////////////////////////////////////////////////////////
     // The following overloads allow GuiNumberBox to select the appropriate format() string
     // based on Value.

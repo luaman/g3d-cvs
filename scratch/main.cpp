@@ -117,7 +117,7 @@ VideoRecordWindow::Ref VideoRecordWindow::create(GApp* app) {
 
 
 VideoRecordWindow::VideoRecordWindow(const GuiThemeRef& theme, GApp* app) : 
-    GuiWindow("Record Video", theme, Rect2D::xywh(0, 100, 290, 200),
+    GuiWindow("Record Video", theme, Rect2D::xywh(0, 100, 310, 200),
               GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
     m_app(app),
     m_playbackFPS(30),
@@ -146,7 +146,7 @@ VideoRecordWindow::VideoRecordWindow(const GuiThemeRef& theme, GApp* app) :
     static int index = 0;
     GuiDropDownList* formatList = pane()->addDropDownList("Format", &index, &m_formatList);
 
-    int width = 270;
+    int width = 290;
     // Increase caption size to line up with the motion blur box
     int captionSize = 90;
     filenameBox->setWidth(width);
@@ -156,14 +156,19 @@ VideoRecordWindow::VideoRecordWindow(const GuiThemeRef& theme, GApp* app) :
     formatList->setCaptionSize(captionSize);
     
 
-    pane()->addNumberBox("Playback",    &m_playbackFPS, "fps", false, 1.0f, 120.0f, 0.1f)->setCaptionSize(captionSize);
-    pane()->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f)->setCaptionSize(captionSize);
+    GuiNumberBox<float>* playbackBox = pane()->addNumberBox("Playback",    &m_playbackFPS, "fps", false, 1.0f, 120.0f, 0.1f);
+    playBackBox->setCaptionSize(captionSize);
+
+    GuiNumberBox<float>* recordBox   = pane()->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f);
+    recordBox->setCaptionSize(captionSize);
+    recordBox->moveRightOf(playbackBox);    
 
     pane()->addCheckBox("Half-size",    &m_halfSize);
     pane()->addCheckBox("Record GUI (PosedModel2D)", &m_captureGUI);
 
     GuiCheckBox*       motionCheck = pane()->addCheckBox("Motion Blur",  &m_enableMotionBlur);
     GuiNumberBox<int>* framesBox   = pane()->addNumberBox("", &m_motionBlurFrames, "frames", true, 2, 20);
+    framesBox->setUnitsSize(46);
     framesBox->moveRightOf(motionCheck);
     framesBox->setWidth(180);
 
