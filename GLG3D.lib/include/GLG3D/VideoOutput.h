@@ -203,6 +203,7 @@ public:
     enum {
         /** FFMPEG broadly compatible format for MPG4  */
         XVID_FOURCC = ('X' << 24) | ('V' << 16) | ('I' << 8) | ('D'),
+
         /** Generic format for MPG4  */
         FMP4_FOURCC = ('F' << 24) | ('M' << 16) | ('P' << 8) | ('4')
     };
@@ -244,19 +245,71 @@ public:
             int         gop;
         } mpeg;
 
+        /** For Settings created by the static factory methods, the
+            file extension (without the period) recommended for this
+            kind of file. */
+        std::string      extension;
+
+        /** For Settings created by the static factory methods, the a
+            brief human-readable description, suitable for use in a
+            drop-down box for end users. */
+        std::string      description;
+
         /** Defaults to MPEG-4 */
         Settings(CodecID codec = CODEC_ID_MPEG4, int width = 640, int height = 480, 
                  float fps = 30.0f, int customFourCC = 0);
 
         /** Settings that can be used to when writing an uncompressed
-            avi video (with BGR pixel format output) */
+            AVI video (with BGR pixel format output). 
+
+            This preserves full quality. It can be played on most
+            computers.
+        */
         static Settings rawAVI(int width, int height, float fps = 30.0f);
 
-        /** Settings that can be used when writing an MPEG4 video. The
-            default customFourCC XVID uses ffmpeg's native
-            implementation, so it is most likely to be widely compatible. */
-        static Settings MPEG4(int width, int height, float fps = 30.0f, 
-                              int customFourCC = XVID_FOURCC);
+        /** Vendor-independent industry standard, also known as
+            H.264. 
+
+            This is the most advanced widely supported format and
+            provides a good blend of quality and size.
+
+            The default customFourCC of XVID uses the Xvid.org
+            implementation, which is available for all G3D platforms.
+            This is for encoding only; it has no impact on playback.
+        */
+        static Settings MPEG4(int width, int height, float fps = 30.0f);
+        
+        /** Windows Media Video 2 (WMV) format, which is supported by
+            Microsoft's Media Player distributed with Windows.  This
+            is the best-supported format for Windows.*/
+        static Settings WMV(int width, int height, float fps = 30.0f);
+
+        /**
+           Lossless compressed digital video (also known as IEC
+           61834). This is the format used by most digital video
+           cameras and video editing systems.  It is widely supported
+           and provides maximum quality but poor compression.
+
+           Wikipedia describes this format as: Digital Video (DV) is a
+           digital video format created by Sony, JVC, Panasonic and
+           other video camera producers and launched in 1995...it has
+           since become a standard for home and semi-professional
+           video production.
+         */
+        static Settings DV(int width, int height, float fps = 30.0f);
+
+        /** 
+            AVI file using Cinepak compression, an older but widely supported
+            format for providing good compatibility and size but poor quality.
+
+            Wikipedia describes this format as: Cinepak is a video
+            codec developed by SuperMatch, a division of SuperMac
+            Technologies, and released in 1992 as part of Apple
+            Computer's QuickTime video suite. It was designed to
+            encode 320x240 resolution video at 1x (150 kbyte/s) CD-ROM
+            transfer rates. The codec was ported to the Microsoft
+            Windows platform in 1993.*/
+        static Settings AVI(int width, int height, float fps = 30.0f);
     };
 protected:
 

@@ -199,17 +199,52 @@ VideoOutput::Settings VideoOutput::Settings::rawAVI(int width, int height, float
 
     // uncompressed avi files use BGR not RGB
     s.raw.format = PIX_FMT_BGR24;
+    s.extension   = "avi";
+    s.description = "Uncompressed AVI (.avi)";
 
     return s;
 }
 
 
-VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float fps, int fourCC) {
-    Settings s(CODEC_ID_MPEG4, width, height, fps, fourCC);
+VideoOutput::Settings VideoOutput::Settings::WMV(int width, int height, float fps) {
+    Settings s(CODEC_ID_WMV2, width, height, fps);
+
+    s.extension   = "wmv";
+    s.description = "Windows Media Video 2 (.wmv)";
+
+    return s;
+}
+
+
+VideoOutput::Settings VideoOutput::Settings::DV(int width, int height, float fps) {
+    Settings s(CODEC_ID_DVVIDEO, width, height, fps);
+
+    s.extension   = "dv";
+    s.description = "Lossless Digital Video (.dv)";
+
+    return s;
+}
+
+
+VideoOutput::Settings VideoOutput::Settings::AVI(int width, int height, float fps) {
+    Settings s(CODEC_ID_CINEPAK, width, height, fps);
+
+    s.extension   = "avi";
+    s.description = "Cinepak AVI (.avi)";
+
+    return s;
+}
+
+
+VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float fps) {
+    Settings s(CODEC_ID_MPEG4, width, height, fps, XVID_FOURCC);
     
     // About 3 MB / min for 640 * 480 gives decent quality at a
     // reasonable file size.
     s.bitrate = (3000000 * 8 / 60) * (width * height) / (640 * 480);
+
+    s.extension   = "mp4";
+    s.description = "MPEG-4/H.264 (.mp4)";
 
     return s;
 }

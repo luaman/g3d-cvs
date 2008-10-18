@@ -43,8 +43,9 @@
 
 namespace G3D {
 
-/** 
- Changes the GWindow caption to "... - Recording" while recording.
+/**
+   @brief A dialog that allows the user to launch 
+   Changes the GWindow caption to "... - Recording" while recording.
  */
 class VideoRecordWindow : public GuiWindow {
 public:
@@ -52,6 +53,10 @@ public:
     typedef ReferenceCountedPointer<class VideoRecordWindow> Ref;
 
 protected:
+
+    Array<VideoOutput::Settings> m_settingsTemplates;
+    std::string                 m_filename;
+    Array<std::string>          m_formatList;
 
     GuiRadioButton*             m_playButton;
     GuiRadioButton*             m_stopButton;
@@ -77,7 +82,7 @@ public:
 
     /**
      */
-    static Ref create(const GuiThemeRef& skin);
+    static Ref create(const GuiThemeRef& theme);
 
     virtual bool onEvent(const GEvent& event);
     virtual void onUserInput(UserInput*);
@@ -87,6 +92,33 @@ public:
 
 #endif
 /*********************************************************/
+
+VideoRecordWindow::Ref VideoRecordWindow::create(const GuiThemeRef& theme) : 
+    GuiWindow("Bookmark Properties", skin, Rect2D::xywh(0,0, 300, 300),
+              GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE) {
+
+    
+    m_settingsTemplates.append(VideoOutput::Settings::MPEG4(640, 680));
+    m_settingsTemplates.append(VideoOutput::Settings::WMV(640, 680));
+    m_settingsTemplates.append(VideoOutput::Settings::AVI(640, 680));
+    m_settingsTemplates.append(VideoOutput::Settings::rawAVI(640, 680));
+    m_settingsTemplates.append(VideoOutput::Settings::DV(640, 680));
+
+    // Remove unsupported formats
+    for (int i = 0; i < m_settingsTemplates.size(); ++i) {
+        if (! VideoOutput::supports(m_settingsTemplates[i].codec)) {
+            m_settingsTemplates.remove(i);
+            --i;
+        } else {
+            m_formatList.append(m_settingsTemplates[i].description);
+        }
+    }
+
+    pane()->addTextBox("Save as", &filename);
+    static int index = 0;
+    pane()->addDropDownList("Format", &index, &m_formatList);
+    
+}
 
 
 
