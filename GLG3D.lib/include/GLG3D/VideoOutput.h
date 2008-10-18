@@ -19,7 +19,11 @@ struct AVFrame;
 
 namespace G3D {
 
-/** @brief Saves video to disk in a variety of popular formats, including AVI and MPEG. */
+/** 
+ @brief Saves video to disk in a variety of popular formats, including AVI and MPEG. 
+
+ @beta
+ */
 class VideoOutput : public ReferenceCountedObject {
 public:
 
@@ -358,6 +362,10 @@ public:
        (e.g., .avi creates an AVI file) and the codec based on Settings::codec
      */
     static Ref create(const std::string& filename, const Settings& settings);
+
+    inline const std::string& filename() const {
+        return m_filename;
+    }
 
     ~VideoOutput();
 

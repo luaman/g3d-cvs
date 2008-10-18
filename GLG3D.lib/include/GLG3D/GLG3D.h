@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2008-07-01
+ @edited  2008-10-01
 
  Copyright 2001-2008, Morgan McGuire.
  All rights reserved.
@@ -108,6 +108,7 @@
 #include "GLG3D/UprightSplineManipulator.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/DeveloperWindow.h"
+#include "GLG3D/VideoRecordDialog.h"
 
 #include "GLG3D/VideoInput.h"
 #include "GLG3D/VideoOutput.h"

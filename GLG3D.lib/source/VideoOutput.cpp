@@ -231,6 +231,7 @@ VideoOutput::Settings VideoOutput::Settings::AVI(int width, int height, float fp
 
     s.extension   = "avi";
     s.description = "Cinepak AVI (.avi)";
+    s.bitrate = iRound((3000000.0 * 8 / 60) * (s.width * s.height) / (640 * 480));
 
     return s;
 }
@@ -241,7 +242,7 @@ VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float 
     
     // About 3 MB / min for 640 * 480 gives decent quality at a
     // reasonable file size.
-    s.bitrate = (3000000 * 8 / 60) * (width * height) / (640 * 480);
+    s.bitrate = iRound((3000000.0 * 8 / 60) * (s.width * s.height) / (640 * 480));
 
     s.extension   = "mp4";
     s.description = "MPEG-4/H.264 (.mp4)";
@@ -387,6 +388,9 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
     if (m_avOutputFormat->flags & AVFMT_GLOBALHEADER) {
         m_avStream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
     }
+
+    // TODO: What is this?
+    m_avStream->quality = 100.0f;
 
     // set null parameters as this call is required
     int avRet = av_set_parameters(m_avFormatContext, NULL);

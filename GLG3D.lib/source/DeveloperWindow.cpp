@@ -4,16 +4,18 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-06-01
-  @edited  2008-02-28
+  @edited  2008-10-14
 */
 #include "G3D/platform.h"
 #include "GLG3D/DeveloperWindow.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/GuiPane.h"
+#include "GLG3D/GApp.h"
 
 namespace G3D {
 
 DeveloperWindow::Ref DeveloperWindow::create(
+     GApp*                              app,
      const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
@@ -23,11 +25,13 @@ DeveloperWindow::Ref DeveloperWindow::create(
      bool*                              showStats,
      bool*                              showText) {
 
-    return new DeveloperWindow(manualManipulator, trackManipulator, cameraManipulator, skin, console, debugVisible, showStats, showText);
+    return new DeveloperWindow(app, manualManipulator, trackManipulator, cameraManipulator, skin,
+        console, debugVisible, showStats, showText);
     
 }
 
 DeveloperWindow::DeveloperWindow(
+     GApp*                              app,
      const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
@@ -39,6 +43,8 @@ DeveloperWindow::DeveloperWindow(
     GuiWindow("Developer (F11)", skin, Rect2D::xywh(600, 80, 0, 0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
 
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator, skin);
+
+    videoRecordDialog = VideoRecordDialog::create(skin, app);
 
     GuiPane* root = pane();
     GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
@@ -59,10 +65,9 @@ DeveloperWindow::DeveloperWindow(
     cameraButton->setPosition(0, 0);
 
     // Reserved for future use
-    static bool temp = false;
-    GuiControl* movieButton = root->addCheckBox(movieIcon, &temp, GuiTheme::TOOL_CHECK_BOX_STYLE);
+    Pointer<bool> ptr2 = Pointer<bool>((GuiWindow::Ref)videoRecordDialog, &GuiWindow::visible, &GuiWindow::setVisible);
+    GuiControl* movieButton = root->addCheckBox(movieIcon, ptr2, GuiTheme::TOOL_CHECK_BOX_STYLE);
     movieButton->setSize(buttonSize);
-    movieButton->setEnabled(false);
 
     GuiControl* consoleButton = root->addCheckBox(consoleIcon, Pointer<bool>(consoleWindow, &GConsole::active, &GConsole::setActive), GuiTheme::TOOL_CHECK_BOX_STYLE);
     consoleButton->setSize(buttonSize);
@@ -77,6 +82,7 @@ DeveloperWindow::DeveloperWindow(
     printButton->setSize(buttonSize);
 
     cameraControlWindow->setVisible(true);
+    videoRecordDialog->setVisible(false);
     pack();
     setRect(Rect2D::xywh(0, 0, 194, 38));
 }
@@ -86,11 +92,13 @@ void DeveloperWindow::setManager(WidgetManager* manager) {
     if (m_manager) {
         // Remove from old
         m_manager->remove(cameraControlWindow);
+        m_manager->remove(videoRecordDialog);
     }
 
     if (manager) {
         // Add to new
         manager->add(cameraControlWindow);
+        manager->add(videoRecordDialog);
     }
 
     GuiWindow::setManager(manager);

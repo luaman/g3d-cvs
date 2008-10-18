@@ -18,6 +18,7 @@
 #include "GLG3D/GConsole.h"
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/CameraControlWindow.h"
+#include "GLG3D/VideoRecordDialog.h"
 
 namespace G3D {
 /**
@@ -28,7 +29,8 @@ class DeveloperWindow : public GuiWindow {
 protected:
 
     DeveloperWindow
-    (const FirstPersonManipulatorRef&   manualManipulator,
+    (class GApp*                        app,
+     const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
      const GuiThemeRef&                 theme,
@@ -41,14 +43,16 @@ public:
 
     typedef ReferenceCountedPointer<class DeveloperWindow> Ref;
 
+    VideoRecordDialog::Ref        videoRecordDialog;
     CameraControlWindow::Ref      cameraControlWindow;
     GConsoleRef                   consoleWindow;
 
     static Ref create
-    (const FirstPersonManipulatorRef&   manualManipulator,
+    (GApp*                              app,
+     const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
-     const GuiThemeRef&                  skin,
+     const GuiThemeRef&                 theme,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
      bool*                              showStats,

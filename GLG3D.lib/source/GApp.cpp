@@ -191,7 +191,8 @@ GApp::GApp(const Settings& settings, GWindow* window) :
         addWidget(debugWindow);
 
         developerWindow = DeveloperWindow::create
-            (defaultController, 
+            (this,
+             defaultController, 
              splineManipulator, 
              Pointer<Manipulator::Ref>(this, &GApp::cameraManipulator, &GApp::setCameraManipulator), 
              skin,

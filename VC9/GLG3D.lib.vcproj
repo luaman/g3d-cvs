@@ -442,6 +442,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\VideoRecordDialog.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\Widget.cpp"
 				>
 			</File>
@@ -741,6 +745,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\VideoOutput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\VideoRecordDialog.h"
 				>
 			</File>
 			<File
