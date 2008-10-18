@@ -58,6 +58,9 @@ public:
 protected:
     GApp*                        m_app;
 
+    /** For drawing messages on the screen */
+    GFontRef                     m_font;
+
     Array<VideoOutput::Settings> m_settingsTemplate;
 
     /** Parallel array to m_settingsTemplate of the descriptions for
@@ -107,6 +110,30 @@ protected:
 
     /** Hotkey + mod as a human readable string */
     std::string                  m_hotKeyString;
+    
+    /** 
+        Inserts itself into the bottom of the Posed2D model drawing
+        list to call recordFrame so that the rest of the GUI is not
+        yet visible.
+     */
+    class Recorder : public PosedModel2D {
+    public:
+        VideoRecordDialog*       dialog;
+
+        virtual Rect2D bounds () const {
+            return Rect2D::xywh(0,0,1,1);
+        }
+            
+        virtual float depth () const {
+            // Lowest possible depth
+            return inf();
+        }
+
+        virtual void render (RenderDevice *rd) const;
+    };
+    typedef ReferenceCountedPointer<Recorder> RecorderRef;
+
+    RecorderRef                  m_recorder;
 
     /** Non-NULL while recording */
     VideoOutput::Ref             m_video;
@@ -127,9 +154,10 @@ public:
     void recordFrame(RenderDevice* rd);
     void stopRecording();
 
+    virtual void onPose (Array<PosedModelRef> &posedArray, Array< PosedModel2DRef > &posed2DArray);
+
     virtual void onLogic();
-    /*    virtual bool onEvent(const GEvent& event);
-          virtual void onUserInput(UserInput*);*/
+    virtual bool onEvent(const GEvent& event);
 };
 
 }
@@ -217,6 +245,19 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
 
     m_recordButton = pane()->addButton("Record (" + m_hotKeyString + ")");
     m_recordButton->moveBy(pane()->rect().width() - m_recordButton->rect().width() - 5, 0);
+
+    m_font = GFont::fromFile(System::findDataFile("arial.fnt"));
+    
+    m_recorder = new Recorder();
+    m_recorder->dialog = this;
+}
+
+
+void VideoRecordDialog::onPose (Array<PosedModelRef> &posedArray, Array< PosedModel2DRef > &posed2DArray) {
+    GuiWindow::onPose(posedArray, posed2DArray);
+    if (m_video.notNull()) {
+        posed2DArray.append(m_recorder);
+    }
 }
 
 
@@ -265,6 +306,21 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
     
     m_video->append(rd, useBackBuffer);
 
+    //  Draw "recording" on the screen.
+    rd->push2D();
+    {
+        // Draw directly to the front buffer so that the message is always visible
+        //if (! useBackBuffer) {
+        rd->setDrawBuffer(RenderDevice::BUFFER_FRONT);
+        
+        static RealTime t0 = System::time();
+        bool toggle = isEven((int)((System::time() - t0) * 2));
+        m_font->draw2D(rd, "REC", Vector2(rd->width() - 100, 5), 35, toggle ? Color3::black() : Color3::white(), Color3::black());
+        m_font->draw2D(rd, m_hotKeyString + " to stop", Vector2(rd->width() - 100, 45), 16, Color3::white(), Color4(0,0,0,0.45f));
+    }
+    rd->pop2D();
+
+    // TODO: stop if too many frames have been drawn
 }
 
 
@@ -278,14 +334,37 @@ void VideoRecordDialog::stopRecording() {
     // Make a new unique filename
     m_filename = generateFilenameBase("movie-");
 
+    if (m_app) {
+        // Restore the app state
+        m_app->setDesiredFrameRate(m_oldDesiredFrameRate);
+        m_app->setSimTimeStep(m_oldSimTimeStep);
+    }
+
     // Reset the GUI
     m_recordButton->setCaption("Record (" + m_hotKeyString + ")");
 }
 
 
+bool VideoRecordDialog::onEvent(const GEvent& event) {
+    if (((event.type == GEventType::GUI_ACTION) && (event.gui.control == m_recordButton)) ||
+        ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod))) {
+        if (m_video.notNull()) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+        return true;
+    }
+
+    return false;
+}
 
 
-
+void VideoRecordDialog::Recorder::render(RenderDevice* rd) const {
+    if (dialog->m_video.notNull()) {
+        dialog->recordFrame(rd);
+    }
+}
 
 
 
@@ -470,17 +549,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     sky->renderLensFlare(rd, localSky);
 
     PosedModel2D::sortAndRender(rd, posed2D);
-
-    // TODO: Draw "recording" on the screen
-    rd->push2D();
-        GFontRef font = GFont::fromFile("arial.fnt");
-        /*
-        if (! useBackBuffer) {
-            rd->setDrawBuffer(RenderDevice::BUFFER_FRONT);
-        }*/
-
-        font->draw2D(rd, "REC", Vector2(rd->width() - 100, 5), 30, Color3::red());
-    rd->pop2D();
 }
 
 
