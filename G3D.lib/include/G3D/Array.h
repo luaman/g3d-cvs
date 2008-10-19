@@ -151,7 +151,7 @@ private:
          data = (T*)System::alignedMalloc(sizeof(T) * numAllocated, 16);
 
          // Call the copy constructors
-         {const int N = iMin(oldNum, numAllocated);
+         {const int N = G3D::min(oldNum, numAllocated);
           const T* end = data + N;
           T* oldPtr = oldData;
           for (T* ptr = data; ptr < end; ++ptr, ++oldPtr) {
@@ -369,7 +369,7 @@ public:
       }
 
       // Once allocated, always maintain MIN_ELEMENTS elements or 32 bytes, whichever is higher.
-      static const int minSize = iMax(MIN_ELEMENTS, MIN_BYTES / sizeof(T));
+      static const int minSize = G3D::max(MIN_ELEMENTS, (int)(MIN_BYTES / sizeof(T)));
 
       if ((MIN_ELEMENTS == 0) && (MIN_BYTES == 0) && (n == 0) && shrinkIfNecessary) {
           // Deallocate the array completely
