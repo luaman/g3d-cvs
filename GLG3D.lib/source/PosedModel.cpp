@@ -98,8 +98,23 @@ void PosedModel::sortAndRender
                     Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
                                                               lightProjY, lightProjNear, lightProjFar);
                 shadowMaps[L]->updateDepth(rd, lightFrame, lightProjectionMatrix, allModels);
+            } else if (lighting->shadowedLightArray[L].position.w == 0) {
+                // Directional light
+
+                /*
+                // Find the bounds on the projected character
+                AABox2D bounds;
+                for (int m = 0; m < allModels.size(); ++m) {
+                    const PosedModelRef& model = allModels[m];
+                    const Sphere& b = model->worldSpaceBoundingSphere();
+                    
+                }*/
+
+                // Find bounds of all shadow casting
+                shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
+                                          lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
             } else {
-                // Point or directional light
+                // Point light
                 shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
                                           lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
             }
