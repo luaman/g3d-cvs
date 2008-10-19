@@ -27,6 +27,8 @@ namespace G3D {
 
    The playback rate is the frames-per-second value to be stored in
    the movie file.  The record rate 1/G3D::GApp::simTimeStep.
+
+   Set enabled to false to prevent hot-key handling.
  */
 class VideoRecordDialog : public GuiWindow {
 public:

@@ -61,19 +61,14 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
         }
     }
 
-#   ifdef G3D_WIN32
-    {
-        // On Windows, default to raw AVI if available on this machine since
-        // media player can't play MP4 files and WMV quality seems to be 
-        // very low.
-        for (int i = 0; i < m_settingsTemplate.size(); ++i) {
-            if (m_settingsTemplate[i].codec == VideoOutput::CODEC_ID_RAWVIDEO) {
-                m_templateIndex = i;
-                break;
-            }
+    // Default to raw AVI since that has the best quality.
+    // very low.
+    for (int i = 0; i < m_settingsTemplate.size(); ++i) {
+        if (m_settingsTemplate[i].codec == VideoOutput::CODEC_ID_RAWVIDEO) {
+            m_templateIndex = i;
+            break;
         }
     }
-#   endif
 
     m_filename = generateFilenameBase("movie-");
     GuiTextBox* filenameBox = pane()->addTextBox("Save as", &m_filename);
@@ -104,9 +99,9 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     GuiNumberBox<float>* recordBox   = pane()->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f);
     recordBox->setCaptionSize(captionSize);
 
-    const GWindow* window = GWindow::current();
-    int w = window->width() / 2;
-    int h = window->height() / 2;
+    //const GWindow* window = GWindow::current();
+    // int w = window->width() / 2;
+    // int h = window->height() / 2;
 
     pane()->addCheckBox("Record GUI (PosedModel2D)", &m_captureGUI);
 
@@ -242,15 +237,21 @@ bool VideoRecordDialog::onEvent(const GEvent& event) {
         return true;
     }
 
-    bool buttonClicked = (event.type == GEventType::GUI_ACTION) && (event.gui.control == m_recordButton);
-    bool hotKeyPressed = (event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod);
-    if (buttonClicked || hotKeyPressed) {
-        if (m_video.notNull()) {
-            stopRecording();
-        } else {
-            startRecording();
+    if (enabled()) {
+        bool buttonClicked = (event.type == GEventType::GUI_ACTION) && (event.gui.control == m_recordButton);
+        bool hotKeyPressed = (event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == m_hotKey) && (event.key.keysym.mod == m_hotKeyMod);
+        
+        //if (event.type == GEventType::KEY_DOWN) {
+        //    debugPrintf("F4 = %d, received %d, mod = %d, pressed = %d\n", (int)m_hotKey, (int)event.key.keysym.sym, (int)event.key.keysym.mod, hotKeyPressed);
+        //}
+        if (buttonClicked || hotKeyPressed) {
+            if (m_video.notNull()) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+            return true;
         }
-        return true;
     }
 
     return false;

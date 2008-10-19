@@ -1156,54 +1156,71 @@ unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
     if (modifiers & shiftKey) {
         if (keyBytes[kVirtualLShiftKey >> 3] & (1 << (kVirtualLShiftKey & 7))) {
             e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LSHIFT);
+            //debugPrintf(" LSHIFT ");
         }
 
         if (keyBytes[kVirtualRShiftKey >> 3] & (1 << (kVirtualRShiftKey & 7))) {
-            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RSHIFT);		
+            e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RSHIFT);
+            //debugPrintf(" RSHIFT ");
         }
     }
 	
     if (modifiers & controlKey) {
         if (keyBytes[kVirtualLControlKey >> 3] & (1 << (kVirtualLControlKey & 7))) {
             e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LCTRL);
+            //debugPrintf(" LCTRL ");
         }
         
         if (keyBytes[kVirtualRControlKey >> 3] & (1 << (kVirtualRControlKey & 7))) {
             e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RCTRL);
+            //debugPrintf(" RCTRL ");
         }
     }
     
     if (modifiers & optionKey) {
         if (keyBytes[kVirtualLOptionKey >> 3] & (1 << (kVirtualLOptionKey & 7))) {
             e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LALT);
+            //debugPrintf(" LALT ");
         }
 
         if(keyBytes[kVirtualROptionKey >> 3] & (1 << (kVirtualROptionKey & 7))) {
             e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::RALT);
+            //            debugPrintf(" RALT ");
 	}
     }
 
     if (modifiers & cmdKey) {
         e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::LMETA);
+        //debugPrintf(" LMETA ");
     }
-    
+
+    /*
+      The FN key is weird on MacBook Pro--it claims to be pressed down
+      whenever a function key is pressed.  Trapping this is undesirable because
+      it doesn't match other OSes, so we ignore it.
+
     if (modifiers & kEventKeyModifierFnMask) {
         e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::MODE);
     }
+    */
     
     if (modifiers & alphaLock) {
         e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::CAPS);
+        //debugPrintf(" CAPS ");
     }
 
     if (modifiers & kEventKeyModifierNumLockMask) {
         e.key.keysym.mod = (GKeyMod::Value)(e.key.keysym.mod | GKeyMod::NUM);
+        //debugPrintf(" NUM ");
     }
     
     // If c is 0, then we've actually recieved a modifier key event,
     // which takes a little more logic to figure out. Especially since
     // under Carbon there isn't a distinction between right/left hand
-    // versions of keys.
+    // versions of keys.  In all other cases, we have a "normal" key.
+
     if (c != 0) {
+        //debugPrintf("\nRaw code = %d\n", key);
         // Non-modifier key
         switch(key) {
         case 122: e.key.keysym.sym = GKey::F1;    break;
@@ -1236,6 +1253,8 @@ unsigned char CarbonWindow::makeKeyEvent(EventRef theEvent, GEvent& e) {
                 e.key.keysym.sym = (GKey::Value)c;
             }
         }
+        //debugPrintf("Sym code = %d\n", e.key.keysym.sym);
+
     } else {
         // Modifier key
 

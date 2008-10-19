@@ -26,8 +26,6 @@ App::App(const GApp::Settings& settings, const std::string& file) :
     viewer(NULL),
     filename(file) {
 
-//    GuiTheme::makeSkinFromSourceFiles("/Volumes/McGuire/Projects/data/source/skins/osx/", "white.png", "black.png", "osx.txt", "/Volumes/McGuire/Projects/data/source/skins/osx/osx.skn");
-
     shadowMap = ShadowMap::create(1024);
     shadowMap->setPolygonOffset(0.0f);
     setDesiredFrameRate(60);
@@ -44,34 +42,35 @@ void App::onInit() {
 
     toneMap->setEnabled(false);
 	
-	colorClear = Color3::white();
-	//modelController = ThirdPersonManipulator::create();
+    colorClear = Color3::white();
+    //modelController = ThirdPersonManipulator::create();
 
-	setViewer(filename);
+    setViewer(filename);
 }
 
 
 void App::onCleanup() {
-	delete viewer;
-	viewer = NULL;
+    delete viewer;
+    viewer = NULL;
 }
 
 
 bool App::onEvent(const GEvent& e) {
-	switch (e.type) {
+    switch (e.type) {
     case GEventType::FILE_DROP:
-		{
-		   Array<std::string> fileArray;
-		   window()->getDroppedFilenames(fileArray);
-		   setViewer(fileArray[0]);
-		   return true;
-		}
-
-	default:;
+        {
+            Array<std::string> fileArray;
+            window()->getDroppedFilenames(fileArray);
+            setViewer(fileArray[0]);
+            return true;
+        }
+        
+    default:;
     }
-
-	return false;
+    
+    return false;
 }
+
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Make the camera spin when the debug controller is not active
@@ -84,15 +83,16 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     }
 
     // let viewer sim with time step if needed
-	if (viewer != NULL) {
-		viewer->onSimulation(rdt, sdt, idt);
-	}
+    if (viewer != NULL) {
+        viewer->onSimulation(rdt, sdt, idt);
+    }
 }
+
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
     LightingRef localLighting = toneMap->prepareLighting(lighting);
-	toneMap->setEnabled(false);
+    toneMap->setEnabled(false);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(colorClear);
@@ -110,11 +110,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
             rd->setLight(L, localLighting->lightArray[L]);
         }
 
-		// Render the file that is currently being viewed
-		if (viewer != NULL) {
-			viewer->onGraphics(rd, this, localLighting);
-		}
-
+        // Render the file that is currently being viewed
+        if (viewer != NULL) {
+            viewer->onGraphics(rd, this, localLighting);
+        }
+        
         for (int i = 0; i < posed3D.size(); ++i) {
             posed3D[i]->render(rd);
         }
@@ -127,116 +127,119 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 static const std::string cubeMapExtension[] = {"up", "dn", "bk", "rt", "lf", "ft"};
 
 static bool allCubeMapFacesExist(const std::string& base, const std::string& ext) {
-	for (int f = 0; f < 6; ++f) {
-		if (! fileExists(base + cubeMapExtension[f] + "." + ext) &&
-			! fileExists(base + toUpper(cubeMapExtension[f]) + "." + ext)) {
- 			return false;
-		}
-	}
-	return true;
+    for (int f = 0; f < 6; ++f) {
+        if (! fileExists(base + cubeMapExtension[f] + "." + ext) &&
+            ! fileExists(base + toUpper(cubeMapExtension[f]) + "." + ext)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
  @param ext Does not contain the period, must be an image extension
  */
 static bool isCubeMapFace(const std::string& _base, const std::string& _ext) {
-	std::string base = toLower(_base);
-	std::string ext = toLower(_ext);
-	for (int f = 0; f < 6; ++f) {
-		if (endsWith(base, cubeMapExtension[f] + "." + ext)) {
-			return true;
-		}
-	}
-	return false;
+    std::string base = toLower(_base);
+    std::string ext = toLower(_ext);
+    for (int f = 0; f < 6; ++f) {
+        if (endsWith(base, cubeMapExtension[f] + "." + ext)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 
 void App::setViewer(const std::string& newFilename) {
-	filename = newFilename;
-	defaultCamera.setCoordinateFrame(CoordinateFrame(Vector3(0,0,5)));
-	defaultController->setFrame(CoordinateFrame(Vector3(0,0,5)));
-	//modelController->setFrame(CoordinateFrame(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180))));
-	delete viewer;
-	viewer = NULL;
+    filename = newFilename;
+    defaultCamera.setCoordinateFrame(CoordinateFrame(Vector3(0,0,5)));
+    defaultController->setFrame(CoordinateFrame(Vector3(0,0,5)));
+    //modelController->setFrame(CoordinateFrame(Matrix3::fromAxisAngle(Vector3(0,1,0), toRadians(180))));
+    delete viewer;
+    viewer = NULL;
     shadowMap->setSize(0);
-	
-	std::string ext = toLower(filenameExt(filename));
-
-	if (ext == "ifs") {
-
-		viewer = new IFSViewer();
-
-	} else if (ext == "3ds") {
-
+    
+    std::string ext = toLower(filenameExt(filename));
+    
+    if ((ext == "3ds") ||
+        (ext == "ifs") ||
+        (ext == "ply2") ||
+        (ext == "off")) {
+        
         shadowMap->setSize(2048);
-
-		viewer = new ArticulatedViewer();
-
-	} else if (Texture::isSupportedImage(filename)) {
-
-		// Images can be either a Texture or a Sky: figure out which we have
+        
+        viewer = new ArticulatedViewer();
+        
+    } else if (Texture::isSupportedImage(filename)) {
+        
+        // Images can be either a Texture or a Sky: figure out which we have
 	
-		// If the image represents a skybox, there will be 5 others just like it,
-		// corresponding to the rest of the cube
-		if (isCubeMapFace(filename, ext)) {
+        // If the image represents a skybox, there will be 5 others just like it,
+        // corresponding to the rest of the cube
+        if (isCubeMapFace(filename, ext)) {
+            
+            std::string skyRoot = filename.substr(0, filename.length() - 6);
+            
+            if (allCubeMapFacesExist(skyRoot, ext)) {
+                viewer = new SkyViewer();
+            } else {
+                viewer = new TextureViewer();
+            }
+        } else {
+            viewer = new TextureViewer();
+        }
+    } else if (ext == "fnt") {
+        
+        viewer = new FontViewer(debugFont);
+        
+    } else if (ext == "bsp") {
+        
+        viewer = new BSPViewer();
+        
+    } else if (ext == "md2") {
+        
+        viewer = new MD2Viewer();
+        
+    } else if (ext == "skn") {
+        
+        viewer = new GUIViewer(this);
+        
+    } else if (ext == "pk3") {
+        // Something in Quake format - figure out what we should load
+        Array <std::string> files;
+        bool set = false;
+        
+        // First, try for a .bsp map
+        std::string search = filename + "/maps/*";
+        getFiles(search, files, true);
+        for (int t = 0; t < files.length(); ++t) {
+            
+            if (filenameExt(files[t]) == "bsp") {
+                
+                filename = files[t];
+                viewer = new BSPViewer();
+                set = true;
+            }
+        }
+        if (!set) {
+            viewer = new EmptyViewer();
+        }
 
-			std::string skyRoot = filename.substr(0, filename.length() - 6);
-
-			if (allCubeMapFacesExist(skyRoot, ext)) {
-				viewer = new SkyViewer();
-			} else {
-				viewer = new TextureViewer();
-			}
-		} else {
-			viewer = new TextureViewer();
-		}
-	} else if (ext == "fnt") {
-
-		viewer = new FontViewer(debugFont);
-
-	} else if (ext == "bsp") {
-
-		viewer = new BSPViewer();
-
-	} else if (ext == "md2") {
-
-		viewer = new MD2Viewer();
-
-	} else if (ext == "skn") {
-
-		viewer = new GUIViewer(this);
-
-	} else if (ext == "pk3") {
-		// Something in Quake format - figure out what we should load
-		Array <std::string> files;
-		bool set = false;
-
-		// First, try for a .bsp map
-		std::string search = filename + "/maps/*";
-		getFiles(search, files, true);
-		for (int t = 0; t < files.length(); ++t) {
-
-			if (filenameExt(files[t]) == "bsp") {
-
-				filename = files[t];
-				viewer = new BSPViewer();
-				set = true;
-			}
-		}
-		if (!set) {
-			viewer = new EmptyViewer();
-		}
-    } else if (ext == "avi" || ext == "wmv" || ext == "mp4" || ext == "asf" || ext == "mov") {
+    } else if (ext == "avi" || ext == "wmv" || ext == "mp4" || ext == "asf" || 
+               (ext == "mov") || (ext == "dv") || (ext == "qt") || (ext == "asf") ||
+               (ext == "mpg")) {
         viewer = new VideoViewer();
-	} else {
 
-		viewer = new EmptyViewer();
+    } else {
+        
+        viewer = new EmptyViewer();
 	
-	}
+    }
 
-	if (viewer != NULL) {
-		viewer->onInit(filename);
-	}
-
-	window()->setCaption(filenameBaseExt(filename) + " - G3D Viewer");
+    if (viewer != NULL) {
+        viewer->onInit(filename);
+    }
+    
+    window()->setCaption(filenameBaseExt(filename) + " - G3D Viewer");
 }
