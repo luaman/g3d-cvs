@@ -10,10 +10,11 @@
 #
 # Original concept by Morgan McGuire and Rob Hunter
 #
-# DO NOT MODIFY THIS SCRIPT.  EDIT ICE.TXT AND ~/.ICOMPILE TO CUSTOMIZE
-# YOUR PROJECT CONFIGURATION.
+#**********************************************************************
+# EDIT ice.txt AND ~/.icompile TO CUSTOMIZE YOUR PROJECT CONFIGURATION.
+#**********************************************************************
 
-version = [0, 5, 5]
+version = [0, 5, 6]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, copy, threading
@@ -114,6 +115,10 @@ def buildClean(state):
     
     rmdir(state.buildDir, ice.utils.verbosity >= VERBOSE)
     rmdir(state.tempDir, ice.utils.verbosity >= VERBOSE)
+    if len(os.listdir(state.tempParentDir)) == 0:
+        # Remove the parent directory if it is empty too since
+        # the parent dir is usually right next to the source dir
+        rmdir(state.tempParentDir, ice.utils.verbosity >= VERBOSE)
 
     if ice.utils.verbosity >= VERBOSE: colorPrint('Done deleting generated files\n', SECTION_COLOR)
 
@@ -616,7 +621,7 @@ def gdbCompiledProgram(state, progArgs):
     tempDir = state.tempDir
     if not isUnixAbsolutePath(tempDir):
         tempDir = os.path.abspath(tempDir)
-    commandFile = tempDir + 'gdb-commands.txt'
+    commandFile = pathConcat(tempDir, 'gdb-commands.txt')
     f = open(commandFile, 'w')
     f.write('run ' + string.join(progArgs, ' '))
     f.close()
@@ -821,7 +826,7 @@ def processStatistics(state):
     else:
         # Overwrite
         oldLog[-1] = info
-        writeFile(logfile, '\n'.join(oldLog) + '\n')
+        writeFile(logfile, '\n'.join(oldLog))
 
     if ice.utils.verbosity >= VERBOSE: 
         print 'Done computing statistics.'

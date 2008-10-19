@@ -251,7 +251,12 @@ class State:
     # e.g., 'osx', 'freebsd', 'linux'
     os                          = None
 
+    # Directory in which the tempDir is stored; tempDir is 
+    tempParentDir               = None
+
     # Temp directory where scratch and .o files are stored, relative to rootDir
+    # this is always tempParentDir/<projname> so that multiple projects can
+    # share a temp directory
     tempDir                     = None
 
     # Absolute location of the project root directory.  Ends in '/'.
