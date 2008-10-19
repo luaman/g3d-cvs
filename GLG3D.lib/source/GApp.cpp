@@ -352,7 +352,14 @@ void GApp::renderDebugInfo() {
                 Color3 statColor = Color3::yellow();
                 debugFont->configureRenderDevice(renderDevice);
 
-                debugFont->send2DQuads(renderDevice, renderDevice->getCardDescription() + "   " + System::version(), 
+                const char* build =
+#               ifdef G3D_DEBUG
+                    " (Debug)";
+#               else
+                    " (Optimized)";
+#               endif
+
+                debugFont->send2DQuads(renderDevice, renderDevice->getCardDescription() + "   " + System::version() + build, 
                     pos, size, color);
                 pos.y += size * 1.5f;
                 
