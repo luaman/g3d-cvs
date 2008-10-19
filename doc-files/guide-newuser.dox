@@ -5,9 +5,10 @@ information on how to install %G3D on your system and compile your own
 projects that use %G3D, see the Installing %G3D page for your
 operating system linked from the <a class="el" href="index.html">title page</a>.
 
-To get started quickly, refer to the <a
+<b>To get started quickly, refer to the <a
 class="el" href="../demos/starter/">demos/starter</a> starter project for a small
-example program of how most people use G3D.
+example program of how most people use G3D. </b> On Unix-like operating systems,
+just run 'icompile' with no arguments to generate your own G3D starter project.
 
 Contents:
 <ol>
