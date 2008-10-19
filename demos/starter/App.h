@@ -1,8 +1,8 @@
 /**
   @file App.h
  */
-#ifndef APP_H
-#define APP_H
+#ifndef App_h
+#define App_h
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
@@ -24,12 +24,10 @@ public:
     virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
     virtual bool onEvent(const GEvent& e);
     virtual void onUserInput(UserInput* ui);
-    virtual void onConsoleCommand(const std::string& cmd);
-    void printConsoleHelp();
     virtual void onCleanup();
 
-	/** Sets m_endProgram to true. */
-	virtual void endProgram();
+    /** Sets m_endProgram to true. */
+    virtual void endProgram();
 };
 
 #endif

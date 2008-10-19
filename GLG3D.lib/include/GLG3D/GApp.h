@@ -596,6 +596,38 @@ protected:
     /**
        Invoked when a user presses enter in the in-game console.  The default implementation
        ends the program if the command is "exit".
+
+
+       Sample implementation:
+       <pre>
+        void App::onConsoleCommand(const std::string& str) {
+            // Add console processing here
+
+            TextInput t(TextInput::FROM_STRING, str);
+            if (t.hasMore() && (t.peek().type() == Token::SYMBOL)) {
+                std::string cmd = toLower(t.readSymbol());
+                if (cmd == "exit") {
+                    setExitCode(0);
+                    return;
+                } else if (cmd == "help") {
+                    printConsoleHelp();
+                    return;
+                }
+
+                // Add commands here
+            }
+
+            console->printf("Unknown command\n");
+            printConsoleHelp();
+        }
+
+        void App::printConsoleHelp() {
+            console->printf("exit          - Quit the program\n");
+            console->printf("help          - Display this text\n\n");
+            console->printf("~/ESC         - Open/Close console\n");
+            console->printf("F2            - Enable first-person camera control\n");
+            console->printf("F4            - Record video\n");
+        }
     */
     virtual void onConsoleCommand(const std::string& cmd);
 };

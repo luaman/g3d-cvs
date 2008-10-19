@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     return App(settings).run();
 }
 
+
 App::App(const GApp::Settings& settings) : GApp(settings) {
 #   ifdef G3D_DEBUG
         // Let the debugger catch unhandled exceptions
@@ -33,13 +34,17 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 #   endif
 }
 
+
 void App::onInit() {
     // Called before the application loop beings.  Load data here and
     // not in the constructor so that common exceptions will be
     // automatically caught.
 
-    // Uncomment the next line to hide the developer tools:
-    //developerWindow->setVisible(false);
+    // Turn on the developer HUD
+    debugWindow->setVisible(true);
+    developerWindow->cameraControlWindow->setVisible(true);
+    developerWindow->videoRecordDialog->setEnabled(true);
+	showRenderingStats = true;
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
@@ -64,8 +69,8 @@ void App::onInit() {
     // debugPane->addTextBox("Name", &myName);
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
-    debugWindow->setVisible(true);
 
+    // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
 
@@ -148,36 +153,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     // Render 2D objects like Widgets
     PosedModel2D::sortAndRender(rd, posed2D);
-}
-
-
-void App::onConsoleCommand(const std::string& str) {
-    // Add console processing here
-
-    TextInput t(TextInput::FROM_STRING, str);
-    if (t.hasMore() && (t.peek().type() == Token::SYMBOL)) {
-        std::string cmd = toLower(t.readSymbol());
-        if (cmd == "exit") {
-            setExitCode(0);
-            return;
-        } else if (cmd == "help") {
-            printConsoleHelp();
-            return;
-        }
-
-        // Add commands here
-    }
-
-    console->printf("Unknown command\n");
-    printConsoleHelp();
-}
-
-
-void App::printConsoleHelp() {
-    console->printf("exit          - Quit the program\n");
-    console->printf("help          - Display this text\n\n");
-    console->printf("~/ESC         - Open/Close console\n");
-    console->printf("F2            - Enable first-person camera control\n");
 }
 
 
