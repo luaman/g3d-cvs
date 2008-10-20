@@ -352,7 +352,7 @@ void GApp::renderDebugInfo() {
                 Color3 statColor = Color3::yellow();
                 debugFont->configureRenderDevice(renderDevice);
 
-                const char* build =
+                const char* build = 
 #               ifdef G3D_DEBUG
                     " (Debug)";
 #               else

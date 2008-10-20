@@ -213,22 +213,10 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
 
     SetWindowLong(window, GWL_USERDATA, (LONG)this);
 
-    if (s.visible) {
-        ShowWindow(window, SW_SHOW);
-    }         
-
-    if (fullScreen) {
-        // Change the desktop resolution if we are running in fullscreen mode
-        if (!ChangeResolution(settings.width, settings.height, (settings.rgbBits * 3) + settings.alphaBits, settings.refreshRate)) {
-            alwaysAssertM(false, "Failed to change resolution");
-        }
-    }
-
     init(window, creatingShareWindow);
 
     // Set default icon if available
-    if (!settings.defaultIconFilename.empty()) {
-
+    if (! settings.defaultIconFilename.empty()) {
         try {
 
             GImage defaultIcon;
@@ -239,6 +227,17 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
             // Throw away default icon
             debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
             Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
+        }
+    }
+
+    if (s.visible) {
+        ShowWindow(window, SW_SHOW);
+    }         
+
+    if (fullScreen) {
+        // Change the desktop resolution if we are running in fullscreen mode
+        if (!ChangeResolution(settings.width, settings.height, (settings.rgbBits * 3) + settings.alphaBits, settings.refreshRate)) {
+            alwaysAssertM(false, "Failed to change resolution");
         }
     }
 }
@@ -304,10 +303,14 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
     window = hwnd;
 
     // Initialize mouse buttons to up
-    _mouseButtons[0] = _mouseButtons[1] = _mouseButtons[2] = false;
+    for (int i = 0; i < 8; ++i) {
+        _mouseButtons[i] = false;
+    }
 
     // Clear all keyboard buttons to up (not down)
-    memset(_keyboardButtons, 0, sizeof(_keyboardButtons));
+    for (int i = 0; i < 256; ++i) {
+        _keyboardButtons[i] = false;
+    }
 
     // Setup the pixel format properties for the output device
     _hDC = GetDC(window);
@@ -321,9 +324,9 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         // and http://oss.sgi.com/projects/ogl-sample/registry/ARB/wgl_pixel_format.txt
 
         Array<float> fAttributes;
-        fAttributes.append(0.0, 0.0);
-
         Array<int> iAttributes;
+
+        fAttributes.append(0.0, 0.0);
 
         iAttributes.append(WGL_DRAW_TO_WINDOW_ARB, GL_TRUE);
         iAttributes.append(WGL_SUPPORT_OPENGL_ARB, GL_TRUE);
