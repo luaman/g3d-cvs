@@ -75,24 +75,47 @@ void PosedModel::sortAndRender
             }
             lighting->shadowedLightArray.resize(shadowMaps.size());
         }
+ 
+        // Find the scene bounds
+        AABox sceneBounds;
+        PosedModel::getBoxBounds(allModels, sceneBounds);
 
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             float lightProjX = 12, lightProjY = 12, lightProjNear = 0.5f, lightProjFar = 60;
+            const GLight& light = lighting->shadowedLightArray[L];
 
             if (lighting->shadowedLightArray[L].spotCutoff <= 90) {
-                // Spot light; we can set the lightProjX/Y intelligently
+                // Spot light; we can set the lightProj bounds intelligently
 
                 debugAssert(lighting->shadowedLightArray[L].position.w == 1.0f);
-
-                // The cutoff is half the angle of extent (See the Red Book, page 193)
-                float angle = toRadians(lighting->shadowedLightArray[L].spotCutoff);
-                lightProjX = lightProjNear * sin(angle);
-                lightProjY = lightProjX;
 
                 CFrame lightFrame;
                 lightFrame.lookAt(lighting->shadowedLightArray[L].spotDirection);
                 lightFrame.translation = lighting->shadowedLightArray[L].position.xyz();
+
+                // Find nearest and farthest corners of the scene bounding box
+                lightProjNear = inf();
+                lightProjFar  = 0;
+                for (int c = 0; c < 8; ++c) {
+                    Vector3 v = sceneBounds.corner(c);
+                    v = lightFrame.pointToObjectSpace(v);
+                    lightProjNear = min(lightProjNear, -v.z);
+                    lightProjFar = max(lightProjFar, -v.z);
+                }
+                
+                // Don't let the near get too close to the source
+                lightProjNear = max(0.2f, lightProjNear);
+
+                // Don't bother tracking shadows past the effective radius
+                lightProjFar = min(light.effectSphere().radius, lightProjFar);
+                lightProjFar = max(lightProjNear + 0.1f, lightProjFar);
+
+                // The cutoff is half the angle of extent (See the Red Book, page 193)
+                float angle = toRadians(lighting->shadowedLightArray[L].spotCutoff);
+                lightProjX = lightProjNear * sin(angle);
+                // Symmetric in x and y
+                lightProjY = lightProjX;
 
                 Matrix4 lightProjectionMatrix = 
                     Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
