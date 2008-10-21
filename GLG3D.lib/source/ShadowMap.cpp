@@ -125,13 +125,12 @@ void ShadowMap::updateDepth(
     AABox sceneBounds;
     PosedModel::getBoxBounds(shadowCaster, sceneBounds);
 
-    CoordinateFrame lightCFrame;
+    m_lightFrame = CFrame();
     Vector3 center = sceneBounds.center();
-    Matrix4 lightProjectionMatrix;
-
+    
     if (lightPosition.w == 0) {
         // Move directional light away from the scene.  It must be far enough to see all objects
-        lightCFrame.translation = lightPosition.xyz() * max(sceneBounds.extent().length() / 2.0f, max(lightProjNear, 30.0f)) + center;
+        m_lightFrame.translation = lightPosition.xyz() * max(sceneBounds.extent().length() / 2.0f, max(lightProjNear, 30.0f)) + center;
 
         // Construct a projection and view matrix for the camera so we can 
         // render the scene from the light's point of view
@@ -141,23 +140,23 @@ void ShadowMap::updateDepth(
         // be in the direction of the light but at a finite distance 
         // to preserve z precision.
         
-        lightProjectionMatrix = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
+        m_lightProjection = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
                                                               lightProjY, lightProjNear, lightProjFar);
 
     } else {
-        lightCFrame.translation = lightPosition.xyz();
-        lightProjectionMatrix = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
+        m_lightFrame.translation = lightPosition.xyz();
+        m_lightProjection = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
                                                               lightProjY, lightProjNear, lightProjFar);
     }
 
     Vector3 perp = Vector3::unitZ();
     // Avoid singularity when looking along own z-axis
-    if (abs((lightCFrame.translation - center).direction().dot(perp)) > 0.8) {
+    if (abs((m_lightFrame.translation - center).direction().dot(perp)) > 0.8) {
         perp = Vector3::unitY();
     }
-    lightCFrame.lookAt(center, perp);
+    m_lightFrame.lookAt(center, perp);
 
-    updateDepth(renderDevice, lightCFrame, lightProjectionMatrix, shadowCaster);
+    updateDepth(renderDevice, m_lightFrame, m_lightProjection, shadowCaster);
 }
 
 
@@ -168,6 +167,8 @@ void ShadowMap::updateDepth(
     const Array<PosedModel::Ref>& shadowCaster,
     float biasDepth) {
 
+    m_lightProjection = lightProjectionMatrix;
+    m_lightFrame = lightCFrame;
     m_lastRenderDevice = renderDevice;
 
     if (shadowCaster.size() == 0) {
@@ -213,10 +214,10 @@ void ShadowMap::updateDepth(
         renderDevice->clear(debugShadows, true, false);
 
         // Draw from the light's point of view
-        renderDevice->setCameraToWorldMatrix(lightCFrame);
-        renderDevice->setProjectionMatrix(lightProjectionMatrix);
+        renderDevice->setCameraToWorldMatrix(m_lightFrame);
+        renderDevice->setProjectionMatrix(m_lightProjection);
 
-        m_lightMVP = lightProjectionMatrix * lightCFrame.inverse();
+        m_lightMVP = m_lightProjection * m_lightFrame.inverse();
 
         static const Matrix4 bias(
                                   0.5f, 0.0f, 0.0f, 0.5f,

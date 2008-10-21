@@ -552,7 +552,7 @@ public:
         Array<int>&           indexArray,
         Array<int>&           oldToNewIndex, 
         bool                  recomputeNormals = true,
-        float                 normalSmoothingAngle = toRadians(70),
+        float                 normalSmoothingAngle = toRadians(70.0f),
         float                 vertexWeldRadius   = 0.0001f,
         float                 texCoordWeldRadius = 0.0001f,
         float                 normalWeldRadius   = 0.01f);

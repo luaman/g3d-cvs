@@ -724,6 +724,21 @@ inline double toDegrees(double rad) {
     return rad * 180.0 / pi();
 }
 
+inline float toRadians(float deg) {
+    return deg * (float)pi() / 180.0f;
+}
+
+inline float toDegrees(float rad) {
+    return rad * 180.0f / (float)pi();
+}
+
+inline float toRadians(int deg) {
+    return deg * (float)pi() / 180.0f;
+}
+
+inline float toDegrees(int rad) {
+    return rad * 180.0f / (float)pi();
+}
 /**
  Computes an appropriate epsilon for comparing a and b.
  */

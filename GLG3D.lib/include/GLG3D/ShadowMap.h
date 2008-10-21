@@ -26,6 +26,11 @@ private:
     FramebufferRef      m_colorConversionFramebuffer;
 
     Matrix4             m_lightMVP;
+
+    CFrame              m_lightFrame;
+    Matrix4             m_biasedLightProjection;
+    Matrix4             m_lightProjection;
+    
     Matrix4             m_biasedLightMVP;
 
     float               m_polygonOffset;
@@ -86,9 +91,26 @@ public:
     }
 
     /** MVP adjusted to map to [0,0],[1,1] texture coordinates and addjusted in z 
-        for depth comparisons to avoid self-shadowing artifacts on front faces. */
+        for depth comparisons to avoid self-shadowing artifacts on front faces. 
+        
+        Equal to biasedLightProjection() * lightFrame().inverse().
+        */
     const Matrix4& biasedLightMVP() const {
         return m_biasedLightMVP;
+    }
+
+    /** The coordinate frame of the light source */
+    const CFrame& lightFrame() const {
+        return m_lightFrame;
+    }
+
+    /** Projection matrix for the light, biased to avoid self-shadowing */
+    const Matrix4& biasedLightProjection() const {
+        return m_biasedLightProjection;
+    }
+
+    const Matrix4& lightProjection() const {
+        return m_lightProjection;
     }
 
     bool enabled() const;

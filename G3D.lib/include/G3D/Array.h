@@ -468,6 +468,8 @@ public:
 
     inline void append(const T& v1, const T& v2) {
         if (inArray(&v1) || inArray(&v2)) {
+            // Copy into temporaries so that the references won't break when
+            // the array resizes.
             T t1 = v1;
             T t2 = v2;
             append(t1, t2);
@@ -478,6 +480,7 @@ public:
             new (data + num + 1) T(v2);
             num += 2;
         } else {
+            // Resize the array.  Note that neither value is already in the array.
             resize(num + 2, DONT_SHRINK_UNDERLYING_ARRAY);
             data[num - 2] = v1;
             data[num - 1] = v2;

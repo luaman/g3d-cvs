@@ -24,7 +24,8 @@
      <li> G3D::Texture resizes textures that exceed the device maximum size
      <li> G3D::Array now allows control over MIN_ELEMENTS and MIN_BYTES using template parameters
      <li> Clarified G3D::Any file format in documentation
-     <li> Texture::PreProcess::gammaAdjust
+     <li> G3D::Texture::PreProcess::gammaAdjust
+     <li> G3D::ShadowMap::lightProjection(), G3D::ShadowMap::lightFrame()
      <li> Added Barycentric coordinates to CollisionDetection::isPointInTriangle
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
@@ -34,7 +35,7 @@
      <li> Put HashTrait and EqualsTrait in their own headers separate from Table.h
      <li> ArticulatedModel::facet
      <li> ReferenceCountedPointer now asserts that the pointer is not NULL on method invocation
-     <li> PosedModel now computes appropriate shadow map matrices for spot lights
+     <li> G3D::ShadowMap now computes appropriate matrices for spot lights
      <li> Added ImageFormat::convert [Danny and Kyle]
      <li> 3- and 4- argument min and max
      <li> G3D::GaussianBlur now correctly sets the output viewport

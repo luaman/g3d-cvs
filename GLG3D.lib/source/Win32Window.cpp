@@ -113,9 +113,11 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     ,_diDevices(NULL)
 
 {
+{Array<int> qqq;qqq.append(1,2,3,4);} // TODO: Remove. Here for debugging memory corruption
     _receivedCloseEvent = false;
 
     initWGL();
+{Array<int> qqq;qqq.append(1,2,3,4);} // TODO: Remove. Here for debugging memory corruption
 
     _hDC = NULL;
     _mouseVisible = true;
@@ -123,7 +125,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
     _windowActive = false;
     _thread = ::GetCurrentThread();
 
-    if (!sdlKeysInitialized) {
+    if (! sdlKeysInitialized) {
         initWin32KeyMap();
     }
 
@@ -179,6 +181,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
 
             startX = (GetSystemMetrics(SM_CXSCREEN) - total_width) / 2;
             startY = (GetSystemMetrics(SM_CYSCREEN) - total_height) / 2;
+
         } else {
 
             startX = s.x;
@@ -188,6 +191,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
 
     clientX = settings.x = startX;
     clientY = settings.y = startY;
+{Array<int> qqq;qqq.append(1,2,3,4);} // TODO: Remove. Here for debugging memory corruption
 
     HWND window = CreateWindow(
         Win32Window::g3dWndClass(), 
@@ -230,16 +234,16 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
         }
     }
 
-    if (s.visible) {
-        ShowWindow(window, SW_SHOW);
-    }         
-
     if (fullScreen) {
         // Change the desktop resolution if we are running in fullscreen mode
         if (!ChangeResolution(settings.width, settings.height, (settings.rgbBits * 3) + settings.alphaBits, settings.refreshRate)) {
             alwaysAssertM(false, "Failed to change resolution");
         }
     }
+
+    if (s.visible) {
+        ShowWindow(window, SW_SHOW);
+    }         
 }
 
 
@@ -272,6 +276,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, HDC hdc) : createdWindow(fa
 
 
 Win32Window* Win32Window::create(const GWindow::Settings& settings) {
+{Array<int> qqq;qqq.append(1,2);} // TODO: Remove. Here for debugging memory corruption
 
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages
     return new Win32Window(settings);    
@@ -302,16 +307,6 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
     window = hwnd;
 
-    // Initialize mouse buttons to up
-    for (int i = 0; i < 8; ++i) {
-        _mouseButtons[i] = false;
-    }
-
-    // Clear all keyboard buttons to up (not down)
-    for (int i = 0; i < 256; ++i) {
-        _keyboardButtons[i] = false;
-    }
-
     // Setup the pixel format properties for the output device
     _hDC = GetDC(window);
 
@@ -324,9 +319,10 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         // and http://oss.sgi.com/projects/ogl-sample/registry/ARB/wgl_pixel_format.txt
 
         Array<float> fAttributes;
-        Array<int> iAttributes;
+        Array<int>   iAttributes;
 
-        fAttributes.append(0.0, 0.0);
+        // End sentinel; we have no float attribute to set
+        fAttributes.append(0.0f, 0.0f);
 
         iAttributes.append(WGL_DRAW_TO_WINDOW_ARB, GL_TRUE);
         iAttributes.append(WGL_SUPPORT_OPENGL_ARB, GL_TRUE);
@@ -416,6 +412,16 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
     _glContext = wglCreateContext(_hDC);
 
     alwaysAssertM(_glContext != NULL, "Failed to create OpenGL context.");
+
+    // Initialize mouse buttons to up
+    for (int i = 0; i < 8; ++i) {
+        _mouseButtons[i] = false;
+    }
+
+    // Clear all keyboard buttons to up (not down)
+    for (int i = 0; i < 256; ++i) {
+        _keyboardButtons[i] = false;
+    }
 
     if (! creatingShareWindow) {
         // Now share resources with the global window

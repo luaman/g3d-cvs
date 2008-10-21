@@ -254,10 +254,10 @@ VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float 
 VideoOutput::Ref VideoOutput::create(const std::string& filename, const Settings& settings) {
     VideoOutput* vo = new VideoOutput;
 
-    // todo: should the exception still be thrown when we're creating a reference?
     try {
         vo->initialize(filename, settings);
     } catch (const std::string& s) {
+        (void)s;
         debugAssertM(false, s);
 
         delete vo;
