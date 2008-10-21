@@ -20,6 +20,8 @@
 
 #include "G3D/platform.h"
 #include "G3D/debugAssert.h"
+#include "G3D/Matrix3.h"
+#include "G3D/Vector3.h"
 
 namespace G3D {
 
@@ -60,7 +62,7 @@ public:
 	/**
 		a is the upper left 3x3 submatrix and b is the upper right 3x1 submatrix. The last row of the created matrix is (0,0,0,1).
 	*/
-    Matrix4(const class Matrix3& upper3x3, const class Vector3& lastCol);
+    Matrix4(const class Matrix3& upper3x3, const class Vector3& lastCol = Vector3::zero());
 
     Matrix4(const class CoordinateFrame& c);
 
@@ -167,8 +169,33 @@ public:
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
 
-	std::string toString() const;
+    std::string toString() const;
+
+    /** 3D scale matrix */
+    inline static Matrix4 scale(const Vector3& v) {
+        return Matrix4(v.x, 0, 0, 0,
+                       0, v.y, 0, 0,
+                       0, 0, v.z, 0,
+                       0, 0, 0, 1);
+    }
+    
+    /** 3D scale matrix */
+    inline static Matrix4 scale(float x, float y, float z) {
+        return scale(Vector3(x, y, z));
+    }
+
+    /** 3D scale matrix */
+    inline static Matrix4 scale(float s) {
+        return scale(s,s,s);
+    }
+
+    /** 3D translation matrix */
+    inline static Matrix4 translation(const Vector3& v) {
+        return Matrix4(Matrix3::identity(), v);
+    }
 };
+
+
 
 } // namespace
 

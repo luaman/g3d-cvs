@@ -50,7 +50,13 @@ public:
 
     /** @param toLight will be normalized */
     static GLight directional(const Vector3& toLight, const Color3& color, bool specular = true, bool diffuse = true);
+
     static GLight point(const Vector3& pos, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0.5f, bool specular = true, bool diffuse = true);
+
+    /** @param pointDirection Will be normalized.  Points in the direction that light propagates.
+        @param cutOffAngleDegrees Must be on the range [0, 90]. This is the angle from the point direction
+        to the edge of the light cone.
+    */
     static GLight spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0, bool specular = true, bool diffuse = true);
 
     /** Returns the sphere within which this light has some noticable effect.  May be infinite.

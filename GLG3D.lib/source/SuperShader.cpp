@@ -195,6 +195,7 @@ static const int NUM_LIGHTS = 8;
 static std::string lightPositionString[NUM_LIGHTS];
 static std::string lightColorString[NUM_LIGHTS];
 static std::string lightAttenuationString[NUM_LIGHTS];
+static std::string lightDirectionString[NUM_LIGHTS];
 static const bool OPTIONAL = true;
 
 static void initializeStringConstants() {
@@ -209,6 +210,7 @@ static void initializeStringConstants() {
         lightPositionString[L]    = "lightPosition" + N;
         lightColorString[L]       = "lightColor" + N;
         lightAttenuationString[L] = "lightAttenuation" + N;
+        lightDirectionString[L]   = "lightDirection" + N;
     }
 
     stringConstantsInitialized = true;
@@ -232,11 +234,15 @@ static void configureLights
 
             args.set(lightPositionString[i],    light.position);
             args.set(lightColorString[i],       light.color);
-            args.set(lightAttenuationString[i], Vector3(light.attenuation[0], light.attenuation[1], light.attenuation[2]));
+            args.set(lightAttenuationString[i], Vector4(light.attenuation[0], light.attenuation[1], light.attenuation[2], 
+                                                        cos(toRadians(light.spotCutoff))));
+            args.set(lightDirectionString[i],   light.spotDirection);
         } else {
+            // This light is off
             args.set(lightPositionString[i],    Vector4(0, 1, 0, 0));
             args.set(lightColorString[i],       Color3::black());
-            args.set(lightAttenuationString[i], Vector3(1, 0, 0));
+            args.set(lightAttenuationString[i], Vector4(1, 0, 0, 2));
+            args.set(lightDirectionString[i],   Vector3(1,0,0));
         }
     }
 }
@@ -337,8 +343,10 @@ void ShadowedPass::setLight(
     
     args.set("lightPosition",   light.position);
     args.set("lightColor",      light.color);
-    args.set("lightAttenuation" , Vector3(light.attenuation[0], 
-                                         light.attenuation[1], light.attenuation[2]));
+    args.set("lightAttenuation" , Vector4(light.attenuation[0], 
+                                          light.attenuation[1], light.attenuation[2],
+                                          cos(toRadians(light.spotCutoff))));
+    args.set("lightDirection",  light.spotDirection);
 
     // Shadow map setup
     if (GLCaps::enumVendor() == GLCaps::ATI) {

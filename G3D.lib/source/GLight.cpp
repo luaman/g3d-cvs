@@ -51,10 +51,11 @@ GLight GLight::point(const Vector3& pos, const Color3& color, float constAtt, fl
 
 GLight GLight::spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, const Color3& color, float constAtt, float linAtt, float quadAtt, bool s, bool d) {
     GLight L;
-    L.position = Vector4(pos, 1);
-    L.spotDirection = pointDirection;
-    L.spotCutoff = cutOffAngleDegrees;
-    L.color    = color;
+    L.position       = Vector4(pos, 1.0f);
+    L.spotDirection  = pointDirection.direction();
+    debugAssert(cutOffAngleDegrees <= 90);
+    L.spotCutoff     = cutOffAngleDegrees;
+    L.color          = color;
     L.attenuation[0] = constAtt;
     L.attenuation[1] = linAtt;
     L.attenuation[2] = quadAtt;

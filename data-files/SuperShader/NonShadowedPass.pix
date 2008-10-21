@@ -1,28 +1,36 @@
+// -*- c++ -*-
 /**
   @file NonShadowedPass.pix
   @author Morgan McGuire morgan@cs.williams.edu
 
   For use with G3D::SuperShader.
 
-  @edited 2007-12-18
+  @edited  2008-10-20
+  @created 2007-12-18
  */
 
 /** World space light position */
 uniform vec4        lightPosition0;
 uniform vec3        lightColor0;
-uniform vec3        lightAttenuation0;
+/** Spot light facing direction (unit length) */
+uniform vec3        lightDirection0;
+/** w element is the spotlight cutoff angle*/
+uniform vec4        lightAttenuation0;
 
 uniform vec4        lightPosition1;
 uniform vec3        lightColor1;
-uniform vec3        lightAttenuation1;
+uniform vec3        lightDirection1;
+uniform vec4        lightAttenuation1;
 
 uniform vec4        lightPosition2;
 uniform vec3        lightColor2;
-uniform vec3        lightAttenuation2;
+uniform vec3        lightDirection2;
+uniform vec4        lightAttenuation2;
 
 uniform vec4        lightPosition3;
 uniform vec3        lightColor3;
-uniform vec3        lightAttenuation3;
+uniform vec3        lightDirection3;
+uniform vec4        lightAttenuation3;
 
 uniform samplerCube environmentMap;
 
@@ -106,14 +114,23 @@ uniform float       backside;
 varying float       accessibility;
 
 void addLightContribution(in vec3 wsN, in vec3 wsR, in vec3 wsPosition, in vec4 specularExponentColor, 
-                          in vec4 lightPosition, in vec3 lightAttenuation, 
+                          in vec4 lightPosition, in vec4 lightAttenuation, in vec3 lightDirection,
                           in vec3 lightColor, inout vec3 I_diffuse, inout vec3 I_specular) {
     
     // Light vector
     vec3 wsL = lightPosition.xyz - wsPosition.xyz * lightPosition.w;
     float lightDistance = length(wsL);
     wsL = wsL / lightDistance;
-    vec3 attLightColor = lightColor / dot( vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation);
+
+    vec3 attLightColor = 
+        // Spotlight cone (lightAttenuation.w = -1 for other lights)
+        (-dot(lightDirection, wsL) >= lightAttenuation.w) ? 
+
+                // Within spotlight cone
+                (lightColor / dot( vec3(1.0, lightDistance, lightDistance * lightDistance), lightAttenuation.xyz)) : 
+
+                // Outside spotlight cone
+                vec3(0.0, 0.0, 0.0);
 
 #   ifdef NORMALBUMPMAP
         // For a bump mapped surface, do not allow illumination on the back side even if the
@@ -394,14 +411,10 @@ void main(void) {
     vec3 I_diffuse  = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);
     vec3 I_specular = BLACK;
 
-/*    for (int i = 0; i < 4; ++i) {
-        addLightContribution(wsN, wsR, wsPosition, specularExponentColor, 
-                             lightPosition[i], lightAttenuation[i], lightColor[i], I_diffuse, I_specular);
-      }*/
-        addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition0, lightAttenuation0, lightColor0, I_diffuse, I_specular);
-        addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition1, lightAttenuation1, lightColor1, I_diffuse, I_specular);
-        addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition2, lightAttenuation2, lightColor2, I_diffuse, I_specular);
-        addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition3, lightAttenuation3, lightColor3, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition0, lightAttenuation0, lightDirection0, lightColor0, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition1, lightAttenuation1, lightDirection1, lightColor1, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition2, lightAttenuation2, lightDirection2, lightColor2, I_diffuse, I_specular);
+    addLightContribution(wsN, wsR, wsPosition, specularExponentColor, lightPosition3, lightAttenuation3, lightDirection3, lightColor3, I_diffuse, I_specular);
 
     gl_FragColor.rgb =
         BLACK

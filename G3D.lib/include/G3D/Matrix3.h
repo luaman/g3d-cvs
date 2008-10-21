@@ -218,6 +218,12 @@ public:
     /** matrix must be orthonormal */
     void toAxisAngle(Vector3& rkAxis, float& rfRadians) const;
 
+    static Matrix3 fromDiagonal(const Vector3& d) {
+        return Matrix3(d.x, 0, 0, 
+                       0, d.y, 0,
+                       0, 0, d.z);
+    }
+
     static Matrix3 fromAxisAngle(const Vector3& rkAxis, float fRadians);
 
     /**

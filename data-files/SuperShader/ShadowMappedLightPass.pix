@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /**
   @file ShadowMappedLightPass.glsl.frg
   @author Morgan McGuire matrix@graphics3d.com
@@ -9,7 +10,10 @@
 /** World space */
 uniform vec4        lightPosition;
 uniform vec3        lightColor;
-uniform vec3        lightAttenuation;
+/** Spot light facing direction (unit length) */
+uniform vec3        lightDirection;
+/** w element is the spotlight cutoff angle*/
+uniform vec4        lightAttenuation;
 
 #ifdef CUSTOMCONSTANT
     uniform vec4        customConstant;
@@ -261,7 +265,7 @@ void main(void) {
     wsL = wsL / lightDistance;
 
     vec3 attLightColor = lightColor / dot( vec3(1.0, lightDistance, lightDistance * lightDistance), 
-                                          lightAttenuation)
+                                          lightAttenuation.xyz)
 #   ifdef NORMALBUMPMAP
         // For a bump mapped surface, do not allow illumination on the back side even if the
         // displacement creates a light-facing surface, since it should be self-shadowed for any 
@@ -321,6 +325,10 @@ void main(void) {
         vec4 specularExponentColor = vec4(1.0, 1.0, 1.0, 1.0);
 #   endif
 
+    vec3 shadow;
+
+    if (-dot(lightDirection, wsL) >= lightAttenuation.w) {
+
     // Compute projected shadow coord.
     vec4 projShadowCoord = shadowCoord / shadowCoord.w;
 
@@ -329,46 +337,50 @@ void main(void) {
     vec4 s = vec4(g3d_sampler2DInvSize(shadowMap), -g3d_sampler2DInvSize(shadowMap).x, 0.0);
     vec4 d = s * 0.71;
 
-#   ifdef G3D_ATI
+#       ifdef G3D_ATI
         // On ATI, percentage closer filtering is not available.  Perform nearest neighbor
         // sampling with explicit depth comparisons.  We use dot products to perform four compares
         // at once and sum their results; this saves four instructions.  We could also (but do not
         // in this implementation) perform our own bilinear to smooth as well as blur the results.
 
-       vec3 shadow = 
-vec3(
+        shadow = 
+            vec3(
 
-float(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z) +
+                 (float(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z) +
+                  
+                  dot(vec4(1,1,1,1),
+                      vec4(greaterThan(vec4(
+                                            texture2D(shadowMap, projShadowCoord.xy + s.xw).r,
+                                            texture2D(shadowMap, projShadowCoord.xy - s.xw).r,
+                                            texture2D(shadowMap, projShadowCoord.xy + s.wy).r,
+                                            texture2D(shadowMap, projShadowCoord.xy - s.wy).r), projShadowCoord.zzzz))) +
+                  
+                  dot(vec4(1,1,1,1),
+                      vec4(greaterThan(vec4(
+                                            texture2D(shadowMap, projShadowCoord.xy + s.xy).r,
+                                            texture2D(shadowMap, projShadowCoord.xy - s.xy).r,
+                                            texture2D(shadowMap, projShadowCoord.xy + s.zy).r,
+                                            texture2D(shadowMap, projShadowCoord.xy - s.zy).r), projShadowCoord.zzzz)))) / 9.0); 
+        
+#       else
+        shadow = vec3(
+            (shadow2D(shadowMap, projShadowCoord.xyz).r +
+             
+             shadow2D(shadowMap, projShadowCoord.xyz + s.xww).r +
+             shadow2D(shadowMap, projShadowCoord.xyz - s.xww).r +
+             shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).r +
+             shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).r +
+             
+             shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).r +
+             shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).r +
+             shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).r +
+             shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).r) / 9.0);
+#       endif
 
-dot(vec4(1,1,1,1),
-vec4(greaterThan(vec4(
-     texture2D(shadowMap, projShadowCoord.xy + s.xw).r,
-     texture2D(shadowMap, projShadowCoord.xy - s.xw).r,
-     texture2D(shadowMap, projShadowCoord.xy + s.wy).r,
-     texture2D(shadowMap, projShadowCoord.xy - s.wy).r), projShadowCoord.zzzz))) +
-
-dot(vec4(1,1,1,1),
-vec4(greaterThan(vec4(
-     texture2D(shadowMap, projShadowCoord.xy + s.xy).r,
-     texture2D(shadowMap, projShadowCoord.xy - s.xy).r,
-     texture2D(shadowMap, projShadowCoord.xy + s.zy).r,
-     texture2D(shadowMap, projShadowCoord.xy - s.zy).r), projShadowCoord.zzzz))) 
-) / 9.0;
-       
-#   else
-       vec3 shadow = 
-            (shadow2D(shadowMap, projShadowCoord.xyz).rgb +
-         
-            shadow2D(shadowMap, projShadowCoord.xyz + s.xww).rgb +
-            shadow2D(shadowMap, projShadowCoord.xyz - s.xww).rgb +
-            shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).rgb +
-            shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).rgb +
-
-            shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).rgb +
-            shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).rgb +
-            shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).rgb +
-            shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).rgb) / 9.0;
-#   endif
+    } else {
+        // Outside spotlight cone
+        shadow = vec3(0.0, 0.0, 0.0);
+    }
 
     gl_FragColor.rgb = 
             accessibility * attLightColor * shadow *
