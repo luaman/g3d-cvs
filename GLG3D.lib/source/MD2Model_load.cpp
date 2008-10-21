@@ -155,8 +155,8 @@ void MD2Model::load(const std::string& filename, float resize) {
             vertex *= resize;
 
             uint8 normalIndex = b.readUInt8();
-            debugAssert(normalIndex < 162);
-            keyFrame[f].normalArray[v] = normalIndex;
+            debugAssertM(normalIndex < 162, "Illegal canonical normal index in file");
+            keyFrame[f].normalArray[v] = iClamp(normalIndex, 0, 161);
 
             min_1 = min_1.min(vertex);
             max_1 = max_1.max(vertex);
