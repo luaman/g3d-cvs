@@ -28,6 +28,8 @@
      <li> Added Barycentric coordinates to CollisionDetection::isPointInTriangle
      <li> G3D::RenderDevice::beginOpenGL, G3D::RenderDevice::endOpenGL
      <li> PointAABSPTree::clearData
+     <li> Added spotlight support to SuperShader
+     <li> Switched SuperShader to use ph
      <li> Adjusted standard deviation used in G3D::GaussianBlur to provide smoother filtering
      <li> Put HashTrait and EqualsTrait in their own headers separate from Table.h
      <li> ArticulatedModel::facet
