@@ -290,7 +290,8 @@ def processProjectFile(state):
 
     state.buildDir = addTrailingSlash(configGet(state, config, 'GLOBAL', 'builddir', True))
     
-    state.tempDir = addTrailingSlash(pathConcat(configGet(state, config, 'GLOBAL', 'tempdir', True), state.projectName))
+    state.tempParentDir = addTrailingSlash(configGet(state, config, 'GLOBAL', 'tempdir', True))
+    state.tempDir = addTrailingSlash(pathConcat(state.tempParentDir, state.projectName))
 
     state.beep = configGet(state, config, 'GLOBAL', 'beep')
     state.beep = (state.beep == True) or (state.beep.lower() == 'true')

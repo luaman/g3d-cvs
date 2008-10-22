@@ -36,7 +36,7 @@ void App::onInit() {
     showRenderingStats = false;
     window()->setCaption(filenameBaseExt(filename) + " - G3D Viewer");
 
-    sky = Sky::fromFile(dataDir + "sky/");
+    sky = Sky::fromFile(System::findDataFile("sky"));
     skyParameters = SkyParameters( G3D::toSeconds(11, 00, 00, AM) );
     lighting = Lighting::fromSky( sky, skyParameters, Color3::white() );
 
