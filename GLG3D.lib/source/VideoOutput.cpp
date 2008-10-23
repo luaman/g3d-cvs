@@ -190,7 +190,7 @@ VideoOutput::Settings::Settings(CodecID c, int w, int h, float f, int fourcc) :
     // just initializes the values so the optional entries aren't used
     raw.format = PIX_FMT_NONE;
     mpeg.bframes = 0;
-    mpeg.gop = 0;
+    mpeg.gop = 12;  // The default
 }
 
 
@@ -240,9 +240,9 @@ VideoOutput::Settings VideoOutput::Settings::AVI(int width, int height, float fp
 VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float fps) {
     Settings s(CODEC_ID_MPEG4, width, height, fps, XVID_FOURCC);
     
-    // About 3 MB / min for 640 * 480 gives decent quality at a
+    // About 600 kb/s for 640 * 480 gives decent quality at a
     // reasonable file size.
-    s.bitrate = iRound((3000000.0 * 8 / 60) * (s.width * s.height) / (640 * 480));
+    s.bitrate = iRound(600000.0 * ((double)s.width * s.height) / (640 * 480));
 
     s.extension   = "mp4";
     s.description = "MPEG-4/H.264 (.mp4)";
