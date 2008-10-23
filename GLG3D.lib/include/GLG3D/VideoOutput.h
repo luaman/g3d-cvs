@@ -285,35 +285,22 @@ public:
         
         /** Windows Media Video 2 (WMV) format, which is supported by
             Microsoft's Media Player distributed with Windows.  This
-            is the best-supported format for Windows.*/
+            is the best-supported format and codec for Windows.*/
         static Settings WMV(int width, int height, float fps = 30.0f);
-
-        /**
-           Lossless compressed digital video (also known as IEC
-           61834). This is the format used by most digital video
-           cameras and video editing systems.  It is widely supported
-           and provides maximum quality but poor compression.
-
-           Wikipedia describes this format as: Digital Video (DV) is a
-           digital video format created by Sony, JVC, Panasonic and
-           other video camera producers and launched in 1995...it has
-           since become a standard for home and semi-professional
-           video production.
-         */
-        static Settings DV(int width, int height, float fps = 30.0f);
 
         /** 
             AVI file using Cinepak compression, an older but widely supported
             format for providing good compatibility and size but poor quality.
 
-            Wikipedia describes this format as: Cinepak is a video
+            Wikipedia describes this format as: "Cinepak is a video
             codec developed by SuperMatch, a division of SuperMac
             Technologies, and released in 1992 as part of Apple
             Computer's QuickTime video suite. It was designed to
             encode 320x240 resolution video at 1x (150 kbyte/s) CD-ROM
             transfer rates. The codec was ported to the Microsoft
-            Windows platform in 1993.*/
-        static Settings AVI(int width, int height, float fps = 30.0f);
+            Windows platform in 1993."
+            */
+        static Settings CinepakAVI(int width, int height, float fps = 30.0f);
     };
 protected:
 

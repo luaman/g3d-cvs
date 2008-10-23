@@ -2870,20 +2870,13 @@ void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha
 
 std::string RenderDevice::screenshot(const std::string& filepath) const {
     GImage screen;
-    int i;
+
+    std::string filename = pathConcat(filepath, generateFilenameBase(System::appName() + "_"));
 
     screenshotPic(screen);
-
-    // Save the file
-    std::string basename = System::currentDateString();
-    std::string filename;
-    i = 0;
-    do {
-        filename = filepath + basename + "_" + format("%03d", i) + ".png";
-        ++i;
-    } while (fileExists(filename));   
-
     screen.save(filename);
+
+
 
     return filename;
 }

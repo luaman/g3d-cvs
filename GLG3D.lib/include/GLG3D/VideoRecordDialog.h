@@ -47,10 +47,13 @@ protected:
         use with a drop-down list. */
     Array<std::string>           m_formatList;
 
+    Array<std::string>           m_ssFormatList;
+
     /** Index into m_settingsTemplate and m_formatList */
     int                          m_templateIndex;
 
-    std::string                  m_filename;
+    /** Index into m_ssFormatList */
+    int                          m_ssFormatIndex;
 
     float                        m_playbackFPS;
     float                        m_recordFPS;
@@ -62,6 +65,9 @@ protected:
     /** Recording modifies the GApp::simTimeStep; this is the old value */
     float                        m_oldSimTimeStep;
     float                        m_oldDesiredFrameRate;
+
+    /** Tells the invisible window to record a screenshot when the next frame is rendered.*/
+    bool                         m_screenshotPending;
     
     /** Motion blur frames */
     GuiNumberBox<int>*           m_framesBox;
@@ -91,6 +97,11 @@ protected:
     /** Hotkey + mod as a human readable string */
     std::string                  m_hotKeyString;
     
+    // Screenshot keys
+    GKey                         m_ssHotKey;
+    GKeyMod                      m_ssHotKeyMod;
+    std::string                  m_ssHotKeyString;
+
     /** 
         Inserts itself into the bottom of the Posed2D model drawing
         list to call recordFrame so that the rest of the GUI is not
@@ -120,6 +131,22 @@ protected:
 
     VideoRecordDialog(const GuiThemeRef& theme, GApp* app);
 
+    /** Called from constructor */
+    void makeGUI();
+
+    /** Generate the next filename to write to */
+    static std::string nextFilenameBase();
+
+    /** Actually write a video frame */
+    void recordFrame(RenderDevice* rd);
+
+    /** Actually take a screen shot */
+    void screenshot(RenderDevice* rd);
+    
+    /** Calls recordFrame() when video recording is in progress and 
+       screenshot() when a shot is pending. */
+    void maybeRecord(RenderDevice* rd);
+
 public:
 
     /**
@@ -129,10 +156,17 @@ public:
     static Ref create(const GuiThemeRef& theme, GApp* app = NULL);
     static Ref create(GApp* app);
 
-    /** Automatically invoked when the record button is pressed. */
+    /** Automatically invoked when the record button or hotkey is pressed. 
+        Can be called explicitly to force recording.*/
     void startRecording();
-    void recordFrame(RenderDevice* rd);
     void stopRecording();
+
+
+    /** Automatically invoked when the hotkey is pressed. 
+        Can be called explicitly to force a screenshot. 
+        The actual screenshot will be captured on rendering 
+        of the next frame.*/
+    void takeScreenshot();
 
     virtual void onPose (Array<PosedModelRef> &posedArray, Array< PosedModel2DRef > &posed2DArray);
 

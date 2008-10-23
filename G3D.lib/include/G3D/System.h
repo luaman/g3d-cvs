@@ -8,7 +8,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2008-01-14
+  @edited  2008-10-14
  */
 
 #ifndef G3D_SYSTEM_H
@@ -203,6 +203,9 @@ public:
      @cite Linux version written by Nicolai Haehnle <prefect_@gmx.net>, http://www.flipcode.com/cgi-bin/msg.cgi?showThread=COTD-getexename&forum=cotd&id=-1
      */
     static std::string currentProgramFilename();
+
+    /** Name of this program. Note that you can mutate this string to set your app name explicitly.*/
+    static std::string& appName();
 
     /** G3D Version string */
     static const std::string& version();

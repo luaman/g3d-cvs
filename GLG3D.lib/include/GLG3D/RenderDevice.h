@@ -1572,6 +1572,9 @@ public:
      Takes a JPG screenshot of the front buffer and saves it to a file.
      Returns the name of the file that was written.
      Example: renderDevice->screenshot("screens/"); 
+
+     Pressing the "movie" icon in the GApp developer HUD or pressing F6 also
+     allows direct screenshot capture.
      */
     std::string screenshot(const std::string& filepath) const;
 

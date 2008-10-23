@@ -211,27 +211,18 @@ VideoOutput::Settings VideoOutput::Settings::WMV(int width, int height, float fp
 
     s.extension   = "wmv";
     s.description = "Windows Media Video 2 (.wmv)";
+    s.bitrate = iRound(2000000.0 * ((double)s.width * s.height) / (640 * 480));
 
     return s;
 }
 
 
-VideoOutput::Settings VideoOutput::Settings::DV(int width, int height, float fps) {
-    Settings s(CODEC_ID_DVVIDEO, width, height, fps);
-
-    s.extension   = "dv";
-    s.description = "Lossless Digital Video (.dv)";
-
-    return s;
-}
-
-
-VideoOutput::Settings VideoOutput::Settings::AVI(int width, int height, float fps) {
+VideoOutput::Settings VideoOutput::Settings::CinepakAVI(int width, int height, float fps) {
     Settings s(CODEC_ID_CINEPAK, width, height, fps);
 
     s.extension   = "avi";
     s.description = "Cinepak AVI (.avi)";
-    s.bitrate = iRound((3000000.0 * 8 / 60) * (s.width * s.height) / (640 * 480));
+    s.bitrate = iRound(2000000.0 * ((double)s.width * s.height) / (640 * 480));
 
     return s;
 }
@@ -240,9 +231,9 @@ VideoOutput::Settings VideoOutput::Settings::AVI(int width, int height, float fp
 VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float fps) {
     Settings s(CODEC_ID_MPEG4, width, height, fps, XVID_FOURCC);
     
-    // About 600 kb/s for 640 * 480 gives decent quality at a
-    // reasonable file size.
-    s.bitrate = iRound(600000.0 * ((double)s.width * s.height) / (640 * 480));
+    // About 1500 kb/s for 640 * 480 gives high quality at a
+    // reasonable file size. 
+    s.bitrate = iRound(1500000.0 * ((double)s.width * s.height) / (640 * 480));
 
     s.extension   = "mp4";
     s.description = "MPEG-4/H.264 (.mp4)";

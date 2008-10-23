@@ -927,6 +927,12 @@ void System::memset(void* dst, uint8 value, size_t numBytes) {
 }
 
 
+std::string& System::appName() {
+    static std::string n = filenameBase(currentProgramFilename());
+    return n;
+}
+
+
 std::string System::currentProgramFilename() {
     char filename[2048];
 
