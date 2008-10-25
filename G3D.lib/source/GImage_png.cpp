@@ -202,16 +202,23 @@ void GImage::decodePNG(
         png_set_packing(png_ptr);
     }
 
-    if (color_type == PNG_COLOR_TYPE_RGBA) {
+    if ((color_type == PNG_COLOR_TYPE_RGBA) ||
+        ((color_type == PNG_COLOR_TYPE_PALETTE) && (png_ptr->num_trans > 0)) ) {
+
         this->channels = 4;
         this->_byte = (uint8*)System::malloc(width * height * 4);
+
     } else if ((color_type == PNG_COLOR_TYPE_RGB) || 
                (color_type == PNG_COLOR_TYPE_PALETTE)) {
+
         this->channels = 3;
         this->_byte = (uint8*)System::malloc(width * height * 3);
+
     } else if (color_type == PNG_COLOR_TYPE_GRAY) {
+
         this->channels = 1;
         this->_byte = (uint8*)System::malloc(width * height);
+
     } else {
         throw GImage::Error("Unsupported PNG bit-depth or type.", input.getFilename());
     }
@@ -228,6 +235,7 @@ void GImage::decodePNG(
         }
     }
 
+//    png_read_image(png_ptr, &_byte);
     png_read_end(png_ptr, info_ptr);
 
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
