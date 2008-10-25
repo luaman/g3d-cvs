@@ -593,17 +593,7 @@ void VideoInput::decodingThreadProc(void* param) {
                 if (completedFrame != 0) {
 
                     // Convert the image from its native format to RGB
-                    //img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
-
-                    Array<const void*> inp;
-                    inp.append(decodingFrame->data[0]);
-                    inp.append(decodingFrame->data[1]);
-                    inp.append(decodingFrame->data[2]);
-
-                    Array<void*> outp;
-                    outp.append(emptyBuffer->m_frame->data[0]);
-
-                    ImageFormat::convert(inp,vi->m_avCodecContext->width, vi->m_avCodecContext->height, ImageFormat::YUV420_PLANAR(), 0, outp, ImageFormat::RGB8(), 0, false); 
+                    img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
 
                     // calculate start time based off of presentation time stamp
                     emptyBuffer->m_pos = (packet.pts - vi->m_avFormatContext->streams[vi->m_avVideoStreamIdx]->start_time) * av_q2d(vi->m_avCodecContext->time_base);
