@@ -71,7 +71,7 @@ directory, as demonstrated in the image below.  If you installed G3D to
 
 <p>
 <li> <p>Double-click in the white space below the last listed directory
-in the central list box and type the full path to the %G3D lib
+in the central list box and type the full path to the G3D lib
 directory.  If you installed G3D to
 <code>c:\libraries</code>, this path is
 <code>c:\libraries\G3D\lib</code>.
