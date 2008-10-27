@@ -587,6 +587,8 @@ public:
 
 };
 
+typedef GWindow OSWindow;
+
 }
 
 #endif

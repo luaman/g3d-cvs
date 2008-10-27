@@ -252,8 +252,8 @@ public:
     GuiNumberBox<Value>* addNumberBox(
         const GuiCaption&   text, 
         Value*              value, 
-        const GuiCaption&   suffix = "", 
-        bool                showSlider = false,
+        const GuiCaption&   suffix,
+        bool                showSlider,
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
         Value               roundIncrement = 0) {
@@ -267,8 +267,8 @@ public:
     GuiNumberBox<Value>* addNumberBox(
         const GuiCaption&   text, 
         const Pointer<Value>& value, 
-        const GuiCaption&   suffix = "", 
-        bool  showSlider = false, 
+        const GuiCaption&   suffix, 
+        bool                showSlider, 
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
         Value               roundIncrement = 0) {

@@ -3,3 +3,7 @@ G3D.ncb
 *.user
 outfile.bin
 out.t
+Debug
+Release
+log.txt
+g3d-license.txt
