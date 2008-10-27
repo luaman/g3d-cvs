@@ -221,7 +221,7 @@ std::string System::findDataFile
 
     // Look in some other likely places
 #   ifdef G3D_WIN32
-        std::string lpath = "libraries/";
+        std::string lpath = "libraries/G3D";
         pathBase.append(std::string("c:/") + lpath);
         pathBase.append(std::string("d:/") + lpath);
         pathBase.append(std::string("e:/") + lpath);
@@ -242,19 +242,20 @@ std::string System::findDataFile
 #   if defined(G3D_OSX)
         pathBase.append("/usr/local/" + lname);
         pathBase.append("/Volumes/McGuire/Projects/");
-        pathBase.append("/Volumes/McGuire/Projects/G3D/");
 #   endif
 
     // Add the library name to all variations
     int N = pathBase.size();
     for (int i = 0; i < N; ++i) {
         pathBase.append(pathBase[i] + lname);
+        pathBase.append(pathBase[i] + "G3D/");
     }
 
     Array<std::string> subDir;
     subDir.append("", "font/", "sky/", "gui/");
     subDir.append("image/", "quake2/", "quake2/players/");
     subDir.append("quake3/", "SuperShader/", "ifs/", "3ds/");
+    subDir.append("quake2/speedway/");
 
     Array<std::string> path;
     for (int p = 0; p < pathBase.size(); ++p) {

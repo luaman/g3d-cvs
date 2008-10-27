@@ -15,7 +15,7 @@
 
 #ifdef G3D_OSX
 
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/glcalls.h"
 
 #include <Carbon/Carbon.h>
