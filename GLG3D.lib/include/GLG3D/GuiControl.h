@@ -276,7 +276,7 @@ public:
     }
 
     /** Returns the coordinates of v, which is in the coordinate system of this object,
-       relative to the GWindow on which it will be rendered. */
+       relative to the OSWindow on which it will be rendered. */
     Vector2 toGWindowCoords(const Vector2& v) const;
 
     Rect2D toGWindowCoords(const Rect2D& r) const {

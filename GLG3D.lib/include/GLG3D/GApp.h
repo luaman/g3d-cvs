@@ -16,7 +16,7 @@
 #include "GLG3D/FirstPersonManipulator.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/NetworkDevice.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/Widget.h"
 #include "GLG3D/GConsole.h"
 #include "GLG3D/ToneMap.h"
@@ -72,11 +72,11 @@ void debugDraw(const ShapeRef& shape, const Color4& solidColor = Color3::white()
 */
 class GApp {
 public:
-    friend class GWindow;
+    friend class OSWindow;
 
     class Settings {
     public:
-        GWindow::Settings       window;
+        OSWindow::Settings       window;
 
         /**
            If "<AUTO>", G3D will search for the standard
@@ -143,7 +143,7 @@ private:
     /** Called from init. */
     void loadFont(const std::string& fontName);
 
-    GWindow*                _window;
+    OSWindow*                _window;
     bool                    _hasUserCreatedWindow;
 
 protected:
@@ -174,7 +174,7 @@ protected:
     Array<std::string>      debugText;
 
     /**
-       Processes all pending events on the GWindow queue into the userInput.
+       Processes all pending events on the OSWindow queue into the userInput.
     */
     virtual void processGEventQueue();
 
@@ -273,7 +273,7 @@ public:
         return m_cameraManipulator;
     }
     
-    inline GWindow* window() const {
+    inline OSWindow* window() const {
         return _window;
     }
 
@@ -346,7 +346,7 @@ public:
        argument is useful for substituting a different window
        system (e.g. GlutWindow)
     */
-    GApp(const Settings& options = Settings(), GWindow* window = NULL);
+    GApp(const Settings& options = Settings(), OSWindow* window = NULL);
 
     virtual ~GApp();
 

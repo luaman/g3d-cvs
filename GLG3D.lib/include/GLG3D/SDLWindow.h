@@ -17,7 +17,7 @@
 #if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 #include "G3D/Queue.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/glcalls.h"
 
 #include <SDL/SDL_events.h>
@@ -35,12 +35,12 @@
 namespace G3D {
 
 /**
- An implementation of G3D::GWindow that uses the Open Source SDL
+ An implementation of G3D::OSWindow that uses the Open Source SDL
  library.  Works on Windows, Linux, FreeBSD, and OS X.  Only built
  into the normal GLG3D library on Linux/FreeBSD because other
  platforms have native GWindows.
  */
-class SDLWindow : public GWindow {
+class SDLWindow : public OSWindow {
 private:
 
     /** Window title */
@@ -50,7 +50,7 @@ private:
     std::string                 _version;
 
     /** The x, y fields are not updated when the window moves. */
-    GWindow::Settings           _settings;
+    OSWindow::Settings           _settings;
 
     bool                        _inputCapture;
 
@@ -87,13 +87,13 @@ protected:
 
 public:
 
-    static SDLWindow* create(const GWindow::Settings& settings = GWindow::Settings());
+    static SDLWindow* create(const OSWindow::Settings& settings = OSWindow::Settings());
 
-    SDLWindow(const GWindow::Settings& settings);
+    SDLWindow(const OSWindow::Settings& settings);
 
     virtual ~SDLWindow();
 
-    virtual void getSettings(GWindow::Settings& settings) const;
+    virtual void getSettings(OSWindow::Settings& settings) const;
 
     virtual int width() const;
 

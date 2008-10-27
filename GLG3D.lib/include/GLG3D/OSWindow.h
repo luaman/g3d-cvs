@@ -1,13 +1,13 @@
 /**
-  @file GWindow.h
+  @file OSWindow.h
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2005-02-10
   @edited  2008-01-07
 */
 
-#ifndef G3D_GWINDOW_H
-#define G3D_GWINDOW_H
+#ifndef G3D_OSWINDOW_H
+#define G3D_OSWINDOW_H
 
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -21,7 +21,7 @@ class Rect2D;
 
 /**
  Interface to window APIs for window management, event processing,
- and OpenGL context management.  A GWindow may be a user-level window, 
+ and OpenGL context management.  A OSWindow may be a user-level window, 
  with a minimize button and frame, or simply a rectangular area within 
  a larger window.  In the latter case, several of the methods (e.g.,
  setCaption) are likely to be ignored by the implementation.  See
@@ -40,8 +40,8 @@ class Rect2D;
  All dimensions are of the client area (inside the frame, if the
  window has a frame).
 
- After instantiation, a GWindow guarantees that the OpenGL context for this
- window is bound.  It may be unbound by later code--use GWindow::makeCurrent
+ After instantiation, a OSWindow guarantees that the OpenGL context for this
+ window is bound.  It may be unbound by later code--use OSWindow::makeCurrent
  if you have multiple windows in your application.
 
  <B>Subclassing</B>
@@ -60,7 +60,7 @@ class Rect2D;
  replacement in the mean time.
 
  <B>Implementations</B>
- The following GWindow subclasses already exist: 
+ The following OSWindow subclasses already exist: 
  G3D::SDLWindow, 
  G3D::Win32Window, 
  <A HREF="../contrib/wxGWindow">wxGWindow</A> (wxWidgets),
@@ -70,7 +70,7 @@ class Rect2D;
  One typically chooses among these based on the GUI API used 
  to manage the main window.
  */
-class GWindow {
+class OSWindow {
 public:
 
     class Settings {
@@ -156,7 +156,7 @@ public:
         bool    visible;
         
         /**
-           Default icon that the GWindow implementation tries to set initially.
+           Default icon that the OSWindow implementation tries to set initially.
         */
         std::string  defaultIconFilename;
         
@@ -246,7 +246,7 @@ public:
         OS X - CarbonWindow
         Windows - Win32Window
     */
-    static GWindow* create(const Settings& s = Settings());
+    static OSWindow* create(const Settings& s = Settings());
 
     /** 
         Inserts an event into the queue.
@@ -255,7 +255,7 @@ public:
 
     /** Return the <I>actual</I> properties of this window (as opposed to
         the desired settings from which it was initialized) */
-    virtual void getSettings(GWindow::Settings& settings) const = 0;
+    virtual void getSettings(OSWindow::Settings& settings) const = 0;
 
     /**
      Measured in pixels, this is the client area of the window.
@@ -315,7 +315,7 @@ public:
     virtual std::string caption() = 0;
 
     /** Set the icon (if supported).  Fails silently if not supported
-        or the window has no frame.  <I>May also fail if the GWindow implementation's
+        or the window has no frame.  <I>May also fail if the OSWindow implementation's
         underlying GUI library is too limited.</I>
         @param image May have any dimension supported by underlying OS.*/
     virtual void setIcon(const GImage& image) {
@@ -347,8 +347,8 @@ public:
 
     /** Checks to see if any events are waiting.  If there is an event,
         returns true and fills out the GEvent structure.  Otherwise
-        returns false.  The caller is responsible for invoking GWindow::notifyResize
-        with any resize events; the GWindow does not notify itself. */
+        returns false.  The caller is responsible for invoking OSWindow::notifyResize
+        with any resize events; the OSWindow does not notify itself. */
     virtual bool pollEvent(GEvent& e);
 
     /** Returns the current mouse position and the state of the mouse buttons.
@@ -441,7 +441,7 @@ public:
     }
 
     /** Windows for which this is true require a program
-        to hand control of the main loop to GWindow::startMainLoop.
+        to hand control of the main loop to OSWindow::startMainLoop.
         The program's functionality may then be implemented through
         the "loop body" function.
     
@@ -515,7 +515,7 @@ public:
     /**
      Executes an event loop, invoking callback repeatedly.  Put everything
      that you want to execute once per frame into the callback function.
-     It is guaranteed safe to call pollEvents and all other GWindow methods
+     It is guaranteed safe to call pollEvents and all other OSWindow methods
      from the callback function.
      
      The default implementation (for requiresMainLoop() == false GWindows)
@@ -525,7 +525,7 @@ public:
     virtual void runMainLoop() {
         
         alwaysAssertM(requiresMainLoop() == false,
-            "This GWindow implementation failed to overwrite runMainLoop "
+            "This OSWindow implementation failed to overwrite runMainLoop "
             "even though it requires a main loop.");
 
         while (notDone()) {
@@ -534,9 +534,9 @@ public:
     }
 
 private:
-    /** Tracks the current GWindow.  If back-to-back calls are made to make
-        the same GWindow current, they are ignored. */
-    static const GWindow* m_current;
+    /** Tracks the current OSWindow.  If back-to-back calls are made to make
+        the same OSWindow current, they are ignored. */
+    static const OSWindow* m_current;
 
     friend class RenderDevice;
 
@@ -544,7 +544,7 @@ private:
 
 protected:
 
-    GWindow() : m_inputCaptureCount(0), m_mouseHideCount(0), m_renderDevice(NULL) {}
+    OSWindow() : m_inputCaptureCount(0), m_mouseHideCount(0), m_renderDevice(NULL) {}
 
     /** Override this with the glMakeCurrent call appropriate for your window.*/
     virtual void reallyMakeCurrent() const {
@@ -555,7 +555,7 @@ public:
         When subclassing, put any shutdown code (e.g. SDL_Quit()) in 
         your destructor.  Put initialization code (e.g. SDL_Init()) in
         the constructor. */
-    virtual ~GWindow() {
+    virtual ~OSWindow() {
         if (m_current == this) {
             // Once this window is destroyed, there will be no current context.
             m_current = NULL;
@@ -570,7 +570,7 @@ public:
         return m_renderDevice;
     }
 
-    inline static const GWindow* current() {
+    inline static const OSWindow* current() {
         return m_current;
     }
     /**
@@ -587,7 +587,8 @@ public:
 
 };
 
-typedef GWindow OSWindow;
+/** @deprecated */
+typedef OSWindow GWindow;
 
 }
 

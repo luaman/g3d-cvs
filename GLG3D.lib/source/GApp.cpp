@@ -17,7 +17,7 @@
 #include "G3D/NetworkDevice.h"
 #include "GLG3D/FirstPersonManipulator.h"
 #include "GLG3D/UserInput.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/Shader.h"
 #include "GLG3D/Draw.h"
 
@@ -69,7 +69,7 @@ static void writeLicense() {
 }
 
 
-GApp::GApp(const Settings& settings, GWindow* window) :
+GApp::GApp(const Settings& settings, OSWindow* window) :
     lastWaitTime(System::time()),
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 

@@ -51,7 +51,7 @@ Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
     // result is now relative to a GuiWindow   
     result += m_gui->rect().x0y0();
 
-    // result is now relative to the GWindow
+    // result is now relative to the OSWindow
     return result;
 }
 

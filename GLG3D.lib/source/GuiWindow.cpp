@@ -385,7 +385,7 @@ void GuiWindow::moveToCenter() {
 ////////////////////////////////////////////////////////////
 // Modal support
 
-void GuiWindow::showModal(GWindow* osWindow) {
+void GuiWindow::showModal(OSWindow* osWindow) {
     modal = new Modal(osWindow);
     modal->run(this);
     delete modal;
@@ -398,7 +398,7 @@ void GuiWindow::showModal(GuiWindow::Ref parent) {
 }
 
 
-GuiWindow::Modal::Modal(GWindow* osWindow) : osWindow(osWindow) {
+GuiWindow::Modal::Modal(OSWindow* osWindow) : osWindow(osWindow) {
     manager = WidgetManager::create(osWindow);
     renderDevice = osWindow->renderDevice();
     userInput = new UserInput(osWindow);

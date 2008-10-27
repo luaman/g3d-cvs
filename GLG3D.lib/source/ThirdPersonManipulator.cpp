@@ -10,7 +10,7 @@
 #include "GLG3D/ThirdPersonManipulator.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/UserInput.h"
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"

@@ -197,13 +197,13 @@ public:
     }
 };
 
-static GWindow* window = NULL;
+static OSWindow* window = NULL;
 void glSwapBuffers() {
     window->swapGLBuffers();
 }
 
 void measureVertexPerformance(
-    GWindow* w,     
+    OSWindow* w,     
     int&    numTris,
     float   beginEndFPS[2],
     float   drawElementsRAMFPS[2], 

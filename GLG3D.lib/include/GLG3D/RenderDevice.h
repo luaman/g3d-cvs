@@ -27,7 +27,7 @@
 #include "GLG3D/PixelProgram.h"
 #include "GLG3D/Shader.h"
 #include "GLG3D/VARArea.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/Framebuffer.h"
@@ -59,7 +59,7 @@ class VAR;
      is enabled by default.  You may be able to get a slight speed increase
      by disabling GL_NORMALIZE or using GL_SCALE_NORMAL instead.
 
- <P> For stereo rendering, set <CODE>GWindow::Settings::stereo = true</CODE>
+ <P> For stereo rendering, set <CODE>OSWindow::Settings::stereo = true</CODE>
      and use RenderDevice::setDrawBuffer to switch which eye is being rendered.  Only
      use RenderDevice::beginFrame/RenderDevice::endFrame once per frame,
      but do clear both buffers separately.
@@ -72,7 +72,7 @@ class VAR;
  Example
   <PRE>
    RenderDevice renderDevice = new RenderDevice();
-   renderDevice->init(GWindow::Settings());
+   renderDevice->init(OSWindow::Settings());
   </PRE>
 
   <P>
@@ -177,7 +177,7 @@ private:
     friend class UserInput;
     friend class VertexAndPixelShader;
 
-    GWindow*                    _window;
+    OSWindow*                    _window;
 
     /** Should the destructor delete _window?*/
     bool                        deleteWindow;
@@ -548,7 +548,7 @@ public:
     void beginFrame();
 
     /**
-     Call to end the current frame and schedules a GWindow::swapGLBuffers call
+     Call to end the current frame and schedules a OSWindow::swapGLBuffers call
      to occur some time before beginFrame.  Because that swapGLBuffers might not
      actually occur until the next beginFrame, there is up to one frame of latency
      on the image displayed.  This allows the CPU to execute while 
@@ -565,7 +565,7 @@ public:
     void swapBuffers();
 
     /** 
-        By default, GWindow::swapGLBuffers is invoked automatically
+        By default, OSWindow::swapGLBuffers is invoked automatically
         between RenderDevice::endFrame and the following RenderDevice::beginFrame
         to update the front buffer (what the user sees) from the back buffer (where
         rendering commands occur).  You may want to suppress this behavior, for example,
@@ -661,7 +661,7 @@ public:
     bool colorWrite() const;
 
     /** The frame buffer may optionally have an alpha channel for each pixel, depending on how
-        the G3D::GWindow was initialized (see G3D::RenderDevice::init, and G3D::GWindow::Settings).
+        the G3D::OSWindow was initialized (see G3D::RenderDevice::init, and G3D::OSWindow::Settings).
         When the alpha channel is present, rendering to the screen also renders to the alpha 
         channel by default.  Alpha writing is used for render-to-texture and deferred lighting effects.
     
@@ -997,8 +997,8 @@ public:
 	void setColorArray(const class VAR& v);
 	void setTexCoordArray(unsigned int unit, const class VAR& v);
 
-    /** Returns the GWindow used by this RenderDevice */
-    GWindow* window() const;
+    /** Returns the OSWindow used by this RenderDevice */
+    OSWindow* window() const;
 
     /**
      Vertex attributes are a generalization of the various per-vertex
@@ -1545,12 +1545,12 @@ public:
      routine (provided for backwards compatibility).  The constructed
      window is deleted on shutdown.
      */
-    void init(const GWindow::Settings& settings = GWindow::Settings(), class Log* log = NULL);
+    void init(const OSWindow::Settings& settings = OSWindow::Settings(), class Log* log = NULL);
 
     /**
      The renderDevice will <B>not</B> delete the window on cleanup.
      */
-    void init(GWindow* window, class Log* log = NULL);
+    void init(OSWindow* window, class Log* log = NULL);
 
     /** Returns true after RenderDevice::init has been called. */
     bool initialized() const;

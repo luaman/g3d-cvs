@@ -8,7 +8,7 @@
 
 #include "G3D/TextOutput.h"
 #include "GLG3D/GLCaps.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/glcalls.h"
 #include "G3D/ImageFormat.h"
 #include "GLG3D/getOpenGLState.h"

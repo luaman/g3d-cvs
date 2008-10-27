@@ -60,7 +60,7 @@ href="classes.html">Classes</a>.
     \link G3D::GuiSlider GuiSlider\endlink,
     \link G3D::GuiTextBox GuiTextBox\endlink,
     \link G3D::GuiWindow GuiWindow\endlink,
-    \link G3D::GWindow GWindow\endlink,
+    \link G3D::OSWindow OSWindow\endlink,
     \link G3D::Manipulator Manipulator\endlink,
     \link G3D::FirstPersonManipulator FirstPersonManipulator\endlink,
     \link G3D::screenPrintf screenPrintf\endlink,

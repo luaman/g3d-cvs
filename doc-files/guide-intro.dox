@@ -134,7 +134,7 @@ and by hardware, software, and technical support from Autodesk, NVIDIA, and AMD.
 @section otherlibs Working With Other Libraries
 %G3D is compatible with most other libraries.  
 
-Although %G3D provides its own native window management, you can use the G3D::GWindow API 
+Although %G3D provides its own native window management, you can use the G3D::OSWindow API 
 to replace that with GUI libraries, likw wxWindows and qtWindows.
 
 It is possible to use DirectX instead of OpenGL.  The easiest way is to link 

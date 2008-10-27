@@ -78,7 +78,7 @@ Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD><
  Unlike other libraries, there is (generally) no prefix on the routines, since 
  that is the job of a namespace.
 
-  The exception is classes like "GWindow", "GFont", and "GImage".  We ran into 
+  The exception is classes like "OSWindow", "GFont", and "GImage".  We ran into 
   name conflicts with X11 and Win32 APIs on these classes since those APIs don't 
   have namespaces.  It would be confusing to have both G3D::Font and Font classes
   in a system at the same time, so we opted to rename the G3D classes to have a "G" 

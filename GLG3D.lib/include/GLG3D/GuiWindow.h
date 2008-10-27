@@ -144,7 +144,7 @@ protected:
     public:
         UserInput*          userInput;
         WidgetManager::Ref  manager;
-        GWindow*            osWindow;
+        OSWindow*            osWindow;
         RenderDevice*       renderDevice;
         
         /** Image of the screen under the modal dialog.*/
@@ -156,10 +156,10 @@ protected:
         /** The dialog that is running */
         GuiWindow*          dialog;
 
-        Modal(GWindow* osWindow);
+        Modal(OSWindow* osWindow);
         /** Run an event loop until the window closes */
         void run(GuiWindow::Ref dialog);
-        /** Callback for GWindow loop body */
+        /** Callback for OSWindow loop body */
         static void loopBody(void* me);
         /** Called from loop Body */
         void oneFrame();
@@ -175,7 +175,7 @@ protected:
     /** Window border bounds. Actual rendering may be outside these bounds. */
     Rect2D              m_rect;
 
-    /** Client rect bounds, absolute on the GWindow. */
+    /** Client rect bounds, absolute on the OSWindow. */
     Rect2D              m_clientRect;
     
     /** Is this window visible? */
@@ -234,7 +234,7 @@ public:
         Blocks until the dialog is closed (visible = false).  Do not call between
         RenderDevice::beginFrame and RenderDevice::endFrame.
      */
-    void showModal(GWindow* osWindow);
+    void showModal(OSWindow* osWindow);
 
     void showModal(GuiWindow::Ref parent);
 
@@ -243,12 +243,12 @@ public:
         return m_focused;
     }
 
-    /** Window bounds, including shadow and glow, absolute on the GWindow. */
+    /** Window bounds, including shadow and glow, absolute on the OSWindow. */
     const Rect2D& rect() const {
         return m_rect;
     }
 
-    /** Interior bounds of the window, absolute on the GWindow */
+    /** Interior bounds of the window, absolute on the OSWindow */
     const Rect2D& clientRect() const {
         return m_clientRect;
     }
@@ -258,7 +258,7 @@ public:
     }
 
     /**
-     Set the border bounds relative to the GWindow. 
+     Set the border bounds relative to the OSWindow. 
      The window may render outside the bounds because of drop shadows
      and glows.
       */

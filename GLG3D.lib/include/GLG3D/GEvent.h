@@ -196,7 +196,7 @@ public:
        GUI_CANCEL,          /* Esc pressed in a text box or menu */
        GUI_CLOSE,           /* GuiWindow close button pressed. */
        FILE_DROP,           /* Signifies that files have been dropped onto the program. Call 
-                               GWindow.getDroppedFilenames to receive the actual data.*/
+                               OSWindow.getDroppedFilenames to receive the actual data.*/
        MOUSE_SCROLL_2D,     /* A 2D scroll event has occured */
        MOUSE_BUTTON_CLICK,  /* A 2D button click (in addition to mouse released event).  Uses MouseButtonEvent. */
 
@@ -409,7 +409,7 @@ public:
 
 /**
  Triggered when one or more files are dropped onto a window.  The actual filenames dropped can be obtained by calling
- G3D::GWindow::getDroppedFilenames
+ G3D::OSWindow::getDroppedFilenames
 */
 class FileDropEvent {
 public:
@@ -478,9 +478,9 @@ public:
   <b>Event Dispatch Overview</b>:
 
   <ol>
-    <li> The GWindow polls the operating system for events like key strokes and mouse movement, and
+    <li> The OSWindow polls the operating system for events like key strokes and mouse movement, and
   recieves events fired by Gui and other classes.  
-    <li> GApp::onUserInput polls GEvents from the GWindow.
+    <li> GApp::onUserInput polls GEvents from the OSWindow.
     <li> GApp calls WidgetManager::onEvent for its widget manager.
     <li> WidgetManager invokes Widget::onEvent for every installed widget (e.g., GuiWindow, FirstPersonManipulator).
     <li> When a GuiWindow receives an event, it dispatches that event to the control that 
@@ -499,7 +499,7 @@ public:
   }
   </pre>
 
-  @sa G3D::GEventType, G3D::Widget::onEvent, GApp::onEvent, G3D::GWindow::pollEvent.
+  @sa G3D::GEventType, G3D::Widget::onEvent, GApp::onEvent, G3D::OSWindow::pollEvent.
 
   @cite Based on libsdl's SDL_Event, which is based on X11 and Win32 events
  */

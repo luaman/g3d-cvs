@@ -137,14 +137,14 @@ static bool SDL_handleErrorCheck_(
 #endif
 
 
-SDLWindow* SDLWindow::create(const GWindow::Settings& settings) {
+SDLWindow* SDLWindow::create(const OSWindow::Settings& settings) {
 
     return new SDLWindow(settings);    
 
 }
 
 
-SDLWindow::SDLWindow(const GWindow::Settings& settings) {
+SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
 #   if defined(G3D_OSX)
         NSApplicationWrapper wrapper;
@@ -177,7 +177,7 @@ SDLWindow::SDLWindow(const GWindow::Settings& settings) {
 	
 	    setIcon(defaultIcon);
       } catch (const GImage::Error& e) {
-	    logPrintf("GWindow's default icon failed to load: %s (%s)", 
+	    logPrintf("OSWindow's default icon failed to load: %s (%s)", 
 		      e.filename.c_str(), e.reason.c_str());            
       }
     }
@@ -405,7 +405,7 @@ void SDLWindow::getDroppedFilenames(Array<std::string>& files) {
 }
 
 
-void SDLWindow::getSettings(GWindow::Settings& settings) const {
+void SDLWindow::getSettings(OSWindow::Settings& settings) const {
     settings = _settings;
 }
 

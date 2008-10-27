@@ -14,7 +14,7 @@
 #include "G3D/Array.h"
 #include "G3D/ReferenceCount.h"
 #include "GLG3D/PosedModel.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 
 namespace G3D {
 
@@ -90,7 +90,7 @@ public:
 
     /** Returns the operating system window that is currently
         rendering this Widget. */
-    virtual GWindow* window() const;
+    virtual OSWindow* window() const;
 };
 
 
@@ -134,12 +134,12 @@ private:
     /** To be processed in endLock */
     Array<DelayedEvent> m_delayedEvent;
 
-    GWindow*  m_window;
+    OSWindow*  m_window;
 
 public:
 
     /** @param window The window that generates events for this manager.*/
-    static WidgetManager::Ref create(GWindow* window);
+    static WidgetManager::Ref create(OSWindow* window);
 
     /** 
       Between beginLock and endLock, add and remove operations are
@@ -243,7 +243,7 @@ public:
 
     virtual void onLogic();
 
-    virtual GWindow* window() const;
+    virtual OSWindow* window() const;
 };
 
 

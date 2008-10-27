@@ -114,16 +114,16 @@ FPCameraController to make use of a UserInput object.
     }
 </PRE>
     
-@section gwindow G3D::GWindow
+@section gwindow G3D::OSWindow
     
-<P> G3D::GWindow is G3D's way of dealing with windows.  <B><I>Many parts of %G3D 
+<P> G3D::OSWindow is G3D's way of dealing with windows.  <B><I>Many parts of %G3D 
 assume there is only one OS-level window</I></B>, therefore this class is 
 to be primarily used for creating user-level windows inside the application.  
 It currently does not implement an extensive input system with UI events and 
 constants, but this is planned as a future addition to %G3D.  In order to 
 implement more advanced input systems, consider extending or re-writing 
 G3D::UserInput.
-<P> If a custom window set is not desired, several GWindow child classes 
+<P> If a custom window set is not desired, several OSWindow child classes 
 are available for streamlining the implementation process. These include 
 G3D::SDLWindow (SDL), G3D::Win32Window (Win32), G3D::wxWindow (wxWidgets), 
 GlutWindow (Glut) and QGWindow (Qt).  Look at the individual classes in 

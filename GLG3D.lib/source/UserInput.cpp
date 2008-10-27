@@ -14,13 +14,13 @@ namespace G3D {
 
 
 UserInput::UserInput(
-    GWindow*                          window) {
+    OSWindow*                          window) {
     init(window, NULL);
 }
 
 
 void UserInput::init(
-    GWindow*                    window,
+    OSWindow*                    window,
     Table<GKey, UIFunction>* keyMapping) {
 
     _pureDeltaMouse = false;
@@ -69,7 +69,7 @@ void UserInput::init(
 }
 
 
-GWindow* UserInput::window() const {
+OSWindow* UserInput::window() const {
     return _window;
 }
 

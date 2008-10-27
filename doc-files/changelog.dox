@@ -34,6 +34,7 @@
      <li> Adjusted standard deviation used in G3D::GaussianBlur to provide smoother filtering
      <li> Put HashTrait and EqualsTrait in their own headers separate from Table.h
      <li> ArticulatedModel::facet
+     <li> Renamed GWindow to G3D::OSWindow
      <li> ReferenceCountedPointer now asserts that the pointer is not NULL on method invocation
      <li> G3D::ShadowMap now computes appropriate matrices for spot lights
      <li> Added ImageFormat::convert [Danny and Kyle]
@@ -44,7 +45,7 @@
      <li> G3D::Any CoordinateFrame now serialized using angles
      <li> CameraControlWindow now prints angles in degrees
      <li> ImageXXX classes now have a format() method
-     <li> GWindow::create
+     <li> OSWindow::create
      <li> MeshAlg::toIndexedTriList now supports TRIANGLE_FAN input.
      <li> Tuned Table and hash functions for performance [Kyle & Morgan]
      <li> GEvent::toString
@@ -149,7 +150,7 @@
      <li> g3d_Index macro now available in G3D::Shader GLSL code
      <li> G3D::BackgroundWidget
      <li> G3D::TriangleShape
-     <li> Fix: <B>incompatible change</b> GWindow::Settings::asynchronous is now spelled correclty, with two "n"s
+     <li> Fix: <B>incompatible change</b> OSWindow::Settings::asynchronous is now spelled correclty, with two "n"s
      <li> Fix: Fixes for point-in-triangle and moving-sphere-fixed-tri; previous code projected onto the wrong axes, so barycentric coords were wrong for nearly vertical triangles.
      <li> Fix: Changed some doubles to floats in G3D::Triangle
      <li> Fix: Changed all of the isXXX(char) methods to take unsigned char arguments so that they can parse extended symbols
@@ -234,7 +235,7 @@
      <li> All classes that read from files can now read data inside zipfiles.
      <li> Changed G3D::hashCode(T) to ::GHashCode<T>(T) [Corey]
      <li> Removed "G3D::" from the printed portion of the documentation index to make it easier to read.
-     <li> GWindow::fireEvent for inserting user events into the queue
+     <li> OSWindow::fireEvent for inserting user events into the queue
      <li> G3D::logPrintf
      <li> System::findDataFile
      <li> On OS X, G3D::FirstPersonManipulator now treats ctrl-click as right click
@@ -281,7 +282,7 @@
      <li> Texture::isSupportedImage - static method, returns true if a filename exists and is compatible with Texture [Eric]
      <li> Viewer (tool) - Allows drag and drop viewing of many supported file formats [Eric]
      <li> GFXMeter (tool) - Updated for 7.00 compatibility: GApplet structure removed [Eric]
-     <li> GWindow::Settings has an allowMaximize field.  Win32Window will have an activated 'Maximize' button if true [Eric]
+     <li> OSWindow::Settings has an allowMaximize field.  Win32Window will have an activated 'Maximize' button if true [Eric]
      <li> GApp2::debugCamera -> GApp2::defaultCamera
      <li> GApp2::debugController -> GApp2::defaultController
      <li> Made GApp2::debugText private
@@ -312,7 +313,7 @@
      <li> G3D::GKey replaces old SDL key enumeration
      <li> Decreased memory requirements and increased balance speed of G3D::AABSPTree by adding a level of indirection
           between tree nodes and the data stored in them.
-     <li> Added GWindow::Settings::caption
+     <li> Added OSWindow::Settings::caption
      <li> <b>Win32 programs must call the macro <b><code>G3D_START_AT_MAIN();</code></b> at top-level if they do not define WinMain themselves.</b>
      <li> Win32 switched from MBCS to UNICODE for the binaries (G3D sources compile under either, but UNICODE is the VC8 default)
      <li> Replaced SDL event types with G3D event types
@@ -459,12 +460,12 @@
     <LI> GImage::resolveFormat utility function [Erik]
     <LI> GLCaps supports MESA
     <LI> G3D::Win32Window and G3D::SDLWindow now release input capture and make the mouse visible on destruction
-    <LI> G3D::GWindow::setInputCaptureCount, G3D::GWindow::inputCaptureCount, G3D::GWindow::incInputCaptureCount, G3D::GWindow::decInputCaptureCount
+    <LI> G3D::OSWindow::setInputCaptureCount, G3D::OSWindow::inputCaptureCount, G3D::OSWindow::incInputCaptureCount, G3D::OSWindow::decInputCaptureCount
     <LI> GImage::makeCheckerboard
     <LI> G3D::Vector3::one()
     <LI> G3D::Shader now supports g3d_size(sampler2D) and g3d_invSize(sampler2D) extensions in GLSL shaders.
     <LI> Renamed GAppSettings to G3D::GApp::Settings (old name is supported but deprecated)
-	<LI> Renamed GWindowSettings to G3D::GWindow::Settings (old name is supported but deprecated)
+	<LI> Renamed GWindowSettings to G3D::OSWindow::Settings (old name is supported but deprecated)
 	<LI> Renamed TextInput::Options to G3D::TextInput::Options (old name is supported but deprecated)
     <LI> G3D::FPManualController::setAutoActive for World of Warcraft style controller
     <LI> G3D::isSlash, G3D::isQuote
@@ -576,13 +577,13 @@
       <LI> G3D::GLCaps bug tests now run in a separate GL context [Erik Cassel]
       <LI> G3D::GApplet tracks real and simulation time.
       <LI> contrib/Q3Map updated to correctly render instanced objects [Alex Rice]
-      <LI> G3D::GWindow subclasses now required to invoke GWindow::loadExtensions
+      <LI> G3D::OSWindow subclasses now required to invoke OSWindow::loadExtensions
       <LI> G3D::Quat::log for non-unit quats and for real-only quats.
       <LI> G3D::GApplet::doUserInput
       <LI> G3D::GApp prints time for each component
       <LI> G3D::Stopwatch
-      <LI> G3D::GWindow::renderDevice()
-      <LI> G3D::GWindow::current()
+      <LI> G3D::OSWindow::renderDevice()
+      <LI> G3D::OSWindow::current()
       <LI> G3D::GLCaps::hasBug_redBlueMipmapSwap and workaround for G3D::Texture on Radeon 7500
       <LI> Fix: CollisionDetection::penetrationDepthForFixedSphereFixedPlane() contact point and normal values. [Corey]
       <LI> Fix: Quat::slerp has invalid shortest path [Corey]
@@ -627,7 +628,7 @@
 <hr>
    Changes in 6.07:
    <UL>
-    <LI> G3D::GWindow::makeCurrent
+    <LI> G3D::OSWindow::makeCurrent
     <LI> Win32 release binaries now built with no debug information (used to have line numbers)
     <LI> AABox::AABox enforces the constraint low <= high
     <LI> Optimized G3D::Array, Table, Queue, and Set for performance.  Now significantly (up to 10x) faster
@@ -780,7 +781,7 @@
      <LI> G3D::RenderDevice::setTextureLODBias
      <LI> G3D::Shader now supports shadow map arguments
      <LI> G3D::Shader::ArgList checks to see if Texture arguments are null
-     <LI> G3D::RenderDevice::setAlphaWrite now defaults to true if the GWindow has an alpha channel.
+     <LI> G3D::RenderDevice::setAlphaWrite now defaults to true if the OSWindow has an alpha channel.
      <LI> G3D::RenderDevice::screenshotPic now supports alpha
      <LI> contrib/VideoSerializer
      <LI> G3D::BinaryOutput::writeBits, G3d::BinaryInput::readBits
@@ -871,7 +872,7 @@
      <LI> contrib/wxGWindow [Morgan]
      <LI> Added support for full-screen antialiasing to contrib/Win32Window
      <LI> Added joystick support to contrib/Win32Window [Corey]
-     <LI> Win32Window fully-implements GWindow [Corey]
+     <LI> Win32Window fully-implements OSWindow [Corey]
      <LI> Texture now supports DDS(2D/CubeMap) and PNG files [Corey]
      <LI> Added Win32 pbuffer routines (no G3D wrapper, though-- we're waiting for the new ARB API).
      <LI> G3D::PosedModel::texCoords
@@ -914,7 +915,7 @@
      <LI> Fix: [ 1062659 ] BinaryInput::BinaryInput() memory leak
      <LI> Fix: Removed RenderDevice::polygonCount, which was never used.
      <LI> Fix: TextInput::readNumber no longer accepts double preceeding +/- on numbers when Options::signedNumbers is true
-     <LI> Fix: [ 1038733 ] GWindow cannot set icon properly [Corey]
+     <LI> Fix: [ 1038733 ] OSWindow cannot set icon properly [Corey]
      <LI> Fix: [ 939400 ] Linux mouse set position (Wild camera swinging on startup) [Corey]
      <LI> Fix: [ 1042591 ] Software GL Causes Assertion [Corey]
      <LI> Fix: [ 1036634 ] debugAssert doesn't work on MSVC 7 [Corey]
@@ -1007,7 +1008,7 @@
      <LI> G3D::TextOutput
      <LI> [ 976924 ] Texture::texelWidth
      <LI> [ 973413 ] VertexAndPixelShader::ArgList::set can be called more than once per variable
-     <LI> GWindow::setIcon(std::string filename)
+     <LI> OSWindow::setIcon(std::string filename)
      <LI> Texture::fromMemory that takes a single image (instead of an array of images)
      <LI> [972604] RenderDevice::setTextureMatrix(uint, Matrix4)
      <LI> [972747] Rect2D::center
@@ -1074,9 +1075,9 @@
 	      glXCreateContextWithConfigSGIX, glXQueryGLXPbufferSGIX
      <LI> NVIDIA swap lock: glXJoinSwapGroupNV, glXBindSwapBarrierNV, glXQuerySwapGroupNV, 
           glXQueryMaxSwapGroupsNV, glXQueryFrameCountNV, glXResetFrameCountNV
-	 <LI> GWindow::requiresMainLoop, GWindow::runMainLoop (Beta)
-     <LI> GWindow::pollEvent, SDLWindow::pollEvent
-     <LI> G3D::GApp accepts an optional GWindow on construction
+	 <LI> OSWindow::requiresMainLoop, OSWindow::runMainLoop (Beta)
+     <LI> OSWindow::pollEvent, SDLWindow::pollEvent
+     <LI> G3D::GApp accepts an optional OSWindow on construction
      <LI> G3D::VertexAndPixelShader, G3D::ObjectShader (Beta)
      <LI> Deprecated GPUProgram, VertexProgram, and PixelProgram (the OpenGL 1.5 shaders
 	      follow a different paradigm than the OpenGL 1.3 ones, so the G3D API must change
@@ -1128,7 +1129,7 @@
      <LI> Default constructor for Line.
      <LI> Various patches to make G3D work with the CAVE [Dan Keefe]
      <LI> AABox::set
-     <LI> Made GWindow::setPosition non-const
+     <LI> Made OSWindow::setPosition non-const
      <LI> VARArea now tests for the presence of all VBO extensions, on the freak chance that
 	      a driver has only partial support (due to a bug)
      <LI> Linux build statically links OpenGL 1.2.1 and loads extensions through OpenGL 1.5
@@ -1139,7 +1140,7 @@
      <LI> Highly optimized ray-triangle intersection test [Tomas Moller & Ben Trumbore]
      <LI> Create a texture from 6 different cube-map filenames
      <LI> Added contrib directory built as part of the 'doc' target
-	 <LI> contrib/CoreyGWindow: GWindow implementations for various platforms
+	 <LI> contrib/CoreyGWindow: OSWindow implementations for various platforms
      <LI> AABSPSet::beginRayIntersection [Pete Hopkins]
      <LI> AABSPTree::beginBoxIntersection
      <LI> CollisionDetection::intersectionTimeForMovingPointFixedAABox, Ray::intersectionTime(AABox)
@@ -1170,7 +1171,7 @@
      <LI> SDLWindow::setWindowDimensions and setWindowPosition now work on Win32
      <LI> GWindowSettings::x, GWindowSettings::y, GWindowSettings::center
      <LI> System::setEnv
-     <LI> [ 909999 ] GWindow Joystick interface
+     <LI> [ 909999 ] OSWindow Joystick interface
      <LI> double * Quat ([ 909305 ] scalar * {quat, vector, matrix})
 	 <LI> Increased the precision of several Vector2 and Vector3 methods
      <LI> MeshAlg::computeNormals now returns 0 instead of NaN for degenerate normals

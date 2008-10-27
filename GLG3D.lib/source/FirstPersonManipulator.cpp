@@ -11,7 +11,7 @@
 
 #include "G3D/Rect2D.h"
 #include "GLG3D/FirstPersonManipulator.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/UserInput.h"
 
 namespace G3D {

@@ -592,7 +592,7 @@ int main(int argc, char* argv[]) {
         measureMemsetPerformance();
         measureNormalizationPerformance();
 
-        GWindow::Settings settings;
+        OSWindow::Settings settings;
         settings.width = 800;
         settings.height = 600;
         settings.alphaBits = 0;

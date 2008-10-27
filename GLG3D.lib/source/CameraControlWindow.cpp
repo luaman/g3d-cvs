@@ -44,9 +44,9 @@ public:
     /** Name */
     GuiTextBox*        m_textBox;
 
-    GWindow*           m_osWindow;
+    OSWindow*           m_osWindow;
     
-    BookmarkDialog(GWindow* osWindow, const Vector2& position, GuiThemeRef skin, 
+    BookmarkDialog(OSWindow* osWindow, const Vector2& position, GuiThemeRef skin, 
                    std::string& name, Result& result,
                    const std::string& note) : 
         GuiWindow("Bookmark Properties", skin, Rect2D::xywh(position - Vector2(160, 0), Vector2(300, 100)), 

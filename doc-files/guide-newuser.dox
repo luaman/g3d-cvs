@@ -98,16 +98,16 @@ creates the windows and G3D renders inside a client window that you
 designate.
 
 When using an external framework you must explicitly create a
-G3D::GWindow that represents the operating system window into which
+G3D::OSWindow that represents the operating system window into which
 you will render.  How you do this depends on your choice of external
 framework.  For any framework on Windows, you can use the
 G3D::Win32Window subclass and initialize it from a HDC or HWND.  User-supported
-G3D::GWindow subclasses for many popular windowing packages like wxWidgets are available
+G3D::OSWindow subclasses for many popular windowing packages like wxWidgets are available
 on the internet. If you are not on Windows and are using
 an external framework for which there is no published package, you must 
-subclass G3D::GWindow yourself and implement all of its pure virtual methods.
+subclass G3D::OSWindow yourself and implement all of its pure virtual methods.
 
-Once you have a G3D::GWindow subclass object, construct a
+Once you have a G3D::OSWindow subclass object, construct a
 G3D::RenderDevice.  This is the interface to OpenGL rendering.  You
 may also wish to create a G3D::UserInput, which gives polling access to
 the keyboard, mouse, and joystick.  
@@ -116,7 +116,7 @@ In your rendering callback (which is determined by the external
 application framework), place rendering calls between
 G3D::RenderDevice::beginFrame() and G3D::RenderDevice::endFrame().
 This constructs an image on the back buffer--to make it visible you
-must invoke G3D::GWindow::swapOpenGLBuffers().
+must invoke G3D::OSWindow::swapOpenGLBuffers().
 
 @subsection noframework G3D as a Utility Library
 
@@ -249,7 +249,7 @@ needs to be overriden.
   <code>using namespace G3D;</code> so that you don't have to type
   %G3D:: everywhere.
 
-  The exception to the no-prefix rule is classes like "GWindow", "GFont", and "GImage".  We ran into 
+  The exception to the no-prefix rule is classes like "OSWindow", "GFont", and "GImage".  We ran into 
   name conflicts with X11 and Win32 APIs on these classes since those APIs don't 
   have namespaces.  It would be confusing to have both G3D::Font and Font classes
   in a system at the same time, so we opted to rename the G3D classes to have a "G" 

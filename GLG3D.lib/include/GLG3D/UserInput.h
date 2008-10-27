@@ -14,7 +14,7 @@
 #include "G3D/Array.h"
 #include "G3D/Table.h"
 #include "G3D/Vector2.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 
 namespace G3D {
 
@@ -38,7 +38,7 @@ public:
 
 private:
 
-    GWindow*                _window;
+    OSWindow*                _window;
 
     /**
      keyState[x] is true if key[x] is depressed.
@@ -62,7 +62,7 @@ private:
     bool                    inEventProcessing;
 
     /** Called from the constructors */
-    void init(GWindow* window, Table<GKey, UIFunction>* keyMapping);
+    void init(OSWindow* window, Table<GKey, UIFunction>* keyMapping);
 
     /** Called from setPureDeltaMouse */
     void grabMouse();
@@ -117,12 +117,12 @@ public:
     
 	/**
 	 */
-    UserInput(GWindow* window);
+    UserInput(OSWindow* window);
 
     /**
      Return the window used internally by the UserInput
      */
-    GWindow* window() const;
+    OSWindow* window() const;
 
     void setKeyMapping(Table<GKey, UIFunction>* keyMapping = NULL);
 
@@ -138,12 +138,12 @@ public:
     void processEvent(const GEvent& event);
 
     /**
-     Call after your GWindow event polling loop.  If you are using G3D::GApplet, this is handled for you.
+     Call after your OSWindow event polling loop.  If you are using G3D::GApplet, this is handled for you.
      */
     void endEvents();
 
     /**
-     Call before your GWindow event polling loop.If you are using G3D::GApplet, this is handled for you.
+     Call before your OSWindow event polling loop.If you are using G3D::GApplet, this is handled for you.
      */
     void beginEvents();
 

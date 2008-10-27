@@ -16,7 +16,7 @@
 #include "G3D/Set.h"
 #include "G3D/Rect2D.h"
 #include "GLG3D/GFont.h"
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/Widget.h"
 
 namespace G3D {

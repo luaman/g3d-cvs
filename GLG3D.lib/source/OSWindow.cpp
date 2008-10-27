@@ -1,5 +1,5 @@
 /**
- @file GWindow.cpp
+ @file OSWindow.cpp
   
  @maintainer Morgan McGuire, matrix@graphics3d.com
  
@@ -7,7 +7,7 @@
  @edited  2007-03-16
  */
 
-#include "GLG3D/GWindow.h"
+#include "GLG3D/OSWindow.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/GLCaps.h"
 #ifdef G3D_WIN32
@@ -20,7 +20,7 @@
 
 namespace G3D {
 
-GWindow* GWindow::create(const GWindow::Settings& s) {
+OSWindow* OSWindow::create(const OSWindow::Settings& s) {
 #   ifdef G3D_WIN32
         return Win32Window::create(s);
 #   elif defined(G3D_OSX)
@@ -30,20 +30,20 @@ GWindow* GWindow::create(const GWindow::Settings& s) {
 #   endif
 }
 
-const GWindow* GWindow::m_current = NULL;
+const OSWindow* OSWindow::m_current = NULL;
 
-void GWindow::fireEvent(const GEvent& event) {
+void OSWindow::fireEvent(const GEvent& event) {
     m_eventQueue.pushBack(event);
 }
 
 
-bool GWindow::pollOSEvent(GEvent& e) {
+bool OSWindow::pollOSEvent(GEvent& e) {
     (void)e;
     return false;
 }
 
 
-bool GWindow::pollEvent(GEvent& e) {
+bool OSWindow::pollEvent(GEvent& e) {
     // Extract all pending events and put them on the queue.
 
     while (pollOSEvent(e) != 0) {
@@ -59,7 +59,7 @@ bool GWindow::pollEvent(GEvent& e) {
     }
 }
 
-void GWindow::executeLoopBody() {
+void OSWindow::executeLoopBody() {
     if (notDone()) {
         if (loopBodyStack.last().isGApp) {
             loopBodyStack.last().app->oneFrame();
@@ -70,13 +70,13 @@ void GWindow::executeLoopBody() {
 }
 
 
-void GWindow::pushLoopBody(GApp* app) {
+void OSWindow::pushLoopBody(GApp* app) {
     loopBodyStack.push(LoopBody(app));
     app->beginRun();
 }
 
 
-void GWindow::popLoopBody() {
+void OSWindow::popLoopBody() {
     if (loopBodyStack.size() > 0) {
         if (loopBodyStack.last().isGApp) {
             loopBodyStack.last().app->endRun();

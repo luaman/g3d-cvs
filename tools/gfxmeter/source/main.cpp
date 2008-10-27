@@ -30,7 +30,7 @@ int CPU_speed_in_MHz();
  First array element is low coherence, second is high coherence
  */
 void measureVertexPerformance(
-    GWindow* w,     
+    OSWindow* w,     
     int&   numTris,
     float  beginEndFPS[2],
     float  drawElementsRAMFPS[2], 

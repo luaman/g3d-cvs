@@ -94,7 +94,7 @@ void drawFrame(int w, int h, int frameNum) {
 int main(int argc, char** argv) {
     const int WIDTH = 640, HEIGHT = 480;
     RenderDevice* rd = new RenderDevice();
-    GWindow::Settings settings;
+    OSWindow::Settings settings;
     settings.width  = WIDTH;
     settings.height = HEIGHT;
     rd->init(settings);

@@ -44,7 +44,7 @@ protected:
     
     bool m_saveAlpha;
 
-    MyFileDialog(GWindow* osWindow, GuiThemeRef skin) : FileDialog(osWindow, skin, "") {
+    MyFileDialog(OSWindow* osWindow, GuiThemeRef skin) : FileDialog(osWindow, skin, "") {
         pane()->addCheckBox("Save Alpha", &m_saveAlpha);
     }
 
@@ -85,9 +85,9 @@ protected:
 
     std::string        m_filename;
 
-    GWindow*           m_osWindow;
+    OSWindow*           m_osWindow;
 
-    FileDialog(GWindow* osWindow, GuiThemeRef theme, const std::string& note);
+    FileDialog(OSWindow* osWindow, GuiThemeRef theme, const std::string& note);
 
     void close();
 
@@ -97,8 +97,8 @@ public:
        @param saveName Initial value of the box and what will be returned in the event
        that the user presses ok.
      */
-    static FileDialogRef create(GWindow* osWindow, GuiThemeRef theme, const std::string& note = "") {
-        return new FileDialog(osWindow, skin, note);
+    static FileDialogRef create(OSWindow* osWindow, GuiThemeRef theme, const std::string& note = "") {
+        return new FileDialog(osWindow, theme, note);
     }
 
     static FileDialogRef create(GuiWindowRef parent, const std::string& note = "") {

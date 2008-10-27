@@ -1,7 +1,7 @@
 /**
  @file X11Window.h
   
- A GWindow that uses the X11 API.
+ A OSWindow that uses the X11 API.
 
  @created 	  2005-06-04
  @edited  	  2005-06-04

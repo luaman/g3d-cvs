@@ -12,7 +12,7 @@
 
 namespace G3D {
 
-FileDialog::FileDialog(GWindow* osWindow, GuiThemeRef skin, const std::string& note) : 
+FileDialog::FileDialog(OSWindow* osWindow, GuiThemeRef skin, const std::string& note) : 
     GuiWindow("", skin, Rect2D::xywh(150, 100, 10, 10), GuiTheme::DIALOG_WINDOW_STYLE, HIDE_ON_CLOSE), 
     ok(false), m_osWindow(osWindow) {
 

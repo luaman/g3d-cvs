@@ -121,7 +121,7 @@ void VideoRecordDialog::makeGUI() {
 
     if (false) {
         // For future expansion
-        const GWindow* window = GWindow::current();
+        const OSWindow* window = OSWindow::current();
         int w = window->width() / 2;
         int h = window->height() / 2;
 
@@ -184,7 +184,7 @@ void VideoRecordDialog::startRecording() {
 
     // Create the video file
     VideoOutput::Settings settings = m_settingsTemplate[m_templateIndex];
-    GWindow* window = const_cast<GWindow*>(GWindow::current());
+    OSWindow* window = const_cast<OSWindow*>(OSWindow::current());
     settings.width = window->width();
     settings.height = window->height();
 
@@ -280,7 +280,7 @@ void VideoRecordDialog::stopRecording() {
     m_recordButton->setCaption("Record Now (" + m_hotKeyString + ")");
 
     // Restore the window caption as well
-    GWindow* window = const_cast<GWindow*>(GWindow::current());
+    OSWindow* window = const_cast<OSWindow*>(OSWindow::current());
     std::string c = window->caption();
     std::string appendix = " - Recording " + m_hotKeyString + " to stop";
     if (endsWith(c, appendix)) {

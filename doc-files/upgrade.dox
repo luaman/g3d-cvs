@@ -170,7 +170,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::computeNormalMap</td><td>G3D::GImage::computeNormalMap</td></tr>
 <tr><td>G3D::Box::getCorner</td><td>G3D::Box::corner</td></tr>
 <tr><td>G3D::Sky::create</td><td>G3D::Sky::fromFile</td></tr>
-<tr><td>G3D::UserInput::appHasFocus</td><td>G3D::GWindow::hasFocus</td></tr>
+<tr><td>G3D::UserInput::appHasFocus</td><td>G3D::OSWindow::hasFocus</td></tr>
 <tr><td>G3D::PosedModelWrapper</td><td>contrib/PosedModelWrapper</td></tr>
 <tr><td>G3D::TextureManager</td><td>contrib/TextureManager</td></tr>
 <tr><td>G3D::GAppSettings</td><td>G3D::GApp::Settings</td></tr>
@@ -180,13 +180,13 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::Texture::getWrapMode</td><td>G3D::Texture::settings().wrapMode</td></tr>
 <tr><td>G3D::Texture::wrapMode</td><td>G3D::Texture::settings().wrapMode</td></tr>
 <tr><td>G3D::Texture::parameters</td><td>G3D::Texture::settings</td></tr>
-<tr><td>G3D::GWindowSettings</td><td>G3D::GWindow::Settings</td></tr>
+<tr><td>G3D::GWindowSettings</td><td>G3D::OSWindow::Settings</td></tr>
 <tr><td>G3D::Texture::NO_INTERPOLATION</td><td>G3D::Texture::NEAREST_NO_MIPMAP</td></tr>
 <tr><td>G3D::MD2Model::create</td><td>G3D::MD2Model::fromFile</td></tr>
 <tr><td>G3D::MeshAlg::Edge::broken</td><td>G3D::MeshAlg::Edge::boundary</td></tr>
 <tr><td>G3D::readFileAsString</td><td>G3D::readWholeFile</td></tr>
 <tr><td>G3D::writeStringToFile</td><td>G3D::writeWholeFile (note: argument order changed!)</td></tr>
-<tr><td>G3D::RenderDevice::setCaption</td><td>G3D::GWindow::setCaption</td></tr>
+<tr><td>G3D::RenderDevice::setCaption</td><td>G3D::OSWindow::setCaption</td></tr>
 <tr><td>SDLK_*</td><td>G3D::GKey::*</td></td></tr>
 <tr><td>G3D::UserInput::keyCodeToString</td><td>G3D::GKey::toString</td></td></tr>
 <tr><td>G3D::UserInput::stringToKeyCode</td><td>G3D::GKey::fromString</td></td></tr>
@@ -198,7 +198,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>SDL_<i>eventname</i></td><td>G3D::GEventType::<i>eventname</i></td></tr>
 <tr><td>GApp::debugCamera</td><td>GApp::defaultCamera</td></tr>
 <tr><td>GApp::debugController</td><td>GApp::defaultController</td></tr>
-<tr><td>GWindow::pollEvent</td><td>GWindow::pollOSEvent</td></tr>
+<tr><td>OSWindow::pollEvent</td><td>OSWindow::pollOSEvent</td></tr>
 <tr><td>G3D::Widget</td><td>G3D::Widget</td></tr>
 <tr><td>G3D::GModuleManager</td><td>G3D::WidgetManager</td></tr>
 <tr><td>G3D::GApp::addWidget</td><td>G3D::GApp::addWidget</td></tr>

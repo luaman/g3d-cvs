@@ -108,7 +108,7 @@ static uint8 buttonsToUint8(const bool* buttons) {
     return mouseButtons;
 }
 
-Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
+Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     :createdWindow(true)
     ,_diDevices(NULL)
 
@@ -229,8 +229,8 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
             setIcon(defaultIcon);
         } catch (const GImage::Error& e) {
             // Throw away default icon
-            debugPrintf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-            Log::common()->printf("GWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
+            debugPrintf("OSWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
+            Log::common()->printf("OSWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
         }
     }
 
@@ -248,7 +248,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, bool creatingShareWindow)
 
 
 
-Win32Window::Win32Window(const GWindow::Settings& s, HWND hwnd) : createdWindow(false), _diDevices(NULL) {
+Win32Window::Win32Window(const OSWindow::Settings& s, HWND hwnd) : createdWindow(false), _diDevices(NULL) {
     initWGL();
 
     _thread = ::GetCurrentThread();
@@ -259,7 +259,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, HWND hwnd) : createdWindow(
 }
 
 
-Win32Window::Win32Window(const GWindow::Settings& s, HDC hdc) : createdWindow(false), _diDevices(NULL)  {
+Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(false), _diDevices(NULL)  {
     initWGL();
 
     _thread = ::GetCurrentThread();
@@ -275,7 +275,7 @@ Win32Window::Win32Window(const GWindow::Settings& s, HDC hdc) : createdWindow(fa
 }
 
 
-Win32Window* Win32Window::create(const GWindow::Settings& settings) {
+Win32Window* Win32Window::create(const OSWindow::Settings& settings) {
 {Array<int> qqq;qqq.append(1,2);} // TODO: Remove. Here for debugging memory corruption
 
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages
@@ -284,14 +284,14 @@ Win32Window* Win32Window::create(const GWindow::Settings& settings) {
 }
 
 
-Win32Window* Win32Window::create(const GWindow::Settings& settings, HWND hwnd) {
+Win32Window* Win32Window::create(const OSWindow::Settings& settings, HWND hwnd) {
 
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages
     return new Win32Window(settings, hwnd);    
 
 }
 
-Win32Window* Win32Window::create(const GWindow::Settings& settings, HDC hdc) {
+Win32Window* Win32Window::create(const OSWindow::Settings& settings, HDC hdc) {
 
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages
     return new Win32Window(settings, hdc);    
@@ -578,7 +578,7 @@ void Win32Window::close() {
 
 
 Win32Window::~Win32Window() {
-    if (GWindow::current() == this) {
+    if (OSWindow::current() == this) {
         if (wglMakeCurrent(NULL, NULL) == FALSE)	{
             debugAssertM(false, "Failed to set context");
         }
@@ -601,7 +601,7 @@ Win32Window::~Win32Window() {
 }
 
 
-void Win32Window::getSettings(GWindow::Settings& s) const {
+void Win32Window::getSettings(OSWindow::Settings& s) const {
     s = settings;
 }
 
@@ -1045,7 +1045,7 @@ void Win32Window::initWGL() {
 }
 
 
-void Win32Window::createShareWindow(GWindow::Settings settings) {
+void Win32Window::createShareWindow(OSWindow::Settings settings) {
     static bool init = false;
     if (init) {
         return;
@@ -1070,7 +1070,7 @@ void Win32Window::createShareWindow(GWindow::Settings settings) {
 
 void Win32Window::reallyMakeCurrent() const {
     debugAssertM(_thread == ::GetCurrentThread(), 
-        "Cannot call GWindow::makeCurrent on different threads.");
+        "Cannot call OSWindow::makeCurrent on different threads.");
 
     if (wglMakeCurrent(_hDC, _glContext) == FALSE)	{
         debugAssertM(false, "Failed to set context");
@@ -1470,7 +1470,7 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
             if ((wparam == SIZE_MAXIMIZED) ||
                 (wparam == SIZE_RESTORED))
             {
-                // Add a size event that will be returned next GWindow poll
+                // Add a size event that will be returned next OSWindow poll
                 GEvent e;
                 e.type = GEventType::VIDEO_RESIZE;
                 e.resize.w = LOWORD(lparam);
