@@ -390,7 +390,12 @@ protected:
         }
 
         /** Appends all members that intersect the box. 
-            If useSphere is true, members are tested against the sphere instead. */
+            If useSphere is true, members are tested against the sphere instead. 
+            
+            Implemented using both box and sphere tests to simplify the implementation
+            of a future beginSphereInteresection iterator using the same underlying
+            BoxIterator class.           
+            */
         void getIntersectingMembers(
             const AABox&        box, 
             const Sphere&       sphere,

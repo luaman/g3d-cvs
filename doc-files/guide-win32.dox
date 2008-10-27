@@ -2,24 +2,21 @@
 
 The following sections give step-by-step instructions for installing
 the 7.01 version of %G3D.
-These assume no familiarity with Visual Studio or %G3D (however, to
-<i>use</i> %G3D, you'll need to know your way around a 3D graphics
-pipeline.)
 
-<p>For experienced Visual Studio users, the short version of these instructions is simple:
+<p>For experienced Visual Studio developers, the short version of these instructions is simple:
 
 \htmlonly
 <ol>
 <li> Unzip <a
 href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.01-win32.zip?download">G3D-7.01-win32.zip</a> and configure Visual Studio's Include and Library paths.
-<li> See <code><a href="../demos/starter">G3D-7.01\demos\starter</a></code> for a simple application framework.
+<li> See <code><a href="../demos/starter">G3D\demos\starter</a></code> for a simple application framework.
 </ol>
 \endhtmlonly
 </p>
 
 
 <hr>
-@section vs9install Visual Studio 2008 Installation
+@section vs9install Visual Studio 2008 (VC++ 9.0) Installation
 
 <p>
 \htmlonly
@@ -27,8 +24,8 @@ Visual Studio 9 (officially known as Visual C++ 2008 Express Edition)
 is available as a free download from Microsoft at <a
 href="hhttp://www.microsoft.com/express/download/#webInstall">http://www.microsoft.com/express/download/#webInstall</a>.
 Note that there is also a profession
-edition of Visual Studio 2008 that can be purchased.  G3D is compatible with VC2005 and many previous editions, although
-you'll have to use the cmake scripts to build your own version of G3D.  We do not support doing so and recommend that you
+edition of Visual Studio 2008 that can be purchased.  G3D is compatible with VC2005 and many previous editions, but not supported and you'll
+have to build your own copy of the library.  We recommend that you
 instead use the latest (free!) version of Visual Studio.
 \endhtmlonly
 </p>
@@ -43,8 +40,8 @@ instead use the latest (free!) version of Visual Studio.
 Download <a
 href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.01-win32.zip?download">G3D-7.01-win32.zip</a>
 and unzip it into a directory like <code>c:\libraries</code>. This
-will create the directories <code>c:\libraries\G3D-7.01</code>,
-<code>c:\libraries\G3D-7.01\html</code>, etc.
+will create the directories <code>c:\libraries\G3D</code>,
+<code>c:\libraries\G3D\html</code>, etc.
 
 </p>
 
@@ -52,7 +49,7 @@ will create the directories <code>c:\libraries\G3D-7.01</code>,
 
 <li> <p>Click on the <b>Tools</b> menu and then select <b>Options</b>, as demonstrated in this image:
 
-<center><img src="vc8-tools-menu.png" border=0 align=top></center></p>
+<center><img src="vc9-tools-menu.png" border=0 align=top></center></p>
 
 <li> <p>In the tree control on the left of the <b>Options</b> dialog, expand the  <b>Projects and Solutions</b> item (refer to the Options Dialog image below).</p>
 
@@ -64,9 +61,9 @@ will create the directories <code>c:\libraries\G3D-7.01</code>,
 in the central list box and type the full path to the G3D include
 directory, as demonstrated in the image below.  If you installed G3D to
 <code>c:\libraries</code>, this path is
-<code>c:\libraries\G3D-7.01\include</code>.
+<code>c:\libraries\G3D\include</code>.
 
-<center><img src="vc8-options-dialog.png" border=0 align=top></center></p>
+<center><img src="vc9-options-dialog.png" border=0 align=top></center></p>
 
 <li> 
  <p>Change the <b>Show directories for</b> drop-down list to <b>Library files</b>.
@@ -77,7 +74,7 @@ directory, as demonstrated in the image below.  If you installed G3D to
 in the central list box and type the full path to the %G3D lib
 directory.  If you installed G3D to
 <code>c:\libraries</code>, this path is
-<code>c:\libraries\G3D-7.01\lib</code>.
+<code>c:\libraries\G3D\lib</code>.
 </p>
 
 <li><p>Push <b>Ok</b> to close the <b>Options</b> dialog.</p>

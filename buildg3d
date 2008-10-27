@@ -120,11 +120,11 @@ def initOS():
         doInstall = False
 
     if windows:
-        libInstallDir = pathConcat(installDir, 'G3D-' + g3dVersion.toString())
+        libInstallDir = pathConcat(installDir, 'G3D')
         docInstallDir = libInstallDir
     else:
         libInstallDir = installDir
-        docInstallDir = pathConcat(installDir, 'G3D-' + g3dVersion.toString())
+        docInstallDir = pathConcat(installDir, 'G3D')
 
 initOS()
 
@@ -417,14 +417,14 @@ def zip(source, zipfile):
 def srcTarget():
    # First copy everything to the temp directory to remove
    # CVS files
-   ver = 'G3D-' + g3dVersion.toString()
-   dest ='temp/' + ver + '/src/'
+   ver = 'G3D'
+   dest ='temp/src/'
    mkdir(dest)
    copyIfNewer('.', dest)
 
    os.chdir('temp')
    # Now produce the zipfile
-   zip(ver, '../build/' + ver + '-src.zip')
+   zip(ver, '../build/' + 'G3D' + '-' + g3dVersion.toString() + '-src.zip')
    os.chdir('..')
 
 ##################################################################################
