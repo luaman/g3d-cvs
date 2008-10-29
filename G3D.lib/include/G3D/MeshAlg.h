@@ -541,21 +541,17 @@ public:
        index'[j] == oldToNewIndex[ index[j]  ]
      </pre>
 
-     @param recomputeNormals If true, vertex normals are replaced with face normals and then smoothed in groups 
-     smoothed in groups separated by less than @a normalSmoothingAngle.  Smoothing groups can cross texcoord boundaries.
-
      @param normalSmoothingAngle Varies from 0 (flat shading) to toRadians(180) for extremely smooth shading. Default is toRadians(70)
      */
     static void weld(
-        Geometry&             geometry, 
-        Array<Vector2>&       texCoord, 
-        Array<int>&           indexArray,
-        Array<int>&           oldToNewIndex, 
-        bool                  recomputeNormals = true,
-        float                 normalSmoothingAngle = toRadians(70.0f),
-        float                 vertexWeldRadius   = 0.0001f,
-        float                 texCoordWeldRadius = 0.0001f,
-        float                 normalWeldRadius   = 0.01f);
+        Array<Vector3>&     vertices,
+        Array<Vector2>&     textureCoords, 
+        Array<Vector3>&     normals,
+        Array<int>&         indices,
+        float               normalSmoothingAngle = toRadians(70.0f),
+        float               vertexWeldRadius   = 0.0001f,
+        float               textureWeldRadius = 0.0001f,
+        float               normalWeldRadius = 0.01f);
 
     /**
      In debug mode, asserts that the adjacency references between the

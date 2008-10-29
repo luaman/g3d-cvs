@@ -571,34 +571,195 @@ public:
 	}
 		
 };
+
+class WeldNode {
+public:
+    bool operator==(const WeldNode* other) { return index == other->index; }
+
+    int         index;
+    Vector3*    vec;
+    Vector3*    norm;
+    Vector2*    tex;
+};
+
+class WeldNodeTraits {
+public:
+    static void getPosition(const WeldNode* v, G3D::Vector3& p) {
+        p = *(v->vec);
+    }
+
+    static size_t hashCode(const WeldNode* key) {
+        return key->vec->hashCode();
+    }
+
+    static bool equals(const WeldNode* a, const WeldNode* b) {
+        return *(a->vec) == *(b->vec);
+    }
+};
+
 } // _internal
 
 
 void MeshAlg::weld(
-    Geometry&             geometry, 
-    Array<Vector2>&       texCoord, 
-    Array<int>&           indexArray,
-    Array<int>&           oldToNewIndex, 
-    bool                  recomputeNormals,
-    float                 normalSmoothingAngle,
-    float                 vertexWeldRadius,
-    float                 texCoordWeldRadius,
-    float                 normalWeldRadius) {
+    Array<Vector3>&     vertices,
+    Array<Vector2>&     textureCoords, 
+    Array<Vector3>&     normals,
+    Array<int>&         indices,
+    float               normalSmoothingAngle,
+    float               vertexWeldRadius,
+    float               textureWeldRadius,
+    float               normalWeldRadius) {
 
-    
-    _internal::MeshHelper helper(  geometry.vertexArray, 
-                        geometry.normalArray, 
-                        texCoord, 
-                        indexArray, 
-                        vertexWeldRadius, 
-                        texCoordWeldRadius,
-                        normalWeldRadius,
-                        cos(normalSmoothingAngle),
-                        oldToNewIndex,
-                        recomputeNormals);
+/*
+    // validate array sizes
+    debugAssert(normals.length() == 0 || vertices.length() == normals.length());
+    debugAssert(textureCoords.length() == 0 || vertices.length() == textureCoords.length());
+
+    // unroll geometry into triangles and generate normals and texture coordinates if necessary
+    Array<Vector3> unrolledVertices(indices.length());
+    Array<Vector2> unrolledTextureCoords(indices.length());
+    Array<Vector3> unrolledNormals(indices.length());
+
+    Array<_internal::WeldNode*> weldNodes;
+
+    for (int i = 0; i < indices.length(); i += 3) {
+        _internal::WeldNode* weldNode = new _internal::WeldNode;
+        _internal::WeldNode* weldNode2 = new _internal::WeldNode;
+        _internal::WeldNode* weldNode3 = new _internal::WeldNode;
+
+        weldNode->index = i;
+        weldNode2->index = i + 1;
+        weldNode3->index = i + 2;
+
+        int vertexIndex = indices[i];
+        int vertexIndex2 = indices[i + 1];
+        int vertexIndex3 = indices[i + 2];
+
+        unrolledVertices[vertexIndex] = vertices[vertexIndex];
+        unrolledVertices[vertexIndex2] = vertices[vertexIndex2];
+        unrolledVertices[vertexIndex3] = vertices[vertexIndex3];
+
+        weldNode->vec = &unrolledVertices[vertexIndex];
+        weldNode2->vec = &unrolledVertices[vertexIndex2];
+        weldNode3->vec = &unrolledVertices[vertexIndex3];
+
+        if (textureCoords.length() > 0) {
+            unrolledTextureCoords[vertexIndex] = textureCoords[vertexIndex];
+            unrolledTextureCoords[vertexIndex2] = textureCoords[vertexIndex2];
+            unrolledTextureCoords[vertexIndex3] = textureCoords[vertexIndex3];
+        } else {
+            unrolledTextureCoords[vertexIndex] = Vector2::zero();
+            unrolledTextureCoords[vertexIndex2] = Vector2::zero();
+            unrolledTextureCoords[vertexIndex3] = Vector2::zero();
+        }
+
+        weldNode->tex = &unrolledTextureCoords[vertexIndex];
+        weldNode2->tex = &unrolledTextureCoords[vertexIndex2];
+        weldNode3->tex = &unrolledTextureCoords[vertexIndex3];
 
 
+        if (normals.length() > 0) {
+            unrolledNormals[vertexIndex] = normals[vertexIndex];
+            unrolledNormals[vertexIndex2] = normals[vertexIndex2];
+            unrolledNormals[vertexIndex3] = normals[vertexIndex3];
+        } else {
+            const Vector3& n0 = vertices[vertexIndex];
+            const Vector3& n1 = vertices[vertexIndex2];
+            const Vector3& n2 = vertices[vertexIndex3];
 
+            Vector3 faceNormal = (n1 - n0).cross(n2 - n0);
+            faceNormal = faceNormal.directionOrZero();
+
+            unrolledNormals[vertexIndex] = faceNormal;
+            unrolledNormals[vertexIndex2] = faceNormal;
+            unrolledNormals[vertexIndex3] = faceNormal;
+        }
+
+        weldNode->norm = &unrolledNormals[vertexIndex];
+        weldNode2->norm = &unrolledNormals[vertexIndex2];
+        weldNode3->norm = &unrolledNormals[vertexIndex3];
+
+        weldNodes.append(weldNode);
+        weldNodes.append(weldNode2);
+        weldNodes.append(weldNode3);
+    }
+
+    // create tree of vertices to query neighbors
+    PointAABSPTree<_internal::WeldNode*, _internal::WeldNodeTraits, _internal::WeldNodeTraits, _internal::WeldNodeTraits> unrolledTree;
+    unrolledTree.insert(weldNodes);
+    unrolledTree.balance();
+
+    // merge unique vertices within vertex weld radius (same vertex count, just not unique)
+    Array<_internal::WeldNode*> neighbors;
+    for (int nodeIndex = 0; nodeIndex < weldNodes.length(); ++nodeIndex) {
+        neighbors.clear(false);
+        unrolledTree.getIntersectingMembers(Sphere(*(weldNodes[nodeIndex]->vec), vertexWeldRadius), neighbors);
+
+        for (int neighborIndex = 0; neighborIndex < neighbors.length(); ++neighborIndex) {
+            *(neighbors[neighborIndex]->vec) = *(weldNodes[nodeIndex]->vec);
+        }
+
+        // update tree    
+        unrolledTree.update(weldNodes[nodeIndex]);
+    }
+
+    // merge texture coordinates
+    for (int nodeIndex = 0; nodeIndex < weldNodes.length(); ++nodeIndex) {
+        neighbors.clear(false);
+        unrolledTree.getIntersectingMembers(Sphere(*(weldNodes[nodeIndex]->vec), textureWeldRadius), neighbors);
+
+        for (int neighborIndex = 0; neighborIndex < neighbors.length(); ++neighborIndex) {
+            *(neighbors[neighborIndex]->tex) = *(weldNodes[nodeIndex]->tex);
+        }
+    }
+
+    // merge normals
+    float cosSmoothAngle = cos(normalSmoothingAngle);
+    for (int nodeIndex = 0; nodeIndex < weldNodes.length(); ++nodeIndex) {
+        neighbors.clear(false);
+        unrolledTree.getIntersectingMembers(Sphere(*(weldNodes[nodeIndex]->vec), normalWeldRadius), neighbors);
+
+        for (int neighborIndex = 0; neighborIndex < neighbors.length(); ++neighborIndex) {
+            if (weldNodes[nodeIndex]->norm->dot(*(neighbors[neighborIndex]->norm)) >= cosSmoothAngle) {
+                *(neighbors[neighborIndex]->norm) = *(weldNodes[nodeIndex]->norm);
+            }
+        }
+    }
+
+    unrolledTree.clearData();
+
+    vertices.clear();
+    textureCoords.clear();
+    normals.clear();
+    indices.clear();
+
+    for (int nodeIndex = 0; nodeIndex < weldNodes.length(); ++nodeIndex) {
+        neighbors.clear(false);
+        unrolledTree.getIntersectingMembers(Sphere(*(weldNodes[nodeIndex]->vec), 0.0f), neighbors);
+
+        if (neighbors.length() == 0) {
+            weldNodes[nodeIndex]->index = vertices.length();
+
+            vertices.append(*(weldNodes[nodeIndex]->vec));
+            textureCoords.append(*(weldNodes[nodeIndex]->tex));
+            normals.append(*(weldNodes[nodeIndex]->norm));
+
+            indices.append(weldNodes[nodeIndex]->index);
+
+            unrolledTree.insert(weldNodes[nodeIndex]);
+        } else {
+            for (int neighborIndex = 0; neighborIndex < neighbors.length(); ++neighborIndex) {
+                if (*(neighbors[neighborIndex]->vec) == *(weldNodes[nodeIndex]->vec) &&
+                    *(neighbors[neighborIndex]->tex) == *(weldNodes[nodeIndex]->tex) &&
+                    *(neighbors[neighborIndex]->norm) == *(weldNodes[nodeIndex]->norm)) {
+
+                    indices.append(neighbors[neighborIndex]->index);
+                    break;
+                }
+            }
+        }
+    }
+*/
 }
 
 } // G3D
