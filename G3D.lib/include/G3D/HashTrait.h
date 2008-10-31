@@ -17,7 +17,7 @@
 #include "G3D/uint128.h"
 
 /** Must be specialized for custom types.
-    @see Table
+    @see G3D::Table for specialization requirements.
 */
 template <typename T> struct HashTrait{};
 

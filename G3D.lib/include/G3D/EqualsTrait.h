@@ -14,7 +14,7 @@
 #include "G3D/platform.h"
 
 /** Default implementation of EqualsTrait.
-    @see Table
+    @see G3D::Table for specialization requirements.
 */
 template<typename Key> struct EqualsTrait {
     static bool equals(const Key& a, const Key& b) {
