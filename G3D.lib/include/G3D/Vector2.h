@@ -15,12 +15,14 @@
 #ifndef G3D_VECTOR2_H
 #define G3D_VECTOR2_H
 
+#include <string>
+
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Table.h"
 #include "G3D/HashTrait.h"
 #include "G3D/Vector2int16.h"
-#include <string>
+#include "G3D/HashTrait.h"
 
 namespace G3D {
 

@@ -13,9 +13,10 @@
 
 #include "G3D/platform.h"
 
-template<typename Key>
-class EqualsTrait {
-public:
+/** Default implementation of EqualsTrait.
+    @see Table
+*/
+template<typename Key> struct EqualsTrait {
     static bool equals(const Key& a, const Key& b) {
         return a == b;
     }

@@ -69,10 +69,8 @@ public:
 
 } // namespace G3D
 
-template<>
-struct GHashCode<G3D::_internal::Welder::List*>
-{
-    size_t operator()(const G3D::_internal::Welder::List* key) const { return reinterpret_cast<size_t>(key); }
+template<> struct HashTrait<G3D::_internal::Welder::List*> {
+    static size_t hashCode(const G3D::_internal::Welder::List* key) { return reinterpret_cast<size_t>(key); }
 };
 
 namespace G3D {

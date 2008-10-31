@@ -131,10 +131,8 @@ public:
 
 } // namespace G3D
 
-/** @deprecated */
-template <>
-struct GHashCode<G3D::Triangle> {
-    size_t operator()(const G3D::Triangle& key) const { return key.hashCode(); }
+template <> struct HashTrait<G3D::Triangle> {
+    static size_t hashCode(const G3D::Triangle& key) { return key.hashCode(); }
 };
 
 

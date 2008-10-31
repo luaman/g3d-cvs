@@ -210,10 +210,8 @@ public:
 };
 }
 
-template <>
-struct GHashCode<G3D::VARArea*>
-{
-    size_t operator()(const G3D::VARArea* key) const { return reinterpret_cast<size_t>(key); }
+template <> struct HashTrait<G3D::VARArea*> {
+    static size_t hashCode(const G3D::VARArea* key) { return reinterpret_cast<size_t>(key); }
 };
 
 #endif

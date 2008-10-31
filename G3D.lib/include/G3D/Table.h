@@ -13,20 +13,16 @@
 #ifndef G3D_TABLE_H
 #define G3D_TABLE_H
 
-#include "G3D/uint128.h"
+#include <cstddef>
+#include <string>
+
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/debug.h"
 #include "G3D/System.h"
 #include "G3D/g3dmath.h"
-#include "G3D/Vector2int16.h"
-#include "G3D/Vector3int16.h"
-#include "G3D/Vector3int32.h"
-#include "G3D/Crypto.h"
 #include "G3D/EqualsTrait.h"
 #include "G3D/HashTrait.h"
-#include <cstddef>
-#include <string>
 
 #ifdef _MSC_VER
 #   pragma warning (push)
@@ -34,119 +30,12 @@
 #   pragma warning (disable : 4786)
 #endif
 
-template <>
-struct GHashCode<int>
-{
-    size_t operator()(int key) const { return static_cast<size_t>(key); }
-};
-template <>
-struct GHashCode<G3D::uint32>
-{
-    size_t operator()(G3D::uint32 key) const { return static_cast<size_t>(key); }
-};
-
-template <>
-struct GHashCode<G3D::uint64>
-{
-    size_t operator()(G3D::uint64 key) const { return static_cast<size_t>(key); }
-};
-template <>
-struct GHashCode<void*>
-{
-    size_t operator()(const void* key) const { return reinterpret_cast<size_t>(key); }
-};
-
-template<class T>
-struct GHashCode<T*>
-{
-    size_t operator()(const T* key) const { return reinterpret_cast<size_t>(key); }
-};
-
-template <>
-struct GHashCode<const std::string>
-{
-    size_t operator()(const std::string& key) const { return static_cast<size_t>(G3D::Crypto::crc32(key.c_str(), key.size())); }
-};
-
-template <>
-struct GHashCode<std::string>
-{
-    size_t operator()(const std::string& key) const { return static_cast<size_t>(G3D::Crypto::crc32(key.c_str(), key.size())); }
-};
-
-template <>
-struct GHashCode<G3D::Vector2int16>
-{
-    size_t operator()(const G3D::Vector2int16& key) const { return static_cast<size_t>(key.x + ((int)key.y << 16)); }
-};
-template <>
-struct GHashCode<G3D::Vector3int16>
-{
-    size_t operator()(const G3D::Vector3int16& key) const { return static_cast<size_t>(key.x + ((int)key.y << 5) + ((int)key.z << 10)); }
-};
-
-template <>
-struct GHashCode<G3D::Vector3int32>
-{
-    size_t operator()(const G3D::Vector3int32& key) const { return static_cast<size_t>(key.x + (key.y << 10) + (key.z << 21)); }
-};
-
-
-/** @ deprecated Use EqualsTrait*/
-template<typename Key>
-struct GEquals{
-    bool operator()(const Key& a, const Key& b) const {
-        return a == b;
-    }
-};
-
-
-//////////////////////////////////////
-
-
-
-template <>
-struct HashTrait<G3D::uint128> {
-
-	// Use the FNV-1 hash (http://isthe.com/chongo/tech/comp/fnv/#FNV-1).
-    static size_t hashCode(G3D::uint128 key) {
-        static const G3D::uint128 FNV_PRIME_128(1 << 24, 0x159);
-        static const G3D::uint128 FNV_OFFSET_128(0xCF470AAC6CB293D2LL, 0xF52F88BF32307F8FLL);
-
-        G3D::uint128 hash = FNV_OFFSET_128;
-        G3D::uint128 mask(0, 0xFF);
-		for (int i = 0; i < 16; ++i) {
-			hash *= FNV_PRIME_128;
-            hash ^= (mask & key);
-            key >>= 8;
-		}
-		
-        G3D::uint64 foldedHash = hash.hi ^ hash.lo;
-		return static_cast<size_t>((foldedHash >> 32) ^ (foldedHash & 0xFFFFFFFF));
-	}
-};
-
-template <>
-struct HashTrait<G3D::Vector3int32> {
-    static size_t hashCode(const G3D::Vector3int32& key) {
-        // Mask for the top bit of a uint32
-        const G3D::uint32 top = (1 << 31);
-        // Mask for the bottom 10 bits of a uint32
-        const G3D::uint32 bot = 0x000003FF;
-        return static_cast<size_t>(((key.x & top) | ((key.y & top) >> 1) | ((key.z & top) >> 2)) | 
-                                   (((key.x & bot) << 19) ^ ((key.y & bot) << 10) ^ (key.z & bot)));
-    }
-};
-
-/////////////////////////////////////////
-
 namespace G3D {
 
 /**
  An unordered data structure mapping keys to values.
 
- Key must be a pointer, an int, a std::string, a class with a hashCode() method,
- or provide overloads for: 
+ Key must be a pointer, an int, a std::string or provide overloads for: 
 
   <PRE>
     template<> struct HashTrait<class Key> {
@@ -157,8 +46,7 @@ namespace G3D {
   and one of 
 
   <PRE>
-    template<>
-    struct EqualsTrait<class Key>{
+    template<> struct EqualsTrait<class Key>{
          static bool equals(const Key& a, const Key& b) { return ... ; }
     };
 
@@ -166,7 +54,7 @@ namespace G3D {
     bool operator==(const Key&, const Key&);
   </PRE>
 
- G3D pre-defines GHashCode functions for common types (like <CODE>int</CODE> and <CODE>std::string</CODE>).
+ G3D pre-defines HashTrait specializations for common types (like <CODE>int</CODE> and <CODE>std::string</CODE>).
  If you use a Table with a different type you must write those functions yourself.  For example,
  an enum would use:
 

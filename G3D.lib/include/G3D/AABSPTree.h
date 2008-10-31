@@ -123,10 +123,8 @@ namespace G3D {
  } // namespace internal
 } // namespace G3D
 
-template <class Handle>
-struct GHashCode<typename G3D::_internal::Indirector<Handle> >
-{
-    size_t operator()(const G3D::_internal::Indirector<Handle>& key) const { return key.hashCode(); }
+template <class Handle> struct HashTrait<typename G3D::_internal::Indirector<Handle> > {
+    static size_t hashCode(const G3D::_internal::Indirector<Handle>& key) { return key.hashCode(); }
 };
 
 namespace G3D {

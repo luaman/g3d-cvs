@@ -128,14 +128,14 @@
     }
 
 #define G3D_DECLARE_ENUM_CLASS_HASHCODE(Classname)\
-template <> struct GHashCode<Classname::Value>                                              \
+template <> struct HashTrait<Classname::Value>                                              \
 {                                                                                           \
-    size_t operator()(Classname::Value key) const { return static_cast<size_t>(key); }      \
+    static size_t hashCode(Classname::Value key) { return static_cast<size_t>(key); }       \
 };                                                                                          \
                                                                                             \
-template <> struct GHashCode<Classname>                                                     \
+template <> struct HashTrait<Classname>                                                     \
 {                                                                                           \
-    size_t operator()(Classname key) const { return static_cast<size_t>(key.hashCode()); }  \
+    static size_t hashCode(Classname key) { return static_cast<size_t>(key.hashCode()); }   \
 };
 
 #endif

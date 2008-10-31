@@ -62,8 +62,8 @@ public:
 } // G3D 
 
 /** For Table and Set */
-template<> struct GHashCode<class G3D::GUniqueID> {
-    size_t operator()(G3D::GUniqueID id) const { return (size_t)(G3D::uint64)id; }
+template<> struct HashTrait<class G3D::GUniqueID> {
+    static size_t hashCode(G3D::GUniqueID id) { return (size_t)(G3D::uint64)id; }
 };
 
 #endif

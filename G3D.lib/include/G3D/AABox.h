@@ -272,10 +272,8 @@ public:
 
 }
 
-template <>
-struct GHashCode<G3D::AABox>
-{
-    size_t operator()(const G3D::AABox& key) const { return key.hashCode(); }
+template <> struct HashTrait<G3D::AABox> {
+    static size_t hashCode(const G3D::AABox& key) { return key.hashCode(); }
 };
 
 

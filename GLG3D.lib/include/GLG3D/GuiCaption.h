@@ -13,10 +13,8 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/GFont.h"
 
-template <>
-struct GHashCode<G3D::GFontRef>
-{
-    size_t operator()(const G3D::GFontRef& key) const { return reinterpret_cast<size_t>(key.pointer()); }
+template <> struct HashTrait<G3D::GFontRef> {
+    static size_t hashCode(const G3D::GFontRef& key) { return reinterpret_cast<size_t>(key.pointer()); }
 };
 
 namespace G3D {

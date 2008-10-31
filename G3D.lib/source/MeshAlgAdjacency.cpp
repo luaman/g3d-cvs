@@ -54,11 +54,8 @@ public:
 
 }
 
-template<>
-struct GHashCode<G3D::MeshDirectedEdgeKey>
-{
-    size_t operator()(const G3D::MeshDirectedEdgeKey& key) const
-    { 
+template<> struct HashTrait<G3D::MeshDirectedEdgeKey> {
+    static size_t hashCode(const G3D::MeshDirectedEdgeKey& key) { 
         return key.vertexIndex[0] + (key.vertexIndex[1] << 16);
     }
 };

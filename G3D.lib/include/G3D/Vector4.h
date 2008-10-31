@@ -700,10 +700,8 @@ inline float Vector4::squaredLength() const {
 
 }
 
-template <>
-struct GHashCode<G3D::Vector4>
-{
-    size_t operator()(const G3D::Vector4& key) const { return key.hashCode(); }
+template <> struct HashTrait<G3D::Vector4> {
+    static size_t hashCode(const G3D::Vector4& key) { return key.hashCode(); }
 };
 
 inline G3D::Vector4 operator* (float s, const G3D::Vector4& v) {

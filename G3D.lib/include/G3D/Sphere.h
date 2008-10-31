@@ -133,11 +133,8 @@ public:
 
 }
 
-template <>
-struct GHashCode<G3D::Sphere>
-{
-    size_t operator()(const G3D::Sphere& key) const
-    { 
+template <> struct HashTrait<G3D::Sphere> {
+    static size_t hashCode(const G3D::Sphere& key) { 
         return static_cast<size_t>(key.center.hashCode() + (key.radius * 13));
     }
 };

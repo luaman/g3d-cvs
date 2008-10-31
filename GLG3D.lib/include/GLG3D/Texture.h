@@ -725,10 +725,8 @@ private:
 
 } // namespace
 
-template <>
-struct GHashCode<G3D::Texture::Settings>
-{
-    size_t operator()(const G3D::Texture::Settings& key) const { return key.hashCode(); }
+template <> struct HashTrait<G3D::Texture::Settings> {
+    static size_t hashCode(const G3D::Texture::Settings& key) { return key.hashCode(); }
 };
 
 

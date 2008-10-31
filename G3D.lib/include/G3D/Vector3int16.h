@@ -14,6 +14,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
+#include "G3D/HashTrait.h"
 
 namespace G3D {
 
@@ -121,4 +122,9 @@ public:
 #endif
 
 }
+
+template <> struct HashTrait<G3D::Vector3int16> {
+    static size_t hashCode(const G3D::Vector3int16& key) { return static_cast<size_t>(key.x + ((int)key.y << 5) + ((int)key.z << 10)); }
+};
+
 #endif

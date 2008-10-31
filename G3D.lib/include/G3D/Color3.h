@@ -371,8 +371,7 @@ inline Color3 Color3::unitCross (const Color3& rkVector) const {
 } // namespace
 
 
-template <>
-struct HashTrait<G3D::Color3> {
+template <> struct HashTrait<G3D::Color3> {
     static size_t hashCode(const G3D::Color3& key) {
         return key.hashCode();
     }
