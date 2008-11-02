@@ -3,10 +3,10 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="zlib.lib"
-	ProjectGUID="{89C4AEDA-6125-4547-80FC-7734F84B4192}"
+	ProjectGUID="{A0F6F9E7-529E-4656-B11D-A3185A77E4C9}"
 	RootNamespace="zliblib"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -22,10 +22,11 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Copying zlib Headers"
 				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
@@ -43,13 +44,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				WholeProgramOptimization="false"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\zlib-vc90.pdb"
 				WarningLevel="0"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -103,7 +105,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\zlib.lib\source\crc32.h"
+				>
+			</File>
+			<File
 				RelativePath="..\zlib.lib\source\deflate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\deflate.h"
 				>
 			</File>
 			<File
@@ -119,7 +129,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\zlib.lib\source\inffast.h"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\inffixed.h"
+				>
+			</File>
+			<File
 				RelativePath="..\zlib.lib\source\inflate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\inflate.h"
 				>
 			</File>
 			<File
@@ -127,7 +149,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\zlib.lib\source\inftrees.h"
+				>
+			</File>
+			<File
 				RelativePath="..\zlib.lib\source\trees.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\trees.h"
 				>
 			</File>
 			<File
@@ -135,7 +165,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\zlib.lib\source\zconf.h"
+				>
+			</File>
+			<File
 				RelativePath="..\zlib.lib\source\zutil.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zlib.lib\source\zutil.h"
 				>
 			</File>
 		</Filter>
@@ -145,47 +183,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\zlib.lib\source\crc32.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\deflate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inffast.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inffixed.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inflate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\inftrees.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\trees.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\zconf.h"
-				>
-			</File>
-			<File
 				RelativePath="..\zlib.lib\include\zconf.h"
 				>
 			</File>
 			<File
 				RelativePath="..\zlib.lib\include\zlib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zlib.lib\source\zutil.h"
 				>
 			</File>
 		</Filter>

@@ -3,10 +3,10 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="jpeg.lib"
-	ProjectGUID="{68D6017C-F3C9-4BA0-ACD6-51055E4A5DBC}"
+	ProjectGUID="{4BEDD7F0-0EE2-42A5-9080-309D1F352D77}"
 	RootNamespace="jpeglib"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -22,10 +22,11 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Copying jpeg Headers"
 				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
@@ -42,13 +43,15 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				WholeProgramOptimization="false"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\jpeg-vc90.pdb"
 				WarningLevel="0"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 			/>
 			<Tool

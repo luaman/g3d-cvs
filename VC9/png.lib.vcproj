@@ -3,10 +3,10 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="png.lib"
-	ProjectGUID="{2F6ED6EF-D5ED-4C72-89D5-0CDE488A94DB}"
+	ProjectGUID="{681099BF-CEF2-40CC-A302-1E525D0FFFE5}"
 	RootNamespace="pnglib"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -22,10 +22,11 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Copying png Headers"
 				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
@@ -42,14 +43,16 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				WholeProgramOptimization="false"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\png-vc90.pdb"
 				WarningLevel="0"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

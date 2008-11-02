@@ -3,10 +3,10 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="G3D.lib"
-	ProjectGUID="{BD5838BA-4232-4141-A106-7EDA201ADDC5}"
+	ProjectGUID="{5C007A87-504A-4F1D-93DF-FEBA30F2AF26}"
 	RootNamespace="G3Dlib"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -22,10 +22,10 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Copying G3D Headers"
 				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
@@ -49,9 +49,9 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\G3D-vc90.pdb"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -88,10 +88,11 @@
 			IntermediateDirectory="$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Copying G3D Headers"
 				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include"
 			/>
 			<Tool
@@ -108,14 +109,15 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				WholeProgramOptimization="false"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="0"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\G3D-vc90.pdb"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -335,14 +337,6 @@
 			<File
 				RelativePath="..\G3D.lib\source\ImageFormat_convert.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						EnableEnhancedInstructionSet="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\G3D.lib\source\license.cpp"
@@ -539,6 +533,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\BoundsTrait.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Box.h"
 				>
 			</File>
@@ -656,10 +654,6 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\GLight.h"
-				>
-			</File>
-			<File
-				RelativePath="..\G3D.lib\include\G3D\graphics3D.h"
 				>
 			</File>
 			<File

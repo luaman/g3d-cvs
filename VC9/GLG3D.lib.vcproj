@@ -3,10 +3,10 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="GLG3D.lib"
-	ProjectGUID="{EAB70B08-2F00-4FE1-A444-2D3DD94BF449}"
+	ProjectGUID="{492FA428-5827-44C3-B7EA-2C2E4D23B911}"
 	RootNamespace="GLG3Dlib"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -22,12 +22,11 @@
 			IntermediateDirectory="&quot;$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)&#x0D;&#x0A;"
-				ExcludedFromBuild="false"
+				Description="Copying GLG3D Headers"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -50,9 +49,9 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\GLG3D-vc90.pdb"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -89,12 +88,12 @@
 			IntermediateDirectory="&quot;$(SolutionDir)..\temp\$(ProjectName)\$(ConfigurationName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="0"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)&#x0D;&#x0A;"
-				ExcludedFromBuild="false"
+				Description="Copying GLG3D Headers"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -110,13 +109,15 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				WholeProgramOptimization="false"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;;&quot;$(SolutionDir)..\ffmpeg\include&quot;;&quot;$(SolutionDir)..\c99util\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)\GLG3D-vc90.pdb"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -175,6 +176,14 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\BSPMAPLoad.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\CameraControlWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\CarbonWindow.cpp"
 				>
 			</File>
 			<File
@@ -346,6 +355,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\NSAutoreleasePoolWrapper.mm"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\OSWindow.cpp"
 				>
 			</File>
@@ -472,11 +485,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\CameraControlWindow.cpp"
+				RelativePath="..\GLG3D.lib\include\GLG3D\CameraControlWindow.h"
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\CameraControlWindow.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\CarbonWindow.h"
 				>
 			</File>
 			<File
@@ -572,7 +585,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GuiCheckbox.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiCheckBox.h"
 				>
 			</File>
 			<File
@@ -765,6 +778,26 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="Shaders"
+			>
+			<File
+				RelativePath="..\data-files\SuperShader\NonShadowedPass.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\NonShadowedPass.vrt"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.vrt"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="OpenGL Header Files"
 			>
 			<File
@@ -799,30 +832,6 @@
 				RelativePath="..\GLG3D.lib\include\GLG3D\GL\wglext.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Shaders"
-			>
-			<Filter
-				Name="SuperShader"
-				>
-				<File
-					RelativePath="..\data-files\SuperShader\NonShadowedPass.pix"
-					>
-				</File>
-				<File
-					RelativePath="..\data-files\SuperShader\NonShadowedPass.vrt"
-					>
-				</File>
-				<File
-					RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.pix"
-					>
-				</File>
-				<File
-					RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.vrt"
-					>
-				</File>
-			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
