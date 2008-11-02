@@ -45,6 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
@@ -103,6 +104,14 @@
 			<File
 				RelativePath="..\zlib.lib\source\crc32.c"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						WholeProgramOptimization="false"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\zlib.lib\source\crc32.h"
