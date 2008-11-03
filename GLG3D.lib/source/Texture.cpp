@@ -340,8 +340,9 @@ Texture::Ref Texture::fromFile(
     }
 
     for (int f = 0; f < numFaces; ++f) {
-
         image[f].load(realFilename[f]);
+        alwaysAssertM(image[f].width > 0, "Image not found");
+        alwaysAssertM(image[f].height > 0, "Image not found");
 
         if (image[f].channels == 4) {
             format = ImageFormat::RGBA8();

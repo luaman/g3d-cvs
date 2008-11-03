@@ -26,7 +26,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Copying GLG3D Headers"
-				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -93,7 +93,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Copying GLG3D Headers"
-				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)"
+				CommandLine="&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\$(InputName)\include $(OutDir)\..\include&#x0D;&#x0A;&quot;$(SolutionDir)..\bin\copyifnewer&quot; --exclusions $(SolutionDir)..\ffmpeg\lib\win32 $(OutDir)&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -111,6 +111,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;;&quot;$(SolutionDir)..\ffmpeg\include&quot;;&quot;$(SolutionDir)..\c99util\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"

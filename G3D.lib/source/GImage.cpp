@@ -486,6 +486,7 @@ void GImage::load(
             throw Error("File not found.", filename);
         }
 
+        alwaysAssertM(this != NULL, "Corrupt GImage");
         decode(b, resolveFormat(filename, b.getCArray(), b.size(), format));
     } catch (const std::string& error) {
         throw Error(error, filename);

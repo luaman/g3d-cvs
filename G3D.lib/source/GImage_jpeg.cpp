@@ -427,7 +427,7 @@ void GImage::decodeJPEG(
 		    break;
 
 	    default:
-		    throw Error("Unexpected number6 of channels.", input.getFilename());
+		    throw Error("Unexpected number of channels.", input.getFilename());
 	    }
 
 		loc += row_stride;
@@ -436,6 +436,7 @@ void GImage::decodeJPEG(
 	// Finish decompression
 	jpeg_finish_decompress(&cinfo);
 
+    alwaysAssertM(this, "Corrupt GImage");
 	// Release JPEG decompression object
 	jpeg_destroy_decompress(&cinfo);
 }
