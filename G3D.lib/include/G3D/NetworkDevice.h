@@ -95,11 +95,13 @@ public:
      waiting.
 
      One way to use this is to have a Table mapping message types to
-     pre-allocated NetMessage subclasses so receiving looks like:
+     pre-allocated subclasses so receiving looks like:
 
      <PRE>
          // My base class for messages.
-         class Message : public NetMessage {
+         class Message {
+             virtual void serialize(BinaryOutput&) const;
+             virtual void deserialize(BinaryInput&);
              virtual void process() = 0;
          };
 
@@ -108,7 +110,24 @@ public:
          m->process();
      </PRE>
 
-      Another is to simply SWITCH on the message type.
+      Another is to simply switch on the message type:
+
+      <pre>
+         switch (conduit->waitingMessageType()) {
+         case 0:
+            // No message
+            break;
+
+         case ENTITY_SPAWN_MSG:
+            {
+               EntitySpawnMsg m;
+               condiut->receive(m);
+               spawnEntity(m.id, m.position, m.modelID);
+            }
+            break;
+            ...
+         }
+      </pre>
      */
     virtual uint32 waitingMessageType() = 0;
 
