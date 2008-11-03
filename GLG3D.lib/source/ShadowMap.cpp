@@ -225,6 +225,7 @@ void ShadowMap::updateDepth(
                                   0.0f, 0.0f, 0.5f, 0.5f - biasDepth,
                                   0.0f, 0.0f, 0.0f, 1.0f);
 
+        m_biasedLightProjection = bias * m_lightProjection;
         m_biasedLightMVP = bias * m_lightMVP;
 
         // Avoid z-fighting
