@@ -156,66 +156,19 @@ public:
         CODEC_ID_LAST
     };
 
-    enum PixelFormat {
-        PIX_FMT_NONE= -1,
-        PIX_FMT_YUV420P,   ///< Planar YUV 4:2:0, 12bpp, (1 Cr & Cb sample per 2x2 Y samples)
-        PIX_FMT_YUYV422,   ///< Packed YUV 4:2:2, 16bpp, Y0 Cb Y1 Cr
-        PIX_FMT_RGB24,     ///< Packed RGB 8:8:8, 24bpp, RGBRGB...
-        PIX_FMT_BGR24,     ///< Packed RGB 8:8:8, 24bpp, BGRBGR...
-        PIX_FMT_YUV422P,   ///< Planar YUV 4:2:2, 16bpp, (1 Cr & Cb sample per 2x1 Y samples)
-        PIX_FMT_YUV444P,   ///< Planar YUV 4:4:4, 24bpp, (1 Cr & Cb sample per 1x1 Y samples)
-        PIX_FMT_RGB32,     ///< Packed RGB 8:8:8, 32bpp, (msb)8A 8R 8G 8B(lsb), in cpu endianness
-        PIX_FMT_YUV410P,   ///< Planar YUV 4:1:0,  9bpp, (1 Cr & Cb sample per 4x4 Y samples)
-        PIX_FMT_YUV411P,   ///< Planar YUV 4:1:1, 12bpp, (1 Cr & Cb sample per 4x1 Y samples)
-        PIX_FMT_RGB565,    ///< Packed RGB 5:6:5, 16bpp, (msb)   5R 6G 5B(lsb), in cpu endianness
-        PIX_FMT_RGB555,    ///< Packed RGB 5:5:5, 16bpp, (msb)1A 5R 5G 5B(lsb), in cpu endianness most significant bit to 0
-        PIX_FMT_GRAY8,     ///<        Y        ,  8bpp
-        PIX_FMT_MONOWHITE, ///<        Y        ,  1bpp, 0 is white, 1 is black
-        PIX_FMT_MONOBLACK, ///<        Y        ,  1bpp, 0 is black, 1 is white
-        PIX_FMT_PAL8,      ///< 8 bit with PIX_FMT_RGB32 palette
-        PIX_FMT_YUVJ420P,  ///< Planar YUV 4:2:0, 12bpp, full scale (jpeg)
-        PIX_FMT_YUVJ422P,  ///< Planar YUV 4:2:2, 16bpp, full scale (jpeg)
-        PIX_FMT_YUVJ444P,  ///< Planar YUV 4:4:4, 24bpp, full scale (jpeg)
-        PIX_FMT_XVMC_MPEG2_MC,///< XVideo Motion Acceleration via common packet passing(xvmc_render.h)
-        PIX_FMT_XVMC_MPEG2_IDCT,
-        PIX_FMT_UYVY422,   ///< Packed YUV 4:2:2, 16bpp, Cb Y0 Cr Y1
-        PIX_FMT_UYYVYY411, ///< Packed YUV 4:1:1, 12bpp, Cb Y0 Y1 Cr Y2 Y3
-        PIX_FMT_BGR32,     ///< Packed RGB 8:8:8, 32bpp, (msb)8A 8B 8G 8R(lsb), in cpu endianness
-        PIX_FMT_BGR565,    ///< Packed RGB 5:6:5, 16bpp, (msb)   5B 6G 5R(lsb), in cpu endianness
-        PIX_FMT_BGR555,    ///< Packed RGB 5:5:5, 16bpp, (msb)1A 5B 5G 5R(lsb), in cpu endianness most significant bit to 1
-        PIX_FMT_BGR8,      ///< Packed RGB 3:3:2,  8bpp, (msb)2B 3G 3R(lsb)
-        PIX_FMT_BGR4,      ///< Packed RGB 1:2:1,  4bpp, (msb)1B 2G 1R(lsb)
-        PIX_FMT_BGR4_BYTE, ///< Packed RGB 1:2:1,  8bpp, (msb)1B 2G 1R(lsb)
-        PIX_FMT_RGB8,      ///< Packed RGB 3:3:2,  8bpp, (msb)2R 3G 3B(lsb)
-        PIX_FMT_RGB4,      ///< Packed RGB 1:2:1,  4bpp, (msb)2R 3G 3B(lsb)
-        PIX_FMT_RGB4_BYTE, ///< Packed RGB 1:2:1,  8bpp, (msb)2R 3G 3B(lsb)
-        PIX_FMT_NV12,      ///< Planar YUV 4:2:0, 12bpp, 1 plane for Y and 1 for UV
-        PIX_FMT_NV21,      ///< as above, but U and V bytes are swapped
-
-        PIX_FMT_RGB32_1,   ///< Packed RGB 8:8:8, 32bpp, (msb)8R 8G 8B 8A(lsb), in cpu endianness
-        PIX_FMT_BGR32_1,   ///< Packed RGB 8:8:8, 32bpp, (msb)8B 8G 8R 8A(lsb), in cpu endianness
-
-        PIX_FMT_GRAY16BE,  ///<        Y        , 16bpp, big-endian
-        PIX_FMT_GRAY16LE,  ///<        Y        , 16bpp, little-endian
-        PIX_FMT_YUV440P,   ///< Planar YUV 4:4:0 (1 Cr & Cb sample per 1x2 Y samples)
-        PIX_FMT_YUVJ440P,  ///< Planar YUV 4:4:0 full scale (jpeg)
-        PIX_FMT_YUVA420P,  ///< Planar YUV 4:2:0, 20bpp, (1 Cr & Cb sample per 2x2 Y & A samples)
-        PIX_FMT_NB,        ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
-    };
-
     /** Constants for customFOURCC */
     enum {
-        /** FFMPEG broadly compatible format for MPG4  */
+        /** FFmpeg broadly compatible format for MPG4  */
         XVID_FOURCC = ('X' << 24) | ('V' << 16) | ('I' << 8) | ('D'),
 
-        /** Generic format for MPG4  */
+        /** FFmpeg internal codec specific format for MPG4  */
         FMP4_FOURCC = ('F' << 24) | ('M' << 16) | ('P' << 8) | ('4')
     };
 
     class Settings {
     public:
         
-        /** ffmpeg codec id */
+        /** FFmpeg codec id */
         CodecID         codec;
 
         /** Frames per second the video should be encoded as */
@@ -227,25 +180,29 @@ public:
         /** Frame height */
         int             height;
 
-        /** Stream avarage bits per second, if needed by the codec.*/
+        /** Stream avarage bits per second if needed by the codec.*/
         int             bitrate;
 
         /** Custom fourcc if the automatic fourcc for a codec needs to be changed
-            (eg. 'XVID' vs. 'FMP4' default) */
+            (eg. 'XVID' vs. 'FMP4' default)
+            (0 means not set) */
         int             customFOURCC;
 
         struct
         {
             /** Uncompressed pixel format used with raw codec */
-            PixelFormat format;
+            const ImageFormat*  format;
+
+            /** True if the input images must be inverted before encoding */
+            bool                invert;
         } raw;
 
         struct
         {
-            /** B-Frames if needed (0 means unused) */
+            /** Max number of B-Frames if needed by the codec */
             int         bframes;
 
-            /** GOP (Group of Pixtures) size if needed (0 means unused) */
+            /** GOP (Group of Pixtures) size if needed by the codec */
             int         gop;
         } mpeg;
 
@@ -307,7 +264,8 @@ protected:
     VideoOutput();
 
     void initialize(const std::string& filename, const Settings& settings);
-    void encodeAndWriteFrame(uint8* frame, PixelFormat frameFormat, bool invertY = false);
+    void encodeFrame(uint8* frame, const ImageFormat* format, bool invertY = false);
+    void convertFrame(uint8* frame, const ImageFormat* format, bool invertY);
 
     Settings            m_settings;
     std::string         m_filename;
@@ -329,7 +287,19 @@ protected:
     /** Used by append(RenderDevice) to hold the read-back frame.*/
     GImage              m_temp;
 
+    /** Used by convertImage() to hold temp frame. */
+    Array<uint8>        m_tempBuffer;
+
 public:
+
+    typedef ReferenceCountedPointer<VideoOutput> Ref;
+
+    /**
+       Video files have a file format and a codec.  VideoOutput
+       chooses the file format based on the filename's extension
+       (e.g., .avi creates an AVI file) and the codec based on Settings::codec
+     */
+    static Ref create(const std::string& filename, const Settings& settings);
 
     /** Tests each codec for whether it is supported on this operating system. */
     static void getSupportedCodecs(Array<CodecID>& c);
@@ -341,29 +311,13 @@ public:
     /** Returns a human readable name for the codec. */
     static const char* toString(CodecID c);
 
-    typedef ReferenceCountedPointer<VideoOutput> Ref;
-
-    /**
-       Video files have a file format and a codec.  VideoOutput
-       chooses the file format based on the filename's extension
-       (e.g., .avi creates an AVI file) and the codec based on Settings::codec
-     */
-    static Ref create(const std::string& filename, const Settings& settings);
-
-    inline const std::string& filename() const {
-        return m_filename;
-    }
-
     ~VideoOutput();
+
+    const std::string& filename() const { return m_filename; }
 
     void append(const Texture::Ref& frame); 
 
-    /** The image must have exactly three channels. 
-
-        @param invertY If true, the image is upside down and should be
-        flipped before saving.
-    */
-    void append(const GImage& frame, bool invertY = false); 
+    void append(const GImage& frame); 
 
     /** @brief Append the current frame on the RenderDevice to this
         video.  
@@ -389,9 +343,6 @@ public:
 
     /** Reserved for future use */ 
     void append(const Image4::Ref& frame); 
-
-    /** @param frame must match the settings width and height */
-    void append(uint8* frame, PixelFormat frameFormat); 
 
     /** Aborts writing video file and ends encoding */
     void abort();

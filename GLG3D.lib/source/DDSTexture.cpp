@@ -1,7 +1,7 @@
 /**
  @file DDSTexture.cpp
 
- @author Corey Taylor, laundrypowder@spamcop.net
+ @author Corey Taylor
 
  Notes:
  <UL>

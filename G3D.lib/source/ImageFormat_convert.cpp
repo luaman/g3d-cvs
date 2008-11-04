@@ -26,6 +26,8 @@ struct ConvertAttributes {
 // forward declare the converters we can use them below
 #define DECLARE_CONVERT_FUNC(name) static void name(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg);
 
+DECLARE_CONVERT_FUNC(l8_to_rgb8);
+DECLARE_CONVERT_FUNC(l32f_to_rgb8);
 DECLARE_CONVERT_FUNC(rgb8_to_rgba8);
 DECLARE_CONVERT_FUNC(rgb8_to_bgr8);
 DECLARE_CONVERT_FUNC(rgb8_to_rgba32f);
@@ -55,6 +57,12 @@ DECLARE_CONVERT_FUNC(yuv420p_to_rgb8);
 static const ConvertAttributes sConvertMappings[] = {
 
     // RGB -> RGB color space
+    // L8 ->
+    {l8_to_rgb8,        {ImageFormat::CODE_L8, ImageFormat::CODE_NONE},         {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE}, false, false, true},
+
+    // L32F ->
+    {l32f_to_rgb8,      {ImageFormat::CODE_L32F, ImageFormat::CODE_NONE},       {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE}, false, false, true},
+
     // RGB8 ->
     {rgb8_to_rgba8,     {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_RGBA8, ImageFormat::CODE_NONE}, false, false, true},
     {rgb8_to_bgr8,      {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_BGR8, ImageFormat::CODE_NONE}, false, false, true},
@@ -176,6 +184,45 @@ bool ImageFormat::convert(const Array<const void*>& srcBytes, int srcWidth, int 
 // *******************
 // RGB -> RGB color space conversions
 // *******************
+
+// L8 ->
+static void l8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    for (int y = 0; y < srcHeight; ++y) {
+        for (int x = 0; x < srcWidth; ++x) {
+            int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
+            int i3 = i * 3;
+
+            dst[i3 + 0] = src[i]; 
+            dst[i3 + 1] = src[i]; 
+            dst[i3 + 2] = src[i]; 
+        }
+    }
+}
+
+// L32F ->
+static void l32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    int srcIndex = 0;
+    int dstByteOffset = 0;
+    int dstRowPadBytes = 0;
+    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    const Color1* src = static_cast<const Color1*>(srcBytes[0]);
+
+    for (int y = 0; y < srcHeight; ++y) {
+        if (invertY) {
+            srcIndex = srcWidth * (srcHeight - y - 1);
+        }
+        
+        for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3) {
+            Color3uint8&  d = *reinterpret_cast<Color3uint8*>(dst + dstByteOffset);
+            const Color1& s = src[srcIndex];
+
+            uint8 c = iMin(255, iFloor(s.value * 256));
+            d = Color3uint8(c, c, c);
+        }
+    } 
+}
 
 // RGB8 ->
 static void rgb8_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
