@@ -205,9 +205,8 @@ static void l8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int src
 static void l32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     int srcIndex = 0;
     int dstByteOffset = 0;
-    int dstRowPadBytes = 0;
     uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const Color1* src = static_cast<const Color1*>(srcBytes[0]);
+    const float* src = static_cast<const float*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         if (invertY) {
@@ -216,9 +215,9 @@ static void l32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int s
         
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3) {
             Color3uint8&  d = *reinterpret_cast<Color3uint8*>(dst + dstByteOffset);
-            const Color1& s = src[srcIndex];
+            float s = src[srcIndex];
 
-            uint8 c = iMin(255, iFloor(s.value * 256));
+            uint8 c = iMin(255, iFloor(s * 256));
             d = Color3uint8(c, c, c);
         }
     } 

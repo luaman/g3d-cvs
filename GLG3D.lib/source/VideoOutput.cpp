@@ -18,7 +18,6 @@ namespace G3D {
 
 // conversion routine helper
 static PixelFormat ConvertImageFormatToPixelFormat(const ImageFormat* format);
-static void ConvertImageToFrame(const ImageFormat* imageFormat, void* source, PixelFormat pixelFormat, void* dest);
 
 VideoOutput::Settings::Settings(CodecID c, int w, int h, float f, int fourcc) :
     codec(c),

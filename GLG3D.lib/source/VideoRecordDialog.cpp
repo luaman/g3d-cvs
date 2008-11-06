@@ -38,8 +38,8 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_halfSize(false),
     m_enableMotionBlur(false),
     m_motionBlurFrames(10),
-    m_framesBox(NULL),
     m_screenshotPending(false),
+    m_framesBox(NULL),
     m_showCursor(false) {
 
     m_hotKey = GKey::F4;
