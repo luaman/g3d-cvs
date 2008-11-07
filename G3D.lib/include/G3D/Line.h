@@ -95,7 +95,7 @@ public:
 
     inline Vector3 closestPoint(const Line& B) const {
         float m;
-        return closestPoint(B);
+        return closestPoint(B, m);
     }
 };
 
