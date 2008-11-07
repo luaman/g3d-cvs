@@ -20,6 +20,7 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/HashTrait.h"
+#include "G3D/Color1.h"
 #include <string>
 
 namespace G3D {
@@ -202,6 +203,14 @@ public:
 
 inline G3D::Color3 operator* (float s, const G3D::Color3& c) {
     return c * s;
+}
+
+inline G3D::Color3 operator* (G3D::Color1& s, const G3D::Color3& c) {
+    return c * s.value;
+}
+
+inline G3D::Color3 operator* (const G3D::Color3& c, G3D::Color1& s) {
+    return c * s.value;
 }
 
 

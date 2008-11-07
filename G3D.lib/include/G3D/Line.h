@@ -83,6 +83,20 @@ public:
      is no intersection, returns a point at infinity.
      */
     Vector3 intersection(const Plane &plane) const;
+
+
+    /** Finds the closest point to the two lines.
+        
+        @param minDist Returns the minimum distance between the lines.
+
+        @cite http://objectmix.com/graphics/133793-coordinates-closest-points-pair-skew-lines.html
+    */
+    Vector3 closestPoint(const Line& B, float& minDist) const;
+
+    inline Vector3 closestPoint(const Line& B) const {
+        float m;
+        return closestPoint(B);
+    }
 };
 
 };// namespace
