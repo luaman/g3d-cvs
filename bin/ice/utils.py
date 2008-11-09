@@ -982,7 +982,7 @@ def listDirs(_dir = ''):
 """ Turns a string with paths separated by ; (or : on Linux) into
     a list of paths each ending in /."""
 def makePathList(paths):
-    if (os.name == 'posix'):
+    if os.name == 'posix':
         # Allow ':' as a separator between paths
         paths = paths.replace(':', ';')
         
@@ -990,9 +990,12 @@ def makePathList(paths):
 
 
 """ Ensures that every string in a list ends with a trailing slash,
-    is non-empty, and appears exactly once."""
+    is non-empty, and appears exactly once.
+
+    Preserves the order of the input list.
+    """
 def cleanPathList(paths):
-    out = {}
+    out = []
 
     for path in paths:
         # Strip surrounding quotes
@@ -1001,15 +1004,19 @@ def cleanPathList(paths):
         elif path.startswith('\'') and path.endswith('\''):
             path = path[1:-1]
             
-        if path == "":
+        if path == '':
             # do nothing
             0
-        elif path[-1] == "/":
-            out[path] = 1
         else:
-            out[path + "/"] = 1
+            # Append trailing slash
+            if path[-1] != '/':
+                path += '/'
 
-    return out.keys()
+            # Only add paths not already in the list
+            if not path in out:
+                out.append(path)
+
+    return out
 
 ##################################################################
 

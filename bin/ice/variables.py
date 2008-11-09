@@ -27,10 +27,13 @@ def _pathAppend(plist, newPath, checkForExist = False):
     if plist == None: plist = []
 
     if isinstance(newPath, list):
+        # This is a list of paths.  Append all of them
         for p in newPath:
             _pathAppend(plist, p, checkForExist)
 
     elif not newPath in plist:
+        # This is a single path that does not already appear in 
+        # the output list
         if not checkForExist or os.path.exists(newPath):
             plist.append(newPath)
         else:
@@ -358,6 +361,8 @@ class State:
     def includePaths(self):
         return self._includePaths
 
+    # Adds path (which can be a list or a single path) to the end
+    # of the library path list.
     def addLibraryPath(self, path):
         self._libraryPaths = _pathAppend(self._libraryPaths, path, True)
 
