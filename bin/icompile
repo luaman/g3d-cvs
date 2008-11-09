@@ -1033,7 +1033,14 @@ if __name__ == '__main__':
         printHelp()
         sys.exit(0)
 
+    launchDir = os.getcwd()
+    if not os.path.exists('ice.txt') and launchDir.endswith('/source') and os.path.exists('../ice.txt'):
+        # run from parent directory; icompile was run from within the source directory
+        os.chdir('..')
+    
     ret = icompile('.', sys.argv[1:])
+
+    os.chdir(launchDir)
 
     if (ice.utils.verbosity >= NORMAL) and doBeep:
         beep()

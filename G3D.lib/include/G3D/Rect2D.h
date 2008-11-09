@@ -4,9 +4,9 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2003-11-13
-  @created 2005-01-16
+  @created 2008-11-16
 
-  Copyright 2000-2005, Morgan McGuire.
+  Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
  */
 
@@ -238,6 +238,10 @@ public:
     }
 
     inline Rect2D operator/(float s) const {
+        return xyxy(min / s, max / s);
+    }
+
+    inline Rect2D operator/(const Vector2& s) const {
         return xyxy(min / s, max / s);
     }
 
