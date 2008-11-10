@@ -94,6 +94,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scratch", "scratch.vcproj",
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shader", "shader.vcproj", "{3CCA556D-7EEA-4026-8509-E7345E5A4FC0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{492FA428-5827-44C3-B7EA-2C2E4D23B911} = {492FA428-5827-44C3-B7EA-2C2E4D23B911}
+		{5C007A87-504A-4F1D-93DF-FEBA30F2AF26} = {5C007A87-504A-4F1D-93DF-FEBA30F2AF26}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "starter", "starter.vcproj", "{83274861-7246-489E-8316-5BFE7A02C31B}"
 	ProjectSection(ProjectDependencies) = postProject
