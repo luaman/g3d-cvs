@@ -307,14 +307,14 @@ public:
 /** 2D scroll event structure **/
 class MouseScroll2DEvent { 
 public:
-    /** GEventType::MOUSE_SCROLL_2D **/
+    /** GEventType::MOUSE_SCROLL_2D */
     uint8 type;
 	
-    /** The mouse device index **/
+    /** The mouse device index */
     uint8 which;
 	
-    /** The change in x and y directions of scroll **/
-    uint16 dx, dy; /*Change in pixels x and y*/ 
+    /** The change in x and y directions of scroll */
+    int16 dx, dy; 
 };
 
 
