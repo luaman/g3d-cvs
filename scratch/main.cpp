@@ -25,6 +25,7 @@ public:
     SkyRef              sky;
     BSPMapRef           map;
     VideoOutput::Ref    video;
+	ArticulatedModelRef model;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -54,15 +55,6 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 void App::onInit() {
 
-    {
-        Array<std::string> s;
-        VideoOutput::getSupportedCodecs(s);
-        printf ("Supported Codecs:\n");
-        for (int i = 0; i < s.size(); ++i) {
-            debugPrintf("  %s\n", s[i].c_str());
-        }
-    }
-
     setDesiredFrameRate(60);
 
 //	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
@@ -70,6 +62,7 @@ void App::onInit() {
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
+	model = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"));
 
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -162,7 +155,7 @@ void App::printConsoleHelp() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
-
+	model->pose(posed3D);
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {

@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2002-07-09
-  @edited  2008-10-01
+  @edited  2008-11-01
 
   Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
@@ -21,6 +21,7 @@
 #include "G3D/Vector2.h"
 #include "G3D/Table.h"
 #include "G3D/HashTrait.h"
+#include "G3D/PositionTrait.h"
 #include <string>
 
 namespace G3D {
@@ -702,6 +703,11 @@ inline float Vector4::squaredLength() const {
 
 template <> struct HashTrait<G3D::Vector4> {
     static size_t hashCode(const G3D::Vector4& key) { return key.hashCode(); }
+};
+
+
+template<> struct PositionTrait<class G3D::Vector4> {
+    static void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
 };
 
 inline G3D::Vector4 operator* (float s, const G3D::Vector4& v) {

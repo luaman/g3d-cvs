@@ -273,6 +273,16 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
     float texCoordWeldRadius   = 0.0001f;
     float normalWeldRadius     = 0.01f;
 
+static void G3D::MeshAlg::weld  	(  	Array< Vector3 > &   	 vertices,
+		Array< Vector2 > &  	textureCoords,
+		Array< Vector3 > &  	normals,
+		Array< int > &  	indices,
+		float  	normalSmoothingAngle = toRadians(70.0f),
+		float  	vertexWeldRadius = 0.0001f,
+		float  	textureWeldRadius = 0.0001f,
+		float  	normalWeldRadius = 0.01f	 
+	) 	
+
     MeshAlg::weld(geometry, texCoordArray, indexArray, oldToNewIndex, recomputeNormals, 
                   normalSmoothingAngle, vertexWeldRadius, texCoordWeldRadius, normalWeldRadius);
 
@@ -305,6 +315,8 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
             faceArray,
             tangentArray,
             empty);
+    } else {
+        tangentArray.clear();
     }
 }
 
@@ -349,6 +361,7 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
         texCoord0VAR = VAR(texCoordArray, varArea);
     }
 }
+
 
 void ArticulatedModel::Part::computeBounds() {
     for (int t = 0; t < triListArray.size(); ++t) {

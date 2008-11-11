@@ -657,7 +657,8 @@ public:
             if (other.m_isEnd && m_isEnd) {
                 return false;
             } else {
-                return (m_isEnd         != other.m_isEnd) ||
+                return 
+                    (m_isEnd         != other.m_isEnd) ||
                     (m_sphere        != other.m_sphere) ||
                     (m_boxIterator   != other.m_boxIterator);
             }
@@ -699,8 +700,7 @@ public:
         Finds all values whose positions are within @a sphere.  It is an error
         to mutate the HashGrid while iterating through it.
     */
-    SphereIterator beginSphereIntersection(
-                                           const Sphere& sphere) const {
+    SphereIterator beginSphereIntersection(const Sphere& sphere) const {
         return SphereIterator(this, sphere);
     }
 

@@ -3,10 +3,10 @@
  
   3D vector class
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-06-02
-  @edited  2008-10-01
+  @edited  2008-11-01
   Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
  */
@@ -19,6 +19,8 @@
 #include "G3D/Vector2.h"
 #include "G3D/Table.h"
 #include "G3D/HashTrait.h"
+#include "G3D/PositionTrait.h"
+#include "G3D/Vector2.h"
 #include <iostream>
 #include <string>
 
@@ -746,6 +748,14 @@ struct HashTrait<G3D::Vector3> {
     }
 };
 
+
+template<> struct PositionTrait<class G3D::Vector2> {
+    static void getPosition(const G3D::Vector2& v, G3D::Vector3& p) { p = G3D::Vector3(v, 0); }
+};
+
+template<> struct PositionTrait<class G3D::Vector3> {
+    static void getPosition(const G3D::Vector3& v, G3D::Vector3& p) { p = v; }
+};
 
 
 #endif

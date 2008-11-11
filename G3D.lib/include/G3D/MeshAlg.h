@@ -529,29 +529,37 @@ public:
     /**
      Mutates geometry, texCoord, and indexArray so that the output has collocated vertices collapsed (welded).
 
-     Let v be the vertex array before weld and v' be the vertex array after welding.  The index conversion array is:
-
-     <pre>
-       v[i] == v'[ oldToNewIndex[i] ]
-     </pre>
-
-     If you are converting an index array itself, then:
-
-     <pre>
-       index'[j] == oldToNewIndex[ index[j]  ]
-     </pre>
-
+     @param vertices Input and output
+     @param textureCoords Input and output
+     @param normals Output only
+     @param indices Input and output. This is an array of trilist indices. 
+     @param oldToNewIndex Output argument
      @param normalSmoothingAngle Varies from 0 (flat shading) to toRadians(180) for extremely smooth shading. Default is toRadians(70)
      */
     static void weld(
         Array<Vector3>&     vertices,
         Array<Vector2>&     textureCoords, 
         Array<Vector3>&     normals,
-        Array<int>&         indices,
+        Array<Array<int>*>& indices,
         float               normalSmoothingAngle = toRadians(70.0f),
         float               vertexWeldRadius   = 0.0001f,
         float               textureWeldRadius = 0.0001f,
         float               normalWeldRadius = 0.01f);
+
+    inline static void weld(
+        Array<Vector3>&     vertices,
+        Array<Vector2>&     textureCoords, 
+        Array<Vector3>&     normals,
+        Array<int>&         indices,
+        float               normalSmoothingAngle = toRadians(70.0f),
+        float               vertexWeldRadius   = 0.0002f,
+        float               textureWeldRadius  = 0.00001f,
+        float               normalWeldRadius   = 0.00001f) {
+
+        Array<Array<int>*> meta;
+        meta.append(&indices);
+        weld(vertices, textureCoords, normals, meta, normalSmoothingAngle, vertexWeldRadius, textureWeldRadius, normalWeldRadius);
+    }
 
     /**
      In debug mode, asserts that the adjacency references between the

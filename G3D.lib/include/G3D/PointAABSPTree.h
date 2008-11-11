@@ -27,22 +27,9 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
 #include "G3D/GCamera.h"
+#include "G3D/PositionTrait.h"
 #include <algorithm>
 
-template<typename Value>
-struct PositionTrait{};
-
-template<> struct PositionTrait<class G3D::Vector3> {
-    static void getPosition(const G3D::Vector3& v, G3D::Vector3& p) { p = v; }
-};
-
-template<> struct PositionTrait<class G3D::Vector2> {
-    static void getPosition(const G3D::Vector2& v, G3D::Vector3& p) { p = G3D::Vector3(v, 0); }
-};
-
-template<> struct PositionTrait<class G3D::Vector4> {
-    static void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
-};
 
 ///////////////////////////////////////////////////////
 

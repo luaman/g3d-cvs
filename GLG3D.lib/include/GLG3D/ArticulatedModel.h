@@ -235,11 +235,7 @@ public:
         /** Index into the part array of the parent.  If -1, this is a root node. */
         int                         parent;
 
-        /** All faces described in the triListArray as an indexed triangle list.  
-            Used for updateNormals and rendering without materials. 
-            Call computeIndexArray to update this automatically from the triListArray (which
-            might be less efficient than computing it manually if there are split 
-            vertices) */
+        /** Union of the index arrays for all triLists. */
         Array<int>                  indexArray;
 
         inline Part() : parent(-1) {}
@@ -265,10 +261,13 @@ public:
             return geometry.vertexArray.size() > 0;
         }
 
-        /** When geometry.vertexArray has been changed, invoke to recompute
-            geometry.normalArray and the tangent array. The Part::indexArray must be
-            set before calling this.  If you compute the normals explicitly,
-            this routine does not need to be called.*/
+        /** Recomputes geometry.normalArray and tangentArray.
+
+            Invoke when geometry.vertexArray has been changed. 
+            Called from ArticulatedModel::updateAll().
+			
+			The Part::indexArray must be set before calling this
+            (e.g., by calling computeIndexArray())*/
         void computeNormalsAndTangentSpace();
 
         /** Called automatically by updateAll */
@@ -289,8 +288,16 @@ public:
      */
     Array<Part>                 partArray;
 
-    /** Update normals, GPU data, and shaders on all Parts.  If you modify Parts explicitly,
-        invoke this afterward to update dependent state. (slow)*/
+    /** 
+ 	 @brief Compute all mesh properties from a triangle soup of vertices with optional texture coordinates.
+
+     Weld vertices, (re)compute vertex normals and tangent space basis, upload data to the GPU data, 
+	 and update shaders on all Parts.  If you modify Part vertices explicitly, invoke this afterward 
+	 to update dependent state. 
+	
+     This process is fairly slow and is usually only invoked once, either internally by fromFile() when
+     the model is loaded, or explicitly by the programmer when a model is created procedurally.
+	*/
     void updateAll();
 
 private:
