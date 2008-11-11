@@ -145,15 +145,17 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
 
     userInput = new UserInput(_window);
 
-    defaultController->onUserInput(userInput);
-    defaultController->setMoveRate(10);
-    defaultController->setPosition(Vector3(0, 0, 4));
-    defaultController->lookAt(Vector3::zero());
-    defaultController->setActive(false);
-    defaultCamera.setPosition(defaultController->position());
-    defaultCamera.lookAt(Vector3::zero());
-    addWidget(defaultController);
-    setCameraManipulator(defaultController);
+    if (defaultController.notNull()) {
+        defaultController->onUserInput(userInput);
+        defaultController->setMoveRate(10);
+        defaultController->setPosition(Vector3(0, 0, 4));
+        defaultController->lookAt(Vector3::zero());
+        defaultController->setActive(false);
+        defaultCamera.setPosition(defaultController->position());
+        defaultCamera.lookAt(Vector3::zero());
+        addWidget(defaultController);
+        setCameraManipulator(defaultController);
+    }
  
     autoResize                  = true;
     showDebugText               = true;
@@ -193,7 +195,7 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         developerWindow = DeveloperWindow::create
             (this,
              defaultController, 
-             splineManipulator, 
+             splineManipulator,
              Pointer<Manipulator::Ref>(this, &GApp::cameraManipulator, &GApp::setCameraManipulator), 
              skin,
              console,
@@ -593,7 +595,9 @@ void GApp::beginRun() {
     onInit();
 
     // Move the controller to the camera's location
-    defaultController->setFrame(defaultCamera.coordinateFrame());
+    if (defaultController.notNull()) {
+        defaultController->setFrame(defaultCamera.coordinateFrame());
+    }
 
     now = System::time() - 0.001;
 }
@@ -694,7 +698,7 @@ void GApp::processGEventQueue() {
                     break;
 
                 case GKey::F2:
-                    if (fastSwitchCamera && developerWindow.isNull()) {
+                    if (fastSwitchCamera && developerWindow.isNull() && defaultController.notNull()) {
                         defaultController->setActive(! defaultController->active());
                         // Consume event
                         continue;

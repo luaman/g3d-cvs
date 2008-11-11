@@ -257,6 +257,14 @@ public:
     /**
        Allows first person (Quake game-style) control
        using the arrow keys or W,A,S,D and the mouse.
+
+       To disable, use:
+       <pre>
+       setCameraManipulator(NULL);
+       m_widgetManager->remove(defaultController);
+       defaultController = NULL;
+       </pre>
+
     */
     FirstPersonManipulatorRef       defaultController;
 
