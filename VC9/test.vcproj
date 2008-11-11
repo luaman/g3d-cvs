@@ -121,6 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
@@ -248,6 +249,10 @@
 			</File>
 			<File
 				RelativePath="..\test\tMeshAlgTangentSpace.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\test\tPointHashGrid.cpp"
 				>
 			</File>
 			<File

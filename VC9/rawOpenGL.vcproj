@@ -115,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\G3D.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"

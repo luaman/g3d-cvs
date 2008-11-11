@@ -119,6 +119,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\G3D.lib\include&quot;;&quot;$(ProjectDir)..\GLG3D.lib\include&quot;;&quot;$(ProjectDir)..\zlib.lib\include&quot;;&quot;$(ProjectDir)..\png.lib\include&quot;;&quot;$(ProjectDir)..\jpeg.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
