@@ -18,8 +18,8 @@
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/glcalls.h"
 
-#include <Carbon/Carbon.h>
-#include <CoreFoundation/CoreFoundation.h>
+//#include <Carbon/Carbon.h>
+//#include <CoreFoundation/CoreFoundation.h>
 
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
@@ -53,7 +53,7 @@ private:
     std::string	                _title;
 	
     /** Modifiers down on last key event */
-    GKeyMod lastMod;
+    GKeyMod                     lastMod;
 
     // Process to Front Initialization
     static bool                 _ProcessBroughtToFront;
@@ -86,11 +86,11 @@ private:
     
     class GJoyDevice {
     public:
-        IOHIDDeviceInterface **interface;   // interface to device, NULL = no interface
+        IOHIDDeviceInterface**       interface;   // interface to device, NULL = no interface
         
-        std::string product;		// name of product
-        long usage;					// usage page from IOUSBHID Parser.h which defines general usage
-        long usagePage;				// usage within above page from IOUSBHID Parser.h which defines specific usage
+        std::string product;		   // name of product
+        long usage;			   // usage page from IOUSBHID Parser.h which defines general usage
+        long usagePage;			   // usage within above page from IOUSBHID Parser.h which defines specific usage
         
         Array<GJoyElement> axis;
         Array<GJoyElement> button;
@@ -114,26 +114,26 @@ private:
     
     const bool		_createdWindow;
 
-	// Make Event Handlers Capable of Seeing Private Parts
-	friend pascal OSStatus _internal::OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-	friend pascal OSStatus _internal::OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-	friend pascal OSStatus _internal::OnAppQuit(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-	friend pascal OSStatus _internal::OnActivation(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-	friend pascal OSStatus _internal::OnDeactivation(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-	friend pascal OSStatus _internal::OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, void *userData);
-	friend pascal OSErr _internal::OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag);
-	friend void _internal::HIDCollectJoyElementsArrayHandler(const void *value, void *parameter);
-	
-	static EventTypeSpec _resizeSpec[];
-	static EventTypeSpec _closeSpec[];
-	static EventTypeSpec _appQuitSpec[];
-	static EventTypeSpec _aeSpec[];
-	static EventTypeSpec _activateSpec[];
-	static EventTypeSpec _deactivateSpec[];
-	static EventTypeSpec _deviceScrollSpec[];
-	
-	Array<GEvent>		_sizeEventInjects;
-	Array<std::string>	_droppedFiles;
+    // Make Event Handlers Capable of Seeing Private Parts
+    friend pascal OSStatus _internal::OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+    friend pascal OSStatus _internal::OnWindowClosed(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+    friend pascal OSStatus _internal::OnAppQuit(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+    friend pascal OSStatus _internal::OnActivation(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+    friend pascal OSStatus _internal::OnDeactivation(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+    friend pascal OSStatus _internal::OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, void *userData);
+    friend pascal OSErr _internal::OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag);
+    friend void _internal::HIDCollectJoyElementsArrayHandler(const void *value, void *parameter);
+    
+    static EventTypeSpec _resizeSpec[];
+    static EventTypeSpec _closeSpec[];
+    static EventTypeSpec _appQuitSpec[];
+    static EventTypeSpec _aeSpec[];
+    static EventTypeSpec _activateSpec[];
+    static EventTypeSpec _deactivateSpec[];
+    static EventTypeSpec _deviceScrollSpec[];
+    
+    Array<GEvent>		_sizeEventInjects;
+    Array<std::string>	_droppedFiles;
 
     void injectSizeEvent(int width, int height) {
         GEvent e;
@@ -148,17 +148,17 @@ private:
     void findJoysticks(UInt32 usagePage, UInt32 usage);
     bool enableJoysticks();
 	
-    // Called from all constructors
+    /** Called from all constructors */
     void init(WindowRef window, bool creatingShareWindow = false);
 	
     static std::auto_ptr<CarbonWindow> _shareWindow;
 	
     static void createShareWindow(GWindow::Settings s);
     
-    // Constructs from a new window
+    /** Constructs from a new window */
     explicit CarbonWindow(const GWindow::Settings& settings, bool creatingShareWindow = false);
     
-    // Constructs from an existing window
+    /** Constructs from an existing window */
     explicit CarbonWindow(const GWindow::Settings& settings, WindowRef window);
     
     CarbonWindow& operator=(const CarbonWindow& other);

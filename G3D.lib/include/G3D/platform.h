@@ -39,6 +39,10 @@
     #define G3D_LINUX
 #elif defined(__APPLE__)
     #define G3D_OSX
+
+   // Prevent OS X fp.h header from being included; it defines
+   // pi as a constant, which creates a conflict with G3D
+#define __FP__
 #else
     #error Unknown platform 
 #endif
