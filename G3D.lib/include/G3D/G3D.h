@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2001-08-25
- @edited  2008-05-01
+ @edited  2008-11-01
 
  Copyright 2000-2008, Morgan McGuire.
  All rights reserved.
@@ -106,6 +106,7 @@ template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/ThreadSet.h"
 #include "G3D/RegistryUtil.h"
 #include "G3D/AnyVal.h"
+#include "G3D/PointHashGrid.h"
 #include "G3D/Map2D.h"
 #include "G3D/Image1.h"
 #include "G3D/Image1uint8.h"

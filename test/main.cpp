@@ -106,6 +106,11 @@ void testGThread();
 
 void testfilter();
 
+
+void testPointHashGrid();
+void perfPointHashGrid();
+
+
 void testTableTable() {
 
     // Test making tables out of tables
@@ -588,6 +593,8 @@ int main(int argc, char* argv[]) {
 
         perfBinaryIO();
 
+        perfPointHashGrid();
+
 
         measureMemsetPerformance();
         measureNormalizationPerformance();
@@ -710,6 +717,8 @@ int main(int argc, char* argv[]) {
     testSwizzle();
 
     testCallback();
+
+    testPointHashGrid();
 
     testBinaryIO();
 
