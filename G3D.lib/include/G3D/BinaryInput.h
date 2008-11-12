@@ -172,7 +172,7 @@ public:
 
         BinaryInput subset(master.getCArray() + master.getPosition(), 
                            master.length() - master.getPosition(),
-                           true, true);
+                           master.endian(), true, true);
 
         // Now read from subset (it is ok for master to go out of scope)
      </PRE>
@@ -190,6 +190,10 @@ public:
         interpretation of the file for future read calls; the
         underlying data is unmodified.*/
     void setEndian(G3DEndian endian);
+
+    G3DEndian endian() const {
+        return m_fileEndian;
+    }
 
     std::string getFilename() const {
         return m_filename;

@@ -50,40 +50,42 @@ namespace G3D {
  */
 class BinaryOutput {
 private:
-    std::string     filename;
+    std::string     m_filename;
 
-    bool            committed;
+    bool            m_committed;
 
     /** 0 outside of beginBits...endBits, 1 inside */
-    int             beginEndBits;
+    int             m_beginEndBits;
 
     /** The current string of bits being built up by beginBits...endBits.
         This string is treated semantically, as if the lowest bit was
         on the left and the highest was on the right.*/
-    int8            bitString;
+    int8            m_bitString;
 
     /** Position (from the lowest bit) currently used in bitString.*/
-    int             bitPos;
+    int             m_bitPos;
 
     // True if the file endianess does not match the machine endian
-    bool            swapBytes;
+    bool            m_swapBytes;
 
-    uint8*          buffer;
+    G3DEndian       m_fileEndian;
+
+    uint8*          m_buffer;
     
     /** Size of the elements used */
-    int             bufferLen;
+    int             m_bufferLen;
 
     /** Underlying size of memory allocaded */
-    int             maxBufferLen;
+    int             m_maxBufferLen;
 
     /** Next byte in file */
-    int             pos;
+    int             m_pos;
 
     /** is this initialized? */
-    bool            init;
+    bool            m_init;
 
     /** Number of bytes already written to the file.*/
-    size_t          alreadyWritten;             
+    size_t          m_alreadyWritten;             
 
     bool            m_ok;
 
@@ -97,10 +99,10 @@ private:
      */
     inline void reserveBytes(int bytes) {
         debugAssert(bytes > 0);
-        size_t oldBufferLen = (size_t)bufferLen;
+        size_t oldBufferLen = (size_t)m_bufferLen;
 
-        bufferLen = iMax(bufferLen, (pos + bytes));
-        if (bufferLen > maxBufferLen) {
+        m_bufferLen = iMax(m_bufferLen, (m_pos + bytes));
+        if (m_bufferLen > m_maxBufferLen) {
             reallocBuffer(bytes, oldBufferLen);
         }
     }
@@ -146,13 +148,17 @@ public:
      Returns a pointer to the internal memory buffer.
      */
     inline const uint8* getCArray() const {
-        return buffer;
+        return m_buffer;
     }
 
     void setEndian(G3DEndian fileEndian);
 
+    G3DEndian endian() const {
+        return m_fileEndian;
+    }
+
     std::string getFilename() const {
-        return filename;
+        return m_filename;
     }
 
     /**
@@ -185,7 +191,7 @@ public:
 
 
     inline int length() const {
-        return (int)bufferLen + (int)alreadyWritten;
+        return (int)m_bufferLen + (int)m_alreadyWritten;
     }
 
     inline int size() const {
@@ -202,17 +208,17 @@ public:
      than its current length.
      */
     inline void setLength(int n) {
-        n = n - (int)alreadyWritten;
+        n = n - (int)m_alreadyWritten;
 
         if (n < 0) {
             throw "Cannot resize huge files to be shorter.";
         }
 
-        if (n < bufferLen) {
-            pos = n;
+        if (n < m_bufferLen) {
+            m_pos = n;
         }
-        if (n > bufferLen) {
-            reserveBytes(n - bufferLen);
+        if (n > m_bufferLen) {
+            reserveBytes(n - m_bufferLen);
         }
     }
 
@@ -221,7 +227,7 @@ public:
      where 0 is the beginning and getLength() - 1 is the end.
      */
     inline int64 position() const {
-        return (int64)pos + (int64)alreadyWritten;
+        return (int64)m_pos + (int64)m_alreadyWritten;
     }
 
 
@@ -233,17 +239,17 @@ public:
      May throw a char* exception when seeking backwards on a huge file.
      */
     inline void setPosition(int64 p) {
-        p = p - (int64)alreadyWritten;
+        p = p - (int64)m_alreadyWritten;
 
-        if (p > bufferLen) {
-            setLength((int)(p + (int64)alreadyWritten));
+        if (p > m_bufferLen) {
+            setLength((int)(p + (int64)m_alreadyWritten));
         }
 
         if (p < 0) {
             throw "Cannot seek more than 10 MB backwards on huge files.";
         }
 
-        pos = (int)p;
+        m_pos = (int)p;
     }
 
 
@@ -252,10 +258,10 @@ public:
         int                 count) {
 
         reserveBytes(count);
-        debugAssert(pos >= 0);
-        debugAssert(bufferLen >= count);
-        System::memcpy(buffer + pos, b, count);
-        pos += count;
+        debugAssert(m_pos >= 0);
+        debugAssert(m_bufferLen >= count);
+        System::memcpy(m_buffer + m_pos, b, count);
+        m_pos += count;
     }
 
     /**
@@ -263,8 +269,8 @@ public:
      */
     inline void writeInt8(int8 i) {
         reserveBytes(1);
-        buffer[pos] = *(uint8*)&i;
-        pos++;
+        m_buffer[m_pos] = *(uint8*)&i;
+        m_pos++;
     }
 
     inline void writeBool8(bool b) {
@@ -273,8 +279,8 @@ public:
 
     inline void writeUInt8(uint8 i) {
         reserveBytes(1);
-        buffer[pos] = i;
-        pos++;
+        m_buffer[m_pos] = i;
+        m_pos++;
     }
 
     void writeUInt16(uint16 u);
@@ -286,7 +292,7 @@ public:
     void writeUInt32(uint32 u);
 
     inline void writeInt32(int32 i) {
-        debugAssert(beginEndBits == 0);
+        debugAssert(m_beginEndBits == 0);
         writeUInt32(*(uint32*)&i);
     }
 
@@ -297,7 +303,7 @@ public:
     }
 
     inline void writeFloat32(float32 f) {
-        debugAssert(beginEndBits == 0);
+        debugAssert(m_beginEndBits == 0);
         union {
             float32 a;
             uint32 b;
@@ -359,10 +365,10 @@ public:
      Skips ahead n bytes.
      */
     inline void skip(int n) {
-        if (pos + n > bufferLen) {
-            setLength((int)pos + (int)alreadyWritten + n);
+        if (m_pos + n > m_bufferLen) {
+            setLength((int)m_pos + (int)m_alreadyWritten + n);
         }
-        pos += n;
+        m_pos += n;
     }
 
     /** Call before a series of BinaryOutput::writeBits calls. Only writeBits 
