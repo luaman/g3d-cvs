@@ -188,7 +188,7 @@ void testPointHashGrid() {
     vec3Array.append(Vector3(0.0, 1.0, 1.0));
     vec3Array.append(Vector3(1.0, 1.0, 1.0));
 
-    PointHashGrid<Vector3> grid;
+    PointHashGrid<Vector3> grid(0.5f);
 
     // Test insert - one element
     for(int i = 0; i < vec3Array.size(); ++i) {

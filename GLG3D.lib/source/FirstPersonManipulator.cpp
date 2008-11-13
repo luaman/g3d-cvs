@@ -32,7 +32,7 @@ FirstPersonManipulator::FirstPersonManipulator() :
 
 
 void FirstPersonManipulator::getFrame(CoordinateFrame& c) const {
-	c.translation = m_translation;
+    c.translation = m_translation;
     c.rotation = Matrix3::fromEulerAnglesZYX(0, -m_yaw, -m_pitch);
 
     debugAssert(isFinite(c.rotation[0][0]));
@@ -48,9 +48,9 @@ void FirstPersonManipulator::getFrame(CoordinateFrame& c) const {
 
 
 CoordinateFrame FirstPersonManipulator::frame() const {
-	CoordinateFrame c;
-	getFrame(c);
-	return c;
+    CoordinateFrame c;
+    getFrame(c);
+    return c;
 }
 
 
@@ -102,6 +102,7 @@ void FirstPersonManipulator::reset() {
 #   endif
 }
 
+
 bool FirstPersonManipulator::rightDown(UserInput* ui) const {
 #   ifdef G3D_OSX
        return 
@@ -117,11 +118,16 @@ bool FirstPersonManipulator::rightDown(UserInput* ui) const {
 #   endif
 }
 
+
 void FirstPersonManipulator::setActive(bool a) {
     if (m_active == a) {
         return;
     }
     m_active = a;
+
+    debugAssertM(m_userInput == NULL, 
+                 "Cannot call FirstPersonManipulator::setActive() before the WidgetManager"
+                 " has called onUserInput (i.e., cannot call setActive on the first frame)");
 
     switch (m_mouseMode) {
     case MOUSE_DIRECT:
