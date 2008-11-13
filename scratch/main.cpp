@@ -62,9 +62,9 @@ void App::onInit() {
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
-	model = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"));
+	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
-    skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
+    skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
 
     // This simple demo has no shadowing, so make all lights unshadowed
@@ -174,6 +174,14 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     //    Draw::box(map->bounds(), rd);
     }
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+
+    /*
+    // Show normals
+    for (int i = 0; i < posed3D.size(); ++i) {
+        rd->setObjectToWorldMatrix(posed3D[i]->coordinateFrame());
+        Draw::vertexNormals(posed3D[i]->objectSpaceGeometry(), rd);
+    }
+    */
 
     sky->renderLensFlare(rd, localSky);
 

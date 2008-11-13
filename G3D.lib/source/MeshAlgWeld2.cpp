@@ -94,13 +94,29 @@ private:
     int getIndex(const Vector3& v, const Vector3& n, const Vector2& t) {
         PointHashGrid<VNTi>::SphereIterator it = 
                 weldGrid.beginSphereIntersection(Sphere(v, vertexWeldRadius));
-        while (it.hasMore()) {
-            if (((n - it->normal).squaredLength() <= normalWeldRadius2) &&
-                ((t - it->texCoord).squaredLength() <= texCoordWeldRadius2)) {
-                // This is the vertex
-                return it->index;
+
+        if (n.isZero()) {
+            // Don't bother trying to match the surface normal, since this vertex has no surface normal.
+            while (it.hasMore()) {
+                if ((t - it->texCoord).squaredLength() <= texCoordWeldRadius2) {
+                    // This is the vertex
+                    return it->index;
+                }
+                ++it;
+            }
+        } else {
+            while (it.hasMore()) {
+                if (((n - it->normal).squaredLength() <= normalWeldRadius2) &&
+                    ((t - it->texCoord).squaredLength() <= texCoordWeldRadius2)) {
+                    // This is the vertex
+                    return it->index;
+                }
+                ++it;
             }
         }
+
+        // Note that a sliver triangle processed before its neighbors may reach here
+        // with a zero length normal.
 
         // The vertex does not exist. Create it.
         const int i = outputVertexArray->size();
@@ -142,6 +158,16 @@ private:
             for (int v = 0; v < triList.size(); ++v) {
                 // This vertex mapped to u in the flatVertexArray
                 triList[v] = getIndex(vertexArray[u], normalArray[u], texCoordArray[u]);
+
+                /*
+#           ifdef G3D_DEBUG
+            {
+                int i = triList[v];
+                Vector3 N = normalArray[i];
+                debugAssertM(N.length() > 0.9f, "Produced non-unit normal");
+            }
+#           endif
+            */
                 ++u;
             }
         }
@@ -168,7 +194,9 @@ private:
         }
     }
 
-    /** For every three vertices, compute the face normal and store it three times. */
+    /** For every three vertices, compute the face normal and store it three times.
+        Sliver triangles have a zero surface normal, which we will later take to
+        match *any* surface normal. */
     void computeFaceNormals(
         const Array<Vector3>&  vertexArray, 
         Array<Vector3>&        faceNormalArray) {
@@ -205,7 +233,7 @@ private:
         smoothNormalArray.resize(normalArray.size());
 
         // Compute a hash grid so that we can find neighbors quickly.
-        PointHashGrid<VN> grid;
+        PointHashGrid<VN> grid(vertexWeldRadius);
         for (int v = 0; v < normalArray.size(); ++v) {
             grid.insert(VN(vertexArray[v], normalArray[v]));
         }
@@ -228,14 +256,21 @@ private:
                     // This normal is close enough to consider
                     sum += N;
                 }
+                ++it;
             }
 
-            if (sum.isZero()) {
-                // Avoid divide by zero and use old normal
+            const Vector3& average = sum.directionOrZero();
+
+            const bool indeterminate = average.isZero();
+            // Never "smooth" a normal so far that it points backwards
+            const bool backFacing    = original.dot(average) < 0;
+
+            if (indeterminate || backFacing) {
+                // Revert to the face normal
                 smoothNormalArray[v] = original;
             } else {
                 // Average available normals
-                smoothNormalArray[v] = sum.direction();
+                smoothNormalArray[v] = average;
             }
         }
     }
@@ -263,12 +298,10 @@ public:
         Array<Vector3>&     normalArray,
         Array<Array<int>*>& indexArrayArray,
         float               normAngle,
-        float               vertRadius,
         float               texRadius,
         float               normRadius) {
 
         normalSmoothingAngle = normAngle;
-        vertexWeldRadius     = vertRadius;
         normalWeldRadius2    = square(normRadius);
         texCoordWeldRadius2  = square(texRadius);
 
@@ -318,6 +351,11 @@ public:
             texCoordArray.resize(0);
         }
     }
+
+    WeldHelper(float vertRadius) :
+        weldGrid(vertRadius),
+        vertexWeldRadius(vertRadius) {}
+
 };
 } // Internal
 
@@ -331,9 +369,9 @@ void MeshAlg::weld(
     float               textureWeldRadius,
     float               normalWeldRadius) {
 
-    _internal::WeldHelper().process(
+    _internal::WeldHelper(vertexWeldRadius).process(
         vertexArray, texCoordArray, normalArray, indexArrayArray, 
-        normalSmoothingAngle, vertexWeldRadius, textureWeldRadius, normalWeldRadius);
+        normalSmoothingAngle, textureWeldRadius, normalWeldRadius);
 }
 
 } // G3D

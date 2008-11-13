@@ -153,7 +153,7 @@ public:
         beginSphereIntersection and beginBoxIntersection. If two <i>Value</i>s are equal,
         their positions must be within this radius as well.
     */
-    PointHashGrid(float radiusHint = 0.5f) : m_size(0) {
+    PointHashGrid(float radiusHint) : m_size(0) {
         initOffsetArray();
 
         debugAssertM(radiusHint > 0, "Cell radius must be positive");

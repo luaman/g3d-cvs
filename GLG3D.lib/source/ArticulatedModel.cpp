@@ -263,58 +263,49 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
 
 
 void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
-    /*
-    Buggy; 
 
-    Array<int> oldToNewIndex;
-    bool recomputeNormals      = true;
-    float normalSmoothingAngle = toRadians(70);
+    float normalSmoothingAngle = toRadians(60);
     float vertexWeldRadius     = 0.0001f;
-    float texCoordWeldRadius   = 0.0001f;
-    float normalWeldRadius     = 0.01f;
+    float texCoordWeldRadius   = 0.00001f;
+    float normalWeldRadius     = 0.00001f;
 
-static void G3D::MeshAlg::weld  	(  	Array< Vector3 > &   	 vertices,
-		Array< Vector2 > &  	textureCoords,
-		Array< Vector3 > &  	normals,
-		Array< int > &  	indices,
-		float  	normalSmoothingAngle = toRadians(70.0f),
-		float  	vertexWeldRadius = 0.0001f,
-		float  	textureWeldRadius = 0.0001f,
-		float  	normalWeldRadius = 0.01f	 
-	) 	
-
-    MeshAlg::weld(geometry, texCoordArray, indexArray, oldToNewIndex, recomputeNormals, 
-                  normalSmoothingAngle, vertexWeldRadius, texCoordWeldRadius, normalWeldRadius);
-
-    // convert trilist indices using oldToNewIndex
+    Array<Array<int>*> indexArrayArray(triListArray.size());
     for (int t = 0; t < triListArray.size(); ++t) {
-        TriList&    triList = triListArray[t];
-        Array<int>& tind    = triList.indexArray;
-        for (int i = 0; i < tind.size(); ++i) {
-            tind[i] = oldToNewIndex[tind[i]];
-        }
+        indexArrayArray[t] = &(triListArray[t].indexArray);
     }
-    */
+
+    MeshAlg::weld(geometry.vertexArray,
+                  texCoordArray,
+                  geometry.normalArray,
+                  indexArrayArray,
+                  normalSmoothingAngle,
+                  vertexWeldRadius,
+                  texCoordWeldRadius,
+                  normalWeldRadius);
+
     Array<MeshAlg::Face>    faceArray;
     Array<MeshAlg::Vertex>  vertexArray;
     Array<MeshAlg::Edge>    edgeArray;
     Array<Vector3>          faceNormalArray;
 
+    computeIndexArray();
+
     MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
-    MeshAlg::computeNormals(geometry.vertexArray, faceArray, vertexArray, geometry.normalArray, faceNormalArray);
 
     // Compute a tangent space basis
     if (texCoordArray.size() > 0) {
-        // We throw away the binormals and recompute
+        // computeTangentSpaceBasic will generate binormals, but
+        // we throw them away and recompute
         // them in the vertex shader.
-        Array<Vector3> empty;
+        Array<Vector3> bitangentArray;
+
         MeshAlg::computeTangentSpaceBasis(
             geometry.vertexArray,
             texCoordArray,
             geometry.normalArray,
             faceArray,
             tangentArray,
-            empty);
+            bitangentArray);
     } else {
         tangentArray.clear();
     }
@@ -373,7 +364,6 @@ void ArticulatedModel::Part::computeBounds() {
 void ArticulatedModel::updateAll() {
     for (int p = 0; p < partArray.size(); ++p) {
         Part& part = partArray[p];
-        part.computeIndexArray();
         part.computeNormalsAndTangentSpace();
         part.updateVAR();
         part.computeBounds();
