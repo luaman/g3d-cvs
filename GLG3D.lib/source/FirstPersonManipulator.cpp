@@ -16,17 +16,18 @@
 
 namespace G3D {
 
-FirstPersonManipulatorRef FirstPersonManipulator::create() {
-    return new FirstPersonManipulator();
+FirstPersonManipulatorRef FirstPersonManipulator::create(UserInput* ui) {
+    return new FirstPersonManipulator(ui);
 }
 
 
-FirstPersonManipulator::FirstPersonManipulator() : 
+FirstPersonManipulator::FirstPersonManipulator(UserInput* ui) : 
     m_maxMoveRate(10),
     m_maxTurnRate(20),
     m_yaw(0),
     m_pitch(0),
     m_active(false),
+    m_userInput(ui),
     m_mouseMode(MOUSE_DIRECT) {
 }
 

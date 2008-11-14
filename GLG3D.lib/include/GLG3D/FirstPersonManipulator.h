@@ -81,11 +81,13 @@ private:
         the left mouse and ctrl */
     bool rightDown(UserInput*) const;
 
-    FirstPersonManipulator();
+    FirstPersonManipulator(UserInput* ui);
 
 public:
     
-    static FirstPersonManipulatorRef create();
+    /** If the UserInput is not provided here, it is automatically recorded 
+    after the first onUserInput method invocation */
+    static FirstPersonManipulatorRef create(UserInput* ui = NULL);
         
     /** Deactivates the controller */
     virtual ~FirstPersonManipulator();

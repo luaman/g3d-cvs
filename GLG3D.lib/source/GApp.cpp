@@ -84,8 +84,6 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     debugLog = new Log(settings.logFilename);
     lastGApp = this;
 
-    defaultController = FirstPersonManipulator::create();
-
     if (settings.dataDir == "<AUTO>") {
         dataDir = demoFindData(false);
     } else {
@@ -115,6 +113,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
 
 
     m_widgetManager = WidgetManager::create(_window);
+    userInput = new UserInput(_window);
+    defaultController = FirstPersonManipulator::create(userInput);
 
     {
         TextOutput t;
@@ -142,8 +142,6 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     debugAssertGLOk();
     loadFont(settings.debugFontName);
     debugAssertGLOk();
-
-    userInput = new UserInput(_window);
 
     if (defaultController.notNull()) {
         defaultController->onUserInput(userInput);
