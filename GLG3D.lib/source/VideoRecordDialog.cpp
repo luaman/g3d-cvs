@@ -52,7 +52,7 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
 
     m_settingsTemplate.append(VideoOutput::Settings::MPEG4(640, 680));
     m_settingsTemplate.append(VideoOutput::Settings::WMV(640, 680));
-    m_settingsTemplate.append(VideoOutput::Settings::CinepakAVI(640, 680));
+    //m_settingsTemplate.append(VideoOutput::Settings::CinepakAVI(640, 680));
     m_settingsTemplate.append(VideoOutput::Settings::rawAVI(640, 680));
 
     // Remove unsupported formats and build a drop-down list
@@ -192,7 +192,7 @@ void VideoRecordDialog::startRecording() {
     double baseRate = 1500;
     if (settings.codec == VideoOutput::CODEC_ID_WMV2) {
         // WMV is lower quality
-        baseRate = 2000;
+        baseRate = 3000;
     }
     settings.bitrate = iRound(baseRate * kps * settings.width * settings.height / (640 * 480));
     settings.fps = m_playbackFPS;

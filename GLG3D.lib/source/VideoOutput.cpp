@@ -53,7 +53,7 @@ VideoOutput::Settings VideoOutput::Settings::WMV(int width, int height, float fp
 
     s.extension   = "wmv";
     s.description = "Windows Media Video 2 (.wmv)";
-    s.bitrate = iRound(2000000.0 * ((double)s.width * s.height) / (640 * 480));
+    s.bitrate = iRound(3000000.0 * ((double)s.width * s.height) / (640 * 480));
 
     return s;
 }
