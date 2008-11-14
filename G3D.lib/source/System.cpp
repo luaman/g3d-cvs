@@ -221,7 +221,7 @@ std::string System::findDataFile
 
     // Look in some other likely places
 #   ifdef G3D_WIN32
-        std::string lpath = "libraries/G3D";
+        std::string lpath = "libraries/G3D/";
         pathBase.append(std::string("c:/") + lpath);
         pathBase.append(std::string("d:/") + lpath);
         pathBase.append(std::string("e:/") + lpath);
