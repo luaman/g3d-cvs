@@ -459,16 +459,19 @@ def identifySiblingLibraryDependencies(files, parents, state):
                             os.chdir(curDir)
 
                             includepath = pathConcat(dirname, 'include')
-                            libpath = pathConcat(dirname, other.binaryDir)
+                            libpath = maybePathConcat(dirname, other.binaryDir)
 
                             state.addIncludePath(includepath)
                             state.addLibraryPath(libpath)
 
-                            # Update incPaths, which also includes the empty directory (that will
-                            # not appear as a -I argument to the compiler because doing so generates an error)
+                            # Update incPaths, which also includes the
+                            # empty directory (that will not appear as
+                            # a -I argument to the compiler because
+                            # doing so generates an error)
                             incPaths = [''] + state.includePaths()
 
-                            # TODO: recursively add all dependencies that come from this new header/library
+                            # TODO: recursively add all dependencies
+                            # that come from this new header/library
                 i += 1
 
         if not found:

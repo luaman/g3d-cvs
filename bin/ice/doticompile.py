@@ -55,9 +55,11 @@ configHelp = """
 #                     variables are NOT expanded for this expression.
 #                     e.g. exclude: <EXCLUDE>|^win32$
 # 
-#  builddir           Build directory, relative to ice.txt
+#  builddir           Build directory, relative to ice.txt.  Start with a 
+#                     leading slash (/) to make absolute.
 #
-#  tempdir            Temp directory, relative to ice.txt
+#  tempdir            Temp directory, relative to ice.txt. Start with a 
+#                     leading slash (/) to make absolute.
 #
 #  beep               If True, beep after compilation
 #
@@ -299,9 +301,11 @@ def processProjectFile(state):
     # Include Paths
     state.addIncludePath(makePathList(configGet(state, config, 'GLOBAL', 'include')))
 
-    # Add our own include directories
+    # Add our own include directories.
     if isLibrary(state.binaryType):
-        state.addIncludePath(['include', 'include/' + state.projectName])
+        extraInclude = [path for path in ['include', 'include/' + state.projectName] 
+                        if os.path.exists(path)]
+        state.addIncludePath(extraInclude)
 
     # Library Paths
     state.addLibraryPath(makePathList(configGet(state, config, 'GLOBAL', 'library')))

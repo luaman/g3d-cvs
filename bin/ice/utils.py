@@ -738,6 +738,15 @@ def rawLibraryFilename(filename):
     return n
 
 
+# Concatenates unless b is already absolute
+def maybePathConcat(a, b):
+    if b.startswith('/') or ((len(b) > 3) and 
+                             (b[2:3] == ':\\') or b.startswith('\\')):
+        return b
+    else:
+        return pathConcat(a, b)
+
+
 def _pathConcat2(a, b):
     if len(b) == 0:
         return a
