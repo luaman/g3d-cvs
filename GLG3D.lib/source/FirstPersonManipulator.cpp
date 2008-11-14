@@ -126,7 +126,7 @@ void FirstPersonManipulator::setActive(bool a) {
     }
     m_active = a;
 
-    debugAssertM(m_userInput == NULL, 
+    debugAssertM(m_userInput != NULL, 
                  "Cannot call FirstPersonManipulator::setActive() before the WidgetManager"
                  " has called onUserInput (i.e., cannot call setActive on the first frame)");
 
