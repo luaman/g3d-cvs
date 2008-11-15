@@ -115,7 +115,9 @@ def buildClean(state):
     
     rmdir(state.buildDir, ice.utils.verbosity >= VERBOSE)
     rmdir(state.tempDir, ice.utils.verbosity >= VERBOSE)
-    if (state.tempParentDir != None) and (len(os.listdir(state.tempParentDir)) == 0):
+    if ((state.tempParentDir != None) and
+        os.path.exists(state.tempParentDir) and
+        (len(os.listdir(state.tempParentDir)) == 0)):
         # Remove the parent directory if it is empty too since
         # the parent dir is usually right next to the source dir
         rmdir(state.tempParentDir, ice.utils.verbosity >= VERBOSE)
@@ -504,7 +506,7 @@ def buildBinary(state):
     # List of all files on which some other file depends
     files = list(dependencySet)
 
-    if ice.utils.verbosity >= TRACE:
+    if ice.utils.verbosity >= SUPERTRACE:
         print 'Header files #included:'
         for f in files: print '  ' + f
         print
