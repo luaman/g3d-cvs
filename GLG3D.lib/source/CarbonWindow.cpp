@@ -796,16 +796,19 @@ void CarbonWindow::setIcon(const GImage& image) {
                                         kCGRenderingIntentDefault);
     }
     
-    if(NULL != colorSpaceRef)
+    if (NULL != colorSpaceRef) {
         CGColorSpaceRelease(colorSpaceRef);
+    }
     
-    if(NULL != dataProviderRef)
+    if (NULL != dataProviderRef) {
         CGDataProviderRelease(dataProviderRef);
+    }
     
-    if(NULL != dockImage)
+    if (NULL != dockImage) {
         SetApplicationDockTileImage(dockImage);
+    }
     
-    if(NULL != dockImage) {
+    if (NULL != dockImage) {
         CGImageRelease(dockImage);
         dockImage = NULL;
     }
@@ -826,16 +829,19 @@ void CarbonWindow::setRelativeMousePosition(double x, double y) {
     CGWarpMouseCursorPosition(point);
 }
 
+
 void CarbonWindow::setRelativeMousePosition(const Vector2 &p) {
-    setRelativeMousePosition(p.x,p.y);
+    setRelativeMousePosition(p.x, p.y);
 }
 
-void CarbonWindow::getRelativeMouseState(Vector2 &position, uint8 &mouseButtons) const {
+
+void CarbonWindow::getRelativeMouseState(Vector2& position, uint8 &mouseButtons) const {
     int x, y;
-    getRelativeMouseState(x,y,mouseButtons);
+    getRelativeMouseState(x, y, mouseButtons);
     position.x = x;
     position.y = y;
 }
+
 
 void CarbonWindow::getRelativeMouseState(int &x, int &y, uint8 &mouseButtons) const {
     Point point;
@@ -847,12 +853,14 @@ void CarbonWindow::getRelativeMouseState(int &x, int &y, uint8 &mouseButtons) co
     mouseButtons = buttonsToUint8(_mouseButtons);
 }
 
+
 void CarbonWindow::getRelativeMouseState(double &x, double &y, uint8 &mouseButtons) const {
     int ix, iy;
-    getRelativeMouseState(ix,iy,mouseButtons);
+    getRelativeMouseState(ix, iy, mouseButtons);
     x = ix;
     y = iy;
 }
+
 
 void CarbonWindow::getJoystickState(unsigned int stickNum, Array<float> &axis, Array<bool> &buttons) {
     debugAssert(stickNum < ((unsigned int) _joysticks.size()));
@@ -875,16 +883,16 @@ void CarbonWindow::getJoystickState(unsigned int stickNum, Array<float> &axis, A
     }
 }
 
+
 void CarbonWindow::setInputCapture(bool c) {
-    if(_inputCapture == c)
-        return;
-    
     _inputCapture = c;
 }
+
 
 bool CarbonWindow::inputCapture() const {
     return _inputCapture;
 }
+
 
 void CarbonWindow::setMouseVisible(bool b) {
     if(_mouseVisible == b)
@@ -898,9 +906,11 @@ void CarbonWindow::setMouseVisible(bool b) {
         CGDisplayHideCursor(kCGDirectMainDisplay);
 }
 
+
 bool CarbonWindow::mouseVisible() const {
     return _mouseVisible;
 }
+
 
 void CarbonWindow::swapGLBuffers() {
     if(_glContext) {
@@ -908,6 +918,9 @@ void CarbonWindow::swapGLBuffers() {
         aglSwapBuffers(_glContext);
     }
 }
+
+
+
 
 #pragma mark Private - CarbonWindow - Mouse Event Generation:
 

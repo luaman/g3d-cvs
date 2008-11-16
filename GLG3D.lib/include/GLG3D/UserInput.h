@@ -87,19 +87,19 @@ private:
     bool                    _pureDeltaMouse;
     Vector2                 deltaMouse;
 
-	/** Whether each direction key is up or down.*/
-	bool                    left;
-	bool                    right;
-	bool                    up;
-	bool                    down;
-
+    /** Whether each direction key is up or down.*/
+    bool                    left;
+    bool                    right;
+    bool                    up;
+    bool                    down;
+    
     uint8                   mouseButtons;
 
     /**
      Joystick x, y
      */
-	double                  jx;
-	double                  jy;
+    double                  jx;
+    double                  jy;
 
     /**
      In pixels

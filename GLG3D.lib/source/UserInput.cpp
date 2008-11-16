@@ -146,7 +146,7 @@ void UserInput::endEvents() {
     Vector2 oldMouse = mouse;
     _window->getRelativeMouseState(mouse, mouseButtons);
 
-    if ((mouse.x < 0) || (mouse.x > 10000)) {
+    if (abs(mouse.x) > 100000) {
         // Sometimes we get bad values on the first frame;
         // ignore them.
         mouse = oldMouse;
@@ -161,8 +161,8 @@ void UserInput::endEvents() {
         // Reset the mouse periodically.  We can't do this every
         // frame or the mouse will not be able to move substantially
         // at high frame rates.
-        if ((mouse.x < windowCenter.x * 0.5) || (mouse.x > windowCenter.x * 1.5) ||
-            (mouse.y < windowCenter.y * 0.5) || (mouse.y > windowCenter.y * 1.5)) {
+        if ((mouse.x < windowCenter.x * 0.5f) || (mouse.x > windowCenter.x * 1.5f) ||
+            (mouse.y < windowCenter.y * 0.5f) || (mouse.y > windowCenter.y * 1.5f)) {
         
             mouse = windowCenter;
             if (focus) {
