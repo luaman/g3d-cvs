@@ -122,6 +122,12 @@ public:
         max = a.max.max(b.max);
     }
 
+    /** @brief Uniformly random point on the interior */
+    inline Vector2 randomPoint() const {
+        return Vector2(uniformRandom(0, max.x - min.x) + min.x,
+                       uniformRandom(0, max.y - min.y) + min.y);
+    }
+
     inline float width() const {
         return max.x - min.x;
     }
