@@ -506,13 +506,12 @@ static void rgba32f_to_rgb32f(const Array<const void*>& srcBytes, int srcWidth, 
 // RGB <-> YUV color space conversions
 // *******************
 
-// define pixel conversions to yuv format (non-hd integer conversion)
-#define PIXEL_RGB8_TO_YUV_Y(r, g, b) static_cast<uint8>((((66 * r + 129 * g + 25 * b) + 128) >> 8) + 16)
-#define PIXEL_RGB8_TO_YUV_U(r, g, b) static_cast<uint8>((((-38 * r - 74 * g + 112 * b) + 128) >> 8) + 16)
-#define PIXEL_RGB8_TO_YUV_V(r, g, b) static_cast<uint8>((((112 * r - 94 * g - 18 * b) + 128) >> 8) + 16)
+#define PIXEL_RGB8_TO_YUV_Y(r, g, b) static_cast<uint8>(iClamp(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16, 0, 255))
+#define PIXEL_RGB8_TO_YUV_U(r, g, b) static_cast<uint8>(iClamp(((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128, 0, 255))
+#define PIXEL_RGB8_TO_YUV_V(r, g, b) static_cast<uint8>(iClamp(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128, 0, 255))
 
 static void rgb8_to_yuv420p(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    debugAssertM(srcRowPadBits % 8 == 0, "Source row padding must be a multiple of 8 bits for this format");
+    debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
     debugAssertM((srcWidth % 2 == 0) && (srcHeight % 2 == 0), "Source width and height must be a multiple of two");
 
     const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
@@ -521,36 +520,42 @@ static void rgb8_to_yuv420p(const Array<const void*>& srcBytes, int srcWidth, in
     uint8* dstU = static_cast<uint8*>(dstBytes[1]);
     uint8* dstV = static_cast<uint8*>(dstBytes[2]);
 
-    for (int y = 0; y < srcHeight; ++y) {
+    for (int y = 0; y < srcHeight; y += 2) {
         for (int x = 0; x < srcWidth; x += 2) {
 
-            // sample luminance per pixel
-            const Color3uint8* rgb = &src[y * srcWidth + x];
+            // convert 4-pixel block at a time
+            int srcPixelOffset0 = y * srcWidth + x;
+            int srcPixelOffset1 = srcPixelOffset0 + 1;
+            int srcPixelOffset2 = srcPixelOffset0 + srcWidth;
+            int srcPixelOffset3 = srcPixelOffset2 + 1;
 
             int yOffset = y * srcWidth + x;
+
+            dstY[yOffset] =     PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset0].r, src[srcPixelOffset0].g, src[srcPixelOffset0].b);
+            dstY[yOffset + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset1].r, src[srcPixelOffset1].g, src[srcPixelOffset1].b);
+
+            yOffset += srcWidth;
+            dstY[yOffset] =     PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset2].r, src[srcPixelOffset2].g, src[srcPixelOffset2].b);
+            dstY[yOffset + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset3].r, src[srcPixelOffset3].g, src[srcPixelOffset3].b);
+
+            Color3uint8 uvHalfPixel((src[srcPixelOffset0].r + src[srcPixelOffset2].r) / 2,
+                                    (src[srcPixelOffset0].g + src[srcPixelOffset2].g) / 2,
+                                    (src[srcPixelOffset0].b + src[srcPixelOffset2].b) / 2);
+
             int uvOffset = y / 2 * srcWidth / 2 + x / 2;
-
-            dstY[yOffset] = PIXEL_RGB8_TO_YUV_Y(rgb->r, rgb->g, rgb->b);
-
-            // sample chrominance once per 2x2 block (so sample alternating pixel alternating row)
-            if (y % 2 == 0) {
-                dstU[uvOffset] = PIXEL_RGB8_TO_YUV_U(rgb->r, rgb->g, rgb->b);
-                dstV[uvOffset] = PIXEL_RGB8_TO_YUV_V(rgb->r, rgb->g, rgb->b);
-            }
-
-            // sample 2nd pixel
-            rgb += 1;
-            dstY[yOffset + 1] = PIXEL_RGB8_TO_YUV_Y(rgb->r, rgb->g, rgb->b);
+            dstU[uvOffset] =    PIXEL_RGB8_TO_YUV_U(uvHalfPixel.r, uvHalfPixel.g, uvHalfPixel.b);
+            dstV[uvOffset] =    PIXEL_RGB8_TO_YUV_V(uvHalfPixel.r, uvHalfPixel.g, uvHalfPixel.b);
         }
     }
 }
+
 
 #define PIXEL_YUV_TO_RGB8_R(y, u, v) static_cast<uint8>(iClamp((298 * (y - 16) + 409 * (v - 128) + 128) >> 8, 0, 255))
 #define PIXEL_YUV_TO_RGB8_G(y, u, v) static_cast<uint8>(iClamp((298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8, 0, 255))
 #define PIXEL_YUV_TO_RGB8_B(y, u, v) static_cast<uint8>(iClamp((298 * (y - 16) + 516 * (u - 128) + 128) >> 8, 0, 255))
 
 static void yuv420p_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    debugAssertM(srcRowPadBits % 8 == 0, "Source row padding must be a multiple of 8 bits for this format");
+    debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
     debugAssertM((srcWidth % 2 == 0) && (srcHeight % 2 == 0), "Source width and height must be a multiple of two");
 
     const uint8* srcY = static_cast<const uint8*>(srcBytes[0]);
@@ -580,170 +585,6 @@ static void yuv420p_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, in
     }
 }
 
-
-/* MMX Implementation
-static void yuv420p_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    debugAssertM(srcRowPadBits % 8 == 0, "Source row padding must be a multiple of 8 bits for this format");
-    debugAssertM((srcWidth % 2 == 0) && (srcHeight % 2 == 0), "Source width and height must be a multiple of two");
-
-    const uint8* srcY = static_cast<const uint8*>(srcBytes[0]);
-    const uint8* srcU = static_cast<const uint8*>(srcBytes[1]);
-    const uint8* srcV = static_cast<const uint8*>(srcBytes[2]);
-
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-
-    for (int y = 0; y < srcHeight; ++y) {
-        for (int x = 0; x < srcWidth; x += 8) {
-
-            srcY += y * srcWidth + x;
-            srcU += y / 2 * srcWidth / 2 + x / 2;
-            srcV += y / 2 * srcWidth / 2 + x / 2;
-
-            int64 packed128 = 0x0080008000800080;
-            int64 packedUB = 0x0204020402040204;
-            int64 packedUG = 0x8064806480648064;
-            int64 packedVR = 0x0199019901990199;
-            int64 packedVG = 0x80D080D080D080D0;
-            int64 packed16 = 0x0010001000100010;
-            int64 packedYRGB = 0x012A012A012A012A;
-
-            int64 packedYEMask = 0x00FF00FF00FF00FF;
-
-            __asm {
-                push eax
-                mov eax, dst
-
-                movq mm0, [srcY]
-                movd mm1, [srcU]
-                movd mm2, [srcV]
-
-                pxor mm3, mm3
-
-                punpcklbw mm1, mm3
-                punpcklbw mm2, mm3
-
-                psubsw mm1, packed128
-                psubsw mm2, packed128
-
-                movq mm4, mm1
-                movq mm5, mm2
-
-                pmullw mm4, packedUG
-                pmullw mm5, packedVG
-
-                pmullw mm1, packedUB //b
-                pmullw mm2, packedVR //r
-
-                paddsw mm4, mm5 //g
-
-                movq mm3, mm2 // r
-                movq mm6, mm4 // g
-                movq mm7, mm1 // b
-
-                movq mm5, mm0
-
-                pand mm0, packedYEMask
-                psrlw mm5, 0x8
-
-                psubsw mm0, packed16
-                psubsw mm5, packed16
-
-                pmullw mm0, packedYRGB //y e
-                pmullw mm5, packedYRGB //y o
-
-                paddsw mm2, mm0 //r e
-                paddsw mm3, mm5 //r o
-                paddsw mm4, mm0 //g e
-                paddsw mm6, mm5 //g o
-                paddsw mm1, mm0 //b e
-                paddsw mm7, mm5 //b o
-
-                paddsw mm2, packed128
-                paddsw mm3, packed128
-                paddsw mm4, packed128
-                paddsw mm6, packed128
-                paddsw mm1, packed128
-                paddsw mm7, packed128
-
-                psrlw mm2, 0x8
-                psrlw mm3, 0x8
-                psrlw mm4, 0x8
-                psrlw mm6, 0x8
-                psrlw mm1, 0x8
-                psrlw mm7, 0x8
-
-                packuswb mm2, mm2 // r e
-                packuswb mm3, mm3 // r o
-                packuswb mm4, mm4 // g e
-                packuswb mm6, mm6 // g o
-                packuswb mm1, mm1 // b e
-                packuswb mm7, mm7 // b o
-
-                punpcklbw mm2, mm3 // r
-                punpcklbw mm4, mm6 // g
-                punpcklbw mm1, mm7 // b
-
-                pxor mm0, mm0
-
-                movq mm3, mm2
-                movq mm7, mm1
-
-                punpcklbw mm2, mm0
-                punpcklbw mm1, mm4
-                punpckhbw mm3, mm0
-                punpckhbw mm7, mm4
-
-                movq mm5, mm1
-                movq mm6, mm7
-
-                punpcklwd mm5, mm2
-                punpckhwd mm1, mm2
-                punpcklwd mm7, mm3
-                punpckhwd mm6, mm3
-
-                movq mm0, mm5
-                movq mm3, mm1
-                movq mm2, mm7
-                movq mm4, mm6
-
-                psllq mm5, 0x28
-                psllq mm1, 0x28
-                psllq mm7, 0x28
-                psllq mm6, 0x28
-
-                punpckhdq mm5, mm0
-                punpckhdq mm1, mm3
-                punpckhdq mm7, mm2
-                punpckhdq mm6, mm4
-
-                psrlq mm5, 0x8
-                movq mm3, mm1
-                psllq mm1, 0x28
-                por mm5, mm3
-                movq [eax], mm5
-
-                psrlq mm3, 0x18
-                movq mm2, mm7
-                psllq mm7, 0x18
-                por mm3, mm7
-                movq [eax + 8], mm3
-
-                psrlq mm2, 0x28
-                psllq mm4, 0x8
-                por mm2, mm4
-                movq [eax + 16], mm2
-
-                pop eax
-            }
-
-            // increment 8 pixels at a time
-            dst += 8 * 3;
-        }
-    }
-
-    __asm emms;
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
