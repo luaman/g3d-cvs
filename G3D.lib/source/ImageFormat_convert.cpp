@@ -51,7 +51,11 @@ DECLARE_CONVERT_FUNC(bayer_gbrg8_to_rgba32f);
 DECLARE_CONVERT_FUNC(bayer_grbg8_to_rgba32f);
 DECLARE_CONVERT_FUNC(bayer_bggr8_to_rgba32f);
 DECLARE_CONVERT_FUNC(rgb8_to_yuv420p);
+DECLARE_CONVERT_FUNC(rgb8_to_yuv422);
+DECLARE_CONVERT_FUNC(rgb8_to_yuv444);
 DECLARE_CONVERT_FUNC(yuv420p_to_rgb8);
+DECLARE_CONVERT_FUNC(yuv422_to_rgb8);
+DECLARE_CONVERT_FUNC(yuv444_to_rgb8);
 
 // this is the list of mappings between formats and the routines to perform them
 static const ConvertAttributes sConvertMappings[] = {
@@ -66,7 +70,7 @@ static const ConvertAttributes sConvertMappings[] = {
     // RGB8 ->
     {rgb8_to_rgba8,     {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_RGBA8, ImageFormat::CODE_NONE}, false, false, true},
     {rgb8_to_bgr8,      {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_BGR8, ImageFormat::CODE_NONE}, false, false, true},
-    {rgb8_to_rgba32f,   {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_RGBA32F}, true, false, true},
+    {rgb8_to_rgba32f,   {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_RGBA32F, ImageFormat::CODE_NONE}, true, false, true},
 
     // BGR8 ->
     {bgr8_to_rgb8,      {ImageFormat::CODE_BGR8, ImageFormat::CODE_NONE},       {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE}, false, false, true},
@@ -100,8 +104,12 @@ static const ConvertAttributes sConvertMappings[] = {
     {bayer_bggr8_to_rgba32f, {ImageFormat::CODE_BAYER_BGGR8, ImageFormat::CODE_NONE},   {ImageFormat::CODE_RGBA32F, ImageFormat::CODE_NONE}, false, false, true},
 
     // RGB <-> YUV color space
-    {rgb8_to_yuv420p, {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},             {ImageFormat::CODE_YUV420_PLANAR, ImageFormat::CODE_NONE}, false, false, false},
+    {rgb8_to_yuv420p, {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},     {ImageFormat::CODE_YUV420_PLANAR, ImageFormat::CODE_NONE}, false, false, false},
+    {rgb8_to_yuv422, {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},      {ImageFormat::CODE_YUV422, ImageFormat::CODE_NONE}, false, false, false},
+    {rgb8_to_yuv444, {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE},      {ImageFormat::CODE_YUV444, ImageFormat::CODE_NONE}, false, false, false},
     {yuv420p_to_rgb8, {ImageFormat::CODE_YUV420_PLANAR, ImageFormat::CODE_NONE},    {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE}, false, false, false},
+    {yuv422_to_rgb8, {ImageFormat::CODE_YUV422, ImageFormat::CODE_NONE},    {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE}, false, false, false},
+    {yuv444_to_rgb8, {ImageFormat::CODE_YUV444, ImageFormat::CODE_NONE},    {ImageFormat::CODE_RGB8, ImageFormat::CODE_NONE}, false, false, false},
 };
 
 static ConvertFunc findConverter(TextureFormat::Code sourceCode, TextureFormat::Code destCode, bool needsSourcePadding, bool needsDestPadding, bool needsInvertY) {
@@ -135,6 +143,21 @@ static ConvertFunc findConverter(TextureFormat::Code sourceCode, TextureFormat::
     }
 
     return NULL;
+}
+
+bool conversionAvailable(const ImageFormat* srcFormat, int srcRowPadBits, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY = false) {
+    bool conversionAvailable = false;
+
+    // check if a conversion is available
+    if ( (srcFormat->code == dstFormat->code) && (srcRowPadBits == dstRowPadBits) && !invertY) {
+        conversionAvailable = true;
+    } else {
+        ConvertFunc directConverter = findConverter(srcFormat->code, dstFormat->code, srcRowPadBits > 0, dstRowPadBits > 0, invertY);
+
+        conversionAvailable = (directConverter != NULL);
+    }
+
+    return conversionAvailable;
 }
 
 bool ImageFormat::convert(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits,
@@ -506,6 +529,20 @@ static void rgba32f_to_rgb32f(const Array<const void*>& srcBytes, int srcWidth, 
 // RGB <-> YUV color space conversions
 // *******************
 
+static uint32 blendPixels(uint32 pixel1, uint32 pixel2) {
+    static const uint32 rbMask = 0x00FF00FF;
+    static const uint32 agMask = 0xFF00FF00;
+
+    // Compute two color channels at a time.  Use >> 1 for fast division by two
+    // Using alternating color channels prevents overflow
+    const uint32 rb = ((pixel1 & rbMask) + (pixel2 & rbMask)) >> 1;
+
+    // Shift first to avoid overflow in alpha channel
+    const uint32 ag = (((pixel1 & agMask) >> 1) + ((pixel2 & agMask) >> 1));
+
+    return ((rb & rbMask) | (ag & agMask));
+}
+
 #define PIXEL_RGB8_TO_YUV_Y(r, g, b) static_cast<uint8>(iClamp(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16, 0, 255))
 #define PIXEL_RGB8_TO_YUV_U(r, g, b) static_cast<uint8>(iClamp(((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128, 0, 255))
 #define PIXEL_RGB8_TO_YUV_V(r, g, b) static_cast<uint8>(iClamp(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128, 0, 255))
@@ -529,22 +566,74 @@ static void rgb8_to_yuv420p(const Array<const void*>& srcBytes, int srcWidth, in
             int srcPixelOffset2 = srcPixelOffset0 + srcWidth;
             int srcPixelOffset3 = srcPixelOffset2 + 1;
 
-            int yOffset = y * srcWidth + x;
+            int yIndex = y * srcWidth + x;
 
-            dstY[yOffset] =     PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset0].r, src[srcPixelOffset0].g, src[srcPixelOffset0].b);
-            dstY[yOffset + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset1].r, src[srcPixelOffset1].g, src[srcPixelOffset1].b);
+            dstY[yIndex] =     PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset0].r, src[srcPixelOffset0].g, src[srcPixelOffset0].b);
+            dstY[yIndex + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset1].r, src[srcPixelOffset1].g, src[srcPixelOffset1].b);
 
-            yOffset += srcWidth;
-            dstY[yOffset] =     PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset2].r, src[srcPixelOffset2].g, src[srcPixelOffset2].b);
-            dstY[yOffset + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset3].r, src[srcPixelOffset3].g, src[srcPixelOffset3].b);
+            yIndex += srcWidth;
+            dstY[yIndex] =     PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset2].r, src[srcPixelOffset2].g, src[srcPixelOffset2].b);
+            dstY[yIndex + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset3].r, src[srcPixelOffset3].g, src[srcPixelOffset3].b);
 
-            Color3uint8 uvHalfPixel((src[srcPixelOffset0].r + src[srcPixelOffset2].r) / 2,
-                                    (src[srcPixelOffset0].g + src[srcPixelOffset2].g) / 2,
-                                    (src[srcPixelOffset0].b + src[srcPixelOffset2].b) / 2);
+            uint32 blendedPixel = blendPixels(src[srcPixelOffset0].asUInt32(), src[srcPixelOffset2].asUInt32());
+            Color3uint8 uvSrcColor = Color3uint8::fromARGB(blendedPixel);
 
-            int uvOffset = y / 2 * srcWidth / 2 + x / 2;
-            dstU[uvOffset] =    PIXEL_RGB8_TO_YUV_U(uvHalfPixel.r, uvHalfPixel.g, uvHalfPixel.b);
-            dstV[uvOffset] =    PIXEL_RGB8_TO_YUV_V(uvHalfPixel.r, uvHalfPixel.g, uvHalfPixel.b);
+            int uvIndex = y / 2 * srcWidth / 2 + x / 2;
+            dstU[uvIndex] =    PIXEL_RGB8_TO_YUV_U(uvSrcColor.r, uvSrcColor.g, uvSrcColor.b);
+            dstV[uvIndex] =    PIXEL_RGB8_TO_YUV_V(uvSrcColor.r, uvSrcColor.g, uvSrcColor.b);
+        }
+    }
+}
+
+static void rgb8_to_yuv422(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
+    debugAssertM((srcWidth % 2 == 0), "Source width must be a multiple of two");
+
+    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+
+    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+
+    for (int y = 0; y < srcHeight; ++y) {
+        for (int x = 0; x < srcWidth; x += 2) {
+
+            // convert 2-pixel horizontal block at a time
+            int srcIndex = y * srcWidth + x;
+            int dstIndex = srcIndex * 2;
+
+            uint32 blendedPixel = blendPixels(src[srcIndex].asUInt32(), src[srcIndex + 1].asUInt32());
+            Color3uint8 uvSrcColor = Color3uint8::fromARGB(blendedPixel);
+
+            dst[dstIndex]     = PIXEL_RGB8_TO_YUV_Y(src[srcIndex].r, src[srcIndex].g, src[srcIndex].b);
+
+            dst[dstIndex + 1] = PIXEL_RGB8_TO_YUV_U(uvSrcColor.r, uvSrcColor.g, uvSrcColor.b);
+
+            dst[dstIndex + 2] = PIXEL_RGB8_TO_YUV_Y(src[srcIndex + 1].r, src[srcIndex + 1].g, src[srcIndex + 1].b);
+
+            dst[dstIndex + 3] = PIXEL_RGB8_TO_YUV_V(uvSrcColor.r, uvSrcColor.g, uvSrcColor.b);
+
+        }
+    }
+}
+
+static void rgb8_to_yuv444(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
+
+    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+
+    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+
+    for (int y = 0; y < srcHeight; ++y) {
+        for (int x = 0; x < srcWidth; ++x) {
+
+            // convert 1-pixels at a time
+            int index = y * srcWidth + x;
+            uint8 y = PIXEL_RGB8_TO_YUV_Y(src[index].r, src[index].g, src[index].b);
+            uint8 u = PIXEL_RGB8_TO_YUV_U(src[index].r, src[index].g, src[index].b);
+            uint8 v = PIXEL_RGB8_TO_YUV_V(src[index].r, src[index].g, src[index].b);
+
+            dst[index].r = y;
+            dst[index].g = u;
+            dst[index].b = v;
         }
     }
 }
@@ -585,6 +674,58 @@ static void yuv420p_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, in
     }
 }
 
+static void yuv422_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
+    debugAssertM((srcWidth % 2 == 0), "Source width must be a multiple of two");
+
+    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+
+    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+
+    for (int y = 0; y < srcHeight; ++y) {
+        for (int x = 0; x < srcWidth; x += 2) {
+
+            // convert to two rgb pixels in a row
+            Color3uint8* rgb = &dst[y * srcWidth + x];
+            
+            int srcIndex = (y * srcWidth + x) * 2;
+            uint8 y  = src[srcIndex];
+            uint8 u  = src[srcIndex + 1];
+            uint8 y2 = src[srcIndex + 2];
+            uint8 v  = src[srcIndex + 3];
+
+            rgb->r = PIXEL_YUV_TO_RGB8_R(y, u, v);
+            rgb->g = PIXEL_YUV_TO_RGB8_G(y, u, v);
+            rgb->b = PIXEL_YUV_TO_RGB8_B(y, u, v);
+
+            rgb += 1;
+            rgb->r = PIXEL_YUV_TO_RGB8_R(y2, u, v);
+            rgb->g = PIXEL_YUV_TO_RGB8_G(y2, u, v);
+            rgb->b = PIXEL_YUV_TO_RGB8_B(y2, u, v);
+        }
+    }
+}
+
+static void yuv444_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
+
+    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+
+    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+
+    for (int y = 0; y < srcHeight; ++y) {
+        for (int x = 0; x < srcWidth; ++x) {
+
+            // convert to one rgb pixels at a time
+            int index = y * srcWidth + x;
+            Color3uint8* rgb = &dst[index];
+            
+            rgb->r = PIXEL_YUV_TO_RGB8_R(src[index].r, src[index].g, src[index].b);
+            rgb->g = PIXEL_YUV_TO_RGB8_G(src[index].r, src[index].g, src[index].b);
+            rgb->b = PIXEL_YUV_TO_RGB8_B(src[index].r, src[index].g, src[index].b);
+        }
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //

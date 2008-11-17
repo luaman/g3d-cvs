@@ -72,7 +72,6 @@ public:
         CODE_HSV8,
         CODE_HSV32F,
 
-        CODE_YUV411,
         CODE_YUV420_PLANAR,
         CODE_YUV422,
         CODE_YUV444,
@@ -286,6 +285,10 @@ public:
 
     static const ImageFormat* YUV420_PLANAR();
 
+    static const ImageFormat* YUV422();
+
+    static const ImageFormat* YUV444();
+
 	/**
      NULL pointer; indicates that the G3D::Texture class should choose
      either RGBA8 or RGB8 depending on the presence of an alpha channel
@@ -333,11 +336,16 @@ public:
         A conversion routine might only support source or destination padding or y inversion or none.
         If support is needed and not available in any of the direct conversion routines, then no conversion is done.
 
+        YUV422 expects data in YUY2 format (Y, U, Y2, v).  Most YUV formats require width and heights that are multiples of 2.
+
         Returns true if a conversion was available, false if none occurred.
     */
     static bool convert(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits,
 	                    const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
 	                    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::HIGH_QUALITY);
+
+    /* Checks if a conversion between two formats is available. */
+    static bool conversionAvailable(const ImageFormat* srcFormat, int srcRowPadBits, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY = false);
 };
 
 typedef ImageFormat TextureFormat;
