@@ -265,10 +265,8 @@ void Framebuffer::clear() {
     colorDrawBufferArray.clear();
 
     for (int i = 0; i < 18; ++i) {
-        int ap;
-        if (i < 16) {
-            ap = COLOR_ATTACHMENT0 + i;
-        } else if (i == 16) {
+        int ap = COLOR_ATTACHMENT0 + i;
+        if (i == 16) {
             ap = DEPTH_ATTACHMENT;
         } else if (i == 17) {
             ap = STENCIL_ATTACHMENT;

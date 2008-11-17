@@ -418,6 +418,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
+    // Forward declaration required by older gcc versions for friend declaration in BoxIterator
+    class SphereIterator;
     class BoxIterator {
     private:
         friend class ThisType;

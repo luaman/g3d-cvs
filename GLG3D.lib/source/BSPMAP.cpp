@@ -143,19 +143,21 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
             glPointSize(5);
             glDisable(GL_TEXTURE_2D);
             glBegin(GL_POINTS);
+
             for (int x = 0; x < lightVolumesGrid.x; ++x) {
                 for (int y = 0; y < lightVolumesGrid.y; ++y) {
                     for (int z = 0; z < lightVolumesGrid.z; ++z) {
                         Vector3 v(x, y, z);
-                        v /= lightVolumesGrid;
-                        v *= (staticModel.max - staticModel.min);
+                        v /= lightVolumesInvSizes;
                         v += staticModel.min;
                         
                         // Scale to the sampling resolution of the light volumes
-                        Vector3 rel = ((v - staticModel.min) / (staticModel.max - staticModel.min)) * lightVolumesGrid;
-                        int idxX = iClamp(rel.x, 0, (int)lightVolumesGrid.x);
-                        int idxY = iClamp(rel.y, 0, (int)lightVolumesGrid.y);
-                        int idxZ = iClamp(rel.z, 0, (int)lightVolumesGrid.z);
+                        //
+                        Vector3 rel = v;
+                            // TODO: used to be code above ((v - staticModel.min) / (staticModel.max - staticModel.min)) * lightVolumesGrid;
+                        int idxX = iClamp((int)rel.x, 0, lightVolumesGrid.x);
+                        int idxY = iClamp((int)rel.y, 0, lightVolumesGrid.y);
+                        int idxZ = iClamp((int)rel.z, 0, lightVolumesGrid.z);
 
                         if ((idxX >= 0 && idxX < lightVolumesGrid.x) &&
                             (idxY >= 0 && idxY < lightVolumesGrid.y) &&

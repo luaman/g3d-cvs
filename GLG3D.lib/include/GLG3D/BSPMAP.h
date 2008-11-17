@@ -24,6 +24,7 @@
 #include "G3D/GCamera.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Texture.h"
+#include "G3D/Vector3int32.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <math.h>
@@ -463,7 +464,7 @@ private:
 public:
     Array<BSPModel>     dynamicModels;
 public:// TODO: make private
-    Vector3             lightVolumesGrid;
+    Vector3int32        lightVolumesGrid;
     Vector3             lightVolumesInvSizes;
     int                 lightVolumesCount;
 

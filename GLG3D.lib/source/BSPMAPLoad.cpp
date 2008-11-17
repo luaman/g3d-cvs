@@ -842,14 +842,14 @@ void Map::loadStaticModel(
 
     {
         // This block works with input in the quake coordinate system
-        lightVolumesGrid.x      = floor(staticModel.max.x / 64) - ceil(staticModel.min.x / 64) + 1;
+        lightVolumesGrid.x      = iFloor(staticModel.max.x / 64) - iCeil(staticModel.min.x / 64) + 1;
         lightVolumesInvSizes.x  = lightVolumesGrid.x / (staticModel.max.x - staticModel.min.x);
 
         // Switch from Quake to G3D coordinate system here
-        lightVolumesGrid.y      = floor(staticModel.max.z / 128) - ceil(staticModel.min.z / 128) + 1;
+        lightVolumesGrid.y      = iFloor(staticModel.max.z / 128) - iCeil(staticModel.min.z / 128) + 1;
         lightVolumesInvSizes.y  = lightVolumesGrid.y / (staticModel.max.z - staticModel.min.z);
 
-        lightVolumesGrid.z      = floor(-staticModel.min.y / 64) - ceil(-staticModel.max.y / 64) + 1;
+        lightVolumesGrid.z      = iFloor(-staticModel.min.y / 64) - iCeil(-staticModel.max.y / 64) + 1;
         lightVolumesInvSizes.z  = lightVolumesGrid.z / (staticModel.max.y - staticModel.min.y);
     }
 
