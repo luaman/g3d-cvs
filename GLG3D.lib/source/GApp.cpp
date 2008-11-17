@@ -649,12 +649,12 @@ void GApp::processGEventQueue() {
         //    printf("%s\n", event.toString().c_str());
         //}
 
-        if (onEvent(event)) {
-            // Event was consumed
+        if (WidgetManager::onEvent(event, m_widgetManager)) {
             continue;
         }
 
-        if (WidgetManager::onEvent(event, m_widgetManager)) {
+        if (onEvent(event)) {
+            // Event was consumed
             continue;
         }
 

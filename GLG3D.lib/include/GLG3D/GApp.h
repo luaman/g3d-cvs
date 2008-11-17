@@ -571,8 +571,8 @@ protected:
 
     /**
        Update any state you need to here.  This is a good place for
-       AI code, for example.  Called after network and user input,
-       before simulation.
+       AI code, for example.  Called after onNetwork and onUserInput,
+       before onSimulation.
     */
     virtual void onLogic() {}
 
@@ -593,6 +593,9 @@ protected:
        including GApp should process it further).
 
        The default implementation does nothing.
+
+       This runs after the m_widgetManager's onEvent, so a widget may consume
+       events before the App sees them.
     */
     virtual bool onEvent(const GEvent& event);
 
