@@ -1764,8 +1764,13 @@ Vector3 CollisionDetection::closestPointOnLineSegment(
     const Vector3& v1,
     const Vector3& point) {
 
-    Vector3 edge       = (v1 - v0);
-    double  edgeLength = edge.magnitude();
+    const Vector3& edge       = (v1 - v0);
+    float          edgeLength = edge.magnitude();
+
+    if (edgeLength == 0) {
+        // The line segment is a point
+        return v0;
+    }
 
     return closestPointOnLineSegment(v0, v1, edge / edgeLength, edgeLength, point);
 }
@@ -2055,7 +2060,7 @@ bool CollisionDetection::fixedSolidSphereIntersectsFixedSolidBox(
         return true;
     }
 
-    double r2 = square(sphere.radius);
+    float r2 = square(sphere.radius);
 
     // Find the closest point on the surface of the box to the sphere.  If
     // this point is within the sphere's radius, they intersect.
