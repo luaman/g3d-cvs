@@ -195,8 +195,8 @@ void VideoOutput::initialize(const std::string& filename, const Settings& settin
 
     // finish setting codec parameters
     m_avStream->codec->bit_rate     = m_settings.bitrate;
-    m_avStream->codec->time_base.den = iRound(m_settings.fps);
-    m_avStream->codec->time_base.num = 1;
+    m_avStream->codec->time_base.den = iRound(m_settings.fps * 100.0f);
+    m_avStream->codec->time_base.num = 100;
     m_avStream->codec->width        = m_settings.width;
     m_avStream->codec->height       = m_settings.height;
 
