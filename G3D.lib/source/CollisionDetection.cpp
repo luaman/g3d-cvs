@@ -1667,9 +1667,14 @@ float CollisionDetection::collisionTimeForMovingSphereFixedBox(
     Vector3&            location,
     Vector3&            outNormal) {
 
-    // TODO: test if sphere is already inside box
+    if (fixedSolidSphereIntersectsFixedSolidBox(sphere, box)) {
+        // TODO: Compute more useful location and normal?
+        location = sphere.center;
+        outNormal = Vector3::zero();
+        return 0;
+    }
 
-    double    bestTime;
+    float bestTime;
 
     Vector3 v[4];
     int f = 0;

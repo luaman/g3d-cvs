@@ -907,15 +907,21 @@ void Map::loadLightVolumes(
     // size = RGB+RGB+2
     size_t size = 8;
     lightVolumesCount       = lump.length / size;
-    debugAssert(lightVolumesCount == lightVolumesGrid.x * lightVolumesGrid.y * lightVolumesGrid.z);
-    lightVolumes            = new LightVolume[lightVolumesCount];
-    
-    bi.setPosition(lump.offset);
+    if (lightVolumesCount != lightVolumesGrid.x * lightVolumesGrid.y * lightVolumesGrid.z) {
+        logPrintf("WARNING: Quake map has corrupt lightVolumesCount.\n");
+        lightVolumesGrid = Vector3int32(0,0,0);
+        lightVolumes = NULL;
+    } else {
+        debugAssertM(lightVolumesCount == lightVolumesGrid.x * lightVolumesGrid.y * lightVolumesGrid.z,
+            "Quake map has corrupt lightVolumesCount.");
+        lightVolumes            = new LightVolume[lightVolumesCount];
+        
+        bi.setPosition(lump.offset);
 
-    debugAssert(size == sizeof(LightVolume));
-    // Read directly as bytes since endianness won't affect uint8s.
-    bi.readBytes(lightVolumes, lightVolumesCount * size);
-
+        debugAssert(size == sizeof(LightVolume));
+        // Read directly as bytes since endianness won't affect uint8s.
+        bi.readBytes(lightVolumes, lightVolumesCount * size);
+    }
 }
 
 static double log2(double x) {

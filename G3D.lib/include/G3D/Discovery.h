@@ -263,6 +263,11 @@ public:
      You may update the advertisement (synchronously with calling doNetwork)
      after it has been passed in.  This allows a server to change the advertised
      number of players or score for a game, for example.
+
+     You must set the port of the @a _advertisement G3D::DiscoveryAdvertisement::address
+     to the port which the G3D::NetListener for the actual program protocol (not discovery)
+     is running. That field how the client knows what address to connect to using 
+     G3D::ReliableConduit or G3D::LightweightConduit to actually initiate communication.
      */
     virtual void init(
         const DiscoverySettings* _settings,
