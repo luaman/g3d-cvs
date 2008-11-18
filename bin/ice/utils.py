@@ -286,6 +286,7 @@ def _findBinary(program):
 
     PATH = [''] + os.getenv('PATH', '').split(';') + \
            ['.',\
+           'C:/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio 9.0/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio 8/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio/Common/MSDev98/Bin',\
@@ -465,7 +466,7 @@ def VCExpress(filename, configs):
  VC9 dispatcher
 """
 
-baseRegPath = r"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft"
+baseRegPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft"
 vc8ePaths = ("VCExpress", "8.0", "Setup")
 vc9ePaths = ("VCExpress", "9.0", "Setup")
 vc8Paths = ("VisualStudio", "8.0", "Setup", "VS")
@@ -494,14 +495,19 @@ def checkHasVC(paths, testSection, testOption):
 def VC9(filename, configs):
      # find out the flavor of MSVC
      
+     print os.path.exists('C:/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe')
      if checkHasVC(vc8Paths, 'Pro','ProductDir') or checkHasVC(vc9Paths, 'Pro','ProductDir'):
          return devenv(filename, configs)
+     
      elif checkHasVC(vc8Paths, 'Std','ProductDir') or checkHasVC(vc9Paths, 'Std','ProductDir'):
          return devenv(filename, configs)
-     elif checkHasVC(vc8ePaths, 'VS','ProductDir') or checkHasVC(vc9ePaths, 'VS','ProductDir'):
+
+     elif (checkHasVC(vc8ePaths, 'VS','ProductDir') or checkHasVC(vc9ePaths, 'VS','ProductDir') or 
+              os.path.exists('C:/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe')):
+         # last case is for Vista 64
          return VCExpress(filename, configs)
      else:
-         print "Failed to find MSVC environment. Is this a valid MSDEV shell?"
+         print "Failed to find Visual Studio 2005 or 2008. Could not continue."
          return -1
 
 ###########################################################################
