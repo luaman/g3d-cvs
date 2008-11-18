@@ -213,8 +213,8 @@ simulates photons moving around a scene).
 \link G3D::Shape <b>Shape</b>\endlink
 </td><td>Geometric primitives</td></tr>
 <tr><td></td><td>\link G3D::MeshAlg <b>MeshAlg</b>\endlink</td><td>Routines for operating on triangle meshes</td></tr>
-<tr><td></td><td>\link G3D::AABSPTree <b>AABSPTree</b>\endlink</td><td>Axis-aligned binary space partition tree for O(log n) collision detection</td></tr>
-<tr><td></td><td>\link G3D::PointAABSPTree <b>PointAABSPTree</b>\endlink</td><td>AABSP tree optimized for zero-extent objects.  Primarily used as a photon map</td></tr>
+<tr><td></td><td>\link G3D::KDTree <b>KDTree</b>\endlink</td><td>Axis-aligned binary space partition tree for O(log n) collision detection</td></tr>
+<tr><td></td><td>\link G3D::PointKDTree <b>PointKDTree</b>\endlink</td><td>AABSP tree optimized for zero-extent objects.  Primarily used as a photon map</td></tr>
 <tr><td></td><td>\link G3D::GCamera <b>GCamera::worldRay</b>\endlink</td><td>Obtain the ray through a pixel</td></tr>
 <tr><td></td><td>\link G3D::Image3 <b>Image3</b>\endlink, \link G3D::Image4 <b>Image4</b>\endlink</td><td>Useful for software rendering output and texture maps</td></tr>
 <tr><td></td><td>\link G3D::Vector3::reflectionDirection <b>Vector3::reflectionDirection</b>\endlink, \link G3D::Vector3::refractionDirection <b>Vector3::refractionDirection</b>\endlink</td><td></td></tr>

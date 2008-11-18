@@ -105,7 +105,7 @@ void MeshShape::getRandomSurfacePoint(
 
     // Choose uniformly at random based on surface area
     float sum = uniformRandom(0, _area);
-    typedef AABSPTree<Triangle>::Iterator IT;
+    typedef KDTree<Triangle>::Iterator IT;
 
     IT it  = _bspTree.begin();
     IT end = _bspTree.end();

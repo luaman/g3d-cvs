@@ -178,7 +178,7 @@ href="classes.html">Classes</a>.
     \link G3D::MeshBuilder MeshBuilder\endlink,
     \link G3D::Quat Quat\endlink,
     \link G3D::Plane Plane\endlink,
-    \link G3D::PointAABSPTree PointAABSPTree\endlink,
+    \link G3D::PointKDTree PointKDTree\endlink,
     \link G3D::Ray Ray\endlink,
     \link G3D::RealTime RealTime\endlink,
     \link G3D::Rect2D Rect2D\endlink,
@@ -290,7 +290,7 @@ href="classes.html">Classes</a>.
 
      <LI><B>Data structures</B> &nbsp; &nbsp;
         \link G3D::AnyVal AnyVal\endlink,
-        \link G3D::AABSPTree AABSPTree\endlink,
+        \link G3D::KDTree KDTree\endlink,
         \link G3D::Array Array\endlink,
         \link G3D::Pointer Pointer\endlink,
         \link G3D::Queue Queue\endlink,

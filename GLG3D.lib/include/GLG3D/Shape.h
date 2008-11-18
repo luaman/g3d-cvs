@@ -210,7 +210,7 @@ class MeshShape : public Shape {
 
     /** If true, the bspTree and _area, _boundingSphere, _boundingAABox have been initialized. */
     bool                _hasTree;
-    AABSPTree<Triangle> _bspTree;
+    KDTree<Triangle> _bspTree;
     double              _area;
     Sphere              _boundingSphere;
     AABox               _boundingAABox;
@@ -241,7 +241,7 @@ public:
     }
 
     /** Not computed until the first call to bspTree, area, or getRandomSurfacePoint. */
-    virtual const AABSPTree<Triangle>& bspTree() const {
+    virtual const KDTree<Triangle>& bspTree() const {
         if (! _hasTree) {
             const_cast<MeshShape*>(this)->buildBSP();
         }

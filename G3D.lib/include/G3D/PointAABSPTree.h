@@ -4,15 +4,15 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2004-01-11
-  @edited  2008-07-02
+  @edited  2008-11-02
 
   Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
   
   */
 
-#ifndef X_PointAABSPTree_H
-#define X_PointAABSPTree_H
+#ifndef X_PointKDTree_H
+#define X_PointKDTree_H
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -56,9 +56,9 @@ namespace G3D {
  A set data structure that supports spatial queries using an axis-aligned
  BSP tree for speed.
 
- PointAABSPTree allows you to quickly find points in 3D that lie within
+ PointKDTree allows you to quickly find points in 3D that lie within
  a box or sphere. For large sets of objects it is much faster
- than testing each object for a collision.  See also G3D::AABSPTree; this class
+ than testing each object for a collision.  See also G3D::KDTree; this class
  is optimized for point sets, e.g.,for use in photon mapping and mesh processing.
 
  <B>Template Parameters</B>
@@ -89,20 +89,20 @@ namespace G3D {
 
  <B>Moving %Set Members</B>
  <DT>It is important that objects do not move without updating the
- PointAABSPTree.  If the position of an object is about
- to change, PointAABSPTree::remove it before they change and 
- PointAABSPTree::insert it again afterward.  For objects
+ PointKDTree.  If the position of an object is about
+ to change, PointKDTree::remove it before they change and 
+ PointKDTree::insert it again afterward.  For objects
  where the hashCode and == operator are invariant with respect 
  to the 3D position,
- you can use the PointAABSPTree::update method as a shortcut to
+ you can use the PointKDTree::update method as a shortcut to
  insert/remove an object in one step after it has moved.
  
 
- Note: Do not mutate any value once it has been inserted into PointAABSPTree. Values
- are copied interally. All PointAABSPTree iterators convert to pointers to constant
+ Note: Do not mutate any value once it has been inserted into PointKDTree. Values
+ are copied interally. All PointKDTree iterators convert to pointers to constant
  values to reinforce this.
 
- If you want to mutate the objects you intend to store in a PointAABSPTree
+ If you want to mutate the objects you intend to store in a PointKDTree
  simply insert <I>pointers</I> to your objects instead of the objects
  themselves, and ensure that the above operations are defined. (And
  actually, because values are copied, if your values are large you may
@@ -110,7 +110,7 @@ namespace G3D {
  operation faster.)
 
  <B>Dimensions</B>
- Although designed as a 3D-data structure, you can use the PointAABSPTree
+ Although designed as a 3D-data structure, you can use the PointKDTree
  for data distributed along 2 or 1 axes by simply returning bounds
  that are always zero along one or more dimensions.
 
@@ -119,11 +119,11 @@ template<class T,
          class PositionFunc = PositionTrait<T>, 
          class HashFunc     = HashTrait<T>, 
          class EqualsFunc   = EqualsTrait<T> > 
-class PointAABSPTree {
+class PointKDTree {
 protected:
-#define TreeType PointAABSPTree<T, PositionFunc, HashFunc, EqualsFunc>
+#define TreeType PointKDTree<T, PositionFunc, HashFunc, EqualsFunc>
 
-    // Unlike the AABSPTree, the PointAABSPTree assumes that T elements are
+    // Unlike the KDTree, the PointKDTree assumes that T elements are
     // small and keeps the handle and cached position together instead of
     // placing them in separate bounds arrays.  Also note that a copy of T
     // is kept in the member table and that there is no indirection.
@@ -583,16 +583,16 @@ protected:
 public:
 
     /** To construct a balanced tree, insert the elements and then call
-      PointAABSPTree::balance(). */
-    PointAABSPTree() : root(NULL) {}
+      PointKDTree::balance(). */
+    PointKDTree() : root(NULL) {}
 
 
-    PointAABSPTree(const PointAABSPTree& src) : root(NULL) {
+    PointKDTree(const PointKDTree& src) : root(NULL) {
         *this = src;
     }
 
 
-    PointAABSPTree& operator=(const PointAABSPTree& src) {
+    PointKDTree& operator=(const PointKDTree& src) {
         delete root;
         // Clone tree takes care of filling out the memberTable.
         root = cloneTree(src.root);
@@ -600,7 +600,7 @@ public:
     }
 
 
-    ~PointAABSPTree() {
+    ~PointKDTree() {
         clear();
     }
 
@@ -714,7 +714,7 @@ public:
     void remove(const T& value) {
         debugAssertM(contains(value),
             "Tried to remove an element from a "
-            "PointAABSPTree that was not present");
+            "PointKDTree that was not present");
 
         Array<Handle>& list = memberTable[value]->valueArray;
 
@@ -1076,7 +1076,7 @@ public:
 
     /**
      Appends all members whose bounds intersect the box.
-     See also PointAABSPTree::beginBoxIntersection.
+     See also PointKDTree::beginBoxIntersection.
      */
     void getIntersectingMembers(const AABox& box, Array<T>& members) const {
         if (root == NULL) {
@@ -1117,7 +1117,7 @@ public:
     }
 
     /**
-     Returns an array of all members of the set.  See also PointAABSPTree::begin.
+     Returns an array of all members of the set.  See also PointKDTree::begin.
      */
     void getMembers(Array<T>& members) const {
         memberTable.getKeys(members);
@@ -1199,6 +1199,8 @@ public:
     }
 #undef TreeType
 };
+
+#define PointAABSPTree PointKDTree
 
 }
 

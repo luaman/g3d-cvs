@@ -197,7 +197,7 @@ outside of the G3D namespace (since you'll be writing them yourself).  An exampl
 so here are examples of the four.  You only need to define the ones required by the classes you are using, like G3D::BSPTree 
 and G3D::Table.  %G3D provides implementations for many built-in classes, like G3D::Vector3 and G3D::AABox.
 
-For G3D::AABSPTree:
+For G3D::KDTree:
  <PRE>
 
   template<> struct BoundsTrait<class MyClass> {
@@ -218,7 +218,7 @@ For G3D::Set and G3D::Table:
 
  </PRE>
   
-For G3D::PointAABSPTree:
+For G3D::PointKDTree:
   <PRE>
   
   template<> struct PositionTrait<class MyClass> {

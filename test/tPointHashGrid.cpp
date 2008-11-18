@@ -85,7 +85,7 @@ void correctPointHashGrid() {
     const Vector3 testExtent = Vector3(1,1,1) * pow(testVolume, 1.0f/3.0f);
 
     PointHashGrid<Vector3> hashGrid(sphere.radius);
-    PointAABSPTree<Vector3> tree;
+    PointKDTree<Vector3> tree;
 	
     Vector3 v;
     for(int i = 0; i < numTestPts; ++i) {
@@ -129,7 +129,7 @@ void correctPointHashGrid() {
 
     if(errorFound) {
         printf("Discrepancy found:\nSphere center: (%f, %f, %f)\n", sphere.center.x, sphere.center.y, sphere.center.z);
-        printf("PointHashGrid found %d elements, PointAABSPTree found %d elements.\n", hashGridPts.size(), treePts.size());
+        printf("PointHashGrid found %d elements, PointKDTree found %d elements.\n", hashGridPts.size(), treePts.size());
         printf("\nPointHashGrid found:\n");
         for(int i = 0; i < hashGridPts.size(); ++i) {
             printf("(%f, %f, %f) - ", hashGridPts[i].x, hashGridPts[i].y, hashGridPts[i].z);
@@ -141,7 +141,7 @@ void correctPointHashGrid() {
             }
         }
 
-        printf("\nPointAABSPTree found:\n");
+        printf("\nPointKDTree found:\n");
         for(int i = 0; i < treePts.size(); ++i) {
             printf("(%f, %f, %f) - ", treePts[i].x, treePts[i].y, treePts[i].z);
             double distance = (treePts[i] - sphere.center).magnitude();
@@ -291,7 +291,7 @@ void perfPointHashGrid() {
     Sphere sphere(Vector3::zero(), ((maxCoords - minCoords).average()) / 100.0);
 
     PointHashGrid<Vector3> hashGrid(sphere.radius * 2.0);
-    PointAABSPTree<Vector3> tree;
+    PointKDTree<Vector3> tree;
 
     Stopwatch hashGridInsert;
     Stopwatch treeInsert;
@@ -361,12 +361,12 @@ void perfPointHashGrid() {
     }
     treeTimer.tock();
     alwaysAssertM(iAbs(countHash - count) <= iMax(countHash, count) * 0.001, 
-                  format("Fetched different numbers of points. PointHashGrid = %d, PointAABSPTree = %d",
+                  format("Fetched different numbers of points. PointHashGrid = %d, PointKDTree = %d",
                          countHash, count));
 
     printf("\nSphere Intersection (%d trials, fetched %dk points)\n", numSpheres, count / 1000);
     printf("    class         1M elt-time        time/elt\n");
-    printf("PointAABSPTree  %10f s  %10f us\n",              treeTimer.elapsedTime(),     treeTimer.elapsedTime() * 1e6 / count);
+    printf("PointKDTree  %10f s  %10f us\n",              treeTimer.elapsedTime(),     treeTimer.elapsedTime() * 1e6 / count);
     printf("PointHashGrid   %10f s  %10f us (%.3gX faster)\n", hashGridTimer.elapsedTime(), hashGridTimer.elapsedTime() * 1e6 / count,
            treeTimer.elapsedTime()/hashGridTimer.elapsedTime());
     printf("\nPointHashGrid performance: max bucket size = %d, average length = %f\n", hashGrid.debugGetDeepestBucketSize(), hashGrid.debugGetAverageBucketSize());

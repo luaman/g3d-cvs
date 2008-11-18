@@ -4,9 +4,9 @@ using G3D::uint32;
 using G3D::uint64;
 
 /**
- An AABSPTree that can render itself for debugging purposes.
+ An KDTree that can render itself for debugging purposes.
  */
-class VisibleBSP : public AABSPTree<Vector3> {
+class VisibleBSP : public KDTree<Vector3> {
 protected:
 
     void drawPoint(RenderDevice* rd, const Vector2& pt, float radius, const Color3& col) {
@@ -72,7 +72,7 @@ public:
 };
 
 static void testSerialize() {
-    AABSPTree<Vector3> tree;
+    KDTree<Vector3> tree;
     int N = 1000;
 
     for (int i = 0; i < N; ++i) {
@@ -90,7 +90,7 @@ static void testSerialize() {
 
 static void testBoxIntersect() {
 
-	AABSPTree<Vector3> tree;
+	KDTree<Vector3> tree;
 
 	// Make a tree containing a regular grid of points
 	for (int x = -5; x <= 5; ++x) {
@@ -104,8 +104,8 @@ static void testBoxIntersect() {
 
 	AABox box(Vector3(-1.5, -1.5, -1.5), Vector3(1.5, 1.5, 1.5));
 
-	AABSPTree<Vector3>::BoxIntersectionIterator it = tree.beginBoxIntersection(box);
-	const AABSPTree<Vector3>::BoxIntersectionIterator end = tree.endBoxIntersection();
+	KDTree<Vector3>::BoxIntersectionIterator it = tree.beginBoxIntersection(box);
+	const KDTree<Vector3>::BoxIntersectionIterator end = tree.endBoxIntersection();
 
 	int hits = 0;
 	while (it != end) { 
@@ -117,14 +117,14 @@ static void testBoxIntersect() {
 		++it;
 	}
 
-	debugAssertM(hits == 3*3*3, "Wrong number of intersections found in testBoxIntersect for AABSPTree");
+	debugAssertM(hits == 3*3*3, "Wrong number of intersections found in testBoxIntersect for KDTree");
 }
 
 
-void perfAABSPTree() {
+void perfKDTree() {
 
     Array<AABox>                array;
-    AABSPTree<AABox>            tree;
+    KDTree<AABox>            tree;
     
     const int NUM_POINTS = 1000000;
     
@@ -138,7 +138,7 @@ void perfAABSPTree() {
     RealTime t0 = System::time();
     tree.balance();
     RealTime t1 = System::time();
-    printf("AABSPTree<AABox>::balance() time for %d boxes: %gs\n\n", NUM_POINTS, t1 - t0);
+    printf("KDTree<AABox>::balance() time for %d boxes: %gs\n\n", NUM_POINTS, t1 - t0);
 
     uint64 bspcount = 0, arraycount = 0, boxcount = 0;
 
@@ -177,8 +177,8 @@ void perfAABSPTree() {
         System::endCycleCount(arraycount);
     }
 
-    printf("AABSPTree<AABox>::getIntersectingMembers(plane) %g Mcycles\n"
-           "AABSPTree<AABox>::getIntersectingMembers(box)   %g Mcycles\n"
+    printf("KDTree<AABox>::getIntersectingMembers(plane) %g Mcycles\n"
+           "KDTree<AABox>::getIntersectingMembers(box)   %g Mcycles\n"
            "Culled by on Array<AABox>                       %g Mcycles\n\n", 
            bspcount / 1e6, 
            boxcount / 1e6,
@@ -196,7 +196,7 @@ public:
 };
 
 void testRayIntersect() {
-    AABSPTree<Triangle> tree;
+    KDTree<Triangle> tree;
 
     std::string name;
     Array<int> index;
@@ -228,8 +228,8 @@ void testRayIntersect() {
         // Exhaustively test against each triangle
         float exhaustiveDistance = inf();
         {
-            const AABSPTree<Triangle>::Iterator& end = tree.end();
-            AABSPTree<Triangle>::Iterator it = tree.begin();
+            const KDTree<Triangle>::Iterator& end = tree.end();
+            KDTree<Triangle>::Iterator it = tree.begin();
 
             while (it != end) {
                 const Triangle& tri = *it;
@@ -249,12 +249,12 @@ void testRayIntersect() {
         tree.intersectRay(ray, intersectCallback, treeDistance2, false);
 
         debugAssertM(fuzzyEq(treeDistance, exhaustiveDistance),
-                     format("AABSPTree::intersectRay found a point at %f, "
+                     format("KDTree::intersectRay found a point at %f, "
                             "exhaustive ray intersection found %f.",
                             treeDistance, exhaustiveDistance));
 
         debugAssertM(fuzzyEq(treeDistance2, exhaustiveDistance),
-                     format("AABSPTree::intersectRay found a point at %f, "
+                     format("KDTree::intersectRay found a point at %f, "
                             "exhaustive ray intersection found %f.",
                             treeDistance2, exhaustiveDistance));
     }
@@ -262,8 +262,8 @@ void testRayIntersect() {
 }
 
 
-void testAABSPTree() {
-    printf("AABSPTree ");
+void testKDTree() {
+    printf("KDTree ");
     
     testRayIntersect();
     testBoxIntersect();

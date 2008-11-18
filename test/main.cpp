@@ -62,8 +62,8 @@ void testGChunk();
 
 void testQuat();
 
-void perfAABSPTree();
-void testAABSPTree();
+void perfKDTree();
+void testKDTree();
 
 void testAABox();
 
@@ -570,7 +570,7 @@ int main(int argc, char* argv[]) {
 #    ifndef _DEBUG
         printf("Performance analysis:\n\n");
 
-        perfAABSPTree();
+        perfKDTree();
 
         // Pause so that we can see the values in the debugger
 //	        getch();
@@ -631,7 +631,7 @@ int main(int argc, char* argv[]) {
 
     testImageConvert();
 
-    testAABSPTree();
+    testKDTree();
 
     testMatrix();
 

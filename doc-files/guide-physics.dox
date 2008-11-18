@@ -56,6 +56,6 @@ Collision Detection<IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></F
   G3D::PosedModel has methods for obtaining the bounding box and sphere.
 
   @section bsptree BSP Tree
-  G3D::AABSPTree 
+  G3D::KDTree 
 
   */

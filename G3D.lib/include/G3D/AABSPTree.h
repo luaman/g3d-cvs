@@ -4,15 +4,15 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2004-01-11
-  @edited  2008-09-19
+  @edited  2008-11-19
 
   Copyright 2000-2008, Morgan McGuire.
   All rights reserved.
   
   */
 
-#ifndef G3D_AABSPTREE_H
-#define G3D_AABSPTREE_H
+#ifndef G3D_KDTREE_H
+#define G3D_KDTREE_H
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -130,19 +130,19 @@ template <class Handle> struct HashTrait<typename G3D::_internal::Indirector<Han
 namespace G3D {
 
 /**
- A set that supports spatial queries using an axis-aligned
- BSP tree for speed.
+ A set that supports spatial queries using a KD tree (axis-aligned
+ BSP tree) for speed.
 
- AABSPTree allows you to quickly find objects in 3D that lie within
+ KDTree allows you to quickly find objects in 3D that lie within
  a box or along a ray. For large sets of objects it is much faster
  than testing each object for a collision.
 
- AABSPTree is as powerful as but more general than a Quad Tree, Oct
- Tree, or KD Tree, but less general than an unconstrained BSP tree
+ KDTree is as powerful as but more general than a Quad Tree, Oct
+ Tree, or regular KD tree that cycles through axes, but less general than an unconstrained BSP tree
  (which is much slower to create).
  
  Internally, objects
- are arranged into an axis-aligned BSP-tree according to their 
+ are arranged into a tree according to their 
  axis-aligned bounds.  This increases the cost of insertion to
  O(log n) but allows fast overlap queries.
 
@@ -162,20 +162,20 @@ namespace G3D {
 
  <B>Moving %Set Members</B>
  <DT>It is important that objects do not move without updating the
- AABSPTree.  If the axis-aligned bounds of an object are about
- to change, AABSPTree::remove it before they change and 
- AABSPTree::insert it again afterward.  For objects
+ KDTree.  If the axis-aligned bounds of an object are about
+ to change, KDTree::remove it before they change and 
+ KDTree::insert it again afterward.  For objects
  where the hashCode and == operator are invariant with respect 
  to the 3D position,
- you can use the AABSPTree::update method as a shortcut to
+ you can use the KDTree::update method as a shortcut to
  insert/remove an object in one step after it has moved.
  
 
- Note: Do not mutate any value once it has been inserted into AABSPTree. Values
- are copied interally. All AABSPTree iterators convert to pointers to constant
+ Note: Do not mutate any value once it has been inserted into KDTree. Values
+ are copied interally. All KDTree iterators convert to pointers to constant
  values to reinforce this.
 
- If you want to mutate the objects you intend to store in a AABSPTree
+ If you want to mutate the objects you intend to store in a KDTree
  simply insert <I>pointers</I> to your objects instead of the objects
  themselves, and ensure that the above operations are defined. (And
  actually, because values are copied, if your values are large you may
@@ -183,7 +183,7 @@ namespace G3D {
  operation faster.)
 
  <B>Dimensions</B>
- Although designed as a 3D-data structure, you can use the AABSPTree
+ Although designed as a 3D-data structure, you can use the KDTree
  for data distributed along 2 or 1 axes by simply returning bounds
  that are always zero along one or more dimensions.
 
@@ -192,9 +192,9 @@ template< class T,
           class BoundsFunc = BoundsTrait<T>, 
           class HashFunc   = HashTrait<T>, 
           class EqualsFunc = EqualsTrait<T> > 
-class AABSPTree {
+class KDTree {
 protected:
-#define TreeType AABSPTree<T, BoundsFunc, HashFunc, EqualsFunc>
+#define TreeType KDTree<T, BoundsFunc, HashFunc, EqualsFunc>
 
     /** Wrapper for a value that includes a cache of its bounds. 
         Except for the test value used in a set-query operation, there
@@ -884,16 +884,16 @@ protected:
 public:
 
     /** To construct a balanced tree, insert the elements and then call
-      AABSPTree::balance(). */
-    AABSPTree() : root(NULL) {}
+      KDTree::balance(). */
+    KDTree() : root(NULL) {}
 
 
-    AABSPTree(const AABSPTree& src) : root(NULL) {
+    KDTree(const KDTree& src) : root(NULL) {
         *this = src;
     }
 
 
-    AABSPTree& operator=(const AABSPTree& src) {
+    KDTree& operator=(const KDTree& src) {
         delete root;
         // Clone tree takes care of filling out the memberTable.
         root = cloneTree(src.root);
@@ -901,7 +901,7 @@ public:
     }
 
 
-    ~AABSPTree() {
+    ~KDTree() {
         clear();
     }
 
@@ -1015,7 +1015,7 @@ public:
     void remove(const T& value) {
         debugAssertM(contains(value),
             "Tried to remove an element from a "
-            "AABSPTree that was not present");
+            "KDTree that was not present");
 
         // Get the list of elements at the node
         Handle h(value);
@@ -1403,7 +1403,7 @@ public:
 
     /**
      Appends all members whose bounds intersect the box.
-     See also AABSPTree::beginBoxIntersection.
+     See also KDTree::beginBoxIntersection.
      */
     void getIntersectingMembers(const AABox& box, Array<T>& members) const {
         if (root == NULL) {
@@ -1452,7 +1452,7 @@ public:
                 }
             };
 
-            AABSPTree<Entity*> scene;
+            KDTree<Entity*> scene;
 
             Intersection intersection;
             float distance = inf();
@@ -1511,7 +1511,7 @@ public:
     }
 
     /**
-     Returns an array of all members of the set.  See also AABSPTree::begin.
+     Returns an array of all members of the set.  See also KDTree::begin.
      */
     void getMembers(Array<T>& members) const {
         Array<Member> temp;
@@ -1600,6 +1600,9 @@ public:
     }
 #undef TreeType
 };
+
+/** @deprecated For backwards compatibility */
+#define AABSPTree KDTree
 
 }
 

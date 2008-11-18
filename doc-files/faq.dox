@@ -130,7 +130,7 @@ the individual tests.
 
 To make this faster, only construct the triangle list once on startup since the
 constructor is kind of slow.  If your model is large and you're inside it (e.g.
-a quake map) then you should create an AABSPTree, which will perform only
+a quake map) then you should create an KDTree, which will perform only
 log(n) ray intersection tests on average for n triangles.
 
 <a NAME="rotation"></a>
