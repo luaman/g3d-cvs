@@ -41,7 +41,6 @@
 #define G3D_NETWORKDEVICE_H
 
 #include "G3D/platform.h"
-
 #include "G3D/NetAddress.h"
 
 #include <string>
@@ -597,6 +596,9 @@ private:
     friend class NetListener;
     bool                        initialized;
 
+    uint32                      m_subnetMask;
+    uint32                      m_broadcastAddress;
+
     /** Utility method. */
     void closesocket(SOCKET& sock) const;
 
@@ -613,6 +615,19 @@ private:
 public:
 
     ~NetworkDevice();
+
+    /** The pattern to use for broadcasting to the local subnet */
+    inline uint32 localBroadcastIP() const {
+        return m_broadcastAddress;
+    }
+
+    inline uint32 globalBroadcastIP() const {
+        return 0xFFFFFFFF;
+    }
+
+    inline uint32 subnetMask() const {
+        return m_subnetMask;
+    }
 
     /**
      Returns NULL if there was a problem initializing the network.

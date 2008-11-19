@@ -34,7 +34,7 @@
   @maintainer Morgan McGuire, matrix@graphics3d.com
  
   @created 2003-06-26
-  @edited  2005-02-24
+  @edited  2008-11-24
  */
 
 #ifndef G3D_DISCOVERY_H
@@ -95,23 +95,30 @@ public:
     */
     uint16              serverAdvertisementPort;
 
+    /** Use G3D::NetworkAddress::localBroadcastAddress instead of
+        G3D::Network::broadcastAddress on the server side. */
+    bool                localOnly;
+
     /**
-     You can use the default G3D discovery ports as long as no other program
-     with the same protocol name is using this port.  You <B>can</B>
-     run two different G3D discovery programs on the same two ports
-     as long as they have different application protocol strings.
+     You can use the default G3D discovery ports as long as no other
+     program with the same protocol name is using this port.  You
+     <B>can</B> run two different G3D discovery programs on the same
+     two ports as long as they have different application protocol
+     strings.
      */
     DiscoverySettings(
         const char*     _appProtocolName,
         int             _appProtocolVersion,
         uint16          _serverBroadcast = 6173,
         uint16          _clientBroadcast = 6174,
-        uint16          _serverAdvertisementPort = 6175) :
+        uint16          _serverAdvertisementPort = 6175,
+        bool            _localOnly = true) :
         appProtocolName(_appProtocolName),
         appProtocolVersion(_appProtocolVersion),
         serverBroadcastPort(_serverBroadcast),
         clientBroadcastPort(_clientBroadcast),
-        serverAdvertisementPort(_serverAdvertisementPort) {}
+        serverAdvertisementPort(_serverAdvertisementPort),
+        localOnly(_localOnly) {}
 };
 
 /**
@@ -256,7 +263,7 @@ private:
     void sendAnnouncement() const;
 
     void sendShutDown() const;
-
+    
 public:
 
     /**
@@ -272,6 +279,9 @@ public:
     virtual void init(
         const DiscoverySettings* _settings,
         DiscoveryAdvertisement*  _advertisement);
+
+    /** Returns the broadcast address in use.*/
+    NetAddress broadcastAddress() const;
 
     /**
      Returns true if this discovery server has been initialized

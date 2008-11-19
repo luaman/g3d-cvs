@@ -21,7 +21,7 @@
 
 #include <cstring>
 
-#if defined(G3D_LINUX) || defined(G3D_OSX)
+#if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
     #include <unistd.h>
     #include <errno.h>
     #include <sys/socket.h>
@@ -29,6 +29,14 @@
     #include <arpa/inet.h>
     #include <netdb.h>
     #include <netinet/tcp.h>
+    #include <sys/ioctl.h>
+    #include <netinet/if_ether.h>
+    #include <net/ethernet.h>
+    #include <net/if.h>
+
+    #include <sys/types.h>
+    #include <sys/sockio.h>
+
     #define _alloca alloca
 
     /** Define an error code for non-windows platforms. */
@@ -213,6 +221,8 @@ std::string NetworkDevice::localHostName() const {
 bool NetworkDevice::init() {
     debugAssert(!initialized);
 
+    m_subnetMask = 0;
+
     #ifdef G3D_WIN32
         Log::common()->section("Network Startup");
         Log::common()->println("Starting WinSock networking.\n");
@@ -237,7 +247,64 @@ bool NetworkDevice::init() {
             wsda.wHighVersion,
             wsda.iMaxSockets,
             wsda.iMaxUdpDg);
-    #endif
+
+        // TODO: WSAIoctl for subnet and broadcast addresses
+        // http://msdn.microsoft.com/en-us/library/ms741621(VS.85).aspx
+        // 
+        // TODO: SIO_GET_INTERFACE_LIST 
+
+#   else
+
+        // TODO: Remove ; this is for testing
+        m_broadcastAddress = (137 << 24) | (165 << 16) | (11 << 8) | 255;
+        m_subnetMask = ~((uint32)((3 << 8) | 0xFF));
+
+#if 0 // TODO:remove
+
+        struct ifreq ifr;
+        System::memset(&ifr, 0, sizeof(ifreq));
+
+        // Default to the global address
+        m_broadcastAddress = 0xFFFFFFFF;
+
+        // Assume 16-bit subnet
+        m_subnetMask = 0x0000FFFF;
+
+        SOCKET sock = socket(AF_INET, SOCK_RAW, htons(ETHERTYPE_ARP));
+        if (sock == -1) {
+            logPrintf("Unable to create socket during broadcast check\n");
+        } else {
+
+            // Based on http://users.hotlink.com.br/lincoln/arptool/arptool.c
+            int r = 0;
+            // Get the BROADCAST address
+            r = ioctl(sock, SIOCGIFBRDADDR, &ifr);
+
+            if (r == 0) {
+                if (ifr.ifr_broadaddr.sa_family == AF_INET) {
+                    struct sockaddr_in* sin = (struct sockaddr_in *)&(ifr.ifr_broadaddr);
+                    m_broadcastAddress = ntohl(sin->sin_addr);
+                } else {
+                    logPrintf("Local broadcast not supported on this network adapter.\n");
+                }
+            } else {
+                logPrintf("Failed to get local broadcast address.\n");
+            }
+            /*
+            // Subnet mask
+            r = ioctl(sock, SIOCGIFNETMASK, &ifr);
+            if (r == 0) {
+                struct sockaddr_in* sin = (struct sockaddr_in *)&(ifr.ifr_netmask);
+                m_subnetMask = ntohl(sin->sin_addr.s_addr); 
+
+            } else {
+                logPrintf("Error getting netmask");
+            }
+            */
+            closesocket(sock);
+        }
+#endif // TODO :Remove
+#   endif
 
     initialized = true;
 
@@ -277,7 +344,7 @@ void NetworkDevice::closesocket(SOCKET& sock) const {
         #ifdef G3D_WIN32
             ::closesocket(sock);
         #else
-	        close(sock);
+            close(sock);
         #endif
 
         Log::common()->printf("Closed socket %d\n", sock);
@@ -1021,12 +1088,47 @@ bool NetListener::clientWaiting() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+static void writeIP(TextOutput& t, int ip) {
+    t.writeNumber((ip >> 24) & 0xFF);
+    t.writeSymbol(".");
+    t.writeNumber((ip >> 16) & 0xFF);
+    t.writeSymbol(".");
+    t.writeNumber((ip >> 8) & 0xFF);
+    t.writeSymbol(".");
+    t.writeNumber((ip >> 0) & 0xFF);
+}
+
 void NetworkDevice::describeSystem(
     TextOutput& t) {
 
     t.writeSymbols("Network", "{");
     t.writeNewline();
     t.pushIndent();
+
+    t.writeSymbols("hostname", "=");
+    t.writeString(localHostName());
+    t.writeNewline();
+
+    t.writeSymbols("localIP","=");
+    t.writeSymbol("{");
+    Array<NetAddress> a;
+    localHostAddresses(a);
+    for (int i = 0; i < a.size(); ++i) {
+        t.writeString(a[i].toString());
+        if (i < a.size() - 1) {
+            t.writeSymbol(",");
+        }
+    }
+    t.writeSymbol("}");
+    t.writeNewline();
+    
+    t.writeSymbols("broadcastAddress","=");
+    writeIP(t, m_broadcastAddress);
+    t.writeNewline();
+
+    t.writeSymbols("subnetMask","=");
+    writeIP(t, m_subnetMask);
+    t.writeNewline();
 
     t.popIndent();
     t.writeSymbols("}");

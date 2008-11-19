@@ -24,7 +24,9 @@
 #   ifndef SOCKADDR_IN
 #       define SOCKADDR_IN struct sockaddr_in
 #   endif
-#   define SOCKET int
+#   ifndef SOCKET
+#       define SOCKET int
+#   endif
 #endif
 
 #include "G3D/g3dmath.h"
@@ -52,29 +54,52 @@ public:
     NetAddress(uint32 host, uint16 port = 0);
 
     /**
-     Port is in host byte order.
+     @param port Specified in host byte order (i.e., don't worry about endian issues)
      */
     NetAddress(const std::string& hostname, uint16 port);
 
     /**
-    String must be in the form "hostname:port"
+       @param hostnameAndPort in the form "hostname:port" or "ip:port"
      */
     NetAddress(const std::string& hostnameAndPort);
 
     /**
-     For use with a lightweight conduit.
+     @brief Creates a UDP broadcast address for use with a
+     G3D::LightweightConduit.
+
+     Broadcasts across all addressable subnets.
+
+     UDP broadcast allows one machine to send a packet to all machines
+     on the same local network. The IP portion of the address is
+     0xFFFFFFFF, which indicates "broadcast" to the underlying socket
+     API.  This feature is not available with the connection-based TCP
+     protocol abstracted by G3D::ReliableConduit; use multisend
+     instead.
      */
     static NetAddress broadcastAddress(uint16 port);
+
+
+    /** 
+     @brief Creates a UDP broadcast address for use with a
+     G3D::LightweightConduit.
+
+     Broadcasts across subnets with the same D-class byte; that is,
+     creates a broadcast address that is (localIP & 0xFFFFFF00) | 0xFF.
+          
+     See also broadcastAddress().
+    */
+    static NetAddress localBroadcastAddress(uint16 port);
 
     NetAddress();
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
 
-    /** Returns true if this is not an illegal address. */
+    /** @brief Returns true if this is not an illegal address. */
     bool ok() const;
 
-    /** Returns a value in host format */
+    /** @brief Returns a value in host format (i.e., don't worry about
+        endian issues) */
     inline uint32 ip() const {
         return ntohl(addr.sin_addr.s_addr);
         //return ntohl(addr.sin_addr.S_un.S_addr);

@@ -5,12 +5,14 @@
  @created 2005-02-06
  @edited  2005-02-06
  */
+#include "G3D/platform.h"
 #include "G3D/NetAddress.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Array.h"
 #include "G3D/stringutils.h"
 #include "G3D/System.h"
+#include "G3D/NetworkDevice.h"
 
 #if defined(G3D_LINUX) || defined(G3D_OSX)
     #include <unistd.h>
@@ -21,6 +23,19 @@
     #include <netdb.h>
     #include <netinet/tcp.h>
     #define _alloca alloca
+
+#   ifndef SOCKADDR_IN
+#       define SOCKADDR_IN struct sockaddr_in
+#   endif
+#   ifndef SOCKET
+#       define SOCKET int
+#   endif
+
+#endif
+
+// SOCKADDR_IN is supposed to be defined in NetAddress.h
+#ifndef SOCKADDR_IN
+#    error Network headers included in wrong order
 #endif
 
 namespace G3D {
@@ -88,7 +103,24 @@ NetAddress::NetAddress(uint32 hostip, uint16 port) {
 
 
 NetAddress NetAddress::broadcastAddress(uint16 port) {
-    return NetAddress(0xFFFFFFFF, port);
+    return NetAddress(NetworkDevice::instance()->globalBroadcastIP(), port);
+}
+
+
+NetAddress NetAddress::localBroadcastAddress(uint16 port) {
+    return NetAddress(NetworkDevice::instance()->localBroadcastIP(), port);
+    /*
+    Array<NetAddress> local;
+    NetworkDevice::instance()->localHostAddresses(local);
+
+    if (local.size() == 0) {
+        // No network adapter!?...choose a generic address
+        return broadcastAddress(port);
+    } else {
+        // Assume the first address is desirable
+        uint32 subnet = local[0].ip() & 0xFFFFFF00;
+        return NetAddress(subnet | 0xFF, port);
+    }*/
 }
 
 

@@ -77,8 +77,16 @@ void DiscoveryServerAddressMessage::deserialize(BinaryInput& b) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+NetAddress DiscoveryServer::broadcastAddress() const {
+    if (settings->localOnly) {
+        return NetAddress::localBroadcastAddress(settings->serverBroadcastPort);
+    } else {
+        return NetAddress::broadcastAddress(settings->serverBroadcastPort);
+    }
+}
+
 void DiscoveryServer::sendAnnouncement() const {
-    NetAddress broadcast = NetAddress::broadcastAddress(settings->serverBroadcastPort);
+    NetAddress broadcast = broadcastAddress();
 
     net->send(broadcast, SERVER_BROADCAST_MESSAGE, addressMessage);
 
@@ -87,7 +95,7 @@ void DiscoveryServer::sendAnnouncement() const {
 
 
 void DiscoveryServer::sendShutDown() const {
-    NetAddress broadcast = NetAddress::broadcastAddress(settings->serverBroadcastPort);
+    NetAddress broadcast = broadcastAddress();
     ShutdownMessage s;
     net->send(broadcast, SERVER_SHUTDOWN_MESSAGE, s);
 }
