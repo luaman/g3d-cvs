@@ -60,7 +60,9 @@ class Library:
         self.symbolList       = symbolList
         self.dependsOnList    = dependsOnList
         self.deploy           = deploy
-
+        
+    def __str__(self):
+        return '$' + self.name + '$'
 #
 # Create a table mapping canonical library names to descriptions of the library
 #
@@ -75,6 +77,8 @@ symbolToLibraryTable = {}
 def defineLibrary(lib):
     global libraryTable, headerToLibraryTable, symbolToLibraryTable
 
+    if (utils.verbosity >= TRACE): print 'defineLibrary() adding ' + str(lib) + ' to libraryTable.'
+    
     if lib.name in libraryTable:
         colorPrint("ERROR: Library '" + lib.name + "' defined twice.", WARNING_COLOR)
         sys.exit(-1)

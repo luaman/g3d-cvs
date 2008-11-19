@@ -203,17 +203,19 @@ class Depend:
 class Cache:
     # Definition of Cache
     warnings = None
+
+    # Table mapping targets (e.g. RELEASE, DEBUG) to Depend instances
     depend = None
 
-    """ * copy of the library table values """
-    customLibraryList = []
+    """ Copy of the library table values """
+    customLibraryList = None
     
     # For pickle module
     def __getinitargs__(self):
         return ()
     
     def __getnewargs__(self):
-        return __getinitargs__(self)        
+        return __getinitargs__(self)
 
     def __init__(self):
         self.warnings = {}
@@ -223,23 +225,19 @@ class Cache:
     def __str__(self):
         s = 'Cache:'
         s += '\n  warnings = ' + str(self.warnings)
-        s += '\n  customLibraryList = ' + str(self.customLibraryList)
+        s += '\n  customLibraryList = ' + str([str(x) for x in self.customLibraryList])
         for k in self.depend:
-            s+= '\n  depend[\'' + str(k) + '\'] = ' + str(self.depend[k])
+            s += '\n  depend[\'' + str(k) + '\'] = ' + str(self.depend[k])
             
         return s
 
+    # Called by State.loadCache to update libraries
     def setPropertiesOn(self, state):
-        self.depend.setPropertiesOn(state)
-
         # Add libraries that are not already in the table
         for lib in self.customLibraryList:
+            print 'iterating through custom libraries'
             if not lib.name in libraryTable:
                 defineLibrary(lib)
-        
-    def getPropertiesFrom(self, state):
-        self.depend.getPropertiesFrom(state)
-        self.customLibraryList = [lib for name, lib in libraryTable]
 
 
 # Use getConfigurationState to load
@@ -421,6 +419,9 @@ class State:
 
     def saveCache(self, filename):
         self.getTargetCache().getPropertiesFrom(self)
+
+        # Libraries were automatically updated inside
+        # identifySiblingLibraryDependencies()
         
         file = open(filename, 'w')
         pickle.dump(self.cache, file)
@@ -460,6 +461,7 @@ class State:
             print self.cache
             print
 
+        self.cache.setPropertiesOn(self)
         self.getTargetCache().setPropertiesOn(self)
 
 ###############################################

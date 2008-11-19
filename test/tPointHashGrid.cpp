@@ -283,7 +283,7 @@ void perfPointHashGrid() {
     */
 	
     Array<Vector3> v;
-    ArticulatedModel::Ref m = ArticulatedModel::fromFile(System::findDataFile("bunny.ifs"));
+    ArticulatedModel::Ref m = ArticulatedModel::fromFile(System::findDataFile("cow.ifs"));
     getVertices(m, v);
     int numTestPts = v.size();
     Vector3 minCoords = min(v);

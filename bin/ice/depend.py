@@ -438,10 +438,16 @@ def identifySiblingLibraryDependencies(files, parents, state):
                         type = LIB
 
                     if isLibrary(type):
+                        if verbosity >= TRACE: print 'Need library "' + libname + '"'
                         if not libraryTable.has_key(libname):
-                            # TODO: do these definitions need to go in the cache as well?
-                            defineLibrary(Library(libname, type, libname, libname + 'd',  
-                                                  None,  None, [betterbasename(header)], [], []))
+                            newLib = Library(libname, type, libname, libname + 'd',  
+                                             None,  None, [betterbasename(header)], [], [])
+                            
+                            # Define in the runtime structure
+                            defineLibrary(newLib)
+
+                            # Add to the cache
+                            state.cache.customLibraryList.append(newLib)
 
                         if not libname in state.usesLibrariesList:
                             state.usesLibrariesList.append(libname)
