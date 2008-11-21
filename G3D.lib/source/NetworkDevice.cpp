@@ -36,6 +36,7 @@
 #       define AF_LINK AF_PACKET
 #   else
 #       include <net/if_dl.h>
+#       include <sys/sockio.h>
 #   endif
 
     #include <unistd.h>
@@ -51,7 +52,6 @@
     #include <net/if.h>
 
     #include <sys/types.h>
-    #include <sys/sockio.h>
 
     #define _alloca alloca
 
