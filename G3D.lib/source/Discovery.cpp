@@ -26,6 +26,7 @@ void DiscoveryAdvertisement::deserialize(BinaryInput& b) {
     lastUpdateTime = System::time();
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 void DiscoveryServerAddressMessage::serialize(BinaryOutput& b) const {
@@ -77,16 +78,8 @@ void DiscoveryServerAddressMessage::deserialize(BinaryInput& b) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-NetAddress DiscoveryServer::broadcastAddress() const {
-    if (settings->localOnly) {
-        return NetAddress::localBroadcastAddress(settings->serverBroadcastPort);
-    } else {
-        return NetAddress::broadcastAddress(settings->serverBroadcastPort);
-    }
-}
-
 void DiscoveryServer::sendAnnouncement() const {
-    NetAddress broadcast = broadcastAddress();
+    NetAddress broadcast(NetworkDevice::instance()->broadcastAddressArray()[0], settings->serverBroadcastPort);
 
     net->send(broadcast, SERVER_BROADCAST_MESSAGE, addressMessage);
 
@@ -95,7 +88,7 @@ void DiscoveryServer::sendAnnouncement() const {
 
 
 void DiscoveryServer::sendShutDown() const {
-    NetAddress broadcast = broadcastAddress();
+    NetAddress broadcast(NetworkDevice::instance()->broadcastAddressArray()[0], settings->serverBroadcastPort);
     ShutdownMessage s;
     net->send(broadcast, SERVER_SHUTDOWN_MESSAGE, s);
 }

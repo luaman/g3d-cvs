@@ -22,6 +22,22 @@
 #include <cstring>
 
 #if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
+#   include <sys/types.h>
+#   include <sys/socket.h>
+#   include <ifaddrs.h>
+#   include <netinet/in.h>
+#   include <net/if.h>
+#   ifdef __linux__
+#       include <sys/ioctl.h>
+#       include <netinet/in.h>
+#       include <unistd.h>
+#       include <string.h>
+//    Match Linux to FreeBSD
+#       define AF_LINK AF_PACKET
+#   else
+#       include <net/if_dl.h>
+#   endif
+
     #include <unistd.h>
     #include <errno.h>
     #include <sys/socket.h>
@@ -106,17 +122,17 @@ static void logSocketInfo(const SOCKET& sock) {
     int ret;
 
     ret = getsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char*)&val, (socklen_t*)&sz);
-    Log::common()->printf("SOL_SOCKET/SO_RCVBUF = %d\n", val);
+    logPrintf("SOL_SOCKET/SO_RCVBUF = %d\n", val);
 
     ret = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, (char*)&val, (socklen_t*)&sz);
-    Log::common()->printf("SOL_SOCKET/SO_SNDBUF = %d\n", val);
+    logPrintf("SOL_SOCKET/SO_SNDBUF = %d\n", val);
 
     // Note: timeout = 0 means no timeout
     ret = getsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&val, (socklen_t*)&sz);
-    Log::common()->printf("SOL_SOCKET/SO_RCVTIMEO = %d\n", val);
+    logPrintf("SOL_SOCKET/SO_RCVTIMEO = %d\n", val);
 
     ret = getsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char*)&val, (socklen_t*)&sz);
-    Log::common()->printf("SOL_SOCKET/SO_SNDTIMEO = %d\n", val);
+    logPrintf("SOL_SOCKET/SO_SNDTIMEO = %d\n", val);
 }
 
 
@@ -147,9 +163,8 @@ static bool readWaiting(const SOCKET& sock) {
 
     switch (ret) {
     case SOCKET_ERROR:
-        Log::common()->println("ERROR: selectOneReadSocket returned "
-                          "SOCKET_ERROR in readWaiting().");
-        Log::common()->println(socketErrorCode());
+        logPrintf("ERROR: selectOneReadSocket returned "
+                  "SOCKET_ERROR in readWaiting(). %s", socketErrorCode().c_str());
         // Return true so that we'll force an error on read and close
         // the socket.
         return true;
@@ -202,8 +217,9 @@ void NetworkDevice::cleanup() {
 
 
 NetworkDevice::NetworkDevice() {
-    initialized     = false;
+    initialized  = false;
 }
+
 
 NetworkDevice::~NetworkDevice() {
 }
@@ -218,108 +234,335 @@ std::string NetworkDevice::localHostName() const {
     return gethostbyname(ac)->h_name;
 }
 
-bool NetworkDevice::init() {
-    debugAssert(!initialized);
 
-    m_subnetMask = 0;
+const char* errnoToString() {
+    switch (errno) {
+    case EBADF:
+        return "file descriptor is invalid.";
 
-    #ifdef G3D_WIN32
-        Log::common()->section("Network Startup");
-        Log::common()->println("Starting WinSock networking.\n");
-        WSADATA wsda;		    
-        WSAStartup(MAKEWORD(G3D_WINSOCK_MAJOR_VERSION, G3D_WINSOCK_MINOR_VERSION), &wsda);
+    case EINVAL: 
+        return "Request or argp is not valid.";
+        
+    case ENOTTY:
+        return 
+            "file descriptor is not associated with a character special device OR "
+            "The specified request does not apply to the "
+            "kind of object that the descriptor fildes references.";
 
-        std::string machine = localHostName();
-        std::string addr    = NetAddress(machine, 0).ipString();
-        Log::common()->printf(
-            "Network:\n"
-            "  localhost = %s (%s)\n"
-            "  %s\n"
-            "  Status: %s\n"
-            "  Loaded winsock specification version %d (%d is "
-            "the highest available)\n"
-            "  %d sockets available\n"
-            "  Largest UDP datagram packet size is %d bytes\n\n",
-            machine.c_str(), addr.c_str(),
-            wsda.szDescription,
-            wsda.szSystemStatus,
-            wsda.wVersion,
-            wsda.wHighVersion,
-            wsda.iMaxSockets,
-            wsda.iMaxUdpDg);
+    case EADDRNOTAVAIL:
+        return "Address not available.";
 
-        // TODO: WSAIoctl for subnet and broadcast addresses
-        // http://msdn.microsoft.com/en-us/library/ms741621(VS.85).aspx
-        // 
-        // TODO: SIO_GET_INTERFACE_LIST 
-
-#   else
-
-        // TODO: Remove ; this is for testing
-        m_broadcastAddress = (137 << 24) | (165 << 16) | (11 << 8) | 255;
-        m_subnetMask = ~((uint32)((3 << 8) | 0xFF));
-
-#if 0 // TODO:remove
-
-        struct ifreq ifr;
-        System::memset(&ifr, 0, sizeof(ifreq));
-
-        // Default to the global address
-        m_broadcastAddress = 0xFFFFFFFF;
-
-        // Assume 16-bit subnet
-        m_subnetMask = 0x0000FFFF;
-
-        SOCKET sock = socket(AF_INET, SOCK_RAW, htons(ETHERTYPE_ARP));
-        if (sock == -1) {
-            logPrintf("Unable to create socket during broadcast check\n");
-        } else {
-
-            // Based on http://users.hotlink.com.br/lincoln/arptool/arptool.c
-            int r = 0;
-            // Get the BROADCAST address
-            r = ioctl(sock, SIOCGIFBRDADDR, &ifr);
-
-            if (r == 0) {
-                if (ifr.ifr_broadaddr.sa_family == AF_INET) {
-                    struct sockaddr_in* sin = (struct sockaddr_in *)&(ifr.ifr_broadaddr);
-                    m_broadcastAddress = ntohl(sin->sin_addr);
-                } else {
-                    logPrintf("Local broadcast not supported on this network adapter.\n");
-                }
-            } else {
-                logPrintf("Failed to get local broadcast address.\n");
-            }
-            /*
-            // Subnet mask
-            r = ioctl(sock, SIOCGIFNETMASK, &ifr);
-            if (r == 0) {
-                struct sockaddr_in* sin = (struct sockaddr_in *)&(ifr.ifr_netmask);
-                m_subnetMask = ntohl(sin->sin_addr.s_addr); 
-
-            } else {
-                logPrintf("Error getting netmask");
-            }
-            */
-            closesocket(sock);
+    default:
+        {
+            static char buffer[20];
+            sprintf(buffer, "Error %d", errno);
+            return buffer;
         }
-#endif // TODO :Remove
-#   endif
+    }
+}
+
+
+NetworkDevice::EthernetAdapter::EthernetAdapter() {
+    name = "";
+    ip = 0;
+    hostname = "";
+    subnet = 0;
+    broadcast = 0;
+    for (int i = 0; i < 6; ++i) {
+        mac[i] = 0;
+    }
+}
+
+void NetworkDevice::EthernetAdapter::describe(TextOutput& t) const {
+    t.writeSymbol("{");
+    t.pushIndent();
+    t.writeNewline();
+    
+    t.writeSymbols("hostname", "=");
+    t.writeString(hostname);
+    t.writeNewline();
+
+    t.writeSymbols("name", "=");
+    t.writeString(name);
+    t.writeNewline();    
+
+    t.writeSymbols("ip", "=");
+    t.writeSymbol(formatIP(ip));
+    t.writeNewline();    
+
+    t.writeSymbols("subnet", "=");
+    t.writeSymbol(formatIP(subnet));
+    t.writeNewline();    
+
+    t.writeSymbols("broadcast", "=");
+    t.writeSymbol(formatIP(broadcast));
+    t.writeNewline();    
+
+    t.writeSymbols("mac", "=");
+    t.writeSymbol(formatMAC(mac));
+    t.writeNewline();    
+
+    t.popIndent();
+    t.writeSymbol("}");
+    t.writeNewline();
+}
+
+
+void NetworkDevice::addAdapter(const EthernetAdapter& a) {
+    m_adapterArray.append(a);
+    if (a.broadcast != 0) {
+        int i = m_broadcastAddresses.findIndex(a.broadcast);
+        if (i == -1) {
+            m_broadcastAddresses.append(a.broadcast);
+        }
+    }
+}
+
+
+std::string NetworkDevice::formatIP(uint32 addr) {
+    return format("%3d.%3d.%3d.%3d", (addr >> 24) & 0xFF, (addr >> 16) & 0xFF,
+           (addr >> 8) & 0xFF, addr & 0xFF);
+}
+
+
+std::string NetworkDevice::formatMAC(const uint8 MAC[6]) {
+    return format("%02x:%02x:%02x:%02x:%02x:%02x", MAC[0], MAC[1], MAC[2], MAC[3], MAC[4], MAC[5]);
+}
+
+
+#ifdef G3D_WIN32
+
+bool NetworkDevice::init() {
+    debugAssert(! initialized);
+
+    logPrintf("Network Startup");
+    logPrintf("Starting WinSock networking.\n");
+    WSADATA wsda;		    
+    WSAStartup(MAKEWORD(G3D_WINSOCK_MAJOR_VERSION, G3D_WINSOCK_MINOR_VERSION), &wsda);
+        
+    std::string hostname = "localhost";
+    {
+        char ac[128];
+        if (gethostname(ac, sizeof(ac)) == -1) {
+            logPrintf("Warning: Error while getting local host name\n");
+        } else {
+            hostname = gethostbyname(ac)->h_name;
+        }
+    }
+    
+    EthernetAdapter a;
+    a.hostname = hostname;
+    a.name = "";
+    a.ip = NetAddress(hostname, 0).ip;
+
+    // TODO: Find subnet on Win32
+    a.subnet = 0x0000FFFF;
+    
+    // TODO: Find broadcast on Win32
+    a.broadcast = 0xFFFFFFFF;
+
+    // TODO: find MAC on Win32
+    
+    addAdapter(a);
+    
+    std::string machine = localHostName();
+    std::string addr    = NetAddress(machine, 0).ipString();
+    logPrintf(
+              "Network:\n"
+              "  Status: %s\n"
+              "  Loaded winsock specification version %d (%d is "
+              "the highest available)\n"
+              "  %d sockets available\n"
+              "  Largest UDP datagram packet size is %d bytes\n\n",
+              wsda.szDescription,
+              wsda.szSystemStatus,
+              wsda.wVersion,
+              wsda.wHighVersion,
+              wsda.iMaxSockets,
+              wsda.iMaxUdpDg);
+    
+    // TODO: WSAIoctl for subnet and broadcast addresses
+    // http://msdn.microsoft.com/en-us/library/ms741621(VS.85).aspx
+    // 
+    // TODO: SIO_GET_INTERFACE_LIST 
+
+    initialized = true;
+
+    return true;
+}
+#endif
+
+
+#if defined(G3D_LINUX) || defined(G3D_OSX) || defined(G3D_FREEBSD)
+
+const sockaddr_in* castToIP4(const sockaddr* addr) {
+    if (addr == NULL) {
+        return NULL;
+    } else if (addr->sa_family == AF_INET) {
+        // An IPv4 address
+        return reinterpret_cast<const sockaddr_in*>(addr);
+    } else {
+        // Not an IPv4 address
+        return NULL;
+    }
+}
+
+uint32 getIP(const sockaddr_in* addr) {
+    if (addr != NULL) {
+        return ntohl(addr->sin_addr.s_addr);
+    } else {
+        return 0;
+    }
+}
+
+
+bool NetworkDevice::init() {
+    debugAssert(! initialized);
+
+    // Used for combining the MAC and ip information
+    typedef Table<std::string, EthernetAdapter> AdapterTable;
+
+    AdapterTable table;
+
+    // Head of a linked list of network interfaces on this machine
+    ifaddrs* ifap = NULL;
+
+    int r = getifaddrs(&ifap);
+
+    if (r != 0) {
+        logPrintf("ERROR: getifaddrs returned %d\n", r);
+        return false;
+    }
+
+    ifaddrs* current = ifap;
+
+    if (current == NULL) {
+        logPrintf("WARNING: No network interfaces found\n");
+        EthernetAdapter a;
+        a.name = "fallback";
+        a.hostname = "localhost";
+        a.ip = (127 << 24) | 1;       
+        a.broadcast = 0xFFFFFFFF;
+        a.subnet    = 0x000000FF;
+        addAdapter(a);
+
+    } else {
+
+        while (current != NULL) {
+
+            bool up = (current->ifa_flags & IFF_UP); 
+            bool loopback = (current->ifa_flags & IFF_LOOPBACK);
+
+            if (! up || loopback) {
+                // Skip this adapter; it is offline or is a loopback
+                current = current->ifa_next;
+                continue;
+            }
+
+            if (! table.containsKey(current->ifa_name)) {
+                EthernetAdapter a;
+                a.name = current->ifa_name;
+                table.set(a.name, a);
+            }
+
+            // This adapter must exist because it was created above
+            EthernetAdapter& adapter = table[current->ifa_name];
+
+            const sockaddr_in* interfaceAddress = castToIP4(current->ifa_addr);
+            const sockaddr_in* broadcastAddress = castToIP4(current->ifa_dstaddr);
+            const sockaddr_in* subnetMask       = castToIP4(current->ifa_netmask);
+
+            uint32 ip = getIP(interfaceAddress);
+            uint32 ba = getIP(broadcastAddress);
+            uint32 sn = getIP(subnetMask);
+            
+            if (ip != 0) {
+                adapter.ip = ip;
+            }
+
+            if (ba != 0) {
+                adapter.broadcast = ba;
+            }
+
+            if (sn != 0) {
+                adapter.subnet = sn;
+            }
+
+            uint8_t* MAC = NULL;
+            // Extract MAC address
+            if ((current->ifa_addr != NULL) && (current->ifa_addr->sa_family == AF_LINK)) {
+#               ifdef __linux__
+                {
+                    // Linux
+                    struct ifreq ifr;
+                    
+                    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+                    
+                    ifr.ifr_addr.sa_family = AF_INET;
+                    strcpy(ifr.ifr_name, current->ifa_name);
+                    ioctl(fd, SIOCGIFHWADDR, &ifr);
+                    close(fd);
+                    
+                    MAC = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
+                }
+#               else
+                {
+                    // The MAC address and the interfaceAddress come in as
+                    // different interfaces with the same name.
+                    
+                    // Posix/FreeBSD/Mac OS
+                    sockaddr_dl* sdl = (struct sockaddr_dl *)current->ifa_addr;
+                    MAC = reinterpret_cast<uint8_t*>(LLADDR(sdl));
+                }
+#               endif
+                
+                // See if there was a MAC address
+                if (MAC != NULL) {
+                    bool anyNonZero = false;
+                    for (int i = 0; i < 6; ++i) {
+                        anyNonZero = anyNonZero || (MAC[i] != 0);
+                    }
+                    if (anyNonZero) {
+                        System::memcpy(adapter.mac, MAC, 6);
+                    }
+                }
+            }
+     
+            current = current->ifa_next;
+        }
+
+        freeifaddrs(ifap);
+        ifap = NULL;
+    }
+
+    // Extract all interesting adapters from the table
+    for (AdapterTable::Iterator it = table.begin(); it.hasMore(); ++it) {
+        const EthernetAdapter& adapter = it->value;
+        
+        // Only add adapters that have IP addresses
+        if (adapter.ip != 0) {
+            addAdapter(adapter);
+        } else {
+            logPrintf("NetworkDevice: Ignored adapter %s because ip = 0\n", adapter.name.c_str());
+        }
+    }
 
     initialized = true;
 
     return true;
 }
 
+#endif
+
 
 void NetworkDevice::_cleanup() {
     debugAssert(initialized);
 
-    #ifdef G3D_WIN32
-        Log::common()->section("Network Cleanup");
+    logPrintf("Network Cleanup");
+#   ifdef G3D_WIN32
         WSACleanup();
-        Log::common()->println("Network cleaned up.");
-    #endif
+#   endif
+    logPrintf("Network cleaned up.");
 }
 
 bool NetworkDevice::bind(SOCKET sock, const NetAddress& addr) const {
@@ -1088,47 +1331,17 @@ bool NetListener::clientWaiting() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void writeIP(TextOutput& t, int ip) {
-    t.writeNumber((ip >> 24) & 0xFF);
-    t.writeSymbol(".");
-    t.writeNumber((ip >> 16) & 0xFF);
-    t.writeSymbol(".");
-    t.writeNumber((ip >> 8) & 0xFF);
-    t.writeSymbol(".");
-    t.writeNumber((ip >> 0) & 0xFF);
-}
-
 void NetworkDevice::describeSystem(
     TextOutput& t) {
 
     t.writeSymbols("Network", "{");
     t.writeNewline();
     t.pushIndent();
-
-    t.writeSymbols("hostname", "=");
-    t.writeString(localHostName());
-    t.writeNewline();
-
-    t.writeSymbols("localIP","=");
-    t.writeSymbol("{");
-    Array<NetAddress> a;
-    localHostAddresses(a);
-    for (int i = 0; i < a.size(); ++i) {
-        t.writeString(a[i].toString());
-        if (i < a.size() - 1) {
-            t.writeSymbol(",");
-        }
-    }
-    t.writeSymbol("}");
-    t.writeNewline();
     
-    t.writeSymbols("broadcastAddress","=");
-    writeIP(t, m_broadcastAddress);
-    t.writeNewline();
+    for (int i = 0; i < m_adapterArray.size(); ++i) {
+        m_adapterArray[i].describe(t);
+    }
 
-    t.writeSymbols("subnetMask","=");
-    writeIP(t, m_subnetMask);
-    t.writeNewline();
 
     t.popIndent();
     t.writeSymbols("}");

@@ -64,10 +64,10 @@ public:
     NetAddress(const std::string& hostnameAndPort);
 
     /**
+       @deprecated Use G3D::NetworkDevice::broadcastAddressArray()
+
      @brief Creates a UDP broadcast address for use with a
      G3D::LightweightConduit.
-
-     Broadcasts across all addressable subnets.
 
      UDP broadcast allows one machine to send a packet to all machines
      on the same local network. The IP portion of the address is
@@ -77,18 +77,6 @@ public:
      instead.
      */
     static NetAddress broadcastAddress(uint16 port);
-
-
-    /** 
-     @brief Creates a UDP broadcast address for use with a
-     G3D::LightweightConduit.
-
-     Broadcasts across subnets with the same D-class byte; that is,
-     creates a broadcast address that is (localIP & 0xFFFFFF00) | 0xFF.
-          
-     See also broadcastAddress().
-    */
-    static NetAddress localBroadcastAddress(uint16 port);
 
     NetAddress();
 

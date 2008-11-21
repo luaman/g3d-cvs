@@ -571,33 +571,79 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- An abstraction over sockets that provides a message based network
- infrastructure optimized for sending many small (>500 byte) messages.
- All functions always return immediately.
- <P>
- Create only one NetworkDevice per-process (WinSock restriction).
- <P>
- NetworkDevice is technically not thread safe.  However, as long as you
- use different conduits on different threads (or lock conduits before sending), you will encounter no
- problems sharing the single NetworkDevice across multiple threads.  That is,
- do not invoke a Conduit's send or receive method on two threads at once.
+   @brief Abstraction of network (socket) functionality.
 
- This assumes that the underlying WinSock/BSD sockets implementation
- is thread safe.  That is not guaranteed, but in practice seems
- to always be true (e.g.
- http://tangentsoft.net/wskfaq/intermediate.html#threadsafety)
+   An abstraction over sockets that provides a message-based network
+   infrastructure optimized for sending many small (~500 bytes) messages.
+   All functions always return immediately.
+   
+   Create only one NetworkDevice per process (a WinSock restriction).
+   
+   NetworkDevice is technically not thread safe.  However, as long as
+   you use different conduits on different threads (or lock conduits
+   before sending), you will encounter no problems sharing the single
+   NetworkDevice across multiple threads.  That is, do not invoke the same
+   Conduit's send or receive method on two threads at once.
+   
+   This assumes that the underlying WinSock/BSD sockets implementation
+   is thread safe.  That is not guaranteed, but in practice seems
+   to always be true (see
+   http://tangentsoft.net/wskfaq/intermediate.html#threadsafety)
+
+   <hr> 
+
+   IP networks use "network byte order" (big-endian) for
+   communicating integers.  "Host byte order" is the endian-ness of
+   the local machine (typically little-endian; see
+   System::endian). The C functions htonl() and ntohl() convert 32-bit
+   values between these formats. G3D only ever exposes host byte order,
+   so programmers rarely need to be aware of the distinction.
 
  */
 class NetworkDevice {
+public:
+
+    /** @brief Description of an ethernet or wireless ethernet adapter.*/
+    class EthernetAdapter {
+    public:
+        /** Reverse-DNS of the ip address.*/
+        std::string     hostname;
+
+        /** Name of the adapter */
+        std::string     name;
+
+        /** IP address in host byte order.*/
+        uint32          ip;
+
+        /** Subnet mask in host byte order.*/
+        uint32          subnet;
+
+        /** UDP broadcast address in host byte order.*/
+        uint32          broadcast;
+
+        /** MAC (hardware) address, if known */
+        uint8           mac[6];
+
+        EthernetAdapter();
+
+        /** Produces a text description of this adapter */
+        void describe(TextOutput& t) const;
+    };
+
 private:
+
     friend class Conduit;
     friend class LightweightConduit;
     friend class ReliableConduit;
     friend class NetListener;
+
     bool                        initialized;
 
-    uint32                      m_subnetMask;
-    uint32                      m_broadcastAddress;
+    Array<EthernetAdapter>      m_adapterArray;
+
+    /** Broadcast addresses available on this machine,
+     extracted from m_adapterArray.*/
+    Array<uint32>               m_broadcastAddresses;
 
     /** Utility method. */
     void closesocket(SOCKET& sock) const;
@@ -605,28 +651,41 @@ private:
     /** Utility method. Returns true on success.*/
     bool bind(SOCKET sock, const NetAddress& addr) const;
 
+    /** The global instance */
     static NetworkDevice* s_instance;
 
     NetworkDevice();
 
     bool init();
+
     void _cleanup();
+
+    /** Called from init to update m_adapterArray and
+        m_broadcastAddresses. */
+    void addAdapter(const EthernetAdapter& a);
 
 public:
 
+    /** Prints an IP address to a string.
+        @param ip In host byte order.*/
+    static std::string formatIP(uint32 ip);
+
+    /** Prints a MAC address to a string. */
+    static std::string formatMAC(const uint8 mac[6]);
+
     ~NetworkDevice();
 
-    /** The pattern to use for broadcasting to the local subnet */
-    inline uint32 localBroadcastIP() const {
-        return m_broadcastAddress;
+    /** Returns the available ethernet adapters for the current
+        machine that are online. Does not include the loopback adapter
+        for localhost.*/
+    inline const Array<EthernetAdapter>& adapterArray() const {
+        return m_adapterArray;
     }
 
-    inline uint32 globalBroadcastIP() const {
-        return 0xFFFFFFFF;
-    }
-
-    inline uint32 subnetMask() const {
-        return m_subnetMask;
+    /** Returns the (unique) IP addresses for UDP broadcasting
+        extracted from adapterArray(). All are in host byte order. */
+    inline const Array<uint32>& broadcastAddressArray() const {
+        return m_broadcastAddresses;
     }
 
     /**
@@ -641,7 +700,7 @@ public:
 
     /**
      Prints a human-readable description of this machine
-     to the text output stream.  Either argument may be NULL.
+     to the text output stream.
      */
     void describeSystem(
         TextOutput& t);
@@ -649,13 +708,14 @@ public:
     void describeSystem(
         std::string&        s);
 
-    /** Returns the name of this computer */
+    /** Returns the name (or one of the names) of this computer */
     std::string localHostName() const;
 
     /** There is often more than one address for the local host. This
-        returns all of them. */
+        returns all of them. 
+        @deprecated Use adapterArray()
+    */
     void localHostAddresses(Array<NetAddress>& array) const;
-
 };
 
 
@@ -665,23 +725,10 @@ inline uint32 gcchtonl(uint32 x) {
     // including the bogus one that it creates for htonl
 #   pragma GCC system_header
     return htonl(x);
-    /*
-    static const int32 a = 1;
-    if (*(uint8*)&a == 1) {
-        // Little endian machine
-        for (int i = 0; i < 4; ++i) {
-            ((unsigned char*)lenPtr)[i] = 
-                ((unsigned char*)(&len))[3 - i];
-        }
-    } else {
-        // Big endian machine
-        *lenPtr = len;
-    }
-*/
 }
 #endif
 
-}
+} // G3D namespace
 
 #ifndef _WIN32
 #undef SOCKADDR_IN

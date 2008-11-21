@@ -95,10 +95,6 @@ public:
     */
     uint16              serverAdvertisementPort;
 
-    /** Use G3D::NetworkAddress::localBroadcastAddress instead of
-        G3D::Network::broadcastAddress on the server side. */
-    bool                localOnly;
-
     /**
      You can use the default G3D discovery ports as long as no other
      program with the same protocol name is using this port.  You
@@ -117,8 +113,7 @@ public:
         appProtocolVersion(_appProtocolVersion),
         serverBroadcastPort(_serverBroadcast),
         clientBroadcastPort(_clientBroadcast),
-        serverAdvertisementPort(_serverAdvertisementPort),
-        localOnly(_localOnly) {}
+        serverAdvertisementPort(_serverAdvertisementPort) {}
 };
 
 /**
@@ -524,7 +519,8 @@ public:
         net = LightweightConduit::create(settings->serverBroadcastPort, true, true);
 
         // Send announcement
-        NetAddress broadcast = NetAddress::broadcastAddress(settings->clientBroadcastPort);
+        NetAddress broadcast(NetworkDevice::instance()->broadcastAddressArray()[0],
+                             settings->clientBroadcastPort);
         BroadcastMessage tmp;
         net->send(broadcast, CLIENT_BROADCAST_MESSAGE, tmp);
     }

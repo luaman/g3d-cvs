@@ -103,24 +103,7 @@ NetAddress::NetAddress(uint32 hostip, uint16 port) {
 
 
 NetAddress NetAddress::broadcastAddress(uint16 port) {
-    return NetAddress(NetworkDevice::instance()->globalBroadcastIP(), port);
-}
-
-
-NetAddress NetAddress::localBroadcastAddress(uint16 port) {
-    return NetAddress(NetworkDevice::instance()->localBroadcastIP(), port);
-    /*
-    Array<NetAddress> local;
-    NetworkDevice::instance()->localHostAddresses(local);
-
-    if (local.size() == 0) {
-        // No network adapter!?...choose a generic address
-        return broadcastAddress(port);
-    } else {
-        // Assume the first address is desirable
-        uint32 subnet = local[0].ip() & 0xFFFFFF00;
-        return NetAddress(subnet | 0xFF, port);
-    }*/
+    return NetAddress(NetworkDevice::instance()->broadcastAddressArray()[0], port);
 }
 
 
