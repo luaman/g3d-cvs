@@ -179,10 +179,6 @@
 				RelativePath="..\demos\network\App.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\demos\network\Discovery2.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -191,10 +187,6 @@
 			>
 			<File
 				RelativePath="..\demos\network\App.h"
-				>
-			</File>
-			<File
-				RelativePath="..\demos\network\Discovery2.h"
 				>
 			</File>
 		</Filter>

@@ -382,6 +382,9 @@ href="classes.html">Classes</a>.
         \link G3D::zipRead zipRead\endlink
 
     <LI><B>Network</B> &nbsp; &nbsp;
+        \link G3D::Discovery2::Client Discovery2::Client\endlink,
+        \link G3D::Discovery2::Server Discovery2::Server\endlink,
+        \link G3D::Discovery2::Settings Discovery2::Settings\endlink,    
         \link G3D::DiscoveryAdvertisement DiscoveryAdvertisement\endlink,
         \link G3D::DiscoveryClient DiscoveryClient\endlink,
         \link G3D::DiscoveryServer DiscoveryServer\endlink,

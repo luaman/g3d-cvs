@@ -58,6 +58,8 @@ namespace G3D {
  If a machine is running two different programs using discovery they
  must have different ports.  However different programs can share the
  same ports if they run on the same LAN with different servers.
+
+ @deprecated See Discovery2::Settings
  */
 class DiscoverySettings {
 public:
@@ -121,6 +123,7 @@ public:
  of information advertised.
 
  Overrides must provide a default constructor.
+ @deprecated See Discovery2::Settings
  */
 class DiscoveryAdvertisement {
 public:
@@ -219,7 +222,7 @@ public:
     virtual ~Discovery() {}
 };
 
-
+/** @deprecated See Discovery2::Server*/
 class DiscoveryServer : private Discovery {
 private:
 
@@ -314,6 +317,8 @@ public:
  a single computer.
 
  AdType must be a subclass of DiscoveryAdvertisement.
+
+ @deprecated See Discovery2::Client
  */
 template<class AdType> 
 class DiscoveryClient : private Discovery {

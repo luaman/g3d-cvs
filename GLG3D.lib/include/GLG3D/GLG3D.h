@@ -114,6 +114,8 @@
 #include "GLG3D/VideoOutput.h"
 #include "GLG3D/ShadowMap.h"
 
+#include "GLG3D/Discovery2.h"
+
 #ifdef G3D_OSX
 #include "GLG3D/CarbonWindow.h"
 #endif

@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\Discovery2.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\Draw.cpp"
 				>
 			</File>
@@ -496,6 +500,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\DeveloperWindow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Discovery2.h"
 				>
 			</File>
 			<File

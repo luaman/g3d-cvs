@@ -1,13 +1,22 @@
+/**
+ @file Discovery2.h
+  
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+ @created 2008-11-20
+ @edited  2008-11-22
+ */
+
 #ifndef G3D_Discovery2_h
 #define G3D_Discovery2_h
 
 #include <string.h>
-#include <G3D/NetAddress.h>
-#include <G3D/NetworkDevice.h>
-#include <GLG3D/Widget.h>
-#include <GLG3D/GuiWindow.h>
-#include <GLG3D/OSWindow.h>
-#include <GLG3D/GuiTheme.h>
+#include "G3D/NetAddress.h"
+#include "G3D/NetworkDevice.h"
+#include "GLG3D/Widget.h"
+#include "GLG3D/GuiWindow.h"
+#include "GLG3D/OSWindow.h"
+#include "GLG3D/GuiTheme.h"
 
 namespace G3D {
 
@@ -18,7 +27,10 @@ namespace Discovery2 {
 
 using std::string;
 
-/** @brief Used by G3D::Discovery2::Server to advertise its services. */
+/** @brief Used by G3D::Discovery2::Server to advertise its services. 
+
+@beta
+*/
 class ServerDescription {
 public:
     /** Name of the server for display.  This need not have any
@@ -69,6 +81,7 @@ public:
   Options for configuring the G3D Discovery protocol. 
   These rarely need to be changed except for the client-side
   display options.
+@beta
  */
 class Settings {
 public:
@@ -115,6 +128,9 @@ typedef ReferenceCountedPointer<class Client> ClientRef;
    methods.  Instead, add to a WidgetManager
    by calling G3D::GApp::addWidget or G3D::WidgetManager::add, and
    then remove when browsing is complete.
+
+   See demos/network for an example of use
+@beta
  */
 class Client : public GuiWindow {
 private:
@@ -143,6 +159,10 @@ private:
     Array<ServerDescription>  m_serverArray;
 
     Array<std::string>        m_serverDisplayArray;
+
+    /** Parallel array to m_serverDisplayArray giving pixel coords in the 
+        server browser.  Updated by render() */
+    Array<Rect2D>             m_clickBox;
 
     LightweightConduitRef     m_net;
 
@@ -231,7 +251,9 @@ typedef ReferenceCountedPointer<class Server> ServerRef;
    manage network requests.  This can be done automatically by calling
    G3d::GApp::addWidget() or G3D::WidgetManager::add() with the server
    as an argument at the start of a program.
- */
+
+   @beta
+*/
 class Server : public Widget {
 private:
 

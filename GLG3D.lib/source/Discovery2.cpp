@@ -1,11 +1,17 @@
-
-#include <G3D/platform.h>
-#include <G3D/BinaryInput.h>
-#include <G3D/BinaryOutput.h>
-#include <G3D/Log.h>
-#include <GLG3D/Draw.h>
-#include "Discovery2.h"
-
+/**
+ @file Discovery2.cpp
+  
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
+ 
+ @created 2008-11-20
+ @edited  2008-11-22
+ */
+#include "G3D/platform.h"
+#include "G3D/BinaryInput.h"
+#include "G3D/BinaryOutput.h"
+#include "G3D/Log.h"
+#include "GLG3D/Draw.h"
+#include "GLG3D/Discovery2.h"
 
 namespace G3D { namespace Discovery2 {
 
@@ -38,17 +44,17 @@ void ServerDescription::deserialize(BinaryInput& b) {
 
 std::string ServerDescription::displayText() const {
     if (maxClients == INT_MAX) {
-        // Infinite clients
+        // Infinite number of clients
         return 
-            format("%16s (%7d) %s:%-5d", 
+            format("%24s (%6d ) %s:%-5d", 
                    serverName.c_str(),
                    currentClients,
                    NetworkDevice::formatIP(applicationAddress.ip()).c_str(),
                    applicationAddress.port());
     } else {
-        // Finite clients
+        // Finite number of clients
         return 
-            format("%16s (%3d/%-3d) %s:%-5d", 
+            format("%24s (%3d/%-3d) %s:%-5d", 
                    serverName.c_str(),
                    currentClients,
                    maxClients,
@@ -162,6 +168,7 @@ void Client::onNetwork() {
         if (m_serverArray[i].lastUpdateTime < tooOld) {
             m_serverArray.remove(i);
             m_serverDisplayArray.remove(i);
+            m_clickBox.remove(i);
             --i;
         }
     }
@@ -195,6 +202,9 @@ void Client::receiveDescription() {
 
     // Update the display entry
     m_serverDisplayArray[i] = m_serverArray[i].displayText();
+
+    // Wipe the click bounds since they no longer match the data
+    m_clickBox.clear();
 }
 
 
@@ -212,9 +222,11 @@ void Client::render(RenderDevice* rd) {
 
     // Show server list
     rd->enableClip2D(box);
+    m_clickBox.resize(m_serverDisplayArray.size());
     for (int i = 0; i < m_serverDisplayArray.size(); ++i) {
         Vector2 pos(box.x0() + 10, box.y0() + 10 + style.size * 1.5 * i);
-        font->draw2D(rd, m_serverDisplayArray[i], pos, style.size, style.color, style.outlineColor);
+        Vector2 bounds = font->draw2D(rd, m_serverDisplayArray[i], pos, style.size, style.color, style.outlineColor);
+        m_clickBox[i] = Rect2D::xywh(pos, bounds);
     }
     rd->disableClip2D();
 
@@ -237,6 +249,17 @@ bool Client::onEvent(const GEvent& event) {
             m_connectPushed = false;
             setVisible(false);
             return true;
+        }
+    } else if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
+        Vector2 mouse(event.button.x, event.button.y);
+        for (int i = 0; i < m_clickBox.size(); ++i) {
+            if (m_clickBox[i].contains(mouse)) {
+                // Clicked on this server
+                m_index = i;
+                m_connectPushed = true;
+                setVisible(false);
+                return true;
+            }
         }
     }
 
