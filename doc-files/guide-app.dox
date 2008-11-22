@@ -67,7 +67,7 @@ of how to <em>not</em> use GApp.
 
   @section controls User Interface
 
-   Consider using a GUI library (GLUT, FLTK, wxWindows, qtWindows, .NET) to
+   Consider using a GUI library (GLUT, FLTK, wxWindows, Qt, .NET) to
    make your UI.
 
    FPS controls via G3D::ManualCameraController.  The GApp creates

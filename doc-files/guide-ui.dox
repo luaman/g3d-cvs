@@ -125,14 +125,6 @@ implement more advanced input systems, consider extending or re-writing
 G3D::UserInput.
 <P> If a custom window set is not desired, several OSWindow child classes 
 are available for streamlining the implementation process. These include 
-G3D::SDLWindow (SDL), G3D::Win32Window (Win32), G3D::wxWindow (wxWidgets), 
-GlutWindow (Glut) and QGWindow (Qt).  Look at the individual classes in 
-their respective contribution projects for advice and demonstrations on 
-how to use them:
-
-- wxWindows: <A HREF="../contrib/wxG3DCanvas">contrib/wxG3DCanvas</A>, 
-<A HREF="../contrib/CoreyGWindow">contrib/CoreyGWindow</A>/wxGWindow
-- Qt: <A HREF="../contrib/CoreyGWindow">contrib/CoreyGWindow</A>/QGWindow
-- Win32/MFC: <A HREF="../contrib/Win32Window">contrib/Win32Window</A>
+G3D::SDLWindow (SDL), G3D::Win32Window (Win32) and G3D::CarbonWindow (OSX).
 
   */
