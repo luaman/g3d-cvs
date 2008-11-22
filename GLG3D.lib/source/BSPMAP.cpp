@@ -94,6 +94,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
     GCamera camera = worldCamera;
     camera.setCoordinateFrame(renderDevice->getObjectToWorldMatrix().toObjectSpace(worldCamera.coordinateFrame()));
 
+    debugAssertGLOk();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
 	    static Array<FaceSet*> opaqueFaceArray;
@@ -107,6 +108,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 	        getVisibleFaces(renderDevice, camera, translucentFaceArray, opaqueFaceArray);
         }
 
+        debugAssertGLOk();
 		// Opaque
 		glCullFace(GL_FRONT);
 		glDisable(GL_BLEND);
@@ -135,7 +137,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 
         glColor(Color3::white() * adjustBrightness);
 		renderFaces(renderDevice, camera, translucentFaceArray);
-
+        debugAssertGLOk();
 
         if (false) {
             // Draw lighting (for debugging)
@@ -184,6 +186,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
             }
             glEnd();
         }
+    debugAssertGLOk();
 
 	glPopClientAttrib();
 	glPopAttrib();
@@ -203,11 +206,9 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 		}
 		glEnd();
 
-
-		renderDevice->debugDrawBox(leafArray[2802].bounds);
-
 	renderDevice->popState();	
 #endif
+    debugAssertGLOk();
 
     renderDevice->popState();
 }
@@ -377,6 +378,7 @@ void Map::renderFaces(
 	    glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
 	    glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, 2.0f);
 	    glEnable(GL_TEXTURE_2D);
+        debugAssertGLOk();
 
 		Texture::Ref texture;
 		for (int i = 0; i < visibleFaceArray.size(); ++i) {
@@ -414,8 +416,10 @@ void Map::renderFaces(
 				lastLightmapID = theFace->lightmapID;
 			}
 
+            debugAssertGLOk();
 			theFace->render(this);
 		}
+        debugAssertGLOk();
 
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 	glPopClientAttrib();
@@ -969,8 +973,9 @@ void Patch::Bezier2D::render() const {
             if (count[i] > 0) {        
                 glDrawElements(GL_TRIANGLE_STRIP, count[i], GL_UNSIGNED_INT, indices[i]);
             }
-        }    
+        }
     }
+    debugAssertGLOk();
 }
 
 
@@ -993,6 +998,7 @@ void Patch::updateSortKey(
 
 
 void Mesh::render(Map* map) const {
+    debugAssertGLOk();
 
 	int offset = firstVertex;
 
@@ -1007,8 +1013,10 @@ void Mesh::render(Map* map) const {
 	glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex),
 		&(map->vertexArray[offset].lightmapCoord));
 
+    debugAssertGLOk();
 	glDrawElements(GL_TRIANGLES, meshVertexesCount, GL_UNSIGNED_INT,
 		&(map->meshVertexArray[firstMeshVertex]));
+    debugAssertGLOk();
 }
 
 

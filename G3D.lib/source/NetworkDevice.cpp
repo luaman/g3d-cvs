@@ -234,7 +234,7 @@ std::string NetworkDevice::localHostName() const {
     return gethostbyname(ac)->h_name;
 }
 
-
+#ifndef G3D_WIN32
 const char* errnoToString() {
     switch (errno) {
     case EBADF:
@@ -260,6 +260,7 @@ const char* errnoToString() {
         }
     }
 }
+#endif
 
 
 NetworkDevice::EthernetAdapter::EthernetAdapter() {
@@ -353,7 +354,7 @@ bool NetworkDevice::init() {
     EthernetAdapter a;
     a.hostname = hostname;
     a.name = "";
-    a.ip = NetAddress(hostname, 0).ip;
+    a.ip = NetAddress(hostname, 0).ip();
 
     // TODO: Find subnet on Win32
     a.subnet = 0x0000FFFF;

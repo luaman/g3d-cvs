@@ -57,12 +57,11 @@ void App::onInit() {
 
     setDesiredFrameRate(60);
 
-//	map = BSPMap::fromFile("D:/morgan/data/quake3/AriaDeCapo/ariadecapo.pk3", "ariadecapo.bsp");
-//	map = BSPMap::fromFile("D:/morgan/data/quake3/charon/map-charon3dm11v2.pk3", "charon3dm11v2.bsp");
+	map = BSPMap::fromFile("D:/morgan/data/quake3/q3rally/rally.pk3", "downtown.bsp");
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
-	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
+	//model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
     skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -155,7 +154,9 @@ void App::printConsoleHelp() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
-	model->pose(posed3D);
+    if (model.notNull()) {
+        model->pose(posed3D);
+    }
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {

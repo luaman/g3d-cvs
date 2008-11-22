@@ -31,12 +31,12 @@
 #       define SOCKET int
 #   endif
 
-#endif
-
 // SOCKADDR_IN is supposed to be defined in NetAddress.h
 #ifndef SOCKADDR_IN
 #    error Network headers included in wrong order
 #endif
+#endif
+
 
 namespace G3D {
 
