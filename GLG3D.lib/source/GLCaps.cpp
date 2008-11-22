@@ -140,7 +140,7 @@ std::string GLCaps::getDriverVersion() {
         std::string videoDrivers;
         RegistryUtil::readString("HKEY_LOCAL_MACHINE" + installedDriversKey, "InstalledDisplayDrivers", videoDrivers);
 
-        if (videoDrivers.find(',', 0)) {
+        if (videoDrivers.find(',', 0) != std::string::npos) {
             videoDrivers = videoDrivers.substr(0, videoDrivers.find(',', 0));
         }
 
