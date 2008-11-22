@@ -63,9 +63,9 @@ public:
      */
     virtual void onPose(
         Array<PosedModel::Ref>& posedArray,
-        Array<PosedModel2DRef>& posed2DArray) = 0;
+        Array<PosedModel2DRef>& posed2DArray) {}
 
-    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) = 0;
+    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {}
 
     /** Called by the WidgetManager when this module is added to it.  The argument may be NULL */
     virtual void setManager(WidgetManager* m) {
@@ -80,13 +80,13 @@ public:
         GEventType::JOYHATMOTION, JGEventType::OYBALLMOTION, and
         GEventType::JOYAXISMOTION) cannot be cancelled.
      */
-    virtual bool onEvent(const GEvent& event) = 0;
+    virtual bool onEvent(const GEvent& event) {return false;}
 
-    virtual void onUserInput(UserInput* ui) = 0;
+    virtual void onUserInput(UserInput* ui) {}
 
-    virtual void onNetwork() = 0;
+    virtual void onNetwork() {}
 
-    virtual void onLogic() = 0;
+    virtual void onLogic() {}
 
     /** Returns the operating system window that is currently
         rendering this Widget. */

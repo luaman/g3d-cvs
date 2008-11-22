@@ -107,8 +107,7 @@ public:
         int             _appProtocolVersion,
         uint16          _serverBroadcast = 6173,
         uint16          _clientBroadcast = 6174,
-        uint16          _serverAdvertisementPort = 6175,
-        bool            _localOnly = true) :
+        uint16          _serverAdvertisementPort = 6175) :
         appProtocolName(_appProtocolName),
         appProtocolVersion(_appProtocolVersion),
         serverBroadcastPort(_serverBroadcast),
