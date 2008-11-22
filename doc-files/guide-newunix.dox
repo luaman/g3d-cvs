@@ -11,7 +11,7 @@ Xcode, Eclipse, KDevelop, and Magic C++ of course.
 <ol>
 <li> <p> Create a new project directory.  If the project is a static library, end the name in '.lib' or '.a'.  If the project is a dynamic library, end the name in '.dll' or '.so'.  <i>Example:</i><code>mkdir game</code></p>
 
-<li> <p> Make the project directory the current directory.   <i>Example:</i><code>cd game</code></p>
+<li> <p> Change the current directory to the new project directory.   <i>Example:</i><code>cd game</code></p>
 
 <li> <p> Run iCompile with no arguments.     <i>Example:</i><code>icompile</code></p>
 
@@ -22,7 +22,7 @@ Xcode, Eclipse, KDevelop, and Magic C++ of course.
    </ol></p>
 
 <li> <p> Your project has now been created and compiled.  (It matches
-the <code>g3d-7.00/demos/starter/</code> demo). To run an unoptimized debug
+the <code>G3D/demos/starter/</code> demo). To run an unoptimized debug
 build of your program, type <code>icompile --run</code></p>
 
 

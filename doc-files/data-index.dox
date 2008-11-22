@@ -1,6 +1,7 @@
 /** @page dataindex Index of Data Files
 
-This page shows some of the data provided in the auxillary G3D models pack.  You can view data files that G3D loads including 3DS, BSP, FNT, IFS, JPG, and other image formats using the <code>viewer</code> tool provided in the bin directory of your %G3D install.
+This page shows some of the data provided in the auxillary G3D models pack.  You can view data files that G3D loads including 
+MOV, MP4, WMV, DV, AVI, 3DS, BSP, FNT, IFS, PLY2, OFF, BMP, ICO, JPG, and other image formats using the <code>viewer</code> tool provided in the bin directory of your %G3D install.
 
 @section font Fonts
 Load with \link G3D::GFont GFont\endlink.

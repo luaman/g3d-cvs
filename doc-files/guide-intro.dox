@@ -166,7 +166,7 @@ libraries to complement %G3D:
    functionality and fix bugs.  Point releases are backwards compatible
    to the last major release, except where critical bugs necessitate small API 
    changes.  Point releases occur about once every two months and are announced 
-   on the <A HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</A>.
+   on the <A HREF="http://groups.google.com/group/g3d-users/topics?pli=1">User Forum</A>.
    
    Major releases may break source compatibility to fix critical bugs, match the 
    changing hardware standards, and streamline the API.  Incompatible changes are marked
