@@ -31,9 +31,9 @@ uint32 DXCaps::version() {
         return dxVersion;
     }
 
-    if ( RegistryUtil::keyExists("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\DirectX") ) {
+    if ( RegistryUtil::valueExists("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\DirectX", "Version") ) {
         std::string versionString;
-        if ( RegistryUtil::readString("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\DirectX\\Version", versionString) ) {
+        if ( RegistryUtil::readString("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\DirectX", "Version", versionString) ) {
             char major[3], minor[3];
             if ( versionString.size() >= 7 ) {
                 major[0] = versionString[2];

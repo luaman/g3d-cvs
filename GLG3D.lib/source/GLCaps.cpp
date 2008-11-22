@@ -7,6 +7,7 @@
 */
 
 #include "G3D/TextOutput.h"
+#include "G3D/RegistryUtil.h"
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/glcalls.h"
@@ -104,47 +105,61 @@ std::string GLCaps::getDriverVersion() {
         }
     }
     
-#   ifdef G3D_WIN32
-    
-    std::string driver;
-    
-        // Locate the windows\system directory
-    {
-            char sysDir[1024];
-            int sysSize = GetSystemDirectoryA(sysDir, 1024);
-            if (sysSize == 0) {
-                return "Unknown (can't find Windows directory)";
-            }
-            driver = sysDir;
+#ifdef G3D_WIN32
+ 
+    // locate the driver on Windows and get the version
+    // this systems expects Windows 2000/XP/Vista
+    std::string videoDriverKey;
+
+    bool canCheckVideoDevice = RegistryUtil::keyExists("HKEY_LOCAL_MACHINE\\HARDWARE\\DEVICEMAP\\VIDEO");
+
+    if (canCheckVideoDevice) {
+
+        // find the driver expected to load
+        std::string videoDeviceKey = "HKEY_LOCAL_MACHINE\\HARDWARE\\DEVICEMAP\\VIDEO";
+        std::string videoDeviceValue = "\\Device\\Video";
+        int videoDeviceNum = 0;
+
+        while (RegistryUtil::valueExists(videoDeviceKey, format("%s%d", videoDeviceValue.c_str(), videoDeviceNum))) {
+            ++videoDeviceNum;
         }
 
-        switch (computeVendor()) {
-        case ATI:
-            driver = driver + "\\ati2dvag.dll";
-            break;
+        // find the key where the installed driver lives
+        std::string installedDriversKey;
+        RegistryUtil::readString(videoDeviceKey, format("%s%d", videoDeviceValue.c_str(), videoDeviceNum - 1), installedDriversKey);
 
-        case NVIDIA:
-            driver = driver + "\\nv4_disp.dll";
-            break;
-		
-        default:
-            return "Unknown (Unknown vendor)";
+        // find and remove the "\Registry\Machine\" part of the key
+        int subKeyIndex = installedDriversKey.find('\\', 1);
+        subKeyIndex = installedDriversKey.find('\\', subKeyIndex + 1);
 
+        installedDriversKey.erase(0, subKeyIndex);
+
+        // read the list of driver files this display driver installed/loads
+        // this is a multi-string value, but we only care about the first entry so reading one string is fine
+        
+        std::string videoDrivers;
+        RegistryUtil::readString("HKEY_LOCAL_MACHINE" + installedDriversKey, "InstalledDisplayDrivers", videoDrivers);
+
+        if (videoDrivers.find(',', 0)) {
+            videoDrivers = videoDrivers.substr(0, videoDrivers.find(',', 0));
         }
 
-        char* lpdriver = const_cast<char*>(driver.c_str());
+        char systemDirectory[512] = "";
+        GetSystemDirectoryA(systemDirectory, sizeof(systemDirectory));
+
+        std::string driverFileName = format("%s\\%s.dll", systemDirectory, videoDrivers.c_str());
+
         DWORD dummy;
-
-        int size = GetFileVersionInfoSizeA(lpdriver, &dummy);
+        int size = GetFileVersionInfoSizeA((LPCSTR)driverFileName.c_str(), &dummy);
         if (size == 0) {
             return "Unknown (Can't find driver)";
         }
 
         void* buffer = new uint8[size];
 
-        if (GetFileVersionInfoA(lpdriver, 0, size, buffer) == 0) {
+        if (GetFileVersionInfoA((LPCSTR)driverFileName.c_str(), 0, size, buffer) == 0) {
             delete[] (uint8*)buffer;
-            return "Unknown";
+        return "Unknown (Can't find driver)";
         }
 
 	    // Interpret the VS_VERSIONINFO header pseudo-struct
@@ -161,7 +176,7 @@ std::string GLCaps::getDriverVersion() {
         #undef roundoffs
         #undef roundpos
 
-        std::string result = "Unknown (No information)";
+        std::string result = "Unknown (Can't find driver)";
 
 	    if (pVS->wValueLength) {
 	        result = format("%d.%d.%d.%d",
@@ -174,6 +189,11 @@ std::string GLCaps::getDriverVersion() {
         delete[] (uint8*)buffer;
 
         return result;
+
+    } else {
+        return "Unknown (Can't find driver)";
+    }
+
     #else
         return "Unknown";
     #endif

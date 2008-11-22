@@ -57,8 +57,6 @@ void App::onInit() {
 
     setDesiredFrameRate(60);
 
-	map = BSPMap::fromFile("D:/morgan/data/quake3/q3rally/rally.pk3", "downtown.bsp");
-
     sky = Sky::fromFile(System::findDataFile("sky"));
 
 	//model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
@@ -153,10 +151,6 @@ void App::printConsoleHelp() {
 }
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-    // Append any models to the array that you want rendered by onGraphics
-    if (model.notNull()) {
-        model->pose(posed3D);
-    }
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
@@ -170,10 +164,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->clear(false, true, true);
     sky->render(rd, localSky);
 
-    if (map.notNull()) {
-        map->render(rd, defaultCamera);
-    //    Draw::box(map->bounds(), rd);
-    }
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
     /*

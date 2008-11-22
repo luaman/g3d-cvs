@@ -534,7 +534,7 @@ void System::init() {
 
     #ifdef G3D_WIN32
         bool success = RegistryUtil::readInt32
-            ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0\\~MHz", g_cpuInfo.m_cpuSpeed);
+            ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "~MHz", g_cpuInfo.m_cpuSpeed);
 
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
