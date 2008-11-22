@@ -286,6 +286,7 @@ def _findBinary(program):
 
     PATH = [''] + os.getenv('PATH', '').split(';') + \
            ['.',\
+           '../bin',\
            'C:/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio 9.0/Common7/IDE',\
            PROGRAMFILES + '/Microsoft Visual Studio 8/Common7/IDE',\
