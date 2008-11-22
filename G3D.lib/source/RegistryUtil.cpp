@@ -47,7 +47,9 @@ bool RegistryUtil::keyExists(const std::string& key) {
 
     debugAssert(key.size() > (pos + 1));
     HKEY openKey;
-    int32 result = RegOpenKeyExA(hkey, (key.c_str() + pos + 1), 0, KEY_ALL_ACCESS, &openKey);
+    int32 result = RegOpenKeyExA(hkey, (key.c_str() + pos + 1), 0, KEY_READ, &openKey);
+
+    debugAssert(result == ERROR_SUCCESS);
 
     if ( result == ERROR_SUCCESS ) {
         RegCloseKey(openKey);
@@ -79,7 +81,7 @@ bool RegistryUtil::readInt32(const std::string& key, int32& valueData) {
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_READ, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
             uint32 dataSize = sizeof(int32);
@@ -115,7 +117,7 @@ bool RegistryUtil::readBytes(const std::string& key, uint8* valueData, uint32& d
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_READ, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
 
@@ -156,7 +158,7 @@ bool RegistryUtil::readString(const std::string& key, std::string& valueData) {
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_READ, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
             uint32 dataSize = 0;
@@ -205,7 +207,7 @@ bool RegistryUtil::writeInt32(const std::string& key, int32 valueData) {
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_WRITE, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
             result = RegSetValueExA(openKey, value.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&valueData), sizeof(int32));
@@ -242,7 +244,7 @@ bool RegistryUtil::writeBytes(const std::string& key, const uint8* valueData, ui
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_WRITE, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
 
@@ -281,7 +283,7 @@ bool RegistryUtil::writeString(const std::string& key, const std::string& valueD
         std::string value = key.substr(valuePos + 1, key.size() - valuePos);
 
         HKEY openKey;
-        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_ALL_ACCESS, &openKey);
+        int32 result = RegOpenKeyExA(hkey, subKey.c_str(), 0, KEY_WRITE, &openKey);
 
         if ( result == ERROR_SUCCESS ) {
             result = RegSetValueExA(openKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(valueData.c_str()), (valueData.size() + 1));                
