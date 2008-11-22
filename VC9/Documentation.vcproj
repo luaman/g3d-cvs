@@ -89,47 +89,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\doc-files\guide-app.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-brown.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-collision.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-compiling.dox"
-			>
-		</File>
-		<File
 			RelativePath="..\doc-files\guide-concepts.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-contents.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-debug.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-effects.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-fbo.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-files.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-install.dox"
 			>
 		</File>
 		<File
@@ -138,14 +98,6 @@
 		</File>
 		<File
 			RelativePath="..\doc-files\guide-macosx.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-meshes.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-network.dox"
 			>
 		</File>
 		<File
@@ -161,35 +113,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\doc-files\guide-opengl.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-physics.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-shaders.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-tutorial.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-ui.dox"
+			RelativePath="..\doc-files\guide-overview.dox"
 			>
 		</File>
 		<File
 			RelativePath="..\doc-files\guide-unix.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-var.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-video.dox"
 			>
 		</File>
 		<File
