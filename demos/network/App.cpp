@@ -2,9 +2,12 @@
   @file App.cpp
  */
 #include "App.h"
+#include "Discovery2.h"
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
+
+#define APPLICATION_NAME ("Network Demo")
 
 int main(int argc, char** argv) {
     GApp::Settings settings;
@@ -72,6 +75,20 @@ void App::onInit() {
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
+
+    ////
+    // Server browser
+
+    // The browser will render over whatever is on screen, so here we initially 
+    // make the screen white.
+    //
+    // If you want dynamic rendering behind the browser, add the Discovery2::Client 
+    // as a widget on the GApp and set visible = true instead of displaying it 
+    // modally with a static method.
+    renderDevice->setColorClearValue(Color3::white());
+    renderDevice->clear();
+
+    Discovery2::Client::browseAndConnect(APPLICATION_NAME, window(), debugWindow->theme());
 }
 
 

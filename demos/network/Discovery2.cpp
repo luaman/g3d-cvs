@@ -3,6 +3,7 @@
 #include <G3D/BinaryInput.h>
 #include <G3D/BinaryOutput.h>
 #include <G3D/Log.h>
+#include <GLG3D/Draw.h>
 #include "Discovery2.h"
 
 
@@ -58,10 +59,24 @@ std::string ServerDescription::displayText() const {
 
 /////////////////////////////////////////////////////////////
 
+Rect2D Client::Display::bounds() const {
+    return client->m_osWindow->dimensions();
+}
+
+float Client::Display::depth () const {
+    return 0;
+}
+
+void Client::Display::render(RenderDevice* rd) const {
+    client->render(rd);
+}
+
+/////////////////////////////////////////////////////////////
+
 Client::Client(const std::string& applicationName, const Settings& settings,
                OSWindow* osWindow, GuiThemeRef theme) :
     GuiWindow("Server Browser", theme, 
-              Rect2D::xywh(100,100, 500, 500), GuiTheme::NO_WINDOW_STYLE,NO_CLOSE),
+              Rect2D::xywh(100, 100, 500, 500), GuiTheme::NO_WINDOW_STYLE, NO_CLOSE),
     m_settings(settings),
     m_osWindow(osWindow),
     m_applicationName(applicationName) {
@@ -73,7 +88,31 @@ Client::Client(const std::string& applicationName, const Settings& settings,
         m_broadcastAddressArray[i] = NetAddress(ipArray[i], m_settings.clientBroadcastPort);
     }
 
+    if (theme.notNull()) { 
+        if (m_settings.displayStyle.font.isNull()) {
+            m_settings.displayStyle.font = theme->defaultStyle().font;
+        }
+        if (m_settings.displayStyle.color.r == -1) {
+            m_settings.displayStyle.color = theme->defaultStyle().color;
+        }
+        if (m_settings.displayStyle.outlineColor.r == -1) {
+            m_settings.displayStyle.outlineColor = theme->defaultStyle().outlineColor;
+        }
+        if (m_settings.displayStyle.size == -1) {
+            m_settings.displayStyle.size = theme->defaultStyle().size;
+        }
+    }
+
     m_net = LightweightConduit::create(m_settings.serverBroadcastPort, true, true);
+    
+    m_display = new Display();
+    m_display->client = this;
+    m_connectPushed = false;
+    m_index = 0;
+    if (osWindow != NULL) {
+        // Fill the screen
+        setRect(osWindow->dimensions());
+    }
 }
 
 
@@ -85,6 +124,14 @@ ClientRef Client::create
  const Settings& settings) {
 
     return new Client(applicationName, settings, osWindow, theme);
+}
+
+
+void Client::onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
+    GuiWindow::onPose(posedArray, posed2DArray);
+    if ((m_osWindow != NULL) && visible()) {
+        posed2DArray.append(m_display);
+    }
 }
 
 
@@ -151,15 +198,77 @@ void Client::receiveDescription() {
 }
 
 
-ReliableConduitRef Client::browseAndConnect
-(const std::string& applicationName, 
- OSWindow* osWindow, 
- GuiThemeRef theme, 
- const Settings& settings) {
+void Client::render(RenderDevice* rd) {
+    const GuiTheme::TextStyle& style = m_settings.displayStyle;
+    GFontRef font = style.font;
 
+    Rect2D box = Rect2D::xywh(20, 20 + style.size, 
+        m_osWindow->width() - 40, m_osWindow->height() - 200 - style.size);
+    Draw::rect2DBorder(box, rd, style.color, 0, max(1.0f, style.size / 20.0f));
+
+    // Show title
+    font->draw2D(rd, m_settings.prompt, Vector2(box.center().x, 10), style.size, style.color, 
+        style.outlineColor, GFont::XALIGN_CENTER); 
+
+    // Show server list
+    rd->enableClip2D(box);
+    for (int i = 0; i < m_serverDisplayArray.size(); ++i) {
+        Vector2 pos(box.x0() + 10, box.y0() + 10 + style.size * 1.5 * i);
+        font->draw2D(rd, m_serverDisplayArray[i], pos, style.size, style.color, style.outlineColor);
+    }
+    rd->disableClip2D();
+
+    // TODO: cancel button
+}
+
+
+bool Client::onEvent(const GEvent& event) {
+    if (GuiWindow::onEvent(event)) {
+        return true;
+    }
+
+    if (! visible()) {
+        return false;
+    }
+
+    if (event.type == GEventType::KEY_DOWN) {
+        if (event.key.keysym.sym == GKey::ESCAPE) {
+            // Cancelled
+            m_connectPushed = false;
+            setVisible(false);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+bool Client::browseImpl(ServerDescription& d) {
+    m_connectPushed = false;
+    m_index = 0;
+
+    showModal(m_osWindow);
+
+    if (m_connectPushed) {
+        d = m_serverArray[m_index];
+    }
+
+    return m_connectPushed;
+}
+
+
+ReliableConduitRef Client::browseAndConnect
+    (const std::string& applicationName,
+     OSWindow* osWindow, 
+     GuiThemeRef theme,
+     const Settings& settings) {
+
+    ClientRef c = new Client(applicationName, settings, osWindow, theme);
+     
     ServerDescription server;
 
-    while (browse(applicationName, osWindow, theme, server, settings)) {
+    while (c->browseImpl(server)) {
         
         // Try to connect to the selected server
         ReliableConduitRef connection = ReliableConduit::create(server.applicationAddress);
@@ -178,13 +287,10 @@ ReliableConduitRef Client::browseAndConnect
 }
 
 
-bool Client::browse
-(const std::string applicationName, 
- OSWindow* osWindow, 
- GuiThemeRef theme,
- ServerDescription& d, const Settings& settings) {
-    //TODO
-    return false;
+bool Client::browse(const std::string applicationName, OSWindow* osWindow, 
+                    GuiThemeRef theme, ServerDescription& d, const Settings& settings) {
+     ClientRef c = new Client(applicationName, settings, osWindow, theme);     
+     return c ->browseImpl(d);
 }
 
 

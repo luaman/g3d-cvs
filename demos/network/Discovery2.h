@@ -66,7 +66,9 @@ public:
 
 
 /** 
-  Options for configuring the G3D Discovery protocol.  These rarely need to be changed.
+  Options for configuring the G3D Discovery protocol. 
+  These rarely need to be changed except for the client-side
+  display options.
  */
 class Settings {
 public:
@@ -87,10 +89,18 @@ public:
         Must be greater than zero.*/
     RealTime     serverAdvertisementPeriod;
 
-    Settings() : 
+    /** For the client side server browser. Uninitialized 
+    fields are taken from the theme.*/
+    GuiTheme::TextStyle displayStyle;
+
+    /** Server browser prompt on the client side*/
+    std::string  prompt;
+
+    inline Settings() : 
         clientBroadcastPort(6173),
         serverBroadcastPort(6174),
-        serverAdvertisementPeriod(4) {}
+        serverAdvertisementPeriod(4),
+        prompt("Select server") {}
 };
 
 
@@ -109,6 +119,17 @@ typedef ReferenceCountedPointer<class Client> ClientRef;
 class Client : public GuiWindow {
 private:
 
+    /** Renders the client's server list */
+    class Display : public PosedModel2D {
+    public:
+        Client*    client;
+        virtual Rect2D 	bounds () const;
+        virtual float 	depth () const;
+        virtual void 	render (RenderDevice *rd) const;
+    };
+
+    ReferenceCountedPointer<Display>  m_display;
+
     Settings                  m_settings;
 
     OSWindow*                 m_osWindow;
@@ -125,11 +146,23 @@ private:
 
     LightweightConduitRef     m_net;
 
+    /** Index into m_serverArray of the selected server. */
+    int                       m_index;
+
+    /** True if user chose to connect, false if they cancelled. */
+    bool                      m_connectPushed; 
+
     Client(const std::string& applicationName, const Settings& settings,
            OSWindow* osWindow, GuiThemeRef theme);
 
     /** Called from onNetwork() to receive an incoming message on m_net */
     void receiveDescription();
+
+    /** Called by Display::render() */
+    void render(RenderDevice* rd);
+
+    /** Implements browse() on an instance. */
+    bool browseImpl(ServerDescription& d);
 
 public:
 
@@ -182,6 +215,9 @@ public:
     inline const Settings& settings() const {
         return m_settings;
     }
+
+    virtual bool onEvent(const GEvent& event);
+    virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray);
 };
 
 

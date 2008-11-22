@@ -151,8 +151,7 @@ public:
         RADIO_BUTTON_STYLE_COUNT
     };
 
-private:
-
+public:
     /**
      Default style information for captions.
      */
@@ -163,12 +162,14 @@ private:
         Color4              outlineColor;
         float               size;
 
+        inline TextStyle() : color(-1,-1,-1,-1), outlineColor(-1,-1,-1,-1), size(-1) {}
+
         /**
          @param path Path to search for font files
          */
         void deserialize(const std::string& path, const std::string& name, TextInput& t);
     };
-    
+private:    
     /** Used for delayed text rendering. */
     class Text {
     public:
@@ -565,7 +566,7 @@ private:
     /** Defaults */
     TextStyle         m_textStyle;
     TextStyle         m_disabledTextStyle;
-
+    
     TextureRef        texture;
 
     /**
@@ -632,6 +633,10 @@ private:
     Rect2D closeButtonBounds(const Window& window, const Rect2D& bounds) const;
 
 public:
+    /** Return the default text style */
+    inline const TextStyle& defaultStyle() const {
+        return m_textStyle;
+    }
 
     /** 
      May return a cached copy.  
