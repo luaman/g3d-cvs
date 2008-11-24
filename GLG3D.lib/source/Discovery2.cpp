@@ -163,12 +163,19 @@ void Client::onNetwork() {
     }
 
     // Remove old servers    
-    const RealTime tooOld = System::time() - 3.0 * m_settings.serverAdvertisementPeriod;
+    const RealTime tooOld = System::time() - 2.0 * m_settings.serverAdvertisementPeriod;
     for (int i = 0; i < m_serverArray.size(); ++i) {
-        if (m_serverArray[i].lastUpdateTime < tooOld) {
+        if (tooOld > m_serverArray[i].lastUpdateTime) {
+            // This server was old; remove it
+            logPrintf("Discovery2::Client: Server %s went offline\n", 
+                m_serverArray[i].applicationAddress.toString().c_str());
             m_serverArray.remove(i);
             m_serverDisplayArray.remove(i);
-            m_clickBox.remove(i);
+            if (m_clickBox.size() > 0) {
+                m_clickBox.remove(i);
+            }
+
+            // Process index i again since we just shortened the array
             --i;
         }
     }
@@ -179,12 +186,17 @@ void Client::receiveDescription() {
     NetAddress sender;
     ServerDescription s;
     m_net->receive(sender, s);
+
+    if (s.applicationName != m_applicationName) {
+        // Different application
+        return;
+    }
     
     // See if this server is already known to us
     int i = 0;
-    for (int i = 0; i < m_serverArray.size(); ++i) {
+    for (i = 0; i < m_serverArray.size(); ++i) {
         if (m_serverArray[i].applicationAddress == s.applicationAddress) {
-            // This is the server
+            // This is the server we're looking for 
             break;
         }
     }
@@ -193,6 +205,7 @@ void Client::receiveDescription() {
         // Not found-- append to the end of the list
         m_serverArray.append(s);
         m_serverDisplayArray.append("");
+        logPrintf("Discovery2::Client: Found new server at %s\n", s.applicationAddress.toString().c_str());
     } else {
         m_serverArray[i] = s;
     }
@@ -225,7 +238,8 @@ void Client::render(RenderDevice* rd) {
     m_clickBox.resize(m_serverDisplayArray.size());
     for (int i = 0; i < m_serverDisplayArray.size(); ++i) {
         Vector2 pos(box.x0() + 10, box.y0() + 10 + style.size * 1.5 * i);
-        Vector2 bounds = font->draw2D(rd, m_serverDisplayArray[i], pos, style.size, style.color, style.outlineColor);
+        Vector2 bounds = font->draw2D(rd, m_serverDisplayArray[i], pos, style.size, style.color, 
+            style.outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_TOP, GFont::FIXED_SPACING);
         m_clickBox[i] = Rect2D::xywh(pos, bounds);
     }
     rd->disableClip2D();

@@ -1,5 +1,18 @@
 /**
-  @file App.cpp
+  @file network/App.cpp
+
+  Demonstration of LAN discovery and server browsing using the G3D::Discovery2 API.
+
+  There are two lines in this program that actually matter.  Everything else is scaffolding for the GUI
+  and GApp.  The lines are:
+
+  Client side:
+
+     bool selected = Discovery2::Client::browse(APPLICATION_NAME, window(), debugWindow->theme(), description);
+
+  Server side:
+
+     addWidget(Discovery2::Server::create(description));
  */
 #include "App.h"
 
@@ -71,6 +84,7 @@ void App::onInit() {
     showRenderingStats = false;
     developerWindow->setVisible(false);
     developerWindow->cameraControlWindow->setVisible(false);
+    setDesiredFrameRate(60);
 
     // The dialogs will render over whatever is on screen, so here we initially 
     // make the screen white.
