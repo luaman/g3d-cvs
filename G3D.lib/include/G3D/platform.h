@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, matrix@graphics3d.com
 
  @created 2003-06-09
- @edited  2007-07-30
+ @edited  2008-11-30
  */
 
 #ifndef G3D_PLATFORM_H
@@ -16,7 +16,7 @@
  The version number of G3D in the form: MmmBB -> 
  version M.mm [beta BB]
  */
-#define G3D_VER 70100
+#define G3D_VER 80001
 
 #if defined(G3D_RELEASEDEBUG)
 #   define G3D_DEBUGRELEASE

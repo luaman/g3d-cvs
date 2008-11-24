@@ -18,9 +18,9 @@ distribDir = None
 
 # G3D version.  Update this when the library version changes.
 class Version:
-    major = '7'
-    minor = '01'
-    beta  = ''
+    major = '8'
+    minor = '00'
+    beta  = '01'
     
     def toString(self):
         if (self.beta != ''):
