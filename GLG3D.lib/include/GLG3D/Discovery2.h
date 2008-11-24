@@ -112,7 +112,7 @@ public:
     inline Settings() : 
         clientBroadcastPort(6173),
         serverBroadcastPort(6174),
-        serverAdvertisementPeriod(4),
+        serverAdvertisementPeriod(2),
         prompt("Select server") {}
 };
 
