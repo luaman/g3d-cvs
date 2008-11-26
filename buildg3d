@@ -290,7 +290,8 @@ def toolsTarget():
     if (x == 0):
         dest = pathConcat('build', pathConcat(platformName, 'bin'))
         copyIfNewer('bin', dest)
-        os.remove(pathConcat(dest, 'PKZIP25.EXE'))
+        f = pathConcat(dest, 'PKZIP25.EXE')
+        if os.path.exists(f): os.remove(f)
 
     return x
 
