@@ -321,8 +321,15 @@ void NetworkDevice::addAdapter(const EthernetAdapter& a) {
 
 
 std::string NetworkDevice::formatIP(uint32 addr) {
-    return format("%3d.%3d.%3d.%3d", (addr >> 24) & 0xFF, (addr >> 16) & 0xFF,
-           (addr >> 8) & 0xFF, addr & 0xFF);
+    #define NUMDIGITS(n) ((n > 9) ? ((n > 99) ? 3 : 2) : 1)
+    
+    int a = (addr >> 24) & 0xFF;
+    int b = (addr >> 16) & 0xFF;
+    int c = (addr >> 8) & 0xFF;
+    int d = addr & 0xFF;
+    return format("%.*d.%.*d.%.*d.%.*d", NUMDIGITS(a), a, NUMDIGITS(b), b, NUMDIGITS(c), c, NUMDIGITS(d), d);
+
+    #undef NUMDIGITS
 }
 
 

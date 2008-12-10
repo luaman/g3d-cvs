@@ -36,49 +36,44 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
 */
 class GThread : public ReferenceCountedObject {
 private:
-    // "Status" is a reserved work on FreeBSD
-    enum GStatus {STATUS_CREATED, STATUS_STARTED, STATUS_RUNNING, STATUS_COMPLETED};
+    enum ThreadState {STATE_CREATED, STATE_STARTED, STATE_RUNNING, STATE_COMPLETED};
+
+    std::string             m_name;
+    volatile ThreadState    m_state;
+
+    void (*             m_threadProc)(void*);
+    void*               m_threadParam;
+
+#ifdef G3D_WIN32
+    HANDLE              m_handle;
+    HANDLE              m_event;
+    static DWORD WINAPI entryPoint(LPVOID param);
+#else
+    pthread_t           m_handle;
+    static void* entryPoint(void* param);
+#endif //G3D_WIN32
+
+
+    GThread(const std::string& name, void (*threadProc)(void*), void* param);
 
     // Not implemented on purpose, don't use
     GThread(const GThread &);
     GThread& operator=(const GThread&);
     bool operator==(const GThread&);
 
-#ifdef G3D_WIN32
-    static DWORD WINAPI internalThreadProc(LPVOID param);
-#else
-    static void* internalThreadProc(void* param);
-#endif //G3D_WIN32
-
-    volatile GStatus     m_status;
-
-    // Thread handle to hold HANDLE and pthread_t
-#ifdef G3D_WIN32
-    HANDLE              m_handle;
-    HANDLE              m_event;
-#else
-    pthread_t           m_handle;
-#endif //G3D_WIN32
-
-    std::string         m_name;
-
 public:
-
-    GThread(const std::string& name);
 
     virtual ~GThread();
 
-    /** Constructs a basic GThread without requiring a subclass.
+    /** Creates a GThread that will call the function threadProc with param when started.
 
-        @param proc The global or static function for the threadMain() */
-    static GThreadRef create(const std::string& name, void (*proc)(void*), void* param);
+        @param threadProc The global or static function called when the thread starts
+        and then waits on return to exit. */
+    static GThreadRef create(const std::string& name, void (*threadProc)(void*), void* param);
 
-    /** @deprecated use overload that accepts void* param */
-    static GThreadRef create(const std::string& name, void (*proc)());
-
-    /** Starts the thread and executes threadMain().  Returns false if
-       the thread failed to start (either because it was already started
-       or because the OS refused).*/
+    /** Starts the thread and executes the assigned function.
+        Returns false if the thread failed to start
+        (either because it was already started or because the OS refused).*/
     bool start();
 
     /** Terminates the thread without notifying or
@@ -86,28 +81,24 @@ public:
     void terminate();
 
     /**
-        Returns true if threadMain is currently executing.  This will
-        only be set when the thread is actually running and might not
-        be set when start() returns. */
+        Returns true if the assigned function is still executing.
+        This might not be true immediately after start() is called. */
     bool running() const;
 
-    /** True after start() has been called, even through the thread
-        may have already completed(), or be currently running().*/
+    /** Returns true any time after start() has been called. */
     bool started() const;
 
     /** Returns true if the thread has exited. */
     bool completed() const;
 
-    /** Waits for the thread to finish executing. */
+    /** Waits for the thread to finish executing.
+        Returns immediately if already completed. */
     void waitForCompletion();
 
     /** Returns thread name */
     inline const std::string& name() {
         return m_name;
     }
-
-    /** Overriden by the thread implementor */
-    virtual void threadMain() = 0;
 };
 
 
@@ -134,6 +125,10 @@ public:
 
     /** Locks the mutex or blocks until available. */
     void lock();
+
+    /** Locks the mutex if it not already locked.
+        Returns true if lock successful, false otherwise. */
+    bool tryLock();
 
     /** Unlocks the mutex. */
     void unlock();

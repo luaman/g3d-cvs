@@ -4,48 +4,49 @@ using G3D::uint32;
 using G3D::uint64;
 #include <string>
 
-class TGThread : public GThread {
-public:
-    TGThread(const std::string& n): GThread(n),
-      _value(0) {}
+static int      sThreadedValue = 0;
+static GMutex   sThreadedMutex;
 
-    int value() {
-        // Shouldn't need lock
-        return _value;
-    }
+static void incThreadedValue() {
+    GMutexLock lock(&sThreadedMutex);
+    ++sThreadedValue;
 
-    void incValue() {
-        getterMutex.lock();
-        ++_value;
-        getterMutex.unlock();
-    }
-protected:
-    virtual void threadMain() {
-        ++_value;
-        return;
-    }
+    debugAssert(sThreadedMutex.tryLock());
+}
 
-    int _value;
-    GMutex getterMutex;
-};
+static void threadProc(void* param) {
+    ++sThreadedValue;
+}
+
+static void lockProc(void* param) {
+    debugAssert(sThreadedMutex.tryLock() == false);
+    ++sThreadedValue;
+}
 
 void testGThread() {
     printf("G3D::GThread ");
 
     {
-        TGThread tGThread("tGThread");
-        debugAssert(tGThread.value() == 0);
+        GThreadRef gthread = GThread::create("GThread", threadProc, NULL);
 
-        bool started = tGThread.start();
+        bool started = gthread->start();
         debugAssert(started);
 
-        tGThread.waitForCompletion();
-        debugAssert(tGThread.completed());
+        gthread->waitForCompletion();
+        debugAssert(gthread->completed());
 
-        debugAssert(tGThread.value() == 1);
+        debugAssert(sThreadedValue == 1);
 
-        tGThread.incValue();
-        debugAssert(tGThread.value() == 2);
+        incThreadedValue();
+        debugAssert(sThreadedValue == 2);
+
+        sThreadedMutex.lock();
+        gthread = GThread::create("GMutex", lockProc, NULL);
+        gthread->start();
+        while (!gthread->running() && !gthread->completed()) {
+            System::sleep(0.01);
+        }
+        sThreadedMutex.unlock();
     }
 
     printf("passed\n");
