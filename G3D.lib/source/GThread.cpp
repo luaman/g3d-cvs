@@ -148,11 +148,11 @@ DWORD WINAPI GThread::entryPoint(LPVOID param) {
 void* GThread::entryPoint(void* param) {
     GThread* v = reinterpret_cast<GThread*>(param);
 
-    thread->m_state = STATE_RUNNING;
+    v->m_state = STATE_RUNNING;
 
-    thread->m_threadProc(thread->m_threadParam);
+    v->m_threadProc(v->m_threadParam);
 
-    thread->m_state = STATE_COMPLETED;
+    v->m_state = STATE_COMPLETED;
 
     return (void*)NULL;
 }
@@ -181,7 +181,12 @@ bool GMutex::tryLock() {
 #ifdef G3D_WIN32
     return (::TryEnterCriticalSection(&m_handle) != 0);
 #else
-    return (pthread_mutex_trylock(&m_handle) == 0);
+    /* TODO - find working error codes for alread-locked by thread
+    int ret = 0;
+    ret = pthread_mutex_trylock(&m_handle);
+    return (ret == 0 || ret == EDEADLK);
+    */
+    return false;
 #endif
 }
 
