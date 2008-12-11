@@ -164,7 +164,12 @@ GMutex::GMutex() {
 #ifdef G3D_WIN32
     ::InitializeCriticalSection(&m_handle);
 #else
-    pthread_mutex_init(&m_handle, NULL);
+    int ret = pthread_mutexattr_init(&m_attr);
+    debugAssert(ret == 0);
+    ret = pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE);
+    debugAssert(ret == 0);
+    ret = pthread_mutex_init(&m_handle, &m_attr);
+    debugAssert(ret == 0);
 #endif
 }
 
@@ -173,7 +178,10 @@ GMutex::~GMutex() {
 #ifdef G3D_WIN32
     ::DeleteCriticalSection(&m_handle);
 #else
-    pthread_mutex_destroy(&m_handle);
+    int ret = pthread_mutex_destroy(&m_handle);
+    debugAssert(ret == 0);
+    ret = pthread_mutexattr_destroy(&m_attr);
+    debugAssert(ret == 0);
 #endif
 }
 
@@ -181,12 +189,7 @@ bool GMutex::tryLock() {
 #ifdef G3D_WIN32
     return (::TryEnterCriticalSection(&m_handle) != 0);
 #else
-    /* TODO - find working error codes for alread-locked by thread
-    int ret = 0;
-    ret = pthread_mutex_trylock(&m_handle);
-    return (ret == 0 || ret == EDEADLK);
-    */
-    return false;
+    return (pthread_mutex_trylock(&m_handle) == 0);
 #endif
 }
 

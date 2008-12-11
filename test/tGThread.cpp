@@ -11,7 +11,9 @@ static void incThreadedValue() {
     GMutexLock lock(&sThreadedMutex);
     ++sThreadedValue;
 
-//    debugAssert(sThreadedMutex.tryLock());
+    bool wasLocked = sThreadedMutex.tryLock();
+    debugAssert(wasLocked);
+    sThreadedMutex.unlock();
 }
 
 static void threadProc(void* param) {
@@ -40,13 +42,13 @@ void testGThread() {
         incThreadedValue();
         debugAssert(sThreadedValue == 2);
 
-//        sThreadedMutex.lock();
-//        gthread = GThread::create("GMutex", lockProc, NULL);
-//        gthread->start();
-//        while (!gthread->running() && !gthread->completed()) {
-//            System::sleep(0.01);
-//        }
-//        sThreadedMutex.unlock();
+        sThreadedMutex.lock();
+        gthread = GThread::create("GMutex", lockProc, NULL);
+        gthread->start();
+        while (!gthread->running() && !gthread->completed()) {
+            System::sleep(0.01);
+        }
+        sThreadedMutex.unlock();
     }
 
     printf("passed\n");

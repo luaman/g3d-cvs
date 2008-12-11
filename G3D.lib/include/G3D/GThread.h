@@ -112,6 +112,7 @@ private:
     CRITICAL_SECTION                    m_handle;
 #   else
     pthread_mutex_t                     m_handle;
+    pthread_mutexattr_t                 m_attr;
 #   endif
 
     // Not implemented on purpose, don't use
