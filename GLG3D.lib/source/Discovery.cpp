@@ -13,7 +13,7 @@
 #include "GLG3D/Draw.h"
 #include "GLG3D/Discovery2.h"
 
-namespace G3D { namespace Discovery2 {
+namespace G3D { namespace Discovery {
 
 ServerDescription::ServerDescription(BinaryInput& b) {
     deserialize(b);
