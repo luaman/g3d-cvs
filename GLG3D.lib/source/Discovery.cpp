@@ -11,7 +11,7 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Log.h"
 #include "GLG3D/Draw.h"
-#include "GLG3D/Discovery2.h"
+#include "GLG3D/Discovery.h"
 
 namespace G3D { namespace Discovery {
 
