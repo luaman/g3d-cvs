@@ -1,18 +1,18 @@
 /**
   @file network/App.cpp
 
-  Demonstration of LAN discovery and server browsing using the G3D::Discovery2 API.
+  Demonstration of LAN discovery and server browsing using the G3D::Discovery API.
 
   There are two lines in this program that actually matter.  Everything else is scaffolding for the GUI
   and GApp.  The lines are:
 
   Client side:
 
-     bool selected = Discovery2::Client::browse(APPLICATION_NAME, window(), debugWindow->theme(), description);
+     bool selected = Discovery::Client::browse(APPLICATION_NAME, window(), debugWindow->theme(), description);
 
   Server side:
 
-     addWidget(Discovery2::Server::create(description));
+     addWidget(Discovery::Server::create(description));
  */
 #include "App.h"
 
@@ -92,12 +92,12 @@ void App::onInit() {
     renderDevice->clear();
 
     if (ModeDialog::isServer(window(), debugWindow->theme())) {
-        Discovery2::ServerDescription description;
+        Discovery::ServerDescription description;
         description.applicationName = APPLICATION_NAME;
         description.applicationAddress = NetAddress(NetworkDevice::instance()->adapterArray()[0].ip, 10002);
         description.serverName = NetworkDevice::instance()->localHostName();
 
-        addWidget(Discovery2::Server::create(description));
+        addWidget(Discovery::Server::create(description));
         isServer = true;
         renderDevice->setColorClearValue(Color3::black());
     } else {
@@ -109,13 +109,13 @@ void App::onInit() {
 
 
 void App::browseServers() {
-    // If you want dynamic rendering behind the browser, add the Discovery2::Client 
+    // If you want dynamic rendering behind the browser, add the Discovery::Client 
     // as a widget on the GApp and set visible = true instead of displaying it 
     // modally with a static method.  Here we just clear the screen to white.
     renderDevice->clear();
 
-    Discovery2::ServerDescription description;
-    bool selected = Discovery2::Client::browse(APPLICATION_NAME, window(), debugWindow->theme(), description);
+    Discovery::ServerDescription description;
+    bool selected = Discovery::Client::browse(APPLICATION_NAME, window(), debugWindow->theme(), description);
 
     // In an actual program, we would now connect to the specified server.
     // See also browseAndConnect, which performs the connection step as well.

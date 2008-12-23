@@ -1,5 +1,5 @@
 /**
- @file Discovery2.h
+ @file Discovery.h
   
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
@@ -7,8 +7,8 @@
  @edited  2008-11-22
  */
 
-#ifndef G3D_Discovery2_h
-#define G3D_Discovery2_h
+#ifndef G3D_Discovery_h
+#define G3D_Discovery_h
 
 #include <string.h>
 #include "G3D/NetAddress.h"
@@ -23,11 +23,11 @@ namespace G3D {
 class BinaryInput;
 class BinaryOutput;
 
-namespace Discovery2 {
+namespace Discovery {
 
 using std::string;
 
-/** @brief Used by G3D::Discovery2::Server to advertise its services. 
+/** @brief Used by G3D::Discovery::Server to advertise its services. 
 
 @beta
 */
@@ -117,7 +117,7 @@ public:
 };
 
 
-/** @see G3D::Discovery2::Client */
+/** @see G3D::Discovery::Client */
 typedef ReferenceCountedPointer<class Client> ClientRef; 
 
 /**
@@ -241,7 +241,7 @@ public:
 };
 
 
-/** @see G3D::Discovery2::Server */
+/** @see G3D::Discovery::Server */
 typedef ReferenceCountedPointer<class Server> ServerRef; 
    
 /**

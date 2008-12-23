@@ -201,7 +201,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\Discovery2.cpp"
+				RelativePath="..\GLG3D.lib\source\Discovery.cpp"
 				>
 			</File>
 			<File
@@ -503,7 +503,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\Discovery2.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\Discovery.h"
 				>
 			</File>
 			<File
