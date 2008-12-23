@@ -215,12 +215,6 @@ private:
     void forceSetTextureMatrix(int unit, const float* m);
     void forceSetTextureMatrix(int unit, const double* m);
 
-    /** Time at which the previous endFrame() was called */
-    double                      lastTime;
-
-    /** Exponentially weighted moving average frame rate */
-    double                      emwaFrameRate;
-
     /** Argument to last beginPrimitive() */
     Primitive                   currentPrimitive;
 
@@ -234,16 +228,8 @@ private:
     /** The area used inside of an indexedPrimitives call. */
     VARAreaRef                  currentVARArea;
 
-    /** Number of triangles since last beginFrame() */
-    int                         m_triangleCount;
-
-    double                      emwaTriangleCount;
-    double                      emwaTriangleRate;
-
 	/** Updates the triangle count based on the primitive.
     
-        This method no longer counts the number of primitives but
-        calculates the triangles used in that number of primitives.
         LINE and POINT primitives are given one triangle count each. */
 	void countTriangles(RenderDevice::Primitive primitive, int numVertices);
 
@@ -267,12 +253,6 @@ private:
      so that the argument list can be bound.  Called from VertexAndPixelShader::bindArgList and
      from beforePrimitive.*/
     void forceVertexAndPixelShaderBind();
-
-    uint32 mDebugNumMajorOpenGLStateChanges;
-    uint32 mDebugNumMinorOpenGLStateChanges;
-    uint32 mDebugNumMajorStateChanges;
-    uint32 mDebugNumMinorStateChanges;
-    uint32 mDebugPushStateCalls;
 
     static std::string dummyString;
 
@@ -328,73 +308,9 @@ public:
 	};
 
 
-	class StatusInfo {
-	public:
-		uint32			minorStateChangeCount;
-		uint32			minorOpenGLStateChangeCount;
 
-		uint32			majorStateChangeCount;
-		uint32			majorOpenGLStateChangeCount;
+    /** Runtime performance statistics useful for profiling.
 
-		uint32			pushStateCount;
-
-		uint32			primitiveCount;
-
-		/** Triangles in the last frame */
-		uint32			triangleCount;
-
-		/** Amount of time spent in swapbuffers (when large, indicates 
-		    that the GPU is blocking the CPU). */
-		RealTime		swapbuffersTime;
-
-        /** Inverse of beginframe->endframe time.  Accounts for the frame
-            timing of the system as a whole, not just graphics.*/
-		float			frameRate;
-
-		/** Exponentially weighted moving average of frame rate */
-		float			smoothFrameRate;
-
-		float			triangleRate;		
-	};
-
-    // These are abstracted to make it easy to put breakpoints in them
-    /**
-      State change to RenderDevice.
-      Use to update the state change statistics when raw OpenGL calls are made. */
-    inline void majStateChange(int inc = 1) {
-        mDebugNumMajorStateChanges += inc;
-    }
-
-    /** 
-      State change to RenderDevice.
-     Use to update the state change statistics when raw OpenGL calls are made. */
-    inline void minStateChange(int inc = 1) {
-        mDebugNumMinorStateChanges += inc;
-    }
-
-    /** 
-     State change to OpenGL (possibly because of a state change to RenderDevice).
-      Use to update the state change statistics when raw OpenGL calls are made. */
-    inline void majGLStateChange(int inc = 1) {
-        mDebugNumMajorOpenGLStateChanges += inc;
-    }
-
-    /** 
-      State change to OpenGL (possibly because of a state change to RenderDevice).
-      Use to update the state change statistics when raw OpenGL calls are made. */
-    inline void minGLStateChange(int inc = 1) {
-        mDebugNumMinorOpenGLStateChanges += inc;
-    }
-
-    /** Allows the UserInput to find the RenderDevice 
-        @deprecated */
-    static RenderDevice*        lastRenderDeviceCreated;
-
-    /** Times swapbuffers */
-    Stopwatch                   m_swapTimer;
-
-    /** Number of RenderDevice state changes.
-    
         "OpenGL state changes" are those that forced underlying OpenGL
         state changes; RenderDevice optimizes away redundant state
         changes so many changes will not affect OpenGL. 
@@ -414,11 +330,94 @@ public:
         and look at the call stack.
 
         Zeroed by beginFrame.*/
-    uint32 debugNumMajorOpenGLStateChanges() const;
-    uint32 debugNumMinorOpenGLStateChanges() const;
-    uint32 debugNumMajorStateChanges() const;
-    uint32 debugNumMinorStateChanges() const;
-    uint32 debugNumPushStateCalls() const;
+    class Stats {
+	public:
+		uint32			minorStateChanges;
+		uint32			minorOpenGLStateChanges;
+
+		uint32			majorStateChanges;
+		uint32			majorOpenGLStateChanges;
+
+		uint32			pushStates;
+
+        /** Number of individual primitives (e.g., number of triangles) */
+		uint32			primitives;
+
+        /** Number of triangles since last beginFrame() */
+		uint32			triangles;
+
+        /** Exponentially weighted moving average of Stats::triangles.*/
+        double          smoothTriangles;
+
+		/** Amount of time spent in swapbuffers (when large, indicates 
+		    that the GPU is blocking the CPU). */
+		RealTime		swapbuffersTime;
+
+        /** Inverse of beginframe->endframe time.  Accounts for the frame
+            timing of the system as a whole, not just graphics.*/
+		float			frameRate;
+
+		/** Exponentially weighted moving average of frame rate */
+		float           smoothFrameRate;
+
+		double			triangleRate;
+
+		/** Exponentially weighted moving average of triangleRate */
+        double          smoothTriangleRate;
+
+        Stats();
+
+        void reset();
+	};
+
+protected:
+
+    /** Time at which the previous endFrame() was called */
+    RealTime            lastTime;
+
+    Stats               m_stats;
+
+public:
+
+    inline const Stats& stats() {
+        return m_stats;
+    }
+
+    // These are abstracted to make it easy to put breakpoints in them
+    /**
+      State change to RenderDevice.
+      Use to update the state change statistics when raw OpenGL calls are made. */
+    inline void majStateChange(int inc = 1) {
+       m_stats.majorStateChanges += inc;
+    }
+
+    /** 
+      State change to RenderDevice.
+     Use to update the state change statistics when raw OpenGL calls are made. */
+    inline void minStateChange(int inc = 1) {
+        m_stats.minorStateChanges += inc;
+    }
+
+    /** 
+     State change to OpenGL (possibly because of a state change to RenderDevice).
+      Use to update the state change statistics when raw OpenGL calls are made. */
+    inline void majGLStateChange(int inc = 1) {
+        m_stats.majorOpenGLStateChanges += inc;
+    }
+
+    /** 
+      State change to OpenGL (possibly because of a state change to RenderDevice).
+      Use to update the state change statistics when raw OpenGL calls are made. */
+    inline void minGLStateChange(int inc = 1) {
+        m_stats.minorOpenGLStateChanges += inc;
+    }
+
+    /** Allows the UserInput to find the RenderDevice 
+        @deprecated */
+    static RenderDevice*        lastRenderDeviceCreated;
+
+    /** Times swapbuffers */
+    Stopwatch                   m_swapTimer;
 
     RenderDevice();
 
@@ -578,37 +577,11 @@ public:
     */
     void setSwapBuffersAutomatically(bool b);
 
-    /**
-     Returns an estimate of the number of frames rendered per second.
-     The result is smoothed using an exponentially weighted moving
-     average filter so it is robust to unequal frame rendering times.
-     */
-    double frameRate() const;
-
-    /**
-     Returns an estimate of the triangles rendered per second.  The
-     result is smoothed using an exponentially weighted moving average
-     filter.
-     */
-    double triangleRate() const;
-
-    /**
-     Returns an estimate of the triangles rendered per frame.  The
-     result is smoothed using an exponentially weighted moving average
-     filter.
-     */
-    double trianglesPerFrame() const;
-
     /** Measures the amount of time spent in swapBuffers.  If high, indicates that
         the CPU and GPU are not working in parallel*/
     const Stopwatch& swapBufferTimer() const {
         return m_swapTimer;
     }
-
-	/** Returns the number of triangles rendered since beginFrame.*/
-	inline int triangleCount() const {
-		return m_triangleCount;
-	}
 
     /**
      Use ALWAYS_PASS to shut off testing.

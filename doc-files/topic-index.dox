@@ -57,7 +57,7 @@ features.  Not all API entry points are shown in this index.
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::Stopwatch <b>Stopwatch</b>\endlink</td><td>Accurately measure the duration and effective framerate of routines</td></tr>
-<tr><td></td><td>\link G3D::RenderDevice::getTriangleCount RenderDevice::getTriangleCount\endlink, \link G3D::RenderDevice::getTriangleRate RenderDevice::getTriangleRate\endlink, \link G3D::RenderDevice::getTrianglesPerFrame RenderDevice::getTrianglesPerFrame\endlink</td><td>Measure the GPU vertex throughput</td></tr>
+<tr><td></td><td>\link G3D::RenderDevice::Stats RenderDevice::Stats\endlink</td><td>Measure the GPU vertex throughput</td></tr>
 <tr><td></td><td>\link G3D::GApp::showRenderingStats GApp::showRenderingStats\endlink</td><td>Display performance information on the 3D window</td></tr>
 <tr><td></td><td>\link G3D::System::mallocPerformance System::mallocPerformance\endlink, \link G3D::System::mallocStatus System::mallocStatus\endlink, \link G3D::System::resetMallocPerformanceCounters System::resetMallocPerformanceCounters\endlink</td><td>Measure heap size and detect memory leaks</td></tr>
 <tr><td></td><td>\link G3D::System::beginCycleCount System::beginCycleCount\endlink, \link G3D::System::endCycleCount System::endCycleCount\endlink</td><td>Cycle-accurate timing of very short routines </td></tr>

@@ -431,7 +431,7 @@ void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array<
         drawBar(rd, featureRating, p);
 
         // Designed to put NV40 at 50
-        performanceRating = log(rd->frameRate()) * 15.0f;
+        performanceRating = log(rd->stats().frameRate) * 15.0f;
 
         p.y += s * 4;
         performanceButton = Rect2D::xywh(p,

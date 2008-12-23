@@ -174,9 +174,6 @@ void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
 }
 
 RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(false) {
-    emwaTriangleRate  = 0;
-    emwaTriangleCount = 0;
-
     _initialized = false;
     cleanedup = false;
     inPrimitive = false;
@@ -184,7 +181,6 @@ RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(f
     _numTextureUnits = 0;
     _numTextures = 0;
     _numTextureCoords = 0;
-    emwaFrameRate = 0;
     lastTime = System::time();
 
     for (int i = 0; i < GLCaps::G3D_MAX_TEXTURE_UNITS; ++i) {
@@ -1281,7 +1277,7 @@ void RenderDevice::pushState() {
     state.matrices.changed = false;
     state.highestTextureUnitThatChanged = -1;
 
-    mDebugPushStateCalls += 1;
+    m_stats.pushStates += 1;
 }
 
 
@@ -1361,14 +1357,9 @@ void RenderDevice::beginFrame() {
         swapBuffers();
     }
 
-    mDebugNumMajorOpenGLStateChanges = 0;
-    mDebugNumMinorOpenGLStateChanges = 0;
-    mDebugNumMajorStateChanges = 0;
-    mDebugNumMinorStateChanges = 0;
-    mDebugPushStateCalls = 0;
+    m_stats.reset();
 
     ++beginEndFrame;
-    m_triangleCount = 0;
     debugAssertM(beginEndFrame == 1, "Mismatched calls to beginFrame/endFrame");
 }
 
@@ -1407,36 +1398,38 @@ void RenderDevice::endFrame() {
 
     double now = System::time();
     double dt = now - lastTime;
-    if (dt == 0) {
+    if (dt <= 0) {
         dt = 0.0001;
     }
+
+    m_stats.triangleRate = m_stats.triangles / dt;
 
     {
         // high frame rate: A (interpolation parameter) is small
         // low frame rate: A is big
         const double A = clamp(dt, .07, 1);
     
-        emwaFrameRate     = lerp(emwaFrameRate, 1 / dt, A);
-        emwaTriangleRate  = lerp(emwaTriangleRate, m_triangleCount / dt, A);
-        emwaTriangleCount = lerp(emwaTriangleCount, m_triangleCount, A);
+        m_stats.smoothFrameRate     = lerp((double)m_stats.smoothFrameRate, 1 / dt, A);
+        m_stats.smoothTriangleRate  = lerp(m_stats.smoothTriangleRate, m_stats.triangleRate, A);
+        m_stats.smoothTriangles     = lerp(m_stats.smoothTriangles, m_stats.triangles, A);
     }
 
-    if ((emwaFrameRate == inf()) || (isNaN(emwaFrameRate))) {
-        emwaFrameRate = 1000000;
-    } else if (emwaFrameRate < 0) {
-        emwaFrameRate = 0;
+    if ((m_stats.smoothFrameRate == inf()) || (isNaN(m_stats.smoothFrameRate))) {
+        m_stats.smoothFrameRate = 1000000;
+    } else if (m_stats.smoothFrameRate < 0) {
+        m_stats.smoothFrameRate = 0;
     }
 
-    if ((emwaTriangleRate == inf()) || isNaN(emwaTriangleRate)) {
-        emwaTriangleRate = 1e20;
-    } else if (emwaTriangleRate < 0) {
-        emwaTriangleRate = 0;
+    if ((m_stats.smoothTriangleRate == inf()) || isNaN(m_stats.smoothTriangleRate)) {
+        m_stats.smoothTriangleRate = 1e20;
+    } else if (m_stats.smoothTriangleRate < 0) {
+        m_stats.smoothTriangleRate = 0;
     }
 
-    if ((emwaTriangleCount == inf()) || isNaN(emwaTriangleCount)) {
-        emwaTriangleRate = 1e20;
-    } else if (emwaTriangleCount < 0) {
-        emwaTriangleCount = 0;
+    if ((m_stats.smoothTriangles == inf()) || isNaN(m_stats.smoothTriangles)) {
+        m_stats.smoothTriangles = 1e20;
+    } else if (m_stats.smoothTriangles < 0) {
+        m_stats.smoothTriangles = 0;
     }
 
     lastTime = now;
@@ -2697,8 +2690,8 @@ void RenderDevice::beginPrimitive(Primitive p) {
 void RenderDevice::endPrimitive() {
     debugAssertM(inPrimitive, "Call to endPrimitive() without matching beginPrimitive()");
 
-    mDebugNumMinorStateChanges += currentPrimitiveVertexCount;
-    mDebugNumMinorOpenGLStateChanges += currentPrimitiveVertexCount;
+    minStateChange(currentPrimitiveVertexCount);
+    minGLStateChange(currentPrimitiveVertexCount);
 	countTriangles(currentPrimitive, currentPrimitiveVertexCount);
 
     glEnd();
@@ -2711,32 +2704,32 @@ void RenderDevice::endPrimitive() {
 void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVertices) {
 	switch (primitive) {
     case LINES:
-        m_triangleCount += (numVertices / 2);
+        m_stats.triangles += (numVertices / 2);
         break;
 
     case LINE_STRIP:
-        m_triangleCount += (numVertices - 1);
+        m_stats.triangles += (numVertices - 1);
         break;
 
     case TRIANGLES:
-        m_triangleCount += (numVertices / 3);
+        m_stats.triangles += (numVertices / 3);
         break;
 
     case TRIANGLE_STRIP:
     case TRIANGLE_FAN:
-        m_triangleCount += (numVertices - 2);
+        m_stats.triangles += (numVertices - 2);
         break;
 
     case QUADS:
-        m_triangleCount += ((numVertices / 4) * 2);
+        m_stats.triangles += ((numVertices / 4) * 2);
         break;
 
     case QUAD_STRIP:
-        m_triangleCount += (((numVertices / 2) - 1) * 2);
+        m_stats.triangles += (((numVertices / 2) - 1) * 2);
         break;
 
     case POINTS:
-        m_triangleCount += numVertices;
+        m_stats.triangles += numVertices;
         break;
     }
 }
@@ -2885,24 +2878,7 @@ std::string RenderDevice::screenshot(const std::string& filepath) const {
     screenshotPic(screen);
     screen.save(filename);
 
-
-
     return filename;
-}
-
-
-double RenderDevice::frameRate() const {
-    return emwaFrameRate;
-}
-
-
-double RenderDevice::triangleRate() const {
-    return emwaTriangleRate;
-}
-
-
-double RenderDevice::trianglesPerFrame() const {
-    return emwaTriangleCount;
 }
 
 
@@ -2922,10 +2898,9 @@ void RenderDevice::endIndexedPrimitives() {
 	debugAssert(inIndexedPrimitive);
 
 
-  if (GLCaps::supports_GL_ARB_vertex_buffer_object()) {
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-  }
-
+    if (GLCaps::supports_GL_ARB_vertex_buffer_object()) {
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    }
 
 	glPopClientAttrib();
 	inIndexedPrimitive = false;
@@ -3262,30 +3237,6 @@ bool RenderDevice::supportsVertexBufferObject() const {
 }
 
 
-uint32 RenderDevice::debugNumMajorOpenGLStateChanges() const {
-    return mDebugNumMajorOpenGLStateChanges;
-}
-
-
-uint32 RenderDevice::debugNumPushStateCalls() const {
-    return mDebugPushStateCalls;
-}
-
-
-uint32 RenderDevice::debugNumMinorOpenGLStateChanges() const {
-    return mDebugNumMinorOpenGLStateChanges;
-}
-
-
-uint32 RenderDevice::debugNumMajorStateChanges() const {
-    return mDebugNumMajorStateChanges;
-}
-
-
-uint32 RenderDevice::debugNumMinorStateChanges() const {
-    return mDebugNumMinorStateChanges;
-}
-
 std::string RenderDevice::dummyString;
 bool RenderDevice::checkFramebuffer(std::string& whyNot) const {
     GLenum status;
@@ -3337,6 +3288,28 @@ Rect2D RenderDevice::clip2D() const {
     } else {
         return state.viewport;
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+RenderDevice::Stats::Stats() {
+    smoothTriangles = 0;
+    smoothTriangleRate = 0;
+    smoothFrameRate = 0;
+    reset();
+}
+
+void RenderDevice::Stats::reset() {
+    minorStateChanges = 0;
+    minorOpenGLStateChanges = 0;
+    majorStateChanges = 0;
+    majorOpenGLStateChanges = 0;
+    pushStates = 0;
+    primitives = 0;
+    triangles = 0;
+    swapbuffersTime = 0;
+    frameRate = 0;
+    triangleRate = 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

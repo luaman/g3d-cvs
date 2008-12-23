@@ -331,11 +331,11 @@ void GApp::onRun() {
 void GApp::renderDebugInfo() {
     if (debugFont.notNull()) {
         // Capture these values before we render debug output
-        int majGL  = renderDevice->debugNumMajorOpenGLStateChanges();
-        int majAll = renderDevice->debugNumMajorStateChanges();
-        int minGL  = renderDevice->debugNumMinorOpenGLStateChanges();
-        int minAll = renderDevice->debugNumMinorStateChanges();
-        int pushCalls = renderDevice->debugNumPushStateCalls();
+        int majGL  = renderDevice->stats().majorOpenGLStateChanges;
+        int majAll = renderDevice->stats().majorStateChanges;
+        int minGL  = renderDevice->stats().minorOpenGLStateChanges;
+        int minAll = renderDevice->stats().minorStateChanges;
+        int pushCalls = renderDevice->stats().pushStates;
 
         renderDevice->push2D();
             Color3 color = Color3::white();
@@ -367,8 +367,8 @@ void GApp::renderDebugInfo() {
                 std::string s = format(
                     "% 5dfps % 5.1fM tris % 6.1fM tris/s  GL Calls: %d/%d Maj; %d/%d Min; %d push", 
                     iRound(fps),
-                    iRound(fps * renderDevice->trianglesPerFrame() / 1e5) * 0.1f,
-                    iRound(fps * renderDevice->triangleRate() / 1e5) * 0.1f,
+                    iRound(fps * renderDevice->stats().triangles / 1e5) * 0.1f,
+                    iRound(fps * renderDevice->stats().triangleRate / 1e5) * 0.1f,
                     majGL, majAll, minGL, minAll, pushCalls);
                 debugFont->send2DQuads(renderDevice, s, pos, size, statColor);
 
