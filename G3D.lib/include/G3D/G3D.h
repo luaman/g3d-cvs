@@ -90,7 +90,6 @@ template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/Vector3int32.h"
 #include "G3D/Vector4int8.h"
 #include "G3D/ConvexPolyhedron.h"
-#include "G3D/Discovery.h"
 #include "G3D/MeshAlg.h"
 #include "G3D/vectorMath.h"
 #include "G3D/Rect2D.h"

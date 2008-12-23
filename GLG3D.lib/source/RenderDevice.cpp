@@ -1103,10 +1103,19 @@ void RenderDevice::syncDrawBuffer() {
         // Apply the bindings from this framebuffer
         const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
         if (array.size() > 0) {
+            debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) <= array.size(),
+                format("This graphics card only supports %d draw buffers.",
+                glGetInteger(GL_MAX_DRAW_BUFFERS)));
+
             glDrawBuffersARB(array.size(), array.getCArray());
         } else {
             // May be only depth or stencil; don't need a draw buffer.
-            glDrawBuffersARB(0, NULL);
+
+            debugAssertGLOk();
+            // Some drivers crash when providing NULL for a zero-element array,
+            // so make a fake array.
+            const GLenum noColorBuffers[] = { GL_NONE };
+            glDrawBuffersARB(0, noColorBuffers);
         }
         debugAssertGLOk();
     }

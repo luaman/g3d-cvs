@@ -227,7 +227,6 @@ See also the \link guidenetwork Networking Overview\endlink.
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td>Message-based TCP infrastructure ideal for most games</td></tr>
-<tr><td></td><td>\link G3D::DiscoveryClient <b>DiscoveryClient</b>\endlink</td>, \link G3D::DiscoveryServer <b>DiscoveryServer</b>\endlink, \link G3D::DiscoveryAdvertisement <b>DiscoveryAdvertisement</b>\endlink</td></td><td>LAN-browsing infrastructure</td></tr>
 <tr><td></td><td>\link G3D::NetListener <b>NetListener</b>\endlink</td><td>Server-side way of listening for incoming connections</td></tr>
 <tr><td></td><td>\link G3D::BinaryInput <b>BinaryInput</b>\endlink, \link G3D::BinaryOutput <b>BinaryOutput</b>\endlink</td><td>Used by serialize/deserialize methods to binary encode messages for transfer.</td></tr>
 <tr><td></td><td>\link G3D::NetAddress NetAddress\endlink</td><td>IP, port, and hostname addressing</td></tr>

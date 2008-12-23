@@ -162,7 +162,7 @@ uint32 gcchtonl(uint32);
    <LI> On the server, invoke G3D::NetListener::waitForConnection.
    <LI> On the client, call G3D::NetworkDevice::createReliableConduit.  
         You will need the server's G3D::NetAddress.  Consider using
-        G3D::DiscoveryClient to find it via broadcasting.
+        G3D::Discovery::Client to find it via broadcasting.
  </OL>
 
  */
