@@ -352,7 +352,7 @@ def docTarget():
 
     version += ' - ' + time.strftime('%B %Y')
 
-    copyIfNewer('doc-files/data-files', 'build/html')
+    copyIfNewer('doc-files/data-files', 'build/manual')
 
     env = {'HEADER_FILE':    'doc-files/data-files/header.html',
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
@@ -742,7 +742,7 @@ def install():
     copyIfNewer('build/' + platformName + '/lib', installLib)
     copyIfNewer('build/G3D.jar', pathConcat(libInstallDir, 'lib/G3D.jar'))
     
-    copyIfNewer('build/html',    pathConcat(docInstallDir, 'html'))
+    copyIfNewer('build/manual',  pathConcat(docInstallDir, 'manual'))
     copyIfNewer('build/data',    pathConcat(docInstallDir, 'data'))
     copyIfNewer('build/demos',   pathConcat(docInstallDir, 'demos'))
 
