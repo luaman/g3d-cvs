@@ -334,8 +334,8 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
 
     } else {
 
-        // Maximum round-up size of varArea; 8 bytes per array.
-        size_t roundOff = 8 * 3;
+        // Maximum round-up size of varArea.
+        size_t roundOff = 16;
 
         // Allocate new VARs
         VARAreaRef varArea = VARArea::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
