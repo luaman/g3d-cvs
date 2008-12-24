@@ -37,6 +37,20 @@ bool VAR::valid() const {
         (VARArea::mode == VARArea::VBO_MEMORY || _pointer);
 }
 
+void VAR::init(VAR& dstPtr, size_t dstOffset, GLenum glformat, size_t eltSize, 
+               int _numElements, size_t dstStride) {
+    area = dstPtr.area;
+    alwaysAssertM(area.notNull(), "Bad VARArea");
+    numElements              = _numElements;
+    underlyingRepresentation = glformat;
+    elementSize              = eltSize;
+    m_stride                 = dstStride;
+    _maxSize                 = dstPtr._maxSize / dstStride;
+
+    generation = area->currentGeneration();
+    _pointer = (uint8*)dstPtr._pointer + dstOffset;
+}
+
 void VAR::init(const void* srcPtr,
                int     _numElements, 
                int     srcStride,      
@@ -177,43 +191,28 @@ void VAR::set(int index, const void* value, GLenum glformat, size_t eltSize) {
 }
 
 
-void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t srcSize, int srcStride, 
-                        size_t dstPtrOffsetBytes, size_t dstStrideBytes) {
-    uint8* dstPointer = NULL;
-
-    if (srcStride == 0) {
-        srcStride = srcSize;
-    }
-
-    if (dstStrideBytes == 0) {
-        dstStrideBytes = srcSize;
-    }
-
+void* VAR::mapBuffer(GLenum permissions) {
     // Map buffer
     switch (area->mode) {
     case VARArea::VBO_MEMORY:
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         glBindBufferARB(area->openGLTarget(), area->glbuffer);
-        dstPointer = (uint8*)glMapBufferARB(area->openGLTarget(), GL_WRITE_ONLY) + 
-            (size_t)_pointer + (size_t)dstPtrOffsetBytes;
+        return (uint8*)glMapBufferARB(area->openGLTarget(), permissions) + 
+            (size_t)_pointer;
         break;
 
     case VARArea::MAIN_MEMORY:
-        dstPointer = (uint8*)_pointer + dstPtrOffsetBytes;
+        return (uint8*)_pointer;
         break;
 
     default:
         alwaysAssertM(false, "Fell through switch");
+        return NULL;
     }
+}
 
-    // Copy elements
-    for (int i = 0; i < srcElements; ++i) {
-        System::memcpy(dstPointer, srcPointer, srcSize);
-        srcPointer = (uint8*)srcPointer + srcStride;
-        dstPointer = (uint8*)dstPointer + dstStrideBytes;
-    }
-    
-    // Unmap buffer
+
+void VAR::unmapBuffer() {
     switch (area->mode) {
     case VARArea::VBO_MEMORY:
         glUnmapBufferARB(area->openGLTarget());
@@ -228,6 +227,30 @@ void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t src
     default:
         alwaysAssertM(false, "Fell through switch");
     }
+}
+
+void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t srcSize, int srcStride, 
+                        size_t dstPtrOffsetBytes, size_t dstStrideBytes) {
+    if (srcStride == 0) {
+        srcStride = srcSize;
+    }
+
+    if (dstStrideBytes == 0) {
+        dstStrideBytes = srcSize;
+    }
+
+    uint8* dstPointer = (uint8*)mapBuffer(GL_WRITE_ONLY) + (size_t)dstPtrOffsetBytes;
+
+    // Copy elements
+    for (int i = 0; i < srcElements; ++i) {
+        System::memcpy(dstPointer, srcPointer, srcSize);
+        srcPointer = (uint8*)srcPointer + srcStride;
+        dstPointer = (uint8*)dstPointer + dstStrideBytes;
+    }
+    
+    // Unmap buffer
+    unmapBuffer();
+    dstPointer = NULL;
 }
 
 

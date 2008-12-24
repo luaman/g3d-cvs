@@ -65,6 +65,10 @@ private:
     /** The initial size this VAR was allocated with, in bytes. */
     size_t              _maxSize;
 
+    /** For uploading interleaved arrays */
+    void init(VAR& dstPtr, size_t dstOffset, GLenum glformat, 
+        size_t eltSize, int _numElements, size_t stride);
+
     void init(const void* sourcePtr, 
               int _numElements, 
               VARAreaRef _area,
@@ -162,6 +166,23 @@ public:
         init(source.getCArray(), source.size(), _area, glFormatOf(T), sizeof(T));
     }
 
+
+    /** Return a pointer to CPU-addressable memory for this VAR.  The buffer must be unmapped
+        later before any rendering calls are made.  This contains a glPushClientAttrib call
+        that must be matched by unmapBuffer.
+
+        Works for both CPU memory and VBO memory VAR.
+
+        This method is unsafe and is not recommended.
+        
+        @param permissions Same as the argument to glMapBufferARB.
+        */
+    void* mapBuffer(GLenum permissions);
+
+    /** Release CPU addressable memory previously returned by mapBuffer.
+        This method is unsafe and is not recommended. */
+    void unmapBuffer();
+
     /** @brief Creates four interleaved VAR arrays simultaneously. 
 
         Creates four interleaved VAR arrays simultaneously.  This is
@@ -177,8 +198,7 @@ public:
         will return an uninitialized var.
     */
     template<class T1, class T2, class T3, class T4>
-    static void create(
-                       const Array<T1>& src1,
+    static void create(const Array<T1>& src1,
                        VAR&             var1,
                        const Array<T2>& src2,
                        VAR&             var2,
@@ -191,12 +211,49 @@ public:
         int N = iMax(iMax(src1.size(), src2.size()),
                      iMax(src3.size(), src4.size()));
 
+        debugassert(area->type() == VARArea::DATA);
         debugAssert(src1.size() == N || src1.size() == 0);
         debugAssert(src2.size() == N || src2.size() == 0);
         debugAssert(src3.size() == N || src3.size() == 0);
         debugAssert(src4.size() == N || src4.size() == 0);
 
-        // TODO
+        size_t size1 = sizeof(T1);
+        size_t size2 = sizeof(T2);
+        size_t size3 = sizeof(T3);
+        size_t size4 = sizeof(T4);
+
+        size_t stride = size1 + size2 + size3 + size4;
+        size_t totalMemory = stride * N;
+        
+        VAR masterVAR(totalMemory, area);
+        var1.init(masterVAR, 0, glFormatOf(T1), size1, N, stride);
+        var2.init(masterVAR, size1, glFormatOf(T1), size1, N, stride);
+        var3.init(masterVAR, size1 + size2, glFormatOf(T1), size1, N, stride);
+        var4.init(masterVAR, size1 + size2 + size3, glFormatOf(T1), size1, N, stride);
+
+        // Upload interleaved
+        uint8* dstPtr = mapBuffer(GL_WRITE_ONLY);
+
+        for (int i = 0; i < N; ++i) {
+            if (src1.size() > 0) {
+                System::memcpy(dstPtr, &src1[i], size1);
+                dstPtr += size1;
+            }
+            if (src2.size() > 0) {
+                System::memcpy(dstPtr, &src2[i], size2);
+                dstPtr += size2;
+            }
+            if (src3.size() > 0) {
+                System::memcpy(dstPtr, &src3[i], size3);
+                dstPtr += size3;
+            }
+            if (src4.size() > 0) {
+                System::memcpy(dstPtr, &src4[i], size4);
+                dstPtr += size4;
+            }
+        }
+
+        unmapBuffer();
     }
 
     /**

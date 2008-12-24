@@ -62,7 +62,7 @@ void Stopwatch::tock() {
     if (lastTockTime != -1.0) {
         m_fps = 1.0 / (now - lastTockTime);
 
-        const double blend = 0.005;
+        const double blend = 0.01;
         emwaFPS = m_fps * blend + emwaFPS * (1.0 - blend);
 
         double maxDiscrepancyPercentage = 0.25;
@@ -78,12 +78,12 @@ void Stopwatch::tock() {
         if (m_smoothFPS == 0) {
             m_smoothFPS = m_fps;
         } else if (emwaFPS <= 20) {
-            // Small number; round to the nearest 0.1
             if (::fabs(m_smoothFPS - emwaFPS) > 0.75) {
+            // Small number and display is off by more than 0.75; round to the nearest 0.1
                 m_smoothFPS = floor(emwaFPS * 10.0 + 0.5) / 10.0;
             }
         } else if (::fabs(m_smoothFPS - emwaFPS) > 1.25) {
-            // Large number; round to the nearest 1.0
+            // Large number and display is off by more than 1.25; round to the nearest 1.0
             m_smoothFPS = floor(emwaFPS + 0.5);
         }        
     }
