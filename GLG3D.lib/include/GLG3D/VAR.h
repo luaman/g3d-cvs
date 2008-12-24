@@ -38,7 +38,7 @@ private:
 
     friend class RenderDevice;
 
-    VARAreaRef	                        area;
+    VARAreaRef           area;
     
     /** For VBO_MEMORY, this is the offset.  For MAIN_MEMORY, this is
         a pointer to the block of uploaded memory.
@@ -46,18 +46,18 @@ private:
         When there was a dstOffset as an init() argument, it has already
         been applied here.
     */
-    void*				_pointer;
+    void*               _pointer;
     
     /** Size of one element. For a void array, this is 1.*/
-    size_t				elementSize;
+    size_t              elementSize;
     
     /** For a void array, this is _maxSize. */
-    int					numElements;
+    int                 numElements;
    
     /** Space between subsequent elements, must be zero or >= elementSize */
     size_t              m_stride;
  
-    uint64				generation;
+    uint64		generation;
     
     /** GL_NONE for a "void" array */
     GLenum              underlyingRepresentation;
@@ -206,10 +206,16 @@ public:
         int    count[4] = {src1.size(), src2.size(), src3.size(), src4.size()};
         size_t size[4]  = {sizeof(T1), sizeof(T2), sizeof(T3), sizeof(T4)};
         VAR*   var[4]   = {&var1, &var2, &var3, &var4};
+        (void)var;
 
         for (int a = 0; a < 4; ++a) {
             debugAssertM(count[a] == var[a]->numElements, 
                 "Updated arrays must have the same size they were created with.");
+            if (a > 1) {
+                debugAssertM(var[a]->_pointer == (uint8*)var[a - 1]->_pointer + size[a],
+                             "Updated interleaved arrays must be the same set and"
+                             " order as original interleaved arrays.");
+            }
         }
 
         uint8* dstPtr = (uint8*)var1.mapBuffer(GL_WRITE_ONLY);
