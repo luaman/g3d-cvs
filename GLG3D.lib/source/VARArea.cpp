@@ -3,10 +3,10 @@
  
  Implementation of the vertex array system used by RenderDevice.
 
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-01-08
- @edited  2006-01-06
+ @edited  2008-12-24
  */
 
 #include "G3D/Log.h"
@@ -25,15 +25,15 @@ VARArea::Mode VARArea::mode = VARArea::UNINITIALIZED;
 
 size_t VARArea::_sizeOfAllVARAreasInMemory = 0;
 
-VARAreaRef VARArea::create(size_t s, UsageHint h) {
+VARAreaRef VARArea::create(size_t s, UsageHint h, Type t) {
     cleanCache();
-    VARAreaRef x = new VARArea(s, h);
+    VARAreaRef x = new VARArea(s, h, t);
     allVARAreas.push(x);
     return x;
 }
 
 
-VARArea::VARArea(size_t _size, UsageHint hint) : size(_size) {
+VARArea::VARArea(size_t _size, UsageHint hint, Type t) : size(_size), m_type(t) {
     renderDevice = NULL;
 
     // See if we've determined the mode yet.
@@ -42,8 +42,8 @@ VARArea::VARArea(size_t _size, UsageHint hint) : size(_size) {
             (glGenBuffersARB != NULL) && 
             (glBufferDataARB != NULL) &&
             (glDeleteBuffersARB != NULL) &&			
-			! GLCaps::hasBug_slowVBO()) {
-			mode = VBO_MEMORY;
+            ! GLCaps::hasBug_slowVBO()) {
+            mode = VBO_MEMORY;
         } else {
             mode = MAIN_MEMORY;
         }
@@ -55,37 +55,37 @@ VARArea::VARArea(size_t _size, UsageHint hint) : size(_size) {
     case VBO_MEMORY:
         {
             //glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-                glGenBuffersARB(1, &glbuffer);
-                glBindBufferARB(GL_ARRAY_BUFFER_ARB, glbuffer);
-
-                GLenum usage;
-
-                switch (hint) {
-                case WRITE_EVERY_FRAME:
-                    usage = GL_STREAM_DRAW_ARB;
-                    break;
-
-                case WRITE_ONCE:
-                    usage = GL_STATIC_DRAW_ARB;
-                    break;
-
-                case WRITE_EVERY_FEW_FRAMES:
-                    usage = GL_DYNAMIC_DRAW_ARB;
-                    break;
-
-                default:
-                    usage = GL_STREAM_DRAW_ARB;
-                    debugAssertM(false, "Fell through switch");
-                }
-
-                // Load some (undefined) data to initialize the buffer
-                glBufferDataARB(GL_ARRAY_BUFFER_ARB, size, NULL, usage);
-                debugAssertGLOk();    
-
-                // The basePointer is always NULL for a VBO
-                basePointer = NULL;
-
-                glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+            glGenBuffersARB(1, &glbuffer);
+            glBindBufferARB(openGLTarget(), glbuffer);
+            
+            GLenum usage;
+            
+            switch (hint) {
+            case WRITE_EVERY_FRAME:
+                usage = GL_STREAM_DRAW_ARB;
+                break;
+                
+            case WRITE_ONCE:
+                usage = GL_STATIC_DRAW_ARB;
+                break;
+                
+            case WRITE_EVERY_FEW_FRAMES:
+                usage = GL_DYNAMIC_DRAW_ARB;
+                break;
+                
+            default:
+                usage = GL_STREAM_DRAW_ARB;
+                debugAssertM(false, "Fell through switch");
+            }
+            
+            // Load some (undefined) data to initialize the buffer
+            glBufferDataARB(openGLTarget(), size, NULL, usage);
+            debugAssertGLOk();    
+            
+            // The basePointer is always NULL for a VBO
+            basePointer = NULL;
+            
+            glBindBufferARB(openGLTarget(), 0);
             //glPopClientAttrib();
             debugAssertGLOk();
         }
@@ -106,8 +106,8 @@ VARArea::VARArea(size_t _size, UsageHint hint) : size(_size) {
 
     milestone     = NULL;
     allocated     = 0;
-	generation    = 1;
-	peakAllocated = 0;
+    generation    = 1;
+    peakAllocated = 0;
 }
 
 
@@ -150,8 +150,8 @@ void VARArea::finish() {
 
 void VARArea::reset() {
     finish();
-	++generation;
-	allocated = 0;
+    ++generation;
+    allocated = 0;
 }
 
 

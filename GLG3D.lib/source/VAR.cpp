@@ -1,10 +1,10 @@
 /**
  @file VAR.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-04-08
- @edited  2005-06-20
+ @edited  2008-12-24
  */
 
 #include "GLG3D/VAR.h"

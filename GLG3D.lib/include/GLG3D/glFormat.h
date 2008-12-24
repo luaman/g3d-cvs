@@ -1,12 +1,12 @@
 /**
- @file glformat.h
+ @file glFormat.h
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2006-05-05
+ @edited  2008-12-24
 
- Copyright 2002-2007, Morgan McGuire.
+ Copyright 2002-2009, Morgan McGuire.
  All rights reserved.
 */
 #ifndef GLFORMAT_H
@@ -25,7 +25,8 @@
 // This implementation is designed to meet the following constraints:
 //   1. Work around the many MSVC++ partial template bugs
 //   2. Work for primitive types (e.g. int)
-#define glFormatOf(T) (G3D::_internal::_GLFormat<T>::x())
+#define glFormatOf(T) (G3D::_internal::_GLFormat<T>::type())
+#define isIntType(T) (G3D::_internal::_GLFormat<T>::isInt())
 
 namespace G3D {
 namespace _internal {
@@ -33,8 +34,12 @@ namespace _internal {
 
 template<class T> class _GLFormat {
 public:
-    static GLenum x() {
+    static GLenum type() {
         return GL_NONE;
+    }
+    /** Is this an integer (usable as an index) */
+    static bool isInt() {
+        return false;
     }
 };
 
@@ -52,34 +57,37 @@ public:
   Use this so you can make vertex arrays of your own classes and not just 
   the standard ones.
  */
-#define DECLARE_GLFORMATOF(G3DType, GLType)          \
+#define DECLARE_GLFORMATOF(G3DType, GLType, _isInt)  \
 namespace G3D {                                      \
     namespace _internal {                            \
         template<> class _GLFormat<G3DType> {        \
         public:                                      \
-            static GLenum x()  {                     \
+            static GLenum type()  {                  \
                 return GLType;                       \
+            }                                        \
+            static bool isInt() {                    \
+                return _isInt;                       \
             }                                        \
         };                                           \
     }                                                \
 }
 
-DECLARE_GLFORMATOF( Vector2,       GL_FLOAT)
-DECLARE_GLFORMATOF( Vector3,       GL_FLOAT)
-DECLARE_GLFORMATOF( Vector4,       GL_FLOAT)
-DECLARE_GLFORMATOF( Vector3int16,  GL_SHORT)
-DECLARE_GLFORMATOF( Vector2int16,  GL_SHORT)
-DECLARE_GLFORMATOF( Color3uint8,   GL_UNSIGNED_BYTE)
-DECLARE_GLFORMATOF( Color3,        GL_FLOAT)
-DECLARE_GLFORMATOF( Color4,        GL_FLOAT)
-DECLARE_GLFORMATOF( Color4uint8,   GL_UNSIGNED_BYTE)
-DECLARE_GLFORMATOF( uint8,         GL_UNSIGNED_BYTE)
-DECLARE_GLFORMATOF( uint16,        GL_UNSIGNED_SHORT)
-DECLARE_GLFORMATOF( uint32,        GL_UNSIGNED_INT)
-DECLARE_GLFORMATOF( int8,          GL_BYTE)
-DECLARE_GLFORMATOF( int16,         GL_SHORT)
-DECLARE_GLFORMATOF( int32,         GL_INT)
-DECLARE_GLFORMATOF( float,         GL_FLOAT)
-DECLARE_GLFORMATOF( double,        GL_DOUBLE)
+DECLARE_GLFORMATOF( Vector2,       GL_FLOAT,          false)
+DECLARE_GLFORMATOF( Vector3,       GL_FLOAT,          false)
+DECLARE_GLFORMATOF( Vector4,       GL_FLOAT,          false)
+DECLARE_GLFORMATOF( Vector3int16,  GL_SHORT,          false)
+DECLARE_GLFORMATOF( Vector2int16,  GL_SHORT,          false)
+DECLARE_GLFORMATOF( Color3uint8,   GL_UNSIGNED_BYTE,  false)
+DECLARE_GLFORMATOF( Color3,        GL_FLOAT,          false)
+DECLARE_GLFORMATOF( Color4,        GL_FLOAT,          false)
+DECLARE_GLFORMATOF( Color4uint8,   GL_UNSIGNED_BYTE,  false)
+DECLARE_GLFORMATOF( uint8,         GL_UNSIGNED_BYTE,  true)
+DECLARE_GLFORMATOF( uint16,        GL_UNSIGNED_SHORT, true)
+DECLARE_GLFORMATOF( uint32,        GL_UNSIGNED_INT,   true)
+DECLARE_GLFORMATOF( int8,          GL_BYTE,           true)
+DECLARE_GLFORMATOF( int16,         GL_SHORT,          true)
+DECLARE_GLFORMATOF( int32,         GL_INT,            true)
+DECLARE_GLFORMATOF( float,         GL_FLOAT,          false)
+DECLARE_GLFORMATOF( double,        GL_DOUBLE,         false)
 
 #endif

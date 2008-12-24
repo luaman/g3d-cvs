@@ -1,8 +1,8 @@
 /**
   @file VARArea.h
-  @maintainer Morgan McGuire, morgan@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2003-08-09
-  @edited  2006-02-06
+  @edited  2008-12-06
 */
 
 #ifndef GLG3D_VARAREA_H
@@ -11,6 +11,7 @@
 #include "G3D/ReferenceCount.h"
 #include "G3D/Table.h"
 #include "GLG3D/Milestone.h"
+#include "GLG3D/glheaders.h"
 
 namespace G3D {
 
@@ -68,9 +69,17 @@ public:
         WRITE_EVERY_FEW_FRAMES,
         WRITE_EVERY_FRAME};
 
+    /**
+       Each area can old either vertex data or vertex indices.
+     */
+    enum Type {
+        DATA,
+        INDEX
+    };
+    
 private:
 
-	friend class VAR;
+    friend class VAR;
     friend class RenderDevice;
 
     /**
@@ -78,85 +87,87 @@ private:
      by RenderDevice::setVARAreaMilestones.  If NULL, there
      is no milestone pending.
      */
-    MilestoneRef        milestone;
+    MilestoneRef                        milestone;
 
-	/** Number of bytes currently allocated out of size total. */
-	size_t				allocated;
-
-	/**
-	 This count prevents vertex arrays that have been freed from
-	 accidentally being used-- it is incremented every time
-     the VARArea is reset.
-	 */
-	uint64				generation;
-
-	/** The maximum size of this area that was ever used. */
-	size_t				peakAllocated;
-
-    /** Set by RenderDevice */
-    RenderDevice*       renderDevice;
-
-
-	/** Total  number of bytes in this area.  May be zero if resources have been freed.*/
-	size_t				size;
+    /** Number of bytes currently allocated out of size total. */
+    size_t				allocated;
+    
+    Type                                m_type;
 
     /**
-     The OpenGL buffer object associated with this area
-     (only used when mode == VBO_MEMORY)
-     */
-    uint32              glbuffer;
-
-	/** Pointer to the memory (NULL when
+       This count prevents vertex arrays that have been freed from
+       accidentally being used-- it is incremented every time
+       the VARArea is reset.
+    */
+    uint64				generation;
+    
+    /** The maximum size of this area that was ever used. */
+    size_t				peakAllocated;
+    
+    /** Set by RenderDevice */
+    RenderDevice*                       renderDevice;
+    
+    /** Total  number of bytes in this area.  May be zero if resources have been freed.*/
+    size_t				size;
+    
+    /**
+       The OpenGL buffer object associated with this area
+       (only used when mode == VBO_MEMORY)
+    */
+    uint32                              glbuffer;
+    
+    /** Pointer to the memory (NULL when
         the VBO extension is not present). */
-	void*				basePointer;
-
+    void*				basePointer;
+    
     enum Mode {UNINITIALIZED, VBO_MEMORY, MAIN_MEMORY};
-    static Mode         mode;
-
+    static Mode                         mode;
+    
     /** Updates allocation and peakAllocation based off of new allocation. */
     inline void updateAllocation(size_t newAllocation) {
         allocated += newAllocation;
         peakAllocated = (size_t)iMax((int)peakAllocated, (int)allocated);
     }
 
-    static size_t       _sizeOfAllVARAreasInMemory;
+    static size_t                       _sizeOfAllVARAreasInMemory;
 
-	VARArea(size_t _size, UsageHint h);
+    VARArea(size_t _size, UsageHint h, Type t);
 
-    static Array<VARAreaRef>    allVARAreas;
-
+    static Array<VARAreaRef>           allVARAreas;
+    
     /** Removes elements of allVARAreas that are not externally referenced.
         Called whenever a new VARArea is created.*/
     static void cleanCache();
-
+    
 public:
 
     /**
-     You should always create your VARAreas at least 8 bytes larger
-     than needed for each individual VAR because VARArea tries to 
-     align VAR starts in memory with dword boundaries.
+       You should always create your VARAreas at least 8 bytes larger
+       than needed for each individual VAR because VARArea tries to 
+       align VAR starts in memory with dword boundaries.
      */
-    static VARAreaRef create(size_t s , UsageHint h = WRITE_EVERY_FRAME);
+    static VARAreaRef create(size_t s, UsageHint h = WRITE_EVERY_FRAME, Type = DATA);
 
     ~VARArea();
 
-    inline size_t totalSize() const {
-	    return size;
+    inline Type type() const {
+        return m_type;
     }
 
+    inline size_t totalSize() const {
+        return size;
+    }
 
     inline size_t freeSize() const {
-	    return size - allocated;
+        return size - allocated;
     }
-
 
     inline size_t allocatedSize() const {
-	    return allocated;
+        return allocated;
     }
 
-
     inline size_t peakAllocatedSize() const {
-	    return peakAllocated;
+        return peakAllocated;
     }
 
     inline uint64 currentGeneration() const {
@@ -193,8 +204,8 @@ public:
      */
     void finish();
 
-	/** Finishes, then frees all VAR memory inside this area.*/ 
-	void reset();
+    /** Finishes, then frees all VAR memory inside this area.*/ 
+    void reset();
 
     /** Returns the total size of all VARAreas allocated.  Note that not all
         will be in video memory, and some will be backed by main memory 
@@ -206,6 +217,15 @@ public:
 
     /** Releases all VARAreas. Called before shutdown by RenderDevice. */
     static void cleanupAllVARAreas();
+
+    /** Target argument for glBufferData and other raw OpenGL routines. */
+    inline GLenum openGLTarget() const {
+        if (m_type == DATA) {
+            return GL_ARRAY_BUFFER_ARB;
+        } else {
+            return GL_ELEMENT_ARRAY_BUFFER;
+        }
+    }
 
 };
 }
