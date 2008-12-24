@@ -183,6 +183,49 @@ public:
         This method is unsafe and is not recommended. */
     void unmapBuffer();
 
+    /** @brief Update a set of interleaved arrays.  
+    
+        Update a set of interleaved arrays.  None may change size from the original. */
+    template<class T1, class T2, class T3, class T4>
+    static void updateInterleaved
+        (const Array<T1>& src1,
+         VAR&             var1,
+         const Array<T2>& src2,
+         VAR&             var2,
+         const Array<T3>& src3,
+         VAR&             var3,
+         const Array<T4>& src4,
+         VAR&             var4) {
+
+        int N = iMax(iMax(src1.size(), src2.size()),
+                     iMax(src3.size(), src4.size()));
+
+        // Pack arguments into arrays to avoid repeated code below.
+        uint8* src[4]   = {(uint8*)src1.getCArray(), (uint8*)src2.getCArray(),
+                           (uint8*)src3.getCArray(), (uint8*)src4.getCArray()};
+        int    count[4] = {src1.size(), src2.size(), src3.size(), src4.size()};
+        size_t size[4]  = {sizeof(T1), sizeof(T2), sizeof(T3), sizeof(T4)};
+        VAR*   var[4]   = {&var1, &var2, &var3, &var4};
+
+        for (int a = 0; a < 4; ++a) {
+            debugAssertM(count[a] == var[a]->numElements, 
+                "Updated arrays must have the same size they were created with.");
+        }
+
+        uint8* dstPtr = (uint8*)var1.mapBuffer(GL_WRITE_ONLY);
+
+        for (int i = 0; i < N; ++i) {
+            for (int a = 0; a < 4; ++a) {
+                if (count[a] > 0) {
+                    System::memcpy(dstPtr, src[a] + size[a] * i, size[a]);
+                    dstPtr += size[a];
+                }
+            }
+        }
+
+        var1.unmapBuffer();
+    }
+
     /** @brief Creates four interleaved VAR arrays simultaneously. 
 
         Creates four interleaved VAR arrays simultaneously.  This is
@@ -196,9 +239,12 @@ public:
 
         All src arrays must have the same length or be empty.  Empty arrays
         will return an uninitialized var.
+
+        @sa updateInterleaved
     */
     template<class T1, class T2, class T3, class T4>
-    static void create(const Array<T1>& src1,
+    static void createInterleaved(
+                       const Array<T1>& src1,
                        VAR&             var1,
                        const Array<T2>& src2,
                        VAR&             var2,
@@ -211,50 +257,30 @@ public:
         int N = iMax(iMax(src1.size(), src2.size()),
                      iMax(src3.size(), src4.size()));
 
-        debugassert(area->type() == VARArea::DATA);
+        debugAssert(area->type() == VARArea::DATA);
         debugAssert(src1.size() == N || src1.size() == 0);
         debugAssert(src2.size() == N || src2.size() == 0);
         debugAssert(src3.size() == N || src3.size() == 0);
         debugAssert(src4.size() == N || src4.size() == 0);
 
-        size_t size1 = sizeof(T1);
-        size_t size2 = sizeof(T2);
-        size_t size3 = sizeof(T3);
-        size_t size4 = sizeof(T4);
+        // Treat sizes as zero if the corresponding array is not used
+        size_t size1 = (src1.size() == N) ? sizeof(T1) : 0;
+        size_t size2 = (src2.size() == N) ? sizeof(T2) : 0;
+        size_t size3 = (src3.size() == N) ? sizeof(T3) : 0;
+        size_t size4 = (src4.size() == N) ? sizeof(T4) : 0;
 
         size_t stride = size1 + size2 + size3 + size4;
         size_t totalMemory = stride * N;
         
         VAR masterVAR(totalMemory, area);
-        var1.init(masterVAR, 0, glFormatOf(T1), size1, N, stride);
-        var2.init(masterVAR, size1, glFormatOf(T1), size1, N, stride);
-        var3.init(masterVAR, size1 + size2, glFormatOf(T1), size1, N, stride);
-        var4.init(masterVAR, size1 + size2 + size3, glFormatOf(T1), size1, N, stride);
+        var1.init(masterVAR, 0, glFormatOf(T1), size1, src1.size(), stride);
+        var2.init(masterVAR, size1, glFormatOf(T2), size2, src2.size(), stride);
+        var3.init(masterVAR, size1 + size2, glFormatOf(T3), size3, src3.size(), stride);
+        var4.init(masterVAR, size1 + size2 + size3, glFormatOf(T4), size4, src4.size(), stride);
 
-        // Upload interleaved
-        uint8* dstPtr = mapBuffer(GL_WRITE_ONLY);
-
-        for (int i = 0; i < N; ++i) {
-            if (src1.size() > 0) {
-                System::memcpy(dstPtr, &src1[i], size1);
-                dstPtr += size1;
-            }
-            if (src2.size() > 0) {
-                System::memcpy(dstPtr, &src2[i], size2);
-                dstPtr += size2;
-            }
-            if (src3.size() > 0) {
-                System::memcpy(dstPtr, &src3[i], size3);
-                dstPtr += size3;
-            }
-            if (src4.size() > 0) {
-                System::memcpy(dstPtr, &src4[i], size4);
-                dstPtr += size4;
-            }
-        }
-
-        unmapBuffer();
+        updateInterleaved(src1, var1, src2, var2, src3, var3, src4, var4);
     }
+
 
     /**
        Upload @a _numElements values from @a sourcePtr on the CPU to @a dstPtr on the GPU.

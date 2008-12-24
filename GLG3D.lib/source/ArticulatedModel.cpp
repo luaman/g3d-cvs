@@ -326,18 +326,11 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
         (normalVAR.maxSize() >= vtxSize) &&
         ((tanSize == 0) || (tangentVAR.maxSize() >= tanSize)) &&
         ((texSize == 0) || (texCoord0VAR.maxSize() >= texSize))) {
-        
-        // Update existing VARs
-        vertexVAR.update(geometry.vertexArray);
-        normalVAR.update(geometry.normalArray);
-
-        if (texCoordArray.size() > 0) {
-            texCoord0VAR.update(texCoordArray);
-        }
-
-        if (tangentArray.size() > 0) {
-            tangentVAR.update(tangentArray);
-        }
+        VAR::updateInterleaved
+           (geometry.vertexArray, vertexVAR,
+            geometry.normalArray, normalVAR,
+            tangentArray,         tangentVAR,
+            texCoordArray,        texCoord0VAR);
 
     } else {
 
@@ -346,10 +339,12 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
 
         // Allocate new VARs
         VARAreaRef varArea = VARArea::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
-        vertexVAR    = VAR(geometry.vertexArray, varArea);
-        normalVAR    = VAR(geometry.normalArray, varArea);
-        tangentVAR   = VAR(tangentArray, varArea);
-        texCoord0VAR = VAR(texCoordArray, varArea);
+        VAR::createInterleaved
+            (geometry.vertexArray, vertexVAR,
+             geometry.normalArray, normalVAR,
+             tangentArray,         tangentVAR,
+             texCoordArray,        texCoord0VAR,
+             varArea);       
     }
 }
 
