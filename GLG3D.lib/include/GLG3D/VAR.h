@@ -55,15 +55,15 @@ private:
     int					numElements;
    
     /** Space between subsequent elements, must be zero or >= elementSize */
-    size_t                              m_stride;
+    size_t              m_stride;
  
     uint64				generation;
     
     /** GL_NONE for a "void" array */
-    GLenum                              underlyingRepresentation;
+    GLenum              underlyingRepresentation;
     
     /** The initial size this VAR was allocated with, in bytes. */
-    size_t                              _maxSize;
+    size_t              _maxSize;
 
     void init(const void* sourcePtr, 
               int _numElements, 

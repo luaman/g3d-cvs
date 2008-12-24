@@ -97,7 +97,7 @@ void VAR::init(
 
     generation = area->currentGeneration();
 
-    _pointer = (uint8*)area->gl_basePointer() + area->allocatedSize();
+    _pointer = (uint8*)area->openGLBasePointer() + area->allocatedSize();
 
     // Align to the nearest multiple of this many bytes.
     const size_t alignment = 4;

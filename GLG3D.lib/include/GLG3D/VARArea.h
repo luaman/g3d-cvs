@@ -105,7 +105,7 @@ private:
     size_t				peakAllocated;
     
     /** Set by RenderDevice */
-    RenderDevice*                       renderDevice;
+    RenderDevice*       renderDevice;
     
     /** Total  number of bytes in this area.  May be zero if resources have been freed.*/
     size_t				size;
@@ -114,14 +114,14 @@ private:
        The OpenGL buffer object associated with this area
        (only used when mode == VBO_MEMORY)
     */
-    uint32                              glbuffer;
+    uint32              glbuffer;
     
     /** Pointer to the memory (NULL when
         the VBO extension is not present). */
     void*				basePointer;
     
     enum Mode {UNINITIALIZED, VBO_MEMORY, MAIN_MEMORY};
-    static Mode                         mode;
+    static Mode         mode;
     
     /** Updates allocation and peakAllocation based off of new allocation. */
     inline void updateAllocation(size_t newAllocation) {
@@ -129,7 +129,7 @@ private:
         peakAllocated = (size_t)iMax((int)peakAllocated, (int)allocated);
     }
 
-    static size_t                       _sizeOfAllVARAreasInMemory;
+    static size_t      _sizeOfAllVARAreasInMemory;
 
     VARArea(size_t _size, UsageHint h, Type t);
 
@@ -183,7 +183,7 @@ public:
      The caller cannot control whether VBO is used or not; G3D selects
      the best method automatically.
      */
-    inline uint32 gl_vertexBufferObject() const {
+    inline uint32 openGLVertexBufferObject() const {
         return glbuffer;
     }
 
@@ -194,7 +194,7 @@ public:
      When using system memory, this is a pointer to the beginning of 
      the system memory block in which data is stored.  Null when using VBO.
      */
-    inline void* gl_basePointer() const {
+    inline void* openGLBasePointer() const {
         return basePointer;
     }
 
