@@ -27,8 +27,11 @@ namespace G3D {
  the parent VARArea is reset or freed.
 
  A VAR is normally a statically typed fixed-length array of a Vector
- or Color class, however it is possible to make a "void" byte array
+ or Color class, however it is possible to make a "void" array with the 
+ constructor that does not take an array,
  and then fill it with data to create interleaved or structure arrays.
+ Interleaved arrays are 2x - 3x as fast as non-interleaved ones for
+ vertex-limited programs.
  */
 class VAR {
 private:

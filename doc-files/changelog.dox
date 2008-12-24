@@ -13,6 +13,8 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Interleaved arrays in G3D::VAR
+     <li> Extended G3D::VARArea to support index arrays
      <li> Tweaked StopWatch smoothing constants to reduce number flickering
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
      <li> isIntFormat() macro

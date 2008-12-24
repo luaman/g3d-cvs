@@ -37,7 +37,6 @@ bool VAR::valid() const {
         (VARArea::mode == VARArea::VBO_MEMORY || _pointer);
 }
 
-
 void VAR::init(const void* srcPtr,
                int     _numElements, 
                int     srcStride,      
@@ -100,22 +99,25 @@ void VAR::init(
 
     _pointer = (uint8*)area->gl_basePointer() + area->allocatedSize();
 
-    size_t pointerOffset = 0;
-    /*
-    // Ensure that the next memory address is 8-byte aligned
-    size_t pointerOffset = ((8 - (size_t)_pointer % 8) % 8);
+    // Align to the nearest multiple of this many bytes.
+    const size_t alignment = 4;
+
+    // Ensure that the next memory address is aligned.  This has 
+    // a significant (up to 25%!) performance impact on some GPUs
+    size_t pointerOffset = ((alignment - (size_t)_pointer % alignment) % alignment);
 
     if (_numElements == 0) {
         pointerOffset = 0;
     }
 
-    // Adjust pointer to new 8-byte alignment
+    // Adjust pointer to new alignment
     _pointer = (uint8*)_pointer + pointerOffset;
-    */
+    
     size_t newAlignedSize = size + pointerOffset;
 
     alwaysAssertM(newAlignedSize <= area->freeSize(),
-                  "VARArea too small to hold new VAR (possibly due to rounding to 8-byte boundaries).");
+                  "VARArea too small to hold new VAR (possibly due to rounding"
+                  " to the nearest dword boundary).");
 
     // Upload the data
     if (size > 0 && sourcePtr != NULL) {
