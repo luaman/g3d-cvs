@@ -62,29 +62,30 @@ void Stopwatch::tock() {
     if (lastTockTime != -1.0) {
         m_fps = 1.0 / (now - lastTockTime);
 
-        // Time smooth the average
-        emwaFPS = m_fps * 0.01 + emwaFPS * 0.99;
+        const double blend = 0.005;
+        emwaFPS = m_fps * blend + emwaFPS * (1.0 - blend);
 
-        if (abs(emwaFPS - m_fps) > max(emwaFPS, m_fps) * 0.08) {
-            // The difference between emwa and m_fps is way off
+        double maxDiscrepancyPercentage = 0.25;
+        if (abs(emwaFPS - m_fps) > max(emwaFPS, m_fps) * maxDiscrepancyPercentage) {
+            // The difference between emwa and m_fps is way off, so
             // update emwa directly.
-            emwaFPS = m_fps;
+            emwaFPS = m_fps * 0.20 + emwaFPS * 0.80;
         }
-        
-        // Update m_smoothFPS only when the value varies significantly
+
+        // Update m_smoothFPS only when the value varies significantly.
         // We round so as to not mislead the user as to the accuracy of 
-        // the number.
+        // the number.        
         if (m_smoothFPS == 0) {
             m_smoothFPS = m_fps;
-        } else if (emwaFPS <= 10) {
-            if (::fabs(m_smoothFPS - emwaFPS) > .75) {
+        } else if (emwaFPS <= 20) {
+            // Small number; round to the nearest 0.1
+            if (::fabs(m_smoothFPS - emwaFPS) > 0.75) {
                 m_smoothFPS = floor(emwaFPS * 10.0 + 0.5) / 10.0;
             }
-        } else {
-            if (::fabs(m_smoothFPS - emwaFPS) > 1.25) {
-                m_smoothFPS = floor(emwaFPS + 0.5);
-            }
-        }
+        } else if (::fabs(m_smoothFPS - emwaFPS) > 1.25) {
+            // Large number; round to the nearest 1.0
+            m_smoothFPS = floor(emwaFPS + 0.5);
+        }        
     }
     lastTockTime = now;
 

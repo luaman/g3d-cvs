@@ -1,13 +1,5 @@
 /**
-  @file empty/main.cpp
-
-  This is a sample main.cpp to get you started with G3D.  It is
-  designed to make writing an application easy.  Although the GApp
-  infrastructure is helpful for most projects, you are not restricted
-  to using it--choose the level of support that is best for your
-  project.  You can also customize GApp through its members and change
-  its behavior by overriding methods.
-
+  @file scratch/main.cpp
   @author Morgan McGuire, morgan@cs.williams.edu
  */
 #include <G3D/G3DAll.h>
@@ -55,11 +47,11 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 void App::onInit() {
 
-    setDesiredFrameRate(60);
+    setDesiredFrameRate(500);
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
-	//model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
+	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
     skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -69,33 +61,6 @@ void App::onInit() {
     lighting->shadowedLightArray.clear();
 
     toneMap->setEnabled(false);
-
-    static std::string text = "hi";
-    debugPane->addTextBox("Text", &text);    // Indent and display a caption
-    debugPane->addTextBox(" ", &text);       // Indent, but display no caption
-    debugPane->addTextBox("", &text);        // Align the text box to the left
-    debugWindow->setVisible(true);
-
-    static float f = 0.5f;
-
-    float low = 0.0f;
-    float high = 100.0f;
-
-    debugPane->addNumberBox("Log", &f, "s", GuiTheme::LOG_SLIDER, low, high);
-    debugPane->addNumberBox("Linear", &f, "s", GuiTheme::LINEAR_SLIDER, low, high);
-
-
-    static Array<std::string> list;
-    list.append("First");
-    for (int i = 0; i < 10; ++i) {
-        list.append(format("Item %d", i + 2));
-    }
-    list.append("Last");
-    static int index = 0;
-    debugPane->addDropDownList("List", &index, &list);
-
-    // NumberBox: textbox for numbers: label, ptr, suffix, slider?, min, max, roundToNearest
-    // defaults:                        /   , ptr, "", false, -inf, inf, 0
 }
 
 
@@ -151,6 +116,9 @@ void App::printConsoleHelp() {
 }
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    for (int i = 0; i < 20; ++i) {
+        model->pose(posed3D, Vector3(0, 0, -i * 2));
+    }
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {

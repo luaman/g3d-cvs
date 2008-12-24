@@ -669,7 +669,8 @@ int main(int argc, char** argv) {
 #   ifdef G3D_WIN32
     if (!fileExists(settings.window.defaultIconFilename)) {
         // We are probably running in the debugger and launched from the wrong directory
-        chdir("../build/win-i386-vc8.0/bin/gfxmeter");
+        chdir("../build/win-i386-vc9.0/bin/gfxmeter");
+        debugAssert(fileExists(settings.window.defaultIconFilename));
     }
 #   endif
 

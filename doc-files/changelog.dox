@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Tweaked StopWatch smoothing constants to reduce number flickering
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
      <li> isIntFormat() macro
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards [Corey]
