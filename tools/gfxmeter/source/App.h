@@ -58,7 +58,6 @@ public:
     }
 };
 
-// To Do: Make sure public and private declarations are correct
 class App : public GApp {
 public:
     enum Popup {NONE, PERFORMANCE};
@@ -69,7 +68,7 @@ private:
     Rect2D              performanceButton;
     Rect2D              closeButton;
 
-	MD2                 knight;
+    MD2                 knight;
     MD2                 ogre;
 
 public:
@@ -97,8 +96,14 @@ public:
         float               drawElementsRAMFPS[2]; 
         float               drawElementsVBOFPS[2]; 
         float               drawElementsVBO16FPS[2]; 
+
+        /** glInterleavedArrays interleaved */
         float               drawElementsVBOIFPS[2];
-        /* Turn shading off and just slam vertices through */
+        
+        /** Manually interleaved */
+        float               drawElementsVBOIMFPS[2];
+
+        /** Turn shading off and just slam vertices through */
         float               drawElementsVBOPeakFPS[2];
         float               drawArraysVBOPeakFPS;
     };
@@ -115,13 +120,11 @@ public:
 
     virtual void onSimulation(SimTime sdt, SimTime rdt, SimTime idt);
 
-    // To Do: Make the switch.
-	// void onGraphics(RenderDevice* rd);
-	virtual void  onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array< PosedModel2DRef > &posed2D);
+    virtual void onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array< PosedModel2DRef > &posed2D);
 
     virtual void onCleanup();
 
-	/** Draw some nice graphics */
+    /** Draw some nice graphics */
     void doFunStuff();
 
     /** Draws the popup window, but not its contents.  Returns the window bounds. */

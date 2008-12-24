@@ -1402,6 +1402,7 @@ void RenderDevice::endFrame() {
         dt = 0.0001;
     }
 
+    m_stats.frameRate = dt;
     m_stats.triangleRate = m_stats.triangles / dt;
 
     {

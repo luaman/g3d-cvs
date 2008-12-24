@@ -1,7 +1,7 @@
 /**
   @file gfxmeter/main.cpp
 
-  @author Morgan McGuire, matrix@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
  */
 
 #include "G3D/G3DAll.h"
@@ -13,7 +13,7 @@
 #endif
 
 //#define FAST
- 
+
 static const float gfxMeterVersion = 1.0f;
 
 int CPU_speed_in_MHz();
@@ -37,8 +37,10 @@ void measureVertexPerformance(
     float  drawElementsVBOFPS[2], 
     float  drawElementsVBO16FPS[2], 
     float  drawElementsVBOIFPS[2],
+    float  drawElementsVBOIMFPS[2],
     float  drawElementsVBOPeakFPS[2],
     float& drawArraysVBOPeakFPS);
+
 
 void shaderVersions(
     std::string& regStr,
@@ -58,7 +60,7 @@ void App::showSplashScreen() {
     }
 
     renderDevice->push2D();
-    
+    {    
         renderDevice->setColorClearValue(Color3::white());
         renderDevice->clear();
 
@@ -72,7 +74,7 @@ void App::showSplashScreen() {
             reportFont->draw2D(renderDevice, "Profiling your system...", Vector2(w/2, h/2+s/2 + 10), 
                 19, Color3::black(), Color4::clear(), GFont::XALIGN_CENTER);
         }
-
+    }
     renderDevice->pop2D();
     window()->swapGLBuffers();
 }
@@ -80,10 +82,10 @@ void App::showSplashScreen() {
 
 void App::onInit() {
     defaultController->setActive(false);
-	showDebugText = false;
-	showRenderingStats = false;
-
-	popup = NONE;
+    showDebugText = false;
+    showRenderingStats = false;
+    
+    popup = NONE;
 
     defaultCamera.setPosition(Vector3(0, 2, 10));
     defaultCamera.lookAt(Vector3(0, 2, 0));
@@ -132,6 +134,7 @@ void App::onInit() {
         }
 
 #       ifdef G3D_WIN32
+        {
             double speed = CPU_speed_in_MHz() * 1e6;
             if (speed > 1e9) {
                 chipSpeed = format("%.1f GHz", speed / 1e9);
@@ -139,6 +142,7 @@ void App::onInit() {
                 chipSpeed = format("%.1f MHz", speed / 1e6);
             }
             // Probably a bad result if speed is less than 1 MHz
+        }
 #       endif
     }
 
@@ -181,6 +185,7 @@ void App::onInit() {
             vertexPerformance.drawElementsVBOFPS,
             vertexPerformance.drawElementsVBO16FPS,
             vertexPerformance.drawElementsVBOIFPS,
+            vertexPerformance.drawElementsVBOIMFPS,
             vertexPerformance.drawElementsVBOPeakFPS,
             vertexPerformance.drawArraysVBOPeakFPS);
 
@@ -194,7 +199,8 @@ void App::onInit() {
         logPrintf("    glDrawElements:                  %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsRAMFPS[0], vertexPerformance.drawElementsRAMFPS[1], vertexPerformance.drawElementsRAMFPS[1] * 3 * vertexPerformance.numTris / 1e6);
         logPrintf("        + VBO                        %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsVBOFPS[0], vertexPerformance.drawElementsVBOFPS[1], vertexPerformance.drawElementsVBOFPS[1] * 3 * vertexPerformance.numTris / 1e6);
         logPrintf("        + uint16 index               %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsVBO16FPS[0], vertexPerformance.drawElementsVBO16FPS[1], vertexPerformance.drawElementsVBO16FPS[1] * 3 * vertexPerformance.numTris / 1e6);
-        logPrintf("        + interleaved                %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsVBOIFPS[0], vertexPerformance.drawElementsVBOIFPS[1], vertexPerformance.drawElementsVBOIFPS[1] * 3 * vertexPerformance.numTris / 1e6);
+        logPrintf("        + gl interleaved             %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsVBOIFPS[0], vertexPerformance.drawElementsVBOIFPS[1], vertexPerformance.drawElementsVBOIFPS[1] * 3 * vertexPerformance.numTris / 1e6);
+        logPrintf("        + manual interleaved         %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsVBOIMFPS[0], vertexPerformance.drawElementsVBOIMFPS[1], vertexPerformance.drawElementsVBOIMFPS[1] * 3 * vertexPerformance.numTris / 1e6);
         logPrintf("        without shading              %5.1f [ %5.1f | %5.1f ]\n", vertexPerformance.drawElementsVBOPeakFPS[0], vertexPerformance.drawElementsVBOPeakFPS[1], vertexPerformance.drawElementsVBOPeakFPS[1] * 3 * vertexPerformance.numTris / 1e6);
         logPrintf("    glDrawArrays Peak:                     [ %5.1f | %5.1f ]\n", vertexPerformance.drawArraysVBOPeakFPS, vertexPerformance.drawArraysVBOPeakFPS * 3 * vertexPerformance.numTris / 1e6);
         logPrintf("\n\n");
@@ -203,14 +209,14 @@ void App::onInit() {
 
     countBugs();
     
-    sky = NULL;//Sky::create(NULL, dataDir + "sky/");
+    sky = NULL;
 }
+
 
 void App::onCleanup() {}
 
 
 void App::onSimulation(RealTime sdt, SimTime dt, SimTime idt) {
-	// Add physical simulation here
 
     GameTime deltaTime = 0.02;
 
@@ -434,13 +440,14 @@ void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array<
         performanceRating = log(rd->stats().frameRate) * 15.0f;
 
         p.y += s * 4;
-        performanceButton = Rect2D::xywh(p,
-            titleFont->draw2D(rd, "Speed", p - Vector2(w * 0.0075f, 0), s * 2, Color3::white() * 0.4f));
+        performanceButton =
+            Rect2D::xywh(p,
+                         titleFont->draw2D(rd, "Speed", p - Vector2(w * 0.0075f, 0), s * 2, Color3::white() * 0.4f));
 
-		{
-			float spd = iRound(performanceRating * 10) / 10.0f;
-	        p.y += reportFont->draw2D(rd, format("%5.1f", spd), Vector2(x0 - s*2, p.y), s*2, Color3::red() * 0.5).y;
-		}
+        {
+            float spd = iRound(performanceRating * 10) / 10.0f;
+            p.y += reportFont->draw2D(rd, format("%5.1f", spd), Vector2(x0 - s*2, p.y), s*2, Color3::red() * 0.5).y;
+        }
         drawBar(rd, (int)min(performanceRating, 100.0f), p);
 
         p.y += s * 4;
@@ -505,7 +512,8 @@ void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array<
                 PRINT("glDrawElements", drawElementsRAMFPS); 
                 PRINT("  + VBO", drawElementsVBOFPS);
                 PRINT("  + uint16", drawElementsVBO16FPS);
-                PRINT("  + interleaving", drawElementsVBOIFPS);
+                PRINT("  + gl interleave", drawElementsVBOIFPS);
+                PRINT("  + manual interleave", drawElementsVBOIMFPS);
                 PRINT("  (without shading)", drawElementsVBOPeakFPS);
 
                 reportFont->draw2D(rd, "glDrawArrays", p, s, Color3::black());
@@ -650,18 +658,20 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     GApp::Settings settings;
     
-	settings.useDeveloperTools = false;
+    settings.useDeveloperTools = false;
 
+    settings.window.fullScreen = false;
+    settings.window.framed = ! settings.window.fullScreen;
     settings.window.fsaaSamples = 1;
-    settings.window.fullScreen = true;
-	settings.window.framed = false;
     settings.dataDir = "./";
     settings.window.defaultIconFilename = "g3d.ico";
 
+#   ifdef G3D_WIN32
     if (!fileExists(settings.window.defaultIconFilename)) {
         // We are probably running in the debugger and launched from the wrong directory
-		chdir("../build/win-i386-vc8.0/bin/gfxmeter");
+        chdir("../build/win-i386-vc8.0/bin/gfxmeter");
     }
+#   endif
 
     App(settings).run();
     return 0;

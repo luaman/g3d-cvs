@@ -11,7 +11,7 @@ float measureBeginEndPerformance(class Model&);
 float measureDrawElementsRAMPerformance(class Model&);
 float measureDrawElementsVBOPerformance(class Model&);
 float measureDrawElementsVBO16Performance(class Model&);
-float measureDrawElementsVBOIPerformance(class Model&);
+float measureDrawElementsVBOIPerformance(class Model&, bool use_glInterleavedArrays);
 float measureDrawElementsVBOPeakPerformance(class Model&);
 float measureDrawArraysVBOPeakPerformance(class Model&);
 
@@ -210,6 +210,7 @@ void measureVertexPerformance(
     float   drawElementsVBOFPS[2], 
     float   drawElementsVBO16FPS[2], 
     float   drawElementsVBOIFPS[2],
+    float   drawElementsVBOIMFPS[2],
     float   drawElementsVBOPeakFPS[2],
     float&  drawArraysVBOPeakFPS) {
 
@@ -221,11 +222,12 @@ void measureVertexPerformance(
     for (int i = 0; i < 2; ++i) {
         Model model(filename);
 
-        beginEndFPS[i] = measureBeginEndPerformance(model);
-        drawElementsRAMFPS[i] = measureDrawElementsRAMPerformance(model);
-        drawElementsVBOFPS[i] = measureDrawElementsVBOPerformance(model);
-        drawElementsVBO16FPS[i] = measureDrawElementsVBO16Performance(model);
-        drawElementsVBOIFPS[i] = measureDrawElementsVBOIPerformance(model);
+        beginEndFPS[i]            = measureBeginEndPerformance(model);
+        drawElementsRAMFPS[i]     = measureDrawElementsRAMPerformance(model);
+        drawElementsVBOFPS[i]     = measureDrawElementsVBOPerformance(model);
+        drawElementsVBO16FPS[i]   = measureDrawElementsVBO16Performance(model);
+        drawElementsVBOIFPS[i]    = measureDrawElementsVBOIPerformance(model, true);
+        drawElementsVBOIMFPS[i]   = measureDrawElementsVBOIPerformance(model, false);
         drawElementsVBOPeakFPS[i] = measureDrawElementsVBOPeakPerformance(model);
 
         numTris = (int)(count * model.cpuIndex.size() / 3);
@@ -347,8 +349,6 @@ float measureDrawElementsRAMPerformance(Model& model) {
 
     // Number of indices
     const int N = (int)model.cpuIndex.size();
-    // Number of vertices
-    const int V = (int)model.cpuVertex.size();
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
@@ -508,7 +508,7 @@ float measureDrawElementsVBOPerformance(Model& model) {
 }
 
 
-
+// Non-interleaved VBO with 16-bit indices
 float measureDrawElementsVBO16Performance(Model& model) {
     
     bool hasVBO = 
@@ -617,8 +617,8 @@ float measureDrawElementsVBO16Performance(Model& model) {
 }
 
 
-
-float measureDrawElementsVBOIPerformance(Model& model) {
+// glInterleavedArrays with 16-bit indices (should be the fastest indexed version)
+float measureDrawElementsVBOIPerformance(Model& model, bool use_glInterleavedArrays) {
     
     bool hasVBO = 
         (strstr((char*)glGetString(GL_EXTENSIONS), "GL_ARB_vertex_buffer_object") != NULL) &&
@@ -650,14 +650,12 @@ float measureDrawElementsVBOIPerformance(Model& model) {
     size_t texCoordSize = V * sizeof(float) * 2;
     size_t totalSize    = vertexSize + normalSize + texCoordSize + colorSize;
 
-    size_t indexSize    = N * sizeof(int);
-
-    // Pointers relative to the start of the vbo in video memory
-    // (would interleaving be faster?)
+    // Pointers relative to the start of the vbo in video memory used
+    // for manually interleaving
     GLintptrARB texCoordPtr = 0;
     GLintptrARB colorPtr    = texCoordPtr + 2 * sizeof(float);
-    GLintptrARB normalPtr   = colorPtr  + 4 * sizeof(float);
-    GLintptrARB vertexPtr   = normalPtr + 3 * sizeof(float);
+    GLintptrARB normalPtr   = colorPtr    + 4 * sizeof(float);
+    GLintptrARB vertexPtr   = normalPtr   + 3 * sizeof(float);
 
     GLintptrARB indexPtr    = 0;
 
@@ -722,7 +720,18 @@ float measureDrawElementsVBOIPerformance(Model& model) {
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        glInterleavedArrays(GL_T2F_C4F_N3F_V3F, 0, (void*)0);
+        if (use_glInterleavedArrays) {
+            // Use old-style OpenGL interleaving
+            glInterleavedArrays(GL_T2F_C4F_N3F_V3F, 0, (void*)0);
+        } else {
+            GLsizei stride = (3+3+4+2) * sizeof(float);
+
+            // Manually interleave, which gives more flexibility
+            glTexCoordPointer(2, GL_FLOAT, stride, (void*)texCoordPtr);
+            glColorPointer   (4, GL_FLOAT, stride, (void*)colorPtr);
+            glNormalPointer  (GL_FLOAT,    stride, (void*)normalPtr);
+            glVertexPointer  (3, GL_FLOAT, stride, (void*)vertexPtr);
+        }
 
         for (int c = 0; c < count; ++c) {
             glMatrixMode(GL_MODELVIEW);
@@ -730,7 +739,9 @@ float measureDrawElementsVBOIPerformance(Model& model) {
             glTranslatef(c - (count - 1) / 2.0, 0, -2);
             glRotatef(k * ((c & 1) * 2 - 1) + 90, 0, 1, 0);
 
+            debugAssertGLOk();
             glDrawElements(GL_TRIANGLES, N, GL_UNSIGNED_SHORT, (void*)indexPtr);
+            debugAssertGLOk();
         }
 
         glSwapBuffers();
@@ -777,7 +788,6 @@ float measureDrawElementsVBOPeakPerformance(Model& model) {
     glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
 
     size_t vertexSize   = V * sizeof(float) * 3;
-    size_t totalSize    = vertexSize;
     size_t indexSize    = N * sizeof(unsigned short);
 
     GLintptrARB vertexPtr   = 0;
@@ -846,6 +856,7 @@ float measureDrawElementsVBOPeakPerformance(Model& model) {
     return frames / (t1 - t0);
 }
 
+
 float measureDrawArraysVBOPeakPerformance(Model& model) {
     
     bool hasVBO = 
@@ -871,7 +882,6 @@ float measureDrawArraysVBOPeakPerformance(Model& model) {
     glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
 
     size_t vertexSize   = V * sizeof(float) * 3;
-    size_t totalSize    = vertexSize;
 
     GLintptrARB vertexPtr   = 0;
 
