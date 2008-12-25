@@ -38,7 +38,7 @@ private:
 
     friend class RenderDevice;
 
-    VARAreaRef           area;
+    VARAreaRef           m_area;
     
     /** For VBO_MEMORY, this is the offset.  For MAIN_MEMORY, this is
         a pointer to the block of uploaded memory.
@@ -99,6 +99,11 @@ private:
     void set(int index, const void* value, GLenum glformat, size_t eltSize);
 
     // The following are called by RenderDevice
+    /** May be an OpenGL video memory offset or a real memory pointer.  For use by RenderDevice only.*/
+    const void* pointer() const {
+        return _pointer;
+    }
+
     void vertexPointer() const;
     
     void normalPointer() const;
@@ -110,6 +115,19 @@ private:
     void vertexAttribPointer(unsigned int attribNum, bool normalize) const;
 
 public:
+
+    /** The area containing this VAR */
+    inline VARAreaRef area() {
+        return m_area;
+    }
+
+    inline VARAreaRef area() const {
+        return m_area;
+    }
+
+    inline VARArea::Type type() const {
+        return m_area->type();
+    }
 
     /** Creates an invalid VAR */
     VAR();
@@ -324,7 +342,7 @@ public:
     
     template<class T>
     void update(const T* sourcePtr, int _numElements) {
-        debugAssertM((area->type() == VARArea::DATA) || isIntType(T),
+        debugAssertM((m_area->type() == VARArea::DATA) || isIntType(T),
                       "Cannot create an index VAR in a non-index VARArea");
         update(sourcePtr, _numElements, glFormatOf(T), sizeof(T));
     }
@@ -337,7 +355,7 @@ public:
     */
     template<class T>
     void update(const Array<T>& source) {
-        debugAssertM((area->type() == VARArea::DATA) || isIntType(T),
+        debugAssertM((m_area->type() == VARArea::DATA) || isIntType(T),
                       "Cannot create an index VAR in a non-index VARArea");
         update(source.getCArray(), source.size(), glFormatOf(T), sizeof(T));
     }
@@ -353,7 +371,7 @@ public:
     // direct access to VAR memory is generally slow and discouraged.
     template<class T>
     void set(int index, const T& value) {
-        debugAssertM((area->type() == VARArea::DATA) || isIntType(T),
+        debugAssertM((m_area->type() == VARArea::DATA) || isIntType(T),
                       "Cannot create an index VAR in a non-index VARArea");
         set(index, &value, glFormatOf(T), sizeof(T));
     }

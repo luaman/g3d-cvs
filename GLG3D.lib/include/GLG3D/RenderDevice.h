@@ -269,48 +269,47 @@ public:
 
 	class DebugSettings {
 	public:
-		/** 
+            /** 
 		Stop rendering after @a primitiveCutoff primitives (i.e., RenderDevice::beginPrimitive or 
 		RenderDevice::sendIndices calls) have been processed.  The last primitive rendered before 
 		the cutoff will be shown as a wireframe mesh.
-
-        -1 means render all.  Default is -1
-		*/
-		int				primitiveCutoff;
-
-		/** Forces wireframe mode for all primitives. Default is false. */
-		bool			forceWireframe;
-
-        enum Pipeline {
-            // Ignore all draw calls
-            PIPELINE_NONE,
-
-            // Process vertices but not pixels
-            PIPELINE_VERTICES_ONLY,
-
-            // Process full pipeline of vertices and pixels
-            PIPELINE_FULL
-        };
-
-        /** Default is PIPELINE_FULL */
-        Pipeline        pipeline;
-
-        enum Reveal {
-            REVEAL_COLOR,
-            REVEAL_DEPTH,
-            REVEAL_STENCIL,
-            REVEAL_ALPHA,
-            REVEAL_OVERDRAW
-        };
-
-        /** Default is REVEAL_COLOR */
-        Reveal          reveal;
+                
+                -1 means render all.  Default is -1
+            */
+            int				primitiveCutoff;
+            
+            /** Forces wireframe mode for all primitives. Default is false. */
+            bool			forceWireframe;
+            
+            enum Pipeline {
+                // Ignore all draw calls
+                PIPELINE_NONE,
+                
+                // Process vertices but not pixels
+                PIPELINE_VERTICES_ONLY,
+                
+                // Process full pipeline of vertices and pixels
+                PIPELINE_FULL
+            };
+            
+            /** Default is PIPELINE_FULL */
+            Pipeline        pipeline;
+            
+            enum Reveal {
+                REVEAL_COLOR,
+                REVEAL_DEPTH,
+                REVEAL_STENCIL,
+                REVEAL_ALPHA,
+                REVEAL_OVERDRAW
+            };
+            
+            /** Default is REVEAL_COLOR */
+            Reveal          reveal;
 	};
 
-
-
+    
     /** Runtime performance statistics useful for profiling.
-
+        
         "OpenGL state changes" are those that forced underlying OpenGL
         state changes; RenderDevice optimizes away redundant state
         changes so many changes will not affect OpenGL. 
@@ -331,44 +330,44 @@ public:
 
         Zeroed by beginFrame.*/
     class Stats {
-	public:
-		uint32			minorStateChanges;
-		uint32			minorOpenGLStateChanges;
-
-		uint32			majorStateChanges;
-		uint32			majorOpenGLStateChanges;
-
-		uint32			pushStates;
-
+    public:
+        uint32			minorStateChanges;
+        uint32			minorOpenGLStateChanges;
+        
+        uint32			majorStateChanges;
+        uint32			majorOpenGLStateChanges;
+        
+        uint32			pushStates;
+        
         /** Number of individual primitives (e.g., number of triangles) */
-		uint32			primitives;
-
+        uint32			primitives;
+        
         /** Number of triangles since last beginFrame() */
-		uint32			triangles;
-
+        uint32			triangles;
+        
         /** Exponentially weighted moving average of Stats::triangles.*/
-        double          smoothTriangles;
-
-		/** Amount of time spent in swapbuffers (when large, indicates 
-		    that the GPU is blocking the CPU). */
-		RealTime		swapbuffersTime;
-
+        double                  smoothTriangles;
+        
+        /** Amount of time spent in swapbuffers (when large, indicates 
+            that the GPU is blocking the CPU). */
+        RealTime		swapbuffersTime;
+        
         /** Inverse of beginframe->endframe time.  Accounts for the frame
             timing of the system as a whole, not just graphics.*/
-		float			frameRate;
-
-		/** Exponentially weighted moving average of frame rate */
-		float           smoothFrameRate;
-
-		double			triangleRate;
-
-		/** Exponentially weighted moving average of triangleRate */
-        double          smoothTriangleRate;
-
+        float			frameRate;
+        
+        /** Exponentially weighted moving average of frame rate */
+        float                   smoothFrameRate;
+        
+        double			triangleRate;
+        
+        /** Exponentially weighted moving average of triangleRate */
+        double                  smoothTriangleRate;
+        
         Stats();
 
         void reset();
-	};
+    };
 
 protected:
 
@@ -385,8 +384,8 @@ public:
 
     // These are abstracted to make it easy to put breakpoints in them
     /**
-      State change to RenderDevice.
-      Use to update the state change statistics when raw OpenGL calls are made. */
+       State change to RenderDevice.
+       Use to update the state change statistics when raw OpenGL calls are made. */
     inline void majStateChange(int inc = 1) {
        m_stats.majorStateChanges += inc;
     }
@@ -415,21 +414,20 @@ public:
     /** Allows the UserInput to find the RenderDevice 
         @deprecated */
     static RenderDevice*        lastRenderDeviceCreated;
-
+protected:
     /** Times swapbuffers */
     Stopwatch                   m_swapTimer;
+public:
 
     RenderDevice();
 
     ~RenderDevice();
 
-
     /**
      Prints a human-readable description of this machine
      to the text output stream.  Either argument may be NULL.
      */
-    void describeSystem(
-        TextOutput& t);
+    void describeSystem(TextOutput& t);
 
     inline void describeSystem(
         std::string&        s) {
@@ -1009,17 +1007,21 @@ public:
     /**
      Draws the specified kind of primitive from the current vertex array.
      */
-	template<class T>
-	void sendIndices(RenderDevice::Primitive primitive, int numIndices, 
-                     const T* index) {
-		debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
+    template<class T>
+    void sendIndices(RenderDevice::Primitive primitive, int numIndices, const T* index) {
+        debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
         internalSendIndices(primitive, sizeof(T), numIndices, index);
-
+        
         // Mark all active arrays as busy.
         setVARAreaMilestone();
+        
+        countTriangles(primitive, numIndices);
+    }
 
-		countTriangles(primitive, numIndices);
-	}
+    /** Send indices from an index buffer stored inside a vertex
+     buffer. This is potentially faster than sending from main
+     memory.*/
+    void sendIndices(RenderDevice::Primitive primitive, const VAR& indexVAR);
 
     /**
      Renders sequential vertices from the current vertex array.
@@ -1030,12 +1032,12 @@ public:
     /**
      Draws the specified kind of primitive from the current vertex array.
      */
-	template<class T>
-	void sendIndices(RenderDevice::Primitive primitive, 
+    template<class T>
+    void sendIndices(RenderDevice::Primitive primitive, 
                      const Array<T>& index) {
-		sendIndices(primitive, index.size(), index.getCArray());
-	}
-
+        sendIndices(primitive, index.size(), index.getCArray());
+    }
+    
     void setStencilClearValue(int s);
     void setDepthClearValue(double d);
     void setColorClearValue(const Color4& c);

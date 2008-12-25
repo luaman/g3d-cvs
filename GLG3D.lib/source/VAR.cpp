@@ -15,13 +15,13 @@
 
 namespace G3D {
 
-VAR::VAR() : area(NULL), _pointer(NULL), elementSize(0), 
+VAR::VAR() : m_area(NULL), _pointer(NULL), elementSize(0), 
              numElements(0), m_stride(0), generation(0), 
              underlyingRepresentation(GL_NONE), _maxSize(0) {
 }
 
 
-VAR::VAR(size_t numBytes, VARAreaRef _area) : area(NULL), _pointer(NULL), elementSize(0), 
+VAR::VAR(size_t numBytes, VARAreaRef _area) : m_area(NULL), _pointer(NULL), elementSize(0), 
              numElements(0), m_stride(0), generation(0), 
              underlyingRepresentation(GL_NONE), _maxSize(0) {
     init(NULL, numBytes, _area, GL_NONE, 1);
@@ -30,24 +30,24 @@ VAR::VAR(size_t numBytes, VARAreaRef _area) : area(NULL), _pointer(NULL), elemen
 
 bool VAR::valid() const {
     return
-        (! area.isNull()) && 
-        (area->currentGeneration() == generation) &&
+        (! m_area.isNull()) && 
+        (m_area->currentGeneration() == generation) &&
         // If we're in VBO_MEMORY mode, the pointer can be null.  Otherwise
         // it shouldn't be
-        (VARArea::mode == VARArea::VBO_MEMORY || _pointer);
+        (m_area->mode == VARArea::VBO_MEMORY || _pointer);
 }
 
 void VAR::init(VAR& dstPtr, size_t dstOffset, GLenum glformat, size_t eltSize, 
                int _numElements, size_t dstStride) {
-    area = dstPtr.area;
-    alwaysAssertM(area.notNull(), "Bad VARArea");
+    m_area = dstPtr.m_area;
+    alwaysAssertM(m_area.notNull(), "Bad VARArea");
     numElements              = _numElements;
     underlyingRepresentation = glformat;
     elementSize              = eltSize;
     m_stride                 = dstStride;
     _maxSize                 = dstPtr._maxSize / dstStride;
 
-    generation = area->currentGeneration();
+    generation = m_area->currentGeneration();
     _pointer = (uint8*)dstPtr._pointer + dstOffset;
 }
 
@@ -60,8 +60,8 @@ void VAR::init(const void* srcPtr,
                size_t  dstOffset, 
                size_t  dstStride) {
 
-    area = dstPtr.area;
-    alwaysAssertM(area.notNull(), "Bad VARArea");
+    m_area = dstPtr.m_area;
+    alwaysAssertM(m_area.notNull(), "Bad VARArea");
 
     numElements              = _numElements;
     underlyingRepresentation = glformat;
@@ -74,7 +74,7 @@ void VAR::init(const void* srcPtr,
         "Sanity check failed on OpenGL data format; you may"
         " be using an unsupported type in a vertex array.");
 
-    generation = area->currentGeneration();
+    generation = m_area->currentGeneration();
 
     _pointer = (uint8*)dstPtr._pointer + dstOffset;
 
@@ -95,7 +95,7 @@ void VAR::init(
     alwaysAssertM(! _area.isNull(), "Bad VARArea");
 
     numElements              = _numElements;
-    area	             = _area;
+    m_area                   = _area;
     underlyingRepresentation = glformat;
     elementSize              = eltSize;
     m_stride                 = eltSize;
@@ -109,9 +109,9 @@ void VAR::init(
                  "Sanity check failed on OpenGL data format; you may"
                  " be using an unsupported type in a vertex array.");
 
-    generation = area->currentGeneration();
+    generation = m_area->currentGeneration();
 
-    _pointer = (uint8*)area->openGLBasePointer() + area->allocatedSize();
+    _pointer = (uint8*)m_area->openGLBasePointer() + m_area->allocatedSize();
 
     // Align to the nearest multiple of this many bytes.
     const size_t alignment = 4;
@@ -129,14 +129,14 @@ void VAR::init(
     
     size_t newAlignedSize = size + pointerOffset;
 
-    alwaysAssertM(newAlignedSize <= area->freeSize(),
+    alwaysAssertM(newAlignedSize <= m_area->freeSize(),
                   "VARArea too small to hold new VAR (possibly due to rounding"
                   " to the nearest dword boundary).");
 
     // Upload the data
     if (size > 0 && sourcePtr != NULL) {
         // Update VARArea values
-        area->updateAllocation(newAlignedSize);
+        m_area->updateAllocation(newAlignedSize);
 
         uploadToCard(sourcePtr, 0, size);
     }
@@ -156,7 +156,7 @@ void VAR::update(
         "A VAR can only be updated with an array that is smaller "
         "or equal size (in bytes) to the original array.");
 
-    alwaysAssertM(generation == area->currentGeneration(),
+    alwaysAssertM(generation == m_area->currentGeneration(),
         "The VARArea has been reset since this VAR was created.");
 
     numElements              = _numElements;
@@ -193,11 +193,11 @@ void VAR::set(int index, const void* value, GLenum glformat, size_t eltSize) {
 
 void* VAR::mapBuffer(GLenum permissions) {
     // Map buffer
-    switch (area->mode) {
+    switch (m_area->mode) {
     case VARArea::VBO_MEMORY:
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-        glBindBufferARB(area->openGLTarget(), area->glbuffer);
-        return (uint8*)glMapBufferARB(area->openGLTarget(), permissions) + 
+        glBindBufferARB(m_area->openGLTarget(), m_area->glbuffer);
+        return (uint8*)glMapBufferARB(m_area->openGLTarget(), permissions) + 
             (size_t)_pointer;
         break;
 
@@ -213,10 +213,10 @@ void* VAR::mapBuffer(GLenum permissions) {
 
 
 void VAR::unmapBuffer() {
-    switch (area->mode) {
+    switch (m_area->mode) {
     case VARArea::VBO_MEMORY:
-        glUnmapBufferARB(area->openGLTarget());
-        glBindBufferARB(area->openGLTarget(), GL_NONE);
+        glUnmapBufferARB(m_area->openGLTarget());
+        glBindBufferARB(m_area->openGLTarget(), GL_NONE);
         glPopClientAttrib();
         break;
 
@@ -231,6 +231,7 @@ void VAR::unmapBuffer() {
 
 void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t srcSize, int srcStride, 
                         size_t dstPtrOffsetBytes, size_t dstStrideBytes) {
+    
     if (srcStride == 0) {
         srcStride = srcSize;
     }
@@ -259,16 +260,16 @@ void VAR::uploadToCard(const void* sourcePtr, int dstPtrOffset, size_t size) {
 
     void* ptr = (void*)(reinterpret_cast<intptr_t>(_pointer) + dstPtrOffset);
 
-    switch (area->mode) {
+    switch (m_area->mode) {
     case VARArea::VBO_MEMORY:
         // Don't destroy any existing bindings; this call can
         // be made at any time and the program might also
         // use VBO on its own.
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
-            glBindBufferARB(area->openGLTarget(), area->glbuffer);
+            glBindBufferARB(m_area->openGLTarget(), m_area->glbuffer);
             glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, (GLintptrARB)ptr, size, sourcePtr);
-            glBindBufferARB(area->openGLTarget(), 0);
+            glBindBufferARB(m_area->openGLTarget(), 0);
         }
         glPopClientAttrib();
         break;

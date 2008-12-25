@@ -105,7 +105,7 @@ private:
     size_t				peakAllocated;
     
     /** Set by RenderDevice */
-    RenderDevice*       renderDevice;
+    RenderDevice*                       renderDevice;
     
     /** Total  number of bytes in this area.  May be zero if resources have been freed.*/
     size_t				size;
@@ -114,7 +114,7 @@ private:
        The OpenGL buffer object associated with this area
        (only used when mode == VBO_MEMORY)
     */
-    uint32              glbuffer;
+    uint32                              glbuffer;
     
     /** Pointer to the memory (NULL when
         the VBO extension is not present). */

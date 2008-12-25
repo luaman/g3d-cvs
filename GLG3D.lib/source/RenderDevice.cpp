@@ -194,7 +194,7 @@ RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(f
 void RenderDevice::setVARAreaMilestone() {
     currentVARArea->renderDevice = this;
 
-    if (VARArea::mode == VARArea::VBO_MEMORY) {
+    if (currentVARArea->mode == VARArea::VBO_MEMORY) {
         // We don't need milestones when using VBO; the spec guarantees
         // correct synchronization.
         return;
@@ -2910,16 +2910,16 @@ void RenderDevice::endIndexedPrimitives() {
 
 
 void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
-	debugAssert(inIndexedPrimitive);
-	debugAssert(! inPrimitive);
-    alwaysAssertM(currentVARArea.isNull() || (v.area == currentVARArea), 
+    debugAssert(inIndexedPrimitive);
+    debugAssert(! inPrimitive);
+    alwaysAssertM(currentVARArea.isNull() || (v.area() == currentVARArea), 
         "All vertex arrays used within a single begin/endIndexedPrimitive"
-        " block must share the same VARArea.");
+                  " block must share the same VARArea.");
 
     majStateChange();
 
-    if (v.area != currentVARArea) {
-        currentVARArea = const_cast<VAR&>(v).area;
+    if (v.area() != currentVARArea) {
+        currentVARArea = const_cast<VAR&>(v).area();
 
         if (VARArea::mode == VARArea::VBO_MEMORY) {
             // Bind the buffer (for MAIN_MEMORY, we need do nothing)
@@ -2933,31 +2933,31 @@ void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
 
 void RenderDevice::setVertexArray(const class VAR& v) {
     setVARAreaFromVAR(v);
-	v.vertexPointer();
+    v.vertexPointer();
 }
 
 
 void RenderDevice::setVertexAttribArray(unsigned int attribNum, const class VAR& v, bool normalize) {
     setVARAreaFromVAR(v);
-	v.vertexAttribPointer(attribNum, normalize);
+    v.vertexAttribPointer(attribNum, normalize);
 }
 
 
 void RenderDevice::setNormalArray(const class VAR& v) {
     setVARAreaFromVAR(v);
-	v.normalPointer();
+    v.normalPointer();
 }
 
 
 void RenderDevice::setColorArray(const class VAR& v) {
     setVARAreaFromVAR(v);
-	v.colorPointer();
+    v.colorPointer();
 }
 
 
 void RenderDevice::setTexCoordArray(unsigned int unit, const class VAR& v) {
     setVARAreaFromVAR(v);
-	v.texCoordPointer(unit);
+    v.texCoordPointer(unit);
 }
 
 
@@ -3174,11 +3174,44 @@ void RenderDevice::sendSequentialIndices(RenderDevice::Primitive primitive, int 
     // Mark all active arrays as busy.
     setVARAreaMilestone();
 
-	countTriangles(primitive, numVertices);
+    countTriangles(primitive, numVertices);
     afterPrimitive();
 
     minStateChange();
     minGLStateChange();
+}
+
+
+void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& indexVAR) {
+    debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
+    debugAssertM(indexVAR.type() == VARArea::INDEX, "Must be an index VAR");
+
+    int old = glGetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING);
+
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexVAR.area()->openGLVertexBufferObject());
+
+    internalSendIndices(primitive, indexVAR.elementSize, indexVAR.numElements, indexVAR.pointer());
+
+    // Set the milestone on the current are
+    {
+        indexVAR.area()->renderDevice = this;
+
+        if (indexVAR.area()->mode != VARArea::VBO_MEMORY) {
+            MilestoneRef milestone = createMilestone("VAR Milestone");
+            setMilestone(milestone);
+
+            // Overwrite any preexisting milestone
+            indexVAR.area()->milestone = milestone;
+        }
+    }
+
+    // Mark all active arrays as busy.
+    setVARAreaMilestone();
+    
+    countTriangles(primitive, indexVAR.numElements);
+
+    // Restore old state
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, old);
 }
 
 
@@ -3195,15 +3228,15 @@ void RenderDevice::internalSendIndices(
     switch (indexSize) {
     case sizeof(uint32):
         i = GL_UNSIGNED_INT;
-    break;
+        break;
     
     case sizeof(uint16):
         i = GL_UNSIGNED_SHORT;
-    break;
+        break;
     
     case sizeof(uint8):
         i = GL_UNSIGNED_BYTE;
-    break;
+        break;
     
     default:
         debugAssertM(false, "Indices must be either 8, 16, or 32-bytes each.");
