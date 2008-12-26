@@ -227,10 +227,15 @@ public:
         (void)var;
 
         for (int a = 0; a < 4; ++a) {
+            if (count[a] == 0) {
+                // If an array is unused, it occupies no space in the interleaved array.
+                size[a] = 0;
+            }
+
             debugAssertM(count[a] == var[a]->numElements, 
                 "Updated arrays must have the same size they were created with.");
             if (a > 1) {
-                debugAssertM(var[a]->_pointer == (uint8*)var[a - 1]->_pointer + size[a],
+                debugAssertM(var[a]->_pointer == (uint8*)var[a - 1]->_pointer + size[a - 1],
                              "Updated interleaved arrays must be the same set and"
                              " order as original interleaved arrays.");
             }

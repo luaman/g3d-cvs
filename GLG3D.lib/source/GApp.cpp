@@ -363,12 +363,12 @@ void GApp::renderDebugInfo() {
                     pos, size, color);
                 pos.y += size * 1.5f;
                 
-                double fps = m_graphicsWatch.smoothFPS();
+                float fps = renderDevice->stats().smoothFrameRate;
                 std::string s = format(
-                    "% 5dfps % 5.1fM tris % 6.1fM tris/s  GL Calls: %d/%d Maj; %d/%d Min; %d push", 
+                    "% 5dfps % 5.1fM tris % 6.2fM tris/s  GL Calls: %d/%d Maj; %d/%d Min; %d push", 
                     iRound(fps),
-                    iRound(fps * renderDevice->stats().smoothTriangles / 1e5) * 0.1f,
-                    iRound(fps * renderDevice->stats().smoothTriangleRate / 1e5) * 0.1f,
+                    iRound(renderDevice->stats().smoothTriangles / 1e5) * 0.1f,
+                    iRound(renderDevice->stats().smoothTriangleRate / 1e4) * 0.01f,
                     majGL, majAll, minGL, minAll, pushCalls);
                 debugFont->send2DQuads(renderDevice, s, pos, size, statColor);
 

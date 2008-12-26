@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
  
  @created 2001-07-08
- @edited  2008-08-27
+ @edited  2008-12-26
  */
 
 #include "G3D/platform.h"
@@ -1402,15 +1402,15 @@ void RenderDevice::endFrame() {
         dt = 0.0001;
     }
 
-    m_stats.frameRate = dt;
-    m_stats.triangleRate = m_stats.triangles / dt;
+    m_stats.frameRate = 1.0f / dt;
+    m_stats.triangleRate = m_stats.triangles * dt;
 
     {
-        // high frame rate: A (interpolation parameter) is small
-        // low frame rate: A is big
-        const double A = clamp(dt, .07, 1);
+        // small inter-frame time: A (interpolation parameter) is small
+        // large inter-frame time: A is big
+        const double A = clamp(dt, 0.001, 1);
     
-        m_stats.smoothFrameRate     = lerp((double)m_stats.smoothFrameRate, 1 / dt, A);
+        m_stats.smoothFrameRate     = lerp(m_stats.smoothFrameRate, m_stats.frameRate, (float)A);
         m_stats.smoothTriangleRate  = lerp(m_stats.smoothTriangleRate, m_stats.triangleRate, A);
         m_stats.smoothTriangles     = lerp(m_stats.smoothTriangles, m_stats.triangles, A);
     }
