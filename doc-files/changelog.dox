@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Changed G3D::ArticulatedModel to use a VAR index array (up to 80% reduction in GPU load for large models)
      <li> Changed G3D::ArticulatedModel to use interleaved VAR (up to 4x fps speedup for vertex-bound models)
      <li> Interleaved arrays in G3D::VAR
      <li> Extended G3D::VARArea to support index arrays
