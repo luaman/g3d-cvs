@@ -312,7 +312,7 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
 }
 
 
-void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRITE_ONCE */) {
+void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint) {
     if (geometry.vertexArray.size() == 0) {
         // Has no geometry
         return;
@@ -345,6 +345,10 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint /* = VARArea::WRI
              tangentArray,         tangentVAR,
              texCoordArray,        texCoord0VAR,
              varArea);       
+    }
+
+    for (int i = 0; i < triListArray.size(); ++i) {
+        triListArray[i].updateVAR(hint);
     }
 }
 
@@ -392,6 +396,24 @@ void ArticulatedModel::initIFS(const std::string& filename, const Matrix4& xform
 }
 
 
+void ArticulatedModel::Part::TriList::updateVAR(VARArea::UsageHint hint) {
+    if (indexArray.size() == 0) {
+        // Has no indices
+        return;
+    }
+
+    size_t indexSize = sizeof(int);
+    if (indexVAR.size() != indexArray.size()) {
+        // Create new
+        VARAreaRef area = VARArea::create(indexSize * indexArray.size(), hint, VARArea::INDEX);
+        indexVAR = VAR(indexArray, area);
+    } else {
+        // Update in place
+        indexVAR.update(indexArray);
+    }
+}
+
+
 void ArticulatedModel::Part::TriList::computeBounds(const Part& parentPart) {
     MeshAlg::computeBounds(parentPart.geometry.vertexArray, indexArray, boxBounds, sphereBounds);
 }
@@ -423,7 +445,6 @@ const char* toString(ArticulatedModel::GraphicsProfile p) {
         return "Error!";
     }
 }
-
 
 
 static void addRect(const Vector3& v0, const Vector3& v1, 

@@ -37,6 +37,7 @@ bool VAR::valid() const {
         (m_area->mode == VARArea::VBO_MEMORY || _pointer);
 }
 
+
 void VAR::init(VAR& dstPtr, size_t dstOffset, GLenum glformat, size_t eltSize, 
                int _numElements, size_t dstStride) {
     m_area = dstPtr.m_area;
@@ -49,7 +50,9 @@ void VAR::init(VAR& dstPtr, size_t dstOffset, GLenum glformat, size_t eltSize,
 
     generation = m_area->currentGeneration();
     _pointer = (uint8*)dstPtr._pointer + dstOffset;
+    debugAssertGLOk();
 }
+
 
 void VAR::init(const void* srcPtr,
                int     _numElements, 
@@ -59,6 +62,7 @@ void VAR::init(const void* srcPtr,
                VAR     dstPtr,
                size_t  dstOffset, 
                size_t  dstStride) {
+    debugAssertGLOk();
 
     m_area = dstPtr.m_area;
     alwaysAssertM(m_area.notNull(), "Bad VARArea");
@@ -82,6 +86,7 @@ void VAR::init(const void* srcPtr,
     if (_numElements > 0) {
         uploadToCardStride(srcPtr, _numElements, eltSize, srcStride, 0, dstStride);
     }
+    debugAssertGLOk();
 }
 
 
@@ -140,6 +145,8 @@ void VAR::init(
 
         uploadToCard(sourcePtr, 0, size);
     }
+
+    debugAssertGLOk();
 }
 
 
@@ -172,6 +179,7 @@ void VAR::update(
     if (size > 0) {
         uploadToCard(sourcePtr, 0, size);
     }
+    debugAssertGLOk();
 }
 
 
@@ -227,6 +235,7 @@ void VAR::unmapBuffer() {
     default:
         alwaysAssertM(false, "Fell through switch");
     }
+    debugAssertGLOk();
 }
 
 void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t srcSize, int srcStride, 
@@ -252,10 +261,12 @@ void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t src
     // Unmap buffer
     unmapBuffer();
     dstPointer = NULL;
+    debugAssertGLOk();
 }
 
 
 void VAR::uploadToCard(const void* sourcePtr, int dstPtrOffset, size_t size) {
+    debugAssertGLOk();
     debugAssert(m_stride == 0 || m_stride == elementSize);
 
     void* ptr = (void*)(reinterpret_cast<intptr_t>(_pointer) + dstPtrOffset);
@@ -268,7 +279,7 @@ void VAR::uploadToCard(const void* sourcePtr, int dstPtrOffset, size_t size) {
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
             glBindBufferARB(m_area->openGLTarget(), m_area->glbuffer);
-            glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, (GLintptrARB)ptr, size, sourcePtr);
+            glBufferSubDataARB(m_area->openGLTarget(), (GLintptrARB)ptr, size, sourcePtr);
             glBindBufferARB(m_area->openGLTarget(), 0);
         }
         glPopClientAttrib();
@@ -281,6 +292,7 @@ void VAR::uploadToCard(const void* sourcePtr, int dstPtrOffset, size_t size) {
     default:
         alwaysAssertM(false, "Fell through switch");
     }
+    debugAssertGLOk();
 }
 
 

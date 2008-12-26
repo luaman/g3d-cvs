@@ -4,9 +4,9 @@
 
   @maintainer Morgan McGuire
   @created 2004-11-20
-  @edited  2007-08-20
+  @edited  2008-12-26
 
-  Copyright 2004-2007, Morgan McGuire
+  Copyright 2004-2009, Morgan McGuire
  */
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/Lighting.h"
@@ -1066,7 +1066,9 @@ void PosedArticulatedModel::sendGeometry(
                 rd->setTexCoordArray(1, part.tangentVAR);
             }
 
-            rd->sendIndices(RenderDevice::TRIANGLES, triList.indexArray);
+            debugAssertGLOk();
+            rd->sendIndices(RenderDevice::TRIANGLES, triList.indexVAR);        
+            debugAssertGLOk();
         rd->endIndexedPrimitives();
 
     } else {

@@ -129,6 +129,11 @@ public:
         return m_area->type();
     }
 
+    /** @brief Number of elements (not byte size!) */
+    inline int size() const {
+        return numElements;
+    }
+
     /** Creates an invalid VAR */
     VAR();
 

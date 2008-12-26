@@ -1,5 +1,5 @@
 /** @file ArticulatedModel.h
-    @author Morgan McGuire
+    @author Morgan McGuire, morgan@cs.williams.edu
 */
 #ifndef G3D_ARTICULATEDMODEL_H
 #define G3D_ARTICULATEDMODEL_H
@@ -169,6 +169,10 @@ public:
             single OpenGL primitive. */
         class TriList {
         public:
+            /** Copy of indexArray stored on the GPU.  Written by updateVAR.*/
+            VAR                     indexVAR;
+
+            /** CPU indices into the containing Part's VAR arrays for a triangle list. */
             Array<int>              indexArray;
             
             /** When true, this trilist enables two-sided lighting and texturing and
@@ -188,6 +192,9 @@ public:
             /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
                 Must be invoked manually if the geometry is later changed. */
             void computeBounds(const Part& parentPart);
+
+            /** Called from Part::updateVAR() */
+            void updateVAR(VARArea::UsageHint hint);
         };
 
         /** Each part must have a unique name */
@@ -235,7 +242,7 @@ public:
         /** Index into the part array of the parent.  If -1, this is a root node. */
         int                         parent;
 
-        /** Union of the index arrays for all triLists. */
+        /** Union of the index arrays for all triLists. This is not used for normal rendering. */
         Array<int>                  indexArray;
 
         inline Part() : parent(-1) {}
