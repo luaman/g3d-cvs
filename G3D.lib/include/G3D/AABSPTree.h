@@ -1601,8 +1601,6 @@ public:
 #undef TreeType
 };
 
-/** @deprecated For backwards compatibility */
-#define AABSPTree KDTree
 
 }
 

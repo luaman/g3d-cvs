@@ -759,6 +759,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\PointHashGrid.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\PositionTrait.h"
 				>
 			</File>

@@ -30,26 +30,6 @@
 #include "G3D/PositionTrait.h"
 #include <algorithm>
 
-
-///////////////////////////////////////////////////////
-
-/** @deprecated */
-inline void getPosition(const G3D::Vector3& v, G3D::Vector3& p) {
-    p = v;
-}
-
-/** @deprecated */
-inline void getPosition(const G3D::Vector4& v,  G3D::Vector3& p) {
-    p = v.xyz();
-}
-
-/** @deprecated */
-inline void getPosition(const G3D::Vector2& v, G3D::Vector3& p) {
-    p.x = v.x;
-    p.y = v.y;
-    p.z = 0;
-}
-
 namespace G3D {
 
 /**
@@ -1199,8 +1179,6 @@ public:
     }
 #undef TreeType
 };
-
-#define PointAABSPTree PointKDTree
 
 }
 
