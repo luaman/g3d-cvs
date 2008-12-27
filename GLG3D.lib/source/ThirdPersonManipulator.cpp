@@ -29,7 +29,7 @@ Vector3 UIGeom::segmentNormal(const LineSegment& seg, const Vector3& eye) {
 
 
 Vector3 UIGeom::computeEye(RenderDevice* rd) {
-    Vector3 eye = rd->getObjectToWorldMatrix().pointToObjectSpace(rd->getCameraToWorldMatrix().translation);
+    Vector3 eye = rd->objectToWorldMatrix().pointToObjectSpace(rd->cameraToWorldMatrix().translation);
     return eye;
 }
 
@@ -107,7 +107,7 @@ void UIGeom::computeProjection(RenderDevice* rd) {
         polyBackfacing.resize(poly3D.size());
 
         // Used for backface classification
-        Vector3 objEye = rd->getModelViewMatrix().inverse().translation;
+        Vector3 objEye = rd->modelViewMatrix().inverse().translation;
         
         float z = 0;
         for (int i = 0; i < poly3D.size(); ++i) {

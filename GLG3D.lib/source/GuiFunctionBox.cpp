@@ -109,7 +109,7 @@ void GuiFunctionBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     skin->pauseRendering();
     {
         // Scissor region ignores transformation matrix
-        const CoordinateFrame& matrix = rd->getObjectToWorldMatrix();
+        const CoordinateFrame& matrix = rd->objectToWorldMatrix();
         rd->enableClip2D(m_clipBounds + matrix.translation.xy());
         drawBackground(rd, skin);
         drawSpline(rd, skin);

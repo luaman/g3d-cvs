@@ -243,7 +243,7 @@ void Draw::plane(
     const Color4&        wireColor) {
 
     renderDevice->pushState();
-    CoordinateFrame cframe0 = renderDevice->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = renderDevice->objectToWorldMatrix();
 
     Vector3 N, P;
     
@@ -393,7 +393,7 @@ void Draw::capsule(
 
     renderDevice->pushState();
 
-        renderDevice->setObjectToWorldMatrix(renderDevice->getObjectToWorldMatrix() * cframe);
+        renderDevice->setObjectToWorldMatrix(renderDevice->objectToWorldMatrix() * cframe);
         renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
 
         if (solidColor.a > 0) {
@@ -489,7 +489,7 @@ void Draw::cylinder(
 
     renderDevice->pushState();
 
-        renderDevice->setObjectToWorldMatrix(renderDevice->getObjectToWorldMatrix() * cframe);
+        renderDevice->setObjectToWorldMatrix(renderDevice->objectToWorldMatrix() * cframe);
         renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
 
         if (solidColor.a > 0) {
@@ -741,7 +741,7 @@ void Draw::lineSegment(
 
         // Find the object space vector perpendicular to the line
         // that points closest to the eye.
-        Vector3 eye = renderDevice->getObjectToWorldMatrix().pointToObjectSpace(renderDevice->getCameraToWorldMatrix().translation);
+        Vector3 eye = renderDevice->objectToWorldMatrix().pointToObjectSpace(renderDevice->cameraToWorldMatrix().translation);
         Vector3 E = eye - v0;
         Vector3 V = v1 - v0;
         Vector3 U = E.cross(V);
@@ -923,7 +923,7 @@ void Draw::sphereSection(
     // The first time this is invoked we create a series of quad strips in a vertex array.
     // Future calls then render from the array. 
 
-    CoordinateFrame cframe = renderDevice->getObjectToWorldMatrix();
+    CoordinateFrame cframe = renderDevice->objectToWorldMatrix();
 
     // Auto-normalization will take care of normal length
     cframe.translation += cframe.rotation * sphere.center;

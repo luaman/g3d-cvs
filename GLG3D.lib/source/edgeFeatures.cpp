@@ -19,7 +19,7 @@ void drawFeatureEdges(RenderDevice* renderDevice, const PosedModel::Ref& model, 
 
     bool drawCreases = (creaseAngle <= pi() / 2);
 
-    const Vector3 wsEye = renderDevice->getCameraToWorldMatrix().translation;
+    const Vector3 wsEye = renderDevice->cameraToWorldMatrix().translation;
 
     const Array<MeshAlg::Edge>&     edgeArray   = model->weldedEdges();
     const Array<Vector3>&           faceNormal  = model->objectSpaceFaceNormals(drawCreases);

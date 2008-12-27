@@ -92,56 +92,56 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 
     // Move the camera to object space
     GCamera camera = worldCamera;
-    camera.setCoordinateFrame(renderDevice->getObjectToWorldMatrix().toObjectSpace(worldCamera.coordinateFrame()));
+    camera.setCoordinateFrame(renderDevice->objectToWorldMatrix().toObjectSpace(worldCamera.coordinateFrame()));
 
     debugAssertGLOk();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
-	    static Array<FaceSet*> opaqueFaceArray;
-	    static Array<FaceSet*> translucentFaceArray;
+        static Array<FaceSet*> opaqueFaceArray;
+        static Array<FaceSet*> translucentFaceArray;
 
         bool first = true;
         if (first) {
             opaqueFaceArray.fastClear();
             translucentFaceArray.fastClear();
 
-	        getVisibleFaces(renderDevice, camera, translucentFaceArray, opaqueFaceArray);
+            getVisibleFaces(renderDevice, camera, translucentFaceArray, opaqueFaceArray);
         }
 
         debugAssertGLOk();
-		// Opaque
-		glCullFace(GL_FRONT);
-		glDisable(GL_BLEND);
-		glDisable(GL_LIGHTING);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		
-		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);        
-		glEnable(GL_TEXTURE_2D);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-		glColor(Color3::white() * adjustBrightness);
- 		renderFaces(renderDevice, camera, opaqueFaceArray);
-
-        // Translucent
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glAlphaFunc(GL_GREATER, 0.1f);
-		glEnable(GL_ALPHA_TEST);
-		glDisable(GL_CULL_FACE);
-
+        // Opaque
+        glCullFace(GL_FRONT);
+        glDisable(GL_BLEND);
+        glDisable(GL_LIGHTING);
+        glEnableClientState(GL_VERTEX_ARRAY);
+	
+        glClientActiveTextureARB(GL_TEXTURE1_ARB);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnable(GL_TEXTURE_2D);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        
+        glClientActiveTextureARB(GL_TEXTURE0_ARB);        
+        glEnable(GL_TEXTURE_2D);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        
         glColor(Color3::white() * adjustBrightness);
-		renderFaces(renderDevice, camera, translucentFaceArray);
+        renderFaces(renderDevice, camera, opaqueFaceArray);
+        
+        // Translucent
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glAlphaFunc(GL_GREATER, 0.1f);
+        glEnable(GL_ALPHA_TEST);
+        glDisable(GL_CULL_FACE);
+        
+        glColor(Color3::white() * adjustBrightness);
+        renderFaces(renderDevice, camera, translucentFaceArray);
         debugAssertGLOk();
 
         if (false) {
             // Draw lighting (for debugging)
-		    glDisable(GL_BLEND);
+            glDisable(GL_BLEND);
             glPointSize(5);
             glDisable(GL_TEXTURE_2D);
             glBegin(GL_POINTS);

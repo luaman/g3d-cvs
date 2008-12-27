@@ -747,7 +747,7 @@ public:
     void setObjectToWorldMatrix(
         const CoordinateFrame&          cFrame);
 
-    const CoordinateFrame& getObjectToWorldMatrix() const;
+    const CoordinateFrame& objectToWorldMatrix() const;
 
     /**
      See RenderDevice::setObjectToWorldMatrix.
@@ -755,19 +755,19 @@ public:
     void setCameraToWorldMatrix(
         const CoordinateFrame&          cFrame);
 
-    const CoordinateFrame& getCameraToWorldMatrix() const;
+    const CoordinateFrame& cameraToWorldMatrix() const;
 
-    Matrix4 getProjectionMatrix() const;
+    Matrix4 projectionMatrix() const;
 
     /**
      cameraToWorld.inverse() * objectToWorld
      */
-    CoordinateFrame getModelViewMatrix() const;
+    CoordinateFrame modelViewMatrix() const;
 
     /**
      projection() * cameraToWorld.inverse() * objectToWorld
      */
-    Matrix4 getModelViewProjectionMatrix() const;
+    Matrix4 modelViewProjectionMatrix() const;
 
 
     /**

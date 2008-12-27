@@ -138,7 +138,7 @@ Vector3 MeshShape::randomInteriorPoint() const {
 
 
 void MeshShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
 
     rd->pushState();
         rd->setObjectToWorldMatrix(cframe0 * cframe);
@@ -179,7 +179,7 @@ void MeshShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 s
 ////////////////////////////////////////////////////////////////////////
 
 void BoxShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe0 * cframe);
     Draw::box(geometry, rd, solidColor, wireColor);
     rd->setObjectToWorldMatrix(cframe0);
@@ -187,7 +187,7 @@ void BoxShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 so
 
 
 void TriangleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->pushState();
         rd->setObjectToWorldMatrix(cframe0 * cframe);
         rd->setNormal(geometry.normal());
@@ -221,7 +221,7 @@ void TriangleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Colo
 }
 
 void SphereShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe0 * cframe);
     Draw::sphere(geometry, rd, solidColor, wireColor);
     rd->setObjectToWorldMatrix(cframe0);
@@ -229,7 +229,7 @@ void SphereShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4
 
 
 void CylinderShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe0 * cframe);
     Draw::cylinder(geometry, rd, solidColor, wireColor);
     rd->setObjectToWorldMatrix(cframe0);
@@ -237,7 +237,7 @@ void CylinderShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Colo
 
 
 void CapsuleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe0 * cframe);
     Draw::capsule(geometry, rd, solidColor, wireColor);
     rd->setObjectToWorldMatrix(cframe0);
@@ -246,7 +246,7 @@ void CapsuleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color
 
 void RayShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
     (void)wireColor;
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe0 * cframe);
     Draw::ray(geometry, rd, solidColor);
     rd->setObjectToWorldMatrix(cframe0);
@@ -256,7 +256,7 @@ void RayShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 so
 void AxesShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
     (void)wireColor;
     (void)solidColor;
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe0 * cframe);
     Draw::axes(geometry, rd);
     rd->setObjectToWorldMatrix(cframe0);
@@ -268,7 +268,7 @@ void PointShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 
 }
 
 void PlaneShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 solidColor, Color4 wireColor) {
-    CoordinateFrame cframe0 = rd->getObjectToWorldMatrix();
+    CoordinateFrame cframe0 = rd->objectToWorldMatrix();
 
     rd->setObjectToWorldMatrix(cframe0 * cframe);
 

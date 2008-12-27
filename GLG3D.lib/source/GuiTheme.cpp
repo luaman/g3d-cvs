@@ -937,7 +937,7 @@ void GuiTheme::pushClientRect(const Rect2D& r) {
     drawDelayedText();
     rd->endPrimitive();
 
-    const CoordinateFrame& oldMatrix = rd->getObjectToWorldMatrix();
+    const CoordinateFrame& oldMatrix = rd->objectToWorldMatrix();
     coordinateFrameStack.append(oldMatrix);
     const Rect2D& oldRect = rd->clip2D();
     scissorStack.append(oldRect);

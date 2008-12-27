@@ -114,8 +114,8 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
     }
 
     if (_useUniforms == DEFINE_G3D_UNIFORMS) {
-        const CoordinateFrame& o2w = renderDevice->getObjectToWorldMatrix();
-        const CoordinateFrame& c2w = renderDevice->getCameraToWorldMatrix();
+        const CoordinateFrame& o2w = renderDevice->objectToWorldMatrix();
+        const CoordinateFrame& c2w = renderDevice->cameraToWorldMatrix();
 
         const Set<std::string>& uniformNames = _vertexAndPixelShader->uniformNames;
 

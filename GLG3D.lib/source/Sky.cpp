@@ -295,7 +295,7 @@ static void drawCelestialSphere(
 
 static void hackProjectionMatrix(RenderDevice* renderDevice) {
 	
-    Matrix4 P = renderDevice->getProjectionMatrix();
+    Matrix4 P = renderDevice->projectionMatrix();
 
     // Set the 3rd row (2nd index) so the depth always is in the middle of the depth range.
 
@@ -366,7 +366,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
             // Hope that we're on a card where explicit texcoords work
         }
 
-        CoordinateFrame cframe = renderDevice->getCameraToWorldMatrix();
+        CoordinateFrame cframe = renderDevice->cameraToWorldMatrix();
         cframe.translation = Vector3::zero();
         renderDevice->setTextureMatrix(0, cframe);
 
@@ -466,9 +466,9 @@ void Sky::render(
 
         // Eliminate the translation of the camera
         CoordinateFrame matrix(Vector3::zero());
-	    matrix.rotation = renderDevice->getCameraToWorldMatrix().rotation;
+        matrix.rotation = renderDevice->cameraToWorldMatrix().rotation;
         renderDevice->setCameraToWorldMatrix(matrix);
-        renderDevice->setObjectToWorldMatrix(CoordinateFrame());
+        renderDevice->setObjectToWorldMatrix(CFrame());
 
         renderDevice->disableLighting();
         renderDevice->setColor(lighting.skyAmbient);
@@ -583,11 +583,11 @@ void Sky::renderLensFlare(
     renderDevice->pushState();
         renderDevice->disableLighting();
 
-        CoordinateFrame camera = renderDevice->getCameraToWorldMatrix();
-	    CoordinateFrame matrix;
+        CoordinateFrame camera = renderDevice->cameraToWorldMatrix();
+        CoordinateFrame matrix;
     	matrix.rotation = camera.rotation;
         renderDevice->setCameraToWorldMatrix(matrix);
-	    renderDevice->setObjectToWorldMatrix(CoordinateFrame());
+	    renderDevice->setObjectToWorldMatrix(CFrame());
 
         renderDevice->setColor(lighting.skyAmbient);
         renderDevice->setCullFace(RenderDevice::CULL_BACK);

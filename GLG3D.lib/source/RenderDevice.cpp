@@ -2281,7 +2281,7 @@ void RenderDevice::setObjectToWorldMatrix(
 }
 
 
-const CoordinateFrame& RenderDevice::getObjectToWorldMatrix() const {
+const CoordinateFrame& RenderDevice::objectToWorldMatrix() const {
     return state.matrices.objectToWorldMatrix;
 }
 
@@ -2314,23 +2314,23 @@ void RenderDevice::setCameraToWorldMatrix(
 }
 
 
-const CoordinateFrame& RenderDevice::getCameraToWorldMatrix() const {
+const CoordinateFrame& RenderDevice::cameraToWorldMatrix() const {
     return state.matrices.cameraToWorldMatrix;
 }
 
 
-Matrix4 RenderDevice::getProjectionMatrix() const {
+Matrix4 RenderDevice::projectionMatrix() const {
     return state.matrices.projectionMatrix;
 }
 
 
-CoordinateFrame RenderDevice::getModelViewMatrix() const {
-    return state.matrices.cameraToWorldMatrixInverse * getObjectToWorldMatrix();
+CoordinateFrame RenderDevice::modelViewMatrix() const {
+    return state.matrices.cameraToWorldMatrixInverse * objectToWorldMatrix();
 }
 
 
-Matrix4 RenderDevice::getModelViewProjectionMatrix() const {
-    return getProjectionMatrix() * getModelViewMatrix();
+Matrix4 RenderDevice::modelViewProjectionMatrix() const {
+    return projectionMatrix() * modelViewMatrix();
 }
 
 
@@ -3139,7 +3139,7 @@ void RenderDevice::configureReflectionMap(
 
     // Texture coordinates will be generated in object space.
     // Set the texture matrix to transform them into camera space.
-    CoordinateFrame cframe = getCameraToWorldMatrix();
+    CoordinateFrame cframe = cameraToWorldMatrix();
 
     // The environment map assumes we are always in the center,
     // so zero the translation.

@@ -442,7 +442,7 @@ void GApp::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Arra
 
         // 3D
         if (posedArray.size() > 0) {
-            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+            Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
             PosedModel::sort(posedArray, lookVector, opaque, transparent);
             
             for (int i = 0; i < opaque.size(); ++i) {

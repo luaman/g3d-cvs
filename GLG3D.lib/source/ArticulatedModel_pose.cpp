@@ -1033,7 +1033,7 @@ void PosedArticulatedModel::sendGeometry2(
     RenderDevice*           rd) const {
 
 
-    CoordinateFrame o2w = rd->getObjectToWorldMatrix();
+    CoordinateFrame o2w = rd->objectToWorldMatrix();
     rd->setObjectToWorldMatrix(cframe);
 
     rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
