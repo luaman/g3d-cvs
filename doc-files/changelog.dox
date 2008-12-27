@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Box2D
      <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
      <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
      <li> Changed G3D::ArticulatedModel to use a VAR index array (up to 80% reduction in GPU load for large models)

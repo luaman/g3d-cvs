@@ -1,15 +1,15 @@
 /**
  @file graphics3D.h
 
- This header includes all of the graphics3D libraries in
+ This header includes all of the G3D libraries in
  appropriate namespaces.
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2001-08-25
- @edited  2008-11-01
+ @edited  2008-12-27
 
- Copyright 2000-2008, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
 */
 
@@ -45,6 +45,7 @@
 #include "G3D/Ray.h"
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
+#include "G3D/Box2D.h"
 #include "G3D/AABox.h"
 #include "G3D/WrapMode.h"
 #include "G3D/Cone.h"

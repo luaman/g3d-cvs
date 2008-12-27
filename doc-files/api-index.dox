@@ -144,8 +144,9 @@ href="classes.html">Classes</a>.
     <UL>
      <LI><B>Geometry</B> &nbsp; &nbsp;
     \link G3D::AABox AABox\endlink,
-    \link G3D::AABox2D AABox2D (Rect2D)\endlink,
+    \link G3D::Rect2D AABox2D (Rect2D)\endlink,
     \link G3D::Box Box\endlink,
+    \link G3D::Box2D Box2D\endlink,
     \link G3D::Capsule Capsule\endlink,
     \link G3D::UprightFrame UprightFrame\endlink,
     \link G3D::UprightSpline UprightSpline\endlink,

@@ -8,9 +8,9 @@
 
  Call those two methods from main() in main.cpp.
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2002-01-01
- @edited  2008-07-07
+ @edited  2008-12-27
  */
 
 #include "G3D/G3D.h"
@@ -133,6 +133,17 @@ void testConvexPolygon2D() {
     printf("  passed\n");
 }
 
+void testBox2D() {
+    printf("Box2D\n");
+    Box2D b(Vector2(0,0), Vector2(2,3));
+    debugAssert(b.contains(Vector2(0,0)));
+    debugAssert(b.contains(Vector2(2,3)));
+    debugAssert(b.contains(Vector2(1,1.5)));
+    debugAssert(! b.contains(Vector2(-1,1.5)));
+    debugAssert(! b.contains(Vector2(3,1.5)));
+    debugAssert(! b.contains(Vector2(1,-1.5)));
+    debugAssert(! b.contains(Vector2(1,4)));
+}
 
 
 void testWildcards() {
@@ -708,6 +719,9 @@ int main(int argc, char* argv[]) {
     printf("  passed\n");
 
     testBox();
+    printf("  passed\n");
+
+    testBox2D();
     printf("  passed\n");
 
     testColor3uint8Array();
