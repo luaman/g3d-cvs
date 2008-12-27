@@ -75,6 +75,13 @@ public:
         return memberTable.getRemove(member, removed, ignore);
     }
 
+    /** If a value that is EqualsFunc to @a member is present, returns a pointer to the 
+        version stored in the data structure, otherwise returns NULL.
+     */
+    const T* getPointer(const T& member) const {
+        return memberTable.getKeyPointer(member);
+    }
+
     Array<T> getMembers() const {
         return memberTable.getKeys();
     }

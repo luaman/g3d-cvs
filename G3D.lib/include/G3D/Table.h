@@ -628,29 +628,47 @@ public:
        Value v;
        return remove(key, x, v, false);
    }
-      
-   /**
-    Returns the value associated with key.
-    @deprecated Use get(key, val) or getPointer(key) 
-    */
-   Value& get(const Key& key) const {
 
-       size_t  code = HashFunc::hashCode(key);
+private:
+
+   Entry* getEntryPointer(const Key& key) const {
+        size_t  code = HashFunc::hashCode(key);
         size_t b = code % numBuckets;
 
         Node* node = bucket[b];
 
         while (node != NULL) {
             if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
-                return node->entry.value;
+                return &(node->entry);
             }
             node = node->next;
         }
 
-        debugAssertM(false, "Key not found");
-        // The next line is here just to make
-        // a compiler warning go away.
-        return node->entry.value;
+        return NULL;
+   }
+
+public:
+   
+    /** If a value that is EqualsFunc to @a member is present, returns a pointer to the 
+        version stored in the data structure, otherwise returns NULL.
+     */
+   const Key* getKeyPointer(const Key& key) {
+       Entry* e = getEntryPointer(key);
+       if (e == NULL) {
+           return NULL;
+       } else {
+           return e->key;
+       }
+   }
+
+   /**
+    Returns the value associated with key.
+    @deprecated Use get(key, val) or getPointer(key) 
+    */
+   Value& get(const Key& key) const {
+       Entry* e = getEntryPointer(key);
+       debugAssertM(e != NULL, "Key not found");
+       return e->value;
    }
 
 
