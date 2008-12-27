@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Set now allows HashFunc and EqualsFunc to be specified
      <li> G3D::Box2D
      <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
      <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix

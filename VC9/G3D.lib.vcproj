@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Box2D.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Capsule.cpp"
 				>
 			</File>
@@ -536,6 +540,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Box.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Box2D.h"
 				>
 			</File>
 			<File

@@ -164,7 +164,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
         // 3D
         if (posed3D.size() > 0) {
-            Vector3 lookVector = renderDevice->getCameraToWorldMatrix().lookVector();
+            Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
             PosedModel::sort(posed3D, lookVector, opaque, transparent);
 
             for (int i = 0; i < opaque.size(); ++i) {

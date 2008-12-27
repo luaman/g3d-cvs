@@ -29,14 +29,14 @@ namespace G3D {
  */
 // There is not copy constructor or assignment operator defined because
 // the default ones are correct for Set.
-template<class T> 
+template<class T, class HashFunc = HashTrait<T>, class EqualsFunc = EqualsTrait<T> > 
 class Set {
 
     /**
      If an object is a member, it is contained in
      this table.
      */
-    Table<T, bool> memberTable;
+    Table<T, bool, HashFunc, EqualsFunc> memberTable;
 
 public:
 

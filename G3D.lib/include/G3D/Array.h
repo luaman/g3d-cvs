@@ -763,6 +763,19 @@ public:
 
     /**
      Returns the index of (the first occurance of) an index or -1 if
+     not found.  Searches from the right.
+     */
+    int rfindIndex(const T& value) const {
+        for (int i = num -1 ; i >= 0; --i) {
+            if (data[i] == value) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     Returns the index of (the first occurance of) an index or -1 if
      not found.
      */
     int findIndex(const T& value) const {
