@@ -564,13 +564,10 @@ public:
         bucket[b] = new Node(key, value, code, bucket[b]);
         ++_size;
    }
+private:
 
-   /**
-    Removes an element from the table if it is present.  
-    @return true if the element was found and removed, otherwise  false
-    */
-   bool remove(const Key& key) {
-      
+    /** Helper for remove() and getRemove() */
+    bool remove(const Key& key, Key& removedKey, Value& removedValue, bool updateRemoved) {
        size_t code = HashFunc::hashCode(key);
        size_t b = code % numBuckets;
 
@@ -595,6 +592,10 @@ public:
                   previous->next = n->next;
               }
 
+              if (updateRemoved) {
+                  removedKey   = n->entry.key;
+                  removedValue = n->entry.value;
+              }
               // Delete the node
               delete n;
               --_size;
@@ -605,11 +606,29 @@ public:
           n = n->next;
       } while (n != NULL);
 
-
       return false;
       //alwaysAssertM(false, "Tried to remove a key that was not in the table.");
    }
 
+public:
+
+   /** If @a member is present, sets @a removed to the element
+    being removed and returns true.  Otherwise returns false
+    and does not write to @a removed. */
+    bool getRemove(const Key& member, Key& removedKey, Value& removedValue) {
+       return remove(key, removedKey, removedValue, true);
+    }
+
+    /**
+    Removes an element from the table if it is present.  
+    @return true if the element was found and removed, otherwise  false
+    */
+   bool remove(const Key& key) {
+       Key x;
+       Value v;
+       return remove(key, x, v, false);
+   }
+      
    /**
     Returns the value associated with key.
     @deprecated Use get(key, val) or getPointer(key) 

@@ -58,11 +58,21 @@ public:
     }
 
     /**
-     It is an error to remove members that are not already
-     present.
+     Returns true if the element was present and removed.  Returns false
+     if the element was not present.
      */
-    void remove(const T& member) {
-        memberTable.remove(member);  
+    bool remove(const T& member) {
+        return memberTable.remove(member);  
+    }
+
+    /** If @a member is present, sets @a removed to the element
+        being removed and returns true.  Otherwise returns false
+        and does not write to @a removed. This is useful when building
+        efficient hashed data structures that wrap Set. 
+        */
+    bool getRemove(const T& member, T& removed) {
+        bool ignore;
+        return memberTable.getRemove(member, removed, ignore);
     }
 
     Array<T> getMembers() const {
