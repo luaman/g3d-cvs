@@ -44,7 +44,7 @@ void App::onInit() {
     debugWindow->setVisible(true);
     developerWindow->cameraControlWindow->setVisible(true);
     developerWindow->videoRecordDialog->setEnabled(true);
-	showRenderingStats = true;
+    showRenderingStats = true;
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
@@ -98,6 +98,7 @@ bool App::onEvent(const GEvent& e) {
     //
     // For example,
     // if ((e.type == GEventType::GUI_ACTION) && (e.gui.control == m_button)) { ... return true;}
+    // if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::TAB)) { ... return true; }
 
     return false;
 }
@@ -115,7 +116,6 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
 
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-    Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
