@@ -154,21 +154,12 @@ Vector3 Matrix3::column (int iCol) const {
                    elt[2][iCol]);
 }
 
+
 const Vector3& Matrix3::row (int iRow) const {
     assert((0 <= iRow) && (iRow < 3));
     return *reinterpret_cast<const Vector3*>(elt[iRow]);
 }
 
-
-Vector3 Matrix3::getColumn (int iCol) const {
-    assert((0 <= iCol) && (iCol < 3));
-    return Vector3(elt[0][iCol], elt[1][iCol],
-                   elt[2][iCol]);
-}
-
-Vector3 Matrix3::getRow (int iRow) const {
-    return Vector3(elt[iRow][0], elt[iRow][1], elt[iRow][2]);
-}
 
 void Matrix3::setColumn(int iCol, const Vector3 &vector) {
     debugAssert((iCol >= 0) && (iCol < 3));

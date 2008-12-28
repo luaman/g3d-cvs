@@ -198,19 +198,10 @@ void Matrix4::setColumn(int c, const Vector4& v) {
 }
 
 
-Vector4 Matrix4::getRow(int r) const {
-    return row(r);
-}
-
-
 const Vector4& Matrix4::row(int r) const {
     return reinterpret_cast<const Vector4*>(elt[r])[0];
 }
 
-
-Vector4 Matrix4::getColumn(int c) const {
-    return column(c);
-}
 
 Vector4 Matrix4::column(int c) const {
     Vector4 v;
@@ -306,7 +297,7 @@ bool Matrix4::operator==(const Matrix4& other) const {
 float Matrix4::determinant() const {
     // Determinant is the dot product of the first row and the first row
     // of cofactors (i.e. the first col of the adjoint matrix)
-	return cofactor().getRow(0).dot(getRow(0));
+	return cofactor().row(0).dot(row(0));
 }
 
 
@@ -322,7 +313,7 @@ Matrix4 Matrix4::inverse() const {
 
     // Determinant is the dot product of the first row and the first row
     // of cofactors (i.e. the first col of the adjoint matrix)
-	float det = A.getColumn(0).dot(getRow(0));
+	float det = A.column(0).dot(row(0));
 
 	return A * (1.0f / det);
 }

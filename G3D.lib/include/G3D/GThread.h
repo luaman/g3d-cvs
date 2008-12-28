@@ -71,10 +71,7 @@ public:
     /** Constructs a basic GThread without requiring a subclass.
 
         @param proc The global or static function for the threadMain() */
-    static GThreadRef create(const std::string& name, void (*proc)(void*), void* param);
-
-    /** @deprecated use overload that accepts void* param */
-    static GThreadRef create(const std::string& name, void (*proc)());
+    static GThreadRef create(const std::string& name, void (*proc)(void*), void* param = NULL);
 
     /** Starts the thread and executes threadMain().  Returns false if
        the thread failed to start (either because it was already started

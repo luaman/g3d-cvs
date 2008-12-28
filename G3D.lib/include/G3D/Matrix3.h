@@ -90,11 +90,6 @@ public:
         return (const float*)&elt[0][0];
     }
     
-    /** @deprecated */
-    Vector3 getColumn (int iCol) const;
-    /** @deprecated */
-    Vector3 getRow (int iRow) const;
-
     Vector3 column(int c) const;
     const Vector3& row(int r) const;
 

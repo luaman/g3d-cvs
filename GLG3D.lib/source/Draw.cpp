@@ -112,9 +112,9 @@ void Draw::axes(
     float               scale) {
 
     Vector3 c = cframe.translation;
-    Vector3 x = cframe.rotation.getColumn(0).direction() * 2 * scale;
-    Vector3 y = cframe.rotation.getColumn(1).direction() * 2 * scale;
-    Vector3 z = cframe.rotation.getColumn(2).direction() * 2 * scale;
+    Vector3 x = cframe.rotation.column(0).direction() * 2 * scale;
+    Vector3 y = cframe.rotation.column(1).direction() * 2 * scale;
+    Vector3 z = cframe.rotation.column(2).direction() * 2 * scale;
 
     Draw::arrow(c, x, renderDevice, xColor, scale);
     Draw::arrow(c, y, renderDevice, yColor, scale);

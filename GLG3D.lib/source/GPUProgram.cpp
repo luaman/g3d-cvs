@@ -68,7 +68,7 @@ void GPUProgram::ArgList::set(const std::string& var, const Matrix4& val) {
     Arg arg;
     arg.type = FLOAT4X4;
     for (int r = 0; r < 4; ++r) {
-        arg.vector[r] = val.getRow(r);
+        arg.vector[r] = val.row(r);
     }
 
     argTable.set(var, arg);

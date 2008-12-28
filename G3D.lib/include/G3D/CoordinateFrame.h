@@ -143,7 +143,7 @@ public:
      object has an inverted heading.
      */
     inline float getHeading() const {
-        Vector3 look = rotation.getColumn(2);
+        Vector3 look = rotation.column(2);
         float angle = -(float) atan2(-look.x, look.z);
         return angle;
     }
@@ -275,7 +275,7 @@ public:
 
     /** The direction this camera is looking (its negative z axis)*/
 	inline Vector3 lookVector() const {
-		return -rotation.getColumn(2);
+		return -rotation.column(2);
 	}
 
     /** Returns the ray starting at the camera origin travelling in direction CoordinateFrame::lookVector. */
@@ -283,11 +283,11 @@ public:
 
     /** Up direction for this camera (its y axis). */
     inline Vector3 upVector() const {
-        return rotation.getColumn(1);
+        return rotation.column(1);
     }
 
     inline Vector3 rightVector() const {
-		return rotation.getColumn(0);
+		return rotation.column(0);
 	}
 
     /**
@@ -295,7 +295,7 @@ public:
      Useful for strafing motions and building alternative coordinate frames.
      */
     inline Vector3 leftVector() const {
-		return -rotation.getColumn(0);
+		return -rotation.column(0);
     }
 
     /**

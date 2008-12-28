@@ -501,10 +501,9 @@ void Win32Window::setIcon(const GImage& image) {
 
     GImage icon;
     if (image.channels == 3) {
-
         GImage alpha(image.width, image.height, 1);
         System::memset(alpha.byte(), 255, (image.width * image.height));
-        icon = image.insertRedAsAlpha(alpha);
+        image.insertRedAsAlpha(alpha, icon);
     } else {
         icon = image;
     }

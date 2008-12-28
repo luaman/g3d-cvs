@@ -1257,7 +1257,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix4& v
     Arg arg;
     arg.type = GL_FLOAT_MAT4_ARB;
     for (int r = 0; r < 4; ++r) {
-        arg.vector[r] = val.getRow(r);
+        arg.vector[r] = val.row(r);
     }
     arg.optional = optional;
 
@@ -1268,7 +1268,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, const Matrix3& v
     Arg arg;
     arg.type = GL_FLOAT_MAT3_ARB;
     for (int r = 0; r < 3; ++r) {
-        arg.vector[r] = Vector4(val.getRow(r), 0);
+        arg.vector[r] = Vector4(val.row(r), 0);
     }
     arg.optional = optional;
 

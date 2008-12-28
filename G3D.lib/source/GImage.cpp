@@ -738,17 +738,6 @@ void GImage::insertRedAsAlpha(const GImage& alpha, GImage& output) const {
     }
 }
 
-GImage GImage::insertRedAsAlpha(const GImage& alpha) const {
-    debugAssert(alpha.width == width);
-    debugAssert(alpha.height == height);
-
-    GImage out(width, height, 4);
-
-    insertRedAsAlpha(alpha, out);
-
-    return out;
-}
-
 
 void GImage::stripAlpha(GImage& output) const {
 
@@ -762,14 +751,6 @@ void GImage::stripAlpha(GImage& output) const {
         output.byte()[i * 3 + 1] = byte()[i * channels + 1];
         output.byte()[i * 3 + 2] = byte()[i * channels + 2];
     }
-}
-
-GImage GImage::stripAlpha() const {
-    GImage out(width, height, 3);
-
-    stripAlpha(out);
-
-    return out;
 }
 
 

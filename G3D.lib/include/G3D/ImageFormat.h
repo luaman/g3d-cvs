@@ -152,7 +152,8 @@ public:
     /** Amount of CPU memory per pixel when packed into an array, discounting any end-of-row padding. */
     int                 cpuBitsPerPixel;
 
-    /** Amount of CPU memory per pixel when packed into an array, discounting any end-of-row padding. @deprecated Use cpuBitsPerPixel*/
+    /** Amount of CPU memory per pixel when packed into an array, discounting any end-of-row padding. 
+     @deprecated Use cpuBitsPerPixel*/
     int                 packedBitsPerTexel;
     
     /**

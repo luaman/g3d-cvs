@@ -420,7 +420,7 @@ Vector3 ThirdPersonManipulator::singleAxisTranslationDrag(int a, const Vector2& 
     // Divide by squared length since we not only normalize but need to take into
     // account the angular foreshortening.
     float distance = vec.dot(delta) / length2;
-    return m_controlFrame.rotation.getColumn(a) * distance;
+    return m_controlFrame.rotation.column(a) * distance;
 }
 
 
@@ -448,8 +448,8 @@ Vector3 ThirdPersonManipulator::doubleAxisTranslationDrag(int a0, int a1, const 
     float distance0 = dot[0] - common;
     float distance1 = dot[1] - common;
 
-    return m_controlFrame.rotation.getColumn(a0) * distance0 + 
-           m_controlFrame.rotation.getColumn(a1) * distance1;
+    return m_controlFrame.rotation.column(a0) * distance0 + 
+           m_controlFrame.rotation.column(a1) * distance1;
 }
 
 

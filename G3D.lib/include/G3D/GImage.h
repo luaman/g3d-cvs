@@ -297,8 +297,6 @@ public:
      */ 
      void insertRedAsAlpha(const GImage& alpha, GImage& output) const;
 
-     GImage G3D_DEPRECATED insertRedAsAlpha(const GImage& alpha) const;
-
     /**
      Returns a new GImage with 3 channels, removing
      the alpha channel if there is one. The new GImage
@@ -306,12 +304,10 @@ public:
      */
      void stripAlpha(GImage& output) const;
 
-     GImage G3D_DEPRECATED stripAlpha() const;
-
-    /**
-     Loads an image from disk (clearing the old one first).
-     */
-    void load(
+     /**
+      Loads an image from disk (clearing the old one first).
+      */
+     void load(
         const std::string&  filename,
         Format              format = AUTODETECT);
 

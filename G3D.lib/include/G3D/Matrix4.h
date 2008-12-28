@@ -136,11 +136,6 @@ public:
     void setRow(int r, const class Vector4& v);
     void setColumn(int c, const Vector4& v);
 
-    /** @deprecated */
-    Vector4 getRow(int r) const;
-    /** @deprecated */
-    Vector4 getColumn(int c) const;
-
     const Vector4& row(int r) const;
     Vector4 column(int c) const;
 
