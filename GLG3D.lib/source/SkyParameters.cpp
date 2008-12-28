@@ -1,7 +1,7 @@
 /*
  @file SkyParameters.cpp
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2002-10-05
  @edited  2007-12-28
  */

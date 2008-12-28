@@ -1,7 +1,7 @@
 /**
   @file GCamera.cpp
 
-  @author Morgan McGuire, matrix@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
   @author Jeff Marsceill, 08jcm@williams.edu
  
   @created 2005-07-20

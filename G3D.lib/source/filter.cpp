@@ -1,7 +1,7 @@
 /**
   @file filter.cpp
 
-  @author Morgan McGuire, matrix@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
   @created 2007-03-01
   @edited  2007-03-01
 

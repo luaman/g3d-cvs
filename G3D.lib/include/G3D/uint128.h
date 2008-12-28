@@ -1,7 +1,7 @@
 /**
  @file uint128.h
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @author Kyle Whitson
  
  @created 2008-07-17

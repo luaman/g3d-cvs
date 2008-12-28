@@ -3,14 +3,14 @@
  
  Color class
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @cite Portions based on Dave Eberly's Magic Software Library
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
  @edited  2008-07-16
 
- Copyright 2000-2008, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 

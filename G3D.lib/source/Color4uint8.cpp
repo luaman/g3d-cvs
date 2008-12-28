@@ -1,7 +1,7 @@
 /**
  @file Color4uint8.cpp
  
- @author Morgan McGuire, matrix@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
   
  @created 2003-04-07
  @edited  2006-01-07

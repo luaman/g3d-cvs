@@ -1,7 +1,7 @@
 /**
  @file LineSegment.h
   
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-02-08
  @edited  2008-02-02

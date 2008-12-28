@@ -1,7 +1,7 @@
 /**
   @file MeshAlgAdjacency.cpp
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2003-09-14
   @edited  2005-02-24
 

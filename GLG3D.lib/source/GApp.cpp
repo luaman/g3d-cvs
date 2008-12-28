@@ -1,7 +1,7 @@
 /**
  @file GApp.cpp
   
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-11-03
  @edited  2008-01-08

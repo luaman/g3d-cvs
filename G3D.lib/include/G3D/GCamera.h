@@ -1,7 +1,7 @@
 /**
   @file GCamera.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2005-07-20
   @edited  2007-07-24

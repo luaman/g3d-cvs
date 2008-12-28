@@ -7,7 +7,7 @@
   @created 2001-03-11
   @edited  2008-07-09
 
-  Copyright 2000-2008, Morgan McGuire, morgan@cs.williams.edu
+  Copyright 2000-2009, Morgan McGuire, morgan@cs.williams.edu
   All rights reserved.
  */
 

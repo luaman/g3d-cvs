@@ -1,7 +1,7 @@
 /**
  @file Crypto.cpp
 
- @author Morgan McGuire, matrix@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
 
 
  @created 2006-03-28

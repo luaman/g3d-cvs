@@ -1,7 +1,7 @@
 /**
  @file Vector3int32.cpp
  
- @author Morgan McGuire, matrix@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
   
  @created 2008-07-01
  @edited  2008-07-01

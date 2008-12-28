@@ -1,7 +1,7 @@
 /**
   @file UserInput.cpp
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2002-09-29
   @edited  2004-09-05

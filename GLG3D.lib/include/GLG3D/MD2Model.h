@@ -5,7 +5,7 @@
 
  @cite http://tfc.duke.free.fr/us/tutorials/models/md2.htm
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2003-02-21
  @edited  2005-11-20
  */

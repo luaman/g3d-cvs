@@ -1,7 +1,7 @@
 /**
  @file GaussianBlur.h
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-03-10
  @edited  2007-03-20

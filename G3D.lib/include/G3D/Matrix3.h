@@ -3,7 +3,7 @@
  
   3x3 matrix class
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @cite Portions based on Dave Eberly's Magic Software Library at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  

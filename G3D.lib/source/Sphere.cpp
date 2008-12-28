@@ -3,7 +3,7 @@
  
  Sphere class
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-04-17
  @edited  2006-02-05

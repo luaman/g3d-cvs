@@ -3,7 +3,7 @@
 
  Code for loading an MD2Model
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2003-08-07
  @edited  2006-02-24
 

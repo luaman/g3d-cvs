@@ -1,7 +1,7 @@
 /**
  @file Crypto_md5.cpp
 
- @author Morgan McGuire, matrix@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
  Copyright 2006-2007, Morgan McGuire.  All rights reserved.
 
  @created 2006-03-28

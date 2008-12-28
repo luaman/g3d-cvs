@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-04-22
   @edited  2008-07-01
-  Copyright 2000-2008, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 

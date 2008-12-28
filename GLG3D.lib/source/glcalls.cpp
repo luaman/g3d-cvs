@@ -1,7 +1,7 @@
 /**
   @file glcalls.cpp
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2002-08-07
   @edited  2006-02-01
 */

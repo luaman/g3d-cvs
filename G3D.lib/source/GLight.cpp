@@ -1,7 +1,7 @@
 /**
   @file GLight.cpp
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-12
   @edited  2007-10-22

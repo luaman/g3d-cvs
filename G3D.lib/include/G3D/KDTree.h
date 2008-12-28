@@ -1,14 +1,13 @@
 /**
   @file KDTree.h
   
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2004-01-11
-  @edited  2008-11-19
+  @edited  2009-12-28
 
-  Copyright 2000-2008, Morgan McGuire.
-  All rights reserved.
-  
+  Copyright 2000-2009, Morgan McGuire.
+  All rights reserved.  
   */
 
 #ifndef G3D_KDTREE_H

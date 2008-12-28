@@ -1,7 +1,7 @@
 /**
   @file PosedModel.cpp
   
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-15
   @edited  2007-08-25

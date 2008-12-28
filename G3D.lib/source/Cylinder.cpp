@@ -1,7 +1,7 @@
 /**
  @file Cylinder.cpp
   
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-02-07
  @edited  2006-02-18

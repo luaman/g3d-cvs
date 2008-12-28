@@ -1,7 +1,7 @@
 /**
  @file spline.h
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-07-25
  @edited  2007-05-05

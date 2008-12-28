@@ -1,7 +1,7 @@
 /**
  @file SuperShader.cpp
 
- @author Morgan McGuire, matrix@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
  */
 
 #include "GLG3D/ShadowMap.h"

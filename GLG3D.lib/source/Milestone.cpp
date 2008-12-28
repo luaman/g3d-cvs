@@ -1,7 +1,7 @@
 /**
   @file Milestone.cpp
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-08-09
   @edited  2003-08-12

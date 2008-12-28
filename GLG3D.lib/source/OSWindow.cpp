@@ -1,7 +1,7 @@
 /**
  @file OSWindow.cpp
   
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-11-16
  @edited  2007-03-16

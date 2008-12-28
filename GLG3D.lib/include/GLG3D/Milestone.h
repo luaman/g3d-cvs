@@ -1,7 +1,7 @@
 /**
   @file Milestone.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-08-09
   @edited  2006-02-09

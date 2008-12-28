@@ -1,6 +1,6 @@
 /**
  @file SuperShader.vrt
- @author Morgan McGuire, matrix@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
  @modified 2007-10-22
  */
 #ifdef CUSTOMCONSTANT

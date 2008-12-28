@@ -3,7 +3,7 @@
  
   4x4 matrix class
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2003-10-02
   @edited  2007-04-05

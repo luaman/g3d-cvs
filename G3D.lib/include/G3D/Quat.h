@@ -3,7 +3,7 @@
  
   Quaternion
   
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   
   @created 2002-01-23
   @edited  2006-05-10

@@ -1,7 +1,7 @@
 /**
  @file G3DGameUnits.cpp
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2002-10-05
  @edited  2003-11-25
  */

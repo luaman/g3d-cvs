@@ -1,7 +1,7 @@
 /**
 @file BSPMAP.cpp
 	
-@maintainer Morgan McGuire, matrix@graphics3d.com
+@maintainer Morgan McGuire, morgan@cs.williams.edu
 
 @created 2003-05-22
 @edited  2008-10-07

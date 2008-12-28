@@ -1,7 +1,7 @@
 /**
  @file Shader.h
   
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-04-25
  @edited  2007-07-04

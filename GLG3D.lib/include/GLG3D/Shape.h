@@ -1,7 +1,7 @@
 /**
   @file GLG3D/Shape.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2005-08-10
   @edited  2008-10-07

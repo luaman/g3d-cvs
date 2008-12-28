@@ -1,7 +1,7 @@
 /**
   @file IFSModel.h
   
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @cite Original IFS code by Nate Robbins
 

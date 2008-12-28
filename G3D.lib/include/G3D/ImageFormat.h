@@ -1,7 +1,7 @@
 /**
   @file ImageFormat.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-05-23
   @edited  2008-07-17

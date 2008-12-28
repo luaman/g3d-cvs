@@ -1,7 +1,7 @@
 /**
  @file stringutils.cpp
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2000-09-09
  @edited  2008-01-10

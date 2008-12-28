@@ -1,7 +1,7 @@
 /** 
   @file System.cpp
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   Note: every routine must call init() first.
 

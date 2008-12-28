@@ -1,7 +1,7 @@
 /**
   @file Texture.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-02-28
   @edited  2008-10-13

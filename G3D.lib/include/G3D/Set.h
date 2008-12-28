@@ -3,7 +3,7 @@
 
   Hash set
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-12-09
   @edited  2006-02-20

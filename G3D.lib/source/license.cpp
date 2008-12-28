@@ -24,7 +24,7 @@ std::string license() {
 "%s"
 "This program uses the G3D Library (http://g3d-cpp.sf.net), which\n"
 "is licensed under the \"BSD\" Open Source license.  The Graphics3D library\n"
-"source code is Copyright © 2000-2008, Morgan McGuire, All rights reserved.\n"
+"source code is Copyright © 2000-2009, Morgan McGuire, All rights reserved.\n"
 "The BSD license requires the following statement regarding G3D:\n"
 "\n"
 "Redistribution and use in source and binary forms, with or without\n"

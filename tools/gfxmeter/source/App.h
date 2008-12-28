@@ -1,7 +1,7 @@
 /**
   @file gfxmeter/App.h
 
-  @author Morgan McGuire, matrix@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
  */
 #ifndef APP_H
 #define APP_H

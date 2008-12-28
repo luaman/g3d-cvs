@@ -1,11 +1,11 @@
 /**
  @file Lighting.h
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2002-10-05
  @edited  2007-12-05
 
- Copyright 2000-2008, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 #ifndef G3D_LIGHTING_H

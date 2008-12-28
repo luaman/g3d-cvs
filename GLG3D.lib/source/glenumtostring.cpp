@@ -1,7 +1,7 @@
 /**
   @file glenumtostring.cpp
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @cite       Written by Seth Block
   @created 2001-08-05
   @edited  2004-05-31

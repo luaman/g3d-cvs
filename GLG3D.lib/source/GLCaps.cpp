@@ -1,7 +1,7 @@
 /**
   @file GLCaps.cpp
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2004-03-28
   @edited  2006-08-10
 */

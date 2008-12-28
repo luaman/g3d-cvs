@@ -1,6 +1,6 @@
 /**
  @file BinaryFormat.h
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @author  2005-06-03
  @edited  2005-06-03

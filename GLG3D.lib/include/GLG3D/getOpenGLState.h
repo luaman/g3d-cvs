@@ -1,7 +1,7 @@
 /**
   @file getOpenGLState.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @cite       Created by Morgan McGuire & Seth Block
   @created 2001-08-05
   @edited  2006-02-07

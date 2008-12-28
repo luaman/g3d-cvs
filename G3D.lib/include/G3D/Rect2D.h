@@ -1,12 +1,12 @@
 /**
   @file Rect2D.h
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2003-11-13
   @created 2008-11-16
 
-  Copyright 2000-2008, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 

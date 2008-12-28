@@ -6,7 +6,7 @@
   This requires OpenGL and SDL headers.  If you don't want all of this,
   #include <G3D.h> separately.
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2002-01-01
   @edited  2006-08-13

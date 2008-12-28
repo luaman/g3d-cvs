@@ -3,7 +3,7 @@
 
  #includes the OpenGL headers
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
  @edited  2007-06-01

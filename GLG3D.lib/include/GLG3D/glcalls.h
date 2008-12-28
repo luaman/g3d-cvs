@@ -3,7 +3,7 @@
 
  Maps OpenGL calls to G3D data types
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
  @edited  2008-07-14

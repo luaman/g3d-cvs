@@ -1,7 +1,7 @@
 /**
  @file Vector4.cpp
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
   
  @created 2001-07-09
  @edited  2007-02-29

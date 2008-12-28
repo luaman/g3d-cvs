@@ -1,7 +1,7 @@
 /**
  @file Plane.cpp
  
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-02-06
  @edited  2006-01-29

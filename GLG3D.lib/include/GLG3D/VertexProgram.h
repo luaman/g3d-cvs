@@ -1,7 +1,7 @@
 /**
   @file VertexProgram.h
 
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-04-10
   @edited  2004-04-25

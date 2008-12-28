@@ -1,7 +1,7 @@
 /**
   @file VideoRecordDialog.cpp
   
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2008-10-18
   @edited  2008-10-22

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 /**
   @file ShadowMappedLightPass.glsl.frg
-  @author Morgan McGuire matrix@graphics3d.com
+  @author Morgan McGuire morgan@cs.williams.edu
 
   For use with G3D::SuperShader.
   @edited 2007-12-18

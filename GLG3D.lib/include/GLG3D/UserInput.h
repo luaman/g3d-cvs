@@ -1,7 +1,7 @@
 /**
   @file UserInput.h
  
-  @maintainer Morgan McGuire, matrix@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2002-09-28
   @edited  2006-10-20

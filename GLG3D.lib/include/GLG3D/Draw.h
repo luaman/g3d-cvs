@@ -1,7 +1,7 @@
 /**
  @file Draw.h
   
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-10-29
  @edited  2007-10-21
