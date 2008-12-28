@@ -1522,6 +1522,16 @@ public:
     }
 
 
+    /** If a value that is EqualsFunc to @a value is present, returns a pointer to the 
+        version stored in the data structure, otherwise returns NULL.
+     */
+    const Key* getPointer(const T& value) const {
+        // Temporarily create a handle and member
+        Handle h(value);
+        return memberTable.getKeyPointer(Member(&h));
+    }
+
+
     /**
      C++ STL style iterator variable.  See begin().
      Overloads the -> (dereference) operator, so this acts like a pointer
