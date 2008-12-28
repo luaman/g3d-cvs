@@ -21,14 +21,16 @@ def createDoxyfile(state):
 
     # TODO: excludes
     propertyMapping = {
-    "PROJECT_NAME"            : '"' + state.projectName.capitalize() + '"',
-    "OUTPUT_DIRECTORY"        : '"' + pathConcat(state.buildDir, 'doc') + '"',
-    "EXTRACT_ALL"             : "YES",
-    "STRIP_FROM_PATH"         : '"' + state.rootDir + '"',
-    "TAB_SIZE"                : "4",
-    "HTML_OUTPUT"             : '"./"',
-    "GENERATE_LATEX"          : "NO",
-    "RECURSIVE"               : "YES",
+    'PROJECT_NAME'            : '"' + state.projectName.capitalize() + '"',
+    'OUTPUT_DIRECTORY'        : '"' + pathConcat(state.buildDir, 'doc') + '"',
+    'EXTRACT_ALL'             : "YES",
+    'STRIP_FROM_PATH'         : '"' + state.rootDir + '"',
+    'TAB_SIZE'                : "4",
+    'HTML_OUTPUT'             : '"./"',
+    'GENERATE_LATEX'          : 'NO',
+    'RECURSIVE'               : 'YES',
+    'SORT_BRIEF_DOCS'         : 'YES',
+    'JAVADOC_AUTOBRIEF'       : 'YES',
     "ALIASES"                 : ('"cite=\par Referenced Code:\\n " ' +
                                  '"created=\par Created:\\n" ' +
                                  '"edited=\par Last modified:\\n" ' + 
