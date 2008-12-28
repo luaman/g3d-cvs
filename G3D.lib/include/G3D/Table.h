@@ -615,7 +615,7 @@ public:
    /** If @a member is present, sets @a removed to the element
     being removed and returns true.  Otherwise returns false
     and does not write to @a removed. */
-    bool getRemove(const Key& member, Key& removedKey, Value& removedValue) {
+    bool getRemove(const Key& key, Key& removedKey, Value& removedValue) {
        return remove(key, removedKey, removedValue, true);
     }
 
