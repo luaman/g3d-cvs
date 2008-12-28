@@ -1528,7 +1528,13 @@ public:
     const T* getPointer(const T& value) const {
         // Temporarily create a handle and member
         Handle h(value);
-        return memberTable.getKeyPointer(Member(&h));
+        Member* member = memberTable.getKeyPointer(Member(&h))
+        if (member == NULL) {
+            // Not found
+            return NULL;
+        } else {
+            return &(member->handle.value);
+        }
     }
 
 
