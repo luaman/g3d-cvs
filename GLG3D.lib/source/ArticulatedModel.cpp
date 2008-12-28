@@ -131,7 +131,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
         // Scale and rotate the cframe positions, but do not translate them
         part.cframe.translation = R * part.cframe.translation;
 
-        debugAssert(R.getColumn(0).isFinite());
+        debugAssert(R.column(0).isFinite());
 
         part.name = name;
         partNameToIndex.set(part.name, p);
