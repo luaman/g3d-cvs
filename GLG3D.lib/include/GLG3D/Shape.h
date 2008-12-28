@@ -19,7 +19,7 @@
 #include "G3D/Capsule.h"
 #include "G3D/Color4.h"
 #include "G3D/Box.h"
-#include "G3D/AABSPTree.h"
+#include "G3D/KDTree.h"
 
 namespace G3D {
 

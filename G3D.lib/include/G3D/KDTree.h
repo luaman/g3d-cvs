@@ -1,5 +1,5 @@
 /**
-  @file AABSPTree.h
+  @file KDTree.h
   
   @maintainer Morgan McGuire, matrix@graphics3d.com
  

@@ -507,10 +507,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\G3D.lib\include\G3D\AABSPTree.h"
-				>
-			</File>
-			<File
 				RelativePath="..\G3D.lib\include\G3D\AnyVal.h"
 				>
 			</File>
@@ -699,6 +695,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\KDTree.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Line.h"
 				>
 			</File>
@@ -759,15 +759,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\G3D.lib\include\G3D\PointAABSPTree.h"
-				>
-			</File>
-			<File
 				RelativePath="..\G3D.lib\include\G3D\Pointer.h"
 				>
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\PointHashGrid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\PointKDTree.h"
 				>
 			</File>
 			<File
