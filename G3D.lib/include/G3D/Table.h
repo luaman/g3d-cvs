@@ -652,7 +652,7 @@ public:
     /** If a value that is EqualsFunc to @a member is present, returns a pointer to the 
         version stored in the data structure, otherwise returns NULL.
      */
-   const Key* getKeyPointer(const Key& key) {
+   const Key* getKeyPointer(const Key& key) const {
        Entry* e = getEntryPointer(key);
        if (e == NULL) {
            return NULL;
