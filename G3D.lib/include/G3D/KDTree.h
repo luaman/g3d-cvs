@@ -1527,12 +1527,12 @@ public:
     const T* getPointer(const T& value) const {
         // Temporarily create a handle and member
         Handle h(value);
-        Member* member = memberTable.getKeyPointer(Member(&h))
+        const Member* member = memberTable.getKeyPointer(Member(&h));
         if (member == NULL) {
             // Not found
             return NULL;
         } else {
-            return &(member->handle.value);
+            return &(member->handle->value);
         }
     }
 

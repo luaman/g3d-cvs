@@ -653,11 +653,11 @@ public:
         version stored in the data structure, otherwise returns NULL.
      */
    const Key* getKeyPointer(const Key& key) const {
-       Entry* e = getEntryPointer(key);
+       const Entry* e = getEntryPointer(key);
        if (e == NULL) {
            return NULL;
        } else {
-           return e->key;
+           return &(e->key);
        }
    }
 

@@ -19,6 +19,8 @@ public:
     VideoOutput::Ref    video;
 	ArticulatedModelRef model;
 
+    KDTree<Triangle>    kd;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -46,6 +48,8 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 
 void App::onInit() {
+
+    kd.getPointer(Triangle());//TODO: remove
 
     setDesiredFrameRate(500);
 
