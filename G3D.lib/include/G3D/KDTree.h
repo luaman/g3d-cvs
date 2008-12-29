@@ -536,7 +536,7 @@ protected:
         void getIntersectingMembers(
             const AABox&        box,
             const Sphere&       sphere,
-            Array<T>&           members,
+            Array<T*>&          members,
             bool                useSphere) const {
 
             // Test all values at this node
@@ -544,7 +544,7 @@ protected:
                 const AABox& bounds = boundsArray[v];
                 if (bounds.intersects(box) &&
                     (! useSphere || bounds.intersects(sphere))) {
-                    members.append(valueArray[v]->value);
+                    members.append(& (valueArray[v]->value));
                 }
             }
 
@@ -1137,7 +1137,7 @@ protected:
      */
     static void getIntersectingMembers(
         const Array<Plane>&         plane,
-        Array<T>&                   members,
+        Array<T*>&                  members,
         Node*                       node,
         uint32                      parentMask) {
 
@@ -1146,7 +1146,7 @@ protected:
         if (parentMask == 0) {
             // None of these planes can cull anything
             for (int v = node->valueArray.size() - 1; v >= 0; --v) {
-                members.append(node->valueArray[v]->value);
+                members.append(& (node->valueArray[v]->value));
             }
 
             // Iterate through child nodes
@@ -1160,7 +1160,7 @@ protected:
             // Test values at this node against remaining planes
             for (int v = node->boundsArray.size() - 1; v >= 0; --v) {
                 if (! node->boundsArray[v].culledBy(plane, dummy, parentMask)) {
-                    members.append(node->valueArray[v]->value);
+                    members.append(&(node->valueArray[v]->value));
                 }
             }
 
@@ -1183,12 +1183,20 @@ public:
      Returns all members inside the set of planes.  
       @param members The results are appended to this array.
      */
-    void getIntersectingMembers(const Array<Plane>& plane, Array<T>& members) const {
+    void getIntersectingMembers(const Array<Plane>& plane, Array<T*>& members) const {
         if (root == NULL) {
             return;
         }
 
         getIntersectingMembers(plane, members, root, 0xFFFFFF);
+    }
+
+    void getIntersectingMembers(const Array<Plane>& plane, Array<T>& members) const {
+        Array<T*> temp;
+        getIntersectingMembers(plane, members, root, 0xFFFFFF);
+        for (int i = 0; i < temp.size(); ++i) {
+            members.append(*temp[i]);
+        }
     }
 
     /**
@@ -1204,7 +1212,7 @@ public:
       </PRE>
       @param members The results are appended to this array.
       */
-    void getIntersectingMembers(const GCamera::Frustum& frustum, Array<T>& members) const {
+    void getIntersectingMembers(const GCamera::Frustum& frustum, Array<T*>& members) const {
         Array<Plane> plane;
         
         for (int i = 0; i < frustum.faceArray.size(); ++i) {
@@ -1212,6 +1220,14 @@ public:
         }
 
         getIntersectingMembers(plane, members);
+    }
+
+    void getIntersectingMembers(const GCamera::Frustum& frustum, Array<T>& members) const {
+        Array<T*> temp;
+        getIntersectingMembers(frustum, temp);
+        for (int i = 0; i < temp.size(); ++i) {
+            members.append(*temp[i]);
+        }
     }
 
     /**
@@ -1354,7 +1370,8 @@ public:
 
     private:
         /**
-         Post increment (much slower than preincrement!).  Intentionally overloaded to preclude accidentally slow code.
+         Post increment (much slower than preincrement!).
+         Intentionally overloaded to preclude accidentally slow code.
          */
         BoxIntersectionIterator operator++(int);
         /*{
@@ -1404,11 +1421,19 @@ public:
      Appends all members whose bounds intersect the box.
      See also KDTree::beginBoxIntersection.
      */
-    void getIntersectingMembers(const AABox& box, Array<T>& members) const {
+    void getIntersectingMembers(const AABox& box, Array<T*>& members) const {
         if (root == NULL) {
             return;
         }
         root->getIntersectingMembers(box, Sphere(Vector3::zero(), 0), members, false);
+    }
+
+    void getIntersectingMembers(const AABox& box, Array<T>& members) const {
+        Array<T*> temp;
+        getIntersectingMembers(box, temp);
+        for (int i = 0; i < temp.size(); ++i) {
+            members.append(*temp[i]);
+        }
     }
 
 
@@ -1417,13 +1442,13 @@ public:
 
      @param callback either a function or an instance of a class with an overloaded operator() of the form:
              
-            <code>void callback(const Ray& ray, const T& object, float& distance)</code>.  If the ray hits the object
-            before travelling distance <code>distance</code>, updates <code>distance</code> with the new distance to
-            the intersection, otherwise leaves it unmodified.  A common example is:
+     <code>void callback(const Ray& ray, const T& object, float& distance)</code>.  If the ray hits the object
+     before travelling distance <code>distance</code>, updates <code>distance</code> with the new distance to
+     the intersection, otherwise leaves it unmodified.  A common example is:
 
-            <pre>
-            class Entity {
-            public:
+     <pre>
+     class Entity {
+     public:
 
                 void intersect(const Ray& ray, float& maxDist, Vector3& outLocation, Vector3& outNormal) {
                     float d = maxDist;
@@ -1459,11 +1484,15 @@ public:
           </pre>
 
 
-     @param distance When the method is invoked, this is the maximum distance that the tree should search for an intersection.
-     On return, this is set to the distance to the first intersection encountered.
+     @param distance When the method is invoked, this is the maximum
+     distance that the tree should search for an intersection.  On
+     return, this is set to the distance to the first intersection
+     encountered.
 
-     @param intersectCallbackIsFast  If false, each object's bounds are tested before the intersectCallback is invoked.
-      If the intersect callback runs at the same speed or faster than AABox-ray intersection, set this to true.
+     @param intersectCallbackIsFast If false, each object's bounds are
+      tested before the intersectCallback is invoked.  If the
+      intersect callback runs at the same speed or faster than
+      AABox-ray intersection, set this to true.
      */
     template<typename RayCallback>
     void intersectRay(
@@ -1473,7 +1502,6 @@ public:
         bool intersectCallbackIsFast = false) const {
         
         root->intersectRay(ray, intersectCallback, distance, intersectCallbackIsFast);
-
     }
 
 
@@ -1483,7 +1511,7 @@ public:
 
       @param members The results are appended to this array.
      */
-    void getIntersectingMembers(const Sphere& sphere, Array<T>& members) const {
+    void getIntersectingMembers(const Sphere& sphere, Array<T*>& members) const {
         if (root == NULL) {
             return;
         }
@@ -1491,7 +1519,14 @@ public:
         AABox box;
         sphere.getBounds(box);
         root->getIntersectingMembers(box, sphere, members, true);
+    }
 
+    void getIntersectingMembers(const Sphere& sphere, Array<T>& members) const {
+        Array<T*> temp;
+        getIntersectingMembers(sphere, temp);
+        for (int i = 0; i < temp.size(); ++i) {
+            members.append(*temp[i]);
+        }
     }
 
     /**
