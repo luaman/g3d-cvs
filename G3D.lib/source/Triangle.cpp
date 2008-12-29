@@ -1,12 +1,12 @@
 /**
  @file Triangle.cpp
  
- @maintainer Morgan McGuire, graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-04-06
- @edited  2006-01-20
+ @edited  2008-12-28
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
@@ -17,6 +17,7 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/debugAssert.h"
 #include "G3D/AABox.h"
+#include "G3D/Ray.h"
 
 namespace G3D {
 
@@ -130,6 +131,56 @@ void Triangle::getBounds(AABox& out) const {
     }
 
     out = AABox(lo, hi);
+}
+
+
+bool Triangle::intersect(const Ray& ray, float& distance, float baryCoord[3]) const {
+    static const float EPS = 1e-5f;
+
+    // See RTR2 ch. 13.7 for the algorithm.
+
+    const Vector3& e1 = edge01();
+    const Vector3& e2 = edge02();
+    const Vector3 p(ray.direction.cross(e2));
+    const float a = e1.dot(p);
+
+    if (abs(a) < EPS) {
+        // Determinant is ill-conditioned; abort early
+        return false;
+    }
+
+    const float f = 1.0f / a;
+    const Vector3 s(ray.origin - vertex(0));
+    const float u = f * s.dot(p);
+
+    if ((u < 0.0f) || (u > 1.0f)) {
+        // We hit the plane of the m_geometry, but outside the m_geometry
+        return false;
+    }
+
+    const Vector3 q(s.cross(e1));
+    const float v = f * ray.direction.dot(q);
+
+    if ((v < 0.0f) || ((u + v) > 1.0f)) {
+        // We hit the plane of the triangle, but outside the triangle
+        return false;
+    }
+
+    const float t = f * e2.dot(q);
+
+    if ((t > 0.0f) && (t < distance)) {
+        // This is a new hit, closer than the previous one
+        distance = t;
+
+        baryCoord[0] = 1.0 - u - v;
+        baryCoord[1] = u;
+        baryCoord[2] = v;
+
+        return true;
+    } else {
+        // This hit is after the previous hit, so ignore it
+        return false;
+    }
 }
 
 } // G3D

@@ -127,6 +127,21 @@ public:
 
     void getBounds(class AABox&) const;
 
+    /**
+       @brief Intersect the ray at distance less than @a distance.
+
+       @param distance Set to the maximum distance (can be G3D::inf())
+       to search for an intersection.  On return, this is the smaller
+       of the distance to the intersection, if one exists, and the original
+       value.
+       
+       @param baryCoord  If a triangle is hit before @a distance, a
+       the barycentric coordinates of the hit location on the triangle.
+       Otherwise, unmodified.
+
+       @return True if there was an intersection before the original distance.
+     */
+    bool intersect(const class Ray& ray, float& distance, float baryCoord[3]) const;
 };
 
 } // namespace G3D
