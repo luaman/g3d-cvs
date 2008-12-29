@@ -10,11 +10,12 @@
   and comments by Max McGuire.  Ray-sphere intersection by Eric Haines.
   Box-Box intersection written by Kevin Egan.
   Thanks to Max McGuire of Iron Lore for various bug fixes.
+  Box-Triangle by Tomas Akenine-Moller
 
   @created 2001-11-19
-  @edited  2006-01-10
+  @edited  2008-12-19
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 
@@ -77,7 +78,7 @@ namespace G3D {
   <tr><td><b>Sphere</b></td><td>Sphere::contains</td><td></td><td></td><td></td><td></td><td></td><td></td><td bgcolor=#C0C0C0 colspan=4 ></td></tr>
   <tr><td><b>Cylinder</b></td><td>Cylinder::contains</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td bgcolor=#C0C0C0 colspan=3 ></td></tr>
   <tr><td><b>Capsule</b></td><td>Capsule::contains</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td bgcolor=#C0C0C0 colspan=2 ></td></tr>
-  <tr><td><b>AABox</b></td><td>AABox::contains</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td bgcolor=#C0C0C0 colspan=1 ></td></tr>
+  <tr><td><b>AABox</b></td><td>AABox::contains</td><td></td><td></td><td></td><td></td><td>CollisionDetection::fixedSolidBoxIntersectsFixedTriangle</td><td></td><td></td><td></td><td></td><td bgcolor=#C0C0C0 colspan=1 ></td></tr>
   <tr><td><b>Box</b></td><td>Box::contains</td><td>(treat as Ray)</td><td>CollisionDetection::collisionTimeForMovingPointFixedBox</td><td>(treat as Ray)</td><td>CollisionDetection::penetrationDepthForFixedBoxFixedPlane</td><td>CollisionDetection::penetrationDepthForFixedBoxFixedPlane</td><td>CollisionDetection::penetrationDepthForFixedSphereFixedBox</td><td>None (use OPCODE)</td><td>CollisionDetection::movingSpherePassesThroughFixedBox</td><td>CollisionDetection::penetrationDepthForFixedBoxFixedBox</td><td>CollisionDetection::penetrationDepthForFixedBoxFixedBox</td></tr>
   </table>
 
@@ -1107,6 +1108,10 @@ public:
 
     static bool fixedSolidSphereIntersectsFixedTriangle(
         const Sphere&           sphere,
+        const Triangle&         triangle);
+
+    static bool fixedSolidBoxIntersectsFixedTriangle(
+        const AABox&            box, 
         const Triangle&         triangle);
 
     /**
