@@ -117,6 +117,10 @@ public:
             return !(*this == other);
         }
 
+        bool hasMore() const {
+            return it.hasMore();
+        }
+        
         bool operator==(const Iterator& other) const {
             return it == other.it;
         }
