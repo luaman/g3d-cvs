@@ -1193,7 +1193,7 @@ public:
 
     void getIntersectingMembers(const Array<Plane>& plane, Array<T>& members) const {
         Array<T*> temp;
-        getIntersectingMembers(plane, members, root, 0xFFFFFF);
+        getIntersectingMembers(plane, temp, root, 0xFFFFFF);
         for (int i = 0; i < temp.size(); ++i) {
             members.append(*temp[i]);
         }
