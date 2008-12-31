@@ -10,7 +10,8 @@
 #ifndef G3D_Discovery_h
 #define G3D_Discovery_h
 
-#include <string.h>
+#include <cstring>
+#include <climits>
 #include "G3D/NetAddress.h"
 #include "G3D/NetworkDevice.h"
 #include "GLG3D/Widget.h"
