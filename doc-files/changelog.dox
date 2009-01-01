@@ -17,6 +17,7 @@
      <li> G3D::Set::getRemove, G3D::Table::getRemove
      <li> G3D::Set now allows HashFunc and EqualsFunc to be specified
      <li> G3D::Box2D
+     <li> G3D::CollisionDetection::collisionTimeForMovingSphereFixedSphere now handles the case where the spheres initially interpenetrate
      <li> Changed G3D::ArticulatedModel to use a VAR index array (up to 80% reduction in GPU load for large models)
      <li> Changed G3D::ArticulatedModel to use interleaved VAR (up to 4x fps speedup for vertex-bound models)
      <li> Interleaved arrays in G3D::VAR

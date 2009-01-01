@@ -930,7 +930,19 @@ float CollisionDetection::collisionTimeForMovingSphereFixedSphere(
     Vector3&        location,
     Vector3&        outNormal) {
 
-    double time = collisionTimeForMovingPointFixedSphere(movingSphere.center, velocity, Sphere(fixedSphere.center, fixedSphere.radius + movingSphere.radius), location, outNormal);
+    const Vector3& sep = (fixedSphere.center - movingSphere.center);
+    float sepLen = sep.squaredLength();
+    if (sepLen < square(movingSphere.radius + fixedSphere.radius)) {
+        // Interpenetrating
+        outNormal   = sep.directionOrZero();
+        location = fixedSphere.center - outNormal * fixedSphere.radius;
+        return 0;
+    }
+
+    float time = collisionTimeForMovingPointFixedSphere
+        (movingSphere.center, velocity, 
+         Sphere(fixedSphere.center, fixedSphere.radius + movingSphere.radius), 
+         location, outNormal);
 
     if (time < inf()) {
         // Location is now the center of the moving sphere at the collision time.

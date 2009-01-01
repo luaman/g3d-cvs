@@ -829,29 +829,29 @@ public:
         Vector3&				outLocation,
         Vector3&                outNormal = ignore);
 
-    /**
-	 Calculates time between the intersection of a moving sphere and a fixed
-	 sphere.
+    /** Calculates time between the intersection of a moving sphere
+        and a fixed sphere. 
 
-	 @note This won't detect a collision if the sphere is already interpenetrating
-	       the fixed sphere.
-
-	 @param movingSphere	Moving sphere.
-	 @param velocity		Sphere's velocity.
-	 @param fixedSphere		Fixed Sphere.
-	 @param location		Location of collision -- not center position of sphere
-	 						at the collision time. [Post Condition]
-	 @param outNormal		Sphere's surface normal to collision [Post Condition]
-
-	 @return Time til collision.  If there is no collision then the return
-	         value will be inf().
- 	*/
-	static float collisionTimeForMovingSphereFixedSphere(
-		const class Sphere&		sphere,
-		const Vector3&		    velocity,
-		const class Sphere&	    fixedSphere,
-        Vector3&				outLocation,
-        Vector3&                outNormal = ignore);
+        If they are already interpenetrating, returns 0 and @a
+        location is the closest point on the surface of the fixed sphere
+        to the center of the moving sphere.
+        
+        @param movingSphere	Moving sphere.
+        @param velocity         Sphere's velocity.
+        @param fixedSphere	Fixed Sphere.
+        @param location	        Location of collision -- not center position of sphere
+        at the collision time. [Post Condition]
+        @param outNormal	Moving sphere's surface normal to collision [Post Condition]
+        
+        @return Time until collision.  If there is no collision then the return
+        value will be inf().
+    */
+    static float collisionTimeForMovingSphereFixedSphere
+        (const class Sphere&	 sphere,
+         const Vector3&		 velocity,
+         const class Sphere&	 fixedSphere,
+         Vector3&	         outLocation,
+         Vector3&                outNormal = ignore);
 
     /**
 	 Calculates time between the intersection of a moving sphere and a fixed
