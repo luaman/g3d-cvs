@@ -318,6 +318,16 @@ public:
     inline ReferenceCountedPointer(T* p) : m_pointer(NULL) { 
         setPointer(p); 
     }
+
+    /** To allow downcast to work on const references */
+    inline ReferenceCountedPointer(const T* p) : m_pointer(NULL) { 
+        setPointer(const_cast<T*>(p)); 
+    }
+
+    inline ReferenceCountedPointer(int null) : m_pointer(NULL) { 
+        debugAssert((void*)null == NULL);
+        setPointer(NULL); 
+    }
     
     inline ~ReferenceCountedPointer() {
         zeroPointer();
@@ -436,11 +446,9 @@ public:
 
 private:
 
-    /** 
-        Thread issues: safe because this is only called when another
+    /** Thread issues: safe because this is only called when another
         object is guaranteed to keep p alive for the duration of this
-        call.
-     */
+        call. */
     void setPointer(T* p) {
         // TODO: must prevent the object from being collected while in
         // this method
