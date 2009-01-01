@@ -8,7 +8,7 @@
  @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
  
  @created 2001-06-02
- @edited  2006-01-30
+ @edited  2009-01-01
  */
 
 #include <limits>
@@ -24,11 +24,13 @@
 #include "G3D/Matrix3.h"
 #include "G3D/Vector2.h"
 #include "G3D/Vector4int8.h"
+#include "G3D/Vector3int32.h"
  
 namespace G3D {
 
 Vector3 Vector3::dummy;
 
+Vector3::Vector3(const class Vector3int32& v) : x((float)v.x), y((float)v.y), z((float)v.z) {}
 
 Vector3::Vector3(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f) {}
 

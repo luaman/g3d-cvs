@@ -43,6 +43,7 @@ class Vector2;
 class Vector3;
 class Vector4;
 class Vector4int8;
+class Vector3int32;
 
 /**
   <B>Swizzles</B>
@@ -97,6 +98,7 @@ public:
 
     /** Divides by 127 */
     Vector3(const Vector4int8&);
+    Vector3(const class Vector3int32& v);
     explicit Vector3(class BinaryInput& b);
     Vector3(float _x, float _y, float _z);
     explicit Vector3(const class Vector2& v, float _z);
