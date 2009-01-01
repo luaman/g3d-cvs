@@ -17,16 +17,22 @@
      <li> G3D::Set::getRemove, G3D::Table::getRemove
      <li> G3D::Set now allows HashFunc and EqualsFunc to be specified
      <li> G3D::Box2D
-     <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
-     <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
      <li> Changed G3D::ArticulatedModel to use a VAR index array (up to 80% reduction in GPU load for large models)
      <li> Changed G3D::ArticulatedModel to use interleaved VAR (up to 4x fps speedup for vertex-bound models)
      <li> Interleaved arrays in G3D::VAR
      <li> Extended G3D::VARArea to support index arrays
      <li> Tweaked StopWatch smoothing constants to reduce number flickering
-     <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
      <li> isIntFormat() macro
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards [Corey]
+   </ul>
+
+   <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
+
+   <ul>
+     <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
+     <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
+     <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
+     <li> GApp::onLogic -> GApp::onAI, Widget::onLogic -> Widget::onAI
    </ul>
 
 <hr>

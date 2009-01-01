@@ -574,7 +574,7 @@ protected:
        AI code, for example.  Called after onNetwork and onUserInput,
        before onSimulation.
     */
-    virtual void onLogic() {}
+    virtual void onAI() {}
 
     
     /**

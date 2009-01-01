@@ -172,7 +172,7 @@ void VideoRecordDialog::onPose (Array<PosedModelRef> &posedArray, Array< PosedMo
 }
 
 
-void VideoRecordDialog::onLogic () {
+void VideoRecordDialog::onAI () {
     if (m_framesBox) {
         m_framesBox->setEnabled(m_enableMotionBlur);
     }

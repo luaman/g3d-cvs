@@ -170,7 +170,7 @@ public:
 
     virtual void onPose (Array<PosedModelRef> &posedArray, Array< PosedModel2DRef > &posed2DArray);
 
-    virtual void onLogic();
+    virtual void onAI();
     virtual bool onEvent(const GEvent& event);
 };
 

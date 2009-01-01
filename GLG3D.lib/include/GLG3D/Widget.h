@@ -86,7 +86,7 @@ public:
 
     virtual void onNetwork() {}
 
-    virtual void onLogic() {}
+    virtual void onAI() {}
 
     /** Returns the operating system window that is currently
         rendering this Widget. */
@@ -241,7 +241,7 @@ public:
 
     virtual void onNetwork();
 
-    virtual void onLogic();
+    virtual void onAI();
 
     virtual OSWindow* window() const;
 };

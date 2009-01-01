@@ -77,7 +77,7 @@ public:
 
     virtual bool onEvent (const GEvent &event) { return false; }
 
-    virtual void onLogic () {}
+    virtual void onAI () {}
 
     virtual void onNetwork () {}
 

@@ -24,7 +24,7 @@ public:
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
-    virtual void onLogic();
+    virtual void onAI();
     virtual void onNetwork();
     virtual bool onEvent(const GEvent& e) {
         /*
@@ -73,7 +73,7 @@ void App::onCleanup() {
     // here instead of in the constructor so that exceptions can be caught
 }
 
-void App::onLogic() {
+void App::onAI() {
     // Add non-simulation game logic and AI code here
     
 }
@@ -154,9 +154,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
 G3D_START_AT_MAIN();
 
-
-
 int main(int argc, char** argv) {
+
 /*
     RenderDevice* rd = new RenderDevice();
     rd->init();

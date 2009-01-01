@@ -246,8 +246,8 @@ void WidgetManager::onNetwork() {
     ITERATOR(m_moduleArray[i]->onNetwork());
 }
 
-void WidgetManager::onLogic() {
-    ITERATOR(m_moduleArray[i]->onLogic());
+void WidgetManager::onAI() {
+    ITERATOR(m_moduleArray[i]->onAI());
 }
 
 #undef ITERATOR

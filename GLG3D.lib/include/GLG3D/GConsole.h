@@ -309,7 +309,7 @@ public:
 
     virtual void onNetwork();
     
-    virtual void onLogic();
+    virtual void onAI();
 
     virtual void onUserInput(UserInput* ui);
 

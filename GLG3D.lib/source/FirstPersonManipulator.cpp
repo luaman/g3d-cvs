@@ -206,7 +206,7 @@ void FirstPersonManipulator::onNetwork() {
 }
 
 
-void FirstPersonManipulator::onLogic() {
+void FirstPersonManipulator::onAI() {
 }
 
 

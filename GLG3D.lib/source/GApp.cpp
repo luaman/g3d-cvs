@@ -500,8 +500,8 @@ void GApp::oneFrame() {
     // Logic
     m_logicWatch.tick();
     {
-        onLogic();
-        m_widgetManager->onLogic();
+        onAI();
+        m_widgetManager->onAI();
     }
     m_logicWatch.tock();
 

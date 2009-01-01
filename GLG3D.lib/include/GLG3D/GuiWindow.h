@@ -342,7 +342,7 @@ public:
 
     virtual bool onEvent(const GEvent& event);
 
-    virtual void onLogic() {}
+    virtual void onAI() {}
 
     virtual void onNetwork() {}
 

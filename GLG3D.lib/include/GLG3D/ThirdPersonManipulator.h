@@ -366,7 +366,7 @@ public:
 
     virtual void onNetwork();
 
-    virtual void onLogic();
+    virtual void onAI();
 };
 
 }

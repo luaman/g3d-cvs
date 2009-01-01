@@ -735,7 +735,7 @@ void ThirdPersonManipulator::onNetwork() {
 }
 
 
-void ThirdPersonManipulator::onLogic() {
+void ThirdPersonManipulator::onAI() {
 }
 
 }

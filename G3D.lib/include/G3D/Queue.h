@@ -1,10 +1,10 @@
 /** 
   @file Queue.h
  
-  @maintainer Morgan McGuire, graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2002-07-09
-  @edited  2005-08-20
+  @edited  2008-12-20
  */
 
 #ifndef G3D_QUEUE_H
@@ -315,6 +315,15 @@ public:
         return data[index(n)];
     }
 
+
+    /** Returns the back element */
+    inline const T& last() const {
+        return (*this)[size() - 1];
+    }
+
+    inline T& last() {
+        return (*this)[size() - 1];
+    }
 
     /**
      Returns true if the given element is in the queue.

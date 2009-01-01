@@ -775,7 +775,7 @@ void GConsole::onNetwork() {
 }
 
 
-void GConsole::onLogic() {
+void GConsole::onAI() {
 }
 
 

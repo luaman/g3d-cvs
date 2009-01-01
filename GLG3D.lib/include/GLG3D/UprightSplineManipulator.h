@@ -74,7 +74,7 @@ public:
     static Ref create(class GCamera* c = NULL);
     
     virtual void onNetwork() {}
-    virtual void onLogic() {}
+    virtual void onAI() {}
 
     /** Returns the underlying spline. */
     const UprightSpline& spline() const {

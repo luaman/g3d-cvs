@@ -462,7 +462,7 @@ void GuiWindow::Modal::oneFrame() {
     }
 
     // Logic
-    manager->onLogic();
+    manager->onAI();
 
     // Sleep to keep the frame rate at about the desired frame rate
     System::sleep(0.9 * desiredFrameDuration);

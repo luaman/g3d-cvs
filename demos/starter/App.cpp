@@ -75,7 +75,7 @@ void App::onInit() {
 }
 
 
-void App::onLogic() {
+void App::onAI() {
     // Add non-simulation game logic and AI code here
 }
 
