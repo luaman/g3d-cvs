@@ -249,6 +249,7 @@ href="classes.html">Classes</a>.
      \link G3D::gaussRandom gaussRandom\endlink,
          \link G3D::min min\endlink,
      \link G3D::max max\endlink,
+     \link G3D::Random Random\endlink,
      \link G3D::square square\endlink,
          \link G3D::sinc sync\endlink,
      \link G3D::sumSquares sumSquares\endlink,
