@@ -74,7 +74,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
-    m_simTime(0) {
+    m_simTime(0),
+    m_renderPeriod(1) {
 
     debugLog          = NULL;
     debugFont         = NULL;
@@ -477,54 +478,56 @@ void GApp::removeWidget(const Widget::Ref& module) {
 
 
 void GApp::oneFrame() {
-    lastTime = now;
-    now = System::time();
-    RealTime timeStep = now - lastTime;
+    for (int repeat = 0; repeat < max(1, m_renderPeriod); ++repeat) {
+        lastTime = now;
+        now = System::time();
+        RealTime timeStep = now - lastTime;
 
-    // User input
-    m_userInputWatch.tick();
-    if (manageUserInput) {
-        processGEventQueue();
-    }
-    debugAssertGLOk();
-    onUserInput(userInput);
-    m_widgetManager->onUserInput(userInput);
-    m_userInputWatch.tock();
-
-    // Network
-    m_networkWatch.tick();
-    onNetwork();
-    m_widgetManager->onNetwork();
-    m_networkWatch.tock();
-
-    // Logic
-    m_logicWatch.tick();
-    {
-        onAI();
-        m_widgetManager->onAI();
-    }
-    m_logicWatch.tock();
-
-    // Simulation
-    m_simulationWatch.tick();
-    {
-        RealTime rdt = timeStep;
-        SimTime  sdt = m_simTimeStep;
-        SimTime  idt = desiredFrameDuration();
-
-        onBeforeSimulation(rdt, sdt, idt);
-        onSimulation(rdt, sdt, idt);
-        m_widgetManager->onSimulation(rdt, sdt, idt);
-        onAfterSimulation(rdt, sdt, idt);
-
-        if (m_cameraManipulator.notNull()) {
-            defaultCamera.setCoordinateFrame(m_cameraManipulator->frame());
+        // User input
+        m_userInputWatch.tick();
+        if (manageUserInput) {
+            processGEventQueue();
         }
+        debugAssertGLOk();
+        onUserInput(userInput);
+        m_widgetManager->onUserInput(userInput);
+        m_userInputWatch.tock();
 
-        setRealTime(realTime() + rdt);
-        setSimTime(simTime() + sdt);
+        // Network
+        m_networkWatch.tick();
+        onNetwork();
+        m_widgetManager->onNetwork();
+        m_networkWatch.tock();
+
+        // Logic
+        m_logicWatch.tick();
+        {
+            onAI();
+            m_widgetManager->onAI();
+        }
+        m_logicWatch.tock();
+
+        // Simulation
+        m_simulationWatch.tick();
+        {
+            RealTime rdt = timeStep;
+            SimTime  sdt = m_simTimeStep / m_renderPeriod;
+            SimTime  idt = desiredFrameDuration() / m_renderPeriod;
+
+            onBeforeSimulation(rdt, sdt, idt);
+            onSimulation(rdt, sdt, idt);
+            m_widgetManager->onSimulation(rdt, sdt, idt);
+            onAfterSimulation(rdt, sdt, idt);
+
+            if (m_cameraManipulator.notNull()) {
+                defaultCamera.setCoordinateFrame(m_cameraManipulator->frame());
+            }
+
+            setRealTime(realTime() + rdt);
+            setSimTime(simTime() + sdt);
+        }
+        m_simulationWatch.tock();
     }
-    m_simulationWatch.tock();
 
     // Wait 
     // Note: we might end up spending all of our time inside of

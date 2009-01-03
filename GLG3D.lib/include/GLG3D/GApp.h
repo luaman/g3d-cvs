@@ -155,6 +155,11 @@ protected:
     Stopwatch               m_simulationWatch;
     Stopwatch               m_waitWatch;
 
+    /** onPose(), onGraphics(), and onWait() execute once ever m_renderPeriod 
+        simulation frames. This allows UI/network/simulation to be clocked much faster
+        than rendering to increase responsiveness. */
+    int                     m_renderPeriod;
+
     WidgetManager::Ref      m_widgetManager;
 
     bool                    m_endProgram;
@@ -415,8 +420,10 @@ public:
     */
     virtual void removeWidget(const Widget::Ref& module);
 
-    /** @brief Elapsed time per frame for ideal simulation. Set to 0 to pause
-        simulation, 1/fps to match real-time.*/
+    /** @brief Elapsed time per RENDERED frame for ideal simulation. Set to 0 to pause
+        simulation, 1/fps to match real-time.  The actual sdt argument to
+        onSimulation is simTimStep / m_renderPeriod.
+     */
     inline float simTimeStep() const {
         return m_simTimeStep;
     }

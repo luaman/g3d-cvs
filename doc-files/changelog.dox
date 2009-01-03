@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> GApp::m_renderPeriod
      <li> G3D::Random
      <li> G3D::CollisionDetection::fixedSolidBoxIntersectsFixedTriangle
      <li> G3D::Set::getRemove, G3D::Table::getRemove
