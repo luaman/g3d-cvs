@@ -413,6 +413,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Random.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\Ray.cpp"
 				>
 			</File>
@@ -784,6 +788,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Queue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Random.h"
 				>
 			</File>
 			<File

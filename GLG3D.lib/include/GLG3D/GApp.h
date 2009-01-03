@@ -4,7 +4,7 @@
    @maintainer Morgan McGuire, morgan@graphics3d.com
 
    @created 2003-11-03
-   @edited  2008-10-07
+   @edited  2009-01-03
 */
 
 #ifndef G3D_GAPP_H
