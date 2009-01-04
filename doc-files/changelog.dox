@@ -27,6 +27,7 @@
      <li> Tweaked StopWatch smoothing constants to reduce number flickering
      <li> isIntFormat() macro
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards [Corey]
+     <li> Fix: iswspace now considers '\r' as whitespace
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

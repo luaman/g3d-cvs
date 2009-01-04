@@ -23,7 +23,7 @@ namespace G3D {
     const char* NEWLINE = "\r\n";
 #else
     const char* NEWLINE = "\n";
-    static bool iswspace(int ch) { return (ch==' ' || ch=='\t' || ch=='\n'); }
+    static bool iswspace(int ch) { return (ch==' ' || ch=='\t' || ch=='\n' || ch=='\r'); }
 #endif
 
 bool beginsWith(
