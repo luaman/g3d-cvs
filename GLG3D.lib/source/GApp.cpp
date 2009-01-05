@@ -70,12 +70,12 @@ static void writeLicense() {
 
 
 GApp::GApp(const Settings& settings, OSWindow* window) :
+    m_renderPeriod(1),
     lastWaitTime(System::time()),
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
-    m_simTime(0),
-    m_renderPeriod(1) {
+    m_simTime(0) {
 
     debugLog          = NULL;
     debugFont         = NULL;
@@ -348,7 +348,7 @@ void GApp::renderDebugInfo() {
             if (showRenderingStats) {
 
                 renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-                Draw::fastRect2D(Rect2D::xywh(2, 2, renderDevice->width() - 4, size * 5), renderDevice, Color4(0, 0, 0, 0.3f));
+                Draw::fastRect2D(Rect2D::xywh(2, 2, renderDevice->width() - 4, size * 5.8 + 2), renderDevice, Color4(0, 0, 0, 0.3f));
 
                 Color3 statColor = Color3::yellow();
                 debugFont->configureRenderDevice(renderDevice);
@@ -407,7 +407,44 @@ void GApp::renderDebugInfo() {
                 }
 
                 pos.x = x;
-                pos.y += size * 3;
+                pos.y += size * 1.5;
+
+                const char* esc = NULL;
+                switch (escapeKeyAction) {
+                case ACTION_QUIT:
+                    esc = "ESC: QUIT      ";
+                    break;
+                case ACTION_SHOW_CONSOLE:
+                    esc = "ESC: CONSOLE   ";
+                    break;
+                case ACTION_NONE:
+                    esc = "               ";
+                    break;
+                }
+
+                const char* video = 
+                    (developerWindow.notNull() && 
+                     developerWindow->videoRecordDialog.notNull() &&
+                     developerWindow->videoRecordDialog->enabled()) ?
+                    "F4: MOVIE      F6: SCREENSHOT " :
+                    "                              ";
+
+                const char* camera = 
+                    (cameraManipulator().notNull() && 
+                     defaultController.notNull()) ? 
+                    "F2: CAMERA     " :
+                    "               ";
+                    
+                const char* dev = developerWindow.notNull() ? 
+                    "F11: DEV WINDOW":
+                    "               ";
+
+                const std::string& Fstr = format("%s     %s     %s    %s", esc, camera, video, dev);
+                debugFont->send2DQuads(renderDevice, Fstr, pos, 8, color);
+
+                pos.x = x;
+                pos.y += size;
+
             } else if (debugText.length() > 0) {
                 debugFont->configureRenderDevice(renderDevice);
             }

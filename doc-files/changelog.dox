@@ -15,6 +15,7 @@
    <ul>
      <li> GApp::m_renderPeriod
      <li> G3D::Random
+     <li> Added function key guide on the top of render stats for GApp
      <li> G3D::CollisionDetection::fixedSolidBoxIntersectsFixedTriangle
      <li> G3D::Set::getRemove, G3D::Table::getRemove
      <li> G3D::Set now allows HashFunc and EqualsFunc to be specified
