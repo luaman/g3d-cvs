@@ -20,21 +20,19 @@ the script.
 
 Written by Morgan McGuire
 http://cs.williams.edu/~morgan
-Edited 2008-10-06
+
+Edited 2009-01-06
 """
    sys.exit(1)
 
 
 def generate(classname, path, doG3D, doRef, baseclass, programmer):
-    typedef = ''
     include = ''
     inherit = ''
     hbody = ''
     cbody = ''
 
     if doRef:
-        typedef += ('class %(classname)s;\ntypedef ' +
-                   'ReferenceCountedPointer<%(classname)s> %(classname)sRef;\n') % {'classname' : classname}
         if baseclass == '':
             inherit = ': public ReferenceCountedObject '
 
@@ -44,8 +42,11 @@ def generate(classname, path, doG3D, doRef, baseclass, programmer):
 
 public:
 
-    /** @brief */
-    static %(classname)sRef create();
+    typedef ReferenceCountedPointer<%(classname)s> Ref;\n')
+
+
+    /** @brief Constructs an empty $(classname)s. */
+    static %(classname)s::Ref create();
 """ % {'classname' : classname}
 
         cbody = """
@@ -66,7 +67,6 @@ public:
     vars = {'classname' : classname,
             'programmer': programmer,
             'include'   : include,
-            'typedef'   : typedef,
             'inherit'   : inherit,
             'cbody'     : cbody,
             'hbody'     : hbody,
@@ -80,7 +80,6 @@ public:
 #ifndef %(classname)s_h
 #define %(classname)s_h
 %(include)s
-%(typedef)s
 /** 
   @brief
  */
