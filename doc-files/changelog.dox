@@ -29,6 +29,8 @@
      <li> isIntFormat() macro
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards [Corey]
      <li> Fix: iswspace now considers '\r' as whitespace
+     <li> Fix: System::appName now removes the 'd' that icompile appends
+     <li> Fix: System::getCurrentProgramFilename now works on OS X
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

@@ -26,6 +26,7 @@
 #include "G3D/G3DGameUnits.h"
 #include "G3D/Crypto.h"
 #include "G3D/prompt.h"
+#include "G3D/stringUtils.h"
 #include "G3D/Log.h"
 #include <time.h>
 
@@ -65,13 +66,13 @@
     #include <stdio.h>
     #include <errno.h>
     #include <sys/types.h>
-	#include <sys/sysctl.h>
+    #include <sys/sysctl.h>
     #include <sys/select.h>
     #include <sys/time.h>
     #include <termios.h>
     #include <unistd.h>
     #include <pthread.h>
-	#include <mach-o/arch.h>
+    #include <mach-o/arch.h>
 
     #include <sstream>
     #include <CoreServices/CoreServices.h>
@@ -928,8 +929,35 @@ void System::memset(void* dst, uint8 value, size_t numBytes) {
 }
 
 
+/** Removes the 'd' that icompile / Morgan's VC convention appends. */
+static std::string computeAppName(const std::string& start) {
+    if (start.size() < 2) {
+        return start;
+    }
+
+    if (start[start.size() - 1] == 'd') {
+        // Maybe remove the 'd'; see if ../ or ../../ has the same name
+        char tmp[1024];
+        std::string drive, base, ext;
+        Array<std::string> path;
+        parseFilename(tmp, drive, path, base, ext);
+
+        std::string shortName = start.substr(0, start.size() - 1);
+
+        if ((path.size() > 1) && (toLower(path.last()) == toLower(shortName))) {
+            return shortName;
+        }
+
+        if ((path.size() > 2) && (toLower(path[path.size() - 2]) == toLower(shortName))) {
+            return shortName;
+        }
+    }
+
+    return start;
+}
+
 std::string& System::appName() {
-    static std::string n = filenameBase(currentProgramFilename());
+    static std::string n = computeAppName(filenameBase(currentProgramFilename()));
     return n;
 }
 
@@ -937,23 +965,38 @@ std::string& System::appName() {
 std::string System::currentProgramFilename() {
     char filename[2048];
 
-    #ifdef G3D_WIN32
+#   ifdef G3D_WIN32
     {
         GetModuleFileNameA(NULL, filename, sizeof(filename));
     } 
-    #else
+#   elif defined(G3D_OSX)
     {
-            int ret = readlink("/proc/self/exe", filename, sizeof(filename));
+        // Run the 'ps' program to extract the program name
+        // from the process ID.
+        int pid;
+        FILE* fd;
+        char cmd[80];
+        pid = getpid();
+        sprintf(cmd, "ps -p %d -o comm=\"\"", pid);
+
+        fd = popen(cmd, "r");
+        int s = fread(filename, 1, sizeof(filename), fd);
+        // filename will contain a newline.  Overwrite it:
+        filename[s - 1] = '\0';
+    }
+#   else
+    {
+        int ret = readlink("/proc/self/exe", filename, sizeof(filename));
             
-            // In case of an error, leave the handling up to the caller
+        // In case of an error, leave the handling up to the caller
         if (ret == -1) {
-                    return "";
+            return "";
         }
             
         debugAssert((int)sizeof(filename) > ret);
             
-            // Ensure proper NULL termination
-            filename[ret] = 0;      
+        // Ensure proper NULL termination
+        filename[ret] = 0;      
     }
     #endif
 

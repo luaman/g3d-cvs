@@ -42,11 +42,11 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_framesBox(NULL),
     m_showCursor(false) {
 
-    m_hotKey = GKey::F4;
+    m_hotKey = GKey::F6;
     m_hotKeyMod = GKeyMod::NONE;
     m_hotKeyString = m_hotKey.toString();
 
-    m_ssHotKey = GKey::F6;
+    m_ssHotKey = GKey::F4;
     m_ssHotKeyMod = GKeyMod::NONE;
     m_ssHotKeyString = m_ssHotKey.toString();
 
