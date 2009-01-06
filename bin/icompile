@@ -799,6 +799,7 @@ def printInfo(state):
     print 'binaryType        = "' + state.binaryType + '"'
     print 'target            = "' + state.target + '"'
     print 'platform          = "' + state.platform + '"'
+    print 'compiler          = "' + state.compiler + '"'
 
 #########################################################################
 # Computes development progress metrics. Returns a string briefly

@@ -314,20 +314,14 @@ public:
     }
 
     /** Allows construction from a raw pointer.  That object will thereafter be
-        reference counted -- do not call delete on it. */
-    inline ReferenceCountedPointer(T* p) : m_pointer(NULL) { 
-        setPointer(p); 
-    }
+        reference counted -- do not call delete on it.
 
-    /** To allow downcast to work on const references */
+        Use of const allows downcast on const references */
     inline ReferenceCountedPointer(const T* p) : m_pointer(NULL) { 
+        // only const constructor is defined to remove ambiguity using NULL
         setPointer(const_cast<T*>(p)); 
     }
 
-    inline ReferenceCountedPointer(int null) : m_pointer(NULL) { 
-        debugAssert((void*)null == NULL);
-        setPointer(NULL); 
-    }
     
     inline ~ReferenceCountedPointer() {
         zeroPointer();

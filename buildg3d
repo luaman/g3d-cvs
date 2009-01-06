@@ -47,10 +47,12 @@ docInstallDir = None
 # Set by ??? TODO
 buildDir = None
 
+compiler = None
+
 def initOS():
     global windows, freebsd, linux, osx, unix, osShortName
     global libInstallDir, docInstallDir, configFile, platformName
-    global doInstall, icompileConfig
+    global doInstall, icompileConfig, compiler
 
     s = platform.system()
     windows = (s == 'Windows') or (s == 'Microsoft')
@@ -92,11 +94,24 @@ def initOS():
 
         os.chdir('G3D.lib')
         info = shell('../bin/icompile ' + ' '.join(icompileConfig + ['--info']), False)
+        infoCompiler = info
+
+        # extract platform name from iCompile
         try:
             i = info.index('\nplatform')
             i = info.index('"', i) + 1
             j = info.index('"', i)
             platformName = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            raise Exception('icompile --info returned unparsable data')
+
+        # extract compiler from iCompile
+        try:
+            i = info.index('\ncompiler')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            compiler = info[i:j]
         except ValueError:
             # Could not find the information!
             raise Exception('icompile --info returned unparsable data')
@@ -204,12 +219,22 @@ def buildNativeFFMPEG():
             print 'Tar command failed'
             return retVal
 
+    # find gcc compiler to match iCompile configuration
+    # we expect iCompile to use g++, so replace
+    # 'g++ with 'gcc' in the path
+    gppIndex = compiler.rfind('g++')
+    if gppIndex == -1:
+        raise Exception('Unable to parse g++ compiler path - ' + compiler)
+
+    compilerPath = compiler[:gppIndex] + "gcc" + compiler[gppIndex + 3:]
+    print 'compilerPath = ' + compilerPath
+
     # build ffmpeg 
     oldcwd = os.getcwd()
     os.chdir(pathConcat(sourceDir, ffmpegName))
     ffmpegBuildScript = """
     echo Running configure in """ + os.getcwd() + """
-    ./configure --enable-static --prefix=""" + installDir + """ --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
+    ./configure --enable-static --cc=""" + compilerPath + """ --prefix=""" + installDir + """ --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
     echo Running make...
     """ + make + """
     echo Make install...
