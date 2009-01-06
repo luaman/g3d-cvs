@@ -938,6 +938,7 @@ static std::string computeAppName(const std::string& start) {
     if (start[start.size() - 1] == 'd') {
         // Maybe remove the 'd'; see if ../ or ../../ has the same name
         char tmp[1024];
+        getcwd(tmp, sizeof(tmp));
         std::string drive, base, ext;
         Array<std::string> path;
         parseFilename(tmp, drive, path, base, ext);
