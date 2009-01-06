@@ -426,7 +426,7 @@ void GApp::renderDebugInfo() {
                     (developerWindow.notNull() && 
                      developerWindow->videoRecordDialog.notNull() &&
                      developerWindow->videoRecordDialog->enabled()) ?
-                    "F4: MOVIE      F6: SCREENSHOT " :
+                    "F4: SCREENSHOT  F6: MOVIE     " :
                     "                              ";
 
                 const char* camera = 
