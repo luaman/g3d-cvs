@@ -81,12 +81,24 @@ def buildDataFiles(state):
     dst = state.installDir
     
     if os.path.exists(src):
-        outOfDate = copyIfNewer(src, dst, False, False, False)
+        outOfDateFiles = copyIfNewer(src, dst, False, False, False)
 
-        if outOfDate:
+        if len(outOfDateFiles) > 0:
             if ice.utils.verbosity >= NORMAL: colorPrint('\nCopying data files', SECTION_COLOR)
             copyIfNewer(src, dst, ice.utils.verbosity >= VERBOSE, ice.utils.verbosity == NORMAL)
             if ice.utils.verbosity >= VERBOSE: colorPrint('Done copying data files', SECTION_COLOR)
+
+            if (state.os == 'osx') and any([x.endswith('.dylib') for x in outOfDateFiles]):
+                if ice.utils.verbosity >= NORMAL: colorPrint('\nRebasing OS X dylib files', SECTION_COLOR)
+                # On OS X, fix the load path to be relative to the build directory
+                # end dylibs are in data-files.  See http://www.cocoadev.com/index.pl?ApplicationLinking
+                for lib in outOfDateFiles:
+                    if lib.endswith('.dylib'):
+                        raw = os.path.basename(lib)
+                        targetFile = dst + lib[len('data-files/'):]
+                        run('install_name_tool', ['-id', raw , targetFile], ice.utils.verbosity >= VERBOSE)
+                        
+                if ice.utils.verbosity >= VERBOSE: colorPrint('Done rebasing dylib files', SECTION_COLOR)
             maybePrintBar()
         else:
             if ice.utils.verbosity > NORMAL:
@@ -740,6 +752,9 @@ def configureGpp(state):
 
     if state.os == 'osx':
 
+        # On OS X, dylib files may be found in the data-files directory        
+        state.addLibraryPath('data-files')
+        
         # Not supported on OS X
         state.compilerOptions += ['-D__cdecl=', '-D__stdcall=']
 

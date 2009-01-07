@@ -142,7 +142,8 @@ Library('OpenCV-Core', STATIC,    'cxcore',  'cxcore',   None,       None,    []
 Library('FFMPEG-util', STATIC,    'avutil',  'avutil',   None,       None,    ['avutil.h'],     ['av_malloc'],                                 []),
 Library('FFMPEG-codec', STATIC,   'avcodec', 'avcodec',  None,       None,    ['avcodec.h'],    ['avcodec_open'],                              ['zlib']),
 Library('FFMPEG-format', STATIC,  'avformat','avformat', None,       None,    ['avformat.h'],   ['av_register_all'],                           ['FFMPEG-util']),
-Library('FMOD',        DYNAMIC,   'fmodex',  'fmodex',   None,       None,    ['fmod.hpp', 'fmod.h'], [],                                      ['FFMPEG-codec', 'FFPMEG-util'])]:
+Library('FMOD',        DYNAMIC,   'fmodex',  'fmodex',   None,       None,    ['fmod.hpp', 'fmod.h'], [],                                      ['FFMPEG-codec', 'FFPMEG-util']),
+Library('irrKlang',    DYNAMIC,   'irrklang','irrklang', None,       None,    ['irrKlang.h'],   [],                                            [])]:
     defineLibrary(lib)
 
 """ Constructs a dictionary mapping a library name to its

@@ -25,7 +25,7 @@ public:
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
-    virtual void onLogic();
+    virtual void onAI();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
@@ -119,7 +119,7 @@ void App::onInit() {
 }
 
 
-void App::onLogic() {
+void App::onAI() {
     // Add non-simulation game logic and AI code here
 }
 

@@ -62,7 +62,8 @@ A regular expression matching files that should be excluded from copying.
 """
 excludeFromCopying  = re.compile(string.join(_excludeFromCopyingPatterns, '|'))
 
-_copyIfNewerCopiedAnything = False
+""" Linked list of the source names that were copied """
+_copyIfNewerCopiedAnything = None
 
 
 """
@@ -70,14 +71,14 @@ Recursively copies all contents of source to dest
 (including source itself) that are out of date.  Does 
 not copy files matching the excludeFromCopying patterns.
 
-Returns true if any files were copied
+Returns a list of the files (if any were copied)
 
 If actuallyCopy is false, doesn't actually copy the files, but still prints.
 
 """
 def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuallyCopy = True):
     global _copyIfNewerCopiedAnything
-    _copyIfNewerCopiedAnything = False
+    _copyIfNewerCopiedAnything = []
     
     if source == dest:
         # Copying in place
@@ -98,7 +99,7 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
         if actuallyCopy:
             shutil.copyfile(source, dest)
                 
-        _copyIfNewerCopiedAnything = True
+        _copyIfNewerCopiedAnything += [source]
         
     else:
 
@@ -107,7 +108,7 @@ def copyIfNewer(source, dest, echoCommands = True, echoFilenames = True, actuall
         os.path.walk(source, _copyIfNewerVisit, 
                      [len(source), dest, echoCommands, echoFilenames, actuallyCopy])
 
-    if not _copyIfNewerCopiedAnything and echoCommands:
+    if len(_copyIfNewerCopiedAnything) == 0 and echoCommands:
         print dest + ' is up to date with ' + source
         
     return _copyIfNewerCopiedAnything
@@ -158,7 +159,7 @@ def _copyIfNewerVisit(args, sourceDirname, names):
                     colorPrint('cp ' + source + ' ' + dest, COMMAND_COLOR)
                 elif echoFilenames: 
                     print name
-                _copyIfNewerCopiedAnything = True
+                _copyIfNewerCopiedAnything += [source]
                 if actuallyCopy:
                     shutil.copy(source, dest)
 
