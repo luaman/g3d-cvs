@@ -97,6 +97,8 @@ def buildDataFiles(state):
                         raw = os.path.basename(lib)
                         targetFile = dst + lib[len('data-files/'):]
                         run('install_name_tool', ['-id', raw , targetFile], ice.utils.verbosity >= VERBOSE)
+                        if ice.utils.verbosity == NORMAL:
+                            print raw
                         
                 if ice.utils.verbosity >= VERBOSE: colorPrint('Done rebasing dylib files', SECTION_COLOR)
             maybePrintBar()
@@ -297,7 +299,7 @@ def getLinkerOptions(state, allFiles):
         # Escape spaces in paths
         if ' ' in path: path = path.replace(' ', '\\ ')
         opt += ['-L' + path]
-
+        
     # Set of canonically named libraries to link against
     libraries        = Set(state.usesLibrariesList)
 
@@ -360,7 +362,7 @@ def getLinkerOptions(state, allFiles):
 
     for arg in opt:
         if arg.strip() == '': raise Exception('Empty linker argument')
-    
+
     return opt + allLinks
 
 #########################################################################
@@ -581,6 +583,7 @@ def buildBinary(state):
 
             # Dynamic library or executable.
             lopt = getLinkerOptions(state, files)
+
             makeExecutable(state, ofiles, lopt)
 
         else:
@@ -752,8 +755,10 @@ def configureGpp(state):
 
     if state.os == 'osx':
 
-        # On OS X, dylib files may be found in the data-files directory        
-        state.addLibraryPath('data-files')
+        # On OS X, dylib files may be found in the data-files
+        # directory.  By the time we're compiling, they are already in
+        # the build directory (and have been rebased)
+        state.addLibraryPath(state.binaryDir)
         
         # Not supported on OS X
         state.compilerOptions += ['-D__cdecl=', '-D__stdcall=']
@@ -1000,6 +1005,10 @@ def icompile(projectDir, allArgs):
 
     state = getConfigurationState(args)
 
+    # Create output directory before configureCompiler runs
+    # so that it can add the output as a link path
+    mkdir(state.binaryDir, ice.utils.verbosity >= VERBOSE)
+    
     configureCompiler(state)
 
     doGDB    = '--gdb'    in args

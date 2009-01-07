@@ -42,7 +42,7 @@ def generate(classname, path, doG3D, doRef, baseclass, programmer):
 
 public:
 
-    typedef ReferenceCountedPointer<%(classname)s> Ref;\n')
+    typedef ReferenceCountedPointer<%(classname)s> Ref;
 
 
     /** @brief Constructs an empty $(classname)s. */

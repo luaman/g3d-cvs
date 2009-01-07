@@ -542,17 +542,19 @@ protected:
     /**
        Rendering callback used to paint the screen.  Called automatically.
 
-       Override and implement.  The debugCamera's projection and object to world
-       matrices are set by default; you can set other cameras as desired. 
-       RenderDevice::beginFrame and endFrame are called for you.
+       Override and implement.  The debugCamera's projection and
+       object to world matrices are set by default; you can set other
+       cameras as desired.  RenderDevice::beginFrame and endFrame are
+       called for you.
     */
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posed3D, 
+                            Array<PosedModel2D::Ref>& posed2D);
 
     /** Called before onGraphics.  Append any models that you want
         rendered (you can also explicitly pose and render in your
         onGraphics method).  The provided arrays will already contain
         posed models from any installed Widgets. */
-    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {}
+    virtual void onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D) {}
 
     /**
        For a networked app, override this to implement your network

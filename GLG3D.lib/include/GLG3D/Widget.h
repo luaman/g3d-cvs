@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
  @created 2006-04-22
- @edited  2007-05-30
+ @edited  2009-01-06
 */
 
 #ifndef GLG3D_GMODULE_H
@@ -33,14 +33,18 @@ typedef ReferenceCountedPointer<class WidgetManager> WidgetManagerRef;
 
  Modules are objects like the G3D::FirstPersonController,
  G3D::GConsole, and debug text overlay that need to receive almost the
- same set of events (onXXX methods) as GApp and that you would like
- to be called from the corresponding methods of a GApp.  They are a
- way to break large pieces of functionality for UI and debugging off
- so that they can be mixed and matched.
+ same set of events (onXXX methods) as GApp and that you would like to
+ be called from the corresponding methods of a GApp.  They are a way
+ to break large pieces of functionality for UI and debugging off so
+ that they can be mixed and matched.
+
+ Widget inherits PosedModel2D because it is often convenient to
+ implement a widget whose onPose method adds itself to the rendering
+ array rather than using a proxy object.
 
  @beta
  */
-class Widget : public ReferenceCountedObject {
+class Widget : public PosedModel2D {
 protected:
 
     /** The manager, set by setManager().
@@ -63,7 +67,7 @@ public:
      */
     virtual void onPose(
         Array<PosedModel::Ref>& posedArray,
-        Array<PosedModel2DRef>& posed2DArray) {}
+        Array<PosedModel2D::Ref>& posed2DArray) {}
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {}
 
@@ -91,6 +95,17 @@ public:
     /** Returns the operating system window that is currently
         rendering this Widget. */
     virtual OSWindow* window() const;
+
+    /** Inherited from PosedModel2D */
+    virtual void render(RenderDevice* rd) const {}
+
+    /** Inherited from PosedModel2D */
+    virtual Rect2D bounds() const {
+        return AABox2D(-Vector2::inf(), Vector2::inf());
+    }
+
+    /** Inherited from PosedModel2D */
+    virtual float depth() const { return 0.5f; }
 };
 
 

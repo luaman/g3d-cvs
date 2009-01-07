@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Widget now inherits from G3D::PosedModel2D
      <li> GApp::m_renderPeriod
      <li> G3D::Random
      <li> Added function key guide on the top of render stats for GApp

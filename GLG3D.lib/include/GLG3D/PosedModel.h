@@ -389,6 +389,7 @@ typedef ReferenceCountedPointer<class PosedModel2D> PosedModel2DRef;
 /** Primarily for use in GUI rendering. */
 class PosedModel2D : public ReferenceCountedObject {
 public:
+    typedef ReferenceCountedPointer<PosedModel2D> Ref;
 
     /** Assumes that the RenderDevice is configured in in RenderDevice::push2D mode. */
     virtual void render(RenderDevice* rd) const = 0;
