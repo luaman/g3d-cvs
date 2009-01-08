@@ -3,7 +3,7 @@
 #
 # See manual.html for documentation.  http://ice.sf.net
 #
-# Copyright 2003-2008 Morgan McGuire
+# Copyright 2003-2009 Morgan McGuire
 # All rights reserved.
 #
 # morgan@cs.williams.edu
@@ -436,6 +436,13 @@ def makeExecutable(state, objectFiles, linkOptions):
         # Strip debug symbols
 	run('strip', [state.binaryDir + state.binaryName], ice.utils.verbosity >= VERBOSE)
 
+    if state.os == 'osx':
+        # See if there is an icon in the root directory
+        files = glob.glob('icon.png') + glob.glob('icon.jpg') + glob.glob('icon.tiff')
+        if len(files) > 0:
+            # Set it as the icon
+            setIcon(files[0], state.binaryDir + state.binaryName, state)
+
 ###################################################################################
 
 """
@@ -465,7 +472,29 @@ def buildDependencyProjects(state):
     return ret
 
 ###################################################################################
+def setIcon(iconFile, targetFile, state):
+    # Ensure that the iconFile contains its own icon
+    iconCopy = pathConcat(state.tempDir, iconFile)
+    shutil.copyfile(iconFile, iconCopy)
+    shell('sips -i ' + iconCopy, ice.utils.verbosity >= VERBOSE)
 
+    # Extract the icns file
+    shell('DeRez -only icns ' + iconCopy + ' > tempicon.rsrc', ice.utils.verbosity >= VERBOSE)
+    
+    # Add it to the target file
+    shell('Rez -append tempicon.rsrc -o ' + targetFile, ice.utils.verbosity >= VERBOSE)
+    shell('SetFile -a C ' + targetFile, ice.utils.verbosity >= VERBOSE)
+    
+    # Setting a file's icon from Python on OS X (which crashes)
+    # @cite http://www.codeshorts.ca/tag/osx/
+    # Dynamic import, so that this doesn't fail on Linux
+    #AppKit = __import__('AppKit')
+    #AppKit.NSApplicationLoad()
+    #image = AppKit.NSImage.alloc().initWithContentsOfFile_(iconFile)
+    #workspace = AppKit.NSWorkspace.sharedWorkspace()
+    #workspace.setIcon_forFile_options_(image, file_path, 0)
+###################################################################################
+    
 """ Creates the object files and links them. """
 def buildBinary(state):
 

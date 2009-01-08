@@ -6,7 +6,7 @@ from variables import *
 from utils import *
 import copyifnewer
 
-version = [0, 5, 3]
+version = [0, 5, 6]
 
 ##############################################################################
 #                                  Version                                   #
@@ -14,7 +14,7 @@ version = [0, 5, 3]
 
 def printVersion(version):
     print "iCompile " + versionToString(version)
-    print "Copyright 2003-2008 Morgan McGuire"
+    print "Copyright 2003-2009 Morgan McGuire"
     print "All rights reserved"
     print
     print "http://ice.sf.net"
@@ -98,11 +98,13 @@ Exclusive options:
  
  --version        Print the version number of iCompile.
 
-Special directory names:
- build            Output directory
- data-files       Files that will be needed at runtime
- doc-files        Files needed by your documentation (Doxygen output)
-
+Special file and directory names:
+  build            Output directory
+  data-files       Files that will be needed at runtime
+  doc-files        Files needed by your documentation (Doxygen output)
+  tmp              Object files are put here
+  icon.*           Becomes the program icon
+  
 iCompile will not look for source files in directories matching: """ +
            str(copyifnewer._excludeDirPatterns) +
 """
@@ -110,10 +112,9 @@ iCompile will not look for source files in directories matching: """ +
 Generated file ice-stats.csv contains a history of the size of your files at
 compilation times that is interesting for tracking development progress.
 
-You may edit ice.txt and ~/.icompile if your project has unusual configuration
-needs.  See manual.html or http://ice.sf.net for full information.
-iCompile was created by Morgan McGuire with additional programming by
-Robert Hunter and Corey Taylor.
+Edit ice.txt and ~/.icompile if your project has specific configuration needs.
+See manual.html or http://ice.sf.net for full information. iCompile was created
+by Morgan McGuire with additional programming by Robert Hunter and Corey Taylor.
 """)
     sys.exit(0)
 
