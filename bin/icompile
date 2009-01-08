@@ -96,7 +96,7 @@ def buildDataFiles(state):
                     if lib.endswith('.dylib'):
                         raw = os.path.basename(lib)
                         targetFile = dst + lib[len('data-files/'):]
-                        run('install_name_tool', ['-id', raw , targetFile], ice.utils.verbosity >= VERBOSE)
+                        run('install_name_tool', ['-id', '@loader_path/' + raw, targetFile], ice.utils.verbosity >= VERBOSE)
                         if ice.utils.verbosity == NORMAL:
                             print raw
                         
@@ -810,6 +810,9 @@ def configureGpp(state):
         state.compilerOptions += arch
         state.linkerOptions   += arch 
 
+    if state.os == 'osx':
+        state.linkerOptions += ['-Wl,-headerpad_max_install_names']
+        
     # Use pipes instead of temporary files for 
     # inter-process communication; this should be faster.
     state.compilerOptions += ['-pipe']
