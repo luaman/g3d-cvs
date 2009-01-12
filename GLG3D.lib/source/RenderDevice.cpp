@@ -1108,10 +1108,10 @@ void RenderDevice::syncDrawBuffer() {
             // May be only depth or stencil; don't need a draw buffer.
 
             debugAssertGLOk();
-            // Some drivers crash when providing NULL for a zero-element array,
+            // Some drivers crash when providing NULL or an actual zero-element array for a zero-element array,
             // so make a fake array.
             const GLenum noColorBuffers[] = { GL_NONE };
-            glDrawBuffersARB(0, noColorBuffers);
+            glDrawBuffersARB(1, noColorBuffers);
         }
         debugAssertGLOk();
     }
