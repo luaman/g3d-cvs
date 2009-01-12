@@ -799,7 +799,6 @@ void GLCaps::checkBug_cubeMapBugs() {
         glEnable(GL_TEXTURE_CUBE_MAP_ARB);
     
         {
-
             const int N = 16;
             unsigned int image[N * N];
             for (int f = 0; f < 6; ++f) {

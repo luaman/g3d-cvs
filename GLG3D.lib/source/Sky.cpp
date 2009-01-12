@@ -22,7 +22,7 @@ namespace G3D {
 
 
 SkyRef Sky::fromCubeMap(
-    Texture::Ref                          _cubeMap,
+    Texture::Ref                        _cubeMap,
     const std::string&                  directory,
     bool                                _drawCelestialBodies,
     double                              quality) {

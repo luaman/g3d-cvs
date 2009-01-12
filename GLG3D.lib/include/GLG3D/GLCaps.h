@@ -245,7 +245,10 @@ public:
 
     /**
      Returns true if cube map support has a specific known bug on this card that
-     prevents correct normal map coordinate generation.
+     prevents correct normal map coordinate generation, i.e.,
+     <code>glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB)</code> 
+     does not function as specified by OpenGL.
+
      Returns false if cube maps are not supported at all on this card.
 
      Call after OpenGL is intialized.  Will render on the backbuffer but not make
@@ -253,7 +256,7 @@ public:
 
      Radeon Mobility 7500 has been shown to have a bug where not only does
      hasBug_glMultiTexCoord3fvARB() exist, but normal maps can't work around 
-     the problem.
+     the problem.  Certain NVIDIA 280 Linux drivers may also have this bug.
 
      If detected, G3D::Sky will revert to non-cube map textures.
      */
