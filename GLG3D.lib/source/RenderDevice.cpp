@@ -1099,7 +1099,7 @@ void RenderDevice::syncDrawBuffer() {
         // Apply the bindings from this framebuffer
         const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
         if (array.size() > 0) {
-            debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) <= array.size(),
+            debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) >= array.size(),
                 format("This graphics card only supports %d draw buffers.",
                 glGetInteger(GL_MAX_DRAW_BUFFERS)));
 

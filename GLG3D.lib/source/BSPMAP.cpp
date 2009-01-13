@@ -1036,7 +1036,6 @@ void Map::getTriangles(
     Array<int>&         outTextureMapIndexArray,
     Array<Vector2>&     outLightCoordArray,
     Array<int>&         outLightMapIndexArray,
-    Array<int>&         outTexCoordIndexArray,
     Array<Texture::Ref>&  outTextureMapArray,
     Array<Texture::Ref>&  outLightMapArray) const {
 

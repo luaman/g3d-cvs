@@ -30,7 +30,7 @@ void BSPViewer::onInit(const std::string& filename) {
 	Array<int> indArray, texMapIndexArray, lightMapIndexArray, texCoordIndexArray;
 	map->getTriangles(vertexArray, normalArray, indArray, texCoordArray,
 						texMapIndexArray, lightCoordArray, lightMapIndexArray, 
-						texCoordIndexArray, texMapArray, lightMapArray);
+						texMapArray, lightMapArray);
 
 	numFaces = indArray.length()/3;
 	numVertices = vertexArray.length();

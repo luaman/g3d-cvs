@@ -648,7 +648,7 @@ public:
      
      You can obtain a limited version of this file by downloading the Q3A demo from:
      http://www.idsoftware.com/games/quake/quake3-arena/index.php?game_section=demo
-     On Windows, the relevant file is at C:\Q3Ademo\demoq3\pak0.pk3
+     On Windows, the relevant file is at <code>C:\\Q3Ademo\\demoq3\\pak0.pk3</code>
      If the altLoad is not specified, G3D uses System::findDataFile to locate pak0.pk3 or mini-pak0.pk3 on the
      hard drive.
      */
@@ -699,7 +699,6 @@ public:
         Array<int>&           outTextureMapIndexArray,
         Array<Vector2>&       outLightCoordArray,
         Array<int>&           outLightMapIndexArray,
-        Array<int>&           outTexCoordIndexArray,
         Array<Texture::Ref>&  outTextureMapArray,
         Array<Texture::Ref>&  outLightMapArray) const;
 
