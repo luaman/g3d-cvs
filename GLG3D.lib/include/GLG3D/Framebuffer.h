@@ -140,7 +140,7 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
 */
 class Framebuffer : public ReferenceCountedObject {
 public:
-
+    typedef ReferenceCountedPointer<Framebuffer> Ref;
     /**
        Specifies which channels of the framebuffer the renderbuffer or texture will 
        define. These mirror
