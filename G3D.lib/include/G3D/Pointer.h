@@ -156,27 +156,27 @@ private:
     };
 
 
-    Interface* interface;
+    Interface* m_interface;
 
 public:
 
-    Pointer() : interface(NULL) {};
+    Pointer() : m_interface(NULL) {};
 
     /** Allows implicit cast from real pointer */
-    Pointer(ValueType* v) : interface(new Memory(v)) {}
+    Pointer(ValueType* v) : m_interface(new Memory(v)) {}
 
     // Assignment
     inline Pointer& operator=(const Pointer& r) {
-        delete interface;
-        if (r.interface != NULL) {
-            interface = r.interface->clone();
+        delete m_interface;
+        if (r.m_interface != NULL) {
+            m_interface = r.m_interface->clone();
         } else {
-            interface = NULL;
+            m_interface = NULL;
         }
         return this[0];
     }
 
-    Pointer(const Pointer& p) : interface(NULL) {
+    Pointer(const Pointer& p) : m_interface(NULL) {
         this[0] = p;
     }
 
@@ -184,62 +184,62 @@ public:
     Pointer(const ReferenceCountedPointer<Class>& object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
-        interface(new RefAccessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
+        m_interface(new RefAccessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(const ReferenceCountedPointer<Class>& object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
-        interface(new RefAccessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
+        m_interface(new RefAccessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(const ReferenceCountedPointer<Class>& object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
-        interface(new RefAccessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
+        m_interface(new RefAccessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(const ReferenceCountedPointer<Class>& object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
-        interface(new RefAccessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
+        m_interface(new RefAccessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
-        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
+        m_interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(const ValueType&)) : 
-        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
+        m_interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(const ValueType&)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             const ValueType& (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
-        interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
+        m_interface(new Accessor<Class, const ValueType& (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
     template<class Class>
     Pointer(Class* object,
             ValueType (Class::*getMethod)() const,
             void (Class::*setMethod)(ValueType)) : 
-        interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
+        m_interface(new Accessor<Class, ValueType (Class::*)() const, void (Class::*)(ValueType)>(object, getMethod, setMethod)) {}
 
     ~Pointer() {
-        delete interface;
+        delete m_interface;
     }
 
     inline const ValueType getValue() const {
-        debugAssert(interface != NULL);
-        return interface->get();
+        debugAssert(m_interface != NULL);
+        return m_interface->get();
     }
 
     inline void setValue(const ValueType& v) {
-        debugAssert(interface != NULL);
-        interface->set(v);
+        debugAssert(m_interface != NULL);
+        m_interface->set(v);
     }
 
     class IndirectValue {
