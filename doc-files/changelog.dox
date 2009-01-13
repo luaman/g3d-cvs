@@ -41,6 +41,7 @@
      <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
      <li> GApp::onLogic -> GApp::onAI, Widget::onLogic -> Widget::onAI
+     <li> Removed unused BSPMap::getTriangles texCoordIndex argument
    </ul>
 
 <hr>

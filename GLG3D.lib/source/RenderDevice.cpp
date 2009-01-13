@@ -3184,6 +3184,13 @@ void RenderDevice::sendSequentialIndices(RenderDevice::Primitive primitive, int 
 
 void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& indexVAR) {
     debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
+
+    if (indexVAR.numElements == 0) {
+        // There's nothing in this index array, so don't bother rendering.
+        return;
+    }
+
+    debugAssertM(indexVAR.area().notNull(), "Corrupt VAR");
     debugAssertM(indexVAR.type() == VARArea::INDEX, "Must be an index VAR");
 
     int old = glGetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING);
@@ -3192,7 +3199,7 @@ void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& ind
 
     internalSendIndices(primitive, indexVAR.elementSize, indexVAR.numElements, indexVAR.pointer());
 
-    // Set the milestone on the current are
+    // Set the milestone on the current area
     {
         indexVAR.area()->renderDevice = this;
 
