@@ -202,6 +202,8 @@ std::string GLCaps::getDriverVersion() {
 void GLCaps::init() {
     loadExtensions(Log::common());
     checkAllBugs();
+    glClearColor(1,1,1,1);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 // We're going to need exactly the same code for each of 
