@@ -128,7 +128,7 @@ public:
 
     /**
      Converts an 8-bit RAW font texture and INI file as produced by
-     the Bitmap Font Builder program to a graphics3d PWF font.  inFile
+     the Bitmap Font Builder program to a G3D FNT font.  inFile
      should have no extension-- .raw and .ini will be appended to it.
      outfile should end with ".FNT" or be "" for the default.  <P>
 
@@ -141,15 +141,17 @@ public:
 	  width of each character in the font.  Example: 
 
       <PRE>
-	  GFont::convertRAWINItoPWF("c:/tmp/g3dfont/news",
-	                            "d:/graphics3d/book/cpp/data/font/news.fnt"); 
+	  GFont::makeFont(256,
+                      "c:/tmp/g3dfont/news",
+	                  "d:/graphics3d/book/cpp/data/font/news.fnt"); 
       </PRE> 
+
+      @param charsetSize Must be 128 or 256; indicates whether the "extended" characters
+      should be represented in the final texture.
 
       @param infileBase The name of the raw/ini files @param outfile Defaults
 	  to infileBase + ".fnt"
 
-      @param charsetSize Must be 128 or 256; indicates whether the "extended" characters
-      should be represented in the final texture.
      */
     static void makeFont(
         int charsetSize,
