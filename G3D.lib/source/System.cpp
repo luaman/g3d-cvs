@@ -26,7 +26,7 @@
 #include "G3D/G3DGameUnits.h"
 #include "G3D/Crypto.h"
 #include "G3D/prompt.h"
-#include "G3D/stringUtils.h"
+#include "G3D/stringutils.h"
 #include "G3D/Log.h"
 #include <time.h>
 

@@ -36,7 +36,7 @@ def _pathAppend(plist, newPath, checkForExist = False):
         # the output list
         if not checkForExist or os.path.exists(newPath):
             plist.append(newPath)
-        elif not ('/SDL11/' in newPath) and not ('/X11R6/ in newPath):
+        elif not ('/SDL11/' in newPath) and not ('/SDL/' in newPath) and not ('/X11R6/' in newPath):
             # Don't print warnings about SDL/X11; we need those to make
             # lots of different unix installs all work
             print 'Path ' + newPath + ' specified in configuration file does not exist.'
