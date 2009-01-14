@@ -20,9 +20,6 @@ namespace G3D {
 VideoInput::Ref VideoInput::fromFile(const std::string& filename, const Settings& settings) {
     Ref vi = new VideoInput;
 
-    // TODO: fix for URL
-    //debugAssert(fileExists(filename, false)); // TODO: make exception
-
     try {
         vi->initialize(filename, settings);
     } catch (const std::string& s) {
