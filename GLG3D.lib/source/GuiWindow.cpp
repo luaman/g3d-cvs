@@ -42,7 +42,6 @@ GuiWindow::GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rec
       m_mouseVisible(false) {
 
     setRect(rect);
-    posed = new Posed(this);
     m_rootPane = new GuiPane(this, "", clientRect() - clientRect().x0y0(), GuiTheme::NO_PANE_STYLE);
 }
 
@@ -150,9 +149,9 @@ void GuiWindow::onUserInput(UserInput* ui) {
 }
 
 
-void GuiWindow::onPose(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
+void GuiWindow::onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray) {
     if (m_visible) {
-        posed2DArray.append(posed);
+        posed2DArray.append(this);
     }
 }
 
@@ -327,10 +326,11 @@ void GuiWindow::pack() {
 }
 
 
-void GuiWindow::render(RenderDevice* rd) {
-    
+void GuiWindow::render(RenderDevice* rd) const {
+    GuiWindow* me = const_cast<GuiWindow*>(this);
+
     if (m_morph.active) {
-        m_morph.update(this);
+        me->m_morph.update(me);
     }
     
     m_skin->beginRendering(rd);
@@ -554,21 +554,14 @@ void GuiWindow::Modal::processEventQueue() {
     userInput->endEvents();
 }
 
-///////////////////////////////////////////////////////////////////////
 
-
-GuiWindow::Posed::Posed(GuiWindow* gui) : gui(gui) {}
-
-Rect2D GuiWindow::Posed::bounds () const {
-    return gui->m_rect;
+Rect2D GuiWindow::bounds () const {
+    return m_rect;
 }
 
-float GuiWindow::Posed::depth () const {
+
+float GuiWindow::depth () const {
     return 0;
-}
-
-void GuiWindow::Posed::render (RenderDevice *rd) const {
-    gui->render(rd);
 }
 
 }

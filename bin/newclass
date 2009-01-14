@@ -45,7 +45,7 @@ public:
     typedef ReferenceCountedPointer<%(classname)s> Ref;
 
 
-    /** @brief Constructs an empty $(classname)s. */
+    /** @brief Constructs an empty %(classname)s. */
     static %(classname)s::Ref create();
 """ % {'classname' : classname}
 
@@ -54,7 +54,7 @@ public:
 }
 
 
-%(classname)sRef %(classname)s::create() {
+%(classname)s::Ref %(classname)s::create() {
     return new %(classname)s();
 }
 """ % {'classname' : classname}

@@ -121,16 +121,6 @@ public:
     
 protected:
 
-    /** Used for rendering the UI */
-    class Posed : public PosedModel2D {
-    public:
-        GuiWindow* gui;
-        Posed(GuiWindow* gui);
-        virtual Rect2D bounds () const;
-        virtual float depth () const;
-        virtual void render (RenderDevice *rd) const;
-    };
-
     class ControlButton { 
     public:
         bool           down;
@@ -186,8 +176,6 @@ protected:
     CloseAction         m_closeAction;
     ControlButton       m_closeButton;
 
-    PosedModel2DRef     posed;
-
     GuiThemeRef         m_skin;
 
     /** True when the window is being dragged */
@@ -213,7 +201,7 @@ protected:
 
     GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
 
-    virtual void render(RenderDevice* rd);
+    virtual void render(RenderDevice* rd) const;
 
     /** Take the specified close action */
     void close();
@@ -336,9 +324,10 @@ public:
 
        @param side Side that the drawer sticks out of
      */
-    virtual GuiDrawer* addDrawer(const GuiCaption& caption = "", GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { return NULL; }
+    virtual GuiDrawer* addDrawer(const GuiCaption& caption = "", 
+                                 GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { return NULL; }
 
-    virtual void onPose(Array<PosedModelRef>& posedArray, Array<PosedModel2DRef>& posed2DArray);
+    virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray);
 
     virtual bool onEvent(const GEvent& event);
 
@@ -363,6 +352,10 @@ public:
     const GuiCaption& caption() const {
         return m_text;
     }
+
+    virtual Rect2D bounds () const;
+
+    virtual float depth () const;
 
 };
 
