@@ -210,7 +210,7 @@ def buildNativeFFMPEG():
     if doClean:
         print '\nExtracting tarfile'
         os.chdir(sourceDir)
-        retVal = ice.utils.run('tar', ['--bzip2', '-xvf', pathConcat('../../..', tarname)])
+        retVal = ice.utils.run('tar', ['--bzip2', '-xvf', pathConcat('../../..', tarname)], False)
         os.chdir('../../..')
         tarObject.close()
         tarObject = None
@@ -227,14 +227,13 @@ def buildNativeFFMPEG():
         raise Exception('Unable to parse g++ compiler path - ' + compiler)
 
     compilerPath = compiler[:gppIndex] + "gcc" + compiler[gppIndex + 3:]
-    print 'compilerPath = ' + compilerPath
 
     # build ffmpeg 
     oldcwd = os.getcwd()
     os.chdir(pathConcat(sourceDir, ffmpegName))
     ffmpegBuildScript = """
     echo Running configure in """ + os.getcwd() + """
-    ./configure --enable-static --cc=""" + compilerPath + """ --prefix=""" + installDir + """ --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
+    ./configure --enable-static --cc=""" + compilerPath + """ --prefix=""" + installDir + """ --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
     echo Running make...
     """ + make + """
     echo Make install...
@@ -485,8 +484,44 @@ def jarTarget():
 
    return ret
 
+
 ################################################################################
-def ffmpegcTarget():
+def getTarFile(tarUrl, downloadDir):
+    tarName = tarUrl.split('/')[-1]
+
+    print 'Downloading ' + tarName + '...'
+
+    ice.utils.mkdir(downloadDir, False)
+
+    tarPath = os.path.join(downloadDir, tarName)
+    urllib.urlretrieve(tarUrl, tarPath)
+
+    print 'Completed.\n'
+
+    return tarPath
+
+################################################################################
+def extractTarFile(tarPath, extractDir):
+    tarName = os.path.split(tarPath)[-1]
+
+    print 'Extracting ' + tarName + '...'
+
+    ice.utils.mkdir(extractDir, False)
+
+    tarObject = tarfile.open(tarPath, 'r')
+
+    topDir = tarObject.next().name
+
+    tarObject.extractall(extractDir)
+    tarObject.close()
+
+    print 'Completed.\n'
+
+    return os.path.join(extractDir, topDir)
+    
+
+################################################################################
+def ffmpegCCTarget():
     # This builds the mingw cross-compiler
     downloadDir = os.path.abspath('temp/mingw')
     sourceDir = downloadDir + '/src'
@@ -497,72 +532,77 @@ def ffmpegcTarget():
     # clean out cross compiler
     ice.utils.rmdir(downloadDir, False)
     
-    # make destination directory
-    ice.utils.mkdir(installDir, False)
-    
     # download binutils
-    if (not os.path.exists(downloadDir + '/binutils-2.18.50-20080109-2-src.tar.gz')):
-        print "Downloading binutils...\n"
-        urllib.urlretrieve('http://heanet.dl.sourceforge.net/sourceforge/mingw/binutils-2.18.50-20080109-2-src.tar.gz', downloadDir + '/binutils-2.18.50-20080109-2-src.tar.gz')
+    binutilsTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/binutils-2.19-src.tar.gz', downloadDir)
+    binutilsDir = extractTarFile(binutilsTar, sourceDir)
     
     # download mingw components
-    if (not os.path.exists(downloadDir + '/mingw-runtime-3.14.tar.gz') or not os.path.exists(downloadDir + '/w32api-3.11.tar.gz')):
-        print "Downloading mingw + w32api...\n"
-        urllib.urlretrieve('http://heanet.dl.sourceforge.net/sourceforge/mingw/mingw-runtime-3.14.tar.gz', downloadDir + '/mingw-runtime-3.14.tar.gz')
-        urllib.urlretrieve('http://heanet.dl.sourceforge.net/sourceforge/mingw/w32api-3.11.tar.gz', downloadDir + '/w32api-3.11.tar.gz')
+    mingwTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/mingw-runtime-3.14.tar.gz', downloadDir)
+    mingwDir = extractTarFile(mingwTar, os.path.join(installDir, 'mingw32'))
+
+    w32apiTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/w32api-3.13-mingw32-dev.tar.gz', downloadDir)
+    w32apiDir = extractTarFile(w32apiTar, os.path.join(installDir, 'mingw32'))
+
+    # download gmp and mpfr
+    gmpTar = getTarFile('ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.2.1.tar.bz2', downloadDir)
+    gmpDir = extractTarFile(gmpTar, sourceDir)
+
+    mpfrTar = getTarFile('ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.3.0.tar.bz2', downloadDir)
+    mpfrDir = extractTarFile(mpfrTar, sourceDir)
 
     # download gcc core
-    if (not os.path.exists(downloadDir + '/gcc-core-4.3.1.tar.bz2')):
-        print "Downloading gcc core\n"
-        urllib.urlretrieve('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.3.1/gcc-core-4.3.1.tar.bz2', downloadDir + '/gcc-core-4.3.1.tar.bz2')
+    gccTar = getTarFile('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.3.1/gcc-core-4.3.1.tar.bz2', downloadDir)
+    gccDir = extractTarFile(gccTar, sourceDir)
 
-    # extract mingw components
-    print "Extracting mingw + w32api...\n"
-    tarObject = tarfile.open(downloadDir + '/mingw-runtime-3.14.tar.gz', 'r')
-    tarObject.extractall(installDir + '/mingw32')
-    tarObject.close()
-    
-    tarObject = tarfile.open(downloadDir + '/w32api-3.11.tar.gz', 'r')
-    tarObject.extractall(installDir + '/mingw32')
-    tarObject.close()
-
-    # extract binutils
-    print "Extracting binutils...\n"
-    tarObject = tarfile.open(downloadDir + '/binutils-2.18.50-20080109-2-src.tar.gz', 'r')
-    binutilsName = tarObject.next().name
-    tarObject.extractall(sourceDir)
-    tarObject.close()
+    # create symbolic links to mpfr in gcc source
+    os.symlink(mpfrDir, os.path.join(gccDir, 'mpfr'))
     
     # configure binutils
-    print "Building binutils...\n"
-    ice.utils.mkdir(sourceDir + '/binutils_obj', False)
-    os.chdir(sourceDir + '/binutils_obj')
-    ice.utils.shell(sourceDir + '/' + binutilsName + '/configure --prefix="' + installDir + '" --target=mingw32 --disable-nls --with-gcc --with-gnu-as --with-gnu-ld --disable-shared', False)
+    print 'Building binutils...'
+    binutilsObjDir = os.path.join(sourceDir, 'binutils_obj')
+    ice.utils.mkdir(binutilsObjDir, False)
+    os.chdir(binutilsObjDir)
+    ice.utils.shell('../' + os.path.split(binutilsDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --disable-nls --disable-shared', False)
     
     # build binutils
-    ice.utils.shell('make CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s"', False)
+    ice.utils.shell('make CFLAGS="-fno-exceptions" LDFLAGS="-s"', False)
     ice.utils.shell('make install', False)
     os.chdir(oldcwd)
-    
-    # extract gcc core
-    print "Extracting gcc core...\n"
-    tarObject = tarfile.open(downloadDir + '/gcc-core-4.3.1.tar.bz2', 'r')
-    gccName = tarObject.next().name
-    tarObject.extractall(sourceDir)
-    tarObject.close()
+    print 'Completed.\n'
 
+    # build gmp separate from gcc due to config issue running from python
+    # configure gmp
+    print 'Building gmp...'
+    gmpObjDir = os.path.join(sourceDir, 'gmp_obj')
+    ice.utils.mkdir(gmpObjDir, False)
+    os.chdir(gmpObjDir)
+    ice.utils.shell('../' + os.path.split(gmpObjDir)[-1] + '/configure --host=i386-pc-mingw32 --prefix="' + installDir + '" --disable-shared --enable-static', False)
+
+    # build gmp
+    ice.utils.shell('make', False)
+    ice.utils.shell('make install', False)
+    os.chdir(oldcwd)
+    print 'Completed.\n'
+    
     # configure gcc core
-    print "Building gcc core...\n"
-    ice.utils.mkdir(sourceDir + '/gcc_obj', False)
-    os.chdir(sourceDir + '/gcc_obj')
-    ice.utils.shell(sourceDir + '/' + gccName + '/configure -v --prefix="' + installDir + '" --target=mingw32 --with-headers="' + installDir + '/mingw32/include" --with-gcc --with-gnu-ld --with-gnu-as --enable-threads --disable-nls --enable-languages="c" --disable-win32-registry --disable-shared --enable-sjlj-exceptions --without-x', False)
+    print 'Building gcc...'
+    gccObjDir = os.path.join(sourceDir, 'gcc_obj')
+    ice.utils.mkdir(gccObjDir, False)
+    os.chdir(gccObjDir)
+    ice.utils.shell('../' + os.path.split(gccDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --with-headers="' + os.path.join(installDir, 'mingw32/include') + '" --disable-nls --enable-languages=c --disable-win32-registry --disable-shared --without-x --disable-libgomp --disable-libmudflap', False)
     
     # build gcc core
-    ice.utils.shell('make CFLAGS="-O2" CXXFLAGS="-O2"', False)
+    ice.utils.shell('make', False)
     ice.utils.shell('make install', False)
     os.chdir(oldcwd)
+    print 'Completed.'
+
+    print "Copying mingw32 gcc runtime libraries\n"
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/gcc/mingw32/4.3.1/libgcc.a'), 'ffmpeg/lib/win32/gcc.lib', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'mingw32/lib/libmingwex.a'), 'ffmpeg/lib/win32/mingwex.lib', False)
+
     
-def ffmpegbTarget():
+def ffmpegWinTarget():
     #This target builds the pre-built windows .dll binaries with mingw
     crossCompilerDir = os.path.abspath('temp/mingw/cc/bin')
     sourceDir = os.path.abspath('temp/ffmpeg/mingw')
@@ -573,32 +613,31 @@ def ffmpegbTarget():
 
     # extract ffmpeg sources
     ice.utils.mkdir(sourceDir, False)
-    tarObject = tarfile.open('ffmpeg/source/ffmpeg_source.tar.bz2')
-    ffmpegName = tarObject.next().name
-    tarObject.extractall(sourceDir)
-    tarObject.close()
+    ffmpegDir = extractTarFile('ffmpeg/source/ffmpeg_source.tar.bz2', sourceDir)
 
     #build ffmpeg with mingw cross-compiler
     oldcwd = os.getcwd()
-    os.chdir(sourceDir + '/' + ffmpegName)
+    os.chdir(ffmpegDir)
     ffmpegBuildScript = """
-    configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --disable-network --disable-ipv6 --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+    ./configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
     make
     make install
     """
-    ice.utils.run('sh', ['-c', ffmpegBuildScript], True, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
+
+    ice.utils.run('sh', ['-c', ffmpegBuildScript], False, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
     os.chdir(oldcwd)
 
     # copy the new .lib and header files to ffmpeg directory
-    print "Copying win32 ffmpeg binaries\n"
-    ice.copyifnewer.copyIfNewer(installDir + '/lib/libavutil.a', 'ffmpeg/lib/win32/avutil.lib', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/lib/libavcodec.a', 'ffmpeg/lib/win32/avcodec.lib', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/lib/libavformat.a', 'ffmpeg/lib/win32/avformat.lib', False)
+    print "Copying cross-compiled mingw32 FFmpeg libraries\n"
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/libavutil.a'), 'ffmpeg/lib/win32/avutil.lib', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/libavcodec.a'), 'ffmpeg/lib/win32/avcodec.lib', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/libavformat.a'), 'ffmpeg/lib/win32/avformat.lib', False)
 
-    print "Copying ffmpeg headers since building pre-compiled binaries should update include\n"
-    ice.copyifnewer.copyIfNewer(installDir + '/include/libavutil', 'ffmpeg/include/libavutil', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/include/libavcodec', 'ffmpeg/include/libavcodec', False)
-    ice.copyifnewer.copyIfNewer(installDir + '/include/libavformat', 'ffmpeg/include/libavformat', False)
+    print "Copying FFmpeg headers since building mingw32 libraries should update include\n"
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'include/libavutil'), 'ffmpeg/include/libavutil', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'include/libavcodec'), 'ffmpeg/include/libavcodec', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'include/libavformat'), 'ffmpeg/include/libavformat', False)
+
 
 #########################################################
 
@@ -744,10 +783,10 @@ src        Build a sources zipfile (Win32 only)
 
 ide        Generates Xcode, Visual Studio, and g++ Makefiles using cmake.
 
-ffmpegb    Build precompiled Windows libraries for ffmpeg using a Unix 
-           g++ cross-compiler.
+ffmpegWin  Build precompiled Windows libraries for ffmpeg using a Unix 
+           g++ MinGW cross-compiler.
 
-ffmpegc    Build cross-compiler used during ffmpegb target
+ffmpegCC   Build MinGW cross-compiler used during ffmpegWin target
 
 The return code of buildg3d is the return code of the last process it
 launched (i.e., you can expect 0 on success).
@@ -803,7 +842,7 @@ if __name__ == "__main__":
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
          jarTarget, ideTarget, helpTarget, updateTarget, 
-         ffmpegbTarget, ffmpegcTarget])
+         ffmpegWinTarget, ffmpegCCTarget])
 
     if (code == 0) and (sys.argv[1] != 'help') and doInstall:
         install()
