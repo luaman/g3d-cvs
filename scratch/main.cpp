@@ -47,12 +47,16 @@ RealTime startTime = System::time();
 App::App(const GApp::Settings& settings) : GApp(settings) {
     RealTime duration = System::time() - startTime;
     debugPrintf("**********************\nTime until constructor: %fs\n", duration);
-    exit(1);
     catchCommonExceptions = false;
 }
 
 
 void App::onInit() {
+
+    DebugTimer timer("Load 3DS");
+    ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3ds");
+    timer.after("load");
+    exit(0);
 
     kd.getPointer(Triangle());//TODO: remove
 

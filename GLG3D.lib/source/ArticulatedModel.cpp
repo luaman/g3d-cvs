@@ -1,11 +1,12 @@
 /**
  @file ArticulatedModel.cpp
- @author Morgan McGuire
+ @author Morgan McGuire, morgan@cs.williams.edu
  */
 
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/IFSModel.h"
 #include "Load3DS.h"
+#include "G3D/DebugTimer.h"
 
 namespace G3D {
 
@@ -97,6 +98,8 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
     // Note: vertices are actually mutated by scale; it is not carried along as
     // part of the scene graph transformation.
 
+    DebugTimer timer("init3DS");
+
     // Returns the index in partArray of the part with this name.
     Table<std::string, int>     partNameToIndex;
 
@@ -105,6 +108,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
 
     std::string path = filenamePath(filename);
     load.load(filename);
+    timer.after("Load file");
 
     partArray.resize(load.objectArray.size());
 
@@ -259,6 +263,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
             } // if has materials 
         }
     }
+    timer.after("convert");
 }
 
 
@@ -361,12 +366,26 @@ void ArticulatedModel::Part::computeBounds() {
 
 
 void ArticulatedModel::updateAll() {
+    DebugTimer timer("updateAll");
+
+    if (partArray.size() < 2) {
+        // Single-thread
+        for (int p = 0; p < partArray.size(); ++p) {
+            Part& part = partArray[p];
+            part.computeNormalsAndTangentSpace();
+            part.computeBounds();
+        }
+    } else {
+        // Multi-thread
+    }
+
+    timer.after("compute geometry");
+
     for (int p = 0; p < partArray.size(); ++p) {
         Part& part = partArray[p];
-        part.computeNormalsAndTangentSpace();
         part.updateVAR();
-        part.computeBounds();
     }
+    timer.after("VAR");
 }
 
 

@@ -295,6 +295,9 @@ public:
     /** Copies the text to the clipboard on Win32. */
     static void setClipboardText(const std::string& s);
 
+    /** Returns the number of logical processor cores (i.e., the number of execution units for threads) */
+    static int numCores();
+
     /**
      Tries to locate the resource by looking in related directories.
      If found, returns the full path to the resource, otherwise

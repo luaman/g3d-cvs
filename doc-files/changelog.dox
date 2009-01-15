@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::System::numCores
      <li> Added buffering (with appropriate flushes) to G3D::logPrintf decrease the startup cost of writing the log
      <li> G3D::System::findDataFile now caches the locations of found files
      <li> G3D::Widget now inherits from G3D::PosedModel2D

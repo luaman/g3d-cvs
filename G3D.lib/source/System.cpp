@@ -15,7 +15,7 @@
   @cite Michael Herf http://www.stereopsis.com/memcpy.html
 
   @created 2003-01-25
-  @edited  2008-09-02
+  @edited  2009-01-15
  */
 
 #include "G3D/platform.h"
@@ -97,6 +97,7 @@ public:
     bool    m_hasSSE3;
     bool    m_has3DNOW;
     char    m_cpuVendorStr[1024];
+    int     m_numCores;
 };
 
 // helper macro to call cpuid functions and return all values
@@ -135,7 +136,7 @@ public:
 static char                                     g_appDataDir[FILENAME_MAX] = "";
 
 static CpuInfo                                  g_cpuInfo = {
-    0, false, false, false, false, false, false, false, {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'}};
+    0, false, false, false, false, false, false, false, {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'}, 1};
 
 static G3DEndian                                _machineEndian      = G3D_LITTLE_ENDIAN;
 static char                                     _cpuArchCstr[1024];
@@ -384,6 +385,11 @@ std::string demoFindData(bool errorIfNotFound) {
     return "";
 }
 
+int System::numCores() {
+    init();
+    return g_cpuInfo.m_numCores;
+}
+
 bool System::hasCPUID() {
     init();
     return g_cpuInfo.m_hasCPUID;
@@ -466,7 +472,7 @@ const std::string& System::version() {
     return _version;
 }
 
-
+// @cite http://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/
 void System::init() {
     // Cannot use most G3D data structures or utility functions in here because
     // they are not initialized.
@@ -528,6 +534,11 @@ void System::init() {
         // ...to check the max. supported extended CPUID level
         maxSupportedExtendedLevel = eaxreg;
 
+        if (maxSupportedCPUIDLevel >= 4) {
+            // Number of cores is in (eax>>26) + 1
+            g_cpuInfo.m_numCores = (eaxreg >> 26) + 1;
+        }
+
         // Then we switch to the specific processor vendors.
         // Fill out _cpuArch based on this information.  It will
         // be overwritten by the next block of code on Windows,
@@ -553,12 +564,13 @@ void System::init() {
     #endif // G3D_NOT_OSX_PPC
 
     #ifdef G3D_WIN32
+        // Note that this overrides some of the values computed above
         bool success = RegistryUtil::readInt32
             ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "~MHz", g_cpuInfo.m_cpuSpeed);
 
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
-        char* arch;
+        const char* arch = NULL;
         switch (systemInfo.wProcessorArchitecture) {
         case PROCESSOR_ARCHITECTURE_INTEL:
             arch = "Intel";
@@ -580,12 +592,12 @@ void System::init() {
             arch = "Unknown";
         }
 
+        g_cpuInfo.m_numCores = systemInfo.dwNumberOfProcessors;
         uint32 maxAddr = (uint32)systemInfo.lpMaximumApplicationAddress;
         sprintf(_cpuArchCstr, "%d x %d-bit %s processor",
                     systemInfo.dwNumberOfProcessors,
                     (int)(::log((double)maxAddr) / ::log(2.0) + 2.0),
                     arch);
-                   //                    _CPUSpeed / (1024.0 * 1024));
 
         OSVERSIONINFO osVersionInfo;
         osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
