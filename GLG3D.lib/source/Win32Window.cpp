@@ -113,11 +113,9 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     ,_diDevices(NULL)
 
 {
-{Array<int> qqq;qqq.append(1,2,3,4);} // TODO: Remove. Here for debugging memory corruption
     _receivedCloseEvent = false;
 
     initWGL();
-{Array<int> qqq;qqq.append(1,2,3,4);} // TODO: Remove. Here for debugging memory corruption
 
     _hDC = NULL;
     _mouseVisible = true;
@@ -191,7 +189,6 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
 
     clientX = settings.x = startX;
     clientY = settings.y = startY;
-{Array<int> qqq;qqq.append(1,2,3,4);} // TODO: Remove. Here for debugging memory corruption
 
     HWND window = CreateWindow(
         Win32Window::g3dWndClass(), 
@@ -230,7 +227,7 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
         } catch (const GImage::Error& e) {
             // Throw away default icon
             debugPrintf("OSWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());
-            Log::common()->printf("OSWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
+            logPrintf("OSWindow's default icon failed to load: %s (%s)", e.filename.c_str(), e.reason.c_str());            
         }
     }
 
@@ -243,7 +240,7 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
 
     if (s.visible) {
         ShowWindow(window, SW_SHOW);
-    }         
+    }
 }
 
 
@@ -1002,6 +999,7 @@ void Win32Window::initWGL() {
     HGLRC hRC = wglCreateContext(hDC);
     debugAssert(hRC);
 
+    // wglMakeCurrent is the bottleneck of this routine; it takes about 0.1 s
     if (wglMakeCurrent(hDC, hRC) == FALSE)	{
         debugAssertM(false, "Failed to set context");
     }

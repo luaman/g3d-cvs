@@ -249,6 +249,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\DebugTimer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\fileutils.cpp"
 				>
 			</File>
@@ -608,6 +612,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\debugPrintf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\DebugTimer.h"
 				>
 			</File>
 			<File

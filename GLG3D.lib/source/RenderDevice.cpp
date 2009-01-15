@@ -1,10 +1,10 @@
 /**
  @file RenderDevice.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-07-08
- @edited  2008-12-26
+ @edited  2009-01-15
  */
 
 #include "G3D/platform.h"
@@ -423,7 +423,7 @@ void RenderDevice::init(OSWindow* window, Log* log) {
         (void)isOk(false);
         (void)isOk((void*)NULL);
 
-        logPrintf(
+        logLazyPrintf(
                  "Capability    Minimum   Desired   Received  Ok?\n"
                  "-------------------------------------------------\n"
                  "* RENDER DEVICE \n"
@@ -454,12 +454,9 @@ void RenderDevice::init(OSWindow* window, Log* log) {
                  settings.height, "ok",
                  (settings.fullScreen ? "Fullscreen" : "Windowed"), "ok"
                  );
+
+        logPrintf("Done initializing RenderDevice.\n"); 
     }
-
-    inPrimitive        = false;
-    inIndexedPrimitive = false;
-
-    if (debugLog) { debugLog->println("Done initializing RenderDevice.\n"); }
 
     _initialized = true;
 

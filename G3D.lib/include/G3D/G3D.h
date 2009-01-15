@@ -7,14 +7,14 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2001-08-25
- @edited  2009-01-02
+ @edited  2009-01-15
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
 */
 
-#ifndef G3D_GRAPHICS3D_H
-#define G3D_GRAPHICS3D_H
+#ifndef G3D_G3D_h
+#define G3D_G3D_h
 
 #define NOMINMAX 1
 #ifdef min
@@ -120,6 +120,7 @@ template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
 #include "G3D/Pointer.h"
 #include "G3D/Matrix.h"
 #include "G3D/ImageFormat.h"
+#include "G3D/DebugTimer.h"
 
 #ifdef _MSC_VER
 #   pragma comment(lib, "zlib")
