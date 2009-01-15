@@ -72,7 +72,7 @@ bool GThread::started() const {
     return m_status != STATUS_CREATED;
 }
 
-bool GThread::start() {
+bool GThread::start(SpawnBehavior behavior) {
     
     debugAssertM(! started(), "Thread has already executed.");
     if (started()) {
@@ -81,29 +81,37 @@ bool GThread::start() {
 
     m_status = STATUS_STARTED;
 
-#   ifdef G3D_WIN32
-    DWORD threadId;
-
-    m_event = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-    debugAssert(m_event);
-
-    m_handle = ::CreateThread(NULL, 0, &internalThreadProc, this, 0, &threadId);
-
-    if (m_handle == NULL) {
-        ::CloseHandle(m_event);
-        m_event = NULL;
-    }
-
-    return (m_handle != NULL);
-#   else
-    if (!pthread_create(&m_handle, NULL, &internalThreadProc, this)) {
+    if (behavior == USE_CURRENT_THREAD) {
+        // Run on this thread
+        m_status = STATUS_RUNNING;
+        threadMain();
+        m_status = STATUS_COMPLETED;
         return true;
-    } else {
-        // system-independent clear of handle
-        System::memset(&m_handle, 0, sizeof(m_handle));
-
-        return false;
     }
+
+#   ifdef G3D_WIN32
+        DWORD threadId;
+
+        m_event = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+        debugAssert(m_event);
+
+        m_handle = ::CreateThread(NULL, 0, &internalThreadProc, this, 0, &threadId);
+
+        if (m_handle == NULL) {
+            ::CloseHandle(m_event);
+            m_event = NULL;
+        }
+
+        return (m_handle != NULL);
+#   else
+        if (!pthread_create(&m_handle, NULL, &internalThreadProc, this)) {
+            return true;
+        } else {
+            // system-independent clear of handle
+            System::memset(&m_handle, 0, sizeof(m_handle));
+
+            return false;
+        }
 #   endif
 }
 
@@ -119,23 +127,32 @@ void GThread::terminate() {
     }
 }
 
+
 bool GThread::running() const{
     return (m_status == STATUS_RUNNING);
 }
+
 
 bool GThread::completed() const {
     return (m_status == STATUS_COMPLETED);
 }
 
+
 void GThread::waitForCompletion() {
+    if (m_status == STATUS_COMPLETED) {
+        // Must be done
+        return;
+    }
+
 #   ifdef G3D_WIN32
-    debugAssert(m_event);
-    ::WaitForSingleObject(m_event, INFINITE);
+        debugAssert(m_event);
+        ::WaitForSingleObject(m_event, INFINITE);
 #   else
-    debugAssert(m_handle);
-    pthread_join(m_handle, NULL);
+        debugAssert(m_handle);
+        pthread_join(m_handle, NULL);
 #   endif
 }
+
 
 #ifdef G3D_WIN32
 DWORD WINAPI GThread::internalThreadProc(LPVOID param) {

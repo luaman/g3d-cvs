@@ -62,7 +62,14 @@ private:
 
     std::string         m_name;
 
+protected:
+
+    /** Overriden by the thread implementor */
+    virtual void threadMain() = 0;
+
 public:
+
+    enum SpawnBehavior {USE_NEW_THREAD, USE_CURRENT_THREAD};
 
     GThread(const std::string& name);
 
@@ -75,8 +82,12 @@ public:
 
     /** Starts the thread and executes threadMain().  Returns false if
        the thread failed to start (either because it was already started
-       or because the OS refused).*/
-    bool start();
+       or because the OS refused).
+       
+       @param behavior If USE_CURRENT_THREAD, rather than spawning a new thread, this routine
+       runs threadMain on the current thread.
+       */
+    bool start(SpawnBehavior behavior = USE_NEW_THREAD);
 
     /** Terminates the thread without notifying or
         waiting for a cancelation point. */
@@ -102,9 +113,6 @@ public:
     inline const std::string& name() {
         return m_name;
     }
-
-    /** Overriden by the thread implementor */
-    virtual void threadMain() = 0;
 };
 
 

@@ -38,8 +38,15 @@ public:
     /** Number of threads that have been started */
     int numStarted() const;
 
-    /** Start all threads that are not currently started */
-    void start() const;
+    /** Start all threads that are not currently started.
+
+        @param lastThreadBehavior If USE_CURRENT_THREAD, takes the last unstarted thread and executes it manually on
+        the current thread.  This helps to take full advantage of the machine when
+        running a large number of jobs and avoids the overhead of a thread start for single-thread groups.
+        Note that this forces start() to block until
+        that thread is complete.        
+      */
+    void start(GThread::SpawnBehavior lastThreadBehavior = GThread::USE_NEW_THREAD) const;
 
     /** Terminate all threads that are currently started */
     void terminate() const;

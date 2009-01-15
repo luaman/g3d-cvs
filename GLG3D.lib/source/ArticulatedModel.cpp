@@ -6,6 +6,7 @@
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/IFSModel.h"
 #include "Load3DS.h"
+#include "G3D/ThreadSet.h"
 #include "G3D/DebugTimer.h"
 
 namespace G3D {
@@ -98,7 +99,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
     // Note: vertices are actually mutated by scale; it is not carried along as
     // part of the scene graph transformation.
 
-    DebugTimer timer("init3DS");
+    // Note: moving textures from CPU to GPU is the slow part of this process
 
     // Returns the index in partArray of the part with this name.
     Table<std::string, int>     partNameToIndex;
@@ -108,7 +109,6 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
 
     std::string path = filenamePath(filename);
     load.load(filename);
-    timer.after("Load file");
 
     partArray.resize(load.objectArray.size());
 
@@ -220,15 +220,18 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
                                     textureFile = path + textureFile;
                                 }
 
+                                // Load textures
                                 std::string f = System::findDataFile(textureFile, false);
+                                
                                 if (f != "") {
                                     if (! texCache.containsKey(f)) {
+                                        // Actually load texture
                                         texCache.set(f, Texture::fromFile(f));
                                     }
                                     triList.material.diffuse.map = texCache[f];
                                 } else {
-                                    Log::common()->printf("Could not load texture '%s'\n", textureFile.c_str());
-                                }
+                                    logPrintf("Could not load texture '%s'\n", textureFile.c_str());
+                                }                                
 
                                 triList.material.diffuse.constant = (Color3::white() * material.texture1.pct) *
                                     (1.0f - material.transparency);
@@ -263,7 +266,6 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
             } // if has materials 
         }
     }
-    timer.after("convert");
 }
 
 
@@ -364,28 +366,73 @@ void ArticulatedModel::Part::computeBounds() {
     }
 }
 
+/** Used by ArticulatedModel::updateAll */
+class PartUpdater : public GThread {
+protected:
+
+    Array<ArticulatedModel::Part*>&    m_partArray;
+    int             m_startIndex;
+    int             m_endIndex;
+
+public:
+    /** Stores the pointer to partArray.*/
+    PartUpdater(Array<ArticulatedModel::Part*>& partArray, int startIndex, int endIndex) :
+        GThread("Part Updater"),
+        m_partArray(partArray),
+        m_startIndex(startIndex),
+        m_endIndex(endIndex) {
+    }
+
+    /** Processes from startIndex to endIndex, inclusive. */
+    virtual void threadMain() {
+        for (int i = m_startIndex; i <= m_endIndex; ++i) {
+            ArticulatedModel::Part* part = m_partArray[i];
+            part->computeNormalsAndTangentSpace();
+            part->computeBounds();
+        }
+    }
+};
 
 void ArticulatedModel::updateAll() {
-    DebugTimer timer("updateAll");
-
-    if (partArray.size() < 2) {
-        // Single-thread
-        for (int p = 0; p < partArray.size(); ++p) {
-            Part& part = partArray[p];
-            part.computeNormalsAndTangentSpace();
-            part.computeBounds();
-        }
-    } else {
-        // Multi-thread
-    }
-
-    timer.after("compute geometry");
+    // Extract the parts with real geometry
+    Array<Part*> geometryPart;
 
     for (int p = 0; p < partArray.size(); ++p) {
-        Part& part = partArray[p];
-        part.updateVAR();
+        Part* part = &partArray[p];
+        if (part->hasGeometry()) {
+            geometryPart.append(part);
+        } else {
+            // Cheap to update this part right here, since it has nothing in it
+            part->computeNormalsAndTangentSpace();
+            part->computeBounds();
+            part->updateVAR();
+        }
     }
-    timer.after("VAR");
+
+    // Choose a reasonable number of threads
+    int numThreads = 1;
+    if ((geometryPart.size() >= 2) && (System::numCores() > 1)) {
+        // Use at least two cores, and up to n-1 of them
+        numThreads = min(geometryPart.size(), max(System::numCores() - 1, 2));
+    }
+    
+    // Assign threads
+    ThreadSet threads;
+    int startIndex = 0;
+    for (int t = 0; t < numThreads; ++t) {
+        int endIndex = (geometryPart.size() - 1) * t / numThreads;
+        GThreadRef thread = new PartUpdater(geometryPart, startIndex, endIndex);
+        threads.insert(thread);
+        startIndex = endIndex + 1;
+    }
+    threads.start(GThread::USE_CURRENT_THREAD);
+    threads.waitForCompletion();
+
+    // Upload data to GPU
+    for (int p = 0; p < geometryPart.size(); ++p) {
+        Part* part = geometryPart[p];
+        part->updateVAR();
+    }
 }
 
 

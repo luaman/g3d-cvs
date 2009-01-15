@@ -313,7 +313,7 @@ void VAR::vertexPointer() const {
 
 void VAR::normalPointer() const {
     debugAssert(valid());
-    debugAssert((double)elementSize / sizeOfGLFormat(underlyingRepresentation) == 3.0);
+    debugAssert((numElements == 0) || (double)elementSize / sizeOfGLFormat(underlyingRepresentation) == 3.0);
     debugAssertM(underlyingRepresentation != GL_UNSIGNED_INT, 
                  "OpenGL does not support GL_UNSIGNED_INT as a normal format.");
     debugAssertM(underlyingRepresentation != GL_UNSIGNED_SHORT, 

@@ -54,9 +54,9 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 void App::onInit() {
 
     DebugTimer timer("Load 3DS");
-    ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3ds");
+    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3ds");
     timer.after("load");
-    exit(0);
+//    exit(0);
 
     kd.getPointer(Triangle());//TODO: remove
 
@@ -64,7 +64,7 @@ void App::onInit() {
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
-	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
+//	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
     skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
@@ -129,9 +129,10 @@ void App::printConsoleHelp() {
 }
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-    for (int i = 0; i < 20; ++i) {
-        model->pose(posed3D, Vector3(0, 0, -i * 2));
-    }
+    //for (int i = 0; i < 20; ++i) {
+    //    model->pose(posed3D, Vector3(0, 0, -i * 2));
+    //}
+    model->pose(posed3D);
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {

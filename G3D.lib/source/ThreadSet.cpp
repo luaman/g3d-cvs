@@ -25,15 +25,34 @@ int ThreadSet::numStarted() const {
 }
     
     
-void ThreadSet::start() const {
+void ThreadSet::start(GThread::SpawnBehavior lastBehavior) const {
     ThreadSet* me = const_cast<ThreadSet*>(this);
+
+    Array<GThreadRef> unstarted;
     me->m_lock.lock();
+    // Find the unstarted threads
     for (int i = 0; i < m_thread.size(); ++i) {
         if (! m_thread[i]->started()) {
-            m_thread[i]->start();
+            unstarted.append(m_thread[i]);
         }
     }
+
+    int last = unstarted.size();
+    if (lastBehavior == GThread::USE_CURRENT_THREAD) {
+        // Save the last unstarted for the current thread
+        --last;
+    }
+
+    for (int i = 0; i < last; ++i) {
+        unstarted[i]->start(GThread::USE_NEW_THREAD);
+    }
+
     me->m_lock.unlock();
+
+    // Start the last one on my thread
+    if ((unstarted.size() > 0) && (lastBehavior == GThread::USE_CURRENT_THREAD)) {
+        unstarted.last()->start(GThread::USE_CURRENT_THREAD);
+    }
 }
     
 

@@ -128,13 +128,6 @@ public:
 
 
 /**
- edgeTable[edgeKey] is a list of faces containing
- 
- Used and cleared by MeshModel::computeAdjacency()
- */
-static MeshEdgeTable            edgeTable;
-
-/**
  Assigns the edge index into the next unassigned edge
  index.  The edge index may be negative, indicating
  a reverse edge.
@@ -177,7 +170,9 @@ void MeshAlg::computeAdjacency(
     Array<Face>&            faceArray,
     Array<Edge>&            edgeArray,
     Array<Vertex>&          vertexArray) {
-    
+
+    MeshEdgeTable           edgeTable;
+
     edgeArray.clear();
     vertexArray.clear();
     faceArray.clear();

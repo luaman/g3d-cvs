@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Multithreaded ArticulatedModel loading
      <li> G3D::System::numCores
      <li> Added buffering (with appropriate flushes) to G3D::logPrintf decrease the startup cost of writing the log
      <li> G3D::System::findDataFile now caches the locations of found files
@@ -36,6 +37,7 @@
      <li> Fix: System::appName now removes the 'd' that icompile appends
      <li> Fix: System::getCurrentProgramFilename now works on OS X
      <li> Fix: UserInput no longer crashes on MacBook "FN" key press
+     <li> Fix: Made MeshAlg::computeAdjacency threadsafe
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
@@ -44,8 +46,9 @@
      <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
      <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
-     <li> GApp::onLogic -> GApp::onAI, Widget::onLogic -> Widget::onAI
+     <li> G3D::GApp::onLogic -> GApp::onAI, Widget::onLogic -> Widget::onAI
      <li> Removed unused BSPMap::getTriangles texCoordIndex argument
+     <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
    </ul>
 
 <hr>
