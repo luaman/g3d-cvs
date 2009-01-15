@@ -622,6 +622,9 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
   This API is subject to change.
  */
 class Shader  : public ReferenceCountedObject {
+public:
+    typedef ReferenceCountedPointer<Shader>   Ref;
+
 protected:
 
     VertexAndPixelShaderRef         _vertexAndPixelShader;
