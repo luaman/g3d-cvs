@@ -225,7 +225,7 @@ float UserInput::getY() const {
 void UserInput::processKey(GKey code, int event) {
     bool state = (event == GEventType::KEY_DOWN);
 
-    if (code < GKey(keyFunction.size())) {
+    if ((code < GKey(keyFunction.size()) && (code >= GKey(0)))) {
         switch (keyFunction[(int)code]) {
         case RIGHT:
             right = state;
