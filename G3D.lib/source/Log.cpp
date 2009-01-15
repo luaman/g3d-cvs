@@ -46,7 +46,7 @@ Log::Log(const std::string& filename, int stripFromStackBottom) :
 
         // Write time is greater than 1ms.  This may be a network drive.... try another file.
         #ifdef G3D_WIN32
-           logName = std::string(std::getenv("TEMP")) + logName;
+            logName = std::string(std::getenv("TEMP")) + logName;
         #else
             logName = std::string("/tmp/") + logName;
         #endif
@@ -55,7 +55,7 @@ Log::Log(const std::string& filename, int stripFromStackBottom) :
     }
 
     // Turn off buffering.
-    setvbuf(logFile, NULL, _IONBF, 0);
+    setvbuf(logFile, NULL, _IOLBF, 0);
 
     fprintf(logFile, "Application Log\n");
     time_t t;
@@ -86,6 +86,7 @@ FILE* Log::getFile() const {
     return logFile;
 }
 
+
 Log* Log::common() {
     if (commonLog == NULL) {
         commonLog = new Log();
@@ -108,8 +109,8 @@ void Log::section(const std::string& s) {
 void __cdecl Log::printf(const char* fmt, ...) {
     printHeader();
 
-	va_list arg_list;
-	va_start(arg_list, fmt);
+    va_list arg_list;
+    va_start(arg_list, fmt);
     print(vformat(fmt, arg_list));
     va_end(arg_list);
 }

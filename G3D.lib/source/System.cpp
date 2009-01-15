@@ -28,6 +28,7 @@
 #include "G3D/prompt.h"
 #include "G3D/stringutils.h"
 #include "G3D/Log.h"
+#include "G3D/Table.h"
 #include <time.h>
 
 #include <cstring>
@@ -177,8 +178,23 @@ std::string System::findDataFile
 (const std::string&  full,
  bool                errorIfNotFound) {
 
+    // Places where specific files were most recently found.  This is
+    // used to cache seeking of common files.
+    static Table<std::string, std::string> lastFound;
+
     if (fileExists(full)) {
         return full;
+    }
+
+    std::string* last = lastFound.getPointer(full);
+    if (last != NULL) {
+        if (fileExists(*last)) {
+            // It is still there
+            return *last;
+        } else {
+            // Remove this from the cache it is invalid
+            lastFound.remove(full);
+        }
     }
 
     std::string initialAppDataDir(g_appDataDir);
@@ -273,6 +289,8 @@ std::string System::findDataFile
             logPrintf("\nWARNING: Could not find '%s' so '%s' "
                       "was substituted.\n", full.c_str(), 
                       filename.c_str());
+            // Update the cache
+            lastFound.set(full, filename);
             return filename;
         }
     }
@@ -285,6 +303,7 @@ std::string System::findDataFile
         }
         alwaysAssertM(false, "Could not find '" + full + "' in:\n" + locations);
     }
+
     // Not found
     return "";
 }

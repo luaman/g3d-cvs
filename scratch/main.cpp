@@ -156,9 +156,9 @@ G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
 
-    GFont::makeFont(256, "c:/font/dominant");
+    /*GFont::makeFont(256, "c:/font/dominant");
     exit(0);
-
+    */
 /*
     RenderDevice* rd = new RenderDevice();
     rd->init();

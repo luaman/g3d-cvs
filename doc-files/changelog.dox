@@ -13,6 +13,8 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Switched G3D::logPrintf to line buffering to decrease the startup cost of writing the log
+     <li> G3D::System::findDataFile now caches the locations of found files
      <li> G3D::Widget now inherits from G3D::PosedModel2D
      <li> GApp::m_renderPeriod
      <li> G3D::Random
@@ -32,6 +34,7 @@
      <li> Fix: iswspace now considers '\r' as whitespace
      <li> Fix: System::appName now removes the 'd' that icompile appends
      <li> Fix: System::getCurrentProgramFilename now works on OS X
+     <li> Fix: UserInput no longer crashes on MacBook "FN" key press
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

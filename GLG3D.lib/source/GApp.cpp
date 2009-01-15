@@ -69,6 +69,40 @@ static void writeLicense() {
 }
 
 
+    class Timer {
+    private:
+        std::string  myName;
+        RealTime     startTime;
+        std::string  prevMark;
+        RealTime     prevTime;
+
+    public:
+
+        void start(const std::string& myName = "Timer") {
+            this->myName = myName;
+            prevTime = startTime = System::time();
+            prevMark = "Start";
+        }
+
+        Timer() {
+            start();
+        }
+
+        void mark(const std::string& s) {
+            RealTime now = System::time();
+            printf("%s: %10s - %8fs since %s (%fs since start)\n",
+                   myName.c_str(),
+                   s.c_str(),
+                   now - prevTime,
+                   prevMark.c_str(),
+                   now - startTime);
+            prevTime = now;
+            prevMark = s;
+        }
+
+    };
+
+
 GApp::GApp(const Settings& settings, OSWindow* window) :
     m_renderPeriod(1),
     lastWaitTime(System::time()),
@@ -77,6 +111,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_realTime(0), 
     m_simTime(0) {
 
+    Timer timer; // TODO: remove
+    timer.start();
     debugLog          = NULL;
     debugFont         = NULL;
     m_endProgram      = false;
@@ -85,6 +121,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     debugLog = new Log(settings.logFilename);
     lastGApp = this;
 
+    timer.mark("Log");
+
     if (settings.dataDir == "<AUTO>") {
         dataDir = demoFindData(false);
     } else {
@@ -92,11 +130,14 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     }
     System::setAppDataDir(dataDir);
 
+    timer.mark("data dir");
     if (settings.writeLicenseFile && ! fileExists("g3d-license.txt", false)) {
         writeLicense();
     }
+    timer.mark("license");
 
     renderDevice = new RenderDevice();
+    timer.mark("render device");
 
     if (window != NULL) {
         _hasUserCreatedWindow = true;
@@ -105,7 +146,7 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         _hasUserCreatedWindow = false;    
         renderDevice->init(settings.window, debugLog);
     }
-
+    timer.mark("render device init");
     debugAssertGLOk();
 
     _window = renderDevice->window();
@@ -135,9 +176,9 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
 
         std::string s;
         t.commitString(s);
-        debugLog->printf("%s\n", s.c_str());
+        logPrintf("%s\n", s.c_str());
     }
-
+    timer.mark("write log");
     defaultCamera  = GCamera();
 
     debugAssertGLOk();
@@ -172,18 +213,20 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         addWidget(console);
     }
 
-
     toneMap = ToneMap::create();
 
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
     defaultController->setActive(true);
+    timer.mark("tonemap and console");
 
     if (settings.useDeveloperTools) {
         UprightSplineManipulator::Ref splineManipulator = UprightSplineManipulator::create(&defaultCamera);
         addWidget(splineManipulator);
         
-        GFontRef arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
-        GuiThemeRef skin = GuiTheme::fromFile(System::findDataFile("osx.skn"), arialFont);
+        timer.mark("begin font and theme");
+        GFont::Ref arialFont = GFont::fromFile(System::findDataFile("icon.fnt"));
+        GuiTheme::Ref skin = GuiTheme::fromFile(System::findDataFile("osx.skn"), arialFont);
+        timer.mark("end font and theme");
 
         debugWindow = GuiWindow::create("Debug Controls", skin, 
             Rect2D::xywh(0, settings.window.height - 150, 150, 150), GuiTheme::TOOL_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE);
@@ -212,6 +255,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_simTime     = 0;
     m_realTime    = 0;
     lastWaitTime  = System::time();
+
+    timer.mark("gui");
 }
 
 
