@@ -433,6 +433,12 @@ void ArticulatedModel::updateAll() {
         Part* part = geometryPart[p];
         part->updateVAR();
     }
+
+    // Check for correctness
+    for (int p = 0; p < partArray.size(); ++p) {
+        Part& part = partArray[p];
+        debugAssert(part.geometry.normal.size() == part.geometry.vertex.size());
+    }
 }
 
 
