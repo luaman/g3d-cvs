@@ -1864,6 +1864,7 @@ void System::describeSystem(
         var(t, "hasSSE3", System::hasSSE3());
         var(t, "has3DNow", System::has3DNow());
         var(t, "hasRDTSC", System::hasRDTSC());
+        var(t, "numCores", System::numCores());
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
