@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2001-08-04
-  @edited  2005-07-01
+  @edited  2009-01-15
  */
 
 #include "G3D/platform.h"
@@ -28,6 +28,13 @@ void logPrintf(const char* fmt, ...) {
     va_end(arg_list);
 }
 
+
+void logLazyPrintf(const char* fmt, ...) {
+	va_list arg_list;
+	va_start(arg_list, fmt);
+    Log::common()->lazyvprintf(fmt, arg_list);
+    va_end(arg_list);
+}
 
 Log* Log::commonLog = NULL;
 
@@ -54,8 +61,8 @@ Log::Log(const std::string& filename, int stripFromStackBottom) :
         logFile = fopen(logName.c_str(), "w");
     }
 
-    // Turn off buffering.
-    setvbuf(logFile, NULL, _IOLBF, 0);
+    // Use a large buffer (although we flush in logPrintf)
+    setvbuf(logFile, NULL, _IOFBF, 2048);
 
     fprintf(logFile, "Application Log\n");
     time_t t;
@@ -107,8 +114,6 @@ void Log::section(const std::string& s) {
 
 
 void __cdecl Log::printf(const char* fmt, ...) {
-    printHeader();
-
     va_list arg_list;
     va_start(arg_list, fmt);
     print(vformat(fmt, arg_list));
@@ -118,41 +123,24 @@ void __cdecl Log::printf(const char* fmt, ...) {
 
 void __cdecl Log::vprintf(const char* fmt, va_list argPtr) {
     vfprintf(logFile, fmt, argPtr);
+    fflush(logFile);
+}
+
+
+void __cdecl Log::lazyvprintf(const char* fmt, va_list argPtr) {
+    vfprintf(logFile, fmt, argPtr);
 }
 
 
 void Log::print(const std::string& s) {
-    printHeader();
     fprintf(logFile, "%s", s.c_str());
+    fflush(logFile);
 }
 
 
 void Log::println(const std::string& s) {
-    printHeader();
     fprintf(logFile, "%s\n", s.c_str());
-}
-
-
-void Log::printHeader() {
-    time_t t;
-    if (time(&t) != ((time_t)-1)) {
-        /*
-        char buf[32];
-        strftime(buf, 32, "[%H:%M:%S]", localtime(&t));
-    
-         Removed because this doesn't work on SDL threads.
-
-        #ifdef _DEBUG
-            std::string bt = getBacktrace(15, 2, stripFromStackBottom);
-            fprintf(logFile, "\n %s %s\n\n", buf, bt.c_str());
-        #endif
-
-        fprintf(logFile, "\n %s \n", buf);
-        */
-
-    } else {
-        println("[Error getting time]");
-    }
+    fflush(logFile);
 }
 
 }

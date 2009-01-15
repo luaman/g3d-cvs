@@ -271,7 +271,7 @@ void GApp::loadFont(const std::string& fontName) {
     if (fileExists(filename)) {
         debugFont = GFont::fromFile(filename);
     } else {
-        debugLog->printf(
+        logPrintf(
             "Warning: G3D::GApp could not load font \"%s\".\n"
             "This may be because the G3D::GApp::Settings::dataDir was not\n"
             "properly set in main().\n",

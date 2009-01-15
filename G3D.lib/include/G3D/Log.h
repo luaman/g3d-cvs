@@ -36,6 +36,9 @@ namespace G3D {
      */
 void logPrintf(const char* fmt, ...);
 
+/** Does not flush the buffer; follow up with a logPrintf to force the flush. */
+void logLazyPrintf(const char* fmt, ...);
+
 /**
  System log for debugging purposes.  The first log opened
  is the "common log" and can be accessed with the static
@@ -55,11 +58,6 @@ private:
     static Log*             commonLog;
 
     int                     stripFromStackBottom;
-
-    /**
-     Prints the time & stack trace.
-     */
-    void printHeader();
 
 public:
 
@@ -93,6 +91,8 @@ public:
     void __cdecl printf(const char* fmt, ...) G3D_CHECK_PRINTF_METHOD_ARGS;
 
     void __cdecl vprintf(const char*, va_list argPtr) G3D_CHECK_VPRINTF_METHOD_ARGS;
+    /** Does not flush */
+    void __cdecl lazyvprintf(const char*, va_list argPtr) G3D_CHECK_VPRINTF_METHOD_ARGS;
 
     static Log* common();
 

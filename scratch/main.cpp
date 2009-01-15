@@ -42,7 +42,12 @@ public:
     void printConsoleHelp();
 };
 
+RealTime startTime = System::time();
+
 App::App(const GApp::Settings& settings) : GApp(settings) {
+    RealTime duration = System::time() - startTime;
+    debugPrintf("**********************\nTime until constructor: %fs\n", duration);
+    exit(1);
     catchCommonExceptions = false;
 }
 

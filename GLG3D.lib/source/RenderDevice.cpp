@@ -320,28 +320,6 @@ void RenderDevice::init(OSWindow* window, Log* log) {
     }
     debugAssertGLOk();
 
-    if (debugLog) {
-        int t = 0;
-       
-        int t0 = 0;
-        if (GLCaps::supports_GL_ARB_multitexture()) {
-            t = t0 = glGetInteger(GL_MAX_TEXTURE_UNITS_ARB);
-        }
-
-        if (GLCaps::supports_GL_ARB_fragment_program()) {
-            t = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
-        }
-        
-        debugLog->printf("numTextureCoords                      = %d\n"
-                         "numTextures                           = %d\n"
-                         "numTextureUnits                       = %d\n"
-                         "glGet(GL_MAX_TEXTURE_UNITS_ARB)       = %d\n"
-                         "glGet(GL_MAX_TEXTURE_IMAGE_UNITS_ARB) = %d\n",
-                         _numTextureCoords, _numTextures, _numTextureUnits,
-                         t0,
-                         t);
-    }
-
     if (debugLog) {debugLog->println("Setting video mode");}
 
     setVideoMode();
@@ -371,101 +349,117 @@ void RenderDevice::init(OSWindow* window, Log* log) {
     bool depthOk   = depthBits >= minimumDepthBits;
     bool stencilOk = stencilBits >= minimumStencilBits;
 
+    cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
+
     if (debugLog) {
-        debugLog->printf("Operating System: %s\n",
+        int t = 0;
+       
+        int t0 = 0;
+        if (GLCaps::supports_GL_ARB_multitexture()) {
+            t = t0 = glGetInteger(GL_MAX_TEXTURE_UNITS_ARB);
+        }
+
+        if (GLCaps::supports_GL_ARB_fragment_program()) {
+            t = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
+        }
+        
+        logLazyPrintf("numTextureCoords                      = %d\n"
+                     "numTextures                           = %d\n"
+                     "numTextureUnits                       = %d\n"
+                     "glGet(GL_MAX_TEXTURE_UNITS_ARB)       = %d\n"
+                     "glGet(GL_MAX_TEXTURE_IMAGE_UNITS_ARB) = %d\n",
+                     _numTextureCoords, _numTextures, _numTextureUnits,
+                     t0,
+                     t);   
+
+        logLazyPrintf("Operating System: %s\n",
                          System::operatingSystem().c_str());
 
-        debugLog->printf("Processor Architecture: %s\n\n", 
+        logLazyPrintf("Processor Architecture: %s\n\n", 
                          System::cpuArchitecture().c_str());
 
-        debugLog->printf("GL Vendor:      %s\n", GLCaps::vendor().c_str());
+        logLazyPrintf("GL Vendor:      %s\n", GLCaps::vendor().c_str());
 
-        debugLog->printf("GL Renderer:    %s\n", GLCaps::renderer().c_str());
+        logLazyPrintf("GL Renderer:    %s\n", GLCaps::renderer().c_str());
 
-        debugLog->printf("GL Version:     %s\n", GLCaps::glVersion().c_str());
+        logLazyPrintf("GL Version:     %s\n", GLCaps::glVersion().c_str());
 
-        debugLog->printf("Driver version: %s\n\n", GLCaps::driverVersion().c_str());
+        logLazyPrintf("Driver version: %s\n\n", GLCaps::driverVersion().c_str());
 
-	std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
+	    std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
 
-        debugLog->printf(
+        logLazyPrintf(
             "GL extensions: \"%s\"\n\n",
             extStringCopy.c_str());
 
         // Test which texture and render buffer formats are supported by this card
-        logPrintf("Supported Formats:\n");
-        logPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
+        logLazyPrintf("Supported Formats:\n");
+        logLazyPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
 	
         for (int code = 0; code < ImageFormat::CODE_NUM; ++code) {
-	    if ((code == ImageFormat::CODE_DEPTH24_STENCIL8) && 
-		(GLCaps::enumVendor() == GLCaps::MESA)) {
-	        // Mesa seems to crash on this format
-	        continue;
-   	    }
+	        if ((code == ImageFormat::CODE_DEPTH24_STENCIL8) && 
+		        (GLCaps::enumVendor() == GLCaps::MESA)) {
+	            // Mesa seems to crash on this format
+	            continue;
+   	        }
 
             const ImageFormat* fmt = 
-	      ImageFormat::fromCode((ImageFormat::Code)code);
+	            ImageFormat::fromCode((ImageFormat::Code)code);
 
             if (fmt) {
 	        // printf("Format: %s\n", fmt->name().c_str());
                 bool t = GLCaps::supportsTexture(fmt);
                 bool r = GLCaps::supportsRenderBuffer(fmt);
-                logPrintf("%20s  %s       %s\n", fmt->name().c_str(), t ? "Yes" : "No ", r ? "Yes" : "No ");
+                logLazyPrintf("%20s  %s       %s\n", fmt->name().c_str(), t ? "Yes" : "No ", r ? "Yes" : "No ");
             }
         }
-        logPrintf("\n");
-    }
- 
 
-    cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
+        logLazyPrintf("\n");
+    
+        OSWindow::Settings actualSettings;
+        window->getSettings(actualSettings);
 
-    if (debugLog) {
-    debugLog->section("Video Status");
+        // This call is here to make GCC realize that isOk is used.
+        (void)isOk(false);
+        (void)isOk((void*)NULL);
 
-    OSWindow::Settings actualSettings;
-    window->getSettings(actualSettings);
+        logPrintf(
+                 "Capability    Minimum   Desired   Received  Ok?\n"
+                 "-------------------------------------------------\n"
+                 "* RENDER DEVICE \n"
+                 "Depth       %4d bits %4d bits %4d bits   %s\n"
+                 "Stencil     %4d bits %4d bits %4d bits   %s\n"
+                 "Alpha                           %4d bits   %s\n"
+                 "Red                             %4d bits   %s\n"
+                 "Green                           %4d bits   %s\n"
+                 "Blue                            %4d bits   %s\n"
+                 "FSAA                      %2d    %2d    %s\n"
 
-    // This call is here to make GCC realize that isOk is used.
-    (void)isOk(false);
-    (void)isOk((void*)NULL);
+                 "Width             %8d pixels           %s\n"
+                 "Height            %8d pixels           %s\n"
+                 "Mode                 %10s             %s\n\n",
 
-    debugLog->printf(
-             "Capability    Minimum   Desired   Received  Ok?\n"
-             "-------------------------------------------------\n"
-             "* RENDER DEVICE \n"
-             "Depth       %4d bits %4d bits %4d bits   %s\n"
-             "Stencil     %4d bits %4d bits %4d bits   %s\n"
-             "Alpha                           %4d bits   %s\n"
-             "Red                             %4d bits   %s\n"
-             "Green                           %4d bits   %s\n"
-             "Blue                            %4d bits   %s\n"
-             "FSAA                      %2d    %2d    %s\n"
+                 minimumDepthBits, desiredDepthBits, depthBits, isOk(depthOk),
+                 minimumStencilBits, desiredStencilBits, stencilBits, isOk(stencilOk),
 
-             "Width             %8d pixels           %s\n"
-             "Height            %8d pixels           %s\n"
-             "Mode                 %10s             %s\n\n",
+                 alphaBits, "ok",
+                 redBits, "ok", 
+                 greenBits, "ok", 
+                 blueBits, "ok", 
 
-             minimumDepthBits, desiredDepthBits, depthBits, isOk(depthOk),
-             minimumStencilBits, desiredStencilBits, stencilBits, isOk(stencilOk),
+                 settings.fsaaSamples, actualSettings.fsaaSamples,
+                 isOk(settings.fsaaSamples == actualSettings.fsaaSamples),
 
-             alphaBits, "ok",
-             redBits, "ok", 
-             greenBits, "ok", 
-             blueBits, "ok", 
-
-             settings.fsaaSamples, actualSettings.fsaaSamples,
-             isOk(settings.fsaaSamples == actualSettings.fsaaSamples),
-
-             settings.width, "ok",
-             settings.height, "ok",
-             (settings.fullScreen ? "Fullscreen" : "Windowed"), "ok"
-             );
+                 settings.width, "ok",
+                 settings.height, "ok",
+                 (settings.fullScreen ? "Fullscreen" : "Windowed"), "ok"
+                 );
     }
 
     inPrimitive        = false;
     inIndexedPrimitive = false;
 
-    if (debugLog) debugLog->println("Done initializing RenderDevice.\n");
+    if (debugLog) { debugLog->println("Done initializing RenderDevice.\n"); }
 
     _initialized = true;
 

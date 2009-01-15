@@ -159,12 +159,12 @@ std::string GLCaps::getDriverVersion() {
 
         if (GetFileVersionInfoA((LPCSTR)driverFileName.c_str(), 0, size, buffer) == 0) {
             delete[] (uint8*)buffer;
-        return "Unknown (Can't find driver)";
+            return "Unknown (Can't find driver)";
         }
 
 	    // Interpret the VS_VERSIONINFO header pseudo-struct
 	    VS_VERSIONINFO* pVS = (VS_VERSIONINFO*)buffer;
-        debugAssert(!wcscmp(pVS->szKey, L"VS_VERSION_INFO"));
+        debugAssert(! wcscmp(pVS->szKey, L"VS_VERSION_INFO"));
 
 	    uint8* pVt = (uint8*) &pVS->szKey[wcslen(pVS->szKey) + 1];
 
@@ -532,8 +532,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
 
         if ((beginsWith(renderer(), "MOBILITY RADEON") || beginsWith(renderer(), "ATI MOBILITY RADEON")) &&
             beginsWith(driverVersion(), "6.14.10.6")) {
-            Log::common()->printf("WARNING: This ATI Radeon Mobility card has a known bug with cube maps.\n"
-                                  "   Put cube map texture coordinates in the normals and use ARB_NORMAL_MAP to work around.\n\n");
+            logPrintf("WARNING: This ATI Radeon Mobility card has a known bug with cube maps.\n"
+                      "   Put cube map texture coordinates in the normals and use ARB_NORMAL_MAP to work around.\n\n");
         }
     }
 
@@ -1290,8 +1290,8 @@ void GLCaps::checkBug_slowVBO() {
     glPopClientAttrib();
     glPopAttrib();
 
-    Log::common()->printf("\n%d triangles\n", count * N / 3);
-    Log::common()->printf("RAM performance = %f FPS     VBO performance = %f FPS\n", (float)(frames - 1) / RAMTime, (float)(frames - 1)/ VBOTime);
+    logLazyPrintf("\n%d triangles\n", count * N / 3);
+    logPrintf("RAM performance = %f FPS     VBO performance = %f FPS\n", (float)(frames - 1) / RAMTime, (float)(frames - 1)/ VBOTime);
 
     // See if the RAM performance was conservatively faster.
     value = RAMTime < VBOTime * 0.9;
