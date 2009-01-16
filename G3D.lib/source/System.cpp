@@ -1078,7 +1078,7 @@ RealTime System::time() {
         QueryPerformanceCounter(&now);
 
         return ((RealTime)(now.QuadPart - instance().m_start.QuadPart) /
-                _counterFrequency.QuadPart) + instance().m_realWorldGetTickTime0;
+                instance().m_counterFrequency.QuadPart) + instance().m_realWorldGetTickTime0;
 #   else
         // Linux resolution defaults to 100Hz.
         // There is no need to do a separate RDTSC call as gettimeofday
