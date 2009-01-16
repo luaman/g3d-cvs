@@ -640,13 +640,13 @@ void System::getStandardProcessorExtensions() {
         return;
     }
 
-    unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0, features = 0;
+    uint32 eaxreg = 0, ebxreg = 0, ecxreg = 0, features = 0;
 
     cpuid(CPUID_PROCESSOR_FEATURES, eaxreg, ebxreg, ecxreg, features);
 
 #   define checkBit(var, bit)   ((var & (1 << bit)) ? true : false)
 
-    m_hasRDTSC    = checkBit(features, 16);
+    m_hasRDTSC    = checkBit(features, 4);
     m_hasMMX      = checkBit(features, 23);
     m_hasSSE      = checkBit(features, 25);
     m_hasSSE2     = checkBit(features, 26);
@@ -656,9 +656,9 @@ void System::getStandardProcessorExtensions() {
 
     if (m_highestCPUIDFunction >= CPUID_EXTENDED_FEATURES) {
         cpuid(CPUID_EXTENDED_FEATURES, eaxreg, ebxreg, ecxreg, features);
-        m_hasAMDMMX = checkBit(features, 22);
-        m_has3DNOW  = checkBit(features, 31);
-        m_has3DNOW2 = checkBit(features, 30);
+        m_hasAMDMMX = checkBit(features, 22);  // Only on AMD
+        m_has3DNOW  = checkBit(features, 31);  // Only on AMD
+        m_has3DNOW2 = checkBit(features, 30);  // Only on AMD
     } else {
         m_hasAMDMMX = false;
         m_has3DNOW  = false;
@@ -1841,13 +1841,23 @@ std::string System::currentDateString() {
 
 // VC on Intel
 void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
-    __asm mov	eax, func   
-    __asm mov   ecx, 0
-    __asm cpuid              
-    __asm mov	areg, eax   
-    __asm mov	breg, ebx   
-    __asm mov	creg, ecx   
-    __asm mov	dreg, edx
+    // Can't copy from assembler direct to a function argument (which is on the stack) in VC.
+    uint32 a,b,c,d;
+
+    // Intel assembler syntax
+    __asm {
+        mov	  eax, func      //  eax <- func
+        mov   ecx, 0
+        cpuid              
+        mov   a, eax   
+        mov   b, ebx   
+        mov   c, ecx   
+        mov   d, edx
+    }
+    areg = a;
+    breg = b; 
+    creg = c;
+    dreg = d;
 }
 
 #elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
@@ -1865,6 +1875,7 @@ void System::CPUIDFunction(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, u
 // See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well
 // for a discussion of why this saves ebx; it makes the code compile with -fPIC
 void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+    // AT&T assembler syntax
     asm volatile(
                  "pushl %%ebx      \n\t" /* save %ebx */
                  "movl $0, %%ecx   \n\n" /* Wipe ecx */
