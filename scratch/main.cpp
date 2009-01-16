@@ -17,7 +17,7 @@ public:
     SkyRef              sky;
     BSPMapRef           map;
     VideoOutput::Ref    video;
-	ArticulatedModelRef model;
+    ArticulatedModelRef model;
 
     KDTree<Triangle>    kd;
 
@@ -54,7 +54,8 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 void App::onInit() {
 
     DebugTimer timer("Load 3DS");
-    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3ds");
+    //    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS");
+    model = ArticulatedModel::fromFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS");
     timer.after("load");
 //    exit(0);
 

@@ -376,7 +376,8 @@ protected:
 
 public:
     /** Stores the pointer to partArray.*/
-    PartUpdater(Array<ArticulatedModel::Part*>& partArray, int startIndex, int endIndex) :
+    PartUpdater(Array<ArticulatedModel::Part*>& partArray, 
+                int startIndex, int endIndex) :
         GThread("Part Updater"),
         m_partArray(partArray),
         m_startIndex(startIndex),
@@ -389,6 +390,8 @@ public:
             ArticulatedModel::Part* part = m_partArray[i];
             part->computeNormalsAndTangentSpace();
             part->computeBounds();
+            debugAssert(part->geometry.normalArray.size() ==
+                        part->geometry.vertexArray.size());
         }
     }
 };
@@ -420,11 +423,16 @@ void ArticulatedModel::updateAll() {
     ThreadSet threads;
     int startIndex = 0;
     for (int t = 0; t < numThreads; ++t) {
-        int endIndex = (geometryPart.size() - 1) * t / numThreads;
+        int endIndex =
+            (numThreads == 1) ? 
+            (geometryPart.size() - 1) :
+            (geometryPart.size() - 1) * t / (numThreads - 1);
         GThreadRef thread = new PartUpdater(geometryPart, startIndex, endIndex);
         threads.insert(thread);
         startIndex = endIndex + 1;
     }
+    debugAssertM(startIndex == geometryPart.size(), 
+                 "Did not spawn threads for all parts");
     threads.start(GThread::USE_CURRENT_THREAD);
     threads.waitForCompletion();
 
