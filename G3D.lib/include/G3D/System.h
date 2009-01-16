@@ -135,8 +135,7 @@ private:
     /** The Real-World time of System::getTick() time 0.  Set by initTime */
     RealTime       m_realWorldGetTickTime0;
 
-    unsigned int   m_maxSupportedCPUIDLevel;
-    unsigned int   m_maxSupportedExtendedLevel;
+    uint32         m_highestCPUIDFunction;
 
     /** @brief Used for the singleton instance only. */
     System();
@@ -152,6 +151,7 @@ private:
     enum CPUIDFunction {
         CPUID_VENDOR_ID              = 0x00000000,
         CPUID_PROCESSOR_FEATURES     = 0x00000001,
+        CPUID_NUM_CORES              = 0x00000004,
         CPUID_GET_HIGHEST_FUNCTION   = 0x80000000,
         CPUID_EXTENDED_FEATURES      = 0x80000001};
 

@@ -117,8 +117,7 @@ System::System() :
     m_version("Uninitialized"),
     m_outOfMemoryCallback(NULL),
     m_realWorldGetTickTime0(0),
-    m_maxSupportedCPUIDLevel(0),
-    m_maxSupportedExtendedLevel(0) {
+    m_highestCPUIDFunction(0) {
 
     init();
 }
@@ -139,9 +138,7 @@ void System::init() {
     m_machineEndian = checkEndian();
 
     m_hasCPUID = checkForCPUID();
-
     // Process the CPUID information
-#   ifdef G3D_NOT_OSX_PPC
     if (m_hasCPUID) {
         // We read the standard CPUID level 0x00000000 which should
         // be available on every x86 processor.  This fills out
@@ -160,19 +157,6 @@ void System::init() {
             m_cpuVendor = c;
         }
 
-        // We can also read the max. supported standard CPUID level
-        m_maxSupportedCPUIDLevel = eaxreg & 0xFFFF;
-
-        // Then we read the extended CPUID level 0x80000000
-        cpuid(CPUID_GET_HIGHEST_FUNCTION, eaxreg, ebxreg, ecxreg, edxreg);
-
-        // ...to check the max. supported extended CPUID level
-        m_maxSupportedExtendedLevel = eaxreg;
-
-        // Then we switch to the specific processor vendors.
-        // Fill out _cpuArch based on this information.  It will
-        // be overwritten by the next block of code on Windows,
-        // but on Linux will stand.
         switch (ebxreg) {
         case 0x756E6547:        // GenuineIntel
             m_cpuArch = "Intel Processor";
@@ -191,15 +175,16 @@ void System::init() {
             break;
         }
 
-        // TODO: buggy!
-        if (m_maxSupportedCPUIDLevel >= 4) {
-            cpuid(CPUID_EXTENDED_FEATURES, eaxreg, ebxreg, ecxreg, edxreg);
+
+        int highestFunction = eaxreg;
+        if (highestFunction >= CPUID_NUM_CORES) {
+            cpuid(CPUID_NUM_CORES, eaxreg, ebxreg, ecxreg, edxreg);
             // Number of cores is in (eax>>26) + 1
             m_numCores = (eaxreg >> 26) + 1;
         }
 
+        cpuid(CPUID_GET_HIGHEST_FUNCTION, m_highestCPUIDFunction, ebxreg, ecxreg, edxreg);
     }
-#   endif // G3D_NOT_OSX_PPC
 
 
     // Get the operating system name (also happens to read some other information)
@@ -669,7 +654,7 @@ void System::getStandardProcessorExtensions() {
 
     m_hasSSE3     = checkBit(ecxreg, 0);
 
-    if (m_maxSupportedExtendedLevel >= CPUID_EXTENDED_FEATURES) {
+    if (m_highestCPUIDFunction >= CPUID_EXTENDED_FEATURES) {
         cpuid(CPUID_EXTENDED_FEATURES, eaxreg, ebxreg, ecxreg, features);
         m_hasAMDMMX = checkBit(features, 22);
         m_has3DNOW  = checkBit(features, 31);
@@ -1857,6 +1842,7 @@ std::string System::currentDateString() {
 // VC on Intel
 void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
     __asm mov	eax, func   
+    __asm mov   ecx, 0
     __asm cpuid              
     __asm mov	areg, eax   
     __asm mov	breg, ebx   
@@ -1881,12 +1867,12 @@ void System::CPUIDFunction(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, u
 void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
     asm volatile(
                  "pushl %%ebx      \n\t" /* save %ebx */
+                 "movl $0, %%ecx   \n\n" /* Wipe ecx */
                  "cpuid            \n\t"
                  "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
                  "popl %%ebx       \n\t" /* restore the old %ebx */
                  : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx)
-                 : "a"(func)
-                 : "cc");
+                 : "a"(func));
 }
 
 #endif
