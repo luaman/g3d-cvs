@@ -5,14 +5,16 @@
 
    Major version numbers introduce API changes that are not backwards
    compatible.  Minor versions are backwards compatible to the
-   previous major release, except for critical bug fixes.  Deprecated functionality
-   will be supported until (at least) the next major release.
-
+   previous major release, except for critical bug fixes.  Deprecated
+   functionality will be supported until (at least) the next major
+   release.
 
 <hr>
    <p>
    Changes in 8.00:
    <ul>
+     <li> Removed most static global variables to control order of intialization
+     <li> Made empty G3D::Table default to zero allocation
      <li> Multithreaded ArticulatedModel loading
      <li> G3D::System::numCores
      <li> Added buffering (with appropriate flushes) to G3D::logPrintf decrease the startup cost of writing the log

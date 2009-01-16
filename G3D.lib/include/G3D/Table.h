@@ -5,7 +5,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-04-22
-  @edited  2008-07-01
+  @edited  2009-01-16
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
@@ -239,9 +239,9 @@ public:
      Creates an empty hash table.  This causes some heap allocation to occur.
      */
     Table() : bucket(NULL) {
-        numBuckets = 10;
+        numBuckets = 0;
         _size      = 0;
-        bucket     = (Node**)System::calloc(sizeof(Node*), numBuckets);
+        bucket     = NULL;//(Node**)System::calloc(sizeof(Node*), numBuckets);
         checkIntegrity();
     }
 
@@ -502,6 +502,10 @@ public:
      key into a table is O(1), but may cause a potentially slow rehashing.
      */
     void set(const Key& key, const Value& value) {
+        if (numBuckets == 0) {
+            resize(10);
+        }
+
         size_t code = HashFunc::hashCode(key);
         size_t b = code % numBuckets;
         
@@ -568,6 +572,9 @@ private:
 
     /** Helper for remove() and getRemove() */
     bool remove(const Key& key, Key& removedKey, Value& removedValue, bool updateRemoved) {
+        if (numBuckets == 0) {
+            return false;
+        }
        size_t code = HashFunc::hashCode(key);
        size_t b = code % numBuckets;
 
@@ -632,17 +639,21 @@ public:
 private:
 
    Entry* getEntryPointer(const Key& key) const {
-        size_t  code = HashFunc::hashCode(key);
-        size_t b = code % numBuckets;
+       if (numBuckets == 0) {
+           return NULL;
+       }
 
-        Node* node = bucket[b];
+       size_t  code = HashFunc::hashCode(key);
+       size_t b = code % numBuckets;
 
-        while (node != NULL) {
-            if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
-                return &(node->entry);
-            }
-            node = node->next;
-        }
+       Node* node = bucket[b];
+
+       while (node != NULL) {
+           if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
+               return &(node->entry);
+           }
+           node = node->next;
+       }
 
         return NULL;
    }
@@ -683,12 +694,16 @@ public:
        pointer errors.
      */
    Value* getPointer(const Key& key) const {
+       if (numBuckets == 0) {
+           return NULL;
+       }
+
        size_t code = HashFunc::hashCode(key);
-      size_t b = code % numBuckets;
+       size_t b = code % numBuckets;
 
-      Node* node = bucket[b];
+       Node* node = bucket[b];
 
-      while (node != NULL) {
+       while (node != NULL) {
           if ((node->hashCode == code) && EqualsFunc::equals(node->entry.key, key)) {
              // found key
              return &(node->entry.value);
@@ -718,6 +733,10 @@ public:
     Returns true if key is in the table.
     */
    bool containsKey(const Key& key) const {
+       if (numBuckets == 0) {
+           return false;
+       }
+
        size_t code = HashFunc::hashCode(key);
        size_t b = code % numBuckets;
 

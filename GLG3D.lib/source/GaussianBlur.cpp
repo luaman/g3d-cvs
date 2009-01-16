@@ -6,8 +6,6 @@
 
 namespace G3D {
 
-Table<int, ShaderRef> GaussianBlur::shaderCache;
-
 void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vector2& direction, int N) {
     apply(rd, source, direction, N, source->vector2Bounds());
 }
@@ -33,19 +31,19 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
 
 
 ShaderRef GaussianBlur::getShader(int N) {
-    if (! shaderCache.containsKey(N)) {
-        if (shaderCache.size() >= MAX_CACHE_SIZE) {
+    if (! shaderCache().containsKey(N)) {
+        if (shaderCache().size() >= MAX_CACHE_SIZE) {
             // Remove a random element to keep the cache
             // size limited.
             Array<int> key;
-            shaderCache.getKeys(key);
-            shaderCache.remove(key.randomElement());
+            shaderCache().getKeys(key);
+            shaderCache().remove(key.randomElement());
         }
 
-        shaderCache.set(N, makeShader(N));
+        shaderCache().set(N, makeShader(N));
     }
 
-    return shaderCache[N];
+    return shaderCache()[N];
 }
 
 

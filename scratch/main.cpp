@@ -42,11 +42,8 @@ public:
     void printConsoleHelp();
 };
 
-RealTime startTime = System::time();
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
-    RealTime duration = System::time() - startTime;
-    debugPrintf("**********************\nTime until constructor: %fs\n", duration);
     catchCommonExceptions = false;
 }
 
@@ -55,7 +52,7 @@ void App::onInit() {
 
     DebugTimer timer("Load 3DS");
     //    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS");
-    model = ArticulatedModel::fromFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS");
+    //   model = ArticulatedModel::fromFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS");
     timer.after("load");
 //    exit(0);
 
@@ -130,10 +127,14 @@ void App::printConsoleHelp() {
 }
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+
+    if (model.notNull()) {
     //for (int i = 0; i < 20; ++i) {
     //    model->pose(posed3D, Vector3(0, 0, -i * 2));
     //}
+
     model->pose(posed3D);
+    }
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {

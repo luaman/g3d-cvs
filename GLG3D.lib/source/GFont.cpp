@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@graphics3d.com
 
  @created 2002-11-02
- @edited  2007-06-10
+ @edited  2009-01-15
  */
 
 #include "GLG3D/GFont.h"
@@ -21,8 +21,10 @@
 
 namespace G3D {
 
-/** */
-static WeakCache<std::string, GFontRef> fontCache;
+static WeakCache<std::string, GFontRef>& fontCache() {
+    static WeakCache<std::string, GFontRef> cache;
+    return cache;
+}
 
 
 GFontRef GFont::fromFile(const std::string& filename) {
@@ -33,11 +35,11 @@ GFontRef GFont::fromFile(const std::string& filename) {
     }
 
     std::string key = filenameBaseExt(filename);
-    GFontRef font = fontCache[key];
+    GFontRef font = fontCache()[key];
     if (font.isNull()) {
         BinaryInput b(filename, G3D_LITTLE_ENDIAN, true);
         font = new GFont(filename, b);
-        fontCache.set(key, font);
+        fontCache().set(key, font);
     }
 
     return font;

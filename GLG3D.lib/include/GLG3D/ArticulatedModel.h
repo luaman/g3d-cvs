@@ -153,8 +153,11 @@ public:
         Pose() {}
     };
 
-	/** Identity transformation.*/
-    static const Pose DEFAULT_POSE;
+    /** Identity transformation.*/
+    inline static const Pose& defaultPose() {
+        static const Pose p;
+        return p;
+    }
 
     /**
       A named sub-set of the model that has a single reference frame.  A Part's reference
@@ -331,7 +334,7 @@ public:
     void pose(
         Array<PosedModel::Ref>&  posedModelArray,
         const CoordinateFrame&   cframe = CoordinateFrame(),
-        const Pose&              pose = DEFAULT_POSE);
+        const Pose&              pose = defaultPose());
 
     /** 
       Supports 3DS, IFS, and PLY2 file formats.  The format of a file is detected by the extension. 

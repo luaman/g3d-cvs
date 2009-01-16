@@ -85,8 +85,7 @@
 
 namespace G3D {
 
-struct CpuInfo
-{
+class CpuInfo {
 public:
     int     m_cpuSpeed;
     bool    m_hasCPUID;
@@ -100,6 +99,7 @@ public:
     bool    m_hasAMDMMX;
     char    m_cpuVendorStr[1024];
     int     m_numCores;
+
     CpuInfo() :
         m_cpuSpeed(0),
         m_hasCPUID(false),
@@ -126,45 +126,47 @@ public:
 // helper macro to call cpuid functions and return all values
 #ifdef _MSC_VER
 
-    // VC on Intel
-    void cpuid(uint32 func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
-	   __asm mov	eax, func   
-	   __asm cpuid              
-           __asm mov	areg, eax   
-           __asm mov	breg, ebx   
-	   __asm mov	creg, ecx   
-	   __asm mov	dreg, edx
-    }
+// VC on Intel
+static void cpuid(uint32 func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
+    __asm mov	eax, func   
+    __asm cpuid              
+    __asm mov	areg, eax   
+    __asm mov	breg, ebx   
+    __asm mov	creg, ecx   
+    __asm mov	dreg, edx
+}
 
 #elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
-    // OS X PPC; no CPUID
-    void cpuid(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
-        eax = 0;
-        ebx = 0;
-        ecx = 0;
-        edx = 0;
-    }
+
+// non-intel OS X; no CPUID
+static void cpuid(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+    eax = 0;
+    ebx = 0;
+    ecx = 0;
+    edx = 0;
+}
+
 #else
 
-    // See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well
-    // for a discussion of why this saves ebx; it makes the code compile with -fPIC
-    void cpuid(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
-        asm volatile(
-                     "pushl %%ebx      \n\t" /* save %ebx */
-                     "cpuid            \n\t"
-                     "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
-                     "popl %%ebx       \n\t" /* restore the old %ebx */
-                     : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx)
-                     : "a"(func)
-                     : "cc");
-    }
+// See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well
+// for a discussion of why this saves ebx; it makes the code compile with -fPIC
+static void cpuid(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+    asm volatile(
+                 "pushl %%ebx      \n\t" /* save %ebx */
+                 "cpuid            \n\t"
+                 "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                 "popl %%ebx       \n\t" /* restore the old %ebx */
+                 : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx)
+                 : "a"(func)
+                 : "cc");
+}
+
 #endif
 
 // this holds the data directory set by the application (currently GApp) for use by findDataFile
 static char                                     g_appDataDir[FILENAME_MAX] = "";
 
 static CpuInfo                                  g_cpuInfo;
-
 
 static G3DEndian                                _machineEndian      = G3D_LITTLE_ENDIAN;
 static char                                     _cpuArchCstr[1024];
@@ -182,26 +184,24 @@ static char                                     versionCstr[1024];
 System::OutOfMemoryCallback                     System::outOfMemoryCallback = NULL;
 
 #ifdef G3D_OSX
-long											System::m_OSXCPUSpeed;
-double											System::m_secondsPerNS;
+long                                            System::m_OSXCPUSpeed;
+double                                          System::m_secondsPerNS;
 #endif
 
 /** The Real-World time of System::getTick() time 0.  Set by initTime */
-static RealTime             realWorldGetTickTime0;
+static RealTime                                 realWorldGetTickTime0;
 
-
-static unsigned int      maxSupportedCPUIDLevel = 0;
-static unsigned int      maxSupportedExtendedLevel = 0;
+static unsigned int                             maxSupportedCPUIDLevel = 0;
+static unsigned int                             maxSupportedExtendedLevel = 0;
 
 /** Checks if the CPUID command is available on the processor (called from init) */
-static void checkForCPUID();
+static bool checkForCPUID();
 
 /** ReadRead the standard processor extensions.  Called from init(). */
 static void getStandardProcessorExtensions();
 
 /** Called from init */
 static void initTime();
-
 
 std::string System::findDataFile
 (const std::string&  full,
@@ -413,15 +413,18 @@ std::string demoFindData(bool errorIfNotFound) {
     return "";
 }
 
+
 int System::numCores() {
     init();
     return g_cpuInfo.m_numCores;
 }
 
+
 bool System::hasCPUID() {
     init();
     return g_cpuInfo.m_hasCPUID;
 }
+
 
 bool System::hasRDTSC() {
     init();
@@ -441,7 +444,7 @@ bool System::hasSSE2() {
 }
 
 bool System::hasSSE3() {
-	init();
+    init();
     return g_cpuInfo.m_hasSSE3;
 }
 
@@ -500,6 +503,17 @@ const std::string& System::version() {
     return _version;
 }
 
+
+static G3DEndian checkEndian() {
+    int32 a = 1;
+    if (*(uint8*)&a == 1) {
+        return G3D_LITTLE_ENDIAN;
+    } else {
+        return G3D_BIG_ENDIAN;
+    }
+}
+
+
 // @cite http://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/
 void System::init() {
     // Cannot use most G3D data structures or utility functions in here because
@@ -515,37 +529,29 @@ void System::init() {
 
     if ((G3D_VER % 100) != 0) {
         sprintf(versionCstr, "G3D %d.%02d beta %d",
-            G3D_VER / 10000,
-            (G3D_VER / 100) % 100,
-            G3D_VER % 100);
+                G3D_VER / 10000,
+                (G3D_VER / 100) % 100,
+                G3D_VER % 100);
     } else {
         sprintf(versionCstr, "G3D %d.%02d",
-            G3D_VER / 10000,
-            (G3D_VER / 100) % 100);
+                G3D_VER / 10000,
+                (G3D_VER / 100) % 100);
     }
-
-    // First of all we check if the CPUID command is available
-    checkForCPUID();
 
     // Figure out if this machine is little or big endian.
-    {
-        int32 a = 1;
-        if (*(uint8*)&a == 1) {
-            _machineEndian = G3D_LITTLE_ENDIAN;
-        } else {
-            _machineEndian = G3D_BIG_ENDIAN;
-        }
-    }
+    _machineEndian = checkEndian();
 
-#   ifdef G3D_NOT_OSX_PPC
+    g_cpuInfo.m_hasCPUID = checkForCPUID();
+
     // Process the CPUID information
+#   ifdef G3D_NOT_OSX_PPC
     if (g_cpuInfo.m_hasCPUID) {
         // We read the standard CPUID level 0x00000000 which should
         // be available on every x86 processor.  This fills out
         // a string with the processor vendor tag.
         unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0, edxreg = 0;
 
-        cpuid(0x00, eaxreg, ebxreg, ecxreg, edxreg);
+        cpuid(CPUID_VENDOR_STRING, eaxreg, ebxreg, ecxreg, edxreg);
 
         // Then we connect the single register values to the vendor string
         *((unsigned int*) g_cpuInfo.m_cpuVendorStr)         = ebxreg;
@@ -556,7 +562,7 @@ void System::init() {
         // We can also read the max. supported standard CPUID level
         maxSupportedCPUIDLevel = eaxreg & 0xFFFF;
 
-        // Then we read the ext. CPUID level 0x80000000
+        // Then we read the extended CPUID level 0x80000000
         cpuid(0x80000000, eaxreg, ebxreg, ecxreg, edxreg);
 
         // ...to check the max. supported extended CPUID level
@@ -589,12 +595,15 @@ void System::init() {
             break;
         }
     }
-    #endif // G3D_NOT_OSX_PPC
+#   endif // G3D_NOT_OSX_PPC
 
-    #ifdef G3D_WIN32
+
+    // Get the operating system name (also happens to read some other information)
+#    ifdef G3D_WIN32
         // Note that this overrides some of the values computed above
         bool success = RegistryUtil::readInt32
-            ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", "~MHz", g_cpuInfo.m_cpuSpeed);
+            ("HKEY_LOCAL_MACHINE\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 
+             "~MHz", g_cpuInfo.m_cpuSpeed);
 
         SYSTEM_INFO systemInfo;
         GetSystemInfo(&systemInfo);
@@ -633,7 +642,7 @@ void System::init() {
 
         if (success) {
             sprintf(_operatingSystemCstr, "Windows %d.%d build %d Platform %d %s",
-                osVersionInfo.dwMajorVersion, 
+                osVersionInfo.dwMajorVersion,
                 osVersionInfo.dwMinorVersion,
                 osVersionInfo.dwBuildNumber,
                 osVersionInfo.dwPlatformId,
@@ -642,10 +651,10 @@ void System::init() {
             strcpy(_operatingSystemCstr, "Windows");
         }
     
-    #elif defined(G3D_LINUX)
+#    elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
         {
-            // Shell out to the 'uname' command
+            // Find the operating system using the 'uname' command
             FILE* f = popen("uname -a", "r");
 
             int len = 100;
@@ -661,7 +670,7 @@ void System::init() {
             ::free(r);
         }
 
-    #elif defined(G3D_OSX)
+#   elif defined(G3D_OSX)
 
         // Operating System:
         SInt32 macVersion;
@@ -698,19 +707,20 @@ void System::init() {
 		}
 		break;
 	    
-	        case CPU_TYPE_I386:
-		    strcpy(g_cpuInfo.m_cpuVendorStr, "Intel");
-		    break;
+            case CPU_TYPE_I386:
+                strcpy(g_cpuInfo.m_cpuVendorStr, "Intel");
+                break;
 	    }
 	}
-    #endif
+#   endif
 
     initTime();
 
     getStandardProcessorExtensions();
 }
 
-static void checkForCPUID() {
+
+static bool checkForCPUID() {
     unsigned int bitChanged = 0;
 
     // We've to check if we can toggle the flag register bit 21.
@@ -735,7 +745,13 @@ static void checkForCPUID() {
         pop ebx
         pop eax
     }
-#elif defined(__GNUC__) && defined(i386) && !defined(G3D_OSX_INTEL)
+
+#elif defined(G3D_OSX_INTEL)
+
+    // By definition, all OS X intel machines have CPUID
+    bitChanged = 1;
+
+#elif defined(__GNUC__) && defined(i386)
     // 32-bit g++
     __asm__ (
         "pushfl                      # Get original EFLAGS             \n"
@@ -754,7 +770,7 @@ static void checkForCPUID() {
         : // No inputs
         : "%eax", "%ecx"
     );
-#elif defined(__GNUC__) && defined(__x86_64__) && !defined(G3D_OSX_INTEL)
+#elif defined(__GNUC__) && defined(__x86_64__)
     // x86_64 has SSE and CPUID
 
     bitChanged = 1;
@@ -763,8 +779,9 @@ static void checkForCPUID() {
     bitChanged = 0;
 #endif
 
-    g_cpuInfo.m_hasCPUID = ((bitChanged == 0) ? false : true);
+    return (bitChanged != 0);
 }
+
 
 void getStandardProcessorExtensions() {
 #if ! defined(G3D_OSX) || defined(G3D_OSX_INTEL)
@@ -1866,10 +1883,12 @@ void System::describeSystem(
     t.writeSymbols("App", "{");
     t.writeNewline();
     t.pushIndent();
+    {
         var(t, "Name", System::currentProgramFilename());
         char cwd[1024];
         getcwd(cwd, 1024);
         var(t, "cwd", std::string(cwd));
+    }
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
@@ -1878,7 +1897,9 @@ void System::describeSystem(
     t.writeSymbols("OS", "{");
     t.writeNewline();
     t.pushIndent();
+    {
         var(t, "Name", System::operatingSystem());
+    }
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
@@ -1887,6 +1908,7 @@ void System::describeSystem(
     t.writeSymbols("CPU", "{");
     t.writeNewline();
     t.pushIndent();
+    {
         var(t, "Vendor", System::cpuVendor());
         var(t, "Architecture", System::cpuArchitecture());
         var(t, "hasCPUID", System::hasCPUID());
@@ -1897,6 +1919,7 @@ void System::describeSystem(
         var(t, "has3DNow", System::has3DNow());
         var(t, "hasRDTSC", System::hasRDTSC());
         var(t, "numCores", System::numCores());
+    }
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
@@ -1905,8 +1928,10 @@ void System::describeSystem(
     t.writeSymbols("G3D", "{");
     t.writeNewline();
     t.pushIndent();
+    {
         var(t, "Link version", G3D_VER);
         var(t, "Compile version", System::version());
+    }
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
@@ -1915,6 +1940,7 @@ void System::describeSystem(
 
 
 int System::cpuSpeedMHz() {
+    init();
     return g_cpuInfo.m_cpuSpeed;
 }
 

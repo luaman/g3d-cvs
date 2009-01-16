@@ -50,8 +50,16 @@ static void __stdcall glIgnore(GLenum e) {
     Works on pointers since there is no way for users
     to construct their own ImageFormats.
  */
-static Table<const ImageFormat*, bool>      _supportedImageFormat;
-static Table<const ImageFormat*, bool>      _supportedRenderBufferFormat;
+static Table<const ImageFormat*, bool>& _supportedImageFormat() {
+    static Table<const ImageFormat*, bool> cache;
+    return cache;
+}
+
+
+static Table<const ImageFormat*, bool>& _supportedRenderBufferFormat() {
+    static Table<const ImageFormat*, bool> cache;
+    return cache;
+}
 
 Set<std::string> GLCaps::extensionSet;
 
@@ -637,7 +645,7 @@ bool GLCaps::supports(const ImageFormat* fmt) {
 bool GLCaps::supportsTexture(const ImageFormat* fmt) {
 
     // First, check if we've already tested this format
-    if (! _supportedImageFormat.containsKey(fmt)) {
+    if (! _supportedImageFormat().containsKey(fmt)) {
 
         bool supportsFormat = false;
 
@@ -673,17 +681,17 @@ bool GLCaps::supportsTexture(const ImageFormat* fmt) {
             glPopAttrib();
         }
 
-        _supportedImageFormat.set(fmt, supportsFormat);
+        _supportedImageFormat().set(fmt, supportsFormat);
     }
 
-    return _supportedImageFormat[fmt];
+    return _supportedImageFormat()[fmt];
 }
 
 
 bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
 
     // First, check if we've already tested this format
-    if (! _supportedRenderBufferFormat.containsKey(fmt)) {
+    if (! _supportedRenderBufferFormat().containsKey(fmt)) {
 
         bool supportsFormat = false;
 
@@ -718,10 +726,10 @@ bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
             glPopAttrib();
         }
 
-        _supportedRenderBufferFormat.set(fmt, supportsFormat);
+        _supportedRenderBufferFormat().set(fmt, supportsFormat);
     }
 
-    return _supportedRenderBufferFormat[fmt];
+    return _supportedRenderBufferFormat()[fmt];
 }
 
 
