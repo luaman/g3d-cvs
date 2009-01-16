@@ -11,8 +11,8 @@
   @edited  2008-10-14
  */
 
-#ifndef G3D_SYSTEM_H
-#define G3D_SYSTEM_H
+#ifndef G3D_System_h
+#define G3D_System_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -21,7 +21,7 @@
 #include <string>
 
 #ifdef G3D_OSX
-#	include <CoreServices/CoreServices.h>
+#   include <CoreServices/CoreServices.h>
 #endif
 
 namespace G3D {
@@ -32,6 +32,8 @@ namespace G3D {
  common locations like c:\libraries\g3d-<version>\data
  and some hard-coded paths on the Brown University file
  system.
+
+ @deprecated
  */
 std::string demoFindData(bool errorIfNotFound = true);
 
@@ -39,19 +41,29 @@ std::string demoFindData(bool errorIfNotFound = true);
     to be distributed with your program.  This generates the
     string that must appear in your documentation. 
     <B>Your program can be commercial, closed-source</B> under
-    any license you want.*/
+    any license you want.
+    @deprecated Use System::license
+*/
 std::string license();
 
 /**
-The order in which the bytes of an integer are stored on a machine. Intel/AMD chips tend to be G3D_LITTLE_ENDIAN, Mac PPC's and Suns are G3D_BIG_ENDIAN. However, this is primarily used to specify the byte order of file formats, which are fixed.
+@brief The order in which the bytes of an integer are stored on a
+machine. 
+
+Intel/AMD chips tend to be G3D_LITTLE_ENDIAN, Mac PPC's and Suns are
+G3D_BIG_ENDIAN. However, this is primarily used to specify the byte
+order of file formats, which are fixed.
 */
 enum G3DEndian {
-	G3D_BIG_ENDIAN, G3D_LITTLE_ENDIAN
+    G3D_BIG_ENDIAN, 
+    G3D_LITTLE_ENDIAN
 };
 
 /**
- OS and processor abstraction.  The first time any method is called the processor
- will be analyzed.  Future calls are then fast.
+ @brief OS and processor abstraction.  
+
+ The first time any method is called the processor will be analyzed.
+ Future calls are then fast.
 
  Timing function overview:
     System::getCycleCount
@@ -64,104 +76,199 @@ enum G3DEndian {
       - High-resolution time in seconds since Jan 1, 1970
         (because it is stored in a double, this may be less
          accurate than getTick)
-
  */
 class System {
 public:
+    /**
+       @param size Size of memory that the system was trying to allocate
 
-	/** Called automatically by the other System routines.*/
-	static void init();
+       @param recoverable If true, the system will attempt to allocate again
+       if the callback returns true.  If false, malloc is going to return 
+       NULL and this invocation is just to notify the application.
 
-	/** */
-	static bool hasMMX();
+       @return Return true to force malloc to attempt allocation again if the
+       error was recoverable.
+     */
+    typedef bool (*OutOfMemoryCallback)(size_t size, bool recoverable);
 
-	/** */
-	static bool hasCPUID();
-	
-	/** */
-	static bool hasSSE();
-	
-	/** */
-	static bool hasSSE2();
-	
-	/** */
-	static bool hasSSE3();
-	
-	/** */
-	static bool has3DNow();
+private:
 
-	
-	/** */
-    static bool hasRDTSC();
+    bool           m_initialized;
+    int            m_cpuSpeed;
+    bool           m_hasCPUID;
+    bool           m_hasRDTSC;
+    bool           m_hasMMX;
+    bool           m_hasSSE;
+    bool           m_hasSSE2;
+    bool           m_hasSSE3;
+    bool           m_has3DNOW;
+    bool           m_has3DNOW2;
+    bool           m_hasAMDMMX;
+    std::string    m_cpuVendor;
+    int            m_numCores;
 
-	static const std::string& cpuVendor();
-	
-	/** e.g. "Windows", "GNU/Linux" */
-    static const std::string& operatingSystem();
+    /** this holds the data directory set by the application (currently
+        GApp) for use by findDataFile */
+    std::string    m_appDataDir;
 
-	/** */
-    static const std::string& cpuArchitecture();
+    G3DEndian      m_machineEndian;
+    std::string    m_cpuArch;
+    std::string    m_operatingSystem;
+
+#   ifdef G3D_WIN32
+    /** Used by getTick() for timing */
+    LARGE_INTEGER  m_start;
+    LARGE_INTEGER  m_counterFrequency;
+#else
+    struct timeval m_start;
+#endif
+
+    std::string    m_version;
+    OutOfMemoryCallback m_outOfMemoryCallback;
+
+#ifdef G3D_OSX
+    /** In Cycles/Second */
+    SInt32         m_OSXCPUSpeed;
+    double         m_secondsPerNS;
+#endif
+
+    /** The Real-World time of System::getTick() time 0.  Set by initTime */
+    RealTime       m_realWorldGetTickTime0;
+
+    unsigned int   m_maxSupportedCPUIDLevel;
+    unsigned int   m_maxSupportedExtendedLevel;
+
+    /** @brief Used for the singleton instance only. */
+    System();
+
+    /** @brief The singleton instance. 
+
+        Used instead of a global variable to ensure that the order of
+        intialization is correct, which is critical because other
+        globals may allocate memory using System::malloc.
+     */
+    static System& instance();
+
+    enum CPUIDFunction {
+        CPUID_VENDOR_ID              = 0x00000000,
+        CPUID_PROCESSOR_FEATURES     = 0x00000001,
+        CPUID_GET_HIGHEST_FUNCTION   = 0x80000000,
+        CPUID_EXTENDED_FEATURES      = 0x80000001};
+
+    /** Helper macro to call cpuid functions and return all values 
+
+       See http://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-enumeration/
+       or  http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25481.pdf
+
+       for description of the arguments.
+    */
+    static void cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg);
+
+    void init();
+
+    /** Called from init() */
+    void getStandardProcessorExtensions();
+
+    /** Called from init() */
+    void initTime();
+    
+public:
+
+    /** Returns the speed of processor 0 in MHz. 
+        Always returns 0 on linux.*/
+    inline static int cpuSpeedMHz() {
+        return instance().m_cpuSpeed;
+    }
+
+    /** Returns the number of logical processor cores (i.e., the
+        number of execution units for threads) */
+    inline static int numCores() {
+        return instance().m_numCores;
+    }
+
+    inline static bool hasCPUID() {
+        return instance().m_hasCPUID;
+    }
+
+    inline static bool hasRDTSC() {
+        return instance().m_hasRDTSC;
+    }
+
+    inline static bool hasSSE() {
+        return instance().m_hasSSE;
+    }
+
+    inline static bool hasSSE2() {
+        return instance().m_hasSSE2;
+    }
+
+    inline static bool hasSSE3() {
+        return instance().m_hasSSE3;
+    }
+
+    inline static bool hasMMX() {
+        return instance().m_hasMMX;
+    }
+
+    inline static bool has3DNow() {
+        return instance().m_has3DNOW;
+    }
+
+    inline static const std::string& cpuVendor() {
+        return instance().m_cpuVendor;
+    }
 
     /**
      Returns the endianness of this machine.
-     */
-    static G3DEndian machineEndian();
+    */
+    inline static G3DEndian machineEndian() {
+        return instance().m_machineEndian;
+    }
+
+    /** e.g., "Windows", "GNU/Linux" */
+    inline static const std::string& operatingSystem() {
+        return instance().m_operatingSystem;
+    }
+    
+    /** e.g., 80686 */
+    inline static const std::string& cpuArchitecture() {
+        return instance().m_cpuArch;
+    }
 
     /**
-    Returns the current date as a string in the form YYYY-MM-DD
+       Returns the current date as a string in the form YYYY-MM-DD
     */
     static std::string currentDateString();
 
     /**
-     Guarantees that the start of the array is aligned to the 
-     specified number of bytes.
-     */
+       Guarantees that the start of the array is aligned to the 
+       specified number of bytes.
+    */
     static void* alignedMalloc(size_t bytes, size_t alignment);
-
+    
     /**
-     Uses pooled storage to optimize small allocations (1 byte to 5 kilobytes).  
-     Can be 10x to 100x faster than calling ::malloc or new.
-
-     The result must be freed with free.
-
-     Threadsafe on Win32.
-
-     @sa calloc realloc OutOfMemoryCallback free
-     */
+       Uses pooled storage to optimize small allocations (1 byte to 5
+       kilobytes).  Can be 10x to 100x faster than calling ::malloc or
+       new.
+       
+       The result must be freed with free.
+       
+       Threadsafe on Win32.
+       
+       @sa calloc realloc OutOfMemoryCallback free
+    */
     static void* malloc(size_t bytes);
-
+    
     static void* calloc(size_t n, size_t x);
-
-    /**
-     @param size Size of memory that the system was trying to allocate
-     @param recoverable If true, the system will attempt to allocate again
-            if the callback returns true.  If false, malloc is going to return 
-            NULL and this invocation is just to notify the application.
-     @return Return true to force malloc to attempt allocation again if the
-            error was recoverable.
-     */
-    typedef bool (*OutOfMemoryCallback)(size_t size, bool recoverable);
-
-    /**
-     When System::malloc fails to allocate memory because the system is
-     out of memory, it invokes this handler (if it is not NULL).
-     The argument to the callback is the amount of memory that malloc
-     was trying to allocate when it ran out.  If the callback returns
-     true, System::malloc will attempt to allocate the memory again.
-     If the callback returns false, then System::malloc will return NULL.
-
-     You can use outOfMemoryCallback to free data structures or to 
-     register the failure.
-     */
-    static OutOfMemoryCallback outOfMemoryCallback;
 
     /**
      Version of realloc that works with System::malloc.
      */
     static void* realloc(void* block, size_t bytes);
 
-    /** Returns a string describing how well System::malloc is using its internal pooled storage.
-        "heap" memory was slow to allocate; the other data sizes are comparatively fast.*/
+    /** Returns a string describing how well System::malloc is using
+        its internal pooled storage.  "heap" memory was slow to
+        allocate; the other data sizes are comparatively fast.*/
     static std::string mallocPerformance();
     static void resetMallocPerformanceCounters();
 
@@ -183,16 +290,16 @@ public:
      */
     static void alignedFree(void* ptr);
 
-	/** An implementation of memcpy that may be up to 2x as fast as the C library
-	    one on some processors.  Guaranteed to have the same behavior as memcpy
-		in all cases. */
-	static void memcpy(void* dst, const void* src, size_t numBytes);
-
-	/** An implementation of memset that may be up to 2x as fast as the C library
-	    one on some processors.  Guaranteed to have the same behavior as memset
-		in all cases. */
-	static void memset(void* dst, uint8 value, size_t numBytes);
-
+    /** An implementation of memcpy that may be up to 2x as fast as the C library
+        one on some processors.  Guaranteed to have the same behavior as memcpy
+        in all cases. */
+    static void memcpy(void* dst, const void* src, size_t numBytes);
+    
+    /** An implementation of memset that may be up to 2x as fast as the C library
+        one on some processors.  Guaranteed to have the same behavior as memset
+        in all cases. */
+    static void memset(void* dst, uint8 value, size_t numBytes);
+    
     /**
      Returns the fully qualified filename for the currently running executable.
 
@@ -204,14 +311,20 @@ public:
      */
     static std::string currentProgramFilename();
 
-    /** Name of this program. Note that you can mutate this string to set your app name explicitly.*/
+    /** Name of this program. Note that you can mutate this string to
+        set your app name explicitly.*/
     static std::string& appName();
 
     /** G3D Version string */
-    static const std::string& version();
+    inline static const std::string& version() {
+        return instance().m_version;
+    }
 
-    /** 
-      Either Debug or Release, depending on whether _DEBUG was defined at compile-time for the library.
+    /**
+       @brief The optimization status of the G3D library (not the program compiled against it)
+
+       Either "Debug" or "Release", depending on whether _DEBUG was
+       defined at compile-time for the library.
       */
     static const std::string& build();
 
@@ -267,6 +380,25 @@ public:
 
     static uint64 getCycleCount();
 
+    inline static void setOutOfMemoryCallback(OutOfMemoryCallback c) {
+        instance().m_outOfMemoryCallback = c;
+    }
+
+    /**
+     When System::malloc fails to allocate memory because the system is
+     out of memory, it invokes this handler (if it is not NULL).
+     The argument to the callback is the amount of memory that malloc
+     was trying to allocate when it ran out.  If the callback returns
+     true, System::malloc will attempt to allocate the memory again.
+     If the callback returns false, then System::malloc will return NULL.
+
+     You can use outOfMemoryCallback to free data structures or to 
+     register the failure.
+     */
+    inline static OutOfMemoryCallback outOfMemoryCallback() {
+        return instance().m_outOfMemoryCallback;
+    }
+
     /** Set an environment variable for the current process */
     static void setEnv(const std::string& name, const std::string& value);
 	
@@ -283,20 +415,12 @@ public:
     static void describeSystem(
         std::string&        s);
 
-    /** Returns the speed of processor 0 in MHz. 
-        Always returns 0 on linux.*/
-    static int cpuSpeedMHz();
-
-
     /** On Win32, returns the clipboard text contents.  Does nothing on other
        platforms (yet) */
     static std::string getClipboardText();
 
     /** Copies the text to the clipboard on Win32. */
     static void setClipboardText(const std::string& s);
-
-    /** Returns the number of logical processor cores (i.e., the number of execution units for threads) */
-    static int numCores();
 
     /**
      Tries to locate the resource by looking in related directories.
@@ -312,15 +436,6 @@ public:
     */
     static void setAppDataDir(const std::string& path);
 
-private:
-    /**
-	 (CKO) Note: Not sure why these are specifically needed
-	 for OS X. I made them private though.
-	*/
-#   ifdef G3D_OSX
-    static long m_OSXCPUSpeed; //In Cycles/Second
-    static double m_secondsPerNS;
-#   endif
 };
 
 
@@ -374,17 +489,16 @@ inline void System::beginCycleCount(uint64& cycleCount) {
 
 
 inline void System::endCycleCount(uint64& cycleCount) {
-	#ifndef G3D_OSX
-		cycleCount = getCycleCount() - cycleCount;
-	#else
-		AbsoluteTime end = UpTime();
-		init();
-		Nanoseconds diffNS = 
-            AbsoluteDeltaToNanoseconds(end, UInt64ToUnsignedWide(cycleCount));
-		cycleCount = 
-            (uint64) ((double) (System::m_OSXCPUSpeed) * 
-                      (double) UnsignedWideToUInt64(diffNS) * m_secondsPerNS);
-	#endif
+#ifndef G3D_OSX
+    cycleCount = getCycleCount() - cycleCount;
+#else
+    AbsoluteTime end = UpTime();
+    Nanoseconds diffNS = 
+        AbsoluteDeltaToNanoseconds(end, UInt64ToUnsignedWide(cycleCount));
+    cycleCount = 
+        (uint64) ((double) (instance().m_OSXCPUSpeed) * 
+                  (double) UnsignedWideToUInt64(diffNS) * instance().m_secondsPerNS);
+#endif
 }
 
 
