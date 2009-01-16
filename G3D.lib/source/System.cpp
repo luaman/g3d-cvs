@@ -96,47 +96,75 @@ public:
     bool    m_hasSSE2;
     bool    m_hasSSE3;
     bool    m_has3DNOW;
+    bool    m_has3DNOW2;
+    bool    m_hasAMDMMX;
     char    m_cpuVendorStr[1024];
     int     m_numCores;
+    CpuInfo() :
+        m_cpuSpeed(0),
+        m_hasCPUID(false),
+        m_hasRDTSC(false),
+        m_hasMMX(false),
+        m_hasSSE(false),
+        m_hasSSE2(false),
+        m_hasSSE3(false),
+        m_has3DNOW(false),
+        m_has3DNOW2(false),
+        m_hasAMDMMX(false),
+        m_numCores(1) {
+        
+        const char s[] = {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'};
+        strcpy(m_cpuVendorStr, s);
+
+    }
 };
+
+#define CPUID_VENDOR_STRING          0x00000000
+#define CPUID_PROCESSOR_FAMILY       0x00000001
+#define CPUID_EXTENDED_VENDOR_STRING 0x80000001
 
 // helper macro to call cpuid functions and return all values
 #ifdef _MSC_VER
 
     // VC on Intel
-#   define CALL_CPUID(func, areg, breg, creg, dreg) \
-	   __asm mov	eax, func   \
-	   __asm cpuid             \
-       __asm mov	areg, eax   \
-       __asm mov	breg, ebx   \
-	   __asm mov	creg, ecx   \
+    void cpuid(uint32 func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
+	   __asm mov	eax, func   
+	   __asm cpuid              
+           __asm mov	areg, eax   
+           __asm mov	breg, ebx   
+	   __asm mov	creg, ecx   
 	   __asm mov	dreg, edx
+    }
 
-#elif defined(__GNUC__) && defined(G3D_OSX_INTEL)
-    // GCC on OS X intel
-#    define CALL_CPUID(func, areg, breg, creg, dreg) \
-       areg = 0;   \
-       breg = 0;   \
-       creg = 0;   \
-       dreg = 0;
+#elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
+    // OS X PPC; no CPUID
+    void cpuid(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+        eax = 0;
+        ebx = 0;
+        ecx = 0;
+        edx = 0;
+    }
 #else
-    // Any other compiler/platform, likely GCC
-#   define CALL_CPUID(func, areg, breg, creg, dreg) \
-       __asm__ (           \
-       "cpuid \n":         \
-       "=a" (areg),        \
-       "=b" (breg),        \
-       "=c" (creg),        \
-       "=d" (dreg):        \
-       "a" (func)          \
-       );
+
+    // See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well
+    // for a discussion of why this saves ebx; it makes the code compile with -fPIC
+    void cpuid(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+        asm volatile(
+                     "pushl %%ebx      \n\t" /* save %ebx */
+                     "cpuid            \n\t"
+                     "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
+                     "popl %%ebx       \n\t" /* restore the old %ebx */
+                     : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx)
+                     : "a"(func)
+                     : "cc");
+    }
 #endif
 
 // this holds the data directory set by the application (currently GApp) for use by findDataFile
 static char                                     g_appDataDir[FILENAME_MAX] = "";
 
-static CpuInfo                                  g_cpuInfo = {
-    0, false, false, false, false, false, false, false, {'U', 'n', 'k', 'n', 'o', 'w', 'n', '\0'}, 1};
+static CpuInfo                                  g_cpuInfo;
+
 
 static G3DEndian                                _machineEndian      = G3D_LITTLE_ENDIAN;
 static char                                     _cpuArchCstr[1024];
@@ -517,7 +545,7 @@ void System::init() {
         // a string with the processor vendor tag.
         unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0, edxreg = 0;
 
-        CALL_CPUID(0x00, eaxreg, ebxreg, ecxreg, edxreg);
+        cpuid(0x00, eaxreg, ebxreg, ecxreg, edxreg);
 
         // Then we connect the single register values to the vendor string
         *((unsigned int*) g_cpuInfo.m_cpuVendorStr)         = ebxreg;
@@ -529,7 +557,7 @@ void System::init() {
         maxSupportedCPUIDLevel = eaxreg & 0xFFFF;
 
         // Then we read the ext. CPUID level 0x80000000
-        CALL_CPUID(0x80000000, eaxreg, ebxreg, ecxreg, edxreg);
+        cpuid(0x80000000, eaxreg, ebxreg, ecxreg, edxreg);
 
         // ...to check the max. supported extended CPUID level
         maxSupportedExtendedLevel = eaxreg;
@@ -739,13 +767,12 @@ static void checkForCPUID() {
 }
 
 void getStandardProcessorExtensions() {
-#if !defined(G3D_OSX) || defined(G3D_OSX_INTEL)
+#if ! defined(G3D_OSX) || defined(G3D_OSX_INTEL)
     if (! g_cpuInfo.m_hasCPUID) {
         return;
     }
 
-    unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0;
-    unsigned int features = 0;
+    unsigned int eaxreg = 0, ebxreg = 0, ecxreg = 0, features = 0;
 
     // http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25481.pdf
     // call cpuid with function 0x01 in EAX
@@ -753,25 +780,30 @@ void getStandardProcessorExtensions() {
     // Invoking CPUID with '1' in EAX fills out edx with a bit string.
     // The bits of this value indicate the presence or absence of 
     // useful processor features.
-    CALL_CPUID(0x01, eaxreg, ebxreg, ecxreg, features);
+    cpuid(CPUID_PROCESSOR_FAMILY, eaxreg, ebxreg, ecxreg, features);
 
-    #define checkBit(var, bit)   ((var & (1 << bit)) ? true : false)
+#   define checkBit(var, bit)   ((var & (1 << bit)) ? true : false)
 
     g_cpuInfo.m_hasRDTSC    = checkBit(features, 16);
     g_cpuInfo.m_hasMMX      = checkBit(features, 23);
     g_cpuInfo.m_hasSSE      = checkBit(features, 25);
     g_cpuInfo.m_hasSSE2     = checkBit(features, 26);
+    // Bit 28 is HTT; not checked by G3D
+
     g_cpuInfo.m_hasSSE3     = checkBit(ecxreg, 0);
 
-    if (maxSupportedExtendedLevel >= 0x80000001) {
-        // function 0x80000001 changes bit 31 of edx to 3dnow support flag
-        CALL_CPUID(0x80000001, eaxreg, ebxreg, ecxreg, features);
-        g_cpuInfo.m_has3DNOW = checkBit(features, 31);
+    if (maxSupportedExtendedLevel >= CPUID_EXTENDED_VENDOR_STRING) {
+        cpuid(CPUID_EXTENDED_VENDOR_STRING, eaxreg, ebxreg, ecxreg, features);
+        g_cpuInfo.m_hasAMDMMX = checkBit(features, 22);
+        g_cpuInfo.m_has3DNOW  = checkBit(features, 31);
+        g_cpuInfo.m_has3DNOW2 = checkBit(features, 30);
     } else {
-        g_cpuInfo.m_has3DNOW = false;
+        g_cpuInfo.m_hasAMDMMX = false;
+        g_cpuInfo.m_has3DNOW  = false;
+        g_cpuInfo.m_has3DNOW2 = false;
     }
 
-    #undef checkBit
+#   undef checkBit
 #endif
 }
 
