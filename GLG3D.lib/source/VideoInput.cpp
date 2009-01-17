@@ -594,13 +594,13 @@ void VideoInput::decodingThreadProc(void* param) {
                     img_convert((AVPicture*)emptyBuffer->m_frame, PIX_FMT_RGB24, (AVPicture*)decodingFrame, vi->m_avCodecContext->pix_fmt, vi->m_avCodecContext->width, vi->m_avCodecContext->height);
 
                     // calculate start time based off of presentation time stamp
-                    emptyBuffer->m_pos = (packet.pts - vi->m_avFormatContext->streams[vi->m_avVideoStreamIdx]->start_time) * av_q2d(vi->m_avCodecContext->time_base);
+                    emptyBuffer->m_pos = packet.dts * av_q2d(vi->m_avCodecContext->time_base);
 
                     // store original time stamp of frame
-                    emptyBuffer->m_timestamp = packet.pts;
+                    emptyBuffer->m_timestamp = packet.dts;
 
                     // set last decoded timestamp
-                    vi->m_lastTimestamp = packet.pts;
+                    vi->m_lastTimestamp = packet.dts;
 
                     // add frame to decoded queue
                     vi->m_bufferMutex.lock();
@@ -669,25 +669,24 @@ void VideoInput::seekToTimestamp(VideoInput* vi, AVFrame* decodingFrame, AVPacke
             int readRet = av_read_frame(vi->m_avFormatContext, packet);
             debugAssert(readRet >= 0);
 
+            int completedFrame = 0;
             if ((readRet >= 0) && (packet->stream_index == vi->m_avVideoStreamIdx)) {
 
                 // if checking the seek find that we're at the frame we want, then use it
                 // otherwise quit seeking and the next decoded frame will be the target frame
-                if (packet->pts >= vi->m_seekTimestamp) {
+                if (packet->dts >= vi->m_seekTimestamp) {
                     validPacket = true;
                 } else {
-                    int completedFrame = 0;
                     avcodec_decode_video(vi->m_avCodecContext, decodingFrame, &completedFrame, packet->data, packet->size);
-                    debugAssert(completedFrame);
                 }
             }
 
             // only delete the packet if we're reading past it, otherwise save for decoder
-            if (packet->pts < (vi->m_seekTimestamp)) {
+            if (!validPacket) {
                 av_free_packet(packet);
             }
 
-        } while (packet->pts < vi->m_seekTimestamp);    
+        } while (!validPacket);    
     }
 }
 
