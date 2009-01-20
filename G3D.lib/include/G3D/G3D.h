@@ -65,6 +65,7 @@
 #include "G3D/uint128.h"
 #include "G3D/fileutils.h"
 #include "G3D/ReferenceCount.h"
+#include "G3D/CoherentAllocator.h"
 
 template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
     static size_t hashCode(G3D::ReferenceCountedPointer<T> key) { return reinterpret_cast<size_t>( key.pointer() ); }

@@ -42,6 +42,7 @@ DeveloperWindow::DeveloperWindow(
      bool*                              showText) : 
     GuiWindow("Developer (F11)", skin, Rect2D::xywh(600, 80, 0, 0), GuiTheme::TOOL_WINDOW_STYLE, HIDE_ON_CLOSE), consoleWindow(console) {
 
+    alwaysAssertM(this != NULL, "Memory corruption");
     cameraControlWindow = CameraControlWindow::create(manualManipulator, trackManipulator, cameraManipulator, skin);
 
     videoRecordDialog = VideoRecordDialog::create(skin, app);

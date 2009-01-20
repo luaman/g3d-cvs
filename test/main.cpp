@@ -65,6 +65,8 @@ void testQuat();
 void perfKDTree();
 void testKDTree();
 
+void testSphere();
+
 void testAABox();
 
 void testReliableConduit(NetworkDevice*);
@@ -469,6 +471,29 @@ void testSwizzle() {
 }
 
 
+void testSphere() {
+    printf("Sphere...");
+    Sphere a(Vector3(0,3,0), 2);
+    Sphere b(Vector3(0,2,0), 0.5f);
+
+    debugAssert(a.contains(b));
+    debugAssert(! b.contains(a));
+
+    Sphere s = a;
+    s.merge(b);
+    debugAssert(s == a);
+
+    Sphere c(Vector3(1,0,0), 2);
+    s = a;
+    s.merge(c);
+    debugAssert(s.contains(a));
+    debugAssert(s.contains(c));
+
+    printf("passed\n");
+}
+
+
+
 void testCoordinateFrame() {
     printf("CoordinateFrame ");
 
@@ -639,6 +664,8 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testSphere();
 
     testImageConvert();
 

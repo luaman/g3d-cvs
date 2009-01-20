@@ -13,6 +13,8 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::CoherentAllocator
+     <li> G3D::Sphere::merge
      <li> Removed most static global variables to control order of intialization
      <li> Made empty G3D::Table default to zero allocation
      <li> Multithreaded ArticulatedModel loading

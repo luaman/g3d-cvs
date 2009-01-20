@@ -64,13 +64,15 @@ public:
      */
     bool contains(const Vector3& point) const;
 
+    bool contains(const Sphere& other) const;
+
     /**
        @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
                   const class Plane*  plane,
                   int                 numPlanes,
-                  int32&	      cullingPlaneIndex,
+                  int32&	          cullingPlaneIndex,
                   const uint32        testMask,
                   uint32&             childMask) const;
     
@@ -129,6 +131,9 @@ public:
     Sphere operator-(const Vector3& v) const {
         return Sphere(center - v, radius);
     }
+
+    /** Sets this to the smallest sphere that encapsulates both */
+    void merge(const Sphere& s);
 };
 
 }

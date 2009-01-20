@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-04-17
- @edited  2006-02-05
+ @edited  2009-01-20
  */
 
 #include "G3D/platform.h"
@@ -45,8 +45,14 @@ std::string Sphere::toString() const {
 
 
 bool Sphere::contains(const Vector3& point) const {
-    double distance = (center - point).squaredMagnitude();
-    return distance <= (radius * radius);
+    float distance = (center - point).squaredMagnitude();
+    return distance <= square(radius);
+}
+
+
+bool Sphere::contains(const Sphere& other) const {
+    float distance = (center - other.center).squaredMagnitude();
+    return (radius >= other.radius) && (distance <= square(radius - other.radius));
 }
 
 
@@ -54,11 +60,32 @@ bool Sphere::intersects(const Sphere& other) const {
     return (other.center - center).length() <= (radius + other.radius);
 }
 
+
+void Sphere::merge(const Sphere& other) {
+    if (other.contains(*this)) {
+        *this = other;
+    } else if (! contains(other)) {
+        // The farthest distance is along the axis between the centers, which
+        // must not be colocated since neither contains the other.
+        Vector3 toMe = center - other.center;
+        // Get a point on the axis from each
+        toMe = toMe.direction();
+        const Vector3& A = center + toMe * radius;
+        const Vector3& B = other.center - toMe * other.radius;
+
+        // Now just bound the A->B segment
+        center = (A + B) * 0.5f;
+        radius = (A - B).length();
+    }
+    // (if this contains other, we're done)
+}
+
+
 bool Sphere::culledBy(
-                      const Array<Plane>&		plane,
-                      int&				    cullingPlaneIndex,
-                      const uint32			inMask,
-                      uint32&					outMask) const {
+    const Array<Plane>&		plane,
+    int&				    cullingPlaneIndex,
+    const uint32			inMask,
+    uint32&					outMask) const {
     
     return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
 }

@@ -193,6 +193,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\CoherentAllocator.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\CollisionDetection.cpp"
 				>
 			</File>
@@ -552,6 +556,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Capsule.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\CoherentAllocator.h"
 				>
 			</File>
 			<File
