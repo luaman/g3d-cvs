@@ -875,6 +875,96 @@ float CollisionDetection::collisionTimeForMovingPointFixedPlane(
     }
 }
 
+bool __fastcall CollisionDetection::rayAABox(
+    const Ray&              ray,
+    const Vector3&          invDir,
+    const AABox&            box,
+    const Vector3&          boxCenter,
+    float                   boundingRadiusSquared,
+    Vector3&                location,
+    bool&                   inside) {
+
+    debugAssert(ray.direction.isUnit());
+    {
+        // Pre-emptive partial bounding sphere test
+        const Vector3 L(boxCenter - ray.origin);
+        float d = L.dot(ray.direction);
+
+        float L2 = L.dot(L);
+        float D2 = square(d);
+        float M2 = L2 - D2;
+
+        if (((d < 0) && (L2 > boundingRadiusSquared)) || (M2 > boundingRadiusSquared)) {
+            inside = false;
+            return false;
+        }
+        // Passing here does not mean that the ray hits the bounding sphere;
+        // we would still have to perform more expensive tests to determine
+        // that.
+    }
+
+    inside = true;
+    const Vector3& MinB = box.low();
+    const Vector3& MaxB = box.high();
+    Vector3 MaxT(-1.0f, -1.0f, -1.0f);
+
+    // Find candidate planes.
+    for (int i = 0; i < 3; ++i) {
+        if (ray.origin[i] < MinB[i]) {
+            location[i]	= MinB[i];
+            inside      = false;
+            
+            // Calculate T distances to candidate planes
+            if (ray.direction[i] != 0) {
+                MaxT[i] = (MinB[i] - ray.origin[i]) * invDir[i];
+            }
+        } else if (ray.origin[i] > MaxB[i]) {
+            location[i]	= MaxB[i];
+            inside      = false;
+
+            // Calculate T distances to candidate planes
+            if (ray.direction[i] != 0) {
+                MaxT[i] = (MaxB[i] - ray.origin[i]) * invDir[i];
+            }
+        }
+    }
+
+    if (inside) {
+    	// Ray origin inside bounding box
+        location = ray.origin;
+        return true;
+    }
+    
+    // Get largest of the maxT's for final choice of intersection
+    int WhichPlane = 0;
+    if (MaxT[1] > MaxT[WhichPlane]) {
+        WhichPlane = 1;
+    }
+
+    if (MaxT[2] > MaxT[WhichPlane]) {
+        WhichPlane = 2;
+    }
+
+    // Check final candidate actually inside box
+    if (MaxT[WhichPlane] < 0.0f) {
+        // Miss the box
+        return false;
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        if (i != WhichPlane) {
+            location[i] = ray.origin[i] + MaxT[WhichPlane] * ray.direction[i];
+            if ((location[i] < MinB[i]) ||
+                (location[i] > MaxB[i])) {
+                // On this plane we're outside the box extents, so
+                // we miss the box
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
 
 float CollisionDetection::collisionTimeForMovingPointFixedSphere(
     const Vector3&  point,

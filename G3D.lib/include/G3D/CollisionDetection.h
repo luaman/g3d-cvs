@@ -640,6 +640,29 @@ public:
         bool&                   inside = ignoreBool,
         Vector3&                normal = ignore);
 
+
+    /**
+     @brief Calculates intersection of a ray and a static
+     Axis-Aligned Box (AABox).
+
+     @note Avoids the sqrt from collisionTimeForMovingPointFixedAABox; 
+      early-out branches and operations optimized for Intel Core2 architecture.
+     
+     @param invDir      1/dir
+     @param location	Location of collision. [Post Condition]
+     @param inside		Does the ray originate inside the box? [Post Condition]
+
+     @return True if the ray hits the box
+    */
+    static bool __fastcall rayAABox(
+        const Ray&              ray,
+        const Vector3&          invDir,
+        const AABox&            box,
+        const Vector3&          boxCenter,
+        float                   boundingRadiusSquared,
+        Vector3&                location,
+        bool&                   inside);
+
     /**
 	 Calculates time between the intersection of a moving point and a fixed
 	 sphere.
