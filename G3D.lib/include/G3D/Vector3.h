@@ -677,7 +677,7 @@ inline float Vector3::squaredLength () const {
 
 //----------------------------------------------------------------------------
 inline float Vector3::magnitude() const {
-    return sqrtf(x*x + y*y + z*z);
+    return ::sqrtf(x*x + y*y + z*z);
 }
 
 //----------------------------------------------------------------------------
