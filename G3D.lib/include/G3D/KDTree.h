@@ -1130,6 +1130,15 @@ public:
 #       endif
     }
 
+
+    /** Clear, set the contents to the values in the array, and then balance */
+    void setContents(const Array<T>& array, int valuesPerNode = 5, int numMeanSplits = 3) {
+        clear();
+        insert(array);
+        balance(valuesPerNode, numMeanSplits);
+    }
+
+
 protected:
 
     /**
