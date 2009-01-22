@@ -120,7 +120,7 @@ void GuiMenu::fireEvent(GEventType type) {
     GEvent e;
     e.gui.type = type;
     e.gui.control = m_eventSource;
-    fireEvent(e);
+    Widget::fireEvent(e);
 }
 
 
@@ -147,9 +147,10 @@ void GuiMenu::hide() {
 }
 
 
-void GuiMenu::render(RenderDevice* rd) {
+void GuiMenu::render(RenderDevice* rd) const {
     if (m_morph.active) {
-        m_morph.update(this);
+        GuiMenu* me = const_cast<GuiMenu*>(this);
+        me->m_morph.update(me);
     }
     
     m_skin->beginRendering(rd);

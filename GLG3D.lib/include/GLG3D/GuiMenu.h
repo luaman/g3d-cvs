@@ -58,7 +58,7 @@ public:
     static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     virtual bool onEvent(const GEvent& event);
-    virtual void render(RenderDevice* rd);
+    virtual void render(RenderDevice* rd) const;
 
     void hide();
 

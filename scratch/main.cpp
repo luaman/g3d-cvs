@@ -19,8 +19,6 @@ public:
     VideoOutput::Ref    video;
     ArticulatedModelRef model;
 
-    KDTree<Triangle>    kd;
-
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -55,8 +53,6 @@ void App::onInit() {
     //   model = ArticulatedModel::fromFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS");
     timer.after("load");
 //    exit(0);
-
-    kd.getPointer(Triangle());//TODO: remove
 
     setDesiredFrameRate(500);
 
@@ -168,8 +164,7 @@ G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
 
-    GFont::makeFont(256, "c:/font/courier-128-bold");
-    exit(0);
+    //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
     
 /*
     RenderDevice* rd = new RenderDevice();
