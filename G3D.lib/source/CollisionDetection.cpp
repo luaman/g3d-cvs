@@ -24,6 +24,16 @@
 #include "G3D/Vector3.h"
 #include "G3D/AABox.h"
 
+#ifdef _MSC_VER
+// Turn on fast floating-point optimizations
+#pragma float_control( push )
+#pragma fp_contract( on ) 
+#pragma fenv_access( off )
+#pragma float_control( except, off )
+#pragma float_control( precise, off )
+#endif
+
+
 namespace G3D {
 
 bool CollisionDetection::ignoreBool;
@@ -2429,6 +2439,9 @@ bool CollisionDetection::fixedSolidBoxIntersectsFixedTriangle(
 
 
 } // namespace
+
 #ifdef _MSC_VER
+// Turn off fast floating-point optimizations
+#pragma float_control( pop )
 #pragma warning (pop)
 #endif
