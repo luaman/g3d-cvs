@@ -77,7 +77,7 @@ protected:
     
     virtual void reallyMakeCurrent() const;
 
-    virtual bool pollOSEvent(GEvent& e);
+    virtual void getOSEvents(Queue<GEvent>& events);
 
     Array<std::string> m_droppedFiles;
 

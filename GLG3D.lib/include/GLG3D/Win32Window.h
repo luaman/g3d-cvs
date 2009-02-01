@@ -42,9 +42,6 @@ private:
 	HGLRC				 _glContext;
 	bool				 _mouseVisible;
 	bool				 _inputCapture;
-    bool                 _windowActive;
-
-    bool                 _receivedCloseEvent;
 
     /** Mouse Button State Array: false - up, true - down
         [0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
@@ -62,10 +59,6 @@ private:
     /** Only one thread allowed for use with Win32Window::makeCurrent */
     HANDLE				 _thread;
     
-    Array<GEvent>        sizeEventInjects;
-
-    bool                justReceivedFocus;
-
     Array<std::string> m_droppedFiles;
 
     HWND                 window;
@@ -73,6 +66,9 @@ private:
 
     /** Called from all constructors */
 	void init(HWND hwnd, bool creatingShareWindow = false);
+
+    // Pointer to current queue passed to getOSEvents() for window proc to use
+    Queue<GEvent>*      m_sysEventQueue;
 
 	static std::auto_ptr<Win32Window>	_shareWindow;	
 
@@ -100,7 +96,7 @@ private:
     /** 
     Configures a mouse up/down event
     */
-    void mouseButton(bool down, int index, GKey keyEquivalent, int clickCount, DWORD lParam, DWORD wParam, GEvent& e);
+    void mouseButton(UINT mouseMessage, DWORD lParam, DWORD wParam);
 
     /** Constructs from a new window */
     explicit Win32Window(const OSWindow::Settings& settings, bool creatingShareWindow = false);
@@ -129,6 +125,8 @@ public:
 	
     virtual ~Win32Window();
 	
+    //virtual Array<Settings> enumerateAvailableSettings();
+
     virtual void getDroppedFilenames(Array<std::string>& files);
 
     void close();
@@ -202,7 +200,7 @@ public:
 protected:
     virtual void reallyMakeCurrent() const;
 
-    virtual bool pollOSEvent(GEvent& e);
+    virtual void getOSEvents(Queue<GEvent>& events);
 
 private:
 	void enableDirectInput() const;

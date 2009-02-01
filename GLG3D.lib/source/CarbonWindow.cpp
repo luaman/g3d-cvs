@@ -1031,17 +1031,18 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
 
 #pragma mark Protected - CarbonWindow - Event Generation:
 
-bool CarbonWindow::pollOSEvent(GEvent &e) {
+void CarbonWindow::getOSEvents(Queue<GEvent>& events) {
     EventRef		theEvent;
     EventTargetRef	theTarget;
-    OSStatus osErr = noErr;
+    OSStatus        osErr = noErr;
+    GEvent          e;
     
     osErr = ReceiveNextEvent(0, NULL,kEventDurationNanosecond,true, &theEvent);
     
     // If we've gotten no event, we should just return false so that
     // a render pass can occur.
     if (osErr == eventLoopTimedOutErr) {
-        return false;
+        return;
     }
 
     // If we've recieved an event, then we need to convert it into the G3D::GEvent
@@ -1056,7 +1057,7 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
         // subsequent handlers to deal with the event.
         if (_windowActive) {
             if (makeMouseEvent(theEvent, e)) {
-                return true;
+                events.pushBack(e);
             }
         }
         break;
@@ -1073,7 +1074,8 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
                     int i = makeKeyEvent(theEvent, e);
                     _keyboardButtons[i] = (e.key.state == SDL_PRESSED);
                 }
-                return true;
+                events.pushBack(e);
+                break;
                 
             case kEventRawKeyUp:
                 e.key.type = GEventType::KEY_UP;
@@ -1082,7 +1084,8 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
                     int i = makeKeyEvent(theEvent, e);
                     _keyboardButtons[i] = (e.key.state == SDL_PRESSED);
                 }
-                return true;
+                events.pushBack(e);
+                break;
 
             case kEventHotKeyPressed:
             case kEventHotKeyReleased:
@@ -1102,9 +1105,10 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
     }
     
     if(_receivedCloseEvent) {
+        GEvent closeEvent;
         _receivedCloseEvent = false;
-        e.type = GEventType::QUIT;
-        return true;
+        closeEvent.type = GEventType::QUIT;
+        events.pushBack(closeEvent);
     }
     
     Rect rect;
@@ -1117,11 +1121,12 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
     }
     
     if (_sizeEventInjects.size() > 0) {
-        e = _sizeEventInjects.last();
+        GEvent sizeEvent = _sizeEventInjects.last();
         _sizeEventInjects.clear();
         aglSetCurrentContext(_glContext);
         aglUpdateContext(_glContext);
-        return true;
+
+        events.pushBack(sizeEvent);
     }
     
     if (osErr == noErr) {
@@ -1129,8 +1134,6 @@ bool CarbonWindow::pollOSEvent(GEvent &e) {
         SendEventToEventTarget(theEvent, theTarget);
         ReleaseEvent(theEvent);
     }
-    
-    return false;
 }
 
 

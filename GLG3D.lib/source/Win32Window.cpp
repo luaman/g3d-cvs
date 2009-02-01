@@ -30,13 +30,6 @@ All rights reserved.
 #include <sstream>
 #include <crtdbg.h>
 
-// Might not be defined for mingw
-#   ifndef XBUTTON_PARAM
-    #define GET_XBUTTON_WPARAM(wParam)      (HIWORD(wParam))
-    #define XBUTTON1      0x0001
-    #define XBUTTON2      0x0002
-#   endif
-
 using G3D::_internal::_DirectInput;
 
 /*
@@ -92,7 +85,6 @@ static bool sdlKeysInitialized = false;
 // Prototype static helper functions at end of file
 static bool ChangeResolution(int, int, int, int);
 static void makeKeyEvent(int, int, GEvent&);
-static void mouseButton(bool, int, DWORD, GEvent&);
 static void initWin32KeyMap();
 
 std::auto_ptr<Win32Window> Win32Window::_shareWindow(NULL);
@@ -111,16 +103,13 @@ static uint8 buttonsToUint8(const bool* buttons) {
 Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     :createdWindow(true)
     ,_diDevices(NULL)
-
+    ,m_sysEventQueue(NULL)
 {
-    _receivedCloseEvent = false;
-
     initWGL();
 
     _hDC = NULL;
     _mouseVisible = true;
     _inputCapture = false;
-    _windowActive = false;
     _thread = ::GetCurrentThread();
 
     if (! sdlKeysInitialized) {
@@ -251,8 +240,6 @@ Win32Window::Win32Window(const OSWindow::Settings& s, HWND hwnd) : createdWindow
     _thread = ::GetCurrentThread();
     settings = s;
     init(hwnd);
-
-    _windowActive = hasFocus();
 }
 
 
@@ -267,8 +254,6 @@ Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(f
     debugAssert(hwnd != NULL);
 
     init(hwnd);
-
-    _windowActive = hasFocus();
 }
 
 
@@ -432,6 +417,7 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         setCaption(settings.caption);
     }
 }
+
 
 int Win32Window::width() const {
     return settings.width;
@@ -614,145 +600,16 @@ std::string Win32Window::caption() {
     return _title;
 }
      
+void Win32Window::getOSEvents(Queue<GEvent>& events) {
 
-bool Win32Window::pollOSEvent(GEvent& e) {
+    // init global event queue pointer for window proc
+    m_sysEventQueue = &events;
+
     MSG message;
 
     while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
         TranslateMessage(&message);
         DispatchMessage(&message);
-
-        if (message.hwnd == window) {
-            switch (message.message) {
-            case WM_KEYDOWN:
-            case WM_SYSKEYDOWN:
-
-                e.key.type = GEventType::KEY_DOWN;
-                e.key.state = GButtonState::PRESSED;
-
-                // Fix invalid repeat key flag
-                if (justReceivedFocus) {
-                    justReceivedFocus = false;
-                    message.lParam &= ~(0x40000000);
-                }
-
-                // Need the repeat messages to find LSHIFT and RSHIFT
-                if (!((message.lParam >> 30) & 0x01)) {
-                    // This is not an autorepeat message
-                    makeKeyEvent(message.wParam, message.lParam, e);
-                    debugAssert(message.wParam < 256);
-                    _keyboardButtons[message.wParam] = true;
-                    return true;
-                }
-                break;
-
-
-            case WM_KEYUP:
-            case WM_SYSKEYUP:
-                e.key.type = GEventType::KEY_UP;
-                e.key.state = GButtonState::RELEASED;
-
-                makeKeyEvent(message.wParam, message.lParam, e);
-                debugAssert(message.wParam < 256);
-                _keyboardButtons[message.wParam] = false;
-                return true;
-
-            case WM_MOUSEMOVE:
-                e.motion.type = GEventType::MOUSE_MOTION;
-                e.motion.which = 0; // TODO: mouse index
-                e.motion.state = buttonsToUint8(_mouseButtons);
-                e.motion.x = GET_X_LPARAM(message.lParam);
-                e.motion.y = GET_Y_LPARAM(message.lParam);
-                e.motion.xrel = 0;
-                e.motion.yrel = 0;
-                return true;
-
-            case WM_LBUTTONDBLCLK:
-                mouseButton(true, 0, GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_MBUTTONDBLCLK:
-                mouseButton(true, 1, GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_RBUTTONDBLCLK:
-                mouseButton(true, 2, GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_XBUTTONDBLCLK:
-                mouseButton(true, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, 2, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_LBUTTONDOWN:
-                mouseButton(true, 0, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_MBUTTONDOWN:
-                mouseButton(true, 1, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_RBUTTONDOWN:
-                mouseButton(true, 2, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_XBUTTONDOWN:
-                mouseButton(true, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_LBUTTONUP:
-                mouseButton(false, 0, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_MBUTTONUP:
-                mouseButton(false, 1, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_RBUTTONUP:
-                mouseButton(false, 2, GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_XBUTTONUP:
-                mouseButton(false, 3 + (((GET_XBUTTON_WPARAM(message.wParam) & XBUTTON2) != 0) ? 1 : 0), GKey::LEFT_MOUSE, 0, message.lParam, message.wParam, e);
-                return true;
-
-            case WM_DROPFILES:
-                {
-                    e.drop.type = GEventType::FILE_DROP;
-                    HDROP hDrop = (HDROP) message.wParam;
-                    POINT point;
-                    DragQueryPoint(hDrop, &point);
-                    e.drop.x = point.x;
-                    e.drop.y = point.y;
-
-                    enum {NUM_FILES=0xFFFFFFFF};
-
-                    int n = DragQueryFile(hDrop, NUM_FILES,NULL, 0);
-                    m_droppedFiles.clear();
-                    for (int i = 0; i < n; ++i) {
-                        int numChars = DragQueryFile(hDrop, i, NULL, 0);
-                        char* temp = (char*)System::malloc(numChars + 2);
-                        DragQueryFileA(hDrop, i, temp, numChars + 1);
-                        std::string s = temp;
-                        m_droppedFiles.append(s);
-                        System::free(temp);
-                    }
-                    DragFinish(hDrop);
-                }
-                return true;
-
-            } // switch
-        } // if
-    } // while
-
-    // We never seem to "receive" the WM_QUIT message 
-    // so test for WM_CLOSE in the windowProc
-    if (_receivedCloseEvent) {
-
-        // Reset so SDL_QUIT is only sent once
-        _receivedCloseEvent = false;
-
-        e.type = GEventType::QUIT;
-        return true;
     }
 
     RECT rect;
@@ -773,16 +630,8 @@ bool Win32Window::pollOSEvent(GEvent& e) {
         clientY += GetSystemMetrics(settings.resizable ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
     }
 
-    // Check for a resize event and use only most recent
-    // Just use an array instead of used flag and variable
-    // This will be clearer in the 7.0 event system
-    if (sizeEventInjects.size() > 0) {
-        e = sizeEventInjects.last();
-        sizeEventInjects.clear();
-        return true;
-    }
-
-    return false;
+    // reset global event queue pointer to be safe
+    m_sysEventQueue = NULL;
 }
 
 
@@ -1080,7 +929,6 @@ void Win32Window::reallyMakeCurrent() const {
 Static helper functions for Win32Window
 */
 
-
 /** Changes the screen resolution */
 static bool ChangeResolution(int width, int height, int bpp, int refreshRate) {
 
@@ -1190,71 +1038,114 @@ static void makeKeyEvent(int vkCode, int lParam, GEvent& e) {
 }
 
 
-void Win32Window::mouseButton(bool down, int index, GKey keyEquivalent, int clickCount, DWORD lParam, DWORD wParam, GEvent& e) {
-    if (clickCount == 0)
-    {
-        e.type = down ? GEventType::MOUSE_BUTTON_DOWN : GEventType::MOUSE_BUTTON_UP;
-        e.button.state = 0;
+void Win32Window::mouseButton(UINT mouseMessage, DWORD lParam, DWORD wParam) {
+    GEvent e;
 
-        _mouseButtons[index] = down;
-    }
-    else
-    {
-        e.type = GEventType::MOUSE_BUTTON_CLICK;
-        e.button.numClicks = clickCount;
-    }
+    // all events map to mouse 0 currently
+    e.button.which = 0;
 
+    // xy position of click
     e.button.x = GET_X_LPARAM(lParam);
     e.button.y = GET_Y_LPARAM(lParam);
 
-    // Mouse button index
-    e.button.which = 0;
-    e.button.button = index;
+    switch (mouseMessage) {
+        case WM_LBUTTONDBLCLK:
+            // double clicks are a regular click event with 2 clicks
+            // only double click events have 2 clicks, all others are 1 click even in the same location
+            e.type = GEventType::MOUSE_BUTTON_CLICK;
+            e.button.numClicks = 2;
+            e.button.button = 0;
+            break;
 
-    /*
-    // TODO: in the future, we will merge mouse and key events
-    if (down) {
-        e.key.type  = GEventType::KEY_DOWN;
-        e.key.state = GButtonState::PRESSED;
-    } else {
-        e.key.type  = GEventType::KEY_UP;
-        e.key.state = GButtonState::RELEASED;
+        case WM_MBUTTONDBLCLK:
+            e.type = GEventType::MOUSE_BUTTON_CLICK;
+            e.button.numClicks = 2;
+            e.button.button = 1;
+            break;
+
+        case WM_RBUTTONDBLCLK:
+            e.type = GEventType::MOUSE_BUTTON_CLICK;
+            e.button.numClicks = 2;
+            e.button.button = 2;
+            break;
+
+        case WM_XBUTTONDBLCLK:
+            e.type = GEventType::MOUSE_BUTTON_CLICK;
+            e.button.numClicks = 2;
+            e.button.button = 3 + (((GET_XBUTTON_WPARAM(wParam) & XBUTTON2) != 0) ? 1 : 0);
+            break;
+
+        case WM_LBUTTONDOWN:
+            // map a button down message to a down event, pressed state and button index of
+            // 0 - left, 1 - middle, 2 - right, 3+ - x
+            e.type = GEventType::MOUSE_BUTTON_DOWN;
+            e.button.state = GButtonState::PRESSED;
+            e.button.button = 0;
+            break;
+
+        case WM_MBUTTONDOWN:
+            e.type = GEventType::MOUSE_BUTTON_DOWN;
+            e.button.state = GButtonState::PRESSED;
+            e.button.button = 1;
+            break;
+
+        case WM_RBUTTONDOWN:
+            e.type = GEventType::MOUSE_BUTTON_DOWN;
+            e.button.state = GButtonState::PRESSED;
+            e.button.button = 2;
+            break;
+
+        case WM_XBUTTONDOWN:
+            e.type = GEventType::MOUSE_BUTTON_DOWN;
+            e.button.state = GButtonState::PRESSED;
+            e.button.button = 3 + (((GET_XBUTTON_WPARAM(wParam) & XBUTTON2) != 0) ? 1 : 0);
+            break;
+
+        case WM_LBUTTONUP:
+            // map a button up message to a up event, released state and button index of
+            // 0 - left, 1 - middle, 2 - right, 3+ - x
+            e.type = GEventType::MOUSE_BUTTON_UP;
+            e.button.state = GButtonState::RELEASED;
+            e.button.button = 0;
+            break;
+
+        case WM_MBUTTONUP:
+            e.type = GEventType::MOUSE_BUTTON_UP;
+            e.button.state = GButtonState::RELEASED;
+            e.button.button = 1;
+            break;
+
+        case WM_RBUTTONUP:
+            e.type = GEventType::MOUSE_BUTTON_UP;
+            e.button.state = GButtonState::RELEASED;
+            e.button.button = 2;
+            break;
+
+        case WM_XBUTTONUP:
+            e.type = GEventType::MOUSE_BUTTON_UP;
+            e.button.state = GButtonState::RELEASED;
+            e.button.button = 3 + (((GET_XBUTTON_WPARAM(wParam) & XBUTTON2) != 0) ? 1 : 0);
+            break;
+
+        default:
+            // handling non-mouse event?
+            debugAssert(false);
     }
 
-    e.key.keysym.unicode = ' ';
-    e.key.keysym.sym = (GKey::Value)keyEvent;
+    // add initial event
+    m_sysEventQueue->pushBack(e);
 
-    e.key.keysym.scancode = 0;
+    // check for any clicks as defined by a button down then up sequence
+    if (e.type == GEventType::MOUSE_BUTTON_UP && _mouseButtons[e.button.button]) {
 
-    static BYTE lpKeyState[256];
-    GetKeyboardState(lpKeyState);
+        // add click event from same location
+        e.type = GEventType::MOUSE_BUTTON_CLICK;
+        e.button.numClicks = 1;
 
-    int mod = 0;
-    if (lpKeyState[VK_LSHIFT] & 0x80) {
-        mod = mod | GKeyMod::LSHIFT;
+        m_sysEventQueue->pushBack(e);
     }
 
-    if (lpKeyState[VK_RSHIFT] & 0x80) {
-        mod = mod | GKeyMod::RSHIFT;
-    }
-
-    if (lpKeyState[VK_LCONTROL] & 0x80) {
-        mod = mod | GKeyMod::LCTRL;
-    }
-
-    if (lpKeyState[VK_RCONTROL] & 0x80) {
-        mod = mod | GKeyMod::RCTRL;
-    }
-
-    if (lpKeyState[VK_LMENU] & 0x80) {
-        mod = mod | GKeyMod::LALT;
-    }
-
-    if (lpKeyState[VK_RMENU] & 0x80) {
-        mod = mod | GKeyMod::RALT;
-    }
-    e.key.keysym.mod = (GKeyMod)mod;
-    */
+    _mouseButtons[e.button.button] = (e.type == GEventType::MOUSE_BUTTON_DOWN);
 }
 
 
@@ -1442,43 +1333,131 @@ static void printPixelFormatDescription(int format, HDC hdc, TextOutput& out) {
 
 LRESULT CALLBACK Win32Window::windowProc(HWND     window,
                                          UINT     message,
-                                         WPARAM   wparam,
-                                         LPARAM   lparam) {
+                                         WPARAM   wParam,
+                                         LPARAM   lParam) {
 
     Win32Window* this_window = (Win32Window*)GetWindowLong(window, GWL_USERDATA);
 
-    if (this_window != NULL) {
+    if (this_window != NULL && this_window->m_sysEventQueue != NULL) {
+        GEvent e;
+
         switch (message) {
-        case WM_ACTIVATE:
-            if ((LOWORD(wparam) != WA_INACTIVE) &&
-                (HIWORD(wparam) == 0) &&
-                ((HWND)lparam != this_window->hwnd())) { // non-zero is minimized 
-                    this_window->_windowActive = true;
-            } else if ((HWND)lparam != this_window->hwnd()) {
-                this_window->_windowActive = false;
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+
+            // only tracking keys less than 256
+            if (wParam < 256) {
+                // if repeating (bit 30 set), only add key down event if
+                // we haven't seen it already
+                if (this_window->_keyboardButtons[wParam] || ((lParam & 0x40000000) == 0)) {
+                    e.key.type = GEventType::KEY_DOWN;
+                    e.key.state = GButtonState::PRESSED;
+
+                    makeKeyEvent(wParam, lParam, e);
+                    this_window->_keyboardButtons[wParam] = true;
+                    
+                    this_window->m_sysEventQueue->pushBack(e);
+                }
+            } else {
+                // we are processing a key press over 256 which we aren't tracking
+                // check to see if the VK_ mappings are valid and now high enough
+                // that we need to track more (try using a map)
+                debugAssert(wParam < 256);
             }
-            break;
+            return 0;
+
+
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            // only tracking keys less than 256
+            if (wParam < 256) {
+                e.key.type = GEventType::KEY_UP;
+                e.key.state = GButtonState::RELEASED;
+
+                makeKeyEvent(wParam, lParam, e);
+                this_window->_keyboardButtons[wParam] = false;
+
+                this_window->m_sysEventQueue->pushBack(e);
+            } else {
+                // we are processing a key press over 256 which we aren't tracking
+                // check to see if the VK_ mappings are valid and now high enough
+                // that we need to track more (try using a map)
+                debugAssert(wParam < 256);
+            }
+            return 0;
+
+        case WM_MOUSEMOVE:
+            e.motion.type = GEventType::MOUSE_MOTION;
+            e.motion.which = 0; // TODO: mouse index
+            e.motion.state = buttonsToUint8(this_window->_mouseButtons);
+            e.motion.x = GET_X_LPARAM(lParam);
+            e.motion.y = GET_Y_LPARAM(lParam);
+            e.motion.xrel = 0;
+            e.motion.yrel = 0;
+            this_window->m_sysEventQueue->pushBack(e);
+            return 0;
+
+        case WM_LBUTTONDBLCLK:
+        case WM_MBUTTONDBLCLK:
+        case WM_RBUTTONDBLCLK:
+        case WM_XBUTTONDBLCLK:
+        case WM_LBUTTONDOWN:
+        case WM_MBUTTONDOWN:
+        case WM_RBUTTONDOWN:
+        case WM_XBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_MBUTTONUP:
+        case WM_RBUTTONUP:
+        case WM_XBUTTONUP:
+            this_window->mouseButton(message, lParam, wParam);
+            return 0;
+
+        case WM_DROPFILES:
+            {
+                e.drop.type = GEventType::FILE_DROP;
+                HDROP hDrop = (HDROP)wParam;
+                POINT point;
+                DragQueryPoint(hDrop, &point);
+                e.drop.x = point.x;
+                e.drop.y = point.y;
+
+                enum {NUM_FILES=0xFFFFFFFF};
+
+                int n = DragQueryFile(hDrop, NUM_FILES,NULL, 0);
+                this_window->m_droppedFiles.clear();
+                for (int i = 0; i < n; ++i) {
+                    int numChars = DragQueryFile(hDrop, i, NULL, 0);
+                    char* temp = (char*)System::malloc(numChars + 2);
+                    DragQueryFileA(hDrop, i, temp, numChars + 1);
+                    std::string s = temp;
+                    this_window->m_droppedFiles.append(s);
+                    System::free(temp);
+                }
+                DragFinish(hDrop);
+
+                this_window->m_sysEventQueue->pushBack(e);
+            }
+            return 0;
 
         case WM_CLOSE:
-            this_window->_receivedCloseEvent = true;
-            break;
+            // handle close event
+            e.type = GEventType::QUIT;
+            this_window->m_sysEventQueue->pushBack(e);
+            DestroyWindow(window);
+            return 0;
 
         case WM_SIZE:
-            if ((wparam == SIZE_MAXIMIZED) ||
-                (wparam == SIZE_RESTORED))
+            // handle resize event (minimized is ignored)
+            if ((wParam == SIZE_MAXIMIZED) ||
+                (wParam == SIZE_RESTORED))
             {
                 // Add a size event that will be returned next OSWindow poll
-                GEvent e;
                 e.type = GEventType::VIDEO_RESIZE;
-                e.resize.w = LOWORD(lparam);
-                e.resize.h = HIWORD(lparam);
-                this_window->sizeEventInjects.append(e);
+                e.resize.w = LOWORD(lParam);
+                e.resize.h = HIWORD(lParam);
+                this_window->m_sysEventQueue->pushBack(e);
             }
-            break;
-
-        case WM_SETFOCUS:
-            this_window->justReceivedFocus = true;
-            break;
+            return 0;
 
         case WM_KILLFOCUS:
             for (int i = 0; i < sizeof(this_window->_keyboardButtons); ++i) {
@@ -1486,20 +1465,12 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
                     ::PostMessage(window, WM_KEYUP, i, 0);
                 }
             }
-            memset(this_window->_keyboardButtons, 0, sizeof(this_window->_keyboardButtons));
-            break;
+            return 0;
 
-        case WM_SYSCOMMAND:
-            // Only upper 12-bits are public
-            if ((wparam & 0xFFF0) == SC_KEYMENU) {
-                // Ignore Alt button that opens system menu, freezes render
-                return 0;
-            }
-            break;
-            }
+        }
     }
 
-    return DefWindowProc(window, message, wparam, lparam);
+    return DefWindowProc(window, message, wParam, lParam);
 }
 
 /** Return the G3D window class, which owns a private DC. 

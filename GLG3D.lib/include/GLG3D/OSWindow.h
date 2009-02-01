@@ -192,8 +192,8 @@ protected:
 
     Queue<GEvent>               m_eventQueue;
 
-    /** Extract one event from the underlying operating system */
-    virtual bool pollOSEvent(GEvent& e);
+    /** Extract new events from the underlying operating system */
+    virtual void getOSEvents(Queue<GEvent>& events);
 
 private:
 

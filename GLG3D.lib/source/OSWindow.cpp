@@ -37,18 +37,15 @@ void OSWindow::fireEvent(const GEvent& event) {
 }
 
 
-bool OSWindow::pollOSEvent(GEvent& e) {
-    (void)e;
-    return false;
+void OSWindow::getOSEvents(Queue<GEvent>& events) {
+    // no events added
 }
 
 
 bool OSWindow::pollEvent(GEvent& e) {
-    // Extract all pending events and put them on the queue.
 
-    while (pollOSEvent(e) != 0) {
-        m_eventQueue.pushBack(e);
-    }
+    // Extract all pending events and put them on the queue.
+    getOSEvents(m_eventQueue);
 
     // Return the first pending event
     if (m_eventQueue.size() > 0) {

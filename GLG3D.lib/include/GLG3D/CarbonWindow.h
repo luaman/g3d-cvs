@@ -44,7 +44,7 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
 void HIDCollectJoyElementsArrayHandler(const void *value, void *parameter);
 }
 
-class CarbonWindow : public GWindow {
+class CarbonWindow : public OSWindow {
 private:
     // Window Settings
     Vector2	                _clientRectOffset;
@@ -232,7 +232,7 @@ public:
     
 protected:
     
-    virtual bool pollOSEvent(GEvent& e);
+    virtual void getOSEvents(Queue<GEvent>& events);
     
 }; // CarbonWindow
 
