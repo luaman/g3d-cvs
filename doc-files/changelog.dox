@@ -47,6 +47,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> Changed OSWindow::pollOSEvent to OSWindow::getOSEvents allowing OSWindow implementations to return multiple events
      <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
      <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
