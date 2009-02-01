@@ -176,7 +176,7 @@ void System::init() {
         }
 
 
-        int highestFunction = eaxreg;
+        unsigned int highestFunction = eaxreg;
         if (highestFunction >= CPUID_NUM_CORES) {
             cpuid(CPUID_NUM_CORES, eaxreg, ebxreg, ecxreg, edxreg);
             // Number of cores is in (eax>>26) + 1
@@ -1877,11 +1877,19 @@ void System::CPUIDFunction(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, u
 void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
     // AT&T assembler syntax
     asm volatile(
-                 "pushl %%ebx      \n\t" /* save %ebx */
+#                ifdef __x86_64__
+                 "pushq %%rbx      \n\t" /* save ebx */
+#                else
+                 "pushl %%ebx      \n\t" /* save ebx */
+#                endif
                  "movl $0, %%ecx   \n\n" /* Wipe ecx */
                  "cpuid            \n\t"
                  "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
-                 "popl %%ebx       \n\t" /* restore the old %ebx */
+#                ifdef __x86_64__
+                 "popq %%rbx       \n\t" /* restore the old ebx */
+#                else
+                 "popl %%ebx       \n\t" /* restore the old ebx */
+#                endif
                  : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx)
                  : "a"(func));
 }
