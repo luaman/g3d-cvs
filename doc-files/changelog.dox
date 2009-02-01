@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Win32Window now generates GEventType::MOUSE_BUTTON_CLICK events
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
      <li> Removed most static global variables to control order of intialization
