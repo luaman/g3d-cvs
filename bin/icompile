@@ -14,7 +14,7 @@
 # EDIT ice.txt AND ~/.icompile TO CUSTOMIZE YOUR PROJECT CONFIGURATION.
 #**********************************************************************
 
-version = [0, 5, 6]
+version = [0, 5, 7]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, copy, threading
@@ -461,7 +461,7 @@ def buildDependencyProjects(state):
     if state.target == DEBUG:
         libArgs.append('--debug')
     else:
-        libArgs.append('-O')
+        libArgs.append('--opt')
 
     ret = 0
     for lib in state.usesProjectsList:
@@ -751,6 +751,7 @@ def configureVC(state):
 """ Configure g++ as our compiler of choice.
     Called from configureCompiler."""
 def configureGpp(state):
+    gccVersion = getVersion(state.compiler)
 
     userCompilerOptions = state.compilerOptions
     userLinkerOptions = state.linkerOptions
@@ -758,8 +759,13 @@ def configureGpp(state):
     if state.target == RELEASE:
         state.compilerOptions = ['-O3',
                                  '-D_RELEASE', 
+                                 '-fno-signaling-nans',
+                                 '-fassociative-math',
                                  '-fno-trapping-math',
                                  '-fno-strict-aliasing',
+                                 '-ffast-math',
+                                 '-fno-signed-zeros',
+                                 '-fno-math-errno',
                                  '-s']
         # Had to remove '-fno-math-errno' because g++ occasionally
         # crashes with that option.
@@ -768,20 +774,19 @@ def configureGpp(state):
         # type-punned aliasing to be safe, which is what many C++ programmers
         # need.
 
-        # Removed '-fno-finite-math-only' because it is not supported
-        # by g++3.2
-
         state.linkerOptions   = []
     else:
         state.compilerOptions = ['-D_DEBUG', '-g']
         state.linkerOptions   = []
 
     if state.os == 'linux':
+
         # LARGEFILE_SOURCE enables some newer interfaces for
         # fopen that work with >2GB files
         flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
         state.compilerOptions += string.split(flags, ' ')
 
+    
     if state.os == 'osx':
 
         # On OS X, dylib files may be found in the data-files
@@ -800,18 +805,26 @@ def configureGpp(state):
             # on an intel machine we can compile for both ppc and intel
             # but on a ppc machine we use the defaults and compile only for ppc
             if (machine() == 'i386'):
-                arch = ['-arch', 'i386', '-arch', 'ppc']
+                arch = ['-arch', 'core2', '-arch', 'ppc']
         else:
             if (machine() == 'i386'):
-                arch = ['-arch', 'i386']
+                arch = ['-arch', 'core2']
             else:
                 arch = ['-arch', 'ppc']
 
         state.compilerOptions += arch
-        state.linkerOptions   += arch 
+        state.linkerOptions   += arch
 
-    if state.os == 'osx':
         state.linkerOptions += ['-Wl,-headerpad_max_install_names']
+    else:
+        state.compilerOptions.append('-march=pentium4')
+        state.compilerOptions.append('-msse2')
+        if gccVersion[0] >= 4:
+            state.compilerOptions.append('-fpmath=sse')
+
+    if gccVersion[0] >= 4:
+        state.compilerOptions.append('-mtune=native')
+
         
     # Use pipes instead of temporary files for 
     # inter-process communication; this should be faster.
