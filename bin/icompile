@@ -805,10 +805,10 @@ def configureGpp(state):
             # on an intel machine we can compile for both ppc and intel
             # but on a ppc machine we use the defaults and compile only for ppc
             if (machine() == 'i386'):
-                arch = ['-arch', 'core2', '-arch', 'ppc']
+                arch = ['-arch', 'i386', '-arch', 'ppc']
         else:
             if (machine() == 'i386'):
-                arch = ['-arch', 'core2']
+                arch = ['-arch', 'i386']
             else:
                 arch = ['-arch', 'ppc']
 
