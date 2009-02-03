@@ -43,6 +43,8 @@ public:
       FLOATING_POINT_TYPE, 
       INTEGER_TYPE,
       BOOLEAN_TYPE,
+      LINE_COMMENT_TYPE,
+      BLOCK_COMMENT_TYPE,
       END_TYPE
     };
 
@@ -53,7 +55,8 @@ public:
       STRING  = DOUBLE_QUOTED_TYPE, 
       SYMBOL  = SYMBOL_TYPE, 
       NUMBER  = FLOATING_POINT_TYPE, 
-      BOOLEAN = BOOLEAN_TYPE, 
+      BOOLEAN = BOOLEAN_TYPE,
+      COMMENT = LINE_COMMENT_TYPE,
       END     = END_TYPE
     };
 
@@ -207,12 +210,31 @@ public:
     /** Tokenizer configuration options.  */
     class Settings {
     public:
-        /** If true, slash-star marks a multi-line comment.  Default
-            is true. */
-        bool                cComments;
+        /** If true, C-style slash-star marks a multi-line comment.
 
-        /** If true, // begins a single line comment.  Default is true. */
-        bool                cppComments;
+            See generateCommentTokens for rules on how this is applied.
+
+            Default is true.
+         */
+        bool                cppBlockComments;
+
+        /** If true, // begins a single line comment.
+
+            See generateCommentTokens for rules on how this is applied.
+
+            Default is true.
+         */
+        bool                cppLineComments;
+
+        /** If true, otherCommentCharacter and otherCommentCharacter2
+            are used to begin single line comments in the same way
+            cppLineComments is.
+
+            See generateCommentTokens for rules on how this is applied.
+
+            Default is true.
+         */
+        bool                otherLineComments;
 
         /** If true, \r, \n, \t, \0, \\ and other escape sequences inside
             strings are converted to the equivalent C++ escaped character.
@@ -224,10 +246,10 @@ public:
          */
         bool                escapeSequencesInStrings;
 
-        /** If non-NUL, specifies a character that begins single line
+        /** If not '\0', specifies a character that begins single line
             comments ('#' and '%' are popular choices).  This is independent
-            of the cppComments flag.  If the character appears in text with a
-            backslash in front of it, it is considered escaped and is not
+            of the cppLineComments flag.  If the character appears in text with
+            a backslash in front of it, it is considered escaped and is not
             treated as a comment character.
 
             Default is '\0'.
@@ -238,6 +260,15 @@ public:
             support multiple comment syntaxes.  Default is '\0'.
          */
         char                otherCommentCharacter2;
+
+        /** If true, comments enabled by cppBlockComments, cppLineComments
+            and otherLineComments will generate their respective tokens.
+            If false, the same settings will enable parsing and ignoring
+            comments
+
+            Default is false.
+         */
+        bool                generateCommentTokens;
 
         /** If true, "-1" parses as the number -1 instead of the
             symbol "-" followed by the number 1.  Default is true.*/

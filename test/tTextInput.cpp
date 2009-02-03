@@ -2,6 +2,7 @@
 
 static void tfunc1();
 static void tfunc2();
+static void tCommentTokens();
 
 void testTextInput() {
     printf("TextInput\n");
@@ -147,7 +148,7 @@ void testTextInput() {
 
     {
         TextInput::Settings opt;
-        opt.cppComments = false;
+        opt.cppLineComments = false;
         TextInput ti(TextInput::FROM_STRING, 
                      "if/*comment*/(x->y==-1e6){cout<<\"hello world\"}; // foo\nbar",
                      opt);
@@ -304,6 +305,8 @@ void testTextInput() {
     
     tfunc1();
     tfunc2();
+    
+    tCommentTokens();
 }
 
     // these defines are duplicated in tTextInput2.cpp
@@ -346,6 +349,26 @@ void testTextInput() {
         CHECK_END_TOKEN(ti,      3, 2);                                     \
     }
 
+#define CHECK_LINE_COMMENT_TOKEN(ti, str, lnum, chnum)                      \
+    {                                                                       \
+        Token _t;                                                           \
+        _t = (ti).read();                                                   \
+        CHECK_TOKEN_TYPE(_t, Token::COMMENT, Token::LINE_COMMENT_TYPE);     \
+                                                                            \
+        CHECK_TOKEN_POS(_t, (lnum), (chnum));                               \
+        alwaysAssertM(_t.string() == (str), "");                            \
+    }
+
+#define CHECK_BLOCK_COMMENT_TOKEN(ti, str, lnum, chnum)                     \
+    {                                                                       \
+        Token _t;                                                           \
+        _t = (ti).read();                                                   \
+        CHECK_TOKEN_TYPE(_t, Token::COMMENT, Token::BLOCK_COMMENT_TYPE);    \
+                                                                            \
+        CHECK_TOKEN_POS(_t, (lnum), (chnum));                               \
+        alwaysAssertM(_t.string() == (str), "");                            \
+    }
+
 static void tfunc1() {
     // Basic line number checking test.  Formerly would skip over line
     // numbers (i.e., report 1, 3, 5, 7 as the lines for the tokens), because
@@ -383,3 +406,30 @@ static void tfunc2() {
     CHECK_ONE_SPECIAL_SYM("++");
     CHECK_ONE_SPECIAL_SYM("+=");
 }	
+
+static void tCommentTokens() {
+    TextInput::Settings settings;
+    settings.generateCommentTokens = true;
+
+    {
+        TextInput ti(TextInput::FROM_STRING, "/* comment 1 */  //comment 2", settings);
+        CHECK_BLOCK_COMMENT_TOKEN(ti, " comment 1 ", 1, 1);
+        CHECK_LINE_COMMENT_TOKEN(ti, "comment 2", 1, 18);
+    }
+
+    {
+        TextInput ti(TextInput::FROM_STRING, "/*\n comment\n 1 */  //comment 2", settings);
+        CHECK_BLOCK_COMMENT_TOKEN(ti, "\n comment\n 1 ", 1, 1);
+        CHECK_LINE_COMMENT_TOKEN(ti, "comment 2", 3, 8);
+    }
+
+    settings.otherCommentCharacter = '#';
+    settings.otherCommentCharacter2 = ';';
+
+    {
+        TextInput ti(TextInput::FROM_STRING, "/* comment 1 */\n;comment 2\n#comment 3  //some text", settings);
+        CHECK_BLOCK_COMMENT_TOKEN(ti, " comment 1 ", 1, 1);
+        CHECK_LINE_COMMENT_TOKEN(ti, "comment 2", 2, 1);
+        CHECK_LINE_COMMENT_TOKEN(ti, "comment 3  //some text", 3, 1);
+    }
+}

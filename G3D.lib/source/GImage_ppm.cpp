@@ -65,7 +65,7 @@ void GImage::decodePPMASCII(
     const std::string inputStr = input.readString();
 
     TextInput::Settings ppmOptions;
-    ppmOptions.cppComments = false;
+    ppmOptions.cppLineComments = false;
     ppmOptions.otherCommentCharacter = '#';
     ppmOptions.signedNumbers = true;
     ppmOptions.singleQuotedStrings = false;

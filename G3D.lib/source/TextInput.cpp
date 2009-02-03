@@ -55,12 +55,21 @@ double Token::number() const {
 }
 
 
-TextInput::Settings::Settings ()
-   : cComments(true), cppComments(true), escapeSequencesInStrings(true), 
-     otherCommentCharacter('\0'), otherCommentCharacter2('\0'),
-     signedNumbers(true), singleQuotedStrings(true), sourceFileName(),
-     startingLineNumberOffset(0), msvcSpecials(true), proofSymbols(false),
-     caseSensitive(true)
+TextInput::Settings::Settings () :
+    cppBlockComments(true),
+    cppLineComments(true),
+    otherLineComments(true),
+    escapeSequencesInStrings(true), 
+    otherCommentCharacter('\0'),
+    otherCommentCharacter2('\0'),
+    generateCommentTokens(false),
+    signedNumbers(true),
+    singleQuotedStrings(true),
+    sourceFileName(),
+    startingLineNumberOffset(0),
+    msvcSpecials(true),
+    proofSymbols(false),
+    caseSensitive(true)
 { 
     trueSymbols.insert("true");
     falseSymbols.insert("false");
@@ -194,35 +203,70 @@ Token TextInput::nextToken() {
             c = eatAndPeekInputChar();
         }
 
-        int c2 = peekInputChar(1);
-        if ((options.cppComments && c == '/' && c2 == '/')
-            || (options.otherCommentCharacter != '\0'
-                && c == options.otherCommentCharacter)
-            || (options.otherCommentCharacter2 != '\0'
-                && c == options.otherCommentCharacter2)) {
-            
-            // Single line comment, consume to newline or EOF.
+        // update line and character number to include discarded whitespace
+        t._line         = lineNumber;
+        t._character    = charNumber;
 
-            do {
+        int c2 = peekInputChar(1);
+
+        // parse comments and generate tokens if enabled
+        std::string commentString;
+
+        // check for line comments first
+        bool isLineComment = false;
+        if (options.cppLineComments && (c == '/' && c2 == '/')) {
+            // set start of line comment and eat markers
+            isLineComment = true;
+            eatInputChar();
+            eatInputChar();
+        } else if ( options.otherCommentCharacter && 
+                   (options.otherCommentCharacter != '\0' && c == options.otherCommentCharacter) ) {
+            // set start of line comment and eat markers
+            isLineComment = true;
+            eatInputChar();
+        } else if ( options.otherCommentCharacter && 
+                   (options.otherCommentCharacter2 != '\0' && c == options.otherCommentCharacter2) ) {
+            // set start of line comment and eat markers
+            isLineComment = true;
+            eatInputChar();
+        }
+
+        if (isLineComment) {
+
+            // consume line comment to newline or EOF
+            c = peekInputChar();
+            while (! isNewline(c) && c != EOF) {
+                // build comment string for token
+                commentString += c;
+
                 c = eatAndPeekInputChar();
-            } while (! isNewline(c) && c != EOF);
+            }
 
             // There is whitespace after the comment (in particular, the
             // newline that terminates the comment).  There might also be
             // whitespace at the start of the next line.
             whitespaceDone = false;
 
-        } else if (options.cComments && (c == '/') && (c2 == '*')) {
+            if (options.generateCommentTokens) {
+                t._type         = Token::COMMENT;
+                t._extendedType = Token::LINE_COMMENT_TYPE;
+                t._string       = commentString;
+                return t;
+            }
+
+        } else if (options.cppBlockComments && (c == '/' && c2 == '*')) {
+            // consume block comment to end-marker or EOF
 
             // consume both start-comment chars, can't let the trailing one
             // help close the comment.
             eatInputChar();
             eatInputChar();
 
-            // Multi-line comment, consume to end-marker or EOF.
             c = peekInputChar();
             c2 = peekInputChar(1);
             while (! ((c == '*') && (c2 == '/')) && (c != EOF)) {
+                commentString += c;
+
                 eatInputChar();
                 c = c2;
                 c2 = peekInputChar(1);
@@ -234,6 +278,13 @@ Token TextInput::nextToken() {
 
             // May be whitespace after comment.
             whitespaceDone = false;
+
+            if (options.generateCommentTokens) {
+                t._type         = Token::COMMENT;
+                t._extendedType = Token::BLOCK_COMMENT_TYPE;
+                t._string       = commentString;
+                return t;
+            }
         }
 
     }  // while (! whitespaceDone)

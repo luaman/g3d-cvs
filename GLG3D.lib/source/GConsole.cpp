@@ -390,8 +390,8 @@ void GConsole::addToCompletionHistory(const string& s) {
     static TextInput::Settings settings;
     if (! initialized) {
 
-        settings.cComments = false;
-        settings.cppComments = false;
+        settings.cppBlockComments = false;
+        settings.cppLineComments = false;
         settings.msvcSpecials = false;
 
         initialized = true;
