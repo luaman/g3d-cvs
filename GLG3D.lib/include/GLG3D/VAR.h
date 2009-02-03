@@ -384,8 +384,8 @@ public:
 
            VAR interleavedBlock(totalSize, area);
 
-           VAR vertex(N, interleavedBlock, 0, stride);
-           VAR texcoord(N, interleavedBlock, sizeof(Vector3), stride);
+           VAR vertex(Vector3() N, interleavedBlock, 0, stride);
+           VAR texcoord(Vector2(), N, interleavedBlock, sizeof(Vector3), stride);
 
            Packed* ptr = (Packed*)interleavedBlock.mapBuffer(GL_WRITE_ONLY);
             // ... write to elements of ptr ...
@@ -398,7 +398,8 @@ public:
        2</code>.  May not be negative.
        */
     template<class T>
-    VAR(int      _numElements,
+    VAR(const T& ignored,
+        int      _numElements,
         VAR      dstPtr,
         size_t   dstOffset, 
         size_t   dstStride) {
