@@ -22,11 +22,7 @@ namespace G3D {
 /**
  A Vector2 that packs its fields into uint16s.
  */
-#ifdef G3D_WIN32
-    // Switch to tight alignment
-    #pragma pack(push, 2)
-#endif
-
+G3D_BEGIN_PACKED_CLASS(2)
 class Vector2int16 {
 private:
     // Hidden operators
@@ -119,14 +115,7 @@ public:
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);
 }
-#if defined(G3D_LINUX) || defined(G3D_OSX)
-    __attribute((aligned(1)))
-#endif
-;
-
-#ifdef G3D_WIN32
-    #pragma pack(pop)
-#endif
+G3D_END_PACKED_CLASS(2)
 
 }
 

@@ -238,6 +238,7 @@ void VAR::unmapBuffer() {
     debugAssertGLOk();
 }
 
+
 void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t srcSize, int srcStride, 
                         size_t dstPtrOffsetBytes, size_t dstStrideBytes) {
     

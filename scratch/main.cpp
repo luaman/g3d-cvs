@@ -54,7 +54,7 @@ void App::onInit() {
     timer.after("load");
 //    exit(0);
 
-    setDesiredFrameRate(500);
+    setDesiredFrameRate(30);
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
@@ -145,6 +145,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     sky->render(rd, localSky);
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+
+    // Do something slow
+    System::sleep(0.03);
 
     /*
     // Show normals

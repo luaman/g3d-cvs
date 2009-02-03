@@ -395,4 +395,12 @@ href="classes.html">Classes</a>.
         \link G3D::Stopwatch Stopwatch\endlink,
         \link G3D::System System\endlink,
         \link G3D::ThreadSet ThreadSet\endlink
+        
+     <li><b>Platform Abstraction Macros</b> &nbsp; &nbsp;
+     PRAGMA, G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS,
+     G3D_WIN32, G3D_OSX, G3D_LINUX, G3D_FREEBSD,     
+     G3D_CHECK_PRINTF_METHOD_ARGS, G3D_CHECK_VPRINTF_METHOD_ARGS,
+     G3D_CHECK_PRINTF_ARGS, G3D_CHECK_VPRINTF_ARGS,
+     G3D_START_AT_MAIN, G3D_DEPRECATED,
+     G3D_DEBUG
  */

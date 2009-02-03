@@ -257,5 +257,33 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
  */
 #define STR(x) #x
 
+/** #pragma may not appear inside a macro, so this uses the pragma operator 
+    to create an equivalent statement.*/
+#ifdef _MSC_VER
+// Microsoft's version http://msdn.microsoft.com/en-us/library/d9x1s805.aspx
+#    define PRAGMA(x) __pragma(x)
+#else
+// C99 standard http://www.delorie.com/gnu/docs/gcc/cpp_45.html
+#    define PRAGMA(x) _Pragma(#x)
+#endif
+
+/** See G3D::Color3uint8 for an example.*/
+// Switch to tight alignment
+#ifdef _MSC_VER
+#    define G3D_BEGIN_PACKED_CLASS(byteAlign)  PRAGMA( pack(push, byteAlign) )
+#else
+#    define G3D_BEGIN_PACKED_CLASS(byteAlign)
+#endif
+
+/** See G3D::Color3uint8 for an example.*/
+#ifdef _MSC_VER
+#    define G3D_END_PACKED_CLASS(byteAlign)  ; PRAGMA( pack(pop) )
+#elif defined(__GNUC__)
+#    define G3D_END_PACKED_CLASS(byteAlign)  __attribute((aligned(byteAlign))) ;
+#else 
+#    define G3D_END_PACKED_CLASS(byteAlign)  ;
+#endif
+
+
 // Header guard
 #endif

@@ -3,11 +3,11 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2001-05-29
-  @edited  2008-12-24
+  @edited  2009-02-03
 */
 
-#ifndef GLG3D_VAR_H
-#define GLG3D_VAR_H
+#ifndef GLG3D_VAR_h
+#define GLG3D_VAR_h
 
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/getOpenGLState.h"
@@ -116,11 +116,12 @@ private:
 
 public:
 
-    /** The area containing this VAR */
+    /** The G3D::VARArea containing this VAR. */
     inline VARAreaRef area() {
         return m_area;
     }
 
+    /** The G3D::VARArea containing this VAR. */
     inline VARAreaRef area() const {
         return m_area;
     }
@@ -129,20 +130,27 @@ public:
         return m_area->type();
     }
 
-    /** @brief Number of elements (not byte size!) */
+    /** @brief Number of elements in this array (not byte size!) */
     inline int size() const {
         return numElements;
     }
 
-    /** Creates an invalid VAR */
+    /** Creates an invalid VAR. */
     VAR();
 
-    /** 
-        @brief Creates a VAR that acts as a pointer to a block of memory.
+    /** @brief Creates a VAR that acts as a pointer to a block of memory.
 
-        Creates a VAR that acts as a pointer to a block of memory.
-        Interleaved data can then be loaded into this using another 
-        VAR constructor.
+        This block of memory can then be used with VAR::VAR(const T* srcPtr, 
+        int      _numElements,
+        int      srcStride,
+        VAR      dstPtr,
+        size_t   dstOffset, 
+        size_t   dstStride) or        
+        VAR::VAR(int      _numElements,
+        VAR      dstPtr,
+        size_t   dstOffset, 
+        size_t   dstStride)
+        to upload interleaved data.        
      */
     VAR(size_t numBytes, VARAreaRef _area);
     
@@ -153,25 +161,31 @@ public:
        
        <PRE>
        // Once at the beginning of the program
-       VARAreaRef area = VARArea::create(1024 * 1024);
+       VARAreaRef dataArea  = VARArea::create(5 * 1024 * 1024);
+       VARAreaRef indexArea = VARArea::create(1024 * 1024, VARArea::WRITE_EVERY_FRAME, VARArea::INDEX);
        
        //----------
        // Store data in main memory
-       Array<Vector3> vertex;
-       Array<int>     index;
+       Array<Vector3> vertexArrayCPU;
+       Array<int>     indexArrayCPU;
        
        //... fill out vertex & index arrays
        
        //------------
-       // Upload to graphics card every frame
+       // Upload to graphics card whenever CPU data changes
        area.reset();
-       VAR varray(vertex, area);
+       VAR vertexVARGPU(vertexArrayCPU, dataArea);
+       VAR indexVARGPU(indexArrayCPU, indexArea);
+
+       //------------
+       // Render 
        renderDevice->beginIndexedPrimitives();
-       renderDevice->setVertexArray(varray);
-       renderDevice->sendIndices(RenderDevice::TRIANGLES, index);
+       {
+           renderDevice->setVertexArray(varray);
+           renderDevice->sendIndices(RenderDevice::TRIANGLES, indexVARGPU);
+       }
        renderDevice->endIndexedPrimitives();
        </PRE>
-       See GLG3D_Demo for examples.
     */
     template<class T>
     VAR(const T* sourcePtr, int _numElements, VARAreaRef _area) {
@@ -196,14 +210,17 @@ public:
 
         Works for both CPU memory and VBO memory VAR.
 
-        This method is unsafe and is not recommended.
+        This method of moving data is not typesafe and is not recommended.
         
-        @param permissions Same as the argument to glMapBufferARB.
+        @param permissions Same as the argument to 
+        <a href="http://www.opengl.org/sdk/docs/man/xhtml/glMapBuffer.xml">glMapBufferARB</a>:
+        <code>GL_READ_ONLY</code>, <code>GL_WRITE_ONLY</code>, or <code>GL_READ_WRITE</code>.                
         */
     void* mapBuffer(GLenum permissions);
 
     /** Release CPU addressable memory previously returned by mapBuffer.
-        This method is unsafe and is not recommended. */
+        This method of moving data is not typesafe and is not recommended. 
+      */
     void unmapBuffer();
 
     /** @brief Update a set of interleaved arrays.  
@@ -231,6 +248,7 @@ public:
         VAR*   var[4]   = {&var1, &var2, &var3, &var4};
         (void)var;
 
+        // Zero out the size of unused arrays
         for (int a = 0; a < 4; ++a) {
             if (count[a] == 0) {
                 // If an array is unused, it occupies no space in the interleaved array.
@@ -317,7 +335,11 @@ public:
 
 
     /**
-       Upload @a _numElements values from @a sourcePtr on the CPU to @a dstPtr on the GPU.
+       @brief Create an interleaved array within an existing VAR
+       and upload data to it.
+              
+       Upload @a _numElements values from @a sourcePtr on the 
+       CPU to @a dstPtr on the GPU.
 
        @param srcStride If non-zero, this is the spacing between
        sequential elements <i>in bytes</i>. It may be negative. 
@@ -339,6 +361,48 @@ public:
         size_t   dstOffset, 
         size_t   dstStride) {
         init(srcPtr, _numElements, srcStride, glFormatOf(T), sizeof(T), dstPtr, dstOffset, dstStride);
+    }
+
+    /** @brief Create an interleaved array within an existing VAR, but do
+        not upload data to it.
+
+        Data can later be uploaded by update() or mapBuffer().
+
+        Example:
+        <PRE>
+           G3D_BEGIN_PACKED_CLASS
+           struct Packed {
+               Vector3   vertex;
+               Vector2   texcoord;
+           }
+           G3D_END_PACKED_CLASS
+
+           ...
+            
+           size_t stride = sizeof(Vector3) + sizeof(Vector2);
+           size_t totalSize = stride * N;
+
+           VAR interleavedBlock(totalSize, area);
+
+           VAR vertex(N, interleavedBlock, 0, stride);
+           VAR texcoord(N, interleavedBlock, sizeof(Vector3), stride);
+
+           Packed* ptr = (Packed*)interleavedBlock.mapBuffer(GL_WRITE_ONLY);
+            // ... write to elements of ptr ...
+           interleavedBlock.unmapBuffer();
+        </PRE>
+
+       @param dstStride If non-zero, this is the spacing between
+       sequential elements of T in dstPtr.  e.g., to upload every
+       other Vector3, use <code>dstStride = sizeof(Vector3) *
+       2</code>.  May not be negative.
+       */
+    template<class T>
+    VAR(int      _numElements,
+        VAR      dstPtr,
+        size_t   dstOffset, 
+        size_t   dstStride) {
+        init(dstPtr, dstOffset, glFormatOf(T), sizeof(T), _numElements, dstStride);
     }
 
     template<class T>
@@ -370,13 +434,12 @@ public:
         update(source.getCArray(), source.size(), glFormatOf(T), sizeof(T));
     }
     
-    /**
-       Overwrites a single element of an existing array without
+    /** Overwrites a single element of an existing array without
        changing the number of elements.  This is faster than calling
        update for large arrays, but slow if many set calls are made.
        Typically used to change a few key vertices, e.g., the single
        dark cap point of a directional light's shadow volume.
-    */
+     */
     // This is intentionally not the overloaded [] operator because
     // direct access to VAR memory is generally slow and discouraged.
     template<class T>

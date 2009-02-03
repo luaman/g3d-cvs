@@ -13,6 +13,9 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Documented platform-abstraction macros
+     <li> PRAGMA
+     <li> G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS
      <li> Win32Window now generates GEventType::MOUSE_BUTTON_CLICK events
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge

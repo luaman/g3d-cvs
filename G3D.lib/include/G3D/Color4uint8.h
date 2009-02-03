@@ -32,11 +32,7 @@ namespace G3D {
 
  */
 
-#ifdef G3D_WIN32
-    // Switch to tight alignment
-    #pragma pack(push, 1)
-#endif 
-
+G3D_BEGIN_PACKED_CLASS(1)
 class Color4uint8 {
 private:
     // Hidden operators
@@ -105,15 +101,7 @@ public:
     }
 
 }
-#if defined(G3D_LINUX) || defined(G3D_OSX)
-    __attribute((aligned(1)))
-#endif
-;
-
-#ifdef G3D_WIN32
-    #pragma pack(pop)
-#endif
-
+G3D_END_PACKED_CLASS(1)
 
 inline G3D::uint8& Color4uint8::operator[] (int i) const {
     return ((G3D::uint8*)this)[i];

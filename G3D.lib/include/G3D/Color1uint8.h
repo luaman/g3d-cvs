@@ -18,12 +18,6 @@
 
 namespace G3D {
 
-#if defined(G3D_WIN32)
-    // Switch to tight alignment
-    #pragma pack(push, 1)
-#endif
-
-
 /**
  Represents a Color1 as a packed integer.  Convenient
  for creating unsigned int vertex arrays. 
@@ -58,6 +52,7 @@ let s = 1/256
 </PRE>
 and the intervals are all the same size, thus giving equal precision to all values.
  */
+G3D_BEGIN_PACKED_CLASS(1)
 class Color1uint8 {
 private:
     // Hidden operators
@@ -91,17 +86,6 @@ public:
     }
 
 }
-
-#if defined(G3D_LINUX) || defined(G3D_OSX)
-    __attribute((aligned(1)))
-#endif
-
-;
-
-#ifdef G3D_WIN32
-  #pragma pack(pop)
-#endif
-
+G3D_END_PACKED_CLASS(1)
 }
-
 #endif

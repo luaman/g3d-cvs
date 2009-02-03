@@ -21,11 +21,7 @@ namespace G3D {
 /**
  A Vector3 that packs its fields into uint16s.
  */
-#ifdef G3D_WIN32
-    // Switch to tight alignment
-    #pragma pack(push, 2)
-#endif
-
+G3D_BEGIN_PACKED_CLASS(2)
 class Vector3int16 {
 private:
     // Hidden operators
@@ -112,14 +108,7 @@ public:
 
     std::string toString() const;
 }
-#if defined(G3D_LINUX) || defined(G3D_OSX)
-    __attribute((aligned(1)))
-#endif
-;
-
-#ifdef G3D_WIN32
-    #pragma pack(pop)
-#endif
+G3D_END_PACKED_CLASS(2)
 
 }
 
