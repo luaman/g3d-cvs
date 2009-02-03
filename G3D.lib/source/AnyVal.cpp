@@ -599,6 +599,11 @@ void AnyVal::deserialize(G3D::TextInput& t) {
         m_value = new std::string(t.readString());
         break;
 
+    case Token::COMMENT:
+        m_type = STRING;
+        m_value = new std::string(t.readComment());
+        break;
+
     case Token::BOOLEAN:
         m_type = BOOLEAN;
         m_value = new bool(t.readBoolean());

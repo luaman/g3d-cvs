@@ -870,6 +870,33 @@ void TextInput::readString(const std::string& s) {
                       s, t._string);
 }
 
+Token TextInput::readCommentToken() {
+    Token t(read());
+
+    if (t._type == Token::COMMENT) {               // fast path
+        return t;
+    }
+
+    push(t);
+    throw WrongTokenType(options.sourceFileName, t.line(), t.character(),
+                         Token::COMMENT, t._type);
+}
+
+std::string TextInput::readComment() {
+    return readCommentToken()._string;
+}
+
+void TextInput::readComment(const std::string& s) {
+    Token t(readCommentToken());
+
+    if (t._string == s) {                         // fast path
+        return;
+    }
+
+    push(t);
+    throw WrongString(options.sourceFileName, t.line(), t.character(),
+                      s, t._string);
+}
 
 Token TextInput::readSymbolToken() {
     Token t(read());

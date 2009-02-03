@@ -151,6 +151,8 @@ public:
   <li><CODE>Token::INTEGER_TYPE</CODE> numbers without decimal places or exponential notation. e.g., 10, 0x17F, 32, 0, -155
   <li><CODE>Token::FLOATING_POINT_TYPE</CODE> numbers with decimal places or exponential notation. e.g., 1e3, -1.2, .4, 0.5
   <li><CODE>Token::BOOLEAN_TYPE</CODE> special symbols like "true" and "false"; the exact details can be configured in TextInput::Settings
+  <li><CODE>Token::LINE_COMMENT_TYPE</CODE> (disabled by default); generated for line comments as specified by TextInput::Settings
+  <li><CODE>Token::BLOCK_COMMENT_TYPE</CODE> (disabled by default); generated for c-style block comments as specified by TextInput::Settings
  </ul>
 
  <P>The special ".." and "..." tokens are always recognized in
@@ -618,6 +620,40 @@ public:
       */
     void readString(const std::string& s);
 
+    /** Reads a comment token or throws WrongTokenType, and returns the token.
+
+        Use this method (rather than readComment) if you want the token's
+        location as well as its value.
+
+        WrongTokenType will be thrown if the next token in the input stream
+        is not a comment.  When an exception is thrown, no tokens are
+        consumed.
+    */
+    Token readCommentToken();
+
+    /** Like readCommentToken, but returns the token's string.
+
+        Use this method (rather than readCommentToken) if you want the token's
+        value but don't really care about its location in the input.  Use of
+        readCommentToken is encouraged for better error reporting.
+    */
+    std::string readComment();
+
+    /** Reads a specific comment token or throws either WrongTokenType or
+        WrongString.  If the next token in the input is a comment matching @p
+        s, it will be consumed.
+
+        Use this method if you want to match a specific comment from the
+        input.  In that case, typically error reporting related to the token
+        is only going to occur because of a mismatch, so no location
+        information is needed by the caller.
+
+        WrongTokenType will be thrown if the next token in the input stream
+        is not a comment.  WrongString will be thrown if the next token in the
+        input stream is a comment but does not match the @p s parameter.  When
+        an exception is thrown, no tokens are consumed.
+      */
+     void readComment(const std::string& s);
 
     /** Reads a symbol token or throws WrongTokenType, and returns the token.
 
