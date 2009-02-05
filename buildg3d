@@ -49,6 +49,8 @@ buildDir = None
 
 compiler = None
 
+make     = None
+
 def initOS():
     global windows, freebsd, linux, osx, unix, osShortName
     global libInstallDir, docInstallDir, configFile, platformName
@@ -141,6 +143,30 @@ def initOS():
         libInstallDir = installDir
         docInstallDir = pathConcat(installDir, 'G3D')
 
+    make = 'make'
+    if freebsd:
+        # FreeBSD ships with an ancient make version; switch
+        # to gmake
+        make = 'gmake'
+
+    if os:
+        v = ice.utils.getVersion(make)
+        if (v[0] < 3) or ((v[0] == 3) and (v[1] < 80)):
+            # This version of make has a bug that prevents it from
+            # compiling ffmpeg:
+            #
+            # http://lists.mplayerhq.hu/pipermail/ffmpeg-user/2008-May/015364.html
+            make = 'gmake'
+
+            # Ensure that gmake is on the system
+            if shell('which ' + make, False) == '':
+                raise Error('The version of make in this computer has a known bug ' +
+                            'that prevents it from compiling FFMPEG correctly, but ' +
+                            'gmake was not found on this computer to use as a replacement. ' +
+                            'please install gmake (from ftp://ftp.gnu.org/gnu/make/ or MacPort) ' +
+                            'to compile G3D.')
+
+
 initOS()
 
 def copyIfNewer(source, dest):
@@ -175,10 +201,6 @@ def runicompile(dir):
 def buildNativeFFMPEG():
     if windows: raise Error('Cannot build FFMPEG directly on Windows.  Must use cross-compiler')
 
-    make = 'make'
-    if freebsd:
-        # freebsd ships with an ancient make version
-        make = 'gmake'
 
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
     print '----------------------------------------------------\n'
@@ -565,8 +587,8 @@ def ffmpegCCTarget():
     ice.utils.shell('../' + os.path.split(binutilsDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --disable-nls --disable-shared', False)
     
     # build binutils
-    ice.utils.shell('make CFLAGS="-fno-exceptions" LDFLAGS="-s"', False)
-    ice.utils.shell('make install', False)
+    ice.utils.shell(make + ' CFLAGS="-fno-exceptions" LDFLAGS="-s"', False)
+    ice.utils.shell(make + ' install', False)
     os.chdir(oldcwd)
     print 'Completed.\n'
 
@@ -579,8 +601,8 @@ def ffmpegCCTarget():
     ice.utils.shell('../' + os.path.split(gmpObjDir)[-1] + '/configure --host=i386-pc-mingw32 --prefix="' + installDir + '" --disable-shared --enable-static', False)
 
     # build gmp
-    ice.utils.shell('make', False)
-    ice.utils.shell('make install', False)
+    ice.utils.shell(make, False)
+    ice.utils.shell(make + ' install', False)
     os.chdir(oldcwd)
     print 'Completed.\n'
     
@@ -592,8 +614,8 @@ def ffmpegCCTarget():
     ice.utils.shell('../' + os.path.split(gccDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --with-headers="' + os.path.join(installDir, 'mingw32/include') + '" --disable-nls --enable-languages=c --disable-win32-registry --disable-shared --without-x --disable-libgomp --disable-libmudflap', False)
     
     # build gcc core
-    ice.utils.shell('make', False)
-    ice.utils.shell('make install', False)
+    ice.utils.shell(make, False)
+    ice.utils.shell(make + ' install', False)
     os.chdir(oldcwd)
     print 'Completed.'
 
@@ -620,8 +642,8 @@ def ffmpegWinTarget():
     os.chdir(ffmpegDir)
     ffmpegBuildScript = """
     ./configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
-    make
-    make install
+   """ + make + """
+   """ + make + """ install
     """
 
     ice.utils.run('sh', ['-c', ffmpegBuildScript], False, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
@@ -780,8 +802,6 @@ help       Display this message
 DEVELOPER TARGETS (unsupported)
 
 src        Build a sources zipfile (Win32 only)
-
-ide        Generates Xcode, Visual Studio, and g++ Makefiles using cmake.
 
 ffmpegWin  Build precompiled Windows libraries for ffmpeg using a Unix 
            g++ MinGW cross-compiler.

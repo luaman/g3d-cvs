@@ -811,6 +811,8 @@ def getVersion(filename):
         cmd = filename + ' --version'
     elif base.startswith('ar'):
         cmd = filename + ' --version'
+    elif base.startswith('make'):
+        cmd = filename + ' -v'
     elif base.startswith('ld'):
         cmd = filename + ' --version'
     else:
