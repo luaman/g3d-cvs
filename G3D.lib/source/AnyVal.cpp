@@ -599,6 +599,10 @@ void AnyVal::deserialize(G3D::TextInput& t) {
         m_value = new std::string(t.readString());
         break;
 
+    case Token::NEWLINE:
+        m_type = STRING;
+        m_value = new std::string(t.readNewline());
+
     case Token::COMMENT:
         m_type = STRING;
         m_value = new std::string(t.readComment());
