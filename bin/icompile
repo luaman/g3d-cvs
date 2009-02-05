@@ -17,7 +17,7 @@
 version = [0, 5, 7]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
-import commands, pickle, time, copy, threading
+import commands, pickle, time, copy, threading, platform
 
 from sets import Set
 from platform import machine
@@ -818,13 +818,21 @@ def configureGpp(state):
 
         state.linkerOptions += ['-Wl,-headerpad_max_install_names']
     else:
-        state.compilerOptions.append('-march=pentium4')
+        if platform.architecture()[0] == '32bit':
+            # On 32-bit machines, compile for at least P4 to
+            # get the benefit of modern architectures.
+            # 64-bit machines should by default compile
+            # for a modern machine.
+            state.compilerOptions.append('-march=pentium4')
+            
         state.compilerOptions.append('-msse2')
+        
         if gccVersion[0] >= 4:
             state.compilerOptions.append('-fpmath=sse')
 
-    if gccVersion[0] >= 4:
-        state.compilerOptions.append('-mtune=native')
+    #Fails on OS X 10.4:
+    #if gccVersion[0] >= 4:
+    #    state.compilerOptions.append('-mtune=native')
 
         
     # Use pipes instead of temporary files for 

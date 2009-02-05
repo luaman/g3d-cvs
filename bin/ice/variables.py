@@ -345,7 +345,7 @@ class State:
     # Time at which icompile or the project file
     # was most recently modified
     icompileTime                = None
-    
+
     def __init__(self):
         self.usesProjectsList = []
         self.usesLibrariesList = []
