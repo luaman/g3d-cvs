@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> TextInput now generates tokens for newlines (\r, \n, or \r\n) when enabled
      <li> Documented platform-abstraction macros
      <li> PRAGMA
      <li> G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS
