@@ -63,6 +63,7 @@ TextInput::Settings::Settings () :
     otherCommentCharacter('\0'),
     otherCommentCharacter2('\0'),
     generateCommentTokens(false),
+    generateNewlineTokens(false),
     signedNumbers(true),
     singleQuotedStrings(true),
     sourceFileName(),
@@ -149,16 +150,6 @@ int TextInput::eatInputChar() {
 
     // update lineNumber and charNumber to reflect the location of the *next*
     // character which will be read.
-    //
-    // We update even for CR because the user is allowed to do arbitrarily
-    // stupid things, like put a bunch of literal CRs inside a quoted string.
-    //
-    // We eat all whitespace between tokens, so they should never see a
-    // lineNumber that points to a CR.  However, if they have some kind of
-    // syntax error in a token that appears *after* a quoted string
-    // containing CRs, they should get a correct character number.
-
-    // TODO: http://sourceforge.net/tracker/index.php?func=detail&aid=1341266&group_id=76879&atid=548565
 
     if (c == '\n') {
         ++lineNumber;
@@ -194,13 +185,31 @@ Token TextInput::nextToken() {
         return t;
     }
 
+    // loop through white space, newlines and comments
+    // found before other tokens
     bool whitespaceDone = false;
     while (! whitespaceDone) {
         whitespaceDone = true;
 
-        // Consume whitespace
-        while (isWhiteSpace(c)) {
-            c = eatAndPeekInputChar();
+        // generate newlines tokens for '\n' and '\r' and '\r\n'
+        if (options.generateNewlineTokens && isNewline(c)) {
+            t._type         = Token::NEWLINE;
+            t._extendedType = Token::NEWLINE_TYPE;
+            t._string       = c;
+
+            int c2 = peekInputChar(1);
+            if (c == '\r' && c2 == '\n') {
+                t._string  += c2;
+                eatInputChar();
+            }
+
+            eatInputChar();
+            return t;
+        } else {
+            // Consume whitespace
+            while (isWhiteSpace(c)) {
+                c = eatAndPeekInputChar();
+            }
         }
 
         // update line and character number to include discarded whitespace
@@ -242,16 +251,16 @@ Token TextInput::nextToken() {
                 c = eatAndPeekInputChar();
             }
 
-            // There is whitespace after the comment (in particular, the
-            // newline that terminates the comment).  There might also be
-            // whitespace at the start of the next line.
-            whitespaceDone = false;
-
             if (options.generateCommentTokens) {
                 t._type         = Token::COMMENT;
                 t._extendedType = Token::LINE_COMMENT_TYPE;
                 t._string       = commentString;
                 return t;
+            } else {
+                // There is whitespace after the comment (in particular, the
+                // newline that terminates the comment).  There might also be
+                // whitespace at the start of the next line.
+                whitespaceDone = false;
             }
 
         } else if (options.cppBlockComments && (c == '/' && c2 == '*')) {
@@ -276,14 +285,16 @@ Token TextInput::nextToken() {
 
             c = peekInputChar();
 
-            // May be whitespace after comment.
-            whitespaceDone = false;
-
             if (options.generateCommentTokens) {
                 t._type         = Token::COMMENT;
                 t._extendedType = Token::BLOCK_COMMENT_TYPE;
                 t._string       = commentString;
                 return t;
+            } else {
+                // There is whitespace after the comment (in particular, the
+                // newline that terminates the comment).  There might also be
+                // whitespace at the start of the next line.
+                whitespaceDone = false;
             }
         }
 
@@ -888,6 +899,34 @@ std::string TextInput::readComment() {
 
 void TextInput::readComment(const std::string& s) {
     Token t(readCommentToken());
+
+    if (t._string == s) {                         // fast path
+        return;
+    }
+
+    push(t);
+    throw WrongString(options.sourceFileName, t.line(), t.character(),
+                      s, t._string);
+}
+
+Token TextInput::readNewlineToken() {
+    Token t(read());
+
+    if (t._type == Token::NEWLINE) {               // fast path
+        return t;
+    }
+
+    push(t);
+    throw WrongTokenType(options.sourceFileName, t.line(), t.character(),
+                         Token::NEWLINE, t._type);
+}
+
+std::string TextInput::readNewline() {
+    return readNewlineToken()._string;
+}
+
+void TextInput::readNewline(const std::string& s) {
+    Token t(readNewlineToken());
 
     if (t._string == s) {                         // fast path
         return;

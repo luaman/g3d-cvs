@@ -45,6 +45,7 @@ public:
       BOOLEAN_TYPE,
       LINE_COMMENT_TYPE,
       BLOCK_COMMENT_TYPE,
+      NEWLINE_TYPE,
       END_TYPE
     };
 
@@ -57,6 +58,7 @@ public:
       NUMBER  = FLOATING_POINT_TYPE, 
       BOOLEAN = BOOLEAN_TYPE,
       COMMENT = LINE_COMMENT_TYPE,
+      NEWLINE = NEWLINE_TYPE,
       END     = END_TYPE
     };
 
@@ -153,6 +155,7 @@ public:
   <li><CODE>Token::BOOLEAN_TYPE</CODE> special symbols like "true" and "false"; the exact details can be configured in TextInput::Settings
   <li><CODE>Token::LINE_COMMENT_TYPE</CODE> (disabled by default); generated for line comments as specified by TextInput::Settings
   <li><CODE>Token::BLOCK_COMMENT_TYPE</CODE> (disabled by default); generated for c-style block comments as specified by TextInput::Settings
+  <li><CODE>Token::NEWLINE_TYPE</CODE> (disabled by default); generated for any of "\r", "\n" or "\r\n"
  </ul>
 
  <P>The special ".." and "..." tokens are always recognized in
@@ -271,6 +274,14 @@ public:
             Default is false.
          */
         bool                generateCommentTokens;
+
+        /** If true, newlines will generate  tokens.
+            If false, newlines will be discarded as whitespace when parsed
+            outside of other tokens.
+
+            Default is false.
+         */
+        bool                generateNewlineTokens;
 
         /** If true, "-1" parses as the number -1 instead of the
             symbol "-" followed by the number 1.  Default is true.*/
@@ -654,6 +665,41 @@ public:
         an exception is thrown, no tokens are consumed.
       */
      void readComment(const std::string& s);
+
+    /** Reads a newline token or throws WrongTokenType, and returns the token.
+
+        Use this method (rather than readNewline) if you want the token's
+        location as well as its value.
+
+        WrongTokenType will be thrown if the next token in the input stream
+        is not a newline.  When an exception is thrown, no tokens are
+        consumed.
+    */
+    Token readNewlineToken();
+
+    /** Like readNewlineToken, but returns the token's string.
+
+        Use this method (rather than readNewlineToken) if you want the token's
+        value but don't really care about its location in the input.  Use of
+        readNewlineToken is encouraged for better error reporting.
+    */
+    std::string readNewline();
+
+    /** Reads a specific newline token or throws either WrongTokenType or
+        WrongString.  If the next token in the input is a newline matching @p
+        s, it will be consumed.
+
+        Use this method if you want to match a specific newline from the
+        input.  In that case, typically error reporting related to the token
+        is only going to occur because of a mismatch, so no location
+        information is needed by the caller.
+
+        WrongTokenType will be thrown if the next token in the input stream
+        is not a newline.  WrongString will be thrown if the next token in the
+        input stream is a newlin but does not match the @p s parameter.  When
+        an exception is thrown, no tokens are consumed.
+      */
+     void readNewline(const std::string& s);
 
     /** Reads a symbol token or throws WrongTokenType, and returns the token.
 

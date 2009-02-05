@@ -3,6 +3,7 @@
 static void tfunc1();
 static void tfunc2();
 static void tCommentTokens();
+static void tNewlineTokens();
 
 void testTextInput() {
     printf("TextInput\n");
@@ -307,6 +308,7 @@ void testTextInput() {
     tfunc2();
     
     tCommentTokens();
+    tNewlineTokens();
 }
 
     // these defines are duplicated in tTextInput2.cpp
@@ -368,6 +370,17 @@ void testTextInput() {
         CHECK_TOKEN_POS(_t, (lnum), (chnum));                               \
         alwaysAssertM(_t.string() == (str), "");                            \
     }
+
+#define CHECK_NEWLINE_TOKEN(ti, str, lnum, chnum)                     \
+    {                                                                       \
+        Token _t;                                                           \
+        _t = (ti).read();                                                   \
+        CHECK_TOKEN_TYPE(_t, Token::NEWLINE, Token::NEWLINE_TYPE);    \
+                                                                            \
+        CHECK_TOKEN_POS(_t, (lnum), (chnum));                               \
+        alwaysAssertM(_t.string() == (str), "");                            \
+    }
+
 
 static void tfunc1() {
     // Basic line number checking test.  Formerly would skip over line
@@ -431,5 +444,38 @@ static void tCommentTokens() {
         CHECK_BLOCK_COMMENT_TOKEN(ti, " comment 1 ", 1, 1);
         CHECK_LINE_COMMENT_TOKEN(ti, "comment 2", 2, 1);
         CHECK_LINE_COMMENT_TOKEN(ti, "comment 3  //some text", 3, 1);
+    }
+}
+
+static void tNewlineTokens() {
+    TextInput::Settings settings;
+    settings.generateNewlineTokens  = true;
+
+    {
+        TextInput ti(TextInput::FROM_STRING, "foo\nbar\r\nbaz\n\r", settings);
+        CHECK_SYM_TOKEN(ti, "foo", 1, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\n", 1, 4);
+        CHECK_SYM_TOKEN(ti, "bar", 2, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\r\n", 2, 4);
+        CHECK_SYM_TOKEN(ti, "baz", 3, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\n", 3, 4);
+        CHECK_NEWLINE_TOKEN(ti, "\r", 4, 1);
+        CHECK_END_TOKEN(ti,        4, 2);
+    }
+
+    settings.generateCommentTokens  = true;
+    settings.otherCommentCharacter  = '#';
+    settings.otherCommentCharacter2 = ';';
+
+    {
+        TextInput ti(TextInput::FROM_STRING, "/* comment 1 */\n;comment 2\r\n#comment 3  //some text\r", settings);
+        CHECK_BLOCK_COMMENT_TOKEN(ti, " comment 1 ", 1, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\n", 1, strlen("/* comment 1 */") + 1);
+
+        CHECK_LINE_COMMENT_TOKEN(ti, "comment 2", 2, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\r\n", 2, strlen(";comment 2") + 1);
+
+        CHECK_LINE_COMMENT_TOKEN(ti, "comment 3  //some text", 3, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\r", 3, strlen("#comment 3  //some text") + 1);
     }
 }
