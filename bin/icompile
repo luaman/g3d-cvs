@@ -824,11 +824,12 @@ def configureGpp(state):
             # 64-bit machines should by default compile
             # for a modern machine.
             state.compilerOptions.append('-march=pentium4')
+            # double-check that SSE2 generation is enabled
+            state.compilerOptions.append('-msse2')
             
-        state.compilerOptions.append('-msse2')
-        
-        if gccVersion[0] >= 4:
-            state.compilerOptions.append('-fpmath=sse')
+            if gccVersion[0] >= 4:
+                # switch to SSE floating point instrutions
+                state.compilerOptions.append('-mfpmath=sse')
 
     #Fails on OS X 10.4:
     #if gccVersion[0] >= 4:
