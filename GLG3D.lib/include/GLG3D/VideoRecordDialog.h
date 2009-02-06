@@ -16,10 +16,13 @@
 #include "GLG3D/GuiDropDownList.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiNumberBox.h"
-#include "GLG3D/RenderDevice.h"
 #include "GLG3D/VideoOutput.h"
 
 namespace G3D {
+
+// forward declare heavily dependent classes
+class RenderDevice;
+
 
 /**
    @brief A dialog that allows the user to launch recording of the

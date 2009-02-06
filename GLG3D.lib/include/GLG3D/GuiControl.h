@@ -13,13 +13,16 @@
 
 #include <string>
 #include "GLG3D/GuiTheme.h"
+#include "GLG3D/glcalls.h"
 #include "GLG3D/Widget.h"
-#include "GLG3D/RenderDevice.h" // TODO: Remove
 
 namespace G3D {
 
+// forward declare heavily dependent classes
+class RenderDevice;
 class GuiWindow;
 class GuiContainer;
+
 
 /** Base class for all controls. */
 class GuiControl {

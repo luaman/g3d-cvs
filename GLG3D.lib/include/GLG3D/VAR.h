@@ -9,12 +9,15 @@
 #ifndef GLG3D_VAR_h
 #define GLG3D_VAR_h
 
-#include "GLG3D/RenderDevice.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/glFormat.h"
 #include "GLG3D/VARArea.h"
 
 namespace G3D {
+
+// forward declare heavily dependent classes
+class RenderDevice;
+
 
 /**
  @brief A pointer to a "Vertex ARrray" of data (e.g., vertices,

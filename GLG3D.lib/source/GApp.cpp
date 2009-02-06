@@ -20,6 +20,8 @@
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/Shader.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/RenderDevice.h"
+
 
 namespace G3D {
 

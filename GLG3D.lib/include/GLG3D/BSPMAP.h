@@ -22,7 +22,6 @@
 #include "G3D/Color4uint8.h"
 #include "G3D/AABox.h"
 #include "G3D/GCamera.h"
-#include "GLG3D/RenderDevice.h"
 #include "GLG3D/Texture.h"
 #include "G3D/Vector3int32.h"
 #include <stdlib.h>
@@ -30,6 +29,10 @@
 #include <math.h>
 
 namespace G3D {
+
+// forward declare heavily dependent classes
+class RenderDevice;
+
 
 namespace _BSPMAP {
 

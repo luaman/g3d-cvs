@@ -8,7 +8,7 @@
 #include "G3D/Box.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/PosedModel.h"
-#include "GLG3D/SuperShader.h"
+#include "GLG3D/Material.h"
 
 namespace G3D {
 

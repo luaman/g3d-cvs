@@ -7,9 +7,10 @@
  @edited  2006-10-20
  */
 
+#include "G3D/Rect2D.h"
 #include "GLG3D/ToneMap.h"
 #include "GLG3D/Draw.h"
-#include "G3D/Rect2D.h"
+#include "GLG3D/RenderDevice.h"
 
 namespace G3D {
 

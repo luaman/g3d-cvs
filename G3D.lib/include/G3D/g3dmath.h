@@ -664,7 +664,17 @@ inline double square(double x) {
 }
 
 //----------------------------------------------------------------------------
+inline float square(float x) {
+    return x * x;
+}
+
+//----------------------------------------------------------------------------
 inline double sumSquares(double x, double y) {
+    return x*x + y*y;
+}
+
+//----------------------------------------------------------------------------
+inline float sumSquares(float x, float y) {
     return x*x + y*y;
 }
 
@@ -674,12 +684,27 @@ inline double sumSquares(double x, double y, double z) {
 }
 
 //----------------------------------------------------------------------------
+inline float sumSquares(float x, float y, float z) {
+    return x*x + y*y + z*z;
+}
+
+//----------------------------------------------------------------------------
 inline double distance(double x, double y) {
     return sqrt(sumSquares(x, y));
 }
 
 //----------------------------------------------------------------------------
+inline float distance(float x, float y) {
+    return sqrt(sumSquares(x, y));
+}
+
+//----------------------------------------------------------------------------
 inline double distance(double x, double y, double z) {
+    return sqrt(sumSquares(x, y, z));
+}
+
+//----------------------------------------------------------------------------
+inline float distance(float x, float y, float z) {
     return sqrt(sumSquares(x, y, z));
 }
 

@@ -12,8 +12,11 @@
 #include "G3D/Log.h"
 #include "GLG3D/Draw.h"
 #include "GLG3D/Discovery.h"
+#include "GLG3D/RenderDevice.h"
 
-namespace G3D { namespace Discovery {
+
+namespace G3D {
+namespace Discovery {
 
 ServerDescription::ServerDescription(BinaryInput& b) {
     deserialize(b);
@@ -399,4 +402,6 @@ void Server::onNetwork() {
     }
 }
 
-}}
+} // Discovery
+} // G3D
+

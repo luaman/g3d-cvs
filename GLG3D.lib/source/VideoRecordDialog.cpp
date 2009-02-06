@@ -13,6 +13,7 @@
 #include "GLG3D/GuiCheckBox.h"
 #include "GLG3D/VideoRecordDialog.h"
 #include "GLG3D/GApp.h"
+#include "GLG3D/RenderDevice.h"
 
 
 namespace G3D {

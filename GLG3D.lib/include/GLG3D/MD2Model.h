@@ -16,9 +16,10 @@
 #include "G3D/platform.h"
 #include "G3D/Box.h"
 #include "G3D/Sphere.h"
-#include "GLG3D/RenderDevice.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/PosedModel.h"
+#include "GLG3D/RenderDevice.h"
+
 
 namespace G3D {
 

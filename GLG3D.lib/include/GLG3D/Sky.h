@@ -12,9 +12,12 @@
 
 #include "G3D/platform.h"
 #include "GLG3D/Texture.h"
-#include "GLG3D/RenderDevice.h"
 
 namespace G3D {
+
+// forward declare heavily dependent classes
+class RenderDevice;
+
 
 typedef ReferenceCountedPointer<class Sky> SkyRef;
 

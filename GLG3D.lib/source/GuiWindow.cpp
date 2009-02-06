@@ -12,6 +12,7 @@
 #include "GLG3D/GuiPane.h"
 #include "GLG3D/UserInput.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/RenderDevice.h"
 
 namespace G3D {
 

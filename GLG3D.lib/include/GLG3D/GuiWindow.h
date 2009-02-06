@@ -15,7 +15,6 @@
 #include "G3D/Pointer.h"
 #include "G3D/Rect2D.h"
 #include "GLG3D/GFont.h"
-#include "GLG3D/RenderDevice.h"
 #include "GLG3D/Widget.h"
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiControl.h"
@@ -24,6 +23,8 @@
 
 namespace G3D {
 
+// forward declare heavily dependent classes
+class RenderDevice;
 class GuiPane;
 
 

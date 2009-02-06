@@ -7,6 +7,7 @@
  @edited  2004-07-05
  */
 
+#include "GLG3D/RenderDevice.h"
 #include "GLG3D/shadowVolume.h"
 #include "GLG3D/VAR.h"
 

@@ -11,12 +11,15 @@
 #ifndef G3D_TONEMAP_H
 #define G3D_TONEMAP_H
 
-#include <GLG3D/RenderDevice.h>
 #include <GLG3D/Texture.h>
 #include <GLG3D/Shader.h>
 #include <GLG3D/SkyParameters.h>
 
 namespace G3D {
+
+// forward declare heavily dependent classes
+class RenderDevice;
+
 
 typedef ReferenceCountedPointer<class ToneMap> ToneMapRef;
 

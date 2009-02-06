@@ -7,14 +7,15 @@
   @edited  2006-02-11
   */
 
+#include "G3D/BinaryInput.h"
 #include "G3D/fileutils.h"
+#include "G3D/g3dmath.h"
+#include "G3D/ImageFormat.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/Sky.h"
 #include "GLG3D/SkyParameters.h"
-#include "G3D/BinaryInput.h"
-#include "G3D/g3dmath.h"
-#include "G3D/ImageFormat.h"
 #include "GLG3D/getOpenGLState.h"
+#include "GLG3D/RenderDevice.h"
 
 namespace G3D {
 

@@ -7,8 +7,6 @@
   @edited  2007-08-25
  */ 
 
-#include "GLG3D/PosedModel.h"
-#include "GLG3D/RenderDevice.h"
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
 #include "GLG3D/ShadowMap.h"
@@ -18,6 +16,9 @@
 #include "G3D/Log.h"
 #include "G3D/AABox.h"
 #include "G3D/Sphere.h"
+#include "GLG3D/PosedModel.h"
+#include "GLG3D/RenderDevice.h"
+#include "GLG3D/SuperShader.h"
 
 namespace G3D {
 

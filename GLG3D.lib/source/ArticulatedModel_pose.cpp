@@ -10,6 +10,8 @@
  */
 #include "GLG3D/ArticulatedModel.h"
 #include "GLG3D/Lighting.h"
+#include "GLG3D/RenderDevice.h"
+#include "GLG3D/SuperShader.h"
 
 namespace G3D {
 

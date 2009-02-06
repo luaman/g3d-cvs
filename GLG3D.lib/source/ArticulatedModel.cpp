@@ -8,6 +8,7 @@
 #include "Load3DS.h"
 #include "G3D/ThreadSet.h"
 #include "G3D/DebugTimer.h"
+#include "GLG3D/glcaps.h"
 
 namespace G3D {
 

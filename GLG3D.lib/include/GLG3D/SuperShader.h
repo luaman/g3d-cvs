@@ -14,8 +14,8 @@
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Table.h"
-#include "GLG3D/RenderDevice.h"
 #include "GLG3D/Material.h"
+#include "GLG3D/RenderDevice.h"
 #include "GLG3D/SkyParameters.h"
 #include "GLG3D/Shader.h"
 #include "GLG3D/ShadowMap.h"

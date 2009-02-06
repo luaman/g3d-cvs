@@ -11,10 +11,11 @@
 #define GLG3D_POSEDMODEL_H
 
 #include "G3D/Array.h"
-#include "GLG3D/Texture.h"
-#include "GLG3D/SkyParameters.h"
 #include "G3D/Color4.h"
 #include "G3D/MeshAlg.h"
+#include "GLG3D/Texture.h"
+#include "GLG3D/SkyParameters.h"
+
 
 namespace G3D {
 

@@ -14,7 +14,6 @@
 #include "GLG3D/GFont.h"
 #include "G3D/GCamera.h"
 #include "GLG3D/FirstPersonManipulator.h"
-#include "GLG3D/RenderDevice.h"
 #include "G3D/NetworkDevice.h"
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/Widget.h"
@@ -26,8 +25,10 @@
 
 namespace G3D {
 
+// forward declare heavily dependent classes
 class RenderDevice;
 class UserInput;
+class Log;
 
 /**
  @brief Schedule a G3D::Shape for later rendering.
