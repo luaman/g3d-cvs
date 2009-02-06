@@ -387,7 +387,7 @@ private:
      Offset of current character (the next character to consumed) in
      input buffer.
      */
-    unsigned int            currentCharOffset;
+    int                     currentCharOffset;
 
     /**
      Line number of next character to be consumed from the input buffer.  (1
@@ -397,7 +397,7 @@ private:
      consumed from the input, not the line number of the @e last character
      consumed!
      */
-    unsigned int            lineNumber;
+    int                     lineNumber;
 
     /**
      Character number (within the line) of the next character to be consumed
@@ -407,7 +407,7 @@ private:
      consumed from the input, not the character number of the @e last
      character consumed!
      */
-    unsigned int            charNumber;
+    int                     charNumber;
 
     /** Configuration options.  This includes the file name that will be
         reported in tokens and exceptions.  */
@@ -437,7 +437,7 @@ private:
      relative to the next character.  Default is 0, for the next character in
      the input buffer.
      */
-    int peekInputChar(unsigned int distance = 0);
+    int peekInputChar(int distance = 0);
 
     /**
      Helper function to consume the next character in the input buffer and

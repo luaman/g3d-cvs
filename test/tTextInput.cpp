@@ -452,15 +452,14 @@ static void tNewlineTokens() {
     settings.generateNewlineTokens  = true;
 
     {
-        TextInput ti(TextInput::FROM_STRING, "foo\nbar\r\nbaz\n\r", settings);
-        CHECK_SYM_TOKEN(ti, "foo", 1, 1);
-        CHECK_NEWLINE_TOKEN(ti, "\n", 1, 4);
-        CHECK_SYM_TOKEN(ti, "bar", 2, 1);
+        TextInput ti(TextInput::FROM_STRING, "foo\nbar\r\nbaz\r", settings);
+        CHECK_SYM_TOKEN(    ti, "foo",  1, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\n",   1, 4);
+        CHECK_SYM_TOKEN(    ti, "bar",  2, 1);
         CHECK_NEWLINE_TOKEN(ti, "\r\n", 2, 4);
-        CHECK_SYM_TOKEN(ti, "baz", 3, 1);
-        CHECK_NEWLINE_TOKEN(ti, "\n", 3, 4);
-        CHECK_NEWLINE_TOKEN(ti, "\r", 4, 1);
-        CHECK_END_TOKEN(ti,        4, 2);
+        CHECK_SYM_TOKEN(    ti, "baz",  3, 1);
+        CHECK_NEWLINE_TOKEN(ti, "\r",   3, 4);
+        CHECK_END_TOKEN(    ti,         4, 1);
     }
 
     settings.generateCommentTokens  = true;
@@ -470,12 +469,21 @@ static void tNewlineTokens() {
     {
         TextInput ti(TextInput::FROM_STRING, "/* comment 1 */\n;comment 2\r\n#comment 3  //some text\r", settings);
         CHECK_BLOCK_COMMENT_TOKEN(ti, " comment 1 ", 1, 1);
-        CHECK_NEWLINE_TOKEN(ti, "\n", 1, strlen("/* comment 1 */") + 1);
+        CHECK_NEWLINE_TOKEN(      ti, "\n",          1, strlen("/* comment 1 */") + 1);
 
-        CHECK_LINE_COMMENT_TOKEN(ti, "comment 2", 2, 1);
-        CHECK_NEWLINE_TOKEN(ti, "\r\n", 2, strlen(";comment 2") + 1);
+        CHECK_LINE_COMMENT_TOKEN( ti, "comment 2",   2, 1);
+        CHECK_NEWLINE_TOKEN(      ti, "\r\n",        2, strlen(";comment 2") + 1);
 
-        CHECK_LINE_COMMENT_TOKEN(ti, "comment 3  //some text", 3, 1);
-        CHECK_NEWLINE_TOKEN(ti, "\r", 3, strlen("#comment 3  //some text") + 1);
+        CHECK_LINE_COMMENT_TOKEN( ti, "comment 3  //some text", 3, 1);
+        CHECK_NEWLINE_TOKEN(      ti, "\r",                     3, strlen("#comment 3  //some text") + 1);
+    }
+
+    // test newlines without tokens
+    {
+        TextInput ti(TextInput::FROM_STRING, "\n\rtext\rtext\ntext\r\n");
+        CHECK_SYM_TOKEN(ti, "text", 3, 1);
+        CHECK_SYM_TOKEN(ti, "text", 4, 1);
+        CHECK_SYM_TOKEN(ti, "text", 5, 1);
+        CHECK_END_TOKEN(ti,         6, 1);
     }
 }

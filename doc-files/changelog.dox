@@ -53,6 +53,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> TextInput now treats \r, \n and \r\n as newlines with or without newline tokens.  Each increment line number once and reset character number
      <li> TextInput now generates tokens for both line and block comments when enabled. This changes the TextInput::Settings flags.
      <li> Changed OSWindow::pollOSEvent to OSWindow::getOSEvents allowing OSWindow implementations to return multiple events
      <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix

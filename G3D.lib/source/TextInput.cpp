@@ -141,7 +141,7 @@ bool TextInput::hasMore() {
 
 int TextInput::eatInputChar() {
     // Don't go off the end
-    if (currentCharOffset >= (unsigned int)buffer.length()) {
+    if (currentCharOffset >= buffer.length()) {
         return EOF;
     }
 
@@ -151,7 +151,20 @@ int TextInput::eatInputChar() {
     // update lineNumber and charNumber to reflect the location of the *next*
     // character which will be read.
 
-    if (c == '\n') {
+    // increment line number for \r, \n and \r\n which matches Token::NEWLINE parsing
+    if (c == '\r') {
+        ++lineNumber;
+        charNumber = 1;
+
+        // check for \r\n
+        if (currentCharOffset < buffer.length()) {
+            unsigned char c2 = buffer[currentCharOffset];
+            if (c2 == '\n') {
+                c = c2;
+                ++currentCharOffset;
+            }
+        }
+    } else if (c == '\n') {
         ++lineNumber;
         charNumber = 1;
     } else {
@@ -161,9 +174,9 @@ int TextInput::eatInputChar() {
     return c;
 }
 
-int TextInput::peekInputChar(unsigned int distance) {
+int TextInput::peekInputChar(int distance) {
     // Don't go off the end
-    if ((currentCharOffset + distance) >= (unsigned int)buffer.length()) {
+    if ((currentCharOffset + distance) >= buffer.length()) {
         return EOF;
     }
 
@@ -200,7 +213,6 @@ Token TextInput::nextToken() {
             int c2 = peekInputChar(1);
             if (c == '\r' && c2 == '\n') {
                 t._string  += c2;
-                eatInputChar();
             }
 
             eatInputChar();
