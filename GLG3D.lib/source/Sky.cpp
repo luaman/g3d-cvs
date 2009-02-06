@@ -277,7 +277,7 @@ static void drawCelestialSphere(
     const Vector4&                      C,
     const Vector4&                      X,
     const Vector4&                      Y,
-    const double                        r,
+    const float                         r,
     const Color4                        color) {
 
     renderDevice->setColor(color);
@@ -311,7 +311,7 @@ static void hackProjectionMatrix(RenderDevice* renderDevice) {
 
 void Sky::vertex(RenderDevice* renderDevice, 
                  float x, float y, float z, float s, float t) const {
-    const double w = 0;
+    const float w = 0;
     const bool cube = cubeMap.notNull();
     static bool explicitTexCoord = GLCaps::hasBug_normalMapTexGen();
 
@@ -507,7 +507,7 @@ void Sky::drawMoonAndStars(
     // Draw stars
     if (lighting.moonPosition.y > -0.3f) {
 
-        float k = (3.001 - square(lighting.skyAmbient.length()));
+        float k = (3.001f - square(lighting.skyAmbient.length()));
 		float s = k;
 		renderDevice->pushState();
             // Rotate stars
@@ -535,7 +535,7 @@ void Sky::drawMoonAndStars(
     renderDevice->setTexture(0, moon);
     renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
     renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.05);
-    drawCelestialSphere(renderDevice, L, X, Y, .06, Color4(lighting.emissiveScale, min(1.0f, max(0.0f, moonPosition.y * 4.0f))));
+    drawCelestialSphere(renderDevice, L, X, Y, 0.06f, Color4(lighting.emissiveScale, min(1.0f, max(0.0f, moonPosition.y * 4.0f))));
 }
 
 
@@ -615,7 +615,7 @@ void Sky::renderLensFlare(
                 }
             }
 
-            double fractionOfSunVisible = visible / 9.0;
+            float fractionOfSunVisible = visible / 9.0f;
 
             if (fractionOfSunVisible > 0.0) {
 
@@ -639,17 +639,17 @@ void Sky::renderLensFlare(
                 debugAssertGLOk();
 
                 // Sun rays at dawn
-                if ((sunPosition.x > 0) && 
-                    (sunPosition.y >= -.1)) {
+                if ((sunPosition.x > 0.0f) && 
+                    (sunPosition.y >= -0.1f)) {
 
                     renderDevice->setTexture(0, sunRays);
-                    double occlusionAttenuation = 
-                        (1 - square(2*fractionOfSunVisible - 1));
+                    float occlusionAttenuation = 
+                        (1.0f - square(2.0f * fractionOfSunVisible - 1.0f));
 
                     Color4 col =
                         Color4(1,1,1,1) * (occlusionAttenuation *
-                            0.4f * max(0.0f, min(1.0f, 1.0f - sunPosition.y * 2.0f / sqrtf(2.0f))));
-                    drawCelestialSphere(renderDevice, L, X , Y, 0.6, col);
+                            .4f * max(0.0f, min(1.0f, 1.0f - sunPosition.y * 2.0f / sqrtf(2.0f))));
+                    drawCelestialSphere(renderDevice, L, X , Y, .6f, col);
                 }
 
                 renderDevice->setTexture(0, sun);
