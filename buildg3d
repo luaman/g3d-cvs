@@ -149,7 +149,8 @@ def initOS():
         # to gmake
         make = 'gmake'
 
-    if os:
+    if osx:
+        # OSX 10.4 can contain a broken version of make
         v = ice.utils.getVersion(make)
         if (v[0] < 3) or ((v[0] == 3) and (v[1] < 80)):
             # This version of make has a bug that prevents it from
