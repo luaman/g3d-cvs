@@ -1,5 +1,5 @@
 /** 
-@page guideoverview G3D Overview
+@page guideoverview %G3D Overview
 
 <IMG SRC="3dengine.jpg" style="float: right;" >
 %G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
@@ -16,8 +16,7 @@ you have to know more about 3D programming.  %G3D is intended for users who are 
 familiar with C++ and DirectX or OpenGL.  Several good GUI libraries exist and
 we recommend using one with %G3D if your project has extensive UI needs.
 
-This manual begins with a \link guidetutorial Tutorial \endlink and
-\link guideapp Application Framework \endlink that help
+This manual begins with a \link guidenewuser New User Guide \endlink that help
 programmers who know C++ but are either new to 3D or starting without
 a base of 3D code get up and running quickly.  The demos directory contains
 a <a href="../demos/starter">starter</a> project(it is how the %G3D development team usually
@@ -26,7 +25,6 @@ start new projects in their own work).
 The library also provides lower-level interfaces that programmers who are
 already working with OpenGL and existing code may prefer.  See the
 Notes for Expert Users at the end of this chapter for more information.
-</div>
 
 
 @section documentation Documentation and Support 
@@ -161,37 +159,38 @@ libraries to complement %G3D:
     <LI>STLport (http://www.stlport.org/download.html)
 </UL>
 
-  @section b1 Release Schedule
-   %G3D has a stable, backwards compatible API.  Most changes between versions add 
-   functionality and fix bugs.  Point releases are backwards compatible
-   to the last major release, except where critical bugs necessitate small API 
-   changes.  Point releases occur about once every two months and are announced 
-   on the <A HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</A>.
-   
-   Major releases may break source compatibility to fix critical bugs, match the 
-   changing hardware standards, and streamline the API.  Incompatible changes are marked
-   in the \link changelog Change Log \endlink and an upgrade path is recommended.
-   Major releases occur about once a year and are announced well in advance.
-   Migrating code across major releases generally takes a few hours of work for a 100,000 
-   line program.  We try to design changes so they will trigger compiler errors for 
-   older code instead of failing silently.
+@section b1 Release Schedule
 
-   Beta releases occur between point releases to allow users to access new functionality
-   and provide feedback.  Beta releases are frequently Windows-only and are neither
-   supported nor guaranteed to be stable.  Any APIs in a Beta release may change without
-   notice.
+%G3D has a stable, backwards compatible API.  Most changes between versions add 
+functionality and fix bugs.  Point releases are backwards compatible
+to the last major release, except where critical bugs necessitate small API 
+changes.  Point releases occur about once every two months and are announced 
+on the <A HREF="http://sourceforge.net/forum/forum.php?forum_id=262426">User Forum</A>.
 
-  @section beta Beta and Deprecated APIs
+Major releases may break source compatibility to fix critical bugs, match the 
+changing hardware standards, and streamline the API.  Incompatible changes are marked
+in the \link changelog Change Log \endlink and an upgrade path is recommended.
+Major releases occur about once a year and are announced well in advance.
+Migrating code across major releases generally takes a few hours of work for a 100,000 
+line program.  We try to design changes so they will trigger compiler errors for 
+older code instead of failing silently.
 
-   Even in official releases, some parts of %G3D are marked as Beta in the documentation. 
-   These are previews of new APIs that are still under construction but are stable enough
-   to use.  They will likely change in small ways before becoming official APIs-- use at
-   your own risk.
+Beta releases occur between point releases to allow users to access new functionality
+and provide feedback.  Beta releases are frequently Windows-only and are neither
+supported nor guaranteed to be stable.  Any APIs in a Beta release may change without
+notice.
 
-   <A HREF="deprecated.html">Deprecated API</A>s have been replaced by some newer functionality but are supported and
-   guaranteed to be present until the next major release, at which point they will be 
-   removed. Avoid writing new code to deprecated APIs and consider migrating existing 
-   code away from them.
+@section beta Beta and Deprecated APIs
+
+Even in official releases, some parts of %G3D are marked as Beta in the documentation. 
+These are previews of new APIs that are still under construction but are stable enough
+to use.  They will likely change in small ways before becoming official APIs-- use at
+your own risk.
+
+<A HREF="deprecated.html">Deprecated API</A>s have been replaced by some newer functionality but are supported and
+guaranteed to be present until the next major release, at which point they will be 
+removed. Avoid writing new code to deprecated APIs and consider migrating existing 
+code away from them.
 
 @section experts Notes for Expert Users
 
