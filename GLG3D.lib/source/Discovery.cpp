@@ -237,7 +237,7 @@ void Client::render(RenderDevice* rd) {
         style.outlineColor, GFont::XALIGN_CENTER); 
 
     // Show server list
-    rd->enableClip2D(box);
+    rd->setClip2D(box);
     m_clickBox.resize(m_serverDisplayArray.size());
     for (int i = 0; i < m_serverDisplayArray.size(); ++i) {
         Vector2 pos(box.x0() + 10, box.y0() + 10 + style.size * 1.5 * i);
@@ -245,7 +245,7 @@ void Client::render(RenderDevice* rd) {
             style.outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_TOP, GFont::FIXED_SPACING);
         m_clickBox[i] = Rect2D::xywh(pos, bounds);
     }
-    rd->disableClip2D();
+    rd->setClip2D(Rect2D::inf());
 
     // TODO: cancel button
 }

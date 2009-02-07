@@ -13,23 +13,24 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> TextInput now generates tokens for newlines (\r, \n, or \r\n) when enabled
+     <li> G3D::Rect2D::inf
+     <li> G3D::TextInput now generates tokens for newlines (\r, \n, or \r\n) when enabled
      <li> Documented platform-abstraction macros
      <li> PRAGMA
      <li> G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS
-     <li> Win32Window now generates GEventType::MOUSE_BUTTON_CLICK events
+     <li> G3D::Win32Window now generates G3D::GEventType::MOUSE_BUTTON_CLICK events
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
      <li> Removed most static global variables to control order of intialization
      <li> Made empty G3D::Table default to zero allocation
-     <li> Multithreaded ArticulatedModel loading
+     <li> Multithreaded G3D::ArticulatedModel loading
      <li> G3D::System::numCores
      <li> Added buffering (with appropriate flushes) to G3D::logPrintf decrease the startup cost of writing the log
      <li> G3D::System::findDataFile now caches the locations of found files
      <li> G3D::Widget now inherits from G3D::PosedModel2D
      <li> GApp::m_renderPeriod
      <li> G3D::Random
-     <li> Added function key guide on the top of render stats for GApp
+     <li> Added function key guide on the top of render stats for G3D::GApp
      <li> G3D::CollisionDetection::fixedSolidBoxIntersectsFixedTriangle
      <li> G3D::Set::getRemove, G3D::Table::getRemove
      <li> G3D::Set now allows HashFunc and EqualsFunc to be specified
@@ -39,28 +40,29 @@
      <li> Changed G3D::ArticulatedModel to use interleaved VAR (up to 4x fps speedup for vertex-bound models)
      <li> Interleaved arrays in G3D::VAR
      <li> Extended G3D::VARArea to support index arrays
-     <li> Tweaked StopWatch smoothing constants to reduce number flickering
+     <li> Tweaked G3D::StopWatch smoothing constants to reduce number flickering
      <li> isIntFormat() macro
-     <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards [Corey]
-     <li> Fix: iswspace now considers '\r' as whitespace
-     <li> Fix: System::appName now removes the 'd' that icompile appends
-     <li> Fix: System::getCurrentProgramFilename now works on OS X
-     <li> Fix: UserInput no longer crashes on MacBook "FN" key press
-     <li> Fix: Made MeshAlg::computeAdjacency threadsafe
+     <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards
+     <li> Fix: G3D::iswspace now considers '\r' as whitespace
+     <li> Fix: G3D::System::appName now removes the 'd' that icompile appends
+     <li> Fix: G3D::System::getCurrentProgramFilename now works on OS X
+     <li> Fix: G3D::UserInput no longer crashes on MacBook "FN" key press
+     <li> Fix: Made G3D::MeshAlg::computeAdjacency threadsafe
      <li> Fix (2570367): buildg3d detects the buggy OS X 10.4 make 3.80 and refuses to run on that machine without gmake installed
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
-     <li> TextInput now treats \r, \n and \r\n as newlines with or without newline tokens.  Each increment line number once and reset character number
-     <li> TextInput now generates tokens for both line and block comments when enabled. This changes the TextInput::Settings flags.
-     <li> Changed OSWindow::pollOSEvent to OSWindow::getOSEvents allowing OSWindow implementations to return multiple events
-     <li> RenderDevice::getObjectToWorldMatrix -> RenderDevice::objectToWorldMatrix
-     <li> RenderDevice::getCameraToWorldMatrix -> RenderDevice::cameraToWorldMatrix
+     <li> Changed G3D::RenderDevice::enableClip2D to G3D::RenderDevice::setClip2D.  Use G3D::RenderDevice::setClip2D with G3D::Rect2D::inf to disable.
+     <li> G3D::TextInput now treats \r, \n and \r\n as newlines with or without newline tokens.  Each increment line number once and reset character number
+     <li> G3D::TextInput now generates tokens for both line and block comments when enabled. This changes the G3D::TextInput::Settings flags.
+     <li> Changed G3D::OSWindow::pollOSEvent to G3D::OSWindow::getOSEvents allowing G3D::OSWindow implementations to return multiple events
+     <li> G3D::RenderDevice::getObjectToWorldMatrix -> G3D::RenderDevice::objectToWorldMatrix
+     <li> G3D::RenderDevice::getCameraToWorldMatrix -> G3D::RenderDevice::cameraToWorldMatrix
      <li> Removed 6.xx Discovery API, replaced with 7.01 Discovery API
-     <li> G3D::GApp::onLogic -> GApp::onAI, Widget::onLogic -> Widget::onAI
-     <li> Removed unused BSPMap::getTriangles texCoordIndex argument
+     <li> G3D::GApp::onLogic -> G3D::GApp::onAI, G3D::Widget::onLogic -> G3D::Widget::onAI
+     <li> Removed unused G3D::BSPMap::getTriangles texCoordIndex argument
      <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
    </ul>
 

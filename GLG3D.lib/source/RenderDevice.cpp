@@ -940,9 +940,9 @@ void RenderDevice::setState(
     setViewport(newState.viewport);
 
     if (newState.useClip2D) {
-        enableClip2D(newState.clip2D);
+        setClip2D(newState.clip2D);
     } else {
-        disableClip2D();
+        setClip2D(Rect2D::inf());
     }
     
     setDepthWrite(newState.depthWrite);
@@ -1488,43 +1488,52 @@ void RenderDevice::setViewport(const Rect2D& v) {
 }
 
 
-void RenderDevice::enableClip2D(const Rect2D& clip) {
+void RenderDevice::setClip2D(const Rect2D& clip) {
     minStateChange();
-    minGLStateChange();
-    state.clip2D = clip;
 
-    int clipX0 = iFloor(clip.x0());
-    int clipY0 = iFloor(clip.y0());
-    int clipX1 = iCeil(clip.x1());
-    int clipY1 = iCeil(clip.y1());
-
-    glScissor(clipX0, height() - clipY1, clipX1 - clipX0, clipY1 - clipY0);
-
-    if (clip.area() == 0) {
-        // On some graphics cards a clip region that is zero without being (0,0,0,0) 
-        // fails to actually clip everything.
-        glScissor(0,0,0,0);
-        glEnable(GL_SCISSOR_TEST);
-    }
-
-    if (! state.useClip2D) {
-        glEnable(GL_SCISSOR_TEST);
-        minStateChange();
+    if (clip.isFinite()) {
+        // set the new clip Rect2D
         minGLStateChange();
-        state.useClip2D = true;
-    }
-}
+        state.clip2D = clip;
 
+        int clipX0 = iFloor(clip.x0());
+        int clipY0 = iFloor(clip.y0());
+        int clipX1 = iCeil(clip.x1());
+        int clipY1 = iCeil(clip.y1());
 
-void RenderDevice::disableClip2D() {
-    minStateChange();
-    if (state.useClip2D) {
+        glScissor(clipX0, height() - clipY1, clipX1 - clipX0, clipY1 - clipY0);
+
+        if (clip.area() == 0) {
+            // On some graphics cards a clip region that is zero without being (0,0,0,0) 
+            // fails to actually clip everything.
+            glScissor(0,0,0,0);
+            glEnable(GL_SCISSOR_TEST);
+        }
+
+        // enable scissor test itself if not 
+        // just adjusting the clip region
+        if (! state.useClip2D) {
+            glEnable(GL_SCISSOR_TEST);
+            minStateChange();
+            minGLStateChange();
+            state.useClip2D = true;
+        }
+    } else if (state.useClip2D) {
+        // disable scissor test if not already disabled
         minGLStateChange();
         glDisable(GL_SCISSOR_TEST);
         state.useClip2D = false;
     }
 }
 
+
+Rect2D RenderDevice::clip2D() const {
+    if (state.useClip2D) {
+        return state.clip2D;
+    } else {
+        return state.viewport;
+    }
+}
 
 void RenderDevice::setProjectionAndCameraMatrix(const GCamera& camera) {
     Matrix4 P;
@@ -3313,14 +3322,6 @@ bool RenderDevice::checkFramebuffer(std::string& whyNot) const {
     return false;    
 }
 
-
-Rect2D RenderDevice::clip2D() const {
-    if (state.useClip2D) {
-        return state.clip2D;
-    } else {
-        return state.viewport;
-    }
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 

@@ -944,7 +944,7 @@ void GuiTheme::pushClientRect(const Rect2D& r) {
 
     Rect2D newRect = r + oldMatrix.translation.xy();
     newRect = oldRect.intersect(newRect);
-    rd->enableClip2D(newRect);
+    rd->setClip2D(newRect);
 
     const CoordinateFrame& newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
     rd->setObjectToWorldMatrix(newMatrix);
@@ -960,7 +960,7 @@ void GuiTheme::popClientRect() {
     rd->endPrimitive();
 
     rd->setObjectToWorldMatrix(coordinateFrameStack.pop());
-    rd->enableClip2D(scissorStack.pop());
+    rd->setClip2D(scissorStack.pop());
     rd->beginPrimitive(RenderDevice::QUADS);
 }
 

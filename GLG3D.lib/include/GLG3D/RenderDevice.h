@@ -711,20 +711,17 @@ public:
 
     /** 
       Sets a 2D clipping region (OpenGL scissor region) relative to the current window
-      dimensions (not the viewport).
-      Prevents rendering outside the clip region.  Use disableClip2D to turn off.
+      dimensions (not the viewport). Prevents rendering outside the clip region.
 
-      Default is off.
+      Set to Rect2D::inf() to disable. Default is disabled.
 
       Note that the clip uses G3D 2D coordinates, where the upper-left of the window
       is (0, 0).
       */
-    void enableClip2D(const Rect2D& clip);
+    void setClip2D(const Rect2D& clip);
 
-    /** Return the current clip region, if one is enabled, or the viewport. */
+    /** If enabled, returns the current clip region, othrwise the viewport. */
     Rect2D clip2D() const;
-
-    void disableClip2D();
 
     /**
      Equivalent to glLineWidth.

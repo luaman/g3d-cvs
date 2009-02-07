@@ -110,84 +110,81 @@ private:
 
 public:
 
-    inline Rect2D() : min(0, 0), max(0, 0) {}
+    Rect2D() : min(0, 0), max(0, 0) {}
 
     /** Creates a rectangle at 0,0 with the given width and height*/
-    inline Rect2D(const Vector2& wh) : min(0, 0), max(wh.x, wh.y) {}
+    Rect2D(const Vector2& wh) : min(0, 0), max(wh.x, wh.y) {}
 
     /** Computes a rectangle that contains both @a a and @a b.  
         Note that even if @a or @b has zero area, its origin will be included.*/
-    inline Rect2D(const Rect2D& a, const Rect2D& b) {
+    Rect2D(const Rect2D& a, const Rect2D& b) {
         min = a.min.min(b.min);
         max = a.max.max(b.max);
     }
 
     /** @brief Uniformly random point on the interior */
-    inline Vector2 randomPoint() const {
+    Vector2 randomPoint() const {
         return Vector2(uniformRandom(0, max.x - min.x) + min.x,
                        uniformRandom(0, max.y - min.y) + min.y);
     }
 
-    inline float width() const {
+    float width() const {
         return max.x - min.x;
     }
 
-    inline float height() const {
+    float height() const {
         return max.y - min.y;
     }
 
-    inline float x0() const {
+    float x0() const {
         return min.x;
     }
 
-    inline float x1() const {
+    float x1() const {
         return max.x;
     }
 
-    inline float y0() const {
+    float y0() const {
         return min.y;
     }
 
-    inline float y1() const {
+    float y1() const {
         return max.y;
     }
 
     /** Min, min corner */
-    inline Vector2 x0y0() const {
+    Vector2 x0y0() const {
         return min;
     }
 
-    inline Vector2 x1y0() const {
+    Vector2 x1y0() const {
         return Vector2(max.x, min.y);
     }
 
-    inline Vector2 x0y1() const {
+    Vector2 x0y1() const {
         return Vector2(min.x, max.y);
     }
 
     /** Max,max corner */
-    inline Vector2 x1y1() const {
+    Vector2 x1y1() const {
         return max;
     }
 
     /** Width and height */
-    inline Vector2 wh() const {
+    Vector2 wh() const {
         return max - min;
     }
 
-    inline Vector2 center() const {
+    Vector2 center() const {
         return (max + min) * 0.5;
     }
 
-    inline static Rect2D xyxy(float x0, float y0, float x1, float y1) {
-        Rect2D r;
-        
-        r.min.x = G3D::min(x0, x1);
-        r.min.y = G3D::min(y0, y1);
-        r.max.x = G3D::max(x0, x1);
-        r.max.y = G3D::max(y0, y1);
+    float area() const {
+        return width() * height();
+    }
 
-        return r;
+    bool isFinite() const {
+        return (min.isFinite() && max.isFinite());
     }
 
     Rect2D lerp(const Rect2D& other, float alpha) const {
@@ -199,7 +196,18 @@ public:
         return out;
     }
 
-    inline static Rect2D xyxy(const Vector2& v0, const Vector2& v1) {
+    static Rect2D xyxy(float x0, float y0, float x1, float y1) {
+        Rect2D r;
+        
+        r.min.x = G3D::min(x0, x1);
+        r.min.y = G3D::min(y0, y1);
+        r.max.x = G3D::max(x0, x1);
+        r.max.y = G3D::max(y0, y1);
+
+        return r;
+    }
+
+    static Rect2D xyxy(const Vector2& v0, const Vector2& v1) {
         Rect2D r;
 
         r.min = v0.min(v1);
@@ -208,19 +216,26 @@ public:
         return r;
     }
 
-    inline static Rect2D xywh(float x, float y, float w, float h) {
+    static Rect2D xywh(float x, float y, float w, float h) {
         return xyxy(x, y, x + w, y + h);
     }
 
-    inline static Rect2D xywh(const Vector2& v, const Vector2& w) {
+    static Rect2D xywh(const Vector2& v, const Vector2& w) {
         return xyxy(v.x, v.y, v.x + w.x, v.y + w.y);
     }
 
-    inline bool contains(const Vector2& v) const {
+    /** Constructs a Rect2D with infinite boundaries.
+        Use isFinite() to test either min or max.
+     */
+    static Rect2D inf() {
+        return xyxy(Vector2::inf(), Vector2::inf());
+    }
+
+    bool contains(const Vector2& v) const {
         return (v.x >= min.x) && (v.y >= min.y) && (v.x <= max.x) && (v.y <= max.y);
     }
 
-    inline bool contains(const Rect2D& r) const {
+    bool contains(const Rect2D& r) const {
         return (min.x <= r.min.x) && (min.y <= r.min.y) &&
                (max.x >= r.max.x) && (max.y >= r.max.y);
     }
@@ -228,47 +243,47 @@ public:
     /** True if there is non-zero area to the intersection between @a this and @a r.
         Note that two rectangles that are adjacent do not intersect because there is
         zero area to the overlap, even though one of them "contains" the corners of the other.*/
-    inline bool intersects(const Rect2D& r) const {
+    bool intersects(const Rect2D& r) const {
         return (min.x < r.max.x) && (min.y < r.max.y) &&
                (max.x > r.min.x) && (max.y > r.min.y);
     }
 
     /** Like intersection, but counts the adjacent case as touching. */
-    inline bool intersectsOrTouches(const Rect2D& r) const {
+    bool intersectsOrTouches(const Rect2D& r) const {
         return (min.x <= r.max.x) && (min.y <= r.max.y) &&
                (max.x >= r.min.x) && (max.y >= r.min.y);
     }
 
-    inline Rect2D operator*(float s) const {
+    Rect2D operator*(float s) const {
         return xyxy(min.x * s, min.y * s, max.x * s, max.y * s);
     }
 
-    inline Rect2D operator/(float s) const {
+    Rect2D operator/(float s) const {
         return xyxy(min / s, max / s);
     }
 
-    inline Rect2D operator/(const Vector2& s) const {
+    Rect2D operator/(const Vector2& s) const {
         return xyxy(min / s, max / s);
     }
 
-    inline Rect2D operator+(const Vector2& v) const {
+    Rect2D operator+(const Vector2& v) const {
         return xyxy(min + v, max + v);
     }
 
-    inline Rect2D operator-(const Vector2& v) const {
+    Rect2D operator-(const Vector2& v) const {
         return xyxy(min - v, max - v);
     }
 
-    inline bool operator==(const Rect2D& other) const {
+    bool operator==(const Rect2D& other) const {
         return (min == other.min) && (max == other.max);
     }
 
-    inline bool operator!=(const Rect2D& other) const {
+    bool operator!=(const Rect2D& other) const {
         return (min != other.min) || (max != other.max);
     }
 
     /** Returns the corners in the order: (min,min), (max,min), (max,max), (min,max). */
-    inline Vector2 corner(int i) const {
+    Vector2 corner(int i) const {
         debugAssert(i >= 0 && i < 4);
         switch (i & 3) {
         case 0:
@@ -288,7 +303,7 @@ public:
 
     /** @deprecated  
      @sa expand() */
-    inline Rect2D border(float delta) const {
+    Rect2D border(float delta) const {
         return Rect2D::xywh(x0() + delta, 
                      y0() + delta, 
                      width() - 2.0f * delta, 
@@ -297,7 +312,7 @@ public:
 
     /** Returns a new Rect2D that is bigger/smaller by the specified amount 
         (negative is shrink.) */
-    inline Rect2D expand(float delta) const {
+    Rect2D expand(float delta) const {
         float newX = x0() - delta;
         float newY = y0() - delta;
         float newW = width() + 2.0f * delta;
@@ -378,10 +393,6 @@ public:
         }else{
             return Rect2D::xywh(0, 0, 0, 0);
         }
-    }
-
-    float area() const {
-        return width() * height();
     }
 };
 

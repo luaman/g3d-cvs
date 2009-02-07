@@ -142,12 +142,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(false, true, true);
+
     sky->render(rd, localSky);
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
-    // Do something slow
-    System::sleep(0.03);
 
     /*
     // Show normals
