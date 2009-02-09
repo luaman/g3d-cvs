@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Welder
      <li> G3D::Rect2D::inf
      <li> G3D::TextInput now generates tokens for newlines (\r, \n, or \r\n) when enabled
      <li> Documented platform-abstraction macros

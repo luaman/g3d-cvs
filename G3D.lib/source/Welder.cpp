@@ -1,10 +1,10 @@
 /**
- @file MeshAlgWeld2.cpp
+ @file Welder.cpp
 
  @author Morgan McGuire, Kyle Whitson, Corey Taylor
 
  @created 2008-07-30
- @edited  2008-11-10
+ @edited  2009-02-10
  */
 
 #include "G3D/platform.h"
@@ -12,7 +12,7 @@
 #include "G3D/Vector3.h"
 #include "G3D/Sphere.h"
 #include "G3D/PointHashGrid.h"
-#include "G3D/MeshAlg.h"
+#include "G3D/Welder.h"
 
 namespace G3D { namespace _internal{
 
@@ -359,19 +359,16 @@ public:
 };
 } // Internal
 
-void MeshAlg::weld(
+void Welder::weld(
     Array<Vector3>&     vertexArray,
     Array<Vector2>&     texCoordArray, 
     Array<Vector3>&     normalArray,
     Array<Array<int>*>& indexArrayArray,
-    float               normalSmoothingAngle,
-    float               vertexWeldRadius,
-    float               textureWeldRadius,
-    float               normalWeldRadius) {
+    const Welder::Settings& settings) {
 
-    _internal::WeldHelper(vertexWeldRadius).process(
+    _internal::WeldHelper(settings.vertexWeldRadius).process(
         vertexArray, texCoordArray, normalArray, indexArrayArray, 
-        normalSmoothingAngle, textureWeldRadius, normalWeldRadius);
+        settings.normalSmoothingAngle, settings.textureWeldRadius, settings.normalWeldRadius);
 }
 
 } // G3D

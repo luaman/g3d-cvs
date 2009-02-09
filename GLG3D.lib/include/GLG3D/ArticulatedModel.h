@@ -415,8 +415,8 @@ public:
      */
     static ArticulatedModel::Ref fromFile
         (const std::string&  filename, 
-         const Settings&     settings   = Settings(),
-         const PreProcess&   preprocess = PreProcess());
+         const PreProcess&   preprocess = PreProcess(),
+         const Settings&     settings   = Settings());
 
     /**
      Creates a new model, on which you can manually build geometry by editing the 

@@ -22,7 +22,7 @@ private:
     friend class ArticulatedModel;
     friend class ArticulatedModel::Part;
 
-    ArticulatedModelRef     model;
+    ArticulatedModel::Ref     model;
 
     int                     partIndex;
 
@@ -386,7 +386,7 @@ void ArticulatedModel::pose(
 
 
 void ArticulatedModel::Part::pose(
-    ArticulatedModelRef         model,
+    ArticulatedModel::Ref         model,
     int                         partIndex,
     Array<PosedModel::Ref>&     posedArray,
     const CoordinateFrame&      parent, 

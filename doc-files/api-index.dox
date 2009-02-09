@@ -193,7 +193,8 @@ href="classes.html">Classes</a>.
     \link G3D::Vector3int16 Vector3int16\endlink,
     \link G3D::Vector3int32 Vector3int32\endlink,
     \link G3D::Vector4 Vector4\endlink,
-    \link G3D::Vector4int8 Vector4int8\endlink
+    \link G3D::Vector4int8 Vector4int8\endlink,
+    \link G3D::Welder Welder\endlink
      
   <LI><B>Integer math</B> &nbsp; &nbsp;
     \link G3D::ceilPow2 ceilPow2\endlink,

@@ -19,7 +19,7 @@
 class ArticulatedViewer : public Viewer {
 private:
 
-	ArticulatedModelRef		m_model;
+	ArticulatedModel::Ref		m_model;
 	int						m_numEdges;
 	int						m_numFaces;
 	bool					m_texturebool;

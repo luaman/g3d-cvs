@@ -17,7 +17,7 @@ public:
     SkyRef              sky;
     BSPMapRef           map;
     VideoOutput::Ref    video;
-    ArticulatedModelRef model;
+    ArticulatedModel::Ref model;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -125,11 +125,7 @@ void App::printConsoleHelp() {
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
     if (model.notNull()) {
-    //for (int i = 0; i < 20; ++i) {
-    //    model->pose(posed3D, Vector3(0, 0, -i * 2));
-    //}
-
-    model->pose(posed3D);
+        model->pose(posed3D);
     }
 }
 

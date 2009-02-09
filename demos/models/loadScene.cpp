@@ -81,7 +81,7 @@ void App::loadScene() {
         part.indexArray = triList.indexArray;
 
         part.computeIndexArray();
-        part.computeNormalsAndTangentSpace();
+        part.computeNormalsAndTangentSpace(model->settings());
         part.updateVAR();
 
         entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0,-1,0))));

@@ -56,34 +56,32 @@ ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
-    return fromFile(filename, Settings(), PreProcess(scale));
+    return fromFile(filename, PreProcess(scale), Settings());
 }
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const CoordinateFrame& xform) {
-    return fromFile(filename, Settings(), PreProcess(xform.toMatrix4()));
+    return fromFile(filename, PreProcess(xform.toMatrix4()), Settings());
 }
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, float scale) {
-    return fromFile(filename, Settings(), PreProcess(scale));
+    return fromFile(filename, PreProcess(scale), Settings());
 }
 
 
-ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Settings& s, const PreProcess& preprocess) {
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const PreProcess& preprocess, const Settings& settings) {
     debugAssertM(fileExists(filename),
         filename + " cannot be loaded by ArticulatedModel because it does not exist.");
 
     ArticulatedModel* model = new ArticulatedModel();
-    model->setSettings(s);
+    model->setSettings(settings);
 
     if (endsWith(toLower(filename), ".3ds")) {
         model->init3DS(filename, preprocess);
     } else if (endsWith(toLower(filename), ".ifs") || endsWith(toLower(filename), ".ply2") || endsWith(toLower(filename), ".off")) {
         model->initIFS(filename, preprocess.xform);
     }
-
-    // TODO: use settings
 
     model->updateAll();
 

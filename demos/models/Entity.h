@@ -7,7 +7,7 @@ typedef ReferenceCountedPointer<class Entity> EntityRef;
 class Entity : public ReferenceCountedObject {
 private:
 
-    ArticulatedModelRef         artModel;
+    ArticulatedModel::Ref         artModel;
     ArticulatedModel::Pose      artPose;
 
     MD2ModelRef                 md2Model;
@@ -26,7 +26,7 @@ public:
     CoordinateFrame             cframe;
 
     static EntityRef create(
-        ArticulatedModelRef model = NULL,
+        ArticulatedModel::Ref model = NULL,
         const CoordinateFrame& c = CoordinateFrame()) {
 
         Entity* e = new Entity();
