@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-02-28
-  @edited  2008-10-13
+  @edited  2009-02-13
 */
 
 #ifndef GLG3D_TEXTURE_H
@@ -276,13 +276,14 @@ public:
 
         PreProcess() : brighten(1.0f), gammaAdjust(1.0f), scaleFactor(1.0f),
                        computeNormalMap(false), normalMapLowPassBump(false),
-                       normalMapWhiteHeightInPixels(-1), normalMapScaleHeightByNz(false) {}
+                       normalMapWhiteHeightInPixels(-0.05f), normalMapScaleHeightByNz(false) {}
 
         static const PreProcess& defaults() {
             static const PreProcess p;
             return p;
         }
 
+        /** Brighten by 2 and adjust gamma by 1.6, the default values expected for Quake versions 1 - 3 textures.*/
         static const PreProcess& quake() {
             static PreProcess p;
             p.brighten = 2.0f;
@@ -297,7 +298,7 @@ public:
                 p.computeNormalMap = true;
                 p.normalMapLowPassBump = false;
                 p.normalMapScaleHeightByNz = false;
-                p.normalMapWhiteHeightInPixels = -1.0f;
+                p.normalMapWhiteHeightInPixels = -0.05f;
                 initialized = true;
             }
 

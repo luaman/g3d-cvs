@@ -489,13 +489,14 @@ public:
       of normal computation, compared to the horizontal and vertical size of a pixel.
       A value of 255 means that a 255 x 255 bump image with a full black-to-white gradient will
       produce a 45-degree ramp (this also results in "cubic" voxels).  
-      A special (default) value of -1 means scale the effective white height so that it is equal
-      to the larger spatial dimension.
+      
+      
+      A negative value means to set whiteHeight to -whiteHeight * larger dimensions.
       */
     static void computeNormalMap(
         const class GImage& bump, 
         class GImage& normal,
-        float whiteHeightInPixels = -1.0f,
+        float whiteHeightInPixels = -0.05f,
         bool lowPassBump = false,
         bool scaleHeightByNz = false);
 

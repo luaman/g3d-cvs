@@ -232,7 +232,7 @@ Texture::Ref Texture::fromGLTexture(
 
 Texture::Ref Texture::fromFile(
     const std::string               filename[6],
-    const class ImageFormat*      desiredFormat,
+    const class ImageFormat*        desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
     const PreProcess&               preProcess) {
@@ -242,8 +242,6 @@ Texture::Ref Texture::fromFile(
     const ImageFormat* format = ImageFormat::RGB8();
     bool opaque = true;
 
-    // The six cube map faces, or the one texture and 5 dummys.
-    GImage image[6];
     Array< Array< const void* > > byteMipMapFaces;
 
     const int numFaces = 
@@ -251,18 +249,7 @@ Texture::Ref Texture::fromFile(
         6 : 1;
 
     // Check for DDS file and load separately.
-    std::string ddsExt;
-
-    // Find the period
-    size_t period = filename[0].rfind('.');
-
-    // Make sure it is before a slash!
-    size_t j = iMax(filename[0].rfind('/'), filename[0].rfind('\\'));
-    if ((period != std::string::npos) && (period > j)) {
-        ddsExt = filename[0].substr(period + 1, filename[0].size() - period - 1);
-    }
-
-    if (G3D::toUpper(ddsExt) == "DDS") {
+    if (endsWith(G3D::toUpper(filename[0]), ".DDS")) {
 
         debugAssertM(GLCaps::supports_GL_EXT_texture_compression_s3tc(),
             "This device does not support s3tc compression formats.");
@@ -339,6 +326,9 @@ Texture::Ref Texture::fromFile(
         realFilename[0] = filename[0];
     }
 
+    // The six cube map faces, or the one texture and 5 dummys.
+    GImage image[6];
+
     for (int f = 0; f < numFaces; ++f) {
         image[f].load(realFilename[f]);
         alwaysAssertM(image[f].width > 0, "Image not found");
@@ -375,7 +365,7 @@ Texture::Ref Texture::fromFile(
 
 Texture::Ref Texture::fromFile(
     const std::string&      filename,
-    const ImageFormat*    desiredFormat,
+    const ImageFormat*      desiredFormat,
     Dimension               dimension,
     const Settings&         settings,
     const PreProcess&       preProcess) {
@@ -525,11 +515,11 @@ static bool isMipMapformat(Texture::InterpolateMode i) {
 Texture::Ref Texture::fromMemory(
     const std::string&                  name,
     const Array< Array<const void*> >&  _bytes,
-    const ImageFormat*                bytesFormat,
+    const ImageFormat*                  bytesFormat,
     int                                 width,
     int                                 height,
     int                                 depth,
-    const ImageFormat*                desiredFormat,
+    const ImageFormat*                  desiredFormat,
     Dimension                           dimension,
     const Settings&                     settings,
     const PreProcess&                   preProcess) {
@@ -564,8 +554,7 @@ Texture::Ref Texture::fromMemory(
             ( bytesFormat->code == ImageFormat::CODE_RGB8) ||
             ( bytesFormat->code == ImageFormat::CODE_RGBA8)) {
 
-            bytesPtr = new MipArray;
-            bytesPtr->resize(_bytes.size());
+            bytesPtr = new MipArray(_bytes.size());
 
             for (int m = 0; m < bytesPtr->size(); ++m) {
                 Array<const void*>& face = (*bytesPtr)[m]; 
@@ -606,8 +595,7 @@ Texture::Ref Texture::fromMemory(
                                  preProcess.normalMapLowPassBump, preProcess.normalMapScaleHeightByNz);
         
         // Replace the previous array with the data from our normal map
-        bytesPtr = new MipArray;
-        bytesPtr->resize(1);
+        bytesPtr = new MipArray(1);
         (*bytesPtr)[0].append(normal.byte());
         
         bytesFormat = ImageFormat::RGBA8();

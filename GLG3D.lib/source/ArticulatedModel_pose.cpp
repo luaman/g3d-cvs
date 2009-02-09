@@ -22,7 +22,7 @@ private:
     friend class ArticulatedModel;
     friend class ArticulatedModel::Part;
 
-    ArticulatedModel::Ref     model;
+    ArticulatedModel::Ref   model;
 
     int                     partIndex;
 
@@ -195,7 +195,7 @@ void ArticulatedModel::renderNonShadowed(
 
             const ArticulatedModel::Part& part             = posed->model->partArray[posed->partIndex];
             const ArticulatedModel::Part::TriList& triList = part.triListArray[posed->listIndex];
-            const Material& material          = triList.material;
+            const Material& material                       = triList.material;
             
             const_cast<Material&>(material).enforceDiffuseMask();
 
@@ -207,7 +207,6 @@ void ArticulatedModel::renderNonShadowed(
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
             rd->setDepthWrite(true);
 
-            debugAssertGLOk();  //remove
             if (triList.twoSided) {
                 if (! ps20) {
                     rd->enableTwoSidedLighting();
@@ -522,7 +521,7 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
     const LightingRef&                      lighting,
     const ArticulatedModel::Part&           part,
     const ArticulatedModel::Part::TriList&  triList,
-    const Material&            material) const {
+    const Material&                         material) const {
 
     if (material.emit.isBlack() && 
         material.reflect.isBlack() &&
@@ -544,7 +543,7 @@ bool PosedArticulatedModel::renderPS20NonShadowedOpaqueTerms(
 
     } else {
 
-        // SuperShader only supports two lights, so we have to make multiple passes
+        // SuperShader only supports SuperShader::NonShadowedPass::LIGHTS_PER_PASS lights, so we have to make multiple passes
         LightingRef reducedLighting = lighting->clone();
 
         Array<GLight> lights(lighting->lightArray);

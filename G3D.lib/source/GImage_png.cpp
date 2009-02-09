@@ -139,32 +139,33 @@ void GImage::decodePNG(
     BinaryInput&        input) {
 
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, png_error, png_warning);
-    if (!png_ptr)
+    if (png_ptr == NULL) {
         throw GImage::Error("Unable to initialize PNG decoder.", input.getFilename());
+    }
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
+    if (info_ptr == NULL) {
         png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
         throw GImage::Error("Unable to initialize PNG decoder.", input.getFilename());
     }
 
     png_infop end_info = png_create_info_struct(png_ptr);
-    if (!end_info) {
+    if (end_info == NULL) {
         png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
         throw GImage::Error("Unable to initialize PNG decoder.", input.getFilename());
     }
 
-    //now that the libpng structures are setup, change the error handlers and read routines
-    //to use G3D functions so that BinaryInput can be used.
+    // now that the libpng structures are setup, change the error handlers and read routines
+    // to use G3D functions so that BinaryInput can be used.
 
     png_set_read_fn(png_ptr, (png_voidp)&input, png_read_data);
     
-    //read in sequentially so that three copies of the file are not in memory at once
+    // read in sequentially so that three copies of the file are not in memory at once
     png_read_info(png_ptr, info_ptr);
 
     png_uint_32 png_width, png_height;
     int bit_depth, color_type, interlace_type;
-    //this will validate the data it extracts from info_ptr
+    // this will validate the data it extracts from info_ptr
     png_get_IHDR(png_ptr, info_ptr, &png_width, &png_height, &bit_depth, &color_type,
        &interlace_type, int_p_NULL, int_p_NULL);
 
@@ -173,7 +174,7 @@ void GImage::decodePNG(
         throw GImage::Error("Unsupported PNG color type - PNG_COLOR_TYPE_GRAY_ALPHA.", input.getFilename());
     }
 
-    this->width = static_cast<uint32>(png_width);
+    this->width  = static_cast<uint32>(png_width);
     this->height = static_cast<uint32>(png_height);
 
     //swap bytes of 16 bit files to least significant byte first
@@ -217,7 +218,11 @@ void GImage::decodePNG(
     } else if (color_type == PNG_COLOR_TYPE_GRAY) {
 
         this->channels = 1;
-        this->_byte = (uint8*)System::malloc(width * height);
+
+        // Round up to the nearest 8 rows to avoid a bug in the PNG decoder
+        int h = iCeil(height / 8) * 8;
+        int sz = width * h;
+        this->_byte = (uint8*)System::malloc(sz);
 
     } else {
         throw GImage::Error("Unsupported PNG bit-depth or type.", input.getFilename());

@@ -93,6 +93,18 @@ ArticulatedModel::Ref ArticulatedModel::createEmpty() {
     return new ArticulatedModel();
 }
 
+/** If filename + any image extension exists, returns the name, otherwise returns "". */
+static std::string findAnyImage(const std::string& filename) {
+    static const char* ext[] = {"png", "jpg", "tga", "bmp", "pcx", ""};
+    // TODO: Case sensitivity
+    for (int i = 0; ext[i][0] != '\0'; ++i) {
+        std::string tmp = filename + "." + ext[i];
+        if (fileExists(tmp)) {
+            return tmp;
+        }
+    }
+    return "";
+}
 
 void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& preprocess) {
 
@@ -105,6 +117,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
 
     // Returns the index in partArray of the part with this name.
     Table<std::string, int>     partNameToIndex;
+
+    // Cached bump maps; if NULL, there is no bump map for this file
+    Table<std::string, Texture::Ref> bumpMap;
 
     Load3DS load;
     Table<std::string, TextureRef> texCache;
@@ -228,7 +243,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                 if (f != "") {
                                     if (! texCache.containsKey(f)) {
                                         // Actually load texture
-                                        texCache.set(f, Texture::fromFile(f));
+                                        texCache.set(f, Texture::fromFile(f, ImageFormat::AUTO(), preprocess.textureDimension));
                                     }
                                     triList.material.diffuse.map = texCache[f];
                                 } else {
@@ -241,7 +256,6 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                 triList.material.diffuse.constant = material.diffuse * 
                                     (1.0f - material.transparency);
                             }
-
 
                             //strength of the shininess (higher is brighter)
                             triList.material.specular.constant = material.shininessStrength * 
@@ -259,6 +273,37 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                             // triList.material.reflect.map = 
 
                             triList.twoSided = material.twoSided;
+
+                            if (preprocess.addBumpMaps) {
+                                // See if a bump map exists:
+
+                                if (! bumpMap.containsKey(texture1.filename)) {
+
+                                    std::string filename = 
+                                        pathConcat(pathConcat(path, filenamePath(texture1.filename)),
+                                                   filenameBase(texture1.filename) + "-bump");
+
+                                    filename = findAnyImage(filename);
+                                    if (filename != "") {
+                                        // Load bump map
+                                        if (! texCache.containsKey(filename)) {
+                                            // Actually load bump map
+                                            texCache.set(filename, Texture::fromFile(filename, ImageFormat::RGBA8(), 
+                                                preprocess.textureDimension, 
+                                                Texture::Settings::defaults(), Texture::PreProcess::normalMap()));
+                                        }
+                                        bumpMap.set(texture1.filename, texCache[filename]);
+                                    } else {
+                                        bumpMap.set(texture1.filename, NULL);
+                                    }
+                                }
+
+                                if (bumpMap[texture1.filename].notNull()) {
+                                    triList.material.normalBumpMap = bumpMap[texture1.filename];
+                                    triList.material.parallaxSteps = preprocess.parallaxSteps;
+                                    triList.material.bumpMapScale  = preprocess.bumpMapScale;
+                                }
+                            } // if bump maps
 
                         } else {
                             logPrintf("Referenced unknown material '%s'\n", materialName.c_str());

@@ -1,10 +1,10 @@
 /**
   @file GImage.cpp
-  @author Morgan McGuire, morgan@graphics3d.com
-  Copyright 2002-2007, Morgan McGuire
+  @author Morgan McGuire, morgan@cs.williams.edu
+  Copyright 2002-2009, Morgan McGuire
 
   @created 2002-05-27
-  @edited  2006-10-10
+  @edited  2009-02-10
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -15,6 +15,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Log.h"
+#include "G3D/fileutils.h"
 #include <png.h>
 #include <sys/stat.h>
 #include <assert.h>
@@ -383,20 +384,7 @@ GImage::Format GImage::resolveFormat(
         return maybeFormat;
     }
 
-    std::string extension;
-
-    // Try to detect from the filename's extension
-    if (filename.size() >= 5) {
-        int n = iMax(filename.size() - 1, 5);
-        // Search backwards for the "."
-        for (int i = 1; i <= n; ++i) {
-            if (filename[filename.size() - i] == '.') {
-                // Upper case
-                extension = toUpper(filename.substr(filename.size() - i + 1));
-                break;
-            }
-        }
-    }
+    std::string extension = toUpper(filenameExt(filename));
 
     if (extension == "PPM") {
         // There are two PPM formats; we handle them differently
@@ -778,12 +766,12 @@ void GImage::computeNormalMap(
     bool                lowPassBump,
     bool                scaleHeightByNz) {
 
-    if (whiteHeightInPixels == -1.0f) {
+    if (whiteHeightInPixels < 0.0f) {
         // Default setting scales so that a gradient ramp
         // over the whole image becomes a 45-degree angle
         
         // Account for potentially non-square aspect ratios
-        whiteHeightInPixels = max(width, height);
+        whiteHeightInPixels = max(width, height) * -whiteHeightInPixels;
     }
 
     debugAssert(whiteHeightInPixels >= 0);
@@ -809,8 +797,8 @@ void GImage::computeNormalMap(
 
             // Get a value from B (with wrapping lookup) relative to (x, y)
             // and divide by 255
-            #define height(DX, DY)  ((int)B[(((DX + x + w) % w) + \
-                                            ((DY + y + h) % h) * w) * stride])
+            #define ELEVATION(DX, DY)  ((int)B[(((DX + x + w) % w) + \
+                                                ((DY + y + h) % h) * w) * stride])
 
 
             // Sobel filter to compute the normal.  
@@ -821,13 +809,14 @@ void GImage::computeNormalMap(
             //  [  1  2  1 ]
 
             // Write the Y value directly into the x-component so we don't have
-            // to explicitly compute a cross product at the end.
-            delta.y = -(height(-1, -1) *  1 + height( 0, -1) *  2 + height( 1, -1) *  1 +
-                        height(-1,  1) * -1 + height( 0,  1) * -2 + height( 1,  1) * -1);
+            // to explicitly compute a cross product at the end.  Does not 
+            // go out of bounds because the above is computed mod (width, height)
+            delta.y = -( ELEVATION(-1, -1) * 1 +  ELEVATION( 0, -1) * 2 +  ELEVATION( 1, -1) * 1 +
+                        -ELEVATION(-1,  1) * 1 + -ELEVATION( 0,  1) * 2 + -ELEVATION( 1,  1) * 1);
 
-            delta.x = -(height(-1, -1) * -1 + height( 1, -1) * 1 + 
-                        height(-1,  0) * -2 + height( 1,  0) * 2 + 
-                        height(-1,  1) * -1 + height( 1,  1) * 1);
+            delta.x = -(-ELEVATION(-1, -1) * 1 + ELEVATION( 1, -1) * 1 + 
+                        -ELEVATION(-1,  0) * 2 + ELEVATION( 1,  0) * 2 + 
+                        -ELEVATION(-1,  1) * 1 + ELEVATION( 1,  1) * 1);
 
             // The scale of each filter row is 4, the filter width is two pixels,
             // and the "normal" range is 0-255.
@@ -837,14 +826,14 @@ void GImage::computeNormalMap(
             delta = delta.direction();
 
             // Copy over the bump value into the alpha channel.
-            float H = B[j] / 255.0;
+            float H = B[j] / 255.0f;
 
             if (lowPassBump) {
-                H = (height(-1, -1) + height( 0, -1) + height(1, -1) +
-                        height(-1,  0) + height( 0,  0) + height(1,  0) +
-                        height(-1,  1) + height( 0,  1) + height(1,  1)) / (255.0f * 9.0f);
+                H = (ELEVATION(-1, -1) + ELEVATION( 0, -1) + ELEVATION(1, -1) +
+                     ELEVATION(-1,  0) + ELEVATION( 0,  0) + ELEVATION(1,  0) +
+                     ELEVATION(-1,  1) + ELEVATION( 0,  1) + ELEVATION(1,  1)) / (255.0f * 9.0f);
             }
-            #undef height
+#           undef ELEVATION
 
             if (scaleHeightByNz) {
                 // delta.z can't possibly be negative, so we avoid actually
@@ -852,10 +841,10 @@ void GImage::computeNormalMap(
                 H *= delta.z;
             }
 
-            N[i].a = iRound(H * 255.0);
+            N[i].a = iRound(H * 255.0f);
 
             // Pack into byte range
-            delta = delta * 127.5 + Vector3(127.5, 127.5, 127.5);
+            delta = delta * 127.5f + Vector3(127.5f, 127.5f, 127.5f);
             N[i].r = iClamp(iRound(delta.x), 0, 255);
             N[i].g = iClamp(iRound(delta.y), 0, 255);
             N[i].b = iClamp(iRound(delta.z), 0, 255);

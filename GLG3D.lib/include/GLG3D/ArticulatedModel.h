@@ -90,21 +90,37 @@ public:
         Texture::Dimension            textureDimension;
 
         /** If a material's diffuse texture is name X.Y and X-bump.* file exists,
-            add that to the material as a bump map. Default is <b>false</b>.*/
+            add that to the material as a bump map. Default is <b>false</b>.
+            
+            @beta May be generalized to support maps for all Material parameters 
+            later. */
         bool                          addBumpMaps;
 
-        /** Transformation to apply to geometry after it is loaded. Default is <b>Matrix4::identity()</b>*/
+        /** For files that have normal/bump maps but no specification of the bump-map algorithm, 
+            use this as the number of Material::parallaxSteps. Default is <b>0</b>
+            (Blinn Normal Mapping) */
+        int                           parallaxSteps;
+
+        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.05f */
+        float                         normalMapWhiteHeightInPixels;
+
+        /** For files that have normal/bump maps but no specification of the elevation of the bump
+            map, this is used. See Material::bumpMapScale. Default = 0.05.*/
+        float                         bumpMapScale;
+
+        /** Transformation to apply to geometry after it is loaded. 
+           Default is <b>Matrix4::identity()</b>*/
         Matrix4                       xform;
 
-        inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()) {}
+        inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
 
-        explicit inline PreProcess(const Matrix4& m) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m) {}
+        explicit inline PreProcess(const Matrix4& m) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
 
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const Vector3& scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)) {}
+        explicit inline PreProcess(const Vector3& scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
  
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const float scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)) {}
+        explicit inline PreProcess(const float scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
     };
 
     /**
