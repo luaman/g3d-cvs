@@ -276,7 +276,7 @@ public:
 
         PreProcess() : brighten(1.0f), gammaAdjust(1.0f), scaleFactor(1.0f),
                        computeNormalMap(false), normalMapLowPassBump(false),
-                       normalMapWhiteHeightInPixels(-0.05f), normalMapScaleHeightByNz(false) {}
+                       normalMapWhiteHeightInPixels(-0.02f), normalMapScaleHeightByNz(false) {}
 
         static const PreProcess& defaults() {
             static const PreProcess p;
@@ -298,7 +298,7 @@ public:
                 p.computeNormalMap = true;
                 p.normalMapLowPassBump = false;
                 p.normalMapScaleHeightByNz = false;
-                p.normalMapWhiteHeightInPixels = -0.05f;
+                p.normalMapWhiteHeightInPixels = -0.02f;
                 initialized = true;
             }
 

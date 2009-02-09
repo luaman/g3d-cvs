@@ -101,7 +101,7 @@ public:
             (Blinn Normal Mapping) */
         int                           parallaxSteps;
 
-        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.05f */
+        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.02f */
         float                         normalMapWhiteHeightInPixels;
 
         /** For files that have normal/bump maps but no specification of the elevation of the bump
@@ -112,15 +112,15 @@ public:
            Default is <b>Matrix4::identity()</b>*/
         Matrix4                       xform;
 
-        inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
+        inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
-        explicit inline PreProcess(const Matrix4& m) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
+        explicit inline PreProcess(const Matrix4& m) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const Vector3& scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
+        explicit inline PreProcess(const Vector3& scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
  
         /** Initializes with a scale matrix */
-        explicit inline PreProcess(const float scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.05f) {}
+        explicit inline PreProcess(const float scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
     };
 
     /**

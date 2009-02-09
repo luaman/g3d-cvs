@@ -288,9 +288,11 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                         // Load bump map
                                         if (! texCache.containsKey(filename)) {
                                             // Actually load bump map
+                                            Texture::PreProcess pp = Texture::PreProcess::normalMap();
+                                            pp.normalMapWhiteHeightInPixels = preprocess.normalMapWhiteHeightInPixels;
                                             texCache.set(filename, Texture::fromFile(filename, ImageFormat::RGBA8(), 
                                                 preprocess.textureDimension, 
-                                                Texture::Settings::defaults(), Texture::PreProcess::normalMap()));
+                                                Texture::Settings::defaults(), pp));
                                         }
                                         bumpMap.set(texture1.filename, texCache[filename]);
                                     } else {

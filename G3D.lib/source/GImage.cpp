@@ -785,6 +785,10 @@ void GImage::computeNormalMap(
     const uint8* const B = src;
     Color4uint8* const N = normal.pixel4();
 
+    // 1/s for the scale factor that each ELEVATION should be multiplied by.
+    // We avoid actually multiplying by this and instead just divide it out of z.
+    float elevationInvScale = 255.0f / whiteHeightInPixels;
+
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             // Index into normal map pixel
@@ -820,7 +824,7 @@ void GImage::computeNormalMap(
 
             // The scale of each filter row is 4, the filter width is two pixels,
             // and the "normal" range is 0-255.
-            delta.z = 4 * 2 * (whiteHeightInPixels / 255.0f);
+            delta.z = 4 * 2 * elevationInvScale;
 
             // Delta is now scaled in pixels; normalize 
             delta = delta.direction();

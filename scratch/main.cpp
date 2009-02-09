@@ -49,8 +49,12 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 void App::onInit() {
 
     DebugTimer timer("Load 3DS");
-    //    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS");
-    //   model = ArticulatedModel::fromFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS");
+    ArticulatedModel::PreProcess preprocess;
+    preprocess.addBumpMaps = true;
+    preprocess.textureDimension = Texture::DIM_2D_NPOT;
+    preprocess.parallaxSteps = 0;
+    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS", preprocess);
+
     timer.after("load");
 //    exit(0);
 
