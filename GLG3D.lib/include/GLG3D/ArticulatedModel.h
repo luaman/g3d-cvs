@@ -1,18 +1,18 @@
 /** @file ArticulatedModel.h
     @author Morgan McGuire, morgan@cs.williams.edu
 */
-#ifndef G3D_ARTICULATEDMODEL_H
-#define G3D_ARTICULATEDMODEL_H
+#ifndef G3D_ArticulatedModel_h
+#define G3D_ArticulatedModel_h
 
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
+#include "G3D/Matrix4.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/PosedModel.h"
 #include "GLG3D/Material.h"
+#include "G3D/Welder.h"
 
 namespace G3D {
-
-typedef ReferenceCountedPointer<class ArticulatedModel> ArticulatedModelRef;
 
 /**
  A model composed of a hierarchy of rigid parts (i.e., a scene graph).  The hierarchy may have multiple roots.  
@@ -77,6 +77,54 @@ class ArticulatedModel : public ReferenceCountedObject {
 public:
 	
     typedef ReferenceCountedPointer<class ArticulatedModel> Ref;
+
+    /** @brief Options to apply while loading models. 
+    
+      You can use the @a xform parameter to scale, translate, and rotate 
+      (or even invert!) the model as it is loaded. */
+    class PreProcess {
+    public:
+
+        /** Default is <b>Texture::DIM_2D</b>.  Use Texture::DIM_2D_NPOT to load non-power 
+            of 2 textures without rescaling them.*/
+        Texture::Dimension            textureDimension;
+
+        /** If a material's diffuse texture is name X.Y and X-bump.* file exists,
+            add that to the material as a bump map. Default is <b>false</b>.*/
+        bool                          addBumpMaps;
+
+        /** Transformation to apply to geometry after it is loaded. Default is <b>Matrix4::identity()</b>*/
+        Matrix4                       xform;
+
+        inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()) {}
+
+        explicit inline PreProcess(const Matrix4& m) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m) {}
+
+        /** Initializes with a scale matrix */
+        explicit inline PreProcess(const Vector3& scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)) {}
+ 
+        /** Initializes with a scale matrix */
+        explicit inline PreProcess(const float scale) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::scale(scale)) {}
+    };
+
+    /**
+     Parameters applied when G3D::ArticulatedModel::Part::computeNormalsAndTangentSpace 
+     is caled by G3D::ArticulatedModel::updateAll.*/
+    class Settings {
+    public:
+        Welder::Settings                     weld;
+
+        inline Settings() {}
+
+        /** This forces "flat shading" on the model and causes it to render significantly
+            slower than a smooth shaded object. However, it can be very useful for debugging in certain
+            conditions and for rendering polyhedra.*/
+        inline static Settings facet() {
+            Settings s;
+            s.weld.normalSmoothingAngle = 0;
+            return s;
+        }
+    };
 
 private:
 
@@ -260,7 +308,7 @@ public:
 
         /** Called by ArticulatedModel::pose */
         void pose(
-            ArticulatedModelRef     model,
+            ArticulatedModel::Ref     model,
             int                     partIndex,
             Array<PosedModel::Ref>& posedArray,
             const CoordinateFrame&  parent, 
@@ -278,7 +326,7 @@ public:
 			
 			The Part::indexArray must be set before calling this
             (e.g., by calling computeIndexArray())*/
-        void computeNormalsAndTangentSpace();
+        void computeNormalsAndTangentSpace(const ArticulatedModel::Settings& settings);
 
         /** Called automatically by updateAll */
         void computeIndexArray();
@@ -312,8 +360,10 @@ public:
 
 private:
 
+    Settings                    m_settings;
+
     /** Called from the constructor */
-    void init3DS(const std::string& filename, const Matrix4& xform);
+    void init3DS(const std::string& filename, const PreProcess& preprocess);
 
     /** Called from the constructor */
     void initIFS(const std::string& filename, const Matrix4& xform);
@@ -335,59 +385,58 @@ public:
         Array<PosedModel::Ref>&  posedModelArray,
         const CoordinateFrame&   cframe = CoordinateFrame(),
         const Pose&              pose = defaultPose());
+  
 
-    /** 
-      Supports 3DS, IFS, and PLY2 file formats.  The format of a file is detected by the extension. 
+    inline const Settings& settings() const {
+        return m_settings;
+    }
 
-      You can use the @a xform parameter to scale, translate, and rotate (or even invert!) the model
-      as it is loaded.  Example:
-      <pre>
-      CoordinateFrame xform(Matrix3::fromAxisAngle(axis, angle) * scale, translation);
-      model = ArticulatedModel::fromFile(filename, xform);
-      </pre>
+    inline void setSettings(const Settings& s) {
+        m_settings = s;
+    }
 
-      @param xform Transform all vertices by this RST matrix during loading loading
-      @deprecated Use the Matrix4 version
-      */
-    static ArticulatedModelRef fromFile(const std::string& filename, const CoordinateFrame& xform);
+    /** @deprecated */
+    static ArticulatedModel::Ref fromFile(const std::string& filename, const Matrix4& xform);
 
-    /**
-      Supports 3DS, IFS, and PLY2 file formats.  The format of a file is detected by the extension. 
+    /** @deprecated */
+    static ArticulatedModel::Ref fromFile(const std::string& filename, const CFrame& xform);
 
-      You can use the @a xform parameter to scale, translate, and rotate (or even invert!) the model
-      as it is loaded.  Example:
-      <pre>
-      Matrix4 xform(Matrix3::fromAxisAngle(axis, angle) * scale, translation);
-      model = ArticulatedModel::fromFile(filename, xform);
-      </pre>
+    /** @deprecated */
+    static ArticulatedModel::Ref fromFile(const std::string& filename, const Vector3& scale);
 
-      @param xform Transform all vertices by this matrix during loading 
-     */
-    static ArticulatedModelRef fromFile(const std::string& filename, const Matrix4& xform);
-
-    static ArticulatedModelRef fromFile(const std::string& filename, const Vector3& scale);
+    /** @deprecated */
+    static ArticulatedModel::Ref fromFile(const std::string& filename, float scale);
 
     /**
-     Creates a new model, on which you can manually build geometry by editing the partArray directly. 
-     */
-    static ArticulatedModelRef createEmpty();
+       @brief Load a 3D model from disk, optionally applying some processing.
 
-    /** Load a model from disk */
-    static ArticulatedModelRef fromFile(const std::string& filename, float scale = 1.0);
+       Supports 3DS, IFS, OFF, and PLY2 file formats.  The format of a file is 
+       detected by the extension.      
+     */
+    static ArticulatedModel::Ref fromFile
+        (const std::string&  filename, 
+         const Settings&     settings   = Settings(),
+         const PreProcess&   preprocess = PreProcess());
+
+    /**
+     Creates a new model, on which you can manually build geometry by editing the 
+     partArray directly. 
+     */
+    static ArticulatedModel::Ref createEmpty();
 
     /** Create a 0.5^3 meter cube with colored sides, approximating the data from
         http://www.graphics.cornell.edu/online/box/data.html */
-    static ArticulatedModelRef createCornellBox();
+    static ArticulatedModel::Ref createCornellBox();
 
     /**
      Iterate through the entire model and force all triangles to use vertex 
      normals instead of face normals.
 
      This forces "flat shading" on the model and causes it to render significantly
-     slower than normal. However, it can be very useful for debugging in certain
+     slower than a smooth shaded object. However, it can be very useful for debugging in certain
      conditions.
 
-     @beta
+     @deprecated
      */
     void facet();
 };
@@ -396,4 +445,4 @@ const char* toString(ArticulatedModel::GraphicsProfile p);
 
 }
 
-#endif //G3D_ARTICULATEDMODEL
+#endif

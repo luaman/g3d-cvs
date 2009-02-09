@@ -1,6 +1,9 @@
 /**
  @file ArticulatedModel.cpp
- @author Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+ @created 2003-09-14
+ @edited  2009-02-14
  */
 
 #include "GLG3D/ArticulatedModel.h"
@@ -52,35 +55,35 @@ ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
 }
 
 
-ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
-    return fromFile(filename, Matrix4(scale.x, 0, 0, 0,
-                                      0, scale.y, 0, 0,
-                                      0, 0, scale.z, 0,
-                                      0, 0, 0, 1));
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
+    return fromFile(filename, Settings(), PreProcess(scale));
 }
 
 
-ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const CoordinateFrame& xform) {
-    return fromFile(filename, xform.toMatrix4());
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const CoordinateFrame& xform) {
+    return fromFile(filename, Settings(), PreProcess(xform.toMatrix4()));
 }
 
 
-ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, float scale) {
-    return fromFile(filename, Vector3(scale, scale, scale));
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, float scale) {
+    return fromFile(filename, Settings(), PreProcess(scale));
 }
 
 
-ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, const Matrix4& xform) {
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Settings& s, const PreProcess& preprocess) {
     debugAssertM(fileExists(filename),
         filename + " cannot be loaded by ArticulatedModel because it does not exist.");
 
     ArticulatedModel* model = new ArticulatedModel();
+    model->setSettings(s);
 
     if (endsWith(toLower(filename), ".3ds")) {
-        model->init3DS(filename, xform);
+        model->init3DS(filename, preprocess);
     } else if (endsWith(toLower(filename), ".ifs") || endsWith(toLower(filename), ".ply2") || endsWith(toLower(filename), ".off")) {
-        model->initIFS(filename, xform);
+        model->initIFS(filename, preprocess.xform);
     }
+
+    // TODO: use settings
 
     model->updateAll();
 
@@ -88,12 +91,15 @@ ArticulatedModelRef ArticulatedModel::fromFile(const std::string& filename, cons
 }
 
 
-ArticulatedModelRef ArticulatedModel::createEmpty() {
+ArticulatedModel::Ref ArticulatedModel::createEmpty() {
     return new ArticulatedModel();
 }
 
 
-void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform) {
+void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& preprocess) {
+
+    const Matrix4& xform = preprocess.xform;
+
     // Note: vertices are actually mutated by scale; it is not carried along as
     // part of the scene graph transformation.
 
@@ -267,26 +273,19 @@ void ArticulatedModel::init3DS(const std::string& filename, const Matrix4& xform
 }
 
 
-void ArticulatedModel::Part::computeNormalsAndTangentSpace() {
-
-    float normalSmoothingAngle = toRadians(60);
-    float vertexWeldRadius     = 0.0001f;
-    float texCoordWeldRadius   = 0.00001f;
-    float normalWeldRadius     = 0.00001f;
+void ArticulatedModel::Part::computeNormalsAndTangentSpace
+    (const ArticulatedModel::Settings& settings) {
 
     Array<Array<int>*> indexArrayArray(triListArray.size());
     for (int t = 0; t < triListArray.size(); ++t) {
         indexArrayArray[t] = &(triListArray[t].indexArray);
     }
 
-    MeshAlg::weld(geometry.vertexArray,
+    Welder::weld(geometry.vertexArray,
                   texCoordArray,
                   geometry.normalArray,
                   indexArrayArray,
-                  normalSmoothingAngle,
-                  vertexWeldRadius,
-                  texCoordWeldRadius,
-                  normalWeldRadius);
+                  settings.weld);
 
     Array<MeshAlg::Face>    faceArray;
     Array<MeshAlg::Vertex>  vertexArray;
@@ -368,25 +367,29 @@ void ArticulatedModel::Part::computeBounds() {
 class PartUpdater : public GThread {
 protected:
 
-    Array<ArticulatedModel::Part*>&    m_partArray;
-    int             m_startIndex;
-    int             m_endIndex;
+    Array<ArticulatedModel::Part*>&     m_partArray;
+    int                                 m_startIndex;
+    int                                 m_endIndex;
+    const ArticulatedModel::Settings    m_settings;
 
 public:
     /** Stores the pointer to partArray.*/
-    PartUpdater(Array<ArticulatedModel::Part*>& partArray, 
-                int startIndex, int endIndex) :
+    PartUpdater(
+        Array<ArticulatedModel::Part*>& partArray, 
+        int startIndex, int endIndex,
+        const ArticulatedModel::Settings& settings) :
         GThread("Part Updater"),
         m_partArray(partArray),
         m_startIndex(startIndex),
-        m_endIndex(endIndex) {
+        m_endIndex(endIndex),
+        m_settings(settings) {
     }
 
     /** Processes from startIndex to endIndex, inclusive. */
     virtual void threadMain() {
         for (int i = m_startIndex; i <= m_endIndex; ++i) {
             ArticulatedModel::Part* part = m_partArray[i];
-            part->computeNormalsAndTangentSpace();
+            part->computeNormalsAndTangentSpace(m_settings);
             part->computeBounds();
             debugAssert(part->geometry.normalArray.size() ==
                         part->geometry.vertexArray.size());
@@ -404,7 +407,7 @@ void ArticulatedModel::updateAll() {
             geometryPart.append(part);
         } else {
             // Cheap to update this part right here, since it has nothing in it
-            part->computeNormalsAndTangentSpace();
+            part->computeNormalsAndTangentSpace(m_settings);
             part->computeBounds();
             part->updateVAR();
         }
@@ -425,7 +428,7 @@ void ArticulatedModel::updateAll() {
             (numThreads == 1) ? 
             (geometryPart.size() - 1) :
             (geometryPart.size() - 1) * t / (numThreads - 1);
-        GThreadRef thread = new PartUpdater(geometryPart, startIndex, endIndex);
+        GThreadRef thread = new PartUpdater(geometryPart, startIndex, endIndex, m_settings);
         threads.insert(thread);
         startIndex = endIndex + 1;
     }
@@ -538,9 +541,9 @@ static void addRect(const Vector3& v0, const Vector3& v1,
 }
 
 
-ArticulatedModelRef ArticulatedModel::createCornellBox() {
+ArticulatedModel::Ref ArticulatedModel::createCornellBox() {
 
-    ArticulatedModelRef model = ArticulatedModel::createEmpty();
+    ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
     model->name = "Cornell Box";
 
     ArticulatedModel::Part& part = model->partArray.next();

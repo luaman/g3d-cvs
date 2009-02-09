@@ -28,14 +28,14 @@ void App::loadScene() {
         xform.translation = Vector3(0, -1.0f, 0);
 
         std::string filename = System::findDataFile("3ds/weapon") + "/cannon/cannon.3ds";
-        ArticulatedModelRef model = ArticulatedModel::fromFile(filename, xform);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile(filename, xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
     }
 
     // IFSModel as ArticulatedModel
     if (true) {
-        ArticulatedModelRef model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
         x += 2;
     }
@@ -49,7 +49,7 @@ void App::loadScene() {
 
     // Textured ground plane generated mathematically on the fly
     if (true) {
-        ArticulatedModelRef model = ArticulatedModel::createEmpty();
+        ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
 
         model->name = "Ground Plane";
         ArticulatedModel::Part& part = model->partArray.next();
@@ -133,7 +133,7 @@ void App::loadScene() {
         xform.rotation = xform.rotation * rot180;
         xform.translation = Vector3(0, 0, 0.5);
         std::string path = "ghost/";
-        ArticulatedModelRef model = ArticulatedModel::fromFile(path + "SpaceFighter01.3ds", xform);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile(path + "SpaceFighter01.3ds", xform);
 
         // Override the textures in the file with more interesting ones
 
@@ -167,7 +167,7 @@ void App::loadScene() {
     }
 
     if (true) {
-        ArticulatedModelRef model = ArticulatedModel::fromFile("sphere.ifs", 1);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile("sphere.ifs", 1);
 
         {
             SuperShader::Material& material = model->partArray[0].triListArray[0].material;
@@ -193,7 +193,7 @@ void App::loadScene() {
         // Cloud layer
         {
             ArticulatedModel::Part& part = model->partArray.next();
-            ArticulatedModelRef temp = ArticulatedModel::fromFile("sphere.ifs", 1.02f);
+            ArticulatedModel::Ref temp = ArticulatedModel::fromFile("sphere.ifs", 1.02f);
             part = temp->partArray.last();
             part.name = "Clouds";
             SuperShader::Material& material = part.triListArray[0].material;
@@ -218,7 +218,7 @@ void App::loadScene() {
     }
 
     {
-        ArticulatedModelRef model = ArticulatedModel::fromFile("sphere.ifs", 1);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile("sphere.ifs", 1);
 
         SuperShader::Material& material = model->partArray[0].triListArray[0].material;
         model->partArray[0].triListArray[0].twoSided = true;
@@ -236,7 +236,7 @@ void App::loadScene() {
 
 
      if (true) {
-        ArticulatedModelRef model = ArticulatedModel::createEmpty();
+        ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
 
         model->name = "Maple Leaf";
         ArticulatedModel::Part& part = model->partArray.next();
@@ -290,7 +290,7 @@ void App::loadScene() {
      }
 
     if (false) {
-        ArticulatedModelRef model = ArticulatedModel::fromFile("sphere.ifs", 1);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile("sphere.ifs", 1);
 
         SuperShader::Material& material = model->partArray[0].triListArray[0].material;
         model->partArray[0].triListArray[0].twoSided = false;
@@ -304,7 +304,7 @@ void App::loadScene() {
 
 
     {
-        ArticulatedModelRef model = ArticulatedModel::fromFile("jackolantern.ifs", 1);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile("jackolantern.ifs", 1);
 
         SuperShader::Material& material = model->partArray[0].triListArray[0].material;
         material.diffuse = Color3::fromARGB(0xF28900) * 0.9f;
@@ -320,10 +320,10 @@ void App::loadScene() {
 
     {
         // Animated, hierarchical part
-        ArticulatedModelRef ball = ArticulatedModel::fromFile("dodeca.ifs");
-        ArticulatedModelRef child = ArticulatedModel::fromFile("tetra.ifs", .2f);
+        ArticulatedModel::Ref ball = ArticulatedModel::fromFile("dodeca.ifs");
+        ArticulatedModel::Ref child = ArticulatedModel::fromFile("tetra.ifs", .2f);
 
-        ArticulatedModelRef model = ArticulatedModel::createEmpty();
+        ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
         model->name = "Spinner";
 
         {
@@ -354,7 +354,7 @@ void App::loadScene() {
     }
 
     {
-        ArticulatedModelRef model = ArticulatedModel::fromFile("teapot.ifs", 1.5);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile("teapot.ifs", 1.5);
 
         Color3 brass = Color3::fromARGB(0xFFFDDC01);
 
@@ -377,14 +377,14 @@ void App::loadScene() {
         xform.rotation[0][0] = xform.rotation[1][1] = xform.rotation[2][2] = 0.004f;
         xform.translation.x = 3.5;
         xform.translation.y = 1;
-        ArticulatedModelRef model = ArticulatedModel::fromFile("imperial.3ds", xform);
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile("imperial.3ds", xform);
 
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x - 2, 1, 0))));
     }
 
 
      if (true) {
-        ArticulatedModelRef model = ArticulatedModel::createEmpty();
+        ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
 
         model->name = "Stained Glass";
         ArticulatedModel::Part& part = model->partArray.next();
@@ -461,7 +461,7 @@ void App::loadScene() {
 
      if (false) {
          // 2-sided test
-        ArticulatedModelRef model = ArticulatedModel::createEmpty();
+        ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
 
         model->name = "White Square";
         ArticulatedModel::Part& part = model->partArray.next();
