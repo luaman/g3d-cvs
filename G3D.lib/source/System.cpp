@@ -1863,7 +1863,7 @@ void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg,
 #elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
 
 // non-intel OS X; no CPUID
-void System::CPUIDFunction(uint32 func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+void System::CPUIDFunction(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
     eax = 0;
     ebx = 0;
     ecx = 0;

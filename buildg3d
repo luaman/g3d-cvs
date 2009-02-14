@@ -54,7 +54,7 @@ make     = None
 def initOS():
     global windows, freebsd, linux, osx, unix, osShortName
     global libInstallDir, docInstallDir, configFile, platformName
-    global doInstall, icompileConfig, compiler
+    global doInstall, icompileConfig, compiler, make
 
     s = platform.system()
     windows = (s == 'Windows') or (s == 'Microsoft')

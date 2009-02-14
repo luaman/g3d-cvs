@@ -15,23 +15,28 @@
 namespace G3D {
 
 /**
- A model composed of a hierarchy of rigid parts (i.e., a scene graph).  The hierarchy may have multiple roots.  
- Renders efficiently using the static methods on PosedModel.  PosedModel recognizes ArticulatedModels explicitly and
- optimizes across them.
- Rendering provides full effects including shadows, parallax mapping, and correct transparency. Use a custom SuperShader::Pass 
- to add new effects.
+ @brief A model composed of a hierarchy of rigid parts (i.e., a scene graph).
+
+ The hierarchy may have multiple roots.  Renders efficiently using the
+ static methods on PosedModel.  PosedModel recognizes
+ ArticulatedModels explicitly and optimizes across them.  Rendering
+ provides full effects including shadows, parallax mapping, and
+ correct transparency. Use a custom SuperShader::Pass to add new
+ effects.
  
- Loads 3DS and IFS files (Articulatedmodel::fromFile), or you can create 
- models (ArticulatedModel::createEmpty) from code at run time.  You can also load a model and then adjust
- the materials explicitly. 
+ Loads 3DS, PLY2, OFF, and IFS files (Articulatedmodel::fromFile), or
+ you can create models (ArticulatedModel::createEmpty) from code at
+ run time.  You can also load a model and then adjust the materials
+ explicitly.  See ArticulatedModel::PreProcess and
+ ArticulatedModel::Setings for options.
  
- Use the ArticulatedModel::Pose class to explicitly adjust the relationships between parts in the
- heirarchy.
+ Use the ArticulatedModel::Pose class to explicitly adjust the
+ relationships between parts in the heirarchy.
  
  <b>Data Files</b>
  <br>
- To use on a pixel shader 2.0 or higher GPU, you will need the four files in the current directory
- at runtime:
+ To use on a pixel shader 2.0 or higher GPU, you will need the four
+ files in the current directory at runtime:
 
  <ul>
  <li>ShadowMappedLightPass.vrt
@@ -45,12 +50,14 @@ namespace G3D {
  Since G3D doesn't load GIF files, any material in a 3DS file with a GIF filename is converted to
  the equivalent PNG filename.
  
- <b>Creating a Heirarchy</b>
+ <b>Creating a Hierarchy</b>
  <br>
  <ol>
    <li> Call ArticulatedModel::createEmpty
-   <li> Resize the ArticulatedModel::partArray to the desired number of parts (a part is a set of meshes 
-		that do not move relative to one another).
+
+   <li> Resize the ArticulatedModel::partArray to the desired number
+		of parts (a part is a set of meshes that do not move
+		relative to one another).
    <li> For each part in partArray,
      <ol>
        <li> Fill out Part::geometry.vertexArray, Part::triListArray, and Part::texCoordArray data
@@ -60,17 +67,19 @@ namespace G3D {
              <li> Complete the Part::TriList::indexArray and other fields except for the bounds.
           </ol>
        <li> Set the index of the Part::parent Part
-	   <li> Set the indices of the child Parts in the Part::subPartArray
+       <li> Set the indices of the child Parts in the Part::subPartArray
      </ol> 
    <li> Call ArticulatedModel::updateall
  </ol>
 
- When following this process, it is <i>not</i> necessary to call the other computeXXX methods on the Parts or to 
- fill out the Part::geometry.normalArray, Part::indexArray, Part::tangentArray or Part::xxxVAR fields, or
-call TriList::computeBounds.
+ When following this process, it is <i>not</i> necessary to call the
+ other computeXXX methods on the Parts or to fill out the
+ Part::geometry.normalArray, Part::indexArray, Part::tangentArray or
+ Part::xxxVAR fields, or call TriList::computeBounds.
  
- <b>Known Bug:</b> rotations are loaded incorrectly for a small number of older 3DS files.  These files
- will have parts located in the wrong position.  Re-exporting those files from 3DS Max tends to fix the
+ <b>Known Bug:</b> rotations are loaded incorrectly for a small number
+ of older 3DS files.  These files will have parts located in the wrong
+ position.  Re-exporting those files from 3DS Max tends to fix the
  problem.
  */
 class ArticulatedModel : public ReferenceCountedObject {
