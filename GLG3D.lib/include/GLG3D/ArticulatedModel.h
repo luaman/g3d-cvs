@@ -96,21 +96,21 @@ public:
             later. */
         bool                          addBumpMaps;
 
+        /** Transformation to apply to geometry after it is loaded. 
+           Default is <b>Matrix4::identity()</b>*/
+        Matrix4                       xform;
+
         /** For files that have normal/bump maps but no specification of the bump-map algorithm, 
             use this as the number of Material::parallaxSteps. Default is <b>0</b>
             (Blinn Normal Mapping) */
         int                           parallaxSteps;
 
-        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.02f */
-        float                         normalMapWhiteHeightInPixels;
-
         /** For files that have normal/bump maps but no specification of the elevation of the bump
             map, this is used. See Material::bumpMapScale. Default = 0.05.*/
         float                         bumpMapScale;
 
-        /** Transformation to apply to geometry after it is loaded. 
-           Default is <b>Matrix4::identity()</b>*/
-        Matrix4                       xform;
+        /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.02f */
+        float                         normalMapWhiteHeightInPixels;
 
         inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
