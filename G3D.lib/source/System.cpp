@@ -1863,7 +1863,7 @@ void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg,
 #elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
 
 // non-intel OS X; no CPUID
-void System::CPUIDFunction(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
     eax = 0;
     ebx = 0;
     ecx = 0;
@@ -1874,7 +1874,7 @@ void System::CPUIDFunction(CPUIDFunction func, uint32& eax, uint32& ebx, uint32&
 
 // See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well
 // for a discussion of why this saves ebx; it makes the code compile with -fPIC
-void System::CPUIDFunction(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
     // AT&T assembler syntax
     asm volatile(
 #                ifdef __x86_64__
