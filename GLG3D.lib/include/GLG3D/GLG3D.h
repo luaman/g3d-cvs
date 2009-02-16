@@ -7,9 +7,9 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2008-10-01
+ @edited  2009-02-01
 
- Copyright 2001-2008, Morgan McGuire.
+ Copyright 2001-2009, Morgan McGuire.
  All rights reserved.
 */
 
@@ -86,6 +86,7 @@
 #include "GLG3D/Material.h"
 #include "GLG3D/SuperShader.h"
 #include "GLG3D/GaussianBlur.h"
+#include "GLG3D/IndexedPrimitive.h"
 
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiButton.h"

@@ -22,6 +22,7 @@ href="classes.html">Classes</a>.
     \link G3D::GLight GLight\endlink,
     \link G3D::GMaterial GMaterial\endlink,
     \link G3D::IFSModel IFSModel\endlink,
+    \link G3D::IndexedPrimitive IndexedPrimitive\endlink,
     \link G3D::Lighting Lighting\endlink,
     \link G3D::Shape Shape\endlink,
     \link G3D::Material Material\endlink,

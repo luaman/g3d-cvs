@@ -232,41 +232,48 @@ public:
         return p;
     }
 
-    /**
-      A named sub-set of the model that has a single reference frame.  A Part's reference
-      is relative to its parent's.
 
-      Transparent rendering may produce artifacts if Parts are large or non-convex. 
+    /**
+      A named sub-set of the model that has a single reference frame.
+      A Part's reference is relative to its parent's.
+
+      Transparent rendering may produce artifacts if Parts are large
+      or non-convex.
      */
     class Part {
     public:
         
-        /** A set of triangles that have a single material and can be rendered as a 
-            single OpenGL primitive. */
+        /** A set of triangles that have a single material and can be
+            rendered as a single OpenGL primitive. */
         class TriList {
         public:
-            /** Copy of indexArray stored on the GPU.  Written by updateVAR.*/
+            /** Copy of indexArray stored on the GPU.  Written by
+                updateVAR.*/
             VAR                     indexVAR;
 
-            /** CPU indices into the containing Part's VAR arrays for a triangle list. */
+            /** CPU indices into the containing Part's VAR arrays for
+                a triangle list. */
             Array<int>              indexArray;
             
-            /** When true, this trilist enables two-sided lighting and texturing and
-                does not cull back faces.*/
+            /** When true, this trilist enables two-sided lighting and
+                texturing and does not cull back faces.*/
             bool                    twoSided;
             
             Material                material;
             
-            /** In the same space as the vertices. Computed by computeBounds() */
+            /** In the same space as the vertices. Computed by
+                computeBounds() */
             Sphere                  sphereBounds;
             
-            /** In the same space as the vertices. Computed by computeBounds() */
+            /** In the same space as the vertices. Computed by
+                computeBounds() */
             Box                     boxBounds;
             
             TriList() : twoSided(false) {}
             
-            /** Recomputes the bounds.  Called automatically by initIFS and init3DS.
-                Must be invoked manually if the geometry is later changed. */
+            /** Recomputes the bounds.  Called automatically by
+                initIFS and init3DS.  Must be invoked manually if the
+                geometry is later changed. */
             void computeBounds(const Part& parentPart);
 
             /** Called from Part::updateVAR() */
@@ -276,9 +283,10 @@ public:
         /** Each part must have a unique name */
         std::string                 name;
 
-        /** Position of this part's reference frame <B>relative to parent</B>.
-            During posing, any dynamically applied transformation at this part
-            occurs after the cframe is applied.
+        /** Position of this part's reference frame <B>relative to
+            parent</B>.  During posing, any dynamically applied
+            transformation at this part occurs after the cframe is
+            applied.
         */
         CoordinateFrame             cframe;
 

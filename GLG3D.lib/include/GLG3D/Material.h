@@ -67,8 +67,10 @@ namespace G3D {
     
     @sa G3D::SuperShader
   */
-class Material {
+class Material : public ReferenceCountedObject {
 public:
+
+    typedef ReferenceCountedPointer<Material> Ref;
 
     /** Material property coefficients are specified as 
         a constant color times a texture map.  If the color
@@ -245,6 +247,9 @@ public:
         static bool equals(const Material& a, const Material& b) {
             return a.similarTo(b);
         }
+        static bool equals(const Material::Ref& a, const Material::Ref& b) {
+            return a->similarTo(*b);
+        }
     };
 
     /** Can be used with G3D::Table as a hash function; if two Materials
@@ -252,8 +257,12 @@ public:
     class SimilarHashCode {
     public:
         static size_t hashCode(const Material& mat);
+        inline static size_t hashCode(const Material::Ref& mat) {
+            return hashCode(*mat);
+        }
     };
 };
+
 
 } // namespace G3D
 
