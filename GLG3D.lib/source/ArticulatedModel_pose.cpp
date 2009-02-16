@@ -201,8 +201,6 @@ void ArticulatedModel::renderNonShadowed(
             const ArticulatedModel::Part::TriList& triList = part.triListArray[posed->listIndex];
             const Material& material                       = triList.material;
             
-            const_cast<Material&>(material).enforceDiffuseMask();
-
             debugAssertM(material.transmit.isBlack(), 
                 "Transparent object passed through the batch version of "
                 "ArticulatedModel::renderNonShadowed, which is intended exclusively for opaque objects.");
@@ -283,7 +281,6 @@ void ArticulatedModel::renderShadowMappedLightPass
             const ArticulatedModel::Part& part              = posed->model->partArray[posed->partIndex];
             const ArticulatedModel::Part::TriList& triList  = part.triListArray[posed->listIndex];
             const Material& material           = triList.material;
-            const_cast<Material&>(material).enforceDiffuseMask();
 
             if (material.diffuse.isBlack() && material.specular.isBlack()) {
                 // Nothing to draw for this object

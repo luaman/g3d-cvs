@@ -439,26 +439,11 @@ void main(void) {
 #       endif
         );
 
-    gl_FragColor.a = 1.0
-#       if defined(EMITCONSTANT) || defined(EMITMAP)
-            * emitColor.a
-#       endif
-
-#       if defined(DIFFUSECONSTANT) || defined(DIFFUSEMAP)
-            * diffuseColor.a
-#       endif
-
-#       if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
-            * specularColor.a
-#       endif
-
-#       if defined(SPECULAREXPONENTRCONSTANT) || defined(SPECULAREXPONENTMAP)
-            * specularExponentColor.a
-#       endif
-
-#       if defined(REFLECTCONSTANT) || defined(REFLECTMAP)     
-            * reflectColor.a
+    gl_FragColor.a = 
+#       if defined(DIFFUSEMAP)
+            diffuseColor.a
+#       else
+            1.0
 #       endif
         ;
-
 }

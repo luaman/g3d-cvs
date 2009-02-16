@@ -23,11 +23,12 @@
 namespace G3D {
 
 /**
- A one-size-fits-all shader system that combines most common
- illumination effects efficiently.  G3D::PosedModel is designed
- (through the G3D::ArticulatedModel class) to use this system
- internally, so for most applications you will not even need to
- interact with SuperShader directly.
+ @brief A one-size-fits-all shader system that combines most common
+ illumination effects efficiently.  
+
+ G3D::PosedModel is designed (through the G3D::ArticulatedModel class)
+ to use this system internally, so for most applications you will not
+ even need to interact with SuperShader directly.
 
  The most reason to explicitly use the SuperShader system is to add
  your own custom rendering passes after those handled by PosedModel.
@@ -71,7 +72,7 @@ namespace G3D {
  See the source file ArticulatedModel_pose.cpp for examples of how to use
  the built-in SuperShader Passes
 
- @sa SuperShader::Pass
+ @sa G3D::SuperShader::Pass, G3D::Material
 
  @cite McGuire, The %SuperShader. Chapter 8.1, 485--498, in <i>ShaderX<sup>4</sup></i>, W. Engel ed., 2005.
  */

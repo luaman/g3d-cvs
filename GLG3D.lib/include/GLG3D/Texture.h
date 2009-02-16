@@ -330,8 +330,8 @@ private:
         GLuint                      textureID,
         Dimension                   dimension,
         const ImageFormat*          format,
-		bool		      	        opaque,
-		const Settings&             settings);
+        bool		      	    opaque,
+        const Settings&             settings);
 
 	/** Call glGetTexImage with appropriate target */
 	void getTexImage(void* data, const ImageFormat* desiredFormat) const;

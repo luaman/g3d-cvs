@@ -22,7 +22,9 @@ Material Material::createDiffuse(const Color3& diffuse) {
 void Material::computeDefines(std::string& defines) const {
     defines = "";
 
-    if (diffuse.constant != Color3::black()) {
+    // Set diffuse if not-black or if there is an alpha mask
+    if ((diffuse.constant != Color3::black()) ||
+        (diffuse.map.notNull() && ! diffuse.map->opaque())) {
         if (diffuse.map.notNull()) {
             defines += "#define DIFFUSEMAP\n";
 
@@ -130,43 +132,14 @@ bool Material::Component::similarTo(const Component& other) const{
 }
 
 
-void Material::enforceDiffuseMask() {
-    if (! changed) {
-        return;
-    }
-
-    if (diffuse.map.notNull() && ! diffuse.map->opaque()) {
-        // There is a mask.  Extract it.
-
-        Texture::Ref mask = diffuse.map->alphaOnlyVersion();
-
-        static const int numComponents = 5;
-        Component* component[numComponents] = {&emit, &specular, &specularExponent, &transmit, &reflect};
-
-        // Spread the mask to other channels that are not black
-        for (int i = 0; i < numComponents; ++i) {
-            if (! component[i]->isBlack()) {
-                if (component[i]->map.isNull()) {
-                    // Add a new map that is the mask
-                    component[i]->map = mask;
-                } else {
-                    // TODO: merge instead of replacing!
-                    component[i]->map = mask;
-                }
-            }
-        }
-    }
-
-    changed = false;
-}
-
-
 void Material::configure(VertexAndPixelShader::ArgList& args) const {
 
-    if (diffuse.constant != Color3::black()) {
+    // Set diffuse if not-black or if there is an alpha mask
+    if ((diffuse.constant != Color3::black()) ||
+        (diffuse.map.notNull() && ! diffuse.map->opaque())) {
         args.set("diffuseConstant",         diffuse.constant);
         if (diffuse.map.notNull()) {
-            args.set("diffuseMap",              diffuse.map);
+            args.set("diffuseMap",          diffuse.map);
         }
     }
 
@@ -261,10 +234,6 @@ size_t Material::SimilarHashCode::hashCode(const Material& mat) {
     }
 
     return h;
-}
-
-size_t Material::SimilarHashCode::operator()(const Material& mat) const {
-    return hashCode(mat);
 }
 
 

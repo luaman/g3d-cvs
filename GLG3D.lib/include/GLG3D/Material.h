@@ -17,9 +17,29 @@
 
 namespace G3D {
 
-/** Describes the material (BSDF) properties of a 3D surface. Each of the Component fields
-    can be set to a scalar constant, a color, a texture map, or the product of a color and a texture map.
+/**
+    @brief A surface material description (BSDF + Emission function +
+    rendering parameters) including transmission, Lambertian,
+    Blinn-Phong specular, and mirror reflection terms.
 
+    Describes the material properties of a 3D surface. This includes a
+
+    - Bidirectional Scattering Distribution Function (BSDF) describing how
+    light reflects and transmits through the surface, 
+
+    - an emission function describing the light emitted from the surface
+
+    - a normal (a.k.a. displacement, bump) map describing small-scale
+      detail and some parameters controling the accuracy of the
+      displacement mapping algorithm.
+
+    Each of the Component fields can be set to a scalar constant, a
+    color, a texture map, or the product of a color and a texture map.
+    If used with G3D::SuperShader, the application of the shading terms
+    in the pixel shader will be optimized based on which components are
+    present.
+
+    An alpha mask is only allowed on the diffuse component.
 
     Illumination Equation:
 
@@ -35,15 +55,13 @@ namespace G3D {
              light * (diffuse * NdotL +
                       specular * NdotH^specularExponent)}
 
-    When choosing material properties, the transmission, diffuse, and specular terms
-    should sum to less than 1.  The reflection and specular terms are technically the
-    same value and should be equal; the difference is that specular only applies to
-    lights and reflection to the environment (less lights), a concession to artistic
-    control.
+    When choosing material properties, the transmission, diffuse, and
+    specular terms should sum to less than 1.
 
-    Note that most translucent materials should be two-sided and have comparatively
-    low diffuse terms.  They should also be applied to convex objects (subdivide 
-    non-convex objects) to prevent rendering surfaces out of order.
+    Note that most translucent surfaces should be two-sided and have
+    comparatively low diffuse terms.  They should also be applied to
+    convex objects (subdivide non-convex objects) to prevent rendering
+    surfaces out of order.
     
     @beta
     
@@ -92,9 +110,12 @@ public:
         bool similarTo(const Component& other) const;
     };
 
-    /** Diffuse reflection of lights. The alpha channel is used as a mask, e.g., to cut out the shape of
-        a leaf or a billboard, but does NOT encode transparency.  Use the transmit member to specify
-        (optionally colored) transparency.*/
+    /** Diffuse (Lambertian) reflection of lights. 
+
+        The alpha channel is used as a mask, e.g., to cut out the
+        shape of a leaf or a billboard, but does NOT encode
+        transparency.  Use the transmit member to specify (optionally
+        colored) transparency.*/
     Component               diffuse;
 
     /** Glow without illuminating other objects. */
@@ -106,13 +127,16 @@ public:
     /** Sharpness of light reflections.*/
     Component               specularExponent;
 
-    /** Translucency.  Can be colored. */
+    /** Translucency.  Can be colored.*/
     Component               transmit;
 
     /** Perfect specular (mirror) reflection of the environment. */
     Component               reflect;
 
     /** 
+        @brief Hint to the renderer for the quality of displacement
+        mapping.
+
         Only relevant if normalBumpMap is non-NULL.
 
         If 0, normal mapping is used with no displacement.
@@ -127,12 +151,12 @@ public:
 
     /** Reserved for experimentation. This allows you to pass one
         additional texture of your choice into the shader; you can
-        then modify the shader code directly to recieve and apply
-        this map.  If non-NULL, CUSTOMMAP is #defined in the
-        shader. */
+        then modify the shader code directly to recieve and apply this
+        map.  If non-NULL, CUSTOMMAP is #defined in the shader. */
     Texture::Ref            customMap;
 
-    /** Reserved for experimentation.  If finite, CUSTOMCONSTANT is #defined in the shader.  */
+    /** Reserved for experimentation.  If finite, CUSTOMCONSTANT is
+        #defined in the shader.  */
     Vector4                 customConstant;
    
     /** Multiply normal map alpha values (originally on the range 0-1)
@@ -140,32 +164,29 @@ public:
         already be factored in to the normal map normals.*/
     float                   bumpMapScale;
 
-    /** on the range [0, 1].  Translates the bump map in and out of the surface. */
+    /** On the range [0, 1].  Translates the bump map in and out of
+        the surface. */
     float                   bumpMapBias;
-
-    /**
-     If the diffuse texture is changed, set this to true.  Defaults to true.
-     */
-    bool                    changed;
 
     /** Default material is white and slightly shiny. */
     Material() : diffuse(1), emit(0), 
         specular(0.25), specularExponent(60), 
         transmit(0), reflect(0), parallaxSteps(1), 
         customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
-        bumpMapScale(0), bumpMapBias(0), changed(true) {
+        bumpMapScale(0.02), bumpMapBias(0) {
     }
 
     /** Create a purely diffuse material with this reflectivity. */
     static Material createDiffuse(const Color3& diffuse);
 
-    /** Returns true if this material uses similar terms as other
-        (used by SuperShader), although the actual textures may differ. */
+    /** Returns true if @a this material uses similar terms as @a
+        other (used by G3D::SuperShader), although the actual textures
+        may differ. */
     bool similarTo(const Material& other) const;
 
     /** 
      To be identical, two materials must not only have the same images in their
-     textures but must share pointers to the same underlying Texture objects.
+     textures but must share pointers to the same underlying G3D::Texture objects.
      */
     inline bool operator==(const Material& other) const {
         return (diffuse == other.diffuse) &&
@@ -181,69 +202,60 @@ public:
                (parallaxSteps == other.parallaxSteps);
     }
 
+
     inline size_t hashCode() const {
-        // Intentionally does not take all terms into account
+        // Intentionally does not take all terms into account, for performance
         return
             (size_t)((diffuse.constant.b + (diffuse.constant.r + (diffuse.constant.g * 1024)) * 1024) * 1024) ^ 
             (size_t)(diffuse.map.pointer()) ^
-            (size_t)((specular.constant.b + (specular.constant.r + (specular.constant.g * 1024)) * 1024) * 1024) ^ 
+            (size_t)(specular.constant.b * 0xFFFFFF) ^ 
             (size_t)(specular.map.pointer()) ^
-            (size_t)(reflect.constant.b * 0xFFFFFF) ^ 
-            (size_t)(transmit.constant.b * 0xFFFFFF) ^ 
+            (size_t)(reflect.constant.b * 0xFFFFFF) ^
+            (size_t)(transmit.constant.b * 0xFFFFFF) ^
             (size_t)(customMap.pointer()) ^
             (size_t)((customConstant.x + (customConstant.y + (customConstant.z * 1024)) * 1024) * 1024);
     }
+
 
     inline bool operator!=(const Material& other) const {
         return !(*this == other);
     }
 
-    /** 
-      If Material::changed is true, copies the diffuse texture's alpha channel to 
-      all other maps. Call before rendering with this material.
-     */
-    void enforceDiffuseMask();
-
 
     /** Returns a string of GLSL macros (e.g., #define DIFFUSEMAP) that
-        describe the specified components of this material.
+        describe the specified components of this Material, as used by 
+        G3D::SuperShader.
       */
     void computeDefines(std::string& defines) const;
 
     /** Configure the properties of this material as optional
-        arguments for a shader.  If an emissive map or reflectivity
-        map is used then the constant will also be specified for those
-        two fields; the lighting environment should take care of
-        multiplying those two fields by the lighting.emissiveScale and
-        lighting.environmentConstant as needed (e.g., for some
-        tone-mapping algorithms.)
+        arguments for a shader (e.g. G3D::SuperShader).  If an
+        emissive map or reflectivity map is used then the constant
+        will also be specified for those two fields; the lighting
+        environment should take care of multiplying those two fields
+        by the lighting.emissiveScale and lighting.environmentConstant
+        as needed (e.g., for some tone-mapping algorithms.)
       */
     void configure(VertexAndPixelShader::ArgList& a) const;
 
 
-    /** Can be used with Table as an Equals function */
+    /** Can be used with G3D::Table as an Equals function */
     class SimilarTo {
     public:
-        /** @deprecated */
-        bool operator()(const Material& a, const Material& b) const {
-            return a.similarTo(b);
-        }
         static bool equals(const Material& a, const Material& b) {
             return a.similarTo(b);
         }
     };
 
-    /** Can be used with Table as a hash function; if two Materials
+    /** Can be used with G3D::Table as a hash function; if two Materials
         have the same SimilarHashCode then they are SimilarTo each other.*/
     class SimilarHashCode {
     public:
         static size_t hashCode(const Material& mat);
-        /** @deprecated */
-        size_t operator()(const Material& mat) const;
     };
 };
 
-} // Namespace G3D
+} // namespace G3D
 
 template <>
 struct HashTrait<G3D::Material> {

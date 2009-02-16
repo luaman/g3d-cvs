@@ -10,6 +10,8 @@
 #include "G3D/fileutils.h"
 #include "G3D/Log.h"
 
+// Defined on some operating systems, but used as a variable
+// in this file
 #ifdef OPTIONAL
 #undef OPTIONAL
 #endif
@@ -302,7 +304,6 @@ ExtraLightPass::ExtraLightPass() :
     args.set("ambientBottom",   Color3::black());
 
     // Knock out all other terms if they are specified
-
     args.set("environmentConstant", Color3::black(), OPTIONAL);
     static TextureRef emptyCubeMap = Texture::createEmpty("empty cube map", 16, 16, ImageFormat::RGB8(), Texture::DIM_CUBE_MAP);
     args.set("environmentMap",  emptyCubeMap, OPTIONAL);

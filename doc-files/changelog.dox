@@ -12,7 +12,8 @@
 <hr>
    <p>
    Changes in 8.00:
-   <ul>
+   <ul
+     <li> G3D::Material and G3D::SuperShader now only allow alpha mask on the diffuse (Lambertian) component
      <li> G3D::GImage::computeNormalMap now allows the white height to be a constant multiple of the larger dimension
      <li> G3D::Welder
      <li> G3D::Rect2D::inf
@@ -53,6 +54,7 @@
      <li> Fix (2570367): buildg3d detects the buggy OS X 10.4 make 3.80 and refuses to run on that machine without gmake installed
      <li> Fix: Grayscale PNG with odd heights now load correctly
      <li> Fix: GImage::computeNormalMap whiteHeightInPixels now scales correctly (was inverted before)
+     <li> Fix: G3D::Material now properly alpha-masks non-diffuse channels
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
