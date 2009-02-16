@@ -206,6 +206,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
 
                     if (faceMat.faceIndexArray.size() > 0) {
                         Part::TriList& triList = part.triListArray.next();
+                        triList.material = new Material();
                 
                         // Construct an index array for this part
                         for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
@@ -220,6 +221,8 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                         const std::string& materialName = faceMat.materialName;
 
                         if (load.materialNameToIndex.containsKey(materialName)) {
+                            // TODO: cache loaded materials, not individual textures
+
                             int i = load.materialNameToIndex[materialName];
                             const Load3DS::Material& material = load.materialArray[i];
 
@@ -245,29 +248,29 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                         // Actually load texture
                                         texCache.set(f, Texture::fromFile(f, ImageFormat::AUTO(), preprocess.textureDimension));
                                     }
-                                    triList.material.diffuse.map = texCache[f];
+                                    triList.material->diffuse.map = texCache[f];
                                 } else {
                                     logPrintf("Could not load texture '%s'\n", textureFile.c_str());
                                 }                                
 
-                                triList.material.diffuse.constant = (Color3::white() * material.texture1.pct) *
+                                triList.material->diffuse.constant = (Color3::white() * material.texture1.pct) *
                                     (1.0f - material.transparency);
                             } else {
-                                triList.material.diffuse.constant = material.diffuse * 
+                                triList.material->diffuse.constant = material.diffuse * 
                                     (1.0f - material.transparency);
                             }
 
                             //strength of the shininess (higher is brighter)
-                            triList.material.specular.constant = material.shininessStrength * 
+                            triList.material->specular.constant = material.shininessStrength * 
                                 material.specular * (1.0f - material.transparency);
 
                             //extent (area, higher is closely contained, lower is spread out) of shininess
                             // Do not exceed 128, which is the OpenGL fixed function maximum
-                            triList.material.specularExponent.constant = Color3::white() * material.shininess 
+                            triList.material->specularExponent.constant = Color3::white() * material.shininess 
                                 * 128.0f;
 
-                            triList.material.transmit.constant = Color3::white() * material.transparency;
-                            triList.material.emit.constant = material.diffuse * material.emissive;
+                            triList.material->transmit.constant = Color3::white() * material.transparency;
+                            triList.material->emit.constant = material.diffuse * material.emissive;
 
                             // TODO: load reflection, bump, etc maps.
                             // triList.material.reflect.map = 
@@ -301,9 +304,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                 }
 
                                 if (bumpMap[texture1.filename].notNull()) {
-                                    triList.material.normalBumpMap = bumpMap[texture1.filename];
-                                    triList.material.parallaxSteps = preprocess.parallaxSteps;
-                                    triList.material.bumpMapScale  = preprocess.bumpMapScale;
+                                    triList.material->normalBumpMap = bumpMap[texture1.filename];
+                                    triList.material->parallaxSteps = preprocess.parallaxSteps;
+                                    triList.material->bumpMapScale  = preprocess.bumpMapScale;
                                 }
                             } // if bump maps
 

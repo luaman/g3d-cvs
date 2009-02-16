@@ -179,12 +179,15 @@ public:
     }
 
     /** Create a purely diffuse material with this reflectivity. */
-    static Material createDiffuse(const Color3& diffuse);
+    static Material::Ref createDiffuse(const Color3& diffuse);
 
     /** Returns true if @a this material uses similar terms as @a
         other (used by G3D::SuperShader), although the actual textures
         may differ. */
     bool similarTo(const Material& other) const;
+    inline bool similarTo(const Material::Ref& other) const {
+        return similarTo(*other);
+    }
 
     /** 
      To be identical, two materials must not only have the same images in their

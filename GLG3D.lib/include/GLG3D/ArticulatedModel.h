@@ -259,7 +259,7 @@ public:
                 texturing and does not cull back faces.*/
             bool                    twoSided;
             
-            Material                material;
+            Material::Ref           material;
             
             /** In the same space as the vertices. Computed by
                 computeBounds() */

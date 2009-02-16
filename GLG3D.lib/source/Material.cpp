@@ -11,10 +11,10 @@
 
 namespace G3D {
 
-Material Material::createDiffuse(const Color3& diffuse) {
-    Material m;
-    m.diffuse = diffuse;
-    m.specular = Color3::black();
+Material::Ref Material::createDiffuse(const Color3& diffuse) {
+    Material::Ref m = new Material();
+    m->diffuse = diffuse;
+    m->specular = Color3::black();
     return m;
 }
 

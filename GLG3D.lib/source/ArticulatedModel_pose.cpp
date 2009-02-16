@@ -199,9 +199,9 @@ void ArticulatedModel::renderNonShadowed(
 
             const ArticulatedModel::Part& part             = posed->model->partArray[posed->partIndex];
             const ArticulatedModel::Part::TriList& triList = part.triListArray[posed->listIndex];
-            const Material& material                       = triList.material;
+            const Material::Ref& material                  = triList.material;
             
-            debugAssertM(material.transmit.isBlack(), 
+            debugAssertM(material->transmit.isBlack(), 
                 "Transparent object passed through the batch version of "
                 "ArticulatedModel::renderNonShadowed, which is intended exclusively for opaque objects.");
 
@@ -220,7 +220,7 @@ void ArticulatedModel::renderNonShadowed(
                 }
             }
 
-            bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
+            bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, *material, false);
 
             debugAssertGLOk();  //remove
             if (triList.twoSided && ps20) {
@@ -229,7 +229,7 @@ void ArticulatedModel::renderNonShadowed(
                 // twice
                 rd->setCullFace(RenderDevice::CULL_FRONT);
                 
-                wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false) || wroteDepth;
+                wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, part, triList, *material, false) || wroteDepth;
 
             }
 
@@ -280,9 +280,9 @@ void ArticulatedModel::renderShadowMappedLightPass
 
             const ArticulatedModel::Part& part              = posed->model->partArray[posed->partIndex];
             const ArticulatedModel::Part::TriList& triList  = part.triListArray[posed->listIndex];
-            const Material& material           = triList.material;
+            const Material::Ref& material                   = triList.material;
 
-            if (material.diffuse.isBlack() && material.specular.isBlack()) {
+            if (material->diffuse.isBlack() && material->specular.isBlack()) {
                 // Nothing to draw for this object
                 continue;
             }
@@ -301,7 +301,7 @@ void ArticulatedModel::renderShadowMappedLightPass
                     rd->setCullFace(RenderDevice::CULL_NONE);
                 }
 
-                posed->renderFFShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
+                posed->renderFFShadowMappedLightPass(rd, light, shadowMap, part, triList, *material);
 
                 if (triList.twoSided) {
                     rd->disableTwoSidedLighting();
@@ -314,13 +314,13 @@ void ArticulatedModel::renderShadowMappedLightPass
                 // we always draw the front first.
                 rd->setCullFace(RenderDevice::CULL_BACK);
 
-                posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
+                posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, *material);
 
                 if (triList.twoSided) {
                     // The GLSL built-in gl_FrontFacing does not work on most cards, so we have to draw 
                     // two-sided objects twice since there is no way to distinguish them in the shader.
                     rd->setCullFace(RenderDevice::CULL_FRONT);
-                    posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, material);
+                    posed->renderPS20ShadowMappedLightPass(rd, light, shadowMap, part, triList, *material);
                     rd->setCullFace(RenderDevice::CULL_BACK);
                 }
                 break;
@@ -450,12 +450,12 @@ bool PosedArticulatedModel::renderSuperShaderPass(
     if (triList.twoSided) {
         // We're going to render the front and back faces separately.
         rd->setCullFace(RenderDevice::CULL_FRONT);
-        rd->setShader(pass->getConfiguredShader(triList.material, rd->cullFace()));
+        rd->setShader(pass->getConfiguredShader(*triList.material, rd->cullFace()));
         sendGeometry2(rd);
     }
 
     rd->setCullFace(RenderDevice::CULL_BACK);
-    rd->setShader(pass->getConfiguredShader(triList.material, rd->cullFace()));
+    rd->setShader(pass->getConfiguredShader(*triList.material, rd->cullFace()));
     sendGeometry2(rd);
 
     return false;
@@ -863,13 +863,13 @@ void PosedArticulatedModel::renderNonShadowed(
 
     const ArticulatedModel::Part& part = model->partArray[partIndex];
     const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];
-    const Material& material = triList.material;
+    const Material::Ref& material = triList.material;
 
     // The transparent rendering path is not optimized to amortize state changes because 
     // it is only called by the single-object version of this function.  Only
     // opaque objects are batched together.
 
-    if (! material.transmit.isBlack()) {
+    if (! material->transmit.isBlack()) {
         rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
         rd->pushState();
             // Transparent
@@ -889,13 +889,13 @@ void PosedArticulatedModel::renderNonShadowed(
 
                 // Modulate background by transparent color
                 rd->setBlendFunc(RenderDevice::BLEND_ZERO, RenderDevice::BLEND_SRC_COLOR);
-                rd->setTexture(0, material.transmit.map);
-                rd->setColor(material.transmit.constant);
+                rd->setTexture(0, material->transmit.map);
+                rd->setColor(material->transmit.constant);
                 sendGeometry2(rd);
 
                 bool alreadyAdditive = false;
                 setAdditive(rd, alreadyAdditive);
-                renderNonShadowedOpaqueTerms(rd, lighting, part, triList, material, false);
+                renderNonShadowedOpaqueTerms(rd, lighting, part, triList, *material, false);
             
                 // restore depth write
                 rd->setDepthWrite(oldDepthWrite);
@@ -1101,7 +1101,7 @@ std::string PosedArticulatedModel::name() const {
 bool PosedArticulatedModel::hasTransparency() const {
     const ArticulatedModel::Part& part = model->partArray[partIndex];
     const ArticulatedModel::Part::TriList& triList = part.triListArray[listIndex];
-    return ! triList.material.transmit.isBlack();
+    return ! triList.material->transmit.isBlack();
 }
 
 

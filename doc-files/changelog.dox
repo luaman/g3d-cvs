@@ -71,6 +71,7 @@
      <li> G3D::GApp::onLogic -> G3D::GApp::onAI, G3D::Widget::onLogic -> G3D::Widget::onAI
      <li> Removed unused G3D::BSPMap::getTriangles texCoordIndex argument
      <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
+     <li> G3D::ArticulatedModel::Part::TriList::material is now a pointer
    </ul>
 
 <hr>
