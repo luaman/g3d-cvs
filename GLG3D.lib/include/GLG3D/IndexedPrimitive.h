@@ -36,7 +36,7 @@ public:
     
     Material::Ref           material;
     
-    IndexedPrimitive() : twoSided(false), primitive(MeshAlg::TRIANGLES) {}
+    IndexedPrimitive() : primitive(MeshAlg::TRIANGLES), twoSided(false) {}
 };
 
 } // G3D
