@@ -880,7 +880,11 @@ void GenericPosedModel::sendGeometry(
     debugAssertGLOk();
     ++debugNumSendGeometryCalls;
 
-    if (rd->renderMode() == RenderDevice::RENDER_SOLID) {
+    // TODO: Radeon mobility cards crash rendering VAR in wireframe mode.
+    // switch to begin/end in that case
+    bool useVAR = true || (rd->renderMode() == RenderDevice::RENDER_SOLID);
+
+    if (useVAR) {
 
         debugAssertGLOk();
         rd->beginIndexedPrimitives();
@@ -916,8 +920,6 @@ void GenericPosedModel::sendGeometry(
 
         if (m_cpuGeom.index != NULL) {
 
-            // Radeon mobility cards crash rendering VAR in wireframe mode.
-            // switch to begin/end
             rd->beginPrimitive((RenderDevice::Primitive)m_gpuGeom->primitive);
             for (int i = 0; i < m_cpuGeom.index->size(); ++i) {
                 int v = (*m_cpuGeom.index)[i];

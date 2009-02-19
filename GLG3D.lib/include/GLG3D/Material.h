@@ -172,10 +172,10 @@ public:
 
     /** Default material is white and slightly shiny. */
     Material() : diffuse(1), emit(0), 
-        specular(0.25), specularExponent(60), 
+        specular(0.25f), specularExponent(60), 
         transmit(0), reflect(0), parallaxSteps(1), 
         customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
-        bumpMapScale(0.02), bumpMapBias(0) {
+        bumpMapScale(0.02f), bumpMapBias(0) {
     }
 
     /** Create a purely diffuse material with this reflectivity. */
