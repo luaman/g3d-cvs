@@ -13,7 +13,6 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> G3D::IndexedPrimitive
      <li> G3D::Material and G3D::SuperShader now only allow alpha mask on the diffuse (Lambertian) component
      <li> G3D::GImage::computeNormalMap now allows the white height to be a constant multiple of the larger dimension
      <li> G3D::Welder
@@ -72,6 +71,10 @@
      <li> Removed unused G3D::BSPMap::getTriangles texCoordIndex argument
      <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
      <li> G3D::ArticulatedModel::Part::TriList::material is now a pointer
+     <li> G3D::PosedModel bounding boxes are now G3D::AABox instead of G3D::Box
+     <li> Moved ArticulatedModel::setProfile to GenericPosedModel::setProfile
+     <li> G3D::ArticulatedModel::Part::TriList is now a reference counted object; Part::triListArray -> Part::triList
+     <li> MeshAlg::computeBounds now takes an AABox instead of a Box
    </ul>
 
 <hr>

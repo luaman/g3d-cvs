@@ -7,14 +7,14 @@
 
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2003-02-21
- @edited  2005-11-20
+ @edited  2009-02-20
  */
 
 #ifndef G3D_MD2MODEL_H
 #define G3D_MD2MODEL_H
 
 #include "G3D/platform.h"
-#include "G3D/Box.h"
+#include "G3D/AABox.h"
 #include "G3D/Sphere.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/PosedModel.h"
@@ -245,7 +245,7 @@ protected:
         virtual const Array<int>& triangleIndices() const;
         virtual void getObjectSpaceBoundingSphere(Sphere&) const;
         virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const;
-        virtual void getObjectSpaceBoundingBox(Box&) const;
+        virtual void getObjectSpaceBoundingBox(AABox&) const;
         virtual void render(RenderDevice* renderDevice) const;
         virtual int numBoundaryEdges() const; 
         virtual int numWeldedBoundaryEdges() const; 
@@ -348,7 +348,7 @@ protected:
     Array<Vector2>              _texCoordArray;
 
     Sphere                      animationBoundingSphere[MAX_ANIMATIONS]; 
-    Box                         animationBoundingBox[MAX_ANIMATIONS]; 
+    AABox                       animationBoundingBox[MAX_ANIMATIONS]; 
 
     void loadTextureFilenames(BinaryInput& b, int num, int offset);
     
@@ -408,7 +408,7 @@ protected:
     Array<MeshAlg::Vertex>      weldedVertexArray;
     Array<MeshAlg::Edge>        weldedEdgeArray;
     Sphere                      boundingSphere;
-    Box                         boundingBox;
+    AABox                       boundingBox;
     int                         numBoundaryEdges;
     int                         numWeldedBoundaryEdges;
     std::string                 _name;
@@ -474,7 +474,7 @@ public:
     /**
      An oriented bounding box on the model.  Covers all vertices in all animations.
      */
-    inline const Box& objectSpaceBoundingBox() const {
+    inline const AABox& objectSpaceBoundingBox() const {
         return boundingBox;
     }
 

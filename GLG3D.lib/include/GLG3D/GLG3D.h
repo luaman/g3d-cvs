@@ -86,7 +86,7 @@
 #include "GLG3D/Material.h"
 #include "GLG3D/SuperShader.h"
 #include "GLG3D/GaussianBlur.h"
-#include "GLG3D/IndexedPrimitive.h"
+#include "GLG3D/GenericPosedModel.h"
 
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiButton.h"

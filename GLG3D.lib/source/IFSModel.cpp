@@ -605,7 +605,7 @@ void IFSModel::PosedIFSModel::getObjectSpaceBoundingSphere(Sphere& s) const {
 }
 
 
-void IFSModel::PosedIFSModel::getObjectSpaceBoundingBox(Box& b) const {
+void IFSModel::PosedIFSModel::getObjectSpaceBoundingBox(AABox& b) const {
     b = model->boundingBox;
 }
 

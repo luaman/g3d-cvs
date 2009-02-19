@@ -15,46 +15,6 @@
 
 namespace G3D {
 
-int ArticulatedModel::debugNumSendGeometryCalls = 0;
-
-static ArticulatedModel::GraphicsProfile graphicsProfile = ArticulatedModel::UNKNOWN;
-
-void ArticulatedModel::setProfile(GraphicsProfile p) {
-    graphicsProfile = p;
-}
-
-
-ArticulatedModel::GraphicsProfile ArticulatedModel::profile() {
-
-    if (graphicsProfile == UNKNOWN) {
-        if (GLCaps::supports_GL_ARB_shader_objects()) {
-            graphicsProfile = PS20;
-
-            
-            if (System::findDataFile("NonShadowedPass.vrt") == "") {
-                graphicsProfile = UNKNOWN;
-                Log::common()->printf("\n\nWARNING: ArticulatedModel could not enter PS20 mode because"
-                    "NonShadowedPass.vrt was not found.\n\n");
-            }
-        }
-
-        
-        if (graphicsProfile == UNKNOWN) {
-            if (GLCaps::supports("GL_ARB_texture_env_crossbar") &&
-                GLCaps::supports("GL_ARB_texture_env_combine") &&
-                GLCaps::supports("GL_EXT_texture_env_add") &&
-                (GLCaps::numTextureUnits() >= 4)) {
-                graphicsProfile = PS14;
-            } else {
-                graphicsProfile = FIXED_FUNCTION;
-            }
-        }
-    }
-
-    return graphicsProfile;
-}
-
-
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
     return fromFile(filename, PreProcess(scale), Settings());
 }
@@ -197,26 +157,26 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
             if (object.faceMatArray.size() == 0) {
 
                 // Lump everything into one part
-                Part::TriList& triList = part.triListArray.next();
-                triList.indexArray = object.indexArray;
+                Part::TriList::Ref triList = part.newTriList();
+                triList->indexArray = object.indexArray;
 
             } else {
                 for (int m = 0; m < object.faceMatArray.size(); ++m) {
                     const Load3DS::FaceMat& faceMat = object.faceMatArray[m];
 
                     if (faceMat.faceIndexArray.size() > 0) {
-                        Part::TriList& triList = part.triListArray.next();
-                        triList.material = new Material();
+                        Part::TriList::Ref triList = part.newTriList();
+                        triList->material = new Material();
                 
                         // Construct an index array for this part
                         for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
                             // 3*f is an index into object.indexArray
                             int f = faceMat.faceIndexArray[i];
                             for (int v = 0; v < 3; ++v) {
-                                triList.indexArray.append(object.indexArray[3*f + v]);
+                                triList->indexArray.append(object.indexArray[3*f + v]);
                             }
                         }
-                        debugAssert(triList.indexArray.size() > 0);
+                        debugAssert(triList->indexArray.size() > 0);
 
                         const std::string& materialName = faceMat.materialName;
 
@@ -248,34 +208,34 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                         // Actually load texture
                                         texCache.set(f, Texture::fromFile(f, ImageFormat::AUTO(), preprocess.textureDimension));
                                     }
-                                    triList.material->diffuse.map = texCache[f];
+                                    triList->material->diffuse.map = texCache[f];
                                 } else {
                                     logPrintf("Could not load texture '%s'\n", textureFile.c_str());
                                 }                                
 
-                                triList.material->diffuse.constant = (Color3::white() * material.texture1.pct) *
+                                triList->material->diffuse.constant = (Color3::white() * material.texture1.pct) *
                                     (1.0f - material.transparency);
                             } else {
-                                triList.material->diffuse.constant = material.diffuse * 
+                                triList->material->diffuse.constant = material.diffuse * 
                                     (1.0f - material.transparency);
                             }
 
                             //strength of the shininess (higher is brighter)
-                            triList.material->specular.constant = material.shininessStrength * 
+                            triList->material->specular.constant = material.shininessStrength * 
                                 material.specular * (1.0f - material.transparency);
 
                             //extent (area, higher is closely contained, lower is spread out) of shininess
                             // Do not exceed 128, which is the OpenGL fixed function maximum
-                            triList.material->specularExponent.constant = Color3::white() * material.shininess 
+                            triList->material->specularExponent.constant = Color3::white() * material.shininess 
                                 * 128.0f;
 
-                            triList.material->transmit.constant = Color3::white() * material.transparency;
-                            triList.material->emit.constant = material.diffuse * material.emissive;
+                            triList->material->transmit.constant = Color3::white() * material.transparency;
+                            triList->material->emit.constant = material.diffuse * material.emissive;
 
                             // TODO: load reflection, bump, etc maps.
-                            // triList.material.reflect.map = 
+                            // triList->material.reflect.map = 
 
-                            triList.twoSided = material.twoSided;
+                            triList->twoSided = material.twoSided;
 
                             if (preprocess.addBumpMaps) {
                                 // See if a bump map exists:
@@ -304,9 +264,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                 }
 
                                 if (bumpMap[texture1.filename].notNull()) {
-                                    triList.material->normalBumpMap = bumpMap[texture1.filename];
-                                    triList.material->parallaxSteps = preprocess.parallaxSteps;
-                                    triList.material->bumpMapScale  = preprocess.bumpMapScale;
+                                    triList->material->normalBumpMap = bumpMap[texture1.filename];
+                                    triList->material->parallaxSteps = preprocess.parallaxSteps;
+                                    triList->material->bumpMapScale  = preprocess.bumpMapScale;
                                 }
                             } // if bump maps
 
@@ -324,9 +284,9 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
 void ArticulatedModel::Part::computeNormalsAndTangentSpace
     (const ArticulatedModel::Settings& settings) {
 
-    Array<Array<int>*> indexArrayArray(triListArray.size());
-    for (int t = 0; t < triListArray.size(); ++t) {
-        indexArrayArray[t] = &(triListArray[t].indexArray);
+    Array<Array<int>*> indexArrayArray(triList.size());
+    for (int t = 0; t < triList.size(); ++t) {
+        indexArrayArray[t] = &(triList[t]->indexArray);
     }
 
     Welder::weld(geometry.vertexArray,
@@ -399,15 +359,15 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint) {
              varArea);       
     }
 
-    for (int i = 0; i < triListArray.size(); ++i) {
-        triListArray[i].updateVAR(hint);
+    for (int i = 0; i < triList.size(); ++i) {
+        triList[i]->updateVAR(hint, vertexVAR, normalVAR, tangentVAR, texCoord0VAR);
     }
 }
 
 
 void ArticulatedModel::Part::computeBounds() {
-    for (int t = 0; t < triListArray.size(); ++t) {
-        triListArray[t].computeBounds(*this);
+    for (int t = 0; t < triList.size(); ++t) {
+        triList[t]->computeBounds(*this);
     }
 }
 
@@ -491,11 +451,13 @@ void ArticulatedModel::updateAll() {
         part->updateVAR();
     }
 
+#   ifdef G3D_DEBUG
     // Check for correctness
     for (int p = 0; p < partArray.size(); ++p) {
         Part& part = partArray[p];
         debugAssert(part.geometry.normalArray.size() == part.geometry.vertexArray.size());
     }
+#   endif
 }
 
 
@@ -520,25 +482,36 @@ void ArticulatedModel::initIFS(const std::string& filename, const Matrix4& xform
     part.geometry.vertexArray = vertex;
     part.texCoordArray = texCoord;
 
-    Part::TriList& triList = part.triListArray.next();
-    triList.indexArray = index;
+    Part::TriList::Ref triList = part.newTriList();
+    triList->indexArray = index;
 }
 
 
-void ArticulatedModel::Part::TriList::updateVAR(VARArea::UsageHint hint) {
+void ArticulatedModel::Part::TriList::updateVAR
+    (VARArea::UsageHint hint,
+     const VAR& vertexVAR,
+     const VAR& normalVAR,
+     const VAR& tangentVAR,
+     const VAR& texCoord0VAR) {
+
+    vertex = vertexVAR;
+    normal = normalVAR;
+    tangent = tangentVAR;
+    texCoord0 = texCoord0VAR;
+
     if (indexArray.size() == 0) {
         // Has no indices
         return;
     }
 
     size_t indexSize = sizeof(int);
-    if (indexVAR.size() != indexArray.size()) {
+    if (index.size() != indexArray.size()) {
         // Create new
         VARAreaRef area = VARArea::create(indexSize * indexArray.size(), hint, VARArea::INDEX);
-        indexVAR = VAR(indexArray, area);
+        index = VAR(indexArray, area);
     } else {
         // Update in place
-        indexVAR.update(indexArray);
+        index.update(indexArray);
     }
 }
 
@@ -550,28 +523,8 @@ void ArticulatedModel::Part::TriList::computeBounds(const Part& parentPart) {
 
 void ArticulatedModel::Part::computeIndexArray() {
     indexArray.clear();
-    for (int t = 0; t < triListArray.size(); ++t) {
-        indexArray.append(triListArray[t].indexArray);
-    }
-}
-
-
-const char* toString(ArticulatedModel::GraphicsProfile p) {
-    switch (p) {
-    case ArticulatedModel::UNKNOWN:
-        return "Unknown";
-
-    case ArticulatedModel::FIXED_FUNCTION:
-        return "Fixed Function";
-
-    case ArticulatedModel::PS14:
-        return "PS 1.4";
-
-    case ArticulatedModel::PS20:
-        return "PS 2.0";
-
-    default:
-        return "Error!";
+    for (int t = 0; t < triList.size(); ++t) {
+        indexArray.append(triList[t]->indexArray);
     }
 }
 
@@ -606,11 +559,11 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox() {
 
     // White faces
     {
-        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = Material::createDiffuse(Color3::white() * 0.72f);
-        triList.twoSided = true;
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
+        triList->material = Material::createDiffuse(Color3::white() * 0.72f);
+        triList->twoSided = true;
 
-        Array<int>& index = triList.indexArray;
+        Array<int>& index = triList->indexArray;
 
         // Top
         addRect(Vector3(-c,  c,  c), Vector3(-c,  c, -c), Vector3( c,  c, -c), Vector3( c,  c,  c), vertex, index);
@@ -624,21 +577,21 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox() {
 
     // Left red face
     {
-        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = Material::createDiffuse(Color3::fromARGB(0xB82C1F));
-        triList.twoSided = true;
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
+        triList->material = Material::createDiffuse(Color3::fromARGB(0xB82C1F));
+        triList->twoSided = true;
 
-        Array<int>& index = triList.indexArray;
+        Array<int>& index = triList->indexArray;
         addRect(Vector3(-c,  c,  c), Vector3(-c, -c,  c), Vector3(-c, -c, -c), Vector3(-c,  c, -c), vertex, index);
     }
 
     // Right green face
     {
-        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = Material::createDiffuse(Color3::fromARGB(0x6AB8B8));
-        triList.twoSided = true;
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
+        triList->material = Material::createDiffuse(Color3::fromARGB(0x6AB8B8));
+        triList->twoSided = true;
 
-        Array<int>& index = triList.indexArray;
+        Array<int>& index = triList->indexArray;
         addRect(Vector3( c,  c, -c), Vector3( c, -c, -c), Vector3( c, -c,  c), Vector3( c,  c,  c), vertex, index);
     }
 
@@ -661,14 +614,14 @@ void ArticulatedModel::facet() {
         dstPart.indexArray.fastClear();
 
         int n = 0;
-        for (int t = 0; t < srcPart.triListArray.size(); ++t) {
-            const Part::TriList& srcTriList = srcPart.triListArray[t];
-            Part::TriList& dstTriList = dstPart.triListArray[t];
-            dstTriList.indexArray.fastClear();
+        for (int t = 0; t < srcPart.triList.size(); ++t) {
+            const Part::TriList::Ref srcTriList = srcPart.triList[t];
+            Part::TriList::Ref dstTriList = dstPart.triList[t];
+            dstTriList->indexArray.fastClear();
 
             // Unroll the arrays
-            for (int x = 0; x < srcTriList.indexArray.size(); ++x) {
-                int i = srcTriList.indexArray[x];
+            for (int x = 0; x < srcTriList->indexArray.size(); ++x) {
+                int i = srcTriList->indexArray[x];
 
                 // Create the vertex
                 dstPart.geometry.vertexArray.append(srcPart.geometry.vertexArray[i]);
@@ -676,12 +629,68 @@ void ArticulatedModel::facet() {
                     dstPart.texCoordArray.append(srcPart.texCoordArray[i]);
                 }
                 dstPart.indexArray.append(n);
-                dstTriList.indexArray.append(n);
+                dstTriList->indexArray.append(n);
                 ++n;
             }
         }
     }
     updateAll();
 }
+
+
+
+void ArticulatedModel::pose(
+    Array<PosedModel::Ref>&     posedArray, 
+    const CoordinateFrame&      cframe, 
+    const Pose&                 posex) {
+
+    for (int p = 0; p < partArray.size(); ++p) {
+        const Part& part = partArray[p];
+        if (part.parent == -1) {
+            // This is a root part, pose it
+            part.pose(this, p, posedArray, cframe, posex);
+        }
+    }
+}
+
+
+void ArticulatedModel::Part::pose
+    (const ArticulatedModel::Ref&      model,
+     int                               partIndex,
+     Array<PosedModel::Ref>&           posedArray,
+     const CoordinateFrame&            parent, 
+     const Pose&                       posex) const {
+
+    CoordinateFrame frame;
+
+    if (posex.cframe.containsKey(name)) {
+        frame = parent * cframe * posex.cframe[name];
+    } else {
+        frame = parent * cframe;
+    }
+
+    debugAssert(! isNaN(frame.translation.x));
+    debugAssert(! isNaN(frame.rotation[0][0]));
+
+    if (hasGeometry()) {
+
+        for (int t = 0; t < triList.size(); ++t) {
+            // TODO: CPUGeom
+            if (triList[t].notNull() && (triList[t]->indexArray.size() > 0)) {
+                posedArray.append(GenericPosedModel::create(model->name, frame, triList[t]));
+            }
+        }
+    }
+
+    // Recursively pose subparts and pass along our coordinate frame.
+    for (int i = 0; i < subPartArray.size(); ++i) {
+        int p = subPartArray[i];
+        debugAssertM(model->partArray[p].parent == partIndex,
+            "Parent and child pointers do not match.");
+
+        model->partArray[p].pose(model, p, posedArray, frame, posex);
+    }
+}
+
 
 } // G3D

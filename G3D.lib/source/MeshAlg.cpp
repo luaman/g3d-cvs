@@ -403,7 +403,7 @@ int MeshAlg::countBoundaryEdges(const Array<MeshAlg::Edge>& edgeArray) {
 void MeshAlg::computeBounds(
     const Array<Vector3>&   vertexArray,
     const Array<int>&       indexArray,
-    Box&                    box, 
+    AABox&                  box, 
     Sphere&                 sphere) {
 
     Array<Vector3> newArray(indexArray.size());
@@ -416,7 +416,7 @@ void MeshAlg::computeBounds(
 
 void MeshAlg::computeBounds(
     const Array<Vector3>&   vertexArray,
-    Box&                    box, 
+    AABox&                  box, 
     Sphere&                 sphere) {
 
     Vector3 xmin, xmax, ymin, ymax, zmin, zmax;
@@ -521,18 +521,18 @@ void MeshAlg::computeBounds(
 	const Vector3 min(xmin.x, ymin.y, zmin.z);
 	const Vector3 max(xmax.x, ymax.y, zmax.z);
 
-    box = Box(min, max);
+        box = AABox(min, max);
 
-	const double boxRadSq = (max - min).squaredMagnitude() * 0.25;
+	const float boxRadSq = (max - min).squaredMagnitude() * 0.25f;
 
 	if (boxRadSq >= radSq){
-        if (isNaN(center.x) || ! isFinite(rad)) {
-            sphere = Sphere(Vector3::zero(), inf());
-        } else {
-    		sphere = Sphere(center, rad);
-        }
-	}else{
-		sphere = Sphere((max + min) * 0.5, sqrt(boxRadSq));
+            if (isNaN(center.x) || ! isFinite(rad)) {
+                sphere = Sphere(Vector3::zero(), inf());
+            } else {
+                sphere = Sphere(center, rad);
+            }
+	} else {
+            sphere = Sphere((max + min) * 0.5f, sqrt(boxRadSq));
 	}
 }
 
@@ -606,7 +606,7 @@ void MeshAlg::computeTangentVectors(
     // TODO: do we need this?  We take this component off
     // at the end anyway
     tangent -= tangent.dot(normal) * normal;
-
+    
     // Normalize the tangent so it contributes
     // equally at the vertex (TODO: do we need this?)
     if (fuzzyEq(tangent.magnitude(), 0.0)) {

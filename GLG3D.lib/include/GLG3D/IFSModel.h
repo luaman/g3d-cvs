@@ -6,17 +6,16 @@
   @cite Original IFS code by Nate Robbins
 
   @created 2003-11-12
-  @edited  2007-05-07
+  @edited  2009-02-10
  */ 
 
 
-#ifndef GLG3D_IFSMODEL_H
-#define GLG3D_IFSMODEL_H
+#ifndef GLG3D_IFSModel_h
+#define GLG3D_IFSModel_h
 
 #include "G3D/platform.h"
 #include "G3D/Sphere.h"
 #include "G3D/AABox.h"
-#include "G3D/Box.h"
 #include "G3D/System.h"
 #include "GLG3D/PosedModel.h"
 
@@ -31,6 +30,10 @@ typedef ReferenceCountedPointer<class IFSModel> IFSModelRef;
  rendering mechanisms.
  */
 class IFSModel : public ReferenceCountedObject {
+public:
+
+    typedef ReferenceCountedPointer<class IFSModel> Ref;
+
 protected:
     class PosedIFSModel : public PosedModel {
     public:
@@ -53,10 +56,10 @@ protected:
         virtual const Array<MeshAlg::Edge>& weldedEdges() const;
         virtual const Array<MeshAlg::Vertex>& weldedVertices() const;
         virtual const Array<Vector2>& texCoords() const;
-		virtual bool hasTexCoords() const ;
+        virtual bool hasTexCoords() const;
         virtual const Array<int>& triangleIndices() const;
         virtual void getObjectSpaceBoundingSphere(Sphere&) const;
-        virtual void getObjectSpaceBoundingBox(Box&) const;
+        virtual void getObjectSpaceBoundingBox(AABox&) const;
         virtual void render(RenderDevice* renderDevice) const;
         virtual int numBoundaryEdges() const;
         virtual int numWeldedBoundaryEdges() const;
@@ -82,7 +85,7 @@ protected:
     int                         numBoundaryEdges;
     int                         numWeldedBoundaryEdges;
     Sphere                      boundingSphere;
-    Box                         boundingBox;
+    AABox                       boundingBox;
 
 
     /** Shared by all models */

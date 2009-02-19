@@ -6,9 +6,9 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2004-01-10
-  @edited  2006-02-10
+  @edited  2009-02-10
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 
@@ -79,9 +79,13 @@ public:
         hi = hi.max(a);
     }
 
-	void serialize(class BinaryOutput& b) const;
+    void serialize(class BinaryOutput& b) const;
+    
+    void deserialize(class BinaryInput& b);
 
-	void deserialize(class BinaryInput& b);
+    inline bool isFinite() const {
+        return lo.isFinite() && hi.isFinite();
+    }
 
     inline const Vector3& low() const {
         return lo;

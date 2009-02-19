@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-15
-  @edited  2007-08-25
+  @edited  2009-02-25
  */ 
 
 #include "G3D/Sphere.h"
@@ -59,7 +59,7 @@ void PosedModel::sortAndRender
     alwaysAssertM(! recurse, "Cannot call PosedModel::sortAndRender recursively");
     recurse = true;
 
-    static Array<PosedModel::Ref> opaqueAModel, otherOpaque, transparent, posed3D;
+    static Array<PosedModel::Ref> opaqueGeneric, otherOpaque, transparent, posed3D;
 
     LightingRef lighting = _lighting->clone();
 
@@ -161,8 +161,8 @@ void PosedModel::sortAndRender
     }
 
     // Separate and sort the models
-    ArticulatedModel::extractOpaquePosedAModels(posed3D, opaqueAModel);
-    PosedModel::sort(opaqueAModel, camera.coordinateFrame().lookVector(), opaqueAModel);
+    GenericPosedModel::extractOpaque(posed3D, opaqueGeneric);
+    PosedModel::sort(opaqueGeneric, camera.coordinateFrame().lookVector(), opaqueGeneric);
     PosedModel::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
     rd->setProjectionAndCameraMatrix(camera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
@@ -171,12 +171,12 @@ void PosedModel::sortAndRender
     for (int m = 0; m < otherOpaque.size(); ++m) {
         otherOpaque[m]->renderNonShadowed(rd, lighting);
     }
-    ArticulatedModel::renderNonShadowed(opaqueAModel, rd, lighting);
+    GenericPosedModel::renderNonShadowed(opaqueGeneric, rd, lighting);
 
     // Opaque shadowed
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
         rd->pushState();
-            ArticulatedModel::renderShadowMappedLightPass(opaqueAModel, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        GenericPosedModel::renderShadowMappedLightPass(opaqueGeneric, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
         rd->popState();
         for (int m = 0; m < otherOpaque.size(); ++m) {
             otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
@@ -188,8 +188,8 @@ void PosedModel::sortAndRender
         rd->pushState();
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
             for (int p = 0; p < extraAdditivePasses.size(); ++p) {
-                for (int m = 0; m < opaqueAModel.size(); ++m) {
-                    opaqueAModel[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+                for (int m = 0; m < opaqueGeneric.size(); ++m) {
+                    opaqueGeneric[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
                 }
                 for (int m = 0; m < otherOpaque.size(); ++m) {
                     otherOpaque[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
@@ -209,7 +209,7 @@ void PosedModel::sortAndRender
         }
     }
 
-    opaqueAModel.fastClear();
+    opaqueGeneric.fastClear();
     otherOpaque.fastClear();
     transparent.fastClear();
     posed3D.fastClear();
@@ -384,27 +384,27 @@ Sphere PosedModel::worldSpaceBoundingSphere() const {
 }
 
 
-Box PosedModel::objectSpaceBoundingBox() const {
-    Box b;
+AABox PosedModel::objectSpaceBoundingBox() const {
+    AABox b;
     getObjectSpaceBoundingBox(b);
     return b;
 }
 
 
-void PosedModel::getWorldSpaceBoundingBox(Box& box) const {
+void PosedModel::getWorldSpaceBoundingBox(AABox& box) const {
     CoordinateFrame C;
     getCoordinateFrame(C);
     getObjectSpaceBoundingBox(box);
     if (! box.isFinite()) {
-        box = Box::inf();
+        box = AABox::inf();
     } else {
-        box = C.toWorldSpace(box);
+        C.toWorldSpace(box).getBounds(box);
     }
 }
 
 
-Box PosedModel::worldSpaceBoundingBox() const {
-    Box b;
+AABox PosedModel::worldSpaceBoundingBox() const {
+    AABox b;
     getWorldSpaceBoundingBox(b);
     return b;
 }

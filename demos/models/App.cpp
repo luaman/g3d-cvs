@@ -59,7 +59,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     LightingRef        lighting = toneMap->prepareLighting(this->lighting);
     SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
-    ArticulatedModel::debugNumSendGeometryCalls = 0;
+    GenericPosedModel::debugNumSendGeometryCalls = 0;
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
@@ -96,7 +96,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     PosedModel2D::sortAndRender(rd, posed2D);
 
     screenPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
-    screenPrintf("%s Profile %s\n", toString(ArticulatedModel::profile()),
+    screenPrintf("%s Profile %s\n", toString(GenericPosedModel::profile()),
         #ifdef _DEBUG
                 "(DEBUG mode)"
         #else
@@ -112,6 +112,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         rd, Color4(1,1,1,0.7f));
     rd->pop2D();
 
-    screenPrintf("ArticulatedModel::debugNumSendGeometryCalls = %d\n", ArticulatedModel::debugNumSendGeometryCalls);
+    screenPrintf("GenericPosedModel::debugNumSendGeometryCalls = %d\n", GenericPosedModel::debugNumSendGeometryCalls);
 }
 

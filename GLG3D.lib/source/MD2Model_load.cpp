@@ -194,20 +194,20 @@ void MD2Model::load(const std::string& filename, float resize) {
                 rad = G3D::max(rad, frameRad[i]);
             }
 
-            animationBoundingBox[a]    = Box(min, max);
+            animationBoundingBox[a]    = AABox(min, max);
 
-			// Sometimes the sphere bounding the box is tighter than the one we calculated.
-			const double boxRadSq = (max-min).squaredMagnitude()*0.25;
+            // Sometimes the sphere bounding the box is tighter than the one we calculated.
+            const float boxRadSq = (max-min).squaredMagnitude() * 0.25f;
 
-			if(boxRadSq >= rad*rad){
-				animationBoundingSphere[a] = Sphere(Vector3::zero(), rad);
-			}else{
-				animationBoundingSphere[a] = Sphere((max+min)*0.5, sqrt(boxRadSq));
-			}
+            if (boxRadSq >= square(rad)) {
+                animationBoundingSphere[a] = Sphere(Vector3::zero(), rad);
+            } else {
+                animationBoundingSphere[a] = Sphere((max + min) * 0.5f, sqrt(boxRadSq));
+            }
 
         } else {
             // This animation is not supported by this model
-            animationBoundingBox[a]    = Box(Vector3::zero(), Vector3::zero());
+            animationBoundingBox[a]    = AABox(Vector3::zero(), Vector3::zero());
             animationBoundingSphere[a] = Sphere(Vector3::zero(), 0);
         }
     }
@@ -215,7 +215,7 @@ void MD2Model::load(const std::string& filename, float resize) {
     animationBoundingBox[JUMP] = animationBoundingBox[JUMP_DOWN];
     animationBoundingSphere[JUMP] = animationBoundingSphere[JUMP_DOWN];
 
-    boundingBox    = Box(min, max);
+    boundingBox    = AABox(min, max);
     boundingSphere = Sphere(Vector3::zero(), sqrt(rad));
 
     // Load the texture coords

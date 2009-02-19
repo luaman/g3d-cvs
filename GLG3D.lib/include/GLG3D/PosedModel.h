@@ -131,15 +131,16 @@ public:
     }
 
     /** 
-      Divides the inModels into a front-to-back sorted array of opaque models and
-      a back-to-front sorted array of potentially transparent models.  Any data
-      originally in the output arrays is cleared.
+      Divides the inModels into a front-to-back sorted array of opaque
+      models and a back-to-front sorted array of potentially
+      transparent models.  Any data originally in the output arrays is
+      cleared.
 
       @param wsLookVector Sort axis; usually the -Z axis of the camera.
      */
     static void sort(
         const Array<PosedModel::Ref>& inModels, 
-        const Vector3&              wsLookVector,
+        const Vector3&                wsLookVector,
         Array<PosedModel::Ref>&       opaque,
         Array<PosedModel::Ref>&       transparent);
 
@@ -223,17 +224,17 @@ public:
 
     virtual Sphere objectSpaceBoundingSphere() const;
 
+    virtual AABox objectSpaceBoundingBox() const;
+
     virtual void getWorldSpaceBoundingSphere(Sphere& s) const;
 
     virtual Sphere worldSpaceBoundingSphere() const;
 
-    virtual void getObjectSpaceBoundingBox(Box&) const = 0;
+    virtual void getObjectSpaceBoundingBox(AABox&) const = 0;
 
-    virtual Box objectSpaceBoundingBox() const;
+    virtual void getWorldSpaceBoundingBox(AABox& box) const;
 
-    virtual void getWorldSpaceBoundingBox(Box& box) const;
-
-    virtual Box worldSpaceBoundingBox() const;
+    virtual AABox worldSpaceBoundingBox() const;
 
     /** Render using current fixed function lighting environment. Do not 
         change the steBehavior 
@@ -325,28 +326,32 @@ public:
 
     /**
       Sends all geometry including texture coordinates (uploading it
-      first if necessary) but does not set any render device state or use any textures.
+      first if necessary) but does not set any render device state or
+      use any textures.
 
-      This is useful when applying your own G3D::Shader to an existing PosedModel.
+      This is useful when applying your own G3D::Shader to an existing
+      PosedModel.
     */
     virtual void sendGeometry(RenderDevice* rd) const;
 
 
     /**
-       Renders an array of models with the full G3D illumination model (correct
-       transparency, multiple direct lights, multiple shadow mapped lights), optimizing
-       ArticulatedModels separately to minimize state changes.  As many shadow maps
-       as there are shadow casting lights must be provided.
+       Renders an array of models with the full G3D illumination model
+       (correct transparency, multiple direct lights, multiple shadow
+       mapped lights), optimizing ArticulatedModels separately to
+       minimize state changes.  As many shadow maps as there are
+       shadow casting lights must be provided.
        
        @beta
 
-       The shadow map bounds are more-or-less hardcoded for the demo scenes and may not work
-       well for general scenes.  Most significant programs customize the rendering loop and
-       cannot use this routine (although it is often helpful to copy the source code from it).
+       The shadow map bounds are more-or-less hardcoded for the demo
+       scenes and may not work well for general scenes.  Most
+       significant programs customize the rendering loop and cannot
+       use this routine (although it is often helpful to copy the
+       source code from it).
     */
     static void sortAndRender
-    (
-     class RenderDevice*            rd, 
+    (class RenderDevice*            rd, 
      const class GCamera&           camera,
      const Array<PosedModelRef>&    allModels, 
      const LightingRef&             _lighting, 
@@ -354,16 +359,14 @@ public:
      const Array<SuperShader::PassRef>& extraAdditivePasses);
 
     static void sortAndRender
-    (
-     class RenderDevice*            rd, 
+    (class RenderDevice*            rd, 
      const class GCamera&           camera,
      const Array<PosedModelRef>&    allModels, 
      const LightingRef&             _lighting, 
      const Array<ShadowMapRef>&     shadowMaps);
     
     static void sortAndRender
-    (
-     RenderDevice*                  rd, 
+    (RenderDevice*                  rd, 
      const GCamera&                 camera,
      const Array<PosedModelRef>&    posed3D, 
      const LightingRef&             lighting, 

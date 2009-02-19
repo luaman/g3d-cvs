@@ -773,7 +773,7 @@ void MD2Model::PosedMD2Model::getObjectSpaceBoundingSphere(Sphere& s) const {
 }
 
 
-void MD2Model::PosedMD2Model::getObjectSpaceBoundingBox(Box& b) const {
+void MD2Model::PosedMD2Model::getObjectSpaceBoundingBox(AABox& b) const {
     b = model->animationBoundingBox[iAbs(pose.animation)];
 }
 

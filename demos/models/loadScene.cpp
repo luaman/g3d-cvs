@@ -56,30 +56,30 @@ void App::loadScene() {
         part.cframe = CoordinateFrame();
         part.name = "root";
     
-        ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = new Material();
-        MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList.indexArray, 7, 7, Vector2(10, 10), true, false, Matrix3::identity() * 10);
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
+        triList->material = new Material();
+        MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList->indexArray, 7, 7, Vector2(10, 10), true, false, Matrix3::identity() * 10);
 
-        triList.twoSided = true;
-        triList.material->emit.constant = Color3::black();
+        triList->twoSided = true;
+        triList->material->emit.constant = Color3::black();
 
-        triList.material->specular.constant = Color3::black();
-        triList.material->specularExponent.constant = Color3::white() * 60;
-        triList.material->reflect.constant = Color3::black();
+        triList->material->specular.constant = Color3::black();
+        triList->material->specularExponent.constant = Color3::white() * 60;
+        triList->material->reflect.constant = Color3::black();
 
-        triList.material->diffuse.constant = Color3::white() * 0.8f;
-        triList.material->diffuse.map = Texture::fromFile("stone.jpg");
+        triList->material->diffuse.constant = Color3::white() * 0.8f;
+        triList->material->diffuse.map = Texture::fromFile("stone.jpg");
         
-        triList.material->parallaxSteps = 1;
+        triList->material->parallaxSteps = 1;
 
         GImage normalBumpMap;
 		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, -1, true, false);
-        triList.material->normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);
-        triList.material->bumpMapScale = 0.05f;
+        triList->material->normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);
+        triList->material->bumpMapScale = 0.05f;
         
-        triList.computeBounds(part);
+        triList->computeBounds(part);
 
-        part.indexArray = triList.indexArray;
+        part.indexArray = triList->indexArray;
 
         part.computeIndexArray();
         part.computeNormalsAndTangentSpace(model->settings());
@@ -140,7 +140,7 @@ void App::loadScene() {
 
         Texture::Ref diffuse = Texture::fromFile(path + "diffuse.jpg");
         {
-            SuperShader::Material& material = model->partArray[0].triListArray[0].material;
+            SuperShader::Material& material = model->partArray[0].triListArray[0]->material;
             material.emit = Texture::fromFile(path + "emit.jpg");
             material.diffuse.map = diffuse;
             material.diffuse.constant = Color3::white() * 0.8f;
@@ -151,7 +151,7 @@ void App::loadScene() {
         }
 
         {
-            SuperShader::Material& material = model->partArray[0].triListArray[1].material;
+            SuperShader::Material& material = model->partArray[0].triListArray[1]->material;
             material.emit = Color3::black();
             material.diffuse.map = diffuse;
             material.diffuse.constant = Color3::white() * 0.5f;
@@ -171,7 +171,7 @@ void App::loadScene() {
         ArticulatedModel::Ref model = ArticulatedModel::fromFile("sphere.ifs", 1);
 
         {
-            SuperShader::Material& material = model->partArray[0].triListArray[0].material;
+            SuperShader::Material& material = model->partArray[0].triListArray[0]->material;
             model->partArray[0].triListArray[0].twoSided = false;
 
             ArticulatedModel::Part& part = model->partArray.last();
@@ -197,7 +197,7 @@ void App::loadScene() {
             ArticulatedModel::Ref temp = ArticulatedModel::fromFile("sphere.ifs", 1.02f);
             part = temp->partArray.last();
             part.name = "Clouds";
-            SuperShader::Material& material = part.triListArray[0].material;
+            SuperShader::Material& material = part.triListArray[0]->material;
 
             // Spherical texture map (there will be a seam on the back)
             part.texCoordArray.resize(part.geometry.normalArray.size());
@@ -221,7 +221,7 @@ void App::loadScene() {
     {
         ArticulatedModel::Ref model = ArticulatedModel::fromFile("sphere.ifs", 1);
 
-        SuperShader::Material& material = model->partArray[0].triListArray[0].material;
+        SuperShader::Material& material = model->partArray[0].triListArray[0]->material;
         model->partArray[0].triListArray[0].twoSided = true;
         material.diffuse = Color3::yellow() * .5f;
         material.transmit = Color3(.5f,.3f,.3f);
@@ -277,7 +277,7 @@ void App::loadScene() {
 
         triList.twoSided = true;
 
-        triList.material->diffuse = Texture::fromFile("maple.tga");
+        triList->material->diffuse = Texture::fromFile("maple.tga");
 
         triList.computeBounds(part);
 
@@ -293,7 +293,7 @@ void App::loadScene() {
     if (false) {
         ArticulatedModel::Ref model = ArticulatedModel::fromFile("sphere.ifs", 1);
 
-        SuperShader::Material& material = model->partArray[0].triListArray[0].material;
+        SuperShader::Material& material = model->partArray[0].triListArray[0]->material;
         model->partArray[0].triListArray[0].twoSided = false;
         material.diffuse = Color3::white() * 0.7f;
         material.specular = Color3::white() * .5f;
@@ -307,7 +307,7 @@ void App::loadScene() {
     {
         ArticulatedModel::Ref model = ArticulatedModel::fromFile("jackolantern.ifs", 1);
 
-        SuperShader::Material& material = model->partArray[0].triListArray[0].material;
+        SuperShader::Material& material = model->partArray[0].triListArray[0]->material;
         material.diffuse = Color3::fromARGB(0xF28900) * 0.9f;
         material.transmit = Color3::black();
         material.reflect = Color3::black();
@@ -346,8 +346,7 @@ void App::loadScene() {
             part.name = "Nose";
             part.cframe = CoordinateFrame(Vector3(0,0,.5f));
             part.parent = 0;
-            SuperShader::Material& material = part.triListArray[0].material;
-            material.diffuse = Color3::red();
+            part.triListArray[0]->material = Material::createDiffuse(Color3::red());
         }
 
         entityArray.append(Entity::create(model, CoordinateFrame(Vector3(x,0,0))));
@@ -359,11 +358,13 @@ void App::loadScene() {
 
         Color3 brass = Color3::fromARGB(0xFFFDDC01);
 
-        SuperShader::Material& material = model->partArray[0].triListArray[0].material;
+        Material::Ref material = new Material();
         material.diffuse = brass * .3f;
         material.reflect = brass * .4f;
         material.specular = Color3::white() * .8f;
         material.specularExponent = Color3::white() * 25;
+
+        model->partArray[0].triListArray[0]->material = material;
         model->updateAll();
 
         CoordinateFrame cframe(Vector3(x,-.25f,0));
@@ -424,30 +425,31 @@ void App::loadScene() {
         triList.indexArray.append(0, 2, 3);
 
         triList.twoSided = true;
-        triList.material->emit.constant = Color3::black();
+        triList->material = new Material()
+        triList->material->emit.constant = Color3::black();
 
-        triList.material->diffuse.constant = Color3::white() * 0.05f;
+        triList->material->diffuse.constant = Color3::white() * 0.05f;
 
         GImage normalBumpMap;
-		GImage::computeNormalMap(GImage("stained-glass-bump.png"), normalBumpMap, false, true);
-		Texture::Settings settings;
-		settings.wrapMode = Texture::CLAMP;
-        triList.material->normalBumpMap =         
+        GImage::computeNormalMap(GImage("stained-glass-bump.png"), normalBumpMap, false, true);
+        Texture::Settings settings;
+        settings.wrapMode = Texture::CLAMP;
+        triList->material->normalBumpMap =         
             Texture::fromGImage("Bump Map", normalBumpMap, ImageFormat::AUTO, Texture::DIM_2D, settings);
+        
+        triList->material->bumpMapScale = 0.02f;
+        
+        settings.wrapMode = Texture::CLAMP;
 
-        triList.material->bumpMapScale = 0.02f;
+        triList->material->specular.constant = Color3::white() * 0.4f;
+        triList->material->specular.map = Texture::fromFile("stained-glass-mask.png", ImageFormat::AUTO, Texture::DIM_2D, settings);
+        triList->material->specularExponent.constant = Color3::white() * 60;
 
-		settings.wrapMode = Texture::CLAMP;
+        triList->material->reflect.constant = Color3::white() * 0.2f;
+        triList->material->reflect.map = Texture::fromFile("stained-glass-mask.png", ImageFormat::AUTO,Texture::DIM_2D, settings);
 
-        triList.material->specular.constant = Color3::white() * 0.4f;
-        triList.material->specular.map = Texture::fromFile("stained-glass-mask.png", ImageFormat::AUTO, Texture::DIM_2D, settings);
-        triList.material->specularExponent.constant = Color3::white() * 60;
-
-        triList.material->reflect.constant = Color3::white() * 0.2f;
-        triList.material->reflect.map = Texture::fromFile("stained-glass-mask.png", ImageFormat::AUTO,Texture::DIM_2D, settings);
-
-        triList.material->transmit.constant = Color3::white();
-        triList.material->transmit.map = Texture::fromFile("stained-glass-transmit.png", ImageFormat::AUTO,Texture::DIM_2D, settings);
+        triList->material->transmit.constant = Color3::white();
+        triList->material->transmit.map = Texture::fromFile("stained-glass-transmit.png", ImageFormat::AUTO,Texture::DIM_2D, settings);
 
         triList.computeBounds(part);
 
@@ -496,15 +498,15 @@ void App::loadScene() {
             Vector3::unitX());
 
         ArticulatedModel::Part::TriList& triList = part.triListArray.next();
-        triList.material = new Material();
+        triList->material = new Material();
         triList.indexArray.clear();
         triList.indexArray.append(0, 1, 2);
         triList.indexArray.append(0, 2, 3);
 
         triList.twoSided = true;
-        triList.material->emit.constant = Color3::black();
+        triList->material->emit.constant = Color3::black();
 
-        triList.material->diffuse.constant = Color3::white();
+        triList->material->diffuse.constant = Color3::white();
         triList.computeBounds(part);
 
         part.indexArray = triList.indexArray;

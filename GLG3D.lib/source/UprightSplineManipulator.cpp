@@ -146,8 +146,8 @@ public:
         c = CoordinateFrame();
     }
 
-    virtual void getObjectSpaceBoundingBox(Box& b) const {
-        b = Box(Vector3::minFinite(), Vector3::maxFinite());
+    virtual void getObjectSpaceBoundingBox(AABox& b) const {
+        b = AABox(Vector3::minFinite(), Vector3::maxFinite());
     }
 
     virtual void getObjectSpaceBoundingSphere(Sphere& s) const {
@@ -156,7 +156,7 @@ public:
 
     virtual void getObjectSpaceFaceNormals (Array< Vector3 > &faceNormals, bool normalize=true) const {}
 
-    virtual void getWorldSpaceBoundingBox (Box &box) const {
+    virtual void getWorldSpaceBoundingBox (AABox &box) const {
         getObjectSpaceBoundingBox(box);
     }
 

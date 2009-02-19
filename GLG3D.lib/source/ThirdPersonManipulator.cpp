@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2006-06-09
-  @edited  2006-10-20
+  @edited  2009-02-20
 */
 
 #include "GLG3D/ThirdPersonManipulator.h"
@@ -13,7 +13,7 @@
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/UserInput.h"
 #include "G3D/Sphere.h"
-#include "G3D/Box.h"
+#include "G3D/AABox.h"
 
 namespace G3D {
 
@@ -381,8 +381,8 @@ public:
         s.center = Vector3::zero();
     }
 
-    virtual void getObjectSpaceBoundingBox(Box& b) const {
-        b = Box(Vector3(-2,-2,-2), Vector3(2,2,2));
+    virtual void getObjectSpaceBoundingBox(AABox& b) const {
+        b = AABox(Vector3(-2,-2,-2), Vector3(2,2,2));
     }
 
     virtual int numBoundaryEdges() const {

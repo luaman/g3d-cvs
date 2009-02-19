@@ -7,10 +7,11 @@
 #include "G3D/Sphere.h"
 #include "G3D/Box.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Welder.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/PosedModel.h"
 #include "GLG3D/Material.h"
-#include "G3D/Welder.h"
+#include "GLG3D/GenericPosedModel.h"
 
 namespace G3D {
 
@@ -153,68 +154,12 @@ public:
 
 private:
 
-    friend class PosedArticulatedModel;
     friend class Part;
 
 public:
 
-    /** Incremented every time sendGeometry is invoked on any posed piece of an ArticulatedModel. 
-	    Used for performance profiling.
-	   */
-    static int debugNumSendGeometryCalls;
-
-    /** Called by PosedModel.
-	 
-	    Renders an array of PosedAModels in the order that they appear in the array, taking advantage of 
-        the fact that all objects have the same subclass to optimize the rendering calls.*/
-    static void renderNonShadowed(
-        const Array<PosedModel::Ref>& posedArray, 
-        RenderDevice* rd, 
-        const LightingRef& lighting);
-
-    /** Called by PosedModel.
-	 
-	    Renders an array of PosedAModels in the order that they appear in the array, taking advantage of 
-        the fact that all objects have the same subclass to optimize the rendering calls.*/
-    static void renderShadowMappedLightPass(
-        const Array<PosedModel::Ref>& posedAModelArray, 
-        RenderDevice* rd, 
-        const GLight& light, 
-        const ShadowMapRef& shadowMap);
-
-    /** Called by PosedModel.
-	 
-	    Removes the opaque PosedAModels from array @a all and appends them to the opaqueAmodels array (transparents
-        must be rendered inline with other model types).
-        This produces an array for the array versions of renderNonShadowed and renderShadowMappedLightPass. 
-        */
-    static void extractOpaquePosedAModels(
-        Array<PosedModel::Ref>& all, 
-        Array<PosedModel::Ref>& opaqueAmodels);
-
-    /** Classification of a graphics card. 
-        FIXED_FUNCTION  Use OpenGL fixed function lighting only.
-        PS14            Use pixel shader 1.4 (texture crossbar; adds specular maps)
-        PS20            Use pixel shader 2.0 (shader objects; full feature)
-	 
-	    @sa profile()
+    /** Specifies the transformation that occurs at each node in the heirarchy. 
      */
-    enum GraphicsProfile {
-        UNKNOWN = 0,
-        FIXED_FUNCTION,
-        PS14,
-        PS20};
-
-    /** Returns a measure of the capabilities of this machine. This is computed during the
-	    first rendering and cached. */
-    static GraphicsProfile profile();
-
-    /** Force articulated model to use a different profile.  Only works if called
-        before any models are loaded; used mainly for debugging. */
-    static void setProfile(GraphicsProfile p);
-
-	/** Specifies the transformation that occurs at each node in the heirarchy. 
-	  */
     class Pose {
     public:
         /** Mapping from names to coordinate frames (relative to parent).
@@ -245,39 +190,32 @@ public:
         
         /** A set of triangles that have a single material and can be
             rendered as a single OpenGL primitive. */
-        class TriList {
+        class TriList : public GenericPosedModel::GPUGeom {
+        private:
+
+            friend class Part;
+
+            inline TriList() : GPUGeom(MeshAlg::TRIANGLES, false) {}
+
         public:
-            /** Copy of indexArray stored on the GPU.  Written by
-                updateVAR.*/
-            VAR                     indexVAR;
+            typedef ReferenceCountedPointer<TriList> Ref;
 
             /** CPU indices into the containing Part's VAR arrays for
                 a triangle list. */
             Array<int>              indexArray;
             
-            /** When true, this trilist enables two-sided lighting and
-                texturing and does not cull back faces.*/
-            bool                    twoSided;
             
-            Material::Ref           material;
-            
-            /** In the same space as the vertices. Computed by
-                computeBounds() */
-            Sphere                  sphereBounds;
-            
-            /** In the same space as the vertices. Computed by
-                computeBounds() */
-            Box                     boxBounds;
-            
-            TriList() : twoSided(false) {}
-            
-            /** Recomputes the bounds.  Called automatically by
+            /** Recomputes the GPUGeom bounds.  Called automatically by
                 initIFS and init3DS.  Must be invoked manually if the
                 geometry is later changed. */
             void computeBounds(const Part& parentPart);
 
-            /** Called from Part::updateVAR() */
-            void updateVAR(VARArea::UsageHint hint);
+            /** Called from Part::updateVAR(). Writes the GPUGeom fields */
+            void updateVAR(VARArea::UsageHint hint,
+                           const VAR& vertexVAR,
+                           const VAR& normalVAR,
+                           const VAR& tangentVAR,
+                           const VAR& texCoord0VAR);
         };
 
         /** Each part must have a unique name */
@@ -318,7 +256,7 @@ public:
         Array<Vector3>              tangentArray;
 		
         /** A collection of meshes that describe this part.*/
-        Array<TriList>              triListArray;
+        Array<TriList::Ref>         triList;
         
         /** Indices into part array of sub-parts (scene graph children) in the containing model.*/
         Array<int>                  subPartArray;
@@ -331,6 +269,15 @@ public:
 
         inline Part() : parent(-1) {}
 
+        /** Creates a new tri list, adds it to the Part, and returns it */
+        inline TriList::Ref newTriList() {
+            TriList::Ref t = new TriList();
+            t->material = Material::createDiffuse(Color3::white() * 0.8f);
+            t->material->specular = Color3::white() * 0.2f;
+            triList.append(t);
+            return t;
+        }
+
         /**
 		 Called by the various ArticulatedModel::render calls.
 		 
@@ -341,7 +288,7 @@ public:
 
         /** Called by ArticulatedModel::pose */
         void pose(
-            ArticulatedModel::Ref     model,
+            const ArticulatedModel::Ref& model,
             int                     partIndex,
             Array<PosedModel::Ref>& posedArray,
             const CoordinateFrame&  parent, 
@@ -370,9 +317,9 @@ public:
             normals into the array in geometry before calling this.*/
         void updateVAR(VARArea::UsageHint hint = VARArea::WRITE_ONCE);
 
-		/** Called automatically by updateAll
-			Calls computeBounds on each triList in this Part's triListArray.*/
-		void computeBounds();
+        /** Called automatically by updateAll
+            Calls computeBounds on each triList in this Part's triListArray.*/
+        void computeBounds();
     };
 
     /** All parts. Root parts are identified by (parent == -1).
@@ -403,7 +350,7 @@ private:
 
 public:
 
-	/** Name of this model for debugging purposes. */
+    /** Name of this model for debugging purposes. */
     std::string                 name;
 
     /** Appends one posed model per sub-part with geometry.
@@ -473,8 +420,6 @@ public:
      */
     void facet();
 };
-
-const char* toString(ArticulatedModel::GraphicsProfile p);
 
 }
 

@@ -521,10 +521,10 @@ public:
       @cite The bounding sphere uses the method from J. Ritter. An effcient bounding sphere. In Andrew S. Glassner, editor, Graphics Gems. Academic Press, Boston, MA, 1990.
 
     */
-    static void computeBounds(const Array<Vector3>& vertex, class Box& box, class Sphere& sphere);
+    static void computeBounds(const Array<Vector3>& vertex, class AABox& box, class Sphere& sphere);
 
     /** Computes bounds for a subset of the vertices.  It is ok if vertices appear more than once in the index array. */
-    static void computeBounds(const Array<Vector3>& vertex, const Array<int>& index, class Box& box, class Sphere& sphere);
+    static void computeBounds(const Array<Vector3>& vertex, const Array<int>& index, class AABox& box, class Sphere& sphere);
     
     /**
      In debug mode, asserts that the adjacency references between the

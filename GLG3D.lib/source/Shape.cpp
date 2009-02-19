@@ -53,7 +53,7 @@ void MeshShape::buildBSP() {
     }
     _bspTree.balance();
 
-    Box box;
+    AABox box;
     MeshAlg::computeBounds(_vertexArray, box, _boundingSphere);
     _boundingSphere.getBounds(_boundingAABox);
 
