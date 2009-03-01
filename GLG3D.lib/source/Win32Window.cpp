@@ -87,7 +87,7 @@ static bool ChangeResolution(int, int, int, int);
 static void makeKeyEvent(int, int, GEvent&);
 static void initWin32KeyMap();
 
-std::auto_ptr<Win32Window> Win32Window::_shareWindow(NULL);
+std::auto_ptr<Win32Window> Win32Window::m_shareWindow(NULL);
 
 static uint8 buttonsToUint8(const bool* buttons) {
     uint8 mouseButtons = 0;
@@ -102,21 +102,21 @@ static uint8 buttonsToUint8(const bool* buttons) {
 
 Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     :createdWindow(true)
-    ,_diDevices(NULL)
+    ,m_diDevices(NULL)
     ,m_sysEventQueue(NULL)
 {
     initWGL();
 
-    _hDC = NULL;
-    _mouseVisible = true;
-    _inputCapture = false;
-    _thread = ::GetCurrentThread();
+    m_hDC = NULL;
+    m_mouseVisible = true;
+    m_inputCapture = false;
+    m_thread = ::GetCurrentThread();
 
     if (! sdlKeysInitialized) {
         initWin32KeyMap();
     }
 
-    settings = s;
+    m_settings = s;
 
     std::string name = "";
 
@@ -124,8 +124,8 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     RECT rect;
     rect.left = 0;
     rect.top = 0;
-    rect.right = settings.width;
-    rect.bottom = settings.height;
+    rect.right = m_settings.width;
+    rect.bottom = m_settings.height;
 
     DWORD style = 0;
 
@@ -151,8 +151,8 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     int oldLeft = rect.left;
     AdjustWindowRect(&rect, style, false);
 
-    clientRectOffset.x = oldLeft - rect.left;
-    clientRectOffset.y = oldTop - rect.top;
+    m_clientRectOffset.x = oldLeft - rect.left;
+    m_clientRectOffset.y = oldTop - rect.top;
 
     int total_width  = rect.right - rect.left;
     int total_height = rect.bottom - rect.top;
@@ -176,8 +176,8 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
         }
     }
 
-    clientX = settings.x = startX;
-    clientY = settings.y = startY;
+    m_clientX = m_settings.x = startX;
+    m_clientY = m_settings.y = startY;
 
     HWND window = CreateWindow(
         Win32Window::g3dWndClass(), 
@@ -199,18 +199,18 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     alwaysAssertM(window != NULL, "");
 
     // Set early so windows messages have value
-    this->window = window;
+    m_window = window;
 
     SetWindowLong(window, GWL_USERDATA, (LONG)this);
 
     init(window, creatingShareWindow);
 
     // Set default icon if available
-    if (! settings.defaultIconFilename.empty()) {
+    if (! m_settings.defaultIconFilename.empty()) {
         try {
 
             GImage defaultIcon;
-            defaultIcon.load(settings.defaultIconFilename);
+            defaultIcon.load(m_settings.defaultIconFilename);
 
             setIcon(defaultIcon);
         } catch (const GImage::Error& e) {
@@ -222,7 +222,7 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
 
     if (fullScreen) {
         // Change the desktop resolution if we are running in fullscreen mode
-        if (!ChangeResolution(settings.width, settings.height, (settings.rgbBits * 3) + settings.alphaBits, settings.refreshRate)) {
+        if (!ChangeResolution(m_settings.width, m_settings.height, (m_settings.rgbBits * 3) + m_settings.alphaBits, m_settings.refreshRate)) {
             alwaysAssertM(false, "Failed to change resolution");
         }
     }
@@ -234,20 +234,20 @@ Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
 
 
 
-Win32Window::Win32Window(const OSWindow::Settings& s, HWND hwnd) : createdWindow(false), _diDevices(NULL) {
+Win32Window::Win32Window(const OSWindow::Settings& s, HWND hwnd) : createdWindow(false), m_diDevices(NULL) {
     initWGL();
 
-    _thread = ::GetCurrentThread();
-    settings = s;
+    m_thread = ::GetCurrentThread();
+    m_settings = s;
     init(hwnd);
 }
 
 
-Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(false), _diDevices(NULL)  {
+Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(false), m_diDevices(NULL)  {
     initWGL();
 
-    _thread = ::GetCurrentThread();
-    settings = s;
+    m_thread = ::GetCurrentThread();
+    m_settings = s;
 
     HWND hwnd = ::WindowFromDC(hdc);
 
@@ -284,13 +284,13 @@ Win32Window* Win32Window::create(const OSWindow::Settings& settings, HDC hdc) {
 void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
     if (! creatingShareWindow) {
-        createShareWindow(settings);
+        createShareWindow(m_settings);
     }
 
-    window = hwnd;
+    m_window = hwnd;
 
     // Setup the pixel format properties for the output device
-    _hDC = GetDC(window);
+    m_hDC = GetDC(m_window);
 
     bool foundARBFormat = false;
     int pixelFormat = 0;
@@ -308,33 +308,33 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
         iAttributes.append(WGL_DRAW_TO_WINDOW_ARB, GL_TRUE);
         iAttributes.append(WGL_SUPPORT_OPENGL_ARB, GL_TRUE);
-        if (settings.hardware) {
+        if (m_settings.hardware) {
             iAttributes.append(WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB);
         }
         iAttributes.append(WGL_DOUBLE_BUFFER_ARB,  GL_TRUE);
-        iAttributes.append(WGL_COLOR_BITS_ARB,     settings.rgbBits * 3);
-        iAttributes.append(WGL_RED_BITS_ARB,       settings.rgbBits);
-        iAttributes.append(WGL_GREEN_BITS_ARB,     settings.rgbBits);
-        iAttributes.append(WGL_BLUE_BITS_ARB,      settings.rgbBits);
-        iAttributes.append(WGL_ALPHA_BITS_ARB,     settings.alphaBits);
-        iAttributes.append(WGL_DEPTH_BITS_ARB,     settings.depthBits);
-        iAttributes.append(WGL_STENCIL_BITS_ARB,   settings.stencilBits);
-        iAttributes.append(WGL_STEREO_ARB,         settings.stereo);
-        if (hasWGLMultiSampleSupport && (settings.fsaaSamples > 1)) {
+        iAttributes.append(WGL_COLOR_BITS_ARB,     m_settings.rgbBits * 3);
+        iAttributes.append(WGL_RED_BITS_ARB,       m_settings.rgbBits);
+        iAttributes.append(WGL_GREEN_BITS_ARB,     m_settings.rgbBits);
+        iAttributes.append(WGL_BLUE_BITS_ARB,      m_settings.rgbBits);
+        iAttributes.append(WGL_ALPHA_BITS_ARB,     m_settings.alphaBits);
+        iAttributes.append(WGL_DEPTH_BITS_ARB,     m_settings.depthBits);
+        iAttributes.append(WGL_STENCIL_BITS_ARB,   m_settings.stencilBits);
+        iAttributes.append(WGL_STEREO_ARB,         m_settings.stereo);
+        if (hasWGLMultiSampleSupport && (m_settings.fsaaSamples > 1)) {
             // On some ATI cards, even setting the samples to false will turn it on,
             // so we only take this branch when FSAA is explicitly requested.
-            iAttributes.append(WGL_SAMPLE_BUFFERS_ARB, settings.fsaaSamples > 1);
-            iAttributes.append(WGL_SAMPLES_ARB,        settings.fsaaSamples);
+            iAttributes.append(WGL_SAMPLE_BUFFERS_ARB, m_settings.fsaaSamples > 1);
+            iAttributes.append(WGL_SAMPLES_ARB,        m_settings.fsaaSamples);
         } else {
             // Report actual settings
-            settings.fsaaSamples = 0;
+            m_settings.fsaaSamples = 0;
         }
         iAttributes.append(0, 0); // end sentinel
 
         // http://www.nvidia.com/dev_content/nvopenglspecs/WGL_ARB_pixel_format.txt
         uint32 numFormats;
         int valid = wglChoosePixelFormatARB(
-            _hDC,
+            m_hDC,
             iAttributes.getCArray(), 
             fAttributes.getCArray(),
             1,
@@ -366,66 +366,66 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         pixelFormatDesc.nVersion     = 1; 
         pixelFormatDesc.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
         pixelFormatDesc.iPixelType   = PFD_TYPE_RGBA; 
-        pixelFormatDesc.cColorBits   = settings.rgbBits * 3;
-        pixelFormatDesc.cDepthBits   = settings.depthBits;
-        pixelFormatDesc.cStencilBits = settings.stencilBits;
+        pixelFormatDesc.cColorBits   = m_settings.rgbBits * 3;
+        pixelFormatDesc.cDepthBits   = m_settings.depthBits;
+        pixelFormatDesc.cStencilBits = m_settings.stencilBits;
         pixelFormatDesc.iLayerType   = PFD_MAIN_PLANE; 
-        pixelFormatDesc.cRedBits     = settings.rgbBits;
-        pixelFormatDesc.cGreenBits   = settings.rgbBits;
-        pixelFormatDesc.cBlueBits    = settings.rgbBits;
-        pixelFormatDesc.cAlphaBits   = settings.alphaBits;
+        pixelFormatDesc.cRedBits     = m_settings.rgbBits;
+        pixelFormatDesc.cGreenBits   = m_settings.rgbBits;
+        pixelFormatDesc.cBlueBits    = m_settings.rgbBits;
+        pixelFormatDesc.cAlphaBits   = m_settings.alphaBits;
 
         // Reset for completeness
         pixelFormat = 0;
 
         // Get the initial pixel format.  We'll override this below in a moment.
-        pixelFormat = ChoosePixelFormat(_hDC, &pixelFormatDesc);
+        pixelFormat = ChoosePixelFormat(m_hDC, &pixelFormatDesc);
     } else {
-        DescribePixelFormat(_hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pixelFormatDesc);
+        DescribePixelFormat(m_hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pixelFormatDesc);
     }
 
     alwaysAssertM(pixelFormat != 0, "[0] Unsupported video mode");
 
-    if (SetPixelFormat(_hDC, pixelFormat, &pixelFormatDesc) == FALSE) {
+    if (SetPixelFormat(m_hDC, pixelFormat, &pixelFormatDesc) == FALSE) {
         alwaysAssertM(false, "[1] Unsupported video mode");
     }
 
     // Create the OpenGL context
-    _glContext = wglCreateContext(_hDC);
+    m_glContext = wglCreateContext(m_hDC);
 
-    alwaysAssertM(_glContext != NULL, "Failed to create OpenGL context.");
+    alwaysAssertM(m_glContext != NULL, "Failed to create OpenGL context.");
 
     // Initialize mouse buttons to up
     for (int i = 0; i < 8; ++i) {
-        _mouseButtons[i] = false;
+        m_mouseButtons[i] = false;
     }
 
     // Clear all keyboard buttons to up (not down)
     for (int i = 0; i < 256; ++i) {
-        _keyboardButtons[i] = false;
+        m_keyboardButtons[i] = false;
     }
 
     if (! creatingShareWindow) {
         // Now share resources with the global window
-        wglShareLists(_shareWindow->_glContext, _glContext);
+        wglShareLists(m_shareWindow->m_glContext, m_glContext);
     }
 
     this->makeCurrent();
 
     if (! creatingShareWindow) {
         GLCaps::init();
-        setCaption(settings.caption);
+        setCaption(m_settings.caption);
     }
 }
 
 
 int Win32Window::width() const {
-    return settings.width;
+    return m_settings.width;
 }
 
 
 int Win32Window::height() const {
-    return settings.height;
+    return m_settings.height;
 }
 
 
@@ -440,18 +440,18 @@ void Win32Window::setDimensions(const Rect2D& dims) {
     int h = iClamp((int)dims.height(), 1, H);
 
     // Set dimensions and repaint.
-    ::MoveWindow(window, x, y, w, h, true);
+    ::MoveWindow(m_window, x, y, w, h, true);
 }
 
 
 Rect2D Win32Window::dimensions() const {
-    return Rect2D::xywh((float)clientX, (float)clientY, (float)width(), (float)height());
+    return Rect2D::xywh((float)m_clientX, (float)m_clientY, (float)width(), (float)height());
 }
 
 
 bool Win32Window::hasFocus() const {
     // Double check state with foreground and visibility just to be sure.
-    return ( (window == ::GetForegroundWindow()) && (::IsWindowVisible(window)) );
+    return ( (m_window == ::GetForegroundWindow()) && (::IsWindowVisible(m_window)) );
 }
 
 
@@ -517,20 +517,20 @@ void Win32Window::setIcon(const GImage& image) {
     iconInfo.fIcon = true;
 
     HICON hicon = ::CreateIconIndirect(&iconInfo);
-    _usedIcons.insert((int)hicon);
+    m_usedIcons.insert((int)hicon);
 
     // Purposely leak any icon created indirectly like hicon becase we don't know.
-    HICON hsmall = (HICON)::SendMessage(this->window, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hicon);
-    HICON hlarge = (HICON)::SendMessage(this->window, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hicon);
+    HICON hsmall = (HICON)::SendMessage(this->m_window, WM_SETICON, (WPARAM)ICON_SMALL, (LPARAM)hicon);
+    HICON hlarge = (HICON)::SendMessage(this->m_window, WM_SETICON, (WPARAM)ICON_BIG, (LPARAM)hicon);
 
-    if (_usedIcons.contains((int)hsmall)) {
+    if (m_usedIcons.contains((int)hsmall)) {
         ::DestroyIcon(hsmall);
-        _usedIcons.remove((int)hsmall);
+        m_usedIcons.remove((int)hsmall);
     }
 
-    if (_usedIcons.contains((int)hlarge)) {
+    if (m_usedIcons.contains((int)hlarge)) {
         ::DestroyIcon(hlarge);
-        _usedIcons.remove((int)hlarge);
+        m_usedIcons.remove((int)hlarge);
     }
 
     ::DeleteObject(bwMask);
@@ -555,7 +555,7 @@ void Win32Window::swapGLBuffers() {
 
 
 void Win32Window::close() {
-    PostMessage(window, WM_CLOSE, 0, 0);
+    PostMessage(m_window, WM_CLOSE, 0, 0);
 }
 
 
@@ -573,31 +573,31 @@ Win32Window::~Win32Window() {
     }
 
     if (createdWindow) {
-        SetWindowLong(window, GWL_USERDATA, (LONG)NULL);
+        SetWindowLong(m_window, GWL_USERDATA, (LONG)NULL);
         close();
     }
 
     // Do not need to release private HDC's
 
-    delete _diDevices;
+    delete m_diDevices;
 }
 
 
 void Win32Window::getSettings(OSWindow::Settings& s) const {
-    s = settings;
+    s = m_settings;
 }
 
 
 void Win32Window::setCaption(const std::string& caption) {
-    if (_title != caption) {
-        _title = caption;
-        SetWindowText(window, toTCHAR(_title));
+    if (m_title != caption) {
+        m_title = caption;
+        SetWindowText(m_window, toTCHAR(m_title));
     }
 }
 
 
 std::string Win32Window::caption() {
-    return _title;
+    return m_title;
 }
      
 void Win32Window::getOSEvents(Queue<GEvent>& events) {
@@ -607,27 +607,27 @@ void Win32Window::getOSEvents(Queue<GEvent>& events) {
 
     MSG message;
 
-    while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
+    while (PeekMessage(&message, m_window, 0, 0, PM_REMOVE)) {
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
 
     RECT rect;
-    GetWindowRect(window, &rect);
-    settings.x = rect.left;
-    settings.y = rect.top;
+    GetWindowRect(m_window, &rect);
+    m_settings.x = rect.left;
+    m_settings.y = rect.top;
 
-    GetClientRect(window, &rect);
-    settings.width = rect.right - rect.left;
-    settings.height = rect.bottom - rect.top;
+    GetClientRect(m_window, &rect);
+    m_settings.width = rect.right - rect.left;
+    m_settings.height = rect.bottom - rect.top;
 
-    clientX = settings.x;
-    clientY = settings.y;
+    m_clientX = m_settings.x;
+    m_clientY = m_settings.y;
 
-    if (settings.framed) {
+    if (m_settings.framed) {
         // Add the border offset
-        clientX	+= GetSystemMetrics(settings.resizable ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
-        clientY += GetSystemMetrics(settings.resizable ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
+        m_clientX	+= GetSystemMetrics(m_settings.resizable ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
+        m_clientY += GetSystemMetrics(m_settings.resizable ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
     }
 
     // reset global event queue pointer to be safe
@@ -646,7 +646,7 @@ void Win32Window::getDroppedFilenames(Array<std::string>& files) {
 void Win32Window::setMouseVisible(bool b) {
     m_mouseHideCount = b ? 0 : 1;
 
-    if (_mouseVisible == b) {
+    if (m_mouseVisible == b) {
         return;
     }
 
@@ -656,23 +656,23 @@ void Win32Window::setMouseVisible(bool b) {
         while (ShowCursor(false) >= 0); 
     }
 
-    _mouseVisible = b;
+    m_mouseVisible = b;
 }
 
 
 bool Win32Window::mouseVisible() const {
-    return _mouseVisible;
+    return m_mouseVisible;
 }
 
 
 void Win32Window::notifyResize(int w, int h) {
-    settings.width = w;
-    settings.height = h;
+    m_settings.width = w;
+    m_settings.height = h;
 }
 
 
 bool Win32Window::inputCapture() const {
-    return _inputCapture;
+    return m_inputCapture;
 }
 
 
@@ -695,7 +695,7 @@ void Win32Window::setGammaRamp(const Array<uint16>& gammaRamp) {
 
 
 void Win32Window::setRelativeMousePosition(double x, double y) {
-    SetCursorPos(iRound(x + clientX), iRound(y + clientY));
+    SetCursorPos(iRound(x + m_clientX), iRound(y + m_clientY));
 }
 
 
@@ -714,10 +714,10 @@ void Win32Window::getRelativeMouseState(Vector2& p, uint8& mouseButtons) const {
 void Win32Window::getRelativeMouseState(int& x, int& y, uint8& mouseButtons) const {
     POINT point;
     GetCursorPos(&point);
-    x = point.x - clientX;
-    y = point.y - clientY;
+    x = point.x - m_clientX;
+    y = point.y - m_clientY;
 
-    mouseButtons = buttonsToUint8(_mouseButtons);
+    mouseButtons = buttonsToUint8(m_mouseButtons);
 }
 
 
@@ -729,52 +729,52 @@ void Win32Window::getRelativeMouseState(double& x, double& y, uint8& mouseButton
 }
 
 void Win32Window::enableDirectInput() const {
-    if (_diDevices == NULL) {
-        _diDevices = new _DirectInput(window);
+    if (m_diDevices == NULL) {
+        m_diDevices = new _DirectInput(m_window);
     }
 }
 
 int Win32Window::numJoysticks() const {
     enableDirectInput();
-    return _diDevices->getNumJoysticks();
+    return m_diDevices->getNumJoysticks();
 }
 
 
 std::string Win32Window::joystickName(unsigned int sticknum)
 {
     enableDirectInput();
-    return _diDevices->getJoystickName(sticknum);
+    return m_diDevices->getJoystickName(sticknum);
 }
 
 
 void Win32Window::getJoystickState(unsigned int stickNum, Array<float>& axis, Array<bool>& button) {
 
     enableDirectInput();
-    if (!_diDevices->joystickExists(stickNum)) {
+    if (!m_diDevices->joystickExists(stickNum)) {
         return;
     }
 
-    _diDevices->getJoystickState(stickNum, axis, button);
+    m_diDevices->getJoystickState(stickNum, axis, button);
 }
 
 
 void Win32Window::setInputCapture(bool c) {
     m_inputCaptureCount = c ? 1 : 0;
 
-    if (c != _inputCapture) {
-        _inputCapture = c;
+    if (c != m_inputCapture) {
+        m_inputCapture = c;
 
-        if (_inputCapture) {
+        if (m_inputCapture) {
             RECT wrect;
-            GetWindowRect(window, &wrect);
-            clientX = wrect.left;
-            clientY = wrect.top;
+            GetWindowRect(m_window, &wrect);
+            m_clientX = wrect.left;
+            m_clientY = wrect.top;
 
             RECT rect = 
-            {clientX + clientRectOffset.x, 
-            clientY + clientRectOffset.y, 
-            clientX + settings.width + clientRectOffset.x, 
-            clientY + settings.height + clientRectOffset.y};
+            {m_clientX + m_clientRectOffset.x, 
+            m_clientY + m_clientRectOffset.y, 
+            m_clientX + m_settings.width + m_clientRectOffset.x, 
+            m_clientY + m_settings.height + m_clientRectOffset.y};
             ClipCursor(&rect);
         } else {
             ClipCursor(NULL);
@@ -910,15 +910,15 @@ void Win32Window::createShareWindow(OSWindow::Settings settings) {
     // This call will force us to re-enter createShareWindow, however
     // the second time through init will be true, so we'll skip the 
     // recursion.
-    _shareWindow.reset(new Win32Window(settings, true));
+    m_shareWindow.reset(new Win32Window(settings, true));
 }
 
 
 void Win32Window::reallyMakeCurrent() const {
-    debugAssertM(_thread == ::GetCurrentThread(), 
+    debugAssertM(m_thread == ::GetCurrentThread(), 
         "Cannot call OSWindow::makeCurrent on different threads.");
 
-    if (wglMakeCurrent(_hDC, _glContext) == FALSE)	{
+    if (wglMakeCurrent(m_hDC, m_glContext) == FALSE)	{
         debugAssertM(false, "Failed to set context");
     }
 }
@@ -1136,7 +1136,7 @@ void Win32Window::mouseButton(UINT mouseMessage, DWORD lParam, DWORD wParam) {
     m_sysEventQueue->pushBack(e);
 
     // check for any clicks as defined by a button down then up sequence
-    if (e.type == GEventType::MOUSE_BUTTON_UP && _mouseButtons[e.button.button]) {
+    if (e.type == GEventType::MOUSE_BUTTON_UP && m_mouseButtons[e.button.button]) {
 
         // add click event from same location
         e.type = GEventType::MOUSE_BUTTON_CLICK;
@@ -1145,7 +1145,7 @@ void Win32Window::mouseButton(UINT mouseMessage, DWORD lParam, DWORD wParam) {
         m_sysEventQueue->pushBack(e);
     }
 
-    _mouseButtons[e.button.button] = (e.type == GEventType::MOUSE_BUTTON_DOWN);
+    m_mouseButtons[e.button.button] = (e.type == GEventType::MOUSE_BUTTON_DOWN);
 }
 
 
@@ -1349,12 +1349,12 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
             if (wParam < 256) {
                 // if repeating (bit 30 set), only add key down event if
                 // we haven't seen it already
-                if (this_window->_keyboardButtons[wParam] || ((lParam & 0x40000000) == 0)) {
+                if (this_window->m_keyboardButtons[wParam] || ((lParam & 0x40000000) == 0)) {
                     e.key.type = GEventType::KEY_DOWN;
                     e.key.state = GButtonState::PRESSED;
 
                     makeKeyEvent(wParam, lParam, e);
-                    this_window->_keyboardButtons[wParam] = true;
+                    this_window->m_keyboardButtons[wParam] = true;
                     
                     this_window->m_sysEventQueue->pushBack(e);
                 }
@@ -1375,7 +1375,7 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
                 e.key.state = GButtonState::RELEASED;
 
                 makeKeyEvent(wParam, lParam, e);
-                this_window->_keyboardButtons[wParam] = false;
+                this_window->m_keyboardButtons[wParam] = false;
 
                 this_window->m_sysEventQueue->pushBack(e);
             } else {
@@ -1389,7 +1389,7 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
         case WM_MOUSEMOVE:
             e.motion.type = GEventType::MOUSE_MOTION;
             e.motion.which = 0; // TODO: mouse index
-            e.motion.state = buttonsToUint8(this_window->_mouseButtons);
+            e.motion.state = buttonsToUint8(this_window->m_mouseButtons);
             e.motion.x = GET_X_LPARAM(lParam);
             e.motion.y = GET_Y_LPARAM(lParam);
             e.motion.xrel = 0;
@@ -1460,8 +1460,8 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
             return 0;
 
         case WM_KILLFOCUS:
-            for (int i = 0; i < sizeof(this_window->_keyboardButtons); ++i) {
-                if (this_window->_keyboardButtons[i]) {
+            for (int i = 0; i < sizeof(this_window->m_keyboardButtons); ++i) {
+                if (this_window->m_keyboardButtons[i]) {
                     ::PostMessage(window, WM_KEYUP, i, 0);
                 }
             }

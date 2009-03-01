@@ -14,15 +14,14 @@
 #ifndef G3D_WIN32WINDOW_H
 #define G3D_WIN32WINDOW_H
 
+// This file is only used on Windows
+#ifdef G3D_WIN32
+
 #include <string>
 #include "G3D/platform.h"
 #include "G3D/Set.h"
 #include "G3D/Queue.h"
 #include "G3D/Rect2D.h"
-
-// This file is only used on Windows
-#ifdef G3D_WIN32
-
 #include "GLG3D/OSWindow.h"
 
 namespace G3D {
@@ -35,33 +34,33 @@ using _internal::_DirectInput;
 class Win32Window : public OSWindow {
 private:
 	
-    Vector2              clientRectOffset;
-	Settings			 settings;
-	std::string			 _title;
-    HDC                  _hDC;
-	HGLRC				 _glContext;
-	bool				 _mouseVisible;
-	bool				 _inputCapture;
+    Vector2              m_clientRectOffset;
+	Settings			 m_settings;
+	std::string			 m_title;
+    HDC                  m_hDC;
+	HGLRC				 m_glContext;
+	bool				 m_mouseVisible;
+	bool				 m_inputCapture;
 
     /** Mouse Button State Array: false - up, true - down
         [0] - left, [1] - middle, [2] - right, [3] - X1,  [4] - X2 */
-    bool                 _mouseButtons[8];
-    bool                 _keyboardButtons[256];
+    bool                 m_mouseButtons[8];
+    bool                 m_keyboardButtons[256];
 
-    mutable _DirectInput* _diDevices;
+    mutable _DirectInput* m_diDevices;
 
-    G3D::Set< int >      _usedIcons;
+    G3D::Set< int >      m_usedIcons;
 
     /** Coordinates of the client area in screen coordinates */
-    int		            clientX;
-    int			        clientY;
+    int		             m_clientX;
+    int			         m_clientY;
     
     /** Only one thread allowed for use with Win32Window::makeCurrent */
-    HANDLE				 _thread;
+    HANDLE				 m_thread;
     
-    Array<std::string> m_droppedFiles;
+    Array<std::string>   m_droppedFiles;
 
-    HWND                 window;
+    HWND                 m_window;
     const bool		     createdWindow;
 
     /** Called from all constructors */
@@ -70,7 +69,7 @@ private:
     // Pointer to current queue passed to getOSEvents() for window proc to use
     Queue<GEvent>*      m_sysEventQueue;
 
-	static std::auto_ptr<Win32Window>	_shareWindow;	
+	static std::auto_ptr<Win32Window>	m_shareWindow;	
 
 	/** OpenGL technically does not allow sharing of resources between
 	  multiple windows (although this tends to work most of the time
@@ -132,11 +131,11 @@ public:
     void close();
 	
     inline HWND hwnd() const {
-        return window;
+        return m_window;
     }
 
     inline HDC hdc() const {
-        return _hDC;
+        return m_hDC;
     }
     
     void getSettings(OSWindow::Settings& settings) const;
@@ -150,7 +149,7 @@ public:
     virtual void setDimensions(const Rect2D& dims);
 	
     virtual void setPosition(int x, int y) {
-        setDimensions( Rect2D::xywh((float)x, (float)y, (float)settings.width, (float)settings.height) );
+        setDimensions( Rect2D::xywh((float)x, (float)y, (float)m_settings.width, (float)m_settings.height) );
     }
 	
     virtual bool hasFocus() const;
