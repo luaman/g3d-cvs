@@ -18,6 +18,7 @@
 namespace G3D {
 
 class Rect2D;
+class RenderDevice;
 
 /**
  Interface to window APIs for window management, event processing,
@@ -223,7 +224,7 @@ protected:
 
     Queue<GEvent>               m_eventQueue;
 
-    OSWindow() : m_inputCaptureCount(0), m_mouseHideCount(0), m_renderDevice(NULL) {}
+    OSWindow() : m_renderDevice(NULL), m_inputCaptureCount(0), m_mouseHideCount(0) {}
 
     /** Override this with the glMakeCurrent call appropriate for your window.*/
     virtual void reallyMakeCurrent() const {}    

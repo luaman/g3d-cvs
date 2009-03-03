@@ -1190,44 +1190,58 @@ void Draw::rect2DBorder(
     rd->popState();
 }
 
-
-void Draw::frustum(
-    const class GCamera::Frustum& frustum,
-    RenderDevice* rd,
-    const Color4& color,
-    const Color4& wire) {
-
-    // Draw edges
-    rd->pushState();
-
-    if (wire.a > 0) {
-        rd->setColor(wire);
-        for (int f = 0; f < frustum.faceArray.size(); ++f) {
+void sendFrustumGeometry(const GCamera::Frustum& frustum, RenderDevice* rd, bool lines) {
+    if (! lines) {
+        rd->beginPrimitive(RenderDevice::QUADS);
+    }
+    for (int f = 0; f < frustum.faceArray.size(); ++f) {
+        if (lines) {
             rd->beginPrimitive(RenderDevice::LINE_STRIP);
-            for (int v = 0; v < 5; ++v) {
-                rd->sendVertex(frustum.vertexPos[frustum.faceArray[f].vertexIndex[v % 4]]);
-            }
+        }
+        const GCamera::Frustum::Face& face = frustum.faceArray[f];
+        rd->setNormal(face.plane.normal());
+        for (int v = 0; v < 4; ++v) {
+            rd->sendVertex(frustum.vertexPos[face.vertexIndex[v]]);
+        }
+        if (lines) {
+            rd->sendVertex(frustum.vertexPos[face.vertexIndex[0]]);
             rd->endPrimitive();
         }
     }
-
-    rd->setDepthWrite(false);
-        rd->setCullFace(RenderDevice::CULL_NONE);
-        rd->enableTwoSidedLighting();
-        rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-        rd->setColor(color);
-        rd->beginPrimitive(RenderDevice::QUADS);
-        for (int f = 0; f < frustum.faceArray.size(); ++f) {
-            rd->setNormal(frustum.faceArray[f].plane.normal());
-            for (int v = 0; v < 4; ++v) {
-                rd->sendVertex(frustum.vertexPos[frustum.faceArray[f].vertexIndex[v]]);
-            }
-        }
+    if (! lines) {
         rd->endPrimitive();
+    }
+}
+
+
+void Draw::frustum(const GCamera::Frustum& frustum, RenderDevice* rd,
+                   const Color4& solidColor, const Color4& wireColor) {
+    rd->pushState();
+
+    rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+
+    if (wireColor.a > 0) {
+        rd->setColor(wireColor);
+        rd->setLineWidth(2);
+        sendFrustumGeometry(frustum, rd, true);
+    }
+
+    if (solidColor.a > 0) {
+        rd->setCullFace(RenderDevice::CULL_FRONT);
+        rd->setColor(solidColor);
+        if (solidColor.a < 1) {
+            rd->setDepthWrite(false);
+        }
+        rd->enableTwoSidedLighting();
+        for (int i = 0; i < 2; ++i) {
+            sendFrustumGeometry(frustum, rd, false);
+            rd->setCullFace(RenderDevice::CULL_BACK);
+        }
+    }
 
     rd->popState();
-    // TODO:face colors
 }
+
 
 }
 

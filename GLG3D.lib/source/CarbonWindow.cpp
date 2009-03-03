@@ -85,7 +85,7 @@ pascal OSStatus OnDeactivation(EventHandlerCallRef handlerRef, EventRef event, v
         pWindow->_windowActive = false;
         e.active.type = GEventType::ACTIVE;
         e.active.gain = 0;
-        e.active.state = SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS|SDL_APPACTIVE;
+        e.active.state = SDL_APPMOUSEFOCUS | SDL_APPINPUTFOCUS | SDL_APPACTIVE;
         pWindow->fireEvent(e);
     }
 
@@ -204,25 +204,25 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
     osErr = CountDragItems(theDrag, &iNumItems);
     osErr = GetDragMouse(theDrag, &point, NULL);
     
-    for(UInt16 i = 1; i <= iNumItems; i++) {
+    for (UInt16 i = 1; i <= iNumItems; ++i) {
         DragItemRef itemRef = 0;
         UInt16 iNumFlavors = 0;
 	
         osErr = GetDragItemReferenceNumber(theDrag,i,&itemRef);
         osErr = CountDragItemFlavors(theDrag,itemRef,&iNumFlavors);
 	
-        for(UInt16 j = 1; j <= iNumFlavors; j++) {
+        for (UInt16 j = 1; j <= iNumFlavors; ++j) {
             FlavorType flavor;
             
             osErr = GetFlavorType(theDrag,itemRef,j,&flavor);
             
-            if(kDragFlavorTypeHFS == flavor) {
+            if (kDragFlavorTypeHFS == flavor) {
                 HFSFlavor flavorData;
                 Size size = sizeof(flavorData);
 		
                 osErr = GetFlavorData(theDrag,itemRef,flavorTypeHFS,&flavorData,&size,0);
 		
-                if(sizeof(flavorData) == size) {
+                if (sizeof(flavorData) == size) {
                     UInt8 path[2024];
                     FSRef fsRef;
                     
@@ -236,7 +236,7 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
         }
     }
     
-    if(pWindow->_droppedFiles.size() > 0) {
+    if (pWindow->_droppedFiles.size() > 0) {
         GEvent e;
         e.type = GEventType::FILE_DROP;
         e.drop.x = point.h;
@@ -249,10 +249,10 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
     return dragNotAcceptedErr;
 }
     
-void HIDCollectJoyElementsArrayHandler(const void *value, void *parameter) {
-    CarbonWindow::GJoyDevice *pDevice = (CarbonWindow::GJoyDevice *)parameter;
+void HIDCollectJoyElementsArrayHandler(const void* value, void* parameter) {
+    CarbonWindow::GJoyDevice* pDevice = (CarbonWindow::GJoyDevice*)parameter;
 
-    if(pDevice && (CFGetTypeID(value) == CFDictionaryGetTypeID())) {
+    if (pDevice && (CFGetTypeID(value) == CFDictionaryGetTypeID())) {
         pDevice->addJoyElement((CFTypeRef) value);
     }
 }

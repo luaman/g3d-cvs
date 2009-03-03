@@ -203,8 +203,8 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
 
     const float x               = viewportWidth(viewport) / 2;
     const float y               = viewportHeight(viewport) / 2;
-    const float z               = m_nearPlaneZ;
-    const float w               = z / -m_farPlaneZ;
+    const float zn              = m_nearPlaneZ;
+    const float zf              = m_farPlaneZ;
     float fovx;
 
     fovx = m_fieldOfView;
@@ -214,17 +214,27 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
 
     // Near face (ccw from UR)
     fr.vertexPos.append(
-        Vector4( x,  y, z, 1),
-        Vector4(-x,  y, z, 1),
-        Vector4(-x, -y, z, 1),
-        Vector4( x, -y, z, 1));
+        Vector4( x,  y, zn, 1),
+        Vector4(-x,  y, zn, 1),
+        Vector4(-x, -y, zn, 1),
+        Vector4( x, -y, zn, 1));
 
     // Far face (ccw from UR, from origin)
-    fr.vertexPos.append(
-        Vector4( x,  y, z, w),
-        Vector4(-x,  y, z, w),
-        Vector4(-x, -y, z, w),
-        Vector4( x, -y, z, w));
+    if (m_farPlaneZ == -inf()) {
+        fr.vertexPos.append(
+                            Vector4( x,  y, zn, 0),
+                            Vector4(-x,  y, zn, 0),
+                            Vector4(-x, -y, zn, 0),
+                            Vector4( x, -y, zn, 0));
+    } else {
+        // Finite
+        const float s = zf / zn;
+        fr.vertexPos.append(
+                            Vector4( x * s,  y * s, zf, 1),
+                            Vector4(-x * s,  y * s, zf, 1),
+                            Vector4(-x * s, -y * s, zf, 1),
+                            Vector4( x * s, -y * s, zf, 1));
+    }
 
     Frustum::Face face;
 
@@ -345,10 +355,10 @@ void GCamera::getFarViewportCorners(
     const float z = m_farPlaneZ;
     
     // Compute the points
-    outUR = Vector3( w,  h, z);
-    outUL = Vector3(-w,  h, z);
-    outLL = Vector3(-w, -h, z);
-    outLR = Vector3( w, -h, z);
+    outUR = Vector3( w/2,  h/2, z);
+    outUL = Vector3(-w/2,  h/2, z);
+    outLL = Vector3(-w/2, -h/2, z);
+    outLR = Vector3( w/2, -h/2, z);
 
     // Take to world space
     outUR = m_cframe.pointToWorldSpace(outUR);

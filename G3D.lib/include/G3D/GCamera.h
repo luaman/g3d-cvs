@@ -24,13 +24,16 @@ class Rect2D;
 /**
   Abstraction of a pinhole camera.
 
-  The area a camera sees is called a frustum.  It is bounded by the near plane, the far plane, and the sides
-  of the view frame projected into the scene.  It has the shape of a pyramid with the top cut off.
+  The area a camera sees is called a frustum.  It is bounded by the
+  near plane, the far plane, and the sides of the view frame projected
+  into the scene.  It has the shape of a pyramid with the top cut off.
 
-  Cameras can project points from 3D to 2D.  The "unit" projection matches OpenGL.  It maps the entire view frustum
-  to a cube of unit radius (i.e., edges of length 2) centered at the origin.  The non-unit projection then maps
-  that cube to the specified pixel viewport in X and Y and the range [0, 1] in Z.  The projection is reversable
-  as long as the projected Z value is known.
+  Cameras can project points from 3D to 2D.  The "unit" projection
+  matches OpenGL.  It maps the entire view frustum to a cube of unit
+  radius (i.e., edges of length 2) centered at the origin.  The
+  non-unit projection then maps that cube to the specified pixel
+  viewport in X and Y and the range [0, 1] in Z.  The projection is
+  reversable as long as the projected Z value is known.
 
   All viewport arguments are the pixel bounds of the viewport-- e.g.,
   RenderDevice::viewport().

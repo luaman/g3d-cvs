@@ -54,6 +54,7 @@
      <li> Fix (2570367): buildg3d detects the buggy OS X 10.4 make 3.80 and refuses to run on that machine without gmake installed
      <li> Fix: Grayscale PNG with odd heights now load correctly
      <li> Fix: GImage::computeNormalMap whiteHeightInPixels now scales correctly (was inverted before)
+     <li> Fix: GCamera::frustum far plane now positioned correctly
      <li> Fix: G3D::Material now properly alpha-masks non-diffuse channels
    </ul>
 
