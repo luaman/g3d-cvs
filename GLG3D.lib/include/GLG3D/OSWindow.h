@@ -24,9 +24,7 @@ class Rect2D;
  and OpenGL context management.  A OSWindow may be a user-level window, 
  with a minimize button and frame, or simply a rectangular area within 
  a larger window.  In the latter case, several of the methods (e.g.,
- setCaption) are likely to be ignored by the implementation.  See
- G3D::SDLWindow and the wxWindows, Qt, and Glut implementations in
- the contrib directory.
+ setCaption) are likely to be ignored by the implementation.
    
  Many parts of G3D assume that there is only one
  OS-level window, with one OpenGL context.  (Although you <B>can</B> have
@@ -34,8 +32,8 @@ class Rect2D;
  multiple OpenGL contexts if you manage switching between them yourself).
 
  Subclass this interface to support your preferred window system
- (e.g. ActiveX window, OS/X Carbon, MFC window, glut) or use the 
- generic SDLWindow subclass that supports all platforms.
+ (e.g. ActiveX window, OS/X Carbon, MFC window, glut) not already
+ implemented in G3D.
 
  All dimensions are of the client area (inside the frame, if the
  window has a frame).
@@ -46,8 +44,9 @@ class Rect2D;
 
  <B>Subclassing</B>
 
- It is common to accept a GWindowSettings as an argument to the 
- constructor.
+ It is common to accept a OSWindow::Settings as an argument to the 
+ constructor.  OSWindow provides a protected variable OSWindow::m_settings
+ to manage the window settings.
 
  Subclasses are required to call GLCaps::init
         from the end of their constructor/create function to
@@ -61,11 +60,9 @@ class Rect2D;
 
  <B>Implementations</B>
  The following OSWindow subclasses already exist: 
+ G3D::CarbonWindow,
  G3D::SDLWindow, 
- G3D::Win32Window, 
- <A HREF="../contrib/wxGWindow">wxGWindow</A> (wxWidgets),
- <A HREF = "../contrib/GlutWindow">GlutWindow</a>,
- and <A HREF="../contrib/CoreyGWindow/QGWindow.h">QGWindow</a> (Qt).
+ G3D::Win32Window.
 
  One typically chooses among these based on the GUI API used 
  to manage the main window.
@@ -188,14 +185,8 @@ public:
             caption("3D") {}
     };
     
-protected:
-
-    Queue<GEvent>               m_eventQueue;
-
-    /** Extract new events from the underlying operating system */
-    virtual void getOSEvents(Queue<GEvent>& events);
-
 private:
+    friend class RenderDevice;
 
     /** */
     class LoopBody {
@@ -214,21 +205,32 @@ private:
         LoopBody(void (*f)(void*), void* a) : func(f), arg(a), isGApp(false) {}
     };
 
-    Array<LoopBody>             loopBodyStack;
+    Array<LoopBody>             m_loopBodyStack;
+
+    RenderDevice*               m_renderDevice;
+
+    /** Tracks the current OSWindow.  If back-to-back calls are made to make
+        the same OSWindow current, they are ignored. */
+    static const OSWindow*      m_current;
 
 protected:
 
-    bool notDone() {
-        return loopBodyStack.size() > 0;
-    }
+    /** Use this to maintain settings in sub-classes */
+    Settings                    m_settings;
 
-    /** Subclasses should call from their idle function. */
-    void executeLoopBody();
+    int                         m_inputCaptureCount;
+    int                         m_mouseHideCount;
 
-    int                     m_inputCaptureCount;
-    int                     m_mouseHideCount;
+    Queue<GEvent>               m_eventQueue;
 
-    
+    OSWindow() : m_inputCaptureCount(0), m_mouseHideCount(0), m_renderDevice(NULL) {}
+
+    /** Override this with the glMakeCurrent call appropriate for your window.*/
+    virtual void reallyMakeCurrent() const {}    
+
+    /** Extract new events from the underlying operating system */
+    virtual void getOSEvents(Queue<GEvent>& events);
+
     /** 
       Capture the keyboard and mouse focus, locking the mouse to the client area of this window.
       Sets the inputCaptureCount to 1 if @a c is true and 0 if @a c is false
@@ -238,6 +240,13 @@ protected:
 
     /** @deprecated Use setMouseVisibleCount */
     virtual void setMouseVisible(bool b) = 0;
+
+    bool notDone() {
+        return m_loopBodyStack.size() > 0;
+    }
+
+    /** Subclasses should call from their idle function. */
+    void executeLoopBody();
 
 public:
 
@@ -500,7 +509,7 @@ public:
 
     /** Pushes a function onto the stack of functions called by runMainLoop */
     virtual void pushLoopBody(void (*body)(void*), void* arg) {
-        loopBodyStack.push(LoopBody(body, arg));
+        m_loopBodyStack.push(LoopBody(body, arg));
     }
 
     /** Invokes GApplet::beginRun after the applet is on the stack. */
@@ -533,24 +542,6 @@ public:
         }
     }
 
-private:
-    /** Tracks the current OSWindow.  If back-to-back calls are made to make
-        the same OSWindow current, they are ignored. */
-    static const OSWindow* m_current;
-
-    friend class RenderDevice;
-
-    class RenderDevice* m_renderDevice;
-
-protected:
-
-    OSWindow() : m_inputCaptureCount(0), m_mouseHideCount(0), m_renderDevice(NULL) {}
-
-    /** Override this with the glMakeCurrent call appropriate for your window.*/
-    virtual void reallyMakeCurrent() const {
-    }    
-
-public:
     /** Closes the window and frees any resources associated with it.
         When subclassing, put any shutdown code (e.g. SDL_Quit()) in 
         your destructor.  Put initialization code (e.g. SDL_Init()) in

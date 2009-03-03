@@ -35,7 +35,6 @@ class Win32Window : public OSWindow {
 private:
 	
     Vector2              m_clientRectOffset;
-	Settings			 m_settings;
 	std::string			 m_title;
     HDC                  m_hDC;
 	HGLRC				 m_glContext;

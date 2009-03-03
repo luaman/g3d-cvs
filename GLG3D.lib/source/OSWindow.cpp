@@ -58,27 +58,27 @@ bool OSWindow::pollEvent(GEvent& e) {
 
 void OSWindow::executeLoopBody() {
     if (notDone()) {
-        if (loopBodyStack.last().isGApp) {
-            loopBodyStack.last().app->oneFrame();
+        if (m_loopBodyStack.last().isGApp) {
+            m_loopBodyStack.last().app->oneFrame();
         } else {                
-            loopBodyStack.last().func(loopBodyStack.last().arg);
+            m_loopBodyStack.last().func(m_loopBodyStack.last().arg);
         }
     }
 }
 
 
 void OSWindow::pushLoopBody(GApp* app) {
-    loopBodyStack.push(LoopBody(app));
+    m_loopBodyStack.push(LoopBody(app));
     app->beginRun();
 }
 
 
 void OSWindow::popLoopBody() {
-    if (loopBodyStack.size() > 0) {
-        if (loopBodyStack.last().isGApp) {
-            loopBodyStack.last().app->endRun();
+    if (m_loopBodyStack.size() > 0) {
+        if (m_loopBodyStack.last().isGApp) {
+            m_loopBodyStack.last().app->endRun();
         }
-        loopBodyStack.pop();
+        m_loopBodyStack.pop();
     }
 }
 
