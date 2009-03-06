@@ -81,6 +81,9 @@ static GLint toGLBlendFunc(RenderDevice::BlendFunc b) {
     case RenderDevice::BLEND_ONE_MINUS_SRC_COLOR:
         return GL_ONE_MINUS_SRC_COLOR;
 
+    case RenderDevice::BLEND_ONE_MINUS_DST_COLOR:
+        return GL_ONE_MINUS_DST_COLOR;
+
     default:
         debugAssertM(false, "Fell through switch");
         return GL_ZERO;
