@@ -146,6 +146,8 @@ SDLWindow* SDLWindow::create(const OSWindow::Settings& settings) {
 
 SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
+    m_settings = settings;
+
 #   if defined(G3D_OSX)
         NSApplicationWrapper wrapper;
 
@@ -162,89 +164,86 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 		 SDL_INIT_JOYSTICK) < 0 ) {
 
         fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
-	debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
-	Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
-	exit(1);
+	    debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
+	    Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
+	    exit(1);
     }
     
     // Set default icon if available
-    if (settings.defaultIconFilename != "nodefault") {
-      
+    if (!m_settings.defaultIconFilename.empty()) {
         try {
+	        GImage defaultIcon;
+	        defaultIcon.load(m_settings.defaultIconFilename);
 	
-	    GImage defaultIcon;
-	    defaultIcon.load(settings.defaultIconFilename);
-	
-	    setIcon(defaultIcon);
-      } catch (const GImage::Error& e) {
-	    logPrintf("OSWindow's default icon failed to load: %s (%s)", 
-		      e.filename.c_str(), e.reason.c_str());            
-      }
+	        setIcon(defaultIcon);
+        } catch (const GImage::Error& e) {
+	        logPrintf("OSWindow's default icon failed to load: %s (%s)", 
+	        e.filename.c_str(), e.reason.c_str());            
+        }
     }
 
-    if (! settings.fullScreen) {
+    if (! m_settings.fullScreen) {
         // This doesn't really work very well due to SDL bugs so we fix up 
         // the position after the window is created.
-        if (settings.center) {
-	    System::setEnv("SDL_VIDEO_CENTERED", "");
-	} else {
-	    System::setEnv("SDL_VIDEO_WINDOW_POS", format("%d,%d", settings.x, settings.y));
-      }
+        if (m_settings.center) {
+	        System::setEnv("SDL_VIDEO_CENTERED", "");
+	    } else {
+	        System::setEnv("SDL_VIDEO_WINDOW_POS", format("%d,%d", m_settings.x, m_settings.y));
+        }
     }
 
-    _mouseVisible = true;
-    _inputCapture = false;
+    m_mouseVisible = true;
+    m_inputCapture = false;
 
     // Request various OpenGL parameters
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      settings.depthBits);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,      m_settings.depthBits);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,    1);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,    settings.stencilBits);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        settings.rgbBits);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,      settings.rgbBits);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       settings.rgbBits);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      settings.alphaBits);
-    SDL_GL_SetAttribute(SDL_GL_STEREO,          settings.stereo);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,    m_settings.stencilBits);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE,        m_settings.rgbBits);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,      m_settings.rgbBits);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       m_settings.rgbBits);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      m_settings.alphaBits);
+    SDL_GL_SetAttribute(SDL_GL_STEREO,          m_settings.stereo);
     
     #if SDL_FSAA
-        if (settings.fsaaSamples > 1) {
+        if (m_settings.fsaaSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 
-                                settings.fsaaSamples);
+                                m_settings.fsaaSamples);
         }
     #endif
 
     // Create a width x height OpenGL screen 
     int flags = 
-        (settings.hardware ? SDL_HWSURFACE : 0) |
+        (m_settings.hardware ? SDL_HWSURFACE : 0) |
         SDL_OPENGL |
-        (settings.fullScreen ? SDL_FULLSCREEN : 0) |
-        (settings.resizable ? SDL_RESIZABLE : 0) |
-        (settings.framed ? 0 : SDL_NOFRAME);
+        (m_settings.fullScreen ? SDL_FULLSCREEN : 0) |
+        (m_settings.resizable ? SDL_RESIZABLE : 0) |
+        (m_settings.framed ? 0 : SDL_NOFRAME);
 
-    if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
-      // Try dropping down to 16-bit depth buffer, the most
-      // common problem on X11
-      SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    if (SDL_SetVideoMode(m_settings.width, m_settings.height, 0, flags) == NULL) {
+        // Try dropping down to 16-bit depth buffer, the most
+        // common problem on X11
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 
-      if (SDL_SetVideoMode(settings.width, settings.height, 0, flags) == NULL) {
-        logPrintf("SDLWindow was unable to create an OpenGL screen: %s\n", 
-		  SDL_GetError());
-	logPrintf(" width       = %d\n", settings.width);
-	logPrintf(" height      = %d\n", settings.height);
-	logPrintf(" fullscreen  = %d\n", settings.fullScreen);
-	logPrintf(" resizable   = %d\n", settings.resizable);
-	logPrintf(" framed      = %d\n", settings.framed);
-	logPrintf(" rgbBits     = %d\n", settings.rgbBits);
-	logPrintf(" alphaBits   = %d\n", settings.alphaBits);
-	logPrintf(" depthBits   = %d\n", settings.depthBits);
-	logPrintf(" stencilBits = %d\n", settings.stencilBits);
-        alwaysAssertM(false, "Unable to create OpenGL screen");
-	exit(-3);
-      }
+        if (SDL_SetVideoMode(m_settings.width, m_settings.height, 0, flags) == NULL) {
+            logPrintf("SDLWindow was unable to create an OpenGL screen: %s\n", 
+		    SDL_GetError());
+	        logPrintf(" width       = %d\n", m_settings.width);
+	        logPrintf(" height      = %d\n", m_settings.height);
+	        logPrintf(" fullscreen  = %d\n", m_settings.fullScreen);
+	        logPrintf(" resizable   = %d\n", m_settings.resizable);
+	        logPrintf(" framed      = %d\n", m_settings.framed);
+	        logPrintf(" rgbBits     = %d\n", m_settings.rgbBits);
+	        logPrintf(" alphaBits   = %d\n", m_settings.alphaBits);
+	        logPrintf(" depthBits   = %d\n", m_settings.depthBits);
+	        logPrintf(" stencilBits = %d\n", m_settings.stencilBits);
+            alwaysAssertM(false, "Unable to create OpenGL screen");
+	        exit(-3);
+        }
     }
 
     // See what video mode we really got
-    _settings = settings;
     int depthBits, stencilBits, redBits, greenBits, blueBits, alphaBits;
     glGetIntegerv(GL_DEPTH_BITS, &depthBits);
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
@@ -262,15 +261,15 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
         (void)actualFSAABuffers;
         (void)actualFSAASamples;
     #endif
-    _settings.rgbBits     = iMin(iMin(redBits, greenBits), blueBits);
-    _settings.alphaBits   = alphaBits;
-    _settings.stencilBits = stencilBits;
-    _settings.depthBits   = depthBits;
-    _settings.fsaaSamples = actualFSAASamples;
+    m_settings.rgbBits     = iMin(iMin(redBits, greenBits), blueBits);
+    m_settings.alphaBits   = alphaBits;
+    m_settings.stencilBits = stencilBits;
+    m_settings.depthBits   = depthBits;
+    m_settings.fsaaSamples = actualFSAASamples;
 
     SDL_version ver;
     SDL_VERSION(&ver);
-    _version = format("%d,%0d.%0d", ver.major, ver.minor, ver.patch);
+    m_version = format("%d,%0d.%0d", ver.major, ver.minor, ver.patch);
 
     SDL_EnableUNICODE(1);
     setCaption(settings.caption);
@@ -279,7 +278,7 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     SDL_VERSION(&info.version);
     SDL_GetWMInfo(&info);
 
-    _glContext = glGetCurrentContext();
+    m_glContext = glGetCurrentContext();
 
     #if defined(G3D_WIN32)
         // Extract SDL HDC/HWND on Win32
@@ -287,9 +286,9 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
         _Win32HDC   = wglGetCurrentDC();
     #elif defined(G3D_LINUX)
         // Extract SDL's internal Display pointer on Linux        
-        _X11Display = info.info.x11.display;
-        _X11Window  = info.info.x11.window;
-        _X11WMWindow  = info.info.x11.wmwindow;
+        m_X11Display = info.info.x11.display;
+        m_X11Window  = info.info.x11.window;
+        m_X11WMWindow  = info.info.x11.wmwindow;
 
         G3D::_internal::x11Display = glXGetCurrentDisplay();
 
@@ -316,17 +315,17 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
 #   ifdef G3D_LINUX
 	if (! settings.fullScreen) {
-	  int W = screenWidth(_X11Display);
-	  int H = screenHeight(_X11Display);
-	  int x = iClamp(settings.x, 0, W);
-	  int y = iClamp(settings.y, 0, H);
+	    int W = screenWidth(m_X11Display);
+	    int H = screenHeight(m_X11Display);
+	    int x = iClamp(settings.x, 0, W);
+	    int y = iClamp(settings.y, 0, H);
 	  
-	  if (settings.center) {
-	    x = (W  - settings.width) / 2;
-	    y = (H - settings.height) / 2;
-	  }
-	  XMoveWindow(_X11Display, _X11WMWindow, x, y);
-        }
+        if (settings.center) {
+            x = (W  - settings.width) / 2;
+	        y = (H - settings.height) / 2;
+	    }
+	    XMoveWindow(m_X11Display, m_X11WMWindow, x, y);
+    }
 #    endif
 
 
@@ -340,12 +339,12 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
     if (j > 0) {
         SDL_JoystickEventState(SDL_ENABLE);
-	// Turn on the joysticks
+	    // Turn on the joysticks
 
-        joy.resize(j);
+        m_joy.resize(j);
         for (int i = 0; i < j; ++i) {
-	    joy[i] = SDL_JoystickOpen(i);
-	    debugAssert(joy[i]);
+	        m_joy[i] = SDL_JoystickOpen(i);
+	        debugAssert(m_joy[i]);
         }
     }
 
@@ -360,12 +359,12 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
         // we've been unable to implement a non-SDL way of releasing the
         // mouse using the X11 handle directly.
         if (assertionHook() == _internal::_handleDebugAssert_) {
-	    setFailureHook(SDL_handleDebugAssert_);
-	}
+	        setFailureHook(SDL_handleDebugAssert_);
+	    }
 
-	if (failureHook() == _internal::_handleErrorCheck_) {
-          setFailureHook(SDL_handleErrorCheck_);
-	}
+	    if (failureHook() == _internal::_handleErrorCheck_) {
+            setFailureHook(SDL_handleErrorCheck_);
+	    }
 #   endif
 }
 
@@ -373,15 +372,15 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
 SDLWindow::~SDLWindow() {
     // Close joysticks, if opened
-    for (int j = 0; j < joy.size(); ++j) {
-        SDL_JoystickClose(joy[j]);
+    for (int j = 0; j < m_joy.size(); ++j) {
+        SDL_JoystickClose(m_joy[j]);
     }
 
     // Release the mouse
     setMouseVisible(true);
     setInputCapture(false);
 
-    joy.clear();
+    m_joy.clear();
 
     SDL_Quit();
 
@@ -392,8 +391,8 @@ SDLWindow::~SDLWindow() {
 
 
 ::SDL_Joystick* SDLWindow::getSDL_Joystick(unsigned int num) const {
-    if ((unsigned int)joy.size() >= num) {
-        return joy[num];
+    if ((unsigned int)m_joy.size() >= num) {
+        return m_joy[num];
     } else {
         return NULL;
     }
@@ -406,27 +405,27 @@ void SDLWindow::getDroppedFilenames(Array<std::string>& files) {
 
 
 void SDLWindow::getSettings(OSWindow::Settings& settings) const {
-    settings = _settings;
+    settings = m_settings;
 }
 
 
 int SDLWindow::width() const {
-    return _settings.width;
+    return m_settings.width;
 }
 
 
 int SDLWindow::height() const {
-    return _settings.height;
+    return m_settings.height;
 }
 
 
 Rect2D SDLWindow::dimensions() const {
-    return Rect2D::xywh(0, 0, _settings.width, _settings.height);;
+    return Rect2D::xywh(0, 0, m_settings.width, m_settings.height);;
 }
 
 
 void SDLWindow::setDimensions(const Rect2D& dims) {
-#    ifdef G3D_WIN32
+#   ifdef G3D_WIN32
         int W = screenWidth();
         int H = screenHeight();
 
@@ -434,13 +433,19 @@ void SDLWindow::setDimensions(const Rect2D& dims) {
         int y = iClamp((int)dims.y0(), 0, H);
         int w = iClamp((int)dims.width(), 1, W);
         int h = iClamp((int)dims.height(), 1, H);
-
         SetWindowPos(_Win32HWND, NULL, x, y, w, h, SWP_NOZORDER);
         // Do not update settings-- wait for an event to notify us
 #    endif
 
 #    ifdef G3D_LINUX
-        //TODO: Linux
+        int W = screenWidth(m_X11Display);
+        int H = screenHeight(m_X11Display);
+
+        int x = iClamp((int)dims.x0(), 0, W);
+        int y = iClamp((int)dims.y0(), 0, H);
+        int w = iClamp((int)dims.width(), 1, W);
+        int h = iClamp((int)dims.height(), 1, H);
+        XMoveResizeWindow(m_X11Display, m_X11WMWindow, x, y, w, h);
 #    endif 
 
     // TODO: OS X
@@ -460,13 +465,13 @@ void SDLWindow::setPosition(int x, int y) {
     #endif
 
 	#ifdef G3D_LINUX
-	    const int W = screenWidth(_X11Display);
-        const int H = screenHeight(_X11Display);
+	    const int W = screenWidth(m_X11Display);
+        const int H = screenHeight(m_X11Display);
 
         x = iClamp(x, 0, W);
         y = iClamp(y, 0, H);
 
-		XMoveWindow(_X11Display, _X11WMWindow, x, y);
+	    XMoveWindow(m_X11Display, m_X11WMWindow, x, y);
 	#endif
     // TODO: OS X
 }
@@ -482,7 +487,7 @@ bool SDLWindow::hasFocus() const {
 
 
 std::string SDLWindow::getAPIVersion() const {
-    return _version;
+    return m_version;
 }
 
 
@@ -523,7 +528,7 @@ void SDLWindow::setGammaRamp(const Array<uint16>& gammaRamp) {
 
 
 int SDLWindow::numJoysticks() const {
-    return joy.size();
+    return m_joy.size();
 }
 
 
@@ -532,9 +537,9 @@ void SDLWindow::getJoystickState(
     Array<float>&   axis,
     Array<bool>&    button) {
 
-    debugAssert(stickNum < ((unsigned int) joy.size()));
+    debugAssert(stickNum < ((unsigned int) m_joy.size()));
 
-    ::SDL_Joystick* sdlstick = joy[stickNum];
+    ::SDL_Joystick* sdlstick = m_joy[stickNum];
 
     axis.resize(SDL_JoystickNumAxes(sdlstick), DONT_SHRINK_UNDERLYING_ARRAY);
 
@@ -551,19 +556,19 @@ void SDLWindow::getJoystickState(
 
 
 std::string SDLWindow::joystickName(unsigned int sticknum) {
-    debugAssert(sticknum < ((unsigned int) joy.size()));
+    debugAssert(sticknum < ((unsigned int) m_joy.size()));
     return SDL_JoystickName(sticknum);
 }
 
 
 void SDLWindow::setCaption(const std::string& caption) {
-    _caption = caption;
-	SDL_WM_SetCaption(_caption.c_str(), NULL);
+    m_caption = caption;
+    SDL_WM_SetCaption(m_caption.c_str(), NULL);
 }
 
 
 std::string SDLWindow::caption() {
-    return _caption;
+    return m_caption;
 }
 
 
@@ -613,8 +618,8 @@ void SDLWindow::swapGLBuffers() {
 void SDLWindow::notifyResize(int w, int h) {
     debugAssert(w > 0);
     debugAssert(h > 0);
-    _settings.width = w;
-    _settings.height = h;
+    m_settings.width = w;
+    m_settings.height = h;
 
 	// Mutate the SDL surface (which one is not supposed to do).
 	// We can't resize the actual surface or SDL will destroy
@@ -669,17 +674,17 @@ void SDLWindow::setMouseVisible(bool v) {
         SDL_ShowCursor(SDL_DISABLE);
     }
 
-    _mouseVisible = v;
+    m_mouseVisible = v;
 }
 
 
 void SDLWindow::setInputCapture(bool c) {
     m_inputCaptureCount = c ? 1 : 0;
 
-    if (_inputCapture != c) {
-        _inputCapture = c;
+    if (m_inputCapture != c) {
+        m_inputCapture = c;
 
-        if (_inputCapture) {
+        if (m_inputCapture) {
             SDL_WM_GrabInput(SDL_GRAB_ON);
         } else {
             SDL_WM_GrabInput(SDL_GRAB_OFF);
@@ -707,12 +712,12 @@ void SDLWindow::getOSEvents(Queue<GEvent>& events) {
 #if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 Window SDLWindow::x11Window() const {
-    return _X11Window;
+    return m_X11Window;
 }
 
 
 Display* SDLWindow::x11Display() const {
-    return _X11Display;
+    return m_X11Display;
 }
 
 #elif defined(G3D_WIN32)
@@ -730,11 +735,11 @@ HWND SDLWindow::win32HWND() const {
 
 void SDLWindow::reallyMakeCurrent() const {
 #   ifdef G3D_WIN32
-        if (wglMakeCurrent(_Win32HDC, _glContext) == FALSE)	{
+        if (wglMakeCurrent(_Win32HDC, m_glContext) == FALSE)	{
             debugAssertM(false, "Failed to set context");
 	}
 #   elif defined(G3D_LINUX)
-        if (! glXMakeCurrent(_X11Display, _X11Window, _glContext)) {
+        if (! glXMakeCurrent(m_X11Display, m_X11Window, m_glContext)) {
             //debugAssertM(false, "Failed to set context");
             // only check OpenGL as False seems to be returned when
             // context is already current

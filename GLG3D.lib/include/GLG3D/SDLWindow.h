@@ -44,26 +44,23 @@ class SDLWindow : public OSWindow {
 private:
 
     /** Window title */
-    std::string                 _caption;
+    std::string                 m_caption;
 
     /** API version */
-    std::string                 _version;
+    std::string                 m_version;
 
-    /** The x, y fields are not updated when the window moves. */
-    OSWindow::Settings           _settings;
+    bool                        m_inputCapture;
 
-    bool                        _inputCapture;
+    Array< ::SDL_Joystick* >    m_joy;
 
-    Array< ::SDL_Joystick* >    joy;
+    bool                        m_mouseVisible;
 
-    bool                        _mouseVisible;
-
-    GLContext                   _glContext;
+    GLContext                   m_glContext;
 
 #   if defined(G3D_LINUX) || defined(G3D_FREEBSD)
-        Display*                _X11Display;
-        Window                  _X11Window;
-        Window                  _X11WMWindow;
+        Display*                m_X11Display;
+        Window                  m_X11Window;
+        Window                  m_X11WMWindow;
 #   elif defined(G3D_WIN32)
         HDC                     _Win32HDC;
         HWND                    _Win32HWND;
