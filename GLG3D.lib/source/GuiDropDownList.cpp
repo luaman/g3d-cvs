@@ -125,4 +125,37 @@ void GuiDropDownList::setRect(const Rect2D& rect) {
 }
 
 
+std::string GuiDropDownList::stringValue() const {
+    if (m_useStringList) {
+        if (m_stringListValue->size() > 0) {
+            return (*m_stringListValue)[*m_indexValue];
+        } else {
+            return "";
+        }
+    } else {
+        if (m_captionListValue->size() > 0) {
+            return (*m_captionListValue)[*m_indexValue].text();
+        } else {
+            return "";
+        }
+    }
+}
+
+
+GuiCaption GuiDropDownList::captionValue() const {
+    if (m_useStringList) {
+        if (m_stringListValue->size() > 0) {
+            return (*m_stringListValue)[*m_indexValue];
+        } else {
+            return "";
+        }
+    } else {
+        if (m_captionListValue->size() > 0) {
+            return (*m_captionListValue)[*m_indexValue];
+        } else {
+            return "";
+        }
+    }
+}
+
 }

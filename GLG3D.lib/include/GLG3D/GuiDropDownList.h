@@ -72,7 +72,18 @@ protected:
 public:
 
     virtual void setRect(const Rect2D&);
-    
+
+    /** Returns the currently selected string, or "" if the array is
+        empty. Ok to call even if the list was initialized from a
+        caption list. */
+    std::string stringValue() const;
+
+    /** Returns the currently selected caption, or "" if the array is
+        empty. Ok to call even if the list was initialized from a
+        string list. */
+    GuiCaption captionValue() const;
+        
+
 };
 
 } // G3D
