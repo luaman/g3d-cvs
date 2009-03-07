@@ -31,7 +31,9 @@ typedef ReferenceCountedPointer<class VertexAndPixelShader>  VertexAndPixelShade
 #endif
 
 /** Argument to G3D::VertexAndPixelShader and G3D::Shader create methods */
-enum UseG3DUniforms {DEFINE_G3D_UNIFORMS, DO_NOT_DEFINE_G3D_UNIFORMS};
+enum PreprocessorStatus {
+    PREPROCESSOR_DISABLED,
+    PREPROCESSOR_ENABLED};
 
 
 /**
@@ -133,43 +135,54 @@ protected:
         
         std::string                 _shaderType;
        
+        /** Checks to ensure that this profile is supported on this
+            card. Called from init().*/
+        void checkForSupport();
+
         /**
            Replaces all instances of 
-           <code>"g3d_sampler2DSize(name)"</code> with 
-           <code>"     (g3d_sz2D_name.xy)"</code> and
+           <code>"g3d_sampler2DSize(<i>name</i>)"</code> with 
+           <code>"     (g3d_sz2D_<i>name</i>.xy)"</code> and
            
-           <code>"g3d_sampler2DInvSize(name)"</code> with
-           <code>"        (g3d_sz2D_name.zw)"</code> 
+           <code>"g3d_sampler2DInvSize(<i>name</i>)"</code> with
+           <code>"        (g3d_sz2D_<i>name</i>.zw)"</code> 
            
-          Note that both replacements will leave column numbers the same in error messages.  The
-          <code>()</code> wrapper ensures that <code>.xy</code> fields are accessible using
-          normal syntax off the result; it is the same as the standard practice of wrapping macros
-          in parentheses.
+          Note that both replacements will leave column numbers the
+          same in error messages.  The <code>()</code> wrapper ensures
+          that <code>.xy</code> fields are accessible using normal
+          syntax off the result; it is the same as the standard
+          practice of wrapping macros in parentheses.
 
-          and adds "uniform vec4 g3d_sz2D_name;" to the uniform string.
+          and adds "<code>uniform vec4 g3d_sz2D_<i>name</i>;</code>"
+          to the uniform string.
 
           Called from init.
          */
         void replaceG3DSize(std::string& code, std::string& uniformString);
 
         /**
-         Replaces all instances of <code>g3d_Index[samplername]</code> with <code>(g3d_Indx_samplername)</code>
-         Called from init.
+         Replaces all instances of <code>g3d_Index[<i>samplername</i>]</code>
+         with <code>(g3d_Indx_<i>samplername</i>)</code> Called from init.
 
-         The first time a file is compiled, samplerMappings is empty.  It must then compiled again with correct mappings,
-         which are assigned elsewhere.
+         The first time a file is compiled, samplerMappings is empty.
+         It must then compiled again with correct mappings, which are
+         assigned elsewhere.
 
          @param defineString New #defines to insert at the top of the program
          @param code modified in place
          @param secondPass On the scond pass, the samplerMappings must not be empty.
+         @return True if there was one replacement, false otherwise
          */
-        void replaceG3DIndex(std::string& code, std::string& defineString, const Table<std::string, int>& samplerMappings, bool secondPass);
+        bool replaceG3DIndex(std::string& code, std::string& defineString, 
+                             const Table<std::string, int>& samplerMappings, bool secondPass);
 
         bool            m_usesG3DIndex;
 
-	public:
+    public:
 
-        /** True if this shader uses the g3d_Index extension and therefore needs double-compilation to resolve dependencies. */
+        /** True if this shader uses the g3d_Index extension and
+            therefore needs double-compilation to resolve
+            dependencies. */
         bool usesG3DIndex() const {
             return m_usesG3DIndex;
         }
@@ -178,16 +191,16 @@ protected:
          @param samplerMappings Table mapping sampler names to their gl_TexCoord indices.  
          This may be empty if the mappings are not yet known.
          */
-        void init(
-              const std::string& name,
-              const std::string& code,
-              bool               fromFile,
-              bool		         debug,
-              GLenum		     glType,
-              const std::string& type,
-              UseG3DUniforms     u,
-              const Table<std::string, int>& samplerMappings,
-              bool               secondPass);
+        void init
+        (const std::string& name,
+         const std::string& code,
+         bool               fromFile,
+         bool               debug,
+         GLenum             glType,
+         const std::string& type,
+         PreprocessorStatus u,
+         const Table<std::string, int>& samplerMappings,
+         bool               secondPass);
             
         /** Deletes the underlying glShaderObject.  Between GL's reference
             counting and G3D's reference counting, an underlying object
@@ -247,36 +260,39 @@ protected:
     /** Does not contain g3d_ uniforms if they were compiled away */
     Set<std::string>            uniformNames;
 
-    /** Converts from int and bool types to float types (e.g. GL_INT_VEC2_ARB -> GL_FLOAT_VEC2_ARB).
-        Other types are left unmodified.*/
+    /** Converts from int and bool types to float types (e.g.,
+        <code>GL_INT_VEC2_ARB</code> ->
+        <code>GL_FLOAT_VEC2_ARB</code>).  Other types are left
+        unmodified.*/
     static GLenum canonicalType(GLenum e);
 
     /** Computes the uniformArray from the current
         program object.  Called from the constructor */
     void computeUniformArray();
 
-    /** Finds any uniform variables in the code that are not already in 
-        the uniform array that OpenGL returned and adds them to that array.
-        This causes VertexAndPixelShader to surpress warnings about 
-        setting variables that have been compiled away--those warnings
-        are annoying when temporarily commenting out code. */
+    /** Finds any uniform variables in the code that are not already
+        in the uniform array that OpenGL returned and adds them to
+        that array.  This causes VertexAndPixelShader to surpress
+        warnings about setting variables that have been compiled
+        away--those warnings are annoying when temporarily commenting
+        out code. */
     void addUniformsFromCode(const std::string& code);
 
     /** Returns true for types that are textures (e.g., GL_TEXTURE_2D) */
     static bool isSamplerType(GLenum e);
 
     VertexAndPixelShader
-    (
-     const std::string&  vsCode,
+    (const std::string&  vsCode,
      const std::string&  vsFilename,
      bool                vsFromFile,
      const std::string&  psCode,
      const std::string&  psFilename,
      bool                psFromFile,
      bool                debug,
-     UseG3DUniforms      u);
+     PreprocessorStatus  u);
 
-    /** Returns true if Shader will allow this coercion. These should be non-canonical types. */
+    /** Returns true if Shader will allow this coercion. These should
+        be non-canonical types. */
     static bool compatibleTypes(GLenum actual, GLenum formal);
 
 public:
@@ -300,26 +316,24 @@ public:
     };
     
     static VertexAndPixelShaderRef fromStrings
-    (
-     const std::string& vertexShader,
+    (const std::string& vertexShader,
      const std::string& pixelShader,       
-     UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
-     bool debugErrors = DEBUG_SHADER);
+     PreprocessorStatus u,
+     bool               debugErrors);
     
     /**
        To use the default/fixed-function pipeline for part of the
        shader, pass an empty string.
     */
     static VertexAndPixelShaderRef fromStrings
-        (
-         const std::string& vertexShaderName,
-         const std::string& vertexShader,
-         const std::string& geometryShaderName,
-         const std::string& geometryShader,       
-         const std::string& pixelShaderName,
-         const std::string& pixelShader,       
-         UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
-         bool debugErrors = DEBUG_SHADER);
+    (const std::string& vertexShaderName,
+     const std::string& vertexShader,
+     const std::string& geometryShaderName,
+     const std::string& geometryShader,       
+     const std::string& pixelShaderName,
+     const std::string& pixelShader,       
+     PreprocessorStatus u,
+     bool               debugErrors);
     
     /**
        To use the fixed function pipeline for part of the
@@ -332,11 +346,10 @@ public:
        compiled correctly.
     */
     static VertexAndPixelShaderRef fromFiles
-    (
-     const std::string& vertexShader,
+    (const std::string& vertexShader,
      const std::string& pixelShader,
-     UseG3DUniforms u = DO_NOT_DEFINE_G3D_UNIFORMS,
-     bool debugErrors = DEBUG_SHADER);
+     PreprocessorStatus u,
+     bool               debugErrors);
 
     /**
      Bindings of values to uniform variables for a VertexAndPixelShader.
@@ -525,8 +538,9 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
 
   <P>
   
-  Unless DO_NOT_DEFINE_G3D_UNIFORMS is specified to the static constructor, the
-  following additional variables will be available inside the shaders:
+  Unless G3D_PREPROCESSOR_DISABLED is specified to the static
+  constructor, the following additional features will be available
+  inside the shaders:
 
   <PRE>
     uniform mat4 g3d_WorldToObjectMatrix;
@@ -628,11 +642,17 @@ public:
 protected:
 
     VertexAndPixelShaderRef         _vertexAndPixelShader;
-    UseG3DUniforms                  _useUniforms;
+
+    /** If true, needs the built-in G3D uniforms that appear in the
+        code to be bound */
+    bool                            m_useUniforms;
+
     bool                            _preserveState;
 
-    inline Shader(VertexAndPixelShaderRef v, UseG3DUniforms u) : 
-        _vertexAndPixelShader(v), _useUniforms(u), _preserveState(true) {}
+    inline Shader(VertexAndPixelShaderRef v, PreprocessorStatus s) : 
+        _vertexAndPixelShader(v), 
+        m_useUniforms(s == PREPROCESSOR_ENABLED),
+        _preserveState(true) {}
 
     /** For subclasses to invoke */
     inline Shader() {}
@@ -707,15 +727,15 @@ public:
     inline static ShaderRef fromFiles(
         const std::string& vertexFile, 
         const std::string& pixelFile,
-        UseG3DUniforms u = DEFINE_G3D_UNIFORMS) {
-        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, pixelFile, u, DEBUG_SHADER), u);
+        PreprocessorStatus s = PREPROCESSOR_ENABLED) {
+        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, pixelFile, s, DEBUG_SHADER), s);
     }
 
     inline static ShaderRef fromStrings(
         const std::string& vertexCode,
         const std::string& pixelCode,
-        UseG3DUniforms u = DEFINE_G3D_UNIFORMS) {
-        return new Shader(VertexAndPixelShader::fromStrings(vertexCode, pixelCode, u, DEBUG_SHADER), u);
+        PreprocessorStatus s = PREPROCESSOR_ENABLED) {
+        return new Shader(VertexAndPixelShader::fromStrings(vertexCode, pixelCode, s, DEBUG_SHADER), s);
     }
 
     /** Names are purely for debugging purposes */
@@ -724,8 +744,8 @@ public:
         const std::string& vertexCode,
         const std::string& pixelName,
         const std::string& pixelCode,
-        UseG3DUniforms u = DEFINE_G3D_UNIFORMS) {
-        return new Shader(VertexAndPixelShader::fromStrings(vertexName, vertexCode, "", "", pixelName, pixelCode, u, DEBUG_SHADER), u);
+        PreprocessorStatus s = PREPROCESSOR_ENABLED) {
+        return new Shader(VertexAndPixelShader::fromStrings(vertexName, vertexCode, "", "", pixelName, pixelCode, s, DEBUG_SHADER), s);
     }
 
     /** When true, any RenderDevice state that the shader configured before a primitive it restores at

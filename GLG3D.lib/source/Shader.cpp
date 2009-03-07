@@ -113,7 +113,7 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
         renderDevice->pushState();
     }
 
-    if (_useUniforms == DEFINE_G3D_UNIFORMS) {
+    if (m_useUniforms) {
         const CoordinateFrame& o2w = renderDevice->objectToWorldMatrix();
         const CoordinateFrame& c2w = renderDevice->cameraToWorldMatrix();
 
@@ -240,7 +240,7 @@ static void replace
 }
 
 
-void VertexAndPixelShader::GPUShader::replaceG3DIndex
+bool VertexAndPixelShader::GPUShader::replaceG3DIndex
 (std::string&                   code, 
  std::string&                   defineString, 
  const Table<std::string, int>& samplerMappings, 
@@ -249,6 +249,7 @@ void VertexAndPixelShader::GPUShader::replaceG3DIndex
     // Ensure that defines are only declared once
     Set<std::string> newDefines;
 
+    bool replaced = false;
     std::string funcName = "g3d_Index(";
     std::string prefix   = "(";
     std::string postfix  = "";
@@ -272,9 +273,12 @@ void VertexAndPixelShader::GPUShader::replaceG3DIndex
 
         // Insert the appropriate mapping
         defineString += "#define g3d_Indx_" + *current + " " + format("%d\n", i); 
+        replaced = true;
 
         ++current;
     }
+
+    return replaced;
 }
 
 void VertexAndPixelShader::GPUShader::replaceG3DSize
@@ -302,152 +306,167 @@ void VertexAndPixelShader::GPUShader::replaceG3DSize
 }
 
 
+static int countNewlines(const std::string& s) { 
+    int c = 0;
+    for (int i = 0; i < (int)s.size(); ++i) {
+        if (s[i] == '\n') {
+            ++c;
+        }
+    }
+    return c;
+}
+
+
+void VertexAndPixelShader::GPUShader::checkForSupport() {
+    switch (_glShaderType) {
+    case GL_VERTEX_SHADER_ARB:
+        if (! Shader::supportsVertexShaders()) {
+            _ok = false;
+            _messages = "This graphics card does not support vertex shaders.";
+        }
+        break;
+        
+    case GL_FRAGMENT_SHADER_ARB:
+        if (! Shader::supportsPixelShaders()) {
+            _ok = false;
+            _messages = "This graphics card does not support pixel shaders.";
+        }
+        break;
+    }
+}
+
+
 void VertexAndPixelShader::GPUShader::init
-(
- const std::string&	    name,
+(const std::string&	    name,
  const std::string&	    code,
  bool			    _fromFile,
  bool			    debug,	
  GLenum			    glType,
  const std::string&	    type,
- UseG3DUniforms             uniforms,
+ PreprocessorStatus         preprocessor,
  const Table<std::string, int>& samplerMappings,
- bool                        secondPass) {
+ bool                       secondPass) {
     
-    std::string uniformString = 
-        STR(
-        uniform mat4 g3d_WorldToObjectMatrix;
-        uniform mat4 g3d_ObjectToWorldMatrix;
-        uniform mat3 g3d_WorldToObjectNormalMatrix;
-        uniform mat3 g3d_ObjectToWorldNormalMatrix;
-        uniform mat4 g3d_WorldToCameraMatrix;
-        uniform mat4 g3d_CameraToWorldMatrix;
-        uniform int  g3d_NumLights;
-        uniform int  g3d_NumTextures;
-        uniform vec4 g3d_ObjectLight0;
-        uniform vec4 g3d_WorldLight0;
-        );
-
     _name		= name;
     _shaderType		= type;
     _glShaderType	= glType;
     _ok			= true;
     fromFile		= _fromFile;
     _fixedFunction	= (name == "") && (code == "");
+    //m_useUniforms       = false;
     
-    if (! _fixedFunction) {
-        
-        switch (glType) {
-        case GL_VERTEX_SHADER_ARB:
-            if (! Shader::supportsVertexShaders()) {
-                _ok = false;
-                _messages = "This graphics card does not support vertex shaders.";
-            }
-            break;
+    if (_fixedFunction) {
+        return;
+    }
 
-        case GL_FRAGMENT_SHADER_ARB:
-            if (! Shader::supportsPixelShaders()) {
-                _ok = false;
-                _messages = "This graphics card does not support pixel shaders.";
-            }
-            break;
-        }
-
-        if (fromFile) {
-            if (fileExists(_name)) {
-                _code = readWholeFile(_name);
-            } else {
-                _ok = false;
-                _messages = format("Could not load shader file \"%s\".", 
-                                   _name.c_str());
-            }
+    checkForSupport();
+    
+    if (fromFile) {
+        if (fileExists(_name)) {
+            _code = readWholeFile(_name);
         } else {
-            _code = code;
+            _ok = false;
+            _messages = format("Could not load shader file \"%s\".", 
+                               _name.c_str());
         }
-        
-        bool shifted = false;
+    } else {
+        _code = code;
+    }
+    
+    int shifted = 0;
+   
+    if ((preprocessor == PREPROCESSOR_ENABLED) && (_code.size() > 0)) {
+        // G3D Preprocessor
 
+        //m_useUniforms = true;
+
+        // Standard uniforms.  We'll add custom ones to this below
+        std::string uniformString = 
+            STR(
+                uniform mat4 g3d_WorldToObjectMatrix;
+                uniform mat4 g3d_ObjectToWorldMatrix;
+                uniform mat3 g3d_WorldToObjectNormalMatrix;
+                uniform mat3 g3d_ObjectToWorldNormalMatrix;
+                uniform mat4 g3d_WorldToCameraMatrix;
+                uniform mat4 g3d_CameraToWorldMatrix;
+                uniform int  g3d_NumLights;
+                uniform int  g3d_NumTextures;
+                uniform vec4 g3d_ObjectLight0;
+                uniform vec4 g3d_WorldLight0;
+                );
+
+        
         // See if the program begins with a version pragma
         std::string versionLine;
-        if (beginsWith(code, "#version ")) {
-            // Strip off the version line, including the \n
-            int pos = code.find("\n") + 1;
-            versionLine = code.substr(0, pos);
-            _code = code.substr(versionLine.length());
+        if (beginsWith(_code, "#version ")) {
+            // Strip off the version line, including the \n. We must keep
+            // it in front of everything else. 
+            shifted = -1;
+            int pos = _code.find("\n") + 1;
+            versionLine = _code.substr(0, pos);
+            _code = _code.substr(versionLine.length());
         }
 
-        if ((uniforms == DEFINE_G3D_UNIFORMS) && (_code.size() > 0)) {
-            // Replace g3d_size and g3d_invSize with corresponding magic names
-            
-            switch (GLCaps::enumVendor()) {
-            case GLCaps::ATI:
-                _code = "#define G3D_ATI\n" + _code;
-                break;
-            case GLCaps::NVIDIA:
-                _code = "#define G3D_NVIDIA\n" + _code;
-                break;
-            case GLCaps::MESA:
-                _code = "#define G3D_MESA\n" + _code;
-                break;
-            default:;
-            }
-#           ifdef G3D_OSX 
-                _code = "#define G3D_OSX\n" + _code;
-#           elif defined(G3D_WIN32)
-                _code = "#define G3D_WIN32\n" + _code;
-#           elif defined(G3D_LINUX)
-                _code = "#define G3D_LINUX\n" + _code;
-#           elif defined(G3D_FREEBSD)
-                _code = "#define G3D_FREEBSD\n" + _code;
-#           endif
+        // #defines we'll prepend onto the shader
+        std::string defineString;
+        
+        switch (GLCaps::enumVendor()) {
+        case GLCaps::ATI:
+            defineString += "#define G3D_ATI\n";
+            break;
+        case GLCaps::NVIDIA:
+            defineString += "#define G3D_NVIDIA\n";
+            break;
+        case GLCaps::MESA:
+            defineString += "#define G3D_MESA\n";
+            break;
+        default:;
+        }
+
+#       ifdef G3D_OSX 
+            defineString += "#define G3D_OSX\n";
+#       elif defined(G3D_WIN32)
+            defineString += "#define G3D_WIN32\n";
+#       elif defined(G3D_LINUX)
+            defineString += "#define G3D_LINUX\n";
+#       elif defined(G3D_FREEBSD)
+            defineString += "#define G3D_FREEBSD\n";
+#       endif
                 
-            replaceG3DSize(_code, uniformString);
+        // Replace g3d_size and g3d_invSize with corresponding magic names
+        replaceG3DSize(_code, uniformString);
             
-            std::string definesString;
-            replaceG3DIndex(_code, definesString, samplerMappings, secondPass);
-            m_usesG3DIndex = (definesString != "");
-            
-            if (m_usesG3DIndex) {
-                _code = definesString + _code;
-            }
-
-            std::string lineDirective = "";
-            if (versionLine != "") {
-                // Fix the line numbers since we inserted code at the top
-                lineDirective = "#line 2\n";
-            } else {
-                // We only need to record that we've shifted line numbers
-                // if the version is pre-1.20, since all later version support
-                // the #line directive
-                shifted = true;
-            }
-
-            _code = uniformString + "\n" + lineDirective + _code + "\n";
-
-        } else {
-            // Add a newline to the end to ensure that the shader is terminated
-            // with one, which is required by GLSL.
-            _code += "\n";
-        }
-
-        _code = versionLine + _code;
-
-        if (_ok) {
-            compile();
+        m_usesG3DIndex = replaceG3DIndex(_code, defineString, samplerMappings, secondPass);
+        
+        // Correct line numbers
+        std::string insertString = defineString + uniformString + "\n";
+        shifted += countNewlines(insertString) + 1;
+        
+        std::string lineDirective = "";
+        if (versionLine != "") {
+            // We may fix line numbers with a line directive.
+            lineDirective = format("#line %d\n", shifted - 2);
+            // There's no longer any shifting, since we changed the numbering
+            shifted = 0;
         }
         
-        if (debug) {
-            // Check for compilation errors
-            if (! ok()) {
-                if (shifted) {
-                    debugPrintf("\n[Line numbers in the following shader errors are shifted by one.]\n");
-                }
-                debugPrintf("%s", messages().c_str());
-                alwaysAssertM(ok(), messages());
+        _code = versionLine + insertString + lineDirective + _code + "\n";
+    }
+    
+    if (_ok) {
+        compile();
+    }
+    
+    if (debug) {
+        // Check for compilation errors
+        if (! ok()) {
+            if (shifted != 0) {
+                debugPrintf("\n[Line numbers in the following shader errors are shifted by %d.]\n", shifted);
             }
+            debugPrintf("%s", messages().c_str());
+            alwaysAssertM(ok(), messages());
         }
     }
-        
 }
 
 
@@ -460,6 +479,8 @@ void VertexAndPixelShader::GPUShader::compile() {
     GLint length = _code.length();
     const GLcharARB* codePtr = static_cast<const GLcharARB*>(_code.c_str());
     
+    // Show the preprocessed code:
+    //printf("\"%s\"\n", _code.c_str());
     glShaderSourceARB(_glShaderObject, 1, &codePtr, &length);
     glCompileShaderARB(_glShaderObject);
     glGetObjectParameterivARB(_glShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
@@ -486,18 +507,18 @@ void VertexAndPixelShader::GPUShader::compile() {
             // NVIDIA likes to preface messages with "ERROR: "; strip it off
             line = line.substr(7);
 
-            // Now skip over two colons to find the end of the
-            // line/char number, and wrap it in parentheses.
-            int i = line.find(':');
-            if (i > -1) {
-                // Find the second colon
-                i = line.find(':', i + 1);
-            }
-            if (i > -1) {
-                // Wrap the line number in parentheses
-                line = "(" + line.substr(0, i) + ")" + line.substr(i);
+            if (beginsWith(line, "0:")) {
+                // Now skip over the line number and wrap it in parentheses.
+                line = line.substr(2);
+                int i = line.find(':');
+                if (i > -1) {
+                    // Wrap the line number in parentheses
+                    line = "(" + line.substr(0, i) + ")" + line.substr(i);
+                } else {
+                    // There was no line number, so just add a colon
+                    line = ": " + line;
+                }
             } else {
-                // There was no line number, so just add a colon
                 line = ": " + line;
             }
         }
@@ -546,16 +567,16 @@ void VertexAndPixelShader::reload() {
     // TODO
 }
 
-VertexAndPixelShader::VertexAndPixelShader(
-	const std::string&  vsCode,
-	const std::string&  vsFilename,
-	bool                vsFromFile,
-	const std::string&  psCode,
-	const std::string&  psFilename,
-	bool                psFromFile,
-    bool                debug,
-    UseG3DUniforms      uniforms) :
-        _ok(true) {
+VertexAndPixelShader::VertexAndPixelShader
+(const std::string&  vsCode,
+ const std::string&  vsFilename,
+ bool                vsFromFile,
+ const std::string&  psCode,
+ const std::string&  psFilename,
+ bool                psFromFile,
+ bool                debug,
+ PreprocessorStatus  preprocessor) :
+    _ok(true) {
 
     if (! GLCaps::supports_GL_ARB_shader_objects()) {
         _messages = "This graphics card does not support GL_ARB_shader_objects.";
@@ -570,13 +591,14 @@ VertexAndPixelShader::VertexAndPixelShader(
     bool secondPass = false;
     do {
         repeat = false;
-        vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", uniforms, samplerMappings, secondPass);
-        pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", uniforms, samplerMappings, secondPass);
+        vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", preprocessor, samplerMappings, secondPass);
+        pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", preprocessor, samplerMappings, secondPass);
         
         _vertCompileMessages += vertexShader.messages();
         _messages +=
             std::string("Compiling ") + vertexShader.shaderType() + " " + vsFilename + NEWLINE +
             vertexShader.messages() + NEWLINE + NEWLINE;
+
         if (! vertexShader.ok()) {
             _ok = false;
         }
@@ -838,13 +860,11 @@ void VertexAndPixelShader::computeUniformArray() {
 
 
 VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
-(
- const std::string& vs,
+(const std::string& vs,
  const std::string& ps,
- UseG3DUniforms u,
- bool debugErrors) {
-    
-    return new VertexAndPixelShader(vs, "", false, ps, "", false, debugErrors, u);
+ PreprocessorStatus s,
+ bool               debugErrors) {
+    return new VertexAndPixelShader(vs, "", false, ps, "", false, debugErrors, s);
 }
 
 
@@ -856,18 +876,18 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
  const std::string& gs,
  const std::string& psName,
  const std::string& ps,
- UseG3DUniforms u,
- bool debugErrors) {
+ PreprocessorStatus s,
+ bool               debugErrors) {
 
-    return new VertexAndPixelShader(vs, vsName, false, ps, psName, false, debugErrors, u);
+    return new VertexAndPixelShader(vs, vsName, false, ps, psName, false, debugErrors, s);
 }
 
 
 VertexAndPixelShaderRef VertexAndPixelShader::fromFiles
 (const std::string& vsFilename,
  const std::string& psFilename,
- UseG3DUniforms u,
- bool debugErrors) {
+ PreprocessorStatus s,
+ bool               debugErrors) {
     
     std::string vs;
     std::string ps;
@@ -880,7 +900,7 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromFiles
         ps = readWholeFile(psFilename);
     }
     
-    return new VertexAndPixelShader(vs, vsFilename, vsFilename != "", ps, psFilename, (psFilename != ""), debugErrors, u);
+    return new VertexAndPixelShader(vs, vsFilename, vsFilename != "", ps, psFilename, (psFilename != ""), debugErrors, s);
 }
 
 

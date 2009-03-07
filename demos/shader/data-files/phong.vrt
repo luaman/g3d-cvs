@@ -6,7 +6,7 @@
  @file phong.vrt
  @author Morgan McGuire, morgan@cs.williams.edu
  */
-fool
+
 /** Camera origin in world space */
 uniform vec3 wsEyePosition;
 
