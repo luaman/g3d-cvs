@@ -1,5 +1,10 @@
+#version 120
+// -*- c++ -*-
 /**
  Per-pixel Phong Shading
+
+ @file phong.pix
+ @author Morgan McGuire, morgan@cs.williams.edu
  */
 
 /** Diffuse/ambient surface color */

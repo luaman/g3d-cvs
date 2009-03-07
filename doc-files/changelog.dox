@@ -14,6 +14,8 @@
    Changes in 8.00:
    <ul>
      <li> G3D::RenderDevice::BLEND_ONE_MINUS_DST_COLOR
+     <li> G3D::Shader now supports G3D::Matrix2
+     <li> G3D::Shader now strips "ERROR:" from shader error messages for compactness
      <li> G3D::GuiDropDownList::stringValue, G3D::GuiDropDownList::captionValue
      <li> G3D::Material and G3D::SuperShader now only allow alpha mask on the diffuse (Lambertian) component
      <li> G3D::GImage::computeNormalMap now allows the white height to be a constant multiple of the larger dimension

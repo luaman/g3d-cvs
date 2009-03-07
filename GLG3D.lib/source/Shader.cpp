@@ -200,8 +200,13 @@ const std::string& Shader::messages() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void replace(std::string& code, Set<std::string>& newNames, const std::string& generatedPrefix, const std::string& funcName, const std::string& prefix,
-                    const std::string& postfix) {
+static void replace
+(std::string&       code, 
+ Set<std::string>&  newNames, 
+ const std::string& generatedPrefix,
+ const std::string& funcName, 
+ const std::string& prefix,
+ const std::string& postfix) {
 
     debugAssertM(generatedPrefix.length() + prefix.length() + postfix.length() == funcName.length() + 1, 
         "Internal error: replacements must contain exactly the same number of characters");
@@ -235,8 +240,11 @@ static void replace(std::string& code, Set<std::string>& newNames, const std::st
 }
 
 
-void VertexAndPixelShader::GPUShader::replaceG3DIndex(std::string& code, std::string& defineString, 
-                                                      const Table<std::string, int>& samplerMappings, bool secondPass) {
+void VertexAndPixelShader::GPUShader::replaceG3DIndex
+(std::string&                   code, 
+ std::string&                   defineString, 
+ const Table<std::string, int>& samplerMappings, 
+ bool                           secondPass) {
 
     // Ensure that defines are only declared once
     Set<std::string> newDefines;
@@ -269,7 +277,9 @@ void VertexAndPixelShader::GPUShader::replaceG3DIndex(std::string& code, std::st
     }
 }
 
-void VertexAndPixelShader::GPUShader::replaceG3DSize(std::string& code, std::string& uniformString) {
+void VertexAndPixelShader::GPUShader::replaceG3DSize
+(std::string& code,
+ std::string& uniformString) {
 
     // Ensure that uniforms are only declared once
     Set<std::string> newUniforms;
@@ -296,14 +306,13 @@ void VertexAndPixelShader::GPUShader::init
 (
  const std::string&	    name,
  const std::string&	    code,
- bool			        _fromFile,
- bool			        debug,	
- GLenum			        glType,
+ bool			    _fromFile,
+ bool			    debug,	
+ GLenum			    glType,
  const std::string&	    type,
- UseG3DUniforms         uniforms,
+ UseG3DUniforms             uniforms,
  const Table<std::string, int>& samplerMappings,
- bool                   secondPass
- ) {
+ bool                        secondPass) {
     
     std::string uniformString = 
         STR(
@@ -445,63 +454,88 @@ void VertexAndPixelShader::GPUShader::init
 void VertexAndPixelShader::GPUShader::compile() {
 
     GLint compiled = GL_FALSE;
-	_glShaderObject = glCreateShaderObjectARB(glShaderType());
+    _glShaderObject = glCreateShaderObjectARB(glShaderType());
 
     // Compile the shader
-	GLint length = _code.length();
+    GLint length = _code.length();
     const GLcharARB* codePtr = static_cast<const GLcharARB*>(_code.c_str());
-
-	glShaderSourceARB(_glShaderObject, 1, &codePtr, &length);
-	glCompileShaderARB(_glShaderObject);
-	glGetObjectParameterivARB(_glShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
+    
+    glShaderSourceARB(_glShaderObject, 1, &codePtr, &length);
+    glCompileShaderARB(_glShaderObject);
+    glGetObjectParameterivARB(_glShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
     // Read the result of compilation
-	GLint	  maxLength;
-	glGetObjectParameterivARB(_glShaderObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
+    GLint	  maxLength;
+    glGetObjectParameterivARB(_glShaderObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
     GLcharARB* pInfoLog = (GLcharARB *)malloc(maxLength * sizeof(GLcharARB));
-	glGetInfoLogARB(_glShaderObject, maxLength, &length, pInfoLog);
-
-	int c = 0;
+    glGetInfoLogARB(_glShaderObject, maxLength, &length, pInfoLog);
+    
+    int c = 0;
     // Copy the result to the output string, prepending the filename
-	while (pInfoLog[c] != '\0') {
-		_messages += _name;
-		while (pInfoLog[c] != '\n' && pInfoLog[c] != '\r' && pInfoLog[c] != '\0') {
-			_messages += pInfoLog[c];
-			++c;
-		}
+    while (pInfoLog[c] != '\0') {
+        _messages += _name;
 
-		if (pInfoLog[c] == '\r' && pInfoLog[c + 1] == '\n') {
-			// Windows newline
-			#ifdef G3D_WIN32
-				_messages += "\r\n";
-			#else
-				_messages += "\n";
-			#endif
-			c += 2;
-		} else if (pInfoLog[c] == '\r' && pInfoLog[c + 1] != '\n') {
-			// Dangling \r; treat it as a newline
-			_messages += "\r\n";
-			++c;
-		} else if (pInfoLog[c] == '\n') {
-			// Newline
-			#ifdef G3D_WIN32
-				_messages += "\r\n";
-			#else
-				_messages += "\n";
-			#endif
-			++c;
-		}
-	}
-	free(pInfoLog);
+        // Copy until the next newline or end of string
+        std::string line;
+        while (pInfoLog[c] != '\n' && pInfoLog[c] != '\r' && pInfoLog[c] != '\0') {
+            line += pInfoLog[c];
+            ++c;
+        }
 
+        if (beginsWith(line, "ERROR: ")) {
+            // NVIDIA likes to preface messages with "ERROR: "; strip it off
+            line = line.substr(7);
+
+            // Now skip over two colons to find the end of the
+            // line/char number, and wrap it in parentheses.
+            int i = line.find(':');
+            if (i > -1) {
+                // Find the second colon
+                i = line.find(':', i + 1);
+            }
+            if (i > -1) {
+                // Wrap the line number in parentheses
+                line = "(" + line.substr(0, i) + ")" + line.substr(i);
+            } else {
+                // There was no line number, so just add a colon
+                line = ": " + line;
+            }
+        }
+
+        _messages += line;
+        
+        if (pInfoLog[c] == '\r' && pInfoLog[c + 1] == '\n') {
+            // Windows newline
+#           ifdef G3D_WIN32
+                _messages += "\r\n";
+#           else
+                _messages += "\n";
+#           endif
+            c += 2;
+        } else if (pInfoLog[c] == '\r' && pInfoLog[c + 1] != '\n') {
+            // Dangling \r; treat it as a newline
+            _messages += "\r\n";
+            ++c;
+        } else if (pInfoLog[c] == '\n') {
+            // Newline
+#           ifdef G3D_WIN32
+                _messages += "\r\n";
+#           else
+                _messages += "\n";
+#           endif
+            ++c;
+        }
+    }
+    free(pInfoLog);
+    
     _ok = (compiled == GL_TRUE);
 }
 
 
 VertexAndPixelShader::GPUShader::~GPUShader() {
-	if (! _fixedFunction) {
-		glDeleteObjectARB(_glShaderObject);
-	}
+    if (! _fixedFunction) {
+        glDeleteObjectARB(_glShaderObject);
+    }
 }
 
 
@@ -536,13 +570,13 @@ VertexAndPixelShader::VertexAndPixelShader(
     bool secondPass = false;
     do {
         repeat = false;
-	    vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", uniforms, samplerMappings, secondPass);
-	    pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", uniforms, samplerMappings, secondPass);
+        vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", uniforms, samplerMappings, secondPass);
+        pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", uniforms, samplerMappings, secondPass);
         
         _vertCompileMessages += vertexShader.messages();
-        _messages += 
-		    std::string("Compiling ") + vertexShader.shaderType() + " " + vsFilename + NEWLINE +
-		    vertexShader.messages() + NEWLINE + NEWLINE;
+        _messages +=
+            std::string("Compiling ") + vertexShader.shaderType() + " " + vsFilename + NEWLINE +
+            vertexShader.messages() + NEWLINE + NEWLINE;
         if (! vertexShader.ok()) {
             _ok = false;
         }
@@ -552,8 +586,8 @@ VertexAndPixelShader::VertexAndPixelShader(
         }    
         _fragCompileMessages += pixelShader.messages();
         _messages += 
-		    std::string("Compiling ") + pixelShader.shaderType() + " " + psFilename + NEWLINE +
-		    pixelShader.messages() + NEWLINE + NEWLINE;
+            std::string("Compiling ") + pixelShader.shaderType() + " " + psFilename + NEWLINE +
+            pixelShader.messages() + NEWLINE + NEWLINE;
 
         lastTextureUnit = -1;
 
@@ -575,15 +609,15 @@ VertexAndPixelShader::VertexAndPixelShader(
             glLinkProgramARB(_glProgramObject);
 
             // Read back messages
-	        glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_LINK_STATUS_ARB, &linked);
+            glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_LINK_STATUS_ARB, &linked);
             GLint maxLength = 0, length = 0;
-	        glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
-	        GLcharARB* pInfoLog = (GLcharARB *)malloc(maxLength * sizeof(GLcharARB));
-	        glGetInfoLogARB(_glProgramObject, maxLength, &length, pInfoLog);
+            glGetObjectParameterivARB(_glProgramObject, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
+            GLcharARB* pInfoLog = (GLcharARB *)malloc(maxLength * sizeof(GLcharARB));
+            glGetInfoLogARB(_glProgramObject, maxLength, &length, pInfoLog);
 
             _messages += std::string("Linking\n") + std::string(pInfoLog) + "\n";
             _linkMessages += std::string(pInfoLog);
-	        free(pInfoLog);
+            free(pInfoLog);
             _ok = _ok && (linked == GL_TRUE);
 
             if (debug) {
@@ -803,47 +837,49 @@ void VertexAndPixelShader::computeUniformArray() {
 }
 
 
-VertexAndPixelShaderRef VertexAndPixelShader::fromStrings(
-	const std::string& vs,
-    const std::string& ps,
-    UseG3DUniforms u,
-    bool debugErrors) {
-
+VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
+(
+ const std::string& vs,
+ const std::string& ps,
+ UseG3DUniforms u,
+ bool debugErrors) {
+    
     return new VertexAndPixelShader(vs, "", false, ps, "", false, debugErrors, u);
 }
 
 
-VertexAndPixelShaderRef VertexAndPixelShader::fromStrings(
-    const std::string& vsName,
-	const std::string& vs,
-    const std::string& gsName,
-    const std::string& gs,
-    const std::string& psName,
-    const std::string& ps,
-    UseG3DUniforms u,
-    bool debugErrors) {
+VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
+(
+ const std::string& vsName,
+ const std::string& vs,
+ const std::string& gsName,
+ const std::string& gs,
+ const std::string& psName,
+ const std::string& ps,
+ UseG3DUniforms u,
+ bool debugErrors) {
 
     return new VertexAndPixelShader(vs, vsName, false, ps, psName, false, debugErrors, u);
 }
 
 
-VertexAndPixelShaderRef VertexAndPixelShader::fromFiles(
-	const std::string& vsFilename,
-    const std::string& psFilename,
-    UseG3DUniforms u,
-    bool debugErrors) {
+VertexAndPixelShaderRef VertexAndPixelShader::fromFiles
+(const std::string& vsFilename,
+ const std::string& psFilename,
+ UseG3DUniforms u,
+ bool debugErrors) {
+    
+    std::string vs;
+    std::string ps;
 
-	std::string vs;
-	std::string ps;
-
-	if (vsFilename != "") {
-		vs = readWholeFile(vsFilename);
-	}
-
-	if (psFilename != "") {
-		ps = readWholeFile(psFilename);
-	}
-
+    if (vsFilename != "") {
+        vs = readWholeFile(vsFilename);
+    }
+    
+    if (psFilename != "") {
+        ps = readWholeFile(psFilename);
+    }
+    
     return new VertexAndPixelShader(vs, vsFilename, vsFilename != "", ps, psFilename, (psFilename != ""), debugErrors, u);
 }
 
@@ -1150,7 +1186,15 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
                 break;
 
             case GL_FLOAT_MAT2_ARB:
-                debugAssertM(false, "GL_FLOAT_MAT2_ARB binding not implemented");
+                {
+                    float m[4];
+                    for (int i = 0, c = 0; c < 2; ++c) {
+                        for (int r = 0; r < 2; ++r, ++i) {
+                            m[i] = value.vector[r][c];
+                        }
+                    }
+                    glUniformMatrix2fvARB(location, 1, GL_FALSE, m);
+                }            
                 break;
 
             case GL_FLOAT_MAT3_ARB:
@@ -1333,7 +1377,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, float          v
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, int          val, bool optional) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, int val, bool optional) {
     Arg arg;
     arg.type = GL_INT;
     arg.intVal = val;
@@ -1342,7 +1386,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, int          val
 }
 
 
-void VertexAndPixelShader::ArgList::set(const std::string& var, bool          val, bool optional) {
+void VertexAndPixelShader::ArgList::set(const std::string& var, bool val, bool optional) {
     Arg arg;
     arg.type = GL_BOOL;
     arg.intVal = val;
