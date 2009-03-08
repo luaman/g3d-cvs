@@ -336,6 +336,49 @@ void VertexAndPixelShader::GPUShader::checkForSupport() {
 }
 
 
+void VertexAndPixelShader::GPUShader::processIncludes(const std::string& dir, std::string& code) const {
+    // Look for #include immediately after a newline.  If it is inside
+    // a #IF or a block comment, it will still be processed, but
+    // single-line comments will properly disable it.
+    bool replaced = false;
+    do {
+        replaced = false;
+        int i;
+        if (beginsWith(code, "#include")) {
+            i = 0;
+        } else {
+            i = code.find("\n#include");
+        }
+        
+        if (i != -1) {
+            // Remove this line
+            int end = code.find("\n", i + 1);
+            if (end == -1) {
+                end = code.size();
+            }
+            std::string includeLine = code.substr(i+1, end - i);
+
+            std::string filename;
+            TextInput t (TextInput::FROM_STRING, includeLine);
+            t.readSymbols("#", "include");
+            filename = t.readString();            
+
+            if (! beginsWith(filename, "/")) {
+                filename = pathConcat(dir, filename);
+            }
+            std::string includedFile = readWholeFile(filename);
+            if (! endsWith(includedFile, "\n")) {
+                includedFile += "\n";
+            }
+
+            code = code.substr(0, i + 1) + includedFile + code.substr(end);
+            replaced = true;
+        }
+
+    } while (replaced);
+}
+
+
 void VertexAndPixelShader::GPUShader::init
 (const std::string&	    name,
  const std::string&	    code,
@@ -359,6 +402,12 @@ void VertexAndPixelShader::GPUShader::init
         return;
     }
 
+    // Directory to use for #includes
+    std::string dir = "";
+    if (_fromFile) {
+        dir = filenamePath(name);
+    }
+
     checkForSupport();
     
     if (fromFile) {
@@ -378,7 +427,9 @@ void VertexAndPixelShader::GPUShader::init
     if ((preprocessor == PREPROCESSOR_ENABLED) && (_code.size() > 0)) {
         // G3D Preprocessor
 
-        //m_useUniforms = true;
+        // Handle #include directives first, since they may affect
+        // what preprocessing is needed in the code. 
+        processIncludes(dir, _code);        
 
         // Standard uniforms.  We'll add custom ones to this below
         std::string uniformString = 
