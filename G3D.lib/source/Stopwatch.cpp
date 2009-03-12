@@ -4,9 +4,9 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
   
  @created 2005-10-05
- @edited  2005-10-05
+ @edited  2009-03-14
 
- Copyright 2000-2003, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
@@ -15,10 +15,13 @@
 
 namespace G3D {
 
-Stopwatch::Stopwatch() : inBetween(false), lastTockTime(-1), 
+Stopwatch::Stopwatch(const std::string& myName) : 
+    myName(myName), 
+    inBetween(false), lastTockTime(-1), 
     lastDuration(0), lastCycleCount(0), m_fps(0), emwaFPS(0),
     m_smoothFPS(0), emwaDuration(0) {
     computeOverhead();
+    reset();
 }
 
 
@@ -91,6 +94,25 @@ void Stopwatch::tock() {
 
     alwaysAssertM(inBetween, "Stopwatch::tock() called without matching tick.");
     inBetween = false;
+}
+
+
+void Stopwatch::reset() {
+    prevTime = startTime = System::time();
+    prevMark = "start";
+}
+
+
+void Stopwatch::after(const std::string& s) {
+    RealTime now = System::time();
+    debugPrintf("%s: %10s - %8fs since %s (%fs since start)\n",
+           myName.c_str(),
+           s.c_str(),
+           now - prevTime,
+           prevMark.c_str(),
+           now - startTime);
+    prevTime = now;
+    prevMark = s;
 }
 
 }

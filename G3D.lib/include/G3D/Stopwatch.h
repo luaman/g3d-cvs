@@ -4,9 +4,9 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
   
  @created 2005-10-05
- @edited  2005-10-05
+ @edited  2009-03-10
 
- Copyright 2000-2003, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
@@ -21,10 +21,35 @@
 namespace G3D {
 
 /**
- Utility class for profiling duration and frame rates.
+ @brief Utility class for profiling duration and frame rates.
+
+  Example 1: For profiling code in the context of a rendering loop:
+    <pre>
+      sw.tick();
+      ...timed code...
+      sw.tock();
+
+      screenPrintf("%f\n", sw.smoothFPS());
+    </pre>
+
+
+  Example 2: For profiling pieces of a sequence:
+   <pre>
+    Stopwatch sw;
+    slowOperation();
+    sw.after("slowOperation");
+    kdTree.balance();
+    sw.after("Balance tree");
+   </pre>
  */
 class Stopwatch {
 private:
+
+    std::string             myName;
+    double                  startTime;
+    std::string             prevMark;
+    double                  prevTime;
+
     /** True between tick and tock */
     bool                    inBetween;
 
@@ -58,7 +83,7 @@ private:
 
 public:
 
-    Stopwatch();
+    Stopwatch(const std::string& name = "Stopwatch");
 
     /** Returns the number of times that tick was called per wall-clock second; 
         e.g. frames-per-second. */
@@ -99,8 +124,19 @@ public:
 
     /** Call at the end of the period that you want timed. */
     void tock();
+
+    
+    /** Reset the start time used by after() and the emwa value.*/
+    void reset();
+
+    /** Call after an operation has completed, with the name of the operation, to
+        print a debug message listing the time since the previous after() call. */
+    void after(const std::string& s = "");
+
 };
 
+/** Because it is hard to remember the proper capitalization. */
+typedef Stopwatch StopWatch;
 
 }
 
