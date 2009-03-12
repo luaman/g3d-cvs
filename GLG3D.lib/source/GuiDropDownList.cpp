@@ -18,33 +18,16 @@ GuiDropDownList::GuiDropDownList
 (GuiContainer*               parent, 
  const GuiCaption&           caption, 
  const Pointer<int>&         indexValue, 
- Array<std::string>*         listValue) : GuiControl(parent, caption), 
+ const Array<GuiCaption>&    listValue) : GuiControl(parent, caption), 
                                           m_indexValue(indexValue), 
-                                          m_stringListValue(listValue),
-                                          m_selecting(false),
-                                          m_useStringList(true) {
-}
-
-
-GuiDropDownList::GuiDropDownList
-(GuiContainer*               parent, 
- const GuiCaption&           caption, 
- const Pointer<int>&         indexValue, 
- Array<GuiCaption>*          listValue) : GuiControl(parent, caption), 
-                                          m_indexValue(indexValue), 
-                                          m_captionListValue(listValue),
-                                          m_selecting(false),
-                                          m_useStringList(false) {
+                                          m_listValue(listValue),
+                                          m_selecting(false) {
 }
 
 
 GuiMenuRef GuiDropDownList::menu() { 
     if (m_menu.isNull()) {
-        if (m_useStringList) {
-            m_menu = GuiMenu::create(theme(), m_stringListValue, m_indexValue);
-        } else {
-            m_menu = GuiMenu::create(theme(), m_captionListValue, m_indexValue);
-        }
+        m_menu = GuiMenu::create(theme(), &m_listValue, m_indexValue);
     }
 
     return m_menu;
@@ -53,23 +36,8 @@ GuiMenuRef GuiDropDownList::menu() {
 
 void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
-
-        if (m_useStringList) {
-            // If there are no elements in the list, display the empty string
-            const std::string& str = (m_stringListValue->size() > 0) ? 
-                    (*m_stringListValue)[iMax(0, iMin(m_stringListValue->size() - 1, *m_indexValue))] : 
-                    "";
-
-            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), m_selecting, str, m_caption, m_captionSize);
-        } else {
-            // If there are no elements in the list, display the empty string
-            const GuiCaption& str = (m_captionListValue->size() > 0) ? 
-                    (*m_captionListValue)[iMax(0, iMin(m_captionListValue->size() - 1, *m_indexValue))] : 
-                    "";
-
-            skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), 
-                                     m_selecting, str, m_caption, m_captionSize);
-        }
+        skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), 
+                                 m_selecting, selectedValue(), m_caption, m_captionSize);
     }
 }
 
@@ -99,7 +67,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
     } else if (event.type == GEventType::KEY_DOWN) {
         switch (event.key.keysym.sym) {
         case GKey::DOWN:
-            if (*m_indexValue < (m_useStringList ? m_stringListValue->size() : m_captionListValue->size()) - 1) {
+            if (*m_indexValue < m_listValue.size() - 1) {
                 *m_indexValue = *m_indexValue + 1;
                 fireEvent(GEventType::GUI_ACTION);
             }
@@ -125,37 +93,39 @@ void GuiDropDownList::setRect(const Rect2D& rect) {
 }
 
 
-std::string GuiDropDownList::stringValue() const {
-    if (m_useStringList) {
-        if (m_stringListValue->size() > 0) {
-            return (*m_stringListValue)[*m_indexValue];
-        } else {
-            return "";
-        }
+const GuiCaption& GuiDropDownList::selectedValue() const {
+    if (m_listValue.size() > 0) {
+        return m_listValue[*m_indexValue];
     } else {
-        if (m_captionListValue->size() > 0) {
-            return (*m_captionListValue)[*m_indexValue].text();
-        } else {
-            return "";
-        }
+        const static GuiCaption empty;
+        return empty;
     }
 }
 
 
-GuiCaption GuiDropDownList::captionValue() const {
-    if (m_useStringList) {
-        if (m_stringListValue->size() > 0) {
-            return (*m_stringListValue)[*m_indexValue];
-        } else {
-            return "";
-        }
-    } else {
-        if (m_captionListValue->size() > 0) {
-            return (*m_captionListValue)[*m_indexValue];
-        } else {
-            return "";
-        }
+void GuiDropDownList::setList(const Array<GuiCaption>& c) {
+    m_listValue = c;
+    *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+}
+
+
+void GuiDropDownList::setList(const Array<std::string>& c) {
+    m_listValue.resize(c.size());
+    for (int i = 0; i < c.size(); ++i) {
+        m_listValue[i] = c[i];
     }
+    *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+}
+
+
+void GuiDropDownList::clear() {
+    m_listValue.clear();
+    *m_indexValue = 0;
+}
+
+
+void GuiDropDownList::append(const GuiCaption& c) {
+    m_listValue.append(c);
 }
 
 }

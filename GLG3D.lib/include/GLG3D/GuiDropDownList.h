@@ -39,27 +39,16 @@ protected:
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
 
-    Array<std::string>*             m_stringListValue;
-    Array<GuiCaption>*              m_captionListValue;
+    Array<GuiCaption>               m_listValue;
 
     /** True when the menu is open */
     bool                            m_selecting;
 
-    /** Which of the two list values to use */
-    bool                            m_useStringList;
-
-    /** Called by GuiPane */
     GuiDropDownList
        (GuiContainer*               parent, 
         const GuiCaption&           caption, 
         const Pointer<int>&         indexValue, 
-        Array<std::string>*         listValue);
-
-    GuiDropDownList
-       (GuiContainer*               parent, 
-        const GuiCaption&           caption, 
-        const Pointer<int>&         indexValue, 
-        Array<GuiCaption>*          listValue);
+        const Array<GuiCaption>&    listValue);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
@@ -71,17 +60,32 @@ protected:
 
 public:
 
+    void setList(const Array<GuiCaption>& c);
+
+    void setList(const Array<std::string>& c);
+
+    /** Remove all values from the list */
+    void clear();
+
+    void append(const GuiCaption& c);
+
+    inline const GuiCaption& get(int i) const {
+        return m_listValue[i];
+    }
+
+    inline void set(int i, const GuiCaption& v) {
+        m_listValue[i] = v;
+    }
+
+    inline void resize(int n) {
+        m_listValue.resize(n);
+        *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+    }
+
     virtual void setRect(const Rect2D&);
 
-    /** Returns the currently selected string, or "" if the array is
-        empty. Ok to call even if the list was initialized from a
-        caption list. */
-    std::string stringValue() const;
-
-    /** Returns the currently selected caption, or "" if the array is
-        empty. Ok to call even if the list was initialized from a
-        string list. */
-    GuiCaption captionValue() const;
+    /** Returns the currently selected value */
+    const GuiCaption& selectedValue() const;
         
 
 };

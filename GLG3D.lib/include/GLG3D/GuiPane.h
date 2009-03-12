@@ -183,8 +183,8 @@ public:
         return addControl(new GuiTextBox(this, caption, stringPointer, update));
     }
 
-    GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, Array<std::string>* list);
-    GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, Array<GuiCaption>* list);
+    GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, const Array<std::string>& list);
+    GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, const Array<GuiCaption>& list = Array<GuiCaption>());
     
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton(const GuiCaption& text, int myID,  

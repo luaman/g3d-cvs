@@ -133,12 +133,17 @@ GuiPane::~GuiPane() {
 
 
 GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, 
-                                          const Pointer<int>& pointer, Array<std::string>* list) {
-    return addControl(new GuiDropDownList(this, caption, pointer, list));
+                                          const Pointer<int>& pointer, const Array<std::string>& list) {
+    Array<GuiCaption> c(list.size());
+    for (int i = 0; i < c.size(); ++i) {
+        c[i] = list[i];
+    }
+    return addControl(new GuiDropDownList(this, caption, pointer, c));
 }
 
+
 GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, 
-                                          const Pointer<int>& pointer, Array<GuiCaption>* list) {
+                                          const Pointer<int>& pointer, const Array<GuiCaption>& list) {
     return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 

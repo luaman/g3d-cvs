@@ -109,10 +109,10 @@ void App::makeGui() {
     GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
     
     GuiPane* pane = gui->pane();
-    pane->addDropDownList("Diffuse", &diffuseColorIndex, &colorList);
+    pane->addDropDownList("Diffuse", &diffuseColorIndex, colorList);
     pane->addSlider("Intensity", &diffuse, 0.0f, 1.0f);
     
-    pane->addDropDownList("Specular", &specularColorIndex, &colorList);
+    pane->addDropDownList("Specular", &specularColorIndex, colorList);
     pane->addSlider("Intensity", &specular, 0.0f, 1.0f);
     
     pane->addSlider("Shininess", &shine, 1.0f, 100.0f);

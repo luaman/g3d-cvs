@@ -81,6 +81,7 @@
      <li> Moved ArticulatedModel::setProfile to GenericPosedModel::setProfile
      <li> G3D::ArticulatedModel::Part::TriList is now a reference counted object; Part::triListArray -> Part::triList
      <li> MeshAlg::computeBounds now takes an AABox instead of a Box
+     <li> GuiDropDownList now stores its list internally, rather than taking a pointer to a list
    </ul>
 
 <hr>

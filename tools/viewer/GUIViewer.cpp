@@ -111,8 +111,8 @@ void GUIViewer::createGui(const std::string& filename) {
     dropdown.append("Option 3");
     dropdownDisabled.append("Disabled");
     pane->addLabel("Dropdown List");
-    pane->addDropDownList(GuiCaption("Enabled"), &dropdownIndex[0], &dropdown);
-    pane->addDropDownList(GuiCaption("Disabled"), &dropdownIndex[1], &dropdownDisabled)->setEnabled(false);
+    pane->addDropDownList(GuiCaption("Enabled"), &dropdownIndex[0], dropdown);
+    pane->addDropDownList(GuiCaption("Disabled"), &dropdownIndex[1], dropdownDisabled)->setEnabled(false);
     pane->addTextBox("TextBox", &text);
     pane->addTextBox("Disabled", &text)->setEnabled(false);
 

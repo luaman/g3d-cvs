@@ -187,7 +187,7 @@ CameraControlWindow::CameraControlWindow(
 
     manualPane->addCheckBox("Manual Control (F2)", &manualOperation)->moveBy(-2, 3);
 
-    trackList = manualPane->addDropDownList("Path", &trackFileIndex, &trackFileArray);
+    trackList = manualPane->addDropDownList("Path", &trackFileIndex, trackFileArray);
     trackList->setRect(Rect2D::xywh(Vector2(0, trackList->rect().y1() - 25), Vector2(180, trackList->rect().height())));
     trackList->setCaptionSize(34);
 

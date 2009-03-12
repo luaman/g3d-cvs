@@ -1,7 +1,7 @@
 /**
   @file GuiCaption.h
   @maintainer Morgan McGuire, morgan@cs.williams.edu
-  Copyright 2001-2007, Morgan McGuire
+  Copyright 2001-2009, Morgan McGuire
  */
 
 #ifndef G3D_GUICAPTION_H
@@ -55,6 +55,11 @@ public:
     /** Uses all default values. */
     GuiCaption(const char* text);
     
+    /** Cast to std::string */
+    inline operator const std::string&() const { 
+        return m_text; 
+    }
+
     /** Provides the value of default values.*/
     void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
 
