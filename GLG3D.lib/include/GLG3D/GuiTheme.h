@@ -169,7 +169,9 @@ public:
          */
         void deserialize(const std::string& path, const std::string& name, TextInput& t);
     };
-private:    
+
+private:
+
     /** Used for delayed text rendering. */
     class Text {
     public:
@@ -630,6 +632,7 @@ private:
     void endText() const;    
     
     Rect2D horizontalSliderToSliderBounds(const Rect2D& bounds, float captionWidth) const;
+
     Rect2D closeButtonBounds(const Window& window, const Rect2D& bounds) const;
 
 public:
@@ -643,7 +646,7 @@ public:
 
      @param filename Name of the .skn file.
     */
-    static GuiThemeRef fromFile(
+    static GuiTheme::Ref fromFile(
         const std::string&  filename, 
         const GFont::Ref&   fallbackFont,
         float               fallbackSize = 11, 
@@ -673,7 +676,6 @@ public:
     void pauseRendering();
 
     void resumeRendering();
-
 
     /** Only call between beginRendering and endRendering */
     void renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
@@ -760,6 +762,9 @@ public:
 
     Rect2D paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
     Rect2D clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
+
+    /** Computes the rendered size of this text (max of enabled and disabled versions) */
+    Vector2 bounds(const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering.
         Label is on the right, slider is aligned with the left edge

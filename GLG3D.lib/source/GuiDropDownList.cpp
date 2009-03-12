@@ -106,6 +106,7 @@ const GuiText& GuiDropDownList::selectedValue() const {
 void GuiDropDownList::setList(const Array<GuiText>& c) {
     m_listValue = c;
     *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+    m_menu = NULL;
 }
 
 
@@ -115,17 +116,20 @@ void GuiDropDownList::setList(const Array<std::string>& c) {
         m_listValue[i] = c[i];
     }
     *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+    m_menu = NULL;
 }
 
 
 void GuiDropDownList::clear() {
     m_listValue.clear();
     *m_indexValue = 0;
+    m_menu = NULL;
 }
 
 
 void GuiDropDownList::append(const GuiText& c) {
     m_listValue.append(c);
+    m_menu = NULL;
 }
 
 }

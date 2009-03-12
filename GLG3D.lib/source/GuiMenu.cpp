@@ -1,10 +1,10 @@
 /**
  @file GuiMenu.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2008-07-14
- @edited  2008-07-14
+ @edited  2009-03-14
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiMenu.h"
@@ -26,7 +26,7 @@ GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>
     GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_eventSource(NULL), m_stringListValue(listPtr), 
     m_captionListValue(NULL), m_indexValue(indexValue), m_useStringList(true), m_superior(NULL) {
 
-    pane()->setPosition(Vector2(0,0));
+    pane()->setPosition(Vector2(0, 0));
     m_labelArray.resize(listPtr->size());
     for (int i = 0; i < listPtr->size(); ++i) {
         m_labelArray[i] = pane()->addLabel((*listPtr)[i]);

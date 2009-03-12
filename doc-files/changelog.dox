@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::GuiLabel now autosizes around its contents
      <li> G3D::Shader preprocessor now supports #include
      <li> G3D::RenderDevice::BLEND_ONE_MINUS_DST_COLOR
      <li> G3D::Shader now supports G3D::Matrix2

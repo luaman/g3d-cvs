@@ -228,12 +228,17 @@ GuiButton* GuiPane::addButton(const GuiText& text, const GuiControl::Callback& c
 
 GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign x, GFont::YAlign y) {
     GuiLabel* b = new GuiLabel(this, text, x, y);
-    b->setRect(Rect2D::xywh(nextControlPos(), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
+
+    const Vector2& bounds = theme()->bounds(text);
+    b->setRect(Rect2D::xywh(nextControlPos(), 
+                            bounds.max(Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), 
+                                               CONTROL_HEIGHT))));
     
     labelArray.append(b);
 
     return b;
 }
+
 
 GuiFunctionBox* GuiPane::addFunctionBox(const GuiText& text, Spline<float>* spline) {
     return addControl(new GuiFunctionBox(this, text, spline));

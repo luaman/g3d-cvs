@@ -75,11 +75,13 @@ public:
 
     inline void set(int i, const GuiText& v) {
         m_listValue[i] = v;
+        m_menu = NULL;
     }
 
     inline void resize(int n) {
         m_listValue.resize(n);
         *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+        m_menu = NULL;
     }
 
     virtual void setRect(const Rect2D&);

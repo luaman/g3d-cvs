@@ -329,6 +329,9 @@ public:
     
     GuiButton* addButton(const GuiText& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
     
+    /** @param xalign Horizontal alignment of text within the rect of the label 
+        @param yalign Vertical alignment of text within the rect of the label 
+    */
     GuiLabel* addLabel(const GuiText& text, GFont::XAlign xalign = GFont::XALIGN_LEFT,
                        GFont::YAlign = GFont::YALIGN_CENTER);
 

@@ -71,6 +71,10 @@ void App::onInit() {
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
 
+    static int index = 0;
+    GuiDropDownList* L = debugPane->addDropDownList("A List", &index);
+    L->append("LOOOOOOOOOOOOOOOOOOOOOOOOOOOONG");
+
     toneMap->setEnabled(false);
 }
 

@@ -14,7 +14,8 @@
 namespace G3D {
 
 GuiLabel::GuiLabel(GuiContainer* parent, const GuiText& text, GFont::XAlign x, GFont::YAlign y) 
-    : GuiControl(parent, text), m_xalign(x), m_yalign(y) {}
+    : GuiControl(parent, text), m_xalign(x), m_yalign(y) {
+}
 
 
 void GuiLabel::render(RenderDevice* rd, const GuiThemeRef& skin) const {

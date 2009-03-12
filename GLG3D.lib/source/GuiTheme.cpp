@@ -348,10 +348,10 @@ void GuiTheme::renderTextBox
     (const Rect2D&      fullBounds, 
      bool               enabled, 
      bool               focused, 
-     const GuiText&  caption,
+     const GuiText&     caption,
      float              captionWidth,
-     const GuiText&  text, 
-     const GuiText&  cursor, 
+     const GuiText&     text, 
+     const GuiText&     cursor, 
      int                cursorPosition) const {
 
     const Rect2D& bounds = textBoxToClickBounds(fullBounds, captionWidth);
@@ -407,6 +407,28 @@ void GuiTheme::renderTextBox
             caption.outlineColor(m_textBox.textStyle.outlineColor),
             GFont::XALIGN_LEFT);
     }
+}
+
+
+Vector2 GuiTheme::bounds(const GuiText& text) const {
+
+    Vector2 b(0, 0);
+    
+    for (int i = 0; i < 2; ++i) {
+        const TextStyle& style = (i == 0) ? m_textStyle : m_disabledTextStyle;
+
+        const GFont::Ref&  font = text.font(style.font);
+        const std::string& str  = text.text();
+        int                size = text.size(style.size);
+        bool               outline = text.outlineColor(style.outlineColor).a > 0;
+
+        Vector2 t = font->bounds(str, size);
+        if (outline) {
+            t += Vector2(2, 2);
+        }
+        b = b.max(t);
+    }
+    return b;
 }
 
 
