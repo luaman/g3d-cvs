@@ -286,10 +286,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\GuiCaption.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\GuiCheckBox.cpp"
 				>
 			</File>
@@ -327,6 +323,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\GuiSlider.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\GuiText.cpp"
 				>
 			</File>
 			<File
@@ -600,10 +600,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GuiCaption.h"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiCheckBox.h"
 				>
 			</File>
@@ -645,6 +641,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiSlider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GuiText.h"
 				>
 			</File>
 			<File

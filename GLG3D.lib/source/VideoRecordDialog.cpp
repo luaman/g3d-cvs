@@ -90,7 +90,7 @@ std::string VideoRecordDialog::nextFilenameBase() {
 
 
 void VideoRecordDialog::makeGUI() {
-    pane()->addLabel(GuiCaption("Video", NULL, 12));
+    pane()->addLabel(GuiText("Video", NULL, 12));
     GuiPane* moviePane = pane()->addPane("", GuiTheme::ORNATE_PANE_STYLE);
 
     GuiLabel* label = NULL;
@@ -141,7 +141,7 @@ void VideoRecordDialog::makeGUI() {
     moviePane->setWidth(pane()->rect().width());
 
     ///////////////////////////////////////////////////////////////////////////////////
-    pane()->addLabel(GuiCaption("Screenshot", NULL, 12));
+    pane()->addLabel(GuiText("Screenshot", NULL, 12));
     GuiPane* ssPane = pane()->addPane("", GuiTheme::ORNATE_PANE_STYLE);
 
     m_ssFormatList.append("JPG", "PNG", "BMP", "TGA");

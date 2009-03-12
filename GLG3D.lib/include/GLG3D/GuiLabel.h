@@ -28,7 +28,7 @@ private:
     GFont::XAlign m_xalign;
     GFont::YAlign m_yalign;
     
-    GuiLabel(GuiContainer*,const GuiCaption&, GFont::XAlign, GFont::YAlign);
+    GuiLabel(GuiContainer*,const GuiText&, GFont::XAlign, GFont::YAlign);
 
     void render(RenderDevice* rd, const GuiThemeRef&) const;
 

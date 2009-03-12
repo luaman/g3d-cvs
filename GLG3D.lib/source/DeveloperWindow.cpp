@@ -53,12 +53,12 @@ DeveloperWindow::DeveloperWindow(
     const float iconSize = 32;
     Vector2 buttonSize(32, 26);
 
-    GuiCaption cameraIcon(std::string() + char(185), iconFont, iconSize);
-    GuiCaption movieIcon(std::string() + char(183), iconFont, iconSize * 0.9);
-    GuiCaption consoleIcon(std::string() + char(190), iconFont, iconSize * 0.9);
-    GuiCaption statsIcon(std::string() + char(143), iconFont, iconSize);
-    GuiCaption debugIcon("@", iconFont, iconSize * 0.8);
-    GuiCaption printIcon(std::string() + char(157), iconFont, iconSize * 0.8); //105 = information
+    GuiText cameraIcon(std::string() + char(185), iconFont, iconSize);
+    GuiText movieIcon(std::string() + char(183), iconFont, iconSize * 0.9);
+    GuiText consoleIcon(std::string() + char(190), iconFont, iconSize * 0.9);
+    GuiText statsIcon(std::string() + char(143), iconFont, iconSize);
+    GuiText debugIcon("@", iconFont, iconSize * 0.8);
+    GuiText printIcon(std::string() + char(157), iconFont, iconSize * 0.8); //105 = information
 
     Pointer<bool> ptr = Pointer<bool>((GuiWindow::Ref)cameraControlWindow, &GuiWindow::visible, &GuiWindow::setVisible);
     GuiControl* cameraButton = root->addCheckBox(cameraIcon, ptr, GuiTheme::TOOL_CHECK_BOX_STYLE);

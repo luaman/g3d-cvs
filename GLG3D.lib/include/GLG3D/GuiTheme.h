@@ -12,7 +12,7 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/GFont.h"
 #include "G3D/Table.h"
-#include "GLG3D/GuiCaption.h"
+#include "GLG3D/GuiText.h"
 
 namespace G3D {
 
@@ -70,12 +70,12 @@ typedef ReferenceCountedPointer<class GuiTheme> GuiThemeRef;
        skin->renderHorizontalSlider(rd, Rect2D::xywh(100, 200, 150, 27), 0.5f, true, false, "Slider");
 
        int s = 30;
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, GuiCaption("7", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, GuiCaption("4", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, GuiCaption("=", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, GuiCaption(";", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, GuiCaption("<", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, GuiCaption("8", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, GuiText("7", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, GuiText("4", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, GuiText("=", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, GuiText(";", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, GuiText("<", iconFont));
+       skin->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, GuiText("8", iconFont));
        skin->setFont(arialFont, 10, Color3::black(), Color4::clear());
     skin->endRendering(rd);
    </pre>
@@ -600,10 +600,10 @@ private:
     static void drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd);
     
     void drawCheckable(const Checkable& control, const Rect2D& bounds, bool enabled, bool focused,
-                       bool selected, const GuiCaption& text) const;
+                       bool selected, const GuiText& text) const;
 
     void drawWindow(const Window& window, const Rect2D& bounds, bool focused, 
-                    bool close, bool closeDown, bool closeIsFocused, const GuiCaption& text) const;
+                    bool close, bool closeDown, bool closeIsFocused, const GuiText& text) const;
 
     static Rect2D readRect2D(const std::string& name, TextInput& b);
 
@@ -677,7 +677,7 @@ public:
 
     /** Only call between beginRendering and endRendering */
     void renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
-                        bool checked, const GuiCaption& text) const;
+                        bool checked, const GuiText& text) const;
 
     /** Render a single-line text box. Only call between beginRendering and endRendering.
         Automatically shifts text so that a cursor at character index given by 
@@ -686,10 +686,10 @@ public:
         const Rect2D&           bounds, 
         bool                    enabled,
         bool                    focused, 
-        const GuiCaption&       caption,
+        const GuiText&       caption,
         float                   captionWidth,
-        const GuiCaption&       text,
-        const GuiCaption&       cursor,
+        const GuiText&       text,
+        const GuiText&       cursor,
         int                     cursorPosition) const;
 
     /**
@@ -701,7 +701,7 @@ public:
         const Rect2D&           bounds, 
         bool                    enabled,
         bool                    focused, 
-        const GuiCaption&       caption,
+        const GuiText&       caption,
         float                   captionHeight) const;
 
     /** Render the selection region for a menu or list. */
@@ -713,24 +713,24 @@ public:
      bool                 enabled,
      bool                 focused,
      bool                 menuOpen,
-     const GuiCaption&    contentText,
-     const GuiCaption&    text,
+     const GuiText&    contentText,
+     const GuiText&    text,
      float                captionWidth) const;
 
     /** Only call between beginRendering and endRendering */
     void renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, 
-                           bool checked, const GuiCaption& text) const;
+                           bool checked, const GuiText& text) const;
 
     /** Only call between beginRendering and endRendering */
     void renderButton(const Rect2D& bounds, bool enabled, bool focused, 
-                      bool pushed, const GuiCaption& text, ButtonStyle buttonStyle) const;
+                      bool pushed, const GuiText& text, ButtonStyle buttonStyle) const;
 
     /** Only call between beginRendering and endRendering.
         @param bounds Corresponds to the footprint of the window; dropshadows and glows may
          still render outside this area.*/
     void renderWindow(const Rect2D& bounds, bool focused, 
                       bool hasCloseButton, bool closeButtonIsDown, bool closeIsFocused,
-                      const GuiCaption& text, WindowStyle frameStyle) const;
+                      const GuiText& text, WindowStyle frameStyle) const;
 
     /** Given the bounds of a full dropDownList and caption, returns
         the bounds around just the control itself. */
@@ -765,10 +765,10 @@ public:
         Label is on the right, slider is aligned with the left edge
         @param pos 0 = left edge, 1 = right edge*/
     void renderHorizontalSlider(const Rect2D& bounds, float pos, bool enabled, bool focused, 
-                                const GuiCaption& text, float captionWidth) const;
+                                const GuiText& text, float captionWidth) const;
 
     /** Only call between beginRendering and endRendering */
-    void renderLabel(const Rect2D& bounds, const GuiCaption& text, 
+    void renderLabel(const Rect2D& bounds, const GuiText& text, 
                      GFont::XAlign xalign, GFont::YAlign yalign,
                      bool enabled) const;
 
@@ -794,7 +794,7 @@ public:
               const std::string& destFile);
 
     /** Returns the size a button would have to be to enclose this caption.*/
-    Vector2 minButtonSize(const GuiCaption& text, ButtonStyle buttonStyle) const;
+    Vector2 minButtonSize(const GuiText& text, ButtonStyle buttonStyle) const;
 
 }; // GuiTheme
 

@@ -78,10 +78,10 @@
      <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
      <li> G3D::ArticulatedModel::Part::TriList::material is now a pointer
      <li> G3D::PosedModel bounding boxes are now G3D::AABox instead of G3D::Box
-     <li> Moved ArticulatedModel::setProfile to GenericPosedModel::setProfile
+     <li> Moved G3D::ArticulatedModel::setProfile to GenericPosedModel::setProfile
      <li> G3D::ArticulatedModel::Part::TriList is now a reference counted object; Part::triListArray -> Part::triList
-     <li> MeshAlg::computeBounds now takes an AABox instead of a Box
-     <li> GuiDropDownList now stores its list internally, rather than taking a pointer to a list
+     <li> G3D::MeshAlg::computeBounds now takes an AABox instead of a Box
+     <li> G3D::GuiDropDownList now stores its list internally, rather than taking a pointer to a list
    </ul>
 
 <hr>

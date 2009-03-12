@@ -155,8 +155,8 @@ CameraControlWindow::CameraControlWindow(
     GFontRef greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
 
     // The default G3D textbox label doesn't support multiple fonts
-    pane->addLabel(GuiCaption("q q", greekFont, 12))->setRect(Rect2D::xywh(19, 6, 10, 15));
-    pane->addLabel(GuiCaption("y  x", NULL, 9))->setRect(Rect2D::xywh(24, 12, 10, 9));
+    pane->addLabel(GuiText("q q", greekFont, 12))->setRect(Rect2D::xywh(19, 6, 10, 15));
+    pane->addLabel(GuiText("y  x", NULL, 9))->setRect(Rect2D::xywh(24, 12, 10, 9));
     cameraLocationTextBox = 
         pane->addTextBox("xyz",
         Pointer<std::string>(this, &CameraControlWindow::cameraLocation, 
@@ -168,7 +168,7 @@ CameraControlWindow::CameraControlWindow(
     const char* CHECK = "\x98";
     float h = cameraLocationTextBox->rect().height() - 4;
 
-    m_showBookmarksButton = pane->addButton(GuiCaption(DOWN, iconFont, 18), 
+    m_showBookmarksButton = pane->addButton(GuiText(DOWN, iconFont, 18), 
         GuiTheme::TOOL_BUTTON_STYLE);
 
     m_showBookmarksButton->setSize(h-1, h);
@@ -177,7 +177,7 @@ CameraControlWindow::CameraControlWindow(
 
     // Change to black "r" (x) for remove
     GuiButton* bookMarkButton = 
-        pane->addButton(GuiCaption(CHECK, iconFont, 16, Color3::blue() * 0.8f), 
+        pane->addButton(GuiText(CHECK, iconFont, 16, Color3::blue() * 0.8f), 
             GuiControl::Callback(this, &CameraControlWindow::onBookmarkButton),
             GuiTheme::TOOL_BUTTON_STYLE);
     bookMarkButton->setSize(h - 1, h);
@@ -201,7 +201,7 @@ CameraControlWindow::CameraControlWindow(
     
     Vector2 buttonSize = Vector2(20, 20);
     recordButton = manualPane->addRadioButton
-        (GuiCaption::Symbol::record(), 
+        (GuiText::Symbol::record(), 
          UprightSplineManipulator::RECORD_KEY_MODE, 
          trackManipulator.pointer(),
          &UprightSplineManipulator::mode,
@@ -211,7 +211,7 @@ CameraControlWindow::CameraControlWindow(
     recordButton->setSize(buttonSize);
     
     playButton = manualPane->addRadioButton
-        (GuiCaption::Symbol::play(), 
+        (GuiText::Symbol::play(), 
          UprightSplineManipulator::PLAY_MODE, 
          trackManipulator.pointer(),
          &UprightSplineManipulator::mode,
@@ -220,7 +220,7 @@ CameraControlWindow::CameraControlWindow(
     playButton->setSize(buttonSize);
 
     stopButton = manualPane->addRadioButton
-        (GuiCaption::Symbol::stop(), 
+        (GuiText::Symbol::stop(), 
          UprightSplineManipulator::INACTIVE_MODE, 
          trackManipulator.pointer(),
          &UprightSplineManipulator::mode,
@@ -242,15 +242,15 @@ CameraControlWindow::CameraControlWindow(
     cyclicCheckBox->setPosition(visibleCheckBox->rect().x0(), saveButton->rect().y0() + 1);
 
 #   ifdef G3D_OSX
-        manualHelpCaption = GuiCaption("W,A,S,D and shift+left mouse to move.", NULL, 10);
+        manualHelpCaption = GuiText("W,A,S,D and shift+left mouse to move.", NULL, 10);
 #   else
-        manualHelpCaption = GuiCaption("W,A,S,D and right mouse to move.", NULL, 10);
+        manualHelpCaption = GuiText("W,A,S,D and right mouse to move.", NULL, 10);
 #   endif
 
     autoHelpCaption = "";
     playHelpCaption = "";
 
-    recordHelpCaption = GuiCaption("Spacebar to place a control point.", NULL, 10);
+    recordHelpCaption = GuiText("Spacebar to place a control point.", NULL, 10);
 
     helpLabel = manualPane->addLabel(manualHelpCaption);
     helpLabel->moveBy(0, 2);
@@ -267,8 +267,8 @@ CameraControlWindow::CameraControlWindow(
     // Have to create the drawerButton last, otherwise the setRect
     // code for moving it to the bottom of the window will cause
     // layout to become broken.
-    drawerCollapseCaption = GuiCaption("5", iconFont);
-    drawerExpandCaption = GuiCaption("6", iconFont);
+    drawerCollapseCaption = GuiText("5", iconFont);
+    drawerExpandCaption = GuiText("6", iconFont);
     drawerButtonPane = pane->addPane("", GuiTheme::NO_PANE_STYLE);
     drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiTheme::TOOL_BUTTON_STYLE);
     drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));

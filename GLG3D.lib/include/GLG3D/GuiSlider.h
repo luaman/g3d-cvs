@@ -28,7 +28,7 @@ protected:
     bool              m_inDrag;
     float             m_dragStartValue;
 
-    _GuiSliderBase(GuiContainer* parent, const GuiCaption& text, bool horizontal);
+    _GuiSliderBase(GuiContainer* parent, const GuiText& text, bool horizontal);
 
     /** Position from which the mouse drag started, relative to
         m_gui.m_clientRect.  When dragging the thumb, the cursor may not be
@@ -167,7 +167,7 @@ public:
     /** Public for GuiNumberBox.  Do not call 
     @param eventSource if null, set to this.
      */
-    GuiSlider(GuiContainer* parent, const GuiCaption& text, 
+    GuiSlider(GuiContainer* parent, const GuiText& text, 
               const Pointer<Value>& value, Value minValue, Value maxValue, bool horizontal, 
               GuiTheme::SliderScale scale,
               GuiControl* eventSource = NULL) :

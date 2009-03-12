@@ -26,7 +26,7 @@ private:
     float               specular;
     int                 diffuseColorIndex;
     int                 specularColorIndex;
-    Array<GuiCaption>   colorList;
+    Array<GuiText>   colorList;
 
     void makeGui();
     void makeColorList(GFontRef iconFont);
@@ -97,11 +97,11 @@ void App::makeColorList(GFontRef iconFont) {
 
     float size = 18;
     int N = 10;
-    colorList.append(GuiCaption(block, iconFont, size, Color3::black(), Color4::clear()));
+    colorList.append(GuiText(block, iconFont, size, Color3::black(), Color4::clear()));
     for (int i = 0; i < N; ++i) {
-        colorList.append(GuiCaption(block, iconFont, size, Color3::rainbowColorMap((float)i / N), Color4::clear()));
+        colorList.append(GuiText(block, iconFont, size, Color3::rainbowColorMap((float)i / N), Color4::clear()));
     }
-    colorList.append(GuiCaption(block, iconFont, size, Color3::white(), Color4::clear()));
+    colorList.append(GuiText(block, iconFont, size, Color3::white(), Color4::clear()));
 }
 
 void App::makeGui() {

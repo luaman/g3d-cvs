@@ -74,7 +74,7 @@ protected:
 
     GuiTextBox*       m_textBox;
 
-    GuiCaption        m_units;
+    GuiText        m_units;
     float             m_unitsSize;
 
     // Methods declared in the middle of member variables
@@ -145,7 +145,7 @@ protected:
         }
     public:
 
-        MyTextBox(GuiNumberBox<Value>* parent, const GuiCaption& caption, 
+        MyTextBox(GuiNumberBox<Value>* parent, const GuiText& caption, 
                const Pointer<std::string>& value, Update update) :
                GuiTextBox(parent, caption, value, update),
                m_numberBox(parent) {
@@ -200,9 +200,9 @@ protected:
 
     GuiNumberBox(
         GuiContainer*           parent, 
-        const GuiCaption&       caption, 
+        const GuiText&       caption, 
         const Pointer<Value>&   value, 
-        const GuiCaption&       units,
+        const GuiText&       units,
         GuiTheme::SliderScale   scale,
         Value                   minValue, 
         Value                   maxValue,

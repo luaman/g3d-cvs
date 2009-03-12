@@ -3,7 +3,7 @@
 
 namespace G3D {
 
-GuiRadioButton::GuiRadioButton(GuiContainer* parent, const GuiCaption& text, int myID, 
+GuiRadioButton::GuiRadioButton(GuiContainer* parent, const GuiText& text, int myID, 
                                const Pointer<int>& value, GuiTheme::RadioButtonStyle style) 
     : GuiControl(parent, text), m_value(value), m_myID(myID), m_style(style) {
 }

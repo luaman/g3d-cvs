@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-GuiButton::GuiButton(GuiContainer* parent, const GuiButton::Callback& callback, const GuiCaption& text, GuiTheme::ButtonStyle style) : 
+GuiButton::GuiButton(GuiContainer* parent, const GuiButton::Callback& callback, const GuiText& text, GuiTheme::ButtonStyle style) : 
     GuiControl(parent, text), 
     m_down(false), m_callback(callback), m_style(style) {}
 

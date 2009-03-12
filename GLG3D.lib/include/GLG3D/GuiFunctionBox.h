@@ -91,7 +91,7 @@ protected:
      */
     int getNearestControlPoint(const Vector2& pixelLoc);
 
-    GuiFunctionBox(GuiContainer* parent, const GuiCaption& text, Spline<float>* spline);
+    GuiFunctionBox(GuiContainer* parent, const GuiText& text, Spline<float>* spline);
 
 public:
 

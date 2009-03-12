@@ -1,5 +1,5 @@
 /**
-  @file GuiCaption.h
+  @file GuiText.h
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   Copyright 2001-2009, Morgan McGuire
  */
@@ -27,7 +27,7 @@ namespace G3D {
 
     @sa G3D::GuiLabel
  */
-class GuiCaption {
+class GuiText {
 private:
 
     std::string   m_text;
@@ -46,14 +46,14 @@ public:
        default".  Null font and negative size mean "use default".
        Defaults are set on the Gui.
     */
-    GuiCaption(const std::string& text   = "", 
+    GuiText(const std::string& text   = "", 
           const GFont::Ref& font         = NULL, 
           float             size         = -1, 
           const Color4&     color        = Color4(-1,-1,-1,-1), 
           const Color4&     outlineColor = Color4(-1,-1,-1,-1));
 
     /** Uses all default values. */
-    GuiCaption(const char* text);
+    GuiText(const char* text);
     
     /** Cast to std::string */
     inline operator const std::string&() const { 
@@ -103,41 +103,41 @@ public:
     /** Loads standard symbols from the greek.fnt and icon.fnt fonts.*/
     class Symbol {
     private:
-        static GuiCaption greek(int asciiCode);
+        static GuiText greek(int asciiCode);
     public:
-        static GuiCaption record();
-        static GuiCaption play();
-        static GuiCaption stop();
-        static GuiCaption pause();
-        static GuiCaption eye();
-        static GuiCaption forward();
-        static GuiCaption reverse();
-        static GuiCaption previous();
-        static GuiCaption next();
+        static GuiText record();
+        static GuiText play();
+        static GuiText stop();
+        static GuiText pause();
+        static GuiText eye();
+        static GuiText forward();
+        static GuiText reverse();
+        static GuiText previous();
+        static GuiText next();
 
         /** >= */
-        static GuiCaption leq();
+        static GuiText leq();
 
         /** <= */
-        static GuiCaption geq();
+        static GuiText geq();
 
         /** +/- */
-        static GuiCaption pm();
+        static GuiText pm();
 
         /** Wiggly equals sign */
-        static GuiCaption approx();
+        static GuiText approx();
 
         /** Partial derivative symbol */
-        static GuiCaption partial();
+        static GuiText partial();
 
         /** Red heart */
-        static GuiCaption heartSuit();
+        static GuiText heartSuit();
 
-        static GuiCaption clubSuit();
-        static GuiCaption spadeSuit();
+        static GuiText clubSuit();
+        static GuiText spadeSuit();
 
         /** Red diamond */
-        static GuiCaption diamondSuit();
+        static GuiText diamondSuit();
 
     };
 

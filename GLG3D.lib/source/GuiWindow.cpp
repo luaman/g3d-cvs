@@ -17,7 +17,7 @@
 namespace G3D {
 
 GuiWindow::Ref GuiWindow::create
-(const GuiCaption& label, 
+(const GuiText& label, 
  const GuiThemeRef& skin, 
  const Rect2D& rect, 
  GuiTheme::WindowStyle style, 
@@ -27,12 +27,12 @@ GuiWindow::Ref GuiWindow::create
 }
 
 
-void GuiWindow::setCaption(const GuiCaption& text) {
+void GuiWindow::setCaption(const GuiText& text) {
     m_text = text;
 }
 
 
-GuiWindow::GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction close) 
+GuiWindow::GuiWindow(const GuiText& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction close) 
     : modal(NULL), m_text(text), m_rect(rect), m_visible(true), 
       m_style(style), m_closeAction(close), m_skin(skin), 
       inDrag(false),

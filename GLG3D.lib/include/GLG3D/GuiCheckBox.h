@@ -33,7 +33,7 @@ protected:
     Pointer<bool>            m_value;
     GuiTheme::CheckBoxStyle  m_style;
     
-    GuiCheckBox(GuiContainer* parent, const GuiCaption& text, const Pointer<bool>& value, GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);
+    GuiCheckBox(GuiContainer* parent, const GuiText& text, const Pointer<bool>& value, GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);
 
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 

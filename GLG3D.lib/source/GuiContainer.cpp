@@ -8,15 +8,15 @@
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiContainer.h"
-#include "GLG3D/GuiCaption.h"
+#include "GLG3D/GuiText.h"
 
 namespace G3D {
 
-GuiContainer::GuiContainer(class GuiWindow* gui, const class GuiCaption& text) :
+GuiContainer::GuiContainer(class GuiWindow* gui, const class GuiText& text) :
     GuiControl(gui, text) {}
 
 
-GuiContainer::GuiContainer(class GuiContainer* parent, const class GuiCaption& text) :
+GuiContainer::GuiContainer(class GuiContainer* parent, const class GuiText& text) :
     GuiControl(parent, text) {}
 
 

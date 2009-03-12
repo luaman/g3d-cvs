@@ -16,9 +16,9 @@ namespace G3D {
 
 GuiDropDownList::GuiDropDownList
 (GuiContainer*               parent, 
- const GuiCaption&           caption, 
+ const GuiText&           caption, 
  const Pointer<int>&         indexValue, 
- const Array<GuiCaption>&    listValue) : GuiControl(parent, caption), 
+ const Array<GuiText>&    listValue) : GuiControl(parent, caption), 
                                           m_indexValue(indexValue), 
                                           m_listValue(listValue),
                                           m_selecting(false) {
@@ -93,17 +93,17 @@ void GuiDropDownList::setRect(const Rect2D& rect) {
 }
 
 
-const GuiCaption& GuiDropDownList::selectedValue() const {
+const GuiText& GuiDropDownList::selectedValue() const {
     if (m_listValue.size() > 0) {
         return m_listValue[*m_indexValue];
     } else {
-        const static GuiCaption empty;
+        const static GuiText empty;
         return empty;
     }
 }
 
 
-void GuiDropDownList::setList(const Array<GuiCaption>& c) {
+void GuiDropDownList::setList(const Array<GuiText>& c) {
     m_listValue = c;
     *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
 }
@@ -124,7 +124,7 @@ void GuiDropDownList::clear() {
 }
 
 
-void GuiDropDownList::append(const GuiCaption& c) {
+void GuiDropDownList::append(const GuiText& c) {
     m_listValue.append(c);
 }
 

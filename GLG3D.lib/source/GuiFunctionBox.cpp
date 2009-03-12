@@ -9,7 +9,7 @@
 
 namespace G3D {
 
-GuiFunctionBox::GuiFunctionBox(GuiContainer* parent, const GuiCaption& text, 
+GuiFunctionBox::GuiFunctionBox(GuiContainer* parent, const GuiText& text, 
                                Spline<float>* spline) : GuiControl(parent, text), m_spline(spline) {
 
     setCaptionSize(TOP_CAPTION_SIZE);

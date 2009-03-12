@@ -47,7 +47,7 @@ href="classes.html">Classes</a>.
     \link G3D::GuiContainer GuiContainer\endlink,
     \link G3D::GuiControl GuiControl\endlink,
     \link G3D::GuiControl::Callback GuiControl::Callback\endlink,    
-    \link G3D::GuiCaption GuiCaption\endlink,
+    \link G3D::GuiText GuiText\endlink,
     \link G3D::GuiCheckBox GuiCheckBox\endlink,
     \link G3D::GuiButton GuiButton\endlink,
     \link G3D::GuiDropDownList GuiDropDownList\endlink,

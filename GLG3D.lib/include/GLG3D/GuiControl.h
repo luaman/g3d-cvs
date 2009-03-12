@@ -196,15 +196,15 @@ protected:
     /** Rect bounds used for mouse actions.  Updated by setRect.*/
     Rect2D            m_clickRect;
 
-    GuiCaption        m_caption;
+    GuiText        m_caption;
 
     /** For classes that have a caption, this is the size reserved for it.*/
     float             m_captionSize;
 
     bool              m_visible;
 
-    GuiControl(GuiWindow* gui, const GuiCaption& text = "");
-    GuiControl(GuiContainer* parent, const GuiCaption& text = "");
+    GuiControl(GuiWindow* gui, const GuiText& text = "");
+    GuiControl(GuiContainer* parent, const GuiText& text = "");
 
     /** Fires an action event */
     void fireEvent(GEventType type);    
@@ -218,7 +218,7 @@ public:
     bool visible() const;
     void setVisible(bool b);
     bool focused() const;
-    virtual void setCaption(const GuiCaption& caption);
+    virtual void setCaption(const GuiText& caption);
 
     /** Grab or release keyboard focus */
     void setFocused(bool b);
@@ -231,7 +231,7 @@ public:
         and 0 if the initial caption is "". */
     float captionSize() const;
     virtual void setCaptionSize(float c);
-    const GuiCaption& caption() const;
+    const GuiText& caption() const;
     const Rect2D& rect() const;
 
     /** Get the window containing this control. */

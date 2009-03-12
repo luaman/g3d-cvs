@@ -161,7 +161,7 @@ protected:
     Modal*              modal;
 
     /** Window label */
-    GuiCaption          m_text;
+    GuiText          m_text;
 
     /** Window border bounds. Actual rendering may be outside these bounds. */
     Rect2D              m_rect;
@@ -200,7 +200,7 @@ protected:
 
 protected:
 
-    GuiWindow(const GuiCaption& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
+    GuiWindow(const GuiText& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
 
     virtual void render(RenderDevice* rd) const;
 
@@ -311,7 +311,7 @@ public:
     }
 
     /** As controls are added, the window will automatically grow to contain them as needed */
-    static Ref create(const GuiCaption& windowTitle, const GuiThemeRef& skin, 
+    static Ref create(const GuiText& windowTitle, const GuiThemeRef& skin, 
                       const Rect2D& rect = Rect2D::xywh(100, 100, 100, 50), 
                       GuiTheme::WindowStyle style = GuiTheme::NORMAL_WINDOW_STYLE, 
                       CloseAction = NO_CLOSE);
@@ -325,7 +325,7 @@ public:
 
        @param side Side that the drawer sticks out of
      */
-    virtual GuiDrawer* addDrawer(const GuiCaption& caption = "", 
+    virtual GuiDrawer* addDrawer(const GuiText& caption = "", 
                                  GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { return NULL; }
 
     virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray);
@@ -348,9 +348,9 @@ public:
      */
     void pack();
 
-    virtual void setCaption(const GuiCaption& text);
+    virtual void setCaption(const GuiText& text);
 
-    const GuiCaption& caption() const {
+    const GuiText& caption() const {
         return m_text;
     }
 

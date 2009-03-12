@@ -270,7 +270,7 @@ void GuiTheme::endRendering() {
 
 void GuiTheme::drawCheckable
     (const Checkable& control, const Rect2D& bounds, 
-     bool enabled, bool focused, bool selected, const GuiCaption& text) const {
+     bool enabled, bool focused, bool selected, const GuiText& text) const {
 
     debugAssert(inRendering);
     control.render(rd, bounds, enabled, focused, selected);
@@ -297,8 +297,8 @@ void GuiTheme::renderDropDownList
  bool                 enabled,
  bool                 focused,
  bool                 down,
- const GuiCaption&    contentText,
- const GuiCaption&    text,
+ const GuiText&    contentText,
+ const GuiText&    text,
  float                captionWidth) const {
 
     // Dropdown list has a fixed height
@@ -348,10 +348,10 @@ void GuiTheme::renderTextBox
     (const Rect2D&      fullBounds, 
      bool               enabled, 
      bool               focused, 
-     const GuiCaption&  caption,
+     const GuiText&  caption,
      float              captionWidth,
-     const GuiCaption&  text, 
-     const GuiCaption&  cursor, 
+     const GuiText&  text, 
+     const GuiText&  cursor, 
      int                cursorPosition) const {
 
     const Rect2D& bounds = textBoxToClickBounds(fullBounds, captionWidth);
@@ -414,7 +414,7 @@ void GuiTheme::renderCanvas
     (const Rect2D&      fullBounds, 
      bool               enabled, 
      bool               focused, 
-     const GuiCaption&  caption,
+     const GuiText&  caption,
      float              captionHeight) const {
 
     const Rect2D& bounds = canvasToClickBounds(fullBounds, captionHeight);
@@ -436,7 +436,7 @@ void GuiTheme::renderCanvas
 
 
 void GuiTheme::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, bool selected, 
-                             const GuiCaption& text) const {
+                             const GuiText& text) const {
     drawCheckable(m_checkBox, bounds, enabled, focused, selected, text);
 }
 
@@ -449,7 +449,7 @@ void GuiTheme::renderPane(const Rect2D& bounds, PaneStyle paneStyle) const {
 
 
 void GuiTheme::renderWindow(const Rect2D& bounds, bool focused, bool hasClose, 
-                           bool closeIsDown, bool closeIsFocused, const GuiCaption& text, 
+                           bool closeIsDown, bool closeIsFocused, const GuiText& text, 
                            WindowStyle windowStyle) const {
     drawWindow(m_window[windowStyle], bounds, focused, hasClose, closeIsDown, closeIsFocused, text);
 }
@@ -489,7 +489,7 @@ Rect2D GuiTheme::closeButtonBounds(const Window& window, const Rect2D& bounds) c
 
 void GuiTheme::drawWindow(const Window& window, const Rect2D& bounds, 
                          bool focused, bool hasClose, bool closeIsDown, bool closeIsFocused,                          
-                         const GuiCaption& text) const {
+                         const GuiText& text) const {
     // Update any pending text since the window may overlap another window
     drawDelayedText();
 
@@ -595,12 +595,12 @@ Rect2D GuiTheme::dropDownListToClickBounds(const Rect2D& bounds, float captionWi
 }
 
 
-void GuiTheme::renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiCaption& text) const {
+void GuiTheme::renderRadioButton(const Rect2D& bounds, bool enabled, bool focused, bool selected, const GuiText& text) const {
     drawCheckable(m_radioButton, bounds, enabled, focused, selected, text);
 }
 
 
-Vector2 GuiTheme::minButtonSize(const GuiCaption& text, ButtonStyle buttonStyle) const {
+Vector2 GuiTheme::minButtonSize(const GuiText& text, ButtonStyle buttonStyle) const {
     const TextStyle& style = m_button[buttonStyle].textStyle;
     GFontRef font = text.font(style.font);
     float size = text.size(style.size);
@@ -616,7 +616,7 @@ Vector2 GuiTheme::minButtonSize(const GuiCaption& text, ButtonStyle buttonStyle)
 
 
 void GuiTheme::renderButton(const Rect2D& bounds, bool enabled, bool focused, 
-                           bool pushed, const GuiCaption& text, ButtonStyle buttonStyle) const {
+                           bool pushed, const GuiText& text, ButtonStyle buttonStyle) const {
 
     debugAssert(inRendering);
     if (buttonStyle != NO_BUTTON_STYLE) {
@@ -647,7 +647,7 @@ void GuiTheme::renderHorizontalSlider
     float pos, 
     bool enabled, 
     bool focused, 
-    const GuiCaption& text,
+    const GuiText& text,
     float captionWidth) const {
     
     debugAssert(inRendering);
@@ -671,7 +671,7 @@ void GuiTheme::renderHorizontalSlider
 }
 
 
-void GuiTheme::renderLabel(const Rect2D& bounds, const GuiCaption& text, GFont::XAlign xalign, GFont::YAlign yalign, bool enabled) const {
+void GuiTheme::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign, bool enabled) const {
     debugAssert(inRendering);
 
     if (text.text() != "") {

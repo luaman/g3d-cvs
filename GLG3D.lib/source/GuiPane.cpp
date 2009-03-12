@@ -28,13 +28,13 @@ void GuiPane::init(const Rect2D& rect) {
     }
 }
 
-GuiPane::GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
+GuiPane::GuiPane(GuiWindow* gui, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
     : GuiContainer(gui, text), m_style(style) {
     init(rect);
 }
 
 
-GuiPane::GuiPane(GuiContainer* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
+GuiPane::GuiPane(GuiContainer* parent, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
     : GuiContainer(parent, text), m_style(style) {
     init(rect);
 }
@@ -45,7 +45,7 @@ void GuiPane::morphTo(const Rect2D& r) {
 }
 
 
-void GuiPane::setCaption(const GuiCaption& caption) {
+void GuiPane::setCaption(const GuiText& caption) {
     if (m_label != NULL) {
         m_label->setCaption(caption);
     }
@@ -132,9 +132,9 @@ GuiPane::~GuiPane() {
 }
 
 
-GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, 
+GuiDropDownList* GuiPane::addDropDownList(const GuiText& caption, 
                                           const Pointer<int>& pointer, const Array<std::string>& list) {
-    Array<GuiCaption> c(list.size());
+    Array<GuiText> c(list.size());
     for (int i = 0; i < c.size(); ++i) {
         c[i] = list[i];
     }
@@ -142,13 +142,13 @@ GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption,
 }
 
 
-GuiDropDownList* GuiPane::addDropDownList(const GuiCaption& caption, 
-                                          const Pointer<int>& pointer, const Array<GuiCaption>& list) {
+GuiDropDownList* GuiPane::addDropDownList(const GuiText& caption, 
+                                          const Pointer<int>& pointer, const Array<GuiText>& list) {
     return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 
 
-GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* selection, 
+GuiRadioButton* GuiPane::addRadioButton(const GuiText& text, int myID, void* selection, 
                                         GuiTheme::RadioButtonStyle style) {
 
     GuiRadioButton* c = addControl
@@ -173,7 +173,7 @@ GuiRadioButton* GuiPane::addRadioButton(const GuiCaption& text, int myID, void* 
 
 
 GuiCheckBox* GuiPane::addCheckBox
-(const GuiCaption& text,
+(const GuiText& text,
  const Pointer<bool>& pointer,
  GuiTheme::CheckBoxStyle style) {
     GuiCheckBox* c = addControl(new GuiCheckBox(this, text, pointer, style));
@@ -200,12 +200,12 @@ void GuiPane::addCustom(GuiControl* c) {
 }
 
 
-GuiButton* GuiPane::addButton(const GuiCaption& text, GuiTheme::ButtonStyle style) {
+GuiButton* GuiPane::addButton(const GuiText& text, GuiTheme::ButtonStyle style) {
 	return addButton(text, GuiButton::Callback(), style);
 }
 
 
-GuiButton* GuiPane::addButton(const GuiCaption& text, const GuiControl::Callback& callback, GuiTheme::ButtonStyle style) {
+GuiButton* GuiPane::addButton(const GuiText& text, const GuiControl::Callback& callback, GuiTheme::ButtonStyle style) {
     GuiButton* b = new GuiButton(this, callback, text, style);
 
     addControl(b);
@@ -226,7 +226,7 @@ GuiButton* GuiPane::addButton(const GuiCaption& text, const GuiControl::Callback
 }
 
 
-GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) {
+GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign x, GFont::YAlign y) {
     GuiLabel* b = new GuiLabel(this, text, x, y);
     b->setRect(Rect2D::xywh(nextControlPos(), Vector2(min(m_clientRect.width(), (float)CONTROL_WIDTH), CONTROL_HEIGHT)));
     
@@ -235,12 +235,12 @@ GuiLabel* GuiPane::addLabel(const GuiCaption& text, GFont::XAlign x, GFont::YAli
     return b;
 }
 
-GuiFunctionBox* GuiPane::addFunctionBox(const GuiCaption& text, Spline<float>* spline) {
+GuiFunctionBox* GuiPane::addFunctionBox(const GuiText& text, Spline<float>* spline) {
     return addControl(new GuiFunctionBox(this, text, spline));
 }
 
 
-GuiPane* GuiPane::addPane(const GuiCaption& text, GuiTheme::PaneStyle style) {
+GuiPane* GuiPane::addPane(const GuiText& text, GuiTheme::PaneStyle style) {
     Rect2D minRect = theme()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
 
     Vector2 pos = nextControlPos();

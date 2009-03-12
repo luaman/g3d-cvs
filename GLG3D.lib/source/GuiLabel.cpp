@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-GuiLabel::GuiLabel(GuiContainer* parent, const GuiCaption& text, GFont::XAlign x, GFont::YAlign y) 
+GuiLabel::GuiLabel(GuiContainer* parent, const GuiText& text, GFont::XAlign x, GFont::YAlign y) 
     : GuiControl(parent, text), m_xalign(x), m_yalign(y) {}
 
 

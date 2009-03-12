@@ -17,7 +17,7 @@ GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr,
     return new GuiMenu(skin, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue);
 }
 
-GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue) {
+GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue) {
     return new GuiMenu(skin, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue);
 }
 
@@ -36,7 +36,7 @@ GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>
 }
 
 
-GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr, 
+GuiMenu::GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiText>* listPtr, 
                  const Pointer<int>& indexValue) : 
     GuiWindow("", skin, rect, GuiTheme::MENU_WINDOW_STYLE, NO_CLOSE), m_stringListValue(NULL), 
     m_captionListValue(listPtr), m_indexValue(indexValue), m_useStringList(false), m_superior(NULL) {

@@ -37,7 +37,7 @@ protected:
         @param groupSelection Pointer to the current selection.  This button is selected
         when myID == *groupSelection
      */
-    GuiRadioButton(GuiContainer* parent, const GuiCaption& text, int myID,
+    GuiRadioButton(GuiContainer* parent, const GuiText& text, int myID,
                    const Pointer<int>& groupSelection,
                    GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
 

@@ -61,7 +61,7 @@ protected:
     Update               m_update;
 
     /** String to be used as the cursor character */
-    GuiCaption           m_cursor;
+    GuiText           m_cursor;
 
     /** Key that is currently auto-repeating. */
     GKeySym              m_repeatKeysym;
@@ -73,7 +73,7 @@ protected:
     RealTime             m_keyRepeatTime;
 
     /** Called by GuiPane */
-    GuiTextBox(GuiContainer* parent, const GuiCaption& caption, 
+    GuiTextBox(GuiContainer* parent, const GuiText& caption, 
                const Pointer<std::string>& value, Update update);
 
     virtual bool onEvent(const GEvent& event);

@@ -32,8 +32,8 @@ protected:
 
     Rect2D              m_clientRect;
 
-    GuiContainer(class GuiWindow* gui, const class GuiCaption& text);
-    GuiContainer(class GuiContainer* parent, const class GuiCaption& text);
+    GuiContainer(class GuiWindow* gui, const class GuiText& text);
+    GuiContainer(class GuiContainer* parent, const class GuiText& text);
 
 public:
 

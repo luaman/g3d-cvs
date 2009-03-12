@@ -66,8 +66,8 @@ protected:
 
     Array<GuiLabel*>    labelArray;
 
-    GuiPane(GuiWindow* gui, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
-    GuiPane(GuiContainer* parent, const GuiCaption& text, const Rect2D& rect, GuiTheme::PaneStyle style);
+    GuiPane(GuiWindow* gui, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style);
+    GuiPane(GuiContainer* parent, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style);
 
     /**
        Called from constructors.
@@ -116,7 +116,7 @@ public:
 
     /** If the original caption was non-empty (even if it was " "), 
         the new caption will be shown.*/
-    virtual void setCaption(const GuiCaption& caption);    
+    virtual void setCaption(const GuiText& caption);    
 
     /** Set relative to the parent pane (or window) */
     virtual void setRect(const Rect2D& rect);
@@ -146,7 +146,7 @@ public:
         If the text is "", no space is reserved for a caption.  If non-empty (even " "), then
         space is reserved and the caption may later be changed.
      */
-    GuiPane* addPane(const GuiCaption& text = "", GuiTheme::PaneStyle style = GuiTheme::SIMPLE_PANE_STYLE);
+    GuiPane* addPane(const GuiText& text = "", GuiTheme::PaneStyle style = GuiTheme::SIMPLE_PANE_STYLE);
 
     /**
        <pre>
@@ -161,33 +161,33 @@ public:
        </pre>
     */
     GuiCheckBox* addCheckBox
-    (const GuiCaption& text,
+    (const GuiText& text,
      const Pointer<bool>& pointer,
      GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);
 
     GuiCheckBox* addCheckBox
-    (const GuiCaption& text,
+    (const GuiText& text,
      bool* pointer,
      GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE
      ) {
         return addCheckBox(text, Pointer<bool>(pointer), style);
     }
 
-    GuiFunctionBox* addFunctionBox(const GuiCaption& text, Spline<float>* spline);
+    GuiFunctionBox* addFunctionBox(const GuiText& text, Spline<float>* spline);
 
     GuiTextBox* addTextBox
-    (const GuiCaption& caption,
+    (const GuiText& caption,
      const Pointer<std::string>& stringPointer,
      GuiTextBox::Update update = GuiTextBox::DELAYED_UPDATE
      ) {        
         return addControl(new GuiTextBox(this, caption, stringPointer, update));
     }
 
-    GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, const Array<std::string>& list);
-    GuiDropDownList* addDropDownList(const GuiCaption& caption, const Pointer<int>& indexPointer, const Array<GuiCaption>& list = Array<GuiCaption>());
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Pointer<int>& indexPointer, const Array<std::string>& list);
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Pointer<int>& indexPointer, const Array<GuiText>& list = Array<GuiText>());
     
     template<typename EnumOrInt, class T>
-    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID,  
+    GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
         T* object,
         EnumOrInt (T::*get)() const,
         void (T::*set)(EnumOrInt), 
@@ -223,9 +223,9 @@ public:
     */
     template<typename Value>
     GuiNumberBox<Value>* addNumberBox(
-        const GuiCaption&   text, 
+        const GuiText&   text, 
         const Pointer<Value>& value, 
-        const GuiCaption&   suffix = "", 
+        const GuiText&   suffix = "", 
         GuiTheme::SliderScale sliderScale = GuiTheme::NO_SLIDER, 
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
@@ -237,9 +237,9 @@ public:
 
     template<typename Value>
     GuiNumberBox<Value>* addNumberBox(
-        const GuiCaption&   text, 
+        const GuiText&   text, 
         Value*              value, 
-        const GuiCaption&   suffix = "", 
+        const GuiText&   suffix = "", 
         GuiTheme::SliderScale sliderScale = GuiTheme::NO_SLIDER, 
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
@@ -252,9 +252,9 @@ public:
     /** @deprecated Use the new version with a GuiTheme::SliderScale argument.*/
     template<typename Value>
     GuiNumberBox<Value>* addNumberBox(
-        const GuiCaption&   text, 
+        const GuiText&   text, 
         Value*              value, 
-        const GuiCaption&   suffix,
+        const GuiText&   suffix,
         bool                showSlider,
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
@@ -267,9 +267,9 @@ public:
     /** @deprecated Use the new version with a GuiTheme::SliderScale argument.*/
     template<typename Value>
     GuiNumberBox<Value>* addNumberBox(
-        const GuiCaption&   text, 
+        const GuiText&   text, 
         const Pointer<Value>& value, 
-        const GuiCaption&   suffix, 
+        const GuiText&   suffix, 
         bool                showSlider, 
         Value               min = (Value)minVal(Value()), 
         Value               max = (Value)maxVal(Value()), 
@@ -280,13 +280,13 @@ public:
     }
 
     template<typename Value>
-    GuiSlider<Value>* addSlider(const GuiCaption& text, const Pointer<Value>& value, 
+    GuiSlider<Value>* addSlider(const GuiText& text, const Pointer<Value>& value, 
         Value min, Value max, bool horizontal = true, GuiTheme::SliderScale scale = GuiTheme::LINEAR_SLIDER) {
         return addControl(new GuiSlider<Value>(this, text, value, min,  max, horizontal, scale));
     }
 
     template<typename Value>
-    GuiSlider<Value>* addSlider(const GuiCaption& text, Value* value, 
+    GuiSlider<Value>* addSlider(const GuiText& text, Value* value, 
                                 Value min, Value max, bool horizontal = true, GuiTheme::SliderScale scale = GuiTheme::LINEAR_SLIDER) {
         return addSlider(text, Pointer<Value>(value), min, max, horizontal, scale);
     }
@@ -307,29 +307,29 @@ public:
        @param selection Must be a pointer to an int or enum.  The
        current selection value for a group of radio buttons.
      */
-    GuiRadioButton* addRadioButton(const GuiCaption& text, int myID, void* selection, 
+    GuiRadioButton* addRadioButton(const GuiText& text, int myID, void* selection, 
                                    GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
 
-    GuiButton* addButton(const GuiCaption& text, const GuiControl::Callback& callback, 
+    GuiButton* addButton(const GuiText& text, const GuiControl::Callback& callback, 
                          GuiTheme::ButtonStyle style);
 
     template<class Class>
-    inline GuiButton* addButton(const GuiCaption& text, Class* const callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+    inline GuiButton* addButton(const GuiText& text, Class* const callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
         return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
     }
     
     template<class Class>
-    inline GuiButton* addButton(const GuiCaption& text, const ReferenceCountedPointer<Class>& callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+    inline GuiButton* addButton(const GuiText& text, const ReferenceCountedPointer<Class>& callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
         return addButton(text, GuiControl::Callback(callbackObject, callbackMethod), style);
     }
     
-    inline GuiButton* addButton(const GuiCaption& text, void (*callbackFunction)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
+    inline GuiButton* addButton(const GuiText& text, void (*callbackFunction)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {
         return addButton(text, GuiControl::Callback(callbackFunction), style);
     }
     
-    GuiButton* addButton(const GuiCaption& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
+    GuiButton* addButton(const GuiText& text, GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE);
     
-    GuiLabel* addLabel(const GuiCaption& text, GFont::XAlign xalign = GFont::XALIGN_LEFT,
+    GuiLabel* addLabel(const GuiText& text, GFont::XAlign xalign = GFont::XALIGN_LEFT,
                        GFont::YAlign = GFont::YALIGN_CENTER);
 
     /**

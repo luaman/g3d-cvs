@@ -30,7 +30,7 @@ protected:
     GuiControl*                     m_eventSource;
 
     Array<std::string>*             m_stringListValue;
-    Array<GuiCaption>*              m_captionListValue;
+    Array<GuiText>*              m_captionListValue;
     /** The created labels */
     Array<GuiControl*>              m_labelArray;
     Pointer<int>                    m_indexValue;
@@ -44,7 +44,7 @@ protected:
     /** Mouse is over this option */
     int                             m_highlightIndex;
 
-    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue);
+    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
     GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     /** Returns -1 if none */
@@ -54,7 +54,7 @@ protected:
     void fireEvent(GEventType type);
 public:
 
-    static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiCaption>* listPtr, const Pointer<int>& indexValue);
+    static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
     static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     virtual bool onEvent(const GEvent& event);

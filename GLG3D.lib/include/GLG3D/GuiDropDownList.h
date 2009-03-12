@@ -39,16 +39,16 @@ protected:
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
 
-    Array<GuiCaption>               m_listValue;
+    Array<GuiText>               m_listValue;
 
     /** True when the menu is open */
     bool                            m_selecting;
 
     GuiDropDownList
        (GuiContainer*               parent, 
-        const GuiCaption&           caption, 
+        const GuiText&           caption, 
         const Pointer<int>&         indexValue, 
-        const Array<GuiCaption>&    listValue);
+        const Array<GuiText>&    listValue);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
@@ -60,20 +60,20 @@ protected:
 
 public:
 
-    void setList(const Array<GuiCaption>& c);
+    void setList(const Array<GuiText>& c);
 
     void setList(const Array<std::string>& c);
 
     /** Remove all values from the list */
     void clear();
 
-    void append(const GuiCaption& c);
+    void append(const GuiText& c);
 
-    inline const GuiCaption& get(int i) const {
+    inline const GuiText& get(int i) const {
         return m_listValue[i];
     }
 
-    inline void set(int i, const GuiCaption& v) {
+    inline void set(int i, const GuiText& v) {
         m_listValue[i] = v;
     }
 
@@ -85,7 +85,7 @@ public:
     virtual void setRect(const Rect2D&);
 
     /** Returns the currently selected value */
-    const GuiCaption& selectedValue() const;
+    const GuiText& selectedValue() const;
         
 
 };

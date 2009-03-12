@@ -14,12 +14,12 @@
 
 namespace G3D {
 
-GuiControl::GuiControl(GuiWindow* gui, const GuiCaption& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_visible(true) {
+GuiControl::GuiControl(GuiWindow* gui, const GuiText& caption) : m_enabled(true), m_gui(gui), m_parent(NULL), m_visible(true) {
     m_eventSource = this;
     setCaption(caption);
 }
 
-GuiControl::GuiControl(GuiContainer* parent, const GuiCaption& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_visible(true) {
+GuiControl::GuiControl(GuiContainer* parent, const GuiText& caption) : m_enabled(true), m_gui(parent->m_gui), m_parent(parent), m_visible(true) {
     m_eventSource = this;
     setCaption(caption);
 }
@@ -141,11 +141,11 @@ void GuiControl::setEnabled(bool e) {
     m_enabled = e;
 }
 
-const GuiCaption& GuiControl::caption() const {
+const GuiText& GuiControl::caption() const {
     return m_caption;
 }
 
-void GuiControl::setCaption(const GuiCaption& text) {
+void GuiControl::setCaption(const GuiText& text) {
     m_caption = text;
     if (m_caption.text() == "") {
         setCaptionSize(0);

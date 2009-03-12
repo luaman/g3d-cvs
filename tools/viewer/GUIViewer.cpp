@@ -111,19 +111,19 @@ void GUIViewer::createGui(const std::string& filename) {
     dropdown.append("Option 3");
     dropdownDisabled.append("Disabled");
     pane->addLabel("Dropdown List");
-    pane->addDropDownList(GuiCaption("Enabled"), &dropdownIndex[0], dropdown);
-    pane->addDropDownList(GuiCaption("Disabled"), &dropdownIndex[1], dropdownDisabled)->setEnabled(false);
+    pane->addDropDownList(GuiText("Enabled"), &dropdownIndex[0], dropdown);
+    pane->addDropDownList(GuiText("Disabled"), &dropdownIndex[1], dropdownDisabled)->setEnabled(false);
     pane->addTextBox("TextBox", &text);
     pane->addTextBox("Disabled", &text)->setEnabled(false);
 
     pane = bgControl->pane();
     windowControl = BGIMAGE2;
     pane->addLabel("Background Color");
-    pane->addRadioButton(GuiCaption("White"), WHITE, &windowControl);
-    pane->addRadioButton(GuiCaption("Blue"), BLUE, &windowControl);
-    pane->addRadioButton(GuiCaption("Black"), BLACK, &windowControl);
-    pane->addRadioButton(GuiCaption("background1.jpg"), BGIMAGE1, &windowControl)->setEnabled(background1.notNull());
-    pane->addRadioButton(GuiCaption("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background2.notNull());
+    pane->addRadioButton(GuiText("White"), WHITE, &windowControl);
+    pane->addRadioButton(GuiText("Blue"), BLUE, &windowControl);
+    pane->addRadioButton(GuiText("Black"), BLACK, &windowControl);
+    pane->addRadioButton(GuiText("background1.jpg"), BGIMAGE1, &windowControl)->setEnabled(background1.notNull());
+    pane->addRadioButton(GuiText("background2.jpg"), BGIMAGE2, &windowControl)->setEnabled(background2.notNull());
 
     // Gets rid of any empty, unused space in the windows
     window->pack();

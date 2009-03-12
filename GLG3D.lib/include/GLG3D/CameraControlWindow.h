@@ -90,17 +90,17 @@ protected:
     /** The button must be in its own pane so that it can float over
         the expanded pane. */
     GuiPane*                    drawerButtonPane;
-    GuiCaption                  drawerExpandCaption;
-    GuiCaption                  drawerCollapseCaption;
+    GuiText                  drawerExpandCaption;
+    GuiText                  drawerCollapseCaption;
 
     GuiButton*                  saveButton;
 
     GuiLabel*                   helpLabel;
 
-    GuiCaption                  manualHelpCaption;
-    GuiCaption                  autoHelpCaption;
-    GuiCaption                  recordHelpCaption;
-    GuiCaption                  playHelpCaption;
+    GuiText                  manualHelpCaption;
+    GuiText                  autoHelpCaption;
+    GuiText                  recordHelpCaption;
+    GuiText                  playHelpCaption;
 
     GuiButton*                  m_showBookmarksButton;
 

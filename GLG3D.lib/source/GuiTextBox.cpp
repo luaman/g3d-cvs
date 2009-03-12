@@ -22,7 +22,7 @@ static const float               keyRepeatDelay = 0.25f;
 
 namespace G3D {
 
-GuiTextBox::GuiTextBox(GuiContainer* parent, const GuiCaption& caption, 
+GuiTextBox::GuiTextBox(GuiContainer* parent, const GuiText& caption, 
                        const Pointer<std::string>& value, Update update) 
     : GuiControl(parent, caption), m_value(value), 
       m_cursorPos(0), m_editing(false), m_update(update), m_cursor("|") {
