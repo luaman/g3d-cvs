@@ -61,7 +61,7 @@ protected:
     Update               m_update;
 
     /** String to be used as the cursor character */
-    GuiText           m_cursor;
+    GuiText              m_cursor;
 
     /** Key that is currently auto-repeating. */
     GKeySym              m_repeatKeysym;

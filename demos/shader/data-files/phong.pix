@@ -1,5 +1,4 @@
-#version 120
-// -*- c++ -*-
+#version 120 // -*- c++ -*-
 /**
  Per-pixel Phong Shading
 

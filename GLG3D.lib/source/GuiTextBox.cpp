@@ -95,7 +95,7 @@ void GuiTextBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
             m_caption,
             m_captionSize,
             m_editing ? m_userValue : *m_value, 
-            solidCursor ? m_cursor : std::string(), 
+            solidCursor ? m_cursor : GuiText(std::string()),
             m_cursorPos);
     }
 }
