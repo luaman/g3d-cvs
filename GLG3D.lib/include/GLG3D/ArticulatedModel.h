@@ -61,7 +61,8 @@ namespace G3D {
 		relative to one another).
    <li> For each part in partArray,
      <ol>
-       <li> Fill out Part::geometry.vertexArray, Part::triListArray, and Part::texCoordArray data
+       <li> Fill out Part::geometry.vertexArray and Part::texCoordArray data
+       <li> Use Part::newTriList to extend the Part::triList
        <li> Set the Part::name, which must be unique
        <li> For each tri list in the part (a tri list is a mesh with a G3D::Material),
           <ol>
