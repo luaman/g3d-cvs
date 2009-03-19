@@ -6,6 +6,8 @@
  @created 2008-11-20
  @edited  2008-11-22
  */
+
+#include <climits>
 #include "G3D/platform.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
