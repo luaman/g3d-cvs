@@ -59,6 +59,14 @@ public:
 
     Color3 (const class Color3uint8& other);
 
+    inline bool isZero() const {
+        return (r == 0.0f) && (g == 0.0f) && (b == 0.0f);
+    }
+
+    inline bool isOne() const {
+        return (r == 1.0f) && (g == 1.0f) && (b == 1.0f);
+    }
+
     /**
      Initialize from an HTML-style color (e.g. 0xFF0000 == RED)
      */

@@ -69,23 +69,6 @@ j = b.xx();
  */
 class Vector3 {
 private:
-    /**
-     Reflect this vector about the (not necessarily unit) normal.
-     Note that if used for a collision or ray reflection you
-     must negate the resulting vector to get a direction pointing
-     <I>away</I> from the collision.
-
-     <PRE>
-       V'    N      V
-                 
-         r   ^   -,
-          \  |  /
-            \|/
-     </PRE>
-
-     See also Vector3::reflectionDirection
-     */
-    Vector3 reflectAbout(const Vector3& normal) const;
 
     // Hidden operators
     bool operator<(const Vector3&) const;
@@ -194,6 +177,26 @@ public:
      */
     Vector3 fastDirection() const;
 
+    /**
+     Reflect this vector about the (not necessarily unit) normal.
+     Assumes that both the before and after vectors point away from
+     the base of the normal.
+
+     Note that if used for a collision or ray reflection you
+     must negate the resulting vector to get a direction pointing
+     <I>away</I> from the collision.
+
+     <PRE>
+       V'    N      V
+                 
+         r   ^   -,
+          \  |  /
+            \|/
+     </PRE>
+
+     See also Vector3::reflectionDirection
+     */
+    Vector3 reflectAbout(const Vector3& normal) const;
 
     /**
       See also G3D::Ray::reflect.

@@ -65,6 +65,15 @@ public:
      */
     Color4(const Color4& other);
 
+
+    inline bool isZero() const {
+        return (r == 0.0f) && (g == 0.0f) && (b == 0.0f) && (a == 0.0f);
+    }
+
+    inline bool isOne() const {
+        return (r == 1.0f) && (g == 1.0f) && (b == 1.0f) && (a == 1.0f);
+    }
+
     void serialize(class BinaryOutput& bo) const;
     void deserialize(class BinaryInput& bi);
 

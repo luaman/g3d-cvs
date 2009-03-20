@@ -13,7 +13,8 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> G3D::Spinlock
+     <li> G3D::Vector3::reflectAbout
+     <li> G3D::Spinlock; faster than GMutex for one thread-per-processor
      <li> G3D::Vector random methods now use G3D::Random
      <li> G3D::Color?::one() and Color?::zero() for all-one or all-zero constants
      <li> G3D::GuiLabel now autosizes around its contents

@@ -47,6 +47,14 @@ public:
     inline explicit Color1(float v) : value(v) {
     }
 
+    inline bool isZero() const {
+        return value == 0.0f;
+    }
+
+    inline bool isOne() const {
+        return value == 1.0f;
+    }
+
     inline static const Color1& one() {
         static Color1 x(1.0f);
         return x;
