@@ -135,16 +135,18 @@ void Vector3::serialize(BinaryOutput& b) const {
 }
 
 
-Vector3 Vector3::random() {
+Vector3 Vector3::random(Random& r) {
     Vector3 result;
 
+    float m2;
     do {
-        result = Vector3(uniformRandom(-1.0, 1.0), 
-                         uniformRandom(-1.0, 1.0),
-                         uniformRandom(-1.0, 1.0));
-    } while (result.squaredMagnitude() >= 1.0f);
+        result = Vector3(r.uniform() * 2.0f - 1.0f, 
+                         r.uniform() * 2.0f - 1.0f,
+                         r.uniform() * 2.0f - 1.0f);
+        m2 = result.squaredMagnitude();
+    } while (m2 >= 1.0f);
 
-    result.unitize();
+    result *= rsqrt(m2);
 
     return result;
 }
@@ -209,25 +211,25 @@ Vector3 Vector3::reflectAbout(const Vector3& normal) const {
 }
 
 //----------------------------------------------------------------------------
-Vector3 Vector3::cosRandom(const Vector3& normal) {
-    double e1 = G3D::uniformRandom(0, 1);
-    double e2 = G3D::uniformRandom(0, 1);
+Vector3 Vector3::cosRandom(const Vector3& normal, Random& r) {
+    float e1 = r.uniform();
+    float e2 = r.uniform();
 
     // Angle from normal
-    double theta = acos(sqrt(e1));
+    float theta = acos(sqrt(e1));
 
     // Angle about normal
-    double phi   = 2 * pi() * e2;
+    float phi   = 2 * pi() * e2;
 
     // Make a coordinate system
-    Vector3 U = normal.direction();
+    const Vector3& U = normal.direction();
     Vector3 V = Vector3::unitX();
 
-    if (abs(U.dot(V)) > .9) {
+    if (abs(U.dot(V)) > 0.9f) {
         V = Vector3::unitY();
     }
 
-    Vector3 W = U.cross(V).direction();
+    const Vector3& W = U.cross(V).direction();
     V = W.cross(U);
 
     // Convert to rectangular form
@@ -235,8 +237,8 @@ Vector3 Vector3::cosRandom(const Vector3& normal) {
 }
 //----------------------------------------------------------------------------
 
-Vector3 Vector3::hemiRandom(const Vector3& normal) {
-    Vector3 V = Vector3::random();
+Vector3 Vector3::hemiRandom(const Vector3& normal, Random& r) {
+    const Vector3& V = Vector3::random(r);
 
     if (V.dot(normal) < 0) {
         return -V;

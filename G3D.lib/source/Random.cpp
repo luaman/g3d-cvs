@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-Random::Random(uint32 seed) {
+Random::Random(uint32 seed) : mutex(0) {
     const uint32 X = 1812433253UL;
 
     state[0] = seed;

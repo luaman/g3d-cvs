@@ -220,6 +220,7 @@ inline int iRound(float f) {
 /**
  Returns a random number uniformly at random between low and hi
  (inclusive).
+ @deprecated Use Random::integer
  */
 int iRandom(int low, int hi);
 
@@ -251,7 +252,7 @@ int iMod3(int x);
 /**
  Uniform random number between low and hi, inclusive. [low, hi]
  @deprecated 
- @sa Random
+ @sa Random::uniform
  */
 float uniformRandom(float low = 0.0f, float hi = 1.0f);
 
@@ -259,7 +260,7 @@ float uniformRandom(float low = 0.0f, float hi = 1.0f);
  Normally distributed random number. 
 
  @deprecated 
- @sa Random
+ @sa Random::gaussian
  */
 float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
 

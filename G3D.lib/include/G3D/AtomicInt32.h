@@ -13,7 +13,7 @@
 #include "G3D/g3dmath.h"
 
 #if defined(G3D_OSX)
-	#include <libkern/OSAtomic.h>
+#   include <libkern/OSAtomic.h>
 #endif
 
 namespace G3D {
@@ -31,7 +31,7 @@ private:
 #   if defined(G3D_WIN32) 
     volatile long           m_value;
 #   elif defined(G3D_OSX)
-	int32_t					m_value;
+    int32_t                 m_value;
 #   else
     volatile int32          m_value;
 #   endif
@@ -85,9 +85,9 @@ public:
             
 #       elif defined(G3D_OSX)
 
-			int32 old = m_value;
-			OSAtomicAdd32(x, &m_value);
-			return old;
+            int32 old = m_value;
+            OSAtomicAdd32(x, &m_value);
+            return old;
 
 #       endif
     }
@@ -105,7 +105,7 @@ public:
             add(1);
 #       elif defined(G3D_OSX)
             // Note: returns the newly incremented value
-			OSAtomicIncrement32(&m_value);
+            OSAtomicIncrement32(&m_value);
 #       endif
     }
 
@@ -124,7 +124,7 @@ public:
                           : "memory", "cc");
             return nz;
 #       elif defined(G3D_OSX)
-			// Note: returns the newly decremented value
+            // Note: returns the newly decremented value
             return OSAtomicDecrement32(&m_value);
 #       endif
     }
@@ -138,7 +138,6 @@ public:
         Otherwise, no operation is performed.
 
         Under VC6 the sign bit may be lost.
-
      */ 
     int32 compareAndSet(const int32 comperand, const int32 exchange) {
 #       if defined(G3D_WIN32)
@@ -151,11 +150,11 @@ public:
                           : "memory", "cc");
             return ret;
 #       elif defined(G3D_OSX)
-			int32 old = m_value;
-
-			OSAtomicCompareAndSwap32(comperand, exchange, &m_value);
-
-			return old;
+            int32 old = m_value;
+            
+            OSAtomicCompareAndSwap32(comperand, exchange, &m_value);
+            
+            return old;
 #       endif
     }
 

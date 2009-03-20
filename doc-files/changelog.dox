@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Vector random methods now use G3D::Random
      <li> G3D::Color?::one() and Color?::zero() for all-one or all-zero constants
      <li> G3D::GuiLabel now autosizes around its contents
      <li> G3D::Shader preprocessor now supports #include
@@ -39,7 +40,7 @@
      <li> G3D::System::findDataFile now caches the locations of found files
      <li> G3D::Widget now inherits from G3D::PosedModel2D
      <li> GApp::m_renderPeriod
-     <li> G3D::Random
+     <li> G3D::Random - controllable, threadsafe, and better distribution than rand()
      <li> Added function key guide on the top of render stats for G3D::GApp
      <li> G3D::CollisionDetection::fixedSolidBoxIntersectsFixedTriangle
      <li> G3D::Set::getRemove, G3D::Table::getRemove

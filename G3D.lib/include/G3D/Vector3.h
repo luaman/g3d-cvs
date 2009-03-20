@@ -11,11 +11,12 @@
   All rights reserved.
  */
 
-#ifndef G3D_VECTOR3_H
-#define G3D_VECTOR3_H
+#ifndef G3D_Vector3_H
+#define G3D_Vector3_H
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
+#include "G3D/Random.h"
 #include "G3D/Vector2.h"
 #include "G3D/Table.h"
 #include "G3D/HashTrait.h"
@@ -331,7 +332,7 @@ public:
     static void orthonormalize (Vector3 akVector[3]);
 
     /** Random unit vector, uniformly distributed */
-    static Vector3 random();
+    static Vector3 random(Random& r = Random::common());
 
     /** Random unit vector, distributed
         so that the probability of V is proportional 
@@ -339,13 +340,13 @@ public:
 
         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
     */
-    static Vector3 cosRandom(const Vector3& normal);
+    static Vector3 cosRandom(const Vector3& normal, Random& r = Random::common());
 
 
     /**
      Random vector distributed over the hemisphere about normal.
      */
-    static Vector3 hemiRandom(const Vector3& normal);
+    static Vector3 hemiRandom(const Vector3& normal, Random& r = Random::common());
 
     // Input W must be initialize to a nonzero vector, output is {U,V,W}
     // an orthonormal basis.  A hint is provided about whether or not W

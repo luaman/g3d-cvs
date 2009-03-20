@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2009-01-02
- @edited  2009-03-02
+ @edited  2009-03-20
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -14,7 +14,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
-#include "G3D/GThread.h"
+#include "G3D/AtomicInt32.h"
 
 namespace G3D {
 
@@ -25,8 +25,8 @@ namespace G3D {
 
     Uses the Fast Mersenne Twister (FMT-19937) algorithm.
 
-    On average, uniform() runs about 2-4x faster than rand() on most
-    computers.
+    On average, uniform() runs about 2x slower than rand(); all of the time
+    is spent int thread synchronization.
 
     @cite http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/index.html
  */
@@ -46,14 +46,18 @@ private:
         B = 0x9D2C5680,
         C = 0xEFC60000};
 
-    /** Prevents multiple overlapping calls to generate. */
-    GMutex     mutex;
+    /** Prevents multiple overlapping calls to bits(). 
+        0 = unlocked, non-zero = locked
+
+        This spinlock proved faster than GMutex.
+     */
+    AtomicInt32 mutex;
 
     /** State vector (these are the next N values that will be returned) */
-    uint32     state[N];
+    uint32      state[N];
 
     /** Index into state */
-    int        index;
+    int         index;
 
     /** Generate the next N ints, and store them for readback later.
         Called from bits() */
@@ -69,7 +73,9 @@ public:
     inline uint32 bits() {
         // See http://en.wikipedia.org/wiki/Mersenne_twister
 
-        mutex.lock();
+        // Spin lock on the mutex
+        while (mutex.compareAndSet(0, 1) == 1);
+
         if (index >= (int)N) {
             generate();
         }
@@ -77,7 +83,9 @@ public:
         // Return the next random in the sequence
         uint32 r = state[index];
         ++index;
-        mutex.unlock();
+
+        // Unlock the mutex
+        mutex = 0;
         
         // Temper the result
         r ^=  r >> U;
@@ -97,6 +105,14 @@ public:
         // about 1.5x slower performance and slightly better
         // precision.
         return low + (high - low) * ((float)bits() / (float)0xFFFFFFFFUL);
+    }
+
+    /** Uniform random float on the range [0, 1] */
+    inline float uniform() {
+        // We could compute the ratio in double precision here for
+        // about 1.5x slower performance and slightly better
+        // precision.
+        return (float)bits() / (float)0xFFFFFFFFUL;
     }
 
     /** Normally distributed reals. */
