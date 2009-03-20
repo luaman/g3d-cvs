@@ -8,7 +8,7 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2001-06-02
- @edited  2008-07-17
+ @edited  2009-03-20
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.

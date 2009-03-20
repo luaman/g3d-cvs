@@ -27,48 +27,31 @@ Random::~Random() {
 }
 
 
-uint32 Random::bits() {
-    // See http://en.wikipedia.org/wiki/Mersenne_twister
+/** Generate the next N ints, and store them for readback later */
+void Random::generate() {
 
-    if (index >= (int)N) {
-        // Generate the next N ints, and store them for readback later
+    // Lower R bits
+    const uint32 LOWER_MASK = (1LU << R) - 1;
 
-        // Lower R bits
-        const uint32 LOWER_MASK = (1LU << R) - 1;
+    // Upper (32 - R) bits
+    const uint32 UPPER_MASK = 0xFFFFFFFF << R;
+    static const uint32 mag01[2] = {0, A};
 
-        // Upper (32 - R) bits
-        const uint32 UPPER_MASK = 0xFFFFFFFF << R;
-        static const uint32 mag01[2] = {0, A};
-
-        // First N - M
-        for (unsigned int i = 0; i < N - M; ++i) {    
-            uint32 x = (state[i] & UPPER_MASK) | (state[i + 1] & LOWER_MASK);
-            state[i] = state[i + M] ^ (x >> 1) ^ mag01[x & 1];
-        }
-
-        // Rest
-        for (unsigned int i = N - M + 1; i < N - 1; ++i) {    
-            uint32 x = (state[i] & UPPER_MASK) | (state[i + 1] & LOWER_MASK);
-            state[i] = state[i + (M - N)] ^ (x >> 1) ^ mag01[x & 1];
-        }
-        
-        uint32 y = (state[N - 1] & UPPER_MASK) | (state[0] & LOWER_MASK);
-        state[N - 1] = state[M - 1] ^ (y >> 1) ^ mag01[y & 1];
-        index = 0;
+    // First N - M
+    for (unsigned int i = 0; i < N - M; ++i) {    
+        uint32 x = (state[i] & UPPER_MASK) | (state[i + 1] & LOWER_MASK);
+        state[i] = state[i + M] ^ (x >> 1) ^ mag01[x & 1];
     }
 
-    // Return the next random in the sequence
-    uint32 r = state[index];
-    ++index;
-
-    // Temper the result
-    r ^=  r >> U;
-    r ^= (r << S) & B;
-    r ^= (r << T) & C;
-    r ^=  r >> L;
-
-    return r;
-    
+    // Rest
+    for (unsigned int i = N - M + 1; i < N - 1; ++i) {    
+        uint32 x = (state[i] & UPPER_MASK) | (state[i + 1] & LOWER_MASK);
+        state[i] = state[i + (M - N)] ^ (x >> 1) ^ mag01[x & 1];
+    }
+        
+    uint32 y = (state[N - 1] & UPPER_MASK) | (state[0] & LOWER_MASK);
+    state[N - 1] = state[M - 1] ^ (y >> 1) ^ mag01[y & 1];
+    index = 0;
 }
 
     
@@ -85,11 +68,6 @@ int Random::integer(int low, int high) {
 }
 
     
-float Random::uniform(float low, float high) {
-    return (float)(low + (high - low) * (double)bits() / (double)0xFFFFFFFFUL); 
-}
-
-
 float Random::gaussian(float mean, float stdev) {
 
     // Using Box-Mueller method from http://www.taygeta.com/random/gaussian.html

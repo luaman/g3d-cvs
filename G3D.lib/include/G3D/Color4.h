@@ -8,7 +8,7 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2008-07-16
+ @edited  2009-03-20
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -51,14 +51,13 @@ public:
 
     Color4(const class Vector4& v);
 
-    /**
-     * Initialize from G3D::Reals.
-     */
     Color4(float r, float g, float b, float a = 1.0);
-    
-    /**
-     * Initialize from array of G3D::Reals.
-     */
+
+    inline static const Color4& one() {
+        static Color4 x(1.0f, 1.0f, 1.0f, 1.0f);
+        return x;
+    }
+ 
     Color4(float value[4]);
 
     /**

@@ -5,7 +5,7 @@
  
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2007-01-31
- @edited  2008-10-02
+ @edited  2009-03-20
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -45,6 +45,16 @@ public:
     Color1(class BinaryInput& bi);
 
     inline explicit Color1(float v) : value(v) {
+    }
+
+    inline static const Color1& one() {
+        static Color1 x(1.0f);
+        return x;
+    }
+
+    inline static const Color1& zero() {
+        static Color1 x(0.0f);
+        return x;
     }
 
     Color1 (const class Color1uint8& other);
