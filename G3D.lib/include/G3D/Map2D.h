@@ -548,21 +548,22 @@ public:
 
       Guaranteed to match nearest(x, y) at integers. */ 
     Compute bilinear(float x, float y, WrapMode wrap) const {
-        int i = iFloor(x);
-        int j = iFloor(y);
+        const int i = iFloor(x);
+        const int j = iFloor(y);
     
-        float fX = x - i;
-        float fY = y - j;
+        const float fX = x - i;
+        const float fY = y - j;
 
         // Horizontal interpolation, first row
-        Compute t0(get(i, j, wrap));
-        Compute t1(get(i + 1, j, wrap));
-        Compute A = lerp(t0, t1, fX);
+        const Compute& t0 = get(i, j, wrap);
+        const Compute& t1 = get(i + 1, j, wrap);
 
         // Horizontal interpolation, second row
-        Compute t2(get(i, j + 1, wrap));
-        Compute t3(get(i + 1, j + 1, wrap));
-        Compute B = lerp(t2, t3, fX);
+        const Compute& t2 = get(i, j + 1, wrap);
+        const Compute& t3 = get(i + 1, j + 1, wrap);
+
+        const Compute& A = lerp(t0, t1, fX);
+        const Compute& B = lerp(t2, t3, fX);
 
         // Vertical interpolation
         return lerp(A, B, fY);
@@ -590,13 +591,11 @@ public:
         float fX = x - i;
         float fY = y - j;
 
-        // 'static' prevents constructors from being called
-        // every time through this loop.
-        static Compute vsample[4];
+        Compute vsample[4];
         for (int v = 0; v < 4; ++v) {
 
             // Horizontal interpolation
-            static Compute hsample[4];
+            Compute hsample[4];
             for (int u = 0; u < 4; ++u) {
                 hsample[u] = Compute(get(i + u - 1, j + v - 1, wrap));
             }

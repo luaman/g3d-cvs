@@ -23,9 +23,13 @@ typedef ReferenceCountedPointer<class Image4> Image4Ref;
 /**
  RGBA image with 32-bit floating point storage for each channel.
 
- Whenever a method needs to convert from RGB to ARGB, A=1 is assumed.
+ Whenever a method needs to convert from RGB to RGBA, A=1 is assumed.
 
- See also G3D::Image4uint8, G3D::GImage.
+ Bilinear interpolation on Image4 is about 8x faster than on
+ Image4uint8 due to the large cost of converting int->float on modern
+ machines.
+
+ @sa G3D::Image4uint8, G3D::GImage.
  */
 class Image4 : public Map2D<Color4, Color4> {
 public:
@@ -57,7 +61,7 @@ public:
 
     static Ref fromFile(const std::string& filename, WrapMode wrap = WrapMode::ERROR, GImage::Format fmt = GImage::AUTODETECT);
     
-	static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
+    static Ref fromArray(const class Color1uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color3uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color4uint8* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);
     static Ref fromArray(const class Color1* ptr, int width, int height, WrapMode wrap = WrapMode::ERROR);

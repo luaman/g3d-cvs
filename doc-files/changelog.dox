@@ -65,6 +65,8 @@
      <li> Fix: GImage::computeNormalMap whiteHeightInPixels now scales correctly (was inverted before)
      <li> Fix: GCamera::frustum far plane now positioned correctly
      <li> Fix: G3D::Material now properly alpha-masks non-diffuse channels
+     <li> Fix: Image4 was ignoring the wrapmode specified at the constructor
+     <li> Fix: improper use of 'static' in Map2D made it not threadsafe
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
