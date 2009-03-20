@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-Random::Random(uint32 seed) : mutex(0) {
+Random::Random(uint32 seed) {
     const uint32 X = 1812433253UL;
 
     state[0] = seed;
@@ -36,6 +36,14 @@ void Random::generate() {
     static const uint32 UPPER_MASK = 0xFFFFFFFF << R;
     static const uint32 mag01[2] = {0, A};
 
+    bool contention = ! lock.lock();
+    if (contention)  {
+        // Another thread just generated a set of numbers; no need for
+        // this thread to do it too
+        lock.unlock();
+        return;
+    }
+
     // First N - M
     for (unsigned int i = 0; i < N - M; ++i) {    
         uint32 x = (state[i] & UPPER_MASK) | (state[i + 1] & LOWER_MASK);
@@ -51,6 +59,8 @@ void Random::generate() {
     uint32 y = (state[N - 1] & UPPER_MASK) | (state[0] & LOWER_MASK);
     state[N - 1] = state[M - 1] ^ (y >> 1) ^ mag01[y & 1];
     index = 0;
+
+    lock.unlock();
 }
 
     

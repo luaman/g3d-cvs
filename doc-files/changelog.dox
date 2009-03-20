@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Spinlock
      <li> G3D::Vector random methods now use G3D::Random
      <li> G3D::Color?::one() and Color?::zero() for all-one or all-zero constants
      <li> G3D::GuiLabel now autosizes around its contents

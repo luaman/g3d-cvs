@@ -14,7 +14,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
-#include "G3D/AtomicInt32.h"
+#include "G3D/GThread.h"
 
 namespace G3D {
 
@@ -25,8 +25,7 @@ namespace G3D {
 
     Uses the Fast Mersenne Twister (FMT-19937) algorithm.
 
-    On average, uniform() runs about 2x slower than rand(); all of the time
-    is spent int thread synchronization.
+    On average, uniform() runs about 2x-3x faster than rand().
 
     @cite http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/index.html
  */
@@ -46,18 +45,15 @@ private:
         B = 0x9D2C5680,
         C = 0xEFC60000};
 
-    /** Prevents multiple overlapping calls to bits(). 
-        0 = unlocked, non-zero = locked
-
-        This spinlock proved faster than GMutex.
+    /** Prevents multiple overlapping calls to generate(). 
      */
-    AtomicInt32 mutex;
+    Spinlock     lock;
 
     /** State vector (these are the next N values that will be returned) */
-    uint32      state[N];
+    uint32       state[N];
 
     /** Index into state */
-    int         index;
+    int          index;
 
     /** Generate the next N ints, and store them for readback later.
         Called from bits() */
@@ -73,20 +69,27 @@ public:
     inline uint32 bits() {
         // See http://en.wikipedia.org/wiki/Mersenne_twister
 
-        // Spin lock on the mutex
-        while (mutex.compareAndSet(0, 1) == 1);
+        // Make a local copy of the index variable to ensure that it
+        // is not out of bounds
+        int localIndex = index;
 
-        if (index >= (int)N) {
+        // Automatically checks for index < 0 if corrupted
+        // by unsynchronized threads.
+        if ((unsigned int)localIndex >= (unsigned int)N) {
             generate();
+            localIndex = 0;
         }
+        // Increment the global index.  It may go out of bounds on
+        // multiple threads, but the above check ensures that the
+        // array index actually used never goes out of bounds.
+        // It doesn't matter if we grab the same array index twice
+        // on two threads, since the distribution of random numbers
+        // will still be uniform.
+        ++index;
         
         // Return the next random in the sequence
-        uint32 r = state[index];
-        ++index;
+        uint32 r = state[localIndex];
 
-        // Unlock the mutex
-        mutex = 0;
-        
         // Temper the result
         r ^=  r >> U;
         r ^= (r << S) & B;

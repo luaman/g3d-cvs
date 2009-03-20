@@ -65,6 +65,11 @@
 #   undef SSE
 #endif
 
+// Strongly encourage inlining on gcc
+#ifdef __GNUC__
+#define inline __inline__
+#endif
+
 
 // Verify that the supported compilers are being used and that this is a known
 // processor.

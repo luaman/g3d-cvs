@@ -32,7 +32,7 @@ typedef ReferenceCountedPointer<class GThread> GThreadRef;
  dropping all pointers (and causing deallocation) of a GThread does NOT 
  stop the underlying process.
 
- @sa G3D::GMutex, G3D::AtomicInt32
+ @sa G3D::GMutex, G3D::Spinlock, G3D::AtomicInt32
 */
 class GThread : public ReferenceCountedObject {
 private:
@@ -115,10 +115,43 @@ public:
     }
 };
 
+/**
+   A mutual exclusion lock that spins actively while locked.
+
+   On a machine with one (significant) thread per processor core,
+   a spinlock may be substantially faster than a mutex.
+
+   @sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
+ */
+class Spinlock {
+private:
+
+    AtomicInt32   x;
+
+public:
+
+    inline Spinlock() : x(0) {}
+
+    /** Busy waits until the lock is unlocked, then locks it
+        exclusively.  Returns true if the lock succeeded on the first
+        try (indicating no contention). */
+    inline bool lock() {
+        bool first = true;
+        while (x.compareAndSet(0, 1) == 1) {
+            first = false;
+        }
+        return first;
+    }
+
+    inline void unlock() {
+        x = 0;
+    }
+
+};
 
 /**
  Mutual exclusion lock used for synchronization.
- @sa G3D::GThread, G3D::AtomicInt32
+ @sa G3D::GThread, G3D::AtomicInt32, G3D::Spinlock
 */
 class GMutex {
 private:

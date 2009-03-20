@@ -394,6 +394,7 @@ href="classes.html">Classes</a>.
         \link G3D::msgBox msgBox\endlink,
         \link G3D::pathConcat pathConcat\endlink,
         \link G3D::prompt prompt\endlink, 
+        \link G3D::Spinlock Spinlock\endlink,
         \link G3D::Stopwatch Stopwatch\endlink,
         \link G3D::System System\endlink,
         \link G3D::ThreadSet ThreadSet\endlink
