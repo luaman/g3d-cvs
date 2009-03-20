@@ -110,6 +110,9 @@ public:
     Color4 operator+ (const Color4& rkVector) const;
     Color4 operator- (const Color4& rkVector) const;
     Color4 operator* (float fScalar) const;
+    inline Color4 operator* (const Color4& k) const {
+        return Color4(r*k.r, g*k.g, b*k.b, a * k.a); 
+    }
     Color4 operator/ (float fScalar) const;
     Color4 operator- () const;
     friend Color4 operator* (double fScalar, const Color4& rkVector);
