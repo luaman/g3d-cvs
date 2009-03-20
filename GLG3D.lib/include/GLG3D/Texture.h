@@ -573,32 +573,64 @@ public:
     void getImage(GImage& dst, const ImageFormat* outFormat = ImageFormat::AUTO()) const;
 
 	/** Extracts the data as ImageFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
-	Image4Ref toImage4(bool applyInvertY = false) const;
+	Image4Ref toImage4(bool applyInvertY = true) const;
 
-	/** Extracts the data as ImageFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
-	Image4uint8Ref toImage4uint8(bool applyInvertY = false) const;
+    /** Extracts the data as ImageFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
+	Image4uint8Ref toImage4uint8(bool applyInvertY = true) const;
 
 	/** Extracts the data as ImageFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
-	Image3Ref toImage3(bool applyInvertY = false) const;
+	Image3Ref toImage3(bool applyInvertY = true) const;
 
 	/** Extracts the data as ImageFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
-	Image3uint8Ref toImage3uint8(bool applyInvertY = false) const;
+	Image3uint8Ref toImage3uint8(bool applyInvertY = true) const;
 
 	/** Extracts the data as ImageFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
 	 */
-	Image1Ref toImage1(bool applyInvertY = false) const;
+	Image1Ref toImage1(bool applyInvertY = true) const;
 
 	/** Extracts the data as ImageFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
-	Image1uint8Ref toImage1uint8(bool applyInvertY = false) const;
+	Image1uint8Ref toImage1uint8(bool applyInvertY = true) const;
 
 	/** Extracts the data as ImageFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
-	Image1Ref toDepthImage1(bool applyInvertY = false) const;
+	Image1Ref toDepthImage1(bool applyInvertY = true) const;
+
+    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
+    inline void getImage(Image4::Ref& im, bool applyInvertY = true) const {
+        im = toImage4(applyInvertY);
+    }
+
+    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
+    inline void getImage(Image3::Ref& im, bool applyInvertY = true) const {
+        im = toImage3(applyInvertY);
+    }
+
+    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
+    inline void getImage(Image1::Ref& im, bool applyInvertY = true) const {
+        im = toImage1(applyInvertY);
+    }
+
+    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
+    inline void getImage(Image4uint8::Ref& im, bool applyInvertY = true) const {
+        im = toImage4uint8(applyInvertY);
+    }
+
+    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
+    inline void getImage(Image3uint8::Ref& im, bool applyInvertY = true) const {
+        im = toImage3uint8(applyInvertY);
+    }
+
+    /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
+    inline void getImage(Image1uint8::Ref& im, bool applyInvertY = true) const {
+        im = toImage1uint8(applyInvertY);
+    }
+
+
 
 	/** Extracts the data as ImageFormat::DEPTH32F */
-	Map2D<float>::Ref toDepthMap(bool applyInvertY = false) const;
+	Map2D<float>::Ref toDepthMap(bool applyInvertY = true) const;
 
 	/** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true.*/
-	Image1uint8Ref toDepthImage1uint8(bool applyInvertY = false) const;
+	Image1uint8Ref toDepthImage1uint8(bool applyInvertY = true) const;
 
     inline unsigned int openGLID() const {
         return m_textureID;

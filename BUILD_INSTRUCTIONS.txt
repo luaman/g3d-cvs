@@ -7,10 +7,15 @@ software.  It is all available for free and comes pre-installed on
 most OS X, Linux, and FreeBSD systems:
 
 * Python 2.4 or later (http://www.python.org) 
-* Doxygen 1.5 or later (http://www.doxygen.org)
-* On Windows you will need Visual Studio 9.0
-(http://msdn.microsoft.com/vstudio/express/)
 * On OS X, Linux, or FreeBSD you will need gcc 3.4 or later
+* On Windows you will need Visual Studio 9.0
+
+To build the documentation target, the following are required:
+
+* Doxygen 1.5 or later (http://www.doxygen.org)
+(http://msdn.microsoft.com/vstudio/express/)
+* Latex (on Windows: http://miktex.org/)
+* Ghostscript (http://pages.cs.wisc.edu/~ghost/)
 
 It is possible to build the library on Windows using only Visual
 Studio, however documentation, headers, demos, and other aspects
@@ -19,9 +24,13 @@ direct use of the Visual Studio project files.  We only support
 the build scripts that call them.
 
 
-To create and install all of G3D installation, at the command line execute:
+To create and install all of G3D, at the command line execute:
 
     buildg3d --install all
+
+You can build just the libraries (much faster) with:
+
+    buildg3d --install lib
 
 (On Unix-like operating systems you may need to first execute
 "chmod a+x buildg3d" and run this command as "./buildg3d all",

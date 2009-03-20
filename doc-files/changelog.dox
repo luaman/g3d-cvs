@@ -89,6 +89,7 @@
      <li> G3D::ArticulatedModel::Part::TriList is now a reference counted object; Part::triListArray -> Part::triList
      <li> G3D::MeshAlg::computeBounds now takes an AABox instead of a Box
      <li> G3D::GuiDropDownList now stores its list internally, rather than taking a pointer to a list
+     <li> The applyInvertY argument on Texture::toImageX now defaults to true because this is less confusing
    </ul>
 
 <hr>
