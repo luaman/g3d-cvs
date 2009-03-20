@@ -29,12 +29,11 @@ Random::~Random() {
 
 /** Generate the next N ints, and store them for readback later */
 void Random::generate() {
-
     // Lower R bits
-    const uint32 LOWER_MASK = (1LU << R) - 1;
+    static const uint32 LOWER_MASK = (1LU << R) - 1;
 
     // Upper (32 - R) bits
-    const uint32 UPPER_MASK = 0xFFFFFFFF << R;
+    static const uint32 UPPER_MASK = 0xFFFFFFFF << R;
     static const uint32 mag01[2] = {0, A};
 
     // First N - M

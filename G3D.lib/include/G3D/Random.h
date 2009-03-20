@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2009-01-02
- @edited  2009-01-02
+ @edited  2009-03-02
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -14,6 +14,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
+#include "G3D/GThread.h"
 
 namespace G3D {
 
@@ -45,6 +46,9 @@ private:
         B = 0x9D2C5680,
         C = 0xEFC60000};
 
+    /** Prevents multiple overlapping calls to generate. */
+    GMutex     mutex;
+
     /** State vector (these are the next N values that will be returned) */
     uint32     state[N];
 
@@ -64,7 +68,8 @@ public:
     /** Each bit is random */
     inline uint32 bits() {
         // See http://en.wikipedia.org/wiki/Mersenne_twister
-        
+
+        mutex.lock();
         if (index >= (int)N) {
             generate();
         }
@@ -72,6 +77,7 @@ public:
         // Return the next random in the sequence
         uint32 r = state[index];
         ++index;
+        mutex.unlock();
         
         // Temper the result
         r ^=  r >> U;
@@ -95,6 +101,18 @@ public:
 
     /** Normally distributed reals. */
     float gaussian(float mean, float stdev);
+
+    /**
+       A shared instance for when the performance and features but not
+       consistency of the class are desired.  It is slightly (10%)
+       faster to use a distinct instance than to use the common one.
+       
+       Threadsafe.
+    */
+    inline static Random& common() {
+        static Random r;
+        return r;
+    }
 };
 
 }
