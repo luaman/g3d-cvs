@@ -118,8 +118,6 @@ public:
 
     virtual void swapGLBuffers();
 
-    virtual void notifyResize(int w, int h);
-
     virtual int numJoysticks() const;
 
     virtual std::string joystickName(unsigned int sticknum);

@@ -499,12 +499,6 @@ void RenderDevice::setGamma(
 }
 
 
-void RenderDevice::notifyResize(int w, int h) {
-    swapBuffers();
-    _window->notifyResize(w, h);
-}
-
-
 void RenderDevice::setVideoMode() {
 
     debugAssertM(stateStack.size() == 0, 

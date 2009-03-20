@@ -155,7 +155,6 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         setCameraManipulator(defaultController);
     }
  
-    autoResize                  = true;
     showDebugText               = true;
     escapeKeyAction             = ACTION_QUIT;
     showRenderingStats          = true;
@@ -699,18 +698,6 @@ void GApp::processGEventQueue() {
         switch(event.type) {
         case GEventType::QUIT:
             setExitCode(0);
-            break;
-
-        case GEventType::VIDEO_RESIZE:
-            if (autoResize) {
-                renderDevice->notifyResize
-                    (event.resize.w, event.resize.h);
-                Rect2D full = 
-                    Rect2D::xywh(0, 0, 
-                                 renderDevice->width(), 
-                                 renderDevice->height());
-                renderDevice->setViewport(full);
-            }
             break;
 
         case GEventType::KEY_DOWN:

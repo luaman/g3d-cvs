@@ -1551,33 +1551,6 @@ public:
     std::string screenshot(const std::string& filepath) const;
 
     /**
-     Notify RenderDevice that the window size has changed.  
-     You must call this in response to a user resize event if you do not use G3D::GApp.  
-     
-     Forces a swapBuffers() call, as required by most 
-     OpenGL implementations.
-          
-     An example
-     using SDL:
-     <PRE>
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            switch(event.type) {
-            case SDL_VIDEORESIZE:
-                {
-                    renderDevice->notifyResize(event.resize.w, event.resize.h);
-                    Rect2D full(0, 0, renderDevice->getWidth(), renderDevice->getHeight());
-                    renderDevice->setViewport(full);
-                }
-                break;
-            }
-        }
-
-     </PRE>
-     */
-    void notifyResize(int w, int h);
-
-    /**
        @brief Takes a screenshot and puts the data into the G3D::GImage dest variable.
 
      @param useBackBuffer If true, the image is read from the back

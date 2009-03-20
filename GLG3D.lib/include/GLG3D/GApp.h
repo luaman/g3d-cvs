@@ -324,15 +324,6 @@ public:
     bool                    showRenderingStats;
 
     /**
-       When true and the window is resizable, automatically
-       responds to SDL_RESIZE events by notifying the
-       RenderDevice that the window has been resized and
-       resetting the viewport to full screen.
-       (default is true)
-    */
-    bool                    autoResize;
-
-    /**
        When true, the G3D::UserInput->beginEvents/endEvents processing is handled 
        for you by calling processGEventQueue() before G3D::GApp::onUserInput is called.  If you turn
        this off, you must call processGEventQueue() or provide your own event to userInput processing in onUserInput.

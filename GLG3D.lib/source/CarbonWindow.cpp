@@ -34,7 +34,13 @@ pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, vo
                               sizeof(WindowRef),NULL,&win)==noErr) {
             Rect rect;
             if (GetWindowBounds(win, kWindowContentRgn, &rect)==noErr) {
-                pWindow->injectSizeEvent(rect.right-rect.left, rect.bottom-rect.top);
+                int width = rect.right - rect.left;
+                int height = rect.bottom - rect.top;
+                
+                // resize viewport and flush buffers on size event
+                handleResize(width, height);
+
+                pWindow->injectSizeEvent(width, height);
             }
         }
     }
@@ -363,7 +369,7 @@ void CarbonWindow::init(WindowRef window, bool creatingShareWindow /*= false*/) 
     
     if (! creatingShareWindow) {
         GLCaps::init();
-        setCaption(_settings.caption);
+        setCaption(m_settings.caption);
     }
     
     enableJoysticks();
@@ -410,7 +416,7 @@ CarbonWindow::CarbonWindow(
     _mouseVisible = true;
     _receivedCloseEvent = false;
     _windowActive = true;
-    _settings = s;
+    m_settings = s;
     _glDrawable = 0;
     _enabledJoysticks = false;
     
@@ -427,9 +433,9 @@ CarbonWindow::CarbonWindow(
     attribs[i++] = AGL_RGBA;
     attribs[i++] = AGL_DOUBLEBUFFER;
     
-    if(_settings.fsaaSamples > 0) {
+    if(m_settings.fsaaSamples > 0) {
         attribs[i++] = AGL_SAMPLE_BUFFERS_ARB; attribs[i++] = 1;
-        attribs[i++] = AGL_SAMPLES_ARB;        attribs[i++] = _settings.fsaaSamples;
+        attribs[i++] = AGL_SAMPLES_ARB;        attribs[i++] = m_settings.fsaaSamples;
         //attribs[i++] = AGL_SUPERSAMPLE;
     }
     
@@ -438,11 +444,11 @@ CarbonWindow::CarbonWindow(
 
     // Do not allow revert to software rendering
     attribs[i++] = AGL_NO_RECOVERY;
-    if (_settings.hardware) {
+    if (m_settings.hardware) {
         attribs[i++] = AGL_ACCELERATED;
     }
     
-    if (_settings.fullScreen) {
+    if (m_settings.fullScreen) {
         attribs[i++] = AGL_FULLSCREEN;
     } else {
         attribs[i++] = AGL_WINDOW;
@@ -450,18 +456,18 @@ CarbonWindow::CarbonWindow(
         //attribs[i++] = AGL_MULTISCREEN;			attribs[i++] = GL_TRUE;
     }
     
-    if (_settings.stereo) {
+    if (m_settings.stereo) {
         attribs[i++] = AGL_STEREO;
     }
     
-    attribs[i++] = AGL_RED_SIZE;			attribs[i++] = _settings.rgbBits;
-    attribs[i++] = AGL_GREEN_SIZE;			attribs[i++] = _settings.rgbBits;
-    attribs[i++] = AGL_BLUE_SIZE;			attribs[i++] = _settings.rgbBits;
-    attribs[i++] = AGL_ALPHA_SIZE;			attribs[i++] = _settings.alphaBits;
+    attribs[i++] = AGL_RED_SIZE;			attribs[i++] = m_settings.rgbBits;
+    attribs[i++] = AGL_GREEN_SIZE;			attribs[i++] = m_settings.rgbBits;
+    attribs[i++] = AGL_BLUE_SIZE;			attribs[i++] = m_settings.rgbBits;
+    attribs[i++] = AGL_ALPHA_SIZE;			attribs[i++] = m_settings.alphaBits;
     
-    attribs[i++] = AGL_DEPTH_SIZE;			attribs[i++] = _settings.depthBits;
-    if (_settings.stencilBits > 0) {
-        attribs[i++] = AGL_STENCIL_SIZE;	        attribs[i++] = _settings.stencilBits;
+    attribs[i++] = AGL_DEPTH_SIZE;			attribs[i++] = m_settings.depthBits;
+    if (m_settings.stencilBits > 0) {
+        attribs[i++] = AGL_STENCIL_SIZE;	        attribs[i++] = m_settings.stencilBits;
     }
     
     attribs[i++] = AGL_ALL_RENDERERS;
@@ -472,9 +478,9 @@ CarbonWindow::CarbonWindow(
     // If the user is creating a windowed application that is above the menu
     // bar, it will be confusing. We'll move it down for them so it makes more
     // sense.
-    if (! _settings.fullScreen) {
-        if (_settings.y <= OSX_MENU_BAR_HEIGHT) {
-            _settings.y = OSX_MENU_BAR_HEIGHT;
+    if (! m_settings.fullScreen) {
+        if (m_settings.y <= OSX_MENU_BAR_HEIGHT) {
+            m_settings.y = OSX_MENU_BAR_HEIGHT;
         }
     }
     
@@ -483,30 +489,30 @@ CarbonWindow::CarbonWindow(
     GDHandle displayHandle;
     CGRect rScreen = CGDisplayBounds(kCGDirectMainDisplay);
     
-    if (_settings.fullScreen) {
-        _settings.x = rScreen.origin.x;
-        _settings.y = rScreen.origin.y;
-        _settings.width = rScreen.size.width;
-        _settings.height = rScreen.size.height;
+    if (m_settings.fullScreen) {
+        m_settings.x = rScreen.origin.x;
+        m_settings.y = rScreen.origin.y;
+        m_settings.width = rScreen.size.width;
+        m_settings.height = rScreen.size.height;
         
         CGDisplayCapture(kCGDirectMainDisplay);
         osErr = DMGetGDeviceByDisplayID((DisplayIDType)kCGDirectMainDisplay,&displayHandle,false);
     }
     
-    if(!_settings.fullScreen && _settings.center) {
-        _settings.x = (rScreen.size.width - rScreen.origin.x)/2;
-        _settings.x = _settings.x - (_settings.width/2);
-        _settings.y = (rScreen.size.height - rScreen.origin.y)/2;
-        _settings.y = _settings.y - (_settings.height/2);
+    if(!m_settings.fullScreen && m_settings.center) {
+        m_settings.x = (rScreen.size.width - rScreen.origin.x)/2;
+        m_settings.x = m_settings.x - (m_settings.width/2);
+        m_settings.y = (rScreen.size.height - rScreen.origin.y)/2;
+        m_settings.y = m_settings.y - (m_settings.height/2);
     }
     
-    Rect rWin = {_settings.y, _settings.x, _settings.height+_settings.y, _settings.width+_settings.x};
+    Rect rWin = {m_settings.y, m_settings.x, m_settings.height+m_settings.y, m_settings.width+m_settings.x};
     
     osErr = CreateNewWindow(kDocumentWindowClass,kWindowStandardDocumentAttributes|kWindowStandardHandlerAttribute,&rWin,&_window);
     
     alwaysAssertM(_window != NULL, "Could Not Create Window.");
     
-    _title = _settings.caption;
+    _title = m_settings.caption;
     CFStringRef titleRef = CFStringCreateWithCString(kCFAllocatorDefault, _title.c_str(), kCFStringEncodingMacRoman);
     
     osErr = SetWindowTitleWithCFString(_window,titleRef);
@@ -514,10 +520,10 @@ CarbonWindow::CarbonWindow(
     CFRelease(titleRef);
     
     // Set default icon if available
-    if(_settings.defaultIconFilename != "nodefault") {
+    if (! m_settings.defaultIconFilename.empty()) {
         try {
             GImage defaultIcon;
-            defaultIcon.load(_settings.defaultIconFilename);
+            defaultIcon.load(m_settings.defaultIconFilename);
             
             setIcon(defaultIcon);
         } catch (const GImage::Error& e) {
@@ -541,7 +547,7 @@ CarbonWindow::CarbonWindow(
     
     _glDrawable = (AGLDrawable) GetWindowPort(_window);
     
-    if(!_settings.fullScreen) {
+    if(!m_settings.fullScreen) {
         format = aglChoosePixelFormat(NULL, 0, attribs);
     } else {
         format = aglChoosePixelFormat(&displayHandle, 1, attribs);
@@ -557,7 +563,7 @@ CarbonWindow::CarbonWindow(
     
     aglDestroyPixelFormat(format);
     
-    if (_settings.fullScreen) {
+    if (m_settings.fullScreen) {
         aglEnable(_glContext, AGL_FS_CAPTURE_SINGLE);
     } else {
         aglSetDrawable(_glContext, _glDrawable);
@@ -569,7 +575,7 @@ CarbonWindow::CarbonWindow(
     
     aglSetCurrentContext(_glContext);
     
-    if (_settings.fullScreen) {
+    if (m_settings.fullScreen) {
         aglSetFullScreen(_glContext, rScreen.size.width, rScreen.size.height, 0, 0);
     }
 
@@ -601,7 +607,7 @@ CarbonWindow::~CarbonWindow() {
     aglSetCurrentContext(NULL);
     aglDestroyContext(_glContext);
     
-    if(_settings.fullScreen) {
+    if(m_settings.fullScreen) {
         CGDisplayRelease(kCGDirectMainDisplay);
     }
     
@@ -623,19 +629,19 @@ std::string CarbonWindow::getAPIName() const {
 #pragma mark Public - CarbonWindow Public API:
 
 void CarbonWindow::getSettings(GWindow::Settings& s) const {
-    s = _settings;
+    s = m_settings;
 }
 
 int CarbonWindow::width() const {
-    return _settings.width;
+    return m_settings.width;
 }
 
 int CarbonWindow::height() const {
-    return _settings.height;
+    return m_settings.height;
 }
 
 Rect2D CarbonWindow::dimensions() const {
-    return Rect2D::xyxy(_settings.x,_settings.y,_settings.x+_settings.width,_settings.y+_settings.height);
+    return Rect2D::xyxy(m_settings.x,m_settings.y,m_settings.x+m_settings.width,m_settings.y+m_settings.height);
 }
 
 void CarbonWindow::setDimensions(const Rect2D &dims) {
@@ -814,16 +820,11 @@ void CarbonWindow::setIcon(const GImage& image) {
     }
 }
 
-void CarbonWindow::notifyResize(int w, int h) {
-    _settings.width = w;
-    _settings.height = h;
-}
-
 void CarbonWindow::setRelativeMousePosition(double x, double y) {
     CGPoint point;
 
-    point.x = x + _settings.x;
-    point.y = y + _settings.y;
+    point.x = x + m_settings.x;
+    point.y = y + m_settings.y;
     
     CGSetLocalEventsSuppressionInterval(0.0);
     CGWarpMouseCursorPosition(point);
@@ -847,8 +848,8 @@ void CarbonWindow::getRelativeMouseState(int &x, int &y, uint8 &mouseButtons) co
     Point point;
     GetGlobalMouse(&point);
     
-    x = point.h - _settings.x;
-    y = point.v - _settings.y;
+    x = point.h - m_settings.x;
+    y = point.v - m_settings.y;
     
     mouseButtons = buttonsToUint8(_mouseButtons);
 }
@@ -966,7 +967,7 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
         if((point.x >= rect.left) && (point.y >= rect.top) && (point.x <= rect.right) && (point.y <= rect.bottom)) {
             // If the user wants to resize, we should allow them to.
             GetWindowBounds(_window, kWindowGrowRgn, &rectGrow);
-            if(!_settings.fullScreen && _settings.resizable && ((point.x >= rectGrow.left) && (point.y >= rectGrow.top)))
+            if(!m_settings.fullScreen && m_settings.resizable && ((point.x >= rectGrow.left) && (point.y >= rectGrow.top)))
                 return false;
             
             GetEventParameter(theEvent, kEventParamMouseButton, typeMouseButton, NULL, sizeof(button), NULL, &button);
@@ -1006,7 +1007,7 @@ bool CarbonWindow::makeMouseEvent(EventRef theEvent, GEvent& e) {
             default:
                 break;
             }
-        } else if(!_settings.fullScreen && eventKind == kEventMouseDown) {
+        } else if(!m_settings.fullScreen && eventKind == kEventMouseDown) {
             // We want to indentify and handle menu events too
             // because we don't have the standard event handlers.
             Point thePoint;
@@ -1114,10 +1115,10 @@ void CarbonWindow::getOSEvents(Queue<GEvent>& events) {
     Rect rect;
     
     if (GetWindowBounds(_window, kWindowContentRgn, &rect) == noErr) {
-        _settings.x = rect.left;
-        _settings.y = rect.top;
-        _settings.width = rect.right-rect.left;
-        _settings.height = rect.bottom-rect.top;
+        m_settings.x = rect.left;
+        m_settings.y = rect.top;
+        m_settings.width = rect.right-rect.left;
+        m_settings.height = rect.bottom-rect.top;
     }
     
     if (_sizeEventInjects.size() > 0) {

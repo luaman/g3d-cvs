@@ -665,12 +665,6 @@ bool Win32Window::mouseVisible() const {
 }
 
 
-void Win32Window::notifyResize(int w, int h) {
-    m_settings.width = w;
-    m_settings.height = h;
-}
-
-
 bool Win32Window::inputCapture() const {
     return m_inputCapture;
 }
@@ -1456,6 +1450,7 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
                 e.resize.w = LOWORD(lParam);
                 e.resize.h = HIWORD(lParam);
                 this_window->m_sysEventQueue->pushBack(e);
+                this_window->handleResize(e.resize.w, e.resize.h);
             }
             return 0;
 

@@ -615,25 +615,6 @@ void SDLWindow::swapGLBuffers() {
 }
 
 
-void SDLWindow::notifyResize(int w, int h) {
-    debugAssert(w > 0);
-    debugAssert(h > 0);
-    m_settings.width = w;
-    m_settings.height = h;
-
-	// Mutate the SDL surface (which one is not supposed to do).
-	// We can't resize the actual surface or SDL will destroy
-	// our GL context, however.
-	SDL_Surface* surface = SDL_GetVideoSurface();
-	surface->w = w;
-	surface->h = h;
-	surface->clip_rect.x = 0;
-	surface->clip_rect.y = 0;
-	surface->clip_rect.w = w;
-	surface->clip_rect.h = h;
-}
-
-
 void SDLWindow::setRelativeMousePosition(double x, double y) {
     SDL_WarpMouse(iRound(x), iRound(y));
 }
@@ -704,6 +685,23 @@ void SDLWindow::getOSEvents(Queue<GEvent>& events) {
             // SDL mouse buttons are off by one from our convention
             --e.button.button;
         }
+
+        if (e.type == GEventType::VIDEORESIZE) {
+	        // Mutate the SDL surface (which one is not supposed to do).
+	        // We can't resize the actual surface or SDL will destroy
+	        // our GL context, however.
+	        SDL_Surface* surface = SDL_GetVideoSurface();
+	        surface->w = e.resize.w;
+	        surface->h = e.resize.h;
+	        surface->clip_rect.x = 0;
+	        surface->clip_rect.y = 0;
+	        surface->clip_rect.w = e.resize.w;
+	        surface->clip_rect.h = e.resize.h;
+
+            // resize viewport and flush buffers on size event
+            handleResize(e.resize.w, e.resize.h);
+        }
+
         events.pushBack(e);
     }
 }

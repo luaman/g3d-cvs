@@ -232,6 +232,9 @@ protected:
     /** Extract new events from the underlying operating system */
     virtual void getOSEvents(Queue<GEvent>& events);
 
+    /** Handles updating size settings and viewport for window size changes */
+    virtual void handleResize(int width, int height);
+
     /** 
       Capture the keyboard and mouse focus, locking the mouse to the client area of this window.
       Sets the inputCaptureCount to 1 if @a c is true and 0 if @a c is false
@@ -284,7 +287,7 @@ public:
     /**
      Fails silently if unable to change the dimensions.
      The value returned by getSettings will not change immediately-- 
-     it waits for a notifyResize call.
+     it waits for a size event to update.
      */
     virtual void setDimensions(const Rect2D& dims) = 0;
 
@@ -339,17 +342,6 @@ public:
     /** Swap the OpenGL front and back buffers.  Called by RenderDevice::endFrame. */
     virtual void swapGLBuffers() = 0;
 
-    /** Notifies the window that it has been resized 
-        (called by RenderDevice::notifyResize).  Some window systems
-        (e.g. SDL) need explicit notification in this form when
-        a resize event comes in.
-        
-        <B>Must not</B> destroy the underlying
-        OpenGL context (i.e. textures, vertex buffers, and GPU programs
-        must be preserved across calls).
-     */
-    virtual void notifyResize(int w, int h) = 0;
-
     virtual void setRelativeMousePosition(double x, double y) = 0;
 
     /** Relative to the window origin */
@@ -357,8 +349,7 @@ public:
 
     /** Checks to see if any events are waiting.  If there is an event,
         returns true and fills out the GEvent structure.  Otherwise
-        returns false.  The caller is responsible for invoking OSWindow::notifyResize
-        with any resize events; the OSWindow does not notify itself. */
+        returns false. */
     virtual bool pollEvent(GEvent& e);
 
     /** Returns the current mouse position and the state of the mouse buttons.

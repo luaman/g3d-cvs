@@ -537,15 +537,6 @@ void GuiWindow::Modal::processEventQueue() {
             exit(0);
             break;
 
-        case GEventType::VIDEO_RESIZE:
-            {
-                renderDevice->notifyResize(event.resize.w, event.resize.h);
-                Rect2D full =  Rect2D::xywh(0, 0, renderDevice->width(), 
-                                            renderDevice->height());
-                renderDevice->setViewport(full);
-            }
-            break;
-
         default:;
         }
 

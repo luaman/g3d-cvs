@@ -171,8 +171,6 @@ public:
 	
     virtual void swapGLBuffers();
 	
-    virtual void notifyResize(int w, int h);
-	
     virtual void setRelativeMousePosition(double x, double y);
 	
     virtual void setRelativeMousePosition(const Vector2& p);

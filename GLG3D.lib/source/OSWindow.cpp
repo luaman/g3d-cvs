@@ -10,6 +10,7 @@
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/GLCaps.h"
+#include "GLG3D/RenderDevice.h"
 #ifdef G3D_WIN32
 #    include "GLG3D/Win32Window.h"
 #elif defined(G3D_OSX)
@@ -31,6 +32,19 @@ OSWindow* OSWindow::create(const OSWindow::Settings& s) {
 }
 
 const OSWindow* OSWindow::m_current = NULL;
+
+void OSWindow::handleResize(int width, int height) {
+    // update settings
+    m_settings.width = width;
+    m_settings.height = height;
+
+    // update viewport
+    Rect2D newViewport = Rect2D::xywh(0, 0, width, height);
+    m_renderDevice->setViewport(newViewport);
+
+    // force swap buffers
+    m_renderDevice->swapBuffers();
+}
 
 void OSWindow::fireEvent(const GEvent& event) {
     m_eventQueue.pushBack(event);

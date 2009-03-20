@@ -49,7 +49,6 @@ private:
     // Window Settings
     Vector2	                _clientRectOffset;
     Vector2			_clientXY;
-    Settings	                _settings;
     std::string	                _title;
 	
     /** Modifiers down on last key event */
@@ -193,7 +192,7 @@ public:
     virtual void getDroppedFilenames(Array<std::string>& files);
     
     virtual void setPosition(int x, int y) {
-        setDimensions( Rect2D::xywh((float)x, (float)y, (float)_settings.width, (float)_settings.height) );
+        setDimensions( Rect2D::xywh((float)x, (float)y, (float)m_settings.width, (float)m_settings.height) );
     }
     
     virtual bool hasFocus() const;
@@ -208,8 +207,6 @@ public:
     virtual std::string joystickName(unsigned int stickNum);
     
     virtual void setIcon(const GImage& image);
-    
-    virtual void notifyResize(int w, int h);
     
     virtual void setRelativeMousePosition(double x, double y);
     virtual void setRelativeMousePosition(const Vector2 &p);
