@@ -38,7 +38,7 @@ pascal OSStatus OnWindowSized(EventHandlerCallRef handlerRef, EventRef event, vo
                 int height = rect.bottom - rect.top;
                 
                 // resize viewport and flush buffers on size event
-                handleResize(width, height);
+                pWindow->handleResize(width, height);
 
                 pWindow->injectSizeEvent(width, height);
             }
