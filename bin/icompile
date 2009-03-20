@@ -764,6 +764,7 @@ def configureGpp(state):
                                  '-fno-strict-aliasing',
                                  '-ffast-math',
                                  '-fno-math-errno',
+                                 '-finline-limit=1100',
                                  '-s']
 
         # Not supported on OS X:  '-fassociative-math', '-fno-signed-zeros',
@@ -824,12 +825,11 @@ def configureGpp(state):
             # 64-bit machines should by default compile
             # for a modern machine.
             state.compilerOptions.append('-march=pentium4')
-            # double-check that SSE2 generation is enabled
-            state.compilerOptions.append('-msse2')
             
-            if gccVersion[0] >= 4:
-                # switch to SSE floating point instrutions
-                state.compilerOptions.append('-mfpmath=sse')
+        state.compilerOptions.append('-msse2')
+        
+        if gccVersion[0] >= 4:
+            state.compilerOptions.append('-fpmath=sse')
 
     #Fails on OS X 10.4:
     #if gccVersion[0] >= 4:
