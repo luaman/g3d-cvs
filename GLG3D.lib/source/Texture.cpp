@@ -1,7 +1,7 @@
 /**
  @file Texture.cpp
 
- @author Morgan McGuire, morgan3d@graphics3d.com
+ @author Morgan McGuire, morgan@cs.williams.edu
 
  Notes:
  <UL>
@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2008-10-08
+ @edited  2009-03-23
 */
 
 #include "G3D/Log.h"
@@ -17,6 +17,7 @@
 #include "G3D/Rect2D.h"
 #include "G3D/GImage.h"
 #include "G3D/fileutils.h"
+#include "G3D/AnyVal.h"
 #include "GLG3D/glcalls.h"
 #include "G3D/ImageFormat.h"
 #include "GLG3D/Texture.h"
@@ -25,6 +26,56 @@
 
 
 namespace G3D {
+
+Texture::Settings Texture::Settings::fromAnyVal(const AnyVal& a) {
+    debugAssert(a.type() == AnyVal::TABLE);
+
+    Settings s;
+
+    std::string i = a.get("interpolateMode", "TRILINEAR_MIPMAP").string();
+    std::string w = a.get("wrapMode", "TILE").string();
+    std::string d = a.get("depthReadMode", "DEPTH_NORMAL").string();
+
+    if (i == "TRILINEAR_MIPMAP") {
+        s.interpolateMode = TRILINEAR_MIPMAP;
+    } else if (i == "BILINEAR_MIPMAP") {
+        s.interpolateMode = BILINEAR_MIPMAP;
+    } else if (i == "NEAREST_MIPMAP") {
+        s.interpolateMode = NEAREST_MIPMAP;
+    } else if (i == "BILINEAR_NO_MIPMAP") {
+        s.interpolateMode = BILINEAR_NO_MIPMAP;
+    } else if (i == "NEAREST_NO_MIPMAP") {
+        s.interpolateMode = NEAREST_NO_MIPMAP;
+    } else {
+        debugAssertM(false, "Illegal InterpolateMode");
+    }
+
+    s.wrapMode = WrapMode(w);
+
+    if (d == "DEPTH_NORMAL") {
+        s.depthReadMode = DEPTH_NORMAL;
+    } else if (d == "DEPTH_LEQUAL") {
+        s.depthReadMode = DEPTH_LEQUAL;
+    } else if (d == "DEPTH_GEQUAL") {
+        s.depthReadMode = DEPTH_GEQUAL;
+    } else {
+        debugAssertM(false, "Illegal InterpolateMode");
+    }
+
+    s.autoMipMap = a.get("autoMipMap", true).boolean();
+    s.maxMipMap  = (int)a.get("maxMipMap", 1000).number();
+    s.minMipMap  = (int)a.get("minMipMap", -1000).number();
+
+    return s;
+}
+
+
+AnyVal Texture::Settings::toAnyVal() const {
+    AnyVal a(AnyVal::TABLE);
+    // TODO
+    return a;
+}
+
 
 static const char* cubeMapString[] = {"ft", "bk", "up", "dn", "rt", "lf"};
 

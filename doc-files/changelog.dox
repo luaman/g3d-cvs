@@ -13,6 +13,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::Texture::Settings can now serialize/deserialize to AnyVal
      <li> G3D::Vector3::reflectAbout
      <li> G3D::Spinlock; faster than GMutex for one thread-per-processor
      <li> G3D::Vector random methods now use G3D::Random

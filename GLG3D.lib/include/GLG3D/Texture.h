@@ -4,11 +4,11 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-02-28
-  @edited  2009-02-13
+  @edited  2009-03-23
 */
 
-#ifndef GLG3D_TEXTURE_H
-#define GLG3D_TEXTURE_H
+#ifndef GLG3D_Texture_h
+#define GLG3D_Texture_h
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Array.h"
@@ -30,8 +30,9 @@ class GImage;
 class Rect2D;
 class Matrix3;
 class Texture;
+class AnyVal;
 
-
+/** @deprecated Use Texture::Ref */
 typedef ReferenceCountedPointer<Texture> TextureRef;
 
 /**
@@ -118,6 +119,7 @@ public:
 
      3D textures do not support mipmap interpolation modes.
      */
+    // must be kept in sync with Settings::fromAnyVal
     enum InterpolateMode {
         TRILINEAR_MIPMAP = 3, 
         BILINEAR_MIPMAP = 4,
@@ -149,16 +151,16 @@ public:
         std::string&        filenameBeforeWildCard,
         std::string&        filenameAfterWildCard);
 
-	/**
-	 Returns true if the specified filename exists and is an image that can be loaded as a Texture.
-	*/
-	static bool isSupportedImage(const std::string& filename);
-
+    /**
+       Returns true if the specified filename exists and is an image that can be loaded as a Texture.
+    */
+    static bool isSupportedImage(const std::string& filename);
+    
     /** @brief Returns a small all-white texture.  
     
         Multiple instances are cached and shared. Do not mutate this texture
         or future calls will return the mutated texture as well. */
-    static TextureRef white();
+    static Texture::Ref white();
 
     /**
      All parameters of a texture that are independent of the
@@ -206,6 +208,9 @@ public:
         int                         minMipMap;
 
         Settings();
+
+        static Settings fromAnyVal(const AnyVal& a);
+        AnyVal toAnyVal() const;
 
         static const Settings& defaults();
 

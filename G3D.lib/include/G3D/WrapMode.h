@@ -70,6 +70,19 @@ public:
 
     G3D_DECLARE_ENUM_CLASS_METHODS(WrapMode);
 
+    inline const char* toString() const {
+        static const char* s[] = {"CLAMP", "TILE", "ZERO", "IGNORE", "ERROR"};
+        return s[value];
+    }
+
+    inline explicit WrapMode(const std::string& x) : value(ERROR) {
+        static const char* s[] = {"CLAMP", "TILE", "ZERO", "IGNORE", "ERROR"};
+        for (int i = 0; i < 5; ++i) {
+            if (x == s[i]) {
+                value = (Value)i;
+            }
+        }
+    }
 };
 
 } // namespace G3D
