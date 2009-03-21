@@ -34,6 +34,7 @@ def createDoxyfile(state):
     'RECURSIVE'               : 'YES',
     'SORT_BRIEF_DOCS'         : 'YES',
     'JAVADOC_AUTOBRIEF'       : 'YES',
+    'EXCLUDE'                 : 'build graveyard temp doc-files data-files',
     "ALIASES"                 : ('"cite=\par Referenced Code:\\n " ' +
                                  '"created=\par Created:\\n" ' +
                                  '"edited=\par Last modified:\\n" ' + 
