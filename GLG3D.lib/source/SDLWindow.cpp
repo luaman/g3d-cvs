@@ -686,7 +686,7 @@ void SDLWindow::getOSEvents(Queue<GEvent>& events) {
             --e.button.button;
         }
 
-        if (e.type == GEventType::VIDEORESIZE) {
+        if (e.type == GEventType::VIDEO_RESIZE) {
 	        // Mutate the SDL surface (which one is not supposed to do).
 	        // We can't resize the actual surface or SDL will destroy
 	        // our GL context, however.
