@@ -829,7 +829,7 @@ def configureGpp(state):
         state.compilerOptions.append('-msse2')
         
         if gccVersion[0] >= 4:
-            state.compilerOptions.append('-fpmath=sse')
+            state.compilerOptions.append('-mfpmath=sse')
 
     #Fails on OS X 10.4:
     #if gccVersion[0] >= 4:
