@@ -8,10 +8,11 @@ This page lists the most commonly used %G3D APIs grouped into functional tasks:
 <tr>
 <td>
 <ul>
+<li><a href="#scene1">Primary Scene Graph</a>
 <li><a href="#debugging">Debugging</a>
 <li><a href="#profiling">Profiling and Optimization</a>
 <li><a href="#guix">2D Graphical User Interface</a>
-<li><a href="#scene">Scene Graph</a>
+<li><a href="#scene">All Scene Graph</a>
 <li><a href="#shadows">Shadows</a>
 </ul>
 </td>
@@ -26,7 +27,50 @@ This page lists the most commonly used %G3D APIs grouped into functional tasks:
 \endhtmlonly
 
 <b>Boldface</b> links designate the most common and easy-to-use
-features.  Not all API entry points are shown in this index.
+features.  Indented links are helper classes for their parents (not subclasses).
+Not all API entry points are shown in this index.
+
+@section scene1 Primary Scene Graph
+
+Integrated high-level infrastructure for physically-based (photorealistic) 
+shader-driven GPU rendering and CPU ray tracing.
+<i>See also \htmlonly <a href="#scene">All Scene Graph</a>\endhtmlonly</i>
+
+<table width=90% border=0 cellpadding=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link G3D::ArticulatedModel <b>ArticulatedModel</b>\endlink</td><td>Load 3DS, IFS, PLY2, and OFF files, or construct models from code</td></tr>
+<tr><td></td><td>\indent\link G3D::Material Material\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::Material::Settings Material::Settings\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::UberBSDF UberBSDF\endlink</td><td> </td></tr>
+<tr valign=top ><td></td><td>\indent\indent\link G3D::Component Component\endlink</td><td>
+(See also \link G3D::Component::MapComponent Component::MapComponent\endlink,
+\link G3D::Component1 Component1\endlink,
+\link G3D::Component3 Component3\endlink,
+\link G3D::Component4 Component4\endlink)
+</td></tr>
+<tr><td></td><td>\indent\indent\link G3D::BumpMap BumpMap\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::GenericPosedModel GenericPosedModel\endlink</td><td> </td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+
+<tr><td></td><td>\link G3D::Lighting <b>Lighting</b>\endlink</td><td>Point, spot, directional, hemisphere ambient, and environment map</td></tr>
+<tr><td></td><td>\indent\link G3D::Sky Sky\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::SkyParameters SkyParameters\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::GLight GLight\endlink</td><td> </td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+
+<tr><td></td><td>\link G3D::SuperShader <b>SuperShader</b>\endlink</td><td>Customizable GPU shader for use with G3D::Material</td></tr>
+<tr><td></td><td>\indent\link G3D::Pass Pass\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::NonShadowedPass NonShadowedPass\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::ExtraLightPass ExtraLightPass\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::ShadowedPass ShadowedPass\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::ShadowMap ShadowMap\endlink</td><td> </td></tr>
+
+<tr height=3 ><td colspan=2 ></td></tr>
+
+<tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole camera with clipping planes</td></tr>
+</table>
 
 @section debugging Debugging
 <table width=90% border=0 >

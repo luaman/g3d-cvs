@@ -129,15 +129,11 @@ protected:
         static GPUShader*           init(GPUShader* shader, bool debug);
         
         /** Set to true when name and code both == "" */
-        bool			     _fixedFunction;
+        bool                        _fixedFunction;
         
         GLenum                      _glShaderType;
         
         std::string                 _shaderType;
-
-        /** Replaces all #includes in code with the contents of the appropriate files.
-            @param dir The directory from which the parent was loaded.*/
-        void processIncludes(const std::string& dir, std::string& code) const;
        
         /** Checks to ensure that this profile is supported on this
             card. Called from init().*/
@@ -652,6 +648,15 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
 class Shader  : public ReferenceCountedObject {
 public:
     typedef ReferenceCountedPointer<Shader>   Ref;
+
+    /** Replaces all #includes in @a code with the contents of the appropriate files.
+        It is called recursively, so included files may have includes themselves.
+        This is called automatically by the preprocessor, but is public so as to be
+        accessible to code like SuperShader that directly manipulates source strings.
+        
+        @param dir The directory from which the parent was loaded.
+      */
+    static void processIncludes(const std::string& dir, std::string& code);
 
 protected:
 

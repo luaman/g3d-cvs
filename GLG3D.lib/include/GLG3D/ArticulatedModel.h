@@ -36,17 +36,8 @@ namespace G3D {
  
  <b>Data Files</b>
  <br>
- To use on a pixel shader 2.0 or higher GPU, you will need the four
- files in the current directory at runtime:
-
- <ul>
- <li>ShadowMappedLightPass.vrt
- <li>ShadowMappedLightPass.pix
- <li>NonShadowedPass.vrt
- <li>NonShadowedPass.pix
- </ul>
-
- These are located in the data/SuperShader directory of the G3D distribution.
+ To use on a pixel shader 2.0 or higher GPU, you will need the "SS_" shaders
+ from the G3D/data/SuperShader directory.
 
  Since G3D doesn't load GIF files, any material in a 3DS file with a GIF filename is converted to
  the equivalent PNG filename.
@@ -271,13 +262,7 @@ public:
         inline Part() : parent(-1) {}
 
         /** Creates a new tri list, adds it to the Part, and returns it */
-        inline TriList::Ref newTriList() {
-            TriList::Ref t = new TriList();
-            t->material = Material::createDiffuse(Color3::white() * 0.8f);
-            t->material->specular = Color3::white() * 0.2f;
-            triList.append(t);
-            return t;
-        }
+        inline TriList::Ref newTriList();
 
         /**
 		 Called by the various ArticulatedModel::render calls.
@@ -348,6 +333,15 @@ private:
 
     /** Called from the constructor */
     void initIFS(const std::string& filename, const Matrix4& xform);
+
+    /** Called from init3DS. 1st argument is a Load3DS::Material pointer; it is void* to work around
+        a dependency problem of having Load3DS.h included here.
+
+        @param path Current file load path*/
+    static Material::Settings compute3DSMaterial
+        (const void* material, 
+         const std::string& path, 
+         const PreProcess& preprocess);
 
 public:
 

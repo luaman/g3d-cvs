@@ -13,7 +13,7 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Array.h"
-#include "G3D/vectormath.h"
+#include "G3D/vectorMath.h"
 #include "G3D/Vector2int16.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/AtomicInt32.h"

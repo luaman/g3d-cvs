@@ -1,0 +1,65 @@
+/**
+ @file   BumpMap.cpp
+ @author Morgan McGuire, morgan@cs.williams.edu
+ @edited 2009-03-25
+ @date   2009-02-19
+*/
+#include "G3D/AnyVal.h"
+#include "GLG3D/BumpMap.h"
+
+namespace G3D {
+
+BumpMap::BumpMap(const MapComponent<Image4>::Ref& normalBump, const Settings& settings) : 
+    m_normalBump(normalBump), m_settings(settings) {
+}
+
+
+BumpMap::Ref BumpMap::create(const MapComponent<Image4>::Ref& normalBump, const Settings& settings) {
+    return new BumpMap(normalBump, settings);
+}
+
+
+static bool hasTexture(const Component4& c) {
+    return 
+        (c.factors() == Component4::MAP) ||
+        (c.factors() == Component4::MAP_TIMES_CONSTANT);
+}
+
+
+bool BumpMap::similarTo(const BumpMap::Ref& other) const {
+    return
+//        ((m_numIterations == other->m_numIterations) || 
+//         ((m_numIterations > 1) && (other->m_numIterations > 1))) &&
+        (m_settings.iterations == other->m_settings.iterations) &&
+        (hasTexture(m_normalBump) == hasTexture(other->m_normalBump));
+}
+
+///////////////////////////////////////////////////////////
+
+BumpMap::Settings BumpMap::Settings::fromAnyVal(AnyVal& a) {
+    Settings s;
+    s.iterations = iMax(0, iRound(a.get("iterations", 0).number()));
+    s.scale = a.get("scale", 0.05f).number();
+    s.offset = a.get("offset", 0.0f).number();
+    return s;
+}
+
+
+AnyVal BumpMap::Settings::toAnyVal() const {
+    AnyVal a(AnyVal::TABLE);
+    a["scale"]  = scale;
+    a["offset"] = offset;
+    a["iterations"] = iterations;
+    return a;
+}
+
+
+bool BumpMap::Settings::operator==(const Settings& other) const {
+    return 
+        (scale == other.scale) &&
+        (offset == other.offset) &&
+        (iterations == other.iterations);
+
+}
+
+} // G3D

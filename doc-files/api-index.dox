@@ -10,10 +10,12 @@ See also the complete list of <a
 href="globals_func.html">Functions</a> and <a
 href="classes.html">Classes</a>.
 
-@section app Application Framework (G3DAll.h, GLG3D.lib)
+@section app Application Framework (GLG3D.h, GLG3D.lib)
 <I>High-level building blocks for creating applications.</I>
 
-  <UL>
+  <ul>
+
+  
   <LI><B>3D Models and Data</B> &nbsp; &nbsp;
     \link G3D::ArticulatedModel ArticulatedModel\endlink,
     \link G3D::_BSPMAP::Map BSPMap\endlink,
@@ -25,7 +27,7 @@ href="classes.html">Classes</a>.
     \link G3D::IFSModel IFSModel\endlink,
     \link G3D::Lighting Lighting\endlink,
     \link G3D::Shape Shape\endlink,
-    \link G3D::Material Material\endlink,
+    \link G3D::Material Material\endlink,    
     \link G3D::MD2Model MD2Model\endlink,
     \link G3D::PosedModel PosedModel\endlink,
     \link G3D::PosedModel2D PosedModel2D\endlink,
@@ -76,6 +78,7 @@ href="classes.html">Classes</a>.
     \link G3D::X11Window X11Window\endlink
    
   <LI><B>Effects</B> &nbsp; &nbsp;
+    \link G3D::BumpMap BumpMap\endlink,
     \link G3D::beginMarkShadows beginMarkShadows\endlink, 
     \link G3D::drawFeatureEdges drawFeatureEdges\endlink,
     \link G3D::endMarkShadows endMarkShadows\endlink, 
@@ -87,10 +90,11 @@ href="classes.html">Classes</a>.
     \link G3D::SuperShader::NonShadowedPass SuperShader::NonShadowedPass\endlink,
     \link G3D::SuperShader::ExtraLightPass SuperShader::ExtraLightPass\endlink,
     \link G3D::SuperShader::ShadowedPass SuperShader::ShadowedPass\endlink,
+    \link G3D::UberBSDF UberBSDF\endlink,
     \link G3D::ToneMap ToneMap\endlink
    </UL>
 
-@section gl Hardware Rendering (G3DAll.h, GLG3D.lib)
+@section gl Hardware Rendering (GLG3D.h, GLG3D.lib)
 <I>An easy-to-use wrapper for OpenGL and a platform-independent windowing system.</I>
 
  <UL>

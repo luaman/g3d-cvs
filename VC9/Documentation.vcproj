@@ -77,6 +77,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\Doxyfile"
+			>
+		</File>
+		<File
 			RelativePath="..\doc-files\error.dox"
 			>
 		</File>
@@ -126,6 +130,10 @@
 		</File>
 		<File
 			RelativePath="..\doc-files\guide-win32.dox"
+			>
+		</File>
+		<File
+			RelativePath="..\doc-files\data-files\header.html"
 			>
 		</File>
 		<File

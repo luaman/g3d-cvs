@@ -57,25 +57,19 @@ void App::loadScene() {
         part.name = "root";
     
         ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
-        triList->material = new Material();
+
+        Material::Settings mat;
         MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList->indexArray, 7, 7, Vector2(10, 10), true, false, Matrix3::identity() * 10);
 
         triList->twoSided = true;
-        triList->material->emit.constant = Color3::black();
 
-        triList->material->specular.constant = Color3::black();
-        triList->material->specularExponent.constant = Color3::white() * 60;
-        triList->material->reflect.constant = Color3::black();
+        mat.setEmissive(Color3::black());
+        mat.setLambertian("stone.jpg", 0.8f);        
+        BumpMap::Settings s;
+        s.iterations = 1;
+        mat.setBump("stone-bump.png", s);
 
-        triList->material->diffuse.constant = Color3::white() * 0.8f;
-        triList->material->diffuse.map = Texture::fromFile("stone.jpg");
-        
-        triList->material->parallaxSteps = 1;
-
-        GImage normalBumpMap;
-		GImage::computeNormalMap(GImage("stone-bump.png"), normalBumpMap, -1, true, false);
-        triList->material->normalBumpMap = Texture::fromGImage("Bump Map", normalBumpMap);
-        triList->material->bumpMapScale = 0.05f;
+        triList->material = Material::create(mat);
         
         triList->computeBounds(part);
 
@@ -85,7 +79,7 @@ void App::loadScene() {
         part.computeNormalsAndTangentSpace(model->settings());
         part.updateVAR();
 
-        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0,-1,0))));
+        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0, -1, 0))));
     }
 
     lighting = Lighting::create();

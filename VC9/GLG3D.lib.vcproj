@@ -166,10 +166,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\ArticulatedModel_pose.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\BackgroundWidget.cpp"
 				>
 			</File>
@@ -182,11 +178,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\BumpMap.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\CameraControlWindow.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\CarbonWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\Component.cpp"
 				>
 			</File>
 			<File
@@ -354,6 +358,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\Material_Settings.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\MD2Model.cpp"
 				>
 			</File>
@@ -438,6 +446,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\UberBSDF.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\UprightSplineManipulator.cpp"
 				>
 			</File>
@@ -496,11 +508,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\BumpMap.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\CameraControlWindow.h"
 				>
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\CarbonWindow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Component.h"
 				>
 			</File>
 			<File
@@ -752,6 +772,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\UberBSDF.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\UprightSplineManipulator.h"
 				>
 			</File>
@@ -800,19 +824,35 @@
 			Name="Shaders"
 			>
 			<File
-				RelativePath="..\data-files\SuperShader\NonShadowedPass.pix"
+				RelativePath="..\data-files\SuperShader\SS_BumpMap.pix"
 				>
 			</File>
 			<File
-				RelativePath="..\data-files\SuperShader\NonShadowedPass.vrt"
+				RelativePath="..\data-files\SuperShader\SS_Components.pix"
 				>
 			</File>
 			<File
-				RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.pix"
+				RelativePath="..\data-files\SuperShader\SS_Globals.pix"
 				>
 			</File>
 			<File
-				RelativePath="..\data-files\SuperShader\ShadowMappedLightPass.vrt"
+				RelativePath="..\data-files\SuperShader\SS_Light.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\SS_NonShadowedPass.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\SS_NonShadowedPass.vrt"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\SS_ShadowMappedLightPass.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\SS_ShadowMappedLightPass.vrt"
 				>
 			</File>
 		</Filter>

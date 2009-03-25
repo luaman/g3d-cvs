@@ -1,0 +1,150 @@
+// -*- c++ -*-
+/**
+  @file ShadowMappedLightPass.glsl.frg
+  @author Morgan McGuire morgan@cs.williams.edu
+
+  For use with G3D::SuperShader.
+  @edited 2007-12-18
+ */
+
+#include "SS_Globals.pix"
+#include "SS_Light.pix"
+#include "SS_BumpMap.pix"
+
+#ifdef G3D_ATI
+   // On ATI cards, use regular 2D texturing since
+   // depth textures provide no advantage.
+   uniform sampler2D shadowMap;
+#else
+   uniform sampler2DShadow shadowMap;
+#endif
+
+/** Coordinate to use in the shadow map */
+varying vec4        shadowCoord;
+
+
+void main(void) {
+
+#include "SS_Components.pix"
+
+	float shininess = 0.0;
+
+#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+        vec3  specularColor;
+        
+        // If 1.0, mirror reflect
+        // If 0.0, no specular
+        // Otherwise exponent = shininess * 127 + 1. 
+        {        
+			vec4 temp =
+#			ifdef SPECULARCONSTANT
+				specularConstant
+#				ifdef SPECULARMAP
+					* texture2D(specularMap, offsetTexCoord)
+#				endif
+#			else
+				texture2D(specularMap, offsetTexCoord)
+#			endif
+			;
+				   
+		   specularColor    = temp.rgb;
+		   
+//         Only if this texture is known to contain some mirror reflective value do we bother
+//         testing each pixel's specular exponent for mirror reflection
+#		   ifdef MIRROR
+           if (temp.a == 1.0) {
+                // Mirror reflection; turn off glossy specular
+                shininess = 0.0;
+           } else
+#		   endif           
+           {
+                // Only glossy reflection				
+                // Unpack the specular exponent
+                shininess = temp.a * 127.0 + 1.0;
+           }
+       }
+#   else
+       shininess = 0.0;
+#   endif
+
+	vec3 I_lambertian = BLACK;
+	vec3 I_specular = BLACK;
+	
+	vec3 wsL;
+    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition0, lightAttenuation0, lightDirection0, lightColor0, I_lambertian, I_specular, wsL);
+
+	float shadow;
+
+    if (-dot(lightDirection0, wsL) >= lightAttenuation0.w) {
+
+        // Compute projected shadow coord.
+        vec4 projShadowCoord = shadowCoord / shadowCoord.w;
+
+        // "side" and "diagonal" offset variables used to produce vectors to the 
+        // 8-neighbors, which leads to a smoother shadow result (0.71 is sqrt(2)/2).
+        vec4 s = vec4(g3d_sampler2DInvSize(shadowMap), -g3d_sampler2DInvSize(shadowMap).x, 0.0);
+        vec4 d = s * 0.71;
+
+#       ifdef G3D_ATI
+			// On ATI, percentage closer filtering is not available.  Perform nearest neighbor
+			// sampling with explicit depth comparisons.  We use dot products to perform four compares
+			// at once and sum their results; this saves four instructions.  We could also (but do not
+			// in this implementation) perform our own bilinear to smooth as well as blur the results.
+
+			shadow = 
+            (float(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z) +
+                  
+                  dot(vec4(1,1,1,1),
+                      vec4(greaterThan(vec4(
+                        texture2D(shadowMap, projShadowCoord.xy + s.xw).r,
+                        texture2D(shadowMap, projShadowCoord.xy - s.xw).r,
+                        texture2D(shadowMap, projShadowCoord.xy + s.wy).r,
+                        texture2D(shadowMap, projShadowCoord.xy - s.wy).r), projShadowCoord.zzzz))) +
+                  
+                  dot(vec4(1,1,1,1),
+                      vec4(greaterThan(vec4(
+                        texture2D(shadowMap, projShadowCoord.xy + s.xy).r,
+                        texture2D(shadowMap, projShadowCoord.xy - s.xy).r,
+                        texture2D(shadowMap, projShadowCoord.xy + s.zy).r,
+                        texture2D(shadowMap, projShadowCoord.xy - s.zy).r), projShadowCoord.zzzz)))) / 9.0; 
+        
+#       else
+			shadow = 
+				(shadow2D(shadowMap, projShadowCoord.xyz).r +
+	             
+				 shadow2D(shadowMap, projShadowCoord.xyz + s.xww).r +
+				 shadow2D(shadowMap, projShadowCoord.xyz - s.xww).r +
+				 shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).r +
+				 shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).r +
+	             
+				 shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).r +
+				 shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).r +
+				 shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).r +
+				 shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).r) / 9.0;
+#       endif
+
+    } else {
+        // Outside spotlight cone
+        shadow = 0.0;
+    }
+        
+    gl_FragColor.rgb =
+        shadow * (BLACK
+#       if defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP)
+           + I_lambertian * lambertianColor.rgb 
+#       endif
+
+#       if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+           + I_specular * specularColor.rgb
+#       endif
+        );
+
+    gl_FragColor.a = 
+#       if defined(LAMBERTIANMAP) || defined(LAMBERTIANCONSTANT)
+            lambertianColor.a
+#       else
+            1.0
+#       endif
+        ;
+          
+}

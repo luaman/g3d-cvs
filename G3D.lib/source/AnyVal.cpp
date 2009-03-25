@@ -568,12 +568,6 @@ std::string AnyVal::toString() const {
     return s;
 }
 
-/*
-void AnyVal::serialize(G3D::BinaryOutput& t) const {
-    alwaysAssertM(false, "TODO");
-}
-*/
-
 void AnyVal::deserialize(G3D::TextInput& t) {
     deleteValue();
     m_type = NIL;
@@ -907,12 +901,6 @@ void AnyVal::deserialize(G3D::TextInput& t) {
         break;
     }
 }
-
-/*
-void AnyVal::deserialize(G3D::BinaryInput& t) {
-    alwaysAssertM(false, "TODO");
-}
-*/
 
 
 AnyVal& AnyVal::operator[](const char* key) {

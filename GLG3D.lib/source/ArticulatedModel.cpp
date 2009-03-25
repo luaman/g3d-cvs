@@ -3,7 +3,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-09-14
- @edited  2009-02-14
+ @edited  2009-03-14
  */
 
 #include "GLG3D/ArticulatedModel.h"
@@ -13,6 +13,21 @@
 #include "GLG3D/GLCaps.h"
 
 namespace G3D {
+
+ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList() {
+    TriList::Ref t = new TriList();
+
+    Material::Settings s;
+    s.setLambertian(Color3::white() * 0.8f);
+    s.setSpecular(Color3::white() * 0.2f);
+    s.setShininess(60);
+
+    t->material = Material::create(s);
+
+    triList.append(t);
+    return t;
+}
+
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Vector3& scale) {
     return fromFile(filename, PreProcess(scale), Settings());
@@ -164,9 +179,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                     const Load3DS::FaceMat& faceMat = object.faceMatArray[m];
 
                     if (faceMat.faceIndexArray.size() > 0) {
-                        Part::TriList::Ref triList = part.newTriList();
-                        triList->material = new Material();
-                
+                        Part::TriList::Ref triList = part.newTriList();                
                         // Construct an index array for this part
                         for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
                             // 3*f is an index into object.indexArray
@@ -178,98 +191,19 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                         debugAssert(triList->indexArray.size() > 0);
 
                         const std::string& materialName = faceMat.materialName;
-
                         if (load.materialNameToIndex.containsKey(materialName)) {
-                            // TODO: cache loaded materials, not individual textures
 
                             int i = load.materialNameToIndex[materialName];
                             const Load3DS::Material& material = load.materialArray[i];
 
-                            const Load3DS::Map& texture1 = material.texture1;
-
-                            std::string textureFile = texture1.filename;
-
-                            if (texture1.filename != "") {
-                                if (endsWith(toUpper(textureFile), "GIF")) {
-                                    // Load PNG instead of GIF, since we can't load GIF
-                                    textureFile = textureFile.substr(0, textureFile.length() - 3) + "png";
-                                }
-
-                                if (! fileExists(textureFile) && fileExists(path + textureFile)) {
-                                    textureFile = path + textureFile;
-                                }
-
-                                // Load textures
-                                std::string f = System::findDataFile(textureFile, false);
-                                
-                                if (f != "") {
-                                    if (! texCache.containsKey(f)) {
-                                        // Actually load texture
-                                        texCache.set(f, Texture::fromFile(f, ImageFormat::AUTO(), preprocess.textureDimension));
-                                    }
-                                    triList->material->diffuse.map = texCache[f];
-                                } else {
-                                    logPrintf("Could not load texture '%s'\n", textureFile.c_str());
-                                }                                
-
-                                triList->material->diffuse.constant = (Color3::white() * material.texture1.pct) *
-                                    (1.0f - material.transparency);
-                            } else {
-                                triList->material->diffuse.constant = material.diffuse * 
-                                    (1.0f - material.transparency);
-                            }
-
-                            //strength of the shininess (higher is brighter)
-                            triList->material->specular.constant = material.shininessStrength * 
-                                material.specular * (1.0f - material.transparency);
-
-                            //extent (area, higher is closely contained, lower is spread out) of shininess
-                            // Do not exceed 128, which is the OpenGL fixed function maximum
-                            triList->material->specularExponent.constant = Color3::white() * material.shininess 
-                                * 128.0f;
-
-                            triList->material->transmit.constant = Color3::white() * material.transparency;
-                            triList->material->emit.constant = material.diffuse * material.emissive;
-
-                            // TODO: load reflection, bump, etc maps.
-                            // triList->material.reflect.map = 
-
+                            const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
                             triList->twoSided = material.twoSided;
 
-                            if (preprocess.addBumpMaps) {
-                                // See if a bump map exists:
-
-                                if (! bumpMap.containsKey(texture1.filename)) {
-
-                                    std::string filename = 
-                                        pathConcat(pathConcat(path, filenamePath(texture1.filename)),
-                                                   filenameBase(texture1.filename) + "-bump");
-
-                                    filename = findAnyImage(filename);
-                                    if (filename != "") {
-                                        // Load bump map
-                                        if (! texCache.containsKey(filename)) {
-                                            // Actually load bump map
-                                            Texture::PreProcess pp = Texture::PreProcess::normalMap();
-                                            pp.normalMapWhiteHeightInPixels = preprocess.normalMapWhiteHeightInPixels;
-                                            texCache.set(filename, Texture::fromFile(filename, ImageFormat::RGBA8(), 
-                                                preprocess.textureDimension, 
-                                                Texture::Settings::defaults(), pp));
-                                        }
-                                        bumpMap.set(texture1.filename, texCache[filename]);
-                                    } else {
-                                        bumpMap.set(texture1.filename, NULL);
-                                    }
-                                }
-
-                                if (bumpMap[texture1.filename].notNull()) {
-                                    triList->material->normalBumpMap = bumpMap[texture1.filename];
-                                    triList->material->parallaxSteps = preprocess.parallaxSteps;
-                                    triList->material->bumpMapScale  = preprocess.bumpMapScale;
-                                }
-                            } // if bump maps
+                            triList->material = Material::create(spec);
 
                         } else {
+                            triList->twoSided = false;
+                            triList->material = Material::create();
                             logPrintf("Referenced unknown material '%s'\n", materialName.c_str());
                         }
                     } // if there are indices on this part
@@ -277,6 +211,80 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
             } // if has materials 
         }
     }
+}
+
+
+Material::Settings ArticulatedModel::compute3DSMaterial
+(const void*         ptr,
+ const std::string&  path,
+ const PreProcess&   preprocess) {
+
+    const Load3DS::Material& material = *reinterpret_cast<const Load3DS::Material*>(ptr);
+
+    Material::Settings spec;
+    spec.setName(material.name);
+    spec.setTextureDimension(preprocess.textureDimension);
+
+    const Load3DS::Map& texture1 = material.texture1;
+
+    std::string textureFile = texture1.filename;
+
+    const Color4& lambertianConstant = 
+        Color4((Color3::white() * material.texture1.pct) *
+               (1.0f - material.transparency), 1.0f);
+
+    std::string lambertianFilename = "";
+
+    if (texture1.filename != "") {
+        if (endsWith(toUpper(textureFile), "GIF")) {
+            // Load PNG instead of GIF, since we can't load GIF
+            textureFile = textureFile.substr(0, textureFile.length() - 3) + "png";
+        }
+
+        if (! fileExists(textureFile) && fileExists(path + textureFile)) {
+            textureFile = path + textureFile;
+        }
+
+        // Load textures
+        lambertianFilename = System::findDataFile(textureFile, false);
+        
+        if (lambertianFilename == "") {
+            logPrintf("Could not locate 3DS file texture '%s'\n", textureFile.c_str());
+        }
+    }
+    
+    spec.setLambertian(lambertianFilename, lambertianConstant);
+
+    // Strength of the shininess (higher is brighter)
+    spec.setSpecular(material.shininessStrength * material.specular * (1.0f - material.transparency));
+
+    //extent (area, higher is closely contained, lower is spread out) of shininess
+    // Do not exceed 128, which is the OpenGL fixed function maximum
+    spec.setShininess(material.shininess * 128);
+
+    spec.setTransmissive(Color3::white() * material.transparency);
+    spec.setEmissive(Color3::white() * material.emissive);
+
+    // TODO: load reflection, bump, etc maps.
+    // triList->material.reflect.map = 
+
+    if (preprocess.addBumpMaps) {
+        // See if a bump map exists:
+        std::string filename = 
+            pathConcat(pathConcat(path, filenamePath(texture1.filename)),
+                       filenameBase(texture1.filename) + "-bump");
+
+        filename = findAnyImage(filename);
+        if (filename != "") {
+            BumpMap::Settings s;
+            s.scale = preprocess.bumpMapScale;
+            s.offset = 0;
+            s.iterations = preprocess.parallaxSteps;
+            spec.setBump(filename, s, preprocess.normalMapWhiteHeightInPixels);
+        }
+    } // if bump maps
+
+    return spec;
 }
 
 

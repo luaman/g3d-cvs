@@ -385,9 +385,19 @@ Texture::Ref Texture::fromFile(
         alwaysAssertM(image[f].width > 0, "Image not found");
         alwaysAssertM(image[f].height > 0, "Image not found");
 
-        if (image[f].channels == 4) {
+        switch (image[f].channels) {
+        case 4:
             format = ImageFormat::RGBA8();
             opaque = false;
+            break;
+        case 3:
+            format = ImageFormat::RGB8();
+            opaque = true;
+            break;
+        case 1:
+            format = ImageFormat::L8();
+            opaque = true;
+            break;
         }
 
         if (desiredFormat == NULL) {

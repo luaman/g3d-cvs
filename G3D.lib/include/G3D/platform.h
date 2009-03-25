@@ -103,7 +103,7 @@
 // Microsoft Visual C++ 6.0	_MSC_VER          = 1200
 // Microsoft Visual C++ 5.0	_MSC_VER          = 1100
 
-// Turn off warnings about deprecated C routines (TODO: revisit)
+// Turn off warnings about deprecated C routines
 #   pragma warning (disable : 4996)
 
 // Turn off "conditional expression is constant" warning; MSVC generates this

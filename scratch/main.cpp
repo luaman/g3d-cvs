@@ -171,7 +171,10 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
 
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
-    
+    //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
+    //b.writeInt32(1);
+    //b.commit(true);
+
 /*
     RenderDevice* rd = new RenderDevice();
     rd->init();

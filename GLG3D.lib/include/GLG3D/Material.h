@@ -1,234 +1,272 @@
-/** 
-  @file Material.h
+/**
+ @file   Material.h
+ @author Morgan McGuire, morgan@cs.williams.edu
+ @date   2008-08-10
+ @edited 2009-03-23
+*/
+#ifndef GLG3D_Material_h
+#define GLG3D_Material_h
 
-  @created 2005-01-01
-  @edited  2008-07-18
-  @author  Morgan McGuire, morgan@cs.williams.edu
- */
-
-#ifndef MATERIAL_H
-#define MATERIAL_H
-
-#include "G3D/Color3.h"
-#include "G3D/Color4.h"
-#include "G3D/Vector4.h"
+#include "G3D/platform.h"
+#include "G3D/HashTrait.h"
+#include "GLG3D/Component.h"
+#include "GLG3D/UberBSDF.h"
+#include "GLG3D/BumpMap.h"
 #include "GLG3D/Shader.h"
-#include "GLG3D/Texture.h"
 
 namespace G3D {
 
-/**
-    @brief A surface material description (BSDF + Emission function +
-    rendering parameters) including transmission, Lambertian,
-    Blinn-Phong specular, and mirror reflection terms.
+class AnyVal;
 
-    Describes the material properties of a 3D surface. This includes a
+/** 
+  @brief Description of a surface for rendering purposes.
 
-    - Bidirectional Scattering Distribution Function (BSDF) describing how
-    light reflects and transmits through the surface, 
+  Encodes a BSDF, bump map, and emission function.
 
-    - an emission function describing the light emitted from the surface
+  The G3D::Material::SimilarHashCode and G3D::Material::SimilarTo traits are provided
+  to help identify when two G3D::Material have the same non-zero terms (similar to
+  G3D::UberBSDF::Factors).  G3D::SuperShader uses these to reduce the number of different
+  shaders that need to be constructed.
 
-    - a normal (a.k.a. displacement, bump) map describing small-scale
-      detail and some parameters controling the accuracy of the
-      displacement mapping algorithm.
-
-    Each of the Component fields can be set to a scalar constant, a
-    color, a texture map, or the product of a color and a texture map.
-    If used with G3D::SuperShader, the application of the shading terms
-    in the pixel shader will be optimized based on which components are
-    present.
-
-    An alpha mask is only allowed on the diffuse component.
-
-    Illumination Equation:
-
-    dst1 = underlying value in frame buffer
-    evt = environment map
-    ambUp, ambDn = ambient map up and down values (ideally, environment map convolved with a hemisphere)
-
-    dst2 = dst1 * transmission + 
-           evt[n] * reflection +
-           lerp(ambDn, ambUp, n.y/2 + 0.5) * diffuse +
-           emissive +
-           SUM OVER LIGHTS {
-             light * (diffuse * NdotL +
-                      specular * NdotH^specularExponent)}
-
-    When choosing material properties, the transmission, diffuse, and
-    specular terms should sum to less than 1.
-
-    Note that most translucent surfaces should be two-sided and have
-    comparatively low diffuse terms.  They should also be applied to
-    convex objects (subdivide non-convex objects) to prevent rendering
-    surfaces out of order.
+  Note that most translucent surfaces should be two-sided and have
+  comparatively low diffuse terms.  They should also be applied to
+  convex objects (subdivide non-convex objects) to prevent rendering
+  surfaces out of order.
     
-    @beta
+  @beta
     
-    @sa G3D::SuperShader
+  @sa G3D::SuperShader, G3D::BSDF, G3D::Component, G3D::Texture, G3D::BumpMap, G3D::ArticulatedModel
   */
 class Material : public ReferenceCountedObject {
 public:
 
     typedef ReferenceCountedPointer<Material> Ref;
 
-    /** Material property coefficients are specified as 
-        a constant color times a texture map.  If the color
-        is white the texture map entirely controls the result.
-        If the color is black the term is disabled.  On graphics
-        cards with few texture units the map will be ignored.*/
-    class Component {
+    /** @brief Specification of a material; used for loading.  
+    
+        Can be written to a file or constructed from a series of calls.
+        Two Settings compare as equal if all properties (except their 
+        names) are identical. 
+        
+      The following terminology for photon scattering is used in the G3D::Material::Settings and G3D::BSDF classes and 
+      their documentation:
+      \image html scatter-terms.png        
+        */
+    class Settings {
+    private:
+        friend class Material;
+
+        std::string     m_name;
+
+        std::string     m_lambertianFilename;
+        Color4          m_lambertianConstant;
+
+        std::string     m_specularFilename;
+        Color3          m_specularConstant;
+
+        std::string     m_shininessFilename;
+        float           m_shininessConstant;
+
+        std::string     m_transmissiveFilename;
+        Color3          m_transmissiveConstant;
+        float           m_eta;
+        float           m_extinction;
+
+        std::string     m_emissiveFilename;
+        Color3          m_emissiveConstant;
+
+        std::string     m_bumpFilename;
+        BumpMap::Settings m_bumpSettings;
+        /** For use when computing normal maps */
+        float 	        m_normalMapWhiteHeightInPixels;        
+
+        Texture::Dimension m_textureDimension;
+        Texture::Settings  m_textureSettings;
+
+        /** Called from fromAnyVal() */
+        void loadFromAnyVal(AnyVal& a);
+
+        Component4 loadLambertian() const;
+        Component4 loadSpecular() const;
+        Component3 loadTransmissive() const;
+        Component3 loadEmissive() const;
+
     public:
-        /** Color that is constant over the entire surface. */
-        Color3              constant;
 
-        /** Color that varies over position.  NULL means white.*/
-        Texture::Ref        map;
+        Settings();
 
-        inline Component() : constant(0, 0, 0), map(NULL) {}
-        inline Component(const Color3& c) : constant(c), map(NULL) {}
-        inline Component(float c) : constant((float)c, (float)c, (float)c), map(NULL) {}
-        inline Component(const Color3& c, const Texture::Ref& t) : constant(c), map(t) {}
-        inline Component(const Texture::Ref& t) : constant(1, 1, 1), map(t) {}
+        bool operator==(const Settings& s) const;
 
-        /** True if this material is definitely (0,0,0) everywhere */
-        inline bool isBlack() const {
-            // To be black, it doesn't matter what your texture is--it will be multiplied by zero!
-            return (constant.r == 0) && (constant.g == 0) && (constant.b == 0);
+        inline bool operator!=(const Settings& s) const {
+            return !((*this) == s);
         }
 
-        /** True if this material is definitely (1,1,1) everywhere */
-        inline bool isWhite() const {
-            // To be white, you have to have no texture map and all white constants.
-            return (constant.r == 1) && (constant.g == 1) && (constant.b == 1) && map.isNull();
+        /** Save a description (does not include the image data; that 
+           remains in the referenced image files) */
+        void save(const std::string& filename) const;
+
+        /** Load from a file created by save() */
+        void load(const std::string& filename);
+
+        /** Deserialize from an AnyVal::TABLE */
+        static Settings fromAnyVal(AnyVal& a);
+
+        /** Serialize to an AnyVal::TABLE */
+        AnyVal toAnyVal() const;
+
+        inline void setTextureDimension(Texture::Dimension d) {
+            m_textureDimension = d;
         }
 
-        inline bool operator==(const Component& other) const {
-            return (constant == other.constant) && (map == other.map);
+        void setTextureSettings(Texture::Settings& s);
+
+        /** Filename of Lambertian (diffuse) term, empty if none. The alpha channel is a mask that will
+            be applied to all maps for coverage.  That is, alpha = 0 indicates holes in the 
+            surface.  Do not use alpha for transparency; set transmissiveFilename instead.*/
+        void setLambertian(const std::string& filename, const Color4& constant = Color4::one());
+        
+        inline void setLambertian(const std::string& filename, float c) {
+            setLambertian(filename, Color4(Color3(c), 1.0f));
         }
 
-        /** Returns true if both components will produce similar non-zero terms in a
-            lighting equation.  Black and white are only similar to themselves. */
-        bool similarTo(const Component& other) const;
+        void setLambertian(const Color4& constant);
+
+        inline void setLambertian(float c) {
+            setLambertian(Color4(Color3(c), 1.0f));
+        }
+        
+        /** Makes the surface opaque black. */
+        void removeLambertian();
+
+        void setEmissive(const std::string& filename, const Color3& constant = Color3::one());
+        
+        void setEmissive(const Color3& constant);
+        
+        void removeEmissive();
+
+        /** Mirror reflection or glossy reflection.
+            This actually specifies 
+            the \f$F_0\f$ term, which is the minimum reflectivity of the surface.  At 
+            glancing angles it will increase towards white.*/
+        void setSpecular(const std::string& filename, const Color3& constant = Color3::one());
+        
+        void setSpecular(const Color3& constant);
+
+        /** Sets shininess to SHININESS_NONE */
+        void removeSpecular();
+
+        /** Sharpness of the specular highlight.
+            <code>SHININESS_NONE</code> = no specular term, <code>SHININESS_MIRROR</code> =
+            mirror reflection. Values between 1 and 128 affect the
+            size of the specular highlight. 1 is dull, 128 is sharp.*/
+        void setShininess(const std::string& filename, uint8 constant = 255);
+        
+        void setShininess(uint8 constant);
+
+        /** This is an approximation of attenuation due to extinction
+           while traveling through a translucent material.  Note that
+           no real material is transmissive without also being at
+           least slightly glossy */
+        void setTransmissive(const std::string& filename, const Color3& constant = Color3::one());
+        
+        void setTransmissive(const Color3& constant);
+        
+        void removeTransmissive();
+
+        inline void setName(const std::string& s) {
+            m_name = s;
+        }
+
+        /** Set the index of refraction. Not used unless transmissive is non-zero. */
+        void setEta(float eta);
+
+        /**
+           @param normalMapWhiteHeightInPixels When loading normal
+              maps, argument used for G3D::GImage::computeNormalMap()
+              whiteHeightInPixels.  Default is -0.02f
+        */
+        void setBump(
+            const std::string& filename,
+            const BumpMap::Settings& settings = BumpMap::Settings(),
+            float           normalMapWhiteHeightInPixels = -0.02f);
+
+        void removeBump();
+
+        size_t hashCode() const;
     };
 
-    /** Diffuse (Lambertian) reflection of lights. 
+protected:
 
-        The alpha channel is used as a mask, e.g., to cut out the
-        shape of a leaf or a billboard, but does NOT encode
-        transparency.  Use the transmit member to specify (optionally
-        colored) transparency.*/
-    Component               diffuse;
+    /** Scattering function */
+    UberBSDF::Ref               m_bsdf;
 
-    /** Glow without illuminating other objects. */
-    Component               emit;
+    /** Emission map. */
+    Component3                  m_emissive;
 
-    /** Specular (glossy) reflection of lights. */
-    Component               specular;
+    /** Bump map */
+    BumpMap::Ref                m_bump;
 
-    /** Sharpness of light reflections.*/
-    Component               specularExponent;
+    /** For experimentation.  This is automatically passed to the
+        shaders if not NULL.*/
+    MapComponent<Image4>::Ref   m_customMap;
 
-    /** Translucency.  Can be colored.*/
-    Component               transmit;
+    /** For experimentation.  This is automatically passed to the
+        shaders if finite.*/
+    Color4                      m_customConstant;
 
-    /** Perfect specular (mirror) reflection of the environment. */
-    Component               reflect;
+    Material();
 
-    /** 
-        @brief Hint to the renderer for the quality of displacement
-        mapping.
+public:
 
-        Only relevant if normalBumpMap is non-NULL.
+    /** @brief Constructs an empty Material. */
+    static Material::Ref create();
 
-        If 0, normal mapping is used with no displacement.
-        If 1, Kaneko-Welsh parallax mapping with offset limiting is used.
-        If >1, Brawley-Tatarchuk parallax occlusion mapping is used.
-        */
-    int                     parallaxSteps;
+    /**
+       Caches previously created Materials, and the textures 
+       within them, to minimize loading time.
 
-    /** RGB*2-1 = tangent space normal, A = tangent space bump height.
-      If NULL bump mapping is disabled. */
-    Texture::Ref            normalBumpMap;
+       Materials are initially created with all data stored exclusively 
+       on the GPU. Call setStorage() to move or copy data to the CPU 
+       (note: it will automatically copy to the CPU as needed, but that 
+       process is not threadsafe).
 
-    /** Reserved for experimentation. This allows you to pass one
-        additional texture of your choice into the shader; you can
-        then modify the shader code directly to recieve and apply this
-        map.  If non-NULL, CUSTOMMAP is #defined in the shader. */
-    Texture::Ref            customMap;
-
-    /** Reserved for experimentation.  If finite, CUSTOMCONSTANT is
-        #defined in the shader.  */
-    Vector4                 customConstant;
-   
-    /** Multiply normal map alpha values (originally on the range 0-1)
-        by this constant to obtain the real-world bump height. Should
-        already be factored in to the normal map normals.*/
-    float                   bumpMapScale;
-
-    /** On the range [0, 1].  Translates the bump map in and out of
-        the surface. */
-    float                   bumpMapBias;
-
-    /** Default material is white and slightly shiny. */
-    Material() : diffuse(1), emit(0), 
-        specular(0.25f), specularExponent(60), 
-        transmit(0), reflect(0), parallaxSteps(1), 
-        customConstant((float)inf(),(float)inf(),(float)inf(),(float)inf()), 
-        bumpMapScale(0.02f), bumpMapBias(0) {
-    }
-
-    /** Create a purely diffuse material with this reflectivity. */
-    static Material::Ref createDiffuse(const Color3& diffuse);
-
-    /** Returns true if @a this material uses similar terms as @a
-        other (used by G3D::SuperShader), although the actual textures
-        may differ. */
-    bool similarTo(const Material& other) const;
-    inline bool similarTo(const Material::Ref& other) const {
-        return similarTo(*other);
-    }
-
-    /** 
-     To be identical, two materials must not only have the same images in their
-     textures but must share pointers to the same underlying G3D::Texture objects.
+       @param normalBumpMap
      */
-    inline bool operator==(const Material& other) const {
-        return (diffuse == other.diffuse) &&
-               (specular == other.specular) &&
-               (specularExponent == other.specularExponent) &&
-               (transmit == other.transmit) &&
-               (reflect == other.reflect) &&
-               (normalBumpMap == other.normalBumpMap) &&
-               (bumpMapScale == other.bumpMapScale) &&
-               (bumpMapBias == other.bumpMapBias) &&
-               (customMap == other.customMap) &&
-               (customConstant == other.customConstant) &&
-               (parallaxSteps == other.parallaxSteps);
+    static Material::Ref create(const Settings& settings);
+
+    /**
+     Create a G3D::Material using a Lambertian (pure diffuse) G3D::BSDF with color @a p_Lambertian.
+     */
+    static Material::Ref createDiffuse(const Color3& p_Lambertian);
+
+    void setStorage(ImageStorage s) const;
+
+    inline UberBSDF::Ref bsdf() const {
+        return m_bsdf;
     }
 
+    /** An emission function.
 
-    inline size_t hashCode() const {
-        // Intentionally does not take all terms into account, for performance
-        return
-            (size_t)((diffuse.constant.b + (diffuse.constant.r + (diffuse.constant.g * 1024)) * 1024) * 1024) ^ 
-            (size_t)(diffuse.map.pointer()) ^
-            (size_t)(specular.constant.b * 0xFFFFFF) ^ 
-            (size_t)(specular.map.pointer()) ^
-            (size_t)(reflect.constant.b * 0xFFFFFF) ^
-            (size_t)(transmit.constant.b * 0xFFFFFF) ^
-            (size_t)(customMap.pointer()) ^
-            (size_t)((customConstant.x + (customConstant.y + (customConstant.z * 1024)) * 1024) * 1024);
+        Dim emission functions are often used for "glow", where a surface is bright
+        independent of external illumination but does not illuminate other surfaces.
+
+        Bright emission functions are used for light sources under the photon mapping
+        algorithm.
+
+        The result is not a pointer because G3D::Component3 is immutable and 
+        already indirects the G3D::Component::MapComponent inside of it by a
+        pointer.*/
+    inline const Component3& emissive() const {
+        return m_emissive;
     }
 
-
-    inline bool operator!=(const Material& other) const {
-        return !(*this == other);
+    inline const Color4& customConstant() const {
+        return m_customConstant;
     }
 
-
-    /** Returns a string of GLSL macros (e.g., #define DIFFUSEMAP) that
-        describe the specified components of this Material, as used by 
+    /** Appends a string of GLSL macros (e.g., "#define LAMBERTIANMAP\n") to
+        @a defines that
+        describe the specified components of this G3D::Material, as used by 
         G3D::SuperShader.
       */
     void computeDefines(std::string& defines) const;
@@ -243,6 +281,26 @@ public:
       */
     void configure(VertexAndPixelShader::ArgList& a) const;
 
+    /** Returns true if @a this material uses similar terms to @a
+        other (used by G3D::SuperShader), although the actual textures
+        may differ. */
+    bool similarTo(const Material& other) const;
+    inline bool similarTo(const Material::Ref& other) const {
+        return similarTo(*other);
+    }
+
+    /** 
+     To be identical, two materials must not only have the same images in their
+     textures but must share pointers to the same underlying G3D::Texture objects.
+     */
+    inline bool operator==(const Material& other) const {
+        return 
+            (m_bsdf == other.m_bsdf) &&
+            (m_emissive == other.m_emissive) &&
+            (m_bump == other.m_bump) &&
+            (m_customMap == other.m_customMap) &&
+            (m_customConstant == other.m_customConstant);
+    }
 
     /** Can be used with G3D::Table as an Equals function */
     class SimilarTo {
@@ -266,13 +324,13 @@ public:
     };
 };
 
-
-} // namespace G3D
+}
 
 template <>
-struct HashTrait<G3D::Material> {
-    static size_t hashCode(const G3D::Material& m) {
-        return m.hashCode();
+struct HashTrait<G3D::Material::Settings> {
+    static size_t hashCode(const G3D::Material::Settings& key) {
+        return key.hashCode();
     }
 };
+
 #endif

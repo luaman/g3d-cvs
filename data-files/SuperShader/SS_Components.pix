@@ -1,0 +1,61 @@
+// -*- c++ -*-
+/**
+  @file SS_Components.pix
+  @author Morgan McGuire morgan@cs.williams.edu
+
+  For use with G3D::SuperShader.
+  Abstracts common code for reading the components
+  inside main()
+
+  @edited  2009-03-24
+  @created 2007-12-18
+ */
+
+    const vec3 BLACK = vec3(0.0, 0.0, 0.0);
+
+    vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
+
+#   ifdef NORMALBUMPMAP
+        vec3 wsN;
+        vec2 offsetTexCoord;
+        applyBumpMap(wsN, offsetTexCoord);
+#   else
+        // World space normal
+        vec3 wsN = tan_Z.xyz * backside;
+        vec2 offsetTexCoord = texCoord;
+#   endif
+
+#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+        // Eye vector
+        vec3 wsE = wsEyePos - wsPosition;
+        // or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
+#   else
+        vec3 wsE = BLACK;
+#   endif
+
+#   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
+        vec4 lambertianColor =
+#       ifdef LAMBERTIANCONSTANT
+            vec4(lambertianConstant, 1.0)
+#           ifdef LAMBERTIANMAP
+                * texture2D(lambertianMap, offsetTexCoord)
+#           endif
+#       else
+            texture2D(lambertianMap, offsetTexCoord)
+#       endif
+        ;
+#   endif
+
+
+#   if defined(EMITCONSTANT) || defined(EMITMAP)     
+        vec4 emitColor =
+#       ifdef EMITCONSTANT
+            vec4(emitConstant, 1.0)
+#           ifdef EMITMAP
+                * texture2D(emitMap, offsetTexCoord)
+#           endif
+#       else
+            texture2D(emitMap, offsetTexCoord)
+#       endif
+        ;
+#   endif

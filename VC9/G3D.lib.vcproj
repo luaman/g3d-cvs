@@ -553,6 +553,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\BSDF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\BumpMap.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Capsule.h"
 				>
 			</File>
@@ -586,6 +594,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Color4uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Component.h"
 				>
 			</File>
 			<File

@@ -1,7 +1,8 @@
 /**
- @file SuperShader.vrt
+ @file ShadowMappedLightPass.vrt
  @author Morgan McGuire, morgan@cs.williams.edu
- @modified 2007-10-22
+ @created 2007-10-22
+ @edited  2009-03-25 
  */
 #ifdef CUSTOMCONSTANT
     uniform vec4        customConstant;
@@ -19,8 +20,10 @@
     varying vec4 tan_X, tan_Y;
 #endif
 
-/** tan_Z.xyz is the world space position */
-varying vec4 tan_Z, tan_W; 
+varying vec4 tan_Z;
+
+/** Point on the surface being shaded */
+varying vec3 wsPosition; 
 
 /** Modelview projection matrix used for the light's shadow map */
 uniform mat4 lightMVP;
@@ -30,22 +33,13 @@ varying vec4 shadowCoord;
 
 varying vec2 texCoord;
 
-/** Used for "ambient occlusion" Unit normals are assumed to observe a full hemisphere; less 
-    than unit length normals see the proportion of the hemisphere.*/
-varying float accessibility;
-
 void main(void) {
 
     vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
 
-    // Compute the columns of the tangent space to world space matrix
-    accessibility = length(gl_Normal);
+    wsPosition = (g3d_ObjectToWorldMatrix * gl_Vertex).xyz;
 
-    tan_W = g3d_ObjectToWorldMatrix * gl_Vertex;
-
-    tan_Z = g3d_ObjectToWorldMatrix * vec4(gl_Normal / accessibility, 0);
-
-    vec3 wsPosition = tan_W.xyz;
+    tan_Z = g3d_ObjectToWorldMatrix * vec4(gl_Normal, 0);
 
 #   ifdef NORMALBUMPMAP
         tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
@@ -53,6 +47,7 @@ void main(void) {
         // T and N are guaranteed perpendicular, so B is normalized.
         tan_Y = vec4(cross(tan_Z.xyz, tan_X.xyz), 0);
 
+	    // (there is no tan_W, because it is equal to wsPosition)
 
         // Compute the tangent space eye vector (ATI does not support the transpose operator)
         mat3 worldToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
@@ -62,8 +57,7 @@ void main(void) {
         _tsE         = worldToTangent * (wsEyePos - wsPosition);
 #    endif
 
-    // Note that tan_W is objectToWorld * gl_Vertex
-    shadowCoord      = lightMVP * tan_W;
+    shadowCoord      = lightMVP * vec4(wsPosition, 1.0);
 
     texCoord         = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
     gl_Position      = ftransform();

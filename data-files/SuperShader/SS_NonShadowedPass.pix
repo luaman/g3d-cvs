@@ -1,0 +1,132 @@
+// -*- c++ -*-
+/**
+  @file NonShadowedPass.pix
+  @author Morgan McGuire morgan@cs.williams.edu
+
+  For use with G3D::SuperShader.
+
+  @edited  2009-03-24
+  @created 2007-12-18
+ */
+
+#include "SS_Globals.pix"
+#include "SS_Light.pix"
+#include "SS_BumpMap.pix"
+
+uniform vec4        lightPosition1;
+uniform vec3        lightColor1;
+uniform vec3        lightDirection1;
+uniform vec4        lightAttenuation1;
+
+uniform vec4        lightPosition2;
+uniform vec3        lightColor2;
+uniform vec3        lightDirection2;
+uniform vec4        lightAttenuation2;
+
+uniform vec4        lightPosition3;
+uniform vec3        lightColor3;
+uniform vec3        lightDirection3;
+uniform vec4        lightAttenuation3;
+
+#ifdef MIRROR
+	// Only provided when the BSDF is known to contain
+	// mirror reflective terms
+	uniform samplerCube environmentMap;
+	uniform vec3        environmentMapScale;
+#endif
+
+#ifdef EMISSIVECONSTANT
+    uniform vec3        emissiveConstant;
+#endif
+
+#ifdef EMISSIVEMAP
+    uniform sampler2D   emissiveMap;
+#endif
+
+uniform vec3        ambientTop;
+uniform vec3        ambientBottom;
+
+void main(void) {
+
+#include "SS_Components.pix"
+
+    vec3 I_lambertian  = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);
+    vec3 I_specular;
+    float shininess;
+
+#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+        vec3  specularColor;
+        
+        // If 1.0, mirror reflect
+        // If 0.0, no specular
+        // Otherwise exponent = shininess * 127 + 1. 
+        {        
+			vec4 temp =
+#			ifdef SPECULARCONSTANT
+				specularConstant
+#				ifdef SPECULARMAP
+					* texture2D(specularMap, offsetTexCoord)
+#				endif
+#			else
+				texture2D(specularMap, offsetTexCoord)
+#			endif
+			;
+				   
+		   specularColor    = temp.rgb;
+		   
+//         Only if this texture is known to contain some mirror reflective value do we bother
+//         testing each pixel's specular exponent for mirror reflection
+#		   ifdef MIRROR
+           if (temp.a == 1.0) {
+                // Mirror reflection
+                
+                // Reflection vector
+                vec3 wsR = normalize((wsN * 2.0 * dot(wsN, wsE)) - wsE);
+				
+				I_specular = textureCube(environmentMap, wsR).rgb;
+
+                // Turn off glossy specular
+                shininess = 0.0;
+           } else
+#		   endif
+           {
+                // Only glossy reflection
+                I_specular = BLACK;
+				
+                // Unpack the specular exponent
+                shininess = temp.a * 127.0 + 1.0;
+           }
+       }
+#   else
+       shininess = 0.0;
+#   endif
+    
+    vec3 ignore;
+    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition0, lightAttenuation0, lightDirection0, lightColor0, I_lambertian, I_specular, ignore);
+    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition1, lightAttenuation1, lightDirection1, lightColor1, I_lambertian, I_specular, ignore);
+    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition2, lightAttenuation2, lightDirection2, lightColor2, I_lambertian, I_specular, ignore);
+    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition3, lightAttenuation3, lightDirection3, lightColor3, I_lambertian, I_specular, ignore);
+
+    gl_FragColor.rgb =
+        BLACK
+#       if defined(EMISSIVECONSTANT) || defined(EMISSIVEMAP)
+            + emissiveColor.rgb
+#       endif
+
+#       if defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP)
+           + I_lambertian * lambertianColor.rgb 
+#       endif
+
+#       if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+           + I_specular * specularColor.rgb
+#       endif
+        ;
+
+    gl_FragColor.a = 
+#       if defined(LAMBERTIANMAP) || defined(LAMBERTIANCONSTANT)
+            lambertianColor.a
+#       else
+            1.0
+#       endif
+        ;        
+}

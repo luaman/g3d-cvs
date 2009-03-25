@@ -1,240 +1,207 @@
-/** 
-  @file Material.cpp
-
-
-  @created 2005-01-01
-  @edited  2007-12-14
-  @author  Morgan McGuire, morgan@cs.williams.edu
- */
-
+/**
+ @file   Material.cpp
+ @author Morgan McGuire, morgan@cs.williams.edu
+ @date   2009-03-19
+*/
 #include "GLG3D/Material.h"
+#include "G3D/Table.h"
+#include "G3D/WeakCache.h"
 
 namespace G3D {
 
-Material::Ref Material::createDiffuse(const Color3& diffuse) {
-    Material::Ref m = new Material();
-    m->diffuse = diffuse;
-    m->specular = Color3::black();
-    return m;
+Material::Material() : m_customConstant(Color4::inf()) {
+}
+
+
+Material::Ref Material::create() {
+    return new Material();
+}
+
+
+Material::Ref Material::createDiffuse(const Color3& p_Lambertian) {
+    Settings s;
+    s.setLambertian(p_Lambertian);
+    return create(s);
+}
+
+typedef WeakCache<Material::Settings, Material::Ref> MaterialCache;
+
+/** Provides access to the cache.  This is not a global because the order of initialization
+    needs to be carefully defined */
+static MaterialCache& globalCache() {
+    static MaterialCache c;
+    return c;
+}
+
+
+Material::Ref Material::create(const Settings& settings) {
+    MaterialCache& cache = globalCache();
+    Material::Ref value = cache[settings];
+
+    if (value.isNull()) {
+        // Construct the appropriate material
+        value = new Material();
+
+        value->m_bsdf =
+            UberBSDF::create(settings.loadLambertian(),
+                         settings.loadSpecular(),
+                         settings.loadTransmissive(),
+                         settings.m_eta,
+                         settings.m_extinction);
+
+        // load emission map
+        value->m_emissive = settings.loadEmissive();
+
+        // load bump map
+        if (settings.m_bumpFilename != "") {
+            Texture::PreProcess npp = Texture::PreProcess::normalMap();
+            npp.normalMapWhiteHeightInPixels = settings.m_normalMapWhiteHeightInPixels;
+            
+            Texture::Ref normalBump = Texture::fromFile(settings.m_bumpFilename, TextureFormat::RGBA8(),
+                settings.m_textureDimension, settings.m_textureSettings, npp); 
+
+            value->m_bump = BumpMap::create(MapComponent<Image4>::create(NULL, normalBump), settings.m_bumpSettings);
+        }
+
+        // Update the cache
+        cache.set(settings, value);
+    }
+
+    return value;
+}
+
+
+
+void Material::setStorage(ImageStorage s) const {
+    m_bsdf->setStorage(s);
+    
+    m_emissive.setStorage(s);
+    
+    if (m_bump.notNull()) {
+        m_bump->setStorage(s);
+    }
 }
 
 
 void Material::computeDefines(std::string& defines) const {
-    defines = "";
-
     // Set diffuse if not-black or if there is an alpha mask
-    if ((diffuse.constant != Color3::black()) ||
-        (diffuse.map.notNull() && ! diffuse.map->opaque())) {
-        if (diffuse.map.notNull()) {
-            defines += "#define DIFFUSEMAP\n";
+    if (m_bsdf->lambertian().notZero()) {
+        if (m_bsdf->lambertian().texture().notNull()) {
+            defines += "#define LAMBERTIANMAP\n";
 
             // If the color is white, don't multiply by it
-            if (diffuse.constant != Color3::white()) {
-                defines += "#define DIFFUSECONSTANT\n";
+            if (m_bsdf->lambertian().constant() != Color4::one()) {
+                defines += "#define LAMBERTIANCONSTANT\n";
             }
         } else {
-            defines += "#define DIFFUSECONSTANT\n";
+            defines += "#define LAMBERTIANCONSTANT\n";
         }
     }
 
-    if (customConstant.isFinite()) {
+    if (m_customConstant.isFinite()) {
         defines += "#define CUSTOMCONSTANT\n";
     }
 
-    if (customMap.notNull()) {
+    if (m_customMap.notNull()) {
         defines += "#define CUSTOMMAP\n";
     }
 
-    if (specular.constant != Color3::black()) {
-        if (specular.map.notNull()) {
+    if (m_bsdf->specular().notZero()) {
+        if (m_bsdf->specular().texture().notNull()) {
             defines += "#define SPECULARMAP\n";
 
             // If the color is white, don't multiply by it
-            if (specular.constant != Color3::white()) {
+            if (m_bsdf->specular().constant() != Color4::one()) {
                 defines += "#define SPECULARCONSTANT\n";
             }
         } else  {
             defines += "#define SPECULARCONSTANT\n";
         }
+    }
 
-        if (specularExponent.constant != Color3::black()) {
-            if (specularExponent.map.notNull()) {
-                defines += "#define SPECULAREXPONENTMAP\n";
-                
-                // If the color is white, don't multiply by it
-                if (specularExponent.constant != Color3::white()) {
-                    defines += "#define SPECULAREXPONENTCONSTANT\n";
-                }
-            } else  {
-                defines += "#define SPECULAREXPONENTCONSTANT\n";
-            }
+    if (m_bsdf->hasMirror()) {
+        defines += "#define MIRROR\n";
+    }
+
+    if (m_emissive.notZero()) {
+        // Must always set the emission constant if there is any emission
+        // because it is modified to contain tone mapping information by SuperShader.
+        defines += "#define EMISSIVECONSTANT\n";
+        if (m_emissive.texture().notNull()) {
+            defines += "#define EMISSIVEMAP\n";
         }
     }
 
-    if (emit.constant != Color3::black()) {
-        // Must always multiply by the emission constant because it is modified to
-        // contain tone mapping information.
-        defines += "#define EMITCONSTANT\n";
-        if (emit.map.notNull()) {
-            defines += "#define EMITMAP\n";
-        }
-    }
-
-    if (reflect.constant != Color3::black()) {
-        // Must always multiply by the reflection constant because it is modified to
-        // contain tone mapping information.
-        defines += "#define REFLECTCONSTANT\n";
-        if (reflect.map.notNull()) {
-            defines += "#define REFLECTMAP\n";
-        }
-    }
-
-    if ((bumpMapScale != 0) && normalBumpMap.notNull()) {
+    if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
         defines += "#define NORMALBUMPMAP\n";
+        defines += format("#define PARALLAXSTEPS (%d)\n", m_bump->settings().iterations);
     }
-
-    defines += format("#define PARALLAXSTEPS (%d)\n", parallaxSteps);
 }
 
 
 bool Material::similarTo(const Material& other) const {
     return
-        diffuse.similarTo(other.diffuse) &&
-        emit.similarTo(other.emit) &&
-        specular.similarTo(other.specular) &&
-        specularExponent.similarTo(other.specularExponent) &&
-        transmit.similarTo(other.transmit) &&
-        reflect.similarTo(other.reflect) &&
-        (customMap.notNull() == other.customMap.notNull()) &&
-        (customConstant.isFinite() == other.customConstant.isFinite()) &&
-        (normalBumpMap.isNull() == other.normalBumpMap.isNull()) &&
-        (parallaxSteps == other.parallaxSteps);
+        m_bsdf->similarTo(other.m_bsdf) &&
+        (m_emissive.factors() == other.m_emissive.factors()) &&
+        (m_customMap.notNull() == other.m_customMap.notNull()) &&
+        (m_customConstant.isFinite() == other.m_customConstant.isFinite()) &&
+        (m_bump.isNull() == other.m_bump.isNull()) &&
+        (m_bump.isNull() || m_bump->similarTo(other.m_bump));
 }
 
 
-bool Material::Component::similarTo(const Component& other) const{
-    // Black and white are only similar to themselves
-    if (isBlack()) {
-        return other.isBlack();
-    } else if (other.isBlack()) {
-        return false;
-    }
-    
-    if (isWhite()) {
-        return other.isWhite();
-    } else if (other.isWhite()) {
-        return false;
-    }
-    
-    // Two components are similar if they both have/do not have texture
-    // maps.
-    return map.isNull() == other.map.isNull();
+size_t Material::SimilarHashCode::hashCode(const G3D::Material& mat) {
+    return 
+        (mat.m_bsdf->lambertian().factors() << 10) ^
+        (mat.m_bsdf->specular().factors() << 4) ^
+        (mat.m_bsdf->transmissive().factors() << 3) ^
+        (int)(mat.m_bump.isNull()) ^
+        (mat.m_emissive.factors() << 20);
 }
 
 
 void Material::configure(VertexAndPixelShader::ArgList& args) const {
 
-    // Set diffuse if not-black or if there is an alpha mask
-    if ((diffuse.constant != Color3::black()) ||
-        (diffuse.map.notNull() && ! diffuse.map->opaque())) {
-        args.set("diffuseConstant",         diffuse.constant);
-        if (diffuse.map.notNull()) {
-            args.set("diffuseMap",          diffuse.map);
+    // Set diffuse if not-black, or if there is an alpha mask
+    if (! m_bsdf->lambertian().isBlack() || 
+        (m_bsdf->lambertian().texture().notNull() &&
+        ! m_bsdf->lambertian().texture()->opaque())) {
+        args.set("lambertianConstant",          m_bsdf->lambertian().constant().rgb());
+        if (m_bsdf->lambertian().texture().notNull()) {
+            args.set("lambertianMap",           m_bsdf->lambertian().texture());
         }
     }
 
-    if (customConstant.isFinite()) {
-        args.set("customConstant",         customConstant);
+    if (m_customConstant.isFinite()) {
+        args.set("customConstant",              m_customConstant);
     }
 
-    if (customMap.notNull()) {
-        args.set("customMap",              customMap);
+    if (m_customMap.notNull()) {
+        args.set("customMap",                   m_customMap->texture());
     }
 
-    if (specular.constant != Color3::black()) {
-        args.set("specularConstant",        specular.constant);
-        if (specular.map.notNull()) {
-            args.set("specularMap",             specular.map);
-        }
-
-        // If specular exponent is black we get into trouble-- pow(x, 0)
-        // doesn't work right in shaders for some reason
-        args.set("specularExponentConstant", Color3::white().max(specularExponent.constant));
-
-        if (specularExponent.map.notNull()) {
-            args.set("specularExponentMap",     specularExponent.map);
+    if (m_bsdf->specular().notZero()) {
+        args.set("specularConstant",            m_bsdf->specular().constant());
+        if (m_bsdf->specular().texture().notNull()) {
+            args.set("specularMap",             m_bsdf->specular().texture());
         }
     }
 
-    if (reflect.constant != Color3::black()) {
-        args.set("reflectConstant",         reflect.constant);
+    if (m_emissive.notZero()) {
+        args.set("emissiveConstant",             m_emissive.constant());
 
-        if (reflect.map.notNull()) {
-            args.set("reflectMap",              reflect.map);
+        if (m_emissive.texture().notNull()) {
+            args.set("emissiveMap",              m_emissive.texture());
         }
     }
 
-    if (emit.constant != Color3::black()) {
-        args.set("emitConstant",            emit.constant);
-
-        if (emit.map.notNull()) {
-            args.set("emitMap",             emit.map);
-        }
+    if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
+        args.set("normalBumpMap",       m_bump->normalBumpMap()->texture());
+        args.set("bumpMapScale",        m_bump->settings().scale);
+        args.set("bumpMapBias",         m_bump->settings().offset);
     }
 
-    if (normalBumpMap.notNull() && (bumpMapScale != 0)) {
-        args.set("normalBumpMap",       normalBumpMap);
-        args.set("bumpMapScale",        bumpMapScale);
-        args.set("bumpMapBias",         bumpMapBias);
-    }
-
-
-    debugAssert(parallaxSteps >= 0);
+    debugAssert(m_bump.isNull() || m_bump->settings().iterations >= 0);
 }
 
-
-/** Mini-hash of a component */
-static size_t encode(const Material::Component& c) {
-    if (c.isBlack()) {
-        return 0;
-    } else if (c.isWhite()) {
-        return 1;
-    } else if (c.map.notNull()) {
-        return 3;
-    } else {
-        return 4;
-    }
-}
-
-size_t Material::SimilarHashCode::hashCode(const Material& mat) {
-    size_t h = 0;
-
-    h |= encode(mat.diffuse) << 0;
-    h |= encode(mat.emit)    << 2;
-    h |= encode(mat.specular) << 4;
-    h |= encode(mat.specularExponent) << 6;
-    h |= encode(mat.transmit) << 8;
-    h |= encode(mat.reflect)  << 10;
-    h |= encode(mat.transmit) << 12;
-
-    if (mat.customMap.notNull()) {
-        h |= 1 << 14;
-    }
-    
-    if (mat.customConstant.isFinite()) {
-        h |= 1 << 15;
-    }
-
-    if (mat.normalBumpMap.notNull()) {
-        h |= 1 << 16;
-    }
-
-    if (mat.normalBumpMap.notNull()) {
-        h |= mat.parallaxSteps << 17;
-    }
-
-    return h;
-}
-
-
-} // G3D
+} // namespace G3D

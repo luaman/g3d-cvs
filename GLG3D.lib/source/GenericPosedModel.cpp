@@ -15,6 +15,23 @@
 
 namespace G3D {
 
+/** For fixed function, we detect
+    reflection as having no glossy map but a packed specular
+   exponent of 1 (=infinity).*/   
+static bool mirrorReflectiveFF(const UberBSDF::Ref& bsdf) { 
+    return ((bsdf->specular().factors() == Component3::CONSTANT) ||
+     (bsdf->specular().factors() == Component3::ONE)) &&
+     ! bsdf->specular().isZero();
+}
+
+/** For fixed function, we detect glossy
+    reflection as having a packed specular exponent less 
+    than 1.*/   
+static bool glossyReflectiveFF(const UberBSDF::Ref& bsdf) {
+     return (bsdf->specular().constant().a < 1) && (bsdf->specular().constant().a > 0);
+}
+
+
 GenericPosedModel::Ref GenericPosedModel::create
 (const std::string&       name,
  const CFrame&            frame, 
@@ -46,7 +63,7 @@ GenericPosedModel::GraphicsProfile GenericPosedModel::profile() {
             graphicsProfile = PS20;
 
             
-            if (System::findDataFile("NonShadowedPass.vrt") == "") {
+            if (System::findDataFile("SS_NonShadowedPass.vrt") == "") {
                 graphicsProfile = UNKNOWN;
                 logPrintf("\n\nWARNING: GenericPosedModel could not enter PS20 mode because"
                           "NonShadowedPass.vrt was not found.\n\n");
@@ -116,9 +133,12 @@ void GenericPosedModel::renderNonShadowed(
                 continue;
             }
 
+
             const Material::Ref& material = posed->m_gpuGeom->material;
+            const UberBSDF::Ref& bsdf = material->bsdf();
             (void)material;
-            debugAssertM(material->transmit.isBlack(), 
+            (void)bsdf;
+            debugAssertM(bsdf->transmissive().isZero(), 
                 "Transparent object passed through the batch version of "
                 "GenericPosedModel::renderNonShadowed, which is intended exclusively for opaque objects.");
 
@@ -191,8 +211,9 @@ void GenericPosedModel::renderShadowMappedLightPass
         for (int i = 0; i < posedArray.size(); ++i) {
             const GenericPosedModel::Ref& posed    = posedArray[i].downcast<GenericPosedModel>();
             const Material::Ref&          material = posed->m_gpuGeom->material;
+            const UberBSDF::Ref&              bsdf     = material->bsdf();
 
-            if (material->diffuse.isBlack() && material->specular.isBlack()) {
+            if (bsdf->lambertian().isZero() && bsdf->specular().isZero()) {
                 // Nothing to draw for this object
                 continue;
             }
@@ -370,10 +391,10 @@ bool GenericPosedModel::renderPS20NonShadowedOpaqueTerms(
     RenderDevice*                           rd,
     const LightingRef&                      lighting) const {
 
-    if (m_gpuGeom->material->emit.isBlack() && 
-        m_gpuGeom->material->reflect.isBlack() &&
-        m_gpuGeom->material->specular.isBlack() &&
-        m_gpuGeom->material->diffuse.isBlack()) {
+    const Material::Ref& material = m_gpuGeom->material;
+    const UberBSDF::Ref&     bsdf     = material->bsdf();
+
+    if (bsdf->isZero()) {
         // Nothing to draw
         return false;
     }
@@ -445,16 +466,21 @@ bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
 
     bool renderedOnce = false;
 
+    const Material::Ref& material = m_gpuGeom->material;
+    const UberBSDF::Ref&     bsdf = material->bsdf();
+
+
     // Emissive
-    if (! m_gpuGeom->material->emit.isBlack()) {
-        rd->setColor(m_gpuGeom->material->emit.constant);
-        rd->setTexture(0, m_gpuGeom->material->emit.map);
+    if (! material->emissive().isZero()) {
+        rd->setColor(material->emissive().constant());
+        rd->setTexture(0, material->emissive().texture());
         sendGeometry2(rd);
         setAdditive(rd, renderedOnce);
     }
 
-    // Add reflective
-    if (! m_gpuGeom->material->reflect.isBlack() && 
+    // Add reflective.  
+
+    if (! mirrorReflectiveFF(bsdf) &&
         lighting.notNull() &&
         (lighting->environmentMapColor != Color3::black())) {
 
@@ -462,8 +488,10 @@ bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
 
             // Reflections are specular and not affected by surface texture, only
             // the reflection coefficient
-            rd->setColor(m_gpuGeom->material->reflect.constant * lighting->environmentMapColor);
-            rd->setTexture(0, m_gpuGeom->material->reflect.map);
+            rd->setColor(bsdf->specular().constant().rgb() * lighting->environmentMapColor);
+
+            // TODO: Use diffuse alpha map here somehow?
+            rd->setTexture(0, NULL);
 
             // Configure reflection map
             if (lighting->environmentMap.isNull()) {
@@ -491,14 +519,14 @@ bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
     }
 
     // Add ambient + lights
-    if (! m_gpuGeom->material->diffuse.isBlack() || ! m_gpuGeom->material->specular.isBlack()) {
+    if (! bsdf->lambertian().isBlack() || ! bsdf->specular().isBlack()) {
         rd->enableLighting();
-        rd->setTexture(0, m_gpuGeom->material->diffuse.map);
-        rd->setColor(m_gpuGeom->material->diffuse.constant);
+        rd->setTexture(0, bsdf->lambertian().texture());
+        rd->setColor(bsdf->lambertian().constant());
 
         // Fixed function does not receive specular texture maps, only constants.
-        rd->setSpecularCoefficient(m_gpuGeom->material->specular.constant);
-        rd->setShininess(m_gpuGeom->material->specularExponent.constant.average());
+        rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
+        rd->setShininess(UberBSDF::unpackGlossyExponent(bsdf->specular().constant().a));
 
         // Ambient
         if (lighting.notNull()) {
@@ -533,17 +561,17 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
     const LightingRef&              lighting) const {
 
     bool renderedOnce = false;
+    const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
     // Emissive
-    if (! m_gpuGeom->material->emit.isBlack()) {
+    if (! m_gpuGeom->material->emissive().isBlack()) {
         rd->disableLighting();
-        rd->setColor(m_gpuGeom->material->emit.constant);
-        rd->setTexture(0, m_gpuGeom->material->emit.map);
+        rd->setColor(m_gpuGeom->material->emissive().constant());
+        rd->setTexture(0, m_gpuGeom->material->emissive().texture());
         sendGeometry2(rd);
         setAdditive(rd, renderedOnce);
     }
     
-
     // Full combiner setup (in practice, we only use combiners that are
     // needed):
     //
@@ -568,10 +596,12 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
     // arg1 = texture0
 
 
-    bool hasDiffuse = ! m_gpuGeom->material->diffuse.isBlack();
-    bool hasReflection = ! m_gpuGeom->material->reflect.isBlack() && 
+    bool hasDiffuse = ! bsdf->lambertian().isBlack();
+    bool hasReflection = mirrorReflectiveFF(bsdf) && 
             lighting.notNull() &&
             (lighting->environmentMapColor != Color3::black());
+
+    bool hasGlossy = glossyReflectiveFF(bsdf);
 
     // Add reflective and diffuse
 
@@ -586,13 +616,13 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
 
             // Add ambient + lights
             rd->enableLighting();
-            if (! m_gpuGeom->material->diffuse.isBlack() || ! m_gpuGeom->material->specular.isBlack()) {
-                rd->setTexture(nextUnit, m_gpuGeom->material->diffuse.map);
-                rd->setColor(m_gpuGeom->material->diffuse.constant);
+            if (! bsdf->lambertian().isBlack() || hasGlossy) {
+                rd->setTexture(nextUnit, bsdf->lambertian().texture());
+                rd->setColor(bsdf->lambertian().constant());
 
                 // Fixed function does not receive specular texture maps, only constants.
-                rd->setSpecularCoefficient(m_gpuGeom->material->specular.constant);
-                rd->setShininess(m_gpuGeom->material->specularExponent.constant.average());
+                rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
+                rd->setShininess(UberBSDF::unpackGlossyExponent(bsdf->specular().constant().a));
 
                 // Ambient
                 if (lighting.notNull()) {
@@ -609,7 +639,7 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
                 }
             }
 
-            if (m_gpuGeom->material->diffuse.map.notNull()) {
+            if (bsdf->lambertian().texture().notNull()) {
                 glActiveTextureARB(GL_TEXTURE0_ARB + nextUnit);
                 glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,  GL_COMBINE_ARB);
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,   GL_MODULATE);
@@ -650,13 +680,13 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,   GL_TEXTURE);
             glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,  GL_SRC_COLOR);
             glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, 
-                Color4(m_gpuGeom->material->reflect.constant * lighting->environmentMapColor, 1));
+                Color4(bsdf->specular().constant().rgb() * lighting->environmentMapColor, 1));
             debugAssertGLOk();
 
             ++nextUnit;
 
-            rd->setTexture(nextUnit, m_gpuGeom->material->reflect.map);
-            if (m_gpuGeom->material->reflect.map.notNull()) {
+            rd->setTexture(nextUnit, bsdf->specular().texture());
+            if (bsdf->specular().texture().notNull()) {
                 // If there is a reflection map for the surface, modulate
                 // the reflected color by it.
                 glActiveTextureARB(GL_TEXTURE0_ARB + nextUnit);
@@ -704,8 +734,9 @@ void GenericPosedModel::renderNonShadowed
     // The transparent rendering path is not optimized to amortize state changes because 
     // it is only called by the single-object version of this function.  Only
     // opaque objects are batched together.
+    const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
-    if (! m_gpuGeom->material->transmit.isBlack()) {
+    if (! bsdf->transmissive().isBlack()) {
         rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
         rd->pushState();
             // Transparent
@@ -725,8 +756,8 @@ void GenericPosedModel::renderNonShadowed
 
                 // Modulate background by transparent color
                 rd->setBlendFunc(RenderDevice::BLEND_ZERO, RenderDevice::BLEND_SRC_COLOR);
-                rd->setTexture(0, m_gpuGeom->material->transmit.map);
-                rd->setColor(m_gpuGeom->material->transmit.constant);
+                rd->setTexture(0, bsdf->transmissive().texture());
+                rd->setColor(bsdf->transmissive().constant());
                 sendGeometry2(rd);
 
                 bool alreadyAdditive = false;
@@ -810,8 +841,10 @@ void GenericPosedModel::renderFFShadowMappedLightPass(
 
     rd->setObjectToWorldMatrix(m_frame);
 
-    rd->setTexture(0, m_gpuGeom->material->diffuse.map);
-    rd->setColor(m_gpuGeom->material->diffuse.constant);
+    const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
+
+    rd->setTexture(0, bsdf->lambertian().texture());
+    rd->setColor(bsdf->lambertian().constant());
 
     // We disable specular highlights because they will not be modulated
     // by the shadow map.  We then make a separate pass to render specular
@@ -825,7 +858,7 @@ void GenericPosedModel::renderFFShadowMappedLightPass(
 
     sendGeometry2(rd);
 
-    if (! m_gpuGeom->material->specular.isBlack()) {
+    if (glossyReflectiveFF(bsdf)) {
         // Make a separate pass for specular. 
         static bool separateSpecular = GLCaps::supports("GL_EXT_separate_specular_color");
 
@@ -837,14 +870,14 @@ void GenericPosedModel::renderFFShadowMappedLightPass(
         }
 
         rd->setColor(Color3::white()); // TODO: when I put the specular coefficient here, it doesn't modulate.  What's wrong?
-        rd->setTexture(0, m_gpuGeom->material->specular.map);
-        rd->setSpecularCoefficient(m_gpuGeom->material->specular.constant);
+        rd->setTexture(0, bsdf->specular().texture());
+        rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
 
         // Turn off the diffuse portion of this light
         GLight light2 = light;
         light2.diffuse = false;
         rd->setLight(0, light2);
-        rd->setShininess(m_gpuGeom->material->specularExponent.constant.average());
+        rd->setShininess(UberBSDF::unpackGlossyExponent(bsdf->specular().constant().a));
 
         sendGeometry2(rd);
 
@@ -946,7 +979,7 @@ std::string GenericPosedModel::name() const {
 
 
 bool GenericPosedModel::hasTransparency() const {
-    return ! m_gpuGeom->material->transmit.isBlack();
+    return ! m_gpuGeom->material->bsdf()->transmissive().isBlack();
 }
 
 

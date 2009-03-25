@@ -924,10 +924,6 @@ void Map::loadLightVolumes(
     }
 }
 
-static double log2(double x) {
-	//double two =2.0;
-    return log(x) / log(2.0);
-}
 /**
  Sets the specified bit of the byte array.
  */

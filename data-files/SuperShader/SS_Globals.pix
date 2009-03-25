@@ -1,0 +1,73 @@
+// -*- c++ -*-
+/**
+  @file SS_uniforms.pix
+  @author Morgan McGuire morgan@cs.williams.edu
+
+  For use with G3D::SuperShader.
+  This file is included into NonShadowedPass.pix and ShadowMappedLightPass.pix.
+
+  @edited  2009-03-24
+  @created 2007-12-18
+ */
+
+/** Surface position in world space */
+varying vec3        wsPosition;
+
+/** World space light position */
+uniform vec4        lightPosition0;
+
+/** Power of the light */
+uniform vec3        lightColor0;
+
+/** Spot light facing direction (unit length) */
+uniform vec3        lightDirection0;
+
+/** w element is the spotlight cutoff angle*/
+uniform vec4        lightAttenuation0;
+
+#ifdef CUSTOMCONSTANT
+    uniform vec4        customConstant;
+#endif
+
+#ifdef CUSTOMMAP
+    uniform sampler2D   customMap;
+#endif
+
+// Material
+#ifdef SPECULARCONSTANT
+    uniform vec4        specularConstant;
+#endif
+
+#ifdef SPECULARMAP
+    uniform sampler2D   specularMap;
+#endif
+
+#ifdef LAMBERTIANCONSTANT
+    uniform vec3        lambertianConstant;
+#endif
+
+#ifdef LAMBERTIANMAP
+    uniform sampler2D   lambertianMap;
+#endif
+
+/** Set to -1 to flip the normal. */
+uniform float       backside;
+
+varying vec2        texCoord;
+varying vec4        tan_Z;
+
+#ifdef NORMALBUMPMAP
+    /** Multiplier for bump map.  Typically on the range [0, 0.05]
+      This increases with texture scale and bump height. */
+    uniform float       bumpMapScale;
+
+    /** How high is the 0-level of the bump map? On the range [0, 1] */
+    uniform float       bumpMapBias;
+
+    /** xyz = normal, w = bump height */
+    uniform sampler2D   normalBumpMap;
+
+    /** Un-normalized (interpolated) tangent space eye vector */
+    varying vec3        _tsE;
+    varying vec4        tan_X, tan_Y;
+#endif

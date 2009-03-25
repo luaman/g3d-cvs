@@ -119,6 +119,10 @@ typedef ReferenceCountedPointer<class ShadowedPass>    ShadowedPassRef;
 
 class Pass : public ReferenceCountedObject {
 private:
+
+    /** Read a shader and force all of its #includes to be resolved */
+    static void primeCodeCache(const std::string& originalFilename);
+
     class Cache {
         typedef Table<Material, ShaderRef, Material::SimilarHashCode, Material::SimilarTo> ShaderTable;
 

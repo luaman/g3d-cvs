@@ -336,7 +336,7 @@ void VertexAndPixelShader::GPUShader::checkForSupport() {
 }
 
 
-void VertexAndPixelShader::GPUShader::processIncludes(const std::string& dir, std::string& code) const {
+void Shader::processIncludes(const std::string& dir, std::string& code) {
     // Look for #include immediately after a newline.  If it is inside
     // a #IF or a block comment, it will still be processed, but
     // single-line comments will properly disable it.
@@ -429,7 +429,7 @@ void VertexAndPixelShader::GPUShader::init
 
         // Handle #include directives first, since they may affect
         // what preprocessing is needed in the code. 
-        processIncludes(dir, _code);        
+        Shader::processIncludes(dir, _code);        
 
         // Standard uniforms.  We'll add custom ones to this below
         std::string uniformString = 
@@ -514,6 +514,7 @@ void VertexAndPixelShader::GPUShader::init
             if (shifted != 0) {
                 debugPrintf("\n[Line numbers in the following shader errors are shifted by %d.]\n", shifted);
             }
+            logPrintf("Broken shader:\n%s\n", _code.c_str());
             debugPrintf("%s", messages().c_str());
             alwaysAssertM(ok(), messages());
         }

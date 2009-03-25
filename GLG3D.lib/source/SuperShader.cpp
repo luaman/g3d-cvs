@@ -57,27 +57,40 @@ ShaderRef Pass::getConfiguredShader(
 }
 
 
+void Pass::primeCodeCache(const std::string& originalFilename) {
+    if (shaderTextCache.containsKey(originalFilename)) {
+        // Already in cache
+        return;
+    }
+
+    if (originalFilename == "") {
+        shaderTextCache.set("", "");
+        return;
+    }
+
+    // Locate the file (or error out!)
+    std::string filename = System::findDataFile(originalFilename);
+
+    // Read it in
+    std::string code = readWholeFile(filename);
+
+    // Process #includes
+    std::string path = filenamePath(filename);
+
+    Shader::processIncludes(path, code);
+
+    shaderTextCache.set(originalFilename, code);
+}
+
+
 ShaderRef Pass::loadShader(
     const std::string& vertexFilename,
     const std::string& pixelFilename,
     const std::string& defines) {
 
     // Fill the cache
-    if (! shaderTextCache.containsKey(vertexFilename)) {
-        if (vertexFilename == "") {
-            shaderTextCache.set("", "");
-        } else {
-            shaderTextCache.set(vertexFilename, readWholeFile(System::findDataFile(vertexFilename)));
-        }
-    }
-
-    if (! shaderTextCache.containsKey(pixelFilename)) {
-        if (pixelFilename == "") {
-            shaderTextCache.set("", "");
-        } else {
-            shaderTextCache.set(pixelFilename, readWholeFile(System::findDataFile(pixelFilename)));
-        }
-    }
+    primeCodeCache(vertexFilename);
+    primeCodeCache(pixelFilename);
 
     // Fetch and compile the customized shader
     ShaderRef s = 
@@ -188,8 +201,8 @@ NonShadowedPassRef NonShadowedPass::instance() {
 
 
 NonShadowedPass::NonShadowedPass() : 
-    Pass(System::findDataFile("NonShadowedPass.vrt"),
-         System::findDataFile("NonShadowedPass.pix")) {
+    Pass(System::findDataFile("SS_NonShadowedPass.vrt"),
+         System::findDataFile("SS_NonShadowedPass.pix")) {
 }
 
 // Avoid synthesizing new strings during shader configuration
@@ -257,11 +270,11 @@ void NonShadowedPass::setLighting(const LightingRef& lighting) {
     args.set("ambientTop",      lighting->ambientTop);
     args.set("ambientBottom",   lighting->ambientBottom);
 
-    // Environment constant and emissive constant are modified in getConfiguredShader
-
     if (lighting->environmentMap.notNull()) {
         args.set("environmentMap",  lighting->environmentMap, OPTIONAL);
     }
+
+    // Emissive scale is modified in getConfiguredShader
 
     m_emissiveScale       = lighting->emissiveScale;
     m_environmentMapColor = lighting->environmentMapColor;
@@ -275,10 +288,8 @@ ShaderRef NonShadowedPass::getConfiguredShader(
 
     ShaderRef s = Pass::getConfiguredShader(material, c);
 
-    // Adjust the material properties by the lighting scale 
-    // to avoid having to pass extra arguments to the shader.
-    s->args.set("emitConstant",    material.emit.constant    * m_emissiveScale,       OPTIONAL);
-    s->args.set("reflectConstant", material.reflect.constant * m_environmentMapColor, OPTIONAL);
+    s->args.set("emissiveConstant",    material.emissive().constant()* m_emissiveScale, OPTIONAL);
+    s->args.set("environmentMapScale", m_environmentMapColor, OPTIONAL);
 
     return s;
 }
@@ -297,8 +308,8 @@ ExtraLightPassRef ExtraLightPass::instance() {
 
 
 ExtraLightPass::ExtraLightPass() : 
-    Pass(System::findDataFile("NonShadowedPass.vrt"),
-         System::findDataFile("NonShadowedPass.pix")) {
+    Pass(System::findDataFile("SS_NonShadowedPass.vrt"),
+         System::findDataFile("SS_NonShadowedPass.pix")) {
 
     args.set("ambientTop",      Color3::black());
     args.set("ambientBottom",   Color3::black());
@@ -333,8 +344,8 @@ ShadowedPassRef ShadowedPass::instance() {
 
 
 ShadowedPass::ShadowedPass() : 
-    Pass(System::findDataFile("ShadowMappedLightPass.vrt"),
-         System::findDataFile("ShadowMappedLightPass.pix")) {
+    Pass(System::findDataFile("SS_ShadowMappedLightPass.vrt"),
+         System::findDataFile("SS_ShadowMappedLightPass.pix")) {
 }
 
 
@@ -342,12 +353,12 @@ void ShadowedPass::setLight(
     const GLight&                   light, 
     const ShadowMapRef&             shadowMap) {
     
-    args.set("lightPosition",   light.position);
-    args.set("lightColor",      light.color);
-    args.set("lightAttenuation" , Vector4(light.attenuation[0], 
+    args.set("lightPosition0",   light.position);
+    args.set("lightColor0",      light.color);
+    args.set("lightAttenuation0" , Vector4(light.attenuation[0], 
                                           light.attenuation[1], light.attenuation[2],
                                           cos(toRadians(light.spotCutoff))));
-    args.set("lightDirection",  light.spotDirection);
+    args.set("lightDirection0",  light.spotDirection);
 
     // Shadow map setup
     if (GLCaps::enumVendor() == GLCaps::ATI) {
