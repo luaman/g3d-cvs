@@ -86,7 +86,6 @@ public:
         // on two threads, since the distribution of random numbers
         // will still be uniform.
         ++index;
-        
         // Return the next random in the sequence
         uint32 r = state[localIndex];
 

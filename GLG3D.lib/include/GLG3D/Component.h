@@ -54,11 +54,11 @@ private:
             
 #   define MyType class MapComponent<Image>
 
+    ReferenceCountedPointer<Image> m_cpuImage;
+    Texture::Ref                   m_gpuImage;
     typename Image::Storage        m_min;
     typename Image::Storage        m_max;
     typename Image::Compute        m_mean;
-    ReferenceCountedPointer<Image> m_cpuImage;
-    Texture::Ref                   m_gpuImage;
 
     static void getTexture(const ReferenceCountedPointer<Image>& im, Texture::Ref& tex) {
             
@@ -79,7 +79,8 @@ private:
     }
 
     inline MapComponent(const class ReferenceCountedPointer<Image>& im, const Texture::Ref& tex) : 
-        m_cpuImage(im), m_gpuImage(tex), m_min(Image::Storage::one()), m_max(Image::Storage::zero()) {
+        m_cpuImage(im), m_gpuImage(tex), m_min(Image::Storage::one()), m_max(Image::Storage::zero()),
+        m_mean(Image::Compute::zero()) {
 
         bool cpuWasNull = m_cpuImage.isNull();
 
@@ -89,13 +90,13 @@ private:
         }
 
         if (m_cpuImage.notNull()) {
-            const Image::Storage* ptr = m_cpuImage->getCArray();
-            Image::Compute sum = Image::Compute::zero();
+            const typename Image::Storage* ptr = m_cpuImage->getCArray();
+            typename Image::Compute sum = Image::Compute::zero();
             const int N = m_cpuImage->width() * m_cpuImage->height();
             for (int i = 0; i < N; ++i) {
                 m_min  = m_min.min(ptr[i]);
                 m_max  = m_max.min(ptr[i]);
-                sum   += Image::Compute(ptr[i]);
+                sum   += typename Image::Compute(ptr[i]);
             }
             m_mean = sum / (float)N;
         }

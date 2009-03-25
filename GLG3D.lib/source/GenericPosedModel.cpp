@@ -19,8 +19,8 @@ namespace G3D {
     reflection as having no glossy map but a packed specular
    exponent of 1 (=infinity).*/   
 static bool mirrorReflectiveFF(const UberBSDF::Ref& bsdf) { 
-    return ((bsdf->specular().factors() == Component3::CONSTANT) ||
-     (bsdf->specular().factors() == Component3::ONE)) &&
+    return ((bsdf->specular().factors() == Component4::CONSTANT) ||
+     (bsdf->specular().factors() == Component4::ONE)) &&
      ! bsdf->specular().isZero();
 }
 
