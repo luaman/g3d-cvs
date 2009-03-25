@@ -5,6 +5,7 @@
   @edited  2009-03-25
 */
 
+#include "G3D/ThreadSet.h"
 #include "GLG3D/DirectionHistogram.h"
 #include "GLG3D/IFSModel.h"
 #include "GLG3D/RenderDevice.h"
@@ -118,19 +119,82 @@ void DirectionHistogram::reset() {
 void DirectionHistogram::insert(const Vector3& vector, float weight) {
     const Vector3& v = vector.direction();
 
+    insert(v, weight, 0, m_meshVertex.size() - 1);
+
+    m_dirty = true;
+}
+
+
+void DirectionHistogram::insert(const Vector3& vector, float weight, int startIndex, int stopIndex) {
     // Update nearby buckets
-    for (int i = 0; i < m_meshVertex.size(); ++i) {
+    for (int i = startIndex; i <= stopIndex; ++i) {
         // Weight
-        float w = m_meshVertex[i].dot(v);
+        float w = m_meshVertex[i].dot(vector);
         
         if (w >= m_cutoff) {
             // This weight may be significant
             w              = powf(w, m_sharp) * weight;
             m_bucket[i]   += w;
             m_totalWeight += w;
-            debugAssert(w > 0);
         }
     }
+}
+
+
+DirectionHistogram::WorkerThread::WorkerThread
+(DirectionHistogram* h, int start, int stop,
+    const Array<Vector3>& vector, const Array<float>& weight) : 
+    GThread("DirectionHistogram"),
+    hist(h), startIndex(start), stopIndex(stop), vector(vector), weight(weight) {
+}
+
+    
+void DirectionHistogram::WorkerThread::threadMain() {
+    for (int i = 0; i < vector.size(); ++i) {
+        hist->insert(vector[i], weight[i], startIndex, stopIndex);
+    }
+}
+
+
+void DirectionHistogram::insert(const Array<Vector3>& vector, const Array<float>& weight) {
+    int numThreads = System::numCores();
+
+    // Normalize all vectors first
+    Array<Vector3> v(vector.size());
+    Array<float> w = weight;
+
+    for (int i = 0; i < v.size(); ++i) {
+        v[i] = vector[i].direction();
+    }
+
+    if (w.size() == 0) {
+        w.resize(v.size());
+        for (int i = 0; i < w.size(); ++i) {
+            w[i] = 1.0f;
+        }
+    }
+
+    int N = m_meshVertex.size();
+
+    // Launch
+    if (numThreads > vector.size() / 10) {
+        // Don't bother with threads
+        for (int i = 0; i < v.size(); ++i) {
+            insert(v[i], w[i], 0, N - 1);
+        }
+        return;
+    }
+
+    ThreadSet threads;
+
+    for (int i = 0; i < numThreads; ++i) {
+        int start = i * N / numThreads;
+        int stop  = (i + 1) * N / numThreads - 1;
+        threads.insert(new WorkerThread(this, start, stop, v, w));
+    }
+    threads.start(GThread::USE_CURRENT_THREAD);
+    threads.waitForCompletion();
+
     m_dirty = true;
 }
 

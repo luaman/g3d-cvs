@@ -81,6 +81,7 @@ bool UberBSDF::scatter
      // scattering's probablity until it becomes negative (i.e., scatters).
     float r = random.uniform();
 
+    ///////////////////////////////////////////////////////////////////////////////////
     if (m_lambertian.notZero()) {
         // Sample the diffuse coefficients
         const Color4& diffuse = m_lambertian.sample(texCoord);
@@ -103,49 +104,53 @@ bool UberBSDF::scatter
         }
     }
 
-    // Needed for transmission below
     Color3 F(Color3::black());
 
+    ///////////////////////////////////////////////////////////////////////////////////
     if (m_specular.notZero()) {
 
-        // Sample the glossy/mirror coefficients
+        // Sample the specular coefficients
         const Color4& specular = m_specular.sample(texCoord);
 
         // On the range [0, 1]
         float shininess = specular.a;
 
         if (shininess > 0.0f) {
+            // There is some specularity
+
             // Cosine of the angle of incidence, for computing F
             const float cos_i = max(0.0f, w_i.dot(n));
             F = computeF(specular.rgb(), cos_i);
 
-            const Color3& p_reflect = F;
-            const float p_reflectAvg = p_reflect.average();
+            const Color3& p_specular = F;
+            const float p_specularAvg = p_specular.average();
 
-            r -= p_reflectAvg;
+            r -= p_specularAvg;
             if (r < 0.0f) {
                 if (shininess < 1.0f) {
-                    // Glossy
+                    // Glossy                    
+                    shininess = unpackGlossyExponent(shininess);
 
-                    // Move to the range (0, SHININESS_MIRROR);
-                    shininess *= SHININESS_MIRROR;
+                    const Vector3& w_h = (w_i + w_o).direction();
+
                     // TODO: glossy scatter
                     w_o = w_i;  // TODO: random distribution about half-vector
-                    power_o = p_reflect * power_i * (1.0f / p_reflectAvg);
+                    power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     
                 } else {
                     // Mirror
 
                     w_o = w_i.reflectAbout(n);
-                    power_o = p_reflect * power_i * (1.0f / p_reflectAvg);
+                    power_o = p_specular * power_i * (1.0f / p_specularAvg);
                 }
                 return true;
             }
         }
     }
 
-    // Sample transmissive
+    ///////////////////////////////////////////////////////////////////////////////////
     if (m_transmissive.notZero()) {
+        // Sample transmissive
         const Color4& transmit    = m_transmissive.sample(texCoord);
         const Color3& T0          = transmit.rgb();
         

@@ -79,11 +79,13 @@ void App::onInit() {
         lighting->shadowedLightArray.clear();
     }
 
-    for (int i = 0; i < 10000000; ++i) {
+    Array<Vector3> v(5000000);
+    for (int i = 0; i < v.size(); ++i) {
 //        histogram->insert(Vector3::cosHemiRandom(Vector3::unitY()));
-        histogram->insert(Vector3::hemiRandom(Vector3::unitY()));
 //        histogram->insert(Vector3::random());
+        v[i] =  Vector3::hemiRandom(Vector3::unitY());
     }
+    histogram->insert(v);
 
     toneMap->setEnabled(false);
 }

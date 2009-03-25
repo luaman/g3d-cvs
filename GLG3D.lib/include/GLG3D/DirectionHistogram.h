@@ -10,6 +10,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
+#include "G3D/GThread.h"
 #include "G3D/Vector3.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
@@ -36,6 +37,22 @@ class RenderDevice;
   */
 class DirectionHistogram {
 private:
+
+    class WorkerThread : public GThread {
+    private:
+        DirectionHistogram*     hist;
+        int                     startIndex;
+        int                     stopIndex;
+        const Array<Vector3>&   vector;
+        const Array<float>&     weight;
+
+    public:
+        WorkerThread(DirectionHistogram* h, int start, int stop, 
+            const Array<Vector3>& vector, const Array<float>& weight);
+        void threadMain();
+    };
+
+    friend class WorkerThread;
 
     /** Vertices of the visualization mesh, on the unit sphere. */
     Array<Vector3>      m_meshVertex;
@@ -71,6 +88,13 @@ private:
 
     void sendGeometry(RenderDevice* rd);
 
+    /** Assumes vector has unit length.
+
+       @param startIndex Inclusive
+       @param stopIndex  Inclusive
+    */
+    void insert(const Vector3& vector, float weight, int startIndex, int stopIndex);
+
 public:
 
     /** @param sharp Sharpness of the smoothing filter.  Recommended range 
@@ -86,6 +110,13 @@ public:
       Only the direction of @a vector matters; it will be normalized.
      */
     void insert(const Vector3& vector, float weight = 1.0f);
+
+    /**
+     \brief Insert many new data points.
+
+     This method uses multiple threads to efficiently insert the data.
+     */
+    void insert(const Array<Vector3>& vector, const Array<float>& weight = Array<float>());
 
     /** Draw a wireframe of the distribution.  Renders with approximately constant volume. */
     void render(

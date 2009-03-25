@@ -284,7 +284,7 @@ public:
 
     /** The glossy exponent is packed so that 0 = no specular, 
         1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$. 
-        This function abstractsthe unpacking, since it may change in future versions.*/
+        This function abstracts the unpacking, since it may change in future versions.*/
     static inline int unpackGlossyExponent(float e) {
         return iRound(e * 127.0f) + 1;
     }
