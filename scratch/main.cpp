@@ -19,6 +19,8 @@ public:
     VideoOutput::Ref    video;
     ArticulatedModel::Ref model;
 
+    DirectionHistogram* histogram;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -48,6 +50,8 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 
 void App::onInit() {
 
+    histogram = new DirectionHistogram(220);
+/*
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
@@ -57,23 +61,29 @@ void App::onInit() {
 
     timer.after("load");
 //    exit(0);
-
+*/
     setDesiredFrameRate(30);
 
-    sky = Sky::fromFile(System::findDataFile("sky"));
+//    sky = Sky::fromFile(System::findDataFile("sky"));
 
 //	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
-    skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
-    lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
+    if (sky.notNull()) {
+        skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
+        lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
+    }
 
-    // This simple demo has no shadowing, so make all lights unshadowed
-    lighting->lightArray.append(lighting->shadowedLightArray);
-    lighting->shadowedLightArray.clear();
+    if (lighting.notNull()) {
+        // This simple demo has no shadowing, so make all lights unshadowed
+        lighting->lightArray.append(lighting->shadowedLightArray);
+        lighting->shadowedLightArray.clear();
+    }
 
-    static int index = 0;
-    GuiDropDownList* L = debugPane->addDropDownList("A List", &index);
-    L->append("LOOOOOOOOOOOOOOOOOOOOOOOOOOOONG");
+    for (int i = 0; i < 10000000; ++i) {
+//        histogram->insert(Vector3::cosHemiRandom(Vector3::unitY()));
+        histogram->insert(Vector3::hemiRandom(Vector3::unitY()));
+//        histogram->insert(Vector3::random());
+    }
 
     toneMap->setEnabled(false);
 }
@@ -82,6 +92,8 @@ void App::onInit() {
 void App::onCleanup() {
     // Called after the application loop ends.  Place a majority of cleanup code
     // here instead of in the constructor so that exceptions can be caught
+    delete histogram;
+    histogram = NULL;
 }
 
 void App::onAI() {
@@ -131,26 +143,32 @@ void App::printConsoleHelp() {
 }
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-
     if (model.notNull()) {
         model->pose(posed3D);
     }
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-    Array<PosedModel::Ref>        opaque, transparent;
+/*    Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
-    
+  */  
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
-    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-    rd->clear(false, true, true);
+    rd->setColorClearValue(Color3::white() * 0.8f);
+    rd->clear(sky.isNull(), true, true);
+/*
+    if (sky.notNull()) {
+        sky->render(rd, localSky);
+    }
+*/
+//    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
-    sky->render(rd, localSky);
-
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
-
+    if (histogram != NULL) {
+        histogram->render(rd);
+    }
+    Draw::plane(Plane(Vector3::unitY(), Vector3::zero()), rd, Color4(Color3(1.0f, 0.92f, 0.85f), 0.4f), Color4(Color3(1.0f, 0.5f, 0.3f) * 0.3f, 0.5f));
+    Draw::axes(rd, Color3::red(), Color3::green(), Color3::blue(), 1.3f);
 
     /*
     // Show normals
@@ -159,9 +177,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::vertexNormals(posed3D[i]->objectSpaceGeometry(), rd);
     }
     */
-
-    sky->renderLensFlare(rd, localSky);
-
+/*
+    if (sky.notNull()) {
+        sky->renderLensFlare(rd, localSky);
+    }
+*/
     PosedModel2D::sortAndRender(rd, posed2D);
 }
 

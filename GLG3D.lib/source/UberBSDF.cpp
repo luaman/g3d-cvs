@@ -77,9 +77,6 @@ bool UberBSDF::scatter
  Color3&        power_o,
  Random&        random) const {
 
-     // TODO: Probabilities are sketchy in this implementation and 
-     // likely off by cosine factors.
-
      // Choose a random number on [0, 1], then reduce it by each kind of
      // scattering's probablity until it becomes negative (i.e., scatters).
     float r = random.uniform();
@@ -99,8 +96,8 @@ bool UberBSDF::scatter
             
             // (Cannot hit division by zero because the if prevents this
             // case when p_LambertianAvg = 0)
-            power_o = power_i * p_Lambertian * (1.0f / p_LambertianAvg);
-            w_o = Vector3::cosRandom(n, random);
+            power_o = power_i * p_Lambertian / p_LambertianAvg;
+            w_o = Vector3::cosHemiRandom(n, random);
             
             return true;
         }

@@ -264,6 +264,15 @@ float uniformRandom(float low = 0.0f, float hi = 1.0f);
  */
 float gaussRandom(float mean = 0.0f, float stdev = 1.0f);
 
+
+/** Returns x<sup>5</sup> */
+template <class T>
+inline T pow5(T x) {
+    const T y = x * x;
+    return y * y * x;
+}
+
+
 template <class T>
 inline T min(const T& x, const T& y) {
     return std::min<T>(x, y);

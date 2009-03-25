@@ -165,23 +165,6 @@ Color3 Color3::random() {
 }
 
 //----------------------------------------------------------------------------
-Color3 Color3::operator/ (float fScalar) const {
-    Color3 kQuot;
-
-    if (fScalar != 0.0f) {
-		float fInvScalar = 1.0f / fScalar;
-        kQuot.r = fInvScalar * r;
-        kQuot.g = fInvScalar * g;
-        kQuot.b = fInvScalar * b;
-        return kQuot;
-
-    } else {
-
-        return Color3((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf());
-    }
-}
-
-//----------------------------------------------------------------------------
 Color3& Color3::operator/= (float fScalar) {
     if (fScalar != 0.0f) {
 		float fInvScalar = 1.0f / fScalar;

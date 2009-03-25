@@ -334,20 +334,33 @@ public:
     /** Gram-Schmidt orthonormalization. */
     static void orthonormalize (Vector3 akVector[3]);
 
-    /** Random unit vector, uniformly distributed */
+    /** \brief Random unit vector, uniformly distributed on the sphere. 
+    
+       Distribution rendered by G3D::DirectionHistogram:
+       \image html vector3-random.png
+      */
     static Vector3 random(Random& r = Random::common());
 
-    /** Random unit vector, distributed
-        so that the probability of V is proportional 
-        to max(V dot Normal, 0).
+    /** \brief Random unit vector, distributed according to \f$\max(\cos \theta,0)\f$.
+
+        That is, so that the probability of \f$\vec{V}\f$ is proportional 
+        to \f$\max(\vec{v} \cdot \vec{n}, 0)\f$.  Useful in photon mapping for 
+        Lambertian scattering.
+
+
+        Distribution rendered by G3D::DirectionHistogram:
+        \image html vector3-coshemirandom.png
 
         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
     */
-    static Vector3 cosRandom(const Vector3& normal, Random& r = Random::common());
+    static Vector3 cosHemiRandom(const Vector3& n, Random& r = Random::common());
 
 
     /**
-     Random vector distributed over the hemisphere about normal.
+     \brief Random vector distributed over the hemisphere about normal.
+
+     Distribution rendered by G3D::DirectionHistogram:
+      \image html vector3-hemirandom.png
      */
     static Vector3 hemiRandom(const Vector3& normal, Random& r = Random::common());
 

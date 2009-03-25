@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2009-02-01
+ @edited  2009-02-25
 
  Copyright 2001-2009, Morgan McGuire.
  All rights reserved.
@@ -87,7 +87,7 @@
 #include "GLG3D/SuperShader.h"
 #include "GLG3D/GaussianBlur.h"
 #include "GLG3D/GenericPosedModel.h"
-
+#include "GLG3D/DirectionHistogram.h"
 #include "GLG3D/UberBSDF.h"
 #include "GLG3D/Component.h"
 

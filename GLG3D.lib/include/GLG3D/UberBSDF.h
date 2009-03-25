@@ -25,22 +25,36 @@ enum {
    This is an analytic energy-conserving Bidirectional Scattering
    Distribution Function (BSDF) with phenomenonlogically meaningful
    parameters. It comprises Lambertian reflection, Schlick's Fresnel
-   approximation for glossy and mirror reflection, Sloan and Hoffman's
+   approximation for glossy and mirror reflection, Sloan, Hoffman, and Lafortune's
    normalization of the Blinn-Phong specular lobe, and transmission
-   (without extinction coefficients) terms.
+   (without extinction) terms.
+
+   The methods of this class are primarily used for photon mapping,
+   ray tracing, and software rasterization.  The G3D::Material class
+   manages BSDFs for GPU rasterization.
+
+   The major routines are:
+
+   <table border=0>
+   <tr><td width=20></td><td width=100><b>scatter()</b></td><td>\copybrief scatter()</td></tr>
+   <tr><td></td><td><b>shadeDirect()</b></td><td>\copybrief shadeDirect()</td></tr>
+   <tr><td></td><td ><b>evaluate()</b></td><td>\copybrief evaluate()</td></tr>
+   </table>
 
    The material is parameterized by:
 
-  - \f$\rho_L\f$ : lambertian ("diffuse color") reflection on [0, 1]
-  - \f$T_0\f$ : transmission modulation factor ("transparent color") on [0, 1]; 
+   <table border=0>
+   <tr valign=top><td width=20></td><td width=100>\f$\rho_L\f$</td><td>Lambertian ("surface color") reflection on [0, 1]</td></tr>
+   <tr valign=top><td></td><td>\f$T_0\f$</td><td>transmission modulation factor ("transparent color") on [0, 1]; 
      0 for opaque surfaces. The actual transmission at normal incidence will be 
-     \f$(1 - F_0) * T_0\f$.
-  - \f$F_0\f$ : Fresnel reflection at normal incidence ("specular/reflection color") on [0, 1]
-  - \f$s\f$ : <code>SHININESS_NONE</code> for purely lambertian surfaces, 
-     <code>SHININESS_MIRROR</code> for perfect reflection, and values between 0 and 128
-     for glossy reflection.  This is the exponent on the normalized Blinn-Phong lobe.
-  - \f$\eta\f$ : Index of refraction (only used for surfaces with \f$\rho_t > 0\f$; 
-      for computing refraction angle, not used for Fresnel factor).
+     \f$(1 - F_0) * T_0\f$</td></tr>
+   <tr valign=top><td></td><td>\f$F_0\f$</td><td>Fresnel reflection at normal incidence ("specular/reflection color") on [0, 1]</td></tr>
+   <tr valign=top><td></td><td>\f$s\f$</td><td><code>SHININESS_NONE</code> for purely lambertian surfaces, 
+     <code>SHININESS_MIRROR</code> for perfect reflection, and values between 1 and 128
+     for glossy reflection.  This is the exponent on the normalized Blinn-Phong lobe.</td></tr>
+    <tr valign=top><td></td><td>\f$\eta\f$</td><td>Index of refraction (only used for surfaces with \f$\rho_t > 0\f$; 
+      for computing refraction angle, not used for Fresnel factor).</td></tr>
+    </table>
  
    For energy conservation, \f$\rho_L + F_0 + (1 - F_0)T_0\leq 1\f$.
 
@@ -143,14 +157,6 @@ public:
      float             eta,
      const Color3&     extinction = Color3::zero());
 
-
-    /** Returns x<sup>5</sup> */
-    static inline float pow5(float x) {
-        const float y = x * x;
-        return y * y * x;
-    }
-
-
     /** Computes F_r given the cosine of the angle of incidence */
     inline Color3 computeF(const Color3& F0, float cos_i) const {
         return Color3::white().lerp(F0, pow5(cos_i));
@@ -187,7 +193,7 @@ public:
         return m_specular;
     }
 
-    /** @brief Evaluate the finite portion of the BSDF: 
+    /** @brief Evaluate the diffuse (finite) portion of the BSDF: 
         \f$(f_L + f_g) \max(0, \vec{\omega}_i \cdot \vec{n})\f$. 
 
         Used for direct illumination.  Ignores delta functions because
@@ -220,21 +226,26 @@ public:
      const Color3&  power_i,
      const Vector3& w_o) const;
 
-    /** Move or copy data to CPU or GPU.  Called from setStorage(). */
+    /** \brief Move or copy data to CPU or GPU.  
+        Called from G3DMaterial::setStorage(). */
     void setStorage(ImageStorage s) const;
 
-    /** Return true if there is any glossy (non-Lambertian, non-mirror) 
+    /** \brief Return true if there is any glossy (non-Lambertian, non-mirror) 
         reflection from this BSDF. */
     bool hasGlossy() const;
 
-    /** Return true if there is any mirror reflection from this BSDF. */
+    /** \brief Return true if there is any mirror reflection from this BSDF. */
     bool hasMirror() const;
 
-    /** Return true if there is any Lambertian reflection from this BSDF. */
+    /** \brief Return true if there is any Lambertian reflection from this BSDF. */
     bool hasLambertian() const;
 
     /**
-       Used in forward photon tracing.
+       \brief Sample outgoing photon direction \f$\vec{\omega}_o\f$ from the 
+       distribution \f$f(\vec{\omega}_i, \vec{\omega}_o)\cos \theta_i\f$.
+
+       Used in forward photon tracing.  The extra cosine term handles the 
+       projected area effect.
        
        The probability of different kinds of scattering are given by:
 
@@ -252,7 +263,7 @@ public:
 
        Note that at most one of the glossy and mirror probabilities may be non-zero.
 
-       Not threadsafe unless setStorage(COPY_TO_CPU) has been called first.
+       Not threadsafe unless \link setStorage() setStorage\endlink(<code>COPY_TO_CPU</code>) has been called first.
 
        <b>(Not currently implemented)</b>
        @beta

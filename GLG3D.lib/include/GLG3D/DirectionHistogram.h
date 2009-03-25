@@ -1,0 +1,100 @@
+/**
+  @file DirectionHistogram.h
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @created 2009-03-25
+  @edited  2009-03-25
+*/
+
+#ifndef GLG3D_DirectionHistogram_h
+#define GLG3D_DirectionHistogram_h
+
+#include "G3D/platform.h"
+#include "G3D/Array.h"
+#include "G3D/Vector3.h"
+#include "G3D/Color3.h"
+#include "G3D/Color4.h"
+#include "GLG3D/VARArea.h"
+#include "GLG3D/VAR.h"
+
+namespace G3D {
+
+class RenderDevice;
+    
+/** \brief A histogram on the surface of a sphere.
+    Useful for visualizing BSDFs. 
+    
+    Requires <code>sphere.ifs</code> to be in the current 
+    directory or a location that System::findDataFile can 
+    find it.
+
+    The histogram drawn is a smoothing of the actual distribution
+    by a $\f \cos^{sharp} \f$ filter to ensure that it is not 
+    undersampled by the underlying histogram mesh and buckets.
+
+    Storage size is constant in the amount of data.  Input is 
+    immediately inserted into a bucket and then discarded.
+  */
+class DirectionHistogram {
+private:
+
+    /** Vertices of the visualization mesh, on the unit sphere. */
+    Array<Vector3>      m_meshVertex;
+
+    /** Indices into meshVertex of the trilist for the visualization mesh. */
+    Array<int>          m_meshIndex;
+
+    /** Histogram buckets.  These are the scales of the corresponding meshVertex.*/
+    Array<float>        m_bucket;
+
+    VAR                 m_gpuMeshIndex;
+    VAR                 m_gpuMeshVertex;
+
+    /** True when the VAR needs to be recomputed */
+    bool                m_dirty;
+
+    float               m_sharp;
+
+    /** Total weight: \f$\sum bucket[i]\f$ */
+    float               m_totalWeight;
+
+    /** Dot product that is so low that it won't materially affect the 
+        distribution and can be ignored for filtering purposes.*/
+    float               m_cutoff;
+
+    /** Volume of a tetrahedron whose 4th vertex is at the origin.  
+        The vertices are assumed to be
+        in ccw order.*/
+    static float tetrahedronVolume(const Vector3& v0, const Vector3& v1, const Vector3& v2);
+
+    /** Compute the total volume of the distribution */
+    float totalVolume() const;
+
+    void sendGeometry(RenderDevice* rd);
+
+public:
+
+    /** @param sharp Sharpness of the smoothing filter.  Recommended range 
+         is 30 (very smooth) - 220 (very sharp).  Smoother filters are needed
+         when taking very few samples.*/
+    DirectionHistogram(float sharp = 120.0f);
+
+    /** Discard all data */
+    void reset();
+
+    /**
+     \brief Insert a new data point into the set.
+      Only the direction of @a vector matters; it will be normalized.
+     */
+    void insert(const Vector3& vector, float weight = 1.0f);
+
+    /** Draw a wireframe of the distribution.  Renders with approximately constant volume. */
+    void render(
+        class RenderDevice* rd, 
+        const Color3& solidColor = Color3::white(), 
+        const Color4& lineColor = Color3::black());
+
+};
+
+} // G3D
+
+#endif

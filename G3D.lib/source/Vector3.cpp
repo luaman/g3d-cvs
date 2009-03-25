@@ -210,32 +210,32 @@ Vector3 Vector3::reflectAbout(const Vector3& normal) const {
     return N * 2 * this->dot(N) - *this;
 }
 
-//----------------------------------------------------------------------------
-Vector3 Vector3::cosRandom(const Vector3& normal, Random& r) {
-    float e1 = r.uniform();
-    float e2 = r.uniform();
 
-    // Angle from normal
-    float theta = acos(sqrt(e1));
+Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
+    const float e1 = r.uniform();
+    const float e2 = r.uniform();
 
-    // Angle about normal
-    float phi   = 2 * pi() * e2;
+    const float sin_theta = sqrtf(1.0f - e1);
+    const float cos_theta = sqrtf(e1);
+    const float phi = 2.0f * pi() * e2;
 
     // Make a coordinate system
-    const Vector3& U = normal.direction();
-    Vector3 V = Vector3::unitX();
+    const Vector3& Z = normal.direction();
+    Vector3 X = Vector3::unitX();
 
-    if (abs(U.dot(V)) > 0.9f) {
-        V = Vector3::unitY();
+    if (abs(X.dot(Z)) > 0.9f) {
+        X = Vector3::unitY();
     }
 
-    const Vector3& W = U.cross(V).direction();
-    V = W.cross(U);
+    const Vector3& Y = Z.cross(X).direction();
+    X = Y.cross(Z);
 
-    // Convert to rectangular form
-    return cos(theta) * U + sin(theta) * (cos(phi) * V + sin(phi) * W);
+    return 
+        cos(phi) * sin_theta * X +
+        sin(phi) * sin_theta * Y +
+        cos_theta * Z;
 }
-//----------------------------------------------------------------------------
+
 
 Vector3 Vector3::hemiRandom(const Vector3& normal, Random& r) {
     const Vector3& V = Vector3::random(r);

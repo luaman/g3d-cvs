@@ -5,8 +5,8 @@
   @edited  2008-12-06
 */
 
-#ifndef GLG3D_VARAREA_H
-#define GLG3D_VARAREA_H
+#ifndef GLG3D_VARArea_h
+#define GLG3D_VARArea_h
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Table.h"
@@ -16,9 +16,9 @@
 namespace G3D {
 
 // Forward-declaration because including RenderDevice.h would include VARArea.h also
-// This kills the VARAreaRef typedef
 class RenderDevice;
 
+/** @deprecated */
 typedef ReferenceCountedPointer<class VARArea> VARAreaRef;
 
 /**
@@ -40,6 +40,8 @@ typedef ReferenceCountedPointer<class VARArea> VARAreaRef;
  */
 class VARArea : public ReferenceCountedObject {
 public:
+    typedef ReferenceCountedPointer<class VARArea> Ref;
+
 
     /**
      These values are <B>hints</B>. Your program will work correctly

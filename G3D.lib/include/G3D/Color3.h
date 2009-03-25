@@ -101,9 +101,13 @@ public:
     // arithmetic operations
     Color3 operator+ (const Color3& rkVector) const;
     Color3 operator- (const Color3& rkVector) const;
-    Color3 operator* (float fScalar) const;
+    inline Color3 operator* (float s) const {
+        return Color3(r * s, g * s, b * s);
+    }
     Color3 operator* (const Color3& rkVector) const;
-    Color3 operator/ (float fScalar) const;
+    inline Color3 operator/ (float fScalar) const {
+        return (*this) * (1.0f / fScalar);
+    }
     Color3 operator- () const;
 
     // arithmetic updates
@@ -298,11 +302,6 @@ inline Color3 Color3::operator+ (const Color3& rkVector) const {
 //----------------------------------------------------------------------------
 inline Color3 Color3::operator- (const Color3& rkVector) const {
     return Color3(r -rkVector.r, g - rkVector.g, b - rkVector.b);
-}
-
-//----------------------------------------------------------------------------
-inline Color3 Color3::operator* (float fScalar) const {
-    return Color3(fScalar*r, fScalar*g, fScalar*b);
 }
 
 //----------------------------------------------------------------------------

@@ -206,6 +206,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\DirectionHistogram.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\Discovery.cpp"
 				>
 			</File>
@@ -525,6 +529,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\DeveloperWindow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\DirectionHistogram.h"
 				>
 			</File>
 			<File

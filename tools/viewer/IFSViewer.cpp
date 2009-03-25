@@ -47,6 +47,5 @@ void IFSViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighti
 	} else {
 		screenPrintf ( "No texture coordinates" );
 	}
-		
 	posedifs->render( rd ); 
 }

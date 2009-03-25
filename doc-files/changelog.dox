@@ -1,8 +1,6 @@
 /**
  @page changelog Change Log
 
-TODO: texture min/max/mean on upload
-
 <P>
    Major version numbers introduce API changes that are not backwards
    compatible.  Minor versions are backwards compatible to the
@@ -16,6 +14,7 @@ TODO: texture min/max/mean on upload
    <ul>
      <li> Complete rewrite of SuperShader and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 
          is energy conserving, and supports GPU rasterization, ray tracing, photon mapping 
+     <li> G3D::DirectionHistogram
      <li> G3D::Texture::Settings can now serialize/deserialize to AnyVal
      <li> G3D::Vector3::reflectAbout
      <li> G3D::Spinlock; faster than GMutex for one thread-per-processor

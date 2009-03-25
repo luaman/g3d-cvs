@@ -2,7 +2,7 @@
  @file   Material.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
- @edited 2009-03-23
+ @edited 2009-03-25
 */
 #ifndef GLG3D_Material_h
 #define GLG3D_Material_h
