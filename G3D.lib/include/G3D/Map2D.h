@@ -5,14 +5,15 @@
 
  @maintainer Morgan McGuire, morgan@cs.brown.edu
  @created 2004-10-10
- @edited  2007-07-18
+ @edited  2009-03-24
  */
-#ifndef G3D_MAP2D_H
-#define G3D_MAP2D_H
+#ifndef G3D_Map2D_h
+#define G3D_Map2D_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Array.h"
+#include "G3D/vectormath.h"
 #include "G3D/Vector2int16.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/AtomicInt32.h"

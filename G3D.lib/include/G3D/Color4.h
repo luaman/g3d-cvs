@@ -8,14 +8,14 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2009-03-20
+ @edited  2009-03-23
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_COLOR4_H
-#define G3D_COLOR4_H
+#ifndef G3D_Color4_h
+#define G3D_Color4_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -152,6 +152,10 @@ public:
     static const Color4& clear();
 
     static const Color4& inf();
+
+    inline bool isFinite() const {
+        return G3D::isFinite(r) && G3D::isFinite(g) && G3D::isFinite(b) && G3D::isFinite(a);
+    }
 
     inline Color3 bgr() const {
         return Color3(b, g, r);

@@ -385,6 +385,8 @@ inline Color3 Color3::unitCross (const Color3& rkVector) const {
     kCross.unitize();
     return kCross;
 }
+
+
 } // namespace
 
 

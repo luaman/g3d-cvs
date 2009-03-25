@@ -35,7 +35,9 @@ class Image4 : public Map2D<Color4, Color4> {
 public:
 
     typedef Image4      Type;
-    typedef Image4Ref   Ref;
+    typedef ReferenceCountedPointer<class Image4>   Ref;
+    typedef Color4      Storage;
+    typedef Color4      Compute;
 
 protected:
 

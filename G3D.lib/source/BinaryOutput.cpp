@@ -330,9 +330,12 @@ void BinaryOutput::commit(bool flush) {
     if (m_ok) {
         debugAssertM(file, std::string("Could not open '") + m_filename + "'");
 
-        m_alreadyWritten += m_bufferLen;
+        if (m_buffer != NULL) {
+            m_alreadyWritten += m_bufferLen;
 
-        fwrite(m_buffer, m_bufferLen, 1, file);
+            int success = fwrite(m_buffer, m_bufferLen, 1, file);
+            debugAssertM(success == 1, std::string("Could not write to '") + m_filename + "'");
+        }
         if (flush) {
             fflush(file);
         }

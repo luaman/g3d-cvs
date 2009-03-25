@@ -29,7 +29,9 @@ class Image3 : public Map2D<Color3, Color3> {
 public:
 
     typedef Image3      Type;
-    typedef Image3Ref   Ref;
+    typedef ReferenceCountedPointer<class Image3>   Ref;
+    typedef Color3      Storage;
+    typedef Color3      Compute;
 
 protected:
 

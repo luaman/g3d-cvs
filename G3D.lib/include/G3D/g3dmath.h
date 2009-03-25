@@ -373,19 +373,17 @@ inline int pow2(unsigned int x) {
     return 1 << x;
 }
 
-
-/** Log base 2 */
-inline float log2(float x) {
-    return ::logf(x) / ::logf(2.0f);
+static inline double log2(double x) {
+    static const double k = 1.0 / ::log(2.0);
+    return ::log(x) / k;
 }
 
-/** Log base 2 */
-inline double log2(double x) {
-    return ::log(x) / ::log(2.0);
+static inline float log2(float x) {
+    static const float k = (float)(1.0 / ::log(2.0));
+    return ::logf(x) * k;
 }
 
-/** Log base 2 */
-inline double log2(int x) {
+static inline double log2(int x) {
     return log2((double)x);
 }
 
