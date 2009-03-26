@@ -91,6 +91,10 @@ public:
         return iClamp(*m_indexValue, 0, m_listValue.size() - 1);
     }
 
+    inline void setSelectedIndex(int i) {
+        *m_indexValue = i;
+    }
+
     inline void resize(int n) {
         m_listValue.resize(n);
         *m_indexValue = selectedIndex();
