@@ -16,8 +16,15 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
     BSPMapRef           map;
+
+    // for on-screen rendering
+    Framebuffer::Ref    fb;
+    Texture::Ref        colorBuffer;
+
     VideoOutput::Ref    video;
     ArticulatedModel::Ref model;
+
+    Film::Ref           film;
 
     DirectionHistogram* histogram;
 
@@ -50,20 +57,21 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 void App::onInit() {
 
-/*
+    film = Film::create();
+
+
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
     preprocess.textureDimension = Texture::DIM_2D_NPOT;
     preprocess.parallaxSteps = 0;
-//    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS", preprocess);
+    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS", preprocess);
 
     timer.after("load");
-//    exit(0);
-*/
-    setDesiredFrameRate(30);
 
-//    sky = Sky::fromFile(System::findDataFile("sky"));
+    setDesiredFrameRate(1000);
+
+    sky = Sky::fromFile(System::findDataFile("sky"));
 
 //	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
@@ -78,9 +86,13 @@ void App::onInit() {
         lighting->shadowedLightArray.clear();
     }
 
-    Array<std::string> list;
-    list.append("Hello", "World");
-    debugPane->addDropDownList("List", list);
+    fb = Framebuffer::create("Offscreen");
+    colorBuffer = Texture::createEmpty("Color", renderDevice->width(), renderDevice->height(), ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+    fb->set(Framebuffer::COLOR_ATTACHMENT0, colorBuffer);
+    fb->set(Framebuffer::DEPTH_ATTACHMENT, 
+        Texture::createEmpty("Depth", renderDevice->width(), renderDevice->height(), ImageFormat::DEPTH24(), Texture::DIM_2D_NPOT, Texture::Settings::video()));
+
+    film->makeGui(debugPane);
 /*
     histogram = new DirectionHistogram(220);
     Array<Vector3> v(5000000);
@@ -155,26 +167,27 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-/*    Array<PosedModel::Ref>        opaque, transparent;
+    Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
-  */  
+
+    rd->pushState(fb);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3::white() * 0.8f);
     rd->clear(sky.isNull(), true, true);
-/*
     if (sky.notNull()) {
         sky->render(rd, localSky);
     }
-*/
-//    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+
+    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
     if (histogram != NULL) {
         histogram->render(rd);
+        Draw::plane(Plane(Vector3::unitY(), Vector3::zero()), rd, Color4(Color3(1.0f, 0.92f, 0.85f), 0.4f), Color4(Color3(1.0f, 0.5f, 0.3f) * 0.3f, 0.5f));
+        Draw::axes(rd, Color3::red(), Color3::green(), Color3::blue(), 1.3f);
     }
-    Draw::plane(Plane(Vector3::unitY(), Vector3::zero()), rd, Color4(Color3(1.0f, 0.92f, 0.85f), 0.4f), Color4(Color3(1.0f, 0.5f, 0.3f) * 0.3f, 0.5f));
-    Draw::axes(rd, Color3::red(), Color3::green(), Color3::blue(), 1.3f);
+
 
     /*
     // Show normals
@@ -183,11 +196,13 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::vertexNormals(posed3D[i]->objectSpaceGeometry(), rd);
     }
     */
-/*
     if (sky.notNull()) {
         sky->renderLensFlare(rd, localSky);
     }
-*/
+    rd->popState();
+
+    film->exposeAndRender(rd, colorBuffer);
+
     PosedModel2D::sortAndRender(rd, posed2D);
 }
 

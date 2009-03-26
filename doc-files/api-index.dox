@@ -92,7 +92,8 @@ href="classes.html">Classes</a>.
     \link G3D::SuperShader::ExtraLightPass SuperShader::ExtraLightPass\endlink,
     \link G3D::SuperShader::ShadowedPass SuperShader::ShadowedPass\endlink,
     \link G3D::UberBSDF UberBSDF\endlink,
-    \link G3D::ToneMap ToneMap\endlink
+    \link G3D::ToneMap ToneMap\endlink,
+    \link G3D::Film Film\endlink
    </UL>
 
 @section gl Hardware Rendering (GLG3D.h, GLG3D.lib)

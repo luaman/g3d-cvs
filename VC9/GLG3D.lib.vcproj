@@ -230,6 +230,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\Film.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\FirstPersonManipulator.cpp"
 				>
 			</File>
@@ -553,6 +557,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\FileDialog.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Film.h"
 				>
 			</File>
 			<File
