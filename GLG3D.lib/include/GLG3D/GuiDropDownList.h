@@ -2,14 +2,14 @@
  @file GLG3D/GuiDropDownList.h
 
  @created 2007-06-15
- @edited  2008-07-20
+ @edited  2009-03-20
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GUIDROPDOWNLIST_H
-#define G3D_GUIDROPDOWNLIST_H
+#ifndef G3D_GuiDropDownList_h
+#define G3D_GuiDropDownList_h
 
 #include "G3D/Pointer.h"
 #include "G3D/Array.h"
@@ -39,16 +39,19 @@ protected:
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;
 
-    Array<GuiText>               m_listValue;
+    /** m_indexValue points to this if no external pointer was provided. */
+    int                             m_myInt;
+
+    Array<GuiText>                  m_listValue;
 
     /** True when the menu is open */
     bool                            m_selecting;
 
     GuiDropDownList
        (GuiContainer*               parent, 
-        const GuiText&           caption, 
+        const GuiText&              caption, 
         const Pointer<int>&         indexValue, 
-        const Array<GuiText>&    listValue);
+        const Array<GuiText>&       listValue);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
@@ -78,17 +81,21 @@ public:
         m_menu = NULL;
     }
 
-    inline void resize(int n) {
-        m_listValue.resize(n);
-        *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
-        m_menu = NULL;
-    }
-
     virtual void setRect(const Rect2D&);
 
     /** Returns the currently selected value */
     const GuiText& selectedValue() const;
-        
+    
+    /** The index of the currently selected value */
+    inline int selectedIndex() const {
+        return iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+    }
+
+    inline void resize(int n) {
+        m_listValue.resize(n);
+        *m_indexValue = selectedIndex();
+        m_menu = NULL;
+    }
 
 };
 

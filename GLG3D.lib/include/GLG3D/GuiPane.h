@@ -2,14 +2,14 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2008-10-03
+ @edited  2009-03-25
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2008, Morgan McGuire, morgan@cs.williams.edu
+ Copyright 2001-2009, Morgan McGuire, morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GUIPANE_H
-#define G3D_GUIPANE_H
+#ifndef G3D_GuiPane_H
+#define G3D_GuiPane_H
 
 #include <string>
 #include <limits.h>
@@ -183,8 +183,8 @@ public:
         return addControl(new GuiTextBox(this, caption, stringPointer, update));
     }
 
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Pointer<int>& indexPointer, const Array<std::string>& list);
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Pointer<int>& indexPointer, const Array<GuiText>& list = Array<GuiText>());
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<std::string>& list, const Pointer<int>& indexPointer = NULL);
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = NULL);
     
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton(const GuiText& text, int myID,  

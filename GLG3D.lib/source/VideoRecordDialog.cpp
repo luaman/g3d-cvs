@@ -94,7 +94,7 @@ void VideoRecordDialog::makeGUI() {
     GuiPane* moviePane = pane()->addPane("", GuiTheme::ORNATE_PANE_STYLE);
 
     GuiLabel* label = NULL;
-    GuiDropDownList* formatList = moviePane->addDropDownList("Format", &m_templateIndex, m_formatList);
+    GuiDropDownList* formatList = moviePane->addDropDownList("Format", m_formatList, &m_templateIndex);
 
     int width = 300;
     // Increase caption size to line up with the motion blur box
@@ -145,7 +145,7 @@ void VideoRecordDialog::makeGUI() {
     GuiPane* ssPane = pane()->addPane("", GuiTheme::ORNATE_PANE_STYLE);
 
     m_ssFormatList.append("JPG", "PNG", "BMP", "TGA");
-    GuiDropDownList* ssFormatList = ssPane->addDropDownList("Format", &m_ssFormatIndex, m_ssFormatList);
+    GuiDropDownList* ssFormatList = ssPane->addDropDownList("Format", m_ssFormatList, &m_ssFormatIndex);
     m_ssFormatIndex = 0;
 
     ssFormatList->setWidth(width);

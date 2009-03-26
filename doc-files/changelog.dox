@@ -12,8 +12,6 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> Complete rewrite of SuperShader and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 
-         is energy conserving, and supports GPU rasterization, ray tracing, photon mapping 
      <li> G3D::DirectionHistogram
      <li> G3D::Texture::Settings can now serialize/deserialize to AnyVal
      <li> G3D::Vector3::reflectAbout
@@ -76,6 +74,9 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> Complete rewrite of SuperShader, ArticulatedModel, and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 
+         is energy conserving, and supports GPU rasterization, ray tracing, photon mapping 
+     <li> G3D::GuiPane::addDropDownList now takes the list and index arguments in reverse order and they are optional
      <li> G3D::OSWindow::notifyResize() and G3D::RenderDevice::notifyResize() removed in favor of OS-specific implementation handling size events directly.
      <li> Changed G3D::RenderDevice::enableClip2D to G3D::RenderDevice::setClip2D.  Use G3D::RenderDevice::setClip2D with G3D::Rect2D::inf to disable.
      <li> G3D::TextInput now treats \r, \n and \r\n as newlines with or without newline tokens.  Each increment line number once and reset character number

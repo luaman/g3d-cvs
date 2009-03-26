@@ -132,8 +132,11 @@ GuiPane::~GuiPane() {
 }
 
 
-GuiDropDownList* GuiPane::addDropDownList(const GuiText& caption, 
-                                          const Pointer<int>& pointer, const Array<std::string>& list) {
+GuiDropDownList* GuiPane::addDropDownList
+(const GuiText& caption, 
+ const Array<std::string>& list,
+ const Pointer<int>& pointer) {
+
     Array<GuiText> c(list.size());
     for (int i = 0; i < c.size(); ++i) {
         c[i] = list[i];
@@ -142,8 +145,10 @@ GuiDropDownList* GuiPane::addDropDownList(const GuiText& caption,
 }
 
 
-GuiDropDownList* GuiPane::addDropDownList(const GuiText& caption, 
-                                          const Pointer<int>& pointer, const Array<GuiText>& list) {
+GuiDropDownList* GuiPane::addDropDownList
+(const GuiText& caption, 
+ const Array<GuiText>& list,
+ const Pointer<int>& pointer) {
     return addControl(new GuiDropDownList(this, caption, pointer, list));
 }
 

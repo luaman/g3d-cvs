@@ -1,10 +1,10 @@
 /**
  @file GuiDropDownList.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
- @edited  2008-02-19
+ @edited  2009-03-26
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiDropDownList.h"
@@ -16,12 +16,15 @@ namespace G3D {
 
 GuiDropDownList::GuiDropDownList
 (GuiContainer*               parent, 
- const GuiText&           caption, 
+ const GuiText&              caption, 
  const Pointer<int>&         indexValue, 
- const Array<GuiText>&    listValue) : GuiControl(parent, caption), 
-                                          m_indexValue(indexValue), 
-                                          m_listValue(listValue),
-                                          m_selecting(false) {
+ const Array<GuiText>&       listValue) :
+ GuiControl(parent, caption), 
+    m_indexValue(indexValue.isNull() ? Pointer<int>(&m_myInt) : indexValue),
+    m_myInt(0),
+    m_listValue(listValue),
+    m_selecting(false) {
+
 }
 
 
@@ -67,6 +70,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
     } else if (event.type == GEventType::KEY_DOWN) {
         switch (event.key.keysym.sym) {
         case GKey::DOWN:
+            *m_indexValue = selectedIndex();
             if (*m_indexValue < m_listValue.size() - 1) {
                 *m_indexValue = *m_indexValue + 1;
                 fireEvent(GEventType::GUI_ACTION);
@@ -74,6 +78,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
             return true;
 
         case GKey::UP:
+            *m_indexValue = selectedIndex();
             if (*m_indexValue > 0) {
                 *m_indexValue = *m_indexValue - 1;
                 fireEvent(GEventType::GUI_ACTION);
@@ -95,7 +100,7 @@ void GuiDropDownList::setRect(const Rect2D& rect) {
 
 const GuiText& GuiDropDownList::selectedValue() const {
     if (m_listValue.size() > 0) {
-        return m_listValue[*m_indexValue];
+        return m_listValue[selectedIndex()];
     } else {
         const static GuiText empty;
         return empty;
@@ -115,7 +120,7 @@ void GuiDropDownList::setList(const Array<std::string>& c) {
     for (int i = 0; i < c.size(); ++i) {
         m_listValue[i] = c[i];
     }
-    *m_indexValue = iClamp(*m_indexValue, 0, m_listValue.size() - 1);
+    *m_indexValue = selectedIndex();
     m_menu = NULL;
 }
 

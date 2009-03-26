@@ -1,16 +1,16 @@
 /** 
   @file Pointer.h
  
-  @maintainer Morgan McGuire, graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2007-05-16
-  @edited  2007-06-22
+  @edited  2009-03-26
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
-#ifndef G3D_POINTER_H
-#define G3D_POINTER_H
+#ifndef G3D_Pointer_h
+#define G3D_Pointer_h
 
 #include "G3D/debugAssert.h"
 #include "G3D/ReferenceCount.h"
@@ -68,6 +68,7 @@ private:
         virtual void set(ValueType b) = 0;
         virtual ValueType get() const = 0;
         virtual Interface* clone() const = 0;
+        virtual bool isNull() const = 0;
     };
 
     class Memory : public Interface {
@@ -78,7 +79,7 @@ private:
     public:
         
         Memory(ValueType* value) : value(value) {
-            debugAssert(value != NULL);
+            //debugAssert(value != NULL);
         }
 
         virtual void set(ValueType v) {
@@ -91,6 +92,10 @@ private:
 
         virtual Interface* clone() const {
             return new Memory(value);
+        }
+
+        virtual bool isNull() const {
+            return value == NULL;
         }
     };
 
@@ -120,6 +125,10 @@ private:
 
         virtual Interface* clone() const {
             return new Accessor(object, getMethod, setMethod);
+        }
+
+        virtual bool isNull() const {
+            return object == NULL;
         }
     };
 
@@ -153,6 +162,10 @@ private:
         virtual Interface* clone() const {
             return new RefAccessor(object, getMethod, setMethod);
         }
+
+        virtual bool isNull() const {
+            return object.isNull();
+        }
     };
 
 
@@ -164,6 +177,10 @@ public:
 
     /** Allows implicit cast from real pointer */
     Pointer(ValueType* v) : m_interface(new Memory(v)) {}
+
+    inline bool isNull() const {
+        return (m_interface == NULL) || m_interface->isNull();
+    }
 
     // Assignment
     inline Pointer& operator=(const Pointer& r) {

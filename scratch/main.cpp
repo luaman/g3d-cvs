@@ -43,14 +43,13 @@ public:
 };
 
 
-App::App(const GApp::Settings& settings) : GApp(settings) {
+App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
     catchCommonExceptions = false;
 }
 
 
 void App::onInit() {
 
-    histogram = new DirectionHistogram(220);
 /*
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
@@ -79,6 +78,11 @@ void App::onInit() {
         lighting->shadowedLightArray.clear();
     }
 
+    Array<std::string> list;
+    list.append("Hello", "World");
+    debugPane->addDropDownList("List", list);
+/*
+    histogram = new DirectionHistogram(220);
     Array<Vector3> v(5000000);
     for (int i = 0; i < v.size(); ++i) {
 //        histogram->insert(Vector3::cosHemiRandom(Vector3::unitY()));
@@ -86,7 +90,7 @@ void App::onInit() {
         v[i] =  Vector3::hemiRandom(Vector3::unitY());
     }
     histogram->insert(v);
-
+*/
     toneMap->setEnabled(false);
 }
 
