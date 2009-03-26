@@ -120,6 +120,10 @@ typedef SkyParameters SkyParameters;
     See also SkyParameters, a class that describes a sun and moon lighting 
     model. */
 class Lighting : public ReferenceCountedObject {
+public:
+
+    typedef ReferenceCountedPointer<class Lighting> Ref;
+
 private:
 
     Lighting() : emissiveScale(Color3::white()) {}
