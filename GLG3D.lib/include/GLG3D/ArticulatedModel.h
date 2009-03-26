@@ -308,9 +308,14 @@ public:
         void computeBounds();
     };
 
-    /** All parts. Root parts are identified by (parent == -1).
+    /** All parts. Root parts are identified by (parent == -1).  
+        It is assumed that each part has exactly
+        one parent.
      */
     Array<Part>                 partArray;
+
+    /** Total triangle count, updated by updateAll. */
+    int                         m_numTriangles;
 
     /** 
  	 @brief Compute all mesh properties from a triangle soup of vertices with optional texture coordinates.
@@ -368,6 +373,11 @@ public:
 
     inline void setSettings(const Settings& s) {
         m_settings = s;
+    }
+
+    /** Triangle count for the whole model. */
+    inline int numTriangles() const {
+        return m_numTriangles;
     }
 
     /** @deprecated */

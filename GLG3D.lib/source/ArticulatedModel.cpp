@@ -458,6 +458,11 @@ void ArticulatedModel::updateAll() {
         part->updateVAR();
     }
 
+    m_numTriangles = 0;
+    for (int p = 0; p < partArray.size(); ++p) {
+        Part& part = partArray[p];
+        m_numTriangles += part.indexArray.size() / 3;
+    }
 #   ifdef G3D_DEBUG
     // Check for correctness
     for (int p = 0; p < partArray.size(); ++p) {
