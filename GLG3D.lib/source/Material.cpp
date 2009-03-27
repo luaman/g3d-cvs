@@ -82,20 +82,62 @@ void Material::setStorage(ImageStorage s) const {
     }
 }
 
+void Material::configure(VertexAndPixelShader::ArgList& args) const {
+
+    if (m_bsdf->lambertian().texture().notNull() && 
+        ((m_bsdf->lambertian().constant().rgb() != Color3::zero()) || 
+        ! m_bsdf->lambertian().texture()->opaque())) {
+        args.set("lambertianMap",           m_bsdf->lambertian().texture());
+    }
+
+    if (m_bsdf->lambertian().constant() != Color4::one()) {
+        args.set("lambertianConstant",          m_bsdf->lambertian().constant().rgb());
+    }
+
+    if (m_customConstant.isFinite()) {
+        args.set("customConstant",              m_customConstant);
+    }
+
+    if (m_customMap.notNull()) {
+        args.set("customMap",                   m_customMap->texture());
+    }
+
+    if (m_bsdf->specular().notZero()) {
+        args.set("specularConstant",            m_bsdf->specular().constant());
+        if (m_bsdf->specular().texture().notNull()) {
+            args.set("specularMap",             m_bsdf->specular().texture());
+        }
+    }
+
+    if (m_emissive.notZero()) {
+        args.set("emissiveConstant",             m_emissive.constant());
+
+        if (m_emissive.texture().notNull()) {
+            args.set("emissiveMap",              m_emissive.texture());
+        }
+    }
+
+    if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
+        args.set("normalBumpMap",       m_bump->normalBumpMap()->texture());
+        args.set("bumpMapScale",        m_bump->settings().scale);
+        args.set("bumpMapBias",         m_bump->settings().offset);
+    }
+
+    debugAssert(m_bump.isNull() || m_bump->settings().iterations >= 0);
+}
+
 
 void Material::computeDefines(std::string& defines) const {
     // Set diffuse if not-black or if there is an alpha mask
-    if (m_bsdf->lambertian().notZero()) {
-        if (m_bsdf->lambertian().texture().notNull()) {
-            defines += "#define LAMBERTIANMAP\n";
 
-            // If the color is white, don't multiply by it
-            if (m_bsdf->lambertian().constant() != Color4::one()) {
-                defines += "#define LAMBERTIANCONSTANT\n";
-            }
-        } else {
-            defines += "#define LAMBERTIANCONSTANT\n";
-        }
+    if (m_bsdf->lambertian().texture().notNull() && 
+        ((m_bsdf->lambertian().constant().rgb() != Color3::zero()) || 
+        ! m_bsdf->lambertian().texture()->opaque())) {
+        defines += "#define LAMBERTIANMAP\n";
+    }
+
+    if (m_bsdf->lambertian().constant() != Color4::one()) {
+        defines += "#define LAMBERTIANCONSTANT\n";
     }
 
     if (m_customConstant.isFinite()) {
@@ -160,48 +202,6 @@ size_t Material::SimilarHashCode::hashCode(const G3D::Material& mat) {
 }
 
 
-void Material::configure(VertexAndPixelShader::ArgList& args) const {
 
-    // Set diffuse if not-black, or if there is an alpha mask
-    if (! m_bsdf->lambertian().isBlack() || 
-        (m_bsdf->lambertian().texture().notNull() &&
-        ! m_bsdf->lambertian().texture()->opaque())) {
-        args.set("lambertianConstant",          m_bsdf->lambertian().constant().rgb());
-        if (m_bsdf->lambertian().texture().notNull()) {
-            args.set("lambertianMap",           m_bsdf->lambertian().texture());
-        }
-    }
-
-    if (m_customConstant.isFinite()) {
-        args.set("customConstant",              m_customConstant);
-    }
-
-    if (m_customMap.notNull()) {
-        args.set("customMap",                   m_customMap->texture());
-    }
-
-    if (m_bsdf->specular().notZero()) {
-        args.set("specularConstant",            m_bsdf->specular().constant());
-        if (m_bsdf->specular().texture().notNull()) {
-            args.set("specularMap",             m_bsdf->specular().texture());
-        }
-    }
-
-    if (m_emissive.notZero()) {
-        args.set("emissiveConstant",             m_emissive.constant());
-
-        if (m_emissive.texture().notNull()) {
-            args.set("emissiveMap",              m_emissive.texture());
-        }
-    }
-
-    if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
-        args.set("normalBumpMap",       m_bump->normalBumpMap()->texture());
-        args.set("bumpMapScale",        m_bump->settings().scale);
-        args.set("bumpMapBias",         m_bump->settings().offset);
-    }
-
-    debugAssert(m_bump.isNull() || m_bump->settings().iterations >= 0);
-}
 
 } // namespace G3D

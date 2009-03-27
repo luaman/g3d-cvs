@@ -71,7 +71,12 @@ void App::onInit() {
 
     */
 
-    model = ArticulatedModel::createCornellBox();
+    model = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"));
+    Material::Settings spec;
+    spec.setLambertian(Color3::black());
+    spec.setSpecular(Color3::blue());
+    spec.setShininess(20);
+    model->partArray[0].triList[0]->material = Material::create(spec);
 
     setDesiredFrameRate(1000);
 
