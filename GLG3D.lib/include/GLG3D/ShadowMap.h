@@ -60,15 +60,22 @@ public:
         return m_name;
     }
 
-    static ShadowMapRef create(const std::string& name = "Shadow Map") {
-        return new ShadowMap(name);
-    }
+    /** 
+    \brief Computes a reference frame and projection matrix for the light. 
+    
+    \param lightProjX Scene bounds in the light's reference frame for a directional light.  Not needed for a spot light
+    \param lightProjY Scene bounds in the light's reference frame for a directional light.  Not needed for a spot light
+    \param lightProjNear Shadow map near plane depth in the light's reference frame for a directional light.  Not needed for a spot light
+    \param lightProjFar Shadow map far plane depth in the light's reference frame for a directional light.  Not needed for a spot light
+    */
+    static void computeMatrices(const GLight& light, const AABox& sceneBounds, CFrame& lightFrame, Matrix4& lightProjectionMatrix,
+            float lightProjX = 12, float lightProjY = 12, float lightProjNear = 0.5f, float lightProjFar = 60);
 
     /** Call with desiredSize = 0 to turn off shadow maps.
      */
     void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
 
-    static ShadowMapRef create(int size, const std::string& name = "Shadow Map", const Texture::Settings& settings = Texture::Settings::shadow()) {
+    static ShadowMapRef create(const std::string& name = "Shadow Map", int size = 1024, const Texture::Settings& settings = Texture::Settings::shadow()) {
         ShadowMap* s = new ShadowMap(name);
         s->setSize(size, settings);
         return s;
@@ -124,15 +131,6 @@ public:
         const Matrix4& lightProjectionMatrix,
         const Array<PosedModel::Ref>& shadowCaster,
         float biasDepth = 0.003f);
-
-    void updateDepth(
-        class RenderDevice* renderDevice, 
-        const Vector4& lightPosition, 
-        float lightProjX,
-        float lightProjY,
-        float lightProjNear,
-        float lightProjFar,
-        const Array<PosedModel::Ref>& shadowCaster);
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that

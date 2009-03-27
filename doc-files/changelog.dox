@@ -12,6 +12,9 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> G3D::ShadowMap::computeMatrices
+     <li> G3D::GLight now supports additional parameters to control how it interacts with G3D::ShadowMap
+     <li> G3D::Texture::Settings::shadowMap now sets areas outside the shadow map to 0 (shadowed), which is ideal behavior for spotlights.
      <li> G3D::DirectionHistogram
      <li> G3D::Texture::Settings can now serialize/deserialize to AnyVal
      <li> G3D::Vector3::reflectAbout
@@ -77,6 +80,7 @@
    <ul>
      <li> Complete rewrite of SuperShader, ArticulatedModel, and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 
          is energy conserving, and supports GPU rasterization, ray tracing, photon mapping 
+     <li> Removed ShadowMap::updateDepth that takes directional light projection matrix parameters; use new ShadowMap::computeMatrices to apply those values now.
      <li> G3D::GuiPane::addDropDownList now takes the list and index arguments in reverse order and they are optional
      <li> G3D::OSWindow::notifyResize() and G3D::RenderDevice::notifyResize() removed in favor of OS-specific implementation handling size events directly.
      <li> Changed G3D::RenderDevice::enableClip2D to G3D::RenderDevice::setClip2D.  Use G3D::RenderDevice::setClip2D with G3D::Rect2D::inf to disable.

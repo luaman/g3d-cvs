@@ -75,7 +75,7 @@ void PosedModel::sortAndRender
 
     static Array<PosedModel::Ref> opaqueGeneric, otherOpaque, transparent, posed3D;
 
-    LightingRef lighting = _lighting->clone();
+    Lighting::Ref lighting = _lighting->clone();
 
     bool renderShadows =
         (shadowMaps.size() > 0) && 
@@ -97,65 +97,13 @@ void PosedModel::sortAndRender
 
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            float lightProjX = 12, lightProjY = 12, lightProjNear = 0.5f, lightProjFar = 60;
             const GLight& light = lighting->shadowedLightArray[L];
 
-            if (lighting->shadowedLightArray[L].spotCutoff <= 90) {
-                // Spot light; we can set the lightProj bounds intelligently
+            CFrame  lightFrame;
+            Matrix4 lightProjectionMatrix;
 
-                debugAssert(lighting->shadowedLightArray[L].position.w == 1.0f);
-
-                CFrame lightFrame;
-                lightFrame.lookAt(lighting->shadowedLightArray[L].spotDirection);
-                lightFrame.translation = lighting->shadowedLightArray[L].position.xyz();
-
-                // Find nearest and farthest corners of the scene bounding box
-                lightProjNear = inf();
-                lightProjFar  = 0;
-                for (int c = 0; c < 8; ++c) {
-                    Vector3 v = sceneBounds.corner(c);
-                    v = lightFrame.pointToObjectSpace(v);
-                    lightProjNear = min(lightProjNear, -v.z);
-                    lightProjFar = max(lightProjFar, -v.z);
-                }
-                
-                // Don't let the near get too close to the source
-                lightProjNear = max(0.2f, lightProjNear);
-
-                // Don't bother tracking shadows past the effective radius
-                lightProjFar = min(light.effectSphere().radius, lightProjFar);
-                lightProjFar = max(lightProjNear + 0.1f, lightProjFar);
-
-                // The cutoff is half the angle of extent (See the Red Book, page 193)
-                float angle = toRadians(lighting->shadowedLightArray[L].spotCutoff);
-                lightProjX = lightProjNear * sin(angle);
-                // Symmetric in x and y
-                lightProjY = lightProjX;
-
-                Matrix4 lightProjectionMatrix = 
-                    Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                              lightProjY, lightProjNear, lightProjFar);
-                shadowMaps[L]->updateDepth(rd, lightFrame, lightProjectionMatrix, allModels);
-            } else if (lighting->shadowedLightArray[L].position.w == 0) {
-                // Directional light
-
-                /*
-                // Find the bounds on the projected character
-                AABox2D bounds;
-                for (int m = 0; m < allModels.size(); ++m) {
-                    const PosedModelRef& model = allModels[m];
-                    const Sphere& b = model->worldSpaceBoundingSphere();
-                    
-                }*/
-
-                // Find bounds of all shadow casting
-                shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
-                                          lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
-            } else {
-                // Point light
-                shadowMaps[L]->updateDepth(rd, lighting->shadowedLightArray[L].position,
-                                          lightProjX, lightProjY, lightProjNear, lightProjFar, allModels);
-            }
+            ShadowMap::computeMatrices(lighting->shadowedLightArray[L], sceneBounds, lightFrame, lightProjectionMatrix);
+            shadowMaps[L]->updateDepth(rd, lightFrame, lightProjectionMatrix, allModels);
         }
     } else {
         // We're not going to be able to draw shadows, so move the shadowed lights into

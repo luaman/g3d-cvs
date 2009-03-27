@@ -229,6 +229,20 @@ static void initializeStringConstants() {
 }
 
 
+static void configureLight(
+   const GLight& light,
+   int i,
+   VertexAndPixelShader::ArgList&  args) {
+
+    args.set(lightPositionString[i],    light.position);
+    args.set(lightColorString[i],       light.color);
+    const float cosThresh =  cos(toRadians(light.spotCutoff));
+    args.set(lightAttenuationString[i], Vector4(light.attenuation[0], light.attenuation[1], light.attenuation[2], 
+                               cosThresh));
+    args.set(lightDirectionString[i],   light.spotDirection);
+}
+
+
 /** Called by NonShadowedPass::setLighting and ExtraLightPass::setLighting.
  @param lightIndex index of the first light in the array to use.
  @param N number of lights to configure*/
@@ -244,13 +258,9 @@ static void configureLights
         if (lightArray.size() > i + lightIndex) {
             const GLight& light = lightArray[i + lightIndex];
 
-            args.set(lightPositionString[i],    light.position);
-            args.set(lightColorString[i],       light.color);
-            args.set(lightAttenuationString[i], Vector4(light.attenuation[0], light.attenuation[1], light.attenuation[2], 
-                                                        cos(toRadians(light.spotCutoff))));
-            args.set(lightDirectionString[i],   light.spotDirection);
+            configureLight(light, i, args);
         } else {
-            // This light is off
+            // This light is off. Choose attenuation w = 2 and set its color to black
             args.set(lightPositionString[i],    Vector4(0, 1, 0, 0));
             args.set(lightColorString[i],       Color3::black());
             args.set(lightAttenuationString[i], Vector4(1, 0, 0, 2));
@@ -350,12 +360,7 @@ void ShadowedPass::setLight(
     const GLight&                   light, 
     const ShadowMapRef&             shadowMap) {
     
-    args.set("lightPosition0",   light.position);
-    args.set("lightColor0",      light.color);
-    args.set("lightAttenuation0" , Vector4(light.attenuation[0], 
-                                          light.attenuation[1], light.attenuation[2],
-                                          cos(toRadians(light.spotCutoff))));
-    args.set("lightDirection0",  light.spotDirection);
+    configureLight(light, 0, args);
 
     // Shadow map setup
     if (GLCaps::enumVendor() == GLCaps::ATI) {

@@ -2,16 +2,19 @@
   @file ShadowMap.cpp
 
   @author Morgan McGuire, morgan@cs.williams.edu
+  @edited 2009-03-27
  */
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/AABox.h"
 #include "G3D/Box.h"
+#include "G3D/Sphere.h"
 #include "GLG3D/Draw.h"
 
 namespace G3D {
 
-ShadowMap::ShadowMap(const std::string& name) : m_name(name), m_polygonOffset(0.5f), m_lastRenderDevice(NULL), m_colorTextureIsDirty(true) {
+ShadowMap::ShadowMap(const std::string& name) : m_name(name), m_polygonOffset(0.5f), 
+    m_lastRenderDevice(NULL), m_colorTextureIsDirty(true) {
     m_depthModeStack.append(Texture::DEPTH_LEQUAL);
 }
 
@@ -111,61 +114,12 @@ bool ShadowMap::enabled() const {
     return m_depthTexture.notNull();
 }
 
-
 void ShadowMap::updateDepth(
-    class RenderDevice* renderDevice, 
-    const Vector4& lightPosition,
-    float lightProjX,
-    float lightProjY,
-    float lightProjNear,
-    float lightProjFar,
-    const Array<PosedModel::Ref>& shadowCaster) {
-
-    // Find the scene bounds
-    AABox sceneBounds;
-    PosedModel::getBoxBounds(shadowCaster, sceneBounds);
-
-    m_lightFrame = CFrame();
-    Vector3 center = sceneBounds.center();
-    
-    if (lightPosition.w == 0) {
-        // Move directional light away from the scene.  It must be far enough to see all objects
-        m_lightFrame.translation = lightPosition.xyz() * max(sceneBounds.extent().length() / 2.0f, max(lightProjNear, 30.0f)) + center;
-
-        // Construct a projection and view matrix for the camera so we can 
-        // render the scene from the light's point of view
-        //
-        // Since we're working with a directional light, 
-        // we want to make the center of projection for the shadow map
-        // be in the direction of the light but at a finite distance 
-        // to preserve z precision.
-        
-        m_lightProjection = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                              lightProjY, lightProjNear, lightProjFar);
-
-    } else {
-        m_lightFrame.translation = lightPosition.xyz();
-        m_lightProjection = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                              lightProjY, lightProjNear, lightProjFar);
-    }
-
-    Vector3 perp = Vector3::unitZ();
-    // Avoid singularity when looking along own z-axis
-    if (abs((m_lightFrame.translation - center).direction().dot(perp)) > 0.8) {
-        perp = Vector3::unitY();
-    }
-    m_lightFrame.lookAt(center, perp);
-
-    updateDepth(renderDevice, m_lightFrame, m_lightProjection, shadowCaster);
-}
-
-
-void ShadowMap::updateDepth(
-    RenderDevice* renderDevice,
-    const CoordinateFrame& lightCFrame, 
-    const Matrix4& lightProjectionMatrix,
-    const Array<PosedModel::Ref>& shadowCaster,
-    float biasDepth) {
+    RenderDevice*                   renderDevice,
+    const CoordinateFrame&          lightCFrame, 
+    const Matrix4&                  lightProjectionMatrix,
+    const Array<PosedModel::Ref>&   shadowCaster,
+    float                           biasDepth) {
 
     m_lightProjection = lightProjectionMatrix;
     m_lightFrame = lightCFrame;
@@ -300,6 +254,93 @@ void ShadowMap::computeColorTexture() {
     rd->pop2D();
     popDepthReadMode();
     m_colorTextureIsDirty = false;
+}
+
+
+void ShadowMap::computeMatrices
+(const GLight&  light, 
+ const AABox&   sceneBounds, 
+ CFrame&        lightFrame, 
+ Matrix4&       lightProjectionMatrix,
+ float          lightProjX,
+ float          lightProjY,
+ float          lightProjNear,
+ float          lightProjFar) {
+
+    lightFrame = light.frame();
+    if (light.position.w == 0) {
+        // Move directional light away from the scene.  It must be far enough to see all objects
+        lightFrame.translation = lightFrame.translation * 
+            max(sceneBounds.extent().length() / 2.0f, lightProjNear, 30.0f) + sceneBounds.center();
+    }
+
+    if (light.spotCutoff <= 90) {
+        // Spot light; we can set the lightProj bounds intelligently
+
+        debugAssert(light.position.w == 1.0f);
+
+        // Find nearest and farthest corners of the scene bounding box
+        lightProjNear = (float)inf();
+        lightProjFar  = 0;
+        for (int c = 0; c < 8; ++c) {
+            Vector3 v = sceneBounds.corner(c);
+            v = lightFrame.pointToObjectSpace(v);
+            lightProjNear = min(lightProjNear, -v.z);
+            lightProjFar = max(lightProjFar, -v.z);
+        }
+        
+        // Don't let the near get too close to the source
+        lightProjNear = max(0.2f, lightProjNear);
+
+        // Don't bother tracking shadows past the effective radius
+        lightProjFar = min(light.effectSphere().radius, lightProjFar);
+        lightProjFar = max(lightProjNear + 0.1f, lightProjFar);
+
+        // The cutoff is half the angle of extent (See the Red Book, page 193)
+        const float angle = toRadians(light.spotCutoff);
+        lightProjX = lightProjNear * sin(angle);
+
+        if (! light.spotSquare) {
+            // Fit a square around the circle
+            lightProjX *= 2.0f / sqrt(2.0f);
+        }
+
+        // Symmetric in x and y
+        lightProjY = lightProjX;
+
+        lightProjectionMatrix = 
+            Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
+                                                      lightProjY, lightProjNear, lightProjFar);
+
+    } else if (light.position.w == 0) {
+        // Directional light
+
+        /*
+        // Find the bounds on the projected character
+        AABox2D bounds;
+        for (int m = 0; m < allModels.size(); ++m) {
+            const PosedModelRef& model = allModels[m];
+            const Sphere& b = model->worldSpaceBoundingSphere();
+            
+        }*/
+
+        // Construct a projection and view matrix for the camera so we can 
+        // render the scene from the light's point of view
+        //
+        // Since we're working with a directional light, 
+        // we want to make the center of projection for the shadow map
+        // be in the direction of the light but at a finite distance 
+        // to preserve z precision.
+        
+        lightProjectionMatrix = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
+                                                         lightProjY, lightProjNear, lightProjFar);
+
+    } else {
+        // Point light.  Nothing good can happen here, but generate something
+
+        lightProjectionMatrix = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
+                                                              lightProjY, lightProjNear, lightProjFar);
+    }
 }
 
 }

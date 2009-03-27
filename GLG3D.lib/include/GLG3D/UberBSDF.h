@@ -16,7 +16,7 @@ enum {
     SHININESS_NONE = 0, 
 
     /** Mirror reflection. */
-    SHININESS_MIRROR = 129 
+    SHININESS_MIRROR = 129
 };
 
 /**

@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2009-03-23
+ @edited  2009-03-27
 */
 
 #include "G3D/Log.h"
@@ -1859,7 +1859,7 @@ const Texture::Settings& Texture::Settings::shadow() {
         } else {
             param.interpolateMode = BILINEAR_NO_MIPMAP;
         }
-        param.wrapMode = WrapMode::CLAMP;
+        param.wrapMode = WrapMode::ZERO;
         param.depthReadMode = DEPTH_LEQUAL;
         param.maxAnisotropy = 1.0;
         param.autoMipMap = false;

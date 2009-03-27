@@ -25,11 +25,19 @@ public:
     /** World space position (for a directional light, w = 0 */
     Vector4             position;
 
+    /** For a spot or directional light, this is the "right vector" that will be used when constructing
+        a reference frame(). */
+    Vector3             rightDirection;
+
     /** Direction in which the light faces, if a spot light.  This is the "look vector" of the light source. */
     Vector3             spotDirection;
 
-    /** In <B>degrees</B>.  180 = no cutoff (point/dir) >90 = spot light */
+    /** In <B>degrees</B>.  180 = no cutoff (point/dir).  Values less than 90 = spot light */
     float               spotCutoff;
+
+    /** If true, G3D::ShadowMap will produce the largest square that fits *inside* the spotCutoff angle.  This produces
+        a square prism instead of a cone of light.*/
+    bool                spotSquare;
 
     /** Constant, linear, quadratic */
     float               attenuation[3];
@@ -62,6 +70,9 @@ public:
     /** Returns the sphere within which this light has some noticable effect.  May be infinite.
         @param cutoff The value at which the light intensity is considered negligible. */
     class Sphere effectSphere(float cutoff = 30.0f / 255) const;
+
+    /** Computes a reference frame (e.g., for use with G3D::ShadowMap */
+    class CoordinateFrame frame() const;
 
     bool operator==(const GLight& other) const;
     bool operator!=(const GLight& other) const;

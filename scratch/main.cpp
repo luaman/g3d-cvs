@@ -21,8 +21,11 @@ public:
     Framebuffer::Ref    fb;
     Texture::Ref        colorBuffer;
 
+    ShadowMap::Ref      shadowMap;
     VideoOutput::Ref    video;
     ArticulatedModel::Ref model;
+
+    ArticulatedModel::Ref   ground;
 
     Film::Ref           film;
 
@@ -71,12 +74,14 @@ void App::onInit() {
 
     */
 
-    model = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"));
+    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
     Material::Settings spec;
     spec.setLambertian(Color3::black());
     spec.setSpecular(Color3::blue());
     spec.setShininess(20);
     model->partArray[0].triList[0]->material = Material::create(spec);
+
+    ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
 
     setDesiredFrameRate(1000);
 
@@ -86,14 +91,15 @@ void App::onInit() {
 
     if (sky.notNull()) {
         skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
-        lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
     }
 
-    if (lighting.notNull()) {
-        // This simple demo has no shadowing, so make all lights unshadowed
-        lighting->lightArray.append(lighting->shadowedLightArray);
-        lighting->shadowedLightArray.clear();
+    lighting = Lighting::create();
+    {
+        GLight L = GLight::spot(Vector3(0, 3, 0), -Vector3::unitY(), 45, Color3::white());
+        L.spotSquare = false;
+        lighting->shadowedLightArray.append(L);
     }
+    shadowMap = ShadowMap::create("Shadow Map");
 
     fb = Framebuffer::create("Offscreen");
     colorBuffer = Texture::createEmpty("Color", renderDevice->width(), renderDevice->height(), ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
@@ -171,7 +177,11 @@ void App::printConsoleHelp() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     if (model.notNull()) {
-        model->pose(posed3D);
+        model->pose(posed3D, Vector3(0,1,0));
+    }
+
+    if (ground.notNull()) {
+        ground->pose(posed3D, Vector3(0,-0.5,0));
     }
 }
 
@@ -189,7 +199,13 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->render(rd, localSky);
     }
 
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
+
+//    Draw::sphere(Sphere(localLighting->shadowedLightArray[0].position.xyz(), 0.2f), rd, Color3::white());
+    Draw::sphere(Sphere(Vector3(0,3,0), 0.2f), rd, Color3::white());
+    Draw::axes(rd);
+    Draw::sphere(Sphere(Vector3::zero(), 3), rd);
+    Draw::box(AABox(Vector3(-3,0,-3), Vector3(3,6,3)), rd);
 
     if (histogram != NULL) {
         histogram->render(rd);

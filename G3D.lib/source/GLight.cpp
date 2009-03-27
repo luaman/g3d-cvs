@@ -4,25 +4,29 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-12
-  @edited  2007-10-22
+  @edited  2009-03-27
 */
 
 #include "G3D/GLight.h"
 #include "G3D/Sphere.h"
+#include "G3D/CoordinateFrame.h"
 
 namespace G3D {
 
-GLight::GLight() {
-    position        = Vector4(0, 0, 0, 0);
-    color           = Color3::white();
-    spotDirection   = Vector3(0, 0, -1);
-    spotCutoff      = 180;
-    enabled         = false;
+GLight::GLight() :
+    position(0, 0, 0, 0),
+    color(Color3::white()),
+    rightDirection(0,0,0),
+    spotDirection(0, 0, -1),
+    spotCutoff(180),
+    spotSquare(false),
+    enabled(false),
+    specular(true),
+    diffuse(true) {
+
     attenuation[0]  = 1.0;
     attenuation[1]  = 0.0;
     attenuation[2]  = 0.0;
-    specular        = true;
-    diffuse         = true;
 }
 
 
@@ -67,8 +71,10 @@ GLight GLight::spot(const Vector3& pos, const Vector3& pointDirection, float cut
 
 bool GLight::operator==(const GLight& other) const {
     return (position == other.position) && 
+        (rightDirection == other.rightDirection) &&
         (spotDirection == other.spotDirection) &&
         (spotCutoff == other.spotCutoff) &&
+        (spotSquare == other.spotSquare) &&
         (attenuation[0] == other.attenuation[0]) &&
         (attenuation[1] == other.attenuation[1]) &&
         (attenuation[2] == other.attenuation[2]) &&
@@ -77,6 +83,7 @@ bool GLight::operator==(const GLight& other) const {
         (specular == other.specular) &&
         (diffuse == other.diffuse);
 }
+
 
 bool GLight::operator!=(const GLight& other) const {
     return !(*this == other);
@@ -140,4 +147,33 @@ Sphere GLight::effectSphere(float cutoff) const {
     }
 }
 
+
+CoordinateFrame GLight::frame() const {
+    CoordinateFrame f;
+    if (rightDirection == Vector3::zero()) {
+        // No specified right direction; choose one automatically
+        f.lookAt(spotDirection);
+    } else {
+        const Vector3& Z = -spotDirection.direction();
+        Vector3 X = rightDirection.direction();
+
+        // Ensure the vectors are not too close together
+        while (abs(X.dot(Z)) > 0.9f) {
+            X = Vector3::random();
+        }
+
+        // Ensure perpendicular
+        X -= Z * Z.dot(X);
+        const Vector3& Y = Z.cross(X);
+
+        f.rotation.setColumn(Vector3::X_AXIS, X);
+        f.rotation.setColumn(Vector3::Y_AXIS, Y);
+        f.rotation.setColumn(Vector3::Z_AXIS, Z);
+    }
+    f.translation = position.xyz();
+
+    return f;
 }
+
+
+} // G3D
