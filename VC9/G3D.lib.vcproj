@@ -681,6 +681,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\GMutex.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\GThread.h"
 				>
 			</File>

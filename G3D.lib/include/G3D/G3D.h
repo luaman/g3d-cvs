@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2001-08-25
- @edited  2009-01-15
+ @edited  2009-03-15
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -67,6 +67,7 @@
 #include "G3D/ReferenceCount.h"
 #include "G3D/CoherentAllocator.h"
 #include "G3D/Welder.h"
+#include "G3D/GMutex.h"
 
 template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
     static size_t hashCode(G3D::ReferenceCountedPointer<T> key) { return reinterpret_cast<size_t>( key.pointer() ); }

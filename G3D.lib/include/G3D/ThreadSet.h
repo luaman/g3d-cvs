@@ -5,6 +5,7 @@
 #include "G3D/Array.h"
 #include "G3D/ReferenceCount.h"
 #include "G3D/GThread.h"
+#include "G3D/GMutex.h"
 
 namespace G3D {
 

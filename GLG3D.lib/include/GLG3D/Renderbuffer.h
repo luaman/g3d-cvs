@@ -47,6 +47,10 @@ typedef ReferenceCountedPointer<Renderbuffer> RenderbufferRef;
  @cite http://oss.sgi.com/projects/ogl-sample/registry/EXT/framebuffer_object.txt
 */
 class Renderbuffer : public ReferenceCountedObject {
+public:
+
+    typedef ReferenceCountedPointer<Renderbuffer> Ref;
+
 private:
 
     /** Renderbuffer name */
@@ -56,7 +60,7 @@ private:
     GLuint                          mImageID;
     
     /** Texel format */
-    const class ImageFormat*      mFormat;
+    const class ImageFormat*        mFormat;
 
     /** Buffer width */
     int                             mWidth;
@@ -66,8 +70,7 @@ private:
 
     
     Renderbuffer 
-    (	
-     const std::string&         _name,
+    (const std::string&         _name,
      const GLuint               _renderbufferID,
      const G3D::ImageFormat*	_format, 
      const int                  _width, 

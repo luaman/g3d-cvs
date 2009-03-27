@@ -10,7 +10,7 @@
 #include "G3D/GThread.h"
 #include "G3D/System.h"
 #include "G3D/debugAssert.h"
-
+#include "G3D/GMutex.h"
 
 namespace G3D {
 

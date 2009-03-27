@@ -111,8 +111,6 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 </PRE>
-
-@deprecated To be replaced by boost::shared_ptr in 7.0
  */
 class ReferenceCountedObject {
 public:
@@ -152,8 +150,7 @@ public:
         
         _WeakPtrLinkedList* node = ReferenceCountedObject_weakPointer;
 
-        while (node != 0) {
-
+        while (node != NULL) {
             // Notify the weak pointer that it is going away
             node->weakPtr->objectCollected();
 
@@ -437,7 +434,6 @@ public:
         return ReferenceCountedPointer<T>(pointer);
     }
 
-
 private:
 
     /** Thread issues: safe because this is only called when another
@@ -450,7 +446,7 @@ private:
         zeroPointer();
         pointer = p;
 
-        if (pointer != 0) {
+        if (pointer != NULL) {
             // TODO: threadsafe: must update the list atomically
 
             // Add myself to the head of my target's list of weak pointers
@@ -585,7 +581,7 @@ public:
 protected:
 
     /** Invoked by the destructor on ReferenceCountedPointer. */
-    virtual void objectCollected() {
+    void objectCollected() {
         debugAssertM(pointer != NULL,
                      "Removed a weak pointer twice.");
         pointer = NULL;
