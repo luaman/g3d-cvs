@@ -158,7 +158,7 @@ public:
     }
 
     /** Adds controls for this Film to the specified GuiPane. */
-    void makeGui(class GuiPane*);
+    void makeGui(class GuiPane*, float maxExposure = 10.0f);
 
     /** \brief Renders the input as filtered by the film settings to the currently bound framebuffer.*/
     void exposeAndRender
