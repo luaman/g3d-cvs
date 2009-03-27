@@ -10,15 +10,6 @@
 
 namespace G3D {
 
-/** Constants for use with shininess for G3D::UberBSDF and G3D::Material. */
-enum {
-    /** No specular term; purely diffuse (may be transmissive as well) */
-    SHININESS_NONE = 0, 
-
-    /** Mirror reflection. */
-    SHININESS_MIRROR = 129
-};
-
 /**
    Description of how a surface reflects light (photons).
 
@@ -187,7 +178,7 @@ public:
        - rgb = \f$F_0\f$ : specular scattering probability/Fresnel
          reflectance at normal incidence. This is dependent on eta,
          although the interface allows them to be set independently.
-       - a = \f$s\f$ : shininess ("specular exponent")
+       - a = \f$s\f$ : shininess ("specular exponent"), packed.
     */
     inline const Component4& specular() const {
         return m_specular;
@@ -240,6 +231,12 @@ public:
     /** \brief Return true if there is any Lambertian reflection from this BSDF. */
     bool hasLambertian() const;
 
+    /** \brief Return true if there is any Lambertian, mirror, or glossy reflection from this BSDF (not just mirror!)*/
+    inline bool hasReflection() const {
+        return ! m_lambertian.isBlack() ||
+               ! m_specular.isBlack();
+    }
+
     /**
        \brief Sample outgoing photon direction \f$\vec{\omega}_o\f$ from the 
        distribution \f$f(\vec{\omega}_i, \vec{\omega}_o)\cos \theta_i\f$.
@@ -280,17 +277,37 @@ public:
      Random&        r = Random::common()) const;
 
     /** True if this absorbs all light */
-    bool isZero() const;
-
-    /** The glossy exponent is packed so that 0 = no specular, 
-        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$. 
-        This function abstracts the unpacking, since it may change in future versions.*/
-    static inline int unpackGlossyExponent(float e) {
-        return iRound(e * 127.0f) + 1;
+    inline bool isZero() const {
+        return m_lambertian.isBlack() && 
+               m_specular.isBlack() &&
+               m_transmissive.isBlack();
     }
 
     /** Returns true if both have the same Component::Factors for each component. */
     bool similarTo(const UberBSDF::Ref& other) const;
+
+
+    /** The glossy exponent is packed so that 0 = no specular, 
+        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$. 
+        This function abstracts the unpacking, since it may change in future versions.*/
+    static inline int unpackSpecularExponent(float e) {
+        return iRound(e * 127.0f) + 1;
+    }
+
+    /** The value that a specular mirror is packed as */
+    inline static float packedSpecularMirror() {
+        return 1.0f;
+    }
+
+    /** The value that a non-specular surface is packed as */
+    inline static float packedSpecularNone() {
+        return 0.0f;
+    }
+
+    inline static float packSpecularExponent(int x) {
+        debugAssert(x > 0 && x < 129);
+        return (x - 1) / 127.0f;
+    }
 };
 
 }

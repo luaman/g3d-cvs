@@ -43,11 +43,12 @@ Material::Ref Material::create(const Settings& settings) {
         value = new Material();
 
         value->m_bsdf =
-            UberBSDF::create(settings.loadLambertian(),
-                         settings.loadSpecular(),
-                         settings.loadTransmissive(),
-                         settings.m_eta,
-                         settings.m_extinction);
+            UberBSDF::create(
+                settings.loadLambertian(),
+                settings.loadSpecular(),
+                settings.loadTransmissive(),
+                settings.m_eta,
+                settings.m_extinction);
 
         // load emission map
         value->m_emissive = settings.loadEmissive();
@@ -84,32 +85,37 @@ void Material::setStorage(ImageStorage s) const {
 
 void Material::configure(VertexAndPixelShader::ArgList& args) const {
 
-    if (m_bsdf->lambertian().texture().notNull() && 
-        ((m_bsdf->lambertian().constant().rgb() != Color3::zero()) || 
-        ! m_bsdf->lambertian().texture()->opaque())) {
-        args.set("lambertianMap",           m_bsdf->lambertian().texture());
-    }
-
-    if (m_bsdf->lambertian().constant() != Color4::one()) {
-        args.set("lambertianConstant",          m_bsdf->lambertian().constant().rgb());
-    }
-
-    if (m_customConstant.isFinite()) {
-        args.set("customConstant",              m_customConstant);
-    }
-
-    if (m_customMap.notNull()) {
-        args.set("customMap",                   m_customMap->texture());
-    }
-
-    if (m_bsdf->specular().notZero()) {
-        args.set("specularConstant",            m_bsdf->specular().constant());
-        if (m_bsdf->specular().texture().notNull()) {
-            args.set("specularMap",             m_bsdf->specular().texture());
+    if (m_bsdf->lambertian().notBlack()) {
+        if (m_bsdf->lambertian().texture().notNull()) {
+            args.set("lambertianMap",            m_bsdf->lambertian().texture());
+            if (m_bsdf->lambertian().constant() != Color4::one()) {
+                args.set("lambertianConstant",   m_bsdf->lambertian().constant().rgb());
+            }
+        } else {
+            args.set("lambertianConstant",       m_bsdf->lambertian().constant().rgb());
         }
     }
 
-    if (m_emissive.notZero()) {
+    if (m_bsdf->specular().notBlack()) {
+        if (m_bsdf->specular().texture().notNull()) {
+            args.set("specularMap",              m_bsdf->specular().texture());
+            if (m_bsdf->specular().constant() != Color4::one()) {
+                args.set("specularConstant",     m_bsdf->specular().constant());
+            }
+        } else {
+            args.set("specularConstant",         m_bsdf->specular().constant());
+        }
+    }
+
+    if (m_customConstant.isFinite()) {
+        args.set("customConstant",               m_customConstant);
+    }
+
+    if (m_customMap.notNull()) {
+        args.set("customMap",                    m_customMap->texture());
+    }
+
+    if (m_emissive.notBlack()) {
         args.set("emissiveConstant",             m_emissive.constant());
 
         if (m_emissive.texture().notNull()) {
@@ -130,25 +136,18 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
 void Material::computeDefines(std::string& defines) const {
     // Set diffuse if not-black or if there is an alpha mask
 
-    if (m_bsdf->lambertian().texture().notNull() && 
-        ((m_bsdf->lambertian().constant().rgb() != Color3::zero()) || 
-        ! m_bsdf->lambertian().texture()->opaque())) {
-        defines += "#define LAMBERTIANMAP\n";
+    if (m_bsdf->lambertian().notBlack()) {
+        if (m_bsdf->lambertian().texture().notNull()) {
+            defines += "#define LAMBERTIANMAP\n";
+            if (m_bsdf->lambertian().constant() != Color4::one()) {
+                defines += "#define LAMBERTIANCONSTANT\n";
+            }
+        } else {
+            defines += "#define LAMBERTIANCONSTANT\n";
+        }
     }
 
-    if (m_bsdf->lambertian().constant() != Color4::one()) {
-        defines += "#define LAMBERTIANCONSTANT\n";
-    }
-
-    if (m_customConstant.isFinite()) {
-        defines += "#define CUSTOMCONSTANT\n";
-    }
-
-    if (m_customMap.notNull()) {
-        defines += "#define CUSTOMMAP\n";
-    }
-
-    if (m_bsdf->specular().notZero()) {
+    if (m_bsdf->specular().notBlack()) {
         if (m_bsdf->specular().texture().notNull()) {
             defines += "#define SPECULARMAP\n";
 
@@ -165,7 +164,7 @@ void Material::computeDefines(std::string& defines) const {
         defines += "#define MIRROR\n";
     }
 
-    if (m_emissive.notZero()) {
+    if (m_emissive.notBlack()) {
         // Must always set the emission constant if there is any emission
         // because it is modified to contain tone mapping information by SuperShader.
         defines += "#define EMISSIVECONSTANT\n";
@@ -177,6 +176,14 @@ void Material::computeDefines(std::string& defines) const {
     if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
         defines += "#define NORMALBUMPMAP\n";
         defines += format("#define PARALLAXSTEPS (%d)\n", m_bump->settings().iterations);
+    }
+
+    if (m_customConstant.isFinite()) {
+        defines += "#define CUSTOMCONSTANT\n";
+    }
+
+    if (m_customMap.notNull()) {
+        defines += "#define CUSTOMMAP\n";
     }
 }
 

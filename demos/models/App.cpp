@@ -14,7 +14,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         showRenderingStats = false;
         window()->setCaption("G3D Model Demo");
 
-        shadowMap = ShadowMap::create(1024);
+        shadowMap = ShadowMap::create();
 
         defaultCamera.setPosition(Vector3(-2,   1.4f,   4.0f));
         defaultCamera.lookAt(Vector3( 0,  -0.1f,   0.9f));

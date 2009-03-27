@@ -20,6 +20,33 @@ namespace G3D {
 
 namespace SuperShader {
 
+
+// Avoid synthesizing new strings during shader configuration
+static const int NUM_LIGHTS = 8;
+static std::string lightPositionString[NUM_LIGHTS];
+static std::string lightColorString[NUM_LIGHTS];
+static std::string lightAttenuationString[NUM_LIGHTS];
+static std::string lightDirectionString[NUM_LIGHTS];
+static const bool OPTIONAL = true;
+
+static void initializeStringConstants() {
+    static bool stringConstantsInitialized = false;
+
+    if (stringConstantsInitialized) {
+        return;
+    }
+
+    for (int L = 0; L < NUM_LIGHTS; ++L) {
+        std::string N = format("%d", L);
+        lightPositionString[L]    = "lightPosition" + N;
+        lightColorString[L]       = "lightColor" + N;
+        lightAttenuationString[L] = "lightAttenuation" + N;
+        lightDirectionString[L]   = "lightDirection" + N;
+    }
+
+    stringConstantsInitialized = true;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // 
 // G3D::SuperShader::Pass
@@ -202,31 +229,6 @@ NonShadowedPass::NonShadowedPass() :
          System::findDataFile("SS_NonShadowedPass.pix")) {
 }
 
-// Avoid synthesizing new strings during shader configuration
-static const int NUM_LIGHTS = 8;
-static std::string lightPositionString[NUM_LIGHTS];
-static std::string lightColorString[NUM_LIGHTS];
-static std::string lightAttenuationString[NUM_LIGHTS];
-static std::string lightDirectionString[NUM_LIGHTS];
-static const bool OPTIONAL = true;
-
-static void initializeStringConstants() {
-    static bool stringConstantsInitialized = false;
-
-    if (stringConstantsInitialized) {
-        return;
-    }
-
-    for (int L = 0; L < NUM_LIGHTS; ++L) {
-        std::string N = format("%d", L);
-        lightPositionString[L]    = "lightPosition" + N;
-        lightColorString[L]       = "lightColor" + N;
-        lightAttenuationString[L] = "lightAttenuation" + N;
-        lightDirectionString[L]   = "lightDirection" + N;
-    }
-
-    stringConstantsInitialized = true;
-}
 
 
 static void configureLight(
@@ -234,11 +236,19 @@ static void configureLight(
    int i,
    VertexAndPixelShader::ArgList&  args) {
 
+    initializeStringConstants();
+
     args.set(lightPositionString[i],    light.position);
     args.set(lightColorString[i],       light.color);
-    const float cosThresh =  cos(toRadians(light.spotCutoff));
-    args.set(lightAttenuationString[i], Vector4(light.attenuation[0], light.attenuation[1], light.attenuation[2], 
-                               cosThresh));
+    
+    const float cosThresh = cos(toRadians(light.spotCutoff));
+
+    args.set(lightAttenuationString[i], 
+        Vector4(light.attenuation[0], 
+                light.attenuation[1], 
+                light.attenuation[2], 
+                cosThresh));
+
     args.set(lightDirectionString[i],   light.spotDirection);
 }
 
@@ -251,8 +261,6 @@ static void configureLights
  int N, 
  const Array<GLight>& lightArray,
  VertexAndPixelShader::ArgList&  args) {
-
-    initializeStringConstants();
 
     for (int i = 0; i < N; ++i) {
         if (lightArray.size() > i + lightIndex) {

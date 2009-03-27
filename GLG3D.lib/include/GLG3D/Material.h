@@ -2,7 +2,7 @@
  @file   Material.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
- @edited 2009-03-25
+ @edited 2009-03-27
 */
 #ifndef GLG3D_Material_h
 #define GLG3D_Material_h
@@ -152,16 +152,21 @@ public:
         
         void setSpecular(const Color3& constant);
 
-        /** Sets shininess to SHININESS_NONE */
+        /**  */
         void removeSpecular();
 
-        /** Sharpness of the specular highlight.
-            <code>SHININESS_NONE</code> = no specular term, <code>SHININESS_MIRROR</code> =
-            mirror reflection. Values between 1 and 128 affect the
-            size of the specular highlight. 1 is dull, 128 is sharp.*/
-        void setShininess(const std::string& filename, uint8 constant = 255);
+        /**
+         The constant multiplies packed values stored in the file.
+         */
+        void setShininess(const std::string& filename, float constant = 1.0f);
         
-        void setShininess(uint8 constant);
+        /** \brief Packed sharpness of the specular highlight.
+            
+            - UberBSDF::packedSpecularNone() = no specular term (also forces specular color to black)
+            - UberBSDF::packedSpecularMirror() = mirror reflection. 
+            - UberBSDF::packSpecularExponent(e) affects the size of the glossy hilight, where 1 is dull, 128 is sharp.
+            */
+        void setShininess(float constant);
 
         /** This is an approximation of attenuation due to extinction
            while traveling through a translucent material.  Note that

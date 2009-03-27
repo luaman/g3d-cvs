@@ -51,15 +51,15 @@ Color4 UberBSDF::shadeDirect
     const Color4& specular = m_specular.sample(texCoord);
     float shininess = specular.a;
 
-    if ((shininess > 0.0f) && (shininess < 1.0f)) {
+    if ((shininess != packedSpecularMirror()) && (shininess != packedSpecularNone())) {
         // Glossy
         // Half-vector
         const Vector3& w_h = (w_i + w_o).direction();
         const float cos_h = max(0.0f, w_h.dot(n));
 
-        shininess *= SHININESS_MIRROR;
+        float e = (float)unpackSpecularExponent(shininess);
         result += computeF(specular.rgb(), cos_i) * 
-            (pow(cos_h, shininess) *
+            (powf(cos_h, e) *
              (shininess + 8.0f) * INV_8PI);
     }
     
@@ -82,7 +82,7 @@ bool UberBSDF::scatter
     float r = random.uniform();
 
     ///////////////////////////////////////////////////////////////////////////////////
-    if (m_lambertian.notZero()) {
+    if (m_lambertian.notBlack()) {
         // Sample the diffuse coefficients
         const Color4& diffuse = m_lambertian.sample(texCoord);
         
@@ -107,7 +107,7 @@ bool UberBSDF::scatter
     Color3 F(Color3::black());
 
     ///////////////////////////////////////////////////////////////////////////////////
-    if (m_specular.notZero()) {
+    if (m_specular.notBlack()) {
 
         // Sample the specular coefficients
         const Color4& specular = m_specular.sample(texCoord);
@@ -115,7 +115,7 @@ bool UberBSDF::scatter
         // On the range [0, 1]
         float shininess = specular.a;
 
-        if (shininess > 0.0f) {
+        if (shininess != packedSpecularNone()) {
             // There is some specularity
 
             // Cosine of the angle of incidence, for computing F
@@ -127,9 +127,9 @@ bool UberBSDF::scatter
 
             r -= p_specularAvg;
             if (r < 0.0f) {
-                if (shininess < 1.0f) {
+                if (shininess != packedSpecularMirror()) {
                     // Glossy                    
-                    shininess = unpackGlossyExponent(shininess);
+                    shininess = (float)unpackSpecularExponent(shininess);
 
                     const Vector3& w_h = (w_i + w_o).direction();
 
@@ -149,7 +149,7 @@ bool UberBSDF::scatter
     }
 
     ///////////////////////////////////////////////////////////////////////////////////
-    if (m_transmissive.notZero()) {
+    if (m_transmissive.notBlack()) {
         // Sample transmissive
         const Color4& transmit    = m_transmissive.sample(texCoord);
         const Color3& T0          = transmit.rgb();
@@ -183,14 +183,6 @@ void UberBSDF::setStorage(ImageStorage s) const {
     m_lambertian.setStorage(s);
     m_transmissive.setStorage(s);
     m_specular.setStorage(s);
-}
-
-
-bool UberBSDF::isZero() const {
-    return 
-        m_lambertian.isBlack() &&
-        m_transmissive.isZero() &&
-        m_specular.isZero();
 }
 
 

@@ -14,7 +14,7 @@ Material::Settings::Settings() :
   m_specularFilename(""),
   m_specularConstant(Color3::zero()),
   m_shininessFilename(""),
-  m_shininessConstant(0),
+  m_shininessConstant(UberBSDF::packedSpecularNone()),
   m_transmissiveFilename(""),
   m_transmissiveConstant(Color3::zero()),
   m_eta(1.0f),
@@ -162,18 +162,20 @@ void Material::Settings::setSpecular(const Color3& constant) {
 
 void Material::Settings::removeSpecular() {
     setSpecular(Color3::zero());
-    setShininess(SHININESS_NONE);
 }
 
 
-void Material::Settings::setShininess(const std::string& filename, uint8 constant) {
+void Material::Settings::setShininess(const std::string& filename, float constant) {
     m_shininessFilename = filename;
     m_shininessConstant = constant;
+    if (constant == UberBSDF::packedSpecularNone()) {
+        removeSpecular();
+    }
 }
 
 
-void Material::Settings::setShininess(uint8 constant) {
-    setShininess("", constant / 255.0f);
+void Material::Settings::setShininess(float constant) {
+    setShininess("", constant);
 }
 
 

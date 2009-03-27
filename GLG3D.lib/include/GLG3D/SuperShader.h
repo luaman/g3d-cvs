@@ -5,12 +5,12 @@
   efficiently.
 
   @created 2005-01-01
-  @edited  2007-12-16
+  @edited  2009-03-27
   @author Morgan McGuire, morgan@cs.williams.edu
  */
 
-#ifndef SUPERSHADER_H
-#define SUPERSHADER_H
+#ifndef G3D_SUPERSHADER_H
+#define G3D_SUPERSHADER_H
 
 #include "G3D/ReferenceCount.h"
 #include "G3D/Table.h"

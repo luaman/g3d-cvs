@@ -208,10 +208,16 @@ class Component {
 public:
 
     enum Factors {
-        ZERO,
-        ONE,
+        /** rgb() will always be zero (says nothing about the alpha value) */
+        BLACK,
+
+        /** There is no map, but there is a non-black constant specified. */
         CONSTANT,
+
+        /** There is no constant, but there is a map specified that is assumed to be not all black. */
         MAP,
+
+        /** There is a map and a non-black constant. */
         MAP_TIMES_CONSTANT
     };
 
@@ -232,16 +238,12 @@ private:
     void init(const Color& constant) {
         m_constant = constant;
 
-        if (constant.isZero()) {
-            m_factors = ZERO;
-        } else if (constant.isOne()) {
-            if (m_map.isNull()) {
-                m_factors = ONE;
-            } else {
-                m_factors = MAP;
-            }
+        if (constant.rgb() == Color3::zero()) {
+            m_factors = BLACK;
         } else if (m_map.isNull()) {
             m_factors = CONSTANT;
+        } else if (constant.rgb() == Color3::one()) {
+            m_factors = MAP;
         } else {
             m_factors = MAP_TIMES_CONSTANT;
         }
@@ -255,20 +257,6 @@ private:
             m_min  = m_constant;
             m_mean = m_constant;
         }
-    }
-
-    /** Returns true if the color portion of a component is black */
-    static inline bool isBlack(const Color1& color) {
-        return color.value = 0;
-    }
-
-    static inline bool isBlack(const Color3& color) {
-        return color.isZero();
-    }
-
-    /** Returns true if the color portion of a component is black */
-    static inline bool isBlack(const Color4& color) {
-        return color.rgb() == Color3::black();
     }
 
 public:
@@ -314,22 +302,6 @@ public:
             (m_constant == other.m_constant) &&
             (m_map == other.m_map);
     }
-
-    /** True if this component is equal to Color::zero(). */
-    inline bool isZero() const {
-        return m_factors == ZERO;
-    }
-
-    /** True if this component is equal to Color::one(). */
-    inline bool isOne() const {
-        return m_factors == ONE;
-    }
-
-    /** True if this component is not equal to Color4::zero().  
-       Note that if it has an all-zero image, it may still be zero. */
-    inline bool notZero() const {
-        return m_factors != ZERO;
-    }
     
     inline Factors factors() const {
         return m_factors;
@@ -347,9 +319,8 @@ public:
     */
     inline Color sample(const Vector2& pos) const {
         switch (m_factors) {
-        case ZERO:
+        case BLACK:
         case CONSTANT:
-        case ONE:
             return m_constant;
 
         case MAP:
@@ -412,22 +383,14 @@ public:
         }
     }
 
-    /** Returns true if the r,g,b components are zero.  Makes an assumption that
-        this is indeed storing color and not arbitrary packed components */
-    bool isBlack() const {
-        switch (m_factors) {
-        case Component::ZERO:
-            return true;
-        case Component::ONE:
-        case Component::MAP:
-            return false;
-        case Component::CONSTANT:
-        case Component::MAP_TIMES_CONSTANT:
-            return isBlack(m_constant);
-        default:
-            alwaysAssertM(false, "Fell through switch");
-            return false;
-        }
+    /** Says nothing about the alpha channel */
+    inline bool notBlack() const {
+        return factors() != BLACK;
+    }
+
+    /** Says nothing about the alpha channel */
+    inline bool isBlack() const {
+        return factors() == BLACK;
     }
 };
 

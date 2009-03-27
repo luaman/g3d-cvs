@@ -19,16 +19,17 @@ namespace G3D {
     reflection as having no glossy map but a packed specular
    exponent of 1 (=infinity).*/   
 static bool mirrorReflectiveFF(const UberBSDF::Ref& bsdf) { 
-    return ((bsdf->specular().factors() == Component4::CONSTANT) ||
-     (bsdf->specular().factors() == Component4::ONE)) &&
-     ! bsdf->specular().isZero();
+    return 
+        (bsdf->specular().factors() == Component4::CONSTANT) ||
+        (UberBSDF::packedSpecularMirror() == bsdf->specular().constant().a);
 }
 
 /** For fixed function, we detect glossy
     reflection as having a packed specular exponent less 
     than 1.*/   
 static bool glossyReflectiveFF(const UberBSDF::Ref& bsdf) {
-     return (bsdf->specular().constant().a < 1) && (bsdf->specular().constant().a > 0);
+     return (bsdf->specular().constant().a != UberBSDF::packedSpecularMirror()) && 
+            (bsdf->specular().constant().a != UberBSDF::packedSpecularNone());
 }
 
 
@@ -138,7 +139,7 @@ void GenericPosedModel::renderNonShadowed(
             const UberBSDF::Ref& bsdf = material->bsdf();
             (void)material;
             (void)bsdf;
-            debugAssertM(bsdf->transmissive().isZero(), 
+            debugAssertM(bsdf->transmissive().isBlack(), 
                 "Transparent object passed through the batch version of "
                 "GenericPosedModel::renderNonShadowed, which is intended exclusively for opaque objects.");
 
@@ -213,7 +214,7 @@ void GenericPosedModel::renderShadowMappedLightPass
             const Material::Ref&          material = posed->m_gpuGeom->material;
             const UberBSDF::Ref&              bsdf     = material->bsdf();
 
-            if (bsdf->lambertian().isZero() && bsdf->specular().isZero()) {
+            if (bsdf->lambertian().isBlack() && bsdf->specular().isBlack()) {
                 // Nothing to draw for this object
                 continue;
             }
@@ -392,9 +393,9 @@ bool GenericPosedModel::renderPS20NonShadowedOpaqueTerms(
     const LightingRef&                      lighting) const {
 
     const Material::Ref& material = m_gpuGeom->material;
-    const UberBSDF::Ref&     bsdf     = material->bsdf();
+    const UberBSDF::Ref&     bsdf = material->bsdf();
 
-    if (bsdf->isZero()) {
+    if (bsdf->hasReflection()) {
         // Nothing to draw
         return false;
     }
@@ -471,7 +472,7 @@ bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
 
 
     // Emissive
-    if (! material->emissive().isZero()) {
+    if (! material->emissive().isBlack()) {
         rd->setColor(material->emissive().constant());
         rd->setTexture(0, material->emissive().texture());
         sendGeometry2(rd);
@@ -519,14 +520,15 @@ bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
     }
 
     // Add ambient + lights
-    if (! bsdf->lambertian().isBlack() || ! bsdf->specular().isBlack()) {
+    if (bsdf->lambertian().factors() != Component4::BLACK || 
+        bsdf->specular().factors() != Component4::BLACK) {
         rd->enableLighting();
         rd->setTexture(0, bsdf->lambertian().texture());
         rd->setColor(bsdf->lambertian().constant());
 
         // Fixed function does not receive specular texture maps, only constants.
         rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
-        rd->setShininess(UberBSDF::unpackGlossyExponent(bsdf->specular().constant().a));
+        rd->setShininess(UberBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
 
         // Ambient
         if (lighting.notNull()) {
@@ -564,7 +566,7 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
     const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
     // Emissive
-    if (! m_gpuGeom->material->emissive().isBlack()) {
+    if (! m_gpuGeom->material->emissive().factors() != Component3::BLACK) {
         rd->disableLighting();
         rd->setColor(m_gpuGeom->material->emissive().constant());
         rd->setTexture(0, m_gpuGeom->material->emissive().texture());
@@ -622,7 +624,7 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
 
                 // Fixed function does not receive specular texture maps, only constants.
                 rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
-                rd->setShininess(UberBSDF::unpackGlossyExponent(bsdf->specular().constant().a));
+                rd->setShininess(UberBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
 
                 // Ambient
                 if (lighting.notNull()) {
@@ -877,7 +879,7 @@ void GenericPosedModel::renderFFShadowMappedLightPass(
         GLight light2 = light;
         light2.diffuse = false;
         rd->setLight(0, light2);
-        rd->setShininess(UberBSDF::unpackGlossyExponent(bsdf->specular().constant().a));
+        rd->setShininess(UberBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
 
         sendGeometry2(rd);
 
