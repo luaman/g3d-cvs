@@ -3378,7 +3378,8 @@ void RenderDevice::describeSystem(
         var(t, "Textures", GLCaps::numTextures());
         var(t, "Texture coordinates", GLCaps::numTextureCoords());
         var(t, "Texture units", GLCaps::numTextureUnits());
-        var(t, "Texture size", glGetInteger(GL_MAX_TEXTURE_SIZE));
+        var(t, "GL_MAX_TEXTURE_SIZE", glGetInteger(GL_MAX_TEXTURE_SIZE));
+        var(t, "GL_MAX_COLOR_ATTACHMENTS_EXT", glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT));
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();

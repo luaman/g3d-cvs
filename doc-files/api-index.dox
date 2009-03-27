@@ -22,7 +22,7 @@ href="classes.html">Classes</a>.
     \link G3D::debugDraw debugDraw\endlink,
     \link G3D::DirectionHistogram DirectionHistogram\endlink,
     \link G3D::GFont GFont\endlink,
-    \link G3D::GenricPosedModel GenericPosedModel\endlink,
+    \link G3D::GenericPosedModel GenericPosedModel\endlink,
     \link G3D::GLight GLight\endlink,
     \link G3D::GMaterial GMaterial\endlink,
     \link G3D::IFSModel IFSModel\endlink,

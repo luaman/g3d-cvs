@@ -166,6 +166,14 @@ protected:
 
 public:
 
+    inline const GPUGeom::Ref& gpuGeom() const {
+        return m_gpuGeom;
+    }
+
+    inline const CPUGeom& cpuGeom() const {
+        return m_cpuGeom;
+    }
+
     /** Classification of a graphics card. 
         FIXED_FUNCTION  Use OpenGL fixed function lighting only.
         PS14            Use pixel shader 1.4 (texture crossbar; adds specular maps)

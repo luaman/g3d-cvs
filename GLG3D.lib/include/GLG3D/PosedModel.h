@@ -153,6 +153,9 @@ public:
     static void getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bounds);
     static void getSphereBounds(const Array<PosedModel::Ref>& models, Sphere& bounds);
 
+    /** Computes the array of models that can be seen by @a camera*/
+    static void cull(const class GCamera& camera, const class Rect2D& viewport, const Array<PosedModel::Ref>& allModels, Array<PosedModel::Ref>& outModels);
+
     /** Object to world space coordinate frame.*/
     virtual void getCoordinateFrame(CoordinateFrame& c) const = 0;
 

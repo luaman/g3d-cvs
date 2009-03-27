@@ -45,6 +45,20 @@ void PosedModel::getSphereBounds(const Array<PosedModel::Ref>& models, Sphere& b
 }
 
 
+void PosedModel::cull(const GCamera& camera, const Rect2D& viewport, const Array<PosedModel::Ref>& allModels, Array<PosedModel::Ref>& outModels) {
+    outModels.fastClear();
+
+    Array<Plane> clipPlanes;
+    camera.getClipPlanes(viewport, clipPlanes);
+    for (int i = 0; i < allModels.size(); ++i) {
+        const Sphere& sphere = allModels[i]->worldSpaceBoundingSphere();
+        if (! sphere.culledBy(clipPlanes)) {
+            outModels.append(allModels[i]);
+        }
+    }
+}
+
+
 void PosedModel::sortAndRender
 (
  RenderDevice*                  rd, 
@@ -151,14 +165,7 @@ void PosedModel::sortAndRender
     }
 
     // Cull objects outside the view frustum
-    static Array<Plane> clipPlanes;
-    camera.getClipPlanes (rd->viewport(), clipPlanes);
-    for (int i = 0; i < allModels.size(); ++i) {
-        const Sphere& sphere = allModels[i]->worldSpaceBoundingSphere();
-        if (! sphere.culledBy(clipPlanes)) {
-            posed3D.append(allModels[i]);
-        }
-    }
+    cull(camera, rd->viewport(), allModels, posed3D);
 
     // Separate and sort the models
     GenericPosedModel::extractOpaque(posed3D, opaqueGeneric);

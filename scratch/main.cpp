@@ -59,7 +59,7 @@ void App::onInit() {
 
     film = Film::create();
 
-
+/*
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
@@ -68,6 +68,10 @@ void App::onInit() {
     model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS", preprocess);
 
     timer.after("load");
+
+    */
+
+    model = ArticulatedModel::createCornellBox();
 
     setDesiredFrameRate(1000);
 
