@@ -126,7 +126,7 @@ public:
 
 private:
 
-    Lighting() : emissiveScale(Color3::white()) {}
+    Lighting() : emissiveScale(Color3::white()), ambientTop(Color3::black()), ambientBottom(Color3::black()), environmentMapColor(Color3::white()) {}
 
 public:
 
