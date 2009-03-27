@@ -65,6 +65,9 @@ public:
         return x;
     }
 
+    /** Returns the value three times */
+    class Color3 rgb() const;
+
     Color1 (const class Color1uint8& other);
 
     void serialize(class BinaryOutput& bo) const;

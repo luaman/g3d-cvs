@@ -52,6 +52,11 @@ public:
     
     explicit Color3(const float value[3]);
 
+    /** Returns this color */
+    const Color3& rgb() const {
+        return *this;
+    }
+
     /**
      Initialize from another color.
      */
