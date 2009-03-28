@@ -2924,7 +2924,6 @@ void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
             majGLStateChange();
         }
     }
-
 }
 
 
