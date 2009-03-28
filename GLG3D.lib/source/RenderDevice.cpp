@@ -2953,8 +2953,21 @@ void RenderDevice::setColorArray(const class VAR& v) {
 
 
 void RenderDevice::setTexCoordArray(unsigned int unit, const class VAR& v) {
-    setVARAreaFromVAR(v);
-    v.texCoordPointer(unit);
+    if (v.size() == 0) {
+        debugAssertM(GLCaps::supports_GL_ARB_multitexture() || (unit == 0),
+            "Graphics card does not support multitexture");
+
+        if (GLCaps::supports_GL_ARB_multitexture()) {
+            glClientActiveTextureARB(GL_TEXTURE0_ARB + unit);
+        }
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        if (GLCaps::supports_GL_ARB_multitexture()) {
+            glClientActiveTextureARB(GL_TEXTURE0_ARB);
+        }
+    } else {
+        setVARAreaFromVAR(v);
+        v.texCoordPointer(unit);
+    }
 }
 
 

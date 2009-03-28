@@ -74,6 +74,7 @@
      <li> Fix: G3D::Image4 was ignoring the wrapmode specified at the constructor
      <li> Fix: improper use of 'static' in G3D::Map2D made it not threadsafe
      <li> Fix: G3D::Lighting did not initialize the ambient fields
+     <li> Fix: RenderDevice::setTexCoordArray now accepts an uninitialized VAR as an argument to disable the texcoord array.
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
