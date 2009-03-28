@@ -8,7 +8,7 @@
  @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
  
  @created 2001-06-02
- @edited  2009-01-01
+ @edited  2009-03-27
  */
 
 #include <limits>
@@ -37,6 +37,15 @@ Vector3::Vector3(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z
 Vector3::Vector3(const class Vector2& v, float _z) : x(v.x), y(v.y), z(_z) {
 }
 
+const Vector3& Vector3::zero() { static const Vector3 v(0, 0, 0); return v; }
+const Vector3& Vector3::one()      { static const Vector3 v(1, 1, 1); return v; }
+const Vector3& Vector3::unitX()    { static const Vector3 v(1, 0, 0); return v; }
+const Vector3& Vector3::unitY()    { static const Vector3 v(0, 1, 0); return v; }
+const Vector3& Vector3::unitZ()    { static const Vector3 v(0, 0, 1); return v; }
+const Vector3& Vector3::inf()      { static const Vector3 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); return v; }
+const Vector3& Vector3::nan()      { static const Vector3 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); return v; }
+const Vector3& Vector3::minFinite(){ static const Vector3 v(-FLT_MAX, -FLT_MAX, -FLT_MAX); return v; }
+const Vector3& Vector3::maxFinite(){ static const Vector3 v(FLT_MAX, FLT_MAX, FLT_MAX); return v; }
 
 Vector3::Axis Vector3::primaryAxis() const {
     

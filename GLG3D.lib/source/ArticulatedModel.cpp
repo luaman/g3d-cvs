@@ -95,10 +95,10 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
     // Cached bump maps; if NULL, there is no bump map for this file
     Table<std::string, Texture::Ref> bumpMap;
 
-    Load3DS load;
-    Table<std::string, TextureRef> texCache;
+    //Table<std::string, TextureRef> texCache;
 
     std::string path = filenamePath(filename);
+    Load3DS load;
     load.load(filename);
 
     partArray.resize(load.objectArray.size());

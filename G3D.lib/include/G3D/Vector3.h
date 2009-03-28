@@ -379,17 +379,19 @@ public:
     }
 
     // Special values.
-    inline static const Vector3& zero()     { static Vector3 v(0, 0, 0); return v; }
-    inline static const Vector3& one()      { static Vector3 v(1, 1, 1); return v; }
-    inline static const Vector3& unitX()    { static Vector3 v(1, 0, 0); return v; }
-    inline static const Vector3& unitY()    { static Vector3 v(0, 1, 0); return v; }
-    inline static const Vector3& unitZ()    { static Vector3 v(0, 0, 1); return v; }
-    inline static const Vector3& inf()      { static Vector3 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); return v; }
-    inline static const Vector3& nan()      { static Vector3 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); return v; }
+    static const Vector3& zero();
+    static const Vector3& one();
+    static const Vector3& unitX();
+    static const Vector3& unitY();
+    static const Vector3& unitZ();
+    static const Vector3& inf();
+    static const Vector3& nan();
+    
     /** Smallest (most negative) representable vector */
-    inline static const Vector3& minFinite(){ static Vector3 v(-FLT_MAX, -FLT_MAX, -FLT_MAX); return v; }
+    static const Vector3& minFinite();
+
     /** Largest representable vector */
-    inline static const Vector3& maxFinite(){ static Vector3 v(FLT_MAX, FLT_MAX, FLT_MAX); return v; }
+    static const Vector3& maxFinite();
 
     // 2-char swizzles
 

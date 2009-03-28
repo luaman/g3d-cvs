@@ -62,7 +62,7 @@ void App::onInit() {
 
     film = Film::create();
 
-/*
+
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
@@ -72,15 +72,14 @@ void App::onInit() {
 
     timer.after("load");
 
-    */
-
+/*
     model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
     Material::Settings spec;
     spec.setLambertian(Color3::black());
     spec.setSpecular(Color3::blue());
     spec.setShininess(20);
     model->partArray[0].triList[0]->material = Material::create(spec);
-
+*/
     ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
 
     setDesiredFrameRate(1000);

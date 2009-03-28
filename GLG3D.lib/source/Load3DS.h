@@ -345,7 +345,6 @@ public:
 
 
     /**
-     @param t Should polygons be two sided?
      */
     void load(const std::string& filename) {
         b = new BinaryInput(filename, G3D_LITTLE_ENDIAN);
