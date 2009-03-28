@@ -259,20 +259,23 @@ void ShadowMap::computeColorTexture() {
 
 void ShadowMap::computeMatrices
 (const GLight&  light, 
- const AABox&   sceneBounds, 
- CFrame&        lightFrame, 
+ const AABox&   sceneBounds,
+ GCamera&       lightFrame,
  Matrix4&       lightProjectionMatrix,
  float          lightProjX,
  float          lightProjY,
  float          lightProjNear,
  float          lightProjFar) {
 
-    lightFrame = light.frame();
+    lightFrame.setCoordinateFrame(light.frame());
+
     if (light.position.w == 0) {
         // Move directional light away from the scene.  It must be far enough to see all objects
-        lightFrame.translation = lightFrame.translation * 
-            max(sceneBounds.extent().length() / 2.0f, lightProjNear, 30.0f) + sceneBounds.center();
+        lightFrame.setPosition(lightFrame.coordinateFrame().translation * 
+            max(sceneBounds.extent().length() / 2.0f, lightProjNear, 30.0f) + sceneBounds.center());
     }
+
+    const CFrame& f = lightFrame.coordinateFrame();
 
     if (light.spotCutoff <= 90) {
         // Spot light; we can set the lightProj bounds intelligently
@@ -284,7 +287,7 @@ void ShadowMap::computeMatrices
         lightProjFar  = 0;
         for (int c = 0; c < 8; ++c) {
             Vector3 v = sceneBounds.corner(c);
-            v = lightFrame.pointToObjectSpace(v);
+            v = f.pointToObjectSpace(v);
             lightProjNear = min(lightProjNear, -v.z);
             lightProjFar = max(lightProjFar, -v.z);
         }
@@ -310,7 +313,7 @@ void ShadowMap::computeMatrices
 
         lightProjectionMatrix = 
             Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                      lightProjY, lightProjNear, lightProjFar);
+                                            lightProjY, lightProjNear, lightProjFar);
 
     } else if (light.position.w == 0) {
         // Directional light
@@ -341,6 +344,11 @@ void ShadowMap::computeMatrices
         lightProjectionMatrix = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
                                                               lightProjY, lightProjNear, lightProjFar);
     }
+
+    float fov = atan2(lightProjX, lightProjNear);
+    lightFrame.setFieldOfView(fov, GCamera::HORIZONTAL);
+    lightFrame.setNearPlaneZ(-lightProjNear);
+    lightFrame.setFarPlaneZ(-lightProjFar);
 }
 
 }

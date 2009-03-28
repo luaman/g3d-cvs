@@ -47,9 +47,8 @@ public:
     enum FOVDirection {HORIZONTAL, VERTICAL};
 
 private:
-
     
-    /** field of view (in radians) */
+    /** 1/2 Field of view (in radians) */
     float						m_fieldOfView;
 
     /** Clipping plane, *not* imaging plane.  Negative numbers. */
@@ -112,8 +111,11 @@ public:
     Vector3 convertFromUnitToNormal(const Vector3& in, const Rect2D& viewport) const;
 
     /**
-       Sets the vertical field of view, in radians.  The 
-       initial angle is toRadians(55).  Must specify the direction of the angle
+       Sets the field of view, in radians.  The 
+       initial angle is toRadians(55).  Must specify
+       the direction of the angle.
+
+       This is the half angle, i.e., from the view axis to the top or side of the screen.
     */
     void setFieldOfView(float angle, FOVDirection direction);
 

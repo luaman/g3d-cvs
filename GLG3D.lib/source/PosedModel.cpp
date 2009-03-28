@@ -95,15 +95,24 @@ void PosedModel::sortAndRender
         AABox sceneBounds;
         PosedModel::getBoxBounds(allModels, sceneBounds);
 
+        Array<PosedModel::Ref> lightVisible;
+        Array<PosedModel::Ref> lightSorted;
+
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             const GLight& light = lighting->shadowedLightArray[L];
 
-            CFrame  lightFrame;
+            GCamera lightFrame;
             Matrix4 lightProjectionMatrix;
 
             ShadowMap::computeMatrices(lighting->shadowedLightArray[L], sceneBounds, lightFrame, lightProjectionMatrix);
-            shadowMaps[L]->updateDepth(rd, lightFrame, lightProjectionMatrix, allModels);
+
+            PosedModel::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
+            PosedModel::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
+            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted);
+
+            lightVisible.fastClear();
+            lightSorted.fastClear();
         }
     } else {
         // We're not going to be able to draw shadows, so move the shadowed lights into
