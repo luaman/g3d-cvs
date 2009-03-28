@@ -345,7 +345,7 @@ void ShadowMap::computeMatrices
                                                               lightProjY, lightProjNear, lightProjFar);
     }
 
-    float fov = atan2(lightProjX, lightProjNear);
+    float fov = atan2(lightProjX, lightProjNear) * 2.0f;
     lightFrame.setFieldOfView(fov, GCamera::HORIZONTAL);
     lightFrame.setNearPlaneZ(-lightProjNear);
     lightFrame.setFarPlaneZ(-lightProjFar);

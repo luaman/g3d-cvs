@@ -102,11 +102,10 @@ void GCamera::getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const{
 
     float r, l, t, b, n, f, x, y;
 
-    if(m_direction == VERTICAL){
+    if (m_direction == VERTICAL) {
         y = -m_nearPlaneZ * tan(m_fieldOfView / 2);
         x = y * (screenWidth / screenHeight);
-    }
-    else{ //m_direction == HORIZONTAL
+    } else { //m_direction == HORIZONTAL
         x = -m_nearPlaneZ * tan(m_fieldOfView / 2);
         y = x * (screenHeight / screenWidth);
     }
