@@ -3,10 +3,8 @@
 
   @author Morgan McGuire, morgan@cs.williams.edu
  */
-
 #include <G3D/G3DAll.h>
 #include "App.h"
-
 
 App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::create()) {
     catchCommonExceptions = false;
@@ -24,7 +22,8 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
 
         Texture::Settings settings;
         settings.wrapMode = WrapMode::CLAMP;
-        logo = Texture::fromFile("G3D-logo-tiny-alpha.tga", ImageFormat::AUTO(), Texture::DIM_2D, settings);
+        logo = Texture::fromFile("G3D-logo-tiny-alpha.tga", ImageFormat::AUTO(), 
+                                 Texture::DIM_2D, settings);
     } catch (const std::string& s) {
         alwaysAssertM(false, s);
         exit(-1);
@@ -56,9 +55,11 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
 
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-    LightingRef        lighting = toneMap->prepareLighting(this->lighting);
-    SkyParameters skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
+    const Lighting::Ref&  lighting      = toneMap->prepareLighting(this->lighting);
+    SkyParameters         skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
+    screenPrintf("Lights: %d\n", lighting->lightArray.size());
+    screenPrintf("S Lights: %d\n", lighting->shadowedLightArray.size());
     GenericPosedModel::debugNumSendGeometryCalls = 0;
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
@@ -78,7 +79,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
 
     /*
-      // See bounding volumes:
+    // See bounding volumes:
     for (int i = 0; i < posed3D.size(); ++i) {
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
@@ -112,6 +113,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         rd, Color4(1,1,1,0.7f));
     rd->pop2D();
 
-    screenPrintf("GenericPosedModel::debugNumSendGeometryCalls = %d\n", GenericPosedModel::debugNumSendGeometryCalls);
+    screenPrintf("GenericPosedModel::debugNumSendGeometryCalls = %d\n", 
+                 GenericPosedModel::debugNumSendGeometryCalls);
 }
 

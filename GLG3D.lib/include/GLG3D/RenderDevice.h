@@ -406,17 +406,19 @@ public:
     void describeSystem(std::string& s);
 
     /**
-     Checkmarks all RenderDevice state (anything that can be set 
-     using RenderDevice methods).
+     \brief Checkmarks all RenderDevice state (anything that can be
+     set using RenderDevice methods) except for the currently bound
+     vertex arrays.
 
      If you are using some other OpenGL state that is not covered by
-     any of the above (e.g., the glReadBuffer and other buffer options),
-     you can call glPushAttrib(GL_ALL_ATTRIB_BITS) immediately before 
-     pushState to ensure that it is pushed as well.
+     any of the above (e.g., the glReadBuffer and other buffer
+     options), you can call glPushAttrib(GL_ALL_ATTRIB_BITS)
+     immediately before pushState to ensure that it is pushed as well.
      */
     void pushState();
 
-    /** Pushes the current state, then set the specified frame buffer and matches the viewport to it.*/
+    /** \brief Pushes the current state, then set the specified frame
+        buffer and matches the viewport to it.*/
     void pushState(const FramebufferRef& fb);
 
     /**

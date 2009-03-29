@@ -1261,7 +1261,6 @@ void RenderDevice::setCullFace(CullFace f) {
 
 void RenderDevice::pushState() {
     debugAssert(! inPrimitive);
-    debugAssert(! inIndexedPrimitive);
 
     // texgen enables
     glPushAttrib(GL_TEXTURE_BIT);
@@ -2938,8 +2937,11 @@ void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
 }
 
 
-void RenderDevice::setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& color,
-                           const Array<VAR>& texCoord) {
+void RenderDevice::setVARs
+(const class VAR&  vertex, 
+ const class VAR&  normal, 
+ const class VAR&  color,
+ const Array<VAR>& texCoord) {
 
     // Wipe old VARArea
     currentVARArea = NULL;
@@ -2947,7 +2949,7 @@ void RenderDevice::setVARs(const class VAR& vertex, const class VAR& normal, con
     // Disable anything that is not about to be set
     debugAssertM((m_varState.highestEnabledTexCoord == 0) || GLCaps::supports_GL_ARB_multitexture(),
                  "Graphics card does not support multitexture");
-    for (int i = texCoord.size() - 1; i < m_varState.highestEnabledTexCoord; ++i) {
+    for (int i = texCoord.size(); i <= m_varState.highestEnabledTexCoord; ++i) {
         if (GLCaps::supports_GL_ARB_multitexture()) {
             glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
         }
