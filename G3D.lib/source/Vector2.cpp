@@ -120,24 +120,14 @@ Vector2 Vector2::random() {
     return result;
 }
 
-//----------------------------------------------------------------------------
-Vector2 Vector2::operator/ (float fScalar) const {
-    Vector2 kQuot;
 
-    if ( fScalar != 0.0f ) {
-		float fInvScalar = 1.0f / fScalar;
-        kQuot.x = fInvScalar * x;
-        kQuot.y = fInvScalar * y;
-        return kQuot;
-    } else {
-        return Vector2::inf();
-    }
+Vector2 Vector2::operator/ (float k) const {
+    return *this * (1.0f / k);
 }
 
-//----------------------------------------------------------------------------
 Vector2& Vector2::operator/= (float fScalar) {
     if (fScalar != 0.0f) {
-		float fInvScalar = 1.0f / fScalar;
+        float fInvScalar = 1.0f / fScalar;
         x *= fInvScalar;
         y *= fInvScalar;
     } else {

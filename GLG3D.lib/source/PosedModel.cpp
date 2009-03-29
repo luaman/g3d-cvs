@@ -105,7 +105,7 @@ void PosedModel::sortAndRender
             GCamera lightFrame;
             Matrix4 lightProjectionMatrix;
 
-            ShadowMap::computeMatrices(lighting->shadowedLightArray[L], sceneBounds, lightFrame, lightProjectionMatrix);
+            ShadowMap::computeMatrices(light, sceneBounds, lightFrame, lightProjectionMatrix);
 
             PosedModel::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
             PosedModel::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);

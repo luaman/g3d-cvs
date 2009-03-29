@@ -1,3 +1,7 @@
+/**
+   @file GaussianBlur.cpp
+   @author Morgan McGuire, morgan@cs.williams.edu
+ */
 #include "GLG3D/GaussianBlur.h"
 #include "GLG3D/RenderDevice.h"
 #include "G3D/filter.h"
@@ -15,10 +19,10 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
                          const Vector2& destSize) {
     debugAssert(isOdd(N));
 
-    Rect2D dest = Rect2D::xywh(Vector2(0, 0), destSize);
+    const Rect2D& dest = Rect2D::xywh(Vector2(0, 0), destSize);
     rd->push2D(dest);
     {
-        ShaderRef gaussian1DShader = getShader(N);
+        const Shader::Ref& gaussian1DShader = getShader(N);
 
         gaussian1DShader->args.set("source", source);
         gaussian1DShader->args.set("pixelStep", direction / source->vector2Bounds());
@@ -30,7 +34,13 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
 }
 
 
-ShaderRef GaussianBlur::getShader(int N) {
+Table<int, Shader::Ref>& GaussianBlur::shaderCache() {
+    static Table<int, Shader::Ref> cache;
+    return cache;
+}
+
+
+Shader::Ref GaussianBlur::getShader(int N) {
     if (! shaderCache().containsKey(N)) {
         if (shaderCache().size() >= MAX_CACHE_SIZE) {
             // Remove a random element to keep the cache
@@ -47,7 +57,7 @@ ShaderRef GaussianBlur::getShader(int N) {
 }
 
 
-ShaderRef GaussianBlur::makeShader(int N) {
+Shader::Ref GaussianBlur::makeShader(int N) {
     debugAssert(N >= 2);
     // Make a string of the coefficients to insert into the shader
     Array<float> coeff;
@@ -55,7 +65,6 @@ ShaderRef GaussianBlur::makeShader(int N) {
     gaussian1D(coeff, N, stddev);
 
     std::string coefDecl;
-
     std::string version;
 
     if (true || GLCaps::enumVendor() == GLCaps::ATI) {
@@ -94,7 +103,7 @@ ShaderRef GaussianBlur::makeShader(int N) {
         */
     }
 
-    std::string pixelSource =
+    const std::string& pixelSource =
         "uniform sampler2D source;\n"
         "\n"
         "// vec2(dx, dy) / (source.width, source.height)\n"

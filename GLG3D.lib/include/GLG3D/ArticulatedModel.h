@@ -262,10 +262,10 @@ public:
         inline Part() : parent(-1) {}
 
         /** Creates a new tri list, adds it to the Part, and returns it */
-        inline TriList::Ref newTriList();
+        TriList::Ref newTriList();
 
         /**
-		 Called by the various ArticulatedModel::render calls.
+           Called by the various ArticulatedModel::render calls.
 		 
          Does not restore rendering state when done.
          @param parent Object-to-World reference frame of parent.

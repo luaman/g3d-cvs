@@ -469,6 +469,15 @@ void RenderDevice::init(OSWindow* window, Log* log) {
 }
 
 
+void RenderDevice::describeSystem(
+                                  std::string&        s) {
+    
+    TextOutput t;
+    describeSystem(t);
+    t.commitString(s);
+}
+
+
 bool RenderDevice::initialized() const {
     return _initialized;
 }
@@ -1250,9 +1259,9 @@ void RenderDevice::setCullFace(CullFace f) {
 }
 
 
-
 void RenderDevice::pushState() {
     debugAssert(! inPrimitive);
+    debugAssert(! inIndexedPrimitive);
 
     // texgen enables
     glPushAttrib(GL_TEXTURE_BIT);
@@ -2881,27 +2890,29 @@ std::string RenderDevice::screenshot(const std::string& filepath) const {
 
 
 void RenderDevice::beginIndexedPrimitives() {
-	debugAssert(! inPrimitive);
-	debugAssert(! inIndexedPrimitive);
+    debugAssert(! inPrimitive);
+    debugAssert(! inIndexedPrimitive);
 
     // TODO: can we avoid this push?
-	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT); 
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT); 
 
-	inIndexedPrimitive = true;
+    inIndexedPrimitive = true;
 }
 
 
 void RenderDevice::endIndexedPrimitives() {
-	debugAssert(! inPrimitive);
-	debugAssert(inIndexedPrimitive);
+    debugAssert(! inPrimitive);
+    debugAssert(inIndexedPrimitive);
 
-
+    // Allow garbage collection of VARs
+    m_tempVAR.fastClear();
+    
     if (GLCaps::supports_GL_ARB_vertex_buffer_object()) {
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
 
-	glPopClientAttrib();
-	inIndexedPrimitive = false;
+    glPopClientAttrib();
+    inIndexedPrimitive = false;
     currentVARArea = NULL;
 }
 
@@ -2925,6 +2936,57 @@ void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
         }
     }
 }
+
+
+void RenderDevice::setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& color,
+                           const Array<VAR>& texCoord) {
+
+    // Wipe old VARArea
+    currentVARArea = NULL;
+
+    // Disable anything that is not about to be set
+    debugAssertM((m_varState.highestEnabledTexCoord == 0) || GLCaps::supports_GL_ARB_multitexture(),
+                 "Graphics card does not support multitexture");
+    for (int i = texCoord.size() - 1; i < m_varState.highestEnabledTexCoord; ++i) {
+        if (GLCaps::supports_GL_ARB_multitexture()) {
+            glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+        }
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    // Bind new
+    setVertexArray(vertex);
+
+    if (normal.size() > 0) {
+        setNormalArray(normal);
+    } else {
+        glDisableClientState(GL_NORMAL_ARRAY);
+    }
+
+    if (color.size() > 0) {
+        setColorArray(color);
+    } else {
+        glDisableClientState(GL_COLOR_ARRAY);
+    }
+
+    for (int i = 0; i < texCoord.size(); ++i) {
+        setTexCoordArray(i, texCoord[i]);
+        if (texCoord[i].size() > 0) {
+            m_varState.highestEnabledTexCoord = i;
+        }
+    }
+}
+
+
+void RenderDevice::setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& texCoord0,
+                           const class VAR& texCoord1) {
+    m_tempVAR.fastClear();
+    if ((texCoord0.size() > 0) || (texCoord1.size() > 0)) {
+        m_tempVAR.append(texCoord0, texCoord1);
+    }
+    setVARs(vertex, normal, VAR(), m_tempVAR);
+}
+
 
 
 void RenderDevice::setVertexArray(const class VAR& v) {

@@ -62,14 +62,12 @@ void App::onInit() {
 
     film = Film::create();
 
-
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
     preprocess.textureDimension = Texture::DIM_2D_NPOT;
     preprocess.parallaxSteps = 0;
-    model = ArticulatedModel::fromFile("D:/morgan/data/3ds/fantasy/sponza/sponza.3DS", preprocess);
-
+    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
     timer.after("load");
 
 /*
@@ -80,13 +78,11 @@ void App::onInit() {
     spec.setShininess(20);
     model->partArray[0].triList[0]->material = Material::create(spec);
 */
-    ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
+//    ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
 
     setDesiredFrameRate(1000);
 
     sky = Sky::fromFile(System::findDataFile("sky"));
-
-//	model = ArticulatedModel::fromFile(System::findDataFile("horse.ifs"), 4.0f);
 
     if (sky.notNull()) {
         skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
@@ -94,7 +90,7 @@ void App::onInit() {
 
     lighting = Lighting::create();
     {
-        GLight L = GLight::spot(Vector3(0, 3, 0), -Vector3::unitY(), 45, Color3::white());
+        GLight L = GLight::spot(Vector3(0, 40, 0), -Vector3::unitY(), 45, Color3::white());
         L.spotSquare = false;
         lighting->shadowedLightArray.append(L);
     }
@@ -200,11 +196,12 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
 
-//    Draw::sphere(Sphere(localLighting->shadowedLightArray[0].position.xyz(), 0.2f), rd, Color3::white());
+    /*
     Draw::sphere(Sphere(Vector3(0,3,0), 0.2f), rd, Color3::white());
     Draw::axes(rd);
     Draw::sphere(Sphere(Vector3::zero(), 3), rd);
     Draw::box(AABox(Vector3(-3,0,-3), Vector3(3,6,3)), rd);
+    */
 
     if (histogram != NULL) {
         histogram->render(rd);

@@ -556,40 +556,39 @@ void GPUProgram::BindingTable::arbBind(GLenum target) const {
 
 bool GPUProgram::CgType(const std::string& s, GPUProgram::Type& t) {
 
-	if (s == "float4x4") {
-		t = FLOAT4X4;
-	} else if (s == "float3x3") {
-		t = FLOAT3X3;
-	} else if (s == "float2x2") {
-		t = FLOAT2X2;
-	} else if (s == "float4") {
-		t = FLOAT4;
-	} else if (s == "float3") {
-		t = FLOAT3;
-	} else if (s == "float2") {
-		t = FLOAT2;
-	} else if (s == "float1") {
-		t = FLOAT1;
-	} else if (s == "float") {
-		t = FLOAT1;
-	} else if (s == "sampler1D") {
-		t = SAMPLER1D;
-	} else if (s == "sampler2D") {
-		t = SAMPLER2D;
-	} else if (s == "sampler3D") {
-		t = SAMPLER3D;
-	} else if (s == "samplerCUBE") {
-		t = SAMPLERCUBE;
-	} else if (s == "samplerRECT") {
-		t = SAMPLERRECT;
-	} else {
-		return false;
-	}
-
-	return true;
+    if (s == "float4x4") {
+        t = FLOAT4X4;
+    } else if (s == "float3x3") {
+        t = FLOAT3X3;
+    } else if (s == "float2x2") {
+        t = FLOAT2X2;
+    } else if (s == "float4") {
+        t = FLOAT4;
+    } else if (s == "float3") {
+        t = FLOAT3;
+    } else if (s == "float2") {
+        t = FLOAT2;
+    } else if (s == "float1") {
+        t = FLOAT1;
+    } else if (s == "float") {
+        t = FLOAT1;
+    } else if (s == "sampler1D") {
+        t = SAMPLER1D;
+    } else if (s == "sampler2D") {
+        t = SAMPLER2D;
+    } else if (s == "sampler3D") {
+        t = SAMPLER3D;
+    } else if (s == "samplerCUBE") {
+        t = SAMPLERCUBE;
+    } else if (s == "samplerRECT") {
+        t = SAMPLERRECT;
+    } else {
+        return false;
+    }
+    
+    return true;
 }
-
-
+    
 
 std::string GPUProgram::toString(const Type& t) {
 
@@ -625,20 +624,18 @@ std::string GPUProgram::toString(const Type& t) {
 
 
 void GPUProgram::BindingTable::parseVariable(TextInput& ti) {
-	std::string name;
-
+    std::string name;
+    Type type = FLOAT1;
 
     // #var float4 osLight :  : c[4] : 1 : 1
     // #var float3 vin.v0 : $vin.POSITION : ATTR0 : 2 : 1
 
     Token t = ti.peek();
     if (t.type() != Token::SYMBOL) {
-		goto abort;
-	}
+        goto abort;
+    }
     // get the binding's type
     ti.readSymbol();
-    Type type;
-
 
     if (! CgType(t.string(), type)) {
         alwaysAssertM(false, std::string("Unsupported type: \"") + t.string() + "\"");
@@ -646,8 +643,8 @@ void GPUProgram::BindingTable::parseVariable(TextInput& ti) {
     
     t = ti.peek();
     if (t.type() != Token::SYMBOL) {
-		goto abort;
-	}
+        goto abort;
+    }
     // read the binding name
     name = ti.readSymbol();
 

@@ -8,9 +8,9 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2001-05-29
-  @edited  2008-03-30
+  @edited  2009-03-26
 
-  Copyright 2001-2008, Morgan McGuire
+  Copyright 2001-2009, Morgan McGuire
 */
 
 #ifndef GLG3D_RENDERDEVICE_H
@@ -226,13 +226,13 @@ private:
     void setVARAreaFromVAR(const class VAR& v);
 
     /** The area used inside of an indexedPrimitives call. */
-    VARAreaRef                  currentVARArea;
+    VARArea::Ref                currentVARArea;
 
-	/** Updates the triangle count based on the primitive.
-    
+    /** Updates the triangle count based on the primitive.
+        
         LINE and POINT primitives are given one triangle count each. */
-	void countTriangles(RenderDevice::Primitive primitive, int numVertices);
-
+    void countTriangles(RenderDevice::Primitive primitive, int numVertices);
+    
     std::string                 cardDescription;
 
     /**
@@ -266,47 +266,6 @@ private:
     void syncDrawBuffer();
 
 public:
-
-	class DebugSettings {
-	public:
-            /** 
-		Stop rendering after @a primitiveCutoff primitives (i.e., RenderDevice::beginPrimitive or 
-		RenderDevice::sendIndices calls) have been processed.  The last primitive rendered before 
-		the cutoff will be shown as a wireframe mesh.
-                
-                -1 means render all.  Default is -1
-            */
-            int				primitiveCutoff;
-            
-            /** Forces wireframe mode for all primitives. Default is false. */
-            bool			forceWireframe;
-            
-            enum Pipeline {
-                // Ignore all draw calls
-                PIPELINE_NONE,
-                
-                // Process vertices but not pixels
-                PIPELINE_VERTICES_ONLY,
-                
-                // Process full pipeline of vertices and pixels
-                PIPELINE_FULL
-            };
-            
-            /** Default is PIPELINE_FULL */
-            Pipeline        pipeline;
-            
-            enum Reveal {
-                REVEAL_COLOR,
-                REVEAL_DEPTH,
-                REVEAL_STENCIL,
-                REVEAL_ALPHA,
-                REVEAL_OVERDRAW
-            };
-            
-            /** Default is REVEAL_COLOR */
-            Reveal          reveal;
-	};
-
     
     /** Runtime performance statistics useful for profiling.
         
@@ -376,6 +335,20 @@ protected:
 
     Stats               m_stats;
 
+    /** Storage for setVARs.  Cleared by endIndexedPrimitives. */
+    Array<VAR>          m_tempVAR;
+
+    class VARState {
+    public:
+        int             highestEnabledTexCoord;
+
+        VARState() : highestEnabledTexCoord(-1) {}
+    };
+    
+    /** Note: note backed up by push/pop, since push/pop can't be
+        called inside indexed primitives */
+    VARState            m_varState;
+
 public:
 
     inline const Stats& stats() {
@@ -414,6 +387,7 @@ public:
     /** Allows the UserInput to find the RenderDevice 
         @deprecated */
     static RenderDevice*        lastRenderDeviceCreated;
+
 protected:
     /** Times swapbuffers */
     Stopwatch                   m_swapTimer;
@@ -429,13 +403,7 @@ public:
      */
     void describeSystem(TextOutput& t);
 
-    inline void describeSystem(
-        std::string&        s) {
-    
-        TextOutput t;
-        describeSystem(t);
-        t.commitString(s);
-    }
+    void describeSystem(std::string& s);
 
     /**
      Checkmarks all RenderDevice state (anything that can be set 
@@ -918,8 +886,8 @@ public:
      */
     void endPrimitive();
 
-	void beginIndexedPrimitives();
-	void endIndexedPrimitives();
+    void beginIndexedPrimitives();
+    void endIndexedPrimitives();
 
     /** The vertex, normal, color, and tex coord arrays need not come from
         the same VARArea. 
@@ -959,11 +927,22 @@ public:
   </PRE>
     
     */
-	void setVertexArray(const class VAR& v);
+    void setVertexArray(const class VAR& v);
+    void setNormalArray(const class VAR& v);
+    void setColorArray(const class VAR& v);
+    void setTexCoordArray(unsigned int unit, const class VAR& v);
 
-	void setNormalArray(const class VAR& v);
-	void setColorArray(const class VAR& v);
-	void setTexCoordArray(unsigned int unit, const class VAR& v);
+    /** 
+        Set a series of vertex arrays
+     */
+    void setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& color,
+                 const Array<VAR>& texCoord);
+
+    /** Set a series of vertex arrays simultaneously. This call allows you to change the
+        VARArea that the VARs are in within a single beginIndexedPrimitives() call,
+        saving some state changes. */
+    void setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& texCoord0,
+                 const class VAR& texCoord1);
 
     /** Returns the OSWindow used by this RenderDevice */
     OSWindow* window() const;
@@ -1295,8 +1274,8 @@ private:
 
         Buffer                      drawBuffer;
 
-	    FramebufferRef              framebuffer;
-
+        FramebufferRef              framebuffer;
+        
         DepthTest                   depthTest;
         AlphaTest                   alphaTest;
         double                      alphaReference;

@@ -37,16 +37,13 @@ private:
      Cached shaders, indexed by filter width.  This cache does not need threadsafe access
      since OpenGL code must already be externally threadsafed.
      */
-    static Table<int, ShaderRef>& shaderCache() {
-        static Table<int, ShaderRef> cache;
-        return cache;
-    }
+    static Table<int, Shader::Ref>& shaderCache();
 
     /** Create a 1D gaussian shader of width N */
-    static ShaderRef makeShader(int N);
+    static Shader::Ref makeShader(int N);
 
     /** Fetch a shader of width N from the cache, creating it if necessary.*/
-    static ShaderRef getShader(int N);
+    static Shader::Ref getShader(int N);
 
 public:
 
