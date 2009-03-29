@@ -650,6 +650,11 @@ void ArticulatedModel::facet() {
 }
 
 
+const ArticulatedModel::Pose& ArticulatedModel::defaultPose() {
+    static const Pose p;
+    return p;
+}
+
 
 void ArticulatedModel::pose(
     Array<PosedModel::Ref>&     posedArray, 

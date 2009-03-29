@@ -164,11 +164,7 @@ public:
     };
 
     /** Identity transformation.*/
-    inline static const Pose& defaultPose() {
-        static const Pose p;
-        return p;
-    }
-
+    static const Pose& defaultPose();
 
     /**
       A named sub-set of the model that has a single reference frame.
