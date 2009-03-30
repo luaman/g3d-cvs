@@ -368,12 +368,12 @@ AABox PosedModel::objectSpaceBoundingBox() const {
 
 
 void PosedModel::getWorldSpaceBoundingBox(AABox& box) const {
-    CoordinateFrame C;
-    getCoordinateFrame(C);
     getObjectSpaceBoundingBox(box);
     if (! box.isFinite()) {
         box = AABox::inf();
     } else {
+        CoordinateFrame C;
+        getCoordinateFrame(C);
         const Box& temp = C.toWorldSpace(box);        
         temp.getBounds(box);
     }
