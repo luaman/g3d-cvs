@@ -61,7 +61,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 void App::onInit() {
 
     film = Film::create();
-
+    /*
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
@@ -69,6 +69,7 @@ void App::onInit() {
     preprocess.parallaxSteps = 0;
     model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
     timer.after("load");
+    */
 
 /*
     model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
@@ -113,6 +114,20 @@ void App::onInit() {
     }
     histogram->insert(v);
 */
+
+    static Spline<float> x;
+    x.append(1.0f);
+    x.append(3.0f);
+    x.append(2.0f);
+    x.append(3.0f);
+    debugPane->addFunctionBox("Curve", &x);
+
+    debugPane->addLabel("Hello");
+    debugPane->pack();
+    debugWindow->pack();
+    debugWindow->setVisible(true);
+
+
     toneMap->setEnabled(false);
 }
 

@@ -246,7 +246,23 @@ GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign x, GFont::YAlign 
 
 
 GuiFunctionBox* GuiPane::addFunctionBox(const GuiText& text, Spline<float>* spline) {
-    return addControl(new GuiFunctionBox(this, text, spline));
+
+    GuiFunctionBox* control = new GuiFunctionBox(this, text, spline);
+
+    Vector2 p = nextControlPos(control->toolStyle());
+    control->setRect
+        (Rect2D::xywh(p, Vector2((float)CONTROL_WIDTH, control->rect().height())));
+    
+    increaseBounds(control->rect().x1y1());
+    
+    GuiContainer* container = dynamic_cast<GuiContainer*>(control);
+    if (container == NULL) {
+        controlArray.append(control);
+    } else {
+        containerArray.append(container);
+    }
+
+    return control;
 }
 
 
