@@ -40,8 +40,7 @@
 
 namespace G3D {
 
-class Vector2;    
-class Vector3;
+class Vector2;
 class Vector4;
 class Vector4int8;
 class Vector3int32;
@@ -80,6 +79,8 @@ public:
     // construction
     Vector3();
 
+    inline Vector3(const Vector3& V) : x(V.x), y(V.y), z(V.z) {}
+
     /** Divides by 127 */
     Vector3(const Vector4int8&);
     Vector3(const class Vector3int32& v);
@@ -88,7 +89,6 @@ public:
     explicit Vector3(const class Vector2& v, float _z);
     explicit Vector3(float coordinate[3]);
     explicit Vector3(double coordinate[3]);
-    Vector3(const Vector3& rkVector);
     Vector3(const class Vector3int16& v);
 	explicit Vector3(class TextInput& t);
 
@@ -563,11 +563,6 @@ inline Vector3::Vector3 (float V[3]) : x(V[0]), y(V[1]), z(V[2]){
 inline Vector3::Vector3 (double V[3]) : x((float)V[0]), y((float)V[1]), z((float)V[2]){
 }
 
-//----------------------------------------------------------------------------
-inline Vector3::Vector3 (const Vector3& V) : x(V.x), y(V.y), z(V.z) {
-}
-
-//----------------------------------------------------------------------------
 
 //inline Vector3::Vector3 (const __m128& m) {
     // Cast from SSE packed floats

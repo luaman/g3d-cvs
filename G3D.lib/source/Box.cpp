@@ -122,7 +122,7 @@ void Box::init(
          _extent.y * _extent.z +
          _extent.z * _extent.x);
 
-    _center = (max + min) / 2;
+    _center = (max + min) * 0.5f;
 
     // If the extent is infinite along an axis, make the center zero to avoid NaNs
     for (int i = 0; i < 3; ++i) {

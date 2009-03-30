@@ -59,6 +59,13 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 
 void App::onInit() {
+ {
+    ArticulatedModel::Ref m = ArticulatedModel::createCornellBox();
+    Array<PosedModel::Ref> p;
+    m->pose(p);
+    AABox b;
+    p[0]->getWorldSpaceBoundingBox(b);
+}
 
     film = Film::create();
     /*
@@ -115,12 +122,6 @@ void App::onInit() {
     }
     histogram->insert(v);
 */
-
-    void* f = new (class Foo {
-    public:
-        int x;
-        Foo(int z) : x(z) {}
-    }) (3);
 
     static Spline<float> x;
     x.append(1.0f);
