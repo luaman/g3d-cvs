@@ -312,9 +312,6 @@ public:
         return m_width;
     }
     
-    /**
-       Gets the OpenGL ID of the framebuffer object.
-    */
     inline int height() const {
         return m_height;
     }

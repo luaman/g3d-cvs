@@ -295,20 +295,8 @@ void RenderDevice::init(OSWindow* window, Log* log) {
 
     // NVIDIA cards with GL_NV_fragment_program have different 
     // numbers of texture coords, units, and textures
-    if (GLCaps::supports("GL_NV_fragment_program")) {
-        glGetIntegerv(GL_MAX_TEXTURE_COORDS_NV, &_numTextureCoords);
-        _numTextureCoords = iClamp(_numTextureCoords,
-                                   _numTextureUnits,
-                                   GLCaps::G3D_MAX_TEXTURE_UNITS);
-
-        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_NV, &_numTextures);
-        _numTextures = iClamp(_numTextures,
-                              _numTextureUnits, 
-                              GLCaps::G3D_MAX_TEXTURE_UNITS);
-    } else {
-        _numTextureCoords = _numTextureUnits;
-        _numTextures      = _numTextureUnits;
-    }
+    _numTextureCoords = glGetInteger(GL_MAX_TEXTURE_COORDS_ARB);
+    _numTextures = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
 
     if (! GLCaps::supports_GL_ARB_multitexture()) {
         // No multitexture
@@ -2406,8 +2394,8 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
 
 
 Matrix4 RenderDevice::getTextureMatrix(uint32 unit) {
-    debugAssertM((int)unit < _numTextureUnits,
-        format("Attempted to access texture unit %d on a device with %d units.",
+    debugAssertM((int)unit < glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+        format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, _numTextureUnits));
 
     const float* M = state.textureUnit[unit].textureMatrix;
@@ -2440,8 +2428,8 @@ void RenderDevice::setTextureMatrix(
     const double*        m) {
 
     debugAssert(! inPrimitive);
-    debugAssertM((int)unit < _numTextureUnits,
-        format("Attempted to access texture unit %d on a device with %d units.",
+    debugAssertM((int)unit <  glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+        format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, _numTextureUnits));
 
     forceSetTextureMatrix(unit, m);
@@ -2453,8 +2441,8 @@ void RenderDevice::setTextureMatrix(
     const float*        m) {
 
     debugAssert(! inPrimitive);
-    debugAssertM((int)unit < _numTextureUnits,
-        format("Attempted to access texture unit %d on a device with %d units.",
+    debugAssertM((int)unit <  glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+        format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, _numTextureUnits));
 
     if (memcmp(m, state.textureUnit[unit].textureMatrix, sizeof(float)*16)) {
@@ -2614,9 +2602,9 @@ void RenderDevice::setNormal(const Vector3& normal) {
 
 
 void RenderDevice::setTexCoord(uint32 unit, const Vector4& texCoord) {
-    debugAssertM((int)unit < _numTextureCoords,
+    debugAssertM((int)unit < glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
         format("Attempted to access texture coordinate %d on a device with %d coordinates.",
-        unit, _numTextureCoords));
+        unit, glGetInteger(GL_MAX_TEXTURE_COORDS_ARB)));
 
     state.textureUnit[unit].texCoord = texCoord;
     if (GLCaps::supports_GL_ARB_multitexture()) {
@@ -2754,10 +2742,10 @@ void RenderDevice::setTexture(
     debugAssertM(! inPrimitive, 
                  "Can't change textures while rendering a primitive.");
 
-    debugAssertM((int)unit < _numTextures,
+    debugAssertM((int)unit < glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB),
         format("Attempted to access texture %d"
                " on a device with %d textures.",
-               unit, _numTextures));
+               unit, glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB)));
 
     Texture::Ref oldTexture = state.textureUnit[unit].texture;
     majStateChange();
