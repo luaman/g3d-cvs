@@ -942,7 +942,6 @@ void RenderDevice::setState(
     setDepthWrite(newState.depthWrite);
     setColorWrite(newState.colorWrite);
     setAlphaWrite(newState.alphaWrite);
-    debugAssertGLOk();
 
     setDrawBuffer(newState.drawBuffer);
 
@@ -1266,6 +1265,7 @@ void RenderDevice::pushState() {
 
 
 void RenderDevice::popState() {
+    debugAssertGLOk();
     debugAssert(! inPrimitive);
     debugAssertM(stateStack.size() > 0, "More calls to RenderDevice::pushState() than RenderDevice::popState().");
     setState(stateStack.last());
@@ -2394,9 +2394,9 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
 
 
 Matrix4 RenderDevice::getTextureMatrix(uint32 unit) {
-    debugAssertM((int)unit < glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+    debugAssertM((int)unit < _numTextureCoords,
         format("Attempted to access texture matrix %d on a device with %d matrices.",
-        unit, _numTextureUnits));
+        unit, _numTextureCoords));
 
     const float* M = state.textureUnit[unit].textureMatrix;
 
@@ -2428,9 +2428,9 @@ void RenderDevice::setTextureMatrix(
     const double*        m) {
 
     debugAssert(! inPrimitive);
-    debugAssertM((int)unit <  glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+    debugAssertM((int)unit <  _numTextureCoords,
         format("Attempted to access texture matrix %d on a device with %d matrices.",
-        unit, _numTextureUnits));
+        unit, _numTextureCoords));
 
     forceSetTextureMatrix(unit, m);
 }
@@ -2441,9 +2441,9 @@ void RenderDevice::setTextureMatrix(
     const float*        m) {
 
     debugAssert(! inPrimitive);
-    debugAssertM((int)unit <  glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+    debugAssertM((int)unit <  _numTextureCoords,
         format("Attempted to access texture matrix %d on a device with %d matrices.",
-        unit, _numTextureUnits));
+        unit, _numTextureCoords));
 
     if (memcmp(m, state.textureUnit[unit].textureMatrix, sizeof(float)*16)) {
         forceSetTextureMatrix(unit, m);
@@ -2602,9 +2602,9 @@ void RenderDevice::setNormal(const Vector3& normal) {
 
 
 void RenderDevice::setTexCoord(uint32 unit, const Vector4& texCoord) {
-    debugAssertM((int)unit < glGetInteger(GL_MAX_TEXTURE_COORDS_ARB),
+    debugAssertM((int)unit < _numTextureCoords,
         format("Attempted to access texture coordinate %d on a device with %d coordinates.",
-        unit, glGetInteger(GL_MAX_TEXTURE_COORDS_ARB)));
+               unit, _numTextureCoords));
 
     state.textureUnit[unit].texCoord = texCoord;
     if (GLCaps::supports_GL_ARB_multitexture()) {
@@ -2686,9 +2686,10 @@ void RenderDevice::endPrimitive() {
 
     minStateChange(currentPrimitiveVertexCount);
     minGLStateChange(currentPrimitiveVertexCount);
-	countTriangles(currentPrimitive, currentPrimitiveVertexCount);
+    countTriangles(currentPrimitive, currentPrimitiveVertexCount);
 
     glEnd();
+    debugAssertGLOk();
     inPrimitive = false;
 
     afterPrimitive();
@@ -2696,7 +2697,7 @@ void RenderDevice::endPrimitive() {
 
 
 void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVertices) {
-	switch (primitive) {
+    switch (primitive) {
     case LINES:
         m_stats.triangles += (numVertices / 2);
         break;
@@ -2742,10 +2743,10 @@ void RenderDevice::setTexture(
     debugAssertM(! inPrimitive, 
                  "Can't change textures while rendering a primitive.");
 
-    debugAssertM((int)unit < glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB),
+    debugAssertM((int)unit < _numTextures,
         format("Attempted to access texture %d"
                " on a device with %d textures.",
-               unit, glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB)));
+               unit, _numTextures));
 
     Texture::Ref oldTexture = state.textureUnit[unit].texture;
     majStateChange();

@@ -179,7 +179,7 @@ public:
     /** Maximum number of texture coordinates supported
         by G3D and RenderDevice; used to preallocate
         some static arrays */
-    enum {G3D_MAX_TEXTURE_UNITS = 8};
+    enum {G3D_MAX_TEXTURE_UNITS = 16};
 
     /** Loads OpenGL extensions (e.g. glBindBufferARB).
         Call this once at the beginning of the program,

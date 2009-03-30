@@ -12,6 +12,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Increased GLCaps::G3D_MAX_TEXTURE_UNITS to 16
      <li> GenericPosedModel now depth sorts and culls models for shadow map rendering
      <li> G3D::ShadowMap::computeMatrices
      <li> G3D::GLight now supports additional parameters to control how it interacts with G3D::ShadowMap
