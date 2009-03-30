@@ -67,6 +67,11 @@ j = b.xx();
  memory layout.
  */
 class Vector3 {
+public:
+
+    // coordinates
+    float x, y, z;
+
 private:
 
     // Hidden operators
@@ -99,9 +104,6 @@ public:
 	/** Format is "(%f, %f, %f)" */
     void serialize(class TextOutput& t) const;
     void deserialize(class TextInput& t);
-    
-    // coordinates
-    float x, y, z;
 
     // access vector V as V[0] = V.x, V[1] = V.y, V[2] = V.z
     //
