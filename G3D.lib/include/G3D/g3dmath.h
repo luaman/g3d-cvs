@@ -675,13 +675,15 @@ inline float uniformRandom(float low, float hi) {
     return (hi - low) * float(::rand()) / float(RAND_MAX) + low;
 }
 
-//----------------------------------------------------------------------------
 inline double square(double x) {
     return x * x;
 }
 
-//----------------------------------------------------------------------------
 inline float square(float x) {
+    return x * x;
+}
+
+inline int square(int x) {
     return x * x;
 }
 
