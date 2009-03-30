@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-static Random& Random::common() {
+Random& Random::common() {
     static Random r;
     return r;
 }
