@@ -22,6 +22,18 @@
 
 namespace G3D {
 
+const Array<Vector2>& PosedModel::texCoords() const {
+    static Array<Vector2> t;
+    return t;
+}
+
+
+const Array<Vector3>& PosedModel::objectSpaceTangents() const {
+    static Array<Vector3> t;
+    return t;
+}
+
+
 void PosedModel::getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bounds) {
     if (models.size() == 0) {
         bounds = AABox();

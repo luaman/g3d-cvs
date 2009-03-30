@@ -130,7 +130,7 @@ public:
         const CoordinateFrame& lightFrame,
         const Matrix4& lightProjectionMatrix,
         const Array<PosedModel::Ref>& shadowCaster,
-        float biasDepth = 0.003f);
+        float biasDepth = 0.01f);
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that

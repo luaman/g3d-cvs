@@ -164,7 +164,7 @@ public:
     // Special values.
     // Intentionally not inlined: see Matrix3::identity() for details.
     static const Vector2& zero();
-    inline static const Vector2& one() { static const Vector2 v(1, 1); return v; }
+    static const Vector2& one();
     static const Vector2& unitX();
     static const Vector2& unitY();
     static const Vector2& inf(); 

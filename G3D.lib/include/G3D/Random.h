@@ -127,10 +127,7 @@ public:
        
        Threadsafe.
     */
-    inline static Random& common() {
-        static Random r;
-        return r;
-    }
+    static Random& common();
 };
 
 }

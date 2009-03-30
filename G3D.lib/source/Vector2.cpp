@@ -9,7 +9,7 @@
   at http://www.magic-software.com
  
  @created 2001-06-02
- @edited  2006-01-16
+ @edited  2009-01-16
  */
 
 #include "G3D/platform.h"
@@ -23,6 +23,11 @@
 #include "G3D/TextOutput.h"
 
 namespace G3D {
+
+const Vector2& Vector2::one() { 
+    static const Vector2 v(1, 1); return v; 
+}
+
 
 const Vector2& Vector2::zero() {
     static Vector2 v(0, 0);

@@ -192,16 +192,10 @@ public:
         in an array indexed the same as vertices() and geometry.vertexArray, otherwise
         returns an array of size zero.  Default implementation returns an array of size zero.
     */
-    virtual const Array<Vector2>& texCoords() const {
-        static Array<Vector2> t;
-        return t;
-    }
+    virtual const Array<Vector2>& texCoords() const;
 
     /** Returns per-vertex tangent vectors, if available. May return an empty array.*/
-    virtual const Array<Vector3>& objectSpaceTangents() const {
-        static Array<Vector3> t;
-        return t;
-    }
+    virtual const Array<Vector3>& objectSpaceTangents() const;
 
     /** Returns true if this model has texture coordinates. */
     virtual bool hasTexCoords() const {

@@ -18,6 +18,31 @@
 
 namespace G3D {
 
+const AABox& AABox::maxFinite() {
+    static const AABox b = AABox(Vector3::minFinite(), 
+                                 Vector3::maxFinite());
+    return b;
+}
+
+
+const AABox& AABox::large() {
+    static const AABox b = AABox(Vector3::minFinite() * 0.5f, 
+                                 Vector3::maxFinite() * 0.5f);
+    return b;
+}
+
+
+const AABox& AABox::inf() {
+    static const AABox b = AABox(-Vector3::inf(), Vector3::inf());
+    return b;
+}
+
+
+const AABox& AABox::zero() {
+    static const AABox b = AABox(Vector3::zero(), Vector3::zero());
+    return b;
+}
+
 
 void AABox::serialize(class BinaryOutput& b) const {
     b.writeVector3(lo);

@@ -18,6 +18,18 @@
 
 namespace G3D {
 
+const Color1& Color1::one() {
+    static const Color1 x(1.0f);
+    return x;
+}
+
+
+const Color1& Color1::zero() {
+    const static Color1 x(0.0f);
+    return x;
+}
+
+
 Color1::Color1(BinaryInput& bi) {
     deserialize(bi);
 }

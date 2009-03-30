@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2009-01-02
- @edited  2009-01-02
+ @edited  2009-03-29
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -12,6 +12,11 @@
 #include "G3D/Random.h"
 
 namespace G3D {
+
+static Random& Random::common() {
+    static Random r;
+    return r;
+}
 
 Random::Random(uint32 seed) {
     const uint32 X = 1812433253UL;

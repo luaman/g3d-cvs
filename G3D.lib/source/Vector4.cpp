@@ -23,6 +23,19 @@ namespace G3D {
 Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f), w(v.w / 127.0f) {
 }
 
+
+const Vector4& Vector4::inf() { 
+    static const Vector4 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); 
+    return v; 
+}
+
+
+const Vector4& Vector4::nan() { 
+    static Vector4 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); 
+    return v; 
+}
+
+
 size_t Vector4::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));

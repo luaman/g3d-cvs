@@ -53,10 +53,7 @@ public:
 
     Color4(float r, float g, float b, float a = 1.0);
 
-    inline static const Color4& one() {
-        static Color4 x(1.0f, 1.0f, 1.0f, 1.0f);
-        return x;
-    }
+    static const Color4& one();
  
     Color4(float value[4]);
 

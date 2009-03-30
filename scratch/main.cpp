@@ -5,8 +5,8 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
-#if defined(G3D_VER) && (G3D_VER < 70000)
-#   error Requires G3D 7.00
+#if defined(G3D_VER) && (G3D_VER < 80000)
+#   error Requires G3D 8.00
 #endif
 
 
@@ -71,15 +71,16 @@ void App::onInit() {
     timer.after("load");
     */
 
-/*
+
     model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
     Material::Settings spec;
-    spec.setLambertian(Color3::black());
-    spec.setSpecular(Color3::blue());
-    spec.setShininess(20);
+    spec.setLambertian(Color3::red());
+    spec.setSpecular(Color3::yellow());
+    spec.setShininess(3);
     model->partArray[0].triList[0]->material = Material::create(spec);
-*/
-//    ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
+    model->updateAll();
+
+    ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
 
     setDesiredFrameRate(1000);
 
@@ -91,7 +92,7 @@ void App::onInit() {
 
     lighting = Lighting::create();
     {
-        GLight L = GLight::spot(Vector3(0, 40, 0), -Vector3::unitY(), 45, Color3::white());
+        GLight L = GLight::spot(Vector3(10, 10, 0), Vector3(-1,-1,0), 45, Color3::white());
         L.spotSquare = false;
         lighting->shadowedLightArray.append(L);
     }
@@ -187,7 +188,7 @@ void App::printConsoleHelp() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     if (model.notNull()) {
-        model->pose(posed3D, Vector3(0,1,0));
+        model->pose(posed3D, Vector3(0,0.5,0));
     }
 
     if (ground.notNull()) {
@@ -201,6 +202,16 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
 
     rd->pushState(fb);
+
+
+    rd->setColorClearValue(Color3(0.2f, 1.0f, 2.0f));
+    rd->setProjectionAndCameraMatrix(defaultCamera);
+    rd->clear(true, true, true);
+
+    AABox sceneBounds;
+    PosedModel::getBoxBounds(posed3D, sceneBounds);
+
+
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3::white() * 0.8f);

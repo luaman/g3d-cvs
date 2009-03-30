@@ -98,29 +98,15 @@ public:
     /**
      The largest possible finite box.
      */
-    static inline const AABox& maxFinite() {
-        static const AABox b = AABox(Vector3::minFinite(), 
-                                     Vector3::maxFinite());
-        return b;
-    }
+    static const AABox& maxFinite();
 
     /** A large finite box. This is smaller than FLT_MAX
         because it leaves room to add boxes together. */
-    static inline const AABox& large() {
-        static const AABox b = AABox(Vector3::minFinite() * 0.5f, 
-                                     Vector3::maxFinite() * 0.5f);
-        return b;
-    }
+    static const AABox& large();
 
-    static inline const AABox& inf() {
-        static const AABox b = AABox(-Vector3::inf(), Vector3::inf());
-        return b;
-    }
+    static const AABox& inf();
 
-    static inline const AABox& zero() {
-        static const AABox b = AABox(Vector3::zero(), Vector3::zero());
-        return b;
-    }
+    static const AABox& zero();
 
     /**
       Returns the centroid of the box.

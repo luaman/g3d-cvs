@@ -55,15 +55,9 @@ public:
         return value == 1.0f;
     }
 
-    inline static const Color1& one() {
-        static Color1 x(1.0f);
-        return x;
-    }
+    static const Color1& one();
 
-    inline static const Color1& zero() {
-        static Color1 x(0.0f);
-        return x;
-    }
+    static const Color1& zero();
 
     /** Returns the value three times */
     class Color3 rgb() const;

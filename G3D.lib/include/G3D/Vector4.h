@@ -104,8 +104,8 @@ public:
     bool fuzzyEq(const Vector4& other) const;
     bool fuzzyNe(const Vector4& other) const;
 
-    inline static const Vector4& inf()      { static Vector4 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); return v; }
-    inline static const Vector4& nan()      { static Vector4 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); return v; }
+    static const Vector4& inf();
+    static const Vector4& nan();
 
     /** sqrt(this->dot(*this)) */
     float length() const;

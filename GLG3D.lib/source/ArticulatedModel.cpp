@@ -19,8 +19,8 @@ ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList() {
 
     Material::Settings s;
     s.setLambertian(Color3::white() * 0.8f);
-    s.setSpecular(Color3::white() * 0.2f);
-    s.setShininess(60);
+    s.setSpecular(Color3::black());
+    s.setShininess(0);
 
     t->material = Material::create(s);
 

@@ -22,6 +22,12 @@
 
 namespace G3D {
 
+const Color4& Color4::one() {
+    const static Color4 x(1.0f, 1.0f, 1.0f, 1.0f);
+    return x;
+}
+
+
 const Color4& Color4::zero() {
     static Color4 c(0.0f, 0.0f, 0.0f, 0.0f);
     return c;
