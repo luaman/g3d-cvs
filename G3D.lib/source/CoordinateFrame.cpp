@@ -203,7 +203,8 @@ Capsule CoordinateFrame::toWorldSpace(const Capsule& c) const {
 
 
 Box CoordinateFrame::toWorldSpace(const AABox& b) const {
-    return toWorldSpace(Box(b));
+    Box b2(b);
+    return toWorldSpace(b2);
 }
 
 
@@ -211,15 +212,15 @@ Box CoordinateFrame::toWorldSpace(const Box& b) const {
     Box out(b);
 
     for (int i = 0; i < 8; ++i) {
-        out._corner[i] = pointToWorldSpace(out._corner[i]);
+        out._corner[i] = pointToWorldSpace(b._corner[i]);
         debugAssert(! isNaN(out._corner[i].x));
     }
 
     for (int i = 0; i < 3; ++i) {
-        out._axis[i] = vectorToWorldSpace(out._axis[i]);
+        out._axis[i] = vectorToWorldSpace(b._axis[i]);
     }
 
-    out._center = pointToWorldSpace(out._center);
+    out._center = pointToWorldSpace(b._center);
 
     return out;
 }

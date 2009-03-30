@@ -374,7 +374,8 @@ void PosedModel::getWorldSpaceBoundingBox(AABox& box) const {
     if (! box.isFinite()) {
         box = AABox::inf();
     } else {
-        C.toWorldSpace(box).getBounds(box);
+        const Box& temp = C.toWorldSpace(box);        
+        temp.getBounds(box);
     }
 }
 
