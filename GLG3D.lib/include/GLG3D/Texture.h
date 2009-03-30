@@ -338,10 +338,10 @@ private:
         bool		      	    opaque,
         const Settings&             settings);
 
-	/** Call glGetTexImage with appropriate target */
-	void getTexImage(void* data, const ImageFormat* desiredFormat) const;
-
 public:
+
+    /** Call glGetTexImage with appropriate target */
+    void getTexImage(void* data, const ImageFormat* desiredFormat) const;
 
     /**
      Creates an empty texture (useful for later reading from the screen).

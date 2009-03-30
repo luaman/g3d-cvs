@@ -148,7 +148,9 @@ public:
     Vector3 operator+ (const Vector3& v) const;
     Vector3 operator- (const Vector3& v) const;
     Vector3 operator* (float s) const;
-    Vector3 operator/ (float s) const;
+    inline Vector3 operator/ (float s) const {
+        return *this * (1.0f / s);
+    }
     Vector3 operator* (const Vector3& v) const;
     Vector3 operator/ (const Vector3& v) const;
     Vector3 operator- () const;
@@ -157,7 +159,9 @@ public:
     Vector3& operator+= (const Vector3& v);
     Vector3& operator-= (const Vector3& v);
     Vector3& operator*= (float s);
-    Vector3& operator/= (float s);
+    inline Vector3& operator/= (float s) {
+        return (*this *= (1.0f / s));
+    }
     Vector3& operator*= (const Vector3& v);
     Vector3& operator/= (const Vector3& v);
 
@@ -347,9 +351,10 @@ public:
         to \f$\max(\vec{v} \cdot \vec{n}, 0)\f$.  Useful in photon mapping for 
         Lambertian scattering.
 
-
         Distribution rendered by G3D::DirectionHistogram:
         \image html vector3-coshemirandom.png
+
+        \param n Unit vector at the center of the distribution.
 
         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
     */
@@ -706,8 +711,8 @@ inline float Vector3::length() const {
 
 //----------------------------------------------------------------------------
 inline Vector3 Vector3::direction () const {
-    float lenSquared = squaredMagnitude();
-    float invSqrt = 1.0f / sqrtf(lenSquared);
+    const float lenSquared = squaredMagnitude();
+    const float invSqrt = 1.0f / sqrtf(lenSquared);
     return Vector3(x * invSqrt, y * invSqrt, z * invSqrt);
 }
 

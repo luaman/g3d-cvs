@@ -78,7 +78,7 @@ bool UberBSDF::scatter
  Random&        random) const {
 
      // Choose a random number on [0, 1], then reduce it by each kind of
-     // scattering's probablity until it becomes negative (i.e., scatters).
+     // scattering's probability until it becomes negative (i.e., scatters).
     float r = random.uniform();
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -132,9 +132,9 @@ bool UberBSDF::scatter
                     shininess = (float)unpackSpecularExponent(shininess);
 
                     const Vector3& w_h = (w_i + w_o).direction();
-
+                    (void)w_h;
                     // TODO: glossy scatter
-                    w_o = w_i;  // TODO: random distribution about half-vector
+                    w_o = w_i;
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     
                 } else {

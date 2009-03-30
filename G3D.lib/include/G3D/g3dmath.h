@@ -451,10 +451,19 @@ inline double exp2(double x) {
     return pow(2.0, x);
 }
 
+inline float exp2(float x) {
+    return powf(2.0f, x);
+}
+
+/** @deprecated Use rsq */
 inline double rsqrt(double x) {
     return 1.0 / sqrt(x);
 }
 
+/** @deprecated Use rsq */
+inline float rsqrt(float x) {
+    return 1.0 / sqrtf(x);
+}
 
 /**
  sin(x)/x

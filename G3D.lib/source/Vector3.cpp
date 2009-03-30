@@ -160,43 +160,12 @@ Vector3 Vector3::random(Random& r) {
     return result;
 }
 
-//----------------------------------------------------------------------------
-Vector3 Vector3::operator/ (float fScalar) const {
-    Vector3 kQuot;
 
-    if ( fScalar != 0.0 ) {
-		float fInvScalar = 1.0f / fScalar;
-        kQuot.x = fInvScalar * x;
-        kQuot.y = fInvScalar * y;
-        kQuot.z = fInvScalar * z;
-        return kQuot;
-    } else {
-        return Vector3::inf();
-    }
-}
-
-//----------------------------------------------------------------------------
-Vector3& Vector3::operator/= (float fScalar) {
-    if (fScalar != 0.0) {
-		float fInvScalar = 1.0f / fScalar;
-        x *= fInvScalar;
-        y *= fInvScalar;
-        z *= fInvScalar;
-    } else {
-        x = (float)G3D::inf();
-        y = (float)G3D::inf();
-        z = (float)G3D::inf();
-    }
-
-    return *this;
-}
-
-//----------------------------------------------------------------------------
 float Vector3::unitize (float fTolerance) {
-	float fMagnitude = magnitude();
+    float fMagnitude = magnitude();
 
     if (fMagnitude > fTolerance) {
-		float fInvMagnitude = 1.0f / fMagnitude;
+        float fInvMagnitude = 1.0f / fMagnitude;
         x *= fInvMagnitude;
         y *= fInvMagnitude;
         z *= fInvMagnitude;
@@ -207,10 +176,8 @@ float Vector3::unitize (float fTolerance) {
     return fMagnitude;
 }
 
-//----------------------------------------------------------------------------
 
 Vector3 Vector3::reflectAbout(const Vector3& normal) const {
-
     Vector3 out;
 
     Vector3 N = normal.direction();
@@ -221,6 +188,8 @@ Vector3 Vector3::reflectAbout(const Vector3& normal) const {
 
 
 Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
+    debugAssertM(G3D::fuzzyEq(normal.length(), 1.0f), 
+                 "cosHemiRandom requires its argument to have unit length");
     const float e1 = r.uniform();
     const float e2 = r.uniform();
 
@@ -229,15 +198,18 @@ Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
     const float phi = 2.0f * pi() * e2;
 
     // Make a coordinate system
-    const Vector3& Z = normal.direction();
-    Vector3 X = Vector3::unitX();
+    const Vector3& Z = normal;
 
-    if (abs(X.dot(Z)) > 0.9f) {
-        X = Vector3::unitY();
-    }
+    // Choose 
+    Vector3 X = (abs(Z.x) < 0.9f) ?
+        Vector3::unitX() :
+        Vector3::unitY();
 
-    const Vector3& Y = Z.cross(X).direction();
-    X = Y.cross(Z);
+    // Remove the part that is parallel to Z
+    X -= Z * X.dot(Z);
+    X /= X.length();
+    
+    const Vector3& Y = Z.cross(X);
 
     return 
         cos(phi) * sin_theta * X +
