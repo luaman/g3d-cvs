@@ -18,7 +18,8 @@ Random& Random::common() {
     return r;
 }
 
-Random::Random(uint32 seed) {
+
+Random::Random(uint32 seed, bool threadsafe) : m_threadsafe(threadsafe) {
     const uint32 X = 1812433253UL;
 
     state[0] = seed;
@@ -41,12 +42,14 @@ void Random::generate() {
     static const uint32 UPPER_MASK = 0xFFFFFFFF << R;
     static const uint32 mag01[2] = {0, A};
 
-    bool contention = ! lock.lock();
-    if (contention)  {
-        // Another thread just generated a set of numbers; no need for
-        // this thread to do it too
-        lock.unlock();
-        return;
+    if (m_threadsafe) {
+        bool contention = ! lock.lock();
+        if (contention)  {
+            // Another thread just generated a set of numbers; no need for
+            // this thread to do it too
+            lock.unlock();
+            return;
+        }
     }
 
     // First N - M
@@ -65,7 +68,9 @@ void Random::generate() {
     state[N - 1] = state[M - 1] ^ (y >> 1) ^ mag01[y & 1];
     index = 0;
 
-    lock.unlock();
+    if (m_threadsafe) {
+        lock.unlock();
+    }
 }
 
     

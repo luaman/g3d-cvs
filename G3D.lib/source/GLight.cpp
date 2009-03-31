@@ -15,8 +15,8 @@ namespace G3D {
 
 GLight::GLight() :
     position(0, 0, 0, 0),
-    color(Color3::white()),
     rightDirection(0,0,0),
+    color(Color3::white()),
     spotDirection(0, 0, -1),
     spotCutoff(180),
     spotSquare(false),

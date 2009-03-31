@@ -20,6 +20,8 @@ namespace G3D {
 
 /** Random number generator.
 
+    Threadsafe.
+
     Useful for generating consistent random numbers across platforms
     and when multiple threads are involved.
 
@@ -28,9 +30,12 @@ namespace G3D {
     On average, uniform() runs about 2x-3x faster than rand().
 
     @cite http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/index.html
+    
+    On OS X, Random is about 10x faster than drand48() (which is
+    threadsafe) and 4x faster than rand() (which is not threadsafe).
  */
 class Random {
-private:
+protected:
 
     /** Constants (important for the algorithm; do not modify) */
     enum {
@@ -45,7 +50,8 @@ private:
         B = 0x9D2C5680,
         C = 0xEFC60000};
 
-    /** Prevents multiple overlapping calls to generate(). 
+    /** 
+        Prevents multiple overlapping calls to generate(). 
      */
     Spinlock     lock;
 
@@ -55,15 +61,21 @@ private:
     /** Index into state */
     int          index;
 
+    bool         m_threadsafe;
+
     /** Generate the next N ints, and store them for readback later.
         Called from bits() */
-    void generate();
+    virtual void generate();
 
 public:
 
-    Random(uint32 seed = 0xF018A4D2);
+    /** \param threadsafe Set to false if you know that this random
+        will only be used on a single thread.  This eliminates the
+        lock and improves performance on some platforms.
+     */
+    Random(uint32 seed = 0xF018A4D2, bool threadsafe = true);
 
-    ~Random();
+    virtual ~Random();
 
     /** Each bit is random */
     inline uint32 bits() {
