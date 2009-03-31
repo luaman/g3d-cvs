@@ -233,7 +233,7 @@ public:
         "console-small.fnt", unless you change it.
     */
     std::string             dataDir;
-    Log*                    debugLog;
+
     RenderDevice*           renderDevice;
 
     /** Command console. */

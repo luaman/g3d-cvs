@@ -241,11 +241,10 @@ bool RenderDevice::supportsOpenGLExtension(
 
 
 void RenderDevice::init(
-    const OSWindow::Settings&      _settings,
-    Log*                        log) {
+    const OSWindow::Settings&      _settings) {
 
     deleteWindow = true;
-    init(OSWindow::create(_settings), log);
+    init(OSWindow::create(_settings));
 }
 
 
@@ -254,7 +253,7 @@ OSWindow* RenderDevice::window() const {
 }
 
 
-void RenderDevice::init(OSWindow* window, Log* log) {
+void RenderDevice::init(OSWindow* window) {
     debugAssert(! initialized());
     debugAssert(window);
 
@@ -268,10 +267,7 @@ void RenderDevice::init(OSWindow* window, Log* log) {
     // Load the OpenGL extensions if they have not already been loaded.
     GLCaps::init();
 
-    debugLog = log;
-
     beginEndFrame = 0;
-    if (debugLog) {debugLog->section("Initialization");}
 
     // Under Windows, reset the last error so that our debug box
     // gives the correct results
@@ -300,23 +296,21 @@ void RenderDevice::init(OSWindow* window, Log* log) {
 
     if (! GLCaps::supports_GL_ARB_multitexture()) {
         // No multitexture
-        if (debugLog) {
-            debugLog->println("No GL_ARB_multitexture support: "
+        logPrintf("No GL_ARB_multitexture support: "
                               "forcing number of texture units "
-                              "to no more than 1");
-        }
+                              "to no more than 1\n");
         _numTextureCoords = iMax(1, _numTextureCoords);
         _numTextures      = iMax(1, _numTextures);
         _numTextureUnits  = iMax(1, _numTextureUnits);
     }
     debugAssertGLOk();
 
-    if (debugLog) {debugLog->println("Setting video mode");}
+    logPrintf("Setting video mode\n");
 
     setVideoMode();
 
-    if (!strcmp((char*)glGetString(GL_RENDERER), "GDI Generic") && debugLog) {
-        debugLog->printf(
+    if (! strcmp((char*)glGetString(GL_RENDERER), "GDI Generic")) {
+        logPrintf(
          "\n*********************************************************\n"
            "* WARNING: This computer does not have correctly        *\n"
            "*          installed graphics drivers and is using      *\n"
@@ -342,7 +336,7 @@ void RenderDevice::init(OSWindow* window, Log* log) {
 
     cardDescription = GLCaps::renderer() + " " + GLCaps::driverVersion();
 
-    if (debugLog) {
+    {
         int t = 0;
        
         int t0 = 0;
@@ -511,12 +505,10 @@ void RenderDevice::setVideoMode() {
     // Set the refresh rate
     #ifdef G3D_WIN32
         if (wglSwapIntervalEXT != NULL) {
-            if (debugLog) {
-                if (settings.asynchronous) {
-                    debugLog->printf("wglSwapIntervalEXT(0);\n");
-                } else {
-                    debugLog->printf("wglSwapIntervalEXT(1);\n");
-                }
+            if (settings.asynchronous) {
+                logLazyPrintf("wglSwapIntervalEXT(0);\n");
+            } else {
+                logLazyPrintf("wglSwapIntervalEXT(1);\n");
             }
             wglSwapIntervalEXT(settings.asynchronous ? 0 : 1);
         }
@@ -524,14 +516,12 @@ void RenderDevice::setVideoMode() {
 
     // Enable proper specular lighting
     if (GLCaps::supports("GL_EXT_separate_specular_color")) {
-        if (debugLog) {
-            debugLog->println("Enabling separate specular lighting.\n");
-        }
+        logLazyPrintf("Enabling separate specular lighting.\n");
         glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL_EXT, 
                       GL_SEPARATE_SPECULAR_COLOR_EXT);
         debugAssertGLOk();
-    } else if (debugLog) {
-        debugLog->println("Cannot enable separate specular lighting, extension not supported.\n");
+    } else {
+        logLazyPrintf("Cannot enable separate specular lighting, extension not supported.\n");
     }
 
 
@@ -561,7 +551,7 @@ void RenderDevice::setVideoMode() {
 
     resetState();
 
-    if (debugLog) debugLog->printf("Done setting initial state.\n");
+    logPrintf("Done setting initial state.\n");
 }
 
 
@@ -605,17 +595,17 @@ void RenderDevice::cleanup() {
 
     SuperShader::Pass::purgeCache();
 
-    if (debugLog) {debugLog->println("Shutting down RenderDevice.");}
-
-    if (debugLog) {debugLog->println("Restoring gamma.");}
+    logLazyPrintf("Shutting down RenderDevice.\n");
+    logPrintf("Restoring gamma.\n");
     setGamma(1, 1);
 
-    if (debugLog) {debugLog->println("Freeing all VAR memory");}
+    logPrintf("Freeing all VAR memory\n");
 
     if (deleteWindow) {
-        if (debugLog) {debugLog->println("Deleting window.");}
+        logPrintf("Deleting window.\n");
         VARArea::cleanupAllVARAreas();
         delete _window;
+        _window = NULL;
     }
 
     cleanedup = true;
@@ -783,7 +773,7 @@ void RenderDevice::resetState() {
     glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
     debugAssertGLOk();
 
-    if (debugLog) debugLog->println("Setting initial rendering state.\n");
+    logPrintf("Setting initial rendering state.\n");
     glDisable(GL_LIGHT0);
     debugAssertGLOk();
     {

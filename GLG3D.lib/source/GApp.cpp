@@ -79,15 +79,11 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_realTime(0), 
     m_simTime(0),
     debugPane(NULL),
-    debugLog(NULL),
-    userInput(NULL) {
+    renderDevice(NULL),
+    userInput(NULL),
+    m_endProgram(false),
+    m_exitCode(0) {
 
-    debugLog          = NULL;
-    debugFont         = NULL;
-    m_endProgram      = false;
-    m_exitCode        = 0;
-
-    debugLog = new Log(settings.logFilename);
     lastGApp = this;
 
     if (settings.dataDir == "<AUTO>") {
@@ -105,10 +101,10 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
 
     if (window != NULL) {
         _hasUserCreatedWindow = true;
-        renderDevice->init(window, debugLog);
+        renderDevice->init(window);
     } else {
         _hasUserCreatedWindow = false;    
-        renderDevice->init(settings.window, debugLog);
+        renderDevice->init(settings.window);
     }
     debugAssertGLOk();
 
@@ -258,9 +254,6 @@ GApp::~GApp() {
     }
 
     VARArea::cleanupAllVARAreas();
-
-    delete debugLog;
-    debugLog = NULL;
 }
 
 

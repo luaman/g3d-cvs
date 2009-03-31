@@ -183,15 +183,11 @@ private:
     bool                        deleteWindow;
 
     /**
-     Status and debug statements are written to this log.
-     */
-    class Log*                  debugLog;
-
-    /**
      The current GLGeom generation.  Used for vertex arrays.
      */
     uint32                      generation;
 
+    /** \deprecated (Not supported on most LCDs) */
     void setGamma(
         double                  brightness,
         double                  gamma);
@@ -1494,16 +1490,17 @@ public:
     void pop2D();
  
     /**
-     Automatically constructs a Win32Window (on Win32), X11Window (on Linux) or SDLWindow (OS X) then calls the other init
+     Automatically constructs a Win32Window (on Win32), X11Window (on Linux) or
+     CarbonWindow (OS X) then calls the other init
      routine (provided for backwards compatibility).  The constructed
      window is deleted on shutdown.
      */
-    void init(const OSWindow::Settings& settings = OSWindow::Settings(), class Log* log = NULL);
+    void init(const OSWindow::Settings& settings = OSWindow::Settings());
 
     /**
      The renderDevice will <B>not</B> delete the window on cleanup.
      */
-    void init(OSWindow* window, class Log* log = NULL);
+    void init(OSWindow* window);
 
     /** Returns true after RenderDevice::init has been called. */
     bool initialized() const;

@@ -4,10 +4,10 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-06-10
-  @edited  2007-06-28
+  @edited  2009-03-30
 */
-#ifndef G3D_DEVELOPERWINDOW_H
-#define G3D_DEVELOPERWINDOW_H
+#ifndef G3D_DeveloperWindow_h
+#define G3D_DeveloperWindow_h
 
 #include "G3D/platform.h"
 #include "G3D/Pointer.h"
@@ -22,7 +22,7 @@
 
 namespace G3D {
 /**
- Develoepr controls instantiated by GApp for debugging.
+ Developer controls instantiated by GApp for debugging.
  @sa G3D::GApp, G3D::CameraControlWindow, G3D::GConsole
  */
 class DeveloperWindow : public GuiWindow {
