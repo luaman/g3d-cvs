@@ -81,10 +81,8 @@ private:
     bool operator>=(const Vector3&) const;
 
 public:
-    // construction
+    /** Initializes to zero */
     Vector3();
-
-    inline Vector3(const Vector3& V) : x(V.x), y(V.y), z(V.z) {}
 
     /** Divides by 127 */
     Vector3(const Vector4int8&);
