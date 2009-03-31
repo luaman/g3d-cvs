@@ -1,3 +1,11 @@
+/**
+  @file GenericPosedModel.h
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2008-11-12
+  @edited  2009-03-30
+*/
 #ifndef G3D_GenericPosedModel_h
 #define G3D_GenericPosedModel_h
 
@@ -170,7 +178,7 @@ public:
         return m_gpuGeom;
     }
 
-    inline const CPUGeom& cpuGeom() const {
+    virtual const CPUGeom& cpuGeom() const {
         return m_cpuGeom;
     }
 

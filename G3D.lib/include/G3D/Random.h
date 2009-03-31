@@ -126,7 +126,8 @@ public:
         // We could compute the ratio in double precision here for
         // about 1.5x slower performance and slightly better
         // precision.
-        return (float)bits() / (float)0xFFFFFFFFUL;
+        const float norm = 1.0f / (float)0xFFFFFFFFUL;
+        return (float)bits() * norm;
     }
 
     /** Normally distributed reals. */

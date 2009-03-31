@@ -4,9 +4,8 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-12
-  @edited  2009-03-27
+  @edited  2009-03-30
 */
-
 #include "G3D/GLight.h"
 #include "G3D/Sphere.h"
 #include "G3D/CoordinateFrame.h"
@@ -16,10 +15,10 @@ namespace G3D {
 GLight::GLight() :
     position(0, 0, 0, 0),
     rightDirection(0,0,0),
-    color(Color3::white()),
     spotDirection(0, 0, -1),
     spotCutoff(180),
     spotSquare(false),
+    color(Color3::white()),
     enabled(false),
     specular(true),
     diffuse(true) {
