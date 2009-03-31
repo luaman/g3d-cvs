@@ -993,42 +993,42 @@ void Texture::getTexImage(void* data, const ImageFormat* desiredFormat) const {
 }
 
 Image4Ref Texture::toImage4(bool applyInvertY) const {
-	Image4Ref im = Image4::createEmpty(m_width, m_height); 
+	Image4Ref im = Image4::createEmpty(m_width, m_height, m_settings.wrapMode); 
 	getTexImage(im->getCArray(), ImageFormat::RGBA32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
 Image4uint8Ref Texture::toImage4uint8(bool applyInvertY) const {
-    Image4uint8::Ref im = Image4uint8::createEmpty(m_width, m_height); 
+    Image4uint8::Ref im = Image4uint8::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::RGBA8());
     im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
 Image3Ref Texture::toImage3(bool applyInvertY) const {	
-    Image3::Ref im = Image3::createEmpty(m_width, m_height); 
+    Image3::Ref im = Image3::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::RGB32F());
     im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
 Image3uint8Ref Texture::toImage3uint8(bool applyInvertY) const {	
-    Image3uint8::Ref im = Image3uint8::createEmpty(m_width, m_height); 
+    Image3uint8::Ref im = Image3uint8::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::RGB8());
     im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
 Map2D<float>::Ref Texture::toDepthMap(bool applyInvertY) const {
-    Map2D<float>::Ref im = Map2D<float>::create(m_width, m_height); 
+    Map2D<float>::Ref im = Map2D<float>::create(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
     im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
 Image1Ref Texture::toDepthImage1(bool applyInvertY) const {
-	Image1Ref im = Image1::createEmpty(m_width, m_height);
+	Image1Ref im = Image1::createEmpty(m_width, m_height, m_settings.wrapMode);
 	getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
     im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
@@ -1036,7 +1036,7 @@ Image1Ref Texture::toDepthImage1(bool applyInvertY) const {
 
 Image1uint8Ref Texture::toDepthImage1uint8(bool applyInvertY) const {
     Image1Ref src = toDepthImage1(applyInvertY);
-    Image1uint8Ref dst = Image1uint8::createEmpty(m_width, m_height);
+    Image1uint8Ref dst = Image1uint8::createEmpty(m_width, m_height, m_settings.wrapMode);
     
     const Color1* s = src->getCArray();
     Color1uint8* d = dst->getCArray();
@@ -1051,7 +1051,7 @@ Image1uint8Ref Texture::toDepthImage1uint8(bool applyInvertY) const {
 
 
 Image1Ref Texture::toImage1(bool applyInvertY) const {
-    Image1Ref im = Image1::createEmpty(m_width, m_height); 
+    Image1Ref im = Image1::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::L32F());
     im->maybeFlipVertical(applyInvertY && invertY);
     return im;
@@ -1059,7 +1059,7 @@ Image1Ref Texture::toImage1(bool applyInvertY) const {
 
 
 Image1uint8Ref Texture::toImage1uint8(bool applyInvertY) const {
-    Image1uint8Ref im = Image1uint8::createEmpty(m_width, m_height); 
+    Image1uint8Ref im = Image1uint8::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::L8());
     im->maybeFlipVertical(applyInvertY && invertY);
     return im;

@@ -77,7 +77,10 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
-    m_simTime(0) {
+    m_simTime(0),
+    debugPane(NULL),
+    debugLog(NULL),
+    userInput(NULL) {
 
     debugLog          = NULL;
     debugFont         = NULL;
