@@ -18,7 +18,7 @@ Random& Random::common() {
     return r;
 }
 
-Random::Random(void* x) : state(NULL) {
+Random::Random(void* x) : state(NULL), m_threadsafe(false) {
 }
 
 

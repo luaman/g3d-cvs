@@ -316,7 +316,7 @@ int main(int argc, char** argv) {
     Random r(1121, false);
 
     int N = pow2(14);
-    PrecomputedRandom::Data* d = new PrecomputedRandom::Data[N];
+    PrecomputedRandom::HemiUniformData* d = new PrecomputedRandom::Data[N];
     for (int i = 0; i < N; ++i) {
         r.cosHemi(d[i].cosHemiX, d[i].cosHemiY, d[i].cosHemiZ);
         d[i].uniform = r.uniform();

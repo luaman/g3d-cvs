@@ -17,33 +17,46 @@
 
 namespace G3D {
 
-/** Fast uniform and cosHemi using precomputed data table. 
-    Integers are computed using the Mersenne twister.
+/** Fast random numbers using a precomputed data table. 
 
-    Generates cosHemi about 13x faster than Random.
+    e.g., generates cosHemi about 13x faster than Random.
+    This is useful for quickly generating seeded random 
+    numbers for reproducibility.  G3D::Random takes a long
+    time to seed; this is instantaneous (providing the 
+    precomputed data is already available.)
 
     Not threadsafe.*/
 class PrecomputedRandom : public Random {
 public:
     /** Put the cosHemi and the uniform together so that when
-        alternating between them we stay in cache */
-    class Data {
+        alternating between them we stay in cache. This is also packed
+        into a good size for SIMD and GPU operations.*/
+    class HemiUniformData {
     public:
         float   cosHemiX;
         float   cosHemiY;
         float   cosHemiZ;
         float   uniform;
     };
+
+    class SphereBitsData {
+    public:
+        float   sphereX;
+        float   sphereY;
+        float   sphereZ;
+        uint32  bits;
+    };
+
 protected:
 
     /** Array of 2^n elements. */
-    Data*       m_data;
+    const HemiUniformData*      m_hemiUniform;
+    const SphereBitsData*       m_sphereBits;
 
     /** 2^n - 1; the AND mask for computing a fast modulo */
-    int         m_modMask;
+    int                         m_modMask;
 
-    /** Index into m_data */
-    int         m_index;
+    int                         m_index;
 
 public:
 
@@ -55,7 +68,13 @@ public:
 
         \param data Will NOT be deleted by the destructor.
      */
-    PrecomputedRandom(Data* data, int dataSize, uint32 seed = 0xF018A4D2);
+    PrecomputedRandom(const HemiUniformData* data1, const SphereBitsData* data2, int dataSize, uint32 seed = 0xF018A4D2);
+
+    /** Each bit is random.  Subclasses can choose to override just 
+       this method and the other methods will all work automatically. */
+    virtual uint32 bits();
+
+    // integer is inherited
 
     /** Uniform random float on the range [min, max] */
     virtual float uniform(float low, float high);
@@ -63,9 +82,16 @@ public:
     /** Uniform random float on the range [0, 1] */
     virtual float uniform();
 
+    // gaussian is inherited
+
     /** Returns 3D unit vectors distributed according to 
         a cosine distribution about the z axis. */
     virtual void cosHemi(float& x, float& y, float& z);
+
+    // hemi is inherited
+
+    /** Returns 3D unit vectors uniformly distributed on the sphere */
+    virtual void sphere(float& x, float& y, float& z);
 };
 
 }
