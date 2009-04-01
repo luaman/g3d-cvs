@@ -91,10 +91,11 @@ void main(void) {
 #       endif
 
         // Clamp to zero beyond border.  The texture clamping mode is supposed
-        // to do this but is not working.
+        // to do this but is not working.  We clamp 1 pixel beyond in order to
+        // get correct blended values near the border.
         shadow *= 
-            float(all(bvec4(greaterThanEqual(projShadowCoord.xy, vec2(0.0, 0.0)),
-                           lessThanEqual(projShadowCoord.xy, vec2(1.0, 1.0)))));
+            float(all(bvec4(greaterThanEqual(projShadowCoord.xy, -s.xy),
+                            lessThanEqual(projShadowCoord.xy, vec2(1.0, 1.0) + s.xy))));
 
     } else {
         // Outside spotlight cone
