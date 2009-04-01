@@ -1017,14 +1017,12 @@ public:
     void setColorClearValue(const Color4& c);
 
     /**
-     Devices with more textures than texture units (e.g. GeForceFX)
-     
      @param textureUnit >= 0
      @param texture Set to NULL to disable the unit
      */
     void setTexture(
         uint32                textureUnit,
-        Texture::Ref          texture);
+        const Texture::Ref&   texture);
 
     /** Returns the number of textures available.  May be higher
         than the number of texture units if the programmable
@@ -1176,9 +1174,11 @@ private:
             Vector4                 texCoord;
 
             /** NULL if not bound */
-            Texture::Ref              texture;
+            Texture::Ref            texture;
 
             float                   textureMatrix[16];
+
+            /** Only available for Fixed Function, low number texture units */
             CombineMode             combineMode;
             float                   LODBias;
 

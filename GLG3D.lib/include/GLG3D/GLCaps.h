@@ -212,16 +212,17 @@ public:
         Convenient becaused G3D::RenderDevice unifies those extensions. */
     static bool supports_two_sided_stencil();
  
+    /** 16 on most cards. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates.*/
     inline static int numTextureCoords() {
         return _numTextureCoords;
     }
 
-    /** Some devices (e.g. NVIDIA cards) support more textures than
-        texture matrices */
+    /** 16 on most cards. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates. */
     static int numTextures() {
         return _numTextures;
     }
 
+    /** 4 on most cards. Only affects fixed function. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates.*/
     static int numTextureUnits() {
         return _numTextureUnits;
     }

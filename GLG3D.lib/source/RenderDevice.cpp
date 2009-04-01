@@ -2343,10 +2343,10 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
     glMatrixMode(GL_TEXTURE);
     glLoadMatrixf(tt);
 
-    Texture::Ref texture = state.textureUnit[unit].texture;
+    const Texture::Ref& texture = state.textureUnit[unit].texture;
 
     // invert y
-    if ((texture != NULL) && texture->invertY) {
+    if (texture.notNull() && texture->invertY) {
 
         float ymax = 1.0;
     
@@ -2705,7 +2705,7 @@ void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVert
 
 void RenderDevice::setTexture(
     uint32                  unit,
-    Texture::Ref            texture) {
+    const Texture::Ref&     texture) {
 
     // NVIDIA cards have more textures than texture units.
     // "fixedFunction" textures have an associated unit 
@@ -2765,10 +2765,7 @@ void RenderDevice::setTexture(
         texture.isNull() ||
         (oldTexture->invertY != texture->invertY)) {
 
-        if (fixedFunction) {
-            // We can only set the matrix for some units
-            forceSetTextureMatrix(unit, state.textureUnit[unit].textureMatrix);
-        }
+        forceSetTextureMatrix(unit, state.textureUnit[unit].textureMatrix);
     }
 }
 
