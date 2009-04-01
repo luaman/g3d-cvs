@@ -56,7 +56,7 @@ protected:
     Spinlock     lock;
 
     /** State vector (these are the next N values that will be returned) */
-    uint32       state[N];
+    uint32*      state;
 
     /** Index into state */
     int          index;
@@ -66,6 +66,10 @@ protected:
     /** Generate the next N ints, and store them for readback later.
         Called from bits() */
     virtual void generate();
+
+    /** For subclasses.  The void* parameter is just to distinguish this from the
+        public constructor.*/
+    Random(void*);
 
 public:
 
@@ -77,44 +81,15 @@ public:
 
     virtual ~Random();
 
-    /** Each bit is random */
-    inline uint32 bits() {
-        // See http://en.wikipedia.org/wiki/Mersenne_twister
-
-        // Make a local copy of the index variable to ensure that it
-        // is not out of bounds
-        int localIndex = index;
-
-        // Automatically checks for index < 0 if corrupted
-        // by unsynchronized threads.
-        if ((unsigned int)localIndex >= (unsigned int)N) {
-            generate();
-            localIndex = 0;
-        }
-        // Increment the global index.  It may go out of bounds on
-        // multiple threads, but the above check ensures that the
-        // array index actually used never goes out of bounds.
-        // It doesn't matter if we grab the same array index twice
-        // on two threads, since the distribution of random numbers
-        // will still be uniform.
-        ++index;
-        // Return the next random in the sequence
-        uint32 r = state[localIndex];
-
-        // Temper the result
-        r ^=  r >> U;
-        r ^= (r << S) & B;
-        r ^= (r << T) & C;
-        r ^=  r >> L;
-        
-        return r;    
-    }
+    /** Each bit is random.  Subclasses can choose to override just 
+       this method and the other methods will all work automatically. */
+    virtual uint32 bits();
 
     /** Uniform random integer on the range [min, max] */
-    int integer(int min, int max);
+    virtual int integer(int min, int max);
 
     /** Uniform random float on the range [min, max] */
-    inline float uniform(float low, float high) {
+    virtual inline float uniform(float low, float high) {
         // We could compute the ratio in double precision here for
         // about 1.5x slower performance and slightly better
         // precision.
@@ -122,7 +97,7 @@ public:
     }
 
     /** Uniform random float on the range [0, 1] */
-    inline float uniform() {
+    virtual inline float uniform() {
         // We could compute the ratio in double precision here for
         // about 1.5x slower performance and slightly better
         // precision.
@@ -131,7 +106,18 @@ public:
     }
 
     /** Normally distributed reals. */
-    float gaussian(float mean, float stdev);
+    virtual float gaussian(float mean, float stdev);
+
+    /** Returns 3D unit vectors distributed according to 
+        a cosine distribution about the z axis. */
+    virtual void cosHemi(float& x, float& y, float& z);
+
+    /** Returns 3D unit vectors uniformly distributed on the 
+        hemisphere about the z-axis. */
+    virtual void hemi(float& x, float& y, float& z);
+
+    /** Returns 3D unit vectors uniformly distributed on the sphere */
+    virtual void sphere(float& x, float& y, float& z);
 
     /**
        A shared instance for when the performance and features but not

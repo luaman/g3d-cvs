@@ -263,7 +263,69 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
 G3D_START_AT_MAIN();
 
+
+void time(Random& r, Random& p) {
+    float x = 0;
+    int N = 10000;
+    Stopwatch s;
+
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            x += r.uniform();
+        }
+    }
+    s.after("Random");
+
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            x += (float)rand() / RAND_MAX;
+        }
+    }
+
+    s.after("rand");
+
+
+    float y, z;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            r.cosHemi(x, y, z);
+        }
+    }
+    s.after("Random cos");
+
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            p.cosHemi(x, y, z);
+        }
+    }
+    s.after("PrecompRandom cos");
+
+    Vector3 v;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            v = Vector3::cosHemiRandom(Vector3::unitY(), r);
+        }
+    }
+    s.after("Vector cos");
+
+}
+
+
 int main(int argc, char** argv) {
+
+    Random r(1121, false);
+
+    int N = pow2(14);
+    PrecomputedRandom::Data* d = new PrecomputedRandom::Data[N];
+    for (int i = 0; i < N; ++i) {
+        r.cosHemi(d[i].cosHemiX, d[i].cosHemiY, d[i].cosHemiZ);
+        d[i].uniform = r.uniform();
+    }
+    PrecomputedRandom p(d, N);
+
+    time(r, p);
+
+    delete[] d;
 
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
@@ -281,5 +343,5 @@ int main(int argc, char** argv) {
 //    set.window.width = 1440;
 //    set.window.height = 900;
 //    set.window.fsaaSamples = 4;
-    return App(set).run();
+//    return App(set).run();
 }

@@ -68,6 +68,7 @@
 #include "G3D/CoherentAllocator.h"
 #include "G3D/Welder.h"
 #include "G3D/GMutex.h"
+#include "G3D/PrecomputedRandom.h"
 
 template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
     static size_t hashCode(G3D::ReferenceCountedPointer<T> key) { return reinterpret_cast<size_t>( key.pointer() ); }

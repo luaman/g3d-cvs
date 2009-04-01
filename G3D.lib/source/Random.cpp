@@ -18,10 +18,14 @@ Random& Random::common() {
     return r;
 }
 
+Random::Random(void* x) : state(NULL) {
+}
+
 
 Random::Random(uint32 seed, bool threadsafe) : m_threadsafe(threadsafe) {
     const uint32 X = 1812433253UL;
 
+    state = new uint32[N];
     state[0] = seed;
     for (index = 1; index < (int)N; ++index) {
         state[index] = X * (state[index - 1] ^ (state[index - 1] >> 30)) + index;
@@ -30,6 +34,41 @@ Random::Random(uint32 seed, bool threadsafe) : m_threadsafe(threadsafe) {
 
 
 Random::~Random() {
+    delete[] state;
+    state = NULL;
+}
+
+
+uint32 Random::bits() {
+    // See http://en.wikipedia.org/wiki/Mersenne_twister
+
+    // Make a local copy of the index variable to ensure that it
+    // is not out of bounds
+    int localIndex = index;
+
+    // Automatically checks for index < 0 if corrupted
+    // by unsynchronized threads.
+    if ((unsigned int)localIndex >= (unsigned int)N) {
+        generate();
+        localIndex = 0;
+    }
+    // Increment the global index.  It may go out of bounds on
+    // multiple threads, but the above check ensures that the
+    // array index actually used never goes out of bounds.
+    // It doesn't matter if we grab the same array index twice
+    // on two threads, since the distribution of random numbers
+    // will still be uniform.
+    ++index;
+    // Return the next random in the sequence
+    uint32 r = state[localIndex];
+
+    // Temper the result
+    r ^=  r >> U;
+    r ^= (r << S) & B;
+    r ^= (r << T) & C;
+    r ^=  r >> L;
+    
+    return r;    
 }
 
 
@@ -106,5 +145,44 @@ float Random::gaussian(float mean, float stdev) {
     return x2 * (float)square(stdev) * sqrtf((-2.0f * logf(w) ) / w) + mean; 
 }
 
+
+void Random::cosHemi(float& x, float& y, float& z) {
+    const float e1 = uniform();
+    const float e2 = uniform();
+
+    const float sin_theta = sqrtf(1.0f - e1);
+    const float cos_theta = sqrtf(e1);
+    const float phi = 6.28318531f * e2;
+
+    x = cos(phi) * sin_theta;
+    y = sin(phi) * sin_theta;
+    z = cos_theta;
+}
+
+
+void Random::hemi(float& x, float& y, float& z) {
+    sphere(x, y, z);
+    z = fabsf(z);
+}
+
+
+void Random::sphere(float& x, float& y, float& z) {
+    // Squared magnitude
+    float m2;
+
+    // Rejection sample
+    do {
+        x = uniform() * 2.0f - 1.0f, 
+        y = uniform() * 2.0f - 1.0f,
+        z = uniform() * 2.0f - 1.0f;
+        m2 = x*x + y*y + z*z;
+    } while (m2 >= 1.0f);
+
+    // Divide by magnitude to produce a unit vector
+    float s = rsqrt(m2);
+    x *= s;
+    y *= s;
+    z *= s;
+}
 
 } // G3D

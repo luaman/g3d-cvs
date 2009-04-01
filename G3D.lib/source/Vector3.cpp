@@ -146,22 +146,12 @@ void Vector3::serialize(BinaryOutput& b) const {
 
 Vector3 Vector3::random(Random& r) {
     Vector3 result;
-
-    float m2;
-    do {
-        result = Vector3(r.uniform() * 2.0f - 1.0f, 
-                         r.uniform() * 2.0f - 1.0f,
-                         r.uniform() * 2.0f - 1.0f);
-        m2 = result.squaredMagnitude();
-    } while (m2 >= 1.0f);
-
-    result *= rsqrt(m2);
-
+    r.sphere(result.x, result.y, result.z);
     return result;
 }
 
 
-float Vector3::unitize (float fTolerance) {
+float Vector3::unitize(float fTolerance) {
     float fMagnitude = magnitude();
 
     if (fMagnitude > fTolerance) {
@@ -190,12 +180,9 @@ Vector3 Vector3::reflectAbout(const Vector3& normal) const {
 Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
     debugAssertM(G3D::fuzzyEq(normal.length(), 1.0f), 
                  "cosHemiRandom requires its argument to have unit length");
-    const float e1 = r.uniform();
-    const float e2 = r.uniform();
 
-    const float sin_theta = sqrtf(1.0f - e1);
-    const float cos_theta = sqrtf(e1);
-    const float phi = 2.0f * pi() * e2;
+    float x, y, z;
+    r.cosHemi(x, y, z);
 
     // Make a coordinate system
     const Vector3& Z = normal;
@@ -212,9 +199,9 @@ Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
     const Vector3& Y = Z.cross(X);
 
     return 
-        cos(phi) * sin_theta * X +
-        sin(phi) * sin_theta * Y +
-        cos_theta * Z;
+        x * X +
+        y * Y +
+        z * Z;
 }
 
 

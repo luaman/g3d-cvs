@@ -11,7 +11,8 @@
 <hr>
    <p>
    Changes in 8.00:
-   <ul>
+   <ul>     
+     <li> G3D::PrecomputedRandom
      <li> Increased GLCaps::G3D_MAX_TEXTURE_UNITS to 16
      <li> GenericPosedModel now depth sorts and culls models for shadow map rendering
      <li> G3D::ShadowMap::computeMatrices
