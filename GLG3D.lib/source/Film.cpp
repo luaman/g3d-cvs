@@ -154,7 +154,7 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input) {
 
 void Film::makeGui(class GuiPane* pane, float maxExposure) {
     pane->addNumberBox("Gamma",         &m_gamma, "", GuiTheme::LOG_SLIDER, 1.0f, 7.0f, 0.1f);
-    pane->addNumberBox("Exposure",      &m_exposure, "", GuiTheme::LOG_SLIDER, 0.01f, maxExposure);
+    pane->addNumberBox("Exposure",      &m_exposure, "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
     pane->addNumberBox("Bloom Str.",    &m_bloomStrength, "", GuiTheme::LOG_SLIDER, 0.0f, 1.0f);
     pane->addNumberBox("Bloom Radius",  &m_bloomRadiusFraction, "", GuiTheme::LOG_SLIDER, 0.0f, 0.2f);
     

@@ -316,6 +316,9 @@ public:
         sample() in a multithreaded environment, first invoke setStorage(COPY_TO_CPU)
         on every Component from a single thread to prime the CPU data
         structures.
+
+        Coordinates are normalized; will be scaled by the image width and height
+        automatically.
     */
     inline Color sample(const Vector2& pos) const {
         switch (m_factors) {
@@ -324,10 +327,15 @@ public:
             return m_constant;
 
         case MAP:
-            return m_map->image()->bilinear(pos);
-
+            {
+                const Image::Ref& im = m_map->image();
+                return im->bilinear(pos * Vector2(im->width(), im->height()));
+            }
         case MAP_TIMES_CONSTANT:
-            return m_map->image()->bilinear(pos) * m_constant;
+            {
+                const Image::Ref& im = m_map->image();
+                return im->bilinear(pos * Vector2(im->width(), im->height())) * m_constant;
+            }
 
         default:
             alwaysAssertM(false, "fell through switch");
