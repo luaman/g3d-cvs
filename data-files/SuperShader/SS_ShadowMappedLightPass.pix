@@ -102,7 +102,11 @@ void main(void) {
         shadow = 0.0;
     }
 
-    if (shadow == 0.0 || lambertianColor.a < 0.5) {
+    if (shadow == 0.0
+#       ifdef LAMBERTIANMAP
+             || lambertianColor.a < 0.5
+#endif
+        ) {
         // Either a pixel totally in shadow or one that will be
         // culled by the alpha blender anyway.  Stop computing here
         // before we perform additional texture lookups.

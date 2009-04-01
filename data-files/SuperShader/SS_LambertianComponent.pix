@@ -13,7 +13,19 @@
   @created 2007-12-18
   @edited  2009-03-31
  */
+    const vec3 BLACK = vec3(0.0, 0.0, 0.0);
 
+    vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
+
+#   ifdef NORMALBUMPMAP
+        vec3 wsN;
+        vec2 offsetTexCoord;
+        applyBumpMap(wsN, offsetTexCoord);
+#   else
+        // World space normal
+        vec3 wsN = tan_Z.xyz * backside;
+        vec2 offsetTexCoord = texCoord;
+#   endif
 
 #   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
         vec4 lambertianColor =
