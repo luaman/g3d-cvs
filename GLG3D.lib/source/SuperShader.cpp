@@ -261,6 +261,7 @@ static void configureLights
  int N, 
  const Array<GLight>& lightArray,
  VertexAndPixelShader::ArgList&  args) {
+    initializeStringConstants();
 
     for (int i = 0; i < N; ++i) {
         if (lightArray.size() > i + lightIndex) {
