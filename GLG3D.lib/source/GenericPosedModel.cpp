@@ -395,7 +395,7 @@ bool GenericPosedModel::renderPS20NonShadowedOpaqueTerms(
     const Material::Ref& material = m_gpuGeom->material;
     const UberBSDF::Ref&     bsdf = material->bsdf();
 
-    if (bsdf->hasReflection()) {
+    if (! bsdf->hasReflection()) {
         // Nothing to draw
         return false;
     }

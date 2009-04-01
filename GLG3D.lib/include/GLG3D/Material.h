@@ -2,7 +2,7 @@
  @file   Material.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
- @edited 2009-03-27
+ @edited 2009-03-30
 */
 #ifndef GLG3D_Material_h
 #define GLG3D_Material_h
@@ -223,8 +223,17 @@ protected:
 
 public:
 
-    /** @brief Constructs an empty Material. */
+    /** \brief Constructs an empty Material. */
     static Material::Ref create();
+
+    /** The Material::create(const Settings& settings) factor method is recommended 
+       over this one because it performs caching and argumnet validation. */ 
+    static Material::Ref create(
+        const UberBSDF::Ref&                bsdf,
+        const Component3&                   emissive        = Component3(),
+        const BumpMap::Ref&                 bump            = NULL,
+        const MapComponent<Image4>::Ref&    customMap       = NULL,
+        const Color4&                       customConstant  = Color4::inf());
 
     /**
        Caches previously created Materials, and the textures 

@@ -210,7 +210,7 @@ public:
 
       @beta
     */
-    Color4 shadeDirect
+    virtual Color4 shadeDirect
     (const Vector3& n,
      const Vector2& texCoord,
      const Vector3& w_i,
@@ -219,7 +219,7 @@ public:
 
     /** \brief Move or copy data to CPU or GPU.  
         Called from G3DMaterial::setStorage(). */
-    void setStorage(ImageStorage s) const;
+    virtual void setStorage(ImageStorage s) const;
 
     /** \brief Return true if there is any glossy (non-Lambertian, non-mirror) 
         reflection from this BSDF. */
@@ -266,7 +266,7 @@ public:
        @beta
 
        @return false if the photon was absorbed, true if it scatters. */
-    bool scatter
+    virtual bool scatter
     (const Vector3& n,
      const Vector2& texCoord,
      const Vector3& w_i,

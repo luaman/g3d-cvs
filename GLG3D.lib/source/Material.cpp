@@ -17,6 +17,24 @@ Material::Ref Material::create() {
     return new Material();
 }
 
+Material::Ref Material::create
+(const UberBSDF::Ref&                bsdf,
+ const Component3&                   emissive,
+ const BumpMap::Ref&                 bump,
+ const MapComponent<Image4>::Ref&    customMap,
+ const Color4&                       customConstant) {
+
+    Material::Ref m = Material::create();
+
+    m->m_bsdf = bsdf;
+    m->m_emissive = emissive;
+    m->m_bump = bump;
+    m->m_customMap = customMap;
+    m->m_customConstant = customConstant;
+
+    return m;
+}
+
 
 Material::Ref Material::createDiffuse(const Color3& p_Lambertian) {
     Settings s;
