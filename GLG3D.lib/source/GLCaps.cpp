@@ -233,6 +233,7 @@ void GLCaps::init() {
     DECLARE_EXT(GL_ATI_separate_stencil);    
     DECLARE_EXT(GL_EXT_texture_compression_s3tc);
     DECLARE_EXT(GL_EXT_texture_cube_map);
+    DECLARE_EXT(GL_EXT_separate_specular_color);
     DECLARE_EXT(GL_ARB_shadow);
     DECLARE_EXT(GL_ARB_shader_objects);
     DECLARE_EXT(GL_ARB_shading_language_100);
@@ -490,22 +491,23 @@ void GLCaps::loadExtensions(Log* debugLog) {
             DECLARE_EXT(GL_NV_vertex_program2);
             DECLARE_EXT(GL_ARB_vertex_buffer_object);
             DECLARE_EXT(GL_EXT_texture_edge_clamp);
-            DECLARE_EXT(GL_ARB_texture_border_clamp);
+            DECLARE_EXT_GL2(GL_ARB_texture_border_clamp);
             DECLARE_EXT(GL_EXT_texture3D);
-            DECLARE_EXT(GL_ARB_fragment_program);
-            DECLARE_EXT(GL_ARB_multitexture);
+            DECLARE_EXT_GL2(GL_ARB_fragment_program);
+            DECLARE_EXT_GL2(GL_ARB_multitexture);
+            DECLARE_EXT_GL2(GL_EXT_separate_specular_color);
             DECLARE_EXT(GL_EXT_stencil_wrap);
             DECLARE_EXT(GL_EXT_stencil_two_side);
             DECLARE_EXT(GL_ATI_separate_stencil);            
             DECLARE_EXT(GL_EXT_texture_compression_s3tc);
             DECLARE_EXT(GL_EXT_texture_cube_map);
-            DECLARE_EXT(GL_ARB_shadow);
-            DECLARE_EXT(GL_ARB_shader_objects);
-            DECLARE_EXT(GL_ARB_shading_language_100);
+            DECLARE_EXT_GL2(GL_ARB_shadow);
+            DECLARE_EXT_GL2(GL_ARB_shader_objects);
+            DECLARE_EXT_GL2(GL_ARB_shading_language_100);
             DECLARE_EXT(GL_ARB_fragment_shader);
             DECLARE_EXT(GL_ARB_vertex_shader);
             DECLARE_EXT(GL_EXT_geometry_shader4);
-            DECLARE_EXT(GL_EXT_framebuffer_object);
+            DECLARE_EXT_GL2(GL_EXT_framebuffer_object);
         #undef DECLARE_EXT
 
         // Some extensions have aliases

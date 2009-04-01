@@ -48,6 +48,7 @@ uniform vec3        ambientBottom;
 
 void main(void) {
 
+#include "SS_LambertianComponent.pix"
 #include "SS_Components.pix"
 
     vec3 I_lambertian  = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);

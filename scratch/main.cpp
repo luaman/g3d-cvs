@@ -59,14 +59,6 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 
 void App::onInit() {
- {
-    ArticulatedModel::Ref m = ArticulatedModel::createCornellBox();
-    Array<PosedModel::Ref> p;
-    m->pose(p);
-    AABox b;
-    p[0]->getWorldSpaceBoundingBox(b);
-}
-
     film = Film::create();
     /*
     Stopwatch timer("Load 3DS");
@@ -78,16 +70,8 @@ void App::onInit() {
     timer.after("load");
     */
 
-
-    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
-    Material::Settings spec;
-    spec.setLambertian(Color3::red());
-    spec.setSpecular(Color3::yellow());
-    spec.setShininess(3);
-    model->partArray[0].triList[0]->material = Material::create(spec);
-    model->updateAll();
-
-    ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
+    //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
+    model = ArticulatedModel::createCornellBox();
 
     setDesiredFrameRate(1000);
 
@@ -98,9 +82,10 @@ void App::onInit() {
     }
 
     lighting = Lighting::create();
+    lighting->ambientTop = lighting->ambientBottom = Color3::white() * 0.2;
     {
-        GLight L = GLight::spot(Vector3(10, 10, 0), Vector3(-1,-1,0), 45, Color3::white());
-        L.spotSquare = false;
+        GLight L = GLight::spot(Vector3(0, 0, 0), -Vector3::unitY(), 45, Color3::white());
+        L.spotSquare = true;
         lighting->shadowedLightArray.append(L);
     }
     shadowMap = ShadowMap::create("Shadow Map");
@@ -123,79 +108,15 @@ void App::onInit() {
     histogram->insert(v);
 */
 
-    static Spline<float> x;
-    x.append(1.0f);
-    x.append(3.0f);
-    x.append(2.0f);
-    x.append(3.0f);
-    debugPane->addFunctionBox("Curve", &x);
-
-    debugPane->addLabel("Hello");
-    debugPane->pack();
-    debugWindow->pack();
-    debugWindow->setVisible(true);
-
+    defaultCamera.setCoordinateFrame(bookmark("Home"));
 
     toneMap->setEnabled(false);
 }
 
 
-void App::onCleanup() {
-    // Called after the application loop ends.  Place a majority of cleanup code
-    // here instead of in the constructor so that exceptions can be caught
-    delete histogram;
-    histogram = NULL;
-}
-
-void App::onAI() {
-    // Add non-simulation game logic and AI code here
-    
-}
-
-void App::onNetwork() {
-    // Poll net messages here
-}
-
-void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-    // Add physical simulation here.  You can make your time advancement
-    // based on any of the three arguments.
-}
-
-void App::onUserInput(UserInput* ui) {
-
-}
-
-void App::onConsoleCommand(const std::string& str) {
-    // Add console processing here
-
-    TextInput t(TextInput::FROM_STRING, str);
-    if (t.hasMore() && (t.peek().type() == Token::SYMBOL)) {
-        std::string cmd = toLower(t.readSymbol());
-        if (cmd == "exit") {
-            exit(0);
-            return;
-        } else if (cmd == "help") {
-            printConsoleHelp();
-            return;
-        }
-
-        // Add commands here
-    }
-
-    console->printf("Unknown command\n");
-    printConsoleHelp();
-}
-
-void App::printConsoleHelp() {
-    console->printf("exit          - Quit the program\n");
-    console->printf("help          - Display this text\n\n");
-    console->printf("~/ESC         - Open/Close console\n");
-    console->printf("TAB           - Enable first-person camera control\n");
-}
-
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     if (model.notNull()) {
-        model->pose(posed3D, Vector3(0,0.5,0));
+        model->pose(posed3D, Vector3(0,0,0));
     }
 
     if (ground.notNull()) {
@@ -215,10 +136,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->clear(true, true, true);
 
-    AABox sceneBounds;
-    PosedModel::getBoxBounds(posed3D, sceneBounds);
-
-
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3::white() * 0.8f);
@@ -229,9 +146,26 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
 
+    {
+        GLight& light = lighting->shadowedLightArray[0];
+        Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, Color3::white());
+        
+        CFrame lightCFrame = light.position.xyz();
+        lightCFrame.lookAt(light.position.xyz() + light.spotDirection);
+        GCamera lightCamera;
+        lightCamera.lookAt(light.spotDirection);
+        lightCamera.setCoordinateFrame(lightCFrame);
+        lightCamera.setFieldOfView(toRadians(light.spotCutoff) * 2, GCamera::HORIZONTAL);
+        lightCamera.setNearPlaneZ(-0.01f);
+        lightCamera.setFarPlaneZ(-10.01f);
+        Draw::frustum(lightCamera.frustum(shadowMap->rect2DBounds()), rd);
+    }
+
+
+    //    Draw::axes(rd);
+
     /*
     Draw::sphere(Sphere(Vector3(0,3,0), 0.2f), rd, Color3::white());
-    Draw::axes(rd);
     Draw::sphere(Sphere(Vector3::zero(), 3), rd);
     Draw::box(AABox(Vector3(-3,0,-3), Vector3(3,6,3)), rd);
     */
@@ -261,73 +195,42 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 }
 
 
-G3D_START_AT_MAIN();
+void App::onCleanup() {
+    // Called after the application loop ends.  Place a majority of cleanup code
+    // here instead of in the constructor so that exceptions can be caught
+    delete histogram;
+    histogram = NULL;
+}
 
+void App::onAI() {
+    // Add non-simulation game logic and AI code here
+    
+}
 
-void time(Random& r, Random& p) {
-    float x = 0;
-    int N = 10000;
-    Stopwatch s;
+void App::onNetwork() {
+    // Poll net messages here
+}
 
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            x += r.uniform();
-        }
-    }
-    s.after("Random");
+void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+    // Add physical simulation here.  You can make your time advancement
+    // based on any of the three arguments.
+}
 
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            x += (float)rand() / RAND_MAX;
-        }
-    }
-
-    s.after("rand");
-
-
-    float y, z;
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            r.cosHemi(x, y, z);
-        }
-    }
-    s.after("Random cos");
-
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            p.cosHemi(x, y, z);
-        }
-    }
-    s.after("PrecompRandom cos");
-
-    Vector3 v;
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            v = Vector3::cosHemiRandom(Vector3::unitY(), r);
-        }
-    }
-    s.after("Vector cos");
+void App::onUserInput(UserInput* ui) {
 
 }
 
+void App::onConsoleCommand(const std::string& str) {
+}
+
+void App::printConsoleHelp() {
+}
+
+
+G3D_START_AT_MAIN();
+
 
 int main(int argc, char** argv) {
-/*
-    Random r(1121, false);
-
-    int N = pow2(14);
-    PrecomputedRandom::HemiUniformData* d = new PrecomputedRandom::Data[N];
-    for (int i = 0; i < N; ++i) {
-        r.cosHemi(d[i].cosHemiX, d[i].cosHemiY, d[i].cosHemiZ);
-        d[i].uniform = r.uniform();
-    }
-    PrecomputedRandom p(d, N);
-
-    time(r, p);
-
-    delete[] d;
-    */
-
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
     //b.writeInt32(1);
@@ -341,8 +244,5 @@ int main(int argc, char** argv) {
     */
 
     GApp::Settings set;
-//    set.window.width = 1440;
-//    set.window.height = 900;
-//    set.window.fsaaSamples = 4;
-//    return App(set).run();
+    return App(set).run();
 }

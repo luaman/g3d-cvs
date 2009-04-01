@@ -3,8 +3,8 @@
 
   @author Morgan McGuire, morgan@cs.williams.edu
  */
-#ifndef G3D_SHADOWMAP_H
-#define G3D_SHADOWMAP_H
+#ifndef G3D_ShadowMap_h
+#define G3D_ShadowMap_h
 
 #include "G3D/Matrix4.h"
 #include "G3D/ReferenceCount.h"
@@ -61,25 +61,33 @@ public:
     }
 
     /** 
-    \brief Computes a reference frame (as a camera) and projection matrix for the light. 
+    \brief Computes a reference frame (as a camera) and projection
+    matrix for the light.
     
-    \param lightProjX Scene bounds in the light's reference frame for a directional light.  Not needed for a spot light
-    \param lightProjY Scene bounds in the light's reference frame for a directional light.  Not needed for a spot light
-    \param lightProjNear Shadow map near plane depth in the light's reference frame for a directional light.  Not needed for a spot light
-    \param lightProjFar Shadow map far plane depth in the light's reference frame for a directional light.  Not needed for a spot light
+    \param lightProjX Scene bounds in the light's reference frame for
+    a directional light.  Not needed for a spot light
+
+    \param lightProjY Scene bounds in the light's reference frame for
+    a directional light.  Not needed for a spot light
+
+    \param lightProjNear Shadow map near plane depth in the light's
+    reference frame for a directional light.  Not needed for a spot
+    light
+
+    \param lightProjFar Shadow map far plane depth in the light's
+    reference frame for a directional light.  Not needed for a spot
+    light
     */
-    static void computeMatrices(const GLight& light, const AABox& sceneBounds, GCamera& lightFrame, Matrix4& lightProjectionMatrix,
-            float lightProjX = 12, float lightProjY = 12, float lightProjNear = 0.5f, float lightProjFar = 60);
+    static void computeMatrices
+    (const GLight& light, const AABox& sceneBounds, GCamera& lightFrame, Matrix4& lightProjectionMatrix,
+     float lightProjX = 12, float lightProjY = 12, float lightProjNear = 0.5f, float lightProjFar = 60);
 
     /** Call with desiredSize = 0 to turn off shadow maps.
      */
     void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
 
-    static ShadowMapRef create(const std::string& name = "Shadow Map", int size = 1024, const Texture::Settings& settings = Texture::Settings::shadow()) {
-        ShadowMap* s = new ShadowMap(name);
-        s->setSize(size, settings);
-        return s;
-    }
+    static ShadowMapRef create(const std::string& name = "Shadow Map", int size = 1024, 
+                               const Texture::Settings& settings = Texture::Settings::shadow());
 
     /** By default, the texture is configured for fixed function depth comparison using Texture::DEPTH_LEQUAL.  
         Some G3D::Shaders will want a different depth mode; you can use this to temporarily override the 
@@ -123,14 +131,14 @@ public:
     bool enabled() const;
 
     /** 
-      @param biasDepth amount to bias z values by in the biasedMVP when later rendering
-      */
-    void updateDepth(
-        class RenderDevice* renderDevice, 
-        const CoordinateFrame& lightFrame,
-        const Matrix4& lightProjectionMatrix,
-        const Array<PosedModel::Ref>& shadowCaster,
-        float biasDepth = 0.01f);
+    \param biasDepth amount to bias z values by in the biasedMVP when later rendering
+    */
+    void updateDepth
+    (class RenderDevice*           renderDevice, 
+     const CoordinateFrame&        lightFrame,
+     const Matrix4&                lightProjectionMatrix,
+     const Array<PosedModel::Ref>& shadowCaster,
+     float                         biasDepth = 0.01f);
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that

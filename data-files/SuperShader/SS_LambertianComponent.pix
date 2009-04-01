@@ -1,0 +1,29 @@
+// -*- c++ -*-
+/**
+  @file SS_LambertianComponent.pix
+  @author Morgan McGuire morgan@cs.williams.edu
+
+  For use with G3D::SuperShader.
+  This file is included into NonShadowedPass.pix and 
+  ShadowMappedLightPass.pix.
+
+  Lambertian is included in a different location in the shadow mapped
+  pass in order to allow alpha testing early.
+
+  @created 2007-12-18
+  @edited  2009-03-31
+ */
+
+
+#   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
+        vec4 lambertianColor =
+#       ifdef LAMBERTIANCONSTANT
+            vec4(lambertianConstant, 1.0)
+#           ifdef LAMBERTIANMAP
+                * texture2D(lambertianMap, offsetTexCoord)
+#           endif
+#       else
+            texture2D(lambertianMap, offsetTexCoord)
+#       endif
+        ;
+#   endif

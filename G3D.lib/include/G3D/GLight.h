@@ -35,8 +35,11 @@ public:
     /** In <B>degrees</B>.  180 = no cutoff (point/dir).  Values less than 90 = spot light */
     float               spotCutoff;
 
-    /** If true, G3D::ShadowMap will produce the largest square that fits *inside* the spotCutoff angle.  This produces
-        a square prism instead of a cone of light.*/
+    /** If true, G3D::SuperShader will render a cone of light large
+        enough to encompass the entire square that bounds the cutoff
+        angle. This produces a square prism instead of a cone of light
+        when used with a G3D::ShadowMap.  for an unshadowed light this
+        has no effect.*/
     bool                spotSquare;
 
     /** Constant, linear, quadratic */
@@ -48,10 +51,12 @@ public:
     /** If false, this light is ignored */
     bool                enabled;
 
-    /** If false, this light does not create specular highlights (useful when using negative lights). */
+    /** If false, this light does not create specular highlights
+        (useful when using negative lights). */
     bool                specular;
 
-    /** If false, this light does not create diffuse illumination (useful when rendering a specular-only pass). */
+    /** If false, this light does not create diffuse illumination
+        (useful when rendering a specular-only pass). */
     bool                diffuse;
 
     GLight();
@@ -61,11 +66,17 @@ public:
 
     static GLight point(const Vector3& pos, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0.5f, bool specular = true, bool diffuse = true);
 
-    /** @param pointDirection Will be normalized.  Points in the direction that light propagates.
-        @param cutOffAngleDegrees Must be on the range [0, 90]. This is the angle from the point direction
-        to the edge of the light cone.
+    /** @param pointDirection Will be normalized.  Points in the
+        direction that light propagates.
+
+        @param cutOffAngleDegrees Must be on the range [0, 90]. This
+        is the angle from the point direction to the edge of the light
+        cone.  I.e., a value of 45 produces a light with a 90-degree 
+        cone of view.
     */
-    static GLight spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0, bool specular = true, bool diffuse = true);
+    static GLight spot(const Vector3& pos, const Vector3& pointDirection, float cutOffAngleDegrees, 
+                       const Color3& color, float constAtt = 1, float linAtt = 0, float quadAtt = 0,
+                       bool specular = true, bool diffuse = true);
 
     /** Returns the sphere within which this light has some noticable effect.  May be infinite.
         @param cutoff The value at which the light intensity is considered negligible. */

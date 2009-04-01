@@ -33,20 +33,6 @@
         vec3 wsE = BLACK;
 #   endif
 
-#   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
-        vec4 lambertianColor =
-#       ifdef LAMBERTIANCONSTANT
-            vec4(lambertianConstant, 1.0)
-#           ifdef LAMBERTIANMAP
-                * texture2D(lambertianMap, offsetTexCoord)
-#           endif
-#       else
-            texture2D(lambertianMap, offsetTexCoord)
-#       endif
-        ;
-#   endif
-
-
 #   if defined(EMITCONSTANT) || defined(EMITMAP)     
         vec4 emitColor =
 #       ifdef EMITCONSTANT

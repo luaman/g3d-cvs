@@ -136,6 +136,7 @@ private:
     DECLARE_EXT(GL_ARB_texture_border_clamp);
     DECLARE_EXT(GL_EXT_texture3D);
     DECLARE_EXT(GL_EXT_stencil_wrap);
+    DECLARE_EXT(GL_EXT_separate_specular_color);
     DECLARE_EXT(GL_EXT_stencil_two_side);
     DECLARE_EXT(GL_ATI_separate_stencil);    
     DECLARE_EXT(GL_EXT_texture_compression_s3tc);

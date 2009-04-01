@@ -19,6 +19,13 @@ ShadowMap::ShadowMap(const std::string& name) : m_name(name), m_polygonOffset(0.
 }
 
 
+ShadowMap::Ref ShadowMap::create(const std::string& name, int size, const Texture::Settings& settings) {
+    ShadowMap* s = new ShadowMap(name);
+    s->setSize(size, settings);
+    return s;
+}
+
+
 void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
     Texture::DepthReadMode old = m_depthModeStack.last();
     m_depthModeStack.append(m);
@@ -93,12 +100,12 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
         SHADOW_MAP_SIZE = 512;
     }
 
-    m_depthTexture = Texture::createEmpty(
-                                     m_name,
-                                     SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
-                                     ImageFormat::DEPTH16(),
-                                     Texture::DIM_2D, 
-                                     textureSettings);
+    m_depthTexture = Texture::createEmpty
+        (m_name,
+         SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
+         ImageFormat::DEPTH16(),
+         Texture::DIM_2D, 
+         textureSettings);
     m_colorTexture = NULL;
 
     if (GLCaps::supports_GL_EXT_framebuffer_object()) {
@@ -113,6 +120,7 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
 bool ShadowMap::enabled() const {
     return m_depthTexture.notNull();
 }
+
 
 void ShadowMap::updateDepth(
     RenderDevice*                   renderDevice,
@@ -220,7 +228,7 @@ void ShadowMap::computeColorTexture() {
     if (m_colorTexture.isNull()) {
         Texture::Settings settings = Texture::Settings::video();
         settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-        settings.wrapMode = WrapMode::CLAMP;
+        settings.wrapMode = m_depthTexture->settings().wrapMode;
 
         // Must be RGB16 or RGB16F because OpenGL can't render to
         // luminance textures and we need high bit depth for the
@@ -303,10 +311,8 @@ void ShadowMap::computeMatrices
         const float angle = toRadians(light.spotCutoff);
         lightProjX = lightProjNear * sin(angle);
 
-        if (! light.spotSquare) {
-            // Fit a square around the circle
-            lightProjX *= 2.0f / sqrt(2.0f);
-        }
+        // Expand to bound with a square
+        lightProjX *= 2.0f / sqrt(2.0f);
 
         // Symmetric in x and y
         lightProjY = lightProjX;

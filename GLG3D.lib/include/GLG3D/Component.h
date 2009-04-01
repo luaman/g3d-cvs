@@ -328,12 +328,12 @@ public:
 
         case MAP:
             {
-                const Image::Ref& im = m_map->image();
+                const typename Image::Ref& im = m_map->image();
                 return im->bilinear(pos * Vector2(im->width(), im->height()));
             }
         case MAP_TIMES_CONSTANT:
             {
-                const Image::Ref& im = m_map->image();
+                const typename Image::Ref& im = m_map->image();
                 return im->bilinear(pos * Vector2(im->width(), im->height())) * m_constant;
             }
 

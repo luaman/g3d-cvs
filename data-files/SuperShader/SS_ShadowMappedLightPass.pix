@@ -22,60 +22,24 @@
 /** Coordinate to use in the shadow map */
 varying vec4        shadowCoord;
 
-
 void main(void) {
 
-#include "SS_Components.pix"
+#include "SS_LambertianComponent.pix"
+    gl_FragColor.a = 
+#       if defined(LAMBERTIANMAP) || defined(LAMBERTIANCONSTANT)
+            lambertianColor.a
+#       else
+            1.0
+#       endif
+        ;
 
-	float shininess = 0.0;
-
-#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
-        vec3  specularColor;
-        
-        // If 1.0, mirror reflect
-        // If 0.0, no specular
-        // Otherwise exponent = shininess * 127 + 1. 
-        {        
-			vec4 temp =
-#			ifdef SPECULARCONSTANT
-				specularConstant
-#				ifdef SPECULARMAP
-					* texture2D(specularMap, offsetTexCoord)
-#				endif
-#			else
-				texture2D(specularMap, offsetTexCoord)
-#			endif
-			;
-				   
-		   specularColor    = temp.rgb;
-		   
-//         Only if this texture is known to contain some mirror reflective value do we bother
-//         testing each pixel's specular exponent for mirror reflection
-#		   ifdef MIRROR
-           if (temp.a == 1.0) {
-                // Mirror reflection; turn off glossy specular
-                shininess = 0.0;
-           } else
-#		   endif           
-           {
-                // Only glossy reflection				
-                // Unpack the specular exponent
-                shininess = temp.a * 127.0 + 1.0;
-           }
-       }
-#   else
-       shininess = 0.0;
-#   endif
-
-	vec3 I_lambertian = BLACK;
-	vec3 I_specular = BLACK;
-	
-	vec3 wsL;
-    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition0, lightAttenuation0, lightDirection0, lightColor0, I_lambertian, I_specular, wsL);
-
-	float shadow;
-
-    if (-dot(lightDirection0, wsL) >= lightAttenuation0.w) {
+    float shadow;
+    
+    // Test whether we are within a spotlight's cone. Do this with an
+    // un-normalized light vector.
+    vec3 tempL = lightPosition0.xyz - wsPosition.xyz * lightPosition0.w;
+    if ((lightAttenuation0.w > 0.0) &&
+        (-dot(lightDirection0, tempL) >= lightAttenuation0.w * length(tempL))) {
 
         // Compute projected shadow coord.
         vec4 projShadowCoord = shadowCoord / shadowCoord.w;
@@ -86,13 +50,16 @@ void main(void) {
         vec4 d = s * 0.71;
 
 #       ifdef G3D_ATI
-			// On ATI, percentage closer filtering is not available.  Perform nearest neighbor
-			// sampling with explicit depth comparisons.  We use dot products to perform four compares
-			// at once and sum their results; this saves four instructions.  We could also (but do not
-			// in this implementation) perform our own bilinear to smooth as well as blur the results.
+            // On ATI, percentage closer filtering is not available.
+            // Perform nearest neighbor sampling with explicit depth
+            // comparisons.  We use dot products to perform four
+            // compares at once and sum their results; this saves four
+            // instructions.  We could also (but do not in this
+            // implementation) perform our own bilinear to smooth as
+            // well as blur the results.
 
-			shadow = 
-            (float(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z) +
+            shadow = 
+                (float(texture2D(shadowMap, projShadowCoord.xy).r > projShadowCoord.z) +
                   
                   dot(vec4(1,1,1,1),
                       vec4(greaterThan(vec4(
@@ -109,24 +76,87 @@ void main(void) {
                         texture2D(shadowMap, projShadowCoord.xy - s.zy).r), projShadowCoord.zzzz)))) / 9.0; 
         
 #       else
-			shadow = 
-				(shadow2D(shadowMap, projShadowCoord.xyz).r +
-	             
-				 shadow2D(shadowMap, projShadowCoord.xyz + s.xww).r +
-				 shadow2D(shadowMap, projShadowCoord.xyz - s.xww).r +
-				 shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).r +
-				 shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).r +
-	             
-				 shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).r +
-				 shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).r +
-				 shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).r +
-				 shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).r) / 9.0;
+            shadow = 
+                (shadow2D(shadowMap, projShadowCoord.xyz).r +
+                 
+                 shadow2D(shadowMap, projShadowCoord.xyz + s.xww).r +
+                 shadow2D(shadowMap, projShadowCoord.xyz - s.xww).r +
+                 shadow2D(shadowMap, projShadowCoord.xyz + s.wyw).r +
+                 shadow2D(shadowMap, projShadowCoord.xyz - s.wyw).r +
+	         
+                 shadow2D(shadowMap, projShadowCoord.xyz + d.xyw).r +
+                 shadow2D(shadowMap, projShadowCoord.xyz - d.zyw).r +
+                 shadow2D(shadowMap, projShadowCoord.xyz + d.zyw).r +
+                 shadow2D(shadowMap, projShadowCoord.xyz - d.xyw).r) / 9.0;
 #       endif
+
+        // Clamp to zero beyond border.  The texture clamping mode is supposed
+        // to do this but is not working.
+        shadow *= 
+            float(all(bvec4(greaterThanEqual(projShadowCoord.xy, vec2(0.0, 0.0)),
+                           lessThanEqual(projShadowCoord.xy, vec2(1.0, 1.0)))));
 
     } else {
         // Outside spotlight cone
         shadow = 0.0;
     }
+
+    if (shadow == 0.0 || lambertianColor.a < 0.5) {
+        // Either a pixel totally in shadow or one that will be
+        // culled by the alpha blender anyway.  Stop computing here
+        // before we perform additional texture lookups.
+        gl_FragColor.rgb = vec3(0.0, 0.0, 0.0);
+        return;
+    }
+
+#include "SS_Components.pix"
+
+    float shininess = 0.0;
+
+#   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
+    vec3  specularColor;
+        
+    // If 1.0, mirror reflect
+    // If 0.0, no specular
+    // Otherwise exponent = shininess * 127 + 1. 
+    {        
+        vec4 temp =
+#       ifdef SPECULARCONSTANT
+            specularConstant
+#	    ifdef SPECULARMAP
+                * texture2D(specularMap, offsetTexCoord)
+#	    endif
+#	else
+            texture2D(specularMap, offsetTexCoord)
+#       endif
+            ;
+				   
+        specularColor    = temp.rgb;
+		   
+//      Only if this texture is known to contain some mirror reflective value do we bother
+//      testing each pixel's specular exponent for mirror reflection
+#	ifdef MIRROR
+           if (temp.a == 1.0) {
+               // Mirror reflection; turn off glossy specular
+               shininess = 0.0;
+           } else
+#       endif           
+           {
+               // Only glossy reflection				
+               // Unpack the specular exponent
+               shininess = temp.a * 127.0 + 1.0;
+           }
+    }
+#   else
+       shininess = 0.0;
+#   endif
+
+    vec3 I_lambertian = BLACK;
+    vec3 I_specular = BLACK;
+
+    vec3 wsL;
+    addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition0, lightAttenuation0,
+                         lightDirection0, lightColor0, I_lambertian, I_specular, wsL);
         
     gl_FragColor.rgb =
         shadow * (BLACK
@@ -138,13 +168,5 @@ void main(void) {
            + I_specular * specularColor.rgb
 #       endif
         );
-
-    gl_FragColor.a = 
-#       if defined(LAMBERTIANMAP) || defined(LAMBERTIANCONSTANT)
-            lambertianColor.a
-#       else
-            1.0
-#       endif
-        ;
           
 }

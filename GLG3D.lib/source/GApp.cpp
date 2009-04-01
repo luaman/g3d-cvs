@@ -73,16 +73,16 @@ static void writeLicense() {
 
 GApp::GApp(const Settings& settings, OSWindow* window) :
     m_renderPeriod(1),
-    lastWaitTime(System::time()),
-    m_desiredFrameRate(5000),
-    m_simTimeStep(1.0f / 60.0f), 
-    m_realTime(0), 
-    m_simTime(0),
     debugPane(NULL),
     renderDevice(NULL),
-    userInput(NULL),
+    lastWaitTime(System::time()),
+    m_desiredFrameRate(5000),
     m_endProgram(false),
-    m_exitCode(0) {
+    m_realTime(0), 
+    m_exitCode(0),
+    m_simTimeStep(1.0f / 60.0f), 
+    m_simTime(0),
+    userInput(NULL) {
 
     lastGApp = this;
 

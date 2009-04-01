@@ -862,7 +862,7 @@ void GenericPosedModel::renderFFShadowMappedLightPass(
 
     if (glossyReflectiveFF(bsdf)) {
         // Make a separate pass for specular. 
-        static bool separateSpecular = GLCaps::supports("GL_EXT_separate_specular_color");
+        static bool separateSpecular = GLCaps::supports_GL_EXT_separate_specular_color();
 
         if (separateSpecular) {
             // We disable the OpenGL separate

@@ -1859,10 +1859,10 @@ const Texture::Settings& Texture::Settings::shadow() {
         } else {
             param.interpolateMode = BILINEAR_NO_MIPMAP;
         }
-        param.wrapMode = WrapMode::ZERO;
+        param.wrapMode      = WrapMode::ZERO;
         param.depthReadMode = DEPTH_LEQUAL;
         param.maxAnisotropy = 1.0;
-        param.autoMipMap = false;
+        param.autoMipMap    = false;
     }
 
     return param;

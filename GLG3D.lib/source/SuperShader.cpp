@@ -234,14 +234,20 @@ NonShadowedPass::NonShadowedPass() :
 static void configureLight(
    const GLight& light,
    int i,
-   VertexAndPixelShader::ArgList&  args) {
+   VertexAndPixelShader::ArgList&  args, 
+   bool shadowMapPass = false) {
 
     initializeStringConstants();
 
     args.set(lightPositionString[i],    light.position);
     args.set(lightColorString[i],       light.color);
     
-    const float cosThresh = cos(toRadians(light.spotCutoff));
+    const float angle = toRadians(light.spotCutoff);
+    float cosThresh = cos(angle);
+    if (shadowMapPass && light.spotSquare) {
+        // Increase the effective angle for a "square" spotlight
+        cosThresh /= 1.41421356f;
+    }
 
     args.set(lightAttenuationString[i], 
         Vector4(light.attenuation[0], 
@@ -369,7 +375,7 @@ void ShadowedPass::setLight(
     const GLight&                   light, 
     const ShadowMapRef&             shadowMap) {
     
-    configureLight(light, 0, args);
+    configureLight(light, 0, args, true);
 
     // Shadow map setup
     if (GLCaps::enumVendor() == GLCaps::ATI) {

@@ -115,7 +115,8 @@ public:
        initial angle is toRadians(55).  Must specify
        the direction of the angle.
 
-       This is the half angle, i.e., from the view axis to the top or side of the screen.
+       This is the full angle, i.e., from the left side of the
+       viewport to the right side.
     */
     void setFieldOfView(float angle, FOVDirection direction);
 
