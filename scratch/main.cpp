@@ -312,7 +312,7 @@ void time(Random& r, Random& p) {
 
 
 int main(int argc, char** argv) {
-
+/*
     Random r(1121, false);
 
     int N = pow2(14);
@@ -326,6 +326,7 @@ int main(int argc, char** argv) {
     time(r, p);
 
     delete[] d;
+    */
 
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
