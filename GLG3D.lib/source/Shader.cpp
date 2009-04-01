@@ -1139,9 +1139,10 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
                 }
 
                 if (! foundArgument) {
-                    throw ArgumentError
-                        (std::string("Extra VertexAndPixelShader uniform variable provided at runtime: ") +
-                         arg->key + ".");
+                    // Put into a string so that it is visible in the debugger
+                    std::string msg = "Extra VertexAndPixelShader uniform variable provided at runtime: " +
+                         arg->key + ".";
+                    throw ArgumentError(msg);
                 }
             }
 

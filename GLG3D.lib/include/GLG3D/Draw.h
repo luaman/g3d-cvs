@@ -195,7 +195,11 @@ public:
         const Vector2& texCoord0 = Vector2(1,1),
         const Vector2& texCoord1 = Vector2(1,1),
         const Vector2& texCoord2 = Vector2(1,1),
-        const Vector2& texCoord3 = Vector2(1,1));
+        const Vector2& texCoord3 = Vector2(1,1),
+        const Vector2& texCoord4 = Vector2(1,1),
+        const Vector2& texCoord5 = Vector2(1,1),
+        const Vector2& texCoord6 = Vector2(1,1),
+        const Vector2& texCoord7 = Vector2(1,1));
 
     /** Leaves the renderDevice color and texture coordinates modified. Does not allow
         custom texture coordinates and only sets texture coordinate 0.*/
@@ -214,7 +218,11 @@ public:
         const Rect2D& texCoord0,
         const Rect2D& texCoord1 = Rect2D::xywh(0,0,1,1),
         const Rect2D& texCoord2 = Rect2D::xywh(0,0,1,1),
-        const Rect2D& texCoord3 = Rect2D::xywh(0,0,1,1));
+        const Rect2D& texCoord3 = Rect2D::xywh(0,0,1,1),
+        const Rect2D& texCoord4 = Rect2D::xywh(0,0,1,1),
+        const Rect2D& texCoord5 = Rect2D::xywh(0,0,1,1),
+        const Rect2D& texCoord6 = Rect2D::xywh(0,0,1,1),
+        const Rect2D& texCoord7 = Rect2D::xywh(0,0,1,1));
 
     /** Draws a border of size width about the rectangle
         using polygons (since RenderDevice::LINE_STRIP doesn't 

@@ -1080,13 +1080,20 @@ void Draw::rect2D(
     const Vector2& texCoord0,
     const Vector2& texCoord1,
     const Vector2& texCoord2,
-    const Vector2& texCoord3) {
-
+    const Vector2& texCoord3,
+    const Vector2& texCoord4,
+    const Vector2& texCoord5,
+    const Vector2& texCoord6,
+    const Vector2& texCoord7) { 
     Draw::rect2D(rect, rd, color,
         Rect2D::xywh(0,0,texCoord0.x, texCoord0.y),
         Rect2D::xywh(0,0,texCoord1.x, texCoord1.y),
         Rect2D::xywh(0,0,texCoord2.x, texCoord2.y),
-        Rect2D::xywh(0,0,texCoord3.x, texCoord3.y));
+        Rect2D::xywh(0,0,texCoord3.x, texCoord3.y),
+        Rect2D::xywh(0,0,texCoord4.x, texCoord4.y),
+        Rect2D::xywh(0,0,texCoord5.x, texCoord5.y),
+        Rect2D::xywh(0,0,texCoord6.x, texCoord6.y),
+        Rect2D::xywh(0,0,texCoord7.x, texCoord7.y));
 }
 
 
@@ -1097,15 +1104,23 @@ void Draw::rect2D(
     const Rect2D& texCoord0,
     const Rect2D& texCoord1,
     const Rect2D& texCoord2,
-    const Rect2D& texCoord3) {
+    const Rect2D& texCoord3,
+    const Rect2D& texCoord4,
+    const Rect2D& texCoord5,
+    const Rect2D& texCoord6,
+    const Rect2D& texCoord7) {
 
-    const Rect2D* tx[4];
+    const Rect2D* tx[8];
     tx[0] = &texCoord0;
     tx[1] = &texCoord1;
     tx[2] = &texCoord2;
     tx[3] = &texCoord3;
+    tx[4] = &texCoord4;
+    tx[5] = &texCoord5;
+    tx[6] = &texCoord6;
+    tx[7] = &texCoord7;
 
-    int N = iMin(4, GLCaps::numTextureCoords());
+    int N = iMin(8, GLCaps::numTextureCoords());
 
     rd->pushState();
     {

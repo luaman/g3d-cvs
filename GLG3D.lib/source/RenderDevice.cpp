@@ -282,27 +282,10 @@ void RenderDevice::init(OSWindow* window) {
     const int desiredStencilBits  = settings.stencilBits;
 
     // Don't use more texture units than allowed at compile time.
-    if (GLCaps::supports_GL_ARB_multitexture()) {
-        _numTextureUnits = iMin(GLCaps::G3D_MAX_TEXTURE_UNITS, 
-                                glGetInteger(GL_MAX_TEXTURE_UNITS_ARB));
-    } else {
-        _numTextureUnits = 1;
-    }
+    _numTextureUnits  = GLCaps::numTextureUnits();
+    _numTextureCoords = GLCaps::numTextureCoords();
+    _numTextures      = GLCaps::numTextures();
 
-    // NVIDIA cards with GL_NV_fragment_program have different 
-    // numbers of texture coords, units, and textures
-    _numTextureCoords = glGetInteger(GL_MAX_TEXTURE_COORDS_ARB);
-    _numTextures = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
-
-    if (! GLCaps::supports_GL_ARB_multitexture()) {
-        // No multitexture
-        logPrintf("No GL_ARB_multitexture support: "
-                              "forcing number of texture units "
-                              "to no more than 1\n");
-        _numTextureCoords = iMax(1, _numTextureCoords);
-        _numTextures      = iMax(1, _numTextures);
-        _numTextureUnits  = iMax(1, _numTextureUnits);
-    }
     debugAssertGLOk();
 
     logPrintf("Setting video mode\n");

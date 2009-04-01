@@ -555,20 +555,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
 
     // NVIDIA cards with GL_NV_fragment_program have different 
     // numbers of texture coords, units, and textures
-    if (GLCaps::supports("GL_NV_fragment_program")) {
-        glGetIntegerv(GL_MAX_TEXTURE_COORDS_NV, &_numTextureCoords);
-        _numTextureCoords = iClamp(_numTextureCoords,
-                                   _numTextureUnits,
-                                   G3D_MAX_TEXTURE_UNITS);
-
-        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_NV, &_numTextures);
-        _numTextures = iClamp(_numTextures,
-                              _numTextureUnits, 
-                              G3D_MAX_TEXTURE_UNITS);
-    } else {
-        _numTextureCoords = _numTextureUnits;
-        _numTextures      = _numTextureUnits;
-    }
+    _numTextureCoords = glGetInteger(GL_MAX_TEXTURE_COORDS_ARB);
+    _numTextures = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
 
     if (! GLCaps::supports_GL_ARB_multitexture()) {
         // No multitexture
