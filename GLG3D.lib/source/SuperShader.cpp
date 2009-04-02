@@ -384,6 +384,7 @@ void ShadowedPass::setLight(
         args.set("shadowMap",       shadowMap->depthTexture());
     }
 
+    //printf("ShadowedPass::setLight: lightMVP = %s\n", shadowMap->biasedLightMVP().toString().c_str());
     args.set("lightMVP",        shadowMap->biasedLightMVP());
 }
 

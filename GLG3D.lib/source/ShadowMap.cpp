@@ -183,16 +183,15 @@ void ShadowMap::updateDepth(
 
         // Map [-1, 1] to [0, 1] (divide by 2 and add 0.5),
         // applying a bias term to offset the z value
-        static const Matrix4 bias(
-                                  0.5f, 0.0f, 0.0f, 0.5f,
-                                  0.0f, 0.5f, 0.0f, 0.5f,
-                                  0.0f, 0.0f, 0.5f, 0.5f - biasDepth,
-                                  0.0f, 0.0f, 0.0f, 1.0f);
-
+        const Matrix4 bias(0.5f, 0.0f, 0.0f, 0.5f,
+                           0.0f, 0.5f, 0.0f, 0.5f,
+                           0.0f, 0.0f, 0.5f, 0.5f - biasDepth,
+                           0.0f, 0.0f, 0.0f, 1.0f);
+        
         m_biasedLightProjection = bias * m_lightProjection;
         m_biasedLightMVP = bias * m_lightMVP;
-
         // Avoid z-fighting
+        // TODO: use slope argument as well (Kilgard recommends 4.0)
         renderDevice->setPolygonOffset(m_polygonOffset);
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
