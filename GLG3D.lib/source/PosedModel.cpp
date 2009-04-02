@@ -121,7 +121,7 @@ void PosedModel::sortAndRender
 
             PosedModel::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
             PosedModel::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
-            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted);
+            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted, 0.03f);
 
             lightVisible.fastClear();
             lightSorted.fastClear();

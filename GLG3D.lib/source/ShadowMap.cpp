@@ -181,6 +181,8 @@ void ShadowMap::updateDepth(
 
         m_lightMVP = m_lightProjection * m_lightFrame.inverse();
 
+        // Map [-1, 1] to [0, 1] (divide by 2 and add 0.5),
+        // applying a bias term to offset the z value
         static const Matrix4 bias(
                                   0.5f, 0.0f, 0.0f, 0.5f,
                                   0.0f, 0.5f, 0.0f, 0.5f,

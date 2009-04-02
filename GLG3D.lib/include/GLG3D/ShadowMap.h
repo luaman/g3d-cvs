@@ -135,14 +135,15 @@ public:
     bool enabled() const;
 
     /** 
-    \param biasDepth amount to bias z values by in the biasedMVP when later rendering
+    \param biasDepth amount to bias z values by in the biasedMVP when
+    later rendering Usually around 0.01-0.05
     */
     void updateDepth
     (class RenderDevice*           renderDevice, 
      const CoordinateFrame&        lightFrame,
      const Matrix4&                lightProjectionMatrix,
      const Array<PosedModel::Ref>& shadowCaster,
-     float                         biasDepth = 0.01f);
+     float                         biasDepth);
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that
