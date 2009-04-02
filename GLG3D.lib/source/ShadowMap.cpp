@@ -31,9 +31,9 @@ void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
     m_depthModeStack.append(m);
 
     // Only make the OpenGL calls if necessary
-    if (m != old) {
+    //if (m != old) {
         setMode(m);
-    }
+        //}
 }
 
 
@@ -41,9 +41,9 @@ void ShadowMap::popDepthReadMode() {
     Texture::DepthReadMode old = m_depthModeStack.pop();
 
     // Only make the OpenGL calls if necessary
-    if (m_depthModeStack.last() != old) {
+    //if (m_depthModeStack.last() != old) {
         setMode(old);
-    }
+        //}
 }
 
 
@@ -56,9 +56,14 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
     GLenum target = m_depthTexture->openGLTextureTarget();
 
     debugAssert(target == GL_TEXTURE_2D);
-    glBindTexture(target, m_depthTexture->openGLID());
-    GLenum old = glGetInteger(GL_TEXTURE_BINDING_2D);
 
+    // Save old texture
+    GLenum oldID = glGetInteger(GL_TEXTURE_BINDING_2D);
+
+    // Bind this texture
+    glBindTexture(target, m_depthTexture->openGLID());
+
+    // Configure
     switch (m) {
     case Texture::DEPTH_NORMAL:
         glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
@@ -76,8 +81,8 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
         break;
     }
     
-    // Unbind the texture
-    glBindTexture(target, old);
+    // Unbind the texture, restoring whatever was there
+    glBindTexture(target, oldID);
 }
 
 

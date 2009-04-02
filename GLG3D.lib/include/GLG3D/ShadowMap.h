@@ -93,9 +93,11 @@ public:
     static ShadowMapRef create(const std::string& name = "Shadow Map", int size = 1024, 
                                const Texture::Settings& settings = Texture::Settings::shadow());
 
-    /** By default, the texture is configured for fixed function depth comparison using Texture::DEPTH_LEQUAL.  
-        Some G3D::Shaders will want a different depth mode; you can use this to temporarily override the 
-        depth comparison mode of the current depth buffer. */
+    /** By default, the texture is configured for fixed function depth
+        comparison using Texture::DEPTH_LEQUAL.  Some G3D::Shaders
+        will want a different depth mode; you can use this to
+        temporarily override the depth comparison mode of the current
+        depth buffer. */
     void pushDepthReadMode(Texture::DepthReadMode m);
     void popDepthReadMode();
     
