@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-06-02
-  @edited  2008-11-01
+  @edited  2009-04-01
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
@@ -369,9 +369,11 @@ public:
      */
     static Vector3 hemiRandom(const Vector3& normal, Random& r = Random::common());
 
-    // Input W must be initialize to a nonzero vector, output is {U,V,W}
-    // an orthonormal basis.  A hint is provided about whether or not W
-    // is already unit length.
+    /** Input W must be initialize to a nonzero vector, output is {U,V,W}
+        an orthonormal basis.  A hint is provided about whether or not W
+        is already unit length. 
+        @deprecated Use getTangents
+    */
     static void generateOrthonormalBasis (Vector3& rkU, Vector3& rkV,
                                           Vector3& rkW, bool bUnitLengthW = true);
 
@@ -397,6 +399,24 @@ public:
 
     /** Largest representable vector */
     static const Vector3& maxFinite();
+
+
+    /** Creates two orthonormal tangent vectors X and Y such that
+        if Z = this, X x Y = Z.*/
+    inline void getTangents(Vector3& X, Vector3& Y) const {
+        debugAssertM(G3D::fuzzyEq(length(), 1.0f), 
+                     "makeAxes requires Z to have unit length");
+        
+        // Choose another vector not perpendicular
+        X = (abs(x) < 0.9f) ? Vector3::unitX() : Vector3::unitY();
+        
+        // Remove the part that is parallel to Z
+        X -= *this * this->dot(X);
+        X /= X.length();
+    
+        Y = this->cross(X);
+    }
+
 
     // 2-char swizzles
 

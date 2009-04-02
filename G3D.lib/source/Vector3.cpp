@@ -187,16 +187,8 @@ Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
     // Make a coordinate system
     const Vector3& Z = normal;
 
-    // Choose 
-    Vector3 X = (abs(Z.x) < 0.9f) ?
-        Vector3::unitX() :
-        Vector3::unitY();
-
-    // Remove the part that is parallel to Z
-    X -= Z * X.dot(Z);
-    X /= X.length();
-    
-    const Vector3& Y = Z.cross(X);
+    Vector3 X, Y;
+    normal.getTangents(X, Y);
 
     return 
         x * X +
