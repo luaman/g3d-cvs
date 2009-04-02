@@ -272,18 +272,21 @@ void ShadowMap::computeMatrices
  Matrix4&       lightProjectionMatrix,
  float          lightProjX,
  float          lightProjY,
- float          lightProjNear,
- float          lightProjFar) {
+ float          lightProjNearMin,
+ float          lightProjFarMax) {
 
     lightFrame.setCoordinateFrame(light.frame());
 
     if (light.position.w == 0) {
         // Move directional light away from the scene.  It must be far enough to see all objects
         lightFrame.setPosition(lightFrame.coordinateFrame().translation * 
-            max(sceneBounds.extent().length() / 2.0f, lightProjNear, 30.0f) + sceneBounds.center());
+            max(sceneBounds.extent().length() / 2.0f, lightProjNearMin, 30.0f) + sceneBounds.center());
     }
 
     const CFrame& f = lightFrame.coordinateFrame();
+
+    float lightProjNear = lightProjNearMin;
+    float lightProjFar  = lightProjFarMax;
 
     if (light.spotCutoff <= 90) {
         // Spot light; we can set the lightProj bounds intelligently
@@ -300,12 +303,13 @@ void ShadowMap::computeMatrices
             lightProjFar = max(lightProjFar, -v.z);
         }
         
-        // Don't let the near get too close to the source
-        lightProjNear = max(0.2f, lightProjNear);
+        // Don't let the near get too close to the source, and obey
+        // the specified hint.
+        lightProjNear = max(lightProjNearMin, lightProjNear);
 
         // Don't bother tracking shadows past the effective radius
         lightProjFar = min(light.effectSphere().radius, lightProjFar);
-        lightProjFar = max(lightProjNear + 0.1f, lightProjFar);
+        lightProjFar = max(lightProjNear + 0.1f, min(lightProjFarMax, lightProjFar));
 
         // The cutoff is half the angle of extent (See the Red Book, page 193)
         const float angle = toRadians(light.spotCutoff);

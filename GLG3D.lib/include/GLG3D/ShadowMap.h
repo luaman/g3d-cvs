@@ -71,12 +71,16 @@ public:
     a directional light.  Not needed for a spot light
 
     \param lightProjNear Shadow map near plane depth in the light's
-    reference frame for a directional light.  Not needed for a spot
-    light
+    reference frame for a directional light.  For a spot light, a
+    larger value will be chosen if the method determines that it can
+    safely do so.  For directional and point lights, this value is
+    used directly.
 
     \param lightProjFar Shadow map far plane depth in the light's
-    reference frame for a directional light.  Not needed for a spot
-    light
+    reference frame for a directional light.   For a spot light, a
+    smaller value will be chosen if the method determines that it can
+    safely do so.  For directional and point lights, this value is
+    used directly.    
     */
     static void computeMatrices
     (const GLight& light, const AABox& sceneBounds, GCamera& lightFrame, Matrix4& lightProjectionMatrix,
