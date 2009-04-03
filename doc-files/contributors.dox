@@ -1,67 +1,66 @@
 /**
 @page contributors G3D Developer Credits
 
- <b>Team Members</b>
- <br><i>7.01 Release Team</i>
+ <b>8.0 Release Team</b>
  <br>Morgan McGuire [Williams College] - Project Manager
- <br>Corey Taylor [EA] - Assistant Project Manager and Linux Lead
- <br>Casey O'Donnell [RPI] - OS X Lead
- <br>Dan Keefe [Brown University] - Developer
- <br>Kyle Whitson [Williams College] - Developer
- <br>Danny Yuxing Huang [Williams College] - Developer
+ <br>Corey Taylor [EA] - Assistant Project Manager
 
- <b>Previous Contributors and Cited Sources</b> <br>This library
+ <b>Credits for Previous Contributors and Cited Sources</b> 
+ 
+ <br>This library
  contains code and resources contributed by the following people, or
  based open code and articles by them.  Starred (*) developers are
- previous members of the %G3D team.
+ previous members of a %G3D release team.  Institututions reflect the 
+ current (or latest known) institution.
 
-   <p>David Baszucki
-   <BR>Seth Block
+   <p>David Baszucki, ROBLOX
+   <BR>Seth Block, Brown University
    <BR>Nicholas Bray
    <BR>Nick Capens
-   <BR>Erik Cassel
-   <BR>John Chisholm*
+   <BR>Erik Cassel, ROBLOX
+   <BR>John Chisholm*, Curl Corporation
    <BR>Jauhn Dabz
    <BR>Erik de Castro Lopo 
    <br>Rich Deeson*
-   <BR>Chris Demetriou
+   <BR>Chris Demetriou, Google
    <BR>L. Peter Deutsch
    <br>Dmitri*
    <BR>Dave Eberly
-   <BR>Kevin Egan*
-   <BR>Cass Everitt
-   <BR>Dan Fast*
-   <BR>Andi Fein
+   <BR>Kevin Egan*, Rhythm and Hughes
+   <BR>Cass Everitt, NVIDIA
+   <BR>Dan Fast*, Williams College
+   <BR>Andi Fein, Brown University
    <BR>Jakob Fischer
-   <BR>Dan Keefe*
-   <BR>Harishabd Khalsa
+   <BR>Dan Keefe*, University of Minnesota
+   <BR>Harishabd Khalsa, Brown University
    <BR>Nicolai Haehnle
    <BR>Michael Herf
-   <br>Daniel Hilferty*
+   <br>Daniel Hilferty*, US Airforce
    <BR>Pete Hopkins
-   <br>Danny Yuxing Huang
-   <BR>Peter Hunt
+   <br>Danny Yuxing Huang*, Williams College
+   <BR>Peter Hunt, Cornell University
    <BR>Robert Hunter
    <BR>Ed Johnson
    <BR>Benjamin Jurke
    <BR>Chris Kern
    <BR>Independent JPEG Group
-   <BR>Darius Jazayeri
-   <BR>Ben Landon*
+   <BR>Darius Jazayeri, MIT
+   <BR>Ben Landon*, Lincoln Labs
    <BR>Thomas G. Lane
    <BR>Ray Larabie
    <BR>Jukka Liimatta
    <BR>Giulio Mainardi
-   <BR>Jeff Marsceill
-   <BR>Max McGuire
-   <BR>Morgan McGuire
+   <BR>Jeff Marsceill, Williams College
+   <BR>Max McGuire, Unknown Worlds Entertainment
+   <BR>Morgan McGuire, Williams College
    <BR>Justin Miller
    <BR>Kurt Miller
    <BR>Nate Miller
    <BR>Tomas Moller
-   <BR>Eric Muller*
-   <BR>Nick Musurca
+   <BR>Eric Muller*, Williams College
+   <BR>Nick Musurca, Brown University
    <BR>Akita Noek
+   <BR>Casey O'Donnell*, Georgia Tech
    <BR>James O'Sullivan*
    <BR>Aaron Orenstein
    <BR>Jordan Parker
@@ -72,10 +71,10 @@
    <BR>Joshua Schpok*
    <BR>Sebastian Schubert
    <BR>SGI
-   <BR>Ben Shine*
-   <BR>Peter Sibley*
-    <br>Gabe Taubman*
-   <BR>Corey Taylor*
+   <BR>Ben Shine*, Brown University
+   <BR>Peter Sibley*, Brown University
+   <BR>Gabe Taubman*, Brown University
+   <BR>Corey Taylor*, EA
    <BR>Pierre Terdiman
    <BR>Ben Trumbore
    <BR>Matthew Welch

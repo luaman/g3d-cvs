@@ -939,8 +939,8 @@ public:
     /** Set a series of vertex arrays simultaneously. This call allows you to change the
         VARArea that the VARs are in within a single beginIndexedPrimitives() call,
         saving some state changes. */
-    void setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& texCoord0,
-                 const class VAR& texCoord1);
+    void setVARs(const class VAR& vertex, const class VAR& normal = VAR(), const class VAR& texCoord0 = VAR(),
+                 const class VAR& texCoord1 = VAR());
 
     /** Returns the OSWindow used by this RenderDevice */
     OSWindow* window() const;

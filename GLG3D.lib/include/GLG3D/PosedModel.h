@@ -4,17 +4,18 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-15
-  @edited  2007-12-24
+  @edited  2009-04-02
  */ 
 
-#ifndef GLG3D_POSEDMODEL_H
-#define GLG3D_POSEDMODEL_H
+#ifndef GLG3D_PosedModel_H
+#define GLG3D_PosedModel_H
 
 #include "G3D/Array.h"
 #include "G3D/Color4.h"
 #include "G3D/MeshAlg.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/SkyParameters.h"
+#include "GLG3D/RenderDevice.h"
 
 
 namespace G3D {
@@ -202,7 +203,6 @@ public:
         return false;
     }
 
-
     /** Contain adjacency information that merges colocated vertices
         (see MeshAlg::weldAdjacency) */
     virtual const Array<MeshAlg::Face>& weldedFaces() const = 0;
@@ -298,6 +298,19 @@ public:
         RenderDevice* rd, 
         const GLight& light,
         const ShadowMapRef& shadowMap) const;
+
+
+    /** Render geometry only (no shading), and ignore color (but do perform alpha testing).
+        Render only back or front faces (two-sided surfaces render no matter what).
+
+        Does not sort or cull based on the view frustum of the camera like other batch rendering routines.
+
+        Used for early-Z and shadow mapping.
+     */    
+    static void renderDepthOnly(
+        RenderDevice* rd, 
+        const Array<PosedModel::Ref>& allModels, 
+        RenderDevice::CullFace cull);
 
     /**
      Configures the SuperShader with the G3D::Material for this object

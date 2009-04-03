@@ -71,6 +71,66 @@ void PosedModel::cull(const GCamera& camera, const Rect2D& viewport, const Array
 }
 
 
+void PosedModel::renderDepthOnly
+(RenderDevice* rd, 
+ const Array<PosedModel::Ref>& allModels, 
+ RenderDevice::CullFace cull) {
+
+    rd->pushState();
+    {
+        rd->setCullFace(cull);
+        rd->setDepthWrite(true);
+        rd->setColorWrite(false);
+        rd->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.5f);
+
+        // Maintain sort order while extracting generics
+        Array<GenericPosedModel::Ref> genericModels;
+
+        // Render non-generics while filtering
+        for (int i = 0; i < allModels.size(); ++i) {
+            const GenericPosedModel::Ref& g = allModels[i].downcast<GenericPosedModel>();
+            if (g.notNull()) {
+                genericModels.append(g);
+            } else {
+                allModels[i]->render(rd);
+            }
+        }
+
+        // Render generics
+        rd->setCullFace(cull);
+        rd->beginIndexedPrimitives();
+        {
+            for (int g = 0; g < genericModels.size(); ++g) {
+                const GenericPosedModel::Ref& model = genericModels[g];
+                const GenericPosedModel::GPUGeom::Ref& geom = model->gpuGeom();
+
+                if (geom->twoSided) {
+                    rd->setCullFace(RenderDevice::CULL_NONE);
+                }
+
+                const Texture::Ref& lambertian = geom->material->bsdf()->lambertian().texture();
+                if (lambertian.notNull() && ! lambertian->opaque()) {
+                    // We need the texture for alpha masking
+                    rd->setTexture(0, lambertian);
+                } else {
+                    rd->setTexture(0, NULL);
+                }
+
+                rd->setObjectToWorldMatrix(model->coordinateFrame());
+                rd->setVARs(geom->vertex, VAR(), geom->texCoord0);
+                rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
+            
+                if (geom->twoSided) {
+                    rd->setCullFace(cull);
+                }
+            }
+        }
+        rd->endIndexedPrimitives();
+    }
+    rd->popState();
+}
+
+
 void PosedModel::sortAndRender
 (
  RenderDevice*                  rd, 

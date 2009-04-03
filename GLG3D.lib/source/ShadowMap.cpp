@@ -200,9 +200,9 @@ void ShadowMap::updateDepth(
         renderDevice->setPolygonOffset(m_polygonOffset);
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
-        for (int s = 0; s < shadowCaster.size(); ++s) {
-            shadowCaster[s]->render(renderDevice);
-        }
+
+        PosedModel::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
+
     renderDevice->popState();
 
     if (m_framebuffer.isNull()) {
