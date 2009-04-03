@@ -219,6 +219,11 @@ void App::setViewer(const std::string& newFilename) {
             search = filename + "/Maps/*";
             getFiles(search, files, true);
         }
+        if (files.length() == 0) {
+            // Try another case
+            search = filename + "/MAPS/*";
+            getFiles(search, files, true);
+        }
 
         for (int t = 0; t < files.length(); ++t) {
             
