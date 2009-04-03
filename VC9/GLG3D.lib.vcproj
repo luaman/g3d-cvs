@@ -873,38 +873,22 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="OpenGL Header Files"
+			Name="OpenGL"
 			>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\gl.h"
+				RelativePath="..\GLG3D.lib\source\GL\glew.c"
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glext-compat.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glew.h"
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glext.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glxew.h"
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glut.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glxext.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\glxtokens.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GL\wglext.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\GL\wglew.h"
 				>
 			</File>
 		</Filter>

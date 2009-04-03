@@ -82,7 +82,7 @@ void App::onInit() {
     }
 
     lighting = Lighting::create();
-    lighting->ambientTop = lighting->ambientBottom = Color3::white() * 0.2;
+    lighting->ambientTop = lighting->ambientBottom = Color3::white() * 0.2f;
     {
         GLight L = GLight::spot(Vector3(0, 0, 0), -Vector3::unitY(), 45, Color3::white());
         L.spotSquare = true;

@@ -11,7 +11,8 @@
 <hr>
    <p>
    Changes in 8.00:
-   <ul>     
+   <ul>
+     <li> Added GLEW 1.5.1 library for loading OpenGL extensions (replaces previous custom G3D code)
      <li> G3D::PosedModel::renderDepthOnly for early-Z and shadow mapping
      <li> G3D::PrecomputedRandom
      <li> Increased GLCaps::G3D_MAX_TEXTURE_UNITS to 16

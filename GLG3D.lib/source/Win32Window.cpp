@@ -77,7 +77,7 @@ static const UINT BLIT_BUFFER = 0xC001;
 
 static bool hasWGLMultiSampleSupport = false;
 
-static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
+//static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL; GLEWTODO
 
 static unsigned int _sdlKeys[GKey::LAST];
 static bool sdlKeysInitialized = false;

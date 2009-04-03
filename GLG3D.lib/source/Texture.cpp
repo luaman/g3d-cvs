@@ -1534,7 +1534,7 @@ static void setTexParameters(
 
 static void glStatePush() {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glActiveTextureARB(GL_TEXTURE0_ARB);

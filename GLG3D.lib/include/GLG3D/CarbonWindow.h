@@ -16,10 +16,6 @@
 #ifdef G3D_OSX
 
 #include "GLG3D/OSWindow.h"
-#include "GLG3D/glcalls.h"
-
-//#include <Carbon/Carbon.h>
-//#include <CoreFoundation/CoreFoundation.h>
 
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
@@ -29,7 +25,7 @@
 
 #include <OpenGL/Opengl.h>
 #include <OpenGL/CGLTypes.h>
-#include <AGL/agl.h>
+//#include <AGL/agl.h>
 
 namespace G3D {
 

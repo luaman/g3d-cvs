@@ -44,11 +44,6 @@
     #include <X11/Xatom.h>
 #endif
 
-#ifdef G3D_OSX
-    // Need this for DebugStr()
-    #import <CoreServices/CoreServices.h>
-#endif
-
 
 /**
  @def debugBreak()
@@ -123,8 +118,6 @@ namespace _internal {
         // some other gcc
 #      define rawBreak() ::abort()
 #   endif
-// old mac code:
-//#       define rawBreak() DebugStr((const unsigned char*)("\nG3D: Invoking breakpoint in debugger.")); /* XCode must be set to break on Debugger()/DebugStr() */
 
 
 #    define debugBreak() G3D::_internal::_releaseInputGrab_(); rawBreak(); G3D::_internal::_restoreInputGrab_();

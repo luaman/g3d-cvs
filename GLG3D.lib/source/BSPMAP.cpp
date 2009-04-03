@@ -96,7 +96,7 @@ void Map::render(RenderDevice* renderDevice, const GCamera& worldCamera, float a
 
     debugAssertGLOk();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
+	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
         static Array<FaceSet*> opaqueFaceArray;
         static Array<FaceSet*> translucentFaceArray;
 
@@ -358,7 +358,7 @@ void Map::renderFaces(
 	const Array<FaceSet*>&      visibleFaceArray) {
 
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
+	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 
 		int lastTextureID = -1;
 		int lastLightmapID = -1;
@@ -963,7 +963,7 @@ void Patch::Bezier2D::render() const {
         GLCaps::supports("GL_SUN_multi_draw_arrays");
 
     if (multiDrawExtension) {
-	    glMultiDrawElementsEXT(GL_TRIANGLE_STRIP, trianglesPerRow.getCArray(),
+	    glMultiDrawElementsEXT(GL_TRIANGLE_STRIP, const_cast<GLsizei*>(trianglesPerRow.getCArray()),
 		    GL_UNSIGNED_INT, (const void **)(rowIndexes.getCArray()), level);
     } else {
         const GLsizei* count = trianglesPerRow.getCArray();
