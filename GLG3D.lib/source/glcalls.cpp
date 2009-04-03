@@ -13,11 +13,10 @@
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
 
-
 #if defined(G3D_OSX)
 #include <mach-o/dyld.h>
 // Implemented in glew.c
-extern "C" void* NSGLGetPRocAddress((const char*)name);
+extern "C" void* NSGLGetProcAddress(const GLubyte*);
 #endif
 
 namespace G3D {

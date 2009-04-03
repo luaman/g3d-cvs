@@ -17,15 +17,14 @@
 
 #include "GLG3D/OSWindow.h"
 
+#include <Carbon/Carbon.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
 #include <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/IOCFPlugIn.h>
 
-#include <OpenGL/Opengl.h>
-#include <OpenGL/CGLTypes.h>
-//#include <AGL/agl.h>
+#include <AGL/agl.h>
 
 namespace G3D {
 
