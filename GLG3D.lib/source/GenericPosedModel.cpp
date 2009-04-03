@@ -117,8 +117,14 @@ void GenericPosedModel::renderNonShadowed(
         return;
     }
 
+    if (! rd->depthWrite() && ! rd->colorWrite()) {
+        // Nothing to draw!
+        return;
+    }
+
     rd->pushState();
         rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
+        bool originalDepthWrite = rd->depthWrite();
 
         // Lighting will be turned on and off by subroutines
         rd->disableLighting();
@@ -134,7 +140,6 @@ void GenericPosedModel::renderNonShadowed(
                 continue;
             }
 
-
             const Material::Ref& material = posed->m_gpuGeom->material;
             const UberBSDF::Ref& bsdf = material->bsdf();
             (void)material;
@@ -145,7 +150,7 @@ void GenericPosedModel::renderNonShadowed(
 
             // Alpha blend will be changed by subroutines so we restore it for each object
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-            rd->setDepthWrite(true);
+            rd->setDepthWrite(originalDepthWrite);
 
             if (posed->m_gpuGeom->twoSided) {
                 if (! ps20) {
@@ -160,7 +165,6 @@ void GenericPosedModel::renderNonShadowed(
 
             bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, false);
 
-            debugAssertGLOk();  //remove
             if (posed->m_gpuGeom->twoSided && ps20) {
                 // gl_FrontFacing doesn't work on most cards inside
                 // the shader, so we have to draw two-sided objects
@@ -168,10 +172,10 @@ void GenericPosedModel::renderNonShadowed(
                 rd->setCullFace(RenderDevice::CULL_FRONT);
                 
                 wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, false) || wroteDepth;
-
             }
 
-            if (! wroteDepth) {
+            rd->setDepthWrite(originalDepthWrite);
+            if (! wroteDepth && originalDepthWrite) {
                 // We failed to write to the depth buffer, so
                 // do so now.
                 rd->disableLighting();
