@@ -77,8 +77,6 @@ static const UINT BLIT_BUFFER = 0xC001;
 
 static bool hasWGLMultiSampleSupport = false;
 
-//static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL; GLEWTODO
-
 static unsigned int _sdlKeys[GKey::LAST];
 static bool sdlKeysInitialized = false;
 
@@ -258,7 +256,6 @@ Win32Window::Win32Window(const OSWindow::Settings& s, HDC hdc) : createdWindow(f
 
 
 Win32Window* Win32Window::create(const OSWindow::Settings& settings) {
-{Array<int> qqq;qqq.append(1,2);} // TODO: Remove. Here for debugging memory corruption
 
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages
     return new Win32Window(settings);    

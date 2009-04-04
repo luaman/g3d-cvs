@@ -216,9 +216,10 @@ bool _handleErrorCheck_(
 
     static const char* choices[] = {"Ok"};
 
-    std::string m = 
-        std::string("An internal error has occured in your program and it will now close.  Details about the error have been reported in \"") +
-            Log::getCommonLogFilename() + "\".";
+    const std::string& m = 
+        std::string("An internal error has occured in this program and it will now close.  "
+        "The specific error is below. More information has been saved in \"") +
+            Log::getCommonLogFilename() + "\".\n" + dialogText;
 
     int result = G3D::prompt("Error", m.c_str(), (const char**)choices, 1, useGuiPrompt);
     (void)result;
