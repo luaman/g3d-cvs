@@ -23,6 +23,8 @@
 #include "GLG3D/SuperShader.h" // to purge cache
 #include "GLG3D/GLCaps.h"
 
+#include "GLG3D/GApp.h" // for screenPrintf
+
 namespace G3D {
 
 
@@ -485,16 +487,15 @@ void RenderDevice::setVideoMode() {
     _window->getSettings(settings);
 
     // Set the refresh rate
-    #ifdef G3D_WIN32
-        if (wglSwapIntervalEXT != NULL) {
-            if (settings.asynchronous) {
-                logLazyPrintf("wglSwapIntervalEXT(0);\n");
-            } else {
-                logLazyPrintf("wglSwapIntervalEXT(1);\n");
-            }
-            wglSwapIntervalEXT(settings.asynchronous ? 0 : 1);
+#   ifdef G3D_WIN32
+        if (settings.asynchronous) {
+            logLazyPrintf("wglSwapIntervalEXT(0);\n");
+            wglSwapIntervalEXT(0);
+        } else {
+            logLazyPrintf("wglSwapIntervalEXT(1);\n");
+            wglSwapIntervalEXT(1);
         }
-    #endif
+#   endif
 
     // Enable proper specular lighting
     if (GLCaps::supports("GL_EXT_separate_specular_color")) {
@@ -505,7 +506,6 @@ void RenderDevice::setVideoMode() {
     } else {
         logLazyPrintf("Cannot enable separate specular lighting, extension not supported.\n");
     }
-
 
     // Make sure we use good interpolation.
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -605,7 +605,10 @@ void RenderDevice::push2D(const Rect2D& viewport) {
 
 
 void RenderDevice::push2D(const FramebufferRef& fb) {
-    const Rect2D& viewport = (fb.notNull() && (fb->width() > 0)) ? fb->rect2DBounds() : Rect2D::xywh(0, 0, _window->width(), _window->height());
+    const Rect2D& viewport = 
+        (fb.notNull() && (fb->width() > 0)) ? 
+            fb->rect2DBounds() : 
+            Rect2D::xywh(0, 0, _window->width(), _window->height());
     push2D(fb, viewport);
 }
 
@@ -1274,18 +1277,13 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
         setDepthWrite(true);
     }
 
-    int oldMask;
-    glGetIntegerv(GL_STENCIL_WRITEMASK, &oldMask);
-
     if (clearStencil) {
         mask |= GL_STENCIL_BUFFER_BIT;
-        glStencilMask((GLuint)~0);
         minGLStateChange();
         minStateChange();
     }
 
     glClear(mask);
-    glStencilMask(oldMask);
     minGLStateChange();
     minStateChange();
     setColorWrite(oldColorWrite);
@@ -1321,6 +1319,7 @@ void RenderDevice::beginFrame() {
 
 
 void RenderDevice::swapBuffers() {
+
     // Process the pending swap buffers call
     m_swapTimer.tick();
     _window->swapGLBuffers();
@@ -3067,7 +3066,8 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
             Color4 zero(0, 0, 0, 1);
             Color4 brightness(light.color, 1);
 
-            int mm = glGetInteger(GL_MATRIX_MODE);
+            // Calling glGetInteger causes SLI GPUs to stall 
+            //int mm = glGetInteger(GL_MATRIX_MODE);
             glMatrixMode(GL_MODELVIEW);
             glPushMatrix();
                 glLoadIdentity();
@@ -3090,7 +3090,7 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
                 glLightf (gi, GL_LINEAR_ATTENUATION,    light.attenuation[1]);
                 glLightf (gi, GL_QUADRATIC_ATTENUATION, light.attenuation[2]);
             glPopMatrix();
-            glMatrixMode(mm);
+            //glMatrixMode(mm);
         }    
     }
     
@@ -3137,9 +3137,9 @@ void RenderDevice::configureShadowMap(
         glActiveTextureARB(GL_TEXTURE0_ARB + unit);
     }
     
-    Matrix4 textureMatrix = glGetMatrix(GL_TEXTURE_MATRIX);
+    const Matrix4& textureMatrix = state.textureUnit[unit].textureMatrix;
 
-	Matrix4 textureProjectionMatrix2D =
+	const Matrix4& textureProjectionMatrix2D =
         textureMatrix  * lightMVP;
 
 	// Set up tex coord generation - all 4 coordinates required
@@ -3224,7 +3224,8 @@ void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& ind
     debugAssertM(indexVAR.area().notNull(), "Corrupt VAR");
     debugAssertM(indexVAR.type() == VARArea::INDEX, "Must be an index VAR");
 
-    int old = glGetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING);
+    // Calling glGetInteger triggers a stall on SLI GPUs
+    //int old = glGetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexVAR.area()->openGLVertexBufferObject());
 
@@ -3248,8 +3249,7 @@ void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& ind
     
     countTriangles(primitive, indexVAR.numElements);
 
-    // Restore old state
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, old);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 

@@ -1116,12 +1116,14 @@ Texture::~Texture() {
 
 unsigned int Texture::newGLTextureID() {
     // Clear the OpenGL error flag
-    glGetError();
+#   ifdef G3D_DEBUG
+        glGetError();
+#   endif G3D_DEBUG
 
     unsigned int id;
     glGenTextures(1, &id);
 
-    alwaysAssertM(glGetError() != GL_INVALID_OPERATION, 
+    debugAssertM(glGetError() != GL_INVALID_OPERATION, 
          "GL_INVALID_OPERATION: Probably caused by invoking "
          "glGenTextures between glBegin and glEnd.");
 

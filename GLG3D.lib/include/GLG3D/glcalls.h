@@ -37,9 +37,13 @@ class CoordinateFrame;
 class Matrix3;
 class Matrix4;
 
-
 /**
- Produces a debugAssert that no OpenGL error has been produced.
+ ! \def debugAssertGLOk()
+ \brief Produces a debugAssert that no OpenGL error has been produced.  
+ Only appears when compiling with _DEBUG.  Note that this can cause
+ Alternate Frame Rendering systems (e.g., SLI, Crossfire) to block at
+ the emitted glGetErrorCall, thus decreasing GPU performance radically in
+ the debug build.
  */
 #ifdef _DEBUG
 #   define debugAssertGLOk() {GLenum e = glGetError(); debugAssertM(e == GL_NO_ERROR, G3D::GLenumToString(e));}

@@ -208,8 +208,11 @@ private:
 
     Array<LoopBody>             m_loopBodyStack;
 
+protected:
+
     RenderDevice*               m_renderDevice;
 
+private:
     /** Tracks the current OSWindow.  If back-to-back calls are made to make
         the same OSWindow current, they are ignored. */
     static const OSWindow*      m_current;

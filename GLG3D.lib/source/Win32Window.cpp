@@ -5,9 +5,9 @@
 @cite       Written by Corey Taylor & Morgan McGuire
 @cite       Special thanks to Max McGuire of Ironlore
 @created 	  2004-05-21
-@edited  	  2007-06-25
+@edited  	  2009-04-05
 
-Copyright 2000-2007, Morgan McGuire.
+Copyright 2000-2009, Morgan McGuire.
 All rights reserved.
 */
 
@@ -29,6 +29,8 @@ All rights reserved.
 #include <time.h>
 #include <sstream>
 #include <crtdbg.h>
+
+#include "GLG3D/GApp.h" // for screenPrintf
 
 using G3D::_internal::_DirectInput;
 
@@ -537,17 +539,21 @@ void Win32Window::setIcon(const GImage& image) {
 
 void Win32Window::swapGLBuffers() {
     debugAssertGLOk();
-
+    // RealTime t2 = System::time(); // TODO: Remove
     ::SwapBuffers(hdc());
+    // screenPrintf("swapBuffers: %f s", System::time() - t2); // TODO: Remove
 
-    GLenum e = glGetError();
-    if (e == GL_INVALID_ENUM) {
-        logPrintf("WARNING: SwapBuffers failed inside G3D::Win32Window; probably because "
-            "the context changed when switching monitors.\n\n");
-    }
+#   ifdef G3D_DEBUG
+        // Executing glGetError() after SwapBuffers() causes the CPU to block as if
+        // a glFinish had been called, so we only do this in debug mode.
+        GLenum e = glGetError();
+        if (e == GL_INVALID_ENUM) {
+            logPrintf("WARNING: SwapBuffers failed inside G3D::Win32Window; probably because "
+                "the context changed when switching monitors.\n\n");
+        }
 
-    debugAssertGLOk();
-
+        debugAssertGLOk();
+#   endif
 }
 
 

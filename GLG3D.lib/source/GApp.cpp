@@ -377,12 +377,11 @@ void GApp::renderDebugInfo() {
                 float u = m_userInputWatch.smoothElapsedTime();
                 float w = m_waitWatch.smoothElapsedTime();
 
-                float total = g + n + s + L + u + w;
+                float swapTime = renderDevice->swapBufferTimer().smoothElapsedTime();
+                float total = g + n + s + L + u + w + swapTime;
 
                 float norm = 100.0f / total;
 
-                float swapTime = renderDevice->swapBufferTimer().smoothElapsedTime();
-                g -= swapTime;
 
                 // Normalize the numbers
                 g *= norm;
@@ -394,7 +393,7 @@ void GApp::renderDebugInfo() {
                 w *= norm;
 
                 std::string str = 
-                    format("Time:%3.0f%% Gfx,%3.0f%% Sync,%3.0f%% Sim,%3.0f%% AI,%3.0f%% Net,%3.0f%% UI,%3.0f%% idle", 
+                    format("Time:%3.0f%% Gfx,%3.0f%% Swap,%3.0f%% Sim,%3.0f%% AI,%3.0f%% Net,%3.0f%% UI,%3.0f%% idle", 
                         g, swapTime, s, L, n, u, w);
                 debugFont->send2DQuads(renderDevice, str, pos, size, statColor);
                 }
@@ -559,6 +558,13 @@ void GApp::oneFrame() {
         m_simulationWatch.tock();
     }
 
+
+    // Pose
+    m_posed3D.fastClear();
+    m_posed2D.fastClear();
+    m_widgetManager->onPose(m_posed3D, m_posed2D);
+    onPose(m_posed3D, m_posed2D);
+
     // Wait 
     // Note: we might end up spending all of our time inside of
     // RenderDevice::beginFrame.  Waiting here isn't double waiting,
@@ -574,16 +580,12 @@ void GApp::oneFrame() {
     }
     m_waitWatch.tock();
 
+
     // Graphics
+    renderDevice->beginFrame();
     m_graphicsWatch.tick();
     {
-        m_posed3D.fastClear();
-        m_posed2D.fastClear();
-        m_widgetManager->onPose(m_posed3D, m_posed2D);
-        onPose(m_posed3D, m_posed2D);
-
         debugAssertGLOk();
-        renderDevice->beginFrame();
         {
             debugAssertGLOk();
             renderDevice->pushState();
@@ -593,11 +595,11 @@ void GApp::oneFrame() {
             renderDevice->popState();
             renderDebugInfo();
         }
-        renderDevice->endFrame();
-        debugShapeArray.fastClear();
-        debugText.fastClear();
     }
     m_graphicsWatch.tock();
+    renderDevice->endFrame();
+    debugShapeArray.fastClear();
+    debugText.fastClear();
 
     if (m_endProgram && window()->requiresMainLoop()) {
         window()->popLoopBody();
