@@ -87,7 +87,11 @@ static bool ChangeResolution(int, int, int, int);
 static void makeKeyEvent(int, int, GEvent&);
 static void initWin32KeyMap();
 
-std::auto_ptr<Win32Window> Win32Window::m_shareWindow(NULL);
+std::auto_ptr<Win32Window>& Win32Window::shareWindow() {
+    static std::auto_ptr<Win32Window> s(NULL);
+    return s;
+}
+
 
 static uint8 buttonsToUint8(const bool* buttons) {
     uint8 mouseButtons = 0;
@@ -101,9 +105,9 @@ static uint8 buttonsToUint8(const bool* buttons) {
 }
 
 Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
-    :createdWindow(true)
-    ,m_diDevices(NULL)
-    ,m_sysEventQueue(NULL)
+    : createdWindow(true),
+    m_diDevices(NULL),
+    m_sysEventQueue(NULL)
 {
     initWGL();
 
@@ -273,16 +277,14 @@ Win32Window* Win32Window::create(const OSWindow::Settings& settings, HWND hwnd) 
 }
 
 Win32Window* Win32Window::create(const OSWindow::Settings& settings, HDC hdc) {
-
     // Create Win32Window which uses DI8 joysticks but WM_ keyboard messages
     return new Win32Window(settings, hdc);    
-
 }
 
 
 void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
-    if (! creatingShareWindow) {
+    if (! creatingShareWindow && m_settings.sharedContext) {
         createShareWindow(m_settings);
     }
 
@@ -292,7 +294,12 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
     m_hDC = GetDC(m_window);
 
     bool foundARBFormat = false;
+
+    // Index of the format
     int pixelFormat = 0;
+
+    // Structural description of non-extended features
+    PIXELFORMATDESCRIPTOR pixelFormatDesc;
 
     if (wglChoosePixelFormatARB != NULL) {
         // Use wglChoosePixelFormatARB to override the pixel format choice for antialiasing.
@@ -307,8 +314,9 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
         iAttributes.append(WGL_DRAW_TO_WINDOW_ARB, GL_TRUE);
         iAttributes.append(WGL_SUPPORT_OPENGL_ARB, GL_TRUE);
+        iAttributes.append(WGL_SWAP_METHOD_ARB,    WGL_SWAP_EXCHANGE_ARB);
         if (m_settings.hardware) {
-            iAttributes.append(WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB);
+            iAttributes.append(WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB);
         }
         iAttributes.append(WGL_DOUBLE_BUFFER_ARB,  GL_TRUE);
         iAttributes.append(WGL_COLOR_BITS_ARB,     m_settings.rgbBits * 3);
@@ -319,6 +327,9 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         iAttributes.append(WGL_DEPTH_BITS_ARB,     m_settings.depthBits);
         iAttributes.append(WGL_STENCIL_BITS_ARB,   m_settings.stencilBits);
         iAttributes.append(WGL_STEREO_ARB,         m_settings.stereo);
+        iAttributes.append(WGL_AUX_BUFFERS_ARB,    0);        
+        iAttributes.append(WGL_ALPHA_BITS_ARB,     0);        
+
         if (hasWGLMultiSampleSupport && (m_settings.fsaaSamples > 1)) {
             // On some ATI cards, even setting the samples to false will turn it on,
             // so we only take this branch when FSAA is explicitly requested.
@@ -348,22 +359,21 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
         // Corey - I don't think it does, but now I check for valid pixelFormat + valid return only.
 
-        if ( valid && (pixelFormat > 0)) {
+        if (valid && (pixelFormat > 0)) {
             // Found a valid format
             foundARBFormat = true;
+            // Write out the description
+            DescribePixelFormat(m_hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pixelFormatDesc);
         }
-
     }
 
-    PIXELFORMATDESCRIPTOR pixelFormatDesc;
-
-    if ( !foundARBFormat ) {
+    if ( ! foundARBFormat ) {
 
         ZeroMemory(&pixelFormatDesc, sizeof(PIXELFORMATDESCRIPTOR));
 
         pixelFormatDesc.nSize        = sizeof(PIXELFORMATDESCRIPTOR);
         pixelFormatDesc.nVersion     = 1; 
-        pixelFormatDesc.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+        pixelFormatDesc.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_SWAP_EXCHANGE;
         pixelFormatDesc.iPixelType   = PFD_TYPE_RGBA; 
         pixelFormatDesc.cColorBits   = m_settings.rgbBits * 3;
         pixelFormatDesc.cDepthBits   = m_settings.depthBits;
@@ -373,15 +383,18 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         pixelFormatDesc.cGreenBits   = m_settings.rgbBits;
         pixelFormatDesc.cBlueBits    = m_settings.rgbBits;
         pixelFormatDesc.cAlphaBits   = m_settings.alphaBits;
+        pixelFormatDesc.cAlphaBits   = m_settings.alphaBits;
+        pixelFormatDesc.cAuxBuffers  = 0;
+        pixelFormatDesc.cAccumBits   = 0;
 
         // Reset for completeness
         pixelFormat = 0;
 
         // Get the initial pixel format.  We'll override this below in a moment.
         pixelFormat = ChoosePixelFormat(m_hDC, &pixelFormatDesc);
-    } else {
-        DescribePixelFormat(m_hDC, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pixelFormatDesc);
     }
+
+    // debugAssert(pixelFormatDesc.dwFlags & PFD_SWAP_EXCHANGE);
 
     alwaysAssertM(pixelFormat != 0, "[0] Unsupported video mode");
 
@@ -391,22 +404,23 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
     // Create the OpenGL context
     m_glContext = wglCreateContext(m_hDC);
-
     alwaysAssertM(m_glContext != NULL, "Failed to create OpenGL context.");
 
-    // Initialize mouse buttons to up
+    // Initialize mouse buttons to the unpressed state
     for (int i = 0; i < 8; ++i) {
         m_mouseButtons[i] = false;
     }
 
-    // Clear all keyboard buttons to up (not down)
+    // Clear all keyboard buttons to unpressed
     for (int i = 0; i < 256; ++i) {
         m_keyboardButtons[i] = false;
     }
 
-    if (! creatingShareWindow) {
-        // Now share resources with the global window
-        wglShareLists(m_shareWindow->m_glContext, m_glContext);
+    if (! creatingShareWindow && (shareWindow().get() != NULL)) {
+        // Share resources with the shareWindow window.  Note that this
+        // only occurs if there is a shareWindow, which may not be the 
+        // case, depending on m_settings.
+        wglShareLists(shareWindow()->m_glContext, m_glContext);
     }
 
     this->makeCurrent();
@@ -781,7 +795,6 @@ void Win32Window::setInputCapture(bool c) {
 
 
 void Win32Window::initWGL() {
-
     // This function need only be called once
     static bool wglInitialized = false;
     if (wglInitialized) {
@@ -789,7 +802,9 @@ void Win32Window::initWGL() {
     }
     wglInitialized = true;
 
-    std::string name = "G3D";
+    // See http://nehe.gamedev.net/wiki/GL30_Lesson01Win.ashx for discussion
+
+    std::string name = "G3D Temp Window";
     WNDCLASS window_class;
 
     window_class.style         = CS_HREDRAW | CS_VREDRAW;
@@ -811,13 +826,11 @@ void Win32Window::initWGL() {
     {
         sizeof (PIXELFORMATDESCRIPTOR),									// Size Of This Pixel Format Descriptor
         1,																// Version Number
-        PFD_DRAW_TO_WINDOW |											// Format Must Support Window
-        PFD_SUPPORT_OPENGL |											// Format Must Support OpenGL
-        PFD_DOUBLEBUFFER,												// Must Support Double Buffering
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_SWAP_EXCHANGE,
         PFD_TYPE_RGBA,													// Request An RGBA Format
         24,		                        								// Select Our Color Depth
         0, 0, 0, 0, 0, 0,												// Color Bits Ignored
-        1,																// Alpha Buffer
+        0,																// Alpha Buffer
         0,																// Shift Bit Ignored
         0,																// No Accumulation Buffer
         0, 0, 0, 0,														// Accumulation Bits Ignored
@@ -853,8 +866,20 @@ void Win32Window::initWGL() {
     // We've now brought OpenGL online.  Grab the pointers we need and 
     // destroy everything.
 
+    /* Failed attempt to load without creating a context:
+    HMODULE opengl32dll = LoadLibrary(_T("opengl32"));
+    debugAssert(opengl32dll != NULL);
+
+    wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)GetProcAddress(opengl32dll, "wglChoosePixelFormatARB");
+    debugAssert(w != NULL);
+
+    wglGetExtensionsStringARB =
+        (PFNWGLGETEXTENSIONSSTRINGARBPROC)GetProcAddress(opengl32dll, "wglGetExtensionsStringARB");
+*/
+
     wglChoosePixelFormatARB =
         (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+    debugAssert(wglChoosePixelFormatARB != NULL);
 
     PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB =
         (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
@@ -879,7 +904,7 @@ void Win32Window::initWGL() {
     }
 
     // Now destroy the dummy windows
-    wglDeleteContext(hRC);					
+    wglDeleteContext(hRC);			
     hRC = 0;	
     ReleaseDC(hWnd, hDC);	
     hWnd = 0;				
@@ -907,7 +932,7 @@ void Win32Window::createShareWindow(OSWindow::Settings settings) {
     // This call will force us to re-enter createShareWindow, however
     // the second time through init will be true, so we'll skip the 
     // recursion.
-    m_shareWindow.reset(new Win32Window(settings, true));
+    shareWindow().reset(new Win32Window(settings, true));
 }
 
 

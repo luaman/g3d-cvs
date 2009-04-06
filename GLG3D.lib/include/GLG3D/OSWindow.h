@@ -135,6 +135,13 @@ public:
            docs for RenderDevice::resize.
         */
         bool    resizable;
+
+        /** If true, Texture and VAR data will be shared between multiple OpenGL contexts. 
+            This is necessary if your application makes multiple OS windows with their
+            own OpenGL contexts.
+            The default is <b>false</b>, which is essential for performance 
+            on multi-GPU systems.*/
+        bool    sharedContext;
         
         /**
            If a window's settings define it to be both resizable and allowed
@@ -180,6 +187,7 @@ public:
             stereo(false),
             refreshRate(85),
             resizable(false),
+            sharedContext(false),
             allowMaximize(true),
             framed(true),
             visible(true),
