@@ -406,8 +406,11 @@ public:
     static ArticulatedModel::Ref createEmpty();
 
     /** Create a 0.5^3 meter cube with colored sides, approximating the data from
-        http://www.graphics.cornell.edu/online/box/data.html */
-    static ArticulatedModel::Ref createCornellBox();
+        http://www.graphics.cornell.edu/online/box/data.html
+        
+        @param scale Enlarge the box by this factor.
+        */
+    static ArticulatedModel::Ref createCornellBox(float scale = 1.0f);
 
     /**
      Iterate through the entire model and force all triangles to use vertex 

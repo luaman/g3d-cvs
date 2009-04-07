@@ -70,6 +70,20 @@ class RenderDevice;
  */
 class OSWindow {
 public:
+    enum SLIMode {
+        /** Whatever the driver chooses */
+        SLI_AUTO,
+
+        /** Single GPU mode. */
+        SLI_SINGLE,
+
+        /** Alternate Frame Rendering.  GPUs take turns rendering frames. Gives the best performance for most 
+           applications, assuming that textures are used the same frame that they are drawn to.*/
+        SLI_AFR,
+
+        /* Split Frame Rendering. The screen is divided among the GPUs. */
+        SLI_SFR
+    };
 
     class Settings {
     public:
@@ -127,7 +141,7 @@ public:
         /** Allocate a stereo display context. true, <B>false</B> */
         bool    stereo;
     	
-        /** In cycles/sec */
+        /** Refresh rate for full-screen, in cycles/sec. If zero, the display can choose its own refresh. */
         int     refreshRate;
     	
         /**

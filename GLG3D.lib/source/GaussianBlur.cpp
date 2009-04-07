@@ -22,6 +22,9 @@ void GaussianBlur::apply(RenderDevice* rd, const Texture::Ref& source, const Vec
     const Rect2D& dest = Rect2D::xywh(Vector2(0, 0), destSize);
     rd->push2D(dest);
     {
+        rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+        // Must clear so that the GPU knows we are overwriting the whole texture
+        rd->clear();
         const Shader::Ref& gaussian1DShader = getShader(N);
 
         gaussian1DShader->args.set("source", source);

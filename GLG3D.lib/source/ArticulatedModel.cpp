@@ -554,7 +554,7 @@ static void addRect(const Vector3& v0, const Vector3& v1,
 }
 
 
-ArticulatedModel::Ref ArticulatedModel::createCornellBox() {
+ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
     model->name = "Cornell Box";
@@ -563,7 +563,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox() {
     Array<Vector3>& vertex = part.geometry.vertexArray;
     part.name = "root";
 
-    float c = -0.275f;
+    float c = -0.275f * scale;
 
     // Data used is captured from the photographs and balanced to
     // achieve (perceptual) uniform brightness on all surfaces; this

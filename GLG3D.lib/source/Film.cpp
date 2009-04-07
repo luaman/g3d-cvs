@@ -103,21 +103,6 @@ void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input) {
         // Make smaller to save fill rate, since it will be blurry anyway
         m_temp    = Texture::createEmpty("Film Temp",    w/2, h/2, m_intermediateFormat, Texture::DIM_2D_NPOT, Texture::Settings::video());
         m_blurry  = Texture::createEmpty("Film Blurry",  w/4, h/4, m_intermediateFormat, Texture::DIM_2D_NPOT, Texture::Settings::video());
-
-        // Clear textures on the first time they are used; this is
-        // required by NVIDIA drivers
-
-        // Bind a texture first so that the framebuffer has a size
-        //m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_temp);
-        m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_temp);
-        rd->push2D(m_framebuffer);
-            rd->setColorClearValue(Color3::black());
-
-            rd->clear();
-
-            m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_blurry);
-            rd->clear();
-        rd->pop2D();
     }
 
     // Bloom

@@ -104,11 +104,14 @@ static uint8 buttonsToUint8(const bool* buttons) {
     return mouseButtons;
 }
 
+
+
 Win32Window::Win32Window(const OSWindow::Settings& s, bool creatingShareWindow)
     : createdWindow(true),
     m_diDevices(NULL),
     m_sysEventQueue(NULL)
 {
+
     initWGL();
 
     m_hDC = NULL;
@@ -314,7 +317,8 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
         iAttributes.append(WGL_DRAW_TO_WINDOW_ARB, GL_TRUE);
         iAttributes.append(WGL_SUPPORT_OPENGL_ARB, GL_TRUE);
-        iAttributes.append(WGL_SWAP_METHOD_ARB,    WGL_SWAP_EXCHANGE_ARB);
+        // NVIDIA docs say to use WGL_SWAP_EXCHANGE_ARB, but Evan Hart recommended WGL_SWAP_UNDEFINED_ARB instead
+        iAttributes.append(WGL_SWAP_METHOD_ARB,    WGL_SWAP_UNDEFINED_ARB);
         if (m_settings.hardware) {
             iAttributes.append(WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB);
         }
@@ -328,7 +332,10 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         iAttributes.append(WGL_STENCIL_BITS_ARB,   m_settings.stencilBits);
         iAttributes.append(WGL_STEREO_ARB,         m_settings.stereo);
         iAttributes.append(WGL_AUX_BUFFERS_ARB,    0);        
-        iAttributes.append(WGL_ALPHA_BITS_ARB,     0);        
+        iAttributes.append(WGL_ACCUM_BITS_ARB,     0);        
+        iAttributes.append(WGL_ACCUM_RED_BITS_ARB, 0);        
+        iAttributes.append(WGL_ACCUM_GREEN_BITS_ARB, 0);        
+        iAttributes.append(WGL_ACCUM_BLUE_BITS_ARB, 0);        
 
         if (hasWGLMultiSampleSupport && (m_settings.fsaaSamples > 1)) {
             // On some ATI cards, even setting the samples to false will turn it on,
@@ -970,8 +977,12 @@ static bool ChangeResolution(int width, int height, int bpp, int refreshRate) {
     deviceMode.dmSize       = sizeof(DEVMODE);
     deviceMode.dmPelsWidth  = width;
     deviceMode.dmPelsHeight = height;
-    deviceMode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY;
-    deviceMode.dmDisplayFrequency = refreshRate;
+    deviceMode.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+    if (refreshRate > 0) {
+        deviceMode.dmDisplayFrequency = refreshRate;
+        deviceMode.dmFields |= DM_DISPLAYFREQUENCY;
+    }
 
     LONG result = -1;
 
@@ -980,10 +991,10 @@ static bool ChangeResolution(int width, int height, int bpp, int refreshRate) {
         result = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
     }
 
-    if (result != DISP_CHANGE_SUCCESSFUL) {
-        // If it didn't work, try just changing the resolution and not the
-        // refresh rate.
-        deviceMode.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+    // If it didn't work, try just changing the resolution and not the
+    // refresh rate.
+    if ((result != DISP_CHANGE_SUCCESSFUL) && (refreshRate > 0)) {
+        deviceMode.dmFields &= ~DM_DISPLAYFREQUENCY;
         for (int i = 0; (i < 3) && (result != DISP_CHANGE_SUCCESSFUL); ++i) {
             deviceMode.dmBitsPerPel = bppTries[i];
             result = ChangeDisplaySettings(&deviceMode, CDS_FULLSCREEN);
