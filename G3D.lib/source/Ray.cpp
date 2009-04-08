@@ -88,7 +88,7 @@ float Ray::intersectionTime(const class Box& box) const {
     float time = CollisionDetection::collisionTimeForMovingPointFixedBox(
             origin, direction, box, dummy);
 
-    if ((time == inf()) && (box.contains(origin))) {
+    if ((time == finf()) && (box.contains(origin))) {
         return 0.0f;
     } else {
         return time;
@@ -102,7 +102,7 @@ float Ray::intersectionTime(const class AABox& box) const {
     float time = CollisionDetection::collisionTimeForMovingPointFixedAABox(
             origin, direction, box, dummy, inside);
 
-    if ((time == inf()) && inside) {
+    if ((time == finf()) && inside) {
         return 0.0f;
     } else {
         return time;

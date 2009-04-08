@@ -685,7 +685,7 @@ void ThirdPersonManipulator::onUserInput(UserInput* ui) {
     } else {
         // Highlight the axis closest to the mouse
         m_overAxis = NO_AXIS;
-        float nearestDepth = (float)inf();
+        float nearestDepth = finf();
 
         if (m_translationEnabled) {
             for (int g = FIRST_TRANSLATION; g <= LAST_TRANSLATION; ++g) {

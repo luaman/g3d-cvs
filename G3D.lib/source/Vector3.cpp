@@ -42,8 +42,8 @@ const Vector3& Vector3::one()      { static const Vector3 v(1, 1, 1); return v; 
 const Vector3& Vector3::unitX()    { static const Vector3 v(1, 0, 0); return v; }
 const Vector3& Vector3::unitY()    { static const Vector3 v(0, 1, 0); return v; }
 const Vector3& Vector3::unitZ()    { static const Vector3 v(0, 0, 1); return v; }
-const Vector3& Vector3::inf()      { static const Vector3 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); return v; }
-const Vector3& Vector3::nan()      { static const Vector3 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); return v; }
+const Vector3& Vector3::inf()      { static const Vector3 v((float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf()); return v; }
+const Vector3& Vector3::nan()      { static const Vector3 v((float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan()); return v; }
 const Vector3& Vector3::minFinite(){ static const Vector3 v(-FLT_MAX, -FLT_MAX, -FLT_MAX); return v; }
 const Vector3& Vector3::maxFinite(){ static const Vector3 v(FLT_MAX, FLT_MAX, FLT_MAX); return v; }
 

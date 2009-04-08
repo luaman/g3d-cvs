@@ -446,7 +446,7 @@ public:
         Array<Vector3>&       newVertexPositions,
         Array<int>&           toNew,
         Array<int>&           toOld,
-        double                radius = G3D::fuzzyEpsilon);
+        double                radius = fuzzyEpsilon);
 
     /**
      Modifies the face, edge, and vertex arrays in place so that
@@ -481,7 +481,7 @@ public:
         Array<Face>&          faceArray,
         Array<Edge>&          edgeArray,
         Array<Vertex>&        vertexArray,
-        double                radius = G3D::fuzzyEpsilon);
+        double                radius = fuzzyEpsilon);
 
 
     /**

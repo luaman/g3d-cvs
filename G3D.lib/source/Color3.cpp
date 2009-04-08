@@ -172,9 +172,9 @@ Color3& Color3::operator/= (float fScalar) {
         g *= fInvScalar;
         b *= fInvScalar;
     } else {
-        r = (float)G3D::inf();
-        g = (float)G3D::inf();
-        b = (float)G3D::inf();
+        r = (float)G3D::finf();
+        g = (float)G3D::finf();
+        b = (float)G3D::finf();
     }
 
     return *this;

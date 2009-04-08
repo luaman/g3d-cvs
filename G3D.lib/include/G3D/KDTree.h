@@ -1488,7 +1488,7 @@ public:
             KDTree<Entity*> scene;
 
             Intersection intersection;
-            float distance = inf();
+            float distance = finf();
             scene.intersectRay(camera.worldRay(x, y), intersection, distance);
           </pre>
 

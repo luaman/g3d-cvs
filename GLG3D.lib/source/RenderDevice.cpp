@@ -1370,19 +1370,19 @@ void RenderDevice::endFrame() {
         m_stats.smoothTriangles     = lerp(m_stats.smoothTriangles, m_stats.triangles, A);
     }
 
-    if ((m_stats.smoothFrameRate == inf()) || (isNaN(m_stats.smoothFrameRate))) {
+    if ((m_stats.smoothFrameRate == finf()) || (isNaN(m_stats.smoothFrameRate))) {
         m_stats.smoothFrameRate = 1000000;
     } else if (m_stats.smoothFrameRate < 0) {
         m_stats.smoothFrameRate = 0;
     }
 
-    if ((m_stats.smoothTriangleRate == inf()) || isNaN(m_stats.smoothTriangleRate)) {
+    if ((m_stats.smoothTriangleRate == finf()) || isNaN(m_stats.smoothTriangleRate)) {
         m_stats.smoothTriangleRate = 1e20;
     } else if (m_stats.smoothTriangleRate < 0) {
         m_stats.smoothTriangleRate = 0;
     }
 
-    if ((m_stats.smoothTriangles == inf()) || isNaN(m_stats.smoothTriangles)) {
+    if ((m_stats.smoothTriangles == finf()) || isNaN(m_stats.smoothTriangles)) {
         m_stats.smoothTriangles = 1e20;
     } else if (m_stats.smoothTriangles < 0) {
         m_stats.smoothTriangles = 0;

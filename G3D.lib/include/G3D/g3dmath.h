@@ -7,14 +7,14 @@
  @cite highestBit by Jukka Liimatta
  
  @created 2001-06-02
- @edited  2006-01-16
+ @edited  2009-04-07
 
  Copyright 2000-2006, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3DMATH_H
-#define G3DMATH_H
+#ifndef G3D_g3dmath_h
+#define G3D_g3dmath_h
 
 #ifdef _MSC_VER
 // Disable conditional expression is constant, which occurs incorrectly on inlined functions
@@ -99,22 +99,19 @@ __inline long int lrintf(float flt) {
 #endif
 
 
-
-const double fuzzyEpsilon = 0.00001;
-
+#define fuzzyEpsilon (0.00001f)
 /** 
     This value should not be tested against directly, instead
     G3D::isNan() and G3D::isFinite() will return reliable results. */
-inline double inf() {
-    return std::numeric_limits<double>::infinity();
-}
+double inf();
 
 /** This value should not be tested against directly, instead
     G3D::isNan() and G3D::isFinite() will return reliable results. */
-inline double nan() {
-    // double is a standard type and should have quiet NaN
-    return std::numeric_limits<double>::quiet_NaN();
-}
+double nan();
+
+float finf();
+
+float fnan();
 
 inline double pi() {
     return 3.1415926535898;
@@ -370,17 +367,15 @@ inline int pow2(unsigned int x) {
     return 1 << x;
 }
 
-static inline double log2(double x) {
-    static const double k = 1.0 / ::log(2.0);
-    return ::log(x) / k;
+inline double log2(double x) {
+    return ::log(x) * 3.32192809;
 }
 
-static inline float log2(float x) {
-    static const float k = (float)(1.0 / ::log(2.0));
-    return ::logf(x) * k;
+inline float log2(float x) {
+    return ::logf(x) * 3.32192809f;
 }
 
-static inline double log2(int x) {
+inline double log2(int x) {
     return log2((double)x);
 }
 
@@ -508,6 +503,10 @@ inline bool isNaN(double x) {
 
 inline bool isFinite(double x) {
     return ! isNaN(x) && (x < G3D::inf()) && (x > -G3D::inf());
+}
+
+inline bool isFinite(float x) {
+    return ! isNaN(x) && (x < G3D::finf()) && (x > -G3D::finf());
 }
 
 //----------------------------------------------------------------------------
@@ -785,7 +784,7 @@ inline double eps(double a, double b) {
     // since it either has the same magnitude or the comparison
     // will fail anyway.
     (void)b;
-    const double aa = abs(a) + 1;
+    const double aa = abs(a) + 1.0;
     if (aa == inf()) {
         return fuzzyEpsilon;
     } else {

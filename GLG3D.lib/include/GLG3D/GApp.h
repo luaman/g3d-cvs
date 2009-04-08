@@ -448,7 +448,7 @@ public:
     }
 
     /** Change to invoke frame limiting via doWait.
-        Defaults to inf() */
+        Defaults to finf() */
     virtual void setDesiredFrameRate(float fps) {
         debugAssert(fps > 0);
         m_desiredFrameRate = fps;

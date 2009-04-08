@@ -112,7 +112,7 @@ void Box::init(
     if (_extent.isFinite()) {
         _volume = _extent.x * _extent.y * _extent.z;
     } else {
-        _volume = G3D::inf();
+        _volume = G3D::finf();
     }
 
     debugAssert(! isNaN(_extent.x));

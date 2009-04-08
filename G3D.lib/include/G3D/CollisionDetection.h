@@ -520,7 +520,7 @@ public:
         const Vector3& v2,
         Vector3&       location) {
         float t = collisionTimeForMovingPointFixedTriangle(orig, dir, v0, v1, v2);
-        if (t < inf()) {
+        if (t < finf()) {
             location = orig + dir * t;
         }
         return t;
@@ -554,7 +554,7 @@ public:
         float t = collisionTimeForMovingPointFixedTriangle(
             orig, dir, tri.vertex(0), tri.vertex(1), tri.vertex(2));
         
-        if ((t < inf()) && (&location != &ignore)) {
+        if ((t < finf()) && (&location != &ignore)) {
             location = orig + dir * t;
             normal   = tri.normal();
         }
@@ -590,7 +590,7 @@ public:
         Vector3&       location,
         Vector3&       normal) {
         float t = collisionTimeForMovingPointFixedTriangle(orig, dir, v0, v1, v2);
-        if (t < inf()) {
+        if (t < finf()) {
             location = orig + dir * t;
             normal   = (v2 - v0).cross(v1 - v0).direction();
         }

@@ -70,7 +70,7 @@ void Draw::lighting(LightingRef lighting, RenderDevice* rd, bool showEffectSpher
                 Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, light.color, Color4::clear());
                 if (showEffectSpheres) {
                     Sphere s = light.effectSphere();
-                    if (s.radius < inf()) {
+                    if (s.radius < finf()) {
                         Draw::sphere(s, rd, Color4::clear(), Color4(light.color, 0.5f));
                     }
                 }

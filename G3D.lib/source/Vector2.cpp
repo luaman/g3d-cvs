@@ -45,13 +45,13 @@ const Vector2& Vector2::unitY() {
 }
 
 const Vector2& Vector2::inf() { 
-	static Vector2 v((float)G3D::inf(), (float)G3D::inf());
+	static Vector2 v((float)G3D::finf(), (float)G3D::finf());
 	return v; 
 }
 
 
 const Vector2& Vector2::nan() { 
-	static Vector2 v((float)G3D::nan(), (float)G3D::nan()); 
+	static Vector2 v((float)G3D::fnan(), (float)G3D::fnan()); 
 	return v; 
 }
 
@@ -130,16 +130,9 @@ Vector2 Vector2::operator/ (float k) const {
     return *this * (1.0f / k);
 }
 
-Vector2& Vector2::operator/= (float fScalar) {
-    if (fScalar != 0.0f) {
-        float fInvScalar = 1.0f / fScalar;
-        x *= fInvScalar;
-        y *= fInvScalar;
-    } else {
-        x = (float)G3D::inf();
-        y = (float)G3D::inf();
-    }
-
+Vector2& Vector2::operator/= (float k) {
+    this->x /= k;
+    this->y /= k;
     return *this;
 }
 

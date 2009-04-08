@@ -35,7 +35,7 @@ const Color4& Color4::zero() {
 
 
 const Color4& Color4::inf() {
-    static Color4 c((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf());
+    static Color4 c((float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf());
     return c;
 }
 
@@ -125,10 +125,10 @@ Color4& Color4::operator/= (float fScalar) {
         b *= fInvScalar;
         a *= fInvScalar;
     } else {
-        r = (float)G3D::inf();
-        g = (float)G3D::inf();
-        b = (float)G3D::inf();
-        a = (float)G3D::inf();
+        r = (float)G3D::finf();
+        g = (float)G3D::finf();
+        b = (float)G3D::finf();
+        a = (float)G3D::finf();
     }
 
     return *this;

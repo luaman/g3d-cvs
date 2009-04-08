@@ -31,6 +31,32 @@ float gaussRandom(float mean, float stdev) {
     return x2 * (float)square(stdev) * sqrtf((-2.0f * logf(w) ) / w) + mean; 
 }
 
+/** 
+    This value should not be tested against directly, instead
+    G3D::isNan() and G3D::isFinite() will return reliable results. */
+double inf() {
+    return std::numeric_limits<double>::infinity();
+}
+
+/** 
+    This value should not be tested against directly, instead
+    G3D::isNan() and G3D::isFinite() will return reliable results. */
+float finf() {
+    return std::numeric_limits<float>::infinity();
+}
+
+/** This value should not be tested against directly, instead
+    G3D::isNan() and G3D::isFinite() will return reliable results. */
+double nan() {
+    // double is a standard type and should have quiet NaN
+    return std::numeric_limits<double>::quiet_NaN();
+}
+
+float fnan() {
+    // double is a standard type and should have quiet NaN
+    return std::numeric_limits<float>::quiet_NaN();
+}
+
 
 int highestBit(uint32 x) {
     // Binary search.

@@ -706,7 +706,7 @@ public:
     }
 
     virtual float area() const {
-        return inf();
+        return finf();
     }
 
     virtual float volume() const {
@@ -718,7 +718,7 @@ public:
     }
 
     virtual Sphere boundingSphere() const {
-        return Sphere(geometry.center(), inf());
+        return Sphere(geometry.center(), finf());
     }
 
     virtual AABox boundingAABox() const {

@@ -92,13 +92,13 @@ bool GLight::operator!=(const GLight& other) const {
 Sphere GLight::effectSphere(float cutoff) const {
     if (position.w == 0) {
         // Directional light
-        return Sphere(Vector3::zero(), (float)inf());
+        return Sphere(Vector3::zero(), finf());
     } else {
         // Avoid divide by zero
         cutoff = max(cutoff, 0.0001f);
         float maxIntensity = max(color.r, max(color.g, color.b));
 
-        float radius = (float)inf();
+        float radius = finf();
             
         if (attenuation[2] != 0) {
 

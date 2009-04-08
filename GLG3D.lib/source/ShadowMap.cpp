@@ -300,7 +300,7 @@ void ShadowMap::computeMatrices
         debugAssert(light.position.w == 1.0f);
 
         // Find nearest and farthest corners of the scene bounding box
-        lightProjNear = (float)inf();
+        lightProjNear = finf();
         lightProjFar  = 0;
         for (int c = 0; c < 8; ++c) {
             Vector3 v = sceneBounds.corner(c);

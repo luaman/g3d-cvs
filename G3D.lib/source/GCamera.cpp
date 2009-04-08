@@ -19,7 +19,7 @@ namespace G3D {
 
 GCamera::GCamera() {
     setNearPlaneZ(-0.1f);
-    setFarPlaneZ(-(float)inf());
+    setFarPlaneZ(-finf());
     setFieldOfView((float)toRadians(55.0f), VERTICAL);
 }
 
@@ -154,7 +154,7 @@ Vector3 GCamera::unproject(const Vector3& v, const Rect2D& viewport) const {
 
     float z;
 
-    if (-f >= inf()) {
+    if (-f >= finf()) {
         // Infinite far plane
         z = 1.0f / (((-1.0f / n) * v.z) + 1.0f / n);
     } else {
@@ -171,7 +171,7 @@ Vector3 GCamera::unproject(const Vector3& v, const Rect2D& viewport) const {
 
 float GCamera::worldToScreenSpaceArea(float area, float z, const Rect2D& viewport) const {
     if (z >= 0) {
-        return (float)inf();
+        return finf();
     }
     return area * (float)square(imagePlaneDepth() / z);
 }
@@ -219,7 +219,7 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
         Vector4( x, -y, zn, 1));
 
     // Far face (ccw from UR, from origin)
-    if (m_farPlaneZ == -inf()) {
+    if (m_farPlaneZ == -finf()) {
         fr.vertexPos.append(
                             Vector4( x,  y, zn, 0),
                             Vector4(-x,  y, zn, 0),
@@ -280,7 +280,7 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     fr.faceArray.append(face);
 
     // Far plane
-    if (-m_farPlaneZ < inf()) {
+    if (-m_farPlaneZ < finf()) {
     	face.plane = Plane(Vector3(0, 0, 1), Vector3(0, 0, m_farPlaneZ));
         face.vertexIndex[0] = 4;
         face.vertexIndex[1] = 5;

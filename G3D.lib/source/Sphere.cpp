@@ -107,7 +107,7 @@ bool Sphere::culledBy(
     const uint32		_inMask,
     uint32&             childMask) const {
 
-    if (radius == inf()) {
+    if (radius == finf()) {
         // No plane can cull the infinite box
         return false;
     }

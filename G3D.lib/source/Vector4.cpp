@@ -25,13 +25,13 @@ Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z
 
 
 const Vector4& Vector4::inf() { 
-    static const Vector4 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); 
+    static const Vector4 v((float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf()); 
     return v; 
 }
 
 
 const Vector4& Vector4::nan() { 
-    static Vector4 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); 
+    static Vector4 v((float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan()); 
     return v; 
 }
 

@@ -422,8 +422,8 @@ void MeshAlg::computeBounds(
     Vector3 xmin, xmax, ymin, ymax, zmin, zmax;
 
     // FIRST PASS: find 6 minima/maxima points
-    xmin.x = ymin.y = zmin.z = inf();
-    xmax.x = ymax.y = zmax.z = -inf();
+    xmin.x = ymin.y = zmin.z = finf();
+    xmax.x = ymax.y = zmax.z = -finf();
 
     for (int v = 0; v < vertexArray.size(); ++v) {
         const Vector3& vertex = vertexArray[v];
@@ -527,7 +527,7 @@ void MeshAlg::computeBounds(
 
 	if (boxRadSq >= radSq){
             if (isNaN(center.x) || ! isFinite(rad)) {
-                sphere = Sphere(Vector3::zero(), inf());
+                sphere = Sphere(Vector3::zero(), finf());
             } else {
                 sphere = Sphere(center, rad);
             }

@@ -152,12 +152,12 @@ bool AABox::culledBy(
     childMask = 0;
 
     const bool finite = 
-        (abs(lo.x) < G3D::inf()) &&
-        (abs(hi.x) < G3D::inf()) &&
-        (abs(lo.y) < G3D::inf()) &&
-        (abs(hi.y) < G3D::inf()) &&
-        (abs(lo.z) < G3D::inf()) &&
-        (abs(hi.z) < G3D::inf());
+        (abs(lo.x) < G3D::finf()) &&
+        (abs(hi.x) < G3D::finf()) &&
+        (abs(lo.y) < G3D::finf()) &&
+        (abs(hi.y) < G3D::finf()) &&
+        (abs(lo.z) < G3D::finf()) &&
+        (abs(hi.z) < G3D::finf());
 
     // See if there is one plane for which all of the
 	// vertices are in the negative half space.
@@ -229,12 +229,12 @@ bool AABox::culledBy(
 	assert(plane.size() < 31);
     
     const bool finite = 
-        (abs(lo.x) < G3D::inf()) &&
-        (abs(hi.x) < G3D::inf()) &&
-        (abs(lo.y) < G3D::inf()) &&
-        (abs(hi.y) < G3D::inf()) &&
-        (abs(lo.z) < G3D::inf()) &&
-        (abs(hi.z) < G3D::inf());
+        (abs(lo.x) < G3D::finf()) &&
+        (abs(hi.x) < G3D::finf()) &&
+        (abs(lo.y) < G3D::finf()) &&
+        (abs(hi.y) < G3D::finf()) &&
+        (abs(lo.z) < G3D::finf()) &&
+        (abs(hi.z) < G3D::finf());
 
     // See if there is one plane for which all of the
 	// vertices are in the negative half space.

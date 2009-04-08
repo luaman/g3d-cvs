@@ -151,7 +151,7 @@ public:
     }
 
     virtual void getObjectSpaceBoundingSphere(Sphere& s) const {
-        s = Sphere(Vector3::zero(), (float)inf());
+        s = Sphere(Vector3::zero(), finf());
     }
 
     virtual void getObjectSpaceFaceNormals (Array< Vector3 > &faceNormals, bool normalize=true) const {}

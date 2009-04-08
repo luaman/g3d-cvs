@@ -17,6 +17,8 @@ public:
     SkyRef              sky;
     BSPMapRef           map;
 
+    VAR                 data;
+
     // for on-screen rendering
     Framebuffer::Ref    fb;
     Texture::Ref        colorBuffer;
@@ -26,6 +28,8 @@ public:
     ArticulatedModel::Ref model;
 
     ArticulatedModel::Ref   ground;
+
+    IFSModel::Ref       ifs;
 
     Film::Ref           film;
 
@@ -71,9 +75,23 @@ void App::onInit() {
     */
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
-    model = ArticulatedModel::createCornellBox();
+    //model = ArticulatedModel::createCornellBox();
 
     setDesiredFrameRate(1000);
+
+    int N = 2000; // Num quads
+    VARArea::Ref area = VARArea::create(N * 4 * sizeof(Vector2), VARArea::WRITE_ONCE);
+
+    data = VAR(Vector2::zero(), N*4, VAR(N * 4 * sizeof(Vector2), area), 0, sizeof(Vector2));
+    Vector2* v = (Vector2*)data.mapBuffer(GL_WRITE_ONLY);
+    Rect2D viewport = renderDevice->viewport();
+    for (int i = 0; i < N; ++i) {
+        for (int c = 0; c < 4; ++c) {
+            *v = viewport.corner(c);
+            ++v;
+        }
+    }
+    data.unmapBuffer();
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
@@ -119,18 +137,23 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
         model->pose(posed3D, Vector3(0,0,0));
     }
 
+    if (ifs.notNull()) {
+        posed3D.append(ifs->pose());
+    }
+
     if (ground.notNull()) {
         ground->pose(posed3D, Vector3(0,-0.5,0));
     }
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+#if 0
     Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
 
-    rd->pushState(fb);
-
+//    rd->pushState(fb);
+rd->pushState();
 
     rd->setColorClearValue(Color3(0.2f, 1.0f, 2.0f));
     rd->setProjectionAndCameraMatrix(defaultCamera);
@@ -144,8 +167,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->render(rd, localSky);
     }
 
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
-
+    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);//, shadowMap);
+/*
     {
         GLight& light = lighting->shadowedLightArray[0];
         Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, Color3::white());
@@ -160,7 +183,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         lightCamera.setFarPlaneZ(-10.01f);
         Draw::frustum(lightCamera.frustum(shadowMap->rect2DBounds()), rd);
     }
-
+*/
 
     //    Draw::axes(rd);
 
@@ -188,10 +211,34 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->renderLensFlare(rd, localSky);
     }
     rd->popState();
+#endif
+RealTime t3 = System::time(); // TODO: Remove
 
-    film->exposeAndRender(rd, colorBuffer);
 
-    PosedModel2D::sortAndRender(rd, posed2D);
+rd->clear();
+//    rd->push2D(fb);
+    rd->push2D();
+   rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+
+RealTime t1 = System::time(); // TODO: Remove
+
+//while(true) { // for testing with gDEBugger
+rd->beginIndexedPrimitives();
+rd->setVertexArray(data);
+rd->sendSequentialIndices(RenderDevice::QUADS, data.size());
+rd->endIndexedPrimitives();
+//rd->swapBuffers();} // for testing with gDEBugger
+screenPrintf("issue: %f s", System::time() - t1); // TODO: Remove
+
+RealTime t0 = System::time(); // TODO: Remove
+    rd->pop2D();
+screenPrintf("pop2D: %f s", System::time() - t0); // TODO: Remove
+
+screenPrintf("all onGraphics: %f s", System::time() - t3); // TODO: Remove
+
+//    film->exposeAndRender(rd, colorBuffer);
+
+//    PosedModel2D::sortAndRender(rd, posed2D);
 }
 
 
@@ -244,5 +291,13 @@ int main(int argc, char** argv) {
     */
 
     GApp::Settings set;
+    set.window.fullScreen = true;
+    set.window.framed = false;
+    set.window.width = 1600;
+    set.window.height = 1200;
+    set.window.alphaBits = 0;
+    set.window.stencilBits = 0;
+    set.window.refreshRate = 0;
+//    set.window.sliMode = OSWindow::SLI_AFR;
     return App(set).run();
 }

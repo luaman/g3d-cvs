@@ -126,7 +126,7 @@ Matrix4 Matrix4::perspectiveProjection(
     a = (right+left) / (right-left);
     b = (top+bottom) / (top-bottom);
 
-    if ((float)farval >= (float)inf()) {
+    if (farval >= finf()) {
        // Infinite view frustum
        c = -1.0f;
        d = -2.0f * nearval;

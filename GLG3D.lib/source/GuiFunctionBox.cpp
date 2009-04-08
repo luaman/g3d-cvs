@@ -242,7 +242,7 @@ Vector2 GuiFunctionBox::controlPointLocation(int i) const {
 int GuiFunctionBox::getNearestControlPoint(const Vector2& pos) {
     
     int closestIndex = NONE;
-    float closestDistance2 = inf();
+    float closestDistance2 = finf();
 
     // Find the closest control point
     for (int i = 0; i < m_spline->size(); ++i) {
@@ -267,7 +267,7 @@ int GuiFunctionBox::getNearestControlPoint(const Vector2& pos) {
 
     // See if the curve itself is near the click point
     int N = 100;
-    closestDistance2 = inf();
+    closestDistance2 = finf();
     float closestT = 0;
     float closestV = 0;
 

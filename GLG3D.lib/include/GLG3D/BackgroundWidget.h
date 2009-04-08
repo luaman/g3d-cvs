@@ -38,11 +38,11 @@ protected:
 
         virtual Rect2D bounds () const {
             // Grows to the size of any screen
-            return Rect2D::xywh(0, 0, inf(), inf());
+            return Rect2D::xywh(0, 0, finf(), finf());
         }
 
         virtual float depth() const {
-            return inf();
+            return finf();
         }
 
         virtual void render (RenderDevice *rd) const;
