@@ -298,7 +298,7 @@ void ThirdPersonManipulator::render(RenderDevice* rd) {
     if (m_rotationEnabled) {
         for (int g = FIRST_ROTATION; g <= LAST_ROTATION; ++g) {
             rd->setColor(color[g]);
-            m_geomArray[g].render(rd, 0.8f);
+            m_geomArray[g].render(rd, 1.5f);
         }
     }
 

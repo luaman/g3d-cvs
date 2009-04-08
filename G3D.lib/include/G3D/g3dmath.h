@@ -102,42 +102,30 @@ __inline long int lrintf(float flt) {
 
 const double fuzzyEpsilon = 0.00001;
 
-/** Returns a reference to a static double.
+/** 
     This value should not be tested against directly, instead
     G3D::isNan() and G3D::isFinite() will return reliable results. */
-inline const double& inf() {
-
-    // double is a standard type and should have infinity
-    static const double i = std::numeric_limits<double>::infinity();
-	return i;
+inline double inf() {
+    return std::numeric_limits<double>::infinity();
 }
 
-/** Returns a reference to a static double.
-    This value should not be tested against directly, instead
+/** This value should not be tested against directly, instead
     G3D::isNan() and G3D::isFinite() will return reliable results. */
-inline const double& nan() {
-
+inline double nan() {
     // double is a standard type and should have quiet NaN
-    static const double n = std::numeric_limits<double>::quiet_NaN();
-    return n;
+    return std::numeric_limits<double>::quiet_NaN();
 }
 
-/** Returns a reference to a static double. Use instead of G3D_PI. */
-inline const double& pi() {
-    static const double p = 3.1415926535898;
-    return p;
+inline double pi() {
+    return 3.1415926535898;
 }
 
-/** Returns a reference to a static double. */
-inline const double& halfPi() {
-    static const double p = pi() / 2.0;
-    return p;
+inline double halfPi() {
+    return 1.57079633;
 }
 
-/** Returns a reference to a static double. */
-inline const double& twoPi() {
-    static const double p = pi() * 2.0;;
-    return p;
+inline double twoPi() {
+    return 6.28318531;
 }
 
 typedef signed char     int8;

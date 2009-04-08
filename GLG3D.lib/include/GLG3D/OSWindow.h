@@ -70,20 +70,7 @@ class RenderDevice;
  */
 class OSWindow {
 public:
-    enum SLIMode {
-        /** Whatever the driver chooses */
-        SLI_AUTO,
-
-        /** Single GPU mode. */
-        SLI_SINGLE,
-
-        /** Alternate Frame Rendering.  GPUs take turns rendering frames. Gives the best performance for most 
-           applications, assuming that textures are used the same frame that they are drawn to.*/
-        SLI_AFR,
-
-        /* Split Frame Rendering. The screen is divided among the GPUs. */
-        SLI_SFR
-    };
+   
 
     class Settings {
     public:
