@@ -234,7 +234,7 @@ void testAABoxCollision() {
         (void)rayaaTime;
 
         debugAssert(fuzzyEq(boxTime, aaTime));
-        if (boxTime < inf()) {
+        if (boxTime < finf()) {
             debugAssert(boxlocation.fuzzyEq(aaboxlocation));
         }
 

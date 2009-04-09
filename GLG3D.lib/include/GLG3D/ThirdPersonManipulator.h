@@ -236,6 +236,9 @@ private:
     enum Geom {NO_AXIS = -1, X, Y, Z, XY, YZ, ZX, RX, RY, RZ, NUM_GEOMS};//CENTER};
     _internal::UIGeom       m_geomArray[NUM_GEOMS];
 
+    /** Used for determining how far the mouse moved */
+    Vector2                 m_oldMouseXY;
+
     float                   m_axisScale;
 
     /** True when the mouse has been pressed and we're dragging the control. */

@@ -663,54 +663,60 @@ void ThirdPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
 
 
 bool ThirdPersonManipulator::onEvent(const GEvent& event) {
-    (void)event;
-    return false;
-}
-
-
-void ThirdPersonManipulator::onUserInput(UserInput* ui) {
     if (! m_enabled) {
-        return;
+        return false;
     }
 
-    if (m_dragging) {
-        if (ui->keyDown(m_dragKey)) {
-            // Continue dragging
-            onDrag(ui->mouseDXY());
+    if (event.type == GEventType::MOUSE_MOTION) {
+        const Vector2 mouseXY(event.motion.x, event.motion.y);
+        if (m_dragging) {
+            // TODO: could use event.motion.xrel/event.motion.yrel if all OSWindows supported it 
+            //onDrag(Vector2(event.motion.xrel, event.motion.yrel));
+            onDrag(mouseXY - m_oldMouseXY);
+
         } else {
-            // Stop dragging
-            m_dragging = false;
-            onDragEnd(ui->mouseXY());
-        }
-    } else {
-        // Highlight the axis closest to the mouse
-        m_overAxis = NO_AXIS;
-        float nearestDepth = finf();
+            
+            // Highlight the axis closest to the mouse
+            m_overAxis = NO_AXIS;
+            float nearestDepth = finf();
 
-        if (m_translationEnabled) {
-            for (int g = FIRST_TRANSLATION; g <= LAST_TRANSLATION; ++g) {
-                const _internal::UIGeom& geom = m_geomArray[g];
+            if (m_translationEnabled) {
+                for (int g = FIRST_TRANSLATION; g <= LAST_TRANSLATION; ++g) {
+                    const _internal::UIGeom& geom = m_geomArray[g];
 
-                if (geom.contains(ui->mouseXY(), nearestDepth, m_dragTangent, m_dragW, m_maxAxisDistance2D)) {
-                    m_overAxis = g;
+                    if (geom.contains(mouseXY, nearestDepth, m_dragTangent, m_dragW, m_maxAxisDistance2D)) {
+                        m_overAxis = g;
+                    }
+                }
+            }
+
+            if (m_rotationEnabled) {
+                for (int g = FIRST_ROTATION; g <= LAST_ROTATION; ++g) {
+                    const _internal::UIGeom& geom = m_geomArray[g];
+
+                    if (geom.contains(mouseXY, nearestDepth, m_dragTangent, m_dragW, m_maxRotationDistance2D)) {
+                        m_overAxis = g;
+                    }
                 }
             }
         }
+        m_oldMouseXY = mouseXY;
 
-        if (m_rotationEnabled) {
-            for (int g = FIRST_ROTATION; g <= LAST_ROTATION; ++g) {
-                const _internal::UIGeom& geom = m_geomArray[g];
+        // Do not consume the motion event
+        return false;
+    } 
 
-                if (geom.contains(ui->mouseXY(), nearestDepth, m_dragTangent, m_dragW, m_maxRotationDistance2D)) {
-                    m_overAxis = g;
-                }
-            }
-        }
+    if ((event.type == GEventType::MOUSE_BUTTON_UP) && (event.button.button == 0)) {
+        // Stop dragging
+        m_dragging = false;
+        const Vector2 mouseXY(event.button.x, event.button.y);
+        onDragEnd(mouseXY);
+        return true;
+
+    } else if ((event.type == GEventType::MOUSE_BUTTON_DOWN) && (event.button.button == 0)) {
 
         // Maybe start a drag
-        if ((m_overAxis != NO_AXIS) &&  
-            ui->keyPressed(m_dragKey) && 
-            ui->keyDown(m_dragKey)) {
+        if (m_overAxis != NO_AXIS) {
             
             // The user clicked on an axis
             m_dragAxis = m_overAxis;
@@ -725,9 +731,17 @@ void ThirdPersonManipulator::onUserInput(UserInput* ui) {
                 m_usingAxis[(m_overAxis - 3 + 1) % 3] = true;
             }
 
-            onDragBegin(ui->mouseXY());
+            const Vector2 mouseXY(event.button.x, event.button.y);
+            onDragBegin(mouseXY);
+            return true;
         } // if drag
     } // if already dragging
+
+    return false;
+}
+
+
+void ThirdPersonManipulator::onUserInput(UserInput* ui) {
 } // userinput
 
 
