@@ -537,34 +537,40 @@ HR { height: 1px;
 
 /* Menu at top from header.html */
 span.menu_tab a {
-                        min-width:              72px;
-			background:		#FFE183; 
-			border-width:		1px; 
-			border-style:		solid; 
-			border-color:		#FFB143; 
-			padding:	        5px;
-			margin:			0px;
-			margin-left:		3px;
-                        margin-top:             10px;
-                        margin-bottom:          -1px;
-			font-size:		11px; 
-			font-weight:		bold;	
-			font-family:		arial;
-			color:			#704000;
-			position:		relative;
-			display:		inline;
-                        float:                  left;
-                        text-align:             center;
+            min-width:      72px;
+            background:     #FFE183; 
+            border-width:   1px; 
+            border-style:   solid; 
+            border-color:   #FFB143; 
+            padding:        5px;
+            margin:         0px;
+            margin-left:    3px;
+            margin-top:     10px;
+            margin-bottom:  -1px;
+            font-size:      11px; 
+            font-weight:    bold;	
+            font-family:    arial;
+            color:          #704000;
+            position:       relative;
+			display:        inline;
+            float:          left;
+            text-align:     center;
 		}
 
                 span.menu_tab a:link, a:visited {
-                        text-decoration:        none;
+			            font-size:          11px; 
+			            font-weight:        bold;	
+			            font-family:        arial;
+                        text-decoration:    none;
                 }
 
                 span.menu_tab a:hover {
-                        background:		#FDEFA0;
-                        color:                  #000000;
-                        text-decoration:        none;
+			            font-size:          11px; 
+			            font-weight:        bold;	
+			            font-family:        arial;
+                        background:         #FDEFA0;
+                        color:              #000000;
+                        text-decoration:    none;
 		}
 
 		.widthadjust {
