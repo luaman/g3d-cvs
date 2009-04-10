@@ -84,7 +84,7 @@ void main(void) {
                 // Reflection vector
                 vec3 wsR = normalize((wsN * 2.0 * dot(wsN, wsE)) - wsE);
 				
-				I_specular = textureCube(environmentMap, wsR).rgb;
+				I_specular = textureCube(environmentMap, wsR).rgb * environmentMapScale;
 
                 // Turn off glossy specular
                 shininess = 0.0;

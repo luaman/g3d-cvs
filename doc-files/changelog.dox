@@ -12,6 +12,8 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
+          Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01
      <li> ThirdPersonManipulator now uses GEvents instead of onUserInput, so that it can consume clicks.
      <li> Win32Window now explicitly requests 0 OpenGL aux buffers for the main window, although some drivers will allocate them anyway
      <li> Removed all glGet* calls from the release build as these can stall GPUs

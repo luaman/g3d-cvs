@@ -156,7 +156,7 @@ public:
         void removeSpecular();
 
         /**
-         The constant multiplies packed values stored in the file.
+         The constant multiplies packed values stored in the file. 
          */
         void setShininess(const std::string& filename, float constant = 1.0f);
         

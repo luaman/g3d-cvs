@@ -1132,7 +1132,7 @@ unsigned int Texture::newGLTextureID() {
 
 /** Returns the buffer constant that matches the current draw buffer (left vs. right) */
 static GLenum getCurrentBuffer(bool useBack) {
-    GLenum draw = glGetInteger(GL_DRAW_BUFFER);
+    GLenum draw = glGetInteger(GL_DRAW_BUFFER);  // TODO: This causes a pipeline stall (do we care, if we're in fixed function)
 
     if (useBack) {
         switch (draw) {

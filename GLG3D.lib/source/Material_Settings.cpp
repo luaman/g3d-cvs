@@ -58,7 +58,7 @@ void Material::Settings::loadFromAnyVal(AnyVal& a) {
     m_specularConstant = a.get("specularConstant", Color4::one());
 
     m_shininessFilename = a.get("shininessFilename", "").string();
-    m_shininessConstant = iClamp(a.get("shininessConstant", 0), 0, 255);
+    m_shininessConstant = iClamp(a.get("shininessConstant", 0), 0, 1);
 
     m_transmissiveFilename = a.get("transmissiveFilename", "").string();
     m_transmissiveConstant = a.get("transmissiveConstant", Color3::black());
