@@ -3,6 +3,8 @@
 void App::loadScene() {
     const std::string path = "";
 
+    sky = Sky::fromFile(System::findDataFile("sky"));
+
     const Matrix3 rot180 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(180));
     const Matrix3 rot270 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(270));
 
@@ -45,6 +47,21 @@ void App::loadScene() {
     if (false) {
         IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/cow.ifs");
         entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
+        x += 2;
+    }
+
+    // Reflective object
+    if (false) {
+        std::string filename = System::findDataFile("cow.ifs");
+        ArticulatedModel::Ref model = ArticulatedModel::fromFile(filename);
+    
+        Material::Settings spec;
+        spec.setLambertian(Color3::zero());
+        spec.setSpecular(Color3::white() * 0.5f);
+        spec.setShininess(1);
+
+        model->partArray[0].triList[0]->material = Material::create(spec);
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
     }
 
@@ -91,7 +108,7 @@ void App::loadScene() {
     lighting = Lighting::create();
     {
         skyParameters = SkyParameters(G3D::toSeconds(1, 00, 00, PM));
-    
+
         skyParameters.skyAmbient = Color3::white();
 
         if (sky.notNull()) {
@@ -102,7 +119,7 @@ void App::loadScene() {
         }
 
         lighting->ambientTop = Color3(0.7f, 0.7f, 1.0f) * skyParameters.diffuseAmbient;
-        lighting->ambientBottom = Color3::brown() * skyParameters.diffuseAmbient;
+        lighting->ambientBottom = Color3(0.3f, 0.4f, 0.5f) * skyParameters.diffuseAmbient;
 
         lighting->emissiveScale = skyParameters.emissiveScale;
 
@@ -115,11 +132,13 @@ void App::loadScene() {
         L.position = Vector4(Vector3(0,1,1).direction(), 0);
 
         lighting->shadowedLightArray.append(L);
+        /*
         lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,2.5f), Color3::blue() * 0.7f, 0.1f, 0, 1.5f, true, true));
         lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,2.5f), Color3::purple() * 0.7f, 0.1f, 0, 1.5f, true, true));
         lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,1), Color3::green() * 0.7f, 0.1f, 0, 1.5f, true, true));
         lighting->lightArray.append(GLight::point(Vector3(0,-0.6f,1.5f), Color3::yellow() * 0.7f, 0.1f, 0, 1.5f, true, true));
         lighting->lightArray.append(GLight::point(Vector3(1.5f,-0.6f,1), Color3::red() * 0.7f, 0.1f, 0, 1.5f, true, true));
+        */
     }
 }
 

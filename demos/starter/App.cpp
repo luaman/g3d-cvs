@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     
     // Change the window and other startup parameters by modifying the
     // settings class.  For example:
-    settings.window.width       = 800; 
+    settings.window.width       = 960; 
     settings.window.height      = 600;
 
 #   ifdef G3D_WIN32
@@ -148,7 +148,9 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         drawDebugShapes();
     rd->popState();
 
-    sky->renderLensFlare(rd, localSky);
+    // In G3D 8.xx it is recommended that you do NOT render lens flare, because it can substantially
+    // slow performance on multi-GPU systems due to the CPU depth readback.
+    //sky->renderLensFlare(rd, localSky);
     toneMap->endFrame(rd);
 
     // Render 2D objects like Widgets

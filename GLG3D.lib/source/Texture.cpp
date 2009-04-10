@@ -1171,8 +1171,10 @@ void Texture::copyFromScreen(
     bool useBackBuffer) {
 
     glStatePush();
-
+   debugAssertGLOk();
+ 
     glReadBuffer(getCurrentBuffer(useBackBuffer));
+   debugAssertGLOk();
 
     m_sizeOfAllTexturesInMemory -= sizeInMemory();
 
@@ -1189,10 +1191,15 @@ void Texture::copyFromScreen(
     GLenum target = dimensionToTarget(m_dimension);
     glEnable(target);
 
+    debugAssertGLOk();
     glBindTexture(target, m_textureID);
-    int e = glGetError();
-    alwaysAssertM(e == GL_NONE, 
-        std::string("Error encountered during glBindTexture: ") + GLenumToString(e));
+#   ifdef G3D_DEBUG
+    {
+        int e = glGetError();
+        alwaysAssertM(e == GL_NONE, 
+            std::string("Error encountered during glBindTexture: ") + GLenumToString(e));
+    }
+#   endif
 
     double viewport[4];
     glGetDoublev(GL_VIEWPORT, viewport);

@@ -18,7 +18,6 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         defaultCamera.lookAt(Vector3( 0,  -0.1f,   0.9f));
 
         loadScene();
-        sky = Sky::fromFile(System::findDataFile("sky"));
 
         Texture::Settings settings;
         settings.wrapMode = WrapMode::CLAMP;
@@ -84,10 +83,6 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
     */
-
-    if (sky.notNull()) {
-        sky->renderLensFlare(rd, skyParameters);
-    }
     
     rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.0f);
     Draw::lighting(lighting, rd, false);
@@ -106,6 +101,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         );
 
     rd->push2D();
+    /*
+    rd->setTexture(0, shadowMap->colorDepthTexture());
+    Draw::rect2D(Rect2D::xywh(0,0,512,512), rd);
+    */
+
     rd->setTexture(0, logo);
     rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
     Draw::rect2D(

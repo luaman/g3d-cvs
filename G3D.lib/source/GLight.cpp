@@ -151,7 +151,13 @@ CoordinateFrame GLight::frame() const {
     CoordinateFrame f;
     if (rightDirection == Vector3::zero()) {
         // No specified right direction; choose one automatically
-        f.lookAt(spotDirection);
+        if (position.w == 0) {
+            // Directional light
+            f.lookAt(-position.xyz());
+        } else {
+            // Spot light
+            f.lookAt(spotDirection);
+        }
     } else {
         const Vector3& Z = -spotDirection.direction();
         Vector3 X = rightDirection.direction();

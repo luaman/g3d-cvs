@@ -12,7 +12,8 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> Win32Window explicitly requests 0 OpenGL aux buffers for the main window, although some drivers will allocate them anyway
+     <li> ThirdPersonManipulator now uses GEvents instead of onUserInput, so that it can consume clicks.
+     <li> Win32Window now explicitly requests 0 OpenGL aux buffers for the main window, although some drivers will allocate them anyway
      <li> Removed all glGet* calls from the release build as these can stall GPUs
      <li> Added GLEW 1.5.1 library for loading OpenGL extensions (replaces previous custom G3D code)
      <li> G3D::PosedModel::renderDepthOnly for early-Z and shadow mapping

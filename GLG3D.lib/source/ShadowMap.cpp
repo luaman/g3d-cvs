@@ -161,10 +161,9 @@ void ShadowMap::updateDepth(
     }
 
     Rect2D rect = m_depthTexture->rect2DBounds();
-    
-    GLenum oldDrawBuffer = glGetInteger(GL_DRAW_BUFFER);
 
     renderDevice->pushState(m_framebuffer);
+        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_PIXEL_MODE_BIT); // Push read and draw buffers
         if (m_framebuffer.notNull()) {
             glReadBuffer(GL_NONE);
             glDrawBuffer(GL_NONE);
@@ -202,14 +201,12 @@ void ShadowMap::updateDepth(
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         PosedModel::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
-
+        glPopAttrib();
     renderDevice->popState();
 
     if (m_framebuffer.isNull()) {
         debugAssert(m_depthTexture.notNull());
         m_depthTexture->copyFromScreen(rect);
-    } else {
-        glDrawBuffer(oldDrawBuffer);
     }
 
     m_colorTextureIsDirty = true;
@@ -334,15 +331,6 @@ void ShadowMap::computeMatrices
     } else if (light.position.w == 0) {
         // Directional light
 
-        /*
-        // Find the bounds on the projected character
-        AABox2D bounds;
-        for (int m = 0; m < allModels.size(); ++m) {
-            const PosedModelRef& model = allModels[m];
-            const Sphere& b = model->worldSpaceBoundingSphere();
-            
-        }*/
-
         // Construct a projection and view matrix for the camera so we can 
         // render the scene from the light's point of view
         //
@@ -355,7 +343,7 @@ void ShadowMap::computeMatrices
                                                          lightProjY, lightProjNear, lightProjFar);
 
     } else {
-        // Point light.  Nothing good can happen here, but generate something
+        // Point light.  Nothing good can happen here, but at least we generate something
 
         lightProjectionMatrix = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
                                                               lightProjY, lightProjNear, lightProjFar);

@@ -172,7 +172,7 @@ public:
         std::string  caption;
         
         Settings() :
-            width(800),
+            width(960),
             height(600),
             x(0),
             y(0),
