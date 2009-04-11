@@ -1606,47 +1606,16 @@ void RenderDevice::setDepthTest(DepthTest test) {
 }
 
 static GLenum toGLEnum(RenderDevice::StencilTest t) {
-
-    switch (t) {
-    case RenderDevice::STENCIL_CURRENT:
-        return 0;
-
-    case RenderDevice::STENCIL_ALWAYS_PASS:
-        return GL_ALWAYS;
-
-    case RenderDevice::STENCIL_LESS:
-        return GL_LESS;
-
-    case RenderDevice::STENCIL_LEQUAL:
-        return GL_LEQUAL;
-
-    case RenderDevice::STENCIL_GREATER:
-        return GL_GREATER;
-
-    case RenderDevice::STENCIL_GEQUAL:
-        return GL_GEQUAL;
-
-    case RenderDevice::STENCIL_EQUAL:
-        return GL_EQUAL;
-
-    case RenderDevice::STENCIL_NOTEQUAL:
-        return GL_NOTEQUAL;
-
-    case RenderDevice::STENCIL_NEVER_PASS:
-        return GL_NEVER;
-
-    default:
-        debugAssertM(false, "Fell through switch");
-        return GL_NONE;
-    }
+    debugAssert(t != RenderDevice::STENCIL_CURRENT);
+    return GLenum(t);
 }
 
 
 void RenderDevice::_setStencilTest(RenderDevice::StencilTest test, int reference) {
 
-	if (test == RenderDevice::STENCIL_CURRENT) {
-		return;
-	}
+    if (test == RenderDevice::STENCIL_CURRENT) {
+        return;
+    }
 
     const GLenum t = toGLEnum(test);
 
@@ -1789,45 +1758,24 @@ void RenderDevice::setAlphaTest(AlphaTest test, double reference) {
 }
 
 
-
-
 GLint RenderDevice::toGLStencilOp(RenderDevice::StencilOp op) const {
-
+    debugAssert(op != STENCILOP_CURRENT);
     switch (op) {
-    case RenderDevice::STENCIL_KEEP:
-        return GL_KEEP;
-
-    case RenderDevice::STENCIL_ZERO:
-        return GL_ZERO;
-
-    case RenderDevice::STENCIL_REPLACE:
-        return GL_REPLACE;
-
-    case RenderDevice::STENCIL_INVERT:
-        return GL_INVERT;
-
     case RenderDevice::STENCIL_INCR_WRAP:
         if (GLCaps::supports_GL_EXT_stencil_wrap()) {
             return GL_INCR_WRAP_EXT;
+        } else {
+            return GL_INCR;
         }
-        // Intentionally fall through
-
-    case RenderDevice::STENCIL_INCR:
-        return GL_INCR;
-
 
     case RenderDevice::STENCIL_DECR_WRAP:
         if (GLCaps::supports_GL_EXT_stencil_wrap()) {
             return GL_DECR_WRAP_EXT;
+        } else {
+            return GL_DECR;
         }
-        // Intentionally fall through
-
-    case RenderDevice::STENCIL_DECR:
-        return GL_DECR;
-
     default:
-        debugAssertM(false, "Fell through switch");
-        return GL_KEEP;
+        return GLenum(op);
     }
 }
 

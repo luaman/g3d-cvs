@@ -8,7 +8,7 @@
 
   @maintainer Morgan McGuire, morgan@graphics3d.com
   @created 2001-05-29
-  @edited  2009-03-26
+  @edited  2009-04-10
 
   Copyright 2001-2009, Morgan McGuire
 */
@@ -40,6 +40,14 @@ class VAR;
 
 
 /**
+ Abstraction of a graphics rendering context.  Implemented with an
+ OpenGL context, but designed so that it can support other APIs
+ (e.g., OpenGL ES, DirectX) as back ends.
+
+ In future releases, fixed function state will either be removed
+ or isolated in RenderDevice.  Wherever possible, structure your
+ code to use Framebuffer, VAR, and Shader instead of fixed-function.
+
  You must call RenderDevice::init() before using the RenderDevice.
   
  Rendering interface that abstracts OpenGL.  OpenGL is a basically
@@ -217,24 +225,23 @@ private:
     /** Number of vertices since last beginPrimitive() */
     int                         currentPrimitiveVertexCount;
    
+    /** The area used inside of an indexedPrimitives call. */
+    VARArea::Ref                currentVARArea;
+    
+    std::string                 cardDescription;
+
     /** Helper for setXXXArray.  Sets the currentVARArea and
         makes some consistency checks.*/
     void setVARAreaFromVAR(const class VAR& v);
-
-    /** The area used inside of an indexedPrimitives call. */
-    VARArea::Ref                currentVARArea;
 
     /** Updates the triangle count based on the primitive.
         
         LINE and POINT primitives are given one triangle count each. */
     void countTriangles(RenderDevice::Primitive primitive, int numVertices);
-    
-    std::string                 cardDescription;
 
     /**
      Sets the milestones on the currentVARArea.
      */
-
     void setVARAreaMilestone();
 
     /** Called by sendIndices. */
@@ -437,35 +444,117 @@ public:
         clear(true, true, true);
     }
 
-    enum DepthTest   {DEPTH_GREATER,     DEPTH_LESS,       DEPTH_GEQUAL,  
-                      DEPTH_LEQUAL,      DEPTH_NOTEQUAL,   DEPTH_EQUAL,   
-                      DEPTH_ALWAYS_PASS, DEPTH_NEVER_PASS, DEPTH_CURRENT};
+    /** \sa drawBuffer() */
+    enum DrawBuffer {
+        DRAW_NONE = GL_NONE, 
+        DRAW_FRONT_LEFT = GL_FRONT_LEFT, 
+        DRAW_FRONT_RIGHT = GL_FRONT_RIGHT, 
+        DRAW_BACK_LEFT = GL_BACK_LEFT, 
+        DRAW_BACK_RIGHT = GL_BACK_RIGHT, 
+        DRAW_FRONT = GL_FRONT, 
+        DRAW_BACK = GL_BACK, 
+        DRAW_LEFT = GL_LEFT, 
+        DRAW_RIGHT = GL_RIGHT, 
+        DRAW_FRONT_AND_BACK = GL_FRONT_AND_BACK, 
+        DRAW_AUX0 = GL_AUX0, 
+        DRAW_AUX1 = GL_AUX1, 
+        DRAW_AUX2 = GL_AUX2, 
+        DRAW_AUX3 = GL_AUX3};
 
-    enum AlphaTest   {ALPHA_GREATER,     ALPHA_LESS,       ALPHA_GEQUAL,  
-                      ALPHA_LEQUAL,      ALPHA_NOTEQUAL,   ALPHA_EQUAL,  
-                      ALPHA_ALWAYS_PASS, ALPHA_NEVER_PASS, ALPHA_CURRENT};
+    /** The constants that correspond to DrawBuffer have the same
+        value, so that you can safely cast between them. All have
+        the corresponding OpenGL constant.
+      
+        \sa readBuffer()
+    */
+    enum ReadBuffer {
+        READ_FRONT_LEFT = GL_FRONT_LEFT, 
+        READ_FRONT_RIGHT = GL_FRONT_RIGHT, 
+        READ_BACK_LEFT = GL_BACK_LEFT,
+        READ_BACK_RIGHT = GL_BACK_RIGHT,
+        READ_FRONT = GL_FRONT, 
+        READ_BACK = GL_BACK, 
+        READ_LEFT = GL_LEFT,
+        READ_RIGHT = GL_RIGHT, 
+        READ_AUX0 = GL_AUX0, 
+        READ_AUX1 = GL_AUX1, 
+        READ_AUX2 = GL_AUX2, 
+        READ_AUX3 = GL_AUX3};
+    
+    enum DepthTest {
+        DEPTH_GREATER = GL_GREATER,
+        DEPTH_LESS = GL_LESS,
+        DEPTH_GEQUAL = GL_GEQUAL,  
+        DEPTH_LEQUAL = GL_LEQUAL, 
+        DEPTH_NOTEQUAL = GL_NOTEQUAL, 
+        DEPTH_EQUAL = GL_EQUAL,   
+        DEPTH_ALWAYS_PASS = GL_ALWAYS,
+        DEPTH_NEVER_PASS = GL_NEVER, 
+        DEPTH_CURRENT};
 
-    enum StencilTest {STENCIL_GREATER,   STENCIL_LESS,     STENCIL_GEQUAL,
-                      STENCIL_LEQUAL,    STENCIL_NOTEQUAL, STENCIL_EQUAL, 
-                      STENCIL_ALWAYS_PASS, STENCIL_NEVER_PASS, STENCIL_CURRENT};
+    enum AlphaTest {
+        ALPHA_GREATER = GL_GREATER,
+        ALPHA_LESS = GL_LESS,
+        ALPHA_GEQUAL = GL_GEQUAL,  
+        ALPHA_LEQUAL = GL_LEQUAL,
+        ALPHA_NOTEQUAL = GL_NOTEQUAL,
+        ALPHA_EQUAL = GL_EQUAL,  
+        ALPHA_ALWAYS_PASS = GL_ALWAYS, 
+        ALPHA_NEVER_PASS = GL_NEVER,
+        ALPHA_CURRENT};
 
-    enum BlendFunc   {BLEND_SRC_ALPHA,   BLEND_ONE_MINUS_SRC_ALPHA, BLEND_ONE,
-                      BLEND_ZERO, BLEND_SRC_COLOR,  BLEND_DST_COLOR,  
-                      BLEND_ONE_MINUS_SRC_COLOR, BLEND_ONE_MINUS_DST_COLOR, BLEND_CURRENT};
+    enum StencilTest 
+        {STENCIL_GREATER = GL_GREATER,  
+         STENCIL_LESS = GL_LESS, 
+         STENCIL_GEQUAL = GL_GEQUAL,
+         STENCIL_LEQUAL = GL_LEQUAL, 
+         STENCIL_NOTEQUAL = GL_NOTEQUAL,
+         STENCIL_EQUAL = GL_EQUAL, 
+         STENCIL_ALWAYS_PASS = GL_ALWAYS, 
+         STENCIL_NEVER_PASS = GL_NEVER,
+         STENCIL_CURRENT};
 
-    enum BlendEq     {BLENDEQ_MIN,       BLENDEQ_MAX,      BLENDEQ_ADD,
-                      BLENDEQ_SUBTRACT,  BLENDEQ_REVERSE_SUBTRACT,
-                      BLENDEQ_CURRENT};
+    enum BlendFunc 
+        {BLEND_SRC_ALPHA = GL_SRC_ALPHA,
+         BLEND_ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA, 
+         BLEND_ONE = GL_ONE,
+         BLEND_ZERO = GL_ZERO,
+         BLEND_SRC_COLOR = GL_SRC_COLOR, 
+         BLEND_DST_COLOR = GL_DST_COLOR,  
+         BLEND_ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR, 
+         BLEND_ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR, 
+         BLEND_CURRENT};
 
-    enum StencilOp   {STENCIL_INCR_WRAP, STENCIL_DECR_WRAP,
-                      STENCIL_KEEP,      STENCIL_INCR,     STENCIL_DECR,
-                      STENCIL_REPLACE,   STENCIL_ZERO,     STENCIL_INVERT, 
-                      STENCILOP_CURRENT};
+    enum BlendEq     
+        {BLENDEQ_MIN = GL_MIN, 
+         BLENDEQ_MAX = GL_MAX,
+         BLENDEQ_ADD = GL_FUNC_ADD,
+         BLENDEQ_SUBTRACT = GL_FUNC_SUBTRACT,
+         BLENDEQ_REVERSE_SUBTRACT = GL_FUNC_REVERSE_SUBTRACT,
+         BLENDEQ_CURRENT};
 
-    enum CullFace    {CULL_FRONT,        CULL_BACK,        CULL_NONE,
-                      CULL_CURRENT};
+    enum StencilOp   
+        {STENCIL_INCR_WRAP = GL_INCR_WRAP, 
+         STENCIL_DECR_WRAP = GL_DECR_WRAP,
+         STENCIL_KEEP = GL_KEEP, 
+         STENCIL_INCR = GL_INCR,
+         STENCIL_DECR = GL_DECR,
+         STENCIL_REPLACE = GL_REPLACE,
+         STENCIL_ZERO = GL_ZERO,  
+         STENCIL_INVERT = GL_INVERT, 
+         STENCILOP_CURRENT};
 
-    enum ShadeMode   {SHADE_FLAT,        SHADE_SMOOTH,     SHADE_CURRENT};
+    enum CullFace {
+        CULL_FRONT = GL_FRONT,
+        CULL_BACK = GL_BACK,
+        CULL_NONE = GL_NONE,
+        CULL_FRONT_AND_BACK = GL_FRONT_AND_BACK,
+        CULL_CURRENT};
+
+    enum ShadeMode {
+        SHADE_FLAT = GL_FLAT,  
+        SHADE_SMOOTH = GL_SMOOTH,
+        SHADE_CURRENT};
 
     /**
       Arguments to setTextureCombineMode
@@ -495,12 +584,28 @@ public:
     /** 
         Draw buffer constants.
      */
-    enum Buffer      {BUFFER_NONE, BUFFER_FRONT_LEFT, BUFFER_FRONT_RIGHT, BUFFER_BACK_LEFT,
-                      BUFFER_BACK_RIGHT, BUFFER_FRONT, BUFFER_BACK, BUFFER_LEFT, BUFFER_RIGHT, 
-                      BUFFER_FRONT_AND_BACK, BUFFER_CURRENT,
-                      BUFFER_COLOR0, BUFFER_COLOR1, BUFFER_COLOR2, BUFFER_COLOR3,
-                      BUFFER_COLOR4, BUFFER_COLOR5, BUFFER_COLOR6, BUFFER_COLOR7,
-                      BUFFER_COLOR8, BUFFER_COLOR9, BUFFER_COLOR10, BUFFER_COLOR11,
+    enum Buffer {
+        BUFFER_NONE, 
+        BUFFER_FRONT_LEFT, 
+        BUFFER_FRONT_RIGHT, 
+        BUFFER_BACK_LEFT,
+        BUFFER_BACK_RIGHT,
+        BUFFER_FRONT,
+        BUFFER_BACK, 
+        BUFFER_LEFT, 
+        BUFFER_RIGHT, 
+        BUFFER_FRONT_AND_BACK, 
+        BUFFER_CURRENT,
+        BUFFER_COLOR0, 
+        BUFFER_COLOR1, 
+        BUFFER_COLOR2, 
+        BUFFER_COLOR3,
+        BUFFER_COLOR4, 
+        BUFFER_COLOR5,
+        BUFFER_COLOR6, 
+        BUFFER_COLOR7,
+        BUFFER_COLOR8,
+        BUFFER_COLOR9, BUFFER_COLOR10, BUFFER_COLOR11,
                       BUFFER_COLOR12, BUFFER_COLOR13, BUFFER_COLOR14, BUFFER_COLOR15};
 
     static GLenum BufferToGL[MAX_BUFFER_SIZE];
