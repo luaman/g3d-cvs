@@ -60,36 +60,9 @@ GLenum RenderDevice::BufferToGL[MAX_BUFFER_SIZE] =
                                       GL_COLOR_ATTACHMENT14_EXT,
                                       GL_COLOR_ATTACHMENT15_EXT};
 
-static GLint toGLBlendFunc(RenderDevice::BlendFunc b) {
-    switch (b) {
-    case RenderDevice::BLEND_SRC_ALPHA:
-        return GL_SRC_ALPHA;
-        
-    case RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA:
-        return GL_ONE_MINUS_SRC_ALPHA;
-
-    case RenderDevice::BLEND_ONE:
-        return GL_ONE;
-        
-    case RenderDevice::BLEND_ZERO:
-        return GL_ZERO;
-
-    case RenderDevice::BLEND_SRC_COLOR:
-        return GL_SRC_COLOR;
-
-    case RenderDevice::BLEND_DST_COLOR:
-        return GL_DST_COLOR;
-
-    case RenderDevice::BLEND_ONE_MINUS_SRC_COLOR:
-        return GL_ONE_MINUS_SRC_COLOR;
-
-    case RenderDevice::BLEND_ONE_MINUS_DST_COLOR:
-        return GL_ONE_MINUS_DST_COLOR;
-
-    default:
-        debugAssertM(false, "Fell through switch");
-        return GL_ZERO;
-    }
+static GLenum toGLBlendFunc(RenderDevice::BlendFunc b) {
+    debugAssert(b != RenderDevice::BLEND_CURRENT);
+    return GLenum(b);
 }
 
 static void _glViewport(double a, double b, double c, double d) {
@@ -98,28 +71,28 @@ static void _glViewport(double a, double b, double c, double d) {
 }
 
 static GLenum primitiveToGLenum(RenderDevice::Primitive primitive) {
-	switch (primitive) {
+    switch (primitive) {
     case RenderDevice::LINES:
-		return GL_LINES;
+        return GL_LINES;
 
     case RenderDevice::LINE_STRIP:
-		return GL_LINE_STRIP;
-
+        return GL_LINE_STRIP;
+        
     case RenderDevice::TRIANGLES:
-		return GL_TRIANGLES;
-
+        return GL_TRIANGLES;
+        
     case RenderDevice::TRIANGLE_STRIP:
-		return GL_TRIANGLE_STRIP;
-
+        return GL_TRIANGLE_STRIP;
+        
     case RenderDevice::TRIANGLE_FAN:
-		return GL_TRIANGLE_FAN;
-
+        return GL_TRIANGLE_FAN;
+        
     case RenderDevice::QUADS:
-		return GL_QUADS;
-
+        return GL_QUADS;
+        
     case RenderDevice::QUAD_STRIP:
-		return GL_QUAD_STRIP;
-
+        return GL_QUAD_STRIP;
+                
     case RenderDevice::POINTS:
         return GL_POINTS;
 

@@ -28,12 +28,24 @@ namespace G3D {
   cannot precompute information, etc.  Instead of compromising, this
   class implements the hard parts of mesh computation and you can write
   your own ideal mesh class on top of it.
+
+  \sa G3D::ArticulatedModel, G3D::IFSModel
   */ 
 class MeshAlg {
 public:
 
-    enum Primitive {LINES, LINE_STRIP, TRIANGLES, TRIANGLE_STRIP,
-                    TRIANGLE_FAN, QUADS, QUAD_STRIP, POINTS};
+    /** These are defined to have the same value as the equivalent OpenGL
+        constant.
+     */
+    enum Primitive {
+        POINTS         = 0x0000,
+        LINES          = 0x0001,
+        LINE_STRIP     = 0x0003, 
+        TRIANGLES      = 0x0004, 
+        TRIANGLE_STRIP = 0x0005,
+        TRIANGLE_FAN   = 0x0006,
+        QUADS          = 0x0007, 
+        QUAD_STRIP     = 0x0008};
 
 
     /** Adjacency information for a vertex.
