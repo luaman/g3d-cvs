@@ -1130,52 +1130,10 @@ unsigned int Texture::newGLTextureID() {
     return id;
 }
 
-/** Returns the buffer constant that matches the current draw buffer (left vs. right) */
-static GLenum getCurrentBuffer(bool useBack) {
-    GLenum draw = glGetInteger(GL_DRAW_BUFFER);  // TODO: This causes a pipeline stall (do we care, if we're in fixed function)
 
-    if (useBack) {
-        switch (draw) {
-        case GL_FRONT_LEFT:
-        case GL_BACK_LEFT:
-            return GL_BACK_LEFT;
-
-        case GL_FRONT_RIGHT:
-        case GL_BACK_RIGHT:
-            return GL_BACK_RIGHT;
-
-        default:
-			// FBO goes here
-            return draw;
-        }
-    } else {
-        switch (draw) {
-        case GL_FRONT_LEFT:
-        case GL_BACK_LEFT:
-            return GL_FRONT_LEFT;
-
-        case GL_FRONT_RIGHT:
-        case GL_BACK_RIGHT:
-            return GL_FRONT_RIGHT;
-
-        default:
-			// FBO goes here
-            return draw;
-        }
-    }
-}
-
-
-void Texture::copyFromScreen(
-    const Rect2D& rect,
-    bool useBackBuffer) {
-
+void Texture::copyFromScreen(const Rect2D& rect) {
     glStatePush();
-   debugAssertGLOk();
  
-    glReadBuffer(getCurrentBuffer(useBackBuffer));
-   debugAssertGLOk();
-
     m_sizeOfAllTexturesInMemory -= sizeInMemory();
 
     // Set up new state
@@ -1230,12 +1188,9 @@ void Texture::copyFromScreen(
 
 void Texture::copyFromScreen(
     const Rect2D&       rect,
-    CubeFace            face,
-    bool                useBackBuffer) {
+    CubeFace            face) {
 
     glStatePush();
-
-    glReadBuffer(getCurrentBuffer(useBackBuffer));
 
     // Set up new state
     debugAssertM(m_width == rect.width(), "Cube maps require all six faces to have the same dimensions");

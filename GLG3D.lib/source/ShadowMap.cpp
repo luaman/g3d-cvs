@@ -163,10 +163,12 @@ void ShadowMap::updateDepth(
     Rect2D rect = m_depthTexture->rect2DBounds();
 
     renderDevice->pushState(m_framebuffer);
-        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_PIXEL_MODE_BIT); // Push read and draw buffers
+    //        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_PIXEL_MODE_BIT); // Push read and draw buffers
         if (m_framebuffer.notNull()) {
-            glReadBuffer(GL_NONE);
-            glDrawBuffer(GL_NONE);
+            renderDevice->setDrawBuffer(RenderDevice::DRAW_NONE);
+            renderDevice->setReadBuffer(RenderDevice::READ_NONE);
+            //glReadBuffer(GL_NONE);
+            //glDrawBuffer(GL_NONE);
         } else {
             debugAssert(rect.height() <= renderDevice->height());
             debugAssert(rect.width() <= renderDevice->width());
@@ -201,12 +203,15 @@ void ShadowMap::updateDepth(
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         PosedModel::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
-        glPopAttrib();
+        //glPopAttrib();
     renderDevice->popState();
 
     if (m_framebuffer.isNull()) {
         debugAssert(m_depthTexture.notNull());
+        RenderDevice::ReadBuffer old = renderDevice->readBuffer();
+        renderDevice->setReadBuffer(RenderDevice::READ_BACK);
         m_depthTexture->copyFromScreen(rect);
+        renderDevice->setReadBuffer(old);
     }
 
     m_colorTextureIsDirty = true;

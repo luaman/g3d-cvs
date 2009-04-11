@@ -495,6 +495,7 @@ public:
         \sa readBuffer()
     */
     enum ReadBuffer {
+        READ_NONE = GL_NONE,
         READ_FRONT_LEFT = GL_FRONT_LEFT, 
         READ_FRONT_RIGHT = GL_FRONT_RIGHT, 
         READ_BACK_LEFT = GL_BACK_LEFT,

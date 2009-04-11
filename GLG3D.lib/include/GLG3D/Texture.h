@@ -481,6 +481,10 @@ public:
      previously there).  The dimensions must be powers of two or a texture 
      rectangle will be created (not supported on some cards).
 
+     <i>This call is substantially slower than simply rendering to a
+     G3D::Texture using a G3D::Framebuffer, and is only provided for
+     compatibility with very old OpenGL 1.3 graphics cards.</>
+
      The (x, y) coordinates are in real screen pixels.  (0, 0) is the top left
      of the screen.
 
@@ -502,7 +506,7 @@ public:
      @param rect The rectangle to copy (relative to the viewport)
      See also RenderDevice::screenShotPic
      */
-    void copyFromScreen(const Rect2D& rect, bool useBackBuffer = true);
+    void copyFromScreen(const Rect2D& rect);
 
     /**
      Argument for copyFromScreen
@@ -524,7 +528,7 @@ public:
      Use G3D::Texture::getCameraRotation to generate the (upside-down) camera
      orientations.
      */
-    void copyFromScreen(const Rect2D& rect, CubeFace face, bool useBackBuffer = true);
+    void copyFromScreen(const Rect2D& rect, CubeFace face);
 
     /**
      Returns the rotation matrix that should be used for rendering the

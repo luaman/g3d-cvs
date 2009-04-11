@@ -94,7 +94,7 @@
 
    <ul>
      <li> RenderDevice::Buffer -> RenderDevice::DrawBuffer
-     <li> RenderDevice::screenShotPic now always reads from the current RenderDevice::readBuffer
+     <li> RenderDevice::screenShotPic and Texture::copyFromScreen now always read from the current RenderDevice::readBuffer
      <li> OSWindow::Settings::sharedContext must now be set to true in order to support sharing of data between multiple OpenGL contexts.  Since sharing can 
           seriously degrade performance on multi-GPU machines and few developers need this feature, it defaults to false.
      <li> Complete rewrite of SuperShader, ArticulatedModel, and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 

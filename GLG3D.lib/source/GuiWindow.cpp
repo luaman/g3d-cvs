@@ -415,7 +415,10 @@ GuiWindow::Modal::Modal(OSWindow* osWindow) : osWindow(osWindow) {
                                      ImageFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
     }
 
-    image->copyFromScreen(viewport, false);
+    RenderDevice::ReadBuffer old = renderDevice->readBuffer();
+    renderDevice->setReadBuffer(RenderDevice::READ_FRONT);
+    image->copyFromScreen(viewport);
+    renderDevice->setReadBuffer(old);
 }
 
 
