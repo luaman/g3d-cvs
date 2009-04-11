@@ -974,24 +974,33 @@ void RenderDevice::disableTwoSidedLighting() {
 
 
 void RenderDevice::syncDrawBuffer() {
-    if (state.framebuffer.notNull()) {
-        // Apply the bindings from this framebuffer
-        const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
-        if (array.size() > 0) {
-            debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) >= array.size(),
-                format("This graphics card only supports %d draw buffers.",
-                glGetInteger(GL_MAX_DRAW_BUFFERS)));
+    if (state.framebuffer.isNull()) {
+        return;
+    }
 
-            glDrawBuffersARB(array.size(), array.getCArray());
-        } else {
-            // May be only depth or stencil; don't need a draw buffer.
+    state.framebuffer->bind(false);
+    debugAssertGLOk();
 
-            debugAssertGLOk();
-            // Some drivers crash when providing NULL or an actual zero-element array for a zero-element array,
-            // so make a fake array.
-            const GLenum noColorBuffers[] = { GL_NONE };
-            glDrawBuffersARB(1, noColorBuffers);
-        }
+    // TODO: Only apply the draw bindings if they have changed
+
+    // Apply the bindings from this framebuffer
+    const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
+    if (array.size() > 0) {
+        debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) >= array.size(),
+                     format("This graphics card only supports %d draw buffers.",
+                            glGetInteger(GL_MAX_DRAW_BUFFERS)));
+        
+        glDrawBuffersARB(array.size(), array.getCArray());
+        debugAssertGLOk();
+    } else {
+        // May be only depth or stencil; don't need a draw buffer.
+        
+        debugAssertGLOk();
+        // Some drivers crash when providing NULL or an actual
+        // zero-element array for a zero-element array, so make a fake
+        // array.
+        const GLenum noColorBuffers[] = { GL_NONE };
+        glDrawBuffersARB(1, noColorBuffers);
         debugAssertGLOk();
     }
 }
@@ -1461,18 +1470,16 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
 
         // Set Framebuffer
         if (fbo.isNull()) {
-            debugAssertGLOk();
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            Framebuffer::bindWindowBuffer();
             debugAssertGLOk();
 
             // Restore the buffer that was in use before the framebuffer was attached
-            GLenum b = GLenum(state.drawBuffer);
-            glDrawBuffer(b);
+            glDrawBuffer(GLenum(state.drawBuffer));
             debugAssertGLOk();
         } else {
             debugAssertM(GLCaps::supports_GL_EXT_framebuffer_object(), 
                 "Framebuffer Object not supported!");
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->openGLID());
+            fbo->bind(false);
             // The enables for this framebuffer will be set during beforePrimitive()            
         }
         state.framebuffer = fbo;
@@ -1485,10 +1492,10 @@ void RenderDevice::setDepthTest(DepthTest test) {
 
     minStateChange();
 
-	if (test == DEPTH_CURRENT) {
-		return;
-	}
-
+    if (test == DEPTH_CURRENT) {
+        return;
+    }
+    
     if (state.depthTest != test) {
         minGLStateChange();
         if (test == DEPTH_ALWAYS_PASS) {
@@ -1497,42 +1504,10 @@ void RenderDevice::setDepthTest(DepthTest test) {
             minStateChange();
             minGLStateChange();
             glEnable(GL_DEPTH_TEST);
-            switch (test) {
-            case DEPTH_LESS:
-                glDepthFunc(GL_LESS);
-                break;
-
-            case DEPTH_LEQUAL:
-                glDepthFunc(GL_LEQUAL);
-                break;
-
-            case DEPTH_GREATER:
-                glDepthFunc(GL_GREATER);
-                break;
-
-            case DEPTH_GEQUAL:
-                glDepthFunc(GL_GEQUAL);
-                break;
-
-            case DEPTH_EQUAL:
-                glDepthFunc(GL_EQUAL);
-                break;
-
-            case DEPTH_NOTEQUAL:
-                glDepthFunc(GL_NOTEQUAL);
-                break;
-
-            case DEPTH_NEVER_PASS:
-                glDepthFunc(GL_NEVER);
-                break;
-
-            default:
-                debugAssertM(false, "Fell through switch");
-            }
+            glDepthFunc(GLenum(test));
         }
 
         state.depthTest = test;
-
     }
 }
 

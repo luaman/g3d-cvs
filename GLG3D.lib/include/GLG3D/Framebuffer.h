@@ -10,11 +10,11 @@
  </UL>
 
  @created 2006-01-07
- @edited  2008-08-09
+ @edited  2009-04-11
 */
 
-#ifndef GLG3D_FRAMEBUFFER_H
-#define GLG3D_FRAMEBUFFER_H
+#ifndef GLG3D_Framebuffer_h
+#define GLG3D_Framebuffer_h
 
 #include "G3D/Array.h"
 #include "G3D/Table.h"
@@ -25,19 +25,19 @@
 
 namespace G3D {
 
-class Framebuffer;
-typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
+/** \deprecated */
+typedef ReferenceCountedPointer<class Framebuffer> FramebufferRef;
 
 /**
- Abstraction of OpenGL's Framebuffer Object extension.  This is a fast and 
- efficient way of rendering to textures.  This class can be used with raw OpenGL, 
- without RenderDevice or SDL.
+ Abstraction of OpenGL's Framebuffer Object.  This is an efficient way
+ of rendering to Textures. 
 
  RenderDevice::setFramebuffer automatically configures the appropriate
- OpenGL draw buffers.  These are maintained even if the frame buffer is changed
- while set on the RenderDevice.  Inside a pixel shader gl_FragData[i] is the ith
- attached buffer, in number order.  For example, if there are attachments to buffer0
- and buffer2, then gl_FragData[0] maps to buffer0 and gl_FragData[1] maps to buffer2.
+ OpenGL draw buffers.  These are maintained even if the frame buffer
+ is changed while set on the RenderDevice.  Inside a pixel shader
+ gl_FragData[i] is the ith attached buffer, in number order.  For
+ example, if there are attachments to buffer0 and buffer2, then
+ gl_FragData[0] maps to buffer0 and gl_FragData[1] maps to buffer2.
 
 
  Basic Framebuffer Theory:
@@ -52,12 +52,7 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
  action.  If a NULL argument is passed to setFramebuffer, the render target
  defaults to the window display framebuffer.
 
-    Framebuffer works in conjunction with the push/pop RenderDevice state, but
- in a limited form.   The state will save the current Framebuffer, but will not
- save the state of the Framebuffer itself.  If the attachment points are changed
- in the push/pop block, these will not be restored by a pop.
-
-    The following example shows how to create a texture and bind it to Framebuffer
+ The following example shows how to create a texture and bind it to Framebuffer
  for rendering.
 
  Framebuffer Example:
@@ -108,35 +103,39 @@ typedef ReferenceCountedPointer<Framebuffer> FramebufferRef;
   </PRE>
 
  In addition to Textures, Renderbuffers may also be bound to the
- Framebuffer.   This is done in a very similar manner to the Texture
- object in the example.  Renderbuffer class contains an example of this
- operation.
+ Framebuffer.  This is done in a very similar manner to the Texture
+ object in the example.  Renderbuffer class contains an example of
+ this operation.
 
- Note:  Not any combination of images may be attached to a Framebuffer.
+ Note: Not any combination of images may be attached to a Framebuffer.
  OpenGL lays out some restrictions that must be considered:
 
  <ol>
-	<li> In order to render to a Framebuffer, there must be at least
-	one image (Renderbuffer or Texture) attached to an attachment point.
-	<li> All images must have the same height and width.
-	<li> All images attached to a COLOR_ATTACHMENT[n] point must have
-	the same internal format (RGBA8, RGBA16...etc)
-	<li> If RenderDevice->setDrawBuffer is used then the specified 
-	attachment point must have a bound image.
-	<li> The combination of internal formats of attached images does not
-	violate some implementation-dependent set of restrictions (i.e., Your
-	graphics card must completely implement all combinations that you
-	plan to use!)
+   <li> In order to render to a Framebuffer, there must be at least
+   one image (Renderbuffer or Texture) attached to an attachment point.
+	
+   <li> All images must have the same height and width.
+   
+   <li> All images attached to a COLOR_ATTACHMENT[n] point must have
+   the same internal format (RGBA8, RGBA16...etc)
+   
+   <li> If RenderDevice->setDrawBuffer is used then the specified 
+   attachment point must have a bound image.
+	
+   <li> The combination of internal formats of attached images does not
+   violate some implementation-dependent set of restrictions (i.e., Your
+   graphics card must completely implement all combinations that you
+   plan to use!)
  </ol>
 
- If you create a Framebuffer with a single, depth Renderbuffer attached
- (e.g., for shadow map rendering)
- it is complete in the OpenGL sense, however you will receive a completeness
- error because the glDrawBuffer and glReadBuffer attached to that 
- Framebuffer have incorrect defaults.  To fix this, call <code>glDrawBuffer(GL_NONE);glReadBuffer(GL_NONE);</code>
- <b>after</b> binding the Framebuffer to the RenderDevice but before rendering.
-
- <B>BETA API</B> -- Subject to change
+ If you create a Framebuffer with a single, depth Renderbuffer
+ attached (e.g., for shadow map rendering) it is complete in the
+ OpenGL sense, however you will receive a completeness error because
+ the glDrawBuffer and glReadBuffer attached to that Framebuffer have
+ incorrect defaults.  To fix this, call
+ <code>glDrawBuffer(GL_NONE);glReadBuffer(GL_NONE);</code>
+ <b>after</b> binding the Framebuffer to the RenderDevice but before
+ rendering.
 */
 class Framebuffer : public ReferenceCountedObject {
 public:
@@ -151,143 +150,294 @@ public:
        understand the format and use the appropriate channels.
     */
     enum AttachmentPoint {
+        COLOR0 = GL_COLOR_ATTACHMENT0_EXT,  // = 0x8CE0, so all color attachments have lower value than depth
+        /** @deprecated Use COLOR0 */
         COLOR_ATTACHMENT0   = GL_COLOR_ATTACHMENT0_EXT,
+
+        COLOR1 = GL_COLOR_ATTACHMENT1_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT1   = GL_COLOR_ATTACHMENT1_EXT,
+
+        COLOR2 = GL_COLOR_ATTACHMENT2_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT2   = GL_COLOR_ATTACHMENT2_EXT,
+
+        COLOR3 = GL_COLOR_ATTACHMENT3_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT3   = GL_COLOR_ATTACHMENT3_EXT,
+
+        COLOR4 = GL_COLOR_ATTACHMENT4_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT4   = GL_COLOR_ATTACHMENT4_EXT,
+
+        COLOR5 = GL_COLOR_ATTACHMENT5_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT5   = GL_COLOR_ATTACHMENT5_EXT,
+
+        COLOR6 = GL_COLOR_ATTACHMENT6_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT6   = GL_COLOR_ATTACHMENT6_EXT,
+
+        COLOR7 = GL_COLOR_ATTACHMENT7_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT7   = GL_COLOR_ATTACHMENT7_EXT,
+
+        COLOR8 = GL_COLOR_ATTACHMENT8_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT8   = GL_COLOR_ATTACHMENT8_EXT,
+
+        COLOR9 = GL_COLOR_ATTACHMENT9_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT9   = GL_COLOR_ATTACHMENT9_EXT,
+
+        COLOR10 = GL_COLOR_ATTACHMENT10_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT10  = GL_COLOR_ATTACHMENT10_EXT,
+
+        COLOR11 = GL_COLOR_ATTACHMENT11_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT11  = GL_COLOR_ATTACHMENT11_EXT,
+
+        COLOR12 = GL_COLOR_ATTACHMENT12_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT12  = GL_COLOR_ATTACHMENT12_EXT,
+
+        COLOR13 = GL_COLOR_ATTACHMENT13_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT13  = GL_COLOR_ATTACHMENT13_EXT,
+
+        COLOR14 = GL_COLOR_ATTACHMENT14_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT14  = GL_COLOR_ATTACHMENT14_EXT,
+
+        COLOR15 = GL_COLOR_ATTACHMENT15_EXT,
+        /** @deprecated */
         COLOR_ATTACHMENT15  = GL_COLOR_ATTACHMENT15_EXT,
+
+        DEPTH = 0x8D00,
+        /** @deprecated */
         DEPTH_ATTACHMENT   = 0x8D00,
+
+        STENCIL = 0x8D20,
+        /** @deprecated */
         STENCIL_ATTACHMENT = 0x8D20,
     };
-    
-private:
 
-    class Attachment {
+    class Attachment : public ReferenceCountedObject {
     public:
+        friend class Framebuffer;
+
+        typedef ReferenceCountedPointer<Attachment> Ref;
+
         enum Type {TEXTURE, RENDERBUFFER};
-        Type                        type;
 
-        RenderbufferRef             renderbuffer;
-        Texture::Ref                texture;
+    private:
 
-        /** If texture is a cube map, this is the face that is bound */
-        Texture::CubeFace           cubeFace;
+        Type                        m_type;
 
-        /** True if the texture had autoMipMap on when it was set. */
-        bool                        hadAutoMipMap;
+        AttachmentPoint             m_point;
 
-        Attachment() {}
+        Renderbuffer::Ref           m_renderbuffer;
 
-        Attachment(const RenderbufferRef& r) : 
-            type(RENDERBUFFER), 
-            renderbuffer(r) {}
+        Texture::Ref                m_texture;
 
-        Attachment(const Texture::Ref& r, Texture::CubeFace c) : 
-            type(TEXTURE), 
-            texture(r),
-            cubeFace(c),
-            hadAutoMipMap(r->settings().autoMipMap) {
+        /** If texture is a Texture::CUBE_MAP, this is the face that
+            is attached. */
+        Texture::CubeFace           m_cubeFace;
 
-            if (hadAutoMipMap) {
-                texture->setAutoMipMap(false);
-            }
+        Attachment(AttachmentPoint ap, const Renderbuffer::Ref& r);
+
+        Attachment(AttachmentPoint ap, const Texture::Ref& r, Texture::CubeFace c);
+        
+        /** Assumes the point is correct */
+        bool equals(const Texture::Ref& t, Texture::CubeFace f) const;
+
+        /** Assumes the point is correct */
+        bool equals(const Renderbuffer::Ref& r) const;
+
+        bool equals(const Attachment::Ref& other) const;
+
+        /** Called from sync() to actually force this to be attached
+            at the OpenGL level.  Assumes the framebuffer is already
+            bound.*/
+        void attach() const;
+
+        /** Called from sync() to actually force this to be detached
+            at the OpenGL level.  Assumes the framebuffer is already
+            bound.*/
+        void detach() const;
+
+    public:
+       
+        inline Type type() const {
+            return m_type;
+        } 
+
+        inline AttachmentPoint point() const {
+            return m_point;
         }
+
+        inline const Renderbuffer::Ref& renderbuffer() const {
+            return m_renderbuffer;
+        }
+
+        inline const Texture::Ref& texture() const {
+            return m_texture;
+        }
+
+        inline Texture::CubeFace cubeFace() const {
+            return m_cubeFace;
+        }
+
+        Vector2 vector2Bounds() const;
+
+        int width() const;
+
+        int height() const;
     };
-
-    /**
-     Current attachments.
-     Slots are not specified if they correspond to NULL elements.
-     
-     Note: the uint32 key corresponds to an AttachmentPoint value
-     */
-    Table<uint32, Attachment>       attachmentTable;
-
-    /** The current attachments, in increasing number order.*/
-    Array<GLenum>                   colorDrawBufferArray;
-
-    /** OpenGL Object ID */
-    GLuint                          framebufferID;
     
+protected:
+
     /** Framebuffer name */
     std::string                     m_name;
-    
-    /**
-     Framebuffer Height
+
+    /** True when desiredAttachment != m_currentAttachment. 
+        Set to true by set().  Set to false by sync(), which is
+        called by RenderDevice::sync().
      */
-    GLuint                          m_height;
-    GLuint                          m_width;
+    bool                            m_currentOutOfSync;
+
+    /** What should be attached on this framebuffer, according to
+        set() calls that have been made. */
+    Array<Attachment::Ref>          m_desired;
+
+    /** What is actually attached on this framebuffer as far as OpenGL
+        is concerned. */
+    Array<Attachment::Ref>          m_current;
+
+    /** The GL buffer names of the m_currentAttachment, in increasing
+        number order (parallel array to m_currentAttachment). Needed by
+        RenderDevice for synchronizing the glDrawBuffers.*/
+    Array<GLenum>                   m_colorDrawBufferArray;
+
+    /** OpenGL Object ID */
+    GLuint                          m_framebufferID;
+    
+    /** Adds \a a to m_desired. */
+    void set(const Attachment::Ref& a);
+
+    Framebuffer(const std::string& name, GLuint framebufferID);
+    
+    /** Returns the index in m_desired where ap is, or
+        where it should be inserted if it is not present.*/
+    int find(AttachmentPoint ap, bool& found) const;
+
+    /** Executes the synchronization portion of bind() */
+    void sync();
+
+    /** Called from sync() to actually force \a a to be attached
+        at the OpenGL level.  Assumes the framebuffer is already
+        bound.
+
+        \param cIndex index in m_colorDrawBufferArray at which to
+        insert the appropriate enum value.
+    */
+    void attach(const Attachment::Ref& a, int cIndex);
+
+    /** Called from sync() to actually force \a a to be detached
+        at the OpenGL level.  Assumes the framebuffer is already
+        bound.
+        
+        \param dIndex index in m_colorDrawBufferArray from which to
+        remove the appropriate enum value.
+    */
+    void detach(const Attachment::Ref& a, int dIndex);
+
+public:
+    
+    /** Creates a Framebuffer object.
+       
+       \param name Name of framebuffer, for debugging purposes. */
+    static Ref create(const std::string& name);
+
+    /** Bind this framebuffer and force all of its attachments to
+        actually be attached at the OpenGL level.  The latter step is
+        needed because set() is lazy.
+
+        <b>Primarily used by RenderDevice.  Developers should not need
+        to explicitly call this method or glDrawBuffers.</b>
+
+        After binding, you also have to set the glDrawBuffers to match
+        the capabilities of the Framebuffer that is currently bound.
+
+        \param alreadyBound If true, do not bother binding the FBO
+        itself, just sync any out of date attachments.
+
+        \return True if openGLDrawArray() was changed by this call
+    */
+    bool bind(bool alreadyBound = false);
+
+    /** Bind the current context's default Framebuffer, instead of an
+        application-created one. 
+
+        <b>Primarily used by RenderDevice.  Developers should not need
+        to explicitly call this method or glDrawBuffers.</b>
+    */
+    static void bindWindowBuffer();
+
+    /** Returns the attachment currently at \ap, or NULL if there is
+     not one.  \sa has()*/
+    Attachment::Ref get(AttachmentPoint ap) const;
 
     /**
      Number of currently bound attachments.  When this hits zero we can
      add attachments with new sizes.
      */
     inline int numAttachments() const {
-        return static_cast<int>(attachmentTable.size());
+        return m_desired.size();
     }
 
-    /** Adds ap to colorDrawBufferArray. */
-    void attach(AttachmentPoint ap);
+    /** The draw array for use with glDrawBuffers. This is not up to
+        date until bind() is invoked.
 
-    /** Default Constructor. */
-    Framebuffer(const std::string& name, GLuint framebufferID);
-    
-public:
+        Note that DEPTH and STENCIL are never included in this list.
 
-    /** The draw array for use with glDrawBuffers. 
         RenderDevice automatically uses this.*/
-    const Array<GLenum>& openGLDrawArray() const {
-        return colorDrawBufferArray;
+    inline const Array<GLenum>& openGLDrawArray() const {
+        return m_colorDrawBufferArray;
     }
     
     /** Reclaims OpenGL ID.  All buffers/textures are automatically
         detatched on destruction. */
     ~Framebuffer();
     
-    /**
-       Creates a framebuffer object from an OpenGL context.
-       
-       @param name			Name of framebuffer
-       @param framebufferID	OpenGL id of ramebuffer
-    */
-    static FramebufferRef fromGLFramebuffer
-    (const std::string& name, GLuint framebufferID);
-    
-    /**
-       Creates a framebuffer object from scratch.
-       
-       @param name			Name of framebuffer
-    */
-    static FramebufferRef create(const std::string& name);
-    
+   
     /** Overload used when setting attachment points to NULL */
     void set(AttachmentPoint ap, const void* n);
     
     /**
-       Set one of the attachment points to reference a texture.  Set to
-       NULL to unset.  Auto-mipmap will automatically be disabled on
-       set.  It will be re-enabled when the texture is unbound.
+       Set one of the attachment points to reference a Texture.  Set
+       to NULL or call clear() to unset.  Auto-mipmap will
+       automatically be disabled on set.
        
-       Do not use a texture that is bound to the *current* framebuffer
-       for rendering, however, you can render using a texture that is
-       bound on a different frame buffer.
+       Do not use a texture that is bound to the *current* Framebuffer
+       as a source texture, however, you can render a surface using a
+       Texture that is bound on a different Framebuffer.  In general,
+       create one Framebuffer per set of textures you wish to render 
+       to and just leave them bound at all times.
+
+       All set() calls are lazy because OpenGL provides no mechanism
+       for efficiently pushing and popping the Framebuffer. Thus all
+       calls to actually set attachments must be delayed until the
+       bind() call, when this Framebuffer is guaranteed to be bound.
        
-       @param texture		Texture to bind to the framebuffer.
-       @param ap	Attachment point to bind texture to.
+       @param texture	 Texture to bind to the Framebuffer.
+       @param ap	 Attachment point to bind texture to.
     */
     void set(AttachmentPoint ap, const Texture::Ref& texture);
     
-    void set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face);
+    void set(AttachmentPoint ap, const Texture::Ref& texture, 
+             Texture::CubeFace face);
     
     /**
        Set one of the attachment points to reference a renderbuffer.
@@ -296,44 +446,37 @@ public:
        @param renderbuffer	Renderbuffer to bind to the framebuffer
        @param slot		Attachment point to bind renderbuffer to.
     */
-    void set(AttachmentPoint ap, const RenderbufferRef& renderbuffer);
+    void set(AttachmentPoint ap, const Renderbuffer::Ref& renderbuffer);
     
-    /** Returns true if this attachment is currently non-null.*/
+    /** Returns true if this attachment is currently non-NULL.*/
     bool has(AttachmentPoint ap) const;
     
     /**
-       Gets the OpenGL ID of the framebuffer object.
+       The OpenGL ID of the underlying framebuffer object.
     */
     inline unsigned int openGLID() const {
-        return framebufferID;
+        return m_framebufferID;
     }
     
-    inline int width() const {
-        return m_width;
-    }
+    int width() const;
     
-    inline int height() const {
-        return m_height;
-    }
+    int height() const;
     
-    inline Rect2D rect2DBounds() const {
-        return Rect2D::xywh(0.0f, 0.0f, (float)m_width, (float)m_height);
-    }
+    Rect2D rect2DBounds() const;
     
-    inline Vector2 vector2Bounds() const {
-        return Vector2((float)m_width, (float)m_height);
-    }
+    Vector2 vector2Bounds() const;
 
     inline const std::string& name() const {
         return m_name;
     }
 
-    /** Detach all */
+    /** Detach all attachments.  This is lazy; see set() for discussion.*/
     void clear();
 
 }; // class Framebuffer 
 
 typedef Framebuffer FrameBuffer;
+/** @deprecated */
 typedef FramebufferRef FrameBufferRef;
 
 } //  G3D

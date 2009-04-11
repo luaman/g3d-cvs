@@ -10,7 +10,7 @@
    </UL>
    
    @created 2006-01-07
-   @edited  2008-08-10
+   @edited  2009-04-11
 */
 
 #include "GLG3D/Framebuffer.h"
@@ -20,29 +20,18 @@
 namespace G3D {
 
 Framebuffer::Framebuffer(
-    const std::string&  _name, 
-    GLuint              _framebufferID) : 
-    framebufferID(_framebufferID),
-    m_name(_name),
-    m_height(0),
-    m_width(0) {
+    const std::string&  name, 
+    GLuint              framebufferID) : 
+    m_name(name),
+    m_framebufferID(framebufferID) {
 }
 
 
 Framebuffer::~Framebuffer () {
-    if (framebufferID != 0) {
-        glDeleteFramebuffersEXT(1, &framebufferID);
-        framebufferID = 0;
+    if (m_framebufferID != 0) {
+        glDeleteFramebuffersEXT(1, &m_framebufferID);
+        m_framebufferID = 0;
     }
-}
-
-
-FramebufferRef Framebuffer::fromGLFramebuffer(const std::string& _name, GLuint _framebufferID) {
-    alwaysAssertM(_framebufferID == 0 || GLCaps::supports_GL_EXT_framebuffer_object(), 
-        "Framebuffer Object not supported!");
-
-    // TODO: If there are existing attachments, find their size
-    return new Framebuffer(_name, _framebufferID);
 }
 
 
@@ -58,57 +47,33 @@ FramebufferRef Framebuffer::create(const std::string& _name) {
 
 
 bool Framebuffer::has(AttachmentPoint ap) const {
-    return attachmentTable.containsKey(ap);
+    bool found = false;
+    find(ap, found);
+    return found;
+}
+
+
+int Framebuffer::find(AttachmentPoint ap, bool& found) const {
+    for (int i = 0; i < m_desired.size(); ++i) {
+        if (m_desired[i]->m_point >= ap) {
+            found = (m_desired[i]->m_point == ap);
+            return i;
+        }
+    }
+
+    found = false;
+    return m_desired.size();
 }
 
 
 void Framebuffer::set(AttachmentPoint ap, const void* n) {
     debugAssert(n == NULL);
 
-    // Get current framebuffer
-    GLint origFB = glGetInteger(GL_FRAMEBUFFER_BINDING_EXT);
-    debugAssertGLOk();
-
-    // If we aren't already bound, bind us now
-    if (origFB != (GLint)openGLID()) {
-        // Bind this framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
-        debugAssertGLOk();
-    }
-
-    if (attachmentTable.containsKey(ap)) { 
-        // Detach
-        if (attachmentTable[ap].type == Attachment::TEXTURE) {
-
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, ap, 
-                                      GL_TEXTURE_2D, 0, 0);
-            debugAssertGLOk();
-
-            if (attachmentTable[ap].hadAutoMipMap) {
-                attachmentTable[ap].texture->setAutoMipMap(true);
-            }
-        } else {
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, ap, 
-                                         GL_RENDERBUFFER_EXT, 0);
-			debugAssertGLOk();
-        }
-
-        // Wipe our record for that slot
-        attachmentTable.remove(ap);
-
-    }
-
-    int i = colorDrawBufferArray.findIndex(ap);
-    if (i != -1) {
-        // Remove this element
-        colorDrawBufferArray.remove(i);
-    }
-
-    // If we were already bound, don't bother restoring
-    if (origFB != (GLint)openGLID()) {
-        // Bind original framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, origFB);
-        debugAssertGLOk();
+    bool found = false;
+    int i = find(ap, found);
+    if (found) {
+        m_desired.remove(i);
+        m_currentOutOfSync = true;
     }
 }
 
@@ -119,189 +84,305 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture) {
 
     
 void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face) {
-
     if (texture.isNull()) {
-        // We're in the wrong overload
-        set(ap, (void*)NULL);
+        // We're in the wrong overload due to C++ static type dispatch
+        set(ap, NULL);
         return;
     }
 
-    // Get current framebuffer
-    GLint origFB = glGetInteger(GL_FRAMEBUFFER_BINDING_EXT);
-
-    // If we aren't already bound, bind us now
-    if (origFB != (GLint)openGLID()) {
-        // Bind this framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
-        debugAssertGLOk();
-    }
-
-    // Remove the attachment that is being replaced so it does not affect size
-    attachmentTable.remove(ap);
-
-    // Check for completeness
-    if (numAttachments() == 0) {
-        // This is the first attachment.
-        // Set texture height/width
-        m_width  = texture->texelWidth();
-        m_height = texture->texelHeight();
-    } else {
-        // Verify same dimensions
-        debugAssertM((texture->texelWidth() == width()) && 
-                     (texture->texelHeight() == height()), 
-           "All attachments bound to a Framebuffer must "
-                     "have identical dimensions!");
+    if (m_desired.size() > 0) {
+        debugAssertM(texture->vector2Bounds() == m_desired[0]->vector2Bounds(), 
+                     format("Cannot attach a Texture of size %s to a Framebuffer"
+                            " of size %s without calling Framebuffer::clear first.",
+                            texture->vector2Bounds().toString().c_str(),
+                            m_desired[0]->vector2Bounds().toString().c_str()));
     }
     
-    attachmentTable.set(ap, Attachment(texture, face));
-
-    attach(ap);
-        
-    bool isCubeMap = (texture->dimension() == Texture::DIM_CUBE_MAP) ||
-        (texture->dimension() == Texture::DIM_CUBE_MAP_NPOT);
-
-    // Bind texture to framebuffer
-    if (isCubeMap) {
-        glFramebufferTexture2DEXT(
-            GL_FRAMEBUFFER_EXT, 
-            ap,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, 
-            texture->openGLID(), 0);
-    } else {
-        glFramebufferTexture2DEXT(
-            GL_FRAMEBUFFER_EXT, 
-            ap, 
-            texture->openGLTextureTarget(), 
-            texture->openGLID(), 0);
-    }
-    debugAssertGLOk();
-
-    // If we were already bound, don't bother restoring
-    if (origFB != (GLint)openGLID()) {
-        // Bind original framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, origFB);
-    }
-
-    texture->invertY = true;
-
-    debugAssertGLOk();
-}
-
-
-void Framebuffer::attach(AttachmentPoint ap) {
-    if ((ap >= COLOR_ATTACHMENT0) && (ap <= COLOR_ATTACHMENT15)) {
-        int i = colorDrawBufferArray.findIndex(ap);
-        if (i == -1) {
-            
-            // find the index of the last element before this one
-            for (i = 0; (i < colorDrawBufferArray.size()) && ((int)colorDrawBufferArray[i] < ap); ++i) {}
-            colorDrawBufferArray.insert(i, ap);
-        }
+    Attachment::Ref a = get(ap);
+    if (a.isNull() || ! (a->equals(texture, face))) {
+        // This is a change
+        set(new Attachment(ap, texture, face));
+        texture->invertY = true;
     }
 }
 
 
-void Framebuffer::set(          
-    AttachmentPoint ap,
-    const RenderbufferRef& renderbuffer) {
-
-    if (renderbuffer.isNull()) {
-        // We're in the wrong overload
-        set(ap, (void*)NULL);
+void Framebuffer::set(AttachmentPoint ap, const Renderbuffer::Ref& b) {
+    if (b.isNull()) {
+        // We're in the wrong overload due to C++ static type dispatch
+        set(ap, NULL);
         return;
     }
 
-    // Get current framebuffer
-    GLint origFB = glGetInteger(GL_FRAMEBUFFER_BINDING_EXT);
-
-    // If we aren't already bound, bind us now
-    if (origFB != (GLint)openGLID()) {
-        // Bind this framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
-        debugAssertGLOk();
+    if (m_desired.size() > 0) {
+        debugAssertM(b->vector2Bounds() == m_desired[0]->vector2Bounds(), 
+                     format("Cannot attach a Renderbuffer of size %s to a Framebuffer"
+                            " of size %s without calling Framebuffer::clear first.",
+                            b->vector2Bounds().toString().c_str(),
+                            m_desired[0]->vector2Bounds().toString().c_str()));
     }
-
-    // Check for completeness
-    if (numAttachments() == 0) {
-        // This is the first attachment.
-        // Set texture height/width
-        m_width  = renderbuffer->width();
-        m_height = renderbuffer->height();
-    } else {
-        // Verify same dimensions
-        debugAssertM((renderbuffer->width()  == width()) && 
-                     (renderbuffer->height() == height()), 
-           "All attachments bound to a Framebuffer must have identical dimensions!");
-    }
+                    
     
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, ap, GL_RENDERBUFFER_EXT, renderbuffer->openGLID());
+    Attachment::Ref a = get(ap);
+    if (a.isNull() || ! (a->equals(b))) {
+        // This is a change
+        set(new Attachment(ap, b));
+    }
+}
 
-    attachmentTable.set(ap, Attachment(renderbuffer));
 
-    attach(ap);
+void Framebuffer::set(const Attachment::Ref& a) {
+    bool found = false;
+    int i = find(a->point(), found);
+    if (found) {
+        m_desired[i] = a;
+    } else {
+        m_desired.insert(i, a);
+    }
+    m_currentOutOfSync = true;
+}
 
-    // If we were already bound, don't bother restoring
-    if (origFB != (GLint)openGLID()) {
-        // Bind original framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, origFB);
+
+Framebuffer::Attachment::Ref Framebuffer::get(AttachmentPoint ap) const {
+    bool found = false;
+    int i = find(ap, found);
+    if (! found) {
+        return NULL;
+    } else {
+        return m_desired[i];
+    }
+}
+
+
+bool Framebuffer::bind(bool alreadyBound) {
+    if (! alreadyBound) {
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
     }
 
-    debugAssertGLOk();
+    if (m_currentOutOfSync) {
+        sync();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+void Framebuffer::bindWindowBuffer() {
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 
 void Framebuffer::clear() {
-    // Get current framebuffer
-    GLint origFB = glGetInteger(GL_FRAMEBUFFER_BINDING_EXT);
-    debugAssertGLOk();
+    m_desired.clear();
+    m_currentOutOfSync = true;
+}
 
-    // If we aren't already bound, bind us now
-    if (origFB != (GLint)openGLID()) {
-        // Bind this framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, openGLID());
-        debugAssertGLOk();
-    }
 
-    colorDrawBufferArray.clear();
+void Framebuffer::sync() {
+    debugAssert(m_currentOutOfSync);
+    int d = 0;
+    int c = 0;
 
-    for (int i = 0; i < 18; ++i) {
-        int ap = COLOR_ATTACHMENT0 + i;
-        if (i == 16) {
-            ap = DEPTH_ATTACHMENT;
-        } else if (i == 17) {
-            ap = STENCIL_ATTACHMENT;
-        }
+    // Walk both the desired and current arrays
+    while ((d < m_desired.size()) && (c < m_current.size())) {
+        // Cannot be const references since the code below mutates the
+        // m_desired and m_current arrays.
+        Attachment::Ref da = m_desired[d];
+        Attachment::Ref ca = m_current[c];
 
-        if (attachmentTable.containsKey(ap)) { 
-            // Detach
-            if (attachmentTable[ap].type == Attachment::TEXTURE) {
-                
-                glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, ap, 
-                                          GL_TEXTURE_2D, 0, 0);
-                debugAssertGLOk();
-                
-                if (attachmentTable[ap].hadAutoMipMap) {
-                    attachmentTable[ap].texture->setAutoMipMap(true);
-                }
-            } else {
-                glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, ap, 
-                                             GL_RENDERBUFFER_EXT, 0);
-                debugAssertGLOk();
+        if (da->equals(ca)) {
+            // Matched; nothing to do
+            ++d;
+            ++c;
+        } else {
+            // Mismatch
+            if (da->point() >= ca->point()) {
+                // Process current
+                detach(ca, c);
+                ++c;
             }
-
-            // Wipe our record for that slot
-            attachmentTable.remove(ap);
-        } 
-
+            
+            if (da->point() <= ca->point()) {
+                // Process desired
+                attach(da, d);
+                ++d;
+            }
+        }
     }
 
-    // If we were already bound, don't bother restoring
-    if (origFB != (GLint)openGLID()) {
-        // Bind original framebuffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, origFB);
-        debugAssertGLOk();
+    // Only one of the following two loops will execute
+    while (c < m_current.size()) {
+        detach(m_current[c], c);
+        ++c;
+    }
+
+    while (d < m_desired.size()) {
+        attach(m_desired[d], d);
+        ++d;
+    }
+
+    // We are now in sync
+    m_currentOutOfSync = false;
+}
+
+
+void Framebuffer::attach(const Attachment::Ref& a, int cIndex) {
+    if (a->point() < DEPTH) {
+        m_colorDrawBufferArray.insert(cIndex, GLenum(a->point()));
+    }
+    a->attach();
+}
+
+
+void Framebuffer::detach(const Attachment::Ref& a, int dIndex) {
+    if (a->point() < DEPTH) {
+        m_colorDrawBufferArray.remove(dIndex);
+    }
+    a->detach();
+}
+
+
+int Framebuffer::width() const {
+    if (m_desired.size() > 0) {
+        return m_desired[0]->width();
+    } else { 
+        return 0;
+    }
+}
+ 
+
+int Framebuffer::height() const {
+    if (m_desired.size() > 0) {
+        return m_desired[0]->height();
+    } else { 
+        return 0;
+    }
+}
+
+    
+Rect2D Framebuffer::rect2DBounds() const {
+    if (m_desired.size() > 0) {
+        return Rect2D::xywh(Vector2::zero(), m_desired[0]->vector2Bounds());
+    } else {
+        return Rect2D::xywh(0,0,0,0);
+    }
+}
+
+    
+Vector2 Framebuffer::vector2Bounds() const {
+    if (m_desired.size() > 0) {
+        return m_desired[0]->vector2Bounds();
+    } else {
+        return Vector2::zero();
+    }
+}
+
+////////////////////////////////////////////////////////////////////
+
+Framebuffer::Attachment::Attachment(AttachmentPoint ap, const RenderbufferRef& r) : 
+    m_type(RENDERBUFFER),
+    m_point(ap),
+    m_renderbuffer(r),
+    m_cubeFace(Texture::CUBE_NEG_X) {
+}
+
+
+Framebuffer::Attachment::Attachment(AttachmentPoint ap, const Texture::Ref& r, Texture::CubeFace c) : 
+    m_type(TEXTURE), 
+    m_point(ap),
+    m_texture(r),
+    m_cubeFace(c) {
+    
+    if (m_texture->settings().autoMipMap) {
+        m_texture->setAutoMipMap(false);
+    }
+}
+
+ 
+Vector2 Framebuffer::Attachment::vector2Bounds() const {
+    if (m_type == TEXTURE) {
+        return m_texture->vector2Bounds();
+    } else {
+        return m_renderbuffer->vector2Bounds();
+    }
+}
+
+
+int Framebuffer::Attachment::width() const {
+    if (m_type == TEXTURE) {
+        return m_texture->width();
+    } else {
+        return m_renderbuffer->width();
+    }
+}
+    
+
+int Framebuffer::Attachment::height() const {
+    if (m_type == TEXTURE) {
+        return m_texture->height();
+    } else {
+        return m_renderbuffer->height();
+    }
+}
+
+
+bool Framebuffer::Attachment::equals(const Texture::Ref& t, Texture::CubeFace c) const {
+    return
+        (m_type == TEXTURE) &&
+        (m_texture == t) &&
+        (m_cubeFace == c);
+}
+
+
+bool Framebuffer::Attachment::equals(const Renderbuffer::Ref& r) const {
+    return
+        (m_type == RENDERBUFFER) &&
+        (m_renderbuffer == r);
+}
+
+
+bool Framebuffer::Attachment::equals(const Attachment::Ref& other) const {
+    return
+        (m_type == other->m_type) &&
+        (m_point == other->m_point) &&
+        (m_texture == other->m_texture) &&
+        (m_cubeFace == other->m_cubeFace) &&
+        (m_renderbuffer == other->m_renderbuffer);
+}
+
+
+void Framebuffer::Attachment::attach() const {
+    if (m_type == TEXTURE) {
+        bool isCubeMap = 
+            (m_texture->dimension() == Texture::DIM_CUBE_MAP) ||
+            (m_texture->dimension() == Texture::DIM_CUBE_MAP_NPOT);
+        
+
+        if (isCubeMap) {
+            glFramebufferTexture2DEXT
+                (GL_FRAMEBUFFER_EXT, GLenum(m_point),
+                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)m_cubeFace, m_texture->openGLID(), 0);
+        } else {
+            glFramebufferTexture2DEXT
+                (GL_FRAMEBUFFER_EXT, GLenum(m_point),
+                 m_texture->openGLTextureTarget(), 
+                 m_texture->openGLID(), 0);
+        }
+    } else {
+        glFramebufferRenderbufferEXT
+            (GL_FRAMEBUFFER_EXT, GLenum(m_point), 
+             GL_RENDERBUFFER_EXT, m_renderbuffer->openGLID());
+    }
+}
+
+
+void Framebuffer::Attachment::detach() const {
+    if (m_type == TEXTURE) {
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GLenum(m_point), GL_TEXTURE_2D, 0, 0);
+    } else {
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GLenum(m_point), GL_RENDERBUFFER_EXT, 0);
     }
 }
 
 } // G3D
-
