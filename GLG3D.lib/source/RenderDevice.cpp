@@ -65,41 +65,15 @@ static GLenum toGLBlendFunc(RenderDevice::BlendFunc b) {
     return GLenum(b);
 }
 
+
 static void _glViewport(double a, double b, double c, double d) {
     glViewport(iRound(a), iRound(b), 
 	       iRound(a + c) - iRound(a), iRound(b + d) - iRound(b));
 }
 
+
 static GLenum primitiveToGLenum(RenderDevice::Primitive primitive) {
-    switch (primitive) {
-    case RenderDevice::LINES:
-        return GL_LINES;
-
-    case RenderDevice::LINE_STRIP:
-        return GL_LINE_STRIP;
-        
-    case RenderDevice::TRIANGLES:
-        return GL_TRIANGLES;
-        
-    case RenderDevice::TRIANGLE_STRIP:
-        return GL_TRIANGLE_STRIP;
-        
-    case RenderDevice::TRIANGLE_FAN:
-        return GL_TRIANGLE_FAN;
-        
-    case RenderDevice::QUADS:
-        return GL_QUADS;
-        
-    case RenderDevice::QUAD_STRIP:
-        return GL_QUAD_STRIP;
-                
-    case RenderDevice::POINTS:
-        return GL_POINTS;
-
-    default:
-        debugAssertM(false, "Fell through switch");
-        return 0;
-    }
+    return GLenum(primitive);
 }
 
 
