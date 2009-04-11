@@ -27,38 +27,8 @@
 
 namespace G3D {
 
-
 RenderDevice* RenderDevice::lastRenderDeviceCreated = NULL;
 
-
-GLenum RenderDevice::BufferToGL[MAX_BUFFER_SIZE] =
-                                     {GL_NONE,
-                                      GL_FRONT_LEFT,
-                                      GL_FRONT_RIGHT,
-                                      GL_BACK_LEFT,
-                                      GL_BACK_RIGHT,
-                                      GL_FRONT,
-                                      GL_BACK,
-                                      GL_LEFT,
-                                      GL_RIGHT,
-                                      GL_FRONT_AND_BACK,
-                                      0xFFFF,                   //BUFFER_CURRENT
-                                      GL_COLOR_ATTACHMENT0_EXT,
-                                      GL_COLOR_ATTACHMENT1_EXT,
-                                      GL_COLOR_ATTACHMENT2_EXT,
-                                      GL_COLOR_ATTACHMENT3_EXT,
-                                      GL_COLOR_ATTACHMENT4_EXT,
-                                      GL_COLOR_ATTACHMENT5_EXT,
-                                      GL_COLOR_ATTACHMENT6_EXT,
-                                      GL_COLOR_ATTACHMENT7_EXT,
-                                      GL_COLOR_ATTACHMENT8_EXT,
-                                      GL_COLOR_ATTACHMENT9_EXT,
-                                      GL_COLOR_ATTACHMENT10_EXT,
-                                      GL_COLOR_ATTACHMENT11_EXT,
-                                      GL_COLOR_ATTACHMENT12_EXT,
-                                      GL_COLOR_ATTACHMENT13_EXT,
-                                      GL_COLOR_ATTACHMENT14_EXT,
-                                      GL_COLOR_ATTACHMENT15_EXT};
 
 static GLenum toGLBlendFunc(RenderDevice::BlendFunc b) {
     debugAssert(b != RenderDevice::BLEND_CURRENT);
@@ -611,7 +581,7 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
     dstBlendFunc                = BLEND_ZERO;
     blendEq                     = BLENDEQ_ADD;
 
-    drawBuffer                  = BUFFER_BACK;
+    drawBuffer                  = DRAW_BACK;
 
     stencil.stencilTest         = STENCIL_ALWAYS_PASS;
     stencil.stencilReference    = 0;
@@ -1119,14 +1089,17 @@ RenderDevice::RenderMode RenderDevice::renderMode() const {
 }
 
 
-void RenderDevice::setDrawBuffer(Buffer b) {
+void RenderDevice::setDrawBuffer(DrawBuffer b) {
     minStateChange();
 
-    if (b == BUFFER_CURRENT) return;
+    if (b == DRAW_CURRENT) {
+        return;
+    }
 
     if (state.framebuffer.isNull()) {
-        alwaysAssertM((b >= BUFFER_NONE) && (b <= BUFFER_CURRENT), 
-                  "Drawing to a color buffer is only supported by application-created framebuffers!");
+        alwaysAssertM
+            (!( (b >= DRAW_COLOR0) && (b <= DRAW_COLOR15)), 
+             "Drawing to a color buffer is only supported by application-created framebuffers!");
     }
 
     if (b != state.drawBuffer) {
@@ -1134,7 +1107,7 @@ void RenderDevice::setDrawBuffer(Buffer b) {
         state.drawBuffer = b;
         if (state.framebuffer.isNull()) {
             // Only update the GL state if there is no framebuffer bound.
-            glDrawBuffer(BufferToGL[state.drawBuffer]);
+            glDrawBuffer(GLenum(state.drawBuffer));
         }
     }
 }
@@ -1473,8 +1446,6 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
     if (fbo != state.framebuffer) {
         majGLStateChange();
 
-        debugAssertM(BufferToGL[0] == GL_NONE, "G3D internal error: BufferToGL initialized incorrectly.");
-
         // Set Framebuffer
         if (fbo.isNull()) {
             debugAssertGLOk();
@@ -1482,7 +1453,7 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
             debugAssertGLOk();
 
             // Restore the buffer that was in use before the framebuffer was attached
-            GLenum b = BufferToGL[state.drawBuffer];
+            GLenum b = GLenum(state.drawBuffer);
             glDrawBuffer(b);
             debugAssertGLOk();
         } else {

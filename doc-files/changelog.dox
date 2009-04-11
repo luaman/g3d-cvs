@@ -93,6 +93,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> RenderDevice::Buffer -> RenderDevice::DrawBuffer
      <li> OSWindow::Settings::sharedContext must now be set to true in order to support sharing of data between multiple OpenGL contexts.  Since sharing can 
           seriously degrade performance on multi-GPU machines and few developers need this feature, it defaults to false.
      <li> Complete rewrite of SuperShader, ArticulatedModel, and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 

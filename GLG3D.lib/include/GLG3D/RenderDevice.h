@@ -392,8 +392,10 @@ public:
     static RenderDevice*        lastRenderDeviceCreated;
 
 protected:
+
     /** Times swapbuffers */
     Stopwatch                   m_swapTimer;
+
 public:
 
     RenderDevice();
@@ -440,7 +442,7 @@ public:
     void clear(bool clearColor, bool clearDepth, bool clearStencil);
 
     /** Clears color, depth, and stencil. */
-    void clear() {
+    inline void clear() {
         clear(true, true, true);
     }
 
@@ -459,7 +461,27 @@ public:
         DRAW_AUX0 = GL_AUX0, 
         DRAW_AUX1 = GL_AUX1, 
         DRAW_AUX2 = GL_AUX2, 
-        DRAW_AUX3 = GL_AUX3};
+        DRAW_AUX3 = GL_AUX3,
+
+        DRAW_COLOR0 = GL_COLOR_ATTACHMENT0, 
+        DRAW_COLOR1 = GL_COLOR_ATTACHMENT1, 
+        DRAW_COLOR2 = GL_COLOR_ATTACHMENT2, 
+        DRAW_COLOR3 = GL_COLOR_ATTACHMENT3, 
+        DRAW_COLOR4 = GL_COLOR_ATTACHMENT4, 
+        DRAW_COLOR5 = GL_COLOR_ATTACHMENT5, 
+        DRAW_COLOR6 = GL_COLOR_ATTACHMENT6, 
+        DRAW_COLOR7 = GL_COLOR_ATTACHMENT7, 
+        DRAW_COLOR8 = GL_COLOR_ATTACHMENT8, 
+        DRAW_COLOR9 = GL_COLOR_ATTACHMENT9, 
+        DRAW_COLOR10 = GL_COLOR_ATTACHMENT10, 
+        DRAW_COLOR11 = GL_COLOR_ATTACHMENT11, 
+        DRAW_COLOR12 = GL_COLOR_ATTACHMENT12, 
+        DRAW_COLOR13 = GL_COLOR_ATTACHMENT13, 
+        DRAW_COLOR14 = GL_COLOR_ATTACHMENT14, 
+        DRAW_COLOR15 = GL_COLOR_ATTACHMENT15,
+
+        DRAW_CURRENT
+    };
 
     /** The constants that correspond to DrawBuffer have the same
         value, so that you can safely cast between them. All have
@@ -479,7 +501,26 @@ public:
         READ_AUX0 = GL_AUX0, 
         READ_AUX1 = GL_AUX1, 
         READ_AUX2 = GL_AUX2, 
-        READ_AUX3 = GL_AUX3};
+        READ_AUX3 = GL_AUX3,
+
+        READ_COLOR0 = GL_COLOR_ATTACHMENT0, 
+        READ_COLOR1 = GL_COLOR_ATTACHMENT1, 
+        READ_COLOR2 = GL_COLOR_ATTACHMENT2, 
+        READ_COLOR3 = GL_COLOR_ATTACHMENT3, 
+        READ_COLOR4 = GL_COLOR_ATTACHMENT4, 
+        READ_COLOR5 = GL_COLOR_ATTACHMENT5, 
+        READ_COLOR6 = GL_COLOR_ATTACHMENT6, 
+        READ_COLOR7 = GL_COLOR_ATTACHMENT7, 
+        READ_COLOR8 = GL_COLOR_ATTACHMENT8, 
+        READ_COLOR9 = GL_COLOR_ATTACHMENT9, 
+        READ_COLOR10 = GL_COLOR_ATTACHMENT10, 
+        READ_COLOR11 = GL_COLOR_ATTACHMENT11, 
+        READ_COLOR12 = GL_COLOR_ATTACHMENT12, 
+        READ_COLOR13 = GL_COLOR_ATTACHMENT13, 
+        READ_COLOR14 = GL_COLOR_ATTACHMENT14, 
+        READ_COLOR15 = GL_COLOR_ATTACHMENT15,
+        READ_CURRENT
+    };
     
     enum DepthTest {
         DEPTH_GREATER = GL_GREATER,
@@ -490,7 +531,8 @@ public:
         DEPTH_EQUAL = GL_EQUAL,   
         DEPTH_ALWAYS_PASS = GL_ALWAYS,
         DEPTH_NEVER_PASS = GL_NEVER, 
-        DEPTH_CURRENT};
+        DEPTH_CURRENT
+    };
 
     enum AlphaTest {
         ALPHA_GREATER = GL_GREATER,
@@ -501,60 +543,67 @@ public:
         ALPHA_EQUAL = GL_EQUAL,  
         ALPHA_ALWAYS_PASS = GL_ALWAYS, 
         ALPHA_NEVER_PASS = GL_NEVER,
-        ALPHA_CURRENT};
+        ALPHA_CURRENT
+    };
 
-    enum StencilTest 
-        {STENCIL_GREATER = GL_GREATER,  
-         STENCIL_LESS = GL_LESS, 
-         STENCIL_GEQUAL = GL_GEQUAL,
-         STENCIL_LEQUAL = GL_LEQUAL, 
-         STENCIL_NOTEQUAL = GL_NOTEQUAL,
-         STENCIL_EQUAL = GL_EQUAL, 
-         STENCIL_ALWAYS_PASS = GL_ALWAYS, 
-         STENCIL_NEVER_PASS = GL_NEVER,
-         STENCIL_CURRENT};
+    enum StencilTest {
+        STENCIL_GREATER = GL_GREATER,  
+        STENCIL_LESS = GL_LESS, 
+        STENCIL_GEQUAL = GL_GEQUAL,
+        STENCIL_LEQUAL = GL_LEQUAL, 
+        STENCIL_NOTEQUAL = GL_NOTEQUAL,
+        STENCIL_EQUAL = GL_EQUAL, 
+        STENCIL_ALWAYS_PASS = GL_ALWAYS, 
+        STENCIL_NEVER_PASS = GL_NEVER,
+        STENCIL_CURRENT
+    };
 
-    enum BlendFunc 
-        {BLEND_SRC_ALPHA = GL_SRC_ALPHA,
-         BLEND_ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA, 
-         BLEND_ONE = GL_ONE,
-         BLEND_ZERO = GL_ZERO,
-         BLEND_SRC_COLOR = GL_SRC_COLOR, 
-         BLEND_DST_COLOR = GL_DST_COLOR,  
-         BLEND_ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR, 
-         BLEND_ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR, 
-         BLEND_CURRENT};
+    enum BlendFunc {
+        BLEND_SRC_ALPHA = GL_SRC_ALPHA,
+        BLEND_ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA, 
+        BLEND_ONE = GL_ONE,
+        BLEND_ZERO = GL_ZERO,
+        BLEND_SRC_COLOR = GL_SRC_COLOR, 
+        BLEND_DST_COLOR = GL_DST_COLOR,  
+        BLEND_ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR, 
+        BLEND_ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR, 
+        BLEND_CURRENT
+    };
+    
+    enum BlendEq {
+        BLENDEQ_MIN = GL_MIN, 
+        BLENDEQ_MAX = GL_MAX,
+        BLENDEQ_ADD = GL_FUNC_ADD,
+        BLENDEQ_SUBTRACT = GL_FUNC_SUBTRACT,
+        BLENDEQ_REVERSE_SUBTRACT = GL_FUNC_REVERSE_SUBTRACT,
+        BLENDEQ_CURRENT
+    };
 
-    enum BlendEq     
-        {BLENDEQ_MIN = GL_MIN, 
-         BLENDEQ_MAX = GL_MAX,
-         BLENDEQ_ADD = GL_FUNC_ADD,
-         BLENDEQ_SUBTRACT = GL_FUNC_SUBTRACT,
-         BLENDEQ_REVERSE_SUBTRACT = GL_FUNC_REVERSE_SUBTRACT,
-         BLENDEQ_CURRENT};
-
-    enum StencilOp   
-        {STENCIL_INCR_WRAP = GL_INCR_WRAP, 
-         STENCIL_DECR_WRAP = GL_DECR_WRAP,
-         STENCIL_KEEP = GL_KEEP, 
-         STENCIL_INCR = GL_INCR,
-         STENCIL_DECR = GL_DECR,
-         STENCIL_REPLACE = GL_REPLACE,
-         STENCIL_ZERO = GL_ZERO,  
-         STENCIL_INVERT = GL_INVERT, 
-         STENCILOP_CURRENT};
+    enum StencilOp {
+        STENCIL_INCR_WRAP = GL_INCR_WRAP, 
+        STENCIL_DECR_WRAP = GL_DECR_WRAP,
+        STENCIL_KEEP = GL_KEEP, 
+        STENCIL_INCR = GL_INCR,
+        STENCIL_DECR = GL_DECR,
+        STENCIL_REPLACE = GL_REPLACE,
+        STENCIL_ZERO = GL_ZERO,  
+        STENCIL_INVERT = GL_INVERT, 
+        STENCILOP_CURRENT
+    };
 
     enum CullFace {
         CULL_FRONT = GL_FRONT,
         CULL_BACK = GL_BACK,
         CULL_NONE = GL_NONE,
         CULL_FRONT_AND_BACK = GL_FRONT_AND_BACK,
-        CULL_CURRENT};
+        CULL_CURRENT
+    };
 
     enum ShadeMode {
         SHADE_FLAT = GL_FLAT,  
         SHADE_SMOOTH = GL_SMOOTH,
-        SHADE_CURRENT};
+        SHADE_CURRENT
+    };
 
     /**
       Arguments to setTextureCombineMode
@@ -580,35 +629,6 @@ public:
                       TEX_CURRENT};
 
     #define MAX_BUFFER_SIZE 27
-
-    /** 
-        Draw buffer constants.
-     */
-    enum Buffer {
-        BUFFER_NONE, 
-        BUFFER_FRONT_LEFT, 
-        BUFFER_FRONT_RIGHT, 
-        BUFFER_BACK_LEFT,
-        BUFFER_BACK_RIGHT,
-        BUFFER_FRONT,
-        BUFFER_BACK, 
-        BUFFER_LEFT, 
-        BUFFER_RIGHT, 
-        BUFFER_FRONT_AND_BACK, 
-        BUFFER_CURRENT,
-        BUFFER_COLOR0, 
-        BUFFER_COLOR1, 
-        BUFFER_COLOR2, 
-        BUFFER_COLOR3,
-        BUFFER_COLOR4, 
-        BUFFER_COLOR5,
-        BUFFER_COLOR6, 
-        BUFFER_COLOR7,
-        BUFFER_COLOR8,
-        BUFFER_COLOR9, BUFFER_COLOR10, BUFFER_COLOR11,
-                      BUFFER_COLOR12, BUFFER_COLOR13, BUFFER_COLOR14, BUFFER_COLOR15};
-
-    static GLenum BufferToGL[MAX_BUFFER_SIZE];
 
     /**
      Call to begin the rendering frame.
@@ -685,9 +705,9 @@ public:
      When using a G3D::Framebuffer it is not necessary to explicitly set the
      draw buffer; that is handled automatically by beforePrimitive().
      */
-    void setDrawBuffer(Buffer drawBuffer);
+    void setDrawBuffer(DrawBuffer drawBuffer);
 
-    inline Buffer drawBuffer() const {
+    inline DrawBuffer drawBuffer() const {
         return state.drawBuffer;
     }
 
@@ -1375,7 +1395,7 @@ private:
         bool                        colorWrite;
         bool                        alphaWrite;
 
-        Buffer                      drawBuffer;
+        DrawBuffer                  drawBuffer;
 
         FramebufferRef              framebuffer;
         

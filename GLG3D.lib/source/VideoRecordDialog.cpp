@@ -241,7 +241,7 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
         if (! useBackBuffer) {
             // Draw directly to the front buffer so that the message does not appear in the 
             // recording of the next frame.
-            rd->setDrawBuffer(RenderDevice::BUFFER_FRONT);
+            rd->setDrawBuffer(RenderDevice::DRAW_FRONT);
         }
         
         static RealTime t0 = System::time();
