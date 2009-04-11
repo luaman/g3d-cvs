@@ -268,7 +268,14 @@ void VideoOutput::append(RenderDevice* rd, bool backbuffer) {
     debugAssert(rd->width() == m_settings.width);
     debugAssert(rd->height() == m_settings.height);
 
-    rd->screenshotPic(m_temp, backbuffer, false, false);
+    RenderDevice::ReadBuffer old = rd->readBuffer();
+    if (backbuffer) {
+        rd->setReadBuffer(RenderDevice::READ_BACK);
+    } else {
+        rd->setReadBuffer(RenderDevice::READ_FRONT);
+    }
+    rd->screenshotPic(m_temp, false, false);
+    rd->setReadBuffer(old);
     encodeFrame(const_cast<uint8*>(m_temp.byte()), ImageFormat::RGB8(), true);
 }
 

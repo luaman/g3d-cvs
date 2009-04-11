@@ -44,20 +44,25 @@ class VAR;
  OpenGL context, but designed so that it can support other APIs
  (e.g., OpenGL ES, DirectX) as back ends.
 
+ Unlike OpenGL, in release mode, no RenderDevice call will trigger a
+ pipeline flush, and all redundant state calls are automatically
+ detected and optimized out.  This includes querries: reading any
+ RenderDevice state is instantaneous and does not flush the GPU
+ (unlike glGet*).
+
  In future releases, fixed function state will either be removed
  or isolated in RenderDevice.  Wherever possible, structure your
  code to use Framebuffer, VAR, and Shader instead of fixed-function.
 
  You must call RenderDevice::init() before using the RenderDevice.
   
- Rendering interface that abstracts OpenGL.  OpenGL is a basically
- good API with some rough spots.  Three of these are addressed by
- RenderDevice.  First, OpenGL state management is both tricky and
- potentially slow.  Second, OpenGL functions are difficult to use
- because many extensions have led to an evolutionary rather than
- designed API.  For type safety, new enums are introduced for values
- instead of the traditional OpenGL GLenum's, which are just ints.
- Third, OpenGL intialization is complicated.  This interface
+ OpenGL is a basically good API with some rough spots.  Three of these
+ are addressed by RenderDevice.  First, OpenGL state management is
+ both tricky and potentially slow.  Second, OpenGL functions are
+ difficult to use because many extensions have led to an evolutionary
+ rather than designed API.  For type safety, new enums are introduced
+ for values instead of the traditional OpenGL GLenum's, which are just
+ ints.  Third, OpenGL intialization is complicated.  This interface
  simplifies it significantly.
 
  <P> NICEST line and point smoothing is enabled by default (however,
@@ -130,11 +135,11 @@ class VAR;
   once for each eye's buffer:
 
   <pre>
-    void doGraphics() {
-        glDrawBuffer(GL_BACK_LEFT); 
+    void onGraphics(...) {
+        rd->setDrawBuffer(RenderDevice::DRAW_LEFT); 
         for (int count = 0; count < 2; ++count) {
            ... (put your normal rendering code here)
-           glDrawBuffer(GL_BACK_RIGHT);
+           rd->setDrawBuffer(RenderDevice::DRAW_RIGHT);
         }
     }
   </pre>
@@ -709,6 +714,12 @@ public:
 
     inline DrawBuffer drawBuffer() const {
         return state.drawBuffer;
+    }
+
+    void setReadBuffer(ReadBuffer readBuffer);
+
+    inline ReadBuffer readBuffer() const {
+        return state.readBuffer;
     }
 
     inline void setDepthRange(double low, double high);
@@ -1396,6 +1407,7 @@ private:
         bool                        alphaWrite;
 
         DrawBuffer                  drawBuffer;
+        ReadBuffer                  readBuffer;
 
         FramebufferRef              framebuffer;
         
@@ -1453,7 +1465,7 @@ private:
 
         RenderState(int width = 1, int height = 1, int highestTextureUnitThatChanged = GLCaps::G3D_MAX_TEXTURE_UNITS);
 
-        bool operator==(const RenderState& other) const;
+        //bool operator==(const RenderState& other) const;
     };
 
     VertexAndPixelShaderRef         lastVertexAndPixelShader;
@@ -1656,18 +1668,17 @@ public:
     /**
        @brief Takes a screenshot and puts the data into the G3D::GImage dest variable.
 
-     @param useBackBuffer If true, the image is read from the back
-     buffer instead of the front buffer (default false).  The back
-     buffer is the current frame, which is slower to read from because
-     pending draw operations must complete first.
+       Reads from the current read buffer; use setReadBuffer(RenderDevice::READ_FRONT)
+       to explicitly read from the front buffer, which is substantially faster than
+       reading from the back buffer.
 
-     @param getAlpha If true, the alpha channel of the frame buffer is also read back.
+       @param getAlpha If true, the alpha channel of the frame buffer is also read back.
 
-     @param invertY It is faster to read back images upside down
-     because that is how OpenGL stores them.  Set invertY=false for
-     this fast but upsidedown result.
+       @param invertY It is faster to read back images upside down
+       because that is how OpenGL stores them.  Set invertY=false for
+       this fast but upsidedown result.
      */
-    void screenshotPic(GImage& dest, bool useBackBuffer = false, bool getAlpha = false, bool invertY = true) const;
+    void screenshotPic(GImage& dest, bool getAlpha = false, bool invertY = true) const;
 
 	/**
 	 Pixel dimensions of the OpenGL window interior

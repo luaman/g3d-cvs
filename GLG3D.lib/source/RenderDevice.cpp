@@ -582,6 +582,7 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
     blendEq                     = BLENDEQ_ADD;
 
     drawBuffer                  = DRAW_BACK;
+    readBuffer                  = READ_BACK;
 
     stencil.stencilTest         = STENCIL_ALWAYS_PASS;
     stencil.stencilReference    = 0;
@@ -716,6 +717,7 @@ void RenderDevice::resetState() {
         glDisable(GL_LIGHTING);
 
         glDrawBuffer(GL_BACK);
+        glReadBuffer(GL_BACK);
 
         for (int i = 0; i < MAX_LIGHTS; ++i) {
             setLight(i, NULL, true);
@@ -836,6 +838,7 @@ void RenderDevice::setState(
     setAlphaWrite(newState.alphaWrite);
 
     setDrawBuffer(newState.drawBuffer);
+    setReadBuffer(newState.readBuffer);
 
     setShadeMode(newState.shadeMode);
     setDepthTest(newState.depthTest);
@@ -1113,27 +1116,37 @@ void RenderDevice::setDrawBuffer(DrawBuffer b) {
 }
 
 
+void RenderDevice::setReadBuffer(ReadBuffer b) {
+    minStateChange();
+
+    if (b == READ_CURRENT) {
+        return;
+    }
+
+    if (state.framebuffer.isNull()) {
+        alwaysAssertM
+            (!( (b >= READ_COLOR0) && (b <= READ_COLOR15)), 
+             "Drawing to a color buffer is only supported by application-created framebuffers!");
+    }
+
+    if (b != state.readBuffer) {
+        minGLStateChange();
+        state.readBuffer = b;
+        glReadBuffer(GLenum(state.readBuffer));
+    }
+}
+
+
 void RenderDevice::setCullFace(CullFace f) {
     minStateChange();
-    if (f != state.cullFace) {
+    if (f != state.cullFace && f != CULL_CURRENT) {
         minGLStateChange();
-        switch (f) {
-        case CULL_FRONT:
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
-            break;
-
-        case CULL_BACK:
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
-            break;
-
-        case CULL_NONE:
+        
+        if (f == CULL_NONE) {
             glDisable(GL_CULL_FACE);
-            break;
-
-        default:
-            debugAssertM(false, "Fell through switch");
+        } else {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GLenum(f));
         }
 
         state.cullFace = f;
@@ -2660,13 +2673,7 @@ double RenderDevice::getDepthBufferValue(
 }
 
 
-void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha, bool invertY) const {
-    if (useBackBuffer) {
-        glReadBuffer(GL_BACK);
-    } else {
-        glReadBuffer(GL_FRONT);
-    }
-    
+void RenderDevice::screenshotPic(GImage& dest, bool getAlpha, bool invertY) const {
     int ch = getAlpha ? 4 : 3;
 
     if ((dest.channels != ch) ||
@@ -2693,9 +2700,6 @@ void RenderDevice::screenshotPic(GImage& dest, bool useBackBuffer, bool getAlpha
             GImage::flipRGBVertical(dest.byte(), dest.byte(), width(), height());
         }
     }
-
-    // Restore the read buffer to the back
-    glReadBuffer(GL_BACK);
 }
 
 
