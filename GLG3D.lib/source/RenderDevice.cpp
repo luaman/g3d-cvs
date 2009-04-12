@@ -3042,7 +3042,8 @@ void RenderDevice::configureReflectionMap(
 }
 
 
-void RenderDevice::sendSequentialIndices(RenderDevice::Primitive primitive, int numVertices) {
+void RenderDevice::sendSequentialIndices
+(RenderDevice::Primitive primitive, int numVertices) {
 
     beforePrimitive();
 
@@ -3058,7 +3059,39 @@ void RenderDevice::sendSequentialIndices(RenderDevice::Primitive primitive, int 
 }
 
 
-void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& indexVAR) {
+void RenderDevice::sendSequentialIndicesInstanced
+(RenderDevice::Primitive primitive, int numVertices, int numInstances) {
+
+    beforePrimitive();
+
+    glDrawArraysInstancedARB(primitiveToGLenum(primitive), 0, numVertices, numInstances);
+    // Mark all active arrays as busy.
+    setVARAreaMilestone();
+
+    countTriangles(primitive, numVertices * numInstances);
+    afterPrimitive();
+
+    minStateChange();
+    minGLStateChange();
+}
+
+
+void RenderDevice::sendIndices
+(RenderDevice::Primitive primitive, const VAR& indexVAR) {
+    sendIndices(primitive, indexVAR, 1, false);
+}
+
+
+void RenderDevice::sendIndicesInstanced
+(RenderDevice::Primitive primitive, const VAR& indexVAR, int numInstances) {
+    sendIndices(primitive, indexVAR, numInstances, true);
+}
+
+
+void RenderDevice::sendIndices
+(RenderDevice::Primitive primitive, const VAR& indexVAR,
+ int numInstances, bool useInstances) {
+
     debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
 
     if (indexVAR.numElements == 0) {
@@ -3074,7 +3107,8 @@ void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& ind
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexVAR.area()->openGLVertexBufferObject());
 
-    internalSendIndices(primitive, indexVAR.elementSize, indexVAR.numElements, indexVAR.pointer());
+    internalSendIndices(primitive, indexVAR.elementSize, indexVAR.numElements, 
+                        indexVAR.pointer(), numInstances, useInstances);
 
     // Set the milestone on the current area
     {
@@ -3092,7 +3126,7 @@ void RenderDevice::sendIndices(RenderDevice::Primitive primitive, const VAR& ind
     // Mark all active arrays as busy.
     setVARAreaMilestone();
     
-    countTriangles(primitive, indexVAR.numElements);
+    countTriangles(primitive, indexVAR.numElements * numInstances);
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
@@ -3102,7 +3136,9 @@ void RenderDevice::internalSendIndices(
     RenderDevice::Primitive primitive,
     size_t                  indexSize, 
     int                     numIndices, 
-    const void*             index) {
+    const void*             index,
+    int                     numInstances,
+    bool                    useInstances) {
 
     beforePrimitive();
 
@@ -3128,7 +3164,11 @@ void RenderDevice::internalSendIndices(
     
     GLenum p = primitiveToGLenum(primitive);
     
-    glDrawElements(p, numIndices, i, index);
+    if (useInstances) {
+         glDrawElementsInstancedARB(p, numIndices, i, index, numInstances);
+    } else {
+        glDrawElements(p, numIndices, i, index);
+    }
         
     afterPrimitive();
 }

@@ -30,7 +30,8 @@ ShadowMap::Ref ShadowMap::create(const std::string& name, int size, const Textur
 
 
 void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
-    (void)Texture::DepthReadMode old = m_depthModeStack.last();
+    Texture::DepthReadMode old = m_depthModeStack.last();
+    (void)old;
     m_depthModeStack.append(m);
 
     // Only make the OpenGL calls if necessary

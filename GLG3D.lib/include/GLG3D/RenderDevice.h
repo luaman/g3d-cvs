@@ -250,21 +250,24 @@ private:
     void setVARAreaMilestone();
 
     /** Called by sendIndices. */
-    void internalSendIndices(
-        RenderDevice::Primitive primitive,
-        size_t                  indexSize, 
-        int                     numIndices, 
-        const void*             index);
-
+    void internalSendIndices
+    (RenderDevice::Primitive primitive,
+     size_t                  indexSize, 
+     int                     numIndices, 
+     const void*             index,
+     int                     numInstances,
+     bool                    useInstances);
+    
     /**
-     VertexAndPixelShader is set lazily.  This ensures that the current value is actually bound
-     so that the argument list can be bound.  Called from VertexAndPixelShader::bindArgList and
-     from beforePrimitive.*/
+     VertexAndPixelShader is set lazily.  This ensures that the
+     current value is actually bound so that the argument list can be
+     bound.  Called from VertexAndPixelShader::bindArgList and from
+     beforePrimitive.*/
     void forceVertexAndPixelShaderBind();
 
     static std::string dummyString;
 
-	/** Returns true if the frame buffer is complete, or a string in 
+    /** Returns true if the frame buffer is complete, or a string in 
         whyIncomplete explaining the problem.
         Potentially slow. */
     bool checkFramebuffer(std::string& whyIncomplete = dummyString) const;
@@ -1117,11 +1120,14 @@ public:
 
     /**
      Draws the specified kind of primitive from the current vertex array.
+
+     @deprecated Use sendIndices(RenderDevice::Primitive, const VAR&)
      */
     template<class T>
-    void sendIndices(RenderDevice::Primitive primitive, int numIndices, const T* index) {
+    void sendIndices
+    (RenderDevice::Primitive primitive, int numIndices, const T* index) {
         debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
-        internalSendIndices(primitive, sizeof(T), numIndices, index);
+        internalSendIndices(primitive, sizeof(T), numIndices, index, 1, false);
         
         // Mark all active arrays as busy.
         setVARAreaMilestone();
@@ -1130,18 +1136,67 @@ public:
     }
 
     /** Send indices from an index buffer stored inside a vertex
-     buffer. This is potentially faster than sending from main
-     memory.*/
-    void sendIndices(RenderDevice::Primitive primitive, const VAR& indexVAR);
+     buffer. This is faster than sending from main
+     memory on most GPUs.
+    */
+    void sendIndices
+    (RenderDevice::Primitive primitive, const VAR& indexVAR);
+
+    /** Send indices from an index buffer stored inside a vertex
+     buffer. This is faster than sending from main
+     memory on most GPUs.
+
+     Inside the vertex shader, gl_InstanceID is
+     bound to the number of the instance.  The first instance is 0,
+     the last is \a numInstances - 1.
+
+     (Equivalent to glDrawElementsInstanced)
+
+     \param numInstances number of instances of these indices to send
+    */
+    void sendIndicesInstanced
+    (RenderDevice::Primitive primitive, 
+     const VAR&              indexVAR,
+     int                     numInstances);
+
+private:
+
+    /** Called by both sendIndices and sendIndicesInstanced */
+    void sendIndices
+    (RenderDevice::Primitive primitive, 
+     const VAR&              indexVAR,
+     int                     numInstances, 
+     bool                    drawInstanced);
+
+public:
 
     /**
      Renders sequential vertices from the current vertex array.
      (Equivalent to glDrawArrays)
      */
-    void sendSequentialIndices(RenderDevice::Primitive primitive, int numVertices);
+    void sendSequentialIndices
+    (RenderDevice::Primitive primitive, 
+     int                     numVertices);
+
+    /**
+     Renders sequential vertices from the current vertex array for
+     multiple instances. 
+
+     Inside the vertex shader, gl_InstanceID is
+     bound to the number of the instance.  The first instance is 0,
+     the last is \a numInstances - 1.
+
+     (Equivalent to glDrawArraysInstanced)
+
+     \param numInstances number of instances of these indices to send
+     */
+    void sendSequentialIndicesInstanced
+    (RenderDevice::Primitive primitive, int numVertices, int numInstances);
 
     /**
      Draws the specified kind of primitive from the current vertex array.
+     
+     @deprecated Use sendIndices(RenderDevice::Primitive, const VAR&)
      */
     template<class T>
     void sendIndices(RenderDevice::Primitive primitive, 
