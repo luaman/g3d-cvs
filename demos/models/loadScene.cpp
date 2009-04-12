@@ -131,6 +131,12 @@ void App::loadScene() {
         L.color *= Color3(1.2f, 1.2f, 1) * 0.8f;
         L.position = Vector4(Vector3(0,1,1).direction(), 0);
 
+        /*
+        L.position = Vector4(0,10,0,1);
+        L.spotCutoff = 45;
+        L.spotDirection = -Vector3::unitY();
+        */
+
         lighting->shadowedLightArray.append(L);
         /*
         lighting->lightArray.append(GLight::point(Vector3(-1.5f,-0.6f,2.5f), Color3::blue() * 0.7f, 0.1f, 0, 1.5f, true, true));

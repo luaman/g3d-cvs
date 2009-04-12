@@ -74,7 +74,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     if (sky.notNull()) {
         sky->render(rd, skyParameters);
     }
-
+    
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
 
     /*
@@ -101,10 +101,10 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         );
 
     rd->push2D();
-    /*
+
     rd->setTexture(0, shadowMap->colorDepthTexture());
     Draw::rect2D(Rect2D::xywh(0,0,512,512), rd);
-    */
+
 
     rd->setTexture(0, logo);
     rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);

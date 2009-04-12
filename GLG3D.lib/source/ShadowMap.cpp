@@ -13,8 +13,11 @@
 
 namespace G3D {
 
-ShadowMap::ShadowMap(const std::string& name) : m_name(name), m_polygonOffset(0.5f), 
-    m_lastRenderDevice(NULL), m_colorTextureIsDirty(true) {
+ShadowMap::ShadowMap(const std::string& name) :
+    m_name(name), 
+    m_polygonOffset(0.001f), 
+    m_lastRenderDevice(NULL), 
+    m_colorTextureIsDirty(true) {
     m_depthModeStack.append(Texture::DEPTH_LEQUAL);
 }
 
@@ -27,7 +30,7 @@ ShadowMap::Ref ShadowMap::create(const std::string& name, int size, const Textur
 
 
 void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
-    Texture::DepthReadMode old = m_depthModeStack.last();
+    (void)Texture::DepthReadMode old = m_depthModeStack.last();
     m_depthModeStack.append(m);
 
     // Only make the OpenGL calls if necessary
@@ -296,28 +299,29 @@ void ShadowMap::computeMatrices
     float lightProjNear = lightProjNearMin;
     float lightProjFar  = lightProjFarMax;
 
+    // Find nearest and farthest corners of the scene bounding box
+    lightProjNear = finf();
+    lightProjFar  = 0;
+    for (int c = 0; c < 8; ++c) {
+        Vector3 v = sceneBounds.corner(c);
+        v = f.pointToObjectSpace(v);
+        lightProjNear = min(lightProjNear, -v.z);
+        lightProjFar = max(lightProjFar, -v.z);
+    }
+    
+    // Don't let the near get too close to the source, and obey
+    // the specified hint.
+    lightProjNear = max(lightProjNearMin, lightProjNear);
+    
+    // Don't bother tracking shadows past the effective radius
+    lightProjFar = min(light.effectSphere().radius, lightProjFar);
+    lightProjFar = max(lightProjNear + 0.1f, min(lightProjFarMax, 
+                                                 lightProjFar));
+
     if (light.spotCutoff <= 90) {
         // Spot light; we can set the lightProj bounds intelligently
 
         debugAssert(light.position.w == 1.0f);
-
-        // Find nearest and farthest corners of the scene bounding box
-        lightProjNear = finf();
-        lightProjFar  = 0;
-        for (int c = 0; c < 8; ++c) {
-            Vector3 v = sceneBounds.corner(c);
-            v = f.pointToObjectSpace(v);
-            lightProjNear = min(lightProjNear, -v.z);
-            lightProjFar = max(lightProjFar, -v.z);
-        }
-        
-        // Don't let the near get too close to the source, and obey
-        // the specified hint.
-        lightProjNear = max(lightProjNearMin, lightProjNear);
-
-        // Don't bother tracking shadows past the effective radius
-        lightProjFar = min(light.effectSphere().radius, lightProjFar);
-        lightProjFar = max(lightProjNear + 0.1f, min(lightProjFarMax, lightProjFar));
 
         // The cutoff is half the angle of extent (See the Red Book, page 193)
         const float angle = toRadians(light.spotCutoff);
@@ -330,8 +334,9 @@ void ShadowMap::computeMatrices
         lightProjY = lightProjX;
 
         lightProjectionMatrix = 
-            Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
-                                            lightProjY, lightProjNear, lightProjFar);
+            Matrix4::perspectiveProjection
+            (-lightProjX, lightProjX, -lightProjY, 
+             lightProjY, lightProjNear, lightProjFar);
 
     } else if (light.position.w == 0) {
         // Directional light
@@ -344,14 +349,19 @@ void ShadowMap::computeMatrices
         // be in the direction of the light but at a finite distance 
         // to preserve z precision.
         
-        lightProjectionMatrix = Matrix4::orthogonalProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                         lightProjY, lightProjNear, lightProjFar);
+        lightProjectionMatrix = 
+            Matrix4::orthogonalProjection
+            (-lightProjX, lightProjX, -lightProjY, 
+             lightProjY, lightProjNear, lightProjFar);
 
     } else {
-        // Point light.  Nothing good can happen here, but at least we generate something
+        // Point light.  Nothing good can happen here, but at least we
+        // generate something
 
-        lightProjectionMatrix = Matrix4::perspectiveProjection(-lightProjX, lightProjX, -lightProjY, 
-                                                              lightProjY, lightProjNear, lightProjFar);
+        lightProjectionMatrix =
+            Matrix4::perspectiveProjection
+            (-lightProjX, lightProjX, -lightProjY, 
+             lightProjY, lightProjNear, lightProjFar);
     }
 
     float fov = atan2(lightProjX, lightProjNear) * 2.0f;

@@ -242,11 +242,17 @@ static void configureLight(
     args.set(lightPositionString[i],    light.position);
     args.set(lightColorString[i],       light.color);
     
-    const float angle = toRadians(light.spotCutoff);
-    float cosThresh = cos(angle);
-    if (shadowMapPass && light.spotSquare) {
-        // Increase the effective angle for a "square" spotlight
-        cosThresh /= 1.41421356f;
+    float cosThresh = -1;
+
+    if (light.spotCutoff < 180) {
+        // Spot light
+        const float angle = toRadians(light.spotCutoff);
+
+        cosThresh = cos(angle);
+        if (shadowMapPass && light.spotSquare) {
+            // Increase the effective angle for a "square" spotlight
+            cosThresh /= 1.41421356f;
+        }
     }
 
     args.set(lightAttenuationString[i], 
