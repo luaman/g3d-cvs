@@ -274,7 +274,7 @@ private:
 
     /** Sets the glDrawBuffersARB to match the current FBO's 
         capabilities.  Called from clear() and beforePrimitive(). */
-    void syncDrawBuffer();
+    void syncDrawBuffer(bool alreadyBound);
 
 public:
     

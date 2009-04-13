@@ -346,7 +346,16 @@ void VideoRecordDialog::maybeRecord(RenderDevice* rd) {
 
 void VideoRecordDialog::screenshot(RenderDevice* rd) {
     GImage screen;
+
+    rd->pushState();
+    bool useBackBuffer = ! m_captureGUI;
+    if (useBackBuffer) {
+        rd->setReadBuffer(RenderDevice::READ_BACK);
+    } else {
+        rd->setReadBuffer(RenderDevice::READ_FRONT);
+    }
     rd->screenshotPic(screen);
+    rd->popState();
 
     std::string filename = nextFilenameBase() + "." + toLower(m_ssFormatList[m_ssFormatIndex]);
     screen.save(filename);

@@ -973,12 +973,12 @@ void RenderDevice::disableTwoSidedLighting() {
 }
 
 
-void RenderDevice::syncDrawBuffer() {
+void RenderDevice::syncDrawBuffer(bool alreadyBound) {
     if (state.framebuffer.isNull()) {
         return;
     }
 
-    if (state.framebuffer->bind(false)) {
+    if (state.framebuffer->bind(alreadyBound)) {
         debugAssertGLOk();
         
         // Apply the bindings from this framebuffer
@@ -1008,7 +1008,7 @@ void RenderDevice::syncDrawBuffer() {
 void RenderDevice::beforePrimitive() {
     debugAssertM(! inRawOpenGL, "Cannot make RenderDevice calls while inside beginOpenGL...endOpenGL");
 
-    syncDrawBuffer();
+    syncDrawBuffer(true);
 
     if (! state.shader.isNull()) {
         debugAssert(! inShader);
@@ -1193,7 +1193,7 @@ void RenderDevice::popState() {
 
 void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     debugAssert(! inPrimitive);
-    syncDrawBuffer();
+    syncDrawBuffer(true);
 
 #   ifdef G3D_DEBUG
     {
@@ -1469,6 +1469,7 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
 
         // Set Framebuffer
         if (fbo.isNull()) {
+            state.framebuffer = NULL;
             Framebuffer::bindWindowBuffer();
             debugAssertGLOk();
 
@@ -1478,10 +1479,10 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
         } else {
             debugAssertM(GLCaps::supports_GL_EXT_framebuffer_object(), 
                 "Framebuffer Object not supported!");
-            fbo->bind(false);
+            state.framebuffer = fbo;
+            syncDrawBuffer(false);
             // The enables for this framebuffer will be set during beforePrimitive()            
         }
-        state.framebuffer = fbo;
     }
 }
 
