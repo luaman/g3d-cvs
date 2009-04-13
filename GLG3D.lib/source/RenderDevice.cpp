@@ -978,30 +978,29 @@ void RenderDevice::syncDrawBuffer() {
         return;
     }
 
-    state.framebuffer->bind(false);
-    debugAssertGLOk();
-
-    // TODO: Only apply the draw bindings if they have changed
-
-    // Apply the bindings from this framebuffer
-    const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
-    if (array.size() > 0) {
-        debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) >= array.size(),
-                     format("This graphics card only supports %d draw buffers.",
-                            glGetInteger(GL_MAX_DRAW_BUFFERS)));
+    if (state.framebuffer->bind(false)) {
+        debugAssertGLOk();
         
-        glDrawBuffersARB(array.size(), array.getCArray());
-        debugAssertGLOk();
-    } else {
-        // May be only depth or stencil; don't need a draw buffer.
-        
-        debugAssertGLOk();
-        // Some drivers crash when providing NULL or an actual
-        // zero-element array for a zero-element array, so make a fake
-        // array.
-        const GLenum noColorBuffers[] = { GL_NONE };
-        glDrawBuffersARB(1, noColorBuffers);
-        debugAssertGLOk();
+        // Apply the bindings from this framebuffer
+        const Array<GLenum>& array = state.framebuffer->openGLDrawArray();
+        if (array.size() > 0) {
+            debugAssertM(glGetInteger(GL_MAX_DRAW_BUFFERS) >= array.size(),
+                         format("This graphics card only supports %d draw buffers.",
+                                glGetInteger(GL_MAX_DRAW_BUFFERS)));
+            
+            glDrawBuffersARB(array.size(), array.getCArray());
+            debugAssertGLOk();
+        } else {
+            // May be only depth or stencil; don't need a draw buffer.
+            
+            debugAssertGLOk();
+            // Some drivers crash when providing NULL or an actual
+            // zero-element array for a zero-element array, so make a fake
+            // array.
+            const GLenum noColorBuffers[] = { GL_NONE };
+            glDrawBuffersARB(1, noColorBuffers);
+            debugAssertGLOk();
+        }
     }
 }
 
