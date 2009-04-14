@@ -196,7 +196,7 @@ bool Map::load(
 //    supportedVersion[Q1] = 23;
 //    supportedVersion[Q2] = 38;
     supportedVersion[HL] = 30;
-    supportedVersion[Q3] = 46;
+    supportedVersion[Q3] = 47;
     supportedVersion[NUM_FILE_FORMATS] = 0;
 
     std::string full = resPath + "maps/" + filename;
@@ -214,7 +214,7 @@ bool Map::load(
 
     loadVersion(bi, mapFormat, version);
 
-    if (version != supportedVersion[mapFormat]) {
+    if (version > supportedVersion[mapFormat]) {
         return false;
     }
 

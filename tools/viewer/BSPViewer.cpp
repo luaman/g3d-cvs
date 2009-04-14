@@ -28,9 +28,12 @@ void BSPViewer::onInit(const std::string& filename) {
 	Array<Vector2> texCoordArray, lightCoordArray;
 	Array<TextureRef> texMapArray, lightMapArray;
 	Array<int> indArray, texMapIndexArray, lightMapIndexArray, texCoordIndexArray;
-	map->getTriangles(vertexArray, normalArray, indArray, texCoordArray,
+
+    if (map != NULL) {
+        map->getTriangles(vertexArray, normalArray, indArray, texCoordArray,
 						texMapIndexArray, lightCoordArray, lightMapIndexArray, 
 						texMapArray, lightMapArray);
+    }
 
 	numFaces = indArray.length()/3;
 	numVertices = vertexArray.length();

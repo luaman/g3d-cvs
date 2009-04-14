@@ -434,7 +434,15 @@ typedef ReferenceCountedPointer<class Map> MapRef;
 class Map : public ReferenceCountedObject {
 private:
 
-    enum MapFileFormat {Q3 = 0, HL, NUM_FILE_FORMATS};
+    
+    enum MapFileFormat {
+        /** Quake 3 Arena (version 46) and QuakeLive (version 47) */
+        Q3 = 0, 
+
+        /** Half-Life 1 */
+        HL, 
+
+        NUM_FILE_FORMATS};
 
     friend class FaceSet;
     friend class Mesh;
