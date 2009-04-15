@@ -78,32 +78,51 @@ private:
              dim, settings);
     }
 
+    static void convert(const Color4& c, Color3& v) {
+        v = c.rgb();
+    }
+
+    static void convert(const Color4& c, Color4& v) {
+        v = c;
+    }
+
+    static void convert(const Color4& c, Color1& v) {
+        v = c.r;
+    }
+
     inline MapComponent(const class ReferenceCountedPointer<Image>& im, const Texture::Ref& tex) : 
         m_cpuImage(im), m_gpuImage(tex), m_min(Image::Storage::one()), m_max(Image::Storage::zero()),
         m_mean(Image::Compute::zero()) {
 
-        bool cpuWasNull = m_cpuImage.isNull();
-
         // Compute min, max, mean
-        if (m_cpuImage.isNull() && m_gpuImage.notNull()) {
-            m_gpuImage->getImage(m_cpuImage);
-        }
+        if (m_gpuImage.notNull() && m_gpuImage->min().isFinite()) {
+            // Use previously computed data stored in the texture
+            convert(m_gpuImage->min(), m_min);
+            convert(m_gpuImage->max(), m_max);
+            convert(m_gpuImage->mean(), m_mean);
+        } else {
+            bool cpuWasNull = m_cpuImage.isNull();
 
-        if (m_cpuImage.notNull()) {
-            const typename Image::Storage* ptr = m_cpuImage->getCArray();
-            typename Image::Compute sum = Image::Compute::zero();
-            const int N = m_cpuImage->width() * m_cpuImage->height();
-            for (int i = 0; i < N; ++i) {
-                m_min  = m_min.min(ptr[i]);
-                m_max  = m_max.min(ptr[i]);
-                sum   += typename Image::Compute(ptr[i]);
+            if (m_cpuImage.isNull() && m_gpuImage.notNull()) {
+                m_gpuImage->getImage(m_cpuImage);
             }
-            m_mean = sum / (float)N;
-        }
 
-        if (cpuWasNull) {
-            // Throw away the CPU image to conserve memory
-            m_cpuImage = NULL;
+            if (m_cpuImage.notNull()) {
+                const typename Image::Storage* ptr = m_cpuImage->getCArray();
+                typename Image::Compute sum = Image::Compute::zero();
+                const int N = m_cpuImage->width() * m_cpuImage->height();
+                for (int i = 0; i < N; ++i) {
+                    m_min  = m_min.min(ptr[i]);
+                    m_max  = m_max.min(ptr[i]);
+                    sum   += typename Image::Compute(ptr[i]);
+                }
+                m_mean = sum / (float)N;
+            }
+
+            if (cpuWasNull) {
+                // Throw away the CPU image to conserve memory
+                m_cpuImage = NULL;
+            }
         }
     }
 

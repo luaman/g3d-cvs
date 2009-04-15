@@ -4,14 +4,14 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2004-03-28
- @edited  2006-02-28
+ @edited  2009-02-28
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
 */
 
-#ifndef G3D_GLCAPS_H
-#define G3D_GLCAPS_H
+#ifndef G3D_GLCaps_h
+#define G3D_GLCaps_h
 
 #include "G3D/platform.h"
 #include "G3D/Set.h"
@@ -69,6 +69,7 @@ namespace G3D {
     <LI>GL_ARB_vertex_shader
     <LI>GL_EXT_geometry_shader4
     <LI>GL_EXT_framebuffer_object
+    <LI>GL_SGIS_generate_mipmap
 	</UL>
 
   These methods do not appear in the documentation because they
@@ -100,6 +101,8 @@ private:
     static int          _numTextureCoords;
     static int          _numTextures;
     static int          _numTextureUnits;
+
+    static int          _maxTextureSize;
 
     static Vendor computeVendor();
 
@@ -148,6 +151,7 @@ private:
     DECLARE_EXT(GL_ARB_vertex_shader);
     DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
+    DECLARE_EXT(GL_SGIS_generate_mipmap);
     
 #undef DECLARE_EXT
 
@@ -226,6 +230,10 @@ public:
     /** 4 on most cards. Only affects fixed function. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates.*/
     static int numTextureUnits() {
         return _numTextureUnits;
+    }
+
+    static int maxTextureSize() {
+        return _maxTextureSize;
     }
 
     static inline bool supports_GL_ARB_texture_cube_map() {

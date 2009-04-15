@@ -40,6 +40,12 @@ const Color4& Color4::inf() {
 }
 
 
+const Color4& Color4::nan() {
+    static Color4 c((float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan());
+    return c;
+}
+
+
 const Color4& Color4::clear() {
     return Color4::zero();
 }

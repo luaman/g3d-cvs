@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2009-03-27
+ @edited  2009-04-15
 */
 
 #include "G3D/Log.h"
@@ -129,8 +129,8 @@ static GLenum dimensionToTarget(Texture::Dimension d);
 static void createTexture(
     GLenum          target,
     const uint8*    rawBytes,
-    GLenum          bytesFormat,
     GLenum          bytesActualFormat,
+    GLenum          bytesFormat,
     int             m_width,
     int             m_height,
     int             depth,
@@ -140,7 +140,10 @@ static void createTexture(
     bool            compressed,
     bool            useNPOT,
     float           rescaleFactor,
-    GLenum          dataType);
+    GLenum          dataType,
+    Color4&         minval, 
+    Color4&         maxval, 
+    Color4&         meanval);
 
 
 
@@ -154,7 +157,10 @@ static void createMipMapTexture(
     GLenum          ImageFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
-    GLenum          bytesType);
+    GLenum          bytesType,
+    Color4&         minval, 
+    Color4&         maxval, 
+    Color4&         meanval);
 
 
 /**
@@ -179,21 +185,26 @@ Texture::Texture(
     m_name(name),
     m_dimension(dimension),
     m_opaque(opaque),
-    m_format(format) {
+    m_format(format),
+    m_min(Color4::nan()),
+    m_max(Color4::nan()),
+    m_mean(Color4::nan()) {
 
     debugAssert(m_format);
     debugAssertGLOk();
 
     glStatePush();
+    {
+        // TODO: Explicitly pass these in instead of reading them
 
         GLenum target = dimensionToTarget(m_dimension);
         glBindTexture(target, m_textureID);
 
-            // For cube map, we can't read "cube map" but must choose a face
-            GLenum readbackTarget = target;
-            if ((m_dimension == DIM_CUBE_MAP) || (m_dimension == DIM_CUBE_MAP_NPOT)) {
-                readbackTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
-            }
+        // For cube map, we can't read "cube map" but must choose a face
+        GLenum readbackTarget = target;
+        if ((m_dimension == DIM_CUBE_MAP) || (m_dimension == DIM_CUBE_MAP_NPOT)) {
+            readbackTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB;
+        }
 
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_WIDTH, &m_width);
         glGetTexLevelParameteriv(readbackTarget, 0, GL_TEXTURE_HEIGHT, &m_height);
@@ -208,6 +219,7 @@ Texture::Texture(
         debugAssertGLOk();
         setTexParameters(target, m_settings);
         debugAssertGLOk();
+    }
     glStatePop();
     debugAssertGLOk();
 
@@ -218,11 +230,11 @@ Texture::Texture(
 Texture::Ref Texture::fromMemory(
     const std::string&              name,
     const void*                     bytes,
-    const class ImageFormat*      bytesFormat,
+    const class ImageFormat*        bytesFormat,
     int                             m_width,
     int                             m_height,
     int                             depth,
-    const class ImageFormat*      desiredFormat,
+    const class ImageFormat*        desiredFormat,
     Dimension                       dimension,
     const Settings&                 settings,
     const PreProcess&               preprocess) {
@@ -230,8 +242,7 @@ Texture::Ref Texture::fromMemory(
     Array< Array<const void*> > data(1);
     data[0].append(bytes);
 
-    return fromMemory(
-                      name, 
+    return fromMemory(name, 
                       data,
                       bytesFormat, 
                       m_width, 
@@ -265,18 +276,18 @@ void Texture::setAutoMipMap(bool b) {
 Texture::Ref Texture::fromGLTexture(
     const std::string&      name,
     GLuint                  textureID,
-    const ImageFormat*    ImageFormat,
+    const ImageFormat*      imageFormat,
     Dimension               dimension,
 	const Settings&			settings) {
 
-    debugAssert(ImageFormat);
+    debugAssert(imageFormat);
 
     return new Texture(
 		name, 
 		textureID, 
 		dimension,
-		ImageFormat, 
-        ImageFormat->opaque, 
+		imageFormat, 
+        imageFormat->opaque, 
 		settings);
 }
 
@@ -408,8 +419,7 @@ Texture::Ref Texture::fromFile(
     }
 
     Texture::Ref t =
-        fromMemory(
-                   filename[0], 
+        fromMemory(filename[0], 
                    byteMipMapFaces, 
                    format,
                    image[0].width, 
@@ -611,8 +621,7 @@ Texture::Ref Texture::fromMemory(
             (bytesFormat->code == ImageFormat::CODE_RGBA8));
 
         // Allow brightening to fail silently in release mode
-        if (
-            ( bytesFormat->code == ImageFormat::CODE_RGB8) ||
+        if (( bytesFormat->code == ImageFormat::CODE_RGB8) ||
             ( bytesFormat->code == ImageFormat::CODE_RGBA8)) {
 
             bytesPtr = new MipArray(_bytes.size());
@@ -701,6 +710,7 @@ Texture::Ref Texture::fromMemory(
 
         int mipWidth = width;
         int mipHeight = height;
+        Color4 minval, meanval, maxval;
         for (int mipLevel = 0; mipLevel < numMipMaps; ++mipLevel) {
 
             const int numFaces = (*bytesPtr)[mipLevel].length();
@@ -720,8 +730,7 @@ Texture::Ref Texture::fromMemory(
                     debugAssertM((bytesFormat->compressed == false), 
                                  "Cannot manually generate Mip-Maps for compressed textures.");
 
-                    createMipMapTexture(
-                                        target, 
+                    createMipMapTexture(target, 
                                         reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]),
                                         bytesFormat->openGLFormat,
                                         bytesFormat->openGLBaseFormat,
@@ -730,17 +739,17 @@ Texture::Ref Texture::fromMemory(
                                         desiredFormat->openGLFormat,
                                         bytesFormat->packedBitsPerTexel / 8, 
                                         preProcess.scaleFactor,
-                                        bytesFormat->openGLDataFormat);
+                                        bytesFormat->openGLDataFormat,
+                                        minval, maxval, meanval);
                     
                 } else {
 
                     const bool useNPOT = (dimension == DIM_2D_NPOT) || (dimension == DIM_CUBE_MAP_NPOT);
 
-                    createTexture(
-                                  target, 
+                    createTexture(target, 
                                   reinterpret_cast<const uint8*>((*bytesPtr)[mipLevel][f]), 
-                                  bytesFormat->openGLBaseFormat,
                                   bytesFormat->openGLFormat, 
+                                  bytesFormat->openGLBaseFormat,
                                   mipWidth, 
                                   mipHeight, 
                                   depth,
@@ -750,7 +759,8 @@ Texture::Ref Texture::fromMemory(
                                   bytesFormat->compressed, 
                                   useNPOT, 
                                   preProcess.scaleFactor,
-                                  bytesFormat->openGLDataFormat);
+                                  bytesFormat->openGLDataFormat,
+                                  minval, maxval, meanval);
                 }
 
                 debugAssertGLOk();
@@ -775,6 +785,9 @@ Texture::Ref Texture::fromMemory(
     t->m_width  = width;
     t->m_height = height;
     t->m_depth  = depth;
+    t->m_min    = minval;
+    t->m_max    = maxval;
+    t->m_mean   = meanval;
 
     if (bytesPtr != &_bytes) {
 
@@ -1512,8 +1525,7 @@ static bool hasAutoMipMap() {
 
     if (! initialized) {
         initialized = true;
-        std::string ext = (char*)glGetString(GL_EXTENSIONS);
-        ham = (ext.find("GL_SGIS_generate_mipmap") != std::string::npos) &&
+        ham = GLCaps::supports_GL_SGIS_generate_mipmap() &&
             ! GLCaps::hasBug_mipmapGeneration() &&
             ! GLCaps::hasBug_redBlueMipmapSwap();
     }
@@ -1544,6 +1556,73 @@ static GLenum dimensionToTarget(Texture::Dimension d) {
     }
 }
 
+
+
+void computeStats
+(const uint8* rawBytes, 
+ GLenum       bytesActualFormat, 
+ int          width,
+ int          height,
+ Color4&      minval,
+ Color4&      maxval,
+ Color4&      meanval) {
+    minval  = Color4::nan();
+    maxval  = Color4::nan();
+    meanval = Color4::nan();
+    if (rawBytes == NULL) {
+        return;
+    }
+
+    switch (bytesActualFormat) {
+    case GL_RGB8:
+        {
+            Color3 min3 = Color3::one();
+            Color3 max3 = Color3::zero();
+            Color3 mean3 = Color3::zero();
+            // Compute mean along rows to avoid overflow
+            for (int y = 0; y < height; ++y) {
+                const Color3uint8* ptr = ((const Color3uint8*)rawBytes) + (y * width);
+                Color3 rowsum = Color3::zero();
+                for (int x = 0; x < width; ++x) {
+                    Color3 c = ptr[x];
+                    rowsum += c;
+                    min3 = min3.min(c);
+                    max3 = max3.max(c);
+                }
+                mean3 += rowsum / width;
+            }
+            minval  = Color4(min3, 1.0f);
+            maxval  = Color4(max3, 1.0f);
+            meanval = Color4(mean3 / height, 1.0f);
+        }
+        break;
+
+    case GL_RGBA8:
+        {
+            minval = Color4::one();
+            maxval = Color4::zero();
+            meanval = Color4::zero();
+            // Compute mean along rows to avoid overflow
+            for (int y = 0; y < height; ++y) {
+                const Color4uint8* ptr = ((const Color4uint8*)rawBytes) + (y * width);
+                Color4 rowsum = Color4::zero();
+                for (int x = 0; x < width; ++x) {
+                    Color4 c = ptr[x];
+                    rowsum += c;
+                    minval = minval.min(c);
+                    maxval = maxval.max(c);
+                }
+                meanval += rowsum / width;
+            }
+            meanval = meanval / height;
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
 /** 
    @param bytesFormat OpenGL base format.
 
@@ -1555,8 +1634,8 @@ static GLenum dimensionToTarget(Texture::Dimension d) {
 static void createTexture(
     GLenum          target,
     const uint8*    rawBytes,
-    GLenum          bytesFormat,
     GLenum          bytesActualFormat,
+    GLenum          bytesFormat,
     int             m_width,
     int             m_height,
     int             depth,
@@ -1566,14 +1645,19 @@ static void createTexture(
     bool            compressed,
     bool            useNPOT,
     float           rescaleFactor,
-    GLenum          dataType) {
+    GLenum          dataType,
+    Color4&         minval, 
+    Color4&         maxval, 
+    Color4&         meanval) {
 
     uint8* bytes = const_cast<uint8*>(rawBytes);
 
     // If true, we're supposed to free the byte array at the end of
     // the function.
     bool   freeBytes = false; 
-    int maxSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
+    int maxSize = GLCaps::maxTextureSize();
+
+    computeStats(rawBytes, bytesActualFormat, m_width, m_height, minval, maxval, meanval);
 
     switch (target) {
     case GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB:
@@ -1691,7 +1775,12 @@ static void createMipMapTexture(
     GLenum          desiredFormat,
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
-    GLenum          bytesType) {
+    GLenum          bytesType,
+    Color4&         minval, 
+    Color4&         maxval, 
+    Color4&         meanval) {
+ 
+    computeStats(_bytes, bytesFormat, m_width, m_height, minval, maxval, meanval);
 
     switch (target) {
     case GL_TEXTURE_2D:
@@ -1832,23 +1921,6 @@ const Texture::Settings& Texture::Settings::shadow() {
     return param;
 }
 
-/*
-void Texture::Settings::serialize(class BinaryOutput& b) {
-    // TODO: use chunk format
-
-}
-
-void Texture::Settings::deserialize(class BinaryInput& b) {
-
-}
-
-void Texture::Settings::serialize(class TextOutput& t) {
-    // TODO: ini-like format
-}
-
-void Texture::Settings::deserialize(class TextInput& t) {
-}
-*/
 
 size_t Texture::Settings::hashCode() const {
     return 

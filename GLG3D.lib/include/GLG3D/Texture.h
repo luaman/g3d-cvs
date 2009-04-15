@@ -328,6 +328,10 @@ private:
     int                             m_height;
     int                             m_depth;
 
+    Color4                          m_min;
+    Color4                          m_max;
+    Color4                          m_mean;
+
     static size_t                   m_sizeOfAllTexturesInMemory;
 
     Texture(
@@ -335,7 +339,7 @@ private:
         GLuint                      textureID,
         Dimension                   dimension,
         const ImageFormat*          format,
-        bool		      	    opaque,
+        bool		      	        opaque,
         const Settings&             settings);
 
 public:
@@ -633,12 +637,29 @@ public:
         im = toImage1uint8(applyInvertY);
     }
 
+    /** If this texture was loaded from an uncompressed format in memory or disk (and not rendered to), 
+       this is the smallest value in the texture. */
+    inline Color4 min() const {
+        return m_min;
+    }
 
+    /** If this texture was loaded from an uncompressed format in memory or disk (and not rendered to),
+       this is the largest value in the texture. */
+    inline Color4 max() const {
+        return m_max;
+    }
+
+    /** If this texture was loaded from an uncompressed format in memory or disk (and not rendered to), 
+       this is the average value in the texture. */
+    inline Color4 mean() const {
+        return m_mean;
+    }
 
 	/** Extracts the data as ImageFormat::DEPTH32F */
 	Map2D<float>::Ref toDepthMap(bool applyInvertY = true) const;
 
-	/** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true.*/
+	/** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call 
+      Image1uint8::flipVertical if Texture::invertY is true.*/
 	Image1uint8Ref toDepthImage1uint8(bool applyInvertY = true) const;
 
     inline unsigned int openGLID() const {
@@ -726,7 +747,7 @@ private:
     private:
                                     
         uint8*                      m_bytes;
-        const ImageFormat*        m_bytesFormat;
+        const ImageFormat*          m_bytesFormat;
         int                         m_width;
         int                         m_height;
         int                         m_numMipMaps;

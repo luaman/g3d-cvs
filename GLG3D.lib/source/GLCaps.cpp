@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2004-03-28
-  @edited  2006-08-10
+  @edited  2009-04-10
 */
 
 #include "G3D/TextOutput.h"
@@ -38,6 +38,8 @@ bool GLCaps::bug_normalMapTexGen = false;
 bool GLCaps::bug_redBlueMipmapSwap = false;
 bool GLCaps::bug_mipmapGeneration = false;
 bool GLCaps::bug_slowVBO = false;
+
+int GLCaps::_maxTextureSize = 0;
 
 /**
  Dummy function to which unloaded extensions can be set.
@@ -242,6 +244,7 @@ void GLCaps::init() {
     DECLARE_EXT(GL_ARB_vertex_shader);
     DECLARE_EXT(GL_EXT_geometry_shader4);
     DECLARE_EXT(GL_EXT_framebuffer_object);
+    DECLARE_EXT(GL_SGIS_generate_mipmap);
 #undef DECLARE_EXT
 
 void GLCaps::loadExtensions(Log* debugLog) {
@@ -286,8 +289,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
 
         // We're going to need exactly the same code for each of 
         // several extensions.
-        #define DECLARE_EXT(extname) _supports_##extname = supports(#extname)
-        #define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || _hasGLMajorVersion2)
+#       define DECLARE_EXT(extname) _supports_##extname = supports(#extname)
+#       define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || _hasGLMajorVersion2)
             DECLARE_EXT(GL_ARB_texture_float);
             DECLARE_EXT_GL2(GL_ARB_texture_non_power_of_two);
             DECLARE_EXT(GL_EXT_texture_rectangle);
@@ -312,7 +315,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
             DECLARE_EXT(GL_ARB_vertex_shader);
             DECLARE_EXT(GL_EXT_geometry_shader4);
             DECLARE_EXT_GL2(GL_EXT_framebuffer_object);
-        #undef DECLARE_EXT
+            DECLARE_EXT(GL_SGIS_generate_mipmap);
+#       undef DECLARE_EXT
 
         // Some extensions have aliases
          _supports_GL_EXT_texture_cube_map = _supports_GL_EXT_texture_cube_map || supports("GL_ARB_texture_cube_map");
@@ -376,6 +380,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
         _numTextureUnits  = iMax(1, _numTextureUnits);
     }
     debugAssertGLOk();
+
+    _maxTextureSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
 
     _initialized = true;
 }

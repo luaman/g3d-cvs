@@ -8,7 +8,7 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2009-03-23
+ @edited  2009-04-15
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -149,6 +149,7 @@ public:
     static const Color4& clear();
 
     static const Color4& inf();
+    static const Color4& nan();
 
     inline bool isFinite() const {
         return G3D::isFinite(r) && G3D::isFinite(g) && G3D::isFinite(b) && G3D::isFinite(a);
