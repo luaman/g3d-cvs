@@ -124,6 +124,39 @@ void testTableTable() {
     table[3].set("Hello", 3);
 }
 
+void testGCamera() {
+    printf("GCamera...");
+    GCamera camera;
+    camera.setCoordinateFrame(CFrame());
+    camera.setFieldOfView(toRadians(90), GCamera::HORIZONTAL);
+    camera.setNearPlaneZ(-1);
+    camera.setFarPlaneZ(-100);
+
+    Rect2D viewport = Rect2D::xywh(0,0,200,100);
+    Array<Plane> plane;
+    camera.getClipPlanes(viewport, plane);
+    debugAssertM(plane.size() == 6, "Missing far plane");
+    debugAssertM(plane[0].fuzzyContains(Vector3(0,0,-1)), plane[0].center().toString());
+    debugAssertM(plane[0].normal() == Vector3(0,0,-1), plane[0].normal().toString());
+
+    debugAssertM(plane[5].fuzzyContains(Vector3(0,0,-100)), plane[1].center().toString());
+    debugAssertM(plane[5].normal() == Vector3(0,0,1), plane[1].normal().toString());
+
+    debugAssertM(plane[1].normal().fuzzyEq(Vector3(-1,0,-1).direction()), plane[1].normal().toString());
+    debugAssertM(plane[2].normal().fuzzyEq(Vector3(1,0,-1).direction()), plane[2].normal().toString());
+
+    // top
+    debugAssertM(plane[3].normal().fuzzyEq(Vector3(0,-0.5,-1).direction()), plane[3].normal().toString());
+    debugAssertM(plane[4].normal().fuzzyEq(Vector3(0,0.5,-1).direction()), plane[4].normal().toString());
+
+    Vector3 ll, lr, ul, ur;
+    camera.getNearViewportCorners(viewport, ur, ul, ll, lr);
+    debugAssertM(ur == Vector3(1, 0.5, -1), ur.toString());
+    debugAssertM(lr == Vector3(1, -0.5, -1), lr.toString());
+    debugAssertM(ll == Vector3(-1, -0.5, -1), ll.toString());
+    debugAssertM(ul == Vector3(-1, 0.5, -1), ul.toString());
+    printf("passed\n");
+}
 
 void testConvexPolygon2D() {
     printf("ConvexPolygon2D\n");
@@ -756,6 +789,8 @@ int main(int argc, char* argv[]) {
     testglFormatOf();
     printf("  passed\n");
     testSwizzle();
+
+    testGCamera();
 
     testCallback();
 
