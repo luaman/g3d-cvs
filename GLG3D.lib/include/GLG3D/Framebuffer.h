@@ -10,7 +10,7 @@
  </UL>
 
  @created 2006-01-07
- @edited  2009-04-11
+ @edited  2009-04-17
 */
 
 #ifndef GLG3D_Framebuffer_h
@@ -332,6 +332,8 @@ protected:
         where it should be inserted if it is not present.*/
     int find(AttachmentPoint ap, bool& found) const;
 
+    int findCurrent(AttachmentPoint ap) const;
+
     /** Executes the synchronization portion of bind() */
     void sync();
 
@@ -342,7 +344,7 @@ protected:
         \param cIndex index in m_colorDrawBufferArray at which to
         insert the appropriate enum value.
     */
-    void attach(const Attachment::Ref& a, int cIndex);
+    void attach(const Attachment::Ref& a);
 
     /** Called from sync() to actually force \a a to be detached
         at the OpenGL level.  Assumes the framebuffer is already
@@ -351,7 +353,7 @@ protected:
         \param dIndex index in m_colorDrawBufferArray from which to
         remove the appropriate enum value.
     */
-    void detach(const Attachment::Ref& a, int dIndex);
+    void detach(const Attachment::Ref& a);
 
 public:
     

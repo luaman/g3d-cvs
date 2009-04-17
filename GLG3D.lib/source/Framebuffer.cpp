@@ -66,6 +66,17 @@ int Framebuffer::find(AttachmentPoint ap, bool& found) const {
 }
 
 
+int Framebuffer::findCurrent(AttachmentPoint ap) const {
+    for (int i = 0; i < m_current.size(); ++i) {
+        if (m_current[i]->m_point >= ap) {
+            return i;
+        }
+    }
+
+    return m_current.size();
+}
+
+
 void Framebuffer::set(AttachmentPoint ap, const void* n) {
     debugAssert(n == NULL);
 
@@ -198,14 +209,14 @@ void Framebuffer::sync() {
         } else {
             // Mismatch
             if (da->point() >= ca->point()) {
-                // Process current
-                detach(ca, c);
-                ++c;
+                // Remove current.  Don't change 
+                // c index because we just shrank m_current.
+                detach(ca);
             }
             
             if (da->point() <= ca->point()) {
-                // Process desired
-                attach(da, d);
+                // Add desired
+                attach(da);
                 ++d;
             }
         }
@@ -213,32 +224,42 @@ void Framebuffer::sync() {
 
     // Only one of the following two loops will execute
     while (c < m_current.size()) {
-        detach(m_current[c], c);
-        ++c;
+        // Don't change c index because we just shrank m_current.
+        detach(m_current[c]);
     }
 
     while (d < m_desired.size()) {
-        attach(m_desired[d], d);
+        attach(m_desired[d]);
         ++d;
     }
 
     // We are now in sync
     m_currentOutOfSync = false;
+
+    debugAssert(m_current.length() == m_desired.length());
+
+    debugAssert(
+        m_colorDrawBufferArray.length() >= m_current.length() - 2 && 
+        m_colorDrawBufferArray.length() <= m_current.length());
 }
 
 
-void Framebuffer::attach(const Attachment::Ref& a, int cIndex) {
+void Framebuffer::attach(const Attachment::Ref& a) {
+    int cIndex = findCurrent(a->point());
     if (a->point() < DEPTH) {
         m_colorDrawBufferArray.insert(cIndex, GLenum(a->point()));
     }
+    m_current.insert(cIndex, a);
     a->attach();
 }
 
 
-void Framebuffer::detach(const Attachment::Ref& a, int dIndex) {
+void Framebuffer::detach(const Attachment::Ref& a) {
+    int cIndex = findCurrent(a->point());
     if (a->point() < DEPTH) {
-        m_colorDrawBufferArray.remove(dIndex);
+        m_colorDrawBufferArray.remove(cIndex);
     }
+    m_current.remove(cIndex);
     a->detach();
 }
 
