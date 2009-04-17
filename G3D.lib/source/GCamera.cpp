@@ -189,11 +189,13 @@ void GCamera::getClipPlanes(
     }
 }
  
+
 GCamera::Frustum GCamera::frustum(const Rect2D& viewport) const {
     Frustum f;
     frustum(viewport, f);
     return f;
 }
+
 
 void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
 
@@ -204,11 +206,16 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     const float y               = viewportHeight(viewport) / 2;
     const float zn              = m_nearPlaneZ;
     const float zf              = m_farPlaneZ;
-    float fovx;
+    float xx, zz, yy;
 
-    fovx = m_fieldOfView;
     if (m_direction == VERTICAL) {
-        fovx *= x / y;
+        yy = -cosf(m_fieldOfView / 2);
+        xx = yy * x / y;
+        zz = -sinf(m_fieldOfView / 2);
+    } else {
+        xx = -cosf(m_fieldOfView / 2);
+        yy = xx * y / x;
+        zz = -sinf(m_fieldOfView / 2);
     } 
 
     // Near face (ccw from UR)
@@ -220,16 +227,14 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
 
     // Far face (ccw from UR, from origin)
     if (m_farPlaneZ == -finf()) {
-        fr.vertexPos.append(
-                            Vector4( x,  y, zn, 0),
+        fr.vertexPos.append(Vector4( x,  y, zn, 0),
                             Vector4(-x,  y, zn, 0),
                             Vector4(-x, -y, zn, 0),
                             Vector4( x, -y, zn, 0));
     } else {
         // Finite
         const float s = zf / zn;
-        fr.vertexPos.append(
-                            Vector4( x * s,  y * s, zf, 1),
+        fr.vertexPos.append(Vector4( x * s,  y * s, zf, 1),
                             Vector4(-x * s,  y * s, zf, 1),
                             Vector4(-x * s, -y * s, zf, 1),
                             Vector4( x * s, -y * s, zf, 1));
@@ -248,7 +253,7 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     fr.faceArray.append(face);
 
     // Right plane
-    face.plane = Plane(Vector3(-cosf(fovx/2), 0, -sinf(fovx/2)), Vector3::zero());
+    face.plane = Plane(Vector3(xx, 0, zz), Vector3::zero());
     face.vertexIndex[0] = 0;
     face.vertexIndex[1] = 4;
     face.vertexIndex[2] = 7;
@@ -264,7 +269,7 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     fr.faceArray.append(face);
 
     // Top plane
-    face.plane = Plane(Vector3(0, -cosf(m_fieldOfView/2.0f), -sinf(m_fieldOfView/2.0f)), Vector3::zero());
+    face.plane = Plane(Vector3(0, yy, zz), Vector3::zero());
     face.vertexIndex[0] = 1;
     face.vertexIndex[1] = 5;
     face.vertexIndex[2] = 4;
@@ -316,13 +321,13 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     }
 }
 
-void GCamera::getNearViewportCorners(
-    const Rect2D& viewport,
-    Vector3& outUR,
-    Vector3& outUL,
-    Vector3& outLL,
-    Vector3& outLR) const {
-
+void GCamera::getNearViewportCorners
+(const Rect2D& viewport,
+ Vector3&      outUR,
+ Vector3&      outUL,
+ Vector3&      outLL,
+ Vector3&      outLR) const {
+    
     // Must be kept in sync with getFrustum()
     const float w  = viewportWidth(viewport) / 2.0f;
     const float h  = viewportHeight(viewport) / 2.0f;
