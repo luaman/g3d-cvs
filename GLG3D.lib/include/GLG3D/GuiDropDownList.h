@@ -2,7 +2,7 @@
  @file GLG3D/GuiDropDownList.h
 
  @created 2007-06-15
- @edited  2009-03-20
+ @edited  2009-04-20
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
@@ -94,6 +94,10 @@ public:
     inline void setSelectedIndex(int i) {
         *m_indexValue = i;
     }
+
+    /** Selects the first value whose text() is equal to \a s. If not
+        found, leaves the index unchanged. */
+    void setSelectedValue(const std::string& s);
 
     inline void resize(int n) {
         m_listValue.resize(n);

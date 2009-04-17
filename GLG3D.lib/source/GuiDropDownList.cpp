@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
- @edited  2009-03-26
+ @edited  2009-04-17
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiDropDownList.h"
@@ -41,6 +41,16 @@ void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
     if (m_visible) {
         skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), 
                                  m_selecting, selectedValue(), m_caption, m_captionSize);
+    }
+}
+
+
+void GuiDropDownList::setSelectedValue(const std::string& s) {
+    for (int i = 0; i < m_listValue.size(); ++i) {
+        if (m_listValue[i].text() == s) {
+            setSelectedIndex(i);
+            return;
+        }
     }
 }
 
