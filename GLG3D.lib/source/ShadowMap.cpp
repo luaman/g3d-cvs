@@ -166,19 +166,18 @@ void ShadowMap::updateDepth(
 
     Rect2D rect = m_depthTexture->rect2DBounds();
 
+    debugAssertGLOk();
     renderDevice->pushState(m_framebuffer);
-    //        glPushAttrib(GL_COLOR_BUFFER_BIT | GL_PIXEL_MODE_BIT); // Push read and draw buffers
         if (m_framebuffer.notNull()) {
             renderDevice->setDrawBuffer(RenderDevice::DRAW_NONE);
             renderDevice->setReadBuffer(RenderDevice::READ_NONE);
-            //glReadBuffer(GL_NONE);
-            //glDrawBuffer(GL_NONE);
         } else {
             debugAssert(rect.height() <= renderDevice->height());
             debugAssert(rect.width() <= renderDevice->width());
             renderDevice->setViewport(rect);
         }
 
+        debugAssertGLOk();
         //renderDevice->setColorClearValue(Color3::white());
         bool debugShadows = false;
         renderDevice->setColorWrite(debugShadows);
@@ -200,14 +199,14 @@ void ShadowMap::updateDepth(
         
         m_biasedLightProjection = bias * m_lightProjection;
         m_biasedLightMVP = bias * m_lightMVP;
-        // Avoid z-fighting
-        // TODO: use slope argument as well (Kilgard recommends 4.0)
+
         renderDevice->setPolygonOffset(m_polygonOffset);
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
+        debugAssertGLOk();
         PosedModel::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
-        //glPopAttrib();
+        debugAssertGLOk();
     renderDevice->popState();
 
     if (m_framebuffer.isNull()) {

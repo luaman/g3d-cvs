@@ -809,7 +809,7 @@ bool RenderDevice::RenderState::Matrices::operator==(const Matrices& other) cons
 
 void RenderDevice::setState(
     const RenderState&          newState) {
-
+    debugAssertGLOk();
     // The state change checks inside the individual
     // methods will (for the most part) minimize
     // the state changes so we can set all of the
@@ -824,6 +824,7 @@ void RenderDevice::setState(
         // reset it below.
         state.viewport = Rect2D::xywh(-1, -1, -1, -1);
     }
+    debugAssertGLOk();
     
     setViewport(newState.viewport);
 
@@ -837,10 +838,14 @@ void RenderDevice::setState(
     setColorWrite(newState.colorWrite);
     setAlphaWrite(newState.alphaWrite);
 
+    debugAssertGLOk();
     setDrawBuffer(newState.drawBuffer);
+    debugAssertGLOk();
     setReadBuffer(newState.readBuffer);
+    debugAssertGLOk();
 
     setShadeMode(newState.shadeMode);
+    debugAssertGLOk();
     setDepthTest(newState.depthTest);
     debugAssertGLOk();
 
@@ -1481,6 +1486,18 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
                 "Framebuffer Object not supported!");
             state.framebuffer = fbo;
             syncDrawBuffer(false);
+
+            if (state.readBuffer != READ_NONE) {
+                if (! fbo->has((Framebuffer::AttachmentPoint)state.readBuffer)) {
+                    // Switch to color0 or none
+                    if (fbo->has(Framebuffer::COLOR0)) {
+                        setReadBuffer(READ_COLOR0);
+                    } else {
+                        setReadBuffer(READ_NONE);
+                    }
+                }
+            }
+
             // The enables for this framebuffer will be set during beforePrimitive()            
         }
     }

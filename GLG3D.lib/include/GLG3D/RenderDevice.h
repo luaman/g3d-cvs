@@ -1644,6 +1644,9 @@ public:
      See RenderDevice::pushState and push2D for a way to set the frame buffer and viewport
      simultaneously.
 
+     If the current readBuffer() is not legal for \a fbo, it will be changed to READ_COLOR0
+     or READ_NONE if there is no color0 attachment.
+
      @param fbo Framebuffer to render to.
     */
     void setFramebuffer(const FramebufferRef &fbo);

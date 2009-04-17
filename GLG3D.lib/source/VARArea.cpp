@@ -35,6 +35,7 @@ VARAreaRef VARArea::create(size_t s, UsageHint h, Type t) {
 
 VARArea::VARArea(size_t _size, UsageHint hint, Type t) :  m_type(t), size(_size) {
     renderDevice = NULL;
+    debugAssertGLOk();
 
     // See if we've determined the mode yet.
     if (mode == UNINITIALIZED) {
