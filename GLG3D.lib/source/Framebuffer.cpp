@@ -254,7 +254,7 @@ void Framebuffer::attach(const Attachment::Ref& a) {
 }
 
 
-void Framebuffer::detach(const Attachment::Ref& a) {
+void Framebuffer::detach(Attachment::Ref a) {
     int cIndex = findCurrent(a->point());
     if (a->point() < DEPTH) {
         m_colorDrawBufferArray.remove(cIndex);

@@ -352,8 +352,11 @@ protected:
         
         \param dIndex index in m_colorDrawBufferArray from which to
         remove the appropriate enum value.
+
+        Argument can't be a & reference because it is being removed 
+        from the only place holding it.
     */
-    void detach(const Attachment::Ref& a);
+    void detach(Attachment::Ref a);
 
 public:
     
