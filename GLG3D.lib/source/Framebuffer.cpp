@@ -218,11 +218,15 @@ void Framebuffer::sync() {
                 // Add desired
                 attach(da);
                 ++d;
+
+                // Increment c, since we just inserted at it or earlier
+                ++c;
             }
         }
     }
 
-    // Only one of the following two loops will execute
+    // Only one of the following two loops will execute. This one must be first because
+    // it assumes that c is unchanged from the previous loop.
     while (c < m_current.size()) {
         // Don't change c index because we just shrank m_current.
         detach(m_current[c]);
