@@ -51,9 +51,11 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
     ArticulatedModel* model = new ArticulatedModel();
     model->setSettings(settings);
 
-    if (endsWith(toLower(filename), ".3ds")) {
+    std::string ext = filenameExt(toLower(filename));
+
+    if (ext == "3ds") {
         model->init3DS(filename, preprocess);
-    } else if (endsWith(toLower(filename), ".ifs") || endsWith(toLower(filename), ".ply2") || endsWith(toLower(filename), ".off")) {
+    } else if ((ext == "ifs") || (ext == "ply2") || (ext == "off")) {
         model->initIFS(filename, preprocess.xform);
     }
 

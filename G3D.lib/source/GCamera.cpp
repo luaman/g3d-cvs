@@ -20,7 +20,7 @@ namespace G3D {
 GCamera::GCamera() {
     setNearPlaneZ(-0.1f);
     setFarPlaneZ(-finf());
-    setFieldOfView((float)toRadians(55.0f), VERTICAL);
+    setFieldOfView((float)toRadians(60.0f), HORIZONTAL);
 }
 
 
@@ -48,7 +48,7 @@ float GCamera::imagePlaneDepth() const{
 
 float GCamera::viewportWidth(const Rect2D& viewport) const {
     // Compute the side of a square at the near plane based on our field of view
-    float s = 2.0f * -m_nearPlaneZ * tan(m_fieldOfView * 0.5f);
+    float s = 2.0f * -m_nearPlaneZ * tan(m_fieldOfView);
 
     if (m_direction == VERTICAL) {
         s *= viewport.width() / viewport.height();
@@ -59,7 +59,7 @@ float GCamera::viewportWidth(const Rect2D& viewport) const {
 
 float GCamera::viewportHeight(const Rect2D& viewport) const {
     // Compute the side of a square at the near plane based on our field of view
-    float s = 2.0f * -m_nearPlaneZ * tan(m_fieldOfView * 0.5f);
+    float s = 2.0f * -m_nearPlaneZ * tan(m_fieldOfView);
 
     if (m_direction == HORIZONTAL) {
         s *= viewport.height() / viewport.width();
@@ -209,13 +209,13 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     float xx, zz, yy;
 
     if (m_direction == VERTICAL) {
-        yy = -cosf(m_fieldOfView / 2);
-        xx = yy * x / y;
-        zz = -sinf(m_fieldOfView / 2);
+        yy = -cosf(m_fieldOfView);
+        xx = yy * viewport.width() / viewport.height();
+        zz = -sinf(m_fieldOfView);
     } else {
-        xx = -cosf(m_fieldOfView / 2);
-        yy = xx * y / x;
-        zz = -sinf(m_fieldOfView / 2);
+        xx = -cosf(m_fieldOfView);
+        yy = xx * viewport.height() / viewport.width();
+        zz = -sinf(m_fieldOfView);
     } 
 
     // Near face (ccw from UR)

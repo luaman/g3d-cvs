@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2005-07-20
-  @edited  2007-07-24
+  @edited  2009-04-20
 */
 
 #ifndef G3D_GCamera_H
@@ -115,12 +115,13 @@ public:
        initial angle is toRadians(55).  Must specify
        the direction of the angle.
 
-       This is the full angle, i.e., from the left side of the
-       viewport to the right side.
+       This is the half angle, i.e., from the left side of the
+       viewport to the center axis of field of view.
     */
     void setFieldOfView(float angle, FOVDirection direction);
 
-    /** Returns the current field of view angle and direction */
+    /** Returns the current field of view angle (from the view axis 
+        to one side; i.e., half of the extent) and direction */
     inline void getFieldOfView(float& angle, FOVDirection& direction) const {
         angle = m_fieldOfView;
         direction = m_direction;

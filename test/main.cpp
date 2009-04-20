@@ -477,7 +477,7 @@ void testFloat() {
     debugAssert(! isFinite(nan()));
     debugAssert(! isFinite(-inf()));
     debugAssert(! isFinite(inf()));
-    debugAssert(isFinite(0));
+    debugAssert(isFinite(0.0f));
 		    
 }
 
