@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-05-25
-  @edited  2006-10-30
+  @edited  2009-02-30
  */ 
 
 #include "GLG3D/BSPMAP.h"
@@ -551,8 +551,8 @@ static Texture::Ref loadBrightTexture(const std::string& filename, double bright
 
 Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename) {
     float brighten = 2.0f;
-    const int numExt = 2;
-    static const std::string ext[] = {".jpg", ".tga"};
+    const int numExt = 3;
+    static const std::string ext[] = {".jpg", ".tga", ".png"};
     
     int numPath = 2;
     const std::string path[] = {resPath, altPath};
@@ -563,7 +563,7 @@ Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& alt
                 const std::string& full = pathConcat(path[p], filename) + ext[i];
                 
                 if (fileExists(full)) {
-                    TextureRef t = loadBrightTexture(full, brighten);
+                    Texture::Ref t = loadBrightTexture(full, brighten);
 
                     if (defaultTexture.isNull()) {
                         defaultTexture = t;
@@ -892,8 +892,8 @@ void Map::loadDynamicModels(
 		curr.numOfBrushes = modelData[i].numOfBrushes;
 		curr.numOfFaces = modelData[i].numOfFaces;
 
-		debugAssert(curr.max.y > curr.min.y);
-		debugAssert(curr.max.z > curr.min.z);
+		debugAssert(curr.max.y >= curr.min.y);
+		debugAssert(curr.max.z >= curr.min.z);
 
 		dynamicModels.append(curr);
 	}
