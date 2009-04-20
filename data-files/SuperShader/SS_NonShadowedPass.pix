@@ -123,6 +123,12 @@ void main(void) {
 #       endif
         ;
 
+    /* Debugging:
+#ifdef NORMALBUMPMAP
+//gl_FragColor.rgb = vec3(mod(texCoord.xy, vec2(1.0,1.0)),0.0);
+gl_FragColor.rgb = tan_Y.xyz * 0.5 + 0.5;
+#endif
+*/
     gl_FragColor.a = 
 #       if defined(LAMBERTIANMAP) || defined(LAMBERTIANCONSTANT)
             lambertianColor.a

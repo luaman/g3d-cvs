@@ -852,6 +852,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\data-files\SuperShader\SS_LambertianComponent.pix"
+				>
+			</File>
+			<File
 				RelativePath="..\data-files\SuperShader\SS_Light.pix"
 				>
 			</File>

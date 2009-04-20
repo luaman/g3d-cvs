@@ -29,6 +29,7 @@ public:
 
     ArticulatedModel::Ref   ground;
 
+    bool                updating;
     IFSModel::Ref       ifs;
 
     Film::Ref           film;
@@ -64,49 +65,51 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 void App::onInit() {
     film = Film::create();
-    /*
-    Stopwatch timer("Load 3DS");
-    ArticulatedModel::PreProcess preprocess;
-    preprocess.addBumpMaps = true;
-    preprocess.textureDimension = Texture::DIM_2D_NPOT;
-    preprocess.parallaxSteps = 0;
-    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
-    timer.after("load");
-    */
+    updating = true;
+    debugPane->addCheckBox("Update Frustum", &updating);
+
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     //model = ArticulatedModel::createCornellBox();
 
     setDesiredFrameRate(1000);
 
-    int N = 2000; // Num quads
-    VARArea::Ref area = VARArea::create(N * 4 * sizeof(Vector2), VARArea::WRITE_ONCE);
-
-    data = VAR(Vector2::zero(), N*4, VAR(N * 4 * sizeof(Vector2), area), 0, sizeof(Vector2));
-    Vector2* v = (Vector2*)data.mapBuffer(GL_WRITE_ONLY);
-    Rect2D viewport = renderDevice->viewport();
-    for (int i = 0; i < N; ++i) {
-        for (int c = 0; c < 4; ++c) {
-            *v = viewport.corner(c);
-            ++v;
-        }
-    }
-    data.unmapBuffer();
 
     sky = Sky::fromFile(System::findDataFile("sky"));
 
     if (sky.notNull()) {
-        skyParameters = SkyParameters(G3D::toSeconds(10, 00, 00, AM));
+        skyParameters = SkyParameters(G3D::toSeconds(5, 00, 00, PM));
     }
 
+//    lighting = Lighting::fromSky(sky, skyParameters, Color3::white() * 0.5f);
     lighting = Lighting::create();
-    lighting->ambientTop = lighting->ambientBottom = Color3::white() * 0.2f;
+    lighting->ambientTop = Color3::white() * 0.2f;
+    lighting->ambientBottom = Color3::zero();
     {
-        GLight L = GLight::spot(Vector3(0, 0, 0), -Vector3::unitY(), 45, Color3::white());
-        L.spotSquare = true;
-        lighting->shadowedLightArray.append(L);
+        CFrame c = CFrame::fromXYZYPRDegrees(0, 32, -9, 180, -60, 0);
+        GLight L = GLight::spot(c.translation, c.lookVector(), 45, Color3::white());
+
+  //      L = GLight::directional(-c.lookVector(), Color3::white());
+ //       L.rightDirection = c.rightVector();
+
+      L = GLight::directional(Vector3(0, 0.86, -.5), Color3::white());
+
+//        L = skyParameters.directionalLight();
+
+        lighting->lightArray.append(L);
     }
     shadowMap = ShadowMap::create("Shadow Map");
+
+    Stopwatch timer("Load 3DS");
+    ArticulatedModel::PreProcess preprocess;
+    preprocess.addBumpMaps = true;
+    preprocess.textureDimension = Texture::DIM_2D_NPOT;
+    preprocess.parallaxSteps = 0;
+    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+//    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
+
+//    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+    timer.after("load");
 
     fb = Framebuffer::create("Offscreen");
     colorBuffer = Texture::createEmpty("Color", renderDevice->width(), renderDevice->height(), ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
@@ -134,7 +137,10 @@ void App::onInit() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     if (model.notNull()) {
-        model->pose(posed3D, Vector3(0,0,0));
+        static float a = 0;
+        //a += 0.001f;
+        CFrame f = Matrix3::fromAxisAngle(Vector3::unitY(), a);
+        model->pose(posed3D, f);
     }
 
     if (ifs.notNull()) {
@@ -147,13 +153,12 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
 }
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-#if 0
+
     Array<PosedModel::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
 
 //    rd->pushState(fb);
-rd->pushState();
 
     rd->setColorClearValue(Color3(0.2f, 1.0f, 2.0f));
     rd->setProjectionAndCameraMatrix(defaultCamera);
@@ -162,7 +167,7 @@ rd->pushState();
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3::white() * 0.8f);
-    rd->clear(sky.isNull(), true, true);
+    rd->clear(true, true, true);
     if (sky.notNull()) {
         sky->render(rd, localSky);
     }
@@ -184,8 +189,21 @@ rd->pushState();
         Draw::frustum(lightCamera.frustum(shadowMap->rect2DBounds()), rd);
     }
 */
-
-    //    Draw::axes(rd);
+/*
+    static GCamera::Frustum f;
+    
+    for (int i = 0; i < posed3D.size(); ++i) {
+        Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
+    }
+    if (updating) {
+       f = defaultCamera.frustum(rd->viewport());
+    }
+    Draw::frustum(f, rd);
+    for (int i = 0; i < 5; ++i) {
+        Draw::plane(f.faceArray[i].plane, rd);
+    }
+*/
+    Draw::axes(rd);
 
     /*
     Draw::sphere(Sphere(Vector3(0,3,0), 0.2f), rd, Color3::white());
@@ -210,35 +228,10 @@ rd->pushState();
     if (sky.notNull()) {
         sky->renderLensFlare(rd, localSky);
     }
-    rd->popState();
-#endif
-RealTime t3 = System::time(); // TODO: Remove
-
-
-rd->clear();
-//    rd->push2D(fb);
-    rd->push2D();
-   rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-
-RealTime t1 = System::time(); // TODO: Remove
-
-//while(true) { // for testing with gDEBugger
-rd->beginIndexedPrimitives();
-rd->setVertexArray(data);
-rd->sendSequentialIndices(RenderDevice::QUADS, data.size());
-rd->endIndexedPrimitives();
-//rd->swapBuffers();} // for testing with gDEBugger
-screenPrintf("issue: %f s", System::time() - t1); // TODO: Remove
-
-RealTime t0 = System::time(); // TODO: Remove
-    rd->pop2D();
-screenPrintf("pop2D: %f s", System::time() - t0); // TODO: Remove
-
-screenPrintf("all onGraphics: %f s", System::time() - t3); // TODO: Remove
-
+//    rd->popState();
 //    film->exposeAndRender(rd, colorBuffer);
 
-//    PosedModel2D::sortAndRender(rd, posed2D);
+    PosedModel2D::sortAndRender(rd, posed2D);
 }
 
 
@@ -291,6 +284,7 @@ int main(int argc, char** argv) {
     */
 
     GApp::Settings set;
+    /*
     set.window.fullScreen = true;
     set.window.framed = false;
     set.window.width = 1600;
@@ -298,6 +292,7 @@ int main(int argc, char** argv) {
     set.window.alphaBits = 0;
     set.window.stencilBits = 0;
     set.window.refreshRate = 0;
-//    set.window.sliMode = OSWindow::SLI_AFR;
+    */
+
     return App(set).run();
 }

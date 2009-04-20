@@ -17,7 +17,7 @@
 
     vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
 
-#   ifdef NORMALBUMPMAP
+#   if defined(NORMALBUMPMAP)
         vec3 wsN;
         vec2 offsetTexCoord;
         applyBumpMap(wsN, offsetTexCoord);

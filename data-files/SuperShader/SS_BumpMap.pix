@@ -24,7 +24,7 @@
         // Take the normal map values back to (-1, 1) range to compute a tangent space normal
         vec3 tsN = texture2D(normalBumpMap, offsetTexCoord).xyz * 2.0 + vec3(-1.0, -1.0, -1.0);
 
-        // note that the columns might be slightly not orthogonal due to interpolation
+        // note that the columns might be slightly non-orthogonal due to interpolation
         mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz);
 
         // Take the normal to world space
