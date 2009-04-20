@@ -79,9 +79,12 @@ Ray GCamera::worldRay(float x, float y, const Rect2D& viewport) const {
     float cx = screenWidth  / 2.0f;
     float cy = screenHeight / 2.0f;
 
-    out.direction = Vector3( (x - cx) * viewportWidth(viewport)  / screenWidth,
-                            -(y - cy) * viewportHeight(viewport) / screenHeight,
-                             (m_nearPlaneZ) );
+    float vw = viewportWidth(viewport);
+    float vh = viewportHeight(viewport);
+
+    out.direction = Vector3( (x - cx) * vw / screenWidth,
+                            -(y - cy) * vh / screenHeight,
+                             m_nearPlaneZ);
 
     out.direction = m_cframe.vectorToWorldSpace(out.direction);
 
