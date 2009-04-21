@@ -18,7 +18,6 @@ ShadowMap::ShadowMap(const std::string& name) :
     m_polygonOffset(0.001f), 
     m_lastRenderDevice(NULL), 
     m_colorTextureIsDirty(true) {
-    m_depthModeStack.append(Texture::DEPTH_LEQUAL);
 }
 
 
@@ -26,28 +25,6 @@ ShadowMap::Ref ShadowMap::create(const std::string& name, int size, const Textur
     ShadowMap* s = new ShadowMap(name);
     s->setSize(size, settings);
     return s;
-}
-
-
-void ShadowMap::pushDepthReadMode(Texture::DepthReadMode m) {
-    Texture::DepthReadMode old = m_depthModeStack.last();
-    (void)old;
-    m_depthModeStack.append(m);
-
-    // Only make the OpenGL calls if necessary
-    //if (m != old) {
-        setMode(m);
-        //}
-}
-
-
-void ShadowMap::popDepthReadMode() {
-    Texture::DepthReadMode old = m_depthModeStack.pop();
-
-    // Only make the OpenGL calls if necessary
-    //if (m_depthModeStack.last() != old) {
-        setMode(old);
-        //}
 }
 
 
@@ -121,8 +98,6 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
         m_framebuffer = Framebuffer::create(m_name + " Frame Buffer");
         m_framebuffer->set(Framebuffer::DEPTH_ATTACHMENT, m_depthTexture);
     }
-
-    setMode(m_depthModeStack.last());
 }
 
 
@@ -136,7 +111,8 @@ void ShadowMap::updateDepth(
     const CoordinateFrame&          lightCFrame, 
     const Matrix4&                  lightProjectionMatrix,
     const Array<PosedModel::Ref>&   shadowCaster,
-    float                           biasDepth) {
+    float                           biasDepth,
+    RenderDevice::CullFace          cullFace) {
 
     m_lightProjection = lightProjectionMatrix;
     m_lightFrame = lightCFrame;
@@ -205,7 +181,7 @@ void ShadowMap::updateDepth(
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         debugAssertGLOk();
-        PosedModel::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
+        PosedModel::renderDepthOnly(renderDevice, shadowCaster, cullFace);
         debugAssertGLOk();
     renderDevice->popState();
 
@@ -259,8 +235,8 @@ void ShadowMap::computeColorTexture() {
     }
     
     m_colorConversionFramebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_colorTexture);
-    
-    pushDepthReadMode(Texture::DEPTH_NORMAL);
+
+    setMode(Texture::DEPTH_NORMAL);
     rd->push2D(m_colorConversionFramebuffer);
     {
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -271,7 +247,7 @@ void ShadowMap::computeColorTexture() {
         Draw::fastRect2D(m_depthTexture->rect2DBounds(), rd);
     }
     rd->pop2D();
-    popDepthReadMode();
+    setMode(m_depthTexture->settings().depthReadMode);
     m_colorTextureIsDirty = false;
 }
 

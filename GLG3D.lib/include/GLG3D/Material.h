@@ -259,6 +259,14 @@ public:
         return m_bsdf;
     }
 
+#if 0
+    /** @beta Materials serialized by this version of G3D may not be 
+       compatible with future versions. This is intended primarily 
+       for caching data and not as an interchange format */
+    void serialize(BinaryOutput& b) const;
+    void deserialize(BinaryInput& b);
+#endif
+
     /** An emission function.
 
         Dim emission functions are often used for "glow", where a surface is bright

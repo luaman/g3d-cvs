@@ -127,7 +127,8 @@ public:
 
     /**
      Parameters applied when G3D::ArticulatedModel::Part::computeNormalsAndTangentSpace 
-     is caled by G3D::ArticulatedModel::updateAll.*/
+     is caled by G3D::ArticulatedModel::updateAll.
+     */
     class Settings {
     public:
         Welder::Settings                     weld;

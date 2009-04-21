@@ -35,11 +35,6 @@ private:
 
     float               m_polygonOffset;
 
-    /** Force the texture into this depth comparison mode */
-    void setMode(Texture::DepthReadMode m);
-
-    Array<Texture::DepthReadMode> m_depthModeStack;
-
     class RenderDevice* m_lastRenderDevice;
 
     /** True when m_colorTexture is out of date */
@@ -59,6 +54,9 @@ public:
     const std::string& name() const {
         return m_name;
     }
+
+    /** Force the texture into this depth comparison mode */
+    void setMode(Texture::DepthReadMode m);
 
     /** 
     \brief Computes a reference frame (as a camera) and projection
@@ -93,13 +91,6 @@ public:
     static ShadowMapRef create(const std::string& name = "Shadow Map", int size = 1024, 
                                const Texture::Settings& settings = Texture::Settings::shadow());
 
-    /** By default, the texture is configured for fixed function depth
-        comparison using Texture::DEPTH_LEQUAL.  Some G3D::Shaders
-        will want a different depth mode; you can use this to
-        temporarily override the depth comparison mode of the current
-        depth buffer. */
-    void pushDepthReadMode(Texture::DepthReadMode m);
-    void popDepthReadMode();
     
     /** Increase to hide self-shadowing artifacts, decrease to avoid
         gap between shadow and object.  Default = 0.5 */
@@ -145,7 +136,8 @@ public:
      const CoordinateFrame&        lightFrame,
      const Matrix4&                lightProjectionMatrix,
      const Array<PosedModel::Ref>& shadowCaster,
-     float                         biasDepth);
+     float                         biasDepth,
+     RenderDevice::CullFace        cullFace = RenderDevice::CULL_FRONT);
 
     /** Model-View-Projection matrix that maps world space to the
         shadow map pixels; used for rendering the shadow map itself.  Note that

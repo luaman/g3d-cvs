@@ -68,6 +68,11 @@ void App::onInit() {
     updating = true;
     debugPane->addCheckBox("Update Frustum", &updating);
 
+    /*
+    Framebuffer::Ref m_mainScene_FBO = Framebuffer::create(std::string("Main Offscreen Target"));
+    Texture::Ref m_mainScene_tex = Texture::createEmpty(std::string("Main Rendered Texture"), 256, 256);
+    m_mainScene_FBO->set(Framebuffer::COLOR_ATTACHMENT0, m_mainScene_tex);
+    */
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     //model = ArticulatedModel::createCornellBox();
@@ -102,10 +107,11 @@ void App::onInit() {
 
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
-    preprocess.addBumpMaps = true;
+    preprocess.addBumpMaps = false;
     preprocess.textureDimension = Texture::DIM_2D_NPOT;
     preprocess.parallaxSteps = 0;
-    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+//    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
 
 
