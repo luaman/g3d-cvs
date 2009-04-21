@@ -4,7 +4,7 @@
   Copyright 2002-2009, Morgan McGuire
 
   @created 2002-05-27
-  @edited  2009-02-10
+  @edited  2009-04-20
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -24,6 +24,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace G3D {
+
    
 void GImage::RGBtoRGBA(
     const uint8*    in,
@@ -227,10 +228,10 @@ void GImage::decode(
         debugAssert(false);
     }
 
-    debugAssert(width >= 0);
-    debugAssert(height >= 0);
-    debugAssert(channels == 1 || channels == 3 || channels == 4);
-    debugAssert(_byte != NULL);
+    debugAssert(m_width >= 0);
+    debugAssert(m_height >= 0);
+    debugAssert(m_channels == 1 || m_channels == 3 || m_channels == 4);
+    debugAssert(m_byte != NULL);
 }
 
 
@@ -262,9 +263,9 @@ void GImage::decodePCX(
 
     (void)bytesPerLine;
 
-    width  = xmax - xmin + 1;
-    height = ymax - ymin + 1;
-    channels = 3;
+    m_width  = xmax - xmin + 1;
+    m_height = ymax - ymin + 1;
+    m_channels = 3;
 
     if ((manufacturer != 0x0A) || (encoding != 0x01)) {
         throw GImage::Error("PCX file is corrupted", input.getFilename());
@@ -279,18 +280,18 @@ void GImage::decodePCX(
     }
 
 	// Prepare the pointer object for the pixel data
-    _byte = (uint8*)System::malloc(width * height * 3);
+    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
 
     if ((paletteType == 1) && (planes == 3)) {
 
         Color3uint8* pixel = pixel3();
 
         // Iterate over each scan line
-        for (int row = 0; row < height; ++row) {
+        for (int row = 0; row < m_height; ++row) {
             // Read each scan line once per plane
             for (int plane = 0; plane < planes; ++plane) {
-                int p = row * width;
-                int p1 = p + width;
+                int p = row * m_width;
+                int p1 = p + m_width;
                 while (p < p1) {
                     uint8 value = input.readUInt8();
                     int length = 1;
@@ -304,7 +305,7 @@ void GImage::decodePCX(
 
                     // Set the whole run
                     for (int i = length - 1; i >= 0; --i, ++p) {
-                        debugAssert(p < width * height);
+                        debugAssert(p < m_width * m_height);
                         pixel[p][plane] = value;
                     }
                 }
@@ -334,7 +335,7 @@ void GImage::decodePCX(
         
         // The palette indices are run length encoded.
         int p = 0;
-        while (p < width * height) {
+        while (p < m_width * m_height) {
             uint8 index  = input.readUInt8();
             uint8 length = 1;
 
@@ -349,7 +350,7 @@ void GImage::decodePCX(
 
             // Set the whole run
             for (int i = length - 1; i >= 0; --i, ++p) {
-                if (p > width * height) {
+                if (p > m_width * m_height) {
                     break;
                 }
                 pixel[p] = color;
@@ -408,7 +409,7 @@ GImage::Format GImage::resolveFormat(
     // We can't look at the character if it is null.
     debugAssert(data != NULL);              
 
-    if ((dataLen > 3) && (!memcmp(data, "P3", 2) || !memcmp(data, "P2", 2) || !memcmp(data, "P1", 2))) {
+    if ((dataLen > 3) && (! memcmp(data, "P3", 2) || (! memcmp(data, "P2", 2)) || (! memcmp(data, "P1", 2)))) {
         return PPM_ASCII;
     }
 
@@ -452,11 +453,13 @@ GImage::Format GImage::resolveFormat(
 
 GImage::GImage(
     const std::string&  filename,
-    Format              format) : 
-    _byte(NULL), 
-    width(0),
-    height(0), 
-    channels(0){
+    Format              format,
+    const MemoryManager::Ref& m) : 
+    m_memMan(m),
+    m_byte(NULL), 
+    m_width(0),
+    m_height(0), 
+    m_channels(0){
     
     load(filename, format);
 }
@@ -485,7 +488,13 @@ void GImage::load(
 GImage::GImage(
     const uint8*        data,
     int                 length,
-    Format              format) {
+    Format              format,
+    const MemoryManager::Ref& m) : 
+    m_memMan(m),
+    m_byte(NULL),
+    m_width(0),
+    m_height(0),
+    m_channels(0) {
 
     BinaryInput b(data, length, G3D_LITTLE_ENDIAN);
     // It is safe to cast away the const because we
@@ -498,9 +507,14 @@ GImage::GImage(
 GImage::GImage(
     int                 width,
     int                 height,
-    int                 channels) {
+    int                 channels,
+    const MemoryManager::Ref& mem) : 
+    m_memMan(mem),
+    m_width(0), 
+    m_height(0), 
+    m_channels(0), 
+    m_byte(0) {
     
-    _byte = NULL;
     resize(width, height, channels);
 }
 
@@ -508,20 +522,27 @@ GImage::GImage(
 void GImage::resize(
     int                 width,
     int                 height,
-    int                 channels) {
+    int                 channels,
+    bool                zero) {
+
     debugAssert(width >= 0);
     debugAssert(height >= 0);
     debugAssert(channels >= 1);
 
     clear();
 
-    this->width = width;
-    this->height = height;
-    this->channels = channels;
+    m_width = width;
+    m_height = height;
+    m_channels = channels;
     size_t sz = width * height * channels;
 
-    _byte = (uint8*)System::calloc(sz, sizeof(uint8));
-    debugAssert(isValidHeapPointer(_byte));
+    if (sz > 0) {
+        m_byte = (uint8*)System::malloc(sz);
+        if (zero) {
+            System::memset(m_byte, 0, sz);
+        }
+        debugAssert(isValidHeapPointer(m_byte));
+    }
 }
 
 
@@ -530,18 +551,19 @@ void GImage::_copy(
 
     clear();
 
-    width  = other.width;
-    height = other.height;
-    channels = other.channels;
-    int s  = width * height * channels * sizeof(uint8);
-    _byte  = (uint8*)System::malloc(s);
-    debugAssert(isValidHeapPointer(_byte));
-    memcpy(_byte, other._byte, s);
+    m_width  = other.m_width;
+    m_height = other.m_height;
+    m_channels = other.m_channels;
+    int s  = m_width * m_height * m_channels * sizeof(uint8);
+    m_byte  = (uint8*)System::malloc(s);
+    debugAssert(isValidHeapPointer(m_byte));
+    memcpy(m_byte, other.m_byte, s);
 }
 
 
 GImage::GImage(
-    const GImage&        other) : _byte(NULL) {
+    const GImage&        other,
+    const MemoryManager::Ref& m) : m_memMan(m), m_byte(NULL) {
 
     _copy(other);
 }
@@ -553,10 +575,10 @@ GImage::~GImage() {
 
 
 void GImage::clear() {
-    width = 0;
-    height = 0;
-    System::free(_byte);
-    _byte = NULL;
+    m_width = 0;
+    m_height = 0;
+    System::free(m_byte);
+    m_byte = NULL;
 }
 
 
@@ -569,15 +591,15 @@ GImage& GImage::operator=(const GImage& other) {
 bool GImage::copySubImage(
     GImage & dest, const GImage & src,
     int srcX, int srcY, int srcWidth, int srcHeight) {
-    if ((src.width < srcX + srcWidth) ||
-        (src.height < srcY + srcHeight) ||
+    if ((src.m_width < srcX + srcWidth) ||
+        (src.m_height < srcY + srcHeight) ||
         (srcY < 0) ||
         (srcX < 0)) {
 
         return false;
     }
 
-    dest.resize(srcWidth, srcHeight, src.channels);
+    dest.resize(srcWidth, srcHeight, src.m_channels);
     
     bool ret;
     ret = pasteSubImage(dest, src, 0, 0, srcX, srcY, srcWidth, srcHeight);
@@ -591,25 +613,26 @@ bool GImage::pasteSubImage(
     GImage & dest, const GImage & src,
     int destX, int destY,
     int srcX, int srcY, int srcWidth, int srcHeight) {
-    if ((src.width < srcX + srcWidth) ||
-        (src.height < srcY + srcHeight) ||
-        (dest.width < destX + srcWidth) ||
-        (dest.height < destY + srcHeight) ||
+
+    if ((src.m_width < srcX + srcWidth) ||
+        (src.m_height < srcY + srcHeight) ||
+        (dest.m_width < destX + srcWidth) ||
+        (dest.m_height < destY + srcHeight) ||
         (srcY < 0) ||
         (srcX < 0) ||
         (destY < 0) ||
         (destX < 0) ||
-        (src.channels != dest.channels)) {
+        (src.channels() != dest.channels())) {
 
         return false;
     }
 
     for (int i = 0; i < srcHeight; i++) {
         const uint8* srcRow = src.byte() +
-            ((i + srcY) * src.width + srcX) * src.channels;
+            ((i + srcY) * src.m_width + srcX) * src.channels();
         uint8* destRow = dest.byte() +
-            ((i + destY) * dest.width + destX) * dest.channels;
-        memcpy(destRow, srcRow, srcWidth * src.channels);
+            ((i + destY) * dest.width() + destX) * dest.channels();
+        memcpy(destRow, srcRow, srcWidth * src.m_channels);
     }
 
     return true;
@@ -709,41 +732,43 @@ void GImage::encode(
     }
 }
 
+
 void GImage::insertRedAsAlpha(const GImage& alpha, GImage& output) const {
-    debugAssert(alpha.width == width);
-    debugAssert(alpha.height == height);
+    debugAssert(alpha.width() == width());
+    debugAssert(alpha.height() == height());
 
     // make sure output GImage is valid
-    if (output.width != width || output.height != height || output.channels != 4) {
-        output.resize(width, height, 4);
+    if (output.width() != width() || output.height() != height() || output.channels() != 4) {
+        output.resize(width(), height(), 4);
     }
 
-    for (int i = 0; i < width * height; ++i) {
-        output.byte()[i * 4 + 0] = byte()[i * channels + 0];
-        output.byte()[i * 4 + 1] = byte()[i * channels + 1];
-        output.byte()[i * 4 + 2] = byte()[i * channels + 2];
-        output.byte()[i * 4 + 3] = alpha.byte()[i * alpha.channels];
+    int N = m_width * m_height;
+    for (int i = 0; i < N; ++i) {
+        output.byte()[i * 4 + 0] = byte()[i * m_channels + 0];
+        output.byte()[i * 4 + 1] = byte()[i * m_channels + 1];
+        output.byte()[i * 4 + 2] = byte()[i * m_channels + 2];
+        output.byte()[i * 4 + 3] = alpha.byte()[i * alpha.m_channels];
     }
 }
 
 
 void GImage::stripAlpha(GImage& output) const {
 
-    if (output.width != width || output.height != height || output.channels != 3)
-    {
-        output.resize(width, height, 3);
+    if (output.m_width != m_width || output.m_height != m_height || output.m_channels != 3) {
+        output.resize(m_width, m_height, 3);
     }
 
-    for (int i = 0; i < width * height; ++i) {
-        output.byte()[i * 3 + 0] = byte()[i * channels + 0];
-        output.byte()[i * 3 + 1] = byte()[i * channels + 1];
-        output.byte()[i * 3 + 2] = byte()[i * channels + 2];
+    int N = m_width * m_height;
+    for (int i = 0; i < N; ++i) {
+        output.byte()[i * 3 + 0] = byte()[i * m_channels + 0];
+        output.byte()[i * 3 + 1] = byte()[i * m_channels + 1];
+        output.byte()[i * 3 + 2] = byte()[i * m_channels + 2];
     }
 }
 
 
 int GImage::sizeInMemory() const {
-    return sizeof(GImage) + width * height * channels;
+    return sizeof(GImage) + m_width * m_height * m_channels;
 }
 
 
@@ -753,7 +778,8 @@ void GImage::computeNormalMap(
     float               whiteHeightInPixels,
     bool                lowPassBump,
     bool                scaleHeightByNz) {
-    computeNormalMap(bump.width, bump.height, bump.channels, bump.byte(), normal, whiteHeightInPixels, lowPassBump, scaleHeightByNz);
+    computeNormalMap(bump.m_width, bump.m_height, bump.m_channels, 
+        bump.byte(), normal, whiteHeightInPixels, lowPassBump, scaleHeightByNz);
 }
 
 void GImage::computeNormalMap(
@@ -860,19 +886,19 @@ void GImage::computeNormalMap(
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GImage::convertToL8() {
-    switch(channels) {
+    switch (m_channels) {
     case 1:
         return;
 
     case 3:
         {            
             // Average
-            Color3uint8* src = (Color3uint8*)_byte;
-            _byte = NULL;
-            resize(width, height, 1);
-            for (int i = width * height - 1; i >= 0; --i) {
+            Color3uint8* src = (Color3uint8*)m_byte;
+            m_byte = NULL;
+            resize(m_width, m_height, 1);
+            for (int i = m_width * m_height - 1; i >= 0; --i) {
                 const Color3uint8   s = src[i];
-                uint8&              d = _byte[i]; 
+                uint8&              d = m_byte[i]; 
                 d = ((int)s.r + (int)s.g + (int)s.b) / 3;
             }
             System::free(src);
@@ -882,12 +908,12 @@ void GImage::convertToL8() {
     case 4:
         {            
             // Average
-            Color4uint8* src = (Color4uint8*)_byte;
-            _byte = NULL;
-            resize(width, height, 1);
-            for (int i = width * height - 1; i >= 0; --i) {
+            Color4uint8* src = (Color4uint8*)m_byte;
+            m_byte = NULL;
+            resize(m_width, m_height, 1);
+            for (int i = m_width * m_height - 1; i >= 0; --i) {
                 const Color4uint8   s = src[i];
-                uint8&              d = _byte[i]; 
+                uint8&              d = m_byte[i]; 
                 d = ((int)s.r + (int)s.g + (int)s.b) / 3;
             }
             System::free(src);
@@ -901,32 +927,32 @@ void GImage::convertToL8() {
 
 
 void GImage::convertToRGBA() {
-    switch(channels) {
+    switch (m_channels) {
     case 1:
         {            
             // Spread
-            uint8* old = _byte;
-            _byte = NULL;
-            resize(width, height, 4);
-            for (int i = width * height - 1; i >= 0; --i) {
+            uint8* old = m_byte;
+            m_byte = NULL;
+            resize(m_width, m_height, 4);
+            for (int i = m_width * m_height - 1; i >= 0; --i) {
                 const uint8  s = old[i];
-                Color4uint8& d = ((Color4uint8*)_byte)[i]; 
+                Color4uint8& d = ((Color4uint8*)m_byte)[i]; 
                 d.r = d.g = d.b = s;
                 d.a = 255;
             }
-            System::free(_byte);
+            System::free(m_byte);
         }
         break;
 
     case 3:
         {            
             // Add alpha
-            Color3uint8* old = (Color3uint8*)_byte;
-            _byte = NULL;
-            resize(width, height, 4);
-            for (int i = width * height - 1; i >= 0; --i) {
+            Color3uint8* old = (Color3uint8*)m_byte;
+            m_byte = NULL;
+            resize(m_width, m_height, 4);
+            for (int i = m_width * m_height - 1; i >= 0; --i) {
                 const Color3uint8   s = old[i];
-                Color4uint8&        d = ((Color4uint8*)_byte)[i]; 
+                Color4uint8&        d = ((Color4uint8*)m_byte)[i]; 
                 d.r = s.r;
                 d.g = s.g;
                 d.b = s.b;
@@ -947,16 +973,16 @@ void GImage::convertToRGBA() {
 
 
 void GImage::convertToRGB() {
-    switch(channels) {
+    switch (m_channels) {
     case 1:
         {            
             // Spread
-            uint8* old = _byte;
-            _byte = NULL;
-            resize(width, height, 3);
-            for (int i = width * height - 1; i >= 0; --i) {
+            uint8* old = m_byte;
+            m_byte = NULL;
+            resize(m_width, m_height, 3);
+            for (int i = m_width * m_height - 1; i >= 0; --i) {
                 const uint8  s = old[i];
-                Color3uint8& d = ((Color3uint8*)_byte)[i]; 
+                Color3uint8& d = ((Color3uint8*)m_byte)[i]; 
                 d.r = d.g = d.b = s;
             }
             System::free(old);
@@ -969,12 +995,12 @@ void GImage::convertToRGB() {
     case 4:
 		// Strip alpha
         {            
-            Color4uint8* old = (Color4uint8*)_byte;
-            _byte = NULL;
-            resize(width, height, 3);
-            for (int i = width * height - 1; i >= 0; --i) {
+            Color4uint8* old = (Color4uint8*)m_byte;
+            m_byte = NULL;
+            resize(m_width, m_height, 3);
+            for (int i = m_width * m_height - 1; i >= 0; --i) {
                 const Color4uint8   s = old[i];
-                Color3uint8&        d = ((Color3uint8*)_byte)[i]; 
+                Color3uint8&        d = ((Color3uint8*)m_byte)[i]; 
                 d.r = s.r;
                 d.g = s.g;
                 d.b = s.b;
@@ -1023,12 +1049,12 @@ void GImage::Y8U8V8_to_R8G8B8(int width, int height, const uint8* _in, uint8* _o
 
 
 void GImage::makeCheckerboard(GImage& im, int checkerSize, const Color4uint8& A, const Color4uint8& B) {
-    for (int y = 0; y < im.height; ++y) {
-        for (int x = 0; x < im.width; ++x) {
+    for (int y = 0; y < im.m_height; ++y) {
+        for (int x = 0; x < im.m_width; ++x) {
             bool checker = isOdd((x / checkerSize) + (y / checkerSize));
             const Color4uint8& color = checker ? A : B;
-            for (int c = 0; c < im.channels; ++c) {
-                uint8* v = im.byte() + (x + y * im.width) * im.channels + c;
+            for (int c = 0; c < im.m_channels; ++c) {
+                uint8* v = im.byte() + (x + y * im.m_width) * im.m_channels + c;
                 *v = color[c];
             }
         }

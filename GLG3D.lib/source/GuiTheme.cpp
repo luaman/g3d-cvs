@@ -907,8 +907,8 @@ void GuiTheme::makeThemeFromSourceFiles
     Image3Ref black = Image3::fromFile(sourceDir + blackName);
     GImage out(white->width(), white->height(), 4);
 
-    for (int y = 0; y < (int)out.height; ++y) {
-        for (int x = 0; x < (int)out.width; ++x) {
+    for (int y = 0; y < (int)out.height(); ++y) {
+        for (int x = 0; x < (int)out.width(); ++x) {
             const Color3& U = white->get(x, y);
             const Color3& V = black->get(x, y);
 

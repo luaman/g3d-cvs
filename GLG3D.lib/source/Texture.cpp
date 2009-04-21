@@ -109,7 +109,7 @@ TextureRef Texture::white() {
     if (t.isNull()) {
         // Cache is empty
         GImage im(8, 8, 3);
-        System::memset(im.byte(), 0xFF, im.width * im.height * im.channels);
+        System::memset(im.byte(), 0xFF, im.width() * im.height() * im.channels());
         t = Texture::fromGImage("White", im);
 
         // Store in cache
@@ -393,10 +393,10 @@ Texture::Ref Texture::fromFile(
 
     for (int f = 0; f < numFaces; ++f) {
         image[f].load(realFilename[f]);
-        alwaysAssertM(image[f].width > 0, "Image not found");
-        alwaysAssertM(image[f].height > 0, "Image not found");
+        alwaysAssertM(image[f].width() > 0, "Image not found");
+        alwaysAssertM(image[f].height() > 0, "Image not found");
 
-        switch (image[f].channels) {
+        switch (image[f].channels()) {
         case 4:
             format = ImageFormat::RGBA8();
             opaque = false;
@@ -422,8 +422,8 @@ Texture::Ref Texture::fromFile(
         fromMemory(filename[0], 
                    byteMipMapFaces, 
                    format,
-                   image[0].width, 
-                   image[0].height, 
+                   image[0].width(), 
+                   image[0].height(), 
                    1,
                    desiredFormat, 
                    dimension,
@@ -508,21 +508,21 @@ Texture::Ref Texture::fromTwoFiles(
 			alpha[f].load(an);
 			uint8* data = NULL;
 
-			if (color[f].channels == 4) {
+			if (color[f].channels() == 4) {
 				data = color[f].byte();
 				// Write the data inline
-				for (int i = 0; i < color[f].width * color[f].height; ++i) {
-					data[i * 4 + 3] = alpha[f].byte()[i * alpha[f].channels];
+				for (int i = 0; i < color[f].width() * color[f].height(); ++i) {
+					data[i * 4 + 3] = alpha[f].byte()[i * alpha[f].channels()];
 				}
 			} else {
-				debugAssert(color[f].channels == 3);
-				data = new uint8[color[f].width * color[f].height * 4];
+				debugAssert(color[f].channels() == 3);
+				data = new uint8[color[f].width() * color[f].height() * 4];
 				// Write the data inline
-				for (int i = 0; i < color[f].width * color[f].height; ++i) {
+				for (int i = 0; i < color[f].width() * color[f].height(); ++i) {
 					data[i * 4 + 0] = color[f].byte()[i * 3 + 0];
 					data[i * 4 + 1] = color[f].byte()[i * 3 + 1];
 					data[i * 4 + 2] = color[f].byte()[i * 3 + 2];
-					data[i * 4 + 3] = alpha[f].byte()[i * alpha[f].channels];
+					data[i * 4 + 3] = alpha[f].byte()[i * alpha[f].channels()];
 				}
 			}
 
@@ -533,15 +533,15 @@ Texture::Ref Texture::fromTwoFiles(
 				filename, 
 				mip, 
 				ImageFormat::RGBA8(),
-				color[0].width, 
-				color[0].height, 
+				color[0].width(), 
+				color[0].height(), 
 				1, 
 				desiredFormat, 
 				dimension,
 				settings,
 				preProcess);
 
-		if (color[0].channels == 3) {
+		if (color[0].channels() == 3) {
 			// Delete the data if it was dynamically allocated
 			for (int f = 0; f < numFaces; ++f) {
 				delete[] static_cast<uint8*>(const_cast<void*>(array[f]));
@@ -792,7 +792,7 @@ Texture::Ref Texture::fromMemory(
     if (bytesPtr != &_bytes) {
 
         // We must free our own data
-        if (normal.width != 0) {
+        if (normal.width() != 0) {
             // The normal GImage is holding the data; do not free it because 
             // the GImage destructor will do so at the end of the method.
         } else {
@@ -822,7 +822,7 @@ Texture::Ref Texture::fromGImage(
     const ImageFormat* format = ImageFormat::RGB8();
     bool opaque = true;
 
-    switch (image.channels) {
+    switch (image.channels()) {
     case 4:
         format = ImageFormat::RGBA8();
         opaque = false;
@@ -841,7 +841,7 @@ Texture::Ref Texture::fromGImage(
     default:
         alwaysAssertM(
             false,
-            G3D::format("GImage has an unexpected number of channels (%d)", image.channels));
+            G3D::format("GImage has an unexpected number of channels (%d)", image.channels()));
     }
 
     if (desiredFormat == NULL) {
@@ -853,8 +853,8 @@ Texture::Ref Texture::fromGImage(
 			name, 
 			image.byte(), 
 			format,
-            image.width, 
-			image.height, 
+            image.width(), 
+			image.height(), 
 			1,
             desiredFormat, 
 			dimension, 
@@ -864,11 +864,12 @@ Texture::Ref Texture::fromGImage(
     return t;
 }
 
+
 Texture::Ref Texture::createEmpty(
     const std::string&               name,
     int                              w,
     int                              h,
-    const ImageFormat*             desiredFormat,
+    const ImageFormat*               desiredFormat,
     Dimension                        dimension,
 	const Settings&					 settings,
     int                              d) {

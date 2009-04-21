@@ -290,9 +290,9 @@ void VideoOutput::append(const Texture::Ref& frame) {
 
 
 void VideoOutput::append(const GImage& frame) {
-    debugAssert(frame.width == m_settings.width);
-    debugAssert(frame.height == m_settings.height);
-    encodeFrame(const_cast<uint8*>(frame.byte()), (frame.channels == 3) ? ImageFormat::RGB8() : ImageFormat::RGBA8());
+    debugAssert(frame.width() == m_settings.width);
+    debugAssert(frame.height() == m_settings.height);
+    encodeFrame(const_cast<uint8*>(frame.byte()), (frame.channels() == 3) ? ImageFormat::RGB8() : ImageFormat::RGBA8());
 }
 
 

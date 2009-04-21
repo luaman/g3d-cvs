@@ -417,6 +417,7 @@ public:
 void ArticulatedModel::updateAll() {
     // Extract the parts with real geometry
     Array<Part*> geometryPart;
+Stopwatch s;
 
     for (int p = 0; p < partArray.size(); ++p) {
         Part* part = &partArray[p];
@@ -429,6 +430,7 @@ void ArticulatedModel::updateAll() {
             part->updateVAR();
         }
     }
+s.after("extract geometry");
 
     // Choose a reasonable number of threads
     int numThreads = 1;
@@ -453,6 +455,7 @@ void ArticulatedModel::updateAll() {
                  "Did not spawn threads for all parts");
     threads.start(GThread::USE_CURRENT_THREAD);
     threads.waitForCompletion();
+s.after("multithread part");
 
     // Upload data to GPU
     for (int p = 0; p < geometryPart.size(); ++p) {
@@ -465,6 +468,8 @@ void ArticulatedModel::updateAll() {
         Part& part = partArray[p];
         m_numTriangles += part.indexArray.size() / 3;
     }
+s.after("remainder");
+
 #   ifdef G3D_DEBUG
     // Check for correctness
     for (int p = 0; p < partArray.size(); ++p) {

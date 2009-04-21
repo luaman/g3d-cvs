@@ -247,7 +247,7 @@ static void jpeg_memory_src (
 void GImage::encodeJPEG(
     BinaryOutput&           out) const {
 
-	if (channels != 3) {
+	if (m_channels != 3) {
 		// Convert to three channel
 		GImage tmp = *this;
 		tmp.convertToRGB();
@@ -255,7 +255,7 @@ void GImage::encodeJPEG(
 		return;
 	}
 
-    debugAssert(channels == 3);
+    debugAssert(m_channels == 3);
     out.setEndian(G3D_LITTLE_ENDIAN);
 
     // Allocate and initialize a compression object
@@ -267,13 +267,13 @@ void GImage::encodeJPEG(
 
     // Specify the destination for the compressed data.
     // (Overestimate the size)
-    int buffer_size = width * height * 3 + 200;
+    int buffer_size = m_width * m_height * 3 + 200;
     JOCTET* compressed_data = (JOCTET*)System::malloc(buffer_size);
 	jpeg_memory_dest(&cinfo, compressed_data, buffer_size);
 
 
-    cinfo.image_width       = width;
-    cinfo.image_height      = height;
+    cinfo.image_width       = m_width;
+    cinfo.image_height      = m_height;
 
 	// # of color components per pixel
     cinfo.input_components  = 3;
@@ -301,7 +301,7 @@ void GImage::encodeJPEG(
     // JSAMPLEs per row in image_buffer
     int row_stride = cinfo.image_width * 3;
     while (cinfo.next_scanline < cinfo.image_height) {
-	    row_pointer[0] = &(_byte[cinfo.next_scanline * row_stride]);
+	    row_pointer[0] = &(m_byte[cinfo.next_scanline * row_stride]);
 	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
 
@@ -323,7 +323,6 @@ void GImage::encodeJPEG(
 }
 
 
-
 void GImage::decodeJPEG(
     BinaryInput&                input) {
 
@@ -331,7 +330,7 @@ void GImage::decodeJPEG(
 	struct jpeg_error_mgr           jerr;
     int                             loc = 0;
 
-    channels = 3;
+    m_channels = 3;
     // We have to set up the error handler, in case initialization fails.
 	cinfo.err = jpeg_std_error(&jerr);
 
@@ -351,11 +350,11 @@ void GImage::decodeJPEG(
 	jpeg_start_decompress(&cinfo);
 
 	// Get and set the values of interest to this object
-	this->width     = cinfo.output_width;
-	this->height    = cinfo.output_height;
+	m_width     = cinfo.output_width;
+	m_height    = cinfo.output_height;
 
 	// Prepare the pointer object for the pixel data
-    _byte = (uint8*)System::malloc(width * height * 3);
+    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
 
  	// JSAMPLEs per row in output buffer
     int bpp         = cinfo.output_components;
@@ -377,8 +376,8 @@ void GImage::decodeJPEG(
 
             // Expand to three channels
             {
-                uint8* scan     = &(_byte[loc * 3]);
-                uint8* endScan  = scan + (width * 3);
+                uint8* scan     = &(m_byte[loc * 3]);
+                uint8* endScan  = scan + (m_width * 3);
                 uint8* t        = *temp;
 
                 while (scan < endScan) {
@@ -399,7 +398,7 @@ void GImage::decodeJPEG(
             // Read directly into the array
             {
                 // Need one extra level of indirection.
-                uint8*     scan = _byte + loc;
+                uint8*     scan = m_byte + loc;
                 JSAMPARRAY ptr  = &scan;
     		    jpeg_read_scanlines(&cinfo, ptr, 1);
             }
@@ -411,8 +410,8 @@ void GImage::decodeJPEG(
 
             // Drop the 3rd channel
             {
-                uint8* scan     = &(_byte[loc * 3]);
-                uint8* endScan  = scan + width * 3;
+                uint8* scan     = &(m_byte[loc * 3]);
+                uint8* endScan  = scan + m_width * 3;
                 uint8* t        = *temp;
 
                 while (scan < endScan) {

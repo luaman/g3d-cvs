@@ -2668,9 +2668,9 @@ double RenderDevice::getDepthBufferValue(
 void RenderDevice::screenshotPic(GImage& dest, bool getAlpha, bool invertY) const {
     int ch = getAlpha ? 4 : 3;
 
-    if ((dest.channels != ch) ||
-        (dest.width != width()) ||
-        (dest.height != height())) {
+    if ((dest.channels() != ch) ||
+        (dest.width() != width()) ||
+        (dest.height() != height())) {
         // Only resize if the current size is not correct
         dest.resize(width(), height(), ch);
     }

@@ -297,8 +297,8 @@ static Texture::Ref whiteMap() {
 
     if (map.isNull()) {
         GImage im(4,4,3);
-        for (int y = 0; y < im.height; ++y) {
-            for (int x = 0; x < im.width; ++x) {
+        for (int y = 0; y < im.height(); ++y) {
+            for (int x = 0; x < im.width(); ++x) {
                 im.pixel3(x, y) = Color3(1, 1, 1);
             }
         }

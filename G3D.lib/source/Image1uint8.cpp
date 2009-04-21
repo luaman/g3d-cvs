@@ -30,15 +30,15 @@ Image1uint8::Ref Image1uint8::fromImage3uint8(const ReferenceCountedPointer<clas
 
 
 Image1uint8::Ref Image1uint8::fromGImage(const GImage& im, WrapMode wrap) {
-    switch (im.channels) {
+    switch (im.channels()) {
     case 1:
-        return fromArray(im.pixel1(), im.width, im.height, wrap);
+        return fromArray(im.pixel1(), im.width(), im.height(), wrap);
 
     case 3:
-        return fromArray(im.pixel3(), im.width, im.height, wrap);
+        return fromArray(im.pixel3(), im.width(), im.height(), wrap);
 
     case 4:
-        return fromArray(im.pixel4(), im.width, im.height, wrap);
+        return fromArray(im.pixel4(), im.width(), im.height(), wrap);
 
     default:
         debugAssertM(false, "Input GImage must have 1, 3, or 4 channels.");
@@ -121,17 +121,17 @@ void Image1uint8::load(const std::string& filename, GImage::Format fmt) {
 
 
 void Image1uint8::copyGImage(const GImage& im) {
-    switch (im.channels) {
+    switch (im.channels()) {
     case 1:
-        copyArray(im.pixel1(), im.width, im.height);
+        copyArray(im.pixel1(), im.width(), im.height());
         break;
 
     case 3:
-        copyArray(im.pixel3(), im.width, im.height);
+        copyArray(im.pixel3(), im.width(), im.height());
         break;
 
     case 4:
-        copyArray(im.pixel4(), im.width, im.height);
+        copyArray(im.pixel4(), im.width(), im.height());
         break;
     } 
 }

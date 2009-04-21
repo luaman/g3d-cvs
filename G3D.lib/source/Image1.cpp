@@ -25,15 +25,15 @@ Image1::Image1(int w, int h, WrapMode wrap) : Map2D<Color1, Color1>(w, h, wrap) 
 
 
 Image1::Ref Image1::fromGImage(const GImage& im, WrapMode wrap) {
-    switch (im.channels) {
+    switch (im.channels()) {
     case 1:
-        return fromArray(im.pixel1(), im.width, im.height, wrap);
+        return fromArray(im.pixel1(), im.width(), im.height(), wrap);
 
     case 3:
-        return fromArray(im.pixel3(), im.width, im.height, wrap);
+        return fromArray(im.pixel3(), im.width(), im.height(), wrap);
 
     case 4:
-        return fromArray(im.pixel4(), im.width, im.height, wrap);
+        return fromArray(im.pixel4(), im.width(), im.height(), wrap);
 
     default:
         debugAssertM(false, "Input GImage must have 1, 3, or 4 channels.");
@@ -121,17 +121,17 @@ Image1::Ref Image1::fromArray(const class Color4* ptr, int w, int h, WrapMode wr
 }
 
 void Image1::copyGImage(const GImage& im) {
-    switch (im.channels) {
+    switch (im.channels()) {
     case 1:
-        copyArray(im.pixel1(), im.width, im.height);
+        copyArray(im.pixel1(), im.width(), im.height());
         break;
 
     case 3:
-        copyArray(im.pixel3(), im.width, im.height);
+        copyArray(im.pixel3(), im.width(), im.height());
         break;
 
     case 4:
-        copyArray(im.pixel4(), im.width, im.height);
+        copyArray(im.pixel4(), im.width(), im.height());
         break;
     } 
 }
@@ -207,7 +207,7 @@ void Image1::copyArray(const Color3* src, int w, int h) {
 void Image1::save(const std::string& filename, GImage::Format fmt) {
     GImage im(width(), height(), 1);
 
-    int N = im.width * im.height;
+    int N = im.width() * im.height();
     Color1uint8* dst = im.pixel1();
     for (int i = 0; i < N; ++i) {
         dst[i] = Color1uint8(data[i]);

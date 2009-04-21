@@ -56,6 +56,7 @@ static void png_error(
     throw GImage::Error(error_msg, "PNG"); 
 }
 
+
 //libpng required function signature
 void png_warning(
     png_structp png_ptr,
@@ -66,22 +67,24 @@ void png_warning(
     Log::common()->println(warning_msg);
 }
 
+
 void GImage::encodePNG(
     BinaryOutput&           out) const {
 
-    debugAssert( channels == 1 || channels == 3 || channels == 4 );
+    debugAssert( m_channels == 1 || m_channels == 3 || m_channels == 4 );
 
-    if (this->height > (int)(PNG_UINT_32_MAX/png_sizeof(png_bytep)))
+    if (m_height > (int)(PNG_UINT_32_MAX / png_sizeof(png_bytep)))
         throw GImage::Error("Unsupported PNG height.", out.getFilename());
 
     out.setEndian(G3D_LITTLE_ENDIAN);
 
     png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, png_error, png_warning);
-    if (!png_ptr)
+    if (! png_ptr) {
         throw GImage::Error("Unable to initialize PNG encoder.", out.getFilename());
+    }
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
+    if (! info_ptr) {
         png_destroy_write_struct(&png_ptr, &info_ptr);
         throw GImage::Error("Unable to initialize PNG encoder.", out.getFilename());
     }
@@ -89,19 +92,23 @@ void GImage::encodePNG(
     //setup libpng write handler so can use BinaryOutput
     png_set_write_fn(png_ptr, (void*)&out, png_write_data, png_flush_data);
 
-    if (channels == 3) {
-        png_set_IHDR(png_ptr, info_ptr, this->width, this->height, 8, PNG_COLOR_TYPE_RGB,
+    switch (m_channels) {
+    case 1:
+        png_set_IHDR(png_ptr, info_ptr, m_width, m_height, 8, PNG_COLOR_TYPE_GRAY,
             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-    }
-    else if (channels == 4) {
-        png_set_IHDR(png_ptr, info_ptr, this->width, this->height, 8, PNG_COLOR_TYPE_RGBA,
+        break;
+
+    case 3:
+        png_set_IHDR(png_ptr, info_ptr, m_width, m_height, 8, PNG_COLOR_TYPE_RGB,
             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-    }
-    else if (channels == 1) {
-        png_set_IHDR(png_ptr, info_ptr, this->width, this->height, 8, PNG_COLOR_TYPE_GRAY,
+        break;
+
+    case 4:
+        png_set_IHDR(png_ptr, info_ptr, m_width, m_height, 8, PNG_COLOR_TYPE_RGBA,
             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-    }
-    else {
+        break;
+
+    default:
         png_destroy_write_struct(&png_ptr, &info_ptr);
         throw GImage::Error("Unsupported number of channels for PNG.", out.getFilename());
     }
@@ -110,19 +117,20 @@ void GImage::encodePNG(
     sig_bit.red = 8;
     sig_bit.green = 8;
     sig_bit.blue = 8;
-    if (channels == 4)
+    if (m_channels == 4) {
         sig_bit.alpha = 8;
-    else
+    } else {
         sig_bit.alpha = 0;
+    }
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
 
     //write the png header
     png_write_info(png_ptr, info_ptr);
 
-    png_bytepp row_pointers = new png_bytep[this->height];
+    png_bytepp row_pointers = new png_bytep[m_height];
 
-    for (int i=0; i < this->height; ++i) {
-        row_pointers[i] = (png_bytep)&this->_byte[(this->width * this->channels * i)];
+    for (int i=0; i < m_height; ++i) {
+        row_pointers[i] = (png_bytep)&m_byte[m_width * m_channels * i];
     }
 
     png_write_image(png_ptr, row_pointers);
@@ -174,8 +182,8 @@ void GImage::decodePNG(
         throw GImage::Error("Unsupported PNG color type - PNG_COLOR_TYPE_GRAY_ALPHA.", input.getFilename());
     }
 
-    this->width  = static_cast<uint32>(png_width);
-    this->height = static_cast<uint32>(png_height);
+    m_width  = static_cast<uint32>(png_width);
+    m_height = static_cast<uint32>(png_height);
 
     //swap bytes of 16 bit files to least significant byte first
     png_set_swap(png_ptr);
@@ -206,23 +214,23 @@ void GImage::decodePNG(
     if ((color_type == PNG_COLOR_TYPE_RGBA) ||
         ((color_type == PNG_COLOR_TYPE_PALETTE) && (png_ptr->num_trans > 0)) ) {
 
-        this->channels = 4;
-        this->_byte = (uint8*)System::malloc(width * height * 4);
+        m_channels = 4;
+        m_byte = (uint8*)System::malloc(m_width * m_height * 4);
 
     } else if ((color_type == PNG_COLOR_TYPE_RGB) || 
                (color_type == PNG_COLOR_TYPE_PALETTE)) {
 
-        this->channels = 3;
-        this->_byte = (uint8*)System::malloc(width * height * 3);
+        m_channels = 3;
+        m_byte = (uint8*)System::malloc(m_width * m_height * 3);
 
     } else if (color_type == PNG_COLOR_TYPE_GRAY) {
 
-        this->channels = 1;
+        m_channels = 1;
 
         // Round up to the nearest 8 rows to avoid a bug in the PNG decoder
-        int h = iCeil(height / 8) * 8;
-        int sz = width * h;
-        this->_byte = (uint8*)System::malloc(sz);
+        int h = iCeil(m_height / 8) * 8;
+        int sz = m_width * h;
+        m_byte = (uint8*)System::malloc(sz);
 
     } else {
         throw GImage::Error("Unsupported PNG bit-depth or type.", input.getFilename());
@@ -234,8 +242,8 @@ void GImage::decodePNG(
     png_read_update_info(png_ptr, info_ptr);
 
     for (uint32 pass = 0; pass < number_passes; ++pass) {
-        for (uint32 y = 0; y < (uint32)height; ++y) {
-            png_bytep rowPointer = &this->_byte[width * this->channels * y]; 
+        for (uint32 y = 0; y < (uint32)m_height; ++y) {
+            png_bytep rowPointer = &m_byte[m_width * m_channels * y]; 
             png_read_rows(png_ptr, &rowPointer, png_bytepp_NULL, 1);
         }
     }
@@ -245,6 +253,5 @@ void GImage::decodePNG(
 
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
 }
-
 
 }

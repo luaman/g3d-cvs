@@ -11,17 +11,17 @@
   @cite PNG compress/decompressor is the <A HREF="http://www.libpng.org/pub/png/libpng.html">libpng library</A>, used in accordance with their license.
   @cite PPM code by Morgan McGuire based on http://netpbm.sourceforge.net/doc/ppm.html
 
-  @maintainer Morgan McGuire, morgan@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2002-05-27
-  @edited  2007-01-31
+  @edited  2009-04-20
 
-  Copyright 2000-2007, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
 
  */
 
-#ifndef G3D_GIMAGE_H
-#define G3D_GIMAGE_H
+#ifndef G3D_GImage_h
+#define G3D_GImage_h
 
 #include "G3D/platform.h"
 #include <string>
@@ -31,10 +31,12 @@
 #include "G3D/Color1uint8.h"
 #include "G3D/Color3uint8.h"
 #include "G3D/Color4uint8.h"
+#include "G3D/MemoryManager.h"
 
 namespace G3D {
 class BinaryInput;
 class BinaryOutput;
+
 /**
   Interface to image compression & file formats. 
  
@@ -76,7 +78,15 @@ class BinaryOutput;
   */
 class GImage {
 private:
-    uint8*                _byte;
+
+    /** Used exclusively for allocating m_byte; this may be an 
+     implementation that allocates directly on a GPU.*/
+    MemoryManager::Ref      m_memMan;
+    uint8*                  m_byte;
+
+    int                     m_channels;
+    int                     m_width;
+    int                     m_height;
 
 public:
 
@@ -93,96 +103,104 @@ public:
 
     enum Format {JPEG, BMP, TGA, PCX, ICO, PNG, PPM_ASCII, PPM, AUTODETECT, UNKNOWN};
 
-    int                     width;
-    int                     height;
 
     /**
      The number of channels; either 3 (RGB) or 4 (RGBA)
      */
-    int                     channels;
-
-    inline const uint8* byte() const {
-        return _byte;
+    inline int channels() const {
+        return m_channels;
     }
 
-    /** Returns a pointer to the upper left pixel
-        as Color3uint8.
-     */
-    inline const Color3uint8* pixel3() const {
-         debugAssertM(channels == 3, format("Tried to call GImage::pixel3 on an image with %d channels", channels));            
-         return (Color3uint8*)_byte;
+    inline int width() const {
+        return m_width;
+    }
+
+    inline int height() const {
+        return m_height;
+    }
+
+    inline const uint8* byte() const {
+        return m_byte;
+    }
+
+    inline const Color1uint8* pixel1() const {
+        debugAssertM(m_channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", m_channels));            
+        return (Color1uint8*)m_byte;
+    }
+
+    inline Color1uint8* pixel1() {
+        debugAssertM(m_channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", m_channels));            
+        return (Color1uint8*)m_byte;
     }
 
     /** Returns a pointer to the upper left pixel
         as Color4uint8.
      */
     inline const Color4uint8* pixel4() const {
-        debugAssertM(channels == 4, format("Tried to call GImage::pixel4 on an image with %d channels", channels));            
-        return (Color4uint8*)_byte;
+        debugAssertM(m_channels == 4, format("Tried to call GImage::pixel4 on an image with %d channels", m_channels));            
+        return (Color4uint8*)m_byte;
     }
 
-    inline const Color1uint8* pixel1() const {
-        debugAssertM(channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", channels));            
-        return (Color1uint8*)_byte;
+    inline Color4uint8* pixel4() {
+        debugAssert(m_channels == 4);
+        return (Color4uint8*)m_byte;
     }
 
-    inline Color1uint8* pixel1() {
-        debugAssertM(channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", channels));            
-        return (Color1uint8*)_byte;
+    /** Returns a pointer to the upper left pixel
+        as Color3uint8.
+     */
+    inline const Color3uint8* pixel3() const {
+         debugAssertM(m_channels == 3, format("Tried to call GImage::pixel3 on an image with %d channels", m_channels));            
+         return (Color3uint8*)m_byte;
+    }
+
+    inline Color3uint8* pixel3() {
+        debugAssert(m_channels == 3);
+        return (Color3uint8*)m_byte;
     }
 
     /** Returns the pixel at (x, y), where (0,0) is the upper left. */
     inline const Color1uint8& pixel1(int x, int y) const {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return pixel1()[x + y * width];
+        debugAssert(x >= 0 && x < m_width);
+        debugAssert(y >= 0 && y < m_height);
+        return pixel1()[x + y * m_width];
     }
 
     /** Returns the pixel at (x, y), where (0,0) is the upper left. */
     inline Color1uint8& pixel1(int x, int y) {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return pixel1()[x + y * width];
+        debugAssert(x >= 0 && x < m_width);
+        debugAssert(y >= 0 && y < m_height);
+        return pixel1()[x + y * m_width];
     }
 
     /** Returns the pixel at (x, y), where (0,0) is the upper left. */
     inline const Color3uint8& pixel3(int x, int y) const {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return pixel3()[x + y * width];
+        debugAssert(x >= 0 && x < m_width);
+        debugAssert(y >= 0 && y < m_height);
+        return pixel3()[x + y * m_width];
     }
 
     inline Color3uint8& pixel3(int x, int y) {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return pixel3()[x + y * width];
+        debugAssert(x >= 0 && x < m_width);
+        debugAssert(y >= 0 && y < m_height);
+        return pixel3()[x + y * m_width];
     }
 
     /** Returns the pixel at (x, y), where (0,0) is the upper left. */
     inline const Color4uint8& pixel4(int x, int y) const {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return pixel4()[x + y * width];
+        debugAssert(x >= 0 && x < m_width);
+        debugAssert(y >= 0 && y < m_height);
+        return pixel4()[x + y * m_width];
     }
 
     inline Color4uint8& pixel4(int x, int y) {
-        debugAssert(x >= 0 && x < width);
-        debugAssert(y >= 0 && y < height);
-        return pixel4()[x + y * width];
+        debugAssert(x >= 0 && x < m_width);
+        debugAssert(y >= 0 && y < m_height);
+        return pixel4()[x + y * m_width];
     }
 
     inline uint8* byte() {
-        return _byte;
-    }
-
-    inline Color3uint8* pixel3() {
-        debugAssert(channels == 3);
-        return (Color3uint8*)_byte;
-    }
-
-    inline Color4uint8* pixel4() {
-        debugAssert(channels == 4);
-        return (Color4uint8*)_byte;
+        return m_byte;
     }
 
 private:
@@ -253,12 +271,20 @@ private:
         const GImage&       other);
 
 public:
+
+    /** Predicts the image file format of \a filename */
     static Format resolveFormat(const std::string& filename);
 
-    GImage() {
-        width = height = channels = 0;
-        _byte = NULL;
-    }
+
+    /**
+     Create an empty image of the given size.
+     \sa load()
+     */
+    GImage(
+        int                 width = 0,
+        int                 height = 0,
+        int                 channels = 3,
+        const MemoryManager::Ref& m = MemoryManager::create());
 
     /**
      Load an encoded image from disk and decode it.
@@ -266,7 +292,8 @@ public:
      */
     GImage(
         const std::string&  filename,
-        Format              format = AUTODETECT);
+        Format              format = AUTODETECT,
+        const MemoryManager::Ref& m = MemoryManager::create());
 
     /**
      Decodes an image stored in a buffer.
@@ -274,18 +301,12 @@ public:
     GImage(
         const unsigned char*data,
         int                 length,
-        Format              format = AUTODETECT);
-
-    /**
-     Create an empty image of the given size.
-     */
-    GImage(
-        int                 width,
-        int                 height,
-        int                 channels = 3);
+        Format              format = AUTODETECT,
+        const MemoryManager::Ref& m = MemoryManager::create());
 
     GImage(
-        const GImage&       other);
+        const GImage&       other,
+        const MemoryManager::Ref& m = MemoryManager::create());
 
     GImage& operator=(const GImage& other);
 
@@ -295,19 +316,20 @@ public:
      channel of the supplied image. The new GImage is passed
      as a reference parameter for speed.
      */ 
-     void insertRedAsAlpha(const GImage& alpha, GImage& output) const;
+    void insertRedAsAlpha(const GImage& alpha, GImage& output) const;
 
     /**
      Returns a new GImage with 3 channels, removing
      the alpha channel if there is one. The new GImage
      is passed as a reference parameter for speed.
      */
-     void stripAlpha(GImage& output) const;
+    void stripAlpha(GImage& output) const;
 
      /**
-      Loads an image from disk (clearing the old one first).
+      Loads an image from disk (clearing the old one first),
+      using the existing memory manager.
       */
-     void load(
+    void load(
         const std::string&  filename,
         Format              format = AUTODETECT);
 
@@ -322,11 +344,12 @@ public:
     virtual ~GImage();
 
     /**
-     Resizes the internal buffer to (width x height) with the
-     number of channels specified.  All data is set to 0 (black).
+     Resizes the internal buffer to (\a width x \a height) with the
+     number of \a channels specified.  
+     
+     \param zero If true, all data is set to 0 (black).
      */
-    void resize(int width, int height, int channels);
-
+    void resize(int width, int height, int channels, bool zero = true);
 
     /**
      Copies src sub-image data into dest at a certain offset.  
@@ -336,8 +359,15 @@ public:
      completely fit within dest at the specified offset.  Both
      src and dest must have the same number of channels.
      */
-    static bool pasteSubImage(GImage & dest, const GImage & src,
-        int destX, int destY, int srcX, int srcY, int srcWidth, int srcHeight);
+    static bool pasteSubImage(
+        GImage& dest, 
+        const GImage& src,
+        int destX, 
+        int destY, 
+        int srcX, 
+        int srcY, 
+        int srcWidth,
+        int srcHeight);
 
     /**
      creates dest from src sub-image data.  
@@ -376,6 +406,7 @@ public:
    
     /**
      The caller must delete the returned buffer.
+     TODO: provide a memory manager
      */
     void encode(
         Format              format,
@@ -399,7 +430,6 @@ public:
 
     /** Returns the size of this object in bytes */
     int sizeInMemory() const;
-
 
     /** Ok for in == out */
     static void R8G8B8_to_Y8U8V8(int width, int height, const uint8* in, uint8* out);
@@ -500,16 +530,16 @@ public:
         bool lowPassBump = false,
         bool scaleHeightByNz = false);
 
-    static void computeNormalMap(
-                                 int                 width,
-                                 int                 height,
-                                 int                 channels,
-                                 const uint8*        src,
-                                 GImage&             normal,
-                                 float               whiteHeightInPixels,
-                                 bool                lowPassBump,
-                                 bool                scaleHeightByNz);
-    
+    static void computeNormalMap
+       (int                 width,
+        int                 height,
+        int                 channels,
+        const uint8*        src,
+        GImage&             normal,
+        float               whiteHeightInPixels,
+        bool                lowPassBump,
+        bool                scaleHeightByNz);
+
     /**
     Bayer demosaicing using the filter proposed in 
 
@@ -527,19 +557,31 @@ public:
 
     /** Fast conversion; the output has 1/2 the size of the input in each direction. Assumes in != out.
     See G3D::BAYER_G8B8_R8G8_to_R8G8B8_MHC for a much better result. */
-    static void BAYER_G8B8_R8G8_to_Quarter_R8G8B8(int inWidth, int inHeight, const uint8* in, uint8* out);
+    static void BAYER_G8B8_R8G8_to_Quarter_R8G8B8
+       (int inWidth,
+        int inHeight, 
+        const uint8* in, 
+        uint8* out);
 
     /** Attempt to undo fast conversion of G3D::BAYER_G8B8_R8G8_to_Quarter_R8G8B8; 
         the green channel will lose data. Assumes in != out 
         The input should have size 3 * inWidth * inHeight.  The output should have size
         2 * inWidth * 2 * inHeight.
     */
-    static void Quarter_R8G8B8_to_BAYER_G8B8_R8G8(int inWidth, int inHeight, const uint8* in, uint8* out);
+    static void Quarter_R8G8B8_to_BAYER_G8B8_R8G8
+       (int inWidth, 
+        int inHeight, 
+        const uint8* in, 
+        uint8* out);
 
     /** Overwrites every pixel with one of the two colors in a checkerboard pattern.
         The fields used from the two colors depend on the current number of channels in @a im. 
         */
-    static void makeCheckerboard(GImage& im, int checkerSize = 1, const Color4uint8& color1 = Color4uint8(255,255,255,255), const Color4uint8& color2 = Color4uint8(0,0,0,255));
+    static void makeCheckerboard
+       (GImage& im, 
+        int checkerSize = 1, 
+        const Color4uint8& color1 = Color4uint8(255,255,255,255), 
+        const Color4uint8& color2 = Color4uint8(0,0,0,255));
 };
 
 }

@@ -491,21 +491,20 @@ bool Win32Window::requiresMainLoop() const {
 
 
 void Win32Window::setIcon(const GImage& image) {
-    alwaysAssertM((image.channels == 3) ||
-        (image.channels == 4), 
+    alwaysAssertM((image.channels() == 3) ||
+        (image.channels() == 4), 
         "Icon image must have at least 3 channels.");
 
-    alwaysAssertM((image.width == 32) && (image.height == 32),
+    alwaysAssertM((image.width() == 32) && (image.height() == 32),
         "Icons must be 32x32 on windows.");
 
     uint8 bwMaskData[128];
     uint8 colorMaskData[1024*4];
 
-
     GImage icon;
-    if (image.channels == 3) {
-        GImage alpha(image.width, image.height, 1);
-        System::memset(alpha.byte(), 255, (image.width * image.height));
+    if (image.channels() == 3) {
+        GImage alpha(image.width(), image.height(), 1);
+        System::memset(alpha.byte(), 255, (image.width() * image.height()));
         image.insertRedAsAlpha(alpha, icon);
     } else {
         icon = image;

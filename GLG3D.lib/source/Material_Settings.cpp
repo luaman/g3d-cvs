@@ -321,8 +321,8 @@ Component4 Material::Settings::loadSpecular() const {
         GImage s(m_shininessFilename);
 
         s.convertToL8();
-        GImage pack(s.width, s.height, 4);
-        int n = s.width * s.height;
+        GImage pack(s.width(), s.height(), 4);
+        int n = s.width() * s.height();
         for (int i = 0; i < n; ++i) {
             pack.pixel4()[i] = Color4uint8(255, 255, 255, s.pixel1()[i].value);
         }

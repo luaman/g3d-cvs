@@ -17,7 +17,7 @@ namespace G3D {
 void GImage::encodePPMASCII(
     BinaryOutput&       out) const {
 
-    debugAssert(channels == 3);
+    debugAssert(m_channels == 3);
 
     TextOutput::Settings ppmOptions;
     ppmOptions.convertNewlines = false;
@@ -25,12 +25,12 @@ void GImage::encodePPMASCII(
     ppmOptions.wordWrap = TextOutput::Settings::WRAP_WITHOUT_BREAKING;
     TextOutput ppm(ppmOptions);
     // Always write out a full-color ppm
-    ppm.printf("P3\n%d %d\n255\n", width, height);
+    ppm.printf("P3\n%d %d\n255\n", m_width, m_height);
     
     const Color3uint8* c = this->pixel3();
-    for (uint32 i = 0; i < (uint32)(width * height); ++i) {
+    for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
         ppm.printf("%d %d %d%c", c[i].r, c[i].g, c[i].b, 
-            ((i % ((width * 3) - 1)) == 0) ?
+            ((i % ((m_width * 3) - 1)) == 0) ?
             '\n' : ' '); 
     }
 
@@ -42,14 +42,15 @@ void GImage::encodePPM(
     BinaryOutput&       out) const {
 
     // http://netpbm.sourceforge.net/doc/ppm.html
-    debugAssert(channels == 3);
+    debugAssert(m_channels == 3);
 
-    std::string header = format("P6 %d %d 255 ", width, height);
+    std::string header = format("P6 %d %d 255 ", m_width, m_height);
 
     out.writeBytes(header.c_str(), header.size());
 
-    out.writeBytes(this->pixel3(), width * height * 3);
+    out.writeBytes(this->pixel3(), m_width * m_height * 3);
 }
+
 
 void GImage::decodePPMASCII(
     BinaryInput&        input) {
@@ -96,18 +97,18 @@ void GImage::decodePPMASCII(
         maxColor = 255.0;
     }
 
-    this->width = ppmWidth;
-    this->height = ppmHeight;
-    this->channels = 3;
+    m_width = ppmWidth;
+    m_height = ppmHeight;
+    m_channels = 3;
     // always scale down to 1 byte per channel
-    this->_byte = (uint8*)System::malloc(width * height * 3);
+    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
 
     // Read in the image data.  I am not validating if the values match the maxColor
     // requirements.  I only scale if needed to fit within the byte available.
-    for (uint32 i = 0; i < (uint32)(width * height); ++i) {
+    for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
         // read in color and scale to max pixel defined in header
         // A max color less than 255 might need to be left alone and not scaled.
-        Color3uint8& curPixel = *(this->pixel3() + i);
+        Color3uint8& curPixel = *(pixel3() + i);
 
         if (ppmType == "P3") {
             curPixel.r = (uint8)(ppmInput.readNumber() * (255.0 / maxColor));
@@ -150,6 +151,7 @@ static int scanUInt(BinaryInput& input) {
     return x;
 }
 
+
 void GImage::decodePPM(
     BinaryInput&        input) {
 
@@ -179,7 +181,7 @@ void GImage::decodePPM(
 
     resize(w, h, 3);
 
-    input.readBytes(_byte, width * height * 3);
+    input.readBytes(m_byte, m_width * m_height * 3);
 }
 
 }

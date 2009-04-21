@@ -375,6 +375,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\MemoryManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\MeshAlg.cpp"
 				>
 			</File>
@@ -762,6 +766,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Matrix4.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\MemoryManager.h"
 				>
 			</File>
 			<File

@@ -14,6 +14,7 @@
    <ul>
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01
+     <li> G3D::MemoryManager, G3D::CRTMemoryManager
      <li> G3D::Texture::min, mean, max
      <li> G3D::ThirdPersonManipulator now uses G3D::GEvents instead of onUserInput, so that it can consume clicks.
      <li> G3D::Win32Window now explicitly requests 0 OpenGL aux buffers for the main window, although some drivers will allocate them anyway
@@ -96,6 +97,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::GImage::width, height, channels are now accessor methods instead of public fields
      <li> RenderDevice::Buffer -> RenderDevice::DrawBuffer
      <li> RenderDevice::screenShotPic and Texture::copyFromScreen now always read from the current RenderDevice::readBuffer
      <li> OSWindow::Settings::sharedContext must now be set to true in order to support sharing of data between multiple OpenGL contexts.  Since sharing can 

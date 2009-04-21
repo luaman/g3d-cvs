@@ -99,7 +99,7 @@ void App::onInit() {
         lighting->lightArray.append(L);
     }
     shadowMap = ShadowMap::create("Shadow Map");
-/*
+
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
@@ -107,10 +107,10 @@ void App::onInit() {
     preprocess.parallaxSteps = 0;
     model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
-*/
+
 
 //    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
-//    timer.after("load");
+    timer.after("load 3DS");
 
     fb = Framebuffer::create("Offscreen");
     colorBuffer = Texture::createEmpty("Color", renderDevice->width(), renderDevice->height(), ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
@@ -131,7 +131,7 @@ void App::onInit() {
 */
 
     defaultCamera.setCoordinateFrame(bookmark("Home"));
-    defaultCamera.setFieldOfView(toRadians(90), GCamera::VERTICAL);
+    defaultCamera.setFieldOfView(toRadians(60), GCamera::HORIZONTAL);
     defaultCamera.setFarPlaneZ(-inf());
 
     toneMap->setEnabled(false);

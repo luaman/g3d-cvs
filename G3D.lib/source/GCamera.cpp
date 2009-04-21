@@ -20,7 +20,7 @@ namespace G3D {
 GCamera::GCamera() {
     setNearPlaneZ(-0.1f);
     setFarPlaneZ(-finf());
-    setFieldOfView((float)toRadians(120.0f), HORIZONTAL);
+    setFieldOfView((float)toRadians(55.0f), HORIZONTAL);
 }
 
 

@@ -1,8 +1,8 @@
 /**
   @file GImage_tga.cpp
-  @author Morgan McGuire, morgan@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
   @created 2002-05-27
-  @edited  2006-05-10
+  @edited  2009-05-10
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -34,14 +34,14 @@ void GImage::encodeTGA(
     out.writeUInt16(0);
 
     // Width & height
-    out.writeUInt16(width);
-    out.writeUInt16(height);
+    out.writeUInt16(m_width);
+    out.writeUInt16(m_height);
 
     // Color depth
-    out.writeUInt8(8 * channels);
+    out.writeUInt8(8 * m_channels);
 
     // Image descriptor
-    if (channels == 3) {
+    if (m_channels == 3) {
         // 0 alpha bits
         out.writeUInt8(0);
     }
@@ -52,11 +52,11 @@ void GImage::encodeTGA(
 
     // Image ID (zero length)
 
-    if (channels == 3) {
+    if (m_channels == 3) {
         // Pixels are upside down in BGR format.
-        for (int y = height - 1; y >= 0; y--) {
-            for (int x = 0; x < width; x++) {
-                uint8* p = &(_byte[3 * (y * width + x)]);
+        for (int y = m_height - 1; y >= 0; --y) {
+            for (int x = 0; x < m_width; ++x) {
+                uint8* p = &(m_byte[3 * (y * m_width + x)]);
                 out.writeUInt8(p[2]);
                 out.writeUInt8(p[1]);
                 out.writeUInt8(p[0]);
@@ -64,9 +64,9 @@ void GImage::encodeTGA(
         }
     } else {
         // Pixels are upside down in BGRA format.
-        for (int y = height - 1; y >= 0; y--) {
-            for (int x = 0; x < width; x++) {
-                uint8* p = &(_byte[4 * (y * width + x)]);
+        for (int y = m_height - 1; y >= 0; --y) {
+            for (int x = 0; x < m_width; ++x) {
+                uint8* p = &(m_byte[4 * (y * m_width + x)]);
                 out.writeUInt8(p[2]);
                 out.writeUInt8(p[1]);
                 out.writeUInt8(p[0]);
@@ -115,8 +115,8 @@ void GImage::decodeTGA(
     // Skip x and y offsets
     input.skip(4); 
 
-    width = input.readInt16();
-    height = input.readInt16();
+    m_width  = input.readInt16();
+    m_height = input.readInt16();
 
     int colorDepth = input.readUInt8();
 
@@ -125,9 +125,9 @@ void GImage::decodeTGA(
     }
 
     if (colorDepth == 32) {
-        channels = 4;
+        m_channels = 4;
     } else {
-        channels = 3;
+        m_channels = 3;
     }
 
     // Image descriptor contains overlay data as well
@@ -138,39 +138,39 @@ void GImage::decodeTGA(
     // Image ID
     input.skip(IDLength);
 
-    _byte = (uint8*)System::malloc(width * height * channels);
-    debugAssert(_byte);
+    m_byte = (uint8*)System::malloc(m_width * m_height * m_channels);
+    debugAssert(m_byte);
 	
     // Pixel data
     int x;
     int y;
 
-    if (channels == 3) {
-        for (y = height - 1; y >= 0; y--) {
-          for (x = 0; x < width; x++) {
+    if (m_channels == 3) {
+        for (y = m_height - 1; y >= 0; --y) {
+          for (x = 0; x < m_width; ++x) {
             int b = input.readUInt8();
             int g = input.readUInt8();
             int r = input.readUInt8();
 		    
-            int i = (x + y * width) * 3;
-            _byte[i + 0] = r;
-            _byte[i + 1] = g;
-            _byte[i + 2] = b;
+            int i = (x + y * m_width) * 3;
+            m_byte[i + 0] = r;
+            m_byte[i + 1] = g;
+            m_byte[i + 2] = b;
           }
         }
     } else {
-        for (y = height - 1; y >= 0; y--) {
-          for (x = 0; x < width; x++) {
+        for (y = m_height - 1; y >= 0; --y) {
+          for (x = 0; x < m_width; ++x) {
             int b = input.readUInt8();
             int g = input.readUInt8();
             int r = input.readUInt8();
             int a = input.readUInt8();
 		    
-            int i = (x + y * width) * 4;
-            _byte[i + 0] = r;
-            _byte[i + 1] = g;
-            _byte[i + 2] = b;
-            _byte[i + 3] = a;
+            int i = (x + y * m_width) * 4;
+            m_byte[i + 0] = r;
+            m_byte[i + 1] = g;
+            m_byte[i + 2] = b;
+            m_byte[i + 3] = a;
           }
         }
     }
