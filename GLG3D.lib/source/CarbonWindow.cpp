@@ -785,15 +785,15 @@ void CarbonWindow::setIcon(const GImage& image) {
     CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     CGDataProviderRef dataProviderRef = CGDataProviderCreateWithData(NULL,image.byte(),image.sizeInMemory(),NULL);
     
-    size_t bPC = (image.channels == 4) ? 8 : 6;
-    CGBitmapInfo bmpInfo = (image.channels == 4) ? kCGBitmapByteOrderDefault|kCGImageAlphaLast : kCGBitmapByteOrderDefault;
+    size_t bPC = (image.channels() == 4) ? 8 : 6;
+    CGBitmapInfo bmpInfo = (image.channels() == 4) ? kCGBitmapByteOrderDefault|kCGImageAlphaLast : kCGBitmapByteOrderDefault;
     
     if((NULL != colorSpaceRef) && (NULL != dataProviderRef)) {
-        dockImage = CGImageCreate(	image.width,
-                                        image.height,
+        dockImage = CGImageCreate(	image.width(),
+                                        image.height(),
                                         bPC,
-                                        bPC*image.channels,
-                                        image.width * image.channels,
+                                        bPC*image.channels(),
+                                        image.width * image.channels(),
                                         colorSpaceRef,
                                         bmpInfo,
                                         dataProviderRef,

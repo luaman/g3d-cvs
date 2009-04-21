@@ -573,21 +573,16 @@ std::string SDLWindow::caption() {
 
 
 void SDLWindow::setIcon(const GImage& image) {
-    alwaysAssertM((image.channels == 3) ||
-                  (image.channels == 4), 
+    alwaysAssertM((image.channels() == 3) ||
+                  (image.channels() == 4), 
                   "Icon image must have at least 3 channels.");
-
-    #ifdef G3D_WIN32
-        alwaysAssertM((image.width == 32) && (image.height == 32),
-            "Icons must be 32x32 on windows.");
-    #endif
 
     uint32 amask = 0xFF000000;
     uint32 bmask = 0x00FF0000;
     uint32 gmask = 0x0000FF00;
     uint32 rmask = 0x000000FF;
 
-    if (image.channels == 3) {
+    if (image.channels() == 3) {
         // Take away the 4th channel.
         amask = 0x00000000;
     }
@@ -596,7 +591,7 @@ void SDLWindow::setIcon(const GImage& image) {
     int scanLineByteLen = image.channels * image.width;
 
     SDL_Surface* surface =
-        SDL_CreateRGBSurfaceFrom((void*)image.byte(), image.width, image.height,
+        SDL_CreateRGBSurfaceFrom((void*)image.byte(), image.width(), image.height(),
         pixelBitLen, scanLineByteLen, 
         rmask, gmask, bmask, amask);
 
