@@ -1,8 +1,8 @@
 /**
   @file GImage_jpeg.cpp
-  @author Morgan McGuire, morgan@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
   @created 2002-05-27
-  @edited  2006-10-10
+  @edited  2009-04-20
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -354,7 +354,7 @@ void GImage::decodeJPEG(
 	m_height    = cinfo.output_height;
 
 	// Prepare the pointer object for the pixel data
-    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
 
  	// JSAMPLEs per row in output buffer
     int bpp         = cinfo.output_components;

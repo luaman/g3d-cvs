@@ -1,8 +1,8 @@
 /**
   @file GImage_png.cpp
-  @author Morgan McGuire, morgan@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
   @created 2002-05-27
-  @edited  2006-05-10
+  @edited  2009-04-20
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -215,7 +215,7 @@ void GImage::decodePNG(
         ((color_type == PNG_COLOR_TYPE_PALETTE) && (png_ptr->num_trans > 0)) ) {
 
         m_channels = 4;
-        m_byte = (uint8*)System::malloc(m_width * m_height * 4);
+        m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 4);
 
     } else if ((color_type == PNG_COLOR_TYPE_RGB) || 
                (color_type == PNG_COLOR_TYPE_PALETTE)) {
@@ -230,7 +230,7 @@ void GImage::decodePNG(
         // Round up to the nearest 8 rows to avoid a bug in the PNG decoder
         int h = iCeil(m_height / 8) * 8;
         int sz = m_width * h;
-        m_byte = (uint8*)System::malloc(sz);
+        m_byte = (uint8*)m_memMan->malloc(sz);
 
     } else {
         throw GImage::Error("Unsupported PNG bit-depth or type.", input.getFilename());

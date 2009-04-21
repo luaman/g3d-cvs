@@ -138,7 +138,7 @@ void GImage::decodeTGA(
     // Image ID
     input.skip(IDLength);
 
-    m_byte = (uint8*)System::malloc(m_width * m_height * m_channels);
+    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * m_channels);
     debugAssert(m_byte);
 	
     // Pixel data

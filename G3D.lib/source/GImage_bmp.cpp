@@ -238,7 +238,7 @@ void GImage::decodeBMP(
         hDir   = -1;
     }
 
-    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
     debugAssert(m_byte);
 
     int BMScanWidth;
@@ -371,7 +371,7 @@ void GImage::decodeBMP(
 
     } else if (bitCount == 16) {
 
-        System::free(m_byte);
+        m_memMan->free(m_byte);
         m_byte = NULL;
         System::free(palette); 
         palette = NULL;
@@ -413,7 +413,7 @@ void GImage::decodeBMP(
 
 	} else if (bitCount == 32) {
 
-        System::free(m_byte);
+        m_memMan->free(m_byte);
         m_byte = NULL;
         System::free(palette); 
         palette = NULL;
@@ -422,7 +422,7 @@ void GImage::decodeBMP(
     } else {
         // We support all possible bit depths, so if the
         //     code gets here, it's not even a real bitmap.
-        System::free(m_byte);
+        m_memMan->free(m_byte);
         m_byte = NULL;
         throw Error("Not a bitmap!", input.getFilename());
 	}
@@ -471,7 +471,7 @@ void GImage::decodeICO(
 	m_height = input.readUInt8();
 	int numColors = input.readUInt8();
 	
-    m_byte = (uint8*)System::malloc(m_width * m_height * m_channels);
+    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * m_channels);
     debugAssert(m_byte);
 
 	// Bit mask for packed bits

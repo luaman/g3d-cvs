@@ -280,7 +280,7 @@ void GImage::decodePCX(
     }
 
 	// Prepare the pointer object for the pixel data
-    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
 
     if ((paletteType == 1) && (planes == 3)) {
 
@@ -537,7 +537,7 @@ void GImage::resize(
     size_t sz = width * height * channels;
 
     if (sz > 0) {
-        m_byte = (uint8*)System::malloc(sz);
+        m_byte = (uint8*)m_memMan->malloc(sz);
         if (zero) {
             System::memset(m_byte, 0, sz);
         }
@@ -555,7 +555,7 @@ void GImage::_copy(
     m_height = other.m_height;
     m_channels = other.m_channels;
     int s  = m_width * m_height * m_channels * sizeof(uint8);
-    m_byte  = (uint8*)System::malloc(s);
+    m_byte  = (uint8*)m_memMan->malloc(s);
     debugAssert(isValidHeapPointer(m_byte));
     memcpy(m_byte, other.m_byte, s);
 }
@@ -577,7 +577,7 @@ GImage::~GImage() {
 void GImage::clear() {
     m_width = 0;
     m_height = 0;
-    System::free(m_byte);
+    m_memMan->free(m_byte);
     m_byte = NULL;
 }
 
@@ -901,7 +901,7 @@ void GImage::convertToL8() {
                 uint8&              d = m_byte[i]; 
                 d = ((int)s.r + (int)s.g + (int)s.b) / 3;
             }
-            System::free(src);
+            m_memMan->free(src);
         }
         break;
 
@@ -916,7 +916,7 @@ void GImage::convertToL8() {
                 uint8&              d = m_byte[i]; 
                 d = ((int)s.r + (int)s.g + (int)s.b) / 3;
             }
-            System::free(src);
+            m_memMan->free(src);
         }
         return;
 
@@ -940,7 +940,7 @@ void GImage::convertToRGBA() {
                 d.r = d.g = d.b = s;
                 d.a = 255;
             }
-            System::free(m_byte);
+            m_memMan->free(m_byte);
         }
         break;
 
@@ -958,7 +958,7 @@ void GImage::convertToRGBA() {
                 d.b = s.b;
                 d.a = 255;
             }
-            System::free(old);
+            m_memMan->free(old);
         }
         break;
 
@@ -985,7 +985,7 @@ void GImage::convertToRGB() {
                 Color3uint8& d = ((Color3uint8*)m_byte)[i]; 
                 d.r = d.g = d.b = s;
             }
-            System::free(old);
+            m_memMan->free(old);
         }
         break;
 
@@ -1005,7 +1005,7 @@ void GImage::convertToRGB() {
                 d.g = s.g;
                 d.b = s.b;
             }
-            System::free(old);
+            m_memMan->free(old);
         }
         break;
 

@@ -101,7 +101,7 @@ void GImage::decodePPMASCII(
     m_height = ppmHeight;
     m_channels = 3;
     // always scale down to 1 byte per channel
-    m_byte = (uint8*)System::malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
 
     // Read in the image data.  I am not validating if the values match the maxColor
     // requirements.  I only scale if needed to fit within the byte available.
