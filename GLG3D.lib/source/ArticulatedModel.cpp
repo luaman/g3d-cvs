@@ -248,7 +248,7 @@ Material::Settings ArticulatedModel::compute3DSMaterial
         }
 
         // Load textures
-        //lambertianFilename = System::findDataFile(textureFile, false); // TODO
+        lambertianFilename = System::findDataFile(textureFile, false);
         
         if (lambertianFilename == "") {
             logPrintf("Could not locate 3DS file texture '%s'\n", textureFile.c_str());
