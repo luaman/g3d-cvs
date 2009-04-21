@@ -92,14 +92,14 @@ void App::onInit() {
   //      L = GLight::directional(-c.lookVector(), Color3::white());
  //       L.rightDirection = c.rightVector();
 
-      L = GLight::directional(Vector3(0, 0.86, -.5), Color3::white());
+      L = GLight::directional(Vector3(0, 0.86f, -0.5f), Color3::white());
 
 //        L = skyParameters.directionalLight();
 
         lighting->lightArray.append(L);
     }
     shadowMap = ShadowMap::create("Shadow Map");
-
+/*
     Stopwatch timer("Load 3DS");
     ArticulatedModel::PreProcess preprocess;
     preprocess.addBumpMaps = true;
@@ -107,9 +107,10 @@ void App::onInit() {
     preprocess.parallaxSteps = 0;
     model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
+*/
 
 //    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
-    timer.after("load");
+//    timer.after("load");
 
     fb = Framebuffer::create("Offscreen");
     colorBuffer = Texture::createEmpty("Color", renderDevice->width(), renderDevice->height(), ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
@@ -130,6 +131,8 @@ void App::onInit() {
 */
 
     defaultCamera.setCoordinateFrame(bookmark("Home"));
+    defaultCamera.setFieldOfView(toRadians(45), GCamera::HORIZONTAL);
+    defaultCamera.setFarPlaneZ(-50);
 
     toneMap->setEnabled(false);
 }
@@ -189,21 +192,29 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::frustum(lightCamera.frustum(shadowMap->rect2DBounds()), rd);
     }
 */
-/*
-    static GCamera::Frustum f;
-    
     for (int i = 0; i < posed3D.size(); ++i) {
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
+    Draw::axes(rd);
+
+
+    static GCamera::Frustum f;
+    static Ray r0, r1;
+    
     if (updating) {
        f = defaultCamera.frustum(rd->viewport());
+       r0 = defaultCamera.worldRay(0,0,rd->viewport());
+       r1 = defaultCamera.worldRay(rd->viewport().width(),rd->viewport().height(),rd->viewport());
     }
-    Draw::frustum(f, rd);
-    for (int i = 0; i < 5; ++i) {
+    Draw::ray(r0, rd);
+    Draw::ray(r1, rd);
+    rd->setDepthWrite(false);
+    for (int i = 1; i < 5; ++i) {
         Draw::plane(f.faceArray[i].plane, rd);
     }
-*/
-    Draw::axes(rd);
+    Draw::frustum(f, rd);
+    
+
 
     /*
     Draw::sphere(Sphere(Vector3(0,3,0), 0.2f), rd, Color3::white());

@@ -49,7 +49,7 @@ public:
 private:
     
     /** 1/2 Field of view (in radians) */
-    float						m_fieldOfView;
+    float						m_halfFieldOfView;
 
     /** Clipping plane, *not* imaging plane.  Negative numbers. */
     float						m_nearPlaneZ;
@@ -123,7 +123,7 @@ public:
     /** Returns the current field of view angle (from the view axis 
         to one side; i.e., half of the extent) and direction */
     inline void getFieldOfView(float& angle, FOVDirection& direction) const {
-        angle = m_fieldOfView;
+        angle = m_halfFieldOfView;
         direction = m_direction;
     }
 
