@@ -131,8 +131,8 @@ void App::onInit() {
 */
 
     defaultCamera.setCoordinateFrame(bookmark("Home"));
-    defaultCamera.setFieldOfView(toRadians(45), GCamera::HORIZONTAL);
-    defaultCamera.setFarPlaneZ(-50);
+    defaultCamera.setFieldOfView(toRadians(90), GCamera::VERTICAL);
+    defaultCamera.setFarPlaneZ(-inf());
 
     toneMap->setEnabled(false);
 }

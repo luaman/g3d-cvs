@@ -49,7 +49,7 @@ public:
 private:
     
     /** 1/2 Field of view (in radians) */
-    float						m_halfFieldOfView;
+    float						m_fieldOfView;
 
     /** Clipping plane, *not* imaging plane.  Negative numbers. */
     float						m_nearPlaneZ;
@@ -115,15 +115,15 @@ public:
        initial angle is toRadians(55).  Must specify
        the direction of the angle.
 
-       This is the half angle, i.e., from the left side of the
-       viewport to the center axis of field of view.
+       This is the full angle, i.e., from the left side of the
+       viewport to the right side.
     */
     void setFieldOfView(float angle, FOVDirection direction);
 
-    /** Returns the current field of view angle (from the view axis 
-        to one side; i.e., half of the extent) and direction */
+    /** Returns the current full field of view angle (from the left side of the
+       viewport to the right side) and direction */
     inline void getFieldOfView(float& angle, FOVDirection& direction) const {
-        angle = m_halfFieldOfView;
+        angle = m_fieldOfView;
         direction = m_direction;
     }
 

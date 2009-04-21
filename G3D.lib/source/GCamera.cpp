@@ -20,7 +20,7 @@ namespace G3D {
 GCamera::GCamera() {
     setNearPlaneZ(-0.1f);
     setFarPlaneZ(-finf());
-    setFieldOfView((float)toRadians(60.0f), HORIZONTAL);
+    setFieldOfView((float)toRadians(120.0f), HORIZONTAL);
 }
 
 
@@ -39,9 +39,9 @@ void GCamera::setCoordinateFrame(const CoordinateFrame& c) {
 
 
 void GCamera::setFieldOfView(float angle, FOVDirection dir) {
-    debugAssert((angle < pi()/2) && (angle > 0));
+    debugAssert((angle < pi()) && (angle > 0));
     
-    m_halfFieldOfView = angle;
+    m_fieldOfView = angle;
     m_direction = dir;
 }
 
@@ -52,7 +52,7 @@ float GCamera::imagePlaneDepth() const{
 
 float GCamera::viewportWidth(const Rect2D& viewport) const {
     // Compute the side of a square at the near plane based on our field of view
-    float s = 2.0f * -m_nearPlaneZ * tan(m_halfFieldOfView);
+    float s = 2.0f * -m_nearPlaneZ * tan(m_fieldOfView * 0.5f);
 
     if (m_direction == VERTICAL) {
         s *= viewport.width() / viewport.height();
@@ -61,17 +61,19 @@ float GCamera::viewportWidth(const Rect2D& viewport) const {
     return s;
 }
 
+
 float GCamera::viewportHeight(const Rect2D& viewport) const {
     // Compute the side of a square at the near plane based on our field of view
-    float s = 2.0f * -m_nearPlaneZ * tan(m_halfFieldOfView);
+    float s = 2.0f * -m_nearPlaneZ * tan(m_fieldOfView * 0.5f);
 
-    debugAssert(m_halfFieldOfView < toRadians(90));
+    debugAssert(m_fieldOfView < toRadians(180));
     if (m_direction == HORIZONTAL) {
         s *= viewport.height() / viewport.width();
     }
 
     return s;
 }
+
 
 Ray GCamera::worldRay(float x, float y, const Rect2D& viewport) const {
 
@@ -111,10 +113,10 @@ void GCamera::getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const{
     float r, l, t, b, n, f, x, y;
 
     if (m_direction == VERTICAL) {
-        y = -m_nearPlaneZ * tan(m_halfFieldOfView / 2);
+        y = -m_nearPlaneZ * tan(m_fieldOfView / 2);
         x = y * (screenWidth / screenHeight);
     } else { //m_direction == HORIZONTAL
-        x = -m_nearPlaneZ * tan(m_halfFieldOfView / 2);
+        x = -m_nearPlaneZ * tan(m_fieldOfView / 2);
         y = x * (screenHeight / screenWidth);
     }
 
@@ -216,16 +218,18 @@ void GCamera::frustum(const Rect2D& viewport, Frustum& fr) const {
     const float zf              = m_farPlaneZ;
     float xx, zz, yy;
 
+    float halfFOV = m_fieldOfView * 0.5f;
+
     // This computes the normal, which is based on the complement of the 
-    // m_halfFieldOfView angle, so the equations are "backwards"
+    // halfFOV angle, so the equations are "backwards"
     if (m_direction == VERTICAL) {
-        yy = -cosf(m_halfFieldOfView);
+        yy = -cosf(halfFOV);
         xx = yy * viewport.height() / viewport.width();
-        zz = -sinf(m_halfFieldOfView);
+        zz = -sinf(halfFOV);
     } else {
-        xx = -cosf(m_halfFieldOfView);
+        xx = -cosf(halfFOV);
         yy = xx * viewport.width() / viewport.height();
-        zz = -sinf(m_halfFieldOfView);
+        zz = -sinf(halfFOV);
     } 
 
     // Near face (ccw from UR)
@@ -394,7 +398,7 @@ void GCamera::lookAt(const Vector3& position, const Vector3& up) {
 
 
 void GCamera::serialize(BinaryOutput& bo) const {
-    bo.writeFloat32(m_halfFieldOfView);
+    bo.writeFloat32(m_fieldOfView);
     bo.writeFloat32(imagePlaneDepth());
     debugAssert(nearPlaneZ() < 0.0f);
     bo.writeFloat32(nearPlaneZ());
@@ -406,7 +410,7 @@ void GCamera::serialize(BinaryOutput& bo) const {
 
 
 void GCamera::deserialize(BinaryInput& bi) {
-    m_halfFieldOfView = bi.readFloat32();
+    m_fieldOfView = bi.readFloat32();
     m_nearPlaneZ = bi.readFloat32();
     debugAssert(m_nearPlaneZ < 0.0f);
     m_farPlaneZ = bi.readFloat32();
