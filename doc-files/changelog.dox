@@ -14,6 +14,7 @@
    <ul>
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01
+     <li> G3D::Table::getCreate, getCreateEntry
      <li> G3D::MemoryManager, G3D::CRTMemoryManager
      <li> G3D::Texture::min, mean, max
      <li> G3D::ThirdPersonManipulator now uses G3D::GEvents instead of onUserInput, so that it can consume clicks.

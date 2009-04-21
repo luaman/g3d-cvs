@@ -68,7 +68,7 @@ protected:
     virtual void threadMain() = 0;
 
 public:
-
+    typedef ReferenceCountedPointer<class GThread> Ref;
     enum SpawnBehavior {USE_NEW_THREAD, USE_CURRENT_THREAD};
 
     GThread(const std::string& name);

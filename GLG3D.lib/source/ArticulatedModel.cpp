@@ -299,23 +299,24 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace
     }
 
     Welder::weld(geometry.vertexArray,
-                  texCoordArray,
-                  geometry.normalArray,
-                  indexArrayArray,
-                  settings.weld);
+                 texCoordArray,
+                 geometry.normalArray,
+                 indexArrayArray,
+                 settings.weld);
 
     Array<MeshAlg::Face>    faceArray;
     Array<MeshAlg::Vertex>  vertexArray;
     Array<MeshAlg::Edge>    edgeArray;
     Array<Vector3>          faceNormalArray;
 
+    Stopwatch s;
     computeIndexArray();
 
     MeshAlg::computeAdjacency(geometry.vertexArray, indexArray, faceArray, edgeArray, vertexArray);
 
     // Compute a tangent space basis
     if (texCoordArray.size() > 0) {
-        // computeTangentSpaceBasic will generate binormals, but
+        // computeTangentSpaceBasis will generate binormals, but
         // we throw them away and recompute
         // them in the vertex shader.
         Array<Vector3> bitangentArray;
@@ -417,8 +418,6 @@ public:
 void ArticulatedModel::updateAll() {
     // Extract the parts with real geometry
     Array<Part*> geometryPart;
-Stopwatch s;
-
     for (int p = 0; p < partArray.size(); ++p) {
         Part* part = &partArray[p];
         if (part->hasGeometry()) {
@@ -430,7 +429,6 @@ Stopwatch s;
             part->updateVAR();
         }
     }
-s.after("extract geometry");
 
     // Choose a reasonable number of threads
     int numThreads = 1;
@@ -447,7 +445,7 @@ s.after("extract geometry");
             (numThreads == 1) ? 
             (geometryPart.size() - 1) :
             (geometryPart.size() - 1) * t / (numThreads - 1);
-        GThreadRef thread = new PartUpdater(geometryPart, startIndex, endIndex, m_settings);
+        GThread::Ref thread = new PartUpdater(geometryPart, startIndex, endIndex, m_settings);
         threads.insert(thread);
         startIndex = endIndex + 1;
     }
@@ -455,7 +453,6 @@ s.after("extract geometry");
                  "Did not spawn threads for all parts");
     threads.start(GThread::USE_CURRENT_THREAD);
     threads.waitForCompletion();
-s.after("multithread part");
 
     // Upload data to GPU
     for (int p = 0; p < geometryPart.size(); ++p) {
@@ -468,7 +465,6 @@ s.after("multithread part");
         Part& part = partArray[p];
         m_numTriangles += part.indexArray.size() / 3;
     }
-s.after("remainder");
 
 #   ifdef G3D_DEBUG
     // Check for correctness

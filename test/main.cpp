@@ -146,8 +146,8 @@ void testGCamera() {
     debugAssertM(plane[2].normal().fuzzyEq(Vector3(1,0,-1).direction()), plane[2].normal().toString());
 
     // top
-    debugAssertM(plane[3].normal().fuzzyEq(Vector3(0,-0.5,-1).direction()), plane[3].normal().toString());
-    debugAssertM(plane[4].normal().fuzzyEq(Vector3(0,0.5,-1).direction()), plane[4].normal().toString());
+    debugAssertM(plane[3].normal().fuzzyEq(Vector3(0,-0.894427f,-0.447214f).direction()), plane[3].normal().toString());
+    debugAssertM(plane[4].normal().fuzzyEq(Vector3(0,0.894427f,-0.447214f).direction()), plane[4].normal().toString());
 
     Vector3 ll, lr, ul, ur;
     camera.getNearViewportCorners(viewport, ur, ul, ll, lr);

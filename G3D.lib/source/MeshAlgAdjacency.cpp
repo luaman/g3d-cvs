@@ -3,9 +3,9 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2003-09-14
-  @edited  2005-02-24
+  @edited  2009-02-24
 
-  Copyright 2000-2003, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
 
  */
@@ -13,7 +13,7 @@
 #include "G3D/Table.h"
 #include "G3D/MeshAlg.h"
 #include "G3D/Set.h"
-
+#include "G3D/Stopwatch.h"
 
 namespace G3D {
 
@@ -99,14 +99,7 @@ public:
         // debugAssertM((table.size() > 20) && (table.debugGetLoad() < 0.5 || table.debugGetNumBuckets() < 20),
         //    "MeshEdgeTable is using a poor hash function.");
 
-        if (! table.containsKey(edge)) {
-            // First time
-            Array<int> x(1);
-            x[0] = faceIndex;
-            table.set(edge, x);
-        } else {
-            table[edge].append(faceIndex);
-        }
+        table.getCreate(edge).append(faceIndex);
     }
 
     /**
@@ -178,18 +171,19 @@ void MeshAlg::computeAdjacency(
     faceArray.clear();
     edgeTable.clear();
     
+Stopwatch st;
     // Face normals
-    Array<Vector3> faceNormal;
+    Array<Vector3> faceNormal(indexArray.size() / 3);
+    faceArray.resize(faceNormal.size());
 
     // This array has the same size as the vertex array
     vertexArray.resize(vertexGeometry.size());
 
     // Iterate through the triangle list
-    for (int q = 0; q < indexArray.size(); q += 3) {
+    for (int q = 0, f = 0; q < indexArray.size(); ++f, q += 3) {
 
         Vector3 vertex[3];
-        int f = faceArray.size();
-        MeshAlg::Face& face = faceArray.next();
+        MeshAlg::Face& face = faceArray[f];
 
         // Construct the face
         for (int j = 0; j < 3; ++j) {
@@ -205,8 +199,8 @@ void MeshAlg::computeAdjacency(
         }
 
         // Compute the face normal
-        Vector3 N = (vertex[1] - vertex[0]).cross(vertex[2] - vertex[0]);
-        faceNormal.append(N.directionOrZero());
+        const Vector3& N = (vertex[1] - vertex[0]).cross(vertex[2] - vertex[0]);
+        faceNormal[f] = N.directionOrZero();
 
         static const int nextIndex[] = {1, 2, 0};
 
@@ -226,7 +220,8 @@ void MeshAlg::computeAdjacency(
             }
         }
     }
-    
+st.after("faces");
+
     // For each edge in the edge table, create an edge in the edge array.
     // Collapse every 2 edges from adjacent faces.
 
@@ -252,7 +247,7 @@ void MeshAlg::computeAdjacency(
             // We try to find the matching face with the closest
             // normal.  This ensures that we don't introduce a lot
             // of artificial ridges into flat parts of a mesh.
-            double ndotn = -2;
+            float ndotn = -2;
             int f1 = -1, i1 = -1;
             
             // Try to Find the face with the matching edge
@@ -264,7 +259,7 @@ void MeshAlg::computeAdjacency(
                     // and has not been assigned too many edges
 
                     const Vector3& n1 = faceNormal[(f >= 0) ? f : ~f];
-                    double d = n1.dot(n0);
+                    float d = n1.dot(n0);
 
                     if (found) {
                         // We previously found a good face; see if this
@@ -326,6 +321,7 @@ void MeshAlg::computeAdjacency(
     }
 
     edgeTable.clear();
+st.after("edges");
 
     // Move boundary edges to the end of the list and then
     // clean up the face references into them
@@ -367,6 +363,7 @@ void MeshAlg::computeAdjacency(
             }
         }
     }
+st.after("boundaries");
 
     // Now order the edge indices inside the faces correctly.
     for (int f = 0; f < faceArray.size(); ++f) {
@@ -400,6 +397,7 @@ void MeshAlg::computeAdjacency(
         vertexArray[edge.vertexIndex[0]].edgeIndex.append(e);
         vertexArray[edge.vertexIndex[1]].edgeIndex.append(~e);
     }
+st.after("reorder");
 }
 
 

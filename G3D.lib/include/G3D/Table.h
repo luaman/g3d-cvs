@@ -83,6 +83,7 @@ public:
         Key    key;
         Value  value;
         Entry() {}
+        Entry(const Key& k) : key(k) {}
         Entry(const Key& k, const Value& v) : key(k), value(v) {}
     };
 
@@ -110,6 +111,10 @@ private:
 
         Node(const Key& k, const Value& v, size_t h, Node* n) 
             : entry(k, v), hashCode(h), next(n) {
+        }
+
+        Node(const Key& k, size_t h, Node* n) 
+            : entry(k), hashCode(h), next(n) {
         }
 
         /**
@@ -502,72 +507,9 @@ public:
      key into a table is O(1), but may cause a potentially slow rehashing.
      */
     void set(const Key& key, const Value& value) {
-        if (numBuckets == 0) {
-            resize(10);
-        }
+        getCreateEntry(key).value = value;
+    }
 
-        size_t code = HashFunc::hashCode(key);
-        size_t b = code % numBuckets;
-        
-        // Go to the bucket
-        Node* n = bucket[b];
-
-        // No bucket, so this must be the first
-        if (n == NULL) {
-            bucket[b] = new Node(key, value, code, NULL);
-            ++_size;
-            return;
-        }
-
-        size_t bucketLength = 1;
-
-        // Sometimes a bad hash code will cause all elements
-        // to collide.  Detect this case and don't rehash when 
-        // it occurs; nothing good will come from the rehashing.
-        bool allSameCode = true;
-
-        // Try to find the node
-        do {
-            allSameCode = allSameCode && (code == n->hashCode);
-
-            if ((code == n->hashCode) && EqualsFunc::equals(n->entry.key, key)) {
-               // Replace the existing node.
-               n->entry.value = value;
-               return;
-            }
-
-            n = n->next;
-            ++bucketLength;
-        } while (n != NULL);
-
-        const size_t maxBucketLength = 3;
-        // (Don't bother changing the size of the table if all entries
-        // have the same hashcode--they'll still collide)
-        if ((bucketLength > maxBucketLength) && 
-            ! allSameCode && 
-            (numBuckets < _size * 15)) {
-
-            // This bucket was really large; rehash if all elements
-            // don't have the same hashcode the number of buckets is
-            // reasonable.
-
-            // Back off the scale factor as the number of buckets gets 
-            // large
-            float f = 3.0f;
-            if (numBuckets > 1000000) {
-                f = 1.5f;
-            } else if (numBuckets > 100000) {
-                f = 2.0f;
-            }
-            int newSize = iMax((int)(numBuckets * f) + 1, (int)(_size * f));
-            resize(newSize);
-        }
-
-        // Not found; insert at the head.
-        b = code % numBuckets;
-        bucket[b] = new Node(key, value, code, bucket[b]);
-        ++_size;
-   }
 private:
 
     /** Helper for remove() and getRemove() */
@@ -729,6 +671,81 @@ public:
        }
    }
 
+
+   /** Called by getCreate() and set() */  
+   Entry& getCreateEntry(const Key& key) {
+        if (numBuckets == 0) {
+            resize(10);
+        }
+
+        size_t code = HashFunc::hashCode(key);
+        size_t b = code % numBuckets;
+        
+        // Go to the bucket
+        Node* n = bucket[b];
+
+        // No bucket, so this must be the first
+        if (n == NULL) {
+            bucket[b] = new Node(key, code, NULL);
+            ++_size;
+            return bucket[b]->entry;
+        }
+
+        size_t bucketLength = 1;
+
+        // Sometimes a bad hash code will cause all elements
+        // to collide.  Detect this case and don't rehash when 
+        // it occurs; nothing good will come from the rehashing.
+        bool allSameCode = true;
+
+        // Try to find the node
+        do {
+            allSameCode = allSameCode && (code == n->hashCode);
+
+            if ((code == n->hashCode) && EqualsFunc::equals(n->entry.key, key)) {
+               // This is the a pre-existing node
+               return n->entry;
+            }
+
+            n = n->next;
+            ++bucketLength;
+        } while (n != NULL);
+
+        const size_t maxBucketLength = 3;
+        // (Don't bother changing the size of the table if all entries
+        // have the same hashcode--they'll still collide)
+        if ((bucketLength > maxBucketLength) && 
+            ! allSameCode && 
+            (numBuckets < _size * 15)) {
+
+            // This bucket was really large; rehash if all elements
+            // don't have the same hashcode the number of buckets is
+            // reasonable.
+
+            // Back off the scale factor as the number of buckets gets 
+            // large
+            float f = 3.0f;
+            if (numBuckets > 1000000) {
+                f = 1.5f;
+            } else if (numBuckets > 100000) {
+                f = 2.0f;
+            }
+            int newSize = iMax((int)(numBuckets * f) + 1, (int)(_size * f));
+            resize(newSize);
+        }
+
+        // Not found; insert at the head.
+        b = code % numBuckets;
+        bucket[b] = new Node(key, code, bucket[b]);
+        ++_size;
+        return bucket[b]->entry;
+   }
+
+   /** Returns the current value that key maps to, creating it if necessary.*/
+   Value& getCreate(const Key& key) {
+       return getCreateEntry(key).value;
+   }
+
    /**
     Returns true if key is in the table.
     */
@@ -759,7 +776,6 @@ public:
    inline Value& operator[](const Key &key) const {
       return get(key);
    }
-
 
    /**
     Returns an array of all of the keys in the table.
