@@ -793,7 +793,7 @@ void CarbonWindow::setIcon(const GImage& image) {
                                         image.height(),
                                         bPC,
                                         bPC*image.channels(),
-                                        image.width * image.channels(),
+                                        image.width() * image.channels(),
                                         colorSpaceRef,
                                         bmpInfo,
                                         dataProviderRef,
