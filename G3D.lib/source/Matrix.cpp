@@ -843,9 +843,9 @@ Matrix::T Matrix::Impl::determinant() const {
           // method get called a lot, so we spell out the implementation
           // for the 3x3 case.
 
-          double cofactor00 = elt[1][1] * elt[2][2] - elt[1][2] * elt[2][1];
-          double cofactor10 = elt[1][2] * elt[2][0] - elt[1][0] * elt[2][2];
-          double cofactor20 = elt[1][0] * elt[2][1] - elt[1][1] * elt[2][0];
+          float cofactor00 = elt[1][1] * elt[2][2] - elt[1][2] * elt[2][1];
+          float cofactor10 = elt[1][2] * elt[2][0] - elt[1][0] * elt[2][2];
+          float cofactor20 = elt[1][0] * elt[2][1] - elt[1][1] * elt[2][0];
       
 		  return Matrix::T(
             elt[0][0] * cofactor00 +
@@ -857,7 +857,7 @@ Matrix::T Matrix::Impl::determinant() const {
         {
             // Determinant of an n x n matrix is the dot product of the first
             // row with the first row of cofactors
-            T det = 0.0;
+            T det = 0;
 
             for (int c = 0; c < C; ++c) {
                 det += elt[0][c] * cofactor(0, c);
