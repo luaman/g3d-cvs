@@ -1,7 +1,7 @@
 /**
   @file SDLWindow.cpp
 
-  @maintainer Morgan McGuire, morgan@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2004-02-10
   @edited  2008-01-01
 */

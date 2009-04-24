@@ -1,7 +1,7 @@
 /**
  @file shadowVolume.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-12-16
  @edited  2004-07-05

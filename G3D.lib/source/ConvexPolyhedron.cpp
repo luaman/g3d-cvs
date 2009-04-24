@@ -1,7 +1,7 @@
 /**
   @file ConvexPolyhedron.cpp
   
-  @author Morgan McGuire, morgan@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-11-11
   @edited  2006-01-10

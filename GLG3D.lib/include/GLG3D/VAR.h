@@ -1,7 +1,7 @@
 /**
   @file GLG3D/VAR.h
 
-  @maintainer Morgan McGuire, morgan@graphics3d.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-05-29
   @edited  2009-02-03
 */
@@ -406,6 +406,7 @@ public:
         VAR      dstPtr,
         size_t   dstOffset, 
         size_t   dstStride) {
+        (void)ignored;
         init(dstPtr, dstOffset, glFormatOf(T), sizeof(T), _numElements, dstStride);
     }
 

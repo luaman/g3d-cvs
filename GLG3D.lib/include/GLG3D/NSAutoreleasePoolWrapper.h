@@ -1,7 +1,7 @@
 /**
   @file NSAutoreleasePoolWrapper.h
 
-  @maintainer Morgan McGuire, morgan@graphics3d.com, Casey O'Donnell, caseyodonnell@gmail.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu, Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-27
   @edited  2006-08-31
 */

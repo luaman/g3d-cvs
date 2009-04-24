@@ -1,7 +1,7 @@
 /**
  @file GuiLabel.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
  @edited  2007-06-10

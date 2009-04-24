@@ -1,7 +1,7 @@
 /**
  @file Shader.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-04-24
  @edited  2007-12-16

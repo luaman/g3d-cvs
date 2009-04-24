@@ -209,7 +209,7 @@ int64 fileLength(const std::string& filename) {
 
 /** Used by robustTmpfile.  Returns nonzero if fread, fwrite, and fseek all
 succeed on the file.
-  @author Morgan McGuire, morgan@graphics3d.com  */
+  @author Morgan McGuire, morgan@cs.williams.edu  */
 static int isFileGood(FILE* f) {
 
 	int x, n, result;

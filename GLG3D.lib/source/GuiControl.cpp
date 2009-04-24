@@ -1,7 +1,7 @@
 /**
  @file GuiControl.cpp
  
- @maintainer Morgan McGuire, morgan@graphics3d.com
+ @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-01
  @edited  2007-09-27

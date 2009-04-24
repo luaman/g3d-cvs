@@ -1,6 +1,6 @@
 /**
   @file GImage_bmp.cpp
-  @author Morgan McGuire, morgan@graphics3d.com
+  @author Morgan McGuire, morgan@cs.williams.edu
   @created 2002-05-27
   @edited  2006-05-10
  */
