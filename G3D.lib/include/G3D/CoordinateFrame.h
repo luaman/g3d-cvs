@@ -73,9 +73,7 @@ public:
     /**
      Initializes to the identity coordinate frame.
      */
-    inline CoordinateFrame() : 
-        rotation(Matrix3::identity()), translation(Vector3::zero()) {
-    }
+    CoordinateFrame();
 
     CoordinateFrame(const Vector3& _translation) :
         rotation(Matrix3::identity()), translation(_translation) {

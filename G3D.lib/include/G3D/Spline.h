@@ -274,10 +274,10 @@ protected:
        method by one that wraps the values if they are angles or quaternions
        for which "shortest path" interpolation is significant.
      */
-    virtual void ensureShortestPath(Control* A, int N) const {}
+    virtual void ensureShortestPath(Control* A, int N) const { (void)A; (void) N;}
 
     /** Normalize or otherwise adjust this interpolated Control. */
-    virtual void correct(Control& A) const {}
+    virtual void correct(Control& A) const { (void)A; }
 
 public:
    

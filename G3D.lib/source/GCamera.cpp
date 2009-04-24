@@ -180,6 +180,7 @@ Vector3 GCamera::unproject(const Vector3& v, const Rect2D& viewport) const {
 }
 
 float GCamera::worldToScreenSpaceArea(float area, float z, const Rect2D& viewport) const {
+    (void)viewport;
     if (z >= 0) {
         return finf();
     }

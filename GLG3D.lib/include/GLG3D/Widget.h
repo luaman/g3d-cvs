@@ -67,9 +67,16 @@ public:
      */
     virtual void onPose(
         Array<PosedModel::Ref>& posedArray,
-        Array<PosedModel2D::Ref>& posed2DArray) {}
+        Array<PosedModel2D::Ref>& posed2DArray) {
+        (void)posedArray;
+        (void)posed2DArray;
+    }
 
-    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {}
+    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+        (void)rdt;
+        (void)sdt;
+        (void)idt;
+    }
 
     /** Called by the WidgetManager when this module is added to it.  The argument may be NULL */
     virtual void setManager(WidgetManager* m) {

@@ -29,6 +29,10 @@ CoordinateFrame::CoordinateFrame(const class UprightFrame& f) {
 }
 
 
+CoordinateFrame::CoordinateFrame() : 
+    rotation(Matrix3::identity()), translation(Vector3::zero()) {
+}
+
 CoordinateFrame CoordinateFrame::fromXYZYPRRadians(float x, float y, float z, float yaw, 
                                                    float pitch, float roll) {
     Matrix3 rotation = Matrix3::fromAxisAngle(Vector3::unitY(), yaw);

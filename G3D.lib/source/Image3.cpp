@@ -68,7 +68,7 @@ Image3::Ref Image3::createEmpty(WrapMode wrap) {
 
 Image3::Ref Image3::fromFile(const std::string& filename, WrapMode wrap, GImage::Format fmt) {
     Ref out = createEmpty(wrap);
-    out->load(filename);
+    out->load(filename, fmt);
     return out;
 }
 

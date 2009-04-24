@@ -63,7 +63,7 @@ Image4uint8::Ref Image4uint8::createEmpty(WrapMode wrap) {
 
 Image4uint8::Ref Image4uint8::fromFile(const std::string& filename, WrapMode wrap, GImage::Format fmt) {
     Ref out = createEmpty(wrap);
-    out->load(filename);
+    out->load(filename, fmt);
     return out;
 }
 

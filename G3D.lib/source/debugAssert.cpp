@@ -210,6 +210,7 @@ bool _handleErrorCheck_(
     Log::common()->print(std::string("\n**************************\n\n") + dialogTitle + "\n" + dialogText);
     #ifdef G3D_WIN32
         DWORD lastErr = GetLastError();
+        (void)lastErr;
         postToClipboard(dialogText.c_str());
         debugPrintf("\n%s\n", dialogText.c_str());
     #endif

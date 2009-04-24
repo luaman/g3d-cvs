@@ -108,6 +108,10 @@ int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw
         char *bufp;
         size_t nLen;
 #   endif
+    (void)sw;
+    (void)szCmdLine;
+    (void)hInst;
+    (void)hPrev;
 
 #ifdef _WIN32_WCE
 #error WinCE not supported

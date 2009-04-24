@@ -19,6 +19,7 @@ Random& Random::common() {
 }
 
 Random::Random(void* x) : state(NULL), m_threadsafe(false) {
+    (void)x;
 }
 
 
@@ -79,7 +80,7 @@ void Random::generate() {
 
     // Upper (32 - R) bits
     static const uint32 UPPER_MASK = 0xFFFFFFFF << R;
-    static const uint32 mag01[2] = {0, A};
+    static const uint32 mag01[2] = {0UL, (uint32)A};
 
     if (m_threadsafe) {
         bool contention = ! lock.lock();

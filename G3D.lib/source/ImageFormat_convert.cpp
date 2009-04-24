@@ -210,6 +210,8 @@ bool ImageFormat::convert(const Array<const void*>& srcBytes, int srcWidth, int 
 
 // L8 ->
 static void l8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
+    (void)bayerAlg;
+    (void)dstRowPadBits;
     uint8* dst = static_cast<uint8*>(dstBytes[0]);
     const uint8* src = static_cast<const uint8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {

@@ -45,7 +45,7 @@ template <> struct HashTrait<G3D::uint128> {
 	// Use the FNV-1 hash (http://isthe.com/chongo/tech/comp/fnv/#FNV-1).
     static size_t hashCode(G3D::uint128 key) {
         static const G3D::uint128 FNV_PRIME_128(1 << 24, 0x159);
-        static const G3D::uint128 FNV_OFFSET_128(0xCF470AAC6CB293D2LL, 0xF52F88BF32307F8FLL);
+        static const G3D::uint128 FNV_OFFSET_128(0xCF470AAC6CB293D2ULL, 0xF52F88BF32307F8FULL);
 
         G3D::uint128 hash = FNV_OFFSET_128;
         G3D::uint128 mask(0, 0xFF);

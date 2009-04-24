@@ -68,7 +68,7 @@ Image1::Ref Image1::createEmpty(WrapMode wrap) {
 
 Image1::Ref Image1::fromFile(const std::string& filename, WrapMode wrap, GImage::Format fmt) {
     Ref out = createEmpty(wrap);
-    out->load(filename);
+    out->load(filename, fmt);
     return out;
 }
 

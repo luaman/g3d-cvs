@@ -538,6 +538,9 @@ public:
             return (*m_cell)[m_arrayIndex].position;
         }
 
+        // Intentionally unimplemented
+        BoxIterator& operator=(const BoxIterator&);
+
     public:
 
         inline bool operator!=(const BoxIterator& other) const {
@@ -653,6 +656,8 @@ public:
         // cell's box to see if the cell itself is actually inside the sphere
         // before iterating through it, since there may be many boxes outside the sphere.
 
+        // Intentionally unimplemented
+        SphereIterator& operator=(const SphereIterator&);
     public:
 
         inline bool operator!=(const SphereIterator& other) const {
@@ -785,6 +790,9 @@ public:
             m_isEnd = ! m_tableIterator.hasMore();
         }
         
+        // Intentionally unimplemented
+        CellIterator& operator=(const CellIterator&);
+
     public:
 
         const CellObject& operator*()  const { return  m_indirection; }
