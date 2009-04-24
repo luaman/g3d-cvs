@@ -931,6 +931,8 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
  PreprocessorStatus s,
  bool               debugErrors) {
 
+     (void)gs;
+     (void)gsName;
     return new VertexAndPixelShader(vs, vsName, false, ps, psName, false, debugErrors, s);
 }
 
@@ -1443,6 +1445,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& var, double          
 
 
 void VertexAndPixelShader::ArgList::set(const std::string& var, float          val, bool optional) {
+    (void)optional;
     Arg arg;
     arg.type = GL_FLOAT;
     arg.vector[0] = Vector4(val, 0, 0, 0);

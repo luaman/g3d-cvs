@@ -1455,7 +1455,7 @@ LRESULT CALLBACK Win32Window::windowProc(HWND     window,
 
                 enum {NUM_FILES=0xFFFFFFFF};
 
-                int n = DragQueryFile(hDrop, NUM_FILES,NULL, 0);
+                int n = DragQueryFile(hDrop, (UINT)NUM_FILES, NULL, 0UL);
                 this_window->m_droppedFiles.clear();
                 for (int i = 0; i < n; ++i) {
                     int numChars = DragQueryFile(hDrop, i, NULL, 0);

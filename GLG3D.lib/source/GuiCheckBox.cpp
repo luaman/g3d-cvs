@@ -10,6 +10,7 @@ GuiCheckBox::GuiCheckBox(GuiContainer* parent, const GuiText& text,
 
 
 void GuiCheckBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)rd;
     if (m_visible) {
         switch (m_style) {
         case GuiTheme::NORMAL_CHECK_BOX_STYLE:

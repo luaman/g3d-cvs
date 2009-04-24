@@ -742,7 +742,8 @@ bool ThirdPersonManipulator::onEvent(const GEvent& event) {
 
 
 void ThirdPersonManipulator::onUserInput(UserInput* ui) {
-} // userinput
+    (void)ui;
+}
 
 
 void ThirdPersonManipulator::onNetwork() {

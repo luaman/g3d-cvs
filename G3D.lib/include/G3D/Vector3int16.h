@@ -16,6 +16,10 @@
 #include "G3D/g3dmath.h"
 #include "G3D/HashTrait.h"
 
+// Turn off "conditional expression is constant" warning; MSVC generates this
+// for debug assertions in inlined methods.
+#pragma warning (disable : 4127)
+
 namespace G3D {
 
 /**
@@ -66,7 +70,7 @@ public:
     }
 
     inline Vector3int16 operator*(const int s) const {
-        return Vector3int16(x * s, y * s, z * s);
+        return Vector3int16(int16(x * s), int16(y * s), int16(z * s));
     }
 
     inline Vector3int16& operator+=(const Vector3int16& other) {
@@ -99,11 +103,11 @@ public:
     }
 
     Vector3int16 max(const Vector3int16& v) const {
-        return Vector3int16(iMax(x, v.x), iMax(y, v.y), iMax(z, v.z));
+        return Vector3int16(std::max(x, v.x), std::max(y, v.y), std::max(z, v.z));
     }
 
     Vector3int16 min(const Vector3int16& v) const {
-        return Vector3int16(iMin(x, v.x), iMin(y, v.y), iMin(z, v.z));
+        return Vector3int16(std::min(x, v.x), std::min(y, v.y), std::min(z, v.z));
     }
 
     std::string toString() const;

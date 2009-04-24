@@ -706,7 +706,7 @@ void ArticulatedModel::Part::pose
     for (int i = 0; i < subPartArray.size(); ++i) {
         int p = subPartArray[i];
         debugAssertM(model->partArray[p].parent == partIndex,
-            "Parent and child pointers do not match.");
+            "Parent and child pointers do not match.");(void)partIndex;
 
         model->partArray[p].pose(model, p, posedArray, frame, posex);
     }

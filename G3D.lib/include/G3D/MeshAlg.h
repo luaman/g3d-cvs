@@ -6,16 +6,20 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-09-14
- @edited  2008-07-30
+ @edited  2009-07-30
 */
 
-#ifndef G3D_MESHALG_H
-#define G3D_MESHALG_H
+#ifndef G3D_MeshAlg_h
+#define G3D_MeshAlg_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/Vector3.h"
 #include "G3D/CoordinateFrame.h"
+
+// Turn off "conditional expression is constant" warning; MSVC generates this
+// for debug assertions in inlined methods.
+#pragma warning (disable : 4127)
 
 namespace G3D {
 

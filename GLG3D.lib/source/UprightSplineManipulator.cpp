@@ -154,7 +154,10 @@ public:
         s = Sphere(Vector3::zero(), finf());
     }
 
-    virtual void getObjectSpaceFaceNormals (Array< Vector3 > &faceNormals, bool normalize=true) const {}
+    virtual void getObjectSpaceFaceNormals(Array<Vector3>& faceNormals, bool normalize = true) const {
+        (void)faceNormals;
+        (void)normalize;
+    }
 
     virtual void getWorldSpaceBoundingBox (AABox &box) const {
         getObjectSpaceBoundingBox(box);
@@ -184,17 +187,18 @@ public:
         return 0;
     }
 
-    virtual const Array< Vector3 > & objectSpaceFaceNormals (bool normalize=true) const {
+    virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const {
         static Array<Vector3> x;
+        (void)normalize;
         return x;
     }
 
-    virtual const MeshAlg::Geometry & objectSpaceGeometry () const {
+    virtual const MeshAlg::Geometry& objectSpaceGeometry() const {
         static MeshAlg::Geometry x;
         return x;
     }
 
-    virtual const Array< int > & triangleIndices () const {
+    virtual const Array<int>& triangleIndices() const {
         static Array<int> x;
         return x;
     }
@@ -267,9 +271,10 @@ UprightSplineManipulator::Mode UprightSplineManipulator::mode() const {
 
 
 void UprightSplineManipulator::onPose
-(
- Array< PosedModelRef > &posedArray, 
+(Array< PosedModelRef > &posedArray, 
  Array< PosedModel2DRef > &posed2DArray) {
+
+    (void)posed2DArray;
 
     if (m_showPath && (m_spline.control.size() > 0)) {
         posedArray.append(new PosedCameraSpline(&m_spline, m_pathColor));
@@ -295,13 +300,16 @@ bool UprightSplineManipulator::onEvent (const GEvent &event) {
 
 
 void UprightSplineManipulator::onSimulation (RealTime rdt, SimTime sdt, SimTime idt) {
+    (void)rdt;
+    (void)idt;
     if (m_mode != INACTIVE_MODE) {
         setTime(m_time + sdt);
     }
 }
 
 
-void UprightSplineManipulator::onUserInput (UserInput *ui) {
+void UprightSplineManipulator::onUserInput(UserInput* ui) {
+    (void)ui;
 }
 
 

@@ -350,7 +350,7 @@ bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
     bool foundFrame = false;
 
     // wait for a new frame after seek and read it
-    while(!m_decodingThread->completed() && !foundFrame) {
+    while(! m_decodingThread->completed() && ! foundFrame) {
 
         // check for frame
         m_bufferMutex.lock();
@@ -359,7 +359,8 @@ bool VideoInput::readFromIndex(int index, Texture::Ref& frame) {
 
         if (foundFrame) {
             // read new frame
-            debugAssert(readNext(0.0, frame));
+            bool b = readNext(0.0, frame);
+            debugAssert(b);(void)b;
         } else {
             // let decode run more
             System::sleep(0.005);

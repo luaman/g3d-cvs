@@ -4,14 +4,14 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2001-03-04
- @edited  2008-07-14
+ @edited  2009-04-14
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
 */
 
-#ifndef G3D_COORDINATEFRAME_H
-#define G3D_COORDINATEFRAME_H
+#ifndef G3D_CFrame_h
+#define G3D_CFrame_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
@@ -23,6 +23,13 @@
 #include <stdio.h>
 #include <cstdarg>
 #include <assert.h>
+
+#ifdef _MSC_VER
+// Turn off "conditional expression is constant" warning; MSVC generates this
+// for debug assertions in inlined methods.
+#   pragma warning (disable : 4127)
+#endif
+
 
 namespace G3D {
 

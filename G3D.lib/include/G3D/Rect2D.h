@@ -4,14 +4,14 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2003-11-13
-  @created 2008-11-16
+  @created 2009-04-16
 
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_RECT2D_H
-#define G3D_RECT2D_H
+#ifndef G3D_Rect2D_h
+#define G3D_Rect2D_h
 
 // Linux defines this as a macro
 #ifdef border
@@ -21,6 +21,13 @@
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/Vector2.h"
+
+#ifdef _MSC_VER
+// Turn off "conditional expression is constant" warning; MSVC generates this
+// for debug assertions in inlined methods.
+#   pragma warning (disable : 4127)
+#endif
+
 
 namespace G3D {
 

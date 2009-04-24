@@ -91,9 +91,9 @@ public:
         GEventType::JOYHATMOTION, JGEventType::OYBALLMOTION, and
         GEventType::JOYAXISMOTION) cannot be cancelled.
      */
-    virtual bool onEvent(const GEvent& event) {return false;}
+    virtual bool onEvent(const GEvent& event) { (void)event; return false;}
 
-    virtual void onUserInput(UserInput* ui) {}
+    virtual void onUserInput(UserInput* ui) { (void)ui;}
 
     virtual void onNetwork() {}
 
@@ -104,7 +104,7 @@ public:
     virtual OSWindow* window() const;
 
     /** Inherited from PosedModel2D */
-    virtual void render(RenderDevice* rd) const {}
+    virtual void render(RenderDevice* rd) const {(void)rd; }
 
     /** Inherited from PosedModel2D */
     virtual Rect2D bounds() const {

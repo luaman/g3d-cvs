@@ -41,6 +41,7 @@ public:
 
     void setOpen(bool b) {
         // TODO
+        (void)b;
     }
 };
     
@@ -326,7 +327,9 @@ public:
        @param side Side that the drawer sticks out of
      */
     virtual GuiDrawer* addDrawer(const GuiText& caption = "", 
-                                 GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { return NULL; }
+                                 GuiDrawer::Side side = GuiDrawer::RIGHT_SIDE) { 
+                                     (void)caption;(void)side;
+                                     return NULL; }
 
     virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray);
 
@@ -336,9 +339,11 @@ public:
 
     virtual void onNetwork() {}
 
-    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {}
+    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+        (void)rdt;(void)sdt;(void)idt;
+    }
 
-    virtual void onUserInput(UserInput *ui);
+    virtual void onUserInput(UserInput* ui);
 
     /** 
         Resize the pane so that all of its controls are visible and so that there is

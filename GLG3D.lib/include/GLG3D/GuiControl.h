@@ -290,7 +290,7 @@ protected:
     /** Events are only delivered to a control when the control that
         control has the key focus (which is transferred during a mouse
         down) */
-    virtual bool onEvent(const GEvent& event) { return false; }
+    virtual bool onEvent(const GEvent& event) { (void)event; return false; }
 
 };
 

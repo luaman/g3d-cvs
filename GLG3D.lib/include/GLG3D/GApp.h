@@ -546,7 +546,10 @@ protected:
         rendered (you can also explicitly pose and render in your
         onGraphics method).  The provided arrays will already contain
         posed models from any installed Widgets. */
-    virtual void onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D) {}
+    virtual void onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D) {
+        (void)posed3D;
+        (void)posed2D;
+    }
 
     /**
        For a networked app, override this to implement your network

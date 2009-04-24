@@ -53,6 +53,7 @@ void OSWindow::fireEvent(const GEvent& event) {
 
 void OSWindow::getOSEvents(Queue<GEvent>& events) {
     // no events added
+    (void)events;
 }
 
 

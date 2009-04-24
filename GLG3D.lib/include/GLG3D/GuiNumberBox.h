@@ -160,6 +160,8 @@ protected:
 
     // Smaller int types will automatically convert
     static std::string formatString(int v, int roundIncrement) {
+        (void)roundIncrement;
+        (void)v;
         return "%d";
     }
 
@@ -189,10 +191,12 @@ protected:
     }
 
     static std::string formatString(float v, float roundIncrement) {
+        (void)v;
         return "%" + precision(roundIncrement) + "f";
     }
 
     std::string formatString(double v, double roundIncrement) {
+        (void)v;
         return "%" + precision(roundIncrement) + "lf";
     }
 

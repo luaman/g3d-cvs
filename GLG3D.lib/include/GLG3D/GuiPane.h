@@ -74,7 +74,7 @@ protected:
      */
     void init(const Rect2D& rect);
 
-    virtual bool onEvent(const GEvent& event) { return false; }
+    virtual bool onEvent(const GEvent& event) { (void)event; return false; }
 
     /** Updates this pane to ensure that its client rect is least as wide and
         high as the specified extent, then recursively calls
@@ -209,13 +209,13 @@ public:
     }
 
     /** Provide the default clamp bounds for addNumberBox.*/
-    static int minVal(int x) { return INT_MAX; }
+    static int minVal(int x) { (void)x;return INT_MAX; }
     /** Provide the default clamp bounds for addNumberBox.*/
-    static int maxVal(int x) { return INT_MIN; }
+    static int maxVal(int x) { (void)x;return INT_MIN; }
     /** Provide the default clamp bounds for addNumberBox.*/
-    static double minVal(double x) { return -inf();}
+    static double minVal(double x) { (void)x;return -inf();}
     /** Provide the default clamp bounds for addNumberBox.*/
-    static double maxVal(double x) { return inf();}
+    static double maxVal(double x) { (void)x;return inf();}
 
     /** Create a text box for numbers.
       @param suffix A label to the right of the number, e.g., units

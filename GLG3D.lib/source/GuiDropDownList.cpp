@@ -38,6 +38,7 @@ GuiMenuRef GuiDropDownList::menu() {
 
 
 void GuiDropDownList::render(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)rd;
     if (m_visible) {
         skin->renderDropDownList(m_rect, m_enabled, focused() || mouseOver(), 
                                  m_selecting, selectedValue(), m_caption, m_captionSize);

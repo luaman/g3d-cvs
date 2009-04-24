@@ -324,6 +324,8 @@ public:
     virtual bool renderSuperShaderPass(
         RenderDevice* rd, 
         const SuperShader::PassRef& pass) const {
+        (void) rd;
+        (void) pass;
         return true;
     }
 

@@ -69,6 +69,8 @@ protected:
 
     UprightSplineManipulator();
 
+    // Intentionally unimplemented
+    UprightSplineManipulator& operator=(const UprightSplineManipulator&);
 public:
     
     static Ref create(class GCamera* c = NULL);

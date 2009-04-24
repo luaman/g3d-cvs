@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2005-08-30
- @edited  2006-10-20
+ @edited  2009-10-20
  */
 
 #include "G3D/Rect2D.h"
@@ -22,6 +22,7 @@ Texture::Ref ToneMap::RG;
 Texture::Ref ToneMap::B;
 
 void ToneMap::beginFrame(RenderDevice* rd) {
+    (void)rd;
     // Intentionally empty.  Future implementations might
     // use this opportunity to switch from the back buffer to a 
     // render buffer.

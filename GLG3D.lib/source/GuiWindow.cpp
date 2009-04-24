@@ -151,6 +151,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
 
 
 void GuiWindow::onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray) {
+    (void)posedArray;
     if (m_visible) {
         posed2DArray.append(this);
     }
