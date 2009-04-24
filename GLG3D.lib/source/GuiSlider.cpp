@@ -20,6 +20,7 @@ _GuiSliderBase::_GuiSliderBase(GuiContainer* parent, const GuiText& text, bool h
 
 
 void _GuiSliderBase::render(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)rd;
     if (m_visible) {
         if (m_horizontal) {
             skin->renderHorizontalSlider(m_rect, floatValue(), m_enabled, focused() || mouseOver(), m_caption, m_captionSize);

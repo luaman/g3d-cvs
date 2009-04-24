@@ -417,12 +417,18 @@ public:
         return false;
     }
 
-    virtual void render(class Map* map) const {}
+    virtual void render(class Map* map) const {
+        (void)map;
+    }
 
     virtual void updateSortKey(
         class Map*      map,
         const Vector3&  zAxis,
-        Vector3&        origin) {}
+        Vector3&        origin) {
+        (void)origin;
+        (void)map;
+        (void)zAxis;
+    }
 };
 
 

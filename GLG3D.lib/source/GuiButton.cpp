@@ -19,6 +19,7 @@ GuiButton::GuiButton(GuiContainer* parent, const GuiButton::Callback& callback, 
 
 
 void GuiButton::render(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)rd;
     if (m_visible) {
         skin->renderButton(m_rect, m_enabled, focused() || mouseOver(), 
                            m_down && mouseOver(), m_caption, (GuiTheme::ButtonStyle)m_style);

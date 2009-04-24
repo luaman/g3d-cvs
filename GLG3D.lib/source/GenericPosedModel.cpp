@@ -793,6 +793,8 @@ void GenericPosedModel::renderShadowedLightPass(
     RenderDevice*       rd, 
     const GLight&       light) const {
 
+    (void)rd;
+    (void)light;
     // TODO
     debugAssertM(false, "Unimplemented");
 }

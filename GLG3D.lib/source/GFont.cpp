@@ -125,6 +125,7 @@ Vector2 GFont::drawString(
     float               w,
     float               h,
     Spacing             spacing) const {
+    (void)renderDevice;
 
     debugAssert(renderDevice != NULL);
     const float propW = w / charWidth;

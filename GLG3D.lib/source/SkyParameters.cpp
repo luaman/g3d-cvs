@@ -184,11 +184,13 @@ LightingRef Lighting::clone() const {
 }
 
 void Lighting::reduceNonShadowedLights(int numLeft) {
+    (int)numLeft;
     // Find dimmest light
     // TODO
 }
 
 void Lighting::reduceShadowedLights(int numLeft) {
+    (int)numLeft;
     // Find dimmest light
     // TODO
 }

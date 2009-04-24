@@ -120,6 +120,7 @@ void GuiFunctionBox::render(RenderDevice* rd, const GuiThemeRef& skin) const {
 
 
 void GuiFunctionBox::drawBackground(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)skin;
     // Draw grid
     rd->setLineWidth(1);
     rd->beginPrimitive(RenderDevice::LINES);
@@ -141,6 +142,7 @@ void GuiFunctionBox::drawBackground(RenderDevice* rd, const GuiThemeRef& skin) c
 
 
 void GuiFunctionBox::drawSpline(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)skin;
     int N = iMax((int)(m_bounds.width() / 4), 30);
 
 #   if 0  // Debugging code for looking at the slope of the curve
@@ -325,6 +327,7 @@ int GuiFunctionBox::getNearestControlPoint(const Vector2& pos) {
 
 
 void GuiFunctionBox::drawControlPoints(RenderDevice* rd, const GuiThemeRef& skin) const {
+    (void)skin;
     int size = 6;
 
     rd->setColor(m_controlColor);

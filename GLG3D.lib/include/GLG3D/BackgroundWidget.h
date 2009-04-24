@@ -75,20 +75,25 @@ public:
         m_texture = t;
     }
 
-    virtual bool onEvent (const GEvent &event) { return false; }
+    virtual bool onEvent (const GEvent& event) { (void)event;return false; }
 
     virtual void onAI () {}
 
     virtual void onNetwork () {}
 
     virtual void onPose (Array< PosedModel::Ref > &posedArray, Array< PosedModel2DRef > &posed2DArray) {
+        (void)posedArray;
         m_posed->texture = m_texture;
         posed2DArray.append(m_posed);
     }
 
-    virtual void onSimulation (RealTime rdt, SimTime sdt, SimTime idt) {}
+    virtual void onSimulation (RealTime rdt, SimTime sdt, SimTime idt) {
+        (void)idt;(void)sdt;(void)rdt;
+    }
 
-    virtual void onUserInput (UserInput *ui) {}
+    virtual void onUserInput (UserInput* ui) {
+        (void)ui;
+    }
 };
 
 }

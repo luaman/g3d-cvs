@@ -78,6 +78,7 @@ int Framebuffer::findCurrent(AttachmentPoint ap) const {
 
 
 void Framebuffer::set(AttachmentPoint ap, const void* n) {
+    (void)n;
     debugAssert(n == NULL);
 
     bool found = false;

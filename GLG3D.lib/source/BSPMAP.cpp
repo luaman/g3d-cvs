@@ -357,6 +357,8 @@ void Map::renderFaces(
 	const GCamera&              camera,
 	const Array<FaceSet*>&      visibleFaceArray) {
 
+    (void)camera;
+    (void)renderDevice;
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 

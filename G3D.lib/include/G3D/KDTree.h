@@ -310,6 +310,7 @@ protected:
 	    Comparator(Vector3::Axis a, float l) : sortAxis(a), sortLocation(l) {}
 
 	    inline int operator()(Handle* ignore, const Handle* handle) const {
+            (void)ignore;
             const AABox& box = handle->bounds;
             debugAssert(ignore == NULL);
 
