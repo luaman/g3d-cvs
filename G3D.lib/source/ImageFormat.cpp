@@ -4,10 +4,10 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-05-23
- @edited  2006-01-11
+ @edited  2009-04-24
  */
 
-#include "../../GLG3D.lib/include/GLG3D/glheaders.h"
+#include "GLG3D/glheaders.h"
 #include "G3D/ImageFormat.h"
 
 namespace G3D {
