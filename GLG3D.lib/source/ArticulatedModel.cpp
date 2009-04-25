@@ -14,15 +14,19 @@
 
 namespace G3D {
 
-ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList() {
+ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList(const Material::Ref& mat) {
     TriList::Ref t = new TriList();
 
-    Material::Settings s;
-    s.setLambertian(Color3::white() * 0.8f);
-    s.setSpecular(Color3::black());
-    s.setShininess(0);
+    if (mat.isNull()) {
+        Material::Settings s;
+        s.setLambertian(Color3::white() * 0.8f);
+        s.setSpecular(Color3::black());
+        s.setShininess(0);
 
-    t->material = Material::create(s);
+        t->material = Material::create(s);
+    } else {
+        t->material = mat;
+    }
 
     triList.append(t);
     return t;
@@ -181,7 +185,29 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                     const Load3DS::FaceMat& faceMat = object.faceMatArray[m];
 
                     if (faceMat.faceIndexArray.size() > 0) {
-                        Part::TriList::Ref triList = part.newTriList();                
+
+                        Material::Ref mat;
+                        bool twoSided = false;
+
+                        const std::string& materialName = faceMat.materialName;
+                        if (load.materialNameToIndex.containsKey(materialName)) {
+
+                            int i = load.materialNameToIndex[materialName];
+                            const Load3DS::Material& material = load.materialArray[i];
+
+                            const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
+                            twoSided = material.twoSided;
+
+                            mat = Material::create(spec);
+
+                        } else {
+                            mat = Material::create();
+                            logPrintf("Referenced unknown material '%s'\n", materialName.c_str());
+                        }                        
+
+                        Part::TriList::Ref triList = part.newTriList(mat);    
+                        triList->twoSided = twoSided;
+
                         // Construct an index array for this part
                         for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
                             // 3*f is an index into object.indexArray
@@ -192,22 +218,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                         }
                         debugAssert(triList->indexArray.size() > 0);
 
-                        const std::string& materialName = faceMat.materialName;
-                        if (load.materialNameToIndex.containsKey(materialName)) {
 
-                            int i = load.materialNameToIndex[materialName];
-                            const Load3DS::Material& material = load.materialArray[i];
-
-                            const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
-                            triList->twoSided = material.twoSided;
-
-                            triList->material = Material::create(spec);
-
-                        } else {
-                            triList->twoSided = false;
-                            triList->material = Material::create();
-                            logPrintf("Referenced unknown material '%s'\n", materialName.c_str());
-                        }
                     } // if there are indices on this part
                 } // for m
             } // if has materials 
@@ -574,8 +585,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     // White faces
     {
-        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
-        triList->material = Material::createDiffuse(Color3::white() * 0.72f);
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(Color3::white() * 0.72f));
         triList->twoSided = true;
 
         Array<int>& index = triList->indexArray;
@@ -592,8 +602,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     // Left red face
     {
-        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
-        triList->material = Material::createDiffuse(Color3::fromARGB(0xB82C1F));
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(Color3::fromARGB(0xB82C1F)));
         triList->twoSided = true;
 
         Array<int>& index = triList->indexArray;
@@ -602,8 +611,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     // Right green face
     {
-        ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
-        triList->material = Material::createDiffuse(Color3::fromARGB(0x6AB8B8));
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(Color3::fromARGB(0x6AB8B8)));
         triList->twoSided = true;
 
         Array<int>& index = triList->indexArray;

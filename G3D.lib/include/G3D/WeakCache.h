@@ -47,6 +47,7 @@ namespace G3D {
       
     </pre>
  */
+#if 0
 template<class Key, class ValueRef>
 class WeakCache {
     typedef WeakReferenceCountedPointer<typename ValueRef::element_type> ValueWeakRef;
@@ -68,6 +69,39 @@ public:
                 table.remove(k);
             }
             return s;
+        } else {
+            return NULL;
+        }
+    }
+
+    void set(const Key& k, ValueRef v) {
+        table.set(k, v);
+    }
+
+    /** Removes k from the cache or does nothing if it is not currently in the cache.*/
+    void remove(const Key& k) {
+        if (table.containsKey(k)) {
+            table.remove(k);
+        }
+    }
+};
+#endif
+
+// TODO: Enable; this was disabled in G3D 8.00 to debug some memory
+// corruption problems on MSVC optimized builds.
+template<class Key, class ValueRef>
+class WeakCache {
+private:
+
+    Table<Key, ValueRef> table;
+
+public:
+    /**
+       Returns NULL if the object is not in the cache
+    */
+    ValueRef operator[](const Key& k) {
+        if (table.containsKey(k)) {
+            return table[k];
         } else {
             return NULL;
         }

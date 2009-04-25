@@ -433,6 +433,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\ReferenceCount.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\RegistryUtil.cpp"
 				>
 			</File>

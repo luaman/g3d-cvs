@@ -258,8 +258,9 @@ public:
 
         inline Part() : parent(-1) {}
 
-        /** Creates a new tri list, adds it to the Part, and returns it */
-        TriList::Ref newTriList();
+        /** Creates a new tri list, adds it to the Part, and returns it.
+            If \a mat is NULL, creates a default white material. */
+        TriList::Ref newTriList(const Material::Ref& mat = NULL);
 
         /**
            Called by the various ArticulatedModel::render calls.

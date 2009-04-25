@@ -8,11 +8,10 @@
   @cite See also http://www.jelovic.com/articles/cpp_without_memory_errors_slides.htm
 
   @created 2001-10-23
-  @edited  2008-09-25
+  @edited  2009-04-25
 */
-
-#ifndef G3D_RGC_H
-#define G3D_RGC_H
+#ifndef G3D_ReferenceCount_h
+#define G3D_ReferenceCount_h
 
 #include "G3D/platform.h"
 #include "G3D/debug.h"
@@ -137,13 +136,7 @@ public:
 
 protected:
 
-    ReferenceCountedObject() : 
-        ReferenceCountedObject_refCount(0), 
-        ReferenceCountedObject_weakPointer(0) {
-
-        debugAssertM(isValidHeapPointer(this), 
-            "Reference counted objects must be allocated on the heap.");
-    }
+    ReferenceCountedObject();
 
 public:
 
@@ -151,44 +144,18 @@ public:
         This is not called from the destructor because it needs to be invoked
         before the subclass destructor.
       */
-    void ReferenceCountedObject_zeroWeakPointers() {
-        // Tell all of my weak pointers that I'm gone.
-        
-        _WeakPtrLinkedList* node = ReferenceCountedObject_weakPointer;
+    void ReferenceCountedObject_zeroWeakPointers();
 
-        while (node != NULL) {
-            // Notify the weak pointer that it is going away
-            node->weakPtr->objectCollected();
-
-            // Free the node and advance
-            _WeakPtrLinkedList* tmp = node;
-            node = node->next;
-            delete tmp;
-        }
-    }
-
-    virtual ~ReferenceCountedObject() {}
+    virtual ~ReferenceCountedObject();
 
 
     /**
       Note: copies will initially start out with 0 
       references and 0 weak references like any other object.
      */
-    ReferenceCountedObject(const ReferenceCountedObject& notUsed) : 
-        ReferenceCountedObject_refCount(0),
-        ReferenceCountedObject_weakPointer(0) {
-        (void)notUsed;
-        debugAssertM(G3D::isValidHeapPointer(this), 
-            "Reference counted objects must be allocated on the heap.");
-    }
+    ReferenceCountedObject(const ReferenceCountedObject& notUsed);
 
-    ReferenceCountedObject& operator=(const ReferenceCountedObject& other) {
-        (void)other;
-        // Nothing changes when I am assigned; the reference count on
-        // both objects is the same (although my super-class probably
-        // changes).
-        return *this;
-    }
+    ReferenceCountedObject& operator=(const ReferenceCountedObject& other);
 };
 
 
