@@ -307,6 +307,7 @@ void VAR::vertexPointer() const {
                  "OpenGL does not support GL_UNSIGNED_SHORT as a vertex format.");
     debugAssertM(underlyingRepresentation != GL_UNSIGNED_BYTE, 
                  "OpenGL does not support GL_UNSIGNED_BYTE as a vertex format.");
+    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
     glVertexPointer(elementSize / sizeOfGLFormat(underlyingRepresentation), 
                     underlyingRepresentation, m_stride, _pointer);
 }
@@ -314,6 +315,7 @@ void VAR::vertexPointer() const {
 
 void VAR::normalPointer() const {
     debugAssert(valid());
+    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
     debugAssert((numElements == 0) || (double)elementSize / sizeOfGLFormat(underlyingRepresentation) == 3.0);
     debugAssertM(underlyingRepresentation != GL_UNSIGNED_INT, 
                  "OpenGL does not support GL_UNSIGNED_INT as a normal format.");
@@ -329,6 +331,7 @@ void VAR::normalPointer() const {
 void VAR::colorPointer() const {
     debugAssert(valid());
     glEnableClientState(GL_COLOR_ARRAY);
+    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
     glColorPointer(elementSize / sizeOfGLFormat(underlyingRepresentation),
                    underlyingRepresentation, m_stride, _pointer); 
 }
@@ -343,6 +346,7 @@ void VAR::texCoordPointer(uint32 unit) const {
         glClientActiveTextureARB(GL_TEXTURE0_ARB + unit);
     }
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
     glTexCoordPointer(elementSize / sizeOfGLFormat(underlyingRepresentation),
                       underlyingRepresentation, m_stride, _pointer);
 

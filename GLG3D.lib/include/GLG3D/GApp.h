@@ -279,11 +279,11 @@ public:
        By default, this is set to the defaultController.  This may be
        set to NULL to disable explicit camera positioning.
     */
-    void setCameraManipulator(const Manipulator::Ref& man) {
+    inline void setCameraManipulator(const Manipulator::Ref& man) {
         m_cameraManipulator = man;
     }
 
-    Manipulator::Ref cameraManipulator() const {
+    inline Manipulator::Ref cameraManipulator() const {
         return m_cameraManipulator;
     }
     
@@ -406,7 +406,6 @@ public:
     */
     virtual void addWidget(const Widget::Ref& module);
 
-
     /**
        The actual removal of the module may be delayed until the next frame.
     */
@@ -420,9 +419,7 @@ public:
         return m_simTimeStep;
     }
 
-    virtual void setSimTimeStep(float s) {
-        m_simTimeStep = s;
-    }
+    virtual void setSimTimeStep(float s);
 
     /** Accumulated wall-clock time since init was called on this applet. 
         Since this time is accumulated, it may drift from the true
@@ -431,9 +428,7 @@ public:
         return m_realTime;
     }
 
-    virtual void setRealTime(RealTime r) {
-        m_realTime = r;
-    }
+    virtual void setRealTime(RealTime r);
 
     /** In-simulation time since init was called on this applet.  
         Takes into account simTimeSpeed.  Automatically incremented
@@ -443,22 +438,17 @@ public:
         return m_simTime;
     }
 
-    virtual void setSimTime(SimTime s) {
-        m_simTime = s;
-    }
+    virtual void setSimTime(SimTime s);
 
     /** Change to invoke frame limiting via doWait.
         Defaults to finf() */
-    virtual void setDesiredFrameRate(float fps) {
-        debugAssert(fps > 0);
-        m_desiredFrameRate = fps;
-    }
+    virtual void setDesiredFrameRate(float fps);
 
-    float desiredFrameRate() const {
+    inline float desiredFrameRate() const {
         return m_desiredFrameRate;
     }
 
-    RealTime desiredFrameDuration() const {
+    inline RealTime desiredFrameDuration() const {
         return 1.0 / m_desiredFrameRate;
     }
     
@@ -471,13 +461,13 @@ protected:
        Load your data here.  Unlike the constructor, this catches common exceptions.
        It is called before the first frame is processed.
     */
-    virtual void onInit() {}
+    virtual void onInit();
 
     /**
        Unload/deallocate your data here.  Unlike the constructor, this catches common exceptions.
        It is called after the last frame is processed.
     */
-    virtual void onCleanup() {}
+    virtual void onCleanup();
 
 
     /**
@@ -501,11 +491,7 @@ protected:
        desiredFrameDuration * simTimeRate, no matter how much wall-clock
        time has elapsed.
     */
-    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-        (void)idt;
-        (void)rdt;
-        (void)sdt;
-    }
+    virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 
     /** Invoked before onSimulation is run on the installed GModules and GApp.
         This is not used by most programs; it is primarily a hook for those performing
@@ -515,21 +501,13 @@ protected:
         to the onSimulation method.  However, the accumulated time will not be affected by
         the changed timestep.
     */
-    virtual void onBeforeSimulation(RealTime& rdt, SimTime& sdt, SimTime& idt) {        
-        (void)idt;
-        (void)rdt;
-        (void)sdt;
-    }
+    virtual void onBeforeSimulation(RealTime& rdt, SimTime& sdt, SimTime& idt);
 
     /**
        Invoked after onSimulation is run on the installed GModules and GApp.
        Not used by most programs.
     */
-    virtual void onAfterSimulation(RealTime rdt, SimTime sdt, SimTime idt) {        
-        (void)idt;
-        (void)rdt;
-        (void)sdt;
-    }
+    virtual void onAfterSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 
     /**
        Rendering callback used to paint the screen.  Called automatically.
@@ -546,16 +524,13 @@ protected:
         rendered (you can also explicitly pose and render in your
         onGraphics method).  The provided arrays will already contain
         posed models from any installed Widgets. */
-    virtual void onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D) {
-        (void)posed3D;
-        (void)posed2D;
-    }
+    virtual void onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D);
 
     /**
        For a networked app, override this to implement your network
        message polling.
     */
-    virtual void onNetwork() {}
+    virtual void onNetwork();
 
     /**
        Task to be used for frame rate limiting.  
@@ -578,7 +553,7 @@ protected:
        AI code, for example.  Called after onNetwork and onUserInput,
        before onSimulation.
     */
-    virtual void onAI() {}
+    virtual void onAI();
 
     
     /**

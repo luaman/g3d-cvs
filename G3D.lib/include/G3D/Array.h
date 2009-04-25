@@ -171,7 +171,6 @@ private:
               ptr->~T();
          }}
 
-
          System::alignedFree(oldData);
     }
 
@@ -369,7 +368,7 @@ public:
       }
 
       // Once allocated, always maintain MIN_ELEMENTS elements or 32 bytes, whichever is higher.
-      static const int minSize = G3D::max(MIN_ELEMENTS, (int)(MIN_BYTES / sizeof(T)));
+      const int minSize = std::max(MIN_ELEMENTS, (int)(MIN_BYTES / sizeof(T)));
 
       if ((MIN_ELEMENTS == 0) && (MIN_BYTES == 0) && (n == 0) && shrinkIfNecessary) {
           // Deallocate the array completely

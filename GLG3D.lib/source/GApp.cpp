@@ -619,6 +619,59 @@ void GApp::onWait(RealTime t, RealTime desiredT) {
     System::sleep(max(0.0, desiredT - t));
 }
 
+void GApp::setSimTimeStep(float s) {
+    m_simTimeStep = s;
+}
+
+void GApp::setRealTime(RealTime r) {
+    m_realTime = r;
+}
+
+void GApp::setSimTime(SimTime s) {
+    m_simTime = s;
+}
+
+void GApp::setDesiredFrameRate(float fps) {
+    debugAssert(fps > 0);
+    m_desiredFrameRate = fps;
+}
+
+
+void GApp::onInit() {}
+
+
+void GApp::onCleanup() {}
+
+
+void GApp::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+    (void)idt;
+    (void)rdt;
+    (void)sdt;
+}
+
+
+void GApp::onBeforeSimulation(RealTime& rdt, SimTime& sdt, SimTime& idt) {        
+    (void)idt;
+    (void)rdt;
+    (void)sdt;
+}
+
+void GApp::onAfterSimulation(RealTime rdt, SimTime sdt, SimTime idt) {        
+    (void)idt;
+    (void)rdt;
+    (void)sdt;
+}
+
+void GApp::onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D) {
+    (void)posed3D;
+    (void)posed2D;
+}
+
+void GApp::onNetwork() {}
+
+
+void GApp::onAI() {}
+
 
 void GApp::beginRun() {
 

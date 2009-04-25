@@ -11,7 +11,7 @@
   determine if we can safely call the routines that use that assembly.
 
   @created 2003-01-25
-  @edited  2009-01-15
+  @edited  2009-04-15
  */
 
 #include "G3D/platform.h"
