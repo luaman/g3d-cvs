@@ -990,14 +990,20 @@ GLenum VertexAndPixelShader::canonicalType(GLenum e) {
         return GL_BOOL;
 
     case GL_INT_VEC2_ARB:
+        return GL_INT_VEC2_ARB;
+
     case GL_BOOL_VEC2_ARB:
         return GL_FLOAT_VEC2_ARB;
 
     case GL_INT_VEC3_ARB:
+        return GL_INT_VEC3_ARB;
+
     case GL_BOOL_VEC3_ARB:
         return GL_FLOAT_VEC3_ARB;
 
     case GL_INT_VEC4_ARB:
+        return GL_INT_VEC4_ARB;
+
     case GL_BOOL_VEC4_ARB:
         return GL_FLOAT_VEC4_ARB;
 

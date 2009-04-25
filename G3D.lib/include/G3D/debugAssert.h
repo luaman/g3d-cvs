@@ -56,7 +56,7 @@
   @def debugAssert(exp)
   Breaks if the expression is false. If G3D_DEBUG_NOGUI is defined, prompts at
   the console, otherwise pops up a dialog.  The user may then break (debug), 
-  ignore, ignore always, or halt the program.
+  ignore, or halt the program.
  
   The assertion is also posted to the clipboard under Win32.
  */
@@ -65,7 +65,7 @@
   @def debugAssertM(exp, msg)
   Breaks if the expression is false and displays a message. If G3D_DEBUG_NOGUI 
   is defined, prompts at the console, otherwise pops up a dialog.  The user may
-  then break (debug), ignore, ignore always, or halt the program.
+  then break (debug), ignore, or halt the program.
  
   The assertion is also posted to the clipboard under Win32.
  */
@@ -76,7 +76,6 @@ typedef bool (*AssertionHook)(
     const std::string& message,
     const char* filename,
     int lineNumber,
-    bool& ignoreAlways,
     bool useGuiPrompt);
 
 /** 
@@ -130,11 +129,10 @@ namespace _internal {
     #endif
 
     #define debugAssertM(exp, message) do { \
-        static bool __debugAssertIgnoreAlways__ = false; \
-        if (!__debugAssertIgnoreAlways__ && !(exp)) { \
+        if (!(exp)) { \
             G3D::_internal::_releaseInputGrab_(); \
             if ((G3D::_internal::_debugHook != NULL) && \
-                G3D::_internal::_debugHook((const char*)(#exp), message, __FILE__, __LINE__, __debugAssertIgnoreAlways__, __debugPromptShowDialog__)) { \
+                G3D::_internal::_debugHook((const char*)(#exp), message, __FILE__, __LINE__, __debugPromptShowDialog__)) { \
                  rawBreak(); \
             } \
             G3D::_internal::_restoreInputGrab_(); \
@@ -158,11 +156,10 @@ namespace _internal {
 
     // But keep the 'always' assertions
     #define alwaysAssertM(exp, message) { \
-        static bool __alwaysAssertIgnoreAlways__ = false; \
-        if (!__alwaysAssertIgnoreAlways__ && !(exp)) { \
+        if (!(exp)) { \
             G3D::_internal::_releaseInputGrab_(); \
             if ((G3D::_internal::_failureHook != NULL) && \
-                G3D::_internal::_failureHook(#exp, message, __FILE__, __LINE__, __alwaysAssertIgnoreAlways__, __debugPromptShowDialog__)) { \
+                G3D::_internal::_failureHook(#exp, message, __FILE__, __LINE__, __debugPromptShowDialog__)) { \
                 ::exit(-1);                                             \
             } \
             G3D::_internal::_restoreInputGrab_(); \
@@ -204,7 +201,6 @@ bool _handleDebugAssert_(
     const std::string& message,
     const char* filename,
     int         lineNumber,
-    bool&       ignoreAlways,
     bool        useGuiPrompt);
 
 bool _handleErrorCheck_(
@@ -212,7 +208,6 @@ bool _handleErrorCheck_(
     const std::string& message,
     const char* filename,
     int         lineNumber,
-    bool&       ignoreAlways,
     bool        useGuiPrompt);
 
 /** Attempts to give the user back their mouse and keyboard if they 

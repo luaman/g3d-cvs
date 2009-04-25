@@ -93,12 +93,13 @@
      <li> Fix: RenderDevice::setTexture now correctly sets the texture matrix for all texture units.
      <li> Fix: GenericPosedModel now obeys incoming depth write
      <li> Fix: ShadowMap bias was being stored statically in updateDepth, causing later calls to ignore that argument
-     <li> Fix: GCamera::frustum clipping planes were off for the top and bottom planes.
+     <li> Fix: GCamera::frustum clipping planes were off for the top and bottom planes.     
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::AssertionHook no longer accepts the ignoreAlways parameter
      <li> G3D::GImage::width, height, channels are now accessor methods instead of public fields
      <li> RenderDevice::Buffer -> RenderDevice::DrawBuffer
      <li> RenderDevice::screenShotPic and Texture::copyFromScreen now always read from the current RenderDevice::readBuffer

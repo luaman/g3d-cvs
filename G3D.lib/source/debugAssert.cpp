@@ -134,7 +134,6 @@ bool _handleDebugAssert_(
     const std::string&  message,
     const char*         filename,
     int                 lineNumber,
-    bool&               ignoreAlways,
     bool                useGuiPrompt) {
 
     std::string dialogTitle = "Assertion Failure";
@@ -152,12 +151,12 @@ bool _handleDebugAssert_(
     const int cIgnoreAlways = 2;
     const int cAbort        = 3;
 
-    static const char* choices[] = {"Debug", "Ignore", "Ignore Always", "Exit"};
+    static const char* choices[] = {"Debug", "Ignore", "Exit"};
 
     // Log the error
     Log::common()->print(std::string("\n**************************\n\n") + dialogTitle + "\n" + dialogText);
 
-    int result = G3D::prompt(dialogTitle.c_str(), dialogText.c_str(), (const char**)choices, 4, useGuiPrompt);
+    int result = G3D::prompt(dialogTitle.c_str(), dialogText.c_str(), (const char**)choices, 3, useGuiPrompt);
 
 #    ifdef G3D_WIN32
         // Put the incoming last error back.
@@ -176,11 +175,6 @@ bool _handleDebugAssert_(
         return false;
         break;
    
-    case cIgnoreAlways:
-        ignoreAlways = true;
-        return false;
-        break;
-
     case cAbort:
         exit(-1);
         break;
@@ -196,10 +190,7 @@ bool _handleErrorCheck_(
     const std::string&  message,
     const char*         filename,
     int                 lineNumber,
-    bool&               ignoreAlways,
     bool                useGuiPrompt) {
-
-    (void)ignoreAlways;
 
     std::string dialogTitle = "Critical Error";
     std::string dialogText = "";

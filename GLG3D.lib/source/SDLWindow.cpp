@@ -111,13 +111,12 @@ static bool SDL_handleDebugAssert_(
     const std::string& message,
     const char* filename,
     int         lineNumber,
-    bool&       ignoreAlways,
     bool        useGuiPrompt) {
 
     SDL_ShowCursor(SDL_ENABLE);
     SDL_WM_GrabInput(SDL_GRAB_OFF);
 	
-    return _internal::_handleDebugAssert_(expression, message, filename, lineNumber, ignoreAlways, useGuiPrompt);
+    return _internal::_handleDebugAssert_(expression, message, filename, lineNumber, useGuiPrompt);
 }
 
 /** Replacement for the default failure hook on Linux. */
@@ -126,13 +125,12 @@ static bool SDL_handleErrorCheck_(
     const std::string& message,
     const char* filename,
     int         lineNumber,
-    bool&       ignoreAlways,
     bool        useGuiPrompt) {
 
     SDL_ShowCursor(SDL_ENABLE);
     SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-    return _internal::_handleErrorCheck_(expression, message, filename, lineNumber, ignoreAlways, useGuiPrompt);
+    return _internal::_handleErrorCheck_(expression, message, filename, lineNumber, useGuiPrompt);
 }
 #endif
 
@@ -367,7 +365,6 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 	    }
 #   endif
 }
-
 
 
 SDLWindow::~SDLWindow() {
