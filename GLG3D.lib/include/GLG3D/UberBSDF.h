@@ -262,7 +262,9 @@ public:
 
        Not threadsafe unless \link setStorage() setStorage\endlink(<code>COPY_TO_CPU</code>) has been called first.
 
-       <b>(Not currently implemented)</b>
+       \param lowFreq If true, sample from the average texture color instead of at each texel.  This can
+       improve performance by increasing memory coherence.
+
        @beta
 
        @return false if the photon was absorbed, true if it scatters. */
@@ -274,7 +276,8 @@ public:
      float          eta_other,
      Vector3&       w_o,
      Color3&        power_o,
-     Random&        r = Random::common()) const;
+     Random&        r = Random::common(),
+     bool           lowFreq = false) const;
 
     /** True if this absorbs all light */
     inline bool isZero() const {

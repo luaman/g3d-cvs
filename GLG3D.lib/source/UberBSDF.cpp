@@ -75,7 +75,8 @@ bool UberBSDF::scatter
  float          eta_other,
  Vector3&       w_o,
  Color3&        power_o,
- Random&        random) const {
+ Random&        random,
+ bool           lowFreq) const {
 
      // Choose a random number on [0, 1], then reduce it by each kind of
      // scattering's probability until it becomes negative (i.e., scatters).
@@ -84,7 +85,10 @@ bool UberBSDF::scatter
     ///////////////////////////////////////////////////////////////////////////////////
     if (m_lambertian.notBlack()) {
         // Sample the diffuse coefficients
-        const Color4& diffuse = m_lambertian.sample(texCoord);
+        const Color4& diffuse = 
+            lowFreq ?
+                m_lambertian.mean() :
+                m_lambertian.sample(texCoord);
         
         alwaysAssertM(diffuse.a > 0.0f, "Scattered from an alpha masked location");
         const Color3& p_Lambertian = diffuse.rgb();
@@ -110,7 +114,10 @@ bool UberBSDF::scatter
     if (m_specular.notBlack()) {
 
         // Sample the specular coefficients
-        const Color4& specular = m_specular.sample(texCoord);
+        const Color4& specular = 
+            lowFreq ?
+                m_specular.mean() :
+                m_specular.sample(texCoord);
 
         // On the range [0, 1]
         float shininess = specular.a;
@@ -151,7 +158,10 @@ bool UberBSDF::scatter
     ///////////////////////////////////////////////////////////////////////////////////
     if (m_transmissive.notBlack()) {
         // Sample transmissive
-        const Color4& transmit    = m_transmissive.sample(texCoord);
+        const Color4& transmit = 
+            lowFreq ?
+                m_transmissive.mean() :
+                m_transmissive.sample(texCoord);
         const Color3& T0          = transmit.rgb();
         
         const Color3& F_t         = (Color3::one() - F);
