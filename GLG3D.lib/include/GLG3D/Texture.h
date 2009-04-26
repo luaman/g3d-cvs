@@ -292,6 +292,13 @@ public:
             return p;
         }
 
+        /** Default settings except those that enable preprocessing. */
+        static const PreProcess& none() {
+            static PreProcess p;
+            p.computeMinMaxMean = false;
+            return p;
+        }
+
         /** Brighten by 2 and adjust gamma by 1.6, the default values expected for Quake versions 1 - 3 textures.*/
         static const PreProcess& quake() {
             static PreProcess p;
