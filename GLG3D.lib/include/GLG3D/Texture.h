@@ -344,7 +344,40 @@ private:
 
 public:
 
-    /** Call glGetTexImage with appropriate target */
+    /** Call glGetTexImage with appropriate target. 
+    
+        This will normally perform a synchronous read, which causes the CPU to stall while the GPU
+        catches up, and then stalls the GPU while data is being read.  For higher performance,
+        use an OpenGL PixelBufferObject to perform an asynchronous read.  PBO is not abstracted
+        by G3D.  The basic operation is:
+
+        <pre>
+            GLuint pbo;
+            glGenBuffersARB(1, &pbo);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+            glBufferData(GL_PIXEL_PACK_BUFFER_ARB, dataByteSize, NULL, GL_STREAM_READ);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+            debugAssertGLOk();
+
+            // Issue the read (does not stall the GPU):
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+            texture->getTexImage((void*)0, dataFormat);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+
+            // [[ Do some CPU processing while waiting for the data to transfer asynchronously ]]
+            ...
+
+            // Bind the buffer.  This will block if the data is not yet available.
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+            void* data = glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
+    
+            // [[ Process the data ]]
+            ...
+
+            glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+         </pre>
+    */
     void getTexImage(void* data, const ImageFormat* desiredFormat) const;
 
     /**
