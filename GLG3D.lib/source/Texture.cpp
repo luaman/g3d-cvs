@@ -141,6 +141,7 @@ static void createTexture(
     bool            useNPOT,
     float           rescaleFactor,
     GLenum          dataType,
+    bool            computeMinMaxMean,
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval);
@@ -158,6 +159,7 @@ static void createMipMapTexture(
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
     GLenum          bytesType,
+    bool            computeMinMaxMean,
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval);
@@ -710,7 +712,9 @@ Texture::Ref Texture::fromMemory(
 
         int mipWidth = width;
         int mipHeight = height;
-        Color4 minval, meanval, maxval;
+        Color4 minval = Color4::nan();
+        Color4 meanval = Color4::nan();
+        Color4 maxval = Color4::nan();
         for (int mipLevel = 0; mipLevel < numMipMaps; ++mipLevel) {
 
             const int numFaces = (*bytesPtr)[mipLevel].length();
@@ -740,6 +744,7 @@ Texture::Ref Texture::fromMemory(
                                         bytesFormat->packedBitsPerTexel / 8, 
                                         preProcess.scaleFactor,
                                         bytesFormat->openGLDataFormat,
+                                        preProcess.computeMinMaxMean,
                                         minval, maxval, meanval);
                     
                 } else {
@@ -760,6 +765,7 @@ Texture::Ref Texture::fromMemory(
                                   useNPOT, 
                                   preProcess.scaleFactor,
                                   bytesFormat->openGLDataFormat,
+                                  preProcess.computeMinMaxMean,
                                   minval, maxval, meanval);
                 }
 
@@ -1647,6 +1653,7 @@ static void createTexture(
     bool            useNPOT,
     float           rescaleFactor,
     GLenum          dataType,
+    bool            computeMinMaxMean,
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval) {
@@ -1658,7 +1665,9 @@ static void createTexture(
     bool   freeBytes = false; 
     int maxSize = GLCaps::maxTextureSize();
 
-    computeStats(rawBytes, bytesActualFormat, m_width, m_height, minval, maxval, meanval);
+    if (computeMinMaxMean) {
+        computeStats(rawBytes, bytesActualFormat, m_width, m_height, minval, maxval, meanval);
+    }
 
     switch (target) {
     case GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB:
@@ -1777,11 +1786,14 @@ static void createMipMapTexture(
     size_t          bytesFormatBytesPerPixel,
     float           rescaleFactor,
     GLenum          bytesType,
+    bool            computeMinMaxMean,
     Color4&         minval, 
     Color4&         maxval, 
     Color4&         meanval) {
- 
-    computeStats(_bytes, bytesFormat, m_width, m_height, minval, maxval, meanval);
+
+    if (computeMinMaxMean) {
+        computeStats(_bytes, bytesFormat, m_width, m_height, minval, maxval, meanval);
+    }
 
     switch (target) {
     case GL_TEXTURE_2D:

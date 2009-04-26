@@ -267,6 +267,10 @@ public:
             preprocessing.*/
         float                       scaleFactor;
 
+        /** If true (default), constructors automatically compute the min, max, and mean
+            value of the texture. This is necessary, for example, for use with UberBSDF. */
+        bool                        computeMinMaxMean;
+
         /** If true, treat the input as a monochrome bump map and compute a normal map from
             it where the RGB channels are XYZ and the A channel is the input bump height.*/
         bool                        computeNormalMap;
@@ -279,7 +283,7 @@ public:
 
         bool                        normalMapScaleHeightByNz;
 
-        PreProcess() : brighten(1.0f), gammaAdjust(1.0f), scaleFactor(1.0f),
+        PreProcess() : brighten(1.0f), gammaAdjust(1.0f), scaleFactor(1.0f), computeMinMaxMean(true),
                        computeNormalMap(false), normalMapLowPassBump(false),
                        normalMapWhiteHeightInPixels(-0.02f), normalMapScaleHeightByNz(false) {}
 
