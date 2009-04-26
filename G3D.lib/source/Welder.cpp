@@ -13,6 +13,7 @@
 #include "G3D/Sphere.h"
 #include "G3D/PointHashGrid.h"
 #include "G3D/Welder.h"
+#include "G3D/Stopwatch.h" // for profiling
 
 namespace G3D { namespace _internal{
 
@@ -227,6 +228,11 @@ private:
         const Array<Vector3>& normalArray, 
         Array<Vector3>&       smoothNormalArray) {
         
+        if (normalSmoothingAngle <= 0) {
+            smoothNormalArray = normalArray;
+            return;
+        }
+
         const float cosThresholdAngle = (float)cos(normalSmoothingAngle);
 
         debugAssert(vertexArray.size() == normalArray.size());
@@ -301,6 +307,7 @@ public:
         float               texRadius,
         float               normRadius) {
 
+        Stopwatch timer;
         normalSmoothingAngle = normAngle;
         normalWeldRadius2    = square(normRadius);
         texCoordWeldRadius2  = square(texRadius);
@@ -325,6 +332,7 @@ public:
         // Generate a flat (unrolled) triangle list with texture coordinates.
         unroll(indexArrayArray, vertexArray, texCoordArray, 
             unrolledVertexArray, unrolledTexCoordArray);
+        timer.after("Welder::unroll");
 
         // Put the output back into the input slots. Clear immediately to reduce peak
         // memory.
@@ -338,13 +346,16 @@ public:
         // For every three vertices, generate their face normal and store it at 
         // each vertex. The output array has the same length as the input.
         computeFaceNormals(unrolledVertexArray, unrolledFaceNormalArray);
+        timer.after("Welder::computeFaceNormals");
 
         // Compute smooth normals at vertices.
         smoothNormals(unrolledVertexArray, unrolledFaceNormalArray, unrolledSmoothNormalArray);
         unrolledFaceNormalArray.clear();
+        timer.after("Welder::smoothNormals");
 
         // Regenerate the triangle lists
         updateTriLists(indexArrayArray, unrolledVertexArray, unrolledSmoothNormalArray, unrolledTexCoordArray);
+        timer.after("Welder::updateTriLists");
 
         if (! hasTexCoords) {
             // Throw away the generated texCoords
