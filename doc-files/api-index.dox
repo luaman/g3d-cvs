@@ -302,6 +302,7 @@ href="classes.html">Classes</a>.
         \link G3D::PointKDTree PointKDTree\endlink,
         \link G3D::Queue Queue\endlink,
         \link G3D::Set Set\endlink,
+        \link G3D::SmallArray SmallArray\endlink,
         \link G3D::Table Table\endlink,
         \link G3D::ReferenceCountedObject ReferenceCountedObject\endlink,
         \link G3D::ReferenceCountedPointer ReferenceCounterPointer\endlink,

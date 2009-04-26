@@ -287,7 +287,101 @@ void App::printConsoleHelp() {
 G3D_START_AT_MAIN();
 
 
+/** Embeds \a N elements to reduce allocation time and increase 
+    memory coherence when working with arrays of arrays.
+    Offers a limited subset of the functionality of G3D::Array.*/
+template<class T, int N>
+class SmallArray {
+private:
+    int                 m_size;
+
+    /** First N elements */
+    T                   m_embedded[N];
+
+    /** Remaining elements */
+    Array<T>            m_rest;
+
+public:
+
+    SmallArray() : m_size(0) {}
+
+    inline int size() const {
+        return m_size;
+    }
+
+    inline T& operator[](int i) {
+        debugAssert(i < m_size && i >= 0);
+        if (i < N) {
+            return m_embedded[i];
+        } else {
+            return m_rest[i - N];
+        }
+    }
+
+    inline const T& operator[](int i) const {
+        debugAssert(i < m_size && i >= 0);
+        if (i < N) {
+            return m_embedded[i];
+        } else {
+            return m_rest[i - N];
+        }
+    }
+
+    inline void push(const T& v) {
+        ++m_size;
+        if (m_size <= N) {
+            m_embedded[m_size - 1] = v;
+        } else {
+            m_rest.append(v);
+        }
+    }
+
+    inline void append(const T& v) {
+        push(v);
+    }
+
+    void fastRemove(int i) {
+        debugAssert(i < m_size && i >= 0);
+        if (i < N) {
+            if (m_size <= N) {
+                // Exclusively embedded
+                m_embedded[i] = m_embedded[m_size - 1];
+            } else {
+                // Move one down from the rest array
+                m_embedded[i] = m_rest.pop();
+            }
+        } else {
+            // Removing from the rest array
+            m_rest.fastRemove(i - N);
+        }
+        --m_size;
+    }
+
+    T pop() {
+        debugAssert(m_size > 0);
+        if (m_size <= N) {
+            // Popping from embedded, don't need a temporary
+            --m_size;
+            return m_embedded[m_size];
+        } else {
+            // Popping from rest
+            --m_size;
+            return m_rest.pop();
+        }
+    }
+
+    void popDiscard() {
+        debugAssert(m_size > 0);
+        if (m_size > N) {
+            m_rest.popDiscard();
+        }
+        --m_size;
+    }
+};
+
+
 int main(int argc, char** argv) {
+    
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);
     //b.writeInt32(1);

@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2003-09-14
-  @edited  2009-02-24
+  @edited  2009-04-26
 
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
@@ -14,109 +14,126 @@
 #include "G3D/MeshAlg.h"
 #include "G3D/Set.h"
 #include "G3D/Stopwatch.h"
+#include "G3D/SmallArray.h"
 
 namespace G3D {
 
-/**
- A half [i.e. directed] edge.
- */
-class MeshDirectedEdgeKey {
-public:
-
-    /** vertexIndex[0] <= vertexIndex[1] */
-    int     vertexIndex[2];
-
-    MeshDirectedEdgeKey() {}
-    
-    MeshDirectedEdgeKey(
-        const int        i0,
-        const int        i1) {
-
-        if (i0 <= i1) {
-            vertexIndex[0] = i0;
-            vertexIndex[1] = i1;
-        } else {
-            vertexIndex[0] = i1;
-            vertexIndex[1] = i0;
-        }
-    }
-
-
-    bool operator==(const MeshDirectedEdgeKey& e2) const {
-        for (int i = 0; i < 2; ++i) {
-            if (vertexIndex[i] != e2.vertexIndex[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-};
-
-}
-
-template<> struct HashTrait<G3D::MeshDirectedEdgeKey> {
-    static size_t hashCode(const G3D::MeshDirectedEdgeKey& key) { 
-        return key.vertexIndex[0] + (key.vertexIndex[1] << 16);
-    }
-};
-
-namespace G3D {
-
-/**
- A hashtable mapping edges to lists of indices for
- faces.  This is used instead of Table because of the
- special logic in insert.
-
- Used only for MeshAlg::computeAdjacency.
-
- In the face lists, index <I>f</I> >= 0 indicates that
- <I>f</I> contains the edge as a forward edge.  Index <I>f</I> < 0 
- indicates that ~<I>f</I> contains the edge as a backward edge.
- */
+/** Two-level table mapping index 0 -> index 1 -> list of face indices */
 class MeshEdgeTable {
 public:
-    typedef Table<MeshDirectedEdgeKey, Array<int> > ET;
+
+    /** We  expect 2 faces per edge. */
+    typedef SmallArray<int, 2> FaceIndexArray;
+
+    class Edge {
+    public:
+        int i1;
+
+        FaceIndexArray faceIndexArray;
+    };
+
+    /** We expect at most 6 edges per vertex; that matches a typical regular grid mesh */
+    typedef SmallArray<Edge, 6> EdgeArray;
+
+    typedef Array< EdgeArray > ET;
 
 private:
     
     ET                   table;
 
 public:
-    
-    /**
-     Clears the table.
-     */
+
     void clear() {
         table.clear();
     }
     
+    void resize(int maxV) {
+        table.resize(maxV);
+    }
+
     /**
      Inserts the faceIndex into the edge's face list.
      The index may be a negative number indicating a backface.
+
+     \param v0 Vertex index 0
+     \param v1 Vertex index 1
      */
-    void insert(const MeshDirectedEdgeKey& edge, int faceIndex) {
+    void insert(int v0, int v1, int faceIndex) {
         
-        // debugAssertM((table.size() > 20) && (table.debugGetLoad() < 0.5 || table.debugGetNumBuckets() < 20),
-        //    "MeshEdgeTable is using a poor hash function.");
+        debugAssert(v0 < v1);
+        EdgeArray& edgeArray = table[v0];
+        for (int i = 0; i < edgeArray.size(); ++i) {
+            if (edgeArray[i].i1 == v1) {
+                edgeArray[i].faceIndexArray.push(faceIndex);
+                return;
+            }
+        }
 
-        table.getCreate(edge).append(faceIndex);
+        Edge& p = edgeArray.next();
+        p.i1 = v1;
+        p.faceIndexArray.push(faceIndex);
     }
 
-    /**
-     Returns the face list for a given edge
-     */
-    const Array<int>& get(const MeshDirectedEdgeKey& edge) {
-        return table[edge];
-    }
+    class Iterator {
+        friend class MeshEdgeTable;
+    private:
 
-    ET::Iterator begin() {
-        return table.begin();
-    }
+        int                                   m_i0;
+        /** Pair index */
+        int                                   m_p;
+        ET&                                   m_array;
+        EdgeArray*                            m_edgeArray;
+        bool                                  m_end;
 
-    const ET::Iterator end() const {
-        return table.end();
-    }
+    public:
 
+        int i0() const {
+            return m_i0;
+        }
+
+        int i1() const {
+            return (*m_edgeArray)[m_p].i1;
+        }
+
+        FaceIndexArray& faceIndex() {
+            return (*m_edgeArray)[m_p].faceIndexArray;
+        }
+
+        Iterator& operator++() {
+            if ((m_i0 >= 0) && (m_p < m_edgeArray->size() - 1)) {
+                ++m_p;
+            } else {
+                // Skip over elements with no face array
+                do {
+                    ++m_i0;
+                    if (m_i0 == m_array.size()) {
+                        m_end = true;
+                        return *this;
+                    } else {
+                        m_edgeArray = &m_array[m_i0];
+                        m_p = 0;
+                    }
+                } while (m_edgeArray->size() == 0);
+            }
+
+            return *this;
+        }
+
+        bool hasMore() const {
+            return ! m_end;
+        }
+
+    private:
+
+        Iterator(ET& a) : m_i0(-1), m_array(a), m_p(-1), m_edgeArray(NULL), m_end(false) {
+            ++(*this);
+        }
+
+    };
+
+    Iterator begin() {
+        return Iterator(table);
+    }
 };
 
 
@@ -169,15 +186,15 @@ void MeshAlg::computeAdjacency(
     edgeArray.clear();
     vertexArray.clear();
     faceArray.clear();
-    edgeTable.clear();
     
-Stopwatch st;
     // Face normals
     Array<Vector3> faceNormal(indexArray.size() / 3);
     faceArray.resize(faceNormal.size());
 
     // This array has the same size as the vertex array
     vertexArray.resize(vertexGeometry.size());
+
+    edgeTable.resize(vertexArray.size());
 
     // Iterate through the triangle list
     for (int q = 0, f = 0; q < indexArray.size(); ++f, q += 3) {
@@ -209,29 +226,24 @@ Stopwatch st;
             const int      i0 = indexArray[q + j];
             const int      i1 = indexArray[q + nextIndex[j]];
 
-            const MeshDirectedEdgeKey edge(i0, i1);
-
-            if (i0 == edge.vertexIndex[0]) {
+            if (i0 < i1) {
                 // The edge was directed in the same manner as in the face
-                edgeTable.insert(edge, f);
+                edgeTable.insert(i0, i1, f);
             } else {
                 // The edge was directed in the opposite manner as in the face
-                edgeTable.insert(edge, ~f);
+                edgeTable.insert(i1, i0, ~f);
             }
         }
     }
-st.after("faces");
 
     // For each edge in the edge table, create an edge in the edge array.
     // Collapse every 2 edges from adjacent faces.
 
-    MeshEdgeTable::ET::Iterator cur = edgeTable.begin();
-    MeshEdgeTable::ET::Iterator end = edgeTable.end();
+    MeshEdgeTable::Iterator&       cur = edgeTable.begin();
 
     Array<Edge> tempEdgeArray;
-    while (cur != end) {
-        MeshDirectedEdgeKey&  edgeKey        = cur->key; 
-        Array<int>&           faceIndexArray = cur->value;
+    while (cur.hasMore()) {
+        MeshEdgeTable::FaceIndexArray& faceIndexArray = cur.faceIndex();
 
         // Process this edge
         while (faceIndexArray.size() > 0) {
@@ -250,7 +262,7 @@ st.after("faces");
             float ndotn = -2;
             int f1 = -1, i1 = -1;
             
-            // Try to Find the face with the matching edge
+            // Try to find the face with the matching edge
             for (int i = faceIndexArray.size() - 1; i >= 0; --i) {
                 int f = faceIndexArray[i];
 
@@ -284,8 +296,8 @@ st.after("faces");
             int e = tempEdgeArray.size();
             Edge& edge = tempEdgeArray.next();
             
-            edge.vertexIndex[0] = edgeKey.vertexIndex[0];
-            edge.vertexIndex[1] = edgeKey.vertexIndex[1];
+            edge.vertexIndex[0] = cur.i0();
+            edge.vertexIndex[1] = cur.i1();
 
             if (f0 >= 0) {
                 edge.faceIndex[0] = f0;
@@ -321,14 +333,12 @@ st.after("faces");
     }
 
     edgeTable.clear();
-st.after("edges");
 
     // Move boundary edges to the end of the list and then
     // clean up the face references into them
     {
         // Map old edge indices to new edge indices
         Array<int> newIndex(tempEdgeArray.size());
-
 
         // Index of the start and end of the edge array
         int i = 0;
@@ -363,7 +373,6 @@ st.after("edges");
             }
         }
     }
-st.after("boundaries");
 
     // Now order the edge indices inside the faces correctly.
     for (int f = 0; f < faceArray.size(); ++f) {
@@ -397,7 +406,6 @@ st.after("boundaries");
         vertexArray[edge.vertexIndex[0]].edgeIndex.append(e);
         vertexArray[edge.vertexIndex[1]].edgeIndex.append(~e);
     }
-st.after("reorder");
 }
 
 

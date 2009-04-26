@@ -6,6 +6,36 @@ using G3D::uint64;
 void perfArray();
 void testArray();
 
+
+void compare(const SmallArray<int, 5>& small, const Array<int>& big) {
+    debugAssert(small.size() == big.size());
+    for (int i = 0; i < small.size(); ++i) {
+        debugAssert(small[i] == big[i]);
+    }
+}
+
+void testSmallArray() {
+    printf("SmallArray...");
+
+    SmallArray<int, 5> small;
+    Array<int> big;
+
+    for (int i = 0; i < 10; ++i) {
+        small.push(i);
+        big.push(i);
+    }
+    compare(small, big);
+
+    for (int i = 0; i < 7; ++i) {
+        int x = small.pop();
+        int y = big.pop();
+        debugAssert(x == y);
+    }
+    compare(small, big);
+    printf("passed\n");
+}
+
+
 class Big {
 public:
     int x;

@@ -27,6 +27,7 @@
 #include "G3D/platform.h"
 #include "G3D/Random.h"
 #include "G3D/Array.h"
+#include "G3D/SmallArray.h"
 #include "G3D/Queue.h"
 #include "G3D/Crypto.h"
 #include "G3D/format.h"

@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -115,7 +115,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include&quot;;&quot;$(SolutionDir)..\zlib.lib\include&quot;;&quot;$(SolutionDir)..\jpeg.lib\include&quot;;&quot;$(SolutionDir)..\png.lib\include&quot;;&quot;$(SolutionDir)..\zip.lib\include&quot;;&quot;$(SolutionDir)..\GLG3D.lib\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -864,6 +864,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Set.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\SmallArray.h"
 				>
 			</File>
 			<File

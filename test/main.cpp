@@ -40,6 +40,7 @@ void testImageConvert();
 
 void perfArray();
 void testArray();
+void testSmallArray();
 
 void testMatrix();
 
@@ -717,6 +718,8 @@ int main(int argc, char* argv[]) {
     testfilter();
 
     testArray();
+
+    testSmallArray();
 
     testSpline();
 
