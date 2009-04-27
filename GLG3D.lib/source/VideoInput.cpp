@@ -178,7 +178,7 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
             frame = NULL;
 
             // create new texture with right dimentions
-            frame = Texture::fromMemory("VideoInput frame", buffer->m_frame->data[0], TextureFormat::RGB8(), width(), height(), 1, TextureFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+            frame = Texture::fromMemory("VideoInput frame", buffer->m_frame->data[0], TextureFormat::RGB8(), width(), height(), 1, TextureFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::video(), Texture::PreProcess::none());
         }
 
         m_emptyBuffers.enqueue(buffer);
