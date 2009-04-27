@@ -60,7 +60,7 @@ public:
      */
     void insert(int v0, int v1, int faceIndex) {
         
-        debugAssert(v0 < v1);
+        debugAssert(v0 <= v1);
         EdgeArray& edgeArray = table[v0];
         for (int i = 0; i < edgeArray.size(); ++i) {
             if (edgeArray[i].i1 == v1) {

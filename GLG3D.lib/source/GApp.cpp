@@ -753,7 +753,7 @@ void GApp::processGEventQueue() {
 
         case GEventType::KEY_DOWN:
 
-            if (! console->active()) {
+            if (console.isNull() || ! console->active()) {
                 switch (event.key.keysym.sym) {
                 case GKey::ESCAPE:
                     switch (escapeKeyAction) {
