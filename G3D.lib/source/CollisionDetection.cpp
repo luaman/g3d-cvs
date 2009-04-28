@@ -894,7 +894,7 @@ bool __fastcall CollisionDetection::rayAABox(
     Vector3&                location,
     bool&                   inside) {
 
-    debugAssert(ray.direction.isUnit());
+    debugAssertM(fabs(ray.direction.squaredLength() - 1.0f) < 0.01f, format("Length = %f", ray.direction.length()));
     {
         // Pre-emptive partial bounding sphere test
         const Vector3 L(boxCenter - ray.origin);

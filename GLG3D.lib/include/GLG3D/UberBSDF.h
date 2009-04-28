@@ -140,6 +140,7 @@ protected:
         m_extinction(Color3::zero()) {}
 
 public: 
+    static float ignoreFloat;
 
     static Ref create
     (const Component4& lambertian,
@@ -277,7 +278,8 @@ public:
      Vector3&       w_o,
      Color3&        power_o,
      Random&        r = Random::common(),
-     bool           lowFreq = false) const;
+     bool           lowFreq = false,
+     float&         density = ignoreFloat) const;
 
     /** True if this absorbs all light */
     inline bool isZero() const {

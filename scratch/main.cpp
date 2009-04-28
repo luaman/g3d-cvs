@@ -68,12 +68,6 @@ void App::onInit() {
     updating = true;
     debugPane->addCheckBox("Update Frustum", &updating);
 
-    /*
-    Framebuffer::Ref m_mainScene_FBO = Framebuffer::create(std::string("Main Offscreen Target"));
-    Texture::Ref m_mainScene_tex = Texture::createEmpty(std::string("Main Rendered Texture"), 256, 256);
-    m_mainScene_FBO->set(Framebuffer::COLOR_ATTACHMENT0, m_mainScene_tex);
-    */
-
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     //model = ArticulatedModel::createCornellBox();
 
@@ -111,8 +105,8 @@ void App::onInit() {
     preprocess.textureDimension = Texture::DIM_2D_NPOT;
     preprocess.parallaxSteps = 0;
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
-    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
-//    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
+//    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
+    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
 
 
 //    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
@@ -167,12 +161,8 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
 
-//    rd->pushState(fb);
-
-    rd->setColorClearValue(Color3(0.2f, 1.0f, 2.0f));
-    rd->setProjectionAndCameraMatrix(defaultCamera);
-    rd->clear(true, true, true);
-
+    rd->clear();
+    rd->pushState(fb);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3::white() * 0.8f);
@@ -245,7 +235,78 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     if (sky.notNull()) {
         sky->renderLensFlare(rd, localSky);
     }
-//    rd->popState();
+    rd->popState();
+
+    Array<Color3> data(colorBuffer->width() * colorBuffer->height());
+
+    GLuint pbo;
+    glGenBuffersARB(1, &pbo);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+    glBufferData(GL_PIXEL_PACK_BUFFER_ARB, data.size() * sizeof(Color3), NULL, GL_STREAM_READ);
+    // Prime the buffer by performing one readback
+    colorBuffer->getTexImage((void*)0, ImageFormat::RGB32F());
+    glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+
+    debugAssertGLOk();
+
+    // Let everything finish so that we aren't measuring the blocking time
+    glFinish();
+    System::sleep(1);
+
+
+    debugPrintf("\n");
+    Stopwatch st;
+    // readpixels    
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb->openGLID());
+    glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
+    glReadPixels(0, 0, colorBuffer->width(), colorBuffer->height(), GL_RGB, GL_FLOAT, (void*)0);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+    glReadBuffer(GL_NONE);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    st.after("glReadPixels (PBO) ");
+
+    // Clear the pending read 
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+    glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+    
+   
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb->openGLID());
+    glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
+    glReadPixels(0, 0, colorBuffer->width(), colorBuffer->height(), GL_RGB, GL_FLOAT, data.getCArray());
+    glReadBuffer(GL_NONE);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    st.after("glReadPixels (mem) ");
+
+
+    colorBuffer->getTexImage(data.getCArray(), ImageFormat::RGB32F());
+    st.after("glGetTexImage (mem)");
+
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+    colorBuffer->getTexImage((void*)0, ImageFormat::RGB32F());
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+    st.after("glGetTexImage (PBO)");
+
+
+    // Clear the read 
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+    glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+
+/*
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
+    void* data = glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
+
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
+*/
+
 //    film->exposeAndRender(rd, colorBuffer);
 
     PosedModel2D::sortAndRender(rd, posed2D);
@@ -287,99 +348,6 @@ void App::printConsoleHelp() {
 G3D_START_AT_MAIN();
 
 
-/** Embeds \a N elements to reduce allocation time and increase 
-    memory coherence when working with arrays of arrays.
-    Offers a limited subset of the functionality of G3D::Array.*/
-template<class T, int N>
-class SmallArray {
-private:
-    int                 m_size;
-
-    /** First N elements */
-    T                   m_embedded[N];
-
-    /** Remaining elements */
-    Array<T>            m_rest;
-
-public:
-
-    SmallArray() : m_size(0) {}
-
-    inline int size() const {
-        return m_size;
-    }
-
-    inline T& operator[](int i) {
-        debugAssert(i < m_size && i >= 0);
-        if (i < N) {
-            return m_embedded[i];
-        } else {
-            return m_rest[i - N];
-        }
-    }
-
-    inline const T& operator[](int i) const {
-        debugAssert(i < m_size && i >= 0);
-        if (i < N) {
-            return m_embedded[i];
-        } else {
-            return m_rest[i - N];
-        }
-    }
-
-    inline void push(const T& v) {
-        ++m_size;
-        if (m_size <= N) {
-            m_embedded[m_size - 1] = v;
-        } else {
-            m_rest.append(v);
-        }
-    }
-
-    inline void append(const T& v) {
-        push(v);
-    }
-
-    void fastRemove(int i) {
-        debugAssert(i < m_size && i >= 0);
-        if (i < N) {
-            if (m_size <= N) {
-                // Exclusively embedded
-                m_embedded[i] = m_embedded[m_size - 1];
-            } else {
-                // Move one down from the rest array
-                m_embedded[i] = m_rest.pop();
-            }
-        } else {
-            // Removing from the rest array
-            m_rest.fastRemove(i - N);
-        }
-        --m_size;
-    }
-
-    T pop() {
-        debugAssert(m_size > 0);
-        if (m_size <= N) {
-            // Popping from embedded, don't need a temporary
-            --m_size;
-            return m_embedded[m_size];
-        } else {
-            // Popping from rest
-            --m_size;
-            return m_rest.pop();
-        }
-    }
-
-    void popDiscard() {
-        debugAssert(m_size > 0);
-        if (m_size > N) {
-            m_rest.popDiscard();
-        }
-        --m_size;
-    }
-};
-
-
 int main(int argc, char** argv) {
     
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
@@ -404,6 +372,8 @@ int main(int argc, char** argv) {
     set.window.stencilBits = 0;
     set.window.refreshRate = 0;
     */
+    set.window.width = 512;
+    set.window.height = 512;
 
     return App(set).run();
 }

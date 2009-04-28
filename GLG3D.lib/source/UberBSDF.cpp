@@ -7,6 +7,8 @@
 
 namespace G3D {
 
+float UberBSDF::ignoreFloat;
+
 #define INV_PI  (0.318309886f)
 #define INV_8PI (0.0397887358f)
 
@@ -76,7 +78,8 @@ bool UberBSDF::scatter
  Vector3&       w_o,
  Color3&        power_o,
  Random&        random,
- bool           lowFreq) const {
+ bool           lowFreq,
+ float&         density) const {
 
      // Choose a random number on [0, 1], then reduce it by each kind of
      // scattering's probability until it becomes negative (i.e., scatters).
@@ -103,7 +106,8 @@ bool UberBSDF::scatter
             // case when p_LambertianAvg = 0)
             power_o = power_i * p_Lambertian / p_LambertianAvg;
             w_o = Vector3::cosHemiRandom(n, random);
-            
+            density = p_LambertianAvg * 0.01f;
+
             return true;
         }
     }
@@ -143,12 +147,14 @@ bool UberBSDF::scatter
                     // TODO: glossy scatter
                     w_o = w_i;
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
-                    
+                    density = p_specularAvg * 0.1f;
+
                 } else {
                     // Mirror
 
                     w_o = w_i.reflectAbout(n);
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
+                    density = p_specularAvg;
                 }
                 return true;
             }
