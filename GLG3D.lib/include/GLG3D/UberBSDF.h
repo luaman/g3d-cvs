@@ -128,7 +128,7 @@ protected:
     /** \f$T_0\f$ : transmissivity */
     Component3          m_transmissive;
 
-    /** \f$\eta\f$ */
+    /** \f$\eta\f$ For the material on the far side.*/
     float               m_eta;
 
     /** Reserved for future use */

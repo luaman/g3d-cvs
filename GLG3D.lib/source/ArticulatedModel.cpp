@@ -568,7 +568,7 @@ static void addRect(const Vector3& v0, const Vector3& v1,
 }
 
 
-ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
+ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale, const Color3& left, const Color3& right, const Color3& walls) {
 
     ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
     model->name = "Cornell Box";
@@ -585,7 +585,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     // White faces
     {
-        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(Color3::white() * 0.72f));
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(walls));
         triList->twoSided = true;
 
         Array<int>& index = triList->indexArray;
@@ -602,7 +602,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     // Left red face
     {
-        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(Color3::fromARGB(0xB82C1F)));
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(left));
         triList->twoSided = true;
 
         Array<int>& index = triList->indexArray;
@@ -611,7 +611,7 @@ ArticulatedModel::Ref ArticulatedModel::createCornellBox(float scale) {
 
     // Right green face
     {
-        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(Color3::fromARGB(0x6AB8B8)));
+        ArticulatedModel::Part::TriList::Ref triList = part.newTriList(Material::createDiffuse(right));
         triList->twoSided = true;
 
         Array<int>& index = triList->indexArray;

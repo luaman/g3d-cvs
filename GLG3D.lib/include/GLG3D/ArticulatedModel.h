@@ -412,7 +412,11 @@ public:
         
         @param scale Enlarge the box by this factor.
         */
-    static ArticulatedModel::Ref createCornellBox(float scale = 1.0f);
+    static ArticulatedModel::Ref createCornellBox(
+        float         scale      = 1.0f, 
+        const Color3& leftColor  = Color3::fromARGB(0xB82C1F), 
+        const Color3& rightColor = Color3::fromARGB(0x6AB8B8),
+        const Color3& backColor  = Color3::white() * 0.72f);
 
     /**
      Iterate through the entire model and force all triangles to use vertex 
