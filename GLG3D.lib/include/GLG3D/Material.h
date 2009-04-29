@@ -2,7 +2,7 @@
  @file   Material.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
- @edited 2009-03-30
+ @edited 2009-04-29
 */
 #ifndef GLG3D_Material_h
 #define GLG3D_Material_h
@@ -28,11 +28,14 @@ class AnyVal;
   G3D::UberBSDF::Factors).  G3D::SuperShader uses these to reduce the number of different
   shaders that need to be constructed.
 
-  Note that most translucent surfaces should be two-sided and have
+  Note that for real-time rendering most translucent surfaces should be two-sided and have
   comparatively low diffuse terms.  They should also be applied to
   convex objects (subdivide non-convex objects) to prevent rendering
-  surfaces out of order.
-    
+  surfaces out of order.  For ray tracing, implement translucent surfaces as two single-sided surfaces:
+  one for entering the material and one for exiting it (i.e., the "backfaces").  The eta of the exiting surface
+  should be that of the medium that is being exited into--typically, air.  So a glass sphere is 
+  a set of front faces with eta ~= 1.3 and a set of backfaces with eta = 1.0.
+
   @beta
     
   @sa G3D::SuperShader, G3D::BSDF, G3D::Component, G3D::Texture, G3D::BumpMap, G3D::ArticulatedModel

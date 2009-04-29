@@ -49,8 +49,9 @@ namespace G3D {
  
    For energy conservation, \f$\rho_L + F_0 + (1 - F_0)T_0\leq 1\f$.
 
-   (The direct shader always applies a glossy highlight with an exponent of 128 to mirror surfaces so that
-   light sources produce highlights)
+   (Departures from theory: The direct shader always applies a glossy highlight with an exponent of 128 to mirror surfaces so that
+   light sources produce highlights.  Setting the Glossy/Mirror coefficient to zero for a transmissive surface
+   guarantees no reflection, although real transmissive surfaces should always be reflective at glancing angles.)
 
    The BSDF consists of four terms (at most three of which are
    non-zero): Lambertian, Glossy, Mirror, and Transmissive,
@@ -155,7 +156,7 @@ public:
     /** Computes F_r, given the cosine of the angle of incidence and 
        the reflectance at normal incidence. */
     inline Color3 computeF(const Color3& F0, float cos_i) const {
-        return F0.lerp(Color3::white(), pow5(1.0f - cos_i));
+        return F0 + (Color3::white() - F0) * pow5(1.0f - cos_i);
     }
 
     /** @brief Packed factors affecting the lambertian term.
