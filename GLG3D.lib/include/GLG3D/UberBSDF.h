@@ -152,9 +152,10 @@ public:
      float             eta,
      const Color3&     extinction = Color3::zero());
 
-    /** Computes F_r given the cosine of the angle of incidence */
+    /** Computes F_r, given the cosine of the angle of incidence and 
+       the reflectance at normal incidence. */
     inline Color3 computeF(const Color3& F0, float cos_i) const {
-        return Color3::white().lerp(F0, pow5(cos_i));
+        return F0.lerp(Color3::white(), pow5(1.0f - cos_i));
     }
 
     /** @brief Packed factors affecting the lambertian term.

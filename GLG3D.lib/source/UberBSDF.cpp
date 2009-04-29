@@ -113,7 +113,8 @@ bool UberBSDF::scatter
         }
     }
 
-    Color3 F(Color3::black());
+    Color3 F;
+    bool Finit = false;
 
     ///////////////////////////////////////////////////////////////////////////////////
     if (m_specular.notBlack()) {
@@ -129,10 +130,11 @@ bool UberBSDF::scatter
 
         if (shininess != packedSpecularNone()) {
             // There is some specularity
-
+            
             // Cosine of the angle of incidence, for computing F
             const float cos_i = max(0.0f, w_i.dot(n));
             F = computeF(specular.rgb(), cos_i);
+            Finit = true;
 
             const Color3& p_specular = F;
             const float p_specularAvg = p_specular.average();
@@ -164,6 +166,19 @@ bool UberBSDF::scatter
 
     ///////////////////////////////////////////////////////////////////////////////////
     if (m_transmissive.notBlack()) {
+        // Fresnel transmissive coefficient
+        Color3 F_t;
+
+        if (Finit) {
+            F_t = (Color3::one() - F);
+        } else {
+            // Cosine of the angle of incidence, for computing F
+            const float cos_i = max(0.0f, w_i.dot(n));
+            // F = lerp(0, 1, pow5(1.0f - cos_i)) = pow5(1.0f - cos_i)
+            // F_t = 1 - F
+            F_t.r = F_t.g = F_t.b = 1.0f - pow5(1.0f - cos_i);
+        }
+
         // Sample transmissive
         const Color3& transmit = 
             lowFreq ?
@@ -171,7 +186,6 @@ bool UberBSDF::scatter
                 m_transmissive.sample(texCoord);
         const Color3& T0          = transmit.rgb();
         
-        const Color3& F_t         = (Color3::one() - F);
         const Color3& p_transmit  = F_t * T0;
         const float p_transmitAvg = p_transmit.average();
         

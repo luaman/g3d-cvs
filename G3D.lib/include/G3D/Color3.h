@@ -152,17 +152,22 @@ public:
         return Color3(::pow(r, other), ::pow(g, other), ::pow(b, other));
     }
 
-    /**@return the largest component */
-    inline float max() const {
-        return G3D::max(G3D::max(r, g), b);
-    }
-
     inline Color3 max(const Color3& other) const {
         return Color3(G3D::max(r, other.r), G3D::max(g, other.g), G3D::max(b, other.b));
     }
 
     inline Color3 min(const Color3& other) const {
         return Color3(G3D::min(r, other.r), G3D::min(g, other.g), G3D::min(b, other.b));
+    }
+
+    /** Smallest element */
+    inline float min() const {
+        return G3D::min(G3D::min(r, g), b);
+    }
+
+    /** Largest element */
+    inline float max() const {
+        return G3D::max(G3D::max(r, g), b);
     }
 
     inline Color3 lerp(const Color3& other, float a) const {
