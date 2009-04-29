@@ -103,6 +103,17 @@ public:
 };
 
 /**
+ @param brighten Most Quake II textures are dark; this argument is a factor to make
+ them brighter by.  Default = 1.0, normal intensity.  It is safe to call
+ load multiple times-- the previously loaded model will be freed correctly.
+*/
+static Texture::Ref loadBrightTexture(const std::string& filename, double brighten = 1.0) {
+    //debugAssert(fileExists(filename));
+    Texture::PreProcess preprocess;
+    preprocess.brighten = brighten;
+    return Texture::fromFile(filename, ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess);
+}
+/**
     Only used in loading.
 
     For type 1 faceArray (polygons), vertex and n_vertexes describe a set of vertices 
@@ -171,7 +182,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale, std::string altLoad) {
+MapRef Map::fromFile(const std::string& path, const std::string& fileName, float scale, std::string altLoad,
+                     const std::string& defaultTextureFile) {
     if (altLoad == "") {
         altLoad = System::findDataFile("pak0.pk3", false);
         if (! fileExists(altLoad)) {
@@ -179,7 +191,7 @@ MapRef Map::fromFile(const std::string& path, const std::string& fileName, float
         }
     }
     Map* m = new Map();
-    if (m->load(pathConcat(path, ""), fileName, altLoad)) {
+    if (m->load(pathConcat(path, ""), fileName, altLoad, defaultTextureFile)) {
         return m;
     } else {
         delete m;
@@ -190,7 +202,8 @@ MapRef Map::fromFile(const std::string& path, const std::string& fileName, float
 bool Map::load(
     const std::string&  resPath,
     const std::string&  filename,
-    const std::string&  altPath) {
+    const std::string&  altPath,
+    const std::string&  defaultTextureFile) {
 
     int supportedVersion[NUM_FILE_FORMATS + 1];
 //    supportedVersion[Q1] = 23;
@@ -200,6 +213,12 @@ bool Map::load(
     supportedVersion[NUM_FILE_FORMATS] = 0;
 
     std::string full = resPath + "maps/" + filename;
+
+    if ((defaultTextureFile != "") && fileExists(defaultTextureFile)) {
+        defaultTexture = loadBrightTexture(defaultTextureFile);
+    } else {
+        defaultTexture = Texture::white();
+    }
 
     if (! fileExists(full)) {
         debugAssertM(fileExists(full), "Could not find " + full);
@@ -536,19 +555,6 @@ void Map::loadFaces(
 
 
 
-/**
- @param brighten Most Quake II textures are dark; this argument is a factor to make
- them brighter by.  Default = 1.0, normal intensity.  It is safe to call
- load multiple times-- the previously loaded model will be freed correctly.
-*/
-static Texture::Ref loadBrightTexture(const std::string& filename, double brighten = 1.0) {
-    //debugAssert(fileExists(filename));
-    Texture::PreProcess preprocess;
-    preprocess.brighten = brighten;
-    return Texture::fromFile(filename, ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preprocess);
-}
-
-
 Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename) {
     float brighten = 2.0f;
     const int numExt = 3;
@@ -574,11 +580,11 @@ Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& alt
         }
         
         logPrintf("BSPMap reports missing texture: \"%s\"\n", filename.c_str());
-        return Texture::white();
+        return defaultTexture;
 
     } catch (const GImage::Error& e) {
         logPrintf("** BSPMap reports error while loading %s: %s\n", e.filename.c_str(), e.reason.c_str());
-        return Texture::white();
+        return defaultTexture;
     }
 }
 

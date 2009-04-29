@@ -73,7 +73,6 @@ void App::onInit() {
 
     setDesiredFrameRate(1000);
 
-
     sky = Sky::fromFile(System::findDataFile("sky"));
 
     if (sky.notNull()) {
@@ -105,11 +104,11 @@ void App::onInit() {
     preprocess.textureDimension = Texture::DIM_2D_NPOT;
     preprocess.parallaxSteps = 0;
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
-//    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
-    model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
-
-
 //    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+//    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
+
+//    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/teapot.ifs"), 3);
+
     timer.after("load 3DS");
 
     fb = Framebuffer::create("Offscreen");
@@ -162,7 +161,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
 
     rd->clear();
-    rd->pushState(fb);
+//    rd->pushState(fb);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3::white() * 0.8f);
@@ -171,7 +170,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->render(rd, localSky);
     }
 
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);//, shadowMap);
+    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
 /*
     {
         GLight& light = lighting->shadowedLightArray[0];
@@ -188,12 +187,14 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::frustum(lightCamera.frustum(shadowMap->rect2DBounds()), rd);
     }
 */
+    /*
     for (int i = 0; i < posed3D.size(); ++i) {
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
     Draw::axes(rd);
+    */
 
-
+#if 0
     static GCamera::Frustum f;
     static Ray r0, r1;
     
@@ -209,7 +210,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::plane(f.faceArray[i].plane, rd);
     }
     Draw::frustum(f, rd);
-    
+#endif
 
 
     /*
@@ -224,19 +225,17 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::axes(rd, Color3::red(), Color3::green(), Color3::blue(), 1.3f);
     }
 
-
-    /*
     // Show normals
     for (int i = 0; i < posed3D.size(); ++i) {
         rd->setObjectToWorldMatrix(posed3D[i]->coordinateFrame());
         Draw::vertexNormals(posed3D[i]->objectSpaceGeometry(), rd);
     }
-    */
+
     if (sky.notNull()) {
         sky->renderLensFlare(rd, localSky);
     }
-    rd->popState();
-
+//    rd->popState();
+#if 0
     Array<Color3> data(colorBuffer->width() * colorBuffer->height());
 
     GLuint pbo;
@@ -298,7 +297,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER_ARB);
     glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, 0);
-
+#endif
 /*
     glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
     void* data = glMapBuffer(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY);
@@ -372,8 +371,8 @@ int main(int argc, char** argv) {
     set.window.stencilBits = 0;
     set.window.refreshRate = 0;
     */
-    set.window.width = 512;
-    set.window.height = 512;
+//    set.window.width = 512;
+//    set.window.height = 512;
 
     return App(set).run();
 }

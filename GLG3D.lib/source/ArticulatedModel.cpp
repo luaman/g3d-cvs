@@ -128,7 +128,15 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
 
         part.cframe = object.keyframe.approxCoordinateFrame();
         debugAssert(isFinite(part.cframe.rotation.determinant()));
-        
+        debugAssert(part.cframe.rotation.isOrthonormal());
+
+        if (! part.cframe.rotation.isRightHanded()) {
+            // TODO: how will this impact other code?  I think we can't just strong-arm it like this
+            part.cframe.rotation.setColumn(0, -part.cframe.rotation.column(0));
+        }
+
+        debugAssert(part.cframe.rotation.isRightHanded());
+
         // Scale and rotate the cframe positions, but do not translate them
         part.cframe.translation = R * part.cframe.translation;
 
@@ -143,7 +151,6 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
         //debugPrintf("%s %d %d\n", object.name.c_str(), object.hierarchyIndex, object.nodeID);
 
         if (part.hasGeometry()) {
-
             // Convert to object space (there is no normal data at this point)
             debugAssert(part.geometry.normalArray.size() == 0);
             Matrix4 netXForm = part.cframe.inverse().toMatrix4() * xform;

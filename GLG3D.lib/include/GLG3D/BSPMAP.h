@@ -498,17 +498,17 @@ private:
     Texture::Ref          defaultLightmap;
 
 public:
-	Array<BSPEntity>	entityArray;
+	Array<BSPEntity>	  entityArray;
 
 private:
-    Vector3             startingPosition;
+    Vector3               startingPosition;
 
     /** Bounding box on the whole map */
-    AABox               m_bounds;
+    AABox                 m_bounds;
 
     /**
-     filename has no extension.  JPG and TGA files are sought.
-     The texture is brightened by a factor of 2.0.
+     filename has no extension.  JPG, PNG, and TGA files are sought.
+     The textures are brightened by a factor of 2.0.
      */
     Texture::Ref loadTexture(const std::string& resPath, const std::string& altPath, const std::string& filename);
 
@@ -625,7 +625,8 @@ private:
     bool load(
         const std::string&  resPath,
         const std::string&  filename,
-        const std::string&  altPath);
+        const std::string&  altPath,
+        const std::string&  defaultTextureFile);
 
 public:
 
@@ -659,10 +660,14 @@ public:
      On Windows, the relevant file is at <code>C:\\Q3Ademo\\demoq3\\pak0.pk3</code>
      If the altLoad is not specified, G3D uses System::findDataFile to locate pak0.pk3 or mini-pak0.pk3 on the
      hard drive.
-     */
-    static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f, std::string altLoad = "");
 
-    inline void setDefaultTexture(Texture::Ref txt) {
+     \param defaultTextureFile If a texture is missing, load this texture.  if "",
+    use the default texture specified at runtime.
+     */
+    static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f, std::string altLoad = "",
+         const std::string& defaultTextureFile = "");
+
+    inline void setDefaultTexture(const Texture::Ref& txt) {
         defaultTexture = txt;
     }
 

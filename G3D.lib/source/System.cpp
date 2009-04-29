@@ -25,6 +25,7 @@
 #include "G3D/stringutils.h"
 #include "G3D/Log.h"
 #include "G3D/Table.h"
+#include "G3D/GMutex.h"
 #include <time.h>
 
 #include <cstring>
@@ -1115,11 +1116,11 @@ public:
 
     /** 
        Most buffers we're allowed to store.
-       128000 * 128  = 16 MB (preallocated)
-         2048 * 1024 =  2 MB (allocated on demand)
+       250000 * 128  = 32 MB (preallocated)
+        10000 * 1024 = 10 MB (allocated on demand)
          1024 * 4096 =  4 MB (allocated on demand)
      */
-    enum {maxTinyBuffers = 128000, maxSmallBuffers = 2048, maxMedBuffers = 1024};
+    enum {maxTinyBuffers = 250000, maxSmallBuffers = 10000, maxMedBuffers = 1024};
 
 private:
 
@@ -1148,6 +1149,17 @@ private:
     /** Pointer to the data in the tiny pool */
     void* tinyHeap;
 
+    Spinlock            m_lock;
+
+    void lock() {
+        m_lock.lock();
+    }
+
+    void unlock() {
+        m_lock.unlock();
+    }
+
+#if 0 //-----------------------------------------------old mutex
 #   ifdef G3D_WIN32
     CRITICAL_SECTION    mutex;
 #   else
@@ -1170,6 +1182,7 @@ private:
             pthread_mutex_unlock(&mutex);
 #       endif
     }
+#endif //-------------------------------------------old mutex
 
     /** 
      Malloc out of the tiny heap. Returns NULL if allocation failed.
@@ -1311,21 +1324,25 @@ public:
         }
         tinyPoolSize = maxTinyBuffers;
 
+#if 0        ///---------------------------------- old mutex
 #       ifdef G3D_WIN32
             InitializeCriticalSection(&mutex);
 #       else
             pthread_mutex_init(&mutex, NULL);
 #       endif
+#endif        ///---------------------------------- old mutex
     }
 
 
     ~BufferPool() {
         ::free(tinyHeap);
+#if 0 //-------------------------------- old mutex
 #       ifdef G3D_WIN32
             DeleteCriticalSection(&mutex);
 #       else
             // No destruction on pthreads
 #       endif
+#endif //--------------------------------old mutex
     }
 
     

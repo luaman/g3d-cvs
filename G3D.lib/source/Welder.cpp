@@ -334,8 +334,7 @@ public:
             unrolledVertexArray, unrolledTexCoordArray);
         timer.after("Welder::unroll");
 
-        // Put the output back into the input slots. Clear immediately to reduce peak
-        // memory.
+        // Put the output back into the input slots. 
         outputVertexArray   = &vertexArray;
         outputNormalArray   = &normalArray;
         outputTexCoordArray = &texCoordArray;

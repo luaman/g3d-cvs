@@ -37,6 +37,11 @@ public:
         return m_size;
     }
 
+    void resize(int n) {
+        m_rest.resize(std::max(0, n - N));
+        m_size = n;
+    }
+
     inline T& operator[](int i) {
         debugAssert(i < m_size && i >= 0);
         if (i < N) {
@@ -113,6 +118,24 @@ public:
         } else {
             return m_rest.next();
         }
+    }
+
+    bool contains(const T& value) const {
+        for (int i = std::min(m_size, N) - 1; i >= 0; --i) {
+            if (m_embedded[i] == value) {
+                return true;
+            }
+        }
+        return m_rest.contains(value);
+    }
+
+    template<int MIN_ELEMENTS, int MIN_BYTES>
+    SmallArray<T, N>& operator=(const Array<T, MIN_ELEMENTS, MIN_BYTES>& src) {
+        resize(src.size());
+        for (int i = 0; i < src.size(); ++i) {
+            (*this)[i] = src[i];
+        }
+        return *this;
     }
 };
 

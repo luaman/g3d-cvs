@@ -52,10 +52,22 @@ bool Matrix3::fuzzyEq(const Matrix3& b) const {
 }
 
 
+bool Matrix3::isRightHanded() const{
+
+    const Vector3& X = column(0);
+    const Vector3& Y = column(1);
+    const Vector3& Z = column(2);
+
+    const Vector3& W = X.cross(Y);
+
+    return W.dot(Z) > 0.0f;
+}
+
+
 bool Matrix3::isOrthonormal() const {
-    Vector3 X = column(0);
-    Vector3 Y = column(1);
-    Vector3 Z = column(2);
+    const Vector3& X = column(0);
+    const Vector3& Y = column(1);
+    const Vector3& Z = column(2);
 
     return 
         (G3D::fuzzyEq(X.dot(Y), 0.0f) &&

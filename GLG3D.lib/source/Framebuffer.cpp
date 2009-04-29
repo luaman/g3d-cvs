@@ -103,11 +103,14 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
     }
 
     if (m_desired.size() > 0) {
+        if (! ((m_desired.size() == 1) &&
+            (m_desired[0]->m_point == ap))) {
         debugAssertM(texture->vector2Bounds() == m_desired[0]->vector2Bounds(), 
                      format("Cannot attach a Texture of size %s to a Framebuffer"
                             " of size %s without calling Framebuffer::clear first.",
                             texture->vector2Bounds().toString().c_str(),
                             m_desired[0]->vector2Bounds().toString().c_str()));
+        }
     }
     
     Attachment::Ref a = get(ap);

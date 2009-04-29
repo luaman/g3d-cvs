@@ -169,7 +169,12 @@ void MeshAlg::computeAdjacency(
     adjacentFaceArray.clear();
     adjacentFaceArray.resize(vertexArray.size());
     for (int v = 0; v < adjacentFaceArray.size(); ++v) {
-        adjacentFaceArray[v] = vertexArray[v].faceIndex;
+        const SmallArray<int, 6>& src = vertexArray[v].faceIndex;
+        Array<int>& dst = adjacentFaceArray[v];
+        dst.resize(src.size());
+        for (int f = 0; f < dst.size(); ++f) {
+            dst[f] = src[f];
+        }
     }
 }
 

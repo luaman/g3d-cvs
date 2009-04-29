@@ -44,6 +44,11 @@ public:
         bool first = true;
         while (x.compareAndSet(0, 1) == 1) {
             first = false;
+#           ifdef G3D_WIN32
+                Sleep(0);
+#           else
+                usleep(0);
+#           endif
         }
         return first;
     }

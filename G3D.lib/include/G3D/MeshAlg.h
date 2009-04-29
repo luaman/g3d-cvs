@@ -16,6 +16,7 @@
 #include "G3D/Array.h"
 #include "G3D/Vector3.h"
 #include "G3D/CoordinateFrame.h"
+#include "G3D/SmallArray.h"
 
 // Turn off "conditional expression is constant" warning; MSVC generates this
 // for debug assertions in inlined methods.
@@ -72,7 +73,7 @@ public:
          Edges may be listed multiple times if they are
          degenerate.
          */
-        Array<int>              edgeIndex;
+        SmallArray<int, 6>          edgeIndex;
 
         /**
          Returns true if e or ~e is in the edgeIndex list.
@@ -85,7 +86,7 @@ public:
          Array of faces containing this vertex.  Faces
          may be listed multiple times if they are degenerate.
         */
-        Array<int>              faceIndex;
+        SmallArray<int, 6>          faceIndex;
 
         inline bool inFace(int f) const {
             debugAssert(f >= 0);

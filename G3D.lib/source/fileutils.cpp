@@ -419,9 +419,8 @@ bool fileExists(
 	const bool			lookInZipfiles) {
 
 	if (filename == "") {
-		return true;
+		return false;
 	}
-
 
     // Useful for debugging
     //char curdir[1024]; _getcwd(curdir, 1024); 
@@ -930,8 +929,8 @@ static void determineFileOrDirList(
         path = path.substr(0, path.length() -1);
     }
     
-    if (fileExists(path, false)) {
-        if (isZipfile(path)) {
+    if ((path == "") || fileExists(path, false)) {
+        if ((path != "") && isZipfile(path)) {
             // .zip should only work if * is specified as the Base + Ext
             // Here, we have been asked for the root's contents
             debugAssertM(filenameBaseExt(filespec) == "*", "Can only call getFiles/getDirs on zipfiles using '*' wildcard");

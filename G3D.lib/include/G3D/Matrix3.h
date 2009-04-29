@@ -66,6 +66,9 @@ public:
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
 
+    /** Returns true if column(0).cross(column(1)).dot(column(2)) > 0. */
+    bool isRightHanded() const;
+
     /**
      Sets all elements.
      */
