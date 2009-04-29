@@ -26,6 +26,7 @@
         vec3 wsN = tan_Z.xyz * backside;
         vec2 offsetTexCoord = texCoord;
 #   endif
+    wsN = normalize(wsN);
 
 #   if (defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP))
         vec4 lambertianColor =

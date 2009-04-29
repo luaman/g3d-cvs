@@ -4,11 +4,9 @@
  Color class.
 
  @author Morgan McGuire, morgan@cs.williams.edu
- @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
-
 
  @created 2001-06-02
- @edited  2006-01-13
+ @edited  2009-04-28
  */
 
 #include "G3D/platform.h"
@@ -96,6 +94,11 @@ const Color3& Color3::gray() {
 const Color3& Color3::white() {
     static Color3 c(1, 1, 1);
     return c;
+}
+
+
+bool Color3::isFinite() const {
+    return G3D::isFinite(r) && G3D::isFinite(g) && G3D::isFinite(b);
 }
 
 

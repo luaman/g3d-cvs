@@ -53,13 +53,14 @@ Color4 UberBSDF::shadeDirect
     const Color4& specular = m_specular.sample(texCoord);
     float shininess = specular.a;
 
-    if ((shininess != packedSpecularMirror()) && (shininess != packedSpecularNone())) {
+    if (shininess != packedSpecularNone()) {
         // Glossy
         // Half-vector
         const Vector3& w_h = (w_i + w_o).direction();
         const float cos_h = max(0.0f, w_h.dot(n));
 
         float e = (float)unpackSpecularExponent(shininess);
+        
         result += computeF(specular.rgb(), cos_i) * 
             (powf(cos_h, e) *
              (shininess + 8.0f) * INV_8PI);
@@ -164,7 +165,7 @@ bool UberBSDF::scatter
     ///////////////////////////////////////////////////////////////////////////////////
     if (m_transmissive.notBlack()) {
         // Sample transmissive
-        const Color4& transmit = 
+        const Color3& transmit = 
             lowFreq ?
                 m_transmissive.mean() :
                 m_transmissive.sample(texCoord);
@@ -176,14 +177,9 @@ bool UberBSDF::scatter
         
         r -= p_transmitAvg;
         if (r < 0.0f) {
-
-            const float eta = transmit.a;
-
-            // TODO: eta and eta_other might need to be swapped, depending on the direction
-            // of the incident photon relative to the normal.
-
             power_o = p_transmit * power_i * (1.0f / p_transmitAvg);
-            w_o = (-w_i).refractionDirection(n, eta, eta_other);
+            w_o = (-w_i).refractionDirection(n, m_eta, eta_other);
+            density = p_transmitAvg;
 
             // w_o is zero on total internal refraction
             return ! w_o.isZero();

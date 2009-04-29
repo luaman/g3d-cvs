@@ -49,6 +49,9 @@ namespace G3D {
  
    For energy conservation, \f$\rho_L + F_0 + (1 - F_0)T_0\leq 1\f$.
 
+   (The direct shader always applies a glossy highlight with an exponent of 128 to mirror surfaces so that
+   light sources produce highlights)
+
    The BSDF consists of four terms (at most three of which are
    non-zero): Lambertian, Glossy, Mirror, and Transmissive,
 
@@ -128,7 +131,7 @@ protected:
     /** \f$T_0\f$ : transmissivity */
     Component3          m_transmissive;
 
-    /** \f$\eta\f$ For the material on the far side.*/
+    /** \f$\eta\f$ For the material on the far side (inside).*/
     float               m_eta;
 
     /** Reserved for future use */
@@ -168,7 +171,7 @@ public:
         return m_transmissive;
     }
 
-    /** \f$\eta\f$ */
+    /** \f$\eta\f$ for the material on the inside of this object (i.e. side opposite the normal).*/
     inline float eta() const {
         return m_eta;
     }
@@ -266,6 +269,9 @@ public:
        \param lowFreq If true, sample from the average texture color instead of at each texel.  This can
        improve performance by increasing memory coherence.
 
+       \param eta_other Index of refraction on the side of the normal (i.e., material that is being exited to enter the 
+         object whose surface this BSDF describes)
+
        @beta
 
        @return false if the photon was absorbed, true if it scatters. */
@@ -293,10 +299,14 @@ public:
 
 
     /** The glossy exponent is packed so that 0 = no specular, 
-        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$. 
-        This function abstracts the unpacking, since it may change in future versions.*/
+        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$.
+        This function abstracts the unpacking, since it may change in future versions.
+        
+        Because direct shading is specified for UberBSDF to apply a glossy reflection to mirror 
+        surfaces, e = 1 produces 128 as well.
+        */
     static inline int unpackSpecularExponent(float e) {
-        return iRound(e * 127.0f) + 1;
+        return iMax(iRound(e * 127.0f) + 1, 128);
     }
 
     /** The value that a specular mirror is packed as */
@@ -310,7 +320,7 @@ public:
     }
 
     inline static float packSpecularExponent(int x) {
-        debugAssert(x > 0 && x < 129);
+        debugAssert(x > 0 && x <= 128);
         return (x - 1) / 127.0f;
     }
 };

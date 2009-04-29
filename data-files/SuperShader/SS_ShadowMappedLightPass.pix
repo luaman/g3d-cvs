@@ -142,8 +142,9 @@ void main(void) {
 //      testing each pixel's specular exponent for mirror reflection
 #	ifdef MIRROR
            if (temp.a == 1.0) {
-               // Mirror reflection; turn off glossy specular
-               shininess = 0.0;
+                // Mirror reflection (primarily addressed in the non-shadowed reflection map)
+                // Allow only very bright glossy specular, so that light sources still produce highlights.
+                shininess = 128.0;
            } else
 #       endif           
            {

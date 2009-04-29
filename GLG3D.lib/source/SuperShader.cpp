@@ -66,7 +66,7 @@ ShaderRef Pass::getConfiguredShader(
 
     // First try to load from the cache
 
-    ShaderRef shader = cache.getSimilar(key, material);
+    Shader::Ref shader = cache.getSimilar(key, material);
 
     if (shader.isNull()) {
         // Load
@@ -167,7 +167,7 @@ ShaderRef Pass::getConfiguredShader(const Material& material, RenderDevice::Cull
     }
 
     // Get the shader from the cache
-    ShaderRef s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material);
+    const Shader::Ref& s = getConfiguredShader(m_vertexFilename, m_pixelFilename, material);
 
     // Merge arguments
     s->args.set(args);
@@ -314,7 +314,7 @@ ShaderRef NonShadowedPass::getConfiguredShader(
     const Material& material,
     RenderDevice::CullFace c) {
 
-    ShaderRef s = Pass::getConfiguredShader(material, c);
+    const Shader::Ref& s = Pass::getConfiguredShader(material, c);
 
     s->args.set("emissiveConstant",    material.emissive().constant()* m_emissiveScale, OPTIONAL);
     s->args.set("environmentMapScale", m_environmentMapColor, OPTIONAL);

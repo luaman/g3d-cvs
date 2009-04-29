@@ -86,8 +86,8 @@ void main(void) {
 				
 				I_specular = textureCube(environmentMap, wsR).rgb * environmentMapScale;
 
-                // Turn off glossy specular
-                shininess = 0.0;
+                // Allow only very bright glossy specular, so that light sources still produce highlights.
+                shininess = 128.0;
            } else
 #		   endif
            {

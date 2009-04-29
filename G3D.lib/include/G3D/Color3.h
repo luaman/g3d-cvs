@@ -8,14 +8,14 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2001-06-02
- @edited  2009-03-20
+ @edited  2009-04-28
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_COLOR3_H
-#define G3D_COLOR3_H
+#ifndef G3D_Color3_h
+#define G3D_Color3_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -71,6 +71,8 @@ public:
     inline bool isOne() const {
         return (r == 1.0f) && (g == 1.0f) && (b == 1.0f);
     }
+
+    bool isFinite() const;
 
     /**
      Initialize from an HTML-style color (e.g. 0xFF0000 == RED)
