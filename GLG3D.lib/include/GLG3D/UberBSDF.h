@@ -282,9 +282,10 @@ public:
      const Vector2& texCoord,
      const Vector3& w_i,
      const Color3&  power_i,
-     float          eta_other,
+     float          eta_i,
      Vector3&       w_o,
      Color3&        power_o,
+     float&         eta_o,
      Random&        r = Random::common(),
      bool           lowFreq = false,
      float&         density = ignoreFloat) const;

@@ -75,9 +75,10 @@ bool UberBSDF::scatter
  const Vector2& texCoord,
  const Vector3& w_i,
  const Color3&  power_i,
- float          eta_other,
+ float          eta_i,
  Vector3&       w_o,
  Color3&        power_o,
+ float&         eta_o,
  Random&        random,
  bool           lowFreq,
  float&         density) const {
@@ -108,6 +109,7 @@ bool UberBSDF::scatter
             power_o = power_i * p_Lambertian / p_LambertianAvg;
             w_o = Vector3::cosHemiRandom(n, random);
             density = p_LambertianAvg * 0.01f;
+            eta_o = eta_i;
 
             return true;
         }
@@ -159,6 +161,8 @@ bool UberBSDF::scatter
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     density = p_specularAvg;
                 }
+
+                eta_o = eta_i;
                 return true;
             }
         }
@@ -191,9 +195,13 @@ bool UberBSDF::scatter
         
         r -= p_transmitAvg;
         if (r < 0.0f) {
+            debugAssert(w_i.dot(n) > 0);
             power_o = p_transmit * power_i * (1.0f / p_transmitAvg);
-            w_o = (-w_i).refractionDirection(n, m_eta, eta_other);
+            w_o = (-w_i).refractionDirection(n, m_eta, eta_i);
             density = p_transmitAvg;
+            eta_o = m_eta;
+
+            debugAssert(w_o.isZero() || ((w_o.dot(n) < 0) && w_o.isUnit()));
 
             // w_o is zero on total internal refraction
             return ! w_o.isZero();
