@@ -79,10 +79,14 @@ public:
     smaller value will be chosen if the method determines that it can
     safely do so.  For directional and point lights, this value is
     used directly.    
+
+    \param intensityCutoff Don't bother shadowing objects that cannot be brighter than this value.
+    Set to 0 to cast shadows as far as the entire scene.
     */
     static void computeMatrices
     (const GLight& light, const AABox& sceneBounds, GCamera& lightFrame, Matrix4& lightProjectionMatrix,
-     float lightProjX = 12, float lightProjY = 12, float lightProjNear = 0.5f, float lightProjFar = 60);
+     float lightProjX = 12, float lightProjY = 12, float lightProjNear = 0.5f, float lightProjFar = 60,
+     float intensityCutoff = 1/255.0f);
 
     /** Call with desiredSize = 0 to turn off shadow maps.
      */

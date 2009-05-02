@@ -95,7 +95,7 @@ Sphere GLight::effectSphere(float cutoff) const {
         return Sphere(Vector3::zero(), finf());
     } else {
         // Avoid divide by zero
-        cutoff = max(cutoff, 0.0001f);
+        cutoff = max(cutoff, 0.00001f);
         float maxIntensity = max(color.r, max(color.g, color.b));
 
         float radius = finf();

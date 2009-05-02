@@ -260,7 +260,8 @@ void ShadowMap::computeMatrices
  float          lightProjX,
  float          lightProjY,
  float          lightProjNearMin,
- float          lightProjFarMax) {
+ float          lightProjFarMax,
+ float          intensityCutoff) {
 
     lightFrame.setCoordinateFrame(light.frame());
 
@@ -290,7 +291,7 @@ void ShadowMap::computeMatrices
     lightProjNear = max(lightProjNearMin, lightProjNear);
     
     // Don't bother tracking shadows past the effective radius
-    lightProjFar = min(light.effectSphere().radius, lightProjFar);
+    lightProjFar = min(light.effectSphere(intensityCutoff).radius, lightProjFar);
     lightProjFar = max(lightProjNear + 0.1f, min(lightProjFarMax, 
                                                  lightProjFar));
 

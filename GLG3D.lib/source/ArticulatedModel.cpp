@@ -212,13 +212,15 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                             logPrintf("Referenced unknown material '%s'\n", materialName.c_str());
                         }                        
 
-                        Part::TriList::Ref triList = part.newTriList(mat);    
+                        Part::TriList::Ref triList = part.newTriList(mat);
+                        debugAssert(isValidHeapPointer(triList.pointer()));
                         triList->twoSided = twoSided;
 
                         // Construct an index array for this part
                         for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
                             // 3*f is an index into object.indexArray
                             int f = faceMat.faceIndexArray[i];
+                            debugAssert(f >= 0);
                             for (int v = 0; v < 3; ++v) {
                                 triList->indexArray.append(object.indexArray[3*f + v]);
                             }
