@@ -19,6 +19,7 @@
 namespace G3D {
 
 /**
+ \ Vector3int32
  A Vector3 that packs its fields into uint32s.
  */
 G3D_BEGIN_PACKED_CLASS(4)

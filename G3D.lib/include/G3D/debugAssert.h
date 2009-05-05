@@ -70,6 +70,11 @@
   The assertion is also posted to the clipboard under Win32.
  */
 
+/**
+ @def alwaysAssertM(exp, msg)
+ Same as debugAssertM except that it asserts in release builds as well.
+ */
+
 namespace G3D {
 typedef bool (*AssertionHook)(
     const char* _expression,

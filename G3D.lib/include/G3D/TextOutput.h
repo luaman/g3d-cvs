@@ -193,7 +193,7 @@ public:
     /** Produces a new string that contains the output */
     std::string commitString();
 
-    /** Writes a quoted string. Special characters in the string (e.g., \, \t, \n) are escaped so that 
+    /** Writes a quoted string. Special characters in the string (e.g., \\, \\t, \\n) are escaped so that 
         TextInput will produce the identical string on reading.*/
     void writeString(const std::string& string);
 

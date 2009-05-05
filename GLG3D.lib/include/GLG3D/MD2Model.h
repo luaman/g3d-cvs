@@ -424,7 +424,7 @@ public:
     }
 
     /**
-     @filename The tris.md2 file.  Note that most MD2 
+     @param filename The tris.md2 file.  Note that most MD2 
       files are stored in two files, tris.md2 and weapon.md2.  
       You will have to load both as separate models.
 

@@ -1,7 +1,7 @@
 /**
  @file platform.h
 
- #defines for platform specific issues.
+ \#defines for platform specific issues.
 
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
@@ -258,11 +258,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
   Creates a string from the expression.  Frequently used with G3D::Shader
   to express shading programs inline.  
 
-  <CODE>STR(this becomes a string)<PRE> evaluates the same as <CODE>"this becomes a string"</CODE>
+  <CODE>STR(this becomes a string)\verbatim<PRE>\endverbatim evaluates the same as \verbatim<CODE>\endverbatim"this becomes a string"</CODE>
  */
 #define STR(x) #x
 
-/** #pragma may not appear inside a macro, so this uses the pragma operator 
+/** \#pragma may not appear inside a macro, so this uses the pragma operator 
     to create an equivalent statement.*/
 #ifdef _MSC_VER
 // Microsoft's version http://msdn.microsoft.com/en-us/library/d9x1s805.aspx

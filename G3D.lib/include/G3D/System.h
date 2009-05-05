@@ -29,7 +29,7 @@ namespace G3D {
 /**
  Routine used by the demos to find the data.  Searches in
  ../data, ../../data, etc. up to 5 levels back.  Checks
- common locations like c:\libraries\g3d-<version>\data
+ common locations like \verbatim c:\libraries\g3d-<version>\data \endverbatim
  and some hard-coded paths on the Brown University file
  system.
 

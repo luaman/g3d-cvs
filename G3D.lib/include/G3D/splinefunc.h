@@ -10,12 +10,12 @@
 #ifndef G3D_SPLINEFUNC_H
 #define G3D_SPLINEFUNC_H
 
-namespace G3D {
-
 #include "G3D/platform.h"
 #include "G3D/debug.h"
 #include "G3D/Array.h"
 #include "G3D/g3dmath.h"
+
+namespace G3D {
 
 /**
  Interpolates a property according to a piecewise linear spline.  This provides

@@ -29,7 +29,7 @@ class RenderDevice;
     find it.
 
     The histogram drawn is a smoothing of the actual distribution
-    by a $\f \cos^{sharp} \f$ filter to ensure that it is not 
+    by a \f$ \cos^{sharp} \f$ filter to ensure that it is not 
     undersampled by the underlying histogram mesh and buckets.
 
     Storage size is constant in the amount of data.  Input is 
@@ -71,7 +71,7 @@ private:
 
     float               m_sharp;
 
-    /** Total weight: \f$\sum bucket[i]\f$ */
+    /** Total weight: \f$ \sum bucket[i] \f$ */
     float               m_totalWeight;
 
     /** Dot product that is so low that it won't materially affect the 

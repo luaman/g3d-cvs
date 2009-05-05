@@ -246,8 +246,6 @@ public:
        on the GPU. Call setStorage() to move or copy data to the CPU 
        (note: it will automatically copy to the CPU as needed, but that 
        process is not threadsafe).
-
-       @param normalBumpMap
      */
     static Material::Ref create(const Settings& settings);
 

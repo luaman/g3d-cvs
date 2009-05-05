@@ -20,6 +20,7 @@
 namespace G3D {
 
 /**
+ \class Vector2int16 
  A Vector2 that packs its fields into uint16s.
  */
 G3D_BEGIN_PACKED_CLASS(2)

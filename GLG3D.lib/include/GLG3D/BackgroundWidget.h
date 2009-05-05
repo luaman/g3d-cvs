@@ -1,5 +1,5 @@
 /**
-  @file BackgroundWidget.cpp
+  @file BackgroundWidget.h
  
   @maintainer Morgan McGuire, morgan3d@users.sf.net
  

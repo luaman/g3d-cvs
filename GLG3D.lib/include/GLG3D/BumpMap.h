@@ -1,7 +1,7 @@
 /**
- @file   G3D/BumpMap.h
+ @file BumpMap.h
  @author Morgan McGuire, morgan@cs.williams.edu
- @create 2009-02-19
+ @created 2009-02-19
  @edited 2009-03-28
 */
 #ifndef G3D_BumpMap_h

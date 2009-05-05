@@ -175,7 +175,7 @@ protected:
     static ExtraLightPassRef  extraLightInstance;
 
     /** Returns a shader (perhaps from the cache) 
-        with arguments and #defines configured for 
+        with arguments and \#defines configured for 
         this material. */
     static ShaderRef getConfiguredShader(
         const std::string&  vertexFilename,

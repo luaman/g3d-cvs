@@ -422,7 +422,7 @@ public:
 
     /**
      Decodes the buffer into this image.
-     @format Must be the correct format.
+     @param format Must be the correct format.
      */
     void decode(
         BinaryInput&        input,

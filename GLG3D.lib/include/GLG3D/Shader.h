@@ -168,7 +168,7 @@ protected:
          It must then compiled again with correct mappings, which are
          assigned elsewhere.
 
-         @param defineString New #defines to insert at the top of the program
+         @param defineString New \#defines to insert at the top of the program
          @param code modified in place
          @param secondPass On the scond pass, the samplerMappings must not be empty.
          @return True if there was one replacement, false otherwise
@@ -564,14 +564,14 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
     // This is needed when reading from textures rendered using Framebuffer, which are likely upside down and have inverted texture coordinates.
     // Typical usage : gl_TexCoord[g3d_Index(sampler)]
 
-    #include "file"
+    \#include "file"
   </PRE>
 
   The macros that take a sampler argument must not have anything (even
   spaces!) inside the parentheses and their argument must be the name
   of a sampler uniform.
 
-  #include may not appear inside a block comment (it may appear inside
+  \#include may not appear inside a block comment (it may appear inside
   a single-line comment, however), and must be the first statement on the 
   line in which it appears.  There may be no space between the # and the include.
 
@@ -586,7 +586,7 @@ typedef ReferenceCountedPointer<Shader> ShaderRef;
   variables do not increase the runtime cost of the shader.
 
 
-  If your GLSL 1.1 shader begins with <CODE>#include</CODE> or <CODE>#define</CODE> the
+  If your GLSL 1.1 shader begins with <CODE>\#include</CODE> or <CODE>\#define</CODE> the
   line numbers will be off by 1 to 3 in error messages because the G3D uniforms are 
   inserted on the first line.  GLSL 1.2 shaders do not have this problem.
 
@@ -649,7 +649,7 @@ class Shader  : public ReferenceCountedObject {
 public:
     typedef ReferenceCountedPointer<Shader>   Ref;
 
-    /** Replaces all #includes in @a code with the contents of the appropriate files.
+    /** Replaces all \#includes in @a code with the contents of the appropriate files.
         It is called recursively, so included files may have includes themselves.
         This is called automatically by the preprocessor, but is public so as to be
         accessible to code like SuperShader that directly manipulates source strings.

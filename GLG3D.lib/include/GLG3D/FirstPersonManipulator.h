@@ -1,5 +1,5 @@
 /**
-  @file ManualCameraController.h
+  @file FirstPersonManipulator.h
 
   @maintainer Morgan McGuire, morgan@cs.brown.edu
 

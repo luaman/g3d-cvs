@@ -1,5 +1,5 @@
 /**
-  @file directinput8.cpp
+  @file directinput8.h
 
   @created 	  2004-10-16
   @edited  	  2007-01-30

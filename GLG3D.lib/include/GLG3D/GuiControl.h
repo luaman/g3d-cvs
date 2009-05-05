@@ -127,20 +127,20 @@ public:
         inline Callback(void (*function)()) : m_internal(new FunctionCallback(function)) {}
         
         /** Create a callback from a class and method of no arguments,
-            e.g., <code>App* app = ...; Callback( app,
-            &App::endProgram );</code>.  If the method is defined on a
+            e.g., \code App* app = ...; Callback( app,
+            &App::endProgram ); \endcode.  If the method is defined on a
             base class and not overriden in the derived class, you
             must cast the pointer:
-            <code>Callback(static_cast<Base*>(ptr),
-            &Base::method);</code>*/
+            \code Callback(static_cast<Base*>(ptr),
+            &Base::method); \endcode */
         template<class Class>
         inline Callback(
 			Class* const object,
 			void (Class::*method)()) : m_internal(new MethodCallback<Class>(object, method)) {}
         
         /** Create a callback from a reference counted class and method of no arguments, 
-            e.g., <code>PlayerRef player = ...; 
-            Callback( player, &Player::jump )</code> */
+            e.g., \code PlayerRef player = ...; 
+            Callback( player, &Player::jump ) \endcode */
         template<class Class>
         inline Callback(
 			const ReferenceCountedPointer<Class>& object,

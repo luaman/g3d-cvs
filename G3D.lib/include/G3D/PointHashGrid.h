@@ -847,7 +847,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Returns true if there is a value that is exactly equal to @a. This will 
+    /** Returns true if there is a value that is exactly equal to @a v. This will 
         check all neighboring cells to avoid roundoff error at cell boundaries. 
     */
     bool contains(const Value& v) const {

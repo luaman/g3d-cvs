@@ -20,6 +20,7 @@
 namespace G3D {
 
 /**
+ \class Color4uint8 
  Represents a Color4 as a packed integer.  Convenient
  for creating unsigned int vertex arrays.  Used by
  G3D::GImage as the underlying format.
@@ -31,7 +32,6 @@ namespace G3D {
  but Vector3(1,1,1) == Vector3int16(1,1,1).
 
  */
-
 G3D_BEGIN_PACKED_CLASS(1)
 class Color4uint8 {
 private:
@@ -75,9 +75,17 @@ public:
     // WARNING.  These member functions rely on
     // (1) Color4uint8 not having virtual functions
     // (2) the data packed in a 3*sizeof(uint8) memory block
-    G3D::uint8& operator[] (int i) const;
-    operator G3D::uint8* ();
-    operator const G3D::uint8* () const;
+    uint8& operator[] (int i) const {
+        return ((uint8*)this)[i];
+    }
+
+    operator uint8* () {
+        return (uint8*)this;
+    }
+
+    operator const uint8* () const {
+        return (uint8*)this;
+    }
 
 
     inline Color3uint8 bgr() const {
@@ -103,19 +111,6 @@ public:
 }
 G3D_END_PACKED_CLASS(1)
 
-inline G3D::uint8& Color4uint8::operator[] (int i) const {
-    return ((G3D::uint8*)this)[i];
-}
-
-//----------------------------------------------------------------------------
-inline Color4uint8::operator G3D::uint8* () {
-    return (G3D::uint8*)this;
-}
-
-inline Color4uint8::operator const G3D::uint8* () const {
-    return (G3D::uint8*)this;
-}
-
-}
+} // namespace G3D
 
 #endif

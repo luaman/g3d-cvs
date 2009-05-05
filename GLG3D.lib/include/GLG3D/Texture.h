@@ -531,7 +531,7 @@ public:
 
      <i>This call is substantially slower than simply rendering to a
      G3D::Texture using a G3D::Framebuffer, and is only provided for
-     compatibility with very old OpenGL 1.3 graphics cards.</>
+     compatibility with very old OpenGL 1.3 graphics cards.</i>
 
      The (x, y) coordinates are in real screen pixels.  (0, 0) is the top left
      of the screen.
@@ -552,7 +552,7 @@ public:
      If false, the texture is created from the front buffer.
 
      @param rect The rectangle to copy (relative to the viewport)
-     See also RenderDevice::screenShotPic
+     @sa RenderDevice::screenShotPic
      */
     void copyFromScreen(const Rect2D& rect);
 

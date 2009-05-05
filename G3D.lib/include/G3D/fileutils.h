@@ -88,7 +88,7 @@ std::string resolveFilename(const std::string& filename);
  (can be done with resolveFilename).
  Wildcards can only appear to the right of the last slash in filespec.
  Works with .zip files used as paths, if filespec is passed in the form
- C:\...\something.zip\*  Does not work recursively with zipfiles (a
+ C:\\...\\something.zip\\*  Does not work recursively with zipfiles (a
  .zip within a .zip will not work)
  */
 void getFiles(
@@ -103,7 +103,7 @@ void getFiles(
  (can be done with resolveFilename).
  Does not append special directories "." or "..".
  Works with .zip files used as paths, if filespec is passed in the form
- C:\...\something.zip\*  Does not work recursively with zipfiles (a
+ C:\\...\\something.zip\\*  Does not work recursively with zipfiles (a
  .zip within a .zip will not work)
  */
 void getDirs(
@@ -176,8 +176,8 @@ bool zipfileExists(const std::string& filename);
 
   Examples:
 
-  c:\a\b\d.e   
-    root  = "c:\"
+  c:\\a\\b\\d.e   
+    root  = "c:\\"
     path  = "a" "b"
     base  = "d"
     ext   = "e"

@@ -4,7 +4,7 @@
   Includes all G3D and GLG3D files and uses the G3D namespace.
   
   This requires OpenGL and SDL headers.  If you don't want all of this,
-  #include <G3D.h> separately.
+  \#include <G3D.h> separately.
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
  

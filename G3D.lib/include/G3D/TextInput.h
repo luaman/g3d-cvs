@@ -147,7 +147,7 @@ public:
  recognized operator:
 
  <ul>
-  <li><CODE>Token::SINGLE_QUOTED_TYPE</CODE> string of characters surrounded by single quotes, e.g., 'x', '\0', 'foo'.
+  <li><CODE>Token::SINGLE_QUOTED_TYPE</CODE> string of characters surrounded by single quotes, e.g., 'x', '\\0', 'foo'.
   <li><CODE>Token::DOUBLE_QUOTED_TYPE</CODE> string of characters surrounded by double quotes, e.g., "x", "abc\txyz", "b o b".
   <li><CODE>Token::SYMBOL_TYPE</CODE> legal C++ operators, keywords, and identifiers.  e.g., >=, Foo, _X, class, {
   <li><CODE>Token::INTEGER_TYPE</CODE> numbers without decimal places or exponential notation. e.g., 10, 0x17F, 32, 0, -155
@@ -155,7 +155,7 @@ public:
   <li><CODE>Token::BOOLEAN_TYPE</CODE> special symbols like "true" and "false"; the exact details can be configured in TextInput::Settings
   <li><CODE>Token::LINE_COMMENT_TYPE</CODE> (disabled by default); generated for line comments as specified by TextInput::Settings
   <li><CODE>Token::BLOCK_COMMENT_TYPE</CODE> (disabled by default); generated for c-style block comments as specified by TextInput::Settings
-  <li><CODE>Token::NEWLINE_TYPE</CODE> (disabled by default); generated for any of "\r", "\n" or "\r\n"
+  <li><CODE>Token::NEWLINE_TYPE</CODE> (disabled by default); generated for any of "\\r", "\\n" or "\\r\\n"
  </ul>
 
  <P>The special ".." and "..." tokens are always recognized in
@@ -241,28 +241,28 @@ public:
          */
         bool                otherLineComments;
 
-        /** If true, \r, \n, \t, \0, \\ and other escape sequences inside
+        /** If true, \\r, \\n, \\t, \\0, \\\\ and other escape sequences inside
             strings are converted to the equivalent C++ escaped character.
             If false, backslashes are treated literally.  It is convenient to
             set to false if reading Windows paths, for example, like
-            c:\foo\bar.
+            c:\\foo\\bar.
 
             Default is true.
          */
         bool                escapeSequencesInStrings;
 
-        /** If not '\0', specifies a character that begins single line
+        /** If not '\\0', specifies a character that begins single line
             comments ('#' and '%' are popular choices).  This is independent
             of the cppLineComments flag.  If the character appears in text with
             a backslash in front of it, it is considered escaped and is not
             treated as a comment character.
 
-            Default is '\0'.
+            Default is '\\0'.
          */
         char                otherCommentCharacter;
 
         /** Another (optional) 1-comment character.  Useful for files that
-            support multiple comment syntaxes.  Default is '\0'.
+            support multiple comment syntaxes.  Default is '\\0'.
          */
         char                otherCommentCharacter2;
 
@@ -496,7 +496,7 @@ public:
 
     };
 
-    /** While parsing a number of the form 1.#IN?00, ? was 
+    /** While parsing a number of the form 1.\#IN?00, ? was 
         not 'D' or 'F'. */
     class BadMSVCSpecial : public TokenException {
     public:

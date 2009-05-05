@@ -38,7 +38,7 @@ class Matrix3;
 class Matrix4;
 
 /**
- ! \def debugAssertGLOk()
+ \def debugAssertGLOk()
  \brief Produces a debugAssert that no OpenGL error has been produced.  
  Only appears when compiling with _DEBUG.  Note that this can cause
  Alternate Frame Rendering systems (e.g., SLI, Crossfire) to block at

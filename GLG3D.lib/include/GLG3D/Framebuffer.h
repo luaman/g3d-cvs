@@ -1,5 +1,5 @@
 /**
- @file Framebuffer.cpp
+ @file Framebuffer.h
 
  @maintainer Morgan McGuire
  @cite Initial implementation by Daniel Hilferty, djhilferty@users.sourceforge.net

@@ -1,5 +1,5 @@
 /**
-  @file bsp/BSPMAP.h
+  @file BSPMAP.h
   
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 

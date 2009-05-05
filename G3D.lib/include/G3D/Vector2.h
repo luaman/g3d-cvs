@@ -53,7 +53,7 @@ public:
     Vector2(float coordinate[2]);
     Vector2(double coordinate[2]);
     Vector2(const Vector2& other);
-    Vector2(const class Vector2int16& other); 
+    Vector2(const Vector2int16& other); 
 
     void serialize(class BinaryOutput& b) const;
     void deserialize(class BinaryInput& b);
