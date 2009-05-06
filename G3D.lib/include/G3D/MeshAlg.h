@@ -18,9 +18,11 @@
 #include "G3D/CoordinateFrame.h"
 #include "G3D/SmallArray.h"
 
+#ifdef G3D_WIN32
 // Turn off "conditional expression is constant" warning; MSVC generates this
 // for debug assertions in inlined methods.
 #pragma warning (disable : 4127)
+#endif
 
 namespace G3D {
 

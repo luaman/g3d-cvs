@@ -244,7 +244,7 @@ void MeshAlg::computeAdjacency(
     // For each edge in the edge table, create an edge in the edge array.
     // Collapse every 2 edges from adjacent faces.
 
-    MeshEdgeTable::Iterator&       cur = edgeTable.begin();
+    MeshEdgeTable::Iterator cur = edgeTable.begin();
 
     Array<Edge> tempEdgeArray;
     while (cur.hasMore()) {

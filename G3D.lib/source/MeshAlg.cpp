@@ -147,7 +147,10 @@ void MeshAlg::computeNormals(
     Array<Vertex> fakeVertexArray(adjacentFaceArray.size());
 
     for (int v = 0; v < adjacentFaceArray.size(); ++v) {
-        fakeVertexArray[v].faceIndex = adjacentFaceArray[v];
+        fakeVertexArray[v].faceIndex.resize(adjacentFaceArray[v].size());
+        for (int i = 0; i < fakeVertexArray[v].faceIndex.size(); ++i) {
+            fakeVertexArray[v].faceIndex[i] = adjacentFaceArray[v][i];
+        }
         // We leave out the edges because they aren't used to compute normals
     }
 
