@@ -23,10 +23,10 @@
 
 <li> <p> \link guidenewuser New User Guide \endlink</p>
 
-<li> <b> <a class="el" href="http://g3d-cpp.wiki.sourceforge.net">G3D Wiki</a></p>
+<li> <p> <a class="el" href="http://g3d-cpp.wiki.sourceforge.net">G3D Wiki</a></p>
 
 <li> <p> <a class="el" href="icompile-manual.html" >iCompile Manual</a> (Unix)</p>
-</b>
+
 <li> <p> FAQs
 \htmlonly<table width=250>
 <tr><td width=10%></td><td><a class="el" href="faq.html">General Questions</a></td><td></td></tr>

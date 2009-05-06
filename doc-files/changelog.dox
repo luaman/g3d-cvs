@@ -39,7 +39,7 @@
      <li> G3D::Vector random methods now use G3D::Random
      <li> G3D::Color?::one() and Color?::zero() for all-one or all-zero constants
      <li> G3D::GuiLabel now autosizes around its contents
-     <li> G3D::Shader preprocessor now supports #include
+     <li> G3D::Shader preprocessor now supports \#include
      <li> G3D::RenderDevice::BLEND_ONE_MINUS_DST_COLOR
      <li> G3D::Shader now supports G3D::Matrix2
      <li> G3D::Shader now strips "ERROR:" from shader error messages for compactness
@@ -48,7 +48,7 @@
      <li> G3D::GImage::computeNormalMap now allows the white height to be a constant multiple of the larger dimension
      <li> G3D::Welder
      <li> G3D::Rect2D::inf
-     <li> G3D::TextInput now generates tokens for newlines (\r, \n, or \r\n) when enabled
+     <li> G3D::TextInput now generates tokens for newlines (\\r, \\n, or \\r\\n) when enabled
      <li> Documented platform-abstraction macros
      <li> PRAGMA
      <li> G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS
@@ -77,7 +77,7 @@
      <li> Tweaked G3D::StopWatch smoothing constants to reduce number flickering
      <li> isIntFormat() macro
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards
-     <li> Fix: G3D::iswspace now considers '\r' as whitespace
+     <li> Fix: G3D::iswspace now considers '\\r' as whitespace
      <li> Fix: G3D::System::appName now removes the 'd' that icompile appends
      <li> Fix: G3D::System::getCurrentProgramFilename now works on OS X
      <li> Fix: G3D::UserInput no longer crashes on MacBook "FN" key press
@@ -435,7 +435,7 @@
      <li> Added GLEW compatibility [nico]
      <li> Added data-files directory to the locations searched for G3D demo data
      <li> On Win32, assertions now print ot the Output window as well as the dialog box.
-     <li> On Win32, $TEMP is now used for the logfile location instead of c:\tmp
+     <li> On Win32, $TEMP is now used for the logfile location instead of c:\\tmp
      <li> G3D::GKey replaces old SDL key enumeration
      <li> Decreased memory requirements and increased balance speed of G3D::AABSPTree by adding a level of indirection
           between tree nodes and the data stored in them.
@@ -471,7 +471,7 @@
      <li> G3D::MD2Model now uses floating point texture coordinates, which makes it easier to 
           write pixel shaders for MD2Models
      <li> G3D::GImage::computeNormalMap now accepts a scale factor indicating how steep the input bump map is
-     <li> Added G3D::Shader support for the GLSL #version directive
+     <li> Added G3D::Shader support for the GLSL \#version directive
      <li> Optimized G3D::GImage::computeNormalMap to use primarily integer math
      <li> G3D::AABox::contains(AABox)
      <li> Added large file (>2GB) support to BinaryInput [Peter]
@@ -666,7 +666,7 @@
       <LI> G3D::MeshShape
       <LI> Changed std::string hashCode to use CRC32 to reduce collisions
       <LI> G3D::crc32
-      <LI> Added occlusion query #defines [Nick Bray]
+      <LI> Added occlusion query \#defines [Nick Bray]
 	  <LI> G3D::Win32Window now shares textures and vertex buffers across all GL contexts
 	  <LI> G3D::Win32Window now enforces single-threading among GL contexts
 	  <LI> G3D::GLCaps::slowVBO
@@ -678,8 +678,8 @@
 	  <LI> G3D::Color3::jetColorMap [Peter]
       <LI> Optimized G3D::iRound (now faster than casting!)
       <LI> G3D::MD2Model::create now accepts a scale factor
-      <LI> #G3D_DEPRECATED macro
-      <LI> #G3D_CHECK_PRINTF_ARGS, #G3D_CHECK_VPRINTF_ARGS macros to allow
+      <LI> G3D_DEPRECATED macro
+      <LI> G3D_CHECK_PRINTF_ARGS, G3D_CHECK_VPRINTF_ARGS macros to allow
            checking of printf argument strings under gcc at compile time with
            -Wformat.
       <LI> G3D::TextInput::filename
@@ -687,7 +687,6 @@
       <LI> G3D::TextInput::Options::startingLineNumberOffset
       <LI> G3D::TextInput::readSymbolToken [cgd]
       <LI> G3D::TextInput::readStringToken [cgd]
-      <LI> G3D_DEPRECATED macro
       <LI> Threadsafe G3D::ReferenceCountedPointer
       <LI> G3D::AtomicInt32
       <LI> G3D::GThread [Corey]

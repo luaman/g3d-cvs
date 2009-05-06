@@ -1251,7 +1251,8 @@ PREDEFINED             = _DEBUG \
                          G3D_LINUX \
                          G3D_OSX \
                          G3D_FREEBSD \
-                         _DOXYGEN_RUNNING
+                         _DOXYGEN_RUNNING \
+                         G3D_BEGIN_PACKED_CLASS=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

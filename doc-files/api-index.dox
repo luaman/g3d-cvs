@@ -120,8 +120,8 @@ href="classes.html">Classes</a>.
     \link G3D::VertexAndPixelShader VertexAndPixelShader\endlink,
 
   <LI><B>Extensions to base OpenGL</B> &nbsp; &nbsp;
-    \link debugAssertGLOk debugAssertGLOk\endlink,
-    \link DECLARE_GLFORMATOF DECLARE_GLFORMAT\endlink,
+    \link debugAssertGLOk() debugAssertGLOk\endlink,
+    \link DECLARE_GLFORMATOF() DECLARE_GLFORMAT\endlink,
     \link G3D::glLoadMatrix glLoadMatrix\endlink, 
     \link G3D::glLoadInvMatrix glLoadInvMatrix\endlink, 
     \link G3D::GLCaps GLCaps\endlink,
@@ -324,9 +324,9 @@ href="classes.html">Classes</a>.
         \link G3D::WrapMode WrapMode\endlink
 
      <LI><B>Debug</B> &nbsp; &nbsp;
-        \link alwaysAssertM alwaysAssertM\endlink, 
-        \link debugAssert debugAssert\endlink,
-        \link debugAssertM debugAssertM\endlink,
+        \link alwaysAssertM() alwaysAssertM\endlink, 
+        \link debugAssert() debugAssert\endlink,
+        \link debugAssertM() debugAssertM\endlink,
         \link G3D::describeSystem describeSystem\endlink,
         \link G3D::isValidHeapPointer isValidHeapPointer\endlink,
         \link G3D::isValidPointer isValidPointer\endlink
@@ -412,4 +412,6 @@ href="classes.html">Classes</a>.
      G3D_CHECK_PRINTF_ARGS, G3D_CHECK_VPRINTF_ARGS,
      G3D_START_AT_MAIN, G3D_DEPRECATED,
      G3D_DEBUG
+     
+   </UL>
  */

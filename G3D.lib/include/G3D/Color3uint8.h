@@ -19,7 +19,6 @@
 namespace G3D {
 
 /**
- \class Color3uint8
  Represents a Color3 as a packed integer.  Convenient
  for creating unsigned int vertex arrays.  Used by
  G3D::GImage as the underlying format.

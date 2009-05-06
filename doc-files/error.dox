@@ -11,7 +11,7 @@ The VC8 libraries must currently be built from CVS by the end user. ("win32-lib-
 <P>
 
 
-
+\htmlonly
 <P><B>MSVCPRT.LIB(MSVCP60.dll) : error LNK2005: "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > & __thiscall std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >::assign(class s
 td::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &,unsigned int,unsigned int)" (?assign@?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@QAEAAV12@ABV12@II@Z) already defined in xxx(yyy)</B>
 <P>
@@ -149,6 +149,8 @@ And<BR>
 /t/3rdParty/g3d-6_07/linux-lib/libGLG3D_debug.a(libGLG3D_debug_a-Texture.o)(.text+0x18e): In function `dimensionToTarget':
 ../../../source/GLG3Dcpp/Texture.cpp:82: undefined reference to `G3D::_internal::_releaseInputGrab_()'
 </B><P>
+
+\endhtmlonly
 
 The source is being linked in the wrong order for the dependencies.
 To fix this, link GLG3D, G3D and then GL in that order.

@@ -43,7 +43,7 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr><td></td><td>\indent\indent\link G3D::Material::Settings Material::Settings\endlink</td><td> </td></tr>
 <tr><td></td><td>\indent\indent\link G3D::UberBSDF UberBSDF\endlink</td><td> </td></tr>
 <tr valign=top ><td></td><td>\indent\indent\link G3D::Component Component\endlink</td><td>
-(See also \link G3D::Component::MapComponent Component::MapComponent\endlink,
+(See also \link G3D::MapComponent MapComponent\endlink,
 \link G3D::Component1 Component1\endlink,
 \link G3D::Component3 Component3\endlink,
 \link G3D::Component4 Component4\endlink)
@@ -60,7 +60,7 @@ shader-driven GPU rendering and CPU ray tracing.
 
 <tr height=3 ><td colspan=2 ></td></tr>
 
-<tr><td></td><td>\link G3D::SuperShader <b>SuperShader</b>\endlink</td><td>Customizable GPU shader for use with G3D::Material</td></tr>
+<tr><td></td><td>\link G3D::SuperShader <b>SuperShader</b>\endlink</td><td>Customizable GPU shader for use with \link G3D::Material Material\endlink</td></tr>
 <tr><td></td><td>\indent\link G3D::Pass Pass\endlink</td><td> </td></tr>
 <tr><td></td><td>\indent\link G3D::NonShadowedPass NonShadowedPass\endlink</td><td> </td></tr>
 <tr><td></td><td>\indent\link G3D::ExtraLightPass ExtraLightPass\endlink</td><td> </td></tr>
@@ -75,18 +75,18 @@ shader-driven GPU rendering and CPU ray tracing.
 @section debugging Debugging
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
-<tr><td></td><td>\link debugAssert <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
+<tr><td></td><td>\link debugAssert() <b>debugAssert</b>\endlink</td><td>Assertion macro with friendly dialog box in DEBUG builds</td></tr>
 <tr><td></td><td>\link G3D::debugPrintf <b>debugPrintf</b>\endlink</td><td>Prints to the 3D console, terminal, and log.txt</td></tr>
 <tr><td></td><td>\link G3D::screenPrintf <b>screenPrintf</b>\endlink</td><td>Prints information that repeats every frame to the screen</td></tr>
 <tr><td></td><td>\link G3D::debugDraw <b>debugDraw</b>\endlink</td><td>Draw a shape for debugging purposes</td></tr>
 <tr><td></td><td>\link G3D::consolePrintf consolePrintf\endlink</td><td>Prints to the 3D console and log.txt</td></tr>
 <tr><td></td><td>\link G3D::logPrintf logPrintf\endlink</td><td>Prints to log.txt</td></tr>
 <tr><td></td><td>\link G3D::GApp::debugPane <b>GApp::debugPane</b>\endlink</td><td>Add your own debugging GUI controls to this provided window</td></tr>
-<tr><td></td><td>\link G3D::debugPrintf <b>G3D::debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
+<tr><td></td><td>\link G3D::debugPrintf <b>debugPrintf</b>\endlink</td><td>Prints to the terminal (Unix) or Output Window (Win) in DEBUG builds</td></tr>
 <tr><td></td><td>\link G3D::logPrintf <b>logPrintf</b>\endlink</td><td>Prints to the log.txt file (which you should regularly check for warnings!)</td></tr>
 <tr><td></td><td>\link G3D::Draw Draw\endlink</td><td>Render simple geometric primitives without loading a model</td></tr>
-<tr><td></td><td>\link debugAssertM debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
-<tr><td></td><td>\link alwaysAssertM alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>
+<tr><td></td><td>\link debugAssertM() debugAssertM\endlink</td><td>Assertion macro with a string message in DEBUG builds</td></tr>
+<tr><td></td><td>\link alwaysAssertM() alwaysAssertM\endlink</td><td>Assertion macro that remains even in optimized builds</td></tr>
 <tr><td></td><td>\link G3D::GApp::catchCommonExceptions GApp::catchCommonExceptions\endlink</td><td>Turn uncaught exceptions into assertion failures</td></tr>
 <tr><td></td><td>\link G3D::Log Log\endlink</td><td>Guarantees output is written to disk before Log::printf returns</td></tr>
 <tr><td></td><td>\link G3D::describeSystem describeSystem\endlink</td><td>Returns a string describing the current machine</td></tr>
@@ -163,7 +163,7 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::VideoInput <b>VideoInput</b>\endlink</td><td>Read from AVI, MPG and other video files in real-time</td></tr>
-<tr><td></td><td>\link G3D::VideoOutut <b>VideoOutput</b>\endlink</td><td>Write video files</td></tr>
+<tr><td></td><td>\link G3D::VideoOutput <b>VideoOutput</b>\endlink</td><td>Write video files</td></tr>
 <tr><td></td><td>\link G3D::Draw::rect2D <b>Draw::rect2D</b>\endlink</td><td>Stretch a Texture over a rectangle on screen</td></tr>
 <tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>GPU image representation</td></tr>
 <tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>An "off-screen" rendering surface used for image processing on the GPU</td></tr>
@@ -199,7 +199,7 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
 
 <tr><td></td><td>\link G3D::trimWhitespace trimWhitespace\endlink</td><td>Remove blanks at the beginning and end of a string</td></tr>
 
-<tr><td></td><td>\link STR STR\endlink</td><td>Macro for creating large blocks of quoted text, usually used with G3D::Shader</td></tr>
+<tr><td></td><td>\link STR() STR\endlink</td><td>Macro for creating large blocks of quoted text, usually used with \link G3D::Shader Shader\endlink</td></tr>
 
 <tr><td></td><td>\link G3D::TextInput::TextInput TextInput\endlink(\link G3D::TextInput::FROM_STRING TextInput::FROM_STRING\endlink, ...)</td><td>Tokenizer for parsing complex strings</td></tr>
 </table>
