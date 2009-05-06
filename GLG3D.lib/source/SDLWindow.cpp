@@ -278,6 +278,8 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
     m_glContext = glGetCurrentContext();
 
+    GLCaps::init();
+
     #if defined(G3D_WIN32)
         // Extract SDL HDC/HWND on Win32
         _Win32HWND  = info.window;
@@ -345,8 +347,6 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 	        debugAssert(m_joy[i]);
         }
     }
-
-    GLCaps::init();
 
     // Register this window as the current window
     makeCurrent();
