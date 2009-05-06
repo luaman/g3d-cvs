@@ -584,8 +584,8 @@ void SDLWindow::setIcon(const GImage& image) {
         amask = 0x00000000;
     }
 
-    int pixelBitLen     = image.channels * 8;
-    int scanLineByteLen = image.channels * image.width;
+    int pixelBitLen     = image.channels() * 8;
+    int scanLineByteLen = image.channels() * image.width();
 
     SDL_Surface* surface =
         SDL_CreateRGBSurfaceFrom((void*)image.byte(), image.width(), image.height(),
