@@ -29,13 +29,17 @@ file name) into the text box labelled <b>Name</b>.</p>
 <li> <p> Using Explorer or the command line, copy the starter G3D sample
 program files to your project directory.  If you
 installed G3D to <code>c:\libraries</code>, the sample program files are in
-<code>c:\libraries\G3D-7.00\demos\starter</code>.<p>
+<code>c:\libraries\G3D\demos\starter</code>.<p>
 
 <li> <p> In Visual Studio, right-click on the project folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Add</b> and then <b>Existing Item...</b> as demonstrated in this image:
 
 <center><img src="vc8-add-existing.png" border=0 align=top></center></p>
 
 <li> <p> Select the <code>App.cpp</code>, <code>App.h</code>, and <code>main.cpp</code> files that you copied over and press <b>OK</b>.</p>
+
+<li> <p> In Visual Studio, right-click on the project folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Properties</b> and then the <b>Linker</b> tree node and the <b>Advanced</b> item underneath it. 
+Set the <b>Randomized Base Address</b> to <b>Disable Randomization (/DYNAMICBASE:NO)</b> as demonstrated in this image:
+<center><img src="vc8-new-project-dynamicbase.png" border=0 align=top></center></p>
 
 <li> <p> Push <b>F5</b> to compile and run this default program.  If Visual Studio and G3D are installed 
 correctly, Visual Studio will automatically link your program against all libraries needed.  When run,

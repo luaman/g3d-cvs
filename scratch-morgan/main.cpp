@@ -9,7 +9,10 @@
 #   error Requires G3D 8.00
 #endif
 
-#pragma comment(linker, "/DYNAMICBASE:NO")
+// G3D requires dynamic basing to be disabled, otherwise it crashes in the release build (perhaps an underlying G3D bug?)
+// Unfortunately, the following do not work because VC9 refuses to set these options from a pragma.
+//#pragma comment(linker, "/DYNAMICBASE:NO")
+//#pragma comment(linker, "/NXCOMPAT:NO")
 
 class App : public GApp {
 public:
