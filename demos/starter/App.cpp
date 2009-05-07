@@ -7,6 +7,7 @@
 G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
+    (void)argc; (void)argv;
     GApp::Settings settings;
     
     // Change the window and other startup parameters by modifying the
@@ -86,12 +87,14 @@ void App::onNetwork() {
 
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+    (void)idt; (void)sdt; (void)rdt;
     // Add physical simulation here.  You can make your time
     // advancement based on any of the three arguments.
 }
 
 
 bool App::onEvent(const GEvent& e) {
+    (void)e;
     // If you need to track individual UI events, manage them here.
     // Return true if you want to prevent other parts of the system
     // from observing this specific event.
@@ -105,12 +108,15 @@ bool App::onEvent(const GEvent& e) {
 
 
 void App::onUserInput(UserInput* ui) {
+    (void)ui;
     // Add key handling here based on the keys currently held or
     // ones that changed in the last frame.
 }
 
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    (void)posed3D;
+    (void)posed2D;
     // Append any models to the array that you want rendered by onGraphics
 }
 
