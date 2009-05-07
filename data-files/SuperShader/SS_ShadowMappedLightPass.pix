@@ -117,8 +117,9 @@ void main(void) {
     float shininess = 0.0;
 
 #   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
-    vec3  specularColor;
-        
+    vec3 F0;
+    vec3 specularColor;
+    float cos_i = dot(wsN, wsE);
     // If 1.0, mirror reflect
     // If 0.0, no specular
     // Otherwise exponent = shininess * 127 + 1. 
@@ -134,8 +135,9 @@ void main(void) {
 #       endif
             ;
 				   
-        specularColor    = temp.rgb;
-		   
+	   F0 = temp.rgb;
+	   specularColor = computeF(F0, max(0.0, cos_i));
+
 //      Only if this texture is known to contain some mirror reflective value do we bother
 //      testing each pixel's specular exponent for mirror reflection
 #	ifdef MIRROR
