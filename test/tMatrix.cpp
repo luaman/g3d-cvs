@@ -9,7 +9,7 @@ void testPseudoInverse() {
     // Windows seems to preserve precision better when compiling the SVD code.
     float normThreshold = 0.0002f;
 #else
-    float normThreshold = 0.006f;
+    float normThreshold = 0.04f;
 #endif
 
     for(int n = 4; n <= 30; ++n) {
@@ -44,7 +44,8 @@ void testPseudoInverse() {
         debugAssertM((D1-D2).norm() < normThreshold, format("2x%d case failed",n));
         debugAssertM((E1-E2).norm() < normThreshold, format("%dx3 case failed",n));
         debugAssertM((F1-F2).norm() < normThreshold, format("3x%d case failed",n));
-        debugAssertM((G1-G2).norm() < normThreshold, format("%dx4 case failed",n));
+        debugAssertM((G1-G2).norm() < normThreshold, format("%dx4 case failed, error = %f", n,
+                                                            (G1-G2).norm()));
 
         /*
         float x = (H1-H2).norm();
@@ -54,7 +55,7 @@ void testPseudoInverse() {
         printf("H1 = %s\n", H1.toString().c_str());
         printf("H2 = %s\n", H2.toString().c_str());
         */
-        debugAssertM((H1-H2).norm() < normThreshold, format("4x%d case failed",n));
+        debugAssertM((H1-H2).norm() < normThreshold, format("4x%d case failed, error=%f",n,(H1-H2).norm()));
     }
 }
 void testMatrix() {
