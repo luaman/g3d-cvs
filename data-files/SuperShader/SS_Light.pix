@@ -11,12 +11,6 @@
   @created 2007-12-18
  */
 
-/** Computes x<sup>5</sup> */
-float pow5(float x) {
-    float y = x * x;
-    return y * y * x;
-}
-
 // 1.0 / 8.0; used for normalizing the specular lobe
 #define inv8 (0.125)
  

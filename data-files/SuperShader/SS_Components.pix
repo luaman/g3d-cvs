@@ -13,7 +13,7 @@
 
 #   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
         // Eye vector
-        vec3 wsE = wsEyePos - wsPosition;
+        vec3 wsE = normalize(wsEyePos - wsPosition);
         // or... (tangentToWorld * vec4(tsE, 0.0)).xyz;
 #   else
         vec3 wsE = BLACK;

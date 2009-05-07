@@ -9,36 +9,31 @@
 #   error Requires G3D 8.00
 #endif
 
-// G3D requires dynamic basing to be disabled, otherwise it crashes in the release build (perhaps an underlying G3D bug?)
-// Unfortunately, the following do not work because VC9 refuses to set these options from a pragma.
-//#pragma comment(linker, "/DYNAMICBASE:NO")
-//#pragma comment(linker, "/NXCOMPAT:NO")
-
 class App : public GApp {
 public:
-    LightingRef         lighting;
-    SkyParameters       skyParameters;
-    SkyRef              sky;
-    BSPMapRef           map;
+    LightingRef             lighting;
+    SkyParameters           skyParameters;
+    SkyRef                  sky;
+    BSPMapRef               map;
 
-    VAR                 data;
+    VAR                     data;
 
     // for on-screen rendering
-    Framebuffer::Ref    fb;
-    Texture::Ref        colorBuffer;
+    Framebuffer::Ref        fb;
+    Texture::Ref            colorBuffer;
 
-    ShadowMap::Ref      shadowMap;
-    VideoOutput::Ref    video;
-    ArticulatedModel::Ref model;
+    ShadowMap::Ref          shadowMap;
+    VideoOutput::Ref        video;
+    ArticulatedModel::Ref   model;
 
     ArticulatedModel::Ref   ground;
 
-    bool                updating;
-    IFSModel::Ref       ifs;
+    bool                    updating;
+    IFSModel::Ref           ifs;
 
-    Film::Ref           film;
+    Film::Ref               film;
 
-    DirectionHistogram* histogram;
+    DirectionHistogram*     histogram;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -83,7 +78,8 @@ void App::onInit() {
         skyParameters = SkyParameters(G3D::toSeconds(5, 00, 00, PM));
     }
 
-//    lighting = Lighting::fromSky(sky, skyParameters, Color3::white() * 0.5f);
+    lighting = Lighting::fromSky(sky, skyParameters, Color3::white() * 0.5f);
+    /*
     lighting = Lighting::create();
     lighting->ambientTop = Color3::white() * 0.2f;
     lighting->ambientBottom = Color3::zero();
@@ -101,12 +97,23 @@ void App::onInit() {
         lighting->lightArray.append(L);
     }
     shadowMap = ShadowMap::create("Shadow Map");
+    */
 
     Stopwatch timer("Load 3DS");
-    ArticulatedModel::PreProcess preprocess;
-    preprocess.addBumpMaps = false;
-    preprocess.textureDimension = Texture::DIM_2D_NPOT;
-    preprocess.parallaxSteps = 0;
+    {
+        ArticulatedModel::PreProcess preprocess;
+        preprocess.addBumpMaps = false;
+        preprocess.textureDimension = Texture::DIM_2D_NPOT;
+        preprocess.parallaxSteps = 0;
+        model = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), preprocess);
+        Material::Settings s;
+        s.setLambertian(Color3::black());
+//        s.setShininess(UberBSDF::packSpecularExponent(20));
+        s.setShininess(UberBSDF::packedSpecularMirror());
+        s.setSpecular(Color3::white() * 0.01f);
+        model->partArray[0].triList[0]->material = Material::create(s);
+        model->updateAll();
+    }
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
@@ -229,11 +236,13 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         Draw::axes(rd, Color3::red(), Color3::green(), Color3::blue(), 1.3f);
     }
 
+#if 0
     // Show normals
     for (int i = 0; i < posed3D.size(); ++i) {
         rd->setObjectToWorldMatrix(posed3D[i]->coordinateFrame());
         Draw::vertexNormals(posed3D[i]->objectSpaceGeometry(), rd);
     }
+#endif
 
     if (sky.notNull()) {
         sky->renderLensFlare(rd, localSky);
