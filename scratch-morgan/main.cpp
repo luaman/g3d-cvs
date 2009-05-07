@@ -9,6 +9,7 @@
 #   error Requires G3D 8.00
 #endif
 
+#pragma comment(linker, "/DYNAMICBASE:NO")
 
 class App : public GApp {
 public:
