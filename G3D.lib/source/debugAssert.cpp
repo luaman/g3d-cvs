@@ -353,7 +353,8 @@ std::string __cdecl debugPrintf(const char* fmt ...) {
     std::string s = G3D::vformat(fmt, argList);
     va_end(argList);
 
-    return debugPrint(consolePrint(s));
+    return debugPrint(s);
+//    return debugPrint(consolePrint(s));
 }
 
 std::string consolePrint(const std::string& s) {

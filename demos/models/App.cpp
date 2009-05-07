@@ -102,8 +102,11 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->push2D();
 
+    /*
+    // See shadow map
     rd->setTexture(0, shadowMap->colorDepthTexture());
     Draw::rect2D(Rect2D::xywh(0,0,512,512), rd);
+    */
 
 
     rd->setTexture(0, logo);

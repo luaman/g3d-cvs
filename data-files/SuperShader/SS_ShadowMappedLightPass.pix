@@ -35,11 +35,9 @@ void main(void) {
 
     float shadow;
     
-    // Test whether we are within a spotlight's cone. Do this with an
-    // un-normalized light vector.
-    vec3 tempL = lightPosition0.xyz - wsPosition.xyz * lightPosition0.w;
-    if ((lightAttenuation0.w > 0.0) &&
-        (-dot(lightDirection0, tempL) >= lightAttenuation0.w * length(tempL))) {
+    // Test whether we are within a spotlight's cone. 
+    vec3 wsL = normalize(lightPosition0.xyz - wsPosition.xyz * lightPosition0.w);
+    if (-dot(lightDirection0, wsL) >= lightAttenuation0.w) {
 
         // Compute projected shadow coord.
         vec4 projShadowCoord = shadowCoord / shadowCoord.w;
@@ -160,7 +158,6 @@ void main(void) {
     vec3 I_lambertian = BLACK;
     vec3 I_specular = BLACK;
 
-    vec3 wsL;
     addLightContribution(wsN, wsE, wsPosition, shininess, lightPosition0, lightAttenuation0,
                          lightDirection0, lightColor0, I_lambertian, I_specular, wsL);
         
