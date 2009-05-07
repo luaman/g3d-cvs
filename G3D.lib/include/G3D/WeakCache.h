@@ -47,7 +47,6 @@ namespace G3D {
       
     </pre>
  */
-#if 0
 template<class Key, class ValueRef>
 class WeakCache {
     typedef WeakReferenceCountedPointer<typename ValueRef::element_type> ValueWeakRef;
@@ -85,10 +84,8 @@ public:
         }
     }
 };
-#endif
 
-// TODO: Enable; this was disabled in G3D 8.00 to debug some memory
-// corruption problems on MSVC optimized builds.
+#if 0 // To turn off all WeakCaching
 template<class Key, class ValueRef>
 class WeakCache {
 private:
@@ -118,6 +115,7 @@ public:
         }
     }
 };
+#endif
 
 }
 #endif
