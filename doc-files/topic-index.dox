@@ -154,7 +154,7 @@ volumes and shadow maps.  %G3D supports both, on programmable and fixed function
 <tr><td></td><td>\link G3D::PosedModel::renderShadowedLightPass <b>PosedModel::renderShadowedLightPass</b>\endlink</td><td>Render shadow volume shadows on any model (when used with begin/endMarkShadows)</td></tr>
 <tr><td></td><td>\link G3D::RenderDevice::configureShadowMap RenderDevice::configureShadowMap\endlink</td><td>Fixed function shadow map rendering</td></tr>
 <tr><td></td><td>\link G3D::Texture::createEmpty Texture::createEmpty\endlink(...\link G3D::ImageFormat::DEPTH24 ImageFormat::DEPTH24\endlink, \link G3D::Texture::Settings::shadow Texture::Settings::shadow\endlink)</td><td>Create an empty shadow map</td></tr>
-<tr><td></td><td>\link G3D::SuperShader::configureShadowShader SuperShader::configureShadowShader\endlink</td><td>Programmable pipeline shadow map rendering</td></tr>
+<tr><td></td><td>\link G3D::SuperShader::configureShadowShaderArgs SuperShader::configureShadowShaderArgs\endlink</td><td>Programmable pipeline shadow map rendering</td></tr>
 <tr><td></td><td>\link G3D::PosedModel::renderShadowMappedLightPass PosedModel::renderShadowMappedLightPass\endlink</td><td>Render shadow mapped shadows on any model</td></tr>
 <tr><td></td><td>\link G3D::beginMarkShadows beginMarkShadows\endlink, \link G3D::beginMarkShadows markShadows\endlink, \link G3D::endMarkShadows endMarkShadows\endlink</td><td>Compute and render stenciled shadow volumes</td></tr>
 </table>
