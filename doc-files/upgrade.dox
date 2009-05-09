@@ -11,9 +11,9 @@ The 6.xx priority system for event delivery has been removed entirely.
 </p>
 
 <hr noshade>
-<p><b>#include structure changes</b></p>
+<p><b>\#include structure changes</b></p>
 <p>
-Most programs should now have <code>#include &lt;G3D/G3DAll.h&gt;</code>.  This is because the directory structure has changed for header files from 6.xx.
+Most programs should now have <code>\#include &lt;G3D/G3DAll.h&gt;</code>.  This is because the directory structure has changed for header files from 6.xx.
 The goal of the change was to bring G3D into line with other OS X and Linux libraries and to help with integration with 3rd party libraries like
 ODE.  This new structure should allow easier porting of applications between operating systems.
 The new directory structure for headers is:
@@ -239,7 +239,7 @@ This means that <code>app->debugController.setActive</code> etc. calls are now <
 </p>
 
 <hr noshade>
-<p><b>c:\program files\microsoft visual studio\vc98\include\winsock2.h(99) : error C2011: 'fd_set' : 'struct' type redefinition</b></p>
+<p><b>c:\\program files\\microsoft visual studio\\vc98\\include\\winsock2.h(99) : error C2011: 'fd_set' : 'struct' type redefinition</b></p>
 <p>
 G3D (since 6.09) uses WinSock 2.0 on Windows.  Unfortunately, this is incompatible with WinSock 1.1, which is included by windows.h.
 So you have to EITHER:
@@ -247,12 +247,12 @@ So you have to EITHER:
 <ul>
 <li> always include graphics3d.h before windows.h (note that graphics3d.h includes windows.h, so you don't need your own include
 for windows.h) OR
-<li> edit g3d/NetAddress.h <code>#define G3D_WINSOCK_MAJOR_VERSION 2 / #define G3D_WINSOCK_MINOR_VERSION 0</code> to choose version 1.1 OR
+<li> edit g3d/NetAddress.h <code>\#define G3D_WINSOCK_MAJOR_VERSION 2 / \#define G3D_WINSOCK_MINOR_VERSION 0</code> to choose version 1.1 OR
 <li> Change your Windows include to 
   <pre>
-   #define _WINSOCKAPI_
-   #include <windows.h>
-   #undef _WINSOCKAPI_
+   \#define _WINSOCKAPI_
+   \#include <windows.h>
+   \#undef _WINSOCKAPI_
   </pre>
 </ul>
 

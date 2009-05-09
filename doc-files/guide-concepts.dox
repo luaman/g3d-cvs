@@ -130,7 +130,7 @@ Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD><
   won't have G3D installed.
 
   The search directories include the current directory, up to 5 previous from the current,
-  and locations like <CODE>c:\libraries\<g3d release name>\data</CODE> that 
+  and locations like <CODE>c:\\libraries\\\<g3d release name>\\data</CODE> that 
   are common install dirs.
 
   <HR>

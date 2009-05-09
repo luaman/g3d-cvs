@@ -63,7 +63,7 @@ public:
     /**
        Given a time @a s, finds @a i and 0 <= @a u < 1 such that
        @a s = time[@a i] * @a u + time[@a i + 1] * (1 - @a u).  Note that
-       @i may be outside the bounds of the time and control arrays;
+       @a i may be outside the bounds of the time and control arrays;
        use getControl to handle wraparound and extrapolation issues.
        
        This function takes expected O(1) time for control points with

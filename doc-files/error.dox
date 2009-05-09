@@ -155,7 +155,7 @@ And<BR>
 The source is being linked in the wrong order for the dependencies.
 To fix this, link GLG3D, G3D and then GL in that order.
 A sample compile command would look like:<BR>
-	g++ -L<DIRECTORY> -o<OUTPUT>./main.o -lGLG3D_debug -ljpeg -lSDL -lpng -lG3D_debug -lGL -lGLU
+	\code g++ -L<DIRECTORY> -o<OUTPUT>./main.o -lGLG3D_debug -ljpeg -lSDL -lpng -lG3D_debug -lGL -lGLU \endcode
 
 
 */

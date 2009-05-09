@@ -42,7 +42,7 @@ std::string readWholeFile(
 	into memory.  Does not support recursive zip calls (i.e. a .zip
 	stored within another .zip)
 
-	@param file the path, of the format C:\...\something.zip\...\desiredfile.ext
+	@param file the path, of the format C:\\...\\something.zip\\...\\desiredfile.ext
 	@param data a pointer to the memory where the file will be stored
 	@param length the size of the file decompressed to memory */
 void zipRead(const std::string& file,

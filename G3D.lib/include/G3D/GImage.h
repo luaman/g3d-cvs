@@ -45,7 +45,7 @@ class BinaryOutput;
 
   Sample usage:
 
-  <PRE>
+  \verbatim
     #include "graphics3D.h"
 
     // Loading from disk:
@@ -67,7 +67,7 @@ class BinaryOutput;
 
     // Saving to disk
     im3.save("out.jpg");
-  </PRE>
+  \endverbatim
 
   The free Image Magick Magick Wand API 
   (http://www.imagemagick.org/www/api/magick_wand.html) provides a more powerful
