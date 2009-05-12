@@ -33,6 +33,8 @@ public:
 
     Film::Ref               film;
 
+    Shader::Ref             distort;
+
     DirectionHistogram*     histogram;
 
     App(const GApp::Settings& settings = GApp::Settings());
@@ -63,6 +65,9 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 
 void App::onInit() {
+    distort = Shader::fromFiles("d:/morgan/distort.vrt", "d:/morgan/distort.pix");
+    distort->args.set("background", Texture::fromFile("d:/morgan/grid.png"));
+
     film = Film::create();
     updating = true;
     debugPane->addCheckBox("Update Frustum", &updating);
@@ -107,10 +112,10 @@ void App::onInit() {
         preprocess.parallaxSteps = 0;
         model = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), preprocess);
         Material::Settings s;
-        s.setLambertian(Color3::black());
+        s.setLambertian(Color3::red());
 //        s.setShininess(UberBSDF::packSpecularExponent(20));
         s.setShininess(UberBSDF::packedSpecularMirror());
-        s.setSpecular(Color3::white() * 0.01f);
+        s.setSpecular(Color3::white() * 0.1f);
         model->partArray[0].triList[0]->material = Material::create(s);
         model->updateAll();
     }
@@ -182,6 +187,14 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
+
+    rd->pushState();
+        distort->args.set("wsEye", defaultCamera.coordinateFrame().translation);
+        distort->args.set("wsRight_raw", defaultCamera.coordinateFrame().rightVector());
+        distort->args.set("wsUp_raw", defaultCamera.coordinateFrame().upVector());
+        rd->setShader(distort);
+        Draw::sphere(Sphere(Vector3(2,0,0), 1), rd, Color3::white(), Color4::clear());
+    rd->popState();
 /*
     {
         GLight& light = lighting->shadowedLightArray[0];
