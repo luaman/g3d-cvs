@@ -35,21 +35,28 @@ namespace G3D {
    The material is parameterized by:
 
    <table border=0>
-   <tr valign=top><td width=20></td><td width=100>\f$\rho_L\f$</td><td>Lambertian ("surface color") reflection on [0, 1]</td></tr>
+   <tr valign=top><td width=20></td><td width=100>\f$\rho_{L0}\f$</td><td>Peak Lambertian ("diffuse surface color") reflection, on [0, 1]. The actual
+        reflectance applied at normal incidence is \f$(1 - F_0) * \rho_{L0}\f$</td></tr>
+   </td></tr>
    <tr valign=top><td></td><td>\f$T_0\f$</td><td>transmission modulation factor ("transparent color") on [0, 1]; 
      0 for opaque surfaces. The actual transmission at normal incidence will be 
      \f$(1 - F_0) * T_0\f$</td></tr>
    <tr valign=top><td></td><td>\f$F_0\f$</td><td>Fresnel reflection at normal incidence ("specular/reflection color") on [0, 1]</td></tr>
-   <tr valign=top><td></td><td>\f$s\f$</td><td><code>SHININESS_NONE</code> for purely lambertian surfaces, 
-     <code>SHININESS_MIRROR</code> for perfect reflection, and values between 1 and 128
+   <tr valign=top><td></td><td>\f$\sigma\f$</td><td>0 for purely lambertian surfaces, 
+     packedSpecularMirror() for perfect reflection, and values between packSpecularExponent(1) and packSpecularExponent(128)
      for glossy reflection.  This is the exponent on the normalized Blinn-Phong lobe.</td></tr>
     <tr valign=top><td></td><td>\f$\eta\f$</td><td>Index of refraction (only used for surfaces with \f$\rho_t > 0\f$; 
       for computing refraction angle, not used for Fresnel factor).</td></tr>
     </table>
  
-   For energy conservation, \f$\rho_L + F_0 + (1 - F_0)T_0\leq 1\f$.
+   For energy conservation, choose \f$F_0 + (1 - F_0)T_0\leq 1\f$ and \f$\rho_{L0} + T_0 \leq 1\f$.
 
-   (Departures from theory: The direct shader always applies a glossy highlight with an exponent of 128 to mirror surfaces so that
+   The following terminology for photon scattering is used in the 
+   G3D::Material::Settings and G3D::UberBSDF classes and 
+   their documentation:
+   \image html scatter-terms.png
+
+   (Departures from theory for artistic control: The direct shader always applies a glossy highlight with an exponent of 128 to mirror surfaces so that
    light sources produce highlights.  Setting the Glossy/Mirror coefficient to zero for a transmissive surface
    guarantees no reflection, although real transmissive surfaces should always be reflective at glancing angles.)
 
@@ -63,14 +70,14 @@ namespace G3D {
    where
 
    \f{eqnarray}
-     \nonumber f_L &=& \frac{1}{\pi} \rho_L\\
+     \nonumber f_L &=& \frac{F_L(\vec{\omega}_i)}{\pi} \rho_{L0}\\
      \nonumber f_g &=& \left\{\begin{array}{ccc}
-\frac{s + 8}{8 \pi} F_r(\vec{\omega}_i) \max(0, \vec{n} \cdot \vec{\omega}_h)^{s} && \mbox{\texttt{SHININESS\_NONE}} < s <  \mbox{\texttt{SHININESS\_MIRROR}}\\
+\frac{s + 8}{8 \pi} F_r(\vec{\omega}_i) \max(0, \vec{n} \cdot \vec{\omega}_h)^{s} && \mbox{\texttt{packSpecularExponent}}(0) < \sigma <  \mbox{\texttt{packedSpecularMirror()}}\\
  \\
  0~\mbox{sr}^{-1} & &  \mbox{otherwise}  \\
 \end{array}\right.\\
     \nonumber f_m &=& \left\{\begin{array}{ccc}
-F_r(\vec{\omega}_i) ~ \delta(\vec{\omega}_o, \vec{\omega}_m) ~/ ~(\vec{\omega}_i \cdot \vec{n}) &&  s =  \mbox{\texttt{SHININESS\_MIRROR}}\\
+F_r(\vec{\omega}_i) ~ \delta(\vec{\omega}_o, \vec{\omega}_m) ~/ ~(\vec{\omega}_i \cdot \vec{n}) &&  \sigma =  \mbox{\texttt{packedSpecularMirror()}}\\
  \\
  0~\mbox{sr}^{-1} & &  \mbox{otherwise}  \\
 \end{array}\right.\\
@@ -81,9 +88,11 @@ F_r(\vec{\omega}_i) ~ \delta(\vec{\omega}_o, \vec{\omega}_m) ~/ ~(\vec{\omega}_i
 
    \f{eqnarray}
        \nonumber \vec{\omega}_h &=& \langle \vec{\omega}_i + \vec{\omega}_o \rangle\\
+       \nonumber s &=& \mbox{\texttt{unpackSpecularExponent}}(\sigma)\\
        \nonumber \vec{\omega}_m &=& 2 (\vec{\omega}_i \cdot \vec{n}) \vec{n} - \vec{\omega}_i\\
        \nonumber \vec{\omega}_t &=& -\frac{\eta_i}{\eta_t}(\vec{\omega}_i - (\vec{\omega}_i \cdot \vec{n}) \vec{n}) - \vec{n} \sqrt{1-\left( \frac{\eta_i}{\eta_t} \right)^2(1 - \vec{\omega}_i \cdot \vec{n})^2}\\
        \nonumber F_t(\vec{\omega}_i) &=& 1 - F_r(\vec{\omega}_i)\\
+       \nonumber F_L(\vec{\omega}_i) &=& 1 - F_r(\vec{\omega}_i)\\
        \nonumber F_r(\vec{\omega}_i) &=& F_0 + (1 - F_0) (1 - \max(0, \vec{\omega}_i \cdot \vec{n}))^5
    \f}
 
@@ -96,11 +105,6 @@ F_r(\vec{\omega}_i) ~ \delta(\vec{\omega}_o, \vec{\omega}_m) ~/ ~(\vec{\omega}_i
   distance traveled through the translucent medium.  The concession to
   applying a constant attenuation is a typical one in rendering,
   however.  
-
-  The following terminology for photon scattering is used in the 
-  G3D::Material::Settings and G3D::UberBSDF classes and 
-  their documentation:
-  \image html scatter-terms.png
 
   @sa G3D::Material, G3D::Component, G3D::BumpMap, G3D::GMaterial, G3D::Texture
 */
