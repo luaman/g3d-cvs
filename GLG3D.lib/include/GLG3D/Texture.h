@@ -156,16 +156,28 @@ public:
     */
     static bool isSupportedImage(const std::string& filename);
     
-    /** @brief Returns a small all-white texture.  
+    /** @brief Returns a small all-white (1,1,1,1) texture.  
     
-        Multiple instances are cached and shared. Do not mutate this texture
+        The result is memoized and shared. Do not mutate this texture
         or future calls will return the mutated texture as well. */
     static Texture::Ref white();
 
-    /**
-     All parameters of a texture that are independent of the
-     underlying image data.
-     */
+    /** @copydoc white(). */
+    inline static Texture::Ref one() {
+        return white();
+    }
+
+    /** Returns \a t if it is non-NULL, or white() if \a t is NULL */
+    inline static Texture::Ref whiteIfNull(const Texture::Ref& t) {
+        if (t.isNull()) {
+            return white();
+        } else {
+            return t;
+        }
+    }
+
+    /** All parameters of a texture that are independent of the
+     underlying image data.  */
     class Settings {
     public:
 
