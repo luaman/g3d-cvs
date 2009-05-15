@@ -33,8 +33,6 @@ public:
 
     Film::Ref               film;
 
-    Shader::Ref             distort;
-
     DirectionHistogram*     histogram;
 
     App(const GApp::Settings& settings = GApp::Settings());
@@ -65,15 +63,13 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 
 void App::onInit() {
-    distort = Shader::fromFiles("d:/morgan/distort.vrt", "d:/morgan/distort.pix");
-    distort->args.set("background", Texture::fromFile("d:/morgan/grid.png"));
 
     film = Film::create();
     updating = true;
     debugPane->addCheckBox("Update Frustum", &updating);
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
-    //model = ArticulatedModel::createCornellBox();
+    ground = ArticulatedModel::createCornellBox(11.0f);
 
     setDesiredFrameRate(1000);
 
@@ -155,10 +151,7 @@ void App::onInit() {
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
     if (model.notNull()) {
-        static float a = 0;
-        //a += 0.001f;
-        CFrame f = Matrix3::fromAxisAngle(Vector3::unitY(), a);
-        model->pose(posed3D, f);
+        model->pose(posed3D, Vector3(-1,0,0));
     }
 
     if (ifs.notNull()) {
@@ -166,7 +159,7 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     }
 
     if (ground.notNull()) {
-        ground->pose(posed3D, Vector3(0,-0.5,0));
+        ground->pose(posed3D, Vector3(0,2.0,0));
     }
 }
 
@@ -187,14 +180,43 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
+    
+    Sphere bounds3D(Vector3(2,0,0), 1);
 
     rd->pushState();
-        distort->args.set("wsEye", defaultCamera.coordinateFrame().translation);
-        distort->args.set("wsRight_raw", defaultCamera.coordinateFrame().rightVector());
-        distort->args.set("wsUp_raw", defaultCamera.coordinateFrame().upVector());
-        rd->setShader(distort);
-        Draw::sphere(Sphere(Vector3(2,0,0), 1), rd, Color3::white(), Color4::clear());
+        // TODO: turn off for "big" objects or allow manual disabling
+        float eta = 1.5f;
+        static Texture::Ref  refractBackground = Texture::createEmpty("Background", 16, 16, ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+        static Shader::Ref   refractShader = Shader::fromFiles(System::findDataFile("SS_Refract.vrt"), System::findDataFile("SS_Refract.pix"));
+
+        rd->setReadBuffer(RenderDevice::READ_BACK);
+        refractBackground->copyFromScreen(rd->viewport());
+
+        CFrame cameraFrame = defaultCamera.coordinateFrame();
+
+        // Estimate of distance from object to background (hack; we could read back depth buffer, but that won't produce frame coherence)
+        const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
+        const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
+
+        refractShader->args.set("backZ", backZ);
+        refractShader->args.set("etaRatio", 1.0f / eta);
+
+        // Find out how big the back plane is in meters
+        float backPlaneZ = min(-0.5f, backZ);
+        GCamera cam2 = defaultCamera;
+        cam2.setFarPlaneZ(backPlaneZ);
+        Vector3 ur, ul, ll, lr;
+        cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
+        Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
+        refractShader->args.set("backSizeMeters", backSizeMeters);
+        refractShader->args.set("background", refractBackground);
+
+        rd->setShader(refractShader);
+
+        // Send geometry
+        Draw::sphere(bounds3D, rd, Color3::white(), Color4::clear());
     rd->popState();
+
 /*
     {
         GLight& light = lighting->shadowedLightArray[0];

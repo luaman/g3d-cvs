@@ -530,8 +530,7 @@ public:
      rectangle will be created (not supported on some cards).
 
      <i>This call is substantially slower than simply rendering to a
-     G3D::Texture using a G3D::Framebuffer, and is only provided for
-     compatibility with very old OpenGL 1.3 graphics cards.</i>
+     G3D::Texture using a G3D::Framebuffer, if that is possible for your application.</i>
 
      The (x, y) coordinates are in real screen pixels.  (0, 0) is the top left
      of the screen.
@@ -548,11 +547,9 @@ public:
      If you invoke this method on a texture that is currently set on RenderDevice,
      the texture will immediately be updated (there is no need to rebind).
 
-     @param useBackBuffer If true, the texture is created from the back buffer.
-     If false, the texture is created from the front buffer.
-
      @param rect The rectangle to copy (relative to the viewport)
      @sa RenderDevice::screenShotPic
+     @sa RenderDevice::setReadBuffer
      */
     void copyFromScreen(const Rect2D& rect);
 
