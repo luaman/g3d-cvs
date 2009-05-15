@@ -761,6 +761,7 @@ void GenericPosedModel::renderNonShadowed
                 rd->disableLighting();
 
                 // Modulate background by transparent color
+                // TODO: Fresnel for shader-driven pipeline
                 rd->setBlendFunc(RenderDevice::BLEND_ZERO, RenderDevice::BLEND_SRC_COLOR);
                 rd->setTexture(0, bsdf->transmissive().texture());
                 rd->setColor(bsdf->transmissive().constant());
