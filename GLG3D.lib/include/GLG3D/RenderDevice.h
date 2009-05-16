@@ -875,7 +875,7 @@ public:
 
     /**
      To set a typical 3D perspective matrix, use either
-     \code renderDevice->setProjectionMatrix(Matrix4::perspectiveProjection(...)) \endcode
+     <CODE> renderDevice->setProjectionMatrix(Matrix4::perspectiveProjection(...)) </CODE>
      or call setProjectionAndCameraMatrix.
      */
     void setProjectionMatrix(const Matrix4& P);

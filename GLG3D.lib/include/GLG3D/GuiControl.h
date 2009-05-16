@@ -127,12 +127,12 @@ public:
         inline Callback(void (*function)()) : m_internal(new FunctionCallback(function)) {}
         
         /** Create a callback from a class and method of no arguments,
-            e.g., \code App* app = ...; Callback( app,
-            &App::endProgram ); \endcode.  If the method is defined on a
+            e.g., <CODE> App* app = ...; Callback( app,
+            &App::endProgram ); </CODE>.  If the method is defined on a
             base class and not overriden in the derived class, you
             must cast the pointer:
-            \code Callback(static_cast<Base*>(ptr),
-            &Base::method); \endcode */
+            <CODE> Callback(static_cast<Base*>(ptr),
+            &Base::method); </CODE> */
         template<class Class>
         inline Callback(
 			Class* const object,
