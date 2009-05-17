@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2009-02-25
+ @edited  2009-04-25
 
  Copyright 2001-2009, Morgan McGuire.
  All rights reserved.
@@ -118,6 +118,7 @@
 #include "GLG3D/VideoInput.h"
 #include "GLG3D/VideoOutput.h"
 #include "GLG3D/ShadowMap.h"
+#include "GLG3D/GBuffer.h"
 
 #include "GLG3D/Discovery.h"
 
