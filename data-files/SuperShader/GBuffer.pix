@@ -1,0 +1,44 @@
+#version 130 // -*- c++ -*-
+/**
+  @file GBuffer.pix
+  @author Morgan McGuire morgan@cs.williams.edu
+
+  Assumes the following render buffers are bound (in this order)
+
+  - Lambertian (RGB, A = alpha value used for alpha test according to glDrawBuffers spec.)
+  - Specular (RGB, A = specular exponent)
+  - Transmissive (RGB, A = eta)
+  - World-space Position
+  - World-space unit Normal (after bump map, if applied)
+ */
+smooth in vec3      position;
+smooth in vec3      normal;
+
+uniform sampler2D   lambertianMap;
+uniform vec3        lambertianConstant;
+
+uniform sampler2D   specularMap;
+// Contains specular exponent/128 in alpha channel
+uniform vec4        specularConstant;
+
+uniform sampler2D   transmissiveMap;
+uniform vec3        transmissiveConstant;
+
+uniform float       eta;
+
+void main(void) {
+
+    vec4 lambertian   = texture2D(lambertianMap, gl_TexCoord[g3d_Index(lambertianMap)].xy)     * vec4(lambertianConstant, 1.0);
+    vec4 specular     = texture2D(specularMap, gl_TexCoord[g3d_Index(specularMap)].xy)         * specularConstant;
+    vec3 transmissive = texture2D(transmissiveMap, gl_TexCoord[g3d_Index(specularMap)].xy).rgb * transmissiveConstant;
+
+    // BSDF:
+    gl_FragData[0].rgba = lambertian.rgba;
+    gl_FragData[1].rgba = specular.rgba;
+    gl_FragData[2].rgb  = transmissive.rgb;
+    gl_FragData[2].a    = eta;
+
+    // World-space surface:
+    gl_FragData[3].xyz  = position;
+    gl_FragData[4].xyz  = normalize(normal);
+}

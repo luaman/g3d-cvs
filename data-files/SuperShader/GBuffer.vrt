@@ -1,0 +1,20 @@
+#version 130 // -*- c++ -*-
+/**
+  @file GBuffers.vrt
+  @author Morgan McGuire morgan@cs.williams.edu
+ */
+smooth out vec3        position;
+smooth out vec3        normal;
+
+/** -1 if on a backface */
+uniform float       backside;
+
+void main(void) {
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+    
+    position = (g3d_ObjectToWorldMatrix * gl_Vertex).xyz;
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    
+    normal = g3d_ObjectToWorldNormalMatrix * gl_Normal.xyz * backside;
+}
