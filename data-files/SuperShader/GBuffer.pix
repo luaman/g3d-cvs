@@ -1,4 +1,4 @@
-#version 130 // -*- c++ -*-
+// -*- c++ -*-
 /**
   @file GBuffer.pix
   @author Morgan McGuire morgan@cs.williams.edu
@@ -11,8 +11,8 @@
   - World-space Position
   - World-space unit Normal (after bump map, if applied)
  */
-smooth in vec3      position;
-smooth in vec3      normal;
+varying vec3      position;
+varying vec3      normal;
 
 uniform sampler2D   lambertianMap;
 uniform vec3        lambertianConstant;

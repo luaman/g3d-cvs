@@ -22,6 +22,9 @@ class RenderDevice;
 
     Used for rendering a G3D::UberBSDF with deferred shading. 
 
+    Requires GBuffer.pix and GBuffer.vrt at runtime, which can be found
+    in the G3D/data-files/SuperShader directory of the G3D distribution.
+
     \beta This build of G3D only supports GenericPosedModel with GBuffer.
 
     Requires glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT) >= 5 and 

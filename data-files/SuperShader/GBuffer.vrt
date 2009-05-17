@@ -1,10 +1,10 @@
-#version 130 // -*- c++ -*-
+// -*- c++ -*-
 /**
-  @file GBuffers.vrt
+  @file GBuffer.vrt
   @author Morgan McGuire morgan@cs.williams.edu
  */
-smooth out vec3        position;
-smooth out vec3        normal;
+varying vec3        position;
+varying vec3        normal;
 
 /** -1 if on a backface */
 uniform float       backside;
