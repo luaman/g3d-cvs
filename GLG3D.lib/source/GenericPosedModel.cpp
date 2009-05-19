@@ -37,11 +37,12 @@ GenericPosedModel::Ref GenericPosedModel::create
 (const std::string&       name,
  const CFrame&            frame, 
  const GPUGeom::Ref&      gpuGeom,
- const CPUGeom&           cpuGeom) {
+ const CPUGeom&           cpuGeom,
+ const ReferenceCountedPointer<ReferenceCountedObject>& source) {
     debugAssert(gpuGeom.notNull());
     debugAssert(gpuGeom->vertex.valid());
     debugAssert(gpuGeom->material.notNull());
-    return new GenericPosedModel(name, frame, gpuGeom, cpuGeom);
+    return new GenericPosedModel(name, frame, gpuGeom, cpuGeom, source);
 }
 
 

@@ -713,8 +713,11 @@ void ArticulatedModel::Part::pose
 
         for (int t = 0; t < triList.size(); ++t) {
             if (triList[t].notNull() && (triList[t]->indexArray.size() > 0)) {
-                GenericPosedModel::CPUGeom cpuGeom(& triList[t]->indexArray, &geometry, &texCoordArray, &tangentArray);
-                posedArray.append(GenericPosedModel::create(model->name, frame, triList[t], cpuGeom));
+                GenericPosedModel::CPUGeom cpuGeom(& triList[t]->indexArray, &geometry, 
+                                                   &texCoordArray, &tangentArray);
+
+                posedArray.append(GenericPosedModel::create(model->name, frame, triList[t],
+                                                            cpuGeom, model));
             }
         }
     }

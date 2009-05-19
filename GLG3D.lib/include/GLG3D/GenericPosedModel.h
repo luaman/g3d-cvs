@@ -122,13 +122,17 @@ protected:
 
     CPUGeom                 m_cpuGeom;
 
+    ReferenceCountedPointer<ReferenceCountedObject> m_source;
+
     inline GenericPosedModel
     (const std::string&       name,
      const CFrame&            frame, 
      const GPUGeom::Ref&      gpuGeom,
-     const CPUGeom&           cpuGeom) :
+     const CPUGeom&           cpuGeom,
+     const ReferenceCountedPointer<ReferenceCountedObject>& source = NULL) :
         m_name(name),
-        m_frame(frame), m_gpuGeom(gpuGeom), m_cpuGeom(cpuGeom) {}
+        m_frame(frame), m_gpuGeom(gpuGeom), m_cpuGeom(cpuGeom),
+        m_source(source) {}
 
     /** Set object to world and then draw geometry.  Called from
         render to draw geometry after the material properties are
@@ -244,11 +248,17 @@ public:
     */
     static int debugNumSendGeometryCalls;
 
+    /** \param source An object to hold a strong pointer to to prevent it from being
+        garbage collected.  This is useful because m_cpuGeom often
+        contains pointers into an object that may not be held by
+        anything else. Note that any ReferenceCountedPointer will automatically
+        upcast to this type.*/
     static Ref create
     (const std::string&       name,
      const CFrame&            frame, 
      const GPUGeom::Ref&      gpuGeom,
-     const CPUGeom&           cpuGeom = CPUGeom());
+     const CPUGeom&           cpuGeom = CPUGeom(),
+     const ReferenceCountedPointer<ReferenceCountedObject>& source = NULL);
 
     virtual void sendGeometry(RenderDevice* rd) const;
 
