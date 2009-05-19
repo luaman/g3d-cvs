@@ -128,11 +128,14 @@ void UIGeom::computeProjection(RenderDevice* rd) {
     }
 }
 
+#define HIDDEN_LINE_ALPHA (0.1f)
 
-void UIGeom::render(RenderDevice* rd, float lineScale) {
+void UIGeom::render(RenderDevice* rd, const Color3& color, float lineScale) {
     if (! visible) {
         return;
     }
+
+    rd->setColor(color);
 
     if (m_twoSidedPolys) {
         rd->setCullFace(RenderDevice::CULL_NONE);
@@ -164,13 +167,13 @@ void UIGeom::render(RenderDevice* rd, float lineScale) {
         bool closed = line.closed();
 
         // Compute line width
+        float L = 2;
         {
             Vector4 v = rd->project(line.vertex(0));
-            float L = 2;
             if (v.w > 0) {
                 L = min(15.0f * v.w, 10.0f);
             } else {
-                 L = 10.0f;
+                L = 10.0f;
             }
             rd->setLineWidth(L * lineScale);
         }
@@ -185,41 +188,60 @@ void UIGeom::render(RenderDevice* rd, float lineScale) {
         // the line joint points.
         if (colorWrite) {
             rd->setDepthWrite(false);
-            rd->beginPrimitive(RenderDevice::LINE_STRIP);
-                for (int v = 0; v < line.numVertices(); ++v) {
-                    // Compute the smooth normal.  If we have a non-closed
-                    // polyline, the ends are special cases.
-                    Vector3 N;
-                    if (! closed && (v == 0)) {
-                        N = normal[0];
-                    } else if (! closed && (v == line.numVertices())) {
-                        N = normal.last();
-                    } else {
-                        // Average two adjacent normals
-                        N = normal[v % normal.size()] + normal[(v - 1) % 
-                                                               normal.size()];
-                    }
+            
+            // Make two passes; first renders visible lines, the next 
+            // renders hidden ones
+            for (int i = 0; i < 2; ++i) {
+                rd->beginPrimitive(RenderDevice::LINE_STRIP);
+                {
+                    for (int v = 0; v < line.numVertices(); ++v) {
+                        // Compute the smooth normal.  If we have a non-closed
+                        // polyline, the ends are special cases.
+                        Vector3 N;
+                        if (! closed && (v == 0)) {
+                            N = normal[0];
+                        } else if (! closed && (v == line.numVertices())) {
+                            N = normal.last();
+                        } else {
+                            // Average two adjacent normals
+                            N = normal[v % normal.size()] + normal[(v - 1) % normal.size()];
+                        }
+                        
+                        if (N.squaredLength() < 0.05) {
+                            // Too small to normalize; revert to the
+                            // nearest segment normal
+                            rd->setNormal(normal[iMin(v, normal.size() - 1)]);
+                        } else {
+                            rd->setNormal(N.direction());
+                        }
 
-                    if (N.squaredLength() < 0.05) {
-                        // Too small to normalize; revert to the
-                        // nearest segment normal
-                        rd->setNormal(normal[iMin(v, normal.size() - 1)]);
-                    } else {
-                        rd->setNormal(N.direction());
+                        rd->sendVertex(line.vertex(v));
                     }
+                    rd->endPrimitive();
+                }
 
-                    rd->sendVertex(line.vertex(v));
-                }                
-            rd->endPrimitive();
+                // Second pass, render hidden lines
+                //glEnable(GL_LINE_STIPPLE);
+                //glLineStipple(1, 15);
+                rd->setDepthTest(RenderDevice::DEPTH_GREATER);
+                rd->setColor(Color4(color, HIDDEN_LINE_ALPHA));
+            }
+
+            // Restore depth test
+            //glDisable(GL_LINE_STIPPLE);
+            rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
+            rd->setColor(color);
         }
 
         if (depthWrite) {
             rd->setColorWrite(false);
             rd->setDepthWrite(true);
             rd->beginPrimitive(RenderDevice::LINE_STRIP);
+            {
                 for (int v = 0; v < line.numVertices(); ++v) {
                     rd->sendVertex(line.vertex(v));
                 }
+            }
             rd->endPrimitive();
         }
 
@@ -279,26 +301,33 @@ void ThirdPersonManipulator::render(RenderDevice* rd) {
         }
     }
 
-    // The Draw::axes command automatically doubles whatever scale we give it
-    Draw::axes(m_controlFrame, rd, 
-               color[0], color[1], color[2], m_axisScale * 0.5f);
-
     rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, 
                      RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
     rd->setShadeMode(RenderDevice::SHADE_SMOOTH);
+
+    // The Draw::axes command automatically doubles whatever scale we give it
+    Draw::axes(m_controlFrame, rd, color[0], color[1], color[2], m_axisScale * 0.5f);
+
+    // Hidden line
+    rd->setDepthTest(RenderDevice::DEPTH_GREATER);
+    Draw::axes(m_controlFrame, rd,
+               Color4(color[0], HIDDEN_LINE_ALPHA), 
+               Color4(color[1], HIDDEN_LINE_ALPHA), 
+               Color4(color[2], HIDDEN_LINE_ALPHA),
+               m_axisScale * 0.5f);
+    rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
+
     rd->setObjectToWorldMatrix(m_controlFrame);
 
     if (m_translationEnabled) {
         for (int g = FIRST_TRANSLATION; g <= LAST_TRANSLATION; ++g) {
-            rd->setColor(color[g]);
-            m_geomArray[g].render(rd);
+            m_geomArray[g].render(rd, color[g]);
         }
     }
 
     if (m_rotationEnabled) {
         for (int g = FIRST_ROTATION; g <= LAST_ROTATION; ++g) {
-            rd->setColor(color[g]);
-            m_geomArray[g].render(rd, 1.5f);
+            m_geomArray[g].render(rd, color[g], 1.5f);
         }
     }
 

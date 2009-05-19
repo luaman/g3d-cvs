@@ -747,7 +747,7 @@ void Draw::lineSegment(
         Vector3 U = E.cross(V);
         Vector3 N = V.cross(U).direction();
 
-        renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
+        //renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
         renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
 
         renderDevice->beginPrimitive(RenderDevice::LINES);        

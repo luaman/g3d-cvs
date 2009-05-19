@@ -181,7 +181,7 @@ public:
       Render in 3D using the current blending mode, etc.
       Line normals are set to face towards the camera, perpendicular to the line.
      */
-    void render(RenderDevice* rd, float lineScale = 1.0f);
+    void render(RenderDevice* rd, const Color3& color, float lineScale = 1.0f);
 };
 } // _internal
 
