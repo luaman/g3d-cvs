@@ -72,6 +72,16 @@ public:
             two-sided lighting and texturing and not cull
             back faces. */
         bool                    twoSided;
+
+        /**  
+          */
+        enum RefractionQuality {REFRACT_NONE, REFRACT_STATIC_ENV, REFRACT_DYNAMIC_FLAT, REFRACT_DNYAMIC_ENV, REFRACT_TRUE};
+        enum MirrorQuality     {MIRROR_NONE, MIRROR_STATIC_ENV, MIRROR_DYNAMIC_ENV, MIRROR_TRUE};
+
+        /** Preferred level of refraction quality. */
+        RefractionQuality       refractionHint;
+
+        MirrorQuality           mirrorHint;
         
         Material::Ref           material;
 
@@ -83,12 +93,12 @@ public:
         
     protected:
         
-        inline GPUGeom(MeshAlg::Primitive p, bool t) : primitive(p), twoSided(t) {}
+        inline GPUGeom(MeshAlg::Primitive p, bool t, RefractionQuality r) : primitive(p), twoSided(t), refractionHint(r) {}
         
     public:
 
         inline static Ref create(MeshAlg::Primitive p = MeshAlg::TRIANGLES) {
-            return new GPUGeom(p, false);
+            return new GPUGeom(p, false, REFRACT_DYNAMIC_FLAT);
         }
     };
 
