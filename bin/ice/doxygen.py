@@ -101,3 +101,79 @@ def expandvars(str):
 
     return str
         
+refDict = {}
+
+def recapLetter(match):
+    return match.group(0)[1].upper()
+
+def leftAngleBracket(match):
+    return '< '
+    
+def rightAngleBracket(match):
+    return ' >'
+
+def replaceRef(match):
+    if match.group(2) in refDict:
+        return 'href="' + refDict[match.group(2)] + '">' + match.group(2) + match.group(3)
+    else:
+        return match.group(0)
+        
+    return returnStr
+
+def parseDoxygenFilename(filename):
+
+    #split into namespaces
+    fullname = re.split('class', re.split('\-', re.split('.html', filename)[0])[0], 1)[1]
+    namespaces = re.split('_1_1', fullname)
+    
+    #reconstruct capitalization
+    correctNames = []
+    for name in namespaces:
+        name = re.sub('_(?<=_)\w', recapLetter, name)
+        name = re.sub('301', leftAngleBracket, name)
+        name = re.sub('014', rightAngleBracket, name)
+        correctNames.append(name)
+
+    refNames = []
+    
+    memberName = ''
+    for str in correctNames[1:]:
+        memberName += str + '::'
+        
+    memberName += 'Ref'
+    refNames.append({memberName: filename})
+    
+    refNames.append({correctNames[-1] + 'Ref': filename})
+    return refNames
+
+def remapRefLinks(docDir):
+
+    possibleRefs = {}
+
+    docFiles = os.listdir(docDir)
+    
+    validFiles = []
+    
+    for docFile in docFiles:
+        if re.search('^class_g3_d', docFile) and not re.search('-members.html$', docFile):
+            validFiles.append(docFile)
+            refs = parseDoxygenFilename(docFile)
+            for ref in refs:
+                possibleRefs.update(ref)
+
+    refDict.clear()
+    refDict.update(possibleRefs)
+
+    for docFile in validFiles[20:]:
+        fileBuffer = ''
+        f = open(docDir + '/' + docFile)
+        try:
+            for line in f:
+                fileBuffer += re.sub('(href="class_g3_d_1_1_reference_counted_pointer.html">)([a-zA-Z0-9:]+)(</a>)', replaceRef, line)
+        finally:
+            f.close()
+        f = open(docDir + '/' + docFile, 'w')
+        try:
+            f.write(fileBuffer)
+        finally:
+            f.close()
