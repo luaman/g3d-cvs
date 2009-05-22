@@ -163,7 +163,6 @@ void GenericPosedModel::renderNonShadowed(
                     rd->setCullFace(RenderDevice::CULL_BACK);
                 }
             }
-
             bool wroteDepth = posed->renderNonShadowedOpaqueTerms(rd, lighting, false);
 
             if (posed->m_gpuGeom->twoSided && ps20) {
@@ -744,8 +743,8 @@ void GenericPosedModel::renderNonShadowed
     const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
     if (! bsdf->transmissive().isBlack()) {
-        rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
         rd->pushState();
+            rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5f);
             // Transparent
             bool oldDepthWrite = rd->depthWrite();
 
@@ -768,10 +767,12 @@ void GenericPosedModel::renderNonShadowed
                 rd->setColor(bsdf->transmissive().constant());
                 sendGeometry2(rd);
 
+                /*
+                // Draw normal terms on top
                 bool alreadyAdditive = false;
                 setAdditive(rd, alreadyAdditive);
                 renderNonShadowedOpaqueTerms(rd, lighting, false);
-            
+                      
                 // restore depth write
                 rd->setDepthWrite(oldDepthWrite);
                 rd->setCullFace(RenderDevice::CULL_BACK);
