@@ -464,7 +464,7 @@ void MD2Model::debugRenderWireframe(RenderDevice* renderDevice, const Pose& pose
         renderDevice->setPolygonOffset(-0.1f);
         renderDevice->setColor(Color3::black());
         
-        renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
+        renderDevice->beginPrimitive(PrimitiveType::TRIANGLES);
         for (int i = 0; i < indexArray.size(); ++i) {
             renderDevice->sendVertex(interpolatedFrame.vertexArray[indexArray[i]]);
         }
@@ -817,7 +817,7 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
             renderDevice->setTexCoordArray(0, varTexCoord);
             renderDevice->setNormalArray(varNormal);
             renderDevice->setVertexArray(varVertex);
-            renderDevice->sendIndices(RenderDevice::TRIANGLES, indexArray);
+            renderDevice->sendIndices(PrimitiveType::TRIANGLES, indexArray);
         renderDevice->endIndexedPrimitives();
         
         nextVarArea = (nextVarArea + 1) % NUM_VAR_AREAS;

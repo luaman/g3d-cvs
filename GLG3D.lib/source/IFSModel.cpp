@@ -348,7 +348,7 @@ void IFSModel::load(
                 }
 
                 // Expand the poly into triangles
-                MeshAlg::toIndexedTriList(poly, MeshAlg::TRIANGLE_FAN, index);
+                MeshAlg::toIndexedTriList(poly, PrimitiveType::TRIANGLE_FAN, index);
             }
         }
 
@@ -463,7 +463,7 @@ void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
                 }
                 renderDevice->setNormalArray(normal);
                 renderDevice->setVertexArray(vertex);
-                renderDevice->sendIndices(RenderDevice::TRIANGLES, model->indexArray);
+                renderDevice->sendIndices(PrimitiveType::TRIANGLES, model->indexArray);
             renderDevice->endIndexedPrimitives();
 
         } else {
@@ -474,7 +474,7 @@ void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
 			const Vector2* texCoordArray = model->texArray.getCArray();
             const int n = model->indexArray.size();
 
-            renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
+            renderDevice->beginPrimitive(PrimitiveType::TRIANGLES);
                 if (model->texArray.size() > 0) {
                     for (int i = 0; i < n; ++i) {
                         const int v = indexArray[i];            
@@ -503,7 +503,7 @@ void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
 		const Vector2* texCoordArray = model->texArray.getCArray();
         const int n = model->faceArray.size();
 
-        renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
+        renderDevice->beginPrimitive(PrimitiveType::TRIANGLES);
             if (model->texArray.size() > 0) {
                 for (int f = 0; f < n; ++f) {
                     renderDevice->setNormal(faceNormalArray[f]);

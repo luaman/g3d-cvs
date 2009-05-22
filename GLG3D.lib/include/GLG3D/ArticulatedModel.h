@@ -184,7 +184,7 @@ public:
 
             friend class Part;
 
-            inline TriList() : GPUGeom(MeshAlg::TRIANGLES, false, REFRACT_DYNAMIC_FLAT) {}
+            inline TriList() : GPUGeom(PrimitiveType::TRIANGLES, false, RefractionQuality::DYNAMIC_FLAT, MirrorQuality::STATIC_ENV) {}
 
         public:
             typedef ReferenceCountedPointer<TriList> Ref;

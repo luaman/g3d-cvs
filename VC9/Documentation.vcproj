@@ -65,6 +65,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\BUILD_INSTRUCTIONS.txt"
+			>
+		</File>
+		<File
 			RelativePath="..\doc-files\changelog.dox"
 			>
 		</File>

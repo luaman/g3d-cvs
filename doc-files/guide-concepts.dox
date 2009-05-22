@@ -21,7 +21,7 @@ Tutorial <IMG SRC="forwardarrow.gif" BORDER=0 ALIGN=MIDDLE></A></I></FONT></TD><
   with its own texture coordinate, color, and surface normal.  Animation is achieved by
   drawing frames in rapid succession.
 
-  To render a set of triangles, call <CODE>G3D::RenderDevice::beginPrimitives(G3D::RenderDevice::TRIANGLES)</CODE>
+  To render a set of triangles, call <CODE>G3D::RenderDevice::beginPrimitives(G3D::PrimitiveType::TRIANGLES)</CODE>
   invoke G3D::RenderDevice::sendVertex multiple times, and then call
   G3D::RenderDevice::endPrimitives.  For higher performance, first load the vertices
   into a vertex array (G3D::VAR) in a memory area (G3D::VARArea).  G3D::Texture abstracts 

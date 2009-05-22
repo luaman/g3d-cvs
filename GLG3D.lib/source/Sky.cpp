@@ -281,7 +281,7 @@ static void drawCelestialSphere(
     const Color4                        color) {
 
     renderDevice->setColor(color);
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
 		renderDevice->setTexCoord(0, Vector2(0, 0));
         renderDevice->sendVertex(C + ( X + Y) * r);
         renderDevice->setTexCoord(0, Vector2(0, 1));
@@ -381,7 +381,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
     }
 
     float s = 1;
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         vertex(renderDevice, -s, +s, -s, 0, 0);
         vertex(renderDevice, -s, -s, -s, 0, 1);
         vertex(renderDevice, +s, -s, -s, 1, 1);
@@ -392,7 +392,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
         renderDevice->setTexture(0, texture[LT]);
     }
 
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         vertex(renderDevice, -s, +s, +s, 0, 0);
         vertex(renderDevice, -s, -s, +s, 0, 1);
         vertex(renderDevice, -s, -s, -s, 1, 1);
@@ -404,7 +404,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
         renderDevice->setTexture(0, texture[FT]);
     }
 
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         vertex(renderDevice, +s, +s, +s, 0, 0);
         vertex(renderDevice, +s, -s, +s, 0, 1);
         vertex(renderDevice, -s, -s, +s, 1, 1);
@@ -415,7 +415,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
         renderDevice->setTexture(0, texture[RT]);
     }
 
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         vertex(renderDevice, +s, +s, +s, 1, 0);
         vertex(renderDevice, +s, +s, -s, 0, 0);
         vertex(renderDevice, +s, -s, -s, 0, 1);
@@ -426,7 +426,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
         renderDevice->setTexture(0, texture[UP]);
     }
 
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         vertex(renderDevice, +s, +s, +s, 1, 1);
         vertex(renderDevice, -s, +s, +s, 1, 0);
         vertex(renderDevice, -s, +s, -s, 0, 0);
@@ -437,7 +437,7 @@ void Sky::renderBox(RenderDevice* renderDevice) const {
         renderDevice->setTexture(0, texture[DN]);
     }
 
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         vertex(renderDevice, +s, -s, -s, 0, 0);
         vertex(renderDevice, -s, -s, -s, 0, 1);
         vertex(renderDevice, -s, -s, +s, 1, 1);

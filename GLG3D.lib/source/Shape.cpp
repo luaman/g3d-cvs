@@ -146,7 +146,7 @@ void MeshShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 s
             rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
         }
         rd->setColor(solidColor);
-        rd->beginPrimitive(RenderDevice::TRIANGLES);
+        rd->beginPrimitive(PrimitiveType::TRIANGLES);
             for (int i = 0; i < _indexArray.size(); i += 3) {
                 const Vector3& v0 = _vertexArray[_indexArray[i + 0]];
                 const Vector3& v1 = _vertexArray[_indexArray[i + 1]];
@@ -160,7 +160,7 @@ void MeshShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Color4 s
         rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
         rd->setLineWidth(2);
         rd->setColor(wireColor);
-        rd->beginPrimitive(RenderDevice::LINES);
+        rd->beginPrimitive(PrimitiveType::LINES);
             for (int i = 0; i < _indexArray.size(); i += 3) {
                 const Vector3& v0 = _vertexArray[_indexArray[i + 0]];
                 const Vector3& v1 = _vertexArray[_indexArray[i + 1]];
@@ -196,7 +196,7 @@ void TriangleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Colo
             rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
             rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
             rd->setLineWidth(2);
-            rd->beginPrimitive(RenderDevice::TRIANGLES);
+            rd->beginPrimitive(PrimitiveType::TRIANGLES);
                 for (int i = 0; i < 3; ++i) {
                     rd->sendVertex(geometry.vertex(i));
                 }
@@ -211,7 +211,7 @@ void TriangleShape::render(RenderDevice* rd, const CoordinateFrame& cframe, Colo
         rd->setCullFace(RenderDevice::CULL_NONE);
         rd->enableTwoSidedLighting();
         rd->setColor(solidColor);
-        rd->beginPrimitive(RenderDevice::TRIANGLES);
+        rd->beginPrimitive(PrimitiveType::TRIANGLES);
             rd->setNormal(geometry.normal());
             for (int i = 0; i < 3; ++i) {
                 rd->sendVertex(geometry.vertex(i));

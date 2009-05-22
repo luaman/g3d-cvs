@@ -306,7 +306,7 @@ Rect2D App::drawPopup(const char* title) {
     // The close box
     Draw::rect2DBorder(Rect2D::xywh(rect.x1() - 16, rect.y0(), 16, 16), renderDevice, Color3::black());
     renderDevice->setColor(Color3::black());
-    renderDevice->beginPrimitive(RenderDevice::LINES);
+    renderDevice->beginPrimitive(PrimitiveType::LINES);
         renderDevice->sendVertex(Vector2(rect.x1() - 14, rect.y0() + 2));
         renderDevice->sendVertex(Vector2(rect.x1() - 2, rect.y0() + 14));   
         renderDevice->sendVertex(Vector2(rect.x1() - 2, rect.y0() + 2));

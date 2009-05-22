@@ -225,7 +225,7 @@ public:
         const Rect2D& texCoord7 = Rect2D::xywh(0,0,1,1));
 
     /** Draws a border of size width about the rectangle
-        using polygons (since RenderDevice::LINE_STRIP doesn't 
+        using polygons (since PrimitiveType::LINE_STRIP doesn't 
         guarantee pixel widths). */
     static void rect2DBorder(
         const class Rect2D& rect,

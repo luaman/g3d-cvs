@@ -2540,32 +2540,32 @@ void RenderDevice::endPrimitive() {
 
 void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVertices) {
     switch (primitive) {
-    case LINES:
+    case PrimitiveType::LINES:
         m_stats.triangles += (numVertices / 2);
         break;
 
-    case LINE_STRIP:
+    case PrimitiveType::LINE_STRIP:
         m_stats.triangles += (numVertices - 1);
         break;
 
-    case TRIANGLES:
+    case PrimitiveType::TRIANGLES:
         m_stats.triangles += (numVertices / 3);
         break;
 
-    case TRIANGLE_STRIP:
-    case TRIANGLE_FAN:
+    case PrimitiveType::TRIANGLE_STRIP:
+    case PrimitiveType::TRIANGLE_FAN:
         m_stats.triangles += (numVertices - 2);
         break;
 
-    case QUADS:
+    case PrimitiveType::QUADS:
         m_stats.triangles += ((numVertices / 4) * 2);
         break;
 
-    case QUAD_STRIP:
+    case PrimitiveType::QUAD_STRIP:
         m_stats.triangles += (((numVertices / 2) - 1) * 2);
         break;
 
-    case POINTS:
+    case PrimitiveType::POINTS:
         m_stats.triangles += numVertices;
         break;
     }

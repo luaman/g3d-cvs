@@ -406,6 +406,13 @@ href="classes.html">Classes</a>.
         \link G3D::System System\endlink,
         \link G3D::ThreadSet ThreadSet\endlink
         
+     <LI><B>Utilities and Constants</B> &nbsp; &nbsp;
+        \link G3D::MirrorQuality MirrorQuality\endlink,
+        \link G3D::PrimitiveType PrimitiveType\endlink,
+        \link G3D::RefractionQuality RefractionQuality\endlink,   
+        G3D_DECLARE_ENUM_CLASS_METHODS,
+        G3D_DECLARE_ENUM_CLASS_HASHCODE
+        
      <li><b>Platform Abstraction Macros</b> &nbsp; &nbsp;
      PRAGMA, G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS,
      G3D_WIN32, G3D_OSX, G3D_LINUX, G3D_FREEBSD,     

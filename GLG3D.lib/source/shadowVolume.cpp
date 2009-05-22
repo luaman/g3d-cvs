@@ -224,7 +224,7 @@ void markShadows(
         renderDevice->setVertexArray(gpuVertex);
 
         //
-        renderDevice->sendIndices(RenderDevice::TRIANGLES, index);
+        renderDevice->sendIndices(PrimitiveType::TRIANGLES, index);
 
         if (! renderDevice->supportsTwoSidedStencil()) {
             // Render a second pass for the back faces
@@ -234,7 +234,7 @@ void markShadows(
                 RenderDevice::STENCIL_INCR_WRAP,
                 RenderDevice::STENCIL_KEEP);
 
-            renderDevice->sendIndices(RenderDevice::TRIANGLES, index);
+            renderDevice->sendIndices(PrimitiveType::TRIANGLES, index);
 
             // Restore the stencil settings to what we need for front faces.
             renderDevice->setCullFace(RenderDevice::CULL_BACK);

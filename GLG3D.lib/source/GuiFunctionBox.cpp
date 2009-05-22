@@ -123,7 +123,7 @@ void GuiFunctionBox::drawBackground(RenderDevice* rd, const GuiThemeRef& skin) c
     (void)skin;
     // Draw grid
     rd->setLineWidth(1);
-    rd->beginPrimitive(RenderDevice::LINES);
+    rd->beginPrimitive(PrimitiveType::LINES);
         rd->setColor(m_gridColor);
         int N = 10;
         for (int i = 0; i < N; ++i) {
@@ -148,7 +148,7 @@ void GuiFunctionBox::drawSpline(RenderDevice* rd, const GuiThemeRef& skin) const
 #   if 0  // Debugging code for looking at the slope of the curve
 
     // Show desired tangents in green
-    rd->beginPrimitive(RenderDevice::LINES);
+    rd->beginPrimitive(PrimitiveType::LINES);
     rd->setColor(Color3::green() * 0.5);
     for (int j = 0; j < m_spline->control.size(); ++j) {
         float t, v, x, y;
@@ -182,7 +182,7 @@ void GuiFunctionBox::drawSpline(RenderDevice* rd, const GuiThemeRef& skin) const
     rd->endPrimitive();
 
     // Show true tangents in blue
-    rd->beginPrimitive(RenderDevice::LINES);
+    rd->beginPrimitive(PrimitiveType::LINES);
     rd->setColor(Color3::blue());
     for (int i = 1; i < m_spline->control.size() - 1; ++i) {
         float t, v, x, y;
@@ -217,7 +217,7 @@ void GuiFunctionBox::drawSpline(RenderDevice* rd, const GuiThemeRef& skin) const
     rd->endPrimitive();
 #   endif
 
-    rd->beginPrimitive(RenderDevice::LINE_STRIP);
+    rd->beginPrimitive(PrimitiveType::LINE_STRIP);
         rd->setColor(m_splineColor);
         for (int i = -2; i < N + 2; ++i) {
             float t = (m_maxTime - m_minTime) * i / (N - 1.0f) + m_minTime;
@@ -333,14 +333,14 @@ void GuiFunctionBox::drawControlPoints(RenderDevice* rd, const GuiThemeRef& skin
     rd->setColor(m_controlColor);
     if (m_selected != NONE) {
         rd->setPointSize(size + 2);
-        rd->beginPrimitive(RenderDevice::POINTS);
+        rd->beginPrimitive(PrimitiveType::POINTS);
             Vector2 loc = controlPointLocation(m_selected);
             rd->sendVertex(loc);
         rd->endPrimitive();
     }
 
     rd->setPointSize(size);
-    rd->beginPrimitive(RenderDevice::POINTS);
+    rd->beginPrimitive(PrimitiveType::POINTS);
     {
         int N = m_spline->size();
         for (int i = 0; i < N; ++i) {

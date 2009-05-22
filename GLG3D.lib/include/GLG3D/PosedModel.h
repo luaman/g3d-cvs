@@ -109,7 +109,7 @@ typedef ReferenceCountedPointer<class PosedModel> PosedModelRef;
             rd->setVertexArray(vertex);
             rd->setNormalArray(normal);
             rd->setTexCoordArray(0, texCoord);
-            rd->sendIndices(RenderDevice::TRIANGLES, posed->triangleIndices());
+            rd->sendIndices(PrimitiveType::TRIANGLES, posed->triangleIndices());
         rd->endIndexedPrimitives();
  </pre>
  */

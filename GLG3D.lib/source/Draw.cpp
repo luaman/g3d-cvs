@@ -35,7 +35,7 @@ void Draw::poly2DOutline(const Array<Vector2>& polygon, RenderDevice* renderDevi
         return;
     }
     
-    renderDevice->beginPrimitive(RenderDevice::LINE_STRIP);
+    renderDevice->beginPrimitive(PrimitiveType::LINE_STRIP);
         renderDevice->setColor(color);
         for (int i = 0; i < polygon.length(); ++i) {
             renderDevice->sendVertex(polygon[i]);
@@ -50,7 +50,7 @@ void Draw::poly2D(const Array<Vector2>& polygon, RenderDevice* renderDevice, con
         return;
     }
     
-    renderDevice->beginPrimitive(RenderDevice::TRIANGLE_FAN);
+    renderDevice->beginPrimitive(PrimitiveType::TRIANGLE_FAN);
         renderDevice->setColor(color);
         for (int i = 0; i < polygon.length(); ++i) {
             renderDevice->sendVertex(polygon[i]);
@@ -143,7 +143,7 @@ void Draw::axes(
         renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
         renderDevice->setLineWidth(2);
 
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             // X
             renderDevice->setColor(xColor * 0.8f);
             renderDevice->sendVertex(Vector2(-xx,  yy) * xS + x2D);
@@ -161,7 +161,7 @@ void Draw::axes(
             renderDevice->sendVertex(Vector2(  0,  0)  * yS + y2D);
         renderDevice->endPrimitive();
 
-        renderDevice->beginPrimitive(RenderDevice::LINE_STRIP);
+        renderDevice->beginPrimitive(PrimitiveType::LINE_STRIP);
             // Z
             renderDevice->setColor(zColor * 0.8f);    
             renderDevice->sendVertex(Vector2( xx,  yy) * zS + z2D);
@@ -200,7 +200,7 @@ void Draw::ray(
 
     float r = scale * 0.1f;
     // Arrow head.  Need this beginprimitive call to sync up G3D and OpenGL
-    renderDevice->beginPrimitive(RenderDevice::TRIANGLES);
+    renderDevice->beginPrimitive(PrimitiveType::TRIANGLES);
         for (int a = 0; a < SPHERE_SECTIONS; ++a) {
             float angle0 = a * (float)twoPi() / SPHERE_SECTIONS;
             float angle1 = (a + 1) * (float)twoPi() / SPHERE_SECTIONS;
@@ -279,7 +279,7 @@ void Draw::plane(
         // Infinite strip
         const int numStrips = 12;
         float r1 = 100;
-        renderDevice->beginPrimitive(RenderDevice::QUAD_STRIP);
+        renderDevice->beginPrimitive(PrimitiveType::QUAD_STRIP);
             for (int i = 0; i <= numStrips; ++i) {
                 float a = i * (float)twoPi() / numStrips;
                 float c = cosf(a);
@@ -301,7 +301,7 @@ void Draw::plane(
                 r1 = 0;
             }
 
-            renderDevice->beginPrimitive(RenderDevice::QUAD_STRIP);
+            renderDevice->beginPrimitive(PrimitiveType::QUAD_STRIP);
                 for (int i = 0; i <= numStrips; ++i) {
                     float a = i * (float)twoPi() / numStrips;
                     float c = cosf(a);
@@ -321,7 +321,7 @@ void Draw::plane(
 
         renderDevice->setLineWidth(1.5);
 
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
         {
             renderDevice->setColor(wireColor);
             renderDevice->setNormal(Vector3::unitZ());
@@ -343,7 +343,7 @@ void Draw::plane(
 
         renderDevice->setLineWidth(0.5);
 
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
 
             // Horizontal and vertical lines
             const int numStrips = 10;
@@ -413,7 +413,7 @@ void Draw::capsule(
                 sphereSection(sphere2, renderDevice, solidColor, true, false);
 
                 // Cylinder faces
-                renderDevice->beginPrimitive(RenderDevice::QUAD_STRIP);
+                renderDevice->beginPrimitive(PrimitiveType::QUAD_STRIP);
                     for (int y = 0; y <= SPHERE_SECTIONS; ++y) {
                         const float yaw0 = y * (float)twoPi() / SPHERE_SECTIONS;
                         Vector3 v0 = Vector3(cosf(yaw0), 0, sinf(yaw0));
@@ -440,7 +440,7 @@ void Draw::capsule(
             renderDevice->setColor(wireColor);
             Vector3 center(0, height / 2, 0);
             renderDevice->setLineWidth(2);
-            renderDevice->beginPrimitive(RenderDevice::LINES);
+            renderDevice->beginPrimitive(PrimitiveType::LINES);
                 for (int y = 0; y < WIRE_SPHERE_SECTIONS; ++y) {
                     const float yaw0 = y * (float)twoPi() / WIRE_SPHERE_SECTIONS;
                     const float yaw1 = (y + 1) * (float)twoPi() / WIRE_SPHERE_SECTIONS;
@@ -507,7 +507,7 @@ void Draw::cylinder(
             for (int k = 0; k < numPasses; ++k) {
 
                 // Top
-                renderDevice->beginPrimitive(RenderDevice::TRIANGLE_FAN);
+                renderDevice->beginPrimitive(PrimitiveType::TRIANGLE_FAN);
                     renderDevice->setNormal(Vector3::unitY());
                     renderDevice->sendVertex(top);
                     for (int y = 0; y <= SPHERE_SECTIONS; ++y) {
@@ -519,7 +519,7 @@ void Draw::cylinder(
                 renderDevice->endPrimitive();
 
                 // Bottom
-                renderDevice->beginPrimitive(RenderDevice::TRIANGLE_FAN);
+                renderDevice->beginPrimitive(PrimitiveType::TRIANGLE_FAN);
                     renderDevice->setNormal(-Vector3::unitY());
                     renderDevice->sendVertex(bot);
                     for (int y = 0; y <= SPHERE_SECTIONS; ++y) {
@@ -531,7 +531,7 @@ void Draw::cylinder(
                 renderDevice->endPrimitive();
 
                 // Cylinder faces
-                renderDevice->beginPrimitive(RenderDevice::QUAD_STRIP);
+                renderDevice->beginPrimitive(PrimitiveType::QUAD_STRIP);
                     for (int y = 0; y <= SPHERE_SECTIONS; ++y) {
                         const float yaw0 = y * (float)twoPi() / SPHERE_SECTIONS;
                         Vector3 v0 = Vector3(cosf(yaw0), 0, sinf(yaw0));
@@ -554,7 +554,7 @@ void Draw::cylinder(
             // Line around center
             renderDevice->setColor(wireColor);
             renderDevice->setLineWidth(2);
-            renderDevice->beginPrimitive(RenderDevice::LINES);
+            renderDevice->beginPrimitive(PrimitiveType::LINES);
                 for (int z = 0; z < 3; ++z) {
                     Vector3 center(0, 0.0, 0);
                     for (int y = 0; y < WIRE_SPHERE_SECTIONS; ++y) {
@@ -615,7 +615,7 @@ void Draw::vertexNormals(
         const float D = clamp(5.0f / ::powf((float)vertexArray.size(), 0.25f), 0.1f, .8f) * scale;
         
         renderDevice->setLineWidth(1);
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             for (int v = 0; v < vertexArray.size(); ++v) {
                 renderDevice->sendVertex(vertexArray[v] + normalArray[v] * D);
                 renderDevice->sendVertex(vertexArray[v]);
@@ -623,7 +623,7 @@ void Draw::vertexNormals(
         renderDevice->endPrimitive();
         
         renderDevice->setLineWidth(2);
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             for (int v = 0; v < vertexArray.size(); ++v) {
                 renderDevice->sendVertex(vertexArray[v] + normalArray[v] * D * .96f);
                 renderDevice->sendVertex(vertexArray[v] + normalArray[v] * D * .84f);
@@ -631,7 +631,7 @@ void Draw::vertexNormals(
         renderDevice->endPrimitive();
 
         renderDevice->setLineWidth(3);
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             for (int v = 0; v < vertexArray.size(); ++v) {
                 renderDevice->sendVertex(vertexArray[v] + normalArray[v] * D * .92f);
                 renderDevice->sendVertex(vertexArray[v] + normalArray[v] * D * .84f);
@@ -655,7 +655,7 @@ void Draw::vertexVectors(
         const float D = clamp(5.0f / ::powf((float)vertexArray.size(), 0.25f), 0.1f, 0.8f) * scale;
         
         renderDevice->setLineWidth(1);
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             for (int v = 0; v < vertexArray.size(); ++v) {
                 renderDevice->sendVertex(vertexArray[v] + directionArray[v] * D);
                 renderDevice->sendVertex(vertexArray[v]);
@@ -663,7 +663,7 @@ void Draw::vertexVectors(
         renderDevice->endPrimitive();
         
         renderDevice->setLineWidth(2);
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             for (int v = 0; v < vertexArray.size(); ++v) {
                 renderDevice->sendVertex(vertexArray[v] + directionArray[v] * D * .96f);
                 renderDevice->sendVertex(vertexArray[v] + directionArray[v] * D * .84f);
@@ -671,7 +671,7 @@ void Draw::vertexVectors(
         renderDevice->endPrimitive();
 
         renderDevice->setLineWidth(3);
-        renderDevice->beginPrimitive(RenderDevice::LINES);
+        renderDevice->beginPrimitive(PrimitiveType::LINES);
             for (int v = 0; v < vertexArray.size(); ++v) {
                 renderDevice->sendVertex(vertexArray[v] + directionArray[v] * D * .92f);
                 renderDevice->sendVertex(vertexArray[v] + directionArray[v] * D * .84f);
@@ -695,7 +695,7 @@ void Draw::line(
 
         Vector3 v0 = line.point();
         Vector3 d  = line.direction();
-        renderDevice->beginPrimitive(RenderDevice::LINE_STRIP);
+        renderDevice->beginPrimitive(PrimitiveType::LINE_STRIP);
             // Off to infinity
             renderDevice->sendVertex(Vector4(-d, 0));
 
@@ -750,7 +750,7 @@ void Draw::lineSegment(
         //renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
         renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
 
-        renderDevice->beginPrimitive(RenderDevice::LINES);        
+        renderDevice->beginPrimitive(PrimitiveType::LINES);        
             renderDevice->setNormal(N);
             renderDevice->sendVertex(v0);
             renderDevice->sendVertex(v1);
@@ -793,7 +793,7 @@ void Draw::box(
 
             renderDevice->setColor(solidColor);
             for (int k = 0; k < numPasses; ++k) {
-                renderDevice->beginPrimitive(RenderDevice::QUADS);
+                renderDevice->beginPrimitive(PrimitiveType::QUADS);
                     for (int i = 0; i < 6; ++i) {
                         Vector3 v0, v1, v2, v3;
                         box.getFaceCorners(i, v0, v1, v2, v3);
@@ -821,7 +821,7 @@ void Draw::box(
 
             // Wire frame
             renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
-            renderDevice->beginPrimitive(RenderDevice::LINES);
+            renderDevice->beginPrimitive(PrimitiveType::LINES);
 
                 // Front and back
                 for (int i = 0; i < 8; i += 4) {
@@ -882,7 +882,7 @@ void Draw::wireSphereSection(
             const Vector3 x(cos(yaw) * radius, 0, sin(yaw) * radius);
             //const Vector3 z(-sin(yaw) * radius, 0, cos(yaw) * radius);
 
-            renderDevice->beginPrimitive(RenderDevice::LINE_STRIP);
+            renderDevice->beginPrimitive(PrimitiveType::LINE_STRIP);
                 for (int p = start; p <= stop; ++p) {
                     const float pitch0 = p * (float)pi() / (sections * 0.5f);
 
@@ -899,7 +899,7 @@ void Draw::wireSphereSection(
         for (int p = a; p <= b; ++p) {
             const float pitch = p * (float)pi() / 6;
 
-            renderDevice->beginPrimitive(RenderDevice::LINE_STRIP);
+            renderDevice->beginPrimitive(PrimitiveType::LINE_STRIP);
                 for (int y = 0; y <= sections; ++y) {
                     const float yaw0 = y * (float)pi() / 13;
                     Vector3 v0 = Vector3(cos(yaw0) * cos(pitch), sin(pitch), sin(yaw0) * cos(pitch)) * radius;
@@ -999,11 +999,11 @@ void Draw::sphereSection(
             renderDevice->setNormalArray(vbuffer);
             renderDevice->setVertexArray(vbuffer);
             if (top) {
-                renderDevice->sendIndices(RenderDevice::QUAD_STRIP, (stripIndexArray.length() / 2),
+                renderDevice->sendIndices(PrimitiveType::QUAD_STRIP, (stripIndexArray.length() / 2),
                     stripIndexArray.getCArray());
             }
             if (bottom) {
-                renderDevice->sendIndices(RenderDevice::QUAD_STRIP, (stripIndexArray.length() / 2), 
+                renderDevice->sendIndices(PrimitiveType::QUAD_STRIP, (stripIndexArray.length() / 2), 
                     stripIndexArray.getCArray() + (stripIndexArray.length() / 2));
             }
         renderDevice->endIndexedPrimitives();
@@ -1126,7 +1126,7 @@ void Draw::rect2D(
     {
         rd->setColor(color);
         debugAssertGLOk();
-        rd->beginPrimitive(RenderDevice::QUADS);
+        rd->beginPrimitive(PrimitiveType::QUADS);
         {
             for (int i = 0; i < 4; ++i) {
                 for (int t = 0; t < N; ++t) {
@@ -1149,7 +1149,7 @@ void Draw::fastRect2D(
     rd->setColor(color);
     // Use begin primitive in case there are any 
     // lazy state changes pending.
-    rd->beginPrimitive(RenderDevice::QUADS);
+    rd->beginPrimitive(PrimitiveType::QUADS);
         
         glTexCoord2f(0, 0);
         glVertex2f(rect.x0(), rect.y0());
@@ -1193,7 +1193,7 @@ void Draw::rect2DBorder(
 
     rd->pushState();
     rd->setColor(color);
-    rd->beginPrimitive(RenderDevice::QUAD_STRIP);
+    rd->beginPrimitive(PrimitiveType::QUAD_STRIP);
 
     for (int i = 0; i < 5; ++i) {
         int j = i % 4;
@@ -1207,11 +1207,11 @@ void Draw::rect2DBorder(
 
 void sendFrustumGeometry(const GCamera::Frustum& frustum, RenderDevice* rd, bool lines) {
     if (! lines) {
-        rd->beginPrimitive(RenderDevice::QUADS);
+        rd->beginPrimitive(PrimitiveType::QUADS);
     }
     for (int f = 0; f < frustum.faceArray.size(); ++f) {
         if (lines) {
-            rd->beginPrimitive(RenderDevice::LINE_STRIP);
+            rd->beginPrimitive(PrimitiveType::LINE_STRIP);
         }
         const GCamera::Frustum::Face& face = frustum.faceArray[f];
         rd->setNormal(face.plane.normal());

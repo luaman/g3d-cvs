@@ -74,7 +74,7 @@ void DirectionHistogram::sendGeometry(RenderDevice* rd) {
     rd->beginIndexedPrimitives();
     {
         rd->setVertexArray(m_gpuMeshVertex);
-        rd->sendIndices(RenderDevice::TRIANGLES, m_gpuMeshIndex);
+        rd->sendIndices(PrimitiveType::TRIANGLES, m_gpuMeshIndex);
     }
     rd->endIndexedPrimitives();
 }

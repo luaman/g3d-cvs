@@ -1,24 +1,22 @@
-
-G3D 7.xx Build System Instructions
-
+G3D 8.xx Build System Instructions
 
 To properly run the G3D build scripts you will need the following
 software.  It is all available for free and comes pre-installed on
 most OS X, Linux, and FreeBSD systems:
 
 * Python 2.4 or later (http://www.python.org) 
-* On OS X, Linux, or FreeBSD you will need gcc 3.4 or later
-* On Windows you will need Visual Studio 9.0
+* On OS X, Linux, or FreeBSD you will need gcc 4.0 or later
+* On Windows you will need Visual C++ 9.0 (Visual Studio 2008),
+   either the full or Express version (http://msdn.microsoft.com/vstudio/express/)
 
-To build the documentation target, the following are required:
+To build the documentation target, the following are also required:
 
 * Doxygen 1.5 or later (http://www.doxygen.org)
-(http://msdn.microsoft.com/vstudio/express/)
 * Latex (on Windows: http://miktex.org/)
 * Ghostscript (http://pages.cs.wisc.edu/~ghost/)
 
-It is possible to build the library on Windows using only Visual
-Studio, however documentation, headers, demos, and other aspects
+It is possible to build the library on Windows using the Visual
+Studio IDE, however documentation, headers, demos, and other aspects
 of the full build will be missing.  The G3D team DOES NOT SUPPORT
 direct use of the Visual Studio project files.  We only support
 the build scripts that call them.
@@ -37,5 +35,7 @@ You can build just the libraries (much faster) with:
 depending on your system configuration.)
 
 Run "buildg3d help" for more information about the build sytem.
+
+Post on g3d-users@googlegroups.com with questions about the build system.
 
 

@@ -185,7 +185,7 @@ public:
        renderDevice->beginIndexedPrimitives();
        {
            renderDevice->setVertexArray(varray);
-           renderDevice->sendIndices(RenderDevice::TRIANGLES, indexVARGPU);
+           renderDevice->sendIndices(PrimitiveType::TRIANGLES, indexVARGPU);
        }
        renderDevice->endIndexedPrimitives();
        </PRE>

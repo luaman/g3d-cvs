@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-09-14
- @edited  2009-07-30
+ @edited  2009-05-30
 */
 
 #ifndef G3D_MeshAlg_h
@@ -17,6 +17,7 @@
 #include "G3D/Vector3.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/SmallArray.h"
+#include "G3D/constants.h"
 
 #ifdef G3D_WIN32
 // Turn off "conditional expression is constant" warning; MSVC generates this
@@ -41,19 +42,8 @@ namespace G3D {
 class MeshAlg {
 public:
 
-    /** These are defined to have the same value as the equivalent OpenGL
-        constant.
-     */
-    enum Primitive {
-        POINTS         = 0x0000,
-        LINES          = 0x0001,
-        LINE_STRIP     = 0x0003, 
-        TRIANGLES      = 0x0004, 
-        TRIANGLE_STRIP = 0x0005,
-        TRIANGLE_FAN   = 0x0006,
-        QUADS          = 0x0007, 
-        QUAD_STRIP     = 0x0008};
-
+    /** \deprecated */
+    typedef PrimitiveType Primitive;
 
     /** Adjacency information for a vertex.
         Does not contain the vertex position or normal,
@@ -587,15 +577,15 @@ public:
         Array<IndexType>&       outIndices) {
 
         debugAssert(
-            inType == MeshAlg::TRIANGLE_STRIP ||
-            inType == MeshAlg::TRIANGLE_FAN ||
-            inType == MeshAlg::QUADS ||
-            inType == MeshAlg::QUAD_STRIP);
+            inType == PrimitiveType::TRIANGLE_STRIP ||
+            inType == PrimitiveType::TRIANGLE_FAN ||
+            inType == PrimitiveType::QUADS ||
+            inType == PrimitiveType::QUAD_STRIP);
 
         const int inSize = inIndices.size();
 
         switch(inType) {
-        case MeshAlg::TRIANGLE_FAN:
+        case PrimitiveType::TRIANGLE_FAN:
             {
             debugAssert(inSize >= 3);
 
@@ -611,7 +601,7 @@ public:
             break;
             }
 
-        case MeshAlg::TRIANGLE_STRIP:
+        case PrimitiveType::TRIANGLE_STRIP:
             {
             debugAssert(inSize >= 3);
 
@@ -636,7 +626,7 @@ public:
             break;
             }
 
-        case MeshAlg::QUADS:
+        case PrimitiveType::QUADS:
             {
             debugAssert(inIndices.size() >= 4);
 
@@ -655,7 +645,7 @@ public:
             break;
             }
 
-        case MeshAlg::QUAD_STRIP:
+        case PrimitiveType::QUAD_STRIP:
             {
             debugAssert(inIndices.size() >= 4);
 

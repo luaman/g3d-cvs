@@ -319,8 +319,8 @@ public:
         enum Value { 
             NEAREST,
             BILINEAR,
-            mhc,
-            HIGH_QUALITY = mhc
+            MHC,
+            HIGH_QUALITY = MHC
         };
     private:
 

@@ -35,7 +35,7 @@ protected:
 
             rd->setLineWidth(radius / 2.0f);
             rd->setColor(color);
-            rd->beginPrimitive(RenderDevice::LINES);
+            rd->beginPrimitive(PrimitiveType::LINES);
                 rd->sendVertex(v1);
                 rd->sendVertex(v2);
             rd->endPrimitive();

@@ -17,6 +17,7 @@
 #include "G3D/MeshAlg.h"
 #include "G3D/Sphere.h"
 #include "G3D/AABox.h"
+#include "G3D/constants.h"
 #include "GLG3D/Material.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/Lighting.h"
@@ -73,14 +74,10 @@ public:
             back faces. */
         bool                    twoSided;
 
-        /**  
-          */
-        enum RefractionQuality {REFRACT_NONE, REFRACT_STATIC_ENV, REFRACT_DYNAMIC_FLAT, REFRACT_DNYAMIC_ENV, REFRACT_TRUE};
-        enum MirrorQuality     {MIRROR_NONE, MIRROR_STATIC_ENV, MIRROR_DYNAMIC_ENV, MIRROR_TRUE};
-
-        /** Preferred level of refraction quality. */
+        /** Preferred level of refraction quality. The actual level available depends on the renderer.*/
         RefractionQuality       refractionHint;
 
+        /** Preferred level of mirror reflection quality. The actual level available depends on the renderer.*/
         MirrorQuality           mirrorHint;
         
         Material::Ref           material;
@@ -93,12 +90,13 @@ public:
         
     protected:
         
-        inline GPUGeom(MeshAlg::Primitive p, bool t, RefractionQuality r) : primitive(p), twoSided(t), refractionHint(r) {}
+        inline GPUGeom(PrimitiveType p, bool t, RefractionQuality r, MirrorQuality m) : 
+            primitive(p), twoSided(t), refractionHint(r), mirrorHint(m) {}
         
     public:
 
-        inline static Ref create(MeshAlg::Primitive p = MeshAlg::TRIANGLES) {
-            return new GPUGeom(p, false, REFRACT_DYNAMIC_FLAT);
+        inline static Ref create(PrimitiveType p = PrimitiveType::TRIANGLES) {
+            return new GPUGeom(p, false, RefractionQuality::DYNAMIC_FLAT, MirrorQuality::STATIC_ENV);
         }
     };
 

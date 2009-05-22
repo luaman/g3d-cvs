@@ -5,21 +5,25 @@
   @created 2007-01-27
   @edited  2007-07-20
 */
-#ifndef G3D_ENUMCLASS_H
-#define G3D_ENUMCLASS_H
+#ifndef G3D_enumclass_h
+#define G3D_enumclass_h
 
-#include "G3D/Table.h"
+#include "G3D/HashTrait.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 
 /**
-  Creates a series of methods that turn a class into a scoped enumeration.
+\def G3D_DECLARE_ENUM_CLASS_METHODS
+
+  \brief Creates a series of methods that turn a class into a scoped enumeration.
+
   Uses the "Intelligent Enum" design pattern 
   http://www.codeguru.com/cpp/cpp/cpp_mfc/article.php/c4001/
 
   Enum classes are initialized to their zero value by default.
 
   See GLG3D/GKey.h for an example.
+  \sa G3D_DECLARE_ENUM_CLASS_HASHCODE
  */
 #define G3D_DECLARE_ENUM_CLASS_METHODS(Classname)\
     inline Classname(char v) : value((Value)v) {}\
@@ -119,14 +123,16 @@
         return (unsigned int)value;\
     }\
 \
-    void serialize(BinaryOutput& b) const {\
+    inline void serialize(BinaryOutput& b) const {\
         b.writeInt32(value);\
     }\
 \
-    void deserialize(BinaryInput& b) {\
+    inline void deserialize(BinaryInput& b) {\
         value = (Value)b.readInt32();\
     }
 
+/** \def G3D_DECLARE_ENUM_CLASS_HASHCODE
+*/
 #define G3D_DECLARE_ENUM_CLASS_HASHCODE(Classname)\
 template <> struct HashTrait<Classname::Value>                                              \
 {                                                                                           \

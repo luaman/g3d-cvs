@@ -13,7 +13,8 @@
    Changes in 8.00:
    <ul>
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
-          Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01
+          Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
+     <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
      <li> G3D::ThirdPersonManipulator now draws hidden lines
      <li> G3D::GBuffer
      <li> G3D::SmallArray
@@ -105,6 +106,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::RenderDevice::Primitive -> G3D::PrimitiveType (e.g., RenderDevice::TRIANLGES -> PrimitiveType::TRIANGLES)
      <li> G3D::AssertionHook no longer accepts the ignoreAlways parameter
      <li> G3D::GImage::width, height, channels are now accessor methods instead of public fields
      <li> RenderDevice::Buffer -> RenderDevice::DrawBuffer

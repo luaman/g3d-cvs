@@ -75,7 +75,7 @@ void drawFeatureEdges(RenderDevice* renderDevice, const PosedModel::Ref& model, 
         renderDevice->setObjectToWorldMatrix(cframe);
         renderDevice->beginIndexedPrimitives();
             renderDevice->setVertexArray(gpuVertexArray);
-            renderDevice->sendSequentialIndices(RenderDevice::LINES, cpuVertexArray.size());
+            renderDevice->sendSequentialIndices(PrimitiveType::LINES, cpuVertexArray.size());
         renderDevice->endIndexedPrimitives();
     renderDevice->popState();
 }

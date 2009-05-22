@@ -562,7 +562,7 @@ Vector2 GFont::draw3D(
         configureRenderDevice(renderDevice);
 
         renderDevice->disableLighting();
-        renderDevice->beginPrimitive(RenderDevice::QUADS);
+        renderDevice->beginPrimitive(PrimitiveType::QUADS);
 
             if (border.a > 0.05f) {
 

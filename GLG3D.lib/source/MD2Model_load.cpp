@@ -257,9 +257,9 @@ void MD2Model::load(const std::string& filename, float resize) {
             Primitive& primitive = primitiveArray.next();
 
             if (n > 0) {
-                primitive.type = RenderDevice::TRIANGLE_STRIP;
+                primitive.type = PrimitiveType::TRIANGLE_STRIP;
             } else {
-                primitive.type = RenderDevice::TRIANGLE_FAN;
+                primitive.type = PrimitiveType::TRIANGLE_FAN;
                 n = -n;
             }
 

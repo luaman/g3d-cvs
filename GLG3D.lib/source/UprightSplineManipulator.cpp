@@ -52,7 +52,7 @@ public:
     }
 
     void drawSplineCurve(RenderDevice* rd) const {
-        rd->sendSequentialIndices(RenderDevice::LINE_STRIP, numVertices);
+        rd->sendSequentialIndices(PrimitiveType::LINE_STRIP, numVertices);
     }
     
     virtual void render (RenderDevice* rd) const {

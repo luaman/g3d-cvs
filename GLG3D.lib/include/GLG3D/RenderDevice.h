@@ -8,15 +8,16 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-05-29
-  @edited  2009-04-10
+  @edited  2009-05-20
 
   Copyright 2001-2009, Morgan McGuire
 */
 
-#ifndef GLG3D_RENDERDEVICE_H
-#define GLG3D_RENDERDEVICE_H
+#ifndef GLG3D_RenderDevice_h
+#define GLG3D_RenderDevice_h
 
 #include "G3D/platform.h"
+#include "G3D/constants.h"
 #include "G3D/Array.h"
 #include "G3D/GLight.h"
 #include "G3D/TextOutput.h"
@@ -40,7 +41,9 @@ class VAR;
 
 
 /**
- Abstraction of a graphics rendering context.  Implemented with an
+ \brief Abstraction of a graphics rendering context.  
+ 
+ Implemented with an
  OpenGL context, but designed so that it can support other APIs
  (e.g., OpenGL ES, DirectX) as back ends.
 
@@ -103,7 +106,7 @@ class VAR;
     renderDevice->setProjectionMatrix(Matrix4::perspectiveProjection(-.2, .2, -.15, .15, .2, 200));
     renderDevice->setTexture(0, sprite);
     renderDevice->setColor(Color3::white());
-    renderDevice->beginPrimitive(RenderDevice::QUADS);
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
         renderDevice->setTexCoord(0,  Vector2(0, 1));
         renderDevice->sendVertex(Vector3(-3, -3, -5));
         
@@ -166,19 +169,11 @@ class VAR;
  */
 class RenderDevice {
 public:
-    enum Primitive {
-      LINES = MeshAlg::LINES, 
-      LINE_STRIP = MeshAlg::LINE_STRIP, 
-      TRIANGLES = MeshAlg::TRIANGLES, 
-      TRIANGLE_STRIP = MeshAlg::TRIANGLE_STRIP,
-      TRIANGLE_FAN = MeshAlg::TRIANGLE_FAN, 
-      QUADS = MeshAlg::QUADS, 
-      QUAD_STRIP = MeshAlg::QUAD_STRIP, 
-      POINTS = MeshAlg::POINTS};
+
+    typedef PrimitiveType Primitive;
    	
     /** RENDER_CURRENT = preserve whatever the render mode is currently set to.  */
     enum RenderMode {RENDER_SOLID, RENDER_WIREFRAME, RENDER_POINTS, RENDER_CURRENT};
-
     
     enum {MAX_LIGHTS = 8};
 

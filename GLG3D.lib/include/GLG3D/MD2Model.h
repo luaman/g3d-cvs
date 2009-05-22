@@ -319,7 +319,7 @@ protected:
      */
     class Primitive {
     public:
-        /** RenderDevice::TRIANGLE_STRIP or RenderDevice::TRIANGLE_FAN */
+        /** PrimitiveType::TRIANGLE_STRIP or PrimitiveType::TRIANGLE_FAN */
         RenderDevice::Primitive type;
 
         class PVertex {

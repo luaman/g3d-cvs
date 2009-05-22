@@ -6,12 +6,12 @@
  @created 2001-08-09
  @edited  2006-07-19
 
- Copyright 2000-2007, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_BINARYINPUT_H
-#define G3D_BINARYINPUT_H
+#ifndef G3D_BinaryInput_h
+#define G3D_BinaryInput_h
 
 #ifdef _MSC_VER
 // Disable conditional expression is constant, which occurs incorrectly on inlined functions

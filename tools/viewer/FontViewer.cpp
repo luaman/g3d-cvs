@@ -36,7 +36,7 @@ void FontViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& light
     rd->setLineWidth(0.5f);
     rd->setColor(Color3::black());
     rd->setObjectToWorldMatrix(Vector3(0.375, 0.375, 0));
-    rd->beginPrimitive(RenderDevice::LINES);
+    rd->beginPrimitive(PrimitiveType::LINES);
 	
     for (int i = 0; i <= 16; ++i) {
         // Horizontal line

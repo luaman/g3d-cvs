@@ -211,7 +211,7 @@ void GuiTheme::beginRendering(RenderDevice* rd) {
 
     rd->setTexture(TEXTURE_UNIT, texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
-    rd->beginPrimitive(RenderDevice::QUADS);
+    rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
@@ -227,7 +227,7 @@ void GuiTheme::endText() const {
 
     glColor3f(1,1,1);
         
-    rd->beginPrimitive(RenderDevice::QUADS);
+    rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
@@ -248,7 +248,7 @@ void GuiTheme::resumeRendering() {
     rd->setTexture(TEXTURE_UNIT, texture);
     rd->setTextureMatrix(TEXTURE_UNIT, guiTextureMatrix);
     rd->setColor(Color3::white());
-    rd->beginPrimitive(RenderDevice::QUADS);
+    rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
@@ -971,7 +971,7 @@ void GuiTheme::pushClientRect(const Rect2D& r) {
 
     const CoordinateFrame& newMatrix = oldMatrix * CoordinateFrame(Vector3(r.x0y0(), 0));
     rd->setObjectToWorldMatrix(newMatrix);
-    rd->beginPrimitive(RenderDevice::QUADS);
+    rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 
@@ -984,7 +984,7 @@ void GuiTheme::popClientRect() {
 
     rd->setObjectToWorldMatrix(coordinateFrameStack.pop());
     rd->setClip2D(scissorStack.pop());
-    rd->beginPrimitive(RenderDevice::QUADS);
+    rd->beginPrimitive(PrimitiveType::QUADS);
 }
 
 /////////////////////////////////////////////

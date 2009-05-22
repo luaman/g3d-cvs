@@ -1085,7 +1085,7 @@ const Array<MeshAlg::Vertex>& GenericPosedModel::weldedVertices() const {
 
 
 const Array<int>& GenericPosedModel::triangleIndices() const {
-    alwaysAssertM(m_gpuGeom->primitive == MeshAlg::TRIANGLES, "This model is not composed of triangles."); 
+    alwaysAssertM(m_gpuGeom->primitive == PrimitiveType::TRIANGLES, "This model is not composed of triangles."); 
     return *(m_cpuGeom.index);
 }
 

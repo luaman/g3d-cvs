@@ -540,7 +540,7 @@ void PosedModel::defaultRender(RenderDevice* rd) const {
         rd->beginIndexedPrimitives();
             rd->setNormalArray(VAR(geometry.normalArray, area));
             rd->setVertexArray(VAR(geometry.vertexArray, area));
-            rd->sendIndices(RenderDevice::TRIANGLES, triangleIndices());
+            rd->sendIndices(PrimitiveType::TRIANGLES, triangleIndices());
         rd->endIndexedPrimitives();
     rd->popState();
 }
@@ -574,7 +574,7 @@ void PosedModel::sendGeometry(RenderDevice* rd) const {
         if (hasTexCoords()) {
             rd->setTexCoordArray(0, texCoord);
         }
-        rd->sendIndices(RenderDevice::TRIANGLES, triangleIndices());
+        rd->sendIndices(PrimitiveType::TRIANGLES, triangleIndices());
     rd->endIndexedPrimitives();
 }
 

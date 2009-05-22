@@ -729,7 +729,7 @@ void GConsole::render(RenderDevice* rd) {
             // Draw a line indicating that we aren't looking at the bottom of the buffer
             rd->setColor(Color3::white());
             rd->setLineWidth(1.0f);
-            rd->beginPrimitive(RenderDevice::LINES);
+            rd->beginPrimitive(PrimitiveType::LINES);
                 Vector2 v(rect.x0() - 0.3, rect.y1() - m_settings.lineHeight + 1 - 0.3);
                 rd->sendVertex(v);
                 rd->sendVertex(v + Vector2(rect.width(), 0));

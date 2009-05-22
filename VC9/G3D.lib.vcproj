@@ -619,6 +619,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\constants.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\ConvexPolyhedron.h"
 				>
 			</File>

@@ -144,7 +144,7 @@ void UIGeom::render(RenderDevice* rd, const Color3& color, float lineScale) {
 
     for (int i = 0; i < poly3D.size(); ++i) {
         const ConvexPolygon& poly = poly3D[i];
-        rd->beginPrimitive(RenderDevice::TRIANGLE_FAN);
+        rd->beginPrimitive(PrimitiveType::TRIANGLE_FAN);
             rd->setNormal(poly.normal());
             for (int v = 0; v < poly.numVertices(); ++v) {
                 rd->sendVertex(poly.vertex(v));
@@ -192,7 +192,7 @@ void UIGeom::render(RenderDevice* rd, const Color3& color, float lineScale) {
             // Make two passes; first renders visible lines, the next 
             // renders hidden ones
             for (int i = 0; i < 2; ++i) {
-                rd->beginPrimitive(RenderDevice::LINE_STRIP);
+                rd->beginPrimitive(PrimitiveType::LINE_STRIP);
                 {
                     for (int v = 0; v < line.numVertices(); ++v) {
                         // Compute the smooth normal.  If we have a non-closed
@@ -236,7 +236,7 @@ void UIGeom::render(RenderDevice* rd, const Color3& color, float lineScale) {
         if (depthWrite) {
             rd->setColorWrite(false);
             rd->setDepthWrite(true);
-            rd->beginPrimitive(RenderDevice::LINE_STRIP);
+            rd->beginPrimitive(PrimitiveType::LINE_STRIP);
             {
                 for (int v = 0; v < line.numVertices(); ++v) {
                     rd->sendVertex(line.vertex(v));
