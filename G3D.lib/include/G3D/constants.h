@@ -37,9 +37,6 @@ public:
     G3D_DECLARE_ENUM_CLASS_METHODS(PrimitiveType);
 };
 
-G3D_DECLARE_ENUM_CLASS_HASHCODE(PrimitiveType)
-
-
 
 /** Values for GenericPosedModel::GPUGeom::refractionHint. */
 class RefractionQuality {
@@ -70,9 +67,6 @@ public:
     G3D_DECLARE_ENUM_CLASS_METHODS(RefractionQuality);
 };
 
-G3D_DECLARE_ENUM_CLASS_HASHCODE(RefractionQuality)
-
-
 
 /** Values for GenericPosedModel::GPUGeom::mirrorHint. */
 class MirrorQuality {
@@ -101,9 +95,11 @@ public:
     G3D_DECLARE_ENUM_CLASS_METHODS(MirrorQuality);
 };
 
-G3D_DECLARE_ENUM_CLASS_HASHCODE(MirrorQuality)
-
 } // namespace G3D
+
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::PrimitiveType)
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::RefractionQuality)
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::MirrorQuality)
 
 #endif
 

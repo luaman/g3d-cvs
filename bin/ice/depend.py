@@ -173,6 +173,10 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
         print 'Raw output of dependency determination:'
         print raw
 
+    if ' error:' in raw:
+        print raw
+        sys.exit(-1)
+        
     if raw.startswith('In file included from'):
         # If there was an error, the output will have the form
         # "In file included from _____:" and a list of files

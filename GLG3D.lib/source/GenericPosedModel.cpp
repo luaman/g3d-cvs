@@ -767,7 +767,6 @@ void GenericPosedModel::renderNonShadowed
                 rd->setColor(bsdf->transmissive().constant());
                 sendGeometry2(rd);
 
-                /*
                 // Draw normal terms on top
                 bool alreadyAdditive = false;
                 setAdditive(rd, alreadyAdditive);
