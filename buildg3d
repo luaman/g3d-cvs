@@ -400,24 +400,24 @@ def docTarget():
 
     version += ' - ' + time.strftime('%B %Y')
 
-    #copyIfNewer('doc-files/data-files', 'build/manual')
+    copyIfNewer('doc-files/data-files', 'build/manual')
 
     env = {'HEADER_FILE':    'doc-files/data-files/header.html',
            'FOOTER_FILE':    'doc-files/data-files/footer.html',
            'PROJECT_NUMBER': version}
 
     # Generate C++ docs
-    #run(doxygen, ['Doxyfile'], True, env)
+    run(doxygen, ['Doxyfile'], True, env)
 
     # Generate Java docs
-    #run(doxygen, ['Doxyfile-java'], True, env)
+    run(doxygen, ['Doxyfile-java'], True, env)
 
     # replace reference counted pointer links in class/struct documentation - uncomment to use
     #ice.doxygen.remapRefLinks('build/manual')
 
     # Generate demos and support
-    #copyIfNewer('data-files', 'build/data')
-    #copyIfNewer('demos', 'build/demos')
+    copyIfNewer('data-files', 'build/data')
+    copyIfNewer('demos', 'build/demos')
 
     return 0
 
