@@ -70,13 +70,17 @@ def doxyLineRewriter(lineStr, hash):
             return lineStr
 
 
-# Dictionary of all files, used to pass information from remapRefLinks to replaceRef
+# Dictionary mapping strings found in Doxygen files to the names of the files to which they should be linked.
+# Used to pass information from remapRefLinks to replaceRef
 refDict = {}
 currentFile = ''
 
 def recapLetter(match):
     return match.group(0)[1].upper()
 
+# Callback for re.sub
+# match is of type re.MatchObject
+# Uses refDict
 def replaceRef(match):
     if match.group(2) in refDict:
         return 'href="' + refDict[match.group(2)] + '">' + match.group(2) + match.group(3)
@@ -139,9 +143,11 @@ def remapRefLinks(docDir):
         currentFile = docFile
         fileBuffer = ''
         f = open(docDir + '/' + docFile)
+        target = '(href="class_g3_d_1_1_reference_counted_pointer.html">)([a-zA-Z0-9:]+)(</a>)'
         try:
+            # Invoke replaceRef() for each instance of the target found
             for line in f:
-                fileBuffer += re.sub('(href="class_g3_d_1_1_reference_counted_pointer.html">)([a-zA-Z0-9:]+)(</a>)', replaceRef, line)
+                fileBuffer += re.sub(target, replaceRef, line)
         finally:
             f.close()
             
