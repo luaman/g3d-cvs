@@ -69,38 +69,8 @@ def doxyLineRewriter(lineStr, hash):
         else:
             return lineStr
 
-""" Expands environment variables of the form $(var) and $(shell ...)
-    in a string. Compare to os.path.expandvars, which only handles
-    $var and therefore requires a separation character after
-    variables."""
-def expandvars(str):
-    
-    while '$' in str:
-        i = str.find('$')
-        j = str.find(')', i)
-        if (i > len(str) - 3) or (str[i + 1] != '(') or (j < 0):
-            raise 'Error', 'Environment variables must have the form $(var) or $(shell cmds)'
 
-        varexpr = str[i:(j + 1)]
-
-        varname = str[(i + 2):j]
-
-        if varname.startswith('shell '):
-            # Shell command
-            cmd = varname[6:]
-            value = shell(cmd, verbose)
-            if verbose: print value
-        else:
-            # Environment variable
-            value = os.getenv(varname)
-
-        if (value == None):
-            value = ''
-        
-        str = str.replace(varexpr, value)
-
-    return str
-        
+# Dictionary of all files, used to pass information from remapRefLinks to replaceRef
 refDict = {}
 currentFile = ''
 
@@ -120,15 +90,15 @@ def replaceRef(match):
 def parseDoxygenFilename(filename):
     refNames = []
 
-    #ignore class names with spaces
+    # Ignore class names with spaces
     if re.search('301|014', filename): 
         return refNames
 
-    #split into namespaces
+    # Split into namespaces
     fullname = re.split('class|struct', re.split('\-', re.split('.html', filename)[0])[0], 1)[1]
     namespaces = re.split('_1_1', fullname)
     
-    #reconstruct capitalization
+    # Reconstruct capitalization
     correctNames = []
     for name in namespaces:
         name = re.sub('_(?<=_)\w', recapLetter, name)
@@ -152,7 +122,8 @@ def parseDoxygenFilename(filename):
 # It is intended to be expanded in the future to support projects
 # built against G3D.
 def remapRefLinks(docDir):
-    possibleRefs = {}
+    global refDict
+    refDict.clear()
 
     docFiles = os.listdir(docDir)
     
@@ -161,12 +132,8 @@ def remapRefLinks(docDir):
     for docFile in docFiles:
         if re.search('^class_g3_d|^struct_g3_d', docFile) and not re.search('-members.html$', docFile):
             validFiles.append(docFile)
-            refs = parseDoxygenFilename(docFile)
-            for ref in refs:
-                possibleRefs.update(ref)
-
-    refDict.clear()
-    refDict.update(possibleRefs)
+            for ref in parseDoxygenFilename(docFile):
+                refDict.update(ref)
 
     for docFile in validFiles[20:]:
         currentFile = docFile
@@ -178,8 +145,4 @@ def remapRefLinks(docDir):
         finally:
             f.close()
             
-        f = open(docDir + '/' + docFile, 'w')
-        try:
-            f.write(fileBuffer)
-        finally:
-            f.close()
+        writeFile(docDir + '/' + docFile, fileBuffer)
