@@ -334,6 +334,7 @@ void BinaryOutput::commit(bool flush) {
             m_alreadyWritten += m_bufferLen;
 
             int success = fwrite(m_buffer, m_bufferLen, 1, file);
+            (void)success;
             debugAssertM(success == 1, std::string("Could not write to '") + m_filename + "'");
         }
         if (flush) {

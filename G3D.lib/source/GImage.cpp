@@ -457,9 +457,9 @@ GImage::GImage(
     const MemoryManager::Ref& m) : 
     m_memMan(m),
     m_byte(NULL), 
+    m_channels(0),
     m_width(0),
-    m_height(0), 
-    m_channels(0){
+    m_height(0) {
     
     load(filename, format);
 }

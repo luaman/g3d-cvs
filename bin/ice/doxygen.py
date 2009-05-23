@@ -144,8 +144,14 @@ def parseDoxygenFilename(filename):
     refNames.append({correctNames[-1] + 'Ref': filename})
     return refNames
 
+# Given the output of a Doxygen directory, rewrites the output .html
+# files so that G3D::ReferenceCountedPointer<X> instances link to X
+# instead of ReferenceCountedPointer.
+#
+# The current implementation only works for the G3D build itself.
+# It is intended to be expanded in the future to support projects
+# built against G3D.
 def remapRefLinks(docDir):
-
     possibleRefs = {}
 
     docFiles = os.listdir(docDir)
