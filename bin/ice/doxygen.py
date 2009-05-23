@@ -139,7 +139,7 @@ def remapRefLinks(docDir):
             for ref in parseDoxygenFilename(docFile):
                 refDict.update(ref)
 
-    for docFile in validFiles[20:]:
+    for docFile in validFiles:
         currentFile = docFile
         fileBuffer = ''
         f = open(docDir + '/' + docFile)
