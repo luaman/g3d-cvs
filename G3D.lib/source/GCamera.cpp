@@ -24,6 +24,19 @@ GCamera::GCamera() {
 }
 
 
+GCamera::GCamera(const Matrix4& proj, const CFrame& frame) {
+    float left, right, bottom, top, nearval, farval;
+    proj.getPerspectiveProjectionParameters(left, right, bottom, top, nearval, farval);
+    setNearPlaneZ(-nearval);
+    setFarPlaneZ(-farval);
+    float x = right;
+
+    // Assume horizontal field of view
+    setFieldOfView(atan2(x, -m_nearPlaneZ) * 2.0f, HORIZONTAL);
+    setCoordinateFrame(frame);
+}
+
+
 GCamera::~GCamera() {
 }
 

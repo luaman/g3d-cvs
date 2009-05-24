@@ -163,11 +163,9 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     }
 }
 
-#if 0
 void renderTransparents
 (RenderDevice*                  rd,
- const GCamera&                 eye,
- const Array<PosedModel::Ref>&  transparentEyeVisible,
+ const Array<PosedModel::Ref>&  models,
  const Array<ShadowMap::Ref>&   shadowMapArray,
  const Lighting::Ref&           srcLighting,
  RefractionQuality              maxRefractQuality) {
@@ -199,66 +197,73 @@ void renderTransparents
     rd->setDepthWrite(false);
 
     // Transparent, must be rendered from back to front
-    for (int m = 0; m < transparentEyeVisible.size(); ++m) {
-        GenericPosedModel::Ref model = transparentEyeVisible[m].downcast<GenericPosedModel>();
-        const float eta = model->gpuGeom()->material->bsdf()->eta();
+    for (int m = 0; m < modelArray.size(); ++m) {
+        PosedModel::Ref model = modelArray[m];
+        GenericPosedModel::Ref gmodel = model.downcast<GenericPosedModel>();
 
-        if ((eta > 1.01f) && 
-            (model->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
-            (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
+        if (gmodel.notNull()) {
+            const float eta = model->gpuGeom()->material->bsdf()->eta();
 
-            // Perform refraction.  The above test ensures that the
-            // back-side of a surface (e.g., glass-to-air interface)
-            // does not perform refraction
-            rd->pushState();
-            {
-                Sphere bounds3D = model->worldSpaceBoundingSphere();
-
-                // Estimate of distance from object to background to
-                // be constant (we could read back depth buffer, but
-                // that won't produce frame coherence)
-
-                const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
-                const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
-                refractShader->args.set("backZ", backZ);
-
-                // Assume rays are leaving air
-                refractShader->args.set("etaRatio", 1.0f / eta);
-
-                // Find out how big the back plane is in meters
-                float backPlaneZ = min(-0.5f, backZ);
-                const Matrix4& proj = rd->projectionMatrix();
-                float x = proj[0][0]; // = 2*near / (right - left)
-                float y = proj[1][1]; // = 2*near / (top - bottom)
-
-                GCamera cam2 = eye;
-                cam2.setFarPlaneZ(backPlaneZ);
-                Vector3 ur, ul, ll, lr;
-                cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
-                Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
-                refractShader->args.set("backSizeMeters", backSizeMeters);
-
-                // Always use the same background image, rendered before transparents.  This approach
-                // is enough of an approximation that we can't expect a ray passing through two transparents
-                // to be reasonable anyway
-                refractShader->args.set("background", refractBackground);
-                rd->setShader(refractShader);        
-                rd->setObjectToWorldMatrix(model->coordinateFrame());
-                model->sendGeometry(rd);
+            if ((eta > 1.01f) && 
+                (model->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
+                (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
+                
+                // Perform refraction.  The above test ensures that the
+                // back-side of a surface (e.g., glass-to-air interface)
+                // does not perform refraction
+                rd->pushState();
+                {
+                    Sphere bounds3D = gmodel->worldSpaceBoundingSphere();
+                    
+                    // Estimate of distance from object to background to
+                    // be constant (we could read back depth buffer, but
+                    // that won't produce frame coherence)
+                    
+                    const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
+                    const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
+                    refractShader->args.set("backZ", backZ);
+                    
+                    // Assume rays are leaving air
+                    refractShader->args.set("etaRatio", 1.0f / eta);
+                    
+                    // Find out how big the back plane is in meters
+                    float backPlaneZ = min(-0.5f, backZ);
+                    const Matrix4& proj = rd->projectionMatrix();
+                    float x = proj[0][0]; // = 2*near / (right - left)
+                    float y = proj[1][1]; // = 2*near / (top - bottom)
+                    
+                    GCamera cam2 = eye;
+                    cam2.setFarPlaneZ(backPlaneZ);
+                    Vector3 ur, ul, ll, lr;
+                    cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
+                    Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
+                    refractShader->args.set("backSizeMeters", backSizeMeters);
+                    
+                    // Always use the same background image, rendered
+                    // before transparents.  This approach is enough
+                    // of an approximation that we can't expect a ray
+                    // passing through two transparents to be
+                    // reasonable anyway
+                    refractShader->args.set("background", refractBackground);
+                    rd->setShader(refractShader);        
+                    rd->setObjectToWorldMatrix(model->coordinateFrame());
+                    model->sendGeometry(rd);
+                }
+                rd->popState();
             }
-            rd->popState();
         }
 
         model->renderNonShadowed(rd, lighting);
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], lightArray[L]->shadowMap());
+            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
+                                               shadowMap[L]);
         }
     }
 
     // TODO: Depth write so that z-buffer is up to date
     rd->popState();
 }
-#endif 
+
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
     Array<PosedModel::Ref>        opaque, transparent;

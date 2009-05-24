@@ -49,13 +49,13 @@ public:
 private:
     
     /** 1/2 Field of view (in radians) */
-    float						m_fieldOfView;
+    float                       m_fieldOfView;
 
     /** Clipping plane, *not* imaging plane.  Negative numbers. */
-    float						m_nearPlaneZ;
+    float                       m_nearPlaneZ;
 
     /** Negative */
-    float						m_farPlaneZ;
+    float                       m_farPlaneZ;
 
     /** Stores the camera's location and orientation */
     CoordinateFrame             m_cframe;
@@ -90,6 +90,8 @@ public:
 
     GCamera();
 
+    GCamera(const Matrix4& proj, const CFrame& frame);
+
     virtual ~GCamera();
 
     /** Returns the current coordinate frame */
@@ -98,10 +100,10 @@ public:
     }
 
     /** Sets c to the camera's coordinate frame */
-	void getCoordinateFrame(CoordinateFrame& c) const;
+    void getCoordinateFrame(CoordinateFrame& c) const;
 
     /** Sets a new coordinate frame for the camera */
-	void setCoordinateFrame(const CoordinateFrame& c);
+    void setCoordinateFrame(const CoordinateFrame& c);
            
     /** Sets P equal to the camera's projection matrix */
     void getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const;

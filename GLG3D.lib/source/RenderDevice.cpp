@@ -75,6 +75,11 @@ void RenderDevice::endOpenGL() {
 }
 
 
+GCamera RenderDevice::projectionAndCameraMatrix() const {
+    return GCamera(projectionMatrix(), cameraToWorldMatrix());
+}
+
+
 void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
     // Reset state
     lighting->lightArray.fastClear();

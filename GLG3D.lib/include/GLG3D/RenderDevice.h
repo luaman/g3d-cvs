@@ -1009,6 +1009,13 @@ public:
 
     void setProjectionAndCameraMatrix(const class GCamera& camera);
 
+    /** Computes a GCamera that matches the current projection and
+        camera matrix. This is not necessarily the same camera that
+        was used with setProjectionAndCameraMatrix().  Fails if
+        not in perspective projection mode (e.g., if push2D was used).
+    */
+    GCamera projectionAndCameraMatrix() const;
+
     /**
      Analogous to glBegin.  See the example in the detailed description
      section of this page.
