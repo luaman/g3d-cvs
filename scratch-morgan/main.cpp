@@ -34,6 +34,7 @@ public:
     Film::Ref               film;
 
     DirectionHistogram*     histogram;
+    Array<PosedModel::Ref> transparent;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -71,6 +72,34 @@ void App::onInit() {
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     ground = ArticulatedModel::createCornellBox(11.0f);
 
+    {
+        ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), 0.5f);
+        Material::Settings glass;
+        glass.setEta(1.4f);
+        //glass.setTransmissive(Color3::green() * 0.7f);
+        glass.setTransmissive(Color3::white());
+        glass.setSpecular(Color3::black());
+        glass.setLambertian(Color3::blue());
+        
+        Material::Settings air;
+        air.setEta(1.0f);
+        air.setTransmissive(Color3::white() * 1.0f);
+        air.setSpecular(Color3::black());
+        air.setLambertian(0.0f);
+        
+        // Outside of sphere
+        ArticulatedModel::Part::TriList::Ref outside = sphere->partArray[0].triList[0];
+        outside->material = Material::create(glass);
+        
+        // Inside (inverted)
+        ArticulatedModel::Part::TriList::Ref inside = 
+            sphere->partArray[0].newTriList(Material::create(air));
+        inside->indexArray = outside->indexArray;
+        inside->indexArray.reverse();
+        sphere->updateAll();
+        sphere->pose(transparent);
+    }
+
     setDesiredFrameRate(1000);
 
     sky = Sky::fromFile(System::findDataFile("sky"));
@@ -80,6 +109,8 @@ void App::onInit() {
     }
 
     lighting = Lighting::fromSky(sky, skyParameters, Color3::white() * 0.5f);
+    lighting->lightArray.append(lighting->shadowedLightArray);
+    lighting->shadowedLightArray.clear();
     /*
     lighting = Lighting::create();
     lighting->ambientTop = Color3::white() * 0.2f;
@@ -163,12 +194,13 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     }
 }
 
+
 void renderTransparents
 (RenderDevice*                  rd,
- const Array<PosedModel::Ref>&  models,
+ const Array<PosedModel::Ref>&  modelArray,
  const Array<ShadowMap::Ref>&   shadowMapArray,
- const Lighting::Ref&           srcLighting,
- RefractionQuality              maxRefractQuality) {
+ const Lighting::Ref&           lighting,
+ RefractionQuality              maxRefractionQuality) {
 
     rd->pushState();
 
@@ -202,10 +234,10 @@ void renderTransparents
         GenericPosedModel::Ref gmodel = model.downcast<GenericPosedModel>();
 
         if (gmodel.notNull()) {
-            const float eta = model->gpuGeom()->material->bsdf()->eta();
+            const float eta = gmodel->gpuGeom()->material->bsdf()->eta();
 
             if ((eta > 1.01f) && 
-                (model->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
+                (gmodel->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
                 (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
                 
                 // Perform refraction.  The above test ensures that the
@@ -228,11 +260,7 @@ void renderTransparents
                     
                     // Find out how big the back plane is in meters
                     float backPlaneZ = min(-0.5f, backZ);
-                    const Matrix4& proj = rd->projectionMatrix();
-                    float x = proj[0][0]; // = 2*near / (right - left)
-                    float y = proj[1][1]; // = 2*near / (top - bottom)
-                    
-                    GCamera cam2 = eye;
+                    GCamera cam2 = rd->projectionAndCameraMatrix();
                     cam2.setFarPlaneZ(backPlaneZ);
                     Vector3 ur, ul, ll, lr;
                     cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
@@ -247,16 +275,17 @@ void renderTransparents
                     refractShader->args.set("background", refractBackground);
                     rd->setShader(refractShader);        
                     rd->setObjectToWorldMatrix(model->coordinateFrame());
-                    model->sendGeometry(rd);
+                    gmodel->sendGeometry(rd);
                 }
                 rd->popState();
             }
         }
 
         model->renderNonShadowed(rd, lighting);
+        debugAssert(lighting->shadowedLightArray.size() == shadowMapArray.size());
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
-                                               shadowMap[L]);
+                                               shadowMapArray[L]);
         }
     }
 
@@ -281,7 +310,12 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
-    
+    Array<ShadowMap::Ref> shadowArray;
+    if (shadowMap.notNull()) {
+        shadowArray.append(shadowMap);
+    }
+    renderTransparents(rd, this->transparent, shadowArray, localLighting, RefractionQuality::BEST);
+    /*    
     Sphere bounds3D(Vector3(2,0,0), 1);
 
     rd->pushState();
@@ -317,7 +351,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         // Send geometry
         Draw::sphere(bounds3D, rd, Color3::white(), Color4::clear());
     rd->popState();
-
+    */
 /*
     {
         GLight& light = lighting->shadowedLightArray[0];
