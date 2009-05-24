@@ -163,6 +163,102 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     }
 }
 
+#if 0
+void renderTransparents
+(RenderDevice*                  rd,
+ const GCamera&                 eye,
+ const Array<PosedModel::Ref>&  transparentEyeVisible,
+ const Array<ShadowMap::Ref>&   shadowMapArray,
+ const Lighting::Ref&           srcLighting,
+ RefractionQuality              maxRefractQuality) {
+
+    rd->pushState();
+
+    // Read back the background
+    static Texture::Ref refractBackground = 
+        Texture::createEmpty("Background", 16, 16, ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+
+    static Shader::Ref refractShader = 
+        Shader::fromFiles(System::findDataFile("SS_Refract.vrt"), System::findDataFile("SS_Refract.pix"));
+
+    debugAssertGLOk();
+    
+    Framebuffer::Ref fbo = rd->framebuffer();
+    if (fbo.isNull()) {
+        rd->setReadBuffer(RenderDevice::READ_BACK);
+    } else {
+        rd->setReadBuffer(RenderDevice::READ_COLOR0);
+    }
+    debugAssertGLOk();
+    refractBackground->copyFromScreen(rd->viewport());
+
+    const CFrame& cameraFrame = rd->cameraToWorldMatrix();
+    
+    // Standard G3D::SuperShader transparent rendering
+    // Disable depth write so that precise ordering doesn't matter
+    rd->setDepthWrite(false);
+
+    // Transparent, must be rendered from back to front
+    for (int m = 0; m < transparentEyeVisible.size(); ++m) {
+        GenericPosedModel::Ref model = transparentEyeVisible[m].downcast<GenericPosedModel>();
+        const float eta = model->gpuGeom()->material->bsdf()->eta();
+
+        if ((eta > 1.01f) && 
+            (model->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
+            (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
+
+            // Perform refraction.  The above test ensures that the
+            // back-side of a surface (e.g., glass-to-air interface)
+            // does not perform refraction
+            rd->pushState();
+            {
+                Sphere bounds3D = model->worldSpaceBoundingSphere();
+
+                // Estimate of distance from object to background to
+                // be constant (we could read back depth buffer, but
+                // that won't produce frame coherence)
+
+                const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
+                const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
+                refractShader->args.set("backZ", backZ);
+
+                // Assume rays are leaving air
+                refractShader->args.set("etaRatio", 1.0f / eta);
+
+                // Find out how big the back plane is in meters
+                float backPlaneZ = min(-0.5f, backZ);
+                const Matrix4& proj = rd->projectionMatrix();
+                float x = proj[0][0]; // = 2*near / (right - left)
+                float y = proj[1][1]; // = 2*near / (top - bottom)
+
+                GCamera cam2 = eye;
+                cam2.setFarPlaneZ(backPlaneZ);
+                Vector3 ur, ul, ll, lr;
+                cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
+                Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
+                refractShader->args.set("backSizeMeters", backSizeMeters);
+
+                // Always use the same background image, rendered before transparents.  This approach
+                // is enough of an approximation that we can't expect a ray passing through two transparents
+                // to be reasonable anyway
+                refractShader->args.set("background", refractBackground);
+                rd->setShader(refractShader);        
+                rd->setObjectToWorldMatrix(model->coordinateFrame());
+                model->sendGeometry(rd);
+            }
+            rd->popState();
+        }
+
+        model->renderNonShadowed(rd, lighting);
+        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], lightArray[L]->shadowMap());
+        }
+    }
+
+    // TODO: Depth write so that z-buffer is up to date
+    rd->popState();
+}
+#endif 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
     Array<PosedModel::Ref>        opaque, transparent;
@@ -408,6 +504,28 @@ int main(int argc, char** argv) {
     GuiTheme::makeThemeFromSourceFiles("C:/Projects/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "C:/Projects/G3D/data-files/gui/osx.skn");
 //    return 0;
     */
+    float L = -1.0f;
+    float R =  4.0f;
+    float B = -2.0f;
+    float T =  3.0f;
+    float N =  1.5f;
+    float F = 100.2f;
+    Matrix4 P = Matrix4::perspectiveProjection(L, R, B, T, N, F);
+
+    float L2 = -1.0f;
+    float R2 =  4.0f;
+    float B2 = -2.0f;
+    float T2 =  3.0f;
+    float N2 =  1.5f;
+    float F2 = 100.2f;
+    P.getPerspectiveProjectionParameters(L2, R2, B2, T2, N2, F2);
+    
+    debugAssert(L == L2);
+    debugAssert(R == R2);
+    debugAssert(B == B2);
+    debugAssert(T == T2);
+    debugAssert(N == N2);
+    debugAssert(F == F2);
 
     GApp::Settings set;
     /*

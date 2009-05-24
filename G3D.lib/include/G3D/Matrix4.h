@@ -6,11 +6,11 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2003-10-02
-  @edited  2007-04-05
+  @edited  2009-05-20
  */
 
-#ifndef G3D_MATRIX4_H
-#define G3D_MATRIX4_H
+#ifndef G3D_Matrix4_h
+#define G3D_Matrix4_h
 
 #ifdef _MSC_VER
 // Disable conditional expression is constant, which occurs incorrectly on inlined functions
@@ -80,6 +80,16 @@ public:
     static const Matrix4& identity();
     static const Matrix4& zero();
 
+    /** If this is a perspective projection matrix created by
+        Matrix4::perspectiveProjection, extract its parameters. */
+    void getPerspectiveProjectionParameters
+    (float& left,
+     float& right,
+     float& bottom,  
+     float& top,
+     float& nearval, 
+     float& farval) const;
+        
     inline float* operator[](int r) {
         debugAssert(r >= 0);
         debugAssert(r < 4);

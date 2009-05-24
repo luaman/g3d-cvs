@@ -142,6 +142,49 @@ Matrix4 Matrix4::perspectiveProjection(
         0,  0, -1,  0);
 }
 
+void Matrix4::getPerspectiveProjectionParameters(
+    float& left,    
+    float& right,
+    float& bottom,  
+    float& top,
+    float& nearval, 
+    float& farval) const {
+
+    float x = *this[0][0];
+    float y = *this[1][1];
+    float a = *this[0][2];
+    float b = *this[1][2];
+    float c = *this[2][2];
+    float d = *this[2][3];
+
+    // Verify that this really is a projection matrix
+    debugAssert(*this[3][2] == -1);
+    debugAssert(*this[0][1] == 0);
+    debugAssert(*this[0][3] == 0);
+    debugAssert(*this[1][3] == 0);
+    debugAssert(*this[3][3] == 0);
+    debugAssert(*this[1][0] == 0);
+    debugAssert(*this[2][0] == 0);
+    debugAssert(*this[2][1] == 0);
+    debugAssert(*this[3][0] == 0);
+    debugAssert(*this[3][1] == 0);
+
+    if (c == -1) {
+        farval = finf();
+        nearval = -d / 2.0f;
+    } else {
+        nearval = d * ((c - 1.0f) / (c + 1.0f) - 1.0f) / (-2.0f * (c - 1.0f) / (c + 1.0f));
+        farval = nearval * ((c - 1.0f) / (c + 1.0f));
+    }
+
+
+    left = (a - 1.0f) * nearval / x;
+    right = 2.0f * nearval / x + left;
+
+    bottom = (b - 1.0f) * nearval / y;
+    top = 2.0f * nearval / y + bottom;
+}
+
 
 Matrix4::Matrix4(
     float r1c1, float r1c2, float r1c3, float r1c4,
