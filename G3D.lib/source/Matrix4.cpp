@@ -150,24 +150,24 @@ void Matrix4::getPerspectiveProjectionParameters(
     float& nearval, 
     float& farval) const {
 
-    float x = *this[0][0];
-    float y = *this[1][1];
-    float a = *this[0][2];
-    float b = *this[1][2];
-    float c = *this[2][2];
-    float d = *this[2][3];
+    float x = elt[0][0];
+    float y = elt[1][1];
+    float a = elt[0][2];
+    float b = elt[1][2];
+    float c = elt[2][2];
+    float d = elt[2][3];
 
     // Verify that this really is a projection matrix
-    debugAssert(*this[3][2] == -1);
-    debugAssert(*this[0][1] == 0);
-    debugAssert(*this[0][3] == 0);
-    debugAssert(*this[1][3] == 0);
-    debugAssert(*this[3][3] == 0);
-    debugAssert(*this[1][0] == 0);
-    debugAssert(*this[2][0] == 0);
-    debugAssert(*this[2][1] == 0);
-    debugAssert(*this[3][0] == 0);
-    debugAssert(*this[3][1] == 0);
+    debugAssertM(elt[3][2] == -1, "Not a projection matrix");
+    debugAssertM(elt[0][1] == 0, "Not a projection matrix");
+    debugAssertM(elt[0][3] == 0, "Not a projection matrix");
+    debugAssertM(elt[1][3] == 0, "Not a projection matrix");
+    debugAssertM(elt[3][3] == 0, "Not a projection matrix");
+    debugAssertM(elt[1][0] == 0, "Not a projection matrix");
+    debugAssertM(elt[2][0] == 0, "Not a projection matrix");
+    debugAssertM(elt[2][1] == 0, "Not a projection matrix");
+    debugAssertM(elt[3][0] == 0, "Not a projection matrix");
+    debugAssertM(elt[3][1] == 0, "Not a projection matrix");
 
     if (c == -1) {
         farval = finf();

@@ -14,6 +14,7 @@
    <ul>
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
+     <li> G3D::Matrix4::getPerspectiveProjectionParameters
      <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
      <li> G3D::ThirdPersonManipulator now draws hidden lines
      <li> G3D::GBuffer

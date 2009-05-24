@@ -520,12 +520,12 @@ int main(int argc, char** argv) {
     float F2 = 100.2f;
     P.getPerspectiveProjectionParameters(L2, R2, B2, T2, N2, F2);
     
-    debugAssert(L == L2);
-    debugAssert(R == R2);
-    debugAssert(B == B2);
-    debugAssert(T == T2);
-    debugAssert(N == N2);
-    debugAssert(F == F2);
+    debugAssert(fuzzyEq(L, L2));
+    debugAssert(fuzzyEq(R, R2));
+    debugAssert(fuzzyEq(B, B2));
+    debugAssert(fuzzyEq(T, T2));
+    debugAssert(fuzzyEq(N, N2));
+    debugAssert(fuzzyEq(F, F2));
 
     GApp::Settings set;
     /*
