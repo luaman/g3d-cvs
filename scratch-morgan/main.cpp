@@ -504,29 +504,7 @@ int main(int argc, char** argv) {
     GuiTheme::makeThemeFromSourceFiles("C:/Projects/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "C:/Projects/G3D/data-files/gui/osx.skn");
 //    return 0;
     */
-    float L = -1.0f;
-    float R =  4.0f;
-    float B = -2.0f;
-    float T =  3.0f;
-    float N =  1.5f;
-    float F = 100.2f;
-    Matrix4 P = Matrix4::perspectiveProjection(L, R, B, T, N, F);
-
-    float L2 = -1.0f;
-    float R2 =  4.0f;
-    float B2 = -2.0f;
-    float T2 =  3.0f;
-    float N2 =  1.5f;
-    float F2 = 100.2f;
-    P.getPerspectiveProjectionParameters(L2, R2, B2, T2, N2, F2);
-    
-    debugAssert(fuzzyEq(L, L2));
-    debugAssert(fuzzyEq(R, R2));
-    debugAssert(fuzzyEq(B, B2));
-    debugAssert(fuzzyEq(T, T2));
-    debugAssert(fuzzyEq(N, N2));
-    debugAssert(fuzzyEq(F, F2));
-
+ 
     GApp::Settings set;
     /*
     set.window.fullScreen = true;
