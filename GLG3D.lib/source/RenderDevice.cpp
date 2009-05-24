@@ -2312,6 +2312,22 @@ void RenderDevice::setTextureMatrix(
 }
 
 
+const ImageFormat* RenderDevice::colorFormat() const {
+    Framebuffer::Ref fbo = framebuffer();
+    if (fbo.isNull()) {
+        OSWindow::Settings settings;
+        window()->getSettings(settings);
+        return settings.colorFormat();
+    } else {
+        Framebuffer::Attachment::Ref screen = fbo->get(Framebuffer::COLOR0);
+        if (screen.isNull()) {
+            return NULL;
+        }
+        return screen->format();
+    }
+}
+
+
 void RenderDevice::setTextureLODBias(
     uint32                  unit,
     float                   bias) {
@@ -2963,11 +2979,13 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
     
 }
 
+
 void RenderDevice::configureShadowMap(
     uint32              unit,
-    const ShadowMapRef& shadowMap) {
+    const ShadowMap::Ref& shadowMap) {
     configureShadowMap(unit, shadowMap->lightMVP(), shadowMap->depthTexture());
 }
+
 
 void RenderDevice::configureShadowMap(
     uint32              unit,

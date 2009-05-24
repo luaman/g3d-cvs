@@ -4,13 +4,14 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-11-16
- @edited  2007-03-16
+ @edited  2009-05-16
  */
 
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/RenderDevice.h"
+#include "G3D/ImageFormat.h"
 #ifdef G3D_WIN32
 #    include "GLG3D/Win32Window.h"
 #elif defined(G3D_OSX)
@@ -96,5 +97,42 @@ void OSWindow::popLoopBody() {
         m_loopBodyStack.pop();
     }
 }
+
+
+const ImageFormat* OSWindow::Settings::colorFormat() const {
+    switch (rgbBits) {
+    case 5:
+        if (alphaBits == 0) {
+            return ImageFormat::RGB5();
+        } else {
+            return ImageFormat::RGB5A1();
+        }
+
+    case 8:
+        if (alphaBits > 0) {
+            return ImageFormat::RGBA8();
+        } else {
+            return ImageFormat::RGB8();
+        }
+
+    case 10:
+        if (alphaBits > 0) {
+            return ImageFormat::RGB10A2();
+        } else {
+            return ImageFormat::RGB10();
+        }
+
+    case 16:
+        if (alphaBits > 0) {
+            return ImageFormat::RGBA16();
+        } else {
+            return ImageFormat::RGB16();
+        }
+    default:;
+    }
+
+    return ImageFormat::RGB8();
+}
+
 
 }

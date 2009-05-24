@@ -559,11 +559,15 @@ public:
      If you invoke this method on a texture that is currently set on RenderDevice,
      the texture will immediately be updated (there is no need to rebind).
 
-     @param rect The rectangle to copy (relative to the viewport)
+     \param rect The rectangle to copy (relative to the viewport)
+
+     \param fmt If NULL, uses the existing texture format, otherwise 
+     forces this texture to use the specified format.
+
      @sa RenderDevice::screenShotPic
      @sa RenderDevice::setReadBuffer
      */
-    void copyFromScreen(const Rect2D& rect);
+    void copyFromScreen(const Rect2D& rect, const ImageFormat* fmt = NULL);
 
     /**
      Argument for copyFromScreen

@@ -73,13 +73,13 @@ void App::onInit() {
     ground = ArticulatedModel::createCornellBox(11.0f);
 
     {
-        ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), 0.5f);
+        ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
         Material::Settings glass;
         glass.setEta(1.4f);
         //glass.setTransmissive(Color3::green() * 0.7f);
         glass.setTransmissive(Color3::white());
         glass.setSpecular(Color3::black());
-        glass.setLambertian(Color3::blue());
+        glass.setLambertian(Color3::black());
         
         Material::Settings air;
         air.setEta(1.0f);
@@ -97,7 +97,8 @@ void App::onInit() {
         inside->indexArray = outside->indexArray;
         inside->indexArray.reverse();
         sphere->updateAll();
-        sphere->pose(transparent);
+        sphere->pose(transparent, Vector3(1,0,0));
+        model = sphere;
     }
 
     setDesiredFrameRate(1000);
@@ -130,8 +131,8 @@ void App::onInit() {
     }
     shadowMap = ShadowMap::create("Shadow Map");
     */
-
     Stopwatch timer("Load 3DS");
+/*
     {
         ArticulatedModel::PreProcess preprocess;
         preprocess.addBumpMaps = false;
@@ -151,7 +152,7 @@ void App::onInit() {
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
 
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/teapot.ifs"), 3);
-
+*/
     timer.after("load 3DS");
 
     fb = Framebuffer::create("Offscreen");
@@ -169,6 +170,7 @@ void App::onInit() {
 //        histogram->insert(Vector3::random());
         v[i] =  Vector3::hemiRandom(Vector3::unitY());
     }
+    
     histogram->insert(v);
 */
 
@@ -181,6 +183,7 @@ void App::onInit() {
 
 
 void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+    (void)posed2D;
     if (model.notNull()) {
         model->pose(posed3D, Vector3(-1,0,0));
     }
@@ -194,104 +197,6 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
     }
 }
 
-
-void renderTransparents
-(RenderDevice*                  rd,
- const Array<PosedModel::Ref>&  modelArray,
- const Array<ShadowMap::Ref>&   shadowMapArray,
- const Lighting::Ref&           lighting,
- RefractionQuality              maxRefractionQuality) {
-
-    rd->pushState();
-
-    // Read back the background
-    static Texture::Ref refractBackground = 
-        Texture::createEmpty("Background", 16, 16, ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
-
-    static Shader::Ref refractShader = 
-        Shader::fromFiles(System::findDataFile("SS_Refract.vrt"), System::findDataFile("SS_Refract.pix"));
-
-    debugAssertGLOk();
-    
-    Framebuffer::Ref fbo = rd->framebuffer();
-    if (fbo.isNull()) {
-        rd->setReadBuffer(RenderDevice::READ_BACK);
-    } else {
-        rd->setReadBuffer(RenderDevice::READ_COLOR0);
-    }
-    debugAssertGLOk();
-    refractBackground->copyFromScreen(rd->viewport());
-
-    const CFrame& cameraFrame = rd->cameraToWorldMatrix();
-    
-    // Standard G3D::SuperShader transparent rendering
-    // Disable depth write so that precise ordering doesn't matter
-    rd->setDepthWrite(false);
-
-    // Transparent, must be rendered from back to front
-    for (int m = 0; m < modelArray.size(); ++m) {
-        PosedModel::Ref model = modelArray[m];
-        GenericPosedModel::Ref gmodel = model.downcast<GenericPosedModel>();
-
-        if (gmodel.notNull()) {
-            const float eta = gmodel->gpuGeom()->material->bsdf()->eta();
-
-            if ((eta > 1.01f) && 
-                (gmodel->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
-                (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
-                
-                // Perform refraction.  The above test ensures that the
-                // back-side of a surface (e.g., glass-to-air interface)
-                // does not perform refraction
-                rd->pushState();
-                {
-                    Sphere bounds3D = gmodel->worldSpaceBoundingSphere();
-                    
-                    // Estimate of distance from object to background to
-                    // be constant (we could read back depth buffer, but
-                    // that won't produce frame coherence)
-                    
-                    const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
-                    const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
-                    refractShader->args.set("backZ", backZ);
-                    
-                    // Assume rays are leaving air
-                    refractShader->args.set("etaRatio", 1.0f / eta);
-                    
-                    // Find out how big the back plane is in meters
-                    float backPlaneZ = min(-0.5f, backZ);
-                    GCamera cam2 = rd->projectionAndCameraMatrix();
-                    cam2.setFarPlaneZ(backPlaneZ);
-                    Vector3 ur, ul, ll, lr;
-                    cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
-                    Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
-                    refractShader->args.set("backSizeMeters", backSizeMeters);
-                    
-                    // Always use the same background image, rendered
-                    // before transparents.  This approach is enough
-                    // of an approximation that we can't expect a ray
-                    // passing through two transparents to be
-                    // reasonable anyway
-                    refractShader->args.set("background", refractBackground);
-                    rd->setShader(refractShader);        
-                    rd->setObjectToWorldMatrix(model->coordinateFrame());
-                    gmodel->sendGeometry(rd);
-                }
-                rd->popState();
-            }
-        }
-
-        model->renderNonShadowed(rd, lighting);
-        debugAssert(lighting->shadowedLightArray.size() == shadowMapArray.size());
-        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
-                                               shadowMapArray[L]);
-        }
-    }
-
-    // TODO: Depth write so that z-buffer is up to date
-    rd->popState();
-}
 
 void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
 
@@ -310,48 +215,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     }
 
     PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
-    Array<ShadowMap::Ref> shadowArray;
-    if (shadowMap.notNull()) {
-        shadowArray.append(shadowMap);
-    }
-    renderTransparents(rd, this->transparent, shadowArray, localLighting, RefractionQuality::BEST);
-    /*    
-    Sphere bounds3D(Vector3(2,0,0), 1);
 
-    rd->pushState();
-        // TODO: turn off for "big" objects or allow manual disabling
-        float eta = 1.5f;
-        static Texture::Ref  refractBackground = Texture::createEmpty("Background", 16, 16, ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
-        static Shader::Ref   refractShader = Shader::fromFiles(System::findDataFile("SS_Refract.vrt"), System::findDataFile("SS_Refract.pix"));
-
-        rd->setReadBuffer(RenderDevice::READ_BACK);
-        refractBackground->copyFromScreen(rd->viewport());
-
-        CFrame cameraFrame = defaultCamera.coordinateFrame();
-
-        // Estimate of distance from object to background (hack; we could read back depth buffer, but that won't produce frame coherence)
-        const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
-        const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
-
-        refractShader->args.set("backZ", backZ);
-        refractShader->args.set("etaRatio", 1.0f / eta);
-
-        // Find out how big the back plane is in meters
-        float backPlaneZ = min(-0.5f, backZ);
-        GCamera cam2 = defaultCamera;
-        cam2.setFarPlaneZ(backPlaneZ);
-        Vector3 ur, ul, ll, lr;
-        cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
-        Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
-        refractShader->args.set("backSizeMeters", backSizeMeters);
-        refractShader->args.set("background", refractBackground);
-
-        rd->setShader(refractShader);
-
-        // Send geometry
-        Draw::sphere(bounds3D, rd, Color3::white(), Color4::clear());
-    rd->popState();
-    */
 /*
     {
         GLight& light = lighting->shadowedLightArray[0];

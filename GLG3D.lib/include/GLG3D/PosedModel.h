@@ -7,8 +7,8 @@
   @edited  2009-04-02
  */ 
 
-#ifndef GLG3D_PosedModel_H
-#define GLG3D_PosedModel_H
+#ifndef GLG3D_PosedModel_h
+#define GLG3D_PosedModel_h
 
 #include "G3D/Array.h"
 #include "G3D/Color4.h"
@@ -16,12 +16,11 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/SkyParameters.h"
 #include "GLG3D/RenderDevice.h"
-
+#include "GLG3D/ShadowMap.h"
 
 namespace G3D {
 
 class ShadowMap;
-typedef ReferenceCountedPointer<ShadowMap> ShadowMapRef;
 
 namespace SuperShader {
 class Pass;
@@ -297,7 +296,7 @@ public:
     virtual void renderShadowMappedLightPass(
         RenderDevice* rd, 
         const GLight& light,
-        const ShadowMapRef& shadowMap) const;
+        const ReferenceCountedPointer<ShadowMap>& shadowMap) const;
 
 
     /** Render geometry only (no shading), and ignore color (but do perform alpha testing).
@@ -351,23 +350,23 @@ public:
        Renders an array of models with the full G3D illumination model
        (correct transparency, multiple direct lights, multiple shadow
        mapped lights), optimizing ArticulatedModels separately to
-       minimize state changes.  As many shadow maps as there are
-       shadow casting lights must be provided.
+       minimize state changes.  
        
-       @beta
+       Calls renderTransparents() for transparent surface rendering.  If you
+       need to perform other rendering before transparents, explicitly remove
+       non-opaque objects from \a allModels yourself and then call renderTransparents
+       later.  Note that you can use the shadow maps that were computed by sortAndRender.
 
-       The shadow map bounds are more-or-less hardcoded for the demo
-       scenes and may not work well for general scenes.  Most
-       significant programs customize the rendering loop and cannot
-       use this routine (although it is often helpful to copy the
-       source code from it).
+       \param shadowMaps As many shadow maps as there are
+       shadow casting lights must be provided.  Do not render the shadow maps yourself;
+       sortAndRender() does that and puts the results back into the array. 
     */
     static void sortAndRender
     (class RenderDevice*            rd, 
      const class GCamera&           camera,
      const Array<PosedModelRef>&    allModels, 
      const LightingRef&             _lighting, 
-     const Array<ShadowMapRef>&     shadowMaps,
+     const Array<ReferenceCountedPointer<ShadowMap> >&  shadowMaps,
      const Array<SuperShader::PassRef>& extraAdditivePasses);
 
     static void sortAndRender
@@ -375,15 +374,33 @@ public:
      const class GCamera&           camera,
      const Array<PosedModelRef>&    allModels, 
      const LightingRef&             _lighting, 
-     const Array<ShadowMapRef>&     shadowMaps);
+     const Array< ReferenceCountedPointer<ShadowMap> >&     shadowMaps);
     
     static void sortAndRender
     (RenderDevice*                  rd, 
      const GCamera&                 camera,
      const Array<PosedModelRef>&    posed3D, 
      const LightingRef&             lighting, 
-     const ShadowMapRef             shadowMap = NULL);
+     const ReferenceCountedPointer<ShadowMap>&  shadowMap = NULL);
 
+    /** Render elements of modelArray, handling transparency reasonably.  Special cased
+        code for refracting GenericPosedModel instances.  Called from sortAndRender().
+
+        Assumes:
+
+         - modelArray is sorted from back to front
+         - shadowMapArray has the length of lighting->shadowedLightArray and contains
+           already computed shadow maps
+
+        Works correctly, but is inefficient, for non-transparent surfaces.
+      */
+    static void renderTransparents
+    (RenderDevice*                  rd,
+     const Array<PosedModel::Ref>&  modelArray,
+     const Lighting::Ref&           lighting,
+     const Array< ReferenceCountedPointer<ShadowMap> >&   shadowMapArray = Array<ShadowMap::Ref>(),
+     RefractionQuality              maxRefractionQuality = RefractionQuality::BEST,
+     const Array<SuperShader::PassRef>& extraAdditivePasses = Array<SuperShader::PassRef>());
 
 protected:
 

@@ -379,7 +379,7 @@ ShadowedPass::ShadowedPass() :
 
 void ShadowedPass::setLight(
     const GLight&                   light, 
-    const ShadowMapRef&             shadowMap) {
+    const ShadowMap::Ref&             shadowMap) {
     
     configureLight(light, 0, args, true);
 

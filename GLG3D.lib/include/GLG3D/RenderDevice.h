@@ -1653,9 +1653,9 @@ public:
 
      @param fbo Framebuffer to render to.
     */
-    void setFramebuffer(const FramebufferRef &fbo);
+    void setFramebuffer(const Framebuffer::Ref &fbo);
 
-    FramebufferRef framebuffer() {
+    Framebuffer::Ref framebuffer() const {
         return state.framebuffer;
     }
 
@@ -1717,6 +1717,9 @@ public:
 	 Shuts down the system.  This should be the last call you make.
 	 */
     void cleanup();
+
+    /** Returns the format of the backbuffer/COLOR0 buffer (NULL if there isn't such a buffer). */
+    const ImageFormat* colorFormat() const;
 
     /**
      Takes a JPG screenshot of the front buffer and saves it to a file.

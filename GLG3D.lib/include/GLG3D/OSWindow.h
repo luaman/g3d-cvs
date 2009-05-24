@@ -171,6 +171,9 @@ public:
         */
         std::string  caption;
         
+        /** Computes the image format closest to these settings for the color buffer.*/
+        const class ImageFormat* colorFormat() const;
+
         Settings() :
             width(960),
             height(600),

@@ -586,6 +586,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\GBuffer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GConsole.h"
 				>
 			</File>

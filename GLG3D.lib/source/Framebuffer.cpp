@@ -414,4 +414,13 @@ void Framebuffer::Attachment::detach() const {
     }
 }
 
+
+const ImageFormat* Framebuffer::Attachment::format() const {
+    if (m_type == TEXTURE) {
+        return m_texture->format();
+    } else {
+        return m_renderbuffer->format();
+    }
+}
+
 } // G3D

@@ -6,24 +6,34 @@
 #ifndef G3D_ShadowMap_h
 #define G3D_ShadowMap_h
 
+#include "G3D/platform.h"
+#include "G3D/GLight.h"
 #include "G3D/Matrix4.h"
+#include "G3D/CoordinateFrame.h"
+#include "G3D/GCamera.h"
+#include "G3D/AABox.h"
 #include "G3D/ReferenceCount.h"
 #include "GLG3D/Texture.h"
+#include "GLG3D/RenderDevice.h"
 #include "GLG3D/Framebuffer.h"
-#include "GLG3D/PosedModel.h"
 
 namespace G3D {
 
+class PosedModel;
+
 class ShadowMap : public ReferenceCountedObject {
+public:
+    typedef ReferenceCountedPointer<ShadowMap> Ref;
+
 private:
     std::string         m_name;
 
     TextureRef          m_depthTexture;
 
     /** If NULL, use the backbuffer */
-    FramebufferRef      m_framebuffer;
+    Framebuffer::Ref    m_framebuffer;
 
-    FramebufferRef      m_colorConversionFramebuffer;
+    Framebuffer::Ref    m_colorConversionFramebuffer;
 
     Matrix4             m_lightMVP;
 
@@ -40,15 +50,13 @@ private:
     /** True when m_colorTexture is out of date */
     bool                m_colorTextureIsDirty;
 
-    TextureRef          m_colorTexture;
+    Texture::Ref        m_colorTexture;
 
     void computeColorTexture();
 
     ShadowMap(const std::string& name);
 
 public:
-
-    typedef ShadowMapRef Ref;
 
     /** For debugging purposes. */
     const std::string& name() const {
@@ -92,7 +100,7 @@ public:
      */
     void setSize(int desiredSize = 1024, const Texture::Settings& settings = Texture::Settings::shadow());
 
-    static ShadowMapRef create(const std::string& name = "Shadow Map", int size = 1024, 
+    static ShadowMap::Ref create(const std::string& name = "Shadow Map", int size = 1024, 
                                const Texture::Settings& settings = Texture::Settings::shadow());
 
     
@@ -139,7 +147,7 @@ public:
     (class RenderDevice*           renderDevice, 
      const CoordinateFrame&        lightFrame,
      const Matrix4&                lightProjectionMatrix,
-     const Array<PosedModel::Ref>& shadowCaster,
+     const Array< ReferenceCountedPointer<PosedModel> >& shadowCaster,
      float                         biasDepth,
      RenderDevice::CullFace        cullFace = RenderDevice::CULL_FRONT);
 

@@ -22,6 +22,7 @@
 #include "GLG3D/VAR.h"
 #include "GLG3D/Lighting.h"
 #include "GLG3D/PosedModel.h"
+#include "GLG3D/ShadowMap.h"
 
 namespace G3D {
 
@@ -177,12 +178,12 @@ protected:
     void renderFFShadowMappedLightPass(
         RenderDevice*                   rd,
         const GLight&                   light,
-        const ShadowMapRef&             shadowMap) const;
+        const ShadowMap::Ref&           shadowMap) const;
 
     void renderPS20ShadowMappedLightPass(
         RenderDevice*                   rd,
         const GLight&                   light,
-        const ShadowMapRef&             shadowMap) const;
+        const ShadowMap::Ref&           shadowMap) const;
 
 public:
 
@@ -226,9 +227,9 @@ public:
         calls.*/
     static void renderShadowMappedLightPass(
         const Array<PosedModel::Ref>& posedArray, 
-        RenderDevice* rd, 
-        const GLight& light, 
-        const ShadowMapRef& shadowMap);
+        RenderDevice*                 rd, 
+        const GLight&                 light, 
+        const ShadowMap::Ref&         shadowMap);
 
     /** Called by PosedModel.
 	 
@@ -310,7 +311,7 @@ public:
 
     virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const Matrix4& lightMVP, const Texture::Ref& shadowMap) const;
 
-    virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const ShadowMapRef& shadowMap) const;
+    virtual void renderShadowMappedLightPass(RenderDevice* rd, const GLight& light, const ShadowMap::Ref& shadowMap) const;
 
     virtual int numBoundaryEdges() const;
 

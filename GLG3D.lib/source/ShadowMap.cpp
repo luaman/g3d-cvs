@@ -2,7 +2,7 @@
   @file ShadowMap.cpp
 
   @author Morgan McGuire, morgan@cs.williams.edu
-  @edited 2009-03-27
+  @edited 2009-05-27
  */
 #include "GLG3D/ShadowMap.h"
 #include "GLG3D/RenderDevice.h"
@@ -10,6 +10,7 @@
 #include "G3D/Box.h"
 #include "G3D/Sphere.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/PosedModel.h"
 
 namespace G3D {
 

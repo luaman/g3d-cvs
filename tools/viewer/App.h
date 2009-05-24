@@ -32,7 +32,7 @@ public:
 	Color4						colorClear;
 
     /** Used by ArticulatedViewer */
-    ShadowMapRef                shadowMap;
+    ShadowMap::Ref              shadowMap;
 
 	App(const GApp::Settings& settings = GApp::Settings(), const std::string& file = "");
 

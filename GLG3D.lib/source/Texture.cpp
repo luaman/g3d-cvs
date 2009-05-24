@@ -1151,10 +1151,16 @@ unsigned int Texture::newGLTextureID() {
 }
 
 
-void Texture::copyFromScreen(const Rect2D& rect) {
+void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
     glStatePush();
- 
+
     m_sizeOfAllTexturesInMemory -= sizeInMemory();
+
+    if (fmt == NULL) {
+        fmt = format();
+    } else {
+        m_format = fmt;
+    }
 
     // Set up new state
     m_width   = (int)rect.width();

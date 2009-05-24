@@ -96,7 +96,7 @@ public:
         (
          const std::string&          name, 
          const GLuint                imageID,
-         const G3D::ImageFormat*   format);
+         const G3D::ImageFormat*     format);
     
 	/**
 	 Creates an empty renderbuffer object.
@@ -108,10 +108,9 @@ public:
 	 @param _depth  Image depth
 	 */
     static RenderbufferRef createEmpty
-    (
-     const std::string&          name, 
-     const int                   width, 
-     const int                   height,
+    (const std::string&        name, 
+     const int                 width, 
+     const int                 height,
      const class ImageFormat*  format); 
 
 	/**

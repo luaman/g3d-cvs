@@ -200,7 +200,7 @@ void GenericPosedModel::renderShadowMappedLightPass
 (const Array<PosedModel::Ref>& posedArray, 
  RenderDevice* rd, 
  const GLight& light, 
- const ShadowMapRef& shadowMap) {
+ const ShadowMap::Ref& shadowMap) {
     
     if (posedArray.size() == 0) {
         return;
@@ -817,7 +817,7 @@ void GenericPosedModel::renderShadowMappedLightPass(
 void GenericPosedModel::renderShadowMappedLightPass(
     RenderDevice*         rd, 
     const GLight&         light, 
-    const ShadowMapRef&   shadowMap) const {
+    const ShadowMap::Ref& shadowMap) const {
 
     // This is the unoptimized, single-object version of renderShadowMappedLightPass.
     // It just calls the optimized version with a single-element array.
@@ -834,7 +834,7 @@ void GenericPosedModel::renderShadowMappedLightPass(
 void GenericPosedModel::renderPS20ShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
-    const ShadowMapRef& shadowMap) const {
+    const ShadowMap::Ref& shadowMap) const {
 
     SuperShader::ShadowedPass::instance()->setLight(light, shadowMap);
     rd->setShader(SuperShader::ShadowedPass::instance()->getConfiguredShader(*m_gpuGeom->material, rd->cullFace()));
@@ -845,7 +845,7 @@ void GenericPosedModel::renderPS20ShadowMappedLightPass(
 void GenericPosedModel::renderFFShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
-    const ShadowMapRef& shadowMap) const {
+    const ShadowMap::Ref& shadowMap) const {
 
     rd->configureShadowMap(1, shadowMap);
 

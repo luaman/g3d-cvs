@@ -94,7 +94,7 @@ void configureShaderExtraLightArgs(
 
 void configureShadowShaderArgs(
     const GLight&                   light, 
-    const ShadowMapRef&             shadowMap,
+    const ShadowMap::Ref&           shadowMap,
     const Material&                 material,
     VertexAndPixelShader::ArgList&  args);
 
@@ -109,8 +109,8 @@ void configureShadowShaderArgs(
     */
 void createShaders(
     const Material& material,
-    ShaderRef&      nonShadowedShader,
-    ShaderRef&      shadowMappedShader);
+    Shader::Ref&      nonShadowedShader,
+    Shader::Ref&      shadowMappedShader);
 
 typedef ReferenceCountedPointer<class Pass>            PassRef;
 typedef ReferenceCountedPointer<class NonShadowedPass> NonShadowedPassRef;
@@ -311,7 +311,7 @@ public:
 
     static ShadowedPassRef instance();
 
-    void setLight(const GLight& light, const ShadowMapRef& shadowMap);
+    void setLight(const GLight& light, const ShadowMap::Ref& shadowMap);
 };
 
 } // namespace SuperShader

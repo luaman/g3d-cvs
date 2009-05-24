@@ -132,12 +132,11 @@ void PosedModel::renderDepthOnly
 
 
 void PosedModel::sortAndRender
-(
- RenderDevice*                  rd, 
+(RenderDevice*                  rd, 
  const GCamera&                 camera,
  const Array<PosedModelRef>&    allModels, 
  const LightingRef&             _lighting, 
- const Array<ShadowMapRef>&     shadowMaps,
+ const Array<ShadowMap::Ref>&   shadowMaps,
  const Array<SuperShader::PassRef>& extraAdditivePasses) {
 
     static bool recurse = false;
@@ -235,15 +234,7 @@ void PosedModel::sortAndRender
     }
 
     // Transparent, must be rendered from back to front
-    for (int m = 0; m < transparent.size(); ++m) {
-        transparent[m]->renderNonShadowed(rd, lighting);
-        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
-            transparent[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
-        }
-        for (int p = 0; p < extraAdditivePasses.size(); ++p) {
-            transparent[m]->renderSuperShaderPass(rd, extraAdditivePasses[p]);
-        }
-    }
+    renderTransparents(rd, transparent, lighting, shadowMaps, RefractionQuality::BEST, extraAdditivePasses);
 
     opaqueGeneric.fastClear();
     otherOpaque.fastClear();
@@ -255,25 +246,23 @@ void PosedModel::sortAndRender
 
 
 void PosedModel::sortAndRender
-    (
-     class RenderDevice*            rd, 
-     const class GCamera&           camera,
-     const Array<PosedModelRef>&    allModels, 
-     const LightingRef&             _lighting, 
-     const Array<ShadowMapRef>&     shadowMaps) {
+(class RenderDevice*            rd, 
+ const class GCamera&           camera,
+ const Array<PosedModelRef>&    allModels, 
+ const LightingRef&             _lighting, 
+ const Array<ShadowMap::Ref>&     shadowMaps) {
     sortAndRender(rd, camera, allModels, _lighting, shadowMaps, Array<SuperShader::PassRef>());
 }
 
 
 void PosedModel::sortAndRender
-(
- RenderDevice*                  rd, 
+(RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<PosedModelRef>&    posed3D, 
+ const Array<PosedModel::Ref>&  posed3D, 
  const LightingRef&             lighting, 
- const ShadowMapRef             shadowMap) {
+ const ShadowMap::Ref&          shadowMap) {
 
-    static Array<ShadowMapRef> shadowMaps;
+     static Array<ShadowMap::Ref> shadowMaps;
     if (shadowMap.notNull()) {
         shadowMaps.append(shadowMap);
     }
@@ -282,7 +271,7 @@ void PosedModel::sortAndRender
 }
 
 
-void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2DRef>& posed2D) {
+void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2D::Ref>& posed2D) {
     if (posed2D.size() > 0) {
         rd->push2D();
             PosedModel2D::sort(posed2D);
@@ -507,7 +496,7 @@ void PosedModel::renderShadowedLightPass(
 void PosedModel::renderShadowMappedLightPass(
     RenderDevice* rd, 
     const GLight& light,
-    const ShadowMapRef& shadowMap) const {
+    const ShadowMap::Ref& shadowMap) const {
 
     renderShadowMappedLightPass(rd, light, shadowMap->biasedLightMVP(), shadowMap->depthTexture());
 }
@@ -520,12 +509,14 @@ void PosedModel::renderShadowMappedLightPass(
     const Texture::Ref& shadowMap) const {
 
     rd->pushState();
+    {
         rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
         rd->configureShadowMap(1, lightMVP, shadowMap);
         rd->setLight(0, light);
         rd->enableLighting();
         rd->setAmbientLightColor(Color3::black());
         render(rd);
+    }
     rd->popState();
 }
 
@@ -578,6 +569,125 @@ void PosedModel::sendGeometry(RenderDevice* rd) const {
     rd->endIndexedPrimitives();
 }
 
+
+
+void PosedModel::renderTransparents
+(RenderDevice*                  rd,
+ const Array<PosedModel::Ref>&  modelArray,
+ const Lighting::Ref&           lighting,
+ const Array<ShadowMap::Ref>&   shadowMapArray,
+ RefractionQuality              maxRefractionQuality,
+ const Array<SuperShader::PassRef>& extraAdditivePasses) {
+
+    rd->pushState();
+
+    debugAssertGLOk();
+    
+    Framebuffer::Ref fbo = rd->framebuffer();
+    const ImageFormat* screenFormat = rd->colorFormat();
+    if (fbo.isNull()) {
+        rd->setReadBuffer(RenderDevice::READ_BACK);
+    } else {
+        Framebuffer::Attachment::Ref screen = fbo->get(Framebuffer::COLOR0);
+        debugAssertM(screen.notNull(), "No color attachment on framebuffer");
+        rd->setReadBuffer(RenderDevice::READ_COLOR0);
+    }
+    debugAssertGLOk();
+
+    static bool supportsRefract = Shader::supportsPixelShaders() && GLCaps::supports_GL_ARB_texture_non_power_of_two();
+
+    static Texture::Ref refractBackground;
+    static Shader::Ref refractShader;
+
+    bool didReadback = false;
+
+    const CFrame& cameraFrame = rd->cameraToWorldMatrix();
+    
+    // Standard G3D::SuperShader transparent rendering
+    // Disable depth write so that precise ordering doesn't matter
+    rd->setDepthWrite(false);
+
+    // Transparent, must be rendered from back to front
+    for (int m = 0; m < modelArray.size(); ++m) {
+        PosedModel::Ref model = modelArray[m];
+        GenericPosedModel::Ref gmodel = model.downcast<GenericPosedModel>();
+
+        if (gmodel.notNull() && supportsRefract) {
+            const float eta = gmodel->gpuGeom()->material->bsdf()->eta();
+
+            if ((eta > 1.01f) && 
+                (gmodel->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&
+                (maxRefractionQuality >= RefractionQuality::DYNAMIC_FLAT)) {
+
+                if (! didReadback) {
+                    if (refractBackground.isNull()) {
+                        refractBackground = Texture::createEmpty("Background", rd->width(), rd->height(), screenFormat, Texture::DIM_2D_NPOT, Texture::Settings::video());
+                    }
+
+                    refractBackground->copyFromScreen(rd->viewport(), screenFormat);
+                    didReadback = true;
+                }
+
+                if (refractShader.isNull()) {
+                    refractShader = Shader::fromFiles(System::findDataFile("SS_Refract.vrt"), 
+                                                      System::findDataFile("SS_Refract.pix"));
+                }
+                
+                // Perform refraction.  The above test ensures that the
+                // back-side of a surface (e.g., glass-to-air interface)
+                // does not perform refraction
+                rd->pushState();
+                {
+                    Sphere bounds3D = gmodel->worldSpaceBoundingSphere();
+                    
+                    // Estimate of distance from object to background to
+                    // be constant (we could read back depth buffer, but
+                    // that won't produce frame coherence)
+                    
+                    const float z0 = max(8.0f - (eta - 1.0f) * 5.0f, bounds3D.radius);
+                    const float backZ = cameraFrame.pointToObjectSpace(bounds3D.center).z - z0;
+                    refractShader->args.set("backZ", backZ);
+                    
+                    // Assume rays are leaving air
+                    refractShader->args.set("etaRatio", 1.0f / eta);
+                    
+                    // Find out how big the back plane is in meters
+                    float backPlaneZ = min(-0.5f, backZ);
+                    GCamera cam2 = rd->projectionAndCameraMatrix();
+                    cam2.setFarPlaneZ(backPlaneZ);
+                    Vector3 ur, ul, ll, lr;
+                    cam2.getFarViewportCorners(rd->viewport(), ur, ul, ll, lr);
+                    Vector2 backSizeMeters((ur - ul).length(), (ur - lr).length());
+                    refractShader->args.set("backSizeMeters", backSizeMeters);
+                    
+                    // Always use the same background image, rendered
+                    // before transparents.  This approach is enough
+                    // of an approximation that we can't expect a ray
+                    // passing through two transparents to be
+                    // reasonable anyway
+                    refractShader->args.set("background", refractBackground);
+                    rd->setShader(refractShader);        
+                    rd->setObjectToWorldMatrix(model->coordinateFrame());
+                    gmodel->sendGeometry(rd);
+                }
+                rd->popState();
+            }
+        }
+
+        model->renderNonShadowed(rd, lighting);
+        debugAssert(lighting->shadowedLightArray.size() == shadowMapArray.size());
+        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+            model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
+                                               shadowMapArray[L]);
+        }
+        for (int p = 0; p < extraAdditivePasses.size(); ++p) {
+            model->renderSuperShaderPass(rd, extraAdditivePasses[p]);
+        }
+    }
+
+    // TODO: Depth write so that z-buffer is up to date
+    rd->popState();
+}
 ////////////////////////////////////////////////////////////////////////////////////////
 
 static bool depthGreaterThan(const PosedModel2DRef& a, const PosedModel2DRef& b) {

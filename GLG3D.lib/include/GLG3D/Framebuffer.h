@@ -66,7 +66,7 @@ typedef ReferenceCountedPointer<class Framebuffer> FramebufferRef;
 	bool init = false;
 
 	if (! init) {
-		fb->set(Framebuffer::COLOR_ATTACHMENT0, tex);
+		fb->set(Framebuffer::COLOR0, tex);
 		init = true;
 	}
 
@@ -87,7 +87,7 @@ typedef ReferenceCountedPointer<class Framebuffer> FramebufferRef;
 	app->renderDevice->setProjectionAndCameraMatrix(app->debugCamera);
 
 	// Remove the texture from the framebuffer
-	//	fb->set(Framebuffer::COLOR_ATTACHMENT0, NULL);
+	//	fb->set(Framebuffer::COLOR0, NULL);
 
 	// Can now render from the texture
 
@@ -288,6 +288,8 @@ public:
         inline Texture::CubeFace cubeFace() const {
             return m_cubeFace;
         }
+
+        const ImageFormat* format() const;
 
         Vector2 vector2Bounds() const;
 
