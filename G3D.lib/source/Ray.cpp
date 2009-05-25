@@ -69,10 +69,10 @@ Vector3 Ray::intersection(const Plane& plane) const {
 }
 
 
-float Ray::intersectionTime(const class Sphere& sphere) const {
+float Ray::intersectionTime(const class Sphere& sphere, bool solid) const {
     Vector3 dummy;
     return CollisionDetection::collisionTimeForMovingPointFixedSphere(
-            origin, direction, sphere, dummy);
+            origin, direction, sphere, dummy, dummy, solid);
 }
 
 

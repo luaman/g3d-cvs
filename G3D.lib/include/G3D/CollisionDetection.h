@@ -675,8 +675,9 @@ public:
 	 @param Sphere		Fixed Sphere.
 	 @param location	Location of collision. [Post Condition]
 	 @param outNormal	Sphere's surface normal to collision [Post Condition]
+     \param solid If true, rays inside the sphere immediately intersect (good for collision detection).  If false, they hit the opposite side of the sphere (good for ray tracing).
 
-	 @return Time til collision.  If there is no collision then the return
+	 @return Time until collision.  If there is no collision then the return
 	         value will be inf().
  	*/
     static float collisionTimeForMovingPointFixedSphere(
@@ -684,7 +685,8 @@ public:
         const Vector3&			velocity,
         const class Sphere&		sphere,
         Vector3&				outLocation,
-        Vector3&                outNormal = ignore);
+        Vector3&                outNormal = ignore,
+        bool                    solid = false);
 
     /**
 	 Calculates time between the intersection of a moving point and a fixed

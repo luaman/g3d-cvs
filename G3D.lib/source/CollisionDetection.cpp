@@ -981,24 +981,32 @@ float CollisionDetection::collisionTimeForMovingPointFixedSphere(
     const Vector3&  velocity,
     const Sphere&   sphere,
     Vector3&        location,
-    Vector3&        outNormal) {
+    Vector3&        outNormal,
+    bool            solid) {
 
-    float  speed     = velocity.magnitude();
-    Vector3 direction = velocity / speed;
+    if (solid && sphere.contains(point)) {
+        location = point;
+        outNormal = (point - sphere.center).direction();
+        return 0.0f;
+    }
 
-    Vector3 L = sphere.center - point;
-    float d = L.dot(direction);
+    float          speed = velocity.magnitude();
+    const Vector3& direction = velocity / speed;
+
+    // length of the axis between the start and the sphere
+    const Vector3& L = sphere.center - point;
+    float          d = L.dot(direction);
 
     float L2 = L.dot(L);
-    float R2 = sphere.radius * sphere.radius;
-    float D2 = d * d;
+    float R2 = square(sphere.radius);
+    float D2 = square(d);
 
-    if ((d < 0) && (L2 > R2)) {
+    if ((d < 0.0f) && (L2 > R2)) {
         location = Vector3::inf();
         return finf();
     }
 
-    float M2 = L2 - D2;
+    const float M2 = L2 - D2;
 
     if (M2 > R2) {
         location = Vector3::inf();

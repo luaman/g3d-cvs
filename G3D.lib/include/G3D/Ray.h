@@ -82,7 +82,7 @@ public:
     Vector3 intersection(const class Plane& plane) const;
 
     /**
-     Returns the distance until intersection with the (solid) sphere.
+     Returns the distance until intersection with the sphere or the (solid) ball bounded by the sphere.
      Will be 0 if inside the sphere, inf if there is no intersection.
 
      The ray direction is <B>not</B> normalized.  If the ray direction
@@ -92,8 +92,10 @@ public:
 
      See also the G3D::CollisionDetection "movingPoint" methods,
      which give more information about the intersection.
+
+     \param solid If true, rays inside the sphere immediately intersect (good for collision detection).  If false, they hit the opposite side of the sphere (good for ray tracing).
      */
-    float intersectionTime(const class Sphere& sphere) const;
+    float intersectionTime(const class Sphere& sphere, bool solid = false) const;
 
     float intersectionTime(const class Plane& plane) const;
 
