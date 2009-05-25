@@ -250,6 +250,7 @@ simulates photons moving around a scene).
 \link G3D::Box <b>Box</b>\endlink,
 \link G3D::AABox <b>AABox</b>\endlink,
 \link G3D::Triangle <b>Triangle</b>\endlink,
+\link G3D::Tri <b>Tri</b>\endlink,
 \link G3D::Plane <b>Plane</b>\endlink,
 \link G3D::Line <b>Line</b>\endlink,
 \link G3D::Cylinder <b>Cylinder</b>\endlink,

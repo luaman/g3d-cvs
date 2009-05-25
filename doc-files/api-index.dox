@@ -34,6 +34,7 @@ href="classes.html">Classes</a>.
     \link G3D::PosedModel2D PosedModel2D\endlink,
     \link G3D::Sky Sky\endlink,
     \link G3D::SkyParameters SkyParameters\endlink,
+    \link G3D::Tri Tri\endlink,
     \link G3D::VideoInput VideoInput\endlink,
     \link G3D::VideoOutput VideoOutput\endlink
 

@@ -456,6 +456,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\Tri.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\UberBSDF.cpp"
 				>
 			</File>
@@ -791,6 +795,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\ToneMap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Tri.h"
 				>
 			</File>
 			<File

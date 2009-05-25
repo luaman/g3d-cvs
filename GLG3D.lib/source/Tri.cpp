@@ -1,4 +1,12 @@
-#include "Tri.h"
+/**
+  @file Tri.cpp
+  
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2009-05-25
+  @edited  2009-05-25
+ */ 
+#include "GLG3D/Tri.h"
 #include "G3D/Ray.h"
 #include "GLG3D/PosedModel.h"
 #include "GLG3D/GenericPosedModel.h"

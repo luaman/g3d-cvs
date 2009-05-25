@@ -91,6 +91,7 @@
 #include "GLG3D/UberBSDF.h"
 #include "GLG3D/Component.h"
 #include "GLG3D/Film.h"
+#include "GLG3D/Tri.h"
 
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiButton.h"
