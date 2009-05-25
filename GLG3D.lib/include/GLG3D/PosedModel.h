@@ -398,9 +398,9 @@ public:
     (RenderDevice*                  rd,
      const Array<PosedModel::Ref>&  modelArray,
      const Lighting::Ref&           lighting,
+     const Array<SuperShader::PassRef>& extraAdditivePasses,
      const Array< ReferenceCountedPointer<ShadowMap> >&   shadowMapArray = Array<ShadowMap::Ref>(),
-     RefractionQuality              maxRefractionQuality = RefractionQuality::BEST,
-     const Array<SuperShader::PassRef>& extraAdditivePasses = Array<SuperShader::PassRef>());
+     RefractionQuality              maxRefractionQuality = RefractionQuality::BEST);
 
 protected:
 

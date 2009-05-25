@@ -234,7 +234,8 @@ void PosedModel::sortAndRender
     }
 
     // Transparent, must be rendered from back to front
-    renderTransparents(rd, transparent, lighting, shadowMaps, RefractionQuality::BEST, extraAdditivePasses);
+    renderTransparents(rd, transparent, lighting, extraAdditivePasses, 
+                       shadowMaps, RefractionQuality::BEST);
 
     opaqueGeneric.fastClear();
     otherOpaque.fastClear();
@@ -575,9 +576,9 @@ void PosedModel::renderTransparents
 (RenderDevice*                  rd,
  const Array<PosedModel::Ref>&  modelArray,
  const Lighting::Ref&           lighting,
+ const Array<SuperShader::PassRef>& extraAdditivePasses,
  const Array<ShadowMap::Ref>&   shadowMapArray,
- RefractionQuality              maxRefractionQuality,
- const Array<SuperShader::PassRef>& extraAdditivePasses) {
+ RefractionQuality              maxRefractionQuality) {
 
     rd->pushState();
 
