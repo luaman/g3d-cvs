@@ -258,10 +258,10 @@ public:
 
        \f{eqnarray}
        \nonumber\rho_L &=& \int_\cap f_L (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = 
-\int_\cap \frac{1}{\pi} \rho_L (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i =
-\rho_L \\
+\int_\cap \frac{1}{\pi} \rho_{L0} F_{L}(\vec{\omega}_i) (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i =
+\rho_{L0} F_{L}(\vec{\omega}_i) \\
        \nonumber\rho_g &=& \int_\cap f_g (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = 
-\int_\cap \frac{s + 8}{8 \pi} F_r \max(0, \vec{n} \cdot \vec{\omega}_h)^{s} (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = F_r(\vec{\omega}_i)\\
+\int_\cap \frac{s + 8}{8 \pi} F_r(\vec{\omega}_i)\max(0, \vec{n} \cdot \vec{\omega}_h)^{s} (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = F_r(\vec{\omega}_i)\\
        \nonumber\rho_m &=& \int_\cap f_m (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = 
 \int_\cap F_r(\vec{\omega}_i) \delta(\vec{\omega}_o, \vec{\omega}_m) / (\vec{\omega}_i \cdot \vec{n}) (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = F_r(\vec{\omega}_i)\\
        \nonumber\rho_L &=& \int_\cup f_t (\vec{\omega}_i \cdot \vec{n}) d\vec{\omega}_i = 
