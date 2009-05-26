@@ -73,7 +73,8 @@ void Film::init() {
 }
 
 
-void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input) {
+void Film::exposeAndRender(RenderDevice* rd, const Texture::Ref& input, int downsample) {
+    debugAssertM(downsample == 1, "Downsampling not implemented in this release");
     if (m_framebuffer.isNull()) {
         init();
     }

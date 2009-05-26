@@ -2,7 +2,7 @@
  @file Film.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @created 2008-07-01
- @edited  2009-03-25
+ @edited  2009-05-25
  */
 
 #ifndef G3D_Film_h
@@ -160,10 +160,13 @@ public:
     /** Adds controls for this Film to the specified GuiPane. */
     void makeGui(class GuiPane*, float maxExposure = 10.0f);
 
-    /** \brief Renders the input as filtered by the film settings to the currently bound framebuffer.*/
+    /** \brief Renders the input as filtered by the film settings to the currently bound framebuffer.
+        \param downsample One side of the downsampling filter in pixels. 1 = no downsampling. 2 = 2x2 downsampling (antialiasing). Not implemented.
+    */
     void exposeAndRender
         (RenderDevice* rd, 
-         const Texture::Ref& input0);
+         const Texture::Ref& input0,
+         int downsample = 1);
 };
 
 } // namespace

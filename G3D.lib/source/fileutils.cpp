@@ -556,11 +556,11 @@ bool zipfileExists(const std::string& filename, std::string& outZipfile,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string generateFilenameBase(const std::string& prefix) {
+std::string generateFilenameBase(const std::string& prefix, const std::string& suffix) {
     Array<std::string> exist;
 
     // Note "template" is a reserved word in C++
-    std::string templat = prefix + System::currentDateString();
+    std::string templat = prefix + System::currentDateString() + "_";
     getFiles(templat + "*", exist);
     
     // Remove extensions
@@ -570,7 +570,7 @@ std::string generateFilenameBase(const std::string& prefix) {
 
     int num = 0;
     std::string result;
-    templat += "_%03d";
+    templat += "%03d" + suffix;
     do {
         result = format(templat.c_str(), num);
         ++num;

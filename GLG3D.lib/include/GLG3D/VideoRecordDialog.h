@@ -71,6 +71,11 @@ protected:
 
     /** Tells the invisible window to record a screenshot when the next frame is rendered.*/
     bool                         m_screenshotPending;
+
+    /** For downsampling */
+    Texture::Ref                 m_downsampleSrc;
+    Texture::Ref                 m_downsampleDst;
+    Framebuffer::Ref             m_downsampleFBO;
     
     /** Motion blur frames */
     GuiNumberBox<int>*           m_framesBox;

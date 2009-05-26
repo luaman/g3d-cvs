@@ -2719,7 +2719,7 @@ void RenderDevice::screenshotPic(GImage& dest, bool getAlpha, bool invertY) cons
 std::string RenderDevice::screenshot(const std::string& filepath) const {
     GImage screen;
 
-    std::string filename = pathConcat(filepath, generateFilenameBase(System::appName() + "_"));
+    std::string filename = pathConcat(filepath, generateFilenameBase("", "_" + System::appName()));
 
     screenshotPic(screen);
     screen.save(filename);

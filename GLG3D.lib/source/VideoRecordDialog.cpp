@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2008-10-18
-  @edited  2008-10-22
+  @edited  2009-09-25
  */ 
 #include "G3D/platform.h"
 #include "G3D/fileutils.h"
@@ -14,7 +14,7 @@
 #include "GLG3D/VideoRecordDialog.h"
 #include "GLG3D/GApp.h"
 #include "GLG3D/RenderDevice.h"
-
+#include "GLG3D/Draw.h"
 
 namespace G3D {
 
@@ -85,7 +85,7 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
 
 
 std::string VideoRecordDialog::nextFilenameBase() {
-    return generateFilenameBase(System::appName() + "_");
+    return generateFilenameBase("", "_" + System::appName());
 }
 
 
@@ -120,13 +120,15 @@ void VideoRecordDialog::makeGUI() {
 
     moviePane->addCheckBox("Record GUI (PosedModel2D)", &m_captureGUI);
 
-    if (false) {
-        // For future expansion
+    if (GLCaps::supports_GL_ARB_texture_non_power_of_two() && GLCaps::supports_GL_EXT_framebuffer_object()) {
         const OSWindow* window = OSWindow::current();
         int w = window->width() / 2;
         int h = window->height() / 2;
-
         moviePane->addCheckBox(format("Half-size (%d x %d)", w, h), &m_halfSize);
+    }
+
+    if (false) {
+        // For future expansion
         moviePane->addCheckBox("Show cursor", &m_showCursor);
     }
 
@@ -189,6 +191,11 @@ void VideoRecordDialog::startRecording() {
     settings.width = window->width();
     settings.height = window->height();
 
+    if (m_halfSize) {
+        settings.width /= 2;
+        settings.height /= 2;
+    }
+
     double kps = 1000;
     double baseRate = 1500;
     if (settings.codec == VideoOutput::CODEC_ID_WMV2) {
@@ -232,13 +239,49 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
     // TODO: motion blur support
     // TODO: show cursor
     // TODO: half size
-    
-    m_video->append(rd, useBackBuffer);
+    if (m_halfSize) {
+        // Half-size: downsample
+        if (m_downsampleSrc.isNull()) {
+            Texture::Settings settings = Texture::Settings::video();
+            // Need bilinear for fast downsample
+            settings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
+            m_downsampleSrc = Texture::createEmpty("Downsample Source", 16, 16, TextureFormat::RGB8(), Texture::DIM_2D_NPOT, settings);
+        }
+        RenderDevice::ReadBuffer old = rd->readBuffer();
+        m_downsampleSrc->copyFromScreen(Rect2D::xywh(0,0,rd->width(), rd->height()));
+        rd->setReadBuffer(old);
+
+        if (m_downsampleFBO.isNull()) {
+            m_downsampleFBO = Framebuffer::create("Downsample Framebuffer");
+        }
+        if (m_downsampleDst.isNull() || 
+            (m_downsampleDst->width() != m_downsampleSrc->width() / 2) || 
+            (m_downsampleDst->height() != m_downsampleSrc->height() / 2)) {
+            // Allocate destination
+            m_downsampleDst = Texture::createEmpty("Downsample Destination", m_downsampleSrc->width() / 2, m_downsampleSrc->height() / 2, 
+                ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+            m_downsampleFBO->set(Framebuffer::COLOR0, m_downsampleDst);
+        }
+        // Downsample (use bilinear for fast filtering
+        rd->push2D(m_downsampleFBO);
+        {
+            rd->setTexture(0, m_downsampleSrc);
+            const Vector2& halfPixelOffset = Vector2(0.5f, 0.5f) / m_downsampleDst->vector2Bounds();
+            Draw::fastRect2D(m_downsampleDst->rect2DBounds() + halfPixelOffset, rd);
+        }
+        rd->pop2D();
+
+        // Write downsampled texture to the video
+        m_video->append(m_downsampleDst);
+    } else {
+        // Full-size: grab directly from the screen
+        m_video->append(rd, useBackBuffer);
+    }
 
     //  Draw "REC" on the screen.
     rd->push2D();
     {
-        if (! useBackBuffer) {
+        if (! useBackBuffer && ! m_halfSize) {
             // Draw directly to the front buffer so that the message does not appear in the 
             // recording of the next frame.
             rd->setDrawBuffer(RenderDevice::DRAW_FRONT);
