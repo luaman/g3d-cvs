@@ -111,7 +111,7 @@ static void vertexExtrude(
 
 void markShadows(
     RenderDevice*           renderDevice, 
-    const PosedModel::Ref&    model,
+    const Surface::Ref&    model,
     const Vector4&          light) {
 
     debugAssertM(inMarkShadows, "Must call beginMarkShadows before markShadows");
@@ -132,7 +132,7 @@ void markShadows(
 
     // Get the relevant object space mesh.
     // This is faster than getting world space
-    // geometry for most PosedModel objects.
+    // geometry for most Surface objects.
 
     const MeshAlg::Geometry& geometry = model->objectSpaceGeometry();
     const Array<Vector3>& vertexArray = geometry.vertexArray;

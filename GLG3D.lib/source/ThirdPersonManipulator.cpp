@@ -336,12 +336,12 @@ void ThirdPersonManipulator::render(RenderDevice* rd) {
 }
 
 
-class TPMPosedModel : public PosedModel {
+class TPMSurface : public Surface {
     friend class ThirdPersonManipulator;
 
     ThirdPersonManipulator* m_manipulator;
 
-    TPMPosedModel(ThirdPersonManipulator* m) : m_manipulator(m) {}
+    TPMSurface(ThirdPersonManipulator* m) : m_manipulator(m) {}
 
 public:
 
@@ -612,7 +612,7 @@ ThirdPersonManipulator::ThirdPersonManipulator() :
     }
     m_geomArray[RZ].line3D.append(_internal::PolyLine(vertex));
 
-    m_posedModel = new TPMPosedModel(this);
+    m_posedModel = new TPMSurface(this);
 }
 
 
@@ -651,8 +651,8 @@ CoordinateFrame ThirdPersonManipulator::frame() const {
 
 
 void ThirdPersonManipulator::onPose(
-    Array<PosedModel::Ref>& posedArray, 
-    Array<PosedModel2DRef>& posed2DArray) {
+    Array<Surface::Ref>& posedArray, 
+    Array<Surface2DRef>& posed2DArray) {
 
     if (m_enabled) {
         (void)posed2DArray;

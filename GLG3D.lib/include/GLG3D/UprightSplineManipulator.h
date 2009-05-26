@@ -163,7 +163,7 @@ public:
 
     virtual CoordinateFrame frame() const;
     virtual void getFrame(CoordinateFrame &c) const;
-    virtual void onPose(Array< PosedModelRef > &posedArray, Array< PosedModel2DRef > &posed2DArray);
+    virtual void onPose(Array< SurfaceRef > &posedArray, Array< Surface2DRef > &posed2DArray);
     virtual bool onEvent (const GEvent &event);
     virtual void onSimulation (RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onUserInput (UserInput *ui);

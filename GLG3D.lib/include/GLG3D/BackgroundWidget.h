@@ -31,7 +31,7 @@ protected:
     /**
        A full-screen texture that sits behind everything else in the scene.
      */
-    class Posed : public PosedModel2D {
+    class Posed : public Surface2D {
     public:
 
         TextureRef    texture;
@@ -81,7 +81,7 @@ public:
 
     virtual void onNetwork () {}
 
-    virtual void onPose (Array< PosedModel::Ref > &posedArray, Array< PosedModel2DRef > &posed2DArray) {
+    virtual void onPose (Array< Surface::Ref > &posedArray, Array< Surface2DRef > &posed2DArray) {
         (void)posedArray;
         m_posed->texture = m_texture;
         posed2DArray.append(m_posed);

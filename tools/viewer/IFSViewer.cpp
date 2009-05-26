@@ -27,7 +27,7 @@ void IFSViewer::onInit(const std::string& filename) {
 	const bool weld = true;
 
 	m_model = IFSModel::fromFile( filename, scale,  CoordinateFrame(), weld, true );
-	PosedModelRef posedifs = m_model->pose(CoordinateFrame(), true);
+	SurfaceRef posedifs = m_model->pose(CoordinateFrame(), true);
 
 	m_numEdges = posedifs->edges().size();
 	m_numFaces = posedifs->faces().size();
@@ -37,7 +37,7 @@ void IFSViewer::onInit(const std::string& filename) {
 
 
 void IFSViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
-	PosedModelRef posedifs = m_model->pose(CoordinateFrame(), true);
+	SurfaceRef posedifs = m_model->pose(CoordinateFrame(), true);
 
 	screenPrintf ( "Edges: %d", m_numEdges );
 	screenPrintf ( "Faces: %d", m_numFaces );

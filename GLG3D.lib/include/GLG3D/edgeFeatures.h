@@ -12,7 +12,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
@@ -32,7 +32,7 @@ namespace G3D {
   
  <B>BETA API</B> -- subject to change.
  */
-void drawFeatureEdges(class RenderDevice* renderDevice, const PosedModel::Ref& model, float creaseAngle = toRadians(40));
+void drawFeatureEdges(class RenderDevice* renderDevice, const Surface::Ref& model, float creaseAngle = toRadians(40));
 
 }
 

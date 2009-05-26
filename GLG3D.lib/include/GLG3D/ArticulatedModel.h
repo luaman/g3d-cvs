@@ -9,9 +9,9 @@
 #include "G3D/Matrix4.h"
 #include "G3D/Welder.h"
 #include "GLG3D/VAR.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 #include "GLG3D/Material.h"
-#include "GLG3D/GenericPosedModel.h"
+#include "GLG3D/GenericSurface.h"
 
 namespace G3D {
 
@@ -19,7 +19,7 @@ namespace G3D {
  @brief A model composed of a hierarchy of rigid parts (i.e., a scene graph).
 
  The hierarchy may have multiple roots.  Renders efficiently using the
- static methods on PosedModel.  PosedModel recognizes
+ static methods on Surface.  Surface recognizes
  ArticulatedModels explicitly and optimizes across them.  Rendering
  provides full effects including shadows, parallax mapping, and
  correct transparency. Use a custom SuperShader::Pass to add new
@@ -179,7 +179,7 @@ public:
         
         /** A set of triangles that have a single material and can be
             rendered as a single OpenGL primitive. */
-        class TriList : public GenericPosedModel::GPUGeom {
+        class TriList : public GenericSurface::GPUGeom {
         private:
 
             friend class Part;
@@ -274,7 +274,7 @@ public:
         void pose(
             const ArticulatedModel::Ref& model,
             int                     partIndex,
-            Array<PosedModel::Ref>& posedArray,
+            Array<Surface::Ref>& posedArray,
             const CoordinateFrame&  parent, 
             const Pose&             posex) const;
 
@@ -360,7 +360,7 @@ public:
         providing detailed illuminaton.
     */
     void pose(
-        Array<PosedModel::Ref>&  posedModelArray,
+        Array<Surface::Ref>&  posedModelArray,
         const CoordinateFrame&   cframe = CoordinateFrame(),
         const Pose&              pose = defaultPose());
   

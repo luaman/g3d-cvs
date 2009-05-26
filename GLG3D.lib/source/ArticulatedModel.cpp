@@ -677,7 +677,7 @@ const ArticulatedModel::Pose& ArticulatedModel::defaultPose() {
 
 
 void ArticulatedModel::pose(
-    Array<PosedModel::Ref>&     posedArray, 
+    Array<Surface::Ref>&     posedArray, 
     const CoordinateFrame&      cframe, 
     const Pose&                 posex) {
 
@@ -694,7 +694,7 @@ void ArticulatedModel::pose(
 void ArticulatedModel::Part::pose
     (const ArticulatedModel::Ref&      model,
      int                               partIndex,
-     Array<PosedModel::Ref>&           posedArray,
+     Array<Surface::Ref>&           posedArray,
      const CoordinateFrame&            parent, 
      const Pose&                       posex) const {
 
@@ -713,10 +713,10 @@ void ArticulatedModel::Part::pose
 
         for (int t = 0; t < triList.size(); ++t) {
             if (triList[t].notNull() && (triList[t]->indexArray.size() > 0)) {
-                GenericPosedModel::CPUGeom cpuGeom(& triList[t]->indexArray, &geometry, 
+                GenericSurface::CPUGeom cpuGeom(& triList[t]->indexArray, &geometry, 
                                                    &texCoordArray, &tangentArray);
 
-                posedArray.append(GenericPosedModel::create(model->name, frame, triList[t],
+                posedArray.append(GenericSurface::create(model->name, frame, triList[t],
                                                             cpuGeom, model));
             }
         }

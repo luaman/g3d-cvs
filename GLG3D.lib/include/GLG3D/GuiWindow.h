@@ -331,7 +331,7 @@ public:
                                      (void)caption;(void)side;
                                      return NULL; }
 
-    virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray);
+    virtual void onPose(Array<Surface::Ref>& posedArray, Array<Surface2D::Ref>& posed2DArray);
 
     virtual bool onEvent(const GEvent& event);
 

@@ -89,7 +89,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
     LightingRef localLighting = toneMap->prepareLighting(lighting);
     toneMap->setEnabled(false);
@@ -120,7 +120,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         }
 	rd->disableLighting();
 
-    PosedModel2D::sortAndRender(rd, posed2D);
+    Surface2D::sortAndRender(rd, posed2D);
 }
 
 /** Must all be lower case */

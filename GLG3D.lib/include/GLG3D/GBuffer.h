@@ -10,8 +10,8 @@
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/Shader.h"
-#include "GLG3D/GenericPosedModel.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/GenericSurface.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
@@ -25,7 +25,7 @@ class RenderDevice;
     Requires GBuffer.pix and GBuffer.vrt at runtime, which can be found
     in the G3D/data-files/SuperShader directory of the G3D distribution.
 
-    \beta This build of G3D only supports GenericPosedModel with GBuffer.
+    \beta This build of G3D only supports GenericSurface with GBuffer.
 
     Requires glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT) >= 5 and 
     pixel and vertex shaders.
@@ -41,7 +41,7 @@ private:
 
     const ImageFormat*          m_depthFormat;
 
-    /** Renders the GenericPosedModel Material UberBSDF coefficients
+    /** Renders the GenericSurface Material UberBSDF coefficients
       to the color attachments. */
     Shader::Ref                 m_shader;
 
@@ -71,19 +71,19 @@ private:
 
     void computeGeneric
     (RenderDevice* rd, 
-     const GenericPosedModel::Ref& model) const;
+     const GenericSurface::Ref& model) const;
 
     void computeNonGeneric
     (RenderDevice* rd, 
-     const PosedModel::Ref& model) const;
+     const Surface::Ref& model) const;
 
     void computeGenericArray
     (RenderDevice* rd, 
-     const Array<GenericPosedModel::Ref>& model) const;
+     const Array<GenericSurface::Ref>& model) const;
 
     void computeNonGenericArray
     (RenderDevice* rd, 
-     const Array<PosedModel::Ref>& model) const;
+     const Array<Surface::Ref>& model) const;
 
 public:
 
@@ -153,15 +153,15 @@ public:
 
         Performs alpha testing using Lambertian.a.
 
-        Elements of \a modelArray that are not GenericPosedModel
+        Elements of \a modelArray that are not GenericSurface
         will be rendered twice to extract their lambertian component
-        and will have no other components.  GenericPosedModel instances
+        and will have no other components.  GenericSurface instances
         render efficiently and will have full BSDF components.
     */
     void compute
     (RenderDevice*                  rd, 
      const GCamera&                 camera,
-     const Array<PosedModel::Ref>&  modelArray) const;
+     const Array<Surface::Ref>&  modelArray) const;
 };
 
 } // namespace G3D

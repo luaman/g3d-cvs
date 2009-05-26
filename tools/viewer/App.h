@@ -38,7 +38,7 @@ public:
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 	virtual void onInit();
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
     virtual void onCleanup();
 	virtual bool onEvent(const GEvent& event);
 

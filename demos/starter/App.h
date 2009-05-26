@@ -20,8 +20,8 @@ public:
     virtual void onAI();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
     virtual bool onEvent(const GEvent& e);
     virtual void onUserInput(UserInput* ui);
     virtual void onCleanup();

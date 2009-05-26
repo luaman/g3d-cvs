@@ -19,7 +19,7 @@
 
 namespace G3D {
 
-class PosedCameraSpline : public PosedModel {
+class PosedCameraSpline : public Surface {
 private:
 
     UprightSpline* spline;
@@ -271,8 +271,8 @@ UprightSplineManipulator::Mode UprightSplineManipulator::mode() const {
 
 
 void UprightSplineManipulator::onPose
-(Array< PosedModelRef > &posedArray, 
- Array< PosedModel2DRef > &posed2DArray) {
+(Array< SurfaceRef > &posedArray, 
+ Array< Surface2DRef > &posed2DArray) {
 
     (void)posed2DArray;
 

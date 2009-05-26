@@ -46,20 +46,20 @@ void App::onUserInput(UserInput* ui) {
 }
 
 
-void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     for (int e = 0; e < entityArray.size(); ++e) {
         entityArray[e]->onPose(posed3D);
     }
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     const Lighting::Ref&  lighting      = toneMap->prepareLighting(this->lighting);
     SkyParameters         skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
     screenPrintf("Lights: %d\n", lighting->lightArray.size());
     screenPrintf("S Lights: %d\n", lighting->shadowedLightArray.size());
-    GenericPosedModel::debugNumSendGeometryCalls = 0;
+    GenericSurface::debugNumSendGeometryCalls = 0;
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
@@ -75,7 +75,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->render(rd, skyParameters);
     }
     
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, lighting, shadowMap);
 
     /*
     // See bounding volumes:
@@ -89,10 +89,10 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     toneMap->endFrame(rd);
 
-    PosedModel2D::sortAndRender(rd, posed2D);
+    Surface2D::sortAndRender(rd, posed2D);
 
     screenPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
-    screenPrintf("%s Profile %s\n", toString(GenericPosedModel::profile()),
+    screenPrintf("%s Profile %s\n", toString(GenericSurface::profile()),
         #ifdef _DEBUG
                 "(DEBUG mode)"
         #else
@@ -116,7 +116,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         rd, Color4(1,1,1,0.7f));
     rd->pop2D();
 
-    screenPrintf("GenericPosedModel::debugNumSendGeometryCalls = %d\n", 
-                 GenericPosedModel::debugNumSendGeometryCalls);
+    screenPrintf("GenericSurface::debugNumSendGeometryCalls = %d\n", 
+                 GenericSurface::debugNumSendGeometryCalls);
 }
 

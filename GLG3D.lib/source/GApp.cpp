@@ -458,8 +458,8 @@ bool GApp::onEvent(const GEvent& event) {
 }
 
 
-void GApp::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
-    Array<PosedModel::Ref>        opaque, transparent;
+void GApp::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posedArray, Array<Surface2DRef>& posed2DArray) {
+    Array<Surface::Ref>        opaque, transparent;
 
     SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
 
@@ -473,7 +473,7 @@ void GApp::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Arra
         // 3D
         if (posedArray.size() > 0) {
             Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
-            PosedModel::sort(posedArray, lookVector, opaque, transparent);
+            Surface::sort(posedArray, lookVector, opaque, transparent);
             
             for (int i = 0; i < opaque.size(); ++i) {
                 opaque[i]->render(renderDevice);
@@ -487,7 +487,7 @@ void GApp::onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posedArray, Arra
 
     if (posed2DArray.size() > 0) {
         renderDevice->push2D();
-            PosedModel2D::sort(posed2DArray);
+            Surface2D::sort(posed2DArray);
             for (int i = 0; i < posed2DArray.size(); ++i) {
                 posed2DArray[i]->render(renderDevice);
             }
@@ -662,7 +662,7 @@ void GApp::onAfterSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     (void)sdt;
 }
 
-void GApp::onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D) {
+void GApp::onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
     (void)posed3D;
     (void)posed2D;
 }

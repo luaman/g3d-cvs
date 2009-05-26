@@ -19,7 +19,7 @@
 
 namespace G3D {
 
-class PosedModel;
+class Surface;
 
 class ShadowMap : public ReferenceCountedObject {
 public:
@@ -147,7 +147,7 @@ public:
     (class RenderDevice*           renderDevice, 
      const CoordinateFrame&        lightFrame,
      const Matrix4&                lightProjectionMatrix,
-     const Array< ReferenceCountedPointer<PosedModel> >& shadowCaster,
+     const Array< ReferenceCountedPointer<Surface> >& shadowCaster,
      float                         biasDepth,
      RenderDevice::CullFace        cullFace = RenderDevice::CULL_FRONT);
 

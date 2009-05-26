@@ -13,7 +13,7 @@
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/ReferenceCount.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 #include "GLG3D/OSWindow.h"
 
 namespace G3D {
@@ -38,13 +38,13 @@ typedef ReferenceCountedPointer<class WidgetManager> WidgetManagerRef;
  to break large pieces of functionality for UI and debugging off so
  that they can be mixed and matched.
 
- Widget inherits PosedModel2D because it is often convenient to
+ Widget inherits Surface2D because it is often convenient to
  implement a widget whose onPose method adds itself to the rendering
  array rather than using a proxy object.
 
  @beta
  */
-class Widget : public PosedModel2D {
+class Widget : public Surface2D {
 protected:
 
     /** The manager, set by setManager().
@@ -66,8 +66,8 @@ public:
      mutated.
      */
     virtual void onPose(
-        Array<PosedModel::Ref>& posedArray,
-        Array<PosedModel2D::Ref>& posed2DArray) {
+        Array<Surface::Ref>& posedArray,
+        Array<Surface2D::Ref>& posed2DArray) {
         (void)posedArray;
         (void)posed2DArray;
     }
@@ -103,15 +103,15 @@ public:
         rendering this Widget. */
     virtual OSWindow* window() const;
 
-    /** Inherited from PosedModel2D */
+    /** Inherited from Surface2D */
     virtual void render(RenderDevice* rd) const {(void)rd; }
 
-    /** Inherited from PosedModel2D */
+    /** Inherited from Surface2D */
     virtual Rect2D bounds() const {
         return AABox2D(-Vector2::inf(), Vector2::inf());
     }
 
-    /** Inherited from PosedModel2D */
+    /** Inherited from Surface2D */
     virtual float depth() const { return 0.5f; }
 };
 
@@ -252,8 +252,8 @@ public:
 
     /** Calls onPose on all children.*/
     virtual void onPose(
-        Array<PosedModel::Ref>& posedArray, 
-        Array<PosedModel2DRef>& posed2DArray);
+        Array<Surface::Ref>& posedArray, 
+        Array<Surface2DRef>& posed2DArray);
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 

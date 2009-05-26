@@ -320,7 +320,7 @@ Rect2D App::drawPopup(const char* title) {
 }
 
 
-void  App::onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array< PosedModel2DRef > &posed2D) {
+void  App::onGraphics (RenderDevice *rd, Array< SurfaceRef > &posed3D, Array< Surface2DRef > &posed2D) {
     rd->setColorClearValue(Color3::white());
     rd->clear();
 

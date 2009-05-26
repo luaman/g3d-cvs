@@ -37,7 +37,7 @@ public:
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
 };
 
 App::App(const GApp::Settings& settings) : GApp(settings), reflect(0.1f), shine(20.0f), diffuse(0.6f), specular(0.5f) {}
@@ -121,7 +121,7 @@ void App::makeGui() {
     addWidget(gui);
 }
 
-void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     toneMap->beginFrame(rd);
 
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
@@ -138,7 +138,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     rd->pushState();
         // Pose our model based on the manipulator axes
-        PosedModel::Ref posedModel = model->pose(manipulator->frame());
+        Surface::Ref posedModel = model->pose(manipulator->frame());
         
         // Enable the sahder
         configureShaderArgs(localLighting);
@@ -154,7 +154,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
     // Process the installed widgets.
 
-    Array<PosedModel::Ref> opaque, transparent; 
+    Array<Surface::Ref> opaque, transparent; 
 
     // Use fixed-function lighting for the 3D widgets for convenience.
     rd->pushState();
@@ -165,7 +165,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         // 3D
         if (posed3D.size() > 0) {
             Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
-            PosedModel::sort(posed3D, lookVector, opaque, transparent);
+            Surface::sort(posed3D, lookVector, opaque, transparent);
 
             for (int i = 0; i < opaque.size(); ++i) {
                 opaque[i]->render(renderDevice);
@@ -180,7 +180,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     // Don't apply the tone map to the 2D widgets
     toneMap->endFrame(rd);
 
-    PosedModel2D::sortAndRender(rd, posed2D);
+    Surface2D::sortAndRender(rd, posed2D);
 
     sky->renderLensFlare(rd, localSky);
 }

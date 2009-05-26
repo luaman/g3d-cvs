@@ -138,7 +138,7 @@ ClientRef Client::create
 }
 
 
-void Client::onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray) {
+void Client::onPose(Array<Surface::Ref>& posedArray, Array<Surface2DRef>& posed2DArray) {
     GuiWindow::onPose(posedArray, posed2DArray);
     if ((m_osWindow != NULL) && visible()) {
         posed2DArray.append(m_display);

@@ -19,7 +19,7 @@
 class MD2Viewer : public Viewer {
 private:
     Array<MD2ModelRef>			models;
-	Array<PosedModelRef>		posed;
+	Array<SurfaceRef>		posed;
 	Array<GMaterial>			materials;
 	MD2Model::Pose				currentPose;
 

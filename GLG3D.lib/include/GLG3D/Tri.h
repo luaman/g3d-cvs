@@ -25,7 +25,7 @@ class Ray;
  implementation because they are stored in a format more efficient for 
  intersection computations.
 
- \sa G3D::Triangle, G3D::MeshShape, G3D::ArticulatedModel, G3D::PosedModel, G3D::MeshAlg
+ \sa G3D::Triangle, G3D::MeshShape, G3D::ArticulatedModel, G3D::Surface, G3D::MeshAlg
  */
 class Tri {
 private:
@@ -228,7 +228,7 @@ public:
          (e.g., to get to a camera's object space, pass the inverse of the camera's
           object-to-world matrix)
      */
-    static void getTris(const ReferenceCountedPointer<class PosedModel>& model, Array<Tri>& triArray, 
+    static void getTris(const ReferenceCountedPointer<class Surface>& model, Array<Tri>& triArray, 
                         const CFrame& xform = CFrame());
 };
 

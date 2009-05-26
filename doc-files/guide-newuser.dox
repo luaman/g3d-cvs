@@ -271,7 +271,7 @@ Instead, the GApp::onPose method is a hook for you to flatten
 your own scene graph into an array.  The G3D model loading classes,
 G3D::MD2Model, G3D::IFSModel, and G3D::ArticulatedModel (for 3DS
 files) all provide pose methods to aid in this process.  The flattened
-scene graph is an array of G3D::PosedModel references that can then be
+scene graph is an array of G3D::Surface references that can then be
 rendered.  To support user interfaces, a separate G3D::Posed2DModel
 reference array is also maintained.
 

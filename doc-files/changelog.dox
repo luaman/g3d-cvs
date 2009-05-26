@@ -17,7 +17,7 @@
      <li> G3D::Tri for ray tracing
      <li> VideoRecordDialog now puts date before program name
      <li> G3D::Matrix4::getPerspectiveProjectionParameters
-     <li> G3D::PosedModel::renderTransparents; G3D::PosedModel::sortAndRender now performs refraction
+     <li> G3D::Surface::renderTransparents; G3D::Surface::sortAndRender now performs refraction
      <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
      <li> G3D::ThirdPersonManipulator now draws hidden lines
      <li> G3D::GBuffer
@@ -32,10 +32,10 @@
      <li> G3D::Win32Window now explicitly requests 0 OpenGL aux buffers for the main window, although some drivers will allocate them anyway
      <li> Removed all glGet* calls from the release build as these can stall GPUs
      <li> Added GLEW 1.5.1 library for loading OpenGL extensions (replaces previous custom G3D code)
-     <li> G3D::PosedModel::renderDepthOnly for early-Z and shadow mapping
+     <li> G3D::Surface::renderDepthOnly for early-Z and shadow mapping
      <li> G3D::PrecomputedRandom
      <li> Increased GLCaps::G3D_MAX_TEXTURE_UNITS to 16
-     <li> GenericPosedModel now depth sorts and culls models for shadow map rendering
+     <li> GenericSurface now depth sorts and culls models for shadow map rendering
      <li> G3D::ShadowMap::computeMatrices
      <li> ShadowMap now renders from backfaces, reducing the need for a polygon offset.
      <li> G3D::GLight now supports additional parameters to control how it interacts with G3D::ShadowMap
@@ -69,7 +69,7 @@
      <li> G3D::System::numCores
      <li> Added buffering (with appropriate flushes) to G3D::logPrintf decrease the startup cost of writing the log
      <li> G3D::System::findDataFile now caches the locations of found files
-     <li> G3D::Widget now inherits from G3D::PosedModel2D
+     <li> G3D::Widget now inherits from G3D::Surface2D
      <li> GApp::m_renderPeriod
      <li> G3D::Random - controllable, threadsafe, and better distribution than rand()
      <li> Added function key guide on the top of render stats for G3D::GApp
@@ -101,7 +101,7 @@
      <li> Fix: RenderDevice::setTexCoordArray now accepts an uninitialized VAR as an argument to disable the texcoord array.
      <li> Fix: RenderDevice now determines number of texture coords/units correctly on all platforms
      <li> Fix: RenderDevice::setTexture now correctly sets the texture matrix for all texture units.
-     <li> Fix: GenericPosedModel now obeys incoming depth write
+     <li> Fix: GenericSurface now obeys incoming depth write
      <li> Fix: ShadowMap bias was being stored statically in updateDepth, causing later calls to ignore that argument
      <li> Fix: GCamera::frustum clipping planes were off for the top and bottom planes.    
      <li> Fix: fileExists("") now returns false 
@@ -110,6 +110,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::PosedModel -> G3D::Surface, G3D::PosedModel2D -> G3D::Surface2D
      <li> G3D::RenderDevice::Primitive -> G3D::PrimitiveType (e.g., RenderDevice::TRIANLGES -> PrimitiveType::TRIANGLES)
      <li> G3D::AssertionHook no longer accepts the ignoreAlways parameter
      <li> G3D::GImage::width, height, channels are now accessor methods instead of public fields
@@ -133,8 +134,8 @@
      <li> Removed unused G3D::BSPMap::getTriangles texCoordIndex argument
      <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
      <li> G3D::ArticulatedModel::Part::TriList::material is now a pointer
-     <li> G3D::PosedModel bounding boxes are now G3D::AABox instead of G3D::Box
-     <li> Moved G3D::ArticulatedModel::setProfile to GenericPosedModel::setProfile
+     <li> G3D::Surface bounding boxes are now G3D::AABox instead of G3D::Box
+     <li> Moved G3D::ArticulatedModel::setProfile to GenericSurface::setProfile
      <li> G3D::ArticulatedModel::Part::TriList is now a reference counted object; Part::triListArray -> Part::triList
      <li> G3D::MeshAlg::computeBounds now takes an AABox instead of a Box
      <li> G3D::GuiDropDownList now stores its list internally, rather than taking a pointer to a list
@@ -217,8 +218,8 @@
      <li> G3D::uint128 [Kyle]
      <li> Increased BSPMap rendering by 10% by reducing state changes
      <li> Added prompt argument to FileDialog::getFilename
-     <li> G3D::PosedModel::getBoxBounds on an array
-     <li> G3D::PosedModel::getSphereBounds on an array
+     <li> G3D::Surface::getBoxBounds on an array
+     <li> G3D::Surface::getSphereBounds on an array
      <li> Changed RenderDevice::screenshot to save .png instead of .jpg files
      <li> G3D::SuperShader now supports a customMap and customConstant for experimenting with shaders.
      <li> G3D::SuperShader now does not ever light the "back" of a bump-mapped poly, even if the bumps should create a light-facing surface
@@ -229,7 +230,7 @@
      <li> G3D::WidgetManager::moveWidgetToBack
      <li> SuperShader / NonShadowed.pix now uses arrays of lights instead of separate variables
      <li> Reduced cost of release-mode Shader argument validation
-     <li> G3D::PosedModel::sortAndRender now performs view-frustum culling of objects
+     <li> G3D::Surface::sortAndRender now performs view-frustum culling of objects
      <li> G3D::Draw::lighting for visualizing light sources
      <li> G3D::SuperShader::Pass::purgeCache
      <li> G3D::GuiSlider::setRange
@@ -263,7 +264,7 @@
      <li> <b>Incompatible change</b>: Merged GApp::simTime and idealSimTime (the sim time is now idealized)
      <li> cmake now generates project files for Xcode, MinGW, and all Visual Studio versions [Corey Taylor]
      <li> OS X: icompile and buildg3d now generate universal binaries on Intel machines
-     <li> G3D::PosedModel::objectSpaceTangents
+     <li> G3D::Surface::objectSpaceTangents
      <li> G3D::IFSModel::fromData
      <li> G3D::MeshAlg::generateGrid
      <li> G3D::BinaryOutput::ok()
@@ -277,7 +278,7 @@
      <li> G3D::GuiControl can now be subclassed for custom user-defined controls
      <li> G3D::GuiTheme::renderCanvas
      <li> G3D::GuiTheme::pauseRendering, G3D::GuiTheme::resumeRendering
-     <li> G3D::PosedModel::sortAndRender
+     <li> G3D::Surface::sortAndRender
      <li> G3D::Framebuffer can now attach cube map faces
      <li> System::describeSystem now prints current working directory and application name
      <li> Added /usr/local/-G3D dir- to system data file path [Kai Schroeder]
@@ -389,7 +390,7 @@
      <li> Significantly changed GEvent delivery and Widget mechanisms to incorporate notions of focus--see upgrade.html
      <li> Motion events (joystick/mouse) can no longer be cancelled by Widget::onEvent
      <li> Mouse motion events for all platforms
-     <li> G3D::PosedModel::Ref::sendGeometry
+     <li> G3D::Surface::Ref::sendGeometry
      <li> G3D::RenderDevice::pushState(FramebufferRef)
      <li> G3D::Texture::PreProcess::computeNormalMap
      <li> direct.h is now included by fileutils.h on Win32 to ensure that chdir, mkdir, etc. are available
@@ -576,7 +577,7 @@
     <LI> G3D::GApp::addWidget, G3D::GApplet::addWidget, G3D::GApp::removeWidget, G3D::GApplet::removeWidget
     <LI> G3D::Widget, G3D::WidgetManager
     <LI> G3D::System::getEnv()
-    <LI> G3D::PosedModel2D
+    <LI> G3D::Surface2D
     <LI> G3D::DXCaps
     <LI> Increased precision of several Quat operations
 	<LI> G3D::Quat::fuzzyEq
@@ -612,7 +613,7 @@
     <LI> Fix: com.graphics3d.g3d.ReliableConduit now correctly selects on the waiting socket
 	<LI> Fix: [ 1166057 ]  AABSPTree::beginBoxIntersection
     <LI> Fix: GLCaps::supports(ImageFormat) now returns correct results on all cards
-    <LI> Fix: Shadow map rendering of default PosedModels now enables lighting
+    <LI> Fix: Shadow map rendering of default Surfaces now enables lighting
     <LI> Fix: G3D::UserInput now restores the mouse position after pureDeltaMouse is turned off
     <LI> Fix: G3D::Win32Window now clips precisely to the client area during an input grab.
 	<LI> Fix: [ 1383042 ] free static variables on shutdown
@@ -942,7 +943,7 @@
      <LI> Reduced overhead for G3D::ReliableConduit and 
           G3D::LightWeightConduit send routines
      <LI> Added PPM/PGM/PBM ASCII encode/decode support to G3D::GImage [Corey]
-     <LI> New G3D::PosedModel rendering methods appropriate for shadow casting
+     <LI> New G3D::Surface rendering methods appropriate for shadow casting
            (with efficient default implementations).
      <LI> G3D::Lighting
      <LI> Changed RenderDevice::TEX_INTERPOLATE to mean GL_DECAL and added TEX_BLEND for GL_BLEND
@@ -956,8 +957,8 @@
      <LI> G3D::RenderDevice::setSpecularCoefficient(Color3)
      <LI> G3D::VAR::maxSize
      <LI> G3D::RenderDevice::enableTwoSidedLighting
-     <LI> G3D::PosedModel::hasTransparency
-     <LI> G3D::PosedModel::sort
+     <LI> G3D::Surface::hasTransparency
+     <LI> G3D::Surface::sort
      <LI> G3D::RenderDevice::renderMode
      <LI> G3D::MeshAlg::computeNormals(geometry, indexArray);
      <LI> contrib/ArticulatedModel (beta 3DS support)
@@ -1009,7 +1010,7 @@
      <LI> Win32Window fully-implements OSWindow [Corey]
      <LI> Texture now supports DDS(2D/CubeMap) and PNG files [Corey]
      <LI> Added Win32 pbuffer routines (no G3D wrapper, though-- we're waiting for the new ARB API).
-     <LI> G3D::PosedModel::texCoords
+     <LI> G3D::Surface::texCoords
      <LI> G3D::IFSModel now loads IFS 1.1 [Peter]
      <LI> G3D::IFSModel now loads and saves PLY2 files (plain text IFS format) [Peter]
      <LI> Automatically switch to glCompressedTexImage2D in G3D::Texture::fromMemory [Corey]
@@ -1218,7 +1219,7 @@
 		  to match it).
      <LI> Support for GL_ARB_vertex_shader, GL_ARB_fragment_shader, and GL_ARB_shader_objects
      <LI> G3D::drawFeatureEdges
-     <LI> const Array<Vector3>& G3D::MD2Model::PosedModel::objectSpaceFaceNormals();
+     <LI> const Array<Vector3>& G3D::MD2Model::Surface::objectSpaceFaceNormals();
 	 <LI> G3D::RenderDevice::sendSequentialIndices
      <LI> Network_Demo
      <LI> contrib/Win32Window
@@ -1350,11 +1351,11 @@
      <LI> html/gettingstarted.html
      <LI> G3D::MeshAlg::debugCheckConsistency
      <LI> G3D::MD2Model and G3D::IFSModel now weld their adjacency information
-     <LI> Renamed/retyped G3D::PosedModel::adjacentFaces to G3D::PosedModel::vertices 
+     <LI> Renamed/retyped G3D::Surface::adjacentFaces to G3D::Surface::vertices 
 	   (most programs can be fixed by changing the type from Array< Array<int> > to
 	   Array<MeshAlg::Vertex> and adjacentVertexArray[v] to vertexArray[v].faceIndex)
 	 <LI> Shadow volumes now use the welded adjacency information
-	 <LI> G3D::PosedModel now offers both welded and non-welded adjacency information
+	 <LI> G3D::Surface now offers both welded and non-welded adjacency information
      <LI> G3D::contains for C-Arrays
      <LI> Generate .tag files in the build
      <LI> G3D::MeshAlg::computeAdjacency does not merge colocated vertices
@@ -1454,7 +1455,7 @@
 	 <LI> RenderDevice::setViewport has flipped the y-axis since version 5.00
      <LI> ReferenceCountedPointer::isLastReference
      <LI> Support for textures beyond the number of texture units (which occurs on NVIDIA cards)
-     <LI> G3D::PosedModel
+     <LI> G3D::Surface
 	 <LI> G3D::IFSModel
      <LI> G3D::CoordinateFrame::normalToObjectSpace, G3D::CoordinateFrame::normalToWorldSpace
      <LI> Simplified arguments on Texture::copyFromScreen

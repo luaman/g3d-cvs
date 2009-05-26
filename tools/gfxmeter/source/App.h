@@ -34,7 +34,7 @@ public:
         cframe2.translation.y -= 1.7f;
         rd->setColor(Color3(.9f, .9f, 1));
 
-        PosedModel::Ref m = model->pose(cframe2, pose);
+        Surface::Ref m = model->pose(cframe2, pose);
 
         // Intentionally render a lot of shadows to gauge rendering performance
         for (int i = 0; i < 20; ++i) {
@@ -120,7 +120,7 @@ public:
 
     virtual void onSimulation(SimTime sdt, SimTime rdt, SimTime idt);
 
-    virtual void onGraphics (RenderDevice *rd, Array< PosedModelRef > &posed3D, Array< PosedModel2DRef > &posed2D);
+    virtual void onGraphics (RenderDevice *rd, Array< SurfaceRef > &posed3D, Array< Surface2DRef > &posed2D);
 
     virtual void onCleanup();
 

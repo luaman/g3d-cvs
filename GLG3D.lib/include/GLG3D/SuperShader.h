@@ -26,12 +26,12 @@ namespace G3D {
  @brief A one-size-fits-all shader system that combines most common
  illumination effects efficiently.  
 
- G3D::PosedModel is designed (through the G3D::ArticulatedModel class)
+ G3D::Surface is designed (through the G3D::ArticulatedModel class)
  to use this system internally, so for most applications you will not
  even need to interact with SuperShader directly.
 
  The most reason to explicitly use the SuperShader system is to add
- your own custom rendering passes after those handled by PosedModel.
+ your own custom rendering passes after those handled by Surface.
  Sample code for doing so (e.g., if creating a rendering pass for
  caustics) looks like:
 
@@ -39,7 +39,7 @@ namespace G3D {
     PassRef causticPass = Pass::fromFiles("caustic.vrt", "caustic.pix");
     causticPass->args.set("causticMap", causticMap);
 
-    PosedModel::sortAndRender(rd, camera, allModels, lighting, shadowMaps, causticPass);
+    Surface::sortAndRender(rd, camera, allModels, lighting, shadowMaps, causticPass);
   </pre>
 
   or, if you want to abstract your pass more explicitly,
@@ -57,7 +57,7 @@ namespace G3D {
     CausticPassRef causticPass = CausticPass::create();
     causticPass->setCaustics(causticMap);
 
-    PosedModel::sortAndRender(rd, camera, allModels, lighting, shadowMaps, causticPass);
+    Surface::sortAndRender(rd, camera, allModels, lighting, shadowMaps, causticPass);
  </pre>
 
  The primary customisation in this example is within caustic.pix,
@@ -65,7 +65,7 @@ namespace G3D {
  render caustics (underwater focused lights) instead of direct
  illumination terms.
 
- Note that PosedModel assumes that all extra passes are additive; if
+ Note that Surface assumes that all extra passes are additive; if
  you want a non-additive rendering pass then you have to manually
  invoke the individual render methods on the posed models.
 

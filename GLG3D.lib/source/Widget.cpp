@@ -209,8 +209,8 @@ void WidgetManager::clear() {
 
 
 void WidgetManager::onPose(
-    Array<PosedModel::Ref>& posedArray, 
-    Array<PosedModel2DRef>& posed2DArray) {
+    Array<Surface::Ref>& posedArray, 
+    Array<Surface2DRef>& posed2DArray) {
 
     beginLock();
     for (int i = 0; i < m_moduleArray.size(); ++i) {

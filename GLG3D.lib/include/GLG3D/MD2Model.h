@@ -17,7 +17,7 @@
 #include "G3D/AABox.h"
 #include "G3D/Sphere.h"
 #include "GLG3D/Texture.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 #include "GLG3D/RenderDevice.h"
 
 
@@ -208,7 +208,7 @@ public:
 
 protected:
 
-    class PosedMD2Model : public PosedModel {
+    class PosedMD2Model : public Surface {
     public:
         static void* operator new(size_t size) {
             return System::malloc(size);
@@ -438,12 +438,12 @@ public:
 
     virtual ~MD2Model() {}
 
-    PosedModel::Ref pose(const CoordinateFrame& cframe, const Pose& pose);
+    Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose);
 
     /** You can also pose a model without a material.  A good example of why this is useful
         is the MD2Model_Demo, in which shadows are rendered by flattening a pose of the model.
         The shadow should not be textured!*/
-    PosedModel::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat);
+    Surface::Ref pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat);
 
     inline const Array<Vector2>& texCoordArray() const {
         return _texCoordArray;

@@ -13,7 +13,7 @@
 
 namespace G3D {
 
-void drawFeatureEdges(RenderDevice* renderDevice, const PosedModel::Ref& model, float creaseAngle) {
+void drawFeatureEdges(RenderDevice* renderDevice, const Surface::Ref& model, float creaseAngle) {
 
     float dotThreshold = max(cosf(creaseAngle), 0.0f);
 

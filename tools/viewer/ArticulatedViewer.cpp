@@ -24,7 +24,7 @@ ArticulatedViewer::ArticulatedViewer() :
 void ArticulatedViewer::onInit(const std::string& filename) {
 
 	m_model = ArticulatedModel::fromFile(filename);
-	Array<PosedModel::Ref> arrayModel;
+	Array<Surface::Ref> arrayModel;
 	m_model->pose(arrayModel);
 
 	const Array<ArticulatedModel::Part>& partArray = m_model->partArray;
@@ -100,10 +100,10 @@ void ArticulatedViewer::onInit(const std::string& filename) {
 void ArticulatedViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
 
     // Separate and sort the models
-	static Array<G3D::PosedModel::Ref> posed3D;
+	static Array<G3D::Surface::Ref> posed3D;
     
     m_model->pose(posed3D);
-    PosedModel::sortAndRender(rd, app->defaultCamera, posed3D, lighting, app->shadowMap);
+    Surface::sortAndRender(rd, app->defaultCamera, posed3D, lighting, app->shadowMap);
     posed3D.fastClear();
 
 	screenPrintf("Faces: %d", m_numFaces);

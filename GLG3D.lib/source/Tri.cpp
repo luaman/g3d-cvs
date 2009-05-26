@@ -8,8 +8,8 @@
  */ 
 #include "GLG3D/Tri.h"
 #include "G3D/Ray.h"
-#include "GLG3D/PosedModel.h"
-#include "GLG3D/GenericPosedModel.h"
+#include "GLG3D/Surface.h"
+#include "GLG3D/GenericSurface.h"
 
 namespace G3D {
 
@@ -225,14 +225,15 @@ void Tri::Intersector::getResult
 #ifdef _MSC_VER
 // Turn off fast floating-point optimizations
 #pragma float_control( pop )
+
 #endif
 
-void Tri::getTris(const PosedModel::Ref& pmodel, Array<Tri>& triArray, const CFrame& xform) {
-    const GenericPosedModel::Ref& model = pmodel.downcast<GenericPosedModel>();
+void Tri::getTris(const Surface::Ref& pmodel, Array<Tri>& triArray, const CFrame& xform) {
+    const GenericSurface::Ref& model = pmodel.downcast<GenericSurface>();
 
-    alwaysAssertM(model.notNull(), "Non-GenericPosedModel present in World.");
-    const GenericPosedModel::CPUGeom& cpuGeom = model->cpuGeom();
-    const GenericPosedModel::GPUGeom::Ref& gpuGeom = model->gpuGeom();
+    alwaysAssertM(model.notNull(), "Non-GenericSurface present in World.");
+    const GenericSurface::CPUGeom& cpuGeom = model->cpuGeom();
+    const GenericSurface::GPUGeom::Ref& gpuGeom = model->gpuGeom();
     
     bool twoSided = gpuGeom->twoSided;
 

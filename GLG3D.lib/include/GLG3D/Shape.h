@@ -201,7 +201,7 @@ public:
  Mesh shape is intended for debugging and for collision detection.  It is not a general purpose
  mesh. 
 
- @sa G3D::PosedModel, G3D::IFSModel, G3D::MD2Model, G3D::MeshAlg, contrib/ArticulatedModel/ArticulatedModel.h
+ @sa G3D::Surface, G3D::IFSModel, G3D::MD2Model, G3D::MeshAlg, contrib/ArticulatedModel/ArticulatedModel.h
  */
 class MeshShape : public Shape {
 

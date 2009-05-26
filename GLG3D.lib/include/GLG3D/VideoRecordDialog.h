@@ -115,7 +115,7 @@ protected:
         list to call recordFrame so that the rest of the GUI is not
         yet visible.
      */
-    class Recorder : public PosedModel2D {
+    class Recorder : public Surface2D {
     public:
         VideoRecordDialog*       dialog;
 
@@ -176,7 +176,7 @@ public:
         of the next frame.*/
     void takeScreenshot();
 
-    virtual void onPose (Array<PosedModelRef> &posedArray, Array< PosedModel2DRef > &posed2DArray);
+    virtual void onPose (Array<SurfaceRef> &posedArray, Array< Surface2DRef > &posed2DArray);
 
     virtual void onAI();
     virtual bool onEvent(const GEvent& event);

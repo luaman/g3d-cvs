@@ -122,7 +122,7 @@ void App::browseServers() {
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     rd->clear();
     GFontRef font = debugWindow->theme()->defaultStyle().font;
 
@@ -135,5 +135,5 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->pop2D();
 
     // Render 2D objects like Widgets
-    PosedModel2D::sortAndRender(rd, posed2D);
+    Surface2D::sortAndRender(rd, posed2D);
 }

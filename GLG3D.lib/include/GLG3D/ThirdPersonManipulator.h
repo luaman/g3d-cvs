@@ -194,7 +194,7 @@ typedef ReferenceCountedPointer<class ThirdPersonManipulator> ThirdPersonManipul
   To manipulate an object, set that object's coordinate frame to the frame(), as in:
 
   <code>
-  PosedModel::Ref posedModel = model->pose(manipulator->frame());
+  Surface::Ref posedModel = model->pose(manipulator->frame());
   </code>
   
   (see the shader demo for an example)
@@ -222,9 +222,9 @@ typedef ReferenceCountedPointer<class ThirdPersonManipulator> ThirdPersonManipul
 class ThirdPersonManipulator : public Manipulator {
 private:
 
-    friend class TPMPosedModel;
+    friend class TPMSurface;
 
-    PosedModel::Ref           m_posedModel;
+    Surface::Ref           m_posedModel;
 
     /** The frame of the control for movement purposes.  */
     CoordinateFrame         m_offsetFrame;
@@ -345,8 +345,8 @@ public:
     virtual CoordinateFrame frame() const;
 
     virtual void onPose(
-        Array<PosedModel::Ref>& posedArray, 
-        Array<PosedModel2DRef>& posed2DArray);
+        Array<Surface::Ref>& posedArray, 
+        Array<Surface2DRef>& posed2DArray);
 
     /** Keeps the object where it in world space is and moves the control in world space.
         Changes the value of frame() constant. */

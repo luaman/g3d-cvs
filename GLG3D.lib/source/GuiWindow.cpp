@@ -150,7 +150,7 @@ void GuiWindow::onUserInput(UserInput* ui) {
 }
 
 
-void GuiWindow::onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2D::Ref>& posed2DArray) {
+void GuiWindow::onPose(Array<Surface::Ref>& posedArray, Array<Surface2D::Ref>& posed2DArray) {
     (void)posedArray;
     if (m_visible) {
         posed2DArray.append(this);
@@ -489,15 +489,15 @@ void GuiWindow::Modal::oneFrame() {
 
         renderDevice->pushState();
         {
-            Array<PosedModel::Ref> posedArray, opaque, transparent; 
-            Array<PosedModel2DRef> posed2DArray;
+            Array<Surface::Ref> posedArray, opaque, transparent; 
+            Array<Surface2DRef> posed2DArray;
 
             manager->onPose(posedArray, posed2DArray);
 
             // 3D
             if (posedArray.size() > 0) {
                 Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
-                PosedModel::sort(posedArray, lookVector, opaque, transparent);
+                Surface::sort(posedArray, lookVector, opaque, transparent);
                 
                 for (int i = 0; i < opaque.size(); ++i) {
                     opaque[i]->render(renderDevice);
@@ -510,7 +510,7 @@ void GuiWindow::Modal::oneFrame() {
             
             if (posed2DArray.size() > 0) {
                 renderDevice->push2D();
-                PosedModel2D::sort(posed2DArray);
+                Surface2D::sort(posed2DArray);
                 for (int i = 0; i < posed2DArray.size(); ++i) {
                     posed2DArray[i]->render(renderDevice);
                 }

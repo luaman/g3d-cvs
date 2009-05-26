@@ -260,7 +260,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\GenericPosedModel.cpp"
+				RelativePath="..\GLG3D.lib\source\GenericSurface.cpp"
 				>
 			</File>
 			<File
@@ -396,10 +396,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\PosedModel.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\Renderbuffer.cpp"
 				>
 			</File>
@@ -437,6 +433,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\SuperShader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\Surface.cpp"
 				>
 			</File>
 			<File
@@ -598,7 +598,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GenericPosedModel.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\GenericSurface.h"
 				>
 			</File>
 			<File
@@ -738,10 +738,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\PosedModel.h"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Renderbuffer.h"
 				>
 			</File>
@@ -779,6 +775,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\SuperShader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Surface.h"
 				>
 			</File>
 			<File

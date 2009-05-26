@@ -11,7 +11,7 @@
 #define G3D_SHADOWVOLUME_H
 
 #include "G3D/platform.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
@@ -89,7 +89,7 @@ void endMarkShadows(RenderDevice* renderDevice);
  */
 void markShadows(
     RenderDevice*           renderDevice, 
-    const PosedModel::Ref&    model,
+    const Surface::Ref&    model,
     const Vector4&          light);
 
 }

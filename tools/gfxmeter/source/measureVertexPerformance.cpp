@@ -85,7 +85,7 @@ public:
         textureID = tex->openGLID();
 
         if (filename != "") {
-            PosedModel::Ref m = IFSModel::fromFile(filename)->pose();
+            Surface::Ref m = IFSModel::fromFile(filename)->pose();
             // Copy fields out into arrays
             {
                 const Array<int>& index = m->triangleIndices();

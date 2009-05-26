@@ -17,7 +17,7 @@
 #include "G3D/Sphere.h"
 #include "G3D/AABox.h"
 #include "G3D/System.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
@@ -35,7 +35,7 @@ public:
     typedef ReferenceCountedPointer<class IFSModel> Ref;
 
 protected:
-    class PosedIFSModel : public PosedModel {
+    class PosedIFSModel : public Surface {
     public:
         IFSModelRef             model;
         CoordinateFrame         cframe;
@@ -139,13 +139,13 @@ public:
      which are slower.  No color or texture is set when rendered (that is,
      the existing RenderDevice values are used.)
      */
-    virtual PosedModel::Ref pose(const CoordinateFrame& cframe = CoordinateFrame(), bool perVertexNormals = true);
+    virtual Surface::Ref pose(const CoordinateFrame& cframe = CoordinateFrame(), bool perVertexNormals = true);
 
     /**
      If perVertexNormals is false, the model is rendered with per-face normals,
      which are slower.
      */
-    virtual PosedModel::Ref pose(const CoordinateFrame& cframe, const GMaterial& material, bool perVertexNormals = true);
+    virtual Surface::Ref pose(const CoordinateFrame& cframe, const GMaterial& material, bool perVertexNormals = true);
 
     virtual size_t mainMemorySize() const;
 

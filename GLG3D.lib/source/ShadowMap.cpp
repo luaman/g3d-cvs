@@ -10,7 +10,7 @@
 #include "G3D/Box.h"
 #include "G3D/Sphere.h"
 #include "GLG3D/Draw.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 
 namespace G3D {
 
@@ -111,7 +111,7 @@ void ShadowMap::updateDepth(
     RenderDevice*                   renderDevice,
     const CoordinateFrame&          lightCFrame, 
     const Matrix4&                  lightProjectionMatrix,
-    const Array<PosedModel::Ref>&   shadowCaster,
+    const Array<Surface::Ref>&   shadowCaster,
     float                           biasDepth,
     RenderDevice::CullFace          cullFace) {
 
@@ -182,7 +182,7 @@ void ShadowMap::updateDepth(
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         debugAssertGLOk();
-        PosedModel::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
         debugAssertGLOk();
     renderDevice->popState();
 

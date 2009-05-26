@@ -375,8 +375,8 @@ private:
     RealTime               m_realTime;
     SimTime                m_simTime;
 
-    Array<PosedModelRef>   m_posed3D;
-    Array<PosedModel2DRef> m_posed2D;
+    Array<SurfaceRef>   m_posed3D;
+    Array<Surface2DRef> m_posed2D;
 
 private:
 
@@ -517,14 +517,14 @@ protected:
        cameras as desired.  RenderDevice::beginFrame and endFrame are
        called for you.
     */
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModel::Ref>& posed3D, 
-                            Array<PosedModel2D::Ref>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, 
+                            Array<Surface2D::Ref>& posed2D);
 
     /** Called before onGraphics.  Append any models that you want
         rendered (you can also explicitly pose and render in your
         onGraphics method).  The provided arrays will already contain
         posed models from any installed Widgets. */
-    virtual void onPose(Array<PosedModel::Ref>& posed3D, Array<PosedModel2D::Ref>& posed2D);
+    virtual void onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
 
     /**
        For a networked app, override this to implement your network

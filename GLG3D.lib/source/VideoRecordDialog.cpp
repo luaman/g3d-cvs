@@ -118,7 +118,7 @@ void VideoRecordDialog::makeGUI() {
     GuiNumberBox<float>* recordBox   = moviePane->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f);
     recordBox->setCaptionSize(captionSize);
 
-    moviePane->addCheckBox("Record GUI (PosedModel2D)", &m_captureGUI);
+    moviePane->addCheckBox("Record GUI (Surface2D)", &m_captureGUI);
 
     if (GLCaps::supports_GL_ARB_texture_non_power_of_two() && GLCaps::supports_GL_EXT_framebuffer_object()) {
         const OSWindow* window = OSWindow::current();
@@ -167,7 +167,7 @@ void VideoRecordDialog::makeGUI() {
 }
 
 
-void VideoRecordDialog::onPose (Array<PosedModelRef> &posedArray, Array< PosedModel2DRef > &posed2DArray) {
+void VideoRecordDialog::onPose (Array<SurfaceRef> &posedArray, Array< Surface2DRef > &posed2DArray) {
     GuiWindow::onPose(posedArray, posed2DArray);
     if (m_video.notNull() || m_screenshotPending) {
         posed2DArray.append(m_recorder);
@@ -248,7 +248,7 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
             m_downsampleSrc = Texture::createEmpty("Downsample Source", 16, 16, TextureFormat::RGB8(), Texture::DIM_2D_NPOT, settings);
         }
         RenderDevice::ReadBuffer old = rd->readBuffer();
-        if (m_useBackbuffer) {
+        if (useBackBuffer) {
             rd->setReadBuffer(RenderDevice::READ_BACK);
         } else {
             rd->setReadBuffer(RenderDevice::READ_FRONT);

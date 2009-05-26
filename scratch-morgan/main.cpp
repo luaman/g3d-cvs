@@ -34,7 +34,7 @@ public:
     Film::Ref               film;
 
     DirectionHistogram*     histogram;
-    Array<PosedModel::Ref> transparent;
+    Array<Surface::Ref> transparent;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -49,8 +49,8 @@ public:
         return GApp::onEvent(e);
     }
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
     virtual void onUserInput(UserInput* ui);
     virtual void onCleanup();
     virtual void onConsoleCommand(const std::string& cmd);
@@ -182,7 +182,7 @@ void App::onInit() {
 }
 
 
-void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     (void)posed2D;
     if (model.notNull()) {
         model->pose(posed3D, Vector3(-1,0,0));
@@ -198,9 +198,9 @@ void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D)
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
-    Array<PosedModel::Ref>        opaque, transparent;
+    Array<Surface::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
 
@@ -214,7 +214,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
         sky->render(rd, localSky);
     }
 
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
 
 /*
     {
@@ -355,7 +355,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
 
 //    film->exposeAndRender(rd, colorBuffer);
 
-    PosedModel2D::sortAndRender(rd, posed2D);
+    Surface2D::sortAndRender(rd, posed2D);
 }
 
 

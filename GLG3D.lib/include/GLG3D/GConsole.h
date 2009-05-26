@@ -116,7 +116,7 @@ protected:
         Default implementation calls m_callback. */
     virtual void onCommand(const string& command);
 
-    class PosedGConsole2D : public PosedModel2D {
+    class PosedGConsole2D : public Surface2D {
     private:
         GConsole*           m_console;
 
@@ -131,7 +131,7 @@ protected:
         virtual float depth() const;
     };
 
-    PosedModel2DRef         m_posedModel2D;
+    Surface2DRef         m_posedModel2D;
 
 protected:
 
@@ -315,7 +315,7 @@ public:
 
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
 
-    virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray);
+    virtual void onPose(Array<Surface::Ref>& posedArray, Array<Surface2DRef>& posed2DArray);
 };
 
 } //G3D

@@ -440,12 +440,12 @@ void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
 }
 
 
-PosedModel::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose) {
+Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose) {
     return new PosedMD2Model(this, cframe, pose, false, GMaterial());
 }
 
 
-PosedModel::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat) {
+Surface::Ref MD2Model::pose(const CoordinateFrame& cframe, const Pose& pose, const GMaterial& mat) {
     return new PosedMD2Model(this, cframe, pose, true, mat);
 }
 

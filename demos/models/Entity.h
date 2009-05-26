@@ -64,7 +64,7 @@ public:
         return e;
     }
 
-    void onPose(Array<PosedModelRef>& array) {
+    void onPose(Array<SurfaceRef>& array) {
         if (artModel.notNull()) {
             artModel->pose(array, cframe, artPose);
         }

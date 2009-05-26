@@ -46,7 +46,7 @@ in which you defined <code>main</code>.
 <p><b>GApp changes</b></p>
 <p>
 A number of changes have been made to GApp.  Most notable - onGraphics now takes three arguments: 
-<code>onGraphics(RenderDevice* rd, Array<PosedModelRef> &posed3D, Array<PosedModel2DRef> &posed2D)</code>.
+<code>onGraphics(RenderDevice* rd, Array<SurfaceRef> &posed3D, Array<Surface2DRef> &posed2D)</code>.
 <br>Similarly important is the removal of GApplet support.  Programs that were defined with a parallel structure using
 GApplets should be restructured.  See the chopper network demo for an example of how to set up an Applet-like structure 
 for programs where you may be having trouble making the switch.
@@ -171,7 +171,7 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::Box::getCorner</td><td>G3D::Box::corner</td></tr>
 <tr><td>G3D::Sky::create</td><td>G3D::Sky::fromFile</td></tr>
 <tr><td>G3D::UserInput::appHasFocus</td><td>G3D::OSWindow::hasFocus</td></tr>
-<tr><td>G3D::PosedModelWrapper</td><td>contrib/PosedModelWrapper</td></tr>
+<tr><td>G3D::SurfaceWrapper</td><td>contrib/SurfaceWrapper</td></tr>
 <tr><td>G3D::TextureManager</td><td>contrib/TextureManager</td></tr>
 <tr><td>G3D::GAppSettings</td><td>G3D::GApp::Settings</td></tr>
 <tr><td>G3D::Texture::Parameters</td><td>G3D::Texture::Settings</td></tr>
@@ -204,8 +204,8 @@ error C2065: 'SDL_QUIT' : undeclared identifier</code>
 <tr><td>G3D::GApp::addWidget</td><td>G3D::GApp::addWidget</td></tr>
 <tr><td>G3D::GApp::removeWidget</td><td>G3D::GApp::removeWidget</td></tr>
 <tr><td>G3D::GFont::get2DStringBounds</td><td>G3D::GFont::bounds</td></tr>
-<tr><td>G3D::GModule::getPosedModel</td><td>G3D::Widget::onPose</td></tr>
-<tr><td>G3D::GApp::getPosedModel</td><td>G3D::GApp::onPose</td></tr>
+<tr><td>G3D::GModule::getSurface</td><td>G3D::Widget::onPose</td></tr>
+<tr><td>G3D::GApp::getSurface</td><td>G3D::GApp::onPose</td></tr>
 <tr><td>G3D::NetworkDevice::createListener</td><td>G3D::NetListener::create</td></tr>
 <tr><td>G3D::NetworkDevice::createLightweightConduit</td><td>G3D::LightweightConduit::create</td></tr>
 <tr><td>G3D::NetworkDevice::createReliableConduit</td><td>G3D::ReliableConduit::create</td></tr>

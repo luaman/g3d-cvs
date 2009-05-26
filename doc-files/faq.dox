@@ -17,7 +17,7 @@ questions.
 7. <a href="#slowdemos">The demos run slowly</a><BR>
 8. <a href="#indexarrays">What are index arrays?</a><BR>
 9. <a href="#otherlibs">Using G3D with other libraries</a><BR>
-10. <a href="#intersectmodel">Proximity and ray intersection with PosedModel</a><BR>
+10. <a href="#intersectmodel">Proximity and ray intersection with Surface</a><BR>
 11. <a href="#rotation">How do I rotate an object when it's drawn?</a><BR>
 12. <a href="#orthographic">Is there a way to make the GCamera do an orthographic projection?</a><BR>
 13. <a href="#worldmouse">How do I get the world-space coordinates of the mouse cursor?</a><BR>
@@ -118,9 +118,9 @@ Most libraries with orthogonal functionality (such as audio libraries) should op
 For more details, see \link guideintro Working with Other Libraries \endlink.
 
 <a NAME="intersectmodel"></a>
-<P><B>Proximity and ray intersection with PosedModel</B><P>
+<P><B>Proximity and ray intersection with Surface</B><P>
 
-<i>I need to intersect a ray with a PosedModel in G3D, and/or find the closest point on a model to a given point (ideally, both). Is there a way to do this in the G3D library, or do you know if there is any already-written code that can do this for us?</i>
+<i>I need to intersect a ray with a Surface in G3D, and/or find the closest point on a model to a given point (ideally, both). Is there a way to do this in the G3D library, or do you know if there is any already-written code that can do this for us?</i>
 
 You can get an indexed triangle list out of a posed model, which you can use to
 create an array of G3D::Triangles.  The triangles have a ray intersection

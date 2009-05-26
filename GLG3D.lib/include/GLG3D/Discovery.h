@@ -137,7 +137,7 @@ class Client : public GuiWindow {
 private:
 
     /** Renders the client's server list */
-    class Display : public PosedModel2D {
+    class Display : public Surface2D {
     public:
         Client*    client;
         virtual Rect2D 	bounds () const;
@@ -238,7 +238,7 @@ public:
     }
 
     virtual bool onEvent(const GEvent& event);
-    virtual void onPose(Array<PosedModel::Ref>& posedArray, Array<PosedModel2DRef>& posed2DArray);
+    virtual void onPose(Array<Surface::Ref>& posedArray, Array<Surface2DRef>& posed2DArray);
 };
 
 
