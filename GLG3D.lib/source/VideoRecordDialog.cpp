@@ -248,6 +248,11 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
             m_downsampleSrc = Texture::createEmpty("Downsample Source", 16, 16, TextureFormat::RGB8(), Texture::DIM_2D_NPOT, settings);
         }
         RenderDevice::ReadBuffer old = rd->readBuffer();
+        if (m_useBackbuffer) {
+            rd->setReadBuffer(RenderDevice::READ_BACK);
+        } else {
+            rd->setReadBuffer(RenderDevice::READ_FRONT);
+        }
         m_downsampleSrc->copyFromScreen(Rect2D::xywh(0,0,rd->width(), rd->height()));
         rd->setReadBuffer(old);
 
