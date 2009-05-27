@@ -130,14 +130,14 @@ void GBuffer::resize(int w, int h) {
 void GBuffer::compute
 (RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<PosedModel::Ref>&  modelArray) const {
+ const Array<Surface::Ref>&  modelArray) const {
 
-    Array<GenericPosedModel::Ref> genericArray;
-    Array<PosedModel::Ref> nonGenericArray;
+    Array<GenericSurface::Ref> genericArray;
+    Array<Surface::Ref> nonGenericArray;
 
     for (int m = 0; m < modelArray.size(); ++m) {
-        const GenericPosedModel::Ref& model = 
-            modelArray[m].downcast<GenericPosedModel>();
+        const GenericSurface::Ref& model = 
+            modelArray[m].downcast<GenericSurface>();
 
         if (model.notNull()) {
             genericArray.append(model);
@@ -172,7 +172,7 @@ void GBuffer::compute
 
 void GBuffer::computeGenericArray
 (RenderDevice* rd, 
- const Array<GenericPosedModel::Ref>& genericArray) const {
+ const Array<GenericSurface::Ref>& genericArray) const {
    
     rd->setShader(m_shader);
     rd->beginIndexedPrimitives();
@@ -185,7 +185,7 @@ void GBuffer::computeGenericArray
 
 void GBuffer::computeNonGenericArray
 (RenderDevice* rd,
- const Array<PosedModel::Ref>& nonGenericArray) const {
+ const Array<Surface::Ref>& nonGenericArray) const {
     debugAssertM(false, "Not implemented in this G3D build");
     return;
     rd->pushState();
@@ -211,19 +211,19 @@ void GBuffer::computeNonGenericArray
 
 void GBuffer::computeNonGeneric
 (RenderDevice* rd,
- const PosedModel::Ref& model) const {
+ const Surface::Ref& model) const {
     
 }
 
 
 void GBuffer::computeGeneric
 (RenderDevice* rd,
- const GenericPosedModel::Ref& model) const {
+ const GenericSurface::Ref& model) const {
 
     debugAssertGLOk();
 
     // Configure the shader with the coefficients
-    const GenericPosedModel::GPUGeom::Ref& geom = model->gpuGeom();
+    const GenericSurface::GPUGeom::Ref& geom = model->gpuGeom();
 
     const UberBSDF::Ref& bsdf = geom->material->bsdf();
     m_shader->args.set("lambertianMap",      Texture::whiteIfNull(bsdf->lambertian().texture()));

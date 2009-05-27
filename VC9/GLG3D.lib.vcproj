@@ -256,6 +256,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\GBuffer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\GConsole.cpp"
 				>
 			</File>
