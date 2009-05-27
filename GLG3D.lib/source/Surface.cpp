@@ -1,5 +1,5 @@
 /**
-  @file PosedModel.cpp
+  @file Surface.cpp
   
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
@@ -16,25 +16,25 @@
 #include "G3D/Log.h"
 #include "G3D/AABox.h"
 #include "G3D/Sphere.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperShader.h"
 
 namespace G3D {
 
-const Array<Vector2>& PosedModel::texCoords() const {
+const Array<Vector2>& Surface::texCoords() const {
     static Array<Vector2> t;
     return t;
 }
 
 
-const Array<Vector3>& PosedModel::objectSpaceTangents() const {
+const Array<Vector3>& Surface::objectSpaceTangents() const {
     static Array<Vector3> t;
     return t;
 }
 
 
-void PosedModel::getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bounds) {
+void Surface::getBoxBounds(const Array<Surface::Ref>& models, AABox& bounds) {
     if (models.size() == 0) {
         bounds = AABox();
         return;
@@ -50,14 +50,14 @@ void PosedModel::getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bound
 }
 
 
-void PosedModel::getSphereBounds(const Array<PosedModel::Ref>& models, Sphere& bounds) {
+void Surface::getSphereBounds(const Array<Surface::Ref>& models, Sphere& bounds) {
     AABox temp;
     getBoxBounds(models, temp);
     bounds = Sphere(temp.center(), temp.extent().length() / 2.0f);
 }
 
 
-void PosedModel::cull(const GCamera& camera, const Rect2D& viewport, const Array<PosedModel::Ref>& allModels, Array<PosedModel::Ref>& outModels) {
+void Surface::cull(const GCamera& camera, const Rect2D& viewport, const Array<Surface::Ref>& allModels, Array<Surface::Ref>& outModels) {
     outModels.fastClear();
 
     Array<Plane> clipPlanes;
@@ -71,9 +71,9 @@ void PosedModel::cull(const GCamera& camera, const Rect2D& viewport, const Array
 }
 
 
-void PosedModel::renderDepthOnly
+void Surface::renderDepthOnly
 (RenderDevice* rd, 
- const Array<PosedModel::Ref>& allModels, 
+ const Array<Surface::Ref>& allModels, 
  RenderDevice::CullFace cull) {
 
     rd->pushState();
@@ -84,11 +84,11 @@ void PosedModel::renderDepthOnly
         rd->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.5f);
 
         // Maintain sort order while extracting generics
-        Array<GenericPosedModel::Ref> genericModels;
+        Array<GenericSurface::Ref> genericModels;
 
         // Render non-generics while filtering
         for (int i = 0; i < allModels.size(); ++i) {
-            const GenericPosedModel::Ref& g = allModels[i].downcast<GenericPosedModel>();
+            const GenericSurface::Ref& g = allModels[i].downcast<GenericSurface>();
             if (g.notNull()) {
                 genericModels.append(g);
             } else {
@@ -101,8 +101,8 @@ void PosedModel::renderDepthOnly
         rd->beginIndexedPrimitives();
         {
             for (int g = 0; g < genericModels.size(); ++g) {
-                const GenericPosedModel::Ref& model = genericModels[g];
-                const GenericPosedModel::GPUGeom::Ref& geom = model->gpuGeom();
+                const GenericSurface::Ref& model = genericModels[g];
+                const GenericSurface::GPUGeom::Ref& geom = model->gpuGeom();
 
                 if (geom->twoSided) {
                     rd->setCullFace(RenderDevice::CULL_NONE);
@@ -131,20 +131,20 @@ void PosedModel::renderDepthOnly
 }
 
 
-void PosedModel::sortAndRender
+void Surface::sortAndRender
 (RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<PosedModelRef>&    allModels, 
+ const Array<SurfaceRef>&    allModels, 
  const LightingRef&             _lighting, 
  const Array<ShadowMap::Ref>&   shadowMaps,
  const Array<SuperShader::PassRef>& extraAdditivePasses) {
 
     static bool recurse = false;
 
-    alwaysAssertM(! recurse, "Cannot call PosedModel::sortAndRender recursively");
+    alwaysAssertM(! recurse, "Cannot call Surface::sortAndRender recursively");
     recurse = true;
 
-    static Array<PosedModel::Ref> opaqueGeneric, otherOpaque, transparent, posed3D;
+    static Array<Surface::Ref> opaqueGeneric, otherOpaque, transparent, posed3D;
 
     Lighting::Ref lighting = _lighting->clone();
 
@@ -164,10 +164,10 @@ void PosedModel::sortAndRender
  
         // Find the scene bounds
         AABox sceneBounds;
-        PosedModel::getBoxBounds(allModels, sceneBounds);
+        Surface::getBoxBounds(allModels, sceneBounds);
 
-        Array<PosedModel::Ref> lightVisible;
-        Array<PosedModel::Ref> lightSorted;
+        Array<Surface::Ref> lightVisible;
+        Array<Surface::Ref> lightSorted;
 
         // Generate shadow maps
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
@@ -178,8 +178,8 @@ void PosedModel::sortAndRender
 
             ShadowMap::computeMatrices(light, sceneBounds, lightFrame, lightProjectionMatrix);
 
-            PosedModel::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
-            PosedModel::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
+            Surface::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
+            Surface::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
             shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted, 0.03f);
 
             lightVisible.fastClear();
@@ -196,9 +196,9 @@ void PosedModel::sortAndRender
     cull(camera, rd->viewport(), allModels, posed3D);
 
     // Separate and sort the models
-    GenericPosedModel::extractOpaque(posed3D, opaqueGeneric);
-    PosedModel::sort(opaqueGeneric, camera.coordinateFrame().lookVector(), opaqueGeneric);
-    PosedModel::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
+    GenericSurface::extractOpaque(posed3D, opaqueGeneric);
+    Surface::sort(opaqueGeneric, camera.coordinateFrame().lookVector(), opaqueGeneric);
+    Surface::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
     rd->setProjectionAndCameraMatrix(camera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
 
@@ -206,12 +206,12 @@ void PosedModel::sortAndRender
     for (int m = 0; m < otherOpaque.size(); ++m) {
         otherOpaque[m]->renderNonShadowed(rd, lighting);
     }
-    GenericPosedModel::renderNonShadowed(opaqueGeneric, rd, lighting);
+    GenericSurface::renderNonShadowed(opaqueGeneric, rd, lighting);
 
     // Opaque shadowed
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
         rd->pushState();
-        GenericPosedModel::renderShadowMappedLightPass(opaqueGeneric, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        GenericSurface::renderShadowMappedLightPass(opaqueGeneric, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
         rd->popState();
         for (int m = 0; m < otherOpaque.size(); ++m) {
             otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
@@ -246,20 +246,20 @@ void PosedModel::sortAndRender
 }
 
 
-void PosedModel::sortAndRender
+void Surface::sortAndRender
 (class RenderDevice*            rd, 
  const class GCamera&           camera,
- const Array<PosedModelRef>&    allModels, 
+ const Array<SurfaceRef>&    allModels, 
  const LightingRef&             _lighting, 
  const Array<ShadowMap::Ref>&     shadowMaps) {
     sortAndRender(rd, camera, allModels, _lighting, shadowMaps, Array<SuperShader::PassRef>());
 }
 
 
-void PosedModel::sortAndRender
+void Surface::sortAndRender
 (RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<PosedModel::Ref>&  posed3D, 
+ const Array<Surface::Ref>&  posed3D, 
  const LightingRef&             lighting, 
  const ShadowMap::Ref&          shadowMap) {
 
@@ -272,10 +272,10 @@ void PosedModel::sortAndRender
 }
 
 
-void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2D::Ref>& posed2D) {
+void Surface2D::sortAndRender(RenderDevice* rd, Array<Surface2D::Ref>& posed2D) {
     if (posed2D.size() > 0) {
         rd->push2D();
-            PosedModel2D::sort(posed2D);
+            Surface2D::sort(posed2D);
             for (int i = 0; i < posed2D.size(); ++i) {
                 posed2D[i]->render(rd);
             }
@@ -286,11 +286,11 @@ void PosedModel2D::sortAndRender(RenderDevice* rd, Array<PosedModel2D::Ref>& pos
 class ModelSorter {
 public:
     float                     sortKey;
-    PosedModel::Ref           model;
+    Surface::Ref           model;
 
     ModelSorter() {}
 
-    ModelSorter(const PosedModel::Ref& m, const Vector3& axis) : model(m) {
+    ModelSorter(const Surface::Ref& m, const Vector3& axis) : model(m) {
         Sphere s;
         m->getWorldSpaceBoundingSphere(s);
         sortKey = axis.dot(s.center);
@@ -306,11 +306,11 @@ public:
 };
 
 
-void PosedModel::sort(
-    const Array<PosedModel::Ref>& inModels, 
+void Surface::sort(
+    const Array<Surface::Ref>& inModels, 
     const Vector3&                wsLook,
-    Array<PosedModel::Ref>&       opaque,
-    Array<PosedModel::Ref>&       transparent) {
+    Array<Surface::Ref>&       opaque,
+    Array<Surface::Ref>&       transparent) {
 
     static Array<ModelSorter> op;
     static Array<ModelSorter> tr;
@@ -342,14 +342,14 @@ void PosedModel::sort(
 }
 
 
-void PosedModel::sort(
-    const Array<PosedModel::Ref>& inModels, 
+void Surface::sort(
+    const Array<Surface::Ref>& inModels, 
     const Vector3&                wsLook,
-    Array<PosedModel::Ref>&       opaque) { 
+    Array<Surface::Ref>&       opaque) { 
 
     if (&inModels == &opaque) {
         // The user is trying to sort in place.  Make a separate array for them.
-        Array<PosedModel::Ref> temp = inModels;
+        Array<Surface::Ref> temp = inModels;
         sort(temp, wsLook, opaque);
         return;
     }
@@ -371,7 +371,7 @@ void PosedModel::sort(
 }
 
 
-void PosedModel::getWorldSpaceGeometry(MeshAlg::Geometry& geometry) const {
+void Surface::getWorldSpaceGeometry(MeshAlg::Geometry& geometry) const {
     CoordinateFrame c;
     getCoordinateFrame(c);
 
@@ -381,21 +381,21 @@ void PosedModel::getWorldSpaceGeometry(MeshAlg::Geometry& geometry) const {
 }
 
 
-CoordinateFrame PosedModel::coordinateFrame() const {
+CoordinateFrame Surface::coordinateFrame() const {
     CoordinateFrame c;
     getCoordinateFrame(c);
     return c;
 }
 
 
-Sphere PosedModel::objectSpaceBoundingSphere() const {
+Sphere Surface::objectSpaceBoundingSphere() const {
     Sphere s;
     getObjectSpaceBoundingSphere(s);
     return s;
 }
 
 
-void PosedModel::getWorldSpaceBoundingSphere(Sphere& s) const {
+void Surface::getWorldSpaceBoundingSphere(Sphere& s) const {
     CoordinateFrame C;
     getCoordinateFrame(C);
     getObjectSpaceBoundingSphere(s);
@@ -403,21 +403,21 @@ void PosedModel::getWorldSpaceBoundingSphere(Sphere& s) const {
 }
 
 
-Sphere PosedModel::worldSpaceBoundingSphere() const {
+Sphere Surface::worldSpaceBoundingSphere() const {
     Sphere s;
     getWorldSpaceBoundingSphere(s);
     return s;
 }
 
 
-AABox PosedModel::objectSpaceBoundingBox() const {
+AABox Surface::objectSpaceBoundingBox() const {
     AABox b;
     getObjectSpaceBoundingBox(b);
     return b;
 }
 
 
-void PosedModel::getWorldSpaceBoundingBox(AABox& box) const {
+void Surface::getWorldSpaceBoundingBox(AABox& box) const {
     getObjectSpaceBoundingBox(box);
     if (! box.isFinite()) {
         box = AABox::inf();
@@ -430,14 +430,14 @@ void PosedModel::getWorldSpaceBoundingBox(AABox& box) const {
 }
 
 
-AABox PosedModel::worldSpaceBoundingBox() const {
+AABox Surface::worldSpaceBoundingBox() const {
     AABox b;
     getWorldSpaceBoundingBox(b);
     return b;
 }
 
 
-void PosedModel::getObjectSpaceFaceNormals(Array<Vector3>& faceNormals, bool normalize) const {
+void Surface::getObjectSpaceFaceNormals(Array<Vector3>& faceNormals, bool normalize) const {
     const MeshAlg::Geometry& geometry = objectSpaceGeometry();
     const Array<MeshAlg::Face>& faceArray = faces();
 
@@ -445,7 +445,7 @@ void PosedModel::getObjectSpaceFaceNormals(Array<Vector3>& faceNormals, bool nor
 }
 
 
-void PosedModel::getWorldSpaceFaceNormals(Array<Vector3>& faceNormals, bool normalize) const {
+void Surface::getWorldSpaceFaceNormals(Array<Vector3>& faceNormals, bool normalize) const {
     MeshAlg::Geometry geometry;
     getWorldSpaceGeometry(geometry);
 
@@ -455,7 +455,7 @@ void PosedModel::getWorldSpaceFaceNormals(Array<Vector3>& faceNormals, bool norm
 }
 
 
-void PosedModel::renderNonShadowed(
+void Surface::renderNonShadowed(
     RenderDevice* rd,
     const LightingRef& lighting) const {
 
@@ -480,7 +480,7 @@ void PosedModel::renderNonShadowed(
 }
 
 
-void PosedModel::renderShadowedLightPass(
+void Surface::renderShadowedLightPass(
     RenderDevice* rd, 
     const GLight& light) const {
 
@@ -494,7 +494,7 @@ void PosedModel::renderShadowedLightPass(
 }
 
 
-void PosedModel::renderShadowMappedLightPass(
+void Surface::renderShadowMappedLightPass(
     RenderDevice* rd, 
     const GLight& light,
     const ShadowMap::Ref& shadowMap) const {
@@ -503,7 +503,7 @@ void PosedModel::renderShadowMappedLightPass(
 }
 
 
-void PosedModel::renderShadowMappedLightPass(
+void Surface::renderShadowMappedLightPass(
     RenderDevice* rd, 
     const GLight& light,
     const Matrix4& lightMVP,
@@ -522,7 +522,7 @@ void PosedModel::renderShadowMappedLightPass(
 }
 
    
-void PosedModel::defaultRender(RenderDevice* rd) const {
+void Surface::defaultRender(RenderDevice* rd) const {
     const MeshAlg::Geometry& geometry = objectSpaceGeometry();
 
     VARAreaRef area = VARArea::create(sizeof(Vector3)*2*geometry.vertexArray.size() + 16);
@@ -538,11 +538,11 @@ void PosedModel::defaultRender(RenderDevice* rd) const {
 }
 
 
-void PosedModel::render(RenderDevice* rd) const {
+void Surface::render(RenderDevice* rd) const {
     defaultRender(rd);
 }
 
-void PosedModel::sendGeometry(RenderDevice* rd) const {
+void Surface::sendGeometry(RenderDevice* rd) const {
     const MeshAlg::Geometry& geom = objectSpaceGeometry();
 
     size_t s = sizeof(Vector3) * geom.vertexArray.size() * 2;
@@ -572,9 +572,9 @@ void PosedModel::sendGeometry(RenderDevice* rd) const {
 
 
 
-void PosedModel::renderTransparents
+void Surface::renderTransparents
 (RenderDevice*                  rd,
- const Array<PosedModel::Ref>&  modelArray,
+ const Array<Surface::Ref>&  modelArray,
  const Lighting::Ref&           lighting,
  const Array<SuperShader::PassRef>& extraAdditivePasses,
  const Array<ShadowMap::Ref>&   shadowMapArray,
@@ -610,8 +610,8 @@ void PosedModel::renderTransparents
 
     // Transparent, must be rendered from back to front
     for (int m = 0; m < modelArray.size(); ++m) {
-        PosedModel::Ref model = modelArray[m];
-        GenericPosedModel::Ref gmodel = model.downcast<GenericPosedModel>();
+        Surface::Ref model = modelArray[m];
+        GenericSurface::Ref gmodel = model.downcast<GenericSurface>();
 
         if (gmodel.notNull() && supportsRefract) {
             const float eta = gmodel->gpuGeom()->material->bsdf()->eta();
@@ -691,11 +691,11 @@ void PosedModel::renderTransparents
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
-static bool depthGreaterThan(const PosedModel2DRef& a, const PosedModel2DRef& b) {
+static bool depthGreaterThan(const Surface2DRef& a, const Surface2DRef& b) {
     return a->depth() > b->depth();
 }
 
-void PosedModel2D::sort(Array<PosedModel2DRef>& array) {
+void Surface2D::sort(Array<Surface2DRef>& array) {
     array.sort(depthGreaterThan);
 }
 

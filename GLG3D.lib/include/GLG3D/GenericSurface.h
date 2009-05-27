@@ -1,13 +1,13 @@
 /**
-  @file GenericPosedModel.h
+  @file GenericSurface.h
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2008-11-12
   @edited  2009-03-30
 */
-#ifndef G3D_GenericPosedModel_h
-#define G3D_GenericPosedModel_h
+#ifndef G3D_GenericSurface_h
+#define G3D_GenericSurface_h
 
 #include "G3D/platform.h"
 #include "G3D/System.h"
@@ -21,21 +21,21 @@
 #include "GLG3D/Material.h"
 #include "GLG3D/VAR.h"
 #include "GLG3D/Lighting.h"
-#include "GLG3D/PosedModel.h"
+#include "GLG3D/Surface.h"
 #include "GLG3D/ShadowMap.h"
 
 namespace G3D {
 
 /**
-   @brief An optimized implementation G3D::PosedModel for
+   @brief An optimized implementation G3D::Surface for
    G3D::SuperShader / G3D::Material classes.
 
    Used by G3D::ArticulatedModel.
  */
-class GenericPosedModel : public PosedModel {
+class GenericSurface : public Surface {
 public:
 
-    typedef ReferenceCountedPointer<GenericPosedModel> Ref;
+    typedef ReferenceCountedPointer<GenericSurface> Ref;
 
     /** Allocates with System::malloc to avoid the performance
         overhead of creating lots of small heap objects using
@@ -48,14 +48,14 @@ public:
         System::free(p);
     }
 
-    /** @brief A GPU mesh utility class that works with G3D::GenericPosedModel.
+    /** @brief A GPU mesh utility class that works with G3D::GenericSurface.
         
         A set of lines, points, quads, or triangles that have a
         single Material and can be rendered as a single OpenGL
         primitive using RenderDevice::sendIndices inside a
         RenderDevice::beginIndexedPrimitives() block.
         
-        @sa G3D::MeshAlg, G3D::ArticulatedModel, G3D::PosedModel
+        @sa G3D::MeshAlg, G3D::ArticulatedModel, G3D::Surface
     */
     class GPUGeom : public ReferenceCountedObject {
     public:
@@ -133,7 +133,7 @@ protected:
 
     ReferenceCountedPointer<ReferenceCountedObject> m_source;
 
-    inline GenericPosedModel
+    inline GenericSurface
     (const std::string&       name,
      const CFrame&            frame, 
      const GPUGeom::Ref&      gpuGeom,
@@ -208,51 +208,51 @@ public:
         PS14,
         PS20};
 
-    /** Called by PosedModel.
+    /** Called by Surface.
 	 
-        Renders an array of GenericPosedModels in the order that they
+        Renders an array of GenericSurfaces in the order that they
         appear in the array, taking advantage of the fact that all
         objects have the same subclass to optimize the rendering
         calls.*/
     static void renderNonShadowed(
-        const Array<PosedModel::Ref>& posedArray, 
+        const Array<Surface::Ref>& posedArray, 
         RenderDevice* rd, 
         const LightingRef& lighting);
 
-    /** Called by PosedModel.
+    /** Called by Surface.
 	 
-        Renders an array of GenericPosedModels in the order that they
+        Renders an array of GenericSurfaces in the order that they
         appear in the array, taking advantage of the fact that all
         objects have the same subclass to optimize the rendering
         calls.*/
     static void renderShadowMappedLightPass(
-        const Array<PosedModel::Ref>& posedArray, 
+        const Array<Surface::Ref>& posedArray, 
         RenderDevice*                 rd, 
         const GLight&                 light, 
         const ShadowMap::Ref&         shadowMap);
 
-    /** Called by PosedModel.
+    /** Called by Surface.
 	 
-        Removes the opaque GenericPosedModels from array @a all and appends
+        Removes the opaque GenericSurfaces from array @a all and appends
         them to the opaqueAmodels array (transparents must be rendered
         inline with other model types).  This produces an array for
         the array versions of renderNonShadowed and
         renderShadowMappedLightPass.
         */
     static void extractOpaque(
-        Array<PosedModel::Ref>& all, 
-        Array<PosedModel::Ref>& genericModels);
+        Array<Surface::Ref>& all, 
+        Array<Surface::Ref>& genericModels);
 
     /** Returns a measure of the capabilities of this machine. This is
         computed during the first rendering and cached. */
     static GraphicsProfile profile();
 
-    /** Force GenericPosedModel to use a different profile.  Only
+    /** Force GenericSurface to use a different profile.  Only
         works if called before any models are loaded; used mainly for
         debugging. */
     static void setProfile(GraphicsProfile p);
 
-    /** Incremented every time sendGeometry is invoked on any GenericPosedModel. 
+    /** Incremented every time sendGeometry is invoked on any GenericSurface. 
         Used for performance profiling. Manually set to zero.
     */
     static int debugNumSendGeometryCalls;
@@ -324,7 +324,7 @@ public:
         const SuperShader::PassRef& pass) const;
 };
 
-const char* toString(GenericPosedModel::GraphicsProfile p);
+const char* toString(GenericSurface::GraphicsProfile p);
 
 } // G3D
 

@@ -1,5 +1,5 @@
 /**
-  @file PosedModel.h
+  @file Surface.h
   
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
@@ -7,8 +7,8 @@
   @edited  2009-04-02
  */ 
 
-#ifndef GLG3D_PosedModel_h
-#define GLG3D_PosedModel_h
+#ifndef GLG3D_Surface_h
+#define GLG3D_Surface_h
 
 #include "G3D/Array.h"
 #include "G3D/Color4.h"
@@ -58,13 +58,13 @@ public:
     void configure(class RenderDevice* rd) const;
 };
 
-typedef ReferenceCountedPointer<class PosedModel> PosedModelRef;
+typedef ReferenceCountedPointer<class Surface> SurfaceRef;
 
 /**
  Base class for posed models.  A posed model is a snapshot of geometry
  and other rendering information, frozen in time, of a potentially 
  animated or deformable "Model".  G3D has no API (but some conventions) for
- how you get a PosedModel from a model class.
+ how you get a Surface from a model class.
  
  <B>G3D does not provide a scene graph structure</B> (e.g. there is no Model base class)
  because the visible
@@ -78,22 +78,22 @@ typedef ReferenceCountedPointer<class PosedModel> PosedModelRef;
  method.  The arguments to this method are all of the parameters (e.g. 
  animation frame, limb position) needed for reducing the general purpose,
  poseable model to a specific world space mesh for rendering.  This
- instance specific mesh is a G3D::PosedModel.  Because all PosedModels
+ instance specific mesh is a G3D::Surface.  Because all Surfaces
  have the same interface, they can be used interchangably.
 
- Use G3D::PosedModelWrapper to encapsulate an existing posed model
+ Use G3D::SurfaceWrapper to encapsulate an existing posed model
  with your own.
 
- A common strategy when implementing PosedModel is to not compute "derived"
+ A common strategy when implementing Surface is to not compute "derived"
  values like the object space face normals until they are needed.  That is,
  the first call to a method might be very expensive because it goes off
  and computes some value that will be cached for future calls.
 
  <b>Rendering</b>
- The easiest way to render is PosedModel::render().  More sophisticated rendering, e.g., in the presence of shadows, can be accomplished with 
+ The easiest way to render is Surface::render().  More sophisticated rendering, e.g., in the presence of shadows, can be accomplished with 
  the separate renderShadowMappedLightPass etc. routines.
 
- PosedModel also allows you to directly extract and operate on its geometry.  This is useful for adding effects like
+ Surface also allows you to directly extract and operate on its geometry.  This is useful for adding effects like
  outlines in cartoon rendering, physics hit boxes, and shadow volume rendering.  You can directly render from the geometry
  using the following rendering code (it is much faster if you can avoid re-creating the VARs and VARArea every frame!)
  <pre>
@@ -112,15 +112,15 @@ typedef ReferenceCountedPointer<class PosedModel> PosedModelRef;
         rd->endIndexedPrimitives();
  </pre>
  */
-class PosedModel : public ReferenceCountedObject {
+class Surface : public ReferenceCountedObject {
 protected:
 
-    PosedModel() {}
+    Surface() {}
 
 public:
-    typedef ReferenceCountedPointer<class PosedModel> Ref;
+    typedef ReferenceCountedPointer<class Surface> Ref;
 
-    virtual ~PosedModel() {}
+    virtual ~Surface() {}
 
     virtual std::string name() const = 0;
 
@@ -139,22 +139,22 @@ public:
       @param wsLookVector Sort axis; usually the -Z axis of the camera.
      */
     static void sort(
-        const Array<PosedModel::Ref>& inModels, 
+        const Array<Surface::Ref>& inModels, 
         const Vector3&                wsLookVector,
-        Array<PosedModel::Ref>&       opaque,
-        Array<PosedModel::Ref>&       transparent);
+        Array<Surface::Ref>&       opaque,
+        Array<Surface::Ref>&       transparent);
 
     /** Sorts the array in place along the look vector from front-to-back.*/
     static void sort(
-        const Array<PosedModel::Ref>& inModels, 
+        const Array<Surface::Ref>& inModels, 
         const Vector3&                wsLookVector,
-        Array<PosedModel::Ref>&       opaque);
+        Array<Surface::Ref>&       opaque);
 
-    static void getBoxBounds(const Array<PosedModel::Ref>& models, AABox& bounds);
-    static void getSphereBounds(const Array<PosedModel::Ref>& models, Sphere& bounds);
+    static void getBoxBounds(const Array<Surface::Ref>& models, AABox& bounds);
+    static void getSphereBounds(const Array<Surface::Ref>& models, Sphere& bounds);
 
     /** Computes the array of models that can be seen by @a camera*/
-    static void cull(const class GCamera& camera, const class Rect2D& viewport, const Array<PosedModel::Ref>& allModels, Array<PosedModel::Ref>& outModels);
+    static void cull(const class GCamera& camera, const class Rect2D& viewport, const Array<Surface::Ref>& allModels, Array<Surface::Ref>& outModels);
 
     /** Object to world space coordinate frame.*/
     virtual void getCoordinateFrame(CoordinateFrame& c) const = 0;
@@ -177,7 +177,7 @@ public:
     virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const = 0;
 
     // Returns a reference rather than filling out an array because most
-    // PosedModels have this information available.
+    // Surfaces have this information available.
     /**
       Adjacency information respecting the underlying connectivity
       of the mesh-- colocated vertices are treated as distinct.
@@ -308,7 +308,7 @@ public:
      */    
     static void renderDepthOnly(
         RenderDevice* rd, 
-        const Array<PosedModel::Ref>& allModels, 
+        const Array<Surface::Ref>& allModels, 
         RenderDevice::CullFace cull);
 
     /**
@@ -341,7 +341,7 @@ public:
       use any textures.
 
       This is useful when applying your own G3D::Shader to an existing
-      PosedModel.
+      Surface.
     */
     virtual void sendGeometry(RenderDevice* rd) const;
 
@@ -364,7 +364,7 @@ public:
     static void sortAndRender
     (class RenderDevice*            rd, 
      const class GCamera&           camera,
-     const Array<PosedModelRef>&    allModels, 
+     const Array<SurfaceRef>&    allModels, 
      const LightingRef&             _lighting, 
      const Array<ReferenceCountedPointer<ShadowMap> >&  shadowMaps,
      const Array<SuperShader::PassRef>& extraAdditivePasses);
@@ -372,19 +372,19 @@ public:
     static void sortAndRender
     (class RenderDevice*            rd, 
      const class GCamera&           camera,
-     const Array<PosedModelRef>&    allModels, 
+     const Array<SurfaceRef>&    allModels, 
      const LightingRef&             _lighting, 
      const Array< ReferenceCountedPointer<ShadowMap> >&     shadowMaps);
     
     static void sortAndRender
     (RenderDevice*                  rd, 
      const GCamera&                 camera,
-     const Array<PosedModelRef>&    posed3D, 
+     const Array<SurfaceRef>&    posed3D, 
      const LightingRef&             lighting, 
      const ReferenceCountedPointer<ShadowMap>&  shadowMap = NULL);
 
     /** Render elements of modelArray, handling transparency reasonably.  Special cased
-        code for refracting GenericPosedModel instances.  Called from sortAndRender().
+        code for refracting GenericSurface instances.  Called from sortAndRender().
 
         Assumes:
 
@@ -396,7 +396,7 @@ public:
       */
     static void renderTransparents
     (RenderDevice*                  rd,
-     const Array<PosedModel::Ref>&  modelArray,
+     const Array<Surface::Ref>&  modelArray,
      const Lighting::Ref&           lighting,
      const Array<SuperShader::PassRef>& extraAdditivePasses,
      const Array< ReferenceCountedPointer<ShadowMap> >&   shadowMapArray = Array<ShadowMap::Ref>(),
@@ -417,12 +417,12 @@ protected:
 
 /////////////////////////////////////////////////////////////////
 
-typedef ReferenceCountedPointer<class PosedModel2D> PosedModel2DRef;
+typedef ReferenceCountedPointer<class Surface2D> Surface2DRef;
 
 /** Primarily for use in GUI rendering. */
-class PosedModel2D : public ReferenceCountedObject {
+class Surface2D : public ReferenceCountedObject {
 public:
-    typedef ReferenceCountedPointer<PosedModel2D> Ref;
+    typedef ReferenceCountedPointer<Surface2D> Ref;
 
     /** Assumes that the RenderDevice is configured in in RenderDevice::push2D mode. */
     virtual void render(RenderDevice* rd) const = 0;
@@ -438,29 +438,18 @@ public:
     virtual float depth() const = 0;
 
     /** Sorts from farthest to nearest. */
-    static void sort(Array<PosedModel2DRef>& array);
+    static void sort(Array<Surface2DRef>& array);
 
     /** Calls sort, RenderDevice::push2D, and then render on all elements */
-    static void sortAndRender(RenderDevice* rd, Array<PosedModel2DRef>& array);
+    static void sortAndRender(RenderDevice* rd, Array<Surface2DRef>& array);
 };
 
 
-// Passes:
-//
-//   If Transparent:
-//     1a. Transparent
-//     1b. + Ambient
-//   If Opaque:
-//     1c. Ambient
-//   2. + Emissive
-//   3. + Reflective
-//   For each light:
-//     4a... + Light pass
-//
-// Fixed function computes each as a separate pass.
-// Programmable computes 1...3
+/** @deprecated */
+typedef Surface PosedModel;
 
-
+/** @deprecated */
+typedef Surface2D PosedModel2D;
 
 }
 

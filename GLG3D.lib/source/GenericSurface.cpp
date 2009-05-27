@@ -1,5 +1,5 @@
 /**
- @file GenericPosedModel.cpp
+ @file GenericSurface.cpp
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2004-11-20
@@ -8,7 +8,7 @@
   Copyright 2004-2009, Morgan McGuire
  */
 #include "G3D/Log.h"
-#include "GLG3D/GenericPosedModel.h"
+#include "GLG3D/GenericSurface.h"
 #include "GLG3D/Lighting.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperShader.h"
@@ -33,7 +33,7 @@ static bool glossyReflectiveFF(const UberBSDF::Ref& bsdf) {
 }
 
 
-GenericPosedModel::Ref GenericPosedModel::create
+GenericSurface::Ref GenericSurface::create
 (const std::string&       name,
  const CFrame&            frame, 
  const GPUGeom::Ref&      gpuGeom,
@@ -42,23 +42,23 @@ GenericPosedModel::Ref GenericPosedModel::create
     debugAssert(gpuGeom.notNull());
     debugAssert(gpuGeom->vertex.valid());
     debugAssert(gpuGeom->material.notNull());
-    return new GenericPosedModel(name, frame, gpuGeom, cpuGeom, source);
+    return new GenericSurface(name, frame, gpuGeom, cpuGeom, source);
 }
 
 
 static void setAdditive(RenderDevice* rd, bool& additive);
 
-int GenericPosedModel::debugNumSendGeometryCalls = 0;
+int GenericSurface::debugNumSendGeometryCalls = 0;
 
 // Static to this file, not the class
-static GenericPosedModel::GraphicsProfile graphicsProfile = GenericPosedModel::UNKNOWN;
+static GenericSurface::GraphicsProfile graphicsProfile = GenericSurface::UNKNOWN;
 
-void GenericPosedModel::setProfile(GraphicsProfile p) {
+void GenericSurface::setProfile(GraphicsProfile p) {
     graphicsProfile = p;
 }
 
 
-GenericPosedModel::GraphicsProfile GenericPosedModel::profile() {
+GenericSurface::GraphicsProfile GenericSurface::profile() {
 
     if (graphicsProfile == UNKNOWN) {
         if (GLCaps::supports_GL_ARB_shader_objects()) {
@@ -67,7 +67,7 @@ GenericPosedModel::GraphicsProfile GenericPosedModel::profile() {
             
             if (System::findDataFile("SS_NonShadowedPass.vrt") == "") {
                 graphicsProfile = UNKNOWN;
-                logPrintf("\n\nWARNING: GenericPosedModel could not enter PS20 mode because"
+                logPrintf("\n\nWARNING: GenericSurface could not enter PS20 mode because"
                           "NonShadowedPass.vrt was not found.\n\n");
             }
         }
@@ -89,18 +89,18 @@ GenericPosedModel::GraphicsProfile GenericPosedModel::profile() {
 }
 
 
-const char* toString(GenericPosedModel::GraphicsProfile p) {
+const char* toString(GenericSurface::GraphicsProfile p) {
     switch (p) {
-    case GenericPosedModel::UNKNOWN:
+    case GenericSurface::UNKNOWN:
         return "Unknown";
 
-    case GenericPosedModel::FIXED_FUNCTION:
+    case GenericSurface::FIXED_FUNCTION:
         return "Fixed Function";
 
-    case GenericPosedModel::PS14:
+    case GenericSurface::PS14:
         return "PS 1.4";
 
-    case GenericPosedModel::PS20:
+    case GenericSurface::PS20:
         return "PS 2.0";
 
     default:
@@ -109,8 +109,8 @@ const char* toString(GenericPosedModel::GraphicsProfile p) {
 }
 
 
-void GenericPosedModel::renderNonShadowed(
-    const Array<PosedModel::Ref>& posedArray, 
+void GenericSurface::renderNonShadowed(
+    const Array<Surface::Ref>& posedArray, 
     RenderDevice* rd, 
     const LightingRef& lighting) {
 
@@ -130,10 +130,10 @@ void GenericPosedModel::renderNonShadowed(
         // Lighting will be turned on and off by subroutines
         rd->disableLighting();
 
-        const bool ps20 = GenericPosedModel::profile() == GenericPosedModel::PS20;
+        const bool ps20 = GenericSurface::profile() == GenericSurface::PS20;
 
         for (int p = 0; p < posedArray.size(); ++p) {
-            const GenericPosedModel::Ref& posed = posedArray[p].downcast<GenericPosedModel>();
+            const GenericSurface::Ref& posed = posedArray[p].downcast<GenericSurface>();
 
             if (! rd->colorWrite()) {
                 // No need for fancy shading, just send geometry
@@ -147,7 +147,7 @@ void GenericPosedModel::renderNonShadowed(
             (void)bsdf;
             debugAssertM(bsdf->transmissive().isBlack(), 
                 "Transparent object passed through the batch version of "
-                "GenericPosedModel::renderNonShadowed, which is intended exclusively for opaque objects.");
+                "GenericSurface::renderNonShadowed, which is intended exclusively for opaque objects.");
 
             // Alpha blend will be changed by subroutines so we restore it for each object
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -196,8 +196,8 @@ void GenericPosedModel::renderNonShadowed(
 }
 
 
-void GenericPosedModel::renderShadowMappedLightPass
-(const Array<PosedModel::Ref>& posedArray, 
+void GenericSurface::renderShadowMappedLightPass
+(const Array<Surface::Ref>& posedArray, 
  RenderDevice* rd, 
  const GLight& light, 
  const ShadowMap::Ref& shadowMap) {
@@ -214,7 +214,7 @@ void GenericPosedModel::renderShadowMappedLightPass
         rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         for (int i = 0; i < posedArray.size(); ++i) {
-            const GenericPosedModel::Ref& posed    = posedArray[i].downcast<GenericPosedModel>();
+            const GenericSurface::Ref& posed    = posedArray[i].downcast<GenericSurface>();
             const Material::Ref&          material = posed->m_gpuGeom->material;
             const UberBSDF::Ref&              bsdf     = material->bsdf();
 
@@ -269,13 +269,13 @@ void GenericPosedModel::renderShadowMappedLightPass
  }
 
 
-void GenericPosedModel::extractOpaque(
-    Array<PosedModel::Ref>&   all, 
-    Array<PosedModel::Ref>&   opaqueGeneric) {
+void GenericSurface::extractOpaque(
+    Array<Surface::Ref>&   all, 
+    Array<Surface::Ref>&   opaqueGeneric) {
     
     for (int i = 0; i < all.size(); ++i) {
-        ReferenceCountedPointer<GenericPosedModel> m = 
-            dynamic_cast<GenericPosedModel*>(all[i].pointer());
+        ReferenceCountedPointer<GenericSurface> m = 
+            dynamic_cast<GenericSurface*>(all[i].pointer());
 
         if (m.notNull() && ! m->hasTransparency()) {
             // This is a most-derived subclass and is opaque
@@ -308,7 +308,7 @@ static Texture::Ref whiteMap() {
 }
 
 
-void GenericPosedModel::render(RenderDevice* rd) const {
+void GenericSurface::render(RenderDevice* rd) const {
 
     // Infer the lighting from the fixed function
 
@@ -321,7 +321,7 @@ void GenericPosedModel::render(RenderDevice* rd) const {
 }
 
 
-bool GenericPosedModel::renderSuperShaderPass(
+bool GenericSurface::renderSuperShaderPass(
     RenderDevice* rd, 
     const SuperShader::PassRef& pass) const {
 
@@ -352,7 +352,7 @@ static void setAdditive(RenderDevice* rd, bool& additive) {
 }
 
 
-bool GenericPosedModel::renderNonShadowedOpaqueTerms(
+bool GenericSurface::renderNonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting,
     bool preserveState) const {
@@ -392,7 +392,7 @@ bool GenericPosedModel::renderNonShadowedOpaqueTerms(
 }
 
 
-bool GenericPosedModel::renderPS20NonShadowedOpaqueTerms(
+bool GenericSurface::renderPS20NonShadowedOpaqueTerms(
     RenderDevice*                           rd,
     const LightingRef&                      lighting) const {
 
@@ -465,7 +465,7 @@ bool GenericPosedModel::renderPS20NonShadowedOpaqueTerms(
 }
 
 
-bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
+bool GenericSurface::renderFFNonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting) const {
 
@@ -562,7 +562,7 @@ bool GenericPosedModel::renderFFNonShadowedOpaqueTerms(
 }
 
 
-bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
+bool GenericSurface::renderPS14NonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting) const {
 
@@ -733,7 +733,7 @@ bool GenericPosedModel::renderPS14NonShadowedOpaqueTerms(
 }
 
 
-void GenericPosedModel::renderNonShadowed
+void GenericSurface::renderNonShadowed
 (RenderDevice*                   rd,
  const LightingRef&              lighting) const {
 
@@ -782,16 +782,16 @@ void GenericPosedModel::renderNonShadowed
         // This is the unoptimized, single-object version of renderShadowMappedLightPass.
         // It just calls the optimized version with a single-element array.
 
-        static Array<PosedModel::Ref> posedArray;
+        static Array<Surface::Ref> posedArray;
         posedArray.resize(1);
-        posedArray[0] = Ref(const_cast<GenericPosedModel*>(this));
+        posedArray[0] = Ref(const_cast<GenericSurface*>(this));
         renderNonShadowed(posedArray, rd, lighting);
         posedArray.fastClear();
     }
 }
 
 
-void GenericPosedModel::renderShadowedLightPass(
+void GenericSurface::renderShadowedLightPass(
     RenderDevice*       rd, 
     const GLight&       light) const {
 
@@ -802,7 +802,7 @@ void GenericPosedModel::renderShadowedLightPass(
 }
 
 
-void GenericPosedModel::renderShadowMappedLightPass(
+void GenericSurface::renderShadowMappedLightPass(
     RenderDevice*       rd, 
     const GLight&       light, 
     const Matrix4&      lightMVP, 
@@ -814,7 +814,7 @@ void GenericPosedModel::renderShadowMappedLightPass(
 }
 
 
-void GenericPosedModel::renderShadowMappedLightPass(
+void GenericSurface::renderShadowMappedLightPass(
     RenderDevice*         rd, 
     const GLight&         light, 
     const ShadowMap::Ref& shadowMap) const {
@@ -822,16 +822,16 @@ void GenericPosedModel::renderShadowMappedLightPass(
     // This is the unoptimized, single-object version of renderShadowMappedLightPass.
     // It just calls the optimized version with a single-element array.
 
-    static Array<PosedModel::Ref> posedArray;
+    static Array<Surface::Ref> posedArray;
 
     posedArray.resize(1);
-    posedArray[0] = Ref(const_cast<GenericPosedModel*>(this));
+    posedArray[0] = Ref(const_cast<GenericSurface*>(this));
     renderShadowMappedLightPass(posedArray, rd, light, shadowMap);
     posedArray.fastClear();
 }
 
 
-void GenericPosedModel::renderPS20ShadowMappedLightPass(
+void GenericSurface::renderPS20ShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
     const ShadowMap::Ref& shadowMap) const {
@@ -842,7 +842,7 @@ void GenericPosedModel::renderPS20ShadowMappedLightPass(
 }
 
 
-void GenericPosedModel::renderFFShadowMappedLightPass(
+void GenericSurface::renderFFShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
     const ShadowMap::Ref& shadowMap) const {
@@ -903,7 +903,7 @@ void GenericPosedModel::renderFFShadowMappedLightPass(
 }
 
 
-void GenericPosedModel::sendGeometry2(
+void GenericSurface::sendGeometry2(
     RenderDevice*           rd) const {
 
 
@@ -918,7 +918,7 @@ void GenericPosedModel::sendGeometry2(
 }
 
 
-void GenericPosedModel::sendGeometry(
+void GenericSurface::sendGeometry(
     RenderDevice*           rd) const {
     debugAssertGLOk();
     ++debugNumSendGeometryCalls;
@@ -983,27 +983,27 @@ void GenericPosedModel::sendGeometry(
     }
 }
 
-std::string GenericPosedModel::name() const {
+std::string GenericSurface::name() const {
     return m_name;
 }
 
 
-bool GenericPosedModel::hasTransparency() const {
+bool GenericSurface::hasTransparency() const {
     return ! m_gpuGeom->material->bsdf()->transmissive().isBlack();
 }
 
 
-void GenericPosedModel::getCoordinateFrame(CoordinateFrame& c) const {
+void GenericSurface::getCoordinateFrame(CoordinateFrame& c) const {
     c = m_frame;
 }
 
 
-const MeshAlg::Geometry& GenericPosedModel::objectSpaceGeometry() const {
+const MeshAlg::Geometry& GenericSurface::objectSpaceGeometry() const {
     return *(m_cpuGeom.geometry);
 }
 
 
-const Array<Vector3>& GenericPosedModel::objectSpaceTangents() const {
+const Array<Vector3>& GenericSurface::objectSpaceTangents() const {
     if (m_cpuGeom.tangent == NULL) {
         const static Array<Vector3> x;
         return x;
@@ -1013,7 +1013,7 @@ const Array<Vector3>& GenericPosedModel::objectSpaceTangents() const {
 }
 
 
-const Array<Vector3>& GenericPosedModel::objectSpaceFaceNormals(bool normalize) const {
+const Array<Vector3>& GenericSurface::objectSpaceFaceNormals(bool normalize) const {
     static Array<Vector3> n;
     debugAssert(false);
     return n;
@@ -1021,7 +1021,7 @@ const Array<Vector3>& GenericPosedModel::objectSpaceFaceNormals(bool normalize) 
 }
 
 
-const Array<MeshAlg::Face>& GenericPosedModel::faces() const {
+const Array<MeshAlg::Face>& GenericSurface::faces() const {
     static Array<MeshAlg::Face> f;
     debugAssert(false);
     return f;
@@ -1029,7 +1029,7 @@ const Array<MeshAlg::Face>& GenericPosedModel::faces() const {
 }
 
 
-const Array<MeshAlg::Edge>& GenericPosedModel::edges() const {
+const Array<MeshAlg::Edge>& GenericSurface::edges() const {
     static Array<MeshAlg::Edge> f;
     debugAssert(false);
     return f;
@@ -1037,7 +1037,7 @@ const Array<MeshAlg::Edge>& GenericPosedModel::edges() const {
 }
 
 
-const Array<MeshAlg::Vertex>& GenericPosedModel::vertices() const {
+const Array<MeshAlg::Vertex>& GenericSurface::vertices() const {
     static Array<MeshAlg::Vertex> f;
     debugAssert(false);
     return f;
@@ -1045,7 +1045,7 @@ const Array<MeshAlg::Vertex>& GenericPosedModel::vertices() const {
 }
 
 
-const Array<Vector2>& GenericPosedModel::texCoords() const {
+const Array<Vector2>& GenericSurface::texCoords() const {
     if (m_cpuGeom.texCoord0 == NULL) {
         const static Array<Vector2> x;
         return x;
@@ -1055,12 +1055,12 @@ const Array<Vector2>& GenericPosedModel::texCoords() const {
 }
 
 
-bool GenericPosedModel::hasTexCoords() const {
+bool GenericSurface::hasTexCoords() const {
     return (m_cpuGeom.texCoord0 != 0) && (m_cpuGeom.texCoord0->size() > 0);
 }
 
 
-const Array<MeshAlg::Face>& GenericPosedModel::weldedFaces() const {
+const Array<MeshAlg::Face>& GenericSurface::weldedFaces() const {
     static Array<MeshAlg::Face> f;
     debugAssert(false);
     return f;
@@ -1068,7 +1068,7 @@ const Array<MeshAlg::Face>& GenericPosedModel::weldedFaces() const {
 }
 
 
-const Array<MeshAlg::Edge>& GenericPosedModel::weldedEdges() const {
+const Array<MeshAlg::Edge>& GenericSurface::weldedEdges() const {
     static Array<MeshAlg::Edge> e;
     debugAssert(false);
     return e;
@@ -1076,7 +1076,7 @@ const Array<MeshAlg::Edge>& GenericPosedModel::weldedEdges() const {
 }
 
 
-const Array<MeshAlg::Vertex>& GenericPosedModel::weldedVertices() const {
+const Array<MeshAlg::Vertex>& GenericSurface::weldedVertices() const {
     static Array<MeshAlg::Vertex> v;
     return v;
     debugAssert(false);
@@ -1084,30 +1084,30 @@ const Array<MeshAlg::Vertex>& GenericPosedModel::weldedVertices() const {
 }
 
 
-const Array<int>& GenericPosedModel::triangleIndices() const {
+const Array<int>& GenericSurface::triangleIndices() const {
     alwaysAssertM(m_gpuGeom->primitive == PrimitiveType::TRIANGLES, "This model is not composed of triangles."); 
     return *(m_cpuGeom.index);
 }
 
 
-void GenericPosedModel::getObjectSpaceBoundingSphere(Sphere& s) const {
+void GenericSurface::getObjectSpaceBoundingSphere(Sphere& s) const {
     s = m_gpuGeom->sphereBounds;
 }
 
 
-void GenericPosedModel::getObjectSpaceBoundingBox(AABox& b) const {
+void GenericSurface::getObjectSpaceBoundingBox(AABox& b) const {
     b = m_gpuGeom->boxBounds;
 }
 
 
-int GenericPosedModel::numBoundaryEdges() const {
+int GenericSurface::numBoundaryEdges() const {
     // TODO
     debugAssert(false);
     return 0;
 }
 
 
-int GenericPosedModel::numWeldedBoundaryEdges() const {
+int GenericSurface::numWeldedBoundaryEdges() const {
     // TODO
     return 0;
 }
