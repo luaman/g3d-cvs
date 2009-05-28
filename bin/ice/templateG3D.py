@@ -28,8 +28,8 @@ public:
     virtual void onAI();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
-    virtual void onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D);
+    virtual void onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
     virtual bool onEvent(const GEvent& e);
     virtual void onUserInput(UserInput* ui);
     virtual void onCleanup();
@@ -153,13 +153,13 @@ void App::onUserInput(UserInput* ui) {
 }
 
 
-void App::onPose(Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
+void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<PosedModel2DRef>& posed2D) {
-    Array<PosedModel::Ref>        opaque, transparent;
+void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+    Array<Surface::Ref>        opaque, transparent;
     LightingRef   localLighting = toneMap->prepareLighting(lighting);
     SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
     
@@ -170,10 +170,10 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     rd->clear(false, true, true);
     sky->render(rd, localSky);
 
-    // Render all objects (or, you can call PosedModel methods on the
+    // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    PosedModel::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, localLighting);
 
     // Sample immediate-mode rendering code
     rd->pushState();
@@ -196,7 +196,7 @@ void App::onGraphics(RenderDevice* rd, Array<PosedModelRef>& posed3D, Array<Pose
     toneMap->endFrame(rd);
 
     // Render 2D objects like Widgets
-    PosedModel2D::sortAndRender(rd, posed2D);
+    Surface2D::sortAndRender(rd, posed2D);
 }
 
 
