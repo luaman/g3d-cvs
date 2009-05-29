@@ -72,9 +72,11 @@ void App::onInit() {
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     //ground = ArticulatedModel::createCornellBox(11.0f);
 
+    /*
     {
+        Stopwatch timer1("load3DS");
         ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("bunny.ifs"));
-        ::exit(0);
+        timer1.after("done");
 
         Material::Settings glass;
         glass.setEta(1.4f);
@@ -97,9 +99,12 @@ void App::onInit() {
             sphere->partArray[0].newTriList(Material::create(air));
         inside->indexArray = outside->indexArray;
         inside->indexArray.reverse();
+        Stopwatch timer("updateAll");
         sphere->updateAll();
+        timer.after("done");
         model = sphere;
     }
+    */
 
     setDesiredFrameRate(1000);
 
@@ -132,27 +137,20 @@ void App::onInit() {
     shadowMap = ShadowMap::create("Shadow Map");
     */
     Stopwatch timer("Load 3DS");
-/*
     {
         ArticulatedModel::PreProcess preprocess;
         preprocess.addBumpMaps = false;
         preprocess.textureDimension = Texture::DIM_2D_NPOT;
         preprocess.parallaxSteps = 0;
-        model = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), preprocess);
-        Material::Settings s;
-        s.setLambertian(Color3::red());
-//        s.setShininess(UberBSDF::packSpecularExponent(20));
-        s.setShininess(UberBSDF::packedSpecularMirror());
-        s.setSpecular(Color3::white() * 0.1f);
-        model->partArray[0].triList[0]->material = Material::create(s);
-        model->updateAll();
+    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+//        model = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), preprocess);
     }
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("/Volumes/McGuire/Projects/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/horse.ifs"), preprocess);
 
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/teapot.ifs"), 3);
-*/
+
     timer.after("load 3DS");
 
     fb = Framebuffer::create("Offscreen");

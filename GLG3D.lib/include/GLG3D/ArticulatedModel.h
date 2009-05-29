@@ -316,7 +316,7 @@ public:
     int                         m_numTriangles;
 
     /** 
- 	 @brief Compute all mesh properties from a triangle soup of vertices with optional texture coordinates.
+ 	 \brief Compute all mesh properties from a triangle soup of vertices with optional texture coordinates.
 
      Weld vertices, (re)compute vertex normals and tangent space basis, upload data to the GPU data, 
 	 and update shaders on all Parts.  If you modify Part vertices explicitly, invoke this afterward 
@@ -324,6 +324,8 @@ public:
 	
      This process is fairly slow and is usually only invoked once, either internally by fromFile() when
      the model is loaded, or explicitly by the programmer when a model is created procedurally.
+
+     <b>You do not need to call this if you only change the materials and not the geometry.</b>
 	*/
     void updateAll();
 

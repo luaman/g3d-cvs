@@ -19,7 +19,7 @@ namespace G3D {
 class AnyVal;
 
 /** 
-  @brief Description of a surface for rendering purposes.
+  \brief Description of a surface for rendering purposes.
 
   Encodes a BSDF, bump map, and emission function.
 
@@ -170,6 +170,16 @@ public:
             - UberBSDF::packSpecularExponent(e) affects the size of the glossy hilight, where 1 is dull, 128 is sharp.
             */
         void setShininess(float constant);
+
+        /** Same as <code>setShininess(UberBSDF::packedSpecularMirror())</code> */
+        inline void setMirrorShininess() {
+            setShininess(UberBSDF::packedSpecularMirror());
+        }
+
+        /** Same as <code>setShininess(UberBSDF::packSpecularExponent(e))</code> */
+        inline void setGlossyExponentShininess(int e) {
+            setShininess(UberBSDF::packSpecularExponent(e));
+        }
 
         /** This is an approximation of attenuation due to extinction
            while traveling through a translucent material.  Note that
