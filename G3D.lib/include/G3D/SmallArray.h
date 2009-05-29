@@ -37,9 +37,13 @@ public:
         return m_size;
     }
 
-    void resize(int n) {
-        m_rest.resize(std::max(0, n - N));
+    void resize(int n, bool shrinkIfNecessary = true) {
+        m_rest.resize(std::max(0, n - N), shrinkIfNecessary);
         m_size = n;
+    }
+
+    void clear(bool shrinkIfNecessary = true) {
+        resize(0, shrinkIfNecessary);
     }
 
     inline T& operator[](int i) {

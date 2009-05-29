@@ -22,10 +22,10 @@
 namespace G3D {
 
 /** 
-  @brief Allocates memory in large blocks and then frees it as an area.
+  \brief Allocates memory in large blocks and then frees it as an area.
 
   Useful for ensuring cache coherence and for reducing the time cost of 
-  multiple allocations and deallocations. 
+  multiple allocations and deallocations.
 
   <b>Not threadsafe</b>
  */
@@ -49,9 +49,14 @@ private:
     };
     
     size_t                  m_sizeHint;
+
+    /** The underlying array is stored in regular MemoryManager heap memory */
     Array<Buffer*>          m_bufferArray;
 
+    AreaMemoryManager(size_t sizeHint);
+
 public:
+
     typedef ReferenceCountedPointer<AreaMemoryManager> Ref;
 
     /** 
@@ -59,8 +64,8 @@ public:
         The allocator will allocate memory from the system in increments
         of this size.
     */
-    AreaMemoryManager(size_t sizeHint = 10 * 1024 * 1024);
-    
+    static AreaMemoryManager::Ref create(size_t sizeHint = 10 * 1024 * 1024);
+
     /** Invokes deallocateAll. */
     ~AreaMemoryManager();
 

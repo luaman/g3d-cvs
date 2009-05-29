@@ -3,13 +3,13 @@
 
    @maintainer Morgan McGuire, morgan@cs.williams.edu
    @created 2008-07-01
-   @edited  2008-11-02
+   @edited  2009-05-28
 
    Copyright 2000-2009, Morgan McGuire.
    All rights reserved.
 */
-#ifndef G3D_POINTHASHGRID_H
-#define G3D_POINTHASHGRID_H
+#ifndef G3D_PointHashGrid_h
+#define G3D_PointHashGrid_h
 
 #include "G3D/platform.h"
 #include "G3D/EqualsTrait.h"
@@ -20,6 +20,7 @@
 #include "G3D/Table.h"
 #include "G3D/AABox.h"
 #include "G3D/Sphere.h"
+#include "G3D/SmallArray.h"
 
 namespace G3D {
 
@@ -33,7 +34,7 @@ namespace G3D {
     G3D::EqualsTrait, and G3D::HashFunc.  overrides are provided for
     common G3D classes like G3D::Vector3.
 */
-template<class Value, 
+template<class Value,
          class PosFunc    = PositionTrait<Value>, 
          class EqualsFunc = EqualsTrait<Value>, 
          class HashFunc   = HashTrait<Vector3int32> >
@@ -64,6 +65,9 @@ private:
     /** Extent of a cell along one dimension. */
     float               m_cellWidth;
 
+    /** 1.0 / cell width */
+    float               m_invCellWidth;
+
     /** Conservative bounds; the actual data may be smaller. */
     AABox               m_bounds;
 
@@ -74,6 +78,7 @@ private:
         <code>position * m_cellWidth</code>*/
     CellTable           m_data;
 
+    MemoryManager::Ref  m_memoryManager;
 
     /** Intentionally unimplemented: prevent copy construction. */
     PointHashGrid(const ThisType&);
@@ -85,8 +90,7 @@ private:
 
     /** Locate the cell and index within that cell containing v. Called by
         remove() and contains(). */
-    bool find(
-              const Value&    v, 
+    bool find(const Value&    v, 
               Vector3int32&   foundCellCoord, 
               Cell*&          foundCell, 
               int&            index) {
@@ -118,9 +122,9 @@ private:
 
     /** Given a real-space position, returns the cell coord 
         containing it.*/
-    void getCellCoord(const Vector3& pos, Vector3int32& cellCoord) const {
+    inline void getCellCoord(const Vector3& pos, Vector3int32& cellCoord) const {
         for (int a = 0; a < 3; ++a) {
-            cellCoord[a] = iFloor(pos[a] / m_cellWidth);
+            cellCoord[a] = iFloor(pos[a] * m_invCellWidth);
         }
     }
 
@@ -153,11 +157,13 @@ public:
         beginSphereIntersection and beginBoxIntersection. If two <i>Value</i>s are equal,
         their positions must be within this radius as well.
     */
-    PointHashGrid(float radiusHint) : m_size(0) {
+    PointHashGrid(float radiusHint, const MemoryManager::Ref& m = MemoryManager::create()) : m_size(0), m_memoryManager(m) {
         initOffsetArray();
+        m_data.clearAndSetMemoryManager(m_memoryManager);
 
         debugAssertM(radiusHint > 0, "Cell radius must be positive");
         m_cellWidth = radiusHint;
+        m_invCellWidth = 1.0f / m_cellWidth;
     }
 
     /**
@@ -165,8 +171,9 @@ public:
        about 5 values in each grid cell (which means about 27 * 5 
        values for each beginIntersection call).
     */
-    PointHashGrid(const Array<Value>& init, float radiusHint = -1.0f) : m_size(0) {		
+    PointHashGrid(const Array<Value>& init, float radiusHint = -1.0f, const MemoryManager::Ref& m = MemoryManager::create()) : m_size(0), m_memoryManager(m) {		
         initOffsetArray();
+        m_data.clearAndSetMemoryManager(m_memoryManager);
 
         Vector3 lo(Vector3::inf());
         Vector3 hi(-lo);
@@ -228,16 +235,9 @@ public:
         getCellCoord(pos, cellCoord);
 
         // See if the cell already exists
-        Cell* cell = m_data.getPointer(cellCoord);
+        Cell& cell = m_data.getCreate(cellCoord);
 
-        if (cell == NULL) {
-            // The cell did not exist; create it
-            m_data.set(cellCoord, Cell());
-            cell = m_data.getPointer(cellCoord);
-        }
-        debugAssert(cell != NULL);
-
-        Entry& entry = cell->next();
+        Entry& entry = cell.next();
         entry.value     = v;
         entry.position  = pos;
 
@@ -869,6 +869,15 @@ public:
             delete *it;
         }
         clear();
+    }
+
+    void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
+        ++epoch;
+        m_size = 0;
+        m_bounds = AABox();
+
+        m_data.clearAndSetMemoryManager(m);
+        m_memoryManager = m;
     }
 
     /** Removes all data. 

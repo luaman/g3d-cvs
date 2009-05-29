@@ -273,7 +273,7 @@ private:
 
 public:
     
-    /** Runtime performance statistics useful for profiling.
+    /** \brief Reports measured GPU performance and throughput.
         
         "OpenGL state changes" are those that forced underlying OpenGL
         state changes; RenderDevice optimizes away redundant state

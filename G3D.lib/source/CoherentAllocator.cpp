@@ -42,6 +42,11 @@ bool AreaMemoryManager::isThreadsafe() const {
 }
 
 
+AreaMemoryManager::Ref AreaMemoryManager::create(size_t sizeHint) {
+    return new AreaMemoryManager(sizeHint);
+}
+
+
 AreaMemoryManager::AreaMemoryManager(size_t sizeHint) : m_sizeHint(sizeHint) {
     debugAssert(sizeHint > 0);
 }

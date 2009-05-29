@@ -4,14 +4,14 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
   
  @created 2005-10-05
- @edited  2009-03-10
+ @edited  2009-05-10
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_STOPWATCH_H
-#define G3D_STOPWATCH_H
+#ifndef G3D_Stopwatch_h
+#define G3D_Stopwatch_h
 
 #include "G3D/platform.h"
 #include "G3D/Queue.h"
@@ -21,7 +21,7 @@
 namespace G3D {
 
 /**
- @brief Utility class for profiling duration and frame rates.
+  \brief Accurately measure durations and framerates.
 
   Example 1: For profiling code in the context of a rendering loop:
     <pre>

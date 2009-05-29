@@ -21,12 +21,12 @@
 namespace G3D {
 
 /**
-   A mutual exclusion lock that spins actively while locked.
+   \brief A mutual exclusion lock that busy-waits when locking.
 
    On a machine with one (significant) thread per processor core,
    a spinlock may be substantially faster than a mutex.
 
-   @sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
+   \sa G3D::GThread, G3D::GMutex, G3D::AtomicInt32
  */
 class Spinlock {
 private:
@@ -60,7 +60,8 @@ public:
 };
 
 /**
- Mutual exclusion lock used for synchronization.
+ \brief Mutual exclusion lock used for synchronization.
+
  @sa G3D::GThread, G3D::AtomicInt32, G3D::Spinlock
 */
 class GMutex {
