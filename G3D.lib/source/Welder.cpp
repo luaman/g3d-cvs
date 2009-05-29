@@ -310,7 +310,6 @@ public:
         float               texRadius,
         float               normRadius) {
 
-        Stopwatch timer;
         normalSmoothingAngle = normAngle;
         normalWeldRadius2    = square(normRadius);
         texCoordWeldRadius2  = square(texRadius);
@@ -335,7 +334,6 @@ public:
         // Generate a flat (unrolled) triangle list with texture coordinates.
         unroll(indexArrayArray, vertexArray, texCoordArray, 
             unrolledVertexArray, unrolledTexCoordArray);
-        timer.after("Welder::unroll");
 
         // Put the output back into the input slots. 
         outputVertexArray   = &vertexArray;
@@ -348,16 +346,13 @@ public:
         // For every three vertices, generate their face normal and store it at 
         // each vertex. The output array has the same length as the input.
         computeFaceNormals(unrolledVertexArray, unrolledFaceNormalArray);
-        timer.after("Welder::computeFaceNormals");
 
         // Compute smooth normals at vertices.
         smoothNormals(unrolledVertexArray, unrolledFaceNormalArray, unrolledSmoothNormalArray);
-        timer.after("Welder::smoothNormals");
         unrolledFaceNormalArray.clear();
 
         // Regenerate the triangle lists
         updateTriLists(indexArrayArray, unrolledVertexArray, unrolledSmoothNormalArray, unrolledTexCoordArray);
-        timer.after("Welder::updateTriLists");
 
         if (! hasTexCoords) {
             // Throw away the generated texCoords
