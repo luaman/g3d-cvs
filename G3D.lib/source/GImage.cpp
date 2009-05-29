@@ -280,7 +280,7 @@ void GImage::decodePCX(
     }
 
 	// Prepare the pointer object for the pixel data
-    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->alloc(m_width * m_height * 3);
 
     if ((paletteType == 1) && (planes == 3)) {
 
@@ -537,7 +537,7 @@ void GImage::resize(
     size_t sz = width * height * channels;
 
     if (sz > 0) {
-        m_byte = (uint8*)m_memMan->malloc(sz);
+        m_byte = (uint8*)m_memMan->alloc(sz);
         if (zero) {
             System::memset(m_byte, 0, sz);
         }
@@ -555,7 +555,7 @@ void GImage::_copy(
     m_height = other.m_height;
     m_channels = other.m_channels;
     int s  = m_width * m_height * m_channels * sizeof(uint8);
-    m_byte  = (uint8*)m_memMan->malloc(s);
+    m_byte  = (uint8*)m_memMan->alloc(s);
     debugAssert(isValidHeapPointer(m_byte));
     memcpy(m_byte, other.m_byte, s);
 }

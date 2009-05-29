@@ -215,7 +215,7 @@ void GImage::decodePNG(
         ((color_type == PNG_COLOR_TYPE_PALETTE) && (png_ptr->num_trans > 0)) ) {
 
         m_channels = 4;
-        m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 4);
+        m_byte = (uint8*)m_memMan->alloc(m_width * m_height * 4);
 
     } else if ((color_type == PNG_COLOR_TYPE_RGB) || 
                (color_type == PNG_COLOR_TYPE_PALETTE)) {
@@ -230,7 +230,7 @@ void GImage::decodePNG(
         // Round up to the nearest 8 rows to avoid a bug in the PNG decoder
         int h = iCeil(m_height / 8) * 8;
         int sz = m_width * h;
-        m_byte = (uint8*)m_memMan->malloc(sz);
+        m_byte = (uint8*)m_memMan->alloc(sz);
 
     } else {
         throw GImage::Error("Unsupported PNG bit-depth or type.", input.getFilename());

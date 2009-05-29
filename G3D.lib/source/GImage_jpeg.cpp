@@ -11,9 +11,8 @@
 
 #include <cstring>
  
-/**
- Pick up libjpeg headers locally on Windows, but from the system on all other platforms.
-*/
+// Pick up libjpeg headers locally on Windows, but from the system on
+// all other platforms.
 extern "C" {
 #include <jconfig.h>
 #include <jpeglib.h>
@@ -354,7 +353,7 @@ void GImage::decodeJPEG(
 	m_height    = cinfo.output_height;
 
 	// Prepare the pointer object for the pixel data
-    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->alloc(m_width * m_height * 3);
 
  	// JSAMPLEs per row in output buffer
     int bpp         = cinfo.output_components;

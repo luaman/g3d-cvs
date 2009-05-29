@@ -238,7 +238,7 @@ void GImage::decodeBMP(
         hDir   = -1;
     }
 
-    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * 3);
+    m_byte = (uint8*)m_memMan->alloc(m_width * m_height * 3);
     debugAssert(m_byte);
 
     int BMScanWidth;
@@ -467,58 +467,59 @@ void GImage::decodeICO(
 
     input.skip(maxHeaderNum * 16);
 
-	m_width = input.readUInt8();
-	m_height = input.readUInt8();
-	int numColors = input.readUInt8();
+    m_width = input.readUInt8();
+    m_height = input.readUInt8();
+    int numColors = input.readUInt8();
 	
-    m_byte = (uint8*)m_memMan->malloc(m_width * m_height * m_channels);
+    m_byte = (uint8*)m_memMan->alloc(m_width * m_height * m_channels);
     debugAssert(m_byte);
 
-	// Bit mask for packed bits
-	int mask = 0;
+    // Bit mask for packed bits
+    int mask = 0;
+    
+    int bitsPerPixel = 8;
+    
+    switch (numColors) {
+    case 2:
+        mask      = 0x01;
+        bitsPerPixel = 1;
+        break;
+        
+    case 16:
+        mask      = 0x0F;
+        bitsPerPixel = 4;
+        break;
+        
+    case 0:
+        numColors = 256;
+        mask      = 0xFF;
+        bitsPerPixel = 8;
+        break;
 
-	int bitsPerPixel = 8;
-
-	switch (numColors) {
-	case 2:
-		mask      = 0x01;
-		bitsPerPixel = 1;
-		break;
-
-	case 16:
-		mask      = 0x0F;
-		bitsPerPixel = 4;
-		break;
-
-	case 0:
-		numColors = 256;
-		mask      = 0xFF;
-		bitsPerPixel = 8;
-		break;
     default:
     	throw Error("Unsupported ICO color count.", input.getFilename());
-	}
+    }
 
-	input.skip(5);
-	// Skip 'size' unused
-        input.skip(4);
-
-	int offset = input.readUInt32();
-
-	// Skip over any other icon descriptions
+    input.skip(5);
+    // Skip 'size' unused
+    input.skip(4);
+    
+    int offset = input.readUInt32();
+    
+    // Skip over any other icon descriptions
     input.setPosition(offset);
-
-	// Skip over bitmap header; it is redundant
-	input.skip(40);
-
-	Array<Color4uint8> palette;
+    
+    // Skip over bitmap header; it is redundant
+    input.skip(40);
+    
+    Array<Color4uint8> palette;
     palette.resize(numColors, true);
-	for (int c = 0; c < numColors; ++c) {
-		palette[c].b = input.readUInt8();
-		palette[c].g = input.readUInt8();
-		palette[c].r = input.readUInt8();
-		palette[c].a = input.readUInt8();
-	}
+    for (int c = 0; c < numColors; ++c) {
+        palette[c].b = input.readUInt8();
+        palette[c].g = input.readUInt8();
+        palette[c].r = input.readUInt8();
+        palette[c].a = input.readUInt8();
+    }
 
 	// The actual image and mask follow
 

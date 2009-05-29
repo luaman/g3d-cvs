@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2009-04-20
-  @edited  2009-04-20
+  @edited  2009-05-29
 
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
@@ -17,13 +17,18 @@ namespace G3D {
 MemoryManager::MemoryManager() {}
 
 
-void* MemoryManager::malloc(size_t s) {
+void* MemoryManager::alloc(size_t s) {
     return System::malloc(s);
 }
 
 
 void MemoryManager::free(void* ptr) {
     System::free(ptr);
+}
+
+
+bool MemoryManager::isThreadsafe() const {
+    return true;
 }
 
 
@@ -38,12 +43,18 @@ MemoryManager::Ref MemoryManager::create() {
 CRTMemoryManager::CRTMemoryManager() {}
 
 
-void* CRTMemoryManager::malloc(size_t s) {
+void* CRTMemoryManager::alloc(size_t s) {
     return ::malloc(s);
 }
 
+
 void CRTMemoryManager::free(void* ptr) {
     return ::free(ptr);
+}
+
+
+bool CRTMemoryManager::isThreadsafe() const {
+    return true;
 }
 
 
