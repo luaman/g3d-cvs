@@ -1,18 +1,18 @@
 /**
- @file CoherentAllocator.h
+ @file AreaMemoryManager.h
   
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2009-01-20
- @edited  2009-01-20
+ @edited  2009-05-29
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
 
-#ifndef G3D_CoherentAllocator_h
-#define G3D_CoherentAllocator_h
+#ifndef G3D_AreaMemoryManager_h
+#define G3D_AreaMemoryManager_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"

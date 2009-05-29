@@ -173,6 +173,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\AreaMemoryManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\BinaryFormat.cpp"
 				>
 			</File>
@@ -194,10 +198,6 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\source\Capsule.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\G3D.lib\source\CoherentAllocator.cpp"
 				>
 			</File>
 			<File
@@ -535,6 +535,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\AreaMemoryManager.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\Array.h"
 				>
 			</File>
@@ -576,10 +580,6 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\Capsule.h"
-				>
-			</File>
-			<File
-				RelativePath="..\G3D.lib\include\G3D\CoherentAllocator.h"
 				>
 			</File>
 			<File
