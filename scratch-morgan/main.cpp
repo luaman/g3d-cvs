@@ -70,10 +70,12 @@ void App::onInit() {
     debugPane->addCheckBox("Update Frustum", &updating);
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
-    ground = ArticulatedModel::createCornellBox(11.0f);
+    //ground = ArticulatedModel::createCornellBox(11.0f);
 
     {
-        ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
+        ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("bunny.ifs"));
+        ::exit(0);
+
         Material::Settings glass;
         glass.setEta(1.4f);
         //glass.setTransmissive(Color3::green() * 0.7f);
@@ -90,14 +92,12 @@ void App::onInit() {
         // Outside of sphere
         ArticulatedModel::Part::TriList::Ref outside = sphere->partArray[0].triList[0];
         outside->material = Material::create(glass);
-        
         // Inside (inverted)
         ArticulatedModel::Part::TriList::Ref inside = 
             sphere->partArray[0].newTriList(Material::create(air));
         inside->indexArray = outside->indexArray;
         inside->indexArray.reverse();
         sphere->updateAll();
-        sphere->pose(transparent, Vector3(1,0,0));
         model = sphere;
     }
 

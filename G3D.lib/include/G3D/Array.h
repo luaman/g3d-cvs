@@ -5,18 +5,19 @@
   @cite Portions written by Aaron Orenstein, a@orenstein.name
  
   @created 2001-03-11
-  @edited  2008-07-09
+  @edited  2009-05-29
 
   Copyright 2000-2009, Morgan McGuire, morgan@cs.williams.edu
   All rights reserved.
  */
 
-#ifndef G3D_ARRAY_H
-#define G3D_ARRAY_H
+#ifndef G3D_Array_h
+#define G3D_Array_h
 
 #include "G3D/platform.h"
 #include "G3D/debug.h"
 #include "G3D/System.h"
+#include "G3D/MemoryManager.h"
 #ifdef G3D_DEBUG
 //   For formatting error messages
 #    include "G3D/format.h"
@@ -47,7 +48,7 @@ const int SORT_INCREASING = 1;
 const int SORT_DECREASING = -1;
 
 /**
- Dynamic 1D array.  
+ \brief Dynamic 1D array tuned for performance.
 
  Objects must have a default constructor (constructor that
  takes no arguments) in order to be used with this template.
@@ -57,20 +58,15 @@ const int SORT_DECREASING = -1;
  Do not use with objects that overload placement <code>operator new</code>,
  since the speed of Array is partly due to pooled allocation.
 
- If SSE is defined Arrays allocate the first element aligned to
- 16 bytes.
-
-
  Array is highly optimized compared to std::vector.  
  Array operations are less expensive than on std::vector and for large
  amounts of data, Array consumes only 1.5x the total size of the 
  data, while std::vector consumes 2.0x.  The default
  array takes up zero heap space.  The first resize (or append)
  operation grows it to a reasonable internal size so it is efficient
- to append to small arrays.  Memory is allocated using
- System::alignedMalloc, which produces pointers aligned to 16-byte
- boundaries for use with SSE instructions and uses pooled storage for
- fast allocation.  When Array needs to copy
+ to append to small arrays. 
+ 
+ Then Array needs to copy
  data internally on a resize operation it correctly invokes copy
  constructors of the elements (the MSVC6 implementation of
  std::vector uses realloc, which can create memory leaks for classes
@@ -90,17 +86,22 @@ const int SORT_DECREASING = -1;
  is empty.
 
  Do not subclass an Array.
+
+ \sa G3D::SmallArray
  */
 template <class T, int MIN_ELEMENTS = 10, size_t MIN_BYTES = 32>
 class Array {
 private:
     /** 0...num-1 are initialized elements, num...numAllocated-1 are not */
-    T*              data;
+    T*                  data;
 
-    int             num;
-    int             numAllocated;
+    int                 num;
+    int                 numAllocated;
 
-    void init(int n, int a) {
+    MemoryManager::Ref  m_memoryManager;
+
+    void init(int n, int a, const MemoryManager::Ref& m) {
+        m_memoryManager = m;
         debugAssert(n <= a);
         debugAssert(n >= 0);
         this->num = 0;
@@ -114,7 +115,7 @@ private:
     }
 
     void _copy(const Array &other) {
-        init(other.num, other.num);
+        init(other.num, other.num, MemoryManager::create());
         for (int i = 0; i < num; i++) {
             data[i] = other.data[i];
         }
@@ -148,7 +149,7 @@ private:
          // elements are actually revealed to the application.  They 
          // will be constructed in the resize() method.
 
-         data = (T*)System::alignedMalloc(sizeof(T) * numAllocated, 16);
+         data = (T*)m_memoryManager->alloc(sizeof(T) * numAllocated);
 
          // Call the copy constructors
          {const int N = G3D::min(oldNum, numAllocated);
@@ -171,7 +172,7 @@ private:
               ptr->~T();
          }}
 
-         System::alignedFree(oldData);
+         m_memoryManager->free(oldData);
     }
 
 public:
@@ -237,14 +238,14 @@ public:
 
    /** Creates a zero length array (no heap allocation occurs until resize). */
    Array() {
-       init(0, 0);
+       init(0, 0, MemoryManager::create());
    }
 
    /**
     Creates an array of size.
     */
    Array(int size) {
-       init(size, size);
+       init(size, size, MemoryManager::create());
    }
 
    /**
@@ -267,13 +268,12 @@ public:
            (data + i)->~T();
        }
        
-       System::alignedFree(data);
+       m_memoryManager->free(data);
        // Set to 0 in case this Array is global and gets referenced during app exit
        data = NULL;
 	   num = 0;
        numAllocated = 0;
    }
-
 
    /**
     Removes all elements.  Use resize(0, false) or fastClear if you want to 
@@ -282,6 +282,12 @@ public:
     */
    void clear(bool shrink = true) {
        resize(0, shrink);
+   }
+
+   void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
+       clear();
+       debugAssert(data == NULL);
+       m_memoryManager = m;
    }
 
    /** resize(0, false) 
@@ -373,7 +379,7 @@ public:
       if ((MIN_ELEMENTS == 0) && (MIN_BYTES == 0) && (n == 0) && shrinkIfNecessary) {
           // Deallocate the array completely
           numAllocated = 0;
-          System::alignedFree(data);
+          m_memoryManager->free(data);
           data = NULL;
           return;
       }

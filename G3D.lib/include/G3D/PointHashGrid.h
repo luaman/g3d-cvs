@@ -237,7 +237,12 @@ public:
         // See if the cell already exists
         Cell& cell = m_data.getCreate(cellCoord);
 
-        Entry& entry = cell.next();
+        if (cell.size() == 0) {
+            // Use the same memory manager as for the whole class
+            cell.clearAndSetMemoryManager(m_memoryManager);
+        }
+
+        Entry& entry    = cell.next();
         entry.value     = v;
         entry.position  = pos;
 

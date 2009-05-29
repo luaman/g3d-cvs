@@ -4,7 +4,7 @@
  @author Morgan McGuire, Kyle Whitson, Corey Taylor
 
  @created 2008-07-30
- @edited  2009-02-10
+ @edited  2009-05-29
  */
 
 #include "G3D/platform.h"
@@ -14,6 +14,7 @@
 #include "G3D/PointHashGrid.h"
 #include "G3D/Welder.h"
 #include "G3D/Stopwatch.h" // for profiling
+#include "G3D/CoherentAllocator.h"
 
 namespace G3D { namespace _internal{
 
@@ -218,7 +219,6 @@ private:
         }
     }
 
-
     /**
      Computes @a smoothNormalArray, whose elements are those of normalArray averaged
      with neighbors within the angular cutoff.
@@ -227,6 +227,9 @@ private:
         const Array<Vector3>& vertexArray, 
         const Array<Vector3>& normalArray, 
         Array<Vector3>&       smoothNormalArray) {
+
+        // Create an area memory manager for fast deallocation
+        MemoryManager::Ref mm = AreaMemoryManager::create(iRound(sizeof(VN) * normalArray.size() * 1.5));
         
         if (normalSmoothingAngle <= 0) {
             smoothNormalArray = normalArray;
@@ -239,7 +242,7 @@ private:
         smoothNormalArray.resize(normalArray.size());
 
         // Compute a hash grid so that we can find neighbors quickly.
-        PointHashGrid<VN> grid(vertexWeldRadius);
+        PointHashGrid<VN> grid(vertexWeldRadius, mm);
         for (int v = 0; v < normalArray.size(); ++v) {
             grid.insert(VN(vertexArray[v], normalArray[v]));
         }
@@ -349,8 +352,8 @@ public:
 
         // Compute smooth normals at vertices.
         smoothNormals(unrolledVertexArray, unrolledFaceNormalArray, unrolledSmoothNormalArray);
-        unrolledFaceNormalArray.clear();
         timer.after("Welder::smoothNormals");
+        unrolledFaceNormalArray.clear();
 
         // Regenerate the triangle lists
         updateTriLists(indexArrayArray, unrolledVertexArray, unrolledSmoothNormalArray, unrolledTexCoordArray);
