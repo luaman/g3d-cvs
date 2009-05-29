@@ -392,7 +392,6 @@ href="classes.html">Classes</a>.
         \link G3D::BinaryFormat BinaryFormat\endlink,
         \link G3D::byteSize byteSize\endlink,
         \link G3D::binaryFormatOf binaryFormatOf\endlink,
-        \link G3D::CoherentAllocator CoherentAllocator\endlink,
         \link G3D::Crypto Crypto\endlink,
         \link G3D::CRTMemoryManager CRTMemoryManager\endlink,  
         \link G3D::G3DEndian G3DEndian\endlink,

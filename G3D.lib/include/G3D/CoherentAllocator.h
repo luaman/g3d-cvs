@@ -17,6 +17,7 @@
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Array.h"
+#include "G3D/MemoryManager.h"
 
 namespace G3D {
 
@@ -28,7 +29,7 @@ namespace G3D {
 
   <b>Not threadsafe</b>
  */
-class CoherentAllocator {
+class AreaMemoryManager : public MemoryManager {
 private:
 
     class Buffer {
@@ -44,39 +45,44 @@ private:
         ~Buffer();
 
         /** Returns NULL if out of space */
-        void* malloc(size_t s);
+        void* alloc(size_t s);
     };
     
     size_t                  m_sizeHint;
     Array<Buffer*>          m_bufferArray;
 
 public:
+    typedef ReferenceCountedPointer<AreaMemoryManager> Ref;
 
     /** 
-    @param sizeHint
+        \param sizeHint Total amount of memory expected to be allocated.
+        The allocator will allocate memory from the system in increments
+        of this size.
     */
-    CoherentAllocator(size_t sizeHint = 100 * 100);
-
+    AreaMemoryManager(size_t sizeHint = 10 * 1024 * 1024);
+    
     /** Invokes deallocateAll. */
-    ~CoherentAllocator();
-
-    /** Maximum block size.  Normally set to much larger than the desired 
-        allocation block size. */
-    size_t sizeHint() const;
+    ~AreaMemoryManager();
 
     size_t bytesAllocated() const;
 
     /** Allocates memory out of the buffer pool. 
         @param s must be no larger than sizeHint */
-    void* malloc(size_t s);
+    virtual void* alloc(size_t s);
 
     /** Ignored. */
-    void free(void* x);
+    virtual void free(void* x);
 
-    /** Deletes all previously allocated memory. */
+    virtual bool isThreadsafe() const;
+
+    /** Deletes all previously allocated memory. Because delete is not
+        invoked on objects in this memory, it is not safe to simply
+        free memory containing C++ objects that expect their destructors
+        to be called. */
     void deallocateAll();
 };
 
+typedef AreaMemoryManager CoherentAllocator;
 }
 
 #endif

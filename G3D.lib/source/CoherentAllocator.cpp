@@ -1,5 +1,5 @@
 /**
- @file CoherentAllocator.cpp
+ @file AreaMemoryManager.cpp
   
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
@@ -15,18 +15,18 @@
 
 namespace G3D {
 
-CoherentAllocator::Buffer::Buffer(size_t size) : m_size(size), m_used(0) {
+AreaMemoryManager::Buffer::Buffer(size_t size) : m_size(size), m_used(0) {
     // Allocate space for a lot of buffers.
     m_first = (uint8*)::malloc(m_size);
 }
 
 
-CoherentAllocator::Buffer::~Buffer() {
+AreaMemoryManager::Buffer::~Buffer() {
     ::free(m_first);
 }
 
 
-void* CoherentAllocator::Buffer::malloc(size_t s) {
+void* AreaMemoryManager::Buffer::alloc(size_t s) {
     if (s + m_used > m_size) {
         return NULL;
     } else {
@@ -37,46 +37,46 @@ void* CoherentAllocator::Buffer::malloc(size_t s) {
 }
 
 
-CoherentAllocator::CoherentAllocator(size_t sizeHint) : m_sizeHint(sizeHint) {
+bool AreaMemoryManager::isThreadsafe() const {
+    return false;
+}
+
+
+AreaMemoryManager::AreaMemoryManager(size_t sizeHint) : m_sizeHint(sizeHint) {
     debugAssert(sizeHint > 0);
 }
 
 
-CoherentAllocator::~CoherentAllocator() {
+AreaMemoryManager::~AreaMemoryManager() {
     deallocateAll();
 }
 
 
-size_t CoherentAllocator::sizeHint() const {
-    return m_sizeHint;
-}
-
-
-size_t CoherentAllocator::bytesAllocated() const {
+size_t AreaMemoryManager::bytesAllocated() const {
     return m_sizeHint * m_bufferArray.size();
 }
 
 
-void* CoherentAllocator::malloc(size_t s) {
+void* AreaMemoryManager::alloc(size_t s) {
     debugAssert(s <= m_sizeHint);
 
-    void* n = (m_bufferArray.size() > 0) ? m_bufferArray.last()->malloc(s) : NULL;
+    void* n = (m_bufferArray.size() > 0) ? m_bufferArray.last()->alloc(s) : NULL;
     if (n == NULL) {
         // This buffer is full
-        m_bufferArray.append(new Buffer(m_sizeHint));
-        return m_bufferArray.last()->malloc(s);
+        m_bufferArray.append(new Buffer(max(s, m_sizeHint)));
+        return m_bufferArray.last()->alloc(s);
     } else {
         return n;
     }
 }
 
 
-void CoherentAllocator::free(void* x) {
+void AreaMemoryManager::free(void* x) {
     // Intentionally empty; we block deallocate
 }
 
 
-void CoherentAllocator::deallocateAll() {
+void AreaMemoryManager::deallocateAll() {
     m_bufferArray.deleteAll();
     m_bufferArray.clear();
 }
