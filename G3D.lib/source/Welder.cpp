@@ -14,7 +14,7 @@
 #include "G3D/PointHashGrid.h"
 #include "G3D/Welder.h"
 #include "G3D/Stopwatch.h" // for profiling
-#include "G3D/CoherentAllocator.h"
+#include "G3D/AreaMemoryManager.h"
 
 namespace G3D { namespace _internal{
 
