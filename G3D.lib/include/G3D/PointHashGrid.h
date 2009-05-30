@@ -877,7 +877,7 @@ public:
     }
 
     void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
-        ++epoch;
+        ++m_epoch;
         m_size = 0;
         m_bounds = AABox();
 
