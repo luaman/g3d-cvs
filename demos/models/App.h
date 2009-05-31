@@ -1,5 +1,5 @@
-#ifndef APP_H
-#define APP_H
+#ifndef App_h
+#define App_h
 
 #include <G3D/G3DAll.h>
 #include "Entity.h"
@@ -14,7 +14,7 @@ private:
     SkyParameters               skyParameters;
     LightingRef                 lighting;
 
-    Array<EntityRef>            entityArray;
+    Array<Entity::Ref>          entityArray;
     Texture::Ref                texture;
 
     void loadScene();
@@ -24,8 +24,8 @@ public:
     App(const GApp::Settings& settings = GApp::Settings());
     virtual void onUserInput(UserInput* ui);
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
-    virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
+    virtual void onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
+    virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
 };
 
 #endif

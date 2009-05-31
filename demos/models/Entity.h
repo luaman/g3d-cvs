@@ -1,20 +1,23 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#ifndef Entity_h
+#define Entity_h
 
 #include <G3D/G3DAll.h>
 
-typedef ReferenceCountedPointer<class Entity> EntityRef;
 class Entity : public ReferenceCountedObject {
+public:
+
+typedef ReferenceCountedPointer<class Entity> Ref;
+
 private:
 
-    ArticulatedModel::Ref         artModel;
+    ArticulatedModel::Ref       artModel;
     ArticulatedModel::Pose      artPose;
 
-    MD2ModelRef                 md2Model;
+    MD2Model::Ref               md2Model;
     MD2Model::Pose              md2Pose;
     GMaterial                   md2Material;
 
-    IFSModelRef                 ifsModel;
+    IFSModel::Ref               ifsModel;
     GMaterial                   ifsMaterial;
     bool                        ifsVertexNormals;
     
@@ -23,11 +26,11 @@ private:
 public:
 
     /** Root frame */
-    CoordinateFrame             cframe;
+    CFrame             cframe;
 
-    static EntityRef create(
+    static Entity::Ref create(
         ArticulatedModel::Ref model = NULL,
-        const CoordinateFrame& c = CoordinateFrame()) {
+        const CFrame& c = CFrame()) {
 
         Entity* e = new Entity();
 
@@ -36,10 +39,11 @@ public:
         return e;
     }
     
-    static EntityRef create(
-        MD2ModelRef model,
-        const GMaterial& material = GMaterial(),
-        const CoordinateFrame& c = CoordinateFrame()) {
+    static Entity::Ref create
+    (
+     const MD2Model::Ref& model,
+     const GMaterial& material = GMaterial(),
+     const CFrame& c = CFrame()) {
 
         Entity* e = new Entity();
 
@@ -49,10 +53,10 @@ public:
         return e;
     }
 
-    static EntityRef create(
+    static Entity::Ref create(
         IFSModelRef model,
         const GMaterial& material = GMaterial(),
-        const CoordinateFrame& c = CoordinateFrame(),
+        const CFrame& c = CFrame(),
         bool vertexNormals = true) {
 
         Entity* e = new Entity();
