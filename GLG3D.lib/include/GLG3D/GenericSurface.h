@@ -96,7 +96,7 @@ public:
         
     public:
 
-        inline static Ref create(PrimitiveType p = PrimitiveType::TRIANGLES) {
+        inline static GPUGeom::Ref create(PrimitiveType p = PrimitiveType::TRIANGLES) {
             return new GPUGeom(p, false, RefractionQuality::DYNAMIC_FLAT, MirrorQuality::STATIC_ENV);
         }
     };
@@ -262,7 +262,7 @@ public:
         contains pointers into an object that may not be held by
         anything else. Note that any ReferenceCountedPointer will automatically
         upcast to this type.*/
-    static Ref create
+    static GenericSurface::Ref create
     (const std::string&       name,
      const CFrame&            frame, 
      const GPUGeom::Ref&      gpuGeom,

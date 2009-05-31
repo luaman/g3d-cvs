@@ -412,8 +412,9 @@ def docTarget():
     # Generate Java docs
     run(doxygen, ['Doxyfile-java'], True, env)
 
-    # replace reference counted pointer links in class/struct documentation
-    ice.doxygen.remapRefLinks('build/manual')
+    # replace reference counted pointer links in documentation
+    remapper = ice.doxygen.DoxygenRefLinkRemapper()
+    remapper.remap('build/manual', 'build/manual')
 
     # Generate demos and support
     copyIfNewer('data-files', 'build/data')
