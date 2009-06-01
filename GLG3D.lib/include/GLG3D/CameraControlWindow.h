@@ -42,7 +42,13 @@ protected:
     static const Vector2        smallSize;
     static const Vector2        bigSize;
 
+    /** Returns a prettyprinted position*/
     std::string cameraLocation() const;
+
+    /** Returns a CFrame constructor */
+    std::string cameraLocationCode() const;
+
+    /** Parses either prettyprinted or CFrame version */
     void setCameraLocation(const std::string& s);
 
     /** Name of the file in which current bookmarks are stored. */
@@ -90,17 +96,17 @@ protected:
     /** The button must be in its own pane so that it can float over
         the expanded pane. */
     GuiPane*                    drawerButtonPane;
-    GuiText                  drawerExpandCaption;
-    GuiText                  drawerCollapseCaption;
+    GuiText                     drawerExpandCaption;
+    GuiText                     drawerCollapseCaption;
 
     GuiButton*                  saveButton;
 
     GuiLabel*                   helpLabel;
 
-    GuiText                  manualHelpCaption;
-    GuiText                  autoHelpCaption;
-    GuiText                  recordHelpCaption;
-    GuiText                  playHelpCaption;
+    GuiText                     manualHelpCaption;
+    GuiText                     autoHelpCaption;
+    GuiText                     recordHelpCaption;
+    GuiText                     playHelpCaption;
 
     GuiButton*                  m_showBookmarksButton;
 
@@ -129,6 +135,8 @@ protected:
 
     /** Updates the trackFileArray from the list of track files */
     void updateTrackFiles();
+
+    void copyToClipboard();
 
     void saveBookmarks();
 

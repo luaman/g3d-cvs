@@ -18,8 +18,8 @@
 
 namespace G3D {
 
-const Vector2 CameraControlWindow::smallSize(286, 48);
-const Vector2 CameraControlWindow::bigSize(286, 157);
+const Vector2 CameraControlWindow::smallSize(286 + 16, 48);
+const Vector2 CameraControlWindow::bigSize(286 + 16, 157);
 
 static const std::string noSpline = "< None >";
 static const std::string untitled = "< Unsaved >";
@@ -124,6 +124,7 @@ public:
 
 };
 
+static bool hasRoll = false;
 
 CameraControlWindow::CameraControlWindow(
     const FirstPersonManipulatorRef&      manualManipulator, 
@@ -151,36 +152,46 @@ CameraControlWindow::CameraControlWindow(
 
     GuiPane* pane = GuiWindow::pane();
 
+    const char* DOWN = "6";
+    const char* CHECK = "\x98";
+    const char* CLIPBOARD = "\xA4";
+    float w = 18;
+    float h = 20;
     GFontRef iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
     GFontRef greekFont = GFont::fromFile(System::findDataFile("greek.fnt"));
 
     // The default G3D textbox label doesn't support multiple fonts
-    pane->addLabel(GuiText("q q", greekFont, 12))->setRect(Rect2D::xywh(19, 6, 10, 15));
-    pane->addLabel(GuiText("y  x", NULL, 9))->setRect(Rect2D::xywh(24, 12, 10, 9));
+    if (hasRoll) {
+        pane->addLabel(GuiText("q q q", greekFont, 12))->setRect(Rect2D::xywh(19, 6, 10, 15));
+        pane->addLabel(GuiText("y  x  z", NULL, 9))->setRect(Rect2D::xywh(24, 12, 10, 9));
+    } else {
+        pane->addLabel(GuiText("q q", greekFont, 12))->setRect(Rect2D::xywh(19, 6, 10, 15));
+        pane->addLabel(GuiText("y  x", NULL, 9))->setRect(Rect2D::xywh(24, 12, 10, 9));
+    }
     cameraLocationTextBox = 
         pane->addTextBox("xyz",
         Pointer<std::string>(this, &CameraControlWindow::cameraLocation, 
                                    &CameraControlWindow::setCameraLocation));
-    cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 246, 24));
-    cameraLocationTextBox->setCaptionSize(38);
-
-    const char* DOWN = "6";
-    const char* CHECK = "\x98";
-    float h = cameraLocationTextBox->rect().height() - 4;
-
-    m_showBookmarksButton = pane->addButton(GuiText(DOWN, iconFont, 18), 
-        GuiTheme::TOOL_BUTTON_STYLE);
-
-    m_showBookmarksButton->setSize(h-1, h);
-    m_showBookmarksButton->moveRightOf(cameraLocationTextBox);
-    m_showBookmarksButton->moveBy(-2, 2);
+    cameraLocationTextBox->setRect(Rect2D::xywh(0, 2, 246 + (hasRoll ? 20.0f : 0.0f), 24));
+    cameraLocationTextBox->setCaptionSize(38 + (hasRoll ? 12.0f : 0.0f));
 
     // Change to black "r" (x) for remove
     GuiButton* bookMarkButton = 
         pane->addButton(GuiText(CHECK, iconFont, 16, Color3::blue() * 0.8f), 
             GuiControl::Callback(this, &CameraControlWindow::onBookmarkButton),
             GuiTheme::TOOL_BUTTON_STYLE);
-    bookMarkButton->setSize(h - 1, h);
+    bookMarkButton->setSize(w, h);
+    bookMarkButton->moveRightOf(cameraLocationTextBox);
+    bookMarkButton->moveBy(-2, 2);
+
+    m_showBookmarksButton = pane->addButton(GuiText(DOWN, iconFont, 18), 
+        GuiTheme::TOOL_BUTTON_STYLE);
+
+    m_showBookmarksButton->setSize(w, h);
+
+    GuiButton* copyButton = pane->addButton(GuiText(CLIPBOARD, iconFont, 16), GuiControl::Callback(this, &CameraControlWindow::copyToClipboard), GuiTheme::TOOL_BUTTON_STYLE);
+    copyButton->setSize(w, h);
+
 
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
@@ -320,24 +331,51 @@ std::string CameraControlWindow::cameraLocation() const {
 }
 
 
+std::string CameraControlWindow::cameraLocationCode() const {
+    CoordinateFrame cframe;
+    trackManipulator->camera()->getCoordinateFrame(cframe);
+    UprightFrame uframe(cframe);
+    
+    return format("CFrame::fromXYZYPRDegrees(% 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff, % 5.1ff)", 
+                  uframe.translation.x, uframe.translation.y, uframe.translation.z, 
+                  toDegrees(uframe.yaw), toDegrees(uframe.pitch), 0.0f);
+}
+
+
+
 void CameraControlWindow::setCameraLocation(const std::string& s) {
     TextInput t(TextInput::FROM_STRING, s);
     try {
-        
         UprightFrame uframe;
-        uframe.translation.deserialize(t);
-        t.readSymbol(",");
-        uframe.yaw = toRadians(t.readNumber());
-        std::string DEGREE = "\xba";
-        if (t.peek().string() == DEGREE) {
-            t.readSymbol();
-        }
-        t.readSymbol(",");
-        uframe.pitch = toRadians(t.readNumber());
-        if (t.peek().string() == DEGREE) {
-            t.readSymbol();
-        }
-        
+        Token first = t.peek();
+        if (first.string() == "CFrame") {
+            // Code version
+            t.readSymbols("CFrame", "::", "fromXYZYPRDegrees");
+            t.readSymbol("(");
+            uframe.translation.x = t.readNumber();
+            t.readSymbol(",");
+            uframe.translation.y = t.readNumber();
+            t.readSymbol(",");
+            uframe.translation.z = t.readNumber();
+            t.readSymbol(",");
+            uframe.yaw = toRadians(t.readNumber());
+            t.readSymbol(",");
+            uframe.pitch = toRadians(t.readNumber());
+        } else {
+            // Pretty-printed version
+            uframe.translation.deserialize(t);
+            t.readSymbol(",");
+            uframe.yaw = toRadians(t.readNumber());
+            std::string DEGREE = "\xba";
+            if (t.peek().string() == DEGREE) {
+                t.readSymbol();
+            }
+            t.readSymbol(",");
+            uframe.pitch = toRadians(t.readNumber());
+            if (t.peek().string() == DEGREE) {
+                t.readSymbol();
+            }
+        }        
         CoordinateFrame cframe = uframe;
 
         trackManipulator->camera()->setCoordinateFrame(cframe);
@@ -349,6 +387,10 @@ void CameraControlWindow::setCameraLocation(const std::string& s) {
     }
 }
 
+
+void CameraControlWindow::copyToClipboard() {
+    System::setClipboardText(cameraLocationCode());
+}
 
 
 void CameraControlWindow::showBookmarkList() {
