@@ -63,8 +63,6 @@ size_t AreaMemoryManager::bytesAllocated() const {
 
 
 void* AreaMemoryManager::alloc(size_t s) {
-    debugAssert(s <= m_sizeHint);
-
     void* n = (m_bufferArray.size() > 0) ? m_bufferArray.last()->alloc(s) : NULL;
     if (n == NULL) {
         // This buffer is full
