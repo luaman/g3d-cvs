@@ -18,22 +18,22 @@
 
 class MD2Viewer : public Viewer {
 private:
-    Array<MD2ModelRef>			models;
-	Array<SurfaceRef>		posed;
-	Array<GMaterial>			materials;
-	MD2Model::Pose				currentPose;
+    Array<MD2Model::Ref>  models;
+    Array<Surface::Ref>   posed;
+    Array<GMaterial>	  materials;
+    MD2Model::Pose        currentPose;
 
-	bool						validWeapon;
-	std::string					textureName;
-	int							numEdges;
-	int							numFaces;
-	int							numVertices;
-
-	void pose(RealTime deltaTime);
+    bool						validWeapon;
+    std::string					textureName;
+    int							numEdges;
+    int							numFaces;
+    int							numVertices;
+    
+    void pose(RealTime deltaTime);
 
 public:
-	virtual void onInit(const std::string& filename);
-    virtual void onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting);
+    virtual void onInit(const std::string& filename);
+    virtual void onGraphics(RenderDevice* rd, App* app, const Lighting::Ref& lighting);
 };
 
 #endif 
