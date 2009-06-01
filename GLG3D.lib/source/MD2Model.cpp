@@ -54,7 +54,7 @@ const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] =
 };
 
 
-MD2ModelRef MD2Model::fromFile(const std::string& filename, float s) {
+MD2Model::Ref MD2Model::fromFile(const std::string& filename, float s) {
     MD2Model* model = new MD2Model();
     model->load(filename, s);
     return model;
@@ -694,7 +694,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
 //////////////////////////////////////////////////////////////////////////
 
 MD2Model::PosedMD2Model::PosedMD2Model(
-    MD2ModelRef                 _model,
+    MD2Model::Ref               _model,
     const CoordinateFrame&      _cframe,
     const Pose&                 _pose,
     bool                        _useMat,

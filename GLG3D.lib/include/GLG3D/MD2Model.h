@@ -23,8 +23,6 @@
 
 namespace G3D {
 
-typedef ReferenceCountedPointer<class MD2Model> MD2ModelRef;
-
 /**
  Quake II model class.
  <P>
@@ -60,6 +58,8 @@ typedef ReferenceCountedPointer<class MD2Model> MD2ModelRef;
  */
 class MD2Model : public ReferenceCountedObject {
 public:
+    typedef ReferenceCountedPointer<class MD2Model> Ref;
+
     /**
      Amount of time to blend between two animations.
      */
@@ -218,7 +218,7 @@ protected:
             System::free(p);
         }
 
-        MD2ModelRef             model;
+        MD2Model::Ref             model;
         CoordinateFrame         cframe;
         Pose                    pose;
         bool                    useMaterial;
@@ -230,7 +230,7 @@ protected:
         /** Computed on the first call to objectSpaceFaceNormals */
         Array<Vector3>          faceNormals;
 
-        PosedMD2Model(MD2ModelRef _model, const CoordinateFrame& _cframe, const Pose& _pose,
+        PosedMD2Model(MD2Model::Ref _model, const CoordinateFrame& _cframe, const Pose& _pose,
             bool _useMat, const GMaterial& _mat);
         virtual ~PosedMD2Model() {}
         virtual std::string name() const;
@@ -430,9 +430,9 @@ public:
 
      @param scale Optional scale factor to apply while loading.
      */
-    static MD2ModelRef fromFile(const std::string& filename, float scale = 1.0f);
+    static MD2Model::Ref fromFile(const std::string& filename, float scale = 1.0f);
 
-    static MD2ModelRef G3D_DEPRECATED create(const std::string& filename, float scale = 1.0f) {
+    static MD2Model::Ref G3D_DEPRECATED create(const std::string& filename, float scale = 1.0f) {
         return fromFile(filename, scale);
     }
 

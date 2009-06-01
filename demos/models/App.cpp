@@ -46,14 +46,14 @@ void App::onUserInput(UserInput* ui) {
 }
 
 
-void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+void App::onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
     for (int e = 0; e < entityArray.size(); ++e) {
         entityArray[e]->onPose(posed3D);
     }
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
     const Lighting::Ref&  lighting      = toneMap->prepareLighting(this->lighting);
     SkyParameters         skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
 
