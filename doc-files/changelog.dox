@@ -15,7 +15,8 @@
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri for ray tracing
-     <li> VideoRecordDialog now puts date before program name
+     <li> G3D::CameraControlWindow can now copy camera position to clipboard in CFrame constructor format
+     <li> G3D::VideoRecordDialog now puts date before program name
      <li> G3D::Matrix4::getPerspectiveProjectionParameters
      <li> G3D::Surface::renderTransparents; G3D::Surface::sortAndRender now performs refraction
      <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
