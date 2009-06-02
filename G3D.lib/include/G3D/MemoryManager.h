@@ -20,7 +20,7 @@ namespace G3D {
    Abstraction of memory management.
    Default implementation uses G3D::System::malloc and is threadsafe.
 
-   \sa CRTMemoryManager, AreaMemoryManager */
+   \sa CRTMemoryManager, AlignedMemoryManager, AreaMemoryManager */
 class MemoryManager : public ReferenceCountedObject {
 protected:
 
@@ -47,6 +47,28 @@ public:
     /** Return the instance. There's only one instance of the default
         MemoryManager; it is cached after the first creation. */
     static MemoryManager::Ref create();
+};
+
+/** 
+   Allocates memory on 16-byte boundaries.
+   \sa MemoryManager, CRTMemoryManager, AreaMemoryManager */
+class AlignedMemoryManager : public MemoryManager {
+protected:
+
+    AlignedMemoryManager();
+
+public:
+
+    typedef ReferenceCountedPointer<class AlignedMemoryManager> Ref;
+
+    
+    virtual void* alloc(size_t s);
+
+    virtual void free(void* ptr);
+
+    virtual bool isThreadsafe() const;
+
+    static AlignedMemoryManager::Ref create();
 };
 
 

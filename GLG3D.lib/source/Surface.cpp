@@ -180,7 +180,7 @@ void Surface::sortAndRender
 
             Surface::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
             Surface::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
-            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted, 0.03f);
+            shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted, 0.001f);
 
             lightVisible.fastClear();
             lightSorted.fastClear();

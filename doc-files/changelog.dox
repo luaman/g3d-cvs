@@ -8,6 +8,8 @@
    functionality will be supported until (at least) the next major
    release.
 
+TODO: make bias a property of the shadow map
+
 <hr>
    <p>
    Changes in 8.00:

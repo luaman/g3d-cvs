@@ -387,6 +387,7 @@ href="classes.html">Classes</a>.
         \link G3D::ReliableConduit ReliableConduit\endlink
 
      <LI><B>Time, Memory, and Threads</B> &nbsp; &nbsp;
+        \link G3D::AlignedMemoryManager AlignedMemoryManager\endlink,  
         \link G3D::AreaMemoryManager AreaMemoryManager\endlink,
         \link G3D::AtomicInt32 AtomicInt32\endlink,
         \link G3D::BinaryFormat BinaryFormat\endlink,

@@ -25,7 +25,12 @@ MD2Model::Pose  MD2Model::interpolatedPose;
 VARAreaRef      MD2Model::varArea[MD2Model::NUM_VAR_AREAS];
 int             MD2Model::nextVarArea            = MD2Model::NONE_ALLOCATED;
 const GameTime  MD2Model::PRE_BLEND_TIME         = 1.0 / 8.0;
-const double    MD2Model::hangTimePct            = 0.1;
+const float     MD2Model::hangTimePct            = 0.1f;
+
+MD2Model::PackedGeometry::PackedGeometry() {
+    vertexArray.clearAndSetMemoryManager(AlignedMemoryManager::create());
+    normalArray.clearAndSetMemoryManager(AlignedMemoryManager::create());
+}
 
 const MD2Model::MD2AnimInfo MD2Model::animationTable[MD2Model::MAX_ANIMATIONS] = 
 {
@@ -96,7 +101,7 @@ const Array<MeshAlg::Vertex>& MD2Model::weldedVertices() const {
 }
 
 
-void MD2Model::computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, double& alpha) {
+void MD2Model::computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, float& alpha) {
 
     if (pose.time < 0.0) {
         Animation a = pose.animation;
@@ -169,7 +174,7 @@ void MD2Model::computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf
     int totalFrames = anim.last - anim.first + 1;
 
     // Number of frames into the animation
-    double frames = time * anim.fps;
+    float frames = time * anim.fps;
 
     int iframes   = iFloor(frames);
 
@@ -404,9 +409,9 @@ GameTime MD2Model::animationLength(Animation a) {
     const MD2AnimInfo& info = animationTable[a];
 
     if (info.loops) {
-        return (info.last - info.first + 1) / (double) info.fps;
+        return (info.last - info.first + 1) / (float) info.fps;
     } else {
-        return (info.last - info.first) / (double) info.fps;
+        return (info.last - info.first) / (float) info.fps;
     }
 }
 
@@ -414,7 +419,7 @@ GameTime MD2Model::animationLength(Animation a) {
 int MD2Model::getFrameNumber(const Pose& pose) {
     // Return the frame we're about to go to.
     int kf0, kf1;
-    double alpha;
+    float alpha;
     computeFrameNumbers(pose, kf0, kf1, alpha);
     return kf1;
 }
@@ -513,6 +518,14 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
     
     const int numVertices = keyFrame[0].vertexArray.size();
 
+    AlignedMemoryManager::Ref mm = AlignedMemoryManager::create();
+
+    if ((out.vertexArray.memoryManager() != mm) ||
+        (out.normalArray.memoryManager() != mm)) {
+        out.vertexArray.clearAndSetMemoryManager(AlignedMemoryManager::create());
+        out.normalArray.clearAndSetMemoryManager(AlignedMemoryManager::create());
+    }
+
     out.vertexArray.resize(numVertices, DONT_SHRINK_UNDERLYING_ARRAY);
     out.normalArray.resize(numVertices, DONT_SHRINK_UNDERLYING_ARRAY);
 
@@ -533,7 +546,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
         interpolatedModel = const_cast<MD2Model*>(this);
     }
 
-    double alpha;
+    float alpha;
     int i0, i1;
 
     computeFrameNumbers(pose, i0, i1, alpha);
@@ -585,8 +598,8 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
 
         const int numFloats = numVertices * 3;
     
-        static Array<Vector3> normal1;
-
+        Array<Vector3> normal1;
+        normal1.clearAndSetMemoryManager(mm);
         normal1.resize(numVertices, DONT_SHRINK_UNDERLYING_ARRAY);
 
         {
@@ -615,10 +628,10 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
         // Copy over vertices so we can mutate them in place
         System::memcpy(vI, v0, numFloats * sizeof(float));
 
-        alwaysAssertM(((int)v1 % 16) == 0, "SEE array not aligned to 16-bytes");
-        alwaysAssertM(((int)vI % 16) == 0, "SEE array not aligned to 16-bytes");
-        alwaysAssertM(((int)n1 % 16) == 0, "SEE array not aligned to 16-bytes");
-        alwaysAssertM(((int)nI % 16) == 0, "SEE array not aligned to 16-bytes");
+        alwaysAssertM(((size_t)v1 % 16) == 0, "SEE array not aligned to 16-bytes");
+        alwaysAssertM(((size_t)vI % 16) == 0, "SEE array not aligned to 16-bytes");
+        alwaysAssertM(((size_t)n1 % 16) == 0, "SEE array not aligned to 16-bytes");
+        alwaysAssertM(((size_t)nI % 16) == 0, "SEE array not aligned to 16-bytes");
 
         const int num128 = numFloats / sizeof(float);
 

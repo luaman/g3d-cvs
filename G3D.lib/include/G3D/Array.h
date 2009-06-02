@@ -315,6 +315,10 @@ public:
        return *this;
    }
 
+   inline MemoryManager::Ref memoryManager() const {
+       return m_memoryManager;
+   }
+
    /**
     Number of elements in the array.
     */

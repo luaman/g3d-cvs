@@ -18,7 +18,8 @@ namespace G3D {
    parameters. It comprises Lambertian reflection, Schlick's Fresnel
    approximation for glossy and mirror reflection, Sloan, Hoffman, and Lafortune's
    normalization of the Blinn-Phong specular lobe, and transmission
-   (without extinction) terms.
+   (without exponential extinction) terms.  It is a extension of the isotropic
+   version of Ashikman and Shirley's empirical BRDF http://www.cs.utah.edu/~shirley/papers/jgtbrdf.pdf.
 
    The methods of this class are primarily used for photon mapping,
    ray tracing, and software rasterization.  The G3D::Material class

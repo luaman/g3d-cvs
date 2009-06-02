@@ -210,15 +210,15 @@ protected:
 
     class PosedMD2Model : public Surface {
     public:
-        static void* operator new(size_t size) {
+        inline static void* operator new(size_t size) {
             return System::malloc(size);
         }
 
-        static void operator delete(void* p) {
+        inline static void operator delete(void* p) {
             System::free(p);
         }
 
-        MD2Model::Ref             model;
+        MD2Model::Ref           model;
         CoordinateFrame         cframe;
         Pose                    pose;
         bool                    useMaterial;
@@ -262,6 +262,8 @@ protected:
 
         /** Indices into the normalTable. */
         Array<uint8>            normalArray;
+
+        PackedGeometry();
     };
 
     /**
@@ -288,10 +290,10 @@ protected:
     /**
      Computes the previous and next frame indices and how far we are between them.
      */
-    static void computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, double& alpha);
+    static void computeFrameNumbers(const MD2Model::Pose& pose, int& kf0, int& kf1, float& alpha);
 
     /** How long we hold in the air as a fraction of jump time. */
-    static const double         hangTimePct;
+    static const float          hangTimePct;
 
     /** The pose currently stored in interpolatedFrame.  When the animation is MAX_ANIMATIONS
         interpolatedFrame is not yet initialized. */

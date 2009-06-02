@@ -40,6 +40,32 @@ MemoryManager::Ref MemoryManager::create() {
 
 ///////////////////////////////////////////////////
 
+AlignedMemoryManager::AlignedMemoryManager() {}
+
+
+void* AlignedMemoryManager::alloc(size_t s) {
+    return System::alignedMalloc(s, 16);
+}
+
+
+void AlignedMemoryManager::free(void* ptr) {
+    System::alignedFree(ptr);
+}
+
+
+bool AlignedMemoryManager::isThreadsafe() const {
+    return true;
+}
+
+
+AlignedMemoryManager::Ref AlignedMemoryManager::create() {
+    static AlignedMemoryManager::Ref m = new AlignedMemoryManager();
+    return m;
+}
+
+
+///////////////////////////////////////////////////
+
 CRTMemoryManager::CRTMemoryManager() {}
 
 
