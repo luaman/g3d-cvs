@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2009-04-15
+ @edited  2009-06-01
 */
 
 #include "G3D/Log.h"
@@ -20,6 +20,7 @@
 #include "G3D/AnyVal.h"
 #include "GLG3D/glcalls.h"
 #include "G3D/ImageFormat.h"
+#include "G3D/CoordinateFrame.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
@@ -1256,31 +1257,75 @@ void Texture::copyFromScreen(
 }
 
 
-void Texture::getCameraRotation(CubeFace face, Matrix3& outMatrix) {
-    switch (face) {
-    case CUBE_POS_X:
-        outMatrix = Matrix3::fromEulerAnglesYXZ((float)halfPi(), (float)pi(), 0);
-        break;
+void Texture::getCubeMapInfo(int faceNum, CubeFace& face, const char*& suffix) {
 
-    case CUBE_NEG_X:
-        outMatrix = Matrix3::fromEulerAnglesYXZ(-(float)halfPi(), (float)pi(), 0);
-        break;
+    static const Texture::CubeFace faceArray[6] = {
+        Texture::CUBE_POS_X,
+        Texture::CUBE_NEG_X,
+        Texture::CUBE_POS_Y,
+        Texture::CUBE_NEG_Y,
+        Texture::CUBE_POS_Z,
+        Texture::CUBE_NEG_Z};
 
-    case CUBE_POS_Y:
-        outMatrix = Matrix3::fromEulerAnglesXYZ((float)halfPi(), 0, 0);
-        break;
+    static const char* suffixArray[6] = {"rt", "lf", "up", "dn", "bk", "ft"};
+    face = faceArray[iClamp(faceNum, 0, 5)];
+    suffix = suffixArray[iClamp(faceNum, 0, 5)];
+}
 
-    case CUBE_NEG_Y:
-        outMatrix = Matrix3::fromEulerAnglesXYZ(-(float)halfPi(), 0, 0);
-        break;
 
-    case CUBE_POS_Z:
-        outMatrix = Matrix3::fromEulerAnglesYZX((float)pi(), (float)pi(), 0);
-        break;
+void Texture::getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool upsideDown) {
+    if (upsideDown) {
+        switch (face) {
+          case CUBE_POS_X:
+              outMatrix = Matrix3::fromEulerAnglesYXZ((float)halfPi(), (float)pi(), 0);
+              break;
+      
+          case CUBE_NEG_X:
+              outMatrix = Matrix3::fromEulerAnglesYXZ(-(float)halfPi(), (float)pi(), 0);
+              break;
+      
+          case CUBE_POS_Y:
+              outMatrix = Matrix3::fromEulerAnglesXYZ((float)halfPi(), 0, 0);
+              break;
+      
+          case CUBE_NEG_Y:
+              outMatrix = Matrix3::fromEulerAnglesXYZ(-(float)halfPi(), 0, 0);
+              break;
+      
+          case CUBE_POS_Z:
+              outMatrix = Matrix3::fromEulerAnglesYZX((float)pi(), (float)pi(), 0);
+              break;
+      
+          case CUBE_NEG_Z:
+              outMatrix = Matrix3::fromAxisAngle(Vector3::unitZ(), (float)pi());
+              break;
+          }
+    } else {
+        switch (face) {
+        case CUBE_POS_X:
+            outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)halfPi());
+            break;
 
-    case CUBE_NEG_Z:
-        outMatrix = Matrix3::fromAxisAngle(Vector3::unitZ(), (float)pi());
-        break;
+        case CUBE_NEG_X:
+            outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)-halfPi());
+            break;
+
+        case CUBE_POS_Y:
+            outMatrix = CFrame::fromXYZYPRDegrees(0,0,0,90,90,0).rotation;
+            break;
+
+        case CUBE_NEG_Y:
+            outMatrix = CFrame::fromXYZYPRDegrees(0,0,0,90,-90,0).rotation;
+            break;
+
+        case CUBE_POS_Z:
+            outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)pi());
+            break;
+
+        case CUBE_NEG_Z:
+            outMatrix = Matrix3::identity();
+            break;
+        }
     }
 }
 

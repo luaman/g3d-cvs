@@ -676,7 +676,7 @@ void Surface::renderTransparents
         }
 
         model->renderNonShadowed(rd, lighting);
-        debugAssert(lighting->shadowedLightArray.size() == shadowMapArray.size());
+        debugAssert(lighting->shadowedLightArray.size() <= shadowMapArray.size());
         for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
             model->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], 
                                                shadowMapArray[L]);

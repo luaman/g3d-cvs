@@ -570,7 +570,7 @@ public:
     void copyFromScreen(const Rect2D& rect, const ImageFormat* fmt = NULL);
 
     /**
-     Argument for copyFromScreen
+     Argument for copyFromScreen() and getCubeMapRotation()
      */
     enum CubeFace {
         CUBE_POS_X = 0,
@@ -586,7 +586,7 @@ public:
      the cube map faces <B>upside-down</B> before copying them into the map.  This
      is an unfortunate side-effect of OpenGL's cube map convention.  
      
-     Use G3D::Texture::getCameraRotation to generate the (upside-down) camera
+     Use G3D::Texture::getCubeMapRotation to generate the (upside-down) camera
      orientations.
      */
     void copyFromScreen(const Rect2D& rect, CubeFace face);
@@ -594,8 +594,13 @@ public:
     /**
      Returns the rotation matrix that should be used for rendering the
      given cube map face.
+     \param renderUpsideDown Set to true if generating cube maps for direct application in real time,
+     set to false if generating to save to disk.
      */
-    static void getCameraRotation(CubeFace face, Matrix3& outMatrix);
+    static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool renderUpsideDown = true);
+
+    /** Returns the mapping from [0, 5] to cube map faces and filename suffixes */
+    static void getCubeMapInfo(int faceNum, CubeFace& face, const char*& suffix);
 
     /**
      When true, rendering code that uses this texture is respondible for

@@ -80,6 +80,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::Set::getRemove, G3D::Table::getRemove
      <li> G3D::Set now allows HashFunc and EqualsFunc to be specified
      <li> G3D::Box2D
+     <li> G3D::Texture::getCubeMapInfo
      <li> G3D::CollisionDetection::collisionTimeForMovingSphereFixedSphere now handles the case where the spheres initially interpenetrate
      <li> Changed G3D::ArticulatedModel to use a VAR index array (up to 80% reduction in GPU load for large models)
      <li> Changed G3D::ArticulatedModel to use interleaved VAR (up to 4x fps speedup for vertex-bound models)
@@ -113,6 +114,7 @@ TODO: make bias a property of the shadow map
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::Texture::getCameraRotation -> G3D::Texture::getCubeMapRotation
      <li> G3D::PosedModel -> G3D::Surface, G3D::PosedModel2D -> G3D::Surface2D
      <li> G3D::RenderDevice::Primitive -> G3D::PrimitiveType (e.g., RenderDevice::TRIANLGES -> PrimitiveType::TRIANGLES)
      <li> G3D::AssertionHook no longer accepts the ignoreAlways parameter
