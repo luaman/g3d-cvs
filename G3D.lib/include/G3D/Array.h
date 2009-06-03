@@ -150,6 +150,7 @@ private:
          // will be constructed in the resize() method.
 
          data = (T*)m_memoryManager->alloc(sizeof(T) * numAllocated);
+         alwaysAssertM(data, "Memory manager returned NULL: out of memory?");
 
          // Call the copy constructors
          {const int N = G3D::min(oldNum, numAllocated);
