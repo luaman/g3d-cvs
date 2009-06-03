@@ -201,37 +201,37 @@ float Color3::unitize (float fTolerance) {
 
 //----------------------------------------------------------------------------
 Color3 Color3::fromHSV(const Vector3& _hsv) {
-	debugAssertM((_hsv.x <= 1.0f && _hsv.x >= 0.0f)
-			&& (_hsv.y <= 1.0f && _hsv.y >= 0.0f) 
-			&& ( _hsv.z <= 1.0f && _hsv.z >= 0.0f), "H,S,V must be between [0,1]");
-	const int i = G3D::iFloor(6.0*_hsv.x);
-	const float f = 6.0f * _hsv.x - i;
-	const float m = _hsv.z * (1.0f - (_hsv.y));
-	const float n = _hsv.z * (1.0f - (_hsv.y * f));
-	const float k = _hsv.z * (1.0f - (_hsv.y * (1 - f)));
-	switch(i) {
-	case 0:
-		return Color3(_hsv.z, k, m);
-
-	case 1:
-		return Color3(n, _hsv.z, m);
-
-	case 2:
-		return Color3(m, _hsv.z, k);
-
-	case 3:
-		return Color3(m, n, _hsv.z);
-
-	case 4:
-		return Color3(k, m, _hsv.z);
-
-	case 5:
-		return Color3(_hsv.z, m, n);
-
+    debugAssertM((_hsv.x <= 1.0f && _hsv.x >= 0.0f)
+                 && (_hsv.y <= 1.0f && _hsv.y >= 0.0f) 
+                 && ( _hsv.z <= 1.0f && _hsv.z >= 0.0f), "H,S,V must be between [0,1]");
+    const int i = iMin(5, G3D::iFloor(6.0 * _hsv.x));
+    const float f = 6.0f * _hsv.x - i;
+    const float m = _hsv.z * (1.0f - (_hsv.y));
+    const float n = _hsv.z * (1.0f - (_hsv.y * f));
+    const float k = _hsv.z * (1.0f - (_hsv.y * (1 - f)));
+    switch(i) {
+    case 0:
+        return Color3(_hsv.z, k, m);
+        
+    case 1:
+        return Color3(n, _hsv.z, m);
+        
+    case 2:
+        return Color3(m, _hsv.z, k);
+        
+    case 3:
+        return Color3(m, n, _hsv.z);
+        
+    case 4:
+        return Color3(k, m, _hsv.z);
+        
+    case 5:
+        return Color3(_hsv.z, m, n);
+        
     default:
-		debugAssertM(false, "fell through switch..");
-	}
-	return Color3::black();
+        debugAssertM(false, "fell through switch..");
+    }
+    return Color3::black();
 }
 
 
