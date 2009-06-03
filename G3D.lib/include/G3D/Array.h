@@ -873,11 +873,25 @@ public:
         return elem1->x < elem2->x;
     }
     </PRE>
+
+    or a functor, e.g.,
+    <pre>
+bool
+less_than_functor::operator()( const double& lhs, const double& rhs ) const
+{
+return( lhs < rhs? true : false );
+}
+</pre>
      */
-    void sort(bool (__cdecl *lessThan)(const T& elem1, const T& elem2)) {
+    //    void sort(bool (__cdecl *lessThan)(const T& elem1, const T& elem2)) {
+    //    std::sort(data, data + num, lessThan);
+    //}
+    template<class LessThan>
+    void sort(const LessThan& lessThan) {
+        // Using std::sort, which according to http://www.open-std.org/JTC1/SC22/WG21/docs/D_4.cpp
+        // was 2x faster than qsort for arrays around size 2000 on intel core2 with gcc
         std::sort(data, data + num, lessThan);
     }
-
 
     /**
      Sorts the array in increasing order using the > or < operator.  To 

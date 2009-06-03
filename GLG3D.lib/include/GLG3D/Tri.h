@@ -87,6 +87,9 @@ public:
         box = AABox(v0.min(v1).min(v2), v0.max(v1).max(v2));
     }
 
+    /** Surface area, computed each call. */
+    float area() const;
+
     /** Vertex position (must be computed) */
     inline Vector3 vertex(int i) const {
         switch (i) {

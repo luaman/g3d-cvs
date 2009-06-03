@@ -125,7 +125,7 @@ public:
 
     private:
 
-        Iterator(ET& a) : m_i0(-1), m_array(a), m_p(-1), m_edgeArray(NULL), m_end(false) {
+        Iterator(ET& a) : m_i0(-1), m_p(-1),  m_array(a), m_edgeArray(NULL), m_end(false) {
             ++(*this);
         }
 

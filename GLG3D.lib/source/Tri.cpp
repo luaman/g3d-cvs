@@ -76,6 +76,11 @@ Tri Tri::otherSide() const {
 }
 
 
+float Tri::area() const {
+    return e1.cross(e2).length();
+}
+
+
 Tri::Intersector::Intersector() : tri(NULL), u(0), v(0) {}
 
 #ifdef _MSC_VER
