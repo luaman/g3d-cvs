@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, graphics3d.com
  
  @created 2001-08-26
- @edited  2006-02-02
+ @edited  2009-06-02
  */
 
 #include "G3D/debugAssert.h"
@@ -148,8 +148,7 @@ bool _handleDebugAssert_(
 
     const int cBreak        = 0;
     const int cIgnore       = 1;
-    const int cIgnoreAlways = 2;
-    const int cAbort        = 3;
+    const int cAbort        = 2;
 
     static const char* choices[] = {"Debug", "Ignore", "Exit"};
 
