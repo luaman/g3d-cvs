@@ -106,6 +106,8 @@ href="classes.html">Classes</a>.
     \link G3D::Draw Draw\endlink,
     \link G3D::Framebuffer Framebuffer\endlink,
     \link G3D::GLCaps GLCaps\endlink,
+    \link G3D::glClipToBox glClipToBox\endlink,
+    \link G3D::glDisableAllClipping glDisableAllClipping\endlink,
     \link G3D::glDisableAllTextures glDisableAllTextures\endlink,
     \link G3D::glToScreen glToScreen\endlink,
     \link G3D::Milestone Milestone\endlink,

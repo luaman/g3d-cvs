@@ -251,6 +251,16 @@ Vector4 glToScreen(const Vector4& v);
 void glDisableAllTextures();
 
 
+/** Configure (and enable) OpenGL clipping planes to clip to the
+    inside of this box.  Uses the current object-to-world and camera
+    transformation to position the box.  The box then stays fixed at
+    that position in <i>camera space</i>.
+*/                                                                                                           
+void glClipToBox(const class AABox& box); 
+                                                                                                             
+/** Turn off all OpenGL clipping planes */                                                                   
+void glDisableAllClipping();
+
 } // namespace
 
 #endif

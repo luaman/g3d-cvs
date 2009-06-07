@@ -277,7 +277,7 @@ public:
     }
 
     /** Changes the internal memory manager to \m */
-    void clearAndSetMemoryManager(MemoryManager::Ref& m) {
+    void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
         clear();
         debugAssert(m_bucket == NULL);
         m_memoryManager = m;

@@ -6,14 +6,15 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-12-09
-  @edited  2006-02-20
+  @edited  2009-06-10
  */
 
-#ifndef G3D_SET_H
-#define G3D_SET_H
+#ifndef G3D_Set_h
+#define G3D_Set_h
 
 #include "G3D/platform.h"
 #include "G3D/Table.h"
+#include "G3D/MemoryManager.h"
 #include <assert.h>
 #include <string>
 
@@ -39,6 +40,10 @@ class Set {
     Table<T, bool, HashFunc, EqualsFunc> memberTable;
 
 public:
+
+    void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
+        memberTable.clearAndSetMemoryManager(m);
+    }
 
     virtual ~Set() {}
 

@@ -3,11 +3,12 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2002-08-07
-  @edited  2006-02-01
+  @edited  2009-06-01
 */
 
 #include "G3D/Matrix3.h"
 #include "G3D/Matrix4.h"
+#include "G3D/AABox.h"
 #include "G3D/CoordinateFrame.h"
 #include "GLG3D/glcalls.h"
 #include "GLG3D/getOpenGLState.h"
@@ -213,6 +214,31 @@ void* glGetProcAddress(const char * name) {
     #endif
 }
 
-  
+
+void glClipToBox(const AABox& box) {
+    // Clip to bounds cube                                                                                   
+    double eq[4];
+    for (int i = 0; i < 6; ++i) {
+        // Compute the equation of one of the box planes. The normal is an axis vector:                      
+        const int axis = i % 3;
+        eq[0] = eq[1] = eq[2] = 0.0;
+        eq[axis] = sign(i - 2.5);
+        
+        // The offset is the position along that axis                                                        
+        eq[3] = -(eq[axis] * box.center()[axis] - box.extent()[axis] / 2);
+        
+        // Clipping planes are specified in object space                                                     
+        glClipPlane(i + GL_CLIP_PLANE0, eq);
+        glEnable(i + GL_CLIP_PLANE0);
+    }
+}
+    
+
+void glDisableAllClipping() {
+    for (int i = GL_CLIP_PLANE0; i <= GL_CLIP_PLANE5; ++i) {
+        glDisable(i);
+    }
+}
+
 } // namespace 
 
