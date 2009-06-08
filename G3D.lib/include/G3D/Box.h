@@ -153,19 +153,21 @@ public:
 	/**
       See AABox::culledBy
 	 */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex,
-		const uint32  			testMask,
-        uint32&                 childMask) const;
+    bool culledBy
+    (
+     const Array<Plane>&		plane,
+     int32&                             cullingPlaneIndex,
+     const uint32  			testMask,
+     uint32&                            childMask) const;
 
     /**
      Conservative culling test that does not produce a mask for children.
      */
-	bool culledBy(
-		const Array<Plane>&		plane,
-		int32&					cullingPlaneIndex = dummy,
-		const uint32  			testMask		  = -1) const;
+    bool culledBy
+    (
+     const Array<Plane>&		plane,
+     int32&                             cullingPlaneIndex = dummy,
+     const uint32  			testMask	  = -1) const;
 
     bool contains(
         const Vector3&      point) const;
@@ -174,7 +176,7 @@ public:
 
     float volume() const;
 
-    void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const;
+    void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const;
 
     /**
      Uniformly distributed on the interior (includes surface)

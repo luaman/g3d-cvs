@@ -198,12 +198,12 @@ int Box::dummy = 0;
 
 bool Box::culledBy(
     const Array<Plane>& plane,
-	int&				cullingPlane,
-	const uint32		_inMask,
+    int&                cullingPlane,
+    const uint32        _inMask,
     uint32&             childMask) const {
 
-	uint32 inMask = _inMask;
-	assert(plane.size() < 31);
+    uint32 inMask = _inMask;
+    assert(plane.size() < 31);
 
     childMask = 0;
 

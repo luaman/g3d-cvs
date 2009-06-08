@@ -187,7 +187,7 @@ public:
         Ray, which have infinite extent.  The normal has unit length
         and points out of the surface. */
     virtual void getRandomSurfacePoint(Vector3& P, 
-                                       Vector3& N = Vector3::dummy) const = 0;
+                                       Vector3& N = Vector3::ignore()) const = 0;
 
     /** A point selected uniformly at random with respect to the
         volume of this object.  Not available on objects with infinite
@@ -261,7 +261,7 @@ public:
     virtual AABox boundingAABox() const;
 
     virtual void getRandomSurfacePoint(Vector3& P, 
-                                       Vector3& N = Vector3::dummy) const;
+                                       Vector3& N = Vector3::ignore()) const;
 
     /** Returns a point on the surface */
     virtual Vector3 randomInteriorPoint() const;
@@ -320,7 +320,7 @@ public:
     }
 
     virtual void getRandomSurfacePoint(Vector3& P, 
-                                       Vector3& N = Vector3::dummy) const {
+                                       Vector3& N = Vector3::ignore()) const {
         geometry.getRandomSurfacePoint(P, N);
     }
 
@@ -381,7 +381,7 @@ public:
     }
 
     virtual void getRandomSurfacePoint(Vector3& P, 
-                                       Vector3& N = Vector3::dummy) const {
+                                       Vector3& N = Vector3::ignore()) const {
         geometry.getRandomSurfacePoint(P, N);
     }
 
@@ -439,7 +439,7 @@ public:
     }
 
     /** Returns a point along the ray.  The normal is NaN */
-    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const {
         P = randomInteriorPoint();
         N = Vector3::nan();
     }
@@ -498,7 +498,7 @@ public:
     }
 
     /** Returns the origin, normal = NaN*/
-    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const {
         P = geometry.translation;
         N = Vector3::nan();
     }
@@ -557,7 +557,7 @@ public:
     }
 
     virtual void getRandomSurfacePoint(Vector3& P, 
-                                       Vector3& N = Vector3::dummy) const {
+                                       Vector3& N = Vector3::ignore()) const {
         geometry.getRandomSurfacePoint(P, N);
     }
 
@@ -595,7 +595,7 @@ public:
         return geometry;
     }
 
-    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const {
         P = geometry.randomSurfacePoint();
         N = (P - geometry.center).direction();
     }
@@ -672,7 +672,7 @@ public:
         return aab;
     }
 
-    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const {
         geometry.getRandomSurfacePoint(P, N);
     }
 
@@ -725,7 +725,7 @@ public:
         return AABox(-Vector3::inf(), Vector3::inf());
     }
 
-    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const {
         P = Vector3::nan();
         N = geometry.normal();
     }
@@ -779,7 +779,7 @@ public:
       return AABox(geometry, geometry);
     }
 
-    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::dummy) const {
+    virtual void getRandomSurfacePoint(Vector3& P, Vector3& N = Vector3::ignore()) const {
         P = geometry;
         N = Vector3::unitY();
     }

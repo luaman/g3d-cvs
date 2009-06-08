@@ -544,8 +544,8 @@ public:
     Vector4 yzzz() const;
     Vector4 zzzz() const;
 
-    /** A value that can be passed to ignore a parameter.  Never look at the result of dummy. */
-    static Vector3 dummy;
+    /** Can be passed to ignore a vector3 parameter */
+    static Vector3& ignore();
 };
 
 inline G3D::Vector3 operator*(float s, const G3D::Vector3& v) {
