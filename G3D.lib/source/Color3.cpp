@@ -19,6 +19,27 @@
 #include "G3D/Color3uint8.h"
 
 namespace G3D {
+    
+Color3 Color3::ansiMap(uint32 i) {
+    static const Color3 map[] = 
+        {Color3::black(), Color3::red() * 0.75f, Color3::green() * 0.75f, Color3::yellow() * 0.75f, 
+         Color3::blue() * 0.75f, Color3::purple() * 0.75f, Color3::cyan() * 0.75f, Color3::white() * 0.75f,
+         Color3::white() * 0.90f, Color3::red(), Color3::green(), Color3::yellow(), Color3::blue(), 
+         Color3::purple(), Color3::cyan(), Color3::white()};
+
+    return map[i & 15];
+}
+
+
+Color3 Color3::pastelMap(uint32 i) {
+    uint32 x = Crypto::crc32(&i, sizeof(uint32));
+    // Create fairly bright, saturated colors
+    Vector3 v(((x >> 22) & 1023) / 1023.0f,
+              (((x >> 11) & 2047) / 2047.0f) * 0.5f + 0.25f, 
+              ((x & 2047) / 2047.0f) * 0.75f + 0.25f);
+    return Color3::fromHSV(v);
+}
+
 
 const Color3& Color3::red() {
     static Color3 c(1.0f, 0.0f, 0.0f);

@@ -83,6 +83,22 @@ public:
         Does not include white, black, or gray. */
     static const Color3& wheelRandom();
 
+    /** Generate colors according to the ANSI color set, mod 16.
+     \sa pastelMap */
+    static Color3 ansiMap(uint32 i);
+
+    /**
+       Generate colors using a hash such that adjacent values
+       are unlikely to have similar colors.
+
+       Useful for rendering with
+       stable but arbitrary colors, e.g., when debugging a mesh
+       algorithm. 
+
+       \sa ansiMap
+     */
+    static Color3 pastelMap(uint32 i);
+
     /**
      * Channel value.
      */
