@@ -14,6 +14,16 @@
 
 namespace G3D {
 
+void ArticulatedModel::setStorage(ImageStorage s) {
+    for (int p = 0; p < partArray.size(); ++p) {
+        Part& part = partArray[p];
+        for (int t = 0; t < part.triList.size(); ++t) {
+            part.triList[t]->material->setStorage(s);
+        }
+    }
+}
+
+
 ArticulatedModel::Part::TriList::Ref ArticulatedModel::Part::newTriList(const Material::Ref& mat) {
     TriList::Ref t = new TriList();
 

@@ -12,6 +12,7 @@
 #include "GLG3D/Surface.h"
 #include "GLG3D/Material.h"
 #include "GLG3D/GenericSurface.h"
+#include "GLG3D/Component.h"
 
 namespace G3D {
 
@@ -370,6 +371,9 @@ public:
     inline const Settings& settings() const {
         return m_settings;
     }
+
+    /** Sets the storage of all materials on this model. */
+    void setStorage(ImageStorage s);
 
     inline void setSettings(const Settings& s) {
         m_settings = s;
