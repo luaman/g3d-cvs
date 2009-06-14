@@ -148,7 +148,7 @@ protected:
     /** \f$\eta_t\f$ For the material on the inside.*/
     float               m_eta_t;
 
-    /** \f&\kappa_t\f$ Extinction coefficient for the material on the inside;
+    /** \f$\kappa_t\f$ Extinction coefficient for the material on the inside;
         complex part of the index of refraction.
         http://en.wikipedia.org/wiki/Complex_index_of_refraction#Dispersion_and_absorption*/
     Color3              m_extinction_t;
@@ -203,7 +203,7 @@ public:
     }
 
 
-    /** \f&\kappa_t\f$ Extinction coefficient for the material on the inside;
+    /** \f$\kappa_t\f$ Extinction coefficient for the material on the inside;
         complex part of the index of refraction.
         http://en.wikipedia.org/wiki/Complex_index_of_refraction#Dispersion_and_absorption*/
     inline const Color3& extinctionTransmit() const {
@@ -215,7 +215,7 @@ public:
         return m_eta_r;
     }
 
-    /** \f&\kappa_r\f$ Extinction coefficient for the material on the outside;
+    /** \f$\kappa_r\f$ Extinction coefficient for the material on the outside;
         complex part of the index of refraction.
         http://en.wikipedia.org/wiki/Complex_index_of_refraction#Dispersion_and_absorption*/
     inline const Color3& extinctionReflect() const {
