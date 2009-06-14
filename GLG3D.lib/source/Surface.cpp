@@ -614,7 +614,7 @@ void Surface::renderTransparents
         GenericSurface::Ref gmodel = model.downcast<GenericSurface>();
 
         if (gmodel.notNull() && supportsRefract) {
-            const float eta = gmodel->gpuGeom()->material->bsdf()->eta();
+            const float eta = gmodel->gpuGeom()->material->bsdf()->etaTransmit();
 
             if ((eta > 1.01f) && 
                 (gmodel->gpuGeom()->refractionHint == RefractionQuality::DYNAMIC_FLAT) &&

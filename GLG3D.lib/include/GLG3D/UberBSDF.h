@@ -25,6 +25,12 @@ namespace G3D {
    ray tracing, and software rasterization.  The G3D::Material class
    manages BSDFs for GPU rasterization.
 
+   A surface is the 2D boundary between two 3D volumes.  BSDF works with single-sided surfaces,
+   so it is assumed that for transparent materials there are <i>two</i> oppositely-oriented 
+   surfaces, typically with different BSDFs, at every such boundary.  Thus there 
+   are two indices of refraction at a surface: one for the inside (side opposite the normal)
+   and one for the outside.
+
    The major routines are:
 
    <table border=0>
@@ -46,7 +52,9 @@ namespace G3D {
    <tr valign=top><td></td><td>\f$\sigma\f$</td><td>0 for purely lambertian surfaces, 
      packedSpecularMirror() for perfect reflection, and values between packSpecularExponent(1) and packSpecularExponent(128)
      for glossy reflection.  This is the exponent on the normalized Blinn-Phong lobe.</td></tr>
-    <tr valign=top><td></td><td>\f$\eta\f$</td><td>Index of refraction (only used for surfaces with \f$\rho_t > 0\f$; 
+    <tr valign=top><td></td><td>\f$\eta_i\f$</td><td>Index of refraction outside the material, i.e., on the same side as the normal (only used for surfaces with \f$\rho_t > 0\f$; 
+      for computing refraction angle, not used for Fresnel factor).</td></tr>
+    <tr valign=top><td></td><td>\f$\eta_o\f$</td><td>Index of refraction inside the material, i.e., opposite the normal (only used for surfaces with \f$\rho_t > 0\f$; 
       for computing refraction angle, not used for Fresnel factor).</td></tr>
     </table>
  
@@ -137,16 +145,25 @@ protected:
     /** \f$T_0\f$ : transmissivity */
     Component3          m_transmissive;
 
-    /** \f$\eta\f$ For the material on the far side (inside).*/
-    float               m_eta;
+    /** \f$\eta_t\f$ For the material on the inside.*/
+    float               m_eta_t;
 
-    /** Reserved for future use */
-    Color3              m_extinction;
+    /** \f&\kappa_t\f$ Extinction coefficient for the material on the inside;
+        complex part of the index of refraction.
+        http://en.wikipedia.org/wiki/Complex_index_of_refraction#Dispersion_and_absorption*/
+    Color3              m_extinction_t;
+
+    /** \f$\eta_r\f$ For the material on the outside.*/
+    float               m_eta_r;
+
+    Color3              m_extinction_r;
 
     inline UberBSDF() : 
         m_lambertian(Color4(Color3::white() * 0.85f, 1.0f)), 
-        m_eta(1.0f), 
-        m_extinction(Color3::zero()) {}
+        m_eta_t(1.0f), 
+        m_extinction_t(Color3::zero()),
+        m_eta_r(1.0f), 
+        m_extinction_r(Color3::zero()){}
 
 public: 
     static float ignoreFloat;
@@ -155,8 +172,10 @@ public:
     (const Component4& lambertian,
      const Component4& glossy,
      const Component3& transmissive,
-     float             eta,
-     const Color3&     extinction = Color3::zero());
+     float             eta_transmit = 1.0f,
+     const Color3&     extinction_transmit = Color3::zero(),
+     float             eta_reflect = 1.0f,
+     const Color3&     extinction_reflect = Color3::zero());
 
     /** Computes F_r, given the cosine of the angle of incidence and 
        the reflectance at normal incidence. */
@@ -178,9 +197,29 @@ public:
         return m_transmissive;
     }
 
-    /** \f$\eta\f$ for the material on the inside of this object (i.e. side opposite the normal).*/
-    inline float eta() const {
-        return m_eta;
+    /** \f$\eta_t\f$ for the material on the inside of this object (i.e. side opposite the normal).*/
+    inline float etaTransmit() const {
+        return m_eta_t;
+    }
+
+
+    /** \f&\kappa_t\f$ Extinction coefficient for the material on the inside;
+        complex part of the index of refraction.
+        http://en.wikipedia.org/wiki/Complex_index_of_refraction#Dispersion_and_absorption*/
+    inline const Color3& extinctionTransmit() const {
+        return m_extinction_t;
+    }
+
+    /** \f$\eta_r\f$ for the material on the outside of this object (i.e. side of the normal).*/
+    inline float etaReflect() const {
+        return m_eta_r;
+    }
+
+    /** \f&\kappa_r\f$ Extinction coefficient for the material on the outside;
+        complex part of the index of refraction.
+        http://en.wikipedia.org/wiki/Complex_index_of_refraction#Dispersion_and_absorption*/
+    inline const Color3& extinctionReflect() const {
+        return m_extinction_r;
     }
 
     /**
@@ -288,10 +327,10 @@ public:
      const Vector2& texCoord,
      const Vector3& w_i,
      const Color3&  power_i,
-     float          eta_i,
      Vector3&       w_o,
      Color3&        power_o,
      float&         eta_o,
+     Color3&        extinction_o,
      Random&        r = Random::common(),
      bool           lowFreq = false,
      float&         density = ignoreFloat) const;
@@ -300,9 +339,9 @@ public:
     /** Infinite peak in the BSDF.  For use with getImpulses.*/
     class Impulse {
     public:
-        Vector3   w_o;
+        Vector3   w;
 
-        /** \f$ \rho = f(\vec{\omega}_i, \vec{\omega}_o)
+        /** \f$ f(\vec{\omega}_i, \vec{\omega}_o)
             \mbox{max}(\vec{\omega}_i \cdot \vec{n}, 0) /
             \delta(\vec{\omega}_o, \vec{\omega}_o) \f$ for the
             impulse; the integral of the BSDF over a small area.  This
@@ -312,9 +351,11 @@ public:
             coefficient on the recursive path's radiance. Do not
             multiply this by a cosine factor; that has already been
             factored in.*/
-        Color3    p;
+        Color3    coefficient;
 
-        float     eta_o;
+        float     eta;
+
+        Color3    extinction;
     };
 
     /** 
@@ -338,7 +379,6 @@ public:
     (const Vector3&  n,
      const Vector2&  texCoord,
      const Vector3&  w_i,
-     float           eta_i,
      Array<Impulse>& impulseArray,
      bool            lowFreq = false) const;
 
@@ -352,7 +392,6 @@ public:
 
     /** Returns true if both have the same Component::Factors for each component. */
     bool similarTo(const UberBSDF::Ref& other) const;
-
 
     /** The glossy exponent is packed so that 0 = no specular, 
         1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$.

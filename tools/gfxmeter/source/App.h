@@ -11,15 +11,15 @@
 class MD2 {
 public:
     CoordinateFrame     cframe;
-    MD2ModelRef         model;
+    MD2Model::Ref       model;
     MD2Model::Pose      pose;
     GMaterial           material;
 
     void load(const std::string& filename) {
         model = MD2Model::fromFile(filename + ".md2");
 
-	Texture::PreProcess preProcess;
-	preProcess.brighten = 2.0;
+	    Texture::PreProcess preProcess;
+	    preProcess.brighten = 2.0;
         material.texture.append(Texture::fromFile(filename + ".pcx", 
             ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preProcess));
     }

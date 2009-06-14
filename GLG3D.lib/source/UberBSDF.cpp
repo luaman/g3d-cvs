@@ -16,16 +16,20 @@ UberBSDF::Ref UberBSDF::create
 (const Component4& lambertian,
  const Component4& specular,
  const Component3& transmissive,
- float             eta,
- const Color3&     extinction) {
+ float             eta_t,
+ const Color3&     extinction_t,
+ float             eta_r,
+ const Color3&     extinction_r) {
 
     UberBSDF::Ref bsdf        = new UberBSDF();
 
     bsdf->m_lambertian      = lambertian;
     bsdf->m_specular        = specular;
     bsdf->m_transmissive    = transmissive;
-    bsdf->m_eta             = eta;
-    bsdf->m_extinction      = extinction;
+    bsdf->m_eta_t           = eta_t;
+    bsdf->m_extinction_t    = extinction_t;
+    bsdf->m_eta_r           = eta_r;
+    bsdf->m_extinction_r    = extinction_r;
 
     return bsdf;
 }
@@ -74,7 +78,6 @@ void UberBSDF::getImpulses
 (const Vector3&  n,
  const Vector2&  texCoord,
  const Vector3&  w_i,
- float           eta_i,
  Array<Impulse>& impulseArray,
  bool            lowFreq) const {
 
@@ -105,9 +108,10 @@ void UberBSDF::getImpulses
                 // Mirror
                 
                 Impulse& imp = impulseArray.next();
-                imp.w_o   = w_i.reflectAbout(n);
-                imp.p     = F;
-                imp.eta_o = eta_i;
+                imp.w            = w_i.reflectAbout(n);
+                imp.coefficient  = F;
+                imp.eta          = m_eta_r;
+                imp.extinction   = m_extinction_r;
             }
         }
     }
@@ -139,9 +143,11 @@ void UberBSDF::getImpulses
        
         debugAssert(w_i.dot(n) > 0);
         Impulse& imp = impulseArray.next();
-        imp.p = p_transmit;
-        imp.w_o = (-w_i).refractionDirection(n, m_eta, eta_i);
-        imp.eta_o = m_eta;
+
+        imp.coefficient  = p_transmit;
+        imp.w            = (-w_i).refractionDirection(n, m_eta_t, m_eta_r);
+        imp.eta          = m_eta_t;
+        imp.extinction   = m_extinction_t;
     }
 }
 
@@ -151,10 +157,10 @@ bool UberBSDF::scatter
  const Vector2& texCoord,
  const Vector3& w_i,
  const Color3&  power_i,
- float          eta_i,
  Vector3&       w_o,
  Color3&        power_o,
  float&         eta_o,
+ Color3&        extinction_o,
  Random&        random,
  bool           lowFreq,
  float&         density) const {
@@ -185,7 +191,8 @@ bool UberBSDF::scatter
             power_o = power_i * p_Lambertian / p_LambertianAvg;
             w_o = Vector3::cosHemiRandom(n, random);
             density = p_LambertianAvg * 0.01f;
-            eta_o = eta_i;
+            eta_o = m_eta_r;
+            extinction_o = m_extinction_r;
 
             return true;
         }
@@ -238,7 +245,8 @@ bool UberBSDF::scatter
                     density = p_specularAvg;
                 }
 
-                eta_o = eta_i;
+                eta_o = m_eta_r;
+                extinction_o = m_extinction_r;
                 return true;
             }
         }
@@ -273,9 +281,10 @@ bool UberBSDF::scatter
         if (r < 0.0f) {
             debugAssert(w_i.dot(n) > 0);
             power_o = p_transmit * power_i * (1.0f / p_transmitAvg);
-            w_o = (-w_i).refractionDirection(n, m_eta, eta_i);
+            w_o = (-w_i).refractionDirection(n, m_eta_t, m_eta_r);
             density = p_transmitAvg;
-            eta_o = m_eta;
+            eta_o = m_eta_t;
+            extinction_o = m_extinction_t;
 
             debugAssert(w_o.isZero() || ((w_o.dot(n) < 0) && w_o.isUnit()));
 

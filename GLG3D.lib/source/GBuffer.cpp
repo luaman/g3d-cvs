@@ -235,7 +235,7 @@ void GBuffer::computeGeneric
 
     // Ensure that the GPU never sees a divide by zero, even in a
     // speculative branch that won't be taken
-    m_shader->args.set("eta",                max(1.0f, bsdf->eta()));
+    m_shader->args.set("eta",                max(1.0f, bsdf->etaTransmit()));
 
     // Render front faces
     rd->setObjectToWorldMatrix(model->coordinateFrame());
