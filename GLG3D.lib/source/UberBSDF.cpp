@@ -70,6 +70,82 @@ Color4 UberBSDF::shadeDirect
 }
 
 
+void UberBSDF::getImpulses
+(const Vector3&  n,
+ const Vector2&  texCoord,
+ const Vector3&  w_i,
+ float           eta_i,
+ Array<Impulse>& impulseArray,
+ bool            lowFreq) const {
+
+    Color3 F;
+    bool Finit = false;
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    if (m_specular.notBlack()) {
+
+        // Sample the specular coefficients
+        const Color4& specular = 
+            lowFreq ?
+                m_specular.mean() :
+                m_specular.sample(texCoord);
+
+        // On the range [0, 1]
+        float shininess = specular.a;
+
+        if (shininess != packedSpecularNone()) {
+            // There is some specularity
+            
+            // Cosine of the angle of incidence, for computing F
+            const float cos_i = max(0.0f, w_i.dot(n));
+            F = computeF(specular.rgb(), cos_i);
+            Finit = true;
+            
+            if (shininess == packedSpecularMirror()) {
+                // Mirror
+                
+                Impulse& imp = impulseArray.next();
+                imp.w_o   = w_i.reflectAbout(n);
+                imp.p     = F;
+                imp.eta_o = eta_i;
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    if (m_transmissive.notBlack()) {
+        // Fresnel transmissive coefficient
+        Color3 F_t;
+
+        if (Finit) {
+            F_t = (Color3::one() - F);
+        } else {
+            // Cosine of the angle of incidence, for computing F
+            const float cos_i = max(0.0f, w_i.dot(n));
+            // F = lerp(0, 1, pow5(1.0f - cos_i)) = pow5(1.0f - cos_i)
+            // F_t = 1 - F
+            F_t.r = F_t.g = F_t.b = 1.0f - pow5(1.0f - cos_i);
+        }
+
+        // Sample transmissive
+        const Color3& transmit = 
+            lowFreq ?
+                m_transmissive.mean() :
+                m_transmissive.sample(texCoord);
+
+        const Color3& T0          = transmit.rgb();
+        
+        const Color3& p_transmit  = F_t * T0;
+       
+        debugAssert(w_i.dot(n) > 0);
+        Impulse& imp = impulseArray.next();
+        imp.p = p_transmit;
+        imp.w_o = (-w_i).refractionDirection(n, m_eta, eta_i);
+        imp.eta_o = m_eta;
+    }
+}
+
+
 bool UberBSDF::scatter
 (const Vector3& n,
  const Vector2& texCoord,
@@ -83,8 +159,8 @@ bool UberBSDF::scatter
  bool           lowFreq,
  float&         density) const {
 
-     // Choose a random number on [0, 1], then reduce it by each kind of
-     // scattering's probability until it becomes negative (i.e., scatters).
+    // Choose a random number on [0, 1], then reduce it by each kind of
+    // scattering's probability until it becomes negative (i.e., scatters).
     float r = random.uniform();
 
     ///////////////////////////////////////////////////////////////////////////////////

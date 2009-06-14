@@ -3,8 +3,8 @@
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
 */
-#ifndef G3D_BSDF_h
-#define G3D_BSDF_h
+#ifndef G3D_UberBSDF_h
+#define G3D_UberBSDF_h
 
 #include "GLG3D/Component.h"
 
@@ -205,28 +205,29 @@ public:
 
         @param n \f$\vec{n}\f$ surface normal. 
 
-        @param w_i \f$\vec{\omega}_i\f$ unit vector pointing back
+        @param w_L \f$\vec{\omega}_L = \vec{\omega}_i\f$ unit vector pointing back
         towards where the photon came from (typically, the light)
 
-        @param w_o \f$\vec{\omega}_o\f$ unit vector pointing forward
+        @param w_eye \f$\vec{\omega}_{eye} = \vec{\omega}_o\f$ unit vector pointing forward
         towards where the photon is going (typically, the viewer)
 
         @param texCoord Texture coordinate on the surface at which to
         sample from.
 
-        @param power_i Incident power ("light color") along @a w_i
+        @param radiance_L Incident power ("light color") along @a w_L
 
-        @return Resulting power, with the alpha channel copied from
-        the coverage mask.  Unmultipled alpha.
+        @return Resulting radiance, with the alpha channel copied from
+        the coverage mask.  Factors the geometric w_L dot n term in.
+        Unmultipled alpha.
 
       @beta
     */
     virtual Color4 shadeDirect
     (const Vector3& n,
      const Vector2& texCoord,
-     const Vector3& w_i,
-     const Color3&  power_i,
-     const Vector3& w_o) const;
+     const Vector3& w_L,
+     const Color3&  radiance_i,
+     const Vector3& w_eye) const;
 
     /** \brief Move or copy data to CPU or GPU.  
         Called from G3DMaterial::setStorage(). */
@@ -295,6 +296,53 @@ public:
      bool           lowFreq = false,
      float&         density = ignoreFloat) const;
 
+
+    /** Infinite peak in the BSDF.  For use with getImpulses.*/
+    class Impulse {
+    public:
+        Vector3   w_o;
+
+        /** \f$ \rho = f(\vec{\omega}_i, \vec{\omega}_o)
+            \mbox{max}(\vec{\omega}_i \cdot \vec{n}, 0) /
+            \delta(\vec{\omega}_o, \vec{\omega}_o) \f$ for the
+            impulse; the integral of the BSDF over a small area.  This
+            is the factor to multiply scattered illumination by.  
+
+            For backwards recursive ray tracing, this is the
+            coefficient on the recursive path's radiance. Do not
+            multiply this by a cosine factor; that has already been
+            factored in.*/
+        Color3    p;
+
+        float     eta_o;
+    };
+
+    /** 
+        \brief Get the infinite peaks of the BSDF (usually refraction
+        and mirror reflection).
+
+        Used for Whitted backwards ray tracing with a small number of
+        samples, where w_i = w_eye.  Distribution (stochastic) ray
+        tracers should use the scatter() method instead.
+
+        \param lowFreq If true, sample from the average texture color
+        instead of at each texel.  This can improve performance by
+        increasing memory coherence.
+
+        \param impulseArray Impulses are appended to this (it is not
+        cleared first)
+        
+
+     */
+    virtual void getImpulses
+    (const Vector3&  n,
+     const Vector2&  texCoord,
+     const Vector3&  w_i,
+     float           eta_i,
+     Array<Impulse>& impulseArray,
+     bool            lowFreq = false) const;
+
+
     /** True if this absorbs all light */
     inline bool isZero() const {
         return m_lambertian.isBlack() && 
@@ -310,8 +358,9 @@ public:
         1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$.
         This function abstracts the unpacking, since it may change in future versions.
         
-        Because direct shading is specified for UberBSDF to apply a glossy reflection to mirror 
-        surfaces, e = 1 produces 128 as well.
+        Because direct shading is specified for UberBSDF to apply a
+        glossy reflection to mirror surfaces, e = 1 produces 128 as
+        well.
         */
     static inline int unpackSpecularExponent(float e) {
         return iMax(iRound(e * 127.0f) + 1, 128);
