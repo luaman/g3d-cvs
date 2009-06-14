@@ -65,8 +65,10 @@ Material::Ref Material::create(const Settings& settings) {
                 settings.loadLambertian(),
                 settings.loadSpecular(),
                 settings.loadTransmissive(),
-                settings.m_eta,
-                settings.m_extinction);
+                settings.m_etaTransmit,
+                settings.m_extinctionTransmit,
+                settings.m_etaReflect,
+                settings.m_extinctionReflect);
 
         // load emission map
         value->m_emissive = settings.loadEmissive();

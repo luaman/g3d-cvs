@@ -17,8 +17,10 @@ Material::Settings::Settings() :
   m_shininessConstant(UberBSDF::packedSpecularNone()),
   m_transmissiveFilename(""),
   m_transmissiveConstant(Color3::zero()),
-  m_eta(1.0f),
-  m_extinction(1.0f),
+  m_etaTransmit(1.0f),
+  m_extinctionTransmit(1.0f),
+  m_etaReflect(1.0f),
+  m_extinctionReflect(1.0f),
   m_emissiveFilename(""),
   m_emissiveConstant(Color3::zero()),
   m_bumpFilename(""),
@@ -62,8 +64,12 @@ void Material::Settings::loadFromAnyVal(AnyVal& a) {
 
     m_transmissiveFilename = a.get("transmissiveFilename", "").string();
     m_transmissiveConstant = a.get("transmissiveConstant", Color3::black());
-    m_eta = a.get("eta", 1);
-    m_extinction = a.get("extinction", 0);
+
+    m_etaTransmit = a.get("etaTransmit", 1);
+    m_extinctionTransmit = a.get("extinctionTransmit", 0);
+
+    m_etaReflect = a.get("etaReflect", 1);
+    m_extinctionReflect = a.get("extinctionReflect", 0);
 
     m_emissiveFilename = a.get("emissiveFilename", "").string();
     m_emissiveConstant = a.get("emissiveConstant", Color3::black());
@@ -98,8 +104,11 @@ AnyVal Material::Settings::toAnyVal() const {
 
     a["transmissiveFilename"] = m_transmissiveFilename;
     a["transmissiveConstant"] = m_transmissiveConstant;
-    a["eta"] = m_eta;
-    a["extinction"] = m_extinction; 
+
+    a["etaTransmit"] = m_etaTransmit;
+    a["extinctionTransmit"] = m_extinctionTransmit; 
+    a["etaReflect"] = m_etaReflect;
+    a["extinctionReflect"] = m_extinctionReflect; 
 
     a["emissiveFilename"] = m_emissiveFilename;
     a["emissiveConstant"] = m_emissiveConstant;
@@ -195,10 +204,13 @@ void Material::Settings::removeTransmissive() {
 }
 
 
-void Material::Settings::setEta(float eta) {
-    m_eta = eta;
-    debugAssert(eta > 0);
-    debugAssert(eta < 10);
+void Material::Settings::setEta(float etaTransmit, float etaReflect) {
+    m_etaTransmit = etaTransmit;
+    m_etaReflect = etaReflect;
+    debugAssert(m_etaTransmit > 0);
+    debugAssert(m_etaTransmit < 10);
+    debugAssert(m_etaReflect > 0);
+    debugAssert(m_etaReflect < 10);
 }
 
 
@@ -239,8 +251,10 @@ bool Material::Settings::operator==(const Settings& s) const {
         (m_bumpSettings == s.m_bumpSettings) &&
         (m_normalMapWhiteHeightInPixels == s.m_normalMapWhiteHeightInPixels) &&
 
-        (m_eta == s.m_eta) &&
-        (m_extinction == s.m_extinction);
+        (m_etaTransmit == s.m_etaTransmit) &&
+        (m_extinctionTransmit == s.m_extinctionTransmit) &&
+        (m_etaReflect == s.m_etaReflect) &&
+        (m_extinctionReflect == s.m_extinctionReflect);
 }
 
 

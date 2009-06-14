@@ -72,8 +72,12 @@ public:
 
         std::string     m_transmissiveFilename;
         Color3          m_transmissiveConstant;
-        float           m_eta;
-        float           m_extinction;
+
+        float           m_etaTransmit;
+        float           m_extinctionTransmit;
+
+        float           m_etaReflect;
+        float           m_extinctionReflect;
 
         std::string     m_emissiveFilename;
         Color3          m_emissiveConstant;
@@ -196,7 +200,7 @@ public:
         }
 
         /** Set the index of refraction. Not used unless transmissive is non-zero. */
-        void setEta(float eta);
+        void setEta(float etaTransmit, float etaReflect);
 
         /**
            @param normalMapWhiteHeightInPixels When loading normal
