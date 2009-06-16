@@ -1,3 +1,11 @@
+/**
+  @file GLG3D/Tri.h
+
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+
+  @created 2008-08-10
+  @edited  2009-06-20
+*/
 #ifndef GLG3D_Tri_h
 #define GLG3D_Tri_h
 

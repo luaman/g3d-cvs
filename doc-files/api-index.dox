@@ -14,7 +14,6 @@ href="classes.html">Classes</a>.
 <I>High-level building blocks for creating applications.</I>
 
   <ul>
-
   
   <LI><B>3D Models and Data</B> &nbsp; &nbsp;
     \link G3D::ArticulatedModel ArticulatedModel\endlink,
@@ -35,6 +34,7 @@ href="classes.html">Classes</a>.
     \link G3D::Sky Sky\endlink,
     \link G3D::SkyParameters SkyParameters\endlink,
     \link G3D::Tri Tri\endlink,
+    \link G3D::TriTree TriTree\endlink,
     \link G3D::VideoInput VideoInput\endlink,
     \link G3D::VideoOutput VideoOutput\endlink
 
