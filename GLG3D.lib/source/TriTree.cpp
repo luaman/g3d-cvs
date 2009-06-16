@@ -7,8 +7,8 @@
   @edited  2009-06-20
 */
 
-#include "TriTree.h"
 #include "G3D/AreaMemoryManager.h"
+#include "GLG3D/TriTree.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
 

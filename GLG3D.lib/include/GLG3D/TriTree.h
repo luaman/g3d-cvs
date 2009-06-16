@@ -19,7 +19,9 @@
 #include "G3D/SmallArray.h"
 #include "G3D/CollisionDetection.h"
 #include "GLG3D/Tri.h"
+#ifndef _MSC_VER
 #include <stdint.h>
+#endif
 
 namespace G3D {
 
@@ -86,8 +88,8 @@ public:
         int                valuesPerLeaf;
 
         /** SAH uses an approximation to the published heuristic to
-            reduce splitting from \f$\operatorname{O}(n^2)\f$ to
-            \f$\operatorname{O}(n)\f$.  When the number of Tris to be
+            reduce splitting from \f$O(n^2)\f$ to
+            \f$O(n)\f$.  When the number of Tris to be
             divided at a node falls below accurateSAHCountThreshold,
             it switches to the full heuristic for increased accuracy.
 
@@ -312,7 +314,7 @@ private:
             location.  At an internal node, both are non-NULL,
             at a leaf, both are NULL. 
         */
-        inline __fastcall Node& child(int i) const {
+        inline Node& __fastcall child(int i) const {
             debugAssert(i >= 0 && i <= 1);
             return reinterpret_cast<Node*>(packedChildAxis & ~3)[i];
         }
@@ -384,7 +386,7 @@ private:
               2. the ray can start on one side and enter the other, and
               3. the ray can travel exactly down the splitting plane
         */
-        inline __fastcall void computeTraversalOrder(const Ray& ray, int& firstChild, int& secondChild) const {
+        inline void __fastcall computeTraversalOrder(const Ray& ray, int& firstChild, int& secondChild) const {
             const Vector3::Axis axis = splitAxis();
             const float origin = ray.origin[axis];
             const float direction = ray.direction[axis];

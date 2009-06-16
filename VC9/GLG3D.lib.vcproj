@@ -464,6 +464,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\TriTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\TriTree_Poly.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\UberBSDF.cpp"
 				>
 			</File>
@@ -803,6 +811,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Tri.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\TriTree.h"
 				>
 			</File>
 			<File
