@@ -607,8 +607,7 @@ Texture::Ref Texture::fromMemory(
     MipArray* bytesPtr = const_cast<MipArray*>(&_bytes);
 
     if (dimension == DIM_3D) {
-        debugAssertM(
-                     (settings.interpolateMode == BILINEAR_NO_MIPMAP) ||
+        debugAssertM((settings.interpolateMode == BILINEAR_NO_MIPMAP) ||
                      (settings.interpolateMode == NEAREST_NO_MIPMAP), 
                      "DIM_3D textures do not support mipmaps");
         debugAssertM(_bytes.size() == 1,                    
@@ -619,8 +618,7 @@ Texture::Ref Texture::fromMemory(
 
     if (preProcess.brighten != 1.0f || preProcess.gammaAdjust != 1.0f) {
 
-        debugAssert(
-            (bytesFormat->code == ImageFormat::CODE_RGB8) ||
+        debugAssert((bytesFormat->code == ImageFormat::CODE_RGB8) ||
             (bytesFormat->code == ImageFormat::CODE_RGBA8));
 
         // Allow brightening to fail silently in release mode
