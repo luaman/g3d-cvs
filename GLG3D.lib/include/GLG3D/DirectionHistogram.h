@@ -14,8 +14,8 @@
 #include "G3D/Vector3.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
-#include "GLG3D/VARArea.h"
-#include "GLG3D/VAR.h"
+#include "GLG3D/VertexBuffer.h"
+#include "GLG3D/VertexRange.h"
 
 namespace G3D {
 

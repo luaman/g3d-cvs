@@ -8,7 +8,7 @@
 #include "G3D/Box.h"
 #include "G3D/Matrix4.h"
 #include "G3D/Welder.h"
-#include "GLG3D/VAR.h"
+#include "GLG3D/VertexRange.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/Material.h"
 #include "GLG3D/GenericSurface.h"

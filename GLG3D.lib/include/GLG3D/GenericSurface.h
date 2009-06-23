@@ -19,7 +19,7 @@
 #include "G3D/AABox.h"
 #include "G3D/constants.h"
 #include "GLG3D/Material.h"
-#include "GLG3D/VAR.h"
+#include "GLG3D/VertexRange.h"
 #include "GLG3D/Lighting.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/ShadowMap.h"

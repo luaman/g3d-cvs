@@ -12,8 +12,8 @@
 
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/IFSModel.h"
-#include "GLG3D/VARArea.h"
-#include "GLG3D/VAR.h"
+#include "GLG3D/VertexBuffer.h"
+#include "GLG3D/VertexRange.h"
 #include "G3D/fileutils.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"

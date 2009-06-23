@@ -9,7 +9,7 @@
 
 #include "GLG3D/edgeFeatures.h"
 #include "GLG3D/RenderDevice.h"
-#include "GLG3D/VAR.h"
+#include "GLG3D/VertexRange.h"
 
 namespace G3D {
 

@@ -1,5 +1,5 @@
 /**
-  @file GLG3D/VAR.h
+  @file GLG3D/VertexRange.h
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-05-29
@@ -11,7 +11,7 @@
 
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/glFormat.h"
-#include "GLG3D/VARArea.h"
+#include "GLG3D/VertexBuffer.h"
 
 namespace G3D {
 

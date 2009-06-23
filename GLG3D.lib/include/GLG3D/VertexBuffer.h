@@ -1,5 +1,5 @@
 /**
-  @file VARArea.h
+  @file VertexBuffer.h
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2003-08-09
   @edited  2008-12-06
@@ -15,7 +15,7 @@
 
 namespace G3D {
 
-// Forward-declaration because including RenderDevice.h would include VARArea.h also
+// Forward-declaration because including RenderDevice.h would include VertexBuffer.h also
 class RenderDevice;
 
 /** @deprecated */

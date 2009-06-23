@@ -13,8 +13,8 @@
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/glheaders.h"
 #include "GLG3D/getOpenGLState.h"
-#include "GLG3D/VAR.h"
-#include "GLG3D/VARArea.h"
+#include "GLG3D/VertexRange.h"
+#include "GLG3D/VertexBuffer.h"
 #include "GLG3D/GLCaps.h"
 
 namespace G3D {

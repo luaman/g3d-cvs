@@ -14,9 +14,9 @@
 
 #include "G3D/Log.h"
 #include "G3D/BinaryInput.h"
-#include "GLG3D/VARArea.h"
+#include "GLG3D/VertexBuffer.h"
 #include "GLG3D/MD2Model.h"
-#include "GLG3D/VAR.h"
+#include "GLG3D/VertexRange.h"
 
 namespace G3D {
 

@@ -484,15 +484,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\VAR.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\source\VARArea.cpp"
+				RelativePath="..\GLG3D.lib\source\VertexBuffer.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\VertexProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\VertexRange.cpp"
 				>
 			</File>
 			<File
@@ -830,15 +830,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\VAR.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\VARArea.h"
+				RelativePath="..\GLG3D.lib\include\GLG3D\VertexBuffer.h"
 				>
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\VertexProgram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\VertexRange.h"
 				>
 			</File>
 			<File
