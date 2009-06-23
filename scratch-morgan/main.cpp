@@ -16,7 +16,7 @@ public:
     SkyRef                  sky;
     BSPMapRef               map;
 
-    VAR                     data;
+    VertexRange             data;
 
     // for on-screen rendering
     Framebuffer::Ref        fb;

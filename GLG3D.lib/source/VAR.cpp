@@ -1,5 +1,5 @@
 /**
- @file VAR.cpp
+ @file VertexRange.cpp
  
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
@@ -15,132 +15,133 @@
 
 namespace G3D {
 
-VAR::VAR() : m_area(NULL), _pointer(NULL), elementSize(0), 
-             numElements(0), m_stride(0), generation(0), 
-             underlyingRepresentation(GL_NONE), _maxSize(0) {
+VertexRange::VertexRange() : m_area(NULL), m_pointer(NULL), m_elementSize(0), 
+             m_numElements(0), m_stride(0), m_generation(0), 
+             m_underlyingRepresentation(GL_NONE), m_maxSize(0) {
 }
 
 
-VAR::VAR(size_t numBytes, VARAreaRef _area) : m_area(NULL), _pointer(NULL), elementSize(0), 
-             numElements(0), m_stride(0), generation(0), 
-             underlyingRepresentation(GL_NONE), _maxSize(0) {
-    init(NULL, numBytes, _area, GL_NONE, 1);
+VertexRange::VertexRange(int numBytes, VertexBufferRef area) : m_area(NULL), m_pointer(NULL), m_elementSize(0), 
+             m_numElements(0), m_stride(0), m_generation(0), 
+             m_underlyingRepresentation(GL_NONE), m_maxSize(0) {
+
+    init(NULL, numBytes, area, GL_NONE, 1);
 }
 
 
-bool VAR::valid() const {
+bool VertexRange::valid() const {
     return
         (! m_area.isNull()) && 
-        (m_area->currentGeneration() == generation) &&
+        (m_area->currentGeneration() == m_generation) &&
         // If we're in VBO_MEMORY mode, the pointer can be null.  Otherwise
         // it shouldn't be
-        (m_area->mode == VARArea::VBO_MEMORY || _pointer);
+        (m_area->m_mode == VertexBuffer::VBO_MEMORY || m_pointer);
 }
 
 
-void VAR::init(VAR& dstPtr, size_t dstOffset, GLenum glformat, size_t eltSize, 
-               int _numElements, size_t dstStride) {
+void VertexRange::init(VertexRange& dstPtr, int dstOffset, GLenum glformat, int eltSize, 
+                int numElements, int dstStride) {
     m_area = dstPtr.m_area;
-    alwaysAssertM(m_area.notNull(), "Bad VARArea");
-    numElements              = _numElements;
-    underlyingRepresentation = glformat;
-    elementSize              = eltSize;
-    m_stride                 = dstStride;
-    _maxSize                 = dstPtr._maxSize / dstStride;
+    alwaysAssertM(m_area.notNull(), "Bad VertexBuffer");
+    m_numElements              = numElements;
+    m_underlyingRepresentation = glformat;
+    m_elementSize              = eltSize;
+    m_stride                   = dstStride;
+    m_maxSize                  = dstPtr.m_maxSize / dstStride;
 
-    generation = m_area->currentGeneration();
-    _pointer = (uint8*)dstPtr._pointer + dstOffset;
+    m_generation = m_area->currentGeneration();
+    m_pointer = (uint8*)dstPtr.m_pointer + dstOffset;
     debugAssertGLOk();
 }
 
 
-void VAR::init(const void* srcPtr,
-               int     _numElements, 
-               int     srcStride,      
-               GLenum  glformat, 
-               size_t  eltSize,
-               VAR     dstPtr,
-               size_t  dstOffset, 
-               size_t  dstStride) {
+void VertexRange::init(const void* srcPtr,
+               int          numElements, 
+               int          srcStride,      
+               GLenum       glformat, 
+               int          eltSize,
+               VertexRange  dstPtr,
+               int          dstOffset, 
+               int          dstStride) {
     debugAssertGLOk();
 
     m_area = dstPtr.m_area;
-    alwaysAssertM(m_area.notNull(), "Bad VARArea");
+    alwaysAssertM(m_area.notNull(), "Bad VertexBuffer");
 
-    numElements              = _numElements;
-    underlyingRepresentation = glformat;
-    elementSize              = eltSize;
-    m_stride                 = dstStride;
-    _maxSize                 = dstPtr._maxSize / dstStride;
+    m_numElements              = numElements;
+    m_underlyingRepresentation = glformat;
+    m_elementSize              = eltSize;
+    m_stride                   = dstStride;
+    m_maxSize                  = dstPtr.m_maxSize / dstStride;
 
     debugAssertM(
-        (elementSize % sizeOfGLFormat(underlyingRepresentation)) == 0,
+        (m_elementSize % sizeOfGLFormat(m_underlyingRepresentation)) == 0,
         "Sanity check failed on OpenGL data format; you may"
         " be using an unsupported type in a vertex array.");
 
-    generation = m_area->currentGeneration();
+    m_generation = m_area->currentGeneration();
 
-    _pointer = (uint8*)dstPtr._pointer + dstOffset;
+    m_pointer = (uint8*)dstPtr.m_pointer + dstOffset;
 
     // Upload the data
-    if (_numElements > 0) {
-        uploadToCardStride(srcPtr, _numElements, eltSize, srcStride, 0, dstStride);
+    if (numElements > 0) {
+        uploadToCardStride(srcPtr, numElements, eltSize, srcStride, 0, dstStride);
     }
     debugAssertGLOk();
 }
 
 
-void VAR::init(
+void VertexRange::init(
     const void*         sourcePtr,
-    int                 _numElements,
-    VARAreaRef          _area,
+    int                 numElements,
+    VertexBufferRef     area,
     GLenum              glformat,
-    size_t              eltSize) {
+    int                 eltSize) {
 
-    alwaysAssertM(! _area.isNull(), "Bad VARArea");
+    alwaysAssertM(area.notNull(), "Bad VertexBuffer");
 
-    numElements              = _numElements;
-    m_area                   = _area;
-    underlyingRepresentation = glformat;
-    elementSize              = eltSize;
-    m_stride                 = eltSize;
+    m_numElements              = numElements;
+    m_area                     = area;
+    m_underlyingRepresentation = glformat;
+    m_elementSize              = eltSize;
+    m_stride                   = eltSize;
 
-    size_t size              = elementSize * numElements;
-    _maxSize                 = size;
+    int size                   = m_elementSize * m_numElements;
+    m_maxSize                  = size;
 
     debugAssertM(
                  (sourcePtr == NULL) ||
-                 (elementSize % sizeOfGLFormat(underlyingRepresentation)) == 0,
+                 (m_elementSize % sizeOfGLFormat(m_underlyingRepresentation)) == 0,
                  "Sanity check failed on OpenGL data format; you may"
                  " be using an unsupported type in a vertex array.");
 
-    generation = m_area->currentGeneration();
+    m_generation = m_area->currentGeneration();
 
-    _pointer = (uint8*)m_area->openGLBasePointer() + m_area->allocatedSize();
+    m_pointer = (uint8*)m_area->openGLBasePointer() + m_area->allocatedSize();
 
     // Align to the nearest multiple of this many bytes.
-    const size_t alignment = 4;
+    const int alignment = 4;
 
     // Ensure that the next memory address is aligned.  This has 
     // a significant (up to 25%!) performance impact on some GPUs
-    size_t pointerOffset = ((alignment - (size_t)_pointer % alignment) % alignment);
+    int pointerOffset = ((alignment - (int)m_pointer % alignment) % alignment);
 
-    if (_numElements == 0) {
+    if (numElements == 0) {
         pointerOffset = 0;
     }
 
     // Adjust pointer to new alignment
-    _pointer = (uint8*)_pointer + pointerOffset;
+    m_pointer = (uint8*)m_pointer + pointerOffset;
     
-    size_t newAlignedSize = size + pointerOffset;
+    int newAlignedSize = size + pointerOffset;
 
     alwaysAssertM(newAlignedSize <= m_area->freeSize(),
-                  "VARArea too small to hold new VAR (possibly due to rounding"
+                  "VertexBuffer too small to hold new VertexRange (possibly due to rounding"
                   " to the nearest dword boundary).");
 
     // Upload the data
     if (size > 0 && sourcePtr != NULL) {
-        // Update VARArea values
+        // Update VertexBuffer values
         m_area->updateAllocation(newAlignedSize);
 
         uploadToCard(sourcePtr, 0, size);
@@ -150,28 +151,28 @@ void VAR::init(
 }
 
 
-void VAR::update(
+void VertexRange::update(
     const void*         sourcePtr,
-    int                 _numElements,
+    int                 numElements,
     GLenum              glformat,
-    size_t              eltSize) {
+    int                 eltSize) {
 
-    size_t size = eltSize * _numElements;
+    int size = eltSize * numElements;
 
-    debugAssert(m_stride == 0 || m_stride == elementSize);
-    alwaysAssertM(size <= _maxSize,
-        "A VAR can only be updated with an array that is smaller "
+    debugAssert(m_stride == 0 || m_stride == m_elementSize);
+    alwaysAssertM(size <= m_maxSize,
+        "A VertexRange can only be updated with an array that is smaller "
         "or equal size (in bytes) to the original array.");
 
-    alwaysAssertM(generation == m_area->currentGeneration(),
-        "The VARArea has been reset since this VAR was created.");
+    alwaysAssertM(m_generation == m_area->currentGeneration(),
+        "The VertexBuffer has been reset since this VertexRange was created.");
 
-    numElements              = _numElements;
-    underlyingRepresentation = glformat;
-    elementSize              = eltSize;
+    m_numElements              = numElements;
+    m_underlyingRepresentation = glformat;
+    m_elementSize              = eltSize;
 
     debugAssertM(
-                 (elementSize % sizeOfGLFormat(underlyingRepresentation)) == 0,
+                 (m_elementSize % sizeOfGLFormat(m_underlyingRepresentation)) == 0,
                  "Sanity check failed on OpenGL data format; you may"
                  " be using an unsupported type in a vertex array.");
 	
@@ -183,34 +184,34 @@ void VAR::update(
 }
 
 
-void VAR::set(int index, const void* value, GLenum glformat, size_t eltSize) {
-    debugAssert(m_stride == 0 || m_stride == elementSize);
+void VertexRange::set(int index, const void* value, GLenum glformat, int eltSize) {
+    debugAssert(m_stride == 0 || m_stride == m_elementSize);
     (void)glformat;
-    debugAssertM(index < numElements && index >= 0, 
-        "Cannot call VAR::set with out of bounds index");
+    debugAssertM(index < m_numElements && index >= 0, 
+        "Cannot call VertexRange::set with out of bounds index");
     
-    debugAssertM(glformat == underlyingRepresentation, 
-        "Value argument to VAR::set must match the intialization type.");
+    debugAssertM(glformat == m_underlyingRepresentation, 
+        "Value argument to VertexRange::set must match the intialization type.");
 
-    debugAssertM(eltSize == elementSize, 
-        "Value argument to VAR::set must match the intialization type's memory footprint.");
+    debugAssertM(eltSize == m_elementSize, 
+        "Value argument to VertexRange::set must match the intialization type's memory footprint.");
 
     uploadToCard(value, index * eltSize, eltSize);
 }
 
 
-void* VAR::mapBuffer(GLenum permissions) {
+void* VertexRange::mapBuffer(GLenum permissions) {
     // Map buffer
-    switch (m_area->mode) {
-    case VARArea::VBO_MEMORY:
+    switch (m_area->m_mode) {
+    case VertexBuffer::VBO_MEMORY:
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-        glBindBufferARB(m_area->openGLTarget(), m_area->glbuffer);
+        glBindBufferARB(m_area->openGLTarget(), m_area->m_glbuffer);
         return (uint8*)glMapBufferARB(m_area->openGLTarget(), permissions) + 
-            (size_t)_pointer;
+            (int)m_pointer;
         break;
 
-    case VARArea::MAIN_MEMORY:
-        return (uint8*)_pointer;
+    case VertexBuffer::MAIN_MEMORY:
+        return (uint8*)m_pointer;
         break;
 
     default:
@@ -220,15 +221,15 @@ void* VAR::mapBuffer(GLenum permissions) {
 }
 
 
-void VAR::unmapBuffer() {
-    switch (m_area->mode) {
-    case VARArea::VBO_MEMORY:
+void VertexRange::unmapBuffer() {
+    switch (m_area->m_mode) {
+    case VertexBuffer::VBO_MEMORY:
         glUnmapBufferARB(m_area->openGLTarget());
         glBindBufferARB(m_area->openGLTarget(), GL_NONE);
         glPopClientAttrib();
         break;
 
-    case VARArea::MAIN_MEMORY:
+    case VertexBuffer::MAIN_MEMORY:
         // Empty
         break;
 
@@ -239,8 +240,8 @@ void VAR::unmapBuffer() {
 }
 
 
-void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t srcSize, int srcStride, 
-                        size_t dstPtrOffsetBytes, size_t dstStrideBytes) {
+void VertexRange::uploadToCardStride(const void* srcPointer, int srcElements, int srcSize, int srcStride, 
+                        int dstPtrOffsetBytes, int dstStrideBytes) {
     
     if (srcStride == 0) {
         srcStride = srcSize;
@@ -250,7 +251,7 @@ void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t src
         dstStrideBytes = srcSize;
     }
 
-    uint8* dstPointer = (uint8*)mapBuffer(GL_WRITE_ONLY) + (size_t)dstPtrOffsetBytes;
+    uint8* dstPointer = (uint8*)mapBuffer(GL_WRITE_ONLY) + (int)dstPtrOffsetBytes;
 
     // Copy elements
     for (int i = 0; i < srcElements; ++i) {
@@ -266,27 +267,27 @@ void VAR::uploadToCardStride(const void* srcPointer, int srcElements, size_t src
 }
 
 
-void VAR::uploadToCard(const void* sourcePtr, int dstPtrOffset, size_t size) {
+void VertexRange::uploadToCard(const void* sourcePtr, int dstPtrOffset, int size) {
     debugAssertGLOk();
-    debugAssert(m_stride == 0 || m_stride == elementSize);
+    debugAssert(m_stride == 0 || m_stride == m_elementSize);
 
-    void* ptr = (void*)(reinterpret_cast<intptr_t>(_pointer) + dstPtrOffset);
+    void* ptr = (void*)(reinterpret_cast<intptr_t>(m_pointer) + dstPtrOffset);
 
-    switch (m_area->mode) {
-    case VARArea::VBO_MEMORY:
+    switch (m_area->m_mode) {
+    case VertexBuffer::VBO_MEMORY:
         // Don't destroy any existing bindings; this call can
         // be made at any time and the program might also
         // use VBO on its own.
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
-            glBindBufferARB(m_area->openGLTarget(), m_area->glbuffer);
+            glBindBufferARB(m_area->openGLTarget(), m_area->m_glbuffer);
             glBufferSubDataARB(m_area->openGLTarget(), (GLintptrARB)ptr, size, sourcePtr);
             glBindBufferARB(m_area->openGLTarget(), 0);
         }
         glPopClientAttrib();
         break;
 
-    case VARArea::MAIN_MEMORY:
+    case VertexBuffer::MAIN_MEMORY:
         System::memcpy(ptr, sourcePtr, size);
         break;
 
@@ -298,46 +299,46 @@ void VAR::uploadToCard(const void* sourcePtr, int dstPtrOffset, size_t size) {
 
 
 // The following are called by the VARSystem.
-void VAR::vertexPointer() const {
+void VertexRange::vertexPointer() const {
     debugAssert(valid());
     glEnableClientState(GL_VERTEX_ARRAY);
-    debugAssertM(underlyingRepresentation != GL_UNSIGNED_INT, 
+    debugAssertM(m_underlyingRepresentation != GL_UNSIGNED_INT, 
                  "OpenGL does not support GL_UNSIGNED_INT as a vertex format.");
-    debugAssertM(underlyingRepresentation != GL_UNSIGNED_SHORT, 
+    debugAssertM(m_underlyingRepresentation != GL_UNSIGNED_SHORT, 
                  "OpenGL does not support GL_UNSIGNED_SHORT as a vertex format.");
-    debugAssertM(underlyingRepresentation != GL_UNSIGNED_BYTE, 
+    debugAssertM(m_underlyingRepresentation != GL_UNSIGNED_BYTE, 
                  "OpenGL does not support GL_UNSIGNED_BYTE as a vertex format.");
-    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
-    glVertexPointer(elementSize / sizeOfGLFormat(underlyingRepresentation), 
-                    underlyingRepresentation, m_stride, _pointer);
+    alwaysAssertM(sizeOfGLFormat(m_underlyingRepresentation) > 0, "Unsupported vertex format");
+    glVertexPointer(m_elementSize / sizeOfGLFormat(m_underlyingRepresentation), 
+                    m_underlyingRepresentation, m_stride, m_pointer);
 }
 
 
-void VAR::normalPointer() const {
+void VertexRange::normalPointer() const {
     debugAssert(valid());
-    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
-    debugAssert((numElements == 0) || (double)elementSize / sizeOfGLFormat(underlyingRepresentation) == 3.0);
-    debugAssertM(underlyingRepresentation != GL_UNSIGNED_INT, 
+    alwaysAssertM(sizeOfGLFormat(m_underlyingRepresentation) > 0, "Unsupported vertex format");
+    debugAssert((m_numElements == 0) || (double)m_elementSize / sizeOfGLFormat(m_underlyingRepresentation) == 3.0);
+    debugAssertM(m_underlyingRepresentation != GL_UNSIGNED_INT, 
                  "OpenGL does not support GL_UNSIGNED_INT as a normal format.");
-    debugAssertM(underlyingRepresentation != GL_UNSIGNED_SHORT, 
+    debugAssertM(m_underlyingRepresentation != GL_UNSIGNED_SHORT, 
               "OpenGL does not support GL_UNSIGNED_SHORT as a normal format.");
-    debugAssertM(underlyingRepresentation != GL_UNSIGNED_BYTE,
+    debugAssertM(m_underlyingRepresentation != GL_UNSIGNED_BYTE,
               "OpenGL does not support GL_UNSIGNED_BYTE as a normal format.");
     glEnableClientState(GL_NORMAL_ARRAY);
-    glNormalPointer(underlyingRepresentation, m_stride, _pointer); 
+    glNormalPointer(m_underlyingRepresentation, m_stride, m_pointer); 
 }
 
 
-void VAR::colorPointer() const {
+void VertexRange::colorPointer() const {
     debugAssert(valid());
     glEnableClientState(GL_COLOR_ARRAY);
-    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
-    glColorPointer(elementSize / sizeOfGLFormat(underlyingRepresentation),
-                   underlyingRepresentation, m_stride, _pointer); 
+    alwaysAssertM(sizeOfGLFormat(m_underlyingRepresentation) > 0, "Unsupported vertex format");
+    glColorPointer(m_elementSize / sizeOfGLFormat(m_underlyingRepresentation),
+                   m_underlyingRepresentation, m_stride, m_pointer); 
 }
 
 
-void VAR::texCoordPointer(uint32 unit) const {
+void VertexRange::texCoordPointer(uint32 unit) const {
     debugAssert(valid());
     debugAssertM(GLCaps::supports_GL_ARB_multitexture() || (unit == 0),
         "Graphics card does not support multitexture");
@@ -346,9 +347,9 @@ void VAR::texCoordPointer(uint32 unit) const {
         glClientActiveTextureARB(GL_TEXTURE0_ARB + unit);
     }
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    alwaysAssertM(sizeOfGLFormat(underlyingRepresentation) > 0, "Unsupported vertex format");
-    glTexCoordPointer(elementSize / sizeOfGLFormat(underlyingRepresentation),
-                      underlyingRepresentation, m_stride, _pointer);
+    alwaysAssertM(sizeOfGLFormat(m_underlyingRepresentation) > 0, "Unsupported vertex format");
+    glTexCoordPointer(m_elementSize / sizeOfGLFormat(m_underlyingRepresentation),
+                      m_underlyingRepresentation, m_stride, m_pointer);
 
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glClientActiveTextureARB(GL_TEXTURE0_ARB);
@@ -356,12 +357,12 @@ void VAR::texCoordPointer(uint32 unit) const {
 }
 
 
-void VAR::vertexAttribPointer(uint32 attribNum, bool normalize) const {
+void VertexRange::vertexAttribPointer(uint32 attribNum, bool normalize) const {
     debugAssert(valid());
     if (GLCaps::supports_GL_ARB_vertex_program()) {
         glEnableVertexAttribArrayARB(attribNum);
-        glVertexAttribPointerARB(attribNum, elementSize / sizeOfGLFormat(underlyingRepresentation),
-                                 underlyingRepresentation, normalize, m_stride, _pointer);
+        glVertexAttribPointerARB(attribNum, m_elementSize / sizeOfGLFormat(m_underlyingRepresentation),
+                                 m_underlyingRepresentation, normalize, m_stride, m_pointer);
     }
 }
 

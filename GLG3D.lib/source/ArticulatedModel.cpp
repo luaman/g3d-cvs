@@ -364,21 +364,21 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace
 }
 
 
-void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint) {
+void ArticulatedModel::Part::updateVAR(VertexBuffer::UsageHint hint) {
     if (geometry.vertexArray.size() == 0) {
         // Has no geometry
         return;
     }
 
-    size_t vtxSize = sizeof(Vector3) * geometry.vertexArray.size();
-    size_t texSize = sizeof(Vector2) * texCoordArray.size();
-    size_t tanSize = sizeof(Vector3) * tangentArray.size();
+    int vtxSize = sizeof(Vector3) * geometry.vertexArray.size();
+    int texSize = sizeof(Vector2) * texCoordArray.size();
+    int tanSize = sizeof(Vector3) * tangentArray.size();
 
     if ((vertexVAR.maxSize() >= vtxSize) &&
         (normalVAR.maxSize() >= vtxSize) &&
         ((tanSize == 0) || (tangentVAR.maxSize() >= tanSize)) &&
         ((texSize == 0) || (texCoord0VAR.maxSize() >= texSize))) {
-        VAR::updateInterleaved
+        VertexRange::updateInterleaved
            (geometry.vertexArray, vertexVAR,
             geometry.normalArray, normalVAR,
             tangentArray,         tangentVAR,
@@ -390,8 +390,8 @@ void ArticulatedModel::Part::updateVAR(VARArea::UsageHint hint) {
         size_t roundOff = 16;
 
         // Allocate new VARs
-        VARAreaRef varArea = VARArea::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
-        VAR::createInterleaved
+        VertexBufferRef varArea = VertexBuffer::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
+        VertexRange::createInterleaved
             (geometry.vertexArray, vertexVAR,
              geometry.normalArray, normalVAR,
              tangentArray,         tangentVAR,
@@ -533,11 +533,11 @@ void ArticulatedModel::initIFS(const std::string& filename, const Matrix4& xform
 
 
 void ArticulatedModel::Part::TriList::updateVAR
-    (VARArea::UsageHint hint,
-     const VAR& vertexVAR,
-     const VAR& normalVAR,
-     const VAR& tangentVAR,
-     const VAR& texCoord0VAR) {
+    (VertexBuffer::UsageHint hint,
+     const VertexRange& vertexVAR,
+     const VertexRange& normalVAR,
+     const VertexRange& tangentVAR,
+     const VertexRange& texCoord0VAR) {
 
     vertex = vertexVAR;
     normal = normalVAR;
@@ -552,8 +552,8 @@ void ArticulatedModel::Part::TriList::updateVAR
     size_t indexSize = sizeof(int);
     if (index.size() != indexArray.size()) {
         // Create new
-        VARAreaRef area = VARArea::create(indexSize * indexArray.size(), hint, VARArea::INDEX);
-        index = VAR(indexArray, area);
+        VertexBufferRef area = VertexBuffer::create(indexSize * indexArray.size(), hint, VertexBuffer::INDEX);
+        index = VertexRange(indexArray, area);
     } else {
         // Update in place
         index.update(indexArray);

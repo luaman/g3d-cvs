@@ -22,7 +22,7 @@ namespace G3D {
 
 MD2Model*       MD2Model::interpolatedModel      = NULL;
 MD2Model::Pose  MD2Model::interpolatedPose;
-VARAreaRef      MD2Model::varArea[MD2Model::NUM_VAR_AREAS];
+VertexBufferRef      MD2Model::varArea[MD2Model::NUM_VAR_AREAS];
 int             MD2Model::nextVarArea            = MD2Model::NONE_ALLOCATED;
 const GameTime  MD2Model::PRE_BLEND_TIME         = 1.0 / 8.0;
 const float     MD2Model::hangTimePct            = 0.1f;
@@ -432,7 +432,7 @@ void MD2Model::allocateVertexArrays(RenderDevice* renderDevice) {
     size_t size = maxVARVerts * (24 + sizeof(Vector3) * 2 + sizeof(Vector2));
 
     for (int i = 0; i < NUM_VAR_AREAS; ++i) {
-        varArea[i] = VARArea::create(size);
+        varArea[i] = VertexBuffer::create(size);
     }
 
     if (varArea[NUM_VAR_AREAS - 1].isNull()) {
@@ -822,9 +822,9 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
         varArea[nextVarArea]->reset();
 
         debugAssert(! varArea[nextVarArea].isNull());
-        VAR varTexCoord(_texCoordArray, varArea[nextVarArea]);
-        VAR varNormal  (normalArray,   varArea[nextVarArea]);
-        VAR varVertex  (vertexArray,   varArea[nextVarArea]);
+        VertexRange varTexCoord(_texCoordArray, varArea[nextVarArea]);
+        VertexRange varNormal  (normalArray,   varArea[nextVarArea]);
+        VertexRange varVertex  (vertexArray,   varArea[nextVarArea]);
         
         renderDevice->beginIndexedPrimitives();
             renderDevice->setTexCoordArray(0, varTexCoord);
@@ -837,7 +837,7 @@ void MD2Model::sendGeometry(RenderDevice* renderDevice, const Pose& pose) const 
 
     } else {
 
-        // No VAR available; use the default rendering path
+        // No VertexRange available; use the default rendering path
         // Quake's triangles are backwards of OpenGL in our coordinate
         // system, so cull front faces instead of back faces.
         glFrontFace(GL_CW);

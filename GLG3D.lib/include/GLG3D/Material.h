@@ -244,7 +244,7 @@ public:
     static Material::Ref create();
 
     /** The Material::create(const Settings& settings) factor method is recommended 
-       over this one because it performs caching and argumnet validation. */ 
+       over this one because it performs caching and argument validation. */ 
     static Material::Ref create(
         const UberBSDF::Ref&                bsdf,
         const Component3&                   emissive        = Component3(),

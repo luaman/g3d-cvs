@@ -190,7 +190,7 @@ public:
         public:
             typedef ReferenceCountedPointer<TriList> Ref;
 
-            /** CPU indices into the containing Part's VAR arrays for
+            /** CPU indices into the containing Part's VertexRange arrays for
                 a triangle list. */
             Array<int>              indexArray;
             
@@ -201,11 +201,11 @@ public:
             void computeBounds(const Part& parentPart);
 
             /** Called from Part::updateVAR(). Writes the GPUGeom fields */
-            void updateVAR(VARArea::UsageHint hint,
-                           const VAR& vertexVAR,
-                           const VAR& normalVAR,
-                           const VAR& tangentVAR,
-                           const VAR& texCoord0VAR);
+            void updateVAR(VertexBuffer::UsageHint hint,
+                           const VertexRange& vertexVAR,
+                           const VertexRange& normalVAR,
+                           const VertexRange& tangentVAR,
+                           const VertexRange& texCoord0VAR);
         };
 
         /** Each part must have a unique name */
@@ -219,16 +219,16 @@ public:
         CoordinateFrame             cframe;
 
         /** Copy of geometry.vertexArray stored on the GPU. Written by updateVAR.*/
-        VAR                         vertexVAR;
+        VertexRange                         vertexVAR;
 		
         /** Copy of geometry.normalArray stored on the GPU. Written by updateVAR. */
-        VAR                         normalVAR;
+        VertexRange                         normalVAR;
         
         /** Copy of tangentArray stored on the GPU.  Written by updateVAR.*/
-        VAR                         tangentVAR;
+        VertexRange                         tangentVAR;
         
         /** Copy of texCoordArray stored on the GPU.  Written by updateVAR.*/
-        VAR                         texCoord0VAR;
+        VertexRange                         texCoord0VAR;
         
         /** CPU geometry; per-vertex positions and normals.
             
@@ -297,10 +297,10 @@ public:
         void computeIndexArray();
 
         /** When geometry or texCoordArray is changed, invoke to
-            update (or allocate for the first time) the VAR data.  You
+            update (or allocate for the first time) the VertexRange data.  You
             should either call updateNormals first, or write your own
             normals into the array in geometry before calling this.*/
-        void updateVAR(VARArea::UsageHint hint = VARArea::WRITE_ONCE);
+        void updateVAR(VertexBuffer::UsageHint hint = VertexBuffer::WRITE_ONCE);
 
         /** Called automatically by updateAll
             Calls computeBounds on each triList in this Part's triListArray.*/

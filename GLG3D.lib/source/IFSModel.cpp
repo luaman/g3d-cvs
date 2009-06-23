@@ -21,11 +21,11 @@
 namespace G3D {
 
 // Cached between render calls
-VARAreaRef  IFSModel::varArea;
+VertexBufferRef  IFSModel::varArea;
 IFSModelRef IFSModel::lastModel;
-VAR         IFSModel::lastVertexVAR;
-VAR         IFSModel::lastNormalVAR;
-VAR         IFSModel::lastTexCoordVAR;
+VertexRange         IFSModel::lastVertexVAR;
+VertexRange         IFSModel::lastNormalVAR;
+VertexRange         IFSModel::lastTexCoordVAR;
 
 
 IFSModel::IFSModel() {
@@ -416,17 +416,17 @@ IFSModel::PosedIFSModel::PosedIFSModel(
 void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
     const size_t varSize = 2 * 1024 * 1024;
     if (IFSModel::varArea.isNull()) {
-        // Initialize VAR
-        IFSModel::varArea = VARArea::create(varSize);
+        // Initialize VertexRange
+        IFSModel::varArea = VertexBuffer::create(varSize);
     }
 
     if (perVertexNormals) {
-        size_t modelSize = sizeof(Vector3) * 2 * model->geometry.vertexArray.size() + 
+        int modelSize = sizeof(Vector3) * 2 * model->geometry.vertexArray.size() + 
 							  sizeof(Vector2) * model->texArray.size();
 
         if (! IFSModel::varArea.isNull() && 
 		    (varArea->totalSize() >= modelSize)) {
-            // Can use VAR
+            // Can use VertexRange
 
             if (varArea->freeSize() < modelSize + 128) {
                 // Not enough free space left in the common area;
@@ -435,22 +435,22 @@ void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
                 // on top of what was already there.
                 varArea->reset();
 
-                // Resetting invalidates the old VAR arrays.
+                // Resetting invalidates the old VertexRange arrays.
                 // Just knock out the lastModel to prevent a match.
 
                 lastModel = NULL;
             }
 
-            VAR vertex;
-            VAR normal;
-			VAR tex;
+            VertexRange vertex;
+            VertexRange normal;
+			VertexRange tex;
 
             if (model != lastModel) {
                 // Upload new data (cache miss)
                 lastModel       = model;
-                lastVertexVAR   = VAR(model->geometry.vertexArray, IFSModel::varArea);
-                lastNormalVAR   = VAR(model->geometry.normalArray, IFSModel::varArea);
-                lastTexCoordVAR = VAR(model->texArray, IFSModel::varArea);
+                lastVertexVAR   = VertexRange(model->geometry.vertexArray, IFSModel::varArea);
+                lastNormalVAR   = VertexRange(model->geometry.normalArray, IFSModel::varArea);
+                lastTexCoordVAR = VertexRange(model->texArray, IFSModel::varArea);
             }
 
             vertex = lastVertexVAR;
@@ -467,7 +467,7 @@ void IFSModel::PosedIFSModel::sendGeometry(RenderDevice* renderDevice) const {
             renderDevice->endIndexedPrimitives();
 
         } else {
-            // No VAR
+            // No VertexRange
             const int* indexArray = model->indexArray.getCArray();
             const Vector3* vertexArray = model->geometry.vertexArray.getCArray();
             const Vector3* normalArray = model->geometry.normalArray.getCArray();

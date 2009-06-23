@@ -25,7 +25,7 @@ private:
     UprightSpline* spline;
     Color3        color;
 
-    VAR           vertex;
+    VertexRange           vertex;
     int           numVertices;
 
 public:
@@ -39,7 +39,7 @@ public:
                 ++count;
             }
 
-            VARAreaRef area = VARArea::create(sizeof(Vector3) * numVertices);
+            VertexBufferRef area = VertexBuffer::create(sizeof(Vector3) * numVertices);
             Array<Vector3> v(numVertices);
             
             for (int i = 0; i < numVertices; ++i) {
@@ -47,7 +47,7 @@ public:
                 v[i] = spline->evaluate(s).translation;
             }
             
-            vertex = VAR(v, area);
+            vertex = VertexRange(v, area);
         }
     }
 

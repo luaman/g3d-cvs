@@ -37,7 +37,7 @@
 
 namespace G3D {
 
-class VAR;
+class VertexRange;
 
 
 /**
@@ -55,7 +55,7 @@ class VAR;
 
  In future releases, fixed function state will either be removed
  or isolated in RenderDevice.  Wherever possible, structure your
- code to use Framebuffer, VAR, and Shader instead of fixed-function.
+ code to use Framebuffer, VertexRange, and Shader instead of fixed-function.
 
  You must call RenderDevice::init() before using the RenderDevice.
   
@@ -179,8 +179,8 @@ public:
 
 private:
 
-    friend class VAR;
-    friend class VARArea;
+    friend class VertexRange;
+    friend class VertexBuffer;
     friend class Milestone;
     friend class UserInput;
     friend class VertexAndPixelShader;
@@ -226,13 +226,13 @@ private:
     int                         currentPrimitiveVertexCount;
    
     /** The area used inside of an indexedPrimitives call. */
-    VARArea::Ref                currentVARArea;
+    VertexBuffer::Ref                currentVARArea;
     
     std::string                 cardDescription;
 
     /** Helper for setXXXArray.  Sets the currentVARArea and
         makes some consistency checks.*/
-    void setVARAreaFromVAR(const class VAR& v);
+    void setVARAreaFromVAR(const class VertexRange& v);
 
     /** Updates the triangle count based on the primitive.
         
@@ -342,7 +342,7 @@ protected:
     Stats               m_stats;
 
     /** Storage for setVARs.  Cleared by endIndexedPrimitives. */
-    Array<VAR>          m_tempVAR;
+    Array<VertexRange>          m_tempVAR;
 
     class VARState {
     public:
@@ -1032,9 +1032,9 @@ public:
     void endIndexedPrimitives();
 
     /** The vertex, normal, color, and tex coord arrays need not come from
-        the same VARArea. 
+        the same VertexBuffer. 
 
-        The format of a VAR array is restricted depending on its use.  The
+        The format of a VertexRange array is restricted depending on its use.  The
         following table (from http://oss.sgi.com/projects/ogl-sample/registry/ARB/vertex_program.txt)
         shows the underlying OpenGL restrictions:
 
@@ -1069,22 +1069,22 @@ public:
   </PRE>
     
     */
-    void setVertexArray(const class VAR& v);
-    void setNormalArray(const class VAR& v);
-    void setColorArray(const class VAR& v);
-    void setTexCoordArray(unsigned int unit, const class VAR& v);
+    void setVertexArray(const class VertexRange& v);
+    void setNormalArray(const class VertexRange& v);
+    void setColorArray(const class VertexRange& v);
+    void setTexCoordArray(unsigned int unit, const class VertexRange& v);
 
     /** 
         Set a series of vertex arrays
      */
-    void setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& color,
-                 const Array<VAR>& texCoord);
+    void setVARs(const class VertexRange& vertex, const class VertexRange& normal, const class VertexRange& color,
+                 const Array<VertexRange>& texCoord);
 
     /** Set a series of vertex arrays simultaneously. This call allows you to change the
-        VARArea that the VARs are in within a single beginIndexedPrimitives() call,
+        VertexBuffer that the VARs are in within a single beginIndexedPrimitives() call,
         saving some state changes. */
-    void setVARs(const class VAR& vertex, const class VAR& normal = VAR(), const class VAR& texCoord0 = VAR(),
-                 const class VAR& texCoord1 = VAR());
+    void setVARs(const class VertexRange& vertex, const class VertexRange& normal = VertexRange(), const class VertexRange& texCoord0 = VertexRange(),
+                 const class VertexRange& texCoord1 = VertexRange());
 
     /** Returns the OSWindow used by this RenderDevice */
     OSWindow* window() const;
@@ -1120,12 +1120,12 @@ public:
 
       @param normalize If true, the coordinates are forced to a [0, 1] scale
     */
-    void setVertexAttribArray(unsigned int attribNum, const class VAR& v, bool normalize);
+    void setVertexAttribArray(unsigned int attribNum, const class VertexRange& v, bool normalize);
 
     /**
      Draws the specified kind of primitive from the current vertex array.
 
-     @deprecated Use sendIndices(RenderDevice::Primitive, const VAR&)
+     @deprecated Use sendIndices(RenderDevice::Primitive, const VertexRange&)
      */
     template<class T>
     void sendIndices
@@ -1144,7 +1144,7 @@ public:
      memory on most GPUs.
     */
     void sendIndices
-    (RenderDevice::Primitive primitive, const VAR& indexVAR);
+    (RenderDevice::Primitive primitive, const VertexRange& indexVAR);
 
     /** Send indices from an index buffer stored inside a vertex
      buffer. This is faster than sending from main
@@ -1160,7 +1160,7 @@ public:
     */
     void sendIndicesInstanced
     (RenderDevice::Primitive primitive, 
-     const VAR&              indexVAR,
+     const VertexRange&              indexVAR,
      int                     numInstances);
 
 private:
@@ -1168,7 +1168,7 @@ private:
     /** Called by both sendIndices and sendIndicesInstanced */
     void sendIndices
     (RenderDevice::Primitive primitive, 
-     const VAR&              indexVAR,
+     const VertexRange&              indexVAR,
      int                     numInstances, 
      bool                    drawInstanced);
 
@@ -1200,7 +1200,7 @@ public:
     /**
      Draws the specified kind of primitive from the current vertex array.
      
-     @deprecated Use sendIndices(RenderDevice::Primitive, const VAR&)
+     @deprecated Use sendIndices(RenderDevice::Primitive, const VertexRange&)
      */
     template<class T>
     void sendIndices(RenderDevice::Primitive primitive, 
@@ -1631,7 +1631,7 @@ public:
     inline bool supportsPixelProgram() const;
 
     /**
-     When true, VAR arrays will be in video, not main memory,
+     When true, VertexRange arrays will be in video, not main memory,
      and much faster.
      @deprecated
      Use GLCaps::supports_GL_ARB_vertex_buffer_object instead.

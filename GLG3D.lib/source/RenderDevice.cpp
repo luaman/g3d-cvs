@@ -118,15 +118,15 @@ RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(f
 
 
 void RenderDevice::setVARAreaMilestone() {
-    currentVARArea->renderDevice = this;
+    currentVARArea->m_renderDevice = this;
 
-    if (currentVARArea->mode == VARArea::VBO_MEMORY) {
+    if (currentVARArea->m_mode == VertexBuffer::VBO_MEMORY) {
         // We don't need milestones when using VBO; the spec guarantees
         // correct synchronization.
         return;
     }
 
-    MilestoneRef milestone = createMilestone("VAR Milestone");
+    MilestoneRef milestone = createMilestone("VertexRange Milestone");
     setMilestone(milestone);
 
     debugAssert(currentVARArea.notNull());
@@ -503,11 +503,11 @@ void RenderDevice::cleanup() {
     logPrintf("Restoring gamma.\n");
     setGamma(1, 1);
 
-    logPrintf("Freeing all VAR memory\n");
+    logPrintf("Freeing all VertexRange memory\n");
 
     if (deleteWindow) {
         logPrintf("Deleting window.\n");
-        VARArea::cleanupAllVARAreas();
+        VertexBuffer::cleanupAllVARAreas();
         delete _window;
         _window = NULL;
     }
@@ -2756,21 +2756,21 @@ void RenderDevice::endIndexedPrimitives() {
 }
 
 
-void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
+void RenderDevice::setVARAreaFromVAR(const class VertexRange& v) {
     debugAssert(inIndexedPrimitive);
     debugAssert(! inPrimitive);
     alwaysAssertM(currentVARArea.isNull() || (v.area() == currentVARArea), 
         "All vertex arrays used within a single begin/endIndexedPrimitive"
-                  " block must share the same VARArea.");
+                  " block must share the same VertexBuffer.");
 
     majStateChange();
 
     if (v.area() != currentVARArea) {
-        currentVARArea = const_cast<VAR&>(v).area();
+        currentVARArea = const_cast<VertexRange&>(v).area();
 
-        if (VARArea::mode == VARArea::VBO_MEMORY) {
+        if (VertexBuffer::m_mode == VertexBuffer::VBO_MEMORY) {
             // Bind the buffer (for MAIN_MEMORY, we need do nothing)
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, currentVARArea->glbuffer);
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, currentVARArea->m_glbuffer);
             majGLStateChange();
         }
     }
@@ -2778,12 +2778,12 @@ void RenderDevice::setVARAreaFromVAR(const class VAR& v) {
 
 
 void RenderDevice::setVARs
-(const class VAR&  vertex, 
- const class VAR&  normal, 
- const class VAR&  color,
- const Array<VAR>& texCoord) {
+(const class VertexRange&  vertex, 
+ const class VertexRange&  normal, 
+ const class VertexRange&  color,
+ const Array<VertexRange>& texCoord) {
 
-    // Wipe old VARArea
+    // Wipe old VertexBuffer
     currentVARArea = NULL;
 
     // Disable anything that is not about to be set
@@ -2820,42 +2820,42 @@ void RenderDevice::setVARs
 }
 
 
-void RenderDevice::setVARs(const class VAR& vertex, const class VAR& normal, const class VAR& texCoord0,
-                           const class VAR& texCoord1) {
+void RenderDevice::setVARs(const class VertexRange& vertex, const class VertexRange& normal, const class VertexRange& texCoord0,
+                           const class VertexRange& texCoord1) {
     m_tempVAR.fastClear();
     if ((texCoord0.size() > 0) || (texCoord1.size() > 0)) {
         m_tempVAR.append(texCoord0, texCoord1);
     }
-    setVARs(vertex, normal, VAR(), m_tempVAR);
+    setVARs(vertex, normal, VertexRange(), m_tempVAR);
 }
 
 
 
-void RenderDevice::setVertexArray(const class VAR& v) {
+void RenderDevice::setVertexArray(const class VertexRange& v) {
     setVARAreaFromVAR(v);
     v.vertexPointer();
 }
 
 
-void RenderDevice::setVertexAttribArray(unsigned int attribNum, const class VAR& v, bool normalize) {
+void RenderDevice::setVertexAttribArray(unsigned int attribNum, const class VertexRange& v, bool normalize) {
     setVARAreaFromVAR(v);
     v.vertexAttribPointer(attribNum, normalize);
 }
 
 
-void RenderDevice::setNormalArray(const class VAR& v) {
+void RenderDevice::setNormalArray(const class VertexRange& v) {
     setVARAreaFromVAR(v);
     v.normalPointer();
 }
 
 
-void RenderDevice::setColorArray(const class VAR& v) {
+void RenderDevice::setColorArray(const class VertexRange& v) {
     setVARAreaFromVAR(v);
     v.colorPointer();
 }
 
 
-void RenderDevice::setTexCoordArray(unsigned int unit, const class VAR& v) {
+void RenderDevice::setTexCoordArray(unsigned int unit, const class VertexRange& v) {
     if (v.size() == 0) {
         debugAssertM(GLCaps::supports_GL_ARB_multitexture() || (unit == 0),
             "Graphics card does not support multitexture");
@@ -3117,45 +3117,45 @@ void RenderDevice::sendSequentialIndicesInstanced
 
 
 void RenderDevice::sendIndices
-(RenderDevice::Primitive primitive, const VAR& indexVAR) {
+(RenderDevice::Primitive primitive, const VertexRange& indexVAR) {
     sendIndices(primitive, indexVAR, 1, false);
 }
 
 
 void RenderDevice::sendIndicesInstanced
-(RenderDevice::Primitive primitive, const VAR& indexVAR, int numInstances) {
+(RenderDevice::Primitive primitive, const VertexRange& indexVAR, int numInstances) {
     sendIndices(primitive, indexVAR, numInstances, true);
 }
 
 
 void RenderDevice::sendIndices
-(RenderDevice::Primitive primitive, const VAR& indexVAR,
+(RenderDevice::Primitive primitive, const VertexRange& indexVAR,
  int numInstances, bool useInstances) {
 
     debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
 
-    if (indexVAR.numElements == 0) {
+    if (indexVAR.m_numElements == 0) {
         // There's nothing in this index array, so don't bother rendering.
         return;
     }
 
-    debugAssertM(indexVAR.area().notNull(), "Corrupt VAR");
-    debugAssertM(indexVAR.type() == VARArea::INDEX, "Must be an index VAR");
+    debugAssertM(indexVAR.area().notNull(), "Corrupt VertexRange");
+    debugAssertM(indexVAR.type() == VertexBuffer::INDEX, "Must be an index VertexRange");
 
     // Calling glGetInteger triggers a stall on SLI GPUs
     //int old = glGetInteger(GL_ELEMENT_ARRAY_BUFFER_BINDING);
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, indexVAR.area()->openGLVertexBufferObject());
 
-    internalSendIndices(primitive, indexVAR.elementSize, indexVAR.numElements, 
+    internalSendIndices(primitive, indexVAR.m_elementSize, indexVAR.m_numElements, 
                         indexVAR.pointer(), numInstances, useInstances);
 
     // Set the milestone on the current area
     {
-        indexVAR.area()->renderDevice = this;
+        indexVAR.area()->m_renderDevice = this;
 
-        if (indexVAR.area()->mode != VARArea::VBO_MEMORY) {
-            MilestoneRef milestone = createMilestone("VAR Milestone");
+        if (indexVAR.area()->m_mode != VertexBuffer::VBO_MEMORY) {
+            MilestoneRef milestone = createMilestone("VertexRange Milestone");
             setMilestone(milestone);
 
             // Overwrite any preexisting milestone
@@ -3166,7 +3166,7 @@ void RenderDevice::sendIndices
     // Mark all active arrays as busy.
     setVARAreaMilestone();
     
-    countTriangles(primitive, indexVAR.numElements * numInstances);
+    countTriangles(primitive, indexVAR.m_numElements * numInstances);
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

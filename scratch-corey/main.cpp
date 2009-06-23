@@ -4,6 +4,7 @@
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
+#include "GLG3D/MD3Model.h"
 
 class App : public GApp {
 public:
@@ -11,6 +12,8 @@ public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
+
+    MD3Model::Ref       model;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -100,6 +103,8 @@ void App::onInit() {
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
+
+    model = MD3Model::fromFile(dataDir + "md3-kt_kubalwagon.pk3/models/mapobjects/kt_kubalwagon/european_fnt_v2.md3");
 }
 
 

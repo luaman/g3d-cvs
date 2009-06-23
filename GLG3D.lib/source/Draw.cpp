@@ -948,7 +948,7 @@ void Draw::sphereSection(
         renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
 
         static bool initialized = false;
-        static VAR vbuffer;
+        static VertexRange vbuffer;
         static Array< uint16 > stripIndexArray;
 
         if (! initialized) {
@@ -990,8 +990,8 @@ void Draw::sphereSection(
                 i += 2;    
             }
 
-            VARAreaRef area = VARArea::create(vertex.size() * sizeof(Vector3), VARArea::WRITE_ONCE);
-            vbuffer = VAR(vertex, area);
+            VertexBufferRef area = VertexBuffer::create(vertex.size() * sizeof(Vector3), VertexBuffer::WRITE_ONCE);
+            vbuffer = VertexRange(vertex, area);
             initialized = true;
         }
 

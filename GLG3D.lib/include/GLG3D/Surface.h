@@ -95,12 +95,12 @@ typedef ReferenceCountedPointer<class Surface> SurfaceRef;
 
  Surface also allows you to directly extract and operate on its geometry.  This is useful for adding effects like
  outlines in cartoon rendering, physics hit boxes, and shadow volume rendering.  You can directly render from the geometry
- using the following rendering code (it is much faster if you can avoid re-creating the VARs and VARArea every frame!)
+ using the following rendering code (it is much faster if you can avoid re-creating the VARs and VertexBuffer every frame!)
  <pre>
-        VARAreaRef area = VARArea::create(sizeof(Vector3) * posed->objectSpaceGeometry().vertexArray.size() * 2 + sizeof(Vector2) * posed->texCoords().size());
-        VAR vertex(posed->objectSpaceGeometry().vertexArray, area);
-        VAR normal(posed->objectSpaceGeometry().normalArray, area);
-        VAR texCoord(posed->texCoords(), area);
+        VertexBufferRef area = VertexBuffer::create(sizeof(Vector3) * posed->objectSpaceGeometry().vertexArray.size() * 2 + sizeof(Vector2) * posed->texCoords().size());
+        VertexRange vertex(posed->objectSpaceGeometry().vertexArray, area);
+        VertexRange normal(posed->objectSpaceGeometry().normalArray, area);
+        VertexRange texCoord(posed->texCoords(), area);
 
         rd->setObjectToWorldMatrix(posed->coordinateFrame());
         rd->setShadeMode(RenderDevice::SHADE_SMOOTH);

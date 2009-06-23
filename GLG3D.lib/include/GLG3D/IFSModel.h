@@ -89,15 +89,15 @@ protected:
 
 
     /** Shared by all models */
-    static VARAreaRef           varArea;
+    static VertexBufferRef           varArea;
 
     // Used by the last object to render.  If the
     // new model is the same as the old one, an upload
     // step can be avoided.
     static IFSModelRef          lastModel;
-    static VAR                  lastVertexVAR;
-    static VAR                  lastNormalVAR;
-    static VAR                  lastTexCoordVAR;
+    static VertexRange                  lastVertexVAR;
+    static VertexRange                  lastNormalVAR;
+    static VertexRange                  lastTexCoordVAR;
 
     IFSModel();
     

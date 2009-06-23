@@ -253,7 +253,7 @@ GApp::~GApp() {
         _window = NULL;
     }
 
-    VARArea::cleanupAllVARAreas();
+    VertexBuffer::cleanupAllVARAreas();
 }
 
 

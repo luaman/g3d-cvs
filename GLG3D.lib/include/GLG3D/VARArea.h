@@ -19,28 +19,28 @@ namespace G3D {
 class RenderDevice;
 
 /** @deprecated */
-typedef ReferenceCountedPointer<class VARArea> VARAreaRef;
+typedef ReferenceCountedPointer<class VertexBuffer> VertexBufferRef;
 
 /**
  Wrapper for OpenGL Vertex Buffer Object
  http://oss.sgi.com/projects/ogl-sample/registry/ARB/vertex_buffer_object.txt
  http://developer.nvidia.com/docs/IO/8230/GDC2003_OGL_BufferObjects.ppt
 
- Allocate a VARArea, then allocate VARs within it.  VARAreas are garbage
- collected.  When no pointers remain to VARs inside it or the VARArea itself,
+ Allocate a VertexBuffer, then allocate VARs within it.  VARAreas are garbage
+ collected.  When no pointers remain to VARs inside it or the VertexBuffer itself,
  it will automatically be reclaimed by the system.
 
  You cannot mix pointers from different VARAreas when rendering.  For
- example, if the vertex VAR is in one VARArea, the normal VAR and color
- VAR must come from the same area.
+ example, if the vertex VertexRange is in one VertexBuffer, the normal VertexRange and color
+ VertexRange must come from the same area.
 
 
  You can't find out how much space is left for VARAreas in video memory,
- except by checking the VARArea::create value and seeing if it is NULL.
+ except by checking the VertexBuffer::create value and seeing if it is NULL.
  */
-class VARArea : public ReferenceCountedObject {
+class VertexBuffer : public ReferenceCountedObject {
 public:
-    typedef ReferenceCountedPointer<class VARArea> Ref;
+    typedef ReferenceCountedPointer<class VertexBuffer> Ref;
 
 
     /**
@@ -81,7 +81,7 @@ public:
     
 private:
 
-    friend class VAR;
+    friend class VertexRange;
     friend class RenderDevice;
 
     /**
@@ -91,93 +91,93 @@ private:
      */
     MilestoneRef                        milestone;
 
-    /** Number of bytes currently allocated out of size total. */
-    size_t				allocated;
+    /** Number of bytes currently m_allocated out of m_size total. */
+    int				                    m_allocated;
     
     Type                                m_type;
 
     /**
        This count prevents vertex arrays that have been freed from
        accidentally being used-- it is incremented every time
-       the VARArea is reset.
+       the VertexBuffer is reset.
     */
-    uint64				generation;
+    uint64				                m_generation;
     
-    /** The maximum size of this area that was ever used. */
-    size_t				peakAllocated;
+    /** The maximum m_size of this area that was ever used. */
+    int				                    m_peakAllocated;
     
     /** Set by RenderDevice */
-    RenderDevice*                       renderDevice;
+    RenderDevice*                       m_renderDevice;
     
     /** Total  number of bytes in this area.  May be zero if resources have been freed.*/
-    size_t				size;
+    int				                    m_size;
     
     /**
        The OpenGL buffer object associated with this area
-       (only used when mode == VBO_MEMORY)
+       (only used when m_mode == VBO_MEMORY)
     */
-    uint32                              glbuffer;
+    uint32                              m_glbuffer;
     
     /** Pointer to the memory (NULL when
         the VBO extension is not present). */
-    void*				basePointer;
+    void*				                m_basePointer;
     
     enum Mode {UNINITIALIZED, VBO_MEMORY, MAIN_MEMORY};
-    static Mode         mode;
+    static Mode                         m_mode;
     
     /** Updates allocation and peakAllocation based off of new allocation. */
-    inline void updateAllocation(size_t newAllocation) {
-        allocated += newAllocation;
-        peakAllocated = (size_t)iMax((int)peakAllocated, (int)allocated);
+    inline void updateAllocation(int newAllocation) {
+        m_allocated += newAllocation;
+        m_peakAllocated = iMax(m_peakAllocated, m_allocated);
     }
 
-    static size_t      _sizeOfAllVARAreasInMemory;
+    static int                          m_sizeOfAllVARAreasInMemory;
 
-    VARArea(size_t _size, UsageHint h, Type t);
+    VertexBuffer(int _size, UsageHint h, Type t);
 
-    static Array<VARAreaRef>           allVARAreas;
+    static Array<VertexBufferRef>       m_allVARAreas;
     
-    /** Removes elements of allVARAreas that are not externally referenced.
-        Called whenever a new VARArea is created.*/
+    /** Removes elements of m_allVARAreas that are not externally referenced.
+        Called whenever a new VertexBuffer is created.*/
     static void cleanCache();
     
 public:
 
     /**
        You should always create your VARAreas at least 8 bytes larger
-       than needed for each individual VAR because VARArea tries to 
-       align VAR starts in memory with dword boundaries.
+       than needed for each individual VertexRange because VertexBuffer tries to 
+       align VertexRange starts in memory with dword boundaries.
      */
-    static VARAreaRef create(size_t s, UsageHint h = WRITE_EVERY_FRAME, Type = DATA);
+    static VertexBufferRef create(int s, UsageHint h = WRITE_EVERY_FRAME, Type = DATA);
 
-    ~VARArea();
+    ~VertexBuffer();
 
     inline Type type() const {
         return m_type;
     }
 
-    inline size_t totalSize() const {
-        return size;
+    inline int totalSize() const {
+        return m_size;
     }
 
-    inline size_t freeSize() const {
-        return size - allocated;
+    inline int freeSize() const {
+        return m_size - m_allocated;
     }
 
-    inline size_t allocatedSize() const {
-        return allocated;
+    inline int allocatedSize() const {
+        return m_allocated;
     }
 
-    inline size_t peakAllocatedSize() const {
-        return peakAllocated;
+    inline int peakAllocatedSize() const {
+        return m_peakAllocated;
     }
 
     inline uint64 currentGeneration() const {
-        return generation;
+        return m_generation;
     }
 
     /**
-     Provided for breaking the VARArea abstraction; use G3D::VAR and 
+     Provided for breaking the VertexBuffer abstraction; use G3D::VertexRange and 
      G3D::RenderDevice in general.
 
      When using the OpenGL vertex buffer API, this is the underlying 
@@ -186,18 +186,18 @@ public:
      the best method automatically.
      */
     inline uint32 openGLVertexBufferObject() const {
-        return glbuffer;
+        return m_glbuffer;
     }
 
     /**
-     Provided for breaking the VARArea abstraction; use G3D::VAR and 
+     Provided for breaking the VertexBuffer abstraction; use G3D::VertexRange and 
      G3D::RenderDevice in general.
 
      When using system memory, this is a pointer to the beginning of 
      the system memory block in which data is stored.  Null when using VBO.
      */
     inline void* openGLBasePointer() const {
-        return basePointer;
+        return m_basePointer;
     }
 
     /**
@@ -206,15 +206,15 @@ public:
      */
     void finish();
 
-    /** Finishes, then frees all VAR memory inside this area.*/ 
+    /** Finishes, then frees all VertexRange memory inside this area.*/ 
     void reset();
 
-    /** Returns the total size of all VARAreas allocated.  Note that not all
+    /** Returns the total m_size of all VARAreas m_allocated.  Note that not all
         will be in video memory, and some will be backed by main memory 
-        even if nominally stored in video memory, so the total size may
-        exceed the video memory size.*/
-    static size_t sizeOfAllVARAreasInMemory() {
-        return _sizeOfAllVARAreasInMemory;
+        even if nominally stored in video memory, so the total m_size may
+        exceed the video memory m_size.*/
+    static int sizeOfAllVARAreasInMemory() {
+        return m_sizeOfAllVARAreasInMemory;
     }
 
     /** Releases all VARAreas. Called before shutdown by RenderDevice. */
@@ -230,10 +230,15 @@ public:
     }
 
 };
-}
 
-template <> struct HashTrait<G3D::VARArea*> {
-    static size_t hashCode(const G3D::VARArea* key) { return reinterpret_cast<size_t>(key); }
+
+/** @deprecated Use VertexBuffer */
+typedef VertexBuffer VARArea;
+
+} // namespace G3D
+
+template <> struct HashTrait<G3D::VertexBuffer*> {
+    static int hashCode(const G3D::VertexBuffer* key) { return reinterpret_cast<int>(key); }
 };
 
 #endif

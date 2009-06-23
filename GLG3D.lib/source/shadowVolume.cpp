@@ -168,8 +168,8 @@ void markShadows(
     }
 
     // Upload to graphics card
-    VARAreaRef varArea = VARArea::create(cpuVertex.size() * sizeof(Vector4));
-    VAR gpuVertex(cpuVertex, varArea);
+    VertexBufferRef varArea = VertexBuffer::create(cpuVertex.size() * sizeof(Vector4));
+    VertexRange gpuVertex(cpuVertex, varArea);
 
     // Triangle list indices
     static Array<int> index;

@@ -94,13 +94,13 @@ DirectionHistogram::DirectionHistogram(float sharp) : m_sharp(sharp) {
     m_bucket.resize(m_meshVertex.size());
     reset();
 
-    VARArea::Ref dataArea = VARArea::create(sizeof(Vector3) * m_meshVertex.size(),
-        VARArea::WRITE_EVERY_FEW_FRAMES);
-    m_gpuMeshVertex = VAR(m_meshVertex, dataArea);
+    VertexBuffer::Ref dataArea = VertexBuffer::create(sizeof(Vector3) * m_meshVertex.size(),
+        VertexBuffer::WRITE_EVERY_FEW_FRAMES);
+    m_gpuMeshVertex = VertexRange(m_meshVertex, dataArea);
 
-    VARArea::Ref indexArea = VARArea::create(sizeof(int) * m_meshIndex.size(), 
-        VARArea::WRITE_ONCE, VARArea::INDEX);
-    m_gpuMeshIndex = VAR(m_meshIndex, indexArea);
+    VertexBuffer::Ref indexArea = VertexBuffer::create(sizeof(int) * m_meshIndex.size(), 
+        VertexBuffer::WRITE_ONCE, VertexBuffer::INDEX);
+    m_gpuMeshIndex = VertexRange(m_meshIndex, indexArea);
 
     m_dirty = false;
 

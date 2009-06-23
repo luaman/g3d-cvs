@@ -44,12 +44,12 @@ namespace G3D {
  but the caller must
  bind a texture, set the object to world matrix, and set up lighting.
  <P>
- If VAR has been initialized for the renderDevice, the first time
- this is called (for any Model) a 512k VAR area is allocated.  This
+ If VertexRange has been initialized for the renderDevice, the first time
+ this is called (for any Model) a 512k VertexRange area is allocated.  This
  memory is shared between all MD2 models.
  <P>
- Really huge MD2 models will not fit into this small VAR area and
- will revert to non-VAR rendering.
+ Really huge MD2 models will not fit into this small VertexRange area and
+ will revert to non-VertexRange rendering.
 
  <P>
  When getting geometry from the posed model, the normalArray 
@@ -307,7 +307,7 @@ protected:
         We cycle through multiple VARAreas because the models are so small
         that we can send data to the card faster than it can be rendered
         and we end up spending all of our time waiting on the GPU.*/
-    static VARAreaRef            varArea[NUM_VAR_AREAS];
+    static VertexBufferRef            varArea[NUM_VAR_AREAS];
 
     /**
      When NONE_ALLOCATED, the vertex arrays have not been allocated. 
@@ -366,7 +366,7 @@ protected:
     void computeTexCoords(const Array<Vector2int16>& inCoords);
 
     /**
-      Called from render() to create the vertex arrays.  Assumes VAR is
+      Called from render() to create the vertex arrays.  Assumes VertexRange is
       available and the arrays are not initialized.
      */
     void allocateVertexArrays(RenderDevice* renderDevice);

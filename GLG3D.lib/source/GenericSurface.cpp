@@ -923,7 +923,7 @@ void GenericSurface::sendGeometry(
     debugAssertGLOk();
     ++debugNumSendGeometryCalls;
 
-    // TODO: Radeon mobility cards crash rendering VAR in wireframe mode.
+    // TODO: Radeon mobility cards crash rendering VertexRange in wireframe mode.
     // switch to begin/end in that case
     bool useVAR = true || (rd->renderMode() == RenderDevice::RENDER_SOLID);
 

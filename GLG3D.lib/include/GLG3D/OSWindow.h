@@ -137,7 +137,7 @@ public:
         */
         bool    resizable;
 
-        /** If true, Texture and VAR data will be shared between multiple OpenGL contexts. 
+        /** If true, Texture and VertexRange data will be shared between multiple OpenGL contexts. 
             This is necessary if your application makes multiple OS windows with their
             own OpenGL contexts.
             The default is <b>false</b>, which is essential for performance 

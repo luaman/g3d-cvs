@@ -63,10 +63,10 @@ private:
     /** Histogram buckets.  These are the scales of the corresponding meshVertex.*/
     Array<float>        m_bucket;
 
-    VAR                 m_gpuMeshIndex;
-    VAR                 m_gpuMeshVertex;
+    VertexRange                 m_gpuMeshIndex;
+    VertexRange                 m_gpuMeshVertex;
 
-    /** True when the VAR needs to be recomputed */
+    /** True when the VertexRange needs to be recomputed */
     bool                m_dirty;
 
     float               m_sharp;

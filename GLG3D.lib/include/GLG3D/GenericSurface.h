@@ -64,11 +64,11 @@ public:
         MeshAlg::Primitive      primitive;
     
         /** Indices into the VARs. */
-        VAR                     index;
-        VAR                     vertex;
-        VAR                     normal;
-        VAR                     tangent;
-        VAR                     texCoord0;
+        VertexRange                     index;
+        VertexRange                     vertex;
+        VertexRange                     normal;
+        VertexRange                     tangent;
+        VertexRange                     texCoord0;
         
         /** When true, this primitive should be rendered with
             two-sided lighting and texturing and not cull

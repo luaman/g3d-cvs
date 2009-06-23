@@ -68,8 +68,8 @@ void drawFeatureEdges(RenderDevice* renderDevice, const Surface::Ref& model, flo
         }
     }
 
-    VARAreaRef varArea = VARArea::create(cpuVertexArray.size() * sizeof(Vector3));
-    VAR gpuVertexArray(cpuVertexArray, varArea);
+    VertexBufferRef varArea = VertexBuffer::create(cpuVertexArray.size() * sizeof(Vector3));
+    VertexRange gpuVertexArray(cpuVertexArray, varArea);
 
     renderDevice->pushState();
         renderDevice->setObjectToWorldMatrix(cframe);

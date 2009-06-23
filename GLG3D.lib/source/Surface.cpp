@@ -117,7 +117,7 @@ void Surface::renderDepthOnly
                 }
 
                 rd->setObjectToWorldMatrix(model->coordinateFrame());
-                rd->setVARs(geom->vertex, VAR(), geom->texCoord0);
+                rd->setVARs(geom->vertex, VertexRange(), geom->texCoord0);
                 rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
             
                 if (geom->twoSided) {
@@ -525,13 +525,13 @@ void Surface::renderShadowMappedLightPass(
 void Surface::defaultRender(RenderDevice* rd) const {
     const MeshAlg::Geometry& geometry = objectSpaceGeometry();
 
-    VARAreaRef area = VARArea::create(sizeof(Vector3)*2*geometry.vertexArray.size() + 16);
+    VertexBufferRef area = VertexBuffer::create(sizeof(Vector3)*2*geometry.vertexArray.size() + 16);
 
     rd->pushState();
         rd->setObjectToWorldMatrix(coordinateFrame());
         rd->beginIndexedPrimitives();
-            rd->setNormalArray(VAR(geometry.normalArray, area));
-            rd->setVertexArray(VAR(geometry.vertexArray, area));
+            rd->setNormalArray(VertexRange(geometry.normalArray, area));
+            rd->setVertexArray(VertexRange(geometry.vertexArray, area));
             rd->sendIndices(PrimitiveType::TRIANGLES, triangleIndices());
         rd->endIndexedPrimitives();
     rd->popState();
@@ -551,13 +551,13 @@ void Surface::sendGeometry(RenderDevice* rd) const {
         s += sizeof(Vector2) * texCoords().size();
     }
 
-    VARAreaRef area = VARArea::create(s);
-    VAR vertex(geom.vertexArray, area);
-    VAR normal(geom.normalArray, area);
-    VAR texCoord;
+    VertexBufferRef area = VertexBuffer::create(s);
+    VertexRange vertex(geom.vertexArray, area);
+    VertexRange normal(geom.normalArray, area);
+    VertexRange texCoord;
 
     if (hasTexCoords()) {
-        texCoord = VAR(texCoords(), area);
+        texCoord = VertexRange(texCoords(), area);
     }
 
     rd->beginIndexedPrimitives();

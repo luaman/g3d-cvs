@@ -162,7 +162,7 @@ void testTable() {
         Table<Texture::Settings, int> table;
     }
     {
-        Table<VARArea*, int> table;
+        Table<VertexBuffer*, int> table;
     }
     {
         Table<AABox, int> table;
