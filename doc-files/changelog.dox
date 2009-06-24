@@ -115,6 +115,7 @@ TODO: make bias a property of the shadow map
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::VARArea -> G3D::VertexBuffer, G3D::VAR -> G3D::VertexRange
      <li> G3D::Texture::getCameraRotation -> G3D::Texture::getCubeMapRotation
      <li> G3D::PosedModel -> G3D::Surface, G3D::PosedModel2D -> G3D::Surface2D
      <li> G3D::RenderDevice::Primitive -> G3D::PrimitiveType (e.g., RenderDevice::TRIANLGES -> PrimitiveType::TRIANGLES)
@@ -130,7 +131,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::GuiPane::addDropDownList now takes the list and index arguments in reverse order and they are optional
      <li> G3D::OSWindow::notifyResize() and G3D::RenderDevice::notifyResize() removed in favor of OS-specific implementation handling size events directly.
      <li> Changed G3D::RenderDevice::enableClip2D to G3D::RenderDevice::setClip2D.  Use G3D::RenderDevice::setClip2D with G3D::Rect2D::inf to disable.
-     <li> G3D::TextInput now treats \r, \n and \r\n as newlines with or without newline tokens.  Each increment line number once and reset character number
+     <li> G3D::TextInput now treats \\r, \\n and \\r\\n as newlines with or without newline tokens.  Each increment line number once and reset character number
      <li> G3D::TextInput now generates tokens for both line and block comments when enabled. This changes the G3D::TextInput::Settings flags.
      <li> Changed G3D::OSWindow::pollOSEvent to G3D::OSWindow::getOSEvents allowing G3D::OSWindow implementations to return multiple events
      <li> G3D::RenderDevice::getObjectToWorldMatrix -> G3D::RenderDevice::objectToWorldMatrix
