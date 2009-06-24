@@ -114,8 +114,8 @@ href="classes.html">Classes</a>.
     \link G3D::Renderbuffer Renderbuffer\endlink,
     \link G3D::RenderDevice RenderDevice\endlink,
     \link G3D::Texture Texture\endlink,
-    \link G3D::VAR VAR\endlink,
-    \link G3D::VARArea VARArea\endlink, 
+    \link G3D::VertexRange VertexRange\endlink,
+    \link G3D::VertexBuffer VertexBuffer\endlink, 
     \link G3D::Shader Shader\endlink
   <br>
   <br>Backwards compatability to 6.xx:
