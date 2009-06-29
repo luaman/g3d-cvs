@@ -266,15 +266,14 @@ private:
 
         /** Returns true if the ray intersects these bounds before distance. */
         inline bool __fastcall intersects
-        (const Ray&      ray, 
-         const Vector3&  invRayDirection, 
+        (const Ray&      ray,
          float           distance) const {
             
             // See if the ray will ever hit this node or its children
             Vector3 location;
             bool alreadyInsideBounds = false;
             bool rayWillHitBounds = 
-                CollisionDetection::rayAABox(ray, invRayDirection, m_box, m_sphereBoundsCenter, 
+                CollisionDetection::rayAABox(ray, ray.invDirection(), m_box, m_sphereBoundsCenter, 
                                              m_sphereBoundsRadiusSquared, location, alreadyInsideBounds);
            
             return (alreadyInsideBounds ||                
@@ -450,7 +449,6 @@ private:
 
         void __fastcall intersectRay
         (const Ray&      ray,
-         const Vector3&  invRayDirection,
          Tri::Intersector& intersectCallback, 
          float&          distance) const;
     };

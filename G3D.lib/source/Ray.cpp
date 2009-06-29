@@ -29,6 +29,7 @@ void Ray::serialize(class BinaryOutput& b) const {
 void Ray::deserialize(class BinaryInput& b) {
 	m_origin.deserialize(b);
 	m_direction.deserialize(b);
+	set(m_origin, m_direction);
 }
 
 
@@ -39,8 +40,7 @@ Ray Ray::refract(
     float           iOutside) const {
 
     Vector3 D = m_direction.refractionDirection(normal, iInside, iOutside);
-    return Ray::fromOriginAndDirection(
-        newOrigin + (m_direction + normal * (float)sign(m_direction.dot(normal))) * 0.001f, D);
+    return Ray(newOrigin + (m_direction + normal * (float)sign(m_direction.dot(normal))) * 0.001f, D);
 }
 
 
@@ -49,7 +49,7 @@ Ray Ray::reflect(
     const Vector3&  normal) const {
 
     Vector3 D = m_direction.reflectionDirection(normal);
-    return Ray::fromOriginAndDirection(newOrigin + (D + normal) * 0.001f, D);
+    return Ray(newOrigin + (D + normal) * 0.001f, D);
 }
 
 

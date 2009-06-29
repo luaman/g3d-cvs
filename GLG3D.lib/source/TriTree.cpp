@@ -351,13 +351,12 @@ float TriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>
 
 void TriTree::Node::intersectRay
 (const Ray&          ray,
- const Vector3&      invRayDirection,
  Tri::Intersector&   intersectCallback, 
  float&              distance) const {
     
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
-    if (! isLeaf() && ! bounds.intersects(ray, invRayDirection, distance)) {
+    if (! isLeaf() && ! bounds.intersects(ray, distance)) {
         // The ray doesn't hit this node, so it can't hit the
         // children of the node either--stop searching.
         return;
@@ -374,7 +373,7 @@ void TriTree::Node::intersectRay
     
     // Test on the side closer to the ray origin.
     if (firstChild != NONE) {
-        child(firstChild).intersectRay(ray, invRayDirection, intersectCallback, distance);
+        child(firstChild).intersectRay(ray, intersectCallback, distance);
     }
     
     // Test the contents of the node. If the value array is
@@ -383,7 +382,7 @@ void TriTree::Node::intersectRay
     if (valueArray &&
         (valueArray->size > 0) && 
         ((valueArray->size <= 2) ||
-         valueArray->bounds.intersects(ray, invRayDirection, distance))) {
+         valueArray->bounds.intersects(ray, distance))) {
         
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) {        
@@ -401,7 +400,7 @@ void TriTree::Node::intersectRay
             // See if there was an intersection before hitting the splitting plane.  
             // If so, there is no need to look on the far side and recursion terminates.
             const float distanceToSplittingPlane =
-                (splitLocation - ray.origin()[axis]) * invRayDirection[axis];
+                (splitLocation - ray.origin()[axis]) * ray.invDirection()[axis];
             if (distanceToSplittingPlane > distance) {
                 // We aren't going to hit anything else before hitting the splitting plane,
                 // so don't bother looking on the far side of the splitting plane at the other
@@ -410,7 +409,7 @@ void TriTree::Node::intersectRay
             }
         }
         
-        child(secondChild).intersectRay(ray, invRayDirection, intersectCallback, distance);
+        child(secondChild).intersectRay(ray, intersectCallback, distance);
     }
 }
 
@@ -595,7 +594,7 @@ bool TriTree::intersectRay
     const float initialDistance = distance;
     if (m_root != NULL) {
         const Vector3& invRayDirection = Vector3(1.0f, 1.0f, 1.0f) / ray.direction();
-        m_root->intersectRay(ray, invRayDirection, intersectCallback, distance);
+        m_root->intersectRay(ray, intersectCallback, distance);
     }
     return distance < initialDistance;
 }

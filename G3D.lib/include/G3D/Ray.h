@@ -29,21 +29,39 @@ private:
 	/** Unit length */
 	Vector3			m_direction;
 
-	inline Ray(const Vector3& origin, const Vector3& direction) : m_origin(origin), m_direction(direction) {
-    }
+	/** 1.0 / direction */
+	Vector3         m_invDirection;
 
 public:
+
+	inline void set(const Vector3& origin, const Vector3& direction) {
+		m_origin = origin;
+		m_direction = direction;
+		debugAssert(direction.isUnit());
+		m_invDirection = Vector3::one() / direction;
+    }
 
 	inline const Vector3& origin() const {
 		return m_origin;
 	}
 
-	/** Unit length */
+	/** Unit direction vector. */
 	inline const Vector3& direction() const {
 		return m_direction;
 	}
 
-	inline Ray() : m_origin(Vector3::zero()), m_direction(Vector3::unitX()) {}
+	/** Component-wise inverse of direction vector.  May have inf() components */
+	inline const Vector3& invDirection() const {
+		return m_invDirection;
+	}
+
+	inline Ray() {
+		set(Vector3::zero(), Vector3::unitX());
+	}
+
+	inline Ray(const Vector3& origin, const Vector3& direction) {
+		set(origin, direction);
+	}
 
 	Ray(class BinaryInput& b);
 
@@ -54,25 +72,16 @@ public:
      Creates a Ray from a origin and a (nonzero) unit direction.
      */
     static Ray fromOriginAndDirection(const Vector3& point, const Vector3& direction) {
-		debugAssert(direction.isUnit());
         return Ray(point, direction);
     }
 
 	/** Advances the origin along the direction by @a distance */
-	inline void bump(float distance) {
-		m_origin += m_direction * distance;
-	}
-
-	inline Ray bumpedBy(float distance) const {
+	inline Ray bump(float distance) const {
 		return Ray(m_origin + m_direction * distance, m_direction);
 	}
 
-	/** Advances the origin along the @a bumpDirection by @a distance */
-	inline void bump(float distance, const Vector3& bumpDirection) {
-		m_origin += bumpDirection * distance;
-	}
-
-	inline Ray bumpedBy(float distance, const Vector3& bumpDirection) {
+	/** Advances the origin along the @a bumpDirection by @a distance and returns the new ray*/
+	inline Ray bump(float distance, const Vector3& bumpDirection) const {
 		return Ray(m_origin + bumpDirection * distance, m_direction);
 	}
 
