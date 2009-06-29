@@ -179,9 +179,9 @@ void Draw::ray(
     const Color4&       color,
     float               scale) {
 
-    Vector3 tip = ray.origin + ray.direction;
+    Vector3 tip = ray.origin() + ray.direction();
     // Create a coordinate frame at the tip
-    Vector3 u = ray.direction.direction();
+    Vector3 u = ray.direction();
     Vector3 v;
     if (abs(u.x) < abs(u.y)) {
         v = Vector3::unitX();
@@ -232,7 +232,7 @@ void Draw::ray(
 
     renderDevice->setColor(oldColor);
     renderDevice->setShadeMode(oldShadeMode);
-    lineSegment(LineSegment::fromTwoPoints(ray.origin, back), renderDevice, color, scale);
+    lineSegment(LineSegment::fromTwoPoints(ray.origin(), back), renderDevice, color, scale);
 }
 
 

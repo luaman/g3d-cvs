@@ -268,12 +268,12 @@ Sphere CoordinateFrame::toObjectSpace(const Sphere &b) const {
 
 
 Ray CoordinateFrame::toWorldSpace(const Ray& r) const {
-    return Ray::fromOriginAndDirection(pointToWorldSpace(r.origin), vectorToWorldSpace(r.direction));
+    return Ray::fromOriginAndDirection(pointToWorldSpace(r.origin()), vectorToWorldSpace(r.direction()));
 }
 
 
 Ray CoordinateFrame::toObjectSpace(const Ray& r) const {
-    return Ray::fromOriginAndDirection(pointToObjectSpace(r.origin), vectorToObjectSpace(r.direction));
+    return Ray::fromOriginAndDirection(pointToObjectSpace(r.origin()), vectorToObjectSpace(r.direction()));
 }
 
 

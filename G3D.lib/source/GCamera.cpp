@@ -93,8 +93,7 @@ Ray GCamera::worldRay(float x, float y, const Rect2D& viewport) const {
     int screenWidth  = iFloor(viewport.width());
     int screenHeight = iFloor(viewport.height());
 
-    Ray out;
-    out.origin = m_cframe.translation;
+    Vector3 origin = m_cframe.translation;
 
     float cx = screenWidth  / 2.0f;
     float cy = screenHeight / 2.0f;
@@ -102,16 +101,16 @@ Ray GCamera::worldRay(float x, float y, const Rect2D& viewport) const {
     float vw = viewportWidth(viewport);
     float vh = viewportHeight(viewport);
 
-    out.direction = Vector3( (x - cx) * vw / screenWidth,
+	Vector3 direction = Vector3( (x - cx) * vw / screenWidth,
                             -(y - cy) * vh / screenHeight,
                              m_nearPlaneZ);
 
-    out.direction = m_cframe.vectorToWorldSpace(out.direction);
+    direction = m_cframe.vectorToWorldSpace(direction);
 
     // Normalize the direction (we didn't do it before)
-    out.direction = out.direction.direction();
+    direction = direction.direction();
 
-    return out;
+	return Ray::fromOriginAndDirection(origin, direction);
 }
 
 /** 
@@ -187,10 +186,11 @@ Vector3 GCamera::unproject(const Vector3& v, const Rect2D& viewport) const {
     const Ray& ray = worldRay(v.x, v.y, viewport);
 
     // Find out where the ray reaches the specified depth.
-    const Vector3& out = ray.origin + ray.direction * -z / (ray.direction.dot(m_cframe.lookVector()));
+    const Vector3& out = ray.origin() + ray.direction() * -z / (ray.direction().dot(m_cframe.lookVector()));
 
     return out;
 }
+
 
 float GCamera::worldToScreenSpaceArea(float area, float z, const Rect2D& viewport) const {
     (void)viewport;

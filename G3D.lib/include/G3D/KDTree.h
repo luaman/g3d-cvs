@@ -591,10 +591,10 @@ protected:
             bool alreadyInsideBounds = false;
             bool rayWillHitBounds = 
                 CollisionDetection::collisionLocationForMovingPointFixedAABox(
-                    ray.origin, ray.direction, splitBounds, location, alreadyInsideBounds);
+                    ray.origin(), ray.direction(), splitBounds, location, alreadyInsideBounds);
            
             bool canHitThisNode = (alreadyInsideBounds ||                
-                (rayWillHitBounds && ((location - ray.origin).squaredLength() < square(distance))));
+                (rayWillHitBounds && ((location - ray.origin()).squaredLength() < square(distance))));
 
             return canHitThisNode;
         }
@@ -622,10 +622,10 @@ protected:
                     bool alreadyInsideBounds = false;
                     bool rayWillHitBounds = 
                         CollisionDetection::collisionLocationForMovingPointFixedAABox(
-                            ray.origin, ray.direction, bounds, location, alreadyInsideBounds);
+                            ray.origin(), ray.direction(), bounds, location, alreadyInsideBounds);
 
                     canHitThisObject = (alreadyInsideBounds ||                
-                        (rayWillHitBounds && ((location - ray.origin).squaredLength() < square(distance))));
+                        (rayWillHitBounds && ((location - ray.origin()).squaredLength() < square(distance))));
                 }
 
                 if (canHitThisObject) {
@@ -646,30 +646,30 @@ protected:
             int firstChild = NONE;
             int secondChild = NONE;
 
-            if (ray.origin[splitAxis] < splitLocation) {
+            if (ray.origin()[splitAxis] < splitLocation) {
                 
                 // The ray starts on the small side
                 firstChild = 0;
 
-                if (ray.direction[splitAxis] > 0) {
+                if (ray.direction()[splitAxis] > 0) {
                     // The ray will eventually reach the other side
                     secondChild = 1;
                 }
 
-            } else if (ray.origin[splitAxis] > splitLocation) {
+            } else if (ray.origin()[splitAxis] > splitLocation) {
 
                 // The ray starts on the large side
                 firstChild = 1;
 
-                if (ray.direction[splitAxis] < 0) {
+                if (ray.direction()[splitAxis] < 0) {
                     secondChild = 0;
                 }
             } else {
                 // The ray starts on the splitting plane
-                if (ray.direction[splitAxis] < 0) {
+                if (ray.direction()[splitAxis] < 0) {
                     // ...and goes to the small side
                     firstChild = 0;
-                } else if (ray.direction[splitAxis] > 0) {
+                } else if (ray.direction()[splitAxis] > 0) {
                     // ...and goes to the large side
                     firstChild = 1;
                 }
@@ -680,10 +680,10 @@ protected:
                 child[firstChild]->intersectRay(ray, intersectCallback, distance, intersectCallbackIsFast);
             }
 
-            if (ray.direction[splitAxis] != 0) {
+            if (ray.direction()[splitAxis] != 0) {
                 // See if there was an intersection before hitting the splitting plane.  
                 // If so, there is no need to look on the far side and recursion terminates.
-                float distanceToSplittingPlane = (splitLocation - ray.origin[splitAxis]) / ray.direction[splitAxis];
+                float distanceToSplittingPlane = (splitLocation - ray.origin()[splitAxis]) / ray.direction()[splitAxis];
                 if (distanceToSplittingPlane > distance) {
                     // We aren't going to hit anything else before hitting the splitting plane,
                     // so don't bother looking on the far side of the splitting plane at the other

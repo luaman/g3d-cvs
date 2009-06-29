@@ -894,11 +894,11 @@ bool __fastcall CollisionDetection::rayAABox(
     Vector3&                location,
     bool&                   inside) {
 
-    debugAssertM(fabs(ray.direction.squaredLength() - 1.0f) < 0.01f, format("Length = %f", ray.direction.length()));
+    debugAssertM(fabs(ray.direction().squaredLength() - 1.0f) < 0.01f, format("Length = %f", ray.direction().length()));
     {
         // Pre-emptive partial bounding sphere test
-        const Vector3 L(boxCenter - ray.origin);
-        float d = L.dot(ray.direction);
+        const Vector3 L(boxCenter - ray.origin());
+        float d = L.dot(ray.direction());
 
         float L2 = L.dot(L);
         float D2 = square(d);
@@ -920,28 +920,28 @@ bool __fastcall CollisionDetection::rayAABox(
 
     // Find candidate planes.
     for (int i = 0; i < 3; ++i) {
-        if (ray.origin[i] < MinB[i]) {
+        if (ray.origin()[i] < MinB[i]) {
             location[i]	= MinB[i];
             inside      = false;
             
             // Calculate T distances to candidate planes
-            if (ray.direction[i] != 0) {
-                MaxT[i] = (MinB[i] - ray.origin[i]) * invDir[i];
+            if (ray.direction()[i] != 0) {
+                MaxT[i] = (MinB[i] - ray.origin()[i]) * invDir[i];
             }
-        } else if (ray.origin[i] > MaxB[i]) {
+        } else if (ray.origin()[i] > MaxB[i]) {
             location[i]	= MaxB[i];
             inside      = false;
 
             // Calculate T distances to candidate planes
-            if (ray.direction[i] != 0) {
-                MaxT[i] = (MaxB[i] - ray.origin[i]) * invDir[i];
+            if (ray.direction()[i] != 0) {
+                MaxT[i] = (MaxB[i] - ray.origin()[i]) * invDir[i];
             }
         }
     }
 
     if (inside) {
     	// Ray origin inside bounding box
-        location = ray.origin;
+        location = ray.origin();
         return true;
     }
     
@@ -963,7 +963,7 @@ bool __fastcall CollisionDetection::rayAABox(
 
     for (int i = 0; i < 3; ++i) {
         if (i != WhichPlane) {
-            location[i] = ray.origin[i] + MaxT[WhichPlane] * ray.direction[i];
+            location[i] = ray.origin()[i] + MaxT[WhichPlane] * ray.direction()[i];
             if ((location[i] < MinB[i]) ||
                 (location[i] > MaxB[i])) {
                 // On this plane we're outside the box extents, so
@@ -1520,15 +1520,15 @@ static bool findRayCapsuleIntersection(
 	Vector3				akPoint[2]) {
 
     double afT[2];
-    riQuantity = findRayCapsuleIntersectionAux(rkRay.origin, rkRay.direction, rkCapsule, afT);
+    riQuantity = findRayCapsuleIntersectionAux(rkRay.origin(), rkRay.direction(), rkCapsule, afT);
 
     // Only return intersections that occur in the future
     int iClipQuantity = 0;
 	int i;
-    for (i = 0; i < riQuantity; i++) {
+    for (i = 0; i < riQuantity; ++i) {
         if (afT[i] >= 0.0f) {
-            akPoint[iClipQuantity] = rkRay.origin + afT[i] * rkRay.direction;
-            iClipQuantity++;
+            akPoint[iClipQuantity] = rkRay.origin() + afT[i] * rkRay.direction();
+            ++iClipQuantity;
         }
     }
 

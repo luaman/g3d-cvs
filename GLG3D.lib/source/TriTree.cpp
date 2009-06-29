@@ -397,11 +397,11 @@ void TriTree::Node::intersectRay
     
     // Test on the side farther from the ray origin.
     if (secondChild != NONE) {
-        if (ray.direction[axis] != 0.0f) {
+        if (ray.direction()[axis] != 0.0f) {
             // See if there was an intersection before hitting the splitting plane.  
             // If so, there is no need to look on the far side and recursion terminates.
             const float distanceToSplittingPlane =
-                (splitLocation - ray.origin[axis]) * invRayDirection[axis];
+                (splitLocation - ray.origin()[axis]) * invRayDirection[axis];
             if (distanceToSplittingPlane > distance) {
                 // We aren't going to hit anything else before hitting the splitting plane,
                 // so don't bother looking on the far side of the splitting plane at the other
@@ -594,7 +594,7 @@ bool TriTree::intersectRay
     
     const float initialDistance = distance;
     if (m_root != NULL) {
-        const Vector3& invRayDirection = Vector3(1.0f, 1.0f, 1.0f) / ray.direction;
+        const Vector3& invRayDirection = Vector3(1.0f, 1.0f, 1.0f) / ray.direction();
         m_root->intersectRay(ray, invRayDirection, intersectCallback, distance);
     }
     return distance < initialDistance;

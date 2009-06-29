@@ -278,7 +278,7 @@ private:
                                              m_sphereBoundsRadiusSquared, location, alreadyInsideBounds);
            
             return (alreadyInsideBounds ||                
-                    (rayWillHitBounds && ((location - ray.origin).squaredLength() < square(distance))));
+                    (rayWillHitBounds && ((location - ray.origin()).squaredLength() < square(distance))));
         }
 
         void draw(RenderDevice* rd, const Color4& color) const;
@@ -398,8 +398,8 @@ private:
         */
         inline void __fastcall computeTraversalOrder(const Ray& ray, int& firstChild, int& secondChild) const {
             const Vector3::Axis axis = splitAxis();
-            const float origin = ray.origin[axis];
-            const float direction = ray.direction[axis];
+            const float origin = ray.origin()[axis];
+            const float direction = ray.direction()[axis];
 
             if (origin < splitLocation) {
         

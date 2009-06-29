@@ -141,7 +141,7 @@ bool Triangle::intersect(const Ray& ray, float& distance, float baryCoord[3]) co
 
     const Vector3& e1 = edge01();
     const Vector3& e2 = edge02();
-    const Vector3 p(ray.direction.cross(e2));
+    const Vector3 p(ray.direction().cross(e2));
     const float a = e1.dot(p);
 
     if (abs(a) < EPS) {
@@ -150,7 +150,7 @@ bool Triangle::intersect(const Ray& ray, float& distance, float baryCoord[3]) co
     }
 
     const float f = 1.0f / a;
-    const Vector3 s(ray.origin - vertex(0));
+    const Vector3 s(ray.origin() - vertex(0));
     const float u = f * s.dot(p);
 
     if ((u < 0.0f) || (u > 1.0f)) {
@@ -159,7 +159,7 @@ bool Triangle::intersect(const Ray& ray, float& distance, float baryCoord[3]) co
     }
 
     const Vector3 q(s.cross(e1));
-    const float v = f * ray.direction.dot(q);
+    const float v = f * ray.direction().dot(q);
 
     if ((v < 0.0f) || ((u + v) > 1.0f)) {
         // We hit the plane of the triangle, but outside the triangle

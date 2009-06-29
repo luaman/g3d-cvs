@@ -97,7 +97,7 @@ void Tri::Intersector::operator()(const Ray& ray, const Tri& tri, float& distanc
     static const float EPS = 1e-12f;
 
     // Test for backfaces first because this eliminates 50% of all triangles.
-    if (tri.n.dot(ray.direction) >= -EPS) {
+    if (tri.n.dot(ray.direction()) >= -EPS) {
         // Backface or nearly parallel
         return;
     }
@@ -106,12 +106,12 @@ void Tri::Intersector::operator()(const Ray& ray, const Tri& tri, float& distanc
     const Vector3& e1 = tri.e1;
     const Vector3& e2 = tri.e2;
 
-    const Vector3& p = ray.direction.cross(e2);
+    const Vector3& p = ray.direction().cross(e2);
     const float a = e1.dot(p);
 
     debugAssert(a >= -1e-7);
 
-    const Vector3& s = ray.origin - v0;
+    const Vector3& s = ray.origin() - v0;
     const float ua = s.dot(p);
 
     // Note: (ua > a) == (u > 1). Delaying the division by a until
@@ -122,7 +122,7 @@ void Tri::Intersector::operator()(const Ray& ray, const Tri& tri, float& distanc
     }
 
     const Vector3& q = s.cross(e1);
-    const float va = ray.direction.dot(q);
+    const float va = ray.direction().dot(q);
 
     if ((va < 0.0f) || ((ua + va) > a)) {
         // We hit the plane of the triangle, but outside the triangle.

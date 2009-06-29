@@ -21,14 +21,14 @@ Ray::Ray(class BinaryInput& b) {
 
 
 void Ray::serialize(class BinaryOutput& b) const {
-	origin.serialize(b);
-	direction.serialize(b);
+	m_origin.serialize(b);
+	m_direction.serialize(b);
 }
 
 
 void Ray::deserialize(class BinaryInput& b) {
-	origin.deserialize(b);
-	direction.deserialize(b);
+	m_origin.deserialize(b);
+	m_direction.deserialize(b);
 }
 
 
@@ -38,9 +38,9 @@ Ray Ray::refract(
     float           iInside,
     float           iOutside) const {
 
-    Vector3 D = direction.refractionDirection(normal, iInside, iOutside);
+    Vector3 D = m_direction.refractionDirection(normal, iInside, iOutside);
     return Ray::fromOriginAndDirection(
-        newOrigin + (direction + normal * (float)sign(direction.dot(normal))) * 0.001f, D);
+        newOrigin + (m_direction + normal * (float)sign(m_direction.dot(normal))) * 0.001f, D);
 }
 
 
@@ -48,7 +48,7 @@ Ray Ray::reflect(
     const Vector3&  newOrigin,
     const Vector3&  normal) const {
 
-    Vector3 D = direction.reflectionDirection(normal);
+    Vector3 D = m_direction.reflectionDirection(normal);
     return Ray::fromOriginAndDirection(newOrigin + (D + normal) * 0.001f, D);
 }
 
@@ -57,14 +57,14 @@ Vector3 Ray::intersection(const Plane& plane) const {
     float d;
     Vector3 normal = plane.normal();
     plane.getEquation(normal, d);
-    float rate = direction.dot(normal);
+    float rate = m_direction.dot(normal);
 
     if (rate >= 0.0f) {
         return Vector3::inf();
     } else {
-        float t = -(d + origin.dot(normal)) / rate;
+        float t = -(d + m_origin.dot(normal)) / rate;
 
-        return origin + direction * t;
+        return m_origin + m_direction * t;
     }
 }
 
@@ -72,23 +72,23 @@ Vector3 Ray::intersection(const Plane& plane) const {
 float Ray::intersectionTime(const class Sphere& sphere, bool solid) const {
     Vector3 dummy;
     return CollisionDetection::collisionTimeForMovingPointFixedSphere(
-            origin, direction, sphere, dummy, dummy, solid);
+            m_origin, m_direction, sphere, dummy, dummy, solid);
 }
 
 
 float Ray::intersectionTime(const class Plane& plane) const {
     Vector3 dummy;
     return CollisionDetection::collisionTimeForMovingPointFixedPlane(
-            origin, direction, plane, dummy);
+            m_origin, m_direction, plane, dummy);
 }
 
 
 float Ray::intersectionTime(const class Box& box) const {
     Vector3 dummy;
     float time = CollisionDetection::collisionTimeForMovingPointFixedBox(
-            origin, direction, box, dummy);
+            m_origin, m_direction, box, dummy);
 
-    if ((time == finf()) && (box.contains(origin))) {
+    if ((time == finf()) && (box.contains(m_origin))) {
         return 0.0f;
     } else {
         return time;
@@ -100,7 +100,7 @@ float Ray::intersectionTime(const class AABox& box) const {
     Vector3 dummy;
     bool inside;
     float time = CollisionDetection::collisionTimeForMovingPointFixedAABox(
-            origin, direction, box, dummy, inside);
+            m_origin, m_direction, box, dummy, inside);
 
     if ((time == finf()) && inside) {
         return 0.0f;

@@ -100,7 +100,7 @@ Color3 App::trace1(const Ray& ray, World* world, const Color3& extinction_i, int
                 // Attenduated radiance
                 const Color3& radiance_L = light.color / distance2;
 
-                radiance += bsdf->shadeDirect(hit.normal, hit.texCoord, w_L, radiance_L, -ray.direction).rgb();
+                radiance += bsdf->shadeDirect(hit.normal, hit.texCoord, w_L, radiance_L, -ray.direction()).rgb();
             }
         }
 
@@ -115,7 +115,7 @@ Color3 App::trace1(const Ray& ray, World* world, const Color3& extinction_i, int
                     Color3 P_o;
                     float eta_o;
                     Color3 extinction_o;
-                    if (bsdf->scatter(hit.normal, hit.texCoord, -ray.direction, Color3::white(), w_o, P_o, eta_o, extinction_o, rnd)) {
+                    if (bsdf->scatter(hit.normal, hit.texCoord, -ray.direction(), Color3::white(), w_o, P_o, eta_o, extinction_o, rnd)) {
                         radiance += trace1(Ray::fromOriginAndDirection(hit.position - w_o * 0.0001f, w_o), world, extinction_o, maxBounces - 1) * P_o / numSamples;
                     }
                 }
@@ -128,12 +128,12 @@ Color3 App::trace1(const Ray& ray, World* world, const Color3& extinction_i, int
 
             if (maxBounces > 0) {
                 Array<UberBSDF::Impulse> impulseArray;
-                bsdf->getImpulses(hit.normal, hit.texCoord, -ray.direction, impulseArray);
+                bsdf->getImpulses(hit.normal, hit.texCoord, -ray.direction(), impulseArray);
                 
                 for (int i = 0; i < impulseArray.size(); ++i) {
                     const UberBSDF::Impulse& impulse = impulseArray[i];
                     Ray secondaryRay = Ray::fromOriginAndDirection(hit.position, impulse.w);
-                    secondaryRay.origin += secondaryRay.direction * 0.001f;
+					secondaryRay.bump(0.001f);
                     radiance += trace1(secondaryRay, world, impulse.extinction, maxBounces - 1) * impulse.coefficient;
                 }
             }

@@ -115,6 +115,7 @@ TODO: make bias a property of the shadow map
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::Ray::origin and G3D::Ray::direction are now methods instead of members
      <li> G3D::VARArea -> G3D::VertexBuffer, G3D::VAR -> G3D::VertexRange
      <li> G3D::Texture::getCameraRotation -> G3D::Texture::getCubeMapRotation
      <li> G3D::PosedModel -> G3D::Surface, G3D::PosedModel2D -> G3D::Surface2D

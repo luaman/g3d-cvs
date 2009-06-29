@@ -220,13 +220,12 @@ void testCollisionDetection() {
         double t = ray.intersectionTime(v0, v1, v2);
         debugAssert(t == 1.0);
 
-        ray.origin.y = -ray.origin.y;
+		ray = Ray::fromOriginAndDirection(ray.origin() * Vector3(1,-1,1), ray.direction());
         t = ray.intersectionTime(v0, v1, v2);
         debugAssert(t == inf());
 
         // One-sided test
-        ray.direction.y = -ray.direction.y;
-        ray.origin.y = -ray.origin.y;
+		ray = Ray::fromOriginAndDirection(ray.origin() * Vector3(1,-1,1), ray.direction() * Vector3(1,-1,1));
         t = ray.intersectionTime(v0, v1, v2);
         debugAssert(t == inf());
 

@@ -423,12 +423,12 @@ public:
 
     /** Set to origin of ray. */
     virtual Vector3 center() const {
-        return geometry.origin;
+        return geometry.origin();
     }
 
     /** Bounds the graphic representation of the ray */
     virtual Sphere boundingSphere() const {
-        return Sphere(geometry.origin + geometry.direction / 2, geometry.direction.magnitude() / 2);
+        return Sphere(geometry.origin() + geometry.direction() / 2, geometry.direction().magnitude() / 2);
     }
 
     /** Bounds the graphic representation of the ray */
@@ -446,7 +446,7 @@ public:
 
     /** Returns a random point along the ray */
     virtual Vector3 randomInteriorPoint() const {
-        return geometry.origin + geometry.direction * uniformRandom(0, 1);
+        return geometry.origin() + geometry.direction() * uniformRandom(0, 1);
     }
 
 };

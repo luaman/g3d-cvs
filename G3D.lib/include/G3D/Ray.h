@@ -6,11 +6,11 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2002-07-12
- @edited  2006-02-21
+ @edited  2009-06-29
  */
 
-#ifndef G3D_RAY_H
-#define G3D_RAY_H
+#ifndef G3D_Ray_h
+#define G3D_Ray_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
@@ -23,45 +23,68 @@ namespace G3D {
  */
 class Ray {
 private:
-    Ray(const Vector3& origin, const Vector3& direction) {
-        this->origin    = origin;
-        this->direction = direction;
+
+	Vector3			m_origin;
+
+	/** Unit length */
+	Vector3			m_direction;
+
+	inline Ray(const Vector3& origin, const Vector3& direction) : m_origin(origin), m_direction(direction) {
     }
 
 public:
-    Vector3         origin;
 
-    /**
-     Not unit length
-     */
-    Vector3         direction;
+	inline const Vector3& origin() const {
+		return m_origin;
+	}
 
-    Ray() : origin(Vector3::zero()), direction(Vector3::zero()) {}
+	/** Unit length */
+	inline const Vector3& direction() const {
+		return m_direction;
+	}
+
+	inline Ray() : m_origin(Vector3::zero()), m_direction(Vector3::unitX()) {}
 
 	Ray(class BinaryInput& b);
+
 	void serialize(class BinaryOutput& b) const;
 	void deserialize(class BinaryInput& b);
 
     /**
-     Creates a Ray from a origin and a (nonzero) direction.
+     Creates a Ray from a origin and a (nonzero) unit direction.
      */
     static Ray fromOriginAndDirection(const Vector3& point, const Vector3& direction) {
+		debugAssert(direction.isUnit());
         return Ray(point, direction);
     }
 
-    Ray unit() const {
-        return Ray(origin, direction.unit());
-    }
+	/** Advances the origin along the direction by @a distance */
+	inline void bump(float distance) {
+		m_origin += m_direction * distance;
+	}
+
+	inline Ray bumpedBy(float distance) const {
+		return Ray(m_origin + m_direction * distance, m_direction);
+	}
+
+	/** Advances the origin along the @a bumpDirection by @a distance */
+	inline void bump(float distance, const Vector3& bumpDirection) {
+		m_origin += bumpDirection * distance;
+	}
+
+	inline Ray bumpedBy(float distance, const Vector3& bumpDirection) {
+		return Ray(m_origin + bumpDirection * distance, m_direction);
+	}
 
     /**
      Returns the closest point on the Ray to point.
      */
     Vector3 closestPoint(const Vector3& point) const {
-        float t = direction.dot(point - this->origin);
+        float t = m_direction.dot(point - m_origin);
         if (t < 0) {
-            return this->origin;
+            return m_origin;
         } else {
-            return this->origin + direction * t;
+            return m_origin + m_direction * t;
         }
     }
 
@@ -211,7 +234,7 @@ inline float Ray::intersectionTime(
     float tvec[3], pvec[3], qvec[3];
     
     // begin calculating determinant - also used to calculate U parameter
-    CROSS(pvec, direction, edge2);
+    CROSS(pvec, m_direction, edge2);
     
     // if determinant is near zero, ray lies in plane of triangle
     const float det = DOT(edge1, pvec);
@@ -221,7 +244,7 @@ inline float Ray::intersectionTime(
     }
     
     // calculate distance from vert0 to ray origin
-    SUB(tvec, origin, vert0);
+    SUB(tvec, m_origin, vert0);
     
     // calculate U parameter and test bounds
     u = DOT(tvec, pvec);
@@ -234,7 +257,7 @@ inline float Ray::intersectionTime(
     CROSS(qvec, tvec, edge1);
     
     // calculate V parameter and test bounds
-    v = DOT(direction, qvec);
+    v = DOT(m_direction, qvec);
     if ((v < 0.0f) || (u + v > det)) {
         // Hit the plane outside the triangle
         return finf();
@@ -273,7 +296,7 @@ inline float Ray::intersectionTime(
     float tvec[3], pvec[3], qvec[3];
 
     // begin calculating determinant - also used to calculate U parameter
-    CROSS(pvec, direction, edge2);
+    CROSS(pvec, m_direction, edge2);
     
     // if determinant is near zero, ray lies in plane of triangle
     const float det = DOT(edge1, pvec);
@@ -283,7 +306,7 @@ inline float Ray::intersectionTime(
     }
     
     // calculate distance from vert0 to ray origin
-    SUB(tvec, origin, vert0);
+    SUB(tvec, m_origin, vert0);
     
     // calculate U parameter and test bounds
     u = DOT(tvec, pvec);
@@ -296,7 +319,7 @@ inline float Ray::intersectionTime(
     CROSS(qvec, tvec, edge1);
     
     // calculate V parameter and test bounds
-    v = DOT(direction, qvec);
+    v = DOT(m_direction, qvec);
     if ((v < 0.0f) || (u + v > det)) {
         // Hit the plane outside the triangle
         return finf();
