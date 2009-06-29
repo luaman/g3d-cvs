@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2009-06-10
-  @edited  2009-06-20
+  @edited  2009-06-29
 */
 #ifndef G3D_TriTree_h
 #define G3D_TriTree_h
@@ -153,6 +153,16 @@ private:
             m_vertex.append(v);
             m_low  = m_low.min(v);
             m_high = m_high.max(v);
+        }
+
+		/** Called from split
+			Due to floating point roundoff, redundant vertices and 
+			sliver triangles some times get generated; avoid that.
+		*/
+        inline void addIfNewVertex(const Vector3& v) {
+			if ((m_vertex.size() == 0) || (m_vertex.last() != v)) {
+				addVertex(v);
+			}
         }
 
         /** Called from split to recompute m_area */

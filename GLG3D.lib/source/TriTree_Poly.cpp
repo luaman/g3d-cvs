@@ -40,6 +40,12 @@ void TriTree::Poly::draw(RenderDevice* rd) const {
 }
 
 
+inline static void addVertex(SmallArray<Vector3, 4>& array, const Vector3& v) {
+	if ((array.size() == 0) || (array.last() != v)) {
+		array.append(v);
+	}
+}
+
 void TriTree::Poly::split
 (Vector3::Axis axis,
  float         offset,
@@ -79,24 +85,25 @@ void TriTree::Poly::split
             const Vector3& v0 = m_vertex[i0];
 
             if (inLow) {
-                L.addVertex(v0);
+                L.addIfNewVertex(v0);
             } else {
-                H.addVertex(v0);
+                H.addIfNewVertex(v0);
             }
 
-            int i1 = (i0 + 1) % m_vertex.size();
+            const int i1 = (i0 + 1) % m_vertex.size();
             const Vector3& v1 = m_vertex[i1]; 
             bool nextInLow = v1[axis] < offset;
+
             if (inLow != nextInLow) {
                 // Crossing over the splitting plane
                 if (v0[axis] == offset) {
                     // Exactly on the splitting plane and coming
                     // from the high side.
-                    L.addVertex(v0);
+                    L.addIfNewVertex(v0);
                 } else if (v1[axis] == offset) {
                     // Exactly on the splitting plane and coming
                     // from the low side.
-                    L.addVertex(v1);
+                    L.addIfNewVertex(v1);
                 } else {
                     // Find intersection
                     const Vector3& delta = v1 - v0;
@@ -106,8 +113,8 @@ void TriTree::Poly::split
                     const Vector3& v = v0 + (v1 - v0) * alpha;
                     
                     // Add this point to both
-                    L.addVertex(v);
-                    H.addVertex(v);
+                    L.addIfNewVertex(v);
+					H.addIfNewVertex(v);
                 }
 
                 inLow = nextInLow;
@@ -118,8 +125,16 @@ void TriTree::Poly::split
         L.computeArea();
         H.computeArea();
         
-        debugAssert(L.m_vertex.size() >= 3);
-        debugAssert(H.m_vertex.size() >= 3);
+		// Remove slivers and degenerates
+		if (L.area() <= 0.0f) {
+			lowArray.popDiscard();
+			// debugPrintf("Warning: TriTree generated and removed zero area poly (low)\n");
+		}
+
+		if (H.area() <= 0.0f) {
+			highArray.popDiscard();
+			// debugPrintf("Warning: TriTree generated and removed zero area poly (high)\n");
+		}
     }
 }
 

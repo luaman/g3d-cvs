@@ -97,7 +97,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
         // multipled at every split.
         const float maxArea = bounds.box().area() * settings.maxAreaFraction;
         for (int j = 0; j < original.size(); ++j) {
-            original[j].split(axis, splitLocation, maxArea, lowArray, highArray, spanArray);
+		    original[j].split(axis, splitLocation, maxArea, lowArray, highArray, spanArray);
         }
         
         if (badSplit(original.size(), lowArray.size(), highArray.size())) {

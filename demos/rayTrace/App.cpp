@@ -42,7 +42,9 @@ void App::onInit() {
     camera.lookAt(Vector3::zero());
     debugPrintf("Tracing...\n");
     
+	Stopwatch timer;
     Image3::Ref im = raytrace(camera, m_world, window()->width(), window()->height());
+	timer.after("Trace");
     im->save("result.png");
     
     m_result = Texture::fromMemory("Result", im->getCArray(), ImageFormat::RGB32F(), im->width(), im->height(), 1, 
