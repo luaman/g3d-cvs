@@ -598,13 +598,12 @@ public:
     }
 
     /**
-     Unlike other methods, does not support an output normal.
      If the ray origin is inside the box, returns inf() but inside
      is set to true.
      <B>Beta API</B>
 
      @cite Andrew Woo, from "Graphics Gems", Academic Press, 1990
-  	 @cite Optimized code by Pierre Terdiman, 2000 (~20-30% faster on my Celeron 500)
+  	 @cite Optimized code by Pierre Terdiman, 2000 (~20-30% faster on Celeron 500)
      @cite Epsilon value added by Klaus Hartmann
      @cite http://www.codercorner.com/RayAABB.cpp
      */
