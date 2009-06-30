@@ -102,7 +102,7 @@ public:
         inline Settings() : 
             algorithm(MEAN_EXTENT), 
             maxAreaFraction(1.0f / 11.0f), 
-            valuesPerLeaf(8),
+            valuesPerLeaf(4),
             accurateSAHCountThreshold(125) {}
     };
 

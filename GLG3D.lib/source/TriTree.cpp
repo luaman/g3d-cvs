@@ -20,10 +20,13 @@ const char* TriTree::algorithmName(SplitAlgorithm s) {
 }
 
 
-/** Returns true if \a ray hits \a box before maxTime*/
+/** Returns true if \a ray hits \a box.
+
+   \param maxTime The routine <i>may</i> return false if an intersection exists but lies after maxTime*/
 inline static bool __fastcall intersect(const Ray& ray, const AABox& box, float maxTime) {
-//    float t;
-//    return Intersect::rayAABox(ray, box, t) && (t < maxTime); 
+    //  Enabling the more exact test actually hurts performance on test scenes
+    //    float t;
+    //    return Intersect::rayAABox(ray, box, t) && (t < maxTime);
     return Intersect::rayAABox(ray, box); 
 }
     
@@ -66,7 +69,6 @@ bool TriTree::Node::badSplit(int numOriginalSources, int numLow, int numHigh) {
 
 
 void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const MemoryManager::Ref& mm) {
-
     // Order in which we'd like to split along axes
     Vector3::Axis preferredAxis[3];
     const Vector3& extent = bounds.extent();
@@ -347,7 +349,7 @@ float TriTree::Node::SAHCost(Vector3::Axis axis, float offset, const Array<Poly>
 }
 
 
-void TriTree::Node::intersectRay
+void __fastcall TriTree::Node::intersectRay
 (const Ray&          ray,
  Tri::Intersector&   intersectCallback, 
  float&              distance) const {
@@ -379,8 +381,7 @@ void TriTree::Node::intersectRay
     // intersection, just run the ray-triangle intersection.
     if (valueArray &&
         (valueArray->size > 0) && 
-        ((valueArray->size <= 2) ||
-        intersect(ray, valueArray->bounds, distance))) {
+        intersect(ray, valueArray->bounds, distance)) {
 
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) {        
@@ -394,9 +395,11 @@ void TriTree::Node::intersectRay
     
     // Test on the side farther from the ray origin.
     if (secondChild != NONE) {
+        
         if (ray.direction()[axis] != 0.0f) {
             // See if there was an intersection before hitting the splitting plane.  
-            // If so, there is no need to look on the far side and recursion terminates.
+            // If so, there is no need to look on the far side and recursion terminates. 
+            // This test makes about a factor of two improvement in performance.
             const float distanceToSplittingPlane =
                 (splitLocation - ray.origin()[axis]) * ray.invDirection()[axis];
             if (distanceToSplittingPlane > distance) {

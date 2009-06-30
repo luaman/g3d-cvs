@@ -9,8 +9,8 @@ G3D_START_AT_MAIN();
 
 int main(int argc, char** argv) {
     GApp::Settings settings;
-    settings.window.width       = 512; 
-    settings.window.height      = 256;
+    settings.window.width       = 640; 
+    settings.window.height      = 400;
 
 #   ifdef G3D_WIN32
         if (fileExists("data-files")) {
@@ -48,7 +48,7 @@ void App::onInit() {
     im->save("result.png");
     
     m_result = Texture::fromMemory("Result", im->getCArray(), ImageFormat::RGB32F(), im->width(), im->height(), 1, 
-                                   ImageFormat::RGB8(), Texture::DIM_2D, Texture::Settings::video());
+                                   ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::video());
 }
 
 
