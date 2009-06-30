@@ -16,7 +16,16 @@
 
 namespace G3D {
 
-bool Intersect::rayAABox(const Ray& ray, const AABox& box) {
+#ifdef _MSC_VER
+// Turn on fast floating-point optimizations
+#pragma float_control( push )
+#pragma fp_contract( on )
+#pragma fenv_access( off )
+#pragma float_control( except, off )
+#pragma float_control( precise, off )
+#endif
+
+bool __fastcall Intersect::rayAABox(const Ray& ray, const AABox& box) {
     switch (ray.classification) {
     case Ray::MMM:
 		
@@ -322,8 +331,7 @@ bool Intersect::rayAABox(const Ray& ray, const AABox& box) {
 }
 
 
-bool Intersect::rayAABox(const Ray& ray, const AABox& box, float& time) {
-//bool slopeint_mul(ray *r, aabox *b, float time){
+bool __fastcall Intersect::rayAABox(const Ray& ray, const AABox& box, float& time) {
 
 	switch (ray.classification) {
 	case Ray::MMM:
@@ -827,5 +835,10 @@ bool Intersect::rayAABox(const Ray& ray, const AABox& box, float& time) {
 
 	return false;
 }
+
+#ifdef _MSC_VER
+// Turn off fast floating-point optimizations
+#pragma float_control( pop )
+#endif
 
 }

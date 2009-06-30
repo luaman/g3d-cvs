@@ -19,6 +19,13 @@ const char* TriTree::algorithmName(SplitAlgorithm s) {
     return n[s];
 }
 
+
+/** Returns true if \a ray hits \a box before maxTime*/
+inline static bool __fastcall intersect(const Ray& ray, const AABox& box, float maxTime) {
+//    float t;
+//    return Intersect::rayAABox(ray, box, t) && (t < maxTime); 
+    return Intersect::rayAABox(ray, box); 
+}
     
 void TriTree::Node::setValueArray(const Array<Poly>& src, const MemoryManager::Ref& mm) {
     if (src.size() == 0) {
@@ -347,7 +354,7 @@ void TriTree::Node::intersectRay
     
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
-    if (! isLeaf() && ! Intersect::rayAABox(ray, bounds)) {
+    if (! isLeaf() && ! intersect(ray, bounds, distance)) {
         // The ray doesn't hit this node, so it can't hit the
         // children of the node either--stop searching.
         return;
@@ -373,8 +380,8 @@ void TriTree::Node::intersectRay
     if (valueArray &&
         (valueArray->size > 0) && 
         ((valueArray->size <= 2) ||
-        Intersect::rayAABox(ray, valueArray->bounds))) { // todo:distance
-        
+        intersect(ray, valueArray->bounds, distance))) {
+
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) {        
             intersectCallback(ray, *valueArray->data[v], distance);

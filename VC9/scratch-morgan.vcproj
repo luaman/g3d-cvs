@@ -174,31 +174,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="C:\Documents and Settings\eph\Desktop\rayslope\aabox.cpp"
-			>
-		</File>
-		<File
-			RelativePath="C:\Documents and Settings\eph\Desktop\rayslope\aabox.h"
-			>
-		</File>
-		<File
 			RelativePath="..\scratch-morgan\main.cpp"
-			>
-		</File>
-		<File
-			RelativePath="C:\Documents and Settings\eph\Desktop\rayslope\ray.cpp"
-			>
-		</File>
-		<File
-			RelativePath="C:\Documents and Settings\eph\Desktop\rayslope\ray.h"
-			>
-		</File>
-		<File
-			RelativePath="C:\Documents and Settings\eph\Desktop\rayslope\slopeint_mul.cpp"
-			>
-		</File>
-		<File
-			RelativePath="C:\Documents and Settings\eph\Desktop\rayslope\slopeint_mul.h"
 			>
 		</File>
 	</Files>
