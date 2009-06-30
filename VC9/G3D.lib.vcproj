@@ -349,6 +349,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Intersect.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\license.cpp"
 				>
 			</File>
@@ -740,6 +744,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\ImageFormat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Intersect.h"
 				>
 			</File>
 			<File

@@ -23,6 +23,7 @@ namespace G3D {
  */
 class Ray {
 private:
+    friend class Intersect;
 
 	Vector3			m_origin;
 

@@ -28,6 +28,7 @@ namespace G3D {
  */
 class AABox {
 private:
+    friend class Intersect;
 
     /** Optional argument placeholder */
     static int dummy;

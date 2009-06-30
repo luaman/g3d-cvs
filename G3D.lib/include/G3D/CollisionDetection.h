@@ -87,6 +87,8 @@ namespace G3D {
 
   <i>* Note: Moving collision detection against certain primitives is equivalent to static collision
    detection against a bigger primitive.  Ray, Line Segment == ``moving Point''; Capsule ==``moving Sphere''; Plane == ``moving Line''</i>
+
+   @deprecated Routines moving to the G3D::Intersect class in G3D 8.0
  */
 class CollisionDetection {
 private:

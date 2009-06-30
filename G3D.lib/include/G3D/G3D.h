@@ -78,6 +78,7 @@ template<class T> struct HashTrait< G3D::ReferenceCountedPointer<T> > {
 
 #include "G3D/GImage.h"
 #include "G3D/CollisionDetection.h"
+#include "G3D/Intersect.h"
 #include "G3D/Log.h"
 #include "G3D/serialize.h"
 #include "G3D/TextInput.h"

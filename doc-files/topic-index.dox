@@ -247,6 +247,7 @@ simulates photons moving around a scene).
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::TriTree <b>TriTree</b>\endlink</td><td>\copybrief G3D::TriTree</td></tr>
+<tr><td></td><td>\link G3D::Intersect <b>Intersect</b>\endlink</td><td>\copybrief G3D::Intersect</td></tr>
 <tr><td></td><td>\link G3D::CollisionDetection <b>CollisionDetection</b>\endlink</td><td>Moving and fixed collisions between many kinds of primitives</td></tr>
 <tr><td></td><td>\link G3D::Ray <b>Ray</b>\endlink,
 \link G3D::Sphere <b>Sphere</b>\endlink,
