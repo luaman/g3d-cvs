@@ -19,15 +19,6 @@ const char* TriTree::algorithmName(SplitAlgorithm s) {
     return n[s];
 }
 
-
-void TriTree::Bounds::draw(RenderDevice* rd, const Color4& color) const {
-    // Shrink boxes slightly to avoid z-fighting
-    static const Vector3 epsilon = Vector3::one() * 0.0001f;
-    const Vector3& A = m_box.low() + epsilon;
-    const Vector3& B = m_box.high() - epsilon;
-    Draw::box(AABox(A.min(B), B.max(A)), rd, color, Color3::black());
-}
-
     
 void TriTree::Node::setValueArray(const Array<Poly>& src, const MemoryManager::Ref& mm) {
     if (src.size() == 0) {
@@ -53,7 +44,7 @@ void TriTree::Node::setValueArray(const Array<Poly>& src, const MemoryManager::R
     }
     
     // Invoke the bounds constructor
-    valueArray->bounds = Bounds(AABox(lo, hi));
+    valueArray->bounds = AABox(lo, hi);
 }
 
         
@@ -71,7 +62,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
 
     // Order in which we'd like to split along axes
     Vector3::Axis preferredAxis[3];
-    const Vector3& extent = bounds.box().extent();
+    const Vector3& extent = bounds.extent();
     preferredAxis[0] = extent.primaryAxis();
     preferredAxis[1] = Vector3::Axis((preferredAxis[0] + 1) % 3);
     preferredAxis[2] = Vector3::Axis((preferredAxis[1] + 1) % 3);
@@ -95,7 +86,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
         // average) one face of the bounding box, just insert
         // the triangle because otherwise it is being
         // multipled at every split.
-        const float maxArea = bounds.box().area() * settings.maxAreaFraction;
+        const float maxArea = bounds.area() * settings.maxAreaFraction;
         for (int j = 0; j < original.size(); ++j) {
 		    original[j].split(axis, splitLocation, maxArea, lowArray, highArray, spanArray);
         }
@@ -147,7 +138,7 @@ void TriTree::Node::destroy(const MemoryManager::Ref& mm) {
 float TriTree::Node::chooseSplitLocation(Array<Poly>& source, const Settings& settings, Vector3::Axis axis) {
     switch (settings.algorithm) {
     case MEAN_EXTENT:
-        return bounds.box().center()[axis];
+        return bounds.center()[axis];
         
     case MEDIAN_AREA:
         return chooseMedianAreaSplitLocation(source, axis);
@@ -226,7 +217,7 @@ float TriTree::Node::chooseSAHSplitLocationFast(Array<Poly>& source, Vector3::Ax
     // Find the one-sided cost of each position by a sweep.
     const int S = splitPosition.size();
     Array<float> highCost(S);
-    const float containingArea = bounds.box().area();
+    const float containingArea = bounds.area();
 
     // Sweep from above for the high-side cost
     {
@@ -306,7 +297,7 @@ float TriTree::Node::chooseSAHSplitLocationAccurate(Array<Poly>& source, Vector3
     float lowestCost = inf();
     //debugPrintf("\nChoosing split:\n");
     for (int i = 0; i < position.size(); ++i) {
-        float cost = SAHCost(axis, position[i], source, bounds.box().area(), settings);
+        float cost = SAHCost(axis, position[i], source, bounds.area(), settings);
         //debugPrintf("  pos = %f, cost = %f\n", position[i], cost);
         if (cost < lowestCost) {
             lowestCost = cost;
@@ -356,7 +347,7 @@ void TriTree::Node::intersectRay
     
     // Don't bother paying the bounding box intersection at
     // leaves, since we have to pay it again below.
-    if (! isLeaf() && ! bounds.intersects(ray, distance)) {
+    if (! isLeaf() && ! Intersect::rayAABox(ray, bounds)) {
         // The ray doesn't hit this node, so it can't hit the
         // children of the node either--stop searching.
         return;
@@ -382,7 +373,7 @@ void TriTree::Node::intersectRay
     if (valueArray &&
         (valueArray->size > 0) && 
         ((valueArray->size <= 2) ||
-         valueArray->bounds.intersects(ray, distance))) {
+        Intersect::rayAABox(ray, valueArray->bounds))) { // todo:distance
         
         // Test for intersection against every object at this node.
         for (int v = 0; v < valueArray->size; ++v) {        
@@ -430,7 +421,16 @@ TriTree::Node::Node(Array<Poly>& originals, const Settings& settings, const Memo
     split(originals, settings, mm);
     
     debugAssert((valueArray == NULL) ||
-                bounds.box().contains(valueArray->bounds.box()));
+                bounds.contains(valueArray->bounds));
+}
+
+
+static void draw(RenderDevice* rd, const AABox& m_box, const Color4& color) {
+    // Shrink boxes slightly to avoid z-fighting
+    static const Vector3 epsilon = Vector3::one() * 0.0001f;
+    const Vector3& A = m_box.low() + epsilon;
+    const Vector3& B = m_box.high() - epsilon;
+    Draw::box(AABox(A.min(B), B.max(A)), rd, color, Color3::black());
 }
 
 
@@ -438,7 +438,7 @@ void TriTree::Node::draw(RenderDevice* rd, int level, bool showBoxes, int minNod
     if (valueArray && (valueArray->size > minNodeSize)) {
         static const Vector3 epsilon = Vector3::one() * 0.001f;
         // Grow clip-bounds slightly to show objects right on the edge
-        glClipToBox(AABox(bounds.box().low() - epsilon, bounds.box().high() + epsilon));
+        glClipToBox(AABox(bounds.low() - epsilon, bounds.high() + epsilon));
         
         rd->enableTwoSidedLighting();
         rd->setColor(chooseColor(this));
@@ -466,10 +466,10 @@ void TriTree::Node::draw(RenderDevice* rd, int level, bool showBoxes, int minNod
     // We need to show that there are further children at this terminal draw level
     if ((level == 0) && showBoxes) {
         if (valueArray == NULL) {
-            bounds.draw(rd, chooseColor(this));
+            G3D::draw(rd, bounds, chooseColor(this));
         } else if (! isLeaf()) {
             // Don't cover up the triangles inside
-            bounds.draw(rd, Color4(chooseColor(this), 0.5f));
+            G3D::draw(rd, bounds, Color4(chooseColor(this), 0.5f));
         }
     }
     
@@ -484,7 +484,7 @@ void TriTree::Node::draw(RenderDevice* rd, int level, bool showBoxes, int minNod
 
 void TriTree::Node::print(const std::string& indent) const {
     debugPrintf("%sbounds = [%s, %s]", indent.c_str(), 
-                bounds.box().low().toString().c_str(), bounds.box().high().toString().c_str());
+                bounds.low().toString().c_str(), bounds.high().toString().c_str());
     if (valueArray) {
         debugPrintf(" N = %d\n", valueArray->size);
     }

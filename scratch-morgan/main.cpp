@@ -5,6 +5,10 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
+#include "C:\Documents and Settings\eph\Desktop\rayslope\ray.h"
+#include "C:\Documents and Settings\eph\Desktop\rayslope\aabox.h"
+#include "C:\Documents and Settings\eph\Desktop\rayslope\slopeint_mul.h"
+
 #if defined(G3D_VER) && (G3D_VER < 80000)
 #   error Requires G3D 8.00
 #endif
@@ -374,15 +378,20 @@ void App::onNetwork() {
 }
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
+	(void)rdt;
+	(void)sdt;
+	(void)idt;
     // Add physical simulation here.  You can make your time advancement
     // based on any of the three arguments.
 }
 
 void App::onUserInput(UserInput* ui) {
+	(void)ui;
 
 }
 
 void App::onConsoleCommand(const std::string& str) {
+	(void)str;
 }
 
 void App::printConsoleHelp() {
@@ -393,6 +402,83 @@ G3D_START_AT_MAIN();
 
 
 int main(int argc, char** argv) {
+	(void)argc;
+	(void)argv;
+
+    {
+        Ray ray(Vector3(0,0.5,0), -Vector3::unitY());
+        AABox box(-Vector3::one(), Vector3::one());
+        float t;
+        bool b = Intersect::rayAABox(ray, box, t);
+        debugPrintf("%d %f", b, t);
+    }
+
+	static const int N = 1000000;
+	Array<Ray> r(N);
+	Array<ray> r2(N);
+	for (int i = 0; i < N; ++i) {
+		Vector3 start = Vector3::random() * 100;
+		Vector3 target = Vector3::random() * 2;
+		Vector3 dir = (target - start).direction();
+		r.append(Ray::fromOriginAndDirection(start, dir));
+		make_ray(start.x, start.y, start.z, dir.x, dir.y, dir.z, & r2.next());
+	} 
+
+	AABox box(Vector3::zero(), Vector3::one());
+	
+	aabox box2;	
+	make_aabox(0,0,0,1,1,1,&box2);
+	Vector3 hit;
+
+	// Verify correctness
+	if (true) {
+	for (int i = 0; i < N; ++i) {
+		const Ray& tray = r[i];
+		bool inside = false;
+		float t = CollisionDetection::collisionTimeForMovingPointFixedAABox(tray.origin(), tray.direction(), box, hit, inside);
+		if (inside) {
+			t = 0;
+		}
+
+		ray& tray2 = r2[i];
+		float t2 = inf();
+		bool h = slopeint_mul(&tray2, &box2, &t2);
+
+		if (h) {
+			alwaysAssertM(fuzzyEq(t2, t), 
+				format("Result does not match: %f != %f", t, t2));
+		} else {
+			alwaysAssertM(t == finf(), "Result does not match: hit/miss");
+		}
+	}
+	}
+
+	Stopwatch timer;
+	if (true) {
+		float t = 0;
+		for (int j = 0; j < 100; ++j) {
+			for (int i = 0; i < N; ++i) {
+				const Ray& tray = r[i];
+				t += CollisionDetection::collisionTimeForMovingPointFixedAABox(tray.origin(), tray.direction(), box, hit);
+			}
+		}
+		timer.after("collisionTimeForMovingPointFixedAABox");
+	}
+
+	if (false) {
+		float t = 0;
+		for (int j = 0; j < 100; ++j) {
+			for (int i = 0; i < N; ++i) {
+				ray& tray = r2[i];
+				float x = 0;
+				slopeint_mul(&tray, &box2, &x);
+				t += x;
+			}
+		}
+		timer.after("slope ray");
+	}
+
+	exit(0);
     
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);
     //BinaryOutput b("d:/morgan/test.txt", G3D_LITTLE_ENDIAN);

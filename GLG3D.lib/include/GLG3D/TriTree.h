@@ -17,6 +17,7 @@
 #include "G3D/MemoryManager.h"
 #include "G3D/Array.h"
 #include "G3D/SmallArray.h"
+#include "G3D/Intersect.h"
 #include "G3D/CollisionDetection.h"
 #include "GLG3D/Tri.h"
 #ifndef _MSC_VER
@@ -35,7 +36,7 @@ namespace G3D {
  elements can either be inserted at a spanning node or split and
  inserted into the child nodes.  The presence of a splitting plane
  allows early-out ray intersection like a kd-tree and the bounding
- boxes allow relatively tight tree pruing, like a bounding volume
+ boxes allow relatively tight tree pruning, like a bounding volume
  hierarchy.
 
  Various algorithms are implemented for choosing the splitting plane
@@ -101,7 +102,7 @@ public:
         inline Settings() : 
             algorithm(MEAN_EXTENT), 
             maxAreaFraction(1.0f / 11.0f), 
-            valuesPerLeaf(18),
+            valuesPerLeaf(8),
             accurateSAHCountThreshold(125) {}
     };
 
@@ -241,47 +242,6 @@ private:
         }
     };
 
-    /** AABox optimized for early-out ray test. */
-    class Bounds {
-    private:
-
-        AABox           m_box;
-        float           m_sphereBoundsRadiusSquared;
-        Vector3         m_sphereBoundsCenter;
-        
-    public:
-
-        Bounds() : m_sphereBoundsRadiusSquared(0) {}
-
-        inline Bounds(const AABox& b) : 
-            m_box(b), 
-            // The following expression is equal to (extent/2.length()) ^ 2
-            m_sphereBoundsRadiusSquared(b.extent().squaredLength() * 0.25f),
-            m_sphereBoundsCenter(b.center()) {
-        }
-
-        inline const AABox& box() const {
-            return m_box;
-        }
-
-        /** Returns true if the ray intersects these bounds before distance. */
-        inline bool __fastcall intersects
-        (const Ray&      ray,
-         float           distance) const {
-            
-            // See if the ray will ever hit this node or its children
-            Vector3 location;
-            bool alreadyInsideBounds = false;
-            bool rayWillHitBounds = 
-                CollisionDetection::rayAABox(ray, ray.invDirection(), m_box, m_sphereBoundsCenter, 
-                                             m_sphereBoundsRadiusSquared, location, alreadyInsideBounds);
-           
-            return (alreadyInsideBounds ||                
-                    (rayWillHitBounds && ((location - ray.origin()).squaredLength() < square(distance))));
-        }
-
-        void draw(RenderDevice* rd, const Color4& color) const;
-    };
 
     /** Does not have to be deleted; has no constructor. */
     struct ValueArray {
@@ -298,14 +258,14 @@ private:
         /** Bounds on the part of valueArray that is within bounds,
             for internal nodes that contain triangles. Undefined
             for nodes without triangles.*/
-        Bounds           bounds;
+        AABox            bounds;
     };
     
     class Node {
     private:
         
         /** Bounds on this node and all of its children */
-        Bounds           bounds;
+        AABox            bounds;
 
         /** Position along the split axis */
         float            splitLocation;
