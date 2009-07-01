@@ -325,8 +325,8 @@ bool SuperBSDF::scatter
                     // Glossy                    
                     shininess = (float)unpackSpecularExponent(shininess);
 
-                    glossyScatter(w_i, shininess, n, random, w_o);
-
+//                    glossyScatter(w_i, shininess, n, random, w_o); TODO :un comment
+w_o = w_i.reflectAbout(n);
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     density = p_specularAvg * 0.1f;
 
