@@ -44,7 +44,7 @@ void PrecomputedRandom::cosHemi(float& x, float& y, float& z) {
     z = m_hemiUniform[m_index].cosHemiZ;
 }
 
-void Random::cosPowHemi(const float k, float& x, float& y, float& z) {
+void PrecomputedRandom::cosPowHemi(const float k, float& x, float& y, float& z) {
     // Computing a cosPowHemi costs 4 slow functions (pow, sqrt, sin,
     // cos). We can do it with two, given a cosHemi sample, basically
     // saving the cost of sin and cos and making a single 128-byte

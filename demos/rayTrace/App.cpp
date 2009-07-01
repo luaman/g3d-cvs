@@ -100,7 +100,8 @@ Color3 App::trace1(const Ray& ray, World* world, const Color3& extinction_i, int
                 // Attenduated radiance
                 const Color3& radiance_L = light.color / distance2;
 
-                radiance += bsdf->shadeDirect(hit.normal, hit.texCoord, w_L, radiance_L, -ray.direction()).rgb();
+                radiance += bsdf->shadeDirect(hit.normal, hit.texCoord, w_L, 
+                                              radiance_L, -ray.direction()).rgb();
             }
         }
 
