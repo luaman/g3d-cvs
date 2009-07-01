@@ -4,26 +4,63 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2009-03-31
- @edited  2009-03-31
+ @edited  2009-07-01
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
 #include "G3D/PrecomputedRandom.h"
+#include "G3D/System.h"
 
 namespace G3D {
+
+PrecomputedRandom::PrecomputedRandom(int dataSize, uint32 seed) : 
+ Random((void*)NULL),
+ m_hemiUniform(NULL),
+ m_sphereBits(NULL),
+ m_modMask(dataSize - 1),
+ m_freeData(true) {
+
+    alwaysAssertM(isPow2(dataSize), "dataSize must be a power of 2");
+    m_index = seed & m_modMask;
+
+    HemiUniformData* h;
+    SphereBitsData* s;
+    m_hemiUniform = h = (HemiUniformData*) System::malloc(sizeof(HemiUniformData) * dataSize);
+    m_sphereBits = s = (SphereBitsData*) System::malloc(sizeof(SphereBitsData) * dataSize);
+
+    Random r;
+
+    for (int i = 0; i < dataSize; ++i) {
+        h[i].uniform = r.uniform();
+        r.cosHemi(h[i].cosHemiX, h[i].cosHemiY, h[i].cosHemiZ); 
+
+        s[i].bits = r.bits();
+        r.sphere(s[i].sphereX, s[i].sphereY, s[i].sphereZ);         
+    }
+
+}
+
 
 PrecomputedRandom::PrecomputedRandom(const HemiUniformData* data1, const SphereBitsData* data2, int dataSize, uint32 seed) : 
  Random((void*)NULL),
  m_hemiUniform(data1),
  m_sphereBits(data2),
- m_modMask(dataSize - 1) {
+ m_modMask(dataSize - 1),
+ m_freeData(false) {
 
     m_index = seed & m_modMask;
     alwaysAssertM(isPow2(dataSize), "dataSize must be a power of 2");
 }
 
+
+PrecomputedRandom::~PrecomputedRandom() {
+    if (m_freeData) {
+        System::free(const_cast<HemiUniformData*>(m_hemiUniform));
+        System::free(const_cast<SphereBitsData*>(m_sphereBits));
+    }
+}
 
 float PrecomputedRandom::uniform(float low, float high) {
     m_index = (m_index + 1) & m_modMask;

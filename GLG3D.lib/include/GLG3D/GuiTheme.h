@@ -653,10 +653,7 @@ public:
         const Color4&       fallbackColor = Color3::black(), 
         const Color4&       fallbackOutlineColor = Color4::clear());
 
-    /** Call before all other render methods. 
-        @param offset Offset all positions by this amount (convenient for rendering 
-        relative to a containing control or window.)
-     */
+    /** Call before all other render methods. */
     void beginRendering(class RenderDevice* rd);
 
     /** 

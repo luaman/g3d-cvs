@@ -58,17 +58,23 @@ protected:
 
     int                         m_index;
 
+    /** If true, free m_hemiUniform and m_sphereBits in destructor */
+    bool                        m_freeData;
+
 public:
 
-    /** \param threadsafe Set to false if you know that this random
-        will only be used on a single thread.  This eliminates the
-        lock and improves performance on some platforms.
-
-        \param dataSize Must be a power of 2
-
-        \param data Will NOT be deleted by the destructor.
+    /*
+      \param dataSize Must be a power of 2
+      \param data Will NOT be deleted by the destructor.
      */
     PrecomputedRandom(const HemiUniformData* data1, const SphereBitsData* data2, int dataSize, uint32 seed = 0xF018A4D2);
+
+    /**
+      \param dataSize Number of random numbers that can be requested before periodicity.  Must be a power of 2.
+      */
+    PrecomputedRandom(int dataSize, uint32 seed = 0xF018A4D2);
+
+    ~PrecomputedRandom();
 
     /** Each bit is random.  Subclasses can choose to override just 
        this method and the other methods will all work automatically. */
