@@ -84,11 +84,11 @@ void Surface::renderDepthOnly
         rd->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.5f);
 
         // Maintain sort order while extracting generics
-        Array<GenericSurface::Ref> genericModels;
+        Array<SuperSurface::Ref> genericModels;
 
         // Render non-generics while filtering
         for (int i = 0; i < allModels.size(); ++i) {
-            const GenericSurface::Ref& g = allModels[i].downcast<GenericSurface>();
+            const SuperSurface::Ref& g = allModels[i].downcast<SuperSurface>();
             if (g.notNull()) {
                 genericModels.append(g);
             } else {
@@ -101,8 +101,8 @@ void Surface::renderDepthOnly
         rd->beginIndexedPrimitives();
         {
             for (int g = 0; g < genericModels.size(); ++g) {
-                const GenericSurface::Ref& model = genericModels[g];
-                const GenericSurface::GPUGeom::Ref& geom = model->gpuGeom();
+                const SuperSurface::Ref& model = genericModels[g];
+                const SuperSurface::GPUGeom::Ref& geom = model->gpuGeom();
 
                 if (geom->twoSided) {
                     rd->setCullFace(RenderDevice::CULL_NONE);
@@ -196,7 +196,7 @@ void Surface::sortAndRender
     cull(camera, rd->viewport(), allModels, posed3D);
 
     // Separate and sort the models
-    GenericSurface::extractOpaque(posed3D, opaqueGeneric);
+    SuperSurface::extractOpaque(posed3D, opaqueGeneric);
     Surface::sort(opaqueGeneric, camera.coordinateFrame().lookVector(), opaqueGeneric);
     Surface::sort(posed3D, camera.coordinateFrame().lookVector(), otherOpaque, transparent);
     rd->setProjectionAndCameraMatrix(camera);
@@ -206,12 +206,12 @@ void Surface::sortAndRender
     for (int m = 0; m < otherOpaque.size(); ++m) {
         otherOpaque[m]->renderNonShadowed(rd, lighting);
     }
-    GenericSurface::renderNonShadowed(opaqueGeneric, rd, lighting);
+    SuperSurface::renderNonShadowed(opaqueGeneric, rd, lighting);
 
     // Opaque shadowed
     for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
         rd->pushState();
-        GenericSurface::renderShadowMappedLightPass(opaqueGeneric, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
+        SuperSurface::renderShadowMappedLightPass(opaqueGeneric, rd, lighting->shadowedLightArray[L], shadowMaps[L]);
         rd->popState();
         for (int m = 0; m < otherOpaque.size(); ++m) {
             otherOpaque[m]->renderShadowMappedLightPass(rd, lighting->shadowedLightArray[L], shadowMaps[L]);
@@ -611,7 +611,7 @@ void Surface::renderTransparents
     // Transparent, must be rendered from back to front
     for (int m = 0; m < modelArray.size(); ++m) {
         Surface::Ref model = modelArray[m];
-        GenericSurface::Ref gmodel = model.downcast<GenericSurface>();
+        SuperSurface::Ref gmodel = model.downcast<SuperSurface>();
 
         if (gmodel.notNull() && supportsRefract) {
             const float eta = gmodel->gpuGeom()->material->bsdf()->etaTransmit();

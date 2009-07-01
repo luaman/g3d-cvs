@@ -1,18 +1,18 @@
 /**
- @file   UberBSDF.cpp
+ @file   SuperBSDF.cpp
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
 */
-#include "GLG3D/UberBSDF.h"
+#include "GLG3D/SuperBSDF.h"
 
 namespace G3D {
 
-float UberBSDF::ignoreFloat;
+float SuperBSDF::ignoreFloat;
 
 #define INV_PI  (0.318309886f)
 #define INV_8PI (0.0397887358f)
 
-UberBSDF::Ref UberBSDF::create
+SuperBSDF::Ref SuperBSDF::create
 (const Component4& lambertian,
  const Component4& specular,
  const Component3& transmissive,
@@ -21,7 +21,7 @@ UberBSDF::Ref UberBSDF::create
  float             eta_r,
  const Color3&     extinction_r) {
 
-    UberBSDF::Ref bsdf      = new UberBSDF();
+    SuperBSDF::Ref bsdf      = new SuperBSDF();
 
     bsdf->m_lambertian      = lambertian;
     bsdf->m_specular        = specular;
@@ -35,7 +35,7 @@ UberBSDF::Ref UberBSDF::create
 }
 
 
-Color4 UberBSDF::shadeDirect
+Color4 SuperBSDF::shadeDirect
 (const Vector3& n,
  const Vector2& texCoord,
  const Vector3& w_i,
@@ -74,7 +74,7 @@ Color4 UberBSDF::shadeDirect
 }
 
 
-void UberBSDF::getImpulses
+void SuperBSDF::getImpulses
 (const Vector3&  n,
  const Vector2&  texCoord,
  const Vector3&  w_i,
@@ -152,7 +152,7 @@ void UberBSDF::getImpulses
 }
 
 
-void UberBSDF::glossyScatter
+void SuperBSDF::glossyScatter
 (const Vector3& w_i,
  float          g,
  const Vector3& n,
@@ -247,7 +247,7 @@ void UberBSDF::glossyScatter
 }
 #endif
 
-bool UberBSDF::scatter
+bool SuperBSDF::scatter
 (const Vector3& n,
  const Vector2& texCoord,
  const Vector3& w_i,
@@ -391,14 +391,14 @@ bool UberBSDF::scatter
 }
 
 
-void UberBSDF::setStorage(ImageStorage s) const {
+void SuperBSDF::setStorage(ImageStorage s) const {
     m_lambertian.setStorage(s);
     m_transmissive.setStorage(s);
     m_specular.setStorage(s);
 }
 
 
-bool UberBSDF::similarTo(const UberBSDF::Ref& other) const {
+bool SuperBSDF::similarTo(const SuperBSDF::Ref& other) const {
     return 
         (m_lambertian.factors()   == other->m_lambertian.factors()) &&
         (m_transmissive.factors() == other->m_transmissive.factors()) &&
@@ -406,19 +406,19 @@ bool UberBSDF::similarTo(const UberBSDF::Ref& other) const {
 }
 
 
-bool UberBSDF::hasMirror() const {
+bool SuperBSDF::hasMirror() const {
     const Color4& m = m_specular.max();
     return (m.a == 1.0f) && ! m.rgb().isZero();
 }
 
 
-bool UberBSDF::hasGlossy() const {
+bool SuperBSDF::hasGlossy() const {
     float avg = m_specular.mean().a;
     return (avg > 0) && (avg < 1) && ! m_specular.max().rgb().isZero();
 }
 
 
-bool UberBSDF::hasLambertian() const {
+bool SuperBSDF::hasLambertian() const {
     return ! m_lambertian.max().rgb().isZero();
 }
 

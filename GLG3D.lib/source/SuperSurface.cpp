@@ -1,5 +1,5 @@
 /**
- @file GenericSurface.cpp
+ @file SuperSurface.cpp
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2004-11-20
@@ -8,7 +8,7 @@
   Copyright 2004-2009, Morgan McGuire
  */
 #include "G3D/Log.h"
-#include "GLG3D/GenericSurface.h"
+#include "GLG3D/SuperSurface.h"
 #include "GLG3D/Lighting.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperShader.h"
@@ -18,22 +18,22 @@ namespace G3D {
 /** For fixed function, we detect
     reflection as having no glossy map but a packed specular
    exponent of 1 (=infinity).*/   
-static bool mirrorReflectiveFF(const UberBSDF::Ref& bsdf) { 
+static bool mirrorReflectiveFF(const SuperBSDF::Ref& bsdf) { 
     return 
         (bsdf->specular().factors() == Component4::CONSTANT) ||
-        (UberBSDF::packedSpecularMirror() == bsdf->specular().constant().a);
+        (SuperBSDF::packedSpecularMirror() == bsdf->specular().constant().a);
 }
 
 /** For fixed function, we detect glossy
     reflection as having a packed specular exponent less 
     than 1.*/   
-static bool glossyReflectiveFF(const UberBSDF::Ref& bsdf) {
-     return (bsdf->specular().constant().a != UberBSDF::packedSpecularMirror()) && 
-            (bsdf->specular().constant().a != UberBSDF::packedSpecularNone());
+static bool glossyReflectiveFF(const SuperBSDF::Ref& bsdf) {
+     return (bsdf->specular().constant().a != SuperBSDF::packedSpecularMirror()) && 
+            (bsdf->specular().constant().a != SuperBSDF::packedSpecularNone());
 }
 
 
-GenericSurface::Ref GenericSurface::create
+SuperSurface::Ref SuperSurface::create
 (const std::string&       name,
  const CFrame&            frame, 
  const GPUGeom::Ref&      gpuGeom,
@@ -42,23 +42,23 @@ GenericSurface::Ref GenericSurface::create
     debugAssert(gpuGeom.notNull());
     debugAssert(gpuGeom->vertex.valid());
     debugAssert(gpuGeom->material.notNull());
-    return new GenericSurface(name, frame, gpuGeom, cpuGeom, source);
+    return new SuperSurface(name, frame, gpuGeom, cpuGeom, source);
 }
 
 
 static void setAdditive(RenderDevice* rd, bool& additive);
 
-int GenericSurface::debugNumSendGeometryCalls = 0;
+int SuperSurface::debugNumSendGeometryCalls = 0;
 
 // Static to this file, not the class
-static GenericSurface::GraphicsProfile graphicsProfile = GenericSurface::UNKNOWN;
+static SuperSurface::GraphicsProfile graphicsProfile = SuperSurface::UNKNOWN;
 
-void GenericSurface::setProfile(GraphicsProfile p) {
+void SuperSurface::setProfile(GraphicsProfile p) {
     graphicsProfile = p;
 }
 
 
-GenericSurface::GraphicsProfile GenericSurface::profile() {
+SuperSurface::GraphicsProfile SuperSurface::profile() {
 
     if (graphicsProfile == UNKNOWN) {
         if (GLCaps::supports_GL_ARB_shader_objects()) {
@@ -67,7 +67,7 @@ GenericSurface::GraphicsProfile GenericSurface::profile() {
             
             if (System::findDataFile("SS_NonShadowedPass.vrt") == "") {
                 graphicsProfile = UNKNOWN;
-                logPrintf("\n\nWARNING: GenericSurface could not enter PS20 mode because"
+                logPrintf("\n\nWARNING: SuperSurface could not enter PS20 mode because"
                           "NonShadowedPass.vrt was not found.\n\n");
             }
         }
@@ -89,18 +89,18 @@ GenericSurface::GraphicsProfile GenericSurface::profile() {
 }
 
 
-const char* toString(GenericSurface::GraphicsProfile p) {
+const char* toString(SuperSurface::GraphicsProfile p) {
     switch (p) {
-    case GenericSurface::UNKNOWN:
+    case SuperSurface::UNKNOWN:
         return "Unknown";
 
-    case GenericSurface::FIXED_FUNCTION:
+    case SuperSurface::FIXED_FUNCTION:
         return "Fixed Function";
 
-    case GenericSurface::PS14:
+    case SuperSurface::PS14:
         return "PS 1.4";
 
-    case GenericSurface::PS20:
+    case SuperSurface::PS20:
         return "PS 2.0";
 
     default:
@@ -109,7 +109,7 @@ const char* toString(GenericSurface::GraphicsProfile p) {
 }
 
 
-void GenericSurface::renderNonShadowed(
+void SuperSurface::renderNonShadowed(
     const Array<Surface::Ref>& posedArray, 
     RenderDevice* rd, 
     const LightingRef& lighting) {
@@ -130,10 +130,10 @@ void GenericSurface::renderNonShadowed(
         // Lighting will be turned on and off by subroutines
         rd->disableLighting();
 
-        const bool ps20 = GenericSurface::profile() == GenericSurface::PS20;
+        const bool ps20 = SuperSurface::profile() == SuperSurface::PS20;
 
         for (int p = 0; p < posedArray.size(); ++p) {
-            const GenericSurface::Ref& posed = posedArray[p].downcast<GenericSurface>();
+            const SuperSurface::Ref& posed = posedArray[p].downcast<SuperSurface>();
 
             if (! rd->colorWrite()) {
                 // No need for fancy shading, just send geometry
@@ -142,12 +142,12 @@ void GenericSurface::renderNonShadowed(
             }
 
             const Material::Ref& material = posed->m_gpuGeom->material;
-            const UberBSDF::Ref& bsdf = material->bsdf();
+            const SuperBSDF::Ref& bsdf = material->bsdf();
             (void)material;
             (void)bsdf;
             debugAssertM(bsdf->transmissive().isBlack(), 
                 "Transparent object passed through the batch version of "
-                "GenericSurface::renderNonShadowed, which is intended exclusively for opaque objects.");
+                "SuperSurface::renderNonShadowed, which is intended exclusively for opaque objects.");
 
             // Alpha blend will be changed by subroutines so we restore it for each object
             rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
@@ -196,7 +196,7 @@ void GenericSurface::renderNonShadowed(
 }
 
 
-void GenericSurface::renderShadowMappedLightPass
+void SuperSurface::renderShadowMappedLightPass
 (const Array<Surface::Ref>& posedArray, 
  RenderDevice* rd, 
  const GLight& light, 
@@ -214,9 +214,9 @@ void GenericSurface::renderShadowMappedLightPass
         rd->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         for (int i = 0; i < posedArray.size(); ++i) {
-            const GenericSurface::Ref& posed    = posedArray[i].downcast<GenericSurface>();
+            const SuperSurface::Ref& posed    = posedArray[i].downcast<SuperSurface>();
             const Material::Ref&          material = posed->m_gpuGeom->material;
-            const UberBSDF::Ref&              bsdf     = material->bsdf();
+            const SuperBSDF::Ref&              bsdf     = material->bsdf();
 
             if (bsdf->lambertian().isBlack() && bsdf->specular().isBlack()) {
                 // Nothing to draw for this object
@@ -269,13 +269,13 @@ void GenericSurface::renderShadowMappedLightPass
  }
 
 
-void GenericSurface::extractOpaque(
+void SuperSurface::extractOpaque(
     Array<Surface::Ref>&   all, 
     Array<Surface::Ref>&   opaqueGeneric) {
     
     for (int i = 0; i < all.size(); ++i) {
-        ReferenceCountedPointer<GenericSurface> m = 
-            dynamic_cast<GenericSurface*>(all[i].pointer());
+        ReferenceCountedPointer<SuperSurface> m = 
+            dynamic_cast<SuperSurface*>(all[i].pointer());
 
         if (m.notNull() && ! m->hasTransparency()) {
             // This is a most-derived subclass and is opaque
@@ -308,7 +308,7 @@ static Texture::Ref whiteMap() {
 }
 
 
-void GenericSurface::render(RenderDevice* rd) const {
+void SuperSurface::render(RenderDevice* rd) const {
 
     // Infer the lighting from the fixed function
 
@@ -321,7 +321,7 @@ void GenericSurface::render(RenderDevice* rd) const {
 }
 
 
-bool GenericSurface::renderSuperShaderPass(
+bool SuperSurface::renderSuperShaderPass(
     RenderDevice* rd, 
     const SuperShader::PassRef& pass) const {
 
@@ -352,7 +352,7 @@ static void setAdditive(RenderDevice* rd, bool& additive) {
 }
 
 
-bool GenericSurface::renderNonShadowedOpaqueTerms(
+bool SuperSurface::renderNonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting,
     bool preserveState) const {
@@ -392,12 +392,12 @@ bool GenericSurface::renderNonShadowedOpaqueTerms(
 }
 
 
-bool GenericSurface::renderPS20NonShadowedOpaqueTerms(
+bool SuperSurface::renderPS20NonShadowedOpaqueTerms(
     RenderDevice*                           rd,
     const LightingRef&                      lighting) const {
 
     const Material::Ref& material = m_gpuGeom->material;
-    const UberBSDF::Ref&     bsdf = material->bsdf();
+    const SuperBSDF::Ref&     bsdf = material->bsdf();
 
     if (! bsdf->hasReflection()) {
         // Nothing to draw
@@ -465,14 +465,14 @@ bool GenericSurface::renderPS20NonShadowedOpaqueTerms(
 }
 
 
-bool GenericSurface::renderFFNonShadowedOpaqueTerms(
+bool SuperSurface::renderFFNonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting) const {
 
     bool renderedOnce = false;
 
     const Material::Ref& material = m_gpuGeom->material;
-    const UberBSDF::Ref&     bsdf = material->bsdf();
+    const SuperBSDF::Ref&     bsdf = material->bsdf();
 
 
     // Emissive
@@ -532,7 +532,7 @@ bool GenericSurface::renderFFNonShadowedOpaqueTerms(
 
         // Fixed function does not receive specular texture maps, only constants.
         rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
-        rd->setShininess(UberBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
+        rd->setShininess(SuperBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
 
         // Ambient
         if (lighting.notNull()) {
@@ -562,12 +562,12 @@ bool GenericSurface::renderFFNonShadowedOpaqueTerms(
 }
 
 
-bool GenericSurface::renderPS14NonShadowedOpaqueTerms(
+bool SuperSurface::renderPS14NonShadowedOpaqueTerms(
     RenderDevice*                   rd,
     const LightingRef&              lighting) const {
 
     bool renderedOnce = false;
-    const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
+    const SuperBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
     // Emissive
     if (! m_gpuGeom->material->emissive().factors() != Component3::BLACK) {
@@ -628,7 +628,7 @@ bool GenericSurface::renderPS14NonShadowedOpaqueTerms(
 
                 // Fixed function does not receive specular texture maps, only constants.
                 rd->setSpecularCoefficient(bsdf->specular().constant().rgb());
-                rd->setShininess(UberBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
+                rd->setShininess(SuperBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
 
                 // Ambient
                 if (lighting.notNull()) {
@@ -733,14 +733,14 @@ bool GenericSurface::renderPS14NonShadowedOpaqueTerms(
 }
 
 
-void GenericSurface::renderNonShadowed
+void SuperSurface::renderNonShadowed
 (RenderDevice*                   rd,
  const LightingRef&              lighting) const {
 
     // The transparent rendering path is not optimized to amortize state changes because 
     // it is only called by the single-object version of this function.  Only
     // opaque objects are batched together.
-    const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
+    const SuperBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
     if (! bsdf->transmissive().isBlack()) {
         rd->pushState();
@@ -784,14 +784,14 @@ void GenericSurface::renderNonShadowed
 
         static Array<Surface::Ref> posedArray;
         posedArray.resize(1);
-        posedArray[0] = Ref(const_cast<GenericSurface*>(this));
+        posedArray[0] = Ref(const_cast<SuperSurface*>(this));
         renderNonShadowed(posedArray, rd, lighting);
         posedArray.fastClear();
     }
 }
 
 
-void GenericSurface::renderShadowedLightPass(
+void SuperSurface::renderShadowedLightPass(
     RenderDevice*       rd, 
     const GLight&       light) const {
 
@@ -802,7 +802,7 @@ void GenericSurface::renderShadowedLightPass(
 }
 
 
-void GenericSurface::renderShadowMappedLightPass(
+void SuperSurface::renderShadowMappedLightPass(
     RenderDevice*       rd, 
     const GLight&       light, 
     const Matrix4&      lightMVP, 
@@ -814,7 +814,7 @@ void GenericSurface::renderShadowMappedLightPass(
 }
 
 
-void GenericSurface::renderShadowMappedLightPass(
+void SuperSurface::renderShadowMappedLightPass(
     RenderDevice*         rd, 
     const GLight&         light, 
     const ShadowMap::Ref& shadowMap) const {
@@ -825,13 +825,13 @@ void GenericSurface::renderShadowMappedLightPass(
     static Array<Surface::Ref> posedArray;
 
     posedArray.resize(1);
-    posedArray[0] = Ref(const_cast<GenericSurface*>(this));
+    posedArray[0] = Ref(const_cast<SuperSurface*>(this));
     renderShadowMappedLightPass(posedArray, rd, light, shadowMap);
     posedArray.fastClear();
 }
 
 
-void GenericSurface::renderPS20ShadowMappedLightPass(
+void SuperSurface::renderPS20ShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
     const ShadowMap::Ref& shadowMap) const {
@@ -842,7 +842,7 @@ void GenericSurface::renderPS20ShadowMappedLightPass(
 }
 
 
-void GenericSurface::renderFFShadowMappedLightPass(
+void SuperSurface::renderFFShadowMappedLightPass(
     RenderDevice*       rd,
     const GLight&       light, 
     const ShadowMap::Ref& shadowMap) const {
@@ -851,7 +851,7 @@ void GenericSurface::renderFFShadowMappedLightPass(
 
     rd->setObjectToWorldMatrix(m_frame);
 
-    const UberBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
+    const SuperBSDF::Ref& bsdf = m_gpuGeom->material->bsdf();
 
     rd->setTexture(0, bsdf->lambertian().texture());
     rd->setColor(bsdf->lambertian().constant());
@@ -887,7 +887,7 @@ void GenericSurface::renderFFShadowMappedLightPass(
         GLight light2 = light;
         light2.diffuse = false;
         rd->setLight(0, light2);
-        rd->setShininess(UberBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
+        rd->setShininess(SuperBSDF::unpackSpecularExponent(bsdf->specular().constant().a));
 
         sendGeometry2(rd);
 
@@ -903,7 +903,7 @@ void GenericSurface::renderFFShadowMappedLightPass(
 }
 
 
-void GenericSurface::sendGeometry2(
+void SuperSurface::sendGeometry2(
     RenderDevice*           rd) const {
 
 
@@ -918,7 +918,7 @@ void GenericSurface::sendGeometry2(
 }
 
 
-void GenericSurface::sendGeometry(
+void SuperSurface::sendGeometry(
     RenderDevice*           rd) const {
     debugAssertGLOk();
     ++debugNumSendGeometryCalls;
@@ -983,27 +983,27 @@ void GenericSurface::sendGeometry(
     }
 }
 
-std::string GenericSurface::name() const {
+std::string SuperSurface::name() const {
     return m_name;
 }
 
 
-bool GenericSurface::hasTransparency() const {
+bool SuperSurface::hasTransparency() const {
     return ! m_gpuGeom->material->bsdf()->transmissive().isBlack();
 }
 
 
-void GenericSurface::getCoordinateFrame(CoordinateFrame& c) const {
+void SuperSurface::getCoordinateFrame(CoordinateFrame& c) const {
     c = m_frame;
 }
 
 
-const MeshAlg::Geometry& GenericSurface::objectSpaceGeometry() const {
+const MeshAlg::Geometry& SuperSurface::objectSpaceGeometry() const {
     return *(m_cpuGeom.geometry);
 }
 
 
-const Array<Vector3>& GenericSurface::objectSpaceTangents() const {
+const Array<Vector3>& SuperSurface::objectSpaceTangents() const {
     if (m_cpuGeom.tangent == NULL) {
         const static Array<Vector3> x;
         return x;
@@ -1013,7 +1013,7 @@ const Array<Vector3>& GenericSurface::objectSpaceTangents() const {
 }
 
 
-const Array<Vector3>& GenericSurface::objectSpaceFaceNormals(bool normalize) const {
+const Array<Vector3>& SuperSurface::objectSpaceFaceNormals(bool normalize) const {
     static Array<Vector3> n;
     debugAssert(false);
     return n;
@@ -1021,7 +1021,7 @@ const Array<Vector3>& GenericSurface::objectSpaceFaceNormals(bool normalize) con
 }
 
 
-const Array<MeshAlg::Face>& GenericSurface::faces() const {
+const Array<MeshAlg::Face>& SuperSurface::faces() const {
     static Array<MeshAlg::Face> f;
     debugAssert(false);
     return f;
@@ -1029,7 +1029,7 @@ const Array<MeshAlg::Face>& GenericSurface::faces() const {
 }
 
 
-const Array<MeshAlg::Edge>& GenericSurface::edges() const {
+const Array<MeshAlg::Edge>& SuperSurface::edges() const {
     static Array<MeshAlg::Edge> f;
     debugAssert(false);
     return f;
@@ -1037,7 +1037,7 @@ const Array<MeshAlg::Edge>& GenericSurface::edges() const {
 }
 
 
-const Array<MeshAlg::Vertex>& GenericSurface::vertices() const {
+const Array<MeshAlg::Vertex>& SuperSurface::vertices() const {
     static Array<MeshAlg::Vertex> f;
     debugAssert(false);
     return f;
@@ -1045,7 +1045,7 @@ const Array<MeshAlg::Vertex>& GenericSurface::vertices() const {
 }
 
 
-const Array<Vector2>& GenericSurface::texCoords() const {
+const Array<Vector2>& SuperSurface::texCoords() const {
     if (m_cpuGeom.texCoord0 == NULL) {
         const static Array<Vector2> x;
         return x;
@@ -1055,12 +1055,12 @@ const Array<Vector2>& GenericSurface::texCoords() const {
 }
 
 
-bool GenericSurface::hasTexCoords() const {
+bool SuperSurface::hasTexCoords() const {
     return (m_cpuGeom.texCoord0 != 0) && (m_cpuGeom.texCoord0->size() > 0);
 }
 
 
-const Array<MeshAlg::Face>& GenericSurface::weldedFaces() const {
+const Array<MeshAlg::Face>& SuperSurface::weldedFaces() const {
     static Array<MeshAlg::Face> f;
     debugAssert(false);
     return f;
@@ -1068,7 +1068,7 @@ const Array<MeshAlg::Face>& GenericSurface::weldedFaces() const {
 }
 
 
-const Array<MeshAlg::Edge>& GenericSurface::weldedEdges() const {
+const Array<MeshAlg::Edge>& SuperSurface::weldedEdges() const {
     static Array<MeshAlg::Edge> e;
     debugAssert(false);
     return e;
@@ -1076,7 +1076,7 @@ const Array<MeshAlg::Edge>& GenericSurface::weldedEdges() const {
 }
 
 
-const Array<MeshAlg::Vertex>& GenericSurface::weldedVertices() const {
+const Array<MeshAlg::Vertex>& SuperSurface::weldedVertices() const {
     static Array<MeshAlg::Vertex> v;
     return v;
     debugAssert(false);
@@ -1084,30 +1084,30 @@ const Array<MeshAlg::Vertex>& GenericSurface::weldedVertices() const {
 }
 
 
-const Array<int>& GenericSurface::triangleIndices() const {
+const Array<int>& SuperSurface::triangleIndices() const {
     alwaysAssertM(m_gpuGeom->primitive == PrimitiveType::TRIANGLES, "This model is not composed of triangles."); 
     return *(m_cpuGeom.index);
 }
 
 
-void GenericSurface::getObjectSpaceBoundingSphere(Sphere& s) const {
+void SuperSurface::getObjectSpaceBoundingSphere(Sphere& s) const {
     s = m_gpuGeom->sphereBounds;
 }
 
 
-void GenericSurface::getObjectSpaceBoundingBox(AABox& b) const {
+void SuperSurface::getObjectSpaceBoundingBox(AABox& b) const {
     b = m_gpuGeom->boxBounds;
 }
 
 
-int GenericSurface::numBoundaryEdges() const {
+int SuperSurface::numBoundaryEdges() const {
     // TODO
     debugAssert(false);
     return 0;
 }
 
 
-int GenericSurface::numWeldedBoundaryEdges() const {
+int SuperSurface::numWeldedBoundaryEdges() const {
     // TODO
     return 0;
 }

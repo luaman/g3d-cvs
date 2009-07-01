@@ -10,7 +10,7 @@
 #include "G3D/platform.h"
 #include "G3D/HashTrait.h"
 #include "GLG3D/Component.h"
-#include "GLG3D/UberBSDF.h"
+#include "GLG3D/SuperBSDF.h"
 #include "GLG3D/BumpMap.h"
 #include "GLG3D/Shader.h"
 
@@ -25,7 +25,7 @@ class AnyVal;
 
   The G3D::Material::SimilarHashCode and G3D::Material::SimilarTo traits are provided
   to help identify when two G3D::Material have the same non-zero terms (similar to
-  G3D::UberBSDF::Factors).  G3D::SuperShader uses these to reduce the number of different
+  G3D::SuperBSDF::Factors).  G3D::SuperShader uses these to reduce the number of different
   shaders that need to be constructed.
 
   Note that for real-time rendering most translucent surfaces should be two-sided and have
@@ -169,20 +169,20 @@ public:
         
         /** \brief Packed sharpness of the specular highlight.
             
-            - UberBSDF::packedSpecularNone() = no specular term (also forces specular color to black)
-            - UberBSDF::packedSpecularMirror() = mirror reflection. 
-            - UberBSDF::packSpecularExponent(e) affects the size of the glossy hilight, where 1 is dull, 128 is sharp.
+            - SuperBSDF::packedSpecularNone() = no specular term (also forces specular color to black)
+            - SuperBSDF::packedSpecularMirror() = mirror reflection. 
+            - SuperBSDF::packSpecularExponent(e) affects the size of the glossy hilight, where 1 is dull, 128 is sharp.
             */
         void setShininess(float constant);
 
-        /** Same as <code>setShininess(UberBSDF::packedSpecularMirror())</code> */
+        /** Same as <code>setShininess(SuperBSDF::packedSpecularMirror())</code> */
         inline void setMirrorShininess() {
-            setShininess(UberBSDF::packedSpecularMirror());
+            setShininess(SuperBSDF::packedSpecularMirror());
         }
 
-        /** Same as <code>setShininess(UberBSDF::packSpecularExponent(e))</code> */
+        /** Same as <code>setShininess(SuperBSDF::packSpecularExponent(e))</code> */
         inline void setGlossyExponentShininess(int e) {
-            setShininess(UberBSDF::packSpecularExponent(e));
+            setShininess(SuperBSDF::packSpecularExponent(e));
         }
 
         /** This is an approximation of attenuation due to extinction
@@ -220,7 +220,7 @@ public:
 protected:
 
     /** Scattering function */
-    UberBSDF::Ref               m_bsdf;
+    SuperBSDF::Ref               m_bsdf;
 
     /** Emission map. */
     Component3                  m_emissive;
@@ -246,7 +246,7 @@ public:
     /** The Material::create(const Settings& settings) factor method is recommended 
        over this one because it performs caching and argument validation. */ 
     static Material::Ref create(
-        const UberBSDF::Ref&                bsdf,
+        const SuperBSDF::Ref&                bsdf,
         const Component3&                   emissive        = Component3(),
         const BumpMap::Ref&                 bump            = NULL,
         const MapComponent<Image4>::Ref&    customMap       = NULL,
@@ -270,7 +270,7 @@ public:
 
     void setStorage(ImageStorage s) const;
 
-    inline UberBSDF::Ref bsdf() const {
+    inline SuperBSDF::Ref bsdf() const {
         return m_bsdf;
     }
 

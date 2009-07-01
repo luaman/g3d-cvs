@@ -40,7 +40,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::Surface::renderDepthOnly for early-Z and shadow mapping
      <li> G3D::PrecomputedRandom
      <li> Increased GLCaps::G3D_MAX_TEXTURE_UNITS to 16
-     <li> GenericSurface now depth sorts and culls models for shadow map rendering
+     <li> SuperSurface now depth sorts and culls models for shadow map rendering
      <li> G3D::ShadowMap::computeMatrices
      <li> ShadowMap now renders from backfaces, reducing the need for a polygon offset.
      <li> G3D::GLight now supports additional parameters to control how it interacts with G3D::ShadowMap
@@ -107,7 +107,7 @@ TODO: make bias a property of the shadow map
      <li> Fix: RenderDevice::setTexCoordArray now accepts an uninitialized VAR as an argument to disable the texcoord array.
      <li> Fix: RenderDevice now determines number of texture coords/units correctly on all platforms
      <li> Fix: RenderDevice::setTexture now correctly sets the texture matrix for all texture units.
-     <li> Fix: GenericSurface now obeys incoming depth write
+     <li> Fix: SuperSurface now obeys incoming depth write
      <li> Fix: ShadowMap bias was being stored statically in updateDepth, causing later calls to ignore that argument
      <li> Fix: GCamera::frustum clipping planes were off for the top and bottom planes.    
      <li> Fix: fileExists("") now returns false 
@@ -127,7 +127,7 @@ TODO: make bias a property of the shadow map
      <li> RenderDevice::screenShotPic and Texture::copyFromScreen now always read from the current RenderDevice::readBuffer
      <li> OSWindow::Settings::sharedContext must now be set to true in order to support sharing of data between multiple OpenGL contexts.  Since sharing can 
           seriously degrade performance on multi-GPU machines and few developers need this feature, it defaults to false.
-     <li> Complete rewrite of SuperShader, ArticulatedModel, and Material. New G3D::UberBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 
+     <li> Complete rewrite of SuperShader, ArticulatedModel, and Material. New G3D::SuperBSDF uses Fresnel term, more efficient memory layout, Blinn half-vector, 
          is energy conserving, and supports GPU rasterization, ray tracing, photon mapping 
      <li> Removed ShadowMap::updateDepth that takes directional light projection matrix parameters; use new ShadowMap::computeMatrices to apply those values now.
      <li> G3D::GuiPane::addDropDownList now takes the list and index arguments in reverse order and they are optional
@@ -144,7 +144,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::GThread::threadMain is now protected; see the new argument to G3D::GThread::start()
      <li> G3D::ArticulatedModel::Part::TriList::material is now a pointer
      <li> G3D::Surface bounding boxes are now G3D::AABox instead of G3D::Box
-     <li> Moved G3D::ArticulatedModel::setProfile to GenericSurface::setProfile
+     <li> Moved G3D::ArticulatedModel::setProfile to SuperSurface::setProfile
      <li> G3D::ArticulatedModel::Part::TriList is now a reference counted object; Part::triListArray -> Part::triList
      <li> G3D::MeshAlg::computeBounds now takes an AABox instead of a Box
      <li> G3D::GuiDropDownList now stores its list internally, rather than taking a pointer to a list

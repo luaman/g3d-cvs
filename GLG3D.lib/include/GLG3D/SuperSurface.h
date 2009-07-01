@@ -1,13 +1,13 @@
 /**
-  @file GenericSurface.h
+  @file SuperSurface.h
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2008-11-12
   @edited  2009-03-30
 */
-#ifndef G3D_GenericSurface_h
-#define G3D_GenericSurface_h
+#ifndef G3D_SuperSurface_h
+#define G3D_SuperSurface_h
 
 #include "G3D/platform.h"
 #include "G3D/System.h"
@@ -32,10 +32,10 @@ namespace G3D {
 
    Used by G3D::ArticulatedModel.
  */
-class GenericSurface : public Surface {
+class SuperSurface : public Surface {
 public:
 
-    typedef ReferenceCountedPointer<GenericSurface> Ref;
+    typedef ReferenceCountedPointer<SuperSurface> Ref;
 
     /** Allocates with System::malloc to avoid the performance
         overhead of creating lots of small heap objects using
@@ -48,7 +48,7 @@ public:
         System::free(p);
     }
 
-    /** @brief A GPU mesh utility class that works with G3D::GenericSurface.
+    /** @brief A GPU mesh utility class that works with G3D::SuperSurface.
         
         A set of lines, points, quads, or triangles that have a
         single Material and can be rendered as a single OpenGL
@@ -133,7 +133,7 @@ protected:
 
     ReferenceCountedPointer<ReferenceCountedObject> m_source;
 
-    inline GenericSurface
+    inline SuperSurface
     (const std::string&       name,
      const CFrame&            frame, 
      const GPUGeom::Ref&      gpuGeom,
@@ -210,7 +210,7 @@ public:
 
     /** Called by Surface.
 	 
-        Renders an array of GenericSurfaces in the order that they
+        Renders an array of SuperSurfaces in the order that they
         appear in the array, taking advantage of the fact that all
         objects have the same subclass to optimize the rendering
         calls.*/
@@ -221,7 +221,7 @@ public:
 
     /** Called by Surface.
 	 
-        Renders an array of GenericSurfaces in the order that they
+        Renders an array of SuperSurfaces in the order that they
         appear in the array, taking advantage of the fact that all
         objects have the same subclass to optimize the rendering
         calls.*/
@@ -233,7 +233,7 @@ public:
 
     /** Called by Surface.
 	 
-        Removes the opaque GenericSurfaces from array @a all and appends
+        Removes the opaque SuperSurfaces from array @a all and appends
         them to the opaqueAmodels array (transparents must be rendered
         inline with other model types).  This produces an array for
         the array versions of renderNonShadowed and
@@ -247,12 +247,12 @@ public:
         computed during the first rendering and cached. */
     static GraphicsProfile profile();
 
-    /** Force GenericSurface to use a different profile.  Only
+    /** Force SuperSurface to use a different profile.  Only
         works if called before any models are loaded; used mainly for
         debugging. */
     static void setProfile(GraphicsProfile p);
 
-    /** Incremented every time sendGeometry is invoked on any GenericSurface. 
+    /** Incremented every time sendGeometry is invoked on any SuperSurface. 
         Used for performance profiling. Manually set to zero.
     */
     static int debugNumSendGeometryCalls;
@@ -262,7 +262,7 @@ public:
         contains pointers into an object that may not be held by
         anything else. Note that any ReferenceCountedPointer will automatically
         upcast to this type.*/
-    static GenericSurface::Ref create
+    static SuperSurface::Ref create
     (const std::string&       name,
      const CFrame&            frame, 
      const GPUGeom::Ref&      gpuGeom,
@@ -324,7 +324,7 @@ public:
         const SuperShader::PassRef& pass) const;
 };
 
-const char* toString(GenericSurface::GraphicsProfile p);
+const char* toString(SuperSurface::GraphicsProfile p);
 
 } // G3D
 

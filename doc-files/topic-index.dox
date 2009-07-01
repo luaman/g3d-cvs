@@ -42,7 +42,7 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr><td></td><td>\link G3D::ArticulatedModel <b>ArticulatedModel</b>\endlink</td><td>Load 3DS, IFS, PLY2, and OFF files, or construct models from code</td></tr>
 <tr><td></td><td>\indent\link G3D::Material Material\endlink</td><td> </td></tr>
 <tr><td></td><td>\indent\indent\link G3D::Material::Settings Material::Settings\endlink</td><td> </td></tr>
-<tr><td></td><td>\indent\indent\link G3D::UberBSDF UberBSDF\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\indent\link G3D::SuperBSDF SuperBSDF\endlink</td><td> </td></tr>
 <tr valign=top ><td></td><td>\indent\indent\link G3D::Component Component\endlink</td><td>
 (See also \link G3D::MapComponent MapComponent\endlink,
 \link G3D::Component1 Component1\endlink,
@@ -50,7 +50,7 @@ shader-driven GPU rendering and CPU ray tracing.
 \link G3D::Component4 Component4\endlink)
 </td></tr>
 <tr><td></td><td>\indent\indent\link G3D::BumpMap BumpMap\endlink</td><td> </td></tr>
-<tr><td></td><td>\indent\link G3D::GenericSurface GenericSurface\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::SuperSurface SuperSurface\endlink</td><td> </td></tr>
 
 <tr height=3 ><td colspan=2 ></td></tr>
 

@@ -264,10 +264,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\GenericSurface.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\getOpenGLState.cpp"
 				>
 			</File>
@@ -436,7 +432,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\SuperBSDF.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\SuperShader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\source\SuperSurface.cpp"
 				>
 			</File>
 			<File
@@ -469,10 +473,6 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\TriTree_Poly.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\source\UberBSDF.cpp"
 				>
 			</File>
 			<File
@@ -607,10 +607,6 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GConsole.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\GenericSurface.h"
 				>
 			</File>
 			<File
@@ -786,7 +782,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\SuperBSDF.h"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\SuperShader.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\SuperSurface.h"
 				>
 			</File>
 			<File
@@ -815,10 +819,6 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\TriTree.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\UberBSDF.h"
 				>
 			</File>
 			<File

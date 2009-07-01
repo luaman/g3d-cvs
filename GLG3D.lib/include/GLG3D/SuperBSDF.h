@@ -1,10 +1,10 @@
 /**
- @file   UberBSDF.h
+ @file   SuperBSDF.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2008-08-10
 */
-#ifndef G3D_UberBSDF_h
-#define G3D_UberBSDF_h
+#ifndef G3D_SuperBSDF_h
+#define G3D_SuperBSDF_h
 
 #include "GLG3D/Component.h"
 
@@ -61,7 +61,7 @@ namespace G3D {
    For energy conservation, choose \f$F_0 + (1 - F_0)T_0\leq 1\f$ and \f$\rho_{L0} + T_0 \leq 1\f$.
 
    The following terminology for photon scattering is used in the 
-   G3D::Material::Settings and G3D::UberBSDF classes and 
+   G3D::Material::Settings and G3D::SuperBSDF classes and 
    their documentation:
    \image html scatter-terms.png
 
@@ -117,11 +117,11 @@ F_r(\vec{\omega}_i) ~ \delta(\vec{\omega}_o, \vec{\omega}_m) ~/ ~(\vec{\omega}_i
 
   @sa G3D::Material, G3D::Component, G3D::BumpMap, G3D::GMaterial, G3D::Texture
 */
-class UberBSDF : public ReferenceCountedObject {
+class SuperBSDF : public ReferenceCountedObject {
 public:
 
     /** Reference counted pointer alias.*/
-    typedef ReferenceCountedPointer<UberBSDF> Ref;
+    typedef ReferenceCountedPointer<SuperBSDF> Ref;
 
 protected:
 
@@ -158,7 +158,7 @@ protected:
 
     Color3              m_extinction_r;
 
-    inline UberBSDF() : 
+    inline SuperBSDF() : 
         m_lambertian(Color4(Color3::white() * 0.85f, 1.0f)), 
         m_eta_t(1.0f), 
         m_extinction_t(Color3::zero()),
@@ -402,13 +402,13 @@ public:
     }
 
     /** Returns true if both have the same Component::Factors for each component. */
-    bool similarTo(const UberBSDF::Ref& other) const;
+    bool similarTo(const SuperBSDF::Ref& other) const;
 
     /** The glossy exponent is packed so that 0 = no specular, 
         1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$.
         This function abstracts the unpacking, since it may change in future versions.
         
-        Because direct shading is specified for UberBSDF to apply a
+        Because direct shading is specified for SuperBSDF to apply a
         glossy reflection to mirror surfaces, e = 1 produces 128 as
         well.
         */

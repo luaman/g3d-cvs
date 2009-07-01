@@ -85,7 +85,7 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
     Hit hit;
     float dist = inf();
     if (world->intersect(ray, dist, hit)) {
-        const UberBSDF::Ref& bsdf = hit.material->bsdf();
+        const SuperBSDF::Ref& bsdf = hit.material->bsdf();
 
         // Shade this point (direct illumination)
         for (int L = 0; L < world->lightArray.size(); ++L) {
@@ -130,11 +130,11 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
 
             if (maxBounces > 0) {
                 // Perfect reflection and refraction
-                Array<UberBSDF::Impulse> impulseArray;
+                Array<SuperBSDF::Impulse> impulseArray;
                 bsdf->getImpulses(hit.normal, hit.texCoord, -ray.direction(), impulseArray);
                 
                 for (int i = 0; i < impulseArray.size(); ++i) {
-                    const UberBSDF::Impulse& impulse = impulseArray[i];
+                    const SuperBSDF::Impulse& impulse = impulseArray[i];
                     Ray secondaryRay = Ray::fromOriginAndDirection(hit.position, impulse.w).bump(0.0001f);
                     radiance += rayTrace(secondaryRay, world, impulse.extinction, maxBounces - 1) * impulse.coefficient;
                 }

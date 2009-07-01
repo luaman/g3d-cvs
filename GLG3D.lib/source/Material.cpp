@@ -18,7 +18,7 @@ Material::Ref Material::create() {
 }
 
 Material::Ref Material::create
-(const UberBSDF::Ref&                bsdf,
+(const SuperBSDF::Ref&                bsdf,
  const Component3&                   emissive,
  const BumpMap::Ref&                 bump,
  const MapComponent<Image4>::Ref&    customMap,
@@ -61,7 +61,7 @@ Material::Ref Material::create(const Settings& settings) {
         value = new Material();
 
         value->m_bsdf =
-            UberBSDF::create(
+            SuperBSDF::create(
                 settings.loadLambertian(),
                 settings.loadSpecular(),
                 settings.loadTransmissive(),

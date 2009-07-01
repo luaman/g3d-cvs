@@ -14,7 +14,7 @@ Material::Settings::Settings() :
   m_specularFilename(""),
   m_specularConstant(Color3::zero()),
   m_shininessFilename(""),
-  m_shininessConstant(UberBSDF::packedSpecularNone()),
+  m_shininessConstant(SuperBSDF::packedSpecularNone()),
   m_transmissiveFilename(""),
   m_transmissiveConstant(Color3::zero()),
   m_etaTransmit(1.0f),
@@ -177,7 +177,7 @@ void Material::Settings::removeSpecular() {
 void Material::Settings::setShininess(const std::string& filename, float constant) {
     m_shininessFilename = filename;
     m_shininessConstant = constant;
-    if (constant == UberBSDF::packedSpecularNone()) {
+    if (constant == SuperBSDF::packedSpecularNone()) {
         removeSpecular();
     }
 }

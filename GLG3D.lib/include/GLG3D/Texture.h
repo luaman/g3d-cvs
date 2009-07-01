@@ -280,7 +280,7 @@ public:
         float                       scaleFactor;
 
         /** If true (default), constructors automatically compute the min, max, and mean
-            value of the texture. This is necessary, for example, for use with UberBSDF. */
+            value of the texture. This is necessary, for example, for use with SuperBSDF. */
         bool                        computeMinMaxMean;
 
         /** If true, treat the input as a monochrome bump map and compute a normal map from

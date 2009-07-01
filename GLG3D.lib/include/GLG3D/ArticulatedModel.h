@@ -11,7 +11,7 @@
 #include "GLG3D/VertexRange.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/Material.h"
-#include "GLG3D/GenericSurface.h"
+#include "GLG3D/SuperSurface.h"
 #include "GLG3D/Component.h"
 
 namespace G3D {
@@ -180,7 +180,7 @@ public:
         
         /** A set of triangles that have a single material and can be
             rendered as a single OpenGL primitive. */
-        class TriList : public GenericSurface::GPUGeom {
+        class TriList : public SuperSurface::GPUGeom {
         private:
 
             friend class Part;

@@ -9,7 +9,7 @@
 #include "GLG3D/Tri.h"
 #include "G3D/Ray.h"
 #include "GLG3D/Surface.h"
-#include "GLG3D/GenericSurface.h"
+#include "GLG3D/SuperSurface.h"
 
 namespace G3D {
 
@@ -234,11 +234,11 @@ void Tri::Intersector::getResult
 #endif
 
 void Tri::getTris(const Surface::Ref& pmodel, Array<Tri>& triArray, const CFrame& xform) {
-    const GenericSurface::Ref& model = pmodel.downcast<GenericSurface>();
+    const SuperSurface::Ref& model = pmodel.downcast<SuperSurface>();
 
-    alwaysAssertM(model.notNull(), "Non-GenericSurface present in World.");
-    const GenericSurface::CPUGeom& cpuGeom = model->cpuGeom();
-    const GenericSurface::GPUGeom::Ref& gpuGeom = model->gpuGeom();
+    alwaysAssertM(model.notNull(), "Non-SuperSurface present in World.");
+    const SuperSurface::CPUGeom& cpuGeom = model->cpuGeom();
+    const SuperSurface::GPUGeom::Ref& gpuGeom = model->gpuGeom();
     
     bool twoSided = gpuGeom->twoSided;
 

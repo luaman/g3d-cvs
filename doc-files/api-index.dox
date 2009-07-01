@@ -21,7 +21,7 @@ href="classes.html">Classes</a>.
     \link G3D::debugDraw debugDraw\endlink,
     \link G3D::DirectionHistogram DirectionHistogram\endlink,
     \link G3D::GFont GFont\endlink,
-    \link G3D::GenericSurface GenericSurface\endlink,
+    \link G3D::SuperSurface SuperSurface\endlink,
     \link G3D::GLight GLight\endlink,
     \link G3D::GMaterial GMaterial\endlink,
     \link G3D::IFSModel IFSModel\endlink,
@@ -93,7 +93,7 @@ href="classes.html">Classes</a>.
     \link G3D::SuperShader::NonShadowedPass SuperShader::NonShadowedPass\endlink,
     \link G3D::SuperShader::ExtraLightPass SuperShader::ExtraLightPass\endlink,
     \link G3D::SuperShader::ShadowedPass SuperShader::ShadowedPass\endlink,
-    \link G3D::UberBSDF UberBSDF\endlink,
+    \link G3D::SuperBSDF SuperBSDF\endlink,
     \link G3D::ToneMap ToneMap\endlink,
     \link G3D::Film Film\endlink
    </UL>

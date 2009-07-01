@@ -38,7 +38,7 @@ public:
 };
 
 
-/** Values for GenericSurface::GPUGeom::refractionHint. */
+/** Values for SuperSurface::GPUGeom::refractionHint. */
 class RefractionQuality {
 public:
     enum Value {
@@ -68,7 +68,7 @@ public:
 };
 
 
-/** Values for GenericSurface::GPUGeom::mirrorHint. */
+/** Values for SuperSurface::GPUGeom::mirrorHint. */
 class MirrorQuality {
 public:
     enum Value {

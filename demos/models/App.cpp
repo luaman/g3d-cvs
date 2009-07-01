@@ -59,7 +59,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
 
     screenPrintf("Lights: %d\n", lighting->lightArray.size());
     screenPrintf("S Lights: %d\n", lighting->shadowedLightArray.size());
-    GenericSurface::debugNumSendGeometryCalls = 0;
+    SuperSurface::debugNumSendGeometryCalls = 0;
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
@@ -92,7 +92,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
     Surface2D::sortAndRender(rd, posed2D);
 
     screenPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
-    screenPrintf("%s Profile %s\n", toString(GenericSurface::profile()),
+    screenPrintf("%s Profile %s\n", toString(SuperSurface::profile()),
         #ifdef _DEBUG
                 "(DEBUG mode)"
         #else
@@ -116,7 +116,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
         rd, Color4(1,1,1,0.7f));
     rd->pop2D();
 
-    screenPrintf("GenericSurface::debugNumSendGeometryCalls = %d\n", 
-                 GenericSurface::debugNumSendGeometryCalls);
+    screenPrintf("SuperSurface::debugNumSendGeometryCalls = %d\n", 
+                 SuperSurface::debugNumSendGeometryCalls);
 }
 

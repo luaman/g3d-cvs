@@ -10,7 +10,7 @@
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/Shader.h"
-#include "GLG3D/GenericSurface.h"
+#include "GLG3D/SuperSurface.h"
 #include "GLG3D/Surface.h"
 
 namespace G3D {
@@ -20,12 +20,12 @@ class RenderDevice;
 /** \brief Saito and Takahashi's Geometry Buffers for deferred shading. 
     Contains position, normal, depth, and BSDF parameters.
 
-    Used for rendering a G3D::UberBSDF with deferred shading. 
+    Used for rendering a G3D::SuperBSDF with deferred shading. 
 
     Requires GBuffer.pix and GBuffer.vrt at runtime, which can be found
     in the G3D/data-files/SuperShader directory of the G3D distribution.
 
-    \beta This build of G3D only supports GenericSurface with GBuffer.
+    \beta This build of G3D only supports SuperSurface with GBuffer.
 
     Requires glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT) >= 5 and 
     pixel and vertex shaders.
@@ -41,7 +41,7 @@ private:
 
     const ImageFormat*          m_depthFormat;
 
-    /** Renders the GenericSurface Material UberBSDF coefficients
+    /** Renders the SuperSurface Material SuperBSDF coefficients
       to the color attachments. */
     Shader::Ref                 m_shader;
 
@@ -71,7 +71,7 @@ private:
 
     void computeGeneric
     (RenderDevice* rd, 
-     const GenericSurface::Ref& model) const;
+     const SuperSurface::Ref& model) const;
 
     void computeNonGeneric
     (RenderDevice* rd, 
@@ -79,7 +79,7 @@ private:
 
     void computeGenericArray
     (RenderDevice* rd, 
-     const Array<GenericSurface::Ref>& model) const;
+     const Array<SuperSurface::Ref>& model) const;
 
     void computeNonGenericArray
     (RenderDevice* rd, 
@@ -153,9 +153,9 @@ public:
 
         Performs alpha testing using Lambertian.a.
 
-        Elements of \a modelArray that are not GenericSurface
+        Elements of \a modelArray that are not SuperSurface
         will be rendered twice to extract their lambertian component
-        and will have no other components.  GenericSurface instances
+        and will have no other components.  SuperSurface instances
         render efficiently and will have full BSDF components.
     */
     void compute

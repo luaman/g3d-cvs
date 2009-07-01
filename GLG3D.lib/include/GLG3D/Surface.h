@@ -384,7 +384,7 @@ public:
      const ReferenceCountedPointer<ShadowMap>&  shadowMap = NULL);
 
     /** Render elements of modelArray, handling transparency reasonably.  Special cased
-        code for refracting GenericSurface instances.  Called from sortAndRender().
+        code for refracting SuperSurface instances.  Called from sortAndRender().
 
         Assumes:
 

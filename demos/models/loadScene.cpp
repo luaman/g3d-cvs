@@ -58,7 +58,7 @@ void App::loadScene() {
         Material::Settings spec;
         spec.setLambertian(Color3::zero());
         spec.setSpecular(Color3::white() * 0.5f);
-        spec.setShininess(UberBSDF::packedSpecularMirror());
+        spec.setShininess(SuperBSDF::packedSpecularMirror());
 
         model->partArray[0].triList[0]->material = Material::create(spec);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));

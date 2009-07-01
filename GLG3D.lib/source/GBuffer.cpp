@@ -4,7 +4,7 @@
  */
 #include "GLG3D/GBuffer.h"
 #include "GLG3D/RenderDevice.h"
-#include "GLG3D/UberBSDF.h"
+#include "GLG3D/SuperBSDF.h"
 
 namespace G3D {
 
@@ -132,12 +132,12 @@ void GBuffer::compute
  const GCamera&                 camera,
  const Array<Surface::Ref>&  modelArray) const {
 
-    Array<GenericSurface::Ref> genericArray;
+    Array<SuperSurface::Ref> genericArray;
     Array<Surface::Ref> nonGenericArray;
 
     for (int m = 0; m < modelArray.size(); ++m) {
-        const GenericSurface::Ref& model = 
-            modelArray[m].downcast<GenericSurface>();
+        const SuperSurface::Ref& model = 
+            modelArray[m].downcast<SuperSurface>();
 
         if (model.notNull()) {
             genericArray.append(model);
@@ -172,7 +172,7 @@ void GBuffer::compute
 
 void GBuffer::computeGenericArray
 (RenderDevice* rd, 
- const Array<GenericSurface::Ref>& genericArray) const {
+ const Array<SuperSurface::Ref>& genericArray) const {
    
     rd->setShader(m_shader);
     rd->beginIndexedPrimitives();
@@ -218,14 +218,14 @@ void GBuffer::computeNonGeneric
 
 void GBuffer::computeGeneric
 (RenderDevice* rd,
- const GenericSurface::Ref& model) const {
+ const SuperSurface::Ref& model) const {
 
     debugAssertGLOk();
 
     // Configure the shader with the coefficients
-    const GenericSurface::GPUGeom::Ref& geom = model->gpuGeom();
+    const SuperSurface::GPUGeom::Ref& geom = model->gpuGeom();
 
-    const UberBSDF::Ref& bsdf = geom->material->bsdf();
+    const SuperBSDF::Ref& bsdf = geom->material->bsdf();
     m_shader->args.set("lambertianMap",      Texture::whiteIfNull(bsdf->lambertian().texture()));
     m_shader->args.set("lambertianConstant", bsdf->lambertian().constant().rgb());
     m_shader->args.set("specularMap",        Texture::whiteIfNull(bsdf->specular().texture()));
