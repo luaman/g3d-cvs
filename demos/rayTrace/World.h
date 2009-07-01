@@ -20,6 +20,7 @@ private:
 public:
 
     Array<GLight>           lightArray;
+    Color3                  ambient;
 
     World();
 
