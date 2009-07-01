@@ -32,6 +32,9 @@ private:
     /** Trace a whole image. */
     Image3::Ref rayTraceImage(float scale);
 
+    /** Show a full-screen message */
+    void message(const std::string& msg) const;
+
 public:
 
     App(const GApp::Settings& settings = GApp::Settings());

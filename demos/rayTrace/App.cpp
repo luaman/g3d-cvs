@@ -21,6 +21,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), m_world(NULL) {}
 
 
 void App::onInit() {
+    message("Loading...");
     m_world = new World();
 
     showRenderingStats = false;
@@ -28,7 +29,8 @@ void App::onInit() {
     developerWindow->cameraControlWindow->setVisible(false);
     
     // Starting position
-    defaultCamera.setCoordinateFrame(CFrame::fromXYZYPRDegrees( 24.3f,   0.4f,   2.5f,  68.7f,   1.2f,   0.0f));
+    defaultCamera.setCoordinateFrame(CFrame::fromXYZYPRDegrees(24.3f, 0.4f, 2.5f, 68.7f, 1.2f, 0.0f));
+    m_prevCFrame = defaultCamera.coordinateFrame();
 
     makeGUI();
     onRender();
@@ -47,13 +49,13 @@ void App::makeGUI() {
 
 
 void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
-    rd->clear();
-
-    if (m_prevCFrame != defaultCamera.coordinateFrame()) {
+    if (! m_prevCFrame.fuzzyEq(defaultCamera.coordinateFrame())) {
         // Update the preview image only while moving
-        rayTraceImage(0.25f);
+        rayTraceImage(0.18f);
         m_prevCFrame = defaultCamera.coordinateFrame();
     }
+
+    rd->clear();
 
     if (m_result.notNull()) {
         rd->push2D();
@@ -147,8 +149,22 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
 }
 
 
+void App::message(const std::string& msg) const {
+    renderDevice->clear();
+    renderDevice->push2D();
+        debugFont->draw2D(renderDevice, msg, renderDevice->viewport().center(), 12, 
+            Color3::white(), Color4::clear(), GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
+    renderDevice->pop2D();
+
+    // Force update so that we can see the message
+    renderDevice->swapBuffers();
+}
+
+
 void App::onRender() {
-    debugPrintf("Tracing...\n");
+    // Show message
+    message("Rendering...");
+
 	Stopwatch timer;
     Image3::Ref im = rayTraceImage(1.0f);
 	timer.after("Trace");

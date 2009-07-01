@@ -84,7 +84,9 @@ void World::end() {
     debugAssert(m_mode == INSERT);
     m_mode = TRACE;
 
-    m_triTree.setContents(m_triArray);
+    TriTree::Settings s;
+    s.algorithm = TriTree::MEAN_EXTENT;
+    m_triTree.setContents(m_triArray, s);
     m_triArray.clear();
 }
 
