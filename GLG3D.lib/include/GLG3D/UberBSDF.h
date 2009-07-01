@@ -165,6 +165,17 @@ protected:
         m_eta_r(1.0f), 
         m_extinction_r(Color3::zero()){}
 
+    /**
+       \param g Glossy exponent
+       \param n Surface normal (world space)
+    */
+    void glossyScatter
+    (const Vector3& w_i,
+     float          g,
+     const Vector3& n,
+     G3D::Random&   r,
+     Vector3&       w_o) const;
+
 public: 
     static float ignoreFloat;
 

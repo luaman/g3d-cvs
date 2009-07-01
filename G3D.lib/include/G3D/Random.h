@@ -109,8 +109,13 @@ public:
     virtual float gaussian(float mean, float stdev);
 
     /** Returns 3D unit vectors distributed according to 
-        a cosine distribution about the z axis. */
+        a cosine distribution about the z-axis. */
     virtual void cosHemi(float& x, float& y, float& z);
+
+    /** Returns 3D unit vectors distributed according to a cosine
+        power distribution (\f$ \cos^k \theta \f$) about
+        the z-axis. */
+    virtual void cosPowHemi(const float k, float& x, float& y, float& z);
 
     /** Returns 3D unit vectors uniformly distributed on the 
         hemisphere about the z-axis. */

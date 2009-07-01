@@ -360,6 +360,20 @@ public:
     */
     static Vector3 cosHemiRandom(const Vector3& n, Random& r = Random::common());
 
+    /** \brief Random unit vector, distributed according to \f$\max(\cos^k \theta,0)\f$.
+
+        That is, so that the probability of \f$\vec{V}\f$ is
+        proportional to \f$\max((\vec{v} \cdot \vec{n})^k, 0)\f$.
+        Useful in photon mapping for glossy scattering.
+
+        Distribution rendered by G3D::DirectionHistogram:
+        \image html vector3-cospowhemirandom.png
+
+        \param n Unit vector at the center of the distribution.
+
+        @cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
+    */
+    static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
 
     /**
      \brief Random vector distributed over the hemisphere about normal.

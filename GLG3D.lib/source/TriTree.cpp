@@ -603,7 +603,6 @@ bool TriTree::intersectRay
     
     const float initialDistance = distance;
     if (m_root != NULL) {
-        const Vector3& invRayDirection = Vector3(1.0f, 1.0f, 1.0f) / ray.direction();
         m_root->intersectRay(ray, intersectCallback, distance);
     }
     return distance < initialDistance;

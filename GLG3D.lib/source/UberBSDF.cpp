@@ -21,7 +21,7 @@ UberBSDF::Ref UberBSDF::create
  float             eta_r,
  const Color3&     extinction_r) {
 
-    UberBSDF::Ref bsdf        = new UberBSDF();
+    UberBSDF::Ref bsdf      = new UberBSDF();
 
     bsdf->m_lambertian      = lambertian;
     bsdf->m_specular        = specular;
@@ -81,10 +81,10 @@ void UberBSDF::getImpulses
  Array<Impulse>& impulseArray,
  bool            lowFreq) const {
 
-    Color3 F;
+    Color3 F(0,0,0);
     bool Finit = false;
 
-    ///////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     if (m_specular.notBlack()) {
 
         // Sample the specular coefficients
@@ -107,7 +107,7 @@ void UberBSDF::getImpulses
             if (shininess == packedSpecularMirror()) {
                 // Mirror
                 
-                Impulse& imp = impulseArray.next();
+                Impulse& imp     = impulseArray.next();
                 imp.w            = w_i.reflectAbout(n);
                 imp.coefficient  = F;
                 imp.eta          = m_eta_r;
@@ -116,7 +116,7 @@ void UberBSDF::getImpulses
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     if (m_transmissive.notBlack()) {
         // Fresnel transmissive coefficient
         Color3 F_t;
@@ -142,7 +142,7 @@ void UberBSDF::getImpulses
         const Color3& p_transmit  = F_t * T0;
        
         debugAssert(w_i.dot(n) > 0);
-        Impulse& imp = impulseArray.next();
+        Impulse& imp     = impulseArray.next();
 
         imp.coefficient  = p_transmit;
         imp.w            = (-w_i).refractionDirection(n, m_eta_t, m_eta_r);
@@ -151,6 +151,101 @@ void UberBSDF::getImpulses
     }
 }
 
+
+void UberBSDF::glossyScatter
+(const Vector3& w_i,
+ float          g,
+ const Vector3& n,
+ G3D::Random&   r,
+ Vector3&       w_o) const {
+
+    // Notation translator from the jgt paper:
+    //
+    //      n_u = n_v = g
+    //      k1 = w_i
+    //      k2 = w_o
+    //      h  = w_h
+
+    float cos_o;
+    do {
+        // Eq. 6 and 10 (eq. 9 cancels for isotropic)
+        // Generate a cosine distributed half-vector:
+        const Vector3& w_h = Vector3::cosPowHemiRandom(n, g, r);
+
+        // Now transform to the output vector: (eq. 7)
+        w_o = -w_i + 2.0f * (w_o.dot(w_h) * w_h);
+
+        // The output vector has three problems (with solutions used in
+        // this implementation):
+        //
+        //   1. Distribution is off because measures in w_h and w_o space
+        //        don't line up (Rejection sample by discrepancy)
+        //
+        //   2. May be below the surface of the plane (Loop until a sample
+        //        is found above; the scatter function's choice of glossy
+        //        scattering means that this method is conditioned on a
+        //        bounce occuring).  Since when w_h = n, w_o = mirror
+        //        reflection vector, there always exists some probability
+        //        distribution above the plane.
+        //
+        //   3. Does not account for the n.dot(w_o) probability (Rejection
+        //        sample by discrepancy)
+
+        cos_o = w_o.dot(n);
+    } while (r.uniform() > cos_o);
+}
+
+#if 0
+    // Let phi be the angle about the normal
+    const float phi = r.uniform(0, G3D::twoPi());
+    const float cos_phi = cos(phi);
+    const float sin_phi = sin(phi);
+
+    // Rejection sampling of angle relative to normal
+    while (true) {
+        const float cos_theta = pow(r.uniform(0.0f, 1.0f), 1.0f / (g + 1.0f));
+        const float sin_theta = sqrtf(1.0f - square(cos_theta));
+        
+        // In the reference frame of the surface
+        const Vector3 h_tangentSpace(cos_phi * sin_theta, sin_phi * sin_theta, cos_theta);
+        
+        const Vector3& h = h_tangentSpace;//TODO;
+        
+        // Set the attenuation to ps from the paper, computed based on
+        // the monte carlo section of the paper
+        const Vector3& k1 = w_i;
+        const float hdotk = h.dot(k1);
+        
+        if (hdotk > 0.0f) {
+            // On the front side of the specular lobe; we can continue        
+            Vector3 k2 = (-w_i + 2.0f * hdotk * h).direction();
+        
+            // Ensure that we're above the plane of the surface
+            if (k2.dot(n) > 0.0f) {
+
+                // Compute the density of the perturbed ray
+                const float hdotn = n.dot(h);
+                const float factor1 = (g + 1.0f) / G3D::twoPi();
+                const float factor2 = pow(hdotn, g);
+                
+                const float inv_actual_density = (4.0 * hdotk) / (factor1 * factor2);
+                
+                // Compute the density of what we actually want (from the BRDF)
+                float brdf;
+                //AshikminShirleyAnisotropicPhongBRDF::ComputeDiffuseSpecularFactors( diffuseFactor, brdf, k2, ri, NU, NV, Rs );
+                
+                // Now we need to correct for the fact that we sampled against
+                // the wrong distribution by a factor of N dot L.
+                float specFactor = inv_actual_density * brdf;
+                
+                //specular.ray.Set( ri.ptIntersection, k2 );
+            }
+        }
+    }
+
+    return true;
+}
+#endif
 
 bool UberBSDF::scatter
 (const Vector3& n,
@@ -169,7 +264,7 @@ bool UberBSDF::scatter
     // scattering's probability until it becomes negative (i.e., scatters).
     float r = random.uniform();
 
-    ///////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     if (m_lambertian.notBlack()) {
         // Sample the diffuse coefficients
         const Color4& diffuse = 
@@ -198,10 +293,10 @@ bool UberBSDF::scatter
         }
     }
 
-    Color3 F;
+    Color3 F(0,0,0);
     bool Finit = false;
 
-    ///////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     if (m_specular.notBlack()) {
 
         // Sample the specular coefficients
@@ -230,10 +325,8 @@ bool UberBSDF::scatter
                     // Glossy                    
                     shininess = (float)unpackSpecularExponent(shininess);
 
-                    const Vector3& w_h = (w_i + w_o).direction();
-                    (void)w_h;
-                    // TODO: glossy scatter
-                    w_o = w_i;
+                    glossyScatter(w_i, shininess, n, random, w_o);
+
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     density = p_specularAvg * 0.1f;
 

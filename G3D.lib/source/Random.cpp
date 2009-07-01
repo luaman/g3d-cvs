@@ -161,6 +161,20 @@ void Random::cosHemi(float& x, float& y, float& z) {
 }
 
 
+void Random::cosPowHemi(const float k, float& x, float& y, float& z) {
+    const float e1 = uniform();
+    const float e2 = uniform();
+
+    const float cos_theta = pow(e1, 1.0f / (k + 1.0f));
+    const float sin_theta = sqrtf(1.0f - square(cos_theta));
+    const float phi = 6.28318531f * e2;
+
+    x = cos(phi) * sin_theta;
+    y = sin(phi) * sin_theta;
+    z = cos_theta;
+}
+
+
 void Random::hemi(float& x, float& y, float& z) {
     sphere(x, y, z);
     z = fabsf(z);

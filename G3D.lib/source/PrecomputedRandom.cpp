@@ -44,6 +44,33 @@ void PrecomputedRandom::cosHemi(float& x, float& y, float& z) {
     z = m_hemiUniform[m_index].cosHemiZ;
 }
 
+void Random::cosPowHemi(const float k, float& x, float& y, float& z) {
+    // Computing a cosPowHemi costs 4 slow functions (pow, sqrt, sin,
+    // cos). We can do it with two, given a cosHemi sample, basically
+    // saving the cost of sin and cos and making a single 128-byte
+    // memory read (for a vector) instead of two (for adjacent uniform
+    // floats).
+
+    // cos^1 distribution sample
+    float cos1;
+    cosHemi(x, y, cos1);
+
+    // Fix the distribution by adjusting the cosine:
+    // rnd(cos^k t) = (rnd(cos(t))^2)^(1/k)
+    
+    // produces cos^k distribution sample
+    z = pow(cos1, 2.0f / (1.0f + k));
+
+    // Rescale x and y by sqrt(1.0f - square(z)) / sqrt(x*x + y*y).
+    // Add a very tiny offset to handle the (almost impossibly unlikely) case where
+    // z = 1 and x^2+y^2 = 0.
+    static const float eps = 0.000001f;
+    const float s = sqrt((1.0f + eps - square(z)) / (square(x) + square(y) + eps));
+
+    x *= s;
+    y *= s;
+}
+
 
 uint32 PrecomputedRandom::bits() {
     m_index = (m_index + 1) & m_modMask;

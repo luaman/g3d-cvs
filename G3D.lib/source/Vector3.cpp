@@ -200,6 +200,26 @@ Vector3 Vector3::cosHemiRandom(const Vector3& normal, Random& r) {
 }
 
 
+Vector3 Vector3::cosPowHemiRandom(const Vector3& normal, const float k, Random& r) {
+    debugAssertM(G3D::fuzzyEq(normal.length(), 1.0f), 
+                 "cosPowHemiRandom requires its argument to have unit length");
+
+    float x, y, z;
+    r.cosPowHemi(k, x, y, z);
+
+    // Make a coordinate system
+    const Vector3& Z = normal;
+
+    Vector3 X, Y;
+    normal.getTangents(X, Y);
+
+    return 
+        x * X +
+        y * Y +
+        z * Z;
+}
+
+
 Vector3 Vector3::hemiRandom(const Vector3& normal, Random& r) {
     const Vector3& V = Vector3::random(r);
 
