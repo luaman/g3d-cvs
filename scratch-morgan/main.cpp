@@ -173,7 +173,7 @@ void App::onInit() {
     const int N = 100000;
 
     SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.8f),
-        Color4(Color3::black() * 0.2f, SuperBSDF::packSpecularExponent(20)), Color3::black());
+        Color4(Color3::white() * 0.2f, SuperBSDF::packSpecularExponent(20)), Color3::black());
     const Vector3 n = Vector3::unitZ();
     const Vector2 t = Vector2::zero();
     const Vector3 w_i = Vector3(1, 0, 0.5).direction();
@@ -190,7 +190,6 @@ void App::onInit() {
             weight.append(P_o.average());
         }
         // v.next(); weight.append(1.0); r.cosPowHemi(10, v.last().x, v.last().y, v.last().z);
-//        r.sphere(v[i].x, v[i].y, v[i].z);
     }    
     histogram->insert(v, weight);
 
@@ -199,7 +198,7 @@ void App::onInit() {
     backwardHistogram = new DirectionHistogram(30, Vector3::unitZ());
     while (v.size() < N) {
         Vector3 w_o;
-        r.hemi(w_o.x, w_o.y, w_o.z);
+        r.cosHemi(w_o.x, w_o.y, w_o.z);
         const Color3& P_o = bsdf->shadeDirect(n, t, w_i, P_i, w_o).rgb();
 
         v.append(w_o);
@@ -240,12 +239,12 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
 
     if (histogram != NULL) {
         rd->pushState();
-        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90))));
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,-2.5f)));
         histogram->render(rd, Color3::white());
         rd->popState();
 
         rd->pushState();
-        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,5)));
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,2.5f)));
         backwardHistogram->render(rd, Color3::red());
         rd->popState();
 

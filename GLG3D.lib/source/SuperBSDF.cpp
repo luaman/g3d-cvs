@@ -166,7 +166,7 @@ void SuperBSDF::glossyScatter
     //      k2 = w_o
     //      h  = w_h
 
-    float cos_o;
+    float intensity;
     do {
         // Eq. 6 and 10 (eq. 9 cancels for isotropic)
         // Generate a cosine distributed half-vector:
@@ -191,8 +191,11 @@ void SuperBSDF::glossyScatter
         //   3. Does not account for the n.dot(w_o) probability (Rejection
         //        sample by discrepancy)
 
-        cos_o = w_o.dot(n);
-    } while (r.uniform() > cos_o);
+        const float cos_o = w_o.dot(n);
+
+        // Adjust for the measure difference between w_o and w_h spaces (eq. 8)
+        intensity = cos_o / (4.0f * w_i.dot(w_h));
+    } while (r.uniform() > intensity);
 }
 
 #if 0

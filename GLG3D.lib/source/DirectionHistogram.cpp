@@ -259,14 +259,14 @@ void DirectionHistogram::render(
         rd->disableLighting();
 
         // Hidden surfaces
-        rd->setPolygonOffset(0.9f);
+        rd->setPolygonOffset(0.2f);
         rd->setColor(solidColor);
         sendGeometry(rd);
 
         rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
 
         // Lines
-        rd->setPolygonOffset(-0.3f);
+        rd->setPolygonOffset(-0.2f);
         rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
         rd->setColor(lineColor);
         rd->setLineWidth(1.0f);
