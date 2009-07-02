@@ -67,7 +67,7 @@ Color4 SuperBSDF::shadeDirect
         
         result += computeF(specular.rgb(), cos_i) * 
             (powf(cos_h, e) *
-             (shininess + 8.0f) * INV_8PI);
+             (e + 8.0f) * INV_8PI);
     }
     
     return Color4(result * power_i * cos_i, diffuse.a);
@@ -173,7 +173,7 @@ void SuperBSDF::glossyScatter
         const Vector3& w_h = Vector3::cosPowHemiRandom(n, g, r);
 
         // Now transform to the output vector: (eq. 7)
-        w_o = -w_i + 2.0f * (w_o.dot(w_h) * w_h);
+        w_o = w_i.reflectAbout(w_h);
 
         // The output vector has three problems (with solutions used in
         // this implementation):
@@ -325,8 +325,7 @@ bool SuperBSDF::scatter
                     // Glossy                    
                     shininess = (float)unpackSpecularExponent(shininess);
 
-//                    glossyScatter(w_i, shininess, n, random, w_o); TODO :un comment
-w_o = w_i.reflectAbout(n);
+                    glossyScatter(w_i, shininess, n, random, w_o);
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     density = p_specularAvg * 0.1f;
 

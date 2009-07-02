@@ -413,7 +413,7 @@ public:
         well.
         */
     static inline int unpackSpecularExponent(float e) {
-        return iMax(iRound(e * 127.0f) + 1, 128);
+        return iMin(iRound(e * 127.0f) + 1, 128);
     }
 
     /** The value that a specular mirror is packed as */

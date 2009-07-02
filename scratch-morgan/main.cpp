@@ -35,6 +35,8 @@ public:
     Film::Ref               film;
 
     DirectionHistogram*     histogram;
+    DirectionHistogram*     backwardHistogram;
+
     Array<Surface::Ref> transparent;
 
     App(const GApp::Settings& settings = GApp::Settings());
@@ -67,8 +69,6 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 void App::onInit() {
 
     film = Film::create();
-    updating = true;
-    debugPane->addCheckBox("Update Frustum", &updating);
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     //ground = ArticulatedModel::createCornellBox(11.0f);
@@ -109,15 +109,16 @@ void App::onInit() {
 
     setDesiredFrameRate(1000);
 
-    sky = Sky::fromFile(System::findDataFile("sky"));
+    //sky = Sky::fromFile(System::findDataFile("sky"));
 
     if (sky.notNull()) {
         skyParameters = SkyParameters(G3D::toSeconds(5, 00, 00, PM));
+
+        lighting = Lighting::fromSky(sky, skyParameters, Color3::white() * 0.5f);
+        lighting->lightArray.append(lighting->shadowedLightArray);
+        lighting->shadowedLightArray.clear();
     }
 
-    lighting = Lighting::fromSky(sky, skyParameters, Color3::white() * 0.5f);
-    lighting->lightArray.append(lighting->shadowedLightArray);
-    lighting->shadowedLightArray.clear();
     /*
     lighting = Lighting::create();
     lighting->ambientTop = Color3::white() * 0.2f;
@@ -138,7 +139,7 @@ void App::onInit() {
     shadowMap = ShadowMap::create("Shadow Map");
     */
     Stopwatch timer("Load 3DS");
-    {
+    if (false) {
         ArticulatedModel::PreProcess preprocess;
         preprocess.addBumpMaps = false;
         preprocess.textureDimension = Texture::DIM_2D_NPOT;
@@ -153,7 +154,7 @@ void App::onInit() {
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/ifs/teapot.ifs"), 3);
 
     timer.after("load 3DS");
-
+/*
     fb = Framebuffer::create("Offscreen");
     colorBuffer = Texture::createEmpty("Color", renderDevice->width(), renderDevice->height(), ImageFormat::RGB16F(), Texture::DIM_2D_NPOT, Texture::Settings::video());
     fb->set(Framebuffer::COLOR_ATTACHMENT0, colorBuffer);
@@ -161,17 +162,50 @@ void App::onInit() {
         Texture::createEmpty("Depth", renderDevice->width(), renderDevice->height(), ImageFormat::DEPTH24(), Texture::DIM_2D_NPOT, Texture::Settings::video()));
 
     film->makeGui(debugPane);
-/*
-    histogram = new DirectionHistogram(220);
-    Array<Vector3> v(5000000);
-    for (int i = 0; i < v.size(); ++i) {
-//        histogram->insert(Vector3::cosHemiRandom(Vector3::unitY()));
-//        histogram->insert(Vector3::random());
-        v[i] =  Vector3::hemiRandom(Vector3::unitY());
-    }
+    */
+
     
-    histogram->insert(v);
-*/
+    Random r;
+    histogram = new DirectionHistogram(30, Vector3::unitZ());
+    Array<Vector3> v;
+    Array<float> weight;
+    // Num samples
+    const int N = 100000;
+
+    SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.8f),
+        Color4(Color3::black() * 0.2f, SuperBSDF::packSpecularExponent(20)), Color3::black());
+    const Vector3 n = Vector3::unitZ();
+    const Vector2 t = Vector2::zero();
+    const Vector3 w_i = Vector3(1, 0, 0.5).direction();
+    const Color3  P_i = Color3::white();
+
+    while (v.size() < N) {
+        Color3 P_o;
+        Vector3 w_o;
+        float  eta_o;
+        Color3 extinction_o;
+        if (bsdf->scatter(n, t, w_i, P_i, w_o, P_o, eta_o, extinction_o, r)) {
+            debugAssert(w_o.isUnit());
+            v.append(w_o);
+            weight.append(P_o.average());
+        }
+        // v.next(); weight.append(1.0); r.cosPowHemi(10, v.last().x, v.last().y, v.last().z);
+//        r.sphere(v[i].x, v[i].y, v[i].z);
+    }    
+    histogram->insert(v, weight);
+
+    v.clear();
+    weight.clear();
+    backwardHistogram = new DirectionHistogram(30, Vector3::unitZ());
+    while (v.size() < N) {
+        Vector3 w_o;
+        r.hemi(w_o.x, w_o.y, w_o.z);
+        const Color3& P_o = bsdf->shadeDirect(n, t, w_i, P_i, w_o).rgb();
+
+        v.append(w_o);
+        weight.append(P_o.average());
+    }    
+    backwardHistogram->insert(v, weight);
 
     defaultCamera.setCoordinateFrame(bookmark("Home"));
     defaultCamera.setFieldOfView(toRadians(60), GCamera::HORIZONTAL);
@@ -199,74 +233,23 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
-    Array<Surface::Ref>        opaque, transparent;
-    LightingRef   localLighting = toneMap->prepareLighting(lighting);
-    SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
-
+    (void)posed3D;
+    rd->setColorClearValue(Color3::white());
     rd->clear();
-//    rd->pushState(fb);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
-    rd->setColorClearValue(Color3::white() * 0.8f);
-    rd->clear(true, true, true);
-    if (sky.notNull()) {
-        sky->render(rd, localSky);
-    }
-
-    Surface::sortAndRender(rd, defaultCamera, posed3D, localLighting, shadowMap);
-
-/*
-    {
-        GLight& light = lighting->shadowedLightArray[0];
-        Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, Color3::white());
-        
-        CFrame lightCFrame = light.position.xyz();
-        lightCFrame.lookAt(light.position.xyz() + light.spotDirection);
-        GCamera lightCamera;
-        lightCamera.lookAt(light.spotDirection);
-        lightCamera.setCoordinateFrame(lightCFrame);
-        lightCamera.setFieldOfView(toRadians(light.spotCutoff) * 2, GCamera::HORIZONTAL);
-        lightCamera.setNearPlaneZ(-0.01f);
-        lightCamera.setFarPlaneZ(-10.01f);
-        Draw::frustum(lightCamera.frustum(shadowMap->rect2DBounds()), rd);
-    }
-*/
-    /*
-    for (int i = 0; i < posed3D.size(); ++i) {
-        Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
-    }
-    Draw::axes(rd);
-    */
-
-#if 0
-    static GCamera::Frustum f;
-    static Ray r0, r1;
-    
-    if (updating) {
-       f = defaultCamera.frustum(rd->viewport());
-       r0 = defaultCamera.worldRay(0,0,rd->viewport());
-       r1 = defaultCamera.worldRay(rd->viewport().width(),rd->viewport().height(),rd->viewport());
-    }
-    Draw::ray(r0, rd);
-    Draw::ray(r1, rd);
-    rd->setDepthWrite(false);
-    for (int i = 1; i < 5; ++i) {
-        Draw::plane(f.faceArray[i].plane, rd);
-    }
-    Draw::frustum(f, rd);
-#endif
-
-
-    /*
-    Draw::sphere(Sphere(Vector3(0,3,0), 0.2f), rd, Color3::white());
-    Draw::sphere(Sphere(Vector3::zero(), 3), rd);
-    Draw::box(AABox(Vector3(-3,0,-3), Vector3(3,6,3)), rd);
-    */
-
     if (histogram != NULL) {
-        histogram->render(rd);
+        rd->pushState();
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90))));
+        histogram->render(rd, Color3::white());
+        rd->popState();
+
+        rd->pushState();
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,5)));
+        backwardHistogram->render(rd, Color3::red());
+        rd->popState();
+
         Draw::plane(Plane(Vector3::unitY(), Vector3::zero()), rd, Color4(Color3(1.0f, 0.92f, 0.85f), 0.4f), Color4(Color3(1.0f, 0.5f, 0.3f) * 0.3f, 0.5f));
-        Draw::axes(rd, Color3::red(), Color3::green(), Color3::blue(), 1.3f);
     }
 
 #if 0
@@ -276,11 +259,6 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
         Draw::vertexNormals(posed3D[i]->objectSpaceGeometry(), rd);
     }
 #endif
-
-    if (sky.notNull()) {
-        sky->renderLensFlare(rd, localSky);
-    }
-//    rd->popState();
 #if 0
     Array<Color3> data(colorBuffer->width() * colorBuffer->height());
 

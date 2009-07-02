@@ -91,15 +91,10 @@ DirectionHistogram::DirectionHistogram(float sharp, const Vector3& hemiAxis) : m
         const Vector3 Y = Z.cross(X);
 
         // Only generate upper hemisphere
-        static const int P = 36;
+        static const int P = 36 * 2;
         static const int T = 36;
 
         for (int t = 0; t < T; ++t) {
-            // Generate lat-lon lines:
-//            const float z = 1.0f - t / (T - 1.0f);
-//            const float r = sqrt(1.0f - square(z));
-
-            // Generate polar lines:
             const float theta = t * G3D::halfPi() / (T - 1.0f);
             const float z = cos(theta);
             const float r = sin(theta);
@@ -120,7 +115,7 @@ DirectionHistogram::DirectionHistogram(float sharp, const Vector3& hemiAxis) : m
             }
         }
     } else {
-        static const int P = 36;
+        static const int P = 36 * 2;
         static const int T = 36 * 2;
 
         for (int t = 0; t < T; ++t) {
@@ -145,7 +140,6 @@ DirectionHistogram::DirectionHistogram(float sharp, const Vector3& hemiAxis) : m
         }
     }
 
-    // Normalize the sphere
     m_bucket.resize(m_meshVertex.size());
     reset();
 
@@ -223,13 +217,16 @@ void DirectionHistogram::insert(const Array<Vector3>& vector, const Array<float>
     }
 
     if (w.size() == 0) {
+        // Ensure that there are weights
         w.resize(v.size());
         for (int i = 0; i < w.size(); ++i) {
             w[i] = 1.0f;
         }
     }
 
-    int N = m_meshVertex.size();
+    const int N = m_meshVertex.size();
+
+    m_dirty = true;
 
     // Launch
     if (numThreads > vector.size() / 10) {
@@ -249,8 +246,6 @@ void DirectionHistogram::insert(const Array<Vector3>& vector, const Array<float>
     }
     threads.start(GThread::USE_CURRENT_THREAD);
     threads.waitForCompletion();
-
-    m_dirty = true;
 }
 
 
@@ -264,13 +259,17 @@ void DirectionHistogram::render(
         rd->disableLighting();
 
         // Hidden surfaces
-        rd->setPolygonOffset(-0.75f);
+        rd->setPolygonOffset(0.9f);
         rd->setColor(solidColor);
         sendGeometry(rd);
 
+        rd->setDepthTest(RenderDevice::DEPTH_LEQUAL);
+
         // Lines
+        rd->setPolygonOffset(-0.3f);
         rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
         rd->setColor(lineColor);
+        rd->setLineWidth(1.0f);
         rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
         sendGeometry(rd);
     }

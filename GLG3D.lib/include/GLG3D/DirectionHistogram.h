@@ -103,7 +103,7 @@ public:
          
        \param hemiAxis if nonzero, the distribution is only recorded for the hemisphere 
         about this axis.*/
-    DirectionHistogram(float sharp = 120.0f, const Vector3& hemiAxis = Vector3::zero());
+    DirectionHistogram(float sharp = 30.0f, const Vector3& hemiAxis = Vector3::zero());
 
     /** Discard all data */
     void reset();
