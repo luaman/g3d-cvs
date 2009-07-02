@@ -99,7 +99,61 @@ void Draw::arrow(
     RenderDevice*       renderDevice,
     const Color4&       color,
     float               scale) {
-    ray(Ray::fromOriginAndDirection(start, direction), renderDevice, color, scale);
+
+    Vector3 tip = start + direction;
+    // Create a coordinate frame at the tip
+    Vector3 u = direction;
+    Vector3 v;
+    if (abs(u.x) < abs(u.y)) {
+        v = Vector3::unitX();
+    } else {
+        v = Vector3::unitY();
+    }
+    Vector3 w = u.cross(v).direction();
+    v = w.cross(u).direction();
+    Vector3 back = tip - u * 0.3f * scale;
+
+    RenderDevice::ShadeMode oldShadeMode = renderDevice->shadeMode();
+    Color4 oldColor = renderDevice->color();
+
+    renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
+    renderDevice->setColor(color);
+
+    float r = scale * 0.1f;
+    // Arrow head.  Need this beginprimitive call to sync up G3D and OpenGL
+    renderDevice->beginPrimitive(PrimitiveType::TRIANGLES);
+        for (int a = 0; a < SPHERE_SECTIONS; ++a) {
+            float angle0 = a * (float)twoPi() / SPHERE_SECTIONS;
+            float angle1 = (a + 1) * (float)twoPi() / SPHERE_SECTIONS;
+            Vector3 dir0(cos(angle0) * v + sin(angle0) * w);
+            Vector3 dir1(cos(angle1) * v + sin(angle1) * w);
+            glNormal3fv(dir0);
+            glVertex3fv(tip);
+
+            glVertex3fv(back + dir0 * r);
+
+            glNormal3fv(dir1);
+            glVertex3fv(back + dir1 * r);                
+        }
+    renderDevice->endPrimitive();
+    renderDevice->minGLStateChange(SPHERE_SECTIONS * 5);
+
+    // Back of arrow head
+    renderDevice->beforePrimitive();
+    glBegin(GL_TRIANGLE_FAN);
+        glNormal3fv(-u);
+        for (int a = 0; a < SPHERE_SECTIONS; ++a) {
+            float angle = a * (float)twoPi() / SPHERE_SECTIONS;
+            Vector3 dir = sin(angle) * v + cos(angle) * w;
+            glVertex3fv(back + dir * r);
+        }
+    glEnd();
+    renderDevice->afterPrimitive();
+    renderDevice->minGLStateChange(SPHERE_SECTIONS);
+
+    renderDevice->setColor(oldColor);
+    renderDevice->setShadeMode(oldShadeMode);
+    lineSegment(LineSegment::fromTwoPoints(start, back), renderDevice, color, scale);
 }
 
 
@@ -178,61 +232,7 @@ void Draw::ray(
     RenderDevice*       renderDevice,
     const Color4&       color,
     float               scale) {
-
-    Vector3 tip = ray.origin() + ray.direction();
-    // Create a coordinate frame at the tip
-    Vector3 u = ray.direction();
-    Vector3 v;
-    if (abs(u.x) < abs(u.y)) {
-        v = Vector3::unitX();
-    } else {
-        v = Vector3::unitY();
-    }
-    Vector3 w = u.cross(v).direction();
-    v = w.cross(u).direction();
-    Vector3 back = tip - u * 0.3f * scale;
-
-    RenderDevice::ShadeMode oldShadeMode = renderDevice->shadeMode();
-    Color4 oldColor = renderDevice->color();
-
-    renderDevice->setShadeMode(RenderDevice::SHADE_SMOOTH);
-    renderDevice->setColor(color);
-
-    float r = scale * 0.1f;
-    // Arrow head.  Need this beginprimitive call to sync up G3D and OpenGL
-    renderDevice->beginPrimitive(PrimitiveType::TRIANGLES);
-        for (int a = 0; a < SPHERE_SECTIONS; ++a) {
-            float angle0 = a * (float)twoPi() / SPHERE_SECTIONS;
-            float angle1 = (a + 1) * (float)twoPi() / SPHERE_SECTIONS;
-            Vector3 dir0(cos(angle0) * v + sin(angle0) * w);
-            Vector3 dir1(cos(angle1) * v + sin(angle1) * w);
-            glNormal3fv(dir0);
-            glVertex3fv(tip);
-
-            glVertex3fv(back + dir0 * r);
-
-            glNormal3fv(dir1);
-            glVertex3fv(back + dir1 * r);                
-        }
-    renderDevice->endPrimitive();
-    renderDevice->minGLStateChange(SPHERE_SECTIONS * 5);
-
-    // Back of arrow head
-    renderDevice->beforePrimitive();
-    glBegin(GL_TRIANGLE_FAN);
-        glNormal3fv(-u);
-        for (int a = 0; a < SPHERE_SECTIONS; ++a) {
-            float angle = a * (float)twoPi() / SPHERE_SECTIONS;
-            Vector3 dir = sin(angle) * v + cos(angle) * w;
-            glVertex3fv(back + dir * r);
-        }
-    glEnd();
-    renderDevice->afterPrimitive();
-    renderDevice->minGLStateChange(SPHERE_SECTIONS);
-
-    renderDevice->setColor(oldColor);
-    renderDevice->setShadeMode(oldShadeMode);
-    lineSegment(LineSegment::fromTwoPoints(ray.origin(), back), renderDevice, color, scale);
+    Draw::arrow(ray.origin(), ray.direction(), renderDevice, color, scale);
 }
 
 

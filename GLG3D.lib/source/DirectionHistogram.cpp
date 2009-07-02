@@ -74,23 +74,78 @@ void DirectionHistogram::sendGeometry(RenderDevice* rd) {
     rd->beginIndexedPrimitives();
     {
         rd->setVertexArray(m_gpuMeshVertex);
-        rd->sendIndices(PrimitiveType::TRIANGLES, m_gpuMeshIndex);
+        rd->sendIndices(PrimitiveType::QUADS, m_gpuMeshIndex);
     }
     rd->endIndexedPrimitives();
 }
 
 
-DirectionHistogram::DirectionHistogram(float sharp) : m_sharp(sharp) {
-    // Load data
-    Array<Vector2>  ignore;
-    std::string     name;
+DirectionHistogram::DirectionHistogram(float sharp, const Vector3& hemiAxis) : m_sharp(sharp) {
+    bool hemi = ! hemiAxis.isZero();
 
-    IFSModel::load(System::findDataFile("sphere.ifs"), name, m_meshIndex, m_meshVertex, ignore);
+    if (hemi) {
+        // Normalize
+        const Vector3& Z = hemiAxis.direction();
+        Vector3 X = (abs(Z.dot(Vector3::unitX())) <= 0.9f) ? Vector3::unitX() : Vector3::unitY();
+        X = (X - Z * (Z.dot(X))).direction();
+        const Vector3 Y = Z.cross(X);
+
+        // Only generate upper hemisphere
+        static const int P = 36;
+        static const int T = 36;
+
+        for (int t = 0; t < T; ++t) {
+            // Generate lat-lon lines:
+//            const float z = 1.0f - t / (T - 1.0f);
+//            const float r = sqrt(1.0f - square(z));
+
+            // Generate polar lines:
+            const float theta = t * G3D::halfPi() / (T - 1.0f);
+            const float z = cos(theta);
+            const float r = sin(theta);
+            for (int p = 0; p < P; ++p) {
+                const float phi = p * G3D::twoPi() / P;
+                const float x = cos(phi) * r;
+                const float y = sin(phi) * r;
+
+                m_meshVertex.append(X * x + Y * y + Z * z);
+
+                if (t > 0) {
+                    int i = m_meshVertex.size() - 1;
+                    int rowIndex = t * P;
+                    int colIndex = p;
+                    m_meshIndex.append(rowIndex + colIndex - P, rowIndex + colIndex, 
+                        rowIndex + ((colIndex + 1) % P), rowIndex - P + ((colIndex + 1) % P));
+                }
+            }
+        }
+    } else {
+        static const int P = 36;
+        static const int T = 36 * 2;
+
+        for (int t = 0; t < T; ++t) {
+            const float theta = t * G3D::pi() / (T - 1.0f);
+            const float z = cos(theta);
+            const float r = sin(theta);
+            for (int p = 0; p < P; ++p) {
+                const float phi = p * G3D::twoPi() / P;
+                const float x = cos(phi) * r;
+                const float y = sin(phi) * r;
+
+                m_meshVertex.append(Vector3(x, y, z));
+
+                if (t > 0) {
+                    int i = m_meshVertex.size() - 1;
+                    int rowIndex = t * P;
+                    int colIndex = p;
+                    m_meshIndex.append(rowIndex + colIndex - P, rowIndex + colIndex, 
+                        rowIndex + ((colIndex + 1) % P), rowIndex - P + ((colIndex + 1) % P));
+                }
+            }
+        }
+    }
 
     // Normalize the sphere
-    for (int i = 0; i < m_meshVertex.size(); ++i) {
-        m_meshVertex[i] = m_meshVertex[i].direction();
-    }
     m_bucket.resize(m_meshVertex.size());
     reset();
 

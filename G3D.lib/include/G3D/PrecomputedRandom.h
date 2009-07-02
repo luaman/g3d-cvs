@@ -95,7 +95,7 @@ public:
     virtual void cosHemi(float& x, float& y, float& z);
 
     /** Returns 3D unit vectors distributed according to a cosine
-        power distribution (\f$ \operatorname{cos}^k \theta \f$) about
+        power distribution (\f$ \mbox{cos}^k \theta \f$) about
         the z-axis. */
     virtual void cosPowHemi(const float k, float& x, float& y, float& z);
 

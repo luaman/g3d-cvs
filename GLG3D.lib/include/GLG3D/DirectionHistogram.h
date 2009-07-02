@@ -99,8 +99,11 @@ public:
 
     /** @param sharp Sharpness of the smoothing filter.  Recommended range 
          is 30 (very smooth) - 220 (very sharp).  Smoother filters are needed
-         when taking very few samples.*/
-    DirectionHistogram(float sharp = 120.0f);
+         when taking very few samples.
+         
+       \param hemiAxis if nonzero, the distribution is only recorded for the hemisphere 
+        about this axis.*/
+    DirectionHistogram(float sharp = 120.0f, const Vector3& hemiAxis = Vector3::zero());
 
     /** Discard all data */
     void reset();
