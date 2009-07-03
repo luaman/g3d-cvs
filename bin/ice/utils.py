@@ -466,34 +466,6 @@ def VCExpress(filename, configs):
 """ 
  VC9 dispatcher
 """
-
-baseRegPaths  = ("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft", "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Wow6432Node")
-vcexpressPath = ("VCExpress")
-vcproPath     = ("VisualStudio")
-
-def testVCInstall(paths, testSection, testOption):
-    from regconfig import RegConfig
-
-    for basePath in baseRegPaths:
-        print basePath
-        regConf = RegConfig(basePath)
-        currentPath = basePath
-         
-        missingSection = False
-        for section in paths:
-            if regConf.has_section(section):
-                currentPath += "\\" + section
-                regConf = RegConfig(currentPath)
-            else:
-                missingSection = True
-                break
-        
-        if not missingSection:
-            break;
-
-    return not missingSection and regConf.has_option(testSection, testOption)
-
-
 def VC9(filename, configs):
      # find out the flavor of MSVC
      
