@@ -166,11 +166,13 @@ void App::onInit() {
 
     
     G3D::Random r;
-    histogram = new DirectionHistogram(30, Vector3::unitZ());
+    // Num samples
+    const int N = 5000000;
+    int slices = 18;
+
+    histogram = new DirectionHistogram(slices);
     Array<Vector3> v;
     Array<float> weight;
-    // Num samples
-    const int N = 100000;
 
     SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.8f),
         Color4(Color3::white() * 0.2f, SuperBSDF::packSpecularExponent(20)), Color3::black());
@@ -180,6 +182,7 @@ void App::onInit() {
     const Color3  P_i = Color3::white();
 
     while (v.size() < N) {
+    /*
         Color3 P_o;
         Vector3 w_o;
         float  eta_o;
@@ -189,20 +192,30 @@ void App::onInit() {
             v.append(w_o);
             weight.append(P_o.average());
         }
-        // v.next(); weight.append(1.0); r.cosPowHemi(10, v.last().x, v.last().y, v.last().z);
-    }    
+        */
+        v.next(); r.hemi(v.last().x, v.last().y, v.last().z); 
+        weight.append(1.0); 
+    }
+
+
     histogram->insert(v, weight);
+    
 
     v.clear();
     weight.clear();
-    backwardHistogram = new DirectionHistogram(30, Vector3::unitZ());
+    backwardHistogram = new DirectionHistogram(slices);
     while (v.size() < N) {
+        /*
         Vector3 w_o;
         r.cosHemi(w_o.x, w_o.y, w_o.z);
         const Color3& P_o = bsdf->shadeDirect(n, t, w_i, P_i, w_o).rgb();
 
         v.append(w_o);
         weight.append(P_o.average());
+        */
+        v.next(); r.cosHemi(v.last().x, v.last().y, v.last().z); 
+        weight.append(v.last().z);
+
     }    
     backwardHistogram->insert(v, weight);
 

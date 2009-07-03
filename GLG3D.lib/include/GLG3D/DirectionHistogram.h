@@ -16,6 +16,7 @@
 #include "G3D/Color4.h"
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/VertexRange.h"
+#include "GLG3D/TriTree.h"
 
 namespace G3D {
 
@@ -38,21 +39,7 @@ class RenderDevice;
 class DirectionHistogram {
 private:
 
-    class WorkerThread : public GThread {
-    private:
-        DirectionHistogram*     hist;
-        int                     startIndex;
-        int                     stopIndex;
-        const Array<Vector3>&   vector;
-        const Array<float>&     weight;
-
-    public:
-        WorkerThread(DirectionHistogram* h, int start, int stop, 
-            const Array<Vector3>& vector, const Array<float>& weight);
-        void threadMain();
-    };
-
-    friend class WorkerThread;
+    int                 m_slices;
 
     /** Vertices of the visualization mesh, on the unit sphere. */
     Array<Vector3>      m_meshVertex;
@@ -60,23 +47,25 @@ private:
     /** Indices into meshVertex of the trilist for the visualization mesh. */
     Array<int>          m_meshIndex;
 
-    /** Histogram buckets.  These are the scales of the corresponding meshVertex.*/
+    /** Histogram buckets.  These are the scales of the corresponding m_meshVertex.*/
     Array<float>        m_bucket;
 
-    VertexRange                 m_gpuMeshIndex;
-    VertexRange                 m_gpuMeshVertex;
+    /** Used to quickly find the quad.  The Tri::data field is the pointer 
+       (into a subarray of m_meshIndex) of the four vertices of the quad hit.*/
+    TriTree             m_tree;
+
+    /** m_area[i] = inverse of the sum of the areas adjacent to vertex[i] */
+    Array<float>        m_invArea;
+
+    VertexRange         m_gpuMeshIndex;
+    VertexRange         m_gpuMeshVertex;
 
     /** True when the VertexRange needs to be recomputed */
     bool                m_dirty;
 
     float               m_sharp;
 
-    /** Total weight: \f$ \sum bucket[i] \f$ */
-    float               m_totalWeight;
-
-    /** Dot product that is so low that it won't materially affect the 
-        distribution and can be ignored for filtering purposes.*/
-    float               m_cutoff;
+    int                 m_numSamples;
 
     /** Volume of a tetrahedron whose 4th vertex is at the origin.  
         The vertices are assumed to be
@@ -97,13 +86,11 @@ private:
 
 public:
 
-    /** @param sharp Sharpness of the smoothing filter.  Recommended range 
-         is 30 (very smooth) - 220 (very sharp).  Smoother filters are needed
-         when taking very few samples.
-         
-       \param hemiAxis if nonzero, the distribution is only recorded for the hemisphere 
-        about this axis.*/
-    DirectionHistogram(float sharp = 30.0f, const Vector3& hemiAxis = Vector3::zero());
+    /**
+       \param axis place histogram buckets relative to this axis
+
+       \param numSlices Number of lat and long slices to make.*/
+    DirectionHistogram(int numSlices = 50, const Vector3& axis = Vector3::unitZ());
 
     /** Discard all data */
     void reset();
@@ -113,13 +100,7 @@ public:
       Only the direction of @a vector matters; it will be normalized.
      */
     void insert(const Vector3& vector, float weight = 1.0f);
-
-    /**
-     \brief Insert many new data points.
-
-     This method uses multiple threads to efficiently insert the data.
-     */
-    void insert(const Array<Vector3>& vector, const Array<float>& weight = Array<float>());
+    void insert(const Array<Vector3>& vector, const Array<float>& weight);
 
     /** Draw a wireframe of the distribution.  Renders with approximately constant volume. */
     void render(

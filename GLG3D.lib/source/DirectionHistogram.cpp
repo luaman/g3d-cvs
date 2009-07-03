@@ -34,16 +34,19 @@ float DirectionHistogram::tetrahedronVolume(const Vector3& v0, const Vector3& v1
 
 float DirectionHistogram::totalVolume() const {
     float volume = 0.0f;
-    for (int i = 0; i < m_meshIndex.size(); i += 3) {
+    for (int i = 0; i < m_meshIndex.size(); i += 4) {
         const int i0 = m_meshIndex[i];
         const int i1 = m_meshIndex[i + 1];
         const int i2 = m_meshIndex[i + 2];
+        const int i3 = m_meshIndex[i + 3];
 
         const Vector3& v0 = m_meshVertex[i0] * m_bucket[i0];
         const Vector3& v1 = m_meshVertex[i1] * m_bucket[i1];
         const Vector3& v2 = m_meshVertex[i2] * m_bucket[i2];
+        const Vector3& v3 = m_meshVertex[i3] * m_bucket[i3];
 
         volume += tetrahedronVolume(v0, v1, v2);
+        volume += tetrahedronVolume(v0, v2, v3);
     }
     return volume;
 }
@@ -51,7 +54,7 @@ float DirectionHistogram::totalVolume() const {
 
 void DirectionHistogram::sendGeometry(RenderDevice* rd) {
     if (m_dirty) {
-        if (fuzzyEq(m_totalWeight, 0.0f)) {
+        if (m_numSamples == 0) {
             // Sphere case (no data)
             m_gpuMeshVertex.update(m_meshVertex);
         } else {
@@ -61,12 +64,12 @@ void DirectionHistogram::sendGeometry(RenderDevice* rd) {
             const float volume = totalVolume();
 
             // Normalizing factor to keep total volume at 4/3 * pi                
-            const float s = 1.0f / (float)pow((volume * 3.0) / (4.0 * pi()), 1.0 / 3.0);
-            //m_meshVertex.size() / m_totalWeight;
+            const float s = 80.0f / (float)pow((volume * 3.0) / (4.0 * pi()), 1.0 / 3.0);
 
             for (int i = 0; i < m_meshVertex.size(); ++i) {
-                v[i] = m_meshVertex[i] * m_bucket[i] * s;
-            }
+                v[i] = m_meshVertex[i] * m_bucket[i] * s * m_invArea[i];
+            }            
+
             m_gpuMeshVertex.unmapBuffer();
         }
         m_dirty = false;
@@ -80,68 +83,114 @@ void DirectionHistogram::sendGeometry(RenderDevice* rd) {
 }
 
 
-DirectionHistogram::DirectionHistogram(float sharp, const Vector3& hemiAxis) : m_sharp(sharp) {
-    bool hemi = ! hemiAxis.isZero();
+DirectionHistogram::DirectionHistogram(int numSlices, const Vector3& axis) : m_slices(numSlices) {
+    alwaysAssertM(numSlices >= 4, "At least four slices required");
 
-    if (hemi) {
-        // Normalize
-        const Vector3& Z = hemiAxis.direction();
-        Vector3 X = (abs(Z.dot(Vector3::unitX())) <= 0.9f) ? Vector3::unitX() : Vector3::unitY();
-        X = (X - Z * (Z.dot(X))).direction();
-        const Vector3 Y = Z.cross(X);
+    // Turn on old hemisphere-only optimization
+    const bool hemi = true;
 
-        // Only generate upper hemisphere
-        static const int P = 36 * 2;
-        static const int T = 36;
+    // Normalize
+    const Vector3& Z = axis.direction();
 
-        for (int t = 0; t < T; ++t) {
-            const float theta = t * G3D::halfPi() / (T - 1.0f);
-            const float z = cos(theta);
-            const float r = sin(theta);
-            for (int p = 0; p < P; ++p) {
-                const float phi = p * G3D::twoPi() / P;
-                const float x = cos(phi) * r;
-                const float y = sin(phi) * r;
+    Vector3 X = (abs(Z.dot(Vector3::unitX())) <= 0.9f) ? Vector3::unitX() : Vector3::unitY();
+    X = (X - Z * (Z.dot(X))).direction();
+    const Vector3 Y = Z.cross(X);
 
+    // Only generate upper hemisphere
+    static const int P = m_slices;
+    static const int T = hemi ? (m_slices / 2) : m_slices;
+    const float thetaExtent = hemi ? G3D::halfPi() : G3D::pi();
+
+    for (int t = 0; t < T; ++t) {
+        const float theta = t * thetaExtent / (T - 1.0f);
+        const float z = cos(theta);
+        const float r = sin(theta);
+
+        const bool firstRow = (t == 0);
+        const bool secondRow = (t == 1);
+        const bool lastRow = ! hemi && (t == T - 1);
+
+        for (int p = 0; p < P; ++p) {
+            const float phi = p * G3D::twoPi() / P;
+            const float x = cos(phi) * r;
+            const float y = sin(phi) * r;
+
+            const bool unique = ! firstRow && ! lastRow || (p == 0);
+                
+            // Only insert one vertex at each pole
+            if (unique) {
                 m_meshVertex.append(X * x + Y * y + Z * z);
-
-                if (t > 0) {
-                    int i = m_meshVertex.size() - 1;
-                    int rowIndex = t * P;
-                    int colIndex = p;
-                    m_meshIndex.append(rowIndex + colIndex - P, rowIndex + colIndex, 
-                        rowIndex + ((colIndex + 1) % P), rowIndex - P + ((colIndex + 1) % P));
-                }
             }
-        }
-    } else {
-        static const int P = 36 * 2;
-        static const int T = 36 * 2;
 
-        for (int t = 0; t < T; ++t) {
-            const float theta = t * G3D::pi() / (T - 1.0f);
-            const float z = cos(theta);
-            const float r = sin(theta);
-            for (int p = 0; p < P; ++p) {
-                const float phi = p * G3D::twoPi() / P;
-                const float x = cos(phi) * r;
-                const float y = sin(phi) * r;
+            const int i = m_meshVertex.size() - 1;
+            // Index of the start of this row
+            const int rowStart  = ((i - 1) / P) * P + 1;
+            const int colOffset = i - rowStart;
 
-                m_meshVertex.append(Vector3(x, y, z));
+            if (firstRow) {
+                // (First row generates no quads)
+            } else if (secondRow) {                
+                // Degnererate north pole
+                m_meshIndex.append(0, 0, i, rowStart + (colOffset + 1) % P);
 
-                if (t > 0) {
-                    int i = m_meshVertex.size() - 1;
-                    int rowIndex = t * P;
-                    int colIndex = p;
-                    m_meshIndex.append(rowIndex + colIndex - P, rowIndex + colIndex, 
-                        rowIndex + ((colIndex + 1) % P), rowIndex - P + ((colIndex + 1) % P));
-                }
+            } else if (lastRow) {
+                // Degenerate south pole
+                m_meshIndex.append(i, i, i - p - 1, i - p - 2);
+
+            } else {
+
+                m_meshIndex.append(
+                    i - P, 
+                    i, 
+                    rowStart + (colOffset + 1) % P, 
+                    rowStart + ((colOffset + 1) % P) - P);
             }
         }
     }
 
     m_bucket.resize(m_meshVertex.size());
     reset();
+
+    // We initially accumulate areas and then invert them in a follow-up pass
+    m_invArea.resize(m_meshIndex.size());
+    // Zero the array
+    System::memset(m_invArea.getCArray(), 0, sizeof(float) * m_invArea.size());
+
+    // Create triTree
+    {
+        Array<Tri> triArray;
+        for (int q = 0; q < m_meshIndex.size(); q += 4) {
+            int i0 = m_meshIndex[q];
+            int i1 = m_meshIndex[q + 1];
+            int i2 = m_meshIndex[q + 2];
+            int i3 = m_meshIndex[q + 3];
+
+            void* pointer = &m_meshIndex[q];
+
+            // Create two tris for each quad
+            // Wind backwards; these tris have to face inward
+
+            Tri A(m_meshVertex[i0], m_meshVertex[i3], m_meshVertex[i2], m_meshVertex[i0], m_meshVertex[i3], m_meshVertex[i2], pointer);
+            Tri B(m_meshVertex[i0], m_meshVertex[i2], m_meshVertex[i1], m_meshVertex[i0], m_meshVertex[i2], m_meshVertex[i1], pointer);
+
+            triArray.append(A);
+            triArray.append(B);
+
+            // Attribute the area of the surrounding quads to each vertex.  If we don't do this, then
+            // vertices near the equator will recieve only half of the correct probability.
+            float area = A.area() + B.area();
+            m_invArea[i0] += area;
+            m_invArea[i1] += area;
+            m_invArea[i2] += area;
+            m_invArea[i3] += area;
+        }
+        m_tree.setContents(triArray);
+
+        for (int i = 0; i < m_invArea.size(); ++i) {
+            // Multiply by a small number to keep these from getting too large
+            m_invArea[i] = 0.001f / m_invArea[i];
+        }
+    }
 
     VertexBuffer::Ref dataArea = VertexBuffer::create(sizeof(Vector3) * m_meshVertex.size(),
         VertexBuffer::WRITE_EVERY_FEW_FRAMES);
@@ -152,100 +201,41 @@ DirectionHistogram::DirectionHistogram(float sharp, const Vector3& hemiAxis) : m
     m_gpuMeshIndex = VertexRange(m_meshIndex, indexArea);
 
     m_dirty = false;
-
-    // sharp-th root of epsilon
-    m_cutoff = (float)pow(0.00001, 1.0 / m_sharp);
 }
 
 
 void DirectionHistogram::reset() {
-    m_totalWeight = 0.0f;
+    m_numSamples = 0;
     System::memset(m_bucket.getCArray(), 0, sizeof(float) * m_bucket.size());
     m_dirty = true;
 }
 
 
-void DirectionHistogram::insert(const Vector3& vector, float weight) {
-    const Vector3& v = vector.direction();
-
-    insert(v, weight, 0, m_meshVertex.size() - 1);
-
-    m_dirty = true;
-}
-
-
-void DirectionHistogram::insert(const Vector3& vector, float weight, int startIndex, int stopIndex) {
-    // Update nearby buckets
-    for (int i = startIndex; i <= stopIndex; ++i) {
-        // Weight
-        float w = m_meshVertex[i].dot(vector);
-        
-        if (w >= m_cutoff) {
-            // This weight may be significant
-            w              = powf(w, m_sharp) * weight;
-            m_bucket[i]   += w;
-            m_totalWeight += w;
-        }
-    }
-}
-
-
-DirectionHistogram::WorkerThread::WorkerThread
-(DirectionHistogram* h, int start, int stop,
-    const Array<Vector3>& vector, const Array<float>& weight) : 
-    GThread("DirectionHistogram"),
-    hist(h), startIndex(start), stopIndex(stop), vector(vector), weight(weight) {
-}
-
-    
-void DirectionHistogram::WorkerThread::threadMain() {
-    for (int i = 0; i < vector.size(); ++i) {
-        hist->insert(vector[i], weight[i], startIndex, stopIndex);
-    }
-}
-
-
 void DirectionHistogram::insert(const Array<Vector3>& vector, const Array<float>& weight) {
-    int numThreads = System::numCores();
-
-    // Normalize all vectors first
-    Array<Vector3> v(vector.size());
-    Array<float> w = weight;
-
-    for (int i = 0; i < v.size(); ++i) {
-        v[i] = vector[i].direction();
+    for (int i = 0; i < vector.size(); ++i) {
+        insert(vector[i], weight[i]);
     }
+}
 
-    if (w.size() == 0) {
-        // Ensure that there are weights
-        w.resize(v.size());
-        for (int i = 0; i < w.size(); ++i) {
-            w[i] = 1.0f;
+
+void DirectionHistogram::insert(const Vector3& vector, float weight) {
+    // Find the quad hit
+    float distance = inf();
+    Tri::Intersector intersector;
+
+    if (m_tree.intersectRay(Ray(Vector3::zero(), vector.direction()), intersector, distance)) {
+        ++m_numSamples;
+
+        // Hit
+        const int* index = reinterpret_cast<int*>(intersector.tri->data());
+        
+        // Increment all vertices surrounding the quad
+        for (int j = 0; j < 4; ++j) {
+            int k = index[j]; 
+            m_bucket[k] += weight;
         }
+        m_dirty = true;
     }
-
-    const int N = m_meshVertex.size();
-
-    m_dirty = true;
-
-    // Launch
-    if (numThreads > vector.size() / 10) {
-        // Don't bother with threads
-        for (int i = 0; i < v.size(); ++i) {
-            insert(v[i], w[i], 0, N - 1);
-        }
-        return;
-    }
-
-    ThreadSet threads;
-
-    for (int i = 0; i < numThreads; ++i) {
-        int start = i * N / numThreads;
-        int stop  = (i + 1) * N / numThreads - 1;
-        threads.insert(new WorkerThread(this, start, stop, v, w));
-    }
-    threads.start(GThread::USE_CURRENT_THREAD);
-    threads.waitForCompletion();
 }
 
 
