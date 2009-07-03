@@ -40,10 +40,10 @@ float DirectionHistogram::totalVolume() const {
         const int i2 = m_meshIndex[i + 2];
         const int i3 = m_meshIndex[i + 3];
 
-        const Vector3& v0 = m_meshVertex[i0] * m_bucket[i0];
-        const Vector3& v1 = m_meshVertex[i1] * m_bucket[i1];
-        const Vector3& v2 = m_meshVertex[i2] * m_bucket[i2];
-        const Vector3& v3 = m_meshVertex[i3] * m_bucket[i3];
+        const Vector3& v0 = m_meshVertex[i0] * m_bucket[i0] * m_invArea[i0];
+        const Vector3& v1 = m_meshVertex[i1] * m_bucket[i1] * m_invArea[i1];
+        const Vector3& v2 = m_meshVertex[i2] * m_bucket[i2] * m_invArea[i2];
+        const Vector3& v3 = m_meshVertex[i3] * m_bucket[i3] * m_invArea[i3];
 
         volume += tetrahedronVolume(v0, v1, v2);
         volume += tetrahedronVolume(v0, v2, v3);
@@ -64,7 +64,7 @@ void DirectionHistogram::sendGeometry(RenderDevice* rd) {
             const float volume = totalVolume();
 
             // Normalizing factor to keep total volume at 4/3 * pi                
-            const float s = 80.0f / (float)pow((volume * 3.0) / (4.0 * pi()), 1.0 / 3.0);
+            const float s = 1.0f / (float)pow((volume * 3.0) / (4.0 * pi()), 1.0 / 3.0);
 
             for (int i = 0; i < m_meshVertex.size(); ++i) {
                 v[i] = m_meshVertex[i] * m_bucket[i] * s * m_invArea[i];
