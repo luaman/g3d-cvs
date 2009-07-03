@@ -151,6 +151,7 @@ void Random::cosHemi(float& x, float& y, float& z) {
     const float e1 = uniform();
     const float e2 = uniform();
 
+    // Jensen's method 
     const float sin_theta = sqrtf(1.0f - e1);
     const float cos_theta = sqrtf(e1);
     const float phi = 6.28318531f * e2;
@@ -158,6 +159,14 @@ void Random::cosHemi(float& x, float& y, float& z) {
     x = cos(phi) * sin_theta;
     y = sin(phi) * sin_theta;
     z = cos_theta;
+
+    // We could also use Malley's method (pbrt p.657), since they are the same cost:
+    //
+    //  r = sqrt(e1);
+    //  t = 2*pi*e2;
+    //  x = cos(t)*r;
+    //  y = sin(t)*r;
+    //  z = sqrt(1.0 - x*x + y*y);
 }
 
 

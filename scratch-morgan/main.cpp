@@ -167,7 +167,7 @@ void App::onInit() {
     
     G3D::Random r;
     // Num samples
-    const int N = 5000000;
+    const int N = 500000;
     int slices = 18;
 
     histogram = new DirectionHistogram(slices);
@@ -194,12 +194,13 @@ void App::onInit() {
         }
         */
         v.next(); r.hemi(v.last().x, v.last().y, v.last().z); 
-        weight.append(1.0); 
+        weight.append(v.last().z); 
     }
 
 
     histogram->insert(v, weight);
-    
+
+
 
     v.clear();
     weight.clear();
@@ -214,7 +215,7 @@ void App::onInit() {
         weight.append(P_o.average());
         */
         v.next(); r.cosHemi(v.last().x, v.last().y, v.last().z); 
-        weight.append(v.last().z);
+        weight.append(1.0f);
 
     }    
     backwardHistogram->insert(v, weight);
