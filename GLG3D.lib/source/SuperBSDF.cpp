@@ -148,6 +148,10 @@ void SuperBSDF::getImpulses
         imp.w            = (-w_i).refractionDirection(n, m_eta_t, m_eta_r);
         imp.eta          = m_eta_t;
         imp.extinction   = m_extinction_t;
+        if (imp.w.isZero()) {
+            // Total internal refraction
+            impulseArray.popDiscard();
+        }
     }
 }
 

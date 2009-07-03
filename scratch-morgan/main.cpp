@@ -165,7 +165,7 @@ void App::onInit() {
     */
 
     
-    Random r;
+    G3D::Random r;
     histogram = new DirectionHistogram(30, Vector3::unitZ());
     Array<Vector3> v;
     Array<float> weight;

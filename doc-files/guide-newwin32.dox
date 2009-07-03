@@ -35,7 +35,7 @@ installed G3D to <code>c:\libraries</code>, the sample program files are in
 
 <center><img src="vc8-add-existing.png" border=0 align=top></center></p>
 
-<li> <p> Select the <code>App.cpp</code>, <code>App.h</code>, and <code>main.cpp</code> files that you copied over and press <b>OK</b>.</p>
+<li> <p> Select the <code>App.cpp</code> and <code>App.h</code> files that you copied over and press <b>OK</b>.</p>
 
 <li> <p> In Visual Studio, right-click on the project folder inside your project in the <b>Solution Explorer</b> window.  From the context menu, select <b>Properties</b> and then the <b>All Configurations</b> dropdown, the <b>Linker</b> tree node and the <b>Advanced</b> item underneath it. 
 Set the <b>Randomized Base Address</b> to <b>Disable Randomization (/DYNAMICBASE:NO)</b> as demonstrated in this image:

@@ -1,5 +1,5 @@
 /** 
-@page guideoverview %G3D Overview
+@page guideoverview G3D Overview
 
 <IMG SRC="3dengine.jpg" style="float: right;" >
 %G3D is a commercial-grade 3D Engine available as Open Source (BSD License).
@@ -10,11 +10,13 @@ libraries like OpenGL and sockets easier to use without limiting functionality
 or performance.  %G3D gives you a rock-solid, highly optimized base from which
 to build your application.
 
-%G3D does not contain scene graph or GUI routines.  Because of this, you have much
-more flexibility in how you structure your programs.  The tradeoff is that
-you have to know more about 3D programming.  %G3D is intended for users who are already
-familiar with C++ and DirectX or OpenGL.  Several good GUI libraries exist and
-we recommend using one with %G3D if your project has extensive UI needs.
+%G3D contains only lightweight scene graphs and GUI routines.  Because
+of this, you have much more flexibility in how you structure your
+programs.  The tradeoff is that you have to know more about 3D
+programming.  %G3D is intended for users who are already familiar with
+C++ and DirectX or OpenGL.  We recommend using wxWidgets or another 
+GUI library with %G3D if your project has extensive UI needs beyond the
+controls provided by G3D::GuiPane.
 
 This manual begins with a \link guidenewuser New User Guide \endlink that help
 programmers who know C++ but are either new to 3D or starting without
@@ -144,14 +146,17 @@ To avoid memory leaks, ensure that all libraries you use have been compiled agai
 the same version of the C++ standard library.  %G3D expects to be compiled with run-time
 type checking (RTTI), C++ exceptions, and a multithreaded, dynamically linked runtime.
 
-%G3D uses zlib, libpng, libzip, and libjpeg, which are distributed as part of %G3D 
-(as headers and a windows .libs).
+%G3D uses <b>ffmpeg</b>, <b>zlib</b>, <b>libpng</b>, <b>libzip</b>,
+and <b>libjpeg</b>, which are distributed as part of %G3D (as headers
+and a windows .libs).  These are automatically built into %G3D and
+your program--you don't have to do anything special to use them.
 
-On Linux and FreeBSD, G3D::SDLWindow uses SDL. SDL is not included with the %G3D installation and
-must be downloaded separately from http://libsdl.org if it is not installed on your machine already.
+On Linux and FreeBSD, G3D::SDLWindow uses SDL. SDL is not included
+with the %G3D installation and must be downloaded separately from
+http://libsdl.org if it is not installed on your machine already.
 
-In addition to those mentioned above, you may be interested in using the following 
-libraries to complement %G3D:
+In addition to those mentioned above, you may be interested in using
+the following libraries to complement %G3D:
 
 <UL>
     <LI>Image Magick's Magick Wand (http://www.imagemagick.org/)
@@ -208,12 +213,14 @@ synchronized, wrap this code in G3D::RenderDevice::beginOpenGL,
 G3D::RenderDevice::endOpenGL.  Most classes, like Texture, expose the
 relevant OpenGL handles so you can work with them directly as needed.
 
-The routines are packaged as two static libraries, %G3D and GLG3D, so that you can use 
-the low-level vector math without bringing in any of the OpenGL code.
+The routines are packaged as two static libraries, %G3D and GLG3D, so
+that you can use the low-level vector math without bringing in any of
+the OpenGL code.
 
-You may find it easier (particularly on Windows) to debug code if you build %G3D on
-your own machine so that you can step into the %G3D routines and set breakpoints
-and watch variables.  On Windows you should change the Debug Info level
-to Program Database from Line Numbers Only.
+You may find it easier (particularly on Windows) to debug code if you
+build %G3D on your own machine so that you can step into the %G3D
+routines and set breakpoints and watch variables.  On Windows you
+should change the Debug Info level to Program Database from Line
+Numbers Only.
 
 */
