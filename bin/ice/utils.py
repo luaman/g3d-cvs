@@ -278,7 +278,7 @@ def shell(cmd, printCmd = True):
 ##############################################################################
         
 """Finds an executable on Windows."""
-def _findBinary(program):     
+def _findWindowsBinary(program):     
     # Paths that may contain the program
        
     PROGRAMFILES = os.getenv('PROGRAMFILES', '')
@@ -317,8 +317,7 @@ def _findBinary(program):
             return filename
             break
 
-    raise Exception('Cannot find "' + program + '"')
-    return program
+    return None
 
 
 """Convert path separators to local style from Unix style.
@@ -343,7 +342,8 @@ def run(program, args = [], echo = True, env = {}):
     
     # Windows doesn't support spawnvp, so we have to locate the binary
     if windows:
-        program = _findBinary(program)
+        program = _findWindowsBinary(program)
+        if not program: raise Exception('Cannot find "' + program + '"')
 
     program = toLocalPath(program)
     argProgram = program
@@ -467,46 +467,44 @@ def VCExpress(filename, configs):
  VC9 dispatcher
 """
 
-baseRegPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft"
-vc8ePaths = ("VCExpress", "8.0", "Setup")
-vc9ePaths = ("VCExpress", "9.0", "Setup")
-vc8Paths = ("VisualStudio", "8.0", "Setup", "VS")
-vc9Paths = ("VisualStudio", "9.0", "Setup", "VS")
+baseRegPaths  = ("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft", "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Wow6432Node")
+vcexpressPath = ("VCExpress")
+vcproPath     = ("VisualStudio")
 
-def checkHasVC(paths, testSection, testOption):
-     from regconfig import RegConfig
+def testVCInstall(paths, testSection, testOption):
+    from regconfig import RegConfig
 
-     regConf = RegConfig(baseRegPath)
-     currentPath = baseRegPath
-     
-     missingSection = False
-     for section in paths:
-         if regConf.has_section(section):
-             currentPath += "\\" + section
-             regConf = RegConfig(currentPath)
-         else:
-             missingSection = True
-             break
+    for basePath in baseRegPaths:
+        print basePath
+        regConf = RegConfig(basePath)
+        currentPath = basePath
+         
+        missingSection = False
+        for section in paths:
+            if regConf.has_section(section):
+                currentPath += "\\" + section
+                regConf = RegConfig(currentPath)
+            else:
+                missingSection = True
+                break
+        
+        if not missingSection:
+            break;
 
-     if not missingSection:
-         return regConf.has_option(testSection, testOption)
-     else:
-         return False
+    return not missingSection and regConf.has_option(testSection, testOption)
+
 
 def VC9(filename, configs):
      # find out the flavor of MSVC
      
-     print os.path.exists('C:/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe')
-     if checkHasVC(vc8Paths, 'Pro','ProductDir') or checkHasVC(vc9Paths, 'Pro','ProductDir'):
+     if _findWindowsBinary('devenv'):
+         # found Visual C++ Standard/Pro
          return devenv(filename, configs)
      
-     elif checkHasVC(vc8Paths, 'Std','ProductDir') or checkHasVC(vc9Paths, 'Std','ProductDir'):
-         return devenv(filename, configs)
-
-     elif (checkHasVC(vc8ePaths, 'VS','ProductDir') or checkHasVC(vc9ePaths, 'VS','ProductDir') or 
-              os.path.exists('C:/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe')):
-         # last case is for Vista 64
+     elif _findWindowsBinary('VCExpress'):
+         # found Visual C++ Express
          return VCExpress(filename, configs)
+         
      else:
          print "Failed to find Visual Studio 2005 or 2008. Could not continue."
          return -1
@@ -525,11 +523,14 @@ Blocks until shell returns, then returns the (exit code, stdout text, stdin text
 Environment defaults to the current one if not specified.
 """
 def runWithOutput(prog, args = [], echo = True, env = None):
+    windows = os.name == 'nt' or os.name == 'vista'
+    
     program = toLocalPath(prog)
 
     # Windows doesn't support spawnvp, so we have to locate the binary
-    if (os.name == 'nt'):
-        program = _findBinary(program)
+    if windows:
+        program = _findWindowsBinary(program)
+        if not program: raise Exception('Cannot find "' + program + '"')
 
     # If the program name contains spaces, we
     # add quotes around it.

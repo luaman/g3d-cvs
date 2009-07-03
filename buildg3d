@@ -10,7 +10,7 @@ import urllib, tarfile
 # To get access to icompile routines
 sys.path.append('bin')
 import ice.copyifnewer, ice.utils
-from ice.utils import run, pathConcat, shell, mkdir, VC9, _findBinary
+from ice.utils import run, pathConcat, shell, mkdir, VC9, _findWindowsBinary
 import ice.doxygen
 
 doxygen = 'doxygen'
@@ -485,10 +485,9 @@ def srcTarget():
 def jarTarget():
    print 'Testing for javac and jar...'
    if windows:
-       try:
-           javac = _findBinary('javac')
-           _findBinary('jar')
-       except Exception:
+       javac = _findWindowsBinary('javac')
+       jar = _findWindowsBinary('jar')
+       if not javac or not jar:
            print 'javac or jar not found on this machine, skipping .jar creation!'
            return -1
    else:
