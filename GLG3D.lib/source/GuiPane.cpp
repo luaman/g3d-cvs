@@ -231,8 +231,8 @@ GuiButton* GuiPane::addButton(const GuiText& text, const GuiControl::Callback& c
 }
 
 
-GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign x, GFont::YAlign y) {
-    GuiLabel* b = new GuiLabel(this, text, x, y);
+GuiLabel* GuiPane::addLabel(const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign) {
+    GuiLabel* b = new GuiLabel(this, text, xalign, yalign);
 
     const Vector2& bounds = theme()->bounds(text);
     b->setRect(Rect2D::xywh(nextControlPos(), 

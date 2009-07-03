@@ -852,7 +852,7 @@ public:
     /**
      Typically used to find all visible
      objects inside the view frustum (see also GCamera::getClipPlanes)... i.e. all objects
-     <B>not<B> culled by frustum.
+     <B>not</B> culled by frustum.
 
      Example:
       <PRE>

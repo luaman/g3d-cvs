@@ -26,6 +26,8 @@
 #   undef _DEBUG
 #endif
 
+/** @def G3D_DEBUG()
+    Defined if G3D is built in debug mode. */
 #if !defined(G3D_DEBUG) && (defined(_DEBUG) || defined(G3D_DEBUGRELEASE))
 #   define G3D_DEBUG
 #endif
@@ -51,7 +53,6 @@
 #else
     #error Unknown platform 
 #endif
-
 
 // Default to compiling with SSE, but if you want to compile 
 // without installing SP5.0 and the Processor Pack on Windows, compile with NO_SSE
@@ -110,6 +111,8 @@
 // for debug assertions in inlined methods.
 #  pragma warning (disable : 4127)
 
+/** @def G3D_DEPRECATED()
+    Creates deprecated warning. */
 #  define G3D_DEPRECATED __declspec(deprecated)
 
 // Prevent Winsock conflicts by hiding the winsock API
@@ -127,9 +130,20 @@
 
 #   define restrict
 
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_PRINTF_ARGS 
+
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_VPRINTF_ARGS
+
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_PRINTF_METHOD_ARGS 
+
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_VPRINTF_METHOD_ARGS
 
     // On MSVC, we need to link against the multithreaded DLL version of
@@ -201,6 +215,8 @@
 #   endif
 
 
+/** @def G3D_START_AT_MAIN()
+    Defines necessary wrapper around WinMain on Windows to allow transfer of execution to main(). */
 #   define G3D_START_AT_MAIN()\
 int WINAPI G3D_WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw);\
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
@@ -209,6 +225,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 
 #else
 
+/** @def G3D_START_AT_MAIN()
+    Defines necessary wrapper around WinMain on Windows to allow transfer of execution to main(). */
 #   define G3D_START_AT_MAIN()
 
 #endif  // win32
@@ -221,6 +239,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #        define restrict __restrict__
 #   endif
 
+/** @def G3D_DEPRECATED()
+    Creates deprecated warning. */
 #   define G3D_DEPRECATED __attribute__((__deprecated__))
 
 // setup function calling conventions
@@ -245,9 +265,20 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #       endif
 #   endif // calling conventions
 
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_PRINTF_METHOD_ARGS   __attribute__((__format__(__printf__, 2, 3)))
+
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_VPRINTF_METHOD_ARGS  __attribute__((__format__(__printf__, 2, 0)))
+
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_PRINTF_ARGS          __attribute__((__format__(__printf__, 1, 2)))
+
+/** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+    Enables printf parameter validation on gcc. */
 #   define G3D_CHECK_VPRINTF_ARGS         __attribute__((__format__(__printf__, 1, 0)))
 #endif
 
@@ -262,7 +293,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
  */
 #define STR(x) #x
 
-/** \#pragma may not appear inside a macro, so this uses the pragma operator 
+/** @def PRAGMA(expression)
+    \#pragma may not appear inside a macro, so this uses the pragma operator 
     to create an equivalent statement.*/
 #ifdef _MSC_VER
 // Microsoft's version http://msdn.microsoft.com/en-us/library/d9x1s805.aspx
@@ -272,15 +304,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #    define PRAGMA(x) _Pragma(#x)
 #endif
 
-/** See G3D::Color3uint8 for an example.*/
-// Switch to tight alignment
+/** @def G3D_BEGIN_PACKED_CLASS(byteAlign)
+    Switch to tight alignment
+    See G3D::Color3uint8 for an example.*/
 #ifdef _MSC_VER
 #    define G3D_BEGIN_PACKED_CLASS(byteAlign)  PRAGMA( pack(push, byteAlign) )
 #else
 #    define G3D_BEGIN_PACKED_CLASS(byteAlign)
 #endif
 
-/** See G3D::Color3uint8 for an example.*/
+/** @def G3D_END_PACKED_CLASS(byteAlign)
+    End switch to tight alignment
+    See G3D::Color3uint8 for an example.*/
 #ifdef _MSC_VER
 #    define G3D_END_PACKED_CLASS(byteAlign)  ; PRAGMA( pack(pop) )
 #elif defined(__GNUC__)

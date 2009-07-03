@@ -115,8 +115,6 @@ However, some of these libraries even include their own render functions. In the
 
 Most libraries with orthogonal functionality (such as audio libraries) should operate adjacently with G3D without conflict.
 
-For more details, see \link guideintro Working with Other Libraries \endlink.
-
 <a NAME="intersectmodel"></a>
 <P><B>Proximity and ray intersection with Surface</B><P>
 
@@ -195,11 +193,11 @@ It is provided to help document G3D, not to rebuild it. <BR>
 This is primarily because the build system is complex (it covers many platforms) and we aren't in a position to offer support for the build system yet.
 It is also because building requires many files that we don't include in the source distro to make the download size smaller.<BR>
 <BR>
-Check out from CVS if you'd like to build G3D. Once the latest G3D source has been checked out, building is easy: <BR>on Linux, type:<BR>
+Check out from CVS if you'd like to build G3D. Once the latest G3D source has been checked out, building is easy: <P>on Linux, type:
 <PRE>
 
 chmod u+x build
-./build install <targetdir>
+./build install \<targetdir\>
 </PRE>
 
 This build command also works on Win32 and OSX, but it requires Python to be installed.<BR>
@@ -216,7 +214,7 @@ These are usually caused by using double constants for float arguments, like:<BR
 <PRE>Vector3(0.1, 2.0, 0.3). </PRE>
 The solution is to use float or int constants, like:<BR>
 <PRE>Vector3(0.1f, 2, 0.3f) or Vector3(0.1f, 2.0f, 0.3f). </PRE>
-You can also work around this on Microsoft compilers with the command #pragma warnings (disable : 4305).<BR>
+You can also work around this on Microsoft compilers with the command \#pragma warnings (disable : 4305).<BR>
 
 Occasionally, this change will cause an overload to become ambiguous, generating an error like:
  <PRE>error C2665: 'G3D::max' : none of the 5 overloads could convert all the argument types</PRE>

@@ -150,7 +150,7 @@ namespace G3D {
  the following functions are all overloaded:
 
  <pre>
-  T::T();</CODE> <I>(public constructor of no arguments)</I>
+  T::T(); // public constructor of no arguments
   template <> struct HashTrait<T> { static size_t hashCode(int key); };
   template<> struct BoundsTrait<T> { static void getBounds(const T& obj, G3D::AABox& out); };
  </pre>
@@ -1212,7 +1212,7 @@ public:
     /**
      Typically used to find all visible
      objects inside the view frustum (see also GCamera::getClipPlanes)... i.e. all objects
-     <B>not<B> culled by frustum.
+     <B>not</B> culled by frustum.
 
      Example:
       <PRE>

@@ -373,7 +373,7 @@ public:
      ...
      System::endCycleCount(count);
      // count now contains the cycle count for the intervening operation.
-
+     </PRE>
      */
     static void beginCycleCount(uint64& cycleCount);
     static void endCycleCount(uint64& cycleCount);

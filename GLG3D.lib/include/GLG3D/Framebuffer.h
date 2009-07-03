@@ -342,9 +342,6 @@ protected:
     /** Called from sync() to actually force \a a to be attached
         at the OpenGL level.  Assumes the framebuffer is already
         bound.
-
-        \param cIndex index in m_colorDrawBufferArray at which to
-        insert the appropriate enum value.
     */
     void attach(const Attachment::Ref& a);
 
@@ -392,7 +389,7 @@ public:
     */
     static void bindWindowBuffer();
 
-    /** Returns the attachment currently at \ap, or NULL if there is
+    /** Returns the attachment currently at ap, or NULL if there is
      not one.  \sa has()*/
     Attachment::Ref get(AttachmentPoint ap) const;
 

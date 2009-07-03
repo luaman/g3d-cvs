@@ -407,11 +407,11 @@ public:
 	  Plane as well as the deepest point of the sphere that penetrates the plane
 	  and the plane normal at that intersection.
 
-	  @param sphere			Fixed Sphere.
-	  @param plane			Fixed Plane.
-	  @param contactPoints	Sphere point that penetrates the plane.
+	  @param sphereA        Fixed Sphere.
+	  @param planeB         Fixed Plane.
+	  @param contactPoints  Sphere point that penetrates the plane.
 	 						[Post Condition]
-	  @param contactNormals	Normal at penetration point. [Post Condition]
+	  @param contactNormals Normal at penetration point. [Post Condition]
 
  	  @return Depth of penetration.  If there is no intersection between the
 	  		 objects then the depth will be a negative value.
@@ -480,8 +480,6 @@ public:
 	  @param v0 		Triangle vertex 1.
 	  @param v1 		Triangle vertex 2.
 	  @param v2 		Triangle vertex 3
- 	  @param location	Location of collision. [Post Condition]
- 	  					(Infinite vector on no collision)
 
  	  @return Time til collision.  If there is no collision then the return
  	          value will be inf().
@@ -673,8 +671,8 @@ public:
 
 	 @param point		Moving point.
 	 @param velocity	Point's velocity.
-	 @param Sphere		Fixed Sphere.
-	 @param location	Location of collision. [Post Condition]
+	 @param sphere		Fixed Sphere.
+	 @param outLocation	Location of collision. [Post Condition]
 	 @param outNormal	Sphere's surface normal to collision [Post Condition]
      \param solid If true, rays inside the sphere immediately intersect (good for collision detection).  If false, they hit the opposite side of the sphere (good for ray tracing).
 
@@ -748,7 +746,7 @@ public:
 	 @param point		Moving point.
 	 @param velocity	Point's velocity.
 	 @param capsule		Fixed capsule.
-	 @param location	Location of collision. [Post Condition]
+	 @param outLocation	Location of collision. [Post Condition]
 	 @param outNormal	Capsule's surface normal to collision [Post Condition]
 
 	 @return Time til collision.  If there is no collision then the return
@@ -768,7 +766,7 @@ public:
 	 @param sphere		Moving sphere.
 	 @param velocity	Sphere's velocity.
 	 @param plane		Fixed Plane.
-	 @param location	Location of collision -- not center position of sphere
+	 @param outLocation	Location of collision -- not center position of sphere
 	 					at the collision time. [Post Condition]
 	 @param outNormal	Box's surface normal to collision [Post Condition]
 
@@ -814,7 +812,7 @@ public:
 	 @param v1 			Rectangle vertex 2.
 	 @param v2 			Rectangle vertex 3
 	 @param v3 			Rectangle vertex 4.
-	 @param location	Location of collision -- not center position of sphere
+	 @param outLocation	Location of collision -- not center position of sphere
 	 					at the collision time. [Post Condition]
 	 @param outNormal	Box's surface normal to collision [Post Condition]
 
@@ -862,22 +860,22 @@ public:
         location is the closest point on the surface of the fixed sphere
         to the center of the moving sphere.
         
-        @param movingSphere	Moving sphere.
+        @param sphere	        Moving sphere.
         @param velocity         Sphere's velocity.
-        @param fixedSphere	Fixed Sphere.
-        @param location	        Location of collision -- not center position of sphere
+        @param fixedSphere	    Fixed Sphere.
+        @param outLocation	    Location of collision -- not center position of sphere
         at the collision time. [Post Condition]
-        @param outNormal	Moving sphere's surface normal to collision [Post Condition]
+        @param outNormal	    Moving sphere's surface normal to collision [Post Condition]
         
         @return Time until collision.  If there is no collision then the return
         value will be inf().
     */
-    static float collisionTimeForMovingSphereFixedSphere
-        (const class Sphere&	 sphere,
-         const Vector3&		 velocity,
-         const class Sphere&	 fixedSphere,
-         Vector3&	         outLocation,
-         Vector3&                outNormal = ignore);
+    static float collisionTimeForMovingSphereFixedSphere(
+        const Sphere&	    sphere,
+        const Vector3&		velocity,
+        const Sphere&	    fixedSphere,
+        Vector3&	        outLocation,
+        Vector3&            outNormal = ignore);
 
     /**
 	 Calculates time between the intersection of a moving sphere and a fixed
@@ -1010,13 +1008,11 @@ public:
 	 and direction can be used in this function if already pre-calculated.  This
 	 prevents doing the same work twice.
 
-	 @param v0 Triangle vertex 0.
-	 @param v1 Triangle vertex 1.
-	 @param v2 Triangle vertex 2.
-	 @param point External point.
-     @param edgeIndex The point lies on the edge between v[edgeIndex] and v[(edgeIndex + 1) % 3]
+	 @param v           Triangle vertices.
+	 @param point       External point.
+     @param edgeIndex   The point lies on the edge between v[edgeIndex] and v[(edgeIndex + 1) % 3]
 
-	 @return Closests point to <code>point</code> on the perimeter of the
+	 @return Closest point to <code>point</code> on the perimeter of the
 	 triangle.
  	*/
     static Vector3 closestPointOnTrianglePerimeter(

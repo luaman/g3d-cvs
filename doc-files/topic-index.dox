@@ -273,8 +273,6 @@ simulates photons moving around a scene).
 
 \section network Networking
 
-See also the \link guidenetwork Networking Overview\endlink.
-
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::ReliableConduit <b>ReliableConduit</b>\endlink</td><td>Message-based TCP infrastructure ideal for most games</td></tr>
@@ -290,11 +288,11 @@ See also the \link guidenetwork Networking Overview\endlink.
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
 <tr><td></td><td>\link G3D::GThread <b>GThread</b>\endlink</td><td>\copybrief G3D::GThread </td></tr>
-<tr><td></td><td>\link G3D::ThreadSet <b>ThreadSet</b>\endlink</td><td>\copybrief G3D::GThreadSet </td></tr>
-<tr><td></td><td>\link G3D::GMutex <b>GMutex</b>\endlink\endlink</td><td>\copybrief G3D::GMutex</td></tr>
-<tr><td></td><td>\link G3D::SpinLock <b>SpinLock</b>\endlink\endlink</td><td>\copybrief G3D::SpinLock</td></tr>
-<tr><td></td><td>\link G3D::AtomicInt32 <b>AtomicInt32</b>\endlink\endlink</td><td>\copybrief G3D::AtomicInt32</td></tr>
-<tr><td></td><td>\link G3D::MemoryManager <b>MemoryManager</b>\endlink\endlink</td><td>\copybrief G3D::MemoryManager</td></tr>
+<tr><td></td><td>\link G3D::ThreadSet <b>ThreadSet</b>\endlink</td><td>\copybrief G3D::ThreadSet </td></tr>
+<tr><td></td><td>\link G3D::GMutex <b>GMutex</b>\endlink</td><td>\copybrief G3D::GMutex</td></tr>
+<tr><td></td><td>\link G3D::Spinlock <b>Spinlock</b>\endlink</td><td>\copybrief G3D::Spinlock</td></tr>
+<tr><td></td><td>\link G3D::AtomicInt32 <b>AtomicInt32</b>\endlink</td><td>\copybrief G3D::AtomicInt32</td></tr>
+<tr><td></td><td>\link G3D::MemoryManager <b>MemoryManager</b>\endlink</td><td>\copybrief G3D::MemoryManager</td></tr>
 <tr><td></td><td>\indent\link G3D::AlignedMemoryManager AlignedMemoryManager\endlink</td><td>\copybrief G3D::AlignedMemoryManager</td></tr>
 <tr><td></td><td>\indent\link G3D::CRTMemoryManager CRTMemoryManager\endlink</td><td>\copybrief G3D::CRTMemoryManager</td></tr>
 <tr><td></td><td>\indent\link G3D::AreaMemoryManager AreaMemoryManager\endlink</td><td>\copybrief G3D::AreaMemoryManager</td></tr>

@@ -269,7 +269,7 @@ public:
     /** If there are multiple copies of an element, you must
         delete them multiple times.
 
-        @param shrinkAsNeeded If <b>true</b>, deallocate underlying data 
+        @param shrinkIfNecessary If <b>true</b>, deallocate underlying data 
         structures as they are emptied.  False increases performace at 
         the cost of memory overhead for dynamic structures.
         
@@ -733,6 +733,7 @@ public:
        for(PointHashGrid<Vector3>::CellIterator iter = grid.beginCells(); iter != grid.endCells(); ++iter) {	
        entriesFound += iter->size();
        }
+       </pre>
     */
     class CellIterator {
     private:

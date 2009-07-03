@@ -618,6 +618,7 @@ protected:
             console->printf("F2            - Enable first-person camera control\n");
             console->printf("F4            - Record video\n");
         }
+        </pre>
     */
     virtual void onConsoleCommand(const std::string& cmd);
 };

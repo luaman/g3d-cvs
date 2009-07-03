@@ -171,9 +171,9 @@ public:
   Color3.
 
   Inside quoted strings escape sequences are converted.  Thus the
-  string token for ["a\nb"] is 'a', followed by a newline, followed by
+  string token for ["a\\nb"] is 'a', followed by a newline, followed by
   'b'.  Outside of quoted strings, escape sequences are not converted,
-  so the token sequence for [a\nb] is symbol 'a', symbol '\', symbol
+  so the token sequence for [a\\nb] is symbol 'a', symbol '\\', symbol
   'nb' (this matches what a C++ parser would do).  The exception is
   that a specified TextInput::Settings::otherCommentCharacter preceeded
   by a backslash is assumed to be an escaped comment character and is

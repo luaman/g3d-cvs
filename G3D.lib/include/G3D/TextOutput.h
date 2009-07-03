@@ -69,7 +69,7 @@ public:
           WRAP_ALWAYS           Wrap even if it means breaking a continuous line or
                                 a quoted string.
 
-          Word wrapping is only allowed at whitespaces ('\n', '\r', '\t', ' '); it
+          Word wrapping is only allowed at whitespaces ('\\n', '\\r', '\\t', ' '); it
           will not occur after commas, punctuation, minus signs, or any other characters
         */
         enum WordWrapMode {WRAP_NONE, WRAP_WITHOUT_BREAKING, WRAP_ALWAYS};

@@ -445,10 +445,10 @@ public:
 };
 
 
-/** @deprecated */
+/** @deprecated Use Surface */
 typedef Surface PosedModel;
 
-/** @deprecated */
+/** @deprecated Use Surface2D */
 typedef Surface2D PosedModel2D;
 
 }

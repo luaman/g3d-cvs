@@ -1251,6 +1251,8 @@ PREDEFINED             = _DEBUG \
                          G3D_LINUX \
                          G3D_OSX \
                          G3D_FREEBSD \
+                         _MSC_VER \
+                         __GNUC__ \
                          _DOXYGEN_RUNNING \
                          G3D_BEGIN_PACKED_CLASS=
 

@@ -126,13 +126,12 @@ public:
         /** Create a callback from a function, e.g., <code>Callback( &printWarning )</code> */
         inline Callback(void (*function)()) : m_internal(new FunctionCallback(function)) {}
         
-        /** Create a callback from a class and method of no arguments,
-            e.g., <CODE> App* app = ...; Callback( app,
-            &App::endProgram ); </CODE>.  If the method is defined on a
-            base class and not overriden in the derived class, you
-            must cast the pointer:
-            <CODE> Callback(static_cast<Base*>(ptr),
-            &Base::method); </CODE> */
+        /** Create a callback from a class and method of no arguments, e.g.,
+            <CODE> App* app = ...; Callback( app, &App::endProgram ); </CODE>.
+            If the method is defined on a base class and not
+            overriden in the derived class, you must cast the pointer:
+            <CODE> Callback(static_cast<Base*>(ptr), &Base::method); </CODE>
+         */
         template<class Class>
         inline Callback(
 			Class* const object,

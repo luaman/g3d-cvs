@@ -63,8 +63,8 @@ TODO: make bias a property of the shadow map
      <li> G3D::Rect2D::inf
      <li> G3D::TextInput now generates tokens for newlines (\\r, \\n, or \\r\\n) when enabled
      <li> Documented platform-abstraction macros
-     <li> PRAGMA
-     <li> G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS
+     <li> PRAGMA()
+     <li> G3D_BEGIN_PACKED_CLASS(), G3D_END_PACKED_CLASS()
      <li> G3D::Win32Window now generates G3D::GEventType::MOUSE_BUTTON_CLICK events
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
@@ -633,7 +633,7 @@ TODO: make bias a property of the shadow map
     <LI> Fix: G3D::Shape::type is now const
     <LI> Fix: 0 --> 0.0f FrameBuffer.h [Erik]
     <LI> Fix: Fixed Texture read-back dimensions for cube-map
-    <LI> Fix: Missing #include in SkyParameters.h [Erik]
+    <LI> Fix: Missing \#include in SkyParameters.h [Erik]
     <LI> Fix: Quad triangle counts are now accurate (were off by factor of 4 in 6.08)
     <LI> Fix: contrib/ArticulatedModel now correctly masks all components using the diffuse alpha in fixed function mode
     <LI> Fix: G3D::CoordinateFrame::getHeading was flipped front-to-back
@@ -664,7 +664,7 @@ TODO: make bias a property of the shadow map
       <LI> G3D::Framebuffer and G3D::Renderbuffer to implement the Framebuffer_object extension [Dan Hilferty]
       <LI> G3D::Shader::hasArgument
       <LI> G3D::Texture::getImage
-      <LI> Changed SECOND, MINUTE, DAY, HOUR, SUNRISE, SUNSET, MIDNIGHT, METER, KILOMETER to enum values instead of #defines
+      <LI> Changed SECOND, MINUTE, DAY, HOUR, SUNRISE, SUNSET, MIDNIGHT, METER, KILOMETER to enum values instead of \#defines
       <LI> G3D::Texture::Parameters; deprecated most Texture constructors in favor of ones that use this class
       <LI> Moved most image manipulation routines into GImage.
       <LI> G3D::GImage now allocates the underlying buffer in multiples of bytes to allow slight overflor for MMX algorithms
@@ -1177,7 +1177,7 @@ TODO: make bias a property of the shadow map
 	 <LI> Fix: Plane::halfSpaceContains now works for infinite and semi-infinite points
      <LI> Fix: [ 979032 ] Quat <-> Matrix3 roundtrip inverts
 	 <LI> Fix: [ 976743 ] document GLCaps functions
-	 <LI> Fix: [ 976746 ] #include GLCaps in g3dall
+	 <LI> Fix: [ 976746 ] \#include GLCaps in g3dall
 	 <LI> Fix: [ 973550 ] sampler2DRect now supported in GLSL shaders (NVIDIA only; ATI drivers are broken)
 	 <LI> Fix: [ 973490 ] Win32Window width/height off by non-client amount
      <LI> Fix: [ 961827 ] In debug mode, RenderDevice tries to access 
@@ -1290,7 +1290,7 @@ TODO: make bias a property of the shadow map
      <LI> CollisionDetection::intersectionTimeForMovingPointFixedAABox, Ray::intersectionTime(AABox)
 	 [Pierre Terdiman and Andrew Woo]
      <LI> Triangle::center
-     <LI> Renamed KDTreeSet to AABSPTree, old name is #defined 
+     <LI> Renamed KDTreeSet to AABSPTree, old name is \#defined 
      <LI> RenderDevice now works on cards without multitexture
      <LI> void glTexCoord(const G3D::Vector4& t); [Dan Keefe]
 	 <LI> Overloaded float, double, and int * Matrix3
@@ -1523,7 +1523,7 @@ TODO: make bias a property of the shadow map
 	 <LI> G3D::Matrix4
      <LI> Changed G3D_VER from double to integer
      <LI> G3D::lerp
-     <LI> Changed G3D::PI, G3D::HALF_PI, and G3D::TWO_PI to #defines
+     <LI> Changed G3D::PI, G3D::HALF_PI, and G3D::TWO_PI to \#defines
      <LI> Vector2::clamp, Vector3::clamp, Vector4::clamp
      <LI> Changed order of arguments to all lerp methods to match DirectX/Cg
 	 <LI> Changed order of arguments to G3D::clamp and G3D::iClamp to match DirectX/Cg
@@ -1607,7 +1607,7 @@ TODO: make bias a property of the shadow map
      <LI> G3D::Sky now takes the environment filenames as "sky_*.jpg" instead of "sky_ft.jpg"
      <LI> Added default filename for Sky constructor
      <LI> Added caustics textures created with Kjell Andersson's generator http://www.lysator.liu.se/~kand/caustics/
-     <LI> #defined "for" under MSVC so that it obeys C99 scoping rules
+     <LI> \#defined "for" under MSVC so that it obeys C99 scoping rules
      <LI> System::consoleKeyPressed
      <LI> System::consoleClearScreen
      <LI> System::consoleReadKey
@@ -1626,7 +1626,7 @@ TODO: make bias a property of the shadow map
      <LI> System::operatingSystem
      <LI> double-precision Plane::getEquation
      <LI> Vector2::lerp
-     <LI> Platform specific #defines G3D_WIN32, G3D_LINUX, G3D_OSX
+     <LI> Platform specific \#defines G3D_WIN32, G3D_LINUX, G3D_OSX
      <LI> G3D::Array::contains
      <LI> G3D::Queue::contains
      <LI> G3D::ImageFormat

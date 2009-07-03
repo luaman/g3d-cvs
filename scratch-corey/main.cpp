@@ -104,7 +104,7 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    model = MD3Model::fromFile(dataDir + "md3-kt_kubalwagon.pk3/models/mapobjects/kt_kubalwagon/european_fnt_v2.md3");
+    model = MD3Model::fromFile(dataDir + "md3-famine.pk3/models/players/famine/head_1.md3");
 }
 
 

@@ -199,45 +199,35 @@ and G3D::Table.  %G3D provides implementations for many built-in classes, like G
 
 For G3D::KDTree:
  <PRE>
-
   template<> struct BoundsTrait<class MyClass> {
-  static void getBounds(const MyClass& obj, G3D::AABox& out) { 
-     // compute out from obj
-  }};
-
+    static void getBounds(const MyClass& obj, G3D::AABox& out) { ... }
+  };
  </PRE>
 
 For G3D::Set and G3D::Table:
-
  <PRE>
-
   template <> struct HashTrait<class MyClass> {
-  static size_t hashCode(const MyClass& key) { 
-	  return static_cast<size_t>( ... ); // some  value computed from key
-  }};
-
+    static size_t hashCode(const MyClass& key) { 
+      return static_cast<size_t>( ... ); // some  value computed from key
+    }
+  };
  </PRE>
   
 For G3D::PointKDTree:
   <PRE>
-  
   template<> struct PositionTrait<class MyClass> {
-  static void getPosition(const MyClass& obj, G3D::Vector3& p) { 
-      // compute p from obj
-  }};
+    static void getPosition(const MyClass& obj, G3D::Vector3& p) { ... }
+  };
  </PRE>
 
 For G3D::Table and G3D::Set.  The default version calls operator== on a and rarely
 needs to be overriden.
-
  <PRE>
-
-  template<>
-  struct EqualsTrait<class MyClass> {
-  static bool equals(const MyClass& a, const MyClass& b) {
-       return ...;  // true if a and b are "equal"
-  }};
-
+  template<> struct EqualsTrait<class MyClass> {
+    static bool equals(const MyClass& a, const MyClass& b) {
+      return ...;  // true if a and b are "equal"
+    }
+  };
  </PRE>
 
 

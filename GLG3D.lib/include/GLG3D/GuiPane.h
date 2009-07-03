@@ -333,7 +333,7 @@ public:
         @param yalign Vertical alignment of text within the rect of the label 
     */
     GuiLabel* addLabel(const GuiText& text, GFont::XAlign xalign = GFont::XALIGN_LEFT,
-                       GFont::YAlign = GFont::YALIGN_CENTER);
+                       GFont::YAlign yalign = GFont::YALIGN_CENTER);
 
     /**
      Removes this control from the GuiPane.

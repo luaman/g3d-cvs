@@ -93,10 +93,6 @@ protected:
 
 public:
 
-    /** 
-       @param saveName Initial value of the box and what will be returned in the event
-       that the user presses ok.
-     */
     static FileDialogRef create(OSWindow* osWindow, GuiThemeRef theme, const std::string& note = "") {
         return new FileDialog(osWindow, theme, note);
     }

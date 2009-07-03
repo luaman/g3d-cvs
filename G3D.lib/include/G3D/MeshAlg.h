@@ -272,7 +272,7 @@ public:
      Computes some basic mesh statistics including: min, max mean and median, 
      edge lengths; and min, mean, median, and max face area.
 
-     @param vertexGeometry      %Vertex positions to use when deciding colocation.
+     @param vertexArray         %Vertex positions to use when deciding colocation.
      @param indexArray          Order to traverse vertices to make triangles
      @param minEdgeLength       Minimum edge length
      @param meanEdgeLength      Mean edge length

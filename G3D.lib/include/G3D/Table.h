@@ -276,7 +276,7 @@ public:
         checkIntegrity();
     }
 
-    /** Changes the internal memory manager to \m */
+    /** Changes the internal memory manager to m */
     void clearAndSetMemoryManager(const MemoryManager::Ref& m) {
         clear();
         debugAssert(m_bucket == NULL);

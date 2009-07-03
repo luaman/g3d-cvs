@@ -415,16 +415,14 @@ href="classes.html">Classes</a>.
         \link G3D::MirrorQuality MirrorQuality\endlink,
         \link G3D::PrimitiveType PrimitiveType\endlink,
         \link G3D::RefractionQuality RefractionQuality\endlink,   
-        G3D_DECLARE_ENUM_CLASS_METHODS,
-        G3D_DECLARE_ENUM_CLASS_HASHCODE
+        G3D_DECLARE_ENUM_CLASS_METHODS(),
+        G3D_DECLARE_ENUM_CLASS_HASHCODE()
         
      <li><b>Platform Abstraction Macros</b> &nbsp; &nbsp;
-     PRAGMA, G3D_BEGIN_PACKED_CLASS, G3D_END_PACKED_CLASS,
      G3D_WIN32, G3D_OSX, G3D_LINUX, G3D_FREEBSD,     
-     G3D_CHECK_PRINTF_METHOD_ARGS, G3D_CHECK_VPRINTF_METHOD_ARGS,
-     G3D_CHECK_PRINTF_ARGS, G3D_CHECK_VPRINTF_ARGS,
-     G3D_START_AT_MAIN, G3D_DEPRECATED,
-     G3D_DEBUG
-     
+     PRAGMA(), G3D_BEGIN_PACKED_CLASS(), G3D_END_PACKED_CLASS(),
+     G3D_CHECK_PRINTF_METHOD_ARGS(), G3D_CHECK_VPRINTF_METHOD_ARGS(),
+     G3D_CHECK_PRINTF_ARGS(), G3D_CHECK_VPRINTF_ARGS(),
+     G3D_START_AT_MAIN(), G3D_DEPRECATED(), G3D_DEBUG()
    </UL>
  */
