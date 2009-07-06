@@ -246,7 +246,7 @@ public:
     }
 
     /** @brief Evaluate the diffuse (finite) portion of the BSDF: 
-        \f$(f_L + f_g) \max(0, \vec{\omega}_i \cdot \vec{n})\f$. 
+        \f$(f_L + f_g)\f$. 
 
         Used for direct illumination.  Ignores delta functions because
         for a random pair of directions, there is zero probability of
@@ -272,7 +272,7 @@ public:
 
       @beta
     */
-    virtual Color4 shadeDirect
+    virtual Color4 evaluate
     (const Vector3& n,
      const Vector2& texCoord,
      const Vector3& w_L,

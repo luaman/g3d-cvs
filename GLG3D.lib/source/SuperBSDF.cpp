@@ -35,7 +35,7 @@ SuperBSDF::Ref SuperBSDF::create
 }
 
 
-Color4 SuperBSDF::shadeDirect
+Color4 SuperBSDF::evaluate
 (const Vector3& n,
  const Vector2& texCoord,
  const Vector3& w_i,
@@ -70,7 +70,7 @@ Color4 SuperBSDF::shadeDirect
              (e + 8.0f) * INV_8PI);
     }
     
-    return Color4(result * power_i * cos_i, diffuse.a);
+    return Color4(result * power_i, diffuse.a);
 }
 
 
