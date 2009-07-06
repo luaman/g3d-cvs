@@ -174,15 +174,15 @@ void App::onInit() {
     Array<Vector3> v;
     Array<float> weight;
 
-    SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.8f),
-        Color4(Color3::white() * 0.2f, SuperBSDF::packSpecularExponent(20)), Color3::black());
+    SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.6f),
+        Color4(Color3::white() * 0.3f, SuperBSDF::packSpecularExponent(30)), Color3::black());
     const Vector3 n = Vector3::unitZ();
     const Vector2 t = Vector2::zero();
-    const Vector3 w_i = Vector3(1, 0, 0.5).direction();
+    const Vector3 w_i = Vector3(1, 0, 1).direction();
     const Color3  P_i = Color3::white();
 
+    // Scattering according to f(w_i, w_o)*(w_o dot n)
     while (v.size() < N) {
-    /*
         Color3 P_o;
         Vector3 w_o;
         float  eta_o;
@@ -192,30 +192,28 @@ void App::onInit() {
             v.append(w_o);
             weight.append(P_o.average());
         }
-        */
-        v.next(); r.hemi(v.last().x, v.last().y, v.last().z); 
-        weight.append(v.last().z); 
+   
+        // Simple hemi
+        //v.next(); r.hemi(v.last().x, v.last().y, v.last().z); weight.append(v.last().z); 
     }
 
 
     histogram->insert(v, weight);
 
-
-
     v.clear();
     weight.clear();
     backwardHistogram = new DirectionHistogram(slices);
+
+    // explicitly sampling f(w_i, w_o)
     while (v.size() < N) {
-        /*
         Vector3 w_o;
         r.cosHemi(w_o.x, w_o.y, w_o.z);
-        const Color3& P_o = bsdf->shadeDirect(n, t, w_i, P_i, w_o).rgb();
+        const Color3& P_o = bsdf->evaluate(n, t, w_i, P_i, w_o).rgb();
 
         v.append(w_o);
         weight.append(P_o.average());
-        */
-        v.next(); r.cosHemi(v.last().x, v.last().y, v.last().z); 
-        weight.append(1.0f);
+        
+        // v.next(); r.cosHemi(v.last().x, v.last().y, v.last().z);  weight.append(1.0f);
 
     }    
     backwardHistogram->insert(v, weight);

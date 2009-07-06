@@ -63,7 +63,7 @@ Color4 SuperBSDF::evaluate
         const Vector3& w_h = (w_i + w_o).direction();
         const float cos_h = max(0.0f, w_h.dot(n));
 
-        float e = (float)unpackSpecularExponent(shininess);
+        const float e = (float)unpackSpecularExponent(shininess);
         
         result += computeF(specular.rgb(), cos_i) * 
             (powf(cos_h, e) *
@@ -199,6 +199,7 @@ void SuperBSDF::glossyScatter
 
         // Adjust for the measure difference between w_o and w_h spaces (eq. 8)
         intensity = cos_o / (4.0f * w_i.dot(w_h));
+
     } while (r.uniform() > intensity);
 }
 
@@ -313,9 +314,9 @@ bool SuperBSDF::scatter
                 m_specular.sample(texCoord);
 
         // On the range [0, 1]
-        float shininess = specular.a;
+        float pack = specular.a;
 
-        if (shininess != packedSpecularNone()) {
+        if (pack != packedSpecularNone()) {
             // There is some specularity
             
             // Cosine of the angle of incidence, for computing F
@@ -323,14 +324,16 @@ bool SuperBSDF::scatter
             F = computeF(specular.rgb(), cos_i);
             Finit = true;
 
-            const Color3& p_specular = F;
+            const float shininess = (float)unpackSpecularExponent(pack);
+            const Color3& p_specular = (pack == packedSpecularMirror()) ? 
+                                            F : 
+                                           (F * (shininess + 8.0f) * INV_8PI); 
             const float p_specularAvg = p_specular.average();
 
             r -= p_specularAvg;
             if (r < 0.0f) {
-                if (shininess != packedSpecularMirror()) {
+                if (pack != packedSpecularMirror()) {
                     // Glossy                    
-                    shininess = (float)unpackSpecularExponent(shininess);
 
                     glossyScatter(w_i, shininess, n, random, w_o);
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
