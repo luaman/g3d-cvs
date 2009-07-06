@@ -230,10 +230,10 @@ void testCollisionDetection() {
         debugAssert(t == inf());
 
         // Time scale
-        ray = Ray::fromOriginAndDirection(Vector3(-.15f, 1,-.15f), Vector3(0, -2, 0));
+        ray = Ray::fromOriginAndDirection(Vector3(-.15f, 1,-.15f), Vector3(0, -1, 0));
         t = ray.intersectionTime(v0, v1, v2);
 
-        debugAssert(t == 0.5);
+        debugAssert(t == 1.0);
     }
 
     {
