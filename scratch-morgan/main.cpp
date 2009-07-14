@@ -35,7 +35,12 @@ public:
     Film::Ref               film;
 
     DirectionHistogram*     histogram;
+
+    // Direct probability from evaluate()
     DirectionHistogram*     backwardHistogram;
+
+    // Russian roulette
+    DirectionHistogram*     backwardRRHistogram;
 
     Array<Surface::Ref> transparent;
 
@@ -167,18 +172,21 @@ void App::onInit() {
     
     G3D::Random r;
     // Num samples
-    const int N = 500000;
-    int slices = 18;
+    const int N = 1200000;
+    int slices = 24;
 
     histogram = new DirectionHistogram(slices);
     Array<Vector3> v;
     Array<float> weight;
 
+    // Glossiness
+    const float g = 60;
     SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.6f),
-        Color4(Color3::white() * 0.3f, SuperBSDF::packSpecularExponent(30)), Color3::black());
+        Color4(Color3::white() * 0.3f, SuperBSDF::packSpecularExponent(g)), Color3::black());
     const Vector3 n = Vector3::unitZ();
     const Vector2 t = Vector2::zero();
-    const Vector3 w_i = Vector3(1, 0, 1).direction();
+    const float theta = toRadians(80);
+    const Vector3 w_i(sin(theta), 0, cos(theta));
     const Color3  P_i = Color3::white();
 
     // Scattering according to f(w_i, w_o)*(w_o dot n)
@@ -218,6 +226,25 @@ void App::onInit() {
     }    
     backwardHistogram->insert(v, weight);
 
+    
+    v.clear();
+    weight.clear();
+    backwardRRHistogram = new DirectionHistogram(slices);
+
+    // Russian roulette against f(w_i, w_o)
+    while (v.size() < N) {
+        Vector3 w_o;
+        r.cosHemi(w_o.x, w_o.y, w_o.z);
+        const Color3& P_o = bsdf->evaluate(n, t, w_i, P_i, w_o).rgb();
+
+        if (P_o.average() >= r.uniform()) {
+            // Accept
+            v.append(w_o);
+            weight.append(1.0f);
+        }
+    }    
+    backwardRRHistogram->insert(v, weight);
+
     defaultCamera.setCoordinateFrame(bookmark("Home"));
     defaultCamera.setFieldOfView(toRadians(60), GCamera::HORIZONTAL);
     defaultCamera.setFarPlaneZ(-inf());
@@ -243,6 +270,9 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+screenPrintf("White  = Importance sample f()");
+screenPrintf("Red    = Direct evaluation of f()");
+screenPrintf("Yellow = Russian roulette on f()");
 
     (void)posed3D;
     rd->setColorClearValue(Color3::white());
@@ -251,13 +281,18 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
 
     if (histogram != NULL) {
         rd->pushState();
-        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,-2.5f)));
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,-1.0f)));
         histogram->render(rd, Color3::white());
         rd->popState();
 
         rd->pushState();
-        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,2.5f)));
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,1.0f)));
         backwardHistogram->render(rd, Color3::red());
+        rd->popState();
+
+        rd->pushState();
+        rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,3.0f)));
+        backwardRRHistogram->render(rd, Color3::yellow());
         rd->popState();
 
         Draw::plane(Plane(Vector3::unitY(), Vector3::zero()), rd, Color4(Color3(1.0f, 0.92f, 0.85f), 0.4f), Color4(Color3(1.0f, 0.5f, 0.3f) * 0.3f, 0.5f));

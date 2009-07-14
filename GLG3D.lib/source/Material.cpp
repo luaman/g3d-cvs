@@ -17,8 +17,9 @@ Material::Ref Material::create() {
     return new Material();
 }
 
+
 Material::Ref Material::create
-(const SuperBSDF::Ref&                bsdf,
+(const SuperBSDF::Ref&               bsdf,
  const Component3&                   emissive,
  const BumpMap::Ref&                 bump,
  const MapComponent<Image4>::Ref&    customMap,
@@ -41,6 +42,7 @@ Material::Ref Material::createDiffuse(const Color3& p_Lambertian) {
     s.setLambertian(p_Lambertian);
     return create(s);
 }
+
 
 typedef WeakCache<Material::Settings, Material::Ref> MaterialCache;
 

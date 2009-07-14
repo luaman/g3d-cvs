@@ -156,7 +156,7 @@ void SuperBSDF::getImpulses
 }
 
 
-void SuperBSDF::glossyScatter
+float SuperBSDF::glossyScatter
 (const Vector3& w_i,
  float          g,
  const Vector3& n,
@@ -169,6 +169,10 @@ void SuperBSDF::glossyScatter
     //      k1 = w_i
     //      k2 = w_o
     //      h  = w_h
+
+    w_o = Vector3::hemiRandom(n, r);
+    Vector3 w_h = (w_i + w_o).direction();
+    return 8.0f * powf(w_h.dot(n), g);
 
     float intensity;
     do {
@@ -268,6 +272,20 @@ bool SuperBSDF::scatter
  bool           lowFreq,
  float&         density) const {
 
+
+     if (false) {  
+        // TODO: Remove
+        // Testing code to generate Russian roulette
+        w_o = Vector3::cosHemiRandom(n, random);
+        power_o = evaluate(n, texCoord, w_i, power_i, w_o).rgb();
+        if (power_o.average() > random.uniform()) {
+            power_o /= power_o.average();
+            return true;
+        } else {
+            return false;
+        }
+     }
+
     // Choose a random number on [0, 1], then reduce it by each kind of
     // scattering's probability until it becomes negative (i.e., scatters).
     float r = random.uniform();
@@ -327,16 +345,14 @@ bool SuperBSDF::scatter
             const float shininess = (float)unpackSpecularExponent(pack);
             const Color3& p_specular = (pack == packedSpecularMirror()) ? 
                                             F : 
-                                           (F * (shininess + 8.0f) * INV_8PI); 
+                                           (F * (shininess + 8.0f) / 8.0f); 
             const float p_specularAvg = p_specular.average();
 
             r -= p_specularAvg;
             if (r < 0.0f) {
                 if (pack != packedSpecularMirror()) {
-                    // Glossy                    
-
-                    glossyScatter(w_i, shininess, n, random, w_o);
-                    power_o = p_specular * power_i * (1.0f / p_specularAvg);
+                    // Glossy
+                    power_o = p_specular * power_i * (glossyScatter(w_i, shininess, n, random, w_o) / p_specularAvg);
                     density = p_specularAvg * 0.1f;
 
                 } else {

@@ -220,7 +220,7 @@ public:
 protected:
 
     /** Scattering function */
-    SuperBSDF::Ref               m_bsdf;
+    SuperBSDF::Ref              m_bsdf;
 
     /** Emission map. */
     Component3                  m_emissive;
@@ -246,7 +246,7 @@ public:
     /** The Material::create(const Settings& settings) factor method is recommended 
        over this one because it performs caching and argument validation. */ 
     static Material::Ref create(
-        const SuperBSDF::Ref&                bsdf,
+        const SuperBSDF::Ref&               bsdf,
         const Component3&                   emissive        = Component3(),
         const BumpMap::Ref&                 bump            = NULL,
         const MapComponent<Image4>::Ref&    customMap       = NULL,
@@ -270,8 +270,14 @@ public:
 
     void setStorage(ImageStorage s) const;
 
+    /** Never NULL */
     inline SuperBSDF::Ref bsdf() const {
         return m_bsdf;
+    }
+
+    /** May be NULL */
+    inline BumpMap::Ref bump() const {
+        return m_bump;
     }
 
 #if 0

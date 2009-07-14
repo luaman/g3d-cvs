@@ -168,8 +168,10 @@ protected:
     /**
        \param g Glossy exponent
        \param n Surface normal (world space)
+
+       \return the intensity scale (nominally 1, but may be adjusted to take into account non-ideal importance sampling)
     */
-    void glossyScatter
+    float glossyScatter
     (const Vector3& w_i,
      float          g,
      const Vector3& n,
