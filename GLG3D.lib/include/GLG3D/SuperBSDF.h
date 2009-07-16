@@ -7,6 +7,7 @@
 #define G3D_SuperBSDF_h
 
 #include "GLG3D/Component.h"
+#include "G3D/SmallArray.h"
 
 namespace G3D {
 
@@ -388,6 +389,14 @@ public:
         
 
      */
+    virtual void getImpulses
+    (const Vector3&  n,
+     const Vector2&  texCoord,
+     const Vector3&  w_i,
+     SmallArray<Impulse, 3>& impulseArray,
+     bool            lowFreq = false) const;
+
+    /** Convenience overload */
     virtual void getImpulses
     (const Vector3&  n,
      const Vector2&  texCoord,

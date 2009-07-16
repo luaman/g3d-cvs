@@ -131,7 +131,7 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
 
             if (maxBounces > 0) {
                 // Perfect reflection and refraction
-                Array<SuperBSDF::Impulse> impulseArray;
+                SmallArray<SuperBSDF::Impulse, 3> impulseArray;
                 bsdf->getImpulses(hit.normal, hit.texCoord, -ray.direction(), impulseArray);
                 
                 for (int i = 0; i < impulseArray.size(); ++i) {

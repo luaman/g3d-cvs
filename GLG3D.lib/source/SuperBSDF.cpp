@@ -80,6 +80,21 @@ void SuperBSDF::getImpulses
  const Vector3&  w_i,
  Array<Impulse>& impulseArray,
  bool            lowFreq) const {
+    SmallArray<Impulse, 3> temp;
+    getImpulses(n, texCoord, w_i, temp, lowFreq);
+    impulseArray.resize(temp.size());
+    for (int i = 0; i < impulseArray.size(); ++i) {
+        impulseArray[i] = temp[i];
+    }
+}
+
+
+void SuperBSDF::getImpulses
+(const Vector3&  n,
+ const Vector2&  texCoord,
+ const Vector3&  w_i,
+ SmallArray<Impulse, 3>& impulseArray,
+ bool            lowFreq) const {
 
     Color3 F(0,0,0);
     bool Finit = false;
