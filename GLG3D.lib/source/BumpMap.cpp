@@ -19,6 +19,18 @@ BumpMap::Ref BumpMap::create(const MapComponent<Image4>::Ref& normalBump, const 
 }
 
 
+BumpMap::Ref BumpMap::fromHeightFile(const std::string& filename, const Settings& settings,
+                                     float normalMapWhiteHeightInPixels, const Texture::Settings& textureSettings, const Texture::Dimension dim) {
+
+    Texture::PreProcess npp = Texture::PreProcess::normalMap();
+    npp.normalMapWhiteHeightInPixels = normalMapWhiteHeightInPixels;
+    
+    Texture::Ref normalBump = Texture::fromFile(filename, TextureFormat::RGBA8(), dim, textureSettings, npp); 
+
+    return BumpMap::create(MapComponent<Image4>::create(NULL, normalBump), settings);    
+}
+
+
 static bool hasTexture(const Component4& c) {
     return 
         (c.factors() == Component4::MAP) ||

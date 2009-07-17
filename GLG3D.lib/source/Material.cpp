@@ -77,13 +77,8 @@ Material::Ref Material::create(const Settings& settings) {
 
         // load bump map
         if (settings.m_bumpFilename != "") {
-            Texture::PreProcess npp = Texture::PreProcess::normalMap();
-            npp.normalMapWhiteHeightInPixels = settings.m_normalMapWhiteHeightInPixels;
-            
-            Texture::Ref normalBump = Texture::fromFile(settings.m_bumpFilename, TextureFormat::RGBA8(),
-                settings.m_textureDimension, settings.m_textureSettings, npp); 
-
-            value->m_bump = BumpMap::create(MapComponent<Image4>::create(NULL, normalBump), settings.m_bumpSettings);
+            value->m_bump = BumpMap::fromHeightFile(settings.m_bumpFilename, settings.m_bumpSettings, settings.m_normalMapWhiteHeightInPixels, 
+                settings.m_textureSettings, settings.m_textureDimension);
         }
 
         // Update the cache

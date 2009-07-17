@@ -185,9 +185,10 @@ float SuperBSDF::glossyScatter
     //      k2 = w_o
     //      h  = w_h
 
+     /*
     w_o = Vector3::hemiRandom(n, r);
     Vector3 w_h = (w_i + w_o).direction();
-    return 8.0f * powf(w_h.dot(n), g);
+    return 8.0f * powf(w_h.dot(n), g);*/
 
     float intensity;
     do {
@@ -214,12 +215,12 @@ float SuperBSDF::glossyScatter
         //   3. Does not account for the n.dot(w_o) probability (Rejection
         //        sample by discrepancy)
 
-        const float cos_o = w_o.dot(n);
-
         // Adjust for the measure difference between w_o and w_h spaces (eq. 8)
-        intensity = cos_o / (4.0f * w_i.dot(w_h));
+        intensity = 4.0f * w_i.dot(w_h);
 
-    } while (r.uniform() > intensity);
+    } while (r.uniform() > w_o.dot(n));
+
+    return 1.0;//intensity;
 }
 
 #if 0
@@ -290,7 +291,7 @@ bool SuperBSDF::scatter
 
      if (false) {  
         // TODO: Remove
-        // Testing code to generate Russian roulette
+        // Testing code to generate Russian roulette scattering
         w_o = Vector3::cosHemiRandom(n, random);
         power_o = evaluate(n, texCoord, w_i, power_i, w_o).rgb();
         if (power_o.average() > random.uniform()) {
@@ -358,9 +359,9 @@ bool SuperBSDF::scatter
             Finit = true;
 
             const float shininess = (float)unpackSpecularExponent(pack);
-            const Color3& p_specular = (pack == packedSpecularMirror()) ? 
+            const Color3& p_specular = F;/*(pack == packedSpecularMirror()) ? 
                                             F : 
-                                           (F * (shininess + 8.0f) / 8.0f); 
+                                           (F * (shininess + 8.0f) / 8.0f)*/; 
             const float p_specularAvg = p_specular.average();
 
             r -= p_specularAvg;

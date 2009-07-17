@@ -125,6 +125,11 @@ public:
             m_textureDimension = d;
         }
 
+        /** Default is Texture::DIM_2D_NPOT*/
+        inline Texture::Dimension textureDimension() const {
+            return m_textureDimension;
+        }
+
         void setTextureSettings(Texture::Settings& s);
 
         /** Filename of Lambertian (diffuse) term, empty if none. The alpha channel is a mask that will

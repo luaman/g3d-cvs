@@ -69,6 +69,10 @@ public:
         */
     static BumpMap::Ref create(const MapComponent<Image4>::Ref& normalBump, const Settings& settings);
 
+    /** @param normalMapWhiteHeightInPixels When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels. Default is -0.02f */
+    static BumpMap::Ref fromHeightFile(const std::string& filename, const Settings& settings = Settings(), float normalMapWhiteHeightInPixels = -0.02f, 
+        const Texture::Settings& textureSettings = Texture::Settings(), const Texture::Dimension dim = Texture::DIM_2D_NPOT);
+
     inline const Settings& settings() const {
         return m_settings;
     }
