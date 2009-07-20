@@ -94,6 +94,7 @@ public:
     explicit Vector3(double coordinate[3]);
     Vector3(const class Vector3int16& v);
 	explicit Vector3(class TextInput& t);
+    explicit Vector3(const class Color3& c);
 
 	/** Format is three float32's */
     void serialize(class BinaryOutput& b) const;

@@ -23,10 +23,13 @@
 #include "G3D/Vector3int16.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Vector2.h"
+#include "G3D/Color3.h"
 #include "G3D/Vector4int8.h"
 #include "G3D/Vector3int32.h"
  
 namespace G3D {
+
+Vector3::Vector3(const class Color3& v) : x(v.r), y(v.g), z(v.b) {}
 
 Vector3::Vector3(const class Vector3int32& v) : x((float)v.x), y((float)v.y), z((float)v.z) {}
 
