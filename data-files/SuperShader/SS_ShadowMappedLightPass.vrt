@@ -51,8 +51,8 @@ void main(void) {
 
         // Compute the tangent space eye vector (ATI does not support the transpose operator)
         mat3 worldToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
-                                    tan_X.y, tan_Y.y, tan_Z.y,
-                                    tan_X.z, tan_Y.z, tan_Z.z);
+                                   tan_X.y, tan_Y.y, tan_Z.y,
+                                   tan_X.z, tan_Y.z, tan_Z.z);
 
         _tsE         = worldToTangent * (wsEyePos - wsPosition);
 #    endif

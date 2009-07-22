@@ -192,8 +192,7 @@ public:
 
             /** CPU indices into the containing Part's VertexRange arrays for
                 a triangle list. */
-            Array<int>              indexArray;
-            
+            Array<int>              indexArray;            
             
             /** Recomputes the GPUGeom bounds.  Called automatically by
                 initIFS and init3DS.  Must be invoked manually if the
@@ -275,7 +274,7 @@ public:
         void pose(
             const ArticulatedModel::Ref& model,
             int                     partIndex,
-            Array<Surface::Ref>& posedArray,
+            Array<Surface::Ref>&    posedArray,
             const CoordinateFrame&  parent, 
             const Pose&             posex) const;
 

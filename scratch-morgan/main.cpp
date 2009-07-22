@@ -5,10 +5,7 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
-
-#if defined(G3D_VER) && (G3D_VER < 80000)
-#   error Requires G3D 8.00
-#endif
+#define HISTOGRAM 0
 
 class App : public GApp {
 public:
@@ -124,7 +121,6 @@ void App::onInit() {
         lighting->shadowedLightArray.clear();
     }
 
-    /*
     lighting = Lighting::create();
     lighting->ambientTop = Color3::white() * 0.2f;
     lighting->ambientBottom = Color3::zero();
@@ -135,21 +131,23 @@ void App::onInit() {
   //      L = GLight::directional(-c.lookVector(), Color3::white());
  //       L.rightDirection = c.rightVector();
 
-      L = GLight::directional(Vector3(0, 0.86f, -0.5f), Color3::white());
+      L = GLight::directional(Vector3(1, 1, -0.5f), Color3::white());
 
 //        L = skyParameters.directionalLight();
 
         lighting->lightArray.append(L);
     }
     shadowMap = ShadowMap::create("Shadow Map");
-    */
+    
     Stopwatch timer("Load 3DS");
-    if (false) {
+    if (true) {
         ArticulatedModel::PreProcess preprocess;
-        preprocess.addBumpMaps = false;
+        preprocess.addBumpMaps = true;
         preprocess.textureDimension = Texture::DIM_2D_NPOT;
-        preprocess.parallaxSteps = 0;
-    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
+        preprocess.parallaxSteps = 1;
+        ArticulatedModel::Settings s;
+        s.weld.normalSmoothingAngle = inf();
+        model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/G3D/data-files/3ds/fantasy/sponza/sponza.3DS"), preprocess);
 //        model = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), preprocess);
     }
 //    model = ArticulatedModel::fromFile(System::findDataFile("d:/morgan/data/3ds/fantasy/sponza/sponza.3DS"), preprocess);
@@ -168,7 +166,7 @@ void App::onInit() {
 
     film->makeGui(debugPane);
     */
-
+#if HISTOGRAM
     
     G3D::Random r;
     // Num samples
@@ -225,7 +223,6 @@ void App::onInit() {
 
     }    
     backwardHistogram->insert(v, weight);
-
     
     v.clear();
     weight.clear();
@@ -244,6 +241,7 @@ void App::onInit() {
         }
     }    
     backwardRRHistogram->insert(v, weight);
+#endif
 
     defaultCamera.setCoordinateFrame(bookmark("Home"));
     defaultCamera.setFieldOfView(toRadians(60), GCamera::HORIZONTAL);
@@ -270,9 +268,6 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-screenPrintf("White  = Importance sample f()");
-screenPrintf("Red    = Direct evaluation of f()");
-screenPrintf("Yellow = Russian roulette on f()");
 
     (void)posed3D;
     rd->setColorClearValue(Color3::white());
@@ -280,6 +275,10 @@ screenPrintf("Yellow = Russian roulette on f()");
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     if (histogram != NULL) {
+        screenPrintf("White  = Importance sample f()");
+        screenPrintf("Red    = Direct evaluation of f()");
+        screenPrintf("Yellow = Russian roulette on f()");
+
         rd->pushState();
         rd->setObjectToWorldMatrix(CFrame(Matrix3::fromAxisAngle(Vector3::unitX(), -toRadians(90)), Vector3(0,0,-1.0f)));
         histogram->render(rd, Color3::white());
@@ -298,6 +297,8 @@ screenPrintf("Yellow = Russian roulette on f()");
         Draw::plane(Plane(Vector3::unitY(), Vector3::zero()), rd, Color4(Color3(1.0f, 0.92f, 0.85f), 0.4f), Color4(Color3(1.0f, 0.5f, 0.3f) * 0.3f, 0.5f));
     }
 
+
+    Surface::sortAndRender(rd, defaultCamera, posed3D, lighting);
 #if 0
     // Show normals
     for (int i = 0; i < posed3D.size(); ++i) {

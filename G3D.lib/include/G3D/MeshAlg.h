@@ -303,9 +303,9 @@ private:
      @cite Max McGuire
      */
     static void computeTangentVectors(
-        const Vector3&  normal,
-        const Vector3   position[3],
-        const Vector2   texCoord[3],
+        Vector3&        normal,
+        Vector3         position[3],
+        Vector2         texCoord[3],
         Vector3&        tangent, 
         Vector3&        binormal);
 

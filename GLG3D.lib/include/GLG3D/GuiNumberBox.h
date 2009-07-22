@@ -74,7 +74,7 @@ protected:
 
     GuiTextBox*       m_textBox;
 
-    GuiText        m_units;
+    GuiText           m_units;
     float             m_unitsSize;
 
     // Methods declared in the middle of member variables
@@ -204,9 +204,9 @@ protected:
 
     GuiNumberBox(
         GuiContainer*           parent, 
-        const GuiText&       caption, 
+        const GuiText&          caption, 
         const Pointer<Value>&   value, 
-        const GuiText&       units,
+        const GuiText&          units,
         GuiTheme::SliderScale   scale,
         Value                   minValue, 
         Value                   maxValue,

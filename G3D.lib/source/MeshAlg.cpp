@@ -541,22 +541,37 @@ void MeshAlg::computeBounds(
 
 
 void MeshAlg::computeTangentVectors(
-    const Vector3&  normal,
-    const Vector3   position[3],
-    const Vector2   texCoord[3],
+    Vector3&  normal,
+    Vector3         v[3],
+    Vector2         t[3],
     Vector3&        tangent, 
     Vector3&        binormal) {
 
-    Vector3 v[3];
-    Vector2 t[3];
+    // TODO: inline this code below to avoid copies
+    // TODO: binormal -> bitangent
 
-    // TODO: don't need the copy
-    // Make a copy so that we can sort
-    for (int i = 0; i < 3; ++i) {
-        v[i] = position[i];
-        t[i] = texCoord[i];
+    // based on  http://www.terathon.com/code/tangent.html
+
+    // vertex edges
+    Vector3 ve1 = v[1] - v[0];
+    Vector3 ve2 = v[2] - v[0];
+
+    // texture edges
+    Vector2 te1 = t[1] - t[0];
+    Vector2 te2 = t[2] - t[0];
+    
+    float r = te1.x * te2.y - te1.y * te2.x;
+    if (r == 0.0) {
+        // degenerate case
+        Vector3::generateOrthonormalBasis(tangent, binormal, normal, true);
+    } else {
+        r = 1.0f / r;
+        
+        tangent  = (te2.y * ve1 - te1.y * ve2) * r;
+        binormal = (te1.x * ve2 - te2.x * ve1) * r;
     }
 
+#if 0
     /////////////////////////////////////////////////
     // Begin by computing the tangent
 
@@ -580,7 +595,7 @@ void MeshAlg::computeTangentVectors(
         std::swap(t[1], t[2]);
     }
 
-    // t0 >= t1 >= t2
+    // t0.y >= t1.y >= t2.y
 
     float amount;
 
@@ -665,6 +680,7 @@ void MeshAlg::computeTangentVectors(
 
     // This computation gives the opposite convention of what we want.
     binormal = -binormal;
+#endif
 
 }
 
@@ -678,11 +694,6 @@ void MeshAlg::computeTangentSpaceBasis(
     Array<Vector3>&             binormal) {
 
     debugAssertM(faceArray.size() != 0, "Unable to calculate valid tangent space without faces.");
-
-    // The three vertices and texCoords of each face
-    Vector3 position[3];
-    Vector2 texCoord[3];
-    Vector3 t, b;
 
     tangent.resize(vertexArray.size());
     binormal.resize(vertexArray.size());
@@ -698,13 +709,18 @@ void MeshAlg::computeTangentSpaceBasis(
     for (int f = 0; f < faceArray.size(); ++f) {
         const Face& face = faceArray[f];
 
+        // The three vertices and texCoords of each face
+        Vector3 position[3];
+        Vector2 texCoord[3];
+        Vector3 t, b;
+
         for (int v = 0; v < 3; ++v) {
             int i = face.vertexIndex[v];
             position[v] = vertexArray[i];
             texCoord[v] = texCoordArray[i];
         }
 
-        const Vector3 faceNormal((position[1] - position[0]).cross(position[2] - position[0]).direction());
+        Vector3 faceNormal((position[1] - position[0]).cross(position[2] - position[0]).direction());
         computeTangentVectors(faceNormal, position, texCoord, t, b);
 
         for (int v = 0; v < 3; ++v) {
@@ -718,16 +734,17 @@ void MeshAlg::computeTangentSpaceBasis(
     for (int v = 0; v < vertexArray.size(); ++v) {
         // Remove the component parallel to the normal
         const Vector3& N = vertexNormalArray[v];
+        Vector3& T = tangent[v];
+        Vector3& B = binormal[v];
+
         debugAssertM(N.isUnit() || N.isZero(), "Input normals must have unit length");
 
-        tangent[v]  -= tangent[v].dot(N) * N;
-        binormal[v] -= binormal[v].dot(N) * N;
+        T -= T.dot(N) * N;
+        B -= B.dot(N) * N;
 
         // Normalize
-        tangent[v]  = tangent[v].directionOrZero();
-        binormal[v] = binormal[v].directionOrZero();
-
-        // Note that the tangent and binormal might not be perpendicular anymore
+        T = T.directionOrZero();
+        B = B.directionOrZero();
     }
 }
 
