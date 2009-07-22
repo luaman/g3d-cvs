@@ -4,7 +4,7 @@
   @author Morgan McGuire morgan@cs.williams.edu
 
   For use with G3D::SuperShader.
-  This file is included into NonShadowedPass.pix and ShadowMappedLightPass.pix.
+  This file is included into SS_NonShadowedPass.pix and SS_ShadowMappedLightPass.pix.
 
   @edited  2009-03-24
   @created 2007-12-18
@@ -54,7 +54,7 @@ uniform vec4        lightAttenuation0;
 uniform float       backside;
 
 varying vec2        texCoord;
-varying vec4        tan_Z;
+varying vec3        tan_Z;
 
 #ifdef NORMALBUMPMAP
     /** Multiplier for bump map.  Typically on the range [0, 0.05]
@@ -69,7 +69,7 @@ varying vec4        tan_Z;
 
     /** Un-normalized (interpolated) tangent space eye vector */
     varying vec3        _tsE;
-    varying vec4        tan_X, tan_Y;
+    varying vec3        tan_X, tan_Y;
 #endif
 
 

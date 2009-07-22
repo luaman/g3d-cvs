@@ -25,7 +25,7 @@
         vec3 tsN = texture2D(normalBumpMap, offsetTexCoord).xyz * 2.0 + vec3(-1.0, -1.0, -1.0);
 
         // note that the columns might be slightly non-orthogonal due to interpolation
-        mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz);
+        mat3 tangentToWorld = mat3(tan_X, tan_Y, tan_Z);
 
         // Take the normal to world space
         wsN = (tangentToWorld * tsN) * backside;
@@ -52,7 +52,7 @@
         vec3 tsN = texture2D(normalBumpMap, offsetTexCoord).xyz * 2.0 + vec3(-1.0, -1.0, -1.0);
 
         // note that the columns might be slightly not orthogonal due to interpolation
-        mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz);
+        mat3 tangentToWorld = mat3(tan_X, tan_Y, tan_Z);
 
         // Take the normal to world space
         wsN = (tangentToWorld * tsN) * backside;
@@ -156,10 +156,10 @@
         offsetTexCoord = offsetCoord.xy;
 
         // Note that the columns might be slightly not orthogonal due to interpolation
-        mat3 tangentToWorld = mat3(tan_X.xyz, tan_Y.xyz, tan_Z.xyz * backside);
+        mat3 tangentToWorld = mat3(tan_X, tan_Y, tan_Z * backside);
 
         // Take the normal to world space
-        wsN = (tangentToWorld * tsN); 
+        wsN = tangentToWorld * tsN; 
     }
 #   endif // Parallax Steps > 1
 #endif

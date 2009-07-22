@@ -24,29 +24,29 @@ varying vec3 wsPosition;
 
 	NVIDIA drivers do not properly interpolate mat4, so we must pass
 	the columns along a separate vectors. */
-	varying vec4 tan_X, tan_Y;
+	varying vec3 tan_X, tan_Y;
 #endif
 
-varying vec4 tan_Z; 
+varying vec3 tan_Z; 
 
 void main(void) {
     vec3 wsEyePos = g3d_CameraToWorldMatrix[3].xyz;
 
     wsPosition = (g3d_ObjectToWorldMatrix * gl_Vertex).xyz;
 
-    tan_Z = g3d_ObjectToWorldMatrix * vec4(gl_Normal, 0);
+    tan_Z = (g3d_ObjectToWorldMatrix * vec4(gl_Normal, 0.0)).xyz;
 
 #   ifdef NORMALBUMPMAP      
 	    tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
 
         // T and N are guaranteed perpendicular, so B is normalized.  Its facing 
         // direction is stored in the texcoord w component.
-        tan_Y = vec4(cross(tan_Z.xyz, tan_X.xyz) * gl_MultiTexCoord1.w, 0);
+        tan_Y = vec4(cross(tan_Z, tan_X) * gl_MultiTexCoord1.w, 0);
 
 	    // Compute the tangent space eye vector (ATI does not support the transpose operator)
 	    mat3 worldToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
-                                    tan_X.y, tan_Y.y, tan_Z.y,
-                                    tan_X.z, tan_Y.z, tan_Z.z);
+                                   tan_X.y, tan_Y.y, tan_Z.y,
+                                   tan_X.z, tan_Y.z, tan_Z.z);
       
        _tsE             = worldToTangent * (wsEyePos - wsPosition);
 #    endif
