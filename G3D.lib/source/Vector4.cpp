@@ -20,6 +20,8 @@
 
 namespace G3D {
 
+
+
 Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f), w(v.w / 127.0f) {
 }
 
@@ -29,6 +31,11 @@ const Vector4& Vector4::inf() {
     return v; 
 }
 
+
+const Vector4& Vector4::zero() { 
+    static const Vector4 v(0,0,0,0); 
+    return v;
+}
 
 const Vector4& Vector4::nan() { 
     static Vector4 v((float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan()); 

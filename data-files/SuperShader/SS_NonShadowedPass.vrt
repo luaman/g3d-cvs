@@ -39,8 +39,9 @@ void main(void) {
 #   ifdef NORMALBUMPMAP      
 	    tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
 
-            // T and N are guaranteed perpendicular, so B is normalized.
-	    tan_Y = vec4(cross(tan_Z.xyz, tan_X.xyz), 0);
+        // T and N are guaranteed perpendicular, so B is normalized.  Its facing 
+        // direction is stored in the texcoord w component.
+        tan_Y = vec4(cross(tan_Z.xyz, tan_X.xyz) * gl_MultiTexCoord1.w, 0);
 
 	    // Compute the tangent space eye vector (ATI does not support the transpose operator)
 	    mat3 worldToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,

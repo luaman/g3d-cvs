@@ -63,7 +63,7 @@ private:
     Vector2                 m_texCoord[3];
 
     /** Per-vertex tangents for bump mapping. */
-    Vector3                 m_tangent[3];
+    Vector4                 m_packedTangent[3];
 
     Material::Ref           m_material;
 
@@ -81,7 +81,7 @@ public:
         void* data = NULL,
         const Material::Ref& material = NULL,
         const Vector2& t0 = Vector2::zero(), const Vector2& t1 = Vector2::zero(), const Vector2& t2 = Vector2::zero(),
-        const Vector3& tan0 = Vector3::zero(), const Vector3& tan1 = Vector3::zero(), const Vector3& tan2 = Vector3::zero());
+        const Vector4& tan0 = Vector4::zero(), const Vector4& tan1 = Vector4::zero(), const Vector4& tan2 = Vector4::zero());
 
     /** Backfacing version of this triangle.  Normals and tangents are
         negated and the winding order is reversed. */
@@ -129,18 +129,23 @@ public:
         return m_texCoord[i];
     }
 
+    inline const Vector4& packedTangent(int i) const {
+        debugAssert(i >= 0 && i <= 2);
+        return m_packedTangent[i];
+    }
+
     /** Per-vertex unit tangent, for bump mapping. Tangents are perpendicular to 
         the corresponding vertex normals.*/
-    inline const Vector3& tangent(int i) const {
+    inline Vector3 tangent(int i) const {
         debugAssert(i >= 0 && i <= 2);
-        return m_tangent[i];
+        return m_packedTangent[i].xyz();
     }
 
     /** Per-vertex unit tangent = normal x tangent, for bump mapping.
         (Erroneously called the "binormal" in some literature) */
     inline Vector3 tangent2(int i) const {
         debugAssert(i >= 0 && i <= 2);
-        return m_normal[i].cross(m_tangent[i]);
+        return m_normal[i].cross(m_packedTangent[i].xyz()) * m_packedTangent[i].w;
     }
 
     /** Application-specific data. Can be used as a convenience 
@@ -224,7 +229,8 @@ public:
         (Vector3&        location,
          Vector3&        normal,
          Vector2&        texCoord,
-         Vector3&        tangent) const;
+         Vector3&        tangent1,
+         Vector3&        tangent2) const;
 
         void getResult
         (Vector3&        location,

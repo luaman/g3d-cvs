@@ -28,8 +28,8 @@ const Array<Vector2>& Surface::texCoords() const {
 }
 
 
-const Array<Vector3>& Surface::objectSpaceTangents() const {
-    static Array<Vector3> t;
+const Array<Vector4>& Surface::objectSpacePackedTangents() const {
+    static Array<Vector4> t;
     return t;
 }
 

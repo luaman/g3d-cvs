@@ -218,16 +218,16 @@ public:
         CoordinateFrame             cframe;
 
         /** Copy of geometry.vertexArray stored on the GPU. Written by updateVAR.*/
-        VertexRange                         vertexVAR;
+        VertexRange                 vertexVAR;
 		
         /** Copy of geometry.normalArray stored on the GPU. Written by updateVAR. */
-        VertexRange                         normalVAR;
+        VertexRange                 normalVAR;
         
-        /** Copy of tangentArray stored on the GPU.  Written by updateVAR.*/
-        VertexRange                         tangentVAR;
+        /** Copy of packedTangentArray stored on the GPU.  Written by updateVAR.*/
+        VertexRange                 packedTangentVAR;
         
         /** Copy of texCoordArray stored on the GPU.  Written by updateVAR.*/
-        VertexRange                         texCoord0VAR;
+        VertexRange                 texCoord0VAR;
         
         /** CPU geometry; per-vertex positions and normals.
             
@@ -241,8 +241,14 @@ public:
         /** CPU texture coordinates. */
         Array<Vector2>              texCoordArray;
         
-        /** CPU per-vertex tangent vectors, typically computed by computeNormalsAndTangentSpace. */
-        Array<Vector3>              tangentArray;
+        /** CPU per-vertex tangent vectors, typically computed by computeNormalsAndTangentSpace.
+            Packs two tangents, T1 and T2 that form a reference frame with the normal such that 
+            
+            - \f$ \vec{x} = \vec{T}_1 = \vec{t}_{xyz}\f$ 
+            - \f$ \vec{y} = \vec{T}_2 = \vec{t}_w * (\vec{n} \times \vec{t}_{xyz})  \f$
+            - \f$ \vec{z} = \vec{n} \f$ 
+        */
+        Array<Vector4>              packedTangentArray;
 		
         /** A collection of meshes that describe this part.*/
         Array<TriList::Ref>         triList;

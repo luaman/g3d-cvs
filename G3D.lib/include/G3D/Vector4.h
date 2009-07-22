@@ -12,8 +12,8 @@
   All rights reserved.
  */
 
-#ifndef G3D_VECTOR4_H
-#define G3D_VECTOR4_H
+#ifndef G3D_Vector4_h
+#define G3D_Vector4_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -78,6 +78,8 @@ public:
     Vector4& operator= (const Vector4& rkVector);
     bool operator== (const Vector4& rkVector) const;
     bool operator!= (const Vector4& rkVector) const;
+
+    static const Vector4& zero();
 
     inline void set(float _x, float _y, float _z, float _w) {
         x = _x;

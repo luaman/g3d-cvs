@@ -13,8 +13,7 @@ public:
     Vector3         position;
 
     /** World-space normal to the surface at the hit location. 
-        May be unspecified, depending on how this ray was cast.
-      */
+        May be unspecified, depending on how this ray was cast. */
     Vector3         normal;
 
     /** Texture coordinate.  */

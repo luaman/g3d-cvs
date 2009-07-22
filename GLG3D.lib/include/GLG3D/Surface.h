@@ -194,10 +194,15 @@ public:
     */
     virtual const Array<Vector2>& texCoords() const;
 
-    /** Returns per-vertex tangent vectors, if available. May return an empty array.*/
-    virtual const Array<Vector3>& objectSpaceTangents() const;
+    /** Returns per-vertex tangent vectors, if available. May return an empty array.
+     Packs two tangents, T1 and T2 that form a reference frame with the normal such that 
+            
+            - \f$ \vec{x} = \vec{T}_1 = \vec{t}_{xyz}\f$ 
+            - \f$ \vec{y} = \vec{T}_2 = \vec{t}_w * (\vec{n} \times \vec{t}_{xyz})  \f$
+            - \f$ \vec{z} = \vec{n} \f$ */
+    virtual const Array<Vector4>& objectSpacePackedTangents() const;
 
-    /** Returns true if this model has texture coordinates. */
+    /** Returns true if this model has texture coordinates. */ 
     virtual bool hasTexCoords() const {
         return false;
     }

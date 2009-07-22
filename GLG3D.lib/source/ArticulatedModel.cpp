@@ -207,12 +207,12 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                         bool twoSided = false;
 
                         const std::string& materialName = faceMat.materialName;
-                        if (load.materialNameToIndex.containsKey(materialName)) {
+                        if (load.materialNameToIndex.containsKey(materialName)) { 
 
                             int i = load.materialNameToIndex[materialName];
                             const Load3DS::Material& material = load.materialArray[i];
 
-                            const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
+                            Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
                             twoSided = material.twoSided;
 
                             mat = Material::create(spec);
@@ -351,17 +351,31 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace
         // computeTangentSpaceBasis will generate binormals, but
         // we throw them away and recompute
         // them in the vertex shader.
-        Array<Vector3> bitangentArray;
+        Array<Vector3> T;
+        Array<Vector3> B;
 
         MeshAlg::computeTangentSpaceBasis(
             geometry.vertexArray,
             texCoordArray,
             geometry.normalArray,
             faceArray,
-            tangentArray,
-            bitangentArray);
+            T,
+            B);
+
+        // Pack the tangents 
+        packedTangentArray.resize(T.size());
+        for (int i = 0; i < T.size(); ++i) {
+            const Vector3& t = T[i];
+            const Vector3& b = B[i];
+            const Vector3& n = geometry.normalArray[i];
+            Vector4& p = packedTangentArray[i];
+            p.x = t.x;
+            p.y = t.y;
+            p.z = t.z;
+            p.w = sign(t.cross(b).dot(n));
+        }
     } else {
-        tangentArray.clear();
+        packedTangentArray.clear();
     }
 }
 
@@ -374,16 +388,16 @@ void ArticulatedModel::Part::updateVAR(VertexBuffer::UsageHint hint) {
 
     int vtxSize = sizeof(Vector3) * geometry.vertexArray.size();
     int texSize = sizeof(Vector2) * texCoordArray.size();
-    int tanSize = sizeof(Vector3) * tangentArray.size();
+    int tanSize = sizeof(Vector4) * packedTangentArray.size();
 
     if ((vertexVAR.maxSize() >= vtxSize) &&
         (normalVAR.maxSize() >= vtxSize) &&
-        ((tanSize == 0) || (tangentVAR.maxSize() >= tanSize)) &&
+        ((tanSize == 0) || (packedTangentVAR.maxSize() >= tanSize)) &&
         ((texSize == 0) || (texCoord0VAR.maxSize() >= texSize))) {
         VertexRange::updateInterleaved
            (geometry.vertexArray, vertexVAR,
             geometry.normalArray, normalVAR,
-            tangentArray,         tangentVAR,
+            packedTangentArray,   packedTangentVAR,
             texCoordArray,        texCoord0VAR);
 
     } else {
@@ -396,13 +410,13 @@ void ArticulatedModel::Part::updateVAR(VertexBuffer::UsageHint hint) {
         VertexRange::createInterleaved
             (geometry.vertexArray, vertexVAR,
              geometry.normalArray, normalVAR,
-             tangentArray,         tangentVAR,
+             packedTangentArray,   packedTangentVAR,
              texCoordArray,        texCoord0VAR,
              varArea);       
     }
 
     for (int i = 0; i < triList.size(); ++i) {
-        triList[i]->updateVAR(hint, vertexVAR, normalVAR, tangentVAR, texCoord0VAR);
+        triList[i]->updateVAR(hint, vertexVAR, normalVAR, packedTangentVAR, texCoord0VAR);
     }
 }
 
@@ -706,7 +720,7 @@ void ArticulatedModel::pose(
 void ArticulatedModel::Part::pose
     (const ArticulatedModel::Ref&      model,
      int                               partIndex,
-     Array<Surface::Ref>&           posedArray,
+     Array<Surface::Ref>&              posedArray,
      const CoordinateFrame&            parent, 
      const Pose&                       posex) const {
 
@@ -725,8 +739,8 @@ void ArticulatedModel::Part::pose
 
         for (int t = 0; t < triList.size(); ++t) {
             if (triList[t].notNull() && (triList[t]->indexArray.size() > 0)) {
-                SuperSurface::CPUGeom cpuGeom(& triList[t]->indexArray, &geometry, 
-                                                   &texCoordArray, &tangentArray);
+                SuperSurface::CPUGeom cpuGeom(&triList[t]->indexArray, &geometry, 
+                                              &texCoordArray, &packedTangentArray);
 
                 posedArray.append(SuperSurface::create(model->name, frame, triList[t],
                                                             cpuGeom, model));

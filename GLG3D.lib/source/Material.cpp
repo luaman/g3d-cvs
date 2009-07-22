@@ -13,7 +13,7 @@ Material::Material() : m_customConstant(Color4::inf()) {
 }
 
 
-Material::Ref Material::create() {
+Material::Ref Material::createEmpty() {
     return new Material();
 }
 

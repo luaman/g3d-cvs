@@ -23,7 +23,7 @@ Tri::Tri(
     void* data,
     const Material::Ref& material,
     const Vector2& t0, const Vector2& t1, const Vector2& t2,
-    const Vector3& tan0, const Vector3& tan1, const Vector3& tan2) :
+    const Vector4& tan0, const Vector4& tan1, const Vector4& tan2) :
     v0(v0), e1(v1 - v0), e2(v2 - v0),
     m_material(material),
     m_data(data) {
@@ -40,9 +40,9 @@ Tri::Tri(
     m_texCoord[1] = t1;
     m_texCoord[2] = t2;
 
-    m_tangent[0] = tan0;
-    m_tangent[1] = tan1;
-    m_tangent[2] = tan2;
+    m_packedTangent[0] = tan0;
+    m_packedTangent[1] = tan1;
+    m_packedTangent[2] = tan2;
 
     n = e1.cross(e2).direction();
 }
@@ -63,13 +63,13 @@ Tri Tri::otherSide() const {
 
     t.m_normal[0]   = -m_normal[0];
     t.m_texCoord[0] = m_texCoord[0];
-    t.m_tangent[0]  = -m_tangent[0];
+    t.m_packedTangent[0]  = -m_packedTangent[0];
 
     for (int i = 1; i < 3; ++i) {
         int j = 3 - i;
         t.m_normal[i]   = -m_normal[j];
         t.m_texCoord[i] = m_texCoord[j];
-        t.m_tangent[i]  = -m_tangent[j];
+        t.m_packedTangent[i]  = -m_packedTangent[j];
     }
     
     return t;
@@ -210,19 +210,23 @@ void Tri::Intersector::getResult
 (Vector3&        location,
  Vector3&        normal,
  Vector2&        texCoord,
- Vector3&        tangent) const {
+ Vector3&        tangent1,
+ Vector3&        tangent2) const {
 
     getResult(location, normal, texCoord);
 
     float w = 1.0 - u - v;
 
-    if (tri->m_tangent[0].isZero()) {
-        tangent = Vector3::zero();
+    if (tri->m_packedTangent[0].w == 0.0f) {
+        tangent1 = Vector3::zero();
+        tangent2 = Vector3::zero();
     } else {
-        tangent  = w * tri->m_tangent[0] + 
-                   u * tri->m_tangent[1] +
-                   v * tri->m_tangent[2];
-        tangent.unitize();
+        tangent1  = w * tri->m_packedTangent[0].xyz() + 
+                    u * tri->m_packedTangent[1].xyz() +
+                    v * tri->m_packedTangent[2].xyz();
+        tangent1.unitize();
+
+        tangent2 = normal.cross(tangent1);
     }
 }
 
@@ -253,10 +257,10 @@ void Tri::getTris(const Surface::Ref& pmodel, Array<Tri>& triArray, const CFrame
     const Array<Vector3>& vertex    = cpuGeom.geometry->vertexArray;
     const Array<Vector3>& normal    = cpuGeom.geometry->normalArray;
     const Array<Vector2>& texCoord0 = *cpuGeom.texCoord0;
-    const Array<Vector3>& tangent   = *cpuGeom.tangent;
+    const Array<Vector4>& packedTangent = *cpuGeom.packedTangent;
 
     bool hasTexCoords = texCoord0.size() > 0;
-    bool hasTangents  = tangent.size() > 0;
+    bool hasTangents  = packedTangent.size() > 0;
 
     // Object to world matrix.  Guaranteed to be an RT transformation,
     // so we can directly transform normals as if they were vectors.
@@ -283,9 +287,9 @@ void Tri::getTris(const Surface::Ref& pmodel, Array<Tri>& triArray, const CFrame
                  hasTexCoords ? texCoord0[v1] : Vector2::zero(), 
                  hasTexCoords ? texCoord0[v2] : Vector2::zero(),
 
-                 hasTangents  ? cframe.vectorToWorldSpace(tangent[v0]) : Vector3::zero(),
-                 hasTangents  ? cframe.vectorToWorldSpace(tangent[v1]) : Vector3::zero(),
-                 hasTangents  ? cframe.vectorToWorldSpace(tangent[v2]) : Vector3::zero()));
+                 hasTangents  ? Vector4(cframe.vectorToWorldSpace(packedTangent[v0].xyz()), packedTangent[v0].w) : Vector4::zero(),
+                 hasTangents  ? Vector4(cframe.vectorToWorldSpace(packedTangent[v1].xyz()), packedTangent[v0].w) : Vector4::zero(),
+                 hasTangents  ? Vector4(cframe.vectorToWorldSpace(packedTangent[v2].xyz()), packedTangent[v0].w) : Vector4::zero()));
 
         if (twoSided) {
             const Tri& t = triArray.last().otherSide();

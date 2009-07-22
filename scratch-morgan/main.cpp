@@ -131,7 +131,7 @@ void App::onInit() {
   //      L = GLight::directional(-c.lookVector(), Color3::white());
  //       L.rightDirection = c.rightVector();
 
-      L = GLight::directional(Vector3(1, 1, -0.5f), Color3::white());
+      L = GLight::directional(Vector3(-1, 1, 0.5f), Color3::white());
 
 //        L = skyParameters.directionalLight();
 

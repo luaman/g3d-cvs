@@ -245,8 +245,10 @@ protected:
 
 public:
 
-    /** \brief Constructs an empty Material. */
-    static Material::Ref create();
+    /** \brief Constructs an empty Material, which has no BSDF. This is provided mainly 
+       for efficiency when constructing a Material manually. Use Material::create() to 
+       create a default material. */
+    static Material::Ref createEmpty();
 
     /** The Material::create(const Settings& settings) factor method is recommended 
        over this one because it performs caching and argument validation. */ 
@@ -266,7 +268,7 @@ public:
        (note: it will automatically copy to the CPU as needed, but that 
        process is not threadsafe).
      */
-    static Material::Ref create(const Settings& settings);
+    static Material::Ref create(const Settings& settings = Settings());
 
     /**
      Create a G3D::Material using a Lambertian (pure diffuse) G3D::BSDF with color @a p_Lambertian.

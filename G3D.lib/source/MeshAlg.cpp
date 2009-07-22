@@ -539,152 +539,6 @@ void MeshAlg::computeBounds(
 	}
 }
 
-
-void MeshAlg::computeTangentVectors(
-    Vector3&  normal,
-    Vector3         v[3],
-    Vector2         t[3],
-    Vector3&        tangent, 
-    Vector3&        binormal) {
-
-    // TODO: inline this code below to avoid copies
-    // TODO: binormal -> bitangent
-
-    // based on  http://www.terathon.com/code/tangent.html
-
-    // vertex edges
-    Vector3 ve1 = v[1] - v[0];
-    Vector3 ve2 = v[2] - v[0];
-
-    // texture edges
-    Vector2 te1 = t[1] - t[0];
-    Vector2 te2 = t[2] - t[0];
-    
-    float r = te1.x * te2.y - te1.y * te2.x;
-    if (r == 0.0) {
-        // degenerate case
-        Vector3::generateOrthonormalBasis(tangent, binormal, normal, true);
-    } else {
-        r = 1.0f / r;
-        
-        tangent  = (te2.y * ve1 - te1.y * ve2) * r;
-        binormal = (te1.x * ve2 - te2.x * ve1) * r;
-    }
-
-#if 0
-    /////////////////////////////////////////////////
-    // Begin by computing the tangent
-
-    // Bubble sort the vertices by decreasing texture coordinate y.
-    if (t[0].y < t[1].y) {
-        std::swap(v[0], v[1]);
-        std::swap(t[0], t[1]);
-    }
-
-    // t0 >= t1
-
-    if (t[0].y < t[2].y) {
-        std::swap(v[0], v[2]);
-        std::swap(t[0], t[2]);
-    }
-
-    // t0 >= t2, t0 >= t1
-
-    if (t[1].y < t[2].y) {
-        std::swap(v[1], v[2]);
-        std::swap(t[1], t[2]);
-    }
-
-    // t0.y >= t1.y >= t2.y
-
-    float amount;
-
-    // Compute the direction of constant y.
-    if (fuzzyEq(t[2].y, t[0].y)) {
-        // Degenerate case-- the texture coordinates do not vary across this 
-        // triangle.
-        amount = 1.0;
-    } else {
-        // Solve lerp(t[0].y, t[2].y, amount) = t[1].y for amount:
-        //
-        // t0 + (t2 - t0) * a = t1
-        // a = (t1 - t0) / (t2 - t0)
-
-        amount = (t[1].y - t[0].y) / (t[2].y - t[0].y);
-    }
-
-    tangent = lerp(v[0], v[2], amount) - v[1];
-
-    // Make sure the tangent points in the right direction and is 
-    // perpendicular to the normal.
-    if (lerp(t[0].x, t[2].x, amount) < t[1].x) {
-        tangent = -tangent;
-    }
-
-    // TODO: do we need this?  We take this component off
-    // at the end anyway
-    tangent -= tangent.dot(normal) * normal;
-    
-    // Normalize the tangent so it contributes
-    // equally at the vertex (TODO: do we need this?)
-    if (fuzzyEq(tangent.magnitude(), 0.0)) {
-        tangent = Vector3::unitX();
-    } else {
-        tangent = tangent.direction();
-    }
-
-    //////////////////////////////////////////////////
-    // Now compute the binormal (same code, but in x)
-
-    // Sort the vertices by texture coordinate x.
-    if (t[0].x < t[1].x) {
-        std::swap(v[0], v[1]);
-        std::swap(t[0], t[1]);
-    }
-
-    if (t[0].x < t[2].x) {
-        std::swap(v[0], v[2]);
-        std::swap(t[0], t[2]);
-    }
-
-    if (t[1].x < t[2].x) {
-        std::swap(v[1], v[2]);
-        std::swap(t[1], t[2]);
-    }
-
-    // Compute the direction of constant x.
-    if (fuzzyEq(t[2].x, t[0].x)) {
-        amount = 1.0;
-    } else {
-        amount = (t[1].x - t[0].x) / (t[2].x - t[0].x);
-    }
-
-    binormal = lerp(v[0], v[2], amount) - v[1];
-
-    // Make sure the binormal points in the right direction and is 
-    // perpendicular to the normal.
-    if (lerp(t[0].y, t[2].y, amount) < t[1].y) {
-        binormal = -binormal;
-    }
-
-    binormal -= binormal.dot(normal) * normal;
-
-    // Normalize the binormal so that it contributes
-    // an equal amount to the per-vertex value (TODO: do we need this? 
-    // Nelson Max showed that we don't for computing per-vertex normals)
-    if (fuzzyEq(binormal.magnitude(), 0.0)) {
-        binormal = Vector3::unitZ();
-    } else {
-        binormal = binormal.direction();
-    }
-
-    // This computation gives the opposite convention of what we want.
-    binormal = -binormal;
-#endif
-
-}
-
-
 void MeshAlg::computeTangentSpaceBasis(
     const Array<Vector3>&       vertexArray,
     const Array<Vector2>&       texCoordArray,
@@ -709,19 +563,40 @@ void MeshAlg::computeTangentSpaceBasis(
     for (int f = 0; f < faceArray.size(); ++f) {
         const Face& face = faceArray[f];
 
-        // The three vertices and texCoords of each face
-        Vector3 position[3];
-        Vector2 texCoord[3];
+        const int i0 = face.vertexIndex[0];
+        const int i1 = face.vertexIndex[1];
+        const int i2 = face.vertexIndex[2];
+        
+        const Vector3& v0 = vertexArray[i0];
+        const Vector3& v1 = vertexArray[i1];
+        const Vector3& v2 = vertexArray[i2];
+
+        const Vector2& t0 = texCoordArray[i0];
+        const Vector2& t1 = texCoordArray[i1];
+        const Vector2& t2 = texCoordArray[i2];
+
+        // See http://www.terathon.com/code/tangent.html for a derivation of the following code
+
+        // vertex edges
+        Vector3 ve1 = v1 - v0;
+        Vector3 ve2 = v2 - v0;
+
+        // texture edges
+        Vector2 te1 = t1 - t0;
+        Vector2 te2 = t2 - t0;
+
+        Vector3 n(ve1.cross(ve2).direction());
         Vector3 t, b;
-
-        for (int v = 0; v < 3; ++v) {
-            int i = face.vertexIndex[v];
-            position[v] = vertexArray[i];
-            texCoord[v] = texCoordArray[i];
+    
+        float r = te1.x * te2.y - te1.y * te2.x;
+        if (r == 0.0) {
+            // degenerate case
+            Vector3::generateOrthonormalBasis(t, b, n, true);
+        } else {
+            r = 1.0f / r;        
+            t = (te2.y * ve1 - te1.y * ve2) * r;
+            b = (te2.x * ve1 - te1.x * ve2) * r;   
         }
-
-        Vector3 faceNormal((position[1] - position[0]).cross(position[2] - position[0]).direction());
-        computeTangentVectors(faceNormal, position, texCoord, t, b);
 
         for (int v = 0; v < 3; ++v) {
             int i = face.vertexIndex[v];

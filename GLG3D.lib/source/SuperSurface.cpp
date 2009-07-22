@@ -970,9 +970,9 @@ void SuperSurface::sendGeometry(
                     (m_cpuGeom.texCoord0->size() > 0)) { 
                     rd->setTexCoord(0, (*m_cpuGeom.texCoord0)[v]);
                 }
-                if ((m_cpuGeom.tangent != NULL) &&
-                    (m_cpuGeom.tangent->size() > 0)) {
-                    rd->setTexCoord(1, (*m_cpuGeom.tangent)[v]);
+                if ((m_cpuGeom.packedTangent != NULL) &&
+                    (m_cpuGeom.packedTangent->size() > 0)) {
+                    rd->setTexCoord(1, (*m_cpuGeom.packedTangent)[v]);
                 }
 
                 rd->setNormal(m_cpuGeom.geometry->normalArray[v]);
@@ -1003,12 +1003,12 @@ const MeshAlg::Geometry& SuperSurface::objectSpaceGeometry() const {
 }
 
 
-const Array<Vector3>& SuperSurface::objectSpaceTangents() const {
-    if (m_cpuGeom.tangent == NULL) {
-        const static Array<Vector3> x;
+const Array<Vector4>& SuperSurface::objectSpacePackedTangents() const {
+    if (m_cpuGeom.packedTangent == NULL) {
+        const static Array<Vector4> x;
         return x;
     } else {
-        return *(m_cpuGeom.tangent);
+        return *(m_cpuGeom.packedTangent);
     }
 }
 

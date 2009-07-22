@@ -106,18 +106,24 @@ public:
     public:
         const Array<int>*        index;
         const MeshAlg::Geometry* geometry;
-        const Array<Vector3>*    tangent;
+
+        /**  Packs two tangents, T1 and T2 that form a reference frame with the normal such that 
+            
+            - \f$ \vec{x} = \vec{T}_1 = \vec{t}_{xyz}\f$ 
+            - \f$ \vec{y} = \vec{T}_2 = \vec{t}_w * (\vec{n} \times \vec{t}_{xyz})  \f$
+            - \f$ \vec{z} = \vec{n} \f$ */
+        const Array<Vector4>*    packedTangent;
         const Array<Vector2>*    texCoord0;
         
         inline CPUGeom(
                 const Array<int>* index,
                 const MeshAlg::Geometry* geometry,
                 const Array<Vector2>* texCoord0,
-                const Array<Vector3>* tangent = NULL) : 
-            index(index), geometry(geometry), tangent(tangent), 
+                const Array<Vector4>* packedTangent = NULL) : 
+            index(index), geometry(geometry), packedTangent(packedTangent), 
             texCoord0(texCoord0) {}
 
-        inline CPUGeom() : index(NULL), geometry(NULL), tangent(NULL), texCoord0(NULL) {}
+        inline CPUGeom() : index(NULL), geometry(NULL), packedTangent(NULL), texCoord0(NULL) {}
     };
 
 protected:
@@ -317,7 +323,7 @@ public:
 
     virtual int numWeldedBoundaryEdges() const;
 
-    virtual const Array<Vector3>& objectSpaceTangents() const;
+    virtual const Array<Vector4>& objectSpacePackedTangents() const;
    
     virtual bool renderSuperShaderPass(
         RenderDevice* rd, 

@@ -296,18 +296,6 @@ public:
         double&                 maxFaceArea);
 
 private:
-    /**
-     Computes the tangent space basis vectors for
-     a counter-clockwise oriented face.
-
-     @cite Max McGuire
-     */
-    static void computeTangentVectors(
-        Vector3&        normal,
-        Vector3         position[3],
-        Vector2         texCoord[3],
-        Vector3&        tangent, 
-        Vector3&        binormal);
 
     /** Helper for weldAdjacency */
     static void weldBoundaryEdges(
