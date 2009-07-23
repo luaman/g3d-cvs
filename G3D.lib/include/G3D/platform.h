@@ -54,6 +54,13 @@
     #error Unknown platform 
 #endif
 
+// Detect 64-bit under various compilers
+#if (defined(_M_X64) || defined(_WIN64) || defined(__LP64__) || defined(_LP64))
+#    define G3D_64BIT
+#else
+#    define G3D_32BIT
+#endif
+
 // Default to compiling with SSE, but if you want to compile 
 // without installing SP5.0 and the Processor Pack on Windows, compile with NO_SSE
 // defined (can be passed to the compiler command line with /D "NO_SSE")

@@ -25,7 +25,7 @@ Material::Ref Material::create
  const MapComponent<Image4>::Ref&    customMap,
  const Color4&                       customConstant) {
 
-    Material::Ref m = Material::create();
+    Material::Ref m = Material::createEmpty();
 
     m->m_bsdf = bsdf;
     m->m_emissive = emissive;

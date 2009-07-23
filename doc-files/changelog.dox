@@ -18,6 +18,7 @@ TODO: make bias a property of the shadow map
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
      <li> G3D::glClipToBox, glDisableAllClipping
+     <li> Added G3D_64BIT and G3D_32BIT
      <li> G3D::Ray::invDirection
      <li> G3D::CameraControlWindow can now copy camera position to clipboard in CFrame constructor format
      <li> G3D::VideoRecordDialog now puts date before program name
