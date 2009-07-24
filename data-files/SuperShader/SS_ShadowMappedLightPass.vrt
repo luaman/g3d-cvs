@@ -49,7 +49,7 @@ void main(void) {
 
         // T and N are guaranteed perpendicular, so B is normalized.  Its facing 
         // direction is stored in the texcoord w component.
-        tan_Y = vec4(cross(tan_Z, tan_X) * gl_MultiTexCoord1.w, 0);
+        tan_Y = cross(tan_Z, tan_X) * gl_MultiTexCoord1.w;
 
 	    // (there is no tan_W, because it is equal to wsPosition)
 
