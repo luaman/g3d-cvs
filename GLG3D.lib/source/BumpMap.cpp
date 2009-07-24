@@ -52,7 +52,7 @@ BumpMap::Settings BumpMap::Settings::fromAnyVal(AnyVal& a) {
     Settings s;
     s.iterations = iMax(0, iRound(a.get("iterations", 0).number()));
     s.scale = a.get("scale", 0.05f).number();
-    s.offset = a.get("offset", 0.0f).number();
+    s.bias = a.get("bias", 0.0f).number();
     return s;
 }
 
@@ -60,7 +60,7 @@ BumpMap::Settings BumpMap::Settings::fromAnyVal(AnyVal& a) {
 AnyVal BumpMap::Settings::toAnyVal() const {
     AnyVal a(AnyVal::TABLE);
     a["scale"]  = scale;
-    a["offset"] = offset;
+    a["bias"] = bias;
     a["iterations"] = iterations;
     return a;
 }
@@ -69,7 +69,7 @@ AnyVal BumpMap::Settings::toAnyVal() const {
 bool BumpMap::Settings::operator==(const Settings& other) const {
     return 
         (scale == other.scale) &&
-        (offset == other.offset) &&
+        (bias == other.bias) &&
         (iterations == other.iterations);
 
 }

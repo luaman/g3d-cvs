@@ -2,7 +2,7 @@
  @file BumpMap.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @created 2009-02-19
- @edited 2009-03-28
+ @edited  2009-07-24
 */
 #ifndef G3D_BumpMap_h
 #define G3D_BumpMap_h
@@ -28,7 +28,7 @@ public:
 
 
         /** World-space offset from polygon surface to apply for parallax/displacement mapping.*/
-        float           offset;
+        float           bias; // Called "bias" instead of "offset" to avoid confusion with the computed parallax offset
 
         /**
            - 0  = Blinn normal map
@@ -37,7 +37,7 @@ public:
          */
         int            iterations;
 
-        inline Settings() : scale(0.05f), offset(0.0f), iterations(0) {}
+        inline Settings() : scale(0.05f), bias(0.0f), iterations(0) {}
 
         bool operator==(const Settings& s) const;
 

@@ -143,7 +143,7 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
     if (m_bump.notNull() && (m_bump->settings().scale != 0)) {
         args.set("normalBumpMap",       m_bump->normalBumpMap()->texture());
         args.set("bumpMapScale",        m_bump->settings().scale);
-        args.set("bumpMapBias",         m_bump->settings().offset);
+        args.set("bumpMapBias",         m_bump->settings().bias);
     }
 
     debugAssert(m_bump.isNull() || m_bump->settings().iterations >= 0);

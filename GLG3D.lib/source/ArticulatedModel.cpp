@@ -310,7 +310,7 @@ Material::Settings ArticulatedModel::compute3DSMaterial
         if (filename != "") {
             BumpMap::Settings s;
             s.scale = preprocess.bumpMapScale;
-            s.offset = 0;
+            s.bias = 0;
             s.iterations = preprocess.parallaxSteps;
             spec.setBump(filename, s, preprocess.normalMapWhiteHeightInPixels);
         }
