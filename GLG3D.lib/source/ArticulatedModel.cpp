@@ -557,7 +557,7 @@ void ArticulatedModel::Part::TriList::updateVAR
 
     vertex = vertexVAR;
     normal = normalVAR;
-    tangent = tangentVAR;
+    packedTangent = tangentVAR;
     texCoord0 = texCoord0VAR;
 
     if (indexArray.size() == 0) {

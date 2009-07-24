@@ -239,7 +239,7 @@ void GBuffer::computeGeneric
 
     // Render front faces
     rd->setObjectToWorldMatrix(model->coordinateFrame());
-    rd->setVARs(geom->vertex, geom->normal, geom->texCoord0, geom->tangent);
+    rd->setVARs(geom->vertex, geom->normal, geom->texCoord0, geom->packedTangent);
     rd->sendIndices((RenderDevice::Primitive)geom->primitive, geom->index);
     
     if (geom->twoSided) {

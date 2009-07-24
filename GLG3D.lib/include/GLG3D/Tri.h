@@ -33,6 +33,8 @@ class Ray;
  implementation because they are stored in a format more efficient for 
  intersection computations.
 
+ Implementation is 132 bytes, including the vtable pointer.
+
  \sa G3D::Triangle, G3D::MeshShape, G3D::ArticulatedModel, G3D::Surface, G3D::MeshAlg
  */
 class Tri {

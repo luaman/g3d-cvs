@@ -945,9 +945,9 @@ void SuperSurface::sendGeometry(
             }
 
             // In programmable pipeline mode, load the tangents into tex coord 1
-            if (m_gpuGeom->tangent.valid() && (profile() == PS20) && (m_gpuGeom->tangent.size() > 0)) {
-                rd->setTexCoordArray(1, m_gpuGeom->tangent);
-            debugAssertGLOk();
+            if (m_gpuGeom->packedTangent.valid() && (profile() == PS20) && (m_gpuGeom->packedTangent.size() > 0)) {
+                rd->setTexCoordArray(1, m_gpuGeom->packedTangent);
+                debugAssertGLOk();
             }
 
             debugAssertGLOk();
