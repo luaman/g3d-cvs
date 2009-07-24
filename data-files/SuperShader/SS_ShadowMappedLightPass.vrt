@@ -9,9 +9,12 @@
 #endif
 
 #ifdef NORMALBUMPMAP
-    /** Vector to the eye in tangent space (needed for parallax) */
-    varying vec3 _tsE;
 
+#   if PARALLAXSTEPS > 0
+        /** Vector to the eye in tangent space (needed for parallax) */
+        varying vec3 _tsE;
+#   endif
+    
     /** Tangent space to world space.
     Note that this will be linearly interpolated across the polygon.
 
@@ -39,7 +42,7 @@ void main(void) {
 
     wsPosition = (g3d_ObjectToWorldMatrix * gl_Vertex).xyz;
 
-    tan_Z = (g3d_ObjectToWorldMatrix * vec4(gl_Normal, 0.0)).xyz;
+    tan_Z = g3d_ObjectToWorldNormalMatrix * gl_Normal.xyz;
 
 #   ifdef NORMALBUMPMAP
         tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
@@ -50,12 +53,14 @@ void main(void) {
 
 	    // (there is no tan_W, because it is equal to wsPosition)
 
-        // Compute the tangent space eye vector (ATI does not support the transpose operator)
-        mat3 worldToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
-                                   tan_X.y, tan_Y.y, tan_Z.y,
-                                   tan_X.z, tan_Y.z, tan_Z.z);
+#       if PARALLAXSTEPS > 0
+            // Compute the tangent space eye vector (ATI does not support the transpose operator)
+            mat3 worldToTangent = mat3(tan_X.x, tan_Y.x, tan_Z.x,
+                                       tan_X.y, tan_Y.y, tan_Z.y,
+                                       tan_X.z, tan_Y.z, tan_Z.z);
 
-        _tsE         = worldToTangent * (wsEyePos - wsPosition);
+            _tsE         = worldToTangent * (wsEyePos - wsPosition);
+#       endif
 #    endif
 
     shadowCoord      = lightMVP * vec4(wsPosition, 1.0);

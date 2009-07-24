@@ -57,18 +57,19 @@ varying vec2        texCoord;
 varying vec3        tan_Z;
 
 #ifdef NORMALBUMPMAP
-    /** Multiplier for bump map.  Typically on the range [0, 0.05]
-      This increases with texture scale and bump height. */
-    uniform float       bumpMapScale;
+#   if PARALLAXSTEPS > 0
+        /** Multiplier for bump map.  Typically on the range [0, 0.05]
+          This increases with texture scale and bump height. */
+        uniform float       bumpMapScale;
 
-    /** How high is the 0-level of the bump map? On the range [0, 1] */
-    uniform float       bumpMapBias;
+        /** How high is the 0-level of the bump map? On the range [0, 1] */
+        uniform float       bumpMapBias;
 
+        /** Un-normalized (interpolated) tangent space eye vector */
+        varying vec3        _tsE;
+#   endif    
     /** xyz = normal, w = bump height */
     uniform sampler2D   normalBumpMap;
-
-    /** Un-normalized (interpolated) tangent space eye vector */
-    varying vec3        _tsE;
     varying vec3        tan_X, tan_Y;
 #endif
 
