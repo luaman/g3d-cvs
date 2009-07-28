@@ -203,25 +203,47 @@ public:
 
 
     /**
+     Renders flat text on a plane in 3D, obeying the z-buffer.
+
      Text is visible from behind.  The text is oriented so that it
      reads "forward" when the pos3D z-axis points towards the viewer.
 
      Note that text, like all transparent objects, should be rendered
      in back to front sorted order to achieve proper alpha blending.
 
-     @param size In meters.
+     @param size In meters of the height of a line of text.
      */
     Vector2 draw3D(
         RenderDevice*               renderDevice,
         const std::string&          s,
         const CoordinateFrame&      pos3D,
-        float              size    = .1,
+        float              size     = 0.1f,
         const Color4&       color   = Color3::black(),
         const Color4&       outline = Color4::clear(),
         XAlign              xalign  = XALIGN_LEFT,
         YAlign              yalign  = YALIGN_TOP,
         Spacing             spacing = PROPORTIONAL_SPACING) const;
 
+    /**
+     Renders flat text on a plane in 3D that always faces the viewer, obeying the z-buffer.
+
+     Note that text, like all transparent objects, should be rendered
+     in back to front sorted order to achieve proper alpha blending.
+
+     @param pos3D In object space
+
+     @param size In meters of the height of a line of text.
+     */
+    Vector2 draw3DBillboard(
+        RenderDevice*               renderDevice,
+        const std::string&          s,
+        const Vector3&              pos3D,
+        float                       size    = 0.1f,
+        const Color4&               color   = Color3::black(),
+        const Color4&               outline = Color4::clear(),
+        XAlign                      xalign  = XALIGN_CENTER,
+        YAlign                      yalign  = YALIGN_CENTER,
+        Spacing                     spacing = PROPORTIONAL_SPACING) const;
 		
     /**
      Useful for drawing centered text and boxes around text.

@@ -503,11 +503,31 @@ Vector2 GFont::draw2D(
 }
 
 
+Vector2 GFont::draw3DBillboard(
+    RenderDevice*               renderDevice,
+    const std::string&          s,
+    const Vector3&              pos3D,
+    float                       size,
+    const Color4&               color,
+    const Color4&               border,
+    XAlign                      xalign,
+    YAlign                      yalign,
+    Spacing                     spacing) const {
+
+    CFrame cframe = pos3D;
+    const CFrame& camera = renderDevice->cameraToWorldMatrix();
+    const CFrame& object = renderDevice->objectToWorldMatrix();
+    
+    cframe.rotation = camera.rotation * object.rotation.transpose();
+    return draw3D(renderDevice, s, cframe, size, color, border, xalign, yalign, spacing);
+}
+
+
 Vector2 GFont::draw3D(
     RenderDevice*               renderDevice,
     const std::string&          s,
     const CoordinateFrame&      pos3D,
-    float                      size,
+    float                       size,
     const Color4&               color,
     const Color4&               border,
     XAlign                      xalign,
@@ -552,40 +572,47 @@ Vector2 GFont::draw3D(
         break;
     }
 
+    Vector2 bounds;
     renderDevice->pushState();
+
         // We need to get out of Y=up coordinates.
         CoordinateFrame flipY;
         flipY.rotation[1][1] = -1;
         renderDevice->setObjectToWorldMatrix(pos3D * flipY);
 
-        renderDevice->setCullFace(RenderDevice::CULL_NONE);
         configureRenderDevice(renderDevice);
+        renderDevice->setCullFace(RenderDevice::CULL_NONE);
+        renderDevice->setDepthTest(RenderDevice::DEPTH_LEQUAL);
 
         renderDevice->disableLighting();
-        renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        bool d = renderDevice->depthWrite();
+        if (border.a > 0.05f) {
 
-            if (border.a > 0.05f) {
+            renderDevice->setDepthWrite(false);
+            renderDevice->beginPrimitive(PrimitiveType::QUADS);
+            // Make the equivalent of a 3D "1 pixel" offset (the
+            // default 2D text size is 12-pt with a 1pix border)
 
-	        // Make the equivalent of a 3D "1 pixel" offset (the
-	        // default 2D text size is 12-pt with a 1pix border)
-
- 	        const float borderOffset = size / 12.0;
-                renderDevice->setColor(border);
-                for (int dy = -1; dy <= 1; dy += 2) {
-                    for (int dx = -1; dx <= 1; dx += 2) {
-                        if ((dx != 0) || (dy != 0)) {
-                            drawString(renderDevice, s,
-				               x + dx * borderOffset, 
-				               y + dy * borderOffset,
-				               w, h, spacing);
-                        }
+            const float borderOffset = size / 12.0;
+            renderDevice->setColor(border);
+            for (int dy = -1; dy <= 1; dy += 2) {
+                for (int dx = -1; dx <= 1; dx += 2) {
+                    if ((dx != 0) || (dy != 0)) {
+                        drawString(renderDevice, s,
+	                       x + dx * borderOffset, 
+	                       y + dy * borderOffset,
+	                       w, h, spacing);
                     }
                 }
             }
+            renderDevice->endPrimitive();
+            renderDevice->setDepthWrite(d);
+        }
 
-            renderDevice->setColor(color);
-            Vector2 bounds = drawString(renderDevice, s, x, y, w, h, spacing);
-
+        // Draw the main body
+        renderDevice->setColor(color);
+        renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        bounds = drawString(renderDevice, s, x, y, w, h, spacing);
         renderDevice->endPrimitive();
 
     renderDevice->popState();

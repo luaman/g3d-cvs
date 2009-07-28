@@ -109,7 +109,7 @@ void App::onInit() {
     }
     */
 
-    setDesiredFrameRate(1000);
+    setDesiredFrameRate(100);
 
     //sky = Sky::fromFile(System::findDataFile("sky"));
 
@@ -378,6 +378,9 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
 */
 
 //    film->exposeAndRender(rd, colorBuffer);
+
+//    debugFont->draw3D(rd, "Hello!", Vector3(0,5,0), 10, Color3::yellow(), Color3::black());
+    debugFont->draw3DBillboard(rd, "Hello!", Vector3(0,5,0), 1, Color3::yellow(), Color3::black());
 
     Surface2D::sortAndRender(rd, posed2D);
 }
