@@ -212,7 +212,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                             int i = load.materialNameToIndex[materialName];
                             const Load3DS::Material& material = load.materialArray[i];
 
-                            Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
+                            const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
                             twoSided = material.twoSided;
 
                             mat = Material::create(spec);
