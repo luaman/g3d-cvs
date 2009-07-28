@@ -61,14 +61,22 @@ void DirectionHistogram::sendGeometry(RenderDevice* rd) {
             // Distort case
             Vector3* v = reinterpret_cast<Vector3*>(m_gpuMeshVertex.mapBuffer(GL_WRITE_ONLY));
 
+            /*
             const float volume = totalVolume();
-
             // Normalizing factor to keep total volume at 4/3 * pi                
             const float s = 1.0f / (float)pow((volume * 3.0) / (4.0 * pi()), 1.0 / 3.0);
+            */
+
+            // Normalizing factor to keep a uniform sphere at radius ~= 1
+            float s = 0;
+            for (int i = 0; i < m_meshVertex.size(); ++i) {
+                s += m_bucket[i] * m_invArea[i];
+            }
+            s = 300.0 / s;
 
             for (int i = 0; i < m_meshVertex.size(); ++i) {
                 v[i] = m_meshVertex[i] * m_bucket[i] * s * m_invArea[i];
-            }            
+            }
 
             m_gpuMeshVertex.unmapBuffer();
         }

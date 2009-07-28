@@ -5,7 +5,7 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
-#define HISTOGRAM 0
+#define HISTOGRAM 1
 
 class App : public GApp {
 public:
@@ -140,7 +140,7 @@ void App::onInit() {
     shadowMap = ShadowMap::create("Shadow Map");
     
     Stopwatch timer("Load 3DS");
-    if (true) {
+    if (false) {
         ArticulatedModel::PreProcess preprocess;
         preprocess.addBumpMaps = true;
         preprocess.textureDimension = Texture::DIM_2D_NPOT;
@@ -170,24 +170,27 @@ void App::onInit() {
     
     G3D::Random r;
     // Num samples
-    const int N = 1200000;
+    const int N = 100000;//1200000;
     int slices = 24;
 
     histogram = new DirectionHistogram(slices);
-    Array<Vector3> v;
-    Array<float> weight;
+    Array<Vector3> v(N);
+    Array<float> weight(N);
+    v.fastClear();
+    weight.fastClear();
 
     // Glossiness
-    const float g = 60;
+    const float g = 20;
     SuperBSDF::Ref bsdf = SuperBSDF::create(Color4(Color3::white() * 0.6f),
         Color4(Color3::white() * 0.3f, SuperBSDF::packSpecularExponent(g)), Color3::black());
     const Vector3 n = Vector3::unitZ();
     const Vector2 t = Vector2::zero();
-    const float theta = toRadians(80);
+    const float theta = toRadians(45);
     const Vector3 w_i(sin(theta), 0, cos(theta));
     const Color3  P_i = Color3::white();
 
     // Scattering according to f(w_i, w_o)*(w_o dot n)
+    timer.after("");
     while (v.size() < N) {
         Color3 P_o;
         Vector3 w_o;
@@ -202,6 +205,7 @@ void App::onInit() {
         // Simple hemi
         //v.next(); r.hemi(v.last().x, v.last().y, v.last().z); weight.append(v.last().z); 
     }
+    timer.after("scatter");
 
 
     histogram->insert(v, weight);
@@ -210,6 +214,7 @@ void App::onInit() {
     weight.clear();
     backwardHistogram = new DirectionHistogram(slices);
 
+    timer.after("");
     // explicitly sampling f(w_i, w_o)
     while (v.size() < N) {
         Vector3 w_o;
@@ -222,12 +227,15 @@ void App::onInit() {
         // v.next(); r.cosHemi(v.last().x, v.last().y, v.last().z);  weight.append(1.0f);
 
     }    
+    timer.after("explicit sample");
+
     backwardHistogram->insert(v, weight);
     
     v.clear();
     weight.clear();
     backwardRRHistogram = new DirectionHistogram(slices);
 
+    timer.after("");
     // Russian roulette against f(w_i, w_o)
     while (v.size() < N) {
         Vector3 w_o;
@@ -238,8 +246,11 @@ void App::onInit() {
             // Accept
             v.append(w_o);
             weight.append(1.0f);
+
+            alwaysAssertM(P_o.average() < 1.0f, "Energy conservation violated");
         }
     }    
+    timer.after("russian roulette");
     backwardRRHistogram->insert(v, weight);
 #endif
 
@@ -378,9 +389,6 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
 */
 
 //    film->exposeAndRender(rd, colorBuffer);
-
-//    debugFont->draw3D(rd, "Hello!", Vector3(0,5,0), 10, Color3::yellow(), Color3::black());
-    debugFont->draw3DBillboard(rd, "Hello!", Vector3(0,5,0), 1, Color3::yellow(), Color3::black());
 
     Surface2D::sortAndRender(rd, posed2D);
 }
