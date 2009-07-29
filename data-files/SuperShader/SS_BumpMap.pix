@@ -29,6 +29,9 @@
 
         // Take the normal to world space
         wsN = (tangentToWorld * tsN) * backside;
+
+        // For very tiny geometry the tangent space can become degenerate and produce a bad normal
+        wsN = (dot(wsN, wsN) > 0.001) ? wsN : tan_Z;
     }
 
 #   elif (PARALLAXSTEPS <= 1)
@@ -56,7 +59,10 @@
 
         // Take the normal to world space
         wsN = (tangentToWorld * tsN) * backside;
-    }
+
+        // For very tiny geometry the tangent space can become degenerate and produce a bad normal
+        wsN = (dot(wsN, wsN) > 0.001) ? wsN : tan_Z;
+     }
 
 
 #   else
@@ -159,7 +165,10 @@
         mat3 tangentToWorld = mat3(tan_X, tan_Y, tan_Z * backside);
 
         // Take the normal to world space
-        wsN = tangentToWorld * tsN; 
+        wsN = tangentToWorld * tsN;
+
+        // For very tiny geometry the tangent space can become degenerate and produce a bad normal
+        wsN = (dot(wsN, wsN) > 0.001) ? wsN : tan_Z;
     }
 #   endif // Parallax Steps > 1
 #endif
