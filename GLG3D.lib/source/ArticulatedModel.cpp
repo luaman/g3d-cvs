@@ -53,6 +53,10 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
 }
 
 
+ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const Matrix4& xform) {
+    return fromFile(filename, PreProcess(xform), Settings());
+}
+
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, float scale) {
     return fromFile(filename, PreProcess(scale), Settings());
 }
