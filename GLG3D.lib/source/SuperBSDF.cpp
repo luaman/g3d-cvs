@@ -186,6 +186,9 @@ float SuperBSDF::glossyScatter
     //      h  = w_h
     float intensity;
 
+    // TODO: remove (hack to be diffuse)
+    w_o = Vector3::cosHemiRandom(n, r);
+    return 1.0f;
 
     // Rejection sampling:
     do {

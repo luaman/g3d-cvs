@@ -888,7 +888,7 @@ void AnyVal::deserialize(G3D::TextInput& t) {
                     a[key].deserialize(t);
 
                     peek = t.peek();
-                    if ((peek.type() != Token::SYMBOL) && (peek.extendedType() == Token::SINGLE_QUOTED_TYPE)) {
+                    if ((peek.type() != Token::SYMBOL) && (peek.extendedType() != Token::SINGLE_QUOTED_TYPE)) {
                         throw CorruptText("Missing expected name or '}'", peek);
                     }
                 }
