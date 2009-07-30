@@ -38,7 +38,7 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
 
     GLenum target = m_depthTexture->openGLTextureTarget();
 
-    debugAssert(target == GL_TEXTURE_2D || target = GL_TEXTURE_2D_NPOT);
+    debugAssert(target == GL_TEXTURE_2D);
 
     // Save old texture
     GLenum oldID = glGetInteger(GL_TEXTURE_BINDING_2D);
@@ -180,7 +180,6 @@ void ShadowMap::updateDepth(
         
         m_biasedLightProjection = bias * m_lightProjection;
         m_biasedLightMVP = bias * m_lightMVP;
-
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
