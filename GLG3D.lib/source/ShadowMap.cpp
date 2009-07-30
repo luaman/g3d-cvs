@@ -80,18 +80,21 @@ void ShadowMap::setSize(int desiredSize, const Texture::Settings& textureSetting
         return;
     }
     
-    int SHADOW_MAP_SIZE = desiredSize;
-
     if (! GLCaps::supports_GL_EXT_framebuffer_object()) {
         // Restrict to screen size
-        SHADOW_MAP_SIZE = 512;
+        desiredSize = 512;
+    }
+
+    Texture::Dimension dim = Texture::DIM_2D;
+    if (! isPow2(desiredSize) && GLCaps::supports_GL_ARB_texture_non_power_of_two()) {
+        dim = Texture::DIM_2D_NPOT;
     }
 
     m_depthTexture = Texture::createEmpty
         (m_name,
-         SHADOW_MAP_SIZE, SHADOW_MAP_SIZE,
+         desiredSize, desiredSize,
          ImageFormat::DEPTH16(),
-         Texture::DIM_2D, 
+         dim, 
          textureSettings);
     m_colorTexture = NULL;
 
