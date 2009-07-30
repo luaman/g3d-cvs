@@ -19,15 +19,3 @@
         vec3 wsE = BLACK;
 #   endif
 
-#   if defined(EMITCONSTANT) || defined(EMITMAP)     
-        vec4 emitColor =
-#       ifdef EMITCONSTANT
-            vec4(emitConstant, 1.0)
-#           ifdef EMITMAP
-                * texture2D(emitMap, offsetTexCoord)
-#           endif
-#       else
-            texture2D(emitMap, offsetTexCoord)
-#       endif
-        ;
-#   endif

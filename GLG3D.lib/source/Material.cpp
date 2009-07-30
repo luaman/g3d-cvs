@@ -133,10 +133,10 @@ void Material::configure(VertexAndPixelShader::ArgList& args) const {
     }
 
     if (m_emissive.notBlack()) {
-        args.set("emissiveConstant",             m_emissive.constant());
+        args.set("emissiveConstant",             m_emissive.constant(), true);
 
         if (m_emissive.texture().notNull()) {
-            args.set("emissiveMap",              m_emissive.texture());
+            args.set("emissiveMap",              m_emissive.texture(), true);
         }
     }
 
@@ -182,7 +182,7 @@ void Material::computeDefines(std::string& defines) const {
     }
 
     if (m_emissive.notBlack()) {
-        // Must always set the emission constant if there is any emission
+        // Must always set the emissive constant if there is any emission
         // because it is modified to contain tone mapping information by SuperShader.
         defines += "#define EMISSIVECONSTANT\n";
         if (m_emissive.texture().notNull()) {

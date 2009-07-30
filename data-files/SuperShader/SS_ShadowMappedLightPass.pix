@@ -1,10 +1,10 @@
 // -*- c++ -*-
 /**
-  @file ShadowMappedLightPass.glsl.frg
+  @file ShadowMappedLightPass.pix
   @author Morgan McGuire morgan@cs.williams.edu
 
   For use with G3D::SuperShader.
-  @edited 2007-12-18
+  @edited 2009-07-30
  */
 
 #include "SS_Globals.pix"

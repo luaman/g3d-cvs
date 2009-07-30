@@ -1,12 +1,12 @@
 // -*- c++ -*-
 /**
-  @file SS_uniforms.pix
+  @file SS_Globals.pix
   @author Morgan McGuire morgan@cs.williams.edu
 
   For use with G3D::SuperShader.
   This file is included into SS_NonShadowedPass.pix and SS_ShadowMappedLightPass.pix.
 
-  @edited  2009-03-24
+  @edited  2009-07-30
   @created 2007-12-18
  */
 

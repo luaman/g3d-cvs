@@ -347,7 +347,7 @@ ExtraLightPass::ExtraLightPass() :
     static TextureRef emptyCubeMap = Texture::createEmpty("empty cube map", 16, 16, ImageFormat::RGB8(), Texture::DIM_CUBE_MAP);
     args.set("environmentMap",  emptyCubeMap, OPTIONAL);
 
-    args.set("emitConstant", Color3::black(), OPTIONAL);
+    args.set("emissiveConstant", Color3::black(), OPTIONAL);
     args.set("reflectConstant", Color3::black(), OPTIONAL);
     args.set("transmitConstant", Color3::black(), OPTIONAL);
 }

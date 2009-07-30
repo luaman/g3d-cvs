@@ -5,7 +5,7 @@
 
   For use with G3D::SuperShader.
 
-  @edited  2009-03-24
+  @edited  2009-07-30
   @created 2007-12-18
  */
 
@@ -54,6 +54,19 @@ void main(void) {
     vec3 I_lambertian  = ambientTop + (ambientTop - ambientBottom) * min(wsN.y, 0.0);
     vec3 I_specular;
     float shininess;
+
+#   if defined(EMISSIVECONSTANT) || defined(EMISSIVEMAP)     
+        vec3 emissiveColor =
+#       ifdef EMISSIVECONSTANT
+            emissiveConstant
+#           ifdef EMISSIVEMAP
+                * texture2D(emissiveMap, offsetTexCoord).rgb
+#           endif
+#       else
+            texture2D(emissiveMap, offsetTexCoord).rgb
+#       endif
+        ;
+#   endif
 
 #   if defined(SPECULARCONSTANT) || defined(SPECULARMAP)
         vec3 F0;
@@ -120,7 +133,7 @@ void main(void) {
     gl_FragColor.rgb =
         BLACK
 #       if defined(EMISSIVECONSTANT) || defined(EMISSIVEMAP)
-            + emissiveColor.rgb
+            + emissiveColor
 #       endif
 
 #       if defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP)
