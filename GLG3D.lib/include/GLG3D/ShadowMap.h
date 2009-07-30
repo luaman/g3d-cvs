@@ -44,6 +44,7 @@ private:
     Matrix4             m_biasedLightMVP;
 
     float               m_polygonOffset;
+    float               m_backfacePolygonOffset;
 
     class RenderDevice* m_lastRenderDevice;
 
@@ -105,13 +106,24 @@ public:
 
     
     /** Increase to hide self-shadowing artifacts, decrease to avoid
-        gap between shadow and object.  Default = 0.5 */
-    void setPolygonOffset(float s) {
+        gap between shadow and object.  Default = 0.5.  
+        
+        \param b if nan(), the backface offset is set to s, otherwise it is set to b */
+    inline void setPolygonOffset(float s, float b = nan()) {
         m_polygonOffset = s;
+        if (isNaN(b)) {
+            m_backfacePolygonOffset = s;
+        } else {
+            m_backfacePolygonOffset = b;
+        }
     }
 
-    float polygonOffset() const {
+    inline float polygonOffset() const {
         return m_polygonOffset;
+    }
+    
+    inline float backfacePolygonOffset() const {
+        return m_backfacePolygonOffset;
     }
 
     /** MVP adjusted to map to [0,0],[1,1] texture coordinates and addjusted in z 

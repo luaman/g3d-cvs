@@ -17,6 +17,7 @@ namespace G3D {
 ShadowMap::ShadowMap(const std::string& name) :
     m_name(name), 
     m_polygonOffset(0.001f), 
+    m_backfacePolygonOffset(-0.1f),
     m_lastRenderDevice(NULL), 
     m_colorTextureIsDirty(true) {
 }
@@ -37,7 +38,7 @@ void ShadowMap::setMode(Texture::DepthReadMode m) {
 
     GLenum target = m_depthTexture->openGLTextureTarget();
 
-    debugAssert(target == GL_TEXTURE_2D);
+    debugAssert(target == GL_TEXTURE_2D || target = GL_TEXTURE_2D_NPOT);
 
     // Save old texture
     GLenum oldID = glGetInteger(GL_TEXTURE_BINDING_2D);
@@ -180,12 +181,27 @@ void ShadowMap::updateDepth(
         m_biasedLightProjection = bias * m_lightProjection;
         m_biasedLightMVP = bias * m_lightMVP;
 
-        renderDevice->setPolygonOffset(m_polygonOffset);
 
         renderDevice->setAlphaTest(RenderDevice::ALPHA_GREATER, 0.5);
 
         debugAssertGLOk();
-        Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        if (cullFace == RenderDevice::CULL_BACK) {
+            renderDevice->setPolygonOffset(m_polygonOffset);
+            Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        } else if (cullFace == RenderDevice::CULL_FRONT) {
+            renderDevice->setPolygonOffset(m_backfacePolygonOffset);
+            Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        } else if (m_backfacePolygonOffset == m_polygonOffset) {
+            renderDevice->setPolygonOffset(m_polygonOffset);
+            Surface::renderDepthOnly(renderDevice, shadowCaster, cullFace);
+        } else {
+            // Different culling values
+            renderDevice->setPolygonOffset(m_polygonOffset);
+            Surface::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_BACK);
+            renderDevice->setPolygonOffset(m_backfacePolygonOffset);
+            Surface::renderDepthOnly(renderDevice, shadowCaster, RenderDevice::CULL_FRONT);
+        }
+
         debugAssertGLOk();
     renderDevice->popState();
 
