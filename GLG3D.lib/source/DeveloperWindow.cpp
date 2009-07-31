@@ -111,6 +111,10 @@ void DeveloperWindow::setManager(WidgetManager* manager) {
 
 
 bool DeveloperWindow::onEvent(const GEvent& event) {
+    if (! m_enabled) {
+        return false;
+    }
+
     if (GuiWindow::onEvent(event)) {
         return true;
     }
