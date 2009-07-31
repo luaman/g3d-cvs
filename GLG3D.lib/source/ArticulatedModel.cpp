@@ -211,16 +211,14 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                         bool twoSided = false;
 
                         const std::string& materialName = faceMat.materialName;
-                        if (load.materialNameToIndex.containsKey(materialName)) { 
-
+                        if (load.materialNameToIndex.containsKey(materialName)) {
                             int i = load.materialNameToIndex[materialName];
                             const Load3DS::Material& material = load.materialArray[i];
-
-                            const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
+                            if (! preprocess.materialSubstitution.get(material.texture1.filename, mat)) {
+                                const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
+                                mat = Material::create(spec);
+                            }
                             twoSided = material.twoSided;
-
-                            mat = Material::create(spec);
-
                         } else {
                             mat = Material::create();
                             logPrintf("Referenced unknown material '%s'\n", materialName.c_str());

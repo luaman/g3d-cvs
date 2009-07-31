@@ -115,6 +115,10 @@ public:
         /** When loading normal maps, argument used for G3D::GImage::computeNormalMap() whiteHeightInPixels.  Default is -0.02f */
         float                         normalMapWhiteHeightInPixels;
 
+        /** During loading, whenever a material whose diffuse texture is named X is specified, it is automatically replaced
+         with materialSubstitution[X].*/
+        Table<std::string, Material::Ref> materialSubstitution;
+
         inline PreProcess() : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
         explicit inline PreProcess(const Matrix4& m) : textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(m), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}

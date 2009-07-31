@@ -65,7 +65,7 @@ Shader::Ref GaussianBlur::makeShader(int N) {
     debugAssert(N >= 2);
     // Make a string of the coefficients to insert into the shader
     Array<float> coeff;
-    float stddev = N * 0.20f;
+    float stddev = N * 0.16f;
     gaussian1D(coeff, N, stddev);
 
     std::string coefDecl;
