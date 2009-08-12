@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 }
 
 
-App::App(const GApp::Settings& settings) : GApp(settings), m_world(NULL) {}
+App::App(const GApp::Settings& settings) : GApp(settings), m_mode(MODE_RECURSIVE), m_world(NULL), m_maxBounces(3), m_raysPerPixel(1) {}
 
 
 void App::onInit() {
@@ -38,11 +38,19 @@ void App::onInit() {
 
 
 void App::makeGUI() {
-    GuiWindow::Ref window = GuiWindow::create("Controls", debugWindow->theme());
+    GuiWindow::Ref window = GuiWindow::create("Controls", debugWindow->theme(), Rect2D(), GuiTheme::TOOL_WINDOW_STYLE);
     GuiPane* pane = window->pane();
     pane->addLabel("Use WASD keys + right mouse to move");
     pane->addButton("Render High Res.", this, &App::onRender);
     
+    pane->addRadioButton("Recursive ray trace (Whitted 80)", MODE_RECURSIVE, &m_mode);
+    pane->addRadioButton("Distribution ray trace (Cook et al. 84)", MODE_DISTRIBUTION, &m_mode);
+    pane->addRadioButton("Path trace (Kajiya 86)", MODE_PATH, &m_mode);
+
+    pane->addNumberBox("Rays per pixel", &m_raysPerPixel, "", GuiTheme::LINEAR_SLIDER, 1, 16, 1);
+    pane->addNumberBox("Max bounces", &m_maxBounces, "", GuiTheme::LINEAR_SLIDER, 1, 16, 1);
+    window->pack();
+
     window->setVisible(true);
     addWidget(window);
 }
@@ -51,7 +59,10 @@ void App::makeGUI() {
 void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
     if (! m_prevCFrame.fuzzyEq(defaultCamera.coordinateFrame())) {
         // Update the preview image only while moving
-        rayTraceImage(0.18f);
+        Mode m = m_mode;
+        m_mode = MODE_RECURSIVE;
+        rayTraceImage(0.18f, 1);
+        m_mode = m;
         m_prevCFrame = defaultCamera.coordinateFrame();
     }
 
@@ -75,12 +86,9 @@ void App::onCleanup() {
 
 
 static G3D::Random rnd(0xF018A4D2, false);
-static int totalRays = 0;
 
-Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, int maxBounces) {
+Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, int bounce) {
     Color3 radiance = Color3::zero();
-
-    ++totalRays;
 
     Hit hit;
     float dist = inf();
@@ -92,7 +100,6 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
             const GLight& light = world->lightArray[L];
 
             // Shadow rays
-            ++totalRays;
             if (world->lineOfSight(hit.position + hit.normal * 0.0001f, light.position.xyz())) {
                 Vector3 w_L = light.position.xyz() - hit.position;
                 float distance2 = w_L.squaredLength();
@@ -108,28 +115,14 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
         }
 
         // Indirect illumination
-
-        if (false) {
-            // Distribution ray tracer
-            if (maxBounces > 0) {
-                static const int numSamples = 20;
-                for (int i = 0; i < numSamples; ++i) {
-                    Vector3 w_o;
-                    Color3 P_o;
-                    float eta_o;
-                    Color3 extinction_o;
-                    if (bsdf->scatter(hit.normal, hit.texCoord, -ray.direction(), Color3::white(), w_o, P_o, eta_o, extinction_o, rnd)) {
-                        radiance += rayTrace(Ray::fromOriginAndDirection(hit.position - w_o * 0.0001f, w_o), world, extinction_o, maxBounces - 1) * P_o / numSamples;
-                    }
-                }
-            }
-        } else {
+        switch (m_mode) {
+        case MODE_RECURSIVE:
             // Whitted ray tracer:
 
             // Ambient
             radiance += bsdf->lambertian().sample(hit.texCoord).rgb() * world->ambient;
 
-            if (maxBounces > 0) {
+            if (bounce < m_maxBounces) {
                 // Perfect reflection and refraction
                 SmallArray<SuperBSDF::Impulse, 3> impulseArray;
                 bsdf->getImpulses(hit.normal, hit.texCoord, -ray.direction(), impulseArray);
@@ -137,9 +130,28 @@ Color3 App::rayTrace(const Ray& ray, World* world, const Color3& extinction_i, i
                 for (int i = 0; i < impulseArray.size(); ++i) {
                     const SuperBSDF::Impulse& impulse = impulseArray[i];
                     Ray secondaryRay = Ray::fromOriginAndDirection(hit.position, impulse.w).bump(0.0001f);
-                    radiance += rayTrace(secondaryRay, world, impulse.extinction, maxBounces - 1) * impulse.coefficient;
+                    radiance += rayTrace(secondaryRay, world, impulse.extinction, bounce + 1) * impulse.coefficient;
                 }
             }
+            break;
+
+        case MODE_DISTRIBUTION:
+        case MODE_PATH:
+
+            // Distribution or path ray tracer
+            if (bounce < m_maxBounces) {
+                static const int numSamples = (m_mode == MODE_PATH) ? 1 : 20;
+                for (int i = 0; i < numSamples; ++i) {
+                    Vector3 w_o;
+                    Color3 P_o;
+                    float eta_o;
+                    Color3 extinction_o;
+                    if (bsdf->scatter(hit.normal, hit.texCoord, -ray.direction(), Color3::white(), w_o, P_o, eta_o, extinction_o, rnd)) {
+                        radiance += rayTrace(Ray::fromOriginAndDirection(hit.position - w_o * 0.0001f, w_o), world, extinction_o, bounce + 1) * P_o / numSamples;
+                    }
+                }
+            }
+            break;
         }
     } else {
         // Hit the sky
@@ -167,26 +179,31 @@ void App::onRender() {
     message("Rendering...");
 
 	Stopwatch timer;
-    Image3::Ref im = rayTraceImage(1.0f);
+    Image3::Ref im = rayTraceImage(1.0f, m_raysPerPixel);
 	timer.after("Trace");
     im->save("result.png");
 }
 
 
-Image3::Ref App::rayTraceImage(float scale) {
+Image3::Ref App::rayTraceImage(float scale, int numRays) {
 
     int width = window()->width() * scale;
     int height = window()->height() * scale;
     
     Image3::Ref im = Image3::createEmpty(width, height); 
-    totalRays = 0;
-    const int maxBounces = 3;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            im->set(x, y, rayTrace(defaultCamera.worldRay(x, y, im->rect2DBounds()), m_world, Color3::zero(), maxBounces));
+            Color3 sum = Color3::black();
+            if (numRays == 1) {
+                sum = rayTrace(defaultCamera.worldRay(x + 0.5f, y + 0.5f, im->rect2DBounds()), m_world);
+            } else {
+                for (int i = 0; i < numRays; ++i) {
+                    sum += rayTrace(defaultCamera.worldRay(x + rnd.uniform(), y + rnd.uniform(), im->rect2DBounds()), m_world);
+                }
+            }
+            im->set(x, y, sum / numRays);
         }
     }
-    //debugPrintf("totalRays = %d\n", totalRays);
 
     m_result = Texture::fromMemory("Result", im->getCArray(), ImageFormat::RGB32F(), im->width(), im->height(), 1, 
                                    ImageFormat::RGB32F(), Texture::DIM_2D_NPOT, Texture::Settings::video());

@@ -16,6 +16,13 @@ class World;
 
 class App : public GApp {
 private:
+
+    enum Mode {MODE_RECURSIVE, MODE_DISTRIBUTION, MODE_PATH} m_mode;
+
+
+    int                 m_maxBounces;
+    int                 m_raysPerPixel;
+
     World*              m_world;
 
     Texture::Ref        m_result;
@@ -27,10 +34,10 @@ private:
     void makeGUI();
 
     /** Trace a single ray backwards. */
-    Color3 rayTrace(const Ray& ray, World* world, const Color3& extinction_i, int maxBounces);
+    Color3 rayTrace(const Ray& ray, World* world, const Color3& extinction_i = Color3::zero(), int bounces = 1);
 
     /** Trace a whole image. */
-    Image3::Ref rayTraceImage(float scale);
+    Image3::Ref rayTraceImage(float scale, int numRays);
 
     /** Show a full-screen message */
     void message(const std::string& msg) const;
