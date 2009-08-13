@@ -13,8 +13,13 @@
 #include "G3D/g3dmath.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <zip/zip.h>
-#include <zip/unzip.h>
+#ifdef G3D_LINUX
+#    include <zip/zip.h>
+#    include <zip/unzip.h>
+#else
+#    include "zip/zip.h"
+#    include "zip/unzip.h"
+#endif
 #include "G3D/stringutils.h"
 #include "G3D/Set.h"
 

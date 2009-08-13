@@ -161,7 +161,7 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
     # xmmintrin.h is set up
     #
     # -MG means "don't give errors for header files that don't exist"
-    # -MM means "don't tell me about system header files"
+    # -MM means "don't tell me about system header files". 
     #
     # We have to remove -arch flags, which are not compatible with the -M flags
     argsWithoutArchitecture = _removeArch(getCompilerOptions(state, []))
@@ -234,19 +234,9 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
         # since every file depends on itself.
         # Remove empty entries arising from string split
         result = [f for f in result if f != '']
-
-        # The first element of result will be "file:", so strip it
-        files = result[1:]
-        result = []
-        
-        # Add the './' to raw files
-        for f in files:
-            f = f.strip()
-            if '/' in f:
-                result.append(f)
-            elif f != '':
-                result.append(f)
-                #result.append('./' + f)
+            
+        # The first element of result will be "file:", so remove that, and then strip the remaining files
+        result = [f.strip() for f in result[1:]]
 
         # Make all paths absolute.  We can't just call abspath
         # since some files are in sibling directories.

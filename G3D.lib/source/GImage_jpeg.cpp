@@ -10,12 +10,15 @@
 #include "G3D/BinaryOutput.h"
 
 #include <cstring>
- 
-// Pick up libjpeg headers locally on Windows, but from the system on
-// all other platforms.
-extern "C" {
-#include <jconfig.h>
-#include <jpeglib.h>
+
+extern "C" { 
+#ifdef G3D_LINUX
+#   include <jconfig.h>
+#   include <jpeglib.h>
+#else
+#   include "jconfig.h"
+#   include "jpeglib.h"
+#endif
 }
 
 namespace G3D {

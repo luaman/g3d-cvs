@@ -16,7 +16,13 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Log.h"
 #include "G3D/fileutils.h"
-#include <png.h>
+
+#ifdef G3D_LINUX
+#    include <png.h>
+#else
+#    include "png.h"
+#endif
+
 #include <sys/stat.h>
 #include <assert.h>
 #include <sys/types.h>
@@ -492,9 +498,9 @@ GImage::GImage(
     const MemoryManager::Ref& m) : 
     m_memMan(m),
     m_byte(NULL),
+    m_channels(0),
     m_width(0),
-    m_height(0),
-    m_channels(0) {
+    m_height(0) {
 
     BinaryInput b(data, length, G3D_LITTLE_ENDIAN);
     // It is safe to cast away the const because we
@@ -510,10 +516,10 @@ GImage::GImage(
     int                 channels,
     const MemoryManager::Ref& mem) : 
     m_memMan(mem),
-    m_width(0), 
-    m_height(0), 
+    m_byte(0),
     m_channels(0), 
-    m_byte(0) {
+    m_width(0), 
+    m_height(0) {
     
     resize(width, height, channels);
 }
