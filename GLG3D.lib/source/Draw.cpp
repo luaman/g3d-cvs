@@ -6,7 +6,6 @@
  @created 2003-10-29
  @edited  2006-02-18
  */
-
 #include "G3D/platform.h"
 #include "G3D/Rect2D.h"
 #include "G3D/AABox.h"

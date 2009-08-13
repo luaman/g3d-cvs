@@ -87,6 +87,7 @@ def initOS():
             else:
                 icompileConfig = []
 
+        icompileConfig += ['--verbosity', '2']
         print 'iCompile options: ', icompileConfig
 
     if windows:

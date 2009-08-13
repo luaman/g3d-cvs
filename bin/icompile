@@ -781,6 +781,7 @@ def configureGpp(state):
         state.compilerOptions = ['-D_DEBUG', '-g']
         state.linkerOptions   = []
 
+
     if state.os == 'linux':
 
         # LARGEFILE_SOURCE enables some newer interfaces for
@@ -788,8 +789,11 @@ def configureGpp(state):
         flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
         state.compilerOptions += string.split(flags, ' ')
 
-    
-    if state.os == 'osx':
+        arch = ['-march=i686', '-mtune=nocona', '-msse3']
+        state.compilerOptions += arch
+        state.linkerOptions   += arch
+
+    elif state.os == 'osx':
 
         # On OS X, dylib files may be found in the data-files
         # directory.  By the time we're compiling, they are already in
@@ -802,22 +806,22 @@ def configureGpp(state):
         # needed for inline asm on OS X
         state.compilerOptions.append('-fasm-blocks')
 
-        arch = []
-        if state.universalBinary:
-            # on an intel machine we can compile for both ppc and intel
-            # but on a ppc machine we use the defaults and compile only for ppc
-            if (machine() == 'i386'):
-                arch = ['-arch', 'i386', '-arch', 'ppc']
-        else:
-            if (machine() == 'i386'):
-                arch = ['-arch', 'i386']
-            else:
-                arch = ['-arch', 'ppc']
+        arch = []        
+        # on an intel machine we can compile for both ppc and intel
+        # but on a ppc machine we use the defaults and compile only for ppc
+        if (machine() == 'i386'):
+            # OS X reports itself as a 32-bit OS under python, even though it is 64-bit.
+            # The -arch i686 option is undocumented for OS X under gcc but works.
+            arch += ['-arch', 'i686', '-march=i686', '-msse3']
+
+        if (state.universalBinary) or (machine() != 'i386'):
+            arch += ['-arch', 'ppc']
 
         state.compilerOptions += arch
         state.linkerOptions   += arch
 
         state.linkerOptions += ['-Wl,-headerpad_max_install_names']
+        
     else:
         if platform.architecture()[0] == '32bit':
             # On 32-bit machines, compile for at least P4 to
@@ -826,14 +830,13 @@ def configureGpp(state):
             # for a modern machine.
             state.compilerOptions.append('-march=pentium4')
             
-        state.compilerOptions.append('-msse2')
+        state.compilerOptions.append('-msse3')
         
         if gccVersion[0] >= 4:
             state.compilerOptions.append('-mfpmath=sse')
 
-    #Fails on OS X 10.4:
-    #if gccVersion[0] >= 4:
-    #    state.compilerOptions.append('-mtune=native')
+    if gccVersion[0] >= 4:
+        state.compilerOptions.append('-mtune=nocona')
 
         
     # Use pipes instead of temporary files for 
