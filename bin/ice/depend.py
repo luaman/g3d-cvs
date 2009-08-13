@@ -167,7 +167,7 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
     argsWithoutArchitecture = _removeArch(getCompilerOptions(state, []))
     argsWithoutArchitecture = ' '.join(argsWithoutArchitecture)
     
-    raw = shell(state.compiler + ' -M -msse2 -MG ' + argsWithoutArchitecture + ' ' + file, verbosity >= TRACE)
+    raw = shell(state.compiler + ' -M -msse2 -MG -MM ' + argsWithoutArchitecture + ' ' + file, verbosity >= TRACE)
     
     if verbosity >= SUPERTRACE:
         print 'Raw output of dependency determination:'
@@ -220,9 +220,10 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
     else:
 
         # Normal case, no error
-        if 'implemented' in raw: print raw
         result = []
+        # Turn end-of-line continuation characters into spaces
         raw = raw.replace('\\', ' ')
+        
         for line in raw.splitlines():
             # gcc 3.4.2 likes to print the name of the file first, as in
             # """# 1 "/home/faculty/morgan/Projects/ice/tests/meta/helper.lib//""""
@@ -231,21 +232,21 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
 
         # There is always at least one file in the raw file list,
         # since every file depends on itself.
-        
+        # Remove empty entries arising from string split
+        result = [f for f in result if f != '']
+
         # The first element of result will be "file:", so strip it
         files = result[1:]
         result = []
-
+        
         # Add the './' to raw files
         for f in files:
             f = f.strip()
             if '/' in f:
                 result.append(f)
-            elif f == '':
-                # empty filename
-                files.remove(f)
-            else:
-                result.append('./' + f)
+            elif f != '':
+                result.append(f)
+                #result.append('./' + f)
 
         # Make all paths absolute.  We can't just call abspath
         # since some files are in sibling directories.

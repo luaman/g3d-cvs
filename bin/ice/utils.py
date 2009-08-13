@@ -891,13 +891,18 @@ def newestCompiler():
             bin = commands.getoutput('which g++')
     
             # Turn binLoc into just the directory, not the path to the file g++
-            binLoc = bin[0:string.rfind(bin, '/')]
-    
+            binLocs = [bin[0:string.rfind(bin, '/')]]
+
+            if os.path.exists('/opt/local/bin'):
+                # Add macports g++
+                binLocs += ['/opt/local/bin']
+            
             # best will keep track of our current newest g++ found
             best = [bin, getVersion(bin)]
 
             # Search for all g++ binaries
-            os.path.walk(binLoc, _newestCompilerVisitor, best)
+            for path in binLocs:
+                os.path.walk(path, _newestCompilerVisitor, best)
 
             _newestCompilerFilename = best[0]
             _newestCompilerVersion  = best[1]

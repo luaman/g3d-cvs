@@ -14,7 +14,7 @@
 # EDIT ice.txt AND ~/.icompile TO CUSTOMIZE YOUR PROJECT CONFIGURATION.
 #**********************************************************************
 
-version = [0, 5, 8]
+version = [0, 5, 9]
 
 import sys, string, os, os.path, fileinput, tempfile, shutil, re
 import commands, pickle, time, copy, threading, platform
@@ -781,14 +781,14 @@ def configureGpp(state):
         state.compilerOptions = ['-D_DEBUG', '-g']
         state.linkerOptions   = []
 
-
-    if state.os == 'linux':
+    if (state.os == 'linux') or (state.os == 'freebsd'):
 
         # LARGEFILE_SOURCE enables some newer interfaces for
         # fopen that work with >2GB files
         flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
         state.compilerOptions += string.split(flags, ' ')
 
+        state.compilerOptions += ['-D__cdecl=', '-D__stdcall=', '-D__fastcall=']
         arch = ['-march=i686', '-mtune=nocona', '-msse3']
         state.compilerOptions += arch
         state.linkerOptions   += arch
@@ -800,11 +800,13 @@ def configureGpp(state):
         # the build directory (and have been rebased)
         state.addLibraryPath(state.binaryDir)
         
-        # Not supported on OS X
-        state.compilerOptions += ['-D__cdecl=', '-D__stdcall=']
+        state.compilerOptions += ['-D__cdecl=', '-D__stdcall=', '-D__fastcall=']
 
-        # needed for inline asm on OS X
-        state.compilerOptions.append('-fasm-blocks')
+        gcc44 = gccVersion[0] >= 4 and gccVersion[1] >= 4
+
+        if not gcc44:
+            # needed for inline asm on OS X, but not supported on g++ 4.4
+            state.compilerOptions.append('-fasm-blocks')
 
         arch = []        
         # on an intel machine we can compile for both ppc and intel
@@ -812,7 +814,10 @@ def configureGpp(state):
         if (machine() == 'i386'):
             # OS X reports itself as a 32-bit OS under python, even though it is 64-bit.
             # The -arch i686 option is undocumented for OS X under gcc but works.
-            arch += ['-arch', 'i686', '-march=i686', '-msse3']
+            if not gcc44:
+                arch += ['-arch', 'i686']
+                
+            arch += ['-march=i686', '-msse3']
 
         if (state.universalBinary) or (machine() != 'i386'):
             arch += ['-arch', 'ppc']
@@ -834,9 +839,7 @@ def configureGpp(state):
         
         if gccVersion[0] >= 4:
             state.compilerOptions.append('-mfpmath=sse')
-
-    if gccVersion[0] >= 4:
-        state.compilerOptions.append('-mtune=nocona')
+            state.compilerOptions.append('-mtune=nocona')
 
         
     # Use pipes instead of temporary files for 
