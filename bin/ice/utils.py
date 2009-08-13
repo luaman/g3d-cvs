@@ -893,9 +893,9 @@ def newestCompiler():
             # Turn binLoc into just the directory, not the path to the file g++
             binLocs = [bin[0:string.rfind(bin, '/')]]
 
-            if os.path.exists('/opt/local/bin'):
-                # Add macports g++
-                binLocs += ['/opt/local/bin']
+            #if os.path.exists('/opt/local/bin'):
+            #    # Add macports g++
+            #    binLocs += ['/opt/local/bin']
             
             # best will keep track of our current newest g++ found
             best = [bin, getVersion(bin)]

@@ -117,10 +117,14 @@ pascal OSStatus OnDeviceScroll(EventHandlerCallRef handlerRef, EventRef event, v
                     GEvent eWheelDown, eWheelUp, eScroll2D;
                     SInt32 smoothDeltaY;
                     SInt32 smoothDeltaX;
-                    // See: http://developer.apple.com/qa/qa2005/qa1453.html
-                    
-                    GetEventParameter(event, 'saxy'/*kEventParamMouseWheelSmoothVerticalDelta*/, typeSInt32, NULL, sizeof(smoothDeltaY), NULL, &smoothDeltaY);
-                    GetEventParameter(event, 'saxx'/*kEventParamMouseWheelSmoothHorizontalDelta*/,typeSInt32,NULL, sizeof(smoothDeltaX), NULL, &smoothDeltaX);
+                    // From http://developer.apple.com/qa/qa2005/qa1453.html
+                    enum {
+                        kEventParamMouseWheelSmoothVerticalDelta       = int('saxy'), // typeSInt32
+                        kEventParamMouseWheelSmoothHorizontalDelta     = int('saxx'), // typeSInt32
+                    };
+
+                    GetEventParameter(event, kEventParamMouseWheelSmoothVerticalDelta, typeSInt32, NULL, sizeof(smoothDeltaY), NULL, &smoothDeltaY);
+                    GetEventParameter(event, kEventParamMouseWheelSmoothHorizontalDelta,typeSInt32,NULL, sizeof(smoothDeltaX), NULL, &smoothDeltaX);
                     
                     eWheelDown.type = GEventType::MOUSE_BUTTON_DOWN;
                     eWheelUp.type = GEventType::MOUSE_BUTTON_UP;

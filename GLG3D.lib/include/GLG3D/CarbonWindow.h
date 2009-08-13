@@ -1,13 +1,14 @@
 /**
   @file CarbonWindow.h
   
-  @maintainer Casey O'Donnell, caseyodonnell@gmail.com
+  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  @author Casey O'Donnell, caseyodonnell@gmail.com
   @created 2006-08-20
   @edited  2007-08-23
 */
 
-#ifndef G3D_CARBONWINDOW_H
-#define G3D_CARBONWINDOW_H
+#ifndef G3D_CarbonWindow_h
+#define G3D_CarbonWindow_h
 
 #include "G3D/platform.h"
 #include "G3D/Set.h"
@@ -17,6 +18,7 @@
 
 #include "GLG3D/OSWindow.h"
 
+#include <memory>
 #include <Carbon/Carbon.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
