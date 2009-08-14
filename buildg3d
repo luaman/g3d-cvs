@@ -21,7 +21,7 @@ distribDir = None
 class Version:
     major = '8'
     minor = '00'
-    beta  = '01'
+    beta  = '02'
     
     def toString(self):
         if (self.beta != ''):
@@ -469,18 +469,20 @@ def zip(source, zipfile):
         run('zip', ['-r', '-9', zipfile, source])
 
 def srcTarget():
-   # First copy everything to the temp directory to remove
-   # CVS files
-   ver = 'G3D'
-   dest ='temp/src/'
-   mkdir(dest)
-   copyIfNewer('.', dest)
-
-   os.chdir('temp')
-   # Now produce the zipfile
-   zip(ver, '../build/' + 'G3D' + '-' + g3dVersion.toString() + '-src.zip')
-   os.chdir('..')
-
+    if windows:
+        raise 'src target must be run on a Unix platform'
+    
+    # First copy everything to the temp directory to remove
+    # CVS files
+    dest ='temp/src/G3D'
+    mkdir(dest)
+    copyIfNewer('.', dest)
+    
+    os.chdir('temp/src')
+    # Now produce the zipfile
+    zip('G3D', '../../build/' + 'G3D' + '-' + g3dVersion.toString() + '-src.zip')
+    os.chdir('../..')
+    
 ##################################################################################
     
 def jarTarget():
