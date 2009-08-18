@@ -362,8 +362,7 @@ def getDependencyInformation(allCFiles, dependencySet, dependencies, parents, st
 
 
 """ Returns sibling directories that are also iCompile libraries as names
-    relative to the current directory.
-    Allowed to recurse back two parent directories"""
+    relative to the current directory."""
 def getLibrarySiblingDirs(howFarBack = 1):
     libsibs = []
     for dir in getSiblingDirs(howFarBack):
