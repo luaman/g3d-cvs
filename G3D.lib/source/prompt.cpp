@@ -22,7 +22,20 @@
 #endif
 
 #ifdef G3D_OSX
+
+/*#ifdef __LP64__
+#    undef __LP64__
+#endif
+*/
+
 #    include <Carbon/Carbon.h>
+
+/*
+#ifdef G3D_64BIT
+#    define __LP64__
+#endif
+*/
+
 #endif
 
 namespace G3D {
@@ -552,7 +565,7 @@ static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef e
     callbackData.whichButton[0] = callbackData.myIndex;
 	
     // If we get here we can close the window
-    QuitAppModalLoopForWindow(callbackData.refWindow);
+    ::QuitAppModalLoopForWindow(callbackData.refWindow);
 	
     // Return noErr to indicate that we handled the event
     return noErr;

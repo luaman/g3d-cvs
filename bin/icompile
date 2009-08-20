@@ -814,11 +814,12 @@ def configureGpp(state):
         if (machine() == 'i386'):
             # OS X reports itself as a 32-bit OS under python, even though it is 64-bit.
             # The -arch i686 option is undocumented for OS X under gcc but works.
+            # Build a binary with both 32- and 64-bit versions in it
             if not gcc44:
-                arch += ['-arch', 'i686']
+                arch += ['-arch', 'i686', '-msse3']
+                # To get 64-bit as well (commented out because G3D OS X doesn't support this)
+                #arch += ['-arch', 'x86_64', '-msse2', '-msse3']
                 
-            arch += ['-march=i686', '-msse3']
-
         if (state.universalBinary) or (machine() != 'i386'):
             arch += ['-arch', 'ppc']
 

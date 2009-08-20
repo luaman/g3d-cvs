@@ -19,12 +19,27 @@
 #include "GLG3D/OSWindow.h"
 
 #include <memory>
+#ifdef G3D_OSX
+
+/*
+#ifdef __LP64__
+#    undef __LP64__
+#endif
+*/
+
 #include <Carbon/Carbon.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/IOKitLib.h>
 #include <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/IOCFPlugIn.h>
+/*
+#ifdef G3D_64BIT
+#    define __LP64__
+#endif
+*/
+
+#endif
 
 #include <AGL/agl.h>
 

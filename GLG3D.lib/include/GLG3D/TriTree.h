@@ -224,7 +224,7 @@ private:
     };
 
     static inline Color3 chooseColor(const void* ptr) {
-        return Color3::pastelMap(reinterpret_cast<uint32>(ptr));
+        return Color3::pastelMap(uint32(long(ptr)));
     }
 
     /** Compares whether the high() of one Poly is less than the high() of another */

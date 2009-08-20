@@ -238,7 +238,7 @@ typedef VertexBuffer VARArea;
 } // namespace G3D
 
 template <> struct HashTrait<G3D::VertexBuffer*> {
-    static int hashCode(const G3D::VertexBuffer* key) { return reinterpret_cast<int>(key); }
+    static int hashCode(const G3D::VertexBuffer* key) { return int(long(key)); }
 };
 
 #endif
