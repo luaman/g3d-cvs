@@ -417,6 +417,27 @@ href="classes.html">Classes</a>.
         \link G3D::RefractionQuality RefractionQuality\endlink,   
         G3D_DECLARE_ENUM_CLASS_METHODS(),
         G3D_DECLARE_ENUM_CLASS_HASHCODE()
+
+     <li><b>Units (in \link G3D::units units\endlink namespace)</b>&nbsp; &nbsp;
+     \link G3D::units::nanometers nanometers\endlink,
+     \link G3D::units::micrometers micrometers\endlink,
+     \link G3D::units::millimeters millimeters\endlink,
+     \link G3D::units::centimeters centimeters\endlink,
+     \link G3D::units::meters meters\endlink,
+     \link G3D::units::kilometers kilometers\endlink,
+     \link G3D::units::inches inches\endlink,
+     \link G3D::units::feet feet\endlink,
+     \link G3D::units::yards yards\endlink,
+     \link G3D::units::miles miles\endlink,
+     \link G3D::units::radians radians\endlink,
+     \link G3D::units::degrees degrees\endlink,
+     \link G3D::units::nanoseconds nanoseconds\endlink,
+     \link G3D::units::milliseconds milliseconds\endlink,
+     \link G3D::units::seconds seconds\endlink,
+     \link G3D::units::minutes minutes\endlink,
+     \link G3D::units::hours hours\endlink,
+     \link G3D::units::days days\endlink,
+     \link G3D::units::years years\endlink
         
      <li><b>Platform Abstraction Macros</b> &nbsp; &nbsp;
      G3D_WIN32, G3D_OSX, G3D_LINUX, G3D_FREEBSD,     

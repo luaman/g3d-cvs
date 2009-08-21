@@ -24,6 +24,7 @@
     #undef max
 #endif
 
+#include "G3D/units.h"
 #include "G3D/platform.h"
 #include "G3D/Random.h"
 #include "G3D/Array.h"

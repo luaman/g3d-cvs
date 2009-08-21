@@ -25,10 +25,8 @@ typedef double RealTime;
 
 enum AMPM {AM, PM};
 
+/** \deprecated */
 enum {SECOND=1, MINUTE=60, HOUR = 60*60, DAY=24*60*60, SUNRISE=24*60*60/4, SUNSET=24*60*60*3/4, MIDNIGHT=0, METER=1, KILOMETER=1000};
-
-#define CENTIMETER          (0.01)
-#define DECIMETER           (0.1)
 
 /**
  Converts a 12 hour clock time into the number of seconds since 
