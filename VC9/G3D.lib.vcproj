@@ -931,6 +931,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\include\G3D\units.h"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\include\G3D\UprightFrame.h"
 				>
 			</File>

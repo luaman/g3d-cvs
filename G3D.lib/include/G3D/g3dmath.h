@@ -61,6 +61,9 @@
 namespace G3D {
 
 #ifdef _MSC_VER
+inline double __fastcall drand48() {
+    return ::rand() / double(RAND_MAX);
+}
 
 /**
    Win32 implementation of the C99 fast rounding routines.
