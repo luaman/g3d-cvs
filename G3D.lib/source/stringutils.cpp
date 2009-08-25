@@ -26,6 +26,50 @@ namespace G3D {
     static bool iswspace(int ch) { return (ch==' ' || ch=='\t' || ch=='\n' || ch=='\r'); }
 #endif
 
+void parseCommaSeparated(const std::string s, Array<std::string>& array, bool stripQuotes) {
+    array.fastClear();
+    if (s == "") {
+        return;
+    }
+
+    size_t begin = 0;
+    const char delimiter = ',';
+    const char quote = '\"';
+    do {
+        size_t end = begin;
+        // Find the next comma, or the end of the string
+        bool inQuotes = false;
+        while ((end < s.length()) && (inQuotes || (s[end] != delimiter))) {
+            if (s[end] == quote) {
+                if ((end < s.length() - 2) && (s[end + 1] == quote) && (s[end + 2]) == quote) {
+                    // Skip over the superquote
+                    end += 2;
+                }
+                inQuotes = ! inQuotes;
+            }
+            ++end;
+        }
+        array.append(s.substr(begin, end - begin));
+        begin = end + 1;
+    } while (begin < s.length());
+
+    if (stripQuotes) {
+        for (int i = 0; i < array.length(); ++i) {
+            std::string& t = array[i];
+            int L = t.length();
+            if ((L > 1) && (t[0] == quote) && (t[L - 1] == quote)) {
+                if ((L > 6)  && (t[1] == quote) && (t[2] == quote) && (t[L - 3] == quote) && (t[L - 2] == quote)) {
+                    // Triple-quote
+                    t = t.substr(3, L - 6);
+                } else {
+                    // Double-quote
+                    t = t.substr(1, L - 2);
+                }
+            }
+        }
+    }
+}
+
 bool beginsWith(
     const std::string& test,
     const std::string& pattern) {

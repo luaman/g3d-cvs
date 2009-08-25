@@ -292,6 +292,11 @@ public:
             symbol. Default is true.  Backquote (`) is always parsed
             as a symbol. */
         bool                singleQuotedStrings;
+
+        /** The character to use as a single quote.  Defaults to "'" (backquote),
+            occasionally useful to set to "`" (forward quote) or to "," (comma) for
+            reading CSV files. */
+        char                singleQuoteCharacter;
         
         /** If set to a non-empty string, that string will be used in
             place of the real file name (or in place of a pseudonym
@@ -371,7 +376,7 @@ public:
         /** See trueSymbols. Default is {false}*/
         Set<std::string>    falseSymbols;
 
-        Settings ();
+        Settings();
     };
 	
 private:

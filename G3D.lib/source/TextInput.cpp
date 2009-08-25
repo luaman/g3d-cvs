@@ -66,6 +66,7 @@ TextInput::Settings::Settings () :
     generateNewlineTokens(false),
     signedNumbers(true),
     singleQuotedStrings(true),
+    singleQuoteCharacter('\''),
     sourceFileName(),
     startingLineNumberOffset(0),
     msvcSpecials(true),
@@ -706,22 +707,22 @@ numLabel:
         eatInputChar();
 
         // Double quoted string
-		parseQuotedString('\"', t);
+        parseQuotedString('\"', t);
         return t;
 
-    } else if (c == '\'') {
+    } else if (c == options.singleQuoteCharacter) {
 
         // Discard the single-quote.
         eatInputChar();
 
-		if (options.singleQuotedStrings) {
-			// Single quoted string
-			parseQuotedString('\'', t);
-		} else {
-			t._string = c;
-			t._type = Token::SYMBOL;
-			t._extendedType = Token::SYMBOL_TYPE;
-		}
+        if (options.singleQuotedStrings) {
+            // Single quoted string
+            parseQuotedString(options.singleQuoteCharacter, t);
+        } else {
+            t._string = c;
+            t._type = Token::SYMBOL;
+            t._extendedType = Token::SYMBOL_TYPE;
+        }
         return t;
 
     } // end of special case tokens
@@ -745,11 +746,11 @@ void TextInput::parseQuotedString(unsigned char delimiter, Token& t) {
 
     t._type = Token::STRING;
 
-	if (delimiter == '\'') {
-		t._extendedType = Token::SINGLE_QUOTED_TYPE;
-	} else {
-		t._extendedType = Token::DOUBLE_QUOTED_TYPE;
-	}
+    if (delimiter == options.singleQuoteCharacter) {
+        t._extendedType = Token::SINGLE_QUOTED_TYPE;
+    } else {
+        t._extendedType = Token::DOUBLE_QUOTED_TYPE;
+    }
 
     while (true) {
         // We're definitely going to consume the next input char, so we get
@@ -783,11 +784,15 @@ void TextInput::parseQuotedString(unsigned char delimiter, Token& t) {
 
             case '\\':
             case '\"':
-            case '\'':
                 t._string += (char)c;
                 break;
 
             default:
+                if (c ==  options.singleQuoteCharacter) {
+                    t._string += (char)c;
+                    break;
+                }
+
                 if (((c == options.otherCommentCharacter) && 
                      (options.otherCommentCharacter != '\0')) ||
                     ((c == options.otherCommentCharacter2) && 

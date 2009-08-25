@@ -18,6 +18,16 @@ namespace G3D {
 
 extern const char* NEWLINE;
 
+/** Separates a comma-separated line, properly escaping commas within
+    double quotes (") and super quotes ("""). This matches Microsoft Excel's 
+    CSV output.
+
+    \param stripQuotes If true, strips leading and trailing " and """
+
+    \sa G3D::stringSplit, G3D::TextInput, G3D::readWholeFile
+*/
+void parseCommaSeparated(const std::string s, Array<std::string>& array, bool stripQuotes = true);
+
 /**
  Returns true if the test string begins with the pattern string.
  */
