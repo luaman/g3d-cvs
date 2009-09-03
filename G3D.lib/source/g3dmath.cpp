@@ -38,6 +38,17 @@ double inf() {
     return std::numeric_limits<double>::infinity();
 }
 
+bool isNaN(float x) {
+    static const float n = nan();
+    return memcmp(&x, &n, sizeof(float)) == 0;
+}
+
+bool isNaN(double x) {
+    static const double n = nan();
+    return memcmp(&x, &n, sizeof(double)) == 0;
+}
+
+
 /** 
     This value should not be tested against directly, instead
     G3D::isNan() and G3D::isFinite() will return reliable results. */

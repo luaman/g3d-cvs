@@ -231,6 +231,7 @@ bool isFinite(double x);
  comparisons against nan return false.
  */
 bool isNaN(double x);
+bool isNaN(float x);
 
 /**
  Computes x % 3.
@@ -496,13 +497,6 @@ inline double wrap(double t, double hi) {
     return wrap(t, 0.0, hi);
 }
 
-
-inline bool isNaN(double x) {
-    bool b1  = (x < 0.0);
-    bool b2  = (x >= 0.0);
-    bool b3  = !(b1 || b2);
-    return b3;
-}
 
 inline bool isFinite(double x) {
     return ! isNaN(x) && (x < G3D::inf()) && (x > -G3D::inf());
