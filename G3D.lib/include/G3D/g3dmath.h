@@ -232,6 +232,9 @@ bool isFinite(double x);
  */
 bool isNaN(double x);
 bool isNaN(float x);
+inline bool isNaN(int x) {
+    return false;
+}
 
 /**
  Computes x % 3.
