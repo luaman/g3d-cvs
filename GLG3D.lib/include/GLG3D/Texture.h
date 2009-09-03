@@ -100,7 +100,9 @@ public:
     typedef ReferenceCountedPointer<class Texture> Ref;
 
     /** DIM_2D_NPOT and DIM_CUBE_MAP_NPOT attempt to use
-        ARB_non_power_of_two texture support with POT fallback. */
+        ARB_non_power_of_two texture support with POT fallback.
+
+        \sa defaultDimension */
     enum Dimension       {DIM_2D = 2, DIM_3D = 3, DIM_2D_RECT = 4, 
                           DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7, DIM_3D_NPOT = 8};
 
@@ -403,6 +405,10 @@ public:
     */
     void getTexImage(void* data, const ImageFormat* desiredFormat) const;
 
+    /** Returns the default Dimension for this machine, which is
+        DIM_2D_NPOT if supported and DIM_2D if not.*/
+    static Dimension defaultDimension();
+
     /**
      Creates an empty texture (useful for later reading from the screen).
      */
@@ -411,7 +417,7 @@ public:
         int                             width,
         int                             height,
         const ImageFormat*              desiredFormat  = ImageFormat::RGBA8(),
-        Dimension                       dimension      = DIM_2D,
+        Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
         int                             depth          = 1);
 
@@ -427,7 +433,7 @@ public:
         const std::string&              name,
         GLuint                          textureID,
         const ImageFormat*              textureFormat,
-        Dimension                       dimension      = DIM_2D,
+        Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults());
 
     /**
@@ -438,7 +444,7 @@ public:
     static Texture::Ref fromFile(
         const std::string&              filename,
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
-        Dimension                       dimension      = DIM_2D,
+        Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
 
@@ -449,7 +455,7 @@ public:
     static Texture::Ref fromFile(
         const std::string               filename[6],
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
-        Dimension                       dimension      = DIM_2D,
+        Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
 
@@ -462,7 +468,7 @@ public:
         const std::string&              filename,
         const std::string&              alphaFilename,
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
-        Dimension                       dimension      = DIM_2D,
+        Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               process        = PreProcess());
 
@@ -488,12 +494,12 @@ public:
     static Texture::Ref fromMemory(
         const std::string&                  name,
         const Array< Array<const void*> >&  bytes,
-        const ImageFormat*                bytesFormat,
+        const ImageFormat*                  bytesFormat,
         int                                 m_width,
         int                                 m_height,
         int                                 m_depth,
-        const ImageFormat*                desiredFormat  = ImageFormat::AUTO(),
-        Dimension                           dimension      = DIM_2D,
+        const ImageFormat*                  desiredFormat  = ImageFormat::AUTO(),
+        Dimension                           dimension      = defaultDimension(),
         const Settings&                     settings       = Settings::defaults(),
         const PreProcess&                   preProcess     = PreProcess::defaults());
 
@@ -507,9 +513,9 @@ public:
         const ImageFormat*              bytesFormat,
         int                             m_width,
         int                             m_height,
-        int				                m_depth,
+        int	                        m_depth,
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
-        Dimension                       dimension      = DIM_2D,
+        Dimension                       dimension      = defaultDimension(),
         const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
 
@@ -517,8 +523,8 @@ public:
         const std::string&              name,
         const GImage&                   image,
         const ImageFormat*              desiredFormat  = ImageFormat::AUTO(),
-        Dimension                       dimension      = DIM_2D,
-        const Settings&                 settings	   = Settings::defaults(),
+        Dimension                       dimension      = defaultDimension(),
+        const Settings&                 settings       = Settings::defaults(),
         const PreProcess&               preProcess     = PreProcess::defaults());
 
     /** Creates another texture that is the same as this one but contains only

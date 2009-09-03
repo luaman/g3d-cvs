@@ -38,21 +38,35 @@ void GImage::encodeTGA(
     out.writeUInt16(m_height);
 
     // Color depth
-    out.writeUInt8(8 * m_channels);
+    if (m_channels == 1) {
+        // Force RGB mode
+        out.writeUInt8(8 * 3);
+    } else {
+        out.writeUInt8(8 * m_channels);
+    }
 
     // Image descriptor
-    if (m_channels == 3) {
+    if (m_channels < 4) {
         // 0 alpha bits
         out.writeUInt8(0);
-    }
-    else {
+    } else {
         // 8 alpha bits
         out.writeUInt8(8);
     }
 
     // Image ID (zero length)
 
-    if (m_channels == 3) {
+    if (m_channels == 1) {
+        // Pixels are upside down in BGR format.
+        for (int y = m_height - 1; y >= 0; --y) {
+            for (int x = 0; x < m_width; ++x) {
+                uint8 p = (m_byte[(y * m_width + x)]);
+                out.writeUInt8(p);
+                out.writeUInt8(p);
+                out.writeUInt8(p);
+            }
+        }
+    } else if (m_channels == 3) {
         // Pixels are upside down in BGR format.
         for (int y = m_height - 1; y >= 0; --y) {
             for (int x = 0; x < m_width; ++x) {

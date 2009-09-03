@@ -118,6 +118,7 @@ TODO: make bias a property of the shadow map
      <li> Fix: GCamera::frustum clipping planes were off for the top and bottom planes.    
      <li> Fix: fileExists("") now returns false 
      <li> Fix: ArticulatedModel, Surface, and SuperShader now support both left- and right-handed tangent spaces
+     <li> Fix: GImage now saves 1-channel TGA files as RGB (used to crash)
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

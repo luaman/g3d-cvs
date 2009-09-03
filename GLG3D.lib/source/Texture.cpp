@@ -25,8 +25,15 @@
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
 
-
 namespace G3D {
+
+Texture::Dimension Texture::defaultDimension() {
+    static const Texture::Dimension dim = 
+        GLCaps::supports_GL_ARB_texture_non_power_of_two() ? DIM_2D_NPOT : DIM_2D;
+
+    return dim;
+}
+
 
 Texture::Settings Texture::Settings::fromAnyVal(const AnyVal& a) {
     debugAssert(a.type() == AnyVal::TABLE);

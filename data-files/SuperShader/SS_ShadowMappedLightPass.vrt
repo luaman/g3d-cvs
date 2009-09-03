@@ -45,13 +45,13 @@ void main(void) {
     tan_Z = g3d_ObjectToWorldNormalMatrix * gl_Normal.xyz;
 
 #   ifdef NORMALBUMPMAP
-        tan_X = g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0);
+        tan_X = (g3d_ObjectToWorldMatrix * vec4(gl_MultiTexCoord1.xyz, 0)).xyz;
 
         // T and N are guaranteed perpendicular, so B is normalized.  Its facing 
         // direction is stored in the texcoord w component.
         tan_Y = cross(tan_Z, tan_X) * gl_MultiTexCoord1.w;
 
-	    // (there is no tan_W, because it is equal to wsPosition)
+        // (there is no tan_W, because it is equal to wsPosition)
 
 #       if PARALLAXSTEPS > 0
             // Compute the tangent space eye vector (ATI does not support the transpose operator)
