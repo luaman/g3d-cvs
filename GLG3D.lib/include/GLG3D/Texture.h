@@ -267,11 +267,20 @@ public:
 
         /**
            After brightening, each (unit-scale) pixel is raised to
-           this power. Many textures are drawn to look good
-           when displayed on the screen, which means that they
-           are drawn with gamma ~= 2.0. For realistic rendering,
-           textures should have gamma = 1.0. Set gammaAdjust to
-           the value that the texture was drawn for.
+           this power. Many textures are drawn to look good when
+           displayed on the screen in PhotoShop, which means that they
+           are drawn with a document gamma of about 2.0. 
+
+           If the document gamma is 2.0, set \a gammaAdjust to:
+           <ul>
+             <li> 0.5 for reflectivity, emissive, and environment maps (e.g., lambertian, glossy, etc.)
+             <li> 1.0 for 2D elements, like fonts and full-screen images
+             <li> 1.0 for computed data (e.g., normal maps, bump maps, GPGPU data)
+           </ul>
+
+           To maintain maximum precision, author and store the
+           original image files in a 1.0 gamma space, at which point
+           no gamma correction is necessary.
          */
         float                       gammaAdjust;
 
