@@ -856,5 +856,15 @@ void describeSystem(
     t.commitString(s);
 }
 
+
+const class ImageFormat* GLCaps::firstSupportedTexture(const Array<const class ImageFormat*>& prefs) {
+    for (int i = 0; i < prefs.size(); ++i) {
+        if (supportsTexture(prefs[i])) {
+            return prefs[i];
+        }
+    }
+
+    return NULL;
+}
 }
 

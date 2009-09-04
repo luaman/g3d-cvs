@@ -4,11 +4,11 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-10-29
- @edited  2007-10-21
+ @edited  2009-09-05
  */
 
-#ifndef G3D_DRAW_H
-#define G3D_DRAW_H
+#ifndef G3D_Draw_h
+#define G3D_Draw_h
 
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
@@ -81,6 +81,9 @@ public:
 
     /** Visualize the light sources in this scene. */
     static void lighting(LightingRef lighting, RenderDevice* rd, bool showEffectSpheres = false);
+
+    /** Render a skybox using \a cubeMap, and the set of 6 cube map faces in \a texture if \a cubeMap is NULL. */
+    static void skyBox(RenderDevice* renderDevice, Texture::Ref& cubeMap, Texture::Ref* texture = NULL);
 
     /**
      Set the solid color or wire color to Color4::clear() to

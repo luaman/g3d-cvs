@@ -18,7 +18,6 @@
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/Widget.h"
 #include "GLG3D/GConsole.h"
-#include "GLG3D/ToneMap.h"
 #include "GLG3D/DeveloperWindow.h"
 #include "G3D/GThread.h"
 #include "GLG3D/Shape.h"
@@ -277,8 +276,6 @@ public:
 
     /** Command console. */
     GConsoleRef             console;
-
-    ToneMapRef              toneMap;
 
     /** The window that displays buttons for debugging.  If GApp::Settings::useDeveloperTools is true
         this will be created and added as a Widget on the GApp.  Otherwise this will be NULL.

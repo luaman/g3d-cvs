@@ -311,7 +311,7 @@ public:
         uint32			triangles;
         
         /** Exponentially weighted moving average of Stats::triangles.*/
-        double                  smoothTriangles;
+        double           smoothTriangles;
         
         /** Amount of time spent in swapbuffers (when large, indicates 
             that the GPU is blocking the CPU). */
@@ -322,12 +322,12 @@ public:
         float			frameRate;
         
         /** Exponentially weighted moving average of frame rate */
-        float                   smoothFrameRate;
+        float           smoothFrameRate;
         
         double			triangleRate;
         
         /** Exponentially weighted moving average of triangleRate */
-        double                  smoothTriangleRate;
+        double          smoothTriangleRate;
         
         Stats();
 
@@ -691,11 +691,11 @@ public:
     void setStencilConstant(int reference);
 
 	/** If the alpha test is ALPHA_CURRENT, the reference is ignored */
-    void setAlphaTest(AlphaTest test, double reference);
+    void setAlphaTest(AlphaTest test, float reference);
 
     AlphaTest alphaTest() const;
 
-    double alphaTestReference() const;
+    float alphaTestReference() const;
 
     /**
      Sets the frame buffer that is written to.  Used to intentionally
@@ -721,7 +721,7 @@ public:
         return state.readBuffer;
     }
 
-    inline void setDepthRange(double low, double high);
+    inline void setDepthRange(float low, float high);
 
     /** Color writing is on by default.  Disabling color write allows a program to 
         render to the depth and stencil buffers without creating a visible image in the frame buffer.  
@@ -828,13 +828,13 @@ public:
      Equivalent to glLineWidth.
      */
     void setLineWidth(
-        double                          width);
+        float                          width);
 
     /**
      Equivalent to glPointSize.
      */
     void setPointSize(
-        double                          diameter);
+        float                          diameter);
 
     /**
      This is not the OpenGL MODELVIEW matrix: it is a matrix that maps
@@ -953,7 +953,7 @@ public:
      Equivalent to glPolygonOffset
      */
     void setPolygonOffset(
-        double                  offset);
+        float                     offset);
 
     /**
      Set the vertex color (equivalent to glColor).
@@ -1209,7 +1209,7 @@ public:
     }
     
     void setStencilClearValue(int s);
-    void setDepthClearValue(double d);
+    void setDepthClearValue(float d);
     void setColorClearValue(const Color4& c);
 
     /**
@@ -1473,9 +1473,9 @@ private:
         
         DepthTest                   depthTest;
         AlphaTest                   alphaTest;
-        double                      alphaReference;
+        float                       alphaReference;
 
-        double                      depthClear;
+        float                       depthClear;
         Color4                      colorClear;
 
         CullFace                    cullFace;
@@ -1488,15 +1488,15 @@ private:
         
         ShadeMode                   shadeMode;
     
-        double                      polygonOffset;
+        float                       polygonOffset;
 
         RenderMode                  renderMode;
 
         Color3                      specular;
-        double                      shininess;
+        float                       shininess;
 
-        double                      lowDepthRange;
-        double                      highDepthRange;
+        float                       lowDepthRange;
+        float                       highDepthRange;
 
         VertexAndPixelShaderRef     vertexAndPixelShader;
 
@@ -1507,8 +1507,8 @@ private:
         /** @deprecated */
         PixelProgramRef             pixelProgram;
 
-        double                      lineWidth;
-        double                      pointSize;
+        float                       lineWidth;
+        float                       pointSize;
 
         Color4                      color;
         Vector3                     normal;
@@ -1527,6 +1527,8 @@ private:
 
         //bool operator==(const RenderState& other) const;
     };
+
+    float                           _minLineWidth;
 
     VertexAndPixelShaderRef         lastVertexAndPixelShader;
 
@@ -1602,6 +1604,15 @@ public:
      
     */
     bool supportsTwoSidedStencil() const;
+
+    /** Forces setLineWidth to max against this value.  Default is 0 */
+    inline void setMinLineWidth(float W) {
+        _minLineWidth = W;
+    }
+
+    inline float minLineWidth() const {
+        return _minLineWidth;
+    }
 
     /**
      When true, Texture::DIM_2D_RECT textures can be created.
@@ -1957,8 +1968,8 @@ inline void RenderDevice::setShadeMode(ShadeMode s) {
 
 
 inline void RenderDevice::setDepthRange(
-    double              low,
-    double              high) {
+    float              low,
+    float              high) {
 
     majStateChange();
 

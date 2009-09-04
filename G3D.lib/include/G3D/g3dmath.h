@@ -233,6 +233,7 @@ bool isFinite(double x);
 bool isNaN(double x);
 bool isNaN(float x);
 inline bool isNaN(int x) {
+    (void)x;
     return false;
 }
 

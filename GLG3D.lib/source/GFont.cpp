@@ -265,7 +265,7 @@ void GFont::configureRenderDevice(RenderDevice* renderDevice) const {
     renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA,
                                RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
 
-    renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1/255.0);
+    renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 1.0f / 255.0f);
 }
 
 

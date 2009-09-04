@@ -99,7 +99,7 @@ void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
     }
 }
 
-RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(false), inIndexedPrimitive(false) {
+RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(false), inIndexedPrimitive(false), _minLineWidth(0) {
     _initialized = false;
     cleanedup = false;
     inPrimitive = false;
@@ -644,7 +644,6 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
 
     lowDepthRange               = 0;
     highDepthRange              = 1;
-
 
     highestTextureUnitThatChanged = htutc;
 }
@@ -1369,7 +1368,7 @@ void RenderDevice::setStencilClearValue(int s) {
 }
 
 
-void RenderDevice::setDepthClearValue(double d) {
+void RenderDevice::setDepthClearValue(float d) {
     minStateChange();
     debugAssert(! inPrimitive);
     if (state.depthClear != d) {
@@ -1623,12 +1622,12 @@ RenderDevice::AlphaTest RenderDevice::alphaTest() const {
 }
 
 
-double RenderDevice::alphaTestReference() const {
+float RenderDevice::alphaTestReference() const {
     return state.alphaReference;
 }
 
 
-void RenderDevice::setAlphaTest(AlphaTest test, double reference) {
+void RenderDevice::setAlphaTest(AlphaTest test, float reference) {
     debugAssert(! inPrimitive);
 
     minStateChange();
@@ -2038,11 +2037,11 @@ void RenderDevice::setBlendFunc(
 
 
 void RenderDevice::setLineWidth(
-    double               width) {
+    float               width) {
     debugAssert(! inPrimitive);
     minStateChange();
     if (state.lineWidth != width) {
-        glLineWidth(width);
+        glLineWidth(max(_minLineWidth, width));
         minGLStateChange();
         state.lineWidth = width;
     }
@@ -2050,7 +2049,7 @@ void RenderDevice::setLineWidth(
 
 
 void RenderDevice::setPointSize(
-    double               width) {
+    float               width) {
     debugAssert(! inPrimitive);
     minStateChange();
     if (state.pointSize != width) {
@@ -2434,7 +2433,7 @@ void RenderDevice::resetTextureUnit(
 
 
 void RenderDevice::setPolygonOffset(
-    double              offset) {
+    float              offset) {
     debugAssert(! inPrimitive);
 
     minStateChange();

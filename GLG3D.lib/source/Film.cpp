@@ -35,7 +35,7 @@ void main(void) {
     // Fix out-of-gamut saturation
     src /= max(max(src.r, src.g), max(src.b, 1.0));
     
-    // Invert the gamma curve (TODO: use a texture?)
+    // Invert the gamma curve
     vec3 dst = pow(src, vec3(invGamma, invGamma, invGamma));
     
     gl_FragColor.rgb = dst;
@@ -46,7 +46,7 @@ Film::Film(const ImageFormat* f) :
     m_intermediateFormat(f),
     m_gamma(2.0f),
     m_exposure(1.0f),
-    m_bloomStrength(0.08f),
+    m_bloomStrength(0),// 0.08f), // Commented out because the blur is currently slow
     m_bloomRadiusFraction(0.03f) {
 
     init();

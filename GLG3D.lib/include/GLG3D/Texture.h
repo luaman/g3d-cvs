@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-02-28
-  @edited  2009-03-23
+  @edited  2009-09-23
 */
 
 #ifndef GLG3D_Texture_h
@@ -273,7 +273,7 @@ public:
 
            If the document gamma is 2.0, set \a gammaAdjust to:
            <ul>
-             <li> 0.5 for reflectivity, emissive, and environment maps (e.g., lambertian, glossy, etc.)
+             <li> 2.0 for reflectivity, emissive, and environment maps (e.g., lambertian, glossy, etc.)
              <li> 1.0 for 2D elements, like fonts and full-screen images
              <li> 1.0 for computed data (e.g., normal maps, bump maps, GPGPU data)
            </ul>
@@ -310,39 +310,18 @@ public:
                        computeNormalMap(false), normalMapLowPassBump(false),
                        normalMapWhiteHeightInPixels(-0.02f), normalMapScaleHeightByNz(false) {}
 
-        static const PreProcess& defaults() {
-            static const PreProcess p;
-            return p;
-        }
+        /** Defaults + gamma adjust set to g*/
+        static PreProcess gamma(float g);
 
-        /** Default settings except those that enable preprocessing. */
-        static const PreProcess& none() {
-            static PreProcess p;
-            p.computeMinMaxMean = false;
-            return p;
-        }
+        static const PreProcess& defaults();
+
+        /** Default settings + computeMinMaxMean = false */
+        static const PreProcess& none();
 
         /** Brighten by 2 and adjust gamma by 1.6, the default values expected for Quake versions 1 - 3 textures.*/
-        static const PreProcess& quake() {
-            static PreProcess p;
-            p.brighten = 2.0f;
-            p.gammaAdjust = 1.6f;
-            return p;
-        }
+        static const PreProcess& quake();
 
-        static const PreProcess& normalMap() {
-            static bool initialized = false;
-            static PreProcess p;
-            if (! initialized) {
-                p.computeNormalMap = true;
-                p.normalMapLowPassBump = false;
-                p.normalMapScaleHeightByNz = false;
-                p.normalMapWhiteHeightInPixels = -0.02f;
-                initialized = true;
-            }
-
-            return p;
-        }
+        static const PreProcess& normalMap();
     };
 
 private:

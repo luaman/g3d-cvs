@@ -59,27 +59,22 @@ private:
     /**
      Only used if the render device does not support cube maps.
      */
-    Texture::Ref                                  texture[6];
+    Texture::Ref                                texture[6];
 
     /**
      Used unless the render device does not support cube maps.
      */
-    Texture::Ref                                  cubeMap;
+    Texture::Ref                                cubeMap;
 
-    Texture::Ref                                  sun;
-    Texture::Ref                                  moon;
-    Texture::Ref                                  disk;
-    Texture::Ref                                  sunRays;
+    Texture::Ref                                sun;
+    Texture::Ref                                moon;
+    Texture::Ref                                disk;
+    Texture::Ref                                sunRays;
 
     Array<Vector4>                              star;
     Array<float>                                starIntensity;
 
     bool                                        drawCelestialBodies;
-
-    /**
-     Renders the sky box.
-     */
-    void renderBox(RenderDevice* rd) const;
 
     /** Draw the sun, called by render() */
     void drawSun(RenderDevice* rd, const class SkyParameters&);
@@ -93,10 +88,6 @@ private:
         bool                                    useCubeMap,
         bool                                    drawCelestialBodies,
         double                                  quality);
-
-    /** Draws a single sky-box vertex.  Called from renderBox. (s,t) are
-        texture coordinates for the case where the cube map is not used.*/
-    void vertex(RenderDevice* renderDevice, float x, float y, float z, float s, float t) const;
 
 public:
 
@@ -158,6 +149,9 @@ public:
     /**
      Call at the very end of your rendering routine.
      Will restore all state it changes.
+
+      In G3D 8.xx it is recommended that you do NOT render lens flare, because it can substantially
+      slow performance on multi-GPU systems due to the CPU depth readback.
      */
     void renderLensFlare(
         RenderDevice*                           renderDevice,

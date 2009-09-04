@@ -1,6 +1,6 @@
 /**
   @file App.cpp
-  TODO: shadows
+  TODO: shadows, objects
  */
 #include "App.h"
 
@@ -48,9 +48,6 @@ void App::onInit() {
     showRenderingStats = true;
 
     m_lighting = defaultLighting();
-
-    toneMap->setEnabled(false);
-
     /////////////////////////////////////////////////////////////
     // Example of how to add debugging controls
     debugPane->addButton("Exit", this, &App::endProgram);

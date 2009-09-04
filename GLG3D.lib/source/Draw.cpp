@@ -29,6 +29,156 @@ const int Draw::SPHERE_SECTIONS = 40;
 const int Draw::SPHERE_PITCH_SECTIONS = 20;
 const int Draw::SPHERE_YAW_SECTIONS = 40;
 
+
+/** Draws a single sky-box vertex.  Called from Draw::skyBox. (s,t) are
+    texture coordinates for the case where the cube map is not used.*/
+static void skyVertex(RenderDevice* renderDevice, 
+                 bool cube,
+                 const Texture::Ref* texture,
+                 float x, float y, float z, float s, float t) {
+    const float w = 0;
+    static bool explicitTexCoord = GLCaps::hasBug_normalMapTexGen();
+
+    if (cube) {
+        if (explicitTexCoord) {
+            glTexCoord3f(x, y, z);
+        } else {
+            // Texcoord generation will move this normal to tex coord 0
+            renderDevice->setNormal(Vector3(x,y,z));
+        }
+    } else {
+        if (!GLCaps::supports_GL_EXT_texture_edge_clamp()) {
+            // Move the edge coordinates towards the center just
+            // enough that the black clamped border isn't sampled.
+            if (s == 0) {
+                s += (0.6f / (float)texture[0]->texelWidth());
+            } else if (s == 1) {
+                s -= (0.6f / (float)texture[0]->texelWidth());
+            }
+            if (t == 0) {
+                t += (0.6f / (float)texture[0]->texelHeight());
+            } else if (t == 1) {
+                t -= (0.6f / (float)texture[0]->texelHeight());
+            }
+        }
+        renderDevice->setTexCoord(0, Vector2(s, t));
+    }
+    
+    renderDevice->sendVertex(Vector4(x,y,z,w));
+}
+
+
+void Draw::skyBox(RenderDevice* renderDevice, Texture::Ref& cubeMap, Texture::Ref* texture) {
+    enum Direction {UP = 0, LT = 1, RT = 2, BK = 3, FT = 4, DN = 5};
+    renderDevice->pushState();
+
+    bool cube = (cubeMap.notNull());
+
+    if (cube) {
+        renderDevice->setTexture(0, cubeMap);
+
+        if (! GLCaps::hasBug_normalMapTexGen()) {
+            // On old Radeon Mobility, explicit cube map coordinates don't work right.
+            // We instead put cube map coords in the normals and use texgen to copy
+            // them over
+            glActiveTextureARB(GL_TEXTURE0_ARB + 0);
+            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
+            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
+            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
+            glEnable(GL_TEXTURE_GEN_S);
+            glEnable(GL_TEXTURE_GEN_T);
+            glEnable(GL_TEXTURE_GEN_R);
+        } else {
+            // Hope that we're on a card where explicit texcoords work
+        }
+
+        CoordinateFrame cframe = renderDevice->cameraToWorldMatrix();
+        cframe.translation = Vector3::zero();
+        renderDevice->setTextureMatrix(0, cframe);
+
+    } else {
+        // In the 6-texture case, the sky box is rotated 90 degrees
+        // (this is because the textures are loaded incorrectly)
+ 
+        renderDevice->setObjectToWorldMatrix(Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(-90)));
+        renderDevice->setTexture(0, texture[BK]);
+    }
+
+    float s = 1;
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        skyVertex(renderDevice, cube, texture, -s, +s, -s, 0, 0);
+        skyVertex(renderDevice, cube, texture, -s, -s, -s, 0, 1);
+        skyVertex(renderDevice, cube, texture, +s, -s, -s, 1, 1);
+        skyVertex(renderDevice, cube, texture, +s, +s, -s, 1, 0);
+	renderDevice->endPrimitive();
+        
+    if (! cube) {
+        renderDevice->setTexture(0, texture[LT]);
+    }
+
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        skyVertex(renderDevice, cube, texture, -s, +s, +s, 0, 0);
+        skyVertex(renderDevice, cube, texture, -s, -s, +s, 0, 1);
+        skyVertex(renderDevice, cube, texture, -s, -s, -s, 1, 1);
+        skyVertex(renderDevice, cube, texture, -s, +s, -s, 1, 0);
+	renderDevice->endPrimitive();
+
+    
+    if (! cube) {
+        renderDevice->setTexture(0, texture[FT]);
+    }
+
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        skyVertex(renderDevice, cube, texture, +s, +s, +s, 0, 0);
+        skyVertex(renderDevice, cube, texture, +s, -s, +s, 0, 1);
+        skyVertex(renderDevice, cube, texture, -s, -s, +s, 1, 1);
+        skyVertex(renderDevice, cube, texture, -s, +s, +s, 1, 0);
+	renderDevice->endPrimitive();
+
+    if (! cube) {
+        renderDevice->setTexture(0, texture[RT]);
+    }
+
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        skyVertex(renderDevice, cube, texture, +s, +s, +s, 1, 0);
+        skyVertex(renderDevice, cube, texture, +s, +s, -s, 0, 0);
+        skyVertex(renderDevice, cube, texture, +s, -s, -s, 0, 1);
+        skyVertex(renderDevice, cube, texture, +s, -s, +s, 1, 1);
+	renderDevice->endPrimitive();
+
+    if (! cube) {
+        renderDevice->setTexture(0, texture[UP]);
+    }
+
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        skyVertex(renderDevice, cube, texture, +s, +s, +s, 1, 1);
+        skyVertex(renderDevice, cube, texture, -s, +s, +s, 1, 0);
+        skyVertex(renderDevice, cube, texture, -s, +s, -s, 0, 0);
+        skyVertex(renderDevice, cube, texture, +s, +s, -s, 0, 1);
+	renderDevice->endPrimitive();
+
+    if (! cube) {
+        renderDevice->setTexture(0, texture[DN]);
+    }
+
+    renderDevice->beginPrimitive(PrimitiveType::QUADS);
+        skyVertex(renderDevice, cube, texture, +s, -s, -s, 0, 0);
+        skyVertex(renderDevice, cube, texture, -s, -s, -s, 0, 1);
+        skyVertex(renderDevice, cube, texture, -s, -s, +s, 1, 1);
+        skyVertex(renderDevice, cube, texture, +s, -s, +s, 1, 0);
+	renderDevice->endPrimitive();
+
+    if (! GLCaps::hasBug_normalMapTexGen() && cube) {
+        glDisable(GL_TEXTURE_GEN_S);
+        glDisable(GL_TEXTURE_GEN_T);
+        glDisable(GL_TEXTURE_GEN_R);
+    }
+    renderDevice->popState();
+
+}
+
+
+
 void Draw::poly2DOutline(const Array<Vector2>& polygon, RenderDevice* renderDevice, const Color4& color) {
     if (polygon.length() == 0) {
         return;
@@ -265,7 +415,7 @@ void Draw::plane(
         // Draw concentric circles around the origin.  We break them up to get good depth
         // interpolation and reasonable shading.
 
-        renderDevice->setPolygonOffset(0.7);
+        renderDevice->setPolygonOffset(0.7f);
 
         if (solidColor.a < 1.0f) {
             renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
@@ -707,7 +857,6 @@ void Draw::line(
         renderDevice->endPrimitive();
     renderDevice->popState();
 }
-
 
 void Draw::lineSegment(
     const LineSegment&  lineSegment,

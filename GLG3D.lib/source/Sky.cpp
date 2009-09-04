@@ -16,6 +16,7 @@
 #include "GLG3D/SkyParameters.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/RenderDevice.h"
+#include "GLG3D/Draw.h"
 
 namespace G3D {
 
@@ -182,7 +183,7 @@ SkyRef Sky::fromFile(
 
 
 Sky::Sky(
-    Texture::Ref                          textures[6],
+    Texture::Ref                        textures[6],
     const std::string&                  directory,
     bool                                useCubeMap,
     bool                                _drawCelestialBodies,
@@ -308,152 +309,6 @@ static void hackProjectionMatrix(RenderDevice* renderDevice) {
     renderDevice->setProjectionMatrix(P);
 }
 
-
-void Sky::vertex(RenderDevice* renderDevice, 
-                 float x, float y, float z, float s, float t) const {
-    const float w = 0;
-    const bool cube = cubeMap.notNull();
-    static bool explicitTexCoord = GLCaps::hasBug_normalMapTexGen();
-
-    if (cube) {
-        if (explicitTexCoord) {
-            glTexCoord3f(x, y, z);
-        } else {
-            // Texcoord generation will move this normal to tex coord 0
-            renderDevice->setNormal(Vector3(x,y,z));
-        }
-    } else {
-        if (!GLCaps::supports_GL_EXT_texture_edge_clamp()) {
-            // Move the edge coordinates towards the center just
-            // enough that the black clamped border isn't sampled.
-            if (s == 0) {
-                s += (0.6f / (float)texture[0]->texelWidth());
-            } else if (s == 1) {
-                s -= (0.6f / (float)texture[0]->texelWidth());
-            }
-            if (t == 0) {
-                t += (0.6f / (float)texture[0]->texelHeight());
-            } else if (t == 1) {
-                t -= (0.6f / (float)texture[0]->texelHeight());
-            }
-        }
-        renderDevice->setTexCoord(0, Vector2(s, t));
-    }
-    
-    renderDevice->sendVertex(Vector4(x,y,z,w));
-}
-
-
-void Sky::renderBox(RenderDevice* renderDevice) const {
-    renderDevice->pushState();
-
-    bool cube = (cubeMap.notNull());
-
-    if (cube) {
-        renderDevice->setTexture(0, cubeMap);
-
-        if (! GLCaps::hasBug_normalMapTexGen()) {
-            // On old Radeon Mobility, explicit cube map coordinates don't work right.
-            // We instead put cube map coords in the normals and use texgen to copy
-            // them over
-            glActiveTextureARB(GL_TEXTURE0_ARB + 0);
-            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
-            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
-            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP_ARB);
-            glEnable(GL_TEXTURE_GEN_S);
-            glEnable(GL_TEXTURE_GEN_T);
-            glEnable(GL_TEXTURE_GEN_R);
-        } else {
-            // Hope that we're on a card where explicit texcoords work
-        }
-
-        CoordinateFrame cframe = renderDevice->cameraToWorldMatrix();
-        cframe.translation = Vector3::zero();
-        renderDevice->setTextureMatrix(0, cframe);
-
-    } else {
-        // In the 6-texture case, the sky box is rotated 90 degrees
-        // (this is because the textures are loaded incorrectly)
-        CoordinateFrame cframe;
-        cframe.rotation = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(-90));
-        renderDevice->setObjectToWorldMatrix(cframe);
-        renderDevice->setTexture(0, texture[BK]);
-    }
-
-    float s = 1;
-    renderDevice->beginPrimitive(PrimitiveType::QUADS);
-        vertex(renderDevice, -s, +s, -s, 0, 0);
-        vertex(renderDevice, -s, -s, -s, 0, 1);
-        vertex(renderDevice, +s, -s, -s, 1, 1);
-        vertex(renderDevice, +s, +s, -s, 1, 0);
-	renderDevice->endPrimitive();
-        
-    if (! cube) {
-        renderDevice->setTexture(0, texture[LT]);
-    }
-
-    renderDevice->beginPrimitive(PrimitiveType::QUADS);
-        vertex(renderDevice, -s, +s, +s, 0, 0);
-        vertex(renderDevice, -s, -s, +s, 0, 1);
-        vertex(renderDevice, -s, -s, -s, 1, 1);
-        vertex(renderDevice, -s, +s, -s, 1, 0);
-	renderDevice->endPrimitive();
-
-    
-    if (! cube) {
-        renderDevice->setTexture(0, texture[FT]);
-    }
-
-    renderDevice->beginPrimitive(PrimitiveType::QUADS);
-        vertex(renderDevice, +s, +s, +s, 0, 0);
-        vertex(renderDevice, +s, -s, +s, 0, 1);
-        vertex(renderDevice, -s, -s, +s, 1, 1);
-        vertex(renderDevice, -s, +s, +s, 1, 0);
-	renderDevice->endPrimitive();
-
-    if (! cube) {
-        renderDevice->setTexture(0, texture[RT]);
-    }
-
-    renderDevice->beginPrimitive(PrimitiveType::QUADS);
-        vertex(renderDevice, +s, +s, +s, 1, 0);
-        vertex(renderDevice, +s, +s, -s, 0, 0);
-        vertex(renderDevice, +s, -s, -s, 0, 1);
-        vertex(renderDevice, +s, -s, +s, 1, 1);
-	renderDevice->endPrimitive();
-
-    if (! cube) {
-        renderDevice->setTexture(0, texture[UP]);
-    }
-
-    renderDevice->beginPrimitive(PrimitiveType::QUADS);
-        vertex(renderDevice, +s, +s, +s, 1, 1);
-        vertex(renderDevice, -s, +s, +s, 1, 0);
-        vertex(renderDevice, -s, +s, -s, 0, 0);
-        vertex(renderDevice, +s, +s, -s, 0, 1);
-	renderDevice->endPrimitive();
-
-    if (! cube) {
-        renderDevice->setTexture(0, texture[DN]);
-    }
-
-    renderDevice->beginPrimitive(PrimitiveType::QUADS);
-        vertex(renderDevice, +s, -s, -s, 0, 0);
-        vertex(renderDevice, -s, -s, -s, 0, 1);
-        vertex(renderDevice, -s, -s, +s, 1, 1);
-        vertex(renderDevice, +s, -s, +s, 1, 0);
-	renderDevice->endPrimitive();
-
-    if (! GLCaps::hasBug_normalMapTexGen() && cube) {
-        glDisable(GL_TEXTURE_GEN_S);
-        glDisable(GL_TEXTURE_GEN_T);
-        glDisable(GL_TEXTURE_GEN_R);
-    }
-    renderDevice->popState();
-
-}
-
-
 void Sky::render(
     RenderDevice*                   renderDevice,
     const SkyParameters&            lighting) {
@@ -480,7 +335,7 @@ void Sky::render(
         // Draw the sky box
         renderDevice->resetTextureUnit(0);
         debugAssertGLOk();
-        renderBox(renderDevice);
+        Draw::skyBox(renderDevice, cubeMap, texture);
         debugAssertGLOk();
 
         if (drawCelestialBodies) {   
@@ -534,7 +389,7 @@ void Sky::drawMoonAndStars(
 
     renderDevice->setTexture(0, moon);
     renderDevice->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-    renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.05);
+    renderDevice->setAlphaTest(RenderDevice::ALPHA_GEQUAL, 0.05f);
     drawCelestialSphere(renderDevice, L, X, Y, 0.06f, Color4(lighting.emissiveScale, min(1.0f, max(0.0f, moonPosition.y * 4.0f))));
 }
 

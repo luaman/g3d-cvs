@@ -200,6 +200,9 @@ public:
     /** Returns true if the given texture format is supported on this device for Textures.*/
     static bool supportsTexture(const class ImageFormat* fmt);
 
+    /** Returns the first element of \a prefs for which supportsTexture() returns true. Returns NULL if none are supported.*/
+    static const class ImageFormat* firstSupportedTexture(const Array<const class ImageFormat*>& prefs);
+
     /** Returns true if the given texture format is supported on this device for RenderBuffers.*/
     static bool supportsRenderBuffer(const class ImageFormat* fmt);
 

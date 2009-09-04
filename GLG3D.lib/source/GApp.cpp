@@ -170,8 +170,6 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         addWidget(console);
     }
 
-    toneMap = ToneMap::create();
-
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
     defaultController->setActive(true);
 
@@ -474,7 +472,7 @@ bool GApp::onEvent(const GEvent& event) {
     return false;
 }
 
-static Lighting::Ref GApp::defaultLighting() {
+Lighting::Ref GApp::defaultLighting() {
     Lighting::Ref lighting = Lighting::create();
 
     Texture::Settings skySettings;

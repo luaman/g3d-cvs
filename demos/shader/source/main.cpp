@@ -63,9 +63,6 @@ void App::onInit() {
             // Running in the solution directory
             chdir("../demos/shader/data-files");
         }
-        toneMap->setEnabled(true);
-#   else
-        toneMap->setEnabled(false);
 #   endif
 
     phongShader = Shader::fromFiles("phong.vrt", "phong.pix");

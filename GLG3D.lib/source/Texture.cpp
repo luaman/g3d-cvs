@@ -27,6 +27,49 @@
 
 namespace G3D {
 
+
+const Texture::PreProcess& Texture::PreProcess::defaults() {
+    static const Texture::PreProcess p;
+    return p;
+}
+
+
+Texture::PreProcess Texture::PreProcess::gamma(float g) {
+    Texture::PreProcess p;
+    p.gammaAdjust = g;
+    return p;
+}
+
+
+const Texture::PreProcess& Texture::PreProcess::none() {
+    static Texture::PreProcess p;
+    p.computeMinMaxMean = false;
+    return p;
+}
+
+
+const Texture::PreProcess& Texture::PreProcess::quake() {
+    static Texture::PreProcess p;
+    p.brighten = 2.0f;
+    p.gammaAdjust = 1.6f;
+    return p;
+}
+
+const Texture::PreProcess& Texture::PreProcess::normalMap() {
+    static bool initialized = false;
+    static Texture::PreProcess p;
+    if (! initialized) {
+        p.computeNormalMap = true;
+        p.normalMapLowPassBump = false;
+        p.normalMapScaleHeightByNz = false;
+        p.normalMapWhiteHeightInPixels = -0.02f;
+        initialized = true;
+    }
+
+    return p;
+}
+
+
 Texture::Dimension Texture::defaultDimension() {
     static const Texture::Dimension dim = 
         GLCaps::supports_GL_ARB_texture_non_power_of_two() ? DIM_2D_NPOT : DIM_2D;
