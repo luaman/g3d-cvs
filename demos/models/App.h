@@ -17,6 +17,8 @@ private:
     Array<Entity::Ref>          entityArray;
     Texture::Ref                texture;
 
+    ToneMapRef                  toneMap;
+
     void loadScene();
 
 public:

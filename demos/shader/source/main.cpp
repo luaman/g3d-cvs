@@ -119,10 +119,8 @@ void App::makeGui() {
 }
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-    toneMap->beginFrame(rd);
-
-    LightingRef   localLighting = toneMap->prepareLighting(lighting);
-    SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
+    LightingRef   localLighting = lighting;
+    SkyParameters localSky      = skyParameters;
     
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
@@ -173,9 +171,6 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
             }
         }
     rd->popState();
-
-    // Don't apply the tone map to the 2D widgets
-    toneMap->endFrame(rd);
 
     Surface2D::sortAndRender(rd, posed2D);
 

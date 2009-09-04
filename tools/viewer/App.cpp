@@ -39,8 +39,6 @@ void App::onInit() {
     sky = Sky::fromFile(System::findDataFile("sky"));
     skyParameters = SkyParameters( G3D::toSeconds(11, 00, 00, AM) );
     lighting = Lighting::fromSky( sky, skyParameters, Color3::white() );
-
-    toneMap->setEnabled(false);
 	
     colorClear = Color3::white();
     //modelController = ThirdPersonManipulator::create();
@@ -91,8 +89,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
 
-    Lighting::Ref localLighting = toneMap->prepareLighting(lighting);
-    toneMap->setEnabled(false);
+    Lighting::Ref localLighting = lighting;
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(colorClear);

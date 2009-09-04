@@ -21,6 +21,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::TextInput::Settings::singleQuoteCharacter
      <li> G3D::parseCommaSeparated
      <li> demos/starter app uses Film
+     <li> 1024^2 skybox sky/noonclouds/noonclouds_*.jpg
      <li> G3D::GLCaps::firstSupportedTexture
      <li> G3D::GFont::draw3DBillboard
      <li> G3D::ShadowMap now supports NPOT textures

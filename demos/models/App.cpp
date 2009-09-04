@@ -28,6 +28,7 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         exit(-1);
     }
 
+    toneMap = ToneMap::create();
     toneMap->setEnabled(true);
 }
 

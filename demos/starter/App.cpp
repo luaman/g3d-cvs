@@ -47,7 +47,6 @@ void App::onInit() {
     developerWindow->videoRecordDialog->setEnabled(true);
     showRenderingStats = true;
 
-    m_lighting = defaultLighting();
     /////////////////////////////////////////////////////////////
     // Example of how to add debugging controls
     debugPane->addButton("Exit", this, &App::endProgram);
@@ -65,6 +64,8 @@ void App::onInit() {
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
     m_film->makeGui(debugPane);
+
+    m_scene = Scene::create();
 }
 
 
@@ -106,28 +107,27 @@ void App::onUserInput(UserInput* ui) {
 }
 
 
-void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-    (void)posed3D;
+void App::onPose(Array<SurfaceRef>& surfaceArray, Array<Surface2DRef>& posed2D) {
+    // Append any models to the arrays that you want to later be rendered by onGraphics()
+    m_scene->onPose(surfaceArray);
     (void)posed2D;
-    // Append any models to the array that you want rendered by onGraphics
 }
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
-    Draw::skyBox(rd, m_lighting->environmentMap);
+    Draw::skyBox(rd, m_scene->lighting()->environmentMap);
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    Surface::sortAndRender(rd, defaultCamera, posed3D, m_lighting);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, m_scene->lighting());
 
     // Sample immediate-mode rendering code
     rd->enableLighting();
-
-    for (int i = 0; i < m_lighting->lightArray.size(); ++i) {
-        rd->setLight(i, m_lighting->lightArray[i]);
+    for (int i = 0; i < m_scene->lighting()->lightArray.size(); ++i) {
+        rd->setLight(i, m_scene->lighting()->lightArray[i]);
     }
-    rd->setAmbientLightColor(m_lighting->ambientAverage());
+    rd->setAmbientLightColor(m_scene->lighting()->ambientAverage());
 
     Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
     Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());

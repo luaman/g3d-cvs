@@ -258,7 +258,6 @@ void App::onInit() {
     defaultCamera.setFieldOfView(toRadians(60), GCamera::HORIZONTAL);
     defaultCamera.setFarPlaneZ(-inf());
 
-    toneMap->setEnabled(false);
 }
 
 

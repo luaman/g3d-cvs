@@ -222,10 +222,11 @@ protected:
     /** Always bound to m_frameBuffer FrameBuffer::DEPTH. */
     Texture::Ref            m_depthBuffer;
 
-    /** Loads the default lighting environment, which depends on the plainsky/null_plainsky512_*.jpg textures.*/
-    static Lighting::Ref defaultLighting();
 
 public:
+    /** Creates a default lighting environment for demos, which uses the file
+    on the noonclouds/noonclouds_*.jpg textures.*/
+    static Lighting::Ref defaultLighting();
 
     /** Add your own debugging controls to this window.*/
     GuiWindow::Ref          debugWindow;

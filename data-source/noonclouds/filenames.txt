@@ -1,0 +1,10 @@
+Camera order:
+
+up
+bk
+lf
+ft
+rt
+dn
+
+Rotate up 90 CW

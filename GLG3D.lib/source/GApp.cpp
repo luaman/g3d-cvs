@@ -482,7 +482,7 @@ Lighting::Ref GApp::defaultLighting() {
     lighting->lightArray.append(GLight::directional(Vector3(1,1,1), Color3::white()));
     lighting->ambientTop    = Color3::white() * 0.2f;
     lighting->ambientBottom = Color3::white() * 0.1f;
-    lighting->environmentMap = Texture::fromFile(pathConcat(System::findDataFile("sky"), "plainsky/null_plainsky512_*.jpg"), TextureFormat::RGB8(),
+    lighting->environmentMap = Texture::fromFile(pathConcat(System::findDataFile("sky"), "noonclouds/noonclouds_*.jpg"), TextureFormat::RGB8(),
         Texture::DIM_CUBE_MAP, skySettings, Texture::PreProcess::gamma(2.2f));
     lighting->environmentMapColor = Color3::one();
 

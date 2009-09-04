@@ -11,11 +11,12 @@
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
 
-class App : public GApp {
-public:
-	// Sample scene
-    Lighting::Ref       m_lighting;
+#include "Scene.h"
 
+class App : public GApp {
+    Scene::Ref          m_scene;
+public:
+    
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
