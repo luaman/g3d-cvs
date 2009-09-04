@@ -82,7 +82,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
-    m_simTime(0) {
+    m_simTime(0),
+    m_useFilm(settings.film.enabled) {
 
     lastGApp = this;
 
@@ -208,6 +209,22 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_simTime     = 0;
     m_realTime    = 0;
     lastWaitTime  = System::time();
+
+    if (m_useFilm) {
+        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(settings.film.preferredColorFormats);
+        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
+
+        m_film = Film::create(colorFormat);
+        m_frameBuffer = FrameBuffer::create("GApp::m_frameBuffer");
+        
+        m_colorBuffer0 = Texture::createEmpty("GApp::m_colorBuffer0", renderDevice->width(), renderDevice->height(), 
+            colorFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1);
+        m_depthBuffer  = Texture::createEmpty("GApp::m_depthBuffer", m_colorBuffer0->width(), m_colorBuffer0->height(), 
+            depthFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1); 
+        
+        m_frameBuffer->set(FrameBuffer::COLOR0, m_colorBuffer0);
+        m_frameBuffer->set(FrameBuffer::DEPTH, m_depthBuffer);
+    }
 }
 
 
@@ -457,42 +474,70 @@ bool GApp::onEvent(const GEvent& event) {
     return false;
 }
 
+static Lighting::Ref GApp::defaultLighting() {
+    Lighting::Ref lighting = Lighting::create();
 
-void GApp::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posedArray, Array<Surface2DRef>& posed2DArray) {
-    Array<Surface::Ref>        opaque, transparent;
+    Texture::Settings skySettings;
+    skySettings.wrapMode = WrapMode::CLAMP;
+    skySettings.maxAnisotropy = 1.0f;
 
-    SkyParameters lighting(G3D::toSeconds(11, 00, 00, AM));
+    lighting->lightArray.append(GLight::directional(Vector3(1,1,1), Color3::white()));
+    lighting->ambientTop    = Color3::white() * 0.2f;
+    lighting->ambientBottom = Color3::white() * 0.1f;
+    lighting->environmentMap = Texture::fromFile(pathConcat(System::findDataFile("sky"), "plainsky/null_plainsky512_*.jpg"), TextureFormat::RGB8(),
+        Texture::DIM_CUBE_MAP, skySettings, Texture::PreProcess::gamma(2.2f));
+    lighting->environmentMapColor = Color3::one();
+
+    return lighting;
+}
+
+void GApp::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
+    alwaysAssertM(false, "Override onGraphics3D");
+    //Surface::sortAndRender(rd, defaultCamera, posed3D, m_lighting);
+    drawDebugShapes();
+}
+
+
+void GApp::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
+    Surface2D::sortAndRender(rd, posed2D);
+}
+
+
+void GApp::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
+
+    // Clear the entire screen (needed even though we'll render over it because
+    // AFR uses clear() to detect that the buffer is not re-used.)
+    rd->clear();
+
+    if (m_useFilm) {
+        // Clear the frameBuffer
+        rd->pushState(m_frameBuffer);
+        rd->clear();
+        if (m_colorBuffer0->format()->floatingPoint) {
+            // Float render targets don't support line smoothing
+            rd->setMinLineWidth(1);
+        }
+        renderDevice->setMinLineWidth(1);
+    } else {
+        rd->pushState();
+    }
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
-    rd->clear(true, true, true);
+    onGraphics3D(rd, posed3D);
 
-    rd->enableLighting();
-        rd->setLight(0, GLight::directional(lighting.lightDirection, lighting.lightColor));
-        rd->setAmbientLightColor(lighting.ambient);
-
-        // 3D
-        if (posedArray.size() > 0) {
-            Vector3 lookVector = renderDevice->cameraToWorldMatrix().lookVector();
-            Surface::sort(posedArray, lookVector, opaque, transparent);
-            
-            for (int i = 0; i < opaque.size(); ++i) {
-                opaque[i]->render(renderDevice);
-            }
-
-            for (int i = 0; i < transparent.size(); ++i) {
-                transparent[i]->render(renderDevice);
-            }
-        }
-    rd->disableLighting();
-
-    if (posed2DArray.size() > 0) {
-        renderDevice->push2D();
-            Surface2D::sort(posed2DArray);
-            for (int i = 0; i < posed2DArray.size(); ++i) {
-                posed2DArray[i]->render(renderDevice);
-            }
-        renderDevice->pop2D();
+    rd->popState();
+    if (m_useFilm) {
+        // Expose the film
+        m_film->exposeAndRender(rd, m_colorBuffer0, 1);
+        rd->setMinLineWidth(0);
     }
+
+    rd->push2D();
+    {
+        onGraphics2D(rd, posed2D);
+    }
+    rd->pop2D();
 }
 
 

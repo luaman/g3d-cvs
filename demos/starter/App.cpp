@@ -1,5 +1,6 @@
 /**
   @file App.cpp
+  TODO: shadows
  */
 #include "App.h"
 
@@ -16,9 +17,8 @@ int main(int argc, char** argv) {
     settings.window.height      = 600;
 
 #   ifdef G3D_WIN32
-        // On unix-like operating systems, icompile automatically
-        // copies data files.  On Windows, we just run from the data
-        // directory.
+        // On unix-like operating systems, icompile automatically copies data files.  
+        // On Windows, we just run from the data directory.
         if (fileExists("data-files")) {
             chdir("data-files");
         }
@@ -47,14 +47,7 @@ void App::onInit() {
     developerWindow->videoRecordDialog->setEnabled(true);
     showRenderingStats = true;
 
-    sky = Sky::fromFile(System::findDataFile("sky"));
-
-    skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
-    lighting = Lighting::fromSky(sky, skyParameters, Color3::white());
-
-    // This simple demo has no shadowing, so make all lights unshadowed
-    lighting->lightArray.append(lighting->shadowedLightArray);
-    lighting->shadowedLightArray.clear();
+    m_lighting = defaultLighting();
 
     toneMap->setEnabled(false);
 
@@ -73,6 +66,8 @@ void App::onInit() {
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
+
+    m_film->makeGui(debugPane);
 }
 
 
@@ -121,45 +116,33 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-    LightingRef   localLighting = toneMap->prepareLighting(lighting);
-    SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
-    
-    toneMap->beginFrame(rd);
-    rd->setProjectionAndCameraMatrix(defaultCamera);
-
-    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-    rd->clear(false, true, true);
-    sky->render(rd, localSky);
+void App::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
+    Draw::skyBox(rd, m_lighting->environmentMap);
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    Surface::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, m_lighting);
 
     // Sample immediate-mode rendering code
-    rd->pushState();
-        rd->enableLighting();
+    rd->enableLighting();
 
-        for (int i = 0; i < localLighting->lightArray.size(); ++i) {
-            rd->setLight(i, localLighting->lightArray[i]);
-        }
-        rd->setAmbientLightColor(localLighting->ambientAverage());
+    for (int i = 0; i < m_lighting->lightArray.size(); ++i) {
+        rd->setLight(i, m_lighting->lightArray[i]);
+    }
+    rd->setAmbientLightColor(m_lighting->ambientAverage());
 
-        Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
-        Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());
-        Draw::box(AABox(Vector3(-3.0f, -0.5f, -0.5f), Vector3(-2.0f, 0.5f, 0.5f)), rd, Color3::green());
+    Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
+    Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());
+    Draw::box(AABox(Vector3(-3.0f, -0.5f, -0.5f), Vector3(-2.0f, 0.5f, 0.5f)), rd, Color3::green());
 
-        // Call to make the GApp show the output of debugDraw
-        drawDebugShapes();
-    rd->popState();
+    // Call to make the GApp show the output of debugDraw
+    drawDebugShapes();
+}
 
-    // In G3D 8.xx it is recommended that you do NOT render lens flare, because it can substantially
-    // slow performance on multi-GPU systems due to the CPU depth readback.
-    //sky->renderLensFlare(rd, localSky);
-    toneMap->endFrame(rd);
 
-    // Render 2D objects like Widgets
+void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
+    // Render 2D objects like Widgets.  These do not recieve tone mapping or gamma correction
     Surface2D::sortAndRender(rd, posed2D);
 }
 

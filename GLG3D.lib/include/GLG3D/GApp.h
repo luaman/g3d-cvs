@@ -4,11 +4,11 @@
    @maintainer Morgan McGuire, morgan@cs.williams.edu
 
    @created 2003-11-03
-   @edited  2009-01-03
+   @edited  2009-09-03
 */
 
-#ifndef G3D_GAPP_H
-#define G3D_GAPP_H
+#ifndef G3D_GApp_h
+#define G3D_GApp_h
 
 #include "G3D/Stopwatch.h"
 #include "GLG3D/GFont.h"
@@ -22,6 +22,7 @@
 #include "GLG3D/DeveloperWindow.h"
 #include "G3D/GThread.h"
 #include "GLG3D/Shape.h"
+#include "GLG3D/Film.h"
 
 namespace G3D {
 
@@ -109,9 +110,31 @@ public:
             When true, GAapp ensures that g3d-license.txt exists in the current
             directory.  That file is written from the return value of G3D::license() */
         bool                    writeLicenseFile;
+
+        class FilmSettings {
+        public:
+            /** If true, allocate GApp::m_frameBuffer and use the m_film class when rendering.  
+                On older GPUs the Film class may add too much memory or processing overhead.
+                Defaults to true.*/
+            bool                        enabled;
+
+            /** Size of the film backbuffer. Set to -1, -1 to automatically size to the window.*/
+            Vector2int16                dimensions;
+
+            /** Formats to attempt to use for the Film, in order of decreasing preference */
+            Array<const ImageFormat*>   preferredColorFormats;
+            Array<const ImageFormat*>   preferredDepthFormats;
+
+            inline FilmSettings() : enabled(true), dimensions(-1, -1) {
+                preferredColorFormats.append(ImageFormat::RGB16F(), ImageFormat::RGBA8());
+                preferredDepthFormats.append(ImageFormat::DEPTH24(), ImageFormat::DEPTH16(), ImageFormat::DEPTH32());
+            }
+        };
+
+        FilmSettings            film;
         
-        Settings() : dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
-                     logFilename("log.txt"),useDeveloperTools(true), writeLicenseFile(true) {
+        inline Settings() : dataDir("<AUTO>"), debugFontName("console-small.fnt"), 
+                     logFilename("log.txt"), useDeveloperTools(true), writeLicenseFile(true) {
         }
     };
 
@@ -186,6 +209,23 @@ protected:
 
     static void staticConsoleCallback(const std::string& command, void* me);
 
+    /** If true, configure 3D rendering to use m_frameBuffer and m_film. */
+    const bool              m_useFilm;
+
+    Film::Ref               m_film;
+
+    /** Framebuffer used for rendering the 3D portion of the scene. */
+    Framebuffer::Ref        m_frameBuffer;
+
+    /** Always bound to m_frameBuffer FrameBuffer::COLOR0. */
+    Texture::Ref            m_colorBuffer0;
+
+    /** Always bound to m_frameBuffer FrameBuffer::DEPTH. */
+    Texture::Ref            m_depthBuffer;
+
+    /** Loads the default lighting environment, which depends on the plainsky/null_plainsky512_*.jpg textures.*/
+    static Lighting::Ref defaultLighting();
+
 public:
 
     /** Add your own debugging controls to this window.*/
@@ -194,8 +234,7 @@ public:
     GuiPane*                debugPane;
 
     void vscreenPrintf
-    (
-     const char*                 fmt,
+    (const char*                 fmt,
      va_list                     argPtr) G3D_CHECK_VPRINTF_METHOD_ARGS;;
 
     const Stopwatch& graphicsWatch() const {
@@ -512,13 +551,26 @@ protected:
     /**
        Rendering callback used to paint the screen.  Called automatically.
 
-       Override and implement.  The debugCamera's projection and
-       object to world matrices are set by default; you can set other
-       cameras as desired.  RenderDevice::beginFrame and endFrame are
-       called for you.
-    */
-    virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, 
-                            Array<Surface2D::Ref>& posed2D);
+       The default implementation calls onGraphics2D and onGraphics3D.
+       RenderDevice::beginFrame and endFrame are called for you before this 
+       is invoked.
+     */
+    virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& surface, 
+                            Array<Surface2D::Ref>& surface2D);
+
+    /**
+       Called from the default onGraphics.
+       
+       Override and implement. 
+   */
+    virtual void onGraphics2D(RenderDevice* rd, Array<Surface2D::Ref>& surface2D);
+
+    /**
+       Called from the default onGraphics.
+       
+       Override and implement. 
+   */
+    virtual void onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface);
 
     /** Called before onGraphics.  Append any models that you want
         rendered (you can also explicitly pose and render in your

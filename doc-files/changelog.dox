@@ -20,6 +20,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::glClipToBox, glDisableAllClipping
      <li> G3D::TextInput::Settings::singleQuoteCharacter
      <li> G3D::parseCommaSeparated
+     <li> G3D::GLCaps::firstSupportedTexture
      <li> G3D::GFont::draw3DBillboard
      <li> G3D::ShadowMap now supports NPOT textures
      <li> G3D::ShadowMap now supports separate front- and back-face polygon offsets
@@ -32,6 +33,8 @@ TODO: make bias a property of the shadow map
      <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
      <li> G3D::ThirdPersonManipulator now draws hidden lines
      <li> G3D::GBuffer
+     <li> G3D::RenderDevice::setMinLineWidth
+     <li> G3D::Draw::skyBox
      <li> G3D::SmallArray
      <li> G3D::Texture::whiteIfNull
      <li> G3D::Color3::isFinite
