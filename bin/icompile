@@ -783,13 +783,21 @@ def configureGpp(state):
 
     if (state.os == 'linux') or (state.os == 'freebsd'):
 
-        # LARGEFILE_SOURCE enables some newer interfaces for
-        # fopen that work with >2GB files
-        flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
-        state.compilerOptions += string.split(flags, ' ')
-
         state.compilerOptions += ['-D__cdecl=', '-D__stdcall=', '-D__fastcall=']
-        arch = ['-march=i686', '-mtune=nocona', '-msse3']
+
+
+        is64 = sys.maxint > 2147483647
+
+        arch = []
+        if not is64:
+            arch = ['-march=i686', '-mtune=nocona']
+
+            # LARGEFILE_SOURCE enables some newer interfaces for
+            # fopen that work with >2GB files
+            flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
+            state.compilerOptions += string.split(flags, ' ')
+
+        arch += ['-msse3']
         state.compilerOptions += arch
         state.linkerOptions   += arch
 
