@@ -63,6 +63,8 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
+    m_shadowMap = ShadowMap::create();
+
     m_film->makeGui(debugPane);
 
     m_scene = Scene::create();
@@ -120,7 +122,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    Surface::sortAndRender(rd, defaultCamera, posed3D, m_scene->lighting());
+    Surface::sortAndRender(rd, defaultCamera, posed3D, m_scene->lighting(), m_shadowMap);
 
     // Sample immediate-mode rendering code
     rd->enableLighting();
@@ -130,8 +132,9 @@ void App::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
     rd->setAmbientLightColor(m_scene->lighting()->ambientAverage());
 
     Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
-    Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());
-    Draw::box(AABox(Vector3(-3.0f, -0.5f, -0.5f), Vector3(-2.0f, 0.5f, 0.5f)), rd, Color3::green());
+    Draw::sphere(Sphere(Vector3(2.5f, 0.5f, 0), 0.5f), rd, Color3::white(), Color4::clear());
+    Draw::box(AABox(Vector3(-2.0f, 0.0f, -0.5f), Vector3(-1.0f, 1.0f, 0.5f)), rd, Color4(Color3::orange(), 0.25f),
+              Color3::black());
 
     // Call to make the GApp show the output of debugDraw
     drawDebugShapes();

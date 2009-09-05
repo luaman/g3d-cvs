@@ -479,11 +479,14 @@ Lighting::Ref GApp::defaultLighting() {
     skySettings.wrapMode = WrapMode::CLAMP;
     skySettings.maxAnisotropy = 1.0f;
 
-    lighting->lightArray.append(GLight::directional(Vector3(1,1,1), Color3::white()));
-    lighting->ambientTop    = Color3::white() * 0.2f;
-    lighting->ambientBottom = Color3::white() * 0.1f;
-    lighting->environmentMap = Texture::fromFile(pathConcat(System::findDataFile("sky"), "noonclouds/noonclouds_*.jpg"), TextureFormat::RGB8(),
-        Texture::DIM_CUBE_MAP, skySettings, Texture::PreProcess::gamma(2.2f));
+    lighting->shadowedLightArray.append(GLight::directional(Vector3(1,2,1), Color3::fromARGB(0xfcf6eb)));
+    lighting->lightArray.append(GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d)));
+    lighting->ambientTop    = Color3::fromARGB(0x303842);
+    lighting->ambientBottom = Color3::fromARGB(0x262627);
+    lighting->environmentMap = 
+        Texture::fromFile(pathConcat(System::findDataFile("sky"), "noonclouds/noonclouds_*.jpg"), 
+                          TextureFormat::RGB8(), Texture::DIM_CUBE_MAP, skySettings, 
+                          Texture::PreProcess::gamma(2.2f));
     lighting->environmentMapColor = Color3::one();
 
     return lighting;

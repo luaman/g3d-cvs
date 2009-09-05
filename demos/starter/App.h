@@ -15,6 +15,9 @@
 
 class App : public GApp {
     Scene::Ref          m_scene;
+    
+    ShadowMap::Ref      m_shadowMap;
+
 public:
     
     App(const GApp::Settings& settings = GApp::Settings());
