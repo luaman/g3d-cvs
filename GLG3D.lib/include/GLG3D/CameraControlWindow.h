@@ -19,6 +19,7 @@
 #include "GLG3D/GuiTextBox.h"
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/FirstPersonManipulator.h"
+#include "GLG3D/Film.h"
 
 namespace G3D {
 
@@ -121,7 +122,8 @@ protected:
         const FirstPersonManipulatorRef&    manualManipulator, 
         const UprightSplineManipulatorRef&  trackManipulator, 
         const Pointer<Manipulator::Ref>&    cameraManipulator,
-        const GuiThemeRef&                   skin);
+        const Film::Ref&                    film,
+        const GuiThemeRef&                  skin);
 
     /** Sets the controller for the cameraManipulator. */
     //void setSource(Source s);
@@ -184,7 +186,8 @@ public:
         const FirstPersonManipulatorRef&   manualManipulator,
         const UprightSplineManipulatorRef& trackManipulator,
         const Pointer<Manipulator::Ref>&   cameraManipulator,
-        const GuiThemeRef&                  skin);
+        const Film::Ref&                   film,
+        const GuiThemeRef&                 skin);
 
     virtual bool onEvent(const GEvent& event);
     virtual void onUserInput(UserInput*);

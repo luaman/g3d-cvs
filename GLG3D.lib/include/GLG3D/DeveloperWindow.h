@@ -19,6 +19,7 @@
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/CameraControlWindow.h"
 #include "GLG3D/VideoRecordDialog.h"
+#include "GLG3D/Film.h"
 
 namespace G3D {
 /**
@@ -33,6 +34,7 @@ protected:
      const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
+     const Film::Ref&                   film,
      const GuiThemeRef&                 theme,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,
@@ -52,6 +54,7 @@ public:
      const FirstPersonManipulatorRef&   manualManipulator,
      const UprightSplineManipulatorRef& trackManipulator,
      const Pointer<Manipulator::Ref>&   cameraManipulator,
+     const Film::Ref&                   film,
      const GuiThemeRef&                 theme,
      GConsoleRef                        console,
      const Pointer<bool>&               debugVisible,

@@ -99,7 +99,8 @@ void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
     }
 }
 
-RenderDevice::RenderDevice() : _window(NULL), deleteWindow(false), inRawOpenGL(false), inIndexedPrimitive(false), _minLineWidth(0) {
+RenderDevice::RenderDevice() :
+    _window(NULL), deleteWindow(false), inRawOpenGL(false), _minLineWidth(0), inIndexedPrimitive(false) {
     _initialized = false;
     cleanedup = false;
     inPrimitive = false;

@@ -170,6 +170,22 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
         addWidget(console);
     }
 
+    if (m_useFilm) {
+        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(settings.film.preferredColorFormats);
+        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
+
+        m_film = Film::create(colorFormat);
+        m_frameBuffer = FrameBuffer::create("GApp::m_frameBuffer");
+        
+        m_colorBuffer0 = Texture::createEmpty("GApp::m_colorBuffer0", renderDevice->width(), renderDevice->height(), 
+            colorFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1);
+        m_depthBuffer  = Texture::createEmpty("GApp::m_depthBuffer", m_colorBuffer0->width(), m_colorBuffer0->height(), 
+            depthFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1); 
+        
+        m_frameBuffer->set(FrameBuffer::COLOR0, m_colorBuffer0);
+        m_frameBuffer->set(FrameBuffer::DEPTH, m_depthBuffer);
+    }
+
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
     defaultController->setActive(true);
 
@@ -191,6 +207,7 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
              defaultController, 
              splineManipulator,
              Pointer<Manipulator::Ref>(this, &GApp::cameraManipulator, &GApp::setCameraManipulator), 
+             m_film,
              skin,
              console,
              Pointer<bool>(debugWindow, &GuiWindow::visible, &GuiWindow::setVisible),
@@ -208,21 +225,6 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_realTime    = 0;
     lastWaitTime  = System::time();
 
-    if (m_useFilm) {
-        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(settings.film.preferredColorFormats);
-        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
-
-        m_film = Film::create(colorFormat);
-        m_frameBuffer = FrameBuffer::create("GApp::m_frameBuffer");
-        
-        m_colorBuffer0 = Texture::createEmpty("GApp::m_colorBuffer0", renderDevice->width(), renderDevice->height(), 
-            colorFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1);
-        m_depthBuffer  = Texture::createEmpty("GApp::m_depthBuffer", m_colorBuffer0->width(), m_colorBuffer0->height(), 
-            depthFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1); 
-        
-        m_frameBuffer->set(FrameBuffer::COLOR0, m_colorBuffer0);
-        m_frameBuffer->set(FrameBuffer::DEPTH, m_depthBuffer);
-    }
 }
 
 

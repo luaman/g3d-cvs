@@ -548,10 +548,48 @@ protected:
 
     /**
        Rendering callback used to paint the screen.  Called automatically.
-
-       The default implementation calls onGraphics2D and onGraphics3D.
        RenderDevice::beginFrame and endFrame are called for you before this 
        is invoked.
+
+       The default implementation calls onGraphics2D and onGraphics3D as follows:
+<pre>
+void GApp::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
+
+    // Clear the entire screen (needed even though we'll render over it because
+    // AFR uses clear() to detect that the buffer is not re-used.)
+    rd->clear();
+
+    if (m_useFilm) {
+        // Clear the frameBuffer
+        rd->pushState(m_frameBuffer);
+        rd->clear();
+        if (m_colorBuffer0->format()->floatingPoint) {
+            // Float render targets don't support line smoothing
+            rd->setMinLineWidth(1);
+        }
+        renderDevice->setMinLineWidth(1);
+    } else {
+        rd->pushState();
+    }
+
+    rd->setProjectionAndCameraMatrix(defaultCamera);
+    onGraphics3D(rd, posed3D);
+
+    rd->popState();
+    if (m_useFilm) {
+        // Expose the film
+        m_film->exposeAndRender(rd, m_colorBuffer0, 1);
+        rd->setMinLineWidth(0);
+    }
+
+    rd->push2D();
+    {
+        onGraphics2D(rd, posed2D);
+    }
+    rd->pop2D();
+}
+</pre>
      */
     virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& surface, 
                             Array<Surface2D::Ref>& surface2D);

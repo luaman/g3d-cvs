@@ -18,8 +18,9 @@
 
 namespace G3D {
 
+enum {FILM_PANE_SIZE = 60};
 const Vector2 CameraControlWindow::smallSize(286 + 16, 48);
-const Vector2 CameraControlWindow::bigSize(286 + 16, 157);
+const Vector2 CameraControlWindow::bigSize(286 + 16, 157 + FILM_PANE_SIZE);
 
 static const std::string noSpline = "< None >";
 static const std::string untitled = "< Unsaved >";
@@ -130,6 +131,7 @@ CameraControlWindow::CameraControlWindow(
     const FirstPersonManipulatorRef&      manualManipulator, 
     const UprightSplineManipulatorRef&    trackManipulator, 
     const Pointer<Manipulator::Ref>&      cameraManipulator,
+    const Film::Ref&                      film,
     const GuiThemeRef&                    skin) : 
     GuiWindow("Camera Control", 
               skin, 
@@ -192,6 +194,35 @@ CameraControlWindow::CameraControlWindow(
     GuiButton* copyButton = pane->addButton(GuiText(CLIPBOARD, iconFont, 16), GuiControl::Callback(this, &CameraControlWindow::copyToClipboard), GuiTheme::TOOL_BUTTON_STYLE);
     copyButton->setSize(w, h);
 
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    GuiPane* filmPane = pane->addPane();
+    filmPane->moveBy(-8, 0);
+    {
+        GuiNumberBox<float>* gamma = NULL;
+        GuiNumberBox<float>* exposure = NULL;
+        float maxExposure = 10.0f;
+        if (film.notNull()) {
+            gamma = filmPane->addNumberBox("Gamma", Pointer<float>(film, &Film::gamma, &Film::setGamma), 
+                                           "", GuiTheme::LOG_SLIDER, 0.5f, 7.0f, 0.001f);
+            gamma->moveBy(0, 3);
+            exposure = filmPane->addNumberBox("Exposure",      
+                                              Pointer<float>(film, &Film::exposure, &Film::setExposure), 
+                                              "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
+        } else {
+            static float g = 1.0f;
+            static float e = 1.0f;
+            gamma = filmPane->addNumberBox("Gamma", &g, "", GuiTheme::LOG_SLIDER, 0.5f, 7.0f, 0.001f);
+            gamma->moveBy(0, 3);
+            exposure = filmPane->addNumberBox("Exposure", &e, 
+                                              "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
+            gamma->setEnabled(false);
+            exposure->setEnabled(false);            
+        }
+        gamma->setWidth(290);
+        exposure->setWidth(290);
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////
 
     GuiPane* manualPane = pane->addPane();
     manualPane->moveBy(-8, 0);
@@ -299,13 +330,15 @@ CameraControlWindow::CameraControlWindow(
     sync();
 }
 
+
 CameraControlWindow::Ref CameraControlWindow::create(
     const FirstPersonManipulatorRef&   manualManipulator,
     const UprightSplineManipulatorRef& trackManipulator,
     const Pointer<Manipulator::Ref>&   cameraManipulator,
-    const GuiThemeRef&                  skin) {
+    const Film::Ref&                   film,
+    const GuiThemeRef&                 skin) {
 
-    return new CameraControlWindow(manualManipulator, trackManipulator, cameraManipulator, skin);
+    return new CameraControlWindow(manualManipulator, trackManipulator, cameraManipulator, film, skin);
 }
 
 
