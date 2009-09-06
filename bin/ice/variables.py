@@ -351,6 +351,7 @@ class State:
         self.usesLibrariesList = []
         self.compilerVerboseOptions = []
         self.numProcessors = cpuCount()
+        self.args = []
 
     # path is either a string or a list of paths
     # Paths are only added if they exist.

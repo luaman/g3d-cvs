@@ -259,15 +259,16 @@ def _processDotICompile(state, config):
 
 """ Process the project file and .icompile so that we can use configGet.
     Sets a handful of variables."""
-def processProjectFile(state):
+def processProjectFile(state, ignoreIceTxt = False):
 
     config = ConfigParser.SafeConfigParser()
     _processDotICompile(state, config)
 
-    # Process the project file
-    projectFile = 'ice.txt'
-    if verbosity >= TRACE: print 'Processing ' + projectFile
-    config.read(projectFile)
+    if not ignoreIceTxt:
+        # Process the project file
+        projectFile = 'ice.txt'
+        if verbosity >= TRACE: print 'Processing ' + projectFile
+        config.read(projectFile)
 
     # Don't expand '$' envvar in regular expressions since
     # $ means end of pattern.
@@ -382,7 +383,6 @@ def getConfigurationState(args):
     else:
         state.target          = DEBUG
         d                     = 'd'
-
 
     # Find an icompile project file.  If there isn't one, give the
     # user the opportunity to create one or abort.
