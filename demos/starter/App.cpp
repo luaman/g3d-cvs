@@ -65,8 +65,6 @@ void App::onInit() {
 
     m_shadowMap = ShadowMap::create();
 
-    m_film->makeGui(debugPane);
-
     m_scene = Scene::create();
 }
 
