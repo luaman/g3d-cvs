@@ -289,6 +289,8 @@ private:
 
 public:
 
+    typedef ReferenceCountedPointer<ThirdPersonManipulator> Ref;
+
     void render(RenderDevice* rd);
 
 

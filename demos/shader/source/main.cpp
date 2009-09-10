@@ -101,6 +101,7 @@ void App::makeColorList(GFontRef iconFont) {
     colorList.append(GuiText(block, iconFont, size, Color3::white(), Color4::clear()));
 }
 
+
 void App::makeGui() {
     GuiThemeRef skin = GuiTheme::fromFile(System::findDataFile("osx.skn"), debugFont);
     GuiWindow::Ref gui = GuiWindow::create("Material Parameters", skin);
