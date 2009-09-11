@@ -8,7 +8,8 @@
  */
 
 #include "G3D/g3dmath.h"
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
 
 namespace G3D {
 
