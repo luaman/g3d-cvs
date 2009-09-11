@@ -2,14 +2,14 @@
  @file GLG3D/GuiCheckBox.h
 
  @created 2006-05-01
- @edited  2008-02-01
+ @edited  2009-09-01
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GUICHECKBOX_H
-#define G3D_GUICHECKBOX_H
+#ifndef G3D_GuiCheckBox_h
+#define G3D_GuiCheckBox_h
 
 #include "GLG3D/GuiControl.h"
 #include "G3D/Pointer.h"
@@ -32,16 +32,18 @@ protected:
 
     Pointer<bool>            m_value;
     GuiTheme::CheckBoxStyle  m_style;
-    
+
+public:    
+    /** Called by GuiContainer.  See GuiPane::addCheckBox */
     GuiCheckBox(GuiContainer* parent, const GuiText& text, const Pointer<bool>& value, GuiTheme::CheckBoxStyle style = GuiTheme::NORMAL_CHECK_BOX_STYLE);
 
+    /** Called by GuiContainer.*/
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
-    /** Delivers events when this control is clicked on and when it has the key focus. */
+    /** Called by GuiContainer. Delivers events when this control is clicked on and when it has the key focus. */
     virtual bool onEvent(const GEvent& event);
 
-public:
-
+    /** True if this is a tool button */
     virtual bool toolStyle() const { 
         return m_style == GuiTheme::TOOL_CHECK_BOX_STYLE;
     }

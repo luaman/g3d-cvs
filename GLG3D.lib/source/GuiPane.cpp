@@ -82,27 +82,6 @@ Vector2 GuiPane::nextControlPos(bool isTool) const {
 }
 
 
-void GuiPane::increaseBounds(const Vector2& extent) {
-    if ((m_clientRect.width() < extent.x) || (m_clientRect.height() < extent.y)) {
-        // Create the new client rect
-        Rect2D newRect = Rect2D::xywh(Vector2(0,0), extent.max(m_clientRect.wh()));
-
-        // Transform the client rect into an absolute rect
-        if (m_style != GuiTheme::NO_PANE_STYLE) {
-            newRect = theme()->clientToPaneBounds(newRect, GuiTheme::PaneStyle(m_style));
-        }
-
-        // The new window has the old position and the new width
-        setRect(Rect2D::xywh(m_rect.x0y0(), newRect.wh()));
-
-        if (m_parent != NULL) {
-            dynamic_cast<GuiPane*>(m_parent)->increaseBounds(m_rect.x1y1());
-        } else {
-            m_gui->increaseBounds(m_rect.x1y1());
-        }
-    }
-}
-
 void GuiPane::pack() {
     setSize(0, 0);
     for (int i = 0; i < containerArray.size(); ++i) {
@@ -199,14 +178,23 @@ GuiCheckBox* GuiPane::addCheckBox
 }
 
 
-void GuiPane::addCustom(GuiControl* c) {
+GuiControl* GuiPane::addCustom(GuiControl* c) {
     c->setPosition(nextControlPos(c->toolStyle()));
-    controlArray.append(c);
+
+    GuiContainer* container = dynamic_cast<GuiContainer*>(c);
+    if (container) {
+        containerArray.append(container);
+    } else {
+        controlArray.append(c);
+    }
+
+    increaseBounds(c->rect().x1y1());
+    return c;
 }
 
 
 GuiButton* GuiPane::addButton(const GuiText& text, GuiTheme::ButtonStyle style) {
-	return addButton(text, GuiButton::Callback(), style);
+    return addButton(text, GuiButton::Callback(), style);
 }
 
 

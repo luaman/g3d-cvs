@@ -62,7 +62,7 @@ void GuiDropDownList::showMenu() {
     Vector2 clickOffset = clickRect.x0y0() - rect().x0y0();
     Vector2 menuOffset(10, clickRect.height() + 10);
 
-    menu()->show(m_gui->manager(), window(), this, toGWindowCoords(clickOffset + menuOffset));
+    menu()->show(m_gui->manager(), window(), this, toOSWindowCoords(clickOffset + menuOffset));
 }
 
 

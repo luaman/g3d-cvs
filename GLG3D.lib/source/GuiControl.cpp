@@ -36,8 +36,12 @@ GuiWindow* GuiControl::window() const {
     */
 }
 
-    
-Vector2 GuiControl::toGWindowCoords(const Vector2& v) const {
+Vector2 GuiControl::fromOSWindowCoords(const Vector2& v) const {
+    Vector2 xform = toOSWindowCoords(Vector2(0, 0));
+    return v - xform;
+}
+
+Vector2 GuiControl::toOSWindowCoords(const Vector2& v) const {
 
     Vector2 result = v + m_rect.x0y0();
 

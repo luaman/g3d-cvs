@@ -67,20 +67,18 @@ protected:
     Array<GuiLabel*>    labelArray;
 
     GuiPane(GuiWindow* gui, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style);
+public:
+
+    /** For use by GuiContainers.  \sa GuiPane::addPane, GuiWindow::pane */
     GuiPane(GuiContainer* parent, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style);
 
+private:
     /**
        Called from constructors.
      */
     void init(const Rect2D& rect);
 
     virtual bool onEvent(const GEvent& event) { (void)event; return false; }
-
-    /** Updates this pane to ensure that its client rect is least as wide and
-        high as the specified extent, then recursively calls
-        increaseBounds on its parent.
-     */
-    void increaseBounds(const Vector2& extent);
 
     /** Finds the next vertical position for a control relative to the client rect. */
     Vector2 nextControlPos(bool isTool = false) const;
@@ -140,7 +138,7 @@ public:
        should not be a subclass of GuiPane.  Do not add a standard
        (e.g., G3D::GuiButton, G3D::GuiPane) control using this method.
      */
-    void addCustom(GuiControl* control);
+    GuiControl* addCustom(GuiControl* control);
 
     /** 
         If the text is "", no space is reserved for a caption.  If non-empty (even " "), then

@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2007-06-01
-  @edited  2008-07-14
+  @edited  2009-09-14
 */
 #include "G3D/platform.h"
 #include "G3D/GCamera.h"
@@ -19,8 +19,8 @@
 namespace G3D {
 
 enum {FILM_PANE_SIZE = 60};
-const Vector2 CameraControlWindow::smallSize(286 + 16, 48);
-const Vector2 CameraControlWindow::bigSize(286 + 16, 157 + FILM_PANE_SIZE);
+const Vector2 CameraControlWindow::smallSize(286 + 16, 46);
+const Vector2 CameraControlWindow::bigSize(286 + 16, 155 + FILM_PANE_SIZE);
 
 static const std::string noSpline = "< None >";
 static const std::string untitled = "< Unsaved >";
@@ -146,7 +146,7 @@ CameraControlWindow::CameraControlWindow(
     drawerButton(NULL),
     drawerButtonPane(NULL),
     m_expanded(false)
-    {
+{
 
     manualOperation = manualManipulator->active();
 
@@ -197,7 +197,7 @@ CameraControlWindow::CameraControlWindow(
     /////////////////////////////////////////////////////////////////////////////////////////
 
     GuiPane* filmPane = pane->addPane();
-    filmPane->moveBy(-8, 0);
+    filmPane->moveBy(-9, 0);
     {
         GuiNumberBox<float>* gamma = NULL;
         GuiNumberBox<float>* exposure = NULL;
@@ -205,7 +205,7 @@ CameraControlWindow::CameraControlWindow(
         if (film.notNull()) {
             gamma = filmPane->addNumberBox("Gamma", Pointer<float>(film, &Film::gamma, &Film::setGamma), 
                                            "", GuiTheme::LOG_SLIDER, 0.5f, 7.0f, 0.001f);
-            gamma->moveBy(0, 3);
+            gamma->moveBy(0, 2);
             exposure = filmPane->addNumberBox("Exposure",      
                                               Pointer<float>(film, &Film::exposure, &Film::setExposure), 
                                               "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
@@ -213,7 +213,7 @@ CameraControlWindow::CameraControlWindow(
             static float g = 1.0f;
             static float e = 1.0f;
             gamma = filmPane->addNumberBox("Gamma", &g, "", GuiTheme::LOG_SLIDER, 0.5f, 7.0f, 0.001f);
-            gamma->moveBy(0, 3);
+            gamma->moveBy(0, 2);
             exposure = filmPane->addNumberBox("Exposure", &e, 
                                               "", GuiTheme::LOG_SLIDER, 0.001f, maxExposure);
             gamma->setEnabled(false);
@@ -298,6 +298,7 @@ CameraControlWindow::CameraControlWindow(
     helpLabel->moveBy(0, 2);
 
     manualPane->pack();
+    filmPane->setWidth(manualPane->rect().width());
     pack();
     // Set the width here so that the client rect is correct below
     setRect(Rect2D::xywh(rect().x0y0(), bigSize));
@@ -313,8 +314,8 @@ CameraControlWindow::CameraControlWindow(
     drawerExpandCaption = GuiText("6", iconFont);
     drawerButtonPane = pane->addPane("", GuiTheme::NO_PANE_STYLE);
     drawerButton = drawerButtonPane->addButton(drawerExpandCaption, GuiTheme::TOOL_BUTTON_STYLE);
-    drawerButton->setRect(Rect2D::xywh(0, 0, 12, 12));
-    drawerButtonPane->setSize(12, 12);
+    drawerButton->setRect(Rect2D::xywh(0, 0, 12, 10));
+    drawerButtonPane->setSize(12, 10);
     
     // Resize the pane to include the drawer button so that it is not clipped
     pane->setSize(clientRect().wh());
@@ -430,7 +431,7 @@ void CameraControlWindow::showBookmarkList() {
     if (m_bookmarkName.size() > 0) {
         m_menu = GuiMenu::create(theme(), &m_bookmarkName, &m_bookmarkSelection);
         manager()->add(m_menu);
-        m_menu->show(manager(), this, NULL, cameraLocationTextBox->toGWindowCoords(cameraLocationTextBox->clickRect().x0y1() + Vector2(45, 8)), false);
+        m_menu->show(manager(), this, NULL, cameraLocationTextBox->toOSWindowCoords(cameraLocationTextBox->clickRect().x0y1() + Vector2(45, 8)), false);
     }
 }
 
@@ -546,9 +547,8 @@ CoordinateFrame CameraControlWindow::bookmark
 void CameraControlWindow::setRect(const Rect2D& r) {
     GuiWindow::setRect(r);
     if (drawerButtonPane) {
-        float s = 12;
         const Rect2D& r = clientRect();
-        drawerButtonPane->setPosition((r.width() - s) / 2.0f, r.height() - s);
+        drawerButtonPane->setPosition((r.width() - drawerButtonPane->rect().width()) / 2.0f, r.height() - drawerButtonPane->rect().height());
     }
 }
 

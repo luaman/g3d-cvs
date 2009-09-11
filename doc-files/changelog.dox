@@ -79,6 +79,9 @@ TODO: make bias a property of the shadow map
      <li> G3D::Win32Window now generates G3D::GEventType::MOUSE_BUTTON_CLICK events
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
+     <li> G3D::GuiControl::fromOSWindowCoords
+     <li> G3D::GuiControl::increaseBounds
+     <li> G3D::GuiControl::toGWindowCoords -> G3D::GuiControl::toOSWindowCoords
      <li> Removed most static global variables to control order of intialization
      <li> Made empty G3D::Table default to zero allocation
      <li> Multithreaded G3D::ArticulatedModel loading
@@ -124,6 +127,7 @@ TODO: make bias a property of the shadow map
      <li> Fix: fileExists("") now returns false 
      <li> Fix: ArticulatedModel, Surface, and SuperShader now support both left- and right-handed tangent spaces
      <li> Fix: GImage now saves 1-channel TGA files as RGB (used to crash)
+     <li> Fix: Custom Gui controls can now be GuiContainers as well
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

@@ -50,8 +50,13 @@ public:
         return m_clientRect;
     }
 
-
     virtual void setRect(const Rect2D& rect);
+
+    /** Updates this container to ensure that its client rect is least as wide and
+        high as the specified extent, then recursively calls
+        increaseBounds on its parent.  Used during automatic layout sizing.  */
+    virtual void increaseBounds(const Vector2& extent);
+
 };
 
 }

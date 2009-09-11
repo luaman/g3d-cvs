@@ -2,14 +2,14 @@
  @file GLG3D/GuiControl.h
 
  @created 2006-05-01
- @edited  2008-07-08
+ @edited  2009-09-08
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef GUICONTROL_H
-#define GUICONTROL_H
+#ifndef G3D_GuiControl_h
+#define G3D_GuiControl_h
 
 #include <string>
 #include "GLG3D/GuiTheme.h"
@@ -277,12 +277,15 @@ public:
         return m_clickRect;
     }
 
-    /** Returns the coordinates of v, which is in the coordinate system of this object,
+    /** Returns the coordinates of \a v, which is in the coordinate system of this object,
        relative to the OSWindow on which it will be rendered. */
-    Vector2 toGWindowCoords(const Vector2& v) const;
+    Vector2 toOSWindowCoords(const Vector2& v) const;
 
-    Rect2D toGWindowCoords(const Rect2D& r) const {
-        return Rect2D::xywh(toGWindowCoords(r.x0y0()), r.wh());
+    /** Transforms \a v from OS window coordinates to this control's coordinates */
+    Vector2 fromOSWindowCoords(const Vector2& v) const;
+
+    Rect2D toOSWindowCoords(const Rect2D& r) const {
+        return Rect2D::xywh(toOSWindowCoords(r.x0y0()), r.wh());
     }
 protected:
 

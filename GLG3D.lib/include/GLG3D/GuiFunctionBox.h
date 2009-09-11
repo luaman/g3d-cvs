@@ -7,8 +7,8 @@
   @edited  2008-07-10
  */
 
-#ifndef G3D_GUIFUNCTIONBOX
-#define G3D_GUIFUNCTIONBOX
+#ifndef G3D_GuiFunctionBox_h
+#define G3D_GuiFunctionBox_h
 
 #include "G3D/Spline.h"
 #include "G3D/Vector2.h"

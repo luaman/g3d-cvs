@@ -37,19 +37,20 @@ protected:
     /** Is the mouse currently down over this control? */
     bool                    m_down;
 
-	Callback				m_callback;
+    Callback                m_callback;
 
     GuiTheme::ButtonStyle   m_style;
 
-    /** Called by GuiPane */
+public:
+
+    /** Called by GuiContainers. See GuiPane::addButton instead. */
     GuiButton(GuiContainer*, const Callback& callback, const GuiText& text, GuiTheme::ButtonStyle style);
 
-    /** Called by GuiWindow */
+    /** Called by GuiContainers */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;
 
+    /** Called by GuiContainers */
     virtual bool onEvent(const GEvent& event);
-    
-public:
 
     virtual bool toolStyle() const { 
         return m_style == GuiTheme::TOOL_BUTTON_STYLE;

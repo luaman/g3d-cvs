@@ -26,7 +26,7 @@ namespace G3D {
 // forward declare heavily dependent classes
 class RenderDevice;
 class GuiPane;
-
+class GuiContainer;
 
 class GuiDrawer {
 private:
@@ -100,6 +100,7 @@ class GuiWindow : public Widget {
     friend class GuiButton;
     friend class GuiRadioButton;
     friend class _GuiSliderBase;
+    friend class GuiContainer;
     friend class GuiPane;
     friend class GuiTextBox;
     friend class GuiDropDownList;
