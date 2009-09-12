@@ -16,10 +16,11 @@
 #include "GLG3D/GuiContainer.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/GuiText.h"
-#include "GLG3D/GuiButton.h"
-#include "GLG3D/GuiPane.h"
 
 namespace G3D {
+
+class GuiPane;
+class GuiButton;
 
 class GuiTextureBox : public GuiContainer {
 public:

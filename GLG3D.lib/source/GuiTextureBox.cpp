@@ -11,6 +11,8 @@
 
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/RenderDevice.h"
+#include "GLG3D/GuiButton.h"
+#include "GLG3D/GuiPane.h"
 #include "GLG3D/Draw.h"
 
 namespace G3D {

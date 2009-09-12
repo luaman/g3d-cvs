@@ -29,6 +29,7 @@
 #include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/GuiDropDownList.h"
 #include "GLG3D/GuiFunctionBox.h"
+#include "GLG3D/GuiTextureBox.h"
 
 namespace G3D {
 
@@ -145,6 +146,10 @@ public:
         space is reserved and the caption may later be changed.
      */
     GuiPane* addPane(const GuiText& text = "", GuiTheme::PaneStyle style = GuiTheme::SIMPLE_PANE_STYLE);
+
+    GuiTextureBox* addTextureBox(const GuiText& caption = "",
+                                 const Texture::Ref& t = NULL,
+                                 const GuiTextureBox::Settings&  s = GuiTextureBox::Settings());
 
     /**
        <pre>

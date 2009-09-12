@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
- @edited  2008-07-08
+ @edited  2009-09-11
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiPane.h"
@@ -108,6 +108,14 @@ void GuiPane::setRect(const Rect2D& rect) {
 GuiPane::~GuiPane() {
     controlArray.deleteAll();
     labelArray.deleteAll();
+}
+
+
+GuiTextureBox* GuiPane::addTextureBox
+(const GuiText& caption,
+ const Texture::Ref& t,
+ const GuiTextureBox::Settings& s) {
+    return addControl(new GuiTextureBox(this, caption, t, s));
 }
 
 
