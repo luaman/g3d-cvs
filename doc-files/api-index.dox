@@ -64,6 +64,7 @@ href="classes.html">Classes</a>.
     \link G3D::GuiTheme GuiTheme\endlink,
     \link G3D::GuiSlider GuiSlider\endlink,
     \link G3D::GuiTextBox GuiTextBox\endlink,
+    \link G3D::GuiTextureBox GuiTextureBox\endlink,
     \link G3D::GuiWindow GuiWindow\endlink,
     \link G3D::OSWindow OSWindow\endlink,
     \link G3D::Manipulator Manipulator\endlink,

@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2009-04-25
+ @edited  2009-09-11
 
  Copyright 2001-2009, Morgan McGuire.
  All rights reserved.
@@ -109,6 +109,7 @@
 #include "GLG3D/GuiDropDownList.h"
 #include "GLG3D/GuiNumberBox.h"
 #include "GLG3D/GuiFunctionBox.h"
+#include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/FileDialog.h"
 
 #include "GLG3D/BackgroundWidget.h"

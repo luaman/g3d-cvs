@@ -79,6 +79,7 @@ TODO: make bias a property of the shadow map
      <li> G3D::Win32Window now generates G3D::GEventType::MOUSE_BUTTON_CLICK events
      <li> G3D::CoherentAllocator
      <li> G3D::Sphere::merge
+     <li> G3D::GuiTextureBox
      <li> G3D::GuiControl::fromOSWindowCoords
      <li> G3D::GuiControl::increaseBounds
      <li> G3D::GuiControl::toGWindowCoords -> G3D::GuiControl::toOSWindowCoords
