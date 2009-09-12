@@ -8,10 +8,6 @@
    functionality will be supported until (at least) the next major
    release.
 
-TODO: 
-configure a sane cube map convention off the +x/-x versions
-   debug why flipX isn't having any impact
-
 <hr>
    <p>
    Changes in 8.00:
@@ -42,6 +38,7 @@ configure a sane cube map convention off the +x/-x versions
      <li> G3D::SmallArray
      <li> G3D::Texture::whiteIfNull
      <li> G3D::Color3::isFinite
+     <li> Added 10 new high resolution environment maps to the data repository
      <li> Fixed all level-4 warnings in headers --- developer code can now compile with the highest warning level
      <li> G3D::Table::getCreate, getCreateEntry
      <li> G3D::MemoryManager, G3D::CRTMemoryManager
