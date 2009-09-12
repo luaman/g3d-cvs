@@ -379,8 +379,8 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                 Vector2 pos = m_clipBounds.x0y0() + Vector2(4, 1);
                 const float lineSpacing = 0.8f;
 
-                // Display coords and value
-                {
+                // Display coords and value when the controls drawer is open
+                if (m_drawerOpen) {
                     // Find the mouse position
                     Vector2 mousePos;
                     uint8 ignore;

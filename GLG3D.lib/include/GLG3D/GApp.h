@@ -4,7 +4,7 @@
    @maintainer Morgan McGuire, morgan@cs.williams.edu
 
    @created 2003-11-03
-   @edited  2009-09-03
+   @edited  2009-09-12
 */
 
 #ifndef G3D_GApp_h
@@ -122,6 +122,9 @@ public:
 
             /** Formats to attempt to use for the Film, in order of decreasing preference */
             Array<const ImageFormat*>   preferredColorFormats;
+
+            /** Formats to attempt to use for the Film, in order of decreasing preference. 
+               NULL (or an empty list) indicates that no depth buffer should be allocated. */
             Array<const ImageFormat*>   preferredDepthFormats;
 
             inline FilmSettings() : enabled(true), dimensions(-1, -1) {
@@ -177,6 +180,9 @@ protected:
     Stopwatch               m_userInputWatch;
     Stopwatch               m_simulationWatch;
     Stopwatch               m_waitWatch;
+
+    /** The original settings */
+    const Settings          m_settings;
 
     /** onPose(), onGraphics(), and onWait() execute once ever m_renderPeriod 
         simulation frames. This allows UI/network/simulation to be clocked much faster
@@ -489,6 +495,9 @@ public:
         return 1.0 / m_desiredFrameRate;
     }
     
+    /** Invoke to change the size of the underlying Film. */
+    virtual void resize(int w, int h);
+
 protected:
 
     /** Shorthand for developerWindow->cameraControlWindow->bookmark(name) */

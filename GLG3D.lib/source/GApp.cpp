@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-11-03
- @edited  2008-01-08
+ @edited  2009-09-12
  */
 
 #include "G3D/platform.h"
@@ -83,7 +83,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
     m_simTime(0),
-    m_useFilm(settings.film.enabled) {
+    m_useFilm(settings.film.enabled),
+    m_settings(settings) {
 
     lastGApp = this;
 
@@ -171,19 +172,10 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     }
 
     if (m_useFilm) {
-        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(settings.film.preferredColorFormats);
-        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(settings.film.preferredDepthFormats);
-
+        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
         m_film = Film::create(colorFormat);
         m_frameBuffer = FrameBuffer::create("GApp::m_frameBuffer");
-        
-        m_colorBuffer0 = Texture::createEmpty("GApp::m_colorBuffer0", renderDevice->width(), renderDevice->height(), 
-            colorFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1);
-        m_depthBuffer  = Texture::createEmpty("GApp::m_depthBuffer", m_colorBuffer0->width(), m_colorBuffer0->height(), 
-            depthFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1); 
-        
-        m_frameBuffer->set(FrameBuffer::COLOR0, m_colorBuffer0);
-        m_frameBuffer->set(FrameBuffer::DEPTH, m_depthBuffer);
+        resize(renderDevice->width(), renderDevice->height());
     }
 
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);
@@ -553,6 +545,32 @@ void GApp::removeWidget(const Widget::Ref& module) {
     m_widgetManager->remove(module);
 }
 
+
+void GApp::resize(int w, int h) {
+    if (m_useFilm &&
+        (m_colorBuffer0.isNull() ||
+        (m_colorBuffer0->width() != w) ||
+        (m_colorBuffer0->height() != h))) {
+
+        m_frameBuffer->clear();
+
+        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
+        const ImageFormat* depthFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredDepthFormats);
+
+        m_colorBuffer0 = Texture::createEmpty("GApp::m_colorBuffer0", w, h, 
+            colorFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1);
+
+        if (depthFormat) {
+            m_depthBuffer  = Texture::createEmpty("GApp::m_depthBuffer", w, h, 
+                depthFormat, Texture::DIM_2D_NPOT, Texture::Settings::video(), 1);
+        }
+        
+        m_frameBuffer->set(FrameBuffer::COLOR0, m_colorBuffer0);
+        if (depthFormat) {
+            m_frameBuffer->set(FrameBuffer::DEPTH, m_depthBuffer);
+        }
+    }
+}
 
 void GApp::oneFrame() {
     for (int repeat = 0; repeat < max(1, m_renderPeriod); ++repeat) {
