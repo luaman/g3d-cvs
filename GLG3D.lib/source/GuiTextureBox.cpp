@@ -171,6 +171,8 @@ bool GuiTextureBox::onEvent(const GEvent& event) {
         return false;
     }
 
+    m_needReadback = true;
+
     if (GuiContainer::onEvent(event)) {
         // Event was handled by base class
         return true;
@@ -293,6 +295,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         theme->pauseRendering();
         {
             // Scissor region ignores transformation matrix
+// TODO: Merge with existing clipping region!
             rd->setClip2D(m_clipBounds + matrix.translation.xy());
 
             // TODO: Draw"transparent" background

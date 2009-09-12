@@ -16,10 +16,6 @@ public:
 
     VertexRange             data;
 
-    // for on-screen rendering
-    Framebuffer::Ref        fb;
-    Texture::Ref            colorBuffer;
-
     ShadowMap::Ref          shadowMap;
     VideoOutput::Ref        video;
     ArticulatedModel::Ref   model;
@@ -29,7 +25,6 @@ public:
     bool                    updating;
     IFSModel::Ref           ifs;
 
-    Film::Ref               film;
 
     DirectionHistogram*     histogram;
 
@@ -70,7 +65,13 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 void App::onInit() {
 
-    film = Film::create();
+    {
+        Texture::Ref t = Texture::fromFile("D:/morgan/G3D/data-files/image/checkerboard.jpg");
+        GuiTextureBox* b = debugPane->addTextureBox("Texture", t);
+        b->setSize(500,500);
+        b->zoomTo1();
+        debugPane->pack();
+    };
 
     //ground = ArticulatedModel::fromFile(System::findDataFile("cube.ifs"), Vector3(6, 0.5f, 6) * sqrtf(3));
     //ground = ArticulatedModel::createCornellBox(11.0f);

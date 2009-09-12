@@ -197,7 +197,9 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
     bool consumed = false;
 
-    if (event.type == GEventType::MOUSE_BUTTON_DOWN) {
+    switch (event.type){
+    case GEventType::MOUSE_BUTTON_DOWN:
+        {
         // Mouse down; change the focus
         Vector2 mouse(event.button.x, event.button.y);
 
@@ -253,11 +255,17 @@ bool GuiWindow::onEvent(const GEvent &event) {
             // be used by another one of the controls on this window).
             consumed = true;
         }
-    } else if (event.type == GEventType::MOUSE_BUTTON_UP) {
+        }
+        break;
+
+    case GEventType::MOUSE_BUTTON_UP:
         if (inDrag) {
             inDrag = false;
             return true;
         }
+        break;
+
+    default:;
     }
 
     // If this window is not in focus, don't bother checking to see if
@@ -282,6 +290,18 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
         } else {
             consumed = keyFocusGuiControl->onEvent(event) || consumed;
+        }
+    }
+
+    if (! consumed && (event.type == GEventType::MOUSE_MOTION)) {
+        // Deliver to the control under the mouse
+        Vector2 mouse(event.button.x, event.button.y);
+        mouse -= m_clientRect.x0y0();
+
+        GuiControl* underMouse = NULL;
+        m_rootPane->findControlUnderMouse(mouse, underMouse);
+        if (underMouse && underMouse->enabled()) {
+            consumed = underMouse->onEvent(event);
         }
     }
 

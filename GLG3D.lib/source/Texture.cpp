@@ -509,7 +509,7 @@ Texture::Ref Texture::fromFile(
 Texture::Ref Texture::fromTwoFiles(
     const std::string&      filename,
     const std::string&      alphaFilename,
-    const ImageFormat*    desiredFormat,
+    const ImageFormat*      desiredFormat,
     Dimension               dimension,
 	const Settings&			settings,
 	const PreProcess&		preProcess) {
