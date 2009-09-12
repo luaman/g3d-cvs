@@ -78,7 +78,7 @@ GuiTextureBox::GuiTextureBox
  const GuiText&      caption,
  const Texture::Ref& t,
  const Settings&     s) : 
-    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(false), m_dragging(false) {
+    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(false), m_dragging(false), m_needReadback(true) {
 
     // Height of caption and button bar
     const float cs = TOP_CAPTION_SIZE;
@@ -190,17 +190,19 @@ bool GuiTextureBox::onEvent(const GEvent& event) {
         m_dragging = false;
         return true;
 
-    } else if (m_dragging && (event.type == GEventType::MOUSE_MOTION)) {
+    } else if (event.type == GEventType::MOUSE_MOTION) {
+        m_needReadback = true;
+        if (m_dragging) {
+            Vector2 mouse(event.motion.x, event.motion.y);
+            
+            // Move point, clamping adjacents        
+            Vector2 delta = mouse - m_dragStart;
 
-        Vector2 mouse(event.motion.x, event.motion.y);
-
-        // Move point, clamping adjacents        
-        Vector2 delta = mouse - m_dragStart;
-
-        // Hide weird mouse event delivery
-        if (delta.squaredLength() < 100000) {
-            m_offset = m_offsetAtDragStart + delta / m_zoom;
-            return true;
+            // Hide weird mouse event delivery
+            if (delta.squaredLength() < 100000) {
+                m_offset = m_offsetAtDragStart + delta / m_zoom;
+                return true;
+            }
         }
     }
 
@@ -248,7 +250,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
     m_drawerButton->setPosition(m_rect.width() - m_drawerButton->rect().width() - 2, 
                                 max(0.0f, m_drawerPane->rect().y0() - m_drawerButton->rect().height() + 2.0f));
 
-    //GuiTextureBox* me = const_cast<GuiTextureBox*>(this);
+    GuiTextureBox* me = const_cast<GuiTextureBox*>(this);
 
     // Render size label so that the drawer slides over it
     if (m_texture.notNull()) {
@@ -397,13 +399,16 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                             pos.y += font->draw2D(rd, "after y-inversion", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
                         }
 
-                        Color4 c = readTexel(rd, m_texture, ix, iy);
-                        Color4uint8 ci(c);
+                        if (m_needReadback) {
+                            me->m_texel = readTexel(rd, m_texture, ix, iy);
+                            me->m_needReadback = false;
+                        }
+                        Color4uint8 ci(m_texel);
                         pos.y += 
                             font->draw2D(rd, 
                                          format("rgba: 0x%02x%02x%02x = (%.2f, %.2f, %.2f, %.2f)", 
                                                 ci.r, ci.g, ci.b,
-                                                c.r, c.g, c.b, c.a),
+                                                m_texel.r, m_texel.g, m_texel.b, m_texel.a),
                                          pos, style.size, front, back).y * lineSpacing;
                         if (m_settings.documentGamma != 2.2f) {
                             pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;

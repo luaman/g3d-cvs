@@ -109,6 +109,11 @@ private:
     Vector2                  m_dragStart;
     Vector2                  m_offsetAtDragStart;
 
+    /** Readback texel */
+    Color4                   m_texel;
+    /** True if the mouse moved since m_texel was updated */
+    bool                     m_needReadback;
+
     static WeakReferenceCountedPointer<Shader> g_cachedShader;
 
 public:
