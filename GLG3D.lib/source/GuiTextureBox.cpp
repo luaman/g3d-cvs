@@ -239,8 +239,8 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         return;
     }
 
-    int w = m_texture->width();
-    int h = m_texture->height();
+    int w = 0;
+    int h = 0;
 
     m_drawerPane->setVisible(m_drawerOpen || m_drawerPane->morphing());
 
@@ -251,7 +251,10 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
     //GuiTextureBox* me = const_cast<GuiTextureBox*>(this);
 
     // Render size label so that the drawer slides over it
-    {
+    if (m_texture.notNull()) {
+        w = m_texture->width();
+        h = m_texture->height();
+
         std::string s;
         if (w == h) {
             // Use ASCII squared character
