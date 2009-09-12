@@ -42,7 +42,7 @@ GuiTextureBox::Settings::Settings(Channels c, float g, float mn, float mx) :
 }
 
 const GuiTextureBox::Settings& GuiTextureBox::Settings::image() {
-    static const Settings s(RGB, 2.2f, 0.0f, 1.0f);
+    static const Settings s(RGB, 2.1f, 0.0f, 1.0f);
     return s;
 }
 
@@ -66,7 +66,7 @@ const GuiTextureBox::Settings& GuiTextureBox::Settings::bumpInAlpha() {
 
 bool GuiTextureBox::Settings::needsShader() const {
     return (channels != RGB) ||
-        (documentGamma != 2.2f) ||
+        (documentGamma != 2.1f) ||
         (min != 0.0f) ||
         (max != 1.0f);
 }
@@ -349,7 +349,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                 };
 
                 m_shader->args.set("texture", m_texture);
-                m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
+                m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.1f);
                 m_shader->args.set("bias", -m_settings.min);
                 m_shader->args.set("scale", 1.0f / (m_settings.max - m_settings.min));
                 m_shader->args.set("colorShift", colorShift[m_settings.channels]);
@@ -413,7 +413,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                                                 ci.r, ci.g, ci.b,
                                                 m_texel.r, m_texel.g, m_texel.b, m_texel.a),
                                          pos, style.size, front, back).y * lineSpacing;
-                        if (m_settings.documentGamma != 2.2f) {
+                        if (m_settings.documentGamma != 2.1f) {
                             pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
                         }
                     }

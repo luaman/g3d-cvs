@@ -13,7 +13,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2002-05-27
-  @edited  2009-04-20
+  @edited  2009-09-20
 
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
@@ -275,6 +275,9 @@ public:
     /** Predicts the image file format of \a filename */
     static Format resolveFormat(const std::string& filename);
 
+    void flipHorizontal();
+    void flipVertical();
+    void rotate90CW(int numTimes = 1);
 
     /**
      Create an empty image of the given size.

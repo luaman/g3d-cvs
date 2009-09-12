@@ -96,6 +96,58 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
 class Texture : public ReferenceCountedObject {
 public:
 
+    enum CubeFace {
+        CUBE_POS_X = 0,
+        CUBE_NEG_X = 1,
+        CUBE_POS_Y = 2,
+        CUBE_NEG_Y = 3,
+        CUBE_POS_Z = 4,
+        CUBE_NEG_Z = 5};
+
+    enum CubeMapConvention {
+        /** Uses "up", "rt", etc. */
+        CUBE_QUAKE, 
+        
+        /** Uses "up", "east", etc. */
+        CUBE_UNREAL, 
+
+        /** Uses "+y", "+x", etc. */
+        CUBE_G3D};
+
+    struct CubeMapInfo {
+        struct Face {
+            /** True if the face is horizontally flipped */
+            bool            flipX;
+
+            /** True if the face is vertically flipped */
+            bool            flipY;
+
+            /** Number of CW 90-degree rotations to perform after flipping */
+            int             rotations;
+
+            /** Filename suffix */
+            const char*     suffix;
+
+            inline Face() : flipX(true), flipY(false), rotations(0), suffix("") {}
+        };
+
+        const char*         name;
+
+        /** Index using CubeFace */
+        Face                face[6];
+    };
+    /**
+     Returns the rotation matrix that should be used for rendering the
+     given cube map face.
+     \param renderUpsideDown Set to true if generating cube maps for direct application in real time,
+     set to false if generating to save to disk.
+     */
+    static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool renderUpsideDown = true);
+
+    /** Returns the mapping from [0, 5] to cube map faces and filename suffixes. There are multiple filename conventions,
+        so the suffixes specify each of the options. */
+    static const CubeMapInfo& cubeMapInfo(CubeMapConvention convention);
+
     /** Reference counted pointer to a Texture.*/
     typedef ReferenceCountedPointer<class Texture> Ref;
 
@@ -563,16 +615,6 @@ public:
      */
     void copyFromScreen(const Rect2D& rect, const ImageFormat* fmt = NULL);
 
-    /**
-     Argument for copyFromScreen() and getCubeMapRotation()
-     */
-    enum CubeFace {
-        CUBE_POS_X = 0,
-        CUBE_NEG_X = 1,
-        CUBE_POS_Y = 2,
-        CUBE_NEG_Y = 3,
-        CUBE_POS_Z = 4,
-        CUBE_NEG_Z = 5};
 
     /**
      Copies into the specified face of a cube map.  Because cube maps can't have
@@ -584,17 +626,6 @@ public:
      orientations.
      */
     void copyFromScreen(const Rect2D& rect, CubeFace face);
-
-    /**
-     Returns the rotation matrix that should be used for rendering the
-     given cube map face.
-     \param renderUpsideDown Set to true if generating cube maps for direct application in real time,
-     set to false if generating to save to disk.
-     */
-    static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool renderUpsideDown = true);
-
-    /** Returns the mapping from [0, 5] to cube map faces and filename suffixes */
-    static void getCubeMapInfo(int faceNum, CubeFace& face, const char*& suffix);
 
     /**
      When true, rendering code that uses this texture is respondible for

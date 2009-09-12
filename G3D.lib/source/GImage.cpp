@@ -567,6 +567,70 @@ void GImage::_copy(
 }
 
 
+void GImage::flipHorizontal() {
+    uint8 temp[4];
+    int rowBytes = m_width * m_channels;
+    for (int y = 0; y < m_height; ++y) {
+        uint8* row = m_byte + y * rowBytes; 
+        for (int x = 0; x < m_width / 2; ++x) { 
+            System::memcpy(temp, row + x * m_channels, m_channels);
+            System::memcpy(row + x * m_channels, row + (m_width - x - 1) * m_channels, m_channels);
+            System::memcpy(row + (m_width - x - 1) * m_channels, temp, m_channels);
+        }
+    }
+}
+
+
+void GImage::flipVertical() {
+    uint8* old = m_byte;
+    m_byte = (uint8*)m_memMan->alloc(m_width * m_height);
+
+    // We could do this with only a single-row temp buffer, but then we'd have to copy twice as much data.
+    int rowBytes = m_width * m_channels;
+    for (int y = 0; y < m_height; ++y) {
+        System::memcpy(m_byte + y * rowBytes, old + (m_height - y - 1) * rowBytes, rowBytes);
+    }
+
+    m_memMan->free(old);
+}
+
+
+void GImage::rotate90CW(int numTimes) {
+
+    uint8* old = NULL;
+    if (numTimes % 4 != 0) {
+        (uint8*)m_memMan->alloc(m_width * m_height);
+    }
+    for (int j = 0; j < numTimes % 4; ++j) {
+
+        for (int i = 0; i < numTimes; ++i) {
+            {
+                uint8* temp = old;
+                uint8* old = m_byte;
+                m_byte = temp;
+            }
+
+            {
+                int temp = m_width;
+                m_width = m_height;
+                m_height = temp;
+            }
+
+            int rowBytes = m_width * m_channels;
+            for (int y = 0; y < m_height; ++y) {
+                for (int x = 0; x < m_width; ++x) {
+                    uint8* dst = m_byte + x + y * rowBytes;
+                    uint8* src = old + y + (m_height - x - 1) * rowBytes;
+                    System::memcpy(dst, src, m_channels);
+                }
+            }
+        }
+    }
+    m_memMan->free(old);
+}
+
+
+
 GImage::GImage(
     const GImage&        other,
     const MemoryManager::Ref& m) : m_memMan(m), m_byte(NULL) {

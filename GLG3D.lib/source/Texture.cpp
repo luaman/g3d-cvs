@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2009-06-01
+ @edited  2009-09-12
 */
 
 #include "G3D/Log.h"
@@ -27,6 +27,91 @@
 
 namespace G3D {
 
+const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
+    static CubeMapInfo cubeMapInfo[3];
+    static bool initialized = false;
+    if (! initialized) {
+        initialized = true;
+        cubeMapInfo[CUBE_QUAKE].name = "Quake";
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_X].flipX  = true;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_X].flipY  = false;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_X].suffix = "bk";
+
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_X].flipX  = true;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_X].flipY  = false;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_X].suffix = "ft";
+
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_Y].flipX  = true;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_Y].flipY  = false;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_Y].suffix = "up";
+
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_Y].flipX  = true;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_Y].flipY  = false;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_Y].suffix = "dn";
+
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_Z].flipX  = true;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_Z].flipY  = false;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_POS_Z].suffix = "rt";
+
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_Z].flipX  = true;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_Z].flipY  = false;
+        cubeMapInfo[CUBE_QUAKE].face[CUBE_NEG_Z].suffix = "lf";
+
+
+        cubeMapInfo[CUBE_UNREAL].name = "Unreal";
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_X].flipX  = true;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_X].flipY  = false;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_X].suffix = "east";
+
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_X].flipX  = true;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_X].flipY  = false;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_X].suffix = "west";
+
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_Y].flipX  = true;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_Y].flipY  = false;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_Y].suffix = "up";
+
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Y].flipX  = true;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Y].flipY  = false;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Y].suffix = "down";
+
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_Z].flipX  = true;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_Z].flipY  = false;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_POS_Z].suffix = "south";
+
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Z].flipX  = true;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Z].flipY  = false;
+        cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Z].suffix = "north";
+
+
+        cubeMapInfo[CUBE_UNREAL].name = "G3D";
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_X].flipX  = true;
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_X].flipY  = false;
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_X].suffix = "+x";
+
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_X].flipX  = true;
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_X].flipY  = false;
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_X].suffix = "-x";
+
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_Y].flipX  = true;
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_Y].flipY  = false;
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_Y].suffix = "+y";
+
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Y].flipX  = true;
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Y].flipY  = false;
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Y].suffix = "-y";
+
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_Z].flipX  = true;
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_Z].flipY  = false;
+        cubeMapInfo[CUBE_G3D].face[CUBE_POS_Z].suffix = "+z";
+
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Z].flipX  = true;
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Z].flipY  = false;
+        cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Z].suffix = "-z";
+    }
+
+    return cubeMapInfo[convention];
+}
 
 const Texture::PreProcess& Texture::PreProcess::defaults() {
     static const Texture::PreProcess p;
@@ -128,7 +213,27 @@ AnyVal Texture::Settings::toAnyVal() const {
 }
 
 
-static const char* cubeMapString[] = {"ft", "bk", "up", "dn", "rt", "lf"};
+static void generateCubeMapFilenames(const std::string& src, std::string realFilename[6], Texture::CubeMapInfo& info) {
+    std::string filenameBase, filenameExt;
+    Texture::splitFilenameAtWildCard(src, filenameBase, filenameExt);
+
+    Texture::CubeMapConvention convention = Texture::CUBE_G3D;
+
+    // Figure out which filename convention we're using
+    if (fileExists(filenameBase + "east" + filenameExt)) {
+        convention = Texture::CUBE_UNREAL;
+    } else if (fileExists(filenameBase + "lf" + filenameExt)) {
+        convention = Texture::CUBE_QUAKE;
+    } else if (fileExists(filenameBase + "+x" + filenameExt)) {
+        convention = Texture::CUBE_G3D;
+    }
+
+    info = Texture::cubeMapInfo(convention);
+    for (int f = 0; f < 6; ++f) {
+        realFilename[f] = filenameBase + info.face[f].suffix + filenameExt;
+    }
+}
+
 
 size_t Texture::m_sizeOfAllTexturesInMemory = 0;
 
@@ -345,6 +450,18 @@ Texture::Ref Texture::fromGLTexture(
 }
 
 
+static void transform(GImage& image, const Texture::CubeMapInfo::Face& info) {
+    // Apply transformations
+    if (info.flipX) {
+        image.flipHorizontal();
+    }
+    if (info.flipY) {
+        image.flipVertical();
+    }
+    image.rotate90CW(info.rotations);
+}
+
+
 Texture::Ref Texture::fromFile(
     const std::string               filename[6],
     const class ImageFormat*        desiredFormat,
@@ -416,29 +533,16 @@ Texture::Ref Texture::fromFile(
     
     Array<const void*>& array = byteMipMapFaces[0];
     array.resize(numFaces);
-    
+
+    debugAssertM(filename[1] == "",
+        "Can't specify more than one filename");
+
+    realFilename[0] = filename[0];
     // Test for both DIM_CUBE_MAP and DIM_CUBE_MAP_NPOT
+    CubeMapInfo info;
     if (numFaces == 6) {
-        if (filename[1] == "") {
-            // Wildcard format
-            // Parse the filename into a base name and extension
-            std::string filenameBase, filenameExt;
-            splitFilenameAtWildCard(filename[0], filenameBase, filenameExt);
-            for (int f = 0; f < 6; ++f) {
-                realFilename[f] = filenameBase + cubeMapString[f] + filenameExt;
-            }
-        } else {
-            // Separate filenames have been provided
-            realFilename[0] = filename[0];
-            for (int f = 1; f < 6; ++f) {
-                debugAssert(filename[f] != "");
-                realFilename[f] = filename[f];
-            }
-        }
-    } else {
-        debugAssertM(filename[1] == "",
-            "Can't specify more than one filename unless loading a cube map");
-        realFilename[0] = filename[0];
+        // Parse the filename into a base name and extension
+        generateCubeMapFilenames(filename[0], realFilename, info);
     }
 
     // The six cube map faces, or the one texture and 5 dummys.
@@ -462,6 +566,10 @@ Texture::Ref Texture::fromFile(
             format = ImageFormat::L8();
             opaque = true;
             break;
+        }
+        
+        if (numFaces > 1) {
+            transform(image[f], info.face[f]);
         }
 
         if (desiredFormat == NULL) {
@@ -530,14 +638,16 @@ Texture::Ref Texture::fromTwoFiles(
     }
 
     // Parse the filename into a base name and extension
-    std::string filenameBase = filename;
-    std::string filenameExt;
-    std::string alphaFilenameBase = alphaFilename;
-    std::string alphaFilenameExt;
+    std::string filenameArray[6];
+    std::string alphaFilenameArray[6];
+    filenameArray[0] = filename;
+    alphaFilenameArray[0] = alphaFilename;
 
     // Test for both DIM_CUBE_MAP and DIM_CUBE_MAP_NPOT
+    CubeMapInfo info, alphaInfo;
     if (numFaces == 6) {
-        splitFilenameAtWildCard(filename, filenameBase, filenameExt);
+        generateCubeMapFilenames(filename, filenameArray, info);
+        generateCubeMapFilenames(alphaFilename, alphaFilenameArray, alphaInfo);
     }
     
     GImage color[6];
@@ -546,20 +656,16 @@ Texture::Ref Texture::fromTwoFiles(
 
     try {
 		for (int f = 0; f < numFaces; ++f) {
-
-			std::string fn = filename;
-			std::string an = alphaFilename;
-
-			// Test for both DIM_CUBE_MAP and DIM_CUBE_MAP_NPOT
-			if (numFaces == 6) {
-				fn = filenameBase + cubeMapString[f] + filenameExt;
-				an = alphaFilenameBase + cubeMapString[f] + alphaFilenameExt;
-			}
-
 			// Compose the two images to a single RGBA
-			color[f].load(fn);
-			alpha[f].load(an);
+			color[f].load(filenameArray[f]);
+			alpha[f].load(alphaFilenameArray[f]);
 			uint8* data = NULL;
+
+
+            if (numFaces > 1) {
+                transform(color[f], info.face[f]);
+                transform(alpha[f], alphaInfo.face[f]);
+            }
 
 			if (color[f].channels() == 4) {
 				data = color[f].byte();
@@ -568,7 +674,7 @@ Texture::Ref Texture::fromTwoFiles(
 					data[i * 4 + 3] = alpha[f].byte()[i * alpha[f].channels()];
 				}
 			} else {
-				debugAssert(color[f].channels() == 3);
+				alwaysAssertM(color[f].channels() == 3, "Cannot load monochrome cube maps");
 				data = new uint8[color[f].width() * color[f].height() * 4];
 				// Write the data inline
 				for (int i = 0; i < color[f].width() * color[f].height(); ++i) {
@@ -1148,7 +1254,7 @@ void Texture::splitFilenameAtWildCard(
         filenameExt  = filename.substr(i + 1, filename.size() - i - splitter.length()); 
     } else {
         throw GImage::Error("Cube map filenames must contain \"*\" as a "
-                            "placeholder for up/lf/rt/bk/ft/dn", filename);
+            "placeholder for {up,lf,rt,bk,ft,dn} or {up,north,south,east,west,down}", filename);
     }
 }
 
@@ -1302,22 +1408,6 @@ void Texture::copyFromScreen(
     debugAssertGLOk();
     glDisable(GL_TEXTURE_CUBE_MAP_ARB);
     glStatePop();
-}
-
-
-void Texture::getCubeMapInfo(int faceNum, CubeFace& face, const char*& suffix) {
-
-    static const Texture::CubeFace faceArray[6] = {
-        Texture::CUBE_POS_X,
-        Texture::CUBE_NEG_X,
-        Texture::CUBE_POS_Y,
-        Texture::CUBE_NEG_Y,
-        Texture::CUBE_POS_Z,
-        Texture::CUBE_NEG_Z};
-
-    static const char* suffixArray[6] = {"rt", "lf", "up", "dn", "bk", "ft"};
-    face = faceArray[iClamp(faceNum, 0, 5)];
-    suffix = suffixArray[iClamp(faceNum, 0, 5)];
 }
 
 
