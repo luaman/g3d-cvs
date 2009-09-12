@@ -279,17 +279,15 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
 
     const CoordinateFrame& matrix = rd->objectToWorldMatrix();
 
-    // Shrink by the border size to save space for the border,
-    // and then draw the largest rect that we can fit inside.
-    Rect2D r = m_texture->rect2DBounds();
-    r = r + (m_offset - r.center());
-    r = r * m_zoom;
-    r = r + m_clipBounds.center();
 
-    //m_clipBounds.expand(-BORDER).largestCenteredSubRect(w, h);
-    
     if (m_texture.notNull()) {
-  
+        // Shrink by the border size to save space for the border,
+        // and then draw the largest rect that we can fit inside.
+        Rect2D r = m_texture->rect2DBounds();
+        r = r + (m_offset - r.center());
+        r = r * m_zoom;
+        r = r + m_clipBounds.center();
+        
         theme->pauseRendering();
         {
             // Scissor region ignores transformation matrix
@@ -331,7 +329,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                             1, 0, 0, 0,
                             1, 0, 0, 0,
                             0, 0, 0, 0),
-
+                    
                     // AasL
                     Matrix4(0, 0, 0, 1,
                             0, 0, 0, 1,
