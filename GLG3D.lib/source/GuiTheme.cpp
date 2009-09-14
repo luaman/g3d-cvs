@@ -275,30 +275,53 @@ void GuiTheme::drawCheckable
     debugAssert(inRendering);
     control.render(rd, bounds, enabled, focused, selected);
 
-    if (text.text() != "") {
+    if (text.numElements() > 0) {
         const TextStyle& style = enabled ? control.textStyle : control.disabledTextStyle;
 
-        addDelayedText(
-           text.font(style.font), 
-           text.text(), 
-           Vector2(control.width() + bounds.x0(), 
-                  (bounds.y0() + bounds.y1()) / 2) + control.textOffset,
-           text.size(style.size), 
-           text.color(style.color), 
-           text.outlineColor(style.outlineColor), 
-           GFont::XALIGN_LEFT);
+        for (int e = 0; e < text.numElements(); ++e) {
+            const GuiText::Element& element = text.element(e);
+            addDelayedText
+            (element.font(style.font), 
+             element.text(), 
+             Vector2(control.width() + bounds.x0(), 
+                     (bounds.y0() + bounds.y1()) / 2) + control.textOffset,
+             element.size(style.size), 
+             element.color(style.color), 
+             element.outlineColor(style.outlineColor), 
+             GFont::XALIGN_LEFT);
+        }
     }
 }
 
 
+void GuiTheme::addDelayedText
+(const GuiText& text, 
+ const GuiTheme::TextStyle& defaults,
+ const Vector2& position, 
+ GFont::XAlign xalign,
+ GFont::YAlign yalign) const {
+    if (text.numElements() == 0) {
+        return;
+    }
+    
+    const GuiText::Element& element = text.element(0);
+
+    float size = element.size(defaults.size);
+    const GFont::Ref& font = element.font(defaults.font);
+    const Color4& color = element.color(defaults.color);
+    const Color4& outlineColor = element.outlineColor(defaults.outlineColor);
+ 
+    addDelayedText(font, element.text(), position, size, color, outlineColor, xalign, yalign);
+}
+
+
 void GuiTheme::renderDropDownList
-(
- const Rect2D&        initialBounds,
+(const Rect2D&        initialBounds,
  bool                 enabled,
  bool                 focused,
  bool                 down,
- const GuiText&    contentText,
- const GuiText&    text,
+ const GuiText&       contentText,
+ const GuiText&       text,
  float                captionWidth) const {
 
     // Dropdown list has a fixed height
@@ -314,28 +337,12 @@ void GuiTheme::renderDropDownList
     // Display cropped text
     // Draw inside the client area
     const_cast<GuiTheme*>(this)->pushClientRect(clientArea);
-    {
-        float size = text.size(m_dropDownList.textStyle.size);
-        const GFont::Ref& font = contentText.font(m_dropDownList.textStyle.font);
-        const Color4& color = contentText.color(m_dropDownList.textStyle.color);
-        const Color4& outlineColor = contentText.outlineColor(m_dropDownList.textStyle.outlineColor);
-        
-        // Draw main text
-        addDelayedText(font, contentText.text(), Vector2(0, clientArea.height() / 2), size, color, outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
-    }
+    addDelayedText(contentText, m_dropDownList.textStyle, Vector2(0, clientArea.height() / 2), GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
     const_cast<GuiTheme*>(this)->popClientRect();
 
-    // Add delayed caption text
-    if (text.text() != "") {
-        addDelayedText(
-            text.font(m_dropDownList.textStyle.font),
-            text.text(), 
-            Vector2(initialBounds.x0(), (initialBounds.y0() + initialBounds.y1()) * 0.5f), 
-            text.size(m_dropDownList.textStyle.size), 
-            text.color(m_dropDownList.textStyle.color), 
-            text.outlineColor(m_dropDownList.textStyle.outlineColor),
-            GFont::XALIGN_LEFT);
-    }
+    addDelayedText(text, m_dropDownList.textStyle,
+                   Vector2(initialBounds.x0(), (initialBounds.y0() + initialBounds.y1()) * 0.5f), 
+                   GFont::XALIGN_LEFT);
 }
 
 
@@ -358,24 +365,38 @@ void GuiTheme::renderTextBox
 
     m_textBox.render(rd, bounds, enabled, focused);
 
-    // Compute pixel distance from left edge to cursor position
-    std::string beforeCursor   = text.text().substr(0, cursorPosition);
-    float size                 = text.size(m_textBox.contentStyle.size);
-    const GFont::Ref& font     = text.font(m_textBox.contentStyle.font);
-    Color4 color               = text.color(m_textBox.contentStyle.color);
-    const Color4& outlineColor = text.outlineColor(m_textBox.contentStyle.outlineColor);
+    alwaysAssertM(text.numElements() < 2, "Text box cannot contain GuiText with more than 1 element");
 
+    
     // Area in which text appears
     Rect2D clientArea = Rect2D::xywh(bounds.x0y0() + m_textBox.textPad.topLeft, 
                                      bounds.wh() - (m_textBox.textPad.bottomRight + m_textBox.textPad.topLeft));
 
-    Vector2 beforeBounds = font->bounds(beforeCursor, size);
-
-    // Slide the text backwards so that the cursor is visible
-    float textOffset = -max(0.0f, beforeBounds.x - clientArea.width());
 
     // Draw inside the client area
     const_cast<GuiTheme*>(this)->pushClientRect(clientArea);
+    std::string beforeCursor;
+    Vector2 beforeBounds;
+    float size          = m_textBox.contentStyle.size;
+    GFont::Ref font     = m_textBox.contentStyle.font;
+    Color4 color        = m_textBox.contentStyle.color;
+    Color4 outlineColor = m_textBox.contentStyle.outlineColor;
+    std::string all;
+    if (text.numElements() == 1) {
+        const GuiText::Element& element = text.element(0);
+
+        // Compute pixel distance from left edge to cursor position
+        all = element.text();
+        beforeCursor   = all.substr(0, cursorPosition);
+        size           = element.size(m_textBox.contentStyle.size);
+        font           = element.font(m_textBox.contentStyle.font);
+        color          = element.color(m_textBox.contentStyle.color);
+        outlineColor   = element.outlineColor(m_textBox.contentStyle.outlineColor);
+        beforeBounds   = font->bounds(beforeCursor, size);
+    }
+
+    // Slide the text backwards so that the cursor is visible
+    float textOffset = -max(0.0f, beforeBounds.x - clientArea.width());
 
     if (! enabled) {
         // Dim disabled text color
@@ -383,44 +404,43 @@ void GuiTheme::renderTextBox
     }
 
     // Draw main text
-    addDelayedText(font, text.text(), Vector2(textOffset, clientArea.height() / 2), size, color, 
+    addDelayedText(font, all, Vector2(textOffset, clientArea.height() / 2), size, color, 
                    outlineColor, GFont::XALIGN_LEFT, GFont::YALIGN_CENTER);
-    
+
     // Draw cursor
     if (focused) {
-        addDelayedText(cursor.font(m_textBox.contentStyle.font), cursor.text(), 
-                       Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), size, 
-                       cursor.color(m_textBox.contentStyle.color), 
-                       cursor.outlineColor(m_textBox.contentStyle.outlineColor), 
+        addDelayedText(cursor,
+                       m_textBox.contentStyle,
+                       Vector2(textOffset + beforeBounds.x, clientArea.height() / 2), 
                        GFont::XALIGN_CENTER, GFont::YALIGN_CENTER);
     }
     
     const_cast<GuiTheme*>(this)->popClientRect();
     
-    if (caption.text() != "") {
-        addDelayedText(
-            caption.font(m_textBox.textStyle.font),
-            caption.text(), 
-            Vector2(fullBounds.x0(), (fullBounds.y0() + fullBounds.y1()) * 0.5f), 
-            caption.size(m_textBox.textStyle.size), 
-            caption.color(m_textBox.textStyle.color), 
-            caption.outlineColor(m_textBox.textStyle.outlineColor),
-            GFont::XALIGN_LEFT);
-    }
+    addDelayedText(caption, m_textBox.textStyle,
+                   Vector2(fullBounds.x0(), (fullBounds.y0() + fullBounds.y1()) * 0.5f), 
+                       GFont::XALIGN_LEFT);
 }
 
 
-Vector2 GuiTheme::bounds(const GuiText& text) const {
+    Vector2 GuiTheme::bounds(const GuiText& text) const {
+    if (text.numElements() == 0) {
+        return Vector2::zero();
+    }
 
     Vector2 b(0, 0);
-    
+
+    // TODO Elements: need to look at each element
+    const GuiText::Element& element = text.element(0);
+    const std::string& str  = element.text();
+
+    // Loop twice, one for normal style and once for disabled style
     for (int i = 0; i < 2; ++i) {
         const TextStyle& style = (i == 0) ? m_textStyle : m_disabledTextStyle;
 
-        const GFont::Ref&  font = text.font(style.font);
-        const std::string& str  = text.text();
-        int                size = text.size(style.size);
-        bool               outline = text.outlineColor(style.outlineColor).a > 0;
+        const GFont::Ref&  font = element.font(style.font);
+        int                size = element.size(style.size);
+        bool               outline = element.outlineColor(style.outlineColor).a > 0;
 
         Vector2 t = font->bounds(str, size);
         if (outline) {
@@ -443,17 +463,8 @@ void GuiTheme::renderCanvas
 
     m_canvas.render(rd, bounds, enabled, focused);
 
-    if (caption.text() != "") {
-        addDelayedText(
-            caption.font(m_canvas.textStyle.font),
-            caption.text(), 
-            Vector2(fullBounds.x0(), bounds.y0()), 
-            caption.size(m_canvas.textStyle.size), 
-            caption.color(m_canvas.textStyle.color), 
-            caption.outlineColor(m_canvas.textStyle.outlineColor),
-            GFont::XALIGN_LEFT,
-            GFont::YALIGN_BOTTOM);
-    }
+    addDelayedText(caption, m_canvas.textStyle, Vector2(fullBounds.x0(), bounds.y0()), 
+                   GFont::XALIGN_LEFT, GFont::YALIGN_BOTTOM);
 }
 
 
@@ -539,18 +550,13 @@ void GuiTheme::drawWindow(const Window& window, const Rect2D& bounds,
         drawRect(vertex, m_closeButton.base + offset, rd);
     }
     
-    if ((text.text() != "") && (window.borderThickness.topLeft.y > 4)) {
+    if (window.borderThickness.topLeft.y > 4) {
         const TextStyle& style = focused ? window.textStyle : window.defocusedTextStyle;
 
-        addDelayedText(
-            text.font(style.font), 
-            text.text(), 
-            Vector2(bounds.center().x, bounds.y0() + window.borderThickness.topLeft.y * 0.5), 
-                       min(text.size(style.size), window.borderThickness.topLeft.y - 2), 
-            text.color(style.color), 
-            text.outlineColor(style.outlineColor), 
-            GFont::XALIGN_CENTER, 
-            GFont::YALIGN_CENTER);
+        addDelayedText(text, style,
+                       Vector2(bounds.center().x, bounds.y0() + window.borderThickness.topLeft.y * 0.5), 
+                       GFont::XALIGN_CENTER, 
+                       GFont::YALIGN_CENTER);
     }
 }
 
@@ -623,11 +629,7 @@ void GuiTheme::renderRadioButton(const Rect2D& bounds, bool enabled, bool focuse
 
 
 Vector2 GuiTheme::minButtonSize(const GuiText& text, ButtonStyle buttonStyle) const {
-    const TextStyle& style = m_button[buttonStyle].textStyle;
-    GFontRef font = text.font(style.font);
-    float size = text.size(style.size);
-
-    Vector2 textBounds = font->bounds(text.text(), size);
+    Vector2 textBounds = bounds(text);
 
     Vector2 borderPadding = 
         m_button[buttonStyle].base.centerLeft.rect.wh() + 
@@ -645,32 +647,24 @@ void GuiTheme::renderButton(const Rect2D& bounds, bool enabled, bool focused,
         m_button[buttonStyle].render(rd, bounds, enabled, focused, pushed);
     }
 
-    if (text.text() != "") {
-        const TextStyle& style = 
-            enabled ? 
-              m_button[buttonStyle].textStyle : 
-              m_button[buttonStyle].disabledTextStyle;
-
-        addDelayedText(
-            text.font(style.font),
-            text.text(), 
-            bounds.center() + m_button[buttonStyle].textOffset,
-            text.size(style.size),
-            text.color(style.color),
-            text.outlineColor(style.outlineColor),
-            GFont::XALIGN_CENTER);
-    }
+    const TextStyle& style = 
+        enabled ? 
+        m_button[buttonStyle].textStyle : 
+        m_button[buttonStyle].disabledTextStyle;
+    
+    addDelayedText(text, style,
+                   bounds.center() + m_button[buttonStyle].textOffset,
+                   GFont::XALIGN_CENTER);
 }
 
 
 void GuiTheme::renderHorizontalSlider
-(
-    const Rect2D& bounds, 
-    float pos, 
-    bool enabled, 
-    bool focused, 
-    const GuiText& text,
-    float captionWidth) const {
+(const Rect2D& bounds, 
+ float pos, 
+ bool enabled, 
+ bool focused, 
+ const GuiText& text,
+ float captionWidth) const {
     
     debugAssert(inRendering);
     m_hSlider.render
@@ -678,25 +672,18 @@ void GuiTheme::renderHorizontalSlider
          horizontalSliderToSliderBounds(bounds, captionWidth),
          pos, enabled, focused);
 
-    if (text.text() != "") {
-        const TextStyle& style = enabled ? m_hSlider.textStyle : m_hSlider.disabledTextStyle;
+    const TextStyle& style = enabled ? m_hSlider.textStyle : m_hSlider.disabledTextStyle;
 
-        addDelayedText(
-            text.font(style.font),
-            text.text(), 
-            Vector2(bounds.x0(), (bounds.y0() + bounds.y1()) * 0.5f), 
-            text.size(style.size), 
-            text.color(style.color), 
-            text.outlineColor(style.outlineColor),
-            GFont::XALIGN_LEFT);
-    }
+    addDelayedText(text, style,
+                   Vector2(bounds.x0(), (bounds.y0() + bounds.y1()) * 0.5f), 
+                   GFont::XALIGN_LEFT);
 }
 
 
 void GuiTheme::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAlign xalign, GFont::YAlign yalign, bool enabled) const {
     debugAssert(inRendering);
 
-    if (text.text() != "") {
+    if (text.numElements() > 0) {
         Vector2 pos;
 
         switch (xalign) {
@@ -726,14 +713,7 @@ void GuiTheme::renderLabel(const Rect2D& bounds, const GuiText& text, GFont::XAl
 
         const TextStyle& style = enabled ? m_textStyle : m_disabledTextStyle;
 
-        addDelayedText(
-            text.font(style.font),
-            text.text(), 
-            pos, 
-            text.size(style.size),
-            text.color(style.color),
-            text.outlineColor(style.outlineColor),
-            xalign, yalign);
+        addDelayedText(text, style, pos, xalign, yalign);
     }
 }
 
@@ -775,11 +755,11 @@ void GuiTheme::drawDelayedText() const {
     
     beginText();
     {
-        static Array<GFontRef> delayedFont;
+        static Array<GFont::Ref> delayedFont;
         delayedText.getKeys(delayedFont);
         
         for (int f = 0; f < delayedFont.size(); ++f) {
-            const GFontRef& thisFont = delayedFont[f];
+            const GFont::Ref& thisFont = delayedFont[f];
             const Array<Text>& label = delayedText[thisFont];
             
             if (label.size() > 0) {
@@ -813,8 +793,7 @@ void GuiTheme::drawDelayedText() const {
 
     
 void GuiTheme::addDelayedText
-(
- GFont::Ref         font,
+(GFont::Ref         font,
  const std::string& label, 
  const Vector2&     position,
  float              size, 

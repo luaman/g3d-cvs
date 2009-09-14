@@ -202,9 +202,13 @@ private:
 
         Note that delayed text must be drawn before the clipping region is changed or another window is rendered.
     */
-    void addDelayedText(GFontRef font, const std::string& text, const Vector2& position, float size, 
+    void addDelayedText(GFont::Ref font, const std::string& text, const Vector2& position, float size, 
                         const Color4& color, const Color4& outlineColor, GFont::XAlign xalign, 
                         GFont::YAlign yalign = GFont::YALIGN_CENTER) const;
+
+    void addDelayedText(const GuiText& text, const TextStyle& defaults, const Vector2& position, 
+                        GFont::XAlign xalign, GFont::YAlign yalign = GFont::YALIGN_CENTER) const;
+
 
     enum {TEXTURE_UNIT = 0};
 

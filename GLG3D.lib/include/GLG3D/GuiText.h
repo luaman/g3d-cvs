@@ -4,14 +4,15 @@
   Copyright 2001-2009, Morgan McGuire
  */
 
-#ifndef G3D_GUICAPTION_H
-#define G3D_GUICAPTION_H
+#ifndef G3D_GuiText_h
+#define G3D_GuiText_h
 
 #include "G3D/platform.h"
 #include "G3D/Rect2D.h"
 #include "G3D/Table.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/GFont.h"
+#include "G3D/SmallArray.h"
 
 template <> struct HashTrait<G3D::GFontRef> {
     static size_t hashCode(const G3D::GFontRef& key) { return reinterpret_cast<size_t>(key.pointer()); }
@@ -25,79 +26,133 @@ namespace G3D {
     implicitly by a cast from std::string, but can be created
     explicitly when more information needs to be specified.
 
-    @sa G3D::GuiLabel
+    @sa G3D::GuiLabel, G3D::GuiTextBox
  */
 class GuiText {
+public:
+    struct Element {
+    private:
+        friend class GuiText;
+        std::string   m_text;
+        GFont::Ref    m_font;
+        float         m_size;
+        Color4        m_color;
+        Color4        m_outlineColor;
+
+        /** Offset from the baseline of the end of the previous element.*/
+        Vector2       m_offset;
+
+    public:
+
+        inline Element
+        (const std::string& text         = "", 
+         const GFont::Ref&  font         = NULL, 
+         float              size         = -1, 
+         const Color4&      color        = Color4(-1,-1,-1,-1), 
+         const Color4&      outlineColor = Color4(-1,-1,-1,-1),
+         const Vector2&     offset       = Vector2::zero()) : m_text(text), m_font(font), m_size(size), m_color(color), m_outlineColor(outlineColor), m_offset(offset) {}
+        
+        inline const std::string& text() const {
+            return m_text;
+        }
+
+        /** Offset from the baseline of the end of the previous element.*/
+        inline const Vector2& offset() const {
+            return m_offset;
+        }
+
+        /** If this element specifies a font, returns that font, otherwise returns the default font */
+        inline const GFont::Ref& font(const GFont::Ref& _default) const {
+            if (m_font.isNull()) {
+                return _default;
+            } else {
+                return m_font;
+            }
+        }
+        
+        inline const Color4& color(const Color4& _default) const {
+            if (m_color.a < 0) {
+                return _default;
+            } else {
+                return m_color;
+            }
+        }
+        
+        inline const Color4& outlineColor(const Color4& _default) const {
+            if (m_outlineColor.a < 0) {
+                return _default;
+            } else {
+                return m_outlineColor;
+            }
+        }
+        
+        inline float size(float _default) const {
+            if (m_size < 0) {
+                return _default;
+            } else {
+                return m_size;
+            }
+        }
+
+        /** Provides the value of default values; called by Gui to overwrite the illegal values.*/
+        void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
+    };
+
 private:
 
-    std::string   m_text;
-    GFont::Ref    m_font;
-    float         m_size;
-    Color4        m_color;
-    Color4        m_outlineColor;
+    typedef SmallArray<Element, 1> ElementArray;
 
-    TextureRef    m_texture;
-    Rect2D        m_rect;
+    ElementArray       m_elementArray;
+
+    //    Texture::Ref  m_texture;
+    //     Rect2D        m_rect;
     
 public:
 
     /**
-       Negative alpha values on color and outlineColor mean "use
-       default".  Null font and negative size mean "use default".
-       Defaults are set on the Gui.
+       Negative alpha values on color, outlineColor, and size mean "use
+       default".  NULL font means "use default".
+       
+       Defaults are set on the GuiTheme.
     */
-    GuiText(const std::string& text   = "", 
-          const GFont::Ref& font         = NULL, 
-          float             size         = -1, 
-          const Color4&     color        = Color4(-1,-1,-1,-1), 
-          const Color4&     outlineColor = Color4(-1,-1,-1,-1));
+    GuiText
+    (const std::string& text         = "", 
+     const GFont::Ref&  font         = NULL, 
+     float              size         = -1.0f, 
+     const Color4&      color        = Color4(-1, -1, -1, -1), 
+     const Color4&      outlineColor = Color4(-1, -1, -1, -1),
+     const Vector2&     offset       = Vector2::zero());
 
-    /** Uses all default values. */
     GuiText(const char* text);
     
-    /** Cast to std::string */
-    inline operator const std::string&() const { 
-        return m_text; 
+    /** Adds this text to the end of the GuiText. */
+    void append
+    (const std::string& text, 
+     const GFont::Ref&  font         = NULL, 
+     float              size         = -1.0f, 
+     const Color4&      color        = Color4(-1, -1, -1, -1), 
+     const Color4&      outlineColor = Color4(-1, -1, -1, -1),
+     const Vector2&     offset       = Vector2::zero());
+
+    /** Provides the value of default values for current elements.*/
+    void setDefault(const GFont::Ref& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
+
+    /** Returns the number of elements within this GuiText. */
+    inline int numElements() const {
+        return m_elementArray.size();
     }
 
-    /** Provides the value of default values.*/
-    void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
-
-    inline const std::string& text() const {
-        return m_text;
+    /** Returns element \a e within this GuiText. */
+    inline const Element& element(int e) const {
+        return m_elementArray[e];
     }
 
-    /** If this caption specifies a font, returns that font, otherwise returns the default font */
-    inline const GFont::Ref& font(const GFont::Ref& _default) const {
-        if (m_font.isNull()) {
-            return _default;
-        } else {
-            return m_font;
-        }
-    }
+    /** Concatenates all of the text within the elements.*/
+    std::string text() const;
 
-    inline const Color4& color(const Color4& _default) const {
-        if (m_color.a < 0) {
-            return _default;
-        } else {
-            return m_color;
-        }
-    }
-
-    inline const Color4& outlineColor(const Color4& _default) const {
-        if (m_outlineColor.a < 0) {
-            return _default;
-        } else {
-            return m_outlineColor;
-        }
-    }
-
-    inline float size(float _default) const {
-        if (m_size < 0) {
-            return _default;
-        } else {
-            return m_size;
-        }
+    /** \copydoc G3D::GuiText::text */
+    inline operator std::string() const { 
+        return text(); 
     }
 
     /** Loads standard symbols from the greek.fnt and icon.fnt fonts.*/
@@ -105,6 +160,7 @@ public:
     private:
         static GuiText greek(int asciiCode);
     public:
+
         static GuiText record();
         static GuiText play();
         static GuiText stop();

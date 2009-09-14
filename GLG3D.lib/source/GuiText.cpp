@@ -8,22 +8,7 @@
 
 namespace G3D {
 
-GuiText::GuiText
-(const std::string& text, 
- const GFontRef& font, 
- float size, 
- const Color4& color,
- const Color4& outlineColor) : m_text(text), m_font(font), m_size(size), m_color(color), m_outlineColor(outlineColor) {
-    
-}
-
-GuiText::GuiText
-(const char* text) : m_text(text), m_font(NULL), m_size(-1), m_color(-1,-1,-1,-1), m_outlineColor(-1,-1,-1,-1) {
-    
-}
-
-/** Provides the value of default values; called by Gui to overwrite the illegal values.*/
-void GuiText::setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline) {
+void GuiText::Element::setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline) {
     if (m_font.isNull()) {
         m_font = dfont;
     }
@@ -41,6 +26,66 @@ void GuiText::setDefault(const GFontRef& dfont, float dsize, const Color4& dcolo
     }
 }
 
+
+GuiText::GuiText
+(const std::string& text, 
+ const GFontRef& font, 
+ float size, 
+ const Color4& color,
+ const Color4& outlineColor,
+ const Vector2& offset) {
+    append(text, font, size, color, outlineColor, offset);
+}
+
+
+GuiText::GuiText
+(const char* text) {
+    append(text);
+}
+
+
+void GuiText::append
+(const std::string& text, 
+ const GFontRef& font, 
+ float size, 
+ const Color4& color,
+ const Color4& outlineColor,
+ const Vector2& offset) {
+    if (text == "") { 
+        // Nothing to append
+        return;
+    }
+
+    Element& e = m_elementArray.next();
+    e.m_text = text;
+    e.m_font = font;
+    e.m_size = size;
+    e.m_color = color;
+    e.m_outlineColor = outlineColor;
+    e.m_offset = offset;    
+}
+
+
+std::string GuiText::text() const {
+    if (m_elementArray.size() == 1) {
+        return m_elementArray[0].text();
+    } else {
+        std::string s;
+        for (int e = 0; e < m_elementArray.size(); ++e) {
+            s += m_elementArray[e].text();
+        }
+        return s;
+    }
+}
+
+
+void GuiText::setDefault(const GFont::Ref& dfont, float dsize, const Color4& dcolor, const Color4& doutline) {
+    for (int e = 0; e < m_elementArray.size(); ++e) {
+        m_elementArray[e].setDefault(dfont, dsize, dcolor, doutline);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GuiText GuiText::Symbol::record() {
     return GuiText("=", GFont::fromFile(System::findDataFile("icon.fnt")), 16, Color3::red() * 0.5f);
