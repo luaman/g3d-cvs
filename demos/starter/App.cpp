@@ -1,6 +1,5 @@
 /**
   @file App.cpp
-  TODO: shadows, objects
  */
 #include "App.h"
 

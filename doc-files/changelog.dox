@@ -33,6 +33,7 @@
      <li> G3D::RefractionQuality, G3D::MirrorQuality, G3D::PrimitiveType
      <li> G3D::ThirdPersonManipulator now draws hidden lines
      <li> G3D::GBuffer
+     <li> G3D::Framebuffer::set now allows specification of the target MIP-map level
      <li> G3D::RenderDevice::setMinLineWidth
      <li> G3D::Draw::skyBox
      <li> G3D::SmallArray

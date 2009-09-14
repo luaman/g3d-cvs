@@ -231,7 +231,21 @@ protected:
 
 public:
     /** Creates a default lighting environment for demos, which uses the file
-    on the noonclouds/noonclouds_*.jpg textures.*/
+    on the noonclouds/noonclouds_*.jpg textures:
+
+  <pre>
+    Lighting::Ref lighting = Lighting::create();
+    lighting->shadowedLightArray.append(GLight::directional(Vector3(1,2,1), Color3::fromARGB(0xfcf6eb)));
+    lighting->lightArray.append(GLight::directional(Vector3(-1,-0.5f,-1), Color3::fromARGB(0x1e324d)));
+    lighting->ambientTop    = Color3::fromARGB(0x303842);
+    lighting->ambientBottom = Color3::fromARGB(0x262627);
+    lighting->environmentMap = 
+        Texture::fromFile(pathConcat(System::findDataFile("sky"), "noonclouds/noonclouds_*.jpg"), 
+                          TextureFormat::RGB8(), Texture::DIM_CUBE_MAP, Texture::Settings::cubeMap(),
+                          Texture::PreProcess::gamma(2.1f));
+    lighting->environmentMapColor = Color3::one();
+   </pre>
+*/
     static Lighting::Ref defaultLighting();
 
     /** Add your own debugging controls to this window.*/

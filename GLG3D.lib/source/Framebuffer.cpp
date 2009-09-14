@@ -91,11 +91,11 @@ void Framebuffer::set(AttachmentPoint ap, const void* n) {
 
 
 void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture) {
-    set(ap, texture, Texture::CUBE_NEG_X);
+    set(ap, texture, Texture::CUBE_NEG_X, 0);
 }
 
-    
-void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face) {
+   
+void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::CubeFace face, int mipLevel) {
     if (texture.isNull()) {
         // We're in the wrong overload due to C++ static type dispatch
         set(ap, NULL);
@@ -114,9 +114,9 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
     }
     
     Attachment::Ref a = get(ap);
-    if (a.isNull() || ! (a->equals(texture, face))) {
+    if (a.isNull() || ! (a->equals(texture, face, mipLevel))) {
         // This is a change
-        set(new Attachment(ap, texture, face));
+        set(new Attachment(ap, texture, face, mipLevel));
         texture->invertY = true;
     }
 }
@@ -313,15 +313,17 @@ Framebuffer::Attachment::Attachment(AttachmentPoint ap, const RenderbufferRef& r
     m_type(RENDERBUFFER),
     m_point(ap),
     m_renderbuffer(r),
-    m_cubeFace(Texture::CUBE_NEG_X) {
+    m_cubeFace(Texture::CUBE_NEG_X),
+    m_mipLevel(0) {
 }
 
 
-Framebuffer::Attachment::Attachment(AttachmentPoint ap, const Texture::Ref& r, Texture::CubeFace c) : 
+Framebuffer::Attachment::Attachment(AttachmentPoint ap, const Texture::Ref& r, Texture::CubeFace c, int m) : 
     m_type(TEXTURE), 
     m_point(ap),
     m_texture(r),
-    m_cubeFace(c) {
+    m_cubeFace(c),
+    m_mipLevel(m) {
     
     if (m_texture->settings().autoMipMap) {
         m_texture->setAutoMipMap(false);
@@ -356,11 +358,12 @@ int Framebuffer::Attachment::height() const {
 }
 
 
-bool Framebuffer::Attachment::equals(const Texture::Ref& t, Texture::CubeFace c) const {
+    bool Framebuffer::Attachment::equals(const Texture::Ref& t, Texture::CubeFace c, int L) const {
     return
         (m_type == TEXTURE) &&
         (m_texture == t) &&
-        (m_cubeFace == c);
+        (m_cubeFace == c) &&
+        (m_mipLevel == L);
 }
 
 
@@ -377,6 +380,7 @@ bool Framebuffer::Attachment::equals(const Attachment::Ref& other) const {
         (m_point == other->m_point) &&
         (m_texture == other->m_texture) &&
         (m_cubeFace == other->m_cubeFace) &&
+        (m_mipLevel == other->m_mipLevel) &&
         (m_renderbuffer == other->m_renderbuffer);
 }
 
@@ -386,17 +390,16 @@ void Framebuffer::Attachment::attach() const {
         bool isCubeMap = 
             (m_texture->dimension() == Texture::DIM_CUBE_MAP) ||
             (m_texture->dimension() == Texture::DIM_CUBE_MAP_NPOT);
-        
 
         if (isCubeMap) {
             glFramebufferTexture2DEXT
                 (GL_FRAMEBUFFER_EXT, GLenum(m_point),
-                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)m_cubeFace, m_texture->openGLID(), 0);
+                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)m_cubeFace, m_texture->openGLID(), m_mipLevel);
         } else {
             glFramebufferTexture2DEXT
                 (GL_FRAMEBUFFER_EXT, GLenum(m_point),
                  m_texture->openGLTextureTarget(), 
-                 m_texture->openGLID(), 0);
+                 m_texture->openGLID(), m_mipLevel);
         }
     } else {
         glFramebufferRenderbufferEXT

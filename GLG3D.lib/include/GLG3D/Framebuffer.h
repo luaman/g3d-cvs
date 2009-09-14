@@ -10,7 +10,7 @@
  </UL>
 
  @created 2006-01-07
- @edited  2009-04-17
+ @edited  2009-09-17
 */
 
 #ifndef GLG3D_Framebuffer_h
@@ -244,13 +244,16 @@ public:
         /** If texture is a Texture::CUBE_MAP, this is the face that
             is attached. */
         Texture::CubeFace           m_cubeFace;
+        
+        /** Mip level being rendered to */
+        int                         m_mipLevel;
 
         Attachment(AttachmentPoint ap, const Renderbuffer::Ref& r);
 
-        Attachment(AttachmentPoint ap, const Texture::Ref& r, Texture::CubeFace c);
+        Attachment(AttachmentPoint ap, const Texture::Ref& r, Texture::CubeFace c, int miplevel);
         
         /** Assumes the point is correct */
-        bool equals(const Texture::Ref& t, Texture::CubeFace f) const;
+        bool equals(const Texture::Ref& t, Texture::CubeFace f, int miplevel) const;
 
         /** Assumes the point is correct */
         bool equals(const Renderbuffer::Ref& r) const;
@@ -287,6 +290,10 @@ public:
 
         inline Texture::CubeFace cubeFace() const {
             return m_cubeFace;
+        }
+
+        inline int mipLevel() const {
+            return m_mipLevel; 
         }
 
         const ImageFormat* format() const;
@@ -419,6 +426,8 @@ public:
     /** Overload used when setting attachment points to NULL */
     void set(AttachmentPoint ap, const void* n);
     
+    void set(AttachmentPoint ap, const Texture::Ref& texture);
+    
     /**
        Set one of the attachment points to reference a Texture.  Set
        to NULL or call clear() to unset.  Auto-mipmap will
@@ -435,13 +444,12 @@ public:
        calls to actually set attachments must be delayed until the
        bind() call, when this Framebuffer is guaranteed to be bound.
        
-       @param texture	 Texture to bind to the Framebuffer.
-       @param ap	 Attachment point to bind texture to.
+       \param texture	 Texture to bind to the Framebuffer.
+       \param ap	 Attachment point to bind texture to.
+       \param mipLevel   Target MIP-map level to render to.
     */
-    void set(AttachmentPoint ap, const Texture::Ref& texture);
-    
     void set(AttachmentPoint ap, const Texture::Ref& texture, 
-             Texture::CubeFace face);
+             Texture::CubeFace face, int mipLevel = 0);
     
     /**
        Set one of the attachment points to reference a renderbuffer.

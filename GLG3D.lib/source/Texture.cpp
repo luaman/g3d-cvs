@@ -2101,6 +2101,24 @@ const Texture::Settings& Texture::Settings::video() {
 }
 
 
+const Texture::Settings& Texture::Settings::cubeMap() {
+
+    static bool initialized = false;
+    static Settings param;
+
+    if (! initialized) {
+        initialized = true;
+        param.interpolateMode = BILINEAR_MIPMAP;
+        param.wrapMode = WrapMode::CLAMP;
+        param.depthReadMode = DEPTH_NORMAL;
+        param.maxAnisotropy = 1.0;
+        param.autoMipMap = true;
+    }
+
+    return param;
+}
+
+
 const Texture::Settings& Texture::Settings::shadow() {
 
     static bool initialized = false;

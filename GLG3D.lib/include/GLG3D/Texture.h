@@ -292,6 +292,12 @@ public:
         */
         static const Settings& shadow();
 
+        /**
+           Useful defaults for cube maps
+           TRILINEAR_MIPMAP / CLAMP, DEPTH_NORMAL / 1.0 / true 
+         */
+        static const Settings& cubeMap();
+
         /*
          Coming in a future version...
         void serialize(class BinaryOutput& b);
