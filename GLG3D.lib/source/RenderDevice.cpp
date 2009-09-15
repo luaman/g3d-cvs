@@ -2530,7 +2530,8 @@ void RenderDevice::sendVertex(const Vector4& vertex) {
 
 void RenderDevice::beginPrimitive(Primitive p) {
     debugAssertM(! inPrimitive, "Already inside a primitive");
-    debugAssertM( currentFramebufferComplete(), "Bound Framebuffer Incomplete!");
+    std::string why;
+    debugAssertM( currentFramebufferComplete(why), why);
 
     beforePrimitive();
     
@@ -3132,7 +3133,8 @@ void RenderDevice::sendIndices
 (RenderDevice::Primitive primitive, const VertexRange& indexVAR,
  int numInstances, bool useInstances) {
 
-    debugAssertM(currentFramebufferComplete(), "Incomplete Framebuffer");
+    std::string why;
+    debugAssertM(currentFramebufferComplete(why), why);
 
     if (indexVAR.m_numElements == 0) {
         // There's nothing in this index array, so don't bother rendering.

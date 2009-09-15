@@ -106,20 +106,20 @@ void App::onUserInput(UserInput* ui) {
 }
 
 
-void App::onPose(Array<SurfaceRef>& surfaceArray, Array<Surface2DRef>& posed2D) {
+void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2D) {
     // Append any models to the arrays that you want to later be rendered by onGraphics()
     m_scene->onPose(surfaceArray);
-    (void)posed2D;
+    (void)surface2D;
 }
 
 
-void App::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
+void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     Draw::skyBox(rd, m_scene->lighting()->environmentMap);
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    Surface::sortAndRender(rd, defaultCamera, posed3D, m_scene->lighting(), m_shadowMap);
+    Surface::sortAndRender(rd, defaultCamera, surface3D, m_scene->lighting(), m_shadowMap);
 
     // Sample immediate-mode rendering code
     rd->enableLighting();
