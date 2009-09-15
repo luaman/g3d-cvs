@@ -4,9 +4,9 @@
   @author Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-11-11
-  @edited  2006-01-10
+  @edited  2009-08-10
  
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 
@@ -18,6 +18,11 @@ namespace G3D {
 
 ConvexPolygon::ConvexPolygon(const Array<Vector3>& __vertex) : _vertex(__vertex) {
     // Intentionally empty
+}
+
+
+ConvexPolygon::ConvexPolygon(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
+    _vertex.append(v0, v1, v2);
 }
 
 

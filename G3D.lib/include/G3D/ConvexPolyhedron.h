@@ -32,41 +32,42 @@ public:
 class ConvexPolygon {
 private:
 
-	friend class ConvexPolyhedron;
+    friend class ConvexPolyhedron;
 
     Array<Vector3>			_vertex;
 
 public:
 
     ConvexPolygon() {}
+    ConvexPolygon(const Vector3& v0, const Vector3& v1, const Vector3& v2);
     ConvexPolygon(const Array<Vector3>& __vertex);
     virtual ~ConvexPolygon() {}
 
     /**
      Counter clockwise winding order.  
      */
-	inline const Vector3& vertex(int i) const {
-		return _vertex[i];
-	}
-
-	inline void setVertex(int i, const Vector3& v) {
-		_vertex[i] = v;
-	}
-
-	/**
-	 Zero vertices indicates an empty polygon (zero area).
-	 */
-	inline int numVertices() const {
-		return _vertex.size();
-	}
-
-	inline void setNumVertices(int n) {
-		_vertex.resize(n);
-	}
-
+    inline const Vector3& vertex(int i) const {
+        return _vertex[i];
+    }
+    
+    inline void setVertex(int i, const Vector3& v) {
+        _vertex[i] = v;
+    }
+    
     /**
-     O(n) in the number of edges
-     */
+       Zero vertices indicates an empty polygon (zero area).
+    */
+    inline int numVertices() const {
+        return _vertex.size();
+    }
+    
+    inline void setNumVertices(int n) {
+        _vertex.resize(n);
+    }
+    
+    /**
+       O(n) in the number of edges
+    */
     bool isEmpty() const;
 
     /**
@@ -81,16 +82,16 @@ public:
     void cut(const Plane& plane, ConvexPolygon &above, ConvexPolygon &below, DirectedEdge& newEdge);
     void cut(const Plane& plane, ConvexPolygon &above, ConvexPolygon &below);
 
-	/**
-		When a cut plane grazes a vertex in the polygon, two near-identical vertices may be created.
-		The closeness of these two points can cause a number of problems, such as ConvexPolygon::normal() 
-		returning an infinite vector.  It should be noted, however, that not all applications are 
-		sensitive to near-identical vertices.
-
-		removeDuplicateVertices() detects and eliminates redundant vertices.
-	*/
-	void removeDuplicateVertices();
-
+    /**
+       When a cut plane grazes a vertex in the polygon, two near-identical vertices may be created.
+       The closeness of these two points can cause a number of problems, such as ConvexPolygon::normal() 
+       returning an infinite vector.  It should be noted, however, that not all applications are 
+       sensitive to near-identical vertices.
+       
+       removeDuplicateVertices() detects and eliminates redundant vertices.
+    */
+    void removeDuplicateVertices();
+    
     /**
      O(n) in the number of edges
      */
