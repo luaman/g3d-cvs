@@ -124,7 +124,7 @@ void VertexRange::init(
 
     // Ensure that the next memory address is aligned.  This has 
     // a significant (up to 25%!) performance impact on some GPUs
-    int pointerOffset = ((alignment - (int)m_pointer % alignment) % alignment);
+    int pointerOffset = (int)((alignment - (intptr_t)m_pointer % alignment) % alignment);
 
     if (numElements == 0) {
         pointerOffset = 0;
@@ -207,7 +207,7 @@ void* VertexRange::mapBuffer(GLenum permissions) {
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         glBindBufferARB(m_area->openGLTarget(), m_area->m_glbuffer);
         return (uint8*)glMapBufferARB(m_area->openGLTarget(), permissions) + 
-            (int)m_pointer;
+            (intptr_t)m_pointer;
         break;
 
     case VertexBuffer::MAIN_MEMORY:

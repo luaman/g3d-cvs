@@ -114,7 +114,7 @@ void TriTree::Node::split(Array<Poly>& original, const Settings& settings, const
             Node* ptr = (Node*) mm->alloc(sizeof(Node) * 2);
             
             alwaysAssertM((uintptr_t(ptr) & 3) == 0, 
-                          format("Pointer is not a multiple of four bytes: %d", (int)ptr));
+                          format("Pointer is not a multiple of four bytes: %d", (int)(long)ptr));
             packedChildAxis = reinterpret_cast<uintptr_t>(ptr) | static_cast<uintptr_t>(axis);
 
             new (ptr) Node(lowArray, settings, mm);
