@@ -376,11 +376,11 @@ inline int pow2(unsigned int x) {
 }
 
 inline double log2(double x) {
-    return ::log(x) * 3.32192809;
+    return ::log(x) * 1.442695;
 }
 
 inline float log2(float x) {
-    return ::logf(x) * 3.32192809f;
+    return ::logf(x) * 1.442695f;
 }
 
 inline double log2(int x) {

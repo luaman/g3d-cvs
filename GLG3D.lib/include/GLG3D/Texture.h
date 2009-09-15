@@ -109,14 +109,17 @@ public:
         That is, it assumes you are <i>inside</i> the cube map.
      */
     enum CubeMapConvention {
-        /** Uses "up", "rt", etc. */
+        /** Uses "up", "lf", etc. */
         CUBE_QUAKE, 
         
-        /** Uses "up", "east", etc. */
+        /** Uses "up", "west", etc. */
         CUBE_UNREAL, 
 
-        /** Uses "+y", "+x", etc. */
-        CUBE_G3D};
+        /** Uses "+y", "-x", etc. */
+        CUBE_G3D,
+
+        /** Uses "PY", "NX", etc. */
+        CUBE_DIRECTX};
 
     struct CubeMapInfo {
         struct Face {
@@ -706,30 +709,30 @@ public:
      outFormat.
      @param outFormat Must be one of: ImageFormat::AUTO, ImageFormat::RGB8, ImageFormat::RGBA8, ImageFormat::L8, ImageFormat::A8
      */
-    void getImage(GImage& dst, const ImageFormat* outFormat = ImageFormat::AUTO()) const;
+    void getImage(GImage& dst, const ImageFormat* outFormat = ImageFormat::AUTO(), bool applyInvertY = true) const;
 
-	/** Extracts the data as ImageFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
-	Image4Ref toImage4(bool applyInvertY = true) const;
-
+    /** Extracts the data as ImageFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
+    Image4Ref toImage4(bool applyInvertY = true) const;
+    
     /** Extracts the data as ImageFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
-	Image4uint8Ref toImage4uint8(bool applyInvertY = true) const;
-
-	/** Extracts the data as ImageFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
-	Image3Ref toImage3(bool applyInvertY = true) const;
-
-	/** Extracts the data as ImageFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
-	Image3uint8Ref toImage3uint8(bool applyInvertY = true) const;
-
-	/** Extracts the data as ImageFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
-	 */
-	Image1Ref toImage1(bool applyInvertY = true) const;
-
-	/** Extracts the data as ImageFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
-	Image1uint8Ref toImage1uint8(bool applyInvertY = true) const;
-
-	/** Extracts the data as ImageFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
-	Image1Ref toDepthImage1(bool applyInvertY = true) const;
-
+    Image4uint8Ref toImage4uint8(bool applyInvertY = true) const;
+    
+    /** Extracts the data as ImageFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
+    Image3Ref toImage3(bool applyInvertY = true) const;
+    
+    /** Extracts the data as ImageFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
+    Image3uint8Ref toImage3uint8(bool applyInvertY = true) const;
+    
+    /** Extracts the data as ImageFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
+     */
+    Image1Ref toImage1(bool applyInvertY = true) const;
+    
+    /** Extracts the data as ImageFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
+    Image1uint8Ref toImage1uint8(bool applyInvertY = true) const;
+    
+    /** Extracts the data as ImageFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
+    Image1Ref toDepthImage1(bool applyInvertY = true) const;
+    
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
     inline void getImage(Image4::Ref& im, bool applyInvertY = true) const {
         im = toImage4(applyInvertY);

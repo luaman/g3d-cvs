@@ -583,9 +583,10 @@ void GImage::flipHorizontal() {
 
 void GImage::flipVertical() {
     uint8* old = m_byte;
-    m_byte = (uint8*)m_memMan->alloc(m_width * m_height);
+    m_byte = (uint8*)m_memMan->alloc(m_width * m_height * m_channels);
 
-    // We could do this with only a single-row temp buffer, but then we'd have to copy twice as much data.
+    // We could do this with only a single-row temp buffer, but then
+    // we'd have to copy twice as much data.
     int rowBytes = m_width * m_channels;
     for (int y = 0; y < m_height; ++y) {
         System::memcpy(m_byte + y * rowBytes, old + (m_height - y - 1) * rowBytes, rowBytes);
@@ -598,31 +599,29 @@ void GImage::flipVertical() {
 void GImage::rotate90CW(int numTimes) {
 
     uint8* old = NULL;
-    if (numTimes % 4 != 0) {
-        (uint8*)m_memMan->alloc(m_width * m_height);
+    numTimes = iWrap(numTimes, 4);
+    if (numTimes > 0) {
+        (uint8*)m_memMan->alloc(m_width * m_height * m_channels);
     }
-    for (int j = 0; j < numTimes % 4; ++j) {
-
-        for (int i = 0; i < numTimes; ++i) {
-            {
-                uint8* temp = old;
-                uint8* old = m_byte;
-                m_byte = temp;
-            }
-
-            {
-                int temp = m_width;
-                m_width = m_height;
-                m_height = temp;
-            }
-
-            int rowBytes = m_width * m_channels;
-            for (int y = 0; y < m_height; ++y) {
-                for (int x = 0; x < m_width; ++x) {
-                    uint8* dst = m_byte + x + y * rowBytes;
-                    uint8* src = old + y + (m_height - x - 1) * rowBytes;
-                    System::memcpy(dst, src, m_channels);
-                }
+    for (int j = 0; j < numTimes; ++j) {
+        {
+            uint8* temp = old;
+            uint8* old = m_byte;
+            m_byte = temp;
+        }
+        
+        {
+            int temp = m_width;
+            m_width = m_height;
+            m_height = temp;
+        }
+        
+        int rowBytes = m_width * m_channels;
+        for (int y = 0; y < m_height; ++y) {
+            for (int x = 0; x < m_width; ++x) {
+                uint8* dst = m_byte + x + y * rowBytes;
+                uint8* src = old + y + (m_height - x - 1) * rowBytes;
+                System::memcpy(dst, src, m_channels);
             }
         }
     }

@@ -59,7 +59,7 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
 
 
 const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
-    static CubeMapInfo cubeMapInfo[3];
+    static CubeMapInfo cubeMapInfo[4];
     static bool initialized = false;
     if (! initialized) {
         initialized = true;
@@ -115,7 +115,7 @@ const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
         cubeMapInfo[CUBE_UNREAL].face[CUBE_NEG_Z].suffix = "north";
 
 
-        cubeMapInfo[CUBE_UNREAL].name = "G3D";
+        cubeMapInfo[CUBE_G3D].name = "G3D";
         cubeMapInfo[CUBE_G3D].face[CUBE_POS_X].flipX  = true;
         cubeMapInfo[CUBE_G3D].face[CUBE_POS_X].flipY  = false;
         cubeMapInfo[CUBE_G3D].face[CUBE_POS_X].suffix = "+x";
@@ -139,6 +139,32 @@ const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
         cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Z].flipX  = true;
         cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Z].flipY  = false;
         cubeMapInfo[CUBE_G3D].face[CUBE_NEG_Z].suffix = "-z";
+
+
+        cubeMapInfo[CUBE_DIRECTX].name = "DirectX";
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_X].flipX  = true;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_X].flipY  = false;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_X].suffix = "PX";
+
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_X].flipX  = true;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_X].flipY  = false;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_X].suffix = "NX";
+
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Y].flipX  = true;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Y].flipY  = false;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Y].suffix = "PY";
+
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Y].flipX  = true;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Y].flipY  = false;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Y].suffix = "NY";
+
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].flipX  = true;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].flipY  = false;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_POS_Z].suffix = "NZ";
+
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].flipX  = true;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].flipY  = false;
+        cubeMapInfo[CUBE_DIRECTX].face[CUBE_NEG_Z].suffix = "PZ";
     }
 
     return cubeMapInfo[convention];
@@ -257,6 +283,8 @@ static void generateCubeMapFilenames(const std::string& src, std::string realFil
         convention = Texture::CUBE_QUAKE;
     } else if (fileExists(filenameBase + "+x" + filenameExt)) {
         convention = Texture::CUBE_G3D;
+    } else if (fileExists(filenameBase + "PX" + filenameExt)) {
+        convention = Texture::CUBE_DIRECTX;
     }
 
     info = Texture::cubeMapInfo(convention);
@@ -1147,7 +1175,7 @@ const Texture::Settings& Texture::settings() const {
 }
 
 
-void Texture::getImage(GImage& dst, const ImageFormat* outFormat) const {
+void Texture::getImage(GImage& dst, const ImageFormat* outFormat, bool applyInvertY) const {
     alwaysAssertM(outFormat == ImageFormat::AUTO() ||
                   outFormat == ImageFormat::RGB8() ||
                   outFormat == ImageFormat::RGBA8() ||
@@ -1200,6 +1228,10 @@ void Texture::getImage(GImage& dst, const ImageFormat* outFormat) const {
     dst.resize(m_width, m_height, channels);
 
     getTexImage(dst.byte(), outFormat);
+
+    if (applyInvertY && invertY) {
+        dst.flipVertical();
+    }
 }
 
 
@@ -1969,9 +2001,10 @@ static void createTexture(
             debugAssertM((target != GL_TEXTURE_RECTANGLE_EXT),
                 "Compressed textures must be DIM_2D or DIM_2D_NPOT.");
 
-            glCompressedTexImage2DARB(target, mipLevel, bytesActualFormat, m_width, 
-                m_height, 0, (bytesPerPixel * ((m_width + 3) / 4) * ((m_height + 3) / 4)), 
-                                      rawBytes);
+            glCompressedTexImage2DARB
+                (target, mipLevel, bytesActualFormat, m_width, 
+                 m_height, 0, (bytesPerPixel * ((m_width + 3) / 4) * ((m_height + 3) / 4)), 
+                 rawBytes);
 
         } else {
 
