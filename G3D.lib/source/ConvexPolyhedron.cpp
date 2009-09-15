@@ -179,11 +179,12 @@ void ConvexPolygon::cut(const Plane& plane, ConvexPolygon &above, ConvexPolygon 
         } else {
             newEdge.start = interp;
         }
-        count++;
+        ++count;
     }
 
     debugAssertM((count == 2) || (count == 0), "Convex polygons may only intersect planes at two edges.");
 }
+
 
 ConvexPolygon ConvexPolygon::inverse() const {
     ConvexPolygon result;
@@ -197,23 +198,24 @@ ConvexPolygon ConvexPolygon::inverse() const {
     return result;
 }
 
-void ConvexPolygon::removeDuplicateVertices(){
-	// Any valid polygon should have 3 or more vertices, but why take chances?
-	if(_vertex.size() >= 2){
 
-		// Remove duplicate vertices.
-		for(int i=0;i<_vertex.size()-1;++i){
-			if(_vertex[i].fuzzyEq(_vertex[i+1])){
-				_vertex.remove(i+1);
-				--i; // Don't move forward.
-			}
-		}
-		
-		// Check the last vertex against the first.
-		if(_vertex[_vertex.size()-1].fuzzyEq(_vertex[0])){
-			_vertex.pop();
-		}
-	}
+void ConvexPolygon::removeDuplicateVertices(){
+    // Any valid polygon should have 3 or more vertices, but why take chances?
+    if (_vertex.size() >= 2){
+
+        // Remove duplicate vertices.
+        for (int i=0;i<_vertex.size()-1;++i){
+            if (_vertex[i].fuzzyEq(_vertex[i+1])){
+                _vertex.remove(i+1);
+                --i; // Don't move forward.
+            }
+        }
+	
+        // Check the last vertex against the first.
+        if (_vertex[_vertex.size()-1].fuzzyEq(_vertex[0])){
+            _vertex.pop();
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -221,6 +223,7 @@ void ConvexPolygon::removeDuplicateVertices(){
 ConvexPolyhedron::ConvexPolyhedron(const Array<ConvexPolygon>& _face) : face(_face) {
     // Intentionally empty
 }
+
 
 float ConvexPolyhedron::getVolume() const {
 

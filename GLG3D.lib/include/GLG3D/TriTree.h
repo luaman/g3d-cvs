@@ -156,14 +156,14 @@ private:
             m_high = m_high.max(v);
         }
 
-		/** Called from split
-			Due to floating point roundoff, redundant vertices and 
-			sliver triangles some times get generated; avoid that.
-		*/
+        /** Called from split
+            Due to floating point roundoff, redundant vertices and 
+            sliver triangles some times get generated; avoid that.
+        */
         inline void addIfNewVertex(const Vector3& v) {
-			if ((m_vertex.size() == 0) || (m_vertex.last() != v)) {
-				addVertex(v);
-			}
+            if ((m_vertex.size() == 0) || (m_vertex.last() != v)) {
+                addVertex(v);
+            }
         }
 
         /** Called from split to recompute m_area */

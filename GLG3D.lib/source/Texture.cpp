@@ -24,8 +24,39 @@
 #include "GLG3D/Texture.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/GLCaps.h"
+#include "GLG3D/Framebuffer.h"
+#include "GLG3D/RenderDevice.h"
 
 namespace G3D {
+
+/** Used by various Texture methods when a framebuffer is needed */
+static const Framebuffer::Ref& workingFramebuffer() {
+    static Framebuffer::Ref fbo = Framebuffer::create("Texture FBO");
+    return fbo;
+}
+
+
+Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
+
+    Texture* me = const_cast<Texture*>(this);
+    const Framebuffer::Ref& fbo = workingFramebuffer();
+
+    bool oldInvertY = invertY;
+    // Binding to a G3D framebuffer destroys the invertY flag
+    fbo->set(Framebuffer::COLOR0, this);
+    rd->pushState(fbo);
+    Color4 c;
+    if (oldInvertY) {
+        y = height() - 1 - y;
+    }
+    // Read back 1 pixel
+    glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &c);
+    rd->popState();
+    fbo->set(Framebuffer::COLOR0, NULL);
+    me->invertY = oldInvertY;
+    return c;
+}
+
 
 const Texture::CubeMapInfo& Texture::cubeMapInfo(CubeMapConvention convention) {
     static CubeMapInfo cubeMapInfo[3];
@@ -1026,14 +1057,14 @@ Texture::Ref Texture::fromGImage(
 }
 
 
-Texture::Ref Texture::createEmpty(
-    const std::string&               name,
-    int                              w,
-    int                              h,
-    const ImageFormat*               desiredFormat,
-    Dimension                        dimension,
-	const Settings&					 settings,
-    int                              d) {
+Texture::Ref Texture::createEmpty
+(const std::string&               name,
+ int                              w,
+ int                              h,
+ const ImageFormat*               desiredFormat,
+ Dimension                        dimension,
+ const Settings&                  settings,
+ int                              d) {
 
     debugAssertGLOk();
     debugAssertM(desiredFormat, "desiredFormat may not be ImageFormat::AUTO()");
@@ -1044,43 +1075,65 @@ Texture::Ref Texture::createEmpty(
 
     Texture::Ref t;
 
-    if (dimension == DIM_CUBE_MAP || dimension == DIM_CUBE_MAP_NPOT) {
+    if ((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) {
         // Cube map requires six faces
         Array< Array<const void*> > data(1);
         data[0].resize(6);
         for (int i = 0; i < 6; ++i) {
             data[0][i] = NULL;
         }
-        t = fromMemory(
-                name, 
-                data,
-                desiredFormat, 
-                w, 
-                h, 
-                d, 
-                desiredFormat,
-                dimension,
-                settings);
+        t = fromMemory
+            (name, 
+             data,
+             desiredFormat, 
+             w, 
+             h, 
+             d, 
+             desiredFormat,
+             dimension,
+             settings);
     } else {
 
-        t = fromMemory(
-                name, 
-                NULL, 
-                desiredFormat, 
-                w, 
-                h, 
-                d, 
-                desiredFormat, 
-                dimension, 
-                settings);
+        t = fromMemory
+            (name, 
+             NULL, 
+             desiredFormat, 
+             w, 
+             h, 
+             d, 
+             desiredFormat, 
+             dimension, 
+             settings);
     }
 
-    // The only purpose of creating an empty texture is to render to it with FBO/readback,
-    // so clearly the caller will want Y inverted.
+    // The only purpose of creating an empty texture is to render to
+    // it with FBO/readback, so clearly the caller will want Y
+    // inverted.
     t->invertY = true;
 
     debugAssertGLOk();
     return t;
+}
+
+
+void Texture::clear(CubeFace cf, int mipLevel, RenderDevice* rd) {
+    if (rd == NULL) {
+        rd = RenderDevice::lastRenderDeviceCreated;
+    }
+
+    const Framebuffer::Ref& fbo = workingFramebuffer();
+
+    if (m_format->depthBits > 0) {
+        fbo->set(Framebuffer::DEPTH, this, cf, mipLevel);
+    } else {
+        fbo->set(Framebuffer::COLOR0, this, cf, mipLevel);
+    }
+
+    rd->pushState(fbo);
+    rd->clear();
+    rd->popState();
+
+    fbo->clear();
 }
 
 

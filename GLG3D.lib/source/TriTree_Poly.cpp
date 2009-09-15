@@ -41,9 +41,9 @@ void TriTree::Poly::draw(RenderDevice* rd) const {
 
 
 inline static void addVertex(SmallArray<Vector3, 4>& array, const Vector3& v) {
-	if ((array.size() == 0) || (array.last() != v)) {
-		array.append(v);
-	}
+    if ((array.size() == 0) || (array.last() != v)) {
+        array.append(v);
+    }
 }
 
 void TriTree::Poly::split
@@ -114,7 +114,7 @@ void TriTree::Poly::split
                     
                     // Add this point to both
                     L.addIfNewVertex(v);
-					H.addIfNewVertex(v);
+                    H.addIfNewVertex(v);
                 }
 
                 inLow = nextInLow;
@@ -125,16 +125,16 @@ void TriTree::Poly::split
         L.computeArea();
         H.computeArea();
         
-		// Remove slivers and degenerates
-		if (L.area() <= 0.0f) {
-			lowArray.popDiscard();
-			// debugPrintf("Warning: TriTree generated and removed zero area poly (low)\n");
-		}
-
-		if (H.area() <= 0.0f) {
-			highArray.popDiscard();
-			// debugPrintf("Warning: TriTree generated and removed zero area poly (high)\n");
-		}
+        // Remove slivers and degenerates
+        if (L.area() <= 0.0f) {
+            lowArray.popDiscard();
+            // debugPrintf("Warning: TriTree generated and removed zero area poly (low)\n");
+        }
+        
+        if (H.area() <= 0.0f) {
+            highArray.popDiscard();
+            // debugPrintf("Warning: TriTree generated and removed zero area poly (high)\n");
+        }
     }
 }
 

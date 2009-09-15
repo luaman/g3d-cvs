@@ -104,6 +104,10 @@ public:
         CUBE_POS_Z = 4,
         CUBE_NEG_Z = 5};
 
+    /** Image alignment conventions specified by different APIs. 
+        G3D loads cube maps so that they act like reflection maps.
+        That is, it assumes you are <i>inside</i> the cube map.
+     */
     enum CubeMapConvention {
         /** Uses "up", "rt", etc. */
         CUBE_QUAKE, 
@@ -144,8 +148,9 @@ public:
      */
     static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool renderUpsideDown = true);
 
-    /** Returns the mapping from [0, 5] to cube map faces and filename suffixes. There are multiple filename conventions,
-        so the suffixes specify each of the options. */
+    /** Returns the mapping from [0, 5] to cube map faces and filename
+        suffixes. There are multiple filename conventions, so the
+        suffixes specify each of the options. */
     static const CubeMapInfo& cubeMapInfo(CubeMapConvention convention);
 
     /** Reference counted pointer to a Texture.*/
@@ -155,8 +160,14 @@ public:
         ARB_non_power_of_two texture support with POT fallback.
 
         \sa defaultDimension */
-    enum Dimension       {DIM_2D = 2, DIM_3D = 3, DIM_2D_RECT = 4, 
-                          DIM_CUBE_MAP = 5, DIM_2D_NPOT = 6, DIM_CUBE_MAP_NPOT = 7, DIM_3D_NPOT = 8};
+    enum Dimension 
+        {DIM_2D = 2, 
+         DIM_3D = 3, 
+         DIM_2D_RECT = 4, 
+         DIM_CUBE_MAP = 5,
+         DIM_2D_NPOT = 6, 
+         DIM_CUBE_MAP_NPOT = 7,
+         DIM_3D_NPOT = 8};
 
     /** 
       Returns true if this is a legal wrap mode for a G3D::Texture.
@@ -451,12 +462,22 @@ public:
     */
     void getTexImage(void* data, const ImageFormat* desiredFormat) const;
 
+    /** Reads back a single texel.  This is faster than reading an entire image, but 
+        still stalls the pipeline because it is synchronous.
+        \beta 
+
+        \a rd If NULL, set to RenderDevice::lastRenderDeviceCreated;
+    */
+    Color4 readTexel(int ix, int iy, class RenderDevice* rd = NULL) const;
+
     /** Returns the default Dimension for this machine, which is
         DIM_2D_NPOT if supported and DIM_2D if not.*/
     static Dimension defaultDimension();
 
     /**
      Creates an empty texture (useful for later reading from the screen).
+     
+     \sa clear()
      */
     static Texture::Ref createEmpty(
         const std::string&              name,
@@ -467,6 +488,15 @@ public:
         const Settings&                 settings       = Settings::defaults(),
         int                             depth          = 1);
 
+    /** Clear the texture to empty (typically after creation, so that it does
+        not contain unitialized data).
+        Requires the Framebuffer Object extension.
+
+        \a rd If NULL, set to RenderDevice::lastRenderDeviceCreated
+
+        \beta
+    */
+    void clear(CubeFace face = CUBE_POS_X, int mipLevel = 0, class RenderDevice* rd = NULL);
 
     /**
      Wrap and interpolate will override the existing parameters on the

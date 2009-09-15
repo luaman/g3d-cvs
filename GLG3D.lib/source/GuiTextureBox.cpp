@@ -17,24 +17,6 @@
 
 namespace G3D {
 
-static Color4 readTexel(RenderDevice* rd, const Texture::Ref& texture, int x, int y) {
-    static Framebuffer::Ref fbo = Framebuffer::create("Texture readback");
-    bool oldInvertY = texture->invertY;
-    // Binding to a G3D framebuffer destroys the invertY flag
-    fbo->set(Framebuffer::COLOR0, texture);
-    rd->pushState(fbo);
-    Color4 c;
-    if (oldInvertY) {
-        y = texture->height() - 1 - y;
-    }
-    // Read back 1 pixel
-    glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &c);
-    rd->popState();
-    fbo->set(Framebuffer::COLOR0, NULL);
-    texture->invertY = oldInvertY;
-    return c;
-}
-
 WeakReferenceCountedPointer<Shader> GuiTextureBox::g_cachedShader;
 
 GuiTextureBox::Settings::Settings(Channels c, float g, float mn, float mx) : 
@@ -403,7 +385,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                         }
 
                         if (m_needReadback) {
-                            me->m_texel = readTexel(rd, m_texture, ix, iy);
+                            me->m_texel = m_texture->readTexel(ix, iy, rd);
                             me->m_needReadback = false;
                         }
                         Color4uint8 ci(m_texel);
