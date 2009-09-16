@@ -143,13 +143,33 @@ public:
         /** Index using CubeFace */
         Face                face[6];
     };
+
     /**
      Returns the rotation matrix that should be used for rendering the
-     given cube map face.
-     \param renderUpsideDown Set to true if generating cube maps for direct application in real time,
-     set to false if generating to save to disk.
-     */
-    static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool renderUpsideDown = true);
+     given cube map face.  The orientations will seem to have the
+     camera "upside down" compared to what you might expect because
+     OpenGL's cube map convention and texture convention are both
+     inverted from how we usually visualize the data.
+     
+     The resulting cube maps can be saved to disk by:
+
+     <pre>
+     const Texture::CubeMapInfo::Face& faceInfo = cubeMapInfo.face[f];
+     GImage temp;
+     renderTarget->getImage(temp, ImageFormat::RGB8(), true);
+
+     temp.rotate90CW(-faceInfo.rotations);
+     if (faceInfo.flipY) {
+         temp.flipVertical();
+     }
+     if (faceInfo.flipX) {
+         temp.flipHorizontal();
+     }
+     temp.save(format("out-%s.png", faceInfo.suffix));
+     </pre>
+
+    */
+    static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix);
 
     /** Returns the mapping from [0, 5] to cube map faces and filename
         suffixes. There are multiple filename conventions, so the

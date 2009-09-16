@@ -1496,60 +1496,38 @@ void Texture::copyFromScreen(
 }
 
 
-void Texture::getCubeMapRotation(CubeFace face, Matrix3& outMatrix, bool upsideDown) {
-    if (upsideDown) {
-        switch (face) {
-          case CUBE_POS_X:
-              outMatrix = Matrix3::fromEulerAnglesYXZ((float)halfPi(), (float)pi(), 0);
-              break;
-      
-          case CUBE_NEG_X:
-              outMatrix = Matrix3::fromEulerAnglesYXZ(-(float)halfPi(), (float)pi(), 0);
-              break;
-      
-          case CUBE_POS_Y:
-              outMatrix = Matrix3::fromEulerAnglesXYZ((float)halfPi(), 0, 0);
-              break;
-      
-          case CUBE_NEG_Y:
-              outMatrix = Matrix3::fromEulerAnglesXYZ(-(float)halfPi(), 0, 0);
-              break;
-      
-          case CUBE_POS_Z:
-              outMatrix = Matrix3::fromEulerAnglesYZX((float)pi(), (float)pi(), 0);
-              break;
-      
-          case CUBE_NEG_Z:
-              outMatrix = Matrix3::fromAxisAngle(Vector3::unitZ(), (float)pi());
-              break;
-          }
-    } else {
-        switch (face) {
-        case CUBE_POS_X:
-            outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)halfPi());
-            break;
-
-        case CUBE_NEG_X:
-            outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)-halfPi());
-            break;
-
-        case CUBE_POS_Y:
-            outMatrix = CFrame::fromXYZYPRDegrees(0,0,0,90,90,0).rotation;
-            break;
-
-        case CUBE_NEG_Y:
-            outMatrix = CFrame::fromXYZYPRDegrees(0,0,0,90,-90,0).rotation;
-            break;
-
-        case CUBE_POS_Z:
-            outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)pi());
-            break;
-
-        case CUBE_NEG_Z:
-            outMatrix = Matrix3::identity();
-            break;
-        }
+void Texture::getCubeMapRotation(CubeFace face, Matrix3& outMatrix) {
+    switch (face) {
+    case Texture::CUBE_POS_X:
+        outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)halfPi());
+        break;
+        
+    case Texture::CUBE_NEG_X:
+        outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)-halfPi());
+        break;
+        
+    case Texture::CUBE_POS_Y:
+        outMatrix = CFrame::fromXYZYPRDegrees(0,0,0,180,-90,0).rotation;
+        break;
+        
+    case Texture::CUBE_NEG_Y:
+        outMatrix = CFrame::fromXYZYPRDegrees(0,0,0,180,90,0).rotation;
+        break;
+        
+    case Texture::CUBE_POS_Z:
+        outMatrix = Matrix3::fromAxisAngle(Vector3::unitY(), (float)pi());
+        break;
+        
+    case Texture::CUBE_NEG_Z:
+        outMatrix = Matrix3::identity();
+        break;
     }
+    
+    // GL's cube maps are "inside out" (they are the outside of a box,
+    // not the inside), but its textures are also upside down, so
+    // these turn into a 180-degree rotation, which fortunately does
+    // not affect the winding direction.
+    outMatrix = Matrix3::fromAxisAngle(Vector3::unitZ(), toRadians(180)) * outMatrix;
 }
 
 
