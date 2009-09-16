@@ -171,6 +171,9 @@ public:
     */
     static void getCubeMapRotation(CubeFace face, Matrix3& outMatrix);
 
+    /** \a filename should contain a * wildcard */
+    static CubeMapConvention determineCubeConvention(const std::string& filename);
+    
     /** Returns the mapping from [0, 5] to cube map faces and filename
         suffixes. There are multiple filename conventions, so the
         suffixes specify each of the options. */

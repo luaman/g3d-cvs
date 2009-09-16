@@ -270,22 +270,27 @@ AnyVal Texture::Settings::toAnyVal() const {
 }
 
 
+Texture::CubeMapConvention Texture::determineCubeConvention(const std::string& filename) {
+    std::string filenameBase, filenameExt;
+    Texture::splitFilenameAtWildCard(filename, filenameBase, filenameExt);
+    if (fileExists(filenameBase + "east" + filenameExt)) {
+        return Texture::CUBE_UNREAL;
+    } else if (fileExists(filenameBase + "lf" + filenameExt)) {
+        return Texture::CUBE_QUAKE;
+    } else if (fileExists(filenameBase + "+x" + filenameExt)) {
+        return Texture::CUBE_G3D;
+    } else if (fileExists(filenameBase + "PX" + filenameExt)) {
+        return Texture::CUBE_DIRECTX;
+    }
+    throw std::string("File not found");
+    return Texture::CUBE_G3D;
+}
+
 static void generateCubeMapFilenames(const std::string& src, std::string realFilename[6], Texture::CubeMapInfo& info) {
     std::string filenameBase, filenameExt;
     Texture::splitFilenameAtWildCard(src, filenameBase, filenameExt);
 
-    Texture::CubeMapConvention convention = Texture::CUBE_G3D;
-
-    // Figure out which filename convention we're using
-    if (fileExists(filenameBase + "east" + filenameExt)) {
-        convention = Texture::CUBE_UNREAL;
-    } else if (fileExists(filenameBase + "lf" + filenameExt)) {
-        convention = Texture::CUBE_QUAKE;
-    } else if (fileExists(filenameBase + "+x" + filenameExt)) {
-        convention = Texture::CUBE_G3D;
-    } else if (fileExists(filenameBase + "PX" + filenameExt)) {
-        convention = Texture::CUBE_DIRECTX;
-    }
+    Texture::CubeMapConvention convention = Texture::determineCubeConvention(src);
 
     info = Texture::cubeMapInfo(convention);
     for (int f = 0; f < 6; ++f) {
