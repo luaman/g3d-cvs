@@ -2708,11 +2708,7 @@ void RenderDevice::screenshotPic(GImage& dest, bool getAlpha, bool invertY) cons
 
     // Flip right side up
     if (invertY) {
-        if (getAlpha) {
-            GImage::flipRGBAVertical(dest.byte(), dest.byte(), width(), height());
-        } else {
-            GImage::flipRGBVertical(dest.byte(), dest.byte(), width(), height());
-        }
+        dest.flipVertical();
     }
 }
 
@@ -2720,7 +2716,7 @@ void RenderDevice::screenshotPic(GImage& dest, bool getAlpha, bool invertY) cons
 std::string RenderDevice::screenshot(const std::string& filepath) const {
     GImage screen;
 
-    std::string filename = pathConcat(filepath, generateFilenameBase("", "_" + System::appName()));
+    std::string filename = pathConcat(filepath, generateFilenameBase("", "_" + System::appName()) + ".jpg");
 
     screenshotPic(screen);
     screen.save(filename);

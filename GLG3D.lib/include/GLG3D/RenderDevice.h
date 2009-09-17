@@ -1740,7 +1740,7 @@ public:
      Pressing the "movie" icon in the GApp developer HUD or pressing F6 also
      allows direct screenshot capture.
      */
-    std::string screenshot(const std::string& filepath) const;
+    std::string screenshot(const std::string& filepath="./") const;
 
     /**
        @brief Takes a screenshot and puts the data into the G3D::GImage dest variable.

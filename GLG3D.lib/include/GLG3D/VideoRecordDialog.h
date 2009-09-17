@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2008-10-14
-  @edited  2008-10-14
+  @edited  2009-09-14
 */
 #ifndef G3D_VideoRecordDialog_h
 #define G3D_VideoRecordDialog_h
@@ -35,6 +35,7 @@ class RenderDevice;
  */
 class VideoRecordDialog : public GuiWindow {
 public:
+    friend class GApp;
 
     typedef ReferenceCountedPointer<class VideoRecordDialog> Ref;
 

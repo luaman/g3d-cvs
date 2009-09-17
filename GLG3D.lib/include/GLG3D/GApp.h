@@ -74,6 +74,7 @@ void debugDraw(const ShapeRef& shape, const Color4& solidColor = Color3::white()
 class GApp {
 public:
     friend class OSWindow;
+    friend class VideoRecordDialog;
 
     class Settings {
     public:
@@ -168,6 +169,9 @@ private:
 
     /** Called from init. */
     void loadFont(const std::string& fontName);
+
+    /** When recording, this dialog registers here */
+    VideoRecordDialog*       m_activeVideoRecordDialog;
 
     OSWindow*                _window;
     bool                    _hasUserCreatedWindow;

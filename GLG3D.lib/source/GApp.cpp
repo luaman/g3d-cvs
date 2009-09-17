@@ -21,7 +21,7 @@
 #include "GLG3D/Shader.h"
 #include "GLG3D/Draw.h"
 #include "GLG3D/RenderDevice.h"
-
+#include "GLG3D/VideoRecordDialog.h"
 
 namespace G3D {
 
@@ -72,6 +72,7 @@ static void writeLicense() {
 
 
 GApp::GApp(const Settings& settings, OSWindow* window) :
+    m_activeVideoRecordDialog(NULL),
     m_renderPeriod(1),
     m_endProgram(false),
     m_exitCode(0),
@@ -79,11 +80,11 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     renderDevice(NULL),
     userInput(NULL),
     lastWaitTime(System::time()),
+    m_useFilm(settings.film.enabled),
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
     m_simTime(0),
-    m_useFilm(settings.film.enabled),
     m_settings(settings) {
 
     lastGApp = this;
@@ -661,6 +662,9 @@ void GApp::oneFrame() {
         }
     }
     m_graphicsWatch.tock();
+    if (m_activeVideoRecordDialog) {
+        m_activeVideoRecordDialog->maybeRecord(renderDevice);        
+    }
     renderDevice->endFrame();
     debugShapeArray.fastClear();
     debugText.fastClear();

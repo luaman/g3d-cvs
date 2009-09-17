@@ -41,8 +41,8 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_motionBlurFrames(10),
     m_screenshotPending(false),
     m_framesBox(NULL),
-    m_showCursor(false),
-    m_captureGUI(false) {
+    m_captureGUI(false),
+    m_showCursor(false) {
 
     m_hotKey = GKey::F6;
     m_hotKeyMod = GKeyMod::NONE;
@@ -91,6 +91,8 @@ std::string VideoRecordDialog::nextFilenameBase() {
 
 
 void VideoRecordDialog::makeGUI() {
+    pane()->addCheckBox("Record GUI (Surface2D)", &m_captureGUI);
+
     pane()->addLabel(GuiText("Video", NULL, 12));
     GuiPane* moviePane = pane()->addPane("", GuiTheme::ORNATE_PANE_STYLE);
 
@@ -118,8 +120,6 @@ void VideoRecordDialog::makeGUI() {
 
     GuiNumberBox<float>* recordBox   = moviePane->addNumberBox("Record",      &m_recordFPS, "fps", false, 1.0f, 120.0f, 0.1f);
     recordBox->setCaptionSize(captionSize);
-
-    moviePane->addCheckBox("Record GUI (Surface2D)", &m_captureGUI);
 
     if (GLCaps::supports_GL_ARB_texture_non_power_of_two() && GLCaps::supports_GL_EXT_framebuffer_object()) {
         const OSWindow* window = OSWindow::current();
@@ -168,10 +168,15 @@ void VideoRecordDialog::makeGUI() {
 }
 
 
-void VideoRecordDialog::onPose (Array<SurfaceRef> &posedArray, Array< Surface2DRef > &posed2DArray) {
+void VideoRecordDialog::onPose(Array<Surface::Ref>& posedArray, Array<Surface2D::Ref>& posed2DArray) {
     GuiWindow::onPose(posedArray, posed2DArray);
     if (m_video.notNull() || m_screenshotPending) {
-        posed2DArray.append(m_recorder);
+        if (m_captureGUI) {
+            // Register with the App for a callback
+            m_app->m_activeVideoRecordDialog = this;
+        } else {
+            posed2DArray.append(m_recorder);
+        }
     }
 }
 
@@ -233,8 +238,6 @@ void VideoRecordDialog::startRecording() {
 void VideoRecordDialog::recordFrame(RenderDevice* rd) {
     debugAssert(m_video.notNull());
 
-    bool useBackBuffer = ! m_captureGUI;
-
     // TODO: motion blur support
     // TODO: show cursor
 
@@ -248,11 +251,7 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
                                                    TextureFormat::RGB8(), Texture::DIM_2D_NPOT, settings);
         }
         RenderDevice::ReadBuffer old = rd->readBuffer();
-        if (useBackBuffer) {
-            rd->setReadBuffer(RenderDevice::READ_BACK);
-        } else {
-            rd->setReadBuffer(RenderDevice::READ_FRONT);
-        }
+        rd->setReadBuffer(RenderDevice::READ_BACK);
         m_downsampleSrc->copyFromScreen(Rect2D::xywh(0,0,rd->width(), rd->height()));
         rd->setReadBuffer(old);
 
@@ -284,18 +283,12 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
         m_video->append(m_downsampleDst);
     } else {
         // Full-size: grab directly from the screen
-        m_video->append(rd, useBackBuffer);
+        m_video->append(rd, true);
     }
 
     //  Draw "REC" on the screen.
     rd->push2D();
     {
-        if (! useBackBuffer && ! m_halfSize) {
-            // Draw directly to the front buffer so that the message does not appear in the 
-            // recording of the next frame.
-            rd->setDrawBuffer(RenderDevice::DRAW_FRONT);
-        }
-        
         static RealTime t0 = System::time();
         bool toggle = isEven((int)((System::time() - t0) * 2));
         m_font->draw2D(rd, "REC", Vector2(rd->width() - 100, 5), 35, 
@@ -402,12 +395,7 @@ void VideoRecordDialog::screenshot(RenderDevice* rd) {
     GImage screen;
 
     rd->pushState();
-    bool useBackBuffer = ! m_captureGUI;
-    if (useBackBuffer) {
-        rd->setReadBuffer(RenderDevice::READ_BACK);
-    } else {
-        rd->setReadBuffer(RenderDevice::READ_FRONT);
-    }
+    rd->setReadBuffer(RenderDevice::READ_BACK);
     rd->screenshotPic(screen);
     rd->popState();
 
