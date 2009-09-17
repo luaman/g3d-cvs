@@ -30,7 +30,7 @@ VideoRecordDialog::Ref VideoRecordDialog::create(GApp* app) {
 
 
 VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) : 
-    GuiWindow("Screen Capture", theme, Rect2D::xywh(0, 100, 310, 200),
+    GuiWindow("Screen Capture", theme, Rect2D::xywh(0, 100, 320, 200),
               GuiTheme::DIALOG_WINDOW_STYLE, GuiWindow::HIDE_ON_CLOSE),
     m_app(app),
     m_templateIndex(0),
@@ -41,7 +41,8 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_motionBlurFrames(10),
     m_screenshotPending(false),
     m_framesBox(NULL),
-    m_showCursor(false) {
+    m_showCursor(false),
+    m_captureGUI(false) {
 
     m_hotKey = GKey::F6;
     m_hotKeyMod = GKeyMod::NONE;
@@ -136,10 +137,19 @@ void VideoRecordDialog::makeGUI() {
     label->setWidth(captionSize);
     moviePane->addLabel(m_hotKeyString)->moveRightOf(label);
 
+    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
+    // Add record on the same line as previous hotkey box
     m_recordButton = moviePane->addButton("Record Now (" + m_hotKeyString + ")");
-    m_recordButton->moveBy(pane()->rect().width() - m_recordButton->rect().width() - 5, -27);
-
+    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
+    m_recordButton->moveBy(moviePane->rect().width() - m_recordButton->rect().width() - 5, -27);
+    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
+    debugPrintf("record button at: %f,%f %f,%f\n",
+                m_recordButton->rect().x0(),
+                m_recordButton->rect().y0(),
+                m_recordButton->rect().x1(),
+                m_recordButton->rect().y1());
     moviePane->pack();
+    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
     moviePane->setWidth(pane()->rect().width());
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -209,8 +219,6 @@ void VideoRecordDialog::startRecording() {
 
     m_video = VideoOutput::create(filename, settings);
 
-    // TODO: motion blur support
-
     if (m_app) {
         m_oldSimTimeStep = m_app->simTimeStep();
         m_oldDesiredFrameRate = m_app->desiredFrameRate();
@@ -238,14 +246,15 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
 
     // TODO: motion blur support
     // TODO: show cursor
-    // TODO: half size
+
     if (m_halfSize) {
         // Half-size: downsample
         if (m_downsampleSrc.isNull()) {
             Texture::Settings settings = Texture::Settings::video();
             // Need bilinear for fast downsample
             settings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
-            m_downsampleSrc = Texture::createEmpty("Downsample Source", 16, 16, TextureFormat::RGB8(), Texture::DIM_2D_NPOT, settings);
+            m_downsampleSrc = Texture::createEmpty("Downsample Source", 16, 16,
+                                                   TextureFormat::RGB8(), Texture::DIM_2D_NPOT, settings);
         }
         RenderDevice::ReadBuffer old = rd->readBuffer();
         if (useBackBuffer) {
@@ -259,14 +268,18 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
         if (m_downsampleFBO.isNull()) {
             m_downsampleFBO = Framebuffer::create("Downsample Framebuffer");
         }
+
         if (m_downsampleDst.isNull() || 
             (m_downsampleDst->width() != m_downsampleSrc->width() / 2) || 
             (m_downsampleDst->height() != m_downsampleSrc->height() / 2)) {
             // Allocate destination
-            m_downsampleDst = Texture::createEmpty("Downsample Destination", m_downsampleSrc->width() / 2, m_downsampleSrc->height() / 2, 
-                ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+            m_downsampleDst = 
+                Texture::createEmpty("Downsample Destination", m_downsampleSrc->width() / 2, 
+                                     m_downsampleSrc->height() / 2, 
+                                     ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::video());
             m_downsampleFBO->set(Framebuffer::COLOR0, m_downsampleDst);
         }
+
         // Downsample (use bilinear for fast filtering
         rd->push2D(m_downsampleFBO);
         {
@@ -294,8 +307,10 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
         
         static RealTime t0 = System::time();
         bool toggle = isEven((int)((System::time() - t0) * 2));
-        m_font->draw2D(rd, "REC", Vector2(rd->width() - 100, 5), 35, toggle ? Color3::black() : Color3::white(), Color3::black());
-        m_font->draw2D(rd, m_hotKeyString + " to stop", Vector2(rd->width() - 100, 45), 16, Color3::white(), Color4(0,0,0,0.45f));
+        m_font->draw2D(rd, "REC", Vector2(rd->width() - 100, 5), 35, 
+                       toggle ? Color3::black() : Color3::white(), Color3::black());
+        m_font->draw2D(rd, m_hotKeyString + " to stop", Vector2(rd->width() - 100, 45), 16, 
+                       Color3::white(), Color4(0,0,0,0.45f));
     }
     rd->pop2D();
 
