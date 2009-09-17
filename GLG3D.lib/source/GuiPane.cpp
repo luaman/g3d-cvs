@@ -54,7 +54,7 @@ void GuiPane::setCaption(const GuiText& caption) {
 
 
 Vector2 GuiPane::contentsExtent() const {
-    Vector2 p(0,0);
+    Vector2 p(0.0f, 0.0f);
     for (int i = 0; i < controlArray.size(); ++i) {
         p = p.max(controlArray[i]->rect().x1y1());
     }
@@ -66,7 +66,6 @@ Vector2 GuiPane::contentsExtent() const {
     for (int i = 0; i < labelArray.size(); ++i) {
         p = p.max(labelArray[i]->rect().x1y1());
     }
-
     return p;
 }
 
@@ -83,7 +82,8 @@ Vector2 GuiPane::nextControlPos(bool isTool) const {
 
 
 void GuiPane::pack() {
-    setSize(0, 0);
+    // Resize to minimum bounds
+    setSize(m_rect.wh() - m_clientRect.wh());
     for (int i = 0; i < containerArray.size(); ++i) {
         GuiPane* p = dynamic_cast<GuiPane*>(containerArray[i]);
         if (p != NULL) {

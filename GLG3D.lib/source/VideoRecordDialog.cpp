@@ -137,19 +137,10 @@ void VideoRecordDialog::makeGUI() {
     label->setWidth(captionSize);
     moviePane->addLabel(m_hotKeyString)->moveRightOf(label);
 
-    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
     // Add record on the same line as previous hotkey box
     m_recordButton = moviePane->addButton("Record Now (" + m_hotKeyString + ")");
-    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
     m_recordButton->moveBy(moviePane->rect().width() - m_recordButton->rect().width() - 5, -27);
-    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
-    debugPrintf("record button at: %f,%f %f,%f\n",
-                m_recordButton->rect().x0(),
-                m_recordButton->rect().y0(),
-                m_recordButton->rect().x1(),
-                m_recordButton->rect().y1());
     moviePane->pack();
-    debugPrintf("pane dimensions: %fx%f\n", moviePane->rect().width(), moviePane->rect().height());
     moviePane->setWidth(pane()->rect().width());
 
     ///////////////////////////////////////////////////////////////////////////////////

@@ -33,6 +33,7 @@ void GuiContainer::increaseBounds(const Vector2& extent) {
         Vector2 newExtent = extent.max(m_clientRect.wh());
 
         // Pad for the container's own size
+        debugAssertM(m_rect.height() >= m_clientRect.height(), "Corrupt GuiContainer bounds");
         newExtent += m_rect.wh() - m_clientRect.wh();
 
         // The new window has the old position and the new width
