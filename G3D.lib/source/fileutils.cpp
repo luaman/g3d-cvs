@@ -7,36 +7,30 @@
  @edited  2008-01-20
  */
 
+#include <cstring>
+#include <cstdio>
 #include "G3D/platform.h"
 #include "G3D/fileutils.h"
 #include "G3D/BinaryInput.h"
+#include "G3D/BinaryOutput.h"
 #include "G3D/g3dmath.h"
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <zip.h>
 #include "G3D/stringutils.h"
 #include "G3D/Set.h"
 
-#include <cstring>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include "zip.h"
 
 #ifdef G3D_WIN32
    // Needed for _getcwd
    #include <direct.h>
    #include <io.h>
 #else
-   #include <dirent.h>
-   #include <fnmatch.h>
-   #include <unistd.h>
-   #define _getcwd getcwd
-#endif
-#include <stdio.h>
-#include "G3D/BinaryOutput.h"
-
-#ifdef G3D_WIN32
-    //for _mkdir and _stat
-#    include <direct.h>
-#else
-#    define _stat stat
+    #include <dirent.h>
+    #include <fnmatch.h>
+    #include <unistd.h>
+    #define _getcwd getcwd
+    #define _stat stat
 #endif
 
 

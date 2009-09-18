@@ -4,7 +4,7 @@
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-#include "GLG3D/MD3Model.h"
+//#include "GLG3D/MD3Model.h"
 
 class App : public GApp {
 public:
@@ -13,7 +13,13 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
-    MD3Model::Ref       model;
+    //MD3Model::Ref       head;
+    //MD3Model::Ref       torso;
+    //MD3Model::Ref       legs;
+
+    float headFrames;
+    float torsoFrames;
+    float legsFrames;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -86,8 +92,6 @@ void App::onInit() {
     lighting->lightArray.append(lighting->shadowedLightArray);
     lighting->shadowedLightArray.clear();
 
-    toneMap->setEnabled(false);
-
     /////////////////////////////////////////////////////////////
     // Example of how to add debugging controls
     debugPane->addButton("Exit", this, &App::endProgram);
@@ -104,7 +108,29 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    model = MD3Model::fromFile(dataDir + "md3-famine.pk3/models/players/famine/head_1.md3");
+    /*
+    head = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/head.md3");
+    torso = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
+    legs = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/lower.md3");
+
+    headFrames = 0;
+    torsoFrames = 0;
+    legsFrames = 0;
+    */
+
+    //setDesiredFrameRate(30.0f);
+/*
+    Array<std::string> tagNames;
+    head->getTagNames(tagNames);
+
+    tagNames.clear();
+
+    torso->getTagNames(tagNames);
+
+    tagNames.clear();
+
+    legs->getTagNames(tagNames);
+*/
 }
 
 
@@ -121,6 +147,26 @@ void App::onNetwork() {
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Add physical simulation here.  You can make your time
     // advancement based on any of the three arguments.
+
+    /*
+    headFrames += rdt;
+
+    if (headFrames > static_cast<float>(head->numFrames())) {
+        headFrames = 0;
+    }
+
+    torsoFrames += rdt;
+
+    if (torsoFrames > static_cast<float>(torso->numFrames())) {
+        torsoFrames = 0;
+    }
+
+    legsFrames += rdt;
+
+    if (legsFrames > static_cast<float>(legs->numFrames())) {
+        legsFrames = 0;
+    }
+    */
 }
 
 
@@ -145,25 +191,28 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
+    /*
+    head->pose(headFrames, "head_blue.skin", posed3D, torso->getTag(torsoFrames, "tag_head"));
+    torso->pose(torsoFrames, "upper_blue.skin", posed3D);
+    */
+    //legs->pose(168.0f, "lower_blue.skin", posed3D);
 }
 
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-    LightingRef   localLighting = toneMap->prepareLighting(lighting);
-    SkyParameters localSky      = toneMap->prepareSkyParameters(skyParameters);
-    
-    toneMap->beginFrame(rd);
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-    rd->clear(false, true, true);
-    sky->render(rd, localSky);
+    rd->clear(true, true, true);
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    Surface::sortAndRender(rd, defaultCamera, posed3D, localLighting);
+    Surface::sortAndRender(rd, defaultCamera, posed3D, lighting);
 
+    //Draw::arrow(legs->getTag(legsFrames, "tag_torso").translation, legs->getTag(legsFrames, "tag_torso").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);
+    //Draw::arrow(torso->getTag(torsoFrames, "tag_head").translation, torso->getTag(torsoFrames, "tag_head").rotation * Vector3::unitY(), rd, Color3::blue(), 10.0f);
+    /*
     // Sample immediate-mode rendering code
     rd->pushState();
         rd->enableLighting();
@@ -180,11 +229,7 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
         // Call to make the GApp show the output of debugDraw
         drawDebugShapes();
     rd->popState();
-
-    // In G3D 8.xx it is recommended that you do NOT render lens flare, because it can substantially
-    // slow performance on multi-GPU systems due to the CPU depth readback.
-    //sky->renderLensFlare(rd, localSky);
-    toneMap->endFrame(rd);
+    */
 
     // Render 2D objects like Widgets
     Surface2D::sortAndRender(rd, posed2D);

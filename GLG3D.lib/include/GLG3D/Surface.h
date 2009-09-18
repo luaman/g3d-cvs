@@ -67,10 +67,9 @@ typedef ReferenceCountedPointer<class Surface> SurfaceRef;
  how you get a Surface from a model class.
  
  <B>G3D does not provide a scene graph structure</B> (e.g. there is no Model base class)
- because the visible
- surface determination, rendering, and caching behavior of a scene
- graph are different for each application.  There is currently no 
- one-size-fits-all scene graph design pattern.
+ because the visible surface determination, rendering, and caching behavior of a scene
+ graph are different for each application.  There is currently no one-size-fits-all
+ scene graph design pattern.
  
  G3D <B>does</B> provide some basic infrastructure for making your
  own scene graph, however.  Model classes (e.g. G3D::IFSModel, G3D::MD2Model),

@@ -47,7 +47,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;;&quot;$(SolutionDir)..\$(ProjectName)\include\zip&quot;;&quot;$(SolutionDir)..\zlib.lib\include\&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\$(ProjectName)\include\&quot;;&quot;$(SolutionDir)..\zlib.lib\include\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -95,27 +95,227 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\zip.lib\source\crypt.h"
+				RelativePath="..\zip.lib\source\config.h"
 				>
 			</File>
 			<File
-				RelativePath="..\zip.lib\source\ioapi.c"
+				RelativePath="..\zip.lib\source\mkstemp.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zip.lib\source\iowin32.c"
+				RelativePath="..\zip.lib\source\zip_add.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zip.lib\source\iowin32.h"
+				RelativePath="..\zip.lib\source\zip_add_dir.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zip.lib\source\unzip.c"
+				RelativePath="..\zip.lib\source\zip_close.c"
 				>
 			</File>
 			<File
-				RelativePath="..\zip.lib\source\zip.c"
+				RelativePath="..\zip.lib\source\zip_delete.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_dirent.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_entry_free.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_entry_new.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_err_str.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_error_clear.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_error_get.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_error_get_sys_type.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_error_strerror.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_error_to_str.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_fclose.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_file_error_clear.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_file_error_get.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_file_get_offset.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_file_strerror.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_filerange_crc.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_fopen.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_fopen_index.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_fread.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_free.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_get_archive_comment.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_get_archive_flag.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_get_file_comment.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_get_name.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_get_num_files.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_memdup.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_name_locate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_new.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_open.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_rename.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_replace.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_set_archive_comment.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_set_archive_flag.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_set_file_comment.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_set_name.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_source_buffer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_source_file.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_source_filep.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_source_free.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_source_function.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_source_zip.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_stat.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_stat_index.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_stat_init.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_strerror.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_unchange.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_unchange_all.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_unchange_archive.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zip_unchange_data.c"
+				>
+			</File>
+			<File
+				RelativePath="..\zip.lib\source\zipint.h"
 				>
 			</File>
 		</Filter>
@@ -125,15 +325,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\zip.lib\include\zip\ioapi.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zip.lib\include\zip\unzip.h"
-				>
-			</File>
-			<File
-				RelativePath="..\zip.lib\include\zip\zip.h"
+				RelativePath="..\zip.lib\include\zip.h"
 				>
 			</File>
 		</Filter>

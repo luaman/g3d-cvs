@@ -37,11 +37,17 @@
 #include <zlib.h>
 
 #ifdef _MSC_VER
-#define ZIP_EXTERN __declspec(dllimport)
+#define ZIP_EXTERN
 #endif
 
 #include "zip.h"
 #include "config.h"
+
+#ifdef _MSC_VER
+    #define mode_t unsigned short
+    #define strcasecmp _stricmp
+    #define snprintf _snprintf
+#endif
 
 #ifndef HAVE_MKSTEMP
 int _zip_mkstemp(char *);

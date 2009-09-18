@@ -36,13 +36,7 @@
 
 
 
-#ifndef ZIP_EXTERN
-#ifdef _MSC_VER
-#define ZIP_EXTERN __declspec(dllexport)
-#else
 #define ZIP_EXTERN
-#endif
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,6 +45,10 @@ extern "C" {
 #include <sys/types.h>
 #include <stdio.h>
 #include <time.h>
+
+#ifdef _MSC_VER
+    #define ssize_t SSIZE_T
+#endif
 
 /* flags for zip_open */
 
