@@ -508,6 +508,8 @@ void ThirdPersonManipulator::onDrag(const Vector2& delta) {
         Matrix3 R = Matrix3::fromAxisAngle(axis, angle);
 
         m_controlFrame.rotation = m_controlFrame.rotation * R;
+        // Prevent accumulated error
+        m_controlFrame.rotation.orthonormalize();
 
     }
 }
