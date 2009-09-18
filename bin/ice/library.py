@@ -120,7 +120,7 @@ for lib in [
 Library('SDL',         maybeFwk,  'SDL',     'SDL',     'SDL',      'SDL',    ['SDL.h'],        ['SDL_GetMouseState'],                         ['OpenGL', 'Cocoa', 'pthread'], True),
 Library('curses',      DYNAMIC,   'curses',  'curses',   None,       None,    ['curses.h'],     [],                                            []),
 Library('zlib',        DYNAMIC,   'z',       'z',        None,       None,    ['zlib.h'],       ['compress2'],                                 []),
-Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['zip.h'],        ['unzClose'],                                  ['zlib']),
+Library('zip',         STATIC,    'zip',     'zip',      None,       None,    ['zip.h'],        ['zip_close'],                                  ['zlib']),
 Library('glut',        maybeFwk,  'glut',    'glut',    'GLUT',     'GLUT',   ['glut.h'],       [],                                            []),
 Library('OpenGL',      maybeFwk,  'GL',      'GL',      'OpenGL',   'OpenGL', ['gl.h'],         ['glBegin', 'glVertex3'],                      []),
 Library('jpeg',        DYNAMIC,   'jpeg',    'jpeg',     None,       None,    ['jpeg.h'],       ['jpeg_memory_src', 'jpeg_CreateCompress'],    []),

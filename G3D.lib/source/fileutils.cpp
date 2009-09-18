@@ -13,8 +13,7 @@
 #include "G3D/g3dmath.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "zip/zip.h"
-#include "zip/unzip.h"
+#include <zip.h>
 #include "G3D/stringutils.h"
 #include "G3D/Set.h"
 
@@ -152,24 +151,24 @@ void zipRead(const std::string& file,
     std::string zip, desiredFile;
     
     if (zipfileExists(file, zip, desiredFile)) {
-        unzFile f = unzOpen(zip.c_str());
+        struct zip *z = zip_open( zip.c_str(), ZIP_CHECKCONS, NULL );
         {
-            unzLocateFile(f, desiredFile.c_str(), 2);
-            unz_file_info info;
-            unzGetCurrentFileInfo(f, &info, NULL, 0, NULL, 0, NULL, 0);
-            length = info.uncompressed_size;
+            struct zip_stat info;
+            zip_stat_init( &info );    // TODO: Docs unclear if zip_stat_init is required.
+            zip_stat( z, desiredFile.c_str(), ZIP_FL_NOCASE, &info );
+            length = info.size;
             // sets machines up to use MMX, if they want
             data = System::alignedMalloc(length, 16);
-            unzOpenCurrentFile(f);
+            struct zip_file *zf = zip_fopen( z, desiredFile.c_str(), ZIP_FL_NOCASE );
             {
-                int test = unzReadCurrentFile(f, data, length);
+                int test = zip_fread( zf, data, length );
                 debugAssertM((size_t)test == length,
                              desiredFile + " was corrupt because it unzipped to the wrong size.");
                 (void)test;
             }
-            unzCloseCurrentFile(f);
+            zip_fclose( zf );
         }
-        unzClose(f);
+        zip_close( z );
     } else {
         data = NULL;
     }
@@ -190,14 +189,16 @@ int64 fileLength(const std::string& filename) {
 		if(zipfileExists(filename, zip, contents)){
 			int64 requiredMem;
 
-			unzFile f = unzOpen(zip.c_str());
+                        struct zip *z = zip_open( zip.c_str(), ZIP_CHECKCONS, NULL );
+                        debugAssertM(z != NULL, zip + ": zip open failed.");
 			{
-				unzLocateFile(f, contents.c_str(), 2);
-				unz_file_info info;
-				unzGetCurrentFileInfo(f, &info, NULL, 0, NULL, 0, NULL, 0);
-				requiredMem = info.uncompressed_size;
+                                struct zip_stat info;
+                                zip_stat_init( &info );    // TODO: Docs unclear if zip_stat_init is required.
+                                int success = zip_stat( z, contents.c_str(), ZIP_FL_NOCASE, &info );
+                                debugAssertM(success == 0, zip + ": " + contents + ": zip stat failed.");
+                                requiredMem = info.size;
 			}
-			unzClose(f);
+                        zip_close( z );
 			return requiredMem;
 		} else {
         return -1;
@@ -471,12 +472,12 @@ static void _zip_resolveDirectory(std::string& completeDir, const std::string& d
 
 // assumes that zipDir references a .zip file
 static bool _zip_zipContains(const std::string& zipDir, const std::string& desiredFile){
-	unzFile f = unzOpen(zipDir.c_str());
+        struct zip *z = zip_open( zipDir.c_str(), ZIP_CHECKCONS, NULL );
 	//the last parameter, an int, determines case sensitivity:
 	//1 is sensitive, 2 is not, 0 is default
-	int test = unzLocateFile(f, desiredFile.c_str(), 2);
-	unzClose(f);
-	if(test == UNZ_END_OF_LIST_OF_FILE){
+        int test = zip_name_locate( z, desiredFile.c_str(), ZIP_FL_NOCASE );
+        zip_close( z );
+	if(test == -1){
 		return false;
 	}
 	return true;
@@ -893,21 +894,19 @@ static void getFileOrDirListZip(const std::string& path,
                                 Array<std::string>& files,
                                 bool wantFiles,
                                 bool includePath){
-    unzFile f = unzOpen(path.c_str());
+    struct zip *z = zip_open( path.c_str(), ZIP_CHECKCONS, NULL );
 
-    enum {MAX_STRING_LENGTH=1024};
-    char filename[MAX_STRING_LENGTH];
     Set<std::string> fileSet;
+
+    int count = zip_get_num_files( z );
+    for( int i = 0; i < count; ++i ) {
+        struct zip_stat info;
+        zip_stat_init( &info );    // TODO: Docs unclear if zip_stat_init is required.
+        zip_stat_index( z, i, ZIP_FL_NOCASE, &info );
+        _zip_addEntry(path, prefix, info.name, fileSet, wantFiles, includePath);
+    }
     
-    do {
-        
-        // prefix is valid, either "" or a subfolder
-        unzGetCurrentFileInfo(f, NULL, filename, MAX_STRING_LENGTH,	NULL, 0, NULL, 0);
-        _zip_addEntry(path, prefix, filename, fileSet, wantFiles, includePath);
-        
-    } while (unzGoToNextFile(f) != UNZ_END_OF_LIST_OF_FILE);
-    
-    unzClose(f);
+    zip_close( z );
     
     fileSet.getMembers(files);
 }

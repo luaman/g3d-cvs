@@ -35,7 +35,7 @@ def _pathAppend(plist, newPath, checkForExist = False):
         # This is a single path that does not already appear in 
         # the output list
         if not checkForExist or os.path.exists(newPath):
-            plist.append(newPath)
+            plist.insert(0, newPath)
         elif not ('/SDL11/' in newPath) and not ('/SDL/' in newPath) and not ('/X11R6/' in newPath):
             # Don't print warnings about SDL/X11; we need those to make
             # lots of different unix installs all work
