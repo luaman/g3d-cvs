@@ -464,8 +464,14 @@ void GApp::renderDebugInfo() {
 
 
 bool GApp::onEvent(const GEvent& event) {
+    if (event.type == GEventType::VIDEO_RESIZE) {
+        resize(event.resize.w, event.resize.h);
+        return true;
+    }
+
     return false;
 }
+
 
 Lighting::Ref GApp::defaultLighting() {
     Lighting::Ref lighting = Lighting::create();

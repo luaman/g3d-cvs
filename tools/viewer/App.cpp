@@ -54,6 +54,10 @@ void App::onCleanup() {
 
 
 bool App::onEvent(const GEvent& e) {
+    if (GApp::onEvent(e)) {
+        return true;
+    }
+
     switch (e.type) {
     case GEventType::FILE_DROP:
         {

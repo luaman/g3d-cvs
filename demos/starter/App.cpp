@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     settings.window.height      = 600;
 
 #   ifdef G3D_WIN32
-        // On unix-like operating systems, icompile automatically copies data files.  
+        // On unix operating systems, icompile automatically copies data files.  
         // On Windows, we just run from the data directory.
         if (fileExists("data-files")) {
             chdir("data-files");
@@ -86,7 +86,9 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 
 bool App::onEvent(const GEvent& e) {
-    (void)e;
+    if (GApp::onEvent(e)) {
+        return true;
+    }
     // If you need to track individual UI events, manage them here.
     // Return true if you want to prevent other parts of the system
     // from observing this specific event.
