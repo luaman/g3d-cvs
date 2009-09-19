@@ -33,6 +33,8 @@
  * SUCH DAMAGE.
  */
 
+#ifdef _MSC_VER
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -53,3 +55,6 @@ _zip_mkstemp(char *path)
 
     return ret;
 }
+
+#endif //_MSC_VER
+
