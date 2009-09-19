@@ -273,6 +273,9 @@ def buildNativeFFMPEG():
     os.chdir(oldcwd)
 
     if retVal == 0:
+        # ensure output directory exists
+        ice.utils.mkdir(buildLibPath)
+ 
         # copy the static libraries to the build directory
         for lib in libs:
             ice.copyifnewer.copyIfNewer(pathConcat(installDir, 'lib', lib),
