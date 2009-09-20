@@ -141,6 +141,9 @@ public:
     void zoomIn();
     void zoomOut();
 
+    /** Brings up the modal save dialog */
+    void save();
+
     void setViewOffset(const Vector2& x);
 
     /** Change the scale to 1:1 pixel */

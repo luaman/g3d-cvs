@@ -2,7 +2,7 @@
  @file GLG3D/GuiTextureBox.cpp
 
  @created 2009-09-11
- @edited  2009-09-11
+ @edited  2009-09-19
 
  G3D Library http://g3d-cpp.sf.net
  Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
@@ -14,6 +14,8 @@
 #include "GLG3D/GuiButton.h"
 #include "GLG3D/GuiPane.h"
 #include "GLG3D/Draw.h"
+#include "GLG3D/FileDialog.h"
+#include "G3D/fileutils.h"
 
 namespace G3D {
 
@@ -60,7 +62,8 @@ GuiTextureBox::GuiTextureBox
  const GuiText&      caption,
  const Texture::Ref& t,
  const Settings&     s) : 
-    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(false), m_dragging(false), m_needReadback(true) {
+    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(false), 
+    m_dragging(false), m_needReadback(true) {
 
     // Height of caption and button bar
     const float cs = TOP_CAPTION_SIZE;
@@ -92,7 +95,9 @@ GuiTextureBox::GuiTextureBox
         const char* zoomIcon = "L";
         const char* diskIcon = "\xcd";
 
-        GuiButton* saveButton = m_drawerPane->addButton(GuiText(diskIcon, iconFont, h), GuiTheme::TOOL_BUTTON_STYLE);
+        GuiButton* saveButton = m_drawerPane->addButton(GuiText(diskIcon, iconFont, h), 
+                                                        Callback(this, &GuiTextureBox::save),
+                                                        GuiTheme::TOOL_BUTTON_STYLE);
         saveButton->setSize(h, h);
         saveButton->setPosition(0, 0);
 
@@ -135,6 +140,51 @@ GuiTextureBox::GuiTextureBox
 GuiTextureBox::~GuiTextureBox() {
     delete m_drawerPane;
     delete m_drawerButton;
+}
+
+
+void GuiTextureBox::save() {
+    std::string filename;
+    
+    // Make a sample filename, removing illegal or undesirable characters
+    std::string temp = m_caption.text();
+    for (int i = 0; i < (int)temp.size(); ++i) {
+        switch (temp[i]) {
+        case ' ':
+        case '\r':
+        case '\n':
+        case '\t':
+        case '.':
+        case ':':
+        case '/':
+        case '\\':
+        case '\'':
+        case '\"':
+            filename += "_";
+            break;
+
+        default:
+            filename += temp[i];
+        }
+    }
+
+    if (filename == "") {
+        filename = "image";
+    }
+
+    // Make sure this filename doesn't exist
+    int i = 0;
+    while (fileExists(format("%s%d.png", filename.c_str(), i))) {
+        ++i;
+    }
+    filename = format("%s%d.png", filename.c_str(), i);
+
+    if (FileDialog::create(window())->getFilename(filename)) {
+        // save code
+        // TODO: render to texture
+        // TODO: readback texture
+        // TODO: save texture
+    }
 }
 
 
