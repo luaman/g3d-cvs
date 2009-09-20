@@ -43,7 +43,7 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
 
     bool oldInvertY = invertY;
     // Binding to a G3D framebuffer destroys the invertY flag
-    fbo->set(Framebuffer::COLOR0, this);
+    fbo->set(Framebuffer::COLOR0, Texture::Ref(this));
     rd->pushState(fbo);
     Color4 c;
     if (oldInvertY) {
@@ -1157,9 +1157,9 @@ void Texture::clear(CubeFace cf, int mipLevel, RenderDevice* rd) {
     const Framebuffer::Ref& fbo = workingFramebuffer();
 
     if (m_format->depthBits > 0) {
-        fbo->set(Framebuffer::DEPTH, this, cf, mipLevel);
+        fbo->set(Framebuffer::DEPTH, Texture::Ref(this), cf, mipLevel);
     } else {
-        fbo->set(Framebuffer::COLOR0, this, cf, mipLevel);
+        fbo->set(Framebuffer::COLOR0, Texture::Ref(this), cf, mipLevel);
     }
 
     rd->pushState(fbo);
