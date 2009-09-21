@@ -167,7 +167,7 @@ def getDependencies(state, file, verbosity, timeStamp, iteration = 1):
     argsWithoutArchitecture = _removeArch(getCompilerOptions(state, []))
     argsWithoutArchitecture = ' '.join(argsWithoutArchitecture)
     
-    raw = shell(state.compiler + ' -M -msse2 -MG -MM ' + argsWithoutArchitecture + ' ' + file, verbosity >= TRACE)
+    raw = shell(state.compiler + ' -M -msse2 -MG ' + argsWithoutArchitecture + ' ' + file, verbosity >= TRACE)
     
     if verbosity >= SUPERTRACE:
         print 'Raw output of dependency determination:'
