@@ -134,7 +134,7 @@ void Surface::renderDepthOnly
 void Surface::sortAndRender
 (RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<SurfaceRef>&    allModels, 
+ const Array<Surface::Ref>&     allModels, 
  const LightingRef&             _lighting, 
  const Array<ShadowMap::Ref>&   shadowMaps,
  const Array<SuperShader::PassRef>& extraAdditivePasses) {

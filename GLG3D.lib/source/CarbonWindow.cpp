@@ -247,13 +247,17 @@ pascal OSErr OnDragReceived(WindowRef theWindow, void *userData, DragRef theDrag
     }
     
     if (pWindow->_droppedFiles.size() > 0) {
-        GEvent e;
-        e.type = GEventType::FILE_DROP;
-        e.drop.x = point.h;
-        e.drop.y = point.v;
-        
-        pWindow->fireEvent(e);
-        return noErr;
+        Rect rect, rectGrow;
+        if (GetWindowBounds(pWindow->_window, kWindowContentRgn, &rect) == noErr) {
+
+            GEvent e;
+            e.type = GEventType::FILE_DROP;
+            e.drop.x = point.h - rect.left;
+            e.drop.y = point.v - rect.top;
+            
+            pWindow->fireEvent(e);
+            return noErr;
+        }
     }
     
     return dragNotAcceptedErr;

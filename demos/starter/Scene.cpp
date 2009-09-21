@@ -19,7 +19,10 @@ void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
 
 Scene::Ref Scene::create() {
     Scene::Ref s = new Scene();
-    s->m_lighting = GApp::defaultLighting();
+    s->m_lighting = Lighting::create();
+    s->m_lighting->shadowLightArray.append(GLight::directional(Vector3(1,1,1), Color3::white()));
+    s->m_lighting->ambientTop = Color3::white() * 0.2f;
+    s->m_lighting->ambientBottom = Color3::white() * 0.1f;
 
     std::string materialPath = System::findDataFile("material");
     std::string crateFile = System::findDataFile("crate.ifs");
@@ -36,7 +39,7 @@ Scene::Ref Scene::create() {
 
         BumpMap::Settings b;
         b.iterations = 0;
-        mat.setBump(base + "L.jpg", b);
+        mat.setBump(base + "L.jpg", b, -0.005f);
         
         model->partArray[0].triList[0]->material = Material::create(mat);
 

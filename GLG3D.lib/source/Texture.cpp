@@ -339,6 +339,41 @@ TextureRef Texture::white() {
     return t;
 }
 
+
+TextureRef Texture::black() {
+    static WeakReferenceCountedPointer<Texture> cache;
+    
+    TextureRef t = cache.createStrongPtr();
+    if (t.isNull()) {
+        // Cache is empty                                                                                      
+        GImage im(8, 8, 4);
+        System::memset(im.byte(), 0x00, im.width() * im.height() * im.channels());
+        t = Texture::fromGImage("Black", im);
+        
+        cache = t;
+    }
+    
+    return t;
+}
+
+
+TextureRef Texture::gray() {
+    static WeakReferenceCountedPointer<Texture> cache;
+    
+    TextureRef t = cache.createStrongPtr();
+    if (t.isNull()) {
+        // Cache is empty                                                                                      
+        GImage im(8, 8, 4);
+        System::memset(im.byte(), 0x7F, im.width() * im.height() * im.channels());
+        t = Texture::fromGImage("Black", im);
+        
+        cache = t;
+    }
+    
+    return t;
+}
+
+
 /**
  Scales the intensity up or down of an entire image and gamma corrects.
  */

@@ -253,6 +253,18 @@ public:
         or future calls will return the mutated texture as well. */
     static Texture::Ref white();
 
+    /** @brief Returns a small all-black (0,0,0,0) texture.  
+    
+        The result is memoized and shared. Do not mutate this texture
+        or future calls will return the mutated texture as well. */
+    static Texture::Ref black();
+
+    /** @brief Returns a small all-grayk (0.5,0.5,0.5,0.5) texture.  
+    
+        The result is memoized and shared. Do not mutate this texture
+        or future calls will return the mutated texture as well. */
+    static Texture::Ref gray();
+
     /** @copydoc white(). */
     inline static Texture::Ref one() {
         return white();
@@ -262,6 +274,24 @@ public:
     inline static Texture::Ref whiteIfNull(const Texture::Ref& t) {
         if (t.isNull()) {
             return white();
+        } else {
+            return t;
+        }
+    }
+
+    /** Returns \a t if it is non-NULL, or white() if \a t is NULL */
+    inline static Texture::Ref blackIfNull(const Texture::Ref& t) {
+        if (t.isNull()) {
+            return black();
+        } else {
+            return t;
+        }
+    }
+
+    /** Returns \a t if it is non-NULL, or gray() if \a t is NULL */
+    inline static Texture::Ref grayIfNull(const Texture::Ref& t) {
+        if (t.isNull()) {
+            return gray();
         } else {
             return t;
         }

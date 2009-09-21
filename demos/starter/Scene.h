@@ -28,6 +28,8 @@ protected:
 
     Lighting::Ref               m_lighting;
     Array<Entity::Ref>          m_entityArray;
+	
+	Scene() {}
 
 public:
 
