@@ -765,7 +765,7 @@ buildg3d - Automated build system for G3D.
 Syntax: 
     buildg3d [--config config-file] [--install [install-dir] target
 
-    The targets are: help, clean, lib, test, doc, jar, ide, all, ffmpeg, src
+    The targets are: help, all, lib, doc, clean, etc
 
 If you are installing G3D, you want to run:
 
