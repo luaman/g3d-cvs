@@ -298,8 +298,9 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         } else {
             s = format("%dx%d", w, h);
         }
-        theme->renderLabel(Rect2D::xywh(m_drawerPane->rect().center().x - 30 + m_rect.x0(), m_rect.y0() + 2, 60, captionSize()), 
-                           s, GFont::XALIGN_CENTER, GFont::YALIGN_TOP, m_enabled);
+        theme->renderLabel(Rect2D::xywh(m_drawerButton->rect().x1() - 3, m_rect.y0() + 2,
+                                        60, captionSize()), 
+                           s, GFont::XALIGN_RIGHT, GFont::YALIGN_TOP, m_enabled);
     }
 
     // Render child controls so that they slide under the canvas
