@@ -19,10 +19,7 @@ void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
 
 Scene::Ref Scene::create() {
     Scene::Ref s = new Scene();
-    s->m_lighting = Lighting::create();
-    s->m_lighting->shadowLightArray.append(GLight::directional(Vector3(1,1,1), Color3::white()));
-    s->m_lighting->ambientTop = Color3::white() * 0.2f;
-    s->m_lighting->ambientBottom = Color3::white() * 0.1f;
+    s->m_lighting = GApp::defaultLighting();
 
     std::string materialPath = System::findDataFile("material");
     std::string crateFile = System::findDataFile("crate.ifs");
