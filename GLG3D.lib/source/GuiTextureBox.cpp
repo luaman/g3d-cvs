@@ -298,8 +298,8 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         } else {
             s = format("%dx%d", w, h);
         }
-        theme->renderLabel(Rect2D::xywh(m_drawerButton->rect().x1() - 3, m_rect.y0() + 2,
-                                        60, captionSize()), 
+        theme->renderLabel(Rect2D::xyxy(m_drawerPane->rect().x0(), m_rect.y0() + 2,
+                                        m_drawerButton->rect().x0() - 4, captionSize() + m_rect.y0() + 2), 
                            s, GFont::XALIGN_RIGHT, GFont::YALIGN_TOP, m_enabled);
     }
 
