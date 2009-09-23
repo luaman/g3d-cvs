@@ -186,11 +186,11 @@ void App::configureShaderArgs(const LightingRef lighting) {
 	phongShader->args.set("wsEyePosition", defaultCamera.coordinateFrame().translation);
 	phongShader->args.set("ambientLightColor", lighting->ambientAverage());
 
-	Color3 color = colorList[diffuseColorIndex].color(Color3::white()).rgb();
+	Color3 color = colorList[diffuseColorIndex].element(0).color(Color3::white()).rgb();
 	phongShader->args.set("diffuseColor", color);
 	phongShader->args.set("diffuse", diffuse);
 
-	color = colorList[specularColorIndex].color(Color3::white()).rgb();
+	color = colorList[specularColorIndex].element(0).color(Color3::white()).rgb();
 	phongShader->args.set("specularColor", color);
 	phongShader->args.set("specular", specular);
 	phongShader->args.set("shine", shine);
