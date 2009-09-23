@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
- @edited  2008-02-02
+ @edited  2009-09-25
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiWindow.h"
@@ -23,7 +23,7 @@ GuiWindow::Ref GuiWindow::create
  GuiTheme::WindowStyle style, 
  CloseAction close) {
 
-    return new GuiWindow(label, skin, rect, style, close);
+     return new GuiWindow(label, skin.isNull() ? GuiTheme::lastThemeLoaded.createStrongPtr() : skin, rect, style, close);
 }
 
 

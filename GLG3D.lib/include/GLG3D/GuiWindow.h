@@ -2,10 +2,10 @@
  @file GLG3D/GuiWindow.h
 
  @created 2006-05-01
- @edited  2007-06-21
+ @edited  2009-09-21
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2008, Morgan McGuire morgan@users.sf.net
+ Copyright 2001-2009, Morgan McGuire morgan@users.sf.net
  All rights reserved.
 */
 #ifndef G3D_GUIWINDOW_H
@@ -58,8 +58,7 @@ typedef ReferenceCountedPointer<class GuiWindow> GuiWindowRef;
    value of the control when the control is created.  An example of creating a dialog is shown below:
 
    <pre>
-        GuiThemeRef skin = GuiTheme::fromFile(dataDir + "gui/osx.skn", app->debugFont);
-        GuiWindow::Ref window = GuiWindow::create("Person", skin);
+        GuiWindow::Ref window = GuiWindow::create("Person");
 
         GuiPane* pane = window->pane();
         pane->addCheckBox("Likes cats", &player.likesCats);
@@ -202,7 +201,7 @@ protected:
 
 protected:
 
-    GuiWindow(const GuiText& text, GuiThemeRef skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
+    GuiWindow(const GuiText& text, GuiTheme::Ref skin, const Rect2D& rect, GuiTheme::WindowStyle style, CloseAction closeAction);
 
     virtual void render(RenderDevice* rd) const;
 
@@ -301,7 +300,6 @@ public:
         return m_enabled;
     }
 
-
     ~GuiWindow();
 
     GuiPane* pane() {
@@ -313,7 +311,7 @@ public:
     }
 
     /** As controls are added, the window will automatically grow to contain them as needed */
-    static Ref create(const GuiText& windowTitle, const GuiThemeRef& skin, 
+    static Ref create(const GuiText& windowTitle, const GuiTheme::Ref& skin = NULL, 
                       const Rect2D& rect = Rect2D::xywh(100, 100, 100, 50), 
                       GuiTheme::WindowStyle style = GuiTheme::NORMAL_WINDOW_STYLE, 
                       CloseAction = NO_CLOSE);

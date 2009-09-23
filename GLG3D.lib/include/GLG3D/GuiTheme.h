@@ -1,7 +1,8 @@
 /**
   @file GuiTheme.h
   @maintainer Morgan McGuire, morgan@cs.williams.edu
-  Copyright 2001-2008, Morgan McGuire
+  Copyright 2001-2009, Morgan McGuire
+  All rights reserved
  */
 
 #ifndef G3D_GuiTheme_H
@@ -58,26 +59,26 @@ typedef ReferenceCountedPointer<class GuiTheme> GuiThemeRef;
    Can also be used to explicitly render a UI without actual controls behind it, for example:
 
   <pre>
-   skin->beginRendering(rd);
-       skin->renderWindow(rd, Rect2D::xywh(80, 70, 550, 250), false, false, false, "Window", GuiTheme::NORMAL_WINDOW_STYLE);
-       skin->renderWindow(rd, Rect2D::xywh(500, 120, 50, 150), true, true, true, "Tools", GuiTheme::TOOL_WINDOW_STYLE);
-       skin->renderCheckBox(rd, Rect2D::xywh(100, 100, 20, 20), true, true, true, "Check box");
-       skin->renderRadioButton(rd, Rect2D::xywh(100, 120, 20, 20), true, false, false, "Radio button");
-       skin->renderButton(rd, Rect2D::xywh(100, 160, 80, 27), true, true, true, "Button");
-       skin->setFont(timesFont, 12, Color3::black(), Color4::clear());
-       skin->renderButton(rd, Rect2D::xywh(200, 160, 80, 27), true, true, true, "New Font");
-       skin->setFont(arialFont, 10, Color3::black(), Color4::clear());
-       skin->renderHorizontalSlider(rd, Rect2D::xywh(100, 200, 150, 27), 0.5f, true, false, "Slider");
+   theme->beginRendering(rd);
+       theme->renderWindow(rd, Rect2D::xywh(80, 70, 550, 250), false, false, false, "Window", GuiTheme::NORMAL_WINDOW_STYLE);
+       theme->renderWindow(rd, Rect2D::xywh(500, 120, 50, 150), true, true, true, "Tools", GuiTheme::TOOL_WINDOW_STYLE);
+       theme->renderCheckBox(rd, Rect2D::xywh(100, 100, 20, 20), true, true, true, "Check box");
+       theme->renderRadioButton(rd, Rect2D::xywh(100, 120, 20, 20), true, false, false, "Radio button");
+       theme->renderButton(rd, Rect2D::xywh(100, 160, 80, 27), true, true, true, "Button");
+       theme->setFont(timesFont, 12, Color3::black(), Color4::clear());
+       theme->renderButton(rd, Rect2D::xywh(200, 160, 80, 27), true, true, true, "New Font");
+       theme->setFont(arialFont, 10, Color3::black(), Color4::clear());
+       theme->renderHorizontalSlider(rd, Rect2D::xywh(100, 200, 150, 27), 0.5f, true, false, "Slider");
 
        int s = 30;
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, GuiText("7", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, GuiText("4", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, GuiText("=", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, GuiText(";", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, GuiText("<", iconFont));
-       skin->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, GuiText("8", iconFont));
-       skin->setFont(arialFont, 10, Color3::black(), Color4::clear());
-    skin->endRendering(rd);
+       theme->renderButton(rd, Rect2D::xywh(100 + s * 0, 230, 30, 30), true, false, false, GuiText("7", iconFont));
+       theme->renderButton(rd, Rect2D::xywh(100 + s * 1, 230, 30, 30), true, false, false, GuiText("4", iconFont));
+       theme->renderButton(rd, Rect2D::xywh(100 + s * 2, 230, 30, 30), true, false, false, GuiText("=", iconFont));
+       theme->renderButton(rd, Rect2D::xywh(100 + s * 3, 230, 30, 30), true, false, true, GuiText(";", iconFont));
+       theme->renderButton(rd, Rect2D::xywh(100 + s * 4, 230, 30, 30), true, false, false, GuiText("<", iconFont));
+       theme->renderButton(rd, Rect2D::xywh(100 + s * 5, 230, 30, 30), true, false, false, GuiText("8", iconFont));
+       theme->setFont(arialFont, 10, Color3::black(), Color4::clear());
+    theme->endRendering(rd);
    </pre>
   @sa G3D::GuiWindow
 */
@@ -652,13 +653,15 @@ public:
     */
     static GuiTheme::Ref fromFile(
         const std::string&  filename, 
-        const GFont::Ref&   fallbackFont,
+        GFont::Ref          fallbackFont = NULL,
         float               fallbackSize = 11, 
         const Color4&       fallbackColor = Color3::black(), 
         const Color4&       fallbackOutlineColor = Color4::clear());
 
     /** Call before all other render methods. */
     void beginRendering(class RenderDevice* rd);
+
+    static WeakReferenceCountedPointer<GuiTheme> lastThemeLoaded;
 
     /** 
       Offsets all subsequent rendering by r.x0y0() and sets the clipping region to r.

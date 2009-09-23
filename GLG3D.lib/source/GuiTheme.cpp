@@ -41,6 +41,7 @@ static void toGLMatrix(const Matrix4& m, float f[]) {
     }
 }
 
+WeakReferenceCountedPointer<GuiTheme> GuiTheme::lastThemeLoaded;
 
 GuiTheme::GuiTheme(const std::string& filename,
         const GFont::Ref&   fallbackFont,
@@ -60,19 +61,26 @@ GuiTheme::GuiTheme(const std::string& filename,
 
 
 GuiThemeRef GuiTheme::fromFile(
-    const std::string& filename,
-    const GFont::Ref&   fallbackFont,
+    const std::string&  filename,
+    GFont::Ref          fallbackFont,
     float               fallbackSize, 
     const Color4&       fallbackColor, 
     const Color4&       fallbackOutlineColor) {
 
     static WeakCache<std::string, GuiThemeRef> cache;
     
-    GuiThemeRef instance = cache[filename];
+    GuiTheme::Ref instance = cache[filename];
     if (instance.isNull()) {
+
+        if (fallbackFont.isNull()) {
+            fallbackFont = GFont::fromFile(System::findDataFile("arial.fnt"));
+        }
+
         instance = new GuiTheme(filename, fallbackFont, fallbackSize, fallbackColor, fallbackOutlineColor);
         cache.set(filename, instance);
     }
+
+    lastThemeLoaded = instance;
 
     return instance;
 }
