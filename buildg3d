@@ -78,8 +78,12 @@ def initOS():
         try:
             i = sys.argv.index('--config')
 
+            if not os.path.exists(sys.argv[i + 1]):
+                raise Exception('--config file "' + sys.argv[i + 1] + '" not found.')
+
             icompileConfig = sys.argv[i:i + 2]
             del sys.argv[i:i + 2]
+
         except ValueError:
             filename = pathConcat(os.environ['HOME'], '.icompile-buildg3d')
             if os.path.exists(filename):
@@ -88,7 +92,7 @@ def initOS():
                 icompileConfig = []
 
         icompileConfig += ['--verbosity', '2']
-        print 'iCompile options: ', icompileConfig
+        print 'Adding iCompile options: ', icompileConfig
 
     if windows:
         platformName = 'win-i386-vc9.0'
@@ -129,14 +133,15 @@ def initOS():
 
         doInstall = True
         # See if there is a directory
-        if len(sys.argv) > i:
-            pathname = sys.argv[i]
-            if os.path.exists(pathname) and pathname != 'lib' and pathname != 'tools':
-                installDir = pathname
-                del sys.argv[i]
+        if len(sys.argv) > (i + 1):
+            installDir = sys.argv[i]
+            del sys.argv[i]
             
     except ValueError:
         doInstall = False
+
+    if doInstall:
+        print 'Setting installation directory to: ' + installDir
 
     if windows:
         libInstallDir = pathConcat(installDir, 'G3D')
@@ -858,7 +863,7 @@ def dispatchOnTarget(target, validTargets):
         if target == v.func_name:
             return v()
 
-    print '"' + target + '" is not a valid build target (type "build help" to see all targets).'
+    print '"' + target[0:-6] + '" is not a valid build target (type "build help" to see all targets).'
     return -1
 
 
