@@ -257,6 +257,14 @@ Material::Settings ArticulatedModel::compute3DSMaterial
 
     Material::Settings spec;
     spec.setName(material.name);
+
+    if (preprocess.stripMaterials) {
+        spec.setLambertian(Color3::one() * 0.7f);
+        spec.setSpecular(Color3::one() * 0.2f);
+        spec.setGlossyExponentShininess(100);
+        return spec;
+    }
+
     spec.setTextureDimension(preprocess.textureDimension);
 
     const Load3DS::Map& texture1 = material.texture1;

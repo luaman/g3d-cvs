@@ -23,7 +23,10 @@ ArticulatedViewer::ArticulatedViewer() :
 
 void ArticulatedViewer::onInit(const std::string& filename) {
 
-	m_model = ArticulatedModel::fromFile(filename);
+    ArticulatedModel::PreProcess preprocess;
+    //preprocess.stripMaterials = true;
+    //preprocess.xform = Matrix4::scale(0.01f);
+    m_model = ArticulatedModel::fromFile(filename, preprocess);
 	Array<Surface::Ref> arrayModel;
 	m_model->pose(arrayModel);
 
