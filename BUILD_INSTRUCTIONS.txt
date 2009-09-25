@@ -17,11 +17,12 @@ To build the documentation target, the following are also required:
 
 The OSX, Linux and FreeBSD builds require the following library packages:
 
-* Current version libz (http://www.zlib.net/) and libzip (http://nih.at/libzip/)
 * Current version libpng (http://www.libpng.org/) and libjpeg (http://www.ijg.org/)
+* Current version libz (http://www.zlib.net/)
 
 The Linux and FreeBSD builds require the following library packages:
 
+* Current vesrion of libzip (http://nih.at/libzip/)
 * Current version of libsdl 1.2 dev (http://www.libsdl.org/)
 * Distribution specific x11-dev (x11/xorg development libraries + headers)
 
