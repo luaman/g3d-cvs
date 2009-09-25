@@ -1454,7 +1454,7 @@ void RenderDevice::setProjectionAndCameraMatrix(const GCamera& camera) {
     Matrix4 P;
     camera.getProjectUnitMatrix(viewport(), P);
     setProjectionMatrix(P);
-	setCameraToWorldMatrix(camera.coordinateFrame());
+    setCameraToWorldMatrix(camera.coordinateFrame());
 }
 
 

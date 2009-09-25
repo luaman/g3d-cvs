@@ -142,19 +142,18 @@ public:
     int32 compareAndSet(const int32 comperand, const int32 exchange) {
 #       if defined(G3D_WIN32)
             return InterlockedCompareExchange(&m_value, exchange, comperand);
-#       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
+#       elif defined(G3D_LINUX) || defined(G3D_FREEBSD) || defined(G3D_OSX)
+            // Based on Apache Portable Runtime
+            // http://koders.com/c/fid3B6631EE94542CDBAA03E822CA780CBA1B024822.aspx
             int32 ret;
             asm volatile ("lock; cmpxchgl %1, %2"
                           : "=a" (ret)
                           : "r" (exchange), "m" (m_value), "0"(comperand)
                           : "memory", "cc");
             return ret;
-#       elif defined(G3D_OSX)
-            int32 old = m_value;
-            
-            OSAtomicCompareAndSwap32(comperand, exchange, &m_value);
-            
-            return old;
+
+            // Note that OSAtomicCompareAndSwap32 does not return a useful value for us
+            // so it can't satisfy the cmpxchgl contract.
 #       endif
     }
 

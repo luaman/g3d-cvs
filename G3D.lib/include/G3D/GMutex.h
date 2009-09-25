@@ -10,6 +10,7 @@
 
 #include "G3D/platform.h"
 #include "G3D/AtomicInt32.h"
+#include "G3D/debugAssert.h"
 #include <string>
 
 #ifndef G3D_WIN32
@@ -54,7 +55,17 @@ public:
     }
 
     inline void unlock() {
-        x = 0;
+        debugAssertM(x.value() == 1, 
+                     "Trying to unlock a Spinlock that is not locked.");
+        int old = x.compareAndSet(1, 0);
+#       ifdef G3D_DEBUG
+        if (old != 1) {
+             printf("old = %d\n", old);
+        }
+#       endif
+        debugAssertM(old == 1, 
+                     "Unlocked a Spinlock that was already unlocked.");
+        (void)old;
     }
 
 };
