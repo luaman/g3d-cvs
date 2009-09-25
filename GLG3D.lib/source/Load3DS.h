@@ -24,6 +24,7 @@ using namespace G3D;
 class Load3DS {
 public:
 
+    // Indenting in this section describes sub-chunks.  Do not reformat.
     enum ChunkHeaderID {
         MAIN3DS       = 0x4d4d,
         M3D_VERSION   = 0x0002,
@@ -131,25 +132,25 @@ public:
     };
 
     struct ChunkHeader {
-        ChunkHeaderID     id;
+        ChunkHeaderID       id;
 
         /** In bytes, includes the size of the header itself. */
-        int         length;
+        int                 length;
 
         /** Absolute start postion */
-        int         begin;
+        int                 begin;
 
         /** Absolute last postion + 1 */
-        int         end;
+        int                 end;
 
     };
 
     /** A texture map */
     class Map {
     public:
-        std::string                 filename;
-        Vector2                     scale;
-        Vector2                     offset;
+        std::string         filename;
+        Vector2             scale;
+        Vector2             offset;
 
         /** 
         bits 4 and 0: 00 tile (default) 11 decal  01 both
@@ -162,10 +163,10 @@ public:
         bit 8: ignore alpha (take RGBluma even if an alpha exists (?))
         bit 9: there is a three channel tint (RGB tint)
         */
-        G3D::uint16                      flags;
+        G3D::uint16         flags;
 
         /** Brightness (?) */
-        float                            pct;
+        float               pct;
 
         Map() : scale(Vector2(1,1)), pct(1) {}
     };
@@ -173,29 +174,29 @@ public:
     class Material {
     public:
         /** The FaceMat inside an object will reference a material by name */
-        std::string					name;
+        std::string			name;
 
-        bool						twoSided;
-        Color3						diffuse;
-        Color3						specular;
+        bool				twoSided;
+        Color3				diffuse;
+        Color3				specular;
 
         // "Self illumination"
-        float 						emissive;
+        float               emissive;
 
-        float						shininess;
-        float						shininessStrength;
-        float						transparency;
-        float						transparencyFalloff;
-        float                       reflection;
-        float						reflectionBlur;
+        float				shininess;
+        float				shininessStrength;
+        float				transparency;
+        float				transparencyFalloff;
+        float               reflection;
+        float				reflectionBlur;
 
-        Map                         texture1;
-        Map                         texture2;
+        Map                 texture1;
+        Map                 texture2;
 
         /** 1 = flat, 2 = gouraud, 3 = phong, 4 = metal */
-        int							materialType;
+        int					materialType;
 
-        Material() : twoSided(false), diffuse(Color3::white()), specular(Color3::white()), 
+        inline Material() : twoSided(false), diffuse(Color3::white()), specular(Color3::white()), 
             emissive(0), shininess(0.8f),  shininessStrength(0.25f), transparency(0),
             transparencyFalloff(0), reflection(0), reflectionBlur(0), materialType(3) {
         }
@@ -253,8 +254,7 @@ public:
         /** Mapping of face indices to materials */
         Array<FaceMat>              faceMatArray;
 
-        Object() : pivot(Vector3::zero()), keyframe(Matrix4::identity()) {
-        }
+        inline Object() : pivot(Vector3::zero()), keyframe(Matrix4::identity()) {}
     };
 
     /** Index into objectArray of the object addressed by the
@@ -271,13 +271,14 @@ public:
     Table<std::string, int>     materialNameToIndex;
 
     /** Animation start and end frames from KFFRAMES chunk */
-    G3D::uint32                      startFrame;
-    G3D::uint32                      endFrame;
+    G3D::uint32                 startFrame;
+    G3D::uint32                 endFrame;
 
     /** Used in Keyframe chunk */
     Matrix3                     currentRotation;
     Vector3                     currentScale;
     Vector3                     currentTranslation;
+    Vector3                     currentPivot;
 
     BinaryInput*                b;
 
@@ -346,7 +347,7 @@ public:
 
     /**
      */
-    void load(const std::string& filename) {
+    inline void load(const std::string& filename) {
         b = new BinaryInput(filename, G3D_LITTLE_ENDIAN);
         currentRotation= Matrix3::identity();
 
@@ -424,7 +425,7 @@ void Load3DS::processMapChunk(
             break;
 
         default:
-            //logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            //debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
             ;
         }
 
@@ -495,7 +496,7 @@ void Load3DS::processMaterialChunk(
             break;
 
         default:
-            // logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            //debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
             ;
         }
 
@@ -530,7 +531,7 @@ void Load3DS::processObjectChunk(
 
         default:
             ;
-            //logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            //debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
@@ -667,21 +668,22 @@ void Load3DS::processTriMeshChunk(
                              c[2],  c[5],  c[8],  c[10],
                              0,      0,      0,     1);
                          
-            
-                //logPrintf("%s\n", object.name.c_str());
-                //for (int r = 0; r < 4; ++r) {
-                //    for (int c = 0; c < 4; ++c) {
-                //        logPrintf("%3.3f ", object.cframe[r][c]);
-                //    }
-                //    logPrintf("\n");
-                //}
-                //logPrintf("\n");
+                /*
+                debugPrintf("%s\n", object.name.c_str());
+                for (int r = 0; r < 4; ++r) {
+                    for (int c = 0; c < 4; ++c) {
+                        debugPrintf("%3.3f ", object.cframe[r][c]);
+                    }
+                    debugPrintf("\n");
+                }
+                debugPrintf("\n");
+                */
             }
             break;
 
         default:
             ;
-            //logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
         }
 
         if (b->getPosition() != curChunkHeader.end) {
@@ -766,13 +768,14 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                 currentRotation = Matrix3::identity();
                 currentScale = Vector3(1,1,1);
                 currentTranslation = Vector3::zero();
+                currentPivot = Vector3::zero();
 
                 processChunk(curChunkHeader);
 
                 // Copy the keyframe information
                 if (currentObject != -1) {
                     debugAssert(isFinite(currentRotation.determinant()));
-                    CoordinateFrame cframe(currentRotation, currentTranslation);
+                    CoordinateFrame cframe(currentRotation, currentTranslation + currentPivot);
                     objectArray[currentObject].keyframe = Matrix4(cframe);
                     for (int r = 0; r < 3; ++r) {
                         for (int c = 0; c < 3; ++c) {
@@ -811,14 +814,14 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
 
                 case KFPIVOT:
                     {
-                        Vector3 pivot = read3DSVector();
-                        //logPrintf("pivot = %s\n", pivot.toString().c_str());
+                        currentPivot = read3DSVector();
+                        //debugPrintf("pivot = %s\n", currentPivot.toString().c_str());
                     }
                     break;
 
                 case KFTRANSLATION:
                     currentTranslation = readLin3Track();
-                    //logPrintf("translation = %s\n", currentTranslation.toString().c_str());
+                    //debugPrintf("translation = %s\n", currentTranslation.toString().c_str());
                     break;
 
                 case KFSCALE:
@@ -826,7 +829,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                     // The scale will have the x-coordinate flipped since our 
                     // code always negates the x-axis (assuming it is reading a point).
                     currentScale.x *= -1;
-                    //logPrintf("scale = %s\n", currentScale.toString().c_str());
+                    //debugPrintf("scale = %s\n", currentScale.toString().c_str());
                     break;
 
                 case KFROTATION:
@@ -839,7 +842,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
                     }
                     break;
         default:
-            //logPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
+            //debugPrintf("Skipped unknown chunk 0x%x\n", curChunkHeader.id);
             ;
         }
 

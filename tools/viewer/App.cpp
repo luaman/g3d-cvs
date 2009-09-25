@@ -39,6 +39,8 @@ void App::onInit() {
     sky = Sky::fromFile(System::findDataFile("sky"));
     skyParameters = SkyParameters( G3D::toSeconds(11, 00, 00, AM) );
     lighting = Lighting::fromSky( sky, skyParameters, Color3::white() );
+    lighting->ambientTop = Color3::white() * 0.3f;
+    lighting->ambientBottom = Color3::white() * 0.1f;
 	
     colorClear = Color3::white();
     //modelController = ThirdPersonManipulator::create();

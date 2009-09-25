@@ -127,7 +127,8 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
     Matrix3 R = xform.upper3x3();
 
     for (int p = 0; p < load.objectArray.size(); ++p) {
-        const Load3DS::Object& object = load.objectArray[p];
+//        const // TODO
+            Load3DS::Object& object = load.objectArray[p];
 
         Part& part = partArray[p];
 
@@ -165,16 +166,15 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
         //debugPrintf("%s %d %d\n", object.name.c_str(), object.hierarchyIndex, object.nodeID);
 
         if (part.hasGeometry()) {
-            // Convert to object space (there is no normal data at this point)
+            // Convert vertices to object space (there is no surface normal data at this point)
             debugAssert(part.geometry.normalArray.size() == 0);
             Matrix4 netXForm = part.cframe.inverse().toMatrix4() * xform;
             
             debugAssertM(netXForm.row(3) == Vector4(0,0,0,1), 
                         "3DS file loading requires that the last row of the xform matrix be 0, 0, 0, 1");
             
-            Matrix3 S = netXForm.upper3x3();
-            Vector3 T = netXForm.column(3).xyz();
-
+            const Matrix3& S = netXForm.upper3x3();
+            const Vector3& T = netXForm.column(3).xyz();
             for (int v = 0; v < part.geometry.vertexArray.size(); ++v) {
 #               ifdef G3D_DEBUG
                 {
@@ -234,7 +234,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                             int f = faceMat.faceIndexArray[i];
                             debugAssert(f >= 0);
                             for (int v = 0; v < 3; ++v) {
-                                triList->indexArray.append(object.indexArray[3*f + v]);
+                                triList->indexArray.append(object.indexArray[3 * f + v]);
                             }
                         }
                         debugAssert(triList->indexArray.size() > 0);
