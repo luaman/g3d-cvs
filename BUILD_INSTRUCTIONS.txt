@@ -15,6 +15,21 @@ To build the documentation target, the following are also required:
 * Latex (on Windows: http://miktex.org/)
 * Ghostscript (http://pages.cs.wisc.edu/~ghost/)
 
+The OSX, Linux and FreeBSD builds require the following library packages:
+
+* Current version libz (http://www.zlib.net/) and libzip (http://nih.at/libzip/)
+* Current version libpng (http://www.libpng.org/) and libjpeg (http://www.ijg.org/)
+
+The Linux and FreeBSD builds require the following library packages:
+
+* Current version of libsdl 1.2 dev (http://www.libsdl.org/)
+* Distribution specific x11-dev (x11/xorg development libraries + headers)
+
+
+The OSX, Linux and FreeBSD builds will install an internal version of FFmpeg
+(http://ffmpeg.org/) to the G3D installation directory so be careful not 
+to overwrite a previously installed version unintentionally.
+
 It is possible to build the library on Windows using the Visual
 Studio IDE, however documentation, headers, demos, and other aspects
 of the full build will be missing.  The G3D team DOES NOT SUPPORT

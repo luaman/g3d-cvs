@@ -4,7 +4,7 @@
 
 #include <G3D/G3DAll.h>
 #include <GLG3D/GLG3D.h>
-//#include "GLG3D/MD3Model.h"
+#include "GLG3D/MD3Model.h"
 
 class App : public GApp {
 public:
@@ -13,9 +13,9 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
-    //MD3Model::Ref       head;
-    //MD3Model::Ref       torso;
-    //MD3Model::Ref       legs;
+    MD3Model::Ref       head;
+    MD3Model::Ref       torso;
+    MD3Model::Ref       legs;
 
     float headFrames;
     float torsoFrames;
@@ -108,7 +108,7 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    /*
+    
     head = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/head.md3");
     torso = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
     legs = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/lower.md3");
@@ -116,7 +116,7 @@ void App::onInit() {
     headFrames = 0;
     torsoFrames = 0;
     legsFrames = 0;
-    */
+    
 
     //setDesiredFrameRate(30.0f);
 /*
@@ -148,7 +148,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Add physical simulation here.  You can make your time
     // advancement based on any of the three arguments.
 
-    /*
     headFrames += rdt;
 
     if (headFrames > static_cast<float>(head->numFrames())) {
@@ -166,7 +165,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     if (legsFrames > static_cast<float>(legs->numFrames())) {
         legsFrames = 0;
     }
-    */
 }
 
 
@@ -191,10 +189,9 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     // Append any models to the array that you want rendered by onGraphics
-    /*
     head->pose(headFrames, "head_blue.skin", posed3D, torso->getTag(torsoFrames, "tag_head"));
     torso->pose(torsoFrames, "upper_blue.skin", posed3D);
-    */
+
     //legs->pose(168.0f, "lower_blue.skin", posed3D);
 }
 
