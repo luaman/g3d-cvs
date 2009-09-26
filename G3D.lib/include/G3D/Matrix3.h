@@ -158,6 +158,10 @@ public:
     friend Matrix3 operator* (float fScalar, const Matrix3& rkMatrix);
     friend Matrix3 operator* (int fScalar, const Matrix3& rkMatrix);
 
+    Matrix3& operator*= (float k);
+    Matrix3& operator/= (float k);
+
+
 private:
     /** Multiplication where out != A and out != B */
     static void _mul(const Matrix3& A, const Matrix3& B, Matrix3& out);
@@ -260,7 +264,7 @@ public:
 
     static void tensorProduct (const Vector3& rkU, const Vector3& rkV,
                                Matrix3& rkProduct);
-	std::string toString() const;
+    std::string toString() const;
 
     static const float EPSILON; 
 

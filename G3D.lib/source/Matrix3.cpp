@@ -311,6 +311,21 @@ Matrix3 Matrix3::operator* (float fScalar) const {
     return kProd;
 }
 
+Matrix3& Matrix3::operator/= (float fScalar) {
+    return *this *= (1.0f / fScalar);
+}
+
+Matrix3& Matrix3::operator*= (float fScalar) {
+
+    for (int iRow = 0; iRow < 3; iRow++) {
+        for (int iCol = 0; iCol < 3; iCol++) {
+            elt[iRow][iCol] *= fScalar;
+        }
+    }
+
+    return *this;
+}
+
 //----------------------------------------------------------------------------
 Matrix3 operator* (double fScalar, const Matrix3& rkMatrix) {
     Matrix3 kProd;

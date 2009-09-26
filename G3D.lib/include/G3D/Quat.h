@@ -6,11 +6,11 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   
   @created 2002-01-23
-  @edited  2006-05-10
+  @edited  2009-05-10
  */
 
-#ifndef G3D_QUAT_H
-#define G3D_QUAT_H
+#ifndef G3D_Quat_h
+#define G3D_Quat_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"

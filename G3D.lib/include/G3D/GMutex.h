@@ -55,17 +55,7 @@ public:
     }
 
     inline void unlock() {
-        debugAssertM(x.value() == 1, 
-                     "Trying to unlock a Spinlock that is not locked.");
-        int old = x.compareAndSet(1, 0);
-#       ifdef G3D_DEBUG
-        if (old != 1) {
-             printf("old = %d\n", old);
-        }
-#       endif
-        debugAssertM(old == 1, 
-                     "Unlocked a Spinlock that was already unlocked.");
-        (void)old;
+        x.compareAndSet(1, 0);
     }
 
 };
