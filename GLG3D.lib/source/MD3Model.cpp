@@ -5,14 +5,72 @@
 
  */
 
-#if 0
+//#if 1
 
 #include "G3D/BinaryInput.h"
 #include "G3D/fileutils.h"
 #include "GLG3D/MD3Model.h"
 
-
 namespace G3D {
+
+    class MD3Surface : public Surface {
+    public:
+        MD3Surface(float frameNum, const CoordinateFrame& coordFrame,const MD3Model& model, int surfaceIndex, const std::string& skinName);
+
+        virtual ~MD3Surface();
+
+        virtual std::string name() const;
+
+        virtual void getCoordinateFrame(CoordinateFrame& c) const;
+
+        virtual const MeshAlg::Geometry& objectSpaceGeometry() const;
+
+        virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const;
+
+        virtual const Array<MeshAlg::Face>& faces() const;
+
+        virtual const Array<MeshAlg::Edge>& edges() const;
+
+        virtual const Array<MeshAlg::Vertex>& vertices() const;
+
+        virtual const Array<MeshAlg::Face>& weldedFaces() const;
+
+        virtual const Array<MeshAlg::Edge>& weldedEdges() const;
+
+        virtual const Array<MeshAlg::Vertex>& weldedVertices() const;
+
+        virtual const Array<int>& triangleIndices() const;
+
+        virtual void getObjectSpaceBoundingSphere(Sphere&) const;
+
+        virtual void getObjectSpaceBoundingBox(AABox&) const;
+
+        virtual int numBoundaryEdges() const;
+
+        virtual int numWeldedBoundaryEdges() const;
+
+        virtual const Array<Vector2>& texCoords() const;
+
+        virtual bool hasTexCoords() const;
+
+        virtual void defaultRender(RenderDevice* rd) const;
+
+    private:
+        MeshAlg::Geometry       m_geometry;
+        Array<Vector3>          m_faceNormals;
+        Array<MeshAlg::Face>    m_faces;
+        Array<MeshAlg::Edge>    m_edges;
+        Array<MeshAlg::Vertex>  m_adjacencies;
+        Array<MeshAlg::Face>    m_weldedFaces;
+        Array<MeshAlg::Edge>    m_weldedEdges;
+        Array<MeshAlg::Vertex>  m_weldedAdjecencies;
+        Array<int>              m_triangles;
+        Array<Vector2>          m_texCoords;
+
+        CoordinateFrame         m_coordFrame;
+
+        Texture::Ref            m_texture;
+    };
 
 // definition of MD3 file surface header structure
 struct MD3SurfaceHeader {
@@ -67,7 +125,7 @@ MD3Model::~MD3Model() {
 
 MD3Model::Ref MD3Model::fromFile(const std::string& filename) {
     MD3Model* model = new MD3Model;
-    if (!model->loadFile(filename)) {
+    if (! model->loadFile(filename)) {
         delete model;
         model = NULL;
     }
@@ -77,33 +135,32 @@ MD3Model::Ref MD3Model::fromFile(const std::string& filename) {
 
 bool MD3Model::loadFile(const std::string& filename) {
     // invalid filename will throw an exception, only need to validate header
-    BinaryInput* bi = new BinaryInput(filename, G3D_LITTLE_ENDIAN);
+    BinaryInput bi(filename, G3D_LITTLE_ENDIAN);
 
     m_modelDir = filenamePath(filename);
 
     // read file header
     MD3FileHeader md3File;
-    md3File.ident = bi->readString(4);
-    md3File.version = bi->readInt32();
+    md3File.ident = bi.readString(4);
+    md3File.version = bi.readInt32();
 
     // validate header before continuing
-    if (md3File.ident != "IDP3" || md3File.version != 15) {
-        delete bi;
+    if ((md3File.ident != "IDP3") || (md3File.version != 15)) {
         return false;
     }
 
-    md3File.name = bi->readString(64);
-    md3File.flags = bi->readInt32();
+    md3File.name = bi.readString(64);
+    md3File.flags = bi.readInt32();
 
-    md3File.numFrames = bi->readInt32();
-    md3File.numTags = bi->readInt32();
-    md3File.numSurfaces = bi->readInt32();
-    md3File.numSkins = bi->readInt32();
+    md3File.numFrames = bi.readInt32();
+    md3File.numTags = bi.readInt32();
+    md3File.numSurfaces = bi.readInt32();
+    md3File.numSkins = bi.readInt32();
 
-    md3File.offsetFrames = bi->readInt32();
-    md3File.offsetTags = bi->readInt32();
-    md3File.offsetSurfaces = bi->readInt32();
-    md3File.offsetEnd = bi->readInt32();
+    md3File.offsetFrames = bi.readInt32();
+    md3File.offsetTags = bi.readInt32();
+    md3File.offsetSurfaces = bi.readInt32();
+    md3File.offsetEnd = bi.readInt32();
 
     m_numFrames = md3File.numFrames;
 
@@ -111,18 +168,15 @@ bool MD3Model::loadFile(const std::string& filename) {
     m_frames.resize(md3File.numFrames, false);
 
     // read in frame data
-    bi->setPosition(md3File.offsetFrames);
-    for (int frameIndex = 0; frameIndex < md3File.numFrames; ++frameIndex)
-    {
+    bi.setPosition(md3File.offsetFrames);
+    for (int frameIndex = 0; frameIndex < md3File.numFrames; ++frameIndex) {
         loadFrame(bi, m_frames[frameIndex]);
     }
 
     // read in tag data
-    bi->setPosition(md3File.offsetTags);
-    for (int frameIndex = 0; frameIndex < md3File.numFrames; ++frameIndex)
-    {
-        for (int tagIndex = 0; tagIndex < md3File.numTags; ++tagIndex)
-        {
+    bi.setPosition(md3File.offsetTags);
+    for (int frameIndex = 0; frameIndex < md3File.numFrames; ++frameIndex) {
+        for (int tagIndex = 0; tagIndex < md3File.numTags; ++tagIndex) {
             loadTag(bi, m_frames[frameIndex]);
         }
     }
@@ -131,149 +185,148 @@ bool MD3Model::loadFile(const std::string& filename) {
     m_surfaces.resize(md3File.numSurfaces, false);
 
     // read in surface data
-    bi->setPosition(md3File.offsetSurfaces);
+    bi.setPosition(md3File.offsetSurfaces);
     for (int surfaceIndex = 0; surfaceIndex < md3File.numSurfaces; ++surfaceIndex) {
         loadSurface(bi, m_surfaces[surfaceIndex]);
     }
 
-    delete bi;
     return true;
 }
 
-void MD3Model::loadSurface(BinaryInput* bi, SurfaceData& surfaceData) {
-        // save start of surface
-        int surfaceStart = static_cast<int>(bi->getPosition());
+void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
+    // save start of surface
+    int surfaceStart = static_cast<int>(bi.getPosition());
 
-        // read surface header
-        MD3SurfaceHeader md3Surface;
-        md3Surface.ident = bi->readInt32();
-        md3Surface.name = bi->readString(64);
-        md3Surface.flags = bi->readInt32();
+    // read surface header
+    MD3SurfaceHeader md3Surface;
+    md3Surface.ident = bi.readInt32();
+    md3Surface.name = bi.readString(64);
+    md3Surface.flags = bi.readInt32();
 
-        md3Surface.numFrames = bi->readInt32();
-        md3Surface.numShaders = bi->readInt32();
-        md3Surface.numVertices = bi->readInt32();
-        md3Surface.numTriangles = bi->readInt32();
+    md3Surface.numFrames = bi.readInt32();
+    md3Surface.numShaders = bi.readInt32();
+    md3Surface.numVertices = bi.readInt32();
+    md3Surface.numTriangles = bi.readInt32();
 
-        md3Surface.offsetTriangles = bi->readInt32();
-        md3Surface.offsetShaders = bi->readInt32();
-        md3Surface.offsetUVs = bi->readInt32();
-        md3Surface.offsetVertices = bi->readInt32();
-        md3Surface.offsetEnd = bi->readInt32();
+    md3Surface.offsetTriangles = bi.readInt32();
+    md3Surface.offsetShaders = bi.readInt32();
+    md3Surface.offsetUVs = bi.readInt32();
+    md3Surface.offsetVertices = bi.readInt32();
+    md3Surface.offsetEnd = bi.readInt32();
 
-        // read surface data
-        surfaceData.m_name = md3Surface.name;
+    // read surface data
+    surfaceData.m_name = md3Surface.name;
 
-        // store off some helper data
-        surfaceData.m_numFrames = md3Surface.numFrames;
-        surfaceData.m_numVertices = md3Surface.numVertices;
+    // store off some helper data
+    surfaceData.m_numFrames = md3Surface.numFrames;
+    surfaceData.m_numVertices = md3Surface.numVertices;
 
-        // read triangles
-        bi->setPosition(surfaceStart + md3Surface.offsetTriangles);
+    // read triangles
+    bi.setPosition(surfaceStart + md3Surface.offsetTriangles);
 
-        surfaceData.m_triangles.resize(md3Surface.numTriangles * 3);
+    surfaceData.m_triangles.resize(md3Surface.numTriangles * 3);
 
-        for (int index = 0; index < md3Surface.numTriangles; ++index) {
-            int t1 = bi->readInt32();
-            int t2 = bi->readInt32();
-            int t3 = bi->readInt32();
-            surfaceData.m_triangles[index * 3] = t3;
-            surfaceData.m_triangles[index * 3 + 1] = t2;
-            surfaceData.m_triangles[index * 3 + 2] = t1;
+    for (int index = 0; index < md3Surface.numTriangles; ++index) {
+        int t1 = bi.readInt32();
+        int t2 = bi.readInt32();
+        int t3 = bi.readInt32();
+        surfaceData.m_triangles[index * 3] = t3;
+        surfaceData.m_triangles[index * 3 + 1] = t2;
+        surfaceData.m_triangles[index * 3 + 2] = t1;
+    }
+
+    // read shaders
+    bi.setPosition(surfaceStart + md3Surface.offsetShaders);
+
+    for (int shaderIndex = 0; shaderIndex < md3Surface.numShaders; ++shaderIndex) {
+        // read shader name and index
+        std::string shaderPath = bi.readString(64);
+        int unusedIndex = bi.readInt32();
+        
+        // find base filename for shader
+        std::string shaderName = filenameBaseExt(shaderPath);
+
+        // ignore empty shader names for now (filled in with .skin file)
+        if (shaderName.length() > 0) {
+            surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
+    }
 
-        // read shaders
-        bi->setPosition(surfaceStart + md3Surface.offsetShaders);
+    // read texture coordinates
+    bi.setPosition(surfaceStart + md3Surface.offsetUVs);
 
-        for (int shaderIndex = 0; shaderIndex < md3Surface.numShaders; ++shaderIndex) {
-            // read shader name and index
-            std::string shaderPath = bi->readString(64);
-            int unusedIndex = bi->readInt32();
-            
-            // find base filename for shader
-            std::string shaderName = filenameBaseExt(shaderPath);
+    surfaceData.m_textureCoords.resize(md3Surface.numVertices);
 
-            // ignore empty shader names for now (filled in with .skin file)
-            if (shaderName.length() > 0) {
-                surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
-            }
+    for (int coordIndex = 0; coordIndex < md3Surface.numVertices; ++coordIndex) {
+        float u = bi.readFloat32();
+        float v = bi.readFloat32();
+
+        clamp(u, 0.0f, 1.0f);
+        clamp(v, 0.0f, 1.0f);
+
+        surfaceData.m_textureCoords[coordIndex] = Vector2(u, v);
+    }
+
+    // read vertices
+    bi.setPosition(surfaceStart + md3Surface.offsetVertices);
+
+    surfaceData.m_frames.resize(md3Surface.numFrames);
+    surfaceData.m_normals.resize(md3Surface.numFrames);
+
+    for (int frameIndex = 0; frameIndex < md3Surface.numFrames; ++frameIndex) {
+        surfaceData.m_frames[frameIndex].resize(md3Surface.numVertices);
+        surfaceData.m_normals[frameIndex].resize(md3Surface.numVertices);
+
+        for (int vertexIndex = 0; vertexIndex < md3Surface.numVertices; ++vertexIndex) {
+            Vector3 vertex(bi.readInt16(), bi.readInt16(), bi.readInt16());
+
+            // MD3 scales vertices by 64
+            vertex *= (1.0f / 64.0f);
+
+            leftToRightHand(vertex);
+
+            // convert from left-handed system
+            surfaceData.m_frames[frameIndex][vertexIndex] = vertex;
+
+            int16 normal = bi.readInt16();
+
+            surfaceData.m_normals[frameIndex][vertexIndex] = Vector3::unitY();
         }
+    }
 
-        // read texture coordinates
-        bi->setPosition(surfaceStart + md3Surface.offsetUVs);
-
-        surfaceData.m_textureCoords.resize(md3Surface.numVertices);
-
-        for (int coordIndex = 0; coordIndex < md3Surface.numVertices; ++coordIndex) {
-            float u = bi->readFloat32();
-            float v = bi->readFloat32();
-
-            clamp(u, 0.0f, 1.0f);
-            clamp(v, 0.0f, 1.0f);
-
-            surfaceData.m_textureCoords[coordIndex] = Vector2(u, v);
-        }
-
-        // read vertices
-        bi->setPosition(surfaceStart + md3Surface.offsetVertices);
-
-        surfaceData.m_frames.resize(md3Surface.numFrames);
-        surfaceData.m_normals.resize(md3Surface.numFrames);
-
-        for (int frameIndex = 0; frameIndex < md3Surface.numFrames; ++frameIndex) {
-            surfaceData.m_frames[frameIndex].resize(md3Surface.numVertices);
-            surfaceData.m_normals[frameIndex].resize(md3Surface.numVertices);
-
-            for (int vertexIndex = 0; vertexIndex < md3Surface.numVertices; ++vertexIndex) {
-                Vector3 vertex(bi->readInt16(), bi->readInt16(), bi->readInt16());
-
-                // MD3 scales vertices by 64
-                vertex *= (1.0f / 64.0f);
-
-                leftToRightHand(vertex);
-
-                // convert from left-handed system
-                surfaceData.m_frames[frameIndex][vertexIndex] = vertex;
-
-                int16 normal = bi->readInt16();
-
-                surfaceData.m_normals[frameIndex][vertexIndex] = Vector3::unitY();
-            }
-        }
-
-        // ensure at the end of surface
-        bi->setPosition(surfaceStart + md3Surface.offsetEnd);
+    // ensure at the end of surface
+    bi.setPosition(surfaceStart + md3Surface.offsetEnd);
 }
 
-void MD3Model::loadFrame(BinaryInput* bi, FrameData& frameData) {
-    frameData.m_bounds[0] = bi->readVector3();
+void MD3Model::loadFrame(BinaryInput& bi, FrameData& frameData) {
+    frameData.m_bounds[0] = bi.readVector3();
     leftToRightHand(frameData.m_bounds[0]);
 
-    frameData.m_bounds[1] = bi->readVector3();
+    frameData.m_bounds[1] = bi.readVector3();
     leftToRightHand(frameData.m_bounds[1]);
 
-    frameData.m_localOrigin = bi->readVector3();
+    frameData.m_localOrigin = bi.readVector3();
     leftToRightHand(frameData.m_localOrigin);
 
-    frameData.m_radius = bi->readFloat32();
+    frameData.m_radius = bi.readFloat32();
 
-    std::string name = bi->readString(16);
+    std::string name = bi.readString(16);
 }
 
-void MD3Model::loadTag(BinaryInput* bi, FrameData& frameData) {
-    std::string name = bi->readString(64);
+void MD3Model::loadTag(BinaryInput& bi, FrameData& frameData) {
+    std::string name = bi.readString(64);
 
     CoordinateFrame tag;
-    tag.translation = bi->readVector3();
+    tag.translation = bi.readVector3();
     leftToRightHand(tag.translation);
 
-    Vector3 colX = bi->readVector3();
+    Vector3 colX = bi.readVector3();
     leftToRightHand(colX);
 
-    Vector3 colY = bi->readVector3();
+    Vector3 colY = bi.readVector3();
     leftToRightHand(colY);
 
-    Vector3 colZ = bi->readVector3();
+    Vector3 colZ = bi.readVector3();
     leftToRightHand(colZ);
 
 /*  if different major order
@@ -281,17 +334,17 @@ void MD3Model::loadTag(BinaryInput* bi, FrameData& frameData) {
     Vector3 colY;
     Vector3 colZ;
 
-    colX.x = bi->readFloat32();
-    colY.x = bi->readFloat32();
-    colZ.x = bi->readFloat32();
+    colX.x = bi.readFloat32();
+    colY.x = bi.readFloat32();
+    colZ.x = bi.readFloat32();
 
-    colX.y = bi->readFloat32();
-    colY.y = bi->readFloat32();
-    colZ.y = bi->readFloat32();
+    colX.y = bi.readFloat32();
+    colY.y = bi.readFloat32();
+    colZ.y = bi.readFloat32();
 
-    colX.z = bi->readFloat32();
-    colY.z = bi->readFloat32();
-    colZ.z = bi->readFloat32();
+    colX.z = bi.readFloat32();
+    colY.z = bi.readFloat32();
+    colZ.z = bi.readFloat32();
 
     leftToRightHand(colX);
     leftToRightHand(colY);
@@ -369,7 +422,7 @@ void MD3Model::getTagNames(Array<std::string>& names) const {
 }
 
 
-MD3Model::MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const MD3Model& model, int surfaceIndex, const std::string& skinName) {
+MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const MD3Model& model, int surfaceIndex, const std::string& skinName) {
     const MD3Model::SurfaceData& surfaceData = model.m_surfaces[surfaceIndex];
 
     debugAssert(frameNum >= 0.0f && frameNum < surfaceData.m_numFrames);
@@ -411,76 +464,76 @@ MD3Model::MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFra
     m_coordFrame.translation += model.m_frames[frame1].m_localOrigin.lerp(model.m_frames[frame2].m_localOrigin, interp);
 }
 
-MD3Model::MD3Surface::~MD3Surface() {
+MD3Surface::~MD3Surface() {
 }
 
-std::string MD3Model::MD3Surface::name() const {
+std::string MD3Surface::name() const {
     return "MD3Model";
 }
 
-void MD3Model::MD3Surface::getCoordinateFrame(CoordinateFrame& c) const {
+void MD3Surface::getCoordinateFrame(CoordinateFrame& c) const {
     c = m_coordFrame;
 }
 
-const MeshAlg::Geometry& MD3Model::MD3Surface::objectSpaceGeometry() const {
+const MeshAlg::Geometry& MD3Surface::objectSpaceGeometry() const {
     return m_geometry;
 }
 
-const Array<Vector3>& MD3Model::MD3Surface::objectSpaceFaceNormals(bool normalize) const {
+const Array<Vector3>& MD3Surface::objectSpaceFaceNormals(bool normalize) const {
     return m_faceNormals;
 }
 
-const Array<MeshAlg::Face>& MD3Model::MD3Surface::faces() const {
+const Array<MeshAlg::Face>& MD3Surface::faces() const {
     return m_faces;
 }
 
-const Array<MeshAlg::Edge>& MD3Model::MD3Surface::edges() const {
+const Array<MeshAlg::Edge>& MD3Surface::edges() const {
     return m_edges;
 }
 
-const Array<MeshAlg::Vertex>& MD3Model::MD3Surface::vertices() const {
+const Array<MeshAlg::Vertex>& MD3Surface::vertices() const {
     return m_adjacencies;
 }
 
-const Array<MeshAlg::Face>& MD3Model::MD3Surface::weldedFaces() const {
+const Array<MeshAlg::Face>& MD3Surface::weldedFaces() const {
     return m_weldedFaces;
 }
 
-const Array<MeshAlg::Edge>& MD3Model::MD3Surface::weldedEdges() const {
+const Array<MeshAlg::Edge>& MD3Surface::weldedEdges() const {
     return m_weldedEdges;
 }
 
-const Array<MeshAlg::Vertex>& MD3Model::MD3Surface::weldedVertices() const {
+const Array<MeshAlg::Vertex>& MD3Surface::weldedVertices() const {
     return m_weldedAdjecencies;
 }
 
-const Array<int>& MD3Model::MD3Surface::triangleIndices() const {
+const Array<int>& MD3Surface::triangleIndices() const {
     return m_triangles;
 }
 
-void MD3Model::MD3Surface::getObjectSpaceBoundingSphere(Sphere&) const {
+void MD3Surface::getObjectSpaceBoundingSphere(Sphere&) const {
 }
 
-void MD3Model::MD3Surface::getObjectSpaceBoundingBox(AABox&) const {
+void MD3Surface::getObjectSpaceBoundingBox(AABox&) const {
 }
 
-int MD3Model::MD3Surface::numBoundaryEdges() const {
+int MD3Surface::numBoundaryEdges() const {
     return 0;
 }
 
-int MD3Model::MD3Surface::numWeldedBoundaryEdges() const {
+int MD3Surface::numWeldedBoundaryEdges() const {
     return 0;
 }
 
-bool MD3Model::MD3Surface::hasTexCoords() const {
+bool MD3Surface::hasTexCoords() const {
     return m_texture.notNull();
 }
 
-const Array<Vector2>& MD3Model::MD3Surface::texCoords() const {
+const Array<Vector2>& MD3Surface::texCoords() const {
     return m_texCoords;
 }
 
-void MD3Model::MD3Surface::defaultRender(RenderDevice* rd) const {
+void MD3Surface::defaultRender(RenderDevice* rd) const {
     rd->setObjectToWorldMatrix(m_coordFrame);
     rd->setTexture(0, m_texture);
 
@@ -491,4 +544,4 @@ void MD3Model::MD3Surface::defaultRender(RenderDevice* rd) const {
 
 } // namespace G3D
 
-#endif // 0
+//#endif // 0

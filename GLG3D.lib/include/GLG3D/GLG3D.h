@@ -67,6 +67,7 @@
 #include "GLG3D/Surface.h"
 #include "GLG3D/IFSModel.h"
 #include "GLG3D/MD2Model.h"
+#include "GLG3D/MD3Model.h"
 #include "GLG3D/shadowVolume.h"
 #include "GLG3D/OSWindow.h"
 #include "GLG3D/SDLWindow.h"

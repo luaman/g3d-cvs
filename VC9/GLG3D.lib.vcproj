@@ -384,6 +384,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\MD3Model.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\Milestone.cpp"
 				>
 			</File>
@@ -735,6 +739,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\MD2Model.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\MD3Model.h"
 				>
 			</File>
 			<File

@@ -3,7 +3,7 @@
 #define App_h
 
 #include <G3D/G3DAll.h>
-#include "GLG3D/MD3Model.h"
+//#include "GLG3D/MD3Model.h"
 
 class App : public GApp {
 public:
@@ -105,9 +105,12 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    
+    head = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/head.md3");
+    torso = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/upper.md3");
+    /*
     head = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/head.md3");
     torso = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
+    */
 
     headFrames = 0;
     torsoFrames = 0;
