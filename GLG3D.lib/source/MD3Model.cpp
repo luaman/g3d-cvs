@@ -174,15 +174,6 @@ public:
     }
 };
 
-/*
-// Helper to convert from left-hand to right-hand system
-static void leftToRightHand(Vector3& v) {
-    const float oldY = v.y;
-    v.y = -v.z;
-    v.z = oldY;
-}
-*/
-
 
 MD3Model::MD3Model() {
 }

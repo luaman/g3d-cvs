@@ -189,7 +189,7 @@ void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surfa
     const CFrame& headPos = upperPos * upper->tag(upperFrames, "tag_head");
 
     upper->pose(frameNum, "upper_blue.skin", surfaceArray, upperPos);
-    head->pose(frameNum, "head_blue.skin", surfaceArray, headPos);
+//    head->pose(frameNum, "head_blue.skin", surfaceArray, headPos);
 }
 
 
