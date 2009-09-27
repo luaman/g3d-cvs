@@ -53,7 +53,7 @@ public:
 
     typedef ReferenceCountedPointer<MD3Model> Ref;
 
-private:
+protected:
 
     friend class MD3Surface;
 
@@ -125,15 +125,24 @@ public:
 
     virtual ~MD3Model();
 
+    /** \return NULL if the model was not found or is corrupt (TODO: maybe throw exceptions in those cases?)*/
     static MD3Model::Ref fromFile(const std::string& filename);
 
+    /**
+     TODO Corey: there are multiple logical animations in the single frame array for player models.  (Do *all* Q3 animations have multiple
+     animations?)  It affects how you do the interpolation for cycling animations, since you can't always blend
+      towards the next indexed frame.  One way to resolve this is to pass frame0Index, frame1Index, and alpha.
+
+     \param frameNum Animation frame number.  On the range 
+     \param cframe Root frame for this part.  For player models, this is the Q3 "tag" of the parent part.
+     */
     void pose
     (float                      frameNum, 
      const std::string&         skinName, 
      Array<Surface::Ref>&       posedModelArray, 
-     const CoordinateFrame&     coordFrame = CoordinateFrame());
+     const CoordinateFrame&     cframe = CoordinateFrame());
 
-    CoordinateFrame getTag(float frameNum, const std::string& name) const;
+    CoordinateFrame tag(float frameNum, const std::string& name) const;
 
     void getTagNames(Array<std::string>& names) const;
 

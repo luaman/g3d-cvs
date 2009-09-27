@@ -13,10 +13,10 @@ public:
     SkyRef              sky;
 
     MD3Model::Ref       head;
-    MD3Model::Ref       torso;
+    MD3Model::Ref       upper;
 
     float headFrames;
-    float torsoFrames;
+    float upperFrames;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -106,14 +106,14 @@ void App::onInit() {
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
     head = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/head.md3");
-    torso = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/upper.md3");
+    upper = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/upper.md3");
     /*
     head = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/head.md3");
-    torso = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
+    upper = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
     */
 
     headFrames = 0;
-    torsoFrames = 0;
+    upperFrames = 0;
     
 
     //setDesiredFrameRate(30.0f);
@@ -123,7 +123,7 @@ void App::onInit() {
 
     tagNames.clear();
 
-    torso->getTagNames(tagNames);
+    upper->getTagNames(tagNames);
 
     tagNames.clear();
 
@@ -152,10 +152,10 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         headFrames = 0;
     }
 
-    torsoFrames += rdt;
+    upperFrames += rdt;
 
-    if (torsoFrames > static_cast<float>(torso->numFrames())) {
-        torsoFrames = 0;
+    if (upperFrames > static_cast<float>(upper->numFrames())) {
+        upperFrames = 0;
     }
 }
 
@@ -179,10 +179,13 @@ void App::onUserInput(UserInput* ui) {
 }
 
 
-void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-    // Append any models to the array that you want rendered by onGraphics
-    head->pose(headFrames, "head_blue.skin", posed3D, torso->getTag(torsoFrames, "tag_head"));
-    torso->pose(torsoFrames, "upper_blue.skin", posed3D);
+void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
+    (void)surface2DArray;
+
+    const CFrame& headPos = upper->tag(upperFrames, "tag_head");
+
+    upper->pose(upperFrames, "upper_blue.skin", surfaceArray);
+    head->pose(headFrames, "head_blue.skin", surfaceArray, headPos);
 }
 
 
@@ -197,8 +200,8 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
     // ShadowMap as the final argument to create shadows.)
     Surface::sortAndRender(rd, defaultCamera, posed3D, lighting);
 
-    //Draw::arrow(legs->getTag(legsFrames, "tag_torso").translation, legs->getTag(legsFrames, "tag_torso").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);
-    //Draw::arrow(torso->getTag(torsoFrames, "tag_head").translation, torso->getTag(torsoFrames, "tag_head").rotation * Vector3::unitY(), rd, Color3::blue(), 10.0f);
+    //Draw::arrow(legs->getTag(legsFrames, "tag_upper").translation, legs->getTag(legsFrames, "tag_upper").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);
+    //Draw::arrow(upper->getTag(upperFrames, "tag_head").translation, upper->getTag(upperFrames, "tag_head").rotation * Vector3::unitY(), rd, Color3::blue(), 10.0f);
     /*
     // Sample immediate-mode rendering code
     rd->pushState();
