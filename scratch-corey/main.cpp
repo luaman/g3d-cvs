@@ -182,9 +182,10 @@ void App::onUserInput(UserInput* ui) {
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
 
-    const CFrame& headPos = upper->tag(upperFrames, "tag_head");
+    const CFrame& upperPos = CFrame();
+    const CFrame& headPos = upperPos * upper->tag(upperFrames, "tag_head");
 
-    upper->pose(upperFrames, "upper_blue.skin", surfaceArray);
+    upper->pose(upperFrames, "upper_blue.skin", surfaceArray, upperPos);
     head->pose(headFrames, "head_blue.skin", surfaceArray, headPos);
 }
 

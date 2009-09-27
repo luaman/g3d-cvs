@@ -128,10 +128,17 @@ public:
     /** \return NULL if the model was not found or is corrupt (TODO: maybe throw exceptions in those cases?)*/
     static MD3Model::Ref fromFile(const std::string& filename);
 
+    class Pose {
+    public:
+        int         frameIndex0;
+        int         frameIndex1;
+        float       alpha;
+    };
+
     /**
      TODO Corey: there are multiple logical animations in the single frame array for player models.  (Do *all* Q3 animations have multiple
      animations?)  It affects how you do the interpolation for cycling animations, since you can't always blend
-      towards the next indexed frame.  One way to resolve this is to pass frame0Index, frame1Index, and alpha.
+      towards the next indexed frame.  One way to resolve this is to pass frame0Index, frame1Index, and alpha. 
 
      \param frameNum Animation frame number.  On the range 
      \param cframe Root frame for this part.  For player models, this is the Q3 "tag" of the parent part.
@@ -142,6 +149,8 @@ public:
      Array<Surface::Ref>&       posedModelArray, 
      const CoordinateFrame&     cframe = CoordinateFrame());
 
+    // TODO: take a Pose as an argument instead of a frameNum
+    // TODO: is the "tag" returned in the object space of the part?
     CoordinateFrame tag(float frameNum, const std::string& name) const;
 
     void getTagNames(Array<std::string>& names) const;

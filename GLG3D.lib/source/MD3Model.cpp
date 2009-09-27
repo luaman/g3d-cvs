@@ -439,7 +439,7 @@ void MD3Model::pose
 }
 
 
-CoordinateFrame MD3Model::getTag(float frameNum, const std::string& name) const {
+CoordinateFrame MD3Model::tag(float frameNum, const std::string& name) const {
     int frame1 = iFloor(frameNum);
     int frame2 = iClamp(iCeil(frameNum), 0, m_numFrames - 1);
     float interp = fmod(frameNum, 1.0f);
