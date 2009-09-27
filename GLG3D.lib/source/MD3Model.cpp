@@ -13,66 +13,66 @@
 
 namespace G3D {
 
-    class MD3Surface : public Surface {
-    public:
-        MD3Surface(float frameNum, const CoordinateFrame& coordFrame,const MD3Model& model, int surfaceIndex, const std::string& skinName);
+class MD3Surface : public Surface {
+public:
+    MD3Surface(float frameNum, const CoordinateFrame& coordFrame,const MD3Model& model, int surfaceIndex, const std::string& skinName);
 
-        virtual ~MD3Surface();
+    virtual ~MD3Surface();
 
-        virtual std::string name() const;
+    virtual std::string name() const;
 
-        virtual void getCoordinateFrame(CoordinateFrame& c) const;
+    virtual void getCoordinateFrame(CoordinateFrame& c) const;
 
-        virtual const MeshAlg::Geometry& objectSpaceGeometry() const;
+    virtual const MeshAlg::Geometry& objectSpaceGeometry() const;
 
-        virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const;
+    virtual const Array<Vector3>& objectSpaceFaceNormals(bool normalize = true) const;
 
-        virtual const Array<MeshAlg::Face>& faces() const;
+    virtual const Array<MeshAlg::Face>& faces() const;
 
-        virtual const Array<MeshAlg::Edge>& edges() const;
+    virtual const Array<MeshAlg::Edge>& edges() const;
 
-        virtual const Array<MeshAlg::Vertex>& vertices() const;
+    virtual const Array<MeshAlg::Vertex>& vertices() const;
 
-        virtual const Array<MeshAlg::Face>& weldedFaces() const;
+    virtual const Array<MeshAlg::Face>& weldedFaces() const;
 
-        virtual const Array<MeshAlg::Edge>& weldedEdges() const;
+    virtual const Array<MeshAlg::Edge>& weldedEdges() const;
 
-        virtual const Array<MeshAlg::Vertex>& weldedVertices() const;
+    virtual const Array<MeshAlg::Vertex>& weldedVertices() const;
 
-        virtual const Array<int>& triangleIndices() const;
+    virtual const Array<int>& triangleIndices() const;
 
-        virtual void getObjectSpaceBoundingSphere(Sphere&) const;
+    virtual void getObjectSpaceBoundingSphere(Sphere&) const;
 
-        virtual void getObjectSpaceBoundingBox(AABox&) const;
+    virtual void getObjectSpaceBoundingBox(AABox&) const;
 
-        virtual int numBoundaryEdges() const;
+    virtual int numBoundaryEdges() const;
 
-        virtual int numWeldedBoundaryEdges() const;
+    virtual int numWeldedBoundaryEdges() const;
 
-        virtual const Array<Vector2>& texCoords() const;
+    virtual const Array<Vector2>& texCoords() const;
 
-        virtual bool hasTexCoords() const;
+    virtual bool hasTexCoords() const;
 
-        virtual void defaultRender(RenderDevice* rd) const;
+    virtual void defaultRender(RenderDevice* rd) const;
 
-    private:
-        MeshAlg::Geometry       m_geometry;
-        Array<Vector3>          m_faceNormals;
-        Array<MeshAlg::Face>    m_faces;
-        Array<MeshAlg::Edge>    m_edges;
-        Array<MeshAlg::Vertex>  m_adjacencies;
-        Array<MeshAlg::Face>    m_weldedFaces;
-        Array<MeshAlg::Edge>    m_weldedEdges;
-        Array<MeshAlg::Vertex>  m_weldedAdjecencies;
-        Array<int>              m_triangles;
-        Array<Vector2>          m_texCoords;
+private:
+    MeshAlg::Geometry       m_geometry;
+    Array<Vector3>          m_faceNormals;
+    Array<MeshAlg::Face>    m_faces;
+    Array<MeshAlg::Edge>    m_edges;
+    Array<MeshAlg::Vertex>  m_adjacencies;
+    Array<MeshAlg::Face>    m_weldedFaces;
+    Array<MeshAlg::Edge>    m_weldedEdges;
+    Array<MeshAlg::Vertex>  m_weldedAdjecencies;
+    Array<int>              m_triangles;
+    Array<Vector2>          m_texCoords;
 
-        CoordinateFrame         m_coordFrame;
+    CoordinateFrame         m_coordFrame;
 
-        Texture::Ref            m_texture;
-    };
+    Texture::Ref            m_texture;
+};
 
-// definition of MD3 file surface header structure
+// Definition of MD3 file surface header structure
 struct MD3SurfaceHeader {
 public:
     std::string ident;
@@ -91,7 +91,7 @@ public:
     int         offsetEnd;
 };
 
-// definition of MD3 file header structure
+// Definition of MD3 file header structure
 struct MD3FileHeader {
 public:
     std::string ident;
@@ -110,18 +110,21 @@ public:
     int         offsetEnd;
 };
 
-// helper to convert from left-hand to right-hand system
+// Helper to convert from left-hand to right-hand system
 static void leftToRightHand(Vector3& v) {
     float tempY = v.y;
     v.y = v.z * -1.0f;
     v.z = tempY;
 }
 
+
 MD3Model::MD3Model() {
 }
 
+
 MD3Model::~MD3Model() {
 }
+
 
 MD3Model::Ref MD3Model::fromFile(const std::string& filename) {
     MD3Model* model = new MD3Model;
@@ -132,6 +135,7 @@ MD3Model::Ref MD3Model::fromFile(const std::string& filename) {
 
     return model;
 }
+
 
 bool MD3Model::loadFile(const std::string& filename) {
     // invalid filename will throw an exception, only need to validate header
@@ -192,6 +196,7 @@ bool MD3Model::loadFile(const std::string& filename) {
 
     return true;
 }
+
 
 void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     // save start of surface
@@ -298,6 +303,7 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     bi.setPosition(surfaceStart + md3Surface.offsetEnd);
 }
 
+
 void MD3Model::loadFrame(BinaryInput& bi, FrameData& frameData) {
     frameData.m_bounds[0] = bi.readVector3();
     leftToRightHand(frameData.m_bounds[0]);
@@ -312,6 +318,7 @@ void MD3Model::loadFrame(BinaryInput& bi, FrameData& frameData) {
 
     std::string name = bi.readString(16);
 }
+
 
 void MD3Model::loadTag(BinaryInput& bi, FrameData& frameData) {
     std::string name = bi.readString(64);
@@ -358,6 +365,7 @@ void MD3Model::loadTag(BinaryInput& bi, FrameData& frameData) {
     frameData.m_tags.set(name, tag);
 }
 
+
 void MD3Model::loadSkin(const std::string& skinName) {
     // only load if not previously loaded
     if (skinName.length() && !m_skins.containsKey(skinName)) {
@@ -395,15 +403,20 @@ void MD3Model::loadSkin(const std::string& skinName) {
     }
 }
 
-void MD3Model::pose(float frameNum, const std::string& skinName, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& coordFrame) {
+void MD3Model::pose
+(float                          frameNum, 
+ const std::string&             skinName, 
+ Array<Surface::Ref>&           posedModelArray, 
+ const CoordinateFrame&         coordFrame) {
+
     // load skin if not already cached
     loadSkin(skinName);
 
-    for (int surfaceIndex = 0; surfaceIndex < m_surfaces.length(); ++surfaceIndex)
-    {
+    for (int surfaceIndex = 0; surfaceIndex < m_surfaces.length(); ++surfaceIndex) {
         posedModelArray.append(new MD3Surface(frameNum, coordFrame, *this, surfaceIndex, skinName));
     }
 }
+
 
 CoordinateFrame MD3Model::getTag(float frameNum, const std::string& name) const {
     int frame1 = iFloor(frameNum);
@@ -417,10 +430,12 @@ CoordinateFrame MD3Model::getTag(float frameNum, const std::string& name) const 
     return blendedFrame;
 }
 
+
 void MD3Model::getTagNames(Array<std::string>& names) const {
     m_frames[0].m_tags.getKeys(names);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const MD3Model& model, int surfaceIndex, const std::string& skinName) {
     const MD3Model::SurfaceData& surfaceData = model.m_surfaces[surfaceIndex];
@@ -445,8 +460,7 @@ MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const 
     float interp = fmod(frameNum, 1.0f);
 
     // copy blended vertex data for frame
-    for (int vertexIndex = 0; vertexIndex < surfaceData.m_numVertices; ++vertexIndex)
-    {
+    for (int vertexIndex = 0; vertexIndex < surfaceData.m_numVertices; ++vertexIndex) {
         m_geometry.vertexArray.append(surfaceData.m_frames[frame1][vertexIndex].lerp(
             surfaceData.m_frames[frame2][vertexIndex], interp));
 
@@ -464,12 +478,15 @@ MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const 
     m_coordFrame.translation += model.m_frames[frame1].m_localOrigin.lerp(model.m_frames[frame2].m_localOrigin, interp);
 }
 
+
 MD3Surface::~MD3Surface() {
 }
+
 
 std::string MD3Surface::name() const {
     return "MD3Model";
 }
+
 
 void MD3Surface::getCoordinateFrame(CoordinateFrame& c) const {
     c = m_coordFrame;

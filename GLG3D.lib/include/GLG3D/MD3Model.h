@@ -26,11 +26,16 @@ struct MD3SurfaceHeader;
     Quake III MD3 model loader
  */
 class MD3Model : public ReferenceCountedObject {
+    // Note: Quake calls the individual parts of the model "surfaces", so in the following,
+    // sometimes a "surface" is a part of the model and
+    // sometimes it is a G3D::Surfac.e
+
 public:
 
     typedef ReferenceCountedPointer<MD3Model> Ref;
 
 private:
+
     friend class MD3Surface;
 
     struct SurfaceData {

@@ -29,6 +29,7 @@ href="classes.html">Classes</a>.
     \link G3D::Shape Shape\endlink,
     \link G3D::Material Material\endlink,    
     \link G3D::MD2Model MD2Model\endlink,
+    \link G3D::MD3Model MD3Model\endlink,
     \link G3D::Surface Surface\endlink,
     \link G3D::Surface2D Surface2D\endlink,
     \link G3D::Sky Sky\endlink,
