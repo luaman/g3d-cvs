@@ -40,6 +40,9 @@ class MD3Model : public ReferenceCountedObject {
     //
     // Q3 calls an attachment point a "tag"
     //
+    // Player models contain lower.md3, upper.md3, and head.md3.  The lower part is the root.
+    // the upper is attached to the lower, and the weapon and head are attached to the upper.
+    //
     // Q3 calls the individual parts of the model "surfaces", so in the following,
     // sometimes a "surface" is a part of the model and
     // sometimes it is a G3D::Surface.
