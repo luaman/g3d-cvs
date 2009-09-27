@@ -15,7 +15,12 @@ namespace G3D {
 
 class MD3Surface : public Surface {
 public:
-    MD3Surface(float frameNum, const CoordinateFrame& coordFrame,const MD3Model& model, int surfaceIndex, const std::string& skinName);
+    MD3Surface
+    (float                      frameNum, 
+     const CoordinateFrame&     coordFrame, 
+     const MD3Model&            model, 
+     int                        surfaceIndex, 
+     const std::string&         skinName);
 
     virtual ~MD3Surface();
 
@@ -89,10 +94,27 @@ public:
     int         offsetUVs;
     int         offsetVertices;
     int         offsetEnd;
+
+    MD3SurfaceHeader(BinaryInput& bi) {
+        ident           = bi.readInt32();
+        name            = bi.readString(64);
+        flags           = bi.readInt32();
+
+        numFrames       = bi.readInt32();
+        numShaders      = bi.readInt32();
+        numVertices     = bi.readInt32();
+        numTriangles    = bi.readInt32();
+
+        offsetTriangles = bi.readInt32();
+        offsetShaders   = bi.readInt32();
+        offsetUVs       = bi.readInt32();
+        offsetVertices  = bi.readInt32();
+        offsetEnd       = bi.readInt32();
+    }
 };
 
 // Definition of MD3 file header structure
-struct MD3FileHeader {
+class MD3FileHeader {
 public:
     std::string ident;
     int         version;
@@ -108,6 +130,33 @@ public:
     int         offsetTags;
     int         offsetSurfaces;
     int         offsetEnd;
+
+    /** True if this file had the right version number */
+    bool        ok;
+
+    MD3FileHeader(BinaryInput& bi) : ok(true) {
+        ident   = bi.readString(4);
+        version = bi.readInt32();
+
+        // validate header before continuing
+        if ((ident != "IDP3") || (version != 15)) {
+            ok = false;
+            return;
+        }
+
+        name            = bi.readString(64);
+        flags           = bi.readInt32();
+
+        numFrames       = bi.readInt32();
+        numTags         = bi.readInt32();
+        numSurfaces     = bi.readInt32();
+        numSkins        = bi.readInt32();
+
+        offsetFrames    = bi.readInt32();
+        offsetTags      = bi.readInt32();
+        offsetSurfaces  = bi.readInt32();
+        offsetEnd       = bi.readInt32();
+    }
 };
 
 // Helper to convert from left-hand to right-hand system
@@ -144,36 +193,19 @@ bool MD3Model::loadFile(const std::string& filename) {
     m_modelDir = filenamePath(filename);
 
     // read file header
-    MD3FileHeader md3File;
-    md3File.ident = bi.readString(4);
-    md3File.version = bi.readInt32();
-
-    // validate header before continuing
-    if ((md3File.ident != "IDP3") || (md3File.version != 15)) {
+    MD3FileHeader md3File(bi);
+    if (! md3File.ok) {
         return false;
     }
-
-    md3File.name = bi.readString(64);
-    md3File.flags = bi.readInt32();
-
-    md3File.numFrames = bi.readInt32();
-    md3File.numTags = bi.readInt32();
-    md3File.numSurfaces = bi.readInt32();
-    md3File.numSkins = bi.readInt32();
-
-    md3File.offsetFrames = bi.readInt32();
-    md3File.offsetTags = bi.readInt32();
-    md3File.offsetSurfaces = bi.readInt32();
-    md3File.offsetEnd = bi.readInt32();
 
     m_numFrames = md3File.numFrames;
 
     // allocate frames
     m_frames.resize(md3File.numFrames, false);
 
-    // read in frame data
+    // Read in frame data
     bi.setPosition(md3File.offsetFrames);
-    for (int frameIndex = 0; frameIndex < md3File.numFrames; ++frameIndex) {
+    for (int frameIndex = 0; frameIndex < m_frames.size(); ++frameIndex) {
         loadFrame(bi, m_frames[frameIndex]);
     }
 
@@ -203,21 +235,8 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     int surfaceStart = static_cast<int>(bi.getPosition());
 
     // read surface header
-    MD3SurfaceHeader md3Surface;
-    md3Surface.ident = bi.readInt32();
-    md3Surface.name = bi.readString(64);
-    md3Surface.flags = bi.readInt32();
+    MD3SurfaceHeader md3Surface(bi);
 
-    md3Surface.numFrames = bi.readInt32();
-    md3Surface.numShaders = bi.readInt32();
-    md3Surface.numVertices = bi.readInt32();
-    md3Surface.numTriangles = bi.readInt32();
-
-    md3Surface.offsetTriangles = bi.readInt32();
-    md3Surface.offsetShaders = bi.readInt32();
-    md3Surface.offsetUVs = bi.readInt32();
-    md3Surface.offsetVertices = bi.readInt32();
-    md3Surface.offsetEnd = bi.readInt32();
 
     // read surface data
     surfaceData.m_name = md3Surface.name;
