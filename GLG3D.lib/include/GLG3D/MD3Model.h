@@ -23,12 +23,26 @@ namespace G3D {
 struct MD3SurfaceHeader;
 
 /**
-    Quake III MD3 model loader
+    Quake III MD3 model loader.
+
+    Quake 3 uses MD3 models for both characters and non-character objects.  
+    Character objects contain three individual "models" inside of them with attachment points.
+
+    TODO: 
+    - Fix transform problems with attachment points
+    - Rename this to MD3Model::Part, and then make an MD3::Model class that loads all of the part [Corey]
+    - Render using SuperSurface [Morgan]
  */
 class MD3Model : public ReferenceCountedObject {
-    // Note: Quake calls the individual parts of the model "surfaces", so in the following,
+    // See: http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
+
+    // Terminology:
+    //
+    // Q3 calls an attachment point a "tag"
+    //
+    // Q3 calls the individual parts of the model "surfaces", so in the following,
     // sometimes a "surface" is a part of the model and
-    // sometimes it is a G3D::Surfac.e
+    // sometimes it is a G3D::Surface.
 
 public:
 
