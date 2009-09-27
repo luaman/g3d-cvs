@@ -183,17 +183,11 @@ void App::onUserInput(UserInput* ui) {
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
 
-    float frameNum = 0.0f;
 
-    const CFrame& upperPos = CFrame();
-    const CFrame& headPos = upperPos * upper->tag(upperFrames, "tag_head");
-
-    upper->pose(frameNum, "upper_blue.skin", surfaceArray, upperPos);
-//    head->pose(frameNum, "head_blue.skin", surfaceArray, headPos);
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<Surface2DRef>& posed2D) {
     rd->setProjectionAndCameraMatrix(defaultCamera);
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
@@ -202,29 +196,21 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
-    Surface::sortAndRender(rd, defaultCamera, posed3D, lighting);
+
+    float frameNum = 0.0f;
+
+    const CFrame& upperPos = CFrame();
+    const CFrame& headPos = upperPos * upper->tag(frameNum, "tag_head");
+
+    upper->pose(frameNum, "upper_blue.skin", surfaceArray, upperPos);
+    head->pose(frameNum, "head_blue.skin", surfaceArray, headPos);
+
     Draw::axes(rd);
+    Draw::axes(headPos, rd);
+    Surface::sortAndRender(rd, defaultCamera, surfaceArray, lighting);
 
     //Draw::arrow(legs->getTag(legsFrames, "tag_upper").translation, legs->getTag(legsFrames, "tag_upper").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);
     //Draw::arrow(upper->getTag(upperFrames, "tag_head").translation, upper->getTag(upperFrames, "tag_head").rotation * Vector3::unitY(), rd, Color3::blue(), 10.0f);
-    /*
-    // Sample immediate-mode rendering code
-    rd->pushState();
-        rd->enableLighting();
-
-        for (int i = 0; i < localLighting->lightArray.size(); ++i) {
-            rd->setLight(i, localLighting->lightArray[i]);
-        }
-        rd->setAmbientLightColor(localLighting->ambientAverage());
-
-        Draw::axes(CoordinateFrame(Vector3(0, 0, 0)), rd);
-        Draw::sphere(Sphere(Vector3(2.5f, 0, 0), 0.5f), rd, Color3::white());
-        Draw::box(AABox(Vector3(-3.0f, -0.5f, -0.5f), Vector3(-2.0f, 0.5f, 0.5f)), rd, Color3::green());
-
-        // Call to make the GApp show the output of debugDraw
-        drawDebugShapes();
-    rd->popState();
-    */
 
     // Render 2D objects like Widgets
     Surface2D::sortAndRender(rd, posed2D);

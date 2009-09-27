@@ -354,11 +354,16 @@ void MD3Model::loadTag(BinaryInput& bi, FrameData& frameData) {
 
     CoordinateFrame tag;
     tag.translation = pointToG3D(bi.readVector3());
- 
-    // TODO: don't the columns have to be moved around to match the swizzled coords?
+
+    Matrix3 raw;
     for (int a = 0; a < 3; ++a) {
-        tag.rotation.setColumn(a, vectorToG3D(bi.readVector3()));
+        raw.setColumn(a, vectorToG3D(bi.readVector3()));
     }
+
+    // Perform the vectorToG3D transform on the columns
+    tag.rotation.setColumn(Vector3::X_AXIS,  raw.column(Vector3::Y_AXIS));
+    tag.rotation.setColumn(Vector3::Y_AXIS,  raw.column(Vector3::Z_AXIS));
+    tag.rotation.setColumn(Vector3::Z_AXIS, -raw.column(Vector3::X_AXIS));
 
     frameData.m_tags.set(name, tag);
 }
