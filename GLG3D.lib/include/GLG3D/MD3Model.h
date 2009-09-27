@@ -32,6 +32,8 @@ struct MD3SurfaceHeader;
     - Fix transform problems with attachment points
     - Rename this to MD3Model::Part, and then make an MD3::Model class that loads all of the part [Corey]
     - Render using SuperSurface [Morgan]
+    - Change scale: 60 quake units ~= 3 meters
+    - Set up Pose animation for player models ala MD2Model.  See http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html for the constants for each animation.
  */
 class MD3Model : public ReferenceCountedObject {
     // See: http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
@@ -55,24 +57,26 @@ private:
 
     friend class MD3Surface;
 
+    /** TriMesh */
     struct SurfaceData {
-        // helper data copied from the surface header
+        /** helper data copied from the surface header */
         int                                     m_numFrames;
 
         int                                     m_numVertices;
 
-        // array of vertices for each frame of animation
+        /** array of vertices for each frame of animation */
         Array< Array<Vector3> >                 m_frames;
 
-        // array of normals for each vertex
+        /** array of normals for each vertex */
         Array< Array<Vector3> >                 m_normals;
 
-        // array of indices used to create triangles from each frame's vertices
+        /** array of indices used to create triangles from each frame's vertices */
         Array<int>                              m_triangles;
 
-        // array of texture coordinates for each vertex
+        /** array of texture coordinates for each vertex */
         Array<Vector2>                          m_textureCoords;
 
+        /** TODO: make this a Material */
         Texture::Ref                            m_texture;
 
         std::string                             m_name;
@@ -103,18 +107,18 @@ private:
 
     void loadSkin(const std::string& skinName);
 
-    // number of frames of animation for all surfaces
+    /** number of frames of animation for all surfaces */
     int                         m_numFrames;
 
     std::string                 m_modelDir;
 
-    // surface data
+    /** surface data */
     Array<SurfaceData>          m_surfaces;
 
-    // per-frame bounding box and translatoin information
+    /** per-frame bounding box and translatoin information */
     Array<FrameData>            m_frames;
 
-    // table of skins for surfaces
+    /** table of skins for surfaces.  TODO: Make these materials */
     Table< std::string, Table<std::string, Texture::Ref> > m_skins;
 
 public:

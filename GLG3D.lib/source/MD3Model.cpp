@@ -161,9 +161,9 @@ public:
 
 // Helper to convert from left-hand to right-hand system
 static void leftToRightHand(Vector3& v) {
-    float tempY = v.y;
-    v.y = v.z * -1.0f;
-    v.z = tempY;
+    const float oldY = v.y;
+    v.y = -v.z;
+    v.z = oldY;
 }
 
 
@@ -251,9 +251,11 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     surfaceData.m_triangles.resize(md3Surface.numTriangles * 3);
 
     for (int index = 0; index < md3Surface.numTriangles; ++index) {
-        int t1 = bi.readInt32();
-        int t2 = bi.readInt32();
-        int t3 = bi.readInt32();
+        // Winding direction is backwards in Q3 because their
+        // coordinate system is flipped
+        const int t1 = bi.readInt32();
+        const int t2 = bi.readInt32();
+        const int t3 = bi.readInt32();
         surfaceData.m_triangles[index * 3] = t3;
         surfaceData.m_triangles[index * 3 + 1] = t2;
         surfaceData.m_triangles[index * 3 + 2] = t1;
@@ -264,14 +266,14 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
 
     for (int shaderIndex = 0; shaderIndex < md3Surface.numShaders; ++shaderIndex) {
         // read shader name and index
-        std::string shaderPath = bi.readString(64);
-        int unusedIndex = bi.readInt32();
+        const std::string& shaderPath = bi.readString(64);
+        const int unusedIndex = bi.readInt32();
         
         // find base filename for shader
-        std::string shaderName = filenameBaseExt(shaderPath);
+        const std::string& shaderName = filenameBaseExt(shaderPath);
 
         // ignore empty shader names for now (filled in with .skin file)
-        if (shaderName.length() > 0) {
+        if (! shaderName.empty()) {
             surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
     }
@@ -282,11 +284,10 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     surfaceData.m_textureCoords.resize(md3Surface.numVertices);
 
     for (int coordIndex = 0; coordIndex < md3Surface.numVertices; ++coordIndex) {
-        float u = bi.readFloat32();
-        float v = bi.readFloat32();
-
-        clamp(u, 0.0f, 1.0f);
-        clamp(v, 0.0f, 1.0f);
+        // TODO: are you sure these should be clamped?  There's nothing wrong with
+        // wrapping texcoords
+        const float u = clamp(bi.readFloat32(), 0.0f, 1.0f);
+        const float v = clamp(bi.readFloat32(), 0.0f, 1.0f);
 
         surfaceData.m_textureCoords[coordIndex] = Vector2(u, v);
     }
@@ -307,18 +308,19 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
             // MD3 scales vertices by 64
             vertex *= (1.0f / 64.0f);
 
-            leftToRightHand(vertex);
-
             // convert from left-handed system
+            leftToRightHand(vertex);
             surfaceData.m_frames[frameIndex][vertexIndex] = vertex;
 
+            // TODO: Unpack normal.  Encoding is at the bottom of this page:
+            // http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
             int16 normal = bi.readInt16();
 
             surfaceData.m_normals[frameIndex][vertexIndex] = Vector3::unitY();
         }
     }
 
-    // ensure at the end of surface
+    // Ensure at the end of surface
     bi.setPosition(surfaceStart + md3Surface.offsetEnd);
 }
 
