@@ -11,6 +11,9 @@
 #include "G3D/fileutils.h"
 #include "GLG3D/MD3Model.h"
 
+// 60 quake units ~= 2 meters
+#define Q3_LOAD_SCALE (2.0f / 60.0f)
+
 namespace G3D {
 
 class MD3Surface : public Surface {
@@ -69,7 +72,7 @@ private:
     Array<MeshAlg::Face>    m_weldedFaces;
     Array<MeshAlg::Edge>    m_weldedEdges;
     Array<MeshAlg::Vertex>  m_weldedAdjecencies;
-    Array<int>              m_triangles;
+    Array<int>              m_indexArray;
     Array<Vector2>          m_texCoords;
 
     CoordinateFrame         m_coordFrame;
@@ -248,7 +251,7 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     // read triangles
     bi.setPosition(surfaceStart + md3Surface.offsetTriangles);
 
-    surfaceData.m_triangles.resize(md3Surface.numTriangles * 3);
+    surfaceData.m_indexArray.resize(md3Surface.numTriangles * 3);
 
     for (int index = 0; index < md3Surface.numTriangles; ++index) {
         // Winding direction is backwards in Q3 because their
@@ -256,9 +259,9 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
         const int t1 = bi.readInt32();
         const int t2 = bi.readInt32();
         const int t3 = bi.readInt32();
-        surfaceData.m_triangles[index * 3] = t3;
-        surfaceData.m_triangles[index * 3 + 1] = t2;
-        surfaceData.m_triangles[index * 3 + 2] = t1;
+        surfaceData.m_indexArray[index * 3] = t3;
+        surfaceData.m_indexArray[index * 3 + 1] = t2;
+        surfaceData.m_indexArray[index * 3 + 2] = t1;
     }
 
     // read shaders
@@ -295,28 +298,32 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
     // read vertices
     bi.setPosition(surfaceStart + md3Surface.offsetVertices);
 
-    surfaceData.m_frames.resize(md3Surface.numFrames);
-    surfaceData.m_normals.resize(md3Surface.numFrames);
+    surfaceData.m_geometry.resize(md3Surface.numFrames);
 
+    const int N = md3Surface.numVertices;
     for (int frameIndex = 0; frameIndex < md3Surface.numFrames; ++frameIndex) {
-        surfaceData.m_frames[frameIndex].resize(md3Surface.numVertices);
-        surfaceData.m_normals[frameIndex].resize(md3Surface.numVertices);
+        MeshAlg::Geometry& geom = surfaceData.m_geometry[frameIndex];
+        geom.vertexArray.resize(N);
+        geom.normalArray.resize(N);
 
-        for (int vertexIndex = 0; vertexIndex < md3Surface.numVertices; ++vertexIndex) {
-            Vector3 vertex(bi.readInt16(), bi.readInt16(), bi.readInt16());
+        for (int vertexIndex = 0; vertexIndex < N; ++vertexIndex) {
+            Vector3 vertex;
+            for (int j = 0; j < 3; ++j) {
+                vertex[j] = bi.readInt16();
+            }
 
-            // MD3 scales vertices by 64
-            vertex *= (1.0f / 64.0f);
+            // MD3 scales vertices by 64 when packing them into integers
+            vertex *= (1.0f / 64.0f) * Q3_LOAD_SCALE;
 
-            // convert from left-handed system
+            // Convert to right-handed coordinates
             leftToRightHand(vertex);
-            surfaceData.m_frames[frameIndex][vertexIndex] = vertex;
+
+            geom.vertexArray[vertexIndex] = vertex;
 
             // TODO: Unpack normal.  Encoding is at the bottom of this page:
             // http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
             int16 normal = bi.readInt16();
-
-            surfaceData.m_normals[frameIndex][vertexIndex] = Vector3::unitY();
+            geom.normalArray[vertexIndex] = Vector3::unitY();
         }
     }
 
@@ -326,18 +333,20 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
 
 
 void MD3Model::loadFrame(BinaryInput& bi, FrameData& frameData) {
-    frameData.m_bounds[0] = bi.readVector3();
+    frameData.m_bounds[0] = bi.readVector3() * Q3_LOAD_SCALE;
     leftToRightHand(frameData.m_bounds[0]);
 
-    frameData.m_bounds[1] = bi.readVector3();
+    frameData.m_bounds[1] = bi.readVector3() * Q3_LOAD_SCALE;
     leftToRightHand(frameData.m_bounds[1]);
 
-    frameData.m_localOrigin = bi.readVector3();
+    frameData.m_localOrigin = bi.readVector3() * Q3_LOAD_SCALE;
     leftToRightHand(frameData.m_localOrigin);
 
-    frameData.m_radius = bi.readFloat32();
+    frameData.m_radius = bi.readFloat32() * Q3_LOAD_SCALE;
 
-    std::string name = bi.readString(16);
+    // TODO: why is name ignored?  Should we at least assert it or something?
+    const std::string& name = bi.readString(16);
+    (void)name;
 }
 
 
@@ -345,7 +354,7 @@ void MD3Model::loadTag(BinaryInput& bi, FrameData& frameData) {
     std::string name = bi.readString(64);
 
     CoordinateFrame tag;
-    tag.translation = bi.readVector3();
+    tag.translation = bi.readVector3() * Q3_LOAD_SCALE;
     leftToRightHand(tag.translation);
 
     Vector3 colX = bi.readVector3();
@@ -395,28 +404,28 @@ void MD3Model::loadSkin(const std::string& skinName) {
         m_skins.set(skinName, Table<std::string, Texture::Ref>());
 
         // read file as string to parse easily
-        std::string skinFile = readWholeFile(m_modelDir + skinName);
+        const std::string& skinFile = readWholeFile(m_modelDir + skinName);
 
         // split the file into lines
-        Array<std::string> lines = stringSplit(skinFile, '\n');
+        const Array<std::string>& lines = stringSplit(skinFile, '\n');
 
         // parse each line for surface name + texture
         for (int lineIndex = 0; lineIndex < lines.length(); ++lineIndex) {
-            std::string line = trimWhitespace(lines[lineIndex]);
+            const std::string& line = trimWhitespace(lines[lineIndex]);
 
-            std::string::size_type commaPos = line.find(',');
+            const std::string::size_type commaPos = line.find(',');
 
             // quit parsing if invalid name,texture as this is probably the end of file
             if (commaPos == (line.length() - 1)) {
                 continue;
             }
 
-            std::string surfaceName = line.substr(0, commaPos);
-            std::string textureName = filenameBaseExt(line.substr(commaPos + 1));
+            const std::string& surfaceName = line.substr(0, commaPos);
+            const std::string& textureName = filenameBaseExt(line.substr(commaPos + 1));
 
             // only try to load an existing file as the .skin contains invalid names for empty/invalid surfaces
             if (fileExists(m_modelDir + textureName)) {
-                Texture::Ref t = Texture::fromFile(m_modelDir + textureName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
+                const Texture::Ref& t = Texture::fromFile(m_modelDir + textureName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
 
                 m_skins[skinName].set(surfaceName, t);
             }
@@ -480,21 +489,21 @@ MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const 
     int frame2 = iClamp(iCeil(frameNum), 0, surfaceData.m_numFrames - 1);
     float interp = fmod(frameNum, 1.0f);
 
-    // copy blended vertex data for frame
+    // copy blended vertex data for frame (TODO: eventually SSE this, but wait until everything is converted to use SuperSurface::CPUData)
+    const MeshAlg::Geometry& geom1 = surfaceData.m_geometry[frame1];
+    const MeshAlg::Geometry& geom2 = surfaceData.m_geometry[frame2];
     for (int vertexIndex = 0; vertexIndex < surfaceData.m_numVertices; ++vertexIndex) {
-        m_geometry.vertexArray.append(surfaceData.m_frames[frame1][vertexIndex].lerp(
-            surfaceData.m_frames[frame2][vertexIndex], interp));
+        m_geometry.vertexArray.append(geom1.vertexArray[vertexIndex].lerp(geom2.vertexArray[vertexIndex], interp));
 
-        m_geometry.normalArray.append(surfaceData.m_normals[frame1][vertexIndex].lerp(
-            surfaceData.m_normals[frame2][vertexIndex], interp));
+        m_geometry.normalArray.append(geom1.normalArray[vertexIndex].lerp(geom2.normalArray[vertexIndex], interp));
 
         m_texCoords.append(surfaceData.m_textureCoords[vertexIndex]);
     }
 
-    // copy static triangle data
-    m_triangles.append(surfaceData.m_triangles);
+    // Copy static triangle data
+    m_indexArray.append(surfaceData.m_indexArray);
 
-    // add blended frame-specific translation
+    // Add blended frame-specific translation
     m_coordFrame = coordFrame;
     m_coordFrame.translation += model.m_frames[frame1].m_localOrigin.lerp(model.m_frames[frame2].m_localOrigin, interp);
 }
@@ -546,7 +555,7 @@ const Array<MeshAlg::Vertex>& MD3Surface::weldedVertices() const {
 }
 
 const Array<int>& MD3Surface::triangleIndices() const {
-    return m_triangles;
+    return m_indexArray;
 }
 
 void MD3Surface::getObjectSpaceBoundingSphere(Sphere&) const {

@@ -32,8 +32,7 @@ struct MD3SurfaceHeader;
     - Fix transform problems with attachment points
     - Rename this to MD3Model::Part, and then make an MD3::Model class that loads all of the part [Corey]
     - Render using SuperSurface [Morgan]
-    - Change scale: 60 quake units ~= 3 meters
-    - Set up Pose animation for player models ala MD2Model.  See http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html for the constants for each animation.
+    - Morgan doesn't understand how the skin stuff works.  Can't we fix a skin to a model when it is loaded?  MD2Model's separation of material and model was a mistake in retrospect--it enables sharing some model geometry, but is generally a pain to deal with.  It would be better to hide the sharing of model geometry with an internal WeakCache.
  */
 class MD3Model : public ReferenceCountedObject {
     // See: http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
@@ -64,14 +63,11 @@ protected:
 
         int                                     m_numVertices;
 
-        /** array of vertices for each frame of animation */
-        Array< Array<Vector3> >                 m_frames;
+        /** Geometry for each frame of animation */
+        Array<MeshAlg::Geometry>                m_geometry;
 
-        /** array of normals for each vertex */
-        Array< Array<Vector3> >                 m_normals;
-
-        /** array of indices used to create triangles from each frame's vertices */
-        Array<int>                              m_triangles;
+        /** Indexed triangle list. */
+        Array<int>                              m_indexArray;
 
         /** array of texture coordinates for each vertex */
         Array<Vector2>                          m_textureCoords;
@@ -91,8 +87,8 @@ protected:
 
         std::string                             m_name;
 
-        // map of tag name to tag data for each frame
-        Table< std::string, CoordinateFrame >   m_tags;
+        /** map of tag name to tag data for each frame*/
+        Table<std::string, CoordinateFrame>     m_tags;
     };
 
     MD3Model();
@@ -128,17 +124,23 @@ public:
     /** \return NULL if the model was not found or is corrupt (TODO: maybe throw exceptions in those cases?)*/
     static MD3Model::Ref fromFile(const std::string& filename);
 
+    /**
+
+      NThere are multiple logical animations in the single frame array for player models.   It affects how you do the interpolation for cycling animations, since you can't always blend
+      towards the next indexed frame.
+      */
     class Pose {
     public:
         int         frameIndex0;
         int         frameIndex1;
         float       alpha;
+
+        // TODO: helpers ala MD2Model for the standard player animations.
+        // http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html for the constants for each animation
     };
 
     /**
-     TODO Corey: there are multiple logical animations in the single frame array for player models.  (Do *all* Q3 animations have multiple
-     animations?)  It affects how you do the interpolation for cycling animations, since you can't always blend
-      towards the next indexed frame.  One way to resolve this is to pass frame0Index, frame1Index, and alpha. 
+      TODO: Take Pose as an argument
 
      \param frameNum Animation frame number.  On the range 
      \param cframe Root frame for this part.  For player models, this is the Q3 "tag" of the parent part.

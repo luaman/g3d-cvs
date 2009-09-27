@@ -105,8 +105,9 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    head = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/head.md3");
-    upper = MD3Model::fromFile("D:/morgan/data/md3/bender/md3-bender.pk3/models/players/bender/upper.md3");
+    std::string base = "D:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/";
+    head = MD3Model::fromFile(base + "head.md3");
+    upper = MD3Model::fromFile(base + "upper.md3");
     /*
     head = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/head.md3");
     upper = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
@@ -182,11 +183,13 @@ void App::onUserInput(UserInput* ui) {
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
 
+    float frameNum = 0.0f;
+
     const CFrame& upperPos = CFrame();
     const CFrame& headPos = upperPos * upper->tag(upperFrames, "tag_head");
 
-    upper->pose(upperFrames, "upper_blue.skin", surfaceArray, upperPos);
-    head->pose(headFrames, "head_blue.skin", surfaceArray, headPos);
+    upper->pose(frameNum, "upper_blue.skin", surfaceArray, upperPos);
+    head->pose(frameNum, "head_blue.skin", surfaceArray, headPos);
 }
 
 
@@ -200,6 +203,7 @@ void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
     Surface::sortAndRender(rd, defaultCamera, posed3D, lighting);
+    Draw::axes(rd);
 
     //Draw::arrow(legs->getTag(legsFrames, "tag_upper").translation, legs->getTag(legsFrames, "tag_upper").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);
     //Draw::arrow(upper->getTag(upperFrames, "tag_head").translation, upper->getTag(upperFrames, "tag_head").rotation * Vector3::unitY(), rd, Color3::blue(), 10.0f);
