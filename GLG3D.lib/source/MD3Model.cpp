@@ -11,10 +11,22 @@
 #include "G3D/fileutils.h"
 #include "GLG3D/MD3Model.h"
 
+
+namespace G3D {
+
+
 // 60 quake units ~= 2 meters
 #define Q3_LOAD_SCALE (2.0f / 60.0f)
 
-namespace G3D {
+inline static Vector3 vectorToG3D(const Vector3& v) {
+    return Vector3(v.y, v.z, -v.x);
+}
+
+/** Takes a point in the Q3 coordinate system to one in the G3D coordinate system */
+inline static Vector3 pointToG3D(const Vector3& v) {
+    return vectorToG3D(v) * Q3_LOAD_SCALE;
+}
+
 
 class MD3Surface : public Surface {
 public:
@@ -162,12 +174,14 @@ public:
     }
 };
 
+/*
 // Helper to convert from left-hand to right-hand system
 static void leftToRightHand(Vector3& v) {
     const float oldY = v.y;
     v.y = -v.z;
     v.z = oldY;
 }
+*/
 
 
 MD3Model::MD3Model() {
@@ -313,17 +327,14 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
             }
 
             // MD3 scales vertices by 64 when packing them into integers
-            vertex *= (1.0f / 64.0f) * Q3_LOAD_SCALE;
+            vertex *= (1.0f / 64.0f);
 
-            // Convert to right-handed coordinates
-            leftToRightHand(vertex);
-
-            geom.vertexArray[vertexIndex] = vertex;
+            geom.vertexArray[vertexIndex] = pointToG3D(vertex);
 
             // TODO: Unpack normal.  Encoding is at the bottom of this page:
             // http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
             int16 normal = bi.readInt16();
-            geom.normalArray[vertexIndex] = Vector3::unitY();
+            geom.normalArray[vertexIndex] = pointToG3D(Vector3::unitX());
         }
     }
 
@@ -333,14 +344,11 @@ void MD3Model::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
 
 
 void MD3Model::loadFrame(BinaryInput& bi, FrameData& frameData) {
-    frameData.m_bounds[0] = bi.readVector3() * Q3_LOAD_SCALE;
-    leftToRightHand(frameData.m_bounds[0]);
+    frameData.m_bounds[0] = pointToG3D(bi.readVector3());
 
-    frameData.m_bounds[1] = bi.readVector3() * Q3_LOAD_SCALE;
-    leftToRightHand(frameData.m_bounds[1]);
+    frameData.m_bounds[1] = pointToG3D(bi.readVector3());
 
-    frameData.m_localOrigin = bi.readVector3() * Q3_LOAD_SCALE;
-    leftToRightHand(frameData.m_localOrigin);
+    frameData.m_localOrigin = pointToG3D(bi.readVector3());
 
     frameData.m_radius = bi.readFloat32() * Q3_LOAD_SCALE;
 
@@ -354,43 +362,12 @@ void MD3Model::loadTag(BinaryInput& bi, FrameData& frameData) {
     std::string name = bi.readString(64);
 
     CoordinateFrame tag;
-    tag.translation = bi.readVector3() * Q3_LOAD_SCALE;
-    leftToRightHand(tag.translation);
-
-    Vector3 colX = bi.readVector3();
-    leftToRightHand(colX);
-
-    Vector3 colY = bi.readVector3();
-    leftToRightHand(colY);
-
-    Vector3 colZ = bi.readVector3();
-    leftToRightHand(colZ);
-
-/*  if different major order
-    Vector3 colX;
-    Vector3 colY;
-    Vector3 colZ;
-
-    colX.x = bi.readFloat32();
-    colY.x = bi.readFloat32();
-    colZ.x = bi.readFloat32();
-
-    colX.y = bi.readFloat32();
-    colY.y = bi.readFloat32();
-    colZ.y = bi.readFloat32();
-
-    colX.z = bi.readFloat32();
-    colY.z = bi.readFloat32();
-    colZ.z = bi.readFloat32();
-
-    leftToRightHand(colX);
-    leftToRightHand(colY);
-    leftToRightHand(colZ);
-*/
-
-    tag.rotation.setColumn(0, colX);
-    tag.rotation.setColumn(1, colY);
-    tag.rotation.setColumn(2, colZ);
+    tag.translation = pointToG3D(bi.readVector3());
+ 
+    // TODO: don't the columns have to be moved around to match the swizzled coords?
+    for (int a = 0; a < 3; ++a) {
+        tag.rotation.setColumn(a, vectorToG3D(bi.readVector3()));
+    }
 
     frameData.m_tags.set(name, tag);
 }
@@ -479,12 +456,12 @@ MD3Surface::MD3Surface(float frameNum, const CoordinateFrame& coordFrame, const 
         m_texture = surfaceData.m_texture;
     }
 
-    // don't set geometry to render if no texture
+    // Don't set geometry to render if no texture
     if (m_texture.isNull()) {
         return;
     }
 
-    // calculate frames for blending
+    // Calculate frames for blending
     int frame1 = iFloor(frameNum);
     int frame2 = iClamp(iCeil(frameNum), 0, surfaceData.m_numFrames - 1);
     float interp = fmod(frameNum, 1.0f);
