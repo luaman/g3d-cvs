@@ -105,11 +105,27 @@ public:
     /** Sets a new coordinate frame for the camera */
     void setCoordinateFrame(const CoordinateFrame& c);
            
-    /** Sets P equal to the camera's projection matrix */
+    /** Sets \a P equal to the camera's projection matrix. This is the
+        matrix that maps points to the homogeneous clip cube that
+        varies from -1 to 1 on all axes.  The projection matrix does
+        not include the camera transform.
+
+        This is the matrix that a RenderDevice (or OpenGL) uses as the projection matrix.
+        @sa RenderDevice::setProjectionAndCameraMatrix, RenderDevice::setProjectionMatrix, Matrix4::perspectiveProjection
+    */
     void getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const;
 
+    /** Sets \a P equal to the matrix that transforms points to pixel
+        coordinates on the given viewport.  A point correspoinding to
+        the top-left corner of the viewport in camera space will
+        transform to viewport.x0y0() and the bottom-right to viewport.x1y1(). */
+    void getProjectPixelMatrix(const Rect2D& viewport, Matrix4& P) const;
+
     /** Converts projected points from OpenGL standards
-        (-1, 1) to normal 3D coordinate standards (0, 1) */
+        (-1, 1) to normal 3D coordinate standards (0, 1) 
+
+        \deprecated
+    */ // TODO: Remove
     Vector3 convertFromUnitToNormal(const Vector3& in, const Rect2D& viewport) const;
 
     /**

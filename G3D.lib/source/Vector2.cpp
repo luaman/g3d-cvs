@@ -112,11 +112,11 @@ void Vector2::serialize(TextOutput& t) const {
 
 //----------------------------------------------------------------------------
 
-Vector2 Vector2::random() {
+Vector2 Vector2::random(G3D::Random& r) {
     Vector2 result;
 
     do {
-        result = Vector2(uniformRandom(-1, 1), uniformRandom(-1, 1));
+        result = Vector2(r.uniform(-1, 1), r.uniform(-1, 1));
 
     } while (result.squaredLength() >= 1.0f);
 

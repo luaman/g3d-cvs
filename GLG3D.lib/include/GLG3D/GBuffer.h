@@ -35,6 +35,55 @@ public:
 
     typedef ReferenceCountedPointer<GBuffer> Ref;
 
+    /**
+       Storage method 
+     */
+    enum Mode {
+        /**
+           Channels are packed into RGBA8 textures as follows:
+
+           24-bit fixed point camera space depth:
+
+           Decode the camera space z by:
+           <pre>
+           z = -dot(zpack.rgb, vec3(256.0, 1.0, 1.0/256.0))
+           </pre>
+
+           It was encoded as: (TODO:need to use the last bit...)
+           <pre>
+           z = -z
+           b = frac(z); z = (z - b) / 256;
+           g = frac(z); z = (z - g) / 256;
+           r = min(1.0, z);
+           </pre>
+ 
+           <table>
+           <tr><td>Texture</td><td colspan=4>Channels</td></tr>
+           <tr><td></td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+           <td>zpack</td><td>z<sub>2</sub></td><td>z<sub>1</sub></td><td>z<sub>0</sub></td><td>u</td></tr>
+           <td>normal</td><td colspan=3>n<sub>x,y,z</sub></td><td>v</td></tr>
+
+           <td>reflect</td><td>diffuse</td><td>glossy</td><td>specular</td><td>log<sub>1024</sub>(glossyExp)</td></tr>
+           <td>spectrum</td><td>spectrum<sub>r,g,b</sub></td><td>metalicity</td></tr>
+
+           <td>transmit</td><td>transmit<sub>r,g,b</sub></td><td>eta</td></tr>
+           <td>emit</td><td>emit<sub>r,g,b</sub></td><td><i>reserved</i></td></tr>
+           </table>
+
+           Depth stores a depth buffer in the requested format.
+           
+           Normals can be specified in either either camera or world
+           space and are always unit length.           
+           
+           (u, v) is the texture coordinate.
+         */
+        PACKED_RGBA8_MODE,
+
+        FLAT16F_MODE
+    };
+
+    enum Space {CAMERA_SPACE, WORLD_SPACE};
+
 private:
 
     std::string                 m_name;

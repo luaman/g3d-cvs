@@ -24,6 +24,7 @@
      <li> 1024^2 default skybox sky/noonclouds/noonclouds_*.jpg
      <li> G3D::GLCaps::firstSupportedTexture
      <li> G3D::GFont::draw3DBillboard
+     <li> GCamera::getProjectPixelMatrix
      <li> G3D::ShadowMap now supports NPOT textures
      <li> G3D::ShadowMap now supports separate front- and back-face polygon offsets
      <li> Added G3D_64BIT and G3D_32BIT macros

@@ -110,14 +110,26 @@ Ray GCamera::worldRay(float x, float y, const Rect2D& viewport) const {
     // Normalize the direction (we didn't do it before)
     direction = direction.direction();
 
-	return Ray::fromOriginAndDirection(origin, direction);
+    return Ray::fromOriginAndDirection(origin, direction);
 }
 
-/** 
-This is the matrix that a RenderDevice (or OpenGL) uses as the projection matrix.
-@sa RenderDevice::setProjectionAndCameraMatrix, RenderDevice::setProjectionMatrix, Matrix4::perspectiveProjection
-*/
-void GCamera::getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const{
+
+void GCamera::getProjectPixelMatrix(const Rect2D& viewport, Matrix4& P) const {
+    getProjectUnitMatrix(viewport, P);
+    float screenWidth  = viewport.width();
+    float screenHeight = viewport.height();
+
+    float sx = screenWidth / 2.0;
+    float sy = screenHeight / 2.0;
+
+    P = Matrix4(sx, 0, 0, sx + viewport.x0(),
+                0, -sy, 0, sy + viewport.y0(),
+                0, 0,  1, 0,
+                0, 0,  0, 1) * P;
+}
+
+
+void GCamera::getProjectUnitMatrix(const Rect2D& viewport, Matrix4& P) const {
 
     float screenWidth  = viewport.width();
     float screenHeight = viewport.height();

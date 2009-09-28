@@ -22,6 +22,7 @@
 #include "G3D/Table.h"
 #include "G3D/HashTrait.h"
 #include "G3D/Vector2int16.h"
+#include "G3D/Random.h"
 
 namespace G3D {
 
@@ -159,7 +160,7 @@ public:
     Vector2 max(const Vector2& v) const;
 
     /** Uniformly distributed random vector on the unit sphere */
-    static Vector2 random();
+    static Vector2 random(Random& r = Random::common());
 
     // Special values.
     // Intentionally not inlined: see Matrix3::identity() for details.
