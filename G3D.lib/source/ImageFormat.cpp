@@ -348,9 +348,9 @@ static const bool CLEAR_FORMAT  = false;
 static const bool COMP_FORMAT   = true;
 static const bool UNCOMP_FORMAT = false;
 
-#define DEFINE_TEXTUREFORMAT_METHOD(name, cmpnts, cmprssd, glf, glbf, lb, rb, gb, bb, db, sb, hbpt, pbpt, gldf, opq, fp, code, cs, bp)                    \
+#define DEFINE_TEXTUREFORMAT_METHOD(name, cmpnts, cmprssd, glf, glbf, lb, ab, rb, gb, bb, db, sb, hbpt, pbpt, gldf, opq, fp, code, cs) \
     const ImageFormat* ImageFormat::name() {                                                                                                  \
-    static const ImageFormat format(cmpnts, cmprssd, glf, glbf, lb, rb, gb, bb, db, sb, hbpt, pbpt, gldf, opq, fp, code, cs, bp);  \
+        static const ImageFormat format(cmpnts, cmprssd, glf, glbf, lb, ab, rb, gb, bb, db, sb, hbpt, pbpt, gldf, opq, fp, code, cs); \
     return &format; }
 
 DEFINE_TEXTUREFORMAT_METHOD(L8,         1, UNCOMP_FORMAT,   GL_LUMINANCE8,      GL_LUMINANCE,   8, 0, 0, 0, 0, 0, 0, 8, 8,  GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, CODE_L8, COLOR_SPACE_NONE);
@@ -413,13 +413,13 @@ DEFINE_TEXTUREFORMAT_METHOD(RGBA_DXT3,  4, COMP_FORMAT,     GL_COMPRESSED_RGBA_S
 
 DEFINE_TEXTUREFORMAT_METHOD(RGBA_DXT5,  4, COMP_FORMAT,     GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,   GL_RGBA,    0, 0, 0, 0, 0, 0, 0, 128, 128,  GL_UNSIGNED_BYTE, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_RGBA_DXT5, ImageFormat::COLOR_SPACE_RGB);
 
-DEFINE_TEXTUREFORMAT_METHOD(DEPTH16,    1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT16_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 0, 16, 16, 16,   GL_UNSIGNED_SHORT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH16, ImageFormat::COLOR_SPACE_NONE);
+DEFINE_TEXTUREFORMAT_METHOD(DEPTH16,    1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT16_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 16, 0, 16, 16,   GL_UNSIGNED_SHORT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH16, ImageFormat::COLOR_SPACE_NONE);
 
-DEFINE_TEXTUREFORMAT_METHOD(DEPTH24,    1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT24_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 0, 24, 32, 24,   GL_UNSIGNED_INT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH24, ImageFormat::COLOR_SPACE_NONE);
+DEFINE_TEXTUREFORMAT_METHOD(DEPTH24,    1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT24_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 24, 0, 32, 24,   GL_UNSIGNED_INT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH24, ImageFormat::COLOR_SPACE_NONE);
 
-DEFINE_TEXTUREFORMAT_METHOD(DEPTH32,    1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT32_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 0, 32, 32, 32,   GL_UNSIGNED_INT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH32, ImageFormat::COLOR_SPACE_NONE);
+DEFINE_TEXTUREFORMAT_METHOD(DEPTH32,    1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT32_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 32, 0, 32, 32,   GL_UNSIGNED_INT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_DEPTH32, ImageFormat::COLOR_SPACE_NONE);
 
-DEFINE_TEXTUREFORMAT_METHOD(DEPTH32F,   1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT32_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 0, 32, 32, 32,   GL_FLOAT, CLEAR_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_DEPTH32F, ImageFormat::COLOR_SPACE_NONE);
+DEFINE_TEXTUREFORMAT_METHOD(DEPTH32F,   1, UNCOMP_FORMAT,   GL_DEPTH_COMPONENT32_ARB,           GL_DEPTH_COMPONENT, 0, 0, 0, 0, 0, 32, 0, 32, 32,   GL_FLOAT, CLEAR_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_DEPTH32F, ImageFormat::COLOR_SPACE_NONE);
 
 // These formats are for use with Renderbuffers only!
 DEFINE_TEXTUREFORMAT_METHOD(STENCIL1,   1, UNCOMP_FORMAT,   GL_STENCIL_INDEX1_EXT,              GL_STENCIL_INDEX,  0, 0, 0, 0, 0, 0, 1, 1, 1,      GL_UNSIGNED_BYTE, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_STENCIL1, ImageFormat::COLOR_SPACE_NONE);

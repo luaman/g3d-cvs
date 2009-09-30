@@ -183,7 +183,8 @@ public:
 
 private:
 
-    ImageFormat(
+    ImageFormat
+    (
         int             numComponents,
         bool            compressed,
         int             glFormat,

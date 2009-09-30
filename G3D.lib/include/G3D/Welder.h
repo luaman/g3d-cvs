@@ -17,9 +17,11 @@ public:
 
     class Settings {
     public:
+        /** Surfaces with normals that are within this angle of each
+            other are considered to be curved.  Default value is toRadians(70.0f).*/
         float   normalSmoothingAngle;
-	    float  	vertexWeldRadius;
-	    float  	textureWeldRadius;
+        float  	vertexWeldRadius;
+        float  	textureWeldRadius;
         float  	normalWeldRadius;
 
         inline Settings(float normalSmoothAngle = toRadians(70.0f)) : 
