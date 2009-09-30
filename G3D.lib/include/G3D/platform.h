@@ -18,6 +18,11 @@
  */
 #define G3D_VER 80002
 
+// fatal error for unsupported architectures
+#if defined(__powerpc__)
+#   error PowerPC is not supported by G3D!
+#endif
+
 #if defined(G3D_RELEASEDEBUG)
 #   define G3D_DEBUGRELEASE
 #endif
@@ -59,18 +64,6 @@
 #    define G3D_64BIT
 #else
 #    define G3D_32BIT
-#endif
-
-// Default to compiling with SSE, but if you want to compile 
-// without installing SP5.0 and the Processor Pack on Windows, compile with NO_SSE
-// defined (can be passed to the compiler command line with /D "NO_SSE")
-#if !defined(NO_SSE)
-   #define SSE
-#endif
-
-// On g++, recognize cases where the -msse2 flag was not specified
-#if defined(SSE) && defined(__GNUC__) && ! defined (__SSE__)
-#   undef SSE
 #endif
 
 // Strongly encourage inlining on gcc
@@ -261,7 +254,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
 #           define __stdcall __attribute__((stdcall))
 #       endif
 
-#   elif defined(__x86_64__) || defined(__powerpc__)
+#   elif defined(__x86_64__)
 
 #       ifndef __cdecl
 #           define __cdecl

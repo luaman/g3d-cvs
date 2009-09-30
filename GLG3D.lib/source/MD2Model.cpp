@@ -8,7 +8,7 @@
  */
 
 #include "G3D/platform.h"
-#if defined(G3D_WIN32) && defined(SSE)
+#if defined(G3D_WIN32)
     #include <xmmintrin.h>
 #endif
 
@@ -561,11 +561,11 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
     const PackedGeometry& frame0 = keyFrame[i0];
     const PackedGeometry& frame1 = keyFrame[i1];
 
-    // To use SSE both the compiler and the processor must support it
-    #if defined(SSE) && defined(G3D_WIN32)
-        bool useSSE = System::hasSSE();
-    #else
-        bool useSSE = false;
+    bool useSSE = false;
+
+    #ifdef G3D_WIN32
+        #pragma message("Port MD2Model::GetGeometry SIMD to all platforms")
+        useSSE = true;
     #endif
 
     if (! useSSE) {
@@ -589,7 +589,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
 
     // Put this code inside an ifdef because it won't compile
     // on non-SSE compilers otherwise.
-    #if defined(SSE) && defined(G3D_WIN32)
+    #if defined(G3D_WIN32)
         // The high performance path interpolates between two arrays of floats.
         // We first convert the vertices and normals into this format.
 
@@ -597,7 +597,7 @@ void MD2Model::getGeometry(const Pose& pose, MeshAlg::Geometry& out) const {
         // lerped in place
 
         const int numFloats = numVertices * 3;
-    
+
         Array<Vector3> normal1;
         normal1.clearAndSetMemoryManager(mm);
         normal1.resize(numVertices, DONT_SHRINK_UNDERLYING_ARRAY);

@@ -76,11 +76,12 @@
     #include <CoreServices/CoreServices.h>
 #endif
 
-#if defined(SSE)
-#   include <xmmintrin.h>
-#endif
+// SIMM include
+#include <xmmintrin.h>
+
 
 namespace G3D {
+
 
 /** Checks if the CPUID command is available on the processor (called from init) */
 static bool checkForCPUID();
@@ -572,65 +573,11 @@ static G3DEndian checkEndian() {
 
 
 static bool checkForCPUID() {
-    unsigned int bitChanged = 0;
+    // all known supported architectures have cpuid
+    // add cases for incompatible architectures if they are added
+    // e.g., if we ever support __powerpc__ being defined again
 
-    // We've to check if we can toggle the flag register bit 21.
-    // If we can't the processor does not support the CPUID command.
-    
-#if defined(_MSC_VER)
-    __asm {
-        push eax
-        push ebx
-        pushfd
-        pushfd
-        pop   eax
-        mov   ebx, eax
-        xor   eax, 0x00200000 
-        push  eax
-        popfd
-        pushfd
-        pop   eax
-        popfd
-        xor   eax, ebx 
-        mov   bitChanged, eax
-        pop ebx
-        pop eax
-    }
-
-#elif defined(G3D_OSX_INTEL)
-
-    // By definition, all OS X intel machines have CPUID
-    bitChanged = 1;
-
-#elif defined(__GNUC__) && defined(i386)
-    // 32-bit g++
-    __asm__ (
-        "pushfl                      # Get original EFLAGS             \n"
-        "pushfl                                                        \n"
-        "popl    %%eax                                                 \n"
-        "movl    %%eax, %%ecx                                          \n"
-        "xorl    $0x200000, %%eax    # Flip ID bit in EFLAGS           \n"
-        "pushl   %%eax               # Save new EFLAGS value on stack  \n"
-        "popfl                       # Replace current EFLAGS value    \n"
-        "pushfl                      # Get new EFLAGS                  \n"
-        "popl    %%eax               # Store new EFLAGS in EAX         \n"
-        "popfl                                                         \n"
-        "xorl    %%ecx, %%eax        # Can not toggle ID bit,          \n"
-        "movl    %%eax, %0           # We have CPUID support           \n"
-        : "=m" (bitChanged)
-        : // No inputs
-        : "%eax", "%ecx"
-    );
-#elif defined(__GNUC__) && defined(__x86_64__)
-    // x86_64 has SSE and CPUID
-
-    bitChanged = 1;
-#else 
-    // Unknown architecture
-    bitChanged = 0;
-#endif
-
-    return (bitChanged != 0);
+    return true;
 }
 
 
@@ -669,68 +616,8 @@ void System::getStandardProcessorExtensions() {
 #endif
 }
 
-#if defined(SSE)
-
-// Copy in 128 bytes chunks, where each chunk contains 8*float32x4 = 8 * 4 * 4 bytes = 128 bytes
-//
-//
-void memcpySSE2(void* dst, const void* src, int nbytes) {
-    int remainingBytes = nbytes;
-
-    if (nbytes > 128) {
-
-        // Number of chunks
-        int N = nbytes / 128;
-
-        float* restrict d = (float*)dst;
-        const float* restrict s = (const float*)src;
-    
-        // Finish when the destination pointer has moved 8N elements 
-        float* stop = d + (N * 8 * 4);
-
-        while (d < stop) {
-            // Inner loop unrolled 8 times
-            const __m128 r0 = _mm_loadu_ps(s);
-            const __m128 r1 = _mm_loadu_ps(s + 4);
-            const __m128 r2 = _mm_loadu_ps(s + 8);
-            const __m128 r3 = _mm_loadu_ps(s + 12);
-            const __m128 r4 = _mm_loadu_ps(s + 16);
-            const __m128 r5 = _mm_loadu_ps(s + 20);
-            const __m128 r6 = _mm_loadu_ps(s + 24);
-            const __m128 r7 = _mm_loadu_ps(s + 28);
-
-            _mm_storeu_ps(d, r0);
-            _mm_storeu_ps(d + 4, r1);
-            _mm_storeu_ps(d + 8, r2);
-            _mm_storeu_ps(d + 12, r3);
-            _mm_storeu_ps(d + 16, r4);
-            _mm_storeu_ps(d + 20, r5);
-            _mm_storeu_ps(d + 24, r6);
-            _mm_storeu_ps(d + 28, r7);
-
-            s += 32;
-            d += 32;
-        }
-
-        remainingBytes -= N * 8 * 4 * 4; 
-    }
-
-    if (remainingBytes > 0) {
-        // Memcpy the rest
-        memcpy((uint8*)dst + (nbytes - remainingBytes),
-               (const uint8*)src + (nbytes - remainingBytes), remainingBytes); 
-    }
-}
-#else
-
-// Fall back to memcpy
-void memcpySSE2(void *dst, const void *src, int nbytes) {
-    memcpy(dst, src, nbytes);
-}
-
-#endif
-
-#if defined(G3D_WIN32) && defined(SSE)
+#if defined(G3D_WIN32)
+    #pragma message("Port System::memcpy SIMD to all platforms")
 /** Michael Herf's fast memcpy */
 void memcpyMMX(void* dst, const void* src, int nbytes) {
     int remainingBytes = nbytes;
@@ -777,30 +664,21 @@ void memcpyMMX(void* dst, const void* src, int nbytes) {
                (const uint8*)src + (nbytes - remainingBytes), remainingBytes); 
     }
 }
-
-#else
-    // Fall back to memcpy
-    void memcpyMMX(void *dst, const void *src, int nbytes) {
-        memcpy(dst, src, nbytes);
-    }
-
 #endif
 
-
 void System::memcpy(void* dst, const void* src, size_t numBytes) {
-    if (System::hasSSE2() && System::hasMMX()) {
-        G3D::memcpyMMX(dst, src, numBytes);
-    } else if (System::hasSSE() && System::hasMMX()) {
-        G3D::memcpyMMX(dst, src, numBytes);
-    } else {
-        ::memcpy(dst, src, numBytes);
-    }
+#if defined(G3D_WIN32)
+    memcpyMMX(dst, src, numBytes);
+#else
+    ::memcpy((uint8*)dst + (numBytes - remainingBytes),
+#endif
 }
 
 
 /** Michael Herf's fastest memset. n32 must be filled with the same
     character repeated. */
-#if defined(G3D_WIN32) && defined(SSE)
+#if defined(G3D_WIN32)
+    #pragma message("Port System::memfill SIMD to all platforms")
 
 // On x86 processors, use MMX
 void memfill(void *dst, int n32, unsigned long i) {
@@ -834,25 +712,17 @@ void memfill(void *dst, int n32, unsigned long i) {
         ::memset((uint8*)dst + (originalSize - bytesRemaining), n32, bytesRemaining); 
     }
 }
-
-#else
-
-// For non x86 processors, we fall back to the standard memset
-void memfill(void *dst, int n32, unsigned long i) {
-    ::memset(dst, n32, i);
-}
-
 #endif
 
 
 void System::memset(void* dst, uint8 value, size_t numBytes) {
-    if (System::hasSSE() && System::hasMMX()) {
-        uint32 v = value;
-        v = v + (v << 8) + (v << 16) + (v << 24); 
-        G3D::memfill(dst, v, numBytes);
-    } else {
-        ::memset(dst, value, numBytes);
-    }
+#if defined(G3D_WIN32)
+    uint32 v = value;
+    v = v + (v << 8) + (v << 16) + (v << 24); 
+    G3D::memfill(dst, v, numBytes);
+#else
+    ::memset(dst, value, numBytes);
+#endif
 }
 
 

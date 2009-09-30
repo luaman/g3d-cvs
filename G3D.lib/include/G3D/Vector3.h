@@ -25,19 +25,6 @@
 #include <iostream>
 #include <string>
 
-//----------------------------------------------------------------------------
-#ifdef SSE
-	// If you receive an error on this line, it is because you do not have the file
-	// xmmintrin.h needed for MMX & SSE extensions.  Download and install
-    //
-    // http://download.microsoft.com/download/vstudio60ent/SP5/Wideband-Full/WIN98Me/EN-US/vs6sp5.exe
-	// and
-    // http://download.microsoft.com/download/vb60ent/Update/6/W9X2KXP/EN-US/vcpp5.exe
-    //
-    // to get this file.
-#   include <xmmintrin.h>
-#endif
-
 namespace G3D {
 
 class Vector2;
@@ -594,15 +581,10 @@ inline Vector3::Vector3 (float fX, float fY, float fZ) : x(fX), y(fY), z(fZ) {
 //----------------------------------------------------------------------------
 inline Vector3::Vector3 (float V[3]) : x(V[0]), y(V[1]), z(V[2]){
 }
+
 //----------------------------------------------------------------------------
 inline Vector3::Vector3 (double V[3]) : x((float)V[0]), y((float)V[1]), z((float)V[2]){
 }
-
-
-//inline Vector3::Vector3 (const __m128& m) {
-    // Cast from SSE packed floats
-//    *this = *(Vector3*)&m;
-//}
 
 //----------------------------------------------------------------------------
 inline const float& Vector3::operator[] (int i) const {
