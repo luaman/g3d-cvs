@@ -670,7 +670,7 @@ void System::memcpy(void* dst, const void* src, size_t numBytes) {
 #if defined(G3D_WIN32)
     memcpyMMX(dst, src, numBytes);
 #else
-    ::memcpy((uint8*)dst + (numBytes - remainingBytes),
+    ::memcpy(dst, src, numBytes);
 #endif
 }
 
