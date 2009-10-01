@@ -49,7 +49,8 @@ const GuiTextureBox::Settings& GuiTextureBox::Settings::bumpInAlpha() {
 }
 
 bool GuiTextureBox::Settings::needsShader() const {
-    return (channels != RGB) ||
+    return 
+        (channels != RGB) ||
         (documentGamma != 2.1f) ||
         (min != 0.0f) ||
         (max != 1.0f);
@@ -567,6 +568,7 @@ void GuiTextureBox::setTexture(const Texture::Ref& t) {
 
 void GuiTextureBox::setSettings(const Settings& s) {
     // Check the settings for this computer
+    m_settings = s;
     if (m_settings.needsShader()) {
 
         alwaysAssertM(GLCaps::supports_GL_ARB_shading_language_100(), 

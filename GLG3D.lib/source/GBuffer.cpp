@@ -116,21 +116,21 @@ void GBuffer::resize(int w, int h) {
     m_normal       = Texture::createEmpty("Normal",       w, h, fmt, Texture::DIM_2D_NPOT, settings);
     m_depth        = Texture::createEmpty("Depth",        w, h, m_depthFormat, Texture::DIM_2D_NPOT, settings);
 
-    // Lambertian must be attachmnt 0 because alpha test is keyed off of it.
-    m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT0, m_lambertian);
-    m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT1, m_specular);
-    m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT2, m_transmissive);
-    m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT3, m_position);
-    m_framebuffer->set(Framebuffer::COLOR_ATTACHMENT4, m_normal);
+    // Lambertian must be attachment 0 because alpha test is keyed off of it.
+    m_framebuffer->set(Framebuffer::COLOR0, m_lambertian);
+    m_framebuffer->set(Framebuffer::COLOR1, m_specular);
+    m_framebuffer->set(Framebuffer::COLOR2, m_transmissive);
+    m_framebuffer->set(Framebuffer::COLOR3, m_position);
+    m_framebuffer->set(Framebuffer::COLOR4, m_normal);
 
-    m_framebuffer->set(Framebuffer::DEPTH_ATTACHMENT, m_depth);
+    m_framebuffer->set(Framebuffer::DEPTH,  m_depth);
 }
 
 
 void GBuffer::compute
 (RenderDevice*                  rd, 
  const GCamera&                 camera,
- const Array<Surface::Ref>&  modelArray) const {
+ const Array<Surface::Ref>&     modelArray) const {
 
     Array<SuperSurface::Ref> genericArray;
     Array<Surface::Ref> nonGenericArray;
