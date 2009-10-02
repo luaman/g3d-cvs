@@ -333,6 +333,14 @@ Material::Settings ArticulatedModel::compute3DSMaterial
 void ArticulatedModel::Part::computeNormalsAndTangentSpace
     (const ArticulatedModel::Settings& settings) {
 
+    if (triList.size() == 0) {
+        geometry.vertexArray.resize(0);
+        geometry.normalArray.resize(0);
+        indexArray.resize(0);
+        texCoordArray.resize(0);
+        return;
+    }
+
     Array<Array<int>*> indexArrayArray(triList.size());
     for (int t = 0; t < triList.size(); ++t) {
         indexArrayArray[t] = &(triList[t]->indexArray);
