@@ -37,22 +37,35 @@ static const Framebuffer::Ref& workingFramebuffer() {
 
 
 Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
-
+    debugAssertGLOk();
     Texture* me = const_cast<Texture*>(this);
     const Framebuffer::Ref& fbo = workingFramebuffer();
 
-    bool oldInvertY = invertY;
-    // Binding to a G3D framebuffer destroys the invertY flag
-    fbo->set(Framebuffer::COLOR0, Texture::Ref(this));
-    rd->pushState(fbo);
+    // Binding to a G3D framebuffer destroys the invertY flag so we save it here
+    const bool oldInvertY = invertY;
     Color4 c;
     if (oldInvertY) {
         y = height() - 1 - y;
     }
+
+    GLenum component = GL_RGBA;
+
     // Read back 1 pixel
-    glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &c);
-    rd->popState();
-    fbo->set(Framebuffer::COLOR0, NULL);
+    if (format()->depthBits == 0) {
+        // This is a depth texture
+        fbo->set(Framebuffer::COLOR0, Texture::Ref(this));
+        rd->pushState(fbo);
+        glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &c);
+        rd->popState();
+    } else {
+        fbo->set(Framebuffer::DEPTH, Texture::Ref(this));
+        rd->pushState(fbo);
+        glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &c.r);
+        rd->popState();
+        c.g = c.b = c.a = c.r;
+    }
+
+    fbo->clear();
     me->invertY = oldInvertY;
     return c;
 }
