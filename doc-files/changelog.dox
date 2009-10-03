@@ -12,6 +12,7 @@
    <p>
    Changes in 8.00:
    <ul>
+     <li> Fixed G3D::System::cpuid() for gcc systems, where the vendor string was sometimes corrupted.  (GenuineIntel, AuthenticAMD, etc.)
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)

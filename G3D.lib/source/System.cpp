@@ -1759,25 +1759,27 @@ void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, ui
 #else
 
 // See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well
-// for a discussion of why this saves ebx; it makes the code compile with -fPIC
+// for a discussion of why the second version saves ebx; it allows 32-bit code to compile with the -fPIC option.
+// On 64-bit x86, PIC code has a dedicated rip register for PIC so there is no ebx conflict.
 void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
+#if ! defined(__PIC__) || defined(__x86_64__)
     // AT&T assembler syntax
     asm volatile(
-#                ifdef __x86_64__
-                 "pushq %%rbx      \n\t" /* save ebx */
-#                else
+                 "movl $0, %%ecx   \n\n" /* Wipe ecx */
+                 "cpuid            \n\t"
+                 : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+                 : "a"(func));
+#else
+    // AT&T assembler syntax
+    asm volatile(
                  "pushl %%ebx      \n\t" /* save ebx */
-#                endif
                  "movl $0, %%ecx   \n\n" /* Wipe ecx */
                  "cpuid            \n\t"
                  "movl %%ebx, %1   \n\t" /* save what cpuid just put in %ebx */
-#                ifdef __x86_64__
-                 "popq %%rbx       \n\t" /* restore the old ebx */
-#                else
                  "popl %%ebx       \n\t" /* restore the old ebx */
-#                endif
                  : "=a"(eax), "=r"(ebx), "=c"(ecx), "=d"(edx)
                  : "a"(func));
+#endif
 }
 
 #endif
