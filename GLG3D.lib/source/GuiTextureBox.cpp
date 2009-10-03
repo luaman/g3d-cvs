@@ -200,11 +200,15 @@ void GuiTextureBox::setSizeFromInterior(const Vector2& dims) {
 
 
 bool GuiTextureBox::onEvent(const GEvent& event) {
-    if (! m_visible || ! m_enabled) {
+    if (! m_visible) {
         return false;
     }
 
     m_needReadback = true;
+
+    if (! m_enabled) {
+        return false;
+    }
 
     if (GuiContainer::onEvent(event)) {
         // Event was handled by base class
@@ -443,9 +447,9 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                         Color4uint8 ci(m_texel);
                         pos.y += 
                             font->draw2D(rd, 
-                                         format("rgba: 0x%02x%02x%02x = (%.2f, %.2f, %.2f, %.2f)", 
-                                                ci.r, ci.g, ci.b,
-                                                m_texel.r, m_texel.g, m_texel.b, m_texel.a),
+                                         format("rgba: (%.3f, %.3f, %.3f, %.3f) = 0x%02x%02x%02x%02x", 
+                                                m_texel.r, m_texel.g, m_texel.b, m_texel.a,
+                                                ci.r, ci.g, ci.b, ci.a),
                                          pos, style.size, front, back).y * lineSpacing;
                         if (m_settings.documentGamma != 2.1f) {
                             pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
