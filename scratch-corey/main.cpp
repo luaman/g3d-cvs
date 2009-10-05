@@ -3,7 +3,6 @@
 #define App_h
 
 #include <G3D/G3DAll.h>
-//#include "GLG3D/MD3Model.h"
 
 class App : public GApp {
 public:
@@ -12,11 +11,8 @@ public:
     SkyParameters       skyParameters;
     SkyRef              sky;
 
-    MD3Model::Ref       head;
-    MD3Model::Ref       upper;
-
-    float headFrames;
-    float upperFrames;
+    MD3Model::Ref       md3Model;
+    GameTime            md3Time;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -105,31 +101,11 @@ void App::onInit() {
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 
-    std::string base = "D:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/";
-    head = MD3Model::fromFile(base + "head.md3");
-    upper = MD3Model::fromFile(base + "upper.md3");
-    /*
-    head = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/head.md3");
-    upper = MD3Model::fromFile(dataDir + "md3-bender.pk3/models/players/bender/upper.md3");
-    */
+    std::string base = dataDir + "chaos/";
 
-    headFrames = 0;
-    upperFrames = 0;
-    
-
-    //setDesiredFrameRate(30.0f);
-/*
-    Array<std::string> tagNames;
-    head->getTagNames(tagNames);
-
-    tagNames.clear();
-
-    upper->getTagNames(tagNames);
-
-    tagNames.clear();
-
-    legs->getTagNames(tagNames);
-*/
+    md3Model = MD3Model::fromDirectory(base);
+    md3Model->setSkin("blue");
+    md3Time = 0.0f;
 }
 
 
@@ -147,17 +123,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Add physical simulation here.  You can make your time
     // advancement based on any of the three arguments.
 
-    headFrames += rdt;
-
-    if (headFrames > static_cast<float>(head->numFrames())) {
-        headFrames = 0;
-    }
-
-    upperFrames += rdt;
-
-    if (upperFrames > static_cast<float>(upper->numFrames())) {
-        upperFrames = 0;
-    }
+    md3Time += sdt;
 }
 
 
@@ -183,7 +149,8 @@ void App::onUserInput(UserInput* ui) {
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
 
-
+    MD3Model::Pose pose(md3Time, MD3Model::LEGS_WALK, md3Time, MD3Model::TORSO_STAND);
+    md3Model->pose(pose, surfaceArray);
 }
 
 
@@ -197,16 +164,6 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
     // elements of posed3D directly to customize rendering.  Pass a
     // ShadowMap as the final argument to create shadows.)
 
-    float frameNum = 0.0f;
-
-    const CFrame& upperPos = CFrame();
-    const CFrame& headPos = upperPos * upper->tag(frameNum, "tag_head");
-
-    upper->pose(frameNum, "upper_blue.skin", surfaceArray, upperPos);
-    head->pose(frameNum, "head_blue.skin", surfaceArray, headPos);
-
-    Draw::axes(rd);
-    Draw::axes(headPos, rd);
     Surface::sortAndRender(rd, defaultCamera, surfaceArray, lighting);
 
     //Draw::arrow(legs->getTag(legsFrames, "tag_upper").translation, legs->getTag(legsFrames, "tag_upper").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);

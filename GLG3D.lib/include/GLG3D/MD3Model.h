@@ -5,8 +5,6 @@
 
  */
 
-//#if 1
-
 #ifndef G3D_MD3Model_h
 #define G3D_MD3Model_h
 
@@ -17,10 +15,11 @@
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/Texture.h"
 
+
 namespace G3D {
 
-// forward declaration of md3 struct
-struct MD3SurfaceHeader;
+// forward declare MD3Part
+class MD3Part;
 
 /**
     Quake III MD3 model loader.
@@ -29,144 +28,130 @@ struct MD3SurfaceHeader;
     Character objects contain three individual "models" inside of them with attachment points.
 
     TODO: 
-    - Fix transform problems with attachment points
     - Rename this to MD3Model::Part, and then make an MD3::Model class that loads all of the part [Corey]
     - Render using SuperSurface [Morgan]
     - Morgan doesn't understand how the skin stuff works.  Can't we fix a skin to a model when it is loaded?  MD2Model's separation of material and model was a mistake in retrospect--it enables sharing some model geometry, but is generally a pain to deal with.  It would be better to hide the sharing of model geometry with an internal WeakCache.
- */
+*/
 class MD3Model : public ReferenceCountedObject {
-    // See: http://icculus.org/homepages/phaethon/q3a/formats/md3format.html
-
-    // Terminology:
-    //
-    // Q3 calls an attachment point a "tag"
-    //
-    // Player models contain lower.md3, upper.md3, and head.md3.  The lower part is the root.
-    // the upper is attached to the lower, and the weapon and head are attached to the upper.
-    //
-    // Q3 calls the individual parts of the model "surfaces", so in the following,
-    // sometimes a "surface" is a part of the model and
-    // sometimes it is a G3D::Surface.
 
 public:
-
     typedef ReferenceCountedPointer<MD3Model> Ref;
-
-protected:
-
-    friend class MD3Surface;
-
-    /** TriMesh */
-    struct SurfaceData {
-        /** helper data copied from the surface header */
-        int                                     m_numFrames;
-
-        int                                     m_numVertices;
-
-        /** Geometry for each frame of animation */
-        Array<MeshAlg::Geometry>                m_geometry;
-
-        /** Indexed triangle list. */
-        Array<int>                              m_indexArray;
-
-        /** array of texture coordinates for each vertex */
-        Array<Vector2>                          m_textureCoords;
-
-        /** TODO: make this a Material */
-        Texture::Ref                            m_texture;
-
-        std::string                             m_name;
+    
+    enum PartType {
+        PART_LEGS,
+        PART_TORSO,
+        PART_HEAD,
+        PART_WEAPON,
+        NUM_PARTS
     };
 
-    struct FrameData {
-        Vector3                                 m_bounds[2];
+    enum AnimType {
+        BOTH_DEATH1,
+        START_BOTH = BOTH_DEATH1,
+        BOTH_DEAD1,
+        BOTH_DEATH2,
+        BOTH_DEAD2,
+        BOTH_DEATH3,
+        BOTH_DEAD3,
+        END_BOTH = BOTH_DEAD3,
 
-        Vector3                                 m_localOrigin;
+        TORSO_GESTURE,
+        START_TORSO = TORSO_GESTURE,
+        TORSO_ATTACK,
+        TORSO_ATTACK2,
+        TORSO_DROP,
+        TORSO_RAISE,
+        TORSO_STAND,
+        TORSO_STAND2,
+        END_TORSO = TORSO_STAND2,
 
-        float                                   m_radius;
+        LEGS_WALKCR,
+        START_LEGS = LEGS_WALKCR,
+        LEGS_WALK,
+        LEGS_RUN,
+        LEGS_BACK,
+        LEGS_SWIM,
+        LEGS_JUMP,
+        LEGS_LAND,
+        LEGS_JUMPB,
+        LEGS_LANDB,
+        LEGS_IDLE,
+        LEGS_IDLECR,
+        LEGS_TURN,
+        END_LEGS = LEGS_TURN,
 
-        std::string                             m_name;
-
-        /** map of tag name to tag data for each frame*/
-        Table<std::string, CoordinateFrame>     m_tags;
+        NUM_ANIMATIONS
     };
+
+    class Pose {
+    public:
+        GameTime    legsTime;
+        AnimType    legsAnim;
+
+        GameTime    torsoTime;
+        AnimType    torsoAnim;
+
+        Pose(GameTime lTime, AnimType lAnim, GameTime tTime, AnimType tAnim)
+            : legsTime(lTime), legsAnim(lAnim), torsoTime(tTime), torsoAnim(tAnim) {
+        }
+    };
+
+private:
+
+    /** Animation data from animation.cfg */
+    class AnimFrame {
+    public:
+        float   start;
+        float   num;
+        float   loop;
+        float   fps;
+
+        AnimFrame() : start(0), num(0), loop(0), fps(0) {}
+        AnimFrame(float s, float n, float l, float f) : start(s), num(n), loop(l), fps(f) {}
+    };
+
+    /** Individual loaded .md3 files representing each part of a full quake model.
+        Parts are loaded in order up to the last .md3 found */
+    MD3Part*        m_parts[NUM_PARTS];
+
+    /** Pre-parsed animation data for all frames and types.
+        Starting frame numbers are relative to model (e.g., legs and torso) */
+    AnimFrame       m_animations[NUM_ANIMATIONS];
+
+    /** Skin to (surface, texture) mapping.  TODO: Make these materials */
+    Table< std::string, Table<std::string, Texture::Ref> > m_skins;
 
     MD3Model();
 
-    bool loadFile(const std::string& filename);
+    void loadAnimationCfg(const std::string filename);
 
-    void loadSurface(BinaryInput& bi, SurfaceData& surfaceData);
+    void posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe);
 
-    void loadFrame(BinaryInput& bi, FrameData& frameData);
-
-    void loadTag(BinaryInput& bi, FrameData& frameData);
-
-    void loadSkin(const std::string& skinName);
-
-    /** number of frames of animation for all surfaces */
-    int                         m_numFrames;
-
-    std::string                 m_modelDir;
-
-    /** surface data */
-    Array<SurfaceData>          m_surfaces;
-
-    /** per-frame bounding box and translatoin information */
-    Array<FrameData>            m_frames;
-
-    /** table of skins for surfaces.  TODO: Make these materials */
-    Table< std::string, Table<std::string, Texture::Ref> > m_skins;
+    /** Calculates frame number from animation type and animation time.
+        Frame number is relative to model. */
+    float findFrameNum(AnimType animType, GameTime animTime);
 
 public:
 
     virtual ~MD3Model();
 
-    /** \return NULL if the model was not found or is corrupt (TODO: maybe throw exceptions in those cases?)*/
-    static MD3Model::Ref fromFile(const std::string& filename);
+    static MD3Model::Ref fromDirectory(const std::string& modelDir);
 
-    /**
+    /** Load complete set of model parts from modelDir. */
+    void loadDirectory(const std::string& modelDir);
 
-      NThere are multiple logical animations in the single frame array for player models.   It affects how you do the interpolation for cycling animations, since you can't always blend
-      towards the next indexed frame.
-      */
-    class Pose {
-    public:
-        int         frameIndex0;
-        int         frameIndex1;
-        float       alpha;
-
-        // TODO: helpers ala MD2Model for the standard player animations.
-        // http://www.misfitcode.com/misfitmodel3d/olh_quakemd3.html for the constants for each animation
-    };
-
-    /**
-      TODO: Take Pose as an argument
-
-     \param frameNum Animation frame number.  On the range 
-     \param cframe Root frame for this part.  For player models, this is the Q3 "tag" of the parent part.
+    /** Load skin for all model parts.
+        @param skinName Base skin name for all model parts. e.g., head_"skinName".skin
      */
-    void pose
-    (float                      frameNum, 
-     const std::string&         skinName, 
-     Array<Surface::Ref>&       posedModelArray, 
-     const CoordinateFrame&     cframe = CoordinateFrame());
+    void setSkin(const std::string& skinName);
 
-    // TODO: take a Pose as an argument instead of a frameNum
-    // TODO: is the "tag" returned in the object space of the part?
-    CoordinateFrame tag(float frameNum, const std::string& name) const;
-
-    void getTagNames(Array<std::string>& names) const;
-
-    inline int numFrames() const { 
-        return m_numFrames; 
-    }
-
-private:
-
+    /** Pose all model parts based on animations selected in pose.
+        Each part may add multiple surfaces to posedModelArray.
+     */
+    void pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame());
 };
+
 
 } // namespace G3D
 
 #endif //G3D_MD3Model_h
-
-//#endif // 0
