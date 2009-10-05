@@ -12,7 +12,6 @@
    <p>
    Changes in 8.00:
    <ul>
-     <li> Fixed G3D::System::cpuid() for gcc systems, where the vendor string was sometimes corrupted.  (GenuineIntel, AuthenticAMD, etc.)
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
@@ -109,6 +108,8 @@
      <li> Extended G3D::VARArea to support index arrays
      <li> Tweaked G3D::StopWatch smoothing constants to reduce number flickering
      <li> isIntFormat() macro
+     <li> Fix: G3D::System::cpuid() now correct on all gcc systems.  Previously the vendor string (e.g., GenuineIntel, AuthenticAMD) was sometimes corrupt. [Shawn]
+     <li> Fix: RenderDevice now allows depth write without depth test  
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards
      <li> Fix: G3D::iswspace now considers '\\r' as whitespace
      <li> Fix: G3D::System::appName now removes the 'd' that icompile appends

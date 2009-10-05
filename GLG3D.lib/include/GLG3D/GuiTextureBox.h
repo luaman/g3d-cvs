@@ -40,6 +40,12 @@ public:
 
         /** Red as grayscale */
         RasL,
+
+        /** Green as grayscale */
+        GasL,
+
+        /** Blue as grayscale */
+        BasL,
         
         /** Alpha as grayscale */
         AasL, 
@@ -60,13 +66,15 @@ public:
         /** Highest expected value */
         float            max;
 
-        /** Defaults to linear data on [0, 1]: packed normal maps, reflectance maps, etc. */
+        /** Defaults to linear data on [0, 1]: packed normal maps,
+            reflectance maps, etc. */
         Settings(Channels c = RGB, float g = 1.0f, float mn = 0.0f, float mx = 1.0f);
 
         /** For photographs and other images with document gamma 2.2 */
         static const Settings& image();
 
-        /** For signed unit vectors, like a GBuffer's normals, on the range [-1, 1] for RGB channels */
+        /** For signed unit vectors, like a GBuffer's normals, on the
+            range [-1, 1] for RGB channels */
         static const Settings& unitVector();
 
         /** For bump map packed in an alpha channel. */

@@ -527,14 +527,14 @@ public:
     };
     
     enum DepthTest {
-        DEPTH_GREATER = GL_GREATER,
-        DEPTH_LESS = GL_LESS,
-        DEPTH_GEQUAL = GL_GEQUAL,  
-        DEPTH_LEQUAL = GL_LEQUAL, 
-        DEPTH_NOTEQUAL = GL_NOTEQUAL, 
-        DEPTH_EQUAL = GL_EQUAL,   
+        DEPTH_GREATER     = GL_GREATER,
+        DEPTH_LESS        = GL_LESS,
+        DEPTH_GEQUAL      = GL_GEQUAL,  
+        DEPTH_LEQUAL      = GL_LEQUAL, 
+        DEPTH_NOTEQUAL    = GL_NOTEQUAL, 
+        DEPTH_EQUAL       = GL_EQUAL,   
         DEPTH_ALWAYS_PASS = GL_ALWAYS,
-        DEPTH_NEVER_PASS = GL_NEVER, 
+        DEPTH_NEVER_PASS  = GL_NEVER, 
         DEPTH_CURRENT
     };
 
@@ -741,7 +741,7 @@ public:
         output, not an alpha input.  See RenderDevice::setBlendFunc for a discussion of blending.*/
     inline void setAlphaWrite(bool b);
 
-    /** Defaults to true */
+    /** Defaults to true. */
     inline void setDepthWrite(bool b);
 
     /** Returns true if depthWrite is enabled */
@@ -1953,6 +1953,9 @@ inline void RenderDevice::setDepthWrite(bool a) {
         minGLStateChange();
         glDepthMask(a);
         state.depthWrite = a;
+        if (state.depthTest == DEPTH_ALWAYS_PASS) {
+            setDepthTest(state.depthTest);
+        }
     }
 }
 

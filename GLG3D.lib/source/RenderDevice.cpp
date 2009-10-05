@@ -540,10 +540,10 @@ void RenderDevice::push2D(const FramebufferRef& fb, const Rect2D& viewport) {
     pushState();
 
     setFramebuffer(fb);
+    setDepthWrite(false);
     setDepthTest(DEPTH_ALWAYS_PASS);
     disableLighting();
     setCullFace(CULL_NONE);
-    setDepthWrite(false);
     setViewport(viewport);
     setObjectToWorldMatrix(CoordinateFrame());
 
@@ -1514,13 +1514,18 @@ void RenderDevice::setDepthTest(DepthTest test) {
 
     minStateChange();
 
-    if (test == DEPTH_CURRENT) {
+    // On ALWAYS_PASS we must force a change because under OpenGL
+    // depthWrite and depth test are dependent.
+    if ((test == DEPTH_CURRENT) && (test != DEPTH_ALWAYS_PASS)) {
         return;
     }
     
-    if (state.depthTest != test) {
+    if ((state.depthTest != test) && (test != DEPTH_ALWAYS_PASS)) {
         minGLStateChange();
-        if (test == DEPTH_ALWAYS_PASS) {
+        if ((test == DEPTH_ALWAYS_PASS) && (state.depthWrite == false)) {
+            // http://www.opengl.org/sdk/docs/man/xhtml/glDepthFunc.xml
+            // "Even if the depth buffer exists and the depth mask is non-zero, the
+            // depth buffer is not updated if the depth test is disabled."
             glDisable(GL_DEPTH_TEST);
         } else {
             minStateChange();
@@ -1633,10 +1638,10 @@ void RenderDevice::setAlphaTest(AlphaTest test, float reference) {
 
     minStateChange();
 
-	if (test == ALPHA_CURRENT) {
-		return;
-	}
-
+    if (test == ALPHA_CURRENT) {
+        return;
+    }
+    
     if ((state.alphaTest != test) || (state.alphaReference != reference)) {
         minGLStateChange();
         if (test == ALPHA_ALWAYS_PASS) {
@@ -1996,13 +2001,13 @@ void RenderDevice::setBlendFunc(
     debugAssert(! inPrimitive);
 
     minStateChange();
-	if (src == BLEND_CURRENT) {
-		src = state.srcBlendFunc;
-	}
-
-	if (dst == BLEND_CURRENT) {
-		dst = state.dstBlendFunc;
-	}
+    if (src == BLEND_CURRENT) {
+        src = state.srcBlendFunc;
+    }
+    
+    if (dst == BLEND_CURRENT) {
+        dst = state.dstBlendFunc;
+    }
 
     if (eq == BLENDEQ_CURRENT) {
         eq = state.blendEq;
@@ -2014,7 +2019,8 @@ void RenderDevice::setBlendFunc(
 
         minGLStateChange();
 
-        if ((dst == BLEND_ZERO) && (src == BLEND_ONE) && ((eq == BLENDEQ_ADD) || (eq == BLENDEQ_SUBTRACT))) {
+        if ((dst == BLEND_ZERO) && (src == BLEND_ONE) && 
+            ((eq == BLENDEQ_ADD) || (eq == BLENDEQ_SUBTRACT))) {
             glDisable(GL_BLEND);
         } else {
             glEnable(GL_BLEND);

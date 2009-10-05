@@ -228,7 +228,7 @@ public:
     virtual void defaultRender(RenderDevice* rd) const;
 
 private:
-    friend MD3Model;
+    friend class MD3Model;
 
     std::string             m_name;
     MeshAlg::Geometry       m_geometry;
@@ -479,7 +479,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
     m_parts[PART_LEGS] = new MD3Part;
     
     if (!m_parts[PART_LEGS]->loadFile(filename)) {
-        debugAssertM(false, ("Unable to load %s.", filename.c_str()));
+        debugAssertM(false, format("Unable to load %s.", filename.c_str()));
         return;
     }
 
@@ -489,7 +489,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
     m_parts[PART_TORSO] = new MD3Part;
     
     if (!m_parts[PART_TORSO]->loadFile(filename)) {
-        debugAssertM(false, ("Unable to load %s.", filename.c_str()));
+        debugAssertM(false, format ("Unable to load %s.", filename.c_str()));
         return;
     }
 
@@ -499,7 +499,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
     m_parts[PART_HEAD] = new MD3Part;
     
     if (!m_parts[PART_HEAD]->loadFile(filename)) {
-        debugAssertM(false, ("Unable to load %s.", filename.c_str()));
+        debugAssertM(false, format("Unable to load %s.", filename.c_str()));
         return;
     }
 
@@ -512,7 +512,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
     m_parts[PART_WEAPON] = new MD3Part;
     
     if (!m_parts[PART_WEAPON]->loadFile(filename)) {
-        debugAssertM(false, ("Unable to load %s.", filename.c_str()));
+        debugAssertM(false, format("Unable to load %s.", filename.c_str()));
         return;
     }
 }
@@ -569,13 +569,13 @@ void MD3Model::setSkin(const std::string& skinName) {
             continue;
         }
 
-        std::string filename = pathConcat(m_parts[partIndex]->m_modelDir, m_parts[partIndex]->m_modelName + "_" + skinName + ".skin");
+        const std::string& filename = pathConcat(m_parts[partIndex]->m_modelDir, m_parts[partIndex]->m_modelName + "_" + skinName + ".skin");
 
         // create empty skin table initially
         m_skins.set(m_parts[partIndex]->m_modelName, Table<std::string, Texture::Ref>());
 
         // read file as string to parse easily
-        std::string& skinFile = readWholeFile(filename);
+        const std::string& skinFile = readWholeFile(filename);
 
         // split the file into lines
         Array<std::string> lines = stringSplit(skinFile, '\n');

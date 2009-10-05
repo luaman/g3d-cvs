@@ -346,13 +346,13 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace
         indexArrayArray[t] = &(triList[t]->indexArray);
     }
 
-	if (geometry.vertexArray.size() > 0) {
-		Welder::weld(geometry.vertexArray,
-					 texCoordArray,
-					 geometry.normalArray,
-					 indexArrayArray,
-					 settings.weld);
-	}
+    if (geometry.vertexArray.size() > 0) {
+        Welder::weld(geometry.vertexArray,
+                     texCoordArray,
+                     geometry.normalArray,
+                     indexArrayArray,
+                     settings.weld);
+    }
 
     Array<MeshAlg::Face>    faceArray;
     Array<MeshAlg::Vertex>  vertexArray;
