@@ -824,7 +824,7 @@ def configureGpp(state):
             # The -arch i686 option is undocumented for OS X under gcc but works.
             # Build a binary with both 32- and 64-bit versions in it
             if not gcc44:
-                arch += ['-arch', 'i686', '-msse3']
+                arch += ['-arch', 'i686', '-msse3','-mfpmath=sse']
                 # To get 64-bit as well (commented out because G3D OS X doesn't support this)
                 #arch += ['-arch', 'x86_64', '-msse2', '-msse3']
                 
