@@ -724,23 +724,27 @@ float MD3Model::findFrameNum(AnimType animType, GameTime animTime) {
 
     if (animTime < initialLoopTime) {
         // less than 1 loop complete, no need to account for "loop" value
-        frameNum += static_cast<float>(animTime * m_animations[animType].fps);
+        frameNum += static_cast<float>(animTime / initialLoopTime) * m_animations[animType].num;
     } else {
-        // otherwise find actual frame number after number of loops
-        animTime -= initialLoopTime;
+        if (m_animations[animType].loop > 0.0f) {
+            // otherwise find actual frame number after number of loops
+            animTime -= initialLoopTime;
 
-        // find time for all subsequent loops
-        float otherLoopTime = m_animations[animType].loop / m_animations[animType].fps;
+            // find time for all subsequent loops
+            float otherLoopTime = m_animations[animType].loop / m_animations[animType].fps;
 
-        // how far into the last loop
-        float timeIntoLastLoop = fmod(static_cast<float>(animTime), otherLoopTime);
+            // how far into the last loop
+            float timeIntoLastLoop = fmod(static_cast<float>(animTime), otherLoopTime);
 
-        // "loop" works by specifying the last number of frames to loop over
-        // so a loop of 1 with num frames 5 means looping starts at frame 4 with frames {1, 2, 3, 4, 5} originally
+            // "loop" works by specifying the last number of frames to loop over
+            // so a loop of 1 with num frames 5 means looping starts at frame 4 with frames {1, 2, 3, 4, 5} originally
 
-        frameNum += (m_animations[animType].num - m_animations[animType].loop);
+            frameNum += (m_animations[animType].num - m_animations[animType].loop);
 
-        frameNum += (timeIntoLastLoop * m_animations[animType].fps);
+            frameNum += (timeIntoLastLoop / otherLoopTime) * m_animations[animType].loop;
+        } else {
+            frameNum += m_animations[animType].num - 1;
+        }
     }
 
     return frameNum;
