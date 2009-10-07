@@ -439,7 +439,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                 const float lineSpacing = 0.8f;
 
                 // Display coords and value when requested
-                if (m_showInfo) {
+                if (m_showInfo && (window()->window()->mouseHideCount() < 1)) {
                     // Find the mouse position
                     Vector2 mousePos;
                     uint8 ignore;

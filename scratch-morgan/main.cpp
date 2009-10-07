@@ -97,7 +97,7 @@ void App::onInit() {
     }
 
     
-    {
+    if (false) {
         Vector2 screenBounds(window()->width(), window()->height());
         Texture::Ref m_texture = Texture::fromFile("D:/morgan/G3D/data-files/image/checkerboard.jpg");
     GuiWindow::Ref detailWindow =
