@@ -195,7 +195,7 @@ protected:
     /** Rect bounds used for mouse actions.  Updated by setRect.*/
     Rect2D            m_clickRect;
 
-    GuiText        m_caption;
+    GuiText           m_caption;
 
     /** For classes that have a caption, this is the size reserved for it.*/
     float             m_captionSize;

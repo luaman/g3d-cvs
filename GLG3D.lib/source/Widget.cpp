@@ -19,7 +19,11 @@ void Widget::fireEvent(const GEvent& event) {
 
 
 OSWindow* Widget::window() const {
-    return m_manager->window();
+    if (m_manager == NULL) {
+        return NULL;
+    } else {
+        return m_manager->window();
+    }
 }
 
 

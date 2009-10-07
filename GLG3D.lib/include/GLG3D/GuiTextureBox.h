@@ -87,7 +87,7 @@ public:
         bool needsShader() const;
     };
 
-private:
+protected:
 
     /** Padding around the image */
     enum {BORDER = 1};
@@ -130,6 +130,9 @@ private:
 
     /** Returns the bounds of the canvas (display) region */
     Rect2D canvasRect() const;
+
+    /** Starts the inspector window.  Invoked by the inspector button. */
+    void launchInspector();
 
 public:
 
