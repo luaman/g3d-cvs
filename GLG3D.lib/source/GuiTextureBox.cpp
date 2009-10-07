@@ -19,6 +19,9 @@
 
 namespace G3D {
 
+/** Pixels the drawer is pushed up to make it appear to hang off the canvas */
+static const float DRAWER_Y_OFFSET = 5.0f;
+
 WeakReferenceCountedPointer<Shader> GuiTextureBox::g_cachedShader;
 
 GuiTextureBox::Settings::Settings(Channels c, float g, float mn, float mx) : 
@@ -63,7 +66,7 @@ GuiTextureBox::GuiTextureBox
  const GuiText&      caption,
  const Texture::Ref& t,
  const Settings&     s) : 
-    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(false), 
+    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(true), 
     m_dragging(false), m_needReadback(true) {
 
     // Height of caption and button bar
@@ -78,16 +81,16 @@ GuiTextureBox::GuiTextureBox
     GFont::Ref iconFont = GFont::fromFile(System::findDataFile("icon.fnt"));
 
     // Button for opening tools drawer
-    m_drawerCollapseCaption = GuiText("6", iconFont);
-    m_drawerExpandCaption = GuiText("5", iconFont);
+    m_drawerCollapseCaption = GuiText("5", iconFont);
+    m_drawerExpandCaption = GuiText("6", iconFont);
     m_drawerButton = new GuiButton(this, Callback(this, &GuiTextureBox::toggleDrawer), 
                                    m_drawerExpandCaption, GuiTheme::TOOL_BUTTON_STYLE);
     m_drawerButton->setCaption(m_drawerExpandCaption);
-    m_drawerButton->setSize(12, 10);
+    m_drawerButton->setSize(12, 9);
 
     m_drawerOpen = false;
 
-    m_drawerPane = new GuiPane(this, "", Rect2D::xywh(100, cs, 100, h), GuiTheme::NO_PANE_STYLE);
+    m_drawerPane = new GuiPane(this, "", Rect2D::xywh(100, cs, 100, h), GuiTheme::ORNATE_PANE_STYLE);
     m_drawerPane->setVisible(false);
 
     // Contents of the tools drawer:
@@ -95,12 +98,14 @@ GuiTextureBox::GuiTextureBox
         const char* infoIcon = "i";
         const char* zoomIcon = "L";
         const char* diskIcon = "\xcd";
+        const char* moreIcon = "\xa0";
+
 
         GuiButton* saveButton = m_drawerPane->addButton(GuiText(diskIcon, iconFont, h), 
                                                         Callback(this, &GuiTextureBox::save),
                                                         GuiTheme::TOOL_BUTTON_STYLE);
         saveButton->setSize(h, h);
-        saveButton->setPosition(0, 0);
+
 
         GuiButton* zoomInButton = m_drawerPane->addButton(GuiText(zoomIcon, iconFont, h), 
                                                           Callback(this, &GuiTextureBox::zoomIn), 
@@ -125,9 +130,13 @@ GuiTextureBox::GuiTextureBox
                                                             &m_showInfo, GuiTheme::TOOL_CHECK_BOX_STYLE);
         infoButton->setSize(h, h);
         infoButton->moveBy(h/3, 0);
+        GuiButton* moreButton = m_drawerPane->addButton(GuiText(moreIcon, iconFont, h), GuiTheme::TOOL_BUTTON_STYLE);
+        moreButton->setSize(h, h);
+        moreButton->moveBy(h/3, 0);
+
         m_drawerPane->pack();
         // Add some padding
-        m_drawerPane->setWidth(m_drawerPane->rect().width() + 2);
+        m_drawerPane->setWidth(m_drawerPane->rect().width() + m_drawerButton->rect().width());
     }
 
     setCaptionSize(h);
@@ -252,18 +261,21 @@ bool GuiTextureBox::onEvent(const GEvent& event) {
 void GuiTextureBox::setRect(const Rect2D& rect) {
     GuiContainer::setRect(rect);
 
-    m_clipBounds = theme()->canvasToClientBounds(m_rect, m_captionSize);
+    m_clipBounds = theme()->canvasToClientBounds(canvasRect(), m_captionSize);
 
-    m_drawerPane->setPosition(m_rect.width() - m_drawerButton->rect().width() - 2 - m_drawerPane->rect().width(),
-                              m_drawerPane->rect().y0());
+    Rect2D oldRect = m_drawerPane->rect();
+    const float OPEN_Y = m_rect.height() - oldRect.height() - DRAWER_Y_OFFSET;
+    const float CLOSED_Y = m_rect.height() - oldRect.height() * 2.0f;
+    m_drawerPane->setPosition(m_rect.width() - oldRect.width() - 2.0f, m_drawerOpen ? OPEN_Y : CLOSED_Y);
 }
 
 
 void GuiTextureBox::toggleDrawer() {
-    const float OPEN_Y = 0;
-    const float CLOSED_Y = captionSize();
-
     Rect2D oldRect = m_drawerPane->rect();
+
+    const float OPEN_Y = m_rect.height() - oldRect.height() - DRAWER_Y_OFFSET;
+    const float CLOSED_Y = m_rect.height() - oldRect.height() * 2.0f;
+
     if (m_drawerOpen) {
         m_drawerButton->setCaption(m_drawerExpandCaption);
         m_drawerPane->morphTo(Rect2D::xywh(oldRect.x0(), CLOSED_Y, oldRect.width(), oldRect.height()));
@@ -272,6 +284,12 @@ void GuiTextureBox::toggleDrawer() {
         m_drawerPane->morphTo(Rect2D::xywh(oldRect.x0(), OPEN_Y, oldRect.width(), oldRect.height()));
     }
     m_drawerOpen = ! m_drawerOpen;
+}
+
+
+Rect2D GuiTextureBox::canvasRect() const {
+    // Use textbox borders, but reserve space for the button bar
+    return Rect2D::xywh(m_rect.x0y0(), m_rect.wh() - Vector2(0, m_drawerPane->rect().height() - DRAWER_Y_OFFSET));
 }
 
 
@@ -285,27 +303,31 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
 
     m_drawerPane->setVisible(m_drawerOpen || m_drawerPane->morphing());
 
-    // Keep button on top of drawer, but always visible
-    m_drawerButton->setPosition(m_rect.width() - m_drawerButton->rect().width() - 2, 
-                                max(0.0f, m_drawerPane->rect().y0() - m_drawerButton->rect().height() + 2.0f));
+    const Rect2D& cvs = canvasRect();
+
+    // Keep button on bottom of drawer, but always visible
+    m_drawerButton->setPosition(m_drawerPane->rect().x1() - m_drawerButton->rect().width(), 
+                                max(cvs.height() - 2.0f, m_drawerPane->rect().y1() - m_drawerButton->rect().height() - 1.0f));
 
     GuiTextureBox* me = const_cast<GuiTextureBox*>(this);
 
-    // Render size label so that the drawer slides over it
+    // Render size label
     if (m_texture.notNull()) {
         w = m_texture->width();
         h = m_texture->height();
 
-        std::string s;
-        if (w == h) {
-            // Use ASCII squared character
-            s = format("%d\xB2", w);
-        } else {
-            s = format("%dx%d", w, h);
+        if ((m_lastSize.x != w) || (m_lastSize.y != h)) {
+            // Avoid computing this every frame
+            std::string s;
+            if (w == h) {
+                // Use ASCII squared character
+                m_lastSizeCaption = format("%d\xB2", w);
+            } else {
+                m_lastSizeCaption = format("%dx%d", w, h);
+            }
         }
-        theme->renderLabel(Rect2D::xyxy(m_drawerPane->rect().x0(), m_rect.y0() + 2,
-                                        m_drawerButton->rect().x0() - 4, captionSize() + m_rect.y0() + 2), 
-                           s, GFont::XALIGN_RIGHT, GFont::YALIGN_TOP, m_enabled);
+        theme->renderLabel(Rect2D::xywh(m_rect.x1y0() + Vector2(-50, 0), Vector2(46, 12)), 
+                           m_lastSizeCaption, GFont::XALIGN_RIGHT, GFont::YALIGN_TOP, m_enabled);
     }
 
     // Render child controls so that they slide under the canvas
@@ -316,8 +338,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
     }
     theme->popClientRect();
 
-    // Use textbox borders
-    theme->renderCanvas(m_rect, m_enabled, focused(), m_caption, m_captionSize);
+    theme->renderCanvas(cvs, m_enabled, focused(), m_caption, m_captionSize);
 
     const CoordinateFrame& matrix = rd->objectToWorldMatrix();
 
@@ -417,8 +438,8 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                 Vector2 pos = m_clipBounds.x0y0() + Vector2(4, 1);
                 const float lineSpacing = 0.8f;
 
-                // Display coords and value when the controls drawer is open
-                if (m_drawerOpen) {
+                // Display coords and value when requested
+                if (m_showInfo) {
                     // Find the mouse position
                     Vector2 mousePos;
                     uint8 ignore;
@@ -432,8 +453,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                         mousePos *= Vector2(w - 1, h - 1) / (r.wh() - Vector2(1, 1));
                         int ix = iFloor(mousePos.x);
                         int iy = iFloor(mousePos.y);
-                        std::string s = format("xy: (%.2f, %.2f) = (%d, %d)", 
-                                               mousePos.x / float(w), mousePos.y / float(h), ix, iy);
+                        std::string s = format("xy:    (%d, %d)", ix, iy);
                     
                         pos.y += font->draw2D(rd, s, pos, style.size, front, back).y * lineSpacing;
                         if (m_texture->invertY) {
@@ -447,59 +467,13 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                         Color4uint8 ci(m_texel);
                         pos.y += 
                             font->draw2D(rd, 
-                                         format("rgba: (%.3f, %.3f, %.3f, %.3f) = 0x%02x%02x%02x%02x", 
-                                                m_texel.r, m_texel.g, m_texel.b, m_texel.a,
-                                                ci.r, ci.g, ci.b, ci.a),
+                                         format("rgba:(%.3f, %.3f, %.3f, %.3f)", 
+                                                m_texel.r, m_texel.g, m_texel.b, m_texel.a),
                                          pos, style.size, front, back).y * lineSpacing;
                         if (m_settings.documentGamma != 2.1f) {
                             pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
                         }
                     }
-                }
-                
-                if (m_showInfo) {
-                    pos.y = m_clipBounds.y0() + style.size * 3.5f;
-
-                    const Texture::Settings& settings = m_texture->settings();
-                    pos.y += font->draw2D(rd, std::string("invertY: ") + (m_texture->invertY ? "true" : "false") +
-                                          std::string("         wrap: ") + settings.wrapMode.toString(), pos, style.size, 
-                                          front, back).y * lineSpacing;
-
-                    pos.y += font->draw2D(rd, "format: " + m_texture->format()->name(), pos, style.size, front, back).y * lineSpacing;
-
-                    std::string dim;
-                    switch (m_texture->dimension()) {
-                    case Texture::DIM_2D: dim = "DIM_2D"; break;
-                    case Texture::DIM_3D: dim = "DIM_3D"; break;
-                    case Texture::DIM_2D_RECT: dim = "DIM_2D_RECT"; break;
-                    case Texture::DIM_CUBE_MAP: dim = "DIM_CUBE_MAP"; break;
-                    case Texture::DIM_2D_NPOT: dim = "DIM_2D_NPOT"; break;
-                    case Texture::DIM_CUBE_MAP_NPOT: dim = "DIM_CUBE_MAP_NPOT"; break;
-                    case Texture::DIM_3D_NPOT: dim = "DIM_3D_NPOT"; break;
-                    }
-                    pos.y += font->draw2D(rd, "dim: " + dim, pos, style.size, front, back).y * lineSpacing;
-
-                    std::string interp;
-                    switch (settings.interpolateMode) {
-                    case Texture::TRILINEAR_MIPMAP: interp = "TRILINEAR_MIPMAP"; break;
-                    case Texture::BILINEAR_MIPMAP: interp = "BILINEAR_MIPMAP"; break;
-                    case Texture::NEAREST_MIPMAP: interp = "NEAREST_MIPMAP"; break;
-                    case Texture::BILINEAR_NO_MIPMAP: interp = "BILINEAR_NO_MIPMAP"; break;
-                    case Texture::NEAREST_NO_MIPMAP: interp = "NEAREST_NO_MIPMAP"; break;
-                    }
-                    pos.y += font->draw2D(rd, "interp: " + interp, pos, style.size, front, back).y * lineSpacing;
-
-                    pos.y += font->draw2D(rd, std::string("auto MIP: ") + (settings.autoMipMap ? "true" : "false"), pos, style.size, 
-                                          front, back).y * lineSpacing;
-                    
-                    std::string dr;
-                    switch (settings.depthReadMode) {
-                    case Texture::DEPTH_NORMAL: dr = "DEPTH_NORMAL"; break;
-                    case Texture::DEPTH_LEQUAL: dr = "DEPTH_LEQUAL"; break;
-                    case Texture::DEPTH_GEQUAL: dr = "DEPTH_GEQUAL"; break;
-                    }
-                    pos.y += font->draw2D(rd, "depth read: " + dr, pos, style.size, front, back).y * lineSpacing;
-                    
                 }
             }
 

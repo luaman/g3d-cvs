@@ -101,6 +101,10 @@ private:
     
     bool                     m_showInfo;
 
+    /** Cached formatting of m_lastSize */
+    mutable GuiText          m_lastSizeCaption;
+    mutable Vector2int16     m_lastSize;                      
+
     GuiText                  m_drawerCollapseCaption;
     GuiText                  m_drawerExpandCaption;
     GuiButton*               m_drawerButton;
@@ -123,6 +127,9 @@ private:
     bool                     m_needReadback;
 
     static WeakReferenceCountedPointer<Shader> g_cachedShader;
+
+    /** Returns the bounds of the canvas (display) region */
+    Rect2D canvasRect() const;
 
 public:
 
