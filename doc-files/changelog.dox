@@ -22,6 +22,7 @@
      <li> demos/starter app uses Film
      <li> G3D::Texture::readTexel
      <li> G3D::Texture::clear
+     <li> G3D::GCamera default field of view is now 90-degrees horizontal (to match CounterStrike:Source)
      <li> 1024^2 default skybox sky/noonclouds/noonclouds_*.jpg
      <li> G3D::GLCaps::firstSupportedTexture
      <li> G3D::GFont::draw3DBillboard

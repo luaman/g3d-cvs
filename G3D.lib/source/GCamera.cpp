@@ -5,7 +5,7 @@
   @author Jeff Marsceill, 08jcm@williams.edu
  
   @created 2005-07-20
-  @edited  2007-07-24
+  @edited  2009-09-24
 */
 #include "G3D/GCamera.h"
 #include "G3D/platform.h"
@@ -20,7 +20,7 @@ namespace G3D {
 GCamera::GCamera() {
     setNearPlaneZ(-0.1f);
     setFarPlaneZ(-finf());
-    setFieldOfView((float)toRadians(55.0f), HORIZONTAL);
+    setFieldOfView((float)toRadians(90.0f), HORIZONTAL);
 }
 
 
