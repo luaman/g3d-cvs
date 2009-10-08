@@ -185,15 +185,16 @@ private:
     void zeroPointer() {
         if (m_pointer != NULL) {
 
+            ReferenceCountedObject* pointer = ((ReferenceCountedObject*)m_pointer);
             debugAssert(G3D::isValidHeapPointer(m_pointer));
-            debugAssertM(m_pointer->ReferenceCountedObject_refCount.value() > 0,
+            debugAssertM(pointer->ReferenceCountedObject_refCount.value() > 0,
                         "Dangling reference detected.");
 
             // Only delete if this instance caused the count to hit
             // exactly zero.  If there is a race condition, the value
             // may be zero after decrement returns, but only one of
             // the instances will get a zero return value.
-            if (m_pointer->ReferenceCountedObject_refCount.decrement() == 0) {
+            if (pointer->ReferenceCountedObject_refCount.decrement() == 0) {
                 // We held the last reference, so delete the object.
                 // This test is threadsafe because there is no way for
                 // the reference count to increase after the last
@@ -205,8 +206,8 @@ private:
                 // are cycles of weak references.
                 // Note that since there are no strong references at this point,
                 // it is perfectly fair to zero the weak pointers anyway.
-                m_pointer->ReferenceCountedObject_zeroWeakPointers();
-                delete m_pointer;
+                pointer->ReferenceCountedObject_zeroWeakPointers();
+                delete pointer;
             }
 
             m_pointer = NULL;
@@ -228,9 +229,10 @@ private:
 
                 // Note that the ref count can be zero if this is the
                 // first pointer to it
-                debugAssertM(m_pointer->ReferenceCountedObject_refCount.value() >= 0, 
+                ReferenceCountedObject* pointer = (ReferenceCountedObject*)m_pointer;
+                debugAssertM(pointer->ReferenceCountedObject_refCount.value() >= 0, 
                              "Negative reference count detected.");
-                m_pointer->ReferenceCountedObject_refCount.increment();
+                pointer->ReferenceCountedObject_refCount.increment();
             }
         }
     }
@@ -449,11 +451,11 @@ private:
         // If the following test fails then the object was collected before we
         // reached it.
         if (strong.notNull()) {
-            debugAssertM(pointer->ReferenceCountedObject_weakPointer != NULL,
+            debugAssertM(((ReferenceCountedObject*)pointer)->ReferenceCountedObject_weakPointer != NULL,
                 "Weak pointer exists without a backpointer from the object.");
             
             // Remove myself from my target's list of weak pointers
-            _WeakPtrLinkedList** node = &pointer->ReferenceCountedObject_weakPointer;
+            _WeakPtrLinkedList** node = &((ReferenceCountedObject*)pointer)->ReferenceCountedObject_weakPointer;
             while ((*node)->weakPtr != this) {
                 node = &((*node)->next);
                 debugAssertM(*node != NULL, 

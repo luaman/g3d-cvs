@@ -21,9 +21,12 @@ namespace G3D {
 
 class GuiPane;
 class GuiButton;
+class GuiTextureBoxInspector;
 
 class GuiTextureBox : public GuiContainer {
 public:
+    friend class GuiTextureBoxInspector;
+
     /** Which channels to display. */
     enum Channels {
         /** RGB as a color*/
@@ -93,6 +96,8 @@ protected:
     enum {BORDER = 1};
 
     Texture::Ref             m_texture;
+
+    WeakReferenceCountedPointer<GuiTextureBoxInspector>     m_inspector;
 
     Settings                 m_settings;
 

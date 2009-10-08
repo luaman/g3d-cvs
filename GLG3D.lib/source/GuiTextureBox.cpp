@@ -293,162 +293,203 @@ Rect2D GuiTextureBox::canvasRect() const {
 }
 
 
-/** Adds two labels to create a two-column display and returns a pointer to the second label. */
-static GuiLabel* addPair(GuiPane* p, const GuiText& key, const GuiText& val, int captionWidth = 130, GuiLabel* nextTo = NULL, int moveDown = 0) {
-    GuiLabel* keyLabel = p->addLabel(key);
-    if (nextTo) {
-        keyLabel->moveRightOf(nextTo);
+class GuiTextureBoxInspector : public GuiWindow {
+protected:
+
+    /** Settings of the original GuiTextureBox */
+    GuiTextureBox::Settings&    m_settings;
+
+    GuiWindow::Ref              m_parentWindow;
+
+    /** Adds two labels to create a two-column display and returns a pointer to the second label. */
+    static GuiLabel* addPair(GuiPane* p, const GuiText& key, const GuiText& val, int captionWidth = 130, GuiLabel* nextTo = NULL, int moveDown = 0) {
+        GuiLabel* keyLabel = p->addLabel(key);
+        if (nextTo) {
+            keyLabel->moveRightOf(nextTo);
+        }
+        if (moveDown != 0) {
+            keyLabel->moveBy(0, moveDown);
+        }
+        keyLabel->setWidth(captionWidth);
+        GuiLabel* valLabel = p->addLabel(val);
+        valLabel->moveRightOf(keyLabel);
+        valLabel->setWidth(120);
+        return valLabel;
     }
-    if (moveDown != 0) {
-        keyLabel->moveBy(0, moveDown);
-    }
-    keyLabel->setWidth(captionWidth);
-    GuiLabel* valLabel = p->addLabel(val);
-    valLabel->moveRightOf(keyLabel);
-    valLabel->setWidth(120);
-    return valLabel;
-}
 
 
-static std::string valToText(const Color4& val) {
-    if (val.isFinite()) {
-        return format("(%6.3f, %6.3f, %6.3f, %6.3f)", val.r, val.g, val.b, val.a);
-    } else {
-        return "Unknown";
+    static std::string valToText(const Color4& val) {
+        if (val.isFinite()) {
+            return format("(%6.3f, %6.3f, %6.3f, %6.3f)", val.r, val.g, val.b, val.a);
+        } else {
+            return "Unknown";
+        }
     }
-}
+
+public:
+
+    /** \param parentWindow Hold a pointer to the window containing the original 
+        GuiTextureBox so that it is not collected while we have its Settings&. */
+    GuiTextureBoxInspector(const GuiText& displayCaption, const Texture::Ref& texture, GuiTextureBox::Settings& settings, const GuiWindow::Ref& parentWindow) :
+        GuiWindow("Inspecting \"" + texture->name() + "\"", 
+            parentWindow->theme(), 
+            Rect2D::xywh(0,0, 100, 100),
+            GuiTheme::NORMAL_WINDOW_STYLE, 
+            REMOVE_ON_CLOSE),
+        m_settings(settings),
+        m_parentWindow(parentWindow) {
+
+        Vector2 screenBounds(parentWindow->window()->width(), parentWindow->window()->height());
+
+        GuiPane* p = pane();
+        GuiPane* leftPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
+
+        GuiTextureBox::Settings s = GuiTextureBox::Settings(GuiTextureBox::RGB, 0.01f, 0.0f, 1.0f);
+        GuiTextureBox* t = leftPane->addTextureBox(displayCaption, texture, m_settings);
+        t->setSize(screenBounds - Vector2(450, 275));
+        t->zoomToFit();
+        leftPane->pack();
+
+        //////////////////////////////////////////////////////////////////////
+
+        GuiPane* visPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
+        
+        Array<std::string> channelList;
+        channelList.append("RGB", "R", "G", "B");
+        channelList.append("R as Luma", "G as Luma", "B as Luma", "A as Luma");
+        channelList.append("Luminance");
+        visPane->addDropDownList("Channels", channelList);
+
+        GuiLabel* documentCaption = visPane->addLabel("Document");
+        documentCaption->setWidth(65.0f);
+        GuiNumberBox<float>* gammaBox = 
+            visPane->addNumberBox(GuiText("g", GFont::fromFile(System::findDataFile("greek.fnt"))), &m_settings.documentGamma, "", GuiTheme::LINEAR_SLIDER, 0.1f, 10.0f);
+        gammaBox->setCaptionSize(15.0f);
+        gammaBox->setUnitsSize(5.0f);
+        gammaBox->setWidth(150.0f);
+        gammaBox->moveRightOf(documentCaption);
+
+        GuiNumberBox<float>* minBox;
+        GuiNumberBox<float>* maxBox;
+        minBox = visPane->addNumberBox("Range", &m_settings.min);
+        minBox->setUnitsSize(0.0f);
+        minBox->setWidth(145.0f);
+        
+        maxBox = visPane->addNumberBox("-", &m_settings.max);
+        maxBox->setCaptionSize(10.0f);
+        maxBox->moveRightOf(minBox);
+        visPane->pack();
+        visPane->setWidth(230);
+
+        GuiPane* dataPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
+
+        int captionWidth = 55;
+        GuiLabel* xyLabel = addPair(dataPane, "xy =", "(400, 300)", 30);
+        xyLabel->setWidth(100);
+        GuiLabel* uvLabel = addPair(dataPane, "uv =", "(0.1111, 0.3111)", 30, xyLabel);
+        uvLabel->setWidth(100);
+        addPair(dataPane, "rgba* =", "(0.2001, 0.2001, 3.2001, 1.2001)", captionWidth);
+        addPair(dataPane, "ARGB* =", "0xFF3029AA", captionWidth);
+        dataPane->addLabel(GuiText("* Before gamma correction", NULL, 8))->moveBy(Vector2(0, -5));
+        dataPane->pack();  
+        dataPane->moveRightOf(visPane);
+        leftPane->pack();
+
+        //////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////
+        GuiPane* infoPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
+        const Texture::Settings& textureSettings = texture->settings();
+
+        addPair(infoPane, "Invert Y:", (texture->invertY ? "true" : "false"));
+        addPair(infoPane, "Format:", texture->format()->name());
+
+        addPair(infoPane, "Wrap Mode:", textureSettings.wrapMode.toString());
+        std::string dim;
+        switch (texture->dimension()) {
+        case Texture::DIM_2D: dim = "DIM_2D"; break;
+        case Texture::DIM_3D: dim = "DIM_3D"; break;
+        case Texture::DIM_2D_RECT: dim = "DIM_2D_RECT"; break;
+        case Texture::DIM_CUBE_MAP: dim = "DIM_CUBE_MAP"; break;
+        case Texture::DIM_2D_NPOT: dim = "DIM_2D_NPOT"; break;
+        case Texture::DIM_CUBE_MAP_NPOT: dim = "DIM_CUBE_MAP_NPOT"; break;
+        case Texture::DIM_3D_NPOT: dim = "DIM_3D_NPOT"; break;
+        }
+        addPair(infoPane, "Dimension:", dim);
+
+        std::string dr;
+        switch (textureSettings.depthReadMode) {
+        case Texture::DEPTH_NORMAL: dr = "DEPTH_NORMAL"; break;
+        case Texture::DEPTH_LEQUAL: dr = "DEPTH_LEQUAL"; break;
+        case Texture::DEPTH_GEQUAL: dr = "DEPTH_GEQUAL"; break;
+        }
+        addPair(infoPane, "Depth Read Mode:", dr);
+
+        std::string interp;
+        switch (textureSettings.interpolateMode) {
+        case Texture::TRILINEAR_MIPMAP: interp = "TRILINEAR_MIPMAP"; break;
+        case Texture::BILINEAR_MIPMAP: interp = "BILINEAR_MIPMAP"; break;
+        case Texture::NEAREST_MIPMAP: interp = "NEAREST_MIPMAP"; break;
+        case Texture::BILINEAR_NO_MIPMAP: interp = "BILINEAR_NO_MIPMAP"; break;
+        case Texture::NEAREST_NO_MIPMAP: interp = "NEAREST_NO_MIPMAP"; break;
+        }
+        addPair(infoPane, "Interpolate Mode:", interp, 130, NULL, 20);
+
+        addPair(infoPane, "Autoupdate MIP-map:", (textureSettings.autoMipMap ? "true" : "false"));
+
+        addPair(infoPane, "Min MIP-level:", 
+            format("%-5d (%d x %d)", textureSettings.minMipMap, 
+            max(1, texture->width() / pow2(max(0, textureSettings.minMipMap))), 
+            max(1, texture->height() / pow2(max(0, textureSettings.minMipMap)))));
+        addPair(infoPane, "Max MIP-level:", 
+            format("%-5d (%d x %d)", textureSettings.maxMipMap, 
+            max(1, texture->width() / pow2(textureSettings.maxMipMap)), 
+            max(1, texture->height() / pow2(textureSettings.maxMipMap))));
+                            
+        addPair(infoPane, "Max Anisotropy:", format("%g", textureSettings.maxAnisotropy));
+
+        addPair(infoPane, "Min Value:",  valToText(texture->min()), 80, NULL, 20);
+        addPair(infoPane, "Mean Value:", valToText(texture->mean()), 80);
+        addPair(infoPane, "Max Value:",  valToText(texture->max()), 80);
+
+        infoPane->pack();
+        infoPane->setWidth(300);
+        infoPane->moveRightOf(leftPane);
+        infoPane->moveBy(0, -3);
+        
+        pack();
+        moveTo(screenBounds / 2.0f - rect().center());
+        setVisible(true);
+    }
+
+    virtual bool onEvent(const GEvent& event) {
+        if (GuiWindow::onEvent(event)) {
+            return true;
+        } else if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::ESCAPE)) {
+            // Cancel this window
+            manager()->remove(this);
+            return true;
+        } else {
+            return false;
+        }
+    }
+};
 
 
 void GuiTextureBox::launchInspector() {
-    Vector2 screenBounds(window()->window()->width(), window()->window()->height());
 
-    GuiWindow::Ref inspectorWindow =
-        GuiWindow::create("Inspecting \"" + m_texture->name() + "\"", window()->theme(), Rect2D::xywh(0,0, 100, 100),
-                          GuiTheme::TOOL_WINDOW_STYLE);
+    GuiWindow::Ref myWindow = window();
+    WidgetManager::Ref manager = myWindow->manager();
 
-    GuiPane* p = inspectorWindow->pane();//->addPane("", GuiTheme::ORNATE_PANE_STYLE);
-    GuiPane* leftPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
+    ReferenceCountedPointer<GuiTextureBoxInspector> ins = m_inspector.createStrongPtr();
+    if (ins.isNull()) {
+        ins = new GuiTextureBoxInspector(caption(), m_texture, m_settings, myWindow);
+        m_inspector = ins;
 
-    GuiTextureBox::Settings s = GuiTextureBox::Settings(GuiTextureBox::RGB, 0.01f, 0.0f, 1.0f);
-    GuiTextureBox* t = leftPane->addTextureBox("Texture", m_texture);
-    t->setSize(screenBounds - Vector2(450, 275));
-    t->zoomToFit();
-    leftPane->pack();
-
-    //////////////////////////////////////////////////////////////////////
-
-    GuiPane* visPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
-    
-    Array<std::string> channelList;
-    channelList.append("RGB", "R", "G", "B");
-    channelList.append("R as Luma", "G as Luma", "B as Luma", "A as Luma");
-    channelList.append("Luminance");
-    visPane->addDropDownList("Channels", channelList);
-
-    static float g = 0;
-    GuiLabel* documentCaption = visPane->addLabel("Document");
-    documentCaption->setWidth(65.0f);
-    GuiNumberBox<float>* gammaBox = 
-        visPane->addNumberBox(GuiText("g", GFont::fromFile(System::findDataFile("greek.fnt"))), &g, "", GuiTheme::LINEAR_SLIDER, 0.1f, 10.0f);
-    gammaBox->setCaptionSize(15.0f);
-    gammaBox->setUnitsSize(5.0f);
-    gammaBox->setWidth(150.0f);
-    gammaBox->moveRightOf(documentCaption);
-
-    static float x = 0;
-    static float y = 1;
-    GuiNumberBox<float>* minBox;
-    GuiNumberBox<float>* maxBox;
-    minBox = visPane->addNumberBox("Range", &x);
-    minBox->setUnitsSize(0.0f);
-    minBox->setWidth(145.0f);
-    
-    maxBox = visPane->addNumberBox("-", &y);
-    maxBox->setCaptionSize(10.0f);
-    maxBox->moveRightOf(minBox);
-    visPane->pack();
-    visPane->setWidth(230);
-
-    GuiPane* dataPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
-
-    int captionWidth = 55;
-    GuiLabel* xyLabel = addPair(dataPane, "xy =", "(400, 300)", 30);
-    xyLabel->setWidth(100);
-    GuiLabel* uvLabel = addPair(dataPane, "uv =", "(0.1111, 0.3111)", 30, xyLabel);
-    uvLabel->setWidth(100);
-    addPair(dataPane, "rgba* =", "(0.2001, 0.2001, 3.2001, 1.2001)", captionWidth);
-    addPair(dataPane, "ARGB* =", "0xFF3029AA", captionWidth);
-    dataPane->addLabel(GuiText("* Before gamma correction", NULL, 8))->moveBy(Vector2(0, -5));
-    dataPane->pack();  
-    dataPane->moveRightOf(visPane);
-    leftPane->pack();
-
-    //////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////
-    GuiPane* infoPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
-    const Texture::Settings& settings = m_texture->settings();
-
-    addPair(infoPane, "Invert Y:", (m_texture->invertY ? "true" : "false"));
-    addPair(infoPane, "Format:", m_texture->format()->name());
-
-    addPair(infoPane, "Wrap Mode:", settings.wrapMode.toString());
-    std::string dim;
-    switch (m_texture->dimension()) {
-    case Texture::DIM_2D: dim = "DIM_2D"; break;
-    case Texture::DIM_3D: dim = "DIM_3D"; break;
-    case Texture::DIM_2D_RECT: dim = "DIM_2D_RECT"; break;
-    case Texture::DIM_CUBE_MAP: dim = "DIM_CUBE_MAP"; break;
-    case Texture::DIM_2D_NPOT: dim = "DIM_2D_NPOT"; break;
-    case Texture::DIM_CUBE_MAP_NPOT: dim = "DIM_CUBE_MAP_NPOT"; break;
-    case Texture::DIM_3D_NPOT: dim = "DIM_3D_NPOT"; break;
+        manager->add(ins);
     }
-    addPair(infoPane, "Dimension:", dim);
 
-    std::string dr;
-    switch (settings.depthReadMode) {
-    case Texture::DEPTH_NORMAL: dr = "DEPTH_NORMAL"; break;
-    case Texture::DEPTH_LEQUAL: dr = "DEPTH_LEQUAL"; break;
-    case Texture::DEPTH_GEQUAL: dr = "DEPTH_GEQUAL"; break;
-    }
-    addPair(infoPane, "Depth Read Mode:", dr);
-
-    std::string interp;
-    switch (settings.interpolateMode) {
-    case Texture::TRILINEAR_MIPMAP: interp = "TRILINEAR_MIPMAP"; break;
-    case Texture::BILINEAR_MIPMAP: interp = "BILINEAR_MIPMAP"; break;
-    case Texture::NEAREST_MIPMAP: interp = "NEAREST_MIPMAP"; break;
-    case Texture::BILINEAR_NO_MIPMAP: interp = "BILINEAR_NO_MIPMAP"; break;
-    case Texture::NEAREST_NO_MIPMAP: interp = "NEAREST_NO_MIPMAP"; break;
-    }
-    addPair(infoPane, "Interpolate Mode:", interp, 130, NULL, 20);
-
-    addPair(infoPane, "Autoupdate MIP-map:", (settings.autoMipMap ? "true" : "false"));
-
-    addPair(infoPane, "Min MIP-level:", 
-        format("%-5d (%d x %d)", settings.minMipMap, 
-        max(1, m_texture->width() / pow2(max(0, settings.minMipMap))), 
-        max(1, m_texture->height() / pow2(max(0, settings.minMipMap)))));
-    addPair(infoPane, "Max MIP-level:", 
-        format("%-5d (%d x %d)", settings.maxMipMap, 
-        max(1, m_texture->width() / pow2(settings.maxMipMap)), 
-        max(1, m_texture->height() / pow2(settings.maxMipMap))));
-                        
-    addPair(infoPane, "Max Anisotropy:", "-1");
-
-    addPair(infoPane, "Min Value:",  valToText(m_texture->min()), 80, NULL, 20);
-    addPair(infoPane, "Mean Value:", valToText(m_texture->mean()), 80);
-    addPair(infoPane, "Max Value:",  valToText(m_texture->max()), 80);
-
-    infoPane->pack();
-    infoPane->setWidth(300);
-    infoPane->moveRightOf(leftPane);
-    infoPane->moveBy(0, -3);
-    inspectorWindow->pack();
-    inspectorWindow->moveTo(screenBounds / 2.0f - inspectorWindow->rect().center());
-    inspectorWindow->setVisible(true);
-
-    window()->manager()->add(inspectorWindow);
+    manager->setFocusedWidget(ins);
 }
 
 
@@ -700,6 +741,12 @@ void GuiTextureBox::findControlUnderMouse(Vector2 mouse, GuiControl*& control) c
     
 void GuiTextureBox::setTexture(const Texture::Ref& t) {
     m_texture = t;
+    ReferenceCountedPointer<GuiTextureBoxInspector> ins = m_inspector.createStrongPtr();
+    if (ins.notNull()) {
+        // The inspector now has the wrong texture in it and it would require a 
+        // lot of GUI changes to update it, so we simply close that window.
+        window()->manager()->remove(ins);
+    }
 }
 
 
