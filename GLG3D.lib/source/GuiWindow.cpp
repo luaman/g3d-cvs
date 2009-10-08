@@ -335,6 +335,7 @@ void GuiWindow::close() {
             e.guiClose.type = GEventType::GUI_CLOSE;
             e.guiClose.window = NULL;
             fireEvent(e);
+            manager()->remove(this);
         }
         break;
     }

@@ -134,6 +134,7 @@ protected:
     GuiPane*                 m_drawerPane;
     bool                     m_drawerOpen;
 
+    mutable GuiButton*       m_saveButton;
     mutable GuiButton*       m_inspectorButton;
 
     Shader::Ref              m_shader;
@@ -160,6 +161,8 @@ protected:
 
     /** Returns the bounds of the canvas (display) region */
     Rect2D canvasRect() const;
+
+    void drawTexture(RenderDevice* rd, const Rect2D& r) const;
 
 public:
 

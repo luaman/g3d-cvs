@@ -113,10 +113,10 @@ GuiTextureBox::GuiTextureBox
         static const char* diskIcon = "\xcd";
         static const char* inspectorIcon = "\xa0";
 
-        GuiButton* saveButton = m_drawerPane->addButton(GuiText(diskIcon, iconFont, h), 
+        m_saveButton = m_drawerPane->addButton(GuiText(diskIcon, iconFont, h), 
                                                         Callback(this, &GuiTextureBox::save),
                                                         GuiTheme::TOOL_BUTTON_STYLE);
-        saveButton->setSize(h, h);
+        m_saveButton->setSize(h, h);
 
 
         GuiButton* zoomInButton = m_drawerPane->addButton(GuiText(zoomIcon, iconFont, h), 
@@ -207,18 +207,32 @@ void GuiTextureBox::save() {
         filename = "image";
     }
 
+    filename = System::currentDateString() + "-" + filename;
+
     // Make sure this filename doesn't exist
     int i = 0;
-    while (fileExists(format("%s%d.png", filename.c_str(), i))) {
+    while (fileExists(format("%s-%d.png", filename.c_str(), i))) {
         ++i;
     }
-    filename = format("%s%d.png", filename.c_str(), i);
+    filename = format("%s-%d.png", filename.c_str(), i);
 
     if (FileDialog::create(window())->getFilename(filename)) {
         // save code
-        // TODO: render to texture
-        // TODO: readback texture
-        // TODO: save texture
+        Framebuffer::Ref fb = Framebuffer::create("GuiTextureBox: save");
+        Texture::Ref color = Texture::createEmpty("GuiTextureBox: save", 
+            m_texture->width(), m_texture->height(), ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::video());
+        fb->set(Framebuffer::COLOR0, color);
+        
+        RenderDevice* rd = RenderDevice::lastRenderDeviceCreated;
+        rd->push2D(fb);
+        {
+            rd->setColorClearValue(Color3::white());
+            rd->clear();
+            drawTexture(rd, rd->viewport());
+        }
+        rd->pop2D();
+
+        color->toImage3()->save(filename);
     }
 }
 
@@ -619,12 +633,99 @@ void GuiTextureBox::showInspector() {
 }
 
 
+void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
+    rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);
+    rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
+
+    // Draw texture
+    if (m_settings.needsShader()) {
+        static const Matrix4 colorShift[] = {
+            // RGB
+            Matrix4(1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 0),
+
+            // R
+            Matrix4(1, 0, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 0, 0),
+
+            // G
+            Matrix4(0, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 0, 0),
+
+            // B
+            Matrix4(0, 0, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 0),
+
+            // RasL
+            Matrix4(1, 0, 0, 0,
+                    1, 0, 0, 0,
+                    1, 0, 0, 0,
+                    0, 0, 0, 0),
+            
+            // GasL
+            Matrix4(0, 1, 0, 0,
+                    0, 1, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 0, 0),
+
+            // BasL
+            Matrix4(0, 0, 1, 0,
+                    0, 0, 1, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 0),
+
+            // AasL
+            Matrix4(0, 0, 0, 1,
+                    0, 0, 0, 1,
+                    0, 0, 0, 1,
+                    0, 0, 0, 0),
+
+            // MeanRGBasL
+            Matrix4(1, 1, 1, 0,
+                    1, 1, 1, 0,
+                    1, 1, 1, 0,
+                    0, 0, 0, 0) * (1.0f/3.0f),
+
+            // Luminance
+            Matrix4(0.2126f, 0.7152f, 0.0722f, 0,
+                    0.2126f, 0.7152f, 0.0722f, 0,
+                    0.2126f, 0.7152f, 0.0722f, 0,
+                    0, 0, 0, 0)
+        };
+
+        m_shader->args.set("texture", m_texture);
+        m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
+        m_shader->args.set("bias", -m_settings.min);
+        m_shader->args.set("scale", 1.0f / (m_settings.max - m_settings.min));
+        m_shader->args.set("colorShift", colorShift[m_settings.channels]);
+
+        rd->setShader(m_shader);
+        debugAssert(m_shader.notNull());
+
+    } else {
+        rd->setTexture(0, m_texture);
+    }
+    Draw::fastRect2D(r, rd);
+    rd->setShader(NULL);
+    rd->setTexture(0, NULL);
+}
+
+
 void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
     if (! m_visible) {
         return;
     }
 
     m_inspectorButton->setEnabled(m_texture.notNull());
+    m_saveButton->setEnabled(m_texture.notNull());    
 
     int w = 0;
     int h = 0;
@@ -685,89 +786,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
 
             rd->setClip2D(oldClip.intersect(newClip));
 
-            // TODO: Draw"transparent" background
-            rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);
-            rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
-
-            // Draw texture
-            if (m_settings.needsShader()) {
-                static const Matrix4 colorShift[] = {
-                    // RGB
-                    Matrix4(1, 0, 0, 0,
-                            0, 1, 0, 0,
-                            0, 0, 1, 0,
-                            0, 0, 0, 0),
-
-                    // R
-                    Matrix4(1, 0, 0, 0,
-                            0, 0, 0, 0,
-                            0, 0, 0, 0,
-                            0, 0, 0, 0),
-
-                    // G
-                    Matrix4(0, 0, 0, 0,
-                            0, 1, 0, 0,
-                            0, 0, 0, 0,
-                            0, 0, 0, 0),
-
-                    // B
-                    Matrix4(0, 0, 0, 0,
-                            0, 0, 0, 0,
-                            0, 0, 1, 0,
-                            0, 0, 0, 0),
-
-                    // RasL
-                    Matrix4(1, 0, 0, 0,
-                            1, 0, 0, 0,
-                            1, 0, 0, 0,
-                            0, 0, 0, 0),
-                    
-                    // GasL
-                    Matrix4(0, 1, 0, 0,
-                            0, 1, 0, 0,
-                            0, 1, 0, 0,
-                            0, 0, 0, 0),
-
-                    // BasL
-                    Matrix4(0, 0, 1, 0,
-                            0, 0, 1, 0,
-                            0, 0, 1, 0,
-                            0, 0, 0, 0),
-
-                    // AasL
-                    Matrix4(0, 0, 0, 1,
-                            0, 0, 0, 1,
-                            0, 0, 0, 1,
-                            0, 0, 0, 0),
-
-                    // MeanRGBasL
-                    Matrix4(1, 1, 1, 0,
-                            1, 1, 1, 0,
-                            1, 1, 1, 0,
-                            0, 0, 0, 0) * (1.0f/3.0f),
-
-                    // Luminance
-                    Matrix4(0.2126f, 0.7152f, 0.0722f, 0,
-                            0.2126f, 0.7152f, 0.0722f, 0,
-                            0.2126f, 0.7152f, 0.0722f, 0,
-                            0, 0, 0, 0)
-                };
-
-                m_shader->args.set("texture", m_texture);
-                m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
-                m_shader->args.set("bias", -m_settings.min);
-                m_shader->args.set("scale", 1.0f / (m_settings.max - m_settings.min));
-                m_shader->args.set("colorShift", colorShift[m_settings.channels]);
-
-                rd->setShader(m_shader);
-                debugAssert(m_shader.notNull());
-
-            } else {
-                rd->setTexture(0, m_texture);
-            }
-            Draw::fastRect2D(r, rd);
-            rd->setShader(NULL);
-            rd->setTexture(0, NULL);
+            drawTexture(rd, r);
 
             if (m_texture.notNull()) {
                 GuiTheme::TextStyle style = theme->defaultStyle();
