@@ -28,8 +28,9 @@ GuiTextureBox::Settings::Settings(Channels c, float g, float mn, float mx) :
     channels(c), documentGamma(g), min(mn), max(mx) {
 }
 
-const GuiTextureBox::Settings& GuiTextureBox::Settings::image() {
-    static const Settings s(RGB, 2.1f, 0.0f, 1.0f);
+
+const GuiTextureBox::Settings& GuiTextureBox::Settings::sRGB() {
+    static const Settings s(RGB, 2.2f, 0.0f, 1.0f);
     return s;
 }
 
@@ -40,7 +41,7 @@ const GuiTextureBox::Settings& GuiTextureBox::Settings::unitVector() {
 }
 
 
-const GuiTextureBox::Settings& GuiTextureBox::Settings::zBuffer() {
+const GuiTextureBox::Settings& GuiTextureBox::Settings::depthBuffer() {
     static const Settings s(RasL, 1.0f, 0.1f, 1.0f);
     return s;
 }
@@ -51,10 +52,17 @@ const GuiTextureBox::Settings& GuiTextureBox::Settings::bumpInAlpha() {
     return s;
 }
 
+
+const GuiTextureBox::Settings& GuiTextureBox::Settings::defaults() {
+    static const Settings s;
+    return s;
+}
+
+
 bool GuiTextureBox::Settings::needsShader() const {
     return 
         (channels != RGB) ||
-        (documentGamma != 2.1f) ||
+        (documentGamma != 2.2f) ||
         (min != 0.0f) ||
         (max != 1.0f);
 }
@@ -129,10 +137,10 @@ GuiTextureBox::GuiTextureBox
                                                             &m_showInfo, GuiTheme::TOOL_CHECK_BOX_STYLE);
         infoButton->setSize(h, h);
         infoButton->moveBy(h/3, 0);
-        GuiButton* inspectorButton = m_drawerPane->addButton(GuiText(inspectorIcon, iconFont, h), 
+        m_inspectorButton = m_drawerPane->addButton(GuiText(inspectorIcon, iconFont, h), 
             Callback(this, &GuiTextureBox::launchInspector), GuiTheme::TOOL_BUTTON_STYLE);
-        inspectorButton->setSize(h, h);
-        inspectorButton->moveBy(h/3, 0);
+        m_inspectorButton->setSize(h, h);
+        m_inspectorButton->moveBy(h/3, 0);
 
         m_drawerPane->pack();
         // Add some padding
@@ -208,6 +216,14 @@ void GuiTextureBox::setSizeFromInterior(const Vector2& dims) {
 }
 
 
+void GuiTextureBox::hideInspectorButton() {
+    m_inspectorButton->setVisible(false);
+    m_inspectorButton->setEnabled(false);
+    m_drawerButton->setVisible(false);
+    m_drawerButton->setEnabled(false);
+}
+
+
 bool GuiTextureBox::onEvent(const GEvent& event) {
     if (! m_visible) {
         return false;
@@ -236,7 +252,11 @@ bool GuiTextureBox::onEvent(const GEvent& event) {
 
         // Stop drag
         m_dragging = false;
-        return true;
+        if (m_clipBounds.contains(Vector2(event.button.x, event.button.y))) {
+            return true;
+        } else {
+            return false;
+        }
 
     } else if (event.type == GEventType::MOUSE_MOTION) {
         m_needReadback = true;
@@ -299,7 +319,16 @@ protected:
     /** Settings of the original GuiTextureBox */
     GuiTextureBox::Settings&    m_settings;
 
+    GuiTextureBox*              m_textureBox;
+
     GuiWindow::Ref              m_parentWindow;
+
+    GuiDropDownList*            m_modeDropDownList;
+
+    GuiLabel*                   m_xyLabel;
+    GuiLabel*                   m_uvLabel;
+    GuiLabel*                   m_rgbaLabel;
+    GuiLabel*                   m_ARGBLabel;
 
     /** Adds two labels to create a two-column display and returns a pointer to the second label. */
     static GuiLabel* addPair(GuiPane* p, const GuiText& key, const GuiText& val, int captionWidth = 130, GuiLabel* nextTo = NULL, int moveDown = 0) {
@@ -313,7 +342,7 @@ protected:
         keyLabel->setWidth(captionWidth);
         GuiLabel* valLabel = p->addLabel(val);
         valLabel->moveRightOf(keyLabel);
-        valLabel->setWidth(120);
+        valLabel->setWidth(130);
         return valLabel;
     }
 
@@ -345,9 +374,24 @@ public:
         GuiPane* leftPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
 
         GuiTextureBox::Settings s = GuiTextureBox::Settings(GuiTextureBox::RGB, 0.01f, 0.0f, 1.0f);
-        GuiTextureBox* t = leftPane->addTextureBox(displayCaption, texture, m_settings);
-        t->setSize(screenBounds - Vector2(450, 275));
-        t->zoomToFit();
+        m_textureBox = leftPane->addTextureBox(displayCaption, texture, m_settings);
+
+        m_textureBox->setSize(screenBounds - Vector2(450, 275));
+        m_textureBox->zoomToFit();
+        // Open the drawer
+        m_textureBox->toggleDrawer();
+        m_textureBox->hideInspectorButton();
+
+        // Place the preset list in the empty space next to the drawer, over the TextureBox control
+        Array<std::string> presetList;
+
+        // This list must be kept in sync with onEvent
+        presetList.append("<Click to load>", "sRGB Image", "Radiance", "Reflectivity");
+        presetList.append( "8-bit Normal/Dir", "Float Normal/Dir");
+        presetList.append("Depth Buffer", "Bump Map (in Alpha)");
+
+        m_modeDropDownList = leftPane->addDropDownList("Vis. Preset", presetList);
+        m_modeDropDownList->moveBy(4, -20);
         leftPane->pack();
 
         //////////////////////////////////////////////////////////////////////
@@ -355,10 +399,11 @@ public:
         GuiPane* visPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
         
         Array<std::string> channelList;
+        // this order must match the order of the Channels enum
         channelList.append("RGB", "R", "G", "B");
-        channelList.append("R as Luma", "G as Luma", "B as Luma", "A as Luma");
-        channelList.append("Luminance");
-        visPane->addDropDownList("Channels", channelList);
+        channelList.append("R as Luminance", "G as Luminance", "B as Luminance", "A as Luminance");
+        channelList.append("RGB/3 as Luminance", "True Luminance");
+        visPane->addDropDownList("Channels", channelList, (int*)&m_settings.channels);
 
         GuiLabel* documentCaption = visPane->addLabel("Document");
         documentCaption->setWidth(65.0f);
@@ -384,18 +429,17 @@ public:
         GuiPane* dataPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
 
         int captionWidth = 55;
-        GuiLabel* xyLabel = addPair(dataPane, "xy =", "(400, 300)", 30);
-        xyLabel->setWidth(100);
-        GuiLabel* uvLabel = addPair(dataPane, "uv =", "(0.1111, 0.3111)", 30, xyLabel);
-        uvLabel->setWidth(100);
-        addPair(dataPane, "rgba* =", "(0.2001, 0.2001, 3.2001, 1.2001)", captionWidth);
-        addPair(dataPane, "ARGB* =", "0xFF3029AA", captionWidth);
+        m_xyLabel = addPair(dataPane, "xy =", "(400, 300)", 30);
+        m_xyLabel->setWidth(100);
+        m_uvLabel = addPair(dataPane, "uv =", "(0.1111, 0.3111)", 30, m_xyLabel);
+        m_uvLabel->setWidth(100);
+
+        m_rgbaLabel = addPair(dataPane, "rgba* =", "(0.2001, 0.2001, 3.2001, 1.2001)", captionWidth);
+        m_ARGBLabel = addPair(dataPane, "ARGB* =", "0xFF3029AA", captionWidth);
         dataPane->addLabel(GuiText("* Before gamma correction", NULL, 8))->moveBy(Vector2(0, -5));
         dataPane->pack();  
         dataPane->moveRightOf(visPane);
         leftPane->pack();
-
-        //////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////
         GuiPane* infoPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
@@ -462,16 +506,68 @@ public:
         setVisible(true);
     }
 
+
+    virtual void render(RenderDevice* rd) const {
+        GuiWindow::render(rd);
+
+        // Keep our display in sync with the original one when a GUI control changes
+        m_textureBox->setSettings(m_settings);
+
+        // TODO: update the xyuv labels
+    }
+
+
     virtual bool onEvent(const GEvent& event) {
         if (GuiWindow::onEvent(event)) {
             return true;
-        } else if ((event.type == GEventType::KEY_DOWN) && (event.key.keysym.sym == GKey::ESCAPE)) {
-            // Cancel this window
-            manager()->remove(this);
-            return true;
-        } else {
-            return false;
         }
+        
+        switch (event.type) {
+        case GEventType::KEY_DOWN:
+            if (event.key.keysym.sym == GKey::ESCAPE) {
+                // Cancel this window
+                manager()->remove(this);
+                return true;
+            }
+            break;
+
+        case GEventType::GUI_ACTION:
+            if ((event.gui.control == m_modeDropDownList) && (m_modeDropDownList->selectedIndex() > 0)) {
+                std::string preset = m_modeDropDownList->selectedValue().text();
+                if (preset == "sRGB Image") {
+                    m_settings = GuiTextureBox::Settings::sRGB();
+                } else if (preset == "Radiance") {
+                    // Choose the maximum value
+                    m_settings = GuiTextureBox::Settings::defaults();
+                    Texture::Ref tex = m_textureBox->texture();
+                    if (tex.notNull()) {
+                        Color4 max = tex->max();
+                        if (max.isFinite()) {
+                            m_settings.max = G3D::max(max.r, max.g, max.b);
+                        }
+                    }
+                } else if (preset == "Reflectivity") {
+                    m_settings = GuiTextureBox::Settings::defaults();
+                } else if (preset == "8-bit Normal/Dir") {
+                    m_settings = GuiTextureBox::Settings::packedUnitVector();
+                } else if (preset == "Float Normal/Dir") {
+                    m_settings = GuiTextureBox::Settings::unitVector();
+                } else if (preset == "Depth Buffer") {
+                    m_settings = GuiTextureBox::Settings::depthBuffer();
+                } else if (preset == "Bump Map (in Alpha)") {
+                    m_settings = GuiTextureBox::Settings::bumpInAlpha();
+                }
+
+                // Switch back to <click to load>
+                m_modeDropDownList->setSelectedIndex(0);
+                return true;
+            }
+            break;
+
+        default:;
+        }
+
+        return false;
     }
 };
 
@@ -542,7 +638,6 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
 
     const CoordinateFrame& matrix = rd->objectToWorldMatrix();
 
-
     if (m_texture.notNull()) {
         // Shrink by the border size to save space for the border,
         // and then draw the largest rect that we can fit inside.
@@ -553,9 +648,12 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         
         theme->pauseRendering();
         {
+            // Merge with existing clipping region!
+            Rect2D oldClip = rd->clip2D();
             // Scissor region ignores transformation matrix
-// TODO: Merge with existing clipping region!
-            rd->setClip2D(m_clipBounds + matrix.translation.xy());
+            Rect2D newClip = m_clipBounds + matrix.translation.xy();
+
+            rd->setClip2D(oldClip.intersect(newClip));
 
             // TODO: Draw"transparent" background
             rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);
@@ -594,21 +692,39 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                             1, 0, 0, 0,
                             0, 0, 0, 0),
                     
+                    // GasL
+                    Matrix4(0, 1, 0, 0,
+                            0, 1, 0, 0,
+                            0, 1, 0, 0,
+                            0, 0, 0, 0),
+
+                    // BasL
+                    Matrix4(0, 0, 1, 0,
+                            0, 0, 1, 0,
+                            0, 0, 1, 0,
+                            0, 0, 0, 0),
+
                     // AasL
                     Matrix4(0, 0, 0, 1,
                             0, 0, 0, 1,
                             0, 0, 0, 1,
                             0, 0, 0, 0),
 
-                    // RGBasL
+                    // MeanRGBasL
                     Matrix4(1, 1, 1, 0,
                             1, 1, 1, 0,
                             1, 1, 1, 0,
-                            0, 0, 0, 0) * (1.0f/3.0f)
+                            0, 0, 0, 0) * (1.0f/3.0f),
+
+                    // Luminance
+                    Matrix4(0.2126f, 0.7152f, 0.0722f, 0,
+                            0.2126f, 0.7152f, 0.0722f, 0,
+                            0.2126f, 0.7152f, 0.0722f, 0,
+                            0, 0, 0, 0)
                 };
 
                 m_shader->args.set("texture", m_texture);
-                m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.1f);
+                m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
                 m_shader->args.set("bias", -m_settings.min);
                 m_shader->args.set("scale", 1.0f / (m_settings.max - m_settings.min));
                 m_shader->args.set("colorShift", colorShift[m_settings.channels]);
@@ -670,7 +786,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                                          format("rgba:(%.3f, %.3f, %.3f, %.3f)", 
                                                 m_texel.r, m_texel.g, m_texel.b, m_texel.a),
                                          pos, style.size, front, back).y * lineSpacing;
-                        if (m_settings.documentGamma != 2.1f) {
+                        if (m_settings.documentGamma != 2.2f) {
                             pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
                         }
                     }

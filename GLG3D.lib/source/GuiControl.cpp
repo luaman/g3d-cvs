@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-01
- @edited  2007-09-27
+ @edited  2009-10-10
  */
 
 #include "G3D/platform.h"
@@ -27,19 +27,14 @@ GuiControl::GuiControl(GuiContainer* parent, const GuiText& caption) : m_enabled
 
 GuiWindow* GuiControl::window() const {
     return m_gui;
-    /*
-    const GuiControl* current = this;
-    while (current->m_parent != NULL) {
-        current = current->m_parent;
-    }
-    return const_cast<GuiWindow*>(dynamic_cast<const GuiWindow*>(current));
-    */
 }
+
 
 Vector2 GuiControl::fromOSWindowCoords(const Vector2& v) const {
     Vector2 xform = toOSWindowCoords(Vector2(0, 0));
     return v - xform;
 }
+
 
 Vector2 GuiControl::toOSWindowCoords(const Vector2& v) const {
 

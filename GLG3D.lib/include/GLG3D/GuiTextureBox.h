@@ -53,8 +53,12 @@ public:
         /** Alpha as grayscale */
         AasL, 
 
-        /** Luminance: (R + G + B) / 3 */
-        RGBasL};
+        /** RGB mean as luminance: (R + G + B) / 3; visualizes the net 
+           reflectance or energy of a texture */
+        MeanRGBasL,
+    
+        /** (Perceptula) Luminance. Visualizes the brightness people perceive of an image. */
+        Luminance};
     
     class Settings {
     public:
@@ -73,8 +77,9 @@ public:
             reflectance maps, etc. */
         Settings(Channels c = RGB, float g = 1.0f, float mn = 0.0f, float mx = 1.0f);
 
-        /** For photographs and other images with document gamma 2.2 */
-        static const Settings& image();
+        /** For photographs and other images with document gamma of about 2.2.  Note that this does not 
+          actually match true sRGB values, which have a non-linear gamma. */
+        static const Settings& sRGB();
 
         /** For signed unit vectors, like a GBuffer's normals, on the
             range [-1, 1] for RGB channels */
@@ -84,7 +89,20 @@ public:
         static const Settings& bumpInAlpha();
 
         /** For a hyperbolic depth map in the red channel (e.g., a shadow map). */
-        static const Settings& zBuffer();
+        static const Settings& depthBuffer();
+
+        static const Settings& defaults();
+
+        /** Unit vectors packed into RGB channels, e.g. a normal map.  Same as defaults() */
+        static const Settings& packedUnitVector() {
+            return defaults();
+        }
+
+        /** Reflectivity map.  Same as defaults() */
+        static const Settings& reflectivity() {
+            return defaults();
+        }
+
 
         /** True if these settings require the use of a GLSL shader */
         bool needsShader() const;
@@ -115,6 +133,7 @@ protected:
     GuiButton*               m_drawerButton;
     GuiPane*                 m_drawerPane;
     bool                     m_drawerOpen;
+    GuiButton*               m_inspectorButton;
 
     Shader::Ref              m_shader;
 
@@ -138,6 +157,9 @@ protected:
 
     /** Starts the inspector window.  Invoked by the inspector button. */
     void launchInspector();
+
+    /** Called by the inspector to make the inspector and drawer buttons invisible.*/
+    void hideInspectorButton();
 
 public:
 

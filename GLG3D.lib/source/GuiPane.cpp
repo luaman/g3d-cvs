@@ -287,17 +287,19 @@ void GuiPane::findControlUnderMouse(Vector2 mouse, GuiControl*& control) const {
     }
 
     mouse -= m_clientRect.x0y0();
-    for (int i = 0; i < containerArray.size(); ++i) {
-        containerArray[i]->findControlUnderMouse(mouse, control);
-        if (control != NULL) {
-            return;
-        }
-    }
 
-    for (int i = 0; i < controlArray.size(); ++i) {
+    // Test in the opposite order of rendering so that the top-most control receives the event
+    for (int i = controlArray.size() - 1; i >= 0; --i) {
         if (controlArray[i]->m_clickRect.contains(mouse) && controlArray[i]->visible() && controlArray[i]->enabled()) {
             control = controlArray[i];
             break;
+        }
+    }
+
+    for (int i = containerArray.size() - 1; i >= 0; --i) {
+        containerArray[i]->findControlUnderMouse(mouse, control);
+        if (control != NULL) {
+            return;
         }
     }
 }
