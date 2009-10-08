@@ -140,6 +140,7 @@
      <li> Fix: VideoRecordDialog now correctly captures the GUI (when specified) on OS X
      <li> Fix: CarbonWindow drop events are now relative to the window corner
      <li> Fix: OS X AtomicInt32::compareAndSet was not obtaining the old value in an atomic fashion in 7.01, leading to occasional livelock on SpinLock.
+     <li> Fix: Changed order of event delivery for GuiWindow to match rendering order
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

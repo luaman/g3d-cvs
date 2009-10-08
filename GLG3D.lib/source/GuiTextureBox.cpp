@@ -391,7 +391,7 @@ public:
         presetList.append("Depth Buffer", "Bump Map (in Alpha)");
 
         m_modeDropDownList = leftPane->addDropDownList("Vis. Preset", presetList);
-        m_modeDropDownList->moveBy(4, -20);
+        m_modeDropDownList->moveBy(4, -25);
         leftPane->pack();
 
         //////////////////////////////////////////////////////////////////////
