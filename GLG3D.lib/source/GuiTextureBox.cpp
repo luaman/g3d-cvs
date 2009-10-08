@@ -73,9 +73,16 @@ GuiTextureBox::GuiTextureBox
 (GuiContainer*       parent,
  const GuiText&      caption,
  const Texture::Ref& t,
- const Settings&     s) : 
-    GuiContainer(parent, caption), m_texture(t), m_settings(s), m_showInfo(true), 
-    m_dragging(false), m_needReadback(true) {
+ const Settings&     s,
+ bool                embeddedMode) : 
+    GuiContainer(parent, caption), 
+    m_texture(t),
+    m_settings(s), 
+    m_showInfo(true), 
+    m_dragging(false), 
+    m_needReadback(true),
+    m_drawerOpen(embeddedMode),
+    m_embeddedMode(embeddedMode) {
 
     // Height of caption and button bar
     const float cs = TOP_CAPTION_SIZE;
@@ -96,9 +103,7 @@ GuiTextureBox::GuiTextureBox
     m_drawerButton->setCaption(m_drawerExpandCaption);
     m_drawerButton->setSize(12, 9);
 
-    m_drawerOpen = false;
-
-    m_drawerPane = new GuiPane(this, "", Rect2D::xywh(100, cs, 100, h), GuiTheme::ORNATE_PANE_STYLE);
+    m_drawerPane = new GuiPane(this, "", Rect2D::xywh(100, cs, 100, h), embeddedMode ? GuiTheme::NO_PANE_STYLE : GuiTheme::ORNATE_PANE_STYLE);
     m_drawerPane->setVisible(false);
 
     // Contents of the tools drawer:
@@ -137,15 +142,27 @@ GuiTextureBox::GuiTextureBox
                                                             &m_showInfo, GuiTheme::TOOL_CHECK_BOX_STYLE);
         infoButton->setSize(h, h);
         infoButton->moveBy(h/3, 0);
+
         m_inspectorButton = m_drawerPane->addButton(GuiText(inspectorIcon, iconFont, h), 
-            Callback(this, &GuiTextureBox::launchInspector), GuiTheme::TOOL_BUTTON_STYLE);
+            Callback(this, &GuiTextureBox::showInspector), GuiTheme::TOOL_BUTTON_STYLE);
         m_inspectorButton->setSize(h, h);
         m_inspectorButton->moveBy(h/3, 0);
 
         m_drawerPane->pack();
         // Add some padding
         m_drawerPane->setWidth(m_drawerPane->rect().width() + m_drawerButton->rect().width());
-    }
+
+        if (embeddedMode) {
+            m_inspectorButton->setVisible(false);
+            m_inspectorButton->setEnabled(false);
+
+            m_drawerButton->setVisible(false);
+            m_drawerButton->setEnabled(false);
+
+            infoButton->setVisible(false);
+            infoButton->setEnabled(false);
+        }
+    }    
 
     setCaptionSize(h);
     float aspect = 1440.0f / 900.0f;
@@ -216,14 +233,6 @@ void GuiTextureBox::setSizeFromInterior(const Vector2& dims) {
 }
 
 
-void GuiTextureBox::hideInspectorButton() {
-    m_inspectorButton->setVisible(false);
-    m_inspectorButton->setEnabled(false);
-    m_drawerButton->setVisible(false);
-    m_drawerButton->setEnabled(false);
-}
-
-
 bool GuiTextureBox::onEvent(const GEvent& event) {
     if (! m_visible) {
         return false;
@@ -284,7 +293,11 @@ void GuiTextureBox::setRect(const Rect2D& rect) {
     m_clipBounds = theme()->canvasToClientBounds(canvasRect(), m_captionSize);
 
     Rect2D oldRect = m_drawerPane->rect();
-    const float OPEN_Y = m_rect.height() - oldRect.height() - DRAWER_Y_OFFSET;
+    float OPEN_Y = m_rect.height() - oldRect.height() - DRAWER_Y_OFFSET;
+    if (m_embeddedMode) {
+        OPEN_Y += 4.0f;
+    }
+
     const float CLOSED_Y = m_rect.height() - oldRect.height() * 2.0f;
     m_drawerPane->setPosition(m_rect.width() - oldRect.width() - 2.0f, m_drawerOpen ? OPEN_Y : CLOSED_Y);
 }
@@ -293,8 +306,12 @@ void GuiTextureBox::setRect(const Rect2D& rect) {
 void GuiTextureBox::toggleDrawer() {
     Rect2D oldRect = m_drawerPane->rect();
 
-    const float OPEN_Y = m_rect.height() - oldRect.height() - DRAWER_Y_OFFSET;
-    const float CLOSED_Y = m_rect.height() - oldRect.height() * 2.0f;
+    float OPEN_Y = m_rect.height() - oldRect.height() - DRAWER_Y_OFFSET;
+    if (m_embeddedMode) {
+        OPEN_Y += 4.0f;
+    }
+
+    float CLOSED_Y = m_rect.height() - oldRect.height() * 2.0f;
 
     if (m_drawerOpen) {
         m_drawerButton->setCaption(m_drawerExpandCaption);
@@ -325,10 +342,10 @@ protected:
 
     GuiDropDownList*            m_modeDropDownList;
 
-    GuiLabel*                   m_xyLabel;
-    GuiLabel*                   m_uvLabel;
-    GuiLabel*                   m_rgbaLabel;
-    GuiLabel*                   m_ARGBLabel;
+    mutable GuiLabel*           m_xyLabel;
+    mutable GuiLabel*           m_uvLabel;
+    mutable GuiLabel*           m_rgbaLabel;
+    mutable GuiLabel*           m_ARGBLabel;
 
     /** Adds two labels to create a two-column display and returns a pointer to the second label. */
     static GuiLabel* addPair(GuiPane* p, const GuiText& key, const GuiText& val, int captionWidth = 130, GuiLabel* nextTo = NULL, int moveDown = 0) {
@@ -374,13 +391,10 @@ public:
         GuiPane* leftPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
 
         GuiTextureBox::Settings s = GuiTextureBox::Settings(GuiTextureBox::RGB, 0.01f, 0.0f, 1.0f);
-        m_textureBox = leftPane->addTextureBox(displayCaption, texture, m_settings);
+        m_textureBox = leftPane->addTextureBox(displayCaption, texture, m_settings, true);
 
         m_textureBox->setSize(screenBounds - Vector2(450, 275));
         m_textureBox->zoomToFit();
-        // Open the drawer
-        m_textureBox->toggleDrawer();
-        m_textureBox->hideInspectorButton();
 
         // Place the preset list in the empty space next to the drawer, over the TextureBox control
         Array<std::string> presetList;
@@ -391,7 +405,7 @@ public:
         presetList.append("Depth Buffer", "Bump Map (in Alpha)");
 
         m_modeDropDownList = leftPane->addDropDownList("Vis. Preset", presetList);
-        m_modeDropDownList->moveBy(4, -25);
+        m_modeDropDownList->moveBy(4, -21);
         leftPane->pack();
 
         //////////////////////////////////////////////////////////////////////
@@ -429,14 +443,17 @@ public:
         GuiPane* dataPane = leftPane->addPane("", GuiTheme::NO_PANE_STYLE);
 
         int captionWidth = 55;
-        m_xyLabel = addPair(dataPane, "xy =", "(400, 300)", 30);
-        m_xyLabel->setWidth(100);
-        m_uvLabel = addPair(dataPane, "uv =", "(0.1111, 0.3111)", 30, m_xyLabel);
-        m_uvLabel->setWidth(100);
+        m_xyLabel = addPair(dataPane, "xy =", "", 30);
+        m_xyLabel->setWidth(70);
+        m_uvLabel = addPair(dataPane, "uv =", "", 30, m_xyLabel);
+        m_uvLabel->setWidth(120);
+        if (texture->invertY) {
+            dataPane->addLabel(GuiText("After Y-inversion", NULL, 8))->moveBy(Vector2(5, -5));
+        }
 
-        m_rgbaLabel = addPair(dataPane, "rgba* =", "(0.2001, 0.2001, 3.2001, 1.2001)", captionWidth);
-        m_ARGBLabel = addPair(dataPane, "ARGB* =", "0xFF3029AA", captionWidth);
-        dataPane->addLabel(GuiText("* Before gamma correction", NULL, 8))->moveBy(Vector2(0, -5));
+        m_rgbaLabel = addPair(dataPane, "rgba =", "", captionWidth);
+        m_ARGBLabel = addPair(dataPane, "ARGB =", "", captionWidth);
+        dataPane->addLabel(GuiText("Before gamma correction", NULL, 8))->moveBy(Vector2(5, -5));
         dataPane->pack();  
         dataPane->moveRightOf(visPane);
         leftPane->pack();
@@ -513,7 +530,21 @@ public:
         // Keep our display in sync with the original one when a GUI control changes
         m_textureBox->setSettings(m_settings);
 
-        // TODO: update the xyuv labels
+
+        // Update the xy/uv/rgba labels
+        Texture::Ref tex = m_textureBox->texture();
+        float w = 1, h = 1;
+        if (tex.notNull()) {
+            w = tex->width();
+            h = tex->height();
+        }
+
+        m_xyLabel->setCaption(format("(%d, %d)", m_textureBox->m_readbackXY.x, m_textureBox->m_readbackXY.y));
+        m_uvLabel->setCaption(format("(%6.4f, %6.4f)", m_textureBox->m_readbackXY.x / w, m_textureBox->m_readbackXY.y / h));
+        m_rgbaLabel->setCaption(format("(%6.4f, %6.4f, %6.4f, %6.4f)", m_textureBox->m_texel.r, 
+            m_textureBox->m_texel.g, m_textureBox->m_texel.b, m_textureBox->m_texel.a));
+        Color4uint8 c(m_textureBox->m_texel);
+        m_ARGBLabel->setCaption(format("0x%02x%02x%02x%02x", c.a, c.r, c.g, c.b));
     }
 
 
@@ -572,8 +603,7 @@ public:
 };
 
 
-void GuiTextureBox::launchInspector() {
-
+void GuiTextureBox::showInspector() {
     GuiWindow::Ref myWindow = window();
     WidgetManager::Ref manager = myWindow->manager();
 
@@ -594,6 +624,8 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         return;
     }
 
+    m_inspectorButton->setEnabled(m_texture.notNull());
+
     int w = 0;
     int h = 0;
 
@@ -604,8 +636,6 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
     // Keep button on bottom of drawer, but always visible
     m_drawerButton->setPosition(m_drawerPane->rect().x1() - m_drawerButton->rect().width(), 
                                 max(cvs.height() - 2.0f, m_drawerPane->rect().y1() - m_drawerButton->rect().height() - 1.0f));
-
-    GuiTextureBox* me = const_cast<GuiTextureBox*>(this);
 
     // Render size label
     if (m_texture.notNull()) {
@@ -769,25 +799,30 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                         mousePos *= Vector2(w - 1, h - 1) / (r.wh() - Vector2(1, 1));
                         int ix = iFloor(mousePos.x);
                         int iy = iFloor(mousePos.y);
-                        std::string s = format("xy:    (%d, %d)", ix, iy);
-                    
-                        pos.y += font->draw2D(rd, s, pos, style.size, front, back).y * lineSpacing;
-                        if (m_texture->invertY) {
-                            pos.y += font->draw2D(rd, "after y-inversion", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                        m_readbackXY.x = ix;
+                        m_readbackXY.y = iy;
+                        if (m_needReadback) {
+                            m_texel = m_texture->readTexel(ix, iy, rd);
+                            m_needReadback = false;
                         }
 
-                        if (m_needReadback) {
-                            me->m_texel = m_texture->readTexel(ix, iy, rd);
-                            me->m_needReadback = false;
-                        }
-                        Color4uint8 ci(m_texel);
-                        pos.y += 
-                            font->draw2D(rd, 
-                                         format("rgba:(%.3f, %.3f, %.3f, %.3f)", 
-                                                m_texel.r, m_texel.g, m_texel.b, m_texel.a),
-                                         pos, style.size, front, back).y * lineSpacing;
-                        if (m_settings.documentGamma != 2.2f) {
-                            pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                        // Only display the values on-screen when we're not embedded
+                        if (! m_embeddedMode) {
+                            std::string s = format("xy:    (%d, %d)", ix, iy);                    
+                            pos.y += font->draw2D(rd, s, pos, style.size, front, back).y * lineSpacing;
+                            if (m_texture->invertY) {
+                                pos.y += font->draw2D(rd, "after y-inversion", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                            }
+
+                            Color4uint8 ci(m_texel);
+                            pos.y += 
+                                font->draw2D(rd, 
+                                             format("rgba:(%.3f, %.3f, %.3f, %.3f)", 
+                                                    m_texel.r, m_texel.g, m_texel.b, m_texel.a),
+                                                    pos, style.size, front, back).y * lineSpacing;
+                            if (m_settings.documentGamma != 2.2f) {
+                                pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                            }
                         }
                     }
                 }

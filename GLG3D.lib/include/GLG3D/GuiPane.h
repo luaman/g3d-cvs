@@ -149,7 +149,8 @@ public:
 
     GuiTextureBox* addTextureBox(const GuiText& caption = "",
                                  const Texture::Ref& t = NULL,
-                                 const GuiTextureBox::Settings&  s = GuiTextureBox::Settings());
+                                 const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
+                                 bool embedded = false);
 
     /**
        <pre>

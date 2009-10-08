@@ -133,7 +133,8 @@ protected:
     GuiButton*               m_drawerButton;
     GuiPane*                 m_drawerPane;
     bool                     m_drawerOpen;
-    GuiButton*               m_inspectorButton;
+
+    mutable GuiButton*       m_inspectorButton;
 
     Shader::Ref              m_shader;
 
@@ -146,30 +147,37 @@ protected:
     Vector2                  m_offsetAtDragStart;
 
     /** Readback texel */
-    Color4                   m_texel;
+    mutable Color4           m_texel;
+    /** Readback position */
+    mutable Vector2int16     m_readbackXY;
+
     /** True if the mouse moved since m_texel was updated */
-    bool                     m_needReadback;
+    mutable bool             m_needReadback;
+
+    bool                     m_embeddedMode;
 
     static WeakReferenceCountedPointer<Shader> g_cachedShader;
 
     /** Returns the bounds of the canvas (display) region */
     Rect2D canvasRect() const;
 
-    /** Starts the inspector window.  Invoked by the inspector button. */
-    void launchInspector();
-
-    /** Called by the inspector to make the inspector and drawer buttons invisible.*/
-    void hideInspectorButton();
-
 public:
 
+    /** In most cases, you'll want to call GuiPane::addTextureBox instead.
+
+      \param embeddedMode When set to true, hides the controls that duplicate inspector functionality.
+     */
     GuiTextureBox
     (GuiContainer*       parent,
      const GuiText&      caption,
      const Texture::Ref& t = NULL,
-     const Settings&     s = Settings());
+     const Settings&     s = Settings(),
+     bool                embeddedMode = false);
 
     virtual ~GuiTextureBox();
+
+    /** Starts the inspector window.  Invoked by the inspector button. */
+    void showInspector();
 
     /** Zoom factor for the texture display.  Greater than 1 = zoomed in. */
     inline float viewZoom() const {
