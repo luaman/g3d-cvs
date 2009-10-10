@@ -677,89 +677,6 @@ def ffmpegWinTarget():
     ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'include/libavformat'), 'ffmpeg/include/libavformat', False)
 
 
-#########################################################
-
-def ideTarget():
-    """
-           The --generator option is required. To find generators for
-           the build system run: cmake --help
-           
-           Example:
-           buildg3d proj --debug --generator="MinGW Makefiles"
-           
-           --generator="cmake generator"
-                generator string supported by cmake on build system
-           --debug / --release
-                generate debug/release configuration (defaults to release)
-           --install-dir=installDir
-                sets installation target directory
-                generated project will still have to make install target
-           --build-dir=buildDir
-                sets the build directory (defaults to ./build)
-
-compilerTable = \
-    {'vc6.0'    : 'Visual Studio 6',
-     'vc7.0'    : 'Visual Studio 7',
-     'vc7.1'    : 'Visual Studio 7 .NET 2003',
-     'vc8.0'    : 'Visual Studio 8 2005',
-     'vc9.0'    : 'Visual Studio 9 2009',
-     'gcc'      : 'gcc',
-     'xcode'    : 'XCode'}
-
-                """
-
-    # TODO: automatically configure the args based on the platform
-    #    compilerName = compilerTable[args[1]]
-    
-    args = []
-    projOptions, projArgs = getopt.getopt(args, '', ['debug', 'release',
-      'generator=', 'build-dir=', 'install-dir='])
-    
-    buildDir = 'build'
-    buildType = 'Release'
-    installDir = ''
-    buildGenerator = ''
-    
-    for opt, arg in projOptions:    
-        if opt == '--generator':
-            if windows:
-                buildGenerator = '"' + arg + '"'
-            else:
-                buildGenerator = arg
-            
-        if opt == '--debug':
-            buildType = 'Debug'
-
-        if opt == '--build-dir':
-            buildDir = arg
-
-        if opt == '--install-dir':
-            installDir = arg
-            
-    if buildGenerator == '':
-        print '--generator option is required for proj target'
-        return -1
-
-    cmakeArgs = ['-G', buildGenerator, '-DCMAKE_BUILD_TYPE=' + buildType]
-    if installDir != '':
-        cmakeArgs.append('-DCMAKE_INSTALL_PREFIX="' + installDir + '"')
-        
-    curDir = os.getcwd();
-
-    try:
-      os.makedirs(buildDir)
-    except OSError, e:
-      if e.errno == errno.EEXIST:
-        print "Build directory " + buildDir + " already exists..."
-      else:
-        print "Error: " + buildDir + " could not be created...  aborting."
-        return -1 
-
-    os.chdir(buildDir)
-    cmakeArgs.insert(0, curDir)
-    ret = run('cmake', cmakeArgs)
-    os.chdir(curDir)
-    return ret
 
 ################################################################################
 
@@ -877,7 +794,7 @@ if __name__ == "__main__":
     code = dispatchOnTarget(sys.argv[1] + 'Target',
         [libTarget, cleanTarget, testTarget,
          docTarget, allTarget, srcTarget, toolsTarget,
-         jarTarget, ideTarget, helpTarget, updateTarget, 
+         jarTarget, helpTarget, updateTarget, 
          ffmpegWinTarget, ffmpegCCTarget])
 
     if (code == 0) and (sys.argv[1] != 'help') and doInstall:
