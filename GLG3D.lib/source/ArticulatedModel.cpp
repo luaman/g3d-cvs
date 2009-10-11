@@ -341,7 +341,8 @@ void ArticulatedModel::Part::computeNormalsAndTangentSpace
         return;
     }
 
-    Array<Array<int>*> indexArrayArray(triList.size());
+    Array<Array<int>*> indexArrayArray;
+    indexArrayArray.resize(triList.size());
     for (int t = 0; t < triList.size(); ++t) {
         indexArrayArray[t] = &(triList[t]->indexArray);
     }

@@ -598,7 +598,8 @@ void Map::loadTextures(
     int texturesCount = lump.length / sizeof(Q3BSPTexture);
     textures.resize(texturesCount);
     textureIsHollow.resize(texturesCount);
-    Array<Q3BSPTexture> textureData(texturesCount);
+    Array<Q3BSPTexture> textureData;
+    textureData.resize(texturesCount);
 
     bi.setPosition(lump.offset);
     bi.readBytes(textureData.getCArray(), sizeof(Q3BSPTexture) * texturesCount);

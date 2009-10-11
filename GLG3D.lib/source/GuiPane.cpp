@@ -125,7 +125,8 @@ GuiDropDownList* GuiPane::addDropDownList
  const Array<std::string>& list,
  const Pointer<int>& pointer) {
 
-    Array<GuiText> c(list.size());
+    Array<GuiText> c;
+    c.resize(list.size());
     for (int i = 0; i < c.size(); ++i) {
         c[i] = list[i];
     }

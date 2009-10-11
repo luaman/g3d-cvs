@@ -384,7 +384,8 @@ void RenderDevice::setGamma(
     double              brightness,
     double              gamma) {
     
-    Array<uint16> gammaRamp(256);
+    Array<uint16> gammaRamp;
+    gammaRamp.resize(256);
 
     for (int i = 0; i < 256; ++i) {
         gammaRamp[i] =

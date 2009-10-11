@@ -108,9 +108,12 @@ void MD2Model::load(const std::string& filename, float resize) {
     debugAssert(header.numVertices <= 4096);
 
     keyFrame.resize(header.numFrames);
-    Array<Vector3> frameMin(header.numFrames); 
-    Array<Vector3> frameMax(header.numFrames);
-    Array<double>  frameRad(header.numFrames);
+    Array<Vector3> frameMin;
+    frameMin.resize(header.numFrames); 
+    Array<Vector3> frameMax;
+    frameMax.resize(header.numFrames);
+    Array<double>  frameRad;
+    frameRad.resize(header.numFrames);
 
     texCoordScale.x = 1.0f / header.skinWidth;
     texCoordScale.y = 1.0f / header.skinHeight;
@@ -219,7 +222,8 @@ void MD2Model::load(const std::string& filename, float resize) {
     boundingSphere = Sphere(Vector3::zero(), sqrt(rad));
 
     // Load the texture coords
-    Array<Vector2int16> fileTexCoords(header.numTexCoords);
+    Array<Vector2int16> fileTexCoords;
+    fileTexCoords.resize(header.numTexCoords);
     b.setPosition(header.offsetTexCoords);
     for (int t = 0; t < fileTexCoords.size(); ++t) {
         fileTexCoords[t].x = b.readUInt16();
@@ -229,7 +233,8 @@ void MD2Model::load(const std::string& filename, float resize) {
     // The indices for the texture coords (which don't match the
     // vertex indices originally).
     indexArray.resize(header.numTriangles * 3);
-    Array<Vector2int16> index_texCoordArray(indexArray.size());
+    Array<Vector2int16> index_texCoordArray;
+    index_texCoordArray.resize(indexArray.size());
 
     // Read the triangles, reversing them to get triangle list order
     b.setPosition(header.offsetTriangles);
@@ -307,7 +312,8 @@ void MD2Model::computeTexCoords(
     // Table mapping original vertex indices to alternative locations
     // for that vertex (corresponding to different texture coords).
     // A zero length array means a vertex that was not yet seen.
-    Array< Array<int> > cloneListArray(numVertices);
+    Array< Array<int> > cloneListArray;
+    cloneListArray.resize(numVertices);
 
     _texCoordArray.resize(numVertices);
 

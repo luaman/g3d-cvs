@@ -157,7 +157,8 @@ void markShadows(
     }
 
     // Create an array of float4 for use on the graphics card.
-    Array<Vector4> cpuVertex(numPts);
+    Array<Vector4> cpuVertex;
+    cpuVertex.resize(numPts);
     vertexCopy(vertexArray, cpuVertex);
 
     if (directional) {

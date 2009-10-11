@@ -40,7 +40,8 @@ public:
             }
 
             VertexBufferRef area = VertexBuffer::create(sizeof(Vector3) * numVertices);
-            Array<Vector3> v(numVertices);
+            Array<Vector3> v;
+            v.resize(numVertices);
             
             for (int i = 0; i < numVertices; ++i) {
                 float s = count * i / (float)(numVertices - 1);

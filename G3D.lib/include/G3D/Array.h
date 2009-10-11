@@ -100,14 +100,15 @@ private:
 
     MemoryManager::Ref  m_memoryManager;
 
-    void init(int n, int a, const MemoryManager::Ref& m) {
+    /** \param n Number of elements
+    */
+    void init(int n, const MemoryManager::Ref& m) {
         m_memoryManager = m;
-        debugAssert(n <= a);
         debugAssert(n >= 0);
         this->num = 0;
         this->numAllocated = 0;
         data = NULL;
-        if (a > 0) {
+        if (n > 0) {
             resize(n);
         } else {
             data = NULL;
@@ -115,7 +116,7 @@ private:
     }
 
     void _copy(const Array &other) {
-        init(other.num, other.num, MemoryManager::create());
+        init(other.num, MemoryManager::create());
         for (int i = 0; i < num; i++) {
             data[i] = other.data[i];
         }
@@ -237,17 +238,52 @@ public:
        return data;
    }
 
-   /** Creates a zero length array (no heap allocation occurs until resize). */
-   Array() {
-       init(0, 0, MemoryManager::create());
-   }
+    /** Creates a zero length array (no heap allocation occurs until resize). */
+    Array() {
+        init(0, MemoryManager::create());
+    }
+    
 
-   /**
-    Creates an array of size.
-    */
-   Array(int size) {
-       init(size, size, MemoryManager::create());
-   }
+    /**  Creates an array containing v0. */
+    Array(const T& v0) {
+        init(1, MemoryManager::create());
+        *this[0] = v0;
+    }
+    
+    /**  Creates an array containing v0 and v1. */
+    Array(const T& v0, const T& v1) {
+        init(2, MemoryManager::create());
+        *this[0] = v0;
+        *this[1] = v1;
+    }
+    
+    /**  Creates an array containing v0...v2. */
+    Array(const T& v0, const T& v1, const T& v2) {
+       init(3, MemoryManager::create());
+       *this[0] = v0;
+       *this[1] = v1;
+       *this[2] = v2;
+    }
+
+    /** Creates an array containing v0...v3. */
+    Array(const T& v0, const T& v1, const T& v2, const T& v3) {
+       init(4, MemoryManager::create());
+       *this[0] = v0;
+       *this[1] = v1;
+       *this[2] = v2;
+       *this[3] = v3;
+    }
+
+    /** Creates an array containing v0...v4. */
+    Array(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4) {
+       init(4, MemoryManager::create());
+       *this[0] = v0;
+       *this[1] = v1;
+       *this[2] = v2;
+       *this[3] = v3;
+       *this[4] = v4;
+    }
+
 
    /**
     Copy constructor
@@ -368,28 +404,33 @@ public:
 
     /** @param shrinkIfNecessary if false, memory will never be
       reallocated when the array shrinks.  This makes resizing much
-      faster but can waste memory. */
-   void resize(int n, bool shrinkIfNecessary = true) {
-      int oldNum = num;
-      num = n;
+      faster but can waste memory. 
+    */
+    void resize(int n, bool shrinkIfNecessary = true) {
+        if (num == n) {
+            return;
+        }
 
-      // Call the destructors on newly hidden elements if there are any
-      for (int i = num; i < oldNum; ++i) {
-          (data + i)->~T();
-      }
+        int oldNum = num;
+        num = n;
 
-      // Once allocated, always maintain MIN_ELEMENTS elements or 32 bytes, whichever is higher.
-      const int minSize = std::max(MIN_ELEMENTS, (int)(MIN_BYTES / sizeof(T)));
+        // Call the destructors on newly hidden elements if there are any
+        for (int i = num; i < oldNum; ++i) {
+            (data + i)->~T();
+        }
+        
+        // Once allocated, always maintain MIN_ELEMENTS elements or 32 bytes, whichever is higher.
+        const int minSize = std::max(MIN_ELEMENTS, (int)(MIN_BYTES / sizeof(T)));
 
-      if ((MIN_ELEMENTS == 0) && (MIN_BYTES == 0) && (n == 0) && shrinkIfNecessary) {
-          // Deallocate the array completely
-          numAllocated = 0;
-          m_memoryManager->free(data);
-          data = NULL;
-          return;
-      }
-
-      if (num > numAllocated) {
+        if ((MIN_ELEMENTS == 0) && (MIN_BYTES == 0) && (n == 0) && shrinkIfNecessary) {
+            // Deallocate the array completely
+            numAllocated = 0;
+            m_memoryManager->free(data);
+            data = NULL;
+            return;
+        }
+        
+        if (num > numAllocated) {
           // Grow the underlying array
 
           if (numAllocated == 0) {

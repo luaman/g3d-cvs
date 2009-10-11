@@ -193,7 +193,8 @@ void MeshAlg::computeAdjacency(
     faceArray.clear();
     
     // Face normals
-    Array<Vector3> faceNormal(indexArray.size() / 3);
+    Array<Vector3> faceNormal;
+    faceNormal.resize(indexArray.size() / 3);
     faceArray.resize(faceNormal.size());
 
     // This array has the same size as the vertex array
@@ -343,7 +344,8 @@ void MeshAlg::computeAdjacency(
     // clean up the face references into them
     {
         // Map old edge indices to new edge indices
-        Array<int> newIndex(tempEdgeArray.size());
+        Array<int> newIndex;
+        newIndex.resize(tempEdgeArray.size());
 
         // Index of the start and end of the edge array
         int i = 0;
@@ -425,7 +427,8 @@ void MeshAlg::weldBoundaryEdges(
     // newEdgeIndex[e] is the new index of the old edge with index e
     // Note that newEdgeIndex[e] might be negative, indicating that
     // the edge switched direction between the arrays.
-    Array<int> newEdgeIndex(edgeArray.size());
+    Array<int> newEdgeIndex;
+    newEdgeIndex.resize(edgeArray.size());
     edgeArray.resize(0);
 
     // boundaryEdgeIndices[v_low] is an array of the indices of 
@@ -617,7 +620,8 @@ void MeshAlg::weldAdjacency(
     const int n = originalGeometry.size();
 
     // canonical[v] = first occurance of any vertex near oldVertexArray[v]
-    Array<int> canonical(n);
+    Array<int> canonical;
+    canonical.resize(n);
 
     Array<int> toNew, toOld;
     // Throw away the new vertex array

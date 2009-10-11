@@ -452,7 +452,8 @@ void Matrix::svd(Matrix& U, Array<T>& d, Matrix& V, bool sort) const {
     if (sort) {
         // Sort the singular values from greatest to least
 
-        Array<SortRank> rank(C);
+        Array<SortRank> rank;
+        rank.resize(C);
         for (int c = 0; c < C; ++c) {
             rank[c].col   = c;
             rank[c].value = d[c];

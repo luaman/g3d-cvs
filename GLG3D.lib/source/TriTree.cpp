@@ -225,7 +225,8 @@ float TriTree::Node::chooseSAHSplitLocationFast(Array<Poly>& source, Vector3::Ax
 
     // Find the one-sided cost of each position by a sweep.
     const int S = splitPosition.size();
-    Array<float> highCost(S);
+    Array<float> highCost;
+    highCost.resize(S);
     const float containingArea = bounds.area();
 
     // Sweep from above for the high-side cost

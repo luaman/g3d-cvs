@@ -144,7 +144,8 @@ void MeshAlg::computeNormals(
     Array<Vector3>&         faceNormalArray) {
 
     // Construct a fake vertex array for backwards compatibility
-    Array<Vertex> fakeVertexArray(adjacentFaceArray.size());
+    Array<Vertex> fakeVertexArray;
+    fakeVertexArray.resize(adjacentFaceArray.size());
 
     for (int v = 0; v < adjacentFaceArray.size(); ++v) {
         fakeVertexArray[v].faceIndex.resize(adjacentFaceArray[v].size());
@@ -347,9 +348,11 @@ void MeshAlg::computeAreaStatistics(
     double&                 maxFaceArea) {
 
     debugAssert(indexArray.size() % 3 == 0);
-
-    Array<double> area(indexArray.size() / 3);
-    Array<double> magnitude(indexArray.size());
+    
+    Array<double> area;
+    area.resize(indexArray.size() / 3);
+    Array<double> magnitude;
+    magnitude.resize(indexArray.size());
 
     for (int i = 0; i < indexArray.size(); i += 3) {
         const Vector3& v0 = vertexArray[indexArray[i]];
@@ -409,7 +412,8 @@ void MeshAlg::computeBounds(
     AABox&                  box, 
     Sphere&                 sphere) {
 
-    Array<Vector3> newArray(indexArray.size());
+    Array<Vector3> newArray;
+    newArray.resize(indexArray.size());
     for (int i = 0; i < indexArray.size(); ++i) {
         newArray[i] = vertexArray[indexArray[i]];
     }

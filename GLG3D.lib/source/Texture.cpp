@@ -48,8 +48,6 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
         y = height() - 1 - y;
     }
 
-    GLenum component = GL_RGBA;
-
     // Read back 1 pixel
     if (format()->depthBits == 0) {
         // This is a depth texture
@@ -509,7 +507,8 @@ Texture::Ref Texture::fromMemory(
     const Settings&                 settings,
     const PreProcess&               preprocess) {
 
-    Array< Array<const void*> > data(1);
+    Array< Array<const void*> > data;
+    data.resize(1);
     data[0].append(bytes);
 
     return fromMemory(name, 
@@ -737,8 +736,9 @@ Texture::Ref Texture::fromTwoFiles(
     debugAssert(desiredFormat);
 
     // The six cube map faces, or the one texture and 5 dummys.
-    Array< Array<const void*> > mip(1);
-	Array<const void*>& array = mip[0];
+    Array< Array<const void*> > mip;
+    mip.resize(1);
+    Array<const void*>& array = mip[0];
 
     const int numFaces = 
         ((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) ? 
@@ -893,7 +893,8 @@ Texture::Ref Texture::fromMemory(
         if (( bytesFormat->code == ImageFormat::CODE_RGB8) ||
             ( bytesFormat->code == ImageFormat::CODE_RGBA8)) {
 
-            bytesPtr = new MipArray(_bytes.size());
+            bytesPtr = new MipArray();
+            bytesPtr->resize(_bytes.size());
 
             for (int m = 0; m < bytesPtr->size(); ++m) {
                 Array<const void*>& face = (*bytesPtr)[m]; 
@@ -934,7 +935,8 @@ Texture::Ref Texture::fromMemory(
                                  preProcess.normalMapLowPassBump, preProcess.normalMapScaleHeightByNz);
         
         // Replace the previous array with the data from our normal map
-        bytesPtr = new MipArray(1);
+        bytesPtr = new MipArray();
+        bytesPtr->resize(1);
         (*bytesPtr)[0].append(normal.byte());
         
         bytesFormat = ImageFormat::RGBA8();
@@ -1158,7 +1160,8 @@ Texture::Ref Texture::createEmpty
 
     if ((dimension == DIM_CUBE_MAP) || (dimension == DIM_CUBE_MAP_NPOT)) {
         // Cube map requires six faces
-        Array< Array<const void*> > data(1);
+        Array< Array<const void*> > data;
+        data.resize(1);
         data[0].resize(6);
         for (int i = 0; i < 6; ++i) {
             data[0][i] = NULL;
@@ -1647,12 +1650,13 @@ Texture::Ref Texture::alphaOnlyVersion() const {
         m_dimension == DIM_2D_RECT ||
         m_dimension == DIM_2D_NPOT,
         "alphaOnlyVersion only supported for 2D textures");
-
+    
     int numFaces = 1;
 
-	Array< Array<const void*> > mip(1);
-	Array<const void*>& bytes = mip[0];
-	bytes.resize(numFaces);
+    Array< Array<const void*> > mip;
+    mip.resize(1);
+    Array<const void*>& bytes = mip[0];
+    bytes.resize(numFaces);
     const ImageFormat* bytesFormat = ImageFormat::A8();
 
     glStatePush();
