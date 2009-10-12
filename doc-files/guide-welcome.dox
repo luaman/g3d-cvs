@@ -19,11 +19,50 @@
 \endhtmlonly
 </p>
 
-<li> <p> \link guideoverview %G3D Overview \endlink</p>
+<li> <p>Welcome to %G3D
+\htmlonly
+<font size="3" >
+\endhtmlonly
+<ol>
+  <li>  \link guideoverview %G3D Overview \endlink
+  <li>  \link guidenewuser New User Guide \endlink
+</ol>
+  \htmlonly
+</font>
+\endhtmlonly
+<p>
 
-<li> <p> \link guidenewuser New User Guide \endlink</p>
+<li> <p> Reference Documentation
+\htmlonly
+<font size="3" >
+\endhtmlonly
+  <ol>
+     <li> <a class="el" href="apiindex.html">APIs by Abstraction Level</a>
+     <li> <a class="el" href="topicindex.html">APIs by Task</a>
+     <li> <a class="el" href="annoted.html">All APIs</a>
+     <li> <a class="el" href="dataindex.html">Data</a></p>
+  </ol>
+  \htmlonly
+</font>
+\endhtmlonly
+</p>
 
-<li> <p> <a class="el" href="http://g3d-cpp.wiki.sourceforge.net">G3D Wiki</a></p>
+<li> <p> <a class="el" href="http://sourceforge.net/apps/mediawiki/g3d-cpp/index.php?title=Main_Page">Concept and Tip Documentation</a> (Wiki)</p>
+
+<li> <p> Web Resources
+  \htmlonly
+<font size="3" >
+\endhtmlonly
+<ol>
+  <li> <a class="el" href="http://g3d-cpp.sourceforge.net">Web Page</a> (new releases, gallery)</p>
+  <li> <a class="el" href="https://sourceforge.net/projects/g3d-cpp/">SourceForge Page</a> (older releases, issue tracker)</p>
+  <li> <a class="el" href="http://groups.google.com/group/g3d-users/topics">Support Forum</a>
+  <li> <a class="el" href="http://g3d-cpp.cvs.sourceforge.net/g3d-cpp/G3D/">Library Source Code</a>
+</ol>
+\htmlonly
+</font>
+\endhtmlonly
+</p>
 
 <li> <p> <a class="el" href="icompile-manual.html" >iCompile Manual</a> (Unix)</p>
 
@@ -31,7 +70,8 @@
 \htmlonly<table width=250>
 <tr><td width=10%></td><td><a class="el" href="faq.html">General Questions</a></td><td></td></tr>
 <tr><td width=10%></td><td><a class="el" href="errorfaq.html">Common Errors</a></td><td></td></tr>
-<tr><td width=10%></td><td><a class="el" href="upgrade.html">Upgrading from 6.xx</a></td><td></td></tr>
+<tr><td width=10%></td><td><a class="el" href="upgrade8.html">Upgrading from 7.xx &rarr; 8.xx</a></td><td></td></tr>
+<tr><td width=10%></td><td><a class="el" href="upgrade.html">Upgrading from 6.xx &rarr; 7.xx</a></td><td></td></tr>
 </table>\endhtmlonly</p>
 
 <li> <p> About %G3D
