@@ -93,15 +93,15 @@
 			>
 		</File>
 		<File
+			RelativePath="..\doc-files\data-files\footer.html"
+			>
+		</File>
+		<File
 			RelativePath="..\doc-files\frequent.dox"
 			>
 		</File>
 		<File
 			RelativePath="..\doc-files\guide-concepts.dox"
-			>
-		</File>
-		<File
-			RelativePath="..\doc-files\guide-intro.dox"
 			>
 		</File>
 		<File
