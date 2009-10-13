@@ -115,7 +115,8 @@ public:
         }
     }
 
-    /** Face normal */
+    /** Face normal.  For degenerate triangles, this is zero.  For all other triangles
+    it has unit length and is defined by counter-clockwise winding. */
     inline const Vector3& normal() const {
         return n;
     }

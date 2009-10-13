@@ -44,7 +44,7 @@ Tri::Tri(
     m_packedTangent[1] = tan1;
     m_packedTangent[2] = tan2;
 
-    n = e1.cross(e2).direction();
+    n = e1.cross(e2).directionOrZero();
 }
 
 
