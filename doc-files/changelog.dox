@@ -143,6 +143,7 @@
      <li> Fix: CarbonWindow drop events are now relative to the window corner
      <li> Fix: OS X AtomicInt32::compareAndSet was not obtaining the old value in an atomic fashion in 7.01, leading to occasional livelock on SpinLock.
      <li> Fix: Changed order of event delivery for GuiWindow to match rendering order
+     <li> Fix: ArticulatedModel 3DS loader can now load models with more than 2^15 faces (int16-&rarr;uint16)
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

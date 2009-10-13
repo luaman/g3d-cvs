@@ -617,12 +617,14 @@ void Load3DS::processTriMeshChunk(
         case TRIFACEMAT:
             {
                 // Name of the material
+                debugAssert(object.faceMatArray.size() >= 0);
                 FaceMat& faceMat = object.faceMatArray.next();
                 faceMat.materialName = b->readString();
-                faceMat.faceIndexArray.resize(b->readInt16());
+                faceMat.faceIndexArray.resize(b->readUInt16());
+                debugAssert(faceMat.faceIndexArray.size() >= 0);
 
                 for (int i = 0; i < faceMat.faceIndexArray.size(); ++i) {
-                    faceMat.faceIndexArray[i] = b->readInt16();
+                    faceMat.faceIndexArray[i] = b->readUInt16();
                 }
             }
             break;

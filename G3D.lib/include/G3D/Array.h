@@ -410,6 +410,7 @@ public:
       faster but can waste memory. 
     */
     void resize(int n, bool shrinkIfNecessary = true) {
+        debugAssert(n >= 0);
         if (num == n) {
             return;
         }
