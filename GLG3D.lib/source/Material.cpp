@@ -226,6 +226,10 @@ size_t Material::SimilarHashCode::hashCode(const G3D::Material& mat) {
 }
 
 
+bool Material::hasAlphaMask() const {
+    return m_bsdf->lambertian().min().a < 1.0f;
+}
+
 
 
 } // namespace G3D

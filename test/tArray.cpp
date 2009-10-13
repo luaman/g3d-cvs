@@ -281,13 +281,15 @@ void perfArray() {
 
             System::beginCycleCount(arrayAllocBig);
             for (int i = 0; i < M; ++i) {
-                Array<Big> v(4);                
+                Array<Big> v;
+                v.resize(4);                
             }
             System::endCycleCount(arrayAllocBig);
 
             System::beginCycleCount(arrayAllocSmall);
             for (int i = 0; i < M; ++i) {
-                Array<int> v(4);
+                Array<int> v;
+                v.resize(4);
             }
             System::endCycleCount(arrayAllocSmall);
         }

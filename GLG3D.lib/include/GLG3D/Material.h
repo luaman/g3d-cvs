@@ -331,6 +331,9 @@ public:
       */
     void configure(VertexAndPixelShader::ArgList& a) const;
 
+    /** Returns true if this material has an alpha mask */
+    bool hasAlphaMask() const;
+
     /** Returns true if @a this material uses similar terms to @a
         other (used by G3D::SuperShader), although the actual textures
         may differ. */

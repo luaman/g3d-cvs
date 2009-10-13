@@ -218,7 +218,7 @@ void ArticulatedModel::init3DS(const std::string& filename, const PreProcess& pr
                                 const Material::Settings& spec = compute3DSMaterial(&material, path, preprocess);
                                 mat = Material::create(spec);
                             }
-                            twoSided = material.twoSided;
+                            twoSided = material.twoSided || mat->hasAlphaMask();
                         } else {
                             mat = Material::create();
                             logPrintf("Referenced unknown material '%s'\n", materialName.c_str());
