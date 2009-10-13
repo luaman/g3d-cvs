@@ -219,6 +219,17 @@ public:
         return m_settings;
     }
 
+    /** Controls the display of (x,y)=rgba when the mouse is over the box.
+        Defaults to true.  Note that displaying these values can significantly
+        impact performance because it must read back from the GPU to the CPU.*/
+    inline void setShowInfo(bool b) {
+        m_showInfo = b;
+    }
+
+    inline bool showInfo() const {
+        return m_showInfo;
+    }
+
     /** Sizes the control so that exactly \a dims of viewing space is available. 
         Useful for ensuring that textures are viewed at 1:1.*/
     void setSizeFromInterior(const Vector2& dims);

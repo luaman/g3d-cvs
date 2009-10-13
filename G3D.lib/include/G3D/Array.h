@@ -276,7 +276,7 @@ public:
 
     /** Creates an array containing v0...v4. */
     Array(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4) {
-       init(4, MemoryManager::create());
+       init(5, MemoryManager::create());
        *this[0] = v0;
        *this[1] = v1;
        *this[2] = v2;
