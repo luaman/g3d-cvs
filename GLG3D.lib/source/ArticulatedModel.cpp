@@ -63,7 +63,7 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, fl
 
 
 ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, const PreProcess& preprocess, const Settings& settings) {
-    debugAssertM(fileExists(filename),
+    alwaysAssertM(fileExists(filename),
         filename + " cannot be loaded by ArticulatedModel because it does not exist.");
 
     ArticulatedModel* model = new ArticulatedModel();
