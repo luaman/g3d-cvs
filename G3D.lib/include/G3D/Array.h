@@ -239,8 +239,9 @@ public:
    }
 
     /** Creates a zero length array (no heap allocation occurs until resize). */
-    Array() {
+    Array() : num(0) {
         init(0, MemoryManager::create());
+        debugAssert(num >= 0);
     }
     
 
@@ -288,8 +289,9 @@ public:
    /**
     Copy constructor
     */
-   Array(const Array& other) {
+    Array(const Array& other) : num(0) {
        _copy(other);
+       debugAssert(num >= 0);
    }
 
    /**
@@ -337,10 +339,11 @@ public:
     Assignment operator.
     */
    Array& operator=(const Array& other) {
-       resize(other.num);
-       for (int i = 0; i < num; ++i) {
+       debugAssert(num >= 0);
+       resize(other.num);       for (int i = 0; i < num; ++i) {
            data[i] = other[i];
        }
+       debugAssert(num >= 0);
        return *this;
    }
 
