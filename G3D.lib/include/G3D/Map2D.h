@@ -509,7 +509,9 @@ public:
         to be at the upper left corner, so <code>image->nearest(x, y) == image(x, y)</code>
       */
     inline Compute nearest(float x, float y, WrapMode wrap) const {
-        return Compute(get(iRound(x), iRound(y), wrap));
+        int ix = iRound(x);
+        int iy = iRound(y);
+        return Compute(get(ix, iy, wrap));
     }
 
     inline Compute nearest(float x, float y) const {
