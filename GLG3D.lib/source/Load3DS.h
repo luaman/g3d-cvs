@@ -631,7 +631,7 @@ void Load3DS::processTriMeshChunk(
 
         case TRI_TEXCOORDS:
             {
-                int n = b->readInt16();
+                int n = b->readUInt16();
                 if (n == object.vertexArray.size()) {
                     Array<Vector2>& texCoord = object.texCoordArray;
                     texCoord.resize(n);
@@ -840,7 +840,7 @@ void Load3DS::processChunk(const Load3DS::ChunkHeader& parentChunkHeader) {
 
                 case KFHIERARCHY:
                     if (currentObject != -1) {
-                        objectArray[currentObject].nodeID = b->readInt16();
+                        objectArray[currentObject].nodeID = b->readUInt16();
                     }
                     break;
         default:
