@@ -248,41 +248,41 @@ public:
     /**  Creates an array containing v0. */
     Array(const T& v0) {
         init(1, MemoryManager::create());
-        *this[0] = v0;
+        (*this)[0] = v0;
     }
     
     /**  Creates an array containing v0 and v1. */
     Array(const T& v0, const T& v1) {
         init(2, MemoryManager::create());
-        *this[0] = v0;
-        *this[1] = v1;
+        (*this)[0] = v0;
+        (*this)[1] = v1;
     }
     
     /**  Creates an array containing v0...v2. */
     Array(const T& v0, const T& v1, const T& v2) {
        init(3, MemoryManager::create());
-       *this[0] = v0;
-       *this[1] = v1;
-       *this[2] = v2;
+       (*this)[0] = v0;
+       (*this)[1] = v1;
+       (*this)[2] = v2;
     }
 
     /** Creates an array containing v0...v3. */
     Array(const T& v0, const T& v1, const T& v2, const T& v3) {
        init(4, MemoryManager::create());
-       *this[0] = v0;
-       *this[1] = v1;
-       *this[2] = v2;
-       *this[3] = v3;
+       (*this)[0] = v0;
+       (*this)[1] = v1;
+       (*this)[2] = v2;
+       (*this)[3] = v3;
     }
 
     /** Creates an array containing v0...v4. */
     Array(const T& v0, const T& v1, const T& v2, const T& v3, const T& v4) {
        init(5, MemoryManager::create());
-       *this[0] = v0;
-       *this[1] = v1;
-       *this[2] = v2;
-       *this[3] = v3;
-       *this[4] = v4;
+       (*this)[0] = v0;
+       (*this)[1] = v1;
+       (*this)[2] = v2;
+       (*this)[3] = v3;
+       (*this)[4] = v4;
     }
 
 
