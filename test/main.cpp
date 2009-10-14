@@ -463,7 +463,8 @@ void measureNormalizationPerformance() {
 
 void testColor3uint8Array() {
     printf("Array<Color3uint8>\n");
-    Array<Color3uint8> x(2);
+    Array<Color3uint8> x;
+    x.resize(2);
 
     debugAssert(sizeof(Color3uint8) == 3);
     x[0].r = 60;

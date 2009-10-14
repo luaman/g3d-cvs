@@ -512,11 +512,12 @@ public:
     inline RealTime desiredFrameDuration() const {
         return 1.0 / m_desiredFrameRate;
     }
-    
-    /** Invoke to change the size of the underlying Film. */
-    virtual void resize(int w, int h);
 
 protected:
+
+    /** Change the size of the underlying Film. Called by GApp::GApp() and GApp::onEvent(). This is not an event handler.  If you want 
+      to be notified when your app is resized, override GApp::onEvent to handle the resize event (just don't forget to call GApp::onEvent as well) */
+    void resize(int w, int h);
 
     /** Shorthand for developerWindow->cameraControlWindow->bookmark(name) */
     CoordinateFrame bookmark(const std::string& name, const CoordinateFrame& defaultValue = CoordinateFrame()) const;
