@@ -323,7 +323,8 @@ void perfPointHashGrid() {
 
     Stopwatch hashGridTimer;
     Stopwatch treeTimer;
-    Array<Vector3> pos(numSpheres);
+    Array<Vector3> pos;
+    pos.resize(numSpheres);
 
     for (int i = 0; i < numSpheres; ++i) {
         pos[i] = v.randomElement();
