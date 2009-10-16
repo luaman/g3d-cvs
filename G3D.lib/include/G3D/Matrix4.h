@@ -6,7 +6,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
  
   @created 2003-10-02
-  @edited  2009-05-20
+  @edited  2009-10-20
  */
 
 #ifndef G3D_Matrix4_h
@@ -197,6 +197,23 @@ public:
     /** 3D translation matrix */
     inline static Matrix4 translation(const Vector3& v) {
         return Matrix4(Matrix3::identity(), v);
+    }
+
+    inline static Matrix4 translation(float x, float y, float z) {
+        return Matrix4(Matrix3::identity(), Vector3(x, y, z));
+    }
+
+    /** Create a rotation matrix that rotates \a deg degrees around the Y axis */ 
+    inline static Matrix4 yawDegrees(float deg) {
+        return Matrix4(Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(deg)));
+    }
+
+    inline static Matrix4 pitchDegrees(float deg) {
+        return Matrix4(Matrix3::fromAxisAngle(Vector3::unitX(), toRadians(deg)));
+    }
+
+    inline static Matrix4 rollDegrees(float deg) {
+        return Matrix4(Matrix3::fromAxisAngle(Vector3::unitZ(), toRadians(deg)));
     }
 };
 

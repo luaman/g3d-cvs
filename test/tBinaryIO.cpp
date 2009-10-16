@@ -170,7 +170,8 @@ static void testCompression() {
 
 
 static void measureSerializerPerformance() {
-    Array<uint8> x(1024);
+    Array<uint8> x;
+    x.resize(1024);
     RealTime t0 = System::time();
     Matrix4 M(Matrix4::identity());
     

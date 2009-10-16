@@ -563,7 +563,8 @@ void perfArray() {
 
         System::beginCycleCount(arrayAllocBig);
         {
-            Array<Big> array(size);
+            Array<Big> array;
+            array.resize(size);
             System::endCycleCount(arrayAllocBig);
             System::beginCycleCount(arrayAccessBig);
             LOOPS;
@@ -587,7 +588,8 @@ void perfArray() {
 
         System::beginCycleCount(vectorAllocBig);
         {
-            std::vector<Big> array(size);
+            std::vector<Big> array;
+            array.resize(size);
             System::endCycleCount(vectorAllocBig);
             System::beginCycleCount(vectorAccessBig);
             LOOPS;
