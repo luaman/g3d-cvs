@@ -354,6 +354,12 @@ public:
         static const Settings& video();
 
         /** 
+          Useful defaults for general purpose computing.
+          NEAREST_NO_MIPMAP / CLAMP / DEPTH_NORMAL / 1.0 / false
+        */
+        static const Settings& buffer();
+
+        /** 
           Useful defaults for shadow maps.
           BILINEAR_NO_MIPMAP / CLAMP / DEPTH_LEQUAL / 1.0 / false
         */

@@ -28,12 +28,13 @@ public:
 
 
         /** World-space offset from polygon surface to apply for parallax/displacement mapping.*/
-        float           bias; // Called "bias" instead of "offset" to avoid confusion with the computed parallax offset
+        // Called "bias" instead of "offset" to avoid confusion with the computed parallax offset
+        float           bias; 
 
         /**
-           - 0  = Blinn normal map
-           - 1  = Kaneko-Welsh parallax map
-           - >1 = Tatarchuk parallax occlusion map ("steep parallax map")
+          - 0  = Blinn normal map (default)
+          - 1  = Kaneko-Welsh parallax map
+          - >1 = Tatarchuk parallax occlusion map ("steep parallax map")
          */
         int            iterations;
 
