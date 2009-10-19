@@ -88,6 +88,7 @@ private:
 
     std::string                 m_name;
 
+    const ImageFormat*          m_format;
     const ImageFormat*          m_depthFormat;
 
     /** Renders the SuperSurface Material SuperBSDF coefficients
@@ -116,7 +117,7 @@ private:
     /** Depth texture. */
     Texture::Ref                m_depth;
 
-    GBuffer(const std::string& name, const ImageFormat* depthFormat);
+    GBuffer(const std::string& name, const ImageFormat* depthFormat, const ImageFormat* otherFormat);
 
     void computeGeneric
     (RenderDevice* rd, 
@@ -141,7 +142,8 @@ public:
 
     static Ref create
     (const std::string& name,
-     const ImageFormat* depthFormat = ImageFormat::DEPTH24());
+     const ImageFormat* depthFormat = ImageFormat::DEPTH24(),     
+     const ImageFormat* otherFormat = ImageFormat::RGBA16F());
 
     virtual ~GBuffer();
 

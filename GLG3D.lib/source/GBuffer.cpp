@@ -10,8 +10,9 @@ namespace G3D {
 
 GBuffer::Ref GBuffer::create
 (const std::string& name,
- const ImageFormat* depthFormat) {
-    return new GBuffer(name, depthFormat);
+ const ImageFormat* depthFormat,
+ const ImageFormat* format) {
+    return new GBuffer(name, depthFormat, format);
 }
 
 
@@ -23,9 +24,10 @@ bool GBuffer::supported() {
 }
 
 
-GBuffer::GBuffer(const std::string& name, const ImageFormat* fmt) : 
+GBuffer::GBuffer(const std::string& name, const ImageFormat* depthFmt, const ImageFormat* otherFormat) : 
     m_name(name),
-    m_depthFormat(fmt) {
+    m_depthFormat(depthFmt),
+    m_format(otherFormat) {
 
     int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
     alwaysAssertM(maxAttach >= 5, 
@@ -102,16 +104,14 @@ void GBuffer::resize(int w, int h) {
     m_normal       = NULL;
     m_depth        = NULL;
 
-    const ImageFormat* fmt = ImageFormat::RGBA16F();
-
     Texture::Settings settings = Texture::Settings::buffer();
 
     // All color buffers have to be in the same format
-    m_lambertian   = Texture::createEmpty("Lambertian",   w, h, fmt, Texture::DIM_2D_NPOT, settings);
-    m_specular     = Texture::createEmpty("Specular",     w, h, fmt, Texture::DIM_2D_NPOT, settings);
-    m_transmissive = Texture::createEmpty("Transmissive", w, h, fmt, Texture::DIM_2D_NPOT, settings);
-    m_position     = Texture::createEmpty("Position",     w, h, fmt, Texture::DIM_2D_NPOT, settings);
-    m_normal       = Texture::createEmpty("Normal",       w, h, fmt, Texture::DIM_2D_NPOT, settings);
+    m_lambertian   = Texture::createEmpty("Lambertian",   w, h, m_format, Texture::DIM_2D_NPOT, settings);
+    m_specular     = Texture::createEmpty("Specular",     w, h, m_format, Texture::DIM_2D_NPOT, settings);
+    m_transmissive = Texture::createEmpty("Transmissive", w, h, m_format, Texture::DIM_2D_NPOT, settings);
+    m_position     = Texture::createEmpty("Position",     w, h, m_format, Texture::DIM_2D_NPOT, settings);
+    m_normal       = Texture::createEmpty("Normal",       w, h, m_format, Texture::DIM_2D_NPOT, settings);
     m_depth        = Texture::createEmpty("Depth",        w, h, m_depthFormat, Texture::DIM_2D_NPOT, settings);
 
     // Lambertian must be attachment 0 because alpha test is keyed off of it.
