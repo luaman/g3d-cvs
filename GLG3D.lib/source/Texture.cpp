@@ -41,6 +41,10 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
     Texture* me = const_cast<Texture*>(this);
     const Framebuffer::Ref& fbo = workingFramebuffer();
 
+    if (rd == NULL) {
+        rd = RenderDevice::lastRenderDeviceCreated;
+    }
+
     // Binding to a G3D framebuffer destroys the invertY flag so we save it here
     const bool oldInvertY = invertY;
     Color4 c;
