@@ -9,6 +9,7 @@ This page lists the most commonly used %G3D APIs grouped into functional tasks:
 <td>
 <ul>
 <li><a href="#scene1">Primary Scene Graph</a>
+<li><a href="#immediate">Immediate Mode Rendering</a>
 <li><a href="#debugging">Debugging</a>
 <li><a href="#profiling">Profiling</a>
 <li><a href="#guix">2D Graphical User Interface</a>
@@ -71,6 +72,18 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr height=3 ><td colspan=2 ></td></tr>
 
 <tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole camera with clipping planes</td></tr>
+</table>
+
+
+@section immediate Immediate Mode Rendering
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=30% ></td><td width=65%></td></tr>
+<tr><td></td><td>\link G3D::RenderDevice <b>RenderDevice</b>\endlink</td><td>\copybrief G3D::RenderDevice</td></tr>
+<tr><td></td><td>\link G3D::Texture <b>Texture</b>\endlink</td><td>\copybrief G3D::Texture</td></tr>
+<tr><td></td><td>\link G3D::Shader <b>Shader</b>\endlink</td><td>\copybrief G3D::Shader</td></tr>
+<tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>\copybrief G3D::Framebuffer</td></tr>
+<tr><td></td><td>\link G3D::VertexBuffer <b>VertexBuffer</b>\endlink</td><td>\copybrief G3D::VertexBuffer</td></tr>
+<tr><td></td><td>\link G3D::VertexRange <b>VertexRange</b>\endlink</td><td>\copybrief G3D::VertexRange</td></tr>
 </table>
 
 @section debugging Debugging
