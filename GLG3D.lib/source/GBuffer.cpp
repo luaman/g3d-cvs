@@ -104,9 +104,7 @@ void GBuffer::resize(int w, int h) {
 
     const ImageFormat* fmt = ImageFormat::RGBA16F();
 
-    Texture::Settings settings = Texture::Settings::video();
-    settings.interpolateMode = Texture::NEAREST_NO_MIPMAP;
-    settings.wrapMode = WrapMode::CLAMP;
+    Texture::Settings settings = Texture::Settings::buffer();
 
     // All color buffers have to be in the same format
     m_lambertian   = Texture::createEmpty("Lambertian",   w, h, fmt, Texture::DIM_2D_NPOT, settings);
