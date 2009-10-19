@@ -68,11 +68,11 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr><td></td><td>\indent\link G3D::SuperShader::ExtraLightPass ExtraLightPass\endlink</td><td> </td></tr>
 <tr><td></td><td>\indent\link G3D::SuperShader::ShadowedPass ShadowedPass\endlink</td><td> </td></tr>
 <tr><td></td><td>\indent\indent\link G3D::ShadowMap ShadowMap\endlink</td><td> </td></tr>
+<tr><td></td><td>\indent\link G3D::GBuffer GBuffer\endlink</td><td>\copybrief G3D::GBuffer</td></tr>
 
 <tr height=3 ><td colspan=2 ></td></tr>
 
 <tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole camera with clipping planes</td></tr>
-<tr><td></td><td>\link G3D::GBuffer <b>GBuffer</b>\endlink</td><td>\copybrief G3D::GBuffer</td></tr>
 </table>
 
 
