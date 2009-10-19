@@ -36,7 +36,8 @@ class AnyVal;
 typedef ReferenceCountedPointer<Texture> TextureRef;
 
 /**
- @brief A 2D array (e.g., an image) stored on the GPU
+ @brief A 1D, 2D, or 3D array (e.g., an image) stored on the GPU, commonly used for
+  mapping reflectance values (colors) over meshes.
 
  Abstraction of OpenGL textures.  This class can be used with raw OpenGL, 
  without RenderDevice.  G3D::Texture supports all of the image formats

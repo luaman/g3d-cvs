@@ -29,6 +29,8 @@ namespace G3D {
 typedef ReferenceCountedPointer<class Framebuffer> FramebufferRef;
 
 /**
+ @brief Holds a set of G3D::Textures or G3D::Renderbuffers for use as draw targets.
+ 
  Abstraction of OpenGL's Framebuffer Object.  This is an efficient way
  of rendering to Textures. 
 

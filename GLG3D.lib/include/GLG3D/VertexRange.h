@@ -20,7 +20,9 @@ class RenderDevice;
 
 
 /**
- @brief A pointer to a "Vertex Arrray" of data (e.g., vertices,
+ @brief A block of GPU memory storing a stream of vector data (e.g., vertices, normals, texture coordinates)
+ 
+ A pointer to a "Vertex Arrray" of data (e.g., vertices,
  colors, or normals) in video memory.
 
  A VertexRange is just a pointer, so it is safe to copy these (the pointer

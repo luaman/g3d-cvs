@@ -22,18 +22,19 @@ class RenderDevice;
 typedef ReferenceCountedPointer<class VertexBuffer> VertexBufferRef;
 
 /**
+ @brief A block of GPU memory within which G3D::VertexRanges can be allocated.
+
  Wrapper for OpenGL Vertex Buffer Object
  http://oss.sgi.com/projects/ogl-sample/registry/ARB/vertex_buffer_object.txt
  http://developer.nvidia.com/docs/IO/8230/GDC2003_OGL_BufferObjects.ppt
 
- Allocate a VertexBuffer, then allocate VARs within it.  VARAreas are garbage
- collected.  When no pointers remain to VARs inside it or the VertexBuffer itself,
+ Allocate a VertexBuffer, then allocate VertexRanges within it.  VertexBuffer are garbage
+ collected: when no pointers remain to VertexRanges inside it or the VertexBuffer itself,
  it will automatically be reclaimed by the system.
 
- You cannot mix pointers from different VARAreas when rendering.  For
+ You cannot mix pointers from different VertexBuffers when rendering.  For
  example, if the vertex VertexRange is in one VertexBuffer, the normal VertexRange and color
  VertexRange must come from the same area.
-
 
  You can't find out how much space is left for VARAreas in video memory,
  except by checking the VertexBuffer::create value and seeing if it is NULL.

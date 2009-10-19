@@ -10,9 +10,9 @@ This page lists the most commonly used %G3D APIs grouped into functional tasks:
 <ul>
 <li><a href="#scene1">Primary Scene Graph</a>
 <li><a href="#immediate">Immediate Mode Rendering</a>
+<li><a href="#guix">2D Graphical User Interface</a>
 <li><a href="#debugging">Debugging</a>
 <li><a href="#profiling">Profiling</a>
-<li><a href="#guix">2D Graphical User Interface</a>
 <li><a href="#scene">All Scene Graph</a>
 <li><a href="#shadows">Shadows</a>
 </ul>
@@ -72,6 +72,7 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr height=3 ><td colspan=2 ></td></tr>
 
 <tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole camera with clipping planes</td></tr>
+<tr><td></td><td>\link G3D::GBuffer <b>GBuffer</b>\endlink</td><td>\copybrief G3D::GBuffer</td></tr>
 </table>
 
 
@@ -84,6 +85,26 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr><td></td><td>\link G3D::Framebuffer <b>Framebuffer</b>\endlink</td><td>\copybrief G3D::Framebuffer</td></tr>
 <tr><td></td><td>\link G3D::VertexBuffer <b>VertexBuffer</b>\endlink</td><td>\copybrief G3D::VertexBuffer</td></tr>
 <tr><td></td><td>\link G3D::VertexRange <b>VertexRange</b>\endlink</td><td>\copybrief G3D::VertexRange</td></tr>
+</table>
+
+@section guix 2D Graphical User Interface
+<table width=90% border=0 >
+<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::GApp <b>GApp</b>\endlink</td><td>\copybrief G3D::GApp</td></tr>
+<tr><td></td><td>\link G3D::GuiPane <b>GuiPane</b>\endlink</td><td>Container and creator of other GUI controls; obtained from a GuiWindow </td></tr>
+<tr><td></td><td>\link G3D::GuiWindow <b>GuiWindow</b>\endlink</td><td>Skinnable GUI (documentation contains GUI sample code)</td></tr>
+<tr><td></td><td>\link G3D::GEvent <b>GEvent</b>\endlink, \link G3D::GEventType <b>GEventType</b>\endlink</td><td>Event class and type enum, used inside an event handler</td></tr>
+<tr><td></td><td>\link G3D::GFont <b>GFont</b>\endlink</td><td>Explicitly render text</td></tr>
+<tr><td></td><td>\link G3D::GApp::onEvent <b>GApp::onEvent</b>\endlink, \link G3D::GApp::onUserInput<b>GApp::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
+<tr><td></td><td>\link G3D::BackgroundWidget BackgroundWidget\endlink</td><td>\copybrief G3D::BackgroundWidget</td></tr>
+<tr><td></td><td>\link G3D::UserInput UserInput\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
+<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink, \link G3D::GuiTextureBox GuiTextureBox\endlink</td><td>GUI controls created by GuiPanel </td></tr>
+<tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
+<tr><td></td><td>\link G3D::Surface2D Surface2D\endlink</td><td>2D object scene graph, used by Widgets for rendering</td></tr>
+<tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td>\copybrief G3D::Manipulator</td></tr>
+<tr><td></td><td>\indent\link G3D::FirstPersonManipulator <b>FirstPersonManipulator</b>\endlink</td><td>\copybrief G3D::FirstPersonManipulator</td></tr>
+<tr><td></td><td>\indent\link G3D::ThirdPersonManipulator <b>ThirdPersonManipulator</b>\endlink</td><td>\copybrief G3D::ThirdPersonManipulator</td></tr>
+<tr><td></td><td>\link G3D::msgBox msgBox\endlink</td><td>Create a new OS window popup message</td></tr>
 </table>
 
 @section debugging Debugging
@@ -121,26 +142,9 @@ shader-driven GPU rendering and CPU ray tracing.
 <tr><td></td><td>\link G3D::System::beginCycleCount System::beginCycleCount\endlink, \link G3D::System::endCycleCount System::endCycleCount\endlink</td><td>Cycle-accurate timing of very short routines </td></tr>
 </table>
 
-@section guix 2D Graphical User Interface
-<table width=90% border=0 >
-<tr><td width=5% ></td><td width=25% ></td><td></td></tr>
-<tr><td></td><td>\link G3D::GuiWindow <b>GuiWindow</b>\endlink</td><td>Skinnable GUI (documentation contains GUI sample code)</td></tr>
-<tr><td></td><td>\link G3D::GuiPane <b>GuiPane</b>\endlink</td><td>Container and creator of other GUI controls; obtained from a GuiWindow </td></tr>
-<tr><td></td><td>\link G3D::GEvent <b>GEvent</b>\endlink, \link G3D::GEventType <b>GEventType</b>\endlink</td><td>Event class and type enum, used inside an event handler</td></tr>
-<tr><td></td><td>\link G3D::GFont <b>GFont</b>\endlink</td><td>Explicitly render text</td></tr>
-<tr><td></td><td>\link G3D::GApp::onEvent <b>GApp::onEvent</b>\endlink, \link G3D::GApp::onUserInput<b>GApp::onUserInput</b>\endlink</td><td>Overridable event handlers</td></tr>
-<tr><td></td><td>\link G3D::BackgroundWidget BackgroundWidget\endlink</td><td>\copybrief G3D::BackgroundWidget</td></tr>
-<tr><td></td><td>\link G3D::UserInput UserInput\endlink</td><td>Pollable keyboard, mouse, and joystick state used inside an event handler </td></tr>
-<tr><td></td><td>\link G3D::GuiButton GuiButton\endlink, \link G3D::GuiCheckBox GuiCheckBox\endlink, \link G3D::GuiDropDownList GuiDropDownList\endlink, \link G3D::GuiSlider GuiSlider\endlink, \link G3D::GuiRadioButton GuiRadioButton\endlink, \link G3D::GuiLabel GuiLabel\endlink, \link G3D::GuiTextBox GuiTextBox\endlink, \link G3D::GuiTextureBox GuiTextureBox\endlink</td><td>GUI controls created by GuiPanel </td></tr>
-<tr><td></td><td>\link G3D::Widget Widget\endlink</td><td></td></tr>
-<tr><td></td><td>\link G3D::Surface2D Surface2D\endlink</td><td>2D object scene graph, used by Widgets for rendering</td></tr>
-<tr><td></td><td>\link G3D::Manipulator Manipulator\endlink</td><td>\copybrief G3D::Manipulator</td></tr>
-<tr><td></td><td>\indent\link G3D::FirstPersonManipulator <b>FirstPersonManipulator</b>\endlink</td><td>\copybrief G3D::FirstPersonManipulator</td></tr>
-<tr><td></td><td>\indent\link G3D::ThirdPersonManipulator <b>ThirdPersonManipulator</b>\endlink</td><td>\copybrief G3D::ThirdPersonManipulator</td></tr>
-<tr><td></td><td>\link G3D::msgBox msgBox\endlink</td><td>Create a new OS window popup message</td></tr>
-</table>
 
-@section scene Scene Graph
+
+@section scene Supplemental Scene Graph
 
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
