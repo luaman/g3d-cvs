@@ -569,6 +569,9 @@ void Load3DS::processTriMeshChunk(
                     const Vector3& vec = object.vertexArray[v];
                     debugAssert(vec.isFinite());
 #                   endif
+                    if (! object.vertexArray[v].isFinite()) {
+                        object.vertexArray[v] = Vector3::zero();
+                    }
                 }
                 debugAssert(b->getPosition() == curChunkHeader.end);
             }
