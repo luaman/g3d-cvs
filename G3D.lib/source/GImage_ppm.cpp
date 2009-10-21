@@ -17,21 +17,40 @@ namespace G3D {
 void GImage::encodePPMASCII(
     BinaryOutput&       out) const {
 
-    debugAssert(m_channels == 3);
-
     TextOutput::Settings ppmOptions;
     ppmOptions.convertNewlines = false;
     ppmOptions.numColumns = 70;
     ppmOptions.wordWrap = TextOutput::Settings::WRAP_WITHOUT_BREAKING;
     TextOutput ppm(ppmOptions);
-    // Always write out a full-color ppm
-    ppm.printf("P3\n%d %d\n255\n", m_width, m_height);
-    
-    const Color3uint8* c = this->pixel3();
-    for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
-        ppm.printf("%d %d %d%c", c[i].r, c[i].g, c[i].b, 
-            ((i % ((m_width * 3) - 1)) == 0) ?
-            '\n' : ' '); 
+
+    switch (m_channels) {
+    case 1:
+        {
+            ppm.printf("P2\n%d %d\n255\n", m_width, m_height);
+            
+            const Color3uint8* c = this->pixel1();
+            // Insert newlines every 70 characters max
+            for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
+                ppm.printf("%d %c", c[i].value, (i % (70/12) == 0) ? '\n' : ' '); 
+            }
+        }
+        break;
+
+    case 3:
+        {
+            ppm.printf("P3\n%d %d\n255\n", m_width, m_height);
+            
+            const Color3uint8* c = this->pixel3();
+            // Insert newlines every 70 characters max
+            for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
+                ppm.printf("%d %d %d%c", c[i].r, c[i].g, c[i].b, 
+                    (i % (70/12) == 0) ?
+                    '\n' : ' '); 
+            }
+        }
+        break;
+    default:
+        alwaysAssertM(false, "PPM requires either 1 or 3 channels exactly.");
     }
 
     out.writeString(ppm.commitString());
