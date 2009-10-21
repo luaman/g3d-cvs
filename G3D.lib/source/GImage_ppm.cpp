@@ -28,7 +28,7 @@ void GImage::encodePPMASCII(
         {
             ppm.printf("P2\n%d %d\n255\n", m_width, m_height);
             
-            const Color3uint8* c = this->pixel1();
+            const Color1uint8* c = this->pixel1();
             // Insert newlines every 70 characters max
             for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
                 ppm.printf("%d %c", c[i].value, (i % (70/12) == 0) ? '\n' : ' '); 
