@@ -31,7 +31,7 @@ void GImage::encodePPMASCII(
             const Color1uint8* c = this->pixel1();
             // Insert newlines every 70 characters max
             for (uint32 i = 0; i < (uint32)(m_width * m_height); ++i) {
-                ppm.printf("%d %c", c[i].value, (i % (70/12) == 0) ? '\n' : ' '); 
+                ppm.printf("%d%c", c[i].value, (i % (70/4) == 0) ? '\n' : ' '); 
             }
         }
         break;
@@ -53,7 +53,8 @@ void GImage::encodePPMASCII(
         alwaysAssertM(false, "PPM requires either 1 or 3 channels exactly.");
     }
 
-    out.writeString(ppm.commitString());
+    const std::string& s = ppm.commitString();
+    out.writeBytes(s.c_str(), s.length());
 }
 
 
