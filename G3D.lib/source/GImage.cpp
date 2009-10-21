@@ -394,7 +394,7 @@ GImage::Format GImage::resolveFormat(
     std::string extension = toUpper(filenameExt(filename));
 
     if (extension == "PPM") {
-        // There are two PPM formats; we handle them differently
+        // There are two PPM formats (binary and ASCII); we handle them differently
         if (dataLen > 3) {
             if (!memcmp(data, "P6", 2)) {
                 return PPM;
@@ -424,8 +424,9 @@ GImage::Format GImage::resolveFormat(
     }
 
     if (dataLen > 8) {
-        if (!png_sig_cmp((png_bytep)data, 0, 8))
+        if (!png_sig_cmp((png_bytep)data, 0, 8)) {
             return PNG;
+        }
     }
 
     if ((dataLen > 0) && (data[0] == 'B')) {
@@ -734,6 +735,10 @@ GImage::Format GImage::stringToFormat(
         return PNG;
     } else if (extension == "PPM") {
         return PPM;
+    } else if (extension == "PGM") {
+        return PGM;
+    } else if (extension == "PBM") {
+        return PBM;
     } else {
         return UNKNOWN;
     }

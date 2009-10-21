@@ -40,26 +40,24 @@ class BinaryOutput;
 /**
   Interface to image compression & file formats. 
  
-  Supported formats (decode and encode): Color JPEG, PNG, (Uncompressed)TGA 24, (Uncompressed)TGA 32, BMP 1, BMP 4, BMP 8, BMP 24, PPM (P6), and PPM ASCII (P1, P2, P3).
+  Supported formats (decode and encode): Color JPEG, PNG, (Uncompressed)TGA 24, (Uncompressed)TGA 32, BMP 1, BMP 4, BMP 8, BMP 24, PPM (P6), and PPM ASCII (P1, P2, P3), which includes PPM, PGM, and PBM.
   8-bit paletted PCX, 24-bit PCX, and ICO are supported for decoding only.
 
   Sample usage:
 
   \verbatim
-    #include "graphics3D.h"
-
     // Loading from disk:
-    G3D::GImage im1 = G3D::GImage("test.jpg");
+    G3D::GImage im1("test.jpg");
     
     // Loading from memory:
-    G3D::GImage im2 = G3D::GImage(data, length);
+    G3D::GImage im2(data, length);
 
     // im.pixel is a pointer to RGB color data.  If you want
     // an alpha channel, call RGBtoRGBA or RGBtoARGB for
     // conversion.
 
     // Saving to memory:
-    G3D::GImage im3 = G3D::GImage(width, height);
+    G3D::GImage im3(width, height);
     // (Set the pixels of im3...) 
     uint8* data2;
     int    len2;
@@ -101,7 +99,16 @@ public:
         std::string filename;
     };
 
-    enum Format {JPEG, BMP, TGA, PCX, ICO, PNG, PPM_ASCII, PPM, AUTODETECT, UNKNOWN};
+    enum Format {JPEG, BMP, TGA, PCX, ICO, PNG, 
+        PPM,
+        PPM_ASCII, 
+        P1 = PPM_ASCII,
+        P2 = PPM_ASCII, 
+        P3 = PPM_ASCII,
+        P6 = PPM,
+        PBM = P1, 
+        PGM = P2,
+        AUTODETECT, UNKNOWN};
 
 
     /**
