@@ -62,13 +62,17 @@ void GImage::encodePPM(
     BinaryOutput&       out) const {
 
     // http://netpbm.sourceforge.net/doc/ppm.html
-    debugAssert(m_channels == 3);
-
-    std::string header = format("P6 %d %d 255 ", m_width, m_height);
-
-    out.writeBytes(header.c_str(), header.size());
-
-    out.writeBytes(this->pixel3(), m_width * m_height * 3);
+    if (m_channels == 3) {
+        std::string header = format("P6 %d %d 255 ", m_width, m_height);
+        out.writeBytes(header.c_str(), header.size());
+        out.writeBytes(this->pixel3(), m_width * m_height * 3);
+    } else if (m_channels == 1) {
+        std::string header = format("P5 %d %d 255 ", m_width, m_height);
+        out.writeBytes(header.c_str(), header.size());
+        out.writeBytes(this->pixel1(), m_width * m_height);
+    } else {
+        alwaysAssertM(false, "PPM requires either 1 or 3 channels exactly.");
+    }
 }
 
 
@@ -179,7 +183,7 @@ void GImage::decodePPM(
     int w, h;
 
     input.readBytes(head, 2);
-    if (head[0] != 'P' || head[1] != '6') {
+    if (head[0] != 'P' || (head[1] != '6') && (head[1] != '5')) {
         throw GImage::Error("Invalid PPM Header.", input.getFilename());
     }
 
@@ -199,9 +203,15 @@ void GImage::decodePPM(
     // Trailing whitespace
     input.readUInt8();
 
-    resize(w, h, 3);
-
-    input.readBytes(m_byte, m_width * m_height * 3);
+    if (head[1] == '6') {
+        // 3 channel
+        resize(w, h, 3);
+        input.readBytes(m_byte, m_width * m_height * 3);
+    } else if (head[1] == '5') {
+        // 1 channel
+        resize(w, h, 1);
+        input.readBytes(m_byte, m_width * m_height);
+    }
 }
 
 }

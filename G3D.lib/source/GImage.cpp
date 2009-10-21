@@ -396,7 +396,7 @@ GImage::Format GImage::resolveFormat(
     if (extension == "PPM") {
         // There are two PPM formats (binary and ASCII); we handle them differently
         if (dataLen > 3) {
-            if (!memcmp(data, "P6", 2)) {
+            if (!memcmp(data, "P6", 2) || !memcmp(data,"P5", 2)) {
                 return PPM;
             } else {
                 return PPM_ASCII;
@@ -419,7 +419,7 @@ GImage::Format GImage::resolveFormat(
         return PPM_ASCII;
     }
 
-    if ((dataLen > 3) && !memcmp(data, "P6", 2)) {
+    if ((dataLen > 3) && (!memcmp(data, "P6", 2) ||!memcmp(data, "P5", 2))) {
         return PPM;
     }
 

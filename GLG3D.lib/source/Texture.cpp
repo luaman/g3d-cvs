@@ -1419,8 +1419,10 @@ bool Texture::isSupportedImage(const std::string& filename) {
 		(ext == "tga") || 
 		(ext == "bmp") ||
 		(ext == "ppm") ||
+		(ext == "pgm") ||
+		(ext == "pbm") ||
 		(ext == "pcx")) {
-			return true;
+		return true;
 	} else {
 		return false;
 	}
