@@ -348,8 +348,10 @@ public:
         computeFaceNormals(unrolledVertexArray, unrolledFaceNormalArray);
 
         // Compute smooth normals at vertices.
-        smoothNormals(unrolledVertexArray, unrolledFaceNormalArray, unrolledSmoothNormalArray);
-        unrolledFaceNormalArray.clear();
+        if (unrolledFaceNormalArray.size() > 0) {
+            smoothNormals(unrolledVertexArray, unrolledFaceNormalArray, unrolledSmoothNormalArray);
+            unrolledFaceNormalArray.clear();
+        }
 
         // Regenerate the triangle lists
         updateTriLists(indexArrayArray, unrolledVertexArray, unrolledSmoothNormalArray, unrolledTexCoordArray);

@@ -597,7 +597,12 @@ void ArticulatedModel::Part::TriList::updateVAR
 
 
 void ArticulatedModel::Part::TriList::computeBounds(const Part& parentPart) {
-    MeshAlg::computeBounds(parentPart.geometry.vertexArray, indexArray, boxBounds, sphereBounds);
+    if (indexArray.size() > 0) { 
+        MeshAlg::computeBounds(parentPart.geometry.vertexArray, indexArray, boxBounds, sphereBounds);
+    } else {
+        boxBounds = AABox();
+        sphereBounds = Sphere();
+    }
 }
 
 
