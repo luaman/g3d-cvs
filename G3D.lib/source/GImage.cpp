@@ -202,7 +202,7 @@ void GImage::decode(
         decodePPMASCII(input);
         break;
 
-    case PPM:
+    case PPM_BINARY:
         decodePPM(input);
         break;
 
@@ -393,11 +393,11 @@ GImage::Format GImage::resolveFormat(
 
     std::string extension = toUpper(filenameExt(filename));
 
-    if (extension == "PPM") {
+    if ((extension == "PPM") || (extension == "PGM") || (extension == "PBM")) {
         // There are two PPM formats (binary and ASCII); we handle them differently
         if (dataLen > 3) {
-            if (!memcmp(data, "P6", 2) || !memcmp(data,"P5", 2)) {
-                return PPM;
+            if (!memcmp(data, "P6", 2) || !memcmp(data, "P5", 2)) {
+                return PPM_BINARY;
             } else {
                 return PPM_ASCII;
             }
@@ -420,7 +420,7 @@ GImage::Format GImage::resolveFormat(
     }
 
     if ((dataLen > 3) && (!memcmp(data, "P6", 2) ||!memcmp(data, "P5", 2))) {
-        return PPM;
+        return PPM_BINARY;
     }
 
     if (dataLen > 8) {
@@ -733,15 +733,10 @@ GImage::Format GImage::stringToFormat(
         return ICO;
     } else if (extension == "PNG") {
         return PNG;
-    } else if (extension == "PPM") {
-        return PPM;
-    } else if (extension == "PGM") {
-        return PGM;
-    } else if (extension == "PBM") {
-        return PBM;
     } else {
         return UNKNOWN;
     }
+    // Don't put PPM here, since it has two versions
 }
 
 
@@ -781,7 +776,7 @@ void GImage::encode(
         encodePPMASCII(out);
         break;
 
-    case PPM:
+    case PPM_BINARY:
         encodePPM(out);
         break;
 

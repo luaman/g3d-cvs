@@ -552,6 +552,8 @@ void Load3DS::processTriMeshChunk(
     Object& object,
     const Load3DS::ChunkHeader& objectChunkHeader) {
 
+    bool alreadyWarned = false;
+    (void) alreadyWarned;
     // Parse all sub-chunks
     while (b->getPosition() < objectChunkHeader.end) {
         ChunkHeader curChunkHeader = readChunkHeader();
@@ -565,11 +567,13 @@ void Load3DS::processTriMeshChunk(
                 object.vertexArray.resize(n);
                 for (int v = 0; v < n; ++v) {
                     object.vertexArray[v] = read3DSVector();
-#                   ifdef G3D_DEBUG
-                    const Vector3& vec = object.vertexArray[v];
-                    debugAssert(vec.isFinite());
-#                   endif
                     if (! object.vertexArray[v].isFinite()) {
+#                       ifdef G3D_DEBUG
+                            if (! alreadyWarned) {
+                                debugPrintf("Warning: infinite vertex while loading 3DS file!\n");
+                                alreadyWarned = true;
+                            }
+#                       endif
                         object.vertexArray[v] = Vector3::zero();
                     }
                 }

@@ -99,15 +99,10 @@ public:
         std::string filename;
     };
 
+    /** PGM, PPM, and PBM all come in two versions and are classified as PPM_* files */
     enum Format {JPEG, BMP, TGA, PCX, ICO, PNG, 
-        PPM,
-        PPM_ASCII, 
-        P1 = PPM_ASCII,
-        P2 = PPM_ASCII, 
-        P3 = PPM_ASCII,
-        P6 = PPM,
-        PBM = P1, 
-        PGM = P2,
+        PPM_BINARY, PGM_BINARY = PPM_BINARY,
+        PPM_ASCII, PGM_ASCII = PPM_ASCII,
         AUTODETECT, UNKNOWN};
 
 
