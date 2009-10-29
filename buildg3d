@@ -548,7 +548,8 @@ def extractTarFile(tarPath, extractDir):
 
     tarObject = tarfile.open(tarPath, 'r')
 
-    topDir = tarObject.next().name
+    # the first entry might not be an actual directory
+    topDir = tarObject.next().name.split('/')[0]    
 
     tarObject.extractall(extractDir)
     tarObject.close()
@@ -557,6 +558,36 @@ def extractTarFile(tarPath, extractDir):
 
     return os.path.join(extractDir, topDir)
     
+################################################################################
+def downloadMinGW(downloadDir, sourceDir, installDir):
+    # download binutils
+    binutilsTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/binutils-2.19.1-src.tar.gz', downloadDir)
+    binutilsDir = extractTarFile(binutilsTar, sourceDir)
+    
+    # download mingw components
+    mingwTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/mingwrt-3.16-mingw32-dev.tar.gz', downloadDir)
+    mingwDir = extractTarFile(mingwTar, os.path.join(installDir, 'mingw32'))
+
+    w32apiTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/w32api-3.13-mingw32-dev.tar.gz', downloadDir)
+    w32apiDir = extractTarFile(w32apiTar, os.path.join(installDir, 'mingw32'))
+
+    # download gmp and mpfr
+    gmpTar = getTarFile('ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.2.4.tar.bz2', downloadDir)
+    gmpDir = extractTarFile(gmpTar, sourceDir)
+
+    mpfrTar = getTarFile('ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.1.tar.bz2', downloadDir)
+    mpfrDir = extractTarFile(mpfrTar, sourceDir)
+
+    # download gcc core
+    gccTar = getTarFile('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.4.1/gcc-core-4.4.1.tar.bz2', downloadDir)
+    gccDir = extractTarFile(gccTar, sourceDir)
+
+    # create symbolic links to mpfr in gcc source
+    os.symlink(mpfrDir, os.path.join(gccDir, 'mpfr'))
+    
+    # return the directories that need to be configured and built
+    return (binutilsDir, gmpDir, gccDir)
+
 
 ################################################################################
 def ffmpegCCTarget():
@@ -569,31 +600,10 @@ def ffmpegCCTarget():
     
     # clean out cross compiler
     ice.utils.rmdir(downloadDir, False)
-    
-    # download binutils
-    binutilsTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/binutils-2.19-src.tar.gz', downloadDir)
-    binutilsDir = extractTarFile(binutilsTar, sourceDir)
-    
-    # download mingw components
-    mingwTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/mingw-runtime-3.14.tar.gz', downloadDir)
-    mingwDir = extractTarFile(mingwTar, os.path.join(installDir, 'mingw32'))
 
-    w32apiTar = getTarFile('http://heanet.dl.sourceforge.net/sourceforge/mingw/w32api-3.13-mingw32-dev.tar.gz', downloadDir)
-    w32apiDir = extractTarFile(w32apiTar, os.path.join(installDir, 'mingw32'))
-
-    # download gmp and mpfr
-    gmpTar = getTarFile('ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.2.1.tar.bz2', downloadDir)
-    gmpDir = extractTarFile(gmpTar, sourceDir)
-
-    mpfrTar = getTarFile('ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.3.0.tar.bz2', downloadDir)
-    mpfrDir = extractTarFile(mpfrTar, sourceDir)
-
-    # download gcc core
-    gccTar = getTarFile('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.3.1/gcc-core-4.3.1.tar.bz2', downloadDir)
-    gccDir = extractTarFile(gccTar, sourceDir)
-
-    # create symbolic links to mpfr in gcc source
-    os.symlink(mpfrDir, os.path.join(gccDir, 'mpfr'))
+    # download all files needed to build mingw
+    (binutilsDir, gmpDir, gccDir) = downloadMinGW(downloadDir, sourceDir, installDir)    
+    #(binutilsDir, gmpDir, gccDir) = (os.path.join(sourceDir, 'binutils-2.19.1'), os.path.join(sourceDir, 'gmp-4.2.4'), os.path.join(sourceDir, 'gcc-4.4.1'))
     
     # configure binutils
     print 'Building binutils...'
@@ -636,7 +646,7 @@ def ffmpegCCTarget():
     print 'Completed.'
 
     print "Copying mingw32 gcc runtime libraries\n"
-    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/gcc/mingw32/4.3.1/libgcc.a'), 'ffmpeg/lib/win32/gcc.lib', False)
+    ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'lib/gcc/mingw32/4.4.1/libgcc.a'), 'ffmpeg/lib/win32/gcc.lib', False)
     ice.copyifnewer.copyIfNewer(os.path.join(installDir, 'mingw32/lib/libmingwex.a'), 'ffmpeg/lib/win32/mingwex.lib', False)
 
     
@@ -658,8 +668,8 @@ def ffmpegWinTarget():
     os.chdir(ffmpegDir)
     ffmpegBuildScript = """
     ./configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
-   """ + make + """
-   """ + make + """ install
+    """ + make + """
+    """ + make + """ install
     """
 
     ice.utils.run('sh', ['-c', ffmpegBuildScript], False, {'PATH' : os.getenv('PATH') + ':' + crossCompilerDir})
