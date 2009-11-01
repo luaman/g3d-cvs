@@ -1,4 +1,3 @@
-#if 0
 #ifndef G3D_Any_h
 #define G3D_Any_h
 
@@ -311,9 +310,8 @@ public:
 
     void serialize(TextOutput& t) const;
     void deserialize(TextInput& t);
-};
+};    // class Any
 
-}
+}    // namespace G3D
 
-#endif
 #endif
