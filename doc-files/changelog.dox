@@ -145,6 +145,8 @@
      <li> Fix: Changed order of event delivery for GuiWindow to match rendering order
      <li> Fix: ArticulatedModel 3DS loader can now load models with more than 2^15 faces (int16-&rarr;uint16)
      <li> Fix: PGM and PBM files are now properly recognized by GImage
+     <li> Fix: System::sleep now is more conservative about the system's timeslice and busy waits under 1 ms.
+     <li> Fix: GApp now learns how much GApp::onWait overcompensates for and takes that into timing consideration
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
@@ -188,6 +190,7 @@
      <li> G3D::MeshAlg::computeBounds now takes an AABox instead of a Box
      <li> G3D::GuiDropDownList now stores its list internally, rather than taking a pointer to a list
      <li> The applyInvertY argument on G3D::Texture::toImageX now defaults to true because this is less confusing
+     <li> GApp::onWait only takes one argument now
    </ul>
 
 <hr>

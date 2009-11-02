@@ -85,7 +85,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
     m_simTime(0),
-    m_settings(settings) {
+    m_settings(settings),
+    m_lastFrameOverWait(0) {
 
     lastGApp = this;
 
@@ -646,8 +647,14 @@ void GApp::oneFrame() {
     {
         RealTime now = System::time();
         // Compute accumulated time
-        onWait(now - lastWaitTime, desiredFrameDuration());
+        RealTime cumulativeTime = now - lastWaitTime;
+        RealTime desiredWaitTime = max(0.0, desiredFrameDuration() - cumulativeTime);
+        onWait(max(0.0, desiredWaitTime - m_lastFrameOverWait));
         lastWaitTime = System::time();
+        RealTime actualWaitTime = lastWaitTime - now;
+
+        // Learn how much onWait appears to overshoot by and compensate
+        m_lastFrameOverWait = (m_lastFrameOverWait + (actualWaitTime - desiredWaitTime)) * 0.5;
     }
     m_waitWatch.tock();
 
@@ -689,17 +696,20 @@ void GApp::drawDebugShapes() {
 }
 
 
-void GApp::onWait(RealTime t, RealTime desiredT) {
-    System::sleep(max(0.0, desiredT - t));
+void GApp::onWait(RealTime t) {
+    System::sleep(max(0.0, t));
 }
+
 
 void GApp::setSimTimeStep(float s) {
     m_simTimeStep = s;
 }
 
+
 void GApp::setRealTime(RealTime r) {
     m_realTime = r;
 }
+
 
 void GApp::setSimTime(SimTime s) {
     m_simTime = s;

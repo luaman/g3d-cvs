@@ -26,6 +26,7 @@
 #include "G3D/Log.h"
 #include "G3D/Table.h"
 #include "G3D/GMutex.h"
+#include "G3D/units.h"
 #include <time.h>
 
 #include <cstring>
@@ -805,8 +806,8 @@ std::string System::currentProgramFilename() {
 
 void System::sleep(RealTime t) {
 
-    // Overhead of calling this function.
-    static const RealTime OVERHEAD = .000006;
+    // Overhead of calling this function, measured from a previous run.
+    static const RealTime OVERHEAD = 0.000006f;
 
     RealTime now = time();
     RealTime wakeupTime = now + t - OVERHEAD;
@@ -814,12 +815,18 @@ void System::sleep(RealTime t) {
     RealTime remainingTime = wakeupTime - now;
     RealTime sleepTime = 0;
 
+    // On Windows, a "time slice" is measured in quanta of 3-5 ms (http://support.microsoft.com/kb/259025)
+    // Sleep(0) yields the remainder of the time slice, which could be a long time.
+    // A 1 ms minimum time experimentally kept the "Empty GApp" at nearly no CPU load at 100 fps,
+    // yet nailed the frame timing perfectly.
+    static RealTime minRealSleepTime = 1 * units::milliseconds();
+
     while (remainingTime > 0) {
 
-        if (remainingTime > 0.001) {
+        if (remainingTime > minRealSleepTime * 2) {
             // Safe to use Sleep with a time... sleep for half the remaining time
-            sleepTime = max(remainingTime * .5, 0.0005);
-        } else if (remainingTime > 0.0001) {
+            sleepTime = max(remainingTime * 0.5, 0.0005);
+        } else if (remainingTime > minRealSleepTime) {
             // Safe to use Sleep with a zero time;
             // causes the program to yield only
             // the current time slice, and then return.

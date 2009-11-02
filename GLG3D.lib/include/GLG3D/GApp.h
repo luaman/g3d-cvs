@@ -232,6 +232,8 @@ protected:
     /** Always bound to m_frameBuffer FrameBuffer::DEPTH. */
     Texture::Ref            m_depthBuffer;
 
+    /** Used to track how much onWait overshot its desired target during the previous frame. */
+    RealTime                m_lastFrameOverWait;
 
 public:
     /** Creates a default lighting environment for demos, which uses the file
@@ -651,17 +653,17 @@ void GApp::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surfac
     /**
        Task to be used for frame rate limiting.  
 
-       Overriding onWait is not recommended.
+       Overriding onWait is not recommended unless you have significant
+       computation tasks that cannot be executed conveniently on a separate thread.
 
        Frame rate limiting is useful
        to avoid overloading a maching that is running background tasks and
        for situations where fixed time steps are needed for simulation and there
        is no reason to render faster.
 
-       Default implementation System::sleep()s until cumulativeTime + time
-       in wait is greater than or equal to @a frameDuration = 1 / desiredFrameRate.
+       Default implementation System::sleep()s on waitTime (which is always non-negative)
     */
-    virtual void onWait(RealTime cumulativeTime, RealTime frameDuration);
+    virtual void onWait(RealTime waitTime);
 
 
     /**

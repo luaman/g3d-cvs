@@ -111,7 +111,7 @@ void App::onInit() {
     }
     */
 
-    setDesiredFrameRate(100);
+    setDesiredFrameRate(30);
 
     //sky = Sky::fromFile(System::findDataFile("sky"));
 
@@ -280,6 +280,7 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+    screenPrintf("Desired frame rate: %f\n", desiredFrameRate());
 
     (void)posed3D;
     rd->setColorClearValue(Color3::white());
