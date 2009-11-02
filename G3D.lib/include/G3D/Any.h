@@ -7,6 +7,7 @@
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
+
 #ifndef G3D_Any_h
 #define G3D_Any_h
 
@@ -162,6 +163,10 @@ private:
     */
     void dropReference();
 
+    /** Throws a WrongType exception if this Any is not of the
+        expected type e.*/
+    void checkType(Type e) const;
+
     /** Returns a copy of the m_value. */
     void* copyValue() const;
 
@@ -298,7 +303,7 @@ public:
     /** Directly exposes the underlying data structure for table.*/
     const Table<std::string, Any>& table() const;
 
-    /** For a table, returns the element for key x. Throws ?? exception if the element does not exist. */ 
+    /** For a table, returns the element for key x. Throws KeyNotFound exception if the element does not exist. */ 
     const Any& operator[](const std::string& x) const;
     
     /** For a table, returns the element for key x, creating it if it does not exist. */

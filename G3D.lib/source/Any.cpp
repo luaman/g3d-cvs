@@ -7,6 +7,7 @@
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
+
 #include "G3D/Any.h"
 #include "G3D/TextOutput.h"
 
@@ -94,6 +95,20 @@ Any::~Any() {
     dropReference();
 }
 
+Any& Any::operator=(const Any& x) {
+    dropReference();
+
+    m_type        = x.m_type;
+    m_simpleValue = x.m_simpleValue;
+
+    if (x.m_data != 0) {
+        m_data = const_cast<Data*>(x.m_data);
+        m_data->referenceCount.increment();
+    }
+    else {
+        m_data = NULL;
+    }
+}
 
 void Any::dropReference() {
     if (m_data && m_data->referenceCount.decrement() <= 0) {
@@ -103,34 +118,33 @@ void Any::dropReference() {
     }
 }
 
+void Any::checkType(Type e) const {
+    if (m_type != e)
+        throw WrongType(e,m_type);
+}
 
-const Any&
-Any::operator[](int i) const {
-    if( m_type != ARRAY )
-        throw WrongType(ARRAY,m_type);
-    Array<Any> &array = *(m_data->value.a);
+const Any& Any::operator[](int i) const {
+    checkType(ARRAY);
+    Array<Any>& array = *(m_data->value.a);
     return array[i];
 }
 
 
 Any& Any::operator[](int i) {
-    if( m_type != ARRAY )
-        throw WrongType(ARRAY,m_type);
-    Array<Any> &array = *(m_data->value.a);
+    checkType(ARRAY);
+    Array<Any>& array = *(m_data->value.a);
     return array[i];
 }
 
 
 const Array<Any>& Any::array() const {
-    if( m_type != ARRAY )
-        throw WrongType(ARRAY,m_type);
+    checkType(ARRAY);
     return *(m_data->value.a);
 }
 
 
 void Any::append(const Any& x0) {
-    if( m_type != ARRAY )
-        throw WrongType(ARRAY,m_type);
+    checkType(ARRAY);
     m_data->value.a->append(x0);
 }
 
@@ -157,32 +171,36 @@ void Any::append(const Any& x0, const Any& x1, const Any& x2, const Any& x3) {
 
 
 const Table<std::string, Any>& Any::table() const {
-    if( m_type != TABLE )
-        throw WrongType(TABLE,m_type);
+    checkType(TABLE);
     return *(m_data->value.t);
 }
 
 
 const Any& Any::operator[](const std::string& x) const {
-    if( m_type != TABLE )
-        throw WrongType(TABLE,m_type);
-    const Table<std::string,Any> &table = *(m_data->value.t);
-    return table[x];
+    checkType(TABLE);
+    const Table<std::string,Any>& table = *(m_data->value.t);
+    Any* value = table.getPointer(x);
+    if( value == NULL )
+        throw KeyNotFound(x);
+    return *value;
 }
 
 
 Any& Any::operator[](const std::string& x) {
-    if( m_type != TABLE )
-        throw WrongType(TABLE,m_type);
-    Table<std::string,Any> &table = *(m_data->value.t);
+    checkType(TABLE);
+    Table<std::string,Any>& table = *(m_data->value.t);
+    return table.getCreate(x);
+
+/*
     try {
-        Any &any = table[x];
+        Any& any = table[x];
         return any;
     } catch(...) {
         table.set(x,Any());
-        Any &any = table[x];
+        Any& any = table[x];
         return any;
     }
+*/
 }
 
 
@@ -212,10 +230,12 @@ void Any::serialize(TextOutput& t) const {
 
 void Any::deserialize(TextInput& ti) {
     Token token = ti.read();
-    if(token.type() == Token::SYMBOL) {
+    switch (token.type())
+    {
+    case Token::SYMBOL:
         dropReference();
 
-        if(token.string() == "{") {
+        if (token.string() == "{") {
             // Become a TABLE.
             m_type = TABLE;
             m_data = new Data( Table<std::string,Any>() );
@@ -239,7 +259,7 @@ void Any::deserialize(TextInput& ti) {
             throw CorruptText("Table ended unexpectedly.",token);
         }
 
-        else if(token.string() == "(") {
+        else if (token.string() == "(") {
             // Become an ARRAY.
             m_type = ARRAY;
             m_data = new Data( Array<Any>() );
@@ -264,14 +284,14 @@ void Any::deserialize(TextInput& ti) {
         else    // symbol name
         {
             deserialize(ti);
-            if( m_data == NULL )
+            if ( m_data == NULL )
                 throw CorruptText("Expected a named table or a named array.",token);
             m_data->name = token.string();
             return;
         }
-    }
+        return;    // Never reached.
 
-    else if(token.type() == Token::STRING) {
+    case Token::STRING:
         dropReference();
 
         // Become a STRING.
@@ -279,9 +299,8 @@ void Any::deserialize(TextInput& ti) {
         m_data = new Data(token.string());
 
         return;
-    }
 
-    else if(token.type() == Token::NUMBER) {
+    case Token::NUMBER:
         dropReference();
 
         // Become a NUMBER.
@@ -289,9 +308,8 @@ void Any::deserialize(TextInput& ti) {
         m_simpleValue.n = token.number();
 
         return;
-    }
 
-    else if(token.type() == Token::BOOLEAN) {
+    case Token::BOOLEAN:
         dropReference();
 
         // Become a BOOLEAN.
@@ -299,25 +317,23 @@ void Any::deserialize(TextInput& ti) {
         m_simpleValue.b = token.boolean();
 
         return;
-    }
 
-    else if(token.type() == Token::COMMENT) {
+    case Token::COMMENT:
         // Become whatever the next expression is, then prepend this comment to that.
         deserialize(ti);
-        if( m_data == NULL )
+        if ( m_data == NULL )
             m_data = new Data();
         m_data->comment = token.string()+m_data->comment;
 
         return;
-    }
 
-    else if(token.type() == Token::NEWLINE) {
+    case Token::NEWLINE:
         // NEWLINE ignored.
-    }
+        return;
 
-    else {
+    default:
         throw CorruptText("Unexpected token type.",token);
-    }
+    };    // switch(token.type())
 }
 
 
