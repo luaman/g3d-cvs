@@ -31,6 +31,8 @@ class MD3Part;
     - Rename this to MD3Model::Part, and then make an MD3::Model class that loads all of the part [Corey]
     - Render using SuperSurface [Morgan]
     - Morgan doesn't understand how the skin stuff works.  Can't we fix a skin to a model when it is loaded?  MD2Model's separation of material and model was a mistake in retrospect--it enables sharing some model geometry, but is generally a pain to deal with.  It would be better to hide the sharing of model geometry with an internal WeakCache.
+
+    \beta
 */
 class MD3Model : public ReferenceCountedObject {
 

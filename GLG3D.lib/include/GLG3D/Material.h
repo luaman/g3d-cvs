@@ -23,6 +23,8 @@ class AnyVal;
 
   Encodes a BSDF, bump map, and emission function.
 
+  \beta
+
   The G3D::Material::SimilarHashCode and G3D::Material::SimilarTo traits are provided
   to help identify when two G3D::Material have the same non-zero terms (similar to
   G3D::SuperBSDF::Factors).  G3D::SuperShader uses these to reduce the number of different
@@ -35,8 +37,6 @@ class AnyVal;
   one for entering the material and one for exiting it (i.e., the "backfaces").  The eta of the exiting surface
   should be that of the medium that is being exited into--typically, air.  So a glass sphere is 
   a set of front faces with eta ~= 1.3 and a set of backfaces with eta = 1.0.
-
-  @beta
     
   @sa G3D::SuperShader, G3D::BSDF, G3D::Component, G3D::Texture, G3D::BumpMap, G3D::ArticulatedModel
   */

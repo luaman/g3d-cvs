@@ -14,6 +14,8 @@ namespace G3D {
 /**
    Description of how a surface reflects light (photons).
 
+   \beta
+
    This is an analytic energy-conserving Bidirectional Scattering
    Distribution Function (BSDF) with phenomenonlogically meaningful
    parameters. It comprises Lambertian reflection, Schlick's Fresnel
