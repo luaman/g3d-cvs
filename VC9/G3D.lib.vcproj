@@ -169,6 +169,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Any.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\AnyVal.cpp"
 				>
 			</File>
@@ -532,6 +536,10 @@
 			>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\AABox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\Any.h"
 				>
 			</File>
 			<File

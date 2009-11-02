@@ -1,3 +1,12 @@
+/**
+ @file Any.cpp
+  
+ @created 2006-06-11
+ @edited  2009-11-09
+
+ Copyright 2000-2009, Morgan McGuire.
+ All rights reserved.
+ */
 #include "G3D/Any.h"
 #include "G3D/TextOutput.h"
 

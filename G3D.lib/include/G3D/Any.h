@@ -1,3 +1,12 @@
+/**
+ @file Any.h
+  
+ @created 2006-06-11
+ @edited  2009-11-09
+
+ Copyright 2000-2009, Morgan McGuire.
+ All rights reserved.
+ */
 #ifndef G3D_Any_h
 #define G3D_Any_h
 
