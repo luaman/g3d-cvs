@@ -108,6 +108,8 @@ Any& Any::operator=(const Any& x) {
     else {
         m_data = NULL;
     }
+
+    return (*this);
 }
 
 void Any::dropReference() {

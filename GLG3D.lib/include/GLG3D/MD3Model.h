@@ -39,14 +39,6 @@ class MD3Model : public ReferenceCountedObject {
 public:
     typedef ReferenceCountedPointer<MD3Model> Ref;
     
-    enum PartType {
-        PART_LEGS,
-        PART_TORSO,
-        PART_HEAD,
-        PART_WEAPON,
-        NUM_PARTS
-    };
-
     enum AnimType {
         BOTH_DEATH1,
         START_BOTH = BOTH_DEATH1,
@@ -99,7 +91,6 @@ public:
     };
 
 private:
-
     /** Animation data from animation.cfg */
     class AnimFrame {
     public:
@@ -110,6 +101,14 @@ private:
 
         AnimFrame() : start(0), num(0), loop(0), fps(0) {}
         AnimFrame(float s, float n, float l, float f) : start(s), num(n), loop(l), fps(f) {}
+    };
+
+    enum PartType {
+        PART_LEGS,
+        PART_TORSO,
+        PART_HEAD,
+        PART_WEAPON,
+        NUM_PARTS
     };
 
     /** Individual loaded .md3 files representing each part of a full quake model.
@@ -125,6 +124,10 @@ private:
 
     MD3Model();
 
+    /** Load complete set of model parts from modelDir. */
+    void loadDirectory(const std::string& modelDir);
+
+    /** Load parameters for each standard animation type. */
     void loadAnimationCfg(const std::string filename);
 
     void posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe);
@@ -137,10 +140,10 @@ public:
 
     virtual ~MD3Model();
 
+    /** Loads all model parts from \a modelDir if they exist.
+        Also loads animation.cfg parameters.
+     */
     static MD3Model::Ref fromDirectory(const std::string& modelDir);
-
-    /** Load complete set of model parts from modelDir. */
-    void loadDirectory(const std::string& modelDir);
 
     /** Load skin for all model parts.
         @param skinName Base skin name for all model parts. e.g., head_"skinName".skin
