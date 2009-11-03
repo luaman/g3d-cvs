@@ -10,7 +10,7 @@
 
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2002-01-01
- @edited  2008-12-27
+ @edited  2009-11-03
  */
 
 #include "G3D/G3D.h"
@@ -133,6 +133,8 @@ void testCoordinateFrame();
 void testGThread();
 
 void testfilter();
+
+void testAny();
 
 
 void testPointHashGrid();
@@ -724,6 +726,8 @@ int main(int argc, char* argv[]) {
 #   else
 
     printf("\n\nTests:\n\n");
+
+    testAny();
 
     testSphere();
 

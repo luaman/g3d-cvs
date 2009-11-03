@@ -1,8 +1,11 @@
 /**
  @file Any.h
   
+ @author Morgan McGuire
+ @author Shawn Yarbrough
+  
  @created 2006-06-11
- @edited  2009-11-09
+ @edited  2009-11-03
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -107,6 +110,19 @@ public:
 
     enum Type {NONE, BOOLEAN, NUMBER, STRING, ARRAY, TABLE};
 
+    static std::string stringType(Type t) {
+        switch(t)
+        {
+        case NONE:    return "NONE";
+        case BOOLEAN: return "BOOLEAN";
+        case NUMBER:  return "NUMBER";
+        case STRING:  return "STRING";
+        case ARRAY:   return "ARRAY";
+        case TABLE:   return "TABLE";
+        default:      throw WrongType(NONE,t);
+        };
+    }
+
 private:
 
     /** NONE, BOOLEAN, and NUMBER are stored directly in the Any */
@@ -194,7 +210,7 @@ public:
         inline WrongType(Type e, Type a) : expected(e), actual(a) {}
     };
 
-    /** Thrown by operator[] when a key is not present. */
+    /** Thrown by operator[] when a key is not present in a const table. */
     class KeyNotFound : public Exception {
     public:
         std::string key;
@@ -202,6 +218,7 @@ public:
         inline KeyNotFound(const std::string& k) : key(k) {}
     };
 
+    /** Thrown by operator[] when an array index is not present. */
     class IndexOutOfBounds : public Exception {
     public:
         int     index;
@@ -287,6 +304,7 @@ public:
     void setName(const std::string& n);
 
     /** Number of elements if this is an ARRAY or TABLE */
+    int size() const;
     int length() const;
 
     /** For an array, returns the ith element */
@@ -322,8 +340,14 @@ public:
     /** Uses the serialize method */
     void save(const std::string& filename) const;
 
-    void serialize(TextOutput& t) const;
-    void deserialize(TextInput& t);
+    void serialize(TextOutput& to) const;
+    void deserialize(TextInput& ti);
+
+private:
+
+    void deserializeTable(TextInput& ti);
+    void deserializeArray(TextInput& ti);
+
 };    // class Any
 
 }    // namespace G3D

@@ -676,6 +676,24 @@ public:
        return (*this)[0];
    }
 
+   /** 
+      "The member function returns a reference to the last element of the controlled sequence, 
+       which must be non-empty." 
+       For compatibility with std::vector.
+   */
+   T& back() {
+       return (*this)[size()-1];
+   }
+
+   /** 
+      "The member function returns a reference to the last element of the controlled sequence, 
+       which must be non-empty." 
+       For compatibility with std::vector.
+   */
+   const T& back() const {
+       return (*this)[size()-1];
+   }
+
    /**
     Removes the last element and returns it.  By default, shrinks the underlying array.
     */

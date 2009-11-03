@@ -1,8 +1,11 @@
 /**
  @file Any.cpp
+
+ @author Morgan McGuire
+ @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2009-11-09
+ @edited  2009-11-03
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -10,6 +13,7 @@
 
 #include "G3D/Any.h"
 #include "G3D/TextOutput.h"
+#include <deque>
 
 namespace G3D {
    
@@ -95,7 +99,23 @@ Any::~Any() {
     dropReference();
 }
 
+void Any::dropReference() {
+    if (m_data && m_data->referenceCount.decrement() <= 0) {
+        // This was the last reference to the shared data
+        delete m_data;
+        m_data = NULL;
+    }
+}
+
+void Any::checkType(Type e) const {
+    if (m_type != e)
+        throw WrongType(e,m_type);
+}
+
 Any& Any::operator=(const Any& x) {
+    if (this == &x)
+        return *this;
+
     dropReference();
 
     m_type        = x.m_type;
@@ -112,18 +132,73 @@ Any& Any::operator=(const Any& x) {
     return (*this);
 }
 
-void Any::dropReference() {
-    if (m_data && m_data->referenceCount.decrement() <= 0) {
-        // This was the last reference to the shared data
-        delete m_data;
-        m_data = NULL;
-    }
+
+bool Any::isNone() const {
+    return (m_type == NONE);
 }
 
-void Any::checkType(Type e) const {
-    if (m_type != e)
-        throw WrongType(e,m_type);
+
+double Any::number() const {
+    checkType(NUMBER);
+    return m_simpleValue.n;
 }
+
+
+/*
+double Any::number(double defaultVal) const {
+    checkType(NUMBER);
+    return m_simpleValue.n;
+}
+*/
+
+
+const std::string& Any::string() const {
+    checkType(STRING);
+    return *(m_data->value.s);
+}
+
+
+/*
+const std::string& Any::string(const std::string& defaultVal) const {
+    checkType(STRING);
+    return *(m_data->value.s);
+}
+*/
+
+
+bool Any::boolean() const {
+    checkType(BOOLEAN);
+    return m_simpleValue.b;
+}
+
+
+/*
+bool Any::boolean(bool defaultVal) const {
+    checkType(BOOLEAN);
+    return m_simpleValue.b;
+}
+*/
+
+
+int Any::size() const {
+    switch (m_type)
+    {
+    case TABLE:
+        return m_data->value.t->size();
+        break;
+    case ARRAY:
+        return m_data->value.a->size();
+        break;
+    default:
+        throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
+    };    // switch (m_type)
+}
+
+
+int Any::length() const {
+    return size();
+}
+
 
 const Any& Any::operator[](int i) const {
     checkType(ARRAY);
@@ -192,19 +267,56 @@ Any& Any::operator[](const std::string& x) {
     checkType(TABLE);
     Table<std::string,Any>& table = *(m_data->value.t);
     return table.getCreate(x);
-
-/*
-    try {
-        Any& any = table[x];
-        return any;
-    } catch(...) {
-        table.set(x,Any());
-        Any& any = table[x];
-        return any;
-    }
-*/
 }
 
+
+bool Any::operator==(const Any& x) const {
+    if( m_type != x.m_type )
+        return false;
+    switch (m_type)
+    {
+    case NONE:
+        return true;
+    case BOOLEAN:
+        return (m_simpleValue.b == x.m_simpleValue.b);
+    case NUMBER:
+        return (m_simpleValue.n == x.m_simpleValue.n);
+    case STRING:
+        return (*(m_data->value.s) == *(x.m_data->value.s));
+    case TABLE:
+    {
+        if( size() != x.size() )
+            return false;
+        Table<std::string,Any>& cmptable  = *(  m_data->value.t);
+        Table<std::string,Any>& xcmptable = *(x.m_data->value.t);
+        for( Table<std::string,Any>::Iterator it1 = cmptable.begin(), it2 = xcmptable.begin();
+             it1 != cmptable.end() && it2 != xcmptable.end();
+             ++it1, ++it2 )
+            if( *it1 != *it2 )
+                return false;
+        return true;
+    }
+    case ARRAY:
+    {
+        if( size() != x.size() )
+            return false;
+        Array<Any>& cmparray  = *(  m_data->value.a);
+        Array<Any>& xcmparray = *(x.m_data->value.a);
+        for( int ii = 0; ii < size(); ++ii ) {
+            if( cmparray[ii] != xcmparray[ii] )
+                return false;
+        }
+        return true;
+    }
+    default:
+        throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
+        break;
+    };    // switch (m_type)
+}
+
+bool Any::operator!=(const Any& x) const {
+    return !operator==(x);
+}
 
 void Any::load(const std::string& filename) {
     TextInput::Settings settings;
@@ -223,17 +335,209 @@ void Any::load(const std::string& filename) {
 
 
 void Any::save(const std::string& filename) const {
+    TextOutput::Settings settings;
+    settings.wordWrap = TextOutput::Settings::WRAP_NONE;
+
+    TextOutput to(filename,settings);
+    serialize(to);
+    to.commit();
 }
 
 
-void Any::serialize(TextOutput& t) const {
+void Any::serialize(TextOutput& to) const {
+    switch (m_type)
+    {
+    case NONE:
+        throw WrongType(NONE,m_type);
+        break;
+    case BOOLEAN:
+        to.writeBoolean(m_simpleValue.b);
+        break;
+    case NUMBER:
+        to.writeNumber(m_simpleValue.n);
+        break;
+    case STRING:
+        to.writeString(*(m_data->value.s));
+        break;
+    case TABLE:
+    {
+        // TODO: Need to output comment(s).
+        if (!m_data->name.empty())
+            to.writeSymbol(m_data->name);
+        to.writeSymbol("{");
+        to.writeNewline();
+        to.pushIndent();
+        bool first = true;
+        Table<std::string,Any>& table = *(m_data->value.t);
+        for( Table<std::string,Any>::Iterator it = table.begin(); it != table.end(); ++it ) {
+            if( !first ) {
+                to.writeSymbol(",");
+                to.writeNewline();
+            }
+
+            to.writeSymbol(it->key);
+            to.writeSymbol("=");
+            it->value.serialize(to);
+
+            if( first )
+                first = false;
+        }
+        to.popIndent();
+        to.writeSymbol("}");
+        to.writeNewline();
+        break;
+    }
+    case ARRAY:
+    {
+        // TODO: Need to output comment(s).
+        if (!m_data->name.empty())
+            to.writeSymbol(m_data->name);
+        to.writeSymbol("(");
+        to.writeNewline();
+        to.pushIndent();
+        bool first = true;
+        Array<Any>& array = *(m_data->value.a);
+        for( int ii = 0; ii < size(); ++ii ) {
+            if( !first ) {
+                to.writeSymbol(",");
+                to.writeNewline();
+            }
+
+            array[ii].serialize(to);
+
+            if( first )
+                first = false;
+        }
+        to.popIndent();
+        to.writeSymbol(")");
+        to.writeNewline();
+        break;
+    }
+    default:
+        throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
+        break;
+    };    // switch (m_type)
+}
+
+
+void Any::deserializeTable(TextInput& ti) {
+    // Create Anys until an end-of-table symbol "}" is read.
+    bool previous_comma = true;
+    Token token;
+    for (token = ti.read(); token.type() != Token::END; token = ti.read()) {
+        // Remember comments for later insertion into the new Any object.
+        std::deque<std::string> comments;
+        while(token.type() == Token::COMMENT) {
+            comments.push_back(token.string());
+            token = ti.read();
+        }
+
+        // Validate the key name or comma or closing parenthesis.
+        std::string key;
+        if (token.type() == Token::SYMBOL) {
+            if (token.string() == ",") {
+                if (previous_comma)
+                    throw CorruptText("Expected a symbol name.",token);
+                previous_comma = true;
+                continue;    // Skip comma.
+            }
+            if (token.string() == "}")
+                return;    // Done creating the TABLE.
+            if (!previous_comma)
+                throw CorruptText("Expected a comma or a closing parenthesis.",token);
+            key = token.string();
+            previous_comma = false;
+        }
+        else {
+            throw CorruptText("Expected a symbol name.",token);
+        }
+
+        // Usually an equal sign "=", but could be a comment.
+        token = ti.read();
+        while(token.type() == Token::COMMENT) {
+            comments.push_back(token.string());
+            token = ti.read();
+        }
+
+        // Create the new Any inside the table.
+        Any& sub = operator[](key);
+        sub.deserialize(ti);
+
+        // Insert comments into the object we created.
+        if (!comments.empty() && sub.m_data == NULL)
+            sub.m_data = new Data();
+        while (!comments.empty()) {
+            sub.m_data->comment = comments.front()+m_data->comment;
+            comments.pop_front();
+        }
+    }
+    throw CorruptText("Table ended unexpectedly.",token);
+}
+
+void Any::deserializeArray(TextInput& ti) {
+    // Create Anys until an end-of-table symbol "}" is read.
+    bool previous_comma = true;
+    Token token;
+    for (token = ti.read(); token.type() != Token::END; token = ti.read()) {
+        // Remember comments for later insertion into the new Any object.
+        std::deque<std::string> comments;
+        while(token.type() == Token::COMMENT) {
+            comments.push_back(token.string());
+            token = ti.read();
+        }
+
+        // Validate the array value or comma or closing parenthesis.
+        if (token.type() == Token::SYMBOL) {
+            if (token.string() == ",") {
+                if (previous_comma)
+                    throw CorruptText("Expected an array value.",token);
+                previous_comma = true;
+                continue;    // Skip comma.
+            }
+            if (token.string() == ")")
+                return;    // Done creating the TABLE.
+            if (!previous_comma)
+                throw CorruptText("Expected a comma or a closing parenthesis.",token);
+        }
+        else if (token.type() == Token::NUMBER) {
+        }
+        else if (token.type() == Token::STRING) {
+        }
+        else if (token.type() == Token::BOOLEAN) {
+        }
+        else {
+            throw CorruptText("Expected an array value.",token);
+        }
+        previous_comma = false;
+
+        // Might be comment lines here before the comma or before the end of array.
+        Token cmttoken = ti.read();
+        while(cmttoken.type() == Token::COMMENT) {
+            comments.push_back(cmttoken.string());
+            cmttoken = ti.read();
+        }
+        ti.push(cmttoken);
+
+        // Create the new Any inside the array.
+        ti.push(token);
+        append(Any(ti));
+
+        // Insert comments into the object we created.
+        Any& sub = m_data->value.a->back();
+        if (!comments.empty() && sub.m_data == NULL)
+            sub.m_data = new Data();
+        while (!comments.empty()) {
+            sub.m_data->comment = comments.front()+m_data->comment;
+            comments.pop_front();
+        }
+    }
+    throw CorruptText("Table ended unexpectedly.",token);
 }
 
 
 void Any::deserialize(TextInput& ti) {
     Token token = ti.read();
-    switch (token.type())
-    {
+    switch (token.type()) {
     case Token::SYMBOL:
         dropReference();
 
@@ -241,50 +545,19 @@ void Any::deserialize(TextInput& ti) {
             // Become a TABLE.
             m_type = TABLE;
             m_data = new Data( Table<std::string,Any>() );
-
-            // Create Anys until an end-of-table symbol "}" is read.
-            for (token = ti.read(); token.type() != Token::END; token = ti.read()) {
-
-                if (token.type() == Token::SYMBOL) {
-                    if (token.string() == ",")
-                        continue;    // Skip comma.
-                    if (token.string() == "}")
-                        return;    // Done creating the TABLE.
-                }
-                else {
-                    throw CorruptText("Expected a symbol name.",token);
-                }
-
-                ti.readSymbol("=");
-                operator[](token.string()).deserialize(ti);
-            }
-            throw CorruptText("Table ended unexpectedly.",token);
+            deserializeTable(ti);
+            return;
         }
 
         else if (token.string() == "(") {
             // Become an ARRAY.
             m_type = ARRAY;
             m_data = new Data( Array<Any>() );
-
-            // Create Anys until an end-of-array symbol ")" is read.
-            for (token = ti.read(); token.type() != Token::END; token = ti.read()) {
-
-                if (token.type() == Token::SYMBOL) {
-                    if (token.string() == ",")
-                        continue;    // Skip comma.
-                    if (token.string() == ")")
-                        return;    // Done creating the ARRAY.
-                    throw CorruptText("Unexpected symbol name.",token);
-                }
-
-                ti.push(token);
-                append(Any(ti));
-            }
-            throw CorruptText("Array ended unexpectedly.",token);
+            deserializeArray(ti);
+            return;
         }
 
-        else    // symbol name
-        {
+        else {    // Name of a table or of an array.
             deserialize(ti);
             if ( m_data == NULL )
                 throw CorruptText("Expected a named table or a named array.",token);
@@ -321,9 +594,9 @@ void Any::deserialize(TextInput& ti) {
         return;
 
     case Token::COMMENT:
-        // Become whatever the next expression is, then prepend this comment to that.
+        // Become whatever the next expression is, prepending this comment to that.
         deserialize(ti);
-        if ( m_data == NULL )
+        if (m_data == NULL)
             m_data = new Data();
         m_data->comment = token.string()+m_data->comment;
 
@@ -335,7 +608,7 @@ void Any::deserialize(TextInput& ti) {
 
     default:
         throw CorruptText("Unexpected token type.",token);
-    };    // switch(token.type())
+    };    // switch (token.type())
 }
 
 
