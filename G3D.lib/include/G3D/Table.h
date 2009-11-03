@@ -86,6 +86,8 @@ public:
         Entry() {}
         Entry(const Key& k) : key(k) {}
         Entry(const Key& k, const Value& v) : key(k), value(v) {}
+        bool operator==(const Entry &peer) const { return (key == peer.key && value == peer.value); }
+        bool operator!=(const Entry &peer) const { return !operator==(peer); }
     };
 
 private:
