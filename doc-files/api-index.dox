@@ -113,6 +113,7 @@ href="classes.html">Classes</a>.
     \link G3D::glDisableAllTextures glDisableAllTextures\endlink,
     \link G3D::glToScreen glToScreen\endlink,
     \link G3D::Milestone Milestone\endlink,
+    \link G3D::Profiler Profiler\endlink,
     \link G3D::Renderbuffer Renderbuffer\endlink,
     \link G3D::RenderDevice RenderDevice\endlink,
     \link G3D::Texture Texture\endlink,

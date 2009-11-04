@@ -404,6 +404,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\Profiler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\Renderbuffer.cpp"
 				>
 			</File>
@@ -759,6 +763,10 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\PixelProgram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Profiler.h"
 				>
 			</File>
 			<File

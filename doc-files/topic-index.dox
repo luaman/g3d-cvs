@@ -136,6 +136,7 @@ shader-driven GPU rendering and CPU ray tracing.
 @section profiling Profiling
 <table width=90% border=0 >
 <tr><td width=5% ></td><td width=25% ></td><td></td></tr>
+<tr><td></td><td>\link G3D::Profiler <b>Profiler</b>\endlink</td><td>\copybrief G3D::Profiler </td></tr>
 <tr><td></td><td>\link G3D::Stopwatch <b>Stopwatch</b>\endlink</td><td>\copybrief G3D::Stopwatch </td></tr>
 <tr><td></td><td>\link G3D::RenderDevice::Stats RenderDevice::Stats\endlink</td><td>\copybrief G3D::RenderDevice::Stats </td></tr>
 <tr><td></td><td>\link G3D::GApp::showRenderingStats GApp::showRenderingStats\endlink</td><td>Display performance information on the 3D window</td></tr>

@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2009-09-11
+ @edited  2009-11-04
 
  Copyright 2001-2009, Morgan McGuire.
  All rights reserved.
@@ -93,6 +93,7 @@
 #include "GLG3D/Film.h"
 #include "GLG3D/Tri.h"
 #include "GLG3D/TriTree.h"
+#include "GLG3D/Profiler.h"
 
 #include "GLG3D/GuiTheme.h"
 #include "GLG3D/GuiButton.h"
