@@ -285,25 +285,29 @@ bool Any::operator==(const Any& x) const {
         return (*(m_data->value.s) == *(x.m_data->value.s));
     case TABLE:
     {
-        if( size() != x.size() )
+        if (size() != x.size())
+            return false;
+        if (m_data->name != x.m_data->name)
             return false;
         Table<std::string,Any>& cmptable  = *(  m_data->value.t);
         Table<std::string,Any>& xcmptable = *(x.m_data->value.t);
-        for( Table<std::string,Any>::Iterator it1 = cmptable.begin(), it2 = xcmptable.begin();
+        for (Table<std::string,Any>::Iterator it1 = cmptable.begin(), it2 = xcmptable.begin();
              it1 != cmptable.end() && it2 != xcmptable.end();
-             ++it1, ++it2 )
-            if( *it1 != *it2 )
+             ++it1, ++it2)
+            if (*it1 != *it2)
                 return false;
         return true;
     }
     case ARRAY:
     {
-        if( size() != x.size() )
+        if (size() != x.size())
+            return false;
+        if (m_data->name != x.m_data->name)
             return false;
         Array<Any>& cmparray  = *(  m_data->value.a);
         Array<Any>& xcmparray = *(x.m_data->value.a);
-        for( int ii = 0; ii < size(); ++ii ) {
-            if( cmparray[ii] != xcmparray[ii] )
+        for (int ii = 0; ii < size(); ++ii) {
+            if (cmparray[ii] != xcmparray[ii])
                 return false;
         }
         return true;
@@ -345,6 +349,7 @@ void Any::save(const std::string& filename) const {
 
 
 void Any::serialize(TextOutput& to) const {
+    // TODO: Need to output comment(s).
     switch (m_type)
     {
     case NONE:
@@ -361,7 +366,6 @@ void Any::serialize(TextOutput& to) const {
         break;
     case TABLE:
     {
-        // TODO: Need to output comment(s).
         if (!m_data->name.empty())
             to.writeSymbol(m_data->name);
         to.writeSymbol("{");
@@ -389,7 +393,6 @@ void Any::serialize(TextOutput& to) const {
     }
     case ARRAY:
     {
-        // TODO: Need to output comment(s).
         if (!m_data->name.empty())
             to.writeSymbol(m_data->name);
         to.writeSymbol("(");
@@ -474,7 +477,7 @@ void Any::deserializeTable(TextInput& ti) {
     throw CorruptText("Table ended unexpectedly.",token);
 }
 
-void Any::deserializeArray(TextInput& ti) {
+void Any::deserializeArray(TextInput& ti,const std::string& term) {
     // Create Anys until an end-of-table symbol "}" is read.
     bool previous_comma = true;
     Token token;
@@ -494,7 +497,7 @@ void Any::deserializeArray(TextInput& ti) {
                 previous_comma = true;
                 continue;    // Skip comma.
             }
-            if (token.string() == ")")
+            if (token.string() == term)
                 return;    // Done creating the TABLE.
             if (!previous_comma)
                 throw CorruptText("Expected a comma or a closing parenthesis.",token);
@@ -538,6 +541,7 @@ void Any::deserializeArray(TextInput& ti) {
 void Any::deserialize(TextInput& ti) {
     Token token = ti.read();
     switch (token.type()) {
+
     case Token::SYMBOL:
         dropReference();
 
@@ -553,7 +557,15 @@ void Any::deserialize(TextInput& ti) {
             // Become an ARRAY.
             m_type = ARRAY;
             m_data = new Data( Array<Any>() );
-            deserializeArray(ti);
+            deserializeArray(ti,")");
+            return;
+        }
+
+        else if (token.string() == "[") {
+            // Become an ARRAY.
+            m_type = ARRAY;
+            m_data = new Data( Array<Any>() );
+            deserializeArray(ti,"]");
             return;
         }
 
@@ -608,6 +620,7 @@ void Any::deserialize(TextInput& ti) {
 
     default:
         throw CorruptText("Unexpected token type.",token);
+
     };    // switch (token.type())
 }
 

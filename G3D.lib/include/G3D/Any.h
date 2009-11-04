@@ -346,7 +346,7 @@ public:
 private:
 
     void deserializeTable(TextInput& ti);
-    void deserializeArray(TextInput& ti);
+    void deserializeArray(TextInput& ti,const std::string& term);
 
 };    // class Any
 

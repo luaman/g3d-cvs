@@ -16,7 +16,7 @@
 
 void testAny() {
 
-    printf("class Any ");
+    printf("G3D::Any ");
 
     std::stringstream errss;
 
