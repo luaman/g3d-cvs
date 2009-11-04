@@ -646,10 +646,15 @@ void GApp::oneFrame() {
     m_waitWatch.tick();
     {
         RealTime now = System::time();
+
         // Compute accumulated time
         RealTime cumulativeTime = now - lastWaitTime;
+
+        // Perform wait for actual time needed
         RealTime desiredWaitTime = max(0.0, desiredFrameDuration() - cumulativeTime);
         onWait(max(0.0, desiredWaitTime - m_lastFrameOverWait));
+
+        // Update wait timers
         lastWaitTime = System::time();
         RealTime actualWaitTime = lastWaitTime - now;
 

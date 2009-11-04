@@ -2619,15 +2619,18 @@ void RenderDevice::setTexture(
                " on a device with %d textures.",
                unit, _numTextures));
 
-    Texture::Ref oldTexture = state.textureUnit[unit].texture;
-    majStateChange();
-
-    if (oldTexture == texture) {
+    // early-return if the texture is already set
+    if (state.textureUnit[unit].texture == texture) {
         return;
     }
 
+    majStateChange();
     majGLStateChange();
 
+    // cache old texture for texture matrix check below
+    Texture::Ref oldTexture = state.textureUnit[unit].texture;
+
+    // assign new texture
     state.textureUnit[unit].texture = texture;
     state.touchedTextureUnit(unit);
 
@@ -2642,15 +2645,15 @@ void RenderDevice::setTexture(
 
     if (texture.notNull()) {
         GLint id = texture->openGLID();
-        GLint u = texture->openGLTextureTarget();
+        GLint target = texture->openGLTextureTarget();
 
         if ((GLint)currentlyBoundTexture[unit] != id) {
-            glBindTexture(u, id);
+            glBindTexture(target, id);
             currentlyBoundTexture[unit] = id;
         }
 
         if (fixedFunction) {
-            glEnable(u);
+            glEnable(target);
         }
     } else {
         // Disabled texture unit
