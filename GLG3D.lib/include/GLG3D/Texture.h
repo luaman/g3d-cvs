@@ -852,16 +852,6 @@ public:
         return m_textureID;
     }
 
-    /** @deprecated Use width() */
-    inline int texelWidth() const {
-        return m_width;
-    }
-
-    /** @deprecated Use height() */
-    inline int texelHeight() const {
-        return m_height;
-    }
-
     /** Number of horizontal texels in the level 0 mipmap */
     inline int width() const {
         return m_width;

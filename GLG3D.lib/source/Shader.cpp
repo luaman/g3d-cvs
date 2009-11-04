@@ -1186,8 +1186,8 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
             const ArgList::Arg& value = args.argTable.get(textureName); 
 
             // Compute the vector of size and inverse size
-            float w = value.texture->texelWidth();
-            float h = value.texture->texelHeight();
+            float w = value.texture->width();
+            float h = value.texture->height();
             Vector4 v(w, h, 1.0f / w, 1.0f / h);
 
             glUniform4fvARB(location, 1, v);

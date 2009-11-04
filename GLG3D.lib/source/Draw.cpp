@@ -51,14 +51,14 @@ static void skyVertex(RenderDevice* renderDevice,
             // Move the edge coordinates towards the center just
             // enough that the black clamped border isn't sampled.
             if (s == 0) {
-                s += (0.6f / (float)texture[0]->texelWidth());
+                s += (0.6f / (float)texture[0]->width());
             } else if (s == 1) {
-                s -= (0.6f / (float)texture[0]->texelWidth());
+                s -= (0.6f / (float)texture[0]->width());
             }
             if (t == 0) {
-                t += (0.6f / (float)texture[0]->texelHeight());
+                t += (0.6f / (float)texture[0]->height());
             } else if (t == 1) {
-                t -= (0.6f / (float)texture[0]->texelHeight());
+                t -= (0.6f / (float)texture[0]->height());
             }
         }
         renderDevice->setTexCoord(0, Vector2(s, t));

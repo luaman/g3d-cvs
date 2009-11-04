@@ -2232,7 +2232,7 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
         float ymax = 1.0;
     
         if (texture->dimension() == Texture::DIM_2D_RECT) {
-            ymax = texture->texelHeight();
+            ymax = texture->height();
         }
 
         float m[16] = 

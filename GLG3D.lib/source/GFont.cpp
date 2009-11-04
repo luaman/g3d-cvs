@@ -105,10 +105,22 @@ GFont::GFont(const std::string& filename, BinaryInput& b) : m_texture(NULL) {
 			Texture::DIM_2D,
 			fontSettings);
    
-    m_textureMatrix[0] = 1.0f / m_texture->texelWidth(); m_textureMatrix[1] = 0; m_textureMatrix[2] = 0; m_textureMatrix[3] = 0;
-    m_textureMatrix[4] = 0; m_textureMatrix[5] = 1.0f / m_texture->texelHeight(); m_textureMatrix[6] = 0; m_textureMatrix[7] = 0;    
-    m_textureMatrix[8] = 0; m_textureMatrix[9] = 0; m_textureMatrix[10] = 1; m_textureMatrix[11] = 0;
-    m_textureMatrix[12] = 0; m_textureMatrix[13] = 0; m_textureMatrix[14] = 0; m_textureMatrix[15] = 1;
+    m_textureMatrix[0] = 1.0f / m_texture->width();
+    m_textureMatrix[1] = 0;
+    m_textureMatrix[2] = 0;
+    m_textureMatrix[3] = 0;
+    m_textureMatrix[4] = 0;
+    m_textureMatrix[5] = 1.0f / m_texture->height();
+    m_textureMatrix[6] = 0;
+    m_textureMatrix[7] = 0;    
+    m_textureMatrix[8] = 0;
+    m_textureMatrix[9] = 0;
+    m_textureMatrix[10] = 1;
+    m_textureMatrix[11] = 0;
+    m_textureMatrix[12] = 0;
+    m_textureMatrix[13] = 0;
+    m_textureMatrix[14] = 0;
+    m_textureMatrix[15] = 1;
 }
 
 

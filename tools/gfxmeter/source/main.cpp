@@ -64,7 +64,7 @@ void App::showSplashScreen() {
         renderDevice->setColorClearValue(Color3::white());
         renderDevice->clear();
 
-        int s = gfxMeterTexture->texelWidth();
+        int s = gfxMeterTexture->width();
         int w = 800, h = 600;
         renderDevice->setTexture(0, gfxMeterTexture);
         Draw::rect2D(Rect2D::xywh(w/2-s/2,h/2-s/2,s,s), renderDevice);
