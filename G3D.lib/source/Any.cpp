@@ -288,8 +288,7 @@ void Any::setName(const std::string& n) {
 
 
 int Any::size() const {
-    switch (m_type)
-    {
+    switch (m_type) {
     case TABLE:
         debugAssertM(m_data != NULL,"NULL m_data");
         return m_data->value.t->size();
@@ -398,8 +397,7 @@ const Any& Any::get(const std::string& x, const Any& defaultVal) const {
 bool Any::operator==(const Any& x) const {
     if( m_type != x.m_type )
         return false;
-    switch (m_type)
-    {
+    switch (m_type) {
     case NONE:
         return true;
     case BOOLEAN:
@@ -480,8 +478,7 @@ void Any::save(const std::string& filename) const {
 
 void Any::serialize(TextOutput& to) const {
     // TODO: Need to output comment(s).
-    switch (m_type)
-    {
+    switch (m_type) {
     case NONE:
         throw WrongType(NONE,m_type);
         break;
