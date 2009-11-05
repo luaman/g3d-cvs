@@ -14,9 +14,51 @@
 #include <sstream>
 
 
+static void testConstruct() {
+
+    {
+        Any x = 3;
+        debugAssert(x.type() == Any::NUMBER);
+    }
+
+    {
+        Any x = 3.1;
+        debugAssert(x.type() == Any::NUMBER);
+    }
+
+    {
+        Any x = 3.1f;
+        debugAssert(x.type() == Any::NUMBER);
+    }
+
+    {
+        Any x = true;
+        debugAssert(x.type() == Any::BOOLEAN);
+    }
+
+    {
+        Any x = "hello";
+        debugAssert(x.type() == Any::STRING);
+    }
+
+    {
+        Any x = std::string("hello");
+        debugAssert(x.type() == Any::STRING);
+    }
+
+    {
+        Any y = "hello";
+        Any x = y;
+        debugAssert(x.type() == Any::STRING);
+    }
+
+}
+
 void testAny() {
 
     printf("G3D::Any ");
+
+    testConstruct();
 
     std::stringstream errss;
 

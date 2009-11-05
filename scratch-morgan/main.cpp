@@ -439,7 +439,7 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
 	(void)argc;
 	(void)argv;
-    //Any x = 3;
+    Any x = 3;
 
     return 1;
 
