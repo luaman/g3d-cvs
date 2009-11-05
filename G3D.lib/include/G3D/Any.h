@@ -166,6 +166,7 @@ private:
         Data(const std::string& x);
         Data(const Array<Any>& x);
         Data(const Table<std::string, Any>& x);
+        Data(const Data &);    // Mutate.
         ~Data();
     };
 
@@ -183,15 +184,15 @@ private:
         expected type e.*/
     void checkType(Type e) const;
 
-    /** Returns a copy of the m_value. */
-    void* copyValue() const;
+//  /** Returns a copy of the m_value. */
+//  void* copyValue() const;
 
     /** Ensures that this has a unique reference and
         contains a valid m_data.*/
     void ensureMutable();
 
-    void allocData();
-    void freeData();
+//  void allocData();
+//  void freeData();
 
 public:
 
@@ -259,6 +260,9 @@ public:
     /** STRING constructor */
     Any(const std::string& x);
 
+    /** STRING constructor */
+    Any(const char* x);
+
     /** \a t must be ARRAY or TABLE */
     Any(Type t, const std::string& name = "");
     
@@ -278,8 +282,9 @@ public:
 
     /** Removes the comment and name */
     Any& operator=(const std::string& x);
-    /** \a t must be ARRAY, TABLE, or NONE. Removes the comment and name */
-    Any& operator=(Type t);
+
+//  /** \a t must be ARRAY, TABLE, or NONE. Removes the comment and name */
+//  Any& operator=(Type t);
 
     Type type() const;
     
@@ -292,11 +297,11 @@ public:
 
     /** Throws a WrongType exception if this is not a number */
     double number() const;
-    double number(double defaultVal) const;
+//  double number(double defaultVal) const;
     const std::string& string() const;
-    const std::string& string(const std::string& defaultVal) const;
+//  const std::string& string(const std::string& defaultVal) const;
     bool boolean() const;
-    bool boolean(bool defaultVal) const;
+//  bool boolean(bool defaultVal) const;
 
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;

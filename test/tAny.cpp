@@ -18,38 +18,38 @@ static void testConstruct() {
 
     {
         Any x = 3;
-        debugAssert(x.type() == Any::NUMBER);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = 3.1;
-        debugAssert(x.type() == Any::NUMBER);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = 3.1f;
-        debugAssert(x.type() == Any::NUMBER);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = true;
-        debugAssert(x.type() == Any::BOOLEAN);
+        debugAssertM(x.type() == Any::BOOLEAN,Any::stringType(x.type())+" when expecting BOOLEAN");
     }
 
     {
         Any x = "hello";
-        debugAssert(x.type() == Any::STRING);
+        debugAssertM(x.type() == Any::STRING,Any::stringType(x.type())+" when expecting STRING");
     }
 
     {
         Any x = std::string("hello");
-        debugAssert(x.type() == Any::STRING);
+        debugAssertM(x.type() == Any::STRING,Any::stringType(x.type())+" when expecting STRING");
     }
 
     {
         Any y = "hello";
         Any x = y;
-        debugAssert(x.type() == Any::STRING);
+        debugAssertM(x.type() == Any::STRING,Any::stringType(x.type())+" when expecting STRING");
     }
 
 }
@@ -68,14 +68,14 @@ void testAny() {
 
         any.load("Any-load.txt");
         any2 = any;
-        if( any != any2 ) {
+        if (any != any2) {
             any2.save("Any-failed.txt");
             throw "Two objects of class Any differ after assigning one to the other.";
         }
 
         any .save("Any-save.txt");
         any2.load("Any-save.txt");
-        if( any != any2 ) {
+        if (any != any2) {
             any2.save("Any-failed.txt");
             throw "Any-load.txt and Any-save.txt differ.";
         }
@@ -96,7 +96,7 @@ void testAny() {
         errss << "failed: const char* \"" << err << "\"\n";
     }
 
-    if( !errss.str().empty() )
+    if (!errss.str().empty())
         debugAssertM(false, errss.str());
 
     printf("passed\n");
