@@ -763,5 +763,30 @@ void Any::deserializeArray(TextInput& ti,const std::string& term) {
 }
 
 
+Any::operator int() const {
+    return iRound(number());
+}
+
+
+Any::operator float() const {
+    return float(number());
+}
+
+
+Any::operator double() const {
+    return number();
+}
+
+
+Any::operator bool() const {
+    return boolean();
+}
+
+
+Any::operator std::string() const {
+    return string();
+}
+
+
 }    // namespace G3D
 

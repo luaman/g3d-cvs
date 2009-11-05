@@ -339,6 +339,12 @@ public:
     bool operator==(const Any& x) const;
     bool operator!=(const Any& x) const;
 
+    operator int() const;
+    operator float() const;
+    operator double() const;
+    operator bool() const;
+    operator std::string() const;
+
     /** Uses the deserialize method */
     void load(const std::string& filename);
 

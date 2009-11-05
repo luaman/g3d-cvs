@@ -54,11 +54,45 @@ static void testConstruct() {
 
 }
 
+static void testCast() {
+    {
+        Any a = 3;
+        int x = int(a.number());
+        debugAssert(x == 3);
+    }
+    {
+        Any a = 3;
+        int x = a;
+        debugAssert(x == 3);
+    }
+    {
+        Any a = 3.1;
+        double x = a;
+        debugAssert(x == 3.1);
+    }
+    {
+        Any a = 3.1f;
+        float x = a;
+        debugAssert(fuzzyEq(x, 3.1f));
+    }
+    {
+        Any a = true;
+        bool x = a;
+        debugAssert(x == true);
+    }
+    {
+        Any a = "hello";
+        std::string x = a;
+        debugAssert(x == "hello");
+    }
+}
+
 void testAny() {
 
     printf("G3D::Any ");
 
     testConstruct();
+    testCast();
 
     std::stringstream errss;
 
