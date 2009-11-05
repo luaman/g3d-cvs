@@ -748,13 +748,15 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
             std::string s;
             if (w == h) {
                 // Use ASCII squared character
-                m_lastSizeCaption = format("%d\xB2", w);
+                m_lastSizeCaption = format("(%d\xB2)", w);
             } else {
-                m_lastSizeCaption = format("%dx%d", w, h);
+                m_lastSizeCaption = format("(%dx%d)", w, h);
             }
         }
-        theme->renderLabel(Rect2D::xywh(m_rect.x1y0() + Vector2(-50, 0), Vector2(46, 12)), 
-                           m_lastSizeCaption, GFont::XALIGN_RIGHT, GFont::YALIGN_TOP, m_enabled);
+
+        float regularCaptionWidth = theme->bounds(m_caption).x + 11;
+        theme->renderLabel(Rect2D::xywh(m_rect.x0y0() + Vector2(regularCaptionWidth, 0), Vector2(46, 12)), 
+                           m_lastSizeCaption, GFont::XALIGN_LEFT, GFont::YALIGN_TOP, m_enabled);
     }
 
     // Render child controls so that they slide under the canvas

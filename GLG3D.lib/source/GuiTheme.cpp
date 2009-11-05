@@ -464,7 +464,7 @@ void GuiTheme::renderCanvas
     (const Rect2D&      fullBounds, 
      bool               enabled, 
      bool               focused, 
-     const GuiText&  caption,
+     const GuiText&     caption,
      float              captionHeight) const {
 
     const Rect2D& bounds = canvasToClickBounds(fullBounds, captionHeight);
