@@ -289,8 +289,8 @@ public:
     /** Removes the comment and name */
     Any& operator=(const std::string& x);
 
-//  /** \a t must be ARRAY, TABLE, or NONE. Removes the comment and name */
-//  Any& operator=(Type t);
+    /** \a t must be ARRAY, TABLE, or NONE. Removes the comment and name */
+    Any& operator=(Type t);
 
     Type type() const;
     

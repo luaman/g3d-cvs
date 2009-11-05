@@ -207,8 +207,17 @@ Any& Any::operator=(const std::string& x) {
 }
 
 
-//Any& Any::operator=(Type t) {
-//}
+Any& Any::operator=(Type t) {
+    switch (t) {
+    case NONE:  
+        return (*this = Any());
+    case TABLE: 
+    case ARRAY: 
+        return (*this = Any(t));
+    default:    
+        throw WrongType(NONE,t);
+    }
+}
 
 
 Any::Type Any::type() const {
