@@ -185,15 +185,10 @@ private:
     friend class UserInput;
     friend class VertexAndPixelShader;
 
-    OSWindow*                    _window;
+    OSWindow*                    m_window;
 
-    /** Should the destructor delete _window?*/
-    bool                        deleteWindow;
-
-    /**
-     The current GLGeom generation.  Used for vertex arrays.
-     */
-    uint32                      generation;
+    /** Should the destructor delete m_window?*/
+    bool                        m_deleteWindow;
 
     /** \deprecated (Not supported on most LCDs) */
     void setGamma(
@@ -205,14 +200,14 @@ private:
     /**
      For counting the number of beginFrame/endFrames.
      */
-    int                         beginEndFrame;
+    int                         m_beginEndFrame;
 
-    bool                        _swapBuffersAutomatically;
+    bool                        m_swapBuffersAutomatically;
 
     /** True after endFrame until swapGLBuffers is invoked.
-        Used to correctly manage value changes of _swapBuffersAutomatically
+        Used to correctly manage value changes of m_swapBuffersAutomatically
         so that a frame not intended to be seen is never rendered.*/
-    bool                        swapGLBuffersPending;
+    bool                        m_swapGLBuffersPending;
 
     /** Sets the texture matrix without checking to see if it needs to
         be changed.*/
@@ -220,17 +215,17 @@ private:
     void forceSetTextureMatrix(int unit, const double* m);
 
     /** Argument to last beginPrimitive() */
-    Primitive                   currentPrimitive;
+    Primitive                   m_currentPrimitive;
 
     /** Number of vertices since last beginPrimitive() */
-    int                         currentPrimitiveVertexCount;
+    int                         m_currentPrimitiveVertexCount;
    
     /** The area used inside of an indexedPrimitives call. */
-    VertexBuffer::Ref                currentVARArea;
+    VertexBuffer::Ref           m_currentVARArea;
     
     std::string                 cardDescription;
 
-    /** Helper for setXXXArray.  Sets the currentVARArea and
+    /** Helper for setXXXArray.  Sets the m_currentVARArea and
         makes some consistency checks.*/
     void setVARAreaFromVAR(const class VertexRange& v);
 
@@ -240,14 +235,14 @@ private:
     void countTriangles(RenderDevice::Primitive primitive, int numVertices);
 
     /**
-     Sets the milestones on the currentVARArea.
+     Sets the milestones on the m_currentVARArea.
      */
     void setVARAreaMilestone();
 
     /** Called by sendIndices. */
     void internalSendIndices
     (RenderDevice::Primitive primitive,
-     size_t                  indexSize, 
+     int                     indexSize, 
      int                     numIndices, 
      const void*             index,
      int                     numInstances,
@@ -337,7 +332,7 @@ public:
 protected:
 
     /** Time at which the previous endFrame() was called */
-    RealTime            lastTime;
+    RealTime            m_lastTime;
 
     Stats               m_stats;
 
@@ -649,7 +644,7 @@ public:
     void endFrame();
 
     inline bool swapBuffersAutomatically() const {
-        return _swapBuffersAutomatically;
+        return m_swapBuffersAutomatically;
     }
 
     /** Manually swap the front and back buffers.  Using swapBuffersAutomatically() is recommended
@@ -712,13 +707,13 @@ public:
     void setDrawBuffer(DrawBuffer drawBuffer);
 
     inline DrawBuffer drawBuffer() const {
-        return state.drawBuffer;
+        return m_state.drawBuffer;
     }
 
     void setReadBuffer(ReadBuffer readBuffer);
 
     inline ReadBuffer readBuffer() const {
-        return state.readBuffer;
+        return m_state.readBuffer;
     }
 
     inline void setDepthRange(float low, float high);
@@ -959,14 +954,14 @@ public:
      Set the vertex color (equivalent to glColor).
      */
     inline void setColor(const Color4& color) {
-        state.color = color;
-        glColor4fv(state.color);
+        m_state.color = color;
+        glColor4fv(m_state.color);
     }
 
 
     inline void setColor(const Color3& color) {
-        state.color = Color4(color, 1);
-        glColor3fv(state.color);
+        m_state.color = Color4(color, 1);
+        glColor3fv(m_state.color);
     }
 
     /**
@@ -990,7 +985,7 @@ public:
     void setCullFace(CullFace f);
 
     inline CullFace cullFace() const {
-        return state.cullFace;
+        return m_state.cullFace;
     }
 
     /**
@@ -1528,30 +1523,30 @@ private:
         //bool operator==(const RenderState& other) const;
     };
 
-    float                           _minLineWidth;
+    float                           m_minLineWidth;
 
-    VertexAndPixelShaderRef         lastVertexAndPixelShader;
+    VertexAndPixelShaderRef         m_lastVertexAndPixelShader;
 
     GLint toGLStencilOp(RenderDevice::StencilOp op) const;
 
     /**
      True between beginPrimitive and endPrimitive
      */
-    bool                            inPrimitive;
+    bool                            m_inPrimitive;
 
     /** Has beginOpenGL been called? */
-    bool                            inRawOpenGL;
+    bool                            m_inRawOpenGL;
 
     /** True while invoking a Shader's methods */
-    bool                            inShader;
+    bool                            m_inShader;
 
-    bool                            inIndexedPrimitive;
+    bool                            m_inIndexedPrimitive;
 
-    int                             _numTextureUnits;
+    int                             m_numTextureUnits;
 
-    int                             _numTextures;
+    int                             m_numTextures;
 
-    int                             _numTextureCoords;
+    int                             m_numTextureCoords;
 
     /**
      Called from the various setXLight functions.
@@ -1563,19 +1558,19 @@ private:
     /**
      Current render state.
      */
-    RenderState                     state;
+    RenderState                     m_state;
 
     /**
      Old render states
      */
-    Array<RenderState>              stateStack;
+    Array<RenderState>              m_stateStack;
 
     /** Only called from pushState */
     void setState(
         const RenderState&          newState);
 
-    bool                            _initialized;
-    bool                            cleanedup;
+    bool                            m_initialized;
+    bool                            m_cleanedup;
 
     /** Cache of values supplied to supportsImageFormat.
         Works on pointers since there is no way for users
@@ -1607,11 +1602,11 @@ public:
 
     /** Forces setLineWidth to max against this value.  Default is 0 */
     inline void setMinLineWidth(float W) {
-        _minLineWidth = W;
+        m_minLineWidth = W;
     }
 
     inline float minLineWidth() const {
-        return _minLineWidth;
+        return m_minLineWidth;
     }
 
     /**
@@ -1667,7 +1662,7 @@ public:
     void setFramebuffer(const Framebuffer::Ref &fbo);
 
     Framebuffer::Ref framebuffer() const {
-        return state.framebuffer;
+        return m_state.framebuffer;
     }
 
     /**
@@ -1677,7 +1672,7 @@ public:
      @return true On Complete Framebuffer
     */
     inline bool currentFramebufferComplete(std::string& whyIncomplete = dummyString) const {
-        return state.framebuffer.isNull() || 
+        return m_state.framebuffer.isNull() || 
 			   checkFramebuffer(whyIncomplete);
     }
 
@@ -1717,11 +1712,11 @@ public:
     bool initialized() const;
 
     inline const Color4& color() const {
-        return state.color;
+        return m_state.color;
     }
 
     inline ShadeMode shadeMode() const {
-        return state.shadeMode;
+        return m_state.shadeMode;
     }
 
 	/**
@@ -1806,7 +1801,7 @@ public:
         const Color4&        color);
 
     const Color4& ambientLightColor() const {
-        return state.lights.ambient;
+        return m_state.lights.ambient;
     }
 
     /** Returns an approximation of the current fixed function lighting state */
@@ -1923,38 +1918,38 @@ public:
 
 
 inline void RenderDevice::setAlphaWrite(bool a) {
-    debugAssert(! inPrimitive);
+    debugAssert(! m_inPrimitive);
     minStateChange();
-    if (state.alphaWrite != a) {
+    if (m_state.alphaWrite != a) {
         minGLStateChange();
-        GLboolean c = state.colorWrite ? GL_TRUE : GL_FALSE;
-        state.alphaWrite = a;
-        glColorMask(c, c, c, state.alphaWrite ? GL_TRUE : GL_FALSE);
+        GLboolean c = m_state.colorWrite ? GL_TRUE : GL_FALSE;
+        m_state.alphaWrite = a;
+        glColorMask(c, c, c, m_state.alphaWrite ? GL_TRUE : GL_FALSE);
     }
 }
 
 
 inline void RenderDevice::setColorWrite(bool a) {
-    debugAssert(! inPrimitive);
+    debugAssert(! m_inPrimitive);
     minStateChange();
-    if (state.colorWrite != a) {
+    if (m_state.colorWrite != a) {
         minGLStateChange();
         GLboolean c = a ? GL_TRUE : GL_FALSE;
-        state.colorWrite = a;
-        glColorMask(c, c, c, state.alphaWrite ? GL_TRUE : GL_FALSE);
+        m_state.colorWrite = a;
+        glColorMask(c, c, c, m_state.alphaWrite ? GL_TRUE : GL_FALSE);
     }
 }
 
 
 inline void RenderDevice::setDepthWrite(bool a) {
-    debugAssert(! inPrimitive);
+    debugAssert(! m_inPrimitive);
     minStateChange();
-    if (state.depthWrite != a) {
+    if (m_state.depthWrite != a) {
         minGLStateChange();
         glDepthMask(a);
-        state.depthWrite = a;
-        if (state.depthTest == DEPTH_ALWAYS_PASS) {
-            setDepthTest(state.depthTest);
+        m_state.depthWrite = a;
+        if (m_state.depthTest == DEPTH_ALWAYS_PASS) {
+            setDepthTest(m_state.depthTest);
         }
     }
 }
@@ -1962,8 +1957,8 @@ inline void RenderDevice::setDepthWrite(bool a) {
 
 inline void RenderDevice::setShadeMode(ShadeMode s) {
     minStateChange();
-    if (s != state.shadeMode) {
-        state.shadeMode = s;
+    if (s != m_state.shadeMode) {
+        m_state.shadeMode = s;
         glShadeModel((s == SHADE_FLAT) ? GL_FLAT : GL_SMOOTH);
         minGLStateChange();
     }
@@ -1976,11 +1971,11 @@ inline void RenderDevice::setDepthRange(
 
     majStateChange();
 
-    if ((state.lowDepthRange != low) ||
-        (state.highDepthRange != high)) {
+    if ((m_state.lowDepthRange != low) ||
+        (m_state.highDepthRange != high)) {
         glDepthRange(low, high);
-        state.lowDepthRange = low;
-        state.highDepthRange = high;
+        m_state.lowDepthRange = low;
+        m_state.highDepthRange = high;
 
         minGLStateChange();
     }

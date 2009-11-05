@@ -477,7 +477,7 @@ private:
     Color4                          m_max;
     Color4                          m_mean;
 
-    static size_t                   m_sizeOfAllTexturesInMemory;
+    static int64                    m_sizeOfAllTexturesInMemory;
 
     Texture(
         const std::string&          name,
@@ -741,13 +741,13 @@ public:
      video memory textures with main memory, so the total memory 
      is actually twice this number.
      */
-    size_t sizeInMemory() const;
+    int sizeInMemory() const;
 
     /**
      Video memory occupied by all OpenGL textures allocated using Texture
      or maintained by pointers to a Texture.
      */
-    inline static size_t sizeOfAllTexturesInMemory() {
+    inline static int64 sizeOfAllTexturesInMemory() {
         return m_sizeOfAllTexturesInMemory;
     }
 

@@ -14,7 +14,7 @@
 
 namespace G3D {
 
-size_t sizeOfGLFormat(GLenum format) {
+int sizeOfGLFormat(GLenum format) {
     switch (format) {
     case GL_2_BYTES:
         return 2;

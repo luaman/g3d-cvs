@@ -422,7 +422,7 @@ void ArticulatedModel::Part::updateVAR(VertexBuffer::UsageHint hint) {
     } else {
 
         // Maximum round-up size of varArea.
-        size_t roundOff = 16;
+        int roundOff = 16;
 
         // Allocate new VARs
         VertexBufferRef varArea = VertexBuffer::create(vtxSize * 2 + texSize + tanSize + roundOff, hint);
@@ -584,7 +584,7 @@ void ArticulatedModel::Part::TriList::updateVAR
         return;
     }
 
-    size_t indexSize = sizeof(int);
+    int indexSize = sizeof(int);
     if (index.size() != indexArray.size()) {
         // Create new
         VertexBufferRef area = VertexBuffer::create(indexSize * indexArray.size(), hint, VertexBuffer::INDEX);

@@ -38,7 +38,7 @@ std::string getOpenGLState(bool showDisabled=true);
  an OpenGL format (e.g. GL_FLOAT).  Returns 0 for unknown
  formats.
  */
-size_t sizeOfGLFormat(GLenum format);
+int sizeOfGLFormat(GLenum format);
 
 /**
  Pretty printer for GLenums.  Useful for debugging OpenGL

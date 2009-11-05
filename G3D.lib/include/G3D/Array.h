@@ -458,7 +458,7 @@ public:
 
                   float growFactor = 3.0;
 
-                  size_t oldSizeBytes = numAllocated * sizeof(T);
+                  int oldSizeBytes = numAllocated * sizeof(T);
                   if (oldSizeBytes > 400000) {
                       // Avoid bloat
                       growFactor = 1.5;

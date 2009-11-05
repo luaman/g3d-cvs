@@ -314,7 +314,7 @@ static void generateCubeMapFilenames(const std::string& src, std::string realFil
 }
 
 
-size_t Texture::m_sizeOfAllTexturesInMemory = 0;
+int64 Texture::m_sizeOfAllTexturesInMemory = 0;
 
 /**
  Returns true if the system supports automatic MIP-map generation.
@@ -426,7 +426,7 @@ static void createMipMapTexture(
     int             m_width,
     int             m_height,
     GLenum          ImageFormat,
-    size_t          bytesFormatBytesPerPixel,
+    int             bytesFormatBytesPerPixel,
     float           rescaleFactor,
     GLenum          bytesType,
     bool            computeMinMaxMean,
@@ -906,7 +906,7 @@ Texture::Ref Texture::fromMemory(
             
                 for (int f = 0; f < face.size(); ++f) {
 
-                    size_t numBytes = iCeil(width * height * depth * bytesFormat->packedBitsPerTexel / 8.0f);
+                    int numBytes = iCeil(width * height * depth * bytesFormat->packedBitsPerTexel / 8.0f);
 
                     // Allocate space for the converted image
                     face[f] = System::alignedMalloc(numBytes, 16);
@@ -1593,11 +1593,11 @@ void Texture::getCubeMapRotation(CubeFace face, Matrix3& outMatrix) {
 }
 
 
-size_t Texture::sizeInMemory() const {
+int Texture::sizeInMemory() const {
 
-    int base = (m_width * m_height * m_depth * m_format->hardwareBitsPerTexel) / 8;
+    int64 base = (m_width * m_height * m_depth * m_format->hardwareBitsPerTexel) / 8;
 
-    int total = 0;
+    int64 total = 0;
 
     if (m_settings.interpolateMode == TRILINEAR_MIPMAP) {
         int w = m_width;
@@ -2099,7 +2099,7 @@ static void createMipMapTexture(
     int             m_width,
     int             m_height,
     GLenum          desiredFormat,
-    size_t          bytesFormatBytesPerPixel,
+    int             bytesFormatBytesPerPixel,
     float           rescaleFactor,
     GLenum          bytesType,
     bool            computeMinMaxMean,

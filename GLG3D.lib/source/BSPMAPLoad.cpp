@@ -912,7 +912,7 @@ void Map::loadLightVolumes(
     BinaryInput&           bi,
     const BSPLump&         lump) {
     // size = RGB+RGB+2
-    size_t size = 8;
+    int size = 8;
     lightVolumesCount       = lump.length / size;
     if (lightVolumesCount != lightVolumesGrid.x * lightVolumesGrid.y * lightVolumesGrid.z) {
         logPrintf("WARNING: Quake map has corrupt lightVolumesCount.\n");
