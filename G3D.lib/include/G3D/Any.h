@@ -252,7 +252,13 @@ public:
     Any(double x);
 
     /** NUMBER constructor */
+    Any(long x);
+
+    /** NUMBER constructor */
     Any(int x);
+
+    /** NUMBER constructor */
+    Any(short x);
 
     /** BOOLEAN constructor */
     Any(bool x);

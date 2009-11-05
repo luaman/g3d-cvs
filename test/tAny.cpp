@@ -32,6 +32,11 @@ static void testConstruct() {
     }
 
     {
+        Any x = NULL;
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+    }
+
+    {
         Any x = true;
         debugAssertM(x.type() == Any::BOOLEAN,Any::stringType(x.type())+" when expecting BOOLEAN");
     }
