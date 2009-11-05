@@ -407,8 +407,7 @@ bool Any::operator==(const Any& x) const {
     case STRING:
         debugAssertM(m_data != NULL,"NULL m_data");
         return (*(m_data->value.s) == *(x.m_data->value.s));
-    case TABLE:
-    {
+    case TABLE: {
         if (size() != x.size())
             return false;
         debugAssertM(m_data != NULL,"NULL m_data");
@@ -423,8 +422,7 @@ bool Any::operator==(const Any& x) const {
                 return false;
         return true;
     }
-    case ARRAY:
-    {
+    case ARRAY: {
         if (size() != x.size())
             return false;
         debugAssertM(m_data != NULL,"NULL m_data");
@@ -492,8 +490,7 @@ void Any::serialize(TextOutput& to) const {
         debugAssertM(m_data != NULL,"NULL m_data");
         to.writeString(*(m_data->value.s));
         break;
-    case TABLE:
-    {
+    case TABLE: {
         debugAssertM(m_data != NULL,"NULL m_data");
         if (!m_data->name.empty())
             to.writeSymbol(m_data->name);
@@ -520,8 +517,7 @@ void Any::serialize(TextOutput& to) const {
         to.writeNewline();
         break;
     }
-    case ARRAY:
-    {
+    case ARRAY: {
         debugAssertM(m_data != NULL,"NULL m_data");
         if (!m_data->name.empty())
             to.writeSymbol(m_data->name);
