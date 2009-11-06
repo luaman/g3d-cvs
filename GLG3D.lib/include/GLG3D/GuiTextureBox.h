@@ -152,9 +152,6 @@ protected:
     /** Readback position */
     mutable Vector2int16     m_readbackXY;
 
-    /** True if the mouse moved since m_texel was updated */
-    mutable bool             m_needReadback;
-
     bool                     m_embeddedMode;
 
     static WeakReferenceCountedPointer<Shader> g_cachedShader;

@@ -8,6 +8,7 @@
  Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
+#include "GLG3D/GApp.h" // TODO: remove
 
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/RenderDevice.h"
@@ -80,9 +81,9 @@ GuiTextureBox::GuiTextureBox
     m_settings(s), 
     m_showInfo(true), 
     m_dragging(false), 
-    m_needReadback(true),
     m_drawerOpen(embeddedMode),
-    m_embeddedMode(embeddedMode) {
+    m_embeddedMode(embeddedMode),
+    m_readbackXY(-1, -1) {
 
     // Height of caption and button bar
     const float cs = TOP_CAPTION_SIZE;
@@ -252,8 +253,6 @@ bool GuiTextureBox::onEvent(const GEvent& event) {
         return false;
     }
 
-    m_needReadback = true;
-
     if (! m_enabled) {
         return false;
     }
@@ -282,7 +281,6 @@ bool GuiTextureBox::onEvent(const GEvent& event) {
         }
 
     } else if (event.type == GEventType::MOUSE_MOTION) {
-        m_needReadback = true;
         if (m_dragging) {
             Vector2 mouse(event.motion.x, event.motion.y);
             
@@ -817,32 +815,35 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                     if (m_clipBounds.contains(mousePos) && r.contains(mousePos)) {
                         mousePos -= r.x0y0();
                         // Convert to texture coordinates
-                        mousePos *= Vector2(w - 1, h - 1) / (r.wh() - Vector2(1, 1));
+                        mousePos *= Vector2(w, h) / r.wh();
+                        //screenPrintf("w=%d h=%d", w, h);
                         int ix = iFloor(mousePos.x);
                         int iy = iFloor(mousePos.y);
-                        m_readbackXY.x = ix;
-                        m_readbackXY.y = iy;
-                        if (m_needReadback) {
-                            m_texel = m_texture->readTexel(ix, iy, rd);
-                            m_needReadback = false;
-                        }
 
-                        // Only display the values on-screen when we're not embedded
-                        if (! m_embeddedMode) {
-                            std::string s = format("xy:    (%d, %d)", ix, iy);                    
-                            pos.y += font->draw2D(rd, s, pos, style.size, front, back).y * lineSpacing;
-                            if (m_texture->invertY) {
-                                pos.y += font->draw2D(rd, "after y-inversion", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                        if (ix >= 0 && ix < w && iy >= 0 && iy < h) {
+                            if (m_readbackXY.x != ix || m_readbackXY.y != iy) {
+                                m_readbackXY.x = ix;
+                                m_readbackXY.y = iy;
+                                m_texel = m_texture->readTexel(ix, iy, rd);
                             }
 
-                            Color4uint8 ci(m_texel);
-                            pos.y += 
-                                font->draw2D(rd, 
-                                             format("rgba:(%.3f, %.3f, %.3f, %.3f)", 
-                                                    m_texel.r, m_texel.g, m_texel.b, m_texel.a),
-                                                    pos, style.size, front, back).y * lineSpacing;
-                            if (m_settings.documentGamma != 2.2f) {
-                                pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                            // Only display the values on-screen when we're not embedded
+                            if (! m_embeddedMode) {
+                                std::string s = format("xy:    (%d, %d)", ix, iy);                    
+                                pos.y += font->draw2D(rd, s, pos, style.size, front, back).y * lineSpacing;
+                                if (m_texture->invertY) {
+                                    pos.y += font->draw2D(rd, "after y-inversion", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                                }
+
+                                Color4uint8 ci(m_texel);
+                                pos.y += 
+                                    font->draw2D(rd, 
+                                                 format("rgba:(%.3f, %.3f, %.3f, %.3f)", 
+                                                        m_texel.r, m_texel.g, m_texel.b, m_texel.a),
+                                                        pos, style.size, front, back).y * lineSpacing;
+                                if (m_settings.documentGamma != 2.2f) {
+                                    pos.y += font->draw2D(rd, "before gamma correction", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
+                                }
                             }
                         }
                     }

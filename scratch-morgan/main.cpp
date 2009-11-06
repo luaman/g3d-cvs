@@ -65,12 +65,23 @@ App::App(const GApp::Settings& settings) : GApp(settings), histogram(NULL) {
 
 void App::onInit() {
 
+    showRenderingStats = false;
+
     if (true) {
-        Texture::Ref t = Texture::fromFile("D:/morgan/G3D/data-files/image/checkerboard.jpg");
+        /*
+        Texture::Ref t = Texture::fromFile("D:/morgan/4pix.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
         GuiTextureBox* b = debugPane->addTextureBox("Texture", t);
-        b->setSize(300, 300);
-        b->zoomTo1();
+        b->setSize(500, 500);
+        b->zoomToFit();
+*/
+        Texture::Ref t2 = Texture::fromFile("D:/morgan/30.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+        t2->invertY = ! t2->invertY;
+        GuiTextureBox* c = debugPane->addTextureBox("Texture", t2);
+        c->setSize(500, 500);
+        c->zoomToFit();
         debugPane->pack();
+        debugWindow->setVisible(true);
+        debugWindow->moveTo(Vector2(0, 0));
     }
     
 

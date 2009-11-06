@@ -1315,7 +1315,7 @@ void RenderDevice::endFrame() {
     {
         // small inter-frame time: A (interpolation parameter) is small
         // large inter-frame time: A is big
-        double A = clamp(dt * 0.6, 0.005, 1.0);
+        double A = clamp(dt * 0.6, 0.001, 1.0);
         if (abs(m_stats.smoothFrameRate - m_stats.frameRate) / max(m_stats.smoothFrameRate, m_stats.frameRate) > 0.18) {
             // There's a huge discrepancy--something major just changed in the way we're rendering
             // so we should jump to the new value.
