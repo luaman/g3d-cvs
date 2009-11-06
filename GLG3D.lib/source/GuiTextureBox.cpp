@@ -43,7 +43,7 @@ const GuiTextureBox::Settings& GuiTextureBox::Settings::unitVector() {
 
 
 const GuiTextureBox::Settings& GuiTextureBox::Settings::depthBuffer() {
-    static const Settings s(RasL, 1.0f, 0.1f, 1.0f);
+    static const Settings s(RasL, 9.0f, 0.2f, 1.0f);
     return s;
 }
 
@@ -434,7 +434,7 @@ public:
         GuiLabel* documentCaption = visPane->addLabel("Document");
         documentCaption->setWidth(65.0f);
         GuiNumberBox<float>* gammaBox = 
-            visPane->addNumberBox(GuiText("g", GFont::fromFile(System::findDataFile("greek.fnt"))), &m_settings.documentGamma, "", GuiTheme::LINEAR_SLIDER, 0.1f, 10.0f);
+            visPane->addNumberBox(GuiText("g", GFont::fromFile(System::findDataFile("greek.fnt"))), &m_settings.documentGamma, "", GuiTheme::LINEAR_SLIDER, 0.1f, 15.0f);
         gammaBox->setCaptionSize(15.0f);
         gammaBox->setUnitsSize(5.0f);
         gammaBox->setWidth(150.0f);

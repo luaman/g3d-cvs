@@ -18,8 +18,8 @@
 namespace G3D {
 
 GCamera::GCamera() {
-    setNearPlaneZ(-0.1f);
-    setFarPlaneZ(-finf());
+    setNearPlaneZ(-0.2f);
+    setFarPlaneZ(-100.0f);
     setFieldOfView((float)toRadians(90.0f), HORIZONTAL);
 }
 
