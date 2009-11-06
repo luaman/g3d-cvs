@@ -252,6 +252,13 @@ public:
     Any(double x);
 
     /** NUMBER constructor */
+    Any(int64 x);
+
+    /** NUMBER constructor */
+    Any(int32 x);
+
+#if 0
+    /** NUMBER constructor */
     Any(long x);
 
     /** NUMBER constructor */
@@ -259,6 +266,7 @@ public:
 
     /** NUMBER constructor */
     Any(short x);
+#endif    // 0
 
     /** BOOLEAN constructor */
     Any(bool x);

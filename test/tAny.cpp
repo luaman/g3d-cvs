@@ -17,7 +17,32 @@
 static void testConstruct() {
 
     {
-        Any x = 3;
+        Any x = char(3);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+    }
+
+    {
+        Any x = short(3);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+    }
+
+    {
+        Any x = int(3);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+    }
+
+    {
+        Any x = long(3);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+    }
+
+    {
+        Any x = int32(3);
+        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+    }
+
+    {
+        Any x = int64(3);
         debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
     }
 

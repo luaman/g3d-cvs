@@ -14,6 +14,7 @@
 #include "G3D/Any.h"
 #include "G3D/TextOutput.h"
 #include <deque>
+#include <iostream>
 
 namespace G3D {
    
@@ -126,6 +127,15 @@ Any::Any(double x) : m_type(NUMBER), m_simpleValue(x), m_data(NULL) {
 }
 
 
+Any::Any(int64 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
+}
+
+
+Any::Any(int32 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
+}
+
+
+#if 0
 Any::Any(long x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 }
 
@@ -136,6 +146,7 @@ Any::Any(int x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 
 Any::Any(short x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 }
+#endif    // 0
 
 
 Any::Any(bool x) : m_type(BOOLEAN), m_simpleValue(x), m_data(NULL) {
