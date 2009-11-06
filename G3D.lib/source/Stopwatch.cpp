@@ -82,7 +82,7 @@ void Stopwatch::tock() {
             m_smoothFPS = m_fps;
         } else if (emwaFPS <= 20) {
             if (::fabs(m_smoothFPS - emwaFPS) > 0.75) {
-            // Small number and display is off by more than 0.75; round to the nearest 0.1
+                // Small number and display is off by more than 0.75; round to the nearest 0.1
                 m_smoothFPS = floor(emwaFPS * 10.0 + 0.5) / 10.0;
             }
         } else if (::fabs(m_smoothFPS - emwaFPS) > 1.25) {

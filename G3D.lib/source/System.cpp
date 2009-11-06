@@ -807,7 +807,7 @@ std::string System::currentProgramFilename() {
 void System::sleep(RealTime t) {
 
     // Overhead of calling this function, measured from a previous run.
-    static const RealTime OVERHEAD = 0.000006f;
+    static const RealTime OVERHEAD = 0.00006f;
 
     RealTime now = time();
     RealTime wakeupTime = now + t - OVERHEAD;
@@ -819,11 +819,11 @@ void System::sleep(RealTime t) {
     // Sleep(0) yields the remainder of the time slice, which could be a long time.
     // A 1 ms minimum time experimentally kept the "Empty GApp" at nearly no CPU load at 100 fps,
     // yet nailed the frame timing perfectly.
-    static RealTime minRealSleepTime = 1 * units::milliseconds();
+    static RealTime minRealSleepTime = 3 * units::milliseconds();
 
     while (remainingTime > 0) {
 
-        if (remainingTime > minRealSleepTime * 2) {
+        if (remainingTime > minRealSleepTime * 2.5) {
             // Safe to use Sleep with a time... sleep for half the remaining time
             sleepTime = max(remainingTime * 0.5, 0.0005);
         } else if (remainingTime > minRealSleepTime) {

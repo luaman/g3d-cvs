@@ -437,11 +437,8 @@ G3D_START_AT_MAIN();
 
 
 int main(int argc, char** argv) {
-	(void)argc;
-	(void)argv;
-    Any x = 3;
-
-    return 1;
+    (void)argc;
+    (void)argv;
 
     
     //GFont::makeFont(256, "c:/font/courier-128-bold");    exit(0);

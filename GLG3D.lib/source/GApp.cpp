@@ -370,8 +370,9 @@ void GApp::renderDebugInfo() {
                 
                 float fps = renderDevice->stats().smoothFrameRate;
                 std::string s = format(
-                    "% 5dfps % 5.1fM tris % 6.2fM tris/s  GL Calls: %d/%d Maj; %d/%d Min; %d push", 
+                    "% 4d fps (% 3d ms)  % 5.1fM tris  % 6.2fM tris/s   GL Calls: %d/%d Maj;  %d/%d Min;  %d push", 
                     iRound(fps),
+                    iRound(1000.0f / fps),
                     iRound(renderDevice->stats().smoothTriangles / 1e5) * 0.1f,
                     iRound(renderDevice->stats().smoothTriangleRate / 1e4) * 0.01f,
                     majGL, majAll, minGL, minAll, pushCalls);
@@ -652,14 +653,21 @@ void GApp::oneFrame() {
 
         // Perform wait for actual time needed
         RealTime desiredWaitTime = max(0.0, desiredFrameDuration() - cumulativeTime);
-        onWait(max(0.0, desiredWaitTime - m_lastFrameOverWait));
+        onWait(max(0.0, desiredWaitTime - m_lastFrameOverWait) * 0.97);
 
         // Update wait timers
         lastWaitTime = System::time();
         RealTime actualWaitTime = lastWaitTime - now;
 
         // Learn how much onWait appears to overshoot by and compensate
-        m_lastFrameOverWait = (m_lastFrameOverWait + (actualWaitTime - desiredWaitTime)) * 0.5;
+        double thisOverWait = actualWaitTime - desiredWaitTime;
+        if (abs(thisOverWait - m_lastFrameOverWait) / max(abs(m_lastFrameOverWait), abs(thisOverWait)) > 0.4) {
+            // Abruptly change our estimate
+            m_lastFrameOverWait = thisOverWait;
+        } else {
+            // Smoothly change our estimate
+            m_lastFrameOverWait = lerp(m_lastFrameOverWait, thisOverWait, 0.1);
+        }
     }
     m_waitWatch.tock();
 

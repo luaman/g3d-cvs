@@ -1315,7 +1315,12 @@ void RenderDevice::endFrame() {
     {
         // small inter-frame time: A (interpolation parameter) is small
         // large inter-frame time: A is big
-        const double A = clamp(dt, 0.001, 1);
+        double A = clamp(dt * 0.6, 0.005, 1.0);
+        if (abs(m_stats.smoothFrameRate - m_stats.frameRate) / max(m_stats.smoothFrameRate, m_stats.frameRate) > 0.18) {
+            // There's a huge discrepancy--something major just changed in the way we're rendering
+            // so we should jump to the new value.
+            A = 1.0;
+        }
     
         m_stats.smoothFrameRate     = lerp(m_stats.smoothFrameRate, m_stats.frameRate, (float)A);
         m_stats.smoothTriangleRate  = lerp(m_stats.smoothTriangleRate, m_stats.triangleRate, A);
