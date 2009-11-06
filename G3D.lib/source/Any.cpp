@@ -190,9 +190,8 @@ Any& Any::operator=(const Any& x) {
         m_data = const_cast<Data*>(x.m_data);
         m_data->referenceCount.increment();
     }
-    else {
+    else
         m_data = NULL;
-    }
 
     return (*this);
 }
@@ -458,10 +457,9 @@ bool Any::operator==(const Any& x) const {
             return false;
         Array<Any>& cmparray  = *(  m_data->value.a);
         Array<Any>& xcmparray = *(x.m_data->value.a);
-        for (int ii = 0; ii < size(); ++ii) {
+        for (int ii = 0; ii < size(); ++ii)
             if (cmparray[ii] != xcmparray[ii])
                 return false;
-        }
         return true;
     }
     default:
