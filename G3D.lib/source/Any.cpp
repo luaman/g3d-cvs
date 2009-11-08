@@ -127,11 +127,13 @@ Any::Any(double x) : m_type(NUMBER), m_simpleValue(x), m_data(NULL) {
 }
 
 
-#if 0
+#ifdef G3D_32BIT
 Any::Any(int64 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 }
+#endif    // G3D_32BIT
 
 
+#if 0
 Any::Any(int32 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 }
 #endif    // 0

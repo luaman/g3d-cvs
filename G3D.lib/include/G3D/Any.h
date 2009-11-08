@@ -251,10 +251,12 @@ public:
     /** NUMBER constructor */
     Any(double x);
 
-#if 0
+#ifdef G3D_32BIT
     /** NUMBER constructor */
     Any(int64 x);
+#endif    // G3D_32BIT
 
+#if 0
     /** NUMBER constructor */
     Any(int32 x);
 #endif    // 0
