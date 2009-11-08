@@ -8,7 +8,7 @@
  @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
  
  @created 2001-06-02
- @edited  2009-03-27
+ @edited  2009-11-27
  */
 
 #include <limits>
@@ -26,8 +26,22 @@
 #include "G3D/Color3.h"
 #include "G3D/Vector4int8.h"
 #include "G3D/Vector3int32.h"
+#include "G3D/Any.h"
  
 namespace G3D {
+
+Vector3::Vector3(const Any& any) {
+    alwaysAssertM(any.name() == "Vector3", "Malformed Any passed to Vector3 constructor");
+    x = any[0];
+    y = any[1];
+    z = any[2];
+}
+
+Vector3::operator Any() const {
+    Any any(Any::ARRAY, "Vector3");
+    any.append(x, y, z);
+    return any;
+}
 
 Vector3::Vector3(const class Color3& v) : x(v.r), y(v.g), z(v.b) {}
 

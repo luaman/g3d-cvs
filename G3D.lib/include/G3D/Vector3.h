@@ -6,13 +6,13 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-06-02
-  @edited  2009-04-01
+  @edited  2009-11-01
   Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_Vector3_H
-#define G3D_Vector3_H
+#ifndef G3D_Vector3_h
+#define G3D_Vector3_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
@@ -31,6 +31,7 @@ class Vector2;
 class Vector4;
 class Vector4int8;
 class Vector3int32;
+class Any;
 
 /**
   <B>Swizzles</B>
@@ -70,6 +71,12 @@ private:
 public:
     /** Initializes to zero */
     Vector3();
+
+    /** \param any Must be of the form outputted by Vector3::operator Any(): Vector3(x,y,z) */
+    Vector3(const Any& any);
+    
+    /** Converts the Vector3 to an Any. */
+    operator Any() const;
 
     /** Divides by 127 */
     Vector3(const Vector4int8&);
