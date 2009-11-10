@@ -135,6 +135,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rayTrace", "rayTrace.vcproj
 		{4BEDD7F0-0EE2-42A5-9080-309D1F352D77} = {4BEDD7F0-0EE2-42A5-9080-309D1F352D77}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tiff.lib", "tiff.lib.vcproj", "{C5FEB71E-8AB3-4AA2-98AE-F9BCE1F5AA3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -217,6 +219,10 @@ Global
 		{9E2B5365-953E-436D-B93B-992F429CFE2E}.Debug|Win32.Build.0 = Debug|Win32
 		{9E2B5365-953E-436D-B93B-992F429CFE2E}.Release|Win32.ActiveCfg = Release|Win32
 		{9E2B5365-953E-436D-B93B-992F429CFE2E}.Release|Win32.Build.0 = Release|Win32
+		{C5FEB71E-8AB3-4AA2-98AE-F9BCE1F5AA3B}.Debug|Win32.ActiveCfg = Release|Win32
+		{C5FEB71E-8AB3-4AA2-98AE-F9BCE1F5AA3B}.Debug|Win32.Build.0 = Release|Win32
+		{C5FEB71E-8AB3-4AA2-98AE-F9BCE1F5AA3B}.Release|Win32.ActiveCfg = Release|Win32
+		{C5FEB71E-8AB3-4AA2-98AE-F9BCE1F5AA3B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
