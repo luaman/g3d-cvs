@@ -28,7 +28,7 @@
 namespace G3D {
 
 RenderDevice* RenderDevice::lastRenderDeviceCreated = NULL;
-
+std::string RenderDevice::dummyString;
 
 static GLenum toGLBlendFunc(RenderDevice::BlendFunc b) {
     debugAssert(b != RenderDevice::BLEND_CURRENT);
