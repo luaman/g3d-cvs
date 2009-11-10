@@ -3247,10 +3247,8 @@ bool RenderDevice::supportsVertexBufferObject() const {
 }
 
 
-std::string RenderDevice::dummyString;
 bool RenderDevice::checkFramebuffer(std::string& whyNot) const {
-    GLenum status;
-    status = (GLenum)glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    GLenum status = static_cast<GLenum>(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT));
 
     switch(status) {
     case GL_FRAMEBUFFER_COMPLETE_EXT:
@@ -3285,7 +3283,7 @@ bool RenderDevice::checkFramebuffer(std::string& whyNot) const {
 		break;
 
     default:
-        whyNot = "Framebuffer Incomplete: Unknown error.";
+        whyNot = format("Framebuffer Incomplete: Unknown error. (0x%X)", status);
     }
 
     return false;    
