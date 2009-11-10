@@ -16,94 +16,22 @@
 #include "GLG3D/glcalls.h"
 #include "GLG3D/GLCaps.h"
 
-#if defined(G3D_OSX) 
-#   include <SDL/SDL.h>
-#   include <SDL/SDL_syswm.h>
-#elif defined(G3D_FREEBSD)
-#   include <SDL/SDL.h>
-#   include <SDL/SDL_syswm.h>
-#elif defined(G3D_LINUX)
-#   include <SDL/SDL.h>
-#   include <SDL/SDL_syswm.h>
-#elif defined(G3D_WIN32)
-#   include <SDL.h>
-#   include <SDL_syswm.h>
-#endif
-
-#ifdef _MSC_VER
-    // GetSystemMetrics parameters missing in header files
-    #ifndef SM_XVIRTUALSCREEN
-    #define SM_XVIRTUALSCREEN       76
-    #endif
-    #ifndef SM_YVIRTUALSCREEN
-    #define SM_YVIRTUALSCREEN       77
-    #endif
-    #ifndef SM_CXVIRTUALSCREEN
-    #define SM_CXVIRTUALSCREEN      78
-    #endif
-    #ifndef SM_CYVIRTUALSCREEN
-    #define SM_CYVIRTUALSCREEN      79
-    #endif
-    #ifndef SM_CMONITORS
-    #define SM_CMONITORS            80
-    #endif
-    #ifndef SM_SAMEDISPLAYFORMAT
-    #define SM_SAMEDISPLAYFORMAT    81
-    #endif
-#endif
+#include <SDL/SDL.h>
+#include <SDL/SDL_syswm.h>
 
 #define SDL_FSAA (SDL_MAJOR_VERSION * 100 + SDL_MINOR_VERSION * 10 + SDL_PATCHLEVEL > 125)
 
 namespace G3D {
 
-#ifdef G3D_WIN32
-int screenWidth() {
-    return GetSystemMetrics(SM_CXFULLSCREEN);
-    /*
-    int w = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-
-    if (w == 0) {
-        // This call is not supported on older versions of windows
-        return GetSystemMetrics(SM_CXFULLSCREEN);
-    } else {
-        return w;
-    }
-    */
-}
-
-
-int screenHeight() {
-    return GetSystemMetrics(SM_CYFULLSCREEN);
-    /*
-    int h = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-
-    if (h == 0) {
-        // This call is not supported on older versions of windows
-        return GetSystemMetrics(SM_CYFULLSCREEN);
-    } else {
-        return h;
-    }
-    */
-}
-#endif
-
-
-#ifdef G3D_LINUX
-
 int screenWidth(Display* display) {
-	const int screenNumber = DefaultScreen(display);
-	return DisplayWidth(display, screenNumber);
+    const int screenNumber = DefaultScreen(display);
+    return DisplayWidth(display, screenNumber);
 }
 
 int screenHeight(Display* display) {
-	const int screenNumber = DefaultScreen(display);
-	return DisplayHeight(display, screenNumber);
+    const int screenNumber = DefaultScreen(display);
+    return DisplayHeight(display, screenNumber);
 }
-
-#endif
-
-
-#if defined(G3D_LINUX)
 
 /** Replacement for the default assertion hook on Linux. */
 static bool SDL_handleDebugAssert_(
@@ -132,7 +60,6 @@ static bool SDL_handleErrorCheck_(
 
     return _internal::_handleErrorCheck_(expression, message, filename, lineNumber, useGuiPrompt);
 }
-#endif
 
 
 SDLWindow* SDLWindow::create(const OSWindow::Settings& settings) {
@@ -146,37 +73,26 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
     m_settings = settings;
 
-#   if defined(G3D_OSX)
-        NSApplicationWrapper wrapper;
-
-	// Hack to get our window/process to the front...
-	ProcessSerialNumber psn = { 0, kCurrentProcess};    
-	TransformProcessType (&psn, kProcessTransformToForegroundApplication);
-	SetFrontProcess (&psn);
-
-	_pool = new NSAutoreleasePoolWrapper();
-#   endif
-
     if (SDL_Init(SDL_INIT_NOPARACHUTE | 
-		 SDL_INIT_VIDEO | 
-		 SDL_INIT_JOYSTICK) < 0 ) {
+        SDL_INIT_VIDEO |
+        SDL_INIT_JOYSTICK) < 0 ) {
 
         fprintf(stderr, "Unable to initialize SDL: %s\n", SDL_GetError());
-	    debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
-	    Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
-	    exit(1);
+        debugPrintf("Unable to initialize SDL: %s\n", SDL_GetError());
+        Log::common()->printf("Unable to initialize SDL: %s\n", SDL_GetError());
+        exit(1);
     }
-    
+
     // Set default icon if available
     if (!m_settings.defaultIconFilename.empty()) {
         try {
-	        GImage defaultIcon;
-	        defaultIcon.load(m_settings.defaultIconFilename);
-	
-	        setIcon(defaultIcon);
+            GImage defaultIcon;
+            defaultIcon.load(m_settings.defaultIconFilename);
+
+            setIcon(defaultIcon);
         } catch (const GImage::Error& e) {
-	        logPrintf("OSWindow's default icon failed to load: %s (%s)", 
-	        e.filename.c_str(), e.reason.c_str());            
+            logPrintf("OSWindow's default icon failed to load: %s (%s)",
+            e.filename.c_str(), e.reason.c_str());
         }
     }
 
@@ -184,9 +100,9 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
         // This doesn't really work very well due to SDL bugs so we fix up 
         // the position after the window is created.
         if (m_settings.center) {
-	        System::setEnv("SDL_VIDEO_CENTERED", "");
-	    } else {
-	        System::setEnv("SDL_VIDEO_WINDOW_POS", format("%d,%d", m_settings.x, m_settings.y));
+            System::setEnv("SDL_VIDEO_CENTERED", "");
+        } else {
+            System::setEnv("SDL_VIDEO_WINDOW_POS", format("%d,%d", m_settings.x, m_settings.y));
         }
     }
 
@@ -202,7 +118,7 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,       m_settings.rgbBits);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,      m_settings.alphaBits);
     SDL_GL_SetAttribute(SDL_GL_STEREO,          m_settings.stereo);
-    
+
     #if SDL_FSAA
         if (m_settings.fsaaSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -212,32 +128,32 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
     #endif
 
     // Create a width x height OpenGL screen 
-    int flags = 
+    m_videoFlags =
         (m_settings.hardware ? SDL_HWSURFACE : 0) |
         SDL_OPENGL |
         (m_settings.fullScreen ? SDL_FULLSCREEN : 0) |
         (m_settings.resizable ? SDL_RESIZABLE : 0) |
         (m_settings.framed ? 0 : SDL_NOFRAME);
 
-    if (SDL_SetVideoMode(m_settings.width, m_settings.height, 0, flags) == NULL) {
+    if (SDL_SetVideoMode(m_settings.width, m_settings.height, 0, m_videoFlags) == NULL) {
         // Try dropping down to 16-bit depth buffer, the most
         // common problem on X11
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 
-        if (SDL_SetVideoMode(m_settings.width, m_settings.height, 0, flags) == NULL) {
+        if (SDL_SetVideoMode(m_settings.width, m_settings.height, 0, m_videoFlags) == NULL) {
             logPrintf("SDLWindow was unable to create an OpenGL screen: %s\n", 
-		    SDL_GetError());
-	        logPrintf(" width       = %d\n", m_settings.width);
-	        logPrintf(" height      = %d\n", m_settings.height);
-	        logPrintf(" fullscreen  = %d\n", m_settings.fullScreen);
-	        logPrintf(" resizable   = %d\n", m_settings.resizable);
-	        logPrintf(" framed      = %d\n", m_settings.framed);
-	        logPrintf(" rgbBits     = %d\n", m_settings.rgbBits);
-	        logPrintf(" alphaBits   = %d\n", m_settings.alphaBits);
-	        logPrintf(" depthBits   = %d\n", m_settings.depthBits);
-	        logPrintf(" stencilBits = %d\n", m_settings.stencilBits);
+            SDL_GetError());
+            logPrintf(" width       = %d\n", m_settings.width);
+            logPrintf(" height      = %d\n", m_settings.height);
+            logPrintf(" fullscreen  = %d\n", m_settings.fullScreen);
+            logPrintf(" resizable   = %d\n", m_settings.resizable);
+            logPrintf(" framed      = %d\n", m_settings.framed);
+            logPrintf(" rgbBits     = %d\n", m_settings.rgbBits);
+            logPrintf(" alphaBits   = %d\n", m_settings.alphaBits);
+            logPrintf(" depthBits   = %d\n", m_settings.depthBits);
+            logPrintf(" stencilBits = %d\n", m_settings.stencilBits);
             alwaysAssertM(false, "Unable to create OpenGL screen");
-	        exit(-3);
+            exit(-3);
         }
     }
 
@@ -280,54 +196,28 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
     GLCaps::init();
 
-    #if defined(G3D_WIN32)
-        // Extract SDL HDC/HWND on Win32
-        _Win32HWND  = info.window;
-        _Win32HDC   = wglGetCurrentDC();
-    #elif defined(G3D_LINUX)
-        // Extract SDL's internal Display pointer on Linux        
-        m_X11Display = info.info.x11.display;
-        m_X11Window  = info.info.x11.window;
-        m_X11WMWindow  = info.info.x11.wmwindow;
+    // Extract SDL's internal Display pointer on Linux        
+    m_X11Display = info.info.x11.display;
+    m_X11Window  = info.info.x11.window;
+    m_X11WMWindow  = info.info.x11.wmwindow;
 
-        G3D::_internal::x11Display = glXGetCurrentDisplay();
+    G3D::_internal::x11Display = glXGetCurrentDisplay();
 
-        // A Drawable appears to be either a Window or a Pixmap
-        G3D::_internal::x11Window  = glXGetCurrentDrawable();
-    #endif
+    // A Drawable appears to be either a Window or a Pixmap
+    G3D::_internal::x11Window  = glXGetCurrentDrawable();
 
-    // Adjust window position
-    #ifdef G3D_WIN32
-        if (! settings.fullScreen) {
-            int W = screenWidth();
-            int H = screenHeight();
-            int x = iClamp(settings.x, 0, W);
-            int y = iClamp(settings.y, 0, H);
+    if (! settings.fullScreen) {
+        int W = screenWidth(m_X11Display);
+        int H = screenHeight(m_X11Display);
+        int x = iClamp(settings.x, 0, W);
+        int y = iClamp(settings.y, 0, H);
 
-            if (settings.center) {
-                x = (W - settings.width) / 2;
-                y = (H - settings.height) / 2;
-            }
-
-            SetWindowPos(_Win32HWND, NULL, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-        }
-    #endif
-
-#   ifdef G3D_LINUX
-	if (! settings.fullScreen) {
-	    int W = screenWidth(m_X11Display);
-	    int H = screenHeight(m_X11Display);
-	    int x = iClamp(settings.x, 0, W);
-	    int y = iClamp(settings.y, 0, H);
-	  
         if (settings.center) {
             x = (W  - settings.width) / 2;
-	        y = (H - settings.height) / 2;
-	    }
-	    XMoveWindow(m_X11Display, m_X11WMWindow, x, y);
+            y = (H - settings.height) / 2;
+        }
+        setPosition(x, y);
     }
-#    endif
-
 
     // Check for joysticks
     int j = SDL_NumJoysticks();
@@ -339,31 +229,29 @@ SDLWindow::SDLWindow(const OSWindow::Settings& settings) {
 
     if (j > 0) {
         SDL_JoystickEventState(SDL_ENABLE);
-	    // Turn on the joysticks
+        // Turn on the joysticks
 
         m_joy.resize(j);
         for (int i = 0; i < j; ++i) {
-	        m_joy[i] = SDL_JoystickOpen(i);
-	        debugAssert(m_joy[i]);
+            m_joy[i] = SDL_JoystickOpen(i);
+            debugAssert(m_joy[i]);
         }
     }
 
     // Register this window as the current window
     makeCurrent();
 
-#   if defined(G3D_LINUX)
-        // If G3D is using the default assertion hooks, replace them with
-        // our own that use SDL functions to release the mouse, since
-        // we've been unable to implement a non-SDL way of releasing the
-        // mouse using the X11 handle directly.
-        if (assertionHook() == _internal::_handleDebugAssert_) {
-	        setFailureHook(SDL_handleDebugAssert_);
-	    }
+    // If G3D is using the default assertion hooks, replace them with
+    // our own that use SDL functions to release the mouse, since
+    // we've been unable to implement a non-SDL way of releasing the
+    // mouse using the X11 handle directly.
+    if (assertionHook() == _internal::_handleDebugAssert_) {
+        setFailureHook(SDL_handleDebugAssert_);
+    }
 
-	    if (failureHook() == _internal::_handleErrorCheck_) {
-            setFailureHook(SDL_handleErrorCheck_);
-	    }
-#   endif
+    if (failureHook() == _internal::_handleErrorCheck_) {
+        setFailureHook(SDL_handleErrorCheck_);
+    }
 }
 
 
@@ -380,10 +268,6 @@ SDLWindow::~SDLWindow() {
     m_joy.clear();
 
     SDL_Quit();
-
-#if defined(G3D_OSX)
-	delete _pool;
-#endif
 }
 
 
@@ -422,61 +306,31 @@ Rect2D SDLWindow::dimensions() const {
 
 
 void SDLWindow::setDimensions(const Rect2D& dims) {
-#   ifdef G3D_WIN32
-        int W = screenWidth();
-        int H = screenHeight();
+    int W = screenWidth(m_X11Display);
+    int H = screenHeight(m_X11Display);
 
-        int x = iClamp((int)dims.x0(), 0, W);
-        int y = iClamp((int)dims.y0(), 0, H);
-        int w = iClamp((int)dims.width(), 1, W);
-        int h = iClamp((int)dims.height(), 1, H);
-        SetWindowPos(_Win32HWND, NULL, x, y, w, h, SWP_NOZORDER);
-        // Do not update settings-- wait for an event to notify us
-#    endif
-
-#    ifdef G3D_LINUX
-        int W = screenWidth(m_X11Display);
-        int H = screenHeight(m_X11Display);
-
-        int x = iClamp((int)dims.x0(), 0, W);
-        int y = iClamp((int)dims.y0(), 0, H);
-        int w = iClamp((int)dims.width(), 1, W);
-        int h = iClamp((int)dims.height(), 1, H);
-        XMoveResizeWindow(m_X11Display, m_X11WMWindow, x, y, w, h);
-#    endif 
-
-    // TODO: OS X
+    int x = iClamp((int)dims.x0(), 0, W);
+    int y = iClamp((int)dims.y0(), 0, H);
+    int w = iClamp((int)dims.width(), 1, W);
+    int h = iClamp((int)dims.height(), 1, H);
+    XMoveResizeWindow(m_X11Display, m_X11WMWindow, x, y, w, h);
 }
 
 
 void SDLWindow::setPosition(int x, int y) {
-    #ifdef G3D_WIN32
-        int W = screenWidth();
-        int H = screenHeight();
+    const int W = screenWidth(m_X11Display);
+    const int H = screenHeight(m_X11Display);
 
-        x = iClamp(x, 0, W);
-        y = iClamp(y, 0, H);
+    x = iClamp(x, 0, W);
+    y = iClamp(y, 0, H);
 
-        SetWindowPos(_Win32HWND, NULL, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-        // Do not update settings-- wait for an event to notify us
-    #endif
-
-	#ifdef G3D_LINUX
-	    const int W = screenWidth(m_X11Display);
-        const int H = screenHeight(m_X11Display);
-
-        x = iClamp(x, 0, W);
-        y = iClamp(y, 0, H);
-
-	    XMoveWindow(m_X11Display, m_X11WMWindow, x, y);
-	#endif
-    // TODO: OS X
+    XMoveWindow(m_X11Display, m_X11WMWindow, x, y);
 }
 
 
 bool SDLWindow::hasFocus() const {
     uint8 s = SDL_GetAppState();
-    
+
     return ((s & SDL_APPMOUSEFOCUS) != 0) &&
            ((s & SDL_APPINPUTFOCUS) != 0) &&
            ((s & SDL_APPACTIVE) != 0);
@@ -499,27 +353,13 @@ void SDLWindow::setGammaRamp(const Array<uint16>& gammaRamp) {
     Log* debugLog = Log::common();
 
     uint16* ptr = const_cast<uint16*>(gammaRamp.getCArray());
-    #ifdef WIN32
-        // On windows, use the more reliable SetDeviceGammaRamp function.
-        // It requires separate RGB gamma ramps.
-        uint16 wptr[3 * 256];
-        for (int i = 0; i < 256; ++i) {
-            wptr[i] = wptr[i + 256] = wptr[i + 512] = ptr[i]; 
-        }
-        BOOL success = SetDeviceGammaRamp(wglGetCurrentDC(), wptr);
-    #else
         bool success = (SDL_SetGammaRamp(ptr, ptr, ptr) != -1);
-    #endif
 
     if (! success) {
         if (debugLog) {debugLog->println("Error setting gamma ramp!");}
 
-        #ifdef WIN32
-            debugAssertM(false, "Failed to set gamma ramp");
-        #else
-            if (debugLog) {debugLog->println(SDL_GetError());}
-            debugAssertM(false, SDL_GetError());
-        #endif
+        if (debugLog) {debugLog->println(SDL_GetError());}
+        debugAssertM(false, SDL_GetError());
     }
 }
 
@@ -664,7 +504,7 @@ void SDLWindow::setInputCapture(bool c) {
         }
     }
 }
-    
+
 
 void SDLWindow::getOSEvents(Queue<GEvent>& events) {
     // Note that GEvent conveniently has exactly the same memory layout
@@ -679,18 +519,10 @@ void SDLWindow::getOSEvents(Queue<GEvent>& events) {
         }
 
         if (e.type == GEventType::VIDEO_RESIZE) {
-	        // Mutate the SDL surface (which one is not supposed to do).
-	        // We can't resize the actual surface or SDL will destroy
-	        // our GL context, however.
-	        SDL_Surface* surface = SDL_GetVideoSurface();
-	        surface->w = e.resize.w;
-	        surface->h = e.resize.h;
-	        surface->clip_rect.x = 0;
-	        surface->clip_rect.y = 0;
-	        surface->clip_rect.w = e.resize.w;
-	        surface->clip_rect.h = e.resize.h;
+            // Set the video mode when resize event is received with the new width/height
+            SDL_SetVideoMode(e.resize.w, e.resize.h, 0, m_videoFlags);
 
-            // resize viewport and flush buffers on size event
+            // Resize viewport and flush buffers on size event
             handleResize(e.resize.w, e.resize.h);
         }
 
@@ -698,8 +530,6 @@ void SDLWindow::getOSEvents(Queue<GEvent>& events) {
     }
 }
 
-
-#if defined(G3D_LINUX) || defined(G3D_FREEBSD)
 
 Window SDLWindow::x11Window() const {
     return m_X11Window;
@@ -710,34 +540,14 @@ Display* SDLWindow::x11Display() const {
     return m_X11Display;
 }
 
-#elif defined(G3D_WIN32)
-
-HDC SDLWindow::win32HDC() const {
-    return _Win32HDC;
-}
-
-
-HWND SDLWindow::win32HWND() const {
-    return _Win32HWND;
-}
-
-#endif
 
 void SDLWindow::reallyMakeCurrent() const {
-#   ifdef G3D_WIN32
-        if (wglMakeCurrent(_Win32HDC, m_glContext) == FALSE)	{
-            debugAssertM(false, "Failed to set context");
-	}
-#   elif defined(G3D_LINUX)
         if (! glXMakeCurrent(m_X11Display, m_X11Window, m_glContext)) {
             //debugAssertM(false, "Failed to set context");
             // only check OpenGL as False seems to be returned when
             // context is already current
             debugAssertGLOk();
         }
-#   elif defined(G3D_OSX)
-        
-#   endif
 }
 
 } // namespace

@@ -21,16 +21,7 @@
 #include "GLG3D/glcalls.h"
 
 #include <SDL/SDL_events.h>
-// A G3D-specific copy of SDL_events was previously used to break
-// the dependence of G3D headers on SDL, since only the .cpp files
-// actually need the full SDL headers.
-//#include "GLG3D/G3D_SDL_event.h"
 
-#if defined(G3D_OSX)
-#    include "GLG3D/NSAutoreleasePoolWrapper.h"
-#    include <Carbon/Carbon.h>
-#    include <dlfcn.h>
-#endif
 
 namespace G3D {
 
@@ -57,21 +48,16 @@ private:
 
     GLContext                   m_glContext;
 
-#   if defined(G3D_LINUX) || defined(G3D_FREEBSD)
-        Display*                m_X11Display;
-        Window                  m_X11Window;
-        Window                  m_X11WMWindow;
-#   elif defined(G3D_WIN32)
-        HDC                     _Win32HDC;
-        HWND                    _Win32HWND;
-#   elif defined(G3D_OSX)
-        NSAutoreleasePoolWrapper* _pool;
-#   endif
+    Display*                    m_X11Display;
+    Window                      m_X11Window;
+    Window                      m_X11WMWindow;
+
+    int                         m_videoFlags;
 
     Queue<GEvent>               m_eventQueue;
 
 protected:
-    
+
     virtual void reallyMakeCurrent() const;
 
     virtual void getOSEvents(Queue<GEvent>& events);
@@ -136,13 +122,8 @@ public:
     /** Returns the underlying SDL joystick pointer */
     ::SDL_Joystick* getSDL_Joystick(unsigned int num) const;
 
-    #if defined(G3D_LINUX)
-        Window   x11Window() const;
-        Display* x11Display() const;
-    #elif defined(G3D_WIN32)
-        HDC      win32HDC() const;
-        HWND     win32HWND() const;
-    #endif
+    Window   x11Window() const;
+    Display* x11Display() const;
 
 //    virtual void makeCurrent() const;
 };

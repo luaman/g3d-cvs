@@ -35,16 +35,18 @@ OSWindow* OSWindow::create(const OSWindow::Settings& s) {
 const OSWindow* OSWindow::m_current = NULL;
 
 void OSWindow::handleResize(int width, int height) {
-    // update settings
-    m_settings.width = width;
-    m_settings.height = height;
+    if (m_settings.width != width || m_settings.height != height) {
+        // update settings
+        m_settings.width = width;
+        m_settings.height = height;
 
-    // update viewport
-    Rect2D newViewport = Rect2D::xywh(0, 0, width, height);
-    m_renderDevice->setViewport(newViewport);
+        // update viewport
+        Rect2D newViewport = Rect2D::xywh(0, 0, width, height);
+        m_renderDevice->setViewport(newViewport);
 
-    // force swap buffers
-    m_renderDevice->swapBuffers();
+        // force swap buffers
+        m_renderDevice->swapBuffers();
+    }
 }
 
 void OSWindow::fireEvent(const GEvent& event) {
