@@ -483,8 +483,7 @@ Lighting::Ref GApp::defaultLighting() {
     lighting->ambientTop    = Color3::fromARGB(0x303842);
     lighting->ambientBottom = Color3::fromARGB(0x262627);
     lighting->environmentMap = 
-        Texture::fromFile(pathConcat(System::findDataFile("sky"), "noonclouds/noonclouds_*.jpg"), 
-//        Texture::fromFile("D:/morgan/data/sky/uffizi/uffizi*.jpg", 
+        Texture::fromFile(pathConcat(System::findDataFile("cubemap"), "noonclouds/noonclouds_*.jpg"), 
                           TextureFormat::RGB8(), Texture::DIM_CUBE_MAP,
                           Texture::Settings::cubeMap(), 
                           Texture::PreProcess::gamma(2.1f));
@@ -492,6 +491,7 @@ Lighting::Ref GApp::defaultLighting() {
 
     return lighting;
 }
+
 
 void GApp::onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& posed3D) {
     alwaysAssertM(false, "Override onGraphics3D");

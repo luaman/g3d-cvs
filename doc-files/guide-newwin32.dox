@@ -49,11 +49,22 @@ correctly, Visual Studio will automatically link your program against all librar
   program's 3D window gives you additional debugging tools.  You can quit the program by pressing ESC at any time.<p>
 
 <li> <p> Edit your <code>App.cpp</code> file.  The comments in the file show you where to add code for rendering, input processing, network, and graphics.</p>
+<hr>
 
-<li> <p> When you run your program, by default it will look for the files G3D needs in order to display its default GUI.  If those files aren't
-in the current directory, it the library tries to look around and find that data on your hard drive. The search path includes 
-(drive letter)/libraries/G3D/ for c: through g: and w: through z:; the current directory; parents of the current directory; and children named 
-"data" or "data-files".  What it is trying to find is the stuff in the G3D/data directory. You can also tell it explicitly where the data is stored by calling System::setAppDataDir or setting the GApp::Settings::dataDir field at the start of your program.</p>
+<li> <p> When you run your program, by default it will look for the files G3D needs in order to display its default GUI using G3D::System::findDataFile().  If those files aren't
+in the current directory, it the library tries to look around and find that data on your hard drive. The search path includes:
+  <ul>  
+    <li> (drive letter)/libraries/G3D/ for c: through g: and w: through z
+    <li> the current directory; parents of the current directory
+    <li> children of the current directory named "data" or "data-files". 
+  </ul>
+   What it is trying to find is the contents of the G3D/data directory. You can also tell it explicitly where the data is stored by calling 
+   G3D::System::setAppDataDir or setting the GApp::Settings::dataDir field at the start of your program.
+</p>
+
+<li><p>   When you're ready to deploy your program, look in the log.txt file that is written when it runs.  At the bottom is a list of all files
+   your program loaded.  If any of those are not in your program's directory, copy them into that directory for deployment.
+   </p> 
 </ol>
 \endhtmlonly
 */

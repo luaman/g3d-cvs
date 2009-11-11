@@ -48,6 +48,7 @@ SkyRef Sky::fromCubeMap(
 }
 
 
+
 SkyRef Sky::fromFile(
     const std::string&                  directory,
     const std::string&                  filename,

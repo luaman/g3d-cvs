@@ -13,9 +13,9 @@ void App::loadScene() {
     
     // MD2
     if (true) {
-        const std::string& path = System::findDataFile("quake2/players");
-        MD2Model::Ref model = MD2Model::fromFile(path + "/pknight/tris.md2", 0.4f);
-        Texture::Ref texture = Texture::fromFile(path + "/pknight/knight.pcx", ImageFormat::AUTO(),
+        const std::string& path = System::findDataFile("md2");
+        MD2Model::Ref model = MD2Model::fromFile(pathConcat(path, "pknight/tris.md2"), 0.4f);
+        Texture::Ref texture = Texture::fromFile(pathConcat(path, "pknight/knight.pcx"), ImageFormat::AUTO(),
                                                  Texture::DIM_2D, Texture::Settings::defaults(), 
                                                  Texture::PreProcess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,-0.35f,0))));

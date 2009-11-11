@@ -83,7 +83,7 @@ private:
     void drawMoonAndStars(RenderDevice* rd, const class SkyParameters&);
 
     Sky(
-        Texture::Ref                              textures[6],
+        Texture::Ref                            textures[6],
         const std::string&                      directory,
         bool                                    useCubeMap,
         bool                                    drawCelestialBodies,
@@ -92,7 +92,7 @@ private:
 public:
 
     /**
-     @param directory If directory is not "" it should
+     \param directory If directory is not "" it should
       end in a trailing slash.  This is the location of the real.str file
       and the sun, moon, etc. files.
 
