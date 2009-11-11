@@ -72,6 +72,11 @@ void Draw::skyBox(RenderDevice* renderDevice, Texture::Ref& cubeMap, Texture::Re
     enum Direction {UP = 0, LT = 1, RT = 2, BK = 3, FT = 4, DN = 5};
     renderDevice->pushState();
 
+    // Make a camera with an infinite view frustum
+    GCamera camera = renderDevice->projectionAndCameraMatrix();
+    camera.setFarPlaneZ(-finf());
+    renderDevice->setProjectionAndCameraMatrix(camera);
+
     bool cube = (cubeMap.notNull());
 
     if (cube) {

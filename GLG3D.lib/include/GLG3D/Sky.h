@@ -82,8 +82,7 @@ private:
     /** Draw the night sky, called by render() */
     void drawMoonAndStars(RenderDevice* rd, const class SkyParameters&);
 
-    Sky(
-        Texture::Ref                            textures[6],
+    Sky(Texture::Ref                            textures[6],
         const std::string&                      directory,
         bool                                    useCubeMap,
         bool                                    drawCelestialBodies,
@@ -114,7 +113,7 @@ public:
      */
     static SkyRef fromFile(
         const std::string&                      directory,
-        const std::string&                      filename = "plainsky/null_plainsky512_*.jpg",
+        const std::string&                      filename = "../cubemap/plainsky/null_plainsky512_*.jpg",
         bool                                    drawCelestialBodies = true,
         double                                  quality = 1.0,
         int                                     scaleDownFactor = 1);
@@ -131,7 +130,7 @@ public:
      @param _cubeMap This must be a Texture of dimension - DIM_CUBE_MAP.
      */
     static SkyRef fromCubeMap(
-        Texture::Ref                              _cubeMap,
+        Texture::Ref                            _cubeMap,
         const std::string&                      directory,
         bool                                    _drawCelestialBodies = true,
         double                                  quality = 1.0);
