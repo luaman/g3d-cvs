@@ -74,7 +74,10 @@ void App::onInit() {
         b->setSize(500, 500);
         b->zoomToFit();
 */
-        Texture::Ref t2 = Texture::fromFile("D:/morgan/30.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+        GImage im(256, 256, 3);
+        GImage::makeCheckerboard(im);
+        im.save("checker.png");
+        Texture::Ref t2 = Texture::fromFile("checker.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
         t2->invertY = ! t2->invertY;
         GuiTextureBox* c = debugPane->addTextureBox("Texture", t2);
         c->setSize(500, 500);

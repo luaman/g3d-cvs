@@ -856,7 +856,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
     }
 }
 
-#define ZOOM_FACTOR (1.5f)
+#define ZOOM_FACTOR (sqrt(2.0f))
 
 void GuiTextureBox::zoomIn() {
     m_zoom *= ZOOM_FACTOR;
