@@ -17,6 +17,7 @@
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
      <li> G3D::glClipToBox, glDisableAllClipping
      <li> G3D::Profiler
+     <li> G3D::Texture::resize
      <li> G3D::TextInput::Settings::singleQuoteCharacter
      <li> G3D::parseCommaSeparated
      <li> G3D::ReferenceCountedPointer can now be instantiated for a forward-declared type

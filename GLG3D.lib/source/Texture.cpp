@@ -1204,6 +1204,45 @@ Texture::Ref Texture::createEmpty
 }
 
 
+void Texture::resize(int w, int h) {
+    if ((width() == w) && (height() == h)) {
+        return;
+    }
+    m_sizeOfAllTexturesInMemory -= sizeInMemory();
+    
+    m_min  = Color4::nan();
+    m_max  = Color4::nan();
+    m_mean = Color4::nan();
+
+    m_width = w;
+    m_height = h;
+    alwaysAssertM(m_dimension != DIM_CUBE_MAP && m_dimension != DIM_CUBE_MAP_NPOT, "Cannot resize cube map textures");
+    Array<GLenum> targets;
+    if (m_dimension == DIM_CUBE_MAP || m_dimension == DIM_CUBE_MAP_NPOT) {
+        targets.append(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
+                        GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
+                        GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB);
+        targets.append(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
+                        GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
+                        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB);        
+    } else {
+        targets.append(openGLTextureTarget());
+    }
+
+    glStatePush();
+    {
+        glBindTexture(openGLTextureTarget(), m_textureID);
+        for (int t = 0; t < targets.size(); ++t) {
+            glTexImage2D(targets[t], 0, format()->openGLFormat, w, h,
+                                 0, format()->openGLBaseFormat, GL_UNSIGNED_BYTE, NULL);
+        }
+    }
+    glStatePop();
+
+    m_sizeOfAllTexturesInMemory += sizeInMemory();
+}
+
+
 void Texture::clear(CubeFace cf, int mipLevel, RenderDevice* rd) {
     if (rd == NULL) {
         rd = RenderDevice::lastRenderDeviceCreated;

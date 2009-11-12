@@ -561,6 +561,10 @@ public:
     */
     void clear(CubeFace face = CUBE_POS_X, int mipLevel = 0, class RenderDevice* rd = NULL);
 
+    /** Resize the underlying OpenGL texture memory buffer, without reallocating the OpenGL texture ID.  This does not scale the contents; 
+        the contents are undefined after resizing.  This is only useful for textures that are render targets. */
+    void resize(int w, int h);
+
     /**
      Wrap and interpolate will override the existing parameters on the
      GL texture.
