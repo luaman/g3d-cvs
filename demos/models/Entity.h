@@ -13,6 +13,9 @@ private:
     ArticulatedModel::Ref       artModel;
     ArticulatedModel::Pose      artPose;
 
+    MD3Model::Ref               md3Model;
+    MD3Model::Pose              md3Pose;
+
     MD2Model::Ref               md2Model;
     MD2Model::Pose              md2Pose;
     GMaterial                   md2Material;
@@ -40,8 +43,7 @@ public:
     }
     
     static Entity::Ref create
-    (
-     const MD2Model::Ref& model,
+    (const MD2Model::Ref& model,
      const GMaterial& material = GMaterial(),
      const CFrame& c = CFrame()) {
 
@@ -49,6 +51,17 @@ public:
 
         e->md2Model = model;
         e->md2Material = material;
+        e->cframe = c;
+        return e;
+    }
+
+    static Entity::Ref create
+    (const MD3Model::Ref& model,
+     const CFrame& c = CFrame()) {
+
+        Entity* e = new Entity();
+
+        e->md3Model = model;
         e->cframe = c;
         return e;
     }
@@ -77,6 +90,10 @@ public:
             array.append(md2Model->pose(cframe, md2Pose, md2Material));
         }
 
+        if (md3Model.notNull()) {
+            md3Model->pose(md3Pose, array, cframe);
+        }
+
         if (ifsModel.notNull()) {
             array.append(ifsModel->pose(cframe, ifsMaterial, ifsVertexNormals));
         }
@@ -89,6 +106,10 @@ public:
             action.salute = uniformRandom() > 0.9995;
             action.wave   = uniformRandom() > 0.9995;
             md2Pose.onSimulation(dt, action);
+        }
+
+        if (md3Model.notNull()) {
+
         }
     }
 };

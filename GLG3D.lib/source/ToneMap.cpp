@@ -73,6 +73,7 @@ void ToneMap::applyPS14ATI(RenderDevice* rd) {
     // We're going to use combiners, which G3D does not preserve
     glPushAttrib(GL_TEXTURE_BIT);
     rd->push2D();
+        rd->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
         rd->disableLighting();
 
         // Undo renderdevice's 0.35 translation
@@ -164,6 +165,7 @@ void ToneMap::applyPS20(RenderDevice* rd) {
     Texture::Ref bloomMap = getBloomMap(rd);
 
     rd->push2D();
+        rd->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
         rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);    
         rd->setColor(Color3::white());
         // Undo renderdevice's 0.35 translation

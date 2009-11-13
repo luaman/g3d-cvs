@@ -1,10 +1,11 @@
 /**
- @file MD3Model.h
+ \file MD3Model.h
 
  Quake III MD3 model loading and posing
 
+  \created 2009-01-01
+  \edited  2009-11-13
  */
-
 #ifndef G3D_MD3Model_h
 #define G3D_MD3Model_h
 
@@ -27,10 +28,15 @@ class MD3Part;
     Quake 3 uses MD3 models for both characters and non-character objects.  
     Character objects contain three individual "models" inside of them with attachment points.
 
-    TODO: 
-    - Rename this to MD3Model::Part, and then make an MD3::Model class that loads all of the part [Corey]
+    TODO:
+    - SKINS:
+       - Load all .skin files when the model is loaded
+       - Have the upper and lower skin names be part of Pose (as a std::string); let them be separate
+       - Lazy loading the actual textures on first use is fine
+       - Add an interface for enumerating the skins (e.g., const Array<std::string>& skins(which = {UPPER_EXCLUSIVE_FULLNAME, LOWER_EXCLUSIVE_FULLNAME, ALL_FULLNAME, BOTH_POSTFIX) const)
+       - Make the first skin found by getFiles the default, so that the model always has *some* valid skin; right now the model is invisible by default.
+    - Add pose animation helpers, ala MD2 model (although the function with all of the bool arguments really sucks on MD2Model)
     - Render using SuperSurface [Morgan]
-    - Morgan doesn't understand how the skin stuff works.  Can't we fix a skin to a model when it is loaded?  MD2Model's separation of material and model was a mistake in retrospect--it enables sharing some model geometry, but is generally a pain to deal with.  It would be better to hide the sharing of model geometry with an internal WeakCache.
 
     \beta
 */
@@ -85,9 +91,11 @@ public:
         GameTime    torsoTime;
         AnimType    torsoAnim;
 
-        Pose(GameTime lTime, AnimType lAnim, GameTime tTime, AnimType tAnim)
+        inline Pose(GameTime lTime, AnimType lAnim, GameTime tTime, AnimType tAnim)
             : legsTime(lTime), legsAnim(lAnim), torsoTime(tTime), torsoAnim(tAnim) {
         }
+
+        inline Pose() : legsTime(0), legsAnim(LEGS_IDLE), torsoTime(0), torsoAnim(TORSO_STAND) {}
     };
 
 private:
@@ -140,13 +148,14 @@ public:
 
     virtual ~MD3Model();
 
-    /** Loads all model parts from \a modelDir if they exist.
+    /** Loads all model parts from \a modelDir if they exist.  This is the directory containing animation.cfg.
+
         Also loads animation.cfg parameters.
      */
     static MD3Model::Ref fromDirectory(const std::string& modelDir);
 
     /** Load skin for all model parts.
-        @param skinName Base skin name for all model parts. e.g., head_"skinName".skin
+        \param skinName Base skin name for all model parts. e.g., head_"skinName".skin
      */
     void setSkin(const std::string& skinName);
 

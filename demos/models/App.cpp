@@ -92,7 +92,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
 
     Surface2D::sortAndRender(rd, posed2D);
 
-    screenPrintf("Tone Map %s\n", toneMap->enabled() ? "On" : "Off");
+    screenPrintf("Tone Map %s (spacebar toggles)\n", toneMap->enabled() ? "On" : "Off");
     screenPrintf("%s Profile %s\n", toString(SuperSurface::profile()),
         #ifdef _DEBUG
                 "(DEBUG mode)"
