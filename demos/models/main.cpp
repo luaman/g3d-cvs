@@ -12,6 +12,9 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     GApp::Settings settings;
     settings.window.fsaaSamples = 1;
+
+    // This demo uses an old G3D tone mapping class for legacy hardware, so we disable the new one.
+    settings.film.enabled = false;
     
 #   ifdef G3D_WIN32
         if (! fileExists("G3D-logo-tiny-alpha.tga", false)) {

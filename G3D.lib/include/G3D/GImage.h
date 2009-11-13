@@ -125,6 +125,21 @@ public:
         return m_byte;
     }
 
+    /** Returns a pointer to the underlying data, which is stored
+        in row-major order without row padding.
+        e.g., <code>uint8* ptr = image.rawData<uint8>();
+    */
+    template<typename Type>
+    inline const Type* rawData() const {
+        return (Type*)m_byte;
+    }
+
+    /** \copybrief GImage::rawData() const */
+    template<typename Type>
+    inline Type* rawData() {
+        return (Type*)m_byte;
+    }
+
     inline const Color1uint8* pixel1() const {
         debugAssertM(m_channels == 1, format("Tried to call GImage::pixel1 on an image with %d channels", m_channels));            
         return (Color1uint8*)m_byte;

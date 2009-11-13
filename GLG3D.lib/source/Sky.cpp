@@ -318,30 +318,25 @@ void Sky::render(
     debugAssert(renderDevice != NULL);
 
     renderDevice->pushState();
-        // Ignore depth, make sure we're not clipped by the far plane
-        hackProjectionMatrix(renderDevice);
-
-        // Eliminate the translation of the camera
-        CoordinateFrame matrix(Vector3::zero());
-        matrix.rotation = renderDevice->cameraToWorldMatrix().rotation;
-        renderDevice->setCameraToWorldMatrix(matrix);
-        renderDevice->setObjectToWorldMatrix(CFrame());
-
         renderDevice->disableLighting();
         renderDevice->setColor(lighting.skyAmbient);
         renderDevice->setCullFace(RenderDevice::CULL_BACK);
         renderDevice->setDepthWrite(false);
         renderDevice->setDepthTest(RenderDevice::DEPTH_ALWAYS_PASS);
 
-        // Draw the sky box
-        renderDevice->resetTextureUnit(0);
-        debugAssertGLOk();
         Draw::skyBox(renderDevice, cubeMap, texture);
-        debugAssertGLOk();
 
         if (drawCelestialBodies) {   
-            drawMoonAndStars(renderDevice, lighting);
+            // Ignore depth, make sure we're not clipped by the far plane
+            hackProjectionMatrix(renderDevice);
 
+            // Eliminate the translation of the camera
+            CoordinateFrame matrix(Vector3::zero());
+            matrix.rotation = renderDevice->cameraToWorldMatrix().rotation;
+            renderDevice->setCameraToWorldMatrix(matrix);
+            renderDevice->setObjectToWorldMatrix(CFrame());
+
+            drawMoonAndStars(renderDevice, lighting);
             drawSun(renderDevice, lighting);
         }
 
