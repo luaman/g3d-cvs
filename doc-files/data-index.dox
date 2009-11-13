@@ -7,6 +7,15 @@ tool provided in the bin directory of your %G3D install.
 For image data, this page directly links to the images in your data directory.  If the data directory is not located at 
 <code>../data/</code> relative to this file, you will see broken links.
 
+Contents:
+- \ref font
+- \ref cubemap 
+- \ref gui
+- \ref ifs
+- \ref a3ds
+- \ref md2 
+- \ref Images 
+
 @section font Fonts
 Load with \link G3D::GFont GFont\endlink.
 
@@ -429,11 +438,10 @@ Load with \link G3D::Sky Sky\endlink and \link G3D::Texture Texture\endlink.
 </table>
 \endhtmlonly
 
-@section gui GUI Skins 
+@section gui GUI Themes 
 Load with \link G3D::GuiTheme GuiTheme\endlink.
 
 \htmlonly
-<blockquote>
 <table border=0 width=70%>
 <tr>
 <td>
@@ -444,7 +452,7 @@ Load with \link G3D::GuiTheme GuiTheme\endlink.
 </td>
 </tr>
 </table>
-</blockquote>
+
 \endhtmlonly
 
 @section ifs IFS Models
