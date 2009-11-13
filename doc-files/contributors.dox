@@ -4,16 +4,18 @@
  <b>8.0 Release Team</b>
  <br>Morgan McGuire [Williams College] - Project Manager
  <br>Corey Taylor [EA] - Assistant Project Manager
+ <br>Shawn Yarbrough [weaponizedgames.com] - Developer
 
  <b>Credits for Previous Contributors and Cited Sources</b> 
  
  <br>This library
  contains code and resources contributed by the following people, or
  based open code and articles by them.  Starred (*) developers are
- previous members of a %G3D release team.  Institututions reflect the 
+ previous members of a %G3D release team.  Institutions reflect the 
  current (or latest known) institution.
 
-   <p>David Baszucki, ROBLOX
+   <P>Shawn Yarbrough*, weaponizedgames.com
+   <BR>David Baszucki, ROBLOX
    <BR>Seth Block, Brown University
    <BR>Nicholas Bray
    <BR>Nick Capens
