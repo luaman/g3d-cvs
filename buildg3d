@@ -427,6 +427,7 @@ def docTarget():
 
     # Generate demos and support
     copyIfNewer('data-files', 'build/data')
+    copyIfNewer('../data', 'build/data')
     copyIfNewer('demos', 'build/demos')
 
     return 0
@@ -728,9 +729,11 @@ update     lib + tools + doc + jar
 lib        Build G3D, G3Dd, GLG3D, GLG3Dd and copy over headers. Also build
            all dependencies (e.g., zlib, libpng)
 
-doc        Generate documentation using Doxygen
+doc        Generate documentation using Doxygen and copy over data-files
+           (and ../data/ if you have it)
 
-tools      Build gfxmeter and viewer applications and copy copyifnewer and icompile
+tools      Build gfxmeter and viewer applications and copy
+           copyifnewer and icompile
 
 jar        Build G3D.jar, the Java version of network and
            file access.

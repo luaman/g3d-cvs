@@ -4,7 +4,8 @@ This page shows some of the data provided in the auxillary G3D models pack.  You
 MOV, MP4, WMV, DV, AVI, 3DS, BSP, FNT, IFS, PLY2, OFF, BMP, PNG, PCX, ICO, JPG, and other formats using the <code>viewer</code> 
 tool provided in the bin directory of your %G3D install.
 
-For image data, this page directly links to the images in your data directory.
+For image data, this page directly links to the images in your data directory.  If the data directory is not located at 
+<code>../data/</code> relative to this file, you will see broken links.
 
 @section font Fonts
 Load with \link G3D::GFont GFont\endlink.
@@ -371,8 +372,62 @@ Load with \link G3D::GFont GFont\endlink.
 
 
 
-@section sky Skies and Environment Maps
+@section cubemap Cube Maps
 Load with \link G3D::Sky Sky\endlink and \link G3D::Texture Texture\endlink.
+
+\htmlonly
+<table>
+<tr>
+<td><center><a href="../data/cubemap/alpine/"><img src="../data/cubemap/alpine/alpine_east.jpg" height=100>
+<br>alpine/alpine_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/calm/"><img src="../data/cubemap/calm/calm_east.jpg" height=100>
+<br>calm/calm_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/city/"><img src="../data/cubemap/city/city_east.jpg" height=100>
+<br>city/city_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/desert/"><img src="../data/cubemap/desert/desert_ft.jpg" height=100>
+<br>desert/desert_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/desert_evening/"><img src="../data/cubemap/desert_evening/desert_evening_east.jpg" height=100>
+<br>desert_evening/desert_evening_*.jpg</a></center></td>
+</tr>
+
+<tr>
+<td><center><a href="../data/cubemap/entropic/"><img src="../data/cubemap/entropic/entropic_east.jpg" height=100>
+<br>entropic/entropic_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/hourglass/"><img src="../data/cubemap/hourglass/hourglass_east.jpg" height=100>
+<br>hourglass/hourglass_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/islands/"><img src="../data/cubemap/islands/islands_east.jpg" height=100>
+<br>islands/islands_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/lostvalley/"><img src="../data/cubemap/lostvalley/lostvalley_east.jpg" height=100>
+<br>lostvalley/lostvalley_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/majestic/"><img src="../data/cubemap/majestic/majestic512_ft.jpg" height=100>
+<br>majestic/majestic512_*.jpg</a></center></td>
+</tr>
+
+<tr>
+<td><center><a href="../data/cubemap/museum/"><img src="../data/cubemap/museum/museum_+x.jpg" height=100>
+<br>museum/museum_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/nightsky/"><img src="../data/cubemap/nightsky/nightsky_east.jpg" height=100>
+<br>nightsky/nightsky_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/noonclouds/"><img src="../data/cubemap/noonclouds/noonclouds_ft.jpg" height=100>
+<br>noonclouds/noonclouds_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/plainsky/"><img src="../data/cubemap/plainsky/null_plainsky512_ft.jpg" height=100>
+<br>plainsky/null_plainsky512_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/red/"><img src="../data/cubemap/red/red_east.jpg" height=100>
+<br>red/red_*.jpg</a></center></td>
+</tr>
+
+
+<tr>
+<td><center><a href="../data/cubemap/stonegods/"><img src="../data/cubemap/stonegods/sgod_ft.jpg" height=100>
+<br>stonegods/sgod_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/test/"><img src="../data/cubemap/test/testcube_ft.jpg" height=100>
+<br>test/testcube_*.jpg</a></center></td>
+<td><center><a href="../data/cubemap/uffizi/"><img src="../data/cubemap/uffizi/uffizi+x.jpg" height=100>
+<br>uffizi/uffizi*.jpg</a></center></td>
+</tr>
+
+</table>
+\endhtmlonly
 
 @section gui GUI Skins 
 Load with \link G3D::GuiTheme GuiTheme\endlink.
@@ -690,7 +745,7 @@ Load with \link G3D::MD2Model MD2Model\endlink.
 
 @section Images 
 Load with \link G3D::Texture Texture\endlink,
-\link G3D::Image1 Image3\endlink,
+\link G3D::Image1 Image1\endlink,
 \link G3D::Image3 Image3\endlink,
 \link G3D::Image4 Image4\endlink, 
 \link G3D::Image1uint8 Image1uint8\endlink,
@@ -699,11 +754,40 @@ Load with \link G3D::Texture Texture\endlink,
 \link G3D::GImage GImage\endlink.
 \htmlonly
 <blockquote>
-<table border=0 width=70%>
-<tr>
-<td><center><img src="../data/image/checkerboard.jpg"><br>checkerboard.jpg</center></td>
-</tr>
+
+<table><tr><td><center><a href="../data/image/airplane.png"><img src="../data/image/airplane.png" height=100 width=100>
+<br>airplane.png</a></center></td>
+<td><center><a href="../data/image/barbara.png"><img src="../data/image/barbara.png" height=100 width=100>
+<br>barbara.png</a></center></td>
+<td><center><a href="../data/image/checkerboard.jpg"><img src="../data/image/checkerboard.jpg" height=100>
+<br>checkerboard.jpg</a></center></td>
+<td><center><a href="../data/image/house.jpg"><img src="../data/image/house.jpg" height=100>
+<br>house.jpg</a></center></td></tr>
+
+<tr><td><center><a href="../data/image/lena.png"><img src="../data/image/lena.png" height=100 width=100>
+<br>lena.png</a></center></td>
+<td><center><a href="../data/image/mandrill.png"><img src="../data/image/mandrill.png" height=100 width=100>
+<br>mandrill.png</a></center></td>
+<td><center><a href="../data/image/meter.jpg"><img src="../data/image/meter.jpg" width=100>
+<br>meter.jpg</a></center></td>
+<td><center><a href="../data/image/peppers.png"><img src="../data/image/peppers.png" height=100 width=100>
+<br>peppers.png</a></center></td></tr>
+
+<tr><td><center><a href="../data/image/testimage.jpg"><img src="../data/image/testimage.jpg" height=100>
+<br>testimage.jpg</a></center></td>
+<td><center><a href="../data/image/testimage.pcx"><img src="../data/image/testimage.jpg" height=100>
+<br>testimage.pcx</a></center></td>
+<td><center><a href="../data/image/testimage.tga"><img src="../data/image/testimage.png" height=100>
+<br>testimage.tga</a></center></td>
+<td><center><a href="../data/image/testimage.tga"><img src="../data/image/testimage.png" height=100>
+<br>testimage.png</a></center></td></tr>
+
+<tr><td><center><a href="../data/image/waterCaustic_001.jpg"><img src="../data/image/waterCaustic_001.jpg" height=100>
+<br>waterCaustic_*.jpg</a></center></td></tr>
 </table>
+
+\endhtmlonly
+
 </table>
 </blockquote>
 \endhtmlonly
