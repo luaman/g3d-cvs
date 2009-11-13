@@ -455,7 +455,8 @@ void perfArray() {
 
         System::beginCycleCount(arrayAllocInt);
         {
-            Array<int> array(size);
+            Array<int> array;
+            array.resize(size);
             System::endCycleCount(arrayAllocInt);
             System::beginCycleCount(arrayAccessInt);
             LOOPS;
