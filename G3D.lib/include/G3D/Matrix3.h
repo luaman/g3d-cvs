@@ -11,8 +11,8 @@
   @edited  2006-04-05
  */
 
-#ifndef G3D_MATRIX3_H
-#define G3D_MATRIX3_H
+#ifndef G3D_Matrix3_h
+#define G3D_Matrix3_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
@@ -29,6 +29,8 @@ namespace G3D {
 #   pragma warning (disable : 4127)
 #endif
 
+class Any;
+
 /**
   3x3 matrix.  Do not subclass.
  */
@@ -44,6 +46,10 @@ private:
     bool operator>=(const Matrix3&) const;
 
 public:
+
+    Matrix3(const Any& any);
+
+    operator Any() const;
 
     /** Initial values are undefined for performance.  See also 
         Matrix3::zero(), Matrix3::identity(), Matrix3::fromAxisAngle, etc.*/

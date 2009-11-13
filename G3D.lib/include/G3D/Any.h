@@ -184,15 +184,9 @@ private:
         expected type e.*/
     void checkType(Type e) const;
 
-//  /** Returns a copy of the m_value. */
-//  void* copyValue() const;
-
     /** Ensures that this has a unique reference and
         contains a valid m_data.*/
     void ensureMutable();
-
-//  void allocData();
-//  void freeData();
 
 public:
 
@@ -313,11 +307,8 @@ public:
 
     /** Throws a WrongType exception if this is not a number */
     double number() const;
-//  double number(double defaultVal) const;
     const std::string& string() const;
-//  const std::string& string(const std::string& defaultVal) const;
     bool boolean() const;
-//  bool boolean(bool defaultVal) const;
 
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
@@ -360,6 +351,15 @@ public:
     operator double() const;
     operator bool() const;
     operator std::string() const;
+
+    /** Resize to \a n elements, where new elements are NIL 
+       It is an error to call this method if this is not an Any::ARRAY */
+    void resize(int n);
+
+    /** 
+       Clears all entries.
+       This must be a TABLE or ARRAY */
+    void clear();
 
     /** Uses the deserialize method */
     void load(const std::string& filename);

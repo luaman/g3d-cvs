@@ -82,14 +82,10 @@ void Any::dropReference() {
 
 
 void Any::checkType(Type e) const {
-    if (m_type != e)
+    if (m_type != e) {
         throw WrongType(e,m_type);
+    }
 }
-
-
-//void* Any::copyValue() const {
-//    
-//}
 
 
 void Any::ensureMutable() {
@@ -99,14 +95,6 @@ void Any::ensureMutable() {
         m_data = d;
     }
 }
-
-
-//void Any::allocData() {
-//}
-
-
-//void Any::freeData() {
-//}
 
 
 Any::Any() : m_type(NONE), m_data(NULL) {
@@ -180,8 +168,9 @@ Any::~Any() {
 
 
 Any& Any::operator=(const Any& x) {
-    if (this == &x)
+    if (this == &x) {
         return *this;
+    }
 
     dropReference();
 
@@ -191,16 +180,17 @@ Any& Any::operator=(const Any& x) {
     if (x.m_data != NULL) {
         m_data = const_cast<Data*>(x.m_data);
         m_data->referenceCount.increment();
-    }
-    else
+    } else {
         m_data = NULL;
+    }
 
-    return (*this);
+    return *this;
 }
 
 
 Any& Any::operator=(double x) {
-    return (*this = Any(x));
+    *this = Any(x);
+    return *this;
 }
 
 
@@ -210,25 +200,33 @@ Any& Any::operator=(int x) {
 
 
 Any& Any::operator=(bool x) {
-    return (*this = Any(x));
+    *this = Any(x);
+    return *this;
 }
 
 
 Any& Any::operator=(const std::string& x) {
-    return (*this = Any(x));
+    *this = Any(x);
+    return *this;
 }
 
 
 Any& Any::operator=(Type t) {
     switch (t) {
     case NONE:  
-        return (*this = Any());
+        *this = Any();
+        break;
+
     case TABLE: 
     case ARRAY: 
-        return (*this = Any(t));
+        *this = Any(t);
+        break;
+
     default:    
         throw WrongType(NONE,t);
     }
+
+    return *this;
 }
 
 
@@ -239,16 +237,18 @@ Any::Type Any::type() const {
 
 const std::string& Any::comment() const {
     static const std::string blank;
-    if (m_data != NULL)
+    if (m_data != NULL) {
         return m_data->comment;
-    else
+    } else {
         return blank;
+    }
 }
 
 
 void Any::setComment(const std::string& c) {
-    if (m_data == NULL)
+    if (m_data == NULL) {
         m_data = new Data();
+    }
     m_data->comment = c;
 }
 
@@ -264,40 +264,16 @@ double Any::number() const {
 }
 
 
-/*
-double Any::number(double defaultVal) const {
-    checkType(NUMBER);
-    return m_simpleValue.n;
-}
-*/
-
-
 const std::string& Any::string() const {
     checkType(STRING);
     return *(m_data->value.s);
 }
 
 
-/*
-const std::string& Any::string(const std::string& defaultVal) const {
-    checkType(STRING);
-    return *(m_data->value.s);
-}
-*/
-
-
 bool Any::boolean() const {
     checkType(BOOLEAN);
     return m_simpleValue.b;
 }
-
-
-/*
-bool Any::boolean(bool defaultVal) const {
-    checkType(BOOLEAN);
-    return m_simpleValue.b;
-}
-*/
 
 
 const std::string& Any::name() const {
@@ -310,8 +286,9 @@ const std::string& Any::name() const {
 
 
 void Any::setName(const std::string& n) {
-    if (m_data == NULL)
+    if (m_data == NULL) {
         m_data = new Data();
+    }
     m_data->name = n;
 }
 
@@ -321,14 +298,14 @@ int Any::size() const {
     case TABLE:
         debugAssertM(m_data != NULL,"NULL m_data");
         return m_data->value.t->size();
-        break;
+
     case ARRAY:
         debugAssertM(m_data != NULL,"NULL m_data");
         return m_data->value.a->size();
-        break;
+
     default:
-        throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
-    };    // switch (m_type)
+        throw WrongType(ARRAY, m_type);
+    } // switch (m_type)
 }
 
 
@@ -337,9 +314,33 @@ int Any::length() const {
 }
 
 
+void Any::resize(int n) {
+    alwaysAssertM(n >= 0, "Argument to resize must be non-negative");
+    checkType(ARRAY);
+    m_data->value.a->resize(n);
+}
+
+
+
+void Any::clear() {
+    switch (m_type) {
+    case ARRAY:
+        m_data->value.a->clear();
+        break;
+
+    case TABLE:
+        m_data->value.t->clear();
+        break;
+
+    default:
+        throw WrongType(ARRAY, m_type);
+    }
+}
+
+
 const Any& Any::operator[](int i) const {
     checkType(ARRAY);
-    debugAssertM(m_data != NULL,"NULL m_data");
+    debugAssertM(m_data != NULL, "NULL m_data");
     Array<Any>& array = *(m_data->value.a);
     return array[i];
 }

@@ -17,10 +17,33 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Quat.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
 const float Matrix3::EPSILON = 1e-06f;
+
+Matrix3::Matrix3(const Any& any) {
+    alwaysAssertM(any.name() == "Matrix3" || any.size() != 9, "Malformed Any passed to Matrix3 constructor");
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            elt[r][c] = any[r * 3 + c];
+        }
+    }
+}
+
+
+Matrix3::operator Any() const {
+    Any any(Any::ARRAY, "Matrix3");
+    any.resize(9);
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            any[r * 3 + c] = elt[r][c];
+        }
+    }
+
+    return any;
+}
 
 const Matrix3& Matrix3::zero() {
     static Matrix3 m(0, 0, 0, 0, 0, 0, 0, 0, 0);
