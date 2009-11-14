@@ -574,6 +574,10 @@ void MD3Model::loadAllSkins(const std::string& skinDir) {
 
     // Loop through all parts and load all skins for that part
     for (int partIndex = 0; partIndex < NUM_PARTS; ++partIndex) {
+        // ignore unused parts
+        if (! m_parts[partIndex]) {
+            continue;
+        }
 
         const std::string& filespec = pathConcat(skinDir, skinNameMask[partIndex]);
 
