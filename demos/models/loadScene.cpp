@@ -10,15 +10,6 @@ void App::loadScene() {
 
     double x = -2;
 
-    // MD3
-    if (false) {
-//        const std::string& path = System::findDataFile("md3");
-        MD3Model::Ref model = MD3Model::fromDirectory("D:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine");
-        model->setSkin("blue");
-        entityArray.append(Entity::create(model, CFrame(rot180, Vector3(x, -0.35f, 0))));
-        x += 2;
-    }
-
     // MD2
     if (true) {
         const std::string& path = System::findDataFile("md2");

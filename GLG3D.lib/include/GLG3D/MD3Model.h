@@ -29,12 +29,6 @@ class MD3Part;
     Character objects contain three individual "models" inside of them with attachment points.
 
     TODO:
-    - SKINS:
-       - Load all .skin files when the model is loaded
-       - Have the upper and lower skin names be part of Pose (as a std::string); let them be separate
-       - Lazy loading the actual textures on first use is fine
-       - Add an interface for enumerating the skins (e.g., const Array<std::string>& skins(which = {UPPER_EXCLUSIVE_FULLNAME, LOWER_EXCLUSIVE_FULLNAME, ALL_FULLNAME, BOTH_POSTFIX) const)
-       - Make the first skin found by getFiles the default, so that the model always has *some* valid skin; right now the model is invisible by default.
     - Add pose animation helpers, ala MD2 model (although the function with all of the bool arguments really sucks on MD2Model)
     - Render using SuperSurface [Morgan]
 
@@ -44,7 +38,19 @@ class MD3Model : public ReferenceCountedObject {
 
 public:
     typedef ReferenceCountedPointer<MD3Model> Ref;
-    
+
+    enum PartType {
+        PART_LEGS,
+        PART_TORSO,
+        PART_HEAD,
+        PART_WEAPON,
+        NUM_PARTS
+    };
+
+    /**
+        All standard animation types expected to 
+        have parameters in the animation.cfg file.
+     */
     enum AnimType {
         BOTH_DEATH1,
         START_BOTH = BOTH_DEATH1,
@@ -83,6 +89,17 @@ public:
         NUM_ANIMATIONS
     };
 
+    /**
+        Animation pose based on AnimType and animation time.
+        Each animation time ( \a legsTime and \a torsoTime )
+        is total time in the current animation which allows for 
+        looping based on the parameters in animation.cfg.
+
+        The skins must be the base name of each skin file
+        found in the same directory as the model parts.
+
+        Textures for each skin are loaded on first use.
+     */
     class Pose {
     public:
         GameTime    legsTime;
@@ -91,9 +108,10 @@ public:
         GameTime    torsoTime;
         AnimType    torsoAnim;
 
-        inline Pose(GameTime lTime, AnimType lAnim, GameTime tTime, AnimType tAnim)
-            : legsTime(lTime), legsAnim(lAnim), torsoTime(tTime), torsoAnim(tAnim) {
-        }
+        std::string skinNames[NUM_PARTS];
+
+        inline Pose(GameTime lt, AnimType la, GameTime tt, AnimType ta) :
+            legsTime(lt), legsAnim(la), torsoTime(tt), torsoAnim(ta) {}
 
         inline Pose() : legsTime(0), legsAnim(LEGS_IDLE), torsoTime(0), torsoAnim(TORSO_STAND) {}
     };
@@ -111,58 +129,65 @@ private:
         AnimFrame(float s, float n, float l, float f) : start(s), num(n), loop(l), fps(f) {}
     };
 
-    enum PartType {
-        PART_LEGS,
-        PART_TORSO,
-        PART_HEAD,
-        PART_WEAPON,
-        NUM_PARTS
-    };
-
-    /** Individual loaded .md3 files representing each part of a full quake model.
-        Parts are loaded in order up to the last .md3 found */
     MD3Part*        m_parts[NUM_PARTS];
 
-    /** Pre-parsed animation data for all frames and types.
-        Starting frame numbers are relative to model (e.g., legs and torso) */
     AnimFrame       m_animations[NUM_ANIMATIONS];
 
-    /** Skin to (surface, texture) mapping.  TODO: Make these materials */
-    Table< std::string, Table<std::string, Texture::Ref> > m_skins;
+    struct SkinValue { std::string filename; Texture::Ref texture; };
+    typedef Table<std::string, SkinValue> PartSkin;
+    typedef Table<size_t, PartSkin> SkinCollection;
+
+    // Collection of shared skins across all models to avoid texture re-loading
+    static SkinCollection s_skins[NUM_PARTS];
 
     MD3Model();
 
-    /** Load complete set of model parts from modelDir. */
     void loadDirectory(const std::string& modelDir);
 
-    /** Load parameters for each standard animation type. */
-    void loadAnimationCfg(const std::string filename);
+    void loadAnimationCfg(const std::string& filename);
+
+    /** Loads all skins into s_skins but leaves texture loading to pose. */
+    void loadAllSkins(const std::string& skinDir);
+
+    void loadSkin(const std::string& filename, PartSkin& skinCollection);
+
+    /** Calculates relative frame number for part */
+    float findFrameNum(AnimType animType, GameTime animTime);
 
     void posePart(PartType partType, const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe);
-
-    /** Calculates frame number from animation type and animation time.
-        Frame number is relative to model. */
-    float findFrameNum(AnimType animType, GameTime animTime);
 
 public:
 
     virtual ~MD3Model();
 
-    /** Loads all model parts from \a modelDir if they exist.  This is the directory containing animation.cfg.
+    /**
+        Loads all available parts of a Quake III model in \a modelDir
+        as well as the animation.cfg file containing all standard animation values.
 
-        Also loads animation.cfg parameters.
+        Order of part loading is: lower.md3 -> upper.md3 -> head.md3 -> weapon.md3
      */
     static MD3Model::Ref fromDirectory(const std::string& modelDir);
 
-    /** Load skin for all model parts.
-        \param skinName Base skin name for all model parts. e.g., head_"skinName".skin
-     */
-    void setSkin(const std::string& skinName);
+    /**
+        Poses then adds all available parts to \a posedModelArray.
+        Each part is posed based on the animation parameters then
+        positioned and rotated based on the appropriate tag according
+        to Quake III model standards.
 
-    /** Pose all model parts based on animations selected in pose.
-        Each part may add multiple surfaces to posedModelArray.
+        The lower.md3 part is the based.  The upper.md3 part is attached
+        to "tag_torso" in lower.md3.  The weapon.md3 part is attached to
+        "tag_weapon" in upper.md3.  The head.md3 part is attached to 
+        "tag_head" in upper.md3.
+
+        The initial \a cframe transformation is applied to the base 
+        lower.md3 part before the whole model is posed.
      */
     void pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe = CoordinateFrame());
+
+    /**
+        Retrieves all available skin names for \a partType.
+     */
+    void skinNames(PartType partType, Array<std::string>& names) const;
 };
 
 

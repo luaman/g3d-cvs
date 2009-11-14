@@ -104,8 +104,12 @@ void App::onInit() {
     std::string base = dataDir + "chaos/";
 
     md3Model = MD3Model::fromDirectory(base);
-    md3Model->setSkin("blue");
     md3Time = 0.0f;
+
+    Array<std::string> snames;
+    md3Model->skinNames(MD3Model::PART_TORSO, snames);
+
+    setDesiredFrameRate(100.0f);
 }
 
 
@@ -123,7 +127,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Add physical simulation here.  You can make your time
     // advancement based on any of the three arguments.
 
-    md3Time += sdt;
+    md3Time += rdt;
 }
 
 
@@ -149,7 +153,12 @@ void App::onUserInput(UserInput* ui) {
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
 
-    MD3Model::Pose pose(md3Time, MD3Model::LEGS_WALK, md3Time, MD3Model::TORSO_STAND);
+    MD3Model::Pose pose(md3Time, MD3Model::LEGS_IDLE, md3Time, MD3Model::TORSO_GESTURE);
+
+    pose.skinNames[MD3Model::PART_LEGS] = "lower_blue";
+    pose.skinNames[MD3Model::PART_TORSO] = "upper_red";
+    //pose.skinNames[MD3Model::PART_HEAD] = "head_NightLord";
+
     md3Model->pose(pose, surfaceArray);
 }
 
@@ -165,10 +174,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
     // ShadowMap as the final argument to create shadows.)
 
     Surface::sortAndRender(rd, defaultCamera, surfaceArray, lighting);
-
-    //Draw::arrow(legs->getTag(legsFrames, "tag_upper").translation, legs->getTag(legsFrames, "tag_upper").rotation * Vector3::unitY(), rd, Color3::orange(), 10.0f);
-    //Draw::arrow(upper->getTag(upperFrames, "tag_head").translation, upper->getTag(upperFrames, "tag_head").rotation * Vector3::unitY(), rd, Color3::blue(), 10.0f);
-
+    
     // Render 2D objects like Widgets
     Surface2D::sortAndRender(rd, posed2D);
 }

@@ -7,11 +7,15 @@
 
 #include "G3D/BinaryInput.h"
 #include "G3D/fileutils.h"
+#include "G3D/HashTrait.h"
 #include "G3D/TextInput.h"
 #include "GLG3D/MD3Model.h"
 
 
 namespace G3D {
+
+
+MD3Model::SkinCollection MD3Model::s_skins[NUM_PARTS];
 
 
 // 60 quake units ~= 2 meters
@@ -168,6 +172,7 @@ private:
     std::string                 m_modelDir;
     std::string                 m_modelName;
 
+    std::string                 m_defaultSkin;
 
     MD3Part();
 
@@ -256,7 +261,7 @@ MD3Part::MD3Part() : m_numFrames(0) {
 bool MD3Part::loadFile(const std::string& filename) {
     BinaryInput bi(filename, G3D_LITTLE_ENDIAN);
 
-    // read file header
+    // Read file header
     MD3FileHeader md3File(bi);
     if (! md3File.ok) {
         return false;
@@ -267,7 +272,7 @@ bool MD3Part::loadFile(const std::string& filename) {
 
     m_numFrames = md3File.numFrames;
 
-    // allocate frames
+    // Allocate frames
     m_frames.resize(md3File.numFrames, false);
 
     // Read in frame data
@@ -276,7 +281,7 @@ bool MD3Part::loadFile(const std::string& filename) {
         loadFrame(bi, m_frames[frameIndex]);
     }
 
-    // read in tag data
+    // Read in tag data
     bi.setPosition(md3File.offsetTags);
     for (int frameIndex = 0; frameIndex < md3File.numFrames; ++frameIndex) {
         for (int tagIndex = 0; tagIndex < md3File.numTags; ++tagIndex) {
@@ -284,10 +289,10 @@ bool MD3Part::loadFile(const std::string& filename) {
         }
     }
 
-    // allocate surfaces
+    // Allocate surfaces
     m_surfaces.resize(md3File.numSurfaces, false);
 
-    // read in surface data
+    // Read in surface data
     bi.setPosition(md3File.offsetSurfaces);
     for (int surfaceIndex = 0; surfaceIndex < md3File.numSurfaces; ++surfaceIndex) {
         loadSurface(bi, m_surfaces[surfaceIndex]);
@@ -298,21 +303,21 @@ bool MD3Part::loadFile(const std::string& filename) {
 
 
 void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
-    // save start of surface
+    // Save start of surface
     int surfaceStart = static_cast<int>(bi.getPosition());
 
-    // read surface header
+    // Read surface header
     MD3SurfaceHeader md3Surface(bi);
 
 
-    // read surface data
+    // Read surface data
     surfaceData.m_name = md3Surface.name;
 
-    // store off some helper data
+    // Store off some helper data
     surfaceData.m_numFrames = md3Surface.numFrames;
     surfaceData.m_numVertices = md3Surface.numVertices;
 
-    // read triangles
+    // Read triangles
     bi.setPosition(surfaceStart + md3Surface.offsetTriangles);
 
     surfaceData.m_indexArray.resize(md3Surface.numTriangles * 3);
@@ -323,24 +328,24 @@ void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
         surfaceData.m_indexArray[index * 3 + 2] = bi.readInt32();
     }
 
-    // read shaders
+    // Read shaders
     bi.setPosition(surfaceStart + md3Surface.offsetShaders);
 
     for (int shaderIndex = 0; shaderIndex < md3Surface.numShaders; ++shaderIndex) {
-        // read shader name and index
+        // Read shader name and index
         const std::string& shaderPath = bi.readString(64);
         const int unusedIndex = bi.readInt32();
         
-        // find base filename for shader
+        // Find base filename for shader
         const std::string& shaderName = filenameBaseExt(shaderPath);
 
-        // ignore empty shader names for now (filled in with .skin file)
+        // Ignore empty shader names for now (filled in with .skin file)
         if (! shaderName.empty()) {
             surfaceData.m_texture = Texture::fromFile(m_modelDir + shaderName, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
         }
     }
 
-    // read texture coordinates
+    // Read texture coordinates
     bi.setPosition(surfaceStart + md3Surface.offsetUVs);
 
     surfaceData.m_textureCoords.resize(md3Surface.numVertices);
@@ -350,7 +355,7 @@ void MD3Part::loadSurface(BinaryInput& bi, SurfaceData& surfaceData) {
         surfaceData.m_textureCoords[coordIndex].y = bi.readFloat32();
     }
 
-    // read vertices
+    // Read vertices
     bi.setPosition(surfaceStart + md3Surface.offsetVertices);
 
     surfaceData.m_geometry.resize(md3Surface.numFrames);
@@ -464,16 +469,17 @@ MD3Model::Ref MD3Model::fromDirectory(const std::string& modelDir) {
     MD3Model* model = new MD3Model;
 
     model->loadDirectory(modelDir);
+    model->loadAllSkins(modelDir);
 
     return model;
 }
 
 
 void MD3Model::loadDirectory(const std::string& modelDir) {
-    // load animation.cfg file
+    // Load animation.cfg file
     loadAnimationCfg(pathConcat(modelDir, "animation.cfg"));
 
-    // load legs
+    // Load legs
     std::string filename = pathConcat(modelDir, "lower.md3");
 
     m_parts[PART_LEGS] = new MD3Part;
@@ -483,7 +489,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
         return;
     }
 
-    // load torso
+    // Load torso
     filename = pathConcat(modelDir, "upper.md3");
 
     m_parts[PART_TORSO] = new MD3Part;
@@ -493,7 +499,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
         return;
     }
 
-    // load head
+    // Load head
     filename = pathConcat(modelDir, "head.md3");
 
     m_parts[PART_HEAD] = new MD3Part;
@@ -503,7 +509,7 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
         return;
     }
 
-    // load weapon (if it exists, optional)
+    // Load weapon (if it exists, optional)
     filename = pathConcat(modelDir, "weapon.md3");
     if (!fileExists(filename)) {
         return;
@@ -518,16 +524,16 @@ void MD3Model::loadDirectory(const std::string& modelDir) {
 }
 
 
-void MD3Model::loadAnimationCfg(const std::string filename) {
+void MD3Model::loadAnimationCfg(const std::string& filename) {
     TextInput::Settings settings;
     settings.generateNewlineTokens = true;
 
     TextInput ti(filename, settings);
 
     for (int animIndex = 0; animIndex < NUM_ANIMATIONS; ++animIndex) {
-        // check if animations have started in file
+        // Check if animations have started in file
         while (ti.hasMore() && (ti.peek().extendedType() != Token::INTEGER_TYPE)) {
-            // eat until next line starting with an integer token
+            // Eat until next line starting with an integer token
             while (ti.hasMore() && (ti.peek().type() != Token::NEWLINE)) {
                 ti.read();
             }
@@ -535,7 +541,7 @@ void MD3Model::loadAnimationCfg(const std::string filename) {
             ti.read();
         }
 
-        // return early if this is an invalid file
+        // Return early if this is an invalid file
         if (ti.peek().type() == Token::END) {
             debugAssertM(ti.peek().type() != Token::END, ("Invalid animation.cfg file!"));
             return;
@@ -553,7 +559,7 @@ void MD3Model::loadAnimationCfg(const std::string filename) {
         }
     }
 
-    // loop through all legs animations and adjust starting frame number to be relative to model
+    // Loop through all legs animations and adjust starting frame number to be relative to part
     float numTorsoAnimations = m_animations[START_LEGS].start - m_animations[START_TORSO].start;
     for (int animIndex = START_LEGS; animIndex <= END_LEGS; ++animIndex) {
         m_animations[animIndex].start -= numTorsoAnimations;
@@ -561,59 +567,78 @@ void MD3Model::loadAnimationCfg(const std::string filename) {
 }
 
 
-void MD3Model::setSkin(const std::string& skinName) {
+void MD3Model::loadAllSkins(const std::string& skinDir) {
 
-    // loop through all parts and load part-specific skin based on skinName
+    static const char* const skinNameMask[NUM_PARTS] = {
+        "lower*.skin", "upper*.skin", "head*.skin", "weapon*.skin" };
+
+    // Loop through all parts and load all skins for that part
     for (int partIndex = 0; partIndex < NUM_PARTS; ++partIndex) {
-        if (!m_parts[partIndex]) {
-            continue;
+
+        const std::string& filespec = pathConcat(skinDir, skinNameMask[partIndex]);
+
+        Array<std::string> filenames;
+        getFiles(filespec, filenames, true);
+
+        if (filenames.length() > 0) {
+            m_parts[partIndex]->m_defaultSkin = filenameBase(filenames[0]);
         }
 
-        const std::string& filename = pathConcat(m_parts[partIndex]->m_modelDir, m_parts[partIndex]->m_modelName + "_" + skinName + ".skin");
+        for (int fileIndex = 0; fileIndex < filenames.size(); ++fileIndex) {
+            const std::string& filename = filenames[fileIndex];
 
-        // create empty skin table initially
-        m_skins.set(m_parts[partIndex]->m_modelName, Table<std::string, Texture::Ref>());
+            size_t skinHash = HashTrait<std::string>::hashCode(filename);
 
-        // read file as string to parse easily
-        const std::string& skinFile = readWholeFile(filename);
-
-        // split the file into lines
-        Array<std::string> lines = stringSplit(skinFile, '\n');
-
-        // parse each line for surface name + texture
-        for (int lineIndex = 0; lineIndex < lines.length(); ++lineIndex) {
-            std::string line = trimWhitespace(lines[lineIndex]);
-
-            std::string::size_type commaPos = line.find(',');
-
-            // quit parsing if invalid name,texture as this is probably the end of file
-            if (commaPos == (line.length() - 1)) {
-                continue;
+            if (! s_skins[partIndex].containsKey(skinHash)) {
+                s_skins[partIndex].set(skinHash, PartSkin());
             }
 
-            std::string surfaceName = line.substr(0, commaPos);
-            std::string shaderName = filenameBaseExt(line.substr(commaPos + 1));
-
-            std::string textureFilename = pathConcat(m_parts[partIndex]->m_modelDir, shaderName);
-
-            // only try to load an existing file as the .skin contains invalid names for empty/invalid surfaces
-            if (fileExists(textureFilename)) {
-                const Texture::Ref& t = Texture::fromFile(textureFilename, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
-
-                // assign the surface skin to the model
-                m_skins[m_parts[partIndex]->m_modelName].set(surfaceName, t);
-            }
+            loadSkin(filename, s_skins[partIndex][skinHash]);
         }
     }
 }
 
+void MD3Model::loadSkin(const std::string& filename, PartSkin& partSkin) {
+    // Read file as string to parse easily
+    const std::string& skinFile = readWholeFile(filename);
+
+    // Split the file into lines
+    Array<std::string> lines = stringSplit(skinFile, '\n');
+
+    // Parse each line for surface name + texture
+    for (int lineIndex = 0; lineIndex < lines.length(); ++lineIndex) {
+        std::string line = trimWhitespace(lines[lineIndex]);
+
+        std::string::size_type commaPos = line.find(',');
+
+        // Quit parsing if invalid name,texture as this is probably the end of file
+        if (commaPos == (line.length() - 1)) {
+            continue;
+        }
+
+        // Figure out actual texture filename
+        std::string surfaceName = line.substr(0, commaPos);
+        std::string shaderName = filenameBaseExt(line.substr(commaPos + 1));
+
+        std::string textureFilename = pathConcat(filenamePath(filename), shaderName);
+
+        // Verify texture exists, but do not load yet.  Textures will be loaded on use.
+        if (fileExists(textureFilename)) {
+
+            SkinValue skinValue;
+            skinValue.filename = textureFilename;
+            
+            partSkin.set(surfaceName, skinValue);
+        }
+    }
+}
 
 void MD3Model::pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, const CoordinateFrame& cframe) {
 
-    // coordinate frame built up from legs
+    // Coordinate frame built up from legs
     CoordinateFrame baseFrame = cframe;
 
-    // pose legs part
+    // Pose legs part
     if (!m_parts[PART_LEGS]) {
         return;
     }
@@ -623,7 +648,7 @@ void MD3Model::pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, cons
     float legsFrameNum = findFrameNum(pose.legsAnim, pose.legsTime);
     baseFrame = baseFrame * m_parts[PART_LEGS]->tag(legsFrameNum, "tag_torso");
 
-    // pose torso part
+    // Pose torso part
     if (!m_parts[PART_TORSO]) {
         return;
     }
@@ -632,7 +657,7 @@ void MD3Model::pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, cons
 
     float torsoFrameNum = findFrameNum(pose.torsoAnim, pose.torsoTime);
 
-    // pose weapon part (since it uses a torso tag)
+    // Pose weapon part (since it uses a torso tag)
     if (m_parts[PART_WEAPON]) {
         CoordinateFrame weaponFrame = baseFrame * m_parts[PART_TORSO]->tag(torsoFrameNum, "tag_weapon");
         posePart(PART_WEAPON, pose, posedModelArray, baseFrame);
@@ -640,7 +665,7 @@ void MD3Model::pose(const Pose& pose, Array<Surface::Ref>& posedModelArray, cons
 
     baseFrame = baseFrame * m_parts[PART_TORSO]->tag(torsoFrameNum, "tag_head");
 
-    // pose head part
+    // Pose head part
     if (!m_parts[PART_HEAD]) {
         return;
     }
@@ -656,15 +681,35 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
         const MD3Part::SurfaceData& surfaceData = part->m_surfaces[surfaceIndex];
 
+        // Find surface skin if available and load textures as needed
         Texture::Ref surfaceTexture;
 
-        // assign texture which will be used to determine if surface is ignored in model
         if (surfaceData.m_texture.notNull()) {
+            // Use default surface texture if it was valid
             surfaceTexture = surfaceData.m_texture;
-        } else if (m_skins.containsKey(part->m_modelName)) {
-            const Table<std::string, Texture::Ref>& surfaceSkins = m_skins[part->m_modelName];
-            if (surfaceSkins.containsKey(surfaceData.m_name)) {
-                surfaceTexture = surfaceSkins[surfaceData.m_name];
+
+        } else {
+            // Otherwise find skin
+            std::string skinFilename = pathConcat(part->m_modelDir, pose.skinNames[partType] + ".skin");
+
+            // Default to first skin if not specified
+            if (pose.skinNames[partType].length() == 0) {
+                skinFilename = pathConcat(part->m_modelDir, part->m_defaultSkin + ".skin");
+            }
+
+            size_t skinHash = HashTrait<std::string>::hashCode(skinFilename);
+
+            if (s_skins[partType].containsKey(skinHash)) {
+
+                if (s_skins[partType][skinHash].containsKey(surfaceData.m_name)) {
+                    SkinValue& skinValue = s_skins[partType][skinHash][surfaceData.m_name];
+
+                    if (skinValue.texture.isNull()) {
+                        skinValue.texture = Texture::fromFile(skinValue.filename, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
+                    }
+
+                    surfaceTexture = skinValue.texture;
+                }
             }
         }
 
@@ -707,7 +752,7 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
         md3Surface->m_coordFrame = cframe;
         md3Surface->m_coordFrame.translation += part->m_frames[frame1].m_localOrigin.lerp(part->m_frames[frame2].m_localOrigin, interp);
 
-        // set name
+        // Set name
         md3Surface->m_name = part->m_modelName + "::" + surfaceData.m_name;
 
         posedModelArray.append(md3Surface);
@@ -723,17 +768,17 @@ float MD3Model::findFrameNum(AnimType animType, GameTime animTime) {
     float initialLoopTime = (m_animations[animType].num / m_animations[animType].fps);
 
     if (animTime < initialLoopTime) {
-        // less than 1 loop complete, no need to account for "loop" value
+        // Less than 1 loop complete, no need to account for "loop" value
         frameNum += static_cast<float>(animTime / initialLoopTime) * m_animations[animType].num;
     } else {
         if (m_animations[animType].loop > 0.0f) {
             // otherwise find actual frame number after number of loops
             animTime -= initialLoopTime;
 
-            // find time for all subsequent loops
+            // Find time for all subsequent loops
             float otherLoopTime = m_animations[animType].loop / m_animations[animType].fps;
 
-            // how far into the last loop
+            // How far into the last loop
             float timeIntoLastLoop = fmod(static_cast<float>(animTime), otherLoopTime);
 
             // "loop" works by specifying the last number of frames to loop over
@@ -749,6 +794,21 @@ float MD3Model::findFrameNum(AnimType animType, GameTime animTime) {
 
     return frameNum;
 }
+
+void MD3Model::skinNames(PartType partType, Array<std::string>& names) const {
+    static const char* const skinNameMask[NUM_PARTS] = {
+    "lower*.skin", "upper*.skin", "head*.skin", "weapon*.skin" };
+
+    const std::string& filespec = pathConcat(m_parts[partType]->m_modelDir, skinNameMask[partType]);
+
+    Array<std::string> filenames;
+    getFiles(filespec, filenames, false);
+
+    for (int fileIndex = 0; fileIndex < filenames.length(); ++fileIndex) {
+        names.append(filenameBase(filenames[fileIndex]));
+    }
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
