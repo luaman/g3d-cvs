@@ -20,6 +20,7 @@ void Entity::onPose(Array<Surface::Ref>& surfaceArray) {
 Scene::Ref Scene::create() {
     Scene::Ref s = new Scene();
     s->m_lighting = GApp::defaultLighting();
+    //    s->m_lighting->environmentMap = Texture::fromFile("/Volumes/McGuire/Projects/data/cubemap/tantolunden/*.jpg", ImageFormat::AUTO(), Texture::DIM_CUBE_MAP);
 
     std::string materialPath = System::findDataFile("material");
     std::string crateFile = System::findDataFile("crate.ifs");

@@ -126,17 +126,26 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
     Surface2D::sortAndRender(rd, posed2D);
 }
 
-/** Must all be lower case */
-static const std::string cubeMapExtension[] = {"up", "dn", "bk", "rt", "lf", "ft"};
-
 static bool allCubeMapFacesExist(const std::string& base, const std::string& ext) {
-    for (int f = 0; f < 6; ++f) {
-        if (! fileExists(base + cubeMapExtension[f] + "." + ext) &&
-            ! fileExists(base + toUpper(cubeMapExtension[f]) + "." + ext)) {
-            return false;
+    for (int i = 0; i < 4; ++i) {
+        Texture::CubeMapConvention c = (Texture::CubeMapConvention)i;
+
+        const Texture::CubeMapInfo& info = Texture::cubeMapInfo(c);
+
+        bool success = true;
+        for (int f = 0; f < 6; ++f) {
+            const char* s = info.face[f].suffix;
+            if (! fileExists(base + s + "." + ext) &&
+                ! fileExists(base + toUpper(s) + "." + ext)) {
+                success = false;
+                break;
+            }
+        }
+        if (success) {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 /**
@@ -145,9 +154,14 @@ static bool allCubeMapFacesExist(const std::string& base, const std::string& ext
 static bool isCubeMapFace(const std::string& _base, const std::string& _ext) {
     std::string base = toLower(_base);
     std::string ext = toLower(_ext);
-    for (int f = 0; f < 6; ++f) {
-        if (endsWith(base, cubeMapExtension[f] + "." + ext)) {
-            return true;
+    for (int i = 0; i < 4; ++i) {
+        Texture::CubeMapConvention c = (Texture::CubeMapConvention)i;
+
+        const Texture::CubeMapInfo& info = Texture::cubeMapInfo(c);
+        for (int f = 0; f < 6; ++f) {
+            if (endsWith(base, std::string(info.face[f].suffix) + "." + ext)) {
+                return true;
+            }
         }
     }
     return false;

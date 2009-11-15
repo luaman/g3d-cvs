@@ -12,34 +12,35 @@
 #include "SkyViewer.h"
 
 
-SkyViewer::SkyViewer()
-{}
+SkyViewer::SkyViewer() {}
 
 
 void SkyViewer::onInit(const std::string& filename) {
 
-	//sky fileloading uses a wildcard that loads a general string of it.
-	//we need to manipulate the string in order to find its format and if it begins with a
-	//word like up. 
-	int test = (int)filename.find("sky/");
+    //sky fileloading uses a wildcard that loads a general string of it.
+    //we need to manipulate the string in order to find its format and if it begins with a
+    //word like up. 
+    int test = (int)filename.find("sky/");
+    
+    std::string mainDir = filename.substr(0, test + 4);
+    
+    std::string subDir = filename.substr(test + 4);
+    subDir = subDir.substr(0, subDir.find("/") + 1);
+    
+    std::string appendation = filename.substr(subDir.length() + mainDir.length());	
+    appendation = appendation.substr(0, (appendation.length() - 6));
+    
+    appendation += ("*." + filenameExt(filename));
+    
+    //debugPrintf("%s  %s\n", (mainDir + subDir).c_str(), appendation.c_str());
 
-	std::string mainDir = filename.substr(0, test + 4);
-
-	std::string subDir = filename.substr(test + 4);
-	subDir = subDir.substr(0, subDir.find("/") + 1);
-	
-	std::string appendation = filename.substr(subDir.length() + mainDir.length());	
-	appendation = appendation.substr(0, (appendation.length() - 6));
-
-	appendation += ("*." + filenameExt(filename));
-
-	sky = Sky::fromFile(mainDir + subDir, appendation, false);
-	
+    sky = Sky::fromFile(mainDir + subDir, appendation, false);
+    
     skyParameters = SkyParameters(G3D::toSeconds(11, 00, 00, AM));
 }
 
 
 void SkyViewer::onGraphics(RenderDevice* rd, App* app, const LightingRef& lighting) {
-	rd->disableLighting();
-	sky->render(rd, skyParameters);
+    rd->disableLighting();
+    sky->render(rd, skyParameters);
 }
