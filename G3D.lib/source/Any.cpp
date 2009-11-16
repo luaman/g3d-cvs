@@ -658,7 +658,7 @@ void Any::serialize(TextOutput& to) const {
         to.writeNewline();
         to.pushIndent();
         Table<std::string,Any>& table = *(m_data->value.t);
-        for( Table<std::string, Any>::Iterator it = table.begin(); it != table.end(); ++it ) {
+        for (Table<std::string, Any>::Iterator it = table.begin(); it != table.end(); ++it ) {
 
             to.writeSymbol(it->key);
             to.writeSymbol("=");
@@ -668,6 +668,9 @@ void Any::serialize(TextOutput& to) const {
                 to.writeSymbol(",");
             }
             to.writeNewline();
+
+            // Skip a line between table entries
+            to.writeNewline();
         }
 
         to.popIndent();
@@ -676,11 +679,13 @@ void Any::serialize(TextOutput& to) const {
     }
 
     case ARRAY: {
-            debugAssertM(m_data != NULL,"NULL m_data");
+            debugAssertM(m_data != NULL, "NULL m_data");
             if (! m_data->name.empty()) {
-                to.writeSymbol(m_data->name);
+                // For arrays, leave no trailing space between the name and the paren
+                to.writeSymbol(format("%s(", m_data->name.c_str()));
+            } else {
+                to.writeSymbol("(");
             }
-            to.writeSymbol("(");
             to.writeNewline();
             to.pushIndent();
             Array<Any>& array = *(m_data->value.a);
@@ -688,8 +693,10 @@ void Any::serialize(TextOutput& to) const {
                 array[ii].serialize(to);
                 if (ii < size() - 1) {
                     to.writeSymbol(",");
+                    to.writeNewline();
                 }
-                to.writeNewline();
+
+                // Put the close paren on an array right behind the last element
             }
             to.popIndent();
             to.writeSymbol(")");
