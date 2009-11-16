@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2001-06-02
- @edited  2008-07-13
+ @edited  2009-11-13
 */
 
 #include "G3D/platform.h"
@@ -21,8 +21,33 @@
 #include "G3D/Capsule.h"
 #include "G3D/Cylinder.h"
 #include "G3D/UprightFrame.h"
+#include "G3D/Any.h"
 
 namespace G3D {
+    /** \param any Must be in one of the following forms: 
+        - CFrame((matrix3 expr), (vector3 expr))
+        - CFrame::fromXYZYPRDegrees(#, #, #, #, #, #)
+        - CFrame {  rotation = (matrix3 expr), translation = (vector3 expr) }
+        */
+CoordinateFrame::CoordinateFrame(const Any& any) {
+    // TODO
+}
+
+
+CoordinateFrame::operator Any() const {
+    float x, y, z, yaw, pitch, roll;
+    getXYZYPRDegrees(x, y, z, yaw, pitch, roll); 
+    Any a(Any::ARRAY, "CFrame::fromXYZYPRDegrees");
+    a.append(x, y, z, yaw);
+    if (! G3D::fuzzyEq(pitch, 0.0f) || ! G3D::fuzzyEq(roll, 0.0f)) {
+        a.append(pitch);
+        if (! G3D::fuzzyEq(roll, 0.0f)) {
+            a.append(roll);
+        }
+    }
+    return a;
+}
+
 
 CoordinateFrame::CoordinateFrame(const class UprightFrame& f) {
     *this = f.toCoordinateFrame();

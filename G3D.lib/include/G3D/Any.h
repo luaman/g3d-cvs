@@ -17,9 +17,11 @@
 #include "G3D/platform.h"
 #include "G3D/Table.h"
 #include "G3D/Array.h"
-#include "G3D/TextInput.h"
 #include "G3D/AtomicInt32.h"
 #include <string>
+
+// needed for Token
+#include "G3D/TextInput.h"
 
 namespace G3D {
 
@@ -79,6 +81,9 @@ Serialized format BNF:
 
 <pre>
 identifier  ::= (letter | "_") (letter | digit | "_")*
+identifier-op ::= "::" | "->" | "."
+
+identifier-exp ::= [identifier-op] identifier (identifier-op identifier)*
 
 comment     ::= "#" <any characters> "\n"
 
@@ -89,13 +94,13 @@ none        ::= "None"
 array       ::= "(" [value ("," value)*] ")"
 pair        ::= identifier "=" value
 table       ::= "{" [pair ("," pair)*] "}"
-named-array ::= identifier tuple
-named-table ::= identifier dict
+named-array ::= identifier-exp tuple
+named-table ::= identifier-exp dict
 
 value       ::= [comment] (none | number | boolean | string | array | table | named-array | named-table)
 </pre>
 
-Except for single-line comments, whitespace is not significant.
+Except for single-line comments, whitespace is not significant.  All parsing is case-insensitive
 
 The deserializer allows the substitution of [] for () when writing
 tuples.
@@ -110,20 +115,26 @@ public:
 
     enum Type {NONE, BOOLEAN, NUMBER, STRING, ARRAY, TABLE};
 
-    static std::string stringType(Type t) {
-        switch(t)
-        {
+    static std::string toString(Type t) {
+        switch(t) {
         case NONE:    return "NONE";
         case BOOLEAN: return "BOOLEAN";
         case NUMBER:  return "NUMBER";
         case STRING:  return "STRING";
         case ARRAY:   return "ARRAY";
         case TABLE:   return "TABLE";
-        default:      throw WrongType(NONE,t);
-        };
+        default:      throw WrongType(NONE, t);
+        }
     }
 
 private:
+
+    typedef Array<Any> AnyArray;
+    typedef Table<std::string, Any> AnyTable;
+
+    /** Called from deserialize() */
+    static void deserializeComment(TextInput& ti, Token& token, std::string& comment);
+
 
     /** NONE, BOOLEAN, and NUMBER are stored directly in the Any */
     union SimpleValue {
@@ -140,7 +151,7 @@ private:
         union Value {
             std::string*             s;
             Array<Any>*              a;
-            Table<std::string, Any>* t;
+            AnyTable*                t;
             inline Value() : s(NULL) {}
         };
 
@@ -148,6 +159,8 @@ private:
         // and can call its destructor. 
         Type                         type;
         
+        // Always points to memory that is allocated with the Data, so
+        // the destructor does not delete this.
         Value                        value;
         
         std::string                  comment;
@@ -161,32 +174,59 @@ private:
         */
         AtomicInt32                  referenceCount;
 
-        /** When this was allocated solely for comments and names */
-        inline Data() : type(NONE), referenceCount(1) {}
-        Data(const std::string& x);
-        Data(const Array<Any>& x);
-        Data(const Table<std::string, Any>& x);
-        Data(const Data &);    // Mutate.
+    private:
+
+        // Called by create()
+        inline Data(Type t) : type(t), referenceCount(1) {}
+
+        // Called by destroy;
         ~Data();
+
+    public:
+
+        /** Clones the argument */
+        static Data* create(const Data* d);
+        static Data* create(Type t);
+
+        /** Free d, invoking its destructor and freeing the memory for the value.*/
+        static void destroy(Data* d);
+
     };
 
-    Type        m_type;
-    SimpleValue m_simpleValue;
-    Data*       m_data;
+    Type                m_type;
+    SimpleValue         m_simpleValue;
+    mutable Data*       m_data;
 
     /** Decrements the reference count (if there is one).  If the
-    reference count is zero or does not exist, calls delete on @a
+    reference count is zero after decrement, calls delete on @a
     m_data and sets it to NULL.
     */
     void dropReference();
+
+    /** Allocate the Data object if it does not exist */
+    void ensureData();
 
     /** Throws a WrongType exception if this Any is not of the
         expected type e.*/
     void checkType(Type e) const;
 
-    /** Ensures that this has a unique reference and
-        contains a valid m_data.*/
+    /** If m_data is not NULL, ensure that it has a unique reference and
+        contains a valid m_data.  This has a race condition if two
+        threads are both trying to modify the same Any simultaneously.*/    
     void ensureMutable();
+
+    /** Read an unnamed a TABLE or ARRAY.  Token should be the open paren token;
+        it is the next token after the close on return. Called from deserialize().*/
+    void deserializeBody(TextInput& ti, Token& token);
+
+    void deserialize(TextInput& ti, Token& token);
+
+    /** Read the name of a named Array or Table. */
+    static void deserializeName(TextInput& ti, Token& token, std::string& name);
+    
+    /** Read until a comma is consumed or a close paren is hit, and return that token.  Considers
+     the passed in token to be the first value read. */
+    static void readUntilCommaOrClose(TextInput& ti, Token& token);
 
 public:
 
@@ -297,6 +337,11 @@ public:
     Any& operator=(Type t);
 
     Type type() const;
+
+    /** Same as deserialize or load, but operates on a string instead of a stream or file.
+      \sa deserialize, load
+      */
+    void parse(const std::string& src);
     
     /** Comments appear before values when they are in serialized form.*/
     const std::string& comment() const;
@@ -312,7 +357,11 @@ public:
 
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
-    /** Only legal for ARRAY or TABLE */
+
+    /** Only legal for ARRAY or TABLE. 
+        The name must be a legal C++ variable name. It can include scope operators "::", "->", and ".", and 
+        those may have spaces around them.  It may not contain parentheses.
+    */
     void setName(const std::string& n);
 
     /** Number of elements if this is an ARRAY or TABLE */
@@ -335,9 +384,15 @@ public:
 
     /** For a table, returns the element for key x. Throws KeyNotFound exception if the element does not exist. */ 
     const Any& operator[](const std::string& x) const;
+    const Any& operator[](const char* x) const;
     
     /** For a table, returns the element for key x, creating it if it does not exist. */
     Any& operator[](const std::string& x);
+    // Needed to avoid "G3D::Any::operator []' : 3 overloads have similar conversions"
+    Any& operator[](const char* x);
+
+    /** for an ARRAY, resizes and returns the last element */
+    Any& next();
 
     /** For a table, returns the element for key \a x and \a defaultVal if it does not exist. */
     const Any& get(const std::string& x, const Any& defaultVal) const;
@@ -361,13 +416,16 @@ public:
        This must be a TABLE or ARRAY */
     void clear();
 
-    /** Uses the deserialize method */
+    /** Parse from a file.
+     \sa deserialize, parse */
     void load(const std::string& filename);
 
-    /** Uses the serialize method */
+    /** Uses the serialize method. */
     void save(const std::string& filename) const;
 
     void serialize(TextOutput& to) const;
+    /** Parse from a stream.
+     \sa load, parse */
     void deserialize(TextInput& ti);
 
 private:

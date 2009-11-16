@@ -32,6 +32,7 @@
 
 
 namespace G3D {
+class Any;
 
 /**
  A rigid body RT (rotation-translation) transformation.
@@ -62,6 +63,16 @@ public:
 
     /** Takes object space points to world space. */
     Vector3							translation;
+
+    /** \param any Must be in one of the following forms: 
+        - CFrame((matrix3 expr), (vector3 expr))
+        - CFrame::fromXYZYPRDegrees(#, #, #, #, #, #)
+        - CFrame {  rotation = (matrix3 expr), translation = (vector3 expr) }
+        */
+    CoordinateFrame(const Any& any);
+    
+    /** Converts the CFrame to an Any. */
+    operator Any() const;
 
     inline bool operator==(const CoordinateFrame& other) const {
         return (translation == other.translation) && (rotation == other.rotation);

@@ -13,73 +13,119 @@
 #include "G3D/G3DAll.h"
 #include <sstream>
 
+static void testRefCount1() {
+
+    // Explicit allocation so that we can control destruction
+    Any* a = new Any(Any::ARRAY);
+
+    Any* b = new Any();
+    // Create alias
+    *b = *a;
+
+    // a->m_data->referenceCount.m_value should now be 2
+    
+    delete b;
+    b = NULL;
+
+    // Reference count should now be 1
+
+    delete a;
+    a = NULL;
+
+    // Reference count should now be zero (and the object deallocated)
+}
+
+static void testRefCount2() {
+
+    // Explicit allocation so that we can control destruction
+    Any* a = new Any(Any::TABLE);
+
+    // Put something complex the table, so that we have chains of dependencies
+    (*a)["x"] = Any(Any::TABLE);
+
+    Any* b = new Any();
+    // Create alias
+    *b = *a;
+
+    // a->m_data->referenceCount.m_value should now be 2
+    
+    delete b;
+    b = NULL;
+
+    // Reference count should now be 1
+
+    delete a;
+    a = NULL;
+
+    // Reference count should now be zero (and the object deallocated)
+}
 
 static void testConstruct() {
 
     {
         Any x = char(3);
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = short(3);
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = int(3);
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = long(3);
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = int32(3);
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = int64(3);
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = 3.1;
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = 3.1f;
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = NULL;
-        debugAssertM(x.type() == Any::NUMBER,Any::stringType(x.type())+" when expecting NUMBER");
+        debugAssertM(x.type() == Any::NUMBER, Any::toString(x.type())+" when expecting NUMBER");
     }
 
     {
         Any x = true;
-        debugAssertM(x.type() == Any::BOOLEAN,Any::stringType(x.type())+" when expecting BOOLEAN");
+        debugAssertM(x.type() == Any::BOOLEAN, Any::toString(x.type())+" when expecting BOOLEAN");
     }
 
     {
         Any x = "hello";
-        debugAssertM(x.type() == Any::STRING,Any::stringType(x.type())+" when expecting STRING");
+        debugAssertM(x.type() == Any::STRING, Any::toString(x.type())+" when expecting STRING");
     }
 
     {
         Any x = std::string("hello");
-        debugAssertM(x.type() == Any::STRING,Any::stringType(x.type())+" when expecting STRING");
+        debugAssertM(x.type() == Any::STRING, Any::toString(x.type())+" when expecting STRING");
     }
 
     {
         Any y = "hello";
         Any x = y;
-        debugAssertM(x.type() == Any::STRING,Any::stringType(x.type())+" when expecting STRING");
+        debugAssertM(x.type() == Any::STRING, Any::toString(x.type())+" when expecting STRING");
     }
 
 }
@@ -117,10 +163,37 @@ static void testCast() {
     }
 }
 
+static void testParse() {
+    const std::string& src =  
+    "{\n\
+       val0 = (1),\n\
+       \n\
+       // Comment 1\n\
+       val1 = 3,\n\
+       \
+       // Comment 2\n\
+       // Comment 3\n\
+       val2 = true\n\
+    }";
+
+    Any a;
+    a.parse(src);
+    debugAssert(a.type() == Any::TABLE);
+    debugAssert(a.size() == 3);
+
+    Any val1 = a["val1"];
+    debugAssert(val1.type() == Any::NUMBER);
+    debugAssert(val1.number() == 3);
+    debugAssert(val1.comment() == "Comment 1");
+}
+
 void testAny() {
 
     printf("G3D::Any ");
 
+    testRefCount1();
+    testRefCount2();
+    testParse();
     testConstruct();
     testCast();
 
@@ -144,8 +217,12 @@ void testAny() {
             throw "Any-load.txt and Any-save.txt differ.";
         }
 
+        // Trigger the destructors explicitly to help test reference counting
+        any = Any();
+        any2 = Any();
+
     } catch( const Any::WrongType& err ) {
-        errss << "failed: Any::WrongType expected=" << Any::stringType(err.expected).c_str() << " actual=" << Any::stringType(err.actual).c_str();
+        errss << "failed: Any::WrongType expected=" << Any::toString(err.expected).c_str() << " actual=" << Any::toString(err.actual).c_str();
     } catch( const Any::KeyNotFound& err ) {
         errss << "failed: Any::KeyNotFound key=" << err.key.c_str();
     } catch( const Any::IndexOutOfBounds& err ) {
@@ -160,8 +237,9 @@ void testAny() {
         errss << "failed: const char* \"" << err << "\"\n";
     }
 
-    if (!errss.str().empty())
+    if (! errss.str().empty()) {
         debugAssertM(false, errss.str());
+    }
 
     printf("passed\n");
 

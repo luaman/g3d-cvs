@@ -113,6 +113,7 @@
      <li> Extended G3D::VARArea to support index arrays
      <li> Tweaked G3D::StopWatch smoothing constants to reduce number flickering
      <li> isIntFormat() macro
+     <li> TextInput::readSignificant
      <li> Switched .tga textures to .png in the data/image directory
      <li> Fix: G3D::System::cpuid() now correct on all gcc systems.  Previously the vendor string (e.g., GenuineIntel, AuthenticAMD) was sometimes corrupt. [Shawn]
      <li> Fix: RenderDevice now allows depth write without depth test  

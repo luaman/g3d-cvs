@@ -22,6 +22,15 @@
 
 namespace G3D {
 
+Token TextInput::readSignificant() {
+    Token t;
+    do { 
+        t = read();
+    } while ((t.type() == Token::COMMENT) || (t.type() == Token::NEWLINE));
+    return t;
+}
+
+
 double Token::number() const {
     if (_type == NUMBER) {
         std::string s = toLower(_string);

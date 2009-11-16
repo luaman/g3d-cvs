@@ -8,14 +8,14 @@
  @cite Based on a lexer written by Aaron Orenstein. 
 
  @created 2002-11-27
- @edited  2006-10-24
+ @edited  2009-11-24
 
- Copyright 2000-2007, Morgan McGuire.
+ Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
  */
 
-#ifndef G3D_TEXTINPUT_H
-#define G3D_TEXTINPUT_H
+#ifndef G3D_TextInput_h
+#define G3D_TextInput_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -582,6 +582,8 @@ public:
     */
     Token read();
 
+    /** Calls read() until the result is not a newline or comment */
+    Token readSignificant();
 
     /** Read one token (or possibly two) as a number or throws
         WrongTokenType, and returns the number.

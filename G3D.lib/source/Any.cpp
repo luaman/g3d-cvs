@@ -13,58 +13,132 @@
 
 #include "G3D/Any.h"
 #include "G3D/TextOutput.h"
+#include "G3D/TextInput.h"
+#include "G3D/stringutils.h"
 #include <deque>
 #include <iostream>
 
 namespace G3D {
    
-
-Any::Data::Data(const std::string& x) : type(STRING), referenceCount(1) {
-    value.s = new std::string(x);
-}
-    
-
-Any::Data::Data(const Array<Any>& x) : type(ARRAY), referenceCount(1) {
-    value.a = new Array<Any>(x);
+static bool isSimple(Any::Type t) {
+    return t == Any::NONE || t == Any::BOOLEAN || t == Any::NUMBER;
 }
 
 
-Any::Data::Data(const Table<std::string, Any>& x) : type(TABLE), referenceCount(1) {
-    value.t = new Table<std::string, Any>(x);
+Any::Data* Any::Data::create(const Data* d) {
+    Data* p = create(d->type);
+
+    p->comment = d->comment;
+    p->name = d->name;
+
+    switch (d->type) {
+    case NONE:
+    case BOOLEAN:
+    case NUMBER:
+        // No clone needed
+        break;
+
+    case STRING:
+        *(p->value.s) = *(d->value.s);
+        break;
+
+    case ARRAY:
+        *(p->value.a) = *(d->value.a);
+        break;
+
+    case TABLE:
+        *(p->value.t) = *(d->value.t);
+        break;
+    }
+
+    return p;
 }
 
 
-Any::Data::Data(const Data &peer)    // Mutate.
-  : type(peer.type),
-    comment(peer.comment),
-    name(peer.name),
-    referenceCount(1)
-{
-    switch (type) {
-    case STRING: value.s = new std::string(*peer.value.s);             break;
-    case ARRAY:  value.a = new Array<Any>(*peer.value.a);              break;
-    case TABLE:  value.t = new Table<std::string, Any>(*peer.value.t); break;
-    default:                                                           throw WrongType(NONE,type);
+Any::Data* Any::Data::create(Any::Type t) {
+    size_t s = sizeof(Data);
+
+    switch (t) {
+    case NONE:
+    case BOOLEAN:
+    case NUMBER:
+        // No extra space needed
+        break;
+
+    case STRING:
+        s += sizeof(std::string);
+        break;
+
+    case ARRAY:
+        s += sizeof(AnyArray);
+        break;
+
+    case TABLE:
+        s += sizeof(AnyTable);
+        break;
+    }
+
+    // Allocate the data object
+    Data* p = new (MemoryManager::create()->alloc(s)) Data(t);
+
+    // Create the (empyt) value object at the end of the Data object
+    switch (t) {
+    case NONE:
+    case BOOLEAN:
+    case NUMBER:
+        // No value
+        break;
+
+    case STRING:
+        p->value.s = new (p + 1) std::string();
+        break;
+
+    case ARRAY:
+        p->value.a = new (p + 1) AnyArray();
+        break;
+
+    case TABLE:
+        p->value.t = new (p + 1) AnyTable();
+        break;
+    }    
+
+    return p;
+}
+
+
+void Any::Data::destroy(Data* d) {
+    if (d != NULL) {
+        d->~Data();
+        MemoryManager::create()->free(d);
     }
 }
 
 
 Any::Data::~Data() {
-    alwaysAssertM(referenceCount.value() == 0, "Incorrect delete in Any::Data");
+    debugAssertM(referenceCount.value() <= 0, "Tried to deallocate an Any::Data with a positive reference count.");
 
+    // Destruct but do not deallocate children
     switch (type) {
     case STRING:
-        delete value.s;
+        debugAssert(value.s != NULL);
+        value.s->~basic_string();
         break;
+
     case ARRAY:
-        delete value.a;
+        debugAssert(value.a != NULL);
+        value.a->~Array();
         break;
+
     case TABLE:
-        delete value.t;
+        debugAssert(value.t != NULL);
+        value.t->~Table();
         break;
+
     default:
-        alwaysAssertM(value.s == NULL, "Corrupt Any::Data::Value");
+        // All other types should have a NULL value pointer (i.e., they were used just for name and comment fields)
+        debugAssertM(value.s == NULL, "Corrupt Any::Data::Value");
     }
+
     value.s = NULL;
 }
 
@@ -75,23 +149,25 @@ Any::Data::~Data() {
 void Any::dropReference() {
     if (m_data && m_data->referenceCount.decrement() <= 0) {
         // This was the last reference to the shared data
-        delete m_data;
-        m_data = NULL;
+        Data::destroy(m_data);
     }
+    m_data = NULL;
 }
 
 
 void Any::checkType(Type e) const {
     if (m_type != e) {
-        throw WrongType(e,m_type);
+        throw WrongType(e, m_type);
     }
 }
 
 
 void Any::ensureMutable() {
-    if (m_data && m_data->referenceCount.value() > 0) {
-        Data* d = new Data(*m_data);
-        m_data->referenceCount.decrement();
+    if (m_data && (m_data->referenceCount.value() >= 1)) {
+        // Copy the data.  We must do this before dropping the reference
+        // to avoid a race condition
+        Data* d = Data::create(m_data);
+        dropReference();
         m_data = d;
     }
 }
@@ -143,11 +219,13 @@ Any::Any(bool x) : m_type(BOOLEAN), m_simpleValue(x), m_data(NULL) {
 }
 
 
-Any::Any(const std::string& s) : m_type(STRING), m_data(new Data(s)) {
+Any::Any(const std::string& s) : m_type(STRING), m_data(Data::create(STRING)) {
+    *(m_data->value.s) = s;
 }
 
 
-Any::Any(const char* s) : m_type(STRING), m_data(new Data(std::string(s))) {
+Any::Any(const char* s) : m_type(STRING), m_data(Data::create(STRING)) {
+    *(m_data->value.s) = s;
 }
 
 
@@ -155,8 +233,8 @@ Any::Any(Type t, const std::string& name) : m_type(t), m_data(NULL) {
     alwaysAssertM(t == ARRAY || t == TABLE,
                   "Illegal type with Any(Type) constructor");
 
+    ensureData();
     if (name != "") {
-        m_data = new Data();
         m_data->name = name;
     }
 }
@@ -178,10 +256,8 @@ Any& Any::operator=(const Any& x) {
     m_simpleValue = x.m_simpleValue;
 
     if (x.m_data != NULL) {
-        m_data = const_cast<Data*>(x.m_data);
-        m_data->referenceCount.increment();
-    } else {
-        m_data = NULL;
+        x.m_data->referenceCount.increment();
+        m_data = x.m_data;
     }
 
     return *this;
@@ -223,7 +299,7 @@ Any& Any::operator=(Type t) {
         break;
 
     default:    
-        throw WrongType(NONE,t);
+        throw WrongType(NONE, t);
     }
 
     return *this;
@@ -246,9 +322,7 @@ const std::string& Any::comment() const {
 
 
 void Any::setComment(const std::string& c) {
-    if (m_data == NULL) {
-        m_data = new Data();
-    }
+    ensureData();
     m_data->comment = c;
 }
 
@@ -278,17 +352,16 @@ bool Any::boolean() const {
 
 const std::string& Any::name() const {
     static const std::string blank;
-    if (m_data != NULL)
+    if (m_data != NULL) {
         return m_data->name;
-    else
+    } else {
         return blank;
+    }
 }
 
 
 void Any::setName(const std::string& n) {
-    if (m_data == NULL) {
-        m_data = new Data();
-    }
+    ensureData();
     m_data->name = n;
 }
 
@@ -296,11 +369,11 @@ void Any::setName(const std::string& n) {
 int Any::size() const {
     switch (m_type) {
     case TABLE:
-        debugAssertM(m_data != NULL,"NULL m_data");
+        debugAssertM(m_data != NULL, "NULL m_data");
         return m_data->value.t->size();
 
     case ARRAY:
-        debugAssertM(m_data != NULL,"NULL m_data");
+        debugAssertM(m_data != NULL, "NULL m_data");
         return m_data->value.a->size();
 
     default:
@@ -319,7 +392,6 @@ void Any::resize(int n) {
     checkType(ARRAY);
     m_data->value.a->resize(n);
 }
-
 
 
 void Any::clear() {
@@ -343,6 +415,14 @@ const Any& Any::operator[](int i) const {
     debugAssertM(m_data != NULL, "NULL m_data");
     Array<Any>& array = *(m_data->value.a);
     return array[i];
+}
+
+
+Any& Any::next() {
+    checkType(ARRAY);
+    int n = size();
+    resize(n + 1);
+    return (*this)[n];
 }
 
 
@@ -396,21 +476,32 @@ const Table<std::string, Any>& Any::table() const {
 }
 
 
+const Any& Any::operator[](const char* x) const {
+    return (*this)[std::string(x)];
+}
+
+
 const Any& Any::operator[](const std::string& x) const {
     checkType(TABLE);
-    debugAssertM(m_data != NULL,"NULL m_data");
-    const Table<std::string,Any>& table = *(m_data->value.t);
+    debugAssertM(m_data != NULL, "NULL m_data");
+    const Table<std::string, Any>& table = *(m_data->value.t);
     Any* value = table.getPointer(x);
-    if( value == NULL )
+    if (value == NULL) {
         throw KeyNotFound(x);
+    }
     return *value;
+}
+
+
+Any& Any::operator[](const char* x) {
+    return (*this)[std::string(x)];
 }
 
 
 Any& Any::operator[](const std::string& x) {
     checkType(TABLE);
     debugAssertM(m_data != NULL,"NULL m_data");
-    Table<std::string,Any>& table = *(m_data->value.t);
+    Table<std::string, Any>& table = *(m_data->value.t);
     return table.getCreate(x);
 }
 
@@ -425,50 +516,68 @@ const Any& Any::get(const std::string& x, const Any& defaultVal) const {
 
 
 bool Any::operator==(const Any& x) const {
-    if( m_type != x.m_type )
+    if (m_type != x.m_type) {
         return false;
+    }
+
     switch (m_type) {
     case NONE:
         return true;
+
     case BOOLEAN:
         return (m_simpleValue.b == x.m_simpleValue.b);
+
     case NUMBER:
         return (m_simpleValue.n == x.m_simpleValue.n);
+
     case STRING:
         debugAssertM(m_data != NULL,"NULL m_data");
         return (*(m_data->value.s) == *(x.m_data->value.s));
+
     case TABLE: {
-        if (size() != x.size())
+        if (size() != x.size()) {
             return false;
+        }
         debugAssertM(m_data != NULL,"NULL m_data");
-        if (m_data->name != x.m_data->name)
+        if (m_data->name != x.m_data->name) {
             return false;
-        Table<std::string,Any>& cmptable  = *(  m_data->value.t);
-        Table<std::string,Any>& xcmptable = *(x.m_data->value.t);
+        }
+        Table<std::string, Any>& cmptable  = *(  m_data->value.t);
+        Table<std::string, Any>& xcmptable = *(x.m_data->value.t);
         for (Table<std::string,Any>::Iterator it1 = cmptable.begin(), it2 = xcmptable.begin();
              it1 != cmptable.end() && it2 != xcmptable.end();
-             ++it1, ++it2)
-            if (*it1 != *it2)
+             ++it1, ++it2) {
+             if (*it1 != *it2) {
                 return false;
+             }
+        }
         return true;
     }
+
     case ARRAY: {
-        if (size() != x.size())
+        if (size() != x.size()) {
             return false;
+        }
         debugAssertM(m_data != NULL,"NULL m_data");
-        if (m_data->name != x.m_data->name)
+        if (m_data->name != x.m_data->name) {
             return false;
+        }
+
         Array<Any>& cmparray  = *(  m_data->value.a);
         Array<Any>& xcmparray = *(x.m_data->value.a);
-        for (int ii = 0; ii < size(); ++ii)
-            if (cmparray[ii] != xcmparray[ii])
+
+        for (int ii = 0; ii < size(); ++ii) {
+            if (cmparray[ii] != xcmparray[ii]) {
                 return false;
+            }
+        }
         return true;
     }
+
     default:
         throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
         break;
-    };    // switch (m_type)
+    }    // switch (m_type)
 }
 
 
@@ -477,18 +586,32 @@ bool Any::operator!=(const Any& x) const {
 }
 
 
-void Any::load(const std::string& filename) {
-    TextInput::Settings settings;
-    settings.cppBlockComments = false;
-    settings.cppLineComments = false;
+static void getDeserializeSettings(TextInput::Settings& settings) {
+    settings.cppBlockComments = true;
+    settings.cppLineComments = true;
     settings.otherLineComments = true;
     settings.otherCommentCharacter = '#';
     settings.generateCommentTokens = true;
     settings.singleQuotedStrings = false;
     settings.msvcSpecials = false;
     settings.caseSensitive = false;
+}
 
-    TextInput ti(filename,settings);
+
+void Any::parse(const std::string& src) {
+    TextInput::Settings settings;
+    getDeserializeSettings(settings);
+
+    TextInput ti(TextInput::FROM_STRING, src, settings);
+    deserialize(ti);
+}
+
+
+void Any::load(const std::string& filename) {
+    TextInput::Settings settings;
+    getDeserializeSettings(settings);
+
+    TextInput ti(filename, settings);
     deserialize(ti);
 }
 
@@ -502,286 +625,326 @@ void Any::save(const std::string& filename) const {
     to.commit();
 }
 
-
+// TODO: if the output will fit on one line, compress tables and arrays into a single line
 void Any::serialize(TextOutput& to) const {
-    // TODO: Need to output comment(s).
+    if (m_data && ! m_data->comment.empty()) {
+        to.printf("\n/* %s */\n", m_data->comment.c_str());
+    }
+
     switch (m_type) {
     case NONE:
-        throw WrongType(NONE,m_type);
+        to.writeSymbol("NONE");
         break;
+
     case BOOLEAN:
         to.writeBoolean(m_simpleValue.b);
         break;
+
     case NUMBER:
         to.writeNumber(m_simpleValue.n);
         break;
+
     case STRING:
-        debugAssertM(m_data != NULL,"NULL m_data");
+        debugAssertM(m_data != NULL, "NULL m_data");
         to.writeString(*(m_data->value.s));
         break;
+
     case TABLE: {
-        debugAssertM(m_data != NULL,"NULL m_data");
-        if (!m_data->name.empty())
+        debugAssertM(m_data != NULL, "NULL m_data");
+        if (! m_data->name.empty()) {
             to.writeSymbol(m_data->name);
+        }
         to.writeSymbol("{");
         to.writeNewline();
         to.pushIndent();
-        bool first = true;
         Table<std::string,Any>& table = *(m_data->value.t);
-        for( Table<std::string,Any>::Iterator it = table.begin(); it != table.end(); ++it ) {
-            if( !first ) {
-                to.writeSymbol(",");
-                to.writeNewline();
-            }
+        for( Table<std::string, Any>::Iterator it = table.begin(); it != table.end(); ++it ) {
 
             to.writeSymbol(it->key);
             to.writeSymbol("=");
             it->value.serialize(to);
 
-            if( first )
-                first = false;
+            if (it.hasMore()) {
+                to.writeSymbol(",");
+            }
+            to.writeNewline();
         }
+
         to.popIndent();
         to.writeSymbol("}");
-        to.writeNewline();
         break;
     }
+
     case ARRAY: {
-        debugAssertM(m_data != NULL,"NULL m_data");
-        if (!m_data->name.empty())
-            to.writeSymbol(m_data->name);
-        to.writeSymbol("(");
-        to.writeNewline();
-        to.pushIndent();
-        bool first = true;
-        Array<Any>& array = *(m_data->value.a);
-        for( int ii = 0; ii < size(); ++ii ) {
-            if( !first ) {
-                to.writeSymbol(",");
+            debugAssertM(m_data != NULL,"NULL m_data");
+            if (! m_data->name.empty()) {
+                to.writeSymbol(m_data->name);
+            }
+            to.writeSymbol("(");
+            to.writeNewline();
+            to.pushIndent();
+            Array<Any>& array = *(m_data->value.a);
+            for (int ii = 0; ii < size(); ++ii) {
+                array[ii].serialize(to);
+                if (ii < size() - 1) {
+                    to.writeSymbol(",");
+                }
                 to.writeNewline();
             }
-
-            array[ii].serialize(to);
-
-            if( first )
-                first = false;
+            to.popIndent();
+            to.writeSymbol(")");
+            break;
         }
-        to.popIndent();
-        to.writeSymbol(")");
-        to.writeNewline();
-        break;
     }
-    default:
-        throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
-        break;
-    };    // switch (m_type)
+}
+
+
+void Any::deserializeComment(TextInput& ti, Token& token, std::string& comment) {
+    // Parse comments
+    while (token.type() == Token::COMMENT) {
+        comment += trimWhitespace(token.string()) + "\n";
+
+        // Allow comments to contain newlines.
+        do {
+            token = ti.read();
+            comment += "\n";
+        } while (token.type() == Token::NEWLINE);
+    }
+
+    comment = trimWhitespace(comment);
+}
+
+/** True if \a c is an open paren of some form */
+static bool isOpen(const char c) {
+    return c == '(' || c == '[' || c == '{';
+}
+
+
+/** True if \a c is an open paren of some form */
+static bool isClose(const char c) {
+    return c == ')' || c == ']' || c == '}';
+}
+
+
+/** True if \a s is a C++ name operator */
+static bool isNameOperator(const std::string& s) {
+    return s == "." || s == "::" || s == "->";
+}
+
+
+void Any::deserializeName(TextInput& ti, Token& token, std::string& name) {
+    debugAssert(token.type() == Token::SYMBOL);
+    std::string s = token.string();
+    while (! isOpen(s[0])) {
+        name += s;
+
+        // Skip newlines and comments
+        token = ti.readSignificant();
+
+        if (token.type() != Token::SYMBOL) {
+            throw CorruptText("Expected symbol while parsing Any", token);
+        }
+        s = token.string();
+    }
 }
 
 
 void Any::deserialize(TextInput& ti) {
     Token token = ti.read();
+    deserialize(ti, token);
+    // Restore the last token
+    ti.push(token);
+}
+
+
+void Any::deserialize(TextInput& ti, Token& token) {
+    // Deallocate old data
+    dropReference();
+    m_type = NONE;
+    m_simpleValue.b = false;
+
+    // Skip leading newlines
+    while (token.type() == Token::NEWLINE) {
+        token = ti.read();
+    } 
+
+    std::string comment;
+    if (token.type() == Token::COMMENT) {
+        deserializeComment(ti, token, comment);
+    }
+
+    if (token.type() == Token::END) {
+        // There should never be a comment without an Any following it; even
+        // if the file ends with some commented out stuff,
+        // that should not happen after a comma, so we'd never read that 
+        // far in a proper file.
+        throw CorruptText("File ended without a properly formed Any", token);
+    }
+
     switch (token.type()) {
-
-    case Token::SYMBOL:
-        dropReference();
-
-        if (token.string() == "{") {
-            // Become a TABLE.
-            m_type = TABLE;
-            m_data = new Data( Table<std::string,Any>() );
-            deserializeTable(ti);
-            return;
-        }
-
-        else if (token.string() == "(") {
-            // Become an ARRAY.
-            m_type = ARRAY;
-            m_data = new Data( Array<Any>() );
-            deserializeArray(ti,")");
-            return;
-        }
-
-        else if (token.string() == "[") {
-            // Become an ARRAY.
-            m_type = ARRAY;
-            m_data = new Data( Array<Any>() );
-            deserializeArray(ti,"]");
-            return;
-        }
-
-        else {    // Name of a table or of an array.
-            deserialize(ti);
-            if ( m_type != TABLE && m_type != ARRAY )
-                throw CorruptText("Expected a named table or a named array.",token);
-            debugAssertM(m_data != NULL,"NULL m_data");
-            m_data->name = token.string();
-            if ( m_data->name.empty() )
-                throw CorruptText("Expected a named table or a named array.",token);
-            return;
-        }
-        return;    // Never reached.
-
     case Token::STRING:
-        dropReference();
-
-        // Become a STRING.
         m_type = STRING;
-        m_data = new Data(token.string());
-
-        return;
+        ensureData();
+        *(m_data->value.s) = token.string();
+        break;
 
     case Token::NUMBER:
-        dropReference();
-
-        // Become a NUMBER.
         m_type = NUMBER;
         m_simpleValue.n = token.number();
-
-        return;
+        break;
 
     case Token::BOOLEAN:
-        dropReference();
-
-        // Become a BOOLEAN.
         m_type = BOOLEAN;
         m_simpleValue.b = token.boolean();
+        break;
 
-        return;
+    case Token::SYMBOL:
+        // Named Array, Named Table, Array, Table, or NONE
+        if (toUpper(token.string()) == "NONE") {
+            // Nothing left to do
+        } else {
+            // Array or Table
 
-    case Token::COMMENT:
-        // Become whatever the next expression is, prepending this comment to that.
-        deserialize(ti);
-        if (m_data == NULL)
-            m_data = new Data();
-        m_data->comment = token.string()+m_data->comment;
+            // Parse the name
 
-        return;
+            // s must have at least one element or this would not have
+            // been parsed as a symbol
+            std::string name;
+            deserializeName(ti, token, name);
+            if (token.type() != Token::SYMBOL) {
+                throw CorruptText("Malformed Any TABLE or ARRAY; must start with [, (, or {", token);
+            }
 
-    case Token::NEWLINE:
-        // NEWLINE ignored.
-        return;
+            if (isOpen(token.string()[0])) {
+                // Array or table
+                deserializeBody(ti, token);
+            } else {
+                throw CorruptText("Malformed Any TABLE or ARRAY; must start with [, (, or {", token);
+            }
+
+            if (! name.empty()) {
+                ensureData();
+                m_data->name = name;
+            }
+        } // if NONE
+        break;
 
     default:
-        throw CorruptText("Unexpected token type.",token);
+        throw CorruptText("Unexpected token", token);
 
-    };    // switch (token.type())
-}
+    } // switch
 
+    if (! comment.empty()) {
+        ensureData();
+        m_data->comment = comment;
+    }
 
-void Any::deserializeTable(TextInput& ti) {
-    // Create Anys until an end-of-table symbol "}" is read.
-    bool previous_comma = true;
-    Token token;
-    for (token = ti.read(); token.type() != Token::END; token = ti.read()) {
-        // Remember comments for later insertion into the new Any object.
-        std::deque<std::string> comments;
-        while(token.type() == Token::COMMENT) {
-            comments.push_back(token.string());
-            token = ti.read();
-        }
-
-        // Validate the key name or comma or closing parenthesis.
-        std::string key;
-        if (token.type() == Token::SYMBOL) {
-            if (token.string() == ",") {
-                if (previous_comma)
-                    throw CorruptText("Expected a symbol name.",token);
-                previous_comma = true;
-                continue;    // Skip comma.
-            }
-            if (token.string() == "}")
-                return;    // Done creating the TABLE.
-            if (!previous_comma)
-                throw CorruptText("Expected a comma or a closing parenthesis.",token);
-            key = token.string();
-            previous_comma = false;
-        }
-        else {
-            throw CorruptText("Expected a symbol name.",token);
-        }
-
-        // Usually an equal sign "=", but could be a comment.
+    if (m_type != ARRAY && m_type != TABLE) {
+        // Array and table already consumed their last token
         token = ti.read();
-        while(token.type() == Token::COMMENT) {
-            comments.push_back(token.string());
-            token = ti.read();
-        }
-
-        // Create the new Any inside the table.
-        Any& sub = operator[](key);
-        sub.deserialize(ti);
-
-        // Insert comments into the object we created.
-        if (!comments.empty() && sub.m_data == NULL)
-            sub.m_data = new Data();
-        while (!comments.empty()) {
-            sub.m_data->comment = comments.front()+m_data->comment;
-            comments.pop_front();
-        }
     }
-    throw CorruptText("Table ended unexpectedly.",token);
 }
 
 
-void Any::deserializeArray(TextInput& ti,const std::string& term) {
-    // Create Anys until an end-of-table symbol "}" is read.
-    bool previous_comma = true;
-    Token token;
-    for (token = ti.read(); token.type() != Token::END; token = ti.read()) {
-        // Remember comments for later insertion into the new Any object.
-        std::deque<std::string> comments;
-        while(token.type() == Token::COMMENT) {
-            comments.push_back(token.string());
+void Any::ensureData() {
+    if (m_data == NULL) {
+        m_data = Data::create(m_type);
+    }
+}
+
+
+void Any::readUntilCommaOrClose(TextInput& ti, Token& token) {
+    while (! ((token.type() == Token::SYMBOL) && 
+              (isClose(token.string()[0])) || 
+               (token.string()[0] == ','))) {
+        switch (token.type()) {
+        case Token::NEWLINE:
+        case Token::COMMENT:
+            // Consume
             token = ti.read();
-        }
+            break;
 
-        // Validate the array value or comma or closing parenthesis.
-        if (token.type() == Token::SYMBOL) {
-            if (token.string() == ",") {
-                if (previous_comma)
-                    throw CorruptText("Expected an array value.",token);
-                previous_comma = true;
-                continue;    // Skip comma.
-            }
-            if (token.string() == term)
-                return;    // Done creating the TABLE.
-            if (!previous_comma)
-                throw CorruptText("Expected a comma or a closing parenthesis.",token);
-        }
-        else if (token.type() == Token::NUMBER) {
-        }
-        else if (token.type() == Token::STRING) {
-        }
-        else if (token.type() == Token::BOOLEAN) {
-        }
-        else {
-            throw CorruptText("Expected an array value.",token);
-        }
-        previous_comma = false;
-
-        // Might be comment lines here before the comma or before the end of array.
-        Token cmttoken = ti.read();
-        while(cmttoken.type() == Token::COMMENT) {
-            comments.push_back(cmttoken.string());
-            cmttoken = ti.read();
-        }
-        ti.push(cmttoken);
-
-        // Create the new Any inside the array.
-        ti.push(token);
-        append(Any(ti));
-
-        // Insert comments into the object we created.
-        debugAssertM(m_data != NULL,"NULL m_data");
-        Any& sub = m_data->value.a->back();
-        if (!comments.empty() && sub.m_data == NULL)
-            sub.m_data = new Data();
-        while (!comments.empty()) {
-            sub.m_data->comment = comments.front()+m_data->comment;
-            comments.pop_front();
+        default:
+            throw CorruptText("Expected a comma or close paren", token);
         }
     }
-    throw CorruptText("Table ended unexpectedly.",token);
+}
+
+
+void Any::deserializeBody(TextInput& ti, Token& token) {
+    char closeSymbol = '}';
+    m_type = TABLE;
+    
+    const char c = token.string()[0];
+    
+    if (c != '{') {
+        m_type = ARRAY;
+        // Chose the appropriate close symbol
+        closeSymbol = (c == '(') ? ')' : ']';
+    }
+
+    // Allocate the underlying data structure
+    ensureData();
+
+    // Consume the open token
+    token = ti.read();
+
+    while (! ((token.type() == Token::SYMBOL) && (token.string()[0] == closeSymbol))) {
+
+        // Read any leading comment.  This must be done here (and not in the recursive deserialize
+        // call) in case the body contains only a comment.
+        std::string comment;
+        deserializeComment(ti, token, comment);
+
+        if ((token.type() == Token::SYMBOL) && (token.string()[0] == closeSymbol)) {
+            // We're done; this catches the case where the array is empty
+            break;
+        }
+
+        // Pointer to the value being read
+        Any* a = NULL;
+
+        if (m_type == TABLE) {
+            // Read the key
+            if (token.type() != Token::SYMBOL) {
+                throw CorruptText("Expected a name", token);
+            } 
+            
+            const std::string& key = token.string();
+            a = &((*this)[key]);
+
+            // Consume everything up to the = sign
+            token = ti.readSignificant();
+
+            if ((token.type() != Token::SYMBOL) || (token.string() != "=")) {
+                throw CorruptText("Expected =", token);
+            } else {
+                // Consume (don't consume comments--we want the value pointed to by a to get those).
+                token = ti.read();
+            }
+        } else {
+            a = &next();
+        }
+
+        a->deserialize(ti, token);
+
+        if (! comment.empty()) {
+            // Prepend the comment we read earlier
+            a->ensureData();
+            a->m_data->comment = trimWhitespace(comment + "\n" + a->m_data->comment);
+        }
+
+        // Read until the comma or close paren, discarding trailing comments and newlines
+        readUntilCommaOrClose(ti, token);
+
+        // Consume the comma
+        if (token.string()[0] == ',') {
+            token = ti.read();
+        }
+    }
+
+    // Consume the close paren (to match other deserialize methods)
+    token = ti.read();
 }
 
 
