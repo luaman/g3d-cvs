@@ -31,7 +31,8 @@ class TextOutput;
 Encodes typed, structured data and can serialize it to a human
 readable format that is very similar to the Python language's data
 syntax.  Well-suited for quickly creating human-readable file formats,
-especially since deserialization and serialization preserves comments.
+especially since deserialization and serialization preserve comments and
+an Any can tell you what file and line it came from.
 
 The class is designed so that copying Anys generally is fast, even if
 it is a large array or table.  This is because data is shared between
@@ -75,7 +76,7 @@ Any x(Any::ARRAY);
 x.array().append(x);    // don't do this!
 </pre>
 
-although no exception wil be thrown at runtime during the append.
+although no exception will be thrown at runtime during that append.
 
 Serialized format BNF:
 
@@ -100,15 +101,14 @@ named-table ::= identifier-exp dict
 value       ::= [comment] (none | number | boolean | string | array | table | named-array | named-table)
 </pre>
 
-Except for single-line comments, whitespace is not significant.  All parsing is case-insensitive
+Except for single-line comments, whitespace is not significant.  
+All parsing is case-insensitive.
 
 The deserializer allows the substitution of [] for () when writing
 tuples.
 
-The serializer indents four spaces for each level of nesting.  It
-places newlines between array or table elements only if the entire
-entry would not fit on a single line.  Tables are written with the
-keys in alphabetic order.
+The serializer indents four spaces for each level of nesting. 
+Tables are written with the keys in alphabetic order.
 */
 class Any {
 public:
@@ -127,6 +127,21 @@ public:
         }
     }
 
+    /** Where an Any came from in a file.  Useful for throwing parsing errors */
+    class Source {
+    public:
+        std::string                 filename;
+        int                         line;
+        int                         character;
+
+        Source() : line(0), character(0) {}
+
+        void set(const TextInput& ti, const Token& t) {
+            filename  = ti.filename();
+            line      = t.line();
+            character = t.character();
+        }
+    };
 private:
 
     typedef Array<Any> AnyArray;
@@ -135,15 +150,17 @@ private:
     /** Called from deserialize() */
     static void deserializeComment(TextInput& ti, Token& token, std::string& comment);
 
-
     /** NONE, BOOLEAN, and NUMBER are stored directly in the Any */
     union SimpleValue {
-        bool                     b;
-        double                   n;
+        bool                        b;
+        double                      n;
+
         inline SimpleValue() : n(0.0) {}
         inline SimpleValue(bool x) : b(x) {}
         inline SimpleValue(double x) : n(x) {}
     };
+
+   
 
     class Data {
     public:
@@ -159,8 +176,8 @@ private:
         // and can call its destructor. 
         Type                         type;
         
-        // Always points to memory that is allocated with the Data, so
-        // the destructor does not delete this.
+        /** Always points to memory that is allocated with the Data, so
+           the destructor does not delete this. */
         Value                        value;
         
         std::string                  comment;
@@ -173,6 +190,8 @@ private:
             the value.  This is not used for other types.
         */
         AtomicInt32                  referenceCount;
+
+        Source                       source;
 
     private:
 
@@ -427,6 +446,24 @@ public:
     /** Parse from a stream.
      \sa load, parse */
     void deserialize(TextInput& ti);
+
+    const Source& source() const;
+
+    /** Throws an exception if the name does not begin with the identifier \a n.  It may contain
+        identifier operators after this */
+    void verifyName(const std::string& n) const;
+
+    /** Throws an exception if the type is not \a t. */
+    void verifyType(Type t, const std::string& errorName = "") const;
+
+    /** Throws an exception if the type is not \a t0 or \a t1. */
+    void verifyType(Type t0, Type t1, const std::string& errorName = "") const;
+
+    /** Verifies that the size is between \a low and \a high, inclusive */
+    void verifySize(int low, int high, const std::string& errorName = "") const;
+
+    /** Verifies that the size \a s */
+    void verifySize(int s, const std::string& errorName = "") const;
 
 private:
 

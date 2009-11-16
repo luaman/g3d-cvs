@@ -30,7 +30,24 @@ namespace G3D {
         - CFrame {  rotation = (matrix3 expr), translation = (vector3 expr) }
         */
 CoordinateFrame::CoordinateFrame(const Any& any) {
-    // TODO
+    any.verifyName("CFrame");
+    if (any.name() == "CFrame") {
+        any.verifyType(Any::TABLE, Any::ARRAY);
+        if (any.type() == Any::TABLE) {
+            rotation    = any["rotation"];
+            translation = any["translation"];
+        } else {
+            any.verifySize(2, "CFrame");
+            rotation    = any[0];
+            translation = any[1];
+        }
+    } else {
+        any.verifyName("CFrame::fromXYZYPRDegrees");
+        any.verifyType(Any::ARRAY);
+        any.verifySize(3, 6, "CFrame");
+
+        // TODO
+    }
 }
 
 
@@ -39,10 +56,13 @@ CoordinateFrame::operator Any() const {
     getXYZYPRDegrees(x, y, z, yaw, pitch, roll); 
     Any a(Any::ARRAY, "CFrame::fromXYZYPRDegrees");
     a.append(x, y, z, yaw);
-    if (! G3D::fuzzyEq(pitch, 0.0f) || ! G3D::fuzzyEq(roll, 0.0f)) {
-        a.append(pitch);
-        if (! G3D::fuzzyEq(roll, 0.0f)) {
-            a.append(roll);
+    if ( ! G3D::fuzzyEq(yaw, 0.0f) || ! G3D::fuzzyEq(pitch, 0.0f) || ! G3D::fuzzyEq(roll, 0.0f)) {
+        a.append(yaw);
+        if (! G3D::fuzzyEq(pitch, 0.0f) || ! G3D::fuzzyEq(roll, 0.0f)) {
+            a.append(pitch);
+            if (! G3D::fuzzyEq(roll, 0.0f)) {
+                a.append(roll);
+            }
         }
     }
     return a;

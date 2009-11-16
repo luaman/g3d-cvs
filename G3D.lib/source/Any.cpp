@@ -657,14 +657,18 @@ void Any::serialize(TextOutput& to) const {
         to.writeSymbol("{");
         to.writeNewline();
         to.pushIndent();
-        Table<std::string,Any>& table = *(m_data->value.t);
-        for (Table<std::string, Any>::Iterator it = table.begin(); it != table.end(); ++it ) {
+        AnyTable& table = *(m_data->value.t);
+        Array<std::string> keys;
+        table.getKeys(keys);
+        keys.sort();
 
-            to.writeSymbol(it->key);
+        for (int i = 0; i < keys.size(); ++i) {
+
+            to.writeSymbol(keys[i]);
             to.writeSymbol("=");
-            it->value.serialize(to);
+            table[keys[i]].serialize(to);
 
-            if (it.hasMore()) {
+            if (i < keys.size() - 1) {
                 to.writeSymbol(",");
             }
             to.writeNewline();
@@ -793,22 +797,29 @@ void Any::deserialize(TextInput& ti, Token& token) {
         m_type = STRING;
         ensureData();
         *(m_data->value.s) = token.string();
+        m_data->source.set(ti, token);
         break;
 
     case Token::NUMBER:
         m_type = NUMBER;
         m_simpleValue.n = token.number();
+        ensureData();
+        m_data->source.set(ti, token);
         break;
 
     case Token::BOOLEAN:
         m_type = BOOLEAN;
         m_simpleValue.b = token.boolean();
+        ensureData();
+        m_data->source.set(ti, token);
         break;
 
     case Token::SYMBOL:
         // Named Array, Named Table, Array, Table, or NONE
         if (toUpper(token.string()) == "NONE") {
-            // Nothing left to do
+            // Nothing left to do; we initialized to NONE originally
+            ensureData();
+            m_data->source.set(ti, token);
         } else {
             // Array or Table
 
@@ -892,6 +903,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
 
     // Allocate the underlying data structure
     ensureData();
+    m_data->source.set(ti, token);
 
     // Consume the open token
     token = ti.read();
@@ -979,6 +991,15 @@ Any::operator std::string() const {
     return string();
 }
 
+
+const Any::Source& Any::source() const {
+    static Source s;
+    if (m_data) {
+        return m_data->source;
+    } else {
+        return s;
+    }
+}
 
 }    // namespace G3D
 
