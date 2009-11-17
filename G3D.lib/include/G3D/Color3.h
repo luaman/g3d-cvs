@@ -24,6 +24,7 @@
 #include <string>
 
 namespace G3D {
+class Any;
 
 /**
  Do not subclass-- this implementation makes assumptions about the
@@ -42,6 +43,16 @@ public:
      Does not initialize fields.
      */
     Color3();
+
+    /** \param any Must be in one of the following forms: 
+        - Color3(#, #, #)
+        - Color3::fromARGB(#)
+        - Color3{r = #, g = #, b = #)
+        */
+    Color3(const Any& any);
+    
+    /** Converts the Color3 to an Any. */
+    operator Any() const;
 
     explicit Color3(class BinaryInput& bi);
 

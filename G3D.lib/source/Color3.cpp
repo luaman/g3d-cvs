@@ -6,7 +6,7 @@
  @author Morgan McGuire, morgan@cs.williams.edu
 
  @created 2001-06-02
- @edited  2009-04-28
+ @edited  2009-11-28
  */
 
 #include "G3D/platform.h"
@@ -17,9 +17,47 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/Color3uint8.h"
+#include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D {
-    
+
+Color3::Color3(const Any& any) {
+    *this = Color3::zero();
+    any.verifyName("Color3");
+
+    if (any.type() == Any::TABLE) {
+
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "r") {
+                r = it->value;
+            } else if (key == "g") {
+                g = it->value;
+            } else if (key == "b") {
+                b = it->value;
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
+        }
+    } else if (toLower(any.name()) == "color3") {
+        r = any[0];
+        g = any[1];
+        b = any[2];
+    } else {
+        any.verifyName("Color3::fromARGB");
+        *this = Color3::fromARGB((int)any.number());
+    }
+}
+   
+
+Color3::operator Any() const {
+    Any a(Any::ARRAY, "Color3");
+    a.append(r, g, b);
+    return a;
+}
+
+
 Color3 Color3::ansiMap(uint32 i) {
     static const Color3 map[] = 
         {Color3::black(), Color3::red() * 0.75f, Color3::green() * 0.75f, Color3::yellow() * 0.75f, 
