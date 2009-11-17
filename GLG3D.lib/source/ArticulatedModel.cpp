@@ -44,6 +44,7 @@ ArticulatedModel::Specification::operator Any() const {
 ///////////////////////////////////////////////////////////
 
 ArticulatedModel::PreProcess::PreProcess(const Any& any) {
+    *this = PreProcess();
     any.verifyName("ArticulatedModel::PreProcess");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
