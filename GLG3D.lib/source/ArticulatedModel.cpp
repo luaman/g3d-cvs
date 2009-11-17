@@ -76,7 +76,7 @@ ArticulatedModel::PreProcess::operator Any() const {
     a["stripMaterials"] = stripMaterials;
     // a["textureDimension"] = TODO
     a["addBumpMaps"] = addBumpMaps;
-    a["xform"] = xform;
+    a["xform"] = xform.operator Any();
     a["parallaxSteps"] = parallaxSteps;
     a["bumpMapScale"] = bumpMapScale;
     a["normalMapWhiteHeightInPixels"] = normalMapWhiteHeightInPixels;

@@ -28,21 +28,21 @@ GLight::GLight(const Any& any) {
             } else if (key == "spotdirection") {
                 spotDirection = it->value;
             } else if (key == "spotcutoff") {
-                spotCutoff = it->value;
+                spotCutoff = it->value.number();
             } else if (key == "spotsquare") {
-                spotSquare = it->value;
+                spotSquare = it->value.boolean();
             } else if (key == "attenuation") {
-                attenuation[0] = it->value[0];
-                attenuation[1] = it->value[1];
-                attenuation[2] = it->value[2];
+                attenuation[0] = it->value[0].number();
+                attenuation[1] = it->value[1].number();
+                attenuation[2] = it->value[2].number();
             } else if (key == "color") {
-                color = it->value[0];
+                color = it->value;
             } else if (key == "enabled") {
-                enabled = it->value[0];
+                enabled = it->value.boolean();
             } else if (key == "specular") {
-                specular = it->value[0];
+                specular = it->value.boolean();
             } else if (key == "diffuse") {
-                diffuse = it->value[0];
+                diffuse = it->value.boolean();
             } else {
                 any.verify(false, "Illegal key: " + it->key);
             }
@@ -78,16 +78,16 @@ GLight::GLight(const Any& any) {
 
 GLight::operator Any() const {
     Any a(Any::TABLE, "GLight");
-    a["position"]        = position;
-    a["rightDirection"]  = rightDirection;
-    a["spotDirection"]   = spotDirection;
+    a["position"]        = position.operator Any();
+    a["rightDirection"]  = rightDirection.operator Any();
+    a["spotDirection"]   = spotDirection.operator Any();
     a["spotCutoff"]      = spotCutoff;
     a["spotSquare"]      = spotSquare;
 
     Any att(Any::ARRAY);
     att.append(attenuation[0], attenuation[1], attenuation[2]);
     a["attenuation"]     = att;
-    a["color"]           = color;
+    a["color"]           = color.operator Any();
     a["enabled"]         = enabled;
     a["specular"]        = specular;
     a["diffuse"]         = diffuse;
