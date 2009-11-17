@@ -3,7 +3,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-09-14
- @edited  2009-03-14
+ @edited  2009-11-14
  */
 
 #include "GLG3D/ArticulatedModel.h"
@@ -11,8 +11,98 @@
 #include "Load3DS.h"
 #include "G3D/ThreadSet.h"
 #include "GLG3D/GLCaps.h"
+#include "G3D/Any.h"
 
 namespace G3D {
+        
+ArticulatedModel::Specification::Specification() {}
+
+ArticulatedModel::Specification::Specification(const Any& any) {
+    any.verifyName("ArticulatedModel::Specification");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "filename") {
+            filename = it->value.string();
+        } else if (key == "preprocess") {
+            preprocess = it->value;
+        } else if (key == "settings") {
+            settings = it->value;
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
+}
+
+ArticulatedModel::Specification::operator Any() const {
+    Any a(Any::TABLE, "ArticulatedModel::Specification");
+    a["filename"]   = filename;
+    a["preprocess"] = preprocess;
+    a["settings"]   = settings;
+    return a;
+}
+
+///////////////////////////////////////////////////////////
+
+ArticulatedModel::PreProcess::PreProcess(const Any& any) {
+    any.verifyName("ArticulatedModel::PreProcess");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "stripmaterials") {
+            stripMaterials = it->value.boolean();
+        } else if (key == "texturedimension") {
+            // TODO
+        } else if (key == "addbumpmaps") {
+            addBumpMaps = it->value.boolean();
+        } else if (key == "xform") {
+            xform = it->value;
+        } else if (key == "parallaxsteps") {
+            parallaxSteps = it->value;
+        } else if (key == "bumpmapscale") {
+            bumpMapScale = it->value;
+        } else if (key == "normalmapwhiteheightinpixels") {
+            normalMapWhiteHeightInPixels = it->value;
+        } else if (key == "materialSubstitution") {
+            // TODO
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
+}
+
+ArticulatedModel::PreProcess::operator Any() const {
+    Any a(Any::TABLE, "ArticulatedModel::PreProcess");
+    a["stripMaterials"] = stripMaterials;
+    // a["textureDimension"] = TODO
+    a["addBumpMaps"] = addBumpMaps;
+    a["xform"] = xform;
+    a["parallaxSteps"] = parallaxSteps;
+    a["bumpMapScale"] = bumpMapScale;
+    a["normalMapWhiteHeightInPixels"] = normalMapWhiteHeightInPixels;
+    //a["materialSubstitution"] = materialSubstitution
+
+    return a;
+}
+
+///////////////////////////////////////////////////////////
+
+ArticulatedModel::Settings::Settings(const Any& any) {
+    any.verifyName("ArticulatedModel::Settings");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "weld") {
+            weld = it->value;
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
+}
+
+ArticulatedModel::Settings::operator Any() const {
+    Any a(Any::TABLE, "ArticulatedModel::Settings");
+    a["weld"] = weld;
+    return a;
+}
+//////////////////////////////////////////////////////////
 
 void ArticulatedModel::setStorage(ImageStorage s) {
     for (int p = 0; p < partArray.size(); ++p) {

@@ -4,7 +4,7 @@
  @author Morgan McGuire, Kyle Whitson, Corey Taylor
 
  @created 2008-07-30
- @edited  2009-05-29
+ @edited  2009-11-29
  */
 
 #include "G3D/platform.h"
@@ -15,8 +15,11 @@
 #include "G3D/Welder.h"
 #include "G3D/Stopwatch.h" // for profiling
 #include "G3D/AreaMemoryManager.h"
+#include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D { namespace _internal{
+
 
 /** Used by WeldHelper2::smoothNormals. */
 class VN {
@@ -379,6 +382,34 @@ void Welder::weld(
     _internal::WeldHelper(settings.vertexWeldRadius).process(
         vertexArray, texCoordArray, normalArray, indexArrayArray, 
         settings.normalSmoothingAngle, settings.textureWeldRadius, settings.normalWeldRadius);
+}
+
+
+Welder::Settings::Settings(const Any& any) {
+    any.verifyName("Welder::Settings");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "normalsmoothingangle") {
+            normalSmoothingAngle = it->value;
+        } else if (key == "vertexweldradius") {
+            vertexWeldRadius = it->value;
+        } else if (key == "textureweldradius") {
+            textureWeldRadius = it->value;
+        } else if (key == "normalweldradius") {
+            normalWeldRadius = it->value;
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
+}
+
+Welder::Settings::operator Any() const {
+    Any a(Any::TABLE, "Welder::Settings");
+    a["normalSmoothingAngle"]   = normalSmoothingAngle;
+    a["vertexWeldRadius"]       = vertexWeldRadius;
+    a["textureWeldRadius"]      = textureWeldRadius;
+    a["normalWeldRadius"]       = normalWeldRadius;
+    return a;
 }
 
 } // G3D

@@ -140,7 +140,7 @@ Any::Data::~Data() {
 
 //////////////////////////////////////////////////////////////
 bool Any::containsKey(const std::string& x) const {
-    checkType(TABLE);
+    verifyType(TABLE);
     return m_data->value.t->containsKey(x);
 }
 
@@ -151,13 +151,6 @@ void Any::dropReference() {
         Data::destroy(m_data);
     }
     m_data = NULL;
-}
-
-
-void Any::checkType(Type e) const {
-    if (m_type != e) {
-        throw WrongType(e, m_type);
-    }
 }
 
 
@@ -343,19 +336,19 @@ bool Any::isNone() const {
 
 
 double Any::number() const {
-    checkType(NUMBER);
+    verifyType(NUMBER);
     return m_simpleValue.n;
 }
 
 
 const std::string& Any::string() const {
-    checkType(STRING);
+    verifyType(STRING);
     return *(m_data->value.s);
 }
 
 
 bool Any::boolean() const {
-    checkType(BOOLEAN);
+    verifyType(BOOLEAN);
     return m_simpleValue.b;
 }
 
@@ -399,7 +392,7 @@ int Any::length() const {
 
 void Any::resize(int n) {
     alwaysAssertM(n >= 0, "Argument to resize must be non-negative");
-    checkType(ARRAY);
+    verifyType(ARRAY);
     m_data->value.a->resize(n);
 }
 
@@ -421,7 +414,7 @@ void Any::clear() {
 
 
 const Any& Any::operator[](int i) const {
-    checkType(ARRAY);
+    verifyType(ARRAY);
     debugAssertM(m_data != NULL, "NULL m_data");
     Array<Any>& array = *(m_data->value.a);
     return array[i];
@@ -429,7 +422,7 @@ const Any& Any::operator[](int i) const {
 
 
 Any& Any::next() {
-    checkType(ARRAY);
+    verifyType(ARRAY);
     int n = size();
     resize(n + 1);
     return (*this)[n];
@@ -437,7 +430,7 @@ Any& Any::next() {
 
 
 Any& Any::operator[](int i) {
-    checkType(ARRAY);
+    verifyType(ARRAY);
     debugAssertM(m_data != NULL,"NULL m_data");
     Array<Any>& array = *(m_data->value.a);
     return array[i];
@@ -445,14 +438,14 @@ Any& Any::operator[](int i) {
 
 
 const Array<Any>& Any::array() const {
-    checkType(ARRAY);
+    verifyType(ARRAY);
     debugAssertM(m_data != NULL,"NULL m_data");
     return *(m_data->value.a);
 }
 
 
 void Any::append(const Any& x0) {
-    checkType(ARRAY);
+    verifyType(ARRAY);
     debugAssertM(m_data != NULL,"NULL m_data");
     m_data->value.a->append(x0);
 }
@@ -480,7 +473,7 @@ void Any::append(const Any& x0, const Any& x1, const Any& x2, const Any& x3) {
 
 
 const Table<std::string, Any>& Any::table() const {
-    checkType(TABLE);
+    verifyType(TABLE);
     debugAssertM(m_data != NULL,"NULL m_data");
     return *(m_data->value.t);
 }
@@ -492,7 +485,7 @@ const Any& Any::operator[](const char* x) const {
 
 
 const Any& Any::operator[](const std::string& x) const {
-    checkType(TABLE);
+    verifyType(TABLE);
     debugAssertM(m_data != NULL, "NULL m_data");
     const Table<std::string, Any>& table = *(m_data->value.t);
     Any* value = table.getPointer(x);
@@ -509,7 +502,7 @@ Any& Any::operator[](const char* x) {
 
 
 Any& Any::operator[](const std::string& x) {
-    checkType(TABLE);
+    verifyType(TABLE);
     debugAssertM(m_data != NULL,"NULL m_data");
     Table<std::string, Any>& table = *(m_data->value.t);
     return table.getCreate(x);

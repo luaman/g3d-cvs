@@ -8,6 +8,8 @@
 
 namespace G3D {
 
+class Any;
+
 class Welder {
 private:
 
@@ -30,6 +32,9 @@ public:
             textureWeldRadius(0.0001f), 
             normalWeldRadius(0.01f) {}
 
+
+        Settings(const Any& any);
+        operator Any() const;
     };
 
 /**

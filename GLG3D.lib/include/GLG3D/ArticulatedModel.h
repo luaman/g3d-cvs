@@ -16,6 +16,8 @@
 
 namespace G3D {
 
+class Any;
+
 /**
  @brief A model composed of a hierarchy of rigid parts (i.e., a scene graph).
 
@@ -120,6 +122,9 @@ public:
         /** During loading, whenever a material whose diffuse texture is named X is specified, it is automatically replaced
          with materialSubstitution[X].*/
         Table<std::string, Material::Ref> materialSubstitution;
+        
+        PreProcess(const Any& any);
+        operator Any() const;
 
         inline PreProcess() : stripMaterials(false), textureDimension(Texture::DIM_2D), addBumpMaps(false), xform(Matrix4::identity()), parallaxSteps(0), bumpMapScale(0.05f), normalMapWhiteHeightInPixels(-0.02f) {}
 
@@ -150,7 +155,25 @@ public:
             s.weld.normalSmoothingAngle = 0;
             return s;
         }
+
+        Settings(const Any& any);
+        operator Any() const;
     };
+
+
+    /** \beta */
+    class Specification {
+    public:
+        std::string     filename;
+        PreProcess      preprocess;
+        Settings        settings;
+
+        Specification();
+
+        Specification(const Any& any);
+        operator Any() const;
+    };
+        
 
 private:
 
@@ -362,7 +385,7 @@ private:
 
 public:
 
-    /** Name of this model for debugging purposes. */
+    /** Name of this model, for debugging purposes. */
     std::string                 name;
 
     /** Appends one posed model per sub-part with geometry.
@@ -417,6 +440,10 @@ public:
         (const std::string&  filename, 
          const PreProcess&   preprocess = PreProcess(),
          const Settings&     settings   = Settings());
+
+    static ArticulatedModel::Ref create(const Specification& s) {
+        return fromFile(s.filename, s.preprocess, s.settings);
+    }
 
     /**
      Creates a new model, on which you can manually build geometry by editing the 

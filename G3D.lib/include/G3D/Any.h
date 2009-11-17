@@ -259,10 +259,6 @@ private:
     /** Allocate the Data object if it does not exist */
     void ensureData();
 
-    /** Throws a WrongType exception if this Any is not of the
-        expected type e.*/
-    void checkType(Type e) const;
-
     /** If m_data is not NULL, ensure that it has a unique reference and
         contains a valid m_data.  This has a race condition if two
         threads are both trying to modify the same Any simultaneously.*/    
