@@ -18,6 +18,7 @@ namespace G3D {
 ArticulatedModel::Specification::Specification() {}
 
 ArticulatedModel::Specification::Specification(const Any& any) {
+    *this = Specification();
     any.verifyName("ArticulatedModel::Specification");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
@@ -87,6 +88,7 @@ ArticulatedModel::PreProcess::operator Any() const {
 ///////////////////////////////////////////////////////////
 
 ArticulatedModel::Settings::Settings(const Any& any) {
+    *this = Settings();
     any.verifyName("ArticulatedModel::Settings");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);

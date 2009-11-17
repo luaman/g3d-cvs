@@ -386,6 +386,7 @@ void Welder::weld(
 
 
 Welder::Settings::Settings(const Any& any) {
+    *this = Settings();
     any.verifyName("Welder::Settings");
     for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
         const std::string& key = toLower(it->key);
