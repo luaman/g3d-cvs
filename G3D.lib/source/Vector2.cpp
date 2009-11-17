@@ -9,7 +9,7 @@
   at http://www.magic-software.com
  
  @created 2001-06-02
- @edited  2009-01-16
+ @edited  2009-11-16
  */
 
 #include "G3D/platform.h"
@@ -21,8 +21,33 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/TextInput.h"
 #include "G3D/TextOutput.h"
+#include "G3D/Any.h"
 
 namespace G3D {
+
+
+Vector2::Vector2(const Any& any) {
+    any.verifyName("Vector2");
+    any.verifyType(Any::TABLE, Any::ARRAY);
+    any.verifySize(2);
+
+    if (any.type() == Any::ARRAY) {
+        x = any[0];
+        y = any[1];
+    } else {
+        // Table
+        x = any["x"];
+        y = any["y"];
+    }
+}
+
+
+Vector2::operator Any() const {
+    Any any(Any::ARRAY, "Vector2");
+    any.append(x, y);
+    return any;
+}
+
 
 const Vector2& Vector2::one() { 
     static const Vector2 v(1, 1); return v; 

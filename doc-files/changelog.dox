@@ -15,6 +15,7 @@
      <li> Various performance fixes, especially for GPU-bound apps and multi-GPU systems.  
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
+     <li> G3D::Any replaces G3D::AnyVal
      <li> G3D::glClipToBox, glDisableAllClipping
      <li> G3D::Profiler
      <li> G3D::Texture::resize
@@ -23,6 +24,7 @@
      <li> G3D::parseCommaSeparated
      <li> G3D::ReferenceCountedPointer can now be instantiated for a forward-declared type
      <li> demos/starter app uses Film
+     <li> G3D::ParseError
      <li> G3D::Array provides constructors that accept up to 6 initial elements
      <li> G3D::Texture::readTexel
      <li> G3D::Texture::clear

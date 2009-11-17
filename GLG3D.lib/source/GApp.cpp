@@ -22,7 +22,7 @@
 #include "GLG3D/Draw.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/VideoRecordDialog.h"
-#include "GLG3D/ParseError.h"
+#include "G3D/ParseError.h"
 
 namespace G3D {
 

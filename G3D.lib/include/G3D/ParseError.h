@@ -13,6 +13,7 @@
 #define G3D_ParseError_h
 
 #include "G3D/platform.h"
+#include "G3D/g3dmath.h"
 #include <string>
 
 namespace G3D {

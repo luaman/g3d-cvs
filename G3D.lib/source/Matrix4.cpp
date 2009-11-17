@@ -17,8 +17,35 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/CoordinateFrame.h"
 #include "G3D/Rect2D.h"
+#include "G3D/Any.h"
 
 namespace G3D {
+
+    
+Matrix4::Matrix4(const Any& any) {
+    any.verifyName("Matrix4");
+    any.verifyType(Any::ARRAY);
+    any.verifySize(16);
+
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            elt[r][c] = any[r * 4 + c];
+        }
+    }
+}
+
+
+Matrix4::operator Any() const {
+    Any any(Any::ARRAY, "Matrix4");
+    any.resize(16);
+    for (int r = 0; r < 4; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            any[r * 4 + c] = elt[r][c];
+        }
+    }
+
+    return any;
+}
 
 const Matrix4& Matrix4::identity() {
     static Matrix4 m(

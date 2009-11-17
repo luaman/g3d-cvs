@@ -441,6 +441,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\G3D.lib\source\Rect2D.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\G3D.lib\source\ReferenceCount.cpp"
 				>
 			</File>
@@ -812,6 +816,10 @@
 			</File>
 			<File
 				RelativePath="..\G3D.lib\include\G3D\NetworkDevice.h"
+				>
+			</File>
+			<File
+				RelativePath="..\G3D.lib\include\G3D\ParseError.h"
 				>
 			</File>
 			<File

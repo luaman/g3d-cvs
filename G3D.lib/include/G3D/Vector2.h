@@ -29,6 +29,7 @@ namespace G3D {
 class Vector2;    
 class Vector3;
 class Vector4;
+class Any;
 
 /**
  Do not subclass-- this implementation makes assumptions about the
@@ -45,6 +46,12 @@ private:
 public:
     float x;
     float y;
+
+    /** \param any Must either Vector2(#, #) or Vector2 {x = #, y = #}*/
+    Vector2(const Any& any);
+    
+    /** Converts the Vector2 to an Any. */
+    operator Any() const;
 
     /** Creates the zero vector */
     Vector2();

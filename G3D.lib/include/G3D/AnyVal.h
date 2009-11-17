@@ -34,8 +34,8 @@ class Rect2D;
 class AABox;
 
 /**
-   Use the G3D::Any class instead.  This is only provided for 
-   backwards compatibility to G3D 7.xx.
+ <b>Use the G3D::Any class instead.  This is only provided for 
+   backwards compatibility to G3D 7.xx.</b>
 
  A generic value, useful for defining property trees that can
  be loaded from and saved to disk.  The values are intentionally
