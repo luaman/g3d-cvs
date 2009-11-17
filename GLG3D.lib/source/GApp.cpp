@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-11-03
- @edited  2009-09-12
+ @edited  2009-11-12
  */
 
 #include "G3D/platform.h"
@@ -22,6 +22,7 @@
 #include "GLG3D/Draw.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/VideoRecordDialog.h"
+#include "GLG3D/ParseError.h"
 
 namespace G3D {
 
@@ -298,6 +299,9 @@ int GApp::run() {
             alwaysAssertM(false, e.message);
             ret = -1;
         } catch (const LightweightConduit::PacketSizeException& e) {
+            alwaysAssertM(false, e.message);
+            ret = -1;
+        } catch (const ParseError& e) {
             alwaysAssertM(false, e.message);
             ret = -1;
         } catch (const AnyVal::WrongType& e) {
