@@ -1030,9 +1030,8 @@ const std::string& TextInput::filename() const {
 TextInput::TokenException::TokenException(
     const std::string&  src,
     int                 ln,
-    int                 ch) : sourceFile(src), line(ln), character(ch) {
-
-    message = format("%s(%d) : ", sourceFile.c_str(), line);
+    int                 ch) : ParseError(src, ln, ch, format("%s(%d) : ", src.c_str(), ln)),
+                              sourceFile(src) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

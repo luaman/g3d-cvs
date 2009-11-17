@@ -20,6 +20,7 @@
 #include "G3D/platform.h"
 #include "G3D/Array.h"
 #include "G3D/Set.h"
+#include "G3D/ParseError.h"
 #include <string>
 #include <queue>
 #include <ctype.h>
@@ -459,36 +460,23 @@ private:
      */
     Token nextToken();
 
-	/**
-     Helper for nextToken.  Appends characters to t._string until the end
-     delimiter is reached.
-
-     When called, the next character in the input buffer should be first the
-     first character after the opening delimiter character.
-     */
-	void parseQuotedString(unsigned char delimiter, Token& t);
+    /**
+       Helper for nextToken.  Appends characters to t._string until the end
+       delimiter is reached.
+       
+       When called, the next character in the input buffer should be first the
+       first character after the opening delimiter character.
+    */
+    void parseQuotedString(unsigned char delimiter, Token& t);
 
 public:
 
-    class TokenException {
+    class TokenException : public ParseError {
     public:
-        /** Name of file being parsed when exception occurred.  */
+        /** Name of file being parsed when exception occurred. 
+            \deprecated  Use filename
+         */
         std::string     sourceFile;
-
-        /** Line number of start of token which caused the exception.  1 is
-            the first line of the file.  Note that you can use 
-            TextInput::Settings::startingLineNumberOffset to shift the effective line
-            number that is reported.
-         */
-        int             line;
-
-        /** Character number in the line of start of token which caused the
-            exception.  1 is the character in the line.
-         */
-        int             character;
-
-        /** Pre-formatted error message */
-        std::string     message;
 
         virtual ~TokenException() {}
 
@@ -795,7 +783,7 @@ public:
 
     /** Returns the filename from which this input is drawn, or the first few
         characters of the string if created from a string.
-        If options::filename is non-empty that will replace the
+        If settings::filename is non-empty that will replace the
         true filename.*/
     const std::string& filename() const;
 };

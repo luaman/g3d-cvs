@@ -372,6 +372,7 @@ href="classes.html">Classes</a>.
         \link G3D::isDirectory isDirectory\endlink,
         \link G3D::isZipfile isZipfile\endlink
         \link G3D::parseFilename parseFilename\endlink, 
+        \link G3D::ParseError ParseError\endlink,
         \link G3D::readWholeFile readWholeFile\endlink,
         \link G3D::serialize serialize\endlink,
         \link G3D::resolveFilename resolveFilename\endlink,

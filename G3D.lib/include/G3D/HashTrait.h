@@ -34,6 +34,10 @@ template <> struct HashTrait <G3D::uint32> {
     static size_t hashCode(G3D::uint32 k) { return static_cast<size_t>(k); }
 };
 
+template <> struct HashTrait <long unsigned int> {
+    static size_t hashCode(G3D::uint32 k) { return static_cast<size_t>(k); }
+};
+
 template <> struct HashTrait <G3D::uint64> {
     static size_t hashCode(G3D::uint64 k) { return static_cast<size_t>(k); }
 };
