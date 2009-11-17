@@ -5,7 +5,7 @@
  @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2009-11-03
+ @edited  2009-11-15
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -22,6 +22,10 @@
 
 // needed for Token
 #include "G3D/TextInput.h"
+
+#ifdef verify
+#undef verify
+#endif
 
 namespace G3D {
 
@@ -78,6 +82,33 @@ x.array().append(x);    // don't do this!
 
 although no exception will be thrown at runtime during that append.
 
+
+\section Parsing
+
+The primary use of Any is to create your own text file formats.
+The Vector3 constructor is a good example of how to use the Any::verify 
+methods to provide good error checking while parsing such formats:
+
+<pre>
+Vector3::Vector3(const Any& any) {
+    any.verifyName("Vector3");
+    any.verifyType(Any::TABLE, Any::ARRAY);
+    any.verifySize(3);
+
+    if (any.type() == Any::ARRAY) {
+        x = any[0];
+        y = any[1];
+        z = any[2];
+    } else {
+        // Table
+        x = any["x"];
+        y = any["y"];
+        z = any["z"];
+    }
+}
+</pre>
+
+\section BNF
 Serialized format BNF:
 
 <pre>
@@ -449,21 +480,26 @@ public:
 
     const Source& source() const;
 
-    /** Throws an exception if the name does not begin with the identifier \a n.  It may contain
+    /** Throws a ParseError if \a value is false.  Useful for quickly
+        creating parse rules in classes that deserialize from Any.
+    */
+    void verify(bool value, const std::string& message = "") const;
+
+    /** Verifies that the name begins with identifier \a n.  It may contain
         identifier operators after this */
     void verifyName(const std::string& n) const;
 
-    /** Throws an exception if the type is not \a t. */
-    void verifyType(Type t, const std::string& errorName = "") const;
+    /** Verifies that the type is \a t. */
+    void verifyType(Type t) const;
 
     /** Throws an exception if the type is not \a t0 or \a t1. */
-    void verifyType(Type t0, Type t1, const std::string& errorName = "") const;
+    void verifyType(Type t0, Type t1) const;
 
     /** Verifies that the size is between \a low and \a high, inclusive */
-    void verifySize(int low, int high, const std::string& errorName = "") const;
+    void verifySize(int low, int high) const;
 
-    /** Verifies that the size \a s */
-    void verifySize(int s, const std::string& errorName = "") const;
+    /** Verifies that the size is exactly \a s */
+    void verifySize(int s) const;
 
 private:
 

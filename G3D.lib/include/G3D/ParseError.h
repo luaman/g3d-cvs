@@ -20,6 +20,8 @@ namespace G3D {
 /** Thrown by TextInput, Any, and other parsers on unexpected input. */
 class ParseError {
 public:
+    enum {UNKNOWN = -1};
+    
     /** Empty means unknown */
     std::string     filename;
     
@@ -40,15 +42,15 @@ public:
 
     std::string     message;
  
-    ParseError() : line(0), character(0) {}
+    ParseError() : byte(UNKNOWN), line(UNKNOWN), character(UNKNOWN) {}
 
     virtual ~ParseError() {}
 
     ParseError(const std::string& f, int l, int c, const std::string& m) :
-        filename (f),  byte(-1), line(l), character(c), message(m) {}
+        filename (f),  byte(UNKNOWN), line(l), character(c), message(m) {}
 
     ParseError(const std::string& f, int64 b, const std::string& m) :
-        filename (f),  byte(b), line(-1), character(-1), message(m) {}
+        filename (f),  byte(b), line(UNKNOWN), character(UNKNOWN), message(m) {}
 };
 
 }

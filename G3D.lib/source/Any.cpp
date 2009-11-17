@@ -5,7 +5,7 @@
  @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2009-11-03
+ @edited  2009-11-15
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -20,11 +20,6 @@
 
 namespace G3D {
    
-static bool isSimple(Any::Type t) {
-    return t == Any::NONE || t == Any::BOOLEAN || t == Any::NUMBER;
-}
-
-
 Any::Data* Any::Data::create(const Data* d) {
     Data* p = create(d->type);
 
@@ -998,6 +993,63 @@ const Any::Source& Any::source() const {
         return m_data->source;
     } else {
         return s;
+    }
+}
+
+
+void Any::verify(bool value, const std::string& message) const {
+    if (! value) {
+        ParseError p;
+        if (m_data) {
+            p.filename  = m_data->source.filename;
+            p.line      = m_data->source.line;
+            p.character = m_data->source.character;
+        }
+
+        if (name().empty()) {
+            p.message = "Parse error";
+        } else {
+            p.message = "Parse error while reading the contents of " + name();
+        }
+
+        if (! message.empty()) {
+            p.message = p.message + ": " + message;
+        }
+    }
+}
+
+
+void Any::verifyName(const std::string& n) const {
+    verify(beginsWith(toUpper(name()), toUpper(n)), "Name must begin with " + n);
+}
+
+
+void Any::verifyType(Type t) const {
+    if (type() != t) {
+        verify(false, "Must have type " + toString(t));
+    }
+}
+
+
+void Any::verifyType(Type t0, Type t1) const {
+    if (type() != t0 && type() != t1) {
+        verify(false, "Must have type " + toString(t0) + " or " + toString(t1));
+    }
+}
+
+
+void Any::verifySize(int low, int high) const {
+    verifyType(ARRAY, TABLE);
+    if (size() < low || size() > high) {
+        verify(false, format("Size must be between %d and %d", low, high));
+    }
+}
+
+
+void Any::verifySize(int s) const {
+    verifyType(ARRAY, TABLE);
+    if (size() != s) {
+        verify(false, format("Size must be %d", s));
     }
 }
 

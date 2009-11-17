@@ -31,10 +31,20 @@
 namespace G3D {
 
 Vector3::Vector3(const Any& any) {
-    alwaysAssertM(any.name() == "Vector3", "Malformed Any passed to Vector3 constructor");
-    x = any[0];
-    y = any[1];
-    z = any[2];
+    any.verifyName("Vector3");
+    any.verifyType(Any::TABLE, Any::ARRAY);
+    any.verifySize(3);
+
+    if (any.type() == Any::ARRAY) {
+        x = any[0];
+        y = any[1];
+        z = any[2];
+    } else {
+        // Table
+        x = any["x"];
+        y = any["y"];
+        z = any["z"];
+    }
 }
 
 Vector3::operator Any() const {

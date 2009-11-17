@@ -72,7 +72,7 @@ public:
     /** Initializes to zero */
     Vector3();
 
-    /** \param any Must be of the form outputted by Vector3::operator Any(): Vector3(x,y,z) */
+    /** \param any Must either Vector3(#, #, #) or Vector3 {x = #, y = #, z = #}*/
     Vector3(const Any& any);
     
     /** Converts the Vector3 to an Any. */

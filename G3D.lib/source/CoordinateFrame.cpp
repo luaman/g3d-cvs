@@ -7,6 +7,9 @@
 
  @created 2001-06-02
  @edited  2009-11-13
+
+ Copyright 2000-2009, Morgan McGuire.
+ All rights reserved.
 */
 
 #include "G3D/platform.h"
@@ -22,31 +25,33 @@
 #include "G3D/Cylinder.h"
 #include "G3D/UprightFrame.h"
 #include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D {
-    /** \param any Must be in one of the following forms: 
-        - CFrame((matrix3 expr), (vector3 expr))
-        - CFrame::fromXYZYPRDegrees(#, #, #, #, #, #)
-        - CFrame {  rotation = (matrix3 expr), translation = (vector3 expr) }
-        */
+
 CoordinateFrame::CoordinateFrame(const Any& any) {
     any.verifyName("CFrame");
-    if (any.name() == "CFrame") {
+    if (toUpper(any.name()) == "CFRAME") {
         any.verifyType(Any::TABLE, Any::ARRAY);
         if (any.type() == Any::TABLE) {
             rotation    = any["rotation"];
             translation = any["translation"];
         } else {
-            any.verifySize(2, "CFrame");
+            any.verifySize(2);
             rotation    = any[0];
             translation = any[1];
         }
     } else {
         any.verifyName("CFrame::fromXYZYPRDegrees");
         any.verifyType(Any::ARRAY);
-        any.verifySize(3, 6, "CFrame");
+        any.verifySize(3, 6);
 
-        // TODO
+        int s = any.size();
+
+        *this = fromXYZYPRDegrees(any[0], any[1], any[2], 
+                                  (s > 3) ? any[3].number() : 0.0f,
+                                  (s > 4) ? any[4].number() : 0.0f,
+                                  (s > 5) ? any[5].number() : 0.0f);
     }
 }
 

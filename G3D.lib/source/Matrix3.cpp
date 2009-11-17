@@ -6,7 +6,10 @@
  @author Morgan McGuire, graphics3d.com
 
  @created 2001-06-02
- @edited  2006-04-06
+ @edited  2009-11-15
+
+  Copyright 2000-2009, Morgan McGuire.
+  All rights reserved.
 */
 
 #include "G3D/platform.h"
@@ -24,7 +27,10 @@ namespace G3D {
 const float Matrix3::EPSILON = 1e-06f;
 
 Matrix3::Matrix3(const Any& any) {
-    alwaysAssertM(any.name() == "Matrix3" || any.size() != 9, "Malformed Any passed to Matrix3 constructor");
+    any.verifyName("Matrix3");
+    any.verifyType(Any::ARRAY);
+    any.verifySize(9);
+
     for (int r = 0; r < 3; ++r) {
         for (int c = 0; c < 3; ++c) {
             elt[r][c] = any[r * 3 + c];
