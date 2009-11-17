@@ -134,11 +134,11 @@ private:
     AnimFrame       m_animations[NUM_ANIMATIONS];
 
     struct SkinValue { std::string filename; Texture::Ref texture; };
-    typedef Table<std::string, SkinValue> PartSkin;
-    typedef Table<size_t, PartSkin> SkinCollection;
+    typedef Table<std::string, SkinValue>   PartSkin;
+    typedef Table<size_t, PartSkin>         SkinCollection;
 
     // Collection of shared skins across all models to avoid texture re-loading
-    static SkinCollection s_skins[NUM_PARTS];
+    SkinCollection m_skins[NUM_PARTS];
 
     MD3Model();
 

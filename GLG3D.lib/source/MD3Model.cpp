@@ -15,9 +15,6 @@
 namespace G3D {
 
 
-MD3Model::SkinCollection MD3Model::s_skins[NUM_PARTS];
-
-
 // 60 quake units ~= 2 meters
 #define Q3_LOAD_SCALE (2.0f / 60.0f)
 
@@ -593,11 +590,11 @@ void MD3Model::loadAllSkins(const std::string& skinDir) {
 
             size_t skinHash = HashTrait<std::string>::hashCode(filename);
 
-            if (! s_skins[partIndex].containsKey(skinHash)) {
-                s_skins[partIndex].set(skinHash, PartSkin());
+            if (! m_skins[partIndex].containsKey(skinHash)) {
+                m_skins[partIndex].set(skinHash, PartSkin());
             }
 
-            loadSkin(filename, s_skins[partIndex][skinHash]);
+            loadSkin(filename, m_skins[partIndex][skinHash]);
         }
     }
 }
@@ -703,10 +700,10 @@ void MD3Model::posePart(PartType partType, const Pose& pose, Array<Surface::Ref>
 
             size_t skinHash = HashTrait<std::string>::hashCode(skinFilename);
 
-            if (s_skins[partType].containsKey(skinHash)) {
+            if (m_skins[partType].containsKey(skinHash)) {
 
-                if (s_skins[partType][skinHash].containsKey(surfaceData.m_name)) {
-                    SkinValue& skinValue = s_skins[partType][skinHash][surfaceData.m_name];
+                if (m_skins[partType][skinHash].containsKey(surfaceData.m_name)) {
+                    SkinValue& skinValue = m_skins[partType][skinHash][surfaceData.m_name];
 
                     if (skinValue.texture.isNull()) {
                         skinValue.texture = Texture::fromFile(skinValue.filename, ImageFormat::AUTO(), Texture::DIM_2D_NPOT);
