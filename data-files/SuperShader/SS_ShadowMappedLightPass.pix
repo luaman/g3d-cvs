@@ -108,8 +108,7 @@ void main(void) {
         // Either a pixel totally in shadow or one that will be
         // culled by the alpha blender anyway.  Stop computing here
         // before we perform additional texture lookups.
-        gl_FragColor.rgb = vec3(0.0, 0.0, 0.0);
-        return;
+        discard;
     }
 
 #include "SS_Components.pix"
