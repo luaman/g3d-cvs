@@ -5,7 +5,7 @@
   @author Jeff Marsceill, 08jcm@williams.edu
  
   @created 2005-07-20
-  @edited  2009-09-24
+  @edited  2009-11-24
 */
 #include "G3D/GCamera.h"
 #include "G3D/platform.h"
@@ -14,8 +14,55 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Ray.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D {
+
+GCamera::GCamera(const Any& any) {
+    any.verifyName("GCamera");
+    any.verifyType(Any::TABLE);
+    *this = GCamera();
+
+    const Any::AnyTable& table = any.table();
+    Any::AnyTable::Iterator it = table.begin();
+    while (it.hasMore()) {
+        const std::string& k = toUpper(it->key);
+        if (k == "FOVDIRECTION") {
+            const std::string& v = toUpper(it->value);
+            if (v == "HORIZONTAL") {
+                m_direction = HORIZONTAL;
+            } else if (v == "VERTICAL") {
+                m_direction = VERTICAL;
+            } else {
+                any.verify(false, "fovDirection must be \"HORIZONTAL\" or \"VERTICAL\"");
+            }
+        } else if (k == "FOVDEGREES") {
+            m_fieldOfView = toRadians(it->value.number());
+        } else if (k == "NEARPLANEZ") {
+            m_nearPlaneZ = it->value;
+        } else if (k == "FARPLANEZ") {
+            m_farPlaneZ = it->value;
+        } else {
+            any.verify(false, std::string("Illegal key in table: ") + it->key);
+        }
+        ++it;
+    }
+}
+
+
+GCamera::operator Any() const {
+    Any any(Any::TABLE, "GCamera");
+
+    any["fovDirection"] = std::string((m_direction == HORIZONTAL) ? "HORIZONTAL" : "VERTICAL");
+    any["fovDegrees"] = toDegrees(m_fieldOfView);
+    any["nearPlaneZ"] = nearPlaneZ();
+    any["farPlaneZ"] = farPlaneZ();
+    any["coordinateFrame"] = coordinateFrame();
+
+    return any;
+}
+
 
 GCamera::GCamera() {
     setNearPlaneZ(-0.2f);

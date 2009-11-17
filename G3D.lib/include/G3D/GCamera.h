@@ -20,6 +20,7 @@ namespace G3D {
 
 class Matrix4;
 class Rect2D;
+class Any;
 
 /**
   Abstraction of a pinhole camera.
@@ -48,7 +49,7 @@ public:
 
 private:
     
-    /** 1/2 Field of view (in radians) */
+    /** Full field of view (in radians) */
     float                       m_fieldOfView;
 
     /** Clipping plane, *not* imaging plane.  Negative numbers. */
@@ -64,6 +65,23 @@ private:
     FOVDirection                m_direction;
 
 public:
+
+    /** Must be of the format produced by the Any cast, e.g.,
+
+        <pre>
+        GCamera {
+            coordinateFrame = CFrame::fromXYZYPRDegrees(-13.3f, 8.0f, -1.9f, 246.6f, -3),
+            nearPlaneZ = -0.5,
+            farPlaneZ = -50,
+            fovDirection = "HORIZONTAL",
+            fovAngleDegrees = 90
+        }</pre>
+
+        Missing fields are filled from the default GCamera constructor.
+    */
+    GCamera(const Any& any);
+
+    operator Any() const;
 
     class Frustum {
     public:

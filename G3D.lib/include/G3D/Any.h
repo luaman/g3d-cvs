@@ -118,6 +118,7 @@ identifier-op ::= "::" | "->" | "."
 identifier-exp ::= [identifier-op] identifier (identifier-op identifier)*
 
 comment     ::= "#" <any characters> "\n"
+separator   ::= "," | ";"
 
 number      ::= <legal C printf number format>
 string      ::= <legal C double-quoted string; backslashes must be escaped>
@@ -125,7 +126,7 @@ boolean     ::= "True" | "False"
 none        ::= "None"
 array       ::= "(" [value ("," value)*] ")"
 pair        ::= identifier "=" value
-table       ::= "{" [pair ("," pair)*] "}"
+table       ::= "{" [pair (separator pair)*] "}"
 named-array ::= identifier-exp tuple
 named-table ::= identifier-exp dict
 
@@ -136,7 +137,7 @@ Except for single-line comments, whitespace is not significant.
 All parsing is case-insensitive.
 
 The deserializer allows the substitution of [] for () when writing
-tuples.
+tuples and ";" for ",".
 
 The serializer indents four spaces for each level of nesting. 
 Tables are written with the keys in alphabetic order.
@@ -173,10 +174,12 @@ public:
             character = t.character();
         }
     };
-private:
 
     typedef Array<Any> AnyArray;
     typedef Table<std::string, Any> AnyTable;
+
+private:
+
 
     /** Called from deserialize() */
     static void deserializeComment(TextInput& ti, Token& token, std::string& comment);
@@ -383,6 +386,9 @@ public:
     /** Removes the comment and name */
     Any& operator=(const std::string& x);
 
+    /** Removes the comment and name */
+    Any& operator=(const char* x);
+
     /** \a t must be ARRAY, TABLE, or NONE. Removes the comment and name */
     Any& operator=(Type t);
 
@@ -392,6 +398,8 @@ public:
       \sa deserialize, load
       */
     void parse(const std::string& src);
+
+    std::string unparse() const;
     
     /** Comments appear before values when they are in serialized form.*/
     const std::string& comment() const;
@@ -435,6 +443,9 @@ public:
     /** For a table, returns the element for key x. Throws KeyNotFound exception if the element does not exist. */ 
     const Any& operator[](const std::string& x) const;
     const Any& operator[](const char* x) const;
+
+    /** Returns true if this key is in the TABLE.  Illegal to call on an object that is not a TABLE. */
+    bool containsKey(const std::string& x) const;
     
     /** For a table, returns the element for key x, creating it if it does not exist. */
     Any& operator[](const std::string& x);

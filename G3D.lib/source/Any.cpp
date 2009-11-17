@@ -139,6 +139,10 @@ Any::Data::~Data() {
 
 
 //////////////////////////////////////////////////////////////
+bool Any::containsKey(const std::string& x) const {
+    checkType(TABLE);
+    return m_data->value.t->containsKey(x);
+}
 
 
 void Any::dropReference() {
@@ -219,8 +223,13 @@ Any::Any(const std::string& s) : m_type(STRING), m_data(Data::create(STRING)) {
 }
 
 
-Any::Any(const char* s) : m_type(STRING), m_data(Data::create(STRING)) {
-    *(m_data->value.s) = s;
+Any::Any(const char* s) : m_type(STRING), m_data(NULL) {
+    if (s == NULL) {
+        m_type = NONE;
+    } else {
+        ensureData();
+        *(m_data->value.s) = s;
+    }
 }
 
 
@@ -277,6 +286,12 @@ Any& Any::operator=(bool x) {
 
 
 Any& Any::operator=(const std::string& x) {
+    *this = Any(x);
+    return *this;
+}
+
+
+Any& Any::operator=(const char* x) {
     *this = Any(x);
     return *this;
 }
@@ -593,6 +608,14 @@ static void getDeserializeSettings(TextInput::Settings& settings) {
 }
 
 
+std::string Any::unparse() const {
+    TextOutput::Settings settings;
+    TextOutput to(settings);
+    serialize(to);
+    return to.commitString();
+}
+
+
 void Any::parse(const std::string& src) {
     TextInput::Settings settings;
     getDeserializeSettings(settings);
@@ -866,10 +889,15 @@ void Any::ensureData() {
 }
 
 
+static bool isSeparator(char c) {
+    return c == ',' || c == ';';
+}
+
+
 void Any::readUntilCommaOrClose(TextInput& ti, Token& token) {
     while (! ((token.type() == Token::SYMBOL) && 
               (isClose(token.string()[0])) || 
-               (token.string()[0] == ','))) {
+               isSeparator(token.string()[0]))) {
         switch (token.type()) {
         case Token::NEWLINE:
         case Token::COMMENT:
@@ -952,7 +980,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
         readUntilCommaOrClose(ti, token);
 
         // Consume the comma
-        if (token.string()[0] == ',') {
+        if (isSeparator(token.string()[0])) {
             token = ti.read();
         }
     }
