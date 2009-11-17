@@ -139,6 +139,7 @@ Any::Data::~Data() {
 
 
 //////////////////////////////////////////////////////////////
+
 bool Any::containsKey(const std::string& x) const {
     verifyType(TABLE);
     return m_data->value.t->containsKey(x);
@@ -636,6 +637,36 @@ void Any::save(const std::string& filename) const {
     to.commit();
 }
 
+
+static bool needsQuotes(const std::string& s) {
+    if (! isLetter(s[0]) && (s[0] != '_')) {
+        return true;
+    }
+
+    for (int i = 0; i < s.length(); ++i) {
+        char c = s[i];
+        
+        // peek character
+        char p = (i == s.length() - 1) ? '_' : s[i + 1];
+
+        // Identify separators
+        if ((c == '-' && p == '>') ||
+            (c == ':' && p == ':')) {            
+            // Skip over this symbol
+            ++i;
+            continue;
+        }
+
+        if (! isDigit(c) && ! isLetter(c) & (c != '.')) {
+            // This is an illegal character for an identifier, so we need quotes
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 // TODO: if the output will fit on one line, compress tables and arrays into a single line
 void Any::serialize(TextOutput& to) const {
     if (m_data && ! m_data->comment.empty()) {
@@ -663,7 +694,11 @@ void Any::serialize(TextOutput& to) const {
     case TABLE: {
         debugAssertM(m_data != NULL, "NULL m_data");
         if (! m_data->name.empty()) {
-            to.writeSymbol(m_data->name);
+            if (needsQuotes(m_data->name)) {
+                to.writeString(m_data->name);
+            } else {
+                to.writeSymbol(m_data->name);
+            }
         }
         to.writeSymbol("{");
         to.writeNewline();
@@ -941,7 +976,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
 
         if (m_type == TABLE) {
             // Read the key
-            if (token.type() != Token::SYMBOL) {
+            if (token.type() != Token::SYMBOL && token.type() != Token::STRING) {
                 throw CorruptText("Expected a name", token);
             } 
             

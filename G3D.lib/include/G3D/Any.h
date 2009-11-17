@@ -5,7 +5,7 @@
  @author Shawn Yarbrough
   
  @created 2006-06-11
- @edited  2009-11-15
+ @edited  2009-11-16
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -125,7 +125,7 @@ string      ::= <legal C double-quoted string; backslashes must be escaped>
 boolean     ::= "True" | "False"
 none        ::= "None"
 array       ::= "(" [value ("," value)*] ")"
-pair        ::= identifier "=" value
+pair        ::= (identifier | string) "=" value
 table       ::= "{" [pair (separator pair)*] "}"
 named-array ::= identifier-exp tuple
 named-table ::= identifier-exp dict
@@ -180,7 +180,6 @@ public:
 
 private:
 
-
     /** Called from deserialize() */
     static void deserializeComment(TextInput& ti, Token& token, std::string& comment);
 
@@ -193,8 +192,7 @@ private:
         inline SimpleValue(bool x) : b(x) {}
         inline SimpleValue(double x) : n(x) {}
     };
-
-   
+ 
 
     class Data {
     public:

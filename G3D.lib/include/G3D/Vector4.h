@@ -30,6 +30,7 @@ class Vector2;
 class Vector3;
 class Vector4;
 class Vector4int8;
+class Any;
 
 /**
  Do not subclass-- this implementation makes assumptions about the
@@ -44,6 +45,13 @@ private:
     bool operator>=(const Vector4&) const;
 
 public:
+
+    /** \param any Must either Vector4(#, #, #, #) or Vector3 {x = #, y = #, z = #, w =#}*/
+    Vector4(const Any& any);
+    
+    /** Converts the Vector4 to an Any. */
+    operator Any() const;
+
     // construction
     Vector4();
     Vector4(float fX, float fY, float fZ, float fW);

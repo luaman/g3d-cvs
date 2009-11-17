@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
   
  @created 2001-07-09
- @edited  2007-02-29
+ @edited  2009-11-29
  */
 
 #include <stdlib.h>
@@ -17,9 +17,34 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Vector4int8.h"
 #include "G3D/Matrix4.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
+Vector4::Vector4(const Any& any) {
+    any.verifyName("Vector4");
+    any.verifyType(Any::TABLE, Any::ARRAY);
+    any.verifySize(4);
+
+    if (any.type() == Any::ARRAY) {
+        x = any[0];
+        y = any[1];
+        z = any[2];
+        w = any[3];
+    } else {
+        // Table
+        x = any["x"];
+        y = any["y"];
+        z = any["z"];
+        w = any["w"];
+    }
+}
+
+Vector4::operator Any() const {
+    Any any(Any::ARRAY, "Vector4");
+    any.append(x, y, z, w);
+    return any;
+}
 
 
 Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f), w(v.w / 127.0f) {

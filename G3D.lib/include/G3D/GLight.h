@@ -4,11 +4,11 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-12
-  @edited  2006-02-08
+  @edited  2009-11-08
 */
 
-#ifndef G3D_GLIGHT_H
-#define G3D_GLIGHT_H
+#ifndef G3D_GLight_h
+#define G3D_GLight_h
 
 #include "G3D/platform.h"
 #include "G3D/Vector4.h"
@@ -16,6 +16,7 @@
 #include "G3D/Color4.h"
 
 namespace G3D {
+class Any;
 
 /**
  A light representation that closely follows the OpenGL light format.
@@ -60,6 +61,17 @@ public:
     bool                diffuse;
 
     GLight();
+   
+    /** Accepted forms:
+        - GLight::directional( vector3, color3, [bool, [bool]])
+        - GLight::spot(vector3, vector3, #, color3, [#, [#, [#, [#, [bool, [bool]]]])
+        - GLight::point(vector3, color3, [#, [#, [#, [#, [bool, [bool]]]])
+        - GLight { [all fields] }
+    */
+    GLight(const Any& any);
+    
+    /** Converts the Color3 to an Any. */
+    operator Any() const;
 
     /** @param toLight will be normalized */
     static GLight directional(const Vector3& toLight, const Color3& color, bool specular = true, bool diffuse = true);

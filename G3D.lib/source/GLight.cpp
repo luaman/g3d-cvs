@@ -4,13 +4,96 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-11-12
-  @edited  2009-03-30
+  @edited  2009-11-16
 */
 #include "G3D/GLight.h"
 #include "G3D/Sphere.h"
 #include "G3D/CoordinateFrame.h"
+#include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D {
+
+GLight::GLight(const Any& any) {
+    any.verifyName("GLight");
+
+    if (any.type() == Any::TABLE) {
+        *this = GLight();
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "position") {
+                position = it->value;
+            } else if (key == "rightdirection") {
+                rightDirection = it->value;
+            } else if (key == "spotdirection") {
+                spotDirection = it->value;
+            } else if (key == "spotcutoff") {
+                spotCutoff = it->value;
+            } else if (key == "spotsquare") {
+                spotSquare = it->value;
+            } else if (key == "attenuation") {
+                attenuation[0] = it->value[0];
+                attenuation[1] = it->value[1];
+                attenuation[2] = it->value[2];
+            } else if (key == "color") {
+                color = it->value[0];
+            } else if (key == "enabled") {
+                enabled = it->value[0];
+            } else if (key == "specular") {
+                specular = it->value[0];
+            } else if (key == "diffuse") {
+                diffuse = it->value[0];
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
+        }
+    } else if (toLower(any.name()) == "glight::directional") {
+
+        *this = directional(any[0], any[1], 
+            (any.size() > 2) ? any[2] : Any(true), 
+            (any.size() > 3) ? any[3] : Any(true));
+
+    } else if (toLower(any.name()) == "glight::point") {
+
+        *this = point(any[0], any[1], 
+            (any.size() > 2) ? any[2] : Any(1), 
+            (any.size() > 3) ? any[3] : Any(0), 
+            (any.size() > 4) ? any[4] : Any(0.5f), 
+            (any.size() > 5) ? any[5] : Any(true), 
+            (any.size() > 6) ? any[6] : Any(true));
+
+    } else if (toLower(any.name()) == "glight::spot") {
+
+        *this = spot(any[0], any[1], any[2], any[3],
+            (any.size() > 4) ? any[4] : Any(1), 
+            (any.size() > 5) ? any[5] : Any(0), 
+            (any.size() > 6) ? any[6] : Any(0.5f), 
+            (any.size() > 7) ? any[5] : Any(true), 
+            (any.size() > 8) ? any[6] : Any(true));
+    } else {
+        any.verify(false, "Unrecognized name");
+    }
+}
+
+
+GLight::operator Any() const {
+    Any a(Any::TABLE, "GLight");
+    a["position"]        = position;
+    a["rightDirection"]  = rightDirection;
+    a["spotDirection"]   = spotDirection;
+    a["spotCutoff"]      = spotCutoff;
+    a["spotSquare"]      = spotSquare;
+
+    Any att(Any::ARRAY);
+    att.append(attenuation[0], attenuation[1], attenuation[2]);
+    a["attenuation"]     = att;
+    a["color"]           = color;
+    a["enabled"]         = enabled;
+    a["specular"]        = specular;
+    a["diffuse"]         = diffuse;
+    return a;
+}
+
 
 GLight::GLight() :
     position(0, 0, 0, 0),
