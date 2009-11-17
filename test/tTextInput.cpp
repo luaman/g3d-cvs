@@ -10,6 +10,12 @@ void testTextInput() {
 
     {
         // Parse floats
+ 		TextInput ti(TextInput::FROM_STRING, "1.2f");
+        debugAssert(ti.readNumber() == 1.2);
+        debugAssert(! ti.hasMore());
+    }
+    {
+        // Parse floats
  		TextInput ti(TextInput::FROM_STRING, ".1");
         debugAssert(ti.readNumber() == 0.1);
     }

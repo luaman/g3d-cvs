@@ -727,6 +727,10 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
+    testTextInput();
+    testTextInput2();
+    printf("  passed\n");
+
     testAny();
 
     testSphere();
@@ -808,9 +812,6 @@ int main(int argc, char* argv[]) {
     
     testRandom();
 
-    testTextInput();
-    testTextInput2();
-    printf("  passed\n");
 
     testBox();
     printf("  passed\n");
