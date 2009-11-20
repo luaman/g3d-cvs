@@ -3,7 +3,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2004-03-28
-  @edited  2009-04-10
+  @edited  2009-11-10
 */
 
 #include "G3D/TextOutput.h"
@@ -40,6 +40,7 @@ bool GLCaps::bug_mipmapGeneration = false;
 bool GLCaps::bug_slowVBO = false;
 
 int GLCaps::_maxTextureSize = 0;
+int GLCaps::_maxCubeMapSize = 0;
 
 /**
  Dummy function to which unloaded extensions can be set.
@@ -382,6 +383,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
     debugAssertGLOk();
 
     _maxTextureSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
+    _maxCubeMapSize = glGetInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT);
 
     _initialized = true;
 }

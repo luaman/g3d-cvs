@@ -34,6 +34,7 @@ class Rect2D;
 class AABox;
 
 /**
+ \deprecated
  <b>Use the G3D::Any class instead.  This is only provided for 
    backwards compatibility to G3D 7.xx.</b>
 

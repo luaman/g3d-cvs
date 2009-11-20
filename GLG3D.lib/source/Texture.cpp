@@ -9,7 +9,7 @@
  </UL>
 
  @created 2001-02-28
- @edited  2009-09-12
+ @edited  2009-11-18
 */
 
 #include "G3D/Log.h"
@@ -823,6 +823,8 @@ Texture::Ref Texture::fromMemory(
     typedef Array< Array<const void*> > MipArray;
     // Used for normal map computation
     GImage normal;
+
+    float scaleFactor = preProcess.scaleFactor;
     
     // Indirection needed in case we have to reallocate our own
     // data for preprocessing.
@@ -918,7 +920,7 @@ Texture::Ref Texture::fromMemory(
     debugAssertM(GLCaps::supportsTexture(desiredFormat), "Unsupported texture format.");
 
     glStatePush();
-
+ 
         // Set unpacking alignment
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -965,7 +967,7 @@ Texture::Ref Texture::fromMemory(
                                         mipHeight, 
                                         desiredFormat->openGLFormat,
                                         bytesFormat->packedBitsPerTexel / 8, 
-                                        preProcess.scaleFactor,
+                                        scaleFactor,
                                         bytesFormat->openGLDataFormat,
                                         preProcess.computeMinMaxMean,
                                         minval, maxval, meanval);
@@ -986,7 +988,7 @@ Texture::Ref Texture::fromMemory(
                                   mipLevel, 
                                   bytesFormat->compressed, 
                                   useNPOT, 
-                                  preProcess.scaleFactor,
+                                  scaleFactor,
                                   bytesFormat->openGLDataFormat,
                                   preProcess.computeMinMaxMean,
                                   minval, maxval, meanval);
@@ -998,6 +1000,7 @@ Texture::Ref Texture::fromMemory(
             mipWidth = iMax(1, mipWidth / 2);
             mipHeight = iMax(1, mipHeight / 2);
         }
+   
     glStatePop();
 
     if ((dimension != DIM_2D_RECT) &&
@@ -1968,7 +1971,6 @@ static void createTexture(
     // the function.
     bool   freeBytes = false; 
     int maxSize = GLCaps::maxTextureSize();
-
     if (computeMinMaxMean) {
         computeStats(rawBytes, bytesActualFormat, m_width, m_height, minval, maxval, meanval);
     }
@@ -1980,8 +1982,13 @@ static void createTexture(
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB:
     case GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB:
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB:
+        maxSize = GLCaps::maxCubeMapSize();
+
+        // Fall through
+
     case GL_TEXTURE_2D:
-        if ((! isPow2(m_width) || ! isPow2(m_height)) &&
+        if ((rescaleFactor != 1.0) || 
+            (! isPow2(m_width) || ! isPow2(m_height)) &&
             (! useNPOT || ! GLCaps::supports_GL_ARB_texture_non_power_of_two() ||
              (m_width > maxSize) || (m_height > maxSize))) {
             // NPOT texture with useNPOT disabled: resize to a power of two
@@ -1995,7 +2002,6 @@ static void createTexture(
                 int oldHeight = m_height;
                 m_width  = iMin(maxSize, ceilPow2(static_cast<unsigned int>(m_width * rescaleFactor)));
                 m_height = iMin(maxSize, ceilPow2(static_cast<unsigned int>(m_height * rescaleFactor)));
-
 
                 if ((oldWidth > maxSize) || (oldHeight > maxSize)) {
                     logPrintf("WARNING: %d x %d texture exceeded maximum size and was resized to %d x %d\n",

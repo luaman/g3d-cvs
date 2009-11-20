@@ -156,6 +156,7 @@
      <li> Fix: G3D::GApp now learns how much G3D::GApp::onWait overcompensates for and takes that into timing consideration
      <li> Fix: G3D::SDLWindow::setDimensions and frame resizing update the window correctly
      <li> Fix: G3D::TextInput now allows trailing 'f' on floating-point numbers
+     <li> Fix: Cube map faces that are too large for the GPU are automatically rescaled on load by Texture
    </ul>
 
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>

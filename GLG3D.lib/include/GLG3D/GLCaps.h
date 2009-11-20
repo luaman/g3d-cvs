@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2004-03-28
- @edited  2009-02-28
+ @edited  2009-11-28
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -103,6 +103,7 @@ private:
     static int          _numTextureUnits;
 
     static int          _maxTextureSize;
+    static int          _maxCubeMapSize;
 
     static Vendor computeVendor();
 
@@ -237,6 +238,10 @@ public:
 
     static int maxTextureSize() {
         return _maxTextureSize;
+    }
+
+    static int maxCubeMapSize() {
+        return _maxCubeMapSize;
     }
 
     static inline bool supports_GL_ARB_texture_cube_map() {
