@@ -161,7 +161,7 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
             Vector4 cL;
             // OpenGL lights are already in camera space, so take them
             // from camera to world to object space.
-            glGetLightfv(GL_LIGHT0, GL_POSITION, cL);
+            glGetLightfv(GL_LIGHT0, GL_POSITION, reinterpret_cast<float*>(&cL));
             args.set("g3d_ObjectLight0", o2w.toObjectSpace(c2w.toWorldSpace(cL)));
         }
 
@@ -169,14 +169,14 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
             Vector4 cL;
             // OpenGL lights are already in camera space, so take them
             // from camera to world to object space.
-            glGetLightfv(GL_LIGHT0, GL_POSITION, cL);
+            glGetLightfv(GL_LIGHT0, GL_POSITION, reinterpret_cast<float*>(&cL));
             args.set("g3d_WorldLight0", c2w.toWorldSpace(cL));
         }
 
         if (uniformNames.contains("g3d_NumTextures")) {
             // Search for the highest texture number
             int i = 7;
-            while (i >= 0 && ! glGetBoolean(GL_TEXTURE0_ARB + i)) {
+            while ((i >= 0) && ! glGetBoolean(GL_TEXTURE0_ARB + i)) {
                 --i;
             }
             args.set("g3d_NumTextures", i + 1);
@@ -1190,7 +1190,7 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
             float h = value.texture->height();
             Vector4 v(w, h, 1.0f / w, 1.0f / h);
 
-            glUniform4fvARB(location, 1, v);
+            glUniform4fvARB(location, 1, reinterpret_cast<const float*>(&v));
 
         } else {
 
@@ -1238,15 +1238,15 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
                 break;
 
             case GL_FLOAT_VEC2_ARB:
-                glUniform2fvARB(location, 1, value.vector[0]);
+                glUniform2fvARB(location, 1,  reinterpret_cast<const float*>(&value.vector[0]));
                 break;
 
             case GL_FLOAT_VEC3_ARB:
-                glUniform3fvARB(location, 1, value.vector[0]);
+                glUniform3fvARB(location, 1,  reinterpret_cast<const float*>(&value.vector[0]));
                 break;
 
             case GL_FLOAT_VEC4_ARB:
-                glUniform4fvARB(location, 1, value.vector[0]);
+                glUniform4fvARB(location, 1,  reinterpret_cast<const float*>(&value.vector[0]));
                 break;
 
             case GL_INT_VEC2_ARB:

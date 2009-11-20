@@ -244,11 +244,11 @@ void GPUProgram::loadProgram(const std::string& code) const {
 void GPUProgram::loadConstant(int slot, const Vector4& value) const {
     switch (extension) {
     case NVIDIA:
-        glProgramParameter4fvNV(unit, slot, value);
+        glProgramParameter4fvNV(unit, slot, &value[0]);
         break;
 
     case ARB:
-        glProgramLocalParameter4fvARB(unit, slot, value);
+        glProgramLocalParameter4fvARB(unit, slot, &value[0]);
         break;
     }
 }
@@ -536,7 +536,7 @@ void GPUProgram::BindingTable::nvBind(GLenum target) const {
         const Binding& binding = bindingArray[b];
 
         if ((binding.source == CONSTANT) && (binding.type == FLOAT4)) {
-            glProgramParameter4fvNV(target, binding.slot, binding.vector);
+            glProgramParameter4fvNV(target, binding.slot, reinterpret_cast<const float*>(& binding.vector));
         }
     }
 }
@@ -548,7 +548,7 @@ void GPUProgram::BindingTable::arbBind(GLenum target) const {
         const Binding& binding = bindingArray[b];
 
         if ((binding.source == CONSTANT) && (binding.type == FLOAT4)) {
-            glProgramLocalParameter4fvARB(target, binding.slot, binding.vector);
+            glProgramLocalParameter4fvARB(target, binding.slot, reinterpret_cast<const float*>(&binding.vector));
         }
     }
 }

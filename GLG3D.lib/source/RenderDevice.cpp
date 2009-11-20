@@ -99,8 +99,10 @@ void RenderDevice::getFixedFunctionLighting(const LightingRef& lighting) const {
     }
 }
 
+
 RenderDevice::RenderDevice() :
-    m_window(NULL), m_deleteWindow(false), m_inRawOpenGL(false), m_minLineWidth(0), m_inIndexedPrimitive(false) {
+    m_window(NULL), m_deleteWindow(false),  m_minLineWidth(0),
+    m_inRawOpenGL(false), m_inIndexedPrimitive(false) {
     m_initialized = false;
     m_cleanedup = false;
     m_inPrimitive = false;
@@ -2470,7 +2472,7 @@ void RenderDevice::setPolygonOffset(
 
 void RenderDevice::setNormal(const Vector3& normal) {
     m_state.normal = normal;
-    glNormal3fv(normal);
+    glNormal(normal);
     minStateChange();
     minGLStateChange();
 }
@@ -2521,21 +2523,21 @@ void RenderDevice::setTexCoord(uint32 unit, double texCoord) {
 
 void RenderDevice::sendVertex(const Vector2& vertex) {
     debugAssertM(m_inPrimitive, "Can only be called inside beginPrimitive()...endPrimitive()");
-    glVertex2fv(vertex);
+    glVertex(vertex);
     ++m_currentPrimitiveVertexCount;
 }
 
 
 void RenderDevice::sendVertex(const Vector3& vertex) {
     debugAssertM(m_inPrimitive, "Can only be called inside beginPrimitive()...endPrimitive()");
-    glVertex3fv(vertex);
+    glVertex(vertex);
     ++m_currentPrimitiveVertexCount;
 }
 
 
 void RenderDevice::sendVertex(const Vector4& vertex) {
     debugAssertM(m_inPrimitive, "Can only be called inside beginPrimitive()...endPrimitive()");
-    glVertex4fv(vertex);
+    glVertex(vertex);
     ++m_currentPrimitiveVertexCount;
 }
 
@@ -2967,14 +2969,14 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
             glPushMatrix();
                 glLoadIdentity();
                 glLoadMatrix(m_state.matrices.cameraToWorldMatrixInverse);
-                glLightfv(gi, GL_POSITION,              light.position);
-                glLightfv(gi, GL_SPOT_DIRECTION,        light.spotDirection);
+                glLightfv(gi, GL_POSITION,              reinterpret_cast<const float*>(& light.position));
+                glLightfv(gi, GL_SPOT_DIRECTION,        reinterpret_cast<const float*>(&light.spotDirection));
                 glLightf (gi, GL_SPOT_CUTOFF,           light.spotCutoff);
                 glLightfv(gi, GL_AMBIENT,               zero);
                 if (light.diffuse) {
-                    glLightfv(gi, GL_DIFFUSE,               brightness);
+                    glLightfv(gi, GL_DIFFUSE,           brightness);
                 } else {
-                    glLightfv(gi, GL_DIFFUSE,               zero);
+                    glLightfv(gi, GL_DIFFUSE,           zero);
                 }
                 if (light.specular) {
                     glLightfv(gi, GL_SPECULAR,              brightness);

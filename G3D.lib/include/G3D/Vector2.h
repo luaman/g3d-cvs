@@ -71,8 +71,6 @@ public:
 
     float& operator[](int i);
     const float& operator[](int i) const;
-    operator float*();
-    operator const float*() const;
 
     // assignment and comparison
     Vector2& operator=(const Vector2& other);
@@ -274,15 +272,6 @@ inline float& Vector2::operator[] (int i) {
 
 inline const float& Vector2::operator[] (int i) const {
     return ((float*)this)[i];
-}
-
-
-inline Vector2::operator float* () {
-    return (float*)this;
-}
-
-inline Vector2::operator const float* () const {
-    return (float*)this;
 }
 
 

@@ -243,7 +243,7 @@ void Draw::axes(
     const Color4&       zColor,
     float               scale) {
 
-    axes(CoordinateFrame(), renderDevice, xColor, yColor, zColor, scale);
+    axes(CFrame(), renderDevice, xColor, yColor, zColor, scale);
 }
 
 
@@ -281,13 +281,13 @@ void Draw::arrow(
             float angle1 = (a + 1) * (float)twoPi() / SPHERE_SECTIONS;
             Vector3 dir0(cos(angle0) * v + sin(angle0) * w);
             Vector3 dir1(cos(angle1) * v + sin(angle1) * w);
-            glNormal3fv(dir0);
-            glVertex3fv(tip);
+            glNormal(dir0);
+            glVertex(tip);
 
-            glVertex3fv(back + dir0 * r);
+            glVertex(back + dir0 * r);
 
-            glNormal3fv(dir1);
-            glVertex3fv(back + dir1 * r);                
+            glNormal(dir1);
+            glVertex(back + dir1 * r);                
         }
     renderDevice->endPrimitive();
     renderDevice->minGLStateChange(SPHERE_SECTIONS * 5);
@@ -295,11 +295,11 @@ void Draw::arrow(
     // Back of arrow head
     renderDevice->beforePrimitive();
     glBegin(GL_TRIANGLE_FAN);
-        glNormal3fv(-u);
+        glNormal(-u);
         for (int a = 0; a < SPHERE_SECTIONS; ++a) {
             float angle = a * (float)twoPi() / SPHERE_SECTIONS;
             Vector3 dir = sin(angle) * v + cos(angle) * w;
-            glVertex3fv(back + dir * r);
+            glVertex(back + dir * r);
         }
     glEnd();
     renderDevice->afterPrimitive();

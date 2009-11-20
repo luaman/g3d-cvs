@@ -106,14 +106,6 @@ public:
     const float& __fastcall operator[] (int i) const;
     float& operator[] (int i);
 
-    inline operator float* () {
-        return (float*)this;
-    }
-
-    operator const float* () const {
-        return (float*)this;
-    }
-
     enum Axis {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, DETECT_AXIS=-1};
 
     /**

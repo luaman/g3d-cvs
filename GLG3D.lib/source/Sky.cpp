@@ -373,8 +373,8 @@ void Sky::drawMoonAndStars(
                     const float b = starIntensity[i] * k;
 					glPointSize(starIntensity[i] * s);
 					glBegin(GL_POINTS);
-						glColor3f(b * lighting.emissiveScale.r, b * lighting.emissiveScale.g, b * lighting.emissiveScale.b);
-						glVertex3fv(star[i]);
+                                        glColor3f(b * lighting.emissiveScale.r, b * lighting.emissiveScale.g, b * lighting.emissiveScale.b);
+                                        glVertex(star[i]);
                     glEnd();
                 }
 

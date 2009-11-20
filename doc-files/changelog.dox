@@ -164,6 +164,7 @@
      <li> Linux/FreeBSD build now depends on libzip and is not built internally.  
           OSX/Windows version of zip.lib was replaced with libzip.
           The original implementation was based on minizip.
+     <li> G3D::Vector3, G3D::Vector3 and G3D::Vector4 operator float* are gone
      <li> G3D::Array(int size) constructor is gone
      <li> G3D::Surface::objectSpaceTangents -> G3D::Surface::objectSpacePackedTangents
      <li> G3D::Ray::origin and G3D::Ray::direction are now methods instead of members

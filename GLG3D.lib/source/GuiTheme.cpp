@@ -851,8 +851,8 @@ void GuiTheme::addDelayedText
 void GuiTheme::drawRect(const Rect2D& vertex, const Rect2D& texCoord, RenderDevice* rd) {
     (void)rd;
     for (int i = 0; i < 4; ++i) {
-        glTexCoord2fv(texCoord.corner(i));
-        glVertex2fv(vertex.corner(i));
+        glTexCoord(texCoord.corner(i));
+        glVertex(vertex.corner(i));
     }
 }
 
