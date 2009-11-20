@@ -106,8 +106,6 @@ public:
     // (1) Color4 not having virtual functions
     // (2) the data packed in a 3*sizeof(float) memory block
     float& operator[] (int i) const;
-    operator float* ();
-    operator const float* () const;
 
     // assignment and comparison
     Color4& operator= (const Color4& rkVector);
@@ -231,15 +229,6 @@ inline Color4::Color4(
 
 inline float& Color4::operator[] (int i) const {
     return ((float*)this)[i];
-}
-
-//----------------------------------------------------------------------------
-inline Color4::operator float* () {
-    return (float*)this;
-}
-
-inline Color4::operator const float* () const {
-    return (float*)this;
 }
 
 //----------------------------------------------------------------------------

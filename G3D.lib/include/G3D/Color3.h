@@ -154,14 +154,6 @@ public:
     bool fuzzyEq(const Color3& other) const;
     bool fuzzyNe(const Color3& other) const;
 
-    inline operator float* () {
-        return (float*)this;
-    }
-
-    operator const float* () const {
-        return (float*)this;
-    }
-
     // vector operations
     float length () const;
     Color3 direction() const;

@@ -1722,7 +1722,7 @@ static void setTexParameters(
         } else {
             mode = GL_CLAMP;
         }
-        glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, Color4::clear());
+        glTexParameterfv(target, GL_TEXTURE_BORDER_COLOR, reinterpret_cast<const float*>(&Color4::clear()));
         debugAssertGLOk();
       break;
 

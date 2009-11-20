@@ -719,7 +719,7 @@ void RenderDevice::resetState() {
         glLineWidth(1);
         glPointSize(1);
 
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, m_state.lights.ambient);
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, reinterpret_cast<const float*>(&m_state.lights.ambient));
         glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, m_state.lights.twoSidedLighting);
 
         glDisable(GL_LIGHTING);
@@ -2083,7 +2083,7 @@ void RenderDevice::setAmbientLightColor(
     if (color != m_state.lights.ambient) {
         m_state.lights.changed = true;
         minGLStateChange();
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, reinterpret_cast<const float*>(&color));
         m_state.lights.ambient = color;
     }
 }
@@ -2972,16 +2972,16 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
                 glLightfv(gi, GL_POSITION,              reinterpret_cast<const float*>(& light.position));
                 glLightfv(gi, GL_SPOT_DIRECTION,        reinterpret_cast<const float*>(&light.spotDirection));
                 glLightf (gi, GL_SPOT_CUTOFF,           light.spotCutoff);
-                glLightfv(gi, GL_AMBIENT,               zero);
+                glLightfv(gi, GL_AMBIENT,               reinterpret_cast<const float*>(&zero));
                 if (light.diffuse) {
-                    glLightfv(gi, GL_DIFFUSE,           brightness);
+                    glLightfv(gi, GL_DIFFUSE,           reinterpret_cast<const float*>(&brightness));
                 } else {
-                    glLightfv(gi, GL_DIFFUSE,           zero);
+                    glLightfv(gi, GL_DIFFUSE,           reinterpret_cast<const float*>(&zero));
                 }
                 if (light.specular) {
-                    glLightfv(gi, GL_SPECULAR,              brightness);
+                    glLightfv(gi, GL_SPECULAR,          reinterpret_cast<const float*>(&brightness));
                 } else {
-                    glLightfv(gi, GL_SPECULAR,              zero);
+                    glLightfv(gi, GL_SPECULAR,          reinterpret_cast<const float*>(&zero));
                 }
                 glLightf (gi, GL_CONSTANT_ATTENUATION,  light.attenuation[0]);
                 glLightf (gi, GL_LINEAR_ATTENUATION,    light.attenuation[1]);

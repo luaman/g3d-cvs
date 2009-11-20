@@ -521,7 +521,7 @@ static void rgba32f_to_rgb32f(const Array<const void*>& srcBytes, int srcWidth, 
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3 * sizeof(float)) {
             Color3& d = *reinterpret_cast<Color3*>(dst + dstByteOffset);
             const Color4& s = src[srcIndex];	    
-            d = Color3(s);
+            d = s.rgb();
         }
         dstByteOffset += dstRowPadBytes;
     } 

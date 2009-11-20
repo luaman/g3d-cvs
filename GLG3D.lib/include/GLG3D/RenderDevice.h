@@ -955,13 +955,13 @@ public:
      */
     inline void setColor(const Color4& color) {
         m_state.color = color;
-        glColor4fv(m_state.color);
+        glColor(m_state.color);
     }
 
 
     inline void setColor(const Color3& color) {
         m_state.color = Color4(color, 1);
-        glColor3fv(m_state.color);
+        glColor(m_state.color);
     }
 
     /**

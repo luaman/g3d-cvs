@@ -685,8 +685,9 @@ bool SuperSurface::renderPS14NonShadowedOpaqueTerms(
             glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,  GL_SRC_COLOR);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,   GL_TEXTURE);
             glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,  GL_SRC_COLOR);
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, 
-                Color4(bsdf->specular().constant().rgb() * lighting->environmentMapColor, 1));
+            Color4 c(bsdf->specular().constant().rgb() * lighting->environmentMapColor, 1);
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, reinterpret_cast<const float*>(&c));
+                
             debugAssertGLOk();
 
             ++nextUnit;
