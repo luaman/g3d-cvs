@@ -2,10 +2,10 @@
  @file   BumpMap.cpp
  @author Morgan McGuire, morgan@cs.williams.edu
  @edited 2009-03-25
- @date   2009-02-19
+ @date   2009-11-19
 */
-#include "G3D/AnyVal.h"
 #include "GLG3D/BumpMap.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
@@ -48,21 +48,30 @@ bool BumpMap::similarTo(const BumpMap::Ref& other) const {
 
 ///////////////////////////////////////////////////////////
 
-BumpMap::Settings BumpMap::Settings::fromAnyVal(AnyVal& a) {
-    Settings s;
-    s.iterations = iMax(0, iRound(a.get("iterations", 0).number()));
-    s.scale = a.get("scale", 0.05f).number();
-    s.bias = a.get("bias", 0.0f).number();
-    return s;
+BumpMap::Settings::Settings(const Any& any) {
+    *this = Settings();
+    any.verifyName("BumpMap::Settings");
+    for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+        const std::string& key = toLower(it->key);
+        if (key == "iterations") {
+            iterations = iMax(0, iRound(it->value.number()));
+        } else if (key == "scale") {
+            scale = it->value;
+        } else if (key == "bias") {
+            bias = it->value;
+        } else {
+            any.verify(false, "Illegal key: " + it->key);
+        }
+    }
 }
 
 
-AnyVal BumpMap::Settings::toAnyVal() const {
-    AnyVal a(AnyVal::TABLE);
-    a["scale"]  = scale;
-    a["bias"] = bias;
-    a["iterations"] = iterations;
-    return a;
+BumpMap::Settings::operator Any() const {
+    Any any(Any::TABLE, "BumpMap::Settings");
+    any["scale"]  = scale;
+    any["bias"] = bias;
+    any["iterations"] = iterations;
+    return any;
 }
 
 

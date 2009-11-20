@@ -305,7 +305,6 @@ href="classes.html">Classes</a>.
 
      <LI><B>Data structures</B> &nbsp; &nbsp;
         \link G3D::Any Any\endlink,
-        \link G3D::AnyVal AnyVal\endlink,
         \link G3D::KDTree KDTree\endlink,
         \link G3D::Array Array\endlink,
         \link G3D::Pointer Pointer\endlink,

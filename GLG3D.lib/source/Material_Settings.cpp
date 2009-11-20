@@ -4,7 +4,7 @@
  @date   2009-03-10
 */
 #include "GLG3D/Material.h"
-#include <G3D/AnyVal.h>
+#include "G3D/Any.h"
 
 namespace G3D {
 
@@ -29,26 +29,8 @@ Material::Settings::Settings() :
 }
 
 
-void Material::Settings::load(const std::string& filename) {
-    AnyVal a;
-    a.load(filename);
-    fromAnyVal(a);
-}
-
-
-void Material::Settings::save(const std::string& filename) const {
-    toAnyVal().save(filename);
-}
-
-
-Material::Settings Material::Settings::fromAnyVal(AnyVal& a) {
-    Settings s;
-    s.loadFromAnyVal(a);
-    return s;
-}
-
-
-void Material::Settings::loadFromAnyVal(AnyVal& a) {
+/*
+Material::Settings::Settings(const Any& a) {
     alwaysAssertM(a.type() == AnyVal::TABLE, "Must be a table of values");
 
     m_name = a.get("name", "Untitled").string();
@@ -88,10 +70,10 @@ void Material::Settings::loadFromAnyVal(AnyVal& a) {
         (a.get("textureDimension", "DIM_2D_NPOT").string() == "DIM_2D") ? 
         Texture::DIM_2D : Texture::DIM_2D_NPOT;
 }
+*/
 
-
-AnyVal Material::Settings::toAnyVal() const {
-    AnyVal a(AnyVal::TABLE);
+Material::Settings::operator Any() const {
+    Any a(Any::TABLE);
     a["name"] = m_name;
     a["lambertianFilename"] = m_lambertianFilename;
     a["lambertianConstant"] = m_lambertianConstant;
@@ -113,12 +95,12 @@ AnyVal Material::Settings::toAnyVal() const {
     a["emissiveFilename"] = m_emissiveFilename;
     a["emissiveConstant"] = m_emissiveConstant;
 
-    AnyVal b = m_bumpSettings.toAnyVal();
+    Any b = m_bumpSettings;
     b["filename"] = m_bumpFilename;
     b["normalMapWhiteHeightInPixels"] = m_normalMapWhiteHeightInPixels;
     a["bump"] = b;
 
-    a["textureSettings"] = m_textureSettings.toAnyVal();
+//    a["textureSettings"] = m_textureSettings;  TODO
     a["textureDimension"] = (m_textureDimension == Texture::DIM_2D) ? 
         "DIM_2D" : "DIM_2D_NPOT";
 

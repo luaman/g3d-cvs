@@ -2,7 +2,7 @@
  @file BumpMap.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @created 2009-02-19
- @edited  2009-07-24
+ @edited  2009-11-24
 */
 #ifndef G3D_BumpMap_h
 #define G3D_BumpMap_h
@@ -11,6 +11,8 @@
 #include "GLG3D/Component.h"
 
 namespace G3D {
+
+class Any;
 
 /** 
   @brief Normal + bump map for use with G3D::Material.
@@ -39,14 +41,10 @@ public:
         int            iterations;
 
         inline Settings() : scale(0.05f), bias(0.0f), iterations(0) {}
+        Settings(const Any& any);
+        operator Any() const;
 
         bool operator==(const Settings& s) const;
-
-        /** Deserialize from an AnyVal::TABLE */
-        static Settings fromAnyVal(AnyVal& a);
-
-        /** Serialize to an AnyVal::TABLE */
-        AnyVal toAnyVal() const;
     };
 
 protected:

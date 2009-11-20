@@ -8,7 +8,7 @@
       at <A HREF="http://www.magic-software.com">http://www.magic-software.com</A>
  
  @created 2002-06-25
- @edited  2009-04-15
+ @edited  2009-11-15
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -24,6 +24,8 @@
 
 namespace G3D {
 
+class Any;
+
 /**
  Do not subclass-- this implementation makes assumptions about the
  memory layout.
@@ -37,6 +39,16 @@ private:
     bool operator>=(const Color4&) const;
 
 public:
+
+    /** \param any Must be in one of the following forms: 
+        - Color4(#, #, #, #)
+        - Color4::fromARGB(#)
+        - Color4{r = #, g = #, b = #, a = #)
+        */
+    Color4(const Any& any);
+    
+    /** Converts the Color4 to an Any. */
+    operator Any() const;
 
     /**
      * Does not initialize fields.

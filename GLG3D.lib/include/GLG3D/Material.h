@@ -16,7 +16,7 @@
 
 namespace G3D {
 
-class AnyVal;
+class Any;
 
 /** 
   \brief Description of a surface for rendering purposes.
@@ -90,9 +90,6 @@ public:
         Texture::Dimension m_textureDimension;
         Texture::Settings  m_textureSettings;
 
-        /** Called from fromAnyVal() */
-        void loadFromAnyVal(AnyVal& a);
-
         Component4 loadLambertian() const;
         Component4 loadSpecular() const;
         Component3 loadTransmissive() const;
@@ -103,6 +100,7 @@ public:
         Settings();
 
         bool operator==(const Settings& s) const;
+        operator Any() const;
 
         inline bool operator!=(const Settings& s) const {
             return !((*this) == s);
@@ -114,12 +112,6 @@ public:
 
         /** Load from a file created by save() */
         void load(const std::string& filename);
-
-        /** Deserialize from an AnyVal::TABLE */
-        static Settings fromAnyVal(AnyVal& a);
-
-        /** Serialize to an AnyVal::TABLE */
-        AnyVal toAnyVal() const;
 
         inline void setTextureDimension(Texture::Dimension d) {
             m_textureDimension = d;

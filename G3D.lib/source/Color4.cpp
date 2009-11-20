@@ -9,7 +9,7 @@
 
 
  @created 2002-06-25
- @edited  2006-01-10
+ @edited  2009-11-10
  */
 
 #include <stdlib.h>
@@ -19,8 +19,48 @@
 #include "G3D/format.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/Any.h"
+#include "G3D/stringutils.h"
 
 namespace G3D {
+
+Color4::Color4(const Any& any) {
+    *this = Color4::zero();
+    any.verifyName("Color4");
+
+    if (any.type() == Any::TABLE) {
+        for (Any::AnyTable::Iterator it = any.table().begin(); it.hasMore(); ++it) {
+            const std::string& key = toLower(it->key);
+            if (key == "r") {
+                r = it->value;
+            } else if (key == "g") {
+                g = it->value;
+            } else if (key == "b") {
+                b = it->value;
+            } else if (key == "a") {
+                a = it->value;
+            } else {
+                any.verify(false, "Illegal key: " + it->key);
+            }
+        }
+    } else if (toLower(any.name()) == "color4") {
+        r = any[0];
+        g = any[1];
+        b = any[2];
+        a = any[3];
+    } else {
+        any.verifyName("Color4::fromARGB");
+        *this = Color4::fromARGB((int)any.number());
+    }
+}
+   
+
+Color4::operator Any() const {
+    Any any(Any::ARRAY, "Color4");
+    any.append(r, g, b, a);
+    return any;
+}
+
 
 const Color4& Color4::one() {
     const static Color4 x(1.0f, 1.0f, 1.0f, 1.0f);

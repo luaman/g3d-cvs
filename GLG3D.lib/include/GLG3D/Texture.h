@@ -30,7 +30,6 @@ class GImage;
 class Rect2D;
 class Matrix3;
 class Texture;
-class AnyVal;
 
 /** @deprecated Use Texture::Ref */
 typedef ReferenceCountedPointer<Texture> TextureRef;
@@ -211,7 +210,6 @@ public:
 
      3D textures do not support mipmap interpolation modes.
      */
-    // must be kept in sync with Settings::fromAnyVal
     enum InterpolateMode {
         TRILINEAR_MIPMAP = 3, 
         BILINEAR_MIPMAP = 4,
@@ -342,9 +340,6 @@ public:
         int                         minMipMap;
 
         Settings();
-
-        static Settings fromAnyVal(const AnyVal& a);
-        AnyVal toAnyVal() const;
 
         static const Settings& defaults();
 

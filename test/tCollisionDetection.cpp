@@ -17,17 +17,18 @@ static void measureTriangleCollisionPerformance() {
     Triangle triangle(v0, v1, v2);
     int n = 1024;
     int i;
+    float b[3];
 
     System::beginCycleCount(raw);
     for (i = 0; i < n; ++i) {
-        double t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, Triangle(v0, v1, v2), location, normal);
+        double t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, Triangle(v0, v1, v2), location, b);
         (void)t;
     }
     System::endCycleCount(raw);
 
     System::beginCycleCount(opt);
     for (i = 0; i < n; ++i) {
-        double t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, triangle, location, normal);
+        double t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, triangle, location, b);
         (void)t;
     }
     System::endCycleCount(opt);
