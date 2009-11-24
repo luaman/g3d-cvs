@@ -74,35 +74,35 @@ Material::Settings::Settings(const Any& a) {
 
 Material::Settings::operator Any() const {
     Any a(Any::TABLE);
-    a["name"] = m_name;
-    a["lambertianFilename"] = m_lambertianFilename;
-    a["lambertianConstant"] = m_lambertianConstant;
+    a.set("name", m_name);
+    a.set("lambertianFilename", m_lambertianFilename);
+    a.set("lambertianConstant", m_lambertianConstant);
 
-    a["specularFilename"] = m_specularFilename;
-    a["specularConstant"] = m_specularConstant;
+    a.set("specularFilename", m_specularFilename);
+    a.set("specularConstant", m_specularConstant);
 
-    a["shininessFilename"] = m_shininessFilename;
-    a["shininessConstant"] = m_shininessConstant;
+    a.set("shininessFilename", m_shininessFilename);
+    a.set("shininessConstant", m_shininessConstant);
 
-    a["transmissiveFilename"] = m_transmissiveFilename;
-    a["transmissiveConstant"] = m_transmissiveConstant;
+    a.set("transmissiveFilename", m_transmissiveFilename);
+    a.set("transmissiveConstant", m_transmissiveConstant);
 
-    a["etaTransmit"] = m_etaTransmit;
-    a["extinctionTransmit"] = m_extinctionTransmit; 
-    a["etaReflect"] = m_etaReflect;
-    a["extinctionReflect"] = m_extinctionReflect; 
+    a.set("etaTransmit", m_etaTransmit);
+    a.set("extinctionTransmit", m_extinctionTransmit); 
+    a.set("etaReflect", m_etaReflect);
+    a.set("extinctionReflect", m_extinctionReflect); 
 
-    a["emissiveFilename"] = m_emissiveFilename;
-    a["emissiveConstant"] = m_emissiveConstant;
+    a.set("emissiveFilename", m_emissiveFilename);
+    a.set("emissiveConstant", m_emissiveConstant);
 
     Any b = m_bumpSettings;
-    b["filename"] = m_bumpFilename;
-    b["normalMapWhiteHeightInPixels"] = m_normalMapWhiteHeightInPixels;
-    a["bump"] = b;
+    b.set("filename", m_bumpFilename);
+    b.set("normalMapWhiteHeightInPixels", m_normalMapWhiteHeightInPixels);
+    a.set("bump", b);
 
-//    a["textureSettings"] = m_textureSettings;  TODO
-    a["textureDimension"] = (m_textureDimension == Texture::DIM_2D) ? 
-        "DIM_2D" : "DIM_2D_NPOT";
+//    a.set("textureSettings", m_textureSettings);  TODO
+    a.set("textureDimension", (m_textureDimension == Texture::DIM_2D) ? 
+        "DIM_2D" : "DIM_2D_NPOT");
 
     return a;
 }

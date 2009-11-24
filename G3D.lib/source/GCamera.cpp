@@ -37,6 +37,8 @@ GCamera::GCamera(const Any& any) {
             } else {
                 any.verify(false, "fovDirection must be \"HORIZONTAL\" or \"VERTICAL\"");
             }
+        } else if (k == "COORDINATEFRAME") {
+            m_cframe = it->value;
         } else if (k == "FOVDEGREES") {
             m_fieldOfView = toRadians(it->value.number());
         } else if (k == "NEARPLANEZ") {
@@ -54,11 +56,11 @@ GCamera::GCamera(const Any& any) {
 GCamera::operator Any() const {
     Any any(Any::TABLE, "GCamera");
 
-    any["fovDirection"] = std::string((m_direction == HORIZONTAL) ? "HORIZONTAL" : "VERTICAL");
-    any["fovDegrees"] = toDegrees(m_fieldOfView);
-    any["nearPlaneZ"] = nearPlaneZ();
-    any["farPlaneZ"] = farPlaneZ();
-    any["coordinateFrame"] = coordinateFrame();
+    any.set("fovDirection", std::string((m_direction == HORIZONTAL) ? "HORIZONTAL" : "VERTICAL"));
+    any.set("fovDegrees", toDegrees(m_fieldOfView));
+    any.set("nearPlaneZ", nearPlaneZ());
+    any.set("farPlaneZ", farPlaneZ());
+    any.set("coordinateFrame", coordinateFrame());
 
     return any;
 }

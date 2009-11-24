@@ -36,9 +36,9 @@ ArticulatedModel::Specification::Specification(const Any& any) {
 
 ArticulatedModel::Specification::operator Any() const {
     Any a(Any::TABLE, "ArticulatedModel::Specification");
-    a["filename"]   = filename;
-    a["preprocess"] = preprocess;
-    a["settings"]   = settings;
+    a.set("filename", filename);
+    a.set("preprocess", preprocess);
+    a.set("settings", settings);
     return a;
 }
 
@@ -73,13 +73,13 @@ ArticulatedModel::PreProcess::PreProcess(const Any& any) {
 
 ArticulatedModel::PreProcess::operator Any() const {
     Any a(Any::TABLE, "ArticulatedModel::PreProcess");
-    a["stripMaterials"] = stripMaterials;
+    a.set("stripMaterials", stripMaterials);
     // a["textureDimension"] = TODO
-    a["addBumpMaps"] = addBumpMaps;
-    a["xform"] = xform.operator Any();
-    a["parallaxSteps"] = parallaxSteps;
-    a["bumpMapScale"] = bumpMapScale;
-    a["normalMapWhiteHeightInPixels"] = normalMapWhiteHeightInPixels;
+    a.set("addBumpMaps", addBumpMaps);
+    a.set("xform", xform.operator Any());
+    a.set("parallaxSteps", parallaxSteps);
+    a.set("bumpMapScale", bumpMapScale);
+    a.set("normalMapWhiteHeightInPixels", normalMapWhiteHeightInPixels);
     //a["materialSubstitution"] = materialSubstitution
 
     return a;
@@ -102,7 +102,7 @@ ArticulatedModel::Settings::Settings(const Any& any) {
 
 ArticulatedModel::Settings::operator Any() const {
     Any a(Any::TABLE, "ArticulatedModel::Settings");
-    a["weld"] = weld;
+    a.set("weld", weld);
     return a;
 }
 //////////////////////////////////////////////////////////

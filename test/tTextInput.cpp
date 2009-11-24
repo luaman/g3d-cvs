@@ -26,6 +26,11 @@ void testTextInput() {
     }
 
     {
+ 		TextInput ti(TextInput::FROM_STRING, "0x1");
+        debugAssert(ti.readNumber() == 1);
+    }
+
+    {
         // Quoted string with escapes.  The actual expression we are parsing looks like:
         // "\\"
  		TextInput ti(TextInput::FROM_STRING, "\"\\\\\"");

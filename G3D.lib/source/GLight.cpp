@@ -78,19 +78,19 @@ GLight::GLight(const Any& any) {
 
 GLight::operator Any() const {
     Any a(Any::TABLE, "GLight");
-    a["position"]        = position.operator Any();
-    a["rightDirection"]  = rightDirection.operator Any();
-    a["spotDirection"]   = spotDirection.operator Any();
-    a["spotCutoff"]      = spotCutoff;
-    a["spotSquare"]      = spotSquare;
+    a.set("position", position.operator Any());
+    a.set("rightDirection", rightDirection.operator Any());
+    a.set("spotDirection", spotDirection.operator Any());
+    a.set("spotCutoff", spotCutoff);
+    a.set("spotSquare", spotSquare);
 
     Any att(Any::ARRAY);
     att.append(attenuation[0], attenuation[1], attenuation[2]);
-    a["attenuation"]     = att;
-    a["color"]           = color.operator Any();
-    a["enabled"]         = enabled;
-    a["specular"]        = specular;
-    a["diffuse"]         = diffuse;
+    a.set("attenuation", att);
+    a.set("color", color.operator Any());
+    a.set("enabled", enabled);
+    a.set("specular", specular);
+    a.set("diffuse", diffuse);
     return a;
 }
 

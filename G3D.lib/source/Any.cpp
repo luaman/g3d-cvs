@@ -495,16 +495,11 @@ const Any& Any::operator[](const std::string& x) const {
 }
 
 
-Any& Any::operator[](const char* x) {
-    return (*this)[std::string(x)];
-}
-
-
-Any& Any::operator[](const std::string& x) {
+void Any::set(const std::string& k, const Any& v) {
     verifyType(TABLE);
     debugAssertM(m_data != NULL,"NULL m_data");
     Table<std::string, Any>& table = *(m_data->value.t);
-    return table.getCreate(x);
+    table.set(k, v);
 }
 
 
@@ -974,18 +969,17 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
             break;
         }
 
-        // Pointer to the value being read
-        Any* a = NULL;
-
+        // Pointer the value being read
+        Any a = NULL;
+        std::string key;
+        
         if (m_type == TABLE) {
             // Read the key
             if (token.type() != Token::SYMBOL && token.type() != Token::STRING) {
                 throw ParseError(ti.filename(), token.line(), token.character(), "Expected a name");
             } 
             
-            const std::string& key = token.string();
-            a = &((*this)[key]);
-
+            key = token.string();
             // Consume everything up to the = sign
             token = ti.readSignificant();
 
@@ -995,16 +989,19 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
                 // Consume (don't consume comments--we want the value pointed to by a to get those).
                 token = ti.read();
             }
-        } else {
-            a = &next();
         }
-
-        a->deserialize(ti, token);
+        a.deserialize(ti, token);
 
         if (! comment.empty()) {
             // Prepend the comment we read earlier
-            a->ensureData();
-            a->m_data->comment = trimWhitespace(comment + "\n" + a->m_data->comment);
+            a.ensureData();
+            a.m_data->comment = trimWhitespace(comment + "\n" + a.m_data->comment);
+        }
+        
+        if (m_type == TABLE) {
+            set(key, a);
+        } else {
+            append(a);
         }
 
         // Read until the comma or close paren, discarding trailing comments and newlines

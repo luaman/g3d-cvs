@@ -405,21 +405,21 @@ public:
 
     /** For a table, returns the element for key x. Throws KeyNotFound exception if the element does not exist. */ 
     const Any& operator[](const std::string& x) const;
+    // Needed to prevent the operator[](int) overload from catching string litterals
     const Any& operator[](const char* x) const;
+    
+    /** For a table, returns the element for key \a x and \a defaultVal if it does not exist. */
+    const Any& get(const std::string& x, const Any& defaultVal) const;
 
     /** Returns true if this key is in the TABLE.  Illegal to call on an object that is not a TABLE. */
     bool containsKey(const std::string& x) const;
     
-    /** For a table, returns the element for key x, creating it if it does not exist. */
-    Any& operator[](const std::string& x);
-    // Needed to avoid "G3D::Any::operator []' : 3 overloads have similar conversions"
-    Any& operator[](const char* x);
+    /** For a table, assigns the element for key k. */
+    void set(const std::string& k, const Any& v);
 
     /** for an ARRAY, resizes and returns the last element */
     Any& next();
 
-    /** For a table, returns the element for key \a x and \a defaultVal if it does not exist. */
-    const Any& get(const std::string& x, const Any& defaultVal) const;
 
     /** True if the Anys are exactly equal, ignoring comments.  Applies deeply on arrays and tables. */
     bool operator==(const Any& x) const;

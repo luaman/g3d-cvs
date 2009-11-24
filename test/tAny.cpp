@@ -41,7 +41,7 @@ static void testRefCount2() {
     Any* a = new Any(Any::TABLE);
 
     // Put something complex the table, so that we have chains of dependencies
-    (*a)["x"] = Any(Any::TABLE);
+    a->set("x", Any(Any::TABLE));
 
     Any* b = new Any();
     // Create alias
@@ -221,14 +221,13 @@ void testAny() {
         any = Any();
         any2 = Any();
 
-    } catch( const Any::WrongType& err ) {
-        errss << "failed: Any::WrongType expected=" << Any::toString(err.expected).c_str() << " actual=" << Any::toString(err.actual).c_str();
+    } catch( const ParseError& err ) {
+        (void)err;
+        errss << "failed: ParseError key=" ;
     } catch( const Any::KeyNotFound& err ) {
         errss << "failed: Any::KeyNotFound key=" << err.key.c_str();
     } catch( const Any::IndexOutOfBounds& err ) {
         errss << "failed: Any::IndexOutOfBounds index=" << err.index << " size=" << err.size;
-    } catch( const Any::CorruptText& err ) {
-        errss << "failed: Any::CorruptText message=\"" << err.message.c_str() << "\" token=\"" << err.token.string().c_str() << "\" line=" << err.token.line() << " character=" << err.token.character();
     } catch( const std::exception& err ) {
         errss << "failed: std::exception \"" << err.what() << "\"\n";
     } catch( const std::string& err ) {
