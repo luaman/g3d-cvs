@@ -46,7 +46,7 @@ Color3::Color3(const Any& any) {
         b = any[2];
     } else {
         any.verifyName("Color3::fromARGB");
-        *this = Color3::fromARGB((int)any.number());
+        *this = Color3::fromARGB((int)any[0].number());
     }
 }
    

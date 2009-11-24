@@ -50,7 +50,7 @@ Color4::Color4(const Any& any) {
         a = any[3];
     } else {
         any.verifyName("Color4::fromARGB");
-        *this = Color4::fromARGB((int)any.number());
+        *this = Color4::fromARGB((int)any[0].number());
     }
 }
    

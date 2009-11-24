@@ -302,8 +302,8 @@ Any& Any::operator=(Type t) {
         *this = Any(t);
         break;
 
-    default:    
-        throw WrongType(NONE, t);
+    default:
+        alwaysAssertM(false, "Any = Any::Type must take NONE, TABLE, or ARRAY as an argument");
     }
 
     return *this;
@@ -371,17 +371,15 @@ void Any::setName(const std::string& n) {
 
 
 int Any::size() const {
+    verifyType(ARRAY, TABLE);
     switch (m_type) {
     case TABLE:
-        debugAssertM(m_data != NULL, "NULL m_data");
         return m_data->value.t->size();
 
     case ARRAY:
-        debugAssertM(m_data != NULL, "NULL m_data");
         return m_data->value.a->size();
 
-    default:
-        throw WrongType(ARRAY, m_type);
+    default:;
     } // switch (m_type)
 }
 
@@ -399,6 +397,7 @@ void Any::resize(int n) {
 
 
 void Any::clear() {
+    verifyType(ARRAY, TABLE);
     switch (m_type) {
     case ARRAY:
         m_data->value.a->clear();
@@ -408,8 +407,7 @@ void Any::clear() {
         m_data->value.t->clear();
         break;
 
-    default:
-        throw WrongType(ARRAY, m_type);
+    default:;
     }
 }
 
@@ -579,8 +577,7 @@ bool Any::operator==(const Any& x) const {
     }
 
     default:
-        throw WrongType(NONE,m_type);    // TODO: Need a version of WrongType taking a list of valid expected types?
-        break;
+        alwaysAssertM(false, "Corrupt Any");
     }    // switch (m_type)
 }
 
@@ -643,7 +640,7 @@ static bool needsQuotes(const std::string& s) {
         return true;
     }
 
-    for (int i = 0; i < s.length(); ++i) {
+    for (int i = 0; i < (int)s.length(); ++i) {
         char c = s[i];
         
         // peek character
@@ -799,7 +796,8 @@ void Any::deserializeName(TextInput& ti, Token& token, std::string& name) {
         token = ti.readSignificant();
 
         if (token.type() != Token::SYMBOL) {
-            throw CorruptText("Expected symbol while parsing Any", token);
+            throw ParseError(ti.filename(), token.line(), token.character(), 
+                "Expected symbol while parsing Any");
         }
         s = token.string();
     }
@@ -835,7 +833,8 @@ void Any::deserialize(TextInput& ti, Token& token) {
         // if the file ends with some commented out stuff,
         // that should not happen after a comma, so we'd never read that 
         // far in a proper file.
-        throw CorruptText("File ended without a properly formed Any", token);
+        throw ParseError(ti.filename(), token.line(), token.character(), 
+            "File ended without a properly formed Any");
     }
 
     switch (token.type()) {
@@ -876,14 +875,16 @@ void Any::deserialize(TextInput& ti, Token& token) {
             std::string name;
             deserializeName(ti, token, name);
             if (token.type() != Token::SYMBOL) {
-                throw CorruptText("Malformed Any TABLE or ARRAY; must start with [, (, or {", token);
+                throw ParseError(ti.filename(), token.line(), token.character(), 
+                    "Malformed Any TABLE or ARRAY; must start with [, (, or {");
             }
 
             if (isOpen(token.string()[0])) {
                 // Array or table
                 deserializeBody(ti, token);
             } else {
-                throw CorruptText("Malformed Any TABLE or ARRAY; must start with [, (, or {", token);
+                throw ParseError(ti.filename(), token.line(), token.character(), 
+                    "Malformed Any TABLE or ARRAY; must start with [, (, or {");
             }
 
             if (! name.empty()) {
@@ -894,7 +895,8 @@ void Any::deserialize(TextInput& ti, Token& token) {
         break;
 
     default:
-        throw CorruptText("Unexpected token", token);
+        throw ParseError(ti.filename(), token.line(), token.character(), 
+            "Unexpected token");
 
     } // switch
 
@@ -934,7 +936,8 @@ void Any::readUntilCommaOrClose(TextInput& ti, Token& token) {
             break;
 
         default:
-            throw CorruptText("Expected a comma or close paren", token);
+            throw ParseError(ti.filename(), token.line(), token.character(), 
+                "Expected a comma or close paren");
         }
     }
 }
@@ -977,7 +980,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
         if (m_type == TABLE) {
             // Read the key
             if (token.type() != Token::SYMBOL && token.type() != Token::STRING) {
-                throw CorruptText("Expected a name", token);
+                throw ParseError(ti.filename(), token.line(), token.character(), "Expected a name");
             } 
             
             const std::string& key = token.string();
@@ -987,7 +990,7 @@ void Any::deserializeBody(TextInput& ti, Token& token) {
             token = ti.readSignificant();
 
             if ((token.type() != Token::SYMBOL) || (token.string() != "=")) {
-                throw CorruptText("Expected =", token);
+                throw ParseError(ti.filename(), token.line(), token.character(), "Expected =");
             } else {
                 // Consume (don't consume comments--we want the value pointed to by a to get those).
                 token = ti.read();
@@ -1071,6 +1074,8 @@ void Any::verify(bool value, const std::string& message) const {
         if (! message.empty()) {
             p.message = p.message + ": " + message;
         }
+
+        throw p;
     }
 }
 
@@ -1106,6 +1111,20 @@ void Any::verifySize(int s) const {
     verifyType(ARRAY, TABLE);
     if (size() != s) {
         verify(false, format("Size must be %d", s));
+    }
+}
+
+
+std::string Any::toString(Type t) {
+    switch(t) {
+    case NONE:    return "NONE";
+    case BOOLEAN: return "BOOLEAN";
+    case NUMBER:  return "NUMBER";
+    case STRING:  return "STRING";
+    case ARRAY:   return "ARRAY";
+    case TABLE:   return "TABLE";
+    default:
+        alwaysAssertM(false, "Illegal Any::Type");
     }
 }
 

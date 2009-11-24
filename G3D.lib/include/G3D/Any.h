@@ -147,17 +147,7 @@ public:
 
     enum Type {NONE, BOOLEAN, NUMBER, STRING, ARRAY, TABLE};
 
-    static std::string toString(Type t) {
-        switch(t) {
-        case NONE:    return "NONE";
-        case BOOLEAN: return "BOOLEAN";
-        case NUMBER:  return "NUMBER";
-        case STRING:  return "STRING";
-        case ARRAY:   return "ARRAY";
-        case TABLE:   return "TABLE";
-        default:      throw WrongType(NONE, t);
-        }
-    }
+    static std::string toString(Type t);
 
     /** Where an Any came from in a file.  Useful for throwing parsing errors */
     class Source {
@@ -283,15 +273,6 @@ public:
         virtual ~Exception() {}
     };
 
-    /** Thrown when an inappropriate operation is performed (e.g., operator[] on a number) */
-    class WrongType : public Exception {
-    public:
-        Type        expected;
-        Type        actual;
-        inline WrongType() : expected(NONE), actual(NONE) {}
-        inline WrongType(Type e, Type a) : expected(e), actual(a) {}
-    };
-
     /** Thrown by operator[] when a key is not present in a const table. */
     class KeyNotFound : public Exception {
     public:
@@ -307,18 +288,6 @@ public:
         int     size;
         inline IndexOutOfBounds() : index(0), size(0) {}
         inline IndexOutOfBounds(int i, int s) : index(i), size(s) {}
-    };
-
-    /** Thrown when deserialize() when the input is incorrectly formatted. */
-    class CorruptText : public Exception {
-    public:
-        std::string      message;
-
-        /** Token where the problem occurred.*/
-        Token            token;
-
-        inline CorruptText() {}
-        inline CorruptText(const std::string& s, const Token& t) : message(s), token(t) {}
     };
 
     /** NONE constructor */
@@ -402,7 +371,7 @@ public:
     /** True if this is the NONE value */
     bool isNone() const;
 
-    /** Throws a WrongType exception if this is not a number */
+    /** Throws a ParseError exception if this is not a number */
     double number() const;
     const std::string& string() const;
     bool boolean() const;
