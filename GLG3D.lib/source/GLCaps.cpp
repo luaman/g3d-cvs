@@ -275,6 +275,9 @@ void GLCaps::loadExtensions(Log* debugLog) {
     const std::string glver = glVersion();
     _hasGLMajorVersion2 = beginsWith(glver, "2.");
 
+    // Turn on OpenGL 3.0
+    glewExperimental = GL_TRUE;
+
     GLenum err = glewInit();
     alwaysAssertM(err == GLEW_OK, format("Error Initializing OpenGL Extensions (GLEW): %s\n", glewGetErrorString(err)));
 

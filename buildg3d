@@ -747,7 +747,7 @@ help       Display this message
 
 DEVELOPER TARGETS (unsupported)
 
-src        Build a sources zipfile (Win32 only)
+src        Build a sources zipfile (Unix only)
 
 ffmpegWin  Build precompiled Windows libraries for ffmpeg using a Unix 
            g++ MinGW cross-compiler.
