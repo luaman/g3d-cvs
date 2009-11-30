@@ -41,22 +41,28 @@ void App::onInit() {
     ArticulatedModel::Ref model = 
         ArticulatedModel::fromFile(
             System::findDataFile("knot.ifs"), 
-//            pathConcat(System::findDataFile("spaceFighter01"), "spaceFighter01.3ds"), 
             preprocess);
     model->pose(m_sceneGeometry);
 
-    m_extrudeShader = Shader::fromFiles("extrude.vrt", "extrude.geo", "extrude.pix", 3);
+    m_extrudeShader = Shader::fromFiles("extrude.vrt", "extrude.geo", "extrude.pix", 12);
     m_extrudeShader->setPreserveState(false);
 }
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
-//    Draw::skyBox(rd, m_scene->lighting()->environmentMap);
-
-    rd->setColorClearValue(Color3::white() * 0.25f);
+    rd->setColorClearValue(Color3::white() * 0.3f);
     rd->clear();
 
-    // Draw the base geometry as black wireframe
+    // Draw the base geometry as gray with black wireframe
+    rd->pushState();
+    rd->setColor(Color3::white() * 0.10f);
+    for (int i = 0; i < m_sceneGeometry.size(); ++i) {
+        const Surface::Ref& surface = m_sceneGeometry[i];
+        rd->setObjectToWorldMatrix(surface->coordinateFrame());
+        surface->sendGeometry(rd);
+    }
+    rd->popState();
+
     rd->pushState();
     rd->setColor(Color3::black());
     rd->setPolygonOffset(-0.2f);
@@ -68,17 +74,15 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     }
     rd->popState();
 
-    // Draw the extruded geometry
+    // Draw the extruded geometry as colored wireframe
     rd->pushState();
+    rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
     rd->setShader(m_extrudeShader);
     for (int i = 0; i < m_sceneGeometry.size(); ++i) {
         const Surface::Ref& surface = m_sceneGeometry[i];
-        m_extrudeShader->args.set("projectionMatrix", 
-            rd->projectionMatrix());
-
-        m_extrudeShader->args.set("modelViewMatrix", 
-            rd->cameraToWorldMatrix().inverse() * 
-            surface->coordinateFrame());
+        m_extrudeShader->args.set("MVP", 
+            rd->projectionMatrix() * (rd->cameraToWorldMatrix().inverse() * 
+            surface->coordinateFrame()));
 
         surface->sendGeometry(rd);
     }

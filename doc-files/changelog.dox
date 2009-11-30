@@ -18,6 +18,7 @@
      <li> G3D::Any replaces G3D::AnyVal
      <li> G3D::glClipToBox, glDisableAllClipping
      <li> G3D::Profiler
+     <li> G3D::Shader now supports triangle geometry shaders
      <li> G3D::Texture::resize
      <li> G3D::TextInput::Settings::singleQuoteCharacter
      <li> G3D::ParseError
