@@ -1,6 +1,8 @@
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
+
+varying vec3 normal;
 
 void main() {
-    gl_Position = projectionMatrix * modelViewMatrix * (gl_Vertex + vec4(gl_Normal * -0.1, 0.0));
+    // Leave vertices in object space
+    gl_Position = gl_Vertex;
+    normal = gl_Normal;
 }

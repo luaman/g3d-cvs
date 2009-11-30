@@ -579,6 +579,7 @@ VertexAndPixelShader::VertexAndPixelShader
  const std::string&  psCode,
  const std::string&  psFilename,
  bool                psFromFile,
+ int                 maxGeometryOutputVertices,
  bool                debug,
  PreprocessorStatus  preprocessor) :
     _ok(true) {
@@ -598,7 +599,7 @@ VertexAndPixelShader::VertexAndPixelShader
         repeat = false;
         vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", preprocessor, samplerMappings, secondPass);
         
-        geometryShader.init(gsFilename, gsCode, gsFromFile, debug, GL_GEOMETRY_SHADER_ARB, "Pixel Shader", preprocessor, samplerMappings, secondPass);
+        geometryShader.init(gsFilename, gsCode, gsFromFile, debug, GL_GEOMETRY_SHADER_ARB, "Geometry Shader", preprocessor, samplerMappings, secondPass);
 
         pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", preprocessor, samplerMappings, secondPass);
         
@@ -641,7 +642,19 @@ VertexAndPixelShader::VertexAndPixelShader
             }
 
             if (! geometryShader.fixedFunction()) {
+                debugAssertM(! vertexShader.fixedFunction(), "Geometry shader requires a vertex shader");
                 glAttachObjectARB(_glProgramObject, geometryShader.glShaderObject());
+
+                if (maxGeometryOutputVertices > -1) {
+                    // Configure the input and output types.  G3D::Shader simply assumes triangles
+                    glProgramParameteriEXT(_glProgramObject, GL_GEOMETRY_INPUT_TYPE_EXT, GL_TRIANGLES);
+                    glProgramParameteriEXT(_glProgramObject, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
+
+                    // Set the maximum output vertices
+                    debugAssertM(maxGeometryOutputVertices <= glGetInteger(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT),
+                        "maxGeometryOutputVertices exceeds GPU capabilities.");
+		            glProgramParameteriEXT(_glProgramObject, GL_GEOMETRY_VERTICES_OUT_EXT, maxGeometryOutputVertices);
+                }
             }
 
             if (! pixelShader.fixedFunction()) {
@@ -891,7 +904,8 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
  bool               debugErrors) {
     return new VertexAndPixelShader(vs, "", false, 
                                     "", "", false, 
-                                    ps, "", false, debugErrors, s);
+                                    ps, "", false, 
+                                    -1, debugErrors, s);
 }
 
 
@@ -911,7 +925,8 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
     return new VertexAndPixelShader
         (vs, vsName, false, 
          "", "", false,
-         ps, psName, false, debugErrors, s);
+         ps, psName, false, -1,
+         debugErrors, s);
 }
 
 
@@ -919,6 +934,7 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromFiles
 (const std::string& vsFilename,
  const std::string& gsFilename,
  const std::string& psFilename,
+ int                maxGeometryOutputVertices,
  PreprocessorStatus s,
  bool               debugErrors) {
     
@@ -939,7 +955,8 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromFiles
     return new VertexAndPixelShader
         (vs, vsFilename, vsFilename != "", 
          gs, gsFilename, gsFilename != "", 
-         ps, psFilename, psFilename != "", 
+         ps, psFilename, psFilename != "",
+         maxGeometryOutputVertices,
          debugErrors, s);
 }
 

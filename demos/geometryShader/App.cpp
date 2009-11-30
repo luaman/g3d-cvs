@@ -45,7 +45,7 @@ void App::onInit() {
             preprocess);
     model->pose(m_sceneGeometry);
 
-    m_extrudeShader = Shader::fromFiles("extrude.vrt", "extrude.geo", "extrude.pix");
+    m_extrudeShader = Shader::fromFiles("extrude.vrt", "extrude.geo", "extrude.pix", 3);
     m_extrudeShader->setPreserveState(false);
 }
 

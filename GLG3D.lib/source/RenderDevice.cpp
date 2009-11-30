@@ -3155,11 +3155,13 @@ void RenderDevice::internalSendIndices(
     
     GLenum p = primitiveToGLenum(primitive);
     
+    debugAssertGLOk();
     if (useInstances) {
-         glDrawElementsInstancedARB(p, numIndices, i, index, numInstances);
+        glDrawElementsInstancedARB(p, numIndices, i, index, numInstances);
     } else {
         glDrawElements(p, numIndices, i, index);
     }
+    debugAssertGLOk();
         
     afterPrimitive();
 }

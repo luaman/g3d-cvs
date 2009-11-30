@@ -285,6 +285,7 @@ protected:
     /** Returns true for types that are textures (e.g., GL_TEXTURE_2D) */
     static bool isSamplerType(GLenum e);
 
+    /** \param maxGeometryOutputVertices Set to -1 if using a layout qualifier for GLSL version 1.5 or later.*/
     VertexAndPixelShader
     (const std::string&  vsCode,
      const std::string&  vsFilename,
@@ -295,6 +296,7 @@ protected:
      const std::string&  psCode,
      const std::string&  psFilename,
      bool                psFromFile,
+     int                 maxGeometryOutputVertices,
      bool                debug,
      PreprocessorStatus  u);
 
@@ -356,6 +358,7 @@ public:
     (const std::string& vertexShader,
      const std::string& geometryShader,
      const std::string& pixelShader,
+     int maxGeometryShaderOutputVertices,
      PreprocessorStatus u,
      bool               debugErrors);
 
@@ -714,16 +717,18 @@ public:
         const std::string& vertexFile, 
         const std::string& pixelFile,
         PreprocessorStatus s = PREPROCESSOR_ENABLED) {
-        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, "", pixelFile, s, DEBUG_SHADER), s);
+        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, "", pixelFile, -1, s, DEBUG_SHADER), s);
     }
 
-    /** If a geometry shader is specified, a vertex shader must also be specified */
+    /** If a geometry shader is specified, a vertex shader must also be specified.
+    \param maxGeometryShaderOutputVertices Set to -1 if using GLSL 1.5 with a layout qualifier.*/
     inline static ShaderRef fromFiles(
         const std::string& vertexFile, 
         const std::string& geomFile,
         const std::string& pixelFile,
+        int maxGeometryShaderOutputVertices = -1,
         PreprocessorStatus s = PREPROCESSOR_ENABLED) {
-        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, geomFile, pixelFile, s, DEBUG_SHADER), s);
+        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, geomFile, pixelFile, maxGeometryShaderOutputVertices, s, DEBUG_SHADER), s);
     }
 
     inline static ShaderRef fromStrings(

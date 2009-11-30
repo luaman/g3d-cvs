@@ -1,5 +1,5 @@
 Application Log
-Start: Mon Nov 30 14:10:21 2009
+Start: Mon Nov 30 15:09:42 2009
 
 Setting video mode
 wglSwapIntervalEXT(0);
@@ -194,14 +194,21 @@ WARNING: Could not find 'greek.fnt' so '../../../data-files/font/greek.fnt' was 
 WARNING: Could not find 'knot.ifs' so '../../../data-files/ifs/knot.ifs' was substituted.
 
 WARNING: Could not find 'SS_NonShadowedPass.vrt' so '../../../data-files/SuperShader/SS_NonShadowedPass.vrt' was substituted.
+_____________________________________________________
 
-**************************
+    ###    Files Used    ###
 
-Assertion Failure - geometryShaderd.exe
-GL_INVALID_OPERATION
+extrude.geo
+../../../data-files/font/console-small.fnt
+../../../data-files/font/greek.fnt
+../../../data-files/ifs/knot.ifs
+../../../data-files/font/icon.fnt
+extrude.pix
+../../../data-files/font/arial.fnt
+../../../data-files/gui/osx.skn
+extrude.vrt
 
-Expression: e == GL_NO_ERROR
-..\GLG3D.lib\source\RenderDevice.cpp:1187
-
-Last Error (0x00000005): A
-
+Network CleanupNetwork cleaned up.Shutting down RenderDevice.
+Restoring gamma.
+Freeing all VertexRange memory
+Deleting window.
