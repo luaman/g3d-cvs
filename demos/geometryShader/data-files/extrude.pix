@@ -1,5 +1,6 @@
+uniform float intensity;
 varying vec3 faceColor;
 
 void main() {
-    gl_FragColor = vec4(faceColor, 1.0);
+    gl_FragColor = vec4(faceColor * intensity, 1.0);
 }

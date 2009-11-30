@@ -40,7 +40,7 @@ void App::onInit() {
 
     ArticulatedModel::Ref model = 
         ArticulatedModel::fromFile(
-            System::findDataFile("knot.ifs"), 
+            System::findDataFile("teapot.ifs" /*"knot.ifs"*/), 
             preprocess);
     model->pose(m_sceneGeometry);
 
@@ -54,7 +54,8 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     rd->clear();
 
     // Draw the base geometry as gray with black wireframe
-    rd->pushState();
+    rd->pushState();    
+    rd->setPolygonOffset(0.2f);
     rd->setColor(Color3::white() * 0.10f);
     for (int i = 0; i < m_sceneGeometry.size(); ++i) {
         const Surface::Ref& surface = m_sceneGeometry[i];
@@ -65,7 +66,6 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
 
     rd->pushState();
     rd->setColor(Color3::black());
-    rd->setPolygonOffset(-0.2f);
     rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
     for (int i = 0; i < m_sceneGeometry.size(); ++i) {
         const Surface::Ref& surface = m_sceneGeometry[i];
@@ -74,10 +74,12 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     }
     rd->popState();
 
-    // Draw the extruded geometry as colored wireframe
+    // Draw the extruded geometry as colored wireframe with "glass" interior
     rd->pushState();
-    rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
+    rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ONE);
+    rd->setDepthWrite(false);
     rd->setShader(m_extrudeShader);
+    m_extrudeShader->args.set("intensity", 0.1); 
     for (int i = 0; i < m_sceneGeometry.size(); ++i) {
         const Surface::Ref& surface = m_sceneGeometry[i];
         m_extrudeShader->args.set("MVP", 
@@ -88,7 +90,20 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     }
     rd->popState();
 
-    Draw::axes(CFrame(), rd);
+    rd->pushState();
+    rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
+    rd->setCullFace(RenderDevice::CULL_NONE);
+    rd->setShader(m_extrudeShader);
+    m_extrudeShader->args.set("intensity", 1.0); 
+    for (int i = 0; i < m_sceneGeometry.size(); ++i) {
+        const Surface::Ref& surface = m_sceneGeometry[i];
+        m_extrudeShader->args.set("MVP", 
+            rd->projectionMatrix() * (rd->cameraToWorldMatrix().inverse() * 
+            surface->coordinateFrame()));
+
+        surface->sendGeometry(rd);
+    }
+    rd->popState();
 
     drawDebugShapes();
 }
