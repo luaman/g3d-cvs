@@ -4,11 +4,11 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-04-25
- @edited  2007-07-04
+ @edited  2009-11-30
  */
 
-#ifndef G3D_SHADER_H
-#define G3D_SHADER_H
+#ifndef G3D_Shader_h
+#define G3D_Shader_h
 
 #include "GLG3D/glheaders.h"
 #include "GLG3D/Texture.h"
@@ -717,10 +717,11 @@ public:
         return new Shader(VertexAndPixelShader::fromFiles(vertexFile, "", pixelFile, s, DEBUG_SHADER), s);
     }
 
+    /** If a geometry shader is specified, a vertex shader must also be specified */
     inline static ShaderRef fromFiles(
         const std::string& vertexFile, 
-        const std::string& pixelFile,
         const std::string& geomFile,
+        const std::string& pixelFile,
         PreprocessorStatus s = PREPROCESSOR_ENABLED) {
         return new Shader(VertexAndPixelShader::fromFiles(vertexFile, geomFile, pixelFile, s, DEBUG_SHADER), s);
     }

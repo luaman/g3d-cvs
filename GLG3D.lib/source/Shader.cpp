@@ -47,6 +47,7 @@ bool Shader::supportsVertexShaders() {
         GLCaps::supports_GL_ARB_vertex_shader();
 }
 
+
 bool Shader::supportsGeometryShaders() {
     return
         GLCaps::supports_GL_ARB_shader_objects() && 
@@ -129,8 +130,10 @@ void Shader::beforePrimitive(class RenderDevice* renderDevice) {
             args.set("g3d_NumTextures", i + 1);
         }
     }
+    debugAssertGLOk();
 
     renderDevice->setVertexAndPixelShader(_vertexAndPixelShader, args);
+    debugAssertGLOk();
 }
 
 

@@ -202,6 +202,7 @@
      <li> G3D::GuiDropDownList now stores its list internally, rather than taking a pointer to a list
      <li> The applyInvertY argument on G3D::Texture::toImageX now defaults to true because this is less confusing
      <li> G3D::GApp::onWait only takes one argument now
+     <li> Removed G3D::VertexProgram and G3D::PixelProgram (use G3D::Shader instead)
    </ul>
 
 <hr>

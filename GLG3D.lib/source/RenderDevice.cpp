@@ -631,8 +631,6 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
 
     vertexAndPixelShader        = NULL;
     shader                      = NULL;
-    vertexProgram               = NULL;
-    pixelProgram                = NULL;
 
     for (int i = 0; i < MAX_LIGHTS; ++i) {
         lights.lightEnabled[i] = false;
@@ -948,14 +946,6 @@ void RenderDevice::setState(
 
     setVertexAndPixelShader(newState.vertexAndPixelShader);
     setShader(newState.shader);
-
-    if (supportsVertexProgram()) {
-        setVertexProgram(newState.vertexProgram);
-    }
-
-    if (supportsPixelProgram()) {
-        setPixelProgram(newState.pixelProgram);
-    }
     
     // Adopt the popped state's deltas relative the state that it replaced.
     m_state.highestTextureUnitThatChanged = newState.highestTextureUnitThatChanged;
@@ -1779,60 +1769,6 @@ void RenderDevice::setVertexAndPixelShader(
     if (s.notNull()) {
         s->bindArgList(this, args);
     }
-}
-
-
-void RenderDevice::setVertexProgram(const VertexProgramRef& vp) {
-    majStateChange();
-    if (vp != m_state.vertexProgram) {
-        if (m_state.vertexProgram != (VertexProgramRef)NULL) {
-            m_state.vertexProgram->disable();
-        }
-
-        majGLStateChange();
-        if (vp != (VertexProgramRef)NULL) {
-            debugAssert(supportsVertexProgram());
-            vp->bind();
-        }
-
-        m_state.vertexProgram = vp;
-    }
-}
-
-
-void RenderDevice::setVertexProgram(
-    const VertexProgramRef& vp,
-    const GPUProgram::ArgList& args) {
-
-    setVertexProgram(vp);
-    
-    vp->setArgs(this, args);
-}
-
-
-void RenderDevice::setPixelProgram(const PixelProgramRef& pp) {
-    majStateChange();
-    if (pp != m_state.pixelProgram) {
-        if (m_state.pixelProgram != (PixelProgramRef)NULL) {
-            m_state.pixelProgram->disable();
-        }
-        if (pp != (PixelProgramRef)NULL) {
-            debugAssert(supportsPixelProgram());
-            pp->bind();
-        }
-        majGLStateChange();
-        m_state.pixelProgram = pp;
-    }
-}
-
-
-void RenderDevice::setPixelProgram(
-    const PixelProgramRef& pp,
-    const GPUProgram::ArgList& args) {
-
-    setPixelProgram(pp);
-    
-    pp->setArgs(this, args);
 }
 
 

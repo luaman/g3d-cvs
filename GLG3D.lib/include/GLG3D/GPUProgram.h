@@ -25,7 +25,7 @@ namespace G3D {
 typedef ReferenceCountedPointer<class GPUProgram> GPUProgramRef;
 
 /**
-  Base class for VertexProgram and PixelProgram
+\deprecated
 
   If you use GPUProgramRef instead of GPUProgram*, the texture memory will be
   garbage collected.
@@ -34,7 +34,7 @@ typedef ReferenceCountedPointer<class GPUProgram> GPUProgramRef;
   debug window (under MSVC) and the programmer can fix the error and reload the
   shader without reloading the program.
 
-  Subclasses of GPUProgram (VertexProgram and PixelProgram) automatically recognize
+  Subclasses of GPUProgram automatically recognize
   the output of NVIDIA's Cg compiler and will load constants from comments of the
   form:
 
@@ -157,8 +157,6 @@ private:
 public:
      /**
      Argument list for a vertex program.
-     See RenderDevice::setVertexProgram
-     and RenderDevice::setPixelProgram.
      */
     class ArgList {
     private:
@@ -221,9 +219,6 @@ protected:
      */
     static GLenum getUnitFromCode(const std::string& code, Extension& extension);
 
-    /**
-        Called by RenderDevice::setVertexProgram() and RenderDevice::setPixelProgram()
-    */
     void setArgs(class RenderDevice*, const ArgList& args);
 
     GPUProgram(const std::string& name, const std::string& filename);

@@ -400,10 +400,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\source\PixelProgram.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\source\Profiler.cpp"
 				>
 			</File>
@@ -497,10 +493,6 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\source\VertexBuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\source\VertexProgram.cpp"
 				>
 			</File>
 			<File
@@ -762,10 +754,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\PixelProgram.h"
-				>
-			</File>
-			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\Profiler.h"
 				>
 			</File>
@@ -855,10 +843,6 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\VertexBuffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\GLG3D.lib\include\GLG3D\VertexProgram.h"
 				>
 			</File>
 			<File

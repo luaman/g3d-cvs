@@ -1253,56 +1253,6 @@ public:
      each primitive group to set other RenderDevice state.     
      */
 	void setShader(const ShaderRef& s);
-
-    /**
-     Automatically enables vertex programs when they are set. 
-     Assumes GLCaps::supports_GL_ARB_vertex_program() is true.
-
-     Don't mix VertexPrograms (old API) with VertexShaders (new API).
-
-     @param vp Set to NULL to use the fixed function pipeline.
-     @deprecated Use G3D::RenderDevice::setShader
-     */
-    void setVertexProgram(const VertexProgramRef& vp);
-
-    /**
-     Sets vertex program arguments for vertex programs outputted by Cg.
-     The names of arguments are read from comments.
-
-     <PRE>
-        ArgList args;
-        args.set("MVP", renderDevice->getModelViewProjection());
-        args.set("height", 3);
-        args.set("viewer", Vector3(1, 2, 3));
-        renderDevice->setVertexProgram(toonShadeVP, args);
-     </PRE>
-
-
-     Don't mix VertexPrograms (old API) with VertexShaders (new API).
-     @param args must include *all* arguments or an assertion will fail
-     @deprecated Use G3D::RenderDevice::setShader
-     */
-    void setVertexProgram(const VertexProgramRef& vp,
-                          const GPUProgram::ArgList& args);
-
-    /**
-     (Automatically enables pixel programs when they are set.) 
-     Assumes GPUProgram() is true.
-     Don't mix PixelPrograms (old API) with PixelShaders (new API).
-     @param pp Set to NULL to use the fixed function pipeline.
-     @deprecated Use G3D::RenderDevice::setShader
-     */
-    void setPixelProgram(const PixelProgramRef& pp);
-
-    /**
-     It is recommended to call RenderDevice::pushState immediately before
-     setting the pixel program, since the arguments can affect texture
-     state that will only be restored with RenderDevice::popState.
-     Don't mix PixelPrograms (old API) with PixelShaders (new API).
-     @deprecated Use RenderDevice::setShader
-     */
-    void setPixelProgram(const PixelProgramRef& pp,
-                         const GPUProgram::ArgList& args);
     
     /**
       Reads a depth buffer value (1 @ far plane, 0 @ near plane) from
@@ -1496,11 +1446,6 @@ private:
         VertexAndPixelShaderRef     vertexAndPixelShader;
 
         ShaderRef                   shader;
-
-        /** @deprecated */
-        VertexProgramRef            vertexProgram;
-        /** @deprecated */
-        PixelProgramRef             pixelProgram;
 
         float                       lineWidth;
         float                       pointSize;
