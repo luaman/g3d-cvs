@@ -20,59 +20,6 @@ void Shader::reload() {
     _vertexAndPixelShader->reload();
 }
 
-ShaderRef Shader::create(
-    ShaderType          type0,
-    const std::string&  value0,
-
-    ShaderType          type1,
-    const std::string&  value1,
-
-    ShaderType          type2,
-    const std::string&  value2) {
-
-    // Sort out the arguments
-
-    std::string pixelShader, geometryShader, vertexShader;
-    bool pixelFromFile    = false;
-    bool geometryFromFile = false;
-    bool vertexFromFile   = false;
-
-    Array<ShaderType> type;
-    type.append(type0, type1, type2);
-
-    Array<std::string> value;
-    value.append(value0, value1, value2);
-
-    for (int i = 0; i < type.size(); ++i) {
-        switch (type[i]) {
-        case VERTEX_STRING:
-        case VERTEX_FILE:
-            vertexFromFile = (type[i] == VERTEX_FILE);
-            vertexShader = value[i];
-            break;
-
-        case GEOMETRY_STRING:
-        case GEOMETRY_FILE:
-            geometryFromFile = (type[i] == GEOMETRY_FILE);
-            geometryShader = value[i];
-            break;
-
-        case PIXEL_STRING:
-        case PIXEL_FILE:
-            pixelFromFile = (type[i] == PIXEL_FILE);
-            pixelShader = value[i];
-            break;
-
-        case SHADER_NONE:
-            ;
-        } // switch
-    } // for
-
-    // TODO
-
-    return NULL;
-}
-
 
 bool Shader::hasArgument(const std::string& argname) const {
     const Set<std::string>& uniformNames = _vertexAndPixelShader->uniformNames;
@@ -623,6 +570,9 @@ VertexAndPixelShader::VertexAndPixelShader
 (const std::string&  vsCode,
  const std::string&  vsFilename,
  bool                vsFromFile,
+ const std::string&  gsCode,
+ const std::string&  gsFilename,
+ bool                gsFromFile,
  const std::string&  psCode,
  const std::string&  psFilename,
  bool                psFromFile,
@@ -644,6 +594,9 @@ VertexAndPixelShader::VertexAndPixelShader
     do {
         repeat = false;
         vertexShader.init(vsFilename, vsCode, vsFromFile, debug, GL_VERTEX_SHADER_ARB, "Vertex Shader", preprocessor, samplerMappings, secondPass);
+        
+        geometryShader.init(gsFilename, gsCode, gsFromFile, debug, GL_GEOMETRY_SHADER_ARB, "Pixel Shader", preprocessor, samplerMappings, secondPass);
+
         pixelShader.init(psFilename, psCode, psFromFile, debug, GL_FRAGMENT_SHADER_ARB, "Pixel Shader", preprocessor, samplerMappings, secondPass);
         
         _vertCompileMessages += vertexShader.messages();
@@ -651,19 +604,29 @@ VertexAndPixelShader::VertexAndPixelShader
             std::string("Compiling ") + vertexShader.shaderType() + " " + vsFilename + NEWLINE +
             vertexShader.messages() + NEWLINE + NEWLINE;
 
-        if (! vertexShader.ok()) {
-            _ok = false;
-        }
+        _geomCompileMessages += geometryShader.messages();
+        _messages += 
+            std::string("Compiling ") + geometryShader.shaderType() + " " + gsFilename + NEWLINE +
+            geometryShader.messages() + NEWLINE + NEWLINE;
 
-        if (! pixelShader.ok()) {
-            _ok = false;
-        }    
         _fragCompileMessages += pixelShader.messages();
         _messages += 
             std::string("Compiling ") + pixelShader.shaderType() + " " + psFilename + NEWLINE +
             pixelShader.messages() + NEWLINE + NEWLINE;
 
         lastTextureUnit = -1;
+
+        if (! vertexShader.ok()) {
+            _ok = false;
+        }
+
+        if (! geometryShader.ok()) {
+            _ok = false;
+        }    
+
+        if (! pixelShader.ok()) {
+            _ok = false;
+        }
 
         if (_ok) {
             // Create GL object
@@ -672,6 +635,10 @@ VertexAndPixelShader::VertexAndPixelShader
             // Attach vertex and pixel shaders
             if (! vertexShader.fixedFunction()) {
                 glAttachObjectARB(_glProgramObject, vertexShader.glShaderObject());
+            }
+
+            if (! geometryShader.fixedFunction()) {
+                glAttachObjectARB(_glProgramObject, geometryShader.glShaderObject());
             }
 
             if (! pixelShader.fixedFunction()) {
@@ -705,6 +672,7 @@ VertexAndPixelShader::VertexAndPixelShader
             // note that the extra uniforms are computed from the original code,
             // not from the code that has the g3d uniforms prepended.
             addUniformsFromCode(vsFromFile ? readWholeFile(vsFilename) : vsCode);
+            addUniformsFromCode(gsFromFile ? readWholeFile(gsFilename) : gsCode);
             addUniformsFromCode(psFromFile ? readWholeFile(psFilename) : psCode);
 
             // Add all uniforms to the name list
@@ -713,7 +681,9 @@ VertexAndPixelShader::VertexAndPixelShader
             }
         }
 
-        if (_ok && (pixelShader.usesG3DIndex() || vertexShader.usesG3DIndex()) && ! secondPass) {
+        if (_ok && (pixelShader.usesG3DIndex() 
+                    || geometryShader.usesG3DIndex()
+                    || vertexShader.usesG3DIndex()) && ! secondPass) {
             // The sampler mappings are needed and have not yet been inserted.  
             // Insert them now and recompile the code.
 
@@ -916,7 +886,9 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
  const std::string& ps,
  PreprocessorStatus s,
  bool               debugErrors) {
-    return new VertexAndPixelShader(vs, "", false, ps, "", false, debugErrors, s);
+    return new VertexAndPixelShader(vs, "", false, 
+                                    "", "", false, 
+                                    ps, "", false, debugErrors, s);
 }
 
 
@@ -933,28 +905,39 @@ VertexAndPixelShaderRef VertexAndPixelShader::fromStrings
 
      (void)gs;
      (void)gsName;
-    return new VertexAndPixelShader(vs, vsName, false, ps, psName, false, debugErrors, s);
+    return new VertexAndPixelShader
+        (vs, vsName, false, 
+         "", "", false,
+         ps, psName, false, debugErrors, s);
 }
 
 
 VertexAndPixelShaderRef VertexAndPixelShader::fromFiles
 (const std::string& vsFilename,
+ const std::string& gsFilename,
  const std::string& psFilename,
  PreprocessorStatus s,
  bool               debugErrors) {
     
-    std::string vs;
-    std::string ps;
+    std::string vs, gs, ps;
 
     if (vsFilename != "") {
         vs = readWholeFile(vsFilename);
+    }
+
+    if (gsFilename != "") {
+        gs = readWholeFile(gsFilename);
     }
     
     if (psFilename != "") {
         ps = readWholeFile(psFilename);
     }
     
-    return new VertexAndPixelShader(vs, vsFilename, vsFilename != "", ps, psFilename, (psFilename != ""), debugErrors, s);
+    return new VertexAndPixelShader
+        (vs, vsFilename, vsFilename != "", 
+         gs, gsFilename, gsFilename != "", 
+         ps, psFilename, psFilename != "", 
+         debugErrors, s);
 }
 
 

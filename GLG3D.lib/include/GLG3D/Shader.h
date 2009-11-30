@@ -37,11 +37,16 @@ enum PreprocessorStatus {
 
 
 /**
-  A compatible vertex and pixel shader.  Used internally by G3D::Shader; see that 
-  class for more information.
+   This is used internally by Shader.
 
-  Only newer graphics cards with recent drivers (e.g. GeForceFX cards with driver version 57 or greater)
-  support this API.  Use the VertexAndPixelShader::fullySupported method to determine at run-time
+   \deprecated
+
+  A compatible vertex, geometry, and pixel shader.  Used internally by
+  G3D::Shader; see that class for more information.
+
+  Only newer graphics cards with recent drivers (e.g. GeForceFX cards
+  with driver version 57 or greater) support this API.  Use the
+  VertexAndPixelShader::fullySupported method to determine at run-time
   if your graphics card is compatible.
 
   For purposes of shading, a "pixel" is technically a "fragment" in OpenGL terminology.
@@ -74,33 +79,31 @@ public:
 
     friend class Shader;
 
-/** Used by Shader */
-class UniformDeclaration {
-public:
-    /** If true, this variable is declared in the shader but is not used in its body. */
-    bool                dummy;
-    
-    /** Register location if a sampler. */
-    int                 location;
-    
-    /** Name of the variable.  May include [] and . (e.g.
-        "foo[1].normal"). As of 12/18/07, NVIDIA drivers process this incorrectly
-        and only return "foo" in the example case. */
-    std::string         name;
-    
-    /** OpenGL type of the variable (e.g. GL_INT) */
-    GLenum              type;
-    
-    /** Unknown... appears to always be 1 */
-    int                 size;
-    
-    /**
-       Index of the texture unit in which this value
-       is stored.  -1 for uniforms that are not textures. */  
-    int                 textureUnit;
-};
-
-
+    /** Used by Shader */
+    class UniformDeclaration {
+    public:
+        /** If true, this variable is declared in the shader but is not used in its body. */
+        bool                dummy;
+        
+        /** Register location if a sampler. */
+        int                 location;
+        
+        /** Name of the variable.  May include [] and . (e.g.
+            "foo[1].normal"). As of 12/18/07, NVIDIA drivers process this incorrectly
+            and only return "foo" in the example case. */
+        std::string         name;
+        
+        /** OpenGL type of the variable (e.g. GL_INT) */
+        GLenum              type;
+        
+        /** Unknown... appears to always be 1 */
+        int                 size;
+        
+        /**
+           Index of the texture unit in which this value
+           is stored.  -1 for uniforms that are not textures. */  
+        int                 textureUnit;
+    };
 
 protected:
 
@@ -175,7 +178,7 @@ protected:
          */
         bool replaceG3DIndex(std::string& code, std::string& defineString, 
                              const Table<std::string, int>& samplerMappings, bool secondPass);
-
+        
         bool            m_usesG3DIndex;
 
     public:
@@ -248,8 +251,9 @@ protected:
     bool                    _ok;
     std::string             _messages;
 
-    std::string             _fragCompileMessages;
     std::string             _vertCompileMessages;
+    std::string             _geomCompileMessages;
+    std::string             _fragCompileMessages;
     std::string             _linkMessages;
 
     int                     lastTextureUnit;
@@ -285,6 +289,9 @@ protected:
     (const std::string&  vsCode,
      const std::string&  vsFilename,
      bool                vsFromFile,
+     const std::string&  gsCode,
+     const std::string&  gsFilename,
+     bool                gsFromFile,
      const std::string&  psCode,
      const std::string&  psFilename,
      bool                psFromFile,
@@ -347,6 +354,7 @@ public:
     */
     static VertexAndPixelShaderRef fromFiles
     (const std::string& vertexShader,
+     const std::string& geometryShader,
      const std::string& pixelShader,
      PreprocessorStatus u,
      bool               debugErrors);
@@ -701,55 +709,20 @@ public:
     /** Returns true if this shader is declared to accept the specified argument. */
     bool hasArgument(const std::string& argname) const;
 
-    /** Describe the arguments to Shader::create */
-    enum ShaderType {
-        SHADER_NONE,
-        VERTEX_STRING, 
-        VERTEX_FILE,
-        GEOMETRY_STRING, 
-        GEOMETRY_FILE,
-        PIXEL_STRING, 
-        PIXEL_FILE};
-
-    /**
-      This routine is a placeholder for 7.01 geometry shader API.  It is not implemented.
-
-      @beta
-
-     Create a new GLSL shader.  Arguments are in pairs. The first argument in each pair is an ArgumentType
-     specifying the type of shader (vertex, geometry, or pixel) and whether it comes from a string or a file.
-     The second argument in each pair is the filename or shader source itself.
-
-     Example:
-     <pre>
-     std::string vs = STR(
-         void main() {
-            gl_Position = ftransform();
-         });
-
-     ShaderRef myEffect = Shader::create(
-        Shader::VERTEX_STRING, vs, 
-        Shader::GEOMETRY_FILE, "effect.geom.glsl",
-        Shader::PIXEL_FILE, "effect.pixel.glsl");
-
-     </pre>
-     */
-    static ShaderRef create(
-        ShaderType          type0,
-        const std::string&  value0,
-
-        ShaderType          type1 = SHADER_NONE,
-        const std::string&  value1 = "",
-
-        ShaderType          type2 = SHADER_NONE,
-        const std::string&  value2 = "");
-
         
     inline static ShaderRef fromFiles(
         const std::string& vertexFile, 
         const std::string& pixelFile,
         PreprocessorStatus s = PREPROCESSOR_ENABLED) {
-        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, pixelFile, s, DEBUG_SHADER), s);
+        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, "", pixelFile, s, DEBUG_SHADER), s);
+    }
+
+    inline static ShaderRef fromFiles(
+        const std::string& vertexFile, 
+        const std::string& pixelFile,
+        const std::string& geomFile,
+        PreprocessorStatus s = PREPROCESSOR_ENABLED) {
+        return new Shader(VertexAndPixelShader::fromFiles(vertexFile, geomFile, pixelFile, s, DEBUG_SHADER), s);
     }
 
     inline static ShaderRef fromStrings(
