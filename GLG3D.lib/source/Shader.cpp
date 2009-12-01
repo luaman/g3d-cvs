@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2004-04-24
- @edited  2007-12-16
+ @edited  2009-11-31
  */
 
 #include "G3D/fileutils.h"
@@ -13,6 +13,7 @@
 #include "GLG3D/GLCaps.h"
 #include "GLG3D/getOpenGLState.h"
 #include "GLG3D/RenderDevice.h"
+#include "G3D/TextInput.h"
 
 namespace G3D {
 

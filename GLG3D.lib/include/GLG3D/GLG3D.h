@@ -59,7 +59,6 @@
 #include "GLG3D/Sky.h"
 #include "GLG3D/UserInput.h"
 #include "GLG3D/FirstPersonManipulator.h"
-#include "GLG3D/VertexProgram.h"
 #include "GLG3D/Draw.h"
 #include "GLG3D/tesselate.h"
 #include "GLG3D/GApp.h"

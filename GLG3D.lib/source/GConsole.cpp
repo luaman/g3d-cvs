@@ -9,6 +9,7 @@
 #include "G3D/debugPrintf.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/Draw.h"
+#include "G3D/TextInput.h"
 
 namespace G3D {
 

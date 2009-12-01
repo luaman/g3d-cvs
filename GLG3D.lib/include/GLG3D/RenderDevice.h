@@ -8,7 +8,7 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-05-29
-  @edited  2009-05-20
+  @edited  2009-11-31
 
   Copyright 2001-2009, Morgan McGuire
 */
@@ -24,8 +24,6 @@
 #include "G3D/MeshAlg.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/Milestone.h"
-#include "GLG3D/VertexProgram.h"
-#include "GLG3D/PixelProgram.h"
 #include "GLG3D/Shader.h"
 #include "GLG3D/VertexBuffer.h"
 #include "GLG3D/OSWindow.h"

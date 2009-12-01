@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-11-02
- @edited  2009-01-15
+ @edited  2009-11-31
  */
 
 #include "GLG3D/GFont.h"
@@ -17,6 +17,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/WeakCache.h"
+#include "G3D/TextInput.h"
 #include "G3D/Log.h"
 
 namespace G3D {

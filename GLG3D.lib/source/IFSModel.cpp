@@ -6,7 +6,7 @@
   @cite Original IFS code by Nate Robbins
 
   @created 2003-11-12
-  @edited  2008-09-15
+  @edited  2009-11-31
  */ 
 
 
@@ -17,6 +17,7 @@
 #include "G3D/fileutils.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/TextInput.h"
 
 namespace G3D {
 

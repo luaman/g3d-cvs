@@ -536,7 +536,8 @@ class Shader;
 typedef ReferenceCountedPointer<Shader> ShaderRef;
 
 /**
-  @brief A pair of functions written in GLSL that are invoked by the GPU per vertex and per pixel.
+  @brief A set of functions written in GLSL that are invoked by the
+  GPU per vertex, per geometric primitive, and per pixel.
 
   Abstraction of the programmable hardware pipeline.  
   Use with G3D::RenderDevice::setShader.
