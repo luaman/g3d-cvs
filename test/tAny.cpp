@@ -2,9 +2,10 @@
  @file tAny.cpp
   
  @author Shawn Yarbrough
-  
+ @author Morgan McGuire  
+
  @created 2009-11-03
- @edited  2009-11-03
+ @edited  2009-12-06
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -163,6 +164,45 @@ static void testCast() {
     }
 }
 
+
+static void testPlaceholder() {
+    Any t(Any::TABLE);
+    
+    debugAssert(! t.containsKey("hello"));
+
+    // Verify exceptions
+    try {
+        Any t(Any::TABLE);
+        Any a = t["hello"]; 
+        debugAssertM(false, "Placeholder failed to throw KeyNotFound exception.");
+    } catch (const Any::KeyNotFound& e) {
+        // Supposed to be thrown
+    } catch (...) {
+        debugAssertM(false, "Threw wrong exception.");
+    }
+
+    try {
+        Any t(Any::TABLE);
+        t["hello"].number();
+        debugAssert(false);
+    } catch (const Any::KeyNotFound& e) { }
+
+    try {
+        Any t(Any::TABLE);
+        Any& a = t["hello"];
+    } catch (const Any::KeyNotFound& e) { 
+        debugAssert(false);
+    }
+
+    try {
+        Any t(Any::TABLE);
+        t["hello"] = 3;
+    } catch (const Any::KeyNotFound& e) { 
+        debugAssert(false);
+    }
+}
+
+
 static void testParse() {
     const std::string& src =  
     "{\n\
@@ -196,6 +236,7 @@ void testAny() {
     testParse();
     testConstruct();
     testCast();
+    testPlaceholder();
 
     std::stringstream errss;
 
@@ -221,11 +262,11 @@ void testAny() {
         any = Any();
         any2 = Any();
 
+    } catch( const Any::KeyNotFound& err ) {
+        errss << "failed: Any::KeyNotFound key=" << err.key.c_str();
     } catch( const ParseError& err ) {
         (void)err;
         errss << "failed: ParseError key=" ;
-    } catch( const Any::KeyNotFound& err ) {
-        errss << "failed: Any::KeyNotFound key=" << err.key.c_str();
     } catch( const Any::IndexOutOfBounds& err ) {
         errss << "failed: Any::IndexOutOfBounds index=" << err.index << " size=" << err.size;
     } catch( const std::exception& err ) {

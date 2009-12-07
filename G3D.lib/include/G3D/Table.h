@@ -709,8 +709,14 @@ public:
    }
 
 
-   /** Called by getCreate() and set() */  
-   Entry& getCreateEntry(const Key& key) {
+
+    /** Called by getCreate() and set() 
+        
+        \param created Set to true if the entry was created by this method.
+    */  
+    Entry& getCreateEntry(const Key& key, bool& created) {
+        created = false;
+
         if (m_numBuckets == 0) {
             resize(10);
         }
@@ -725,6 +731,7 @@ public:
         if (n == NULL) {
             m_bucket[b] = Node::create(key, code, NULL, m_memoryManager);
             ++m_size;
+            created = true;
             return m_bucket[b]->entry;
         }
 
@@ -775,13 +782,26 @@ public:
         b = code % m_numBuckets;
         m_bucket[b] = Node::create(key, code, m_bucket[b], m_memoryManager);
         ++m_size;
+        created = true;
         return m_bucket[b]->entry;
    }
 
-   /** Returns the current value that key maps to, creating it if necessary.*/
-   Value& getCreate(const Key& key) {
-       return getCreateEntry(key).value;
-   }
+    Entry& getCreateEntry(const Key& key) {
+        bool ignore;
+        return getCreateEntry(key, ignore);
+    }
+    
+
+    /** Returns the current value that key maps to, creating it if necessary.*/
+    Value& getCreate(const Key& key) {
+        return getCreateEntry(key).value;
+    }
+
+    /** \param created True if the element was created. */
+    Value& getCreate(const Key& key, bool& created) {
+        return getCreateEntry(key, created).value;
+    }
+
 
    /**
     Returns true if key is in the table.

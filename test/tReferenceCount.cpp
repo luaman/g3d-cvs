@@ -117,11 +117,11 @@ public:
     static Array<std::string> sequence;
     const char* s;
     Reftest(const char* s) : s(s){
-        debugPrintf("alloc 0x%x (%s)\n", this, s);
+        debugPrintf("alloc 0x%x (%s)\n", (size_t*)this, s);
         sequence.append(format("%s", s));
     }
     ~Reftest() {
-        debugPrintf("free 0x%x (~%s)\n", this, s);
+        debugPrintf("free 0x%x (~%s)\n", (size_t*)this, s);
         sequence.append(format("~%s", s));
     }
 };

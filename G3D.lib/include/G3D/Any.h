@@ -183,7 +183,6 @@ private:
         inline SimpleValue(double x) : n(x) {}
     };
  
-
     class Data {
     public:
         /** ARRAY, TABLE, or STRING value only.  NULL otherwise. */
@@ -217,10 +216,10 @@ private:
 
     private:
 
-        // Called by create()
+        /** Called by create() */
         inline Data(Type t) : type(t), referenceCount(1) {}
 
-        // Called by destroy;
+        /** Called by destroy */
         ~Data();
 
     public:
@@ -229,31 +228,52 @@ private:
         static Data* create(const Data* d);
         static Data* create(Type t);
 
-        /** Free d, invoking its destructor and freeing the memory for the value.*/
+        /** Free d, invoking its destructor and freeing the memory for
+            the value. */
         static void destroy(Data* d);
 
     };
+
+    /** If not empty, this Any was created from operator[] on a table
+        and perhaps was not intended to exist.  The name is needed to
+        format the error message if it is read from before it is
+        written to.
+
+        The source of a placeholder object is that of the parent
+        object until it is written.
+    */
+    std::string         m_placeholderName;
 
     Type                m_type;
     SimpleValue         m_simpleValue;
     mutable Data*       m_data;
 
+    /** Called before every read operation to ensure that this object
+        is not a placeholder.  */
+    void beforeRead() const;
+
+    /** Called before every write operation to wipe the placeholder
+        status. */
+    void beforeWrite();
+
     /** Decrements the reference count (if there is one).  If the
-    reference count is zero after decrement, calls delete on @a
-    m_data and sets it to NULL.
+    reference count is zero after decrement, calls delete on @a m_data
+    and sets it to NULL.
     */
     void dropReference();
 
     /** Allocate the Data object if it does not exist */
     void ensureData();
 
-    /** If m_data is not NULL, ensure that it has a unique reference and
-        contains a valid m_data.  This has a race condition if two
-        threads are both trying to modify the same Any simultaneously.*/    
+    /** If m_data is not NULL, ensure that it has a unique reference
+        and contains a valid m_data.  This has a race condition if two
+        threads are both trying to modify the same Any
+        simultaneously.*/    
     void ensureMutable();
 
-    /** Read an unnamed a TABLE or ARRAY.  Token should be the open paren token;
-        it is the next token after the close on return. Called from deserialize().*/
+    /** Read an unnamed a TABLE or ARRAY.  Token should be the open
+        paren token; it is the next token after the close on
+        return. Called from deserialize().*/
     void deserializeBody(TextInput& ti, Token& token);
 
     void deserialize(TextInput& ti, Token& token);
@@ -261,9 +281,18 @@ private:
     /** Read the name of a named Array or Table. */
     static void deserializeName(TextInput& ti, Token& token, std::string& name);
     
-    /** Read until a comma is consumed or a close paren is hit, and return that token.  Considers
-     the passed in token to be the first value read. */
+    /** Read until a comma is consumed or a close paren is hit, and
+     return that token.  Considers the passed in token to be the first
+     value read. */
     static void readUntilCommaOrClose(TextInput& ti, Token& token);
+
+    /** Construct an Any that is a proxy for a table fetch from \a data.
+     This proxy can be copied exactly once on return from operator[].*/
+    Any(const std::string& key, Data* data);
+
+    inline bool isPlaceholder() const {
+        return ! m_placeholderName.empty();
+    }
 
 public:
 
@@ -274,11 +303,9 @@ public:
     };
 
     /** Thrown by operator[] when a key is not present in a const table. */
-    class KeyNotFound : public Exception {
+    class KeyNotFound : public ParseError {
     public:
         std::string key;
-        inline KeyNotFound() {}
-        inline KeyNotFound(const std::string& k) : key(k) {}
     };
 
     /** Thrown by operator[] when an array index is not present. */
@@ -357,7 +384,9 @@ public:
 
     Type type() const;
 
-    /** Same as deserialize or load, but operates on a string instead of a stream or file.
+    /** Same as deserialize or load, but operates on a string instead
+        of a stream or file.
+
       \sa deserialize, load
       */
     void parse(const std::string& src);
@@ -379,9 +408,10 @@ public:
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
 
-    /** Only legal for ARRAY or TABLE. 
-        The name must be a legal C++ variable name. It can include scope operators "::", "->", and ".", and 
-        those may have spaces around them.  It may not contain parentheses.
+    /** Only legal for ARRAY or TABLE.  The name must be a legal C++
+        variable name. It can include scope operators "::", "->", and
+        ".", and those may have spaces around them.  It may not
+        contain parentheses.
     */
     void setName(const std::string& n);
 
@@ -403,12 +433,47 @@ public:
     /** Directly exposes the underlying data structure for table.*/
     const Table<std::string, Any>& table() const;
 
-    /** For a table, returns the element for key x. Throws KeyNotFound exception if the element does not exist. */ 
+    /** For a table, returns the element for key x. Throws KeyNotFound
+        exception if the element does not exist. */ 
     const Any& operator[](const std::string& x) const;
-    // Needed to prevent the operator[](int) overload from catching string litterals
-    const Any& operator[](const char* x) const;
+
+    // Needed to prevent the operator[](int) overload from catching
+    // string literals
+    inline const Any& operator[](const char* x) const {
+        return operator[](std::string(x));
+    }
+
+    /** 
+        Semantically fetch an element from a table.  This can be used as:
+
+        <pre>
+        a["key"] = value;
+        </pre>
+        
+        or
+
+        <pre>
+        value = a["key"];
+        </pre>
+
+        In order to cause elements to be correctly created in the
+        first case while still providing "key not found" errors in the
+        second case, the Any returned is a special object that delays
+        the actual fetch until the following assignment or method
+        call.  This means that in the event of an error, the exception
+        may be thrown from a line other than the actual fetch.  Use
+        the Any::get() or Any::operator[]() const methods to avoid
+        this behavior and ensure error-checking at fetch time.
+     */
+    Any& operator[](const std::string& x);
+
+    /** \copydoc Any::operator[](const std::string&) */
+    inline Any& operator[](const char* x) {
+        return operator[](std::string(x));
+    }
     
-    /** For a table, returns the element for key \a x and \a defaultVal if it does not exist. */
+    /** For a table, returns the element for key \a x and \a
+        defaultVal if it does not exist. */
     const Any& get(const std::string& x, const Any& defaultVal) const;
 
     /** Returns true if this key is in the TABLE.  Illegal to call on an object that is not a TABLE. */
