@@ -628,6 +628,10 @@ public:
     both the bytesformat and the desiredformat.
 
     3D Textures map not use mip-maps.
+
+     Note: OpenGL stores values at texel centers.  Thus element at integer position (x, y) in the input "image" is stored at
+     texture coordinate ((x + 0.5) / width, (x + 0.5) / height).
+
     */
     static Texture::Ref fromMemory(
         const std::string&                  name,

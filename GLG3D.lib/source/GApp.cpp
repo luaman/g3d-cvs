@@ -175,10 +175,22 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     }
 
     if (m_useFilm) {
-        const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
-        m_film = Film::create(colorFormat);
-        m_frameBuffer = FrameBuffer::create("GApp::m_frameBuffer");
-        resize(renderDevice->width(), renderDevice->height());
+        if (! GLCaps::supports_GL_ARB_shading_language_100() || ! GLCaps::supports_GL_ARB_texture_non_power_of_two()) {
+            // This GPU can't support the film class
+            *const_cast<bool*>(&m_useFilm) = false;
+            logPrintf("Warning: Disabled GApp::Settings::film.enabled because it could not be supported on this GPU.");
+        } else {
+            const ImageFormat* colorFormat = GLCaps::firstSupportedTexture(m_settings.film.preferredColorFormats);
+            if (colorFormat == NULL) {
+                // This GPU can't support the film class
+                *const_cast<bool*>(&m_useFilm) = false;
+                logPrintf("Warning: Disabled GApp::Settings::film.enabled because none of the provided color formats could be supported on this GPU.");
+            } else {
+                m_film = Film::create(colorFormat);
+                m_frameBuffer = FrameBuffer::create("GApp::m_frameBuffer");
+                resize(renderDevice->width(), renderDevice->height());
+            }
+        }
     }
 
     defaultController->setMouseMode(FirstPersonManipulator::MOUSE_DIRECT_RIGHT_BUTTON);

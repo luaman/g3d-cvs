@@ -3278,19 +3278,35 @@ static void var(TextOutput& t, const std::string& name, const int val) {
 void RenderDevice::describeSystem(
     TextOutput& t) {
 
+    debugAssertGLOk();
     t.writeSymbols("GPU", "{");
     t.writeNewline();
     t.pushIndent();
         var(t, "Chipset", GLCaps::renderer());
+    debugAssertGLOk();
         var(t, "Vendor", GLCaps::vendor());
+    debugAssertGLOk();
         var(t, "Driver", GLCaps::driverVersion());
+    debugAssertGLOk();
         var(t, "OpenGL version", GLCaps::glVersion());
+    debugAssertGLOk();
         var(t, "Textures", GLCaps::numTextures());
+    debugAssertGLOk();
         var(t, "Texture coordinates", GLCaps::numTextureCoords());
+    debugAssertGLOk();
         var(t, "Texture units", GLCaps::numTextureUnits());
+    debugAssertGLOk();
         var(t, "GL_MAX_TEXTURE_SIZE", glGetInteger(GL_MAX_TEXTURE_SIZE));
+    debugAssertGLOk();
         var(t, "GL_MAX_CUBE_MAP_TEXTURE_SIZE", glGetInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT));
-        var(t, "GL_MAX_COLOR_ATTACHMENTS_EXT", glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT));
+        if (GLCaps::supports_GL_EXT_framebuffer_object()) {
+            debugAssertGLOk();
+            var(t, "GL_MAX_COLOR_ATTACHMENTS_EXT", glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT));
+            debugAssertGLOk();
+        } else {
+            var(t, "GL_MAX_COLOR_ATTACHMENTS_EXT", 0);
+        }
+    debugAssertGLOk();
     t.popIndent();
     t.writeSymbols("}");
     t.writeNewline();
@@ -3334,6 +3350,7 @@ void RenderDevice::describeSystem(
     t.writeSymbols("}");
     t.writeNewline();
     t.writeNewline();
+    debugAssertGLOk();
 }
 
 } // namespace
