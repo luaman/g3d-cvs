@@ -177,6 +177,7 @@ static void testPlaceholder() {
         debugAssertM(false, "Placeholder failed to throw KeyNotFound exception.");
     } catch (const Any::KeyNotFound& e) {
         // Supposed to be thrown
+        (void)e;
     } catch (...) {
         debugAssertM(false, "Threw wrong exception.");
     }
@@ -185,13 +186,15 @@ static void testPlaceholder() {
         Any t(Any::TABLE);
         t["hello"].number();
         debugAssert(false);
-    } catch (const Any::KeyNotFound& e) { }
+    } catch (const Any::KeyNotFound& e) {
+    (void)e;}
 
     try {
         Any t(Any::TABLE);
         Any& a = t["hello"];
     } catch (const Any::KeyNotFound& e) { 
         debugAssert(false);
+        (void)e;
     }
 
     try {
@@ -199,6 +202,7 @@ static void testPlaceholder() {
         t["hello"] = 3;
     } catch (const Any::KeyNotFound& e) { 
         debugAssert(false);
+        (void)e;
     }
 }
 

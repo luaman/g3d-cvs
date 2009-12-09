@@ -4,6 +4,8 @@
 @maintainer Morgan McGuire
 @cite       Written by Corey Taylor & Morgan McGuire
 @cite       Special thanks to Max McGuire of Ironlore
+\cite http://sites.google.com/site/opengltutorialsbyaks/introduction-to-opengl-3-2---tutorial-01
+
 @created 	  2004-05-21
 @edited  	  2009-04-05
 
@@ -50,6 +52,13 @@ is only aquired when Win32Window is in the foreground.
 */
 
 namespace G3D {
+
+// OpenGL version
+static int major = 0;
+static int minor = 0;
+
+/** Our own copy of the function pointer; we need to load this at an awkward time, so it is stashed in a global. */
+static PFNWGLCREATECONTEXTATTRIBSARBPROC g3d_wglCreateContextAttribsARB;
 
 // Deals with unicode/MBCS/char issues
 static LPCTSTR toTCHAR(const std::string& str) {
@@ -409,8 +418,39 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
         alwaysAssertM(false, "[1] Unsupported video mode");
     }
 
+    HGLRC shareContext = 0;
+    if (! creatingShareWindow && (shareWindow().get() != NULL)) {
+        // Share resources with the shareWindow window.  Note that this
+        // only occurs if there is a shareWindow, which may not be the 
+        // case, depending on m_settings.
+        shareContext = shareWindow().get()->m_glContext;
+    }
+
     // Create the OpenGL context
-    m_glContext = wglCreateContext(m_hDC);
+    const int attribList[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, major,
+        WGL_CONTEXT_MINOR_VERSION_ARB, minor, 
+        
+        // Request backwards compatibility to pre-3.0 OpenGL, as recommended by NVIDIA:
+        // http://developer.nvidia.com/object/opengl_3_driver.html
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, 
+        0
+    };
+
+    if (g3d_wglCreateContextAttribsARB != NULL) {
+        m_glContext = g3d_wglCreateContextAttribsARB(m_hDC, shareContext, attribList);
+    } else {
+        logPrintf("Warning: using wglCreateContext instead of wglCreateContextAttribsARB; OpenGL "
+            "compatibility profile will not be available.\n");
+        // Old method
+        m_glContext = wglCreateContext(m_hDC);
+        if (! creatingShareWindow && (shareWindow().get() != NULL)) {
+            // Share resources with the shareWindow window.  Note that this
+            // only occurs if there is a shareWindow, which may not be the 
+            // case, depending on m_settings.
+            wglShareLists(shareWindow()->m_glContext, m_glContext);
+        }
+    }
     alwaysAssertM(m_glContext != NULL, "Failed to create OpenGL context.");
 
     // Initialize mouse buttons to the unpressed state
@@ -421,13 +461,6 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
     // Clear all keyboard buttons to unpressed
     for (int i = 0; i < 256; ++i) {
         m_keyboardButtons[i] = false;
-    }
-
-    if (! creatingShareWindow && (shareWindow().get() != NULL)) {
-        // Share resources with the shareWindow window.  Note that this
-        // only occurs if there is a shareWindow, which may not be the 
-        // case, depending on m_settings.
-        wglShareLists(shareWindow()->m_glContext, m_glContext);
     }
 
     this->makeCurrent();
@@ -800,6 +833,24 @@ void Win32Window::setInputCapture(bool c) {
 }
 
 
+static void getGLVersion(int& major, int& minor) {
+    // for all versions
+    char* ver = (char*)glGetString(GL_VERSION); // e.g., ver = "3.2.0"
+
+    major = ver[0] - '0';
+    if (major >= 3) {
+        // for GL 3.x
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+    } else {
+        minor = ver[2] - '0';
+    }
+
+    // GLSL
+    // ver = (char*)glGetString(GL_SHADING_LANGUAGE_VERSION); // ver = "1.50 NVIDIA via Cg compiler"
+}
+
+
 void Win32Window::initWGL() {
     // This function need only be called once
     static bool wglInitialized = false;
@@ -889,6 +940,13 @@ void Win32Window::initWGL() {
 
     PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB =
         (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+
+
+    // Load the create pointer while we have a valid context
+    g3d_wglCreateContextAttribsARB = 
+        (PFNWGLCREATECONTEXTATTRIBSARBPROC) wglGetProcAddress("wglCreateContextAttribsARB");
+
+    getGLVersion(major, minor);
 
     if (wglGetExtensionsStringARB != NULL) {
 
