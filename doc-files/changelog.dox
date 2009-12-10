@@ -17,6 +17,7 @@
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
      <li> G3D::Any replaces G3D::AnyVal
      <li> Initialized Win32Window using the OpenGL compatibility profile
+     <li> Added ImageFormat::RGB9E10F() and ImageFormat::R11G11B10F() formats
      <li> G3D::glClipToBox, glDisableAllClipping
      <li> G3D::Profiler
      <li> G3D::Shader now supports triangle geometry shaders

@@ -128,8 +128,8 @@ public:
                NULL (or an empty list) indicates that no depth buffer should be allocated. */
             Array<const ImageFormat*>   preferredDepthFormats;
 
-            inline FilmSettings() : enabled(true), dimensions(-1, -1) {
-                preferredColorFormats.append(ImageFormat::RGB16F(), ImageFormat::RGBA8());
+            inline FilmSettings() : enabled(true), dimensions(-1, -1) {     
+                preferredColorFormats.append(ImageFormat::R11G11B10F(), ImageFormat::RGB16F(), ImageFormat::RGBA8());
                 preferredDepthFormats.append(ImageFormat::DEPTH24(), ImageFormat::DEPTH16(), ImageFormat::DEPTH32());
             }
         };

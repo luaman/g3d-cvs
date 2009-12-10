@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  
  @created 2003-05-23
- @edited  2009-04-24
+ @edited  2009-12-10
  */
 
 #include "GLG3D/glheaders.h"
@@ -126,6 +126,8 @@ std::string ImageFormat::name() const {
         "RGB16",
         "RGB16F",
         "RGB32F",
+        "R11G11B10F",
+        "RGB9E10F",
 
         "ARGB8",
         "BGR8",
@@ -242,6 +244,12 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     case ImageFormat::CODE_RGB32F:
         return ImageFormat::RGB32F();
         break;
+    case ImageFormat::CODE_R11G11B10F:
+        return ImageFormat::R11G11B10F();
+        break;        
+    case ImageFormat::CODE_RGB9E10F:
+        return ImageFormat::RGB9E10F();
+        break;        
 
     case ImageFormat::CODE_ARGB8:
         return NULL;
@@ -263,16 +271,28 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
         break;
 
     case ImageFormat::CODE_BAYER_RGGB8:
+        // TODO
     case ImageFormat::CODE_BAYER_GRBG8:
+        // TODO
     case ImageFormat::CODE_BAYER_GBRG8:
+        // TODO
     case ImageFormat::CODE_BAYER_BGGR8:
+        // TODO
     case ImageFormat::CODE_BAYER_RGGB32F:
+        // TODO
     case ImageFormat::CODE_BAYER_GRBG32F:
+        // TODO
     case ImageFormat::CODE_BAYER_GBRG32F:
+        // TODO
     case ImageFormat::CODE_BAYER_BGGR32F:
+        // TODO
 
     case ImageFormat::CODE_HSV8:
+        // TODO
     case ImageFormat::CODE_HSV32F:
+        // TODO
+        return NULL;
+        break;
 
     case ImageFormat::CODE_RGB_DXT1:
         return ImageFormat::RGB_DXT1();
@@ -404,6 +424,12 @@ DEFINE_TEXTUREFORMAT_METHOD(RGBA16,     4, UNCOMP_FORMAT,   GL_RGBA16,          
 DEFINE_TEXTUREFORMAT_METHOD(RGBA16F,    4, UNCOMP_FORMAT,   GL_RGBA16F_ARB,                     GL_RGBA,    0, 16, 16, 16, 16, 0, 0, 16*4, 16*4,    GL_FLOAT, CLEAR_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_RGB16F, ImageFormat::COLOR_SPACE_RGB);
 
 DEFINE_TEXTUREFORMAT_METHOD(RGBA32F,    4, UNCOMP_FORMAT,   GL_RGBA32F_ARB,                     GL_RGBA,    0, 32, 32, 32, 32, 0, 0, 32*4, 32*4,    GL_FLOAT, CLEAR_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_RGBA32F, ImageFormat::COLOR_SPACE_RGB);
+
+// Unsigned
+DEFINE_TEXTUREFORMAT_METHOD(R11G11B10F, 3, UNCOMP_FORMAT,   GL_R11F_G11F_B10F_EXT,              GL_RGB,     0,  0, 11, 11, 10, 0, 0,   32,   32,    GL_FLOAT, OPAQUE_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_R11G11B10F, ImageFormat::COLOR_SPACE_RGB);
+
+// Unsigned
+DEFINE_TEXTUREFORMAT_METHOD(RGB9E10F,   3, UNCOMP_FORMAT,   GL_RGB9_E5_EXT,                     GL_RGB,     0,  0, 14, 14, 14, 0, 0,   32,   32,    GL_FLOAT, OPAQUE_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_RGB9E10F, ImageFormat::COLOR_SPACE_RGB);
 
 DEFINE_TEXTUREFORMAT_METHOD(RGB_DXT1,   3, COMP_FORMAT,     GL_COMPRESSED_RGB_S3TC_DXT1_EXT,    GL_RGB,     0, 0, 0, 0, 0, 0, 0, 64, 64,    GL_UNSIGNED_BYTE, OPAQUE_FORMAT, INT_FORMAT, ImageFormat::CODE_RGB_DXT1, ImageFormat::COLOR_SPACE_RGB);
 

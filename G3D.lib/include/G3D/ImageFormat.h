@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-05-23
-  @edited  2008-07-17
+  @edited  2009-12-10
 */
 
 #ifndef GLG3D_ImageFormat_H
@@ -51,6 +51,8 @@ public:
         CODE_RGB16,
         CODE_RGB16F,
         CODE_RGB32F,
+        CODE_R11G11B10F,
+        CODE_RGB9E10F,
 
         CODE_ARGB8,
         CODE_BGR8,
@@ -258,6 +260,10 @@ public:
     static const ImageFormat* RGBA16F();
     
     static const ImageFormat* RGBA32F();
+
+    static const ImageFormat* R11G11B10F();
+
+    static const ImageFormat* RGB9E10F();    
     
     static const ImageFormat* RGB_DXT1();
 
