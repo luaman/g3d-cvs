@@ -20,7 +20,7 @@ namespace G3D {
    exponent of 1 (=infinity).*/   
 static bool mirrorReflectiveFF(const SuperBSDF::Ref& bsdf) { 
     return 
-        (bsdf->specular().factors() == Component4::CONSTANT) ||
+        (bsdf->specular().factors() == Component4::CONSTANT) &&
         (SuperBSDF::packedSpecularMirror() == bsdf->specular().constant().a);
 }
 
@@ -663,6 +663,7 @@ bool SuperSurface::renderPS14NonShadowedOpaqueTerms(
             // First configure the reflection map.  There must be one or we wouldn't
             // have taken this branch.
 
+            alwaysAssertM(lighting->environmentMap.notNull(), "Null Lighting::environmentMap");
             if (GLCaps::supports_GL_ARB_texture_cube_map() &&
                 (lighting->environmentMap->dimension() == Texture::DIM_CUBE_MAP)) {
                 rd->configureReflectionMap(nextUnit, lighting->environmentMap);
