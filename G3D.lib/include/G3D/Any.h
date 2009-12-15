@@ -1,11 +1,11 @@
 /**
  @file Any.h
   
- @author Morgan McGuire
- @author Shawn Yarbrough
+ @author Morgan McGuire, Shawn Yarbrough, and Corey Taylor
+ @maintainer Morgan McGuire
   
  @created 2006-06-11
- @edited  2009-11-16
+ @edited  2009-12-16
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -32,6 +32,8 @@ namespace G3D {
 class TextOutput;
 
 /** 
+\brief Easy loading and saving of human-readable configuration files.
+
 Encodes typed, structured data and can serialize it to a human
 readable format that is very similar to the Python language's data
 syntax.  Well-suited for quickly creating human-readable file formats,
@@ -408,12 +410,26 @@ public:
     /** If this is named ARRAY or TABLE, returns the name. */
     const std::string& name() const;
 
-    /** Only legal for ARRAY or TABLE.  The name must be a legal C++
-        variable name. It can include scope operators "::", "->", and
-        ".", and those may have spaces around them.  It may not
+    /** \brief Set the name used when serializing an ARRAY or TABLE.
+    
+       Only legal for ARRAY or TABLE.  The \a name must begin with a letter
+       and contain only letters, numbers, underscores and scope operators.
+
+        <pre>
+        a2z
+        hello
+        Foo::bar
+        color.red
+        this->that
+        __x
+        </pre>
+        
+                
+        The scope operators "::", "->", and
+        ".", may have spaces around them.  The name may not
         contain parentheses.
     */
-    void setName(const std::string& n);
+    void setName(const std::string& name);
 
     /** Number of elements if this is an ARRAY or TABLE */
     int size() const;
@@ -425,62 +441,64 @@ public:
 
     /** Directly exposes the underlying data structure for an ARRAY. */
     const Array<Any>& array() const;
-    void append(const Any& x0);
-    void append(const Any& x0, const Any& x1);
-    void append(const Any& x0, const Any& x1, const Any& x2);
-    void append(const Any& x0, const Any& x1, const Any& x2, const Any& x3);
+    void append(const Any& v0);
+    void append(const Any& v0, const Any& v1);
+    void append(const Any& v0, const Any& v1, const Any& v2);
+    void append(const Any& v0, const Any& v1, const Any& v2, const Any& v3);
 
     /** Directly exposes the underlying data structure for table.*/
     const Table<std::string, Any>& table() const;
 
-    /** For a table, returns the element for key x. Throws KeyNotFound
-        exception if the element does not exist. */ 
-    const Any& operator[](const std::string& x) const;
+    /** For a table, returns the element for \a key. Throws KeyNotFound
+        exception if the element does not exist.
+       */ 
+    const Any& operator[](const std::string& key) const;
 
     // Needed to prevent the operator[](int) overload from catching
     // string literals
-    inline const Any& operator[](const char* x) const {
-        return operator[](std::string(x));
+    inline const Any& operator[](const char* key) const {
+        return operator[](std::string(key));
     }
 
     /** 
-        Semantically fetch an element from a table.  This can be used as:
+        Fetch an element from a table.  This can be used as:
 
         <pre>
-        a["key"] = value;
+        a["key"] = value;  (create the key if it did not exist)
         </pre>
         
         or
 
         <pre>
-        value = a["key"];
+        value = a["key"];  (throw an error if the key did not exist)
         </pre>
 
+        <b>Note:</b>
         In order to cause elements to be correctly created in the
         first case while still providing "key not found" errors in the
         second case, the Any returned is a special object that delays
         the actual fetch until the following assignment or method
         call.  This means that in the event of an error, the exception
         may be thrown from a line other than the actual fetch.  Use
-        the Any::get() or Any::operator[]() const methods to avoid
+        the Any::get() or the const Any::operator[]() methods to avoid
         this behavior and ensure error-checking at fetch time.
      */
-    Any& operator[](const std::string& x);
+    Any& operator[](const std::string& key);
 
     /** \copydoc Any::operator[](const std::string&) */
-    inline Any& operator[](const char* x) {
-        return operator[](std::string(x));
+    inline Any& operator[](const char* key) {
+        return operator[](std::string(key));
     }
     
     /** For a table, returns the element for key \a x and \a
         defaultVal if it does not exist. */
-    const Any& get(const std::string& x, const Any& defaultVal) const;
+    const Any& get(const std::string& key, const Any& defaultVal) const;
 
     /** Returns true if this key is in the TABLE.  Illegal to call on an object that is not a TABLE. */
-    bool containsKey(const std::string& x) const;
+    bool containsKey(const std::string& key) const;
     
     /** For a table, assigns the element for key k. */
-    void set(const std::string& k, const Any& v);
+    void set(const std::string& key, const Any& val);
 
     /** for an ARRAY, resizes and returns the last element */
     Any& next();
