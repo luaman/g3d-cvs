@@ -248,7 +248,9 @@ void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
         // Intentionally fall through to MOUSE_DIRECT
 
     case MOUSE_DIRECT:
-        delta = m_userInput->mouseDXY() / 100.0f;
+        // Time is not a factor in rotation because the mouse movement has already been
+        // integrated over time (unlike keyboard presses)
+        delta = m_maxTurnRate * m_userInput->mouseDXY() / 2000.0f;
         break;
 
 
@@ -289,16 +291,6 @@ void FirstPersonManipulator::onSimulation(RealTime rdt, SimTime sdt, SimTime idt
 //    case MOUSE_PUSH_AT_EDGE: 
     default:
         debugAssert(false);
-    }
-
-
-    // Turn rate limiter
-    if (G3D::abs(delta.x) > maxTurn) {
-        delta.x = maxTurn * G3D::sign(delta.x);
-    }
-
-    if (G3D::abs(delta.y) > maxTurn) {
-        delta.y = maxTurn * G3D::sign(delta.y);
     }
 
     m_yaw   += delta.x;
