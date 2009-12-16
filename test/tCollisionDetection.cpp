@@ -13,22 +13,22 @@ static void measureTriangleCollisionPerformance() {
     Vector3 v2(-1, 0, 0);
     Sphere sphere(Vector3(.5,1,-.5), 1);
     Vector3 vel(0, -1, 0);
-    Vector3 location, normal;
+    Vector3 location;
+    float normal[3];
     Triangle triangle(v0, v1, v2);
     int n = 1024;
     int i;
-    float b[3];
 
     System::beginCycleCount(raw);
     for (i = 0; i < n; ++i) {
-        double t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, Triangle(v0, v1, v2), location, b);
+        float t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, Triangle(v0, v1, v2), location, normal);
         (void)t;
     }
     System::endCycleCount(raw);
 
     System::beginCycleCount(opt);
     for (i = 0; i < n; ++i) {
-        double t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, triangle, location, b);
+        float t = CollisionDetection::collisionTimeForMovingSphereFixedTriangle(sphere, vel, triangle, location, normal);
         (void)t;
     }
     System::endCycleCount(opt);
@@ -236,6 +236,10 @@ void testCollisionDetection() {
 
         debugAssert(t == 1.0);
     }
+
+    {
+    }
+
 
     {
         Sphere s = Sphere(Vector3(0, 1, 0), 1.5);
