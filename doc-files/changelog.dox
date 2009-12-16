@@ -122,6 +122,7 @@
      <li> isIntFormat() macro
      <li> TextInput::readSignificant
      <li> Switched .tga textures to .png in the data/image directory
+     <li> Fix: collisionTimeForMovingPointFixedTriangle normals were negated
      <li> Fix: G3D::System::cpuid() now correct on all gcc systems.  Previously the vendor string (e.g., GenuineIntel, AuthenticAMD) was sometimes corrupt. [Shawn]
      <li> Fix: RenderDevice now allows depth write without depth test  
      <li> Fix: workaround for OpenGL shadow rendering crash from NULL buffer for some cards

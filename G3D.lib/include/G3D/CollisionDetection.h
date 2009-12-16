@@ -592,7 +592,7 @@ public:
         float t = collisionTimeForMovingPointFixedTriangle(orig, dir, v0, v1, v2);
         if (t < finf()) {
             location = orig + dir * t;
-            normal   = (v2 - v0).cross(v1 - v0).direction();
+            normal   = (v1 - v0).cross(v2 - v0).direction();
         }
         return t;
     }

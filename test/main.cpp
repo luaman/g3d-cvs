@@ -727,6 +727,9 @@ int main(int argc, char* argv[]) {
 
     printf("\n\nTests:\n\n");
 
+    
+    testCollisionDetection();  
+
     testTextInput();
     testTextInput2();
     printf("  passed\n");
@@ -763,8 +766,7 @@ int main(int argc, char* argv[]) {
     testTable();
 
     testTableTable();
-
-    testCollisionDetection();    
+  
 
     testCoordinateFrame();
 

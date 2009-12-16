@@ -212,7 +212,6 @@ void testCollisionDetection() {
     }
 
     {
-        
         Vector3 v0(0, 0, 0);
         Vector3 v1(0, 0, -1);
         Vector3 v2(-1, 0, 0);
@@ -238,6 +237,34 @@ void testCollisionDetection() {
     }
 
     {
+        Vector3 v0(0, 0, 0);
+        Vector3 v1(0, 0, -1);
+        Vector3 v2(-1, 0, 0);
+        Ray ray = Ray::fromOriginAndDirection(Vector3(-0.15f, 1,-0.15f), Vector3(0, -1, 0));
+        Vector3 location, normal;
+        float t = CollisionDetection::collisionTimeForMovingPointFixedTriangle(ray.origin(), ray.direction(), v0, v1, v2);
+        debugAssert(t == 1.0);
+        
+        t = CollisionDetection::collisionTimeForMovingPointFixedTriangle(ray.origin(), ray.direction(), v0, v1, v2, location, normal);
+        debugAssert(t == 1.0);
+        debugAssert(location.fuzzyEq(ray.origin() + ray.direction() * t));
+        debugAssert(normal.fuzzyEq(Vector3::unitY()));
+
+		ray = Ray::fromOriginAndDirection(ray.origin() * Vector3(1,-1,1), ray.direction());
+        t = CollisionDetection::collisionTimeForMovingPointFixedTriangle(ray.origin(), ray.direction(), v0, v1, v2);
+        debugAssert(t == inf());
+
+        // One-sided test
+		ray = Ray::fromOriginAndDirection(ray.origin() * Vector3(1,-1,1), ray.direction() * Vector3(1,-1,1));
+        t = CollisionDetection::collisionTimeForMovingPointFixedTriangle(ray.origin(), ray.direction(), v0, v1, v2);
+        debugAssert(t == inf());
+
+
+        // Time scale
+        ray = Ray::fromOriginAndDirection(Vector3(-.15f, 1,-.15f), Vector3(0, -1, 0));
+        t = CollisionDetection::collisionTimeForMovingPointFixedTriangle(ray.origin(), ray.direction(), v0, v1, v2);
+
+        debugAssert(t == 1.0);
     }
 
 
