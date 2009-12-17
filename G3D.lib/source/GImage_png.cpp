@@ -91,21 +91,38 @@ void GImage::encodePNG(
 
     //setup libpng write handler so can use BinaryOutput
     png_set_write_fn(png_ptr, (void*)&out, png_write_data, png_flush_data);
+    png_color_8_struct sig_bit;
 
     switch (m_channels) {
     case 1:
         png_set_IHDR(png_ptr, info_ptr, m_width, m_height, 8, PNG_COLOR_TYPE_GRAY,
             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+        sig_bit.red = 0;
+        sig_bit.green = 0;
+        sig_bit.blue = 0;
+        sig_bit.alpha = 0;
+        sig_bit.gray = 8;
         break;
 
     case 3:
         png_set_IHDR(png_ptr, info_ptr, m_width, m_height, 8, PNG_COLOR_TYPE_RGB,
             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+        sig_bit.red = 8;
+        sig_bit.green = 8;
+        sig_bit.blue = 8;
+        sig_bit.alpha = 0;
+        sig_bit.gray = 0;
         break;
 
     case 4:
         png_set_IHDR(png_ptr, info_ptr, m_width, m_height, 8, PNG_COLOR_TYPE_RGBA,
             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+        sig_bit.red = 8;
+        sig_bit.green = 8;
+        sig_bit.blue = 8;
+        sig_bit.alpha = 8;
+        sig_bit.gray = 0;
         break;
 
     default:
@@ -113,15 +130,7 @@ void GImage::encodePNG(
         throw GImage::Error("Unsupported number of channels for PNG.", out.getFilename());
     }
 
-    png_color_8_struct sig_bit;
-    sig_bit.red = 8;
-    sig_bit.green = 8;
-    sig_bit.blue = 8;
-    if (m_channels == 4) {
-        sig_bit.alpha = 8;
-    } else {
-        sig_bit.alpha = 0;
-    }
+
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
 
     //write the png header
