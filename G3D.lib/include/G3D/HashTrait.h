@@ -26,16 +26,40 @@ template <typename T> struct HashTrait<T*> {
     static size_t hashCode(const void* k) { return reinterpret_cast<size_t>(k); }
 };
 
+#if 0
 template <> struct HashTrait <int> {
     static size_t hashCode(int k) { return static_cast<size_t>(k); }
+};
+#endif
+
+template <> struct HashTrait <G3D::int16> {
+    static size_t hashCode(G3D::int16 k) { return static_cast<size_t>(k); }
+};
+
+template <> struct HashTrait <G3D::uint16> {
+    static size_t hashCode(G3D::uint16 k) { return static_cast<size_t>(k); }
+};
+
+//template <> struct HashTrait <int> {
+//    static size_t hashCode(int k) { return static_cast<size_t>(k); }
+//};
+
+template <> struct HashTrait <G3D::int32> {
+    static size_t hashCode(G3D::int32 k) { return static_cast<size_t>(k); }
 };
 
 template <> struct HashTrait <G3D::uint32> {
     static size_t hashCode(G3D::uint32 k) { return static_cast<size_t>(k); }
 };
 
+#if 0
 template <> struct HashTrait <long unsigned int> {
     static size_t hashCode(G3D::uint32 k) { return static_cast<size_t>(k); }
+};
+#endif
+
+template <> struct HashTrait <G3D::int64> {
+    static size_t hashCode(G3D::int64 k) { return static_cast<size_t>(k); }
 };
 
 template <> struct HashTrait <G3D::uint64> {
