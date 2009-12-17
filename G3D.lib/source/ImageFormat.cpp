@@ -238,8 +238,8 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     case ImageFormat::CODE_RGB16:
         return ImageFormat::RGB16();
         break;
-    case ImageFormat::CODE_RGB16F:
-        return ImageFormat::RGB16F();
+    case ImageFormat::CODE_RGBA16F:
+        return ImageFormat::RGBA16F();
         break;
     case ImageFormat::CODE_RGB32F:
         return ImageFormat::RGB32F();
