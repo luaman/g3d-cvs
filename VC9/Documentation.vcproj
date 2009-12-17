@@ -89,10 +89,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\doc-files\faq.dox"
-			>
-		</File>
-		<File
 			RelativePath="..\doc-files\data-files\footer.html"
 			>
 		</File>
