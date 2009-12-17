@@ -26,7 +26,7 @@ static const float DRAWER_Y_OFFSET = 5.0f;
 WeakReferenceCountedPointer<Shader> GuiTextureBox::g_cachedShader;
 
 GuiTextureBox::Settings::Settings(Channels c, float g, float mn, float mx) : 
-    channels(c), documentGamma(g), min(mn), max(mx) {
+    channels(c), documentGamma(g), min(mn), max(mx), showFormat(true) {
 }
 
 
@@ -741,15 +741,28 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         w = m_texture->width();
         h = m_texture->height();
 
-        if ((m_lastSize.x != w) || (m_lastSize.y != h)) {
+        const std::string& fmt = m_texture->format()->name();
+
+        if ((m_lastSize.x != w) || (m_lastSize.y != h) || (fmt != m_lastFormat)) {
+            m_lastSize.x = w;
+            m_lastSize.y = h;
+            m_lastFormat = fmt;
+
             // Avoid computing this every frame
             std::string s;
             if (w == h) {
                 // Use ASCII squared character
-                m_lastSizeCaption = format("(%d\xB2)", w);
+                s = format("(%d\xB2", w);
             } else {
-                m_lastSizeCaption = format("(%dx%d)", w, h);
+                s = format("(%dx%d", w, h);
             }
+
+            if (m_settings.showFormat) {
+                s += " " + fmt + ")";
+            } else {
+                s += ")";
+            }
+            m_lastSizeCaption = s;
         }
 
         float regularCaptionWidth = theme->bounds(m_caption).x + 11;

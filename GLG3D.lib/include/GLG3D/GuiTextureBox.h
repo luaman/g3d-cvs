@@ -73,6 +73,8 @@ public:
         /** Highest expected value */
         float            max;
 
+        bool             showFormat;
+
         /** Defaults to linear data on [0, 1]: packed normal maps,
             reflectance maps, etc. */
         Settings(Channels c = RGB, float g = 1.0f, float mn = 0.0f, float mx = 1.0f);
@@ -126,7 +128,8 @@ protected:
 
     /** Cached formatting of m_lastSize */
     mutable GuiText          m_lastSizeCaption;
-    mutable Vector2int16     m_lastSize;                      
+    mutable Vector2int16     m_lastSize;
+    mutable std::string      m_lastFormat;
 
     GuiText                  m_drawerCollapseCaption;
     GuiText                  m_drawerExpandCaption;
