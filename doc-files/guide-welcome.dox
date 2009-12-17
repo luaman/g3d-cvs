@@ -68,7 +68,7 @@
 
 <li> <p> FAQs
 \htmlonly<table width=250>
-<tr><td width=10%></td><td><a class="el" href="faq.html">General Questions</a></td><td></td></tr>
+<tr><td width=10%></td><td><a class="el" href="http://sourceforge.net/apps/mediawiki/g3d-cpp/index.php?title=FAQ">General Questions</a></td><td></td></tr>
 <tr><td width=10%></td><td><a class="el" href="errorfaq.html">Common Errors</a></td><td></td></tr>
 <tr><td width=10%></td><td><a class="el" href="upgrade8.html">Upgrading from 7.xx &rarr; 8.xx</a></td><td></td></tr>
 <tr><td width=10%></td><td><a class="el" href="upgrade.html">Upgrading from 6.xx &rarr; 7.xx</a></td><td></td></tr>
