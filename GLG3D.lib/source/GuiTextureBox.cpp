@@ -741,7 +741,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
         w = m_texture->width();
         h = m_texture->height();
 
-        const std::string& fmt = m_texture->format()->name();
+        const std::string& fmt = toLower(m_texture->format()->name());
 
         if ((m_lastSize.x != w) || (m_lastSize.y != h) || (fmt != m_lastFormat)) {
             m_lastSize.x = w;

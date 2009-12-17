@@ -180,76 +180,72 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     switch (code) {
     case ImageFormat::CODE_L8:
         return ImageFormat::L8();
-        break;
+
     case ImageFormat::CODE_L16:
         return ImageFormat::L16();
-        break;
+
     case ImageFormat::CODE_L16F:
         return ImageFormat::L16F();
-        break;
+
     case ImageFormat::CODE_L32F:
         return ImageFormat::L32F();
-        break;
 
     case ImageFormat::CODE_A8:
         return ImageFormat::A8();
-        break;
+
     case ImageFormat::CODE_A16:
         return ImageFormat::A16();
-        break;
+
     case ImageFormat::CODE_A16F:
         return ImageFormat::A16F();
-        break;
+
     case ImageFormat::CODE_A32F:
         return ImageFormat::A32F();
-        break;
 
     case ImageFormat::CODE_LA4:
         return ImageFormat::LA4();
-        break;
+
     case ImageFormat::CODE_LA8:
         return ImageFormat::LA8();
-        break;
+
     case ImageFormat::CODE_LA16:
         return ImageFormat::LA16();
-        break;
+
     case ImageFormat::CODE_LA16F:
         return ImageFormat::LA16F();
         break;
     case ImageFormat::CODE_LA32F:
         return ImageFormat::LA32F();
-        break;
 
     case ImageFormat::CODE_RGB5:
         return ImageFormat::RGB5();
-        break;
+
     case ImageFormat::CODE_RGB5A1:
         return ImageFormat::RGB5A1();
-        break;
+
     case ImageFormat::CODE_RGB8:
         return ImageFormat::RGB8();
-        break;
+
     case ImageFormat::CODE_RGB10:
         return ImageFormat::RGB10();
-        break;
+
     case ImageFormat::CODE_RGB10A2:
         return ImageFormat::RGB10A2();
-        break;
+
     case ImageFormat::CODE_RGB16:
         return ImageFormat::RGB16();
-        break;
+
     case ImageFormat::CODE_RGBA16F:
         return ImageFormat::RGBA16F();
-        break;
+
     case ImageFormat::CODE_RGB32F:
         return ImageFormat::RGB32F();
-        break;
+
     case ImageFormat::CODE_R11G11B10F:
         return ImageFormat::R11G11B10F();
-        break;        
+
     case ImageFormat::CODE_RGB9E10F:
         return ImageFormat::RGB9E10F();
-        break;        
 
     case ImageFormat::CODE_ARGB8:
         return NULL;
@@ -259,16 +255,6 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
 
     case ImageFormat::CODE_RGBA8:
         return ImageFormat::RGBA8();
-        break;
-    case ImageFormat::CODE_RGBA16:
-        return ImageFormat::RGBA16();
-        break;
-    case ImageFormat::CODE_RGBA16F:
-        return ImageFormat::RGBA16F();
-        break;
-    case ImageFormat::CODE_RGBA32F:
-        return ImageFormat::RGBA32F();
-        break;
 
     case ImageFormat::CODE_BAYER_RGGB8:
         // TODO
