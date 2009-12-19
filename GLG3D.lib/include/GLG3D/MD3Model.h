@@ -135,7 +135,7 @@ private:
 
     struct SkinValue { std::string filename; Texture::Ref texture; };
     typedef Table<std::string, SkinValue>   PartSkin;
-    typedef Table<size_t, PartSkin>         SkinCollection;
+    typedef Table<uint32, PartSkin>         SkinCollection;
 
     // Collection of shared skins across all models to avoid texture re-loading
     SkinCollection m_skins[NUM_PARTS];

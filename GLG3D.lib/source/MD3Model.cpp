@@ -588,7 +588,7 @@ void MD3Model::loadAllSkins(const std::string& skinDir) {
         for (int fileIndex = 0; fileIndex < filenames.size(); ++fileIndex) {
             const std::string& filename = filenames[fileIndex];
 
-            size_t skinHash = HashTrait<std::string>::hashCode(filename);
+            uint32 skinHash = HashTrait<std::string>::hashCode(filename);
 
             if (! m_skins[partIndex].containsKey(skinHash)) {
                 m_skins[partIndex].set(skinHash, PartSkin());

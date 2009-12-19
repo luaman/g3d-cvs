@@ -40,13 +40,12 @@ entire library is available
 help resolve ambiguities.
 
 Post questions and feedback on the User Forum 
-(http://sourceforge.net/forum/forum.php?forum_id=262426) and consider subscribing to 
+(http://groups.google.com/group/g3d-users/topics) and consider subscribing to 
 it to receive all posts via e-mail.  Don't be afraid to post if you are a new or 
 inexperienced user-- the User Forum is our primary support path.  You can also read
 the Developers Google Group (http://groups.google.com/group/g3d-developers) to keep 
 abreast of changes coming in future releases and download Beta releases 
-(http://sourceforge.net/project/showfiles.php?group_id=76879&package_id=100364) to 
-provide feedback.
+from the G3D website to provide feedback.
 
 %G3D provides several demos with source that show different ways of structuring your 3D program 
 and how to use some of the most popular features in <A HREF="../demos">demos/</A>.
@@ -61,7 +60,7 @@ The latest version library is always available on the homepage,
 
 <IMG SRC="platforms.png" ALIGN=RIGHT>
 %G3D allows you to write code once that will compile and run on Windows, 
-FreeBSD, Linux, and OS X without <CODE>ifdef</CODE>s or modifications.  
+Linux, and OS X without <CODE>ifdef</CODE>s or modifications.  
 It supports all OpenGL implementations, from software 
 rasterization under Mesa to the latest GeForce and Radeon hardware accelerator 
 cards.
@@ -111,25 +110,32 @@ Download the %G3D data module for over 100 MB of models and other 3D data suppor
 The library contains code, documentation, and demos from over 30 
 \link contributors contributors \endlink.  The team leads are:
 
-<B>Dr. Morgan McGuire</B> has been the %G3D project manager and Windows team lead 
-since 2000.  He is an assistant professor of computer science at Williams College and
-3D software consultant.  He holds a Masters degree in electrical engineering from MIT and a 
-PhD in computer graphics from Brown University.  Morgan has been a senior architect at several 
-companies in the graphics industry, worked on several commercial games including IronLore's <I>Titan Quest</I>, 
-and published award-winning research papers.
+<B>Dr. Morgan McGuire</B> has been the %G3D project manager and
+Windows team lead since 2000.  He is an assistant professor of
+computer science at Williams College and 3D software consultant.  He
+holds a Masters degree in electrical engineering from MIT and a PhD in
+computer graphics from Brown University.  Morgan has been a senior
+architect at several companies in the graphics industry, worked on
+several commercial games including IronLore's <I>Titan Quest</I> and
+Activision's <i>Marvel Ultimate Alliance 2</i>, and published
+award-winning research papers.
+
+<B>Corey Taylor</b> has been the %G3D assistant project manager and
+Linux team lead since 2004.  He is a software developer at Electronic
+Arts, where he has worked on several games including <i>Superman
+Returns</i>.
   
-<B>Dr. Casey O'Donnell</B> is the %G3D OS X team lead. Casey has been a Mac user since 1986 when his mom first brought
-home a mac, and a code geek since 1994. A brief tryst with AutoDesk and the development of a cross-platform 3D
-sound system required him to convert to windows for a time, but that has been solved by going back into the academy.
-Casey is a post-doctoral student at Rensselaer Polytechnic Institute (RPI) in upstate (Troy) New York state. His current work
+<B>Dr. Casey O'Donnell</B> is the %G3D OS X advisor.
+Casey a professor at the University of Georgia. His work
 looks at the politics and economics of the video game industry, and in particular the console game industry. Though
 his methods are largely anthropological, he still spends a significant amount of his time playing with code.
 Casey's undergraduate degree was from Drake University in Des Moines, Iowa, where he recieved was a computer science
 and mathematics major (and a sociology minor and women's studies concentration).
 
-%G3D is supported by donations from users (http://sourceforge.net/project/project_donations.php?group_id=76879),
-and by hardware, software, and technical support from Autodesk, NVIDIA, and AMD. 
-
+%G3D is supported by donations from users
+(http://sourceforge.net/project/project_donations.php?group_id=76879),
+and by hardware, software, and technical support from Autodesk,
+NVIDIA, and AMD.
 
 @section otherlibs Working With Other Libraries
 %G3D is compatible with most other libraries.  
