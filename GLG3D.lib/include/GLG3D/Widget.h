@@ -4,11 +4,11 @@
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
  @created 2006-04-22
- @edited  2009-01-06
+ @edited  2009-12-28
 */
 
-#ifndef GLG3D_GMODULE_H
-#define GLG3D_GMODULE_H
+#ifndef GLG3D_Widget_h
+#define GLG3D_Widget_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -25,32 +25,29 @@ typedef ReferenceCountedPointer<class Widget> WidgetRef;
 typedef ReferenceCountedPointer<class WidgetManager> WidgetManagerRef;
 
 /**
- Interface for 2D or 3D objects that experience standard
- virtual world events and are rendered.
+ Interface for 2D or 3D objects that experience standard virtual world
+ events and are rendered.
 
- Widget is an interface for "widget"-like objects.  You could think
- of it as a bare-bones scene graph.
+ Widget is an interface for GUI-like objects.  You could think of it
+ as a bare-bones scene graph.
 
- Modules are objects like the G3D::FirstPersonController,
+ Widgets are objects like the G3D::FirstPersonController,
  G3D::GConsole, and debug text overlay that need to receive almost the
- same set of events (onXXX methods) as GApp and that you would like to
- be called from the corresponding methods of a GApp.  They are a way
- to break large pieces of functionality for UI and debugging off so
- that they can be mixed and matched.
+ same set of events (onXXX methods) as G3D::GApp and that you would
+ like to be called from the corresponding methods of a G3D::GApp.
+ They are a way to break large pieces of functionality for UI and
+ debugging off so that they can be mixed and matched.
 
- Widget inherits Surface2D because it is often convenient to
- implement a widget whose onPose method adds itself to the rendering
- array rather than using a proxy object.
-
- @beta
+ Widget inherits G3D::Surface2D because it is often convenient to
+ implement a 2D widget whose onPose method adds itself to the
+ rendering array rather than using a proxy object.
  */
 class Widget : public Surface2D {
 protected:
 
-    /** The manager, set by setManager().
-        This cannot be a reference counted pointer because that would create a cycle
-        between the Widget and its manager.
-     */
+    /** The manager, set by setManager().  This cannot be a reference
+        counted pointer because that would create a cycle between the
+        Widget and its manager. */
     WidgetManager* m_manager;
 
     Widget() : m_manager(NULL) {}
@@ -118,26 +115,27 @@ public:
 
 
 /**
- Manages a group of GModules.  This is used internally by G3D::GApp
- to process its modules.  It also enables use of GModules without
- the GApp infrastructure.  Most users do not need to use this class.
+ Manages a group of G3D::Widget.  This is used internally by G3D::GApp
+ to process its modules.  It also enables use of Widgets without the
+ G3D::GApp infrastructure.  Most users do not need to use this class.
 
- You can use GModules without this class.
+ You can use G3D::Widget without this class.
  */
 class WidgetManager : public Widget {
 public:
+
     typedef ReferenceCountedPointer<class WidgetManager> Ref;
 
 private:
     
-    /** 
-        Events are delivered in decreasing index order, except
-        rendering, which is processed in increasing order.
-     */
+    /** Events are delivered in decreasing index order, except
+        rendering, which is processed in increasing order.  */
     Array<Widget::Ref>   m_moduleArray;
 
     bool                 m_locked;
 
+    /** The widget that will receive events first. This is usually but
+        not always the top Widget in m_moduleArray. */
     Widget::Ref          m_focusedModule;
 
     WidgetManager();
@@ -146,8 +144,9 @@ private:
         to GEvent in any way. */
     class DelayedEvent {
     public:
-        enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_DEFOCUS, MOVE_TO_BACK};
-        Type type;
+        enum Type {REMOVE_ALL, REMOVE, ADD, SET_FOCUS, SET_FOCUS_AND_MOVE_TO_FRONT, SET_DEFOCUS, MOVE_TO_BACK};
+
+        Type        type;
         Widget::Ref module;
 
         DelayedEvent(Type type = ADD, const Widget::Ref& module = NULL) : type(type), module(module) {}
@@ -184,9 +183,7 @@ public:
      */
     void moveWidgetToBack(const Widget::Ref& widget);
 
-    /** 
-        At most one widget has focus at a time.  May be NULL.
-     */
+    /** At most one widget has focus at a time.  May be NULL. */
     Widget::Ref focusedWidget() const;
 
     /** The module must have already been added.  This module will be moved to
@@ -197,18 +194,16 @@ public:
         will not take effect until the lock is released.
 
         Setting the focus automatically brings a module to the front of the 
-        event processing list. 
+        event processing list unless \a bringToFront is false
         */
-    void setFocusedWidget(const Widget::Ref& m);
+    void setFocusedWidget(const Widget::Ref& m, bool bringToFront = true);
 
-    /** Removes focus from this module if it had focus, otherwise does nothing.
-        The widget will move down one z order in focus.  See moveToBack to push it
-        all of the way to the back.
-      */
+    /** Removes focus from this module if it had focus, otherwise does
+        nothing.  The widget will move down one z order in focus.  See
+        moveWidgetToBack() to push it all of the way to the back. */
     void defocusWidget(const Widget::Ref& m);
 
-    /** 
-        If a lock is in effect, the add may be delayed until the
+    /** If a lock is in effect, the add may be delayed until the
         unlock.
 
         Priorities should generally not be used; they are largely for

@@ -26,13 +26,13 @@ public:
     virtual void onAI();
     virtual void onNetwork();
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
+    virtual void onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
 
     // You can override onGraphics if you want more control over the rendering loop.
-    // virtual void onGraphics(RenderDevice* rd, Array<SurfaceRef>& surface, Array<Surface2DRef>& surface2D);
+    // virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& surface, Array<Surface2D::Ref>& surface2D);
 
-    virtual void onGraphics3D(RenderDevice* rd, Array<SurfaceRef>& surface);
-    virtual void onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& surface2D);
+    virtual void onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface);
+    virtual void onGraphics2D(RenderDevice* rd, Array<Surface2D::Ref>& surface2D);
 
     virtual bool onEvent(const GEvent& e);
     virtual void onUserInput(UserInput* ui);

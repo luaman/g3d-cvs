@@ -16,6 +16,8 @@
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
      <li> G3D::Any replaces G3D::AnyVal
+     <li> G3D::GuiWindow with NO_WINDOW_STYLE now stays in the background when focused.
+     <li> Added sample code overview to documentation
      <li> Initialized Win32Window using the OpenGL compatibility profile
      <li> Added ImageFormat::RGB9E10F() and ImageFormat::R11G11B10F() formats
      <li> G3D::glClipToBox, glDisableAllClipping

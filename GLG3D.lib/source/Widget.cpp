@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan3d@users.sourceforge.net
 
  @created 2006-04-22
- @edited  2008-02-02
+ @edited  2009-12-28
 */
 
 #include "GLG3D/Widget.h"
@@ -84,8 +84,12 @@ void WidgetManager::endLock() {
             add(event.module);
             break;
             
+        case DelayedEvent::SET_FOCUS_AND_MOVE_TO_FRONT:
+            setFocusedWidget(event.module, true);
+            break;
+
         case DelayedEvent::SET_FOCUS:
-            setFocusedWidget(event.module);
+            setFocusedWidget(event.module, false);
             break;
 
         case DelayedEvent::SET_DEFOCUS:
@@ -173,14 +177,18 @@ void WidgetManager::defocusWidget(const Widget::Ref& m) {
 }
 
 
-void WidgetManager::setFocusedWidget(const Widget::Ref& m) {
+    void WidgetManager::setFocusedWidget(const Widget::Ref& m, bool moveToFront) {
     if (m_locked) {
-        m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS, m));
+        if (moveToFront) {
+            m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS_AND_MOVE_TO_FRONT, m));
+        } else {
+            m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS, m));
+        }
     } else {
 
         debugAssert(m.isNull() || m_moduleArray.contains(m));
 
-        if (m.notNull()) {
+        if (m.notNull() && moveToFront) {
             // Move to the first event position
             int i = m_moduleArray.findIndex(m);
             m_moduleArray.remove(i);
@@ -231,20 +239,43 @@ void WidgetManager::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 
 bool WidgetManager::onEvent(const GEvent& event) {
-    bool motionEvent = 
+    const bool motionEvent = 
         (event.type == GEventType::MOUSE_MOTION) ||
         (event.type == GEventType::JOY_AXIS_MOTION) ||
         (event.type == GEventType::JOY_HAT_MOTION) ||
         (event.type == GEventType::JOY_BALL_MOTION);
 
-    // if the event is ever consumed, abort iteration
-    ITERATOR(if (m_moduleArray[i]->onEvent(event) && ! motionEvent) { endLock(); return true; });
+    beginLock();
+    {
+
+        // Except for motion events, ensure that the focused module gets each event first
+        if (m_focusedModule.notNull() && ! motionEvent) {
+            if (m_focusedModule->onEvent(event)) { 
+                endLock(); 
+                return true;
+            }
+        }
+
+        for (int i = m_moduleArray.size() - 1; i >=0; --i) {
+            // Don't double-deliver to the focused module
+            if (motionEvent || (m_moduleArray[i] != m_focusedModule)) {
+                if (m_moduleArray[i]->onEvent(event) && ! motionEvent) {
+                    endLock(); 
+                    return true;
+                }
+            }
+        }
+    }
+    endLock();
+
     return false;
 }
+
 
 void WidgetManager::onUserInput(UserInput* ui) {
     ITERATOR(m_moduleArray[i]->onUserInput(ui));
 }
+
 
 void WidgetManager::onNetwork() {
     ITERATOR(m_moduleArray[i]->onNetwork());

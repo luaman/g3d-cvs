@@ -211,15 +211,16 @@ bool GuiWindow::onEvent(const GEvent &event) {
 
         if (! focused()) {
             // Set focus
-            m_manager->setFocusedWidget(this);
+            bool moveToFront = (m_style != GuiTheme::NO_WINDOW_STYLE);
+            m_manager->setFocusedWidget(this, moveToFront);
             m_focused = true;
 
             // Most windowing systems do not allow the original click
             // to reach a control if it was consumed on focusing the
-            // window.  However, we deliver events because for most 3D
-            // programs the multiple windows are probably acting like
-            // tool windows and should not require multiple clicks for
-            // selection.
+            // window.  However, we deliver events because, for most
+            // 3D programs, the multiple windows are probably acting
+            // like tool windows and should not require multiple
+            // clicks for selection.
         }
 
         Rect2D titleRect;

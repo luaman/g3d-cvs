@@ -73,6 +73,26 @@
 
 <tr><td culspan=2 height=10> </td></tr>
 
+<tr><td culspan=2>Network Discovery (<a href="../demos/network">demos/network</a>)</td></tr>
+<tr valign=top>
+<td>
+</td>
+<td>
+<ul>
+ <li> G3D::Discovery::Client
+ <li> G3D::Discovery::Server
+ <li> G3D::GFont
+ <li> G3D::GApp::addWidget
+ <li> G3D::GuiButton
+ <li> G3D::GuiWindow
+ <li> G3D::GApp::onEvent
+</ul>
+</td>
+</tr>
+
+
+<tr><td culspan=2 height=10> </td></tr>
+
 <tr><td culspan=2>Multiple Views (<a href="../demos/multiview">demos/multiview</a>)</td></tr>
 <tr valign=top>
 <td>

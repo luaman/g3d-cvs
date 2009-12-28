@@ -140,7 +140,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
 }
 
 
-void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
+void App::onGraphics2D(RenderDevice* rd, Array<Surface2D::Ref>& posed2D) {
     // Render 2D objects like Widgets.  These do not receive tone mapping or gamma correction
     Surface2D::sortAndRender(rd, posed2D);
 }

@@ -122,9 +122,9 @@ void App::browseServers() {
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
+void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
     rd->clear();
-    GFontRef font = debugWindow->theme()->defaultStyle().font;
+    GFont::Ref font = debugWindow->theme()->defaultStyle().font;
 
     rd->push2D();
     if (isServer) {

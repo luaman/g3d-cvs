@@ -79,14 +79,14 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_exitCode(0),
     debugPane(NULL),
     renderDevice(NULL),
-    userInput(NULL),
     m_useFilm(settings.film.enabled),
+    userInput(NULL),
     lastWaitTime(System::time()),
+    m_settings(settings),
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
     m_simTime(0),
-    m_settings(settings),
     m_lastFrameOverWait(0) {
 
     lastGApp = this;
@@ -564,6 +564,12 @@ void GApp::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surfac
 
 void GApp::addWidget(const Widget::Ref& module) {
     m_widgetManager->add(module);
+    
+    // Ensure that background widgets do not end up on top
+    GuiWindow::Ref w = module.downcast<GuiWindow>();
+    if (w.notNull()) {
+        m_widgetManager->moveWidgetToBack(module);
+    }
 }
 
 
