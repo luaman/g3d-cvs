@@ -178,9 +178,9 @@ void App::onRender() {
     // Show message
     message("Rendering...");
 
-	Stopwatch timer;
+    Stopwatch timer;
     Image3::Ref im = rayTraceImage(1.0f, m_raysPerPixel);
-	timer.after("Trace");
+    timer.after("Trace");
     im->save("result.png");
 }
 

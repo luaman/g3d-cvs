@@ -80,8 +80,8 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     debugPane(NULL),
     renderDevice(NULL),
     userInput(NULL),
-    lastWaitTime(System::time()),
     m_useFilm(settings.film.enabled),
+    lastWaitTime(System::time()),
     m_desiredFrameRate(5000),
     m_simTimeStep(1.0f / 60.0f), 
     m_realTime(0), 
@@ -232,6 +232,7 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
     m_realTime    = 0;
     lastWaitTime  = System::time();
 
+    renderDevice->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
 }
 
 
@@ -317,7 +318,7 @@ int GApp::run() {
             if (e.byte == -1) {
                 alwaysAssertM(false, e.filename + format(":%d(%d): ", e.line, e.character) + e.message);
             } else {
-                alwaysAssertM(false, e.filename + format(":(byte %d): ", e.byte) + e.message);
+                alwaysAssertM(false, e.filename + format(":(byte %d): ", (int)e.byte) + e.message);
             }
             ret = -1;
         } catch (const AnyVal::WrongType& e) {
@@ -526,8 +527,6 @@ void GApp::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
 
 
 void GApp::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
-    rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
-
     // Clear the entire screen (needed even though we'll render over it because
     // AFR uses clear() to detect that the buffer is not re-used.)
     rd->clear();

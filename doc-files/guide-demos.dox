@@ -1,0 +1,132 @@
+/** 
+@page guidedemos Sample Programs
+
+<table width=100% border=0 cellpadding=2 cellspacing=2>
+<tr><td culspan=2>Ray Trace (<a href="../demos/rayTrace">demos/rayTrace</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-rayTrace.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> Ray tracing
+ <li> CPU rendering
+ <li> G3D::GuiRadioButton
+ <li> G3D::GuiNumberBox
+ <li> G3D::GuiButton
+ <li> G3D::TriTree 
+ <li> G3D::SuperBSDF
+</ul>
+</td>
+</tr>
+
+<tr><td culspan=2 height=10> </td></tr>
+
+<tr><td culspan=2>Shader (<a href="../demos/shader">demos/shader</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-shader.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::Shader
+ <li> G3D::ThirdPersonManipulator
+ <li> G3D::GuiDropDownList
+ <li> G3D::GuiSlider
+</ul>
+</td>
+</tr>
+
+<tr><td culspan=2 height=10> </td></tr>
+
+<tr><td culspan=2>Models (<a href="../demos/shader">demos/models</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly<IMG SRC="demo-models.png" width=250 >\endhtmlonly
+</td>
+<td>
+<ul>
+ <li> G3D::ArticulatedModel
+ <li> G3D::Material
+ <li> G3D::BumpMap
+ <li> G3D::SuperBSDF
+ <li> G3D::MD2Model
+ <li> G3D::Lighting
+</ul>
+</td>
+</tr>
+
+<tr><td culspan=2 height=10> </td></tr>
+
+<tr><td culspan=2>Geometry Shader (<a href="../demos/geometry">demos/geometry</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-geometry.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> OpenGL 3.x / GLSL 1.5
+ <li> G3D::Shader
+</ul>
+</td>
+</tr>
+
+<tr><td culspan=2 height=10> </td></tr>
+
+<tr><td culspan=2>Multiple Views (<a href="../demos/multiview">demos/multiview</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-multiview.png" width=250 > \endhtmlonly
+</td>
+<td>
+Two ways of creating multiple views: render to texture and explicit viewports.
+<ul>
+ <li> G3D::GuiTextureBox
+ <li> G3D::RenderDevice::setViewport
+ <li> G3D::RenderDevice::setRenderMode
+ <li> G3D::Draw
+</ul>
+</td>
+</tr>
+
+<tr><td culspan=2 height=10> </td></tr>
+
+<tr><td culspan=2>Starter (<a href="../demos/starter">demos/starter</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-starter.png" width=250 > \endhtmlonly
+</td>
+<td>
+A good starting point for building your own G3D programs. (This is the program that iCompile creates for you in an empty directory.)
+<ul>
+ <li> G3D::Lighting
+ <li> G3D::ArticulatedModel
+ <li> G3D::Draw
+</ul>
+</td>
+</tr>
+
+<tr><td culspan=2> </td></tr>
+
+<tr><td culspan=2>Raw OpenGL (<a href="../demos/rawOpenGL">demos/rawOpenGL</a>)</td></tr>
+<tr valign=top>
+<td>
+\htmlonly <IMG SRC="demo-rawOpenGL.png" width=250 > \endhtmlonly
+</td>
+<td>
+<ul>
+ <li> How to use G3D without G3D::GApp or G3D::RenderDevice
+ <li> OpenGL 2.x
+ <li> glBegin...glEnd
+ <li> glVertex3f
+ <li> glColor3f
+ <li> glTranslatef
+ <li> glRotatef
+</ul>
+</td>
+</tr>
+
+
+</table>
+
+*/
