@@ -1,0 +1,181 @@
+/**
+  @file App.cpp
+ */
+#include "App.h"
+
+// Tells C++ to invoke command-line main() function even on OS X and Win32.
+G3D_START_AT_MAIN();
+
+int main(int argc, char** argv) {
+    (void)argc; (void)argv;
+
+#   ifdef G3D_WIN32
+        // On unix operating systems, icompile automatically copies data files.  
+        // On Windows, we just run from the data directory.
+        if (fileExists("data-files")) {
+            chdir("data-files");
+        }
+#   endif
+
+    GApp::Settings settings;
+    settings.window.width = 1024;
+    settings.window.caption = "G3D MultiView Demo";
+    return App(settings).run();
+}
+
+
+App::App(const GApp::Settings& settings) : GApp(settings) {
+}
+
+
+void App::onInit() {
+
+    debugWindow->setVisible(false);
+    developerWindow->cameraControlWindow->setVisible(true);
+    developerWindow->videoRecordDialog->setEnabled(true);
+    showRenderingStats = false;
+
+    /////////////////////////////////////////////////////////////
+    // Example of how to add debugging controls
+    debugPane->addButton("Exit", this, &App::endProgram);
+    
+    // Start wherever the developer HUD last marked as "Home"
+    defaultCamera.setCoordinateFrame(CFrame::fromXYZYPRDegrees(-0.61369f, 0.734589f, 0.934322f, 314.163f, -12.1352f));
+
+    m_shadowMap = ShadowMap::create();
+
+    m_scene = Scene::create();
+
+    m_gbuffer = GBuffer::create("GBuffer");
+    m_gbuffer->resize((window()->width() - 4) / 2, window()->height() - GUI_HEIGHT - 2);
+
+    GuiTheme::Ref theme = debugWindow->theme();
+    GuiWindow::Ref background = GuiWindow::create("", theme, renderDevice->viewport(), GuiTheme::NO_WINDOW_STYLE);
+
+    Vector2 gbufferViewSize(190, 190 * m_gbuffer->height() / m_gbuffer->width());
+    GuiPane* pane = background->pane();
+
+    pane->addLabel("Buffers:");
+    GuiTextureBox* norBox = pane->addTextureBox("Normal", m_gbuffer->normal(), GuiTextureBox::Settings::unitVector());
+    norBox->setSizeFromInterior(gbufferViewSize);
+    norBox->setShowInfo(false);
+    norBox->zoomToFit();
+
+    GuiTextureBox* depBox = pane->addTextureBox("Depth", m_gbuffer->depth(), GuiTextureBox::Settings::depthBuffer());
+    depBox->setSizeFromInterior(gbufferViewSize);
+    depBox->moveRightOf(norBox);
+    depBox->setShowInfo(false);
+    depBox->zoomToFit();
+
+    GuiTextureBox* lamBox = pane->addTextureBox("Lambertian", m_gbuffer->lambertian(), GuiTextureBox::Settings::reflectivity());
+    lamBox->setSizeFromInterior(gbufferViewSize);
+    lamBox->moveRightOf(depBox);
+    lamBox->setShowInfo(false);
+    lamBox->zoomToFit();
+
+    GuiTextureBox* gloBox = pane->addTextureBox("Glossy", m_gbuffer->specular(), GuiTextureBox::Settings::reflectivity());
+    gloBox->setSizeFromInterior(gbufferViewSize);
+    gloBox->moveRightOf(lamBox);
+    gloBox->setShowInfo(false);
+    gloBox->zoomToFit();
+    
+    GuiTextureBox* shaBox = pane->addTextureBox("Shadow Map", m_shadowMap->depthTexture(), GuiTextureBox::Settings::depthBuffer());
+    box = shaBox;
+    shaBox->setSizeFromInterior(gbufferViewSize);
+    shaBox->moveRightOf(gloBox);
+    shaBox->zoomToFit();
+    
+    pane->setHeight(GUI_HEIGHT);
+    pane->pack();
+    background->pack();
+    background->setRect(Rect2D::xywh(0, renderDevice->height() - GUI_HEIGHT, renderDevice->width(), GUI_HEIGHT));
+
+    addWidget(background);    
+
+    renderDevice->setColorClearValue(Color3::white());
+}
+
+
+bool App::onEvent(const GEvent& e) {
+    if (GApp::onEvent(e)) {
+        return true;
+    }
+    // If you need to track individual UI events, manage them here.
+    // Return true if you want to prevent other parts of the system
+    // from observing this specific event.
+    //
+    // For example,
+    // if ((e.type == GEventType::GUI_ACTION) && (e.gui.control == m_button)) { ... return true;}
+    // if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::TAB)) { ... return true; }
+
+    return false;
+}
+
+
+void App::onUserInput(UserInput* ui) {
+    (void)ui;
+    // Add key handling here based on the keys currently held or
+    // ones that changed in the last frame.
+}
+
+
+void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2D) {
+    // Append any models to the arrays that you want to later be rendered by onGraphics()
+    if (m_scene.notNull()) {
+        m_scene->onPose(surfaceArray);
+    }
+    (void)surface2D;
+}
+
+
+void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
+    // Render G-Buffer
+    m_gbuffer->compute(rd, defaultCamera, surface3D);
+   
+
+    // Render full shading viewport
+    Rect2D shadeViewport = m_gbuffer->rect2DBounds() + Vector2(m_gbuffer->width(), 0) + Vector2(3, 1);
+    rd->setViewport(shadeViewport);
+    Draw::skyBox(rd, m_scene->lighting()->environmentMap);
+    // For convenience we'll just forward render again; a real
+    // application would actually use the G-Buffer to perform deferred
+    // shading.
+    Surface::sortAndRender(rd, defaultCamera, surface3D, m_scene->lighting(), m_shadowMap);
+
+    // Render wireframe viewport
+    Rect2D wireViewport = m_gbuffer->rect2DBounds() + Vector2(1, 1);
+    rd->setViewport(wireViewport);
+    rd->pushState();
+    {
+        Draw::axes(rd);
+        rd->setRenderMode(RenderDevice::RENDER_WIREFRAME);
+        rd->setColor(Color3::black());
+        rd->setLineWidth(1);
+        for (int i = 0; i < surface3D.size(); ++i) {
+            rd->setObjectToWorldMatrix(surface3D[i]->coordinateFrame());
+            surface3D[i]->sendGeometry(rd);
+        }
+
+        rd->setRenderMode(RenderDevice::RENDER_SOLID);
+        Draw::lighting(m_scene->lighting(), rd, true);
+
+        // Call to make the GApp show the output of debugDraw calls
+        drawDebugShapes();
+    }
+    rd->popState();
+}
+
+
+void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
+    Rect2D miniViewport = m_gbuffer->rect2DBounds() + Vector2(1, 1);
+    Draw::rect2DBorder(miniViewport, rd);
+    Draw::rect2DBorder(miniViewport + Vector2(2 + miniViewport.width(), 0), rd);
+
+    // Render 2D objects like Widgets.  These do not receive tone mapping or gamma correction
+    Surface2D::sortAndRender(rd, posed2D);
+}
+
+
+void App::endProgram() {
+    m_endProgram = true;
+}
