@@ -32,14 +32,10 @@ void App::onInit() {
 
     debugWindow->setVisible(false);
     developerWindow->cameraControlWindow->setVisible(true);
-    developerWindow->videoRecordDialog->setEnabled(true);
+    developerWindow->cameraControlWindow->moveTo(Vector2(developerWindow->cameraControlWindow->rect().x0(), 0));
+    developerWindow->setVisible(false);
     showRenderingStats = false;
-
-    /////////////////////////////////////////////////////////////
-    // Example of how to add debugging controls
-    debugPane->addButton("Exit", this, &App::endProgram);
     
-    // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(CFrame::fromXYZYPRDegrees(-0.61369f, 0.734589f, 0.934322f, 314.163f, -12.1352f));
 
     m_shadowMap = ShadowMap::create();
