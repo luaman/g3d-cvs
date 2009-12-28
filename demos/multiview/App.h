@@ -19,7 +19,6 @@ class App : public GApp {
     GBuffer::Ref        m_gbuffer;
     Scene::Ref          m_scene;
     ShadowMap::Ref      m_shadowMap;
-    GuiTextureBox* box;
 
 public:
     
@@ -29,12 +28,6 @@ public:
     virtual void onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
     virtual void onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface);
     virtual void onGraphics2D(RenderDevice* rd, Array<Surface2D::Ref>& surface2D);
-
-    virtual bool onEvent(const GEvent& e);
-    virtual void onUserInput(UserInput* ui);
-
-    /** Sets m_endProgram to true. */
-    virtual void endProgram();
 };
 
 #endif

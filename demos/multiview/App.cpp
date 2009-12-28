@@ -9,14 +9,6 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     (void)argc; (void)argv;
 
-#   ifdef G3D_WIN32
-        // On unix operating systems, icompile automatically copies data files.  
-        // On Windows, we just run from the data directory.
-        if (fileExists("data-files")) {
-            chdir("data-files");
-        }
-#   endif
-
     GApp::Settings settings;
     settings.window.width = 1024;
     settings.window.caption = "G3D MultiView Demo";
@@ -76,7 +68,6 @@ void App::onInit() {
     gloBox->zoomToFit();
     
     GuiTextureBox* shaBox = pane->addTextureBox("Shadow Map", m_shadowMap->depthTexture(), GuiTextureBox::Settings::depthBuffer());
-    box = shaBox;
     shaBox->setSizeFromInterior(gbufferViewSize);
     shaBox->moveRightOf(gloBox);
     shaBox->zoomToFit();
@@ -90,30 +81,6 @@ void App::onInit() {
 
     renderDevice->setColorClearValue(Color3::white());
 }
-
-
-bool App::onEvent(const GEvent& e) {
-    if (GApp::onEvent(e)) {
-        return true;
-    }
-    // If you need to track individual UI events, manage them here.
-    // Return true if you want to prevent other parts of the system
-    // from observing this specific event.
-    //
-    // For example,
-    // if ((e.type == GEventType::GUI_ACTION) && (e.gui.control == m_button)) { ... return true;}
-    // if ((e.type == GEventType::KEY_DOWN) && (e.key.keysym.sym == GKey::TAB)) { ... return true; }
-
-    return false;
-}
-
-
-void App::onUserInput(UserInput* ui) {
-    (void)ui;
-    // Add key handling here based on the keys currently held or
-    // ones that changed in the last frame.
-}
-
 
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2D) {
     // Append any models to the arrays that you want to later be rendered by onGraphics()
@@ -169,9 +136,4 @@ void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
 
     // Render 2D objects like Widgets.  These do not receive tone mapping or gamma correction
     Surface2D::sortAndRender(rd, posed2D);
-}
-
-
-void App::endProgram() {
-    m_endProgram = true;
 }

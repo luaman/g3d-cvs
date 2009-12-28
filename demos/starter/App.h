@@ -15,7 +15,6 @@
 
 class App : public GApp {
     Scene::Ref          m_scene;
-    
     ShadowMap::Ref      m_shadowMap;
 
 public:

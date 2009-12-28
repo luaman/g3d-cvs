@@ -635,6 +635,10 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
     rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0);
     rd->setBlendFunc(RenderDevice::BLEND_ONE, RenderDevice::BLEND_ZERO);
 
+    // If this is a depth texture, make sure we flip it into normal read mode.
+    Texture::DepthReadMode oldReadMode = m_texture->settings().depthReadMode;
+    m_texture->setDepthReadMode(Texture::DEPTH_NORMAL);
+
     // Draw texture
     if (m_settings.needsShader()) {
         static const Matrix4 colorShift[] = {
@@ -699,6 +703,7 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
                     0, 0, 0, 0)
         };
 
+
         m_shader->args.set("texture", m_texture);
         m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
         m_shader->args.set("bias", -m_settings.min);
@@ -713,6 +718,7 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
     }
     Draw::fastRect2D(r, rd);
     rd->setShader(NULL);
+    m_texture->setDepthReadMode(oldReadMode);
     rd->setTexture(0, NULL);
 }
 

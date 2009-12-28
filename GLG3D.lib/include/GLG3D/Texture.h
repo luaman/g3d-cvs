@@ -920,7 +920,14 @@ public:
        generate mipmaps from the level 0 mipmap immediately.  For other textures, does nothing.*/
     void generateMipMaps();
 
+    /** Allows forcing a change to the depthReadMode of the texture currently bound to the target. */
+    void setDepthReadMode(Texture::DepthReadMode depthReadMode);
+
 private:
+
+    /** Allows forcing a change to the depthReadMode of the texture currently bound to the target. */
+    static void setDepthTexParameters(GLenum target, Texture::DepthReadMode depthReadMode);
+    static void setTexParameters(GLenum target,  const Texture::Settings& settings);
 
     class DDSTexture {
     private:

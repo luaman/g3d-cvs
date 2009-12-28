@@ -384,14 +384,6 @@ static void createMipMapTexture(
     Color4&         meanval);
 
 
-/**
- Overrides the current wrap and interpolation parameters for the
- current texture.
- */
-static void setTexParameters(
-    GLenum                          target,
-    const Texture::Settings&        settings);
-
 /////////////////////////////////////////////////////////////////////////////
 
 Texture::Texture(
@@ -1688,10 +1680,39 @@ Texture::Ref Texture::alphaOnlyVersion() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
+void Texture::setDepthReadMode(Texture::DepthReadMode depthReadMode) {
+    if (m_settings.depthReadMode != depthReadMode) {
+        m_settings.depthReadMode = depthReadMode;
+        glStatePush();
+        glBindTexture(openGLTextureTarget(), openGLID());
+        setDepthTexParameters(openGLTextureTarget(), depthReadMode);
+        glStatePop();
+        debugAssertGLOk();
+    }
+}
 
-static void setTexParameters(
-    GLenum                          target,
-    const Texture::Settings&        settings) {
+
+void Texture::setDepthTexParameters(GLenum target, Texture::DepthReadMode depthReadMode) {
+    if (GLCaps::supports_GL_ARB_shadow()) {
+        if (depthReadMode == Texture::DEPTH_NORMAL) {
+
+            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+            glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
+
+        } else {
+
+            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+            glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+            glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
+                (depthReadMode == Texture::DEPTH_LEQUAL) ? GL_LEQUAL : GL_GEQUAL);
+        }
+    }
+}
+
+
+void Texture::setTexParameters
+(GLenum                          target,
+ const Texture::Settings&        settings) {
 
     debugAssert(
         target == GL_TEXTURE_2D ||
@@ -1805,23 +1826,9 @@ static void setTexParameters(
         glTexParameterf(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, settings.maxAnisotropy);
     }
 
-    if (GLCaps::supports_GL_ARB_shadow()) {
-        if (settings.depthReadMode == Texture::DEPTH_NORMAL) {
-
-            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-            glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
-
-        } else {
-
-            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-            glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-            glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC_ARB, 
-                (settings.depthReadMode == Texture::DEPTH_LEQUAL) ? GL_LEQUAL : GL_GEQUAL);
-        }
-    }
+    Texture::setDepthTexParameters(target, settings.depthReadMode);
     debugAssertGLOk();
 }
-
 
 static void glStatePush() {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
