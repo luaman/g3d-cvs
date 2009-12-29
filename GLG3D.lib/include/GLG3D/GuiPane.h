@@ -85,10 +85,10 @@ private:
     Vector2 nextControlPos(bool isTool = false) const;
 
     template<class T>
-    T* addControl(T* control) {
+    T* addControl(T* control, float height = CONTROL_HEIGHT) {
         Vector2 p = nextControlPos(control->toolStyle());
         control->setRect
-            (Rect2D::xywh(p, Vector2((float)CONTROL_WIDTH, CONTROL_HEIGHT)));
+            (Rect2D::xywh(p, Vector2((float)CONTROL_WIDTH, height)));
 
         increaseBounds(control->rect().x1y1());
 
@@ -147,11 +147,14 @@ public:
      */
     GuiPane* addPane(const GuiText& text = "", GuiTheme::PaneStyle style = GuiTheme::SIMPLE_PANE_STYLE);
 
-    GuiTextureBox* addTextureBox(const GuiText& caption = "",
+    GuiTextureBox* addTextureBox(const GuiText& caption,
                                  const Texture::Ref& t = NULL,
                                  const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
                                  bool embedded = false);
 
+    GuiTextureBox* addTextureBox(const Texture::Ref& t = NULL,
+                                 const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
+                                 bool embedded = false);
     /**
        <pre>
        bool enabled;

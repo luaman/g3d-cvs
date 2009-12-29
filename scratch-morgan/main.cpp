@@ -10,6 +10,12 @@
 class App : public GApp {
 public:
 
+    /** As loaded from disk. */
+    Texture::Ref   fromDisk;
+
+    /** As rendered-to-texture. */
+    Texture::Ref   rendered;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -23,7 +29,8 @@ public:
         return GApp::onEvent(e);
     }
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
-    virtual void onGraphics3D (RenderDevice *rd, Array< Surface::Ref > &surface);
+    virtual void onGraphics3D (RenderDevice *rd, Array< Surface::Ref > &surface);    
+    virtual void onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D);
     virtual void onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D);
     virtual void onUserInput(UserInput* ui);
     virtual void onCleanup();
@@ -41,6 +48,17 @@ void App::onInit() {
 
     showRenderingStats = false;
     defaultCamera.setCoordinateFrame(bookmark("Home"));
+    debugWindow->setVisible(true);
+    debugWindow->moveTo(Vector2(600, 0));
+
+    fromDisk = Texture::fromFile("sample.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+    rendered = Texture::createEmpty("Rendered", fromDisk->width(), fromDisk->height(), ImageFormat::RGBA8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+
+    Framebuffer::Ref fb = Framebuffer::create("FB");
+    
+
+    debugWindow->pane()->addTextureBox(fromDisk);
+    debugWindow->pane()->addTextureBox(rendered);
 }
 
 
@@ -50,7 +68,18 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
 }
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
+    (void)rd;
     (void)surface;
+}
+
+void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
+    rd->setTexture(0, fromDisk);
+    Draw::rect2D(fromDisk->rect2DBounds(), rd);
+
+    rd->setTexture(0, rendered);
+    Draw::rect2D(rendered->rect2DBounds() + Vector2(fromDisk->width(), 0), rd);
+
+    Surface2D::sortAndRender(rd, posed2D);
 }
 
 void App::onCleanup() {
