@@ -54,9 +54,6 @@ void App::onInit() {
     fromDisk = Texture::fromFile("sample.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
     rendered = Texture::createEmpty("Rendered", fromDisk->width(), fromDisk->height(), ImageFormat::RGBA8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
 
-    Framebuffer::Ref fb = Framebuffer::create("FB");
-    
-
     debugWindow->pane()->addTextureBox(fromDisk);
     debugWindow->pane()->addTextureBox(rendered);
 }
