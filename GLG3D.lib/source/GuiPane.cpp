@@ -124,7 +124,7 @@ GuiTextureBox* GuiPane::addTextureBox
 (const Texture::Ref& t,
  const GuiTextureBox::Settings& s,
  bool embedded) {
-     return addTextureBox("", t, s, embedded);
+     return addTextureBox(t->name(), t, s, embedded);
 }
 
 

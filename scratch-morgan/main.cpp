@@ -16,6 +16,9 @@ public:
     /** As rendered-to-texture. */
     Texture::Ref   rendered;
 
+    /** As rendered-to-texture by copying from fromDisk */
+    Texture::Ref   copied;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -47,15 +50,55 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 void App::onInit() {
 
     showRenderingStats = false;
-    defaultCamera.setCoordinateFrame(bookmark("Home"));
+    developerWindow->cameraControlWindow->setVisible(false);
     debugWindow->setVisible(true);
-    debugWindow->moveTo(Vector2(600, 0));
+    debugWindow->moveTo(Vector2(0, 300));
 
     fromDisk = Texture::fromFile("sample.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
     rendered = Texture::createEmpty("Rendered", fromDisk->width(), fromDisk->height(), ImageFormat::RGBA8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+    copied = Texture::createEmpty("Copied", fromDisk->width(), fromDisk->height(), ImageFormat::RGBA8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
 
-    debugWindow->pane()->addTextureBox(fromDisk);
-    debugWindow->pane()->addTextureBox(rendered);
+    Framebuffer::Ref fb = Framebuffer::create("FB");
+    fb->set(Framebuffer::COLOR0, rendered);
+    renderDevice->push2D(fb);
+        renderDevice->setColorClearValue(Color3::white());
+        renderDevice->clear();
+        Draw::rect2D(Rect2D::xywh(0, 0, 20, 10), renderDevice, Color3::red());
+    renderDevice->pop2D();
+    
+
+    fb->set(Framebuffer::COLOR0, copied);
+    renderDevice->push2D(fb);
+        renderDevice->setColorClearValue(Color3::white());
+        renderDevice->clear();
+
+        Shader::Ref shader = Shader::fromStrings(
+            STR(#version 150 compatibility\n
+            void main() {
+                gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+            }),
+
+            STR(#version 150 compatibility\n
+            in vec4 gl_FragCoord;
+            out vec4 gl_FragColor;
+            uniform sampler2D src;
+ 
+            void main() {
+                gl_FragColor.rgb = texelFetch(src, ivec2(gl_FragCoord.xy), 0).rgb;
+            }
+            ));
+        shader->args.set("src", fromDisk);
+        renderDevice->setShader(shader);
+        Draw::rect2D(fromDisk->rect2DBounds(), renderDevice);
+    renderDevice->pop2D();
+
+
+    GuiTextureBox* a = debugWindow->pane()->addTextureBox(fromDisk);
+    GuiTextureBox* b = debugWindow->pane()->addTextureBox(rendered);
+    b->moveRightOf(a);
+    GuiTextureBox* c = debugWindow->pane()->addTextureBox(copied);
+    c->moveRightOf(b);
+    debugWindow->pack();
 }
 
 
@@ -75,6 +118,9 @@ void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
 
     rd->setTexture(0, rendered);
     Draw::rect2D(rendered->rect2DBounds() + Vector2(fromDisk->width(), 0), rd);
+
+    rd->setTexture(0, copied);
+    Draw::rect2D(copied->rect2DBounds() + Vector2(fromDisk->width() * 2, 0), rd);
 
     Surface2D::sortAndRender(rd, posed2D);
 }

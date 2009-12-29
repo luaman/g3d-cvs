@@ -147,12 +147,12 @@ public:
      */
     GuiPane* addPane(const GuiText& text = "", GuiTheme::PaneStyle style = GuiTheme::SIMPLE_PANE_STYLE);
 
-    GuiTextureBox* addTextureBox(const GuiText& caption,
+    GuiTextureBox* addTextureBox(const GuiText& caption = "",
                                  const Texture::Ref& t = NULL,
                                  const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
                                  bool embedded = false);
 
-    GuiTextureBox* addTextureBox(const Texture::Ref& t = NULL,
+    GuiTextureBox* addTextureBox(const Texture::Ref& t,
                                  const GuiTextureBox::Settings&  s = GuiTextureBox::Settings(),
                                  bool embedded = false);
     /**
