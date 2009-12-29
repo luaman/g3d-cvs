@@ -1,14 +1,14 @@
 /** @page guidewin32 Installing %G3D on Windows
 
 The following sections give step-by-step instructions for installing
-the 7.01 version of %G3D.
+the 8.00 version of %G3D on Windows XP, Vista, and 7.
 
 <p>For experienced Visual Studio developers, the short version of these instructions is simple:
 
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.01-win32.zip?download">G3D-7.01-win32.zip</a> and configure Visual Studio's Include and Library paths.
+href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
 <li> See <code><a href="../demos/starter">G3D\demos\starter</a></code> for a simple application framework.
 </ol>
 \endhtmlonly
@@ -30,6 +30,13 @@ instead use the latest (free!) version of Visual Studio.
 \endhtmlonly
 </p>
 
+<hr>
+@section vs10install Visual Studio 2010 (VC++ 10.0) Notes
+
+As of the time of this writing, Visual Studio 2010 is in beta but has not been released.  We expect
+that the following instructions will work more-or-less with VC10, however we have not had an opportunity
+to test them.  When it is released publicly, VC10 will become the prefered Windows compiler for 
+%G3D and will be fully supported by the %G3D project.
 
 <hr>
 @section g3dinstall G3D Installation
@@ -38,7 +45,7 @@ instead use the latest (free!) version of Visual Studio.
 <li> <p>
 
 Download <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-7.01-win32.zip?download">G3D-7.01-win32.zip</a>
+href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a>
 and unzip it into a directory like <code>c:\libraries</code>. This
 will create the directories <code>c:\libraries\G3D</code>,
 <code>c:\libraries\G3D\html</code>, etc.
@@ -81,6 +88,9 @@ directory.  If you installed G3D to
 
 <li><p>Quit Visual Studio to ensure that your changes are saved.</p>
 </ol>
+
+See the <a href="guidenewwin32.html">instructions for creating a new project</a> on Windows for information about how to write your first G3D program,
+or explore the provided <a href="guidedemos.html">sample programs</a>.
 \endhtmlonly
 
 */

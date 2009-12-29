@@ -9,13 +9,13 @@
 <ol>
 <li><p>Installing %G3D
 \htmlonly
-<table width=250><tr><td width=10%></td><td width=45%><a class="el" href="guidewin32.html">Windows</a></td><td><a class="el" href="guideunix.html">Linux</a></td></tr><tr><td></td><td><a class="el" href="guideunix.html">OS X</a></td><td><a class="el" href="guideunix.html">FreeBSD</a></td></tr></table>
+<table width=250><tr><td width=10%></td><td width=45%><a class="el" href="guidewin32.html">Windows</a></td><td><a class="el" href="guideunix.html">Linux</a></td></tr><tr><td></td><td><a class="el" href="guideunix.html">OS X</a></td><td></td></tr></table>
 \endhtmlonly
 </p>
 
 <li> <p> Creating a Project
 \htmlonly
-<table width=250><tr><td width=10%></td><td width=45%><a class="el" href="guidenewwin32.html">Windows</a></td><td><a class="el" href="guidenewunix.html">Linux</a></td></tr><tr><td></td><td><a class="el" href="guidenewunix.html">OS X</a></td><td><a class="el" href="guidenewunix.html">FreeBSD</a></td></tr></table>
+<table width=250><tr><td width=10%></td><td width=45%><a class="el" href="guidenewwin32.html">Windows</a></td><td><a class="el" href="guidenewunix.html">Linux</a></td></tr><tr><td></td><td><a class="el" href="guidenewunix.html">OS X</a></td><td></td></tr></table>
 \endhtmlonly
 </p>
 
@@ -70,8 +70,6 @@
 <li> <p> FAQs
 \htmlonly<table width=250>
 <tr><td width=10%></td><td><a class="el" href="http://sourceforge.net/apps/mediawiki/g3d-cpp/index.php?title=FAQ">General Questions</a></td><td></td></tr>
-<tr><td width=10%></td><td><a class="el" href="errorfaq.html">Common Errors</a></td><td></td></tr>
-<tr><td width=10%></td><td><a class="el" href="upgrade8.html">Upgrading from 7.xx &rarr; 8.xx</a></td><td></td></tr>
 <tr><td width=10%></td><td><a class="el" href="upgrade.html">Upgrading from 6.xx &rarr; 7.xx</a></td><td></td></tr>
 </table>\endhtmlonly</p>
 

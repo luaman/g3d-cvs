@@ -15,9 +15,9 @@ href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-src.zip?download">G3D-
 </ol>
 \endhtmlonly
 </p>
-
-
 <hr>
+
+\section full Full Unix (Linux and OS X) installation instructions
 \htmlonly
 
 <ol>
@@ -29,7 +29,7 @@ curl http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-src.zip?download > G3D-
 unzip G3D-8.00-src.zip
 pushd G3D
 chmod u+x buildg3d
-./buildg3d --install /usr/local update
+sudo ./buildg3d --install /usr/local update
 popd
 rm -rf G3D
 popd
@@ -43,9 +43,9 @@ data files can be found at <code>/usr/local/G3D/data</code> and
 </p>
 
 <p>
-<li>G3D comes with a build tool called iCompile that automatically compiles and links programs using g++ on Linux, FreeBSD, and OS X.  This is a replacement for Makefiles.  If you choose to use it and installed G3D to a path and you plan to use the provided bin/icompile tool to create yourthat is not already in your
-INCLUDE and LIBRARY variables then you need to edit your
-<code>~/.icompile</code> file to work with G3D.  See the <a
+<li>G3D comes with a build tool called iCompile that automatically compiles and links programs using g++ on Linux and OS X.  This is a replacement for Makefiles. 
+ If you choose to use it and installed G3D to a path that is not already in your
+INCLUDE and LIBRARY variables, then you need to edit your <code>~/.icompile</code> file to work with G3D.  See the <a
 href="icompile-manual.html" >iCompile Manual</a> for details.  A sample .icompile file that assumes you built in your home directory and never installed to the system is:
 
 <pre>
