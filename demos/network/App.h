@@ -16,7 +16,7 @@ public:
 
     void browseServers();
 
-    App();
+    App(const GApp::Settings& settings);
 
     virtual void onInit();
 

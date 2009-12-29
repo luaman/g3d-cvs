@@ -22,10 +22,14 @@ G3D_START_AT_MAIN();
 #define APPLICATION_NAME ("Network Demo")
 
 int main(int argc, char** argv) {
-    return App().run();
+    GApp::Settings settings;
+    settings.window.width = 600;
+    settings.window.height = 400;
+    settings.window.caption = APPLICATION_NAME;
+    return App(settings).run();
 }
 
-App::App() : GApp(GApp::Settings()) {}
+App::App(const GApp::Settings& settings) : GApp(settings) {}
 
 class ModeDialog : public GuiWindow {
 private:
@@ -90,6 +94,7 @@ void App::onInit() {
     // make the screen white.
     renderDevice->setColorClearValue(Color3::white());
     renderDevice->clear();
+    renderDevice->swapBuffers();
 
     if (ModeDialog::isServer(window(), debugWindow->theme())) {
         Discovery::ServerDescription description;
@@ -102,6 +107,9 @@ void App::onInit() {
         renderDevice->setColorClearValue(Color3::black());
     } else {
         isServer = false;
+        renderDevice->clear();
+        renderDevice->swapBuffers();
+
         // Client
         browseServers();
     }

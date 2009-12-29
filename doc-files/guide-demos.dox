@@ -72,10 +72,10 @@
 </tr>
 
 <tr><td culspan=2 height=10> </td></tr>
-
 <tr><td culspan=2>Network Discovery (<a href="../demos/network">demos/network</a>)</td></tr>
 <tr valign=top>
 <td>
+\htmlonly <IMG SRC="demo-network.png" width=250 > \endhtmlonly
 </td>
 <td>
 <ul>

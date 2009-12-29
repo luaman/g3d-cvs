@@ -1,7 +1,7 @@
 /**
 @page contributors G3D Developer Credits
 
- <b>8.0 Release Team</b>
+ <b>8.00 Release Team</b>
  <br>Morgan McGuire [Williams College] - Project Manager
  <br>Corey Taylor [EA] - Assistant Project Manager
  <br>Shawn Yarbrough [weaponizedgames.com] - Developer
@@ -14,8 +14,9 @@
  previous members of a %G3D release team.  Institutions reflect the 
  current (or latest known) institution.
 
-   <P>Shawn Yarbrough*, weaponizedgames.com
+   <BR>Tomas Akenine-M&ouml;ller
    <BR>David Baszucki, ROBLOX
+   <BR>Bill Baxter
    <BR>Seth Block, Brown University
    <BR>Nicholas Bray
    <BR>Nick Capens
@@ -43,7 +44,7 @@
    <BR>Pete Hopkins
    <br>Danny Yuxing Huang*, Williams College
    <BR>Peter Hunt, Cornell University
-   <BR>Robert Hunter
+   <BR>Robert Hunter, Brown University
    <BR>Ed Johnson
    <BR>Benjamin Jurke
    <BR>Chris Kern
@@ -61,7 +62,6 @@
    <BR>Justin Miller
    <BR>Kurt Miller
    <BR>Nate Miller
-   <BR>Tomas Moller
    <BR>Stefan Müller
    <BR>Eric Muller*, Williams College
    <BR>Nick Musurca, Brown University
@@ -87,4 +87,5 @@
    <BR>Simon Winkelbach
    <BR>Laura Wollstadt
    <BR>Andrew Woo
+   <BR>Shawn Yarbrough*, weaponizedgames.com
 */
