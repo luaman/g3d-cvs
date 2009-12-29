@@ -101,6 +101,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\doc-files\guide-demos.dox"
+			>
+		</File>
+		<File
 			RelativePath="..\doc-files\guide-macosx.dox"
 			>
 		</File>
