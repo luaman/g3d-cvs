@@ -212,26 +212,34 @@ void Draw::poly2D(const Array<Vector2>& polygon, RenderDevice* renderDevice, con
     renderDevice->endPrimitive();
 }
 
+/** \param dirDist Distance at which to render directional lights */
+static void drawLight(const GLight& light, RenderDevice* rd, bool showEffectSpheres, float dirDist) {
+    if (light.position.w != 0) {
+        // Point light
+        Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, light.color, Color4::clear());
+        if (showEffectSpheres) {
+            Sphere s = light.effectSphere();
+            if (s.radius < finf()) {
+                Draw::sphere(s, rd, Color4::clear(), Color4(light.color, 0.5f));
+            }
+        }
+    } else {
+        // Directional light
+        Draw::sphere(Sphere(light.position.xyz() * dirDist, 0.1f * dirDist), rd, light.color, Color4::clear());
+    }
+}
 
-void Draw::lighting(LightingRef lighting, RenderDevice* rd, bool showEffectSpheres) {
+void Draw::lighting(Lighting::Ref lighting, RenderDevice* rd, bool showEffectSpheres) {
     rd->pushState();
         rd->setShader(NULL);
         rd->disableLighting();
+        const GCamera& camera = rd->projectionAndCameraMatrix();
+        float dirDist = min(200.0f, fabs(camera.farPlaneZ()) * 0.9f);
         for (int L = 0; L < lighting->lightArray.size(); ++L) {
-            const GLight& light = lighting->lightArray[L];
-            if (light.position.w != 0) {
-                // Point light
-                Draw::sphere(Sphere(light.position.xyz(), 0.1f), rd, light.color, Color4::clear());
-                if (showEffectSpheres) {
-                    Sphere s = light.effectSphere();
-                    if (s.radius < finf()) {
-                        Draw::sphere(s, rd, Color4::clear(), Color4(light.color, 0.5f));
-                    }
-                }
-            } else {
-                // Directional light
-                Draw::sphere(Sphere(light.position.xyz() * 200, 20.0f), rd, light.color, Color4::clear());
-            }
+            drawLight(lighting->lightArray[L], rd, showEffectSpheres, dirDist);
+        }
+        for (int L = 0; L < lighting->shadowedLightArray.size(); ++L) {
+            drawLight(lighting->shadowedLightArray[L], rd, showEffectSpheres, dirDist);
         }
     rd->popState();
 }
