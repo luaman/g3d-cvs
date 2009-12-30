@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2005-08-10
-  @edited  2008-10-07
+  @edited  2009-12-30
 */
 #ifndef G3D_SHAPE_H
 #define G3D_SHAPE_H
@@ -40,6 +40,8 @@ typedef ReferenceCountedPointer<class Shape> ShapeRef;
   */
 class Shape : public ReferenceCountedObject {
 public:
+
+    typedef ReferenceCountedPointer<Shape> Ref;
 
     enum Type {NONE = 0, MESH = 1, BOX, CYLINDER, SPHERE, RAY, CAPSULE, PLANE, AXES, POINT, TRIANGLE};
 

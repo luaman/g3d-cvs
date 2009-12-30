@@ -19,6 +19,8 @@
 #include "GLG3D/Surface.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/SuperShader.h"
+#include "GLG3D/Shape.h" // todo:remove
+#include "GLG3D/GApp.h" // tODO:remove
 
 namespace G3D {
 
@@ -178,6 +180,7 @@ void Surface::sortAndRender
 
             ShadowMap::computeMatrices(light, sceneBounds, lightFrame, lightProjectionMatrix);
 
+debugDraw(new AxesShape(lightFrame.coordinateFrame()));
             Surface::cull(lightFrame, shadowMaps[L]->rect2DBounds(), allModels, lightVisible);
             Surface::sort(lightVisible, lightFrame.coordinateFrame().lookVector(), lightSorted);
             shadowMaps[L]->updateDepth(rd, lightFrame.coordinateFrame(), lightProjectionMatrix, lightSorted, 0.001f);

@@ -49,7 +49,7 @@ void GApp::vscreenPrintf
     }
 }
 
-void debugDraw(const ShapeRef& shape, const Color4& solidColor, 
+void debugDraw(const Shape::Ref& shape, const Color4& solidColor, 
                const Color4& wireColor, const CFrame& frame) {
     if (lastGApp) {
         debugAssert(shape.notNull());
@@ -737,6 +737,7 @@ void GApp::oneFrame() {
 
 
 void GApp::drawDebugShapes() {
+    renderDevice->setObjectToWorldMatrix(CFrame());
     for (int i = 0; i < debugShapeArray.size(); ++i) {
         const DebugShape& s = debugShapeArray[i];
         s.shape->render(renderDevice, s.frame, s.solidColor, s.wireColor); 
