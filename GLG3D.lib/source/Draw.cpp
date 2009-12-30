@@ -231,6 +231,7 @@ static void drawLight(const GLight& light, RenderDevice* rd, bool showEffectSphe
 
 void Draw::lighting(Lighting::Ref lighting, RenderDevice* rd, bool showEffectSpheres) {
     rd->pushState();
+        rd->setObjectToWorldMatrix(CFrame());
         rd->setShader(NULL);
         rd->disableLighting();
         const GCamera& camera = rd->projectionAndCameraMatrix();
