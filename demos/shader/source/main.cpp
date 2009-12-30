@@ -88,6 +88,7 @@ void App::onInit() {
     developerWindow->setVisible(false);
 }
 
+
 void App::makeColorList(GFontRef iconFont) {
     // Characters in icon font that make a solid block of color
     const char* block = "gggggg";
@@ -118,6 +119,7 @@ void App::makeGui() {
     
     addWidget(gui);
 }
+
 
 void App::onGraphics(RenderDevice* rd, Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     LightingRef   localLighting = lighting;

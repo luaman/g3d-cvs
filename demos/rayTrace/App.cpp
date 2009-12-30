@@ -12,6 +12,7 @@ int main(int argc, char** argv) {
     settings.window.caption     = "G3D Ray Trace Demo";
     settings.window.width       = 640; 
     settings.window.height      = 400;
+    settings.film.enabled       = false;
 
     return App(settings).run();
 }

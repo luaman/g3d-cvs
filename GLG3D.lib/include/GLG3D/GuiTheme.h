@@ -1,7 +1,7 @@
 /**
   @file GuiTheme.h
   @maintainer Morgan McGuire, morgan@cs.williams.edu
-  Copyright 2001-2009, Morgan McGuire
+  Copyright 2000-2010, Morgan McGuire
   All rights reserved
  */
 

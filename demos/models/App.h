@@ -17,8 +17,6 @@ private:
     Array<Entity::Ref>          entityArray;
     Texture::Ref                texture;
 
-    ToneMapRef                  toneMap;
-
     void loadScene();
 
 public:
@@ -27,7 +25,8 @@ public:
     virtual void onUserInput(UserInput* ui);
     virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
     virtual void onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
-    virtual void onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D);
+    virtual void onGraphics2D(RenderDevice* rd, Array<Surface2D::Ref>& posed2D);
+    virtual void onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& posed3D);
 };
 
 #endif

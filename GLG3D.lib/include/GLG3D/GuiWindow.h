@@ -5,7 +5,7 @@
  @edited  2009-09-21
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2009, Morgan McGuire morgan@users.sf.net
+ Copyright 2000-2010, Morgan McGuire morgan@users.sf.net
  All rights reserved.
 */
 #ifndef G3D_GUIWINDOW_H

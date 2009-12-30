@@ -104,8 +104,9 @@ Matrix3 Matrix4::upper3x3() const {
 Matrix4 Matrix4::orthogonalProjection(
     const class Rect2D& rect,
     float            nearval,
-    float            farval) {
-    return Matrix4::orthogonalProjection(rect.x0(), rect.x1(), rect.y1(), rect.y0(), nearval, farval);
+    float            farval,
+    float            upDirection) {
+    return Matrix4::orthogonalProjection(rect.x0(), rect.x1(), rect.y1(), rect.y0(), nearval, farval, upDirection);
 }
 
 
@@ -115,7 +116,8 @@ Matrix4 Matrix4::orthogonalProjection(
     float            bottom,
     float            top,
     float            nearval,
-    float            farval) {
+    float            farval,
+    float            upDirection) {
 
     // Adapted from Mesa.  Note that Microsoft (http://msdn.microsoft.com/library/default.asp?url=/library/en-us/opengl/glfunc03_8qnj.asp) 
     // and Linux (http://www.xfree86.org/current/glOrtho.3.html) have different matrices shown in their documentation.
@@ -129,6 +131,9 @@ Matrix4 Matrix4::orthogonalProjection(
     tx = -(right+left) / (right-left);
     ty = -(top+bottom) / (top-bottom);
     tz = -(farval+nearval) / (farval-nearval);
+
+    y  *= upDirection;
+    ty *= upDirection;
 
     return 
         Matrix4( x , 0.0f, 0.0f,  tx,
@@ -144,7 +149,8 @@ Matrix4 Matrix4::perspectiveProjection(
     float bottom,  
     float top,
     float nearval, 
-    float farval) {
+    float farval,
+    float upDirection) {
 
     float x, y, a, b, c, d;
 
@@ -162,6 +168,10 @@ Matrix4 Matrix4::perspectiveProjection(
        d = -(2.0f*farval*nearval) / (farval-nearval);
     }
 
+    debugAssertM(abs(upDirection) == 1.0f, "upDirection must be -1 or +1");
+    y *= upDirection;
+    b *= upDirection;
+
     return Matrix4(
         x,  0,  a,  0,
         0,  y,  b,  0,
@@ -169,18 +179,22 @@ Matrix4 Matrix4::perspectiveProjection(
         0,  0, -1,  0);
 }
 
+
 void Matrix4::getPerspectiveProjectionParameters(
     float& left,    
     float& right,
     float& bottom,  
     float& top,
     float& nearval, 
-    float& farval) const {
+    float& farval,
+    float upDirection) const {
+
+    debugAssertM(abs(upDirection) == 1.0f, "upDirection must be -1 or +1");
 
     float x = elt[0][0];
-    float y = elt[1][1];
+    float y = elt[1][1] * upDirection;
     float a = elt[0][2];
-    float b = elt[1][2];
+    float b = elt[1][2] * upDirection;
     float c = elt[2][2];
     float d = elt[2][3];
 

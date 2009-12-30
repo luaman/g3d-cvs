@@ -489,12 +489,22 @@ Vector4 RenderDevice::project(const Vector3& v) const {
 
 
 Vector4 RenderDevice::project(const Vector4& v) const {
-//    return glToScreen(v) + Vector4(0, viewport().y0(), 0, 0);
-    Vector4 p = glToScreen(v);
-    
-    p.y += viewport().y1() + viewport().y0() - height();
+    Matrix4 M = modelViewProjectionMatrix();
 
-    return p;
+    Vector4 result = M * v;
+    
+    const Rect2D& view = viewport();
+
+    // Homogeneous divide
+    const double rhw = 1.0 / result.w;
+
+    const float depthRange[2] = {0.0f, 1.0f};
+
+    return Vector4(
+        (1.0f + result.x * rhw) * view.width() / 2 + view.x0(),
+        (1.0f + result.y * rhw) * view.height() / 2 + view.y0(),
+        (result.z * rhw) * (depthRange[1] - depthRange[0]) + depthRange[0],
+        rhw);
 }
 
 
@@ -622,6 +632,7 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
     matrices.objectToWorldMatrix         = CoordinateFrame();
     matrices.cameraToWorldMatrix         = CoordinateFrame();
     matrices.cameraToWorldMatrixInverse  = CoordinateFrame();
+    matrices.invertY                     = true;
 
     stencil.stencilClear        = 0;
     depthClear                  = 1;
@@ -809,7 +820,28 @@ bool RenderDevice::RenderState::Matrices::operator==(const Matrices& other) cons
     return
         (objectToWorldMatrix == other.objectToWorldMatrix) &&
         (cameraToWorldMatrix == other.cameraToWorldMatrix) &&
-        (projectionMatrix == other.projectionMatrix);
+        (projectionMatrix == other.projectionMatrix) &&
+        (invertY == other.invertY);
+}
+
+
+bool RenderDevice::invertY() const {
+    return m_state.matrices.invertY;
+}
+
+
+const Matrix4& RenderDevice::invertYMatrix() const {
+    if (invertY()) {
+        // "Normal OpenGL"
+        static Matrix4 M(1,  0, 0, 0,
+                       0, -1, 0, 0,
+                       0,  0, 1, 0,
+                       0,  0, 0, 1); 
+        return M;
+    } else {
+        // "G3D"
+        return Matrix4::identity();
+    }
 }
 
 
@@ -1034,6 +1066,19 @@ void RenderDevice::afterPrimitive() {
     }
 }
 
+GLenum RenderDevice::applyWinding(GLenum f) const {
+    if (! invertY()) {
+        if (f == GL_FRONT) {
+            return GL_BACK;
+        } else if (f == GL_BACK) {
+            return GL_FRONT;
+        }
+    }
+
+    // Pass all other values (like GL_ALWAYS) through
+    return f;
+}
+
 
 void RenderDevice::setSpecularCoefficient(const Color3& c) {
     minStateChange();
@@ -1148,19 +1193,23 @@ void RenderDevice::setReadBuffer(ReadBuffer b) {
 }
 
 
+void RenderDevice::forceSetCullFace(CullFace f) {
+    minGLStateChange();
+    if (f == CULL_NONE) {
+        glDisable(GL_CULL_FACE);
+    } else {
+        glEnable(GL_CULL_FACE);
+        glCullFace(applyWinding(GLenum(f)));
+    }
+
+    m_state.cullFace = f;
+}
+
+
 void RenderDevice::setCullFace(CullFace f) {
     minStateChange();
     if (f != m_state.cullFace && f != CULL_CURRENT) {
-        minGLStateChange();
-        
-        if (f == CULL_NONE) {
-            glDisable(GL_CULL_FACE);
-        } else {
-            glEnable(GL_CULL_FACE);
-            glCullFace(GLenum(f));
-        }
-
-        m_state.cullFace = f;
+        forceSetCullFace(f);
     }
 }
 
@@ -1392,12 +1441,23 @@ void RenderDevice::setColorClearValue(const Color4& c) {
 void RenderDevice::setViewport(const Rect2D& v) {
     minStateChange();
     if (m_state.viewport != v) {
-        // Flip to OpenGL y-axis
-        float h = height();
-        _glViewport(v.x0(), h - v.y1(), v.width(), v.height());
-        m_state.viewport = v;
-        minGLStateChange();
+        forceSetViewport(v);
     }
+}
+
+
+void RenderDevice::forceSetViewport(const Rect2D& v) {
+    // Flip to OpenGL y-axis
+    float x = v.x0();
+    float y;
+    if (invertY()) {
+        y = height() - v.y1();
+    } else { 
+        y = v.y0();
+    }
+    _glViewport(x, y, v.width(), v.height());
+    m_state.viewport = v;
+    minGLStateChange();
 }
 
 
@@ -1414,7 +1474,13 @@ void RenderDevice::setClip2D(const Rect2D& clip) {
         int clipX1 = iCeil(clip.x1());
         int clipY1 = iCeil(clip.y1());
 
-        glScissor(clipX0, height() - clipY1, clipX1 - clipX0, clipY1 - clipY0);
+        int y = 0;
+        if (invertY()) {
+            y = height() - clipY1;
+        } else {
+            y = clipY0;
+        }
+        glScissor(clipX0, y, clipX1 - clipX0, clipY1 - clipY0);
 
         if (clip.area() == 0) {
             // On some graphics cards a clip region that is zero without being (0,0,0,0) 
@@ -1456,7 +1522,7 @@ void RenderDevice::setProjectionAndCameraMatrix(const GCamera& camera) {
 }
 
 
-Rect2D RenderDevice::viewport() const {
+const Rect2D& RenderDevice::viewport() const {
     return m_state.viewport;
 }
 
@@ -1502,6 +1568,25 @@ void RenderDevice::setFramebuffer(const FramebufferRef& fbo) {
             }
 
             // The enables for this framebuffer will be set during beforePrimitive()            
+        }
+
+        const bool newInvertY = m_state.framebuffer.isNull();
+        const bool invertYChanged = (m_state.matrices.invertY != newInvertY);
+        if (invertYChanged) {
+            m_state.matrices.invertY = newInvertY;
+            // Force projection matrix change
+            forceSetProjectionMatrix(projectionMatrix());
+
+            // TODO: avoid if full-screen
+            forceSetViewport(Rect2D(viewport()));
+
+            // TODO: avoid if no-ops
+            forceSetCullFace(m_state.cullFace);
+
+            // TODO: avoid if no-ops
+            forceSetStencilOp
+                (m_state.stencil.frontStencilFail, m_state.stencil.frontStencilZFail, m_state.stencil.frontStencilZPass,
+                 m_state.stencil.backStencilFail,  m_state.stencil.backStencilZFail, m_state.stencil.backStencilZPass);
         }
     }
 }
@@ -1772,6 +1857,65 @@ void RenderDevice::setVertexAndPixelShader(
 }
 
 
+void RenderDevice::forceSetStencilOp(
+    StencilOp                       frontStencilFail,
+    StencilOp                       frontZFail,
+    StencilOp                       frontZPass,
+    StencilOp                       backStencilFail,
+    StencilOp                       backZFail,
+    StencilOp                       backZPass) {
+
+    if (! invertY()) {
+        std::swap(frontStencilFail, backStencilFail);
+        std::swap(frontZFail, backZFail);
+        std::swap(frontZPass, backZPass);
+    }
+
+    if (GLCaps::supports_GL_EXT_stencil_two_side()) {
+        // NVIDIA
+
+        // Set back face operation
+        glActiveStencilFaceEXT(GL_BACK);
+        glStencilOp(
+            toGLStencilOp(backStencilFail),
+            toGLStencilOp(backZFail),
+            toGLStencilOp(backZPass));
+        
+        // Set front face operation
+        glActiveStencilFaceEXT(GL_FRONT);
+        glStencilOp(
+            toGLStencilOp(frontStencilFail),
+            toGLStencilOp(frontZFail),
+            toGLStencilOp(frontZPass));
+
+        minGLStateChange(4);
+
+    } else if (GLCaps::supports_GL_ATI_separate_stencil()) {
+        // ATI
+        minGLStateChange(2);
+        glStencilOpSeparateATI(GL_FRONT, 
+            toGLStencilOp(frontStencilFail),
+            toGLStencilOp(frontZFail),
+            toGLStencilOp(frontZPass));
+
+        glStencilOpSeparateATI(GL_BACK, 
+            toGLStencilOp(backStencilFail),
+            toGLStencilOp(backZFail),
+            toGLStencilOp(backZPass));
+
+    } else {
+        // Generic OpenGL
+
+        // Set front face operation
+        glStencilOp(
+            toGLStencilOp(frontStencilFail),
+            toGLStencilOp(frontZFail),
+            toGLStencilOp(frontZPass));
+
+        minGLStateChange(1);
+    }
+}
+
 void RenderDevice::setStencilOp(
     StencilOp                       frontStencilFail,
     StencilOp                       frontZFail,
@@ -1814,49 +1958,8 @@ void RenderDevice::setStencilOp(
          (backZFail        != m_state.stencil.backStencilZFail) ||
          (backZPass        != m_state.stencil.backStencilZPass)))) { 
 
-        if (GLCaps::supports_GL_EXT_stencil_two_side()) {
-            // NVIDIA
-
-            // Set back face operation
-            glActiveStencilFaceEXT(GL_BACK);
-            glStencilOp(
-                toGLStencilOp(backStencilFail),
-                toGLStencilOp(backZFail),
-                toGLStencilOp(backZPass));
-            
-            // Set front face operation
-            glActiveStencilFaceEXT(GL_FRONT);
-            glStencilOp(
-                toGLStencilOp(frontStencilFail),
-                toGLStencilOp(frontZFail),
-                toGLStencilOp(frontZPass));
-
-            minGLStateChange(4);
-
-        } else if (GLCaps::supports_GL_ATI_separate_stencil()) {
-            // ATI
-            minGLStateChange(2);
-            glStencilOpSeparateATI(GL_FRONT, 
-                toGLStencilOp(frontStencilFail),
-                toGLStencilOp(frontZFail),
-                toGLStencilOp(frontZPass));
-
-            glStencilOpSeparateATI(GL_BACK, 
-                toGLStencilOp(backStencilFail),
-                toGLStencilOp(backZFail),
-                toGLStencilOp(backZPass));
-
-        } else {
-            // Generic OpenGL
-
-            // Set front face operation
-            glStencilOp(
-                toGLStencilOp(frontStencilFail),
-                toGLStencilOp(frontZFail),
-                toGLStencilOp(frontZPass));
-
-            minGLStateChange(1);
-        }
+        forceSetStencilOp(frontStencilFail, frontZFail, frontZPass,
+                 backStencilFail, backZFail, backZPass);
 
 
         // Need to manage the mask as well
@@ -2124,15 +2227,20 @@ Matrix4 RenderDevice::modelViewProjectionMatrix() const {
 }
 
 
+void RenderDevice::forceSetProjectionMatrix(const Matrix4& P) {
+    m_state.matrices.projectionMatrix = P;
+    m_state.matrices.changed = true;
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrix(invertYMatrix() * P);
+    glMatrixMode(GL_MODELVIEW);
+    minGLStateChange();
+}
+
+
 void RenderDevice::setProjectionMatrix(const Matrix4& P) {
     minStateChange();
     if (m_state.matrices.projectionMatrix != P) {
-        m_state.matrices.projectionMatrix = P;
-        m_state.matrices.changed = true;
-        glMatrixMode(GL_PROJECTION);
-        glLoadMatrix(P);
-        glMatrixMode(GL_MODELVIEW);
-        minGLStateChange();
+        forceSetProjectionMatrix(P);
     }
 }
 
@@ -2168,25 +2276,6 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
     glLoadMatrixf(tt);
 
     const Texture::Ref& texture = m_state.textureUnit[unit].texture;
-
-    // invert y
-    if (texture.notNull() && texture->invertY) {
-
-        float ymax = 1.0;
-    
-        if (texture->dimension() == Texture::DIM_2D_RECT) {
-            ymax = texture->height();
-        }
-
-        float m[16] = 
-        { 1,  0,  0,  0,
-          0, -1,  0,  0,
-          0,  0,  1,  0,
-          0,  ymax,  0,  1};
-
-        glMultMatrixf(m);
-    }
-
 }
 
 
@@ -2601,15 +2690,6 @@ void RenderDevice::setTexture(
     } else {
         // Disabled texture unit
         currentlyBoundTexture[unit] = 0;
-    }
-
-    // Force a reload of the texture matrix if invertY != old invertY.
-    // This will take care of flipping the texture when necessary.
-    if (oldTexture.isNull() ||
-        texture.isNull() ||
-        (oldTexture->invertY != texture->invertY)) {
-
-        forceSetTextureMatrix(unit, m_state.textureUnit[unit].textureMatrix);
     }
 }
 

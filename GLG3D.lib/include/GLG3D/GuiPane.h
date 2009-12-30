@@ -5,7 +5,7 @@
  @edited  2009-03-25
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2009, Morgan McGuire, morgan@cs.williams.edu
+ Copyright 2000-2010, Morgan McGuire, morgan@cs.williams.edu
  All rights reserved.
 */
 #ifndef G3D_GuiPane_H

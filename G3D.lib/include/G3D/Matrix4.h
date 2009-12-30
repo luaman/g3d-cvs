@@ -95,7 +95,8 @@ public:
      float& bottom,  
      float& top,
      float& nearval, 
-     float& farval) const;
+     float& farval,
+     float updirection = -1.0f) const;
         
     inline float* operator[](int r) {
         debugAssert(r >= 0);
@@ -128,6 +129,9 @@ public:
      Constructs an orthogonal projection matrix from the given parameters.
      Near and far are the <b>NEGATIVE</b> of the near and far plane Z values
      (to follow OpenGL conventions).
+
+    \param upDirection Use -1.0 for 2D Y increasing downwards (the G3D 8.x default convention), 
+    1.0 for 2D Y increasing upwards (the G3D 7.x default and OpenGL convention)
      */
     static Matrix4 orthogonalProjection(
         float            left,
@@ -135,20 +139,30 @@ public:
         float            bottom,
         float            top,
         float            nearval,
-        float            farval);
+        float            farval,
+        float            upDirection = -1.0f);
 
+
+    /** \param upDirection Use -1.0 for 2D Y increasing downwards (the G3D 8.x default convention), 
+    1.0 for 2D Y increasing upwards (the G3D 7.x default and OpenGL convention)
+      */
     static Matrix4 orthogonalProjection(
         const class Rect2D& rect,
         float            nearval,
-        float            farval);
+        float            farval,
+        float            upDirection = -1.0f);
 
+    /** \param upDirection Use -1.0 for 2D Y increasing downwards (the G3D 8.x default convention), 
+    1.0 for 2D Y increasing upwards (the G3D 7.x default and OpenGL convention)
+      */
     static Matrix4 perspectiveProjection(
         float            left,
         float            right,
         float            bottom,
         float            top,
         float            nearval,
-        float            farval);
+        float            farval,
+        float            upDirection = -1.0f);
 
     void setRow(int r, const class Vector4& v);
     void setColumn(int c, const Vector4& v);

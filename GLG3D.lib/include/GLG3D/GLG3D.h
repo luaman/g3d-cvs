@@ -9,7 +9,7 @@
  @created 2002-08-07
  @edited  2009-11-04
 
- Copyright 2001-2009, Morgan McGuire.
+ Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
 */
 
@@ -77,7 +77,6 @@
 #include "GLG3D/Framebuffer.h"
 #include "GLG3D/Widget.h"
 #include "GLG3D/ThirdPersonManipulator.h"
-#include "GLG3D/ToneMap.h"
 #include "GLG3D/GConsole.h"
 #include "GLG3D/BSPMAP.h"
 #include "GLG3D/GKey.h"

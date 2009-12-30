@@ -22,6 +22,8 @@ public:
     /** As rendered-to-texture. */
     Texture::Ref   rendered3D;
 
+    Texture::Ref   copiedFromScreen;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -58,6 +60,25 @@ static void renderSomething(RenderDevice* rd) {
     rd->setProjectionAndCameraMatrix(camera);
     Draw::box(Box(Vector3(-5, 3, -1), Vector3(-3, 5, 1)), rd, Color3::red(), Color3::black());
     Draw::box(Box(Vector3(3, -5, -1), Vector3(5, -3, 1)), rd, Color3::white(), Color3::black());
+
+    
+}
+
+void drawRect(const Rect2D& rect, RenderDevice* rd) {
+    rd->beginPrimitive(PrimitiveType::QUADS);
+    rd->setTexCoord(0,Vector2(0,0));
+    rd->sendVertex(rect.x0y0());
+
+    rd->setTexCoord(0,Vector2(0,1));
+    rd->sendVertex(rect.x0y1());
+
+    rd->setTexCoord(0,Vector2(1,1));
+    rd->sendVertex(rect.x1y1());
+
+    rd->setTexCoord(0,Vector2(1,0));
+    rd->sendVertex(rect.x1y0());
+
+    rd->endPrimitive();
 }
 
 void App::onInit() {
@@ -67,10 +88,17 @@ void App::onInit() {
     debugWindow->setVisible(true);
     debugWindow->moveTo(Vector2(0, 300));
 
+    setDesiredFrameRate(2);
+
     fromDisk = Texture::fromFile("sample.png", ImageFormat::AUTO(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
     rendered = Texture::createEmpty("Rendered", fromDisk->width(), fromDisk->height(), ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
-    copied = Texture::createEmpty("Copied", fromDisk->width(), fromDisk->height(), ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+    copied = Texture::createEmpty("Copied in shader", fromDisk->width(), fromDisk->height(), ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
     rendered3D = Texture::createEmpty("Rendered3D", window()->width(), window()->height(), ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+    copiedFromScreen = Texture::createEmpty("Copied from Screen", window()->width(), window()->height(), ImageFormat::RGB8(), Texture::DIM_2D_NPOT, Texture::Settings::buffer());
+
+    renderDevice->clear();
+    renderSomething(renderDevice);
+    copiedFromScreen->copyFromScreen(renderDevice->viewport());
 
     Framebuffer::Ref fb = Framebuffer::create("FB");
     fb->set(Framebuffer::COLOR0, rendered);
@@ -93,7 +121,8 @@ void App::onInit() {
             }),
 
             STR(#version 150 compatibility\n
-            layout(origin_upper_left) in vec4 gl_FragCoord;
+            /* layout(origin_upper_left)*/
+            in vec4 gl_FragCoord;
             out vec4 gl_FragColor;
             uniform sampler2D src;
  
@@ -108,6 +137,7 @@ void App::onInit() {
 
     fb->set(Framebuffer::COLOR0, rendered3D);
     renderDevice->pushState(fb);
+        debugAssert(renderDevice->invertY());
         renderSomething(renderDevice);
     renderDevice->popState();
 
@@ -120,6 +150,8 @@ void App::onInit() {
     c->moveRightOf(b);
     GuiTextureBox* d = debugWindow->pane()->addTextureBox(rendered3D);
     d->moveRightOf(c);
+    GuiTextureBox* e = debugWindow->pane()->addTextureBox(copiedFromScreen);
+    e->moveRightOf(d);
     debugWindow->pack();
 }
 
@@ -136,13 +168,13 @@ void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {
     rd->setTexture(0, fromDisk);
-    Draw::rect2D(fromDisk->rect2DBounds(), rd);
+    drawRect(fromDisk->rect2DBounds(), rd);
 
     rd->setTexture(0, rendered);
-    Draw::rect2D(rendered->rect2DBounds() + Vector2(fromDisk->width(), 0), rd);
+    drawRect(rendered->rect2DBounds() + Vector2(fromDisk->width(), 0), rd);
 
     rd->setTexture(0, copied);
-    Draw::rect2D(copied->rect2DBounds() + Vector2(fromDisk->width() * 2, 0), rd);
+    drawRect(copied->rect2DBounds() + Vector2(fromDisk->width() * 2, 0), rd);
 
     Surface2D::sortAndRender(rd, posed2D);
 }

@@ -130,7 +130,10 @@ public:
         for depth comparisons to avoid self-shadowing artifacts on front faces. 
         
         Equal to biasedLightProjection() * lightFrame().inverse().
-        */
+
+        This includes Y inversion, on the assumption that shadow maps are rendered
+        to texture.
+     */
     const Matrix4& biasedLightMVP() const {
         return m_biasedLightMVP;
     }
@@ -140,11 +143,12 @@ public:
         return m_lightFrame;
     }
 
-    /** Projection matrix for the light, biased to avoid self-shadowing */
+    /** Projection matrix for the light, biased to avoid self-shadowing.*/
     const Matrix4& biasedLightProjection() const {
         return m_biasedLightProjection;
     }
 
+    /** Projection matrix for the light, biased to avoid self-shadowing.*/
     const Matrix4& lightProjection() const {
         return m_lightProjection;
     }

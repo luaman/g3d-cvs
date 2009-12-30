@@ -171,8 +171,6 @@ bool VideoInput::readNext(RealTime timeStep, Texture::Ref& frame) {
             
             glBindTexture(frame->openGLTextureTarget(), NULL);
 
-            // make sure this renders correctly since we didn't create the texture
-            frame->invertY = false;
         } else {
             // clear existing texture
             frame = NULL;

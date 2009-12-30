@@ -5,7 +5,7 @@
  @edited  2009-09-19
 
  G3D Library http://g3d-cpp.sf.net
- Copyright 2001-2009, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2000-2010, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
 #include "GLG3D/GApp.h" // TODO: remove
@@ -459,9 +459,6 @@ public:
         m_xyLabel->setWidth(70);
         m_uvLabel = addPair(dataPane, "uv =", "", 30, m_xyLabel);
         m_uvLabel->setWidth(120);
-        if (texture->invertY) {
-            dataPane->addLabel(GuiText("After Y-inversion", NULL, 8))->moveBy(Vector2(5, -5));
-        }
 
         m_rgbaLabel = addPair(dataPane, "rgba =", "", captionWidth);
         m_ARGBLabel = addPair(dataPane, "ARGB =", "", captionWidth);
@@ -474,7 +471,6 @@ public:
         GuiPane* infoPane = p->addPane("", GuiTheme::NO_PANE_STYLE);
         const Texture::Settings& textureSettings = texture->settings();
 
-        addPair(infoPane, "Invert Y:", (texture->invertY ? "true" : "false"));
         addPair(infoPane, "Format:", texture->format()->name());
 
         addPair(infoPane, "Wrap Mode:", textureSettings.wrapMode.toString());
@@ -850,9 +846,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                             if (! m_embeddedMode) {
                                 std::string s = format("xy:    (%d, %d)", ix, iy);                    
                                 pos.y += font->draw2D(rd, s, pos, style.size, front, back).y * lineSpacing;
-                                if (m_texture->invertY) {
-                                    pos.y += font->draw2D(rd, "after y-inversion", pos + Vector2(20, 0), style.size * 0.75, front, back).y * lineSpacing;
-                                }
+                                
 
                                 Color4uint8 ci(m_texel);
                                 pos.y += 

@@ -54,12 +54,7 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
  Note that the texture does not have to be a rectangle; the dimensions can be different powers of two.
  DIM_2D_RECT is provided primarily for older cards only and does not interact well with shaders.
 
- Textures are loaded so that (0, 0) is the upper-left corner of the image.
- If you set the invertY flag, RenderDevice will automatically turn them upside
- down when rendering to allow a (0, 0) <B>lower</B>-left corner.  If you
- aren't using RenderDevice, you must change the texture matrix to have
- a -1 in the Y column yourself.  If you replace the default vertex shader then
- the texture matrix transformation will not be performed.
+ Textures are loaded so that (0, 0) is the upper-left corner of the image. 
 
  DIM_2D_RECT requires the GL_EXT_texture_rectangle extension.
  Texture compression requires the EXT_texture_compression_s3tc extions.
@@ -689,8 +684,9 @@ public:
      previously there).  The dimensions must be powers of two or a texture 
      rectangle will be created (not supported on some cards).
 
-     <i>This call is substantially slower than simply rendering to a
-     G3D::Texture using a G3D::Framebuffer, if that is possible for your application.</i>
+     <i>This call is provided for backwards compatibility on old cards. It is 
+      substantially slower than simply rendering to a
+     G3D::Texture using a G3D::Framebuffer.</i>
 
      The (x, y) coordinates are in real screen pixels.  (0, 0) is the top left
      of the screen.
@@ -702,7 +698,7 @@ public:
      and alpha m_depth will be preserved.  Texture compression is not supported for
      textures copied from the screen.
 
-     To copy a m_depth texture, first create an empty m_depth texture then copy into it.
+     To copy a depth texture, first create an empty depth texture then copy into it.
 
      If you invoke this method on a texture that is currently set on RenderDevice,
      the texture will immediately be updated (there is no need to rebind).
@@ -714,6 +710,8 @@ public:
 
      @sa RenderDevice::screenShotPic
      @sa RenderDevice::setReadBuffer
+
+     \deprecated
      */
     void copyFromScreen(const Rect2D& rect, const ImageFormat* fmt = NULL);
 
@@ -728,16 +726,6 @@ public:
      orientations.
      */
     void copyFromScreen(const Rect2D& rect, CubeFace face);
-
-    /**
-     When true, rendering code that uses this texture is respondible for
-     flipping texture coordinates applied to this texture vertically (initially,
-     this is false).
-     
-     RenderDevice watches this flag and performs the appropriate transformation.
-     If you are not using RenderDevice (or are writing shaders), you must do it yourself.
-     */
-    bool invertY;
 
     /**
      How much (texture) memory this texture occupies.  OpenGL backs
@@ -772,58 +760,57 @@ public:
      outFormat.
      @param outFormat Must be one of: ImageFormat::AUTO, ImageFormat::RGB8, ImageFormat::RGBA8, ImageFormat::L8, ImageFormat::A8
      */
-    void getImage(GImage& dst, const ImageFormat* outFormat = ImageFormat::AUTO(), bool applyInvertY = true) const;
+    void getImage(GImage& dst, const ImageFormat* outFormat = ImageFormat::AUTO()) const;
 
-    /** Extracts the data as ImageFormat::RGBA32F.  Note that you may want to call Image4::flipVertical if Texture::invertY is true. */
-    Image4Ref toImage4(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::RGBA32F. */
+    Image4::Ref toImage4() const;
     
-    /** Extracts the data as ImageFormat::RGBA8. Note that you may want to call Image4uint8::flipVertical if Texture::invertY is true.*/
-    Image4uint8Ref toImage4uint8(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::RGBA8.*/
+    Image4uint8::Ref toImage4uint8() const;
     
-    /** Extracts the data as ImageFormat::RGB32F. Note that you may want to call Image3::flipVertical if Texture::invertY is true. */
-    Image3Ref toImage3(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::RGB32F. */
+    Image3::Ref toImage3() const;
     
-    /** Extracts the data as ImageFormat::RGB8. Note that you may want to call Image3uint8::flipVertical if Texture::invertY is true. */
-    Image3uint8Ref toImage3uint8(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::RGB8. */
+    Image3uint8::Ref toImage3uint8() const;
     
-    /** Extracts the data as ImageFormat::L32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true.
-     */
-    Image1Ref toImage1(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::L32F.   */
+    Image1::Ref toImage1() const;
     
-    /** Extracts the data as ImageFormat::L8. Note that you may want to call Image1uint8::flipVertical if Texture::invertY is true. */
-    Image1uint8Ref toImage1uint8(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::L8. */
+    Image1uint8::Ref toImage1uint8() const;
     
-    /** Extracts the data as ImageFormat::DEPTH32F. Note that you may want to call Image1::flipVertical if Texture::invertY is true. */
-    Image1Ref toDepthImage1(bool applyInvertY = true) const;
+    /** Extracts the data as ImageFormat::DEPTH32F. */
+    Image1::Ref toDepthImage1() const;
     
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
-    inline void getImage(Image4::Ref& im, bool applyInvertY = true) const {
-        im = toImage4(applyInvertY);
+    inline void getImage(Image4::Ref& im) const {
+        im = toImage4();
     }
 
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
-    inline void getImage(Image3::Ref& im, bool applyInvertY = true) const {
-        im = toImage3(applyInvertY);
+    inline void getImage(Image3::Ref& im) const {
+        im = toImage3();
     }
 
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
-    inline void getImage(Image1::Ref& im, bool applyInvertY = true) const {
-        im = toImage1(applyInvertY);
+    inline void getImage(Image1::Ref& im) const {
+        im = toImage1();
     }
 
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
-    inline void getImage(Image4uint8::Ref& im, bool applyInvertY = true) const {
-        im = toImage4uint8(applyInvertY);
+    inline void getImage(Image4uint8::Ref& im) const {
+        im = toImage4uint8();
     }
 
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
-    inline void getImage(Image3uint8::Ref& im, bool applyInvertY = true) const {
-        im = toImage3uint8(applyInvertY);
+    inline void getImage(Image3uint8::Ref& im) const {
+        im = toImage3uint8();
     }
 
     /** Reassigns the im pointer; does not write to the data currently in it.  Useful when working with a templated image. */
-    inline void getImage(Image1uint8::Ref& im, bool applyInvertY = true) const {
-        im = toImage1uint8(applyInvertY);
+    inline void getImage(Image1uint8::Ref& im) const {
+        im = toImage1uint8();
     }
 
     /** If this texture was loaded from an uncompressed format in memory or disk (and not rendered to), 
@@ -845,11 +832,11 @@ public:
     }
 
 	/** Extracts the data as ImageFormat::DEPTH32F */
-	Map2D<float>::Ref toDepthMap(bool applyInvertY = true) const;
+	Map2D<float>::Ref toDepthMap() const;
 
 	/** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call 
       Image1uint8::flipVertical if Texture::invertY is true.*/
-	Image1uint8Ref toDepthImage1uint8(bool applyInvertY = true) const;
+	Image1uint8Ref toDepthImage1uint8() const;
 
     inline unsigned int openGLID() const {
         return m_textureID;

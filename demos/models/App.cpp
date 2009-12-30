@@ -28,8 +28,6 @@ App::App(const GApp::Settings& settings) : GApp(settings), lighting(Lighting::cr
         exit(-1);
     }
 
-    toneMap = ToneMap::create();
-    toneMap->setEnabled(true);
 }
 
 
@@ -41,9 +39,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 
 void App::onUserInput(UserInput* ui) {
-    if (ui->keyPressed(' ')) {
-        toneMap->setEnabled(! toneMap->enabled());
-    }
 }
 
 
@@ -54,18 +49,13 @@ void App::onPose(Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
 }
 
 
-void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surface2D::Ref>& posed2D) {
-    const Lighting::Ref&  lighting      = toneMap->prepareLighting(this->lighting);
-    SkyParameters         skyParameters = toneMap->prepareSkyParameters(this->skyParameters);
-
+void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& posed3D) {
     screenPrintf("Lights: %d\n", lighting->lightArray.size());
     screenPrintf("S Lights: %d\n", lighting->shadowedLightArray.size());
     SuperSurface::debugNumSendGeometryCalls = 0;
 
     rd->setProjectionAndCameraMatrix(defaultCamera);
     rd->setObjectToWorldMatrix(CoordinateFrame());
-
-    toneMap->beginFrame(rd);
 
     // Cyan background
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
@@ -84,15 +74,11 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
     */
-    
+    Draw::axes(CFrame(), rd);
+
     rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.0f);
     Draw::lighting(lighting, rd, false);
 
-    toneMap->endFrame(rd);
-
-    Surface2D::sortAndRender(rd, posed2D);
-
-    screenPrintf("Tone Map %s (spacebar toggles)\n", toneMap->enabled() ? "On" : "Off");
     screenPrintf("%s Profile %s\n", toString(SuperSurface::profile()),
         #ifdef _DEBUG
                 "(DEBUG mode)"
@@ -100,7 +86,9 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
                 ""
         #endif
         );
+}
 
+void App::onGraphics2D(RenderDevice *rd, Array< Surface2D::Ref > &surface2D) {
     rd->push2D();
 
     /*
@@ -119,5 +107,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& posed3D, Array<Surfa
 
     screenPrintf("SuperSurface::debugNumSendGeometryCalls = %d\n", 
                  SuperSurface::debugNumSendGeometryCalls);
+
+    GApp::onGraphics2D(rd, surface2D);
 }
 

@@ -8,9 +8,9 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-05-29
-  @edited  2009-11-31
+  @edited  2009-12-29
 
-  Copyright 2001-2009, Morgan McGuire
+  Copyright 2000-2010, Morgan McGuire
 */
 
 #ifndef GLG3D_RenderDevice_h
@@ -211,6 +211,12 @@ private:
         be changed.*/
     void forceSetTextureMatrix(int unit, const float* m);
     void forceSetTextureMatrix(int unit, const double* m);
+
+    /** Change the projection matrix without testing to see if it needs to be changed.  
+        Allows setFramebuffer to change the invertY matrix. */
+    void forceSetProjectionMatrix(const Matrix4& P);
+    
+    void forceSetViewport(const Rect2D& v);
 
     /** Argument to last beginPrimitive() */
     Primitive                   m_currentPrimitive;
@@ -848,15 +854,34 @@ public:
 
     const CoordinateFrame& cameraToWorldMatrix() const;
 
+    /** \brief True if the Y-axis has been flipped from the G3D convention, which occurs when the framebuffer is NULL.
+    
+        By default, RenderDevice conventions assume that you are rendering to a 
+        G3D::Texture in a G3D::Framebuffer, so it configures the projection matrix
+        and polygon winding direction so that the upper-left corner of the framebuffer
+        is texel (0, 0).  
+
+        When rendering directly to the screen, the opposite convention is needed.  In this
+        case, G3D applies an extra invertYMatrix() that flips the Y axis and internally
+        inverts the winding conventions.*/
+    bool invertY() const;
+
+    /** If G3D::RenderDevice::invertY() is true, this is the matrix is applied after the
+        projection matrix to flip the y-axis.  Otherwise it is the identity matrix.*/
+    const Matrix4& invertYMatrix() const;
+
+    /** The G3D projection matrix.  Does not include the invertYMatrix().
+        Note that this is not equal to the GLSL gl_ProjectionMatrix.*/
     Matrix4 projectionMatrix() const;
 
     /**
-     cameraToWorld.inverse() * objectToWorld
+     cameraToWorldMatrix().inverse() * objectToWorldMatrix()
      */
     CoordinateFrame modelViewMatrix() const;
 
     /**
-     projection() * cameraToWorld.inverse() * objectToWorld
+     projectionMatrix() * cameraToWorldMatrix().inverse() * objectToWorldMatrix().
+     Note that the full gl_ModelViewProjectionMatrix also includes the RenderDevice::invertY() matrix.
      */
     Matrix4 modelViewProjectionMatrix() const;
 
@@ -910,11 +935,6 @@ public:
         uint32                  unit,
         float                   bias);
 
-    /**
-     The matrix returned may not be the same as the
-     underlying hardware matrix-- the y-axis is flipped
-     in hardware when a texture with invertY = true is specified.
-     */
     Matrix4 getTextureMatrix(uint32 textureUnit);
 
     /**
@@ -978,7 +998,10 @@ public:
     void setTexCoord(uint32 textureUnit, double texCoord);
 
     /**
-     Equivalent to glCullFace
+     Equivalent to glCullFace.
+
+     RenderDevice will internally swap the OpenGL cull direction when rendering to a Framebuffer in order
+     to be consistent with the inverted Y axis.
      */
     void setCullFace(CullFace f);
 
@@ -990,7 +1013,7 @@ public:
      (0, 0) is the <B>upper</B>-left corner of the screen.
      */
     void setViewport(const Rect2D& v);
-    Rect2D viewport() const;
+    const Rect2D& viewport() const;
 
     /**
      Vertices are "sent" rather than "set" because they
@@ -1388,9 +1411,13 @@ private:
             CoordinateFrame             cameraToWorldMatrix;
             CoordinateFrame             cameraToWorldMatrixInverse;
             Matrix4                     projectionMatrix;
+
+            /** True when inverting from the G3D coordinate system to the OpenGL one.
+                Set automatically in RenderDevice::setFramebuffer(). */
+            bool                        invertY;
             bool                        changed;
 
-            inline Matrices() : changed(true) {}
+            inline Matrices() : changed(true), invertY(true) {}
 
             bool operator==(const Matrices& other) const;
 
@@ -1465,6 +1492,11 @@ private:
 
         //bool operator==(const RenderState& other) const;
     };
+
+    /** If invertY() is false, maps GL_FRONT -> GL_BACK and GL_BACK -> GL_FRONT, 
+        otherwise retains the normal ordering.
+    */
+    GLenum applyWinding(GLenum f) const;
 
     float                           m_minLineWidth;
 
@@ -1857,6 +1889,17 @@ public:
         HDC getWindowHDC() const;
     #endif
 
+private:
+
+    void forceSetCullFace(CullFace f);
+
+    void forceSetStencilOp
+       (StencilOp                       frontStencilFail,
+        StencilOp                       frontZFail,
+        StencilOp                       frontZPass,
+        StencilOp                       backStencilFail,
+        StencilOp                       backZFail,
+        StencilOp                       backZPass);
 };
 
 

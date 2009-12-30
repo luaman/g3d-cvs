@@ -141,18 +141,34 @@ linking against OpenGL or setting up an event handling routine.
 
   @subsection coordinates Coordinate Systems
 
-  RenderDevice uses separate matrices for the object-to-world, world-to-camera, and perspective
-  transformations (the concatenation of the first two is the equivalent of the OpenGL ModelView
-  matrix).
+  RenderDevice uses separate matrices for the object-to-world, world-to-camera, perspective, and Y-inversion
+  transformations. The concatenation of the first two is the equivalent of the OpenGL ModelView
+  matrix; the concatenation of all of these is the OpenGL modelview-projection matrix.
 
   <IMG SRC="coords.png" ALIGN = RIGHT>
 
   The default 3D coordinate system is right-handed with Y=up, X=right, and Z=towards viewer.  
   Objects "look" along their negative z-axis.  G3D assumes a compatible "world space" where 
-  Y=up, X=East, and Z=South.  The default 2D coordinate system (for 2D clipping, textures,
+  Y=up, X=East, and Z=South.  
+  
+  The default 2D coordinate system (for 2D clipping, textures,
   and viewport) has the origin in the upper-left, with Y extending downward and X extending
   to the right.
-
+  
+  Following OpenGL, (0,0) is the corner of a pixel/texel; the center location is offset by half the width 
+  of a pixel/texel. 
+  
+  The texture map origin is at the upper-left.  This means that when rendering to a texture,
+  screen pixel (0,0) in 2D mode corresponds to texel (0,0), which is convenient for image processing.
+  
+  
+  Because the G3D 2D and texture coordinate 
+  systems differ from the underlying OpenGL ones (and match DirectX conventions), RenderDevice applies
+  an extra transformation that inverts the Y-axis when rendering to a texture. This inverts
+  the winding direction, so the front- and back-face definitions are also reversed internally 
+  by RenderDevice. This is only visible in that G3D::RenderDevice::invertY will automatically be 
+  set and that the g3d_ProjectionMatrix differs from the gl_ProjectionMatrix in shaders (note that
+  OpenGL has deprecated gl_ProjectionMatrix as of GLSL 1.5).
 
   @subsection ref Memory Management
   
@@ -179,8 +195,11 @@ use.
   You can create your own reference counted classes using:
   
     <PRE>
-       typedef G3D::ReferenceCountedPointer<class MyClass> MyClassRef;
-       class MyClass : public G3D::ReferenceCountedObject { ... };
+       class MyClass : public G3D::ReferenceCountedObject { 
+       public:
+              typedef G3D::ReferenceCountedPointer<MyClass> Ref;
+       ...
+       };
     </PRE>
 
   

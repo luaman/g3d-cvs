@@ -342,7 +342,8 @@ void ToneMap::makeShadersPS20() {
             vec2 pixelSize = g3d_sampler2DInvSize(screenImage);
             vec2 stride    = pixelSize * 2.0 * direction;
             
-            vec2 p = gl_TexCoord[0].xy + direction * pixelSize * (0.5 - float(kernelSize));
+            // Screen image is upside down because of Texture::copyFromScreen
+            vec2 p = vec2(gl_TexCoord[0].x, 1.0 - gl_TexCoord[0].y) + direction * pixelSize * (0.5 - float(kernelSize));
             
             vec3 color = threshold(sample(p, 0, stride)) * gaussCoef[0];
             for (int tap = 1; tap < kernelSize; ++tap) {
@@ -396,7 +397,8 @@ void ToneMap::makeShadersPS20() {
                 bloom += sample(p, tap, stride) * gaussCoef[tap];
             }
             
-            vec3 old = texture2D(oldBloom, gl_TexCoord[0].xy).rgb;
+            vec3 old = texture2D(oldBloom,
+                vec2(gl_TexCoord[0].x, 1.0 - gl_TexCoord[0].y)).rgb;
             
             gl_FragColor.rgb = (bloom + old) * 0.7;
             ) + std::string("}"));
@@ -425,7 +427,10 @@ void ToneMap::makeShadersPS20() {
                  texture2D(bloomImage, p + s.zy) +
                  texture2D(bloomImage, p - s.zy)).rgb * 0.2;
             
-            vec3 screen = texture2D(screenImage, gl_TexCoord[0].xy).rgb;
+            // copyFromScreen inverts the Y axis
+            vec3 screen = texture2D(screenImage, 
+                vec2(gl_TexCoord[0].x,
+                     1.0 - gl_TexCoord[0].y)).rgb;
 
             // Apply gamma correction.  Use gamma lookup table.
             // Process red and green simultaneously to reduce 

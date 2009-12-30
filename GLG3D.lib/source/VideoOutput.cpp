@@ -285,7 +285,7 @@ void VideoOutput::append(const Texture::Ref& frame) {
     debugAssert(frame->height() == m_settings.height);
 
     frame->getImage(m_temp, TextureFormat::RGB8());
-    encodeFrame(const_cast<uint8*>(m_temp.byte()), ImageFormat::RGB8(), frame->invertY);
+    encodeFrame(const_cast<uint8*>(m_temp.byte()), ImageFormat::RGB8(), false);
 }
 
 

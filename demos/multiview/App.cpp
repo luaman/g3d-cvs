@@ -70,6 +70,7 @@ void App::onInit() {
     GuiTextureBox* shaBox = pane->addTextureBox("Shadow Map", m_shadowMap->depthTexture(), GuiTextureBox::Settings::depthBuffer());
     shaBox->setSizeFromInterior(gbufferViewSize);
     shaBox->moveRightOf(gloBox);
+    shaBox->setShowInfo(false);
     shaBox->zoomToFit();
     
     pane->setHeight(GUI_HEIGHT);
@@ -108,6 +109,9 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     // Render wireframe viewport
     Rect2D wireViewport = m_gbuffer->rect2DBounds() + Vector2(1, 1);
     rd->setViewport(wireViewport);
+    rd->push2D();
+        Draw::rect2D(wireViewport, rd, Color3::white() * 0.5f);
+    rd->pop2D();
     rd->pushState();
     {
         Draw::axes(rd);

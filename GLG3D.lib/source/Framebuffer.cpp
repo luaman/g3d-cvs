@@ -117,7 +117,6 @@ void Framebuffer::set(AttachmentPoint ap, const Texture::Ref& texture, Texture::
     if (a.isNull() || ! (a->equals(texture, face, mipLevel))) {
         // This is a change
         set(new Attachment(ap, texture, face, mipLevel));
-        texture->invertY = true;
     }
 }
 

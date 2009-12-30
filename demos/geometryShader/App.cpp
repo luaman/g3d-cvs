@@ -40,7 +40,7 @@ void App::onInit() {
 
     ArticulatedModel::Ref model = 
         ArticulatedModel::fromFile(
-            System::findDataFile("teapot.ifs" /*"knot.ifs"*/), 
+            System::findDataFile("teapot.ifs"), 
             preprocess);
     model->pose(m_sceneGeometry);
 
@@ -83,7 +83,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     for (int i = 0; i < m_sceneGeometry.size(); ++i) {
         const Surface::Ref& surface = m_sceneGeometry[i];
         m_extrudeShader->args.set("MVP", 
-            rd->projectionMatrix() * (rd->cameraToWorldMatrix().inverse() * 
+            rd->invertYMatrix() * rd->projectionMatrix() * (rd->cameraToWorldMatrix().inverse() * 
             surface->coordinateFrame()));
 
         surface->sendGeometry(rd);
@@ -98,7 +98,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& surface3D) {
     for (int i = 0; i < m_sceneGeometry.size(); ++i) {
         const Surface::Ref& surface = m_sceneGeometry[i];
         m_extrudeShader->args.set("MVP", 
-            rd->projectionMatrix() * (rd->cameraToWorldMatrix().inverse() * 
+            rd->invertYMatrix() * rd->projectionMatrix() * (rd->cameraToWorldMatrix().inverse() * 
             surface->coordinateFrame()));
 
         surface->sendGeometry(rd);

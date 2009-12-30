@@ -45,7 +45,7 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
     }
 
     // Binding to a G3D framebuffer destroys the invertY flag so we save it here
-    const bool oldInvertY = invertY;
+    const bool oldInvertY = false;
     Color4 c;
     if (oldInvertY) {
         y = height() - 1 - y;
@@ -67,7 +67,6 @@ Color4 Texture::readTexel(int x, int y, RenderDevice* rd) const {
     }
 
     fbo->clear();
-    me->invertY = oldInvertY;
     return c;
 }
 
@@ -427,7 +426,6 @@ Texture::Texture(
         }
 
         m_depth = 1;
-        invertY = false;
         
         debugAssertGLOk();
         setTexParameters(target, m_settings);
@@ -1139,11 +1137,6 @@ Texture::Ref Texture::createEmpty
              settings);
     }
 
-    // The only purpose of creating an empty texture is to render to
-    // it with FBO/readback, so clearly the caller will want Y
-    // inverted.
-    t->invertY = true;
-
     debugAssertGLOk();
     return t;
 }
@@ -1219,7 +1212,7 @@ const Texture::Settings& Texture::settings() const {
 }
 
 
-void Texture::getImage(GImage& dst, const ImageFormat* outFormat, bool applyInvertY) const {
+void Texture::getImage(GImage& dst, const ImageFormat* outFormat) const {
     alwaysAssertM(outFormat == ImageFormat::AUTO() ||
                   outFormat == ImageFormat::RGB8() ||
                   outFormat == ImageFormat::RGBA8() ||
@@ -1272,10 +1265,6 @@ void Texture::getImage(GImage& dst, const ImageFormat* outFormat, bool applyInve
     dst.resize(m_width, m_height, channels);
 
     getTexImage(dst.byte(), outFormat);
-
-    if (applyInvertY && invertY) {
-        dst.flipVertical();
-    }
 }
 
 
@@ -1296,50 +1285,44 @@ void Texture::getTexImage(void* data, const ImageFormat* desiredFormat) const {
     glPopAttrib();
 }
 
-Image4Ref Texture::toImage4(bool applyInvertY) const {
+Image4Ref Texture::toImage4() const {
 	Image4Ref im = Image4::createEmpty(m_width, m_height, m_settings.wrapMode); 
 	getTexImage(im->getCArray(), ImageFormat::RGBA32F());
-    im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
-Image4uint8Ref Texture::toImage4uint8(bool applyInvertY) const {
+Image4uint8Ref Texture::toImage4uint8() const {
     Image4uint8::Ref im = Image4uint8::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::RGBA8());
-    im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
-Image3Ref Texture::toImage3(bool applyInvertY) const {	
+Image3Ref Texture::toImage3() const {	
     Image3::Ref im = Image3::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::RGB32F());
-    im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
-Image3uint8Ref Texture::toImage3uint8(bool applyInvertY) const {	
+Image3uint8Ref Texture::toImage3uint8() const {	
     Image3uint8::Ref im = Image3uint8::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::RGB8());
-    im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
-Map2D<float>::Ref Texture::toDepthMap(bool applyInvertY) const {
+Map2D<float>::Ref Texture::toDepthMap() const {
     Map2D<float>::Ref im = Map2D<float>::create(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
-    im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
-Image1Ref Texture::toDepthImage1(bool applyInvertY) const {
+Image1Ref Texture::toDepthImage1() const {
 	Image1Ref im = Image1::createEmpty(m_width, m_height, m_settings.wrapMode);
 	getTexImage(im->getCArray(), ImageFormat::DEPTH32F());
-    im->maybeFlipVertical(applyInvertY && invertY);
 	return im;
 }
 
-Image1uint8Ref Texture::toDepthImage1uint8(bool applyInvertY) const {
-    Image1Ref src = toDepthImage1(applyInvertY);
+Image1uint8Ref Texture::toDepthImage1uint8() const {
+    Image1Ref src = toDepthImage1();
     Image1uint8Ref dst = Image1uint8::createEmpty(m_width, m_height, m_settings.wrapMode);
     
     const Color1* s = src->getCArray();
@@ -1354,18 +1337,16 @@ Image1uint8Ref Texture::toDepthImage1uint8(bool applyInvertY) const {
 }
 
 
-Image1Ref Texture::toImage1(bool applyInvertY) const {
+Image1Ref Texture::toImage1() const {
     Image1Ref im = Image1::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::L32F());
-    im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
 
-Image1uint8Ref Texture::toImage1uint8(bool applyInvertY) const {
+Image1uint8Ref Texture::toImage1uint8() const {
     Image1uint8Ref im = Image1uint8::createEmpty(m_width, m_height, m_settings.wrapMode); 
     getTexImage(im->getCArray(), ImageFormat::L8());
-    im->maybeFlipVertical(applyInvertY && invertY);
     return im;
 }
 
@@ -1473,12 +1454,21 @@ void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
 
     double viewport[4];
     glGetDoublev(GL_VIEWPORT, viewport);
+    GLint fb = glGetInteger(GL_FRAMEBUFFER_BINDING);
     double viewportHeight = viewport[3];
     debugAssertGLOk();
     
+    bool invertY = (fb != GL_NONE);
+
+    int y = 0;
+    if (invertY) {
+        y = iRound(viewportHeight - rect.y1());
+    } else {
+        y = iRound(rect.y0());
+    }
     glCopyTexImage2D(target, 0, format()->openGLFormat,
                      iRound(rect.x0()), 
-                     iRound(viewportHeight - rect.y1()), 
+                     y, 
                      iRound(rect.width()), iRound(rect.height()), 
                      0);
 
@@ -1488,9 +1478,6 @@ void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
 
     debugAssertGLOk();
     glDisable(target);
-
-    // Once copied from the screen, the direction will be reversed.
-    invertY = true;
 
     glStatePop();
 
