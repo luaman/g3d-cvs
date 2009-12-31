@@ -73,7 +73,8 @@ public:
         /** Highest expected value */
         float            max;
 
-        bool             showFormat;
+        /** If true, show as 1 - (adjusted value) */
+        bool             invertIntensity;
 
         /** Defaults to linear data on [0, 1]: packed normal maps,
             reflectance maps, etc. */
@@ -105,6 +106,15 @@ public:
             return defaults();
         }
 
+        /** Radiance map.  Same as defaults() */
+        static const Settings& radiance() {
+            return defaults();
+        }
+
+        /** Linear RGB map.  Same as defaults() */
+        static const Settings& linearRGB() {
+            return defaults();
+        }
 
         /** True if these settings require the use of a GLSL shader */
         bool needsShader() const;
@@ -167,6 +177,8 @@ protected:
 
     void drawTexture(RenderDevice* rd, const Rect2D& r) const;
 
+    bool                    m_showFormat;
+
 public:
 
     /** In most cases, you'll want to call GuiPane::addTextureBox instead.
@@ -195,6 +207,14 @@ public:
     /** Offset of the texture from the centered position. Positive = right and down. */
     inline const Vector2& viewOffset() const {
         return m_offset;
+    }
+
+    bool setShowFormat(bool f) {
+        m_showFormat = f;
+    }
+
+    bool showFormat() const {
+        return m_showFormat;
     }
 
     void zoomIn();

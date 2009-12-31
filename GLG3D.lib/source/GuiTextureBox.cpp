@@ -24,7 +24,7 @@ static const float DRAWER_Y_OFFSET = 5.0f;
 WeakReferenceCountedPointer<Shader> GuiTextureBox::g_cachedShader;
 
 GuiTextureBox::Settings::Settings(Channels c, float g, float mn, float mx) : 
-    channels(c), documentGamma(g), min(mn), max(mx), showFormat(true) {
+    channels(c), documentGamma(g), min(mn), max(mx), invertIntensity(false) {
 }
 
 
@@ -63,7 +63,8 @@ bool GuiTextureBox::Settings::needsShader() const {
         (channels != RGB) ||
         (documentGamma != 2.2f) ||
         (min != 0.0f) ||
-        (max != 1.0f);
+        (max != 1.0f) ||
+        invertIntensity;
 }
 
 //////////////////////////////////////////////////////////
@@ -704,12 +705,21 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
                     0, 0, 0, 0)
         };
 
+        static Matrix4 invert(-1, 0, 0, 1,
+                               0,-1, 0, 1,
+                               0, 0,-1, 1,
+                               0, 0, 0, 1);
 
         m_shader->args.set("texture", m_texture);
         m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
         m_shader->args.set("bias", -m_settings.min);
         m_shader->args.set("scale", 1.0f / (m_settings.max - m_settings.min));
-        m_shader->args.set("colorShift", colorShift[m_settings.channels]);
+
+        if (m_settings.invertIntensity) {
+            m_shader->args.set("colorShift", invert * colorShift[m_settings.channels]);
+        } else {
+            m_shader->args.set("colorShift", colorShift[m_settings.channels]);
+        }
 
         rd->setShader(m_shader);
         debugAssert(m_shader.notNull());
@@ -764,7 +774,7 @@ void GuiTextureBox::render(RenderDevice* rd, const GuiTheme::Ref& theme) const {
                 s = format("(%dx%d", w, h);
             }
 
-            if (m_settings.showFormat) {
+            if (m_showFormat) {
                 s += " " + fmt + ")";
             } else {
                 s += ")";
