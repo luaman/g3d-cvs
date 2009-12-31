@@ -8,8 +8,6 @@
  Copyright 2000-2010, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
-#include "GLG3D/GApp.h" // TODO: remove
-
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/RenderDevice.h"
 #include "GLG3D/GuiButton.h"
@@ -241,7 +239,9 @@ void GuiTextureBox::save() {
 void GuiTextureBox::setSizeFromInterior(const Vector2& dims) {
     // Find out how big the canvas inset is
     Rect2D big = Rect2D::xywh(0, 0, 100, 100);
-    Rect2D small = theme()->canvasToClientBounds(big, m_captionSize);
+
+    // Get the canvas bounds
+    Rect2D small = theme()->canvasToClientBounds(canvasRect(big), m_captionSize);
     
     // Offset is now big - small
     setSize(dims + big.wh() - small.wh() + Vector2(BORDER, BORDER) * 2.0f);
@@ -336,9 +336,14 @@ void GuiTextureBox::toggleDrawer() {
 }
 
 
+Rect2D GuiTextureBox::canvasRect(const Rect2D& rect) const {
+    // Subtract the size of the drawer from the bottom of the box
+    return Rect2D::xywh(rect.x0y0(), rect.wh() - Vector2(0, m_drawerPane->rect().height() - DRAWER_Y_OFFSET));
+}
+
+
 Rect2D GuiTextureBox::canvasRect() const {
-    // Use textbox borders, but reserve space for the button bar
-    return Rect2D::xywh(m_rect.x0y0(), m_rect.wh() - Vector2(0, m_drawerPane->rect().height() - DRAWER_Y_OFFSET));
+    return canvasRect(m_rect);
 }
 
 

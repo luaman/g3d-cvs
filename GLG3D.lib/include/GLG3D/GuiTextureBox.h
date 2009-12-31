@@ -159,8 +159,11 @@ protected:
 
     static WeakReferenceCountedPointer<Shader> g_cachedShader;
 
-    /** Returns the bounds of the canvas (display) region */
+    /** Returns the bounds of the canvas (display) region for this GuiTextBox */
     Rect2D canvasRect() const;
+
+    /** Returns the bounds of the canvas (display) region for a GuiTextBox of size \a rect*/
+    Rect2D canvasRect(const Rect2D& rect) const;
 
     void drawTexture(RenderDevice* rd, const Rect2D& r) const;
 

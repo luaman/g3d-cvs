@@ -14,7 +14,7 @@
 
 class App : public GApp {
 
-    enum {GUI_HEIGHT = 200};
+    enum {GUI_HEIGHT = 250};
 
     GBuffer::Ref        m_gbuffer;
     Scene::Ref          m_scene;
