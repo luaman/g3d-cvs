@@ -235,7 +235,7 @@ void Draw::lighting(Lighting::Ref lighting, RenderDevice* rd, bool showEffectSph
         rd->setShader(NULL);
         rd->disableLighting();
         const GCamera& camera = rd->projectionAndCameraMatrix();
-        float dirDist = min(200.0f, fabs(camera.farPlaneZ()) * 0.9f);
+        float dirDist = min(200.0f, (float)fabs((float)camera.farPlaneZ()) * 0.9f);
         for (int L = 0; L < lighting->lightArray.size(); ++L) {
             drawLight(lighting->lightArray[L], rd, showEffectSpheres, dirDist);
         }
