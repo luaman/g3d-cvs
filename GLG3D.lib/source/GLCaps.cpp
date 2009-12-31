@@ -871,5 +871,62 @@ const class ImageFormat* GLCaps::firstSupportedTexture(const Array<const class I
 
     return NULL;
 }
+
+
+bool GLCaps::supportsG3D9(std::string& explanation) {
+    bool supported = false;
+    
+    int major = 1;
+    int minor = 0;
+    sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &major, &minor);
+
+    int smajor = 1;
+    int sminor = 0;
+    sscanf((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION), "%d.%d", &smajor, &sminor);
+    bool ok = (smajor >= 1 || (smajor == 1 && sminor >= 5));
+    supported = supported && ok;
+    explanation += format("GLSL version 1.50                   %s (GLSL version on this driver is %d.%d)\n",
+                          ok ? "yes" : "NO", smajor, sminor);
+
+    if (major >= 3 || (major == 3 && minor >= 2)) {
+        supported = true;
+        explanation = "GPU Supports OpenGL 3.2 or later";
+    } else {
+#       define REQUIRE(ext, alt) \
+        { bool has = supports(ext) || supports(alt);\
+            explanation += format("%30s  %s\n", ext, (has ? " yes " : " NO - Required for G3D 9.0!"));\
+            supported = supported && has; \
+        }
+#       define RECOMMEND(ext, alt) \
+        { bool has = supports(ext) || supports(alt);\
+            explanation += format("%30s  %s\n", ext, (has ? "(yes)" : "(NO - Recommended but not required.)"));\
+        }
+
+        // This is an older OpenGL, but we can support it through extensions
+        REQUIRE("GL_EXT_stencil_two_side", "");
+        REQUIRE("GL_ARB_depth_clamp", "GL_NV_depth_clamp");
+        REQUIRE("GL_ARB_texture_non_power_of_two", "");
+        REQUIRE("GL_ARB_texture_float", "");
+        REQUIRE("GL_ARB_geometry_shader4", "");
+        REQUIRE("GL_ARB_sync", "");
+        REQUIRE("GL_ARB_draw_buffers_blend", "");
+#       ifdef G3D_WIN32
+            REQUIRE("WGL_ARB_create_context", "");
+#       else
+            REQUIRE("GLX_ARB_create_context", "");
+#       endif
+        REQUIRE("GL_ARB_vertex_array_object", "");
+        REQUIRE("GL_ARB_instanced_arrays", "");
+
+        REQUIRE("GL_ARB_shader_objects", "");
+        REQUIRE("GL_ARB_shading_language_100", "");
+        REQUIRE("GL_ARB_map_buffer_range", "");
+    }
+   
+    RECOMMEND("GL_ARB_seamless_cube_map", "");
+    RECOMMEND("GL_ARB_sample_shading", "");
+
+    return suppported;
+}
 }
 
