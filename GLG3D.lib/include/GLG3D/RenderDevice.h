@@ -1417,7 +1417,7 @@ private:
             bool                        invertY;
             bool                        changed;
 
-            inline Matrices() : changed(true), invertY(true) {}
+            inline Matrices() : invertY(true), changed(true) {}
 
             bool operator==(const Matrices& other) const;
 

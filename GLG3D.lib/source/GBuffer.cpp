@@ -26,8 +26,8 @@ bool GBuffer::supported() {
 
 GBuffer::GBuffer(const std::string& name, const ImageFormat* depthFmt, const ImageFormat* otherFormat) : 
     m_name(name),
-    m_depthFormat(depthFmt),
-    m_format(otherFormat) {
+    m_format(otherFormat),
+    m_depthFormat(depthFmt) {
 
     int maxAttach = glGetInteger(GL_MAX_COLOR_ATTACHMENTS_EXT);
     alwaysAssertM(maxAttach >= 5, 

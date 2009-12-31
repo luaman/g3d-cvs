@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2004-03-28
- @edited  2009-11-28
+ @edited  2009-12-31
 
  Copyright 2000-2009, Morgan McGuire.
  All rights reserved.
@@ -214,6 +214,19 @@ public:
     static const std::string& vendor();
 
     static Vendor enumVendor();
+
+    /** 
+        Returns true if this GPU/driver supports the features needed
+        for the future G3D 9.00 release, which raises the minimum
+        standards for GPUs.  This call is intended to give developers
+        some guidance in what to expect from the new API, however, it
+        is not guaranteed to match the G3D 9.00 specification and
+        requirements because that API is still under design.
+
+        \param explanation Detailed explanation of which extensions
+        are needed.
+     */
+    static bool supportsG3D9(std::string& explanation);
 
     static const std::string& renderer();
 

@@ -926,7 +926,7 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
     RECOMMEND("GL_ARB_seamless_cube_map", "");
     RECOMMEND("GL_ARB_sample_shading", "");
 
-    return suppported;
+    return supported;
 }
 }
 

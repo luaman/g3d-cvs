@@ -2274,8 +2274,6 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
     }
     glMatrixMode(GL_TEXTURE);
     glLoadMatrixf(tt);
-
-    const Texture::Ref& texture = m_state.textureUnit[unit].texture;
 }
 
 
