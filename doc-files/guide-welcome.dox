@@ -48,17 +48,17 @@
 \endhtmlonly
 </p>
 
-<li> <p> <a class="el" href="http://sourceforge.net/apps/mediawiki/g3d-cpp/index.php?title=Main_Page">Concept and Tip Documentation</a> (Wiki)</p>
+<li> <p> <a class="el" href="http://sourceforge.net/apps/mediawiki/g3d/index.php?title=Main_Page">Concept and Tip Documentation</a> (Wiki)</p>
 
 <li> <p> Web Resources
   \htmlonly
 <font size="3" >
 \endhtmlonly
 <ol>
-  <li> <a class="el" href="http://g3d-cpp.sourceforge.net">Web Page</a> (new releases, gallery)</p>
-  <li> <a class="el" href="http://sourceforge.net/projects/g3d-cpp/">SourceForge Page</a> (older releases, issue tracker)</p>
+  <li> <a class="el" href="http://g3d.sourceforge.net">Web Page</a> (new releases, gallery)</p>
+  <li> <a class="el" href="http://sourceforge.net/projects/g3d/">SourceForge Page</a> (older releases, issue tracker)</p>
   <li> <a class="el" href="http://groups.google.com/group/g3d-users/topics">Support Forum</a>
-  <li> <a class="el" href="http://g3d-cpp.cvs.sourceforge.net/g3d-cpp/G3D/">Library Source Code</a>
+  <li> <a class="el" href="http://g3d.cvs.sourceforge.net/g3d/G3D/">Library Source Code</a>
 </ol>
 \htmlonly
 </font>
@@ -82,7 +82,7 @@
 
 <li> <p> FAQs
 <table width=250>
-<tr><td width=10%></td><td><a class="el" href="http://sourceforge.net/apps/mediawiki/g3d-cpp/index.php?title=FAQ">General Questions</a></td><td></td></tr>
+<tr><td width=10%></td><td><a class="el" href="http://sourceforge.net/apps/mediawiki/g3d/index.php?title=FAQ">General Questions</a></td><td></td></tr>
 <tr><td width=10%></td><td><a class="el" href="upgrade.html">Upgrading from 6.xx &rarr; 7.xx</a></td><td></td></tr>
 </table></p>
 

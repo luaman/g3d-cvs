@@ -9,15 +9,15 @@ The short version of these instructions is simple:
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-src.zip?download">G3D-8.00-src.zip</a>
+href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download">G3D-8.00-src.zip</a>
 <li> Type <code>buildg3d --install /usr/local update</code> to build the library
 <li> See <code><a href="file:///usr/local/G3D/demos/starter/">/usr/local/G3D/demos/starter/</A></code> for a simple application framework
 </ol>
 \endhtmlonly
 </p>
+<hr>
 
 \section full Full Unix (Linux and OS X) installation instructions
-<hr>
 \htmlonly
 
 <ol>
@@ -25,7 +25,7 @@ href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-src.zip?download">G3D-
 
 <pre>
 pushd /tmp
-curl http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-src.zip?download > G3D-8.00-src.zip
+curl http://prdownloads.sourceforge.net/g3d/G3D-8.00-src.zip?download > G3D-8.00-src.zip
 unzip G3D-8.00-src.zip
 pushd G3D
 chmod u+x buildg3d

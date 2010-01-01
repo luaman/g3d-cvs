@@ -8,7 +8,7 @@ the 8.00 version of %G3D on Windows XP, Vista, and 7.
 \htmlonly
 <ol>
 <li> Unzip <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
+href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a> and configure Visual Studio's Include and Library paths.
 <li> See <code><a href="../demos/starter">G3D\demos\starter</a></code> for a simple application framework.
 </ol>
 \endhtmlonly
@@ -45,7 +45,7 @@ to test them.  When it is released publicly, VC10 will become the prefered Windo
 <li> <p>
 
 Download <a
-href="http://prdownloads.sourceforge.net/g3d-cpp/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a>
+href="http://prdownloads.sourceforge.net/g3d/G3D-8.00-win32.zip?download">G3D-8.00-win32.zip</a>
 and unzip it into a directory like <code>c:\libraries</code>. This
 will create the directories <code>c:\libraries\G3D</code>,
 <code>c:\libraries\G3D\html</code>, etc.

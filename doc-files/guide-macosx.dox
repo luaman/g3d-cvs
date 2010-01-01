@@ -28,7 +28,7 @@ though we are primarily using as up-to-date as possible versions
 @section installg3d Installing G3D on Mac OS X
 <OL>
 <LI>
-Download the latest g3d_xxx.zip from <A HREF="http://g3d-cpp.sourceforge.net/#downloads">the sourceforge project page</A>. 
+Download the latest g3d_xxx.zip from <A HREF="http://g3d.sourceforge.net/#downloads">the sourceforge project page</A>. 
 </LI>
 <LI>
 Unzip the zip file. Put the directory g3d-xxx somewhere nice, such as <CODE>~/src/g3d/</CODE>. 

@@ -36,7 +36,7 @@ right for your project and introduce you to the major features.  The
 individual entry points are extensively documented and can be accessed
 through the links at the top of this page.  The source code for the
 entire library is available
-(http://cvs.sourceforge.net/viewcvs.py/g3d-cpp/G3D/) and can often
+(http://cvs.sourceforge.net/viewcvs.py/g3d/G3D/) and can often
 help resolve ambiguities.
 
 Post questions and feedback on the User Forum 
@@ -54,7 +54,7 @@ The official support team and community respond to most user posts within
 hours and patches for critical user-discovered bugs are given top priority.  
 
 The latest version library is always available on the homepage,
-<A HREF="http://g3d-cpp.sf.net">http://g3d-cpp.sf.net</A>.
+<A HREF="http://g3d.sf.net">http://g3d.sf.net</A>.
 
 @section platform Platform and Functionality
 

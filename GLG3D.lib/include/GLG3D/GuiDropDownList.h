@@ -4,7 +4,7 @@
  @created 2007-06-15
  @edited  2009-04-20
 
- G3D Library http://g3d-cpp.sf.net
+ G3D Library http://g3d.sf.net
  Copyright 2000-2010, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */

@@ -543,7 +543,7 @@ std::string demoFindData(bool errorIfNotFound) {
 
         prompt("Demo Error", "The demo could not locate the data directory.  "
             "The data is required to run this demo.  If you have not downloaded "
-            "the data zipfile, get it from http://g3d-cpp.sf.net.  If you have "
+            "the data zipfile, get it from http://g3d.sf.net.  If you have "
             "downloaded it, it needs to be no more than 4 directories above the "
             "demo directory.", choice, 1, true);
     }
