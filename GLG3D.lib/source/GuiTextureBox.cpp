@@ -79,8 +79,8 @@ GuiTextureBox::GuiTextureBox
     m_texture(t),
     m_settings(s), 
     m_showInfo(true), 
-    m_dragging(false), 
     m_drawerOpen(embeddedMode),
+    m_dragging(false), 
     m_readbackXY(-1, -1),
     m_embeddedMode(embeddedMode) {
 
@@ -705,10 +705,11 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
                     0, 0, 0, 0)
         };
 
-        static Matrix4 invert(-1, 0, 0, 1,
-                               0,-1, 0, 1,
-                               0, 0,-1, 1,
-                               0, 0, 0, 1);
+        static const Matrix4 invert
+            (-1,  0,  0,  1,
+              0, -1,  0,  1,
+              0,  0, -1,  1,
+              0,  0,  0,  1);
 
         m_shader->args.set("texture", m_texture);
         m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);

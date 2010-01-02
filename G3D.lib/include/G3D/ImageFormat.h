@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-05-23
-  @edited  2009-12-10
+  @edited  2010-01-01
 */
 
 #ifndef GLG3D_ImageFormat_H
@@ -54,8 +54,15 @@ public:
         CODE_R11G11B10F,
         CODE_RGB9E10F,
 
+        CODE_RGB8I,
+        CODE_RGB8UI,
+
         CODE_ARGB8,
         CODE_BGR8,
+
+        CODE_RG8,
+        CODE_RG8I,
+        CODE_RG8UI,
 
         CODE_RGBA8,
         CODE_RGBA16,
@@ -237,6 +244,10 @@ public:
 
     static const ImageFormat* BGR8();
 
+    static const ImageFormat* RG8();
+    static const ImageFormat* RG8I();
+    static const ImageFormat* RG8UI();
+
     static const ImageFormat* RGB5();
 
     static const ImageFormat* RGB5A1();
@@ -264,6 +275,10 @@ public:
     static const ImageFormat* R11G11B10F();
 
     static const ImageFormat* RGB9E10F();    
+
+    static const ImageFormat* RGB8I();    
+
+    static const ImageFormat* RGB8UI();    
     
     static const ImageFormat* RGB_DXT1();
 

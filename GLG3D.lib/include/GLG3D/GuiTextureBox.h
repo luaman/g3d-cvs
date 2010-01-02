@@ -209,7 +209,7 @@ public:
         return m_offset;
     }
 
-    bool setShowFormat(bool f) {
+    void setShowFormat(bool f) {
         m_showFormat = f;
     }
 
