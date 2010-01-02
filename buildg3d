@@ -582,6 +582,9 @@ def downloadMinGW(downloadDir, sourceDir, installDir):
     # download gcc core
     gccTar = getTarFile('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.4.1/gcc-core-4.4.1.tar.bz2', downloadDir)
     gccDir = extractTarFile(gccTar, sourceDir)
+    
+    gppTar = getTarFile('ftp://ftp.ibiblio.org/pub/mirrors/gnu/ftp/gnu/gcc/gcc-4.4.1/gcc-g++-4.4.1.tar.bz2', downloadDir)
+    gppDir = extractTarFile(gppTar, sourceDir)
 
     # create symbolic links to mpfr in gcc source
     os.symlink(mpfrDir, os.path.join(gccDir, 'mpfr'))
@@ -638,7 +641,7 @@ def ffmpegCCTarget():
     gccObjDir = os.path.join(sourceDir, 'gcc_obj')
     ice.utils.mkdir(gccObjDir, False)
     os.chdir(gccObjDir)
-    ice.utils.shell('../' + os.path.split(gccDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --with-headers="' + os.path.join(installDir, 'mingw32/include') + '" --disable-nls --enable-languages=c --disable-win32-registry --disable-shared --without-x --disable-libgomp --disable-libmudflap', False)
+    ice.utils.shell('../' + os.path.split(gccDir)[-1] + '/configure --prefix="' + installDir + '" --target=mingw32 --with-headers="' + os.path.join(installDir, 'mingw32/include') + '" --disable-nls --enable-languages=c,c++ --disable-win32-registry --disable-shared --without-x --disable-libgomp --disable-libmudflap', False)
     
     # build gcc core
     ice.utils.shell(make, False)
