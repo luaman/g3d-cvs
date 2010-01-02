@@ -58,7 +58,7 @@ static int major = 0;
 static int minor = 0;
 
 /** Our own copy of the function pointer; we need to load this at an awkward time, so it is stashed in a global. */
-static PFNWGLCREATECONTEXTATTRIBSARBPROC g3d_wglCreateContextAttribsARB;
+static PFNWGLCREATECONTEXTATTRIBSARBPROC g3d_wglCreateContextAttribsARB = NULL;
 
 // Deals with unicode/MBCS/char issues
 static LPCTSTR toTCHAR(const std::string& str) {
@@ -439,11 +439,15 @@ void Win32Window::init(HWND hwnd, bool creatingShareWindow) {
 
     if (g3d_wglCreateContextAttribsARB != NULL) {
         m_glContext = g3d_wglCreateContextAttribsARB(m_hDC, shareContext, attribList);
+        debugAssertGLOk()
     } else {
         logPrintf("Warning: using wglCreateContext instead of wglCreateContextAttribsARB; OpenGL "
             "compatibility profile will not be available.\n");
+
         // Old method
         m_glContext = wglCreateContext(m_hDC);
+        debugAssertGLOk()
+
         if (! creatingShareWindow && (shareWindow().get() != NULL)) {
             // Share resources with the shareWindow window.  Note that this
             // only occurs if there is a shareWindow, which may not be the 

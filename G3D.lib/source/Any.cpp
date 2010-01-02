@@ -132,9 +132,7 @@ void Any::Data::destroy(Data* d) {
 
 
 Any::Data::~Data() {
-    debugAssertM(referenceCount.value() <= 0, 
-                 "Tried to deallocate an Any::Data with a positive "
-                 "reference count.");
+    debugAssertM(referenceCount.value() <= 0, "Deleted while still referenced.");
 
     // Destruct but do not deallocate children
     switch (type) {
@@ -220,12 +218,6 @@ Any::Any(int64 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 #endif    // G3D_32BIT
 
 
-#if 0
-Any::Any(int32 x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
-}
-#endif    // 0
-
-
 Any::Any(long x) : m_type(NUMBER), m_simpleValue((double)x), m_data(NULL) {
 }
 
@@ -258,8 +250,7 @@ Any::Any(const char* s) : m_type(STRING), m_data(NULL) {
 
 
 Any::Any(Type t, const std::string& name) : m_type(t), m_data(NULL) {
-    alwaysAssertM(t == ARRAY || t == TABLE,
-                  "Illegal type with Any(Type) constructor");
+    alwaysAssertM(t == ARRAY || t == TABLE, "Can only create ARRAY or TABLE from Type enum.");
 
     ensureData();
     if (name != "") {
@@ -344,7 +335,7 @@ Any& Any::operator=(Type t) {
         break;
 
     default:
-        alwaysAssertM(false, "Any = Any::Type must take NONE, TABLE, or ARRAY as an argument");
+        alwaysAssertM(false, "Can only assign NONE, TABLE, or ARRAY Type enum.");
     }
 
     return *this;
@@ -445,7 +436,7 @@ int Any::length() const {
 
 void Any::resize(int n) {
     beforeRead();
-    alwaysAssertM(n >= 0, "Argument to resize must be non-negative");
+    alwaysAssertM(n >= 0, "Cannot resize less than 0.");
     verifyType(ARRAY);
     m_data->value.a->resize(n);
 }
@@ -471,7 +462,7 @@ void Any::clear() {
 const Any& Any::operator[](int i) const {
     beforeRead();
     verifyType(ARRAY);
-    debugAssertM(m_data != NULL, "NULL m_data");
+    debugAssert(m_data != NULL);
     Array<Any>& array = *(m_data->value.a);
     return array[i];
 }
@@ -489,7 +480,7 @@ Any& Any::next() {
 Any& Any::operator[](int i) {
     beforeRead();
     verifyType(ARRAY);
-    debugAssertM(m_data != NULL,"NULL m_data");
+    debugAssert(m_data != NULL);
     Array<Any>& array = *(m_data->value.a);
     return array[i];
 }
@@ -498,7 +489,7 @@ Any& Any::operator[](int i) {
 const Array<Any>& Any::array() const {
     beforeRead();
     verifyType(ARRAY);
-    debugAssertM(m_data != NULL,"NULL m_data");
+    debugAssert(m_data != NULL);
     return *(m_data->value.a);
 }
 
@@ -506,7 +497,7 @@ const Array<Any>& Any::array() const {
 void Any::append(const Any& x0) {
     beforeRead();
     verifyType(ARRAY);
-    debugAssertM(m_data != NULL,"NULL m_data");
+    debugAssert(m_data != NULL);
     m_data->value.a->append(x0);
 }
 
@@ -538,7 +529,7 @@ void Any::append(const Any& x0, const Any& x1, const Any& x2, const Any& x3) {
 const Table<std::string, Any>& Any::table() const {
     beforeRead();
     verifyType(TABLE);
-    debugAssertM(m_data != NULL,"NULL m_data");
+    debugAssert(m_data != NULL);
     return *(m_data->value.t);
 }
 
@@ -546,7 +537,7 @@ const Table<std::string, Any>& Any::table() const {
 const Any& Any::operator[](const std::string& x) const {
     beforeRead();
     verifyType(TABLE);
-    debugAssertM(m_data != NULL, "NULL m_data");
+    debugAssert(m_data != NULL);
     const Table<std::string, Any>& table = *(m_data->value.t);
     Any* value = table.getPointer(x);
     if (value == NULL) {
@@ -588,7 +579,7 @@ void Any::set(const std::string& k, const Any& v) {
     beforeRead();
     v.beforeRead();
     verifyType(TABLE);
-    debugAssertM(m_data != NULL,"NULL m_data");
+    debugAssert(m_data != NULL);
     Table<std::string, Any>& table = *(m_data->value.t);
     table.set(k, v);
 }
@@ -623,14 +614,14 @@ bool Any::operator==(const Any& x) const {
         return (m_simpleValue.n == x.m_simpleValue.n);
 
     case STRING:
-        debugAssertM(m_data != NULL,"NULL m_data");
+        debugAssert(m_data != NULL);
         return (*(m_data->value.s) == *(x.m_data->value.s));
 
     case TABLE: {
         if (size() != x.size()) {
             return false;
         }
-        debugAssertM(m_data != NULL,"NULL m_data");
+        debugAssert(m_data != NULL);
         if (m_data->name != x.m_data->name) {
             return false;
         }
@@ -650,7 +641,7 @@ bool Any::operator==(const Any& x) const {
         if (size() != x.size()) {
             return false;
         }
-        debugAssertM(m_data != NULL,"NULL m_data");
+        debugAssert(m_data != NULL);
         if (m_data->name != x.m_data->name) {
             return false;
         }
@@ -667,8 +658,10 @@ bool Any::operator==(const Any& x) const {
     }
 
     default:
-        alwaysAssertM(false, "Corrupt Any");
+        alwaysAssertM(false, "Unknown type.");
+        return false;
     }    // switch (m_type)
+
 }
 
 
@@ -781,12 +774,12 @@ void Any::serialize(TextOutput& to) const {
         break;
 
     case STRING:
-        debugAssertM(m_data != NULL, "NULL m_data");
+        debugAssert(m_data != NULL);
         to.writeString(*(m_data->value.s));
         break;
 
     case TABLE: {
-        debugAssertM(m_data != NULL, "NULL m_data");
+        debugAssert(m_data != NULL);
         if (! m_data->name.empty()) {
             if (needsQuotes(m_data->name)) {
                 to.writeString(m_data->name);
@@ -823,7 +816,7 @@ void Any::serialize(TextOutput& to) const {
     }
 
     case ARRAY: {
-        debugAssertM(m_data != NULL, "NULL m_data");
+        debugAssert(m_data != NULL);
         if (! m_data->name.empty()) {
             // For arrays, leave no trailing space between the name and the paren
             to.writeSymbol(format("%s(", m_data->name.c_str()));
