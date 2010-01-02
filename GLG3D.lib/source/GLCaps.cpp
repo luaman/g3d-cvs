@@ -894,12 +894,12 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
     } else {
 #       define REQUIRE(ext, alt) \
         { bool has = supports(ext) || supports(alt);\
-            explanation += format("%30s  %s\n", ext, (has ? " yes " : " NO - Required for G3D 9.0!"));\
+            explanation += format("%33s  %s\n", ext, (has ? " yes " : " NO - Required for G3D 9.0!"));\
             supported = supported && has; \
         }
 #       define RECOMMEND(ext, alt) \
         { bool has = supports(ext) || supports(alt);\
-            explanation += format("%30s  %s\n", ext, (has ? "(yes)" : "(NO - Recommended but not required.)"));\
+            explanation += format("%33s  %s\n", ext, (has ? "(yes)" : "(NO - Recommended but not required.)"));\
         }
 
         // This is an older OpenGL, but we can support it through extensions

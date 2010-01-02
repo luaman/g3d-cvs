@@ -280,7 +280,7 @@ void RenderDevice::init(OSWindow* window) {
 
         logLazyPrintf("Driver version: %s\n\n", GLCaps::driverVersion().c_str());
 
-	    std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
+        std::string extStringCopy = (char*)glGetString(GL_EXTENSIONS);
 
         logLazyPrintf(
             "GL extensions: \"%s\"\n\n",
@@ -291,15 +291,15 @@ void RenderDevice::init(OSWindow* window) {
         logLazyPrintf("%20s  %s %s\n", "Format", "Texture", "RenderBuffer");
 	
         for (int code = 0; code < ImageFormat::CODE_NUM; ++code) {
-	        if ((code == ImageFormat::CODE_DEPTH24_STENCIL8) && 
-		        (GLCaps::enumVendor() == GLCaps::MESA)) {
-	            // Mesa seems to crash on this format
-	            continue;
-   	        }
+            if ((code == ImageFormat::CODE_DEPTH24_STENCIL8) && 
+                (GLCaps::enumVendor() == GLCaps::MESA)) {
+                // Mesa crashes on this format
+                continue;
+            }
 
             const ImageFormat* fmt = 
-	            ImageFormat::fromCode((ImageFormat::Code)code);
-
+                ImageFormat::fromCode((ImageFormat::Code)code);
+            
             if (fmt) {
 	        // printf("Format: %s\n", fmt->name().c_str());
                 bool t = GLCaps::supportsTexture(fmt);
@@ -446,7 +446,6 @@ void RenderDevice::setVideoMode() {
         glEnable(GL_POINT_SMOOTH);
     }
     
-
     // glHint(GL_GENERATE_MIPMAP_HINT_EXT, GL_NICEST);
     if (GLCaps::supports("GL_ARB_multisample")) {
         glEnable(GL_MULTISAMPLE_ARB);
