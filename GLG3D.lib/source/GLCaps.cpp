@@ -922,7 +922,7 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
         REQUIRE("GL_ARB_shading_language_100", "");
         REQUIRE("GL_ARB_map_buffer_range", "");
 
-        RECOMMEND("GL_ARB_texture_integer", "");
+        RECOMMEND("GL_EXT_texture_integer", "");
         RECOMMEND("GL_ARB_texture_rg", "");
     }
    

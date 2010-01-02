@@ -810,6 +810,41 @@ Texture::Ref Texture::fromMemory(
     const Settings&                     settings,
     const PreProcess&                   preProcess) {
 
+    if (settings.interpolateMode != NEAREST_NO_MIPMAP &&
+        settings.interpolateMode != NEAREST_MIPMAP) {
+        debugAssertM(
+                 (desiredFormat->openGLFormat != GL_RGBA32UI) &&
+                 (desiredFormat->openGLFormat != GL_RGBA32I) &&
+                 (desiredFormat->openGLFormat != GL_RGBA16UI) &&
+                 (desiredFormat->openGLFormat != GL_RGBA16I) &&
+                 (desiredFormat->openGLFormat != GL_RGBA8UI) &&
+                 (desiredFormat->openGLFormat != GL_RGBA8I) &&
+                 
+                 (desiredFormat->openGLFormat != GL_RGB32UI) &&
+                 (desiredFormat->openGLFormat != GL_RGB32I) &&
+                 (desiredFormat->openGLFormat != GL_RGB16UI) &&
+                 (desiredFormat->openGLFormat != GL_RGB16I) &&
+                 (desiredFormat->openGLFormat != GL_RGB8UI) &&
+                 (desiredFormat->openGLFormat != GL_RGB8I) &&
+                 
+                 (desiredFormat->openGLFormat != GL_RG32UI) &&
+                 (desiredFormat->openGLFormat != GL_RG32I) &&
+                 (desiredFormat->openGLFormat != GL_RG16UI) &&
+                 (desiredFormat->openGLFormat != GL_RG16I) &&
+                 (desiredFormat->openGLFormat != GL_RG8UI) &&
+                 (desiredFormat->openGLFormat != GL_RG8I) &&
+                 
+                 (desiredFormat->openGLFormat != GL_R32UI) &&
+                 (desiredFormat->openGLFormat != GL_R32I) &&
+                 (desiredFormat->openGLFormat != GL_R16UI) &&
+                 (desiredFormat->openGLFormat != GL_R16I) &&
+                 (desiredFormat->openGLFormat != GL_R8UI) &&
+                 (desiredFormat->openGLFormat != GL_R8I),
+                 
+                 "Integer and unsigned integer formats only support NEAREST interpolation");
+    }
+    
+
     typedef Array< Array<const void*> > MipArray;
     // Used for normal map computation
     GImage normal;
