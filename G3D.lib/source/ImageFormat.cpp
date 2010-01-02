@@ -136,6 +136,8 @@ std::string ImageFormat::name() const {
         "BGR8",
 
         "RG8",
+        "RG8I",
+        "RG8UI",
 
         "RGBA8",
         "RGBA16",

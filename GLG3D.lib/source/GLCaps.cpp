@@ -907,7 +907,7 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
         REQUIRE("GL_ARB_depth_clamp", "GL_NV_depth_clamp");
         REQUIRE("GL_ARB_texture_non_power_of_two", "");
         REQUIRE("GL_ARB_texture_float", "");
-        REQUIRE("GL_ARB_geometry_shader4", "");
+        REQUIRE("GL_ARB_geometry_shader4", "GL_EXT_geometry_shader4");
         REQUIRE("GL_ARB_sync", "");
         REQUIRE("GL_ARB_draw_buffers_blend", "");
 #       ifdef G3D_WIN32
@@ -915,7 +915,7 @@ bool GLCaps::supportsG3D9(std::string& explanation) {
 #       else
             REQUIRE("GLX_ARB_create_context", "");
 #       endif
-        REQUIRE("GL_ARB_vertex_array_object", "");
+        REQUIRE("GL_ARB_vertex_array_object", "GL_APPLE_vertex_array_object");
         REQUIRE("GL_ARB_instanced_arrays", "");
 
         REQUIRE("GL_ARB_shader_objects", "");

@@ -349,6 +349,11 @@ void RenderDevice::init(OSWindow* window) {
                  (settings.fullScreen ? "Fullscreen" : "Windowed"), "ok"
                  );
 
+        std::string e;
+        bool s = GLCaps::supportsG3D9(e);
+        logLazyPrintf("This driver will%s G3D 9.00:\n%s\n\n",
+                      s ? "" : " NOT", e.c_str());
+
         logPrintf("Done initializing RenderDevice.\n"); 
     }
 
