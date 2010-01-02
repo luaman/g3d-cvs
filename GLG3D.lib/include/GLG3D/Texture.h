@@ -292,7 +292,7 @@ public:
     }
 
     /** All parameters of a texture that are independent of the
-     underlying image data.  */
+        underlying image data.  */
     class Settings {
     public:
 
@@ -831,13 +831,13 @@ public:
         return m_mean;
     }
 
-	/** Extracts the data as ImageFormat::DEPTH32F */
-	Map2D<float>::Ref toDepthMap() const;
-
-	/** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call 
-      Image1uint8::flipVertical if Texture::invertY is true.*/
-	Image1uint8Ref toDepthImage1uint8() const;
-
+    /** Extracts the data as ImageFormat::DEPTH32F */
+    Map2D<float>::Ref toDepthMap() const;
+    
+    /** Extracts the data as ImageFormat::DEPTH32F and converts to 8-bit. Note that you may want to call 
+        Image1uint8::flipVertical if Texture::invertY is true.*/
+    Image1uint8Ref toDepthImage1uint8() const;
+    
     inline unsigned int openGLID() const {
         return m_textureID;
     }
@@ -909,6 +909,46 @@ public:
 
     /** Allows forcing a change to the depthReadMode of the texture currently bound to the target. */
     void setDepthReadMode(Texture::DepthReadMode depthReadMode);
+
+    /**
+       Upload new data from the CPU to this texture.  Corresponds to <a
+       href="http://www.opengl.org/sdk/docs/man/xhtml/glTexSubImage2D.xml">glTexSubImage2D</a>.
+       If \a src is smaller than the current dimensions of \a this, only
+       part of \a this is updated.
+
+       This routine does not provide the same protections as creating a
+       new Texture from memory: you must handle scaling and ensure
+       compatible formats yourself.
+
+       \param src Must be Image1::Ref, Image1uint8::Ref, Image3::Ref
+       Image3::uint8Ref, Image4::Ref, or Image4uint8::Ref
+    */
+    template<class ImageRef>
+    void update(const ImageRef& src, int mipLevel = 0) {
+        alwaysAssertM(format()->openGLBaseFormat == src->format()->openGLBaseFormat,
+                      "Data must have the same number of channels as the texture.");
+
+        glPushAttrib(GL_TEXTURE_BIT);
+        {
+            glBindTexture(openGLTextureTarget(), openGLID());
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
+            
+            const GLint xoffset = 0;
+            const GLint yoffset = 0;
+            
+            glTexSubImage2D
+                (openGLTextureTarget(), 
+                 mipLevel,
+                 xoffset,
+                 yoffset,
+                 src->width(), 
+                 src->height(), 
+                 src->format()->openGLBaseFormat,
+                 src->format()->openGLDataFormat, 
+                 src->getCArray());
+        }
+        glPopAttrib();
+    }
 
 private:
 
