@@ -926,8 +926,8 @@ public:
     template<class ImageRef>
     void update(const ImageRef& src, int mipLevel = 0) {
         alwaysAssertM(format()->openGLBaseFormat == src->format()->openGLBaseFormat,
-                      "Data must have the same number of channels as the texture.");
-
+            "Data must have the same number of channels as the texture: this = " + format()->name() + 
+            "  src = " + src->format()->name());
         glPushAttrib(GL_TEXTURE_BIT);
         {
             glBindTexture(openGLTextureTarget(), openGLID());

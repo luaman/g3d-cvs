@@ -226,7 +226,9 @@ bool GuiWindow::onEvent(const GEvent &event) {
         Rect2D titleRect;
         Rect2D closeRect;
         if (m_style == GuiTheme::NO_WINDOW_STYLE) {
-            titleRect = Rect2D::xywh(m_rect.x0y0(), Vector2(m_rect.width(), 0));
+            // Prevent anyone from clicking here.
+            titleRect = Rect2D::xyxy(-1,-1,-1,-1);
+            closeRect = titleRect;
         } else {
             titleRect = m_skin->windowToTitleBounds(m_rect, GuiTheme::WindowStyle(m_style));
             closeRect = m_skin->windowToCloseButtonBounds(m_rect, GuiTheme::WindowStyle(m_style));
