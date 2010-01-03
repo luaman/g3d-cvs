@@ -85,7 +85,7 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
 
   3D MIP Maps are not supported because gluBuild3DMipMaps is not in all GLU implementations.
 
-  @sa G3D::RenderDevice::setBlendFunc for important information about turning on 
+  \sa G3D::RenderDevice::setBlendFunc for important information about turning on 
   alpha blending when using textures with alpha.
  */
 class Texture : public ReferenceCountedObject {
@@ -621,12 +621,15 @@ public:
     mip-level otherwise. You may specify compressed and
     uncompressed formats for
     both the bytesformat and the desiredformat.
-
+   
     3D Textures map not use mip-maps.
 
-     Note: OpenGL stores values at texel centers.  Thus element at integer position (x, y) in the input "image" is stored at
-     texture coordinate ((x + 0.5) / width, (x + 0.5) / height).
+    Data is converted between normalized fixed point and floating point as described in section 2.1.5 of the OpenGL 3.2 specification.
+    Specifically, uint8 values are converted to floating point by <code>v' = v / 255.0f</code>.  Note that this differs from
+    how G3D::Color1uint8 converts to G3D::Color3.
 
+    Note: OpenGL stores values at texel centers.  Thus element at integer position (x, y) in the input "image" is stored at
+    texture coordinate ((x + 0.5) / width, (x + 0.5) / height).
     */
     static Texture::Ref fromMemory(
         const std::string&                  name,
