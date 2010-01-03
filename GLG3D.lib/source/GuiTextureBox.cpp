@@ -709,18 +709,15 @@ void GuiTextureBox::drawTexture(RenderDevice* rd, const Rect2D& r) const {
             (-1,  0,  0,  1,
               0, -1,  0,  1,
               0,  0, -1,  1,
-              0,  0,  0,  1);
+              0,  0,  0,  0);
 
         m_shader->args.set("texture", m_texture);
         m_shader->args.set("adjustGamma", m_settings.documentGamma / 2.2f);
         m_shader->args.set("bias", -m_settings.min);
         m_shader->args.set("scale", 1.0f / (m_settings.max - m_settings.min));
 
-        if (m_settings.invertIntensity) {
-            m_shader->args.set("colorShift", invert * colorShift[m_settings.channels]);
-        } else {
-            m_shader->args.set("colorShift", colorShift[m_settings.channels]);
-        }
+        m_shader->args.set("invertIntensity", m_settings.invertIntensity);
+        m_shader->args.set("colorShift", colorShift[m_settings.channels]);
 
         rd->setShader(m_shader);
         debugAssert(m_shader.notNull());
@@ -973,10 +970,13 @@ void GuiTextureBox::setSettings(const Settings& s) {
                          uniform mat4      colorShift;
                          uniform float     bias;
                          uniform float     scale;
+                         uniform bool      invertIntensity;
 
                          void main(void) {
                              vec4 c = texture2D(texture, gl_TexCoord[g3d_Index(texture)].xy);
-                             c = pow((c + bias) * scale, vec4(adjustGamma));
+                             c = (c + bias) * scale;
+                             c = invertIntensity ? vec4(1.0 - c) : c;
+                             c = pow(c, vec4(adjustGamma));
                              gl_FragColor.rgb = (colorShift * c).rgb;
                              gl_FragColor.a = 1.0;
                              }));
