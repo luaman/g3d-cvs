@@ -39,16 +39,18 @@ void App::onInit() {
 
     GuiTheme::Ref theme = debugWindow->theme();
 
-    GuiWindow::Ref toolBar = GuiWindow::create("Tools", theme, renderDevice->viewport(), GuiTheme::TOOL_WINDOW_STYLE);
+    GuiWindow::Ref toolBar = GuiWindow::create("Tools", theme, Rect2D(), GuiTheme::TOOL_WINDOW_STYLE);
 
-    IconSet::Ref icons = IconSet::fromFile(System::findDataFile("tango.icn");
+    IconSet::Ref icons = IconSet::fromFile(System::findDataFile("tango.icn"));
     GuiPane* toolPane = toolBar->pane();
-    toolPane->addButton("A", GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("B", GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("C", GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("D", GuiTheme::TOOL_BUTTON_STYLE)->moveBy(Vector2(10,0));
-    toolPane->addButton("E", GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("F", GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton(icons->get("22x22/uwe/CreateCylinder.png"), GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton("22x22/uwe/CreateBox.png", GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton("22x22/uwe/Emitter.png", GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton("22x22/uwe/PointLight.png", GuiTheme::TOOL_BUTTON_STYLE)->moveBy(Vector2(10,0));
+    toolPane->addButton(icons->get("22x22/categories/applications-multimedia.png"), GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton(icons->get("22x22/categories/applications-graphics.png"), GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton(icons->get("22x22/categories/applications-system.png"), GuiTheme::TOOL_BUTTON_STYLE);
+    toolBar->pack();
     addWidget(toolBar);
 
 
