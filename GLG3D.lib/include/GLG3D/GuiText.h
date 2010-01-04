@@ -10,9 +10,9 @@
 #include "G3D/platform.h"
 #include "G3D/Rect2D.h"
 #include "G3D/Table.h"
+#include "G3D/SmallArray.h"
 #include "GLG3D/Texture.h"
 #include "GLG3D/GFont.h"
-#include "G3D/SmallArray.h"
 
 template <> struct HashTrait<G3D::GFontRef> {
     static size_t hashCode(const G3D::GFontRef& key) { return reinterpret_cast<size_t>(key.pointer()); }
@@ -20,13 +20,14 @@ template <> struct HashTrait<G3D::GFontRef> {
 
 namespace G3D {
 
+class Icon;
 
 /** 
-    Text on a GuiControl. These are normally created
-    implicitly by a cast from std::string, but can be created
-    explicitly when more information needs to be specified.
+    Text or Icon on a G3D::GuiControl. These are normally created
+    implicitly by a cast from std::string or by G3D::IconSet, but can be
+    created explicitly when more information needs to be specified.
 
-    @sa G3D::GuiLabel, G3D::GuiTextBox
+    @sa G3D::GuiLabel, G3D::GuiTextBox, G3D::IconSet, G3D::Icon
  */
 class GuiText {
 public:
@@ -50,7 +51,8 @@ public:
          float              size         = -1, 
          const Color4&      color        = Color4(-1,-1,-1,-1), 
          const Color4&      outlineColor = Color4(-1,-1,-1,-1),
-         const Vector2&     offset       = Vector2::zero()) : m_text(text), m_font(font), m_size(size), m_color(color), m_outlineColor(outlineColor), m_offset(offset) {}
+         const Vector2&     offset       = Vector2::zero()) : 
+            m_text(text), m_font(font), m_size(size), m_color(color), m_outlineColor(outlineColor), m_offset(offset) {}
         
         inline const std::string& text() const {
             return m_text;
@@ -95,7 +97,7 @@ public:
         }
 
         /** Provides the value of default values; called by Gui to overwrite the illegal values.*/
-        void setDefault(const GFontRef& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
+        void setDefault(const GFont::Ref& dfont, float dsize, const Color4& dcolor, const Color4& doutline);
     };
 
 private:
@@ -104,8 +106,9 @@ private:
 
     ElementArray       m_elementArray;
 
-    //    Texture::Ref  m_texture;
-    //     Rect2D        m_rect;
+    /** If not NULL, this is an icon */
+    Texture::Ref       m_texture;
+    Rect2D             m_sourceRect;
     
 public:
 
@@ -124,8 +127,47 @@ public:
      const Vector2&     offset       = Vector2::zero());
 
     GuiText(const char* text);
+
+    /** Create an icon.  
+        \param texture The source texture.
+        \param srcRect The source rectangle, in texture coordinates.
+        \sa G3D::IconSet. */
+    GuiText(const Texture::Ref& texture, const Rect2D& srcRect);
+
+    GuiText(const Icon& icon);
+
+    /** True if this is an icon. */
+    bool isIcon() const {
+        return m_texture.notNull();
+    }
+
+    const Texture::Ref& iconTexture() const {
+        return m_texture;
+    }
+
+    const Rect2D& iconSourceRect() const {
+        return m_sourceRect;
+    }
+
+    /** For an icon, the width in pixels.  Undefined for non-icons.*/
+    int width() const {
+        if (isIcon()) {
+            return m_texture->width();
+        } else {
+            return -1;
+        }
+    }
+
+    /** For an icon, the height in pixels.  Undefined for non-icons.*/
+    int height() const {
+        if (isIcon()) {
+            return m_texture->height();
+        } else {
+            return -1;
+        }
+    }
     
-    /** Adds this text to the end of the GuiText. */
+    /** Adds this text to the end of the GuiText. It is an error to append to an icon.*/
     void append
     (const std::string& text, 
      const GFont::Ref&  font         = NULL, 

@@ -1,10 +1,10 @@
 /**
-  @file GImage.cpp
-  @author Morgan McGuire, morgan@cs.williams.edu
-  Copyright 2002-2009, Morgan McGuire
+  \file GImage.cpp
+  \author Morgan McGuire, morgan@cs.williams.edu
+  Copyright 2002-2010, Morgan McGuire
 
-  @created 2002-05-27
-  @edited  2009-04-20
+  \created 2002-05-27
+  \edited  2010-01-04
  */
 #include "G3D/platform.h"
 #include "G3D/GImage.h"
@@ -30,6 +30,38 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace G3D {
+
+void GImage::LtoRGBA(
+    const uint8*    in,
+    uint8*          out,
+    int             numPixels) {
+
+    for (int i = 0; i < numPixels; ++i) {
+        int v = in[i];
+        int i4 = i * 4;
+
+        out[i4 + 0] = v;
+        out[i4 + 1] = v;
+        out[i4 + 2] = v;
+        out[i4 + 3] = 255; 
+    }
+}
+
+
+void GImage::LtoRGB(
+    const uint8*    in,
+    uint8*          out,
+    int             numPixels) {
+
+    for (int i = 0; i < numPixels; ++i) {
+        int v = in[i];
+        int i3 = i * 3;
+
+        out[i3 + 0] = v;
+        out[i3 + 1] = v;
+        out[i3 + 2] = v;
+    }
+}
 
    
 void GImage::RGBtoRGBA(

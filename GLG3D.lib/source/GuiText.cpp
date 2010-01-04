@@ -5,6 +5,7 @@
 
 #include "G3D/platform.h"
 #include "GLG3D/GuiText.h"
+#include "GLG3D/Icon.h"
 
 namespace G3D {
 
@@ -41,6 +42,14 @@ GuiText::GuiText
 GuiText::GuiText
 (const char* text) {
     append(text);
+}
+
+
+GuiText::GuiText(const Texture::Ref& texture, const Rect2D& srcRect) : m_texture(texture), m_sourceRect(srcRect) {
+}
+
+
+GuiText::GuiText(const Icon& icon) : m_texture(icon.texture()), m_sourceRect(icon.sourceRect()) {
 }
 
 

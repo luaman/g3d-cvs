@@ -7,7 +7,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2002-08-07
- @edited  2009-11-04
+ @edited  2010-01-04
 
  Copyright 2000-2010, Morgan McGuire.
  All rights reserved.
@@ -110,6 +110,7 @@
 #include "GLG3D/GuiFunctionBox.h"
 #include "GLG3D/GuiTextureBox.h"
 #include "GLG3D/FileDialog.h"
+#include "GLG3D/IconSet.h"
 
 #include "GLG3D/BackgroundWidget.h"
 #include "GLG3D/UprightSplineManipulator.h"

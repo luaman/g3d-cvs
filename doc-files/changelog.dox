@@ -20,6 +20,8 @@
      <li> Added sample code overview to documentation
      <li> Initialized Win32Window using the OpenGL compatibility profile
      <li> Added ImageFormat::RGB9E10F() and ImageFormat::R11G11B10F() formats
+     <li> G3D::GImage::LtoRGB, G3D::GImage::LtoRGBA
+     <li> G3D::Icon, G3D::IconSet -- GuiText can now be created from an icon
      <li> G3D::glClipToBox, glDisableAllClipping
      <li> G3D::Profiler
      <li> G3D::Shader now supports triangle geometry shaders

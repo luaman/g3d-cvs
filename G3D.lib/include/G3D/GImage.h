@@ -1,5 +1,5 @@
 /**
-  @file GImage.h
+  \file GImage.h
 
   See G3D::GImage for details.
 
@@ -11,13 +11,13 @@
   @cite PNG compress/decompressor is the <A HREF="http://www.libpng.org/pub/png/libpng.html">libpng library</A>, used in accordance with their license.
   @cite PPM code by Morgan McGuire based on http://netpbm.sourceforge.net/doc/ppm.html
 
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
-  @created 2002-05-27
-  @edited  2009-09-20
+  \maintainer Morgan McGuire, morgan@cs.williams.edu
 
-  Copyright 2000-2009, Morgan McGuire.
+  \created 2002-05-27
+  \edited  2010-01-04
+
+  Copyright 2000-2010, Morgan McGuire.
   All rights reserved.
-
  */
 
 #ifndef G3D_GImage_h
@@ -40,8 +40,11 @@ class BinaryOutput;
 /**
   Interface to image compression & file formats. 
  
-  Supported formats (decode and encode): Color JPEG, PNG, (Uncompressed)TGA 24, (Uncompressed)TGA 32, BMP 1, BMP 4, BMP 8, BMP 24, PPM (P6), and PPM ASCII (P1, P2, P3), which includes PPM, PGM, and PBM.
-  8-bit paletted PCX, 24-bit PCX, and ICO are supported for decoding only.
+  Supported formats (decode and encode): Color JPEG, PNG,
+  (Uncompressed)TGA 24, (Uncompressed)TGA 32, BMP 1, BMP 4, BMP 8, BMP
+  24, PPM (P6), and PPM ASCII (P1, P2, P3), which includes PPM, PGM,
+  and PBM.  8-bit paletted PCX, 24-bit PCX, and ICO are supported for
+  decoding only.
 
   Sample usage:
 
@@ -472,6 +475,16 @@ public:
         uint8*                  out,
         int                     numPixels);
 
+    static void LtoRGB
+    (const uint8*            in,
+     uint8*                  out,
+     int                     numPixels);
+
+    static void LtoRGBA
+    (const uint8*            in,
+     uint8*                  out,
+     int                     numPixels);
+    
     /** Safe for in == out */
     static void RGBtoBGR(
         const uint8*            in,

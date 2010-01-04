@@ -186,7 +186,7 @@ private:
     };
 
     /** Delayed text, organized by the associated font.*/
-    Table<GFontRef, Array<Text> >       delayedText;
+    Table<GFont::Ref, Array<Text> >     delayedText;
 
     /** Number of values in delayedText's arrays.  Used to 
         detect when we need to enter font rendering mode. */
