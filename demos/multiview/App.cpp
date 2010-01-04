@@ -44,9 +44,9 @@ void App::onInit() {
     IconSet::Ref icons = IconSet::fromFile(System::findDataFile("tango.icn"));
     GuiPane* toolPane = toolBar->pane();
     toolPane->addButton(icons->get("22x22/uwe/CreateCylinder.png"), GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("22x22/uwe/CreateBox.png", GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("22x22/uwe/Emitter.png", GuiTheme::TOOL_BUTTON_STYLE);
-    toolPane->addButton("22x22/uwe/PointLight.png", GuiTheme::TOOL_BUTTON_STYLE)->moveBy(Vector2(10,0));
+    toolPane->addButton(icons->get("22x22/uwe/CreateBox.png"), GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton(icons->get("22x22/uwe/Emitter.png"), GuiTheme::TOOL_BUTTON_STYLE);
+    toolPane->addButton(icons->get("22x22/uwe/PointLight.png"), GuiTheme::TOOL_BUTTON_STYLE)->moveBy(Vector2(10,0));
     toolPane->addButton(icons->get("22x22/categories/applications-multimedia.png"), GuiTheme::TOOL_BUTTON_STYLE);
     toolPane->addButton(icons->get("22x22/categories/applications-graphics.png"), GuiTheme::TOOL_BUTTON_STYLE);
     toolPane->addButton(icons->get("22x22/categories/applications-system.png"), GuiTheme::TOOL_BUTTON_STYLE);

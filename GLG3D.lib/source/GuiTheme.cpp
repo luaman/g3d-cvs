@@ -1,7 +1,13 @@
 /**
- @file GuiTheme.cpp
- @author Morgan McGuire, morgan@cs.williams.edu
- */
+ \file GuiTheme.cpp
+ \author Morgan McGuire, morgan@cs.williams.edu
+
+ \created 2008-01-01
+ \edited  2010-01-04
+
+ Copyright 2000-2010, Morgan McGuire
+ All rights reserved
+*/
 
 #include "G3D/platform.h"
 #include "GLG3D/GuiTheme.h"
