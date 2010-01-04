@@ -438,7 +438,7 @@ std::string System::findDataFile
 
     Array<std::string> subDir;
     subDir.append("", "font/", "sky/", "gui/");
-    subDir.append("SuperShader/", "cubemap/");
+    subDir.append("SuperShader/", "cubemap/", "icon/");
     subDir.append("image/", "md2/", "md2/speedway/");
     subDir.append("md3/", "ifs/", "3ds/");
 

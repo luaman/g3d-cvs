@@ -42,6 +42,7 @@ IconSet::Ref IconSet::fromFile(const std::string& filename) {
     image.decode(b, GImage::PNG);
     Texture::Settings settings;
     settings.wrapMode = WrapMode::CLAMP;
+    settings.interpolateMode = Texture::BILINEAR_NO_MIPMAP;
     s->m_texture = Texture::fromGImage(filename, image, ImageFormat::AUTO(), Texture::DIM_2D_NPOT, settings);
 
     return s;
@@ -119,6 +120,7 @@ void IconSet::makeIconSet(const std::string& baseDir, const std::string& outFile
         w += s.width;
         h = max(h, s.height);
     }
+    height += h;
 
     alwaysAssertM(height < 1024, "Height must be less than 1024");
 

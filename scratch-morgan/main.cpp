@@ -226,13 +226,13 @@ int main(int argc, char** argv) {
     //b.commit(true);
 
 
-    if (true) {
+    if (false) {
         // Create data resources
         RenderDevice* rd = new RenderDevice();
         rd->init();
         
         if (false) GuiTheme::makeThemeFromSourceFiles("d:/morgan/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "d:/morgan/G3D/data-files/gui/osx.skn");
-        if (true) IconSet::makeIconSet("d:/morgan/data/source/icons/tango/", "d:/morgan/G3D/data-files/icons/tango.icn");
+        if (false) IconSet::makeIconSet("d:/morgan/data/source/icons/tango/", "d:/morgan/G3D/data-files/icon/tango.icn");
         return 0;
     } 
  

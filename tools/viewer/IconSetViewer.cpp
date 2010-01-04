@@ -31,7 +31,7 @@ void IconSetViewer::onGraphics(RenderDevice* rd, App* app, const Lighting::Ref& 
 
 
     // Current x position (set negative to force drawing from an offset)
-    int x = -3000;//-1775;
+    int x = 0;//-3000;//-1775;
     int y = 2;
     // Highest x position of the current column
     int x1 = x;
