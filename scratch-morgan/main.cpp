@@ -226,13 +226,15 @@ int main(int argc, char** argv) {
     //b.commit(true);
 
 
-    /*
-    RenderDevice* rd = new RenderDevice();
-    rd->init();
-    GuiTheme::makeThemeFromSourceFiles("d:/morgan/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "d:/morgan/G3D/data-files/gui/osx.skn");
-    return 0;
-    */
- 
+    if (true) {
+        // Create data resources
+        RenderDevice* rd = new RenderDevice();
+        rd->init();
+        
+        if (false) GuiTheme::makeThemeFromSourceFiles("d:/morgan/data/source/themes/osx/", "white.png", "black.png", "osx.txt", "d:/morgan/G3D/data-files/gui/osx.skn");
+        if (true) IconSet::makeIconSet("d:/morgan/data/source/icons/tango/", "d:/morgan/G3D/data-files/icons/tango.icn");
+        return 0;
+    } 
  
     GApp::Settings set;
     set.film.enabled = false;

@@ -174,6 +174,8 @@ void IconSet::makeIconSet(const std::string& baseDir, const std::string& outFile
         h = max(h, s.height);
     }
 
+    packed.encode(GImage::PNG, b);
+
     b.commit();
 }
 

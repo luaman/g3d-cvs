@@ -11,6 +11,7 @@ Contents:
 - \ref font
 - \ref cubemap 
 - \ref gui
+- \ref icon
 - \ref ifs
 - \ref a3ds
 - \ref md2 
@@ -447,6 +448,23 @@ Load with \link G3D::GuiTheme GuiTheme\endlink.
 <td>
 <center><a href="gui/osx.jpg"><img src="gui/osx-icon.png" border=0></a>
 <br>osx.skn</center>
+</td>
+<td>
+</td>
+</tr>
+</table>
+
+\endhtmlonly
+
+@section icon Icon Sets
+Load with \link G3D::IconSet IconSet\endlink.
+
+\htmlonly
+<table border=0 width=70%>
+<tr>
+<td>
+<center><a href="icon/tango.png"><img src="icon/tango-small.png" border=0></a>
+<br>tango.icn</center>
 </td>
 <td>
 </td>

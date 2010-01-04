@@ -1,12 +1,13 @@
 /**
- @file App.cpp
+ \file App.cpp
  
- App that allows viewing of 3D assets
+ App that allows viewing of 2D and 3D assets
  
- @author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
+ \maintainer Morgan McGuire, morgan@cs.williams.edu
+ \author Eric Muller 09edm@williams.edu, Dan Fast 10dpf@williams.edu, Katie Creel 10kac_2@williams.edu
  
- @created 2007-05-31
- @edited  2007-07-08
+ \created 2007-05-31
+ \edited  2010-01-04
  */
 #include "App.h"
 #include "IFSViewer.h"
@@ -19,6 +20,7 @@
 #include "GUIViewer.h"
 #include "EmptyViewer.h"
 #include "VideoViewer.h"
+#include "IconSetViewer.h"
 
 
 App::App(const GApp::Settings& settings, const std::string& file) :
@@ -221,6 +223,10 @@ void App::setViewer(const std::string& newFilename) {
     } else if (ext == "skn") {
         
         viewer = new GUIViewer(this);
+
+    } else if (ext == "icn") {
+        
+        viewer = new IconSetViewer(debugFont);
         
     } else if (ext == "pk3") {
         // Something in Quake format - figure out what we should load

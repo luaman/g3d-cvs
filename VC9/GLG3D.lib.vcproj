@@ -360,6 +360,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\GLG3D.lib\source\IconSet.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\GLG3D.lib\source\IFSModel.cpp"
 				>
 			</File>
@@ -715,6 +719,14 @@
 			</File>
 			<File
 				RelativePath="..\GLG3D.lib\include\GLG3D\GuiWindow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\Icon.h"
+				>
+			</File>
+			<File
+				RelativePath="..\GLG3D.lib\include\GLG3D\IconSet.h"
 				>
 			</File>
 			<File
