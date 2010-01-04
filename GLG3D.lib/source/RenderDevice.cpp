@@ -351,7 +351,7 @@ void RenderDevice::init(OSWindow* window) {
 
         std::string e;
         bool s = GLCaps::supportsG3D9(e);
-        logLazyPrintf("This driver will%s G3D 9.00:\n%s\n\n",
+        logLazyPrintf("This driver will%s support G3D 9.00:\n%s\n\n",
                       s ? "" : " NOT", e.c_str());
 
         logPrintf("Done initializing RenderDevice.\n"); 
