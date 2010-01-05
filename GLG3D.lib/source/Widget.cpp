@@ -136,7 +136,7 @@ void WidgetManager::add(const Widget::Ref& m) {
     } else {
         // Do not add elements that already are in the manager
         if (! m_moduleArray.contains(m)) {
-            if (m_focusedModule.notNull()) {
+            if (m_focusedModule.notNull() && (m_focusedModule == m_moduleArray.last())) {
                 // Cannot replace the focused module at the top of the priority list
                 m_moduleArray[m_moduleArray.size() - 1] = m;
                 m_moduleArray.append(m_focusedModule);
@@ -177,7 +177,7 @@ void WidgetManager::defocusWidget(const Widget::Ref& m) {
 }
 
 
-    void WidgetManager::setFocusedWidget(const Widget::Ref& m, bool moveToFront) {
+void WidgetManager::setFocusedWidget(const Widget::Ref& m, bool moveToFront) {
     if (m_locked) {
         if (moveToFront) {
             m_delayedEvent.append(DelayedEvent(DelayedEvent::SET_FOCUS_AND_MOVE_TO_FRONT, m));
