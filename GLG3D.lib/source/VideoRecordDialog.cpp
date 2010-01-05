@@ -1,10 +1,10 @@
 /**
-  @file VideoRecordDialog.cpp
+  \file VideoRecordDialog.cpp
   
-  @maintainer Morgan McGuire, morgan@cs.williams.edu
+  \maintainer Morgan McGuire, morgan@cs.williams.edu
 
-  @created 2008-10-18
-  @edited  2009-09-25
+  \created 2008-10-18
+  \edited  2010-01-05
  */ 
 #include "G3D/platform.h"
 #include "G3D/fileutils.h"
@@ -41,7 +41,7 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_motionBlurFrames(10),
     m_screenshotPending(false),
     m_framesBox(NULL),
-    m_captureGUI(false),
+    m_captureGUI(true),
     m_showCursor(false) {
 
     m_hotKey = GKey::F6;
