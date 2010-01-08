@@ -50,12 +50,15 @@ buildDir = None
 
 compiler = None
 
+detectedArch    = None
+detectedTuning  = None
+
 make     = None
 
 def initOS():
     global windows, freebsd, linux, osx, unix, osShortName
     global libInstallDir, docInstallDir, configFile, platformName
-    global doInstall, icompileConfig, compiler, make
+    global doInstall, icompileConfig, compiler, make, detectedArch, detectedTuning
 
     s = platform.system()
     windows = (s == 'Windows') or (s == 'Microsoft')
@@ -120,6 +123,26 @@ def initOS():
             i = info.index('"', i) + 1
             j = info.index('"', i)
             compiler = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            raise Exception('icompile --info returned unparsable data: ' + info)
+
+        # extract architecture from iCompile
+        try:
+            i = info.index('\ndetectedArchitecture')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            detectedArch = info[i:j]
+        except ValueError:
+            # Could not find the information!
+            raise Exception('icompile --info returned unparsable data: ' + info)
+
+        # extract tuning from iCompile
+        try:
+            i = info.index('\ndetectedTuning')
+            i = info.index('"', i) + 1
+            j = info.index('"', i)
+            detectedTuning = info[i:j]
         except ValueError:
             # Could not find the information!
             raise Exception('icompile --info returned unparsable data: ' + info)
@@ -206,8 +229,8 @@ def runicompile(dir):
 ##################################################################################
 
 # Called frum libTarget on unix-platforms to build the ffmpeg libraries, which do not use icompile
-def buildNativeFFMPEG():
-    if windows: raise Error('Cannot build FFMPEG directly on Windows.  Must use cross-compiler')
+def buildNativeFFmpeg():
+    if windows: raise Error('Cannot build FFmpeg directly on Windows.  Must use cross-compiler')
 
 
     libs = ['libavutil.a', 'libavcodec.a', 'libavformat.a']
@@ -261,18 +284,32 @@ def buildNativeFFMPEG():
     # build ffmpeg 
     oldcwd = os.getcwd()
     os.chdir(pathConcat(sourceDir, ffmpegName))
+    
+    # Create architecture/cpu configure option
+    archOptions = '';
+    
+    if detectedArch != None:
+        archOptions += ' --arch=' + detectedArch + ' '
+        if osx and detectedArch == 'x86':
+            archOptions += ' --extra-cflags="-arch i686" --extra-ldflags="-arch i686" '
+    
+    if not osx and detectedTuning != None:
+        archOptions += ' --cpu=' + detectedTuning + ' '
+    
+    # Create FFmpeg configure command
     ffmpegBuildScript = """
     echo Running configure in """ + os.getcwd() + """
-    ./configure --enable-static --cc=""" + compilerPath + """ --prefix=""" + installDir + """ --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
+    ./configure --enable-static --cc=""" + compilerPath + """ --prefix=""" + installDir + archOptions + """ --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug
     echo Running make...
-    """ + make + """
+    CFLAGS="-m32" """ + make + """
     echo Make install...
     """ + make + """ install
     """
+    
     print 'Compiling...'
 
     # FreeBSD uses the PWD from the previous interactive command, so
-    # we have to explicitly set PWD to make the FFMPEG configure
+    # we have to explicitly set PWD to make the FFmpeg configure
     # script work correctly.
     retVal = ice.utils.run('sh', ['-c', ffmpegBuildScript], False, {'PWD' : os.getcwd()})
     os.chdir(oldcwd)
@@ -310,7 +347,7 @@ def libTarget():
 
             if x == 0: x = runicompile('zip.lib')
          
-        if x == 0: x = buildNativeFFMPEG()
+        if x == 0: x = buildNativeFFmpeg()
 
         if x == 0: x = runicompile('G3D.lib')
 
@@ -671,7 +708,7 @@ def ffmpegWinTarget():
     oldcwd = os.getcwd()
     os.chdir(ffmpegDir)
     ffmpegBuildScript = """
-    ./configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --disable-ssse3 --enable-memalign-hack --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
+    ./configure --enable-static --prefix=""" + installDir + """ --cross-prefix=mingw32- --enable-cross-compile --target-os=mingw32 --cpu=nocona --disable-ssse3 --enable-memalign-hack --enable-network --disable-indevs --disable-outdevs --disable-bzlib --disable-ffplay --disable-ffserver --disable-ffmpeg --disable-debug 
     """ + make + """
     """ + make + """ install
     """

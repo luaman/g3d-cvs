@@ -276,6 +276,12 @@ class State:
 
     # Filename of the compiler
     compiler                    = None
+    
+    # Detected architecture
+    detectedArchitecture        = None
+    
+    # Detected cpu tuning
+    detectedTuning              = None
 
     # A list of options to be passed to the compiler.  Does not include
     # verbose or warnings options.

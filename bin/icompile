@@ -791,12 +791,16 @@ def configureGpp(state):
         arch = []
         if not is64:
             arch = ['-march=i686', '-mtune=nocona']
+            state.detectedArchitecture = 'x86';
+            state.detectedTuning = 'nocona';
 
             # LARGEFILE_SOURCE enables some newer interfaces for
             # fopen that work with >2GB files
             flags = shell('getconf LFS_CFLAGS', ice.utils.verbosity >= VERBOSE)
             state.compilerOptions += string.split(flags, ' ')
-
+        else:
+            state.detectedArchitecture = 'x86_64';
+        
         arch += ['-msse3']
         state.compilerOptions += arch
         state.linkerOptions   += arch
@@ -825,8 +829,13 @@ def configureGpp(state):
             # Build a binary with both 32- and 64-bit versions in it
             if not gcc44:
                 arch += ['-arch', 'i686', '-msse3','-mfpmath=sse']
+                state.detectedArchitecture = 'x86';
+                state.detectedTuning = 'i686';
+                
                 # To get 64-bit as well (commented out because G3D OS X doesn't support this)
                 #arch += ['-arch', 'x86_64', '-msse2', '-msse3']
+        else:
+            state.detectedArchitecture = 'x86_64';
                 
         if (state.universalBinary) or (machine() != 'i386'):
             arch += ['-arch', 'ppc']
@@ -843,6 +852,8 @@ def configureGpp(state):
             # 64-bit machines should by default compile
             # for a modern machine.
             state.compilerOptions.append('-march=pentium4')
+            state.detectedArchitecture = 'x86';
+            state.detectedTuning = 'pentium4';
             
         state.compilerOptions.append('-msse3')
         
@@ -884,12 +895,14 @@ machine readability.
 def printInfo(state):
     print 'icompile info'
     print 'format 1' # Increment this when the output format changes
-    print 'workingDir        = "' + state.binaryDir + '"'
-    print 'binaryName        = "' + state.binaryName + '"'
-    print 'binaryType        = "' + state.binaryType + '"'
-    print 'target            = "' + state.target + '"'
-    print 'platform          = "' + state.platform + '"'
-    print 'compiler          = "' + state.compiler + '"'
+    print 'workingDir           = "' + state.binaryDir + '"'
+    print 'binaryName           = "' + state.binaryName + '"'
+    print 'binaryType           = "' + state.binaryType + '"'
+    print 'target               = "' + state.target + '"'
+    print 'platform             = "' + state.platform + '"'
+    print 'compiler             = "' + state.compiler + '"'
+    print 'detectedArchitecture = "' + state.detectedArchitecture + '"'
+    print 'detectedTuning       = "' + state.detectedTuning + '"'
 
 #########################################################################
 # Computes development progress metrics. Returns a string briefly
