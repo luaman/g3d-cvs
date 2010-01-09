@@ -135,7 +135,7 @@ def initOS():
             detectedArch = info[i:j]
         except ValueError:
             # Could not find the information!
-            raise Exception('icompile --info returned unparsable data: ' + info)
+            detectedArch = None
 
         # extract tuning from iCompile
         try:
@@ -145,7 +145,7 @@ def initOS():
             detectedTuning = info[i:j]
         except ValueError:
             # Could not find the information!
-            raise Exception('icompile --info returned unparsable data: ' + info)
+            detectedTuning = None
 
         os.chdir('..')
 
