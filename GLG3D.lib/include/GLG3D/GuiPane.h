@@ -190,6 +190,16 @@ public:
         return addControl(new GuiTextBox(this, caption, stringPointer, update));
     }
 
+    /**
+     \brief Add a drop-down list.
+
+      You can make the \a indexPointer reference an enum type by casting:
+      
+      <pre>
+      Pointer<int>(objectPointer, 
+                   reinterpret_cast<int (Class::*)() const>(getMethod), 
+                   reinterpret_cast<void (Class::*)(int)>(setMethod))) 
+     */
     GuiDropDownList* addDropDownList(const GuiText& caption, const Array<std::string>& list, const Pointer<int>& indexPointer = NULL);
     GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = NULL);
     
@@ -260,12 +270,12 @@ public:
     template<typename Value>
     GuiNumberBox<Value>* addNumberBox(
         const GuiText&   text, 
-        Value*              value, 
+        Value*           value, 
         const GuiText&   suffix,
-        bool                showSlider,
-        Value               min = (Value)minVal(Value()), 
-        Value               max = (Value)maxVal(Value()), 
-        Value               roundIncrement = 0) {
+        bool             showSlider,
+        Value            min = (Value)minVal(Value()), 
+        Value            max = (Value)maxVal(Value()), 
+        Value            roundIncrement = 0) {
 
         return addControl(new GuiNumberBox<Value>(this, text, Pointer<Value>(value), 
             suffix, showSlider ? GuiTheme::LINEAR_SLIDER : GuiTheme::NO_SLIDER, min, max, roundIncrement));

@@ -15,6 +15,7 @@ Contents:
 <li> <a class="el" href="#framework">Frameworks:</a>
 <ol>
  <li> GApp Framework
+ <li> RenderDevice Framework
  <li> OpenGL Framework
  <li> External Framework
  <li> %G3D as a Utility Library
@@ -38,19 +39,38 @@ Every application needs a framework that manages events, provides a
 command-line or graphical user interface, and initializes key
 subsystems like OpenGL and Winsock.  
 
-@subsection g3dframework GApp Framework
-
+@subsection g3dframework G3D::GApp Framework
 
 Small games, research projects, and homework assignments are written
-on short shedules and have limited GUI needs.  The G3D::GApp class is
-designed to get such projects running quickly and easily.  See the <a href="../demos/starter">demos/starter</a> project for an example.
+on short shedules and have moderate GUI needs.  The G3D::GApp class is
+designed to get such projects running quickly and easily.  
+See the <a href="../demos/starter">demos/starter</a> project for an example.
 
 G3D::GApp will create a window, initialize OpenGL, create a log file,
-and provide you with framerate and a debugging user interface.  It
+and provide you with framerate, video recorder, camera and tone map controls, 
+and a debugging user interface.  It
 works exactly the same on every platform, so you can write once and
 run anywhere.  By subclassing it you can override methods to respond
 to various high-level events like keypresses, rendering once per
 frame, and processing input from the network or simulation.
+
+You can create most standard Gui elements using the G3D::GuiWindow/G3D::GuiPane
+classes and tie them directly to existing methods and variables.  GApp handles
+the event delivery and rendering of these elements.
+
+Within GApp you can choose to write explicit <b>immediate-mode rendering</b> code
+that sends triangles to the GPU every frame; rely on the G3D::Surface, G3D::Surface2D,
+and various model classes like G3D::ArticulatedModel for <b>retained mode (scene graph)</b> rendering,
+or mix the two as demonstrated in the starter project.
+
+@subsection renderdeviceframework G3D::RenderDevice Framework
+
+G3D::RenderDevice provides immediate mode rendering for GApp, but you can
+also use it directly yourself.  Creating a G3D::RenderDevice automatically
+intializes the GPU, makes a window, and loads all OpenGL extensions.  You can
+then write your own main loop and issue explicit rendering calls.  For event
+delivery and a managed main loop, see G3D::OSWindow, G3D::GEvent, 
+and G3D::UserInput.
 
 @subsection oglframework OpenGL Framework for Teaching
 
