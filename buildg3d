@@ -21,7 +21,7 @@ distribDir = None
 class Version:
     major = '8'
     minor = '00'
-    beta  = '02'
+    beta  = '03'
     
     def toString(self):
         if (self.beta != ''):

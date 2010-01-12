@@ -6,17 +6,17 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-06-09
- @edited  2008-11-30
+ @edited  2010-01-11
  */
 
-#ifndef G3D_PLATFORM_H
-#define G3D_PLATFORM_H
+#ifndef G3D_platform_h
+#define G3D_platform_h
 
 /**
  The version number of G3D in the form: MmmBB -> 
  version M.mm [beta BB]
  */
-#define G3D_VER 80002
+#define G3D_VER 80003
 
 // fatal error for unsupported architectures
 #if defined(__powerpc__)
