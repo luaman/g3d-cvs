@@ -181,7 +181,7 @@ public:
       Render in 3D using the current blending mode, etc.
       Line normals are set to face towards the camera, perpendicular to the line.
      */
-    void render(RenderDevice* rd, const Color3& color, float lineScale = 1.0f);
+    void render(RenderDevice* rd, const Color3& color, float lineScale = 1.0f) const;
 };
 } // _internal
 
@@ -234,7 +234,7 @@ private:
 
     /** Single translation axes, double translation axes, rotation axes.*/
     enum Geom {NO_AXIS = -1, X, Y, Z, XY, YZ, ZX, RX, RY, RZ, NUM_GEOMS};//CENTER};
-    _internal::UIGeom       m_geomArray[NUM_GEOMS];
+    mutable _internal::UIGeom       m_geomArray[NUM_GEOMS];
 
     /** Used for determining how far the mouse moved */
     Vector2                 m_oldMouseXY;
@@ -291,8 +291,7 @@ public:
 
     typedef ReferenceCountedPointer<ThirdPersonManipulator> Ref;
 
-    void render(RenderDevice* rd);
-
+    virtual void render(RenderDevice* rd) const;
 
     /** Called when it has been determined that the user first began a
         drag on one of our controls.  Invoked before m_dragging is
@@ -313,7 +312,7 @@ public:
     virtual void onDrag(const Vector2& delta);
 
     /** Assumes that m_controlFrame is the current object to world matrix */
-    void computeProjection(RenderDevice* rd);
+    void computeProjection(RenderDevice* rd) const;
 
 protected:
     

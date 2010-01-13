@@ -13,11 +13,11 @@
 
 namespace G3D {
 
-GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue) {
+GuiMenu::Ref GuiMenu::create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue) {
     return new GuiMenu(skin, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue);
 }
 
-GuiMenuRef GuiMenu::create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue) {
+GuiMenu::Ref GuiMenu::create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue) {
     return new GuiMenu(skin, Rect2D::xywh(0, 0, 120, 0), listPtr, indexValue);
 }
 
@@ -59,7 +59,7 @@ bool GuiMenu::onEvent(const GEvent& event) {
     // Hide on escape
     if ((event.type == GEventType::KEY_DOWN) && 
         (event.key.keysym.sym == GKey::ESCAPE)) {
-        fireEvent(GEventType::GUI_CANCEL);
+        fireMyEvent(GEventType::GUI_CANCEL);
         hide();
         return true;
     }
@@ -75,13 +75,13 @@ bool GuiMenu::onEvent(const GEvent& event) {
             int i = labelIndexUnderMouse(click);
             if (i >= 0) {
                 *m_indexValue = i;
-                fireEvent(GEventType::GUI_ACTION);
+                fireMyEvent(GEventType::GUI_ACTION);
                 hide();
             }
             return true;
         } 
 
-        fireEvent(GEventType::GUI_CANCEL);
+        fireMyEvent(GEventType::GUI_CANCEL);
 
         // Clicked off the menu
         hide();
@@ -116,7 +116,7 @@ int GuiMenu::labelIndexUnderMouse(Vector2 click) const {
 }
 
 
-void GuiMenu::fireEvent(GEventType type) {
+void GuiMenu::fireMyEvent(GEventType type) {
     GEvent e;
     e.gui.type = type;
     e.gui.control = m_eventSource;

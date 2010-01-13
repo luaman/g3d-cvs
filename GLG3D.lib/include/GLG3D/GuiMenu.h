@@ -2,14 +2,14 @@
  @file GLG3D/GuiMenu.h
 
  @created 2008-07-14
- @edited  2008-07-14
+ @edited  2010-01-11
 
  G3D Library http://g3d.sf.net
- Copyright 2001-2008, Morgan McGuire, morgan@cs.williams.edu
+ Copyright 2001-2010, Morgan McGuire, morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GUIMENU_H
-#define G3D_GUIMENU_H
+#ifndef G3D_GuiMenu_h
+#define G3D_GuiMenu_h
 
 #include "G3D/Pointer.h"
 #include "G3D/Array.h"
@@ -20,11 +20,12 @@ namespace G3D {
 
 class GuiPane;
 
-typedef ReferenceCountedPointer<class GuiMenu> GuiMenuRef;
-
 /**A special "popup" window that hides itself when it loses focus.
    Used by GuiDropDownList for the popup and can be used to build context menus. */
 class GuiMenu : public GuiWindow {
+public:
+    typedef ReferenceCountedPointer<class GuiMenu> Ref;
+
 protected:
 
     GuiControl*                     m_eventSource;
@@ -51,11 +52,12 @@ protected:
     int labelIndexUnderMouse(Vector2 click) const;
 
     /** Fires an action event */
-    void fireEvent(GEventType type);
+    void fireMyEvent(GEventType type);
+
 public:
 
-    static GuiMenuRef create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
-    static GuiMenuRef create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
+    static Ref create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
+    static Ref create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     virtual bool onEvent(const GEvent& event);
     virtual void render(RenderDevice* rd) const;

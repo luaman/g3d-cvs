@@ -226,11 +226,11 @@ void Client::receiveDescription() {
 }
 
 
-void Client::render(RenderDevice* rd) {
+void Client::render(RenderDevice* rd) const {
     const GuiTheme::TextStyle& style = m_settings.displayStyle;
-    GFontRef font = style.font;
+    const GFont::Ref& font = style.font;
 
-    Rect2D box = Rect2D::xywh(20, 20 + style.size, 
+    const Rect2D& box = Rect2D::xywh(20, 20 + style.size, 
         m_osWindow->width() - 40, m_osWindow->height() - 200 - style.size);
     Draw::rect2DBorder(box, rd, style.color, 0, max(1.0f, style.size / 20.0f));
 
@@ -249,7 +249,6 @@ void Client::render(RenderDevice* rd) {
     }
     rd->setClip2D(Rect2D::inf());
 
-    // TODO: cancel button
 }
 
 

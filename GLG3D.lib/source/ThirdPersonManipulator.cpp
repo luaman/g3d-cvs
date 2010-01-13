@@ -1,10 +1,10 @@
 /**
-  @file GLG3D/ThirdPersonManipulator.h
+  @file GLG3D/ThirdPersonManipulator.cpp
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2006-06-09
-  @edited  2009-02-20
+  @edited  2010-01-11
 */
 
 #include "GLG3D/ThirdPersonManipulator.h"
@@ -130,7 +130,7 @@ void UIGeom::computeProjection(RenderDevice* rd) {
 
 #define HIDDEN_LINE_ALPHA (0.1f)
 
-void UIGeom::render(RenderDevice* rd, const Color3& color, float lineScale) {
+void UIGeom::render(RenderDevice* rd, const Color3& color, float lineScale) const {
     if (! visible) {
         return;
     }
@@ -256,7 +256,7 @@ ThirdPersonManipulatorRef ThirdPersonManipulator::create() {
     return new ThirdPersonManipulator();
 }
 
-void ThirdPersonManipulator::render(RenderDevice* rd) {
+void ThirdPersonManipulator::render(RenderDevice* rd) const {
     rd->pushState();
     // Highlight the appropriate axis
 
@@ -515,7 +515,7 @@ void ThirdPersonManipulator::onDrag(const Vector2& delta) {
 }
 
 
-void ThirdPersonManipulator::computeProjection(RenderDevice* rd) {
+void ThirdPersonManipulator::computeProjection(RenderDevice* rd) const {
     // TODO: clip to the near plane; modify LineSegment to go through a projection
 
     for (int g = 0; g < NUM_GEOMS; ++g) {

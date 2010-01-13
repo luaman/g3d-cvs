@@ -163,7 +163,7 @@ private:
 
     /** Parallel array to m_serverDisplayArray giving pixel coords in the 
         server browser.  Updated by render() */
-    Array<Rect2D>             m_clickBox;
+    mutable Array<Rect2D>     m_clickBox;
 
     LightweightConduitRef     m_net;
 
@@ -180,7 +180,7 @@ private:
     void receiveDescription();
 
     /** Called by Display::render() */
-    void render(RenderDevice* rd);
+    virtual void render(RenderDevice* rd) const;
 
     /** Implements browse() on an instance. */
     bool browseImpl(ServerDescription& d);

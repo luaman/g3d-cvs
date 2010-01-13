@@ -73,7 +73,7 @@ protected:
     /** Selected bookmark.  When not NO_BOOKMARK, move to this location */
     int                         m_bookmarkSelection;
 
-    GuiMenuRef                  m_menu;
+    GuiMenu::Ref                  m_menu;
 
     /** Allows the user to override the current camera position */
     GuiTextBox*                 cameraLocationTextBox;

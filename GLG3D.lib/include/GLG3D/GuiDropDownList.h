@@ -32,9 +32,9 @@ class GuiDropDownList : public GuiControl {
 protected:
 
     /** Pop-up list menu; call menu() to create this. */
-    GuiMenuRef                      m_menu;
+    GuiMenu::Ref                    m_menu;
     
-    GuiMenuRef menu();
+    GuiMenu::Ref menu();
 
     /** The index of the currently selected item. */
     Pointer<int>                    m_indexValue;

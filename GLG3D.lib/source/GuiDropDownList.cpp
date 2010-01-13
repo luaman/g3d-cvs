@@ -28,7 +28,7 @@ GuiDropDownList::GuiDropDownList
 }
 
 
-GuiMenuRef GuiDropDownList::menu() { 
+GuiMenu::Ref GuiDropDownList::menu() { 
     if (m_menu.isNull()) {
         m_menu = GuiMenu::create(theme(), &m_listValue, m_indexValue);
     }
