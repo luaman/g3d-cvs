@@ -385,12 +385,6 @@ public:
        resize(size() - 1, shrinkIfNecessary);
    }
 
-   /** Resizes without shrinking the underlying array. Same as resize(n, false).
-       @deprecated*/
-   void fastResize(int n) {
-      resize(n, false);
-   }
-
 
    /**
     Inserts at the specified index and shifts all other elements up by one.

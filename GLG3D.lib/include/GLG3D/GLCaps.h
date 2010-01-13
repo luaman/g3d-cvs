@@ -87,23 +87,23 @@ public:
 private:
 
     /** True when init has been called */
-    static bool         _initialized;
+    static bool         m_initialized;
 
     /** True when loadExtensions has already been called */
-    static bool         _loadedExtensions;
+    static bool         m_loadedExtensions;
 
     /** True if this is GL 2.0 or greater, which mandates certain extensions.*/
-    static bool         _hasGLMajorVersion2;
+    static bool         m_hasGLMajorVersion2;
 
     /** True when checkAllBugs has been called. */
-    static bool         _checkedForBugs;
+    static bool         m_checkedForBugs;
 
-    static int          _numTextureCoords;
-    static int          _numTextures;
-    static int          _numTextureUnits;
+    static int          m_numTextureCoords;
+    static int          m_numTextures;
+    static int          m_numTextureUnits;
 
-    static int          _maxTextureSize;
-    static int          _maxCubeMapSize;
+    static int          m_maxTextureSize;
+    static int          m_maxCubeMapSize;
 
     static Vendor computeVendor();
 
@@ -185,7 +185,7 @@ public:
     /** Maximum number of texture coordinates supported
         by G3D and RenderDevice; used to preallocate
         some static arrays */
-    enum {G3D_MAX_TEXTURE_UNITS = 16};
+    enum {G3D_MAX_TEXTURE_UNITS = 32};
 
     /** Loads OpenGL extensions (e.g. glBindBufferARB).
         Call this once at the beginning of the program,
@@ -234,27 +234,27 @@ public:
         Convenient becaused G3D::RenderDevice unifies those extensions. */
     static bool supports_two_sided_stencil();
  
-    /** 16 on most cards. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates.*/
-    inline static int numTextureCoords() {
-        return _numTextureCoords;
+    /** Between 8 and 16 on most cards.  Can be more than number of textures. */
+    static int numTextureCoords() {
+        return m_numTextureCoords;
     }
 
-    /** 16 on most cards. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates. */
+    /** Between 16 and 32 on most cards. Can be more than number of fixed-function texture units. */
     static int numTextures() {
-        return _numTextures;
+        return m_numTextures;
     }
 
-    /** 4 on most cards. Only affects fixed function. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture coordinates.*/
+    /** 4 on most cards. Only affects fixed function. See http://developer.nvidia.com/object/General_FAQ.html#t6  for a discussion of the number of texture units.*/
     static int numTextureUnits() {
-        return _numTextureUnits;
+        return m_numTextureUnits;
     }
 
     static int maxTextureSize() {
-        return _maxTextureSize;
+        return m_maxTextureSize;
     }
 
     static int maxCubeMapSize() {
-        return _maxCubeMapSize;
+        return m_maxCubeMapSize;
     }
 
     static inline bool supports_GL_ARB_texture_cube_map() {

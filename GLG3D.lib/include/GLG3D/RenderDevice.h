@@ -909,19 +909,19 @@ public:
      Equivalent to glMatrixMode(GL_TEXTURE); glLoadMatrix(...); on a transposed matrix.
      */
     void setTextureMatrix(
-        uint32                  textureUnit,
+        int                     textureUnit,
         const float*            m);
 
     void setTextureMatrix(
-        uint32                  textureUnit,
+        int                     textureUnit,
         const double*           m);
 
     void setTextureMatrix(
-        uint32                  textureUnit,
+        int                     textureUnit,
         const Matrix4&          m);
 
     void setTextureMatrix(
-        uint32                  textureUnit,
+        int                     textureUnit,
         const CoordinateFrame&  c);
 
     /** A bias affects which MIP-map level is used. bias = 0 uses the MIP-map level
@@ -932,10 +932,10 @@ public:
         See also http://oss.sgi.com/projects/ogl-sample/registry/EXT/texture_lod_bias.txt.
     */
     void setTextureLODBias(
-        uint32                  unit,
+        int                     unit,
         float                   bias);
 
-    Matrix4 getTextureMatrix(uint32 textureUnit);
+    Matrix4 getTextureMatrix(int textureUnit);
 
     /**
      The combine mode specifies how to combine the result of a texture
@@ -952,7 +952,7 @@ public:
      Equivalent to glTexEnv.
      */
     void setTextureCombineMode(
-        uint32                    textureUnit,
+        int                       textureUnit,
         const CombineMode         texCombine);
 
 
@@ -960,7 +960,7 @@ public:
      Resets the matrix, texture, combine op, and constant for a texture unit.
      */
     void resetTextureUnit(
-        uint32                    textureUnit);
+        int                       textureUnit);
 
     /**
      Equivalent to glPolygonOffset
@@ -990,12 +990,12 @@ public:
     /**
      Equivalent to glTexCoord
      */
-    void setTexCoord(uint32 textureUnit, const Vector4& texCoord);
-    void setTexCoord(uint32 textureUnit, const Vector3& texCoord);
-    void setTexCoord(uint32 textureUnit, const Vector3int16& texCoord);
-    void setTexCoord(uint32 textureUnit, const Vector2& texCoord);
-    void setTexCoord(uint32 textureUnit, const Vector2int16& texCoord);
-    void setTexCoord(uint32 textureUnit, double texCoord);
+    void setTexCoord(int textureUnit, const Vector4& texCoord);
+    void setTexCoord(int textureUnit, const Vector3& texCoord);
+    void setTexCoord(int textureUnit, const Vector3int16& texCoord);
+    void setTexCoord(int textureUnit, const Vector2& texCoord);
+    void setTexCoord(int textureUnit, const Vector2int16& texCoord);
+    void setTexCoord(int textureUnit, double texCoord);
 
     /**
      Equivalent to glCullFace.
@@ -1233,24 +1233,30 @@ public:
      @param texture Set to NULL to disable the unit
      */
     void setTexture(
-        uint32                textureUnit,
+        int                   textureUnit,
         const Texture::Ref&   texture);
 
     /** Returns the number of textures available.  May be higher
         than the number of texture units if the programmable
         pipeline provides more textures than the fixed function
         pipeline.*/
-    uint32 numTextures() const;
+    int numTextures() const {
+        return m_numTextures;
+    }
 
     /** Returns the number of texture units 
         (texture + reg combiner + matrix) available.
         This only applies to the fixed function pipeline.
     */
-    uint32 numTextureUnits() const;
+    int numTextureUnits() const {
+        return m_numTextureUnits;
+    }
 
     /** Returns the number of texture coordinates allowed.
         This may be greater than the number of texture matrices.*/
-    uint32 numTextureCoords() const;
+    int numTextureCoords() const {
+        return m_numTextureCoords;
+    }
 
     /**
      Used by G3D::Shader.  Most programs do not need to call this directly.
@@ -1319,7 +1325,7 @@ private:
      turning off a texture unit, we just disable it.  If it 
      is enabled with the same texture, we've saved a swap.
     */
-    uint32               currentlyBoundTexture[GLCaps::G3D_MAX_TEXTURE_UNITS];
+    int currentlyBoundTexture[GLCaps::G3D_MAX_TEXTURE_UNITS];
 
     /**
      Snapshot of the state maintained by the render device.
@@ -1863,12 +1869,12 @@ public:
             That unit cannot be used for texturing at the same time.
      */
     void configureShadowMap(
-        uint32              textureUnit,
+        int                 textureUnit,
         const Matrix4&      lightMVP,
         const Texture::Ref& shadowMap);
 
     void configureShadowMap(
-        uint32              unit,
+        int                 unit,
         const ReferenceCountedPointer<class ShadowMap>& shadowMap);
 
     /**
@@ -1882,7 +1888,7 @@ public:
      */
 
     void configureReflectionMap(
-        uint32              textureUnit,
+        int                 textureUnit,
         Texture::Ref        reflectionTexture);
 
     #ifdef G3D_WIN32

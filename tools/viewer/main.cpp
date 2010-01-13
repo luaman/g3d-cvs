@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
     
     GApp::Settings s = GApp::Settings();
     s.window.resizable = true;
-    s.window.width = 720;
-    s.window.height = 480;
+    s.window.width = 800;
+    s.window.height = 600;
 
     return App(s, filename).run();
 }

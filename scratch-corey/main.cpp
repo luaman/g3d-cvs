@@ -1,7 +1,4 @@
 
-#ifndef App_h
-#define App_h
-
 #include <G3D/G3DAll.h>
 
 class App : public GApp {
@@ -10,9 +7,6 @@ public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
-
-    MD3Model::Ref       md3Model;
-    GameTime            md3Time;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -30,8 +24,6 @@ public:
     virtual void endProgram();
 };
 
-#endif
-
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
@@ -41,8 +33,8 @@ int main(int argc, char** argv) {
     
     // Change the window and other startup parameters by modifying the
     // settings class.  For example:
-    settings.window.width       = 960; 
-    settings.window.height      = 600;
+    settings.window.width       = 720; 
+    settings.window.height      = 480;
 
 #   ifdef G3D_WIN32
         // On unix-like operating systems, icompile automatically
@@ -100,16 +92,6 @@ void App::onInit() {
 
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
-
-    std::string base = dataDir + "chaos/";
-
-    md3Model = MD3Model::fromDirectory(base);
-    md3Time = 0.0f;
-
-    Array<std::string> snames;
-    md3Model->skinNames(MD3Model::PART_TORSO, snames);
-
-    setDesiredFrameRate(100.0f);
 }
 
 
@@ -126,8 +108,6 @@ void App::onNetwork() {
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Add physical simulation here.  You can make your time
     // advancement based on any of the three arguments.
-
-    md3Time += rdt;
 }
 
 
@@ -152,14 +132,6 @@ void App::onUserInput(UserInput* ui) {
 
 void App::onPose(Array<Surface::Ref>& surfaceArray, Array<Surface2D::Ref>& surface2DArray) {
     (void)surface2DArray;
-
-    MD3Model::Pose pose(md3Time, MD3Model::LEGS_IDLE, md3Time, MD3Model::TORSO_GESTURE);
-
-    pose.skinNames[MD3Model::PART_LEGS] = "lower_blue";
-    pose.skinNames[MD3Model::PART_TORSO] = "upper_red";
-    //pose.skinNames[MD3Model::PART_HEAD] = "head_NightLord";
-
-    md3Model->pose(pose, surfaceArray);
 }
 
 
@@ -168,6 +140,12 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
 
     rd->setColorClearValue(Color3(0.1f, 0.5f, 1.0f));
     rd->clear(true, true, true);
+
+    rd->push2D();
+    //rd->setTexture(0, sky->getEnvironmentMap());
+    rd->setTexture(rd->numTextures() - 1, sky->getEnvironmentMap());
+    Draw::rect2D(Rect2D::xywh(200, 200, 400, 400), rd);
+    rd->pop2D();
 
     // Render all objects (or, you can call Surface methods on the
     // elements of posed3D directly to customize rendering.  Pass a

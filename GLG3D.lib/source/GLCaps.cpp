@@ -24,14 +24,14 @@ namespace G3D {
 // Global init flags for GLCaps.  Because this is an integer constant (equal to zero),
 // we can safely assume that it will be initialized before this translation unit is
 // entered.
-bool GLCaps::_loadedExtensions = false;
-bool GLCaps::_initialized = false;
-bool GLCaps::_checkedForBugs = false;
-bool GLCaps::_hasGLMajorVersion2 = false;
+bool GLCaps::m_loadedExtensions = false;
+bool GLCaps::m_initialized = false;
+bool GLCaps::m_checkedForBugs = false;
+bool GLCaps::m_hasGLMajorVersion2 = false;
 
-int GLCaps::_numTextureCoords = 0;
-int GLCaps::_numTextures = 0;
-int GLCaps::_numTextureUnits = 0;
+int GLCaps::m_numTextureCoords = 0;
+int GLCaps::m_numTextures = 0;
+int GLCaps::m_numTextureUnits = 0;
 
 bool GLCaps::bug_glMultiTexCoord3fvARB = false;
 bool GLCaps::bug_normalMapTexGen = false;
@@ -39,8 +39,8 @@ bool GLCaps::bug_redBlueMipmapSwap = false;
 bool GLCaps::bug_mipmapGeneration = false;
 bool GLCaps::bug_slowVBO = false;
 
-int GLCaps::_maxTextureSize = 0;
-int GLCaps::_maxCubeMapSize = 0;
+int GLCaps::m_maxTextureSize = 0;
+int GLCaps::m_maxCubeMapSize = 0;
 
 /**
  Dummy function to which unloaded extensions can be set.
@@ -256,13 +256,13 @@ void GLCaps::loadExtensions(Log* debugLog) {
 
     debugAssert(glGetString(GL_VENDOR) != NULL);
 
-    if (_loadedExtensions) {
+    if (m_loadedExtensions) {
         return;
     } else {
-        _loadedExtensions = true;
+        m_loadedExtensions = true;
     }
 
-    alwaysAssertM(! _initialized, "Internal error.");
+    alwaysAssertM(! m_initialized, "Internal error.");
 
     // Require an OpenGL context to continue
     alwaysAssertM(glGetCurrentContext(), "Unable to load OpenGL extensions without a current context.");
@@ -275,7 +275,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
 
     // Initialize cached GL major version pulled from glVersion() for extensions made into 2.0 core
     const std::string glver = glVersion();
-    _hasGLMajorVersion2 = beginsWith(glver, "2.");
+    m_hasGLMajorVersion2 = beginsWith(glver, "2.");
 
     // Turn on OpenGL 3.0
     glewExperimental = GL_TRUE;
@@ -296,7 +296,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
         // We're going to need exactly the same code for each of 
         // several extensions.
 #       define DECLARE_EXT(extname) _supports_##extname = supports(#extname)
-#       define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || _hasGLMajorVersion2)
+#       define DECLARE_EXT_GL2(extname) _supports_##extname = (supports(#extname) || m_hasGLMajorVersion2)
             DECLARE_EXT(GL_ARB_texture_float);
             DECLARE_EXT_GL2(GL_ARB_texture_non_power_of_two);
             DECLARE_EXT(GL_EXT_texture_rectangle);
@@ -339,10 +339,7 @@ void GLCaps::loadExtensions(Log* debugLog) {
             #endif
         }
 
-        _supports_GL_EXT_texture_rectangle = 
-            _supports_GL_EXT_texture_rectangle ||
-            supports("GL_NV_texture_rectangle");
-
+        _supports_GL_EXT_texture_rectangle =_supports_GL_EXT_texture_rectangle || supports("GL_NV_texture_rectangle");
 
         // GL_ARB_texture_cube_map doesn't work on Radeon Mobility
         // GL Renderer:    MOBILITY RADEON 9000 DDR x86/SSE2
@@ -363,16 +360,16 @@ void GLCaps::loadExtensions(Log* debugLog) {
 
     // Don't use more texture units than allowed at compile time.
     if (GLCaps::supports_GL_ARB_multitexture()) {
-        _numTextureUnits = iMin(G3D_MAX_TEXTURE_UNITS, 
+        m_numTextureUnits = iMin(G3D_MAX_TEXTURE_UNITS, 
                                 glGetInteger(GL_MAX_TEXTURE_UNITS_ARB));
     } else {
-        _numTextureUnits = 1;
+        m_numTextureUnits = 1;
     }
 
     // NVIDIA cards with GL_NV_fragment_program have different 
     // numbers of texture coords, units, and textures
-    _numTextureCoords = glGetInteger(GL_MAX_TEXTURE_COORDS_ARB);
-    _numTextures = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
+    m_numTextureCoords = glGetInteger(GL_MAX_TEXTURE_COORDS_ARB);
+    m_numTextures = glGetInteger(GL_MAX_TEXTURE_IMAGE_UNITS_ARB);
 
     if (! GLCaps::supports_GL_ARB_multitexture()) {
         // No multitexture
@@ -381,27 +378,27 @@ void GLCaps::loadExtensions(Log* debugLog) {
                               "forcing number of texture units "
                               "to no more than 1");
         }
-        _numTextureCoords = iMax(1, _numTextureCoords);
-        _numTextures      = iMax(1, _numTextures);
-        _numTextureUnits  = iMax(1, _numTextureUnits);
+        m_numTextureCoords = iMax(1, m_numTextureCoords);
+        m_numTextures      = iMax(1, m_numTextures);
+        m_numTextureUnits  = iMax(1, m_numTextureUnits);
     }
     debugAssertGLOk();
 
-    _maxTextureSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
-    _maxCubeMapSize = glGetInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT);
+    m_maxTextureSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
+    m_maxCubeMapSize = glGetInteger(GL_MAX_CUBE_MAP_TEXTURE_SIZE_EXT);
 
-    _initialized = true;
+    m_initialized = true;
 }
 
 
 void GLCaps::checkAllBugs() {
-    if (_checkedForBugs) {
+    if (m_checkedForBugs) {
         return;
     } else {
-        _checkedForBugs = true;
+        m_checkedForBugs = true;
     }
 
-    alwaysAssertM(_loadedExtensions, "Cannot check for OpenGL bugs before extensions are loaded.");
+    alwaysAssertM(m_loadedExtensions, "Cannot check for OpenGL bugs before extensions are loaded.");
 
     checkBug_cubeMapBugs();
     checkBug_redBlueMipmapSwap();
@@ -411,30 +408,30 @@ void GLCaps::checkAllBugs() {
 
 
 bool GLCaps::hasBug_glMultiTexCoord3fvARB() {
-    alwaysAssertM(_initialized, "GLCaps has not been initialized.");
+    alwaysAssertM(m_initialized, "GLCaps has not been initialized.");
     return bug_glMultiTexCoord3fvARB;
 }
 
 bool GLCaps::hasBug_normalMapTexGen() {
-    alwaysAssertM(_initialized, "GLCaps has not been initialized.");
+    alwaysAssertM(m_initialized, "GLCaps has not been initialized.");
     return bug_normalMapTexGen;
 }
 
 
 bool GLCaps::hasBug_redBlueMipmapSwap() {
-    alwaysAssertM(_initialized, "GLCaps has not been initialized.");
+    alwaysAssertM(m_initialized, "GLCaps has not been initialized.");
     return bug_redBlueMipmapSwap;
 }
 
 
 bool GLCaps::hasBug_mipmapGeneration() {
-    alwaysAssertM(_initialized, "GLCaps has not been initialized.");
+    alwaysAssertM(m_initialized, "GLCaps has not been initialized.");
     return bug_mipmapGeneration;
 }
 
 
 bool GLCaps::hasBug_slowVBO() {
-    alwaysAssertM(_initialized, "GLCaps has not been initialized.");
+    alwaysAssertM(m_initialized, "GLCaps has not been initialized.");
     return bug_slowVBO;
 }
 
@@ -541,28 +538,28 @@ bool GLCaps::supportsRenderBuffer(const ImageFormat* fmt) {
 
 
 const std::string& GLCaps::glVersion() {
-    alwaysAssertM(_loadedExtensions, "Cannot call GLCaps::glVersion before GLCaps::init().");
+    alwaysAssertM(m_loadedExtensions, "Cannot call GLCaps::glVersion before GLCaps::init().");
     static std::string _glVersion = (char*)glGetString(GL_VERSION);
     return _glVersion;
 }
 
 
 const std::string& GLCaps::driverVersion() {
-    alwaysAssertM(_loadedExtensions, "Cannot call GLCaps::driverVersion before GLCaps::init().");
+    alwaysAssertM(m_loadedExtensions, "Cannot call GLCaps::driverVersion before GLCaps::init().");
     static std::string _driverVersion = getDriverVersion().c_str();
 	return _driverVersion;
 }
 
 
 const std::string& GLCaps::vendor() {
-    alwaysAssertM(_loadedExtensions, "Cannot call GLCaps::vendor before GLCaps::init().");
+    alwaysAssertM(m_loadedExtensions, "Cannot call GLCaps::vendor before GLCaps::init().");
     static std::string _driverVendor = (char*)glGetString(GL_VENDOR);
 	return _driverVendor;
 }
 
 
 const std::string& GLCaps::renderer() {
-    alwaysAssertM(_loadedExtensions, "Cannot call GLCaps::renderer before GLCaps::init().");
+    alwaysAssertM(m_loadedExtensions, "Cannot call GLCaps::renderer before GLCaps::init().");
     static std::string _glRenderer = (char*)glGetString(GL_RENDERER);
 	return _glRenderer;
 }

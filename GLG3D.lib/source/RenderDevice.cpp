@@ -950,17 +950,22 @@ void RenderDevice::setState(
     for (int u = m_state.highestTextureUnitThatChanged; u >= 0; --u) {
         if (newState.textureUnit[u] != m_state.textureUnit[u]) {
 
-            if (u < (int)numTextures()) {
+            if (u < numTextures()) {
                 setTexture(u, newState.textureUnit[u].texture);
 
-                if (u < (int)numTextureUnits()) {
+                // Only revert valid texture units
+                if (u < numTextureUnits()) {
                     setTextureCombineMode(u, newState.textureUnit[u].combineMode);
                     setTextureMatrix(u, newState.textureUnit[u].textureMatrix);
 
                     setTextureLODBias(u, newState.textureUnit[u].LODBias);
                 }
             }
-            setTexCoord(u, newState.textureUnit[u].texCoord);            
+
+            // Only revet valid texture coords
+            if (u < m_numTextureCoords) {
+                setTexCoord(u, newState.textureUnit[u].texCoord);            
+            }
         }
     }
 
@@ -1285,21 +1290,6 @@ void RenderDevice::clear(bool clearColor, bool clearDepth, bool clearStencil) {
     minStateChange();
     setColorWrite(oldColorWrite);
     setDepthWrite(oldDepthWrite);
-}
-
-
-uint32 RenderDevice::numTextureUnits() const {
-    return m_numTextureUnits;
-}
-
-
-uint32 RenderDevice::numTextures() const {
-    return m_numTextures;
-}
-
-
-uint32 RenderDevice::numTextureCoords() const {
-    return m_numTextureCoords;
 }
 
 
@@ -2281,8 +2271,8 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
 }
 
 
-Matrix4 RenderDevice::getTextureMatrix(uint32 unit) {
-    debugAssertM((int)unit < m_numTextureCoords,
+Matrix4 RenderDevice::getTextureMatrix(int unit) {
+    debugAssertM(unit < m_numTextureCoords,
         format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, m_numTextureCoords));
 
@@ -2297,7 +2287,7 @@ Matrix4 RenderDevice::getTextureMatrix(uint32 unit) {
 
 
 void RenderDevice::setTextureMatrix(
-    uint32               unit,
+    int                  unit,
     const Matrix4&	     m) {
 
     float f[16];
@@ -2312,11 +2302,11 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureMatrix(
-    uint32               unit,
+    int                  unit,
     const double*        m) {
 
     debugAssert(! m_inPrimitive);
-    debugAssertM((int)unit <  m_numTextureCoords,
+    debugAssertM(unit <  m_numTextureCoords,
         format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, m_numTextureCoords));
 
@@ -2325,11 +2315,11 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureMatrix(
-    uint32              unit,
+    int                 unit,
     const float*        m) {
 
     debugAssert(! m_inPrimitive);
-    debugAssertM((int)unit <  m_numTextureCoords,
+    debugAssertM(unit <  m_numTextureCoords,
         format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, m_numTextureCoords));
 
@@ -2340,7 +2330,7 @@ void RenderDevice::setTextureMatrix(
 
 
 void RenderDevice::setTextureMatrix(
-    uint32                  unit,
+    int                     unit,
     const CoordinateFrame&  c) {
 
     float m[16] = 
@@ -2370,7 +2360,7 @@ const ImageFormat* RenderDevice::colorFormat() const {
 
 
 void RenderDevice::setTextureLODBias(
-    uint32                  unit,
+    int                     unit,
     float                   bias) {
 
     minStateChange();
@@ -2390,7 +2380,7 @@ void RenderDevice::setTextureLODBias(
 
 
 void RenderDevice::setTextureCombineMode(
-    uint32                  unit,
+    int                     unit,
     const CombineMode       mode) {
 
     minStateChange();
@@ -2398,7 +2388,7 @@ void RenderDevice::setTextureCombineMode(
 		return;
 	}
 
-    debugAssertM((int)unit < m_numTextureUnits,
+    debugAssertM(unit < m_numTextureUnits,
         format("Attempted to access texture unit %d on a device with %d units.",
         unit, m_numTextureUnits));
 
@@ -2462,8 +2452,8 @@ void RenderDevice::setTextureCombineMode(
 
 
 void RenderDevice::resetTextureUnit(
-    uint32                  unit) {
-    debugAssertM((int)unit < m_numTextureUnits,
+    int                    unit) {
+    debugAssertM(unit < m_numTextureUnits,
         format("Attempted to access texture unit %d on a device with %d units.",
         unit, m_numTextureUnits));
 
@@ -2505,8 +2495,8 @@ void RenderDevice::setNormal(const Vector3& normal) {
 }
 
 
-void RenderDevice::setTexCoord(uint32 unit, const Vector4& texCoord) {
-    debugAssertM((int)unit < m_numTextureCoords,
+void RenderDevice::setTexCoord(int unit, const Vector4& texCoord) {
+    debugAssertM(unit < m_numTextureCoords,
         format("Attempted to access texture coordinate %d on a device with %d coordinates.",
                unit, m_numTextureCoords));
 
@@ -2523,27 +2513,27 @@ void RenderDevice::setTexCoord(uint32 unit, const Vector4& texCoord) {
 }
 
 
-void RenderDevice::setTexCoord(uint32 unit, const Vector3& texCoord) {
+void RenderDevice::setTexCoord(int unit, const Vector3& texCoord) {
     setTexCoord(unit, Vector4(texCoord, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint32 unit, const Vector3int16& texCoord) {
+void RenderDevice::setTexCoord(int unit, const Vector3int16& texCoord) {
     setTexCoord(unit, Vector4(texCoord.x, texCoord.y, texCoord.z, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint32 unit, const Vector2& texCoord) {
+void RenderDevice::setTexCoord(int unit, const Vector2& texCoord) {
     setTexCoord(unit, Vector4(texCoord, 0, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint32 unit, const Vector2int16& texCoord) {
+void RenderDevice::setTexCoord(int unit, const Vector2int16& texCoord) {
     setTexCoord(unit, Vector4(texCoord.x, texCoord.y, 0, 1));
 }
 
 
-void RenderDevice::setTexCoord(uint32 unit, double texCoord) {
+void RenderDevice::setTexCoord(int unit, double texCoord) {
     setTexCoord(unit, Vector4(texCoord, 0, 0, 1));
 }
 
@@ -2636,14 +2626,14 @@ void RenderDevice::countTriangles(RenderDevice::Primitive primitive, int numVert
 
 
 void RenderDevice::setTexture(
-    uint32                  unit,
+    int                     unit,
     const Texture::Ref&     texture) {
 
     // NVIDIA cards have more textures than texture units.
     // "fixedFunction" textures have an associated unit 
     // and must be glEnabled.  Programmable units *cannot*
     // be enabled.
-    bool fixedFunction = ((int)unit < m_numTextureUnits);
+    bool fixedFunction = (unit < m_numTextureUnits);
 
     debugAssertM(! m_inPrimitive, 
                  "Can't change textures while rendering a primitive.");
@@ -3013,14 +3003,14 @@ void RenderDevice::setLight(int i, const GLight* _light, bool force) {
 
 
 void RenderDevice::configureShadowMap(
-    uint32              unit,
+    int                   unit,
     const ShadowMap::Ref& shadowMap) {
     configureShadowMap(unit, shadowMap->lightMVP(), shadowMap->depthTexture());
 }
 
 
 void RenderDevice::configureShadowMap(
-    uint32              unit,
+    int                 unit,
     const Matrix4&      lightMVP,
     const Texture::Ref& shadowMap) {
 
@@ -3079,7 +3069,7 @@ void RenderDevice::configureShadowMap(
 
 
 void RenderDevice::configureReflectionMap(
-    uint32              textureUnit,
+    int                 textureUnit,
     Texture::Ref        reflectionTexture) {
 
     debugAssert(! GLCaps::hasBug_normalMapTexGen());
