@@ -488,9 +488,19 @@ void GuiTheme::renderCheckBox(const Rect2D& bounds, bool enabled, bool focused, 
 }
 
 
-void GuiTheme::renderPane(const Rect2D& bounds, PaneStyle paneStyle) const {
+void GuiTheme::renderPane(const Rect2D& fullBounds, const GuiText& caption, PaneStyle paneStyle) const {
+    // TODO: Caption, 
+    Rect2D paneRenderBounds = fullBounds;
+
+    if (! caption.empty()) {
+        const float pad = paneTopPadding(caption, paneStyle);
+        paneRenderBounds = Rect2D::xyxy(fullBounds.x0(), fullBounds.y0() + pad, fullBounds.x1(), fullBounds.y1());
+        addDelayedText(caption, m_pane[paneStyle].textStyle, Vector2(fullBounds.x0(), paneRenderBounds.y0()), 
+                       GFont::XALIGN_LEFT, GFont::YALIGN_BOTTOM);
+    }
+
     if (paneStyle != NO_PANE_STYLE) {
-        m_pane[paneStyle].frame.render(rd, bounds, Vector2::zero());
+        m_pane[paneStyle].frame.render(rd, paneRenderBounds, Vector2::zero());
     }
 }
 
@@ -875,15 +885,31 @@ GuiTheme::StretchMode GuiTheme::readStretchMode(TextInput& t) {
     return STRETCH;
 }
 
-
-Rect2D GuiTheme::paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const {
-    return Rect2D::xywh(bounds.x0y0() + m_pane[paneStyle].clientPad.topLeft,
-                        bounds.wh() - m_pane[paneStyle].clientPad.wh());
+float GuiTheme::paneTopPadding(const GuiText& caption, PaneStyle paneStyle) const {
+    if (caption.empty()) {
+        return 0.0f;
+    } else if (caption.isIcon()) {
+        return caption.height();
+    } else {
+        // Space for text
+        if (m_pane[paneStyle].textStyle.size >= 0) {
+            return m_pane[paneStyle].textStyle.size;
+        } else {
+            return m_textStyle.size;
+        }
+    }
 }
 
-Rect2D GuiTheme::clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) const {
-    return Rect2D::xywh(bounds.x0y0() - m_pane[paneStyle].clientPad.topLeft,
-                        bounds.wh() + m_pane[paneStyle].clientPad.wh());
+Rect2D GuiTheme::paneToClientBounds(const Rect2D& bounds, const GuiText& caption, PaneStyle paneStyle) const {
+    const Vector2 captionSpace(0, paneTopPadding(caption, paneStyle));
+    return Rect2D::xywh(bounds.x0y0() + m_pane[paneStyle].clientPad.topLeft + captionSpace,
+                        bounds.wh() - m_pane[paneStyle].clientPad.wh() - captionSpace);
+}
+
+Rect2D GuiTheme::clientToPaneBounds(const Rect2D& bounds, const GuiText& caption, PaneStyle paneStyle) const {
+    const Vector2 captionSpace(0, paneTopPadding(caption, paneStyle));
+    return Rect2D::xywh(bounds.x0y0() - m_pane[paneStyle].clientPad.topLeft - captionSpace,
+                        bounds.wh() + m_pane[paneStyle].clientPad.wh() + captionSpace);
 }
 
 

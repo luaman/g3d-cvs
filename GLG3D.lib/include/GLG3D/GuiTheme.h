@@ -641,6 +641,9 @@ private:
 
     Rect2D closeButtonBounds(const Window& window, const Rect2D& bounds) const;
 
+    /** Returns the amount of space to reserve at the top of a pane with this caption */
+    float paneTopPadding(const GuiText& caption, PaneStyle paneStyle) const;
+
 public:
     /** Return the default text style */
     inline const TextStyle& defaultStyle() const {
@@ -765,8 +768,8 @@ public:
     Rect2D horizontalSliderToThumbBounds(const Rect2D& bounds, float pos, float captionWidth) const;
     Rect2D horizontalSliderToTrackBounds(const Rect2D& bounds, float captionWidth) const;
 
-    Rect2D paneToClientBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
-    Rect2D clientToPaneBounds(const Rect2D& bounds, PaneStyle paneStyle) const;
+    Rect2D paneToClientBounds(const Rect2D& bounds, const GuiText& caption, PaneStyle paneStyle) const;
+    Rect2D clientToPaneBounds(const Rect2D& bounds, const GuiText& caption, PaneStyle paneStyle) const;
 
     /** Computes the rendered size of this text (max of enabled and disabled versions) */
     Vector2 bounds(const GuiText& text) const;
@@ -782,7 +785,7 @@ public:
                      GFont::XAlign xalign, GFont::YAlign yalign,
                      bool enabled) const;
 
-    void renderPane(const Rect2D& bounds, PaneStyle paneStyle) const;
+    void renderPane(const Rect2D& fullBounds, const GuiText& caption, PaneStyle paneStyle) const;
     
     /** 
         Create a .skn file from source files.  Used as a preprocess

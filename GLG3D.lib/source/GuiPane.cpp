@@ -20,12 +20,6 @@ static const float CONTROL_PADDING = 4.0f;
 
 void GuiPane::init(const Rect2D& rect) {
     setRect(rect);
-
-    if (m_caption.text() != "") {
-        m_label = addLabel(m_caption);
-    } else {
-        m_label = NULL;
-    }
 }
 
 GuiPane::GuiPane(GuiWindow* gui, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style) 
@@ -46,10 +40,8 @@ void GuiPane::morphTo(const Rect2D& r) {
 
 
 void GuiPane::setCaption(const GuiText& caption) {
-    if (m_label != NULL) {
-        m_label->setCaption(caption);
-    }
     GuiControl::setCaption(caption);
+    setRect(rect());
 }
 
 
@@ -95,13 +87,8 @@ void GuiPane::pack() {
 
 
 void GuiPane::setRect(const Rect2D& rect) {
-    m_rect = rect;
-    
-    if (m_style == GuiTheme::NO_PANE_STYLE) {
-        m_clientRect = m_rect;
-    } else {
-        m_clientRect = theme()->paneToClientBounds(m_rect, GuiTheme::PaneStyle(m_style));
-    }
+    m_rect = rect;       
+    m_clientRect = theme()->paneToClientBounds(m_rect, m_caption, GuiTheme::PaneStyle(m_style));
 }
 
 
@@ -273,7 +260,7 @@ GuiFunctionBox* GuiPane::addFunctionBox(const GuiText& text, Spline<float>* spli
 
 
 GuiPane* GuiPane::addPane(const GuiText& text, GuiTheme::PaneStyle style) {
-    Rect2D minRect = theme()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), style);
+    Rect2D minRect = theme()->clientToPaneBounds(Rect2D::xywh(0,0,0,0), text, style);
 
     Vector2 pos = nextControlPos();
 
@@ -325,7 +312,7 @@ void GuiPane::render(RenderDevice* rd, const GuiThemeRef& skin) const {
         return;
     }
 
-    skin->renderPane(m_rect, m_style);
+    skin->renderPane(m_rect, m_caption, m_style);
 
     renderChildren(rd, skin);
 }

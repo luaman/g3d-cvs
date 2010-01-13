@@ -2,14 +2,14 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2009-03-25
+ @edited  2010-01-11
 
  G3D Library http://g3d.sf.net
  Copyright 2000-2010, Morgan McGuire, morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GuiPane_H
-#define G3D_GuiPane_H
+#ifndef G3D_GuiPane_h
+#define G3D_GuiPane_h
 
 #include <string>
 #include <limits.h>
@@ -51,23 +51,22 @@ class GuiPane : public GuiContainer {
     friend class GuiButton;
     friend class GuiRadioButton;
     friend class _GuiSliderBase;
+
 protected:
 
-    /** Caption label */
-    GuiLabel*           m_label;
+    _internal::Morph        m_morph;
 
-    _internal::Morph    m_morph;
+    GuiTheme::PaneStyle     m_style;
 
-    GuiTheme::PaneStyle m_style;
-
-    Array<GuiControl*>  controlArray;
+    Array<GuiControl*>      controlArray;
 
     /** Sub panes */
-    Array<GuiContainer*> containerArray;
+    Array<GuiContainer*>    containerArray;
 
-    Array<GuiLabel*>    labelArray;
+    Array<GuiLabel*>        labelArray;
 
     GuiPane(GuiWindow* gui, const GuiText& text, const Rect2D& rect, GuiTheme::PaneStyle style);
+
 public:
 
     /** For use by GuiContainers.  \sa GuiPane::addPane, GuiWindow::pane */

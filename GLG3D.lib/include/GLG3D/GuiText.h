@@ -167,6 +167,11 @@ public:
         }
     }
     
+    /** True if this is an empty caption */
+    bool empty() const {
+        return ! isIcon() && (m_elementArray.size() == 0); 
+    }
+
     /** Adds this text to the end of the GuiText. It is an error to append to an icon.*/
     void append
     (const std::string& text, 
