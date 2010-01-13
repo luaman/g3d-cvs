@@ -128,7 +128,13 @@ void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, GuiControl* even
     m_superior = superior;
     m_eventSource = eventSource;
     manager->add(this);
-    moveTo(position);
+
+    // Clamp position to screen bounds
+    OSWindow* osWindow = (superior != NULL) ? superior->window() : RenderDevice::lastRenderDeviceCreated->window();
+    const Vector2 high(osWindow->width() - m_rect.width(), osWindow->height() - m_rect.height());
+    Vector2 actualPos = position.min(high).max(Vector2(0,0));
+
+    moveTo(actualPos);
     manager->setFocusedWidget(this);
 
     if (modal) {
