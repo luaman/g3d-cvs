@@ -2,7 +2,7 @@
  @file GLG3D/GuiPane.h
 
  @created 2006-05-01
- @edited  2010-01-11
+ @edited  2010-01-13
 
  G3D Library http://g3d.sf.net
  Copyright 2000-2010, Morgan McGuire, morgan@cs.williams.edu
@@ -199,9 +199,9 @@ public:
                    reinterpret_cast<int (Class::*)() const>(getMethod), 
                    reinterpret_cast<void (Class::*)(int)>(setMethod))) 
      */
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<std::string>& list, const Pointer<int>& indexPointer = NULL);
-    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = NULL);
-    
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<std::string>& list, const Pointer<int>& indexPointer = NULL, const GuiControl::Callback& actionCallback = GuiControl::Callback());
+    GuiDropDownList* addDropDownList(const GuiText& caption, const Array<GuiText>& list = Array<GuiText>(), const Pointer<int>& indexPointer = NULL, const GuiControl::Callback& actionCallback = GuiControl::Callback());
+
     template<typename EnumOrInt, class T>
     GuiRadioButton* addRadioButton(const GuiText& text, int myID,  
         T* object,
@@ -326,8 +326,7 @@ public:
     GuiRadioButton* addRadioButton(const GuiText& text, int myID, void* selection, 
                                    GuiTheme::RadioButtonStyle style = GuiTheme::NORMAL_RADIO_BUTTON_STYLE);
 
-    GuiButton* addButton(const GuiText& text, const GuiControl::Callback& callback, 
-                         GuiTheme::ButtonStyle style);
+    GuiButton* addButton(const GuiText& text, const GuiControl::Callback& actionCallback, GuiTheme::ButtonStyle style);
 
     template<class Class>
     inline GuiButton* addButton(const GuiText& text, Class* const callbackObject, void (Class::*callbackMethod)(), GuiTheme::ButtonStyle style = GuiTheme::NORMAL_BUTTON_STYLE) {

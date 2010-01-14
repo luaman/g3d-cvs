@@ -28,10 +28,11 @@ public:
 
 protected:
 
+    GuiControl::Callback            m_actionCallback;
     GuiControl*                     m_eventSource;
 
     Array<std::string>*             m_stringListValue;
-    Array<GuiText>*              m_captionListValue;
+    Array<GuiText>*                 m_captionListValue;
     /** The created labels */
     Array<GuiControl*>              m_labelArray;
     Pointer<int>                    m_indexValue;
@@ -45,8 +46,8 @@ protected:
     /** Mouse is over this option */
     int                             m_highlightIndex;
 
-    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
-    GuiMenu(const GuiThemeRef& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue);
+    GuiMenu(const GuiTheme::Ref& skin, const Rect2D& rect, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
+    GuiMenu(const GuiTheme::Ref& skin, const Rect2D& rect, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     /** Returns -1 if none */
     int labelIndexUnderMouse(Vector2 click) const;
@@ -56,8 +57,8 @@ protected:
 
 public:
 
-    static Ref create(const GuiThemeRef& skin, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
-    static Ref create(const GuiThemeRef& skin, Array<std::string>* listPtr, const Pointer<int>& indexValue);
+    static Ref create(const GuiTheme::Ref& theme, Array<GuiText>* listPtr, const Pointer<int>& indexValue);
+    static Ref create(const GuiTheme::Ref& theme, Array<std::string>* listPtr, const Pointer<int>& indexValue);
 
     virtual bool onEvent(const GEvent& event);
     virtual void render(RenderDevice* rd) const;
@@ -65,7 +66,7 @@ public:
     void hide();
 
     /** @param superior The window from which the menu is being created. */
-    virtual void show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal = false);
+    virtual void show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal = false, const GuiControl::Callback& actionCallback = GuiControl::Callback());
 };
 
 }

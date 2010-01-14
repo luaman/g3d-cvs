@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2007-06-02
- @edited  2008-06-20
+ @edited  2010-01-13
  */
 #include "G3D/platform.h"
 #include "GLG3D/GuiButton.h"
@@ -32,7 +32,7 @@ bool GuiButton::onEvent(const GEvent& event) {
     case GEventType::MOUSE_BUTTON_DOWN:
         m_down = true;
         // invoke the pre-event handler
-        m_callback.onPush();
+        m_callback.execute();
         debugAssertGLOk();
         fireEvent(GEventType::GUI_DOWN);
         debugAssertGLOk();

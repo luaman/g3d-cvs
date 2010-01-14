@@ -18,12 +18,14 @@ GuiDropDownList::GuiDropDownList
 (GuiContainer*               parent, 
  const GuiText&              caption, 
  const Pointer<int>&         indexValue, 
- const Array<GuiText>&       listValue) :
+ const Array<GuiText>&       listValue,
+ const GuiControl::Callback& actionCallback) :
  GuiControl(parent, caption), 
     m_indexValue(indexValue.isNull() ? Pointer<int>(&m_myInt) : indexValue),
     m_myInt(0),
     m_listValue(listValue),
-    m_selecting(false) {
+    m_selecting(false),
+    m_actionCallback(actionCallback) {
 
 }
 
@@ -62,7 +64,7 @@ void GuiDropDownList::showMenu() {
     Vector2 clickOffset = clickRect.x0y0() - rect().x0y0();
     Vector2 menuOffset(10, clickRect.height() + 10);
 
-    menu()->show(m_gui->manager(), window(), this, toOSWindowCoords(clickOffset + menuOffset));
+    menu()->show(m_gui->manager(), window(), this, toOSWindowCoords(clickOffset + menuOffset), false, m_actionCallback);
 }
 
 
@@ -84,6 +86,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
             *m_indexValue = selectedIndex();
             if (*m_indexValue < m_listValue.size() - 1) {
                 *m_indexValue = *m_indexValue + 1;
+                m_actionCallback.execute();
                 fireEvent(GEventType::GUI_ACTION);
             }
             return true;
@@ -92,6 +95,7 @@ bool GuiDropDownList::onEvent(const GEvent& event) {
             *m_indexValue = selectedIndex();
             if (*m_indexValue > 0) {
                 *m_indexValue = *m_indexValue - 1;
+                m_actionCallback.execute();
                 fireEvent(GEventType::GUI_ACTION);
             }
             return true;

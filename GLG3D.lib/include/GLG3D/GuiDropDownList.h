@@ -47,11 +47,14 @@ protected:
     /** True when the menu is open */
     bool                            m_selecting;
 
+    GuiControl::Callback            m_actionCallback;
+
     GuiDropDownList
        (GuiContainer*               parent, 
         const GuiText&              caption, 
         const Pointer<int>&         indexValue, 
-        const Array<GuiText>&       listValue);
+        const Array<GuiText>&       listValue,
+        const GuiControl::Callback& actionCallback);
 
     /** Called by GuiPane */
     virtual void render(RenderDevice* rd, const GuiThemeRef& skin) const;

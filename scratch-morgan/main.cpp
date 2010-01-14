@@ -80,6 +80,9 @@ void App::onInit() {
     GuiPane* p = debugPane->addPane("Configuration");
     p->addButton("Hello");
 
+    static int x = 0;
+    p->addRadioButton("Test", 0, &x);
+
     GuiPane* p2 = debugPane->addPane("Configuration", GuiTheme::ORNATE_PANE_STYLE);
     p2->addButton("Hello");
 

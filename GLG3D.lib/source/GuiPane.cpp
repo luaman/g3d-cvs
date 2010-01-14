@@ -118,22 +118,24 @@ GuiTextureBox* GuiPane::addTextureBox
 GuiDropDownList* GuiPane::addDropDownList
 (const GuiText& caption, 
  const Array<std::string>& list,
- const Pointer<int>& pointer) {
+ const Pointer<int>& pointer,
+ const GuiControl::Callback& actionCallback) {
 
     Array<GuiText> c;
     c.resize(list.size());
     for (int i = 0; i < c.size(); ++i) {
         c[i] = list[i];
     }
-    return addControl(new GuiDropDownList(this, caption, pointer, c));
+    return addDropDownList(caption, c, pointer, actionCallback);
 }
 
 
 GuiDropDownList* GuiPane::addDropDownList
 (const GuiText& caption, 
  const Array<GuiText>& list,
- const Pointer<int>& pointer) {
-    return addControl(new GuiDropDownList(this, caption, pointer, list));
+ const Pointer<int>& pointer,
+ const GuiControl::Callback& actionCallback) {
+    return addControl(new GuiDropDownList(this, caption, pointer, list, actionCallback));
 }
 
 

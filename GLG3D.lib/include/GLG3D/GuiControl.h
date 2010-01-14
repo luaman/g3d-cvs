@@ -40,7 +40,7 @@ protected:
     class CallbackInterface {
     public:
         /** Execute the callback */
-        virtual void onPush() = 0;
+        virtual void execute() = 0;
         inline virtual ~CallbackInterface() {};
         
         /** Used by Callback's copy constructor */
@@ -57,7 +57,7 @@ protected:
                          void (*callback)()) : m_callback(callback) {
         }
         
-        virtual void onPush() {
+        virtual void execute() {
             (*m_callback)();
         }
         
@@ -78,7 +78,7 @@ protected:
                        Class* object,
                        void (Class::*callback)()) : m_object(object), m_callback(callback) {}
         
-        virtual void onPush() {
+        virtual void execute() {
             debugAssertGLOk();
             (m_object->*m_callback)();
             debugAssertGLOk();
@@ -101,7 +101,7 @@ protected:
                           const ReferenceCountedPointer<Class>& object,
                           void (Class::*callback)()) : m_object(object), m_callback(callback) {}
         
-        virtual void onPush() {
+        virtual void execute() {
             (m_object.pointer()->*m_callback)();
         }
         
@@ -112,7 +112,7 @@ protected:
 
 public:
 
-    /** Base class for GuiButton pre-event handlers. You may subclass this and override onPush or
+    /** Base class for GuiButton pre-event handlers. You may subclass this and override execute or
         simply use one of the provided constructors. */
     class Callback {
     private:
@@ -146,9 +146,9 @@ public:
 			void (Class::*method)()) : m_internal(new MethodRefCallback<Class>(object, method)) {}
         
         /** Execute the callback.*/
-        virtual void onPush() {
+        virtual void execute() {
             if (m_internal) {
-                m_internal->onPush();
+                m_internal->execute();
             }
         }
         

@@ -75,6 +75,7 @@ bool GuiMenu::onEvent(const GEvent& event) {
             int i = labelIndexUnderMouse(click);
             if (i >= 0) {
                 *m_indexValue = i;
+                m_actionCallback.execute();
                 fireMyEvent(GEventType::GUI_ACTION);
                 hide();
             }
@@ -124,7 +125,8 @@ void GuiMenu::fireMyEvent(GEventType type) {
 }
 
 
-void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal) {
+void GuiMenu::show(WidgetManager* manager, GuiWindow* superior, GuiControl* eventSource, const Vector2& position, bool modal, const GuiControl::Callback& actionCallback) {
+    m_actionCallback = actionCallback;
     m_superior = superior;
     m_eventSource = eventSource;
     manager->add(this);
