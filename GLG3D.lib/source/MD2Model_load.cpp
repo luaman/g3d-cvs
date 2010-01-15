@@ -89,6 +89,8 @@ void MD2Model::reset() {
 
 void MD2Model::load(const std::string& filename, float resize) {
 
+    resize *= 0.55f;
+
     // If models are being reloaded it is dangerous to trust the interpolation cache.
     interpolatedModel = NULL;
 

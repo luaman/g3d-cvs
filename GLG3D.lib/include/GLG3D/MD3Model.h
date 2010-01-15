@@ -4,7 +4,7 @@
  Quake III MD3 model loading and posing
 
   \created 2009-01-01
-  \edited  2009-11-13
+  \edited  2010-01-13
  */
 #ifndef G3D_MD3Model_h
 #define G3D_MD3Model_h
@@ -32,6 +32,7 @@ class MD3Part;
     - Add pose animation helpers, ala MD2 model (although the function with all of the bool arguments really sucks on MD2Model)
     - Render using SuperSurface [Morgan]
 
+    See http://nutsak.net/quake_3_models.htm for some models
     \beta
 */
 class MD3Model : public ReferenceCountedObject {
@@ -117,6 +118,7 @@ public:
     };
 
 private:
+
     /** Animation data from animation.cfg */
     class AnimFrame {
     public:

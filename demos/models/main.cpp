@@ -12,6 +12,7 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     GApp::Settings settings;
 
+    settings.window.caption     = "G3D Models Demo";
     settings.window.width       = 960; 
     settings.window.height      = 600;
 

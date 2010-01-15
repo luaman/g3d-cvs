@@ -220,12 +220,12 @@ static void drawLight(const GLight& light, RenderDevice* rd, bool showEffectSphe
         if (showEffectSpheres) {
             Sphere s = light.effectSphere();
             if (s.radius < finf()) {
-                Draw::sphere(s, rd, Color4::clear(), Color4(light.color, 0.5f));
+                Draw::sphere(s, rd, Color4::clear(), Color4(light.color / max(0.01f, light.color.max()), 0.5f));
             }
         }
     } else {
         // Directional light
-        Draw::sphere(Sphere(light.position.xyz() * dirDist, 0.1f * dirDist), rd, light.color, Color4::clear());
+        Draw::sphere(Sphere(light.position.xyz() * dirDist, 0.1f * dirDist), rd, light.color / max(0.01f, light.color.max()), Color4::clear());
     }
 }
 

@@ -74,7 +74,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& posed3D) {
         Draw::sphere(posed3D[i]->worldSpaceBoundingSphere(), rd, Color4::clear(), Color3::black());
     }
     */
-    Draw::axes(CFrame(), rd);
+    Draw::axes(CFrame(Vector3(0,-1,0)), rd);
 
     rd->setAlphaTest(RenderDevice::ALPHA_ALWAYS_PASS, 0.0f);
     Draw::lighting(lighting, rd, false);
@@ -90,19 +90,11 @@ void App::onGraphics3D(RenderDevice* rd, Array<Surface::Ref>& posed3D) {
 
 void App::onGraphics2D(RenderDevice *rd, Array< Surface2D::Ref > &surface2D) {
     rd->push2D();
-
-    /*
-    // See shadow map
-    rd->setTexture(0, shadowMap->colorDepthTexture());
-    Draw::rect2D(Rect2D::xywh(0,0,512,512), rd);
-    */
-
-
-    rd->setTexture(0, logo);
-    rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
-    Draw::rect2D(
-        Rect2D::xywh(rd->width() - 96,rd->height() - 96, 64, 64), 
-        rd, Color4(1,1,1,0.7f));
+        rd->setTexture(0, logo);
+        rd->setBlendFunc(RenderDevice::BLEND_SRC_ALPHA, RenderDevice::BLEND_ONE_MINUS_SRC_ALPHA);
+        Draw::rect2D(
+            Rect2D::xywh(rd->width() - 96, rd->height() - 96, 64, 64), 
+            rd, Color4(1,1,1,0.7f));
     rd->pop2D();
 
     screenPrintf("SuperSurface::debugNumSendGeometryCalls = %d\n", 

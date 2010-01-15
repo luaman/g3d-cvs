@@ -7,11 +7,11 @@
 
  @maintainer Morgan McGuire, morgan@cs.williams.edu
  @created 2003-02-21
- @edited  2009-02-20
+ @edited  2010-01-13
  */
 
-#ifndef G3D_MD2MODEL_H
-#define G3D_MD2MODEL_H
+#ifndef G3D_MD2Model_h
+#define G3D_MD2Model_h
 
 #include "G3D/platform.h"
 #include "G3D/AABox.h"
@@ -430,13 +430,9 @@ public:
       files are stored in two files, tris.md2 and weapon.md2.  
       You will have to load both as separate models.
 
-     @param scale Optional scale factor to apply while loading.
+     @param scale Optional scale factor to apply while loading.  The scale of 1.0 is chosen so that a typical character is 2 meters tall (1/2 the default quake unit scaling)
      */
     static MD2Model::Ref fromFile(const std::string& filename, float scale = 1.0f);
-
-    static MD2Model::Ref G3D_DEPRECATED create(const std::string& filename, float scale = 1.0f) {
-        return fromFile(filename, scale);
-    }
 
     virtual ~MD2Model() {}
 

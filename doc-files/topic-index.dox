@@ -73,6 +73,7 @@ shader-driven GPU rendering and CPU ray tracing.
 
 <tr><td></td><td>\link G3D::GCamera <b>GCamera</b>\endlink</td><td>Pinhole camera with clipping planes</td></tr>
 <tr><td></td><td>\link G3D::ShadowMap ShadowMap\endlink</td><td>\copybrief G3D::ShadowMap</td></tr>
+<tr><td></td><td>\link G3D::Film Film\endlink</td><td>\copybrief G3D::Film</td></tr>
 <tr><td></td><td>\link G3D::GBuffer GBuffer\endlink</td><td>\copybrief G3D::GBuffer</td></tr>
 </table>
 

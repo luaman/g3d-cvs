@@ -20,12 +20,12 @@
 
 namespace G3D {
 
-MD2Model*       MD2Model::interpolatedModel      = NULL;
-MD2Model::Pose  MD2Model::interpolatedPose;
-VertexBufferRef      MD2Model::varArea[MD2Model::NUM_VAR_AREAS];
-int             MD2Model::nextVarArea            = MD2Model::NONE_ALLOCATED;
-const GameTime  MD2Model::PRE_BLEND_TIME         = 1.0 / 8.0;
-const float     MD2Model::hangTimePct            = 0.1f;
+MD2Model*           MD2Model::interpolatedModel      = NULL;
+MD2Model::Pose      MD2Model::interpolatedPose;
+VertexBuffer::Ref   MD2Model::varArea[MD2Model::NUM_VAR_AREAS];
+int                 MD2Model::nextVarArea            = MD2Model::NONE_ALLOCATED;
+const GameTime      MD2Model::PRE_BLEND_TIME         = 1.0 / 8.0;
+const float         MD2Model::hangTimePct            = 0.1f;
 
 MD2Model::PackedGeometry::PackedGeometry() {
     vertexArray.clearAndSetMemoryManager(AlignedMemoryManager::create());

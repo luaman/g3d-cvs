@@ -8,15 +8,25 @@ void App::loadScene() {
     const Matrix3 rot180 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(180));
     const Matrix3 rot270 = Matrix3::fromAxisAngle(Vector3::unitY(), toRadians(270));
 
-    double x = -2;
+    const float groundY = -1.0f;
+    float x = -2;
 
-    // MD2 (not in default data-files)
-    if (false) {
-        MD2Model::Ref model = MD2Model::fromFile(pathConcat(dataDir, "md2/pknight/tris.md2"), 0.4f);
+    // MD2
+    if (true) {
+        MD2Model::Ref model = MD2Model::fromFile(pathConcat(dataDir, "md2/pknight/tris.md2"));
         Texture::Ref texture = Texture::fromFile(pathConcat(dataDir, "md2/pknight/knight.pcx"), ImageFormat::AUTO(),
                                                  Texture::DIM_2D, Texture::Settings::defaults(), 
                                                  Texture::PreProcess::quake());
-        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0,0))));
+        entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x, groundY + 0.95f, 0))));
+        x += 2;
+    }
+
+    // MD3
+    if (false) {
+//        const std::string path = "D:/morgan/data/md3/chaos-marine/models/players/Chaos-Marine/";
+        const std::string path = "D:/morgan/data/md3/dragon/models/players/dragon/";
+        MD3Model::Ref model = MD3Model::fromDirectory(path);
+        entityArray.append(Entity::create(model, CFrame(rot180, Vector3(x, groundY + 0.8f, 0))));
         x += 2;
     }
 
@@ -30,14 +40,14 @@ void App::loadScene() {
 
         std::string filename = pathConcat(dataDir, "3ds/weapon/cannon/cannon.3ds");
         ArticulatedModel::Ref model = ArticulatedModel::fromFile(filename, xform);
-        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x, groundY + 1.0f,0))));
         x += 2;
     }
 
     // IFSModel as ArticulatedModel
     if (true) {
         ArticulatedModel::Ref model = ArticulatedModel::fromFile(System::findDataFile("teapot.ifs"));
-        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,-0.3f,0))));
+        entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,groundY + 1.0f - 0.3f,0))));
         x += 2;
     }
 
@@ -94,7 +104,7 @@ void App::loadScene() {
 
         model->updateAll();
 
-        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0, -1, 0))));
+        entityArray.append(Entity::create(model, CoordinateFrame(Vector3(0, groundY, 0))));
     }
 
     lighting = Lighting::create();
