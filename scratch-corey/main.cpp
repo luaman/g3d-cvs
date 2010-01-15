@@ -142,7 +142,7 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
     rd->clear(true, true, true);
 
     rd->push2D();
-    //rd->setTexture(0, sky->getEnvironmentMap());
+    rd->setTexture(0, sky->getEnvironmentMap());
     rd->setTexture(rd->numTextures() - 1, sky->getEnvironmentMap());
     Draw::rect2D(Rect2D::xywh(200, 200, 400, 400), rd);
     rd->pop2D();

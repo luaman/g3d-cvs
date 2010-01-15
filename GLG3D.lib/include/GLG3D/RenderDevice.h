@@ -175,6 +175,26 @@ public:
     
     enum {MAX_LIGHTS = 8};
 
+    /** Maximum number of fixed-function texture units RenderDevice can use or
+        track with pushed/popped render states.  This affects texture combine,
+        matrix and LOD bias as well.
+
+        The maximum number of tracked units may be lower than hardware limits
+        due to the cost of tracking and restoring the state. Most users will not
+        use more, but increasing this value is the only necessary change.
+     */
+    enum {MAX_TRACKED_TEXTURE_UNITS = 8};
+
+    /** Maximum number of programmable pipeline texture image units RenderDevice
+        can use or track with pushed/popped states.  These are typically more than
+        the fixed-function units.
+
+        The maximum number of tracked units may be lower than hardware limits
+        due to the cost of tracking and restoring the state. Most users will not
+        use more, but increasing this value is the only necessary change.
+     */
+    enum {MAX_TRACKED_TEXTURE_IMAGE_UNITS = 32};
+
 private:
 
     friend class VertexRange;
@@ -630,8 +650,6 @@ public:
     enum CombineMode {TEX_REPLACE, TEX_BLEND, TEX_INTERPOLATE, TEX_ADD, TEX_MODULATE, 
                       TEX_ADD_SIGNED, TEX_SUBTRACT, TEX_DOT3_RGB, TEX_DOT3_RGBA,
                       TEX_CURRENT};
-
-    #define MAX_BUFFER_SIZE 27
 
     /**
      Call to begin the rendering frame.
@@ -1245,7 +1263,7 @@ public:
     }
 
     /** Returns the number of texture units 
-        (texture + reg combiner + matrix) available.
+        (texture coord + reg combiner + matrix) available.
         This only applies to the fixed function pipeline.
     */
     int numTextureUnits() const {
@@ -1325,7 +1343,7 @@ private:
      turning off a texture unit, we just disable it.  If it 
      is enabled with the same texture, we've saved a swap.
     */
-    int currentlyBoundTexture[GLCaps::G3D_MAX_TEXTURE_UNITS];
+    int currentlyBoundTextures[MAX_TRACKED_TEXTURE_IMAGE_UNITS];
 
     /**
      Snapshot of the state maintained by the render device.
@@ -1337,13 +1355,12 @@ private:
     public:
         friend class RenderDevice;
 
+        /** 
+            Contains fixed-function specific texture unit states. 
+         */
         class TextureUnit {
         public:
             Vector4                 texCoord;
-
-            /** NULL if not bound */
-            Texture::Ref            texture;
-
             float                   textureMatrix[16];
 
             /** Only available for Fixed Function, low number texture units */
@@ -1352,16 +1369,35 @@ private:
 
             TextureUnit();
 
-            inline bool operator==(const TextureUnit& other) const {
+            bool operator==(const TextureUnit& other) const {
                 return 
                     (texCoord == other.texCoord) &&
-                    (texture == other.texture) &&
                     (memcmp(textureMatrix, other.textureMatrix, sizeof(float)*16) == 0) &&
                     (combineMode == other.combineMode) &&
                     (LODBias == other.LODBias);
             }
 
-            inline bool operator!=(const TextureUnit& other) const {
+            bool operator!=(const TextureUnit& other) const {
+                return !(*this == other);
+            }
+        };
+
+        /**
+            Contains programmable pipeline texture image unit states
+            (shared with fixed function up to max number of texture units).
+         */
+        class TextureImageUnit {
+        public:
+            /** NULL if not bound */
+            Texture::Ref            texture;
+
+            TextureImageUnit();
+
+            bool operator==(const TextureImageUnit& other) const {
+                return (texture == other.texture);
+            }
+
+            bool operator!=(const TextureImageUnit& other) const {
                 return !(*this == other);
             }
         };
@@ -1487,14 +1523,15 @@ private:
         /** Index of the highest texture unit that changed since pushState,
             used for short-circuiting work in popstate */
         int                         highestTextureUnitThatChanged;
-        TextureUnit                 textureUnit[GLCaps::G3D_MAX_TEXTURE_UNITS];
+        TextureUnit                 textureUnits[MAX_TRACKED_TEXTURE_UNITS];
+        TextureImageUnit            textureImageUnits[MAX_TRACKED_TEXTURE_IMAGE_UNITS];
         Matrices                    matrices;
 
-        inline void touchedTextureUnit(int u) {
+        void textureUnitModified(int u) {
             highestTextureUnitThatChanged = iMax(highestTextureUnitThatChanged, u);
         }
 
-        RenderState(int width = 1, int height = 1, int highestTextureUnitThatChanged = GLCaps::G3D_MAX_TEXTURE_UNITS);
+        RenderState(int width = 1, int height = 1, int highestTextureUnitThatChanged = MAX_TRACKED_TEXTURE_IMAGE_UNITS);
 
         //bool operator==(const RenderState& other) const;
     };

@@ -92,15 +92,16 @@ void drawFrame(int w, int h, int frameNum) {
 }
 
 int main(int argc, char** argv) {
-    const int WIDTH = 640, HEIGHT = 480;
     RenderDevice* rd = new RenderDevice();
     OSWindow::Settings settings;
-    settings.width  = WIDTH;
-    settings.height = HEIGHT;
+
+    settings.width = 960;
+    settings.height = 600;
+
     rd->init(settings);
 
     for (int i = 0; i < 100; ++i) {
-        drawFrame(WIDTH, HEIGHT, i);
+        drawFrame(settings.width, settings.height, i);
 
         // Render at 30 fps
         System::sleep(1.0/30.0);

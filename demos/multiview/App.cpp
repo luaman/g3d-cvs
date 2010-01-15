@@ -10,8 +10,12 @@ int main(int argc, char** argv) {
     (void)argc; (void)argv;
 
     GApp::Settings settings;
-    settings.window.width = 1024;
+
     settings.window.caption = "G3D MultiView Demo";
+
+    settings.window.width       = 1024; 
+    settings.window.height      = 600;
+
     return App(settings).run();
 }
 

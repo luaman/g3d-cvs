@@ -29,10 +29,12 @@ int main(int argc, char** argv) {
         filename = argv[1];
     }
     
-    GApp::Settings s = GApp::Settings();
-    s.window.resizable = true;
-    s.window.width = 800;
-    s.window.height = 600;
+    GApp::Settings settings;
 
-    return App(s, filename).run();
+    settings.window.resizable = true;
+
+    settings.window.width = 960;
+    settings.window.height = 600;
+
+    return App(settings, filename).run();
 }

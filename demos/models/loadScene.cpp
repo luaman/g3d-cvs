@@ -10,11 +10,10 @@ void App::loadScene() {
 
     double x = -2;
 
-    // MD2
-    if (true) {
-        const std::string& path = System::findDataFile("md2");
-        MD2Model::Ref model = MD2Model::fromFile(pathConcat(path, "pknight/tris.md2"), 0.4f);
-        Texture::Ref texture = Texture::fromFile(pathConcat(path, "pknight/knight.pcx"), ImageFormat::AUTO(),
+    // MD2 (not in default data-files)
+    if (false) {
+        MD2Model::Ref model = MD2Model::fromFile(pathConcat(dataDir, "md2/pknight/tris.md2"), 0.4f);
+        Texture::Ref texture = Texture::fromFile(pathConcat(dataDir, "md2/pknight/knight.pcx"), ImageFormat::AUTO(),
                                                  Texture::DIM_2D, Texture::Settings::defaults(), 
                                                  Texture::PreProcess::quake());
         entityArray.append(Entity::create(model, texture, CoordinateFrame(rot180, Vector3(x,0,0))));
@@ -29,7 +28,7 @@ void App::loadScene() {
         xform.rotation = xform.rotation * rot270;
         xform.translation = Vector3(0, -1.0f, 0);
 
-        std::string filename = System::findDataFile("3ds/weapon") + "/cannon/cannon.3ds";
+        std::string filename = pathConcat(dataDir, "3ds/weapon/cannon/cannon.3ds");
         ArticulatedModel::Ref model = ArticulatedModel::fromFile(filename, xform);
         entityArray.append(Entity::create(model, CoordinateFrame(rot180, Vector3(x,0.05f,0))));
         x += 2;
@@ -44,7 +43,7 @@ void App::loadScene() {
 
     // IFSModel (note that IFS files can be loaded with ArticulatedModel and will render better)
     if (false) {
-        IFSModelRef model = IFSModel::fromFile(dataDir + "ifs/cow.ifs");
+        IFSModelRef model = IFSModel::fromFile(System::findDataFile("cow.ifs"));
         entityArray.append(Entity::create(model, GMaterial(), CoordinateFrame(rot180, Vector3(x,0,2))));
         x += 2;
     }

@@ -112,9 +112,7 @@ RenderDevice::RenderDevice() :
     m_numTextureCoords = 0;
     m_lastTime = System::time();
 
-    for (int i = 0; i < GLCaps::G3D_MAX_TEXTURE_UNITS; ++i) {
-        currentlyBoundTexture[i] = 0;
-    }
+    memset(currentlyBoundTextures, 0, sizeof(currentlyBoundTextures));
 
     lastRenderDeviceCreated = this;
 }
@@ -208,9 +206,9 @@ void RenderDevice::init(OSWindow* window) {
     const int desiredStencilBits  = settings.stencilBits;
 
     // Don't use more texture units than allowed at compile time.
-    m_numTextureUnits  = GLCaps::numTextureUnits();
-    m_numTextureCoords = GLCaps::numTextureCoords();
-    m_numTextures      = GLCaps::numTextures();
+    m_numTextureUnits  = iMin(GLCaps::numTextureUnits(), MAX_TRACKED_TEXTURE_UNITS);
+    m_numTextureCoords = iMin(GLCaps::numTextureCoords(), MAX_TRACKED_TEXTURE_UNITS);
+    m_numTextures      = iMin(GLCaps::numTextures(), MAX_TRACKED_TEXTURE_IMAGE_UNITS);
 
     debugAssertGLOk();
 
@@ -652,8 +650,7 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
     }
 
     // Set projection matrix
-    double aspect;
-    aspect = (double)viewport.width() / viewport.height();
+    float aspect = viewport.width() / viewport.height();
 
     matrices.projectionMatrix = Matrix4::perspectiveProjection(-aspect, aspect, -1, 1, 0.1f, 100.0f);
 
@@ -666,7 +663,7 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
 }
 
 
-RenderDevice::RenderState::TextureUnit::TextureUnit() : texture(NULL), LODBias(0) {
+RenderDevice::RenderState::TextureUnit::TextureUnit() : LODBias(0) {
     texCoord        = Vector4(0,0,0,1);
     combineMode     = TEX_MODULATE;
 
@@ -677,6 +674,9 @@ RenderDevice::RenderState::TextureUnit::TextureUnit() : texture(NULL), LODBias(0
     }
 }
 
+RenderDevice::RenderState::TextureImageUnit::TextureImageUnit() : 
+    texture(NULL) {
+}
 
 void RenderDevice::resetState() {
     m_state = RenderState(width(), height());
@@ -703,7 +703,7 @@ void RenderDevice::resetState() {
     {
         // WARNING: this must be kept in sync with the 
         // RenderState constructor
-        m_state = RenderState(width(), height(), iMax(m_numTextures, m_numTextureCoords) - 1);
+        m_state = RenderState(width(), height(), iMax(MAX_TRACKED_TEXTURE_UNITS, MAX_TRACKED_TEXTURE_IMAGE_UNITS) - 1);
 
         _glViewport(m_state.viewport.x0(), m_state.viewport.y0(), m_state.viewport.width(), m_state.viewport.height());
         glDepthMask(GL_TRUE);
@@ -948,23 +948,30 @@ void RenderDevice::setState(
     setNormal(newState.normal);
 
     for (int u = m_state.highestTextureUnitThatChanged; u >= 0; --u) {
-        if (newState.textureUnit[u] != m_state.textureUnit[u]) {
 
-            if (u < numTextures()) {
-                setTexture(u, newState.textureUnit[u].texture);
+        if (u < m_numTextures) {
+
+            if (newState.textureImageUnits[u] != m_state.textureImageUnits[u]) {
+                setTexture(u, newState.textureImageUnits[u].texture);
+            }
+        }
+
+        if (u < MAX_TRACKED_TEXTURE_UNITS) {
+
+            if (newState.textureUnits[u] != m_state.textureUnits[u]) {
 
                 // Only revert valid texture units
-                if (u < numTextureUnits()) {
-                    setTextureCombineMode(u, newState.textureUnit[u].combineMode);
-                    setTextureMatrix(u, newState.textureUnit[u].textureMatrix);
+                if (u < m_numTextureUnits) {
+                    setTextureCombineMode(u, newState.textureUnits[u].combineMode);
+                    setTextureMatrix(u, newState.textureUnits[u].textureMatrix);
 
-                    setTextureLODBias(u, newState.textureUnit[u].LODBias);
+                    setTextureLODBias(u, newState.textureUnits[u].LODBias);
                 }
-            }
 
-            // Only revet valid texture coords
-            if (u < m_numTextureCoords) {
-                setTexCoord(u, newState.textureUnit[u].texCoord);            
+                // Only revert valid texture coords
+                if (u < m_numTextureCoords) {
+                    setTexCoord(u, newState.textureUnits[u].texCoord);            
+                }
             }
         }
     }
@@ -2253,8 +2260,8 @@ void RenderDevice::forceSetTextureMatrix(int unit, const float* m) {
     minStateChange();
     minGLStateChange();
 
-    m_state.touchedTextureUnit(unit);
-    memcpy(m_state.textureUnit[unit].textureMatrix, m, sizeof(float)*16);
+    m_state.textureUnitModified(unit);
+    memcpy(m_state.textureUnits[unit].textureMatrix, m, sizeof(float)*16);
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glActiveTextureARB(GL_TEXTURE0_ARB + unit);
     }
@@ -2276,7 +2283,7 @@ Matrix4 RenderDevice::getTextureMatrix(int unit) {
         format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, m_numTextureCoords));
 
-    const float* M = m_state.textureUnit[unit].textureMatrix;
+    const float* M = m_state.textureUnits[unit].textureMatrix;
 
     return Matrix4(M[0], M[4], M[8],  M[12],
                    M[1], M[5], M[9],  M[13],
@@ -2323,7 +2330,7 @@ void RenderDevice::setTextureMatrix(
         format("Attempted to access texture matrix %d on a device with %d matrices.",
         unit, m_numTextureCoords));
 
-    if (memcmp(m, m_state.textureUnit[unit].textureMatrix, sizeof(float)*16)) {
+    if (memcmp(m, m_state.textureUnits[unit].textureMatrix, sizeof(float)*16)) {
         forceSetTextureMatrix(unit, m);
     }
 }
@@ -2364,14 +2371,14 @@ void RenderDevice::setTextureLODBias(
     float                   bias) {
 
     minStateChange();
-    if (m_state.textureUnit[unit].LODBias != bias) {
-        m_state.touchedTextureUnit(unit);
+    if (m_state.textureUnits[unit].LODBias != bias) {
+        m_state.textureUnitModified(unit);
 
         if (GLCaps::supports_GL_ARB_multitexture()) {
             glActiveTextureARB(GL_TEXTURE0_ARB + unit);
         }
 
-        m_state.textureUnit[unit].LODBias = bias;
+        m_state.textureUnits[unit].LODBias = bias;
 
         minGLStateChange();
         glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, bias);
@@ -2389,14 +2396,14 @@ void RenderDevice::setTextureCombineMode(
 	}
 
     debugAssertM(unit < m_numTextureUnits,
-        format("Attempted to access texture unit %d on a device with %d units.",
+        format("Attempted to access texture unit %d when only %d units supported.",
         unit, m_numTextureUnits));
 
-    if ((m_state.textureUnit[unit].combineMode != mode)) {
+    if ((m_state.textureUnits[unit].combineMode != mode)) {
         minGLStateChange();
-        m_state.touchedTextureUnit(unit);
+        m_state.textureUnitModified(unit);
 
-        m_state.textureUnit[unit].combineMode = mode;
+        m_state.textureUnits[unit].combineMode = mode;
 
         if (GLCaps::supports_GL_ARB_multitexture()) {
             glActiveTextureARB(GL_TEXTURE0_ARB + unit);
@@ -2454,12 +2461,13 @@ void RenderDevice::setTextureCombineMode(
 void RenderDevice::resetTextureUnit(
     int                    unit) {
     debugAssertM(unit < m_numTextureUnits,
-        format("Attempted to access texture unit %d on a device with %d units.",
+        format("Attempted to access texture unit %d when only %d units supported.",
         unit, m_numTextureUnits));
 
     RenderState newState(m_state);
-    m_state.textureUnit[unit] = RenderState::TextureUnit();
-    m_state.touchedTextureUnit(unit);
+    m_state.textureUnits[unit] = RenderState::TextureUnit();
+    m_state.textureImageUnits[unit] = RenderState::TextureImageUnit();
+    m_state.textureUnitModified(unit);
     setState(newState);
 }
 
@@ -2497,17 +2505,17 @@ void RenderDevice::setNormal(const Vector3& normal) {
 
 void RenderDevice::setTexCoord(int unit, const Vector4& texCoord) {
     debugAssertM(unit < m_numTextureCoords,
-        format("Attempted to access texture coordinate %d on a device with %d coordinates.",
+        format("Attempted to access texture coordinate %d when only %d coordinates supported.",
                unit, m_numTextureCoords));
 
-    m_state.textureUnit[unit].texCoord = texCoord;
+    m_state.textureUnits[unit].texCoord = texCoord;
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glMultiTexCoord(GL_TEXTURE0_ARB + unit, texCoord);
     } else {
         debugAssertM(unit == 0, "This machine has only one texture unit");
         glTexCoord(texCoord);
     }
-    m_state.touchedTextureUnit(unit);
+    m_state.textureUnitModified(unit);
     minStateChange();
     minGLStateChange();
 }
@@ -2638,13 +2646,12 @@ void RenderDevice::setTexture(
     debugAssertM(! m_inPrimitive, 
                  "Can't change textures while rendering a primitive.");
 
-    debugAssertM((int)unit < m_numTextures,
-        format("Attempted to access texture %d"
-               " on a device with %d textures.",
+    debugAssertM(unit < m_numTextures,
+        format("Attempted to access texture %d when only %d textures supported.",
                unit, m_numTextures));
 
     // early-return if the texture is already set
-    if (m_state.textureUnit[unit].texture == texture) {
+    if (m_state.textureImageUnits[unit].texture == texture) {
         return;
     }
 
@@ -2652,11 +2659,11 @@ void RenderDevice::setTexture(
     majGLStateChange();
 
     // cache old texture for texture matrix check below
-    Texture::Ref oldTexture = m_state.textureUnit[unit].texture;
+    Texture::Ref oldTexture = m_state.textureImageUnits[unit].texture;
 
     // assign new texture
-    m_state.textureUnit[unit].texture = texture;
-    m_state.touchedTextureUnit(unit);
+    m_state.textureImageUnits[unit].texture = texture;
+    m_state.textureUnitModified(unit);
 
     if (GLCaps::supports_GL_ARB_multitexture()) {
         glActiveTextureARB(GL_TEXTURE0_ARB + unit);
@@ -2671,9 +2678,9 @@ void RenderDevice::setTexture(
         GLint id = texture->openGLID();
         GLint target = texture->openGLTextureTarget();
 
-        if ((GLint)currentlyBoundTexture[unit] != id) {
+        if ((GLint)currentlyBoundTextures[unit] != id) {
             glBindTexture(target, id);
-            currentlyBoundTexture[unit] = id;
+            currentlyBoundTextures[unit] = id;
         }
 
         if (fixedFunction) {
@@ -2681,7 +2688,7 @@ void RenderDevice::setTexture(
         }
     } else {
         // Disabled texture unit
-        currentlyBoundTexture[unit] = 0;
+        currentlyBoundTextures[unit] = 0;
     }
 }
 
@@ -3044,7 +3051,7 @@ void RenderDevice::configureShadowMap(
         glActiveTextureARB(GL_TEXTURE0_ARB + unit);
     }
     
-    const Matrix4& textureMatrix = m_state.textureUnit[unit].textureMatrix;
+    const Matrix4& textureMatrix = m_state.textureUnits[unit].textureMatrix;
 
 	const Matrix4& textureProjectionMatrix2D =
         textureMatrix  * lightMVP;

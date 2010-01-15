@@ -358,10 +358,8 @@ void GLCaps::loadExtensions(Log* debugLog) {
         }
     }
 
-    // Don't use more texture units than allowed at compile time.
     if (GLCaps::supports_GL_ARB_multitexture()) {
-        m_numTextureUnits = iMin(G3D_MAX_TEXTURE_UNITS, 
-                                glGetInteger(GL_MAX_TEXTURE_UNITS_ARB));
+        m_numTextureUnits = glGetInteger(GL_MAX_TEXTURE_UNITS_ARB);
     } else {
         m_numTextureUnits = 1;
     }

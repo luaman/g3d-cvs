@@ -10,8 +10,8 @@ G3D_START_AT_MAIN();
 int main(int argc, char** argv) {
     GApp::Settings settings;
     settings.window.caption     = "G3D Ray Trace Demo";
-    settings.window.width       = 640; 
-    settings.window.height      = 400;
+    settings.window.width       = 960; 
+    settings.window.height      = 640;
     settings.film.enabled       = false;
 
     return App(settings).run();
