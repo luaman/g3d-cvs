@@ -157,14 +157,14 @@ public:
 
     /** 
     \param biasDepth amount to bias z values by in the biasedMVP when
-    later rendering Usually around 0.001-0.005
+    later rendering Usually around 0.0001-0.005
     */
     void updateDepth
     (class RenderDevice*           renderDevice, 
      const CoordinateFrame&        lightFrame,
      const Matrix4&                lightProjectionMatrix,
      const Array< ReferenceCountedPointer<Surface> >& shadowCaster,
-     float                         biasDepth = 0.0001f,
+     float                         biasDepth = 0.001f,
      RenderDevice::CullFace        cullFace = RenderDevice::CULL_FRONT);
 
     /** Model-View-Projection matrix that maps world space to the
