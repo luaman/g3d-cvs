@@ -1033,8 +1033,7 @@ GLenum VertexAndPixelShader::canonicalType(GLenum e) {
 
 
 void VertexAndPixelShader::validateArgList(const ArgList& args) const {
-    // Number of distinct variables declared in the shader.  Arrays count as a single
-    // argument, which appears as arrayname[0] in the declaration list.
+    // Number of distinct variables declared in the shader.
     int numVariables = 0;
 
     /*
@@ -1135,16 +1134,8 @@ void VertexAndPixelShader::validateArgList(const ArgList& args) const {
             if (! arg->value.optional) {
                 bool foundArgument = false;
 
-                std::string target = arg->key;
-                if (target[target.size() - 1] == ']') {
-                    // Looking for an array, which GLSL represents with suffix [0] always
-                    // Replace our target name with this.
-                    int j = target.rfind('[');
-                    target = target.substr(0, j + 1) + "0]";
-                }
-
                 for (int u = 0; u < uniformArray.size(); ++u) {
-                    if (uniformArray[u].name == target) {
+                    if (uniformArray[u].name == arg->key) {
                         foundArgument = true;
                         break;
                     }
@@ -1349,8 +1340,7 @@ void VertexAndPixelShader::ArgList::set(const ArgList& a) {
 void VertexAndPixelShader::ArgList::set(const std::string& key, const Arg& value) {
     debugAssert(key != "");
 
-    if (! contains(key) &&
-        ((key[key.size() - 1] != ']') || endsWith(key, "[0]"))) {
+    if (! contains(key)) {
         // New argument
         ++m_size;
     }
@@ -1360,9 +1350,7 @@ void VertexAndPixelShader::ArgList::set(const std::string& key, const Arg& value
 
 
 void VertexAndPixelShader::ArgList::remove(const std::string& key) {
-    if ((key[key.size() - 1] != ']') || endsWith(key, "[0]")) {
-         --m_size;
-    }
+     --m_size;
     argTable.remove(key);
 }
 

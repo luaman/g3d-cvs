@@ -430,33 +430,13 @@ public:
         /** Removes an argument from the list.  Error if that argument does not exist. */
         void remove(const std::string& var);
 
-        /** Returns true if an argument named var or var + "[0]" appears in this list (the latter
-            is a convenience because some OpenGL drivers (e.g., ATI) name arrays ending in [0] and others
-            (e.g., NVIDIA) name them as the variable without brackets. */
+        /** Returns true if an argument named var */
         bool contains(const std::string& var) const {
-            return argTable.containsKey(var) || argTable.containsKey(var + "[0]");
+            return argTable.containsKey(var);
         }
         
         /** Returns a newline separated list of arguments specified in this list. */
         std::string toString() const;
-
-        /**
-         GLSL does not natively support arrays and structs in the uniform binding API.  Instead, each
-         element of an array is treated as a separate element.  This method expands out to setting
-         each element of an array.  You can instead set them using <CODE>args.set("arry[3]", myVal)</CODE>.
-         Likewise for structs, <CODE>args.set("str.foo.bar", myVal)</CODE>.
-         */
-        template<class T> void set(const std::string& arrayName, const G3D::Array<T>& arrayVal, bool optional = false) {
-            for (int i = 0; i < arrayVal.size(); ++i) {
-                set(format("%s[%d]", arrayName.c_str(), i), arrayVal[i], optional);
-            }
-        }
-
-        template<class T> void set(const std::string& arrayName, const std::vector<T>& arrayVal, bool optional = false) {
-            for (int i = 0; i < arrayVal.size(); ++i) {
-                set(format("%s[%d]", arrayName.c_str(), i), arrayVal[i], optional);
-            }
-        }
         
         void clear();
     };
