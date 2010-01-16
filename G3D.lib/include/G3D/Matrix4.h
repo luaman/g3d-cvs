@@ -50,7 +50,7 @@ private:
     bool operator>=(const Matrix4&) const;
 
 public:
-
+    /** Must be of the form: <code>Matrix4(#, #, # .... #)</code>*/
     Matrix4(const Any& any);
 
     operator Any() const;

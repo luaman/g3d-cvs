@@ -5,7 +5,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2003-10-02
-  @edited  2008-07-17
+  @edited  2010-01-13
  */
 
 #include "G3D/platform.h"
