@@ -129,7 +129,7 @@ std::string ImageFormat::name() const {
         "R11G11B10F",
         "RGB9E10F",
 
-        "RGB8U",
+        "RGB8I",
         "RGB8UI",
 
         "ARGB8",
@@ -143,6 +143,8 @@ std::string ImageFormat::name() const {
         "RGBA16",
         "RGBA16F",
         "RGBA32F",
+
+        "RGBA32UI",
 
         "BAYER_RGGB8",
         "BAYER_GRBG8",
@@ -242,9 +244,6 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
     case ImageFormat::CODE_RGB16:
         return ImageFormat::RGB16();
 
-    case ImageFormat::CODE_RGBA16F:
-        return ImageFormat::RGBA16F();
-
     case ImageFormat::CODE_RGB32F:
         return ImageFormat::RGB32F();
 
@@ -277,6 +276,18 @@ const ImageFormat* ImageFormat::fromCode(ImageFormat::Code code) {
 
     case ImageFormat::CODE_RGBA8:
         return ImageFormat::RGBA8();
+
+    case ImageFormat::CODE_RGBA16:
+        return ImageFormat::RGBA16();
+
+    case ImageFormat::CODE_RGBA16F:
+        return ImageFormat::RGBA16F();
+
+    case ImageFormat::CODE_RGBA32F:
+        return ImageFormat::RGBA32F();
+
+    case ImageFormat::CODE_RGBA32UI:
+        return ImageFormat::RGBA32UI();
 
     case ImageFormat::CODE_BAYER_RGGB8:
         // TODO
@@ -438,6 +449,8 @@ DEFINE_TEXTUREFORMAT_METHOD(RGBA16,     4, UNCOMP_FORMAT,   GL_RGBA16,          
 DEFINE_TEXTUREFORMAT_METHOD(RGBA16F,    4, UNCOMP_FORMAT,   GL_RGBA16F_ARB,                     GL_RGBA,    0, 16, 16, 16, 16, 0, 0, 16*4, 16*4,    GL_FLOAT, CLEAR_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_RGBA16F, ImageFormat::COLOR_SPACE_RGB);
 
 DEFINE_TEXTUREFORMAT_METHOD(RGBA32F,    4, UNCOMP_FORMAT,   GL_RGBA32F_ARB,                     GL_RGBA,    0, 32, 32, 32, 32, 0, 0, 32*4, 32*4,    GL_FLOAT, CLEAR_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_RGBA32F, ImageFormat::COLOR_SPACE_RGB);
+
+DEFINE_TEXTUREFORMAT_METHOD(RGBA32UI,   4, UNCOMP_FORMAT,   GL_RGBA32UI,                        GL_RGBA_INTEGER,    0, 32, 32, 32, 32, 0, 0, 32*4, 32*4,    GL_UNSIGNED_INT, CLEAR_FORMAT, INT_FORMAT, ImageFormat::CODE_RGBA32UI, ImageFormat::COLOR_SPACE_RGB);
 
 // Unsigned
 DEFINE_TEXTUREFORMAT_METHOD(R11G11B10F, 3, UNCOMP_FORMAT,   GL_R11F_G11F_B10F_EXT,              GL_RGB,     0,  0, 11, 11, 10, 0, 0,   32,   32,    GL_FLOAT, OPAQUE_FORMAT, FLOAT_FORMAT, ImageFormat::CODE_R11G11B10F, ImageFormat::COLOR_SPACE_RGB);

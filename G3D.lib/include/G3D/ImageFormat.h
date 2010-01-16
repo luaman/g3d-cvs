@@ -69,6 +69,8 @@ public:
         CODE_RGBA16F,
         CODE_RGBA32F,
 
+        CODE_RGBA32UI,
+
         CODE_BAYER_RGGB8,
         CODE_BAYER_GRBG8,
         CODE_BAYER_GBRG8,
@@ -271,6 +273,8 @@ public:
     static const ImageFormat* RGBA16F();
     
     static const ImageFormat* RGBA32F();
+
+    static const ImageFormat* RGBA32UI();
 
     static const ImageFormat* R11G11B10F();
 
