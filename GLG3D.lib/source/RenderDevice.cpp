@@ -614,6 +614,8 @@ RenderDevice::RenderState::RenderState(int width, int height, int htutc) :
     stencil.backStencilZFail    = STENCIL_KEEP;
     stencil.backStencilZPass    = STENCIL_KEEP;
 
+    logicOp                     = LOGIC_COPY;
+
     polygonOffset               = 0;
     lineWidth                   = 1;
     pointSize                   = 1;
@@ -722,6 +724,8 @@ void RenderDevice::resetState() {
                 glActiveStencilFaceEXT(GL_FRONT);
             }
         }
+
+        glLogicOp(GL_COPY);
 
         glDepthFunc(GL_LEQUAL);
         glEnable(GL_DEPTH_TEST);
@@ -1706,6 +1710,29 @@ void RenderDevice::setStencilTest(StencilTest test) {
     }
 }
 
+ void RenderDevice::setLogicOp(const LogicOp op) {
+     debugAssert(! m_inPrimitive);
+     minStateChange();
+ 
+     if (op == LOGICOP_CURRENT) {
+         return;
+     }
+
+     if (m_state.logicOp != op) {
+         minGLStateChange();
+         if (op == LOGIC_COPY) {
+              ///< Colour index mode. Redundant?
+             glDisable(GL_LOGIC_OP);
+             glDisable(GL_COLOR_LOGIC_OP);
+         } else {
+             ///< Colour index mode. Redundant?
+             glEnable(GL_LOGIC_OP); 
+             glEnable(GL_COLOR_LOGIC_OP);
+             glLogicOp(op);
+         }
+         m_state.logicOp = op;
+     }
+ }
 
 RenderDevice::AlphaTest RenderDevice::alphaTest() const {
     return m_state.alphaTest;

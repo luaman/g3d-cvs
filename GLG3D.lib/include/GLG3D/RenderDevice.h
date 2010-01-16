@@ -614,6 +614,26 @@ public:
         STENCILOP_CURRENT
     };
 
+    enum LogicOp {
+        LOGIC_CLEAR = GL_CLEAR,
+        LOGIC_AND = GL_AND,
+        LOGIC_AND_REVERSE = GL_AND_REVERSE,
+        LOGIC_COPY = GL_COPY,
+        LOGIC_AND_INVERTED = GL_AND_INVERTED,
+        LOGIC_NOOP = GL_NOOP,
+        LOGIC_XOR = GL_XOR,
+        LOGIC_OR = GL_OR,
+        LOGIC_NOR = GL_NOR,
+        LOGIC_EQUIV = GL_EQUIV,
+        LOGIC_INVERT = GL_INVERT,
+        LOGIC_OR_REVERSE = GL_OR_REVERSE,
+        LOGIC_COPY_INVERTED = GL_COPY_INVERTED,
+        LOGIC_OR_INVERTED = GL_OR_INVERTED,
+        LOGIC_NAND = GL_NAND,
+        LOGIC_SET = GL_SET,
+        LOGICOP_CURRENT
+    };
+
     enum CullFace {
         CULL_FRONT = GL_FRONT,
         CULL_BACK = GL_BACK,
@@ -802,6 +822,11 @@ public:
         StencilOp                       backStencilFail,
         StencilOp                       backZFail,
         StencilOp                       backZPass);
+
+    /** 
+        Equivalent to glLogicOp call. 
+     */
+    void setLogicOp(const LogicOp op);
 
     /**
      Equivalent to <A HREF="http://developer.3dlabs.com/GLmanpages/glblendfunc.htm">glBlendFunc</A>
@@ -1493,6 +1518,8 @@ private:
         CullFace                    cullFace;
 
         Stencil                     stencil;
+
+        LogicOp                     logicOp;
         
         BlendFunc                   srcBlendFunc;
         BlendFunc                   dstBlendFunc;
