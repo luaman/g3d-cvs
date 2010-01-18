@@ -126,6 +126,8 @@
      <li> Tweaked G3D::StopWatch smoothing constants to reduce number flickering
      <li> isIntFormat() macro
      <li> TextInput::readSignificant
+     <li> G3D::Matrix3::squaredFrobeniusNorm, G3D::Matrix3::frobeniusNorm, G3D::Matrix3::l1Norm, G3D::Matrix3::lInfNorm, G3D::Matrix3::diffOneNorm
+     <li> G3D::Matrix3::polarDecomposition 
      <li> Switched .tga textures to .png in the data/image directory
      <li> Fix: ImageFormat::RGBA16F now uses the correct "code" (it was RGB16F in previous builds)
      <li> Fix: collisionTimeForMovingPointFixedTriangle normals were negated

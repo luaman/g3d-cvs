@@ -1001,6 +1001,95 @@ void Matrix3::qDUDecomposition (Matrix3& kQ,
 }
 
 //----------------------------------------------------------------------------
+void Matrix3::polarDecomposition(Matrix3 &R, Matrix3 &S) const{
+    /*
+      Polar decomposition of a matrix. Based on pseudocode from
+      Nicholas J Higham, "Computing the Polar Decomposition -- with
+      Applications Siam Journal of Science and Statistical Computing, Vol 7, No. 4,
+      October 1986.
+
+      Decomposes A into R*S, where R is orthogonal and S is symmetric.
+
+      Ken Shoemake's "Matrix animation and polar decomposition"
+      in Proceedings of the conference on Graphics interface '92
+      seems to be better known in the world of graphics, but Higham's version
+      uses a scaling constant that can lead to faster convergence than
+      Shoemake's when the initial matrix is far from orthogonal.
+    */
+
+    Matrix3 X = *this;
+    Matrix3 tmp = X.inverse();
+    Matrix3 Xit = tmp.transpose();
+    int iter = 0;
+    
+    const int MAX_ITERS = 100;
+
+    const double eps = 50 * std::numeric_limits<float>::epsilon();
+    const float BigEps = 50 * eps;
+
+    /* Higham suggests using OneNorm(Xit-X) < eps * OneNorm(X)
+     * as the convergence criterion, but OneNorm(X) should quickly
+     * settle down to something between 1 and 1.7, so just comparing
+     * with eps seems sufficient.
+     *--------------------------------------------------------------- */
+
+    double resid = diffOneNorm(Xit);
+    while (resid > eps && iter < MAX_ITERS) {
+      tmp = X.inverse();
+      Xit = tmp.transpose();
+      
+      if (resid < BigEps) {
+	// close enough use simple iteration
+	X += Xit;
+	X *= 0.5f;
+      }
+      else {
+	// not close to convergence, compute acceleration factor
+	float gamma = sqrt( sqrt( (Xit.l1Norm() * Xit.lInfNorm()))/
+			    (X.l1Norm() * X.lInfNorm()) );
+	X *= (0.5f * gamma);
+	tmp = Xit;
+	tmp *= (0.5f / gamma);
+	X += tmp;
+      }
+      
+      resid = X.diffOneNorm(Xit);
+      iter++;
+    }
+
+    R = X;
+    tmp = R.transpose();
+
+    S = tmp * (*this);
+
+    // S := (S + S^t)/2 one more time to make sure it is symmetric
+    tmp = S.transpose();
+
+    S += tmp;
+    S *= 0.5f;
+
+#ifdef G3D_DEBUG
+    // Check iter limit
+    assert(iter < MAX_ITERS);
+
+    // Check A = R*S
+    tmp = R*S;
+    resid = tmp.diffOneNorm(*this);
+    assert(resid < eps);
+
+    // Check R is orthogonal
+    tmp = R*R.transpose();
+    resid = tmp.diffOneNorm(Matrix3::identity());
+    assert(resid < eps);
+
+    // Check that S is symmetric
+    tmp = S.transpose();
+    resid = tmp.diffOneNorm(S);
+    assert(resid < eps);
+#endif
+}
+
+//----------------------------------------------------------------------------
 float Matrix3::maxCubicRoot (float afCoeff[3]) {
     // Spectral norm is for A^T*A, so characteristic polynomial
     // P(x) = c[0]+c[1]*x+c[2]*x^2+x^3 has three positive float roots.
@@ -1090,6 +1179,70 @@ float Matrix3::spectralNorm () const {
     float fRoot = maxCubicRoot(afCoeff);
     float fNorm = sqrt(fPmax * fRoot);
     return fNorm;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::squaredFrobeniusNorm() const {
+    float norm2 = 0;
+    const float* e = &elt[0][0];
+    
+    for (int i = 0; i < 9; ++i){
+      norm2 += (*e) * (*e);
+    }
+
+    return norm2;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::frobeniusNorm() const {
+    return sqrtf(squaredFrobeniusNorm());
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::l1Norm() const {
+    // The one norm of a matrix is the max column sum in absolute value.
+    float oneNorm = 0;
+    for (int c = 0; c < 3; ++c) {
+      
+      float f = fabs(elt[0][c])+ fabs(elt[1][c]) + fabs(elt[2][c]);
+      
+      if (f > oneNorm) {
+	oneNorm = f;
+      }
+    }
+    return oneNorm;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::lInfNorm() const {
+    // The infinity norm of a matrix is the max row sum in absolute value.
+    float infNorm = 0;
+
+    for (int r = 0; r < 3; ++r) {
+      
+      float f = fabs(elt[r][0]) + fabs(elt[r][1])+ fabs(elt[r][2]);
+      
+      if (f > infNorm) {
+	infNorm = f;
+      }
+    }
+    return infNorm;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::diffOneNorm(const Matrix3 &y) const{
+    float oneNorm = 0;
+    
+    for (int c = 0; c < 3; ++c){
+    
+      float f = fabs(elt[0][c] - y[0][c]) + fabs(elt[1][c] - y[1][c])
+	+ fabs(elt[2][c] - y[2][c]);
+      
+      if (f > oneNorm) {
+	oneNorm = f;
+      }
+    }
+    return oneNorm;
 }
 
 //----------------------------------------------------------------------------

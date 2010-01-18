@@ -227,7 +227,36 @@ public:
     void qDUDecomposition (Matrix3& rkQ, Vector3& rkD,
                            Vector3& rkU) const;
 
+    /**
+       Polar decomposition of a matrix. Based on pseudocode from Nicholas J
+       Higham, "Computing the Polar Decomposition -- with Applications Siam
+       Journal of Science and Statistical Computing, Vol 7, No. 4, October
+       1986.
+
+       Decomposes A into R*S, where R is orthogonal and S is symmetric.
+
+       Ken Shoemake's "Matrix animation and polar decomposition"
+       in Proceedings of the conference on Graphics interface '92
+       seems to be better known in the world of graphics, but Higham's version
+       uses a scaling constant that can lead to faster convergence than
+       Shoemake's when the initial matrix is far from orthogonal.
+    */
+    void polarDecomposition(Matrix3 &R, Matrix3 &S) const;
+
+    /** 
+     *  Matrix norms.
+     */
     float spectralNorm () const;
+
+    float squaredFrobeniusNorm() const;
+
+    float frobeniusNorm() const;
+
+    float l1Norm() const;
+
+    float lInfNorm() const;
+
+    float diffOneNorm(const Matrix3 &y) const;
 
     /** matrix must be orthonormal */
     void toAxisAngle(Vector3& rkAxis, float& rfRadians) const;
