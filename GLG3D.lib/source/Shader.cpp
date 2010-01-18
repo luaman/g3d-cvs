@@ -722,11 +722,23 @@ VertexAndPixelShader::VertexAndPixelShader
 bool VertexAndPixelShader::isSamplerType(GLenum e) {
     return
        (e == GL_SAMPLER_1D_ARB) ||
+       (e == GL_UNSIGNED_INT_SAMPLER_1D) ||
+
        (e == GL_SAMPLER_2D_ARB) ||
+       (e == GL_INT_SAMPLER_2D) ||
+       (e == GL_UNSIGNED_INT_SAMPLER_2D) ||
        (e == GL_SAMPLER_2D_RECT_ARB) ||
+
        (e == GL_SAMPLER_3D_ARB) ||
+       (e == GL_INT_SAMPLER_3D) ||
+       (e == GL_UNSIGNED_INT_SAMPLER_3D) ||
+
        (e == GL_SAMPLER_CUBE_ARB) ||
+       (e == GL_INT_SAMPLER_CUBE) ||
+       (e == GL_UNSIGNED_INT_SAMPLER_CUBE) ||
+
        (e == GL_SAMPLER_1D_SHADOW_ARB) ||
+
        (e == GL_SAMPLER_2D_SHADOW_ARB) ||
        (e == GL_SAMPLER_2D_RECT_SHADOW_ARB);
 }
@@ -745,6 +757,8 @@ static GLenum toGLType(const std::string& s) {
 
     } else if (s == "int") {
         return GL_INT;
+    } else if (s == "unsigned int") {
+        return GL_UNSIGNED_INT;
 
     } else if (s == "bool") {
         return GL_BOOL_ARB;
@@ -758,14 +772,36 @@ static GLenum toGLType(const std::string& s) {
 
     } else if (s == "sampler1D") {
         return GL_SAMPLER_1D_ARB;
+    } else if (s == "isampler1D") {
+        return GL_INT_SAMPLER_1D_EXT;
+    } else if (s == "usampler1D") {
+        return GL_UNSIGNED_INT_SAMPLER_1D_EXT;
+
     } else if (s == "sampler2D") {
         return GL_SAMPLER_2D_ARB;
+    } else if (s == "isampler2D") {
+        return GL_INT_SAMPLER_2D_EXT;
+    } else if (s == "usampler2D") {
+        return GL_UNSIGNED_INT_SAMPLER_2D_EXT;
+
     } else if (s == "sampler3D") {
         return GL_SAMPLER_3D_ARB;
+    } else if (s == "isampler3D") {
+        return GL_INT_SAMPLER_3D_EXT;
+    } else if (s == "usampler3D") {
+        return GL_UNSIGNED_INT_SAMPLER_3D_EXT;
+
     } else if (s == "samplerCube") {
-        return GL_SAMPLER_CUBE_ARB;
+        return GL_SAMPLER_CUBE;
+    } else if (s == "isamplerCube") {
+        return GL_INT_SAMPLER_CUBE_EXT;
+    } else if (s == "usamplerCube") {
+        return GL_UNSIGNED_INT_SAMPLER_CUBE_EXT;
+
     } else if (s == "sampler2DRect") {
         return GL_SAMPLER_2D_RECT_ARB;
+    } else if (s == "usampler2DRect") {
+        return GL_UNSIGNED_INT_SAMPLER_2D_RECT_EXT;
     } else if (s == "sampler2DShadow") {
         return GL_SAMPLER_2D_SHADOW_ARB;
     } else if (s == "sampler2DRectShadow") {
@@ -791,7 +827,14 @@ void VertexAndPixelShader::addUniformsFromCode(const std::string& code) {
             }
 
             // Read the type
-            GLenum type = toGLType(ti.readSymbol());
+            std::string variableSymbol = ti.readSymbol();
+
+            // check for "unsigned int"
+            if ((variableSymbol == "unsigned") && (ti.peek().string() == "int")) {
+                variableSymbol += " " + ti.readSymbol();
+            }
+
+            GLenum type = toGLType(variableSymbol);
 
             // Read the name
             std::string name = ti.readSymbol();
@@ -979,43 +1022,37 @@ bool VertexAndPixelShader::fullySupported() {
 bool VertexAndPixelShader::compatibleTypes(GLenum actual, GLenum formal) {
     return
         (canonicalType(actual) == canonicalType(formal)) ||
-        (((actual == GL_FLOAT) || (actual == GL_INT) || (actual == GL_BOOL)) &&
-         ((formal == GL_FLOAT) || (formal == GL_INT) || (formal == GL_BOOL)));
+        (((actual == GL_FLOAT) || (actual == GL_INT) || (actual == GL_UNSIGNED_INT) || (actual == GL_BOOL)) &&
+         ((formal == GL_FLOAT) || (formal == GL_INT) || (formal == GL_UNSIGNED_INT) || (formal == GL_BOOL)));
 }
 
 
 GLenum VertexAndPixelShader::canonicalType(GLenum e) {
 
     switch (e) {
-    case GL_INT:
-        return GL_INT;
-
-    case GL_BOOL_ARB:
-        return GL_BOOL;
-
-    case GL_INT_VEC2_ARB:
-        return GL_INT_VEC2_ARB;
-
     case GL_BOOL_VEC2_ARB:
         return GL_FLOAT_VEC2_ARB;
-
-    case GL_INT_VEC3_ARB:
-        return GL_INT_VEC3_ARB;
 
     case GL_BOOL_VEC3_ARB:
         return GL_FLOAT_VEC3_ARB;
 
-    case GL_INT_VEC4_ARB:
-        return GL_INT_VEC4_ARB;
-
     case GL_BOOL_VEC4_ARB:
         return GL_FLOAT_VEC4_ARB;
 
+    case GL_SAMPLER_1D_ARB:
+    case GL_INT_SAMPLER_1D_EXT:
+    case GL_UNSIGNED_INT_SAMPLER_1D_EXT:
+        return GL_TEXTURE_1D;
+
     case GL_SAMPLER_2D_SHADOW_ARB:
     case GL_SAMPLER_2D_ARB:
+    case GL_INT_SAMPLER_2D_EXT:
+    case GL_UNSIGNED_INT_SAMPLER_2D_EXT:
         return GL_TEXTURE_2D;
         
     case GL_SAMPLER_CUBE_ARB:
+    case GL_INT_SAMPLER_CUBE_EXT:
+    case GL_UNSIGNED_INT_SAMPLER_CUBE_EXT:
         return GL_TEXTURE_CUBE_MAP_ARB;
         
     case GL_SAMPLER_2D_RECT_SHADOW_ARB:
@@ -1023,6 +1060,8 @@ GLenum VertexAndPixelShader::canonicalType(GLenum e) {
         return GL_TEXTURE_RECTANGLE_EXT;
 
     case GL_SAMPLER_3D_ARB:
+    case GL_INT_SAMPLER_3D_EXT:
+    case GL_UNSIGNED_INT_SAMPLER_3D_EXT:
         return GL_TEXTURE_3D;
 
     default:
@@ -1219,6 +1258,16 @@ void VertexAndPixelShader::bindArgList(RenderDevice* rd, const ArgList& args) co
                         i = value.intVal;
                     }
                     glUniform1iARB(location, i);
+                }
+                break;
+
+            case GL_UNSIGNED_INT:
+                {
+                    unsigned int i = static_cast<unsigned int>(value.vector[0][0]);
+                    if ((value.type == GL_INT) || (value.type == GL_BOOL)) {
+                        i = static_cast<unsigned int>(value.intVal);
+                    }
+                    glUniform1uiEXT(location, i);
                 }
                 break;
 

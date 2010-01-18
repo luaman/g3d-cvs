@@ -7,6 +7,7 @@ public:
     LightingRef         lighting;
     SkyParameters       skyParameters;
     SkyRef              sky;
+    ShaderRef sr;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -90,6 +91,20 @@ void App::onInit() {
     // debugPane->addNumberBox("height", &height, "m", GuiTheme::LINEAR_SLIDER, 1.0f, 2.5f);
     // button = debugPane->addButton("Run Simulator");
 
+    const char* shaderCode = 
+    STR(
+
+    uniform unsigned int testuint;
+    uniform isampler2D sourceTexture;
+    uniform usamplerCube bloomTexture;
+
+    void main(void) {
+     
+        gl_FragColor.rgb = vec3(testuint, 0, 0);
+    });
+
+    sr = Shader::fromStrings("", shaderCode);
+
     // Start wherever the developer HUD last marked as "Home"
     defaultCamera.setCoordinateFrame(bookmark("Home"));
 }
@@ -142,8 +157,12 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
     rd->clear(true, true, true);
 
     rd->push2D();
+    sr->args.set("testuint", 5);
+    sr->args.set("sourceTexture", sky->getEnvironmentMap());
+    sr->args.set("bloomTexture", sky->getEnvironmentMap());
+
+    rd->setShader(sr);
     rd->setTexture(0, sky->getEnvironmentMap());
-    rd->setTexture(rd->numTextures() - 1, sky->getEnvironmentMap());
     Draw::rect2D(Rect2D::xywh(200, 200, 400, 400), rd);
     rd->pop2D();
 
