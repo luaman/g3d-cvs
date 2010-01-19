@@ -42,7 +42,8 @@ VideoRecordDialog::VideoRecordDialog(const GuiThemeRef& theme, GApp* app) :
     m_screenshotPending(false),
     m_framesBox(NULL),
     m_captureGUI(true),
-    m_showCursor(false) {
+    m_showCursor(false),
+    m_quality(1.0){
 
     m_hotKey = GKey::F6;
     m_hotKeyMod = GKeyMod::NONE;
@@ -105,6 +106,8 @@ void VideoRecordDialog::makeGUI() {
 
     formatList->setWidth(width);
     formatList->setCaptionSize(captionSize);
+
+    moviePane->addNumberBox("Quality", &m_quality, "", GuiTheme::LOG_SLIDER, 0.1f, 100.0f);
     
     if (false) {
         // For future expansion
@@ -208,7 +211,7 @@ void VideoRecordDialog::startRecording() {
         // WMV is lower quality
         baseRate = 3000;
     }
-    settings.bitrate = iRound(baseRate * kps * settings.width * settings.height / (640 * 480));
+    settings.bitrate = iRound(m_quality * baseRate * kps * settings.width * settings.height / (640 * 480));
     settings.fps = m_playbackFPS;
 
     std::string filename = nextFilenameBase() + "." + m_settingsTemplate[m_templateIndex].extension;

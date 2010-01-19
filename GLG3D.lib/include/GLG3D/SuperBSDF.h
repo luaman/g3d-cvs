@@ -418,15 +418,15 @@ public:
     bool similarTo(const SuperBSDF::Ref& other) const;
 
     /** The glossy exponent is packed so that 0 = no specular, 
-        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 127e + 1\f$.
+        1 = mirror (infinity), and on the open interval \f$e \in (0, 1), ~ e \rightarrow 1024 e^2 + 1\f$.
         This function abstracts the unpacking, since it may change in future versions.
         
         Because direct shading is specified for SuperBSDF to apply a
-        glossy reflection to mirror surfaces, e = 1 produces 128 as
+        glossy reflection to mirror surfaces, e = 1 produces 1025 as
         well.
         */
-    static inline int unpackSpecularExponent(float e) {
-        return iMin(iRound(e * 127.0f) + 1, 128);
+    static inline float unpackSpecularExponent(float e) {
+        return square((clamp(e, 0.0f, 1.0f) * 255.0f - 1.0f) * (1.0f /253.0f)) * 1024.0f + 1.0f;
     }
 
     /** The value that a specular mirror is packed as */
@@ -439,9 +439,11 @@ public:
         return 0.0f;
     }
 
-    inline static float packSpecularExponent(int x) {
-        debugAssert(x > 0 && x <= 128);
-        return (x - 1) / 127.0f;
+    /** Packing is \f$\frac{ \sqrt{ \frac{x - 1}{1024} } * 253 + 1}{255} \f$ */
+    inline static float packSpecularExponent(float x) {
+        debugAssert(x > 0);
+        // Never let the exponent go above the max representable non-mirror value in a uint8
+        return (clamp(sqrt((x - 1.0f) * (1.0f / 1024.0f)), 0.0f, 1.0f) * 253.0f + 1.0f) * (1.0f / 255.0f);
     }
 };
 

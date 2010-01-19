@@ -6,7 +6,7 @@
  @maintainer Morgan McGuire, morgan@cs.williams.edu
 
  @created 2003-09-14
- @edited  2009-05-30
+ @edited  2010-01-18
 */
 
 #ifndef G3D_MeshAlg_h
@@ -18,6 +18,7 @@
 #include "G3D/CoordinateFrame.h"
 #include "G3D/SmallArray.h"
 #include "G3D/constants.h"
+#include "G3D/Image1.h"
 
 #ifdef G3D_WIN32
 // Turn off "conditional expression is constant" warning; MSVC generates this
@@ -542,6 +543,7 @@ public:
      @param textureScale Lower-right texture coordinate
      @param spaceCentered If true, the coordinates generated are centered at the origin before the transformation.
      @param twoSided If true, matching top and bottom planes are generated.
+     \param elevation If non-NULL, values from this image are used as elevations.  Apply an \a xform to adjust the scale
      */
     static void generateGrid(
         Array<Vector3>&     vertex,
@@ -552,7 +554,8 @@ public:
         const Vector2&      textureScale = Vector2(1,1),
         bool                spaceCentered = true,
         bool                twoSided = true,
-        const CoordinateFrame& xform = CoordinateFrame());
+        const CoordinateFrame& xform = CoordinateFrame(),
+        const Image1::Ref&  elevation = NULL);
 
     /** Converts quadlist (QUADS), 
         triangle fan (TRIANGLE_FAN),

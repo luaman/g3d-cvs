@@ -426,19 +426,15 @@ bool fileExists(
     // _stat returns zero on success
 	bool exists = (ret == 0);
 
-	if (exists) {
-		// Exists
-		return true;
-	} else if (lookInZipfiles) {
+    if (! exists && lookInZipfiles) {
 		// Does not exist standalone, but might exist in a zipfile
 
 		// These output arguments will be ignored
 		std::string zipDir, internalPath;
 		return zipfileExists(filename, zipDir, internalPath);
-	} else {
-		// Does not exist
-		return false;
-	}
+    } else {
+    	return exists;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -481,67 +477,67 @@ static bool _zip_zipContains(const std::string& zipDir, const std::string& desir
 // If no zipfile exists, outZipfile and outInternalFile are unchanged
 bool zipfileExists(const std::string& filename, std::string& outZipfile,
                    std::string& outInternalFile){
-    if (fileExists(filename, false)) {
-        // Not inside a zipfile if the file itself exists
-        return false;
+   
+    Array<std::string> path;
+    std::string drive, base, ext, zipfile, infile;
+    parseFilename(filename, drive, path, base, ext);
+    
+    // Put the filename back together
+    if ((base != "") && (ext != "")) {
+        infile = base + "." + ext;
     } else {
-        Array<std::string> path;
-        std::string drive, base, ext, zipfile, infile;
-        parseFilename(filename, drive, path, base, ext);
-        
-        // Put the filename back together
-        if ((base != "") && (ext != "")) {
-            infile = base + "." + ext;
-        } else {
-            infile = base + ext;
+        infile = base + ext;
+    }
+    
+    // Remove "." from path
+    for (int i = 0; i < path.length(); ++i) {
+        if (path[i] == ".") {
+            path.remove(i);
+            --i;
+        }
+    }
+    
+    // Remove ".." from path
+    for (int i = 1; i < path.length(); ++i) {
+        if ((path[i] == "..") && (i > 0) && (path[i - 1] != "..")) {
+            // Remove both i and i - 1
+            path.remove(i - 1, 2);
+            i -= 2;
+        }
+    }
+    
+    // Walk the path backwards, accumulating pieces onto the infile until
+    // we find a zipfile that contains it
+    for (int t = 0; t < path.length(); ++t){
+        _zip_resolveDirectory(zipfile, drive, path,  path.length() - t);
+        if (t > 0) {
+            infile = path[path.length() - t] + "/" + infile;
+        }
+
+        if (endsWith(zipfile, "..")) {
+            return false;
         }
         
-        // Remove "." from path
-        for (int i = 0; i < path.length(); ++i) {
-            if (path[i] == ".") {
-                path.remove(i);
-                --i;
-            }
-        }
-        
-        // Remove ".." from path
-        for (int i = 1; i < path.length(); ++i) {
-            if ((path[i] == "..") && (i > 0) && (path[i - 1] != "..")) {
-                // Remove both i and i - 1
-                path.remove(i - 1, 2);
-                i -= 2;
-            }
-        }
-        
-        // Walk the path backwards, accumulating pieces onto the infile until
-        // we find a zipfile that contains it
-        for (int t = 0; t < path.length(); ++t){
-            _zip_resolveDirectory(zipfile, drive, path,  path.length() - t);
-            if (t > 0) {
-                infile = path[path.length() - t] + "/" + infile;
-            }
-            
-            if (fileExists(zipfile, false)) {
-                // test if it actually is a zipfile
-                // if not, return false, a bad
-                // directory structure has been given,
-                // not a .zip
-                if (isZipfile(zipfile)){
-                    
-                    if (_zip_zipContains(zipfile, infile)){
-                        outZipfile = zipfile;
-                        outInternalFile = infile;
-                        return true;
-                    } else {
-                        return false;
-                    }
+        if (fileExists(zipfile, false)) {
+            // test if it actually is a zipfile
+            // if not, return false, a bad
+            // directory structure has been given,
+            // not a .zip
+            if (isZipfile(zipfile)){
+                
+                if (_zip_zipContains(zipfile, infile)){
+                    outZipfile = zipfile;
+                    outInternalFile = infile;
+                    return true;
                 } else {
-                    // the directory structure was valid but did not point to a .zip
                     return false;
                 }
+            } else {
+                // the directory structure was valid but did not point to a .zip
+                return false;
             }
-            
         }
+        
     }
     
     // not a valid directory structure ever, 

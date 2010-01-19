@@ -16,6 +16,7 @@
           Most rendering is now 1.2x to 2.0x faster on high-end GPUs than it was in 7.01     
      <li> G3D::Tri, G3D::TriTree for ray tracing (10x faster than KDTree + Triangle)
      <li> G3D::Any replaces G3D::AnyVal
+     <li> G3D::ArticulatedModel::createHeightfield
      <li> G3D::GuiWindow with NO_WINDOW_STYLE now stays in the background when focused.
      <li> Added sample code overview to documentation
      <li> Initialized Win32Window using the OpenGL compatibility profile
@@ -177,6 +178,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> SuperBSDF::packSpecularExponent now uses a nonlinear scale between 0 and 1025
      <li> G3D::MD2Model::create scale is now 1/2 the quake scale, so that a typical character is 2 meters tall
      <li> Removed G3D::Texture::invertY (See G3D::RenderDevice::invertY)
      <li> G3D::Matrix4::perspectiveProjection flips the y-axis by default (see upDirection argument to get the old behavior)

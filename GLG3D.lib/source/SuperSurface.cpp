@@ -394,12 +394,12 @@ bool SuperSurface::renderNonShadowedOpaqueTerms(
 
 bool SuperSurface::renderPS20NonShadowedOpaqueTerms(
     RenderDevice*                           rd,
-    const LightingRef&                      lighting) const {
+    const Lighting::Ref&                      lighting) const {
 
     const Material::Ref& material = m_gpuGeom->material;
     const SuperBSDF::Ref&     bsdf = material->bsdf();
 
-    if (! bsdf->hasReflection()) {
+    if (! (bsdf->hasReflection() || (m_gpuGeom->material->emissive().notBlack() && ! lighting->emissiveScale.isZero()))) {
         // Nothing to draw
         return false;
     }

@@ -1,7 +1,7 @@
 /**
  @file Shader.cpp
  
- @maintainer Morgan McGuire, morgan@cs.williams.edu
+ @maintainer Morgan McGuire, Jared Hoberock, and Qi Mo, http://graphics.cs.williams.edu
  
  @created 2004-04-24
  @edited  2009-11-31

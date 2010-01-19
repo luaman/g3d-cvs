@@ -562,6 +562,9 @@ Texture::Ref Map::loadTexture(const std::string& resPath, const std::string& alt
     
     int numPath = 2;
     const std::string path[] = {resPath, altPath};
+    if (altPath == "<none>") {
+        numPath = 1;
+    }
 
     try {
         for (int p = 0; p < numPath; ++p) {

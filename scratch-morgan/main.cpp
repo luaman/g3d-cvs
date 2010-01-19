@@ -10,6 +10,10 @@
 class App : public GApp {
 public:
 
+    Lighting::Ref lighting;
+
+    ArticulatedModel::Ref model;
+
     App(const GApp::Settings& settings = GApp::Settings());
 
     virtual void onInit();
@@ -35,6 +39,7 @@ public:
 
 App::App(const GApp::Settings& settings) : GApp(settings) {
     catchCommonExceptions = false;
+    lighting = defaultLighting();
 }
 
 
@@ -67,6 +72,30 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
     rd->endPrimitive();
 }
 
+
+ArticulatedModel::Ref createHeightfield(const Image1::Ref& height, float xzExtent, float yExtent, const Vector2& texScale) {
+    ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
+    ArticulatedModel::Part& part = model->partArray.next();
+    ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
+
+    bool spaceCentered = true;
+    bool twoSided = false;
+    Vector2 texScale(1.0, 1.0);
+    int xCells = 10;
+    int zCells = 10;
+
+    MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList->indexArray, height->width() - 1, height->height() - 1, texScale, 
+        spaceCentered, twoSided, CFrame(Matrix4::scale(xzExtent, yExtent, xzExtent).upper3x3()), height);
+    part.name = "Root";
+
+    triList->primitive = PrimitiveType::TRIANGLES;
+    triList->twoSided = false;
+
+    model->updateAll();
+
+    return model;
+}
+
 void App::onInit() {
 
     showRenderingStats = false;
@@ -76,6 +105,7 @@ void App::onInit() {
 
     setDesiredFrameRate(30);
 
+    model = createHeightfield(Image1::fromFile("c:/temp/test.png"), 10, 2);
 
     GuiPane* p = debugPane->addPane("Configuration");
     p->addButton("Hello");
@@ -92,11 +122,15 @@ void App::onInit() {
 void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     (void)posed2D;
     (void)posed3D;
+    if (model.notNull()) {
+        model->pose(posed3D);
+    }
 }
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
     (void)surface;
-    renderSomething(rd);
+    Surface::sortAndRender(rd, defaultCamera, surface, lighting);
+    Draw::axes(rd);
 }
 
 void App::onGraphics2D(RenderDevice* rd, Array<Surface2DRef>& posed2D) {

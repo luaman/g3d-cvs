@@ -43,7 +43,7 @@ private:
 
     friend class RenderDevice;
 
-    VertexBufferRef     m_area;
+    VertexBuffer::Ref   m_area;
     
     /** For VBO_MEMORY, this is the offset.  For MAIN_MEMORY, this is
         a pointer to the block of uploaded memory.
@@ -68,7 +68,7 @@ private:
     GLenum              m_underlyingRepresentation;
     
     /** The initial size this VertexRange was allocated with, in bytes. */
-    int              m_maxSize;
+    int                 m_maxSize;
 
     /** For uploading interleaved arrays */
     void init(VertexRange& dstPtr, int dstOffset, GLenum glformat, 
@@ -120,13 +120,23 @@ private:
 
 public:
 
-    /** The G3D::VertexBuffer containing this VertexRange. */
-    inline VertexBufferRef area() {
+    /** \sa buffer() \deprecated */
+    inline VertexBuffer::Ref area() {
         return m_area;
     }
 
     /** The G3D::VertexBuffer containing this VertexRange. */
-    inline VertexBufferRef area() const {
+    inline VertexBuffer::Ref buffer() {
+        return m_area;
+    }
+
+    /** \sa buffer() \deprecated */
+    inline VertexBuffer::Ref G3D_DEPRECATED area() const {
+        return m_area;
+    }
+
+    /** The G3D::VertexBuffer containing this VertexRange. */
+    inline VertexBuffer::Ref buffer() const {
         return m_area;
     }
 
@@ -137,6 +147,32 @@ public:
     /** @brief Number of elements in this array (not byte size!) */
     inline int size() const {
         return m_numElements;
+    }
+
+    int elementSize() const {
+        return m_elementSize;
+    }
+
+    int stride() const {
+        return m_stride;
+    }
+
+    uint64 generation() const {
+        return m_generation;
+    }
+
+    GLenum underlyingRepresentation() const {
+        return m_underlyingRepresentation;
+    }
+
+  /** For VBO_MEMORY, this is the offset.  For MAIN_MEMORY, this is
+        a pointer to the block of uploaded memory.
+        
+        When there was a dstOffset as a constructor argument, it has already
+        been applied here.
+    */
+    void* startAddress() {
+        return m_pointer;
     }
 
     /** Creates an invalid VertexRange. */

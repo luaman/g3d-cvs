@@ -653,7 +653,8 @@ public:
      @param altLoad The root of a directory to search for missing textures. When loading 
      Quake3 maps that use default textures, this should be the pak0.pk3 file that
      comes with Quake3 Arena.  Note that this file is copyrighted by id software and
-     is not redistributable. It is not part of G3D. 
+     is not redistributable. It is not part of G3D.   If set to "<none>", avoids the
+     (slow) process of looking in the pk3 file for textures.
      
      You can obtain a limited version of this file by downloading the Q3A demo from:
      http://www.idsoftware.com/games/quake/quake3-arena/index.php?game_section=demo
@@ -663,6 +664,7 @@ public:
 
      \param defaultTextureFile If a texture is missing, load this texture.  if "",
     use the default texture specified at runtime.
+
      */
     static MapRef fromFile(const std::string& path, const std::string& fileName, float scale = 1.0f, std::string altLoad = "",
          const std::string& defaultTextureFile = "");

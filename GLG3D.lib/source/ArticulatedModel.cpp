@@ -107,6 +107,26 @@ ArticulatedModel::Settings::operator Any() const {
 }
 //////////////////////////////////////////////////////////
 
+ArticulatedModel::Ref ArticulatedModel::createHeightfield(const Image1::Ref& height, float xzExtent, float yExtent, const Vector2& texScale) {
+    ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
+    ArticulatedModel::Part& part = model->partArray.next();
+    ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
+
+    bool spaceCentered = true;
+    bool twoSided = false;
+
+    MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList->indexArray, height->width() - 1, height->height() - 1, texScale, 
+        spaceCentered, twoSided, CFrame(Matrix4::scale(xzExtent, yExtent, xzExtent).upper3x3()), height);
+    part.name = "Root";
+
+    triList->primitive = PrimitiveType::TRIANGLES;
+    triList->twoSided = false;
+
+    model->updateAll();
+
+    return model;
+}
+
 void ArticulatedModel::setStorage(ImageStorage s) {
     for (int p = 0; p < partArray.size(); ++p) {
         Part& part = partArray[p];

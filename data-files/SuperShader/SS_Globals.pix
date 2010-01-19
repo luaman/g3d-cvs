@@ -84,3 +84,12 @@ float pow5(in float x) {
 vec3 computeF(in vec3 F0, in float cos_i) {
     return F0 + (vec3(1.0) - F0) * max(0.0, pow5(1.0 - cos_i));
 }
+
+float square(in float x) {
+    return x * x;
+}
+
+/** Matches SuperBSDF::unpackSpecularExponent*/
+float unpackSpecularExponent(in float e) {
+    return square((e * 255.0 - 1.0) * (1.0 / 253.0)) * 1024.0 + 1.0;
+}

@@ -91,6 +91,10 @@ GApp::GApp(const Settings& settings, OSWindow* window) :
 
     lastGApp = this;
 
+    char b[2048];
+    getcwd(b, 2048);
+    logPrintf("cwd = %s\n", b);
+    
     if (settings.dataDir == "<AUTO>") {
         dataDir = demoFindData(false);
     } else {

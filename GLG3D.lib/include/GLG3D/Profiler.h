@@ -35,10 +35,6 @@ namespace G3D {
 
  */
 class Profiler {
-/* TODO
-      - add a GUI for outputting; a multi-column list box would be ideal 
-      - use virtual timing to allow nesting of calls.
-      */
 public:
     class Task {
         friend class Profiler;

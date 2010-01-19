@@ -115,7 +115,7 @@ void SuperBSDF::getImpulses
             // There is some specularity
             
             // Cosine of the angle of incidence, for computing F
-            const float cos_i = max(0.0f, w_i.dot(n));
+            const float cos_i = max(0.001f, w_i.dot(n));
             F = computeF(specular.rgb(), cos_i);
             Finit = true;
             
@@ -140,19 +140,17 @@ void SuperBSDF::getImpulses
             F_t = (Color3::one() - F);
         } else {
             // Cosine of the angle of incidence, for computing F
-            const float cos_i = max(0.0f, w_i.dot(n));
+            const float cos_i = max(0.001f, w_i.dot(n));
             // F = lerp(0, 1, pow5(1.0f - cos_i)) = pow5(1.0f - cos_i)
             // F_t = 1 - F
             F_t.r = F_t.g = F_t.b = 1.0f - pow5(1.0f - cos_i);
         }
 
         // Sample transmissive
-        const Color3& transmit = 
+        const Color3& T0 = 
             lowFreq ?
                 m_transmissive.mean() :
                 m_transmissive.sample(texCoord);
-
-        const Color3& T0          = transmit.rgb();
         
         const Color3& p_transmit  = F_t * T0;
        
@@ -185,7 +183,7 @@ float SuperBSDF::glossyScatter
     //      k2 = w_o
     //      h  = w_h
     float intensity;
-
+/*
     // TODO: remove (hack to be diffuse)
     w_o = Vector3::cosHemiRandom(n, r);
     return 1.0f;
@@ -197,7 +195,7 @@ float SuperBSDF::glossyScatter
         intensity = powf(w_h.dot(n), g);
     } while (r.uniform() > intensity);
     return 1.0f;
-
+*/
     do {
         // Eq. 6 and 10 (eq. 9 cancels for isotropic)
         // Generate a cosine distributed half-vector:
@@ -224,6 +222,11 @@ float SuperBSDF::glossyScatter
 
         // Adjust for the measure difference between w_o and w_h spaces (eq. 8)
         intensity = 4.0f * w_i.dot(w_h);
+        if (intensity <= 0.0f) {
+            // Because shading normals are different from geometric normals, we might
+            // end up with negative intensity.
+            return 0.0f;
+        }
 
     } while (r.uniform() > w_o.dot(n));
 
@@ -303,6 +306,7 @@ bool SuperBSDF::scatter
         power_o = evaluate(n, texCoord, w_i, power_i, w_o).rgb();
         if (power_o.average() > random.uniform()) {
             power_o /= power_o.average();
+            debugAssert(power_o.r >= 0.0f);
             return true;
         } else {
             return false;
@@ -337,6 +341,7 @@ bool SuperBSDF::scatter
             density = p_LambertianAvg * 0.01f;
             eta_o = m_eta_r;
             extinction_o = m_extinction_r;
+            debugAssert(power_o.r >= 0.0f);
 
             return true;
         }
@@ -361,7 +366,7 @@ bool SuperBSDF::scatter
             // There is some specularity
             
             // Cosine of the angle of incidence, for computing F
-            const float cos_i = max(0.0f, w_i.dot(n));
+            const float cos_i = max(0.001f, w_i.dot(n));
             F = computeF(specular.rgb(), cos_i);
             Finit = true;
 
@@ -373,7 +378,12 @@ bool SuperBSDF::scatter
             if (r < 0.0f) {
                 if (pack != packedSpecularMirror()) {
                     // Glossy
-                    power_o = p_specular * power_i * (glossyScatter(w_i, shininess, n, random, w_o) / p_specularAvg);
+                    float intensity = (glossyScatter(w_i, shininess, n, random, w_o) / p_specularAvg);
+                    if (intensity <= 0.0f) {
+                        // Absorb
+                        return false;
+                    }
+                    power_o = p_specular * power_i * intensity;
                     density = p_specularAvg * 0.1f;
 
                 } else {
@@ -383,6 +393,7 @@ bool SuperBSDF::scatter
                     power_o = p_specular * power_i * (1.0f / p_specularAvg);
                     density = p_specularAvg;
                 }
+                debugAssert(power_o.r >= 0.0f);
 
                 eta_o = m_eta_r;
                 extinction_o = m_extinction_r;
@@ -400,7 +411,7 @@ bool SuperBSDF::scatter
             F_t = (Color3::one() - F);
         } else {
             // Cosine of the angle of incidence, for computing F
-            const float cos_i = max(0.0f, w_i.dot(n));
+            const float cos_i = max(0.001f, w_i.dot(n));
             // F = lerp(0, 1, pow5(1.0f - cos_i)) = pow5(1.0f - cos_i)
             // F_t = 1 - F
             F_t.r = F_t.g = F_t.b = 1.0f - pow5(1.0f - cos_i);
@@ -418,7 +429,6 @@ bool SuperBSDF::scatter
         
         r -= p_transmitAvg;
         if (r < 0.0f) {
-            debugAssert(w_i.dot(n) > 0);
             power_o = p_transmit * power_i * (1.0f / p_transmitAvg);
             w_o = (-w_i).refractionDirection(n, m_eta_t, m_eta_r);
             density = p_transmitAvg;
@@ -426,6 +436,7 @@ bool SuperBSDF::scatter
             extinction_o = m_extinction_t;
 
             debugAssert(w_o.isZero() || ((w_o.dot(n) < 0) && w_o.isUnit()));
+            debugAssert(power_o.r >= 0.0f);
 
             // w_o is zero on total internal refraction
             return ! w_o.isZero();

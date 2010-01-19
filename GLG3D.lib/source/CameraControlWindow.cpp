@@ -283,6 +283,14 @@ CameraControlWindow::CameraControlWindow(
 
     cyclicCheckBox->setPosition(visibleCheckBox->rect().x0(), saveButton->rect().y0() + 1);
 
+    /*
+    static float m_playbackSpeed = 1.0f;
+    GuiNumberBox<float>* speedBox = manualPane->addNumberBox("Speed", &m_playbackSpeed, "x", GuiTheme::LOG_SLIDER, 0.1f, 10.0f);
+    speedBox->setPosition(stopButton->rect().x0(), speedBox->rect().y0());
+    speedBox->setCaptionSize(40);
+    speedBox->setWidth(130);
+    */
+
 #   ifdef G3D_OSX
         manualHelpCaption = GuiText("W,A,S,D and shift+left mouse to move.", NULL, 10);
 #   else

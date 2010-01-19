@@ -239,6 +239,7 @@ public:
             This is for encoding only; it has no impact on playback.
         */
         static Settings MPEG4(int width, int height, float fps = 30.0f);
+        static Settings HQ_MPEG4(int width, int height, float fps = 30.0f);
         
         /** Windows Media Video 2 (WMV) format, which is supported by
             Microsoft's Media Player distributed with Windows.  This

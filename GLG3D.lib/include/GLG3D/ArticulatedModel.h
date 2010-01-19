@@ -8,6 +8,7 @@
 #include "G3D/Box.h"
 #include "G3D/Matrix4.h"
 #include "G3D/Welder.h"
+#include "G3D/Image1.h"
 #include "GLG3D/VertexRange.h"
 #include "GLG3D/Surface.h"
 #include "GLG3D/Material.h"
@@ -445,6 +446,12 @@ public:
         return fromFile(s.filename, s.preprocess, s.settings);
     }
 
+    static ArticulatedModel::Ref createHeightfield(const Image1::Ref& height, float xzExtent = 10.0f, float yExtent = 1.0f, const Vector2& texScale = Vector2(1.0, 1.0));
+
+    static ArticulatedModel::Ref createHeightfield(const std::string& filename, float xzExtent = 10.0f, float yExtent = 1.0f, const Vector2& texScale = Vector2(1.0, 1.0)) {
+        return createHeightfield(Image1::fromFile(filename), xzExtent, yExtent, texScale);
+    }
+    
     /**
      Creates a new model, on which you can manually build geometry by editing the 
      partArray directly. 

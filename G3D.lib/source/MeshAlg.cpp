@@ -17,6 +17,7 @@
 #include "G3D/Sphere.h"
 #include "G3D/vectorMath.h"
 #include "G3D/AABox.h"
+#include "G3D/Image1.h"
 
 #include <climits>
 
@@ -33,7 +34,8 @@ void MeshAlg::generateGrid(
     const Vector2&      textureScale,
     bool                spaceCentered,
     bool                twoSided,
-    const CoordinateFrame& xform) {
+    const CoordinateFrame& xform,
+    const Image1::Ref&  height) {
         
     vertex.fastClear();
     texCoord.fastClear();
@@ -48,6 +50,9 @@ void MeshAlg::generateGrid(
 
             texCoord.append(t);
 
+            if (height.notNull()) {
+                v.y = height->nearest(v.x * (height->width() - 1), v.z * (height->height() - 1)).value;
+            }
             if (spaceCentered) {
                 v -= Vector3(0.5f, 0, 0.5f);
             }

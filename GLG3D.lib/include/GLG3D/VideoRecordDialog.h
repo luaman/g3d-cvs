@@ -43,7 +43,7 @@ protected:
     GApp*                        m_app;
 
     /** For drawing messages on the screen */
-    GFontRef                     m_font;
+    GFont::Ref                   m_font;
 
     Array<VideoOutput::Settings> m_settingsTemplate;
 
@@ -73,6 +73,8 @@ protected:
     /** Tells the invisible window to record a screenshot when the next frame is rendered.*/
     bool                         m_screenshotPending;
 
+    float                        m_quality;
+
     /** For downsampling */
     Texture::Ref                 m_downsampleSrc;
     Texture::Ref                 m_downsampleDst;
@@ -81,14 +83,6 @@ protected:
     /** Motion blur frames */
     GuiNumberBox<int>*           m_framesBox;
 
-    /**
-       When false, the screen is captured at the beginning of 
-       Posed2DModel rendering from the back buffer, which may 
-       slow down rendering.
-       
-       When true, the screen is captured from the the previous 
-       frame, which will not introduce latency into rendering.
-    */
     bool                         m_captureGUI;
 
     /** Draw a software cursor on the frame after capture, since the
@@ -170,6 +164,31 @@ public:
     void startRecording();
     void stopRecording();
 
+    /**
+       When false, the screen is captured at the beginning of 
+       Posed2DModel rendering from the back buffer, which may 
+       slow down rendering.
+       
+       When true, the screen is captured from the the previous 
+       frame, which will not introduce latency into rendering.
+    */    
+    bool captureGui() const {
+        return m_captureGUI;
+    }
+
+    /** \copydoc captureGui() */
+    void setCaptureGui(bool b) {
+        m_captureGUI = b;
+    }
+
+    float quality() const {
+        return m_quality;
+    }
+
+    /** Scales the default bit rate */
+    void setQuality(float f) {
+        m_quality = f;
+    }
 
     /** Automatically invoked when the hotkey is pressed. 
         Can be called explicitly to force a screenshot. 

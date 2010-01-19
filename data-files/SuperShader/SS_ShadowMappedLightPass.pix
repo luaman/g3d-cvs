@@ -136,21 +136,7 @@ void main(void) {
     				   
 	       F0 = temp.rgb;
 	       specularColor = computeF(F0, max(0.0, cos_i));
-
-//          Only if this texture is known to contain some mirror reflective value do we bother
-//          testing each pixel's specular exponent for mirror reflection
-#	    ifdef MIRROR
-           if (temp.a == 1.0) {
-                // Mirror reflection (primarily addressed in the non-shadowed reflection map)
-                // Allow only very bright glossy specular, so that light sources still produce highlights.
-                shininess = 128.0;
-           } else
-#       endif           
-           {
-               // Only glossy reflection				
-               // Unpack the specular exponent
-               shininess = temp.a * 127.0 + 1.0;
-           }
+           shininess = unpackSpecularExponent(temp.a);
         }
 #       if defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP)
            // modulate the lambertian color by the specular; this

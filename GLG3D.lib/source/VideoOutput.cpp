@@ -84,6 +84,20 @@ VideoOutput::Settings VideoOutput::Settings::MPEG4(int width, int height, float 
 }
 
 
+
+VideoOutput::Settings VideoOutput::Settings::HQ_MPEG4(int width, int height, float fps) {
+    Settings s(CODEC_ID_MPEG4, width, height, fps, XVID_FOURCC);
+    
+    // Give six times the bit rate of MPEG4
+    s.bitrate = iRound(6.0 * 1500000.0 * ((double)s.width * s.height) / (640 * 480));
+
+    s.extension   = "mp4";
+    s.description = "High Quality H.264 (.mp4)";
+
+    return s;
+}
+
+
 VideoOutput::Ref VideoOutput::create(const std::string& filename, const Settings& settings) {
     VideoOutput* vo = new VideoOutput;
 

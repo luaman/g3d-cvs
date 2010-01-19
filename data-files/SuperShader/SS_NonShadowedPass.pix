@@ -102,17 +102,14 @@ void main(void) {
 				
 				I_specular = textureCube(environmentMap, wsR).rgb * environmentMapScale;
 
-                // Allow only very bright glossy specular, so that light sources still produce highlights.
-                shininess = 128.0;
            } else
 #		   endif
            {
                 // Only glossy reflection
                 I_specular = BLACK;
-				
-                // Unpack the specular exponent
-                shininess = temp.a * 127.0 + 1.0;
            }
+           // Unpack the specular exponent
+           shininess = unpackSpecularExponent(temp.a);
        }
 
 #      if defined(LAMBERTIANCONSTANT) || defined(LAMBERTIANMAP)
