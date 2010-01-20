@@ -92,6 +92,17 @@ public:
         CODE_RGBA_DXT3,
         CODE_RGBA_DXT5,
 
+        CODE_SRGB8,
+        CODE_SRGBA8,
+
+        CODE_SL8,
+        CODE_SLA8,
+
+        CODE_SRGB_DXT1,
+        CODE_SRGBA_DXT1,
+        CODE_SRGBA_DXT3,
+        CODE_SRGBA_DXT5,
+
         CODE_DEPTH16,
         CODE_DEPTH24,
         CODE_DEPTH32,
@@ -111,7 +122,8 @@ public:
         COLOR_SPACE_NONE,
         COLOR_SPACE_RGB,
         COLOR_SPACE_HSV,
-        COLOR_SPACE_YUV
+        COLOR_SPACE_YUV,
+        COLOR_SPACE_SRGB
     };
 
     enum BayerPattern {
@@ -291,6 +303,22 @@ public:
     static const ImageFormat* RGBA_DXT3();
 
     static const ImageFormat* RGBA_DXT5();
+
+    static const ImageFormat* SRGB8();
+
+    static const ImageFormat* SRGBA8();
+
+    static const ImageFormat* SL8();
+
+    static const ImageFormat* SLA8();
+
+    static const ImageFormat* SRGB_DXT1();
+
+    static const ImageFormat* SRGBA_DXT1();
+
+    static const ImageFormat* SRGBA_DXT3();
+
+    static const ImageFormat* SRGBA_DXT5();
 
     static const ImageFormat* DEPTH16();
 
