@@ -52,7 +52,7 @@ public:
         CODE_RGB16F,
         CODE_RGB32F,
         CODE_R11G11B10F,
-        CODE_RGB9E10F,
+        CODE_RGB9E5F,
 
         CODE_RGB8I,
         CODE_RGB8UI,
@@ -278,7 +278,7 @@ public:
 
     static const ImageFormat* R11G11B10F();
 
-    static const ImageFormat* RGB9E10F();    
+    static const ImageFormat* RGB9E5F();    
 
     static const ImageFormat* RGB8I();    
 
