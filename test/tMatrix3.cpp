@@ -34,6 +34,116 @@ static void testEuler() {
 }
 
 
+static double frobeniusNormDiff(const Matrix3 &a, const Matrix3 &b) {
+  double d = 0;
+
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      double d0 = a[i][j] - b[i][j];
+      d += d0 * d0;
+    }
+  }
+
+  return sqrt(d);
+}
+
+void testPolarDecomposition() {
+  printf("G3D::Matrix3::polarDecomposition  (");
+  
+  // TEST PURE ROTATION
+  //--------------------------------
+  printf("pure rotation, ");
+
+  Matrix3 A0 = Matrix3::fromAxisAngle(Vector3(1,-2,3).unit(),1.23f);
+  Matrix3 R1,S1;
+  A0.polarDecomposition(R1,S1);
+  Matrix3 A1 = R1 * S1;
+  double fn;
+  double eps = 0.001;
+
+  // check that it decomposes A0
+  fn = frobeniusNormDiff(A0,A1); 
+  assert(fn < eps);
+  fn = R1.determinant();
+
+  // R is special orthogonal if initial det > 0
+  assert(fabs(1 - fn) < eps); 
+
+  // check R is orthogonal
+  fn = frobeniusNormDiff(Matrix3::identity(),R1*R1.transpose()); 
+  assert(fn < eps);
+
+  // check S is  symmetric
+  fn = frobeniusNormDiff(S1,S1.transpose()); 
+  assert(fn < eps);
+
+  // check S is identity in this case
+  fn = frobeniusNormDiff(S1, Matrix3::identity());
+  
+  assert(fn < eps);
+
+  // TEST GENERAL MATRIX det>0
+  printf("det > 0, ");
+
+  A0 = Matrix3::fromAxisAngle(Vector3(.1f,-1,.3f).unit(), 2.3f);
+  A0 *= Matrix3( .1f ,-.2f ,.3f,
+                 .3f ,.2f ,.1f,
+                 -.1f ,.2f ,.4f);
+
+  assert(A0.determinant() > 0);
+
+  A0.polarDecomposition(R1,S1);
+  A1 = R1 * S1;
+
+  // check that it decomposes A0
+  fn = frobeniusNormDiff(A0, A1); 
+  assert(fn < eps);
+  
+  fn = R1.determinant();
+  // R is special orthagonal if initial det > 0
+  assert(fabs(1 - fn) < eps); 
+
+  // check R is orthogonal
+  fn = frobeniusNormDiff(Matrix3::identity(),R1*R1.transpose()); 
+  assert(fn < eps);
+
+  // check S is  symmetric
+  fn = frobeniusNormDiff(S1,S1.transpose()); 
+  assert(fn < eps);
+
+  // TEST GENERAL MATRIX det<0
+  printf("det < 0, ");
+
+  A0 = Matrix3::fromAxisAngle(Vector3(.1f,-1,.3f).unit(), 2.3f);
+  A0 *= Matrix3( -.1f ,-.2f ,.3f,
+                 -.3f ,.2f ,.1f,
+                 +.1f ,.2f ,.4f);
+  
+  assert(A0.determinant() < 0);
+  
+  A0.polarDecomposition(R1,S1);
+  fn = R1.determinant();
+  
+  // Neg det on A0 yields R  that reflects
+  assert(fabs(-1 - fn) < eps); 
+  A1 = R1 * S1;
+
+  // check that it decomposes A0
+  fn = frobeniusNormDiff(A0,A1); 
+  assert(fn < eps);
+
+  // check Ris orthogonal
+  fn = frobeniusNormDiff(Matrix3::identity(),R1*R1.transpose()); 
+  assert(fn < eps);
+
+  // check S issymmetric
+  fn = frobeniusNormDiff(S1,S1.transpose()); 
+  assert(fn < eps);
+ 
+  printf("done) passed.\n");
+}
+
+
 void testMatrix3() {
     printf("G3D::Matrix3  ");
 
@@ -61,6 +171,8 @@ void testMatrix3() {
     }
 
     printf("passed\n");
+
+    testPolarDecomposition();
 }
 
 

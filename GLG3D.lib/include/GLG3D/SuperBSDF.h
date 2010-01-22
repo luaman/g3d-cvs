@@ -443,7 +443,7 @@ public:
     inline static float packSpecularExponent(float x) {
         debugAssert(x > 0);
         // Never let the exponent go above the max representable non-mirror value in a uint8
-        return (clamp(sqrt((x - 1.0f) * (1.0f / 1024.0f)), 0.0f, 1.0f) * 253.0f + 1.0f) * (1.0f / 255.0f);
+        return (clamp((float)(sqrt((x - 1.0f) * (1.0f / 1024.0f))), 0.0f, 1.0f) * 253.0f + 1.0f) * (1.0f / 255.0f);
     }
 };
 

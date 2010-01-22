@@ -1033,8 +1033,9 @@ void Matrix3::polarDecomposition(Matrix3 &R, Matrix3 &S) const{
      * with eps seems sufficient.
      *--------------------------------------------------------------- */
 
-    double resid = diffOneNorm(Xit);
+    double resid = X.diffOneNorm(Xit);
     while (resid > eps && iter < MAX_ITERS) {
+
       tmp = X.inverse();
       Xit = tmp.transpose();
       
@@ -1045,11 +1046,12 @@ void Matrix3::polarDecomposition(Matrix3 &R, Matrix3 &S) const{
       }
       else {
 	// not close to convergence, compute acceleration factor
-	float gamma = sqrt( sqrt( (Xit.l1Norm() * Xit.lInfNorm()))/
-			    (X.l1Norm() * X.lInfNorm()) );
-	X *= (0.5f * gamma);
+        float gamma = sqrt( sqrt(
+                  (Xit.l1Norm()* Xit.lInfNorm())/(X.l1Norm()*X.lInfNorm()) ) );
+
+	X *= 0.5f * gamma;
 	tmp = Xit;
-	tmp *= (0.5f / gamma);
+	tmp *= 0.5f / gamma;
 	X += tmp;
       }
       
