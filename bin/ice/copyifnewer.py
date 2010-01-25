@@ -17,8 +17,6 @@ _excludeDirPatterns = \
      '^graveyard$', \
      '^tmp$', \
      '^temp$', \
-     '^doc-files$', \
-     '^data-files$', \
      '^\.icompile-temp$', \
      '^\.ice-tmp$', \
      '^build$']
