@@ -13,6 +13,7 @@ public:
     Lighting::Ref lighting;
 
     ArticulatedModel::Ref model;
+    ArticulatedModel::Ref glassModel;
 
     App(const GApp::Settings& settings = GApp::Settings());
 
@@ -73,29 +74,6 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
 }
 
 
-ArticulatedModel::Ref createHeightfield(const Image1::Ref& height, float xzExtent, float yExtent, const Vector2& texScale) {
-    ArticulatedModel::Ref model = ArticulatedModel::createEmpty();
-    ArticulatedModel::Part& part = model->partArray.next();
-    ArticulatedModel::Part::TriList::Ref triList = part.newTriList();
-
-    bool spaceCentered = true;
-    bool twoSided = false;
-    Vector2 texScale(1.0, 1.0);
-    int xCells = 10;
-    int zCells = 10;
-
-    MeshAlg::generateGrid(part.geometry.vertexArray, part.texCoordArray, triList->indexArray, height->width() - 1, height->height() - 1, texScale, 
-        spaceCentered, twoSided, CFrame(Matrix4::scale(xzExtent, yExtent, xzExtent).upper3x3()), height);
-    part.name = "Root";
-
-    triList->primitive = PrimitiveType::TRIANGLES;
-    triList->twoSided = false;
-
-    model->updateAll();
-
-    return model;
-}
-
 void App::onInit() {
 
     showRenderingStats = false;
@@ -105,7 +83,34 @@ void App::onInit() {
 
     setDesiredFrameRate(30);
 
-    model = createHeightfield(Image1::fromFile("c:/temp/test.png"), 10, 2);
+    model = ArticulatedModel::createHeightfield("c:/temp/test.png");
+    glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"));
+
+    Material::Settings glass;
+    float eta = 1.9f;
+    glass.setEta(eta, 1.0f);
+    glass.setSpecular(Color3::white() * 0.02f);
+    glass.setShininess(SuperBSDF::packedSpecularMirror());
+    glass.setTransmissive(Color3::white() * 0.8f);
+    glass.setLambertian(0.1f);
+
+    Material::Settings air;
+    air.setEta(1.0f, eta);
+    air.setTransmissive(Color3::white() * 0.9f);
+    air.setSpecular(Color3::black());
+    air.setLambertian(0.0f);
+
+    // Outside of model
+    ArticulatedModel::Part::TriList::Ref outside = glassModel->partArray[0].triList[0];
+    outside->material = Material::create(glass);
+    outside->refractionHint = RefractionQuality::DYNAMIC_FLAT;
+
+    // Inside (inverted)
+    ArticulatedModel::Part::TriList::Ref inside = glassModel->partArray[0].newTriList(Material::create(air));
+    inside->indexArray = outside->indexArray;
+    inside->indexArray.reverse();
+    inside->refractionHint = RefractionQuality::NONE;
+    glassModel->updateAll();
 
     GuiPane* p = debugPane->addPane("Configuration");
     p->addButton("Hello");
@@ -125,6 +130,7 @@ void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
     if (model.notNull()) {
         model->pose(posed3D);
     }
+    glassModel->pose(posed3D, Vector3(0,8,0));
 }
 
 void App::onGraphics3D (RenderDevice *rd, Array< Surface::Ref >& surface) {
