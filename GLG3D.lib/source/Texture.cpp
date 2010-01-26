@@ -1452,7 +1452,6 @@ unsigned int Texture::newGLTextureID() {
     return id;
 }
 
-
 void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
     glStatePush();
 
@@ -1487,24 +1486,11 @@ void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
     }
 #   endif
 
-    double viewport[4];
-    glGetDoublev(GL_VIEWPORT, viewport);
-    GLint fb = glGetInteger(GL_FRAMEBUFFER_BINDING);
-    double viewportHeight = viewport[3];
-    debugAssertGLOk();
-    
-    bool invertY = (fb != GL_NONE);
-
-    int y = 0;
-    if (invertY) {
-        y = iRound(viewportHeight - rect.y1());
-    } else {
-        y = iRound(rect.y0());
-    }
     glCopyTexImage2D(target, 0, format()->openGLFormat,
                      iRound(rect.x0()), 
-                     y, 
-                     iRound(rect.width()), iRound(rect.height()), 
+                     iRound(rect.y0()), 
+                     iRound(rect.width()), 
+                     iRound(rect.height()), 
                      0);
 
     debugAssertGLOk();
@@ -1518,7 +1504,6 @@ void Texture::copyFromScreen(const Rect2D& rect, const ImageFormat* fmt) {
 
     m_sizeOfAllTexturesInMemory += sizeInMemory();
 }
-
 
 void Texture::copyFromScreen(
     const Rect2D&       rect,

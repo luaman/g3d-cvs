@@ -157,7 +157,6 @@ void App::onGraphics(RenderDevice* rd, Array<Surface::Ref>& surfaceArray, Array<
     rd->clear(true, true, true);
 
     rd->push2D();
-    sr->args.set("testuint", 5);
     sr->args.set("sourceTexture", sky->getEnvironmentMap());
     sr->args.set("bloomTexture", sky->getEnvironmentMap());
 

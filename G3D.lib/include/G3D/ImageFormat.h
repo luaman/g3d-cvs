@@ -192,7 +192,7 @@ public:
     /** @deprecated Use openGLBitsPerPixel */
     int                 hardwareBitsPerTexel;
 
-    /** The OpenGL bytes format of the data buffer used with this texture format, e.g., GL_UNSIGNED_BYTE */
+    /** The OpenGL bytes (type) format of the data buffer used with this texture format, e.g., GL_UNSIGNED_BYTE */
     int                 openGLDataFormat;
 
     /** True if there is no alpha channel for this texture. */

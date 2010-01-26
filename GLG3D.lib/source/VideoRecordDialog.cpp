@@ -255,7 +255,7 @@ void VideoRecordDialog::recordFrame(RenderDevice* rd) {
         }
         RenderDevice::ReadBuffer old = rd->readBuffer();
         rd->setReadBuffer(RenderDevice::READ_BACK);
-        m_downsampleSrc->copyFromScreen(Rect2D::xywh(0,0,rd->width(), rd->height()));
+        rd->copyTextureFromScreen(m_downsampleSrc, Rect2D::xywh(0,0,rd->width(), rd->height()));
         rd->setReadBuffer(old);
 
         if (m_downsampleFBO.isNull()) {

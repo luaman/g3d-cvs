@@ -628,7 +628,7 @@ void Surface::renderTransparents
                         refractBackground = Texture::createEmpty("Background", rd->width(), rd->height(), screenFormat, Texture::DIM_2D_NPOT, Texture::Settings::video());
                     }
 
-                    refractBackground->copyFromScreen(rd->viewport(), screenFormat);
+                    rd->copyTextureFromScreen(refractBackground, rd->viewport(), screenFormat);
                     didReadback = true;
                 }
 
@@ -670,6 +670,7 @@ void Surface::renderTransparents
                     // passing through two transparents to be
                     // reasonable anyway
                     refractShader->args.set("background", refractBackground);
+                    refractShader->args.set("backgroundInvertY", rd->framebuffer().notNull());
                     rd->setShader(refractShader);        
                     rd->setObjectToWorldMatrix(model->coordinateFrame());
                     gmodel->sendGeometry(rd);

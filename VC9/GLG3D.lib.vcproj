@@ -910,6 +910,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\data-files\SuperShader\SS_Refract.pix"
+				>
+			</File>
+			<File
+				RelativePath="..\data-files\SuperShader\SS_Refract.vrt"
+				>
+			</File>
+			<File
 				RelativePath="..\data-files\SuperShader\SS_ShadowMappedLightPass.pix"
 				>
 			</File>

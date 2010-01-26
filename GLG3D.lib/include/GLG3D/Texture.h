@@ -691,8 +691,9 @@ public:
       substantially slower than simply rendering to a
      G3D::Texture using a G3D::Framebuffer.</i>
 
-     The (x, y) coordinates are in real screen pixels.  (0, 0) is the top left
-     of the screen.
+     The (x, y) coordinates are in OpenGL coordinates.  If a FrameBuffer is bound then (0, 0) is the top left
+     of the screen.  When rendering directly to a window, (0,0) is the lower left.
+     Use RenderDevice::copyTextureFromScreen to obtain consistent coordinates.
 
      The texture dimensions will be updated but all other properties will be preserved:
      The previous wrap mode will be preserved.

@@ -442,7 +442,7 @@ GuiWindow::Modal::Modal(OSWindow* osWindow) : osWindow(osWindow) {
 
     RenderDevice::ReadBuffer old = renderDevice->readBuffer();
     renderDevice->setReadBuffer(RenderDevice::READ_FRONT);
-    image->copyFromScreen(viewport);
+    renderDevice->copyTextureFromScreen(image, viewport);
     renderDevice->setReadBuffer(old);
 }
 
@@ -502,11 +502,13 @@ void GuiWindow::Modal::oneFrame() {
         renderDevice->push2D();
         {
             renderDevice->setTexture(0, image);
-            // copyFromScreen makes the texture upside down
-            renderDevice->setTextureMatrix(0, Matrix4(1,  0,  0 , 0,
-                                                      0, -1,  0,  1, 
-                                                      0,  0,  1,  0,
-                                                      0,  0,  0,  1));
+            if (renderDevice->framebuffer().isNull()) {
+                // copyFromScreen makes the texture upside down
+                renderDevice->setTextureMatrix(0, Matrix4(1,  0,  0 , 0,
+                                                          0, -1,  0,  1, 
+                                                          0,  0,  1,  0,
+                                                          0,  0,  0,  1));
+            }
             Draw::rect2D(viewport, renderDevice, Color3::white() * 0.5f);
             
             // Desaturate the image by drawing white over it

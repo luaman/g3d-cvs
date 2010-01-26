@@ -76,18 +76,18 @@ void drawRect(const Rect2D& rect, RenderDevice* rd) {
 
 void App::onInit() {
 
-    showRenderingStats = false;
+    showRenderingStats = true;
     developerWindow->cameraControlWindow->setVisible(false);
     debugWindow->setVisible(true);
     debugWindow->moveTo(Vector2(0, 300));
 
-    setDesiredFrameRate(30);
+//    setDesiredFrameRate(30);
 
     model = ArticulatedModel::createHeightfield("c:/temp/test.png");
-    glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"));
+    glassModel = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), Matrix4::scale(2.0f, 2.0f, 2.0f));
 
     Material::Settings glass;
-    float eta = 1.9f;
+    float eta = 2.0f;
     glass.setEta(eta, 1.0f);
     glass.setSpecular(Color3::white() * 0.02f);
     glass.setShininess(SuperBSDF::packedSpecularMirror());
@@ -104,6 +104,8 @@ void App::onInit() {
     ArticulatedModel::Part::TriList::Ref outside = glassModel->partArray[0].triList[0];
     outside->material = Material::create(glass);
     outside->refractionHint = RefractionQuality::DYNAMIC_FLAT;
+
+    // Peak: ~ 750 fps
 
     // Inside (inverted)
     ArticulatedModel::Part::TriList::Ref inside = glassModel->partArray[0].newTriList(Material::create(air));
@@ -122,6 +124,7 @@ void App::onInit() {
     p2->addButton("Hello");
 
 }
+
 
 
 void App::onPose(Array<SurfaceRef>& posed3D, Array<Surface2DRef>& posed2D) {
@@ -202,6 +205,6 @@ int main(int argc, char** argv) {
     } 
  
     GApp::Settings set;
-    set.film.enabled = false;
+    set.film.enabled = true;
     return App(set).run();
 }

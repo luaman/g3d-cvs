@@ -1873,6 +1873,24 @@ void RenderDevice::setVertexAndPixelShader(const VertexAndPixelShaderRef& s) {
 }
 
 
+void RenderDevice::copyTextureFromScreen(const Texture::Ref& texture, const Rect2D& rect, const ImageFormat* format, int mipLevel, Texture::CubeFace face) {  
+    if (format == NULL) {
+        format = texture->format();
+    }
+
+    bool invertY = framebuffer().notNull();
+
+    int y = 0;
+    if (invertY) {
+        y = iRound(viewport().height() - rect.y1());
+    } else {
+        y = iRound(rect.y0());
+    }
+
+    texture->copyFromScreen(Rect2D::xywh(rect.x0(), y, rect.width(), rect.height()), format);
+}
+
+
 void RenderDevice::setVertexAndPixelShader(
     const VertexAndPixelShaderRef&          s,
     const VertexAndPixelShader::ArgList&    args) {

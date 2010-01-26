@@ -1,6 +1,7 @@
 
 // Image of the background plane
 uniform sampler2D background;
+uniform bool backgroundInvertY;
 
 // Camera space z position of the background plane; Negative number
 uniform float backZ;
@@ -47,8 +48,9 @@ void main(void) {
         // on the actual size of the background
         vec2 texCoord = (hit / backSizeMeters) + vec2(0.5);
 
-        // TODO: Fresnel
-
+        if (backgroundInvertY) {
+            texCoord.y = 1.0 - texCoord.y;
+        }
         gl_FragColor.rgb = texture2D(background, texCoord).rgb;
     }
 }
