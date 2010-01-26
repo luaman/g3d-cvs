@@ -17,9 +17,7 @@
 #ifdef G3D_OSX
 
 #include "GLG3D/OSWindow.h"
-
 #include <memory>
-#ifdef G3D_OSX
 
 /*
 #ifdef __LP64__
@@ -38,8 +36,6 @@
 #    define __LP64__
 #endif
 */
-
-#endif
 
 #include <AGL/agl.h>
 

@@ -91,9 +91,12 @@
 #define __GLX_glx_h__
 #define GLX_H
 
+// Avoid a conflict with QuickDraw
+#define Cursor X11Cursor
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <X11/Xmd.h>
+//#include <X11/Xmd.h>
+#undef Cursor
 #include <GLG3D/GL/glew.h>
 
 #ifdef __cplusplus
