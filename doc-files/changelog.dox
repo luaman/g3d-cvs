@@ -180,6 +180,7 @@
    <i>8.00 changes incompatible with G3D 7.xx and earlier:</i>
 
    <ul>
+     <li> G3D::Texture::PreProcess::brighten -> G3D::Texture::PreProcess::modulate 
      <li> SuperBSDF::packSpecularExponent now uses a nonlinear scale between 0 and 1025
      <li> G3D::MD2Model::create scale is now 1/2 the quake scale, so that a typical character is 2 meters tall
      <li> Removed G3D::Texture::invertY (See G3D::RenderDevice::invertY)

@@ -24,7 +24,7 @@ World::World() : m_mode(TRACE) {
     {
         ArticulatedModel::Ref sphere = ArticulatedModel::fromFile(System::findDataFile("sphere.ifs"), 0.3f);
         // Use the outside of the object as the interface into glass from air
-        Material::Settings glassAir;
+        Material::Specification glassAir;
         glassAir.setSpecular(Color3::white() * 0.2f);
         glassAir.setMirrorShininess();
         glassAir.setLambertian(Color3::black());
@@ -33,7 +33,7 @@ World::World() : m_mode(TRACE) {
         sphere->partArray[0].triList[0]->material = Material::create(glassAir);
 
         // Create the interface into air from glass
-        Material::Settings airGlass;
+        Material::Specification airGlass;
         airGlass.removeSpecular();
         airGlass.setLambertian(Color3::black());
         airGlass.setEta(1.0f, 1.3f);

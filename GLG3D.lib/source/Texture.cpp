@@ -205,7 +205,7 @@ const Texture::PreProcess& Texture::PreProcess::none() {
 
 const Texture::PreProcess& Texture::PreProcess::quake() {
     static Texture::PreProcess p;
-    p.brighten = 2.0f;
+    p.modulate = Color4::one() * 2.0f;
     p.gammaAdjust = 1.6f;
     return p;
 }
@@ -340,7 +340,7 @@ TextureRef Texture::gray() {
 /**
  Scales the intensity up or down of an entire image and gamma corrects.
  */
-static void brightenImage(ImageFormat::Code fmt, void* byte, int n, float brighten, float gamma);
+static void modulateImage(ImageFormat::Code fmt, void* byte, int n, const Color4& brighten, float gamma);
 
 static GLenum dimensionToTarget(Texture::Dimension d);
 
@@ -865,7 +865,7 @@ Texture::Ref Texture::fromMemory(
         debugAssertM(depth == 1, "Depth must be 1 for all textures that are not DIM_3D");
     }
 
-    if (preProcess.brighten != 1.0f || preProcess.gammaAdjust != 1.0f) {
+    if ((preProcess.modulate != Color4::one()) || (preProcess.gammaAdjust != 1.0f)) {
 
         debugAssert((bytesFormat->code == ImageFormat::CODE_RGB8) ||
             (bytesFormat->code == ImageFormat::CODE_RGBA8));
@@ -892,11 +892,11 @@ Texture::Ref Texture::fromMemory(
                     System::memcpy(const_cast<void*>(face[f]), _bytes[m][f], numBytes);
 
                     // Apply the processing to the copy
-                    brightenImage(
+                    modulateImage(
                         bytesFormat->code,
                         const_cast<void*>(face[f]),
                         numBytes,
-                        preProcess.brighten,
+                        preProcess.modulate,
                         preProcess.gammaAdjust);
                 }
             }
@@ -2172,7 +2172,7 @@ static void createMipMapTexture(
 }
 
 
-static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brighten, float gamma) {
+static void modulateImage(ImageFormat::Code fmt, void* _byte, int n, const Color4& modulate, float gamma) {
 
     debugAssert(
         (fmt == ImageFormat::CODE_RGB8) ||
@@ -2181,10 +2181,12 @@ static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brigh
     uint8* byte = static_cast<uint8*>(_byte);
 
     // Make a lookup table
-    uint8 bright[256];
-    for (int i = 0; i < 256; ++i) {
-        float s = pow((i * brighten) / 255.0f, gamma) * 255;
-        bright[i] = iClamp(iRound(s), 0, 255);
+    uint8 adjust[3][256];
+    for (int c = 0; c < 3; ++c) {
+        for (int i = 0; i < 256; ++i) {
+            float s = pow((i * modulate[c]) / 255.0f, gamma) * 255;
+            adjust[c][i] = iClamp(iRound(s), 0, 255);
+        }
     }
 
     int skipAlpha = 0;
@@ -2194,7 +2196,7 @@ static void brightenImage(ImageFormat::Code fmt, void* _byte, int n, float brigh
 
     for (int i = 0; i < n; i += skipAlpha) {
         for (int c = 0; c < 3; ++c, ++i) {
-            byte[i] = bright[byte[i]];
+            byte[i] = adjust[c][byte[i]];
         }
     }
 }

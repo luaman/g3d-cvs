@@ -5,8 +5,8 @@
 
   @maintainer Morgan McGuire, morgan@cs.williams.edu
   @created 2001-04-22
-  @edited  2009-05-28
-  Copyright 2000-2009, Morgan McGuire.
+  @edited  2010-01-28
+  Copyright 2000-2010, Morgan McGuire.
   All rights reserved.
  */
 
@@ -35,6 +35,31 @@ namespace G3D {
 
 /**
  An unordered data structure mapping keys to values.
+
+ There are two ways of definining custom hash functions (G3D provides built-in ones for most classes):
+
+ <pre>
+ class Foo {
+ public:
+     std::string     name;
+     int             index;
+     static size_t hashCode(const Foo& key) {
+          return HashTrait<std::string>::hashCode(key.name) + key.index;
+     }
+  };
+
+  template<> struct HashTrait<class Foo> {
+       static size_t hashCode(const Foo& key) { return HashTrait<std::string>::hashCode(key.name) + key.index; }
+  }; 
+
+
+  // Use Foo::hashCode
+  Table<Foo, std::string, Foo> fooTable1;
+
+  // Use HashTrait<Foo>
+  Table<Foo, std::string>      fooTable2;
+  </pre>
+
 
  Key must be a pointer, an int, a std::string or provide overloads for: 
 

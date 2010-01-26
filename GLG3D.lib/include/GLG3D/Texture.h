@@ -381,11 +381,11 @@ public:
     class PreProcess {
     public:
 
-        /** Amount to brighten colors by (e.g., useful for Quake
-            textures, which are dark).  Brightening happens first of
+        /** Multiplies color channels.  Useful for rescaling to make textures brighter (e.g., for Quake
+            textures, which are dark) or to tint textures as they are loaded.  Modulation happens first of
             all preprocessing.
          */
-        float                       brighten;
+        Color4                      modulate;
 
         /**
            After brightening, each (unit-scale) pixel is raised to
@@ -428,7 +428,7 @@ public:
 
         bool                        normalMapScaleHeightByNz;
 
-        PreProcess() : brighten(1.0f), gammaAdjust(1.0f), scaleFactor(1.0f), computeMinMaxMean(true),
+        PreProcess() : modulate(Color4::one()), gammaAdjust(1.0f), scaleFactor(1.0f), computeMinMaxMean(true),
                        computeNormalMap(false), normalMapLowPassBump(false),
                        normalMapWhiteHeightInPixels(-0.02f), normalMapScaleHeightByNz(false) {}
 

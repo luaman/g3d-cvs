@@ -369,7 +369,6 @@ Material::Settings ArticulatedModel::compute3DSMaterial
     const Load3DS::Material& material = *reinterpret_cast<const Load3DS::Material*>(ptr);
 
     Material::Settings spec;
-    spec.setName(material.name);
 
     if (preprocess.stripMaterials) {
         spec.setLambertian(Color3::one() * 0.7f);

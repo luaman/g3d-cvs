@@ -19,7 +19,7 @@ public:
         model = MD2Model::fromFile(filename + ".md2");
 
 	    Texture::PreProcess preProcess;
-	    preProcess.brighten = 2.0;
+        preProcess.modulate = Color4::one() * 2.0f;
         material.texture.append(Texture::fromFile(filename + ".pcx", 
             ImageFormat::AUTO(), Texture::DIM_2D, Texture::Settings(), preProcess));
     }

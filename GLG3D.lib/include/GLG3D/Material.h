@@ -48,18 +48,14 @@ public:
     /** @brief Specification of a material; used for loading.  
     
         Can be written to a file or constructed from a series of calls.
-        Two Settings compare as equal if all properties (except their 
-        names) are identical. 
         
-      The following terminology for photon scattering is used in the G3D::Material::Settings and G3D::BSDF classes and 
+      The following terminology for photon scattering is used in the G3D::Material::Specification and G3D::BSDF classes and 
       their documentation:
       \image html scatter-terms.png        
         */
-    class Settings {
+    class Specification {
     private:
         friend class Material;
-
-        std::string     m_name;
 
         std::string     m_lambertianFilename;
         Color4          m_lambertianConstant;
@@ -97,12 +93,12 @@ public:
 
     public:
 
-        Settings();
+        Specification();
 
-        bool operator==(const Settings& s) const;
+        bool operator==(const Specification& s) const;
         operator Any() const;
 
-        inline bool operator!=(const Settings& s) const {
+        inline bool operator!=(const Specification& s) const {
             return !((*this) == s);
         }
 
@@ -192,10 +188,6 @@ public:
         
         void removeTransmissive();
 
-        inline void setName(const std::string& s) {
-            m_name = s;
-        }
-
         /** Set the index of refraction. Not used unless transmissive is non-zero. */
         void setEta(float etaTransmit, float etaReflect);
 
@@ -213,6 +205,9 @@ public:
 
         size_t hashCode() const;
     };
+
+    /** \deprecated */
+    typedef Specification Settings;
 
 protected:
 
@@ -260,7 +255,7 @@ public:
        (note: it will automatically copy to the CPU as needed, but that 
        process is not threadsafe).
      */
-    static Material::Ref create(const Settings& settings = Settings());
+    static Material::Ref create(const Specification& settings = Specification());
 
     /**
      Create a G3D::Material using a Lambertian (pure diffuse) G3D::BSDF with color @a p_Lambertian.

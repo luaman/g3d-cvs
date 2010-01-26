@@ -899,7 +899,7 @@ Texture::Ref MD2Model::textureFromFile(const std::string& filename) {
     settings.wrapMode = WrapMode::CLAMP;
 
     Texture::PreProcess preprocess;
-    preprocess.brighten = 2.0f;
+    preprocess.modulate = Color4::one() * 2.0f;
 
     return Texture::fromFile(filename, ImageFormat::AUTO(), Texture::DIM_2D, settings, preprocess);
 }

@@ -1,5 +1,5 @@
 /**
- @file   Material_Settings.h
+ @file   Material_Specification.h
  @author Morgan McGuire, morgan@cs.williams.edu
  @date   2009-03-10
 */
@@ -8,7 +8,7 @@
 
 namespace G3D {
 
-Material::Settings::Settings() : 
+Material::Specification::Specification() : 
   m_lambertianFilename(""), 
   m_lambertianConstant(Color4(0.85f, 0.85f, 0.85f, 1.0f)),
   m_specularFilename(""),
@@ -30,7 +30,7 @@ Material::Settings::Settings() :
 
 
 /*
-Material::Settings::Settings(const Any& a) {
+Material::Specification::Specification(const Any& a) {
     alwaysAssertM(a.type() == AnyVal::TABLE, "Must be a table of values");
 
     m_name = a.get("name", "Untitled").string();
@@ -65,16 +65,15 @@ Material::Settings::Settings(const Any& a) {
         m_bumpFilename = "";
     }
 
-    m_textureSettings  = Texture::Settings::fromAnyVal(a.get("textureSettings"));
+    m_textureSettings  = Texture::Specification::fromAnyVal(a.get("textureSpecification"));
     m_textureDimension = 
         (a.get("textureDimension", "DIM_2D_NPOT").string() == "DIM_2D") ? 
         Texture::DIM_2D : Texture::DIM_2D_NPOT;
 }
 */
 
-Material::Settings::operator Any() const {
+Material::Specification::operator Any() const {
     Any a(Any::TABLE);
-    a.set("name", m_name);
     a.set("lambertianFilename", m_lambertianFilename);
     a.set("lambertianConstant", m_lambertianConstant);
 
@@ -100,7 +99,7 @@ Material::Settings::operator Any() const {
     b.set("normalMapWhiteHeightInPixels", m_normalMapWhiteHeightInPixels);
     a.set("bump", b);
 
-//    a.set("textureSettings", m_textureSettings);  TODO
+//    a.set("textureSpecification", m_textureSettings);  TODO
     a.set("textureDimension", (m_textureDimension == Texture::DIM_2D) ? 
         "DIM_2D" : "DIM_2D_NPOT");
 
@@ -108,55 +107,55 @@ Material::Settings::operator Any() const {
 }
 
 
-void Material::Settings::setLambertian(const std::string& filename, const Color4& constant) {
+void Material::Specification::setLambertian(const std::string& filename, const Color4& constant) {
     m_lambertianFilename = filename;
     m_lambertianConstant = constant;
 }
 
 
-void Material::Settings::setLambertian(const Color4& constant) {
+void Material::Specification::setLambertian(const Color4& constant) {
     setLambertian("", constant);
 }
 
 
-void Material::Settings::removeLambertian() {
+void Material::Specification::removeLambertian() {
     setLambertian(Color4(0,0,0,1));
 }
 
 
-void Material::Settings::setEmissive(const std::string& filename, const Color3& constant) {
+void Material::Specification::setEmissive(const std::string& filename, const Color3& constant) {
     m_emissiveFilename = filename;
     m_emissiveConstant = constant;
 }
 
 
-void Material::Settings::setEmissive(const Color3& constant) {
+void Material::Specification::setEmissive(const Color3& constant) {
     setEmissive("", constant);
 }
 
 
-void Material::Settings::removeEmissive() {
+void Material::Specification::removeEmissive() {
     setEmissive(Color3::zero());
 }
 
 
-void Material::Settings::setSpecular(const std::string& filename, const Color3& constant) {
+void Material::Specification::setSpecular(const std::string& filename, const Color3& constant) {
     m_specularFilename = filename;
     m_specularConstant = constant;
 }
 
 
-void Material::Settings::setSpecular(const Color3& constant) {
+void Material::Specification::setSpecular(const Color3& constant) {
     setSpecular("", constant);
 }
 
 
-void Material::Settings::removeSpecular() {
+void Material::Specification::removeSpecular() {
     setSpecular(Color3::zero());
 }
 
 
-void Material::Settings::setShininess(const std::string& filename, float constant) {
+void Material::Specification::setShininess(const std::string& filename, float constant) {
     m_shininessFilename = filename;
     m_shininessConstant = constant;
     if (constant == SuperBSDF::packedSpecularNone()) {
@@ -165,28 +164,28 @@ void Material::Settings::setShininess(const std::string& filename, float constan
 }
 
 
-void Material::Settings::setShininess(float constant) {
+void Material::Specification::setShininess(float constant) {
     setShininess("", constant);
 }
 
 
-void Material::Settings::setTransmissive(const std::string& filename, const Color3& constant) {
+void Material::Specification::setTransmissive(const std::string& filename, const Color3& constant) {
     m_transmissiveFilename = filename;
     m_transmissiveConstant = constant;
 }
 
 
-void Material::Settings::setTransmissive(const Color3& constant) {
+void Material::Specification::setTransmissive(const Color3& constant) {
     setTransmissive("", constant);
 }
 
 
-void Material::Settings::removeTransmissive() {
+void Material::Specification::removeTransmissive() {
     setTransmissive(Color3::zero());
 }
 
 
-void Material::Settings::setEta(float etaTransmit, float etaReflect) {
+void Material::Specification::setEta(float etaTransmit, float etaReflect) {
     m_etaTransmit = etaTransmit;
     m_etaReflect = etaReflect;
     debugAssert(m_etaTransmit > 0);
@@ -196,23 +195,23 @@ void Material::Settings::setEta(float etaTransmit, float etaReflect) {
 }
 
 
-void Material::Settings::setBump
+void Material::Specification::setBump
 (const std::string&         filename, 
- const BumpMap::Settings&   settings,
+ const BumpMap::Settings&   Specification,
  float 	                    normalMapWhiteHeightInPixels) {
     
      m_bumpFilename                 = filename;
      m_normalMapWhiteHeightInPixels = normalMapWhiteHeightInPixels;
-     m_bumpSettings                 = settings;
+     m_bumpSettings                 = Specification;
 }
 
 
-void Material::Settings::removeBump() {
+void Material::Specification::removeBump() {
     setBump("");
 }
 
 
-bool Material::Settings::operator==(const Settings& s) const {
+bool Material::Specification::operator==(const Specification& s) const {
     return 
         (m_lambertianFilename == s.m_lambertianFilename) &&
         (m_lambertianConstant == s.m_lambertianConstant) &&
@@ -240,7 +239,7 @@ bool Material::Settings::operator==(const Settings& s) const {
 }
 
 
-size_t Material::Settings::hashCode() const {
+size_t Material::Specification::hashCode() const {
     return 
         HashTrait<std::string>::hashCode(m_lambertianFilename) ^
         m_lambertianConstant.hashCode() ^
@@ -261,7 +260,7 @@ size_t Material::Settings::hashCode() const {
 }
 
 
-Component4 Material::Settings::loadLambertian() const {
+Component4 Material::Specification::loadLambertian() const {
     Texture::Ref texture;
 
     if (m_lambertianFilename != "") {
@@ -276,7 +275,7 @@ Component4 Material::Settings::loadLambertian() const {
 }
 
 
-Component3 Material::Settings::loadTransmissive() const {
+Component3 Material::Specification::loadTransmissive() const {
     Texture::Ref texture;
 
     if (m_transmissiveFilename != "") {
@@ -291,7 +290,7 @@ Component3 Material::Settings::loadTransmissive() const {
 }
 
 
-Component4 Material::Settings::loadSpecular() const {
+Component4 Material::Specification::loadSpecular() const {
     Texture::Ref texture;
 
     if (m_specularFilename != "") {
@@ -335,7 +334,7 @@ Component4 Material::Settings::loadSpecular() const {
 }
 
 
-Component3 Material::Settings::loadEmissive() const {
+Component3 Material::Specification::loadEmissive() const {
     Texture::Ref texture;
 
     if (m_emissiveFilename != "") {

@@ -34,7 +34,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 	std::string resourceDir = filenamePath(filename);
 
 	Texture::PreProcess p;
-	p.brighten = 2.0;
+    p.modulate = Color4::one() * 2.0f;
 
 	//Character texture handling
 	Array<std::string> files;
@@ -75,7 +75,7 @@ void MD2Viewer::onInit(const std::string& filename) {
 	}
 
 	if (desiredTexture != "") {
-        p.brighten = endsWith(toLower(desiredTexture), ".pcx") ? 2.0 : 1.0;
+        p.modulate = Color4::one() * (endsWith(toLower(desiredTexture), ".pcx") ? 2.0f : 1.0f);
 		materials[0].texture.push(Texture::fromFile(desiredTexture,
 													ImageFormat::AUTO(),
 													Texture::DIM_2D,
@@ -91,8 +91,8 @@ void MD2Viewer::onInit(const std::string& filename) {
 		materials.push(GMaterial());
 	}
 
-	if(fileExists(resourceDir + "weapon.pcx") && validWeapon){
-        p.brighten = 2.0;
+	if (fileExists(resourceDir + "weapon.pcx") && validWeapon){
+        p.modulate = Color4::one() * 2.0f;
 		materials[1].texture.push(Texture::fromFile(resourceDir + "weapon.pcx",
 													ImageFormat::AUTO(),
 													Texture::DIM_2D,

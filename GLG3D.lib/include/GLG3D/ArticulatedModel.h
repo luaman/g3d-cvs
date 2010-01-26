@@ -121,8 +121,25 @@ public:
         float                         normalMapWhiteHeightInPixels;
 
         /** During loading, whenever a material whose diffuse texture is named X is specified, it is automatically replaced
-         with materialSubstitution[X].*/
+            with materialSubstitution[X].*/
         Table<std::string, Material::Ref> materialSubstitution;
+
+        class TriListKey {
+        public:
+            /** If "*", this applies to all parts */
+            std::string     partName;
+
+            /** If "-1", this applies to all indices */
+            int             triListIndex;
+            TriListKey() : partName("*"), triListIndex(-1) {}
+
+            static size_t hashCode(const TriListKey& key) {
+                return HashTrait<std::string>::hashCode(key.partName) + key.triListIndex;
+            }
+        };
+
+        /** This occurs after materialSubstitution */
+        Table<TriListKey, Material::Ref, TriListKey> materialOverride;
         
         PreProcess(const Any& any);
         operator Any() const;
