@@ -124,6 +124,7 @@ public:
             with materialSubstitution[X].*/
         Table<std::string, Material::Ref> materialSubstitution;
 
+        /** Reserved for future use */
         class TriListKey {
         public:
             /** If "*", this applies to all parts */
@@ -138,8 +139,8 @@ public:
             }
         };
 
-        /** This occurs after materialSubstitution */
-        Table<TriListKey, Material::Ref, TriListKey> materialOverride;
+        /** Override all materials with this one, if non-NULL.  This forces stripMaterials to be true.*/
+        Material::Ref           materialOverride;
         
         PreProcess(const Any& any);
         operator Any() const;

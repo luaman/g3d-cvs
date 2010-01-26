@@ -63,7 +63,9 @@ ArticulatedModel::PreProcess::PreProcess(const Any& any) {
             bumpMapScale = it->value;
         } else if (key == "normalmapwhiteheightinpixels") {
             normalMapWhiteHeightInPixels = it->value;
-        } else if (key == "materialSubstitution") {
+        } else if (key == "materialsubstitution") {
+            // TODO
+        } else if (key == "materialoverride") {
             // TODO
         } else {
             any.verify(false, "Illegal key: " + it->key);
@@ -74,6 +76,9 @@ ArticulatedModel::PreProcess::PreProcess(const Any& any) {
 ArticulatedModel::PreProcess::operator Any() const {
     Any a(Any::TABLE, "ArticulatedModel::PreProcess");
     a.set("stripMaterials", stripMaterials);
+
+
+    // TODO: a.set("materialOverride", stripMaterials);
     // a["textureDimension"] = TODO
     a.set("addBumpMaps", addBumpMaps);
     a.set("xform", xform.operator Any());
@@ -188,6 +193,15 @@ ArticulatedModel::Ref ArticulatedModel::fromFile(const std::string& filename, co
         model->init3DS(filename, preprocess);
     } else if ((ext == "ifs") || (ext == "ply2") || (ext == "off")) {
         model->initIFS(filename, preprocess.xform);
+    }
+
+    if (preprocess.materialOverride.notNull()) {
+        for (int p = 0; p < model->partArray.size(); ++p) {
+            Part& part = model->partArray[p];
+            for (int t = 0; t < part.triList.size(); ++t) {
+                part.triList[t]->material = preprocess.materialOverride;
+            }
+        }
     }
 
     model->updateAll();
@@ -370,7 +384,7 @@ Material::Settings ArticulatedModel::compute3DSMaterial
 
     Material::Settings spec;
 
-    if (preprocess.stripMaterials) {
+    if (preprocess.stripMaterials || preprocess.materialOverride.notNull()) {
         spec.setLambertian(Color3::one() * 0.7f);
         spec.setSpecular(Color3::one() * 0.2f);
         spec.setGlossyExponentShininess(100);
