@@ -5,11 +5,11 @@
  @edited  2008-07-15
 
  G3D Library http://g3d.sf.net
- Copyright 2001-2008, Morgan McGuire morgan@cs.williams.edu
+ Copyright 2001-2010, Morgan McGuire morgan@cs.williams.edu
  All rights reserved.
 */
-#ifndef G3D_GUICONTAINER_H
-#define G3D_GUICONTAINER_H
+#ifndef G3D_GuiContainer_h
+#define G3D_GuiContainer_h
 
 #include "G3D/Rect2D.h"
 #include "GLG3D/GuiControl.h"
@@ -18,7 +18,12 @@ namespace G3D {
 
 
 /**
- Base class for controls that contain other controls.
+ \brief Base class for controls that contain other controls.  
+
+ This class contains helper routines for processing internal controls and 
+ is treated specially during layout and rendering by GuiPane.
+
+ See GuiTextureBox's source code for an example of how to build a GuiControl subclass.
 
  All coordinates of objects inside a pane are relative to the container's
  clientRect().  
