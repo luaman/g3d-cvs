@@ -4,7 +4,7 @@
   @maintainer Morgan McGuire, morgan@cs.williams.edu
 
   @created 2001-02-28
-  @edited  2009-09-23
+  @edited  2010-01-27
 */
 
 #ifndef GLG3D_Texture_h
@@ -45,6 +45,9 @@ typedef ReferenceCountedPointer<Texture> TextureRef;
 
  If you enable texture compression, textures will be compressed on the fly.
  This can be slow (up to a second).
+
+ The special filename "<white>" generates an all-white Color4 texture.  You can use PreProcess::modulate
+ to create other colors from this.
 
  Unless DIM_2D_RECT, DIM_2D_NPOT, DIM_CUBE_MAP_NPOT are used, the texture is automatically
  scaled to the next power of 2 along each dimension to meet hardware requirements, if not

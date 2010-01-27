@@ -342,14 +342,22 @@ static void glStatePop() {
 
 
 Texture::Ref Texture::createColor(const Color3uint8& c) {
-    // TODO
-     return NULL;
+    Texture::Specification s;
+    s.filename = "<white>";
+    s.preProcess.modulate = Color4uint8(c, 255);
+    s.settings.interpolateMode = NEAREST_NO_MIPMAP;
+    s.desiredFormat = ImageFormat::RGB8();
+    return Texture::create(s);
 }
 
 
 Texture::Ref Texture::createColor(const Color4uint8& c) {
-    // TODO:
-     return NULL;
+    Texture::Specification s;
+    s.filename = "<white>";
+    s.preProcess.modulate = c;   
+    s.settings.interpolateMode = NEAREST_NO_MIPMAP;
+    s.desiredFormat = ImageFormat::RGBA8();
+    return Texture::create(s);
 }
 
 
@@ -674,7 +682,12 @@ Texture::Ref Texture::fromFile(
     GImage image[6];
 
     for (int f = 0; f < numFaces; ++f) {
-        image[f].load(realFilename[f]);
+        if (toLower(realFilename[f]) == "<white>") {
+            image[f].resize(1, 1, 4, false);
+            image[f].pixel4(0, 0) = Color4uint8(255, 255, 255, 255);
+        } else {
+            image[f].load(realFilename[f]);
+        }
         //debugPrintf("Loading %s\n", realFilename[f].c_str());
         alwaysAssertM(image[f].width() > 0, "Image not found");
         alwaysAssertM(image[f].height() > 0, "Image not found");
