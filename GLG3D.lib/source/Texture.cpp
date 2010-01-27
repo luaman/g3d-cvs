@@ -341,17 +341,15 @@ static void glStatePop() {
 }  
 
 
-Texture::Ref Texture::createColor
-(const Color3uint8& c, 
- const ImageFormat* format) {
+Texture::Ref Texture::createColor(const Color3uint8& c) {
     // TODO
+     return NULL;
 }
 
 
-Texture::Ref Texture::createColor
-(const Color4uint8& c, 
- const ImageFormat* format) {
+Texture::Ref Texture::createColor(const Color4uint8& c) {
     // TODO:
+     return NULL;
 }
 
 

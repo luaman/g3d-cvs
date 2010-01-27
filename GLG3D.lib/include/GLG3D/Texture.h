@@ -269,15 +269,11 @@ public:
         or future calls will return the mutated texture as well. */
     static Texture::Ref gray();
 
-    /** Creates a new 1x1 texture in this color */
-    static Texture::Ref createColor
-    (const Color3uint8& c, 
-     const ImageFormat* format = ImageFormat::RGB8());
+    /** Creates a new 1x1 texture in this color. Colors are not cached.*/
+    static Texture::Ref createColor(const Color3uint8& c);
 
-    /** Creates a new 1x1 texture in this color */
-    static Texture::Ref createColor
-    (const Color4uint8& c, 
-     const ImageFormat* format = ImageFormat::RGBA8());
+    /** Creates a new 1x1 texture in this color. Colors are not cached.*/
+    static Texture::Ref createColor(const Color4uint8& c);
 
     /** @copydoc white(). */
     inline static Texture::Ref one() {
